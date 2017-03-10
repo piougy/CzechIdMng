@@ -54,6 +54,14 @@ public interface IdmIdentityContractService extends ReadWriteEntityService<IdmId
 	 * @param identity
 	 * @return
 	 */
-	IdmIdentityContract prepareDefaultContract(IdmIdentity identity);
+	IdmIdentityContract prepareDefaultContract(IdmIdentity identity);	
 	
+	/**
+	 * Returns given identity's prime contract.
+	 * If no main contract is defined, then returns the first contract with working position defined (default tree type has higher priority).
+	 * 
+	 * @param identity
+	 * @return
+	 */
+	IdmIdentityContract getPrimeContract(IdmIdentity identity);
 }

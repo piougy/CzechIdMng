@@ -16,11 +16,14 @@ import eu.bcvsolutions.idm.core.model.dto.filter.RoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.event.RoleEvent;
 import eu.bcvsolutions.idm.core.model.event.RoleEvent.RoleEventType;
+import eu.bcvsolutions.idm.core.model.event.processor.RoleDeleteProcessor;
+import eu.bcvsolutions.idm.core.model.event.processor.RoleSaveProcessor;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 
 /**
  * Default role service
+ * - supports {@link RoleEvent}
  * 
  * @author Radek Tomiška
  *
@@ -30,19 +33,19 @@ public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, Role
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmRoleService.class);
 	private final IdmRoleRepository repository;
-	private final EntityEventManager entityEventProcessorService;
+	private final EntityEventManager entityEventManager;
 	
 	@Autowired
 	public DefaultIdmRoleService(
 			IdmRoleRepository repository,
-			EntityEventManager entityEventProcessorService,
+			EntityEventManager entityEventManager,
 			FormService formService) {
 		super(repository, formService);
 		//
-		Assert.notNull(entityEventProcessorService);
+		Assert.notNull(entityEventManager);
 		//
 		this.repository = repository;
-		this.entityEventProcessorService = entityEventProcessorService;
+		this.entityEventManager = entityEventManager;
 	}
 
 	@Override
@@ -51,19 +54,33 @@ public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, Role
 		return repository.findOneByName(name);
 	}
 	
+	/**
+	 * Publish {@link RoleEvent} only.
+	 * 
+	 * @see {@link RoleSaveProcessor}
+	 */
 	@Override
 	@Transactional
-	public IdmRole save(IdmRole entity) {
-		return super.save(entity);
+	public IdmRole save(IdmRole role) {
+		Assert.notNull(role);
+		//
+		LOG.debug("Saving role [{}]", role.getName());
+		//
+		return entityEventManager.process(new RoleEvent(isNew(role) ? RoleEventType.CREATE : RoleEventType.UPDATE, role)).getContent();
 	}
 	
+	/**
+	 * Publish {@link RoleEvent} only.
+	 * 
+	 * @see {@link RoleDeleteProcessor}
+	 */
 	@Override
 	@Transactional
 	public void delete(IdmRole role) {
 		Assert.notNull(role);
 		//
 		LOG.debug("Deleting role [{}]", role.getName());
-		entityEventProcessorService.process(new RoleEvent(RoleEventType.DELETE, role));
+		entityEventManager.process(new RoleEvent(RoleEventType.DELETE, role));
 	}
 	
 	@Override

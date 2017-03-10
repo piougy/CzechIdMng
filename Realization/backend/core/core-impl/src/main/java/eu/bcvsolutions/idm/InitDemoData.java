@@ -25,13 +25,13 @@ import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.model.domain.IdmPasswordPolicyType;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityFormValue;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleComposition;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
+import eu.bcvsolutions.idm.core.model.entity.eav.IdmIdentityFormValue;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
@@ -389,6 +389,17 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				treeNodeExt.setDescription("Tree node's custom extended attribute");
 				
 				formService.createDefinition(IdmTreeNode.class, Lists.newArrayList(treeNodeExt));
+				
+				//
+				// demo eav identity contract's form
+				IdmFormAttribute identityContractExt = new IdmFormAttribute();
+				identityContractExt.setName("extAttr");
+				identityContractExt.setDisplayName("Ext.attr");
+				identityContractExt.setPersistentType(PersistentType.TEXT);
+				identityContractExt.setConfidential(false);
+				identityContractExt.setDescription("Identity contract's custom extended attribute");
+				
+				formService.createDefinition(IdmIdentityContract.class, Lists.newArrayList(identityContractExt));
 			}
 		} catch(Exception ex) {
 			LOG.warn("Demo data was not created", ex);

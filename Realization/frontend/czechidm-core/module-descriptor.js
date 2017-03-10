@@ -68,7 +68,25 @@ module.exports = {
             'order': 50,
             'path': '/identity/:entityId/contracts',
             'icon': 'fa:building',
-            'access': [ { 'type': 'IS_AUTHENTICATED' } ]
+            'access': [ { 'type': 'IS_AUTHENTICATED' } ],
+            'items': [
+              {
+                'id': 'identity-contract-detail',
+                'type': 'TAB',
+                'labelKey': 'content.identity-contract.detail.label',
+                'order': 10,
+                'path': '/identity/:identityId/identity-contract/:entityId/detail',
+                'access': [ { 'type': 'IS_AUTHENTICATED' } ]
+              },
+              {
+                'id': 'identity-contract-eav',
+                'type': 'TAB',
+                'labelKey': 'content.identity-contract.eav.label',
+                'order': 20,
+                'path': '/identity/:identityId/identity-contract/:entityId/eav',
+                'access': [ { 'type': 'IS_AUTHENTICATED' } ]
+              }
+            ]
           },
           {
             'id': 'profile-audit',
@@ -148,23 +166,42 @@ module.exports = {
         'order': 999
       },
       {
-        'id': 'roles',
-        'type': 'DYNAMIC',
-        'labelKey': 'content.roles.header',
-        'titleKey': 'content.roles.title',
+        'id': 'roles-menu',
+        'labelKey': 'content.roles.menu-title',
+        'titleKey': 'content.roles.menu-title',
         'icon': 'fa:universal-access',
         'iconColor': '#eb9316',
         'order': 1030,
-        'path': '/roles',
         'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ'] } ],
         'items': [
           {
-            'id': 'role-detail',
-            'type': 'TAB',
-            'labelKey': 'content.roles.tabs.basic',
+            'id': 'roles',
+            'type': 'DYNAMIC',
+            'labelKey': 'content.roles.header',
+            'titleKey': 'content.roles.title',
+            'icon': 'fa:universal-access',
+            'iconColor': '#eb9316',
             'order': 10,
-            'path': '/role/:entityId/detail',
-            'icon': 'fa:newspaper-o'
+            'path': '/roles',
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ'] } ],
+            'items': [
+              {
+                'id': 'role-detail',
+                'type': 'TAB',
+                'labelKey': 'content.roles.tabs.basic',
+                'order': 10,
+                'path': '/role/:entityId/detail',
+                'icon': 'fa:newspaper-o'
+              },
+              {
+                'id': 'role-identities',
+                'type': 'TAB',
+                'labelKey': 'content.role.identities.title',
+                'order': 20,
+                'path': '/role/:entityId/identities',
+                'icon': 'fa:group'
+              }
+            ]
           },
           {
             'id': 'role-eav',
@@ -181,6 +218,20 @@ module.exports = {
             'order': 20,
             'path': '/role/:entityId/identities',
             'icon': 'fa:group'
+          },
+          {
+            'id': 'role-tree-nodes',
+            'type': 'TAB',
+            'labelKey': 'content.role.tree-nodes.label',
+            'titleKey': 'content.role.tree-nodes.title',
+            'order': 30,
+            'path': '/role/:entityId/tree-nodes'
+          },
+          {
+            'id': 'role-requests',
+            'labelKey': 'content.roleRequests.title',
+            'order': 20,
+            'path': '/request-roles'
           }
         ]
       },
@@ -426,9 +477,16 @@ module.exports = {
                     'id': 'tree-node-eav',
                     'type': 'TAB',
                     'labelKey': 'content.tree.node.eav.title',
-                    'order': 11,
-                    'priority': 0,
+                    'order': 20,
                     'path': '/tree/nodes/:entityId/eav',
+                  },
+                  {
+                    'id': 'tree-node-roles',
+                    'type': 'TAB',
+                    'labelKey': 'content.tree.node.roles.label',
+                    'titleKey': 'content.tree.node.roles.title',
+                    'order': 30,
+                    'path': '/tree/nodes/:entityId/roles'
                   }
                 ]
               },

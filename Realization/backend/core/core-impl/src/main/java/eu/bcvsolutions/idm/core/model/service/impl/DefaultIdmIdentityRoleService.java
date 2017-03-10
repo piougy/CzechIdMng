@@ -132,6 +132,7 @@ public class DefaultIdmIdentityRoleService extends AbstractReadWriteEntityServic
 
 	@Override
 	@Transactional
+	@Deprecated
 	public IdmIdentityRole addByDto(IdmIdentityRoleDto dto) {
 		Assert.notNull(dto);
 		//
@@ -139,17 +140,18 @@ public class DefaultIdmIdentityRoleService extends AbstractReadWriteEntityServic
 		return this.save(toEntity(dto, identityRole));
 	}
 
+	@Deprecated
 	private IdmIdentityRole toEntity(IdmIdentityRoleDto identityRoleDto, IdmIdentityRole identityRole) {
 		if (identityRoleDto == null || identityRole == null) {
 			return null;
 		}
 		IdmRole role = identityRole.getRole();
 		IdmIdentityContract identityContract = identityRole.getIdentityContract();
-		if (identityRoleDto.getRoleId() != null) {
-			role = roleRepository.findOne(identityRoleDto.getRoleId());
+		if (identityRoleDto.getRole() != null) {
+			role = roleRepository.findOne(identityRoleDto.getRole());
 		}
-		if (identityRoleDto.getIdentityContractId() != null) {
-			identityContract = identityContractRepository.findOne(identityRoleDto.getIdentityContractId());
+		if (identityRoleDto.getIdentityContract() != null) {
+			identityContract = identityContractRepository.findOne(identityRoleDto.getIdentityContract());
 		}
 		identityRole.setRole(role);
 		identityRole.setIdentityContract(identityContract);
@@ -159,4 +161,5 @@ public class DefaultIdmIdentityRoleService extends AbstractReadWriteEntityServic
 		identityRole.setOriginalModifier(identityRoleDto.getOriginalModifier());
 		return identityRole;
 	}
+	
 }

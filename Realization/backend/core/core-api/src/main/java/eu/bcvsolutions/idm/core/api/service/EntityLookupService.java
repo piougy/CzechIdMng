@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import org.springframework.data.rest.core.support.EntityLookup;
 
+import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 
 /**
@@ -45,6 +46,15 @@ public interface EntityLookupService {
 	 * @return
 	 */
 	<E extends BaseEntity> ReadEntityService<E, ?> getEntityService(Class<E> entityClass);
+
+	/**
+	 * Returns base service for given dto
+	 * 
+	 * @param dtoClass
+	 * @param <DTO> {@link BaseDto} type
+	 * @return
+	 */
+	<DTO extends BaseDto> ReadDtoService<DTO, ?, ?> getDtoService(Class<DTO> dtoClass);
 	
 	/**
 	 * Returns base service for given entity in given type

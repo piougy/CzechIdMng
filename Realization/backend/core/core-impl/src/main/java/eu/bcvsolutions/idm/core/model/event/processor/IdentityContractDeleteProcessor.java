@@ -43,6 +43,11 @@ public class IdentityContractDeleteProcessor extends CoreEventProcessor<IdmIdent
 	}
 	
 	@Override
+	public String getName() {
+		return PROCESSOR_NAME;
+	}
+	
+	@Override
 	public EventResult<IdmIdentityContract> process(EntityEvent<IdmIdentityContract> event) {
 		IdmIdentityContract contract = event.getContent();
 		//

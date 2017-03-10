@@ -134,12 +134,12 @@ export default class IdentityManager extends FormableEntityManager {
    * @param  {string} uiKey
    * @return {array[object]}
    */
-  fetchOrganizationPosition(username, uiKey) {
+  fetchWorkPosition(username, uiKey) {
     return (dispatch) => {
       dispatch(this.dataManager.requestData(uiKey));
-      this.getService().getOrganizationPosition(username)
+      this.getService().getWorkPosition(username)
         .then(json => {
-          dispatch(this.dataManager.receiveData(uiKey, json._embedded && json._embedded.treeNodes ? json._embedded.treeNodes : []));
+          dispatch(this.dataManager.receiveData(uiKey, json));
         })
         .catch(error => {
           dispatch(this.receiveError(null, uiKey, error));

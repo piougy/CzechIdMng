@@ -56,11 +56,6 @@ public class IdmTreeNode extends AbstractEntity
 	@Column(name = "name", length = DefaultFieldLengths.NAME, nullable = false)
 	private String name;
 
-	@Audited
-	@NotNull
-	@Column(name = "disabled", nullable = false)
-	private boolean disabled = false;
-
 	@Version
 	@JsonIgnore
 	private Long version; // Optimistic lock - will be used with ETag
@@ -94,14 +89,6 @@ public class IdmTreeNode extends AbstractEntity
 
 	public void setName(String name) {
 		this.name = name;
-	}
-
-	public boolean isDisabled() {
-		return disabled;
-	}
-
-	public void setDisabled(boolean disabled) {
-		this.disabled = disabled;
 	}
 	
 	@Override
@@ -175,6 +162,7 @@ public class IdmTreeNode extends AbstractEntity
 	 * 
 	 */
 	@Override
+	@JsonIgnore
 	public String getForestTreeType() {
 		return toForestTreeType(treeType);
 	}

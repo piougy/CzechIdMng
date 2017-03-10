@@ -1,8 +1,10 @@
 package eu.bcvsolutions.idm.core.notification.api.dto;
 
+import java.io.Serializable;
 import java.util.UUID;
 
 import org.joda.time.DateTime;
+import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.ResultModel;
@@ -31,8 +33,11 @@ public class FlashMessage implements BaseDto {
 	}
 
 	@Override
-	public void setId(UUID id) {
-		this.id = id;
+	public void setId(Serializable id) {
+		if (id != null) {
+			Assert.isInstanceOf(UUID.class, id, "FlashMessage supports only UUID identifier.");
+		}
+		this.id = (UUID) id;
 	}
 
 	public DateTime getDate() {

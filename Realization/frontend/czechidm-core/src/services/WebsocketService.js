@@ -1,6 +1,13 @@
 import AbstractService from './AbstractService';
 import SearchParameters from '../domain/SearchParameters';
 
+/**
+ * Websocket logs
+ *
+ * TODO: Move websocket init here
+ *
+ * @author Radek Tomiška
+ */
 export default class WebsocketService extends AbstractService {
 
   getApiPath() {

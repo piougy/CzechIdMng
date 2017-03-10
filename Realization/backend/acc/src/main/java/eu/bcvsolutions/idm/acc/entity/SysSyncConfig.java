@@ -57,7 +57,8 @@ public class SysSyncConfig extends AbstractEntity {
 	private String name;
 
 	@Audited
-	@Column(name = "description")
+	@Size(max = DefaultFieldLengths.DESCRIPTION)
+	@Column(name = "description", length = DefaultFieldLengths.DESCRIPTION)
 	private String description;
 
 	@Audited

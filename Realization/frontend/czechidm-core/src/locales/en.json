@@ -121,6 +121,10 @@
       "success_1": "Selected record [{{record}}] were successfully deactivated",
       "success_2": "Selected records [{{records}}] were successfully deactivated",
       "success_5": "Selected records [{{records}}] were successfully deactivated"
+    },
+    "save": {
+      "success_0": "N/A",
+      "success_1": "Record [{{record}}] was successfully saved"
     }
   },
   "environment": {
@@ -394,6 +398,25 @@
       "MAJOR": "Major",
       "CRITICAL": "Critical",
       "TRIVIAL": "Trivial"
+    },
+    "RoleRequestStateEnum": {
+      "CREATED": "Created",
+      "EXECUTED": "Executed",
+      "CANCELED": "Canceled",
+      "APPROVED": "Approved",
+      "IN_PROGRESS": "In progress",
+      "EXCEPTION": "Exception",
+      "DUPLICATED": "Duplicated"
+    },
+    "ConceptRoleRequestStateEnum": {
+      "ADD": "Add",
+      "UPDATE": "Update",
+      "REMOVE": "Remove"
+    },
+    "RecursionTypeEnum": {
+      "NO": "Without recursion",
+      "DOWN": "By structure down",
+      "UP": "By structure up"
     }
   },
  "dashboard": {
@@ -864,6 +887,20 @@
           "error" : {
             "notFound": "Extended attributes definition for element not found."
           }
+        },
+        "roles": {
+          "header": "Automatic roles",
+          "title": "Automatic roles",
+          "label": "Automatic roles",
+          "edit": {
+            "header": "{{name}} <small>automatic role detail</small>"
+          },
+          "create": {
+            "header": "New automatic role"
+          },
+          "save": {
+            "success": "Automatic role [{{record}}] was successfully saved"
+          }
         }
       },
       "types": {
@@ -942,8 +979,9 @@
       }
     },
     "roles": {
-      "header": "Roles",
-      "title": "Roles",
+      "menu-title": "Roles",
+      "header": "Roles administration",
+      "title": "Roles administration",
       "edit": {
         "title": "Role details",
         "header": "{{name}} details"
@@ -997,6 +1035,15 @@
         }
       }
     },
+    "roleRequests": {
+      "header": "Requests for roles",
+      "title": "Requests for roles"
+    },
+    "roleRequestDetail": {
+      "header": "Request for change permissions",
+      "title": "Change permissions",
+      "conceptHeader": "Requested change of permissions"
+    },
     "role": {
       "identities": {
         "header": "Users with assigned role",
@@ -1010,6 +1057,20 @@
         },
         "error" : {
           "notFound": "Extended attributes definition for role not found."
+        }
+      },
+      "tree-nodes": {
+        "header": "Automatic roles",
+        "title": "Automatic roles",
+        "label": "Automatic roles",
+        "edit": {
+          "header": "{{name}} <small>automatic role detail</small>"
+        },
+        "create": {
+          "header": "New automatic role"
+        },
+        "save": {
+          "success": "Automatic role [{{record}}] was successfully saved"
         }
       }
     },
@@ -1199,25 +1260,11 @@
       "identityContracts": {
         "header": "Contracted positions",
         "title": "$t(content.identity.identityContracts.header)",
-        "detail": {
-          "invalidContract":"Detail neplatného PPV",
-          "validContract":"Detail PPV",
-          "header": "Detail pracovně právního vztahu"
-        },
         "identityContracts": {
-          "empty": "Nenalezeny žádné pracovně právní vztahy."
-        },
-        "create": {
-          "header": "Přiřazení nové pozice",
-          "success": "Uživateli [{{username}}] byla úspěšně přidána pozice [{{position}}].",
-          "accepted": "Pozice [{{position}}] pro uživatele [{{username}}] byla úspěšně předána ke zpracování. Pozice musí býti před přiřazením nejdříve schválena."
-        },
-        "edit": {
-          "header": "{{position}} <small>Position details</small>",
-          "success": "Pozice [{{position}}] uživatele [{{username}}] byla úspěšně upravena."
+          "empty": "Contracted positions not found."
         },
         "delete": {
-          "success": "Pozice [{{position}}] uživatele [{{username}}] byla úspěšně odebrána."
+          "success": "Contracted position [{{position}}] for user [{{username}}] was successfully removed."
         }
       },
       "approve": {
@@ -1283,6 +1330,40 @@
       "garanted-roles": {
         "header": "Authorizer <small>User is authorizer of these roles</small>",
         "title": "Authorize roles"
+      }
+    },
+    "identity-contract": {
+      "detail": {
+        "header": "Contracted position detail",
+        "title": "Contracted position detail",
+        "label": "Basic information",
+        "invalidContract":"Invalid contracted position detail",
+        "validContract":"Contracted position detail",
+        "edit": {
+          "title": "Contracted position detail",
+          "header": "{{position}} <small>contracted position detail</small>",
+          "success": "Contracted position [{{position}}] for user [{{username}}] was successfully saved."
+        },
+        "create": {
+          "title": "New contracted position",
+          "header": "New contracted position",
+          "success": "Contracted position [{{position}}] for user [{{username}}] was successfully saved.",
+          "accepted": "Contracted position [{{position}}] for user [{{username}}] was accepted. Contracted position has to be approved at first."
+        },
+        "save": {
+          "success": "Contracted position [{{name}}] was successfully saved."
+        }
+      },
+      "eav": {
+        "header": "More information",
+        "title": "More information",
+        "label": "More information",
+        "save": {
+          "success": "Extended attributes for contracted position [{{name}}] was successfully saved."
+        },
+        "error" : {
+          "notFound": "Extended attributes definition for contracted position not found."
+        }
       }
     },
     "organizations": {
@@ -1699,6 +1780,12 @@
       "guarantees": "Role authorizers",
       "roleCatalog": {
         "name": "Catalog"
+      },
+      "RoleTreeNode": {
+        "_type": "Automatic role",
+        "role": "Role",
+        "treeNode": "Tree node",
+        "recursionType": "Reursion type"
       }
     },
     "IdentityRole": {
@@ -1748,11 +1835,17 @@
       "managers": {
         "label": "Authorizer",
         "title": "Authorizer and all managers for position in structure"
+      },
+      "disabled": "Inactive",
+      "description": "Note",
+      "main": {
+        "label": "Default position",
+        "help": "Prime work position."
       }
     },
     "TreeNode": {
       "_type": "Tree node",
-      "id": "Identifikátor",
+      "id": "Identifier",
       "code": "Code",
       "name": "Name",
       "disabled": "Inactive",
@@ -2021,6 +2114,25 @@
           }
         }
       }
+    },
+    "RoleRequest": {
+      "applicant": "Applicant",
+      "state": "State",
+      "executeImmediately": "Execute without approval",
+      "log": "Log",
+      "created": "Created",
+      "modified": "Modified"
+    },
+    "ConceptRoleRequest": {
+      "identityContract": "Employment relationship",
+      "operation": "Operation",
+      "role": "Role",
+      "validFrom": "From",
+      "validTill": "Till",
+      "wfProcessId": "Id WF process",
+      "state": "State",
+      "created": "Created",
+      "modified": "Modified"
     }
   },
   "decision" : {

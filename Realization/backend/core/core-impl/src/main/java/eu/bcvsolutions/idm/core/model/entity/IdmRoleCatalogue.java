@@ -63,7 +63,8 @@ public class IdmRoleCatalogue extends AbstractEntity implements BaseTreeEntity<I
 	private IdmRoleCatalogue parent;
 	
 	@Audited
-	@Column(name = "description")
+	@Size(max = DefaultFieldLengths.DESCRIPTION)
+	@Column(name = "description", length = DefaultFieldLengths.DESCRIPTION)
 	private String description;
 	
 	// TODO: formule for roles in folder count
@@ -184,6 +185,7 @@ public class IdmRoleCatalogue extends AbstractEntity implements BaseTreeEntity<I
 	 * 
 	 */
 	@Override
+	@JsonIgnore
 	public String getForestTreeType() {
 		return FOREST_TREE_TYPE;
 	}

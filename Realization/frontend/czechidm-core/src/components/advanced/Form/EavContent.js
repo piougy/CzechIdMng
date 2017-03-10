@@ -83,18 +83,20 @@ class EavContent extends Basic.AbstractContent {
       // connector setting is ready
       content = (
         <form className="abstract-form" onSubmit={this.save.bind(this)}>
+          <Basic.Panel className="no-border">
 
-          <EavForm ref="eav" formInstance={formInstance} readOnly={!showSaveButton}/>
+            <EavForm ref="eav" formInstance={formInstance} readOnly={!showSaveButton}/>
 
-          <Basic.PanelFooter rendered={showSaveButton}>
-            <Basic.Button
-              type="submit"
-              level="success"
-              showLoadingIcon
-              showLoadingText={this.i18n('button.saving')}>
-              {this.i18n('button.save')}
-            </Basic.Button>
-          </Basic.PanelFooter>
+            <Basic.PanelFooter rendered={showSaveButton}>
+              <Basic.Button
+                type="submit"
+                level="success"
+                showLoadingIcon
+                showLoadingText={this.i18n('button.saving')}>
+                {this.i18n('button.save')}
+              </Basic.Button>
+            </Basic.PanelFooter>
+          </Basic.Panel>
         </form>
       );
     }

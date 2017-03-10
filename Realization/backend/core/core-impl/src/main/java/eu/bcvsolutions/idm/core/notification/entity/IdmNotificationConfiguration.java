@@ -62,7 +62,8 @@ public class IdmNotificationConfiguration extends AbstractEntity {
 	private IdmNotificationTemplate template;
 	
 	@Audited
-	@Column(name = "description")
+	@Size(max = DefaultFieldLengths.DESCRIPTION)
+	@Column(name = "description", length = DefaultFieldLengths.DESCRIPTION)
 	private String description;
 
 	public IdmNotificationConfiguration() {

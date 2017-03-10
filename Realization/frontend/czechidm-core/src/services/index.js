@@ -28,6 +28,9 @@ import EntityEventProcessorService from './EntityEventProcessorService';
 import LongRunningTaskService from './LongRunningTaskService';
 import SchedulerService from './SchedulerService';
 import NotificationTemplateService from './NotificationTemplateService';
+import RoleRequestService from './RoleRequestService';
+import ConceptRoleRequestService from './ConceptRoleRequestService';
+import RoleTreeNodeService from './RoleTreeNodeService';
 
 const ServiceRoot = {
   RestApiService,
@@ -59,7 +62,10 @@ const ServiceRoot = {
   EntityEventProcessorService,
   LongRunningTaskService,
   SchedulerService,
-  NotificationTemplateService
+  NotificationTemplateService,
+  RoleRequestService,
+  ConceptRoleRequestService,
+  RoleTreeNodeService
 };
 
 ServiceRoot.version = '0.0.1';

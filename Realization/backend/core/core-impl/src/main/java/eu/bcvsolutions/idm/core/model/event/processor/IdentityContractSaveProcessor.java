@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.model.event.processor;
 
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
@@ -42,7 +43,11 @@ public class IdentityContractSaveProcessor extends CoreEventProcessor<IdmIdentit
 
 	@Override
 	public EventResult<IdmIdentityContract> process(EntityEvent<IdmIdentityContract> event) {
-		repository.save(event.getContent());
+		IdmIdentityContract entity = event.getContent();
+		if (entity.isMain()) {
+			this.repository.clearMain(entity.getIdentity(), entity.getId(), new DateTime());
+		}
+		repository.save(entity);
 		//
 		// TODO: clone content - mutable previous event content :/
 		return new DefaultEventResult<>(event, this);

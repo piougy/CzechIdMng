@@ -17,6 +17,7 @@ import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.model.dto.filter.IdentityContractFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
+import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
@@ -35,7 +36,9 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
  *
  */
 @Service
-public class DefaultIdmIdentityContractService extends AbstractReadWriteEntityService<IdmIdentityContract, IdentityContractFilter> implements IdmIdentityContractService {
+public class DefaultIdmIdentityContractService 
+		extends AbstractReadWriteEntityService<IdmIdentityContract, IdentityContractFilter> 
+		implements IdmIdentityContractService {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmIdentityContractService.class);
 	private final IdmIdentityContractRepository repository;
@@ -114,14 +117,48 @@ public class DefaultIdmIdentityContractService extends AbstractReadWriteEntitySe
 		// set identity
 		IdmIdentityContract contract = new IdmIdentityContract();
 		contract.setIdentity(identity);
+		contract.setMain(true);
 		//
 		// set working position
 		IdmTreeType defaultTreeType = treeTypeRepository.findOneByDefaultTreeTypeIsTrue();
 		if (defaultTreeType != null && defaultTreeType.getDefaultTreeNode() != null) {
 			contract.setWorkingPosition(defaultTreeType.getDefaultTreeNode());
 		} else {
-			contract.setPosition(DEFAULT_POSITION_NAME); // TODO: from configuration manager
+			contract.setPosition(DEFAULT_POSITION_NAME);
 		}
 		return contract;
 	}
+	
+	/**
+	 * Returns given identity's prime contract.
+	 * If no main contract is defined, then returns the first contract with working position defined (default tree type has higher priority).
+	 * 
+	 * @param identity
+	 * @return
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public IdmIdentityContract getPrimeContract(IdmIdentity identity) {
+		Assert.notNull(identity);
+		//
+		// find all identity working position
+		List<IdmIdentityContract> contracts = repository.findAllByIdentity(identity, null);
+		if (contracts.isEmpty()) {
+			return null;
+		}
+		IdmIdentityContract primeContract = null;
+		IdmTreeType defaultTreeType = treeTypeRepository.findOneByDefaultTreeTypeIsTrue();
+		for (IdmIdentityContract contract : contracts) {
+			// find main contract or contract with working position (default tree type has higher priority)
+			if (contract.isMain()) {
+				return contract;
+			}
+			IdmTreeNode workingPosition = contract.getWorkingPosition();
+			if (primeContract == null || (workingPosition != null && defaultTreeType != null && defaultTreeType.equals(workingPosition.getTreeType()))) {
+				primeContract = contract;
+			}
+		}
+		return primeContract;
+	}
 }
+

@@ -24,6 +24,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.ValidableEntity;
+import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 
 /**
  * Identity contract - working position
@@ -35,7 +36,7 @@ import eu.bcvsolutions.idm.core.api.entity.ValidableEntity;
 		@Index(name = "idx_idm_identity_contract_gnt", columnList = "guarantee_id"),
 		@Index(name = "idx_idm_identity_contract_idnt", columnList = "identity_id"),
 		@Index(name = "idx_idm_identity_contract_wp", columnList = "working_position_id")})
-public class IdmIdentityContract extends AbstractEntity implements ValidableEntity {
+public class IdmIdentityContract extends AbstractEntity implements ValidableEntity, FormableEntity {
 
 	private static final long serialVersionUID = 328041550861866181L;
 
@@ -78,11 +79,21 @@ public class IdmIdentityContract extends AbstractEntity implements ValidableEnti
 	@Column(name = "externe", nullable = false)
 	private boolean externe;
 	
+	@Audited
+	@NotNull
+	@Column(name = "main", nullable = false)
+	private boolean main = true;
+	
 	@JsonIgnore
 	@OneToMany(mappedBy = "identityContract")
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private List<IdmIdentityRole> roles; // only for hibernate mappnig - we dont want lazy lists (many roles)
+	
+	@Audited
+	@Size(max = DefaultFieldLengths.DESCRIPTION)
+	@Column(name = "description", length = DefaultFieldLengths.DESCRIPTION)
+	private String description;
 	
 	public IdmIdentityContract() {
 	}
@@ -160,5 +171,31 @@ public class IdmIdentityContract extends AbstractEntity implements ValidableEnti
 	
 	public void setExterne(boolean externe) {
 		this.externe = externe;
+	}
+	
+	/**
+	 * main ~= default identity contract
+	 * 
+	 * @return
+	 */
+	public boolean isMain() {
+		return main;
+	}
+	
+	public void setMain(boolean main) {
+		this.main = main;
+	}
+	
+	/**
+	 * Custom description
+	 * 
+	 * @return
+	 */
+	public String getDescription() {
+		return description;
+	}
+	
+	public void setDescription(String description) {
+		this.description = description;
 	}
 }

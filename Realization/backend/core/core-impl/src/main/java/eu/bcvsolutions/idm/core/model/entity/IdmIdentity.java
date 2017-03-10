@@ -10,7 +10,6 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.Version;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import org.hibernate.envers.Audited;
@@ -53,11 +52,6 @@ public class IdmIdentity extends AbstractEntity implements IdentifiableByName, F
 	@JsonDeserialize(using = GuardedStringDeserializer.class)
 	private transient GuardedString password;
 
-	@Audited
-	@NotNull
-	@Column(name = "disabled", nullable = false)
-	private boolean disabled;
-
 	@Version
 	@JsonIgnore
 	private Long version; // Optimistic lock - will be used with ETag
@@ -95,7 +89,8 @@ public class IdmIdentity extends AbstractEntity implements IdentifiableByName, F
 	private String titleAfter;
 
 	@Audited
-	@Column(name = "description")
+	@Size(max = DefaultFieldLengths.DESCRIPTION)
+	@Column(name = "description", length = DefaultFieldLengths.DESCRIPTION)
 	private String description;
 	
 	@JsonIgnore
@@ -131,14 +126,6 @@ public class IdmIdentity extends AbstractEntity implements IdentifiableByName, F
 
 	public void setPassword(GuardedString password) {
 		this.password = password;
-	}
-
-	public boolean isDisabled() {
-		return disabled;
-	}
-
-	public void setDisabled(boolean disabled) {
-		this.disabled = disabled;
 	}
 
 	public String getFirstName() {

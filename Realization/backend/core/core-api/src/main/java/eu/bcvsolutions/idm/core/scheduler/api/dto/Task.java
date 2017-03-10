@@ -4,8 +4,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.validation.constraints.Size;
+
 import org.hibernate.validator.constraints.NotEmpty;
 
+import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulableTaskExecutor;
 
 /**
@@ -23,6 +26,7 @@ public class Task {
 	@NotEmpty
 	private String instanceId;
 	private Class<? extends SchedulableTaskExecutor<?>> taskType; // task executor class
+	@Size(max = DefaultFieldLengths.DESCRIPTION)
 	private String description;	
 	private List<AbstractTaskTrigger> triggers;
 	private Map<String, String> parameters;

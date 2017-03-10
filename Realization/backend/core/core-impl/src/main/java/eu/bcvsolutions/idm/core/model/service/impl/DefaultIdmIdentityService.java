@@ -24,7 +24,6 @@ import eu.bcvsolutions.idm.core.model.dto.filter.IdentityFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
-import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.core.model.event.processor.IdentityDeleteProcessor;
@@ -67,7 +66,7 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 	}
 	
 	/**
-	 * Publish {@link IdentityContractEvent} only.
+	 * Publish {@link IdentityEvent} only.
 	 * 
 	 * @see {@link IdentitySaveProcessor}
 	 */
@@ -85,7 +84,7 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 	}
 	
 	/**
-	 * Publish {@link IdentityContractEvent} only.
+	 * Publish {@link IdentityEvent} only.
 	 * 
 	 * @see {@link IdentityDeleteProcessor}
 	 */

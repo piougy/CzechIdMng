@@ -120,6 +120,10 @@
       "success_1": "Vybraný záznam [{{record}}] byl úspěšně deaktivován",
       "success_2": "Vybrané záznamy [{{records}}] byly úspěšně deaktivovány",
       "success_5": "Vybrané záznamy [{{records}}] byly úspěšně deaktivovány"
+    },
+    "save": {
+      "success_0": "N/A",
+      "success_1": "Záznam [{{record}}] byl úspěšně uložen"
     }
   },
   "environment": {
@@ -394,6 +398,25 @@
       "MAJOR": "Velká",
       "CRITICAL": "Kritická",
       "TRIVIAL": "Triviální"
+    },
+    "RoleRequestStateEnum": {
+      "CREATED": "Vytvořeno",
+      "EXECUTED": "Provedeno",
+      "CANCELED": "Zrušeno",
+      "APPROVED": "Schváleno",
+      "IN_PROGRESS": "Probíhá",
+      "EXCEPTION": "Chyba",
+      "DUPLICATED": "Duplicitní"
+    },
+    "ConceptRoleRequestStateEnum": {
+      "ADD": "Přidaní",
+      "UPDATE": "Úprava",
+      "REMOVE": "Odstranění"
+    },
+    "RecursionTypeEnum": {
+      "NO": "Bez šíření",
+      "DOWN": "Šířit dle struktury dolů",
+      "UP": "Šířit dle struktury nahoru"
     }
   },
   "dashboard": {
@@ -864,6 +887,20 @@
           "error" : {
             "notFound": "Definice dalších atributů pro prvek stromové struktury nebyla nalezena."
           }
+        },
+        "roles": {
+          "header": "Automatické role",
+          "title": "Automatické role",
+          "label": "Automatické role",
+          "edit": {
+            "header": "{{name}} <small>detail automatické role</small>"
+          },
+          "create": {
+            "header": "Nová automatická role"
+          },
+          "save": {
+            "success": "Automatická role [{{record}}] byla úspěšně uložena"
+          }
         }
       },
       "types": {
@@ -942,8 +979,9 @@
       }
     },
     "roles": {
-      "header": "Role",
-      "title": "Role",
+      "menu-title": "Role",
+      "header": "Správa rolí",
+      "title": "Správa rolí",
       "edit": {
         "title": "Detail role",
         "header": "{{name}} detail role"
@@ -997,6 +1035,15 @@
         }
       }
     },
+    "roleRequests": {
+      "header": "Žádosti o změnu oprávnění",
+      "title": "Žádosti o role"
+    },
+    "roleRequestDetail": {
+      "header": "Žádost o změnu oprávnění",
+      "title": "Změny oprávnění",
+      "conceptHeader": "Požadované změny oprávnění"
+    },
     "role": {
       "identities": {
         "header": "Uživatelé s přiřazenou rolí",
@@ -1010,6 +1057,20 @@
         },
         "error" : {
           "notFound": "Definice dalších atributů pro roli nebyla nalezena."
+        }
+      },
+      "tree-nodes": {
+        "header": "Automatické role",
+        "title": "Automatické role",
+        "label": "Automatické role",
+        "edit": {
+          "header": "{{name}} <small>detail automatické role</small>"
+        },
+        "create": {
+          "header": "Nová automatická role"
+        },
+        "save": {
+          "success": "Automatická role [{{record}}] byla úspěšně uložena"
         }
       }
     },
@@ -1199,22 +1260,8 @@
       "identityContracts": {
         "header": "Pracovně právní vztahy",
         "title": "$t(content.identity.identityContracts.header)",
-        "detail": {
-          "invalidContract":"Detail neplatného PPV",
-          "validContract":"Detail PPV",
-          "header": "Detail pracovně právního vztahu"
-        },
         "identityContracts": {
           "empty": "Nenalezeny žádné pracovně právní vztahy."
-        },
-        "create": {
-          "header": "Přiřazení nové pozice",
-          "success": "Uživateli [{{username}}] byla úspěšně přidána pozice [{{position}}].",
-          "accepted": "Pozice [{{position}}] pro uživatele [{{username}}] byla úspěšně předána ke zpracování. Pozice musí býti před přiřazením nejdříve schválena."
-        },
-        "edit": {
-          "header": "{{position}} <small>detail přiřazené pozice</small>",
-          "success": "Pozice [{{position}}] uživatele [{{username}}] byla úspěšně upravena."
         },
         "delete": {
           "success": "Pozice [{{position}}] uživatele [{{username}}] byla úspěšně odebrána."
@@ -1283,6 +1330,40 @@
       "garanted-roles": {
         "header": "Garant rolí <small>uživatel garantuje role</small>",
         "title": "Garant rolí"
+      }
+    },
+    "identity-contract": {
+      "detail": {
+        "header": "Detail pracovně právního vztahu",
+        "title": "Detail PPV",
+        "label": "Základní údaje",
+        "invalidContract":"Detail neplatného PPV",
+        "validContract":"Detail PPV",
+        "edit": {
+          "title": "Detail PPV",
+          "header": "{{position}} <small>detail přiřazené pozice</small>",
+          "success": "Pozice [{{position}}] uživatele [{{username}}] byla úspěšně upravena."
+        },
+        "create": {
+          "title": "Přiřazení nové pozice",
+          "header": "Přiřazení nové pozice",
+          "success": "Uživateli [{{username}}] byla úspěšně přidána pozice [{{position}}].",
+          "accepted": "Pozice [{{position}}] pro uživatele [{{username}}] byla úspěšně předána ke zpracování. Pozice musí býti před přiřazením nejdříve schválena."
+        },
+        "save": {
+          "success": "PPV [{{name}}] byl úspěšně uložen"
+        }
+      },
+      "eav": {
+        "header": "Další údaje",
+        "title": "Další údaje",
+        "label": "Další údaje",
+        "save": {
+          "success": "Údaje PPV [{{name}}] byly úspěšně uloženy."
+        },
+        "error" : {
+          "notFound": "Definice dalších atributů pro PPV nebyla nalezena."
+        }
       }
     },
     "organizations": {
@@ -1694,6 +1775,12 @@
         "name": "Složka v katalogu"
       }
     },
+    "RoleTreeNode": {
+      "_type": "Automatická role",
+      "role": "Role",
+      "treeNode": "Prvek stromové struktury",
+      "recursionType": "Typ rerkurze"
+    },
     "IdentityRole": {
       "role" : "Role",
       "identityContract": {
@@ -1741,6 +1828,12 @@
       "managers": {
         "label": "Garant / Vedoucí",
         "title": "Přiřazený garant a všichni vedoucí dle přiřazené pozice ve struktuře"
+      },
+      "disabled": "Neaktivní",
+      "description": "Popis",
+      "main": {
+        "label": "Výchozí",
+        "help": "Primární pracovní pozice. Bude použita například pro zobrazení pozice uživatele."
       }
     },
     "TreeNode": {
@@ -2014,7 +2107,27 @@
           }
         }
       }
+    },
+    "RoleRequest": {
+      "applicant": "Žadatel",
+      "state": "Stav",
+      "executeImmediately": "Provést bez schválení",
+      "log": "Log",
+      "created": "Vytvořeno",
+      "modified": "Upraveno"
+    },
+    "ConceptRoleRequest": {
+      "identityContract": "Vztah",
+      "operation": "Operace",
+      "role": "Role",
+      "validFrom": "Od",
+      "validTill": "Do",
+      "wfProcessId": "Id WF procesu",
+      "state": "Stav",
+      "created": "Vytvořeno",
+      "modified": "Upraveno"
     }
+
   },
   "decision" : {
     "approve": {

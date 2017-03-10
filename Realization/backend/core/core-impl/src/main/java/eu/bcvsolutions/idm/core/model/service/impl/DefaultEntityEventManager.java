@@ -5,10 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.Lists;
@@ -29,7 +27,6 @@ import eu.bcvsolutions.idm.core.security.api.service.EnabledEvaluator;
  * @author Radek Tomiška
  *
  */
-@Service
 public class DefaultEntityEventManager implements EntityEventManager {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultEntityEventManager.class);
@@ -37,7 +34,6 @@ public class DefaultEntityEventManager implements EntityEventManager {
 	private final ApplicationEventPublisher publisher;
 	private final EnabledEvaluator enabledEvaluator;
 	
-	@Autowired
 	public DefaultEntityEventManager(
 			ApplicationContext context, 
 			ApplicationEventPublisher publisher,

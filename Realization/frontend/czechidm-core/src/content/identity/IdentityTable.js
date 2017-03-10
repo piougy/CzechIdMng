@@ -5,7 +5,6 @@ import _ from 'lodash';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
-import * as Utils from '../../utils';
 import { DataManager, TreeNodeManager, SecurityManager, ConfigurationManager, RoleManager } from '../../redux';
 import SearchParameters from '../../domain/SearchParameters';
 // TODO: LocalizationService.getCurrentLanguage()
@@ -150,7 +149,6 @@ export class IdentityTable extends Basic.AbstractTableContent {
           uiKey={uiKey}
           manager={identityManager}
           showRowSelection={showRowSelection && SecurityManager.hasAuthority('IDENTITY_WRITE')}
-          rowClass={({rowIndex, data}) => { return Utils.Ui.getRowClass(data[rowIndex]); }}
           filter={
             <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
               <Basic.AbstractForm ref="filterForm">

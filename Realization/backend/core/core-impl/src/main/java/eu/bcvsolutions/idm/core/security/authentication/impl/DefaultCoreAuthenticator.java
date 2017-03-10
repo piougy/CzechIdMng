@@ -8,7 +8,6 @@ import org.springframework.util.Assert;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.security.api.authentication.Authenticator;
 import eu.bcvsolutions.idm.core.security.api.domain.AuthenticationResponseEnum;
-import eu.bcvsolutions.idm.core.security.api.dto.AuthenticatorResultDto;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
 import eu.bcvsolutions.idm.core.security.service.LoginService;
 
@@ -43,18 +42,10 @@ public class DefaultCoreAuthenticator implements Authenticator {
 	}
 
 	@Override
-	public AuthenticatorResultDto authenticate(LoginDto loginDto) {
-		AuthenticatorResultDto result = new AuthenticatorResultDto();
+	public LoginDto authenticate(LoginDto loginDto) {
 		loginDto.setAuthenticationModule(this.getModule());
-		try {
-			loginDto = this.loginService.login(loginDto);
-			result.setResultSuccess();
-			result.setLoginDto(loginDto);
-		} catch (RuntimeException e) { // catch all RuntimeException
-			result.setException(e);
-			result.setResultFailture();
-		}
-		return result;
+		loginDto = this.loginService.login(loginDto);
+		return loginDto;
 	}
 
 	@Override

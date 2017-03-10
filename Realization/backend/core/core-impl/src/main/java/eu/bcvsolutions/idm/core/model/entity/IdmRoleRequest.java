@@ -42,7 +42,7 @@ public class IdmRoleRequest extends AbstractEntity {
 	@NotNull
 	@Column(name = "state")
 	@Enumerated(EnumType.STRING)
-	private RoleRequestState state = RoleRequestState.CREATED;
+	private RoleRequestState state = RoleRequestState.CONCEPT;
 
 	@Audited
 	@NotNull

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.identityconnectors.framework.impl.api.local.operations.OperationalContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.exception.RoleRequestException;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
+import eu.bcvsolutions.idm.core.model.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.model.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.model.dto.IdmConceptRoleRequestDto;
@@ -90,8 +92,9 @@ public class DefaultIdmRoleRequestService
 		// Load applicant (check read right)
 		IdmIdentity applicant = identityService.get(dto.getApplicant());
 		List<IdmConceptRoleRequestDto> concepts = dto.getConceptRoles();
-		
-		validateOnDuplicity(dto);
+		if(!created){
+			validateOnDuplicity(dto);
+		}
 		IdmRoleRequestDto savedRequest = super.saveDto(dto);
 
 		// Concepts will be save only on create request
@@ -117,7 +120,7 @@ public class DefaultIdmRoleRequestService
 
 		if (created) {
 			// TODO: Separate start request to own schedule task
-			this.startRequest(savedRequest.getId());
+			// this.startRequest(savedRequest.getId());
 		}
 		return this.getDto(savedRequest.getId());
 	}
@@ -162,7 +165,7 @@ public class DefaultIdmRoleRequestService
 				dto.setOriginalRequest(dtoPersisited.getOriginalRequest());
 			}
 		} else {
-			dto.setState(RoleRequestState.CREATED);
+			dto.setState(RoleRequestState.CONCEPT);
 		}
 
 		return super.toEntity(dto, entity);
@@ -190,8 +193,8 @@ public class DefaultIdmRoleRequestService
 		// Load request ... check right for read
 		IdmRoleRequestDto request = getDto(requestId);
 		Assert.notNull(request, "Role request DTO is required!");
-		Assert.isTrue(RoleRequestState.CREATED == request.getState(),
-				"Only role request with CREATED state can be started!");
+//		Assert.isTrue(RoleRequestState.CONCEPT == request.getState(),
+//				"Only role request with CONCEPT state can be started!");
 
 		validateOnDuplicity(request);
 
@@ -226,7 +229,7 @@ public class DefaultIdmRoleRequestService
 		requestFilter.setState(RoleRequestState.APPROVED);
 		potentialDuplicatedRequests.addAll(this.findDto(requestFilter, null).getContent());
 		
-		requestFilter.setState(RoleRequestState.CREATED);
+		requestFilter.setState(RoleRequestState.CONCEPT);
 		potentialDuplicatedRequests.addAll(this.findDto(requestFilter, null).getContent());
 
 		Optional<IdmRoleRequestDto> duplicatedRequestOptional = potentialDuplicatedRequests.stream()
@@ -260,14 +263,36 @@ public class DefaultIdmRoleRequestService
 					ImmutableMap.of("request", request, "applicant", identity.getUsername()));
 		}
 
-		List<IdmIdentityRole> identityRoles = new ArrayList<>();
-		concepts.forEach(concept -> {
+	
+		List<IdmIdentityRole> identityRolesToSave = new ArrayList<>();
+		List<IdmConceptRoleRequestDto> conceptsToSave = new ArrayList<>();
+		
+		// Create new identity role
+		concepts.stream().filter(concept -> {
+			return ConceptRoleRequestOperation.ADD == concept.getOperation();
+		}).forEach(concept -> {
 			IdmIdentityRole identityRole = new IdmIdentityRole();
-			identityRoles.add(
+			identityRolesToSave.add(
 					convertConceptRoleToIdentityRole(conceptRoleRequestService.get(concept.getId()), identityRole));
+			concept.setState(RoleRequestState.EXECUTED);
+			conceptsToSave.add(concept);
+		});
+		
+		// Delete identity role
+		concepts.stream().filter(concept -> {
+			return ConceptRoleRequestOperation.REMOVE == concept.getOperation();
+		}).forEach(concept -> {
+			IdmIdentityRole identityRole = identityRoleService.get(concept.getIdentityRole());
+			if(identityRole != null){
+				identityRoleService.delete(identityRole);
+				concept.setState(RoleRequestState.EXECUTED);
+				conceptsToSave.add(concept);
+			}
 		});
 
-		identityRoleService.saveAll(identityRoles);
+
+		identityRoleService.saveAll(identityRolesToSave);
+		conceptRoleRequestService.saveAllDto(conceptsToSave);
 		request.setState(RoleRequestState.EXECUTED);
 		this.saveDto(request);
 

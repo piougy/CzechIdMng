@@ -6,8 +6,8 @@ package eu.bcvsolutions.idm.core.model.domain;
  *
  */
 public enum RoleRequestState {
-	
-	CREATED(false),
+
+	CONCEPT(false),
 	EXECUTED(true),
 	CANCELED(true),
 	APPROVED(false),

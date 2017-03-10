@@ -37,20 +37,23 @@ public class IdmConceptRoleRequestController
 
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_REQUEST_READ + "')")
+	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_REQUEST_READ + "') or hasAuthority('"
+			+ IdmGroupPermission.IDENTITY_WRITE + "')")
 	public ResponseEntity<?> get(@PathVariable @NotNull String backendId) {
 		return super.get(backendId);
 	}
 
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_REQUEST_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_REQUEST_WRITE + "') or hasAuthority('"
+			+ IdmGroupPermission.IDENTITY_WRITE + "')")
 	public ResponseEntity<?> create(@RequestBody @NotNull IdmConceptRoleRequestDto dto) {
 		return super.create(dto);
 	}
 
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_REQUEST_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_REQUEST_WRITE + "') or hasAuthority('"
+			+ IdmGroupPermission.IDENTITY_WRITE + "')")
 	public ResponseEntity<?> update(@PathVariable @NotNull String backendId,
 			@RequestBody @NotNull IdmConceptRoleRequestDto dto) {
 		return super.update(backendId, dto);
@@ -58,7 +61,8 @@ public class IdmConceptRoleRequestController
 
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_REQUEST_DELETE + "')")
+	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_REQUEST_DELETE + "') or hasAuthority('"
+			+ IdmGroupPermission.IDENTITY_WRITE + "')")
 	public ResponseEntity<?> delete(@PathVariable @NotNull String backendId) {
 		return super.delete(backendId);
 	}

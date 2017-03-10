@@ -399,11 +399,11 @@ export class RoleConceptTable extends Basic.AbstractContent {
           </div>
           <div className="clearfix"></div>
         </Basic.Toolbar>
-
         <Basic.Table
           hover={false}
           data={conceptData}
           rowClass={this._rowClass}
+          classNameBasicTable="verticalScrollTable"
           showRowSelection={false}
           noData={this.i18n('component.basic.Table.noData')}>
           <Basic.Column

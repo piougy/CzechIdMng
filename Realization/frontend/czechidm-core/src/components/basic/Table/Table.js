@@ -255,7 +255,7 @@ class Table extends AbstractComponent {
   }
 
   render() {
-    const { data, noData, rendered, showLoading, hover, className } = this.props;
+    const { data, noData, rendered, showLoading, hover, className, classNameBasicTable } = this.props;
     if (!rendered) {
       return null;
     }
@@ -285,9 +285,13 @@ class Table extends AbstractComponent {
       { 'table': true },
       { 'table-hover': hover}
     );
+    const classNamesBasicTable = classNames(
+      classNameBasicTable,
+      'basic-table'
+    );
 
     return (
-      <div className="basic-table">
+      <div className={classNamesBasicTable}>
         <Loading showLoading={showLoading}>
           <table className={classNamesTable}>
             { header }

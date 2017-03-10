@@ -26,6 +26,7 @@ import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemFormValue;
+import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.acc.repository.AccAccountRepository;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningArchiveRepository;
 import eu.bcvsolutions.idm.acc.repository.SysSystemEntityRepository;
@@ -49,12 +50,18 @@ import eu.bcvsolutions.idm.ic.api.IcConfigurationProperty;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInstance;
 import eu.bcvsolutions.idm.ic.api.IcConnectorKey;
+import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
+import eu.bcvsolutions.idm.ic.api.IcObjectClass;
 import eu.bcvsolutions.idm.ic.api.IcObjectClassInfo;
 import eu.bcvsolutions.idm.ic.api.IcSchema;
+import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
 import eu.bcvsolutions.idm.ic.impl.IcConfigurationPropertiesImpl;
 import eu.bcvsolutions.idm.ic.impl.IcConnectorConfigurationImpl;
 import eu.bcvsolutions.idm.ic.impl.IcConnectorKeyImpl;
+import eu.bcvsolutions.idm.ic.impl.IcObjectClassImpl;
+import eu.bcvsolutions.idm.ic.impl.IcUidAttributeImpl;
 import eu.bcvsolutions.idm.ic.service.api.IcConfigurationFacade;
+import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 
 /**
  * Default target system configuration service
@@ -76,6 +83,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 	private final FormPropertyManager formPropertyManager;
 	private final SysProvisioningArchiveRepository provisioningArchiveRepository;
 	private final ConfidentialStorage confidentialStorage;
+	private final IcConnectorFacade connectorFacade;
 
 	@Autowired
 	public DefaultSysSystemService(
@@ -89,7 +97,8 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 			SysSyncConfigService synchronizationConfigService,
 			FormPropertyManager formPropertyManager,
 			SysProvisioningArchiveRepository provisioningArchiveRepository,
-			ConfidentialStorage confidentialStorage) {
+			ConfidentialStorage confidentialStorage,
+			IcConnectorFacade connectorFacade) {
 		super(systemRepository, formService);
 		//
 		Assert.notNull(icConfigurationFacade);
@@ -101,6 +110,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		Assert.notNull(formPropertyManager);
 		Assert.notNull(provisioningArchiveRepository);
 		Assert.notNull(confidentialStorage);
+		Assert.notNull(connectorFacade);
 		//
 		this.systemRepository = systemRepository;
 		this.icConfigurationFacade = icConfigurationFacade;
@@ -112,6 +122,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		this.formPropertyManager = formPropertyManager;
 		this.provisioningArchiveRepository = provisioningArchiveRepository;
 		this.confidentialStorage = confidentialStorage;
+		this.connectorFacade = connectorFacade;
 	}
 	
 	@Override
@@ -418,6 +429,19 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		}
 		return getFormService().createDefinition(connectorInstance.getConnectorKey().getConnectorName(),
 					connectorInstance.getConnectorKey().getFullName(), formAttributes);
+	}
+	
+	@Override
+	public IcConnectorObject readObject(SysSystem system, SysSystemMapping systemMapping, String systemEntityUid) {
+		IcUidAttribute uidAttribute = new IcUidAttributeImpl(null, systemEntityUid, null);
+		IcObjectClass objectClass = new IcObjectClassImpl(systemMapping.getObjectClass().getObjectClassName());
+		IcConnectorObject existsConnectorObject = connectorFacade.readObject(
+				system.getConnectorInstance(), 
+				this.getConnectorConfiguration(system), 
+				objectClass, 
+				uidAttribute);
+		//
+		return existsConnectorObject;
 	}
 
 	@Deprecated

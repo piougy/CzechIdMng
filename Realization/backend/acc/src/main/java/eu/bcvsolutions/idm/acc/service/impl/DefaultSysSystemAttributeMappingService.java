@@ -4,6 +4,7 @@ import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -286,6 +287,11 @@ public class DefaultSysSystemAttributeMappingService
 				MessageFormat.format("Genereted by schema attribute {0} in resource {1}. Created by SYSTEM.",
 						schemaAttribute.getName(), schemaAttribute.getObjectClass().getSystem().getName()));
 		return attributeDefinition;
+	}
+
+	@Override
+	public SysSystemAttributeMapping getAuthenticationAttribute(UUID systemId) {
+		return this.repository.findAuthenticationAttribute(systemId);
 	}
 
 }

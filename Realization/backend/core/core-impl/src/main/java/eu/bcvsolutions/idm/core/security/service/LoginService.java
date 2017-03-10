@@ -1,6 +1,6 @@
 package eu.bcvsolutions.idm.core.security.service;
 
-import eu.bcvsolutions.idm.core.security.dto.LoginDto;
+import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
 
 /**
  * Authenticate identity

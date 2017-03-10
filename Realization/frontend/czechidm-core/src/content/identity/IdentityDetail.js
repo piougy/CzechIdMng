@@ -139,7 +139,7 @@ class IdentityDetail extends Basic.AbstractContent {
                 label={this.i18n('content.identity.profile.description.label')}
                 placeholder={this.i18n('description.placeholder')}
                 rows={4}
-                max={255}/>
+                max={1000}/>
               <Basic.Checkbox
                 ref="disabled"
                 label={this.i18n('entity.Identity.disabled')}

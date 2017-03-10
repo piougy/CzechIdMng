@@ -40,7 +40,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmAudit;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
-import eu.bcvsolutions.idm.core.model.entity.IdmRoleFormValue;
+import eu.bcvsolutions.idm.core.model.entity.eav.IdmRoleFormValue;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuditService;
 
 /**

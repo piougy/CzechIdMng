@@ -23,6 +23,10 @@ class IdentityEav extends Basic.AbstractContent {
     return 'content.identity.eav';
   }
 
+  getNavigationKey() {
+    return 'profile-eav';
+  }
+
   render() {
     const { userContext } = this.props;
     const canEditMap = manager.canEditMap(userContext);

@@ -3,14 +3,16 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router';
 //
 import * as Basic from '../../components/basic';
+import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
-import { IdentityManager, SecurityManager, DataManager, TreeNodeManager } from '../../redux';
+import { IdentityContractManager, IdentityManager, SecurityManager, DataManager, TreeNodeManager } from '../../redux';
 
 const uiKey = 'organization-position';
 
 /**
  * Identity position in organization structure
- * * renders first identity's contract working position from root to position
+ * * renders prime identity contract's working position from root to position
+ * * renders link to profile - basic information
  *
  * @author Radek Tomiška
  */
@@ -19,6 +21,7 @@ class OrganizationPosition extends Basic.AbstractContextComponent {
   constructor(props, context) {
     super(props, context);
     this.identityManager = new IdentityManager();
+    this.identityContractManager = new IdentityContractManager();
     this.treeNodeManager = new TreeNodeManager();
   }
 
@@ -27,44 +30,56 @@ class OrganizationPosition extends Basic.AbstractContextComponent {
     if (!rendered || !identity) {
       return;
     }
-    this.context.store.dispatch(this.identityManager.fetchOrganizationPosition(identity, `${uiKey}-${identity}`));
+    this.context.store.dispatch(this.identityManager.fetchWorkPosition(identity, `${uiKey}-${identity}`));
   }
 
   render() {
-    const { identity, rendered, showLoading, _showLoading, _positions } = this.props;
+    const { identity, rendered, showLoading, _showLoading, _workPosition } = this.props;
     if (!rendered || !identity) {
       return null;
     }
     if (showLoading || _showLoading) {
+      /* TODO: UI jumping, when position is null ...);*/
       return (
         <ol className="breadcrumb">
           <li><Basic.Icon value="refresh" showLoading/></li>
         </ol>
       );
     }
-    if (!_positions || _positions.length === 0) {
-      return null;
+    const items = [];
+    if (!_workPosition) {
+      //
+    } else if (!_workPosition.path) {
+      items.push(
+        <li>{ this.identityContractManager.getNiceLabel(_workPosition.contract) }</li>
+      );
+    } else {
+      _workPosition.path.forEach(treeNode => {
+        if (!SecurityManager.hasAccess({ 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREETYPE_READ']})) {
+          items.push(
+            <li>{ this.treeNodeManager.getNiceLabel(treeNode) }</li>
+          );
+        } else {
+          // link to tree node detail
+          items.push(
+            <li key={`op-${treeNode.id}`}>
+              <Link to={`/tree/nodes/${treeNode.id}/detail`}>
+                { this.treeNodeManager.getNiceLabel(treeNode) }
+              </Link>
+            </li>
+          );
+        }
+      });
     }
+    items.push(
+      <li>
+        <Advanced.IdentityInfo username={identity} face="link"/>
+      </li>
+    );
     //
     return (
       <ol className="breadcrumb" title={ this.i18n('content.identity.profile.organizationPosition.title') } style={{ marginBottom: 10 }}>
-        {
-          _positions.map(treeNode => {
-            if (!SecurityManager.hasAccess({ 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREETYPE_READ']})) {
-              return (
-                <li>{ this.treeNodeManager.getNiceLabel(treeNode) }</li>
-              );
-            }
-            // link to tree node detail
-            return (
-              <li key={`op-${treeNode.id}`}>
-                <Link to={`/tree/nodes/${treeNode.id}/detail`}>
-                  { this.treeNodeManager.getNiceLabel(treeNode) }
-                </Link>
-              </li>
-            );
-          })
-        }
+        { items }
       </ol>
     );
   }
@@ -73,13 +88,13 @@ class OrganizationPosition extends Basic.AbstractContextComponent {
 OrganizationPosition.propTypes = {
   ...Basic.AbstractContextComponent.propTypes,
   identity: PropTypes.string,
-  _positions: PropTypes.arrayOf(PropTypes.object),
+  _workPosition: PropTypes.arrayOf(PropTypes.object),
   defaultTreeType: PropTypes.object,
 };
 OrganizationPosition.defaultProps = {
   ...Basic.AbstractContextComponent.defaultProps,
   identity: null,
-  _positions: null,
+  _workPosition: null,
   _showLoading: true,
   defaultTreeType: null
 };
@@ -88,7 +103,7 @@ function select(state, component) {
   const uiKeyId = `${uiKey}-${component.identity}`;
   return {
     _showLoading: Utils.Ui.isShowLoading(state, uiKeyId),
-    _positions: DataManager.getData(state, uiKeyId)
+    _workPosition: DataManager.getData(state, uiKeyId)
   };
 }
 

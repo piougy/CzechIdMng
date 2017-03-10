@@ -52,7 +52,7 @@ public abstract class AbstractIntegrationTest {
 	 * @param username
 	 */
 	public void loginAsAdmin(String username) {
-		SecurityContextHolder.getContext().setAuthentication(new IdmJwtAuthentication(new IdentityDto(username), null, securityService.getAllAvailableAuthorities()));
+		SecurityContextHolder.getContext().setAuthentication(new IdmJwtAuthentication(new IdentityDto(username), null, securityService.getAllAvailableAuthorities(), "test"));
 	}
 	
 	/**

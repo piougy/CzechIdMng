@@ -20,7 +20,7 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordService;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.core.security.api.dto.IdmJwtAuthenticationDto;
-import eu.bcvsolutions.idm.core.security.dto.LoginDto;
+import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
 import eu.bcvsolutions.idm.core.security.exception.IdmAuthenticationException;
 import eu.bcvsolutions.idm.core.security.service.GrantedAuthoritiesFactory;
 import eu.bcvsolutions.idm.core.security.service.LoginService;
@@ -77,7 +77,8 @@ public class DefaultLoginService implements LoginService {
 		IdmJwtAuthentication authentication = new IdmJwtAuthentication(
 				new IdentityDto(identity, identity.getUsername()),
 				expiration,
-				grantedAuthoritiesFactory.getGrantedAuthorities(username));
+				grantedAuthoritiesFactory.getGrantedAuthorities(username),
+				loginDto.getAuthenticationModule());
 		
 		authenticationManager.authenticate(authentication);
 

@@ -70,7 +70,6 @@ public interface IdmRoleCatalogueRepository extends
 	@Query("select e from #{#entityName} e where e.parent is null")
 	Page<IdmRoleCatalogue> findRoots(Pageable pageable);
 	
-	
 	/**
 	 * {@inheritDoc}
 	 * 

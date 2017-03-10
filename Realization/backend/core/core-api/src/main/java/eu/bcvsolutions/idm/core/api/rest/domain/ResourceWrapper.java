@@ -10,7 +10,9 @@ import com.fasterxml.jackson.annotation.JsonUnwrapped;
  * @author svandav
  *
  * @param <T> dto for resource
+ * @deprecated use Resource or Resources from spring instead
  */
+@Deprecated
 @JsonIgnoreProperties({ "id" })
 public class ResourceWrapper<T> extends ResourceSupport {
 

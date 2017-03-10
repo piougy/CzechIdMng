@@ -162,6 +162,7 @@ public class IdmTreeNode extends AbstractEntity
 	 * 
 	 */
 	@Override
+	@JsonIgnore
 	public String getForestTreeType() {
 		return toForestTreeType(treeType);
 	}

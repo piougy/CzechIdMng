@@ -888,6 +888,20 @@
           "error" : {
             "notFound": "Extended attributes definition for element not found."
           }
+        },
+        "roles": {
+          "header": "Automatic roles",
+          "title": "Automatic roles",
+          "label": "Automatic roles",
+          "edit": {
+            "header": "{{name}} <small>automatic role detail</small>"
+          },
+          "create": {
+            "header": "New automatic role"
+          },
+          "save": {
+            "success": "Automatic role [{{record}}] was successfully saved"
+          }
         }
       },
       "types": {
@@ -1247,25 +1261,11 @@
       "identityContracts": {
         "header": "Contracted positions",
         "title": "$t(content.identity.identityContracts.header)",
-        "detail": {
-          "invalidContract":"Detail neplatného PPV",
-          "validContract":"Detail PPV",
-          "header": "Detail pracovně právního vztahu"
-        },
         "identityContracts": {
-          "empty": "Nenalezeny žádné pracovně právní vztahy."
-        },
-        "create": {
-          "header": "Přiřazení nové pozice",
-          "success": "Uživateli [{{username}}] byla úspěšně přidána pozice [{{position}}].",
-          "accepted": "Pozice [{{position}}] pro uživatele [{{username}}] byla úspěšně předána ke zpracování. Pozice musí býti před přiřazením nejdříve schválena."
-        },
-        "edit": {
-          "header": "{{position}} <small>Position details</small>",
-          "success": "Pozice [{{position}}] uživatele [{{username}}] byla úspěšně upravena."
+          "empty": "Contracted positions not found."
         },
         "delete": {
-          "success": "Pozice [{{position}}] uživatele [{{username}}] byla úspěšně odebrána."
+          "success": "Contracted position [{{position}}] for user [{{username}}] was successfully removed."
         }
       },
       "approve": {
@@ -1331,6 +1331,40 @@
       "garanted-roles": {
         "header": "Authorizer <small>User is authorizer of these roles</small>",
         "title": "Authorize roles"
+      }
+    },
+    "identity-contract": {
+      "detail": {
+        "header": "Contracted position detail",
+        "title": "Contracted position detail",
+        "label": "Basic information",
+        "invalidContract":"Invalid contracted position detail",
+        "validContract":"Contracted position detail",
+        "edit": {
+          "title": "Contracted position detail",
+          "header": "{{position}} <small>contracted position detail</small>",
+          "success": "Contracted position [{{position}}] for user [{{username}}] was successfully saved."
+        },
+        "create": {
+          "title": "New contracted position",
+          "header": "New contracted position",
+          "success": "Contracted position [{{position}}] for user [{{username}}] was successfully saved.",
+          "accepted": "Contracted position [{{position}}] for user [{{username}}] was accepted. Contracted position has to be approved at first."
+        },
+        "save": {
+          "success": "Contracted position [{{name}}] was successfully saved."
+        }
+      },
+      "eav": {
+        "header": "More information",
+        "title": "More information",
+        "label": "More information",
+        "save": {
+          "success": "Extended attributes for contracted position [{{name}}] was successfully saved."
+        },
+        "error" : {
+          "notFound": "Extended attributes definition for contracted position not found."
+        }
       }
     },
     "organizations": {
@@ -1802,6 +1836,12 @@
       "managers": {
         "label": "Authorizer",
         "title": "Authorizer and all managers for position in structure"
+      },
+      "disabled": "Inactive",
+      "description": "Note",
+      "main": {
+        "label": "Default position",
+        "help": "Prime work position."
       }
     },
     "TreeNode": {

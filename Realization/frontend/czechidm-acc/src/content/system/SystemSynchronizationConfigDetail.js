@@ -89,7 +89,7 @@ class SystemSynchronizationConfigDetail extends Basic.AbstractTableContent {
   /**
    * Saves give entity
    */
-  save(startSynchronization = false, close = false, event) {
+  save(startSynchronization, close, event) {
     if (event) {
       event.preventDefault();
     }

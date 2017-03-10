@@ -195,10 +195,14 @@ class IdentityService extends FormableEntityService {
    * @param token {string}
    * @return {Promise}
    */
-  getOrganizationPosition(username) {
+  getWorkPosition(username) {
     return RestApiService
-    .get(this.getApiPath() + `/${encodeURIComponent(username)}/organization-position`)
+    .get(this.getApiPath() + `/${encodeURIComponent(username)}/work-position`)
     .then(response => {
+      if (response.status === 204) {
+        // no work position was found
+        return {};
+      }
       return response.json();
     })
     .then(json => {

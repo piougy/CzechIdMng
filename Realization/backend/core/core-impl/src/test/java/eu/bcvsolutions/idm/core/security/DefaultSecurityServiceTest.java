@@ -42,7 +42,8 @@ public class DefaultSecurityServiceTest extends AbstractVerifiableUnitTest {
 			new IdentityDto(CURRENT_USERNAME), 
 			new IdentityDto(ORIGINAL_USERNAME), 
 			new Date(), 
-			AUTHORITIES);
+			AUTHORITIES,
+			"test");
 	
 	@Mock
 	private SecurityContext securityContext;

@@ -159,15 +159,29 @@ public class DefaultIdmNotificationTemplateService extends AbstractReadWriteEnti
 		velocityEngine.evaluate(velocityContext, bodyText, template.getCode(), text);
 		velocityEngine.evaluate(velocityContext, subject, template.getCode(), subjectString);
 		//
-		// Build IdmMessage
-		IdmMessage newMessage = new IdmMessage.Builder()
-				.setHtmlMessage(bodyHtml.toString())
-				.setTextMessage(bodyText.toString())
-				.setSubject(subject.toString())
-				.setLevel(message.getLevel()) // level get from old message
-				.setTemplate(template)
-				.setParameters(model)
-				.build();
+		IdmMessage newMessage = null;
+		// if is set model from message build with them
+		if (message.getModel() != null) {
+			 newMessage = new IdmMessage.Builder()
+						.setHtmlMessage(bodyHtml.toString())
+						.setTextMessage(bodyText.toString())
+						.setSubject(message.getModel().getStatusEnum())
+						.setLevel(message.getLevel()) // level get from old message
+						.setTemplate(template)
+						.setParameters(model)
+						.setModel(message.getModel())
+						.build();
+		} else {
+			// Build IdmMessage
+			newMessage = new IdmMessage.Builder()
+					.setHtmlMessage(bodyHtml.toString())
+					.setTextMessage(bodyText.toString())
+					.setSubject(subject.toString())
+					.setLevel(message.getLevel()) // level get from old message
+					.setTemplate(template)
+					.setParameters(model)
+					.build();
+		}
 		//
 		return newMessage;
 	}
@@ -207,16 +221,22 @@ public class DefaultIdmNotificationTemplateService extends AbstractReadWriteEnti
 							IdmNotificationTemplate newTemplate = new IdmNotificationTemplate();
 							//
 							Element temp = (Element) template;
-							newTemplate.setName(temp.getElementsByTagName("name").item(0).getTextContent());
-							newTemplate.setCode(temp.getElementsByTagName("code").item(0).getTextContent());
-							newTemplate.setSubject(temp.getElementsByTagName("subject").item(0).getTextContent());
-							newTemplate.setBodyHtml(temp.getElementsByTagName("bodyHtml").item(0).getTextContent());
-							newTemplate.setBodyText(temp.getElementsByTagName("bodyText").item(0).getTextContent());
-							newTemplate.setParameter(temp.getElementsByTagName("parameter").item(0).getTextContent());
-							newTemplate.setSystemTemplate(new Boolean(temp.getElementsByTagName("systemTemplate").item(0).getTextContent()));
-							newTemplate.setModule(temp.getElementsByTagName("moduleId").item(0).getTextContent());
 							//
-							entities.add(newTemplate);
+							// try to found template by code, if not found save it
+							String code = temp.getElementsByTagName("code").item(0).getTextContent();
+							IdmNotificationTemplate oldTemplate = this.getTemplateByCode(code);
+							if (oldTemplate == null) {
+								newTemplate.setName(temp.getElementsByTagName("name").item(0).getTextContent());
+								newTemplate.setCode(code);
+								newTemplate.setSubject(temp.getElementsByTagName("subject").item(0).getTextContent());
+								newTemplate.setBodyHtml(temp.getElementsByTagName("bodyHtml").item(0).getTextContent());
+								newTemplate.setBodyText(temp.getElementsByTagName("bodyText").item(0).getTextContent());
+								newTemplate.setParameter(temp.getElementsByTagName("parameter").item(0).getTextContent());
+								newTemplate.setSystemTemplate(new Boolean(temp.getElementsByTagName("systemTemplate").item(0).getTextContent()));
+								newTemplate.setModule(temp.getElementsByTagName("moduleId").item(0).getTextContent());
+								//
+								entities.add(newTemplate);
+							}
 						}
 					}
 	        	}

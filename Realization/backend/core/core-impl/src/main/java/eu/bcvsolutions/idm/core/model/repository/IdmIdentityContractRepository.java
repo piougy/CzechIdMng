@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.model.repository;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
@@ -92,5 +93,12 @@ public interface IdmIdentityContractRepository extends AbstractEntityRepository<
 	        + " (validTill is not null and validTill < :expiration)")
 	Page<IdmIdentityContract> findExpiredContracts(@Param("expiration") LocalDate expiration, Pageable pageable);
 	
-
+	/**
+	 * Clears default tree type for all tree types instead given updatedEntityId
+	 * 
+	 * @param updatedEntityId
+	 */
+	@Modifying
+	@Query("update #{#entityName} e set e.main = false, e.modified = :modified where e.identity = :identity and (:updatedEntityId is null or e.id != :updatedEntityId)")
+	void clearMain(@Param("identity") IdmIdentity identity, @Param("updatedEntityId") UUID updatedEntityId, @Param("modified") DateTime modified);
 }

@@ -31,7 +31,7 @@ import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.eav.service.api.IdmFormDefinitionService;
 import eu.bcvsolutions.idm.core.eav.service.impl.DefaultFormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityFormValue;
+import eu.bcvsolutions.idm.core.model.entity.eav.IdmIdentityFormValue;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;

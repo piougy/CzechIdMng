@@ -144,10 +144,9 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 				organizationRoot.setTreeType(treeType);
 				organizationRoot = this.treeNodeService.save(organizationRoot);
 			}
-			// if dont exist any system templates init - first start of application, TODO: save only missing.
-			if (notificationTemplateService.findAllSystemTemplates().isEmpty()) {
-				notificationTemplateService.initSystemTemplates();
-			}
+			// save only missing templates, current templates is not redeploys
+			notificationTemplateService.initSystemTemplates();
+			//
 			// init notification configuration, initialization topic need exists system templates!
 			notificationConfigurationService.initDefaultTopics();
 		} finally {

@@ -861,10 +861,6 @@
       "title": "Proběhl provisioning účtu [{{name}}]",
       "message": "Provisioning účtu [{{name}}] na systém [{{system}}] úspěšně proběhl."
     },
-    "PROVISIONING_SUCCEED": {
-      "title": "Proběhl provisioning účtu [{{name}}]",
-      "message": "Provisioning účtu [{{name}}] na systém [{{system}}] úspěšně proběhl."
-    },
     "PROVISIONING_IS_IN_QUEUE": {
       "title": "Provisioning účtu [{{name}}] byl zařazen do fronty",
       "message": "Ve frontě jsou pro stejný účet nezpracované požadavky na provisioning, proto byl nový poždavek na provisioning účtu [{{name}}] na systém [{{system}}] zařazen do fronty."

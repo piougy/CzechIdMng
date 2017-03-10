@@ -147,12 +147,16 @@ module.exports = {
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ'] } ]
     },
     {
-      path: 'request-roles',
+      path: 'role-requests',
       component: require('./src/content/requestrole/RoleRequests'),
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_REQUEST_READ'] } ]
     },
     {
-      path: 'request-roles/:entityId/detail',
+      path: 'role-requests/:entityId/detail',
+      component: require('./src/content/requestrole/RoleRequestDetail')
+    },
+    {
+      path: 'role-requests/:entityId/new',
       component: require('./src/content/requestrole/RoleRequestDetail')
     },
     {

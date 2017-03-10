@@ -401,6 +401,7 @@
     },
     "RoleRequestStateEnum": {
       "CREATED": "Vytvořeno",
+      "CONCEPT": "Koncept",
       "EXECUTED": "Provedeno",
       "CANCELED": "Zrušeno",
       "APPROVED": "Schváleno",

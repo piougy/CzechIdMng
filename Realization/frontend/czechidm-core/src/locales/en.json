@@ -1072,6 +1072,21 @@
         },
         "save": {
           "success": "Automatic role [{{record}}] was successfully saved"
+        },
+        "action": {
+          "delete": {
+            "action": "Remove",
+            "header_1": "Removing automatic role",
+            "header_2": "Removing automatic roles",
+            "header_5": "$t(action.delete.header_2)",
+            "message_1": "Do you want to remove selected record [<strong>{{record}}</strong>]? All assigned roles dependent on removed automatic role will be removed too.",
+            "message_2": "Select records: [<strong>{{records}}</strong>].<br /><br />Do you want to remove <strong>{{count}}</strong> selected records? All assigned roles dependent on removed automatic role will be removed too.",
+            "message_5": "Select records: [<strong>{{records}}</strong>].<br /><br /Do you want to remove <strong>{{count}}</strong> selected records? All assigned roles dependent on removed automatic role will be removed too.",
+            "error": "An error occurred while removing [{{record}}].",
+            "success_1": "Selected record [{{record}}] was successfully deleted",
+            "success_2": "Selected records [{{records}}] were successfully deleted",
+            "success_5": "Selected records [{{records}}] were successfully deleted"
+          }
         }
       }
     },
@@ -1796,6 +1811,12 @@
         "title": "Contracted position",
         "placeholder": "Contracted position",
         "help": "Connection to organization or another tree strucure"
+      },
+      "roleTreeNode": {
+        "label": "Automatic role",
+        "title": "Automatic role",
+        "placeholder": "Automatic role",
+        "help": "Role from contracted position"
       }
     },
     "IdentityAccount": {
@@ -1837,7 +1858,10 @@
         "label": "Authorizer",
         "title": "Authorizer and all managers for position in structure"
       },
-      "disabled": "Inactive",
+      "disabled": {
+        "label": "Inactive",
+        "help": "Inactive work position. Has higher priority than valid dates. Invalid work position is automatically set to inactive and all assigned roles to this positio are removed."
+      },
       "description": "Note",
       "main": {
         "label": "Default position",

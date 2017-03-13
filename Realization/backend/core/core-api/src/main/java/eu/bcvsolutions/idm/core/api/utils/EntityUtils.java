@@ -5,6 +5,7 @@
 package eu.bcvsolutions.idm.core.api.utils;
 
 import java.io.Serializable;
+import java.util.Objects;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
@@ -35,6 +36,17 @@ public class EntityUtils {
 		LocalDate now = new LocalDate();		
 		return (entity.getValidFrom() == null || entity.getValidFrom().compareTo(now) <= 0)
 				&& (entity.getValidTill() == null || entity.getValidTill().compareTo(now) >= 0);
+	}
+	
+	/**
+	 * Returns false, when validable information are the same
+	 * 
+	 * @param previous
+	 * @param current
+	 * @return
+	 */
+	public static boolean validableChanged(ValidableEntity previous, ValidableEntity current) {
+		return !Objects.equals(previous.getValidFrom(), current.getValidFrom()) || !Objects.equals(previous.getValidTill(), current.getValidTill());
 	}
 	
 	/**

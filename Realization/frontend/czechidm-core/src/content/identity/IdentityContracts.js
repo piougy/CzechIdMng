@@ -169,6 +169,12 @@ export default class IdentityContracts extends Basic.AbstractContent {
               face="date"
               sort/>
             <Advanced.Column
+              property="disabled"
+              header={this.i18n('entity.IdentityContract.disabled.label')}
+              face="bool"
+              width={100}
+              sort/>
+            <Advanced.Column
               property="externe"
               header={this.i18n('entity.IdentityContract.externe')}
               face="bool"

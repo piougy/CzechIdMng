@@ -39,5 +39,4 @@ export default class RecursionTypeEnum extends AbstractEnum {
 
 RecursionTypeEnum.NO = Symbol('NO');
 RecursionTypeEnum.DOWN = Symbol('DOWN');
-// not implemented for now
-// RecursionTypeEnum.UP = Symbol('UP');
+RecursionTypeEnum.UP = Symbol('UP');

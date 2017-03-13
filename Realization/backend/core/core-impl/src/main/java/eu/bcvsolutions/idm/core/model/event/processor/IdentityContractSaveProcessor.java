@@ -13,6 +13,7 @@ import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 
 /**
  * Persists identity contract.
@@ -26,14 +27,19 @@ public class IdentityContractSaveProcessor extends CoreEventProcessor<IdmIdentit
 	
 	public static final String PROCESSOR_NAME = "identity-contract-save-processor";
 	private final IdmIdentityContractRepository repository;
+	private final IdmIdentityRoleService identityRoleService;
 	
 	@Autowired
-	public IdentityContractSaveProcessor(IdmIdentityContractRepository repository) {
+	public IdentityContractSaveProcessor(
+			IdmIdentityContractRepository repository,
+			IdmIdentityRoleService identityRoleService) {
 		super(IdentityContractEventType.UPDATE, IdentityContractEventType.CREATE);
 		//
 		Assert.notNull(repository);
+		Assert.notNull(identityRoleService);
 		//
 		this.repository = repository;
+		this.identityRoleService = identityRoleService;
 	}
 	
 	@Override
@@ -43,11 +49,22 @@ public class IdentityContractSaveProcessor extends CoreEventProcessor<IdmIdentit
 
 	@Override
 	public EventResult<IdmIdentityContract> process(EntityEvent<IdmIdentityContract> event) {
-		IdmIdentityContract entity = event.getContent();
-		if (entity.isMain()) {
-			this.repository.clearMain(entity.getIdentity(), entity.getId(), new DateTime());
+		IdmIdentityContract contract = event.getContent();
+		if (contract.isMain()) {
+			this.repository.clearMain(contract.getIdentity(), contract.getId(), new DateTime());
 		}
-		repository.save(entity);
+		repository.save(contract);
+		//
+		if (IdentityContractEventType.UPDATE == event.getType()) {
+			if (contract.isDisabled()) {
+				// remove all referenced roles
+				identityRoleService.getRoles(contract).forEach(identityRole -> {
+					identityRoleService.delete(identityRole);
+				});
+			} else {
+				// automatic roles was added by IdentityContractUpdateAutomaticRoleProcessor
+			}
+		}
 		//
 		// TODO: clone content - mutable previous event content :/
 		return new DefaultEventResult<>(event, this);

@@ -1,7 +1,9 @@
 import AbstractContent from './AbstractContent';
 
 /**
-* Basic table content with entity CRUD methods
+* Advance table content with entity CRUD methods id modal
+*
+* TODO: move to advanced, add readme
 *
 * @author Radek Tomiška
 */

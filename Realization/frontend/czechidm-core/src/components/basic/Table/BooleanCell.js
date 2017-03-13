@@ -14,13 +14,16 @@ import Icon from '../Icon/Icon';
  * @param property column key
  * @param props other optional properties
  */
-const BooleanCell = ({rowIndex, data, property, ...props}) => {
-  const propertyValue = DefaultCell.getPropertyValue(data[rowIndex], property);
+const BooleanCell = ({rowIndex, data, property, propertyValue, ...props}) => {
+  let _propertyValue = propertyValue;
+  if (propertyValue === undefined || propertyValue === null) {
+    _propertyValue = DefaultCell.getPropertyValue(data[rowIndex], property);
+  }
   //
   return (
     <DefaultCell {...props}>
       {
-        propertyValue
+        _propertyValue
         ?
         <Icon value="fa:check-square-o" disabled/>
         :

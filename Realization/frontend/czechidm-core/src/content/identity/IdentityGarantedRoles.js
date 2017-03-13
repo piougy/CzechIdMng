@@ -28,7 +28,7 @@ export default class IdentityGarantedRoles extends Basic.AbstractContent {
     const forceSearchParameters = new SearchParameters().setFilter('guarantee', this.props.params.entityId);
     return (
       <div className="tab-pane-table-body">
-        { this.renderContentHeader() }
+        { this.renderContentHeader({ style: { marginBottom: 0 }}) }
 
         <Basic.Panel className="no-border last">
           <RoleTable

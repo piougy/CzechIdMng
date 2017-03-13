@@ -70,7 +70,6 @@ import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorKey;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
-import eu.bcvsolutions.idm.ic.api.IcObjectClass;
 import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
 import eu.bcvsolutions.idm.ic.impl.IcConnectorObjectImpl;
 import eu.bcvsolutions.idm.ic.impl.IcObjectClassImpl;
@@ -485,41 +484,15 @@ public class DefaultProvisioningService implements ProvisioningService {
 		Assert.notNull(system);
 		Assert.notNull(entityType);
 
-		List<? extends AttributeMapping> attributes = findAttributeMappings(system, entityType);
-		if (attributes == null || attributes.isEmpty()) {
-			return null;
-		}
-
-		// Find connector identification persisted in system
-		IcConnectorKey connectorKey = system.getConnectorKey();
-		if (connectorKey == null) {
-			throw new ProvisioningException(AccResultCode.CONNECTOR_KEY_FOR_SYSTEM_NOT_FOUND,
-					ImmutableMap.of("system", system.getName()));
-		}
-
 		// Find connector configuration persisted in system
 		IcConnectorConfiguration connectorConfig = systemService.getConnectorConfiguration(system);
 		if (connectorConfig == null) {
 			throw new ProvisioningException(AccResultCode.CONNECTOR_CONFIGURATION_FOR_SYSTEM_NOT_FOUND,
 					ImmutableMap.of("system", system.getName()));
 		}
-		// Find attribute handling mapped on schema password attribute
-		Optional<? extends AttributeMapping> passwordAttributeHandlingOptional = attributes.stream()
-				.filter((attribute) -> {
-					return IcConnectorFacade.PASSWORD_ATTRIBUTE_NAME.equals(attribute.getSchemaAttribute().getName());
-				}).findFirst();
-		if (!passwordAttributeHandlingOptional.isPresent()) {
-			throw new ProvisioningException(AccResultCode.PROVISIONING_IDM_FIELD_NOT_FOUND,
-					ImmutableMap.of("property", IcConnectorFacade.PASSWORD_ATTRIBUTE_NAME, "uid", username));
-		}
-
-		AttributeMapping passwordAttributeHandling = passwordAttributeHandlingOptional.get();
-
-		String objectClassName = passwordAttributeHandling.getSchemaAttribute().getObjectClass().getObjectClassName();
-		IcObjectClass icObjectClass = new IcObjectClassImpl(objectClassName);
 
 		// Call IC module for check authenticate
-		return connectorFacade.authenticateObject(system.getConnectorInstance(), connectorConfig, icObjectClass, username, password);
+		return connectorFacade.authenticateObject(system.getConnectorInstance(), connectorConfig, null, username, password);
 	}
 
 	/**

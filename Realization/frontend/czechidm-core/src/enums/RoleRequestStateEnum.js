@@ -26,7 +26,7 @@ export default class RoleRequestStateEnum extends AbstractEnum {
     const sym = super.findSymbolByKey(this, key);
 
     switch (sym) {
-      case this.CREATED: {
+      case this.CONCEPT: {
         return 'info';
       }
       case this.EXECUTED: {
@@ -54,7 +54,7 @@ export default class RoleRequestStateEnum extends AbstractEnum {
   }
 }
 
-RoleRequestStateEnum.CREATED = Symbol('CREATED');
+RoleRequestStateEnum.CONCEPT = Symbol('CONCEPT');
 RoleRequestStateEnum.EXECUTED = Symbol('EXECUTED');
 RoleRequestStateEnum.CANCELED = Symbol('CANCELED');
 RoleRequestStateEnum.APPROVED = Symbol('APPROVED');

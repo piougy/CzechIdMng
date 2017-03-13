@@ -131,14 +131,19 @@ public abstract class AbstractNotificationSender<N extends IdmNotification> impl
 		// try to find template
 		if (message.getTemplate() == null) {
 			IdmNotificationConfiguration configuration = notificationConfigurationRepository.findNotificationByTopicLevel(notification.getTopic(), message.getLevel());
-			
+			//
+			// if configurations is empty try to wildcard with null level
+			if (configuration == null) {
+				configuration = notificationConfigurationRepository.findNotificationByTopicLevel(notification.getTopic(), null);
+			}
+			//
 			if (configuration != null) {
 				message.setTemplate(configuration.getTemplate());
 				notification.setMessage(this.notificationTemplateService.buildMessage(message, false));
 				return send(notification);
 			}
 			// if configurations is null check if exist text for message, TODO: send only subject?
-			if (message == null || (message.getHtmlMessage() == null && message.getSubject() == null && message.getTextMessage() == null)) {
+			if (message == null || message.getModel() == null  || (message.getHtmlMessage() == null && message.getSubject() == null && message.getTextMessage() == null)) {
 				LOG.info("Notification has empty template and message. Default message will be send! [topic:{}]", topic);
 				// send default message
 				notification.setMessage(

@@ -172,7 +172,7 @@ class PasswordChangeForm extends Basic.AbstractContent {
   }
 
   render() {
-    const { passwordChangeType, requireOldPassword, userContext, accountOptions } = this.props;
+    const { passwordChangeType, requireOldPassword, userContext, accountOptions, requireOldPasswordConfig } = this.props;
     const { preload, validationError } = this.state;
     const allOnlyWarningClassNames = classnames(
       'form-group',
@@ -204,7 +204,9 @@ class PasswordChangeForm extends Basic.AbstractContent {
                     style={{ margin: '15px 0 0 0'}}/>
 
                   <Basic.AbstractForm ref="form">
-                    <Basic.TextField type="password" ref="oldPassword" label={this.i18n('password.old')} hidden={!requireOldPassword || SecurityManager.isAdmin(userContext)} required={requireOldPassword && !SecurityManager.isAdmin(userContext)}/>
+                    <Basic.TextField type="password" ref="oldPassword" label={this.i18n('password.old')}
+                      hidden={!requireOldPassword || SecurityManager.isAdmin(userContext) || requireOldPasswordConfig}
+                      required={requireOldPassword && !SecurityManager.isAdmin(userContext) || requireOldPasswordConfig}/>
 
                     <Advanced.PasswordField className="form-control" ref="passwords" />
 
@@ -255,7 +257,8 @@ PasswordChangeForm.defaultProps = {
 
 function select(state) {
   return {
-    passwordChangeType: ConfigurationManager.getPublicValue(state, 'idm.pub.core.identity.passwordChange')
+    passwordChangeType: ConfigurationManager.getPublicValue(state, 'idm.pub.core.identity.passwordChange'),
+    requireOldPasswordConfig: ConfigurationManager.getPublicValue(state, 'idm.pub.core.identity.passwordChange.requireOldPassword')
   };
 }
 

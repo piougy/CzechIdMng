@@ -4,6 +4,7 @@ import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -16,6 +17,7 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
+import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
@@ -286,6 +288,12 @@ public class DefaultSysSystemAttributeMappingService
 				MessageFormat.format("Genereted by schema attribute {0} in resource {1}. Created by SYSTEM.",
 						schemaAttribute.getName(), schemaAttribute.getObjectClass().getSystem().getName()));
 		return attributeDefinition;
+	}
+
+	@Override
+	public SysSystemAttributeMapping getAuthenticationAttribute(UUID systemId) {
+		// authentication attribute is only from provisioning operation type
+		return this.repository.findAuthenticationAttribute(systemId, SystemOperationType.PROVISIONING);
 	}
 
 }

@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.acc.service.impl;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,15 +30,20 @@ public class DefaultAccIdentityAccountService extends
 
 	private final AccAccountService accountService;
 	private final IdmIdentityRoleService identityRoleService;
+	private final AccIdentityAccountRepository identityAccountRepository;
 
 	@Autowired
 	public DefaultAccIdentityAccountService(AccIdentityAccountRepository identityAccountRepository,
 			AccAccountService accountService, IdmIdentityRoleService identityRoleService) {
 		super(identityAccountRepository);
+		//
 		Assert.notNull(accountService);
 		Assert.notNull(identityRoleService);
+		Assert.notNull(identityAccountRepository);
+		//
 		this.accountService = accountService;
 		this.identityRoleService = identityRoleService;
+		this.identityAccountRepository = identityAccountRepository;
 	}
 
 	@Override
@@ -88,5 +94,10 @@ public class DefaultAccIdentityAccountService extends
 			// Finally we can delete account
 			accountService.delete(account, deleteTargetAccount);
 		}
+	}
+
+	@Override
+	public List<AccIdentityAccount> getIdentityAccountsForUsernameAndSystem(String username, UUID systemId) {
+		return this.identityAccountRepository.findByUsernameAndSystem(username, systemId);
 	}
 }

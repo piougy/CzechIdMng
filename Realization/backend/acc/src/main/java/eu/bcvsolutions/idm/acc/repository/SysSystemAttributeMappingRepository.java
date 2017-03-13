@@ -1,10 +1,14 @@
 package eu.bcvsolutions.idm.acc.repository;
 
+import java.util.UUID;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
+import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
 import eu.bcvsolutions.idm.acc.rest.projection.SysSystemAttributeMappingExcerpt;
@@ -44,4 +48,12 @@ public interface SysSystemAttributeMappingRepository extends AbstractEntityRepos
 			+ " (?#{[0].idmPropertyName} is null or lower(e.idmPropertyName) like ?#{[0].idmPropertyName == null ? '%' : '%'.concat([0].idmPropertyName.toLowerCase()).concat('%')})"
 			)
 	Page<SysSystemAttributeMapping> find(SystemAttributeMappingFilter filter, Pageable pageable);
+	
+	@Query("SELECT e FROM SysSystemAttributeMapping e WHERE "
+			+ "e.authenticationAttribute = true "
+			+ "AND "
+			+ "e.systemMapping.operationType = :operationType "
+			+ "AND "
+			+ "e.systemMapping.objectClass.system.id = :systemId ")
+	SysSystemAttributeMapping findAuthenticationAttribute(@Param("systemId") UUID systemId, @Param("operationType") SystemOperationType operationType);
 }

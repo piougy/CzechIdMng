@@ -401,6 +401,7 @@
     },
     "RoleRequestStateEnum": {
       "CREATED": "Created",
+      "CONCEPT": "Concept",
       "EXECUTED": "Executed",
       "CANCELED": "Canceled",
       "APPROVED": "Approved",

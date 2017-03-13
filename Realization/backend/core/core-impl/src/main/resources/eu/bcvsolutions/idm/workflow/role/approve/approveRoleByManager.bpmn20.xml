@@ -32,7 +32,11 @@
       <script>import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleDto;
 
 IdmIdentityRoleDto ir = new IdmIdentityRoleDto();
-ir.setIdentityContract(identityContractIdentifier);
+if(identityContractIdentifier instanceof String){
+	ir.setIdentityContract(UUID.fromString(identityContractIdentifier));
+} else {
+	ir.setIdentityContract(identityContractIdentifier);
+}
 ir.setRole(roleIdentifier);
 ir.setValidFrom(validFrom);
 ir.setValidTill(validTill);
@@ -99,7 +103,11 @@ execution.setVariable("validTill", validTillDateNew);
 
 def identityRoleEntity = identityRoleService.get(identityRoleIdentifier);
 IdmIdentityRoleDto ir = new IdmIdentityRoleDto();
-ir.setIdentityContract(identityContractIdentifier);
+if(identityContractIdentifier instanceof String){
+	ir.setIdentityContract(UUID.fromString(identityContractIdentifier));
+} else {
+	ir.setIdentityContract(identityContractIdentifier);
+}
 ir.setRole(roleIdentifier);
 ir.setValidFrom(identityRoleEntity.getValidFrom());
 ir.setValidTill(identityRoleEntity.getValidTill());

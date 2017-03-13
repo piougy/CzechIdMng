@@ -53,7 +53,7 @@ public abstract class DefaultReadWriteEntityController<E extends BaseEntity, F e
 	 * 
 	 * @param parameters
 	 * @param pageable
-	 * @param assembler
+	 * @param assembler	
 	 * @return
 	 */
 	@ResponseBody

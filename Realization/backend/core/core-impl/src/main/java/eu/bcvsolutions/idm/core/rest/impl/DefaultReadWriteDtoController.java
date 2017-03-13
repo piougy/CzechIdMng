@@ -30,8 +30,8 @@ import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 public abstract class DefaultReadWriteDtoController<DTO extends BaseDto, F extends BaseFilter>
 		extends AbstractReadWriteDtoController<DTO, F> {
 
-	public DefaultReadWriteDtoController(ReadWriteDtoService<DTO, ?, F> entityService) {
-		super(entityService);
+	public DefaultReadWriteDtoController(ReadWriteDtoService<DTO, ?, F> service) {
+		super(service);
 	}
 
 	/**

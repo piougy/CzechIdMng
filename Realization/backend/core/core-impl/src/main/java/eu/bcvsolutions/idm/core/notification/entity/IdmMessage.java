@@ -73,28 +73,45 @@ public class IdmMessage {
 	}
 
 	private IdmMessage(Builder builder) {
-		if (builder.subject != null) {
-			subject = builder.subject;
-		} else if (builder.template != null && builder.template.getSubject() != null) {
-			subject = builder.template.getSubject();
+		if (builder.model != null) {
+			model = builder.model;
+			this.htmlMessage = builder.model.getMessage();
+			this.textMessage = builder.model.getMessage();
+			this.subject = builder.model.getStatusEnum();
+			this.parameters = builder.model.getParameters();
+			//
+			// set level from model, override level
+			if (model.getStatus().is5xxServerError()) {
+				level = NotificationLevel.ERROR;
+			} else if(model.getStatus().is2xxSuccessful()) {
+				level = NotificationLevel.SUCCESS;
+			} else {
+				level = NotificationLevel.WARNING;
+			}
+		} else {
+			if (builder.subject != null) {
+				subject = builder.subject;
+			} else if (builder.template != null && builder.template.getSubject() != null) {
+				subject = builder.template.getSubject();
+			}
+			//
+			if (builder.textMessage != null) {
+				textMessage = builder.textMessage;
+			} else if (builder.template != null && builder.template.getBodyText() != null) {
+				textMessage = builder.template.getBodyText();
+			}
+			//
+			if (builder.htmlMessage != null) {
+				htmlMessage = builder.htmlMessage;
+			} else if (builder.template != null && builder.template.getBodyHtml() != null) {
+				htmlMessage = builder.template.getBodyHtml();
+			}
+			//
+			template = builder.template;
+			parameters = builder.parameters;
+			model = builder.model;
+			level = builder.level == null ? DEFAULT_LEVEL : builder.level;
 		}
-		//
-		if (builder.textMessage != null) {
-			textMessage = builder.textMessage;
-		} else if (builder.template != null && builder.template.getBodyText() != null) {
-			textMessage = builder.template.getBodyText();
-		}
-		//
-		if (builder.htmlMessage != null) {
-			htmlMessage = builder.htmlMessage;
-		} else if (builder.template != null && builder.template.getBodyHtml() != null) {
-			htmlMessage = builder.template.getBodyHtml();
-		}
-		//
-		template = builder.template;
-		parameters = builder.parameters;
-		model = builder.model;
-		level = builder.level == null ? DEFAULT_LEVEL : builder.level;
 	}
 
 	public String getSubject() {

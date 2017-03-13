@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.acc.service.api;
 
 import java.util.List;
+import java.util.UUID;
 
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemAttributeMappingFilter;
@@ -67,4 +68,12 @@ public interface SysSystemAttributeMappingService extends ReadWriteEntityService
 	 * @return
 	 */
 	IcAttribute createIcAttribute(SysSchemaAttribute schemaAttribute, Object idmValue);
+	
+	/**
+	 * Method return {@link SysSystemAttributeMapping} for system id, that has flag for authentication attribute.
+	 * 
+	 * @param systemId
+	 * @return
+	 */
+	SysSystemAttributeMapping getAuthenticationAttribute(UUID systemId);
 }

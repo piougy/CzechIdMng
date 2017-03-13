@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.rest.impl;
 
+import java.util.UUID;
+
 import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +12,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
@@ -65,7 +68,16 @@ public class IdmRoleRequestController extends DefaultReadWriteDtoController<IdmR
 	public ResponseEntity<?> delete(@PathVariable @NotNull String backendId) {
 		return super.delete(backendId);
 	}
-	
+
+	@ResponseBody
+	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_REQUEST_WRITE + "') or hasAuthority('"
+			+ IdmGroupPermission.IDENTITY_WRITE + "')")
+	@RequestMapping(value = "/{backendId}/start", method = RequestMethod.PUT)
+	public ResponseEntity<?> startRequest(@PathVariable @NotNull String backendId) {
+		((IdmRoleRequestService)this.getService()).startRequest(UUID.fromString(backendId));
+		return this.get(backendId);
+	}
+
 	
 	@Override
 	protected RoleRequestFilter toFilter(MultiValueMap<String, Object> parameters) {

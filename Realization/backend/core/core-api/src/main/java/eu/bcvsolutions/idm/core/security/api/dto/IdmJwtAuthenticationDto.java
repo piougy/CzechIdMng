@@ -18,6 +18,7 @@ public class IdmJwtAuthenticationDto {
 	private UUID originaIdentityId;
 	private Date expiration; // TODO: datetime
 	private Collection<DefaultGrantedAuthorityDto> authorities;
+	private String fromModule;
 
 	public IdmJwtAuthenticationDto() {
 	}
@@ -75,5 +76,13 @@ public class IdmJwtAuthenticationDto {
 			return false;
 		}
 		return expiration.before(new Date());
+	}
+
+	public String getFromModule() {
+		return fromModule;
+	}
+
+	public void setFromModule(String fromModule) {
+		this.fromModule = fromModule;
 	}
 }

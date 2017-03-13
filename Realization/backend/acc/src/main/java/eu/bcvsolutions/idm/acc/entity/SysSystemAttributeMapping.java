@@ -107,6 +107,10 @@ public class SysSystemAttributeMapping extends AbstractEntity implements Attribu
 	@Column(name = "send_only_if_not_null", nullable = false)
 	private boolean sendOnlyIfNotNull = false;
 	
+	@Audited
+	@Column(name = "authentication_attribute", nullable = false)
+	private boolean authenticationAttribute = false;
+	
 	@Override
 	public String getIdmPropertyName() {
 		return idmPropertyName;
@@ -243,6 +247,14 @@ public class SysSystemAttributeMapping extends AbstractEntity implements Attribu
 	@Override
 	public void setSendOnlyIfNotNull(boolean sendOnlyIfNotNull) {
 		this.sendOnlyIfNotNull = sendOnlyIfNotNull;
+	}
+
+	public boolean isAuthenticationAttribute() {
+		return authenticationAttribute;
+	}
+
+	public void setAuthenticationAttribute(boolean authenticationAttribute) {
+		this.authenticationAttribute = authenticationAttribute;
 	}
 
 }

@@ -8,7 +8,7 @@ import { RoleRequestManager, SecurityManager } from '../../redux';
 import RoleRequestStateEnum from '../../enums/RoleRequestStateEnum';
 import uuid from 'uuid';
 
-const uiKey = 'request-role-table';
+const uiKey = 'role-request-table';
 const manager = new RoleRequestManager();
 
 class RoleRequests extends Basic.AbstractTableContent {
@@ -36,9 +36,9 @@ class RoleRequests extends Basic.AbstractTableContent {
   showDetail(entity, add) {
     if (add) {
       const uuidId = uuid.v1();
-      this.context.router.push(`/request-roles/${uuidId}/new?new=1`);
+      this.context.router.push(`/role-requests/${uuidId}/new?new=1`);
     } else {
-      this.context.router.push(`/request-roles/${entity.id}/detail`);
+      this.context.router.push(`/role-requests/${entity.id}/detail`);
     }
   }
 
@@ -112,7 +112,23 @@ class RoleRequests extends Basic.AbstractTableContent {
                   </Basic.Row>
                 </Basic.AbstractForm>
               </Advanced.Filter>
-            }>
+            }
+            buttons={
+              [<span>
+                <Basic.Button
+                  level="success"
+                  key="add_button"
+                  className="btn-xs"
+                  onClick={this.showDetail.bind(this, { }, true)}
+                  rendered={SecurityManager.hasAnyAuthority(['ROLE_REQUEST_WRITE'])}>
+                  <Basic.Icon type="fa" icon="plus"/>
+                  {' '}
+                  {this.i18n('button.add')}
+                </Basic.Button>
+              </span>
+              ]
+            }
+            >
             <Advanced.Column
               property=""
               header=""

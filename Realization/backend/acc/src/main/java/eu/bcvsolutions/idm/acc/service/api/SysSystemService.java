@@ -5,12 +5,14 @@ import java.util.List;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
+import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.core.api.service.IdentifiableByNameEntityService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInstance;
 import eu.bcvsolutions.idm.ic.api.IcConnectorKey;
+import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 
 /**
  * Target system configuration service 
@@ -60,5 +62,16 @@ public interface SysSystemService extends ReadWriteEntityService<SysSystem, SysS
 	IcConnectorKey getTestConnectorKey();
 	@Deprecated
 	SysSystem createTestSystem();
+	
+	/**
+	 * Return {@link IcConnectorObject} (object from system)  for entityUID
+	 * 
+	 * @param system
+	 * @param operation
+	 * @param systemEntityUid
+	 * @param entityType
+	 * @return
+	 */
+	IcConnectorObject readObject(SysSystem system, SysSystemMapping systemMapping, String systemEntityUid);
 
 }

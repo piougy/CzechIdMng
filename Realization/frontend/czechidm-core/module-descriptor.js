@@ -223,7 +223,7 @@ module.exports = {
             'id': 'role-requests',
             'labelKey': 'content.roleRequests.title',
             'order': 20,
-            'path': '/request-roles'
+            'path': '/role-requests'
           }
         ]
       },

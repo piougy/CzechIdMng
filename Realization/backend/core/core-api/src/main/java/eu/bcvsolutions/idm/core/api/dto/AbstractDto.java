@@ -5,8 +5,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import javax.persistence.Column;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import org.hibernate.envers.Audited;
 import org.joda.time.DateTime;
 import org.springframework.util.Assert;
 
@@ -51,6 +54,7 @@ public abstract class AbstractDto implements Serializable, BaseDto, Auditable {
 	private Map<String, AbstractDto> embedded;
 	@JsonIgnore
 	private UUID transactionId;
+	private boolean disabled;
 
 	public AbstractDto() {
 	}
@@ -220,6 +224,14 @@ public abstract class AbstractDto implements Serializable, BaseDto, Auditable {
 		this.transactionId = transactionId;	
 	}
 	
+	public boolean isDisabled() {
+		return disabled;
+	}
+
+	public void setDisabled(boolean disabled) {
+		this.disabled = disabled;
+	}
+
 	@Override
 	public String toString() {
 		return getClass().getCanonicalName() + "[ id=" + getId() + " ]";

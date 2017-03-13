@@ -55,6 +55,7 @@ public class DefaultEntityEventManager implements EntityEventManager {
 		Assert.notNull(event);
 		//
 		BaseEntity content = event.getContent();
+		//
 		LOG.debug("Publishing event [{}] [{}] [{}]", content.getClass().getSimpleName(), content.getId(), event.getType());
 		// continue suspended event
 		event.getContext().setSuspended(false);

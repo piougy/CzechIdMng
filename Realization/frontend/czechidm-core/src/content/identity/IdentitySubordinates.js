@@ -1,12 +1,11 @@
 import React from 'react';
-import { connect } from 'react-redux';
 //
 import * as Basic from '../../components/basic';
 import { IdentityManager } from '../../redux';
 import SearchParameters from '../../domain/SearchParameters';
 import IdentityTable from './IdentityTable';
 
-class IdentitySubordinates extends Basic.AbstractContent {
+export default class IdentitySubordinates extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
@@ -29,7 +28,7 @@ class IdentitySubordinates extends Basic.AbstractContent {
     const forceSearchParameters = new SearchParameters().setFilter('subordinatesFor', this.props.params.entityId);
     return (
       <div className="tab-pane-table-body">
-        { this.renderContentHeader() }
+        { this.renderContentHeader({ style: { marginBottom: 0 }}) }
 
         <Basic.Panel className="no-border last">
           <IdentityTable
@@ -42,15 +41,3 @@ class IdentitySubordinates extends Basic.AbstractContent {
     );
   }
 }
-
-IdentitySubordinates.propTypes = {
-};
-IdentitySubordinates.defaultProps = {
-};
-
-function select() {
-  return {
-  };
-}
-
-export default connect(select)(IdentitySubordinates);

@@ -194,38 +194,30 @@ module.exports = {
                 'icon': 'fa:newspaper-o'
               },
               {
+                'id': 'role-eav',
+                'type': 'TAB',
+                'labelKey': 'content.role.eav.title',
+                'order': 11,
+                'priority': 0,
+                'path': '/role/:entityId/eav',
+              },
+              {
                 'id': 'role-identities',
                 'type': 'TAB',
                 'labelKey': 'content.role.identities.title',
                 'order': 20,
                 'path': '/role/:entityId/identities',
                 'icon': 'fa:group'
-              }
+              },
+              {
+                'id': 'role-tree-nodes',
+                'type': 'TAB',
+                'labelKey': 'content.role.tree-nodes.label',
+                'titleKey': 'content.role.tree-nodes.title',
+                'order': 30,
+                'path': '/role/:entityId/tree-nodes'
+              },
             ]
-          },
-          {
-            'id': 'role-eav',
-            'type': 'TAB',
-            'labelKey': 'content.role.eav.title',
-            'order': 11,
-            'priority': 0,
-            'path': '/role/:entityId/eav',
-          },
-          {
-            'id': 'role-identities',
-            'type': 'TAB',
-            'labelKey': 'content.role.identities.title',
-            'order': 20,
-            'path': '/role/:entityId/identities',
-            'icon': 'fa:group'
-          },
-          {
-            'id': 'role-tree-nodes',
-            'type': 'TAB',
-            'labelKey': 'content.role.tree-nodes.label',
-            'titleKey': 'content.role.tree-nodes.title',
-            'order': 30,
-            'path': '/role/:entityId/tree-nodes'
           },
           {
             'id': 'role-requests',

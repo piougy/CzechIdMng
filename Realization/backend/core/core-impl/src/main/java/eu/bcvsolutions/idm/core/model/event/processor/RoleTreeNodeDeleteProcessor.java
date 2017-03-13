@@ -13,6 +13,7 @@ import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.model.dto.filter.RoleTreeNodeFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleTreeNode;
 import eu.bcvsolutions.idm.core.model.event.RoleTreeNodeEvent.RoleTreeNodeEventType;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 
 /**
  * Deletes automatic role - ensures referential integrity.
@@ -26,15 +27,19 @@ public class RoleTreeNodeDeleteProcessor extends CoreEventProcessor<IdmRoleTreeN
 
 	public static final String PROCESSOR_NAME = "role-tree-node-delete-processor";
 	private final AbstractEntityRepository<IdmRoleTreeNode, RoleTreeNodeFilter> repository;
+	private final IdmIdentityRoleService identityRoleService;
 	
 	@Autowired
 	public RoleTreeNodeDeleteProcessor(
-			AbstractEntityRepository<IdmRoleTreeNode, RoleTreeNodeFilter> repository) {
+			AbstractEntityRepository<IdmRoleTreeNode, RoleTreeNodeFilter> repository,
+			IdmIdentityRoleService identityRoleService) {
 		super(RoleTreeNodeEventType.DELETE);
 		//
 		Assert.notNull(repository);
+		Assert.notNull(identityRoleService);
 		//
 		this.repository = repository;
+		this.identityRoleService = identityRoleService;
 		
 	}
 	
@@ -45,10 +50,17 @@ public class RoleTreeNodeDeleteProcessor extends CoreEventProcessor<IdmRoleTreeN
 	
 	@Override
 	public EventResult<IdmRoleTreeNode> process(EntityEvent<IdmRoleTreeNode> event) {
-		IdmRoleTreeNode entity = event.getContent();
+		IdmRoleTreeNode roleTreeNode = event.getContent();
+		//
+		// delete all assigned roles gained by this automatic role
+		// TODO: long running task
+		// TODO: optional remove by logged user input
+		identityRoleService.getRoles(roleTreeNode, null).forEach(identityRole -> {
+			identityRoleService.delete(identityRole);
+		});
 		//
 		// delete entity
-		repository.delete(entity);
+		repository.delete(roleTreeNode);
 		//
 		return new DefaultEventResult<>(event, this);
 	}

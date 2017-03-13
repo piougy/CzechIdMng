@@ -75,10 +75,12 @@ public class DefaultIdmIdentityContractService
 		Assert.notNull(entity);
 		Assert.notNull(entity.getIdentity());
 		//
+		// we need to read previous value ...
+		//
 		if (isNew(entity)) { // create
 			LOG.debug("Saving new contract for identity [{}]", entity.getIdentity().getUsername());
 			return entityEventManager.process(new IdentityContractEvent(IdentityContractEventType.CREATE, entity)).getContent();
-		} 
+		}
 		LOG.debug("Saving contract [{}] for identity [{}]", entity.getId(), entity.getIdentity().getUsername());
 		return entityEventManager.process(new IdentityContractEvent(IdentityContractEventType.UPDATE, entity)).getContent();
 	}

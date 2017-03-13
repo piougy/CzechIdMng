@@ -12,6 +12,9 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.model.dto.filter.IdentityContractFilter;
@@ -101,4 +104,14 @@ public interface IdmIdentityContractRepository extends AbstractEntityRepository<
 	@Modifying
 	@Query("update #{#entityName} e set e.main = false, e.modified = :modified where e.identity = :identity and (:updatedEntityId is null or e.id != :updatedEntityId)")
 	void clearMain(@Param("identity") IdmIdentity identity, @Param("updatedEntityId") UUID updatedEntityId, @Param("modified") DateTime modified);
+	
+	/**
+	 * Return persisted identity contract
+	 * 
+	 * @param identityContract
+	 * @return
+	 */
+	@Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.REPEATABLE_READ)
+	@Query("select e from #{#entityName} e where e = :identityContract")
+	IdmIdentityContract getPersistedIdentityContract(@Param("identityContract") IdmIdentityContract identityContract);
 }

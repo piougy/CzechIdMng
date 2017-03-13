@@ -1858,7 +1858,10 @@
         "label": "Authorizer",
         "title": "Authorizer and all managers for position in structure"
       },
-      "disabled": "Inactive",
+      "disabled": {
+        "label": "Inactive",
+        "help": "Inactive work position. Has higher priority than valid dates. Invalid work position is automatically set to inactive and all assigned roles to this positio are removed."
+      },
       "description": "Note",
       "main": {
         "label": "Default position",

@@ -108,8 +108,8 @@ public class DefaultIdmIdentityContractService
 
 	@Override
 	@Transactional(readOnly = true)
-	public Page<IdmIdentityContract> findExpiredContracts(LocalDate expiration, Pageable pageable) {
-		return repository.findExpiredContracts(expiration, pageable);
+	public Page<IdmIdentityContract> findExpiredContracts(LocalDate expiration, boolean disabled, Pageable pageable) {
+		return repository.findExpiredContracts(expiration, disabled, pageable);
 	}
 
 	@Override

@@ -51,11 +51,18 @@ public class IdentityContractUpdateAutomaticRoleProcessor extends CoreEventProce
 	@Override
 	public EventResult<IdmIdentityContract> process(EntityEvent<IdmIdentityContract> event) {
 		IdmIdentityContract contract = event.getContent();
-		IdmIdentityContract previous = repository.getPersistedIdentityContract(contract);
+		if (contract.isDisabled()) {
+			// Nothing to do - contract is disabled
+			// TODO: clone content - mutable previous event content :/
+			return new DefaultEventResult<>(event, this);
+		}
 		//
-		IdmTreeNode newPosition = contract.getWorkingPosition();		
-		// check automatic roles - if position is changed only
-		if (!Objects.equals(newPosition, previous.getWorkingPosition())) {
+		IdmIdentityContract previous = repository.getPersistedIdentityContract(contract);
+		IdmTreeNode newPosition = contract.getWorkingPosition();
+		//
+		// check automatic roles - if position or disabled was changed
+		if (!Objects.equals(newPosition, previous.getWorkingPosition())
+				|| (!contract.isDisabled() && previous.isDisabled() != contract.isDisabled())) {
 			List<IdmIdentityRole> assignedRoles = identityRoleService.getRoles(contract);
 			Set<IdmRoleTreeNode> previousAutomaticRoles = assignedRoles.stream()
 					.filter(identityRole -> {
@@ -77,7 +84,7 @@ public class IdentityContractUpdateAutomaticRoleProcessor extends CoreEventProce
 				while (iter.hasNext()){
 					IdmIdentityRole identityRole = iter.next();
 					if (Objects.equals(identityRole.getRoleTreeNode(), removedAutomaticRole)) {
-						// TODO: check, if role will be added by new automatic roles and prevent removing
+						// TODO: improvement - check, if role will be added by new automatic roles and prevent removing
 						identityRoleService.delete(identityRole);
 						iter.remove();
 					}

@@ -85,16 +85,19 @@ public interface IdmIdentityContractRepository extends AbstractEntityRepository<
 	int clearGuarantee(@Param("identity") IdmIdentity identity, @Param("modified") DateTime modified);
 	
 	/**
-	 * Returns expired contracts
+	 * Returns expired contracts. Its useful to find enabled contracts only.
 	 * 
 	 * @param expiration date to compare
+	 * @param disabled find disabled contracts or not
 	 * @param pageable
 	 * @return
 	 */
 	@Query(value = "select e from #{#entityName} e" +
 			" where"
-	        + " (validTill is not null and validTill < :expiration)")
-	Page<IdmIdentityContract> findExpiredContracts(@Param("expiration") LocalDate expiration, Pageable pageable);
+	        + " (validTill is not null and validTill < :expiration)"
+	        + " and"
+	        + " (disabled = :disabled)")
+	Page<IdmIdentityContract> findExpiredContracts(@Param("expiration") LocalDate expiration, @Param("disabled") boolean disabled, Pageable pageable);
 	
 	/**
 	 * Clears default tree type for all tree types instead given updatedEntityId

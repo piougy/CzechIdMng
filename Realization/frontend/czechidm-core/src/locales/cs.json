@@ -1851,7 +1851,10 @@
         "label": "Garant / Vedoucí",
         "title": "Přiřazený garant a všichni vedoucí dle přiřazené pozice ve struktuře"
       },
-      "disabled": "Neaktivní",
+      "disabled": {
+        "label": "Neaktivní",
+        "help": "Pozice je neplatná, nelze na ni vázat žádné role. Má větší prioritu nežli platnosti - neplatné pracovní pozice jsou automaticky označnovány za neplatné - jsou rušeny všecny role na ně přiřazené."
+      },
       "description": "Popis",
       "main": {
         "label": "Výchozí",

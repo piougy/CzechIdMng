@@ -121,7 +121,6 @@ export class RoleConceptTable extends Basic.AbstractContent {
 
     const entity = this.refs.form.getData();
 
-    console.log("entity", entity.validFrom, entity);
     if (entity._added) {
       if (!entity._virtualId && entity.role instanceof Array) {
         for (const roleId of entity.role) {
@@ -202,7 +201,6 @@ export class RoleConceptTable extends Basic.AbstractContent {
           propertyWithNewValue = changedPropertyName;
         }
         if (entity[propertyWithNewValue] !== conceptIdentityRole[propertyWithNewValue]) {
-          console.log("changed", property);
           return {changed: true, value: entity[propertyWithNewValue]};
         }
       }

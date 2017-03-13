@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
-import { RoleRequestManager, ConceptRoleRequestManager, IdentityRoleManager, SecurityManager} from '../../redux';
+import { RoleRequestManager, ConceptRoleRequestManager, IdentityRoleManager } from '../../redux';
 import RoleRequestStateEnum from '../../enums/RoleRequestStateEnum';
 import ConceptRoleRequestOperationEnum from '../../enums/ConceptRoleRequestOperationEnum';
 import SearchParameters from '../../domain/SearchParameters';
@@ -154,7 +154,6 @@ class RoleRequestDetail extends Basic.AbstractTableContent {
 
   _updateConcept(data, type) {
     const {_request} = this.props;
-    console.log("update concept", data);
 
     const concept = {
       'id': data.id,

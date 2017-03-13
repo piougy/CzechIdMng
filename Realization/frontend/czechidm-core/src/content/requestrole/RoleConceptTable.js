@@ -55,18 +55,6 @@ export class RoleConceptTable extends Basic.AbstractContent {
     }
   }
 
-  getAddedIdentityRoles() {
-    return this.state.addedIdentityRoles;
-  }
-
-  getRemovedIdentityRolesIds() {
-    return this.state.removedIdentityRoles;
-  }
-
-  getChangedIdentityRoles() {
-    return this.state.changedIdentityRoles;
-  }
-
   /**
    * Set input arrays (with current, added, removed, changed data) to state (first do clone) and call compile conceptData
    * @param  {array}  identityRoles         Original not modified data
@@ -75,11 +63,12 @@ export class RoleConceptTable extends Basic.AbstractContent {
    * @param  {array}  changedIdentityRoles} Changed data (every object in array contains only changed fields and ID)
    */
   _setConcept({ identityRoles, addedIdentityRoles, removedIdentityRoles, changedIdentityRoles}) {
-    this.setState({identityRoles: _.merge([], identityRoles),
-       addedIdentityRoles: _.merge([], addedIdentityRoles), removedIdentityRoles: _.merge([], removedIdentityRoles),
-       changedIdentityRoles: _.merge([], changedIdentityRoles)}, ()=>{
-      this.setState({conceptData: this._compileConceptData(this.state)});
-    });
+    this.setState({conceptData: this._compileConceptData({ identityRoles, addedIdentityRoles, removedIdentityRoles, changedIdentityRoles})});
+    // this.setState({identityRoles: _.merge([], identityRoles),
+    //    addedIdentityRoles: _.merge([], addedIdentityRoles), removedIdentityRoles: _.merge([], removedIdentityRoles),
+    //    changedIdentityRoles: _.merge([], changedIdentityRoles)}, ()=>{
+    //   this.setState({conceptData: this._compileConceptData(this.state)});
+    // });
   }
 
   /**
@@ -128,11 +117,11 @@ export class RoleConceptTable extends Basic.AbstractContent {
     if (!this.refs.form.isFormValid()) {
       return;
     }
-    const {addedIdentityRoles} = this.state;
-    const {identityUsername} = this.props;
+    const {identityUsername, createConceptFunc, updateConceptFunc} = this.props;
 
     const entity = this.refs.form.getData();
 
+    console.log("entity", entity.validFrom, entity);
     if (entity._added) {
       if (!entity._virtualId && entity.role instanceof Array) {
         for (const roleId of entity.role) {
@@ -142,7 +131,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
           identityRole._embedded = {};
           identityRole._embedded.identity = identityManager.getEntity(this.context.store.getState(), identityUsername);
           identityRole._embedded.role = roleManager.getEntity(this.context.store.getState(), roleId);
-          addedIdentityRoles.push(identityRole);
+          createConceptFunc(identityRole, 'ADD');
         }
       } else {
         const addedIdentityRole = this._findAddedIdentityRoleByVirtualId(entity._virtualId);
@@ -152,21 +141,38 @@ export class RoleConceptTable extends Basic.AbstractContent {
         if (addedIdentityRole) {
           _.merge(addedIdentityRole, entity);
         } else {
-          addedIdentityRoles.push(entity);
+          createConceptFunc(entity, 'ADD');
         }
       }
     } else {
-      this._findChange('validFrom', entity);
-      this._findChange('validTill', entity);
+      const changedIdentityRole = _.merge({}, this._findChangedIdentityRoleById(entity.id));
+      let changed = false;
+      const resultValidFrom = this._findChange('validFrom', entity);
+      const resultValidTill = this._findChange('validTill', entity);
+
+      if (resultValidFrom.changed) {
+        changedIdentityRole.validFrom = resultValidFrom.value;
+        changed = true;
+      }
+      if (resultValidTill.changed) {
+        changedIdentityRole.validTill = resultValidTill.value;
+        changed = true;
+      }
+
+      if (changed && changedIdentityRole && changedIdentityRole.id) {
+        updateConceptFunc(changedIdentityRole, 'UPDATE');
+      } else {
+        createConceptFunc(entity, 'UPDATE');
+      }
     }
-    this.setState({conceptData: this._compileConceptData(this.state)});
+    this.setState({conceptData: this._compileConceptData(this.props)});
     this._closeDetail();
   }
 
   _findChangedIdentityRoleById(id) {
-    const {changedIdentityRoles} = this.state;
+    const {changedIdentityRoles} = this.props;
     for (const changedIdentityRole of changedIdentityRoles) {
-      if (changedIdentityRole.id === id) {
+      if (changedIdentityRole.identityRole === id) {
         return changedIdentityRole;
       }
     }
@@ -174,7 +180,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
   }
 
   _findAddedIdentityRoleByVirtualId(virtualId) {
-    const {addedIdentityRoles} = this.state;
+    const {addedIdentityRoles} = this.props;
     for (const addedIdentityRole of addedIdentityRoles) {
       if (addedIdentityRole._virtualId === virtualId) {
         return addedIdentityRole;
@@ -187,24 +193,21 @@ export class RoleConceptTable extends Basic.AbstractContent {
    * Find and apply changes to changedIdentityRole array
    */
   _findChange(property, entity) {
-    const {conceptData, changedIdentityRoles} = this.state;
+    const {conceptData} = this.state;
     const changedPropertyName = '_' + property + 'Changed';
     for (const conceptIdentityRole of conceptData) {
       if (conceptIdentityRole.id === entity.id) {
-        const changedIdentityRole = this._findChangedIdentityRoleById(entity.id);
         let propertyWithNewValue = property;
         if (entity.hasOwnProperty(changedPropertyName)) {
           propertyWithNewValue = changedPropertyName;
         }
         if (entity[propertyWithNewValue] !== conceptIdentityRole[propertyWithNewValue]) {
-          if (changedIdentityRole) {
-            changedIdentityRole[property] = entity[propertyWithNewValue];
-          } else {
-            changedIdentityRoles.push({id: entity.id, [property]: entity[propertyWithNewValue]});
-          }
+          console.log("changed", property);
+          return {changed: true, value: entity[propertyWithNewValue]};
         }
       }
     }
+    return {changed: false};
   }
 
   /**
@@ -221,45 +224,32 @@ export class RoleConceptTable extends Basic.AbstractContent {
     } else if (data._changed) {
       messageKey = 'Changed';
     } else {
-      messageKey = '';
+      this._internalDeleteConcept(data);
+      return;
     }
     this.refs['confirm-delete'].show(
       this.i18n(`action.delete${messageKey}.message`),
       this.i18n(`action.delete${messageKey}.header`)
     ).then(() => {
-      const {addedIdentityRoles, removedIdentityRoles, changedIdentityRoles} = this.state;
-      if (data._added) {
-        for (const addedIdentityRole of addedIdentityRoles) {
-          if (addedIdentityRole === data) {
-            addedIdentityRoles.splice(addedIdentityRoles.indexOf(addedIdentityRole), 1);
-            this.setState({conceptData: this._compileConceptData(this.state)});
-            return;
-          }
-        }
-      } else if (data._removed) {
-        for (const removedIdentityRole of removedIdentityRoles) {
-          if (removedIdentityRole === data.id) {
-            removedIdentityRoles.splice(removedIdentityRoles.indexOf(removedIdentityRole), 1);
-            this.setState({conceptData: this._compileConceptData(this.state)});
-            return;
-          }
-        }
-      } else if (data._changed) {
-        for (const changedIdentityRole of changedIdentityRoles) {
-          if (changedIdentityRole.id === data.id) {
-            changedIdentityRoles.splice(changedIdentityRoles.indexOf(changedIdentityRole), 1);
-            this.setState({conceptData: this._compileConceptData(this.state)});
-            return;
-          }
-        }
-      } else {
-        removedIdentityRoles.push(data.id);
-        this.setState({conceptData: this._compileConceptData(this.state)});
-        return;
-      }
+      this._internalDeleteConcept(data);
     }, () => {
       // Rejected
     });
+  }
+
+  _internalDeleteConcept(data) {
+    const {createConceptFunc, removeConceptFunc} = this.props;
+
+    if (data._added) {
+      removeConceptFunc(data);
+    } else if (data._removed) {
+      removeConceptFunc(data.id, 'REMOVE');
+    } else if (data._changed) {
+      removeConceptFunc(data.id, 'UPDATE');
+    } else {
+      createConceptFunc(data, 'REMOVE');
+      return;
+    }
   }
 
   /**
@@ -272,10 +262,13 @@ export class RoleConceptTable extends Basic.AbstractContent {
    */
   _compileConceptData({ identityRoles, addedIdentityRoles, removedIdentityRoles, changedIdentityRoles}) {
     let concepts = _.merge([], identityRoles);
-    for (const addedIdentityRole of addedIdentityRoles) {
-      addedIdentityRole._added = true;
+    if (addedIdentityRoles) {
+      for (const addedIdentityRole of addedIdentityRoles) {
+        addedIdentityRole._added = true;
+      }
+      concepts = _.concat(concepts, addedIdentityRoles);
     }
-    concepts = _.concat(concepts, addedIdentityRoles);
+
     for (const concept of concepts) {
       if (removedIdentityRoles && removedIdentityRoles.includes(concept.id)) {
         concept._removed = true;

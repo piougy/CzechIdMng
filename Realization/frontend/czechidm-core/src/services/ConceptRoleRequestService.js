@@ -23,7 +23,7 @@ class ConceptRoleRequestService extends AbstractService {
    * @return {object} searchParameters
    */
   getDefaultSearchParameters() {
-    return super.getDefaultSearchParameters().setName(SearchParameters.NAME_QUICK).clearSort().setSort('created', 'asc');
+    return super.getDefaultSearchParameters().setName(SearchParameters.NAME_QUICK).clearSort().setSort('created', 'desc');
   }
 }
 

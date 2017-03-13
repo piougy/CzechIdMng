@@ -9,6 +9,7 @@ import org.springframework.core.annotation.Order;
 
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleTreeNodeRepository;
+import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultEntityEventManager;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmRoleTreeNodeService;
@@ -56,7 +57,7 @@ public class IdmServiceConfiguration {
 	 * @return
 	 */
 	@Bean
-	public IdmRoleTreeNodeService roleTreeNodeService(IdmRoleTreeNodeRepository repository) {
-		return new DefaultIdmRoleTreeNodeService(repository, entityEventManager());
+	public IdmRoleTreeNodeService roleTreeNodeService(IdmRoleTreeNodeRepository repository, IdmTreeNodeRepository treeNodeRepository) {
+		return new DefaultIdmRoleTreeNodeService(repository, treeNodeRepository,entityEventManager());
 	}
 }

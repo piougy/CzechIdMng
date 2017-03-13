@@ -16,6 +16,7 @@ import eu.bcvsolutions.idm.core.model.event.RoleTreeNodeEvent.RoleTreeNodeEventT
 import eu.bcvsolutions.idm.core.model.event.processor.RoleTreeNodeDeleteProcessor;
 import eu.bcvsolutions.idm.core.model.event.processor.RoleTreeNodeSaveProcessor;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleTreeNodeRepository;
+import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
 
 /**
@@ -29,16 +30,20 @@ public class DefaultIdmRoleTreeNodeService extends AbstractReadWriteEntityServic
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmRoleTreeNodeService.class);
 	private final IdmRoleTreeNodeRepository repository;
+	private final IdmTreeNodeRepository treeNodeRepository;
 	private final EntityEventManager entityEventManager;
 	
 	public DefaultIdmRoleTreeNodeService(
 			IdmRoleTreeNodeRepository repository,
+			IdmTreeNodeRepository treeNodeRepository,
 			EntityEventManager entityEventManager) {
 		super(repository);
 		//
 		Assert.notNull(entityEventManager);
+		Assert.notNull(treeNodeRepository);
 		//
 		this.repository = repository;
+		this.treeNodeRepository = treeNodeRepository;
 		this.entityEventManager = entityEventManager;
 	}
 	
@@ -82,9 +87,11 @@ public class DefaultIdmRoleTreeNodeService extends AbstractReadWriteEntityServic
 	@Override
 	@Transactional(readOnly = true)
 	public Set<IdmRoleTreeNode> getAutomaticRoles(IdmTreeNode workPosition) {
+		Assert.notNull(workPosition);
+		//
 		Set<IdmRoleTreeNode> automaticRoles = new HashSet<>();
 		//
-		automaticRoles.addAll(repository.findAutomaticRoles(workPosition));
+		automaticRoles.addAll(repository.findAutomaticRoles(treeNodeRepository.findOne(workPosition.getId()))); // we need actual forest index
 		// 
 		return automaticRoles;
 	}

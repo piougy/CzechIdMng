@@ -59,7 +59,6 @@ import eu.bcvsolutions.idm.ic.impl.IcConfigurationPropertiesImpl;
 import eu.bcvsolutions.idm.ic.impl.IcConnectorConfigurationImpl;
 import eu.bcvsolutions.idm.ic.impl.IcConnectorKeyImpl;
 import eu.bcvsolutions.idm.ic.impl.IcObjectClassImpl;
-import eu.bcvsolutions.idm.ic.impl.IcUidAttributeImpl;
 import eu.bcvsolutions.idm.ic.service.api.IcConfigurationFacade;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 
@@ -432,8 +431,8 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 	}
 	
 	@Override
-	public IcConnectorObject readObject(SysSystem system, SysSystemMapping systemMapping, String systemEntityUid) {
-		IcUidAttribute uidAttribute = new IcUidAttributeImpl(null, systemEntityUid, null);
+	@Transactional
+	public IcConnectorObject readObject(SysSystem system, SysSystemMapping systemMapping, IcUidAttribute uidAttribute) {
 		IcObjectClass objectClass = new IcObjectClassImpl(systemMapping.getObjectClass().getObjectClassName());
 		IcConnectorObject existsConnectorObject = connectorFacade.readObject(
 				system.getConnectorInstance(), 

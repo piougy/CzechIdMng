@@ -4,17 +4,24 @@ import { connect } from 'react-redux';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
-import { RoleRequestManager, SecurityManager } from '../../redux';
+import { RoleRequestManager, SecurityManager, IdentityManager} from '../../redux';
 import RoleRequestStateEnum from '../../enums/RoleRequestStateEnum';
 import uuid from 'uuid';
 
 const uiKey = 'role-request-table';
 const manager = new RoleRequestManager();
+const identityManager = new IdentityManager();
 
 class RoleRequests extends Basic.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);
+    this.state = {
+      detail: {
+        show: false,
+        entity: {}
+      }
+    };
   }
 
   getManager() {
@@ -35,46 +42,79 @@ class RoleRequests extends Basic.AbstractTableContent {
 
   showDetail(entity, add) {
     if (add) {
-      const uuidId = uuid.v1();
-      this.context.router.push(`/role-requests/${uuidId}/new?new=1`);
+      this.setState({
+        detail: {
+          ... this.state.detail,
+          show: true
+        }
+      });
     } else {
       this.context.router.push(`/role-requests/${entity.id}/detail`);
     }
   }
 
-  _generateSchema(event) {
+  _createNewRequest(event) {
+    if (event) {
+      event.preventDefault();
+    }
+    if (!this.refs.modalForm.isFormValid()) {
+      return;
+    }
+    const applicantId = this.refs.applicant.getValue();
+    const uuidId = uuid.v1();
+    this.context.router.push(`/role-requests/${uuidId}/new?new=1&applicantId=${applicantId}`);
+  }
+
+  _startRequest(idRequest, event) {
     if (event) {
       event.preventDefault();
     }
     this.refs[`confirm-delete`].show(
-      this.i18n(`action.generateSchema.message`),
-      this.i18n(`action.generateSchema.header`)
+      this.i18n(`action.startRequest.message`),
+      this.i18n(`action.startRequest.header`)
     ).then(() => {
       this.setState({
         showLoading: true
       });
-      // const promise = systemManager.getService().generateSchema(entityId);
-      // promise.then((json) => {
-      //   this.setState({
-      //     showLoading: false
-      //   });
-      //   this.refs.table.getWrappedInstance().reload();
-      //   this.addMessage({ message: this.i18n('action.generateSchema.success', { name: json.name }) });
-      // }).catch(ex => {
-      //   this.setState({
-      //     showLoading: false
-      //   });
-      //   this.addError(ex);
-      //   this.refs.table.getWrappedInstance().reload();
-      // });
+      const promise = this.getManager().getService().startRequest(idRequest);
+      promise.then((json) => {
+        this.setState({
+          showLoading: false
+        });
+        if (this.refs.table) {
+          this.refs.table.getWrappedInstance().reload();
+        }
+        this.addMessage({ message: this.i18n('action.startRequest.started', { name: json.name }) });
+      }).catch(ex => {
+        this.setState({
+          showLoading: false
+        });
+        this.addError(ex);
+        if (this.refs.table) {
+          this.refs.table.getWrappedInstance().reload();
+        }
+      });
     }, () => {
       // Rejected
+    });
+    return;
+  }
+
+  /**
+   * Close modal dialog
+   */
+  _closeDetail() {
+    this.setState({
+      detail: {
+        ... this.state.detail,
+        show: false
+      }
     });
   }
 
   render() {
     const { _showLoading } = this.props;
-    const { showLoading } = this.state;
+    const { showLoading, detail } = this.state;
     const innerShowLoading = _showLoading || showLoading;
     return (
       <div>
@@ -166,8 +206,72 @@ class RoleRequests extends Basic.AbstractTableContent {
               property="created"
               sort
               face="datetime"/>
+            <Advanced.Column
+              property=""
+              header=""
+              width="55px"
+              className="detail-button"
+              cell={
+                ({ rowIndex, data }) => {
+                  const state = data[rowIndex].state;
+                  const canBeStart = (state === RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.CONCEPT))
+                  || (state === RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.EXCEPTION));
+                  return (
+                    <span>
+                      <Basic.Button
+                        ref="startButton"
+                        type="button"
+                        level="success"
+                        rendered={SecurityManager.hasAnyAuthority(['ROLE_REQUEST_WRITE']) && canBeStart}
+                        style={{marginRight: '2px'}}
+                        title={this.i18n('button.start')}
+                        titlePlacement="bottom"
+                        onClick={this._startRequest.bind(this, [data[rowIndex].id])}
+                        className="btn-xs">
+                        <Basic.Icon type="fa" icon="play"/>
+                      </Basic.Button>
+                    </span>
+                  );
+                }
+              }/>
           </Advanced.Table>
         </Basic.Panel>
+        <Basic.Modal
+          bsSize="default"
+          show={detail.show}
+          onHide={this._closeDetail.bind(this)}
+          backdrop="static"
+          keyboard={!innerShowLoading}>
+
+          <form onSubmit={this._createNewRequest.bind(this)}>
+            <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('create.header')}/>
+            <Basic.Modal.Body>
+              <Basic.AbstractForm ref="modalForm" showLoading={_showLoading}>
+                <Basic.SelectBox
+                  ref="applicant"
+                  manager={ identityManager }
+                  label={ this.i18n('applicant') }
+                  required/>
+
+              </Basic.AbstractForm>
+            </Basic.Modal.Body>
+            <Basic.Modal.Footer>
+              <Basic.Button
+                level="link"
+                onClick={this._closeDetail.bind(this)}
+                showLoading={_showLoading}>
+                {this.i18n('button.close')}
+              </Basic.Button>
+              <Basic.Button
+                type="submit"
+                level="success"
+                showLoading={_showLoading}
+                showLoadingIcon>
+                {this.i18n('button.createRequest')}
+              </Basic.Button>
+            </Basic.Modal.Footer>
+          </form>
+        </Basic.Modal>
       </div>
     );
   }

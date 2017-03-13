@@ -183,10 +183,13 @@ public class DefaultAccAuthenticator implements Authenticator {
 				// check auth
 				if (auth == null || auth.getValue() == null) {
 					authFailedException = new ResultCodeException(AccResultCode.AUTHENTICATION_AGAINST_SYSTEM_FAILED,  ImmutableMap.of("name", system.getName(), "username", loginDto.getUsername()));
+					// failed, continue to another
+					continue;
 				}
 				// everything success break
 				break;
 			} catch (ResultCodeException e) {
+				// failed, continue to another
 				authFailedException = new ResultCodeException(CoreResultCode.AUTH_FAILED, "Invalid login or password.", e);
 			}
 		}

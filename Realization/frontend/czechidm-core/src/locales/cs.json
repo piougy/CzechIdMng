@@ -1092,6 +1092,21 @@
         },
         "save": {
           "success": "Automatická role [{{record}}] byla úspěšně uložena"
+        },
+        "action": {
+          "delete": {
+            "action": "Odebrat",
+            "header_1": "Odebrání automatické role",
+            "header_2": "Odebrání automatických rolí",
+            "header_5": "$t(action.delete.header_2)",
+            "message_1": "Opravdu chcete odebrat automatickou roli [<strong>{{record}}</strong>]? Všem uživatelům, kterí získali roli prostřednictvím této automatické role, bude přiřazené role odebrána.",
+            "message_2": "Vybrány záznamy: [<strong>{{records}}</strong>].<br /><br />Opravdu chcete odebrat <strong>{{count}}</strong> automatické role? Všem uživatelům, kteří získali role prostřednictvím těchto automatický rolí, budou přiřazené role odebrány.",
+            "message_5": "Vybrány záznamy: [<strong>{{records}}</strong>].<br /><br />Opravdu chcete odebrat <strong>{{count}}</strong> automatických rolí? Všem uživatelům, kteří získali role prostřednictvím těchto automatický rolí, budou přiřazené role odebrány.",
+            "error": "Při odebírání záznamu [{{record}}] nastala chyba",
+            "success_1": "Vybraný záznam [{{record}}] byl úspěšně smazán",
+            "success_2": "Vybrané záznamy [{{records}}] byly úspěšně smazány",
+            "success_5": "Vybrané záznamy [{{records}}] byly úspěšně smazány"
+          }
         }
       }
     },
@@ -1809,6 +1824,12 @@
         "title": "Pracovně právní vztah",
         "placeholder": "Pracovně právní vztah",
         "help": "Vazba na pozici, organizační či jinou stromovou strukturu"
+      },
+      "roleTreeNode": {
+        "label": "Automatická role",
+        "title": "Automatická role",
+        "placeholder": "Automatická role",
+        "help": "Role vychází z pozice v PPV"
       }
     },
     "IdentityAccount": {
@@ -1850,7 +1871,10 @@
         "label": "Garant / Vedoucí",
         "title": "Přiřazený garant a všichni vedoucí dle přiřazené pozice ve struktuře"
       },
-      "disabled": "Neaktivní",
+      "disabled": {
+        "label": "Neaktivní",
+        "help": "Pozice je neplatná, nelze na ni vázat žádné role. Má větší prioritu nežli platnosti - neplatné pracovní pozice jsou automaticky označnovány za neplatné - jsou rušeny všecny role na ně přiřazené."
+      },
       "description": "Popis",
       "main": {
         "label": "Výchozí",

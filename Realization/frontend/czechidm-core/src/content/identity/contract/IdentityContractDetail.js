@@ -190,7 +190,8 @@ export default class IdentityContractDetail extends Basic.AbstractContent {
 
                 <Basic.Checkbox
                   ref="disabled"
-                  label={this.i18n('entity.IdentityContract.disabled')}/>
+                  label={this.i18n('entity.IdentityContract.disabled.label')}
+                  helpBlock={this.i18n('entity.IdentityContract.disabled.help')}/>
 
                 <Basic.TextArea
                   ref="description"

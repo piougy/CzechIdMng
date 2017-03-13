@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +20,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
+import eu.bcvsolutions.idm.core.model.entity.IdmRoleTreeNode;
 import eu.bcvsolutions.idm.core.model.event.IdentityRoleEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityRoleEvent.IdentityRoleEventType;
 import eu.bcvsolutions.idm.core.model.event.processor.IdentityRoleDeleteProcessor;
@@ -39,24 +42,24 @@ public class DefaultIdmIdentityRoleService extends AbstractReadWriteEntityServic
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmIdentityRoleService.class);
 
-	private final IdmIdentityRoleRepository identityRoleRepository;
+	private final IdmIdentityRoleRepository repository;
 	private final IdmRoleRepository roleRepository;
 	private final IdmIdentityContractRepository identityContractRepository;
 	private final EntityEventManager entityEventManager;
 
 	@Autowired
 	public DefaultIdmIdentityRoleService(
-			IdmIdentityRoleRepository identityRoleRepository,
+			IdmIdentityRoleRepository repository,
 			IdmRoleRepository roleRepository,
 			IdmIdentityContractRepository identityContractRepository,
 			EntityEventManager entityEventManager) {
-		super(identityRoleRepository);
+		super(repository);
 		//
 		Assert.notNull(roleRepository);
 		Assert.notNull(entityEventManager);
 		Assert.notNull(identityContractRepository);
 		//
-		this.identityRoleRepository = identityRoleRepository;
+		this.repository = repository;
 		this.roleRepository = roleRepository;
 		this.entityEventManager = entityEventManager;
 		this.identityContractRepository = identityContractRepository;
@@ -98,13 +101,19 @@ public class DefaultIdmIdentityRoleService extends AbstractReadWriteEntityServic
 	@Override
 	@Transactional(readOnly = true)
 	public List<IdmIdentityRole> getRoles(IdmIdentity identity) {
-		return identityRoleRepository.findAllByIdentityContract_Identity(identity, new Sort("role.name"));
+		return repository.findAllByIdentityContract_Identity(identity, new Sort("role.name"));
 	}
 	
 	@Override
 	@Transactional(readOnly = true)
 	public List<IdmIdentityRole> getRoles(IdmIdentityContract identityContract) {
-		return identityRoleRepository.findAllByIdentityContract(identityContract, new Sort("role.name"));
+		return repository.findAllByIdentityContract(identityContract, new Sort("role.name"));
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public Page<IdmIdentityRole> getRoles(IdmRoleTreeNode roleTreeNode, Pageable pageable) {
+		return repository.findByRoleTreeNode(roleTreeNode, pageable);
 	}
 
 	@Override
@@ -126,7 +135,7 @@ public class DefaultIdmIdentityRoleService extends AbstractReadWriteEntityServic
 		Assert.notNull(id);
 		Assert.notNull(dto);
 
-		IdmIdentityRole identityRole = identityRoleRepository.findOne(UUID.fromString(id));
+		IdmIdentityRole identityRole = repository.findOne(UUID.fromString(id));
 		return this.save(toEntity(dto, identityRole));
 	}
 
@@ -160,6 +169,5 @@ public class DefaultIdmIdentityRoleService extends AbstractReadWriteEntityServic
 		identityRole.setOriginalCreator(identityRoleDto.getOriginalCreator());
 		identityRole.setOriginalModifier(identityRoleDto.getOriginalModifier());
 		return identityRole;
-	}
-	
+	}	
 }

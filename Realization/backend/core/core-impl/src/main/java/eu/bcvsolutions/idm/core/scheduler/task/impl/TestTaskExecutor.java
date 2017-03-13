@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.core.scheduler.task.impl;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +18,7 @@ import eu.bcvsolutions.idm.core.scheduler.service.impl.AbstractSchedulableTaskEx
  */
 @Service
 @Description("Test long running task")
+@ConditionalOnProperty(prefix = "idm.pub.app", name = "stage", havingValue = "development")
 public class TestTaskExecutor extends AbstractSchedulableTaskExecutor<Boolean> {
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(TestTaskExecutor.class);

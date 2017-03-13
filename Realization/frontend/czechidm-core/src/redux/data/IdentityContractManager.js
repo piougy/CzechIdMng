@@ -27,6 +27,17 @@ export default class IdentityContractManager extends FormableEntityManager {
     return 'identityContracts';
   }
 
+  /**
+   * Extended nice label
+   *
+   * @param  {entity} entity
+   * @param  {boolean} showIdentity identity will be rendered.
+   * @return {string}
+   */
+  getNiceLabel(entity, showIdentity = true) {
+    return this.getService().getNiceLabel(entity, showIdentity);
+  }
+
   // TODO: use force filters and search instread? Security on identityContracts endpoint?
   fetchContracts(username, uiKey = null, cb = null) {
     uiKey = this.resolveUiKey(uiKey);

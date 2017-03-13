@@ -17,6 +17,7 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
+import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
@@ -291,7 +292,8 @@ public class DefaultSysSystemAttributeMappingService
 
 	@Override
 	public SysSystemAttributeMapping getAuthenticationAttribute(UUID systemId) {
-		return this.repository.findAuthenticationAttribute(systemId);
+		// authentication attribute is only from provisioning operation type
+		return this.repository.findAuthenticationAttribute(systemId, SystemOperationType.PROVISIONING);
 	}
 
 }

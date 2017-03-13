@@ -149,14 +149,26 @@ public abstract class AbstractEntityEventProcessor<E extends BaseEntity> impleme
 		// check for processor is enabled, if configuration service is given
 		if (configurationService != null) {
 			return !configurationService.getBooleanValue(
-					ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX
-					+ getModule()
-					+ ConfigurationService.PROPERTY_SEPARATOR
-					+ getName()
-					+ ConfigurationService.PROPERTY_SEPARATOR
+					getConfigurationPrefix()
 					+ ModuleService.PROPERTY_ENABLED, true);
 		}
 		// enabled by default
 		return false;
+	}
+	
+	/**
+	 * Returns prefix to configuration for this entity event processor. 
+	 * Under this prefix could be found all event processor's properties.
+	 * 
+	 * @return
+	 */
+	protected String getConfigurationPrefix() {
+		return ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX
+				+ getModule()
+				+ ConfigurationService.PROPERTY_SEPARATOR
+				+ "processor"
+				+ ConfigurationService.PROPERTY_SEPARATOR
+				+ getName()
+				+ ConfigurationService.PROPERTY_SEPARATOR;
 	}
 }

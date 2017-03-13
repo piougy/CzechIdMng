@@ -5,7 +5,6 @@ import java.util.List;
 import org.joda.time.LocalDate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.repository.query.Param;
 
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
 import eu.bcvsolutions.idm.core.model.dto.filter.IdentityContractFilter;
@@ -36,16 +35,17 @@ public interface IdmIdentityContractService extends ReadWriteEntityService<IdmId
 	 * @param identity
 	 * @return Returns number of affected contracts
 	 */
-	int clearGuarantee(@Param("identity") IdmIdentity identity);
+	int clearGuarantee(IdmIdentity identity);
 	
 	/**
 	 * Returns expired contracts
 	 * 
 	 * @param expiration date to compare
+	 * @param disabled find disabled contracts or not
 	 * @param pageable
 	 * @return
 	 */	
-	Page<IdmIdentityContract> findExpiredContracts(@Param("expiration") LocalDate expiration, Pageable pageable);
+	Page<IdmIdentityContract> findExpiredContracts(LocalDate expiration, boolean disabled, Pageable pageable);
 	
 	/**
 	 * Constructs default contract for given identity by configuration.

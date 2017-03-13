@@ -15,6 +15,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
+import eu.bcvsolutions.idm.core.model.entity.IdmRoleTreeNode;
 
 /**
  * Identity roles
@@ -52,6 +53,15 @@ public interface IdmIdentityRoleRepository extends AbstractEntityRepository<IdmI
 	Long countByRole(@Param("role") IdmRole role);
 	
 	Page<IdmIdentityRole> findByRole(@Param("role") IdmRole role, Pageable pageable);
+	
+	/**
+	 * Returns assigned roles by given automatic role.
+	 * 
+	 * @param roleTreeNode
+	 * @param pageable
+	 * @return
+	 */
+	Page<IdmIdentityRole> findByRoleTreeNode(@Param("roleTreeNode") IdmRoleTreeNode roleTreeNode, Pageable pageable);
 	
 	List<IdmIdentityRole> findAllByIdentityContract_IdentityAndRole(@Param("identity") IdmIdentity identity, @Param("role") IdmRole role);
 }

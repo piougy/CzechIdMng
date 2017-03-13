@@ -22,7 +22,14 @@ class IdentityContractService extends FormableEntityService {
     return '/identity-contracts';
   }
 
-  getNiceLabel(entity) {
+  /**
+   * Extended nice label
+   *
+   * @param  {entity} entity
+   * @param  {boolean} showIdentity identity will be rendered.
+   * @return {string}
+   */
+  getNiceLabel(entity, showIdentity = true) {
     if (!entity) {
       return '';
     }
@@ -30,7 +37,7 @@ class IdentityContractService extends FormableEntityService {
       return entity.position;
     }
     let niceLabel = null;
-    if (entity._embedded.identity) {
+    if (showIdentity && entity._embedded.identity) {
       niceLabel = this.identityService.getNiceLabel(entity._embedded.identity);
     }
     let positionName = entity.position;

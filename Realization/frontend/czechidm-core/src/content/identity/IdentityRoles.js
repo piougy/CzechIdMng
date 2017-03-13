@@ -6,7 +6,7 @@ import _ from 'lodash';
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import SearchParameters from '../../domain/SearchParameters';
-import { IdentityRoleManager, IdentityContractManager, IdentityManager, RoleManager, WorkflowProcessInstanceManager, DataManager, SecurityManager } from '../../redux';
+import { IdentityRoleManager, IdentityContractManager, IdentityManager, RoleManager, RoleTreeNodeManager, WorkflowProcessInstanceManager, DataManager, SecurityManager } from '../../redux';
 import AuthoritiesPanel from '../role/AuthoritiesPanel';
 import authorityHelp from '../role/AuthoritiesPanel_cs.md';
 import CandicateUsersCell from '../../content/workflow/CandicateUsersCell';
@@ -15,6 +15,7 @@ const uiKey = 'identity-roles';
 const uiKeyContracts = 'identity-contracts';
 const uiKeyAuthorities = 'identity-roles';
 const roleManager = new RoleManager();
+const roleTreeNodeManager = new RoleTreeNodeManager();
 const identityRoleManager = new IdentityRoleManager();
 const identityManager = new IdentityManager();
 const identityContractManager = new IdentityContractManager();
@@ -344,7 +345,7 @@ class Roles extends Basic.AbstractContent {
                         cell={
                           ({rowIndex, data, property}) => {
                             return (
-                              <span>{ identityContractManager.getNiceLabel(data[rowIndex][property]) }</span>
+                              <span>{ identityContractManager.getNiceLabel(data[rowIndex][property], false) }</span>
                             );
                           }
                         }/>
@@ -361,6 +362,18 @@ class Roles extends Basic.AbstractContent {
                         property="validTill"
                         header={this.i18n('label.validTill')}
                         cell={<Basic.DateCell format={this.i18n('format.date')}/>}/>
+
+                        <Basic.Column
+                          header={<Basic.Cell className="column-face-bool">{this.i18n('entity.IdentityRole.roleTreeNode.label')}</Basic.Cell>}
+                          cell={
+                            /* eslint-disable react/no-multi-comp */
+                            ({ rowIndex, data }) => {
+                              return (
+                                <Basic.BooleanCell propertyValue={ data[rowIndex].roleTreeNode !== null } className="column-face-bool"/>
+                              );
+                            }
+                          }
+                          width="150px"/>
                       </Basic.Table>
                     </div>
                   }
@@ -518,20 +531,25 @@ class Roles extends Basic.AbstractContent {
                           manager={roleManager}
                           label={this.i18n('entity.IdentityRole.role')}
                           required/>
-                          <Basic.Row>
-                            <div className="col-md-6">
-                              <Basic.DateTimePicker
-                                mode="date"
-                                ref="validFrom"
-                                label={this.i18n('label.validFrom')}/>
-                            </div>
-                            <div className="col-md-6">
-                              <Basic.DateTimePicker
-                                mode="date"
-                                ref="validTill"
-                                label={this.i18n('label.validTill')}/>
-                            </div>
-                          </Basic.Row>
+                        <Basic.LabelWrapper
+                          label={this.i18n('entity.IdentityRole.roleTreeNode.label')}
+                          helpBlock={this.i18n('entity.IdentityRole.roleTreeNode.help')}>
+                          { roleTreeNodeManager.getNiceLabel(detail.entity.roleTreeNode) }
+                        </Basic.LabelWrapper>
+                        <Basic.Row>
+                          <div className="col-md-6">
+                            <Basic.DateTimePicker
+                              mode="date"
+                              ref="validFrom"
+                              label={this.i18n('label.validFrom')}/>
+                          </div>
+                          <div className="col-md-6">
+                            <Basic.DateTimePicker
+                              mode="date"
+                              ref="validTill"
+                              label={this.i18n('label.validTill')}/>
+                          </div>
+                        </Basic.Row>
                       </Basic.AbstractForm>
                     </Basic.Modal.Body>
 

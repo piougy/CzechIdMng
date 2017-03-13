@@ -12,10 +12,8 @@ import org.springframework.util.Assert;
 import eu.bcvsolutions.idm.core.security.api.authentication.AuthenticationManager;
 import eu.bcvsolutions.idm.core.security.api.authentication.Authenticator;
 import eu.bcvsolutions.idm.core.security.api.domain.AuthenticationResponseEnum;
-import eu.bcvsolutions.idm.core.security.api.domain.AuthenticationResultEnum;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
-import eu.bcvsolutions.idm.core.security.api.dto.AuthenticatorResultDto;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
 
 /**
@@ -61,42 +59,39 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 	private LoginDto autneticateOverAuthenticator(LoginDto loginDto) {
 		Assert.notNull(authenticators);
 		//
-		List<AuthenticatorResultDto> resultsList = new LinkedList<>();
-		AuthenticatorResultDto firstFailture = null;
+		List<LoginDto> resultsList = new LinkedList<>();
+		RuntimeException firstFailture = null;
 		//
 		for(Authenticator authenticator : authenticators) {
 			LOG.debug("AuthenticationManager call authenticate by [{}].", authenticator.getName());
-			AuthenticatorResultDto result = authenticator.authenticate(cloneLoginDto(loginDto));
-			//
-			// process result dto
-			if (result.getResultEnum().equals(AuthenticationResultEnum.SUCCESS)) {
-				// if excepted response is SUFFICIENT return authenticate identity
-				if (authenticator.getResponse().equals(AuthenticationResponseEnum.SUFFICIENT)) {
-					return result.getLoginDto();
+			try {
+				LoginDto result = authenticator.authenticate(cloneLoginDto(loginDto));
+				if (result == null) { // not done
+					// continue, authenticator is not implemented or etc.
+					continue;
 				}
-				// if otherwise result continue
+				if (authenticator.getResponse().equals(AuthenticationResponseEnum.SUFFICIENT)) {
+					return result;
+				}
+				// if otherwise add result too list and continue
 				resultsList.add(result);
-				continue;
-			} else if (result.getResultEnum().equals(AuthenticationResultEnum.FAILTURE)) {
+			} catch (RuntimeException e) {
 				// if excepted response is REQUISITE exit immediately with error
 				if (authenticator.getResponse().equals(AuthenticationResponseEnum.REQUISITE)) {
-					// TODO: null exception?
-					throw result.getException();
+					throw e;
 				}
-				// if otherwise save first failture
+				// if otherwise save first failure into exception
 				if (firstFailture == null) {
-					firstFailture = result;
+					firstFailture = e;
 				}
-			} else if (result.getResultEnum().equals(AuthenticationResultEnum.NOT_DONE)) {
-				// continue 
-			}
+			}			
 		}
 		//
-		// authenticator is sorted by implement ordered, return first success authenticate authenticator, if dont exist any otherwise first failture		
+		// authenticator is sorted by implement ordered, return first success authenticate authenticator, if don't exist any otherwise throw first failure		
 		if (resultsList.isEmpty()) {
-			throw firstFailture.getException();
+			throw firstFailture;
 		}
-		return resultsList.get(0).getLoginDto();
+		return resultsList.get(0);
 	}
 	
 	/**

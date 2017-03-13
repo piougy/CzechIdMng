@@ -1,10 +1,10 @@
 package eu.bcvsolutions.idm.core.security.api.authentication;
 
 import org.springframework.core.Ordered;
+import org.springframework.core.PriorityOrdered;
 
 import eu.bcvsolutions.idm.core.api.domain.ModuleDescriptor;
 import eu.bcvsolutions.idm.core.security.api.domain.AuthenticationResponseEnum;
-import eu.bcvsolutions.idm.core.security.api.dto.AuthenticatorResultDto;
 import eu.bcvsolutions.idm.core.security.api.dto.IdmJwtAuthenticationDto;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
 
@@ -43,7 +43,7 @@ public interface Authenticator extends Ordered {
 	 * @param loginDto
 	 * @return
 	 */
-	AuthenticatorResultDto authenticate(LoginDto loginDto);
+	LoginDto authenticate(LoginDto loginDto);
 	
 	/**
 	 * Authenticator excepted response to the result

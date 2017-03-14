@@ -2,6 +2,7 @@ import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import Immutable from 'immutable';
+import _ from 'lodash';
 //
 import * as Basic from '../../components/basic';
 import { EntityEventProcessorManager, DataManager } from '../../redux';
@@ -64,7 +65,37 @@ class EntityEventProcessors extends Basic.AbstractContent {
                   rowClass={({ rowIndex, data }) => { return Utils.Ui.getRowClass(data[rowIndex]); }}>
                   <Basic.Column property="module" header={this.i18n('entity.EntityEventProcessor.module')} width={75} />
                   <Basic.Column property="name" header={this.i18n('entity.EntityEventProcessor.name')} width="30%"/>
-                  <Basic.Column property="description" header={this.i18n('entity.EntityEventProcessor.description')}/>
+                  <Basic.Column
+                    property="description"
+                    header={this.i18n('entity.EntityEventProcessor.description')}
+                    cell={
+                      ({ rowIndex, data, property }) => {
+                        const values = [];
+                        _.keys(data[rowIndex].configurationProperties).map(configurationProperty => {
+                          const value = data[rowIndex].configurationProperties[configurationProperty];
+                          if (value) {
+                            values.push({ configurationProperty, value });
+                          }
+                        });
+                        return (
+                          <div>
+                            <div>{data[rowIndex][property]}</div>
+                            {
+                              values.length === 0
+                              ||
+                              <div>
+                                <div>Configuration:</div>
+                                {
+                                  values.map(value => {
+                                    return (<div>{ `- ${value.configurationProperty}: ${value.value}` }</div>);
+                                  })
+                                }
+                              </div>
+                            }
+                          </div>
+                        );
+                      }
+                    }/>
                   <Basic.Column
                     property="eventTypes"
                     header={this.i18n('entity.EntityEventProcessor.eventTypes')}

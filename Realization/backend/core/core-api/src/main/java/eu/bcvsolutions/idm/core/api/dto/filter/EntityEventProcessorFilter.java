@@ -1,6 +1,6 @@
 package eu.bcvsolutions.idm.core.api.dto.filter;
 
-import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
+import java.io.Serializable;
 
 /**
  * Entity event processors filter
@@ -10,18 +10,13 @@ import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
  */
 public class EntityEventProcessorFilter implements BaseFilter {
 
-	Class<? extends BaseEntity> entityClass;
+	Class<? extends Serializable> contentClass;
 	
-	public void setEntityClass(Class<? extends BaseEntity> entityClass) {
-		this.entityClass = entityClass;
+	public Class<? extends Serializable> getContentClass() {
+		return contentClass;
 	}
 	
-	/**
-	 * processor supports entity class
-	 * 
-	 * @return
-	 */
-	public Class<? extends BaseEntity> getEntityClass() {
-		return entityClass;
+	public void setContentClass(Class<? extends Serializable> contentClass) {
+		this.contentClass = contentClass;
 	}
 }

@@ -9,9 +9,9 @@ import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
-import eu.bcvsolutions.idm.core.model.entity.IdmRoleTreeNode;
+import eu.bcvsolutions.idm.core.model.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.model.event.RoleTreeNodeEvent.RoleTreeNodeEventType;
-import eu.bcvsolutions.idm.core.model.repository.IdmRoleTreeNodeRepository;
+import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
 
 /**
  * Persists automatic role.
@@ -20,19 +20,19 @@ import eu.bcvsolutions.idm.core.model.repository.IdmRoleTreeNodeRepository;
  *
  */
 @Component
-@Description("Persists automatic role.")
-public class RoleTreeNodeSaveProcessor extends CoreEventProcessor<IdmRoleTreeNode> {
+@Description("Creates automatic role.")
+public class RoleTreeNodeSaveProcessor extends CoreEventProcessor<IdmRoleTreeNodeDto> {
 	
 	public static final String PROCESSOR_NAME = "role-tree-node-save-processor";
-	private final IdmRoleTreeNodeRepository repository;
+	private final IdmRoleTreeNodeService service;
 	
 	@Autowired
-	public RoleTreeNodeSaveProcessor(IdmRoleTreeNodeRepository repository) {
-		super(RoleTreeNodeEventType.UPDATE, RoleTreeNodeEventType.CREATE);
+	public RoleTreeNodeSaveProcessor(IdmRoleTreeNodeService service) {
+		super(RoleTreeNodeEventType.CREATE); // update is not supported
 		//
-		Assert.notNull(repository);
+		Assert.notNull(service);
 		//
-		this.repository = repository;
+		this.service = service;
 	}
 	
 	@Override
@@ -41,13 +41,11 @@ public class RoleTreeNodeSaveProcessor extends CoreEventProcessor<IdmRoleTreeNod
 	}
 
 	@Override
-	public EventResult<IdmRoleTreeNode> process(EntityEvent<IdmRoleTreeNode> event) {
-		IdmRoleTreeNode entity = event.getContent();
+	public EventResult<IdmRoleTreeNodeDto> process(EntityEvent<IdmRoleTreeNodeDto> event) {
+		IdmRoleTreeNodeDto dto = event.getContent();
 		//
-		repository.save(entity);
-		//
-		// TODO: clone content - mutable previous event content :/
+		event.setContent(service.saveInternal(dto));
+		//		
 		return new DefaultEventResult<>(event, this);
 	}
-
 }

@@ -231,5 +231,12 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 		E createdEntity = modelMapper.map(dto, entityClass);
 		return createdEntity;
 	}
+	
+	@Override
+	public boolean isNew(DTO dto) {
+		Assert.notNull(dto);
+		//
+		return dto.getId() == null || !getRepository().exists((UUID) dto.getId());
+	}
 
 }

@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="eu.bcvsolutions.role-tree-node.create">
+  <process id="approve-create-automatic-role" name="Approve new automatic role by role guarantee" isExecutable="true">
+    <documentation>Workflow for approving new automatic role by guarantee
+
+Input variables:
+- roleTreeNode:</documentation>
+    <startEvent id="startevent1" name="Start"></startEvent>
+    <sequenceFlow id="flow37" sourceRef="startevent1" targetRef="servicetask1"></sequenceFlow>
+    <userTask id="usertask1" name="Approve realization by Admin" activiti:candidateUsers="admin">
+      <documentation>Approve create new automatic role</documentation>
+      <extensionElements>
+        <activiti:formProperty id="disapprove" type="decision"></activiti:formProperty>
+        <activiti:formProperty id="approve" type="decision"></activiti:formProperty>
+      </extensionElements>
+    </userTask>
+    <endEvent id="endevent1" name="End"></endEvent>
+    <serviceTask id="servicetask1" name="Generate process name" activiti:expression="Create new automatic role" activiti:resultVariableName="processInstanceName"></serviceTask>
+    <sequenceFlow id="flow45" sourceRef="servicetask1" targetRef="usertask1"></sequenceFlow>
+    <serviceTask id="servicetask2" name="Continue entity event processing" activiti:expression="#{entityEventManager.process(entityEvent)}"></serviceTask>
+    <dataObject id="approve" name="approve" itemSubjectRef="xsd:string">
+      <extensionElements>
+        <activiti:value>{"label": "Schválit","showWarning":false,"warningMessage":"Opravdu chcete úkol schválit?","level":"success","tooltip":"Schválit úkol a předat na administrátora"}</activiti:value>
+      </extensionElements>
+    </dataObject>
+    <dataObject id="disapprove" name="disapprove" itemSubjectRef="xsd:string">
+      <extensionElements>
+        <activiti:value>{"label": "Zamítnout","showWarning":true,"warningMessage":"Opravdu chcete žádost zamítnout?","level":"danger","tooltip":"Zamítnout úkolu"}</activiti:value>
+      </extensionElements>
+    </dataObject>
+    <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway"></exclusiveGateway>
+    <endEvent id="endevent2" name="End"></endEvent>
+    <sequenceFlow id="flow47" sourceRef="servicetask2" targetRef="endevent1"></sequenceFlow>
+    <sequenceFlow id="flow48" sourceRef="exclusivegateway1" targetRef="endevent2">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${decision.equals("disapprove")}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow49" sourceRef="exclusivegateway1" targetRef="servicetask2">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${decision.equals("approve")}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow50" sourceRef="usertask1" targetRef="exclusivegateway1"></sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_approve-create-automatic-role">
+    <bpmndi:BPMNPlane bpmnElement="approve-create-automatic-role" id="BPMNPlane_approve-create-automatic-role">
+      <bpmndi:BPMNShape bpmnElement="startevent1" id="BPMNShape_startevent1">
+        <omgdc:Bounds height="35.0" width="35.0" x="18.0" y="116.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="usertask1" id="BPMNShape_usertask1">
+        <omgdc:Bounds height="77.0" width="161.0" x="280.0" y="95.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent1" id="BPMNShape_endevent1">
+        <omgdc:Bounds height="35.0" width="35.0" x="760.0" y="116.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="servicetask1" id="BPMNShape_servicetask1">
+        <omgdc:Bounds height="87.0" width="141.0" x="90.0" y="90.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="servicetask2" id="BPMNShape_servicetask2">
+        <omgdc:Bounds height="71.0" width="161.0" x="570.0" y="98.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway1" id="BPMNShape_exclusivegateway1">
+        <omgdc:Bounds height="40.0" width="40.0" x="492.0" y="113.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent2" id="BPMNShape_endevent2">
+        <omgdc:Bounds height="35.0" width="35.0" x="495.0" y="200.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="flow37" id="BPMNEdge_flow37">
+        <omgdi:waypoint x="53.0" y="133.0"></omgdi:waypoint>
+        <omgdi:waypoint x="90.0" y="133.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow45" id="BPMNEdge_flow45">
+        <omgdi:waypoint x="231.0" y="133.0"></omgdi:waypoint>
+        <omgdi:waypoint x="280.0" y="133.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow47" id="BPMNEdge_flow47">
+        <omgdi:waypoint x="731.0" y="133.0"></omgdi:waypoint>
+        <omgdi:waypoint x="760.0" y="133.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow48" id="BPMNEdge_flow48">
+        <omgdi:waypoint x="512.0" y="153.0"></omgdi:waypoint>
+        <omgdi:waypoint x="512.0" y="200.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow49" id="BPMNEdge_flow49">
+        <omgdi:waypoint x="532.0" y="133.0"></omgdi:waypoint>
+        <omgdi:waypoint x="570.0" y="133.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow50" id="BPMNEdge_flow50">
+        <omgdi:waypoint x="441.0" y="133.0"></omgdi:waypoint>
+        <omgdi:waypoint x="492.0" y="133.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

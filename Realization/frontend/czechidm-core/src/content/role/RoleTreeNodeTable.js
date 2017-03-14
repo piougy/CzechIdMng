@@ -59,8 +59,6 @@ export class RoleTreeNodeTable extends Basic.AbstractTableContent {
 
   save(entity, event) {
     const formEntity = this.refs.form.getData();
-    formEntity.role = roleManager.getSelfLink(formEntity.role);
-    formEntity.treeNode = roleManager.getSelfLink(formEntity.treeNode);
     //
     super.save(formEntity, event);
   }

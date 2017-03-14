@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.model.service.api;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -11,7 +12,6 @@ import eu.bcvsolutions.idm.core.model.dto.filter.IdentityRoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
-import eu.bcvsolutions.idm.core.model.entity.IdmRoleTreeNode;
 
 /**
  * Operations with identity roles
@@ -41,10 +41,10 @@ public interface IdmIdentityRoleService extends ReadWriteEntityService<IdmIdenti
 	/**
 	 * Returns assigned roles by given automatic role.
 	 * 
-	 * @param roleTreeNode
+	 * @param roleTreeNodeId	
 	 * @return
 	 */
-	Page<IdmIdentityRole> getRoles(IdmRoleTreeNode roleTreeNode, Pageable pageable);
+	Page<IdmIdentityRole> getRolesByAutomaticRole(UUID roleTreeNodeId, Pageable pageable);
 	
 	/**
 	 * Returns identity roles by their ids (uuid in string).

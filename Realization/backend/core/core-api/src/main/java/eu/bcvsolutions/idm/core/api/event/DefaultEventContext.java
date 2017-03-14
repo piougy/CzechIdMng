@@ -1,9 +1,11 @@
 package eu.bcvsolutions.idm.core.api.event;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 
 /**
@@ -11,10 +13,11 @@ import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
  * 
  * @author Radek Tomiška
  *
- * @param <E> {@link BaseEntity} type
+ * @param <E> {@link BaseEntity}, {@link BaseDto} or any other {@link Serializable} content type
  */
-public class DefaultEventContext<E extends BaseEntity> implements EventContext<E> {
+public class DefaultEventContext<E extends Serializable> implements EventContext<E> {
 
+	private static final long serialVersionUID = -6436267397424397636L;
 	private final List<EventResult<E>> processed = new ArrayList<>();
 	private boolean suspended;
 	private Integer processedOrder;

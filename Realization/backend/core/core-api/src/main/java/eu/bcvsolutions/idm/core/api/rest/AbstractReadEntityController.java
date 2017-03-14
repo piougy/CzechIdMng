@@ -22,7 +22,6 @@ import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.ResourceSupport;
 import org.springframework.hateoas.Resources;
 import org.springframework.hateoas.core.EmbeddedWrappers;
-import org.springframework.hateoas.mvc.ResourceAssemblerSupport;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.Assert;
@@ -38,7 +37,6 @@ import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.rest.domain.ResourceWrapper;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.api.service.ReadEntityService;
 import eu.bcvsolutions.idm.core.api.utils.FilterConverter;
@@ -80,16 +78,6 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 		//
 		this.entityLookupService = entityLookupService;
 		this.entityService = entityService;
-	}
-	
-	/**
-	 * Returns assembler to dto
-	 * 
-	 * @return
-	 */
-	@SuppressWarnings("rawtypes")
-	protected ResourceAssemblerSupport<Object, ResourceWrapper> getAssembler() {
-		return null;
 	}
 	
 	/**
@@ -197,10 +185,6 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 	 * @return
 	 */
 	protected ResourceSupport toResource(E entity, PersistentEntityResourceAssembler assembler) {
-		ResourceAssemblerSupport<Object, ?> configuredAssembler = getAssembler();
-		if(configuredAssembler != null) {
-			return configuredAssembler.toResource(entity);
-		}
 		return assembler.toFullResource(entity);
 	}
 

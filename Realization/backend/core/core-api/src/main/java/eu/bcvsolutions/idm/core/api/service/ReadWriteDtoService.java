@@ -10,39 +10,60 @@ import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
  * Interface for generic CRUD operations on a repository for a specific DTO type.
  * 
  * @author Svanda
+ * @author Radek Tomiška
  *
+ * @param <DTO> {@link BaseDto} type
+ * @param <E> {@link BaseEntity} type
+ * @param <F> {@link BaseFilter} type
  */
 public interface ReadWriteDtoService<DTO extends BaseDto, E extends BaseEntity, F extends BaseFilter> extends ReadDtoService<DTO, E, F> {
 
 	/**
-	 * Saves a given DTO.
+	 * Saves a given DTO. Event could be published instead persisting directly.
+	 * 
+	 * @param dto
+	 * @return the saved DTO
+	 */
+	DTO save(DTO dto);	
+	
+	/**
+	 * Persists a given DTO.
+	 * 
 	 * @param entity
 	 * @return the saved DTO
 	 */
-	DTO saveDto(DTO entity);
+	DTO saveInternal(DTO dto);
 	
 	/**
-	 * Saves all given DTO.
+	 * Saves all given DTO. Event could be published instead persisting directly.
 	 * 
 	 * @param dtos
 	 * @return the saved DTOs
 	 * @throws IllegalArgumentException in case the given entity is {@literal null}.
 	 */
-	Iterable<DTO> saveAllDto(Iterable<DTO> dtos);
+	Iterable<DTO> saveAll(Iterable<DTO> dtos);
 	
 	/**
-	 * Deletes a given entity.
+	 * Deletes a given DTO. Event could be published instead persisting directly.
 	 * 
 	 * @param dto
 	 * @throws IllegalArgumentException in case the given entity is {@literal null}.
 	 */
-	void deleteDto(DTO dto);
+	void delete(DTO dto);
 	
 	/**
-	 * Deletes a given dto id.
+	 * Deletes a given DTO (from repository).
+	 * 
+	 * @param dto
+	 * @throws IllegalArgumentException in case the given entity is {@literal null}.
+	 */
+	void deleteInternal(DTO dto);
+	
+	/**
+	 * Deletes a dto by given id (from repository).
 	 * 
 	 * @param dto id
 	 * @throws IllegalArgumentException in case the given dto id is {@literal null}.
 	 */
-	void deleteDtoById(Serializable id);
+	void deleteInternalById(Serializable id);
 }

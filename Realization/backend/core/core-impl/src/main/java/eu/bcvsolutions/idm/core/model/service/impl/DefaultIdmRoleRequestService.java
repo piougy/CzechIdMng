@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.joda.time.DateTime;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
@@ -85,7 +86,7 @@ public class DefaultIdmRoleRequestService
 	}
 
 	@Override
-	public IdmRoleRequestDto saveDto(IdmRoleRequestDto dto) {
+	public IdmRoleRequestDto save(IdmRoleRequestDto dto) {
 		boolean created = false;
 		if (dto.getId() == null) {
 			created = true;
@@ -96,14 +97,14 @@ public class DefaultIdmRoleRequestService
 		if (!created) {
 			validateOnDuplicity(dto);
 		}
-		IdmRoleRequestDto savedRequest = super.saveDto(dto);
+		IdmRoleRequestDto savedRequest = super.save(dto);
 
 		// Concepts will be save only on create request
 		if (created && concepts != null) {
 			concepts.forEach(concept -> {
 				concept.setRoleRequest(savedRequest.getId());
 			});
-			this.conceptRoleRequestService.saveAllDto(concepts);
+			this.conceptRoleRequestService.saveAll(concepts);
 		}
 
 		// Check on same applicants in all role concepts
@@ -184,7 +185,7 @@ public class DefaultIdmRoleRequestService
 			IdmRoleRequestDto request = getDto(requestId);
 			this.addToLog(request, Throwables.getStackTraceAsString(ex));
 			request.setState(RoleRequestState.EXCEPTION);
-			saveDto(request);
+			save(request);
 		}
 	}
 
@@ -208,10 +209,10 @@ public class DefaultIdmRoleRequestService
 			return RoleRequestState.CONCEPT == concept.getState();
 		}).forEach(concept -> {
 			concept.setState(RoleRequestState.IN_PROGRESS);
-			conceptRoleRequestService.saveDto(concept);
+			conceptRoleRequestService.save(concept);
 		});
 		request.setState(RoleRequestState.IN_PROGRESS);
-		this.saveDto(request);
+		this.save(request);
 
 		if (request.isExecuteImmediately()) {
 			boolean haveRightExecuteImmediately = securityService
@@ -228,7 +229,7 @@ public class DefaultIdmRoleRequestService
 				return RoleRequestState.IN_PROGRESS == concept.getState();
 			}).forEach(concept -> {
 				concept.setState(RoleRequestState.APPROVED);
-				conceptRoleRequestService.saveDto(concept);
+				conceptRoleRequestService.save(concept);
 			});
 
 			// Execute request immediately
@@ -339,15 +340,15 @@ public class DefaultIdmRoleRequestService
 						identityRole.getId(), concept.getId());
 				conceptRoleRequestService.addToLog(concept, message);
 				conceptRoleRequestService.addToLog(request, message);
-				conceptRoleRequestService.saveDto(concept);
+				conceptRoleRequestService.save(concept);
 				identityRoleService.delete(identityRole);
 			}
 		});
 
 		identityRoleService.saveAll(identityRolesToSave);
-		conceptRoleRequestService.saveAllDto(conceptsToSave);
+		conceptRoleRequestService.saveAll(conceptsToSave);
 		request.setState(RoleRequestState.EXECUTED);
-		this.saveDto(request);
+		this.save(request);
 
 	}
 

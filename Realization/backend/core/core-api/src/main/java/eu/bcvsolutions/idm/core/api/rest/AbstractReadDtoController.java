@@ -16,7 +16,6 @@ import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.ResourceSupport;
 import org.springframework.hateoas.Resources;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
-import org.springframework.hateoas.mvc.ResourceAssemblerSupport;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.Assert;
@@ -31,7 +30,6 @@ import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.rest.domain.ResourceWrapper;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.api.service.ReadDtoService;
 import eu.bcvsolutions.idm.core.api.utils.FilterConverter;
@@ -139,11 +137,6 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 	 * @return
 	 */
 	protected ResourceSupport toResource(DTO dto) {
-		ResourceAssemblerSupport<Object, ?> configuredAssembler = getAssembler();
-		if (configuredAssembler != null) {
-			return configuredAssembler.toResource(dto);
-		}
-
 		Link selfLink = ControllerLinkBuilder.linkTo(this.getClass()).slash(dto.getId()).withSelfRel();
 		Resource<DTO> resourceSupport = new Resource<DTO>(dto, selfLink);
 		return resourceSupport;
@@ -191,15 +184,4 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 		}
 		return filterConverter;
 	}
-
-	/**
-	 * Returns assembler to DTO
-	 * 
-	 * @return
-	 */
-	@SuppressWarnings("rawtypes")
-	protected ResourceAssemblerSupport<Object, ResourceWrapper> getAssembler() {
-		return null;
-	}
-
 }

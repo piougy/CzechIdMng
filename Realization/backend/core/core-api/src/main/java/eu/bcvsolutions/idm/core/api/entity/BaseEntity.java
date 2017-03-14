@@ -2,13 +2,15 @@ package eu.bcvsolutions.idm.core.api.entity;
 
 import java.io.Serializable;
 
+import eu.bcvsolutions.idm.core.api.domain.Identifiable;
+
 /**
  * Base entity
  * 
  * @author Radek Tomiška 
  *
  */
-public interface BaseEntity extends Serializable {
+public interface BaseEntity extends Identifiable, Serializable {
 	
 	/**
 	 * Returns indentifier

@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
+import eu.bcvsolutions.idm.core.api.domain.Loggable;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdentityDto;
 import eu.bcvsolutions.idm.core.model.domain.RoleRequestState;
@@ -22,27 +23,27 @@ import eu.bcvsolutions.idm.core.model.domain.RoleRequestedByType;
  *
  */
 @Relation(collectionRelation = "roleRequests")
-public class IdmRoleRequestDto extends AbstractDto {
-	
+public class IdmRoleRequestDto extends AbstractDto implements Loggable {
 
 	private static final long serialVersionUID = 1L;
 
 	@Embedded(dtoClass = IdentityDto.class)
 	private UUID applicant;
-	@JsonProperty(access=Access.READ_ONLY)
+	@JsonProperty(access = Access.READ_ONLY)
 	private RoleRequestState state;
 	private RoleRequestedByType requestedByType;
-	@JsonProperty(access=Access.READ_ONLY)
+	@JsonProperty(access = Access.READ_ONLY)
 	private String wfProcessId;
-	@JsonProperty(access=Access.READ_ONLY)
+	@JsonProperty(access = Access.READ_ONLY)
 	private String originalRequest;
 	private List<IdmConceptRoleRequestDto> conceptRoles;
 	private boolean executeImmediately = false;
-	@JsonProperty(access=Access.READ_ONLY)
+	@JsonProperty(access = Access.READ_ONLY)
 	@Embedded(dtoClass = IdmRoleRequestDto.class)
 	private UUID duplicatedToRequest;
-	@JsonProperty(access=Access.READ_ONLY)
+	@JsonProperty(access = Access.READ_ONLY)
 	private String log;
+	private String description;
 
 	public RoleRequestState getState() {
 		return state;
@@ -117,6 +118,28 @@ public class IdmRoleRequestDto extends AbstractDto {
 
 	public void setRequestedByType(RoleRequestedByType requestedByType) {
 		this.requestedByType = requestedByType;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	@Override
+	public String addToLog(String text) {
+		if (text != null) {
+			StringBuilder builder = new StringBuilder();
+			if (this.log != null) {
+				builder.append(this.log);
+				builder.append("\n" + LOG_SEPARATOR + "\n");
+			}
+			builder.append(text);
+			this.setLog(builder.toString());
+		}
+		return this.getLog();
 	}
 
 }

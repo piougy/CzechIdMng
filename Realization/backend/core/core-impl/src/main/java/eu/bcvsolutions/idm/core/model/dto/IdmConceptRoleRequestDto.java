@@ -5,7 +5,11 @@ import java.util.UUID;
 import org.joda.time.LocalDate;
 import org.springframework.hateoas.core.Relation;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
+
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
+import eu.bcvsolutions.idm.core.api.domain.Loggable;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.model.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.model.domain.RoleRequestState;
@@ -17,7 +21,7 @@ import eu.bcvsolutions.idm.core.model.domain.RoleRequestState;
  *
  */
 @Relation(collectionRelation = "conceptRoleRequests")
-public class IdmConceptRoleRequestDto extends AbstractDto {
+public class IdmConceptRoleRequestDto extends AbstractDto implements Loggable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -34,8 +38,12 @@ public class IdmConceptRoleRequestDto extends AbstractDto {
 	private LocalDate validFrom;
 	private LocalDate validTill;
 	private ConceptRoleRequestOperation operation;
+	@JsonProperty(access = Access.READ_ONLY)
 	private RoleRequestState state;
+	@JsonProperty(access = Access.READ_ONLY)
 	private String wfProcessId;
+	@JsonProperty(access = Access.READ_ONLY)
+	private String log;
 
 	public UUID getRoleRequest() {
 		return roleRequest;
@@ -115,6 +123,27 @@ public class IdmConceptRoleRequestDto extends AbstractDto {
 	
 	public void setRoleTreeNode(UUID roleTreeNode) {
 		this.roleTreeNode = roleTreeNode;
+	}
+
+	public String getLog() {
+		return log;
+	}
+
+	public void setLog(String log) {
+		this.log = log;
+	}
+
+	public String addToLog(String text) {
+		if (text != null) {
+			StringBuilder builder = new StringBuilder();
+			if (this.log != null) {
+				builder.append(this.log);
+				builder.append("\n" + IdmRoleRequestDto.LOG_SEPARATOR + "\n");
+			}
+			builder.append(text);
+			this.setLog(builder.toString());
+		}
+		return this.getLog();
 	}
 
 	@Override

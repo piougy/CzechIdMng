@@ -12,6 +12,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
+import org.hibernate.annotations.Type;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.RelationTargetAuditMode;
 import org.joda.time.LocalDate;
@@ -84,11 +85,16 @@ public class IdmConceptRoleRequest extends AbstractEntity implements ValidableEn
 	@Audited
 	@Column(name = "state")
 	@Enumerated(EnumType.STRING)
-	private RoleRequestState state;
+	@NotNull
+	private RoleRequestState state = RoleRequestState.CONCEPT;
 	
 	@Audited
 	@Column(name = "wf_process_id")
 	private String wfProcessId;
+	
+	@Type(type = "org.hibernate.type.StringClobType")
+	@Column(name = "log")
+	private String log;
 
 	public IdmRoleRequest getRoleRequest() {
 		return roleRequest;
@@ -161,6 +167,13 @@ public class IdmConceptRoleRequest extends AbstractEntity implements ValidableEn
 	public void setIdentityRole(IdmIdentityRole identityRole) {
 		this.identityRole = identityRole;
 	}
-	
+
+	public String getLog() {
+		return log;
+	}
+
+	public void setLog(String log) {
+		this.log = log;
+	}
 	
 }

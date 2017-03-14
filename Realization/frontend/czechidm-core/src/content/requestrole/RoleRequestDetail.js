@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
-import { RoleRequestManager, ConceptRoleRequestManager, IdentityRoleManager } from '../../redux';
+import { RoleRequestManager, ConceptRoleRequestManager, IdentityRoleManager} from '../../redux';
 import RoleRequestStateEnum from '../../enums/RoleRequestStateEnum';
 import ConceptRoleRequestOperationEnum from '../../enums/ConceptRoleRequestOperationEnum';
 import SearchParameters from '../../domain/SearchParameters';
@@ -51,6 +51,9 @@ class RoleRequestDetail extends Basic.AbstractTableContent {
   componentDidMount() {
     this._initComponent(this.props);
     this._initComponentCurrentRoles(this.props);
+    if (this.refs.description) {
+      this.refs.description.focus();
+    }
   }
 
   /**
@@ -138,33 +141,61 @@ class RoleRequestDetail extends Basic.AbstractTableContent {
       }
     }
 
-    this.context.store.dispatch(conceptRoleRequestManager.deleteEntity(concept, `${uiKeyAttributes}-detail`, (deletedEntity, error) => {
-      if (!error) {
-        for (const conceptRole of _request.conceptRoles) {
-          if (conceptRole.id === concept.id) {
-            _request.conceptRoles.splice(_request.conceptRoles.indexOf(conceptRole), 1);
-          }
+    conceptRoleRequestManager.getService().deleteById(concept.id)
+    .then(() => {
+      for (const conceptRole of _request.conceptRoles) {
+        if (conceptRole.id === concept.id) {
+          _request.conceptRoles.splice(_request.conceptRoles.indexOf(conceptRole), 1);
         }
-        this.refs.table.getWrappedInstance().reload();
-      } else {
-        this.addError(error);
       }
-    }));
+      this.refs.table.getWrappedInstance().reload();
+    })
+    .catch(error => {
+      this.addError(error);
+    });
+
+    // this.context.store.dispatch(conceptRoleRequestManager.deleteEntity(concept, `${uiKeyAttributes}-detail`, (deletedEntity, error) => {
+    //   if (!error) {
+    //     for (const conceptRole of _request.conceptRoles) {
+    //       if (conceptRole.id === concept.id) {
+    //         _request.conceptRoles.splice(_request.conceptRoles.indexOf(conceptRole), 1);
+    //       }
+    //     }
+    //     this.refs.table.getWrappedInstance().reload();
+    //   } else {
+    //     this.addError(error);
+    //   }
+    // }));
   }
 
   _updateConcept(data, type) {
     const {_request} = this.props;
 
-    const concept = {
-      'id': data.id,
-      'operation': type,
-      'roleRequest': _request.id,
-      'identityContract': data.identityContract,
-      'role': data.role,
-      'identityRole': data.identityRole,
-      'validFrom': data.validFrom,
-      'validTill': data.validTill,
-    };
+    let concept;
+    if (type === ConceptRoleRequestOperationEnum.findKeyBySymbol(ConceptRoleRequestOperationEnum.UPDATE)) {
+      concept = {
+        'id': data.id,
+        'operation': type,
+        'roleRequest': _request.id,
+        'identityContract': data.identityContract,
+        'role': data.role,
+        'identityRole': data.identityRole,
+        'validFrom': data.validFrom,
+        'validTill': data.validTill,
+      };
+    }
+    if (type === ConceptRoleRequestOperationEnum.findKeyBySymbol(ConceptRoleRequestOperationEnum.ADD)) {
+      concept = {
+        'id': data.id,
+        'operation': type,
+        'roleRequest': _request.id,
+        'identityContract': data.identityContract.id,
+        'role': data.role,
+        'identityRole': data.identityRole,
+        'validFrom': data.validFrom,
+        'validTill': data.validTill,
+      };
+    }
     this.context.store.dispatch(conceptRoleRequestManager.updateEntity(concept, `${uiKeyAttributes}-detail`, (updatedEntity, error) => {
       if (!error) {
         for (let i = 0; i < _request.conceptRoles.length; i++) {
@@ -211,11 +242,12 @@ class RoleRequestDetail extends Basic.AbstractTableContent {
   }
 
   render() {
-    const { _showLoading, _request, _currentIdentityRoles} = this.props;
+    const { _showLoading, _request, _currentIdentityRoles, adminMode} = this.props;
     const forceSearchParameters = new SearchParameters().setFilter('roleRequestId', _request ? _request.id : SearchParameters.BLANK_UUID);
     const isNew = this._getIsNew();
     const request = isNew ? this.state.request : _request;
     const showLoading = !request || _showLoading;
+    const isEditable = _request && _request.state === RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.CONCEPT);
 
     const addedIdentityRoles = [];
     const changedIdentityRoles = [];
@@ -223,13 +255,16 @@ class RoleRequestDetail extends Basic.AbstractTableContent {
     if (request && request.conceptRoles) {
       const conceptRoles = request.conceptRoles;
       for (const concept of conceptRoles) {
-        if (concept.operation === ConceptRoleRequestOperationEnum.findKeyBySymbol(ConceptRoleRequestOperationEnum.ADD)) {
+        if (concept.operation === ConceptRoleRequestOperationEnum.findKeyBySymbol(ConceptRoleRequestOperationEnum.ADD)
+          && concept.state === RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.CONCEPT)) {
           addedIdentityRoles.push(concept);
         }
-        if (concept.operation === ConceptRoleRequestOperationEnum.findKeyBySymbol(ConceptRoleRequestOperationEnum.UPDATE)) {
+        if (concept.operation === ConceptRoleRequestOperationEnum.findKeyBySymbol(ConceptRoleRequestOperationEnum.UPDATE)
+          && concept.state === RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.CONCEPT)) {
           changedIdentityRoles.push(concept);
         }
-        if (concept.operation === ConceptRoleRequestOperationEnum.findKeyBySymbol(ConceptRoleRequestOperationEnum.REMOVE)) {
+        if (concept.operation === ConceptRoleRequestOperationEnum.findKeyBySymbol(ConceptRoleRequestOperationEnum.REMOVE)
+          && concept.state === RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.CONCEPT)) {
           removedIdentityRoles.push(concept.identityRole);
         }
       }
@@ -246,7 +281,7 @@ class RoleRequestDetail extends Basic.AbstractTableContent {
             <span dangerouslySetInnerHTML={{ __html: this.i18n('header') }}/>
           </Basic.ContentHeader>
           <Basic.Panel>
-            <Basic.AbstractForm ref="form" data={request} showLoading={showLoading} style={{ padding: '15px 15px 0 15px' }}>
+            <Basic.AbstractForm readOnly={!isEditable} ref="form" data={request} showLoading={showLoading} style={{ padding: '15px 15px 0 15px' }}>
               <Basic.LabelWrapper rendered={request && request.applicant} readOnly ref="applicant" label={this.i18n('entity.RoleRequest.applicant')}>
                 <Advanced.IdentityInfo username={request && request.applicant} showLoading={!request} className="no-margin" style={{ width: '60%' }}/>
               </Basic.LabelWrapper>
@@ -259,14 +294,21 @@ class RoleRequestDetail extends Basic.AbstractTableContent {
                 required/>
               <Basic.Checkbox
                 ref="executeImmediately"
+                hidden={!adminMode}
                 label={this.i18n('entity.RoleRequest.executeImmediately')}/>
               <Basic.TextArea
                 ref="log"
                 rows="8"
+                hidden={!adminMode}
                 readOnly
                 label={this.i18n('entity.RoleRequest.log')}/>
+              <Basic.TextArea
+                ref="description"
+                rows="3"
+                placeholder={this.i18n('entity.RoleRequest.description.placeholder')}
+                label={this.i18n('entity.RoleRequest.description.label')}/>
             </Basic.AbstractForm>
-            <Basic.PanelFooter>
+            <Basic.PanelFooter rendered={adminMode}>
               <Basic.Button type="button" level="link"
                 onClick={this.context.router.goBack}
                 showLoading={showLoading}>
@@ -274,6 +316,7 @@ class RoleRequestDetail extends Basic.AbstractTableContent {
               </Basic.Button>
               <Basic.Button
                 onClick={this.save.bind(this)}
+                disabled={!isEditable}
                 level="success"
                 type="submit"
                 showLoading={showLoading}>
@@ -285,12 +328,13 @@ class RoleRequestDetail extends Basic.AbstractTableContent {
         <Basic.ContentHeader rendered={request && !isNew}>
           <Basic.Icon value="list"/>
           {' '}
-          <span dangerouslySetInnerHTML={{ __html: this.i18n('conceptHeader') }}/>
+          <span dangerouslySetInnerHTML={{ __html: this.i18n('conceptWithCurrentRoleHeader') }}/>
         </Basic.ContentHeader>
-        <Basic.Panel rendered={request}>
+        <Basic.Panel rendered={request && _currentIdentityRoles}>
           <RoleConceptTable
             ref="identityRoleConceptTable"
             uiKey="identity-role-concept-table"
+            readOnly={!isEditable}
             identityUsername={request && request.applicant}
             identityRoles={_currentIdentityRoles}
             addedIdentityRoles={addedIdentityRoles}
@@ -316,38 +360,26 @@ class RoleRequestDetail extends Basic.AbstractTableContent {
               [{ value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }]
             }
             >
-            <Advanced.Column
-              property=""
-              header=""
-              className="detail-button"
-              cell={
-                ({ rowIndex, data }) => {
-                  return (
-                    <Advanced.DetailButton
-                      title={this.i18n('button.detail')}
-                      onClick={this.showDetail.bind(this, data[rowIndex], false)}/>
-                  );
-                }
-              }/>
-              <Advanced.Column property="_embedded.identityContract.position" header={this.i18n('entity.ConceptRoleRequest.identityContract')} sort/>
-              <Advanced.Column property="_embedded.role.name" header={this.i18n('entity.ConceptRoleRequest.role')} sort/>
-              <Advanced.Column property="operation" face="enum" enumClass={ConceptRoleRequestOperationEnum} header={this.i18n('entity.ConceptRoleRequest.operation')} sort/>
-              <Advanced.Column property="state" face="enum" enumClass={RoleRequestStateEnum} header={this.i18n('entity.ConceptRoleRequest.state')} sort/>
-              <Advanced.Column property="validFrom" face="date" header={this.i18n('entity.ConceptRoleRequest.validFrom')} sort/>
-              <Advanced.Column property="validTill" face="date" header={this.i18n('entity.ConceptRoleRequest.validTill')} sort/>
-              <Advanced.Column property="wfProcessId" face="text" header={this.i18n('entity.ConceptRoleRequest.wfProcessId')} sort/>
-            </Advanced.Table>
-          </Basic.Panel>
-        </div>
+            <Advanced.Column property="_embedded.identityContract.position" header={this.i18n('entity.ConceptRoleRequest.identityContract')} sort/>
+            <Advanced.Column property="_embedded.role.name" header={this.i18n('entity.ConceptRoleRequest.role')} sort/>
+            <Advanced.Column property="operation" face="enum" enumClass={ConceptRoleRequestOperationEnum} header={this.i18n('entity.ConceptRoleRequest.operation')} sort/>
+            <Advanced.Column property="state" face="enum" enumClass={RoleRequestStateEnum} header={this.i18n('entity.ConceptRoleRequest.state')} sort/>
+            <Advanced.Column property="validFrom" face="date" header={this.i18n('entity.ConceptRoleRequest.validFrom')} sort/>
+            <Advanced.Column property="validTill" face="date" header={this.i18n('entity.ConceptRoleRequest.validTill')} sort/>
+            <Advanced.Column property="wfProcessId" face="text" header={this.i18n('entity.ConceptRoleRequest.wfProcessId')} sort/>
+          </Advanced.Table>
+        </Basic.Panel>
+      </div>
     );
   }
 }
 
 RoleRequestDetail.propTypes = {
   _showLoading: PropTypes.bool,
+  adminMode: PropTypes.bool // If true, then will be show advanced fields as log and etc.
 };
 RoleRequestDetail.defaultProps = {
-  _showLoading: false,
+  adminMode: true,
 };
 
 function select(state, component) {

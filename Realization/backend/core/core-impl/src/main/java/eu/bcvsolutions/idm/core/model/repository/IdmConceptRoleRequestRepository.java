@@ -24,6 +24,8 @@ public interface IdmConceptRoleRequestRepository extends AbstractEntityRepositor
 	        " where " +
 	        " (?#{[0].roleRequestId} is null or e.roleRequest.id = ?#{[0].roleRequestId})" +
 	        " and" +
+	        " (?#{[0].identityRoleId} is null or e.identityRole.id = ?#{[0].identityRoleId})" +
+	        " and" +
 	        " (?#{[0].state} is null or e.state = ?#{[0].state})")
 	Page<IdmConceptRoleRequest> find(ConceptRoleRequestFilter filter, Pageable pageable);
 

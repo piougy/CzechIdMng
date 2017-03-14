@@ -15,6 +15,7 @@ import org.hibernate.annotations.Type;
 import com.sun.istack.NotNull;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
+import eu.bcvsolutions.idm.core.api.domain.Loggable;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 
 /**
@@ -27,10 +28,9 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 @Entity
 @Table(name = "sys_sync_item_log", indexes = {
 		@Index(name = "idx_sys_s_i_l_action", columnList = "sync_action_log_id")})
-public class SysSyncItemLog extends AbstractEntity {
+public class SysSyncItemLog extends AbstractEntity implements Loggable {
 
 	private static final long serialVersionUID = -5447620157233410338L;
-	public static final String LOG_SEPARATOR = "-------------------------";
 
 	@NotNull
 	@ManyToOne(optional = false)
@@ -123,6 +123,7 @@ public class SysSyncItemLog extends AbstractEntity {
 		this.type = type;
 	}
 
+	@Override
 	public String addToLog(String text) {
 		if (text != null) {
 			StringBuilder builder = new StringBuilder();

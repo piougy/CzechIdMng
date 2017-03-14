@@ -1038,12 +1038,32 @@
     },
     "roleRequests": {
       "header": "Žádosti o změnu oprávnění",
-      "title": "Žádosti o role"
+      "title": "Žádosti o role",
+      "applicant": "Žadatel",
+      "create": {
+        "header": "Vytvořit novou žádost o změnu oprávnění"
+      },
+      "button": {
+        "createRequest": "Vytvořit žádost",
+        "start": "Provést žádost"
+      },
+      "action": {
+        "startRequest": {
+          "header": "Opravdu chcete spustit tuto žádost",
+          "message": "Opravdu chcete spustit schvalovací process pro tuto žádost?",
+          "started": "Žádost byla spuštěna"
+        }
+      }
+
     },
     "roleRequestDetail": {
       "header": "Žádost o změnu oprávnění",
       "title": "Změny oprávnění",
-      "conceptHeader": "Požadované změny oprávnění"
+      "conceptHeader": "Požadované změny oprávnění",
+      "conceptWithCurrentRoleHeader": "Aktuálně přiřazené role (včetně požadovaných změn)",
+      "save": {
+        "success": "Žádost o změnu oprávnění byla úspěšně uložena"
+      }
     },
     "role": {
       "identities": {
@@ -2138,6 +2158,10 @@
       "state": "Stav",
       "executeImmediately": "Provést bez schválení",
       "log": "Log",
+      "description": {
+        "label" : "Popis",
+        "placeholder": "Slovní popis požadavku na změnu oprávnění."
+      },
       "created": "Vytvořeno",
       "modified": "Upraveno"
     },

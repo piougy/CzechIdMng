@@ -78,8 +78,8 @@ public class IdentityRoleDeleteProcessor extends CoreEventProcessor<IdmIdentityR
 			conceptRequestService.addToLog(concept, message);
 			concept.setIdentityRole(null);
 
-			roleRequestService.saveDto(request);
-			conceptRequestService.saveDto(concept);
+			roleRequestService.save(request);
+			conceptRequestService.save(concept);
 		});
 
 		// Delete identity role

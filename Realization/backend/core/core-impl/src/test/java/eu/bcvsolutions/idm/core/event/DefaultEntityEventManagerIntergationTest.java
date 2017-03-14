@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.core.event;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.io.Serializable;
 import java.util.List;
 
 import org.junit.After;
@@ -15,7 +16,6 @@ import org.springframework.context.ApplicationEventPublisher;
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.api.dto.EntityEventProcessorDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.EntityEventProcessorFilter;
-import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventContext;
@@ -62,12 +62,12 @@ public class DefaultEntityEventManagerIntergationTest extends AbstractIntegratio
 		assertTrue(size > 4);
 		//
 		filter = new EntityEventProcessorFilter();
-		filter.setEntityClass(BaseEntity.class);
+		filter.setContentClass(Serializable.class);
 	    processors = entityEventManager.find(filter);
 		//
 	    assertEquals(size, processors.size());
 	    //
-	    filter.setEntityClass(TestContent.class);
+	    filter.setContentClass(TestContent.class);
 	    processors = entityEventManager.find(filter);
 	    //
 	    assertEquals(4, processors.size());

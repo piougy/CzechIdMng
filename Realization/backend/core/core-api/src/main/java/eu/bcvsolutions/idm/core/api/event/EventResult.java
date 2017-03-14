@@ -1,5 +1,8 @@
 package eu.bcvsolutions.idm.core.api.event;
 
+import java.io.Serializable;
+
+import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 
 /**
@@ -7,9 +10,9 @@ import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
  * 
  * @author Radek Tomiška
  *
- * @param <E> {@link BaseEntity} type
+ * @param <E> {@link BaseEntity}, {@link BaseDto} or any other {@link Identifiable} content type
  */
-public interface EventResult<E extends BaseEntity> {
+public interface EventResult<E extends Serializable> extends Serializable {
 	
 	/**
 	 * Processed event

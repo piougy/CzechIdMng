@@ -34,7 +34,7 @@ import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.eav.rest.impl.IdmFormDefinitionController;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
-import eu.bcvsolutions.idm.core.model.domain.IdmRoleType;
+import eu.bcvsolutions.idm.core.model.domain.RoleType;
 import eu.bcvsolutions.idm.core.model.dto.filter.RoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmAudit;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
@@ -191,7 +191,7 @@ public class IdmRoleController extends DefaultReadWriteEntityController<IdmRole,
 	protected RoleFilter toFilter(MultiValueMap<String, Object> parameters) {
 		RoleFilter filter = new RoleFilter();
 		filter.setText(getParameterConverter().toString(parameters, "text"));
-		filter.setRoleType(getParameterConverter().toEnum(parameters, "roleType", IdmRoleType.class));
+		filter.setRoleType(getParameterConverter().toEnum(parameters, "roleType", RoleType.class));
 		filter.setRoleCatalogue(getParameterConverter().toEntity(parameters, "roleCatalogue", IdmRoleCatalogue.class));
 		filter.setGuarantee(getParameterConverter().toEntity(parameters, "guarantee", IdmIdentity.class));
 		return filter;

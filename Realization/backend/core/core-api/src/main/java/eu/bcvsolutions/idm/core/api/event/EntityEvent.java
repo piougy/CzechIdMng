@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.springframework.core.ResolvableTypeProvider;
 
+import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 
 /**
@@ -12,9 +13,9 @@ import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
  * 
  * @author Radek Tomiška
  *
- * @param <E> {@link BaseEntity} type
+ * @param <E> {@link BaseEntity}, {@link BaseDto} or any other {@link Serializable} content type
  */
-public interface EntityEvent<E extends BaseEntity> extends ResolvableTypeProvider {
+public interface EntityEvent<E extends Serializable> extends ResolvableTypeProvider, Serializable {
 
 	/**
 	 * Operation type
@@ -22,6 +23,13 @@ public interface EntityEvent<E extends BaseEntity> extends ResolvableTypeProvide
 	 * @return
 	 */
 	EventType getType();
+
+	/**
+	 * Original event content =~ source entity. Could not be null. Events with empty content could not be processed.
+	 *  
+	 * @return
+	 */
+	E getSource();
 	
 	/**
 	 * Event content - entity. Could not be null. Events with empty content could not be processed.
@@ -29,6 +37,13 @@ public interface EntityEvent<E extends BaseEntity> extends ResolvableTypeProvide
 	 * @return
 	 */
 	E getContent();
+	
+	/**
+	 *  Event content - entity. Could not be null. Events with empty content could not be processed.
+	 *  
+	 * @param content
+	 */
+	void setContent(E content);
 	
 	/**
 	 * Event properties (metadata)

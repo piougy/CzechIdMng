@@ -3,7 +3,7 @@ package eu.bcvsolutions.idm.core.model.dto;
 import java.util.List;
 
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
-import eu.bcvsolutions.idm.core.model.domain.IdmRoleType;
+import eu.bcvsolutions.idm.core.model.domain.RoleType;
 
 /**
  * Dto for role
@@ -18,7 +18,7 @@ public class IdmRoleDto extends AbstractDto {
 	private String name;
 	private boolean disabled = false;
 	private Long version;
-	private IdmRoleType roleType;
+	private RoleType roleType;
 	private int priority = 0;
 	private String approveAddWorkflow;
 	private String approveRemoveWorkflow;
@@ -52,11 +52,11 @@ public class IdmRoleDto extends AbstractDto {
 		this.version = version;
 	}
 
-	public IdmRoleType getRoleType() {
+	public RoleType getRoleType() {
 		return roleType;
 	}
 
-	public void setRoleType(IdmRoleType roleType) {
+	public void setRoleType(RoleType roleType) {
 		this.roleType = roleType;
 	}
 

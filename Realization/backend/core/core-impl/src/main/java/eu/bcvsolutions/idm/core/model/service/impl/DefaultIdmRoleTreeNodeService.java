@@ -6,8 +6,11 @@ import java.util.Set;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.core.model.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.model.dto.filter.RoleTreeNodeFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
@@ -26,7 +29,9 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
  * @author Radek Tomiška
  *
  */
-public class DefaultIdmRoleTreeNodeService extends AbstractReadWriteEntityService<IdmRoleTreeNode, RoleTreeNodeFilter> implements IdmRoleTreeNodeService {
+public class DefaultIdmRoleTreeNodeService 
+		extends AbstractReadWriteDtoService<IdmRoleTreeNodeDto, IdmRoleTreeNode, RoleTreeNodeFilter> 
+		implements IdmRoleTreeNodeService {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmRoleTreeNodeService.class);
 	private final IdmRoleTreeNodeRepository repository;
@@ -54,17 +59,15 @@ public class DefaultIdmRoleTreeNodeService extends AbstractReadWriteEntityServic
 	 */
 	@Override
 	@Transactional
-	public IdmRoleTreeNode save(IdmRoleTreeNode roleTreeNode) {
+	public IdmRoleTreeNodeDto save(IdmRoleTreeNodeDto roleTreeNode) {
 		Assert.notNull(roleTreeNode);
-		Assert.notNull(roleTreeNode.getRole());
-		Assert.notNull(roleTreeNode.getTreeNode());
 		//
-		LOG.debug("Saving automatic role [{}] - [{}] - [{}]", roleTreeNode.getRole().getName(), roleTreeNode.getTreeNode().getCode(), roleTreeNode.getRecursionType());
+		LOG.debug("Saving automatic role [{}] - [{}] - [{}]", roleTreeNode.getRole(), roleTreeNode.getTreeNode(), roleTreeNode.getRecursionType());
 		//
 		if (isNew(roleTreeNode)) { // create
 			return entityEventManager.process(new RoleTreeNodeEvent(RoleTreeNodeEventType.CREATE, roleTreeNode)).getContent();
 		}
-		return entityEventManager.process(new RoleTreeNodeEvent(RoleTreeNodeEventType.UPDATE, roleTreeNode)).getContent();
+		throw new ResultCodeException(CoreResultCode.METHOD_NOT_ALLOWED, "Automatic role update is not supported");
 	}
 	
 	/**
@@ -74,12 +77,10 @@ public class DefaultIdmRoleTreeNodeService extends AbstractReadWriteEntityServic
 	 */
 	@Override
 	@Transactional
-	public void delete(IdmRoleTreeNode roleTreeNode) {
+	public void delete(IdmRoleTreeNodeDto roleTreeNode) {
 		Assert.notNull(roleTreeNode);
-		Assert.notNull(roleTreeNode.getRole());
-		Assert.notNull(roleTreeNode.getTreeNode());
 		//
-		LOG.debug("Deleting automatic role [{}] - [{}] - [{}]", roleTreeNode.getRole().getName(), roleTreeNode.getTreeNode().getCode(), roleTreeNode.getRecursionType());
+		LOG.debug("Deleting automatic role [{}] - [{}] - [{}]", roleTreeNode.getRole(), roleTreeNode.getTreeNode(), roleTreeNode.getRecursionType());
 		//
 		entityEventManager.process(new RoleTreeNodeEvent(RoleTreeNodeEventType.DELETE, roleTreeNode));
 	}

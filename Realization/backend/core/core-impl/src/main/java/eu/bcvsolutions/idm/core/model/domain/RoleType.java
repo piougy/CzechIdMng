@@ -6,7 +6,7 @@ package eu.bcvsolutions.idm.core.model.domain;
  * @author Radek Tomiška 
  *
  */
-public enum IdmRoleType {
+public enum RoleType {
 	SYSTEM, // system role - provided by system
 	BUSINESS, // role could contain technical roles
 	TECHNICAL, // "leaf"

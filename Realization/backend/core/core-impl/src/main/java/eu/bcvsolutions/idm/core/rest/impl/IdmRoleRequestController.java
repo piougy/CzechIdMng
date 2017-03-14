@@ -48,16 +48,16 @@ public class IdmRoleRequestController extends DefaultReadWriteDtoController<IdmR
 	@ResponseBody
 	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_REQUEST_WRITE + "') or hasAuthority('"
 			+ IdmGroupPermission.IDENTITY_WRITE + "')")
-	public ResponseEntity<?> create(@RequestBody @NotNull IdmRoleRequestDto dto) {
-		return super.create(dto);
+	public ResponseEntity<?> post(@RequestBody @NotNull IdmRoleRequestDto dto) {
+		return super.post(dto);
 	}
 	
 	@Override
 	@ResponseBody
 	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_REQUEST_WRITE + "') or hasAuthority('"
 			+ IdmGroupPermission.IDENTITY_WRITE + "')")
-	public ResponseEntity<?> update(@PathVariable @NotNull String backendId, @RequestBody @NotNull IdmRoleRequestDto dto) {
-		return super.update(backendId, dto);
+	public ResponseEntity<?> put(@PathVariable @NotNull String backendId, @RequestBody @NotNull IdmRoleRequestDto dto) {
+		return super.put(backendId, dto);
 	}
 
 	

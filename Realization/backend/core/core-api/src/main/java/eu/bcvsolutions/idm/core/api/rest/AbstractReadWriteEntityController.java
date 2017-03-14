@@ -58,6 +58,9 @@ public abstract class AbstractReadWriteEntityController<E extends BaseEntity, F 
 	 */
 	public ResponseEntity<?> post(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {		
 		E createdIdentity = postEntity(validateEntity((E) requestResourceResolver.resolve(nativeRequest, getEntityClass(), null)));
+		if (createdIdentity.getId() == null) {
+			throw new ResultCodeException(CoreResultCode.ACCEPTED);
+		}
 		return new ResponseEntity<>(toResource(createdIdentity, assembler), HttpStatus.CREATED);
 	}
 	

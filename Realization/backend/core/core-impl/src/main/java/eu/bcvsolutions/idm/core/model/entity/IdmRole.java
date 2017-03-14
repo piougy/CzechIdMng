@@ -28,7 +28,7 @@ import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.IdentifiableByName;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
-import eu.bcvsolutions.idm.core.model.domain.IdmRoleType;
+import eu.bcvsolutions.idm.core.model.domain.RoleType;
 
 /**
  * Role
@@ -57,7 +57,7 @@ public class IdmRole extends AbstractEntity implements IdentifiableByName, Forma
 	@NotNull
 	@Enumerated(EnumType.STRING)
 	@Column(name = "role_type", nullable = false)
-	private IdmRoleType roleType = IdmRoleType.TECHNICAL;
+	private RoleType roleType = RoleType.TECHNICAL;
 	
 	@Audited
 	@NotNull
@@ -131,11 +131,11 @@ public class IdmRole extends AbstractEntity implements IdentifiableByName, Forma
 		this.name = name;
 	}
 	
-	public void setRoleType(IdmRoleType roleType) {
+	public void setRoleType(RoleType roleType) {
 		this.roleType = roleType;
 	}
 	
-	public IdmRoleType getRoleType() {
+	public RoleType getRoleType() {
 		return roleType;
 	}
 	

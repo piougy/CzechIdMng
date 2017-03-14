@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.identityconnectors.framework.impl.api.local.operations.OperationalContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
@@ -84,7 +83,7 @@ public class DefaultIdmRoleRequestService
 	}
 
 	@Override
-	public IdmRoleRequestDto saveDto(IdmRoleRequestDto dto) {
+	public IdmRoleRequestDto save(IdmRoleRequestDto dto) {
 		boolean created = false;
 		if (dto.getId() == null) {
 			created = true;
@@ -95,14 +94,14 @@ public class DefaultIdmRoleRequestService
 		if(!created){
 			validateOnDuplicity(dto);
 		}
-		IdmRoleRequestDto savedRequest = super.saveDto(dto);
+		IdmRoleRequestDto savedRequest = super.save(dto);
 
 		// Concepts will be save only on create request
 		if (created && concepts != null) {
 			concepts.forEach(concept -> {
 				concept.setRoleRequest(savedRequest.getId());
 			});
-			this.conceptRoleRequestService.saveAllDto(concepts);
+			this.conceptRoleRequestService.saveAll(concepts);
 		}
 
 		// Check on same applicants in all role concepts
@@ -182,7 +181,7 @@ public class DefaultIdmRoleRequestService
 			IdmRoleRequestDto request = getDto(requestId);
 			request.setLog(Throwables.getStackTraceAsString(ex));
 			request.setState(RoleRequestState.EXCEPTION);
-			saveDto(request);
+			save(request);
 		}
 	}
 
@@ -201,7 +200,7 @@ public class DefaultIdmRoleRequestService
 		// TODO: check on same identities
 
 		request.setState(RoleRequestState.IN_PROGRESS);
-		this.saveDto(request);
+		this.save(request);
 
 		if (request.isExecuteImmediately()) {
 			boolean haveRightExecuteImmediately = securityService
@@ -292,9 +291,9 @@ public class DefaultIdmRoleRequestService
 
 
 		identityRoleService.saveAll(identityRolesToSave);
-		conceptRoleRequestService.saveAllDto(conceptsToSave);
+		conceptRoleRequestService.saveAll(conceptsToSave);
 		request.setState(RoleRequestState.EXECUTED);
-		this.saveDto(request);
+		this.save(request);
 
 	}
 

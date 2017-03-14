@@ -76,8 +76,8 @@ public abstract class DefaultReadWriteDtoController<DTO extends BaseDto, F exten
 	@Override
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.POST)
-	public ResponseEntity<?> create(@RequestBody DTO dto) {
-		return super.create(dto);
+	public ResponseEntity<?> post(@RequestBody DTO dto) {
+		return super.post(dto);
 	}
 
 	/**
@@ -86,8 +86,8 @@ public abstract class DefaultReadWriteDtoController<DTO extends BaseDto, F exten
 	@Override
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.PUT)
-	public ResponseEntity<?> update(@PathVariable @NotNull String backendId, @RequestBody DTO dto) {
-		return super.update(backendId, dto);
+	public ResponseEntity<?> put(@PathVariable @NotNull String backendId, @RequestBody DTO dto) {
+		return super.put(backendId, dto);
 	}
 
 	/**

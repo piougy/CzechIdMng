@@ -43,20 +43,21 @@ public class IdmConceptRoleRequestController
 		return super.get(backendId);
 	}
 
+	@Override
 	@ResponseBody
 	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_REQUEST_WRITE + "') or hasAuthority('"
 			+ IdmGroupPermission.IDENTITY_WRITE + "')")
-	public ResponseEntity<?> create(@RequestBody @NotNull IdmConceptRoleRequestDto dto) {
-		return super.create(dto);
+	public ResponseEntity<?> post(@RequestBody @NotNull IdmConceptRoleRequestDto dto) {
+		return super.post(dto);
 	}
 
 	@Override
 	@ResponseBody
 	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_REQUEST_WRITE + "') or hasAuthority('"
 			+ IdmGroupPermission.IDENTITY_WRITE + "')")
-	public ResponseEntity<?> update(@PathVariable @NotNull String backendId,
+	public ResponseEntity<?> put(@PathVariable @NotNull String backendId,
 			@RequestBody @NotNull IdmConceptRoleRequestDto dto) {
-		return super.update(backendId, dto);
+		return super.put(backendId, dto);
 	}
 
 	@Override

@@ -5,7 +5,6 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.model.dto.filter.RoleTreeNodeFilter;
@@ -18,11 +17,6 @@ import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
  * @author Radek Tomiška
  *
  */
-@RepositoryRestResource( //
-		collectionResourceRel = "roleTreeNodes", // 
-		path = "role-tree-nodes", //
-		itemResourceRel = "roleTreeNode", //
-		exported = false)
 public interface IdmRoleTreeNodeRepository extends AbstractEntityRepository<IdmRoleTreeNode, RoleTreeNodeFilter>{
 	
 	@Override

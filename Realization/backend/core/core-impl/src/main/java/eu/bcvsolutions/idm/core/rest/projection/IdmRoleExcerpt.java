@@ -3,7 +3,7 @@ package eu.bcvsolutions.idm.core.rest.projection;
 import org.springframework.data.rest.core.config.Projection;
 
 import eu.bcvsolutions.idm.core.api.rest.projection.AbstractDtoProjection;
-import eu.bcvsolutions.idm.core.model.domain.IdmRoleType;
+import eu.bcvsolutions.idm.core.model.domain.RoleType;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 
 /**
@@ -23,7 +23,7 @@ public interface IdmRoleExcerpt extends AbstractDtoProjection {
 	
 	String getApproveRemoveWorkflow();
 	
-	IdmRoleType getRoleType();
+	RoleType getRoleType();
 	
 	String getDescription();
 }

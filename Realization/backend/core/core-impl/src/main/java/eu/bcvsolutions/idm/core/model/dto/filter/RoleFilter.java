@@ -1,7 +1,7 @@
 package eu.bcvsolutions.idm.core.model.dto.filter;
 
 import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
-import eu.bcvsolutions.idm.core.model.domain.IdmRoleType;
+import eu.bcvsolutions.idm.core.model.domain.RoleType;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
 
@@ -14,7 +14,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
 
 public class RoleFilter extends QuickFilter {
 
-	private IdmRoleType roleType;
+	private RoleType roleType;
 	private IdmRoleCatalogue roleCatalogue;
 	private IdmIdentity guarantee;
 	
@@ -26,11 +26,11 @@ public class RoleFilter extends QuickFilter {
 		this.roleCatalogue = roleCatalogue;
 	}
 
-	public IdmRoleType getRoleType() {
+	public RoleType getRoleType() {
 		return roleType;
 	}
 
-	public void setRoleType(IdmRoleType roleType) {
+	public void setRoleType(RoleType roleType) {
 		this.roleType = roleType;
 	}
 	

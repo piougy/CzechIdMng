@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.api.event;
 
+import java.io.Serializable;
+
 /**
  * Event type (save, delete, etc.)
  * 
@@ -10,7 +12,7 @@ package eu.bcvsolutions.idm.core.api.event;
  * @author Radek Tomiška
  * 
  */
-public interface EventType {
+public interface EventType extends Serializable {
 
 	/**
 	 * Returns constant event name

@@ -11,7 +11,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
-import eu.bcvsolutions.idm.core.model.domain.IdmRoleType;
+import eu.bcvsolutions.idm.core.model.domain.RoleType;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
@@ -89,10 +89,10 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 				//
 				final IdmRole superAdminRole = new IdmRole();
 				superAdminRole.setName(ADMIN_ROLE);
-				superAdminRole.setRoleType(IdmRoleType.SYSTEM);
+				superAdminRole.setRoleType(RoleType.SYSTEM);
 				superAdminRole.setApproveAddWorkflow("approveRoleBySuperAdminRole");
 				superAdminRole.setApproveRemoveWorkflow("approveRemoveRoleBySuperAdminRole");
-				superAdminRole.setRoleType(IdmRoleType.SYSTEM);
+				superAdminRole.setRoleType(RoleType.SYSTEM);
 				List<IdmRoleAuthority> authorities = new ArrayList<>();
 				securityService.getAvailableGroupPermissions().forEach(groupPermission -> {
 					groupPermission.getPermissions().forEach(basePermission -> {

@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.model.repository;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,7 +16,6 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
-import eu.bcvsolutions.idm.core.model.entity.IdmRoleTreeNode;
 
 /**
  * Identity roles
@@ -57,11 +57,11 @@ public interface IdmIdentityRoleRepository extends AbstractEntityRepository<IdmI
 	/**
 	 * Returns assigned roles by given automatic role.
 	 * 
-	 * @param roleTreeNode
+	 * @param roleTreeNodeId
 	 * @param pageable
 	 * @return
 	 */
-	Page<IdmIdentityRole> findByRoleTreeNode(@Param("roleTreeNode") IdmRoleTreeNode roleTreeNode, Pageable pageable);
+	Page<IdmIdentityRole> findByRoleTreeNode_Id(@Param("roleTreeNodeId") UUID roleTreeNodeId, Pageable pageable);
 	
 	List<IdmIdentityRole> findAllByIdentityContract_IdentityAndRole(@Param("identity") IdmIdentity identity, @Param("role") IdmRole role);
 }

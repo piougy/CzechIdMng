@@ -17,6 +17,7 @@ import eu.bcvsolutions.idm.core.api.dto.ResultModel;
  */
 public class FlashMessage implements BaseDto {
 
+	private static final long serialVersionUID = 6755656222326809612L;
 	private UUID id;
 	private String title;
 	private String message;

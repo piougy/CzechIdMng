@@ -1,10 +1,10 @@
 package eu.bcvsolutions.idm.core.api.service;
 
+import java.io.Serializable;
 import java.util.List;
 
 import eu.bcvsolutions.idm.core.api.dto.EntityEventProcessorDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.EntityEventProcessorFilter;
-import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.EventContext;
@@ -27,7 +27,7 @@ public interface EntityEventManager {
 	 * @param event
 	 * @return
 	 */
-	<E extends BaseEntity> EventContext<E> process(EntityEvent<E> event);
+	<E extends Serializable> EventContext<E> process(EntityEvent<E> event);
 	
 	
 	/**

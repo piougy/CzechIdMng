@@ -48,16 +48,16 @@ public class IdmRoleRequestController extends DefaultReadWriteDtoController<IdmR
 	@ResponseBody
 	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_REQUEST_WRITE + "') or hasAuthority('"
 			+ IdmGroupPermission.IDENTITY_WRITE + "')")
-	public ResponseEntity<?> create(@RequestBody @NotNull IdmRoleRequestDto dto) {
-		return super.create(dto);
+	public ResponseEntity<?> post(@RequestBody @NotNull IdmRoleRequestDto dto) {
+		return super.post(dto);
 	}
 	
 	@Override
 	@ResponseBody
 	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_REQUEST_WRITE + "') or hasAuthority('"
 			+ IdmGroupPermission.IDENTITY_WRITE + "')")
-	public ResponseEntity<?> update(@PathVariable @NotNull String backendId, @RequestBody @NotNull IdmRoleRequestDto dto) {
-		return super.update(backendId, dto);
+	public ResponseEntity<?> put(@PathVariable @NotNull String backendId, @RequestBody @NotNull IdmRoleRequestDto dto) {
+		return super.put(backendId, dto);
 	}
 
 	
@@ -83,6 +83,19 @@ public class IdmRoleRequestController extends DefaultReadWriteDtoController<IdmR
 	protected RoleRequestFilter toFilter(MultiValueMap<String, Object> parameters) {
 		RoleRequestFilter filter = new RoleRequestFilter();
 		filter.setText(getParameterConverter().toString(parameters, "text"));
+		filter.setStates(getParameterConverter().toString(parameters, "states"));
+		filter.setApplicant(getParameterConverter().toString(parameters, "applicant"));
+		if (filter.getApplicant() != null) {
+			try {
+				// Applicant can be UUID (Username vs UUID identification
+				// schizma)
+				filter.setApplicantId(UUID.fromString(filter.getApplicant()));
+				filter.setApplicant(null);
+			} catch (IllegalArgumentException ex) {
+				// ok applicant is not UUID
+			}
+		}
+		
 		filter.setApplicantId(getParameterConverter().toUuid(parameters, "applicantId"));
 		filter.setState(getParameterConverter().toEnum(parameters, "state", RoleRequestState.class));
 		return filter;

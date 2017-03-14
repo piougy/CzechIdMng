@@ -73,6 +73,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSyncLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
+import eu.bcvsolutions.idm.core.api.domain.Loggable;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
@@ -1325,7 +1326,7 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 	 * @param logItem
 	 * @param text
 	 */
-	private void addToItemLog(SysSyncItemLog logItem, String text) {
+	private void addToItemLog(Loggable logItem, String text) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(DateTime.now());
 		sb.append(": ");

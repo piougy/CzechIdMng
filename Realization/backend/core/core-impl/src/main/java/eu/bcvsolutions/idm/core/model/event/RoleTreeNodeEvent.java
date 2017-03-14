@@ -5,7 +5,7 @@ import java.util.Map;
 
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.EventType;
-import eu.bcvsolutions.idm.core.model.entity.IdmRoleTreeNode;
+import eu.bcvsolutions.idm.core.model.dto.IdmRoleTreeNodeDto;
 
 /**
  * Events for automatic roles
@@ -13,7 +13,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRoleTreeNode;
  * @author Radek Tomiška
  *
  */
-public class RoleTreeNodeEvent extends CoreEvent<IdmRoleTreeNode> {
+public class RoleTreeNodeEvent extends CoreEvent<IdmRoleTreeNodeDto> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -25,11 +25,11 @@ public class RoleTreeNodeEvent extends CoreEvent<IdmRoleTreeNode> {
 		CREATE, UPDATE, DELETE
 	}
 	
-	public RoleTreeNodeEvent(RoleTreeNodeEventType operation, IdmRoleTreeNode content) {
+	public RoleTreeNodeEvent(RoleTreeNodeEventType operation, IdmRoleTreeNodeDto content) {
 		super(operation, content);
 	}
 	
-	public RoleTreeNodeEvent(RoleTreeNodeEventType operation, IdmRoleTreeNode content, Map<String, Serializable> properties) {
+	public RoleTreeNodeEvent(RoleTreeNodeEventType operation, IdmRoleTreeNodeDto content, Map<String, Serializable> properties) {
 		super(operation, content, properties);
 	}
 

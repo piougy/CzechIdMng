@@ -26,16 +26,21 @@ public abstract class AbstractReadWriteDtoService<DTO extends BaseDto, E extends
 	public AbstractReadWriteDtoService(AbstractEntityRepository<E, F> repository) {
 		super(repository);
 	}
-
+	
 	/**
-	 * Saves a given dto.
+	 * {@inheritDoc}
 	 * 
-	 * @param dto
-	 * @return the saved entity
+	 * Override for include event processing etc.
 	 */
 	@Override
 	@Transactional
-	public DTO saveDto(DTO dto) {
+	public DTO save(DTO dto) {
+		return saveInternal(dto);
+	}
+
+	@Override
+	@Transactional
+	public DTO saveInternal(DTO dto) {
 		Assert.notNull(dto);
 		//
 		E persistedEntity = null;
@@ -46,28 +51,22 @@ public abstract class AbstractReadWriteDtoService<DTO extends BaseDto, E extends
 		return toDto(entity);
 	}
 
-	/**
-	 * Saves all given dtos.
-	 * 
-	 * @param dtos
-	 * @return the saved dtos
-	 * @throws IllegalArgumentException
-	 *             in case the given dto is {@literal null}.
-	 */
 	@Override
 	@Transactional
-	public Iterable<DTO> saveAllDto(Iterable<DTO> dtos) {
+	public Iterable<DTO> saveAll(Iterable<DTO> dtos) {
 		Assert.notNull(dtos);
 		//
 		List<DTO> savedDtos = new ArrayList<>();
 		dtos.forEach(entity -> {
-			savedDtos.add(saveDto(entity));
+			savedDtos.add(save(entity));
 		});
 		return savedDtos;
 	}
-
+	
 	/**
-	 * Deletes a given DTO.
+	 * {@inheritDoc}
+	 * 
+	 * Override for include event processing etc.
 	 * 
 	 * @param dto
 	 * @throws IllegalArgumentException
@@ -75,22 +74,21 @@ public abstract class AbstractReadWriteDtoService<DTO extends BaseDto, E extends
 	 */
 	@Override
 	@Transactional
-	public void deleteDto(DTO dto) {
+	public void delete(DTO dto) {
+		deleteInternal(dto);
+	}
+
+	@Override
+	@Transactional
+	public void deleteInternal(DTO dto) {
 		Assert.notNull(dto);
 		//
 		getRepository().delete((UUID) dto.getId());
 	}
 
-	/**
-	 * Deletes a given entity.
-	 * 
-	 * @param entity
-	 * @throws IllegalArgumentException
-	 *  in case the given entity is {@literal null}.
-	 */
 	@Override
 	@Transactional
-	public void deleteDtoById(Serializable id) {
+	public void deleteInternalById(Serializable id) {
 		Assert.notNull(id);
 		//
 		getRepository().delete((UUID) id);

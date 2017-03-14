@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -13,7 +14,6 @@ import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.dto.EntityEventProcessorDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.EntityEventProcessorFilter;
-import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.EventContext;
@@ -51,12 +51,12 @@ public class DefaultEntityEventManager implements EntityEventManager {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public <E extends BaseEntity> EventContext<E> process(EntityEvent<E> event) {
+	public <E extends Serializable> EventContext<E> process(EntityEvent<E> event) {
 		Assert.notNull(event);
 		//
-		BaseEntity content = event.getContent();
+		Serializable content = event.getContent();
 		//
-		LOG.debug("Publishing event [{}] [{}] [{}]", content.getClass().getSimpleName(), content.getId(), event.getType());
+		LOG.debug("Publishing event [{}] [{}] [{}]", content.getClass().getSimpleName(), event.getType());
 		// continue suspended event
 		event.getContext().setSuspended(false);
 		//
@@ -75,7 +75,7 @@ public class DefaultEntityEventManager implements EntityEventManager {
 			if (!enabledEvaluator.isEnabled(processor)) {
 				continue;
 			}
-			if (filter != null && filter.getEntityClass() != null && !filter.getEntityClass().isAssignableFrom(processor.getEntityClass())) {
+			if (filter != null && filter.getContentClass() != null && !filter.getContentClass().isAssignableFrom(processor.getEntityClass())) {
 				continue;
 			}
 			EntityEventProcessorDto dto = new EntityEventProcessorDto();

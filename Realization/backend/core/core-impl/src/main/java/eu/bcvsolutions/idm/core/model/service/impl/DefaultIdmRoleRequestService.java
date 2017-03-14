@@ -1,11 +1,13 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.identityconnectors.framework.impl.api.local.operations.OperationalContext;
+import org.joda.time.DateTime;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
@@ -19,6 +21,7 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.domain.Loggable;
 import eu.bcvsolutions.idm.core.api.exception.RoleRequestException;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
@@ -51,8 +54,7 @@ public class DefaultIdmRoleRequestService
 		extends AbstractReadWriteDtoService<IdmRoleRequestDto, IdmRoleRequest, RoleRequestFilter>
 		implements IdmRoleRequestService {
 
-	// private static final org.slf4j.Logger LOG =
-	// org.slf4j.LoggerFactory.getLogger(DefaultIdmRoleRequestService.class);
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmRoleRequestService.class);
 	private final IdmConceptRoleRequestService conceptRoleRequestService;
 	private final IdmIdentityRoleService identityRoleService;
 	private final IdmIdentityService identityService;
@@ -84,7 +86,7 @@ public class DefaultIdmRoleRequestService
 	}
 
 	@Override
-	public IdmRoleRequestDto saveDto(IdmRoleRequestDto dto) {
+	public IdmRoleRequestDto save(IdmRoleRequestDto dto) {
 		boolean created = false;
 		if (dto.getId() == null) {
 			created = true;
@@ -92,17 +94,17 @@ public class DefaultIdmRoleRequestService
 		// Load applicant (check read right)
 		IdmIdentity applicant = identityService.get(dto.getApplicant());
 		List<IdmConceptRoleRequestDto> concepts = dto.getConceptRoles();
-		if(!created){
+		if (!created) {
 			validateOnDuplicity(dto);
 		}
-		IdmRoleRequestDto savedRequest = super.saveDto(dto);
+		IdmRoleRequestDto savedRequest = super.save(dto);
 
 		// Concepts will be save only on create request
 		if (created && concepts != null) {
 			concepts.forEach(concept -> {
 				concept.setRoleRequest(savedRequest.getId());
 			});
-			this.conceptRoleRequestService.saveAllDto(concepts);
+			this.conceptRoleRequestService.saveAll(concepts);
 		}
 
 		// Check on same applicants in all role concepts
@@ -179,10 +181,11 @@ public class DefaultIdmRoleRequestService
 			// Request will be started in new transaction
 			this.getIdmRoleRequestService().startRequestInternal(requestId, true);
 		} catch (Exception ex) {
+			LOG.error(ex.getLocalizedMessage(), ex);
 			IdmRoleRequestDto request = getDto(requestId);
-			request.setLog(Throwables.getStackTraceAsString(ex));
+			this.addToLog(request, Throwables.getStackTraceAsString(ex));
 			request.setState(RoleRequestState.EXCEPTION);
-			saveDto(request);
+			save(request);
 		}
 	}
 
@@ -193,24 +196,41 @@ public class DefaultIdmRoleRequestService
 		// Load request ... check right for read
 		IdmRoleRequestDto request = getDto(requestId);
 		Assert.notNull(request, "Role request DTO is required!");
-//		Assert.isTrue(RoleRequestState.CONCEPT == request.getState(),
-//				"Only role request with CONCEPT state can be started!");
+		Assert.isTrue(
+				RoleRequestState.CONCEPT == request.getState() || RoleRequestState.EXCEPTION == request.getState(),
+				"Only role request with CONCEPT or EXCEPTION state can be started!");
 
 		validateOnDuplicity(request);
 
 		// TODO: check on same identities
 
+		// Request and all concepts (in concept state) will be set on in progress state
+		request.getConceptRoles().stream().filter(concept -> {
+			return RoleRequestState.CONCEPT == concept.getState();
+		}).forEach(concept -> {
+			concept.setState(RoleRequestState.IN_PROGRESS);
+			conceptRoleRequestService.save(concept);
+		});
 		request.setState(RoleRequestState.IN_PROGRESS);
-		this.saveDto(request);
+		this.save(request);
 
 		if (request.isExecuteImmediately()) {
 			boolean haveRightExecuteImmediately = securityService
 					.hasAnyAuthority(IdmGroupPermission.ROLE_REQUEST_IMMEDIATELY_WRITE);
 
 			if (checkRight && !haveRightExecuteImmediately) {
-				throw new RoleRequestException(CoreResultCode.ROLE_REQUEST_NO_EXECUTE_IMMIDIATELY_RIGHT,
+				throw new RoleRequestException(CoreResultCode.ROLE_REQUEST_NO_EXECUTE_IMMEDIATELY_RIGHT,
 						ImmutableMap.of("new", request));
 			}
+
+			// All concepts in progress state will be set on approved (we can
+			// execute it immediately)
+			request.getConceptRoles().stream().filter(concept -> {
+				return RoleRequestState.IN_PROGRESS == concept.getState();
+			}).forEach(concept -> {
+				concept.setState(RoleRequestState.APPROVED);
+				conceptRoleRequestService.save(concept);
+			});
 
 			// Execute request immediately
 			executeRequest(request.getId());
@@ -228,13 +248,14 @@ public class DefaultIdmRoleRequestService
 
 		requestFilter.setState(RoleRequestState.APPROVED);
 		potentialDuplicatedRequests.addAll(this.findDto(requestFilter, null).getContent());
-		
+
 		requestFilter.setState(RoleRequestState.CONCEPT);
 		potentialDuplicatedRequests.addAll(this.findDto(requestFilter, null).getContent());
 
 		Optional<IdmRoleRequestDto> duplicatedRequestOptional = potentialDuplicatedRequests.stream()
 				.filter(requestDuplicate -> {
-					return isDuplicated(request, requestDuplicate) && !(request.getId() != null && requestDuplicate.getId() != null && request.getId().equals(requestDuplicate.getId()));
+					return isDuplicated(request, requestDuplicate) && !(request.getId() != null
+							&& requestDuplicate.getId() != null && request.getId().equals(requestDuplicate.getId()));
 				}).findFirst();
 
 		if (duplicatedRequestOptional.isPresent()) {
@@ -263,38 +284,71 @@ public class DefaultIdmRoleRequestService
 					ImmutableMap.of("request", request, "applicant", identity.getUsername()));
 		}
 
-	
 		List<IdmIdentityRole> identityRolesToSave = new ArrayList<>();
 		List<IdmConceptRoleRequestDto> conceptsToSave = new ArrayList<>();
-		
+
 		// Create new identity role
 		concepts.stream().filter(concept -> {
 			return ConceptRoleRequestOperation.ADD == concept.getOperation();
+		}).filter(concept -> {
+			// Only approved concepts can be executed
+			return RoleRequestState.APPROVED == concept.getState();
 		}).forEach(concept -> {
 			IdmIdentityRole identityRole = new IdmIdentityRole();
 			identityRolesToSave.add(
 					convertConceptRoleToIdentityRole(conceptRoleRequestService.get(concept.getId()), identityRole));
 			concept.setState(RoleRequestState.EXECUTED);
+			String message = MessageFormat.format("IdentityRole [{0}] was added to applicant. Requested in concept [{1}].",
+					identityRole.getRole().getName(), concept.getId());
+			conceptRoleRequestService.addToLog(concept, message);
+			conceptRoleRequestService.addToLog(request, message);
 			conceptsToSave.add(concept);
 		});
-		
+
+		// Create new identity role
+		concepts.stream().filter(concept -> {
+			return ConceptRoleRequestOperation.UPDATE == concept.getOperation();
+		}).filter(concept -> {
+			// Only approved concepts can be executed
+			return RoleRequestState.APPROVED == concept.getState();
+		}).forEach(concept -> {
+			IdmIdentityRole identityRole = identityRoleService.get(concept.getIdentityRole());
+			identityRolesToSave.add(
+					convertConceptRoleToIdentityRole(conceptRoleRequestService.get(concept.getId()), identityRole));
+			concept.setState(RoleRequestState.EXECUTED);
+			String message = MessageFormat.format("IdentityRole [{0}] was changed. Requested in concept [{1}].",
+					identityRole.getRole().getName(), concept.getId());
+			conceptRoleRequestService.addToLog(concept, message);
+			conceptRoleRequestService.addToLog(request, message);
+			conceptsToSave.add(concept);
+		});
+
 		// Delete identity role
 		concepts.stream().filter(concept -> {
 			return ConceptRoleRequestOperation.REMOVE == concept.getOperation();
+		}).filter(concept -> {
+			// Only approved concepts can be executed
+			return RoleRequestState.APPROVED == concept.getState();
 		}).forEach(concept -> {
 			IdmIdentityRole identityRole = identityRoleService.get(concept.getIdentityRole());
-			if(identityRole != null){
-				identityRoleService.delete(identityRole);
+			if (identityRole != null) {
 				concept.setState(RoleRequestState.EXECUTED);
-				conceptsToSave.add(concept);
+				concept.setIdentityRole(null); // we have to remove relation on
+												// deleted identityRole
+				String message = MessageFormat.format(
+						"IdentityRole [{0}] (reqested in concept [{1}]) was deleted (from this role request).",
+						identityRole.getId(), concept.getId());
+				conceptRoleRequestService.addToLog(concept, message);
+				conceptRoleRequestService.addToLog(request, message);
+				conceptRoleRequestService.save(concept);
+				identityRoleService.delete(identityRole);
 			}
 		});
 
-
 		identityRoleService.saveAll(identityRolesToSave);
-		conceptRoleRequestService.saveAllDto(conceptsToSave);
+		conceptRoleRequestService.saveAll(conceptsToSave);
 		request.setState(RoleRequestState.EXECUTED);
-		this.saveDto(request);
+		this.save(request);
 
 	}
 
@@ -319,6 +373,18 @@ public class DefaultIdmRoleRequestService
 			return false;
 		}
 		return true;
+	}
+
+	@Override
+	public void addToLog(Loggable logItem, String text) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(DateTime.now());
+		sb.append(": ");
+		sb.append(text);
+		text = sb.toString();
+		logItem.addToLog(text);
+		LOG.info(text);
+
 	}
 
 	private IdmIdentityRole convertConceptRoleToIdentityRole(IdmConceptRoleRequest conceptRole,

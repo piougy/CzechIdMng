@@ -1,9 +1,12 @@
 package eu.bcvsolutions.idm.core.api.event;
 
+import java.io.Serializable;
+
 import org.springframework.context.ApplicationListener;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 
+import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 
 /**
@@ -15,9 +18,9 @@ import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
  *
  * @see {@link ApplicationListener}
  * @see {@link Ordered}
- * @param <E> {@link BaseEntity} type
+ * @param <E> {@link BaseEntity}, {@link BaseDto} or any other {@link Serializable} content type
  */
-public interface EntityEventProcessor<E extends BaseEntity> extends Ordered {
+public interface EntityEventProcessor<E extends Serializable> extends Ordered {
 	
 	/**
 	 * Unique (module scope) entity event processor identifier. Could be used in configuration etc.

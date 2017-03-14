@@ -31,13 +31,17 @@ public abstract class AbstractReadWriteDtoController<DTO extends BaseDto, F exte
 	}
 
 	/**
-	 * Create DTO and convert to response
+	 * Post DTO and convert to response
 	 * 
 	 * @param dto
 	 * @return
 	 */
-	public ResponseEntity<?> create(DTO dto) {
-		return new ResponseEntity<>(toResource(createDto(dto)), HttpStatus.CREATED);
+	public ResponseEntity<?> post(DTO dto) {
+		DTO createdIdentity = postDto(dto);
+		if (createdIdentity.getId() == null) {			
+			throw new ResultCodeException(CoreResultCode.ACCEPTED);
+		}
+		return new ResponseEntity<>(toResource(createdIdentity), HttpStatus.CREATED);
 	}
 
 	/**
@@ -46,23 +50,23 @@ public abstract class AbstractReadWriteDtoController<DTO extends BaseDto, F exte
 	 * @param dto
 	 * @return
 	 */
-	public DTO createDto(DTO dto) {
-		return getService().saveDto(dto);
+	public DTO postDto(DTO dto) {
+		return getService().save(dto);
 	}
 
 	/**
-	 * Updates DTO by given backendId and convert to response
+	 * Put DTO by given backendId and convert to response
 	 * 
 	 * @param backendId
 	 * @param dto
 	 * @return
 	 */
-	public ResponseEntity<?> update(@PathVariable @NotNull String backendId, DTO dto) {
+	public ResponseEntity<?> put(@PathVariable @NotNull String backendId, DTO dto) {
 		DTO updateDto = getDto(backendId);
 		if (updateDto == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
-		DTO updatedDto = updateDto(dto);
+		DTO updatedDto = putDto(dto);
 		return new ResponseEntity<>(toResource(updatedDto), HttpStatus.OK);
 	}
 
@@ -72,9 +76,9 @@ public abstract class AbstractReadWriteDtoController<DTO extends BaseDto, F exte
 	 * @param dto
 	 * @return
 	 */
-	public DTO updateDto(DTO dto) {
+	public DTO putDto(DTO dto) {
 		Assert.notNull(dto, "DTO is required");
-		return getService().saveDto(dto);
+		return getService().save(dto);
 	}
 
 	/**
@@ -113,7 +117,7 @@ public abstract class AbstractReadWriteDtoController<DTO extends BaseDto, F exte
 	 */
 	public void deleteDto(DTO dto) {
 		Assert.notNull(dto, "DTO is required");
-		getService().deleteDto(dto);
+		getService().delete(dto);
 	}
 
 	/**

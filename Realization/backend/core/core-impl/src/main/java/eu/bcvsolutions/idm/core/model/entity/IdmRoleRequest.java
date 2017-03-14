@@ -26,7 +26,7 @@ import eu.bcvsolutions.idm.core.model.domain.RoleRequestedByType;
  */
 @Entity
 @Table(name = "idm_role_request")
-public class IdmRoleRequest extends AbstractEntity {
+public class IdmRoleRequest extends AbstractEntity{
 
 	private static final long serialVersionUID = 1L;
 
@@ -73,6 +73,10 @@ public class IdmRoleRequest extends AbstractEntity {
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey(name = "none")
 	private IdmRoleRequest duplicatedToRequest;
+	
+	@Audited
+	@Column(name = "description")
+	private String description;
 
 	public IdmIdentity getApplicant() {
 		return applicant;
@@ -137,5 +141,14 @@ public class IdmRoleRequest extends AbstractEntity {
 	public void setRequestedByType(RoleRequestedByType requestedByType) {
 		this.requestedByType = requestedByType;
 	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
 
 }

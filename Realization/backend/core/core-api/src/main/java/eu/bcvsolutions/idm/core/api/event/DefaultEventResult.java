@@ -1,5 +1,12 @@
 package eu.bcvsolutions.idm.core.api.event;
 
+import java.io.Serializable;
+
+import org.springframework.util.Assert;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 
 /**
@@ -7,18 +14,26 @@ import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
  * 
  * @author Radek Tomiška
  *
- * @param <E> {@link BaseEntity} type
+ * @param <E> {@link BaseEntity}, {@link BaseDto} or any other {@link Serializable} content type
  */
-public class DefaultEventResult<E extends BaseEntity> implements EventResult<E> {
+public class DefaultEventResult<E extends Serializable> implements EventResult<E> {
 	
+	private static final long serialVersionUID = 1749982602265978363L;
 	private final EntityEvent<E> event;
-	private final EntityEventProcessor<E> processor;
+	@JsonIgnore
+	private final transient EntityEventProcessor<E> processor;
 	private boolean closed;
 	private boolean suspended;
+	private int processedOrder;
 	
 	public DefaultEventResult(EntityEvent<E> event, EntityEventProcessor<E> processor, boolean closed) {
+		Assert.notNull(event);
+		Assert.notNull(processor);
+		//
+		// TODO: clone event by clone constructor - mutable previous event content :/
 		this.event = event;
 		this.processor = processor;
+		this.processedOrder = processor.getOrder();
 		this.closed = closed;
 	}
 	
@@ -57,7 +72,7 @@ public class DefaultEventResult<E extends BaseEntity> implements EventResult<E> 
 	
 	@Override
 	public int getProcessedOrder() {
-		return processor.getOrder();
+		return processedOrder;
 	}
 	
 	/**
@@ -66,7 +81,7 @@ public class DefaultEventResult<E extends BaseEntity> implements EventResult<E> 
 	 * @author Radek Tomiška
 	 *
 	 */
-	public static class Builder<E extends BaseEntity> {
+	public static class Builder<E extends Serializable> {
 		// required
 		private final EntityEvent<E> event;
 		private final EntityEventProcessor<E> processor;

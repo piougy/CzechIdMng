@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.TestHelper;
 import eu.bcvsolutions.idm.core.model.domain.RecursionType;
+import eu.bcvsolutions.idm.core.model.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
@@ -61,8 +62,8 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 	private IdmRole roleB;
 	private IdmRole roleC;
 	private IdmRole roleD;
-	private IdmRoleTreeNode automaticRoleA;
-	private IdmRoleTreeNode automaticRoleD;
+	private IdmRoleTreeNodeDto automaticRoleA;
+	private IdmRoleTreeNodeDto automaticRoleD;
 	
 	@Before
 	public void init() {
@@ -73,7 +74,7 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 	@After 
 	public void logout() {
 		roleTreeNodeRepository.findAll().forEach(entity -> {
-			roleTreeNodeService.delete(entity);
+			roleTreeNodeService.deleteInternalById(entity.getId());
 		});
 		super.logout();
 	}	
@@ -101,38 +102,38 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 	 */
 	private void prepareAutomaticRoles() {
 		// prepare automatic roles
-		automaticRoleA = new IdmRoleTreeNode();
+		automaticRoleA = new IdmRoleTreeNodeDto();
 		automaticRoleA.setRecursionType(RecursionType.DOWN);
-		automaticRoleA.setRole(roleA);
-		automaticRoleA.setTreeNode(nodeA);
+		automaticRoleA.setRole(roleA.getId());
+		automaticRoleA.setTreeNode(nodeA.getId());
 		automaticRoleA = roleTreeNodeService.save(automaticRoleA);	
 		
-		automaticRoleD = new IdmRoleTreeNode();
+		automaticRoleD = new IdmRoleTreeNodeDto();
 		automaticRoleD.setRecursionType(RecursionType.DOWN);
-		automaticRoleD.setRole(roleB);
-		automaticRoleD.setTreeNode(nodeD);
+		automaticRoleD.setRole(roleB.getId());
+		automaticRoleD.setTreeNode(nodeD.getId());
 		automaticRoleD = roleTreeNodeService.save(automaticRoleD);
 		
-		IdmRoleTreeNode automaticRoleF = new IdmRoleTreeNode();
+		IdmRoleTreeNodeDto automaticRoleF = new IdmRoleTreeNodeDto();
 		automaticRoleF.setRecursionType(RecursionType.UP);
-		automaticRoleF.setRole(roleC);
-		automaticRoleF.setTreeNode(nodeF);
+		automaticRoleF.setRole(roleC.getId());
+		automaticRoleF.setTreeNode(nodeF.getId());
 		automaticRoleF = roleTreeNodeService.save(automaticRoleF);
 		
-		IdmRoleTreeNode automaticRoleE = new IdmRoleTreeNode();
+		IdmRoleTreeNodeDto automaticRoleE = new IdmRoleTreeNodeDto();
 		automaticRoleE.setRecursionType(RecursionType.NO);
-		automaticRoleE.setRole(roleD);
-		automaticRoleE.setTreeNode(nodeE);
+		automaticRoleE.setRole(roleD.getId());
+		automaticRoleE.setTreeNode(nodeE.getId());
 		automaticRoleE = roleTreeNodeService.save(automaticRoleE);
 	}
 	
 	@Test
 	public void testFindAutomaticRoleWithoutRecursion() {
 		// prepare
-		IdmRoleTreeNode automaticRoleNoRecursion = new IdmRoleTreeNode();
+		IdmRoleTreeNodeDto automaticRoleNoRecursion = new IdmRoleTreeNodeDto();
 		automaticRoleNoRecursion.setRecursionType(RecursionType.NO);
-		automaticRoleNoRecursion.setRole(roleA);
-		automaticRoleNoRecursion.setTreeNode(nodeD);
+		automaticRoleNoRecursion.setRole(roleA.getId());
+		automaticRoleNoRecursion.setTreeNode(nodeD.getId());
 		automaticRoleNoRecursion = roleTreeNodeService.save(automaticRoleNoRecursion);
 		//
 		// test
@@ -146,10 +147,10 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 	@Test
 	public void testFindAutomaticRoleWithRecursionDown() {
 		// prepare
-		IdmRoleTreeNode automaticRoleWithRecursion = new IdmRoleTreeNode();
+		IdmRoleTreeNodeDto automaticRoleWithRecursion = new IdmRoleTreeNodeDto();
 		automaticRoleWithRecursion.setRecursionType(RecursionType.DOWN);
-		automaticRoleWithRecursion.setRole(roleA);
-		automaticRoleWithRecursion.setTreeNode(nodeD);
+		automaticRoleWithRecursion.setRole(roleA.getId());
+		automaticRoleWithRecursion.setTreeNode(nodeD.getId());
 		automaticRoleWithRecursion = roleTreeNodeService.save(automaticRoleWithRecursion);
 		//
 		// test
@@ -165,10 +166,10 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 	@Test
 	public void testFindAutomaticRoleWithRecursionUp() {
 		// prepare
-		IdmRoleTreeNode automaticRoleWithRecursion = new IdmRoleTreeNode();
+		IdmRoleTreeNodeDto automaticRoleWithRecursion = new IdmRoleTreeNodeDto();
 		automaticRoleWithRecursion.setRecursionType(RecursionType.UP);
-		automaticRoleWithRecursion.setRole(roleA);
-		automaticRoleWithRecursion.setTreeNode(nodeD);
+		automaticRoleWithRecursion.setRole(roleA.getId());
+		automaticRoleWithRecursion.setTreeNode(nodeD.getId());
 		automaticRoleWithRecursion = roleTreeNodeService.save(automaticRoleWithRecursion);
 		//
 		// test

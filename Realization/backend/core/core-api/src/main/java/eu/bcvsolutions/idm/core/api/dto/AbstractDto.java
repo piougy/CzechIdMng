@@ -5,11 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import javax.persistence.Column;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import org.hibernate.envers.Audited;
 import org.joda.time.DateTime;
 import org.springframework.util.Assert;
 
@@ -29,7 +26,7 @@ import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
  *
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public abstract class AbstractDto implements Serializable, BaseDto, Auditable {
+public abstract class AbstractDto implements BaseDto, Auditable {
 	
 	private static final long serialVersionUID = 7512463222974374742L;
 	//
@@ -199,9 +196,7 @@ public abstract class AbstractDto implements Serializable, BaseDto, Auditable {
 
 	public void setTrimmed(boolean trimmed) {
 		this.trimmed = trimmed;
-	}
-	
-	
+	}	
 
 	public Map<String, AbstractDto> getEmbedded() {
 		if(embedded == null){

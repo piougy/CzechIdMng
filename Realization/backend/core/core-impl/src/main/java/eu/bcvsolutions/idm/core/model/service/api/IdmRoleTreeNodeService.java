@@ -2,7 +2,8 @@ package eu.bcvsolutions.idm.core.model.service.api;
 
 import java.util.Set;
 
-import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
+import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
+import eu.bcvsolutions.idm.core.model.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.model.dto.filter.RoleTreeNodeFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
@@ -13,7 +14,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
  * @author Radek Tomiška
  *
  */
-public interface IdmRoleTreeNodeService extends ReadWriteEntityService<IdmRoleTreeNode, RoleTreeNodeFilter> {
+public interface IdmRoleTreeNodeService extends ReadWriteDtoService<IdmRoleTreeNodeDto, IdmRoleTreeNode, RoleTreeNodeFilter> {
 	
 	/**
 	 * Returns all automatic role for given work position. 

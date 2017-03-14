@@ -20,7 +20,6 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
-import eu.bcvsolutions.idm.core.model.entity.IdmRoleTreeNode;
 import eu.bcvsolutions.idm.core.model.event.IdentityRoleEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityRoleEvent.IdentityRoleEventType;
 import eu.bcvsolutions.idm.core.model.event.processor.IdentityRoleDeleteProcessor;
@@ -112,8 +111,8 @@ public class DefaultIdmIdentityRoleService extends AbstractReadWriteEntityServic
 	
 	@Override
 	@Transactional(readOnly = true)
-	public Page<IdmIdentityRole> getRoles(IdmRoleTreeNode roleTreeNode, Pageable pageable) {
-		return repository.findByRoleTreeNode(roleTreeNode, pageable);
+	public Page<IdmIdentityRole> getRolesByAutomaticRole(UUID roleTreeNodeId, Pageable pageable) {
+		return repository.findByRoleTreeNode_Id(roleTreeNodeId, pageable);
 	}
 
 	@Override

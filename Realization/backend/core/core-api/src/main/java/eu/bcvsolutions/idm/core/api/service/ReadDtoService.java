@@ -15,6 +15,10 @@ import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
  * sorting abstraction for DTO services.
  * 
  * @author Svanda
+ * 
+ * @param <DTO> {@link BaseDto} type
+ * @param <E> {@link BaseEntity} type
+ * @param <F> {@link BaseFilter} type
  */
 public interface ReadDtoService<DTO extends BaseDto, E extends BaseEntity, F extends BaseFilter>
 		extends BaseDtoService<DTO> {
@@ -105,5 +109,13 @@ public interface ReadDtoService<DTO extends BaseDto, E extends BaseEntity, F ext
 	 * @return
 	 */
 	Page<DTO> toDtoPage(Page<E> entityPage);
+	
+	/**
+	 * Returns whether the given dto is considered to be new.
+	 * 
+	 * @param dto must never be {@literal null}
+	 * @return
+	 */
+	boolean isNew(DTO dto);
 
 }

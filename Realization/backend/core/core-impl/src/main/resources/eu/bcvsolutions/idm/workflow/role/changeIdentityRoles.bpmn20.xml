@@ -74,7 +74,7 @@
     <sequenceFlow id="flow21" sourceRef="scripttask1" targetRef="startAddSubWorkflow"></sequenceFlow>
     <scriptTask id="scripttask1" name="Načtení definic rolí" scriptFormat="groovy" activiti:autoStoreVariables="false">
       <script>for (addedIdentityRole in addedIdentityRoles) {
-	idmRole = defaultIdmRoleService.get(addedIdentityRole._embedded.role.id);
+	idmRole = roleService.get(addedIdentityRole._embedded.role.id);
 	addedIdentityRole.roleId = idmRole.id;
 	addedIdentityRole.addWorkflowKey = idmRole.approveAddWorkflow;
 	if(addedIdentityRole.addWorkflowKey == null) {
@@ -103,7 +103,7 @@ for (changedIdentityRole in changedIdentityRoles) {
 		continue;
 	}
 	//Load RoleId
-	idmRole = defaultIdmRoleService.get(idmIdentityRole.role.id);
+	idmRole = roleService.get(idmIdentityRole.role.id);
 	changedIdentityRole._roleId = idmRole.id;
 
 	//Add old dates values
@@ -190,7 +190,7 @@ for (removedIdentityRoleId in removedIdentityRoles) {
 		continue;
 	}
 	//Load RoleId
-	def idmRole = defaultIdmRoleService.get(idmIdentityRole.role.id);
+	def idmRole = roleService.get(idmIdentityRole.role.id);
 	def removedIdentityRoleWrapper = new Expando();
 	removedIdentityRoleWrapper.roleId = idmRole.id;
 

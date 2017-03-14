@@ -1,6 +1,5 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -17,7 +16,6 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.forest.index.service.api.ForestIndexService;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
-import eu.bcvsolutions.idm.core.api.dto.ConfigurationDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
@@ -199,17 +197,6 @@ public class DefaultIdmRoleCatalogueService extends AbstractReadWriteEntityServi
 	@Transactional(readOnly = true)
 	public List<IdmRoleCatalogue> findAllParents(IdmRoleCatalogue content, Sort sort) {
 		return repository.findAllParents(content, sort);
-	}
-	
-	@Override
-	@Transactional(readOnly = true)
-	public List<ConfigurationDto> getConfigurations() {
-		List<ConfigurationDto> results = new ArrayList<>();
-		configurationService.findByPrefix(CONFIGURATION_PREFIX, null).forEach(configuration -> {
-			// TODO: better dto mapping
-			results.add(new ConfigurationDto(configuration.getName(), configuration.getValue(), configuration.isSecured(), configuration.isConfidential()));
-		});		
-		return results;
 	}
 	
 	@Override

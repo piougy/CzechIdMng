@@ -100,12 +100,7 @@ public class DefaultIdmTreeTypeService extends AbstractReadWriteEntityService<Id
 	public List<ConfigurationDto> getConfigurations(IdmTreeType treeType) {
 		Assert.notNull(treeType);
 		//
-		List<ConfigurationDto> results = new ArrayList<>();
-		configurationService.findByPrefix(getConfigurationPrefix(treeType.getCode()), null).forEach(configuration -> {
-			// TODO: better dto mapping
-			results.add(new ConfigurationDto(configuration.getName(), configuration.getValue(), configuration.isSecured(), configuration.isConfidential()));
-		});		
-		return results;
+		return new ArrayList<>(configurationService.getConfigurations(getConfigurationPrefix(treeType.getCode())).values());
 	}
 	
 	private static String getConfigurationPrefix(String treeTypeCode) {

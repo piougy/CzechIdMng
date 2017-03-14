@@ -28,7 +28,7 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
  * @author Radek Tomiška
  *
  */
-@Service
+@Service("roleService")
 public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, RoleFilter>  implements IdmRoleService {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmRoleService.class);

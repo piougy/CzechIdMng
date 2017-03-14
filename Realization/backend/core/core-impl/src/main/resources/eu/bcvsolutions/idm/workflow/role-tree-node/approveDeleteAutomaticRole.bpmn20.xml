@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="eu.bcvsolutions.role-tree-node.create">
-  <process id="approve-create-automatic-role" name="Approve new automatic role by role guarantee" isExecutable="true">
-    <documentation>Workflow for approving new automatic role by guarantee
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="eu.bcvsolutions.role-tree-node.delete">
+  <process id="approve-delete-automatic-role" name="Approve delete automatic role by role guarantee" isExecutable="true">
+    <documentation>Workflow for approving delete automatic role by guarantee
 
 Input variables:
 - entityEvent: event with roleTreeNode:</documentation>
     <startEvent id="startevent1" name="Start"></startEvent>
     <sequenceFlow id="flow37" sourceRef="startevent1" targetRef="servicetask1"></sequenceFlow>
-    <userTask id="usertask1" name="Approve new automatic role" activiti:candidateUsers="${guarantees}" activiti:formKey="role-tree-node-task-detail">
-      <documentation>Approve new automatic role</documentation>
+    <userTask id="usertask1" name="Approve delete automatic role" activiti:candidateUsers="${guarantees}" activiti:formKey="role-tree-node-task-detail">
+      <documentation>Approve delete automatic role</documentation>
       <extensionElements>
         <activiti:formProperty id="disapprove" type="decision"></activiti:formProperty>
         <activiti:formProperty id="approve" type="decision"></activiti:formProperty>
       </extensionElements>
     </userTask>
     <endEvent id="endevent1" name="End" activiti:async="true"></endEvent>
-    <serviceTask id="servicetask1" name="Generate process name" activiti:expression="Create new automatic role" activiti:resultVariableName="processInstanceName"></serviceTask>
+    <serviceTask id="servicetask1" name="Generate process name" activiti:expression="Delete automatic role" activiti:resultVariableName="processInstanceName"></serviceTask>
     <serviceTask id="servicetask2" name="Continue entity event processing" activiti:expression="#{entityEventManager.process(entityEvent)}"></serviceTask>
     <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway"></exclusiveGateway>
     <endEvent id="endevent2" name="End"></endEvent>
@@ -63,8 +63,8 @@ execution.setVariable("skipApproving", skipApproving);</script>
       </extensionElements>
     </dataObject>
   </process>
-  <bpmndi:BPMNDiagram id="BPMNDiagram_approve-create-automatic-role">
-    <bpmndi:BPMNPlane bpmnElement="approve-create-automatic-role" id="BPMNPlane_approve-create-automatic-role">
+  <bpmndi:BPMNDiagram id="BPMNDiagram_approve-delete-automatic-role">
+    <bpmndi:BPMNPlane bpmnElement="approve-delete-automatic-role" id="BPMNPlane_approve-delete-automatic-role">
       <bpmndi:BPMNShape bpmnElement="startevent1" id="BPMNShape_startevent1">
         <omgdc:Bounds height="35.0" width="35.0" x="8.0" y="121.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>

@@ -46,7 +46,7 @@ class DynamicTaskDetail extends Basic.AbstractContent {
     if (!this.refs.form.isFormValid()) {
       return;
     }
-    if (!this.refs.formData.isFormValid()) {
+    if (this.refs.formData && !this.refs.formData.isFormValid()) {
       return;
     }
     this.setState({
@@ -68,7 +68,7 @@ class DynamicTaskDetail extends Basic.AbstractContent {
   }
 
   _completeTask(decision) {
-    const formDataValues = this.refs.formData.getData();
+    const formDataValues = this.refs.formData ? this.refs.formData.getData() : {};
     const task = this.refs.form.getData();
     const formData = {'decision': decision.id, 'formData': this._toFormData(formDataValues, task.formData)};
     const { taskManager, uiKey } = this.props;

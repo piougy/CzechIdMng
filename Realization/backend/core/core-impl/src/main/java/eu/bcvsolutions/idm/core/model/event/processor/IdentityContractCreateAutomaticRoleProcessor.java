@@ -15,9 +15,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleTreeNode;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
-import eu.bcvsolutions.idm.core.model.service.api.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
 
 /**
@@ -32,10 +30,10 @@ public class IdentityContractCreateAutomaticRoleProcessor extends CoreEventProce
 	
 	@Autowired
 	private IdmRoleTreeNodeService roleTreeNodeService;
-	@Autowired
-	private IdmRoleRequestService roleRequestService;
-	@Autowired
-	private IdmConceptRoleRequestService conceptRoleRequestService;
+//	@Autowired
+//	private IdmRoleRequestService roleRequestService;
+//	@Autowired
+//	private IdmConceptRoleRequestService conceptRoleRequestService;
 	@Autowired
 	private IdmIdentityRoleService identityRoleService;
 	

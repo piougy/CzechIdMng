@@ -94,7 +94,9 @@ export default class AbstractTableContent extends AbstractContent {
     if (error) {
       this.addError(error);
       this.refs.form.processEnded();
-      return;
+      if (error.statusCode !== 202) {
+        return;
+      }
     }
     this.closeDetail();
   }
@@ -111,7 +113,11 @@ export default class AbstractTableContent extends AbstractContent {
     ).then(() => {
       this.context.store.dispatch(this.getManager().deleteEntities(selectedEntities, this.getUiKey(), (entity, error) => {
         if (entity && error) {
-          this.addErrorMessage({ title: this.i18n(`action.delete.error`, { record: this.getManager().getNiceLabel(entity) }) }, error);
+          if (error.statusCode !== 202) {
+            this.addErrorMessage({ title: this.i18n(`action.delete.error`, { record: this.getManager().getNiceLabel(entity) }) }, error);
+          } else {
+            this.addError(error);
+          }
         } else {
           this.refs.table.getWrappedInstance().reload();
         }

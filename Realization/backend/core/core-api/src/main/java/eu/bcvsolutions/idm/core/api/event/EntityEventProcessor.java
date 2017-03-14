@@ -1,6 +1,8 @@
 package eu.bcvsolutions.idm.core.api.event;
 
 import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
 
 import org.springframework.context.ApplicationListener;
 import org.springframework.core.Ordered;
@@ -8,6 +10,7 @@ import org.springframework.core.annotation.Order;
 
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
+import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 
 /**
  * Single entity event processor
@@ -21,6 +24,9 @@ import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
  * @param <E> {@link BaseEntity}, {@link BaseDto} or any other {@link Serializable} content type
  */
 public interface EntityEventProcessor<E extends Serializable> extends Ordered {
+	
+	static final String PROPERTY_ORDER = "order";
+	static final String PROPERTY_ENABLED = "enabled";
 	
 	/**
 	 * Unique (module scope) entity event processor identifier. Could be used in configuration etc.
@@ -67,15 +73,6 @@ public interface EntityEventProcessor<E extends Serializable> extends Ordered {
 	EventResult<E> process(EntityEvent<E> event);
 	
 	/**
-	 * Process entity event with context.
-	 * 
-	 * @param event
-	 * @param context
-	 * @return
-	 */
-	EventResult<E> process(EntityEvent<E> event, EventContext<E> context);
-	
-	/**
 	 * Returns true, when processor could close event (only documentatio purpose now)
 	 * 
 	 * @return
@@ -95,5 +92,23 @@ public interface EntityEventProcessor<E extends Serializable> extends Ordered {
 	 * @return
 	 */
 	boolean isDisabled();
+	
+	/**
+	 * Returns ccnfiguration property names for this processor
+	 * 
+	 * @return
+	 */
+	List<String> getPropertyNames();
+	
+	/**
+	 * Returns configuration properties for this processor (all properties by configuration prefix)
+	 * 
+	 * @see {@link #getConfigurationPrefix()}
+	 * @see {@link #getPropertyNames()}
+	 * @see {@link ConfigurationService}
+	 * 
+	 * @return
+	 */
+	Map<String, String> getConfigurationProperties();
 
 }

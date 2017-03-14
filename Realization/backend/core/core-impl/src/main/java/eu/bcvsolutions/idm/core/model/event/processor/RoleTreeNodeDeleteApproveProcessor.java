@@ -14,13 +14,13 @@ import eu.bcvsolutions.idm.core.model.event.RoleTreeNodeEvent.RoleTreeNodeEventT
  *
  */
 @Component
-@Description("Approve create automatic role.")
-public class RoleTreeNodeCreateApproveProcessor extends AbstractApprovableEventProcessor<IdmRoleTreeNodeDto> {
+@Description("Approve detele automatic role.")
+public class RoleTreeNodeDeleteApproveProcessor extends AbstractApprovableEventProcessor<IdmRoleTreeNodeDto> {
 	
-	public static final String PROCESSOR_NAME = "role-tree-node-create-approve-processor";
-
-	public RoleTreeNodeCreateApproveProcessor() {
-		super(RoleTreeNodeEventType.CREATE); // update is not supported
+	public static final String PROCESSOR_NAME = "role-tree-node-delete-approve-processor";
+	
+	public RoleTreeNodeDeleteApproveProcessor() {
+		super(RoleTreeNodeEventType.DELETE);
 	}
 	
 	@Override

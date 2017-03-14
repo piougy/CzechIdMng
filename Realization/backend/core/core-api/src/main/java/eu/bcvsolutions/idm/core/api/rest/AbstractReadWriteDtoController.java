@@ -37,11 +37,7 @@ public abstract class AbstractReadWriteDtoController<DTO extends BaseDto, F exte
 	 * @return
 	 */
 	public ResponseEntity<?> post(DTO dto) {
-		DTO createdIdentity = postDto(dto);
-		if (createdIdentity.getId() == null) {			
-			throw new ResultCodeException(CoreResultCode.ACCEPTED);
-		}
-		return new ResponseEntity<>(toResource(createdIdentity), HttpStatus.CREATED);
+		return new ResponseEntity<>(toResource(postDto(dto)), HttpStatus.CREATED);
 	}
 
 	/**

@@ -29,6 +29,8 @@ import NotificationTemplateManager from './NotificationTemplateManager';
 import RoleRequestManager from './RoleRequestManager';
 import ConceptRoleRequestManager from './ConceptRoleRequestManager';
 import RoleTreeNodeManager from './RoleTreeNodeManager';
+import FormDefinitionManager from './FormDefinitionManager';
+import FormAttributeManager from './FormAttributeManager';
 
 const ManagerRoot = {
   EntityManager,
@@ -61,7 +63,9 @@ const ManagerRoot = {
   NotificationTemplateManager,
   RoleRequestManager,
   ConceptRoleRequestManager,
-  RoleTreeNodeManager
+  RoleTreeNodeManager,
+  FormDefinitionManager,
+  FormAttributeManager
 };
 
 ManagerRoot.version = '0.0.1';

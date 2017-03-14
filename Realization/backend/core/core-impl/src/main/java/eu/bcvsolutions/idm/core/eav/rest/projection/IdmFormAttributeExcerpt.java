@@ -39,4 +39,6 @@ public interface IdmFormAttributeExcerpt extends AbstractDtoProjection {
 	String getDefaultValue();
 	
 	String getPlaceholder();
+	
+	boolean isSystemAttribute();
 }

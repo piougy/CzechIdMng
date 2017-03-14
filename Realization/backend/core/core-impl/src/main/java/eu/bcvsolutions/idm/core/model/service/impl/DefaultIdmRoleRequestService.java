@@ -95,7 +95,7 @@ public class DefaultIdmRoleRequestService
 		IdmIdentity applicant = identityService.get(dto.getApplicant());
 		List<IdmConceptRoleRequestDto> concepts = dto.getConceptRoles();
 		if (!created) {
-			validateOnDuplicity(dto);
+			// validateOnDuplicity(dto);
 		}
 		IdmRoleRequestDto savedRequest = super.save(dto);
 
@@ -190,18 +190,27 @@ public class DefaultIdmRoleRequestService
 	}
 
 	@Override
-	@Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
+	// @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
 	public void startRequestInternal(UUID requestId, boolean checkRight) {
 		Assert.notNull(requestId, "Role request ID is required!");
 		// Load request ... check right for read
 		IdmRoleRequestDto request = getDto(requestId);
 		Assert.notNull(request, "Role request DTO is required!");
 		Assert.isTrue(
-				RoleRequestState.CONCEPT == request.getState() || RoleRequestState.EXCEPTION == request.getState(),
-				"Only role request with CONCEPT or EXCEPTION state can be started!");
+				RoleRequestState.CONCEPT == request.getState() 
+				|| RoleRequestState.DUPLICATED == request.getState() 
+				|| RoleRequestState.EXCEPTION == request.getState(),
+				"Only role request with CONCEPT or EXCEPTION or DUPLICATED state can be started!");
 
-		validateOnDuplicity(request);
+		IdmRoleRequestDto duplicant = validateOnDuplicity(request);
 
+		if (duplicant != null) {
+			request.setState(RoleRequestState.DUPLICATED);
+			request.setDuplicatedToRequest(duplicant.getId());
+			this.addToLog(request, MessageFormat.format("This request [{0}] is duplicated to another change permissions request [{1}]", request.getId(), duplicant.getId()));
+			this.save(request);
+			return;
+		}
 		// TODO: check on same identities
 
 		// Request and all concepts (in concept state) will be set on in progress state
@@ -238,7 +247,7 @@ public class DefaultIdmRoleRequestService
 		}
 	}
 
-	private void validateOnDuplicity(IdmRoleRequestDto request) {
+	private IdmRoleRequestDto validateOnDuplicity(IdmRoleRequestDto request) {
 		List<IdmRoleRequestDto> potentialDuplicatedRequests = new ArrayList<>();
 
 		RoleRequestFilter requestFilter = new RoleRequestFilter();
@@ -259,9 +268,9 @@ public class DefaultIdmRoleRequestService
 				}).findFirst();
 
 		if (duplicatedRequestOptional.isPresent()) {
-			throw new RoleRequestException(CoreResultCode.ROLE_REQUEST_DUPLICATE_REQUEST,
-					ImmutableMap.of("new", request, "duplicant", duplicatedRequestOptional.get()));
+			return duplicatedRequestOptional.get();
 		}
+		return null;
 	}
 
 	public void executeRequest(UUID requestId) {

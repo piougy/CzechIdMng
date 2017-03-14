@@ -83,7 +83,6 @@ public class IdmRoleRequestController extends DefaultReadWriteDtoController<IdmR
 	protected RoleRequestFilter toFilter(MultiValueMap<String, Object> parameters) {
 		RoleRequestFilter filter = new RoleRequestFilter();
 		filter.setText(getParameterConverter().toString(parameters, "text"));
-		filter.setStates(getParameterConverter().toString(parameters, "states"));
 		filter.setApplicant(getParameterConverter().toString(parameters, "applicant"));
 		if (filter.getApplicant() != null) {
 			try {

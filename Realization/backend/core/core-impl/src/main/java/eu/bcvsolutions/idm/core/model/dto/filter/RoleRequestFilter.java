@@ -14,7 +14,6 @@ import eu.bcvsolutions.idm.core.model.domain.RoleRequestState;
 public class RoleRequestFilter extends QuickFilter {
 	private UUID applicantId;
 	private String applicant;
-	private String states;
 	private RoleRequestState state;
 
 	
@@ -40,14 +39,6 @@ public class RoleRequestFilter extends QuickFilter {
 
 	public void setApplicant(String applicant) {
 		this.applicant = applicant;
-	}
-
-	public String getStates() {
-		return states;
-	}
-
-	public void setStates(String states) {
-		this.states = states;
 	}
 
 }

@@ -1056,11 +1056,22 @@
         "success": "Request to change permissions was successfully saved",
         "start": "Execute request"
       },
+      "button": {
+        "createRequest":{
+          "label": "Submmit a request",
+          "tooltip": "Start request for change permissions."
+        }
+      },
       "action": {
         "startRequest": {
           "header": "Do you really want execute this request",
           "message": "Do you really want execute this request and start approval process?",
           "started": "Request was started"
+        }
+      },
+      "filter": {
+        "applicant":{
+          "placeholder": "Search by whole username applicant."
         }
       }
     },
@@ -1203,8 +1214,11 @@
           "deleteConfirm": "Opravdu chcete smazat vybranou žádost o změnu oprávnění?",
           "deleteSuccess": "Žádost o změnu oprávnění byla úspěšně smazána."
         },
-        "changePermissionProcesses": {
-          "header": "Requests for authorization change "
+        "changePermissionRequests": {
+          "header": "Requests for authorization change"
+        },
+        "conceptPermissionRequests": {
+          "header": "Concepts of requests for authorization change"
         },
         "create": {
           "header": "Přiřazení nové role",

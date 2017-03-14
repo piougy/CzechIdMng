@@ -6,10 +6,10 @@ import _ from 'lodash';
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import SearchParameters from '../../domain/SearchParameters';
-import { IdentityRoleManager, IdentityContractManager, IdentityManager, RoleManager, RoleTreeNodeManager, WorkflowProcessInstanceManager, DataManager, SecurityManager } from '../../redux';
+import { IdentityRoleManager, IdentityContractManager, IdentityManager, RoleManager, RoleTreeNodeManager, WorkflowProcessInstanceManager, DataManager, SecurityManager, RoleRequestManager } from '../../redux';
 import AuthoritiesPanel from '../role/AuthoritiesPanel';
 import authorityHelp from '../role/AuthoritiesPanel_cs.md';
-import CandicateUsersCell from '../../content/workflow/CandicateUsersCell';
+import RoleRequestTable from '../requestrole/RoleRequestTable';
 
 const uiKey = 'identity-roles';
 const uiKeyContracts = 'identity-contracts';
@@ -20,10 +20,9 @@ const identityRoleManager = new IdentityRoleManager();
 const identityManager = new IdentityManager();
 const identityContractManager = new IdentityContractManager();
 const workflowProcessInstanceManager = new WorkflowProcessInstanceManager();
+const roleRequestManager = new RoleRequestManager();
 
 const TEST_ADD_ROLE_DIRECTLY = false;
-
-const MAX_CANDICATES = 3;
 
 class Roles extends Basic.AbstractContent {
 
@@ -249,14 +248,21 @@ class Roles extends Basic.AbstractContent {
 
   render() {
     const { entityId } = this.props.params;
-    const { _entities, _showLoading, authorities, _showLoadingContracts, _contracts } = this.props;
+    const { _entities, _showLoading, authorities, _showLoadingContracts, _contracts, _hasRoleConcepts } = this.props;
     const { detail } = this.state;
     let force = new SearchParameters();
     force = force.setFilter('identity', entityId);
     force = force.setFilter('category', 'eu.bcvsolutions.role.approve');
-    let forcePermissions = new SearchParameters();
-    forcePermissions = forcePermissions.setFilter('identity', entityId);
-    forcePermissions = forcePermissions.setFilter('category', 'eu.bcvsolutions.identity.roles.change');
+    let roleRequestsForceSearch = new SearchParameters();
+    roleRequestsForceSearch = roleRequestsForceSearch.setFilter('applicant', entityId);
+    roleRequestsForceSearch = roleRequestsForceSearch.setFilter('state', 'IN_PROGRESS');
+    let conceptsForceSearch = new SearchParameters();
+    conceptsForceSearch = conceptsForceSearch.setFilter('applicant', entityId);
+    conceptsForceSearch = conceptsForceSearch.setFilter('state', 'CONCEPT');
+    let hasRoleConcepts = _hasRoleConcepts;
+    if (!this.context.store.getState().data.ui['table-applicant-concepts']) {
+      hasRoleConcepts = true;
+    }
 
     //
     // sort entities by role name
@@ -325,6 +331,7 @@ class Roles extends Basic.AbstractContent {
                     <Basic.Table
                       data={entities}
                       showRowSelection={false}
+                      classNameBasicTable="verticalScrollTable"
                       noData={this.i18n('component.basic.Table.noData')}>
                       <Basic.Column
                         header=""
@@ -377,6 +384,32 @@ class Roles extends Basic.AbstractContent {
                       </Basic.Table>
                     </div>
                   }
+                </Basic.Panel>
+
+                <Basic.Panel rendered={hasRoleConcepts}>
+                  <Basic.PanelHeader text={this.i18n('conceptPermissionRequests.header')}/>
+                    <RoleRequestTable
+                      ref="conceptTable"
+                      uiKey={'table-applicant-concepts'}
+                      showFilter={false}
+                      adminMode={false}
+                      showLoading={_showLoading}
+                      forceSearchParameters={conceptsForceSearch}
+                      columns={['state', 'created', 'modified', 'wf', 'detail']}
+                      manager={roleRequestManager}/>
+                </Basic.Panel>
+
+                <Basic.Panel>
+                  <Basic.PanelHeader text={this.i18n('changePermissionRequests.header')}/>
+                    <RoleRequestTable
+                      ref="requestTable"
+                      uiKey={'table-applicant-requests'}
+                      showFilter={false}
+                      adminMode={false}
+                      showLoading={_showLoading}
+                      forceSearchParameters={roleRequestsForceSearch}
+                      columns={['state', 'created', 'modified', 'wf', 'detail']}
+                      manager={roleRequestManager}/>
                 </Basic.Panel>
 
                 <Basic.Panel>
@@ -447,67 +480,6 @@ class Roles extends Basic.AbstractContent {
                       }/>
                   </Advanced.Table>
                 </Basic.Panel>
-                <Basic.Panel>
-                  <Basic.PanelHeader text={this.i18n('changePermissionProcesses.header')}/>
-                  <Advanced.Table
-                    ref="tablePermissionProcesses"
-                    uiKey="table-permission-processes"
-                    forceSearchParameters={forcePermissions}
-                    manager={workflowProcessInstanceManager}
-                    pagination={false}>
-                    <Advanced.Column
-                      property="detail"
-                      cell={
-                        ({ rowIndex, data }) => {
-                          return (
-                            <Advanced.DetailButton
-                              title={this.i18n('button.detail')}
-                              onClick={this.showProcessDetail.bind(this, data[rowIndex])}/>
-                          );
-                        }
-                      }
-                      header={' '}
-                      sort={false}
-                      face="text"/>
-                    <Advanced.Column
-                      property="processVariables.processInstanceName"
-                      header={this.i18n('content.roles.processPermissionChange.processInstanceName')}
-                      sort={false}
-                      face="text"/>
-                    <Advanced.Column
-                      property="currentActivityName"
-                      header={this.i18n('content.roles.processPermissionChange.currentActivity')}
-                      sort={false}
-                      face="text"/>
-                    <Advanced.Column
-                          property="candicateUsers"
-                          header={this.i18n('entity.WorkflowHistoricTaskInstance.candicateUsers')}
-                          cell={<CandicateUsersCell maxEntry={MAX_CANDICATES} />}/>
-                    <Advanced.Column
-                      property="id"
-                      header={this.i18n('label.id')}
-                      sort={false}
-                      face="text"/>
-                    <Advanced.Column
-                      header={this.i18n('label.action')}
-                      className="action"
-                      cell={
-                        ({ rowIndex, data }) => {
-                          return (
-                            <Basic.Button
-                              level="danger"
-                              onClick={this._onDeleteAddRoleProcessInstance.bind(this, data[rowIndex])}
-                              className="btn-xs"
-                              title={this.i18n('button.delete')}
-                              titlePlacement="bottom">
-                              <Basic.Icon icon="trash"/>
-                            </Basic.Button>
-                          );
-                        }
-                      }/>
-                  </Advanced.Table>
-                </Basic.Panel>
-
                 <Basic.Modal
                   bsSize="default"
                   show={detail.show}
@@ -622,6 +594,11 @@ Roles.defaultProps = {
 
 function select(state, component) {
   let addRoleProcessIds;
+  let _hasRoleConcepts = false;
+  if (state.data.ui['table-applicant-concepts'] && state.data.ui['table-applicant-concepts'].items
+    && state.data.ui['table-applicant-concepts'].items.length > 0) {
+    _hasRoleConcepts = true;
+  }
   if (state.data.ui['table-processes'] && state.data.ui['table-processes'].items) {
     addRoleProcessIds = state.data.ui['table-processes'].items;
   }
@@ -632,6 +609,7 @@ function select(state, component) {
     _showLoadingContracts: identityContractManager.isShowLoading(state, `${uiKeyContracts}-${component.params.entityId}`),
     _contracts: identityContractManager.getEntities(state, `${uiKeyContracts}-${component.params.entityId}`),
     _addRoleProcessIds: addRoleProcessIds,
+    _hasRoleConcepts,
     authorities: DataManager.getData(state, `${uiKeyAuthorities}-${component.params.entityId}`),
     userContext: state.security.userContext
   };

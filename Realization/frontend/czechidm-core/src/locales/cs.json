@@ -1053,6 +1053,11 @@
           "message": "Opravdu chcete spustit schvalovací process pro tuto žádost?",
           "started": "Žádost byla spuštěna"
         }
+      },
+      "filter": {
+        "applicant":{
+          "placeholder": "Vyhledání dle celého uživatelského jména žadatele"
+        }
       }
 
     },
@@ -1063,6 +1068,12 @@
       "conceptWithCurrentRoleHeader": "Aktuálně přiřazené role (včetně požadovaných změn)",
       "save": {
         "success": "Žádost o změnu oprávnění byla úspěšně uložena"
+      },
+      "button": {
+        "createRequest":{
+          "label": "Podat žádost",
+          "tooltip": "Zahájí žádost o změnu oprávnění. Spustí případné schvalovací procesy."
+        }
       }
     },
     "role": {
@@ -1204,8 +1215,11 @@
           "deleteConfirm": "Opravdu chcete smazat vybranou žádost o změnu oprávnění?",
           "deleteSuccess": "Žádost o změnu oprávnění byla úspěšně smazána."
         },
-        "changePermissionProcesses": {
+        "changePermissionRequests": {
           "header": "Žádosti o změnu oprávnění"
+        },
+        "conceptPermissionRequests": {
+          "header": "Rozpracované žádosti o změnu oprávnění"
         },
         "create": {
           "header": "Přiřazení nové role",

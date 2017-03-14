@@ -99,7 +99,7 @@ export function data(state = INITIAL_STATE, action) {
           // check modified date ... only newer
           if (entities.has(entity.id)) {
             // check trimmed and modified date
-            if (moment(entity.modified).isAfter(entities.get(entity.id).modified)) {
+            if (!entities.get(entity.id).modified || moment(entity.modified).isAfter(entities.get(entity.id).modified)) {
               entities = entities.set(entity.id, entity);
             }
           } else {

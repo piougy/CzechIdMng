@@ -13,7 +13,7 @@ import UiUtils from '../../utils/UiUtils';
 import RoleConceptTable from './RoleConceptTable';
 
 const uiKey = 'role-request';
-const uiKeyAttributes = 'concept-role-requests-table';
+const uiKeyAttributes = 'concept-role-requests';
 const conceptRoleRequestManager = new ConceptRoleRequestManager();
 const roleRequestManager = new RoleRequestManager();
 const identityRoleManager = new IdentityRoleManager();
@@ -61,17 +61,24 @@ class RoleRequestDetail extends Basic.AbstractTableContent {
    * @param  {properties of component} props For didmount call is this.props for call from willReceiveProps is nextProps.
    */
   _initComponent(props) {
-    const { entityId} = props.params;
+    const { entityId, adminMode} = props.params;
+    const _adminMode = props.location.state ? props.location.state.adminMode : adminMode;
+
     if (this._getIsNew(props)) {
-      this.setState({request: {
-        applicant: props.location.query.applicantId,
-        state: RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.CONCEPT),
-        requestedByType: 'MANUALLY'
-      }}, () => {
+      this.setState({
+        adminMode: _adminMode,
+        request: {
+          applicant: props.location.query.applicantId,
+          state: RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.CONCEPT),
+          requestedByType: 'MANUALLY'
+        }}, () => {
         this.save(null);
       });
     } else {
       this.context.store.dispatch(roleRequestManager.fetchEntity(entityId));
+      this.setState({
+        adminMode: _adminMode
+      });
     }
   }
 
@@ -90,7 +97,7 @@ class RoleRequestDetail extends Basic.AbstractTableContent {
   /**
    * Saves give entity
    */
-  save(event) {
+  save(startRequest, event) {
     if (event) {
       event.preventDefault();
     }
@@ -105,16 +112,29 @@ class RoleRequestDetail extends Basic.AbstractTableContent {
         this.afterSave(createdEntity, error);
       }));
     } else {
-      this.context.store.dispatch(roleRequestManager.updateEntity(formEntity, `${uiKey}-detail`, this.afterSave.bind(this)));
+      if (startRequest) {
+        this.context.store.dispatch(roleRequestManager.updateEntity(formEntity, `${uiKey}-detail`, this.afterSaveAndStartRequest.bind(this)));
+      } else {
+        this.context.store.dispatch(roleRequestManager.updateEntity(formEntity, `${uiKey}-detail`, this.afterSave.bind(this)));
+      }
     }
   }
 
   afterSave(entity, error) {
     if (!error) {
+      const {adminMode} = this.state;
       this.addMessage({ message: this.i18n('save.success') });
       if (this._getIsNew()) {
-        this.context.router.replace(`/role-requests/${entity.id}/detail`, {entityId: entity.id});
+        this.context.router.replace(`/role-requests/${entity.id}/detail`, {entityId: entity.id, adminMode});
       }
+    } else {
+      this.addError(error);
+    }
+  }
+
+  afterSaveAndStartRequest(entity, error) {
+    if (!error) {
+      this._startRequest(entity.id);
     } else {
       this.addError(error);
     }
@@ -141,31 +161,31 @@ class RoleRequestDetail extends Basic.AbstractTableContent {
       }
     }
 
-    conceptRoleRequestManager.getService().deleteById(concept.id)
-    .then(() => {
-      for (const conceptRole of _request.conceptRoles) {
-        if (conceptRole.id === concept.id) {
-          _request.conceptRoles.splice(_request.conceptRoles.indexOf(conceptRole), 1);
-        }
-      }
-      this.refs.table.getWrappedInstance().reload();
-    })
-    .catch(error => {
-      this.addError(error);
-    });
-
-    // this.context.store.dispatch(conceptRoleRequestManager.deleteEntity(concept, `${uiKeyAttributes}-detail`, (deletedEntity, error) => {
-    //   if (!error) {
-    //     for (const conceptRole of _request.conceptRoles) {
-    //       if (conceptRole.id === concept.id) {
-    //         _request.conceptRoles.splice(_request.conceptRoles.indexOf(conceptRole), 1);
-    //       }
+    // conceptRoleRequestManager.getService().deleteById(concept.id)
+    // .then(() => {
+    //   for (const conceptRole of _request.conceptRoles) {
+    //     if (conceptRole.id === concept.id) {
+    //       _request.conceptRoles.splice(_request.conceptRoles.indexOf(conceptRole), 1);
     //     }
-    //     this.refs.table.getWrappedInstance().reload();
-    //   } else {
-    //     this.addError(error);
     //   }
-    // }));
+    //   this.refs.table.getWrappedInstance().reload();
+    // })
+    // .catch(error => {
+    //   this.addError(error);
+    // });
+
+    this.context.store.dispatch(conceptRoleRequestManager.deleteEntity(concept, `${uiKeyAttributes}-deleteConcept-${_request.applicant}`, (deletedEntity, error) => {
+      if (!error) {
+        for (const conceptRole of _request.conceptRoles) {
+          if (conceptRole.id === concept.id) {
+            _request.conceptRoles.splice(_request.conceptRoles.indexOf(conceptRole), 1);
+          }
+        }
+        this.refs.table.getWrappedInstance().reload();
+      } else {
+        this.addError(error);
+      }
+    }));
   }
 
   _updateConcept(data, type) {
@@ -222,32 +242,70 @@ class RoleRequestDetail extends Basic.AbstractTableContent {
       'validTill': data.validTill,
     };
 
-    conceptRoleRequestManager.getService().create(concept)
-    .then(json => {
-      _request.conceptRoles.push(json);
-      this.refs.table.getWrappedInstance().reload();
-    })
-    .catch(error => {
-      this.addError(error);
-    });
+    // conceptRoleRequestManager.getService().create(concept)
+    // .then(json => {
+    //   _request.conceptRoles.push(json);
+    //   this.refs.table.getWrappedInstance().reload();
+    // })
+    // .catch(error => {
+    //   this.addError(error);
+    // });
 
-    // this.context.store.dispatch(conceptRoleRequestManager.createEntity(concept, `${uiKeyAttributes}-detail`, (createdEntity, error) => {
-    //   if (!error) {
-    //     _request.conceptRoles.push(createdEntity);
-    //     this.refs.table.getWrappedInstance().reload();
-    //   } else {
-    //     this.addError(error);
-    //   }
-    // }));
+    this.context.store.dispatch(conceptRoleRequestManager.createEntity(concept, `${uiKeyAttributes}-createConcept-${_request.applicant}`, (createdEntity, error) => {
+      if (!error) {
+        _request.conceptRoles.push(createdEntity);
+        this.refs.table.getWrappedInstance().reload();
+      } else {
+        this.addError(error);
+      }
+    }));
+  }
+
+  _startRequest(idRequest, event) {
+    if (event) {
+      event.preventDefault();
+    }
+    this.refs[`confirm-delete`].show(
+      this.i18n(`content.roleRequests.action.startRequest.message`),
+      this.i18n(`content.roleRequests.action.startRequest.header`)
+    ).then(() => {
+      this.setState({
+        showLoading: true
+      });
+      const promise = roleRequestManager.getService().startRequest(idRequest);
+      promise.then((json) => {
+        this.setState({
+          showLoading: false
+        });
+        this.context.router.goBack();
+        this.addMessage({ message: this.i18n('content.roleRequests.action.startRequest.started', { name: json.name }) });
+      }).catch(ex => {
+        this.setState({
+          showLoading: false
+        });
+        this.addError(ex);
+        if (this.refs.table) {
+          this.refs.table.getWrappedInstance().reload();
+        }
+      });
+    }, () => {
+      // Rejected
+    });
+    return;
   }
 
   render() {
     const { _showLoading, _request, _currentIdentityRoles, adminMode} = this.props;
+
+    const _adminMode = this.state.adminMode !== null ? this.state.adminMode : adminMode;
     const forceSearchParameters = new SearchParameters().setFilter('roleRequestId', _request ? _request.id : SearchParameters.BLANK_UUID);
     const isNew = this._getIsNew();
     const request = isNew ? this.state.request : _request;
     const showLoading = !request || _showLoading;
-    const isEditable = _request && _request.state === RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.CONCEPT);
+    const isEditable = _request && (
+             _request.state === RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.CONCEPT)
+          || _request.state === RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.EXCEPTION)
+          || _request.state === RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.DUPLICATED));
 
     const addedIdentityRoles = [];
     const changedIdentityRoles = [];
@@ -282,24 +340,45 @@ class RoleRequestDetail extends Basic.AbstractTableContent {
           </Basic.ContentHeader>
           <Basic.Panel>
             <Basic.AbstractForm readOnly={!isEditable} ref="form" data={request} showLoading={showLoading} style={{ padding: '15px 15px 0 15px' }}>
-              <Basic.LabelWrapper rendered={request && request.applicant} readOnly ref="applicant" label={this.i18n('entity.RoleRequest.applicant')}>
-                <Advanced.IdentityInfo username={request && request.applicant} showLoading={!request} className="no-margin" style={{ width: '60%' }}/>
-              </Basic.LabelWrapper>
-              <Basic.EnumSelectBox
+              <Basic.Row>
+                <div className="col-lg-6">
+                  <Basic.LabelWrapper
+                    rendered={request && request.applicant}
+                    readOnly
+                    ref="applicant"
+                    label={this.i18n('entity.RoleRequest.applicant')}>
+                    <Advanced.IdentityInfo
+                      username={request && request.applicant}
+                      showLoading={!request}/>
+                  </Basic.LabelWrapper>
+                </div>
+                <div className="col-lg-6">
+                  <Basic.Button
+                    style={{display: 'block', margin: 'auto', marginTop: '48px'}}
+                    level="success"
+                    disabled={!isEditable}
+                    showLoading={showLoading}
+                    onClick={this.save.bind(this)}
+                    rendered={request && !_adminMode}
+                    title={ this.i18n('button.createRequest.tooltip') }>
+                    <Basic.Icon type="fa" icon="object-group"/>
+                    {' '}
+                    { this.i18n('button.createRequest.label') }
+                  </Basic.Button>
+                </div>
+              </Basic.Row>
+              <Basic.EnumLabel
                 ref="state"
-                readOnly
-                label={this.i18n('entity.RoleRequest.state')}
                 enum={RoleRequestStateEnum}
-                style={{ maxWidth: '60%' }}
-                required/>
+                label={this.i18n('entity.RoleRequest.state')}/>
               <Basic.Checkbox
                 ref="executeImmediately"
-                hidden={!adminMode}
+                hidden={!_adminMode}
                 label={this.i18n('entity.RoleRequest.executeImmediately')}/>
               <Basic.TextArea
                 ref="log"
                 rows="8"
-                hidden={!adminMode}
+                hidden={!_adminMode}
                 readOnly
                 label={this.i18n('entity.RoleRequest.log')}/>
               <Basic.TextArea
@@ -308,7 +387,7 @@ class RoleRequestDetail extends Basic.AbstractTableContent {
                 placeholder={this.i18n('entity.RoleRequest.description.placeholder')}
                 label={this.i18n('entity.RoleRequest.description.label')}/>
             </Basic.AbstractForm>
-            <Basic.PanelFooter rendered={adminMode}>
+            <Basic.PanelFooter rendered={_adminMode}>
               <Basic.Button type="button" level="link"
                 onClick={this.context.router.goBack}
                 showLoading={showLoading}>

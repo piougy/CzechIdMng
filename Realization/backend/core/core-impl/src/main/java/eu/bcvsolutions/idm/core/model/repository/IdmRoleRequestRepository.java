@@ -25,6 +25,10 @@ public interface IdmRoleRequestRepository extends AbstractEntityRepository<IdmRo
 	        " where " +
 	        " (?#{[0].applicantId} is null or e.applicant.id = ?#{[0].applicantId})" +
 	        " and" +
+	        " (?#{[0].applicant} is null or e.applicant.username = ?#{[0].applicant})" +
+	        " and" +
+	        " (?#{[0].states} is null or e.state IN ?#{[0].states})" +
+	        " and" +
 	        " (?#{[0].state} is null or e.state = ?#{[0].state})")
 	Page<IdmRoleRequest> find(RoleRequestFilter filter, Pageable pageable);
 

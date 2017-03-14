@@ -15,6 +15,9 @@ import Tooltip from '../Tooltip/Tooltip';
  *
  * All potions for props can be found at
  * https://jpuri.github.io/react-draft-wysiwyg/#/docs
+ *
+ * @author Radek Tomiška
+ * @author Ondřej Kopr
  */
 class RichTextArea extends AbstractFormComponent {
 

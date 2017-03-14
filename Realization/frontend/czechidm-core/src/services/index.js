@@ -31,6 +31,8 @@ import NotificationTemplateService from './NotificationTemplateService';
 import RoleRequestService from './RoleRequestService';
 import ConceptRoleRequestService from './ConceptRoleRequestService';
 import RoleTreeNodeService from './RoleTreeNodeService';
+import FormDefinitionService from './FormDefinitionService';
+import FormAttributeService from './FormAttributeService';
 
 const ServiceRoot = {
   RestApiService,
@@ -65,7 +67,9 @@ const ServiceRoot = {
   NotificationTemplateService,
   RoleRequestService,
   ConceptRoleRequestService,
-  RoleTreeNodeService
+  RoleTreeNodeService,
+  FormDefinitionService,
+  FormAttributeService
 };
 
 ServiceRoot.version = '0.0.1';

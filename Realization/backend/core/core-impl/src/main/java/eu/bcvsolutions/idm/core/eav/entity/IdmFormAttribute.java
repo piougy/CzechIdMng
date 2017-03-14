@@ -97,6 +97,10 @@ public class IdmFormAttribute extends AbstractEntity {
 	@Type(type = "org.hibernate.type.StringClobType")
 	@Column(name = "default_value", nullable = true)
 	private String defaultValue;
+	
+	@NotNull
+	@Column(name = "system_attribute", nullable = false)
+	private boolean systemAttribute = true;
 
 	public IdmFormAttribute() {
 	}
@@ -252,5 +256,13 @@ public class IdmFormAttribute extends AbstractEntity {
 	
 	public void setPlaceholder(String placeholder) {
 		this.placeholder = placeholder;
+	}
+
+	public boolean isSystemAttribute() {
+		return systemAttribute;
+	}
+
+	public void setSystemAttribute(boolean systemAttribute) {
+		this.systemAttribute = systemAttribute;
 	}
 }

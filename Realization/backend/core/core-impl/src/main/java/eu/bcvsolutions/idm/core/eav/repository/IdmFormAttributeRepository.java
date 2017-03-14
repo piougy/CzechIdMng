@@ -40,6 +40,8 @@ public interface IdmFormAttributeRepository extends AbstractEntityRepository<Idm
 	@Override
 	@Query(value = "select e from #{#entityName} e "
 			+ " where"
+			+ " (?#{[0].formDefinitionId} is null or e.formDefinition.id = ?#{[0].formDefinitionId})"
+			+ " and"
 			+ " (?#{[0].formDefinition} is null or e.formDefinition = ?#{[0].formDefinition})"
 			+ " and"
 			+ " (?#{[0].definitionType} is null or e.formDefinition.type = ?#{[0].definitionType})"

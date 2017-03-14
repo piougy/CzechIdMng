@@ -28,7 +28,9 @@ public enum IdmGroupPermission implements GroupPermission {
 	MODULE(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.WRITE),
 	SCHEDULER(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.WRITE, IdmBasePermission.DELETE),
 	ROLE_REQUEST(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.WRITE, IdmBasePermission.DELETE),
-	ROLE_REQUEST_IMMEDIATELY(IdmBasePermission.ADMIN, IdmBasePermission.WRITE);
+	ROLE_REQUEST_IMMEDIATELY(IdmBasePermission.ADMIN, IdmBasePermission.WRITE),
+	EAV_FORM_DEFINITIONS(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.WRITE, IdmBasePermission.DELETE),
+	EAV_FORM_ATTRIBUTES(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.WRITE, IdmBasePermission.DELETE);
 	
 	// String constants could be used in pre / post authotize SpEl expressions
 	
@@ -74,6 +76,14 @@ public enum IdmGroupPermission implements GroupPermission {
 	public static final String ROLE_REQUEST_WRITE = "ROLE_REQUEST" + BasePermission.SEPARATOR + "WRITE";
 	public static final String ROLE_REQUEST_DELETE = "ROLE_REQUEST" + BasePermission.SEPARATOR + "DELETE";
 	public static final String ROLE_REQUEST_IMMEDIATELY_WRITE = "ROLE_REQUEST_IMMEDIATELY" + BasePermission.SEPARATOR + "WRITE";
+	//
+	public static final String EAV_FORM_DEFINITIONS_READ = "EAV_FORM_DEFINITIONS" + BasePermission.SEPARATOR + "READ";
+	public static final String EAV_FORM_DEFINITIONS_WRITE = "EAV_FORM_DEFINITIONS" + BasePermission.SEPARATOR + "WRITE";
+	public static final String EAV_FORM_DEFINITIONS_DELETE = "EAV_FORM_DEFINITIONS" + BasePermission.SEPARATOR + "DELETE";
+	//
+	public static final String EAV_FORM_ATTRIBUTES_READ = "EAV_FORM_ATTRIBUTES" + BasePermission.SEPARATOR + "READ";
+	public static final String EAV_FORM_ATTRIBUTES_WRITE = "EAV_FORM_ATTRIBUTES" + BasePermission.SEPARATOR + "WRITE";
+	public static final String EAV_FORM_ATTRIBUTES_DELETE = "EAV_FORM_ATTRIBUTES" + BasePermission.SEPARATOR + "DELETE";
 	
 	private final List<BasePermission> permissions;
 

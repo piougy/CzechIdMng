@@ -324,6 +324,20 @@
       "UPDATE": "UPDATE",
       "WANT_ADD": "WANT_ADD"
     },
+    "PersistentTypeEnum": {
+      "CHAR": "Znak",
+      "TEXT": "Text",
+      "TEXTAREA": "Textové pole",
+      "RICHTEXTAREA": "WYSIWYG editor",
+      "INT": "Integer",
+      "LONG": "Long",
+      "DOUBLE": "Double",
+      "CURRENCY": "Měna",
+      "BOOLEAN": "Boolean",
+      "DATE": "Datum",
+      "DATETIME": "Datum + čas",
+      "BYTEARRAY": "Bitové pole"
+    },
     "ObjectClassEnum": {
       "Identity": "Identity",
       "Role": "Role",
@@ -959,6 +973,35 @@
         "parentPlaceHolder": "Nadřezená složka",
         "niceName": "Jméno pro uživatele",
         "code": "Kód"
+      }
+    },
+    "formDefinitions": {
+      "header": "Definice formulářů",
+      "title": "Definice formulářů",
+      "edit": {
+        "title": "Detail definice formuláře",
+        "header": "{{name}} detail formuláře"
+      },
+      "filter": {
+        "text": "Název / Popis"
+      }
+    },
+    "formAttributes": {
+      "header": "Atributy formuláře",
+      "title": "Atributy formuláře",
+      "edit": {
+        "title": "Detail atributu formuláře",
+        "header": "{{name}} detail atributu"
+      },
+      "create": {
+        "title": "Nový atribut",
+        "header": "Nový atribut"
+      },
+      "save": {
+        "success": "Atribut [{{name}}] byl úspěšně uložen"
+      },
+      "filter": {
+        "text": "Název / Popis"
       }
     },
     "scripts": {
@@ -1771,6 +1814,23 @@
         "label": "Pravidlo"
        },
       "description": "Popis pravidla"
+    },
+    "FormDefinition" : {
+      "type": "Typ",
+      "name": "Jméno"
+    },
+    "FormAttribute" : {
+      "displayName": "Jméno položky",
+      "seq": "Pořadí",
+      "persistentType": "Typ atributu",
+      "description": "Popis",
+      "name": "Jméno",
+      "required": "Povinný",
+      "readonly": "Pouze pro čtení",
+      "confidential": "Tajné",
+      "multiple": "Více hodnotový",
+      "placeholder": "Placeholder",
+      "defaultValue": "Výchozí hodnota"
     },
     "Role": {
       "_type": "Role",

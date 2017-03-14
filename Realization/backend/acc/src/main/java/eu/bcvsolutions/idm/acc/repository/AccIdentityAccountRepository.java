@@ -1,8 +1,5 @@
 package eu.bcvsolutions.idm.acc.repository;
 
-import java.util.List;
-import java.util.UUID;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
@@ -79,20 +76,4 @@ public interface AccIdentityAccountRepository extends AbstractEntityRepository<A
 	@Modifying
 	@Query("update AccIdentityAccount e set e.roleSystem = null where e.roleSystem = :roleSystem")
 	int clearRoleSystem(@Param("roleSystem") SysRoleSystem roleSystem);
-	
-	/**
-	 * Find all {@link AccIdentityAccount} by identity username and system id, flag ownership is set to true.
-	 * All parameters are required.
-	 * 
-	 * @param username
-	 * @param systemId
-	 * @return
-	 */
-	@Query("SELECT e FROM AccIdentityAccount e WHERE "
-			+ "e.ownership = true "
-			+ "AND "
-			+ "e.account.system.id = :systemId "
-			+ "AND "
-			+ "e.identity.username = :username")
-	List<AccIdentityAccount> findByUsernameAndSystem(@Param("username") String username, @Param("systemId") UUID systemId);
 }

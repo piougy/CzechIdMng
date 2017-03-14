@@ -14,10 +14,10 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
-import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount;
+import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
-import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
+import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
@@ -41,6 +41,7 @@ import eu.bcvsolutions.idm.core.security.service.impl.OAuthAuthenticationManager
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
+import eu.bcvsolutions.idm.ic.impl.IcUidAttributeImpl;
 
 /**
  * Component for authenticate over system
@@ -64,7 +65,7 @@ public class DefaultAccAuthenticator implements Authenticator {
 	
 	private final ProvisioningService provisioningService;
 	
-	private final AccIdentityAccountService identityAccountService;
+	private final AccAccountService accountService;
 	
 	private final IdmIdentityService identityService;
 	
@@ -80,14 +81,14 @@ public class DefaultAccAuthenticator implements Authenticator {
 	public DefaultAccAuthenticator(ConfigurationService configurationService,
 			SysSystemService systemService,
 			ProvisioningService provisioningService,
-			 AccIdentityAccountService identityAccountService,
-			 IdmIdentityService identityService,
-			 SysSystemAttributeMappingService systemAttributeMappingService,
-			 JwtAuthenticationMapper jwtTokenMapper,
-			 GrantedAuthoritiesFactory grantedAuthoritiesFactory,
-			 OAuthAuthenticationManager authenticationManager) {
+			AccAccountService accountService,
+			IdmIdentityService identityService,
+			SysSystemAttributeMappingService systemAttributeMappingService,
+			JwtAuthenticationMapper jwtTokenMapper,
+			GrantedAuthoritiesFactory grantedAuthoritiesFactory,
+			OAuthAuthenticationManager authenticationManager) {
 		//
-		Assert.notNull(identityAccountService);
+		Assert.notNull(accountService);
 		Assert.notNull(configurationService);
 		Assert.notNull(systemService);
 		Assert.notNull(provisioningService);
@@ -100,7 +101,7 @@ public class DefaultAccAuthenticator implements Authenticator {
 		this.systemService = systemService;
 		this.configurationService = configurationService;
 		this.provisioningService = provisioningService;
-		this.identityAccountService = identityAccountService;
+		this.accountService = accountService;
 		this.identityService = identityService;
 		this.systemAttributeMappingService = systemAttributeMappingService;
 		this.jwtTokenMapper = jwtTokenMapper;
@@ -149,7 +150,7 @@ public class DefaultAccAuthenticator implements Authenticator {
 		}
 		//
 		// find if identity has account on system
-		List<AccIdentityAccount> accounts = identityAccountService.getIdentityAccountsForUsernameAndSystem(loginDto.getUsername(), system.getId());
+		List<AccAccount> accounts = accountService.getAccouts(system.getId(), identity.getId());
 		if (accounts.isEmpty()) {
 			// user hasn't account on system, continue
 			return null;
@@ -158,8 +159,9 @@ public class DefaultAccAuthenticator implements Authenticator {
 		ResultCodeException authFailedException = null;
 		//
 		// authenticate over all accounts find first, or throw error
-		for (AccIdentityAccount account : accounts) {
-			IcConnectorObject attributes = systemService.readObject(system, attribute.getSystemMapping(), account.getAccount().getSystemEntity().getUid());
+		for (AccAccount account : accounts) {
+			IcConnectorObject attributes = systemService.readObject(system, attribute.getSystemMapping(),
+					new IcUidAttributeImpl(attribute.getName(), account.getUid(), null));
 			String transformUsername = null;
 			// iterate over all attributes to fined authentication attribute
 			for (IcAttribute icAttribute : attributes.getAttributes()) {
@@ -184,7 +186,7 @@ public class DefaultAccAuthenticator implements Authenticator {
 				if (auth == null || auth.getValue() == null) {
 					authFailedException = new ResultCodeException(AccResultCode.AUTHENTICATION_AGAINST_SYSTEM_FAILED,  ImmutableMap.of("name", system.getName(), "username", loginDto.getUsername()));
 					// failed, continue to another
-					continue;
+					break;
 				}
 				// everything success break
 				break;

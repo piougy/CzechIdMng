@@ -21,14 +21,5 @@ public interface AccIdentityAccountService extends ReadWriteEntityService<AccIde
 	 * @param deleteAccount  If is true, then will be deleted (call provisioning) account on target system.
 	 */
 	void delete(AccIdentityAccount entity, boolean deleteAccount);
-	
-	/**
-	 * Method return {@link AccIdentityAccount} for username and system id with ownership flag set to true.
-	 * 
-	 * @param username
-	 * @param systemId
-	 * @return
-	 */
-	List<AccIdentityAccount> getIdentityAccountsForUsernameAndSystem(String username, UUID systemId);
 }
 	

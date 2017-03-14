@@ -1,5 +1,8 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
+import java.util.List;
+import java.util.UUID;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
@@ -23,7 +26,8 @@ import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 @Service
 public class DefaultAccAccountService extends AbstractReadWriteEntityService<AccAccount, AccountFilter>
 		implements AccAccountService {
-
+	
+	private final AccAccountRepository accountRepository;
 	private final AccIdentityAccountRepository accIdentityAccountRepository;
 	@Autowired
 	private ApplicationContext applicationContext;
@@ -35,8 +39,10 @@ public class DefaultAccAccountService extends AbstractReadWriteEntityService<Acc
 		super(accountRepository);
 		//
 		Assert.notNull(accIdentityAccountRepository);
+		Assert.notNull(accountRepository);
 		//
 		this.accIdentityAccountRepository = accIdentityAccountRepository;
+		this.accountRepository = accountRepository;
 	}
 
 	@Override
@@ -69,6 +75,11 @@ public class DefaultAccAccountService extends AbstractReadWriteEntityService<Acc
 			}
 			this.provisioningService.doDeleteProvisioning(account);
 		}
+	}
+
+	@Override
+	public List<AccAccount> getAccouts(UUID systemId, UUID identityId) {
+		return accountRepository.findAccountBySystemAndIdentity(identityId, systemId);
 	}
 
 }

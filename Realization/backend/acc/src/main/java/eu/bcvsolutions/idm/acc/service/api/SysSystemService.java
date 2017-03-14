@@ -13,6 +13,7 @@ import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInstance;
 import eu.bcvsolutions.idm.ic.api.IcConnectorKey;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
+import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
 
 /**
  * Target system configuration service 
@@ -72,6 +73,6 @@ public interface SysSystemService extends ReadWriteEntityService<SysSystem, SysS
 	 * @param entityType
 	 * @return
 	 */
-	IcConnectorObject readObject(SysSystem system, SysSystemMapping systemMapping, String systemEntityUid);
+	IcConnectorObject readObject(SysSystem system, SysSystemMapping systemMapping, IcUidAttribute uidAttribute);
 
 }

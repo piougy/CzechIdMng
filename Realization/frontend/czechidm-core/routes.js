@@ -307,6 +307,21 @@ module.exports = {
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCRIPT_READ'] } ]
     },
     {
+      path: 'forms',
+      component: require('./src/content/form/Forms'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['EAV_FORM_DEFINITIONS_READ'] } ]
+    },
+    {
+      path: 'forms/:entityId',
+      component: require('./src/content/form/FormContent'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['EAV_FORM_DEFINITIONS_READ'] } ]
+    },
+    {
+      path: 'forms/attribute/:entityId',
+      component: require('./src/content/form/FormAttributeDetail'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['EAV_FORM_ATTRIBUTES_READ'] } ]
+    },
+    {
       path: 'password-policies',
       component: require('./src/content/passwordpolicy/PasswordPolicies'),
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['PASSWORDPOLICY_READ'] } ]

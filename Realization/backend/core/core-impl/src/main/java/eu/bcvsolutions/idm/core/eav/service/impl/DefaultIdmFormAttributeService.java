@@ -53,6 +53,7 @@ public class DefaultIdmFormAttributeService extends AbstractReadWriteEntityServi
 		if (entity.getSeq() == null) {
 			entity.setSeq((short) 0);
 		}
+		// check seq
 		return super.save(entity);
 	}
 	
@@ -61,7 +62,7 @@ public class DefaultIdmFormAttributeService extends AbstractReadWriteEntityServi
 	@SuppressWarnings({"rawtypes", "unchecked"})
 	public void delete(IdmFormAttribute entity) {
 		Assert.notNull(entity);
-		//attribute with filled values cannot be deleted
+		// attribute with filled values cannot be deleted
 		FormValueFilter filter = new FormValueFilter();
 		filter.setFormAttribute(entity);
 		formValueServices.getPlugins().forEach(formValueService -> {

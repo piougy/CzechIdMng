@@ -324,6 +324,20 @@
       "UPDATE": "UPDATE",
       "WANT_ADD": "WANT_ADD"
     },
+    "PersistentTypeEnum": {
+      "CHAR": "Char",
+      "TEXT": "Text",
+      "TEXTAREA": "Textové field",
+      "RICHTEXTAREA": "WYSIWYG editor",
+      "INT": "Integer",
+      "LONG": "Long",
+      "DOUBLE": "Double",
+      "CURRENCY": "Currency",
+      "BOOLEAN": "Boolean",
+      "DATE": "Date",
+      "DATETIME": "Date + time",
+      "BYTEARRAY": "Byte array"
+    },
     "ObjectClassEnum": {
       "Identity": "Identity",
       "Role": "Role",
@@ -959,6 +973,35 @@
         "parentPlaceHolder": "Folder parent",
         "niceName": "Name for users",
         "code": "Code"
+      }
+    },
+    "formDefinitions": {
+      "header": "Form definitions",
+      "title": "Form definitions",
+      "edit": {
+        "title": "Form definition detail",
+        "header": "{{name}} form definition detail"
+      },
+      "filter": {
+        "text": "Name / Description"
+      }
+    },
+    "formAttributes": {
+      "header": "Form attributes",
+      "title": "Form attributes",
+      "edit": {
+        "title": "Form attribute detail",
+        "header": "{{name}} form attribute detail"
+      },
+      "create": {
+        "title": "New attribute",
+        "header": "New attribute"
+      },
+      "save": {
+        "success": "Attribute [{{name}}] was successfully saved"
+      },
+      "filter": {
+        "text": "Name / Description"
       }
     },
     "scripts": {
@@ -1811,6 +1854,23 @@
         "label": "Rule"
        },
       "description": "Rule description"
+    },
+    "FormDefinition" : {
+      "type": "Type",
+      "name": "Name"
+    },
+    "FormAttribute" : {
+      "displayName": "Display name",
+      "seq": "Order",
+      "persistentType": "Attribute type",
+      "description": "Description",
+      "name": "Name",
+      "required": "Required",
+      "readonly": "Read-only",
+      "confidential": "Confidential",
+      "multiple": "Multi valued",
+      "placeholder": "Placeholder",
+      "defaultValue": "Default value"
     },
     "Role": {
       "_type": "Role",

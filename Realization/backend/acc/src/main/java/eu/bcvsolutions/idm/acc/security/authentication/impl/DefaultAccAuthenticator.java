@@ -14,7 +14,6 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
-import eu.bcvsolutions.idm.acc.dto.filter.AccountFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
@@ -151,10 +150,7 @@ public class DefaultAccAuthenticator implements Authenticator {
 		}
 		//
 		// find if identity has account on system
-		AccountFilter filter = new AccountFilter();
-		filter.setSystemId(system.getId());
-		filter.setIdentityId(identity.getId());
-		List<AccAccount> accounts = accountService.find(filter, null).getContent();
+		List<AccAccount> accounts = accountService.getAccouts(system.getId(), identity.getId());
 		if (accounts.isEmpty()) {
 			// user hasn't account on system, continue
 			return null;

@@ -29,6 +29,8 @@ public class IdmConceptRoleRequestDto extends AbstractDto {
 	private UUID role;
 	@Embedded(dtoClass = IdmIdentityRoleDto.class)
 	private UUID identityRole; // For update and delete operations
+	@Embedded(dtoClass = IdmRoleTreeNodeDto.class)
+	private UUID roleTreeNode;
 	private LocalDate validFrom;
 	private LocalDate validTill;
 	private ConceptRoleRequestOperation operation;
@@ -105,6 +107,14 @@ public class IdmConceptRoleRequestDto extends AbstractDto {
 
 	public void setIdentityRole(UUID identityRole) {
 		this.identityRole = identityRole;
+	}
+	
+	public UUID getRoleTreeNode() {
+		return roleTreeNode;
+	}
+	
+	public void setRoleTreeNode(UUID roleTreeNode) {
+		this.roleTreeNode = roleTreeNode;
 	}
 
 	@Override

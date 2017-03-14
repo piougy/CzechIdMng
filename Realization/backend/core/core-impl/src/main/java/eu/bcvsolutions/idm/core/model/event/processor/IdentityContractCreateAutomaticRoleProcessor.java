@@ -15,7 +15,9 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleTreeNode;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
+import eu.bcvsolutions.idm.core.model.service.api.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
 
 /**
@@ -30,6 +32,10 @@ public class IdentityContractCreateAutomaticRoleProcessor extends CoreEventProce
 	
 	@Autowired
 	private IdmRoleTreeNodeService roleTreeNodeService;
+	@Autowired
+	private IdmRoleRequestService roleRequestService;
+	@Autowired
+	private IdmConceptRoleRequestService conceptRoleRequestService;
 	@Autowired
 	private IdmIdentityRoleService identityRoleService;
 	
@@ -50,8 +56,7 @@ public class IdentityContractCreateAutomaticRoleProcessor extends CoreEventProce
 	}
 	
 	/**
-	 * Add automatic roles - without approving for now
-	 * TODO: connect to role request API 
+	 * Add automatic roles by standard role request
 	 * 
 	 * @param contract
 	 * @param automaticRoles
@@ -59,12 +64,36 @@ public class IdentityContractCreateAutomaticRoleProcessor extends CoreEventProce
 	protected void assignAutomaticRoles(IdmIdentityContract contract, Set<IdmRoleTreeNode> automaticRoles) {
 		Assert.notNull(automaticRoles);
 		//
+		if (automaticRoles.isEmpty()) {
+			return;
+		}
 		automaticRoles.forEach(roleTreeNode -> {
-				IdmIdentityRole identityRole = new IdmIdentityRole(contract);
-				identityRole.setRole(roleTreeNode.getRole());
-				identityRole.setRoleTreeNode(roleTreeNode);
-				identityRoleService.save(identityRole);
-			});
+			IdmIdentityRole identityRole = new IdmIdentityRole(contract);
+			identityRole.setRole(roleTreeNode.getRole());
+			identityRole.setRoleTreeNode(roleTreeNode);
+			identityRoleService.save(identityRole);
+		});
+		
+//		// prepare request
+//		IdmRoleRequestDto roleRequest = new IdmRoleRequestDto();
+//		roleRequest.setApplicant(contract.getIdentity().getId());
+//		roleRequest.setRequestedByType(RoleRequestedByType.AUTOMATICALLY);
+//		roleRequest.setExecuteImmediately(true); // TODO: by configuration
+//		roleRequest = roleRequestService.save(roleRequest);
+//		//
+//		for(IdmRoleTreeNode roleTreeNode : automaticRoles) {
+//			IdmConceptRoleRequestDto conceptRoleRequest = new IdmConceptRoleRequestDto();
+//			conceptRoleRequest.setRoleRequest(roleRequest.getId());
+//			conceptRoleRequest.setIdentityContract(contract.getId());
+//			conceptRoleRequest.setValidFrom(contract.getValidFrom());
+//			conceptRoleRequest.setValidTill(contract.getValidTill());
+//			conceptRoleRequest.setRole(roleTreeNode.getRole().getId());
+//			conceptRoleRequest.setRoleTreeNode(roleTreeNode.getId());
+//			conceptRoleRequest.setOperation(ConceptRoleRequestOperation.ADD);
+//			conceptRoleRequestService.save(conceptRoleRequest);
+//		};
+//		//
+//		roleRequestService.startRequestInternal(roleRequest.getId(), false);
 	}
 	
 	/**

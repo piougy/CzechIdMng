@@ -21,7 +21,7 @@ public class DefaultEventResult<E extends Serializable> implements EventResult<E
 	private static final long serialVersionUID = 1749982602265978363L;
 	private final EntityEvent<E> event;
 	@JsonIgnore
-	private final transient EntityEventProcessor<E> processor;
+	private transient EntityEventProcessor<E> processor;
 	private boolean closed;
 	private boolean suspended;
 	private int processedOrder;

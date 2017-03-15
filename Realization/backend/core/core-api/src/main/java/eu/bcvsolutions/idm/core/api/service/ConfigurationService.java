@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.api.service;
 
 import java.util.List;
+import java.util.Map;
 
 import eu.bcvsolutions.idm.core.api.dto.ConfigurationDto;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
@@ -169,4 +170,12 @@ public interface ConfigurationService {
 	 * @return
 	 */
 	String getInstanceId();
+	
+	/**
+	 * Returns configurations by given keyPrefix. Map key is property name without prefix
+	 * 
+	 * @param keyPrefix
+	 * @return
+	 */
+	Map<String, ConfigurationDto> getConfigurations(String keyPrefix);
 }

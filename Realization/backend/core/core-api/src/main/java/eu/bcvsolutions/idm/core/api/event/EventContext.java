@@ -73,4 +73,11 @@ public interface EventContext<E extends Serializable> extends Serializable {
 	 * @return
 	 */
 	Integer getProcessedOrder();
+	
+	/**
+	 * Sets last processed order or {@code null}, if any processor was called (event will start again).
+	 * 
+	 * @param processedOrder
+	 */
+	void setProcessedOrder(Integer processedOrder);
 }

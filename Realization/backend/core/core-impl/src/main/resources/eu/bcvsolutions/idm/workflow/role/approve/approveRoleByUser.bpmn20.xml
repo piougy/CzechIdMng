@@ -4,11 +4,11 @@
     <documentation>Workflow pro schválení přiřazení role uživatelem "tomiska"</documentation>
     <startEvent id="startevent1" name="Start"></startEvent>
     <userTask id="approveTask" name="Schválení uživatelem &quot;tomiska&quot;" activiti:assignee="tomiska">
-      <documentation>Schválení přiřazení role ${defaultIdmRoleService.get(roleIdentifier).name} vedoucím pro	uživatele	${applicantUsername}.</documentation>
+      <documentation>Schválení přiřazení role ${roleService.get(roleIdentifier).name} vedoucím pro	uživatele	${applicantUsername}.</documentation>
       <extensionElements>
         <activiti:formProperty id="disapprove" type="decision"></activiti:formProperty>
         <activiti:formProperty id="approve" type="decision"></activiti:formProperty>
-        <activiti:formProperty id="roleName" name="Název schvalované role" type="textField" expression="${defaultIdmRoleService.get(roleIdentifier).name}" writable="false"></activiti:formProperty>
+        <activiti:formProperty id="roleName" name="Název schvalované role" type="textField" expression="${roleService.get(roleIdentifier).name}" writable="false"></activiti:formProperty>
         <activiti:formProperty id="description" name="Poznámka" type="textArea" writable="false">
           <activiti:value id="placeholder" name="Poznámka"></activiti:value>
         </activiti:formProperty>

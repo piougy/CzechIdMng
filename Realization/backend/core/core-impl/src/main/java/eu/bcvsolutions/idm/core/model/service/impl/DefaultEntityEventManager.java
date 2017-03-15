@@ -70,7 +70,7 @@ public class DefaultEntityEventManager implements EntityEventManager {
 		List<EntityEventProcessorDto> dtos = new ArrayList<>();
 		Map<String, EntityEventProcessor> processors = context.getBeansOfType(EntityEventProcessor.class);
 		for(Entry<String, EntityEventProcessor> entry : processors.entrySet()) {
-			EntityEventProcessor processor = entry.getValue();
+			EntityEventProcessor<?> processor = entry.getValue();
 			// entity event processor depends on module - we could not call any processor method
 			if (!enabledEvaluator.isEnabled(processor)) {
 				continue;
@@ -90,6 +90,7 @@ public class DefaultEntityEventManager implements EntityEventManager {
 			dto.setOrder(processor.getOrder());
 			// resolve documentation
 			dto.setDescription(AutowireHelper.getBeanDescription(dto.getId()));
+			dto.setConfigurationProperties(processor.getConfigurationProperties());
 			dtos.add(dto);
 		};
 		LOG.debug("Returning [{}] registered entity event processors", dtos.size());

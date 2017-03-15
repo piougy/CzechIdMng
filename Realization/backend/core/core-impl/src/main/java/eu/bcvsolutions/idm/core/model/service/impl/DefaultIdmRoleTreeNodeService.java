@@ -7,6 +7,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.event.EventContext;
+import eu.bcvsolutions.idm.core.api.exception.AcceptedException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
@@ -58,14 +60,18 @@ public class DefaultIdmRoleTreeNodeService
 	 * @see {@link RoleTreeNodeSaveProcessor}
 	 */
 	@Override
-	@Transactional
+	@Transactional(noRollbackFor = AcceptedException.class)
 	public IdmRoleTreeNodeDto save(IdmRoleTreeNodeDto roleTreeNode) {
 		Assert.notNull(roleTreeNode);
 		//
 		LOG.debug("Saving automatic role [{}] - [{}] - [{}]", roleTreeNode.getRole(), roleTreeNode.getTreeNode(), roleTreeNode.getRecursionType());
 		//
 		if (isNew(roleTreeNode)) { // create
-			return entityEventManager.process(new RoleTreeNodeEvent(RoleTreeNodeEventType.CREATE, roleTreeNode)).getContent();
+			EventContext<IdmRoleTreeNodeDto> context = entityEventManager.process(new RoleTreeNodeEvent(RoleTreeNodeEventType.CREATE, roleTreeNode));
+			if (context.isSuspended()) {
+				throw new AcceptedException();
+			}
+			return context.getContent();
 		}
 		throw new ResultCodeException(CoreResultCode.METHOD_NOT_ALLOWED, "Automatic role update is not supported");
 	}
@@ -76,13 +82,17 @@ public class DefaultIdmRoleTreeNodeService
 	 * @see {@link RoleTreeNodeDeleteProcessor}
 	 */
 	@Override
-	@Transactional
+	@Transactional(noRollbackFor = AcceptedException.class)
 	public void delete(IdmRoleTreeNodeDto roleTreeNode) {
 		Assert.notNull(roleTreeNode);
 		//
 		LOG.debug("Deleting automatic role [{}] - [{}] - [{}]", roleTreeNode.getRole(), roleTreeNode.getTreeNode(), roleTreeNode.getRecursionType());
 		//
-		entityEventManager.process(new RoleTreeNodeEvent(RoleTreeNodeEventType.DELETE, roleTreeNode));
+		EventContext<IdmRoleTreeNodeDto> context = entityEventManager.process(new RoleTreeNodeEvent(RoleTreeNodeEventType.DELETE, roleTreeNode));
+		//
+		if (context.isSuspended()) {
+			throw new AcceptedException();
+		}
 	}
 
 	@Override

@@ -1,13 +1,11 @@
 package eu.bcvsolutions.idm.core.model.service.api;
 
-import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import eu.bcvsolutions.forest.index.service.api.ForestContentService;
-import eu.bcvsolutions.idm.core.api.dto.ConfigurationDto;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdentifiableByNameEntityService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
@@ -46,13 +44,6 @@ public interface IdmRoleCatalogueService extends
 	 * @return
 	 */
 	Page<IdmRoleCatalogue> findRoots(Pageable pageable);
-	
-	/**
-	 * Returns all configuration properties for role catalogue.
-	 * 
-	 * @return
-	 */
-	List<ConfigurationDto> getConfigurations();
 	
 	/**
 	 * Returns configuration property name for role catalogue.

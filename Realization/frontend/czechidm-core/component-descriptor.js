@@ -9,6 +9,10 @@ module.exports = {
       'component': require('./src/content/task/identityRole/DynamicTaskRoleDetail')
     },
     {
+      'id': 'role-tree-node-task-detail',
+      'component': require('./src/content/task/roleTreeNode/AutomaticRoleTaskDetail')
+    },
+    {
       'id': 'assigned-task-dashboard',
       'type': 'dashboard',
       'span': '8',

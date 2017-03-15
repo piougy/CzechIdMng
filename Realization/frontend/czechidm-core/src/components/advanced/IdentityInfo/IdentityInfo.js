@@ -96,7 +96,9 @@ export class IdentityInfo extends Basic.AbstractContextComponent {
     switch (face) {
       case 'link': {
         if (!this._showLink()) {
-          return identityManager.getNiceLabel(_identity);
+          return (
+            <span>{ identityManager.getNiceLabel(_identity) }</span>
+          );
         }
         return (
           <Link to={`/identity/${this._id()}/profile`}>{identityManager.getNiceLabel(_identity)}</Link>

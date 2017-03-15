@@ -2513,6 +2513,10 @@
     "NOTIFICATION_SYSTEM_TEMPLATE_DELETE_FAILED": {
       "title": "System template cant be deleted",
       "message": "[{{template}}] is system template, it can't be deleted."
+    },
+    "ACCEPTED": {
+      "title": "Request added",
+      "message": "Request will be proccesed / approved."
     }
   },
   "validationError": {

@@ -65,10 +65,12 @@ public class DefaultEventContext<E extends Serializable> implements EventContext
 		this.suspended = suspended;
 	}
 	
+	@Override
 	public Integer getProcessedOrder() {
 		return processedOrder;
 	}
 	
+	@Override
 	public void setProcessedOrder(Integer processedOrder) {
 		this.processedOrder = processedOrder;
 	}

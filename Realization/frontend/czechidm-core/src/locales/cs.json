@@ -1889,7 +1889,7 @@
       "_type": "Automatická role",
       "role": "Role",
       "treeNode": "Prvek stromové struktury",
-      "recursionType": "Typ rerkurze"
+      "recursionType": "Typ rekurze"
     },
     "IdentityRole": {
       "role" : "Role",
@@ -2508,6 +2508,10 @@
     "NOTIFICATION_SYSTEM_TEMPLATE_DELETE_FAILED": {
       "title": "Systémová šablona nemůže být smazána",
       "message": "Šablona [{{template}}] je systémová a nemůže být odebrána."
+    },
+    "ACCEPTED": {
+      "title": "Požadavek přijat",
+      "message": "Požadavek byl předán ke zpracování či schválení."
     }
   },
   "validationError": {

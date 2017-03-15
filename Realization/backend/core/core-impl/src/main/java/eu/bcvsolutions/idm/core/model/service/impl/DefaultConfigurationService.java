@@ -14,8 +14,6 @@ import org.springframework.core.env.CompositePropertySource;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.EnumerablePropertySource;
 import org.springframework.core.env.PropertySource;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -39,7 +37,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
  * @author Radek Tomiška 
  *
  */
-@Service
+@Service("configurationService")
 public class DefaultConfigurationService extends AbstractReadWriteEntityService<IdmConfiguration, QuickFilter> implements IdmConfigurationService, ConfigurationService {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultConfigurationService.class);
@@ -250,12 +248,6 @@ public class DefaultConfigurationService extends AbstractReadWriteEntityService<
 			return defaultValue; 
 		}
 	}
-	
-	@Override
-	@Transactional(readOnly = true)
-	public Page<IdmConfiguration> findByPrefix(String keyPrefix, Pageable pageable) {
-		return repository.findByNameStartingWith(keyPrefix, pageable);
-	}
 
 	/**
 	 * Returns all public configuration properties
@@ -393,5 +385,18 @@ public class DefaultConfigurationService extends AbstractReadWriteEntityService<
 	 */
 	private static boolean shouldBeSecured(String key) {
 		return key.startsWith(ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX) || shouldBeConfidential(key);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public Map<String, ConfigurationDto> getConfigurations(String keyPrefix) {
+		Map<String, ConfigurationDto> configs = new HashMap<>();
+		for (IdmConfiguration configuration : repository.findByNameStartingWith(keyPrefix, null)) {
+			configs.put(
+					configuration.getName().replaceFirst(keyPrefix + PROPERTY_SEPARATOR, ""), 
+					new ConfigurationDto(configuration.getName(), configuration.getValue(), configuration.isSecured(), configuration.isConfidential())
+			);
+		}
+		return configs;
 	}
 }

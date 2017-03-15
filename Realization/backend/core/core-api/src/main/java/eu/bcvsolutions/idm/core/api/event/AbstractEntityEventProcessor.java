@@ -1,7 +1,11 @@
 package eu.bcvsolutions.idm.core.api.event;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
@@ -13,7 +17,6 @@ import org.springframework.util.Assert;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
-import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.security.api.service.EnabledEvaluator;
 
@@ -88,14 +91,6 @@ public abstract class AbstractEntityEventProcessor<E extends Serializable> imple
 		return entityEvent.getContent().getClass().isAssignableFrom(entityClass)
 				&& (types.isEmpty() || types.contains(entityEvent.getType().name()));
 	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public EventResult<E> process(EntityEvent<E> event, EventContext<E> context) {
-		return process(event);
-	}
 	
 	/* 
 	 * (non-Javadoc)
@@ -124,14 +119,18 @@ public abstract class AbstractEntityEventProcessor<E extends Serializable> imple
 			// event is suspended
 			return;
 		}
-		Integer processedOrder = event.getProcessedOrder();
+		//
+		EventContext<E> context = event.getContext();
+		//
+		Integer processedOrder = context.getProcessedOrder();
 		if (processedOrder != null && processedOrder >= this.getOrder()) {	
 			// event was processed with this processor
 			return;
 		}
-		EventContext<E> context = event.getContext();
+		// prepare order ... in processing
+		context.setProcessedOrder(this.getOrder());
 		// process event
-		EventResult<E> result = process(event, context);
+		EventResult<E> result = process(event);
 		// add result to history
 		context.addResult(result);
 	}
@@ -152,7 +151,8 @@ public abstract class AbstractEntityEventProcessor<E extends Serializable> imple
 		if (configurationService != null) {
 			return !configurationService.getBooleanValue(
 					getConfigurationPrefix()
-					+ ModuleService.PROPERTY_ENABLED, true);
+					+ ConfigurationService.PROPERTY_SEPARATOR
+					+ PROPERTY_ENABLED, true);
 		}
 		// enabled by default
 		return false;
@@ -164,13 +164,43 @@ public abstract class AbstractEntityEventProcessor<E extends Serializable> imple
 	 * 
 	 * @return
 	 */
-	protected String getConfigurationPrefix() {
+	private String getConfigurationPrefix() {
 		return ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX
 				+ getModule()
 				+ ConfigurationService.PROPERTY_SEPARATOR
 				+ "processor"
 				+ ConfigurationService.PROPERTY_SEPARATOR
-				+ getName()
-				+ ConfigurationService.PROPERTY_SEPARATOR;
+				+ getName();
+	}
+	
+	@Override
+	public List<String> getPropertyNames() {
+		List<String> properties = new ArrayList<>();
+		properties.add(PROPERTY_ENABLED);
+		properties.add(PROPERTY_ORDER);
+		return properties;
+	}
+	
+	@Override
+	public Map<String, String> getConfigurationProperties() {
+		Map<String, String> configs = new HashMap<>();
+		if (configurationService == null) {
+			return configs;
+		}
+		for (String propertyName : getPropertyNames()) {
+			configs.put(propertyName, getConfigurationProperty(propertyName));
+		}
+		return configs;
+	}
+	
+	
+	public String getConfigurationProperty(String propertyName) {
+		if (configurationService == null) {
+			return null;
+		}
+		return configurationService.getValue(
+				getConfigurationPrefix()
+				+ ConfigurationService.PROPERTY_SEPARATOR
+				+ propertyName);
 	}
 }

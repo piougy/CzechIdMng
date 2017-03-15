@@ -72,7 +72,7 @@ public class IdmMessage {
 	public IdmMessage() {
 	}
 
-	private IdmMessage(Builder builder) {
+	private IdmMessage(Builder builder) {		
 		if (builder.model != null) {
 			model = builder.model;
 			this.htmlMessage = builder.model.getMessage();

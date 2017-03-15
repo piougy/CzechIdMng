@@ -15,11 +15,9 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.notification.entity.IdmMessage;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotification;
-import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationConfiguration;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationLog;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationRecipient;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationTemplate;
-import eu.bcvsolutions.idm.core.notification.repository.IdmNotificationConfigurationRepository;
 import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationTemplateService;
 import eu.bcvsolutions.idm.core.notification.service.api.NotificationSender;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
@@ -29,6 +27,7 @@ import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
  * Basic notification service
  * 
  * @author Radek Tomiška
+ * @author Ondřej Kopr
  *
  * @param <N> Notification type
  */
@@ -42,9 +41,6 @@ public abstract class AbstractNotificationSender<N extends IdmNotification> impl
 	
 	@Autowired
 	private IdmNotificationTemplateService notificationTemplateService;
-	
-	@Autowired
-	private IdmNotificationConfigurationRepository notificationConfigurationRepository;
 	
 	@Autowired(required = false)
 	@Deprecated // will be removed after recipient refactoring
@@ -113,7 +109,6 @@ public abstract class AbstractNotificationSender<N extends IdmNotification> impl
 		return send(topic, message, Lists.newArrayList(recipient));
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	@Transactional
 	public N send(String topic, IdmMessage message, List<IdmIdentity> recipients) {
@@ -130,32 +125,16 @@ public abstract class AbstractNotificationSender<N extends IdmNotification> impl
 			});
 		// try to find template
 		if (message.getTemplate() == null) {
-			IdmNotificationConfiguration configuration = notificationConfigurationRepository.findNotificationByTopicLevel(notification.getTopic(), message.getLevel());
-			//
-			// if configurations is empty try to wildcard with null level
-			if (configuration == null) {
-				configuration = notificationConfigurationRepository.findNotificationByTopicLevel(notification.getTopic(), null);
-			}
-			//
-			if (configuration != null) {
-				message.setTemplate(configuration.getTemplate());
-				notification.setMessage(this.notificationTemplateService.buildMessage(message, false));
-				return send(notification);
-			}
-			// if configurations is null check if exist text for message, TODO: send only subject?
-			if (message == null || message.getModel() == null  || (message.getHtmlMessage() == null && message.getSubject() == null && message.getTextMessage() == null)) {
-				LOG.info("Notification has empty template and message. Default message will be send! [topic:{}]", topic);
-				// send default message
-				notification.setMessage(
-						new IdmMessage.Builder()
-						.setLevel(message.getLevel())
-						.setSubject("Message for notification not found!")
-						.setMessage("System CzechIdM v7 try to send empty message, please contact system administrator.")
-						.build());
-				return (N) notification;
-			}
+			message.setTemplate(notificationTemplateService.resolveTemplate(notification.getTopic(), message.getLevel()));
 		}
 		notification.setMessage(this.notificationTemplateService.buildMessage(message, false));
+		//
+		// check if exist text for message, TODO: send only with subject?
+		if (message.getHtmlMessage() == null && message.getSubject() == null && message.getTextMessage() == null && message.getModel() == null) {
+			LOG.error("Notification has empty template and message. Message will not be send! [topic:{}]", topic);
+			return null;
+		}
+		//
 		return send(notification);
 	}
 

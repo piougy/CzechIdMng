@@ -18,6 +18,7 @@ import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
+import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
@@ -35,6 +36,7 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
 @Description("Automatic roles recount while identity contract is updated, disabled or enabled.")
 public class IdentityContractUpdateAutomaticRoleProcessor extends CoreEventProcessor<IdmIdentityContract> {
 	
+	public static final String PROCESSOR_NAME = "identity-contract-update-automatic-role-processor";
 	@Autowired
 	private IdmIdentityContractRepository repository;
 	@Autowired
@@ -47,13 +49,17 @@ public class IdentityContractUpdateAutomaticRoleProcessor extends CoreEventProce
 	public IdentityContractUpdateAutomaticRoleProcessor() {
 		super(IdentityContractEventType.UPDATE);
 	}
+	
+	@Override
+	public String getName() {
+		return PROCESSOR_NAME;
+	}
 
 	@Override
 	public EventResult<IdmIdentityContract> process(EntityEvent<IdmIdentityContract> event) {
 		IdmIdentityContract contract = event.getContent();
 		if (contract.isDisabled()) {
 			// Nothing to do - contract is disabled
-			// TODO: clone content - mutable previous event content :/
 			return new DefaultEventResult<>(event, this);
 		}
 		//
@@ -79,21 +85,29 @@ public class IdentityContractUpdateAutomaticRoleProcessor extends CoreEventProce
 			removedAutomaticRoles.removeAll(addedAutomaticRoles);
 			addedAutomaticRoles.removeAll(previousAutomaticRoles);
 			//
-			removedAutomaticRoles.forEach(removedAutomaticRole -> {
+			for(IdmRoleTreeNode removedAutomaticRole : removedAutomaticRoles) {
 				Iterator<IdmIdentityRole> iter = assignedRoles.iterator();
 				while (iter.hasNext()){
 					IdmIdentityRole identityRole = iter.next();
 					if (Objects.equals(identityRole.getRoleTreeNode(), removedAutomaticRole)) {
-						// TODO: improvement - check, if role will be added by new automatic roles and prevent removing
-						identityRoleService.delete(identityRole);
-						iter.remove();
+						// check, if role will be added by new automatic roles and prevent removing
+						IdmRoleTreeNode addedAutomaticRole = getByRole(identityRole.getRole(), addedAutomaticRoles);
+						if (addedAutomaticRole == null) {
+							identityRoleService.delete(identityRole);
+							iter.remove();
+						} else {
+							// change relation only							
+							identityRole.setRoleTreeNode(addedAutomaticRole);
+							identityRoleService.save(identityRole);
+							// new automatic role is not needed
+							addedAutomaticRoles.remove(addedAutomaticRole);
+						}
 					}
 			    }
-			});
+			}
 			// change date - for unchanged assigned roles only
 			if (EntityUtils.validableChanged(previous, contract)) {
 				changeValidable(contract, assignedRoles);
-				
 			}
 			// assign new roles
 			createProcessor.assignAutomaticRoles(contract, addedAutomaticRoles);
@@ -104,8 +118,16 @@ public class IdentityContractUpdateAutomaticRoleProcessor extends CoreEventProce
 			changeValidable(contract, identityRoleService.getRoles(contract));
 		}
 		//
-		// TODO: clone content - mutable previous event content :/
 		return new DefaultEventResult<>(event, this);
+	}
+	
+	private IdmRoleTreeNode getByRole(IdmRole role, Set<IdmRoleTreeNode> automaticRoles) {
+		for (IdmRoleTreeNode automaticRole : automaticRoles) {
+			if (automaticRole.getRole().equals(role)) {
+				return automaticRole;
+			}
+		}
+		return null;
 	}
 	
 	/**

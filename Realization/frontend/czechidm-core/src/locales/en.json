@@ -22,7 +22,7 @@
     "success": {
       "common": "The operation completed successfully",
       "create": "Creation successfully completed",
-      "update": "Updated successfully completed",
+      "update": "Update successfully completed",
       "delete": "Deletion successfully completed"
     },
    "task": {
@@ -43,7 +43,7 @@
     "property": "Attribute",
     "value": "Value"
   },
-   "button": {
+  "button": {
     "activate": "Activate",
     "add": "Add",
     "back": "Back",
@@ -52,8 +52,8 @@
     "apply": "Apply",
     "confirm": "Confirm",
     "create": "Create",
-    "createContinue": "Created and edit",
-    "createNew": "Created and add new",
+    "createContinue": "Create and edit",
+    "createNew": "Create and add another",
     "deactivate": "Deactivate",
     "deactivatePrepare": "Preparing deactivation ...",
     "delete": "Delete",
@@ -78,53 +78,36 @@
   "action": {
     "delete": {
       "action": "Remove",
-      "header_1": "Removing record",
-      "header_2": "Removing records",
-      "header_5": "$t(action.delete.header_2)",
-      "message_1": "Do you want to remove selected record [<strong>{{record}}</strong>]?",
-      "message_2": "Select records: [<strong>{{records}}</strong>].<br /><br />Do you want to remove <strong>{{count}}</strong> selected records?",
-      "message_5": "Select records: [<strong>{{records}}</strong>].<br /><br /Do you want to remove <strong>{{count}}</strong> selected records?",
+      "header": "Remove record",
+      "header_plural": "Remove records",
+      "message": "Do you want to remove selected record [<strong>{{record}}</strong>]?",
+      "message_plural": "Selected records: [<strong>{{records}}</strong>].<br /><br /> Do you want to remove <strong>{{count}}</strong> selected records?",
       "error": "An error occurred while removing [{{record}}].",
-      "success_1": "Selected record [{{record}}] was successfully deleted",
-      "success_2": "Selected records [{{records}}] were successfully deleted",
-      "success_5": "Selected records [{{records}}] were successfully deleted"
+      "success": "Selected record [{{record}}] was successfully deleted",
+      "success_plural": "Selected records [{{records}}] were successfully deleted"
     },
-
     "activate": {
       "action": "Activate",
-      "header_0": "N/A",
-      "header_1": "Activate record",
-      "header_2": "Activate records",
-      "header_5": "$t(action.activate.header_2)",
-      "message_0": "N/A",
-      "message_1": "Do you really want to remove selected record [<strong>{{record}}</strong>]?",
-      "message_2": "Selected records: [<strong>{{records}}</strong>].<br /><br />Do you want to activate <strong>{{count}}</strong> vybrané záznamy?",
-      "message_5": "Selected records: [<strong>{{records}}</strong>].<br /><br />Do you really want to activate <strong>{{count}}</strong> vybraných záznamů?",
+      "header": "Activate record",
+      "header_plural": "Activate records",
+      "message" : "Do you really want to activate selected record [<strong>{{record}}</strong>]?",
+      "message_plural": "Selected records: [<strong>{{records}}</strong>].<br /><br />Do you really want to activate <strong>{{count}}</strong> selected records?",
       "error": "An error occurred while activating [{{record}}]",
-      "success_0": "N/A",
-      "success_1": "Selected record [{{record}}] were successfully activated",
-      "success_2": "Selected records [{{records}}] were successfully activated",
-      "success_5": "Selected records [{{records}}] were successfully activated"
+      "success": "Selected record [{{record}}] was successfully activated",
+      "success_plural": "Selected records [{{records}}] were successfully activated"
     },
       "deactivate": {
       "action": "Deactivate",
-      "header_0": "N/A",
-      "header_1": "Deactivate record",
-      "header_2": "Deactivate records",
-      "header_5": "$t(action.deactivate.header_2)",
-      "message_0": "N/A",
-      "message_1": "Do you want to deactivate selected record [<strong>{{record}}</strong>]?",
-      "message_2": "Selected records: [<strong>{{records}}</strong>].<br /><br />Do you want to deactivate <strong>{{count}}</strong> selected records?",
-      "message_5": "Selected records: [<strong>{{records}}</strong>].<br /><br />Do you want to deactivate <strong>{{count}}</strong> selected records?",
+      "header": "Deactivate record",
+      "header_plural": "Deactivate records",
+      "message": "Do you want to deactivate selected record [<strong>{{record}}</strong>]?",
+      "message_plural": "Selected records: [<strong>{{records}}</strong>].<br /><br />Do you want to deactivate <strong>{{count}}</strong> selected records?",
       "error": "An error occurred while removing [{{record}}]",
-      "success_0": "N/A",
-      "success_1": "Selected record [{{record}}] were successfully deactivated",
-      "success_2": "Selected records [{{records}}] were successfully deactivated",
-      "success_5": "Selected records [{{records}}] were successfully deactivated"
+      "success": "Selected record [{{record}}] were successfully deactivated",
+      "success_plural": "Selected records [{{records}}] were successfully deactivated"
     },
     "save": {
-      "success_0": "N/A",
-      "success_1": "Record [{{record}}] was successfully saved"
+      "success": "Record [{{record}}] was successfully saved"
     }
   },
   "environment": {
@@ -236,14 +219,12 @@
       "Table": {
         "bulk-action": {
           "selection_empty": "Select records ...",
-          "selection_0": "Select records ...",
-          "selection_1": "Operation with selected record:",
-          "selection_2": "Operation with selected records ({{count}}):",
-          "selection_5": "Operation with selected records ({{count}}):",
+          "selection": "Operation with selected record:",
+          "selection_plural": "Operation with ({{count}}) selected records:",
           "notImplemented": "Sorry, this operation is not available yet."
         },
         "error": {
-          "load": "When retrieving records to the table an error occurred"
+          "load": "Error during loading records to the table."
         },
         "button": {
           "refresh": "Reload records"
@@ -256,7 +237,7 @@
       "EavForm": {
         "multiple": {
           "label": "multi",
-          "title": "Supports entering multiple values. What value ~ a new line.",
+          "title": "Supports entering multiple values. Each value to new line.",
           "unsupported": {
             "title": "{{name}} - attribute cannot be multiple",
             "formDefinition": {
@@ -508,10 +489,10 @@
       }
     },
     "logout": {
-      "header": "Logout",
+      "header": "Log Out",
       "title": "$t(content.logout.header)",
       "message": {
-        "logout": "Logout."
+        "logout": "Log Out."
       }
     },
     "password": {
@@ -600,12 +581,12 @@
         "title": "Password policy details"
       },
       "basic": {
-        "header": "Configuration",
-        "title": "Configuration"
+        "header": "Settings",
+        "title": "Settings"
       },
       "advanced": {
-        "header": "Additional rules",
-        "title": "Additional rules"
+        "header": "Enhanced control",
+        "title": "Enhanced control"
       },
       "characters": {
         "header": "Characters",
@@ -616,21 +597,21 @@
         "header": "New configuration of password policies"
       },
       "validation": {
-        "maxLength": "Maximum allowable password length: {{0}}",
+        "maxLength": "Maximum password length: {{0}}",
         "minLength": "Minimum password length: {{0}}",
-        "minNumber": "Minimální počet číslic: {{0}}",
-        "minUpperChar": "Minimum number of digits: {{0}}",
+        "minNumber": "Minimum number of digits: {{0}}",
+        "minUpperChar": "Minimum number uppercase characters: {{0}}",
         "prohibited": "Password contains illegal characters: ",
         "minLowerChar": "Minimum number of lowercase characters: {{0}}",
         "minSpecialChar": "Minimum number of special characters: {{0}}",
-        "policiesNames": "Password has not passed through these policies ",
+        "policiesNames": "Password password does not meet these password policies ",
         "minRulesToFulfillCount": "Unfulfilled minimum mandatory rules: ",
         "minRulesToFulfill": "Fill in at least {{count}} the following rules: ",
-        "passwordSimilarUsername": "Heslo je příliš podobné uživatelskému jménu: ",
-        "passwordSimilarEmail": "Password is too similar to a username: ",
-        "passwordSimilarFirstName": "Password is too similar to a name: ",
-        "passwordSimilarLastName": "Password is too similar surnames: ",
-        "date": "Password can not be changed now, try again: "
+        "passwordSimilarUsername": "Password cannot be similar to login: ",
+        "passwordSimilarEmail": "Password cannot be similar to email: ",
+        "passwordSimilarFirstName": "Password cannot be similar tofirst name: ",
+        "passwordSimilarLastName": "Password cannot be similar to suername: ",
+        "date": "Password can not be change now, try again: "
       },
       "save": {
         "success": "Password policy [{{name}}] was successfully saved."
@@ -643,7 +624,7 @@
         "header": "{{name}} <small>detail configuration items</small>"
       },
       "create": {
-        "header": "New configuration items"
+        "header": "New configuration item"
       },
       "save": {
         "success": "Configuration items [{{name}}] successfully saved"
@@ -693,7 +674,7 @@
         },
         "taskId": {
           "label": "ID",
-          "placeholder": "Task id"
+          "placeholder": "Task ID"
         },
         "note": {
           "label": "Note",
@@ -706,29 +687,23 @@
       "action": {
         "approve": {
           "action": "Approve tesk",
-          "header_1": "Task to approve",
-          "header_2": "Task to approve",
-          "header_5": "$t(content.tasks-assigned.action.approve.header_2)",
-          "message_1": "Do you really want to approve the selected task?",
-          "message_2": "Do you really want to approve <strong>{{count}}</strong> the selected tasks?",
-          "message_5": "Do you really want to approve <strong>{{count}}</strong> the selected tasks?",
+          "header": "Task to approve",
+          "header_plural": "Tasks to approve",
+          "message": "Do you really want to approve the selected task?",
+          "message_plural": "Do you really want to approve <strong>{{count}}</strong> the selected tasks?",
           "error": "When approving the task {{task}} task error occurred.",
-          "success_1": "The task was successfully approved",
-          "success_2": "Tasks were successfully approved",
-          "success_5": "$t(content.tasks-assigned.action.approve.success_2)"
+          "success": "The task was successfully approved",
+          "success_plural": "Tasks were successfully approved"
         },
         "disapprove": {
           "action": "Reject",
-          "header_1": "Rejection the task",
-          "header_2": "rejection the task",
-          "header_5": "$t(content.tasks-assigned.action.approve.header_2)",
-          "message_1": "Do you really want to reject the selected task?",
-          "message_2": "Do you really want to reject <strong>{{count}}</strong> the selected tasks?",
-          "message_5": "Do you really want to reject <strong>{{count}}</strong> the selected tasks?",
+          "header": "Reject task",
+          "header_plural": "Reject tasks",
+          "message": "Do you really want to reject the selected task?",
+          "message_plural": "Do you really want to reject <strong>{{count}}</strong> the selected tasks?",
           "error": "When rejecting the task {{task}} task error occurred",
-          "success_1": "The task was successfully approved",
-          "success_2": "Tasks were successfully approved",
-          "success_5": "$t(content.tasks-assigned.action.approve.success_2)"
+          "success": "Task was successfully approved",
+          "success_plural": "Tasks were successfully approved"
         }
       }
     },
@@ -750,7 +725,7 @@
           "completeTaskConfirmDetail": "o you really want this task to terminate?",
           "role": {
             "currentRoles": "Currently assigned permissions",
-            "conceptIdentityRoles": "Applicants roles"
+            "conceptIdentityRoles": "Applicant's roles"
           }
         },
         "DefaultTaskDetail": {
@@ -759,7 +734,7 @@
           "approvers": "Approvers of this task",
           "note": "$t(entity.ApprovalTask.note)",
           "taskState": "$t(entity.ApprovalTask.taskState)",
-          "approve": "Approve",
+          "approve": "Accept",
           "disapprove": "Reject",
           "approvers": "Approvers of this task",
           "messages": {
@@ -826,24 +801,19 @@
       "action": {
         "deactivate": {
           "action": "Deactivate",
-          "header_1": "Deactivate user",
-          "header_2": "Deactivate users",
-          "header_5": "$t(content.identities.action.deactivate.header_2)",
-          "message_1": "Do you really want to deactivate the selected user <strong>{{username}}</strong>?",
-          "message_2": "Do you really want to deactivate <strong>{{count}}</strong> selected users?",
-          "message_5": "$t(content.identities.action.deactivate.message_2)",
+          "header": "Deactivate user",
+          "header_plural": "Deactivate users",
+          "message": "Do you really want to deactivate the selected user <strong>{{username}}</strong>?",
+          "message_plural": "Do you really want to deactivate <strong>{{count}}</strong> selected users?",
           "error": "When you deactivate a user {{username}} an error occurred",
           "success": "Selected users [{{usernames}}] are deactivated"
         },
         "activate": {
           "action": "Activate",
-          "header_0": "N/A",
-          "header_1": "User activation",
-          "header_2": "Users activation",
-          "header_5": "$t(content.identities.action.activate.header_2)",
-          "message_1": "Do you really want to activate the selected user <strong>{{username}}</strong>?",
-          "message_2": "Do you really want to activate <strong>{{count}}</strong> selected users?",
-          "message_5": "$t(content.identities.action.activate.message_2)",
+          "header": "Activate user",
+          "header_plural": "Activate users",
+          "message": "Do you really want to activate the selected user <strong>{{username}}</strong>?",
+          "message_plural": "Do you really want to activate <strong>{{count}}</strong> selected users?",
           "error": "When you activate a user {{username}} an error occurred",
           "success": "Selected users [{{usernames}}] are activated"
         },
@@ -856,8 +826,8 @@
       }
     },
     "tree": {
-      "header": "Organizational trees",
-      "title": "Organizational trees",
+      "header": "Organizational tree",
+      "title": "Organizational tree",
       "filter": {
         "parentId": {
           "label": "Superior element"
@@ -950,8 +920,8 @@
       "title": "Roles"
     },
     "roleCatalogues": {
-      "header": "Role catalogs",
-      "title": "Role catalogs",
+      "header": "Role catalog",
+      "title": "Role catalog",
       "edit": {
         "title": "Folder details",
         "header": "{{name}} folder details"
@@ -979,11 +949,23 @@
       "header": "Form definitions",
       "title": "Form definitions",
       "edit": {
-        "title": "Form definition detail",
-        "header": "{{name}} form definition detail"
+        "title": "Form definition detail"
+      },
+      "create": {
+        "title": "New form definition",
+        "header": "New form definition"
       },
       "filter": {
-        "text": "Name / Description"
+        "text": "Name"
+      },
+      "attributes": {
+        "title": "Form Attributes"
+      },
+      "detail": {
+        "title": "Basic information"
+      },
+      "save": {
+        "success": "Form definition [{{name}}] was successfully saved"
       }
     },
     "formAttributes": {
@@ -1001,22 +983,22 @@
         "success": "Attribute [{{name}}] was successfully saved"
       },
       "filter": {
-        "text": "Name / Description"
+        "name": "Name"
       }
     },
     "scripts": {
-      "header": "Rule definitions",
-      "header": "Rule definitions",
+      "header": "Script definitions",
+      "header": "Script definitions",
       "edit": {
-        "title": "Rule detail",
+        "title": "Script detail",
         "header": "{{name}} rule detail"
       },
       "create": {
-        "title": "New rule",
-        "header": "New rule"
+        "title": "New script",
+        "header": "New script"
       },
       "save": {
-        "success": "The rule [{{name}}] was successfully saved."
+        "success": "The script [{{name}}] was successfully saved."
       },
       "filter": {
         "text": "Name / Description"
@@ -1169,7 +1151,7 @@
         "password": "Change password",
         "roles": "Roles",
         "accounts": "Accounts on systems",
-        "approve": "Schvaluji role",
+        "approve": "Approver of roles",
         "subordinates": "Subordinates",
         "positions": "Contracted positions",
         "approve": "Approver of roles"
@@ -1198,10 +1180,10 @@
 
         },
         "validation": {
-          "passwordsNotMatch": "Zadané nové heslo se neshoduje se zadaným heslem pro kontrolu.",
+          "passwordsNotMatch": "Passwords do not match.",
           "newIdmManagerIsTheSame": {
-            "title": "Uživatel {{username}} je shodný s deaktivovaným uživatelem",
-            "message": "Vyberte prosím jiného uživatele, který má býti nastaven jako nový vedoucí"
+            "title": "User {{username}} is identical with inactive user",
+            "message": "Please select another user, who will be set as new manager"
           },
           "newIdmManagerIsRequired": {
             "title": "Please select user",
@@ -1210,41 +1192,41 @@
         },
         "messages": {
           "deactiveDisabled": "You cannot inactivate yourself.",
-          "subordinatesCount": "Uživatel <strong>{{username}}</strong>, který má býti deaktivovaný, je vedoucím pro <strong>{{subordinatesCount}}</strong> uživatelů. <br/> Vyberte prosím nového vedoucího pro všechny zobrazené uživatele.",
-          "saved": "Uživatel {{username}} byl úspěšně uložen",
-          "deactivated": "Uživatel {{username}} byl úspěšně deaktivován",
+          "subordinatesCount": "User <strong>{{username}}</strong>, which is to be deactivate is manager of <strong>{{subordinatesCount}}</strong> users. <br/> Please select a new manager for dispayed users.",
+          "saved": "User {{username}} was successfully saved",
+          "deactivated": "User {{username}} user was successfully deactivated.",
           "deactivateBreak": {
-            "title": "Nastavení nového vedoucícho bylo přerušeno",
-            "message": "Nový vedoucí byl úspěšně nastaven pro {{deactivateCounter}} uživatelů. Poté došlo k přerušení operace. V operaci je možné pokračovat."
+            "title": "Setting of new manager was interrupted",
+            "message": "New manager was successfully set for {{deactivateCounter}} users. Than the operation was interrupted. The operation can continue."
           },
           "switchedIdmManager": {
-            "title": "Nastavení nového vedoucího",
-            "message": "Nastavení nového vedoucího {{newIdmManager}} místo původního {{previousIdmManager}} úspěšně proběhlo."
+            "title": "Setting new manager",
+            "message": "Setting a new manager {{newIdmManager}} instead of previous {{previousIdmManager}} was successful."
           },
           "switchIdmManagerFailed": {
-            "title": "Chyba při ukládání uživatele {{identity.username}} (pokračuji ve zpracování)"
+            "title": "Error during saving user {{identity.username}} (continues processing)"
           }
         },
         "deactivate": {
-          "proceed": "Nastavení nového vedoucího probíhá ...",
-          "selectIdmManager": "Výběr nového vedoucího",
+          "proceed": "Processing setting new manager...",
+          "selectIdmManager": "Select new manager",
           "confirm": {
-            "header": "Potvrzení deaktivace uživatele",
-            "message": "Uživatel <strong>{{username}}</strong> nemá pod sebou žádné podřízené. Opravdu požadujete deaktivovat uživatele <strong>{{username}}</strong>?"
+            "header": "Confirm deactivation of user",
+            "message": "User <strong>{{username}}</strong> doesn't have any subordinates. Do you really want to deactivate user <strong>{{username}}</strong>?"
           },
           "form": {
-            "newIdmManager": "Vyberte prosím nového vedoucího"
+            "newIdmManager": "Please, select new manager"
           },
           "button": {
             "break": {
-              "title": "Přeruší zpracování - doposavaď zpracování uživatelé budiž zpracovaní",
-              "label": "Přerušit operaci",
-              "proceed": "Přerušuji operaci ..."
+              "title": "Aborting processing - Processed users remain adjust",
+              "label": "Abort operation",
+              "proceed": "Aborting operatioi ..."
             }
           }
         },
         "organizationPosition": {
-          "title": "Position in organization structure"
+          "title": "Position in organizational structure"
         }
       },
       "roles": {
@@ -1254,8 +1236,8 @@
         "authorities": "Granted authorizations <small>from assigned roles</small>",
         "changeRoleProcesses": {
           "header": "Roles pending approval",
-          "deleteConfirm": "Opravdu chcete smazat vybranou žádost o změnu oprávnění?",
-          "deleteSuccess": "Žádost o změnu oprávnění byla úspěšně smazána."
+          "deleteConfirm": "Do you really want to delete selected request?",
+          "deleteSuccess": "Request was succesfully deleted."
         },
         "changePermissionRequests": {
           "header": "Requests for authorization change"
@@ -1264,21 +1246,21 @@
           "header": "Concepts of requests for authorization change"
         },
         "create": {
-          "header": "Přiřazení nové role",
-          "success": "Uživateli [{{username}}] byla úspěšně přidána role [{{role}}].",
-          "accepted": "Role [{{role}}] pro uživatele [{{username}}] byla úspěšně předána ke zpracování. Role musí býti před přiřazením nejdříve schválena."
+          "header": "Assign new role",
+          "success": "[{{role}}] was successfully assigned to user [{{username}}].",
+          "accepted": "Role [{{role}}] for user [{{username}}] was successfully submitted to approval. Assignment must be approve first."
         },
         "edit": {
           "header": "{{role}} <small>assignment details</small>",
-          "success": "Role [{{role}}] uživatele [{{username}}] byla úspěšně upravena."
+          "success": "Role [{{role}}] of user [{{username}}] was successfully edited."
         },
         "delete": {
-          "success": "Role [{{role}}] uživatele [{{username}}] byla úspěšně odebrána."
+          "success": "Role [{{role}}] of user [{{username}}] was successfully removed."
         },
         "contracts": {
           "empty": {
-            "message": "Uživatel nemá žádné pracovně právní vztahy, ke kterým by mohly býti přiřazeny role. Přidejte prosím alespoň jeden pracovně právní vztah.",
-            "button": "Přidat PPV"
+            "message": "User doesn't have any contracted positions, on which you can assign roles. Please, add contracted position.",
+            "button": "Add contracted position"
           }
         }
       },
@@ -1292,17 +1274,17 @@
           "strength": "Password strength:"
         },
         "changeType": {
-          "DISABLED": "Změna hesla není na tomto prostředí povolena.",
-          "CUSTOM": "Změnit heslo je možné na každém účtu zvlášť.",
-          "ALL_ONLY": "Změnit heslo je možné pouze pro všechny účty naráz."
+          "DISABLED": "Password change is not allowed in this environment.",
+          "CUSTOM": "Password change can be done separately on each account.",
+          "ALL_ONLY": "Password can be change only  for all accounts at once."
         },
         "accounts": {
           "label": "On systems",
-          "placeholder": "Vyberte koncový systém, na kterém chcete změnit heslo"
+          "placeholder": "Select end system on which you want to change password"
         },
         "message": {
-          "wrongUser": "Změna hesla pro podřízeného není podporována",
-          "success": "Heslo na účtech [{{accounts}}] pro uživatele [{{username}}] bylo úspěšně změněno.",
+          "wrongUser": "Change password to subordinates is not allowed",
+          "success": "Password on accounts [{{accounts}}] for users [{{username}}] was succesfully changed.",
           "isAdmin": "You are logged in as administrator. Original password is not required for password change. Password can be changed on selected systems. Number of changes is not limited."
         },
         "button": {
@@ -1310,42 +1292,41 @@
         }
       },
       "passwordReset": {
-        "header": "Resetování hesla",
-        "title": "Resetování hesla",
-        "info": "Následujícím uživatelům bude resetováno heslo ve vybraných systémech",
+        "header": "Password reset",
+        "title": "Password reset",
+        "info": "Password will be reset to users above on selected systems",
         "message": {
-          "loadResourcesFailed": "Při načítání účtů na systémech pro uživatele {{username}} nastala chyba",
-          "resetFailed": "Resetování hesla pro uživatele {{username}} selhalo",
-          "resetSuccess": "Resetování hesla pro uživatele {{usernames}} úspěšně proběhlo"
+          "loadResourcesFailed": "Error during loading accnout on system of user {{username}}",
+          "resetFailed": "Password reset for user {{username}} failed",
+          "resetSuccess": "Password reset for users {{usernames}} was succesful"
         },
         "confirm": {
-          "title": "Resetování hesla",
-          "message_1": "Opradu požadujete resetovat hesla uživatele <strong>{{username}}</strong> na vybraných systémech?",
-          "message_2": "Opradu požadujete resetovat hesla <strong>{{count}}</strong> vybraných uživatelů na vybraných systémech?",
-          "message_5": "Opradu požadujete resetovat hesla <strong>{{count}}</strong> vybraných uživatelů na vybraných systémech?"
+          "title": "Password reset",
+          "message": "Do you really want to reset passwords for user <strong>{{username}}</strong> on selected systems?",
+          "message_plural": "Do you really want to reset passwords for <strong>{{count}}</strong> selected users on selected systems?"
         },
         "accounts": {
-          "empty": "Uživatel {{username}} nemá účet na systému {{resource}}"
+          "empty": "User {{username}} doesn't have account on system {{resource}}"
         },
         "users": {
-          "empty": "Vyberte prosím uživatele, kterým má býti resetováno heslo."
+          "empty": "Plese, select users which you want to reset password."
         },
         "selection": {
-          "empty": "Vyberte prosím alespoň jednoho uživatele a systém, na kterém má býti resetováno heslo"
+          "empty": "Please, select at least one users and system where you want to reset password"
         },
         "button": {
-          "reset": "Resetovat heslo"
+          "reset": "Reset password"
         },
         "label": {
-          "selectAllUsername": "$t(label.selectAll) od daného uživatele",
-          "selectAllResource": "$t(label.selectAll) od daného systému"
+          "selectAllUsername": "$t(label.selectAll) from given user",
+          "selectAllResource": "$t(label.selectAll) from given system"
         }
       },
       "identityRoleDetail": {
-        "label": "Detail záznamu"
+        "label": "Record details"
       },
       "accounts": {
-        "header": "Účty na systémech",
+        "header": "Accounts on systems na systémech",
         "title": "$t(content.identity.accounts.header)",
         "empty": "Nenalezeny žádné účty na koncových systémech."
       },
@@ -1375,34 +1356,34 @@
         }
       },
       "delegates": {
-        "header": "Delegace úkolů",
+        "header": "Deleate tasks",
         "title": "$t(content.identity.delegates.header)",
-        "empty": "Nenalezeny žádné nastavené delegace.",
+        "empty": "No set delegations found.",
         "message": {
           "save": {
-            "success": "Uložení delegace na uživatele [{{delegate}}] úspěšně proběhlo."
+            "success": "Delegation to user [{{delegate}}] was succesful."
           },
           "delete": {
             "confirm": {
-              "title": "Odebrání delegace",
-              "message": "Opravdu chcete odebrat delegaci na uživatele <strong>{{delegate}}</strong>?"
+              "title": "Remove delegation",
+              "message": "Do you really want to remove delegation on user <strong>{{delegate}}</strong>?"
             },
-            "success": "Odebrání delegace na uživatele [{{delegate}}] úspěšně proběhlo."
+            "success": "Delegation on user [{{delegate}}] was successfully removed."
           }
         },
         "button": {
-          "add": "Přidat delegaci",
-          "delete": "Odebrat delegaci na uživatele {{delegate}}"
+          "add": "Add delegation",
+          "delete": "Remove delegation o user {{delegate}}"
         },
         "create": {
-          "header": "Nová delegace",
+          "header": "New delegation",
           "button": {
-            "save": "Uložit delegaci",
-            "saving": "Ukládám delegaci ..."
+            "save": "Save delegation",
+            "saving": "Saving delegation ..."
           }
         },
         "delete": {
-          "header": "Probíhá odebírání delegace"
+          "header": "Processing removing deleganion"
         }
       },
       "subordinates": {
@@ -1459,8 +1440,8 @@
       }
     },
     "organizations": {
-      "header": "Organizational structure overview",
-      "title": "Organizational structure overview",
+      "header": "Organizational structure",
+      "title": "Organizational structure",
       "label": "Organization",
       "defaultTreeType": {
         "empty": {
@@ -1471,7 +1452,7 @@
     },
     "audit": {
       "header": "Audit",
-      "headerSmall": "záznamy auditních logů",
+      "headerSmall": "Audit logs records",
       "title": "Audit"
     },
     "system": {
@@ -1480,7 +1461,7 @@
         "title": "Modules"
       },
       "fe-modules": {
-        "header": "Aplikační moduly a komponenty",
+        "header": "Application modules and components",
         "title": "Modules (frontend)",
         "components": {
           "header": "Components",
@@ -1531,17 +1512,17 @@
         },
         "action": {
           "trigger-delete": {
-            "header": "Odebrat plánované spuštění",
-            "message": "Opravdu chcete odebrat plánované spuštení [<strong>{{record}}</strong>]?",
-            "success": "Plánované spuštení [{{record}}] bylo úspěšně odebráno."
+            "header": "Remove scheduled run",
+            "message": "Do you really want to remove scheduled run [<strong>{{record}}</strong>]?",
+            "success": "Scheduled run [{{record}}] was removed."
           },
           "trigger-create": {
             "header": "New scheduled run",
             "success": "Scheduled run was successfully added."
           },
           "task-create": {
-            "header": "Nová úloha",
-            "success": "Nová úloha [{{record}}] byla úspěšně vytvořena."
+            "header": "Create task",
+            "success": "Task [{{record}}] was successfully created."
           },
           "task-edit": {
             "header": "Task details",
@@ -1549,12 +1530,12 @@
             "parameters": "Task parameters"
           },
           "task-run": {
-            "success": "Úloha [{{record}}] was successfully started."
+            "success": "Task [{{record}}] was successfully started."
           },
           "task-delete": {
-            "header": "Odebrat úlohu",
-            "message": "Opravdu chcete odebrat úlohu [<strong>{{record}}</strong>]?",
-            "success": "Úloha [{{record}}] byla úspěšně odebrána."
+            "header": "Remove task",
+            "message": "Do you really want to remove taks [<strong>{{record}}</strong>]?",
+            "success": "Task [{{record}}] was successfully removed."
           },
           "save": {
             "success": "Task [{{record}}] was successfully saved ."
@@ -1651,6 +1632,9 @@
       "titleNew": "New template",
       "save": {
         "success": "Template [{{name}}] was successfully saved."
+      },
+      "filter": {
+        "text": "Name / Subject / Code"
       }
     },
     "emails": {
@@ -1847,13 +1831,13 @@
 
     },
     "Script": {
-      "name": "Rule name",
+      "name": "Script name",
       "category": "Category",
       "script": {
-        "help": "Rule body, Groovy script.",
-        "label": "Rule"
+        "help": "Script body, Groovy script.",
+        "label": "Script"
        },
-      "description": "Rule description"
+      "description": "Script description"
     },
     "FormDefinition" : {
       "type": "Type",
@@ -1870,22 +1854,23 @@
       "confidential": "Confidential",
       "multiple": "Multi valued",
       "placeholder": "Placeholder",
-      "defaultValue": "Default value"
+      "defaultValue": "Default value",
+      "systemAttribute": "System attribute"
     },
     "Role": {
       "_type": "Role",
-      "name": "Role name",
-      "roleType": "Role type",
+      "name": "Name",
+      "roleType": "Type",
       "priority": "Priority",
       "priorityEnum": "Priority level",
       "disabled": "Inactive",
       "approvable": "Approval required",
       "superiorRoles": "Superior roles",
       "subRoles": "Subordinate roles",
-      "authorities": "Oprávnění",
+      "authorities": "Authorizations",
       "approveAddWorkflow": "Assign approval (WF)",
       "approveRemoveWorkflow": "Remove approval (WF)",
-      "description": "Role description",
+      "description": "Description",
       "guarantees": "Role authorizers",
       "roleCatalog": {
         "name": "Catalog"
@@ -2002,7 +1987,7 @@
     "WorkflowTaskInstance": {
       "taskDescription": "Subject",
       "taskCreated": "Created on",
-      "id": "task ID"
+      "id": "Task ID"
     },
     "WorkflowHistoricProcessInstance": {
       "name": "Process name",
@@ -2063,7 +2048,7 @@
       "bodyText": "Message body (text)"
     },
     "NotificationConfiguration": {
-      "_type": "Konfigurace notifikace",
+      "_type": "Configure notification",
       "topic": "$t(entity.Notification.topic)",
       "level": "Type",
       "notificationType": "Channel",
@@ -2127,8 +2112,8 @@
     "PasswordPolicy": {
       "type": "Type",
       "name": "Name",
-      "basic": "Základní údaje",
-      "bases": "Znaky",
+      "basic": "Basic information",
+      "bases": "Characters",
       "generateType": "Generation type",
       "disabled": "Disabled",
       "description": "Description",
@@ -2145,12 +2130,12 @@
       "specialCharRequired": "Special characters requirement",
       "minSpecialChar": "Minimum number of special characters",
       "prohibitedCharacters": "Forbidden characters",
-      "weakPassRequired": "Povinné slabé hesla",
-      "weakPass": "Slabé hesla",
+      "weakPassRequired": "Required weak passwords",
+      "weakPass": "Weak passwords",
       "passphraseWords": "Number of words in passphrase",
       "maxPasswordAge": "Maximum number of days for password validity.",
       "minPasswordAge": "Minimum number of days for password validity.",
-      "enchancedControl": "Enhanced control",
+      "enchancedControl": "Enabled",
       "minRulesToFulfill": "Minimum number of additional rules for policy",
       "maxHistorySimilar": "Nuber of checked old passwords  zpětně kontrolovaných hesel na shodu",
       "lowerCharBase": "Lowercase letters",
@@ -2159,11 +2144,11 @@
       "specialCharBase": "Special characters",
       "identityAttributeCheck": "User attributes not allowed in password",
       "help": {
-        "defaultPolicy": "Defaul policy is used for password validation for IdM system and all systems without set password policy.",
+        "defaultPolicy": "Default policy is used for password validation for IdM system and all systems without set password policy.",
         "maxPasswordAge": "Maximum number of days for password validity.",
         "minPasswordAge": "Minimum number of days for password validity.",
-        "enchancedControl": "Rozšířená kontrola hesla zkvalitňuje základní validaci hesla a to o kontrolu podobnosti na minulé hesla a kontrolu podobnosti s uživatelskými atributy. Také je možnost nastavit povinná pouze některá pravidla.",
-        "rules": "Pravidla označená jako nepovinná budou kontrolovány v závislosti na minimálním početu pravidel pro splnění politiky. Aby heslo prošlo validací politky, musí projít minimálním počtem z nepovinných pravidel.",
+        "enchancedControl": "Enhanced control makes passwords more secure by comparing new passwords with previous ones and user attributes. It is possible to select which rules are required.",
+        "rules": "Select which rules are required set number of how many additional rules newly created password must fulfill at least.",
         "minRulesToFulfill": "Minimum number of the requirements which password must match to be valid.",
         "maxHistorySimilar": "Number of retroactively checked passwords, which cannot be same as new.",
         "prohibitedCharacters": "Listed characters are not allowed for generating and validating passwords. Enter characters without spaces, e.g. 1LliIo0!",
@@ -2260,44 +2245,44 @@
   },
   "decision" : {
     "approve": {
-      "label" : "Approve",
-      "tooltip": "Executes approval of this task.",
-      "warning": "Do you want to approve this request?"
+      "label" : "Accept",
+      "tooltip": "Executes approval of the task.",
+      "warning": "Do you want to approve the request?"
     },
     "disapprove": {
-      "label" : "Disapprove",
-      "tooltip": "Disapprove task.",
-      "warning": "Do you want to disapprove this request?"
+      "label" : "Reject",
+      "tooltip": "Reject task.",
+      "warning": "Do you want to reject the request?"
     },
     "backToApplicant": {
-      "label" : "Return to requester",
-      "tooltip": "Executes returning of this request.",
-      "warning": "Do you want to return this request?"
+      "label" : "Return for edit",
+      "tooltip": "Returns request to requester.",
+      "warning": "Do you want to return the request?"
     },
     "createRequest": {
-      "label" : "Create request",
-      "tooltip": "Creates request.",
-      "warning": "Opravdu chcete vytvořit žádost?"
+      "label" : "Submit request",
+      "tooltip": "Submit request.",
+      "warning": "Do you want to submit the request?"
     },
     "cancelRequest": {
       "label" : "Delete request",
       "tooltip": "Delete this request.",
-      "warning": "Do you really want to delete this request?"
+      "warning": "Do you want to delete the request?"
     }
   },
   "formData" : {
     "applicantDescription": {
       "name" : "Requester's note",
-      "tooltip": "Requester's note in created request",
-      "placeholder": "Requester's note in created request"
+      "tooltip": "Requester's note in submitted request",
+      "placeholder": "Requester's note in submitted request"
     },
     "managerDescriptionForApplicant": {
       "name" : "Note for requester",
-      "tooltip": "Poznámka, která bude žadateli zobrazena při várcení žádosti.",
-      "placeholder": "Poznámka, která bude žadateli zobrazena při várcení žádosti."
+      "tooltip": "Note for requester in returned request",
+      "placeholder": "Note for requester in returned request"
     },
     "managerDescription": {
-      "name" : "Authorizers note",
+      "name" : "Authorizer's note",
       "tooltip": "Note from authorizer.",
       "placeholder": "Note from authorizer."
     }
@@ -2312,12 +2297,12 @@
       "message": "Na požadovanou akci nemáte dostatečná oprávnění."
     },
     "PASSWORD_CHANGE_NO_SYSTEM": {
-      "title": "Změna hesla neproběhla",
+      "title": "Password change failed",
       "message": "Vyberte alespoň jeden systém, na kterém má býti heslo změněno."
     },
     "PASSWORD_CHANGE_CURRENT_FAILED_IDM": {
-      "title": "Změna hesla neproběhla",
-      "message": "Zadáno chybné původní heslo."
+      "title": "Password change failed",
+      "message": "Original password is not correct."
     },
     "LOG_IN": {
       "title": "Session timeout",
@@ -2328,23 +2313,23 @@
       "message": "Your login token timeouted. Please log-in again."
     },
     "MUST_CHANGE_IDM_PASSWORD": {
-      "title": "Je vyžadována změna Vašeho hesla",
-      "message": "Vyžadována změna hesla pro CzechIdM."
+      "title": "Password change required",
+      "message": "It is required to change your password for CzechIdM."
     },
     "PASSWORD_RESET_GENERATE_TOKEN": {
-      "title": "Zaslání tokenu neproběhlo",
+      "title": "Token wasn't sent",
       "message": "{{0}}"
     },
     "PASSWORD_RESET_FAILED": {
-      "title": "Reset hesla nepoběhl",
+      "title": "Password reset wasn't completed",
       "message": "{{0}}"
     },
     "PASSWORD_CHANGE_FAILED": {
-      "title": "Změna hesla nepoběhla",
+      "title": "Password change wasn't completed",
       "message": "{{0}}"
     },
     "PASSWORD_DOES_NOT_MEET_POLICY": {
-      "title": "Nové heslo nevyhovuje politikám hesel",
+      "title": "New password doesn't meet password policy",
       "message": "{{0}}"
     },
     "PASSWORD_CANNOT_CHANGE": {
@@ -2353,11 +2338,11 @@
     },
     "PASSWORD_POLICY_MAX_LENGTH_LOWER": {
       "title": "Password policy wasn't saved",
-      "message": "Maximální délka nesmí být menší než minimální délka."
+      "message": "Maximum length must be greater than minimum length."
     },
     "PASSWORD_POLICY_ALL_MIN_REQUEST_ARE_HIGHER": {
       "title": "Password policy wasn't saved",
-      "message": "Součet všech minimálních délek je větší než maximální délka."
+      "message": "Count of all minumum lenghts is bigger than setted maximum password length."
     },
     "PASSWORD_POLICY_MAX_AGE_LOWER": {
       "title": "Password policy wasn't saved",
@@ -2365,11 +2350,11 @@
     },
     "PASSWORD_POLICY_DEFAULT_TYPE": {
       "title": "Password policy wasn't saved",
-      "message": "Standardní politika již existuje."
+      "message": "Default password policy already exists."
     },
     "PASSWORD_POLICY_DEFAULT_TYPE_NOT_EXIST": {
       "title": "Password policy wasn't saved",
-      "message": "Neexistuje standardní politika."
+      "message": "Default password policy doesn't exists."
     },
     "PASSWORD_POLICY_BAD_TYPE": {
       "title": "Password policy wasn't saved",
@@ -2384,68 +2369,68 @@
       "message": "Minimum rules to fulfill can be {{rules}} or less."
     },
     "TASK_SAME_DELEGATE_AS_CURRENT_IDENTITY": {
-      "title": "Uložení delegace selhalo",
-      "message": "Nelze nastavit delegaci na sebe sama [uživatel: {{identity}}]."
+      "title": "Saving of delegation failed",
+      "message": "You cannot set delegation on yourself [uživatel: {{identity}}]."
     },
     "ENDPOINT_NOT_FOUND": {
-      "title": "Služba neexistuje",
+      "title": "Endpoint not found",
       "message": "Aplikace odkazuje na neexistující cestu [{{path}}]."
     },
     "BAD_REQUEST": {
-      "title": "Chybný požadavek"
+      "title": "Bad request"
     },
     "BAD_VALUE": {
-      "title": "Špatná volba"
+      "title": "Bad value"
     },
     "BAD_UUID": {
-      "title": "Chybný identifikátor",
-      "message": "Identifikátor [{{uuid}}] není validní. Očekáváno uuid."
+      "title": "Unexpected Identificator",
+      "message": "Identificator [{{uuid}}] is not valid. Expecting uuid."
     },
-    "ROLE_CATALOGUE_BAD_PARENT": {
-      "title": "Nadřazená složka nelze přiřadit.",
-      "message": "Neplatná nadřazená složka. Vyberte prosím jinou složku."
+    "ROLE_CATALOG_BAD_PARENT": {
+      "title": "Superior folder cannot be set.",
+      "message": "Invalid superior folder. Please, select another."
     },
     "IDMROLE_NAME_DUPLICATE": {
-      "title": "Role již existuje",
-      "message": "Role s daným názvem již existuje"
+      "title": "Role already exists",
+      "message": "Role with this name already exists"
     },
     "CONFLICT": {
-      "title": "Záznam koliduje s jiným unikátním záznamem"
+      "title": "Record is on colision with anoteher unique record"
     },
     "NAME_CONFLICT": {
-      "title": "Konflikt se jménem entity",
-      "message": "Záznam s tímto jménem již existuje."
+      "title": "Conflict with entity name",
+      "message": "Record with this name already exists."
     },
     "IDENTITY_NOT_FOUND": {
       "message": "Identity [{{identity}}] does not exist"
     },
     "MODULE_NOT_DISABLEABLE": {
-      "title": "Modul [{{module}}] není možné disablovat",
-      "message": "Funkce modulu jsou pro aplikaci nepostradatelné."
+      "title": "Module [{{module}}] cannot be disabled",
+      "message": "Module functions are essential for application."
     },
     "MODULE_DISABLED": {
       "title": "The module is deactivated",
       "message": "Module [{{module}}] is deactivated or isn't installed."
     },
     "CONFIGURATION_DISABLED": {
-      "title": "Funkce je deaktivovaná",
-      "message": "Funkce aplikace řízená konfigurační položkou [{{property}}] je deaktivovaná."
+      "title": "Function is deactivated",
+      "message": "Application function directed by configuration item [{{property}}] is deactivated."
     },
     "TREE_TYPE_DELETE_FAILED_HAS_CHILDREN": {
-      "title": "Typ struktury nelze odebrat",
-      "message": "Typ struktury [{{treeType}}] již obsahuje navázané prvky. Před odebráním tohoto typu odeberte všechny jeho prvky."
+      "title": "Structure cannot be removed",
+      "message": "Structure type [{{treeType}}] has sub elements. Remove all sub elements first."
     },
     "TREE_TYPE_DELETE_FAILED_HAS_CONTRACTS": {
-      "title": "Typ struktury nelze odebrat",
-      "message": "Typ struktury [{{treeType}}] je již použit v pracovně právních vztazích. Před odebráním tohoto typu upravte všechny vztahy."
+      "title": "Structure cannot be removed",
+      "message": "Structure type [{{treeType}}] is used in contracted positions. Edit all used contracted positions before removing."
     },
     "TREE_NODE_DELETE_FAILED_HAS_CHILDREN": {
-      "title": "Prvek struktury nelze odebrat",
-      "message": "Prvek struktury [{{treeNode}}] již obsahuje navázané prvky. Před odebráním tohoto prvku odeberte všechny jeho podřízené prvky."
+      "title": "Structure element cannot be removed",
+      "message": "Structure element [{{treeNode}}] has sub elements. Remove all sub elements first."
     },
     "TREE_NODE_DELETE_FAILED_HAS_CONTRACTS": {
-      "title": "Prvek struktury nelze odebrat",
-      "message": "Prvek struktury [{{treeNode}}] je již použit v pracovně právních vztazích. Před odebráním tohoto prvku upravte všechny vztahy."
+      "title": "Structure element cannot be removed",
+      "message": "Structure element [{{treeNode}}] is used in contracted positions. Edit all used contracted positions before removing."
     },
     "TREE_NODE_BAD_TYPE": {
       "title": "Wrong element type",
@@ -2457,7 +2442,7 @@
     },
     "GROOVY_SCRIPT_VALIDATION": {
       "title": "Groovy script contains compile errors",
-      "message": ""
+      "message": "Groovy script contains compile errors"
     },
     "GROOVY_SCRIPT_SECURITY_VALIDATION": {
       "title": "Groovy script did not past safety check!",
@@ -2465,7 +2450,7 @@
     },
     "ROLE_CATALOGUE_DELETE_FAILED_HAS_CHILDREN": {
       "title": "Role catalog cannot be removed",
-      "message": "Role catalog [{{roleCatalogue}}] contains child catalog. Remove all child catalogues first."
+      "message": "Role catalog [{{roleCatalogue}}] contains child catalog. Remove all child catalogs first."
     },
     "ROLE_CATALOGUE_BAD_NICE_NAME" : {
       "title": "Duplicate name for user",
@@ -2480,24 +2465,24 @@
       "message": "Please check filled values."
     },
     "LONG_RUNNING_TASK_FAILED": {
-      "title": "Zpracování úlohy selhalo",
-      "message": "Zpracování úlohy [{{taskType}}] na instanci [{{instanceId}}] selhalo."
+      "title": "Task run failed",
+      "message": "Task run [{{taskType}}] on instance [{{instanceId}}] failed."
     },
     "SCHEDULER_INVALID_CRON_EXPRESSION": {
-      "title": "Chybný cron výraz",
-      "message": "Zadaný cron výraz [{{cron}}] není validní."
+      "title": "Invalid cron expression",
+      "message": "Setted cron expression [{{cron}}] is invalid."
     },
     "LONG_RUNNING_TASK_INTERRUPT": {
-      "title": "Zpracování úlohy bylo přerušeno",
-      "message": "Zpracování úlohy [{{taskType}}] na instanci [{{instanceId}}] bylo přerušeno ukončením vlákna."
+      "title": "Task run was canceled",
+      "message": "Task run [{{taskType}}] on instance [{{instanceId}}] was interrupted by end of thread."
     },
     "LONG_RUNNING_TASK_CANCELED_BY_RESTART": {
-      "title": "Zpracování úlohy bylo přerušeno",
-      "message": "Zpracování úlohy [{{taskType}}] na instanci [{{instanceId}}] bylo přerušeno - instance byla v průběhu zpracování vypnuta."
+      "title": "Task run was canceled",
+      "message": "Task run [{{taskType}}] on instance [{{instanceId}}] was interrupted - instance was canceled during processing."
     },
     "LONG_RUNNING_TASK_NOT_RUNNING": {
       "title": "The task is already running",
-      "message": "Task [{{taskType}}] on instance [{{instanceId}}] already ended."
+      "message": "Task [{{taskType}}] on instance [{{instanceId}}] already finished."
     },
     "LONG_RUNNING_TASK_INIT_FAILED": {
       "title": "Task has invalid configuration",
@@ -2515,6 +2500,10 @@
       "title": "System template cant be deleted",
       "message": "[{{template}}] is system template, it can't be deleted."
     },
+    "NOTIFICATION_TOPIC_AND_LEVEL_EXISTS": {
+      "title": "Configuration can not be saved",
+      "message": "Topic [{{topic}}] and null level exists!."
+    },
     "ACCEPTED": {
       "title": "Request added",
       "message": "Request will be proccesed / approved."
@@ -2522,14 +2511,12 @@
   },
   "validationError": {
     "string": {
-      "min_1" : "Enter at least one character!",
-      "min_2" : "Enter at least two characters!",
-      "min_5" : "Enter at least {{count}} characters!",
+      "min" : "Enter at least one character!",
+      "min_plural" : "Enter at least {{count}} characters!",
       "base" : "Required field!",
       "email": "format of e-mail is not valid!",
-      "max_1" : "Enter the maximum {{count}} character!",
-      "max_2" : "Enter the maximum {{count}} characters!",
-      "max_5" : "Enter the maximum {{count}} characters!"
+      "max" : "Enter the maximum {{count}} character!",
+      "max_plural" : "Enter the maximum {{count}} characters!"
     },
     "boolean": {
       "base": "$t(validationError.string.base)"
@@ -2543,9 +2530,8 @@
     },
     "array" : {
       "base" : "$t(validationError.string.base)",
-      "min_1" : "Enter at least one item!",
-      "min_2" : "Enter at least two items!",
-      "min_5" : "Enter at least {{count}} items!"
+      "min" : "Enter at least one item!",
+      "min_plural" : "Enter at least {{count}} items!"
     },
     "date" : {
      "unvalid" : "Invalid date!"

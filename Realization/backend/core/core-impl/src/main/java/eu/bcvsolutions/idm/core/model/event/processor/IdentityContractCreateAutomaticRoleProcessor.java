@@ -21,6 +21,8 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
 /**
  * Automatic roles recount while enabled identity cotract is created
  * 
+ * TODO: integrate with role requests
+ * 
  * @author Radek Tomiška
  *
  */
@@ -28,6 +30,7 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
 @Description("Automatic roles recount while enabled identity cotract is created.")
 public class IdentityContractCreateAutomaticRoleProcessor extends CoreEventProcessor<IdmIdentityContract> {
 	
+	public static final String PROCESSOR_NAME = "identity-contract-create-automatic-role-processor";
 	@Autowired
 	private IdmRoleTreeNodeService roleTreeNodeService;
 //	@Autowired
@@ -39,6 +42,11 @@ public class IdentityContractCreateAutomaticRoleProcessor extends CoreEventProce
 	
 	public IdentityContractCreateAutomaticRoleProcessor() {
 		super(IdentityContractEventType.CREATE);
+	}
+	
+	@Override
+	public String getName() {
+		return PROCESSOR_NAME;
 	}
 
 	@Override

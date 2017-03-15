@@ -284,6 +284,7 @@ public class DefaultSysSystemAttributeMappingService
 		attributeDefinition.setMultiple(schemaAttribute.isMultivalued());
 		attributeDefinition.setReadonly(!schemaAttribute.isUpdateable());
 		attributeDefinition.setConfidential(entity.isConfidentialAttribute());
+		attributeDefinition.setSystemAttribute(false); // attribute can be deleted
 		attributeDefinition.setDescription(
 				MessageFormat.format("Genereted by schema attribute {0} in resource {1}. Created by SYSTEM.",
 						schemaAttribute.getName(), schemaAttribute.getObjectClass().getSystem().getName()));

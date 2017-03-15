@@ -11,13 +11,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
-import eu.bcvsolutions.idm.core.api.dto.filter.EmptyFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
+import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 import eu.bcvsolutions.idm.core.eav.entity.AbstractFormValue;
@@ -37,7 +40,7 @@ import eu.bcvsolutions.idm.core.rest.impl.DefaultReadWriteEntityController;
 @RepositoryRestController
 @PreAuthorize("hasAuthority('" + IdmGroupPermission.APP_ADMIN + "')")
 @RequestMapping(value = BaseEntityController.BASE_PATH + "/form-definitions")
-public class IdmFormDefinitionController extends DefaultReadWriteEntityController<IdmFormDefinition, EmptyFilter>  {
+public class IdmFormDefinitionController extends DefaultReadWriteEntityController<IdmFormDefinition, QuickFilter>  {
 
 	private final FormService formService;
 	
@@ -86,6 +89,14 @@ public class IdmFormDefinitionController extends DefaultReadWriteEntityControlle
 		Assert.notNull(owner); 
 		//
 		return toResources(formService.getValues(owner, getDefinition(owner.getClass(), formDefinition)), assembler, owner.getClass(), null);
+	}
+	
+	@ResponseBody
+	@RequestMapping(value = "/search/types", method = RequestMethod.GET)
+	public ResponseEntity<ResourcesWrapper<String>>  getFormDefinition() {
+		List<String> types = formService.getTypes();
+		ResourcesWrapper<String> resource = new ResourcesWrapper<>(types);
+		return new ResponseEntity<ResourcesWrapper<String>>(resource, HttpStatus.OK);
 	}
 	
 	/**

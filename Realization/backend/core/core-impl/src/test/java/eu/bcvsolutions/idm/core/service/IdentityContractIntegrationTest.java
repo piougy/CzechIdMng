@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import org.joda.time.LocalDate;
 import org.junit.After;
@@ -352,5 +353,46 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 		//
 		roleTreeNodeService.delete(automaticRoleA);
 		assertTrue(identityRoleService.getRoles(contract).isEmpty());
+	}
+	
+	@Test
+	public void testDontRemoveSameRole() {
+		IdmRoleTreeNodeDto automaticRoleF = new IdmRoleTreeNodeDto();
+		automaticRoleF.setRecursionType(RecursionType.UP);
+		automaticRoleF.setRole(roleA.getId());
+		automaticRoleF.setTreeNode(nodeF.getId());
+		automaticRoleF = roleTreeNodeService.save(automaticRoleF);
+		//
+		IdmRoleTreeNodeDto automaticRoleE = new IdmRoleTreeNodeDto();
+		automaticRoleE.setRecursionType(RecursionType.NO);
+		automaticRoleE.setRole(roleA.getId());
+		automaticRoleE.setTreeNode(nodeE.getId());
+		automaticRoleE = roleTreeNodeService.save(automaticRoleE);
+		//
+		// prepare identity and contract
+		IdmIdentity identity = helper.createIdentity("test");
+		IdmIdentityContract contract = new IdmIdentityContract();
+		contract.setIdentity(identity);
+		contract.setWorkingPosition(nodeF);
+		contract = identityContractService.save(contract);
+		//
+		// check assigned role after creation 
+		List<IdmIdentityRole> identityRoles = identityRoleService.getRoles(contract);
+		assertEquals(1, identityRoles.size());
+		assertEquals(roleA, identityRoles.get(0).getRole());
+		assertEquals(automaticRoleF.getId(), identityRoles.get(0).getRoleTreeNode().getId());
+		//
+		UUID id = identityRoles.get(0).getId();
+		//
+		// change
+		contract.setWorkingPosition(nodeE);
+		contract = identityContractService.save(contract);
+		//
+		// check assigned role after creation 
+		identityRoles = identityRoleService.getRoles(contract);
+		assertEquals(1, identityRoles.size());
+		assertEquals(roleA, identityRoles.get(0).getRole());
+		assertEquals(automaticRoleE.getId(), identityRoles.get(0).getRoleTreeNode().getId());
+		assertEquals(id, identityRoles.get(0).getId());
 	}
 }

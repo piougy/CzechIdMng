@@ -49,7 +49,7 @@ export default class TemplateDetail extends Basic.AbstractContent {
       const loadedEntity = _.merge({}, entity);
       //
       this.refs.form.setData(loadedEntity);
-      this.refs.name.focus();
+      this.refs.code.focus();
     }
   }
 
@@ -153,20 +153,20 @@ export default class TemplateDetail extends Basic.AbstractContent {
               ref="parameter" readOnly={entity.systemTemplate} max={255}
               label={this.i18n('entity.NotificationTemplate.parameter.name')}
               helpBlock={this.i18n('entity.NotificationTemplate.parameter.help')} />
-            <Basic.Checkbox readOnly={entity.systemTemplate}
-              ref="systemTemplate"
-              label={this.i18n('entity.NotificationTemplate.systemTemplate.name')}
-              helpBlock={this.i18n('entity.NotificationTemplate.systemTemplate.help')}/>
             <Basic.TextField
               ref="subject"
               label={this.i18n('entity.NotificationTemplate.subject')}
               required
               max={255}/>
+            <Basic.Checkbox readOnly={entity.systemTemplate}
+              ref="systemTemplate"
+              label={this.i18n('entity.NotificationTemplate.systemTemplate.name')}
+              helpBlock={this.i18n('entity.NotificationTemplate.systemTemplate.help')}/>
+            <Basic.TextArea ref="bodyText" label={this.i18n('entity.NotificationTemplate.bodyText')} />
             <Basic.RichTextArea ref="bodyHtml" label={this.i18n('entity.NotificationTemplate.bodyHtml.name')}
               showToolbar
               helpBlock={this.i18n('entity.NotificationTemplate.bodyHtml.help')}
               mentions={this.getParameters()}/>
-            <Basic.TextArea ref="bodyText" label={this.i18n('entity.NotificationTemplate.bodyText')} />
           </Basic.AbstractForm>
 
           <Basic.PanelFooter showLoading={showLoading} >

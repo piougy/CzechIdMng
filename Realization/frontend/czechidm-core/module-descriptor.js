@@ -566,9 +566,29 @@ module.exports = {
             'titleKey': 'content.formDefinitions.title',
             'icon': 'fa:wpforms',
             'iconColor': '#000000',
-            'order': 26,
+            'order': 30,
             'path': '/forms',
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['EAV_FORM_DEFINITIONS_READ'] } ],
+            'items': [
+              {
+                'id': 'forms-detail',
+                'labelKey': 'content.formDefinitions.detail.title',
+                'order': 10,
+                'path': '/forms/:entityId/detail',
+                'icon': '',
+                'type': 'TAB',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['EAV_FORM_DEFINITIONS_READ'] } ]
+              },
+              {
+                'id': 'forms-attributes',
+                'labelKey': 'content.formDefinitions.attributes.title',
+                'order': 100,
+                'path': '/forms/:entityId/attributes',
+                'icon': '',
+                'type': 'TAB',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['EAV_FORM_ATTRIBUTES_READ'] } ]
+              }
+            ]
           }
         ]
       },

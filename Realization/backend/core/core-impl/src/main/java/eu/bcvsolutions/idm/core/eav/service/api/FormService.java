@@ -368,4 +368,11 @@ public interface FormService {
 	 * @return
 	 */
 	<O extends FormableEntity> Page<O> findOwners(Class<O> ownerClass, String attributeName, Serializable persistentValue, Pageable pageable);
+	
+	/**
+	 * Method return full class name of all entity that implements {@link FormableEntity}
+	 * 
+	 * @return
+	 */
+	List<String> getTypes();
 }

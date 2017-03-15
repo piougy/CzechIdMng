@@ -1,25 +1,20 @@
 import React, { PropTypes } from 'react';
-import * as Basic from '../../components/basic';
-import { FormAttributeManager } from '../../redux';
-import _ from 'lodash';
+import { connect } from 'react-redux';
 //
-import FormAttributeTable from './FormAttributeTable';
+import * as Basic from '../../components/basic';
+import { FormDefinitionManager, SecurityManager } from '../../redux';
 
-/**
- * Form attribute manager for saving attributes
- * @type {FormAttributeManager}
- */
-const attributeManager = new FormAttributeManager();
+const manager = new FormDefinitionManager();
 
 /**
 * Form detail
 */
-export default class FormDetail extends Basic.AbstractContent {
+class FormDetail extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
     this.state = {
-      showLoading: false,
+      _showLoading: true,
     };
   }
 
@@ -28,13 +23,26 @@ export default class FormDetail extends Basic.AbstractContent {
   }
 
   componentDidMount() {
-    const { entity } = this.props;
-    this.selectNavigationItem('forms');
-    if (entity !== undefined) {
-      const loadedEntity = _.merge({ }, entity);
-      this.refs.form.setData(loadedEntity);
-      // focus is not neccessary
-      // this.refs.code.focus();
+    this.selectNavigationItems(['system', 'forms', 'forms-detail']);
+    const { entityId } = this.props.params;
+    const { isNew } = this.props;
+
+    if (isNew) {
+      this.context.store.dispatch(manager.fetchEntities(manager.getDefinitionTypesSearchParameters(), null, (typesFromBe) => {
+        const types = typesFromBe._embedded.resources.map(item => { return {value: item, niceLabel: item }; });
+        this.setState({
+          types,
+          _showLoading: false
+        });
+      }));
+      this.context.store.dispatch(manager.receiveEntity(entityId, { }));
+    } else {
+      this.getLogger().debug(`[FormDetail] loading entity detail [id:${entityId}]`);
+      this.context.store.dispatch(manager.fetchEntity(entityId, null, () => {
+        this.setState({
+          _showLoading: false
+        });
+      }));
     }
   }
 
@@ -49,17 +57,17 @@ export default class FormDetail extends Basic.AbstractContent {
     }
 
     this.setState({
-      showLoading: true
+      _showLoading: true
     }, this.refs.form.processStarted());
 
     const entity = this.refs.form.getData();
 
     if (entity.id === undefined) {
-      this.context.store.dispatch(this.roleCatalogueManager.createEntity(entity, `${uiKey}-detail`, (createdEntity, error) => {
+      this.context.store.dispatch(manager.createEntity(entity, `${uiKey}-detail`, (createdEntity, error) => {
         this._afterSave(createdEntity, error);
       }));
     } else {
-      this.context.store.dispatch(this.roleCatalogueManager.patchEntity(entity, `${uiKey}-detail`, this._afterSave.bind(this)));
+      this.context.store.dispatch(manager.patchEntity(entity, `${uiKey}-detail`, this._afterSave.bind(this)));
     }
   }
 
@@ -68,58 +76,87 @@ export default class FormDetail extends Basic.AbstractContent {
   * Call after save/create
   */
   _afterSave(entity, error) {
+    const { isNew } = this.props;
     if (error) {
       this.setState({
-        showLoading: false
+        _showLoading: false
       }, this.refs.form.processEnded());
       this.addError(error);
       return;
     }
-    this.context.store.dispatch(this.roleCatalogueManager.clearEntities());
     this.addMessage({ message: this.i18n('save.success', { name: entity.name }) });
-    this.context.router.replace(`role-catalogues`);
-  }
-
-  closeDetail() {
+    if (isNew) {
+      this.context.router.replace(`/forms`);
+    }
   }
 
   render() {
-    const { uiKey, entity } = this.props;
-    const { showLoading } = this.state;
+    const { uiKey, entity, showLoading, isNew } = this.props;
+    const { types, _showLoading } = this.state;
 
     return (
-      <div>
-        <form onSubmit={this.save.bind(this)}>
-          <Basic.AbstractForm showLoading={showLoading} ref="form" uiKey={uiKey} readOnly style={{ padding: '15px 15px 0 15px' }}>
+      <form onSubmit={this.save.bind(this)}>
+        <Basic.Panel className={isNew ? '' : 'no-border last'} showLoading={showLoading || _showLoading}>
+          <Basic.PanelHeader text={isNew ? this.i18n('create.header') : this.i18n('content.formDefinitions.detail.title')} />
+          <Basic.PanelBody style={isNew ? { paddingTop: 0, paddingBottom: 0 } : { padding: 0 }}>
+            <Basic.AbstractForm ref="form" uiKey={uiKey} data={entity}
+            readOnly={!SecurityManager.hasAuthority('EAV_FORM_DEFINITIONS_WRITE')} rendered={!(showLoading || _showLoading)}>
             <Basic.TextField
               ref="name"
               label={this.i18n('entity.FormDefinition.name')}
-              readOnly
-              required
+              readOnly={!isNew}
               max={255}/>
-            <Basic.TextField
-              ref="type"
-              readOnly
-              label={this.i18n('entity.FormDefinition.type')}
-              max={255}
-              required/>
+            {
+              isNew
+              ?
+              <Basic.EnumSelectBox
+                ref="type"
+                placeholder={this.i18n('entity.FormDefinition.type')}
+                required
+                showLoading={types}
+                options={types}/>
+              :
+              <Basic.TextField
+                ref="type"
+                readOnly={!isNew}
+                label={this.i18n('entity.FormDefinition.type')}
+                max={255}/>
+            }
           </Basic.AbstractForm>
-
-          <FormAttributeTable
-            attributeManager={attributeManager}
-            uiKey="form-attributes-tables" formDefinition={entity} />
-
+          </Basic.PanelBody>
           <Basic.PanelFooter showLoading={showLoading} >
             <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>{this.i18n('button.back')}</Basic.Button>
+            <Basic.Button
+              type="submit"
+              level="success"
+              showLoadingIcon
+              showLoadingText={this.i18n('button.saving')}
+              rendered={SecurityManager.hasAuthority('EAV_FORM_DEFINITIONS_WRITE')}>
+              {this.i18n('button.save')}
+            </Basic.Button>
           </Basic.PanelFooter>
-        </form>
-      </div>
+        </Basic.Panel>
+      </form>
     );
   }
 }
 
 FormDetail.propTypes = {
-  entity: PropTypes.object,
-  uiKey: PropTypes.string.isRequired,
-  definitionManager: PropTypes.object
+  uiKey: PropTypes.string,
+  definitionManager: PropTypes.object,
+  isNew: PropTypes.bool
 };
+FormDetail.defaultProps = {
+  isNew: false,
+};
+
+function select(state, component) {
+  const { entityId } = component.params;
+  //
+  return {
+    entity: manager.getEntity(state, entityId),
+    showLoading: manager.isShowLoading(state, null, entityId)
+  };
+}
+
+export default connect(select)(FormDetail);

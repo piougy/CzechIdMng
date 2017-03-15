@@ -20,7 +20,7 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
  *
  */
 @Component
-@Description("Creates automatic role.")
+@Description("Persists automatic role.")
 public class RoleTreeNodeSaveProcessor extends CoreEventProcessor<IdmRoleTreeNodeDto> {
 	
 	public static final String PROCESSOR_NAME = "role-tree-node-save-processor";

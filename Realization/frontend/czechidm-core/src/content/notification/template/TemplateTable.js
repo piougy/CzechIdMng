@@ -107,23 +107,11 @@ export class TemplateTable extends Basic.AbstractContent {
                   <Basic.Row>
                     <div className="col-lg-6">
                       <Advanced.Filter.TextField
-                        ref="name"
-                        placeholder={this.i18n('entity.NotificationTemplate.name')}/>
+                        ref="text"
+                        placeholder={this.i18n('filter.text')}/>
                     </div>
                     <div className="col-lg-6 text-right">
                       <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
-                    </div>
-                  </Basic.Row>
-                  <Basic.Row>
-                    <div className="col-lg-6">
-                      <Advanced.Filter.TextField
-                        ref="code"
-                        placeholder={this.i18n('entity.NotificationTemplate.code')}/>
-                    </div>
-                    <div className="col-lg-6">
-                      <Advanced.Filter.TextField
-                        ref="subject"
-                        placeholder={this.i18n('entity.NotificationTemplate.subject')}/>
                     </div>
                   </Basic.Row>
                 </Basic.AbstractForm>

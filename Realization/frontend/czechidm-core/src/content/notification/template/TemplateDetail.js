@@ -49,7 +49,7 @@ export default class TemplateDetail extends Basic.AbstractContent {
       const loadedEntity = _.merge({}, entity);
       //
       this.refs.form.setData(loadedEntity);
-      this.refs.name.focus();
+      this.refs.code.focus();
     }
   }
 

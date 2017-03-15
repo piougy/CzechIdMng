@@ -1649,6 +1649,9 @@
       "titleNew": "New template",
       "save": {
         "success": "Template [{{name}}] was successfully saved."
+      },
+      "filter": {
+        "text": "Name / Subject / Code"
       }
     },
     "emails": {
@@ -2512,6 +2515,10 @@
     "NOTIFICATION_SYSTEM_TEMPLATE_DELETE_FAILED": {
       "title": "System template cant be deleted",
       "message": "[{{template}}] is system template, it can't be deleted."
+    },
+    "NOTIFICATION_TOPIC_AND_LEVEL_EXISTS": {
+      "title": "Configuration can not be saved",
+      "message": "Topic [{{topic}}] and null level exists!."
     },
     "ACCEPTED": {
       "title": "Request added",

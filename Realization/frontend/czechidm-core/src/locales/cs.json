@@ -1650,6 +1650,9 @@
       "titleNew": "Nová šablona",
       "save": {
         "success": "Šablona [{{name}}] byla úspěšně uložena."
+      },
+      "filter": {
+        "text": "Jméno / Předmět / Kód"
       }
     },
     "emails": {
@@ -2507,6 +2510,10 @@
     "NOTIFICATION_SYSTEM_TEMPLATE_DELETE_FAILED": {
       "title": "Systémová šablona nemůže být smazána",
       "message": "Šablona [{{template}}] je systémová a nemůže být odebrána."
+    },
+    "NOTIFICATION_TOPIC_AND_LEVEL_EXISTS": {
+      "title": "Konfigurace nemůže být uložena",
+      "message": "Topic [{{topic}}] a null level již existuje."
     },
     "ACCEPTED": {
       "title": "Požadavek přijat",

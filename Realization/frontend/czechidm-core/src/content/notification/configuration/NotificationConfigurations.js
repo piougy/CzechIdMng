@@ -59,6 +59,7 @@ export default class NotificationConfigurations extends Basic.AbstractTableConte
 
   afterSave(entity, error) {
     if (!error) {
+      this.refs.table.getWrappedInstance().reload();
       this.addMessage({ message: this.i18n('save.success', { name: this.getManager().getNiceLabel(entity) }) });
     }
     //

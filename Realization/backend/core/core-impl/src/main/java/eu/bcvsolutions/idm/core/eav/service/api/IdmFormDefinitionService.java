@@ -1,6 +1,6 @@
 package eu.bcvsolutions.idm.core.eav.service.api;
 
-import eu.bcvsolutions.idm.core.api.dto.filter.EmptyFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 
@@ -10,7 +10,7 @@ import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
  * @author Radek Tomiška
  *
  */
-public interface IdmFormDefinitionService extends ReadWriteEntityService<IdmFormDefinition, EmptyFilter> {
+public interface IdmFormDefinitionService extends ReadWriteEntityService<IdmFormDefinition, QuickFilter> {
 
 	/**
 	 * Default definition name for type (if no name is given)

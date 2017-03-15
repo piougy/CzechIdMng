@@ -979,11 +979,23 @@
       "header": "Definice formulářů",
       "title": "Definice formulářů",
       "edit": {
-        "title": "Detail definice formuláře",
-        "header": "{{name}} detail formuláře"
+        "title": "Detail definice formuláře"
+      },
+      "create": {
+        "title": "Nová definice formuláře",
+        "header": "Nová definice formuláře"
       },
       "filter": {
-        "text": "Název / Popis"
+        "text": "Název"
+      },
+      "attributes": {
+        "title": "Attributy formuláře"
+      },
+      "detail": {
+        "title": "Základní informace"
+      },
+      "save": {
+        "success": "Definice [{{name}}] byla úspěšně uložena"
       }
     },
     "formAttributes": {
@@ -1001,7 +1013,7 @@
         "success": "Atribut [{{name}}] byl úspěšně uložen"
       },
       "filter": {
-        "text": "Název / Popis"
+        "name": "Název položky"
       }
     },
     "scripts": {
@@ -1850,7 +1862,8 @@
       "confidential": "Tajné",
       "multiple": "Více hodnotový",
       "placeholder": "Placeholder",
-      "defaultValue": "Výchozí hodnota"
+      "defaultValue": "Výchozí hodnota",
+      "systemAttribute": "Systémový atribut"
     },
     "Role": {
       "_type": "Role",

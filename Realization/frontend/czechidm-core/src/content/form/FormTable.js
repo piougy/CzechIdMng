@@ -1,8 +1,9 @@
 import React, { PropTypes } from 'react';
+import uuid from 'uuid';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
-
+import { SecurityManager } from '../../redux';
 
 /**
 * Table of forms definitions (attributes is show in detail)
@@ -39,8 +40,36 @@ export default class FormTable extends Basic.AbstractContent {
   }
 
   showDetail(entity) {
-    // form definitions can't be created
-    this.context.router.push('/forms/' + entity.id);
+    if (entity.id === undefined) {
+      const uuidId = uuid.v1();
+      this.context.router.push(`/forms/${uuidId}/detail?new=1`);
+    } else {
+      this.context.router.push('/forms/' + entity.id + '/detail');
+    }
+  }
+
+  onDelete(bulkActionValue, selectedRows) {
+    const { uiKey, definitionManager } = this.props;
+    const selectedEntities = definitionManager.getEntitiesByIds(this.context.store.getState(), selectedRows);
+    //
+    // show confirm message for deleting entity or entities
+    this.refs['confirm-' + bulkActionValue].show(
+      this.i18n(`action.${bulkActionValue}.message`, { count: selectedEntities.length, record: definitionManager.getNiceLabel(selectedEntities[0]), records: definitionManager.getNiceLabels(selectedEntities).join(', ') }),
+      this.i18n(`action.${bulkActionValue}.header`, { count: selectedEntities.length, records: definitionManager.getNiceLabels(selectedEntities).join(', ') })
+    ).then(() => {
+      // try delete
+      this.context.store.dispatch(definitionManager.deleteEntities(selectedEntities, uiKey, (entity, error, successEntities) => {
+        if (entity && error) {
+          this.addErrorMessage({ title: this.i18n(`action.delete.error`, { record: definitionManager.getNiceLabel(entity) }) }, error);
+        }
+        if (!error && successEntities) {
+          // refresh data in table
+          this.refs.table.getWrappedInstance().reload();
+        }
+      }));
+    }, () => {
+      //
+    });
   }
 
   /**
@@ -58,11 +87,18 @@ export default class FormTable extends Basic.AbstractContent {
     return (
       <Basic.Row>
         <div className="col-lg-12">
+          <Basic.Confirm ref="confirm-delete" level="danger"/>
           <Advanced.Table
             ref="table"
             uiKey={uiKey}
             manager={definitionManager}
+            showRowSelection={SecurityManager.hasAuthority('EAV_FORM_ATTRIBUTES_DELETE')}
             rowClass={({rowIndex, data}) => { return data[rowIndex].disabled ? 'disabled' : ''; }}
+            actions={
+              [
+                { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }
+              ]
+            }
             filter={
               <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
                 <Basic.AbstractForm ref="filterForm">
@@ -83,6 +119,20 @@ export default class FormTable extends Basic.AbstractContent {
                   </Basic.Row>
                 </Basic.AbstractForm>
               </Advanced.Filter>
+            }
+            buttons={
+              [
+                <Basic.Button
+                  level="success"
+                  key="add_button"
+                  className="btn-xs"
+                  onClick={this.showDetail.bind(this, { })}
+                  rendered={SecurityManager.hasAuthority('EAV_FORM_DEFINITIONS_WRITE')}>
+                  <Basic.Icon type="fa" icon="plus"/>
+                  {' '}
+                  {this.i18n('button.add')}
+                </Basic.Button>
+              ]
             }
             filterOpened={!filterOpened}>
             <Advanced.Column
@@ -119,5 +169,5 @@ FormTable.propTypes = {
 };
 
 FormTable.defaultProps = {
-  filterOpened: true,
+  filterOpened: true
 };

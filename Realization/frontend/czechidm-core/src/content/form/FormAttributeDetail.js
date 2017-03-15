@@ -33,10 +33,10 @@ class FormAttributeDetail extends Basic.AbstractContent {
 
   componentDidMount() {
     const { entityId } = this.props.params;
-    this.selectNavigationItem('forms');
+    this.selectNavigationItems(['system', 'forms']);
 
     if (this._getIsNew()) {
-      this.context.store.dispatch(attributeManager.receiveEntity(entityId, { seq: 0, systemAttribute: false }));
+      this.context.store.dispatch(attributeManager.receiveEntity(entityId, { seq: 0, systemAttribute: false, formDefinition: this._getFormDefinitionId() }));
     } else {
       this.getLogger().debug(`[FormAttributeDetail] loading entity detail [id:${entityId}]`);
       this.context.store.dispatch(attributeManager.fetchEntity(entityId));

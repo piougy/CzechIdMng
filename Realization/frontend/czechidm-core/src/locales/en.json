@@ -979,11 +979,23 @@
       "header": "Form definitions",
       "title": "Form definitions",
       "edit": {
-        "title": "Form definition detail",
-        "header": "{{name}} form definition detail"
+        "title": "Form definition detail"
+      },
+      "create": {
+        "title": "New form definition",
+        "header": "New form definition"
       },
       "filter": {
-        "text": "Name / Description"
+        "text": "Name"
+      },
+      "attributes": {
+        "title": "Form Attributes"
+      },
+      "detail": {
+        "title": "Basic information"
+      },
+      "save": {
+        "success": "Form definition [{{name}}] was successfully saved"
       }
     },
     "formAttributes": {
@@ -1001,7 +1013,7 @@
         "success": "Attribute [{{name}}] was successfully saved"
       },
       "filter": {
-        "text": "Name / Description"
+        "name": "Name"
       }
     },
     "scripts": {
@@ -1856,7 +1868,8 @@
       "confidential": "Confidential",
       "multiple": "Multi valued",
       "placeholder": "Placeholder",
-      "defaultValue": "Default value"
+      "defaultValue": "Default value",
+      "systemAttribute": "System attribute"
     },
     "Role": {
       "_type": "Role",

@@ -38,7 +38,6 @@ public class IdmRoleRequestDto extends AbstractDto implements Loggable {
 	private String originalRequest;
 	private List<IdmConceptRoleRequestDto> conceptRoles;
 	private boolean executeImmediately = false;
-	@JsonProperty(access = Access.READ_ONLY)
 	@Embedded(dtoClass = IdmRoleRequestDto.class)
 	private UUID duplicatedToRequest;
 	@JsonProperty(access = Access.READ_ONLY)

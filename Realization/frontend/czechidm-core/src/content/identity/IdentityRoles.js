@@ -2,6 +2,7 @@ import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import _ from 'lodash';
+import uuid from 'uuid';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
@@ -208,21 +209,22 @@ class Roles extends Basic.AbstractContent {
 
   _changePermissions() {
     const { entityId } = this.props.params;
+
     this.setState({
       showLoading: true
     });
-    const promise = identityManager.getService().changePermissions(entityId);
+    const promise = identityManager.getService().getById(entityId);
     promise.then((json) => {
       this.setState({
         showLoading: false
       });
-      this.context.router.push(`/task/${json.id}`);
+      const uuidId = uuid.v1();
+      this.context.router.push({pathname: `/role-requests/${uuidId}/new?new=1&applicantId=${json.id}`, state: {adminMode: false}});
     }).catch(ex => {
       this.setState({
         showLoading: false
       });
       this.addError(ex);
-      this.refs.tableProcesses.getWrappedInstance().reload();
     });
   }
 
@@ -248,20 +250,23 @@ class Roles extends Basic.AbstractContent {
 
   render() {
     const { entityId } = this.props.params;
-    const { _entities, _showLoading, authorities, _showLoadingContracts, _contracts, _hasRoleConcepts } = this.props;
+    const { _entities, _showLoading, authorities, _showLoadingContracts, _contracts } = this.props;
     const { detail } = this.state;
     let force = new SearchParameters();
     force = force.setFilter('identity', entityId);
     force = force.setFilter('category', 'eu.bcvsolutions.role.approve');
     let roleRequestsForceSearch = new SearchParameters();
     roleRequestsForceSearch = roleRequestsForceSearch.setFilter('applicant', entityId);
-    roleRequestsForceSearch = roleRequestsForceSearch.setFilter('state', 'IN_PROGRESS');
+    roleRequestsForceSearch = roleRequestsForceSearch.setFilter('notState', 'CONCEPT');
     let conceptsForceSearch = new SearchParameters();
     conceptsForceSearch = conceptsForceSearch.setFilter('applicant', entityId);
     conceptsForceSearch = conceptsForceSearch.setFilter('state', 'CONCEPT');
-    let hasRoleConcepts = _hasRoleConcepts;
-    if (!this.context.store.getState().data.ui['table-applicant-concepts']) {
-      hasRoleConcepts = true;
+    let hasRoleConcepts = true;
+    const uiKeyConceptTable = `table-applicant-concepts-${entityId}`;
+
+    if (this.context.store.getState().data.ui[uiKeyConceptTable]
+      && !(this.context.store.getState().data.ui[uiKeyConceptTable].total > 0)) {
+      hasRoleConcepts = false;
     }
 
     //
@@ -386,11 +391,11 @@ class Roles extends Basic.AbstractContent {
                   }
                 </Basic.Panel>
 
-                <Basic.Panel rendered={hasRoleConcepts}>
+                <Basic.Panel style={{display: hasRoleConcepts ? 'block' : 'none'}}>
                   <Basic.PanelHeader text={this.i18n('conceptPermissionRequests.header')}/>
                     <RoleRequestTable
                       ref="conceptTable"
-                      uiKey={'table-applicant-concepts'}
+                      uiKey={uiKeyConceptTable}
                       showFilter={false}
                       adminMode={false}
                       showLoading={_showLoading}
@@ -594,11 +599,6 @@ Roles.defaultProps = {
 
 function select(state, component) {
   let addRoleProcessIds;
-  let _hasRoleConcepts = false;
-  if (state.data.ui['table-applicant-concepts'] && state.data.ui['table-applicant-concepts'].items
-    && state.data.ui['table-applicant-concepts'].items.length > 0) {
-    _hasRoleConcepts = true;
-  }
   if (state.data.ui['table-processes'] && state.data.ui['table-processes'].items) {
     addRoleProcessIds = state.data.ui['table-processes'].items;
   }
@@ -609,7 +609,6 @@ function select(state, component) {
     _showLoadingContracts: identityContractManager.isShowLoading(state, `${uiKeyContracts}-${component.params.entityId}`),
     _contracts: identityContractManager.getEntities(state, `${uiKeyContracts}-${component.params.entityId}`),
     _addRoleProcessIds: addRoleProcessIds,
-    _hasRoleConcepts,
     authorities: DataManager.getData(state, `${uiKeyAuthorities}-${component.params.entityId}`),
     userContext: state.security.userContext
   };

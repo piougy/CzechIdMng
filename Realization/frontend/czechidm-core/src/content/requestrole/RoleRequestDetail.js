@@ -1,6 +1,7 @@
 import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
+import _ from 'lodash';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
@@ -38,8 +39,9 @@ class RoleRequestDetail extends Basic.AbstractTableContent {
 
   componentWillReceiveProps(nextProps) {
     const {_request} = nextProps;
-    const {entityId} = nextProps.params;
-    if (entityId && entityId !== this.props.params.entityId) {
+    const entityId = nextProps.entityId ? nextProps.entityId : nextProps.params.entityId;
+    const entityIdCurrent = this.props.entityId ? this.props.entityId : this.props.params.entityId;
+    if (entityId && entityId !== entityIdCurrent) {
       this._initComponent(nextProps);
     }
     if (_request && _request !== this.props._request) {
@@ -61,23 +63,23 @@ class RoleRequestDetail extends Basic.AbstractTableContent {
    * @param  {properties of component} props For didmount call is this.props for call from willReceiveProps is nextProps.
    */
   _initComponent(props) {
-    const { entityId, adminMode} = props.params;
-    const _adminMode = props.location.state ? props.location.state.adminMode : adminMode;
-
+    const { entityId} = props;
+    const _entityId = entityId ? entityId : props.params.entityId;
+    const adminMode = props.adminMode !== undefined ? props.adminMode : props.location.state.adminMode;
     if (this._getIsNew(props)) {
       this.setState({
-        adminMode: _adminMode,
+        adminMode,
         request: {
           applicant: props.location.query.applicantId,
           state: RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.CONCEPT),
           requestedByType: 'MANUALLY'
         }}, () => {
-        this.save(null);
+        this.save(null, false);
       });
     } else {
-      this.context.store.dispatch(roleRequestManager.fetchEntity(entityId));
+      this.context.store.dispatch(roleRequestManager.fetchEntity(_entityId));
       this.setState({
-        adminMode: _adminMode
+        adminMode
       });
     }
   }
@@ -125,7 +127,7 @@ class RoleRequestDetail extends Basic.AbstractTableContent {
       const {adminMode} = this.state;
       this.addMessage({ message: this.i18n('save.success') });
       if (this._getIsNew()) {
-        this.context.router.replace(`/role-requests/${entity.id}/detail`, {entityId: entity.id, adminMode});
+        this.context.router.replace({pathname: `/role-requests/${entity.id}/detail`, param: {entityId: entity.id}, state: {adminMode}});
       }
     } else {
       this.addError(error);
@@ -145,8 +147,11 @@ class RoleRequestDetail extends Basic.AbstractTableContent {
   }
 
   _getIsNew(nextProps) {
-    const { query } = nextProps ? nextProps.location : this.props.location;
-    return (query) ? query.new : null;
+    if ((nextProps && nextProps.location) || this.props.location) {
+      const { query } = nextProps ? nextProps.location : this.props.location;
+      return (query) ? query.new : null;
+    }
+    return false;
   }
 
   _removeConcept(data, type) {
@@ -295,17 +300,14 @@ class RoleRequestDetail extends Basic.AbstractTableContent {
   }
 
   render() {
-    const { _showLoading, _request, _currentIdentityRoles, adminMode} = this.props;
+    const { _showLoading, _request, _currentIdentityRoles, adminMode, editableInStates, showRequestDetail} = this.props;
 
     const _adminMode = this.state.adminMode !== null ? this.state.adminMode : adminMode;
     const forceSearchParameters = new SearchParameters().setFilter('roleRequestId', _request ? _request.id : SearchParameters.BLANK_UUID);
     const isNew = this._getIsNew();
     const request = isNew ? this.state.request : _request;
     const showLoading = !request || _showLoading;
-    const isEditable = _request && (
-             _request.state === RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.CONCEPT)
-          || _request.state === RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.EXCEPTION)
-          || _request.state === RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.DUPLICATED));
+    const isEditable = request && _.includes(editableInStates, request.state);
 
     const addedIdentityRoles = [];
     const changedIdentityRoles = [];
@@ -314,15 +316,15 @@ class RoleRequestDetail extends Basic.AbstractTableContent {
       const conceptRoles = request.conceptRoles;
       for (const concept of conceptRoles) {
         if (concept.operation === ConceptRoleRequestOperationEnum.findKeyBySymbol(ConceptRoleRequestOperationEnum.ADD)
-          && concept.state === RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.CONCEPT)) {
+          && concept.state !== RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.EXECUTED)) {
           addedIdentityRoles.push(concept);
         }
         if (concept.operation === ConceptRoleRequestOperationEnum.findKeyBySymbol(ConceptRoleRequestOperationEnum.UPDATE)
-          && concept.state === RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.CONCEPT)) {
+          && concept.state !== RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.EXECUTED)) {
           changedIdentityRoles.push(concept);
         }
         if (concept.operation === ConceptRoleRequestOperationEnum.findKeyBySymbol(ConceptRoleRequestOperationEnum.REMOVE)
-          && concept.state === RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.CONCEPT)) {
+          && concept.state !== RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.EXECUTED)) {
           removedIdentityRoles.push(concept.identityRole);
         }
       }
@@ -330,15 +332,15 @@ class RoleRequestDetail extends Basic.AbstractTableContent {
 
     return (
       <div>
-        <form onSubmit={this.save.bind(this)}>
+        <form onSubmit={this.save.bind(this, false)}>
           <Helmet title={this.i18n('title')} />
           <Basic.Confirm ref="confirm-delete" level="danger"/>
-          <Basic.ContentHeader>
+          <Basic.ContentHeader rendered={showRequestDetail}>
             <Basic.Icon value="compressed"/>
             {' '}
             <span dangerouslySetInnerHTML={{ __html: this.i18n('header') }}/>
           </Basic.ContentHeader>
-          <Basic.Panel>
+          <Basic.Panel rendered={showRequestDetail}>
             <Basic.AbstractForm readOnly={!isEditable} ref="form" data={request} showLoading={showLoading} style={{ padding: '15px 15px 0 15px' }}>
               <Basic.Row>
                 <div className="col-lg-6">
@@ -358,7 +360,7 @@ class RoleRequestDetail extends Basic.AbstractTableContent {
                     level="success"
                     disabled={!isEditable}
                     showLoading={showLoading}
-                    onClick={this.save.bind(this)}
+                    onClick={this.save.bind(this, true)}
                     rendered={request && !_adminMode}
                     title={ this.i18n('button.createRequest.tooltip') }>
                     <Basic.Icon type="fa" icon="object-group"/>
@@ -394,7 +396,7 @@ class RoleRequestDetail extends Basic.AbstractTableContent {
                 {this.i18n('button.back')}
               </Basic.Button>
               <Basic.Button
-                onClick={this.save.bind(this)}
+                onClick={this.save.bind(this, false)}
                 disabled={!isEditable}
                 level="success"
                 type="submit"
@@ -455,16 +457,20 @@ class RoleRequestDetail extends Basic.AbstractTableContent {
 
 RoleRequestDetail.propTypes = {
   _showLoading: PropTypes.bool,
-  adminMode: PropTypes.bool // If true, then will be show advanced fields as log and etc.
+  adminMode: PropTypes.bool, // If true, then will be show advanced fields as log and etc.
+  editableInStates: PropTypes.arrayOf(PropTypes.string),
+  showRequestDetail: PropTypes.bool
 };
 RoleRequestDetail.defaultProps = {
-  adminMode: true,
+  editableInStates: ['CONCEPT', 'EXCEPTION', 'DUPLICATED'],
+  showRequestDetail: true
 };
 
 function select(state, component) {
-  const entity = EntityUtils.getEntity(state, roleRequestManager.getEntityType(), component.params.entityId);
+  const entityId = component.entityId ? component.entityId : component.params.entityId;
+  const entity = EntityUtils.getEntity(state, roleRequestManager.getEntityType(), entityId);
   let _currentIdentityRoles = null;
-  const applicantFromUrl = component.location.query.applicantId;
+  const applicantFromUrl = component.location ? component.location.query.applicantId : null;
   if (entity) {
     _currentIdentityRoles = identityRoleManager.getEntities(state, `${uiKey}-${entity.applicant}`);
   } else if (applicantFromUrl) {

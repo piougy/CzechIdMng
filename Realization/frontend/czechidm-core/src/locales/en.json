@@ -2243,7 +2243,8 @@
         "placeholder": "Verbal description of a request to change the permissions"
       },
       "created": "Created",
-      "modified": "Modified"
+      "modified": "Modified",
+      "wfProcessId": "WF identificator"
     },
     "ConceptRoleRequest": {
       "identityContract": "Employment relationship",

@@ -44,6 +44,7 @@ class RoleRequestTable extends Basic.AbstractTableContent {
     const innerShowLoading = _showLoading;
     return (
       <div>
+        <Basic.Confirm ref="confirm-delete" level="danger"/>
         <Advanced.Table
           ref="table"
           uiKey={uiKey}
@@ -137,6 +138,11 @@ class RoleRequestTable extends Basic.AbstractTableContent {
             rendered={_.includes(columns, 'created')}
             sort
             face="datetime"/>
+          <Advanced.Column
+            property="wfProcessId"
+            rendered={_.includes(columns, 'wf')}
+            sort
+            face="text"/>
           <Advanced.Column
             property=""
             header=""

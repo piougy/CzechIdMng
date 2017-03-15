@@ -1,18 +1,19 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
+import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.activiti.engine.runtime.ProcessInstance;
 import org.joda.time.DateTime;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -22,9 +23,11 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.Loggable;
+import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.exception.RoleRequestException;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
+import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.model.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.model.domain.RoleRequestState;
@@ -37,11 +40,15 @@ import eu.bcvsolutions.idm.core.model.entity.IdmConceptRoleRequest;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleRequest;
+import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent;
+import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent.RoleRequestEventType;
+import eu.bcvsolutions.idm.core.model.event.processor.RoleRequestApprovalProcessor;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
+import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 
 /**
  * Default implementation of role request service
@@ -60,14 +67,17 @@ public class DefaultIdmRoleRequestService
 	private final IdmIdentityService identityService;
 	private final ObjectMapper objectMapper;
 	private final SecurityService securityService;
-	private IdmRoleRequestService roleRequestService;
 	private final ApplicationContext applicationContext;
+	private final WorkflowProcessInstanceService workflowProcessInstanceService;
+	private final EntityEventManager entityEventManager;
+	private IdmRoleRequestService roleRequestService;
 
 	@Autowired
 	public DefaultIdmRoleRequestService(AbstractEntityRepository<IdmRoleRequest, RoleRequestFilter> repository,
 			IdmConceptRoleRequestService conceptRoleRequestService, IdmIdentityRoleService identityRoleService,
 			IdmIdentityService identityService, ObjectMapper objectMapper, SecurityService securityService,
-			ApplicationContext applicationContext) {
+			ApplicationContext applicationContext, WorkflowProcessInstanceService workflowProcessInstanceService,
+			EntityEventManager entityEventManager) {
 		super(repository);
 
 		Assert.notNull(conceptRoleRequestService, "Concept role request service is required!");
@@ -76,6 +86,8 @@ public class DefaultIdmRoleRequestService
 		Assert.notNull(objectMapper, "Object mapper is required!");
 		Assert.notNull(securityService, "Security service is required!");
 		Assert.notNull(applicationContext, "Application context is required!");
+		Assert.notNull(workflowProcessInstanceService, "Workflow process instance service is required!");
+		Assert.notNull(entityEventManager, "Entity event manager is required!");
 
 		this.conceptRoleRequestService = conceptRoleRequestService;
 		this.identityRoleService = identityRoleService;
@@ -83,6 +95,8 @@ public class DefaultIdmRoleRequestService
 		this.objectMapper = objectMapper;
 		this.securityService = securityService;
 		this.applicationContext = applicationContext;
+		this.workflowProcessInstanceService = workflowProcessInstanceService;
+		this.entityEventManager = entityEventManager;
 	}
 
 	@Override
@@ -157,9 +171,6 @@ public class DefaultIdmRoleRequestService
 			if (dto.getLog() == null) {
 				dto.setLog(dtoPersisited.getLog());
 			}
-			if (dto.getDuplicatedToRequest() == null) {
-				dto.setDuplicatedToRequest(dtoPersisited.getDuplicatedToRequest());
-			}
 			if (dto.getWfProcessId() == null) {
 				dto.setWfProcessId(dtoPersisited.getWfProcessId());
 			}
@@ -190,8 +201,8 @@ public class DefaultIdmRoleRequestService
 	}
 
 	@Override
-	// @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
 	public void startRequestInternal(UUID requestId, boolean checkRight) {
+		LOG.debug("Start role request [{}]", requestId);
 		Assert.notNull(requestId, "Role request ID is required!");
 		// Load request ... check right for read
 		IdmRoleRequestDto request = getDto(requestId);
@@ -213,16 +224,21 @@ public class DefaultIdmRoleRequestService
 		}
 		// TODO: check on same identities
 
-		// Request and all concepts (in concept state) will be set on in progress state
-		request.getConceptRoles().stream().filter(concept -> {
-			return RoleRequestState.CONCEPT == concept.getState();
-		}).forEach(concept -> {
-			concept.setState(RoleRequestState.IN_PROGRESS);
-			conceptRoleRequestService.save(concept);
-		});
+		// Request will be set on in progress state
 		request.setState(RoleRequestState.IN_PROGRESS);
-		this.save(request);
+		IdmRoleRequestDto savedRequest = this.save(request);
+		
+		// Throw event
+		Map<String, Serializable> variables = new HashMap<>();
+		variables.put(RoleRequestApprovalProcessor.CHECK_RIGHT_PROPERTY, checkRight);
+		entityEventManager.process(new RoleRequestEvent(RoleRequestEventType.EXCECUTE, savedRequest, variables));
+	}
+	
 
+	@Override
+	public boolean startApprovalProcess(IdmRoleRequestDto request, boolean checkRight, EntityEvent<IdmRoleRequestDto> event,  String wfDefinition){
+		// If is request marked as executed immediately, then we will check right
+		// and do realization immediately (without start approval process) 
 		if (request.isExecuteImmediately()) {
 			boolean haveRightExecuteImmediately = securityService
 					.hasAnyAuthority(IdmGroupPermission.ROLE_REQUEST_IMMEDIATELY_WRITE);
@@ -242,11 +258,22 @@ public class DefaultIdmRoleRequestService
 			});
 
 			// Execute request immediately
-			executeRequest(request.getId());
-
+			return true;
+		}else {
+			IdmIdentity applicant = identityService.get(request.getApplicant());
+			
+			Map<String, Object> variables = new HashMap<>();
+			variables.put(EntityEvent.EVENT_PROPERTY, event);
+			
+			ProcessInstance processInstance = workflowProcessInstanceService.startProcess(wfDefinition,
+					IdmIdentity.class.getSimpleName(), applicant.getUsername(), applicant.getId().toString(), variables);
+			request.setWfProcessId(processInstance.getProcessInstanceId());
+			this.save(request);
 		}
+		
+		return false;
 	}
-
+	
 	private IdmRoleRequestDto validateOnDuplicity(IdmRoleRequestDto request) {
 		List<IdmRoleRequestDto> potentialDuplicatedRequests = new ArrayList<>();
 
@@ -273,7 +300,8 @@ public class DefaultIdmRoleRequestService
 		return null;
 	}
 
-	public void executeRequest(UUID requestId) {
+	@Override
+	public IdmRoleRequestDto executeRequest(UUID requestId) {
 		Assert.notNull(requestId, "Role request ID is required!");
 		IdmRoleRequestDto request = this.getDto(requestId);
 		Assert.notNull(request, "Role request is required!");
@@ -301,7 +329,8 @@ public class DefaultIdmRoleRequestService
 			return ConceptRoleRequestOperation.ADD == concept.getOperation();
 		}).filter(concept -> {
 			// Only approved concepts can be executed
-			return RoleRequestState.APPROVED == concept.getState();
+			// Concepts in concept state will be executed too (for situation, when will be approval event disabled)
+			return RoleRequestState.APPROVED == concept.getState() || RoleRequestState.CONCEPT == concept.getState();
 		}).forEach(concept -> {
 			IdmIdentityRole identityRole = new IdmIdentityRole();
 			identityRolesToSave.add(
@@ -319,7 +348,8 @@ public class DefaultIdmRoleRequestService
 			return ConceptRoleRequestOperation.UPDATE == concept.getOperation();
 		}).filter(concept -> {
 			// Only approved concepts can be executed
-			return RoleRequestState.APPROVED == concept.getState();
+			// Concepts in concept state will be executed too (for situation, when will be approval event disabled)
+			return RoleRequestState.APPROVED == concept.getState() || RoleRequestState.CONCEPT == concept.getState();
 		}).forEach(concept -> {
 			IdmIdentityRole identityRole = identityRoleService.get(concept.getIdentityRole());
 			identityRolesToSave.add(
@@ -337,7 +367,8 @@ public class DefaultIdmRoleRequestService
 			return ConceptRoleRequestOperation.REMOVE == concept.getOperation();
 		}).filter(concept -> {
 			// Only approved concepts can be executed
-			return RoleRequestState.APPROVED == concept.getState();
+			// Concepts in concept state will be executed too (for situation, when will be approval event disabled)
+			return RoleRequestState.APPROVED == concept.getState() || RoleRequestState.CONCEPT == concept.getState();
 		}).forEach(concept -> {
 			IdmIdentityRole identityRole = identityRoleService.get(concept.getIdentityRole());
 			if (identityRole != null) {
@@ -357,7 +388,7 @@ public class DefaultIdmRoleRequestService
 		identityRoleService.saveAll(identityRolesToSave);
 		conceptRoleRequestService.saveAll(conceptsToSave);
 		request.setState(RoleRequestState.EXECUTED);
-		this.save(request);
+		return this.save(request);
 
 	}
 
@@ -365,6 +396,13 @@ public class DefaultIdmRoleRequestService
 
 		if (request == duplicant) {
 			return true;
+		}
+		if (request.getDescription() == null) {
+			if (duplicant.getDescription() != null) {
+				return false;
+			}
+		} else if (!request.getDescription().equals(duplicant.getDescription())) {
+			return false;
 		}
 
 		if (request.getConceptRoles() == null) {
@@ -394,6 +432,22 @@ public class DefaultIdmRoleRequestService
 		logItem.addToLog(text);
 		LOG.info(text);
 
+	}
+	
+	@Override
+	public void delete(IdmRoleRequestDto dto) {
+		
+		// Find all request where is this request duplicated and remove relation
+		RoleRequestFilter conceptRequestFilter = new RoleRequestFilter();
+		conceptRequestFilter.setDuplicatedToRequestId(dto.getId());
+		this.findDto(conceptRequestFilter, null).getContent().forEach(duplicant -> {
+			duplicant.setDuplicatedToRequest(null);
+			duplicant.setState(RoleRequestState.CONCEPT);
+			String message = MessageFormat.format("Duplicated request [{0}] was deleted!", dto.getId());
+			this.addToLog(duplicant, message);
+			this.save(duplicant);
+		});
+		super.delete(dto);
 	}
 
 	private IdmIdentityRole convertConceptRoleToIdentityRole(IdmConceptRoleRequest conceptRole,

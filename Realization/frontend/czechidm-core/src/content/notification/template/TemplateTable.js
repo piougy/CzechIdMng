@@ -159,6 +159,7 @@ export class TemplateTable extends Basic.AbstractContent {
                 }
               }
               sort={false}/>
+            <Advanced.Column property="code" width="125px" sort/>
             <Advanced.Column property="name" sort
               cell={
               ({ rowIndex, data }) => {
@@ -168,11 +169,12 @@ export class TemplateTable extends Basic.AbstractContent {
                 return (data[rowIndex].name);
               }
             }/>
-            <Advanced.Column property="code" sort/>
-            <Advanced.Column property="systemTemplate"
-              header={this.i18n('entity.NotificationTemplate.systemTemplate.name')}
-              face="bool" sort />
             <Advanced.Column property="subject" sort/>
+            <Advanced.Column
+              property="systemTemplate"
+              header={this.i18n('entity.NotificationTemplate.systemTemplate.name')}
+              face="bool"
+              sort />
           </Advanced.Table>
         </div>
       </Basic.Row>

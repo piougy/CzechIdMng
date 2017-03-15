@@ -13,7 +13,9 @@ const manager = new NotificationConfigurationManager();
 const notificationTemplateManager = new NotificationTemplateManager();
 
 /**
- * List of notifications
+ * Notification configuration
+ *
+ * @author Radek Tomiška
  */
 export default class NotificationConfigurations extends Basic.AbstractTableContent {
 
@@ -116,7 +118,9 @@ export default class NotificationConfigurations extends Basic.AbstractTableConte
                   );
                 }
               }/>
-            <Advanced.Column property="topic" width="30%" header={this.i18n('entity.NotificationConfiguration.topic')} sort face="text" />
+            <Advanced.Column property="topic" width="200px" header={this.i18n('entity.NotificationConfiguration.topic')} sort face="text" />
+            <Advanced.Column property="level" width="75px" header={this.i18n('entity.NotificationConfiguration.level')} sort face="enum" enumClass={NotificationLevelEnum} />
+            <Advanced.Column property="notificationType" width="75px" header={this.i18n('entity.NotificationConfiguration.notificationType')} sort face="text" />
             <Advanced.Column property="template" header={this.i18n('entity.NotificationConfiguration.template')} sort
               cell={
                 ({ rowIndex, data }) => {
@@ -126,8 +130,6 @@ export default class NotificationConfigurations extends Basic.AbstractTableConte
                   return data[rowIndex].template ? data[rowIndex].template.name : '';
                 }
               }/>
-            <Advanced.Column property="level" width="75px" header={this.i18n('entity.NotificationConfiguration.level')} sort face="enum" enumClass={NotificationLevelEnum} />
-            <Advanced.Column property="notificationType" header={this.i18n('entity.NotificationConfiguration.notificationType')} sort face="text" />
           </Advanced.Table>
         </Basic.Panel>
 
@@ -148,10 +150,6 @@ export default class NotificationConfigurations extends Basic.AbstractTableConte
                   ref="topic"
                   label={this.i18n('entity.NotificationConfiguration.topic')}
                   required/>
-                <Basic.SelectBox
-                  ref="template"
-                  label={this.i18n('entity.NotificationConfiguration.template')}
-                  manager={notificationTemplateManager}/>
                 <Basic.EnumSelectBox
                   ref="level"
                   enum={NotificationLevelEnum}
@@ -162,6 +160,10 @@ export default class NotificationConfigurations extends Basic.AbstractTableConte
                   label={this.i18n('entity.NotificationConfiguration.notificationType')}
                   options={!_supportedNotificationTypes ? null : _supportedNotificationTypes.map(type => { return { value: type, niceLabel: type }; })}
                   required/>
+                <Basic.SelectBox
+                  ref="template"
+                  label={this.i18n('entity.NotificationConfiguration.template')}
+                  manager={notificationTemplateManager}/>
                 <Basic.TextArea
                   ref="description"
                   label={this.i18n('entity.NotificationConfiguration.description')}/>

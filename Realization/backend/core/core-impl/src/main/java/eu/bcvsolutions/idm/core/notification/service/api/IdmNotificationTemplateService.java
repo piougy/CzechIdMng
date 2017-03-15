@@ -19,7 +19,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 
 public interface IdmNotificationTemplateService extends ReadWriteEntityService<IdmNotificationTemplate, NotificationTemplateFilter>, IdentifiableByNameEntityService<IdmNotificationTemplate> {
 	
-	public static String PARAMETER_DELIMITIER = ",";
+	static final String PARAMETER_DELIMITIER = ",";
 	
 	/**
 	 * Return {@link IdmNotificationTemplate} by given code.

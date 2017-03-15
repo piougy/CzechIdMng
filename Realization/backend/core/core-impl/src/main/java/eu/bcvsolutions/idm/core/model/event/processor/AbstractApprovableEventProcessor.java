@@ -50,7 +50,7 @@ public abstract class AbstractApprovableEventProcessor<E extends Serializable> e
 	@Override
 	public EventResult<E> process(EntityEvent<E> event) {
 		Map<String, Object> variables = new HashMap<>();
-		variables.put("entityEvent", event);
+		variables.put(EntityEvent.EVENT_PROPERTY, event);
 		//
 		IdentityDto modifier = securityService.getAuthentication().getCurrentIdentity();
 		ProcessInstance processInstance = workflowProcessInstanceService.startProcess(

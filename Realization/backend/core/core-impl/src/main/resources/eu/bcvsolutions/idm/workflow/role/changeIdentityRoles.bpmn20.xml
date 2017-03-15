@@ -1,27 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="eu.bcvsolutions.identity.roles.change">
-  <process id="changeIdentityRoles" name="Změna opravnění" isExecutable="true">
-    <documentation>Workflow pro změnu opravnění (změna přiřazených rolí) pro konkrétní identitu.</documentation>
+  <process id="approve-identity-change-permissions" name="Change identity permissions" isExecutable="true">
+    <documentation>Workflow for approve change of permissions (for applicant/identity) by given role request.
+
+Input variables:
+- entityEvent: event with IdmRoleRequestDto:</documentation>
     <startEvent id="startevent1" name="Start"></startEvent>
     <endEvent id="endevent" name="End"></endEvent>
-    <userTask id="applicantTask" name="Vytvoření žádosti žadatelem" activiti:candidateUsers="${implementerUsername},${applicantUsername}" activiti:formKey="dynamicRoleTaskDetail">
-      <documentation>Změna oprávnění - vytvoření žádosti žadatelem</documentation>
-      <extensionElements>
-        <activiti:formProperty id="cancelRequest" type="decision"></activiti:formProperty>
-        <activiti:formProperty id="createRequest" type="decision"></activiti:formProperty>
-        <activiti:formProperty id="applicantDescription" type="textArea"></activiti:formProperty>
-      </extensionElements>
-    </userTask>
     <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway"></exclusiveGateway>
-    <sequenceFlow id="flow2" sourceRef="applicantTask" targetRef="exclusivegateway1"></sequenceFlow>
-    <userTask id="managerTask" name="Schválení žádosti vedoucím" activiti:candidateUsers="#{identityService.findAllManagersAsString(applicantIdentifier)}" activiti:formKey="dynamicRoleTaskDetail">
-      <documentation>Změna oprávnění - schválení žádosti vedoucím</documentation>
+    <userTask id="managerTask" name="Approve by manager" activiti:candidateUsers="#{identityService.findAllManagersAsString(applicantIdentifier)}" activiti:formKey="dynamicRoleTaskDetail">
+      <documentation>Change identity permissions - approve by applicant manager</documentation>
       <extensionElements>
         <activiti:formProperty id="disapprove" type="decision"></activiti:formProperty>
         <activiti:formProperty id="backToApplicant" type="decision"></activiti:formProperty>
         <activiti:formProperty id="approve" type="decision"></activiti:formProperty>
         <activiti:formProperty id="managerDescriptionForApplicant" type="textArea" variable="managerDescription"></activiti:formProperty>
-        <activiti:formProperty id="applicantDescription" type="textArea" writable="false"></activiti:formProperty>
+        <activiti:formProperty id="applicantDescription" type="textArea" expression="#{entityEvent.content.description}" writable="false"></activiti:formProperty>
       </extensionElements>
     </userTask>
     <exclusiveGateway id="exclusivegateway2" name="Exclusive Gateway"></exclusiveGateway>
@@ -64,11 +58,8 @@
       <multiInstanceLoopCharacteristics isSequential="false" activiti:collection="addedIdentityRoles" activiti:elementVariable="identityRole"></multiInstanceLoopCharacteristics>
     </callActivity>
     <sequenceFlow id="flow17" sourceRef="startAddSubWorkflow" targetRef="parallelgateway2"></sequenceFlow>
-    <sequenceFlow id="flow18" sourceRef="exclusivegateway1" targetRef="managerTask">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${decision.equals("createRequest") || decision.equals("repairedRequest")}]]></conditionExpression>
-    </sequenceFlow>
     <sequenceFlow id="flow19" sourceRef="managerTask" targetRef="exclusivegateway2"></sequenceFlow>
-    <sequenceFlow id="flow20" sourceRef="exclusivegateway2" targetRef="parallelgateway1">
+    <sequenceFlow id="flow20" sourceRef="exclusivegateway2" targetRef="scripttask4">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${decision.equals("approve")}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="flow21" sourceRef="scripttask1" targetRef="startAddSubWorkflow"></sequenceFlow>
@@ -88,8 +79,7 @@
 	}
  }</script>
     </scriptTask>
-    <serviceTask id="servicetaskCreateProcessName" name="Generování názvu procesu" activiti:expression="Žádost o změnu oprávnění pro &quot;${identityService.getNiceLabel(identityService.get(applicantIdentifier))}&quot;" activiti:resultVariableName="processInstanceName"></serviceTask>
-    <sequenceFlow id="flow22" sourceRef="servicetaskCreateProcessName" targetRef="applicantTask"></sequenceFlow>
+    <serviceTask id="servicetaskCreateProcessName" name="Generating process name" activiti:expression="Žádost o změnu oprávnění pro &quot;${identityService.getNiceLabel(identityService.get(applicantIdentifier))}&quot;" activiti:resultVariableName="processInstanceName"></serviceTask>
     <sequenceFlow id="flow23" sourceRef="startevent1" targetRef="servicetaskCreateProcessName"></sequenceFlow>
     <scriptTask id="scripttask2" name="Načtení a příprava existujících oprávnění ke změně" scriptFormat="groovy" activiti:autoStoreVariables="false">
       <script>//Create new list
@@ -236,6 +226,13 @@ execution.setVariable("removeIdentityRoleWrapperList", removeIdentityRoleWrapper
       </extensionElements>
     </serviceTask>
     <sequenceFlow id="flow32" sourceRef="mailTask1" targetRef="applicantReturnedTask"></sequenceFlow>
+    <sequenceFlow id="flow33" sourceRef="servicetaskCreateProcessName" targetRef="managerTask"></sequenceFlow>
+    <sequenceFlow id="flow34" sourceRef="exclusivegateway1" targetRef="managerTask">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${decision.equals("repairedRequest")}]]></conditionExpression>
+    </sequenceFlow>
+    <serviceTask id="servicetaskRealization" name="Realization of request (evoke event)" activiti:expression="#{entityEventManager.process(entityEvent)}"></serviceTask>
+    <endEvent id="endevent1" name="End"></endEvent>
+    <sequenceFlow id="flow35" sourceRef="servicetaskRealization" targetRef="endevent1"></sequenceFlow>
     <dataObject id="approve" name="approve" itemSubjectRef="xsd:string">
       <extensionElements>
         <activiti:value>{"label": "decision.approve.label","showWarning":false,"warningMessage":"decesion.approve.warning","level":"success","tooltip":"decision.approve.tooltip"}</activiti:value>
@@ -267,17 +264,27 @@ execution.setVariable("removeIdentityRoleWrapperList", removeIdentityRoleWrapper
         <activiti:value>{"label": "Žádost opravena","showWarning":false,"warningMessage":"Opravdu chcete opravenou žádost podat ke schválení?","level":"success","tooltip":"Opravenou žádost a předat ke schválení"}</activiti:value>
       </extensionElements>
     </dataObject>
+    <scriptTask id="scripttask4" name="Set concepts to approved" scriptFormat="groovy" activiti:autoStoreVariables="false">
+      <script> import eu.bcvsolutions.idm.core.model.dto.filter.ConceptRoleRequestFilter 
+ import eu.bcvsolutions.idm.core.model.domain.RoleRequestState;
+ 
+ ConceptRoleRequestFilter filter = new ConceptRoleRequestFilter();
+ filter.setRoleRequestId(entityEvent.content.id);
+
+ for (concept in conceptRoleRequestService.findDto(filter, null).getContent()) {
+	concept.setState(RoleRequestState.APPROVED);
+	conceptRoleRequestService.save(concept);
+ }</script>
+    </scriptTask>
+    <sequenceFlow id="flow36" sourceRef="scripttask4" targetRef="servicetaskRealization"></sequenceFlow>
   </process>
-  <bpmndi:BPMNDiagram id="BPMNDiagram_changeIdentityRoles">
-    <bpmndi:BPMNPlane bpmnElement="changeIdentityRoles" id="BPMNPlane_changeIdentityRoles">
+  <bpmndi:BPMNDiagram id="BPMNDiagram_approve-identity-change-permissions">
+    <bpmndi:BPMNPlane bpmnElement="approve-identity-change-permissions" id="BPMNPlane_approve-identity-change-permissions">
       <bpmndi:BPMNShape bpmnElement="startevent1" id="BPMNShape_startevent1">
         <omgdc:Bounds height="35.0" width="35.0" x="10.0" y="127.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="endevent" id="BPMNShape_endevent">
         <omgdc:Bounds height="35.0" width="35.0" x="1320.0" y="311.0"></omgdc:Bounds>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="applicantTask" id="BPMNShape_applicantTask">
-        <omgdc:Bounds height="68.0" width="130.0" x="212.0" y="108.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="exclusivegateway1" id="BPMNShape_exclusivegateway1">
         <omgdc:Bounds height="40.0" width="40.0" x="393.0" y="121.0"></omgdc:Bounds>
@@ -304,7 +311,7 @@ execution.setVariable("removeIdentityRoleWrapperList", removeIdentityRoleWrapper
         <omgdc:Bounds height="55.0" width="155.0" x="740.0" y="301.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="servicetaskCreateProcessName" id="BPMNShape_servicetaskCreateProcessName">
-        <omgdc:Bounds height="87.0" width="105.0" x="72.0" y="101.0"></omgdc:Bounds>
+        <omgdc:Bounds height="87.0" width="105.0" x="160.0" y="101.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="scripttask2" id="BPMNShape_scripttask2">
         <omgdc:Bounds height="78.0" width="155.0" x="740.0" y="204.0"></omgdc:Bounds>
@@ -327,10 +334,15 @@ execution.setVariable("removeIdentityRoleWrapperList", removeIdentityRoleWrapper
       <bpmndi:BPMNShape bpmnElement="mailTask1" id="BPMNShape_mailTask1">
         <omgdc:Bounds height="58.0" width="131.0" x="505.0" y="227.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge bpmnElement="flow2" id="BPMNEdge_flow2">
-        <omgdi:waypoint x="342.0" y="142.0"></omgdi:waypoint>
-        <omgdi:waypoint x="393.0" y="141.0"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape bpmnElement="servicetaskRealization" id="BPMNShape_servicetaskRealization">
+        <omgdc:Bounds height="91.0" width="171.0" x="540.0" y="620.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent1" id="BPMNShape_endevent1">
+        <omgdc:Bounds height="35.0" width="35.0" x="608.0" y="750.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="scripttask4" id="BPMNShape_scripttask4">
+        <omgdc:Bounds height="71.0" width="163.0" x="544.0" y="510.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge bpmnElement="flow8" id="BPMNEdge_flow8">
         <omgdi:waypoint x="570.0" y="350.0"></omgdi:waypoint>
         <omgdi:waypoint x="570.0" y="421.0"></omgdi:waypoint>
@@ -351,29 +363,22 @@ execution.setVariable("removeIdentityRoleWrapperList", removeIdentityRoleWrapper
         <omgdi:waypoint x="1173.0" y="329.0"></omgdi:waypoint>
         <omgdi:waypoint x="1240.0" y="328.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow18" id="BPMNEdge_flow18">
-        <omgdi:waypoint x="413.0" y="161.0"></omgdi:waypoint>
-        <omgdi:waypoint x="413.0" y="297.0"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow19" id="BPMNEdge_flow19">
         <omgdi:waypoint x="485.0" y="330.0"></omgdi:waypoint>
         <omgdi:waypoint x="550.0" y="330.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow20" id="BPMNEdge_flow20">
         <omgdi:waypoint x="590.0" y="330.0"></omgdi:waypoint>
-        <omgdi:waypoint x="645.0" y="330.0"></omgdi:waypoint>
+        <omgdi:waypoint x="625.0" y="330.0"></omgdi:waypoint>
+        <omgdi:waypoint x="625.0" y="510.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow21" id="BPMNEdge_flow21">
         <omgdi:waypoint x="895.0" y="328.0"></omgdi:waypoint>
         <omgdi:waypoint x="972.0" y="329.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow22" id="BPMNEdge_flow22">
-        <omgdi:waypoint x="177.0" y="144.0"></omgdi:waypoint>
-        <omgdi:waypoint x="212.0" y="142.0"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow23" id="BPMNEdge_flow23">
         <omgdi:waypoint x="45.0" y="144.0"></omgdi:waypoint>
-        <omgdi:waypoint x="72.0" y="144.0"></omgdi:waypoint>
+        <omgdi:waypoint x="160.0" y="144.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow24" id="BPMNEdge_flow24">
         <omgdi:waypoint x="665.0" y="310.0"></omgdi:waypoint>
@@ -414,6 +419,23 @@ execution.setVariable("removeIdentityRoleWrapperList", removeIdentityRoleWrapper
       <bpmndi:BPMNEdge bpmnElement="flow32" id="BPMNEdge_flow32">
         <omgdi:waypoint x="570.0" y="227.0"></omgdi:waypoint>
         <omgdi:waypoint x="571.0" y="195.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow33" id="BPMNEdge_flow33">
+        <omgdi:waypoint x="212.0" y="188.0"></omgdi:waypoint>
+        <omgdi:waypoint x="212.0" y="330.0"></omgdi:waypoint>
+        <omgdi:waypoint x="341.0" y="330.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow34" id="BPMNEdge_flow34">
+        <omgdi:waypoint x="413.0" y="161.0"></omgdi:waypoint>
+        <omgdi:waypoint x="413.0" y="297.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow35" id="BPMNEdge_flow35">
+        <omgdi:waypoint x="625.0" y="711.0"></omgdi:waypoint>
+        <omgdi:waypoint x="625.0" y="750.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow36" id="BPMNEdge_flow36">
+        <omgdi:waypoint x="625.0" y="581.0"></omgdi:waypoint>
+        <omgdi:waypoint x="625.0" y="620.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

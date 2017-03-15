@@ -21,6 +21,8 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
 /**
  * Automatic roles recount while enabled identity cotract is created
  * 
+ * TODO: integrate with role requests
+ * 
  * @author Radek Tomiška
  *
  */

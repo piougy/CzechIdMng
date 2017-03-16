@@ -134,10 +134,6 @@ public class DefaultIdmRoleRequestService
 					ImmutableMap.of("request", dto, "applicant", applicant.getUsername()));
 		}
 
-		if (created) {
-			// TODO: Separate start request to own schedule task
-			// this.startRequest(savedRequest.getId());
-		}
 		return this.getDto(savedRequest.getId());
 	}
 

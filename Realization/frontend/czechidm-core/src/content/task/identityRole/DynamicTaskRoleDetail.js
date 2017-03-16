@@ -62,14 +62,6 @@ class DynamicTaskRoleDetail extends DynamicTaskDetail {
             <Basic.DateTimePicker ref="taskCreated" readOnly label={this.i18n('createdDate')}/>
           </Basic.AbstractForm>
         </Basic.Panel>
-        <RoleRequestDetail
-          ref="identityRoleConceptTable"
-          uiKey="identity-role-concept-table"
-          entityId={task.variables.entityEvent.content.id}
-          adminMode={false}
-          showRequestDetail={false}
-          editableInStates={['IN_PROGRESS']}
-          showLoading={showLoadingInternal}/>
         <Basic.Panel showLoading = {showLoadingInternal}>
           <Basic.AbstractForm ref="formData" data={formDataValues} style={{ padding: '15px 15px 0px 15px' }}>
             {this._getFormDataComponents(task)}
@@ -78,6 +70,14 @@ class DynamicTaskRoleDetail extends DynamicTaskDetail {
             <DecisionButtons task={task} onClick={this._validateAndCompleteTask.bind(this)}/>
           </Basic.PanelFooter>
         </Basic.Panel>
+        <RoleRequestDetail
+          ref="identityRoleConceptTable"
+          uiKey="identity-role-concept-table"
+          entityId={task.variables.entityEvent.content.id}
+          adminMode={false}
+          showRequestDetail={false}
+          editableInStates={['IN_PROGRESS']}
+          showLoading={showLoadingInternal}/>
       </div>
     );
   }

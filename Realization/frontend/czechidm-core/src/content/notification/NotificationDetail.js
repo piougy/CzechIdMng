@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 //
 import { IdentityManager, NotificationManager, NotificationTemplateManager } from '../../redux';
 import * as Basic from '../../components/basic';
+import * as Advanced from '../../components/advanced';
 import NotificationRecipient from './NotificationRecipient';
 import NotificationRecipientsCell from './NotificationRecipientsCell';
 import NotificationSentState from '../notification/NotificationSentState';
@@ -220,7 +221,7 @@ class NotificationDetail extends Basic.AbstractContent {
             multiSelect />
 
           <Basic.TextArea ref="textMessage" label={this.i18n('entity.Notification.message.textMessage')} readOnly={!isNew} hidden={!isNew && !notification.message.textMessage} />
-          <Basic.RichTextArea ref="htmlMessage" label={this.i18n('entity.Notification.message.htmlMessage')} readOnly={!isNew} hidden={!isNew && !notification.message.htmlMessage} />
+          <Advanced.RichTextArea ref="htmlMessage" label={this.i18n('entity.Notification.message.htmlMessage')} readOnly={!isNew} hidden={!isNew && !notification.message.htmlMessage} />
 
           <Basic.LabelWrapper hidden={isNew || !notification.message.model}
             label={this.i18n('entity.Notification.message.model')}>

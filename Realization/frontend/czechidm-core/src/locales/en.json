@@ -439,7 +439,13 @@
       "ROLE": "Roles",
       "TREENODE": "Tree nodes",
       "TREETYPE": "Structure types",
-      "SCRIPT": "Scripts"
+      "SCRIPT": "Scripts",
+      "NOTIFICATIONCONFIGURATION": "Notification (configuration)",
+      "NOTIFICATIONTEMPLATE": "Notification (templates)",
+      "PASSWORDPOLICY": "Password policy",
+      "EAV_FORM_ATTRIBUTES": "Forms (attributes)",
+      "EAV_FORM_DEFINITIONS": "Forms (definitions)",
+      "SCHEDULER": "Scheduler"
     }
   },
   "content": {

@@ -458,7 +458,13 @@
       "ROLE": "Role",
       "TREENODE": "Prvky struktur",
       "TREETYPE": "Typy struktur",
-      "SCRIPT": "Pravidla"
+      "SCRIPT": "Pravidla",
+      "NOTIFICATIONCONFIGURATION": "Notifikace (konfigurace)",
+      "NOTIFICATIONTEMPLATE": "Notifikační (šablony)",
+      "PASSWORDPOLICY": "Politiky hesel",
+      "EAV_FORM_ATTRIBUTES": "Formuláře (atributy)",
+      "EAV_FORM_DEFINITIONS": "Formuláře (definice)",
+      "SCHEDULER": "Plánovač"
     }
   },
   "content": {

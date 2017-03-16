@@ -5,8 +5,7 @@ import { Editor } from 'react-draft-wysiwyg';
 import { EditorState, ContentState, convertFromHTML, DefaultDraftBlockRenderMap, getSafeBodyFromHTML } from 'draft-js';
 import { stateToHTML } from 'draft-js-export-html';
 //
-import AbstractFormComponent from '../AbstractFormComponent/AbstractFormComponent';
-import Tooltip from '../Tooltip/Tooltip';
+import * as Basic from '../../basic';
 
 /**
  * Based on Draf.js and react draft wysiwyg editor
@@ -19,7 +18,7 @@ import Tooltip from '../Tooltip/Tooltip';
  * @author Radek Tomiška
  * @author Ondřej Kopr
  */
-class RichTextArea extends AbstractFormComponent {
+class RichTextArea extends Basic.AbstractFormComponent {
 
   constructor(props) {
     super(props);
@@ -171,7 +170,7 @@ class RichTextArea extends AbstractFormComponent {
           </label>
         }
         <div className={componentSpan}>
-          <Tooltip ref="popover" placement={ this.getTitlePlacement() } value={ this.getTitle() }>
+          <Basic.Tooltip ref="popover" placement={ this.getTitlePlacement() } value={ this.getTitle() }>
             <div className={containerClassName}>
               <Editor
                 ref="input"
@@ -193,7 +192,7 @@ class RichTextArea extends AbstractFormComponent {
                 <span className="form-control-feedback" style={{ color: 'red', zIndex: 0 }}>*</span>
               }
             </div>
-          </Tooltip>
+          </Basic.Tooltip>
           { !label ? this.renderHelpIcon() : null }
         </div>
         { this.renderHelpBlock() }
@@ -203,7 +202,7 @@ class RichTextArea extends AbstractFormComponent {
 }
 
 RichTextArea.propTypes = {
-  ...AbstractFormComponent.propTypes,
+  ...Basic.AbstractFormComponent.propTypes,
   placeholder: PropTypes.string,
   min: PropTypes.number,
   max: PropTypes.number,
@@ -215,7 +214,7 @@ RichTextArea.propTypes = {
 };
 
 RichTextArea.defaultProps = {
-  ...AbstractFormComponent.defaultProps,
+  ...Basic.AbstractFormComponent.defaultProps,
   showToolbar: false,
   toolbarOptions: ['inline', 'blockType', 'list', 'emoji', 'remove', 'history', 'link'], // + order of component  ; remove: 'image', 'embedded', 'fontSize', 'fontFamily', 'colorPicker', 'textAlign',
   fontSizeOptions: {

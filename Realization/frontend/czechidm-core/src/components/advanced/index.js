@@ -13,6 +13,7 @@ import EavForm from './Form/EavForm';
 import EavContent from './Form/EavContent';
 import PasswordField from './PasswordField/PasswordField';
 import ProgressBar from './ProgressBar/ProgressBar';
+import RichTextArea from './RichTextArea/RichTextArea';
 
 const Components = {
   Table,
@@ -31,7 +32,8 @@ const Components = {
   DetailButton,
   EavForm,
   EavContent,
-  PasswordField
+  PasswordField,
+  RichTextArea
 };
 
 Components.version = '0.0.1';

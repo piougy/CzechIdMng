@@ -1,5 +1,6 @@
 import React, { PropTypes } from 'react';
 import * as Basic from '../../components/basic';
+import * as Advanced from '../../components/advanced';
 import { ScriptManager, SecurityManager } from '../../redux';
 import ScriptCategoryEnum from '../../enums/ScriptCategoryEnum';
 import EntityUtils from '../../utils/EntityUtils';
@@ -120,7 +121,7 @@ export default class ScriptDetail extends Basic.AbstractContent {
               enum={ScriptCategoryEnum}
               max={255}
               required/>
-            <Basic.RichTextArea ref="description" label={this.i18n('entity.Script.description')} />
+            <Advanced.RichTextArea ref="description" label={this.i18n('entity.Script.description')} />
             <Basic.ScriptArea
               ref="script"
               mode="groovy"

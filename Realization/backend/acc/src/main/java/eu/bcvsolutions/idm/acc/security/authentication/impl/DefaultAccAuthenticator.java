@@ -162,6 +162,11 @@ public class DefaultAccAuthenticator implements Authenticator {
 		for (AccAccount account : accounts) {
 			IcConnectorObject attributes = systemService.readObject(system, attribute.getSystemMapping(),
 					new IcUidAttributeImpl(attribute.getName(), account.getUid(), null));
+			//
+			if (attributes == null) {
+				continue;
+			}
+			//
 			String transformUsername = null;
 			// iterate over all attributes to fined authentication attribute
 			for (IcAttribute icAttribute : attributes.getAttributes()) {
@@ -228,7 +233,7 @@ public class DefaultAccAuthenticator implements Authenticator {
 
 	@Override
 	public AuthenticationResponseEnum getResponse() {
-		return AuthenticationResponseEnum.REQUISITE;
+		return AuthenticationResponseEnum.SUFFICIENT;
 	}
 
 }

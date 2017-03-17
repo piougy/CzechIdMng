@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import _ from 'lodash';
 //
 import TabPanelItem from './TabPanelItem';
-import { getNavigationItems, resolveNavigationParameters } from '../../../redux/layout/layoutActions';
+import { getNavigationItems, resolveNavigationParameters } from '../../../redux/config/actions';
 import * as Basic from '../../basic';
 
 /**
@@ -136,9 +136,9 @@ TabPanel.defaultProps = {
 };
 
 function select(state) {
-  const selectedNavigationItems = state.layout.get('selectedNavigationItems');
+  const selectedNavigationItems = state.config.get('selectedNavigationItems');
   return {
-    navigation: state.layout.get('navigation'),
+    navigation: state.config.get('navigation'),
     selectedNavigationItems,
     userContext: state.security.userContext
   };

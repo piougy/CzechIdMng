@@ -14,16 +14,18 @@
     "identity":{
       "example": "Ukázková záložka"
     },
-    "example": {
-      "menu": "Ukázkové menu",
-      "title": "Ukázka hlavního menu, přidaného prostřednictvím czechidm-example modulu."
-    },
     "dashboard": {
       "exampleDashboard": {
         "header": "Ukázková uživatelská plocha",
         "title": "Tato plocha je definována v ukázkovém modulu.",
         "text": "Demonstruje způsob, jakým je možné rozšířit uživatelskou plochu z jakého koli modulu (bez zásahu do samotného aplikace)."
       }
+    },
+    "example": {
+      "header": "Ukázková stránka",
+      "label": "Ukázková stránka",
+      "title": "Ukázková stránka dostupná z hlavního menu, přidaného prostřednictvím czechidm-example modulu.",
+      "text": "Demonstruje způsob, jakým je možné vytvořit novou stránku (content)."
     }
   }
 }

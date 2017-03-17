@@ -144,7 +144,7 @@ public abstract class AbstractNotificationSender<N extends IdmNotification> impl
 				return send(notification);
 			}
 			// if configurations is null check if exist text for message, TODO: send only subject?
-			if (message.getHtmlMessage() == null && message.getSubject() == null && message.getTextMessage() == null && message.getModel() == null) {
+			if (message.getTemplate() == null && message.getHtmlMessage() == null && message.getSubject() == null && message.getTextMessage() == null && message.getModel() == null) {
 				LOG.info("Notification has empty template and message. Default message will be send! [topic:{}]", topic);
 				// send default message
 				notification.setMessage(

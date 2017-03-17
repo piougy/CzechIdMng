@@ -4,7 +4,7 @@ import EntityManager from './EntityManager';
 import ConfigurationManager from './ConfigurationManager';
 import { BackendModuleService } from '../../services';
 import DataManager from './DataManager';
-import { backendConfigurationInit } from '../layout/layoutActions';
+import { backendConfigurationInit } from '../config/actions';
 
 /**
  * Provides informations  about modules from backend and their administrative methods.

@@ -5,12 +5,9 @@ import classNames from 'classnames';
 
 //
 import Footer from './Footer';
-import { Basic, Advanced, Managers, LayoutActions } from 'czechidm-core';
+import { Basic, Advanced, Managers } from 'czechidm-core';
 //
-// this parts are genetater dynamicaly to dist - after build wil be packed by browserify to sources
-import config from '../../dist/config.json';
-import { moduleDescriptors } from '../../dist/modules/moduleAssembler';
-import { componentDescriptors } from '../../dist/modules/componentAssembler';
+
 import ConfigLoader from 'czechidm-core/src/utils/ConfigLoader';
 
 /**
@@ -33,7 +30,6 @@ export class App extends Basic.AbstractContent {
   */
   componentDidMount() {
     this.hideAllMessages(); // move to init app
-    this.context.store.dispatch(LayoutActions.appInit(config, moduleDescriptors, componentDescriptors));
   }
 
   /**
@@ -213,9 +209,9 @@ function select(state) {
   return {
     userContext: state.security.userContext,
     bulk: state.data.bulk,
-    appReady: state.layout.get('appReady'),
-    i18nReady: state.layout.get('i18nReady'),
-    navigationCollapsed: state.layout.get('navigationCollapsed')
+    appReady: state.config.get('appReady'),
+    i18nReady: state.config.get('i18nReady'),
+    navigationCollapsed: state.config.get('navigationCollapsed')
   };
 }
 

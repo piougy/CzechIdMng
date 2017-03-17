@@ -85,7 +85,7 @@ export default class FormAttributeTable extends Basic.AbstractContent {
           <Advanced.Table
             ref="table"
             uiKey={uiKey}
-            showRowSelection={SecurityManager.hasAuthority('EAV_FORM_ATTRIBUTES_DELETE')}
+            showRowSelection={SecurityManager.hasAuthority('EAVFORMATTRIBUTES_DELETE')}
             manager={attributeManager}
             forceSearchParameters={
               new SearchParameters()
@@ -125,7 +125,7 @@ export default class FormAttributeTable extends Basic.AbstractContent {
                   key="add_button"
                   className="btn-xs"
                   onClick={this.showDetail.bind(this, { })}
-                  rendered={SecurityManager.hasAuthority('EAV_FORM_ATTRIBUTES_WRITE')}>
+                  rendered={SecurityManager.hasAuthority('EAVFORMATTRIBUTES_WRITE')}>
                   <Basic.Icon type="fa" icon="plus"/>
                   {' '}
                   {this.i18n('button.add')}

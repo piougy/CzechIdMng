@@ -16,9 +16,10 @@ import {
   APP_READY,
   APP_UNAVAILABLE,
   getNavigationItem
-} from './layoutActions';
+} from './actions';
 
 const INITIAL_STATE = new Immutable.Map({
+  properties: null, // public configuration propereties
   navigation: null,  // all navigation items from enabled modules as Map
   selectedNavigationItems: ['home'], // homepage by default
   navigationCollapsed: false, // TODO: move to local storage - different reducer
@@ -30,7 +31,7 @@ const INITIAL_STATE = new Immutable.Map({
   appUnavailable: false
 });
 
-export function layout(state = INITIAL_STATE, action) {
+export function config(state = INITIAL_STATE, action) {
   switch (action.type) {
     case SELECT_NAVIGATION_ITEMS: {
       const prevState = state.get('selectedNavigationItems');

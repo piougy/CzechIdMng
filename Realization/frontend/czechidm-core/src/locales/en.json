@@ -458,7 +458,15 @@
       "ROLE": "Roles",
       "TREENODE": "Tree nodes",
       "TREETYPE": "Structure types",
-      "SCRIPT": "Scripts"
+      "SCRIPT": "Scripts",
+      "EAVFORMATTRIBUTES": "Forms - attributes",
+      "EAVFORMDEFINITIONS": "Forms - definitions",
+      "NOTIFICATIONCONFIGURATION": "Notifications - configuration",
+      "NOTIFICATIONTEMPLATE": "Notifications - templates",
+      "PASSWORDPOLICY": "Password policy",
+      "ROLEREQUEST": "Role requests",
+      "ROLEREQUESTIMMEDIATELY": "Role requests - execute immediately",
+      "SCHEDULER": "Scheduler"
     }
   },
   "content": {
@@ -1267,6 +1275,11 @@
             "button": "Přidat PPV"
           }
         }
+      },
+      "authorities": {
+        "label": "Oprávnění",
+        "header": "Přidělená oprávnění <small>dle přiřazných rolí</small>",
+        "title": "Přidělená oprávnění"
       },
       "passwordChange": {
         "header": "Password",

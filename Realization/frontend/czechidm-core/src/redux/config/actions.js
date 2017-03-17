@@ -64,7 +64,7 @@ export function collapseNavigation(collapsed = false) {
 /**
  * Reloads whole navigation
  */
-function navigationInit() {
+function navigationInit(cb) {
   return (dispatch) => {
     dispatch({
       type: NAVIGATION_INIT
@@ -78,10 +78,11 @@ function navigationInit() {
       type: APP_READY,
       ready: true
     });
+    cb();
   };
 }
 
-export function backendConfigurationInit() {
+export function backendConfigurationInit(cb = () => {}) {
   return (dispatch, getState) => {
     const configurationManager = new ConfigurationManager();
     dispatch(configurationManager.fetchPublicConfigurations((data, error) => {
@@ -102,17 +103,12 @@ export function backendConfigurationInit() {
           type: CONFIGURATION_READY,
           ready: true
         });
-        dispatch(navigationInit());
+        dispatch(navigationInit(cb));
       } else {
-        const flashMessagesManager = new FlashMessagesManager();
-        if (flashMessagesManager.isServerUnavailableError(error)) {
-          dispatch(flashMessagesManager.addUnavailableMessage());
-        } else {
-          dispatch(flashMessagesManager.addError(error));
-        }
         dispatch({
           type: APP_UNAVAILABLE
         });
+        cb(error);
       }
     }));
   };
@@ -121,35 +117,38 @@ export function backendConfigurationInit() {
 /**
 * After localization is initied - set to ready, before inicialization will be false
 */
-function i18nReady(lng) {
+function i18nReady(lng, cb, reloadBackendConfiguration) {
   return (dispatch) => {
     dispatch({
       type: I18N_READY,
       lng
     });
-    dispatch(backendConfigurationInit());
+    if (reloadBackendConfiguration) {
+      dispatch(backendConfigurationInit(cb));
+    } else if (cb) {
+      cb();
+    }
   };
 }
 
 /**
 * Init i18n localization service
 */
-function i18nInit() {
+function i18nInit(cb) {
   return (dispatch) => {
     LocalizationService.init(ConfigLoader,
       (error) => {
         if (error) {
-          const flashMessagesManager = new FlashMessagesManager();
-          dispatch(flashMessagesManager.addMessage({level: 'error', title: 'Nepodařilo se iniciovat lokalizaci', message: error }));
+          cb({ level: 'error', title: 'Nepodařilo se iniciovat lokalizaci', message: error });
         } else {
-          dispatch(i18nReady(LocalizationService.getCurrentLanguage()));
+          dispatch(i18nReady(LocalizationService.getCurrentLanguage(), cb, true));
         }
       }
     );
   };
 }
 
-export function i18nChange(lng, cb) {
+export function i18nChange(lng, cb = () => {}) {
   return (dispatch) => {
     LocalizationService.changeLanguage(lng,
       (error) => {
@@ -157,10 +156,7 @@ export function i18nChange(lng, cb) {
           const flashMessagesManager = new FlashMessagesManager();
           dispatch(flashMessagesManager.addMessage({level: 'error', title: 'Nepodařilo se iniciovat lokalizaci', message: error }));
         } else {
-          dispatch(i18nReady(LocalizationService.getCurrentLanguage()));
-          if (cb) {
-            cb();
-          }
+          dispatch(i18nReady(LocalizationService.getCurrentLanguage()), cb, false);
         }
       }
     );
@@ -170,7 +166,7 @@ export function i18nChange(lng, cb) {
 /**
 * Init modules
 */
-function modulesInit(config, moduleDescriptors, componentDescriptors) {
+function modulesInit(config, moduleDescriptors, componentDescriptors, cb) {
   return (dispatch) => {
     dispatch({ type: MODULES_INIT });
     dispatch({ type: CONFIGURATION_INIT });
@@ -180,14 +176,14 @@ function modulesInit(config, moduleDescriptors, componentDescriptors) {
       type: MODULES_READY,
       ready: true
     });
-    dispatch(i18nInit());
+    dispatch(i18nInit(cb));
   };
 }
 
-export function appInit(config, moduleDescriptors, componentDescriptors) {
+export function appInit(config, moduleDescriptors, componentDescriptors, cb = () => {}) {
   return (dispatch) => {
     // init application - start asynchronous inicialization: modules / localization / configuration / navigation
-    dispatch(modulesInit(config, moduleDescriptors, componentDescriptors));
+    dispatch(modulesInit(config, moduleDescriptors, componentDescriptors, cb));
   };
 }
 
@@ -252,17 +248,17 @@ export function getNavigationItems(navigation, parentId = null, section = null, 
 }
 
 /**
- * Returns navigation item by given id from given layoutState immutable map
+ * Returns navigation item by given id from given configState immutable map
  *
- * @param  {object} layoutState
+ * @param  {object} configState
  * @param  {string} id
  * @return {navigationItem}
  */
-export function getNavigationItem(layoutState, id) {
-  if (!layoutState || !id) {
+export function getNavigationItem(configState, id) {
+  if (!configState || !id) {
     return null;
   }
-  const navigation = layoutState.get('navigation');
+  const navigation = configState.get('navigation');
   //
   if (!navigation) {
     return null;

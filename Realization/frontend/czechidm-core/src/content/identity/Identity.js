@@ -71,7 +71,7 @@ IdentityContent.defaultProps = {
 
 function select(state, component) {
   const { entityId } = component.params;
-  const selectedNavigationItems = state.layout.get('selectedNavigationItems');
+  const selectedNavigationItems = state.config.get('selectedNavigationItems');
   const selectedSidebarItem = (selectedNavigationItems.length > 1) ? selectedNavigationItems[1] : null;
   return {
     identity: identityManager.getEntity(state, entityId),

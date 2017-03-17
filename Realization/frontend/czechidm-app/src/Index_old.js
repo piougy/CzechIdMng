@@ -2,7 +2,6 @@
 import 'babel-polyfill';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Helmet from 'react-helmet';
 // https://github.com/rackt/react-router/blob/master/upgrade-guides/v2.0.0.md#changes-to-thiscontext
 // TODO: serving static resources requires different approach - https://github.com/rackt/react-router/blob/master/docs/guides/basics/Histories.md#createbrowserhistory
 import { Router, hashHistory } from 'react-router';
@@ -21,7 +20,7 @@ import filter from 'redux-localstorage-filter';
 import { syncHistory, routeReducer } from 'react-router-redux';
 //
 import config from '../dist/config.json';
-import { Reducers, Managers, Basic } from 'czechidm-core';
+import { Reducers, Managers } from 'czechidm-core';
 //
 // global promise init
 Promise.polyfill();
@@ -88,9 +87,6 @@ function adapter(storage) {
 }
 
 const reducersApp = combineReducers({
-  config: () => {
-    return { config: 'todo: load BE and FE config before router init (module descriptors, components + refresh application afrer module is enabled / disabled)' };
-  },
   layout: Reducers.layout,
   messages: Reducers.messages,
   data: Reducers.data,
@@ -156,12 +152,29 @@ const createStoreWithMiddleware = applyMiddleware(...midlewares)(createPersisten
 const store = createStoreWithMiddleware(reducer);
 // Required for replaying actions from devtools to work
 reduxRouterMiddleware.listenForReplays(store);
-
-//
 //
 // application routes root
 import App from './layout/App';
-//
+const routes = {
+  component: 'div',
+  childRoutes: [
+    {
+      path: '/',
+      getComponent: (location, cb) => {
+        cb(null, App );
+      },
+      indexRoute: {
+        component: require('./layout/Dashboard'),
+        onEnter: Managers.SecurityManager.checkAccess,
+        access: [{ type: 'IS_AUTHENTICATED' }]
+      },
+      childRoutes: [
+        require('../dist/modules/routeAssembler')
+      ]
+    }
+  ]
+};
+
 // fills default onEnter on all routes
 function fillCheckAccess(route, moduleId) {
   if (!route.onEnter) {
@@ -182,52 +195,15 @@ function fillCheckAccess(route, moduleId) {
     });
   }
 }
-
-const configurationManager = new Managers.ConfigurationManager();
-store.dispatch(configurationManager.fetchPublicConfigurations((data, error) => {
-  if (!error) {
-    // TODO: load FE module descriptors
-    // TODO: load component
-    // TODO: revert routes overriding
-    //
-    const routes = {
-      component: 'div',
-      childRoutes: [
-        {
-          path: '/',
-          getComponent: (location, cb) => {
-            cb(null, App );
-          },
-          indexRoute: {
-            component: require('./layout/Dashboard'),
-            onEnter: Managers.SecurityManager.checkAccess,
-            access: [{ type: 'IS_AUTHENTICATED' }]
-          },
-          childRoutes: [
-            require('../dist/modules/routeAssembler')
-          ]
-        }
-      ]
-    };
-
-    fillCheckAccess(routes, null);
-    //
-    // app entry point
-    ReactDOM.render(
-      <Provider store={store}>
-        <Router history={hashHistory} routes={routes}/>
-      </Provider>
-      ,
-      document.getElementById('content')
-    );
-  } else {
-    ReactDOM.render(
-      <div style={{ margin: 15 }}>
-        <Helmet title="503" />
-        <Basic.Alert level="danger" icon="exclamation-sign" text="Služba není momentálně dostupná." />
-      </div>
-      ,
-      document.getElementById('content')
-    );
-  }
-}));
+fillCheckAccess(routes, null);
+// init websocket for user messages (after F5 etc.)
+store.dispatch(Managers.SecurityManager.connectStompClient());
+//
+// app entry point
+ReactDOM.render(
+  <Provider store={store}>
+    <Router history={hashHistory} routes={routes}/>
+  </Provider>
+  ,
+  document.getElementById('content')
+);

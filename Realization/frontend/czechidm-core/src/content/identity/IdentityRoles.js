@@ -293,301 +293,283 @@ class Roles extends Basic.AbstractContent {
     } else {
       content = (
         <div>
-          <Basic.Row>
-            <div className="col-lg-8">
-              <Basic.Panel style={{ marginTop: 15 }}>
-                <Basic.PanelHeader text={this.i18n('navigation.menu.roles.title')}/>
-                {
-                  _showLoading
-                  ?
-                  <Basic.Loading showLoading className="static"/>
-                  :
-                  <div>
-                    <Basic.Toolbar>
-                      <div className="pull-right">
-                        <Basic.Button level="success" className="btn-xs" onClick={this.showDetail.bind(this, {})} rendered={TEST_ADD_ROLE_DIRECTLY}>
-                          <Basic.Icon value="fa:plus"/>
-                          {' '}
-                          {this.i18n('button.add')}
-                        </Basic.Button>
-                        <Basic.Button
-                          style={{display: 'block'}}
-                          level="warning"
-                          onClick={this._changePermissions.bind(this)}
-                          rendered={this._canChangePermissions()}>
-                          <Basic.Icon type="fa" icon="key"/>
-                          {' '}
-                          { this.i18n('changePermissions') }
-                        </Basic.Button>
-                      </div>
-                      <div className="clearfix"></div>
-                    </Basic.Toolbar>
-                    <Basic.Table
-                      data={entities}
-                      showRowSelection={false}
-                      noData={this.i18n('component.basic.Table.noData')}>
-                      <Basic.Column
-                        header=""
-                        className="detail-button"
-                        cell={
-                          ({ rowIndex, data }) => {
-                            return (
-                              <Advanced.DetailButton
-                                title={this.i18n('button.detail')}
-                                onClick={this.showDetail.bind(this, data[rowIndex])}/>
-                            );
-                          }
-                        }
-                        sort={false}/>
-                      <Basic.Column
-                        header={this.i18n('entity.IdentityRole.identityContract.title')}
-                        property="identityContract"
-                        cell={
-                          ({rowIndex, data, property}) => {
-                            return (
-                              <span>{ identityContractManager.getNiceLabel(data[rowIndex][property], false) }</span>
-                            );
-                          }
-                        }/>
-                      <Basic.Column
-                        header={this.i18n('entity.IdentityRole.role')}
-                        property="_embedded.role.name"
-                        />
-                      <Basic.Column
-                        property="validFrom"
-                        header={this.i18n('label.validFrom')}
-                        cell={<Basic.DateCell format={this.i18n('format.date')}/>}
-                        />
-                      <Basic.Column
-                        property="validTill"
-                        header={this.i18n('label.validTill')}
-                        cell={<Basic.DateCell format={this.i18n('format.date')}/>}/>
+          <Basic.Panel style={{ marginTop: 15 }}>
+            <Basic.PanelHeader text={this.i18n('navigation.menu.roles.title')}/>
+            {
+              _showLoading
+              ?
+              <Basic.Loading showLoading className="static"/>
+              :
+              <div>
+                <Basic.Toolbar>
+                  <div className="pull-right">
+                    <Basic.Button level="success" className="btn-xs" onClick={this.showDetail.bind(this, {})} rendered={TEST_ADD_ROLE_DIRECTLY}>
+                      <Basic.Icon value="fa:plus"/>
+                      {' '}
+                      {this.i18n('button.add')}
+                    </Basic.Button>
+                    <Basic.Button
+                      style={{display: 'block'}}
+                      level="warning"
+                      onClick={this._changePermissions.bind(this)}
+                      rendered={this._canChangePermissions()}>
+                      <Basic.Icon type="fa" icon="key"/>
+                      {' '}
+                      { this.i18n('changePermissions') }
+                    </Basic.Button>
+                  </div>
+                  <div className="clearfix"></div>
+                </Basic.Toolbar>
+                <Basic.Table
+                  data={entities}
+                  showRowSelection={false}
+                  noData={this.i18n('component.basic.Table.noData')}>
+                  <Basic.Column
+                    header=""
+                    className="detail-button"
+                    cell={
+                      ({ rowIndex, data }) => {
+                        return (
+                          <Advanced.DetailButton
+                            title={this.i18n('button.detail')}
+                            onClick={this.showDetail.bind(this, data[rowIndex])}/>
+                        );
+                      }
+                    }
+                    sort={false}/>
+                  <Basic.Column
+                    header={this.i18n('entity.IdentityRole.identityContract.title')}
+                    property="identityContract"
+                    cell={
+                      ({rowIndex, data, property}) => {
+                        return (
+                          <span>{ identityContractManager.getNiceLabel(data[rowIndex][property], false) }</span>
+                        );
+                      }
+                    }/>
+                  <Basic.Column
+                    header={this.i18n('entity.IdentityRole.role')}
+                    property="_embedded.role.name"
+                    />
+                  <Basic.Column
+                    property="validFrom"
+                    header={this.i18n('label.validFrom')}
+                    cell={<Basic.DateCell format={this.i18n('format.date')}/>}
+                    />
+                  <Basic.Column
+                    property="validTill"
+                    header={this.i18n('label.validTill')}
+                    cell={<Basic.DateCell format={this.i18n('format.date')}/>}/>
 
-                        <Basic.Column
-                          header={<Basic.Cell className="column-face-bool">{this.i18n('entity.IdentityRole.roleTreeNode.label')}</Basic.Cell>}
-                          cell={
-                            /* eslint-disable react/no-multi-comp */
-                            ({ rowIndex, data }) => {
-                              return (
-                                <Basic.BooleanCell propertyValue={ data[rowIndex].roleTreeNode !== null } className="column-face-bool"/>
-                              );
-                            }
-                          }
-                          width="150px"/>
-                      </Basic.Table>
-                    </div>
+                    <Basic.Column
+                      header={<Basic.Cell className="column-face-bool">{this.i18n('entity.IdentityRole.roleTreeNode.label')}</Basic.Cell>}
+                      cell={
+                        /* eslint-disable react/no-multi-comp */
+                        ({ rowIndex, data }) => {
+                          return (
+                            <Basic.BooleanCell propertyValue={ data[rowIndex].roleTreeNode !== null } className="column-face-bool"/>
+                          );
+                        }
+                      }
+                      width="150px"/>
+                  </Basic.Table>
+                </div>
+              }
+            </Basic.Panel>
+
+            <Basic.Panel>
+              <Basic.PanelHeader text={this.i18n('changeRoleProcesses.header')}/>
+              <Advanced.Table
+                ref="tableProcesses"
+                uiKey="table-processes"
+                rowClass={this._rowClass}
+                forceSearchParameters={force}
+                manager={workflowProcessInstanceManager}
+                pagination={false}>
+                <Advanced.Column
+                  property="detail"
+                  cell={
+                    ({ rowIndex, data }) => {
+                      return (
+                        <Advanced.DetailButton
+                          title={this.i18n('button.detail')}
+                          onClick={this.showProcessDetail.bind(this, data[rowIndex])}/>
+                      );
+                    }
                   }
-                </Basic.Panel>
+                  header={' '}
+                  sort={false}
+                  face="text"/>
+                <Advanced.Column
+                  property="currentActivityName"
+                  header={this.i18n('content.roles.processRoleChange.currentActivity')}
+                  sort={false}
+                  face="text"/>
+                <Advanced.Column
+                  property="processVariables.roleIdentifier"
+                  cell={this._roleNameCell.bind(this)}
+                  header={this.i18n('content.roles.processRoleChange.roleName')}
+                  sort={false}
+                  face="text"/>
+                <Advanced.Column
+                  property="processVariables.validFrom"
+                  header={this.i18n('content.roles.processRoleChange.roleValidFrom')}
+                  sort={false}
+                  face="date"/>
+                <Advanced.Column
+                  property="processVariables.validTill"
+                  header={this.i18n('content.roles.processRoleChange.roleValidTill')}
+                  sort={false}
+                  face="date"/>
+                <Advanced.Column
+                  property="id"
+                  header={this.i18n('label.id')}
+                  sort={false}
+                  face="text"/>
+                <Advanced.Column
+                  header={this.i18n('label.action')}
+                  className="action"
+                  cell={
+                    ({ rowIndex, data }) => {
+                      return (
+                        <Basic.Button
+                          level="danger"
+                          onClick={this._onDeleteAddRoleProcessInstance.bind(this, data[rowIndex])}
+                          className="btn-xs"
+                          title={this.i18n('button.delete')}
+                          titlePlacement="bottom">
+                          <Basic.Icon icon="trash"/>
+                        </Basic.Button>
+                      );
+                    }
+                  }/>
+              </Advanced.Table>
+            </Basic.Panel>
+            <Basic.Panel>
+              <Basic.PanelHeader text={this.i18n('changePermissionProcesses.header')}/>
+              <Advanced.Table
+                ref="tablePermissionProcesses"
+                uiKey="table-permission-processes"
+                forceSearchParameters={forcePermissions}
+                manager={workflowProcessInstanceManager}
+                pagination={false}>
+                <Advanced.Column
+                  property="detail"
+                  cell={
+                    ({ rowIndex, data }) => {
+                      return (
+                        <Advanced.DetailButton
+                          title={this.i18n('button.detail')}
+                          onClick={this.showProcessDetail.bind(this, data[rowIndex])}/>
+                      );
+                    }
+                  }
+                  header={' '}
+                  sort={false}
+                  face="text"/>
+                <Advanced.Column
+                  property="processVariables.processInstanceName"
+                  header={this.i18n('content.roles.processPermissionChange.processInstanceName')}
+                  sort={false}
+                  face="text"/>
+                <Advanced.Column
+                  property="currentActivityName"
+                  header={this.i18n('content.roles.processPermissionChange.currentActivity')}
+                  sort={false}
+                  face="text"/>
+                <Advanced.Column
+                      property="candicateUsers"
+                      header={this.i18n('entity.WorkflowHistoricTaskInstance.candicateUsers')}
+                      cell={<CandicateUsersCell maxEntry={MAX_CANDICATES} />}/>
+                <Advanced.Column
+                  property="id"
+                  header={this.i18n('label.id')}
+                  sort={false}
+                  face="text"/>
+                <Advanced.Column
+                  header={this.i18n('label.action')}
+                  className="action"
+                  cell={
+                    ({ rowIndex, data }) => {
+                      return (
+                        <Basic.Button
+                          level="danger"
+                          onClick={this._onDeleteAddRoleProcessInstance.bind(this, data[rowIndex])}
+                          className="btn-xs"
+                          title={this.i18n('button.delete')}
+                          titlePlacement="bottom">
+                          <Basic.Icon icon="trash"/>
+                        </Basic.Button>
+                      );
+                    }
+                  }/>
+              </Advanced.Table>
+            </Basic.Panel>
 
-                <Basic.Panel>
-                  <Basic.PanelHeader text={this.i18n('changeRoleProcesses.header')}/>
-                  <Advanced.Table
-                    ref="tableProcesses"
-                    uiKey="table-processes"
-                    rowClass={this._rowClass}
-                    forceSearchParameters={force}
-                    manager={workflowProcessInstanceManager}
-                    pagination={false}>
-                    <Advanced.Column
-                      property="detail"
-                      cell={
-                        ({ rowIndex, data }) => {
-                          return (
-                            <Advanced.DetailButton
-                              title={this.i18n('button.detail')}
-                              onClick={this.showProcessDetail.bind(this, data[rowIndex])}/>
-                          );
-                        }
-                      }
-                      header={' '}
-                      sort={false}
-                      face="text"/>
-                    <Advanced.Column
-                      property="currentActivityName"
-                      header={this.i18n('content.roles.processRoleChange.currentActivity')}
-                      sort={false}
-                      face="text"/>
-                    <Advanced.Column
-                      property="processVariables.roleIdentifier"
-                      cell={this._roleNameCell.bind(this)}
-                      header={this.i18n('content.roles.processRoleChange.roleName')}
-                      sort={false}
-                      face="text"/>
-                    <Advanced.Column
-                      property="processVariables.validFrom"
-                      header={this.i18n('content.roles.processRoleChange.roleValidFrom')}
-                      sort={false}
-                      face="date"/>
-                    <Advanced.Column
-                      property="processVariables.validTill"
-                      header={this.i18n('content.roles.processRoleChange.roleValidTill')}
-                      sort={false}
-                      face="date"/>
-                    <Advanced.Column
-                      property="id"
-                      header={this.i18n('label.id')}
-                      sort={false}
-                      face="text"/>
-                    <Advanced.Column
-                      header={this.i18n('label.action')}
-                      className="action"
-                      cell={
-                        ({ rowIndex, data }) => {
-                          return (
-                            <Basic.Button
-                              level="danger"
-                              onClick={this._onDeleteAddRoleProcessInstance.bind(this, data[rowIndex])}
-                              className="btn-xs"
-                              title={this.i18n('button.delete')}
-                              titlePlacement="bottom">
-                              <Basic.Icon icon="trash"/>
-                            </Basic.Button>
-                          );
-                        }
-                      }/>
-                  </Advanced.Table>
-                </Basic.Panel>
-                <Basic.Panel>
-                  <Basic.PanelHeader text={this.i18n('changePermissionProcesses.header')}/>
-                  <Advanced.Table
-                    ref="tablePermissionProcesses"
-                    uiKey="table-permission-processes"
-                    forceSearchParameters={forcePermissions}
-                    manager={workflowProcessInstanceManager}
-                    pagination={false}>
-                    <Advanced.Column
-                      property="detail"
-                      cell={
-                        ({ rowIndex, data }) => {
-                          return (
-                            <Advanced.DetailButton
-                              title={this.i18n('button.detail')}
-                              onClick={this.showProcessDetail.bind(this, data[rowIndex])}/>
-                          );
-                        }
-                      }
-                      header={' '}
-                      sort={false}
-                      face="text"/>
-                    <Advanced.Column
-                      property="processVariables.processInstanceName"
-                      header={this.i18n('content.roles.processPermissionChange.processInstanceName')}
-                      sort={false}
-                      face="text"/>
-                    <Advanced.Column
-                      property="currentActivityName"
-                      header={this.i18n('content.roles.processPermissionChange.currentActivity')}
-                      sort={false}
-                      face="text"/>
-                    <Advanced.Column
-                          property="candicateUsers"
-                          header={this.i18n('entity.WorkflowHistoricTaskInstance.candicateUsers')}
-                          cell={<CandicateUsersCell maxEntry={MAX_CANDICATES} />}/>
-                    <Advanced.Column
-                      property="id"
-                      header={this.i18n('label.id')}
-                      sort={false}
-                      face="text"/>
-                    <Advanced.Column
-                      header={this.i18n('label.action')}
-                      className="action"
-                      cell={
-                        ({ rowIndex, data }) => {
-                          return (
-                            <Basic.Button
-                              level="danger"
-                              onClick={this._onDeleteAddRoleProcessInstance.bind(this, data[rowIndex])}
-                              className="btn-xs"
-                              title={this.i18n('button.delete')}
-                              titlePlacement="bottom">
-                              <Basic.Icon icon="trash"/>
-                            </Basic.Button>
-                          );
-                        }
-                      }/>
-                  </Advanced.Table>
-                </Basic.Panel>
+            <Basic.Modal
+              bsSize="default"
+              show={detail.show}
+              onHide={this.closeDetail.bind(this)}
+              backdrop="static"
+              keyboard={!_showLoading}>
 
-                <Basic.Modal
-                  bsSize="default"
-                  show={detail.show}
-                  onHide={this.closeDetail.bind(this)}
-                  backdrop="static"
-                  keyboard={!_showLoading}>
+              <form onSubmit={this.save.bind(this)}>
+                <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('create.header')} rendered={detail.entity.id === undefined}/>
+                <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('edit.header', { role: detail.entity.role })} rendered={detail.entity.id !== undefined}/>
+                <Basic.Modal.Body>
+                  <Basic.AbstractForm ref="form" showLoading={_showLoading} readOnly={!TEST_ADD_ROLE_DIRECTLY}>
+                    <Basic.TextField
+                      label={this.i18n('entity.IdentityRole.identityContract.label')}
+                      helpBlock={this.i18n('entity.IdentityRole.identityContract.help')}
+                      value={ identityContractManager.getNiceLabel(detail.entity.identityContract) }
+                      readOnly={!TEST_ADD_ROLE_DIRECTLY}
+                      required/>
+                    <Basic.SelectBox
+                      ref="role"
+                      manager={roleManager}
+                      label={this.i18n('entity.IdentityRole.role')}
+                      required/>
+                    <Basic.LabelWrapper
+                      label={this.i18n('entity.IdentityRole.roleTreeNode.label')}
+                      helpBlock={this.i18n('entity.IdentityRole.roleTreeNode.help')}>
+                      { roleTreeNodeManager.getNiceLabel(detail.entity.roleTreeNode) }
+                    </Basic.LabelWrapper>
+                    <Basic.Row>
+                      <div className="col-md-6">
+                        <Basic.DateTimePicker
+                          mode="date"
+                          ref="validFrom"
+                          label={this.i18n('label.validFrom')}/>
+                      </div>
+                      <div className="col-md-6">
+                        <Basic.DateTimePicker
+                          mode="date"
+                          ref="validTill"
+                          label={this.i18n('label.validTill')}/>
+                      </div>
+                    </Basic.Row>
+                  </Basic.AbstractForm>
+                </Basic.Modal.Body>
 
-                  <form onSubmit={this.save.bind(this)}>
-                    <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('create.header')} rendered={detail.entity.id === undefined}/>
-                    <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('edit.header', { role: detail.entity.role })} rendered={detail.entity.id !== undefined}/>
-                    <Basic.Modal.Body>
-                      <Basic.AbstractForm ref="form" showLoading={_showLoading} readOnly={!TEST_ADD_ROLE_DIRECTLY}>
-                        <Basic.TextField
-                          label={this.i18n('entity.IdentityRole.identityContract.label')}
-                          helpBlock={this.i18n('entity.IdentityRole.identityContract.help')}
-                          value={ identityContractManager.getNiceLabel(detail.entity.identityContract) }
-                          readOnly={!TEST_ADD_ROLE_DIRECTLY}
-                          required/>
-                        <Basic.SelectBox
-                          ref="role"
-                          manager={roleManager}
-                          label={this.i18n('entity.IdentityRole.role')}
-                          required/>
-                        <Basic.LabelWrapper
-                          label={this.i18n('entity.IdentityRole.roleTreeNode.label')}
-                          helpBlock={this.i18n('entity.IdentityRole.roleTreeNode.help')}>
-                          { roleTreeNodeManager.getNiceLabel(detail.entity.roleTreeNode) }
-                        </Basic.LabelWrapper>
-                        <Basic.Row>
-                          <div className="col-md-6">
-                            <Basic.DateTimePicker
-                              mode="date"
-                              ref="validFrom"
-                              label={this.i18n('label.validFrom')}/>
-                          </div>
-                          <div className="col-md-6">
-                            <Basic.DateTimePicker
-                              mode="date"
-                              ref="validTill"
-                              label={this.i18n('label.validTill')}/>
-                          </div>
-                        </Basic.Row>
-                      </Basic.AbstractForm>
-                    </Basic.Modal.Body>
-
-                    <Basic.Modal.Footer>
-                      <Basic.Button
-                        level="link"
-                        onClick={this.closeDetail.bind(this)}
-                        showLoading={_showLoading}>
-                        {this.i18n('button.close')}
-                      </Basic.Button>
-                      <Basic.Button
-                        type="submit"
-                        level="success"
-                        showLoading={_showLoading}
-                        showLoadingIcon
-                        showLoadingText={this.i18n('button.saving')}
-                        rendered={TEST_ADD_ROLE_DIRECTLY}>
-                        {this.i18n('button.save')}
-                      </Basic.Button>
-                    </Basic.Modal.Footer>
-                  </form>
-                </Basic.Modal>
-              </div>
-
-              <div className="col-lg-4">
-                <Basic.Panel style={{ marginTop: 15 }}>
-                  <Basic.PanelHeader help={authorityHelp}>
-                    <h3><span dangerouslySetInnerHTML={{ __html: this.i18n('authorities') }}/></h3>
-                  </Basic.PanelHeader>
-                  <Basic.PanelBody>
-                    <AuthoritiesPanel
-                      roleManager={roleManager}
-                      authorities={authorities}
-                      disabled/>
-                  </Basic.PanelBody>
-                </Basic.Panel>
-              </div>
-            </Basic.Row>
+                <Basic.Modal.Footer>
+                  <Basic.Button
+                    level="link"
+                    onClick={this.closeDetail.bind(this)}
+                    showLoading={_showLoading}>
+                    {this.i18n('button.close')}
+                  </Basic.Button>
+                  <Basic.Button
+                    type="submit"
+                    level="success"
+                    showLoading={_showLoading}
+                    showLoadingIcon
+                    showLoadingText={this.i18n('button.saving')}
+                    rendered={TEST_ADD_ROLE_DIRECTLY}>
+                    {this.i18n('button.save')}
+                  </Basic.Button>
+                </Basic.Modal.Footer>
+              </form>
+            </Basic.Modal>
         </div>
       );
     }

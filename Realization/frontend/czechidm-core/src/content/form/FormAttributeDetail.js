@@ -155,7 +155,7 @@ class FormAttributeDetail extends Basic.AbstractContent {
         <Basic.Panel>
             <form onSubmit={this.save.bind(this)}>
               <Basic.AbstractForm ref="form" data={loadedEntity} showLoading={showLoading || _showLoading}
-                readOnly={!SecurityManager.hasAuthority('EAV_FORM_ATTRIBUTES_WRITE')} style={{ padding: '15px 15px 0 15px' }}>
+                readOnly={!SecurityManager.hasAuthority('EAVFORMATTRIBUTES_WRITE')} style={{ padding: '15px 15px 0 15px' }}>
                 <Basic.Row>
                   <div className="col-lg-4">
                     <Basic.TextField
@@ -236,7 +236,7 @@ class FormAttributeDetail extends Basic.AbstractContent {
                   level="success"
                   showLoadingIcon
                   showLoadingText={this.i18n('button.saving')}
-                  rendered={SecurityManager.hasAuthority('EAV_FORM_ATTRIBUTES_WRITE')}>
+                  rendered={SecurityManager.hasAuthority('EAVFORMATTRIBUTES_WRITE')}>
                   {this.i18n('button.save')}
                 </Basic.Button>
               </Basic.PanelFooter>

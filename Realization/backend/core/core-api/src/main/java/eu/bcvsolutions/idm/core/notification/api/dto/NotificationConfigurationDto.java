@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.notification.api.dto;
 
+import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 
 /**
@@ -8,7 +9,9 @@ import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
  * @author Radek Tomiška
  *
  */
-public class NotificationConfigurationDto {
+public class NotificationConfigurationDto extends AbstractDto {
+
+	private static final long serialVersionUID = 5872984952206193354L;
 	
 	private String topic;
 	private NotificationLevel level;

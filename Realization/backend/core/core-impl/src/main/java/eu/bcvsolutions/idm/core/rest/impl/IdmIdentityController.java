@@ -8,7 +8,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
-import org.activiti.engine.runtime.ProcessInstance;
 import org.hibernate.envers.exception.RevisionDoesNotExistException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -38,7 +37,6 @@ import eu.bcvsolutions.idm.core.api.config.domain.IdentityConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
-import eu.bcvsolutions.idm.core.api.rest.domain.ResourceWrapper;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.eav.rest.impl.IdmFormDefinitionController;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
@@ -57,13 +55,8 @@ import eu.bcvsolutions.idm.core.model.entity.eav.IdmIdentityFormValue;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuditService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 import eu.bcvsolutions.idm.core.security.service.GrantedAuthoritiesFactory;
-import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
-import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowTaskInstanceDto;
-import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
-import eu.bcvsolutions.idm.core.workflow.service.WorkflowTaskInstanceService;
 
 /**
  * Rest methods for IdmIdentity resource
@@ -78,8 +71,6 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 	private final GrantedAuthoritiesFactory grantedAuthoritiesFactory;
 	private final IdmIdentityContractService identityContractService;
 	private final IdmIdentityRoleService identityRoleService;
-	private final WorkflowTaskInstanceService workflowTaskInstanceService;	
-	private final WorkflowProcessInstanceService workflowProcessInstanceService;
 	private final IdmAuditService auditService; 	
 	private final ForestContentService<IdmTreeNode, IdmForestIndexEntity, UUID> treeNodeService;
 	//
@@ -92,8 +83,6 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 			GrantedAuthoritiesFactory grantedAuthoritiesFactory,
 			IdmIdentityContractService identityContractService,
 			IdmIdentityRoleService identityRoleService,
-			WorkflowTaskInstanceService workflowTaskInstanceService,
-			WorkflowProcessInstanceService workflowProcessInstanceService,
 			IdmAuditService auditService,
 			ForestContentService<IdmTreeNode, IdmForestIndexEntity, UUID> treeNodeService) {
 		super(entityLookupService);
@@ -102,8 +91,6 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 		Assert.notNull(grantedAuthoritiesFactory);
 		Assert.notNull(identityContractService);
 		Assert.notNull(identityRoleService);
-		Assert.notNull(workflowTaskInstanceService);
-		Assert.notNull(workflowProcessInstanceService);
 		Assert.notNull(auditService);
 		Assert.notNull(treeNodeService);
 		//
@@ -111,8 +98,6 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 		this.grantedAuthoritiesFactory = grantedAuthoritiesFactory;
 		this.identityContractService = identityContractService;
 		this.identityRoleService = identityRoleService;
-		this.workflowTaskInstanceService = workflowTaskInstanceService;
-		this.workflowProcessInstanceService = workflowProcessInstanceService;
 		this.auditService = auditService;
 		this.treeNodeService = treeNodeService;
 	}
@@ -164,27 +149,6 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 		}
 		//
 		return grantedAuthoritiesFactory.getGrantedAuthorities(identity.getUsername());
-	}
-
-	/**
-	 * Change given identity's permissions (assigned roles)
-	 * @param identityId
-	 * @return Instance of workflow user task, where applicant can fill his change permission request
-	 */
-	@ResponseBody
-	@RequestMapping(value = "/{identityId}/change-permissions", method = RequestMethod.PUT)
-	public ResponseEntity<ResourceWrapper<WorkflowTaskInstanceDto>> changePermissions(@PathVariable String identityId) {	
-		IdmIdentity identity = getEntity(identityId);
-		if (identity == null) {
-			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", identityId));
-		}
-		ProcessInstance processInstance = workflowProcessInstanceService.startProcess(IdmIdentityService.ADD_ROLE_TO_IDENTITY_WORKFLOW,
-				IdmIdentity.class.getSimpleName(), identity.getUsername(), identity.getId().toString(), null);
-		//
-		WorkflowFilterDto filter = new WorkflowFilterDto();
-		filter.setProcessInstanceId(processInstance.getId());
-		List<WorkflowTaskInstanceDto> tasks = (List<WorkflowTaskInstanceDto>) workflowTaskInstanceService.search(filter).getResources();
-		return new ResponseEntity<ResourceWrapper<WorkflowTaskInstanceDto>>(new ResourceWrapper<WorkflowTaskInstanceDto>(tasks.get(0)), HttpStatus.OK);
 	}
 	
 	@ResponseBody

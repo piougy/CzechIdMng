@@ -36,10 +36,10 @@ export default class RoleRequestStateEnum extends AbstractEnum {
         return 'warning';
       }
       case this.APPROVED: {
-        return 'info';
+        return 'success';
       }
       case this.IN_PROGRESS: {
-        return 'info';
+        return 'warning';
       }
       case this.EXCEPTION: {
         return 'danger';

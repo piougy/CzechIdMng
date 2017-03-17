@@ -3,6 +3,7 @@ import _ from 'lodash';
 import Joi from 'joi';
 //
 import * as Basic from '../../basic';
+import * as Advanced from '../../../components/advanced';
 
 /**
  * Content of eav form by given form instance (= form definition + form values)
@@ -405,7 +406,7 @@ export default class EavForm extends Basic.AbstractContextComponent {
             // richtextarea
             if (attribute.persistentType === 'RICHTEXTAREA') {
               return (
-                <Basic.RichTextArea
+                <Advanced.RichTextArea
                   ref={attribute.name}
                   label={attribute.displayName}
                   value={this._toInputValue(attribute, formValues)}

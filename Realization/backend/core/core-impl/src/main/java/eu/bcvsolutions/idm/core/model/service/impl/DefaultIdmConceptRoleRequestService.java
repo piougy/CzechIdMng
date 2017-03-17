@@ -1,14 +1,12 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
+import java.text.MessageFormat;
+
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-
-import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.Loggable;
-import eu.bcvsolutions.idm.core.api.exception.RoleRequestException;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.model.domain.RoleRequestState;
@@ -16,7 +14,6 @@ import eu.bcvsolutions.idm.core.model.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.model.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.model.dto.filter.ConceptRoleRequestFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmConceptRoleRequest;
-import eu.bcvsolutions.idm.core.model.entity.IdmRoleRequest;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConceptRoleRequestService;
 
 /**
@@ -59,6 +56,7 @@ public class DefaultIdmConceptRoleRequestService
 			dto.setState(RoleRequestState.CONCEPT);
 		}
 		return super.toEntity(dto, entity);
+		 
 	}
 
 	@Override

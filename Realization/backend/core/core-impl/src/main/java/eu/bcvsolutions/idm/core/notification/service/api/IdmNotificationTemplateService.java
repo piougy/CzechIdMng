@@ -4,6 +4,7 @@ import java.util.List;
 
 import eu.bcvsolutions.idm.core.api.service.IdentifiableByNameEntityService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
+import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.notification.dto.filter.NotificationTemplateFilter;
 import eu.bcvsolutions.idm.core.notification.entity.IdmMessage;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationTemplate;
@@ -63,4 +64,13 @@ public interface IdmNotificationTemplateService extends ReadWriteEntityService<I
 	 * 
 	 */
 	void initSystemTemplates();
+	
+	/**
+	 * Method find template for topic and level with help by notification cofiguration.
+	 * 
+	 * @param topic
+	 * @param level
+	 * @return
+	 */
+	IdmNotificationTemplate resolveTemplate(String topic, NotificationLevel level);
 }

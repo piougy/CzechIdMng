@@ -1,6 +1,7 @@
 import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
+import _ from 'lodash';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
@@ -13,7 +14,7 @@ import UiUtils from '../../utils/UiUtils';
 import RoleConceptTable from './RoleConceptTable';
 
 const uiKey = 'role-request';
-const uiKeyAttributes = 'concept-role-requests-table';
+const uiKeyAttributes = 'concept-role-requests';
 const conceptRoleRequestManager = new ConceptRoleRequestManager();
 const roleRequestManager = new RoleRequestManager();
 const identityRoleManager = new IdentityRoleManager();
@@ -38,8 +39,9 @@ class RoleRequestDetail extends Basic.AbstractTableContent {
 
   componentWillReceiveProps(nextProps) {
     const {_request} = nextProps;
-    const {entityId} = nextProps.params;
-    if (entityId && entityId !== this.props.params.entityId) {
+    const entityId = nextProps.entityId ? nextProps.entityId : nextProps.params.entityId;
+    const entityIdCurrent = this.props.entityId ? this.props.entityId : this.props.params.entityId;
+    if (entityId && entityId !== entityIdCurrent) {
       this._initComponent(nextProps);
     }
     if (_request && _request !== this.props._request) {
@@ -61,17 +63,24 @@ class RoleRequestDetail extends Basic.AbstractTableContent {
    * @param  {properties of component} props For didmount call is this.props for call from willReceiveProps is nextProps.
    */
   _initComponent(props) {
-    const { entityId} = props.params;
+    const { entityId} = props;
+    const _entityId = entityId ? entityId : props.params.entityId;
+    const adminMode = props.adminMode !== undefined ? props.adminMode : props.location.state.adminMode;
     if (this._getIsNew(props)) {
-      this.setState({request: {
-        applicant: props.location.query.applicantId,
-        state: RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.CONCEPT),
-        requestedByType: 'MANUALLY'
-      }}, () => {
-        this.save(null);
+      this.setState({
+        adminMode,
+        request: {
+          applicant: props.location.query.applicantId,
+          state: RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.CONCEPT),
+          requestedByType: 'MANUALLY'
+        }}, () => {
+        this.save(null, false);
       });
     } else {
-      this.context.store.dispatch(roleRequestManager.fetchEntity(entityId));
+      this.context.store.dispatch(roleRequestManager.fetchEntity(_entityId));
+      this.setState({
+        adminMode
+      });
     }
   }
 
@@ -90,7 +99,7 @@ class RoleRequestDetail extends Basic.AbstractTableContent {
   /**
    * Saves give entity
    */
-  save(event) {
+  save(startRequest, event) {
     if (event) {
       event.preventDefault();
     }
@@ -105,16 +114,29 @@ class RoleRequestDetail extends Basic.AbstractTableContent {
         this.afterSave(createdEntity, error);
       }));
     } else {
-      this.context.store.dispatch(roleRequestManager.updateEntity(formEntity, `${uiKey}-detail`, this.afterSave.bind(this)));
+      if (startRequest) {
+        this.context.store.dispatch(roleRequestManager.updateEntity(formEntity, `${uiKey}-detail`, this.afterSaveAndStartRequest.bind(this)));
+      } else {
+        this.context.store.dispatch(roleRequestManager.updateEntity(formEntity, `${uiKey}-detail`, this.afterSave.bind(this)));
+      }
     }
   }
 
   afterSave(entity, error) {
     if (!error) {
+      const {adminMode} = this.state;
       this.addMessage({ message: this.i18n('save.success') });
       if (this._getIsNew()) {
-        this.context.router.replace(`/role-requests/${entity.id}/detail`, {entityId: entity.id});
+        this.context.router.replace({pathname: `/role-requests/${entity.id}/detail`, param: {entityId: entity.id}, state: {adminMode}});
       }
+    } else {
+      this.addError(error);
+    }
+  }
+
+  afterSaveAndStartRequest(entity, error) {
+    if (!error) {
+      this._startRequest(entity.id);
     } else {
       this.addError(error);
     }
@@ -125,12 +147,17 @@ class RoleRequestDetail extends Basic.AbstractTableContent {
   }
 
   _getIsNew(nextProps) {
-    const { query } = nextProps ? nextProps.location : this.props.location;
-    return (query) ? query.new : null;
+    if ((nextProps && nextProps.location) || this.props.location) {
+      const { query } = nextProps ? nextProps.location : this.props.location;
+      return (query) ? query.new : null;
+    }
+    return false;
   }
 
   _removeConcept(data, type) {
     const {_request} = this.props;
+    this.setState({showLoading: true});
+
     let concept = data;
     if (type === ConceptRoleRequestOperationEnum.findKeyBySymbol(ConceptRoleRequestOperationEnum.REMOVE)
       || (type === ConceptRoleRequestOperationEnum.findKeyBySymbol(ConceptRoleRequestOperationEnum.UPDATE))) {
@@ -149,12 +176,14 @@ class RoleRequestDetail extends Basic.AbstractTableContent {
         }
       }
       this.refs.table.getWrappedInstance().reload();
+      this.setState({showLoading: false});
     })
     .catch(error => {
       this.addError(error);
+      this.setState({showLoading: false});
     });
 
-    // this.context.store.dispatch(conceptRoleRequestManager.deleteEntity(concept, `${uiKeyAttributes}-detail`, (deletedEntity, error) => {
+    // this.context.store.dispatch(conceptRoleRequestManager.deleteEntity(concept, `${uiKeyAttributes}-deleteConcept-${_request.applicant}`, (deletedEntity, error) => {
     //   if (!error) {
     //     for (const conceptRole of _request.conceptRoles) {
     //       if (conceptRole.id === concept.id) {
@@ -170,6 +199,7 @@ class RoleRequestDetail extends Basic.AbstractTableContent {
 
   _updateConcept(data, type) {
     const {_request} = this.props;
+    this.setState({showLoading: true});
 
     let concept;
     if (type === ConceptRoleRequestOperationEnum.findKeyBySymbol(ConceptRoleRequestOperationEnum.UPDATE)) {
@@ -204,7 +234,9 @@ class RoleRequestDetail extends Basic.AbstractTableContent {
           }
         }
         this.refs.table.getWrappedInstance().reload();
+        this.setState({showLoading: false});
       } else {
+        this.setState({showLoading: false});
         this.addError(error);
       }
     }));
@@ -212,6 +244,7 @@ class RoleRequestDetail extends Basic.AbstractTableContent {
 
   _createConcept(data, type) {
     const {_request} = this.props;
+    this.setState({showLoading: true});
     const concept = {
       'operation': type,
       'roleRequest': _request.id,
@@ -224,14 +257,16 @@ class RoleRequestDetail extends Basic.AbstractTableContent {
 
     conceptRoleRequestManager.getService().create(concept)
     .then(json => {
+      this.setState({showLoading: false});
       _request.conceptRoles.push(json);
       this.refs.table.getWrappedInstance().reload();
     })
     .catch(error => {
+      this.setState({showLoading: false});
       this.addError(error);
     });
 
-    // this.context.store.dispatch(conceptRoleRequestManager.createEntity(concept, `${uiKeyAttributes}-detail`, (createdEntity, error) => {
+    // this.context.store.dispatch(conceptRoleRequestManager.createEntity(concept, `${uiKeyAttributes}-createConcept-${_request.applicant}`, (createdEntity, error) => {
     //   if (!error) {
     //     _request.conceptRoles.push(createdEntity);
     //     this.refs.table.getWrappedInstance().reload();
@@ -241,110 +276,45 @@ class RoleRequestDetail extends Basic.AbstractTableContent {
     // }));
   }
 
-  render() {
-    const { _showLoading, _request, _currentIdentityRoles, adminMode} = this.props;
-    const forceSearchParameters = new SearchParameters().setFilter('roleRequestId', _request ? _request.id : SearchParameters.BLANK_UUID);
-    const isNew = this._getIsNew();
-    const request = isNew ? this.state.request : _request;
-    const showLoading = !request || _showLoading;
-    const isEditable = _request && _request.state === RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.CONCEPT);
-
-    const addedIdentityRoles = [];
-    const changedIdentityRoles = [];
-    const removedIdentityRoles = [];
-    if (request && request.conceptRoles) {
-      const conceptRoles = request.conceptRoles;
-      for (const concept of conceptRoles) {
-        if (concept.operation === ConceptRoleRequestOperationEnum.findKeyBySymbol(ConceptRoleRequestOperationEnum.ADD)
-          && concept.state === RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.CONCEPT)) {
-          addedIdentityRoles.push(concept);
-        }
-        if (concept.operation === ConceptRoleRequestOperationEnum.findKeyBySymbol(ConceptRoleRequestOperationEnum.UPDATE)
-          && concept.state === RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.CONCEPT)) {
-          changedIdentityRoles.push(concept);
-        }
-        if (concept.operation === ConceptRoleRequestOperationEnum.findKeyBySymbol(ConceptRoleRequestOperationEnum.REMOVE)
-          && concept.state === RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.CONCEPT)) {
-          removedIdentityRoles.push(concept.identityRole);
-        }
-      }
+  _startRequest(idRequest, event) {
+    if (event) {
+      event.preventDefault();
     }
+    this.refs[`confirm-delete`].show(
+      this.i18n(`content.roleRequests.action.startRequest.message`),
+      this.i18n(`content.roleRequests.action.startRequest.header`)
+    ).then(() => {
+      this.setState({
+        showLoading: true
+      });
+      const promise = roleRequestManager.getService().startRequest(idRequest);
+      promise.then((json) => {
+        this.setState({
+          showLoading: false
+        });
+        this.context.router.goBack();
+        this.addMessage({ message: this.i18n('content.roleRequests.action.startRequest.started', { name: json.name }) });
+      }).catch(ex => {
+        this.setState({
+          showLoading: false
+        });
+        this.addError(ex);
+        if (this.refs.table) {
+          this.refs.table.getWrappedInstance().reload();
+        }
+      });
+    }, () => {
+      // Rejected
+    });
+    return;
+  }
 
+  _renderRoleConceptChangesTable(request, forceSearchParameters, rendered) {
+    if (!rendered) {
+      return null;
+    }
     return (
       <div>
-        <form onSubmit={this.save.bind(this)}>
-          <Helmet title={this.i18n('title')} />
-          <Basic.Confirm ref="confirm-delete" level="danger"/>
-          <Basic.ContentHeader>
-            <Basic.Icon value="compressed"/>
-            {' '}
-            <span dangerouslySetInnerHTML={{ __html: this.i18n('header') }}/>
-          </Basic.ContentHeader>
-          <Basic.Panel>
-            <Basic.AbstractForm readOnly={!isEditable} ref="form" data={request} showLoading={showLoading} style={{ padding: '15px 15px 0 15px' }}>
-              <Basic.LabelWrapper rendered={request && request.applicant} readOnly ref="applicant" label={this.i18n('entity.RoleRequest.applicant')}>
-                <Advanced.IdentityInfo username={request && request.applicant} showLoading={!request} className="no-margin" style={{ width: '60%' }}/>
-              </Basic.LabelWrapper>
-              <Basic.EnumSelectBox
-                ref="state"
-                readOnly
-                label={this.i18n('entity.RoleRequest.state')}
-                enum={RoleRequestStateEnum}
-                style={{ maxWidth: '60%' }}
-                required/>
-              <Basic.Checkbox
-                ref="executeImmediately"
-                hidden={!adminMode}
-                label={this.i18n('entity.RoleRequest.executeImmediately')}/>
-              <Basic.TextArea
-                ref="log"
-                rows="8"
-                hidden={!adminMode}
-                readOnly
-                label={this.i18n('entity.RoleRequest.log')}/>
-              <Basic.TextArea
-                ref="description"
-                rows="3"
-                placeholder={this.i18n('entity.RoleRequest.description.placeholder')}
-                label={this.i18n('entity.RoleRequest.description.label')}/>
-            </Basic.AbstractForm>
-            <Basic.PanelFooter rendered={adminMode}>
-              <Basic.Button type="button" level="link"
-                onClick={this.context.router.goBack}
-                showLoading={showLoading}>
-                {this.i18n('button.back')}
-              </Basic.Button>
-              <Basic.Button
-                onClick={this.save.bind(this)}
-                disabled={!isEditable}
-                level="success"
-                type="submit"
-                showLoading={showLoading}>
-                {this.i18n('button.save')}
-              </Basic.Button>
-            </Basic.PanelFooter>
-          </Basic.Panel>
-        </form>
-        <Basic.ContentHeader rendered={request && !isNew}>
-          <Basic.Icon value="list"/>
-          {' '}
-          <span dangerouslySetInnerHTML={{ __html: this.i18n('conceptWithCurrentRoleHeader') }}/>
-        </Basic.ContentHeader>
-        <Basic.Panel rendered={request && _currentIdentityRoles}>
-          <RoleConceptTable
-            ref="identityRoleConceptTable"
-            uiKey="identity-role-concept-table"
-            readOnly={!isEditable}
-            identityUsername={request && request.applicant}
-            identityRoles={_currentIdentityRoles}
-            addedIdentityRoles={addedIdentityRoles}
-            changedIdentityRoles={changedIdentityRoles}
-            removedIdentityRoles={removedIdentityRoles}
-            removeConceptFunc={this._removeConcept.bind(this)}
-            createConceptFunc={this._createConcept.bind(this)}
-            updateConceptFunc={this._updateConcept.bind(this)}
-            />
-        </Basic.Panel>
         <Basic.ContentHeader rendered={request}>
           <Basic.Icon value="list"/>
           {' '}
@@ -372,20 +342,157 @@ class RoleRequestDetail extends Basic.AbstractTableContent {
       </div>
     );
   }
+
+  render() {
+    const { _showLoading, _request, _currentIdentityRoles, adminMode, editableInStates, showRequestDetail} = this.props;
+
+    const _adminMode = this.state.adminMode !== null ? this.state.adminMode : adminMode;
+    const forceSearchParameters = new SearchParameters().setFilter('roleRequestId', _request ? _request.id : SearchParameters.BLANK_UUID);
+    const isNew = this._getIsNew();
+    const request = isNew ? this.state.request : _request;
+    const showLoading = !request || _showLoading || this.state.showLoading;
+    const isEditable = request && _.includes(editableInStates, request.state);
+
+    const addedIdentityRoles = [];
+    const changedIdentityRoles = [];
+    const removedIdentityRoles = [];
+    if (request && request.conceptRoles) {
+      const conceptRoles = request.conceptRoles;
+      for (const concept of conceptRoles) {
+        if (concept.operation === ConceptRoleRequestOperationEnum.findKeyBySymbol(ConceptRoleRequestOperationEnum.ADD)
+          && concept.state !== RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.EXECUTED)) {
+          addedIdentityRoles.push(concept);
+        }
+        if (concept.operation === ConceptRoleRequestOperationEnum.findKeyBySymbol(ConceptRoleRequestOperationEnum.UPDATE)
+          && concept.state !== RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.EXECUTED)) {
+          changedIdentityRoles.push(concept);
+        }
+        if (concept.operation === ConceptRoleRequestOperationEnum.findKeyBySymbol(ConceptRoleRequestOperationEnum.REMOVE)
+          && concept.state !== RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.EXECUTED)) {
+          removedIdentityRoles.push(concept.identityRole);
+        }
+      }
+    }
+
+    return (
+      <div>
+        <form onSubmit={this.save.bind(this, false)}>
+          <Helmet title={this.i18n('title')} />
+          <Basic.Confirm ref="confirm-delete" level="danger"/>
+          <Basic.ContentHeader rendered={showRequestDetail}>
+            <Basic.Icon value="compressed"/>
+            {' '}
+            <span dangerouslySetInnerHTML={{ __html: this.i18n('header') }}/>
+          </Basic.ContentHeader>
+          <Basic.Panel rendered={showRequestDetail}>
+            <Basic.AbstractForm readOnly={!isEditable} ref="form" data={request} showLoading={showLoading} style={{ padding: '15px 15px 0 15px' }}>
+              <Basic.Row>
+                <div className="col-lg-6">
+                  <Basic.LabelWrapper
+                    rendered={request && request.applicant}
+                    readOnly
+                    ref="applicant"
+                    label={this.i18n('entity.RoleRequest.applicant')}>
+                    <Advanced.IdentityInfo
+                      username={request && request.applicant}
+                      showLoading={!request}/>
+                  </Basic.LabelWrapper>
+                </div>
+              </Basic.Row>
+              <Basic.EnumLabel
+                ref="state"
+                enum={RoleRequestStateEnum}
+                label={this.i18n('entity.RoleRequest.state')}/>
+              <Basic.Checkbox
+                ref="executeImmediately"
+                hidden={!_adminMode}
+                label={this.i18n('entity.RoleRequest.executeImmediately')}/>
+              <Basic.TextArea
+                ref="log"
+                rows="8"
+                hidden={!_adminMode}
+                readOnly
+                label={this.i18n('entity.RoleRequest.log')}/>
+              <Basic.TextArea
+                ref="description"
+                rows="3"
+                placeholder={this.i18n('entity.RoleRequest.description.placeholder')}
+                label={this.i18n('entity.RoleRequest.description.label')}/>
+              {this._renderRoleConceptChangesTable(request, forceSearchParameters, true)}
+            </Basic.AbstractForm>
+            <Basic.PanelFooter>
+              <Basic.Button type="button" level="link"
+                onClick={this.context.router.goBack}
+                showLoading={showLoading}>
+                {this.i18n('button.back')}
+              </Basic.Button>
+              <Basic.Button
+                onClick={this.save.bind(this, false)}
+                disabled={!isEditable}
+                rendered={_adminMode}
+                level="success"
+                type="submit"
+                showLoading={showLoading}>
+                {this.i18n('button.save')}
+              </Basic.Button>
+              <Basic.Button
+                level="success"
+                disabled={!isEditable}
+                showLoading={showLoading}
+                onClick={this.save.bind(this, true)}
+                rendered={request && !_adminMode}
+                titlePlacement="bottom"
+                title={this.i18n('button.createRequest.tooltip')}>
+                <Basic.Icon type="fa" icon="object-group"/>
+                {' '}
+                { this.i18n('button.createRequest.label') }
+              </Basic.Button>
+            </Basic.PanelFooter>
+          </Basic.Panel>
+        </form>
+        {this._renderRoleConceptChangesTable(request, forceSearchParameters, !showRequestDetail)}
+        <Basic.ContentHeader rendered={request && !isNew}>
+          <Basic.Icon value="list"/>
+          {' '}
+          <span dangerouslySetInnerHTML={{ __html: this.i18n('conceptWithCurrentRoleHeader') }}/>
+        </Basic.ContentHeader>
+        <Basic.Panel rendered={request && _currentIdentityRoles}>
+          <RoleConceptTable
+            ref="identityRoleConceptTable"
+            uiKey="identity-role-concept-table"
+            showLoading={showLoading}
+            readOnly={!isEditable}
+            identityUsername={request && request.applicant}
+            identityRoles={_currentIdentityRoles}
+            addedIdentityRoles={addedIdentityRoles}
+            changedIdentityRoles={changedIdentityRoles}
+            removedIdentityRoles={removedIdentityRoles}
+            removeConceptFunc={this._removeConcept.bind(this)}
+            createConceptFunc={this._createConcept.bind(this)}
+            updateConceptFunc={this._updateConcept.bind(this)}
+            />
+        </Basic.Panel>
+      </div>
+    );
+  }
 }
 
 RoleRequestDetail.propTypes = {
   _showLoading: PropTypes.bool,
-  adminMode: PropTypes.bool // If true, then will be show advanced fields as log and etc.
+  adminMode: PropTypes.bool, // If true, then will be show advanced fields as log and etc.
+  editableInStates: PropTypes.arrayOf(PropTypes.string),
+  showRequestDetail: PropTypes.bool
 };
 RoleRequestDetail.defaultProps = {
-  adminMode: true,
+  editableInStates: ['CONCEPT', 'EXCEPTION', 'DUPLICATED'],
+  showRequestDetail: true
 };
 
 function select(state, component) {
-  const entity = EntityUtils.getEntity(state, roleRequestManager.getEntityType(), component.params.entityId);
+  const entityId = component.entityId ? component.entityId : component.params.entityId;
+  const entity = EntityUtils.getEntity(state, roleRequestManager.getEntityType(), entityId);
   let _currentIdentityRoles = null;
-  const applicantFromUrl = component.location.query.applicantId;
+  const applicantFromUrl = component.location ? component.location.query.applicantId : null;
   if (entity) {
     _currentIdentityRoles = identityRoleManager.getEntities(state, `${uiKey}-${entity.applicant}`);
   } else if (applicantFromUrl) {
@@ -393,7 +500,7 @@ function select(state, component) {
   }
   return {
     _request: entity,
-    _showLoading: UiUtils.isShowLoading(state, `${uiKey}-detail`),
+    _showLoading: entity ? false : true,
     _currentIdentityRoles
   };
 }

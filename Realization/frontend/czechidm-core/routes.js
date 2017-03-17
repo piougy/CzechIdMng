@@ -316,9 +316,21 @@ module.exports = {
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['EAV_FORM_DEFINITIONS_READ'] } ]
     },
     {
-      path: 'forms/:entityId',
-      component: require('./src/content/form/FormContent'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['EAV_FORM_DEFINITIONS_READ'] } ]
+      path: 'forms/',
+      component: require('./src/content/form/FormRoutes'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['EAV_FORM_DEFINITIONS_READ'] } ],
+      childRoutes: [
+        {
+          path: ':entityId/detail',
+          component: require('./src/content/form/FormDetail'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['EAV_FORM_ATTRIBUTES_READ'] } ]
+        },
+        {
+          path: ':entityId/attributes',
+          component: require('./src/content/form/FormAttributes'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['EAV_FORM_ATTRIBUTES_READ'] } ]
+        }
+      ]
     },
     {
       path: 'forms/attribute/:entityId',

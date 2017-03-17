@@ -3,9 +3,8 @@ import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 //
 import * as Basic from '../../components/basic';
-import * as Advanced from '../../components/advanced';
-import { RoleRequestManager, SecurityManager, IdentityManager} from '../../redux';
-import RoleRequestStateEnum from '../../enums/RoleRequestStateEnum';
+import { RoleRequestManager, IdentityManager} from '../../redux';
+import RoleRequestTable from './RoleRequestTable';
 import uuid from 'uuid';
 
 const uiKey = 'role-request-table';
@@ -40,17 +39,13 @@ class RoleRequests extends Basic.AbstractTableContent {
     this.selectNavigationItems(['roles-menu', 'role-requests']);
   }
 
-  showDetail(entity, add) {
-    if (add) {
-      this.setState({
-        detail: {
-          ... this.state.detail,
-          show: true
-        }
-      });
-    } else {
-      this.context.router.push(`/role-requests/${entity.id}/detail`);
-    }
+  _showCreateDetail() {
+    this.setState({
+      detail: {
+        ... this.state.detail,
+        show: true
+      }
+    });
   }
 
   _createNewRequest(event) {
@@ -62,7 +57,7 @@ class RoleRequests extends Basic.AbstractTableContent {
     }
     const applicantId = this.refs.applicant.getValue();
     const uuidId = uuid.v1();
-    this.context.router.push(`/role-requests/${uuidId}/new?new=1&applicantId=${applicantId}`);
+    this.context.router.push({pathname: `/role-requests/${uuidId}/new?new=1&applicantId=${applicantId}`, state: {adminMode: true}});
   }
 
   _startRequest(idRequest, event) {
@@ -126,115 +121,13 @@ class RoleRequests extends Basic.AbstractTableContent {
           <span dangerouslySetInnerHTML={{ __html: this.i18n('header') }}/>
         </Basic.ContentHeader>
         <Basic.Panel>
-          <Advanced.Table
+          <RoleRequestTable
             ref="table"
             uiKey={uiKey}
             showLoading={innerShowLoading}
             manager={this.getManager()}
-            showRowSelection={SecurityManager.hasAnyAuthority(['ROLEREQUEST_WRITE'])}
-            actions={
-              [{ value: 'delete', niceLabel: this.i18n('action.delete.action'),
-                 action: this.onDelete.bind(this), disabled: false }]
-            }
-            filter={
-              <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
-                <Basic.AbstractForm ref="filterForm">
-                  <Basic.Row className="last">
-                    <div className="col-lg-6">
-                      <Advanced.Filter.TextField
-                        ref="applicant"
-                        placeholder={this.i18n('filter.applicant.placeholder')}/>
-                    </div>
-                    <div className="col-lg-2"/>
-                    <div className="col-lg-4 text-right">
-                      <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
-                    </div>
-                  </Basic.Row>
-                </Basic.AbstractForm>
-              </Advanced.Filter>
-            }
-            buttons={
-              [<span>
-                <Basic.Button
-                  level="success"
-                  key="add_button"
-                  className="btn-xs"
-                  onClick={this.showDetail.bind(this, { }, true)}
-                  rendered={SecurityManager.hasAnyAuthority(['ROLEREQUEST_WRITE'])}>
-                  <Basic.Icon type="fa" icon="plus"/>
-                  {' '}
-                  {this.i18n('button.add')}
-                </Basic.Button>
-              </span>
-              ]
-            }
-            >
-            <Advanced.Column
-              property=""
-              header=""
-              className="detail-button"
-              cell={
-                ({ rowIndex, data }) => {
-                  return (
-                    <Advanced.DetailButton
-                      title={this.i18n('button.detail')}
-                      onClick={this.showDetail.bind(this, data[rowIndex], false)}/>
-                  );
-                }
-              }/>
-            <Advanced.Column
-              property="state"
-              sort
-              face="enum"
-              enumClass={RoleRequestStateEnum}/>
-            <Advanced.Column
-              property="applicant"
-              face="text"
-              cell={
-                ({ rowIndex, data }) => {
-                  const entity = data[rowIndex];
-                  return (
-                    <Advanced.IdentityInfo id={entity.applicant} face="link" />
-                  );
-                }
-              }/>
-            <Advanced.Column
-              property="executeImmediately"
-              sort
-              face="boolean"/>
-            <Advanced.Column
-              property="created"
-              sort
-              face="datetime"/>
-            <Advanced.Column
-              property=""
-              header=""
-              width="55px"
-              className="detail-button"
-              cell={
-                ({ rowIndex, data }) => {
-                  const state = data[rowIndex].state;
-                  const canBeStart = (state === RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.CONCEPT))
-                  || (state === RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.EXCEPTION));
-                  return (
-                    <span>
-                      <Basic.Button
-                        ref="startButton"
-                        type="button"
-                        level="success"
-                        rendered={SecurityManager.hasAnyAuthority(['ROLEREQUEST_WRITE']) && canBeStart}
-                        style={{marginRight: '2px'}}
-                        title={this.i18n('button.start')}
-                        titlePlacement="bottom"
-                        onClick={this._startRequest.bind(this, [data[rowIndex].id])}
-                        className="btn-xs">
-                        <Basic.Icon type="fa" icon="play"/>
-                      </Basic.Button>
-                    </span>
-                  );
-                }
-              }/>
-          </Advanced.Table>
+            createNewRequestFunc={this._showCreateDetail.bind(this)}
+            startRequestFunc={this._startRequest.bind(this)}/>
         </Basic.Panel>
         <Basic.Modal
           bsSize="default"

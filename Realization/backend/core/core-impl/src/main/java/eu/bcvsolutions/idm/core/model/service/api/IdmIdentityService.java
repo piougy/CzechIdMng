@@ -21,8 +21,7 @@ public interface IdmIdentityService extends ReadWriteEntityService<IdmIdentity, 
 	
 	@Deprecated
 	static final String CONFIDENTIAL_PROPERTY_PASSWORD = "password";
-	
-	static final String ADD_ROLE_TO_IDENTITY_WORKFLOW = "changeIdentityRoles";
+
 	
 	/**
 	 * Returns identity by given username

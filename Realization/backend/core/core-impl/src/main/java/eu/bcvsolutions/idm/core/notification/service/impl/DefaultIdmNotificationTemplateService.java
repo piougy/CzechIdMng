@@ -15,7 +15,6 @@ import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,9 +30,13 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
+import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
+import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.notification.dto.filter.NotificationTemplateFilter;
 import eu.bcvsolutions.idm.core.notification.entity.IdmMessage;
+import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationConfiguration;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationTemplate;
+import eu.bcvsolutions.idm.core.notification.repository.IdmNotificationConfigurationRepository;
 import eu.bcvsolutions.idm.core.notification.repository.IdmNotificationTemplateRepository;
 import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationTemplateService;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
@@ -62,18 +65,22 @@ public class DefaultIdmNotificationTemplateService extends AbstractReadWriteEnti
 	
 	private final ApplicationContext applicationContext;
 	
-	private final ConfigurableEnvironment env;
+	private final ConfigurationService configurationService;
+	
+	private final IdmNotificationConfigurationRepository notificationConfigurationRepository;
 	
 	@Autowired
 	public DefaultIdmNotificationTemplateService(
 			IdmNotificationTemplateRepository repository,
-			ConfigurableEnvironment env,
-			ApplicationContext applicationContext) {
+			ConfigurationService configurationService,
+			ApplicationContext applicationContext,
+			IdmNotificationConfigurationRepository notificationConfigurationRepository) {
 		super(repository);
 		//
 		Assert.notNull(repository);
-		Assert.notNull(env);
+		Assert.notNull(configurationService);
 		Assert.notNull(applicationContext);
+		Assert.notNull(notificationConfigurationRepository);
 		//
 		this.repository = repository;
 		//
@@ -82,8 +89,9 @@ public class DefaultIdmNotificationTemplateService extends AbstractReadWriteEnti
 		velocityEngine.setProperty(VelocityEngine.RUNTIME_LOG_LOGSYSTEM_CLASS, LOG);
 		velocityEngine.init();
 		this.velocityEngine = velocityEngine;
-		this.env = env;
+		this.configurationService = configurationService;
 		this.applicationContext = applicationContext;
+		this.notificationConfigurationRepository = notificationConfigurationRepository;
 	}
 	
 	@Override
@@ -204,7 +212,7 @@ public class DefaultIdmNotificationTemplateService extends AbstractReadWriteEnti
 			builder = factory.newDocumentBuilder();
 			//
 			// found all resources on all classpath by properties from configuration file
-			Resource[] resources = applicationContext.getResources(env.getProperty(TEMPLATE_FOLDER) + env.getProperty(TEMPLATE_FILE_SUFIX));
+			Resource[] resources = applicationContext.getResources(configurationService.getValue(TEMPLATE_FOLDER) + configurationService.getValue(TEMPLATE_FILE_SUFIX));
 			//
         	List<IdmNotificationTemplate> entities = new ArrayList<>();
         	// iterate trough all found resources
@@ -254,5 +262,19 @@ public class DefaultIdmNotificationTemplateService extends AbstractReadWriteEnti
 		NotificationTemplateFilter filter = new NotificationTemplateFilter();
 		filter.setSystemTemplate(true);
 		return this.find(filter, null).getContent();
+	}
+
+	@Override
+	public IdmNotificationTemplate resolveTemplate(String topic, NotificationLevel level) {
+		IdmNotificationConfiguration configuration = notificationConfigurationRepository.findNotificationByTopicLevel(topic, level);
+		
+		// if configurations is empty try to wildcard with null level
+		if (configuration == null) {
+			configuration = notificationConfigurationRepository.findNotificationByTopicLevel(topic, null);
+		}
+		if (configuration == null) {
+			return null;
+		}
+		return configuration.getTemplate();
 	}
 }

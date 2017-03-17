@@ -14,7 +14,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import com.google.common.collect.ImmutableMap;
+
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.filter.EmptyFilter;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
@@ -59,6 +63,18 @@ public class DefaultIdmNotificationConfigurationService
 		this.notificationSenders = OrderAwarePluginRegistry.create(notificationSenders);
 		this.moduleService = moduleService;
 		this.notificationTemplateService = notificationTemplateService;
+	}
+	
+	@Override
+	public IdmNotificationConfiguration save(IdmNotificationConfiguration entity) {
+		// create wild card, check if exist any another
+		if (entity.getLevel() == null) {
+			IdmNotificationConfiguration wildcard = repository.findNotificationByTopicLevel(entity.getTopic(), null);
+			if (wildcard != null && !wildcard.equals(entity)) {
+				throw new ResultCodeException(CoreResultCode.NOTIFICATION_TOPIC_AND_LEVEL_EXISTS, ImmutableMap.of("topic", entity.getTopic()));
+			}
+		}
+		return super.save(entity);
 	}
 	
 	/**

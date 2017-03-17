@@ -108,6 +108,7 @@ public enum CoreResultCode implements ResultCode {
 	//
 	// notification
 	NOTIFICATION_SYSTEM_TEMPLATE_DELETE_FAILED(HttpStatus.BAD_REQUEST, "System template [%s] can't be deleted."),
+	NOTIFICATION_TOPIC_AND_LEVEL_EXISTS(HttpStatus.CONFLICT, "Configuration can not be saved. Topic [%s] and null level exists!"),
 	//
 	// Role request
 	ROLE_REQUEST_DUPLICATE_REQUEST(HttpStatus.CONFLICT, "Request [%s] is a duplicated of another request [%s]!"),

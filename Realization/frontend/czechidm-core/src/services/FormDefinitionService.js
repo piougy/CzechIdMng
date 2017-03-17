@@ -22,6 +22,15 @@ class FormDefinitionService extends AbstractService {
   getDefaultSearchParameters() {
     return super.getDefaultSearchParameters().setName(SearchParameters.NAME_QUICK).clearSort().setSort('created', 'desc');
   }
+
+  getDefinitionTypesSearchParameters() {
+    return super.getDefaultSearchParameters().setName(FormDefinitionService.TYPES_SEARCH);
+  }
 }
+
+/**
+ * Search all types for form definition
+ */
+FormDefinitionService.TYPES_SEARCH = 'types';
 
 export default FormDefinitionService;

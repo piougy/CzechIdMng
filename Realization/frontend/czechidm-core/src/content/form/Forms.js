@@ -17,9 +17,6 @@ export default class Forms extends Basic.AbstractContent {
     return 'content.formDefinitions';
   }
 
-  /**
-   * override getNavigationKey with specific for forms agenda (form definition and form attributes same agenda
-   */
   getNavigationKey() {
     return 'forms';
   }

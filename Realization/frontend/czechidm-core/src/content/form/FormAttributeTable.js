@@ -3,10 +3,11 @@ import React, { PropTypes } from 'react';
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 //
-import { SecurityManager } from '../../redux';
+import { SecurityManager, FormAttributeManager } from '../../redux';
 import uuid from 'uuid';
 import SearchParameters from '../../domain/SearchParameters';
 
+const attributeManager = new FormAttributeManager();
 /**
 * Table of forms attributes
 */
@@ -35,7 +36,7 @@ export default class FormAttributeTable extends Basic.AbstractContent {
   }
 
   onDelete(bulkActionValue, selectedRows) {
-    const { uiKey, attributeManager } = this.props;
+    const { uiKey } = this.props;
     const selectedEntities = attributeManager.getEntitiesByIds(this.context.store.getState(), selectedRows);
     //
     // show confirm message for deleting entity or entities
@@ -66,18 +67,19 @@ export default class FormAttributeTable extends Basic.AbstractContent {
   }
 
   showDetail(entity) {
-    const { formDefinition } = this.props;
+    const { formDefinitionId } = this.props;
     if (entity.id === undefined) {
       const uuidId = uuid.v1();
-      this.context.router.push(`/forms/attribute/${uuidId}/?new=1&formDefinition=${formDefinition.id}`);
+      this.context.router.push(`/forms/attribute/${uuidId}?new=1&formDefinition=${formDefinitionId}`);
     } else {
       this.context.router.push('/forms/attribute/' + entity.id);
     }
   }
 
   render() {
-    const { uiKey, attributeManager, formDefinition } = this.props;
+    const { uiKey, formDefinitionId } = this.props;
     const { filterOpened } = this.state;
+
     return (
       <Basic.Row>
         <div className="col-lg-12">
@@ -89,7 +91,7 @@ export default class FormAttributeTable extends Basic.AbstractContent {
             manager={attributeManager}
             forceSearchParameters={
               new SearchParameters()
-              .setFilter('formDefinitionId', formDefinition.id)
+              .setFilter('formDefinitionId', formDefinitionId)
               .setSort('seq', 'ASC')}
             rowClass={({rowIndex, data}) => { return data[rowIndex].disabled ? 'disabled' : ''; }}
             filter={
@@ -98,8 +100,8 @@ export default class FormAttributeTable extends Basic.AbstractContent {
                   <Basic.Row>
                     <div className="col-lg-6">
                       <Advanced.Filter.TextField
-                        ref="text"
-                        placeholder={this.i18n('filter.text')}/>
+                        ref="name"
+                        placeholder={this.i18n('filter.name')}/>
                     </div>
                     <div className="col-lg-6 text-right">
                       <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
@@ -149,6 +151,7 @@ export default class FormAttributeTable extends Basic.AbstractContent {
             <Advanced.Column property="seq" sort width="5%"/>
             <Advanced.Column property="displayName" sort/>
             <Advanced.Column property="persistentType" sort />
+            <Advanced.Column property="systemAttribute" face="bool" sort />
           </Advanced.Table>
         </div>
       </Basic.Row>
@@ -157,12 +160,12 @@ export default class FormAttributeTable extends Basic.AbstractContent {
 }
 
 FormAttributeTable.propTypes = {
-  uiKey: PropTypes.string.isRequired,
-  attributeManager: PropTypes.object.isRequired,
   filterOpened: PropTypes.bool,
-  formDefinition: PropTypes.object
+  uiKey: PropTypes.string,
+  formDefinitionId: PropTypes.string.isRequired
 };
 
 FormAttributeTable.defaultProps = {
   filterOpened: true,
+  uiKey: 'form-attributes-table'
 };

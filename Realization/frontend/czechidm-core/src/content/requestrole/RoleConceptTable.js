@@ -371,7 +371,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
   }
 
   render() {
-    const { _showLoading, identityUsername, readOnly} = this.props;
+    const { showLoading, identityUsername, readOnly, classNameBasicTable} = this.props;
     const { conceptData, detail } = this.state;
     //
     return (
@@ -393,9 +393,10 @@ export class RoleConceptTable extends Basic.AbstractContent {
         </Basic.Toolbar>
         <Basic.Table
           hover={false}
+          showLoading={showLoading}
           data={conceptData}
           rowClass={this._rowClass}
-          classNameBasicTable="verticalScrollTable"
+          classNameBasicTable={classNameBasicTable}
           showRowSelection={false}
           noData={this.i18n('component.basic.Table.noData')}>
           <Basic.Column
@@ -455,13 +456,13 @@ export class RoleConceptTable extends Basic.AbstractContent {
           show={detail.show}
           onHide={this._closeDetail.bind(this)}
           backdrop="static"
-          keyboard={!_showLoading}>
+          keyboard={!showLoading}>
 
           <form onSubmit={this._saveConcept.bind(this)}>
-            <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('create.header')} rendered={detail.entity.id === undefined}/>
-            <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('edit.header', { role: detail.entity.role })} rendered={detail.entity.id !== undefined}/>
+            <Basic.Modal.Header closeButton={!showLoading} text={this.i18n('create.header')} rendered={detail.entity.id === undefined}/>
+            <Basic.Modal.Header closeButton={!showLoading} text={this.i18n('edit.header', { role: detail.entity.role })} rendered={detail.entity.id !== undefined}/>
             <Basic.Modal.Body>
-              <Basic.AbstractForm ref="form" showLoading={_showLoading} readOnly={!detail.edit}>
+              <Basic.AbstractForm ref="form" showLoading={showLoading} readOnly={!detail.edit}>
                 <Basic.SelectBox
                   ref="identityContract"
                   manager={ identityContractManager }
@@ -503,13 +504,13 @@ export class RoleConceptTable extends Basic.AbstractContent {
               <Basic.Button
                 level="link"
                 onClick={this._closeDetail.bind(this)}
-                showLoading={_showLoading}>
+                showLoading={showLoading}>
                 {this.i18n('button.close')}
               </Basic.Button>
               <Basic.Button
                 type="submit"
                 level="success"
-                showLoading={_showLoading}
+                showLoading={showLoading}
                 showLoadingIcon
                 rendered={detail.edit}>
                 {this.i18n('button.set')}
@@ -524,12 +525,13 @@ export class RoleConceptTable extends Basic.AbstractContent {
 
 RoleConceptTable.propTypes = {
   uiKey: PropTypes.string.isRequired,
-  identityUsername: PropTypes.string.isRequired
+  identityUsername: PropTypes.string.isRequired,
+  classNameBasicTable: PropTypes.string
 };
 
 RoleConceptTable.defaultProps = {
   filterOpened: false,
-  _showLoading: false
+  showLoading: false
 };
 
 

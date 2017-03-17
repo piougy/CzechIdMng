@@ -987,11 +987,23 @@
       "header": "Definice formulářů",
       "title": "Definice formulářů",
       "edit": {
-        "title": "Detail definice formuláře",
-        "header": "{{name}} detail formuláře"
+        "title": "Detail definice formuláře"
+      },
+      "create": {
+        "title": "Nová definice formuláře",
+        "header": "Nová definice formuláře"
       },
       "filter": {
-        "text": "Název / Popis"
+        "text": "Název"
+      },
+      "attributes": {
+        "title": "Attributy formuláře"
+      },
+      "detail": {
+        "title": "Základní informace"
+      },
+      "save": {
+        "success": "Definice [{{name}}] byla úspěšně uložena"
       }
     },
     "formAttributes": {
@@ -1009,7 +1021,7 @@
         "success": "Atribut [{{name}}] byl úspěšně uložen"
       },
       "filter": {
-        "text": "Název / Popis"
+        "name": "Název položky"
       }
     },
     "scripts": {
@@ -1104,6 +1116,11 @@
           "message": "Opravdu chcete spustit schvalovací process pro tuto žádost?",
           "started": "Žádost byla spuštěna"
         }
+      },
+      "filter": {
+        "applicant":{
+          "placeholder": "Vyhledání dle celého uživatelského jména žadatele"
+        }
       }
 
     },
@@ -1114,6 +1131,12 @@
       "conceptWithCurrentRoleHeader": "Aktuálně přiřazené role (včetně požadovaných změn)",
       "save": {
         "success": "Žádost o změnu oprávnění byla úspěšně uložena"
+      },
+      "button": {
+        "createRequest":{
+          "label": "Podat žádost",
+          "tooltip": "Zahájí žádost o změnu oprávnění. Spustí případné schvalovací procesy."
+        }
       }
     },
     "role": {
@@ -1255,8 +1278,11 @@
           "deleteConfirm": "Opravdu chcete smazat vybranou žádost o změnu oprávnění?",
           "deleteSuccess": "Žádost o změnu oprávnění byla úspěšně smazána."
         },
-        "changePermissionProcesses": {
+        "changePermissionRequests": {
           "header": "Žádosti o změnu oprávnění"
+        },
+        "conceptPermissionRequests": {
+          "header": "Rozpracované žádosti o změnu oprávnění"
         },
         "create": {
           "header": "Přiřazení nové role",
@@ -1651,6 +1677,9 @@
       "titleNew": "Nová šablona",
       "save": {
         "success": "Šablona [{{name}}] byla úspěšně uložena."
+      },
+      "filter": {
+        "text": "Jméno / Předmět / Kód"
       }
     },
     "emails": {
@@ -1863,7 +1892,8 @@
       "confidential": "Tajné",
       "multiple": "Více hodnotový",
       "placeholder": "Placeholder",
-      "defaultValue": "Výchozí hodnota"
+      "defaultValue": "Výchozí hodnota",
+      "systemAttribute": "Systémový atribut"
     },
     "Role": {
       "_type": "Role",
@@ -2236,7 +2266,8 @@
         "placeholder": "Slovní popis požadavku na změnu oprávnění."
       },
       "created": "Vytvořeno",
-      "modified": "Upraveno"
+      "modified": "Upraveno",
+      "wfProcessId": "WF identifikátor"
     },
     "ConceptRoleRequest": {
       "identityContract": "Vztah",
@@ -2507,6 +2538,10 @@
     "NOTIFICATION_SYSTEM_TEMPLATE_DELETE_FAILED": {
       "title": "Systémová šablona nemůže být smazána",
       "message": "Šablona [{{template}}] je systémová a nemůže být odebrána."
+    },
+    "NOTIFICATION_TOPIC_AND_LEVEL_EXISTS": {
+      "title": "Konfigurace nemůže být uložena",
+      "message": "Topic [{{topic}}] a null level již existuje."
     },
     "ACCEPTED": {
       "title": "Požadavek přijat",

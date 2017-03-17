@@ -2,6 +2,7 @@ import React, { PropTypes } from 'react';
 import _ from 'lodash';
 //
 import * as Basic from '../../../components/basic';
+import * as Advanced from '../../../components/advanced';
 import { NotificationTemplateManager, SecurityManager } from '../../../redux';
 
 /**
@@ -49,7 +50,7 @@ export default class TemplateDetail extends Basic.AbstractContent {
       const loadedEntity = _.merge({}, entity);
       //
       this.refs.form.setData(loadedEntity);
-      this.refs.name.focus();
+      this.refs.code.focus();
     }
   }
 
@@ -163,7 +164,7 @@ export default class TemplateDetail extends Basic.AbstractContent {
               label={this.i18n('entity.NotificationTemplate.systemTemplate.name')}
               helpBlock={this.i18n('entity.NotificationTemplate.systemTemplate.help')}/>
             <Basic.TextArea ref="bodyText" label={this.i18n('entity.NotificationTemplate.bodyText')} />
-            <Basic.RichTextArea ref="bodyHtml" label={this.i18n('entity.NotificationTemplate.bodyHtml.name')}
+            <Advanced.RichTextArea ref="bodyHtml" label={this.i18n('entity.NotificationTemplate.bodyHtml.name')}
               showToolbar
               helpBlock={this.i18n('entity.NotificationTemplate.bodyHtml.help')}
               mentions={this.getParameters()}/>

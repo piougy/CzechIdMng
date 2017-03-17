@@ -16,6 +16,7 @@ import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
  * @param <E> {@link BaseEntity}, {@link BaseDto} or any other {@link Serializable} content type
  */
 public interface EntityEvent<E extends Serializable> extends ResolvableTypeProvider, Serializable {
+	public static final String EVENT_PROPERTY = "entityEvent";
 
 	/**
 	 * Operation type

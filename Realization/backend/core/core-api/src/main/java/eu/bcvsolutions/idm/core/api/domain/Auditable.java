@@ -184,4 +184,17 @@ public interface Auditable {
 	 */
 	void setTransactionId(UUID transactionId);	
 	
+	/**
+	 * Returns entity's realm (tenant) identifier
+	 * 
+	 * @return
+	 */
+	UUID getRealmId();
+	
+	/**
+	 * Sets entity's realm (tenant) identifier
+	 * 
+	 * @param realmId
+	 */
+	void setRealmId(UUID realmId);
 }

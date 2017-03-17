@@ -7,7 +7,7 @@ import * as Basic from '../../basic';
 import { LocalizationService } from '../../../services';
 import { ConfigurationManager } from '../../../redux/data';
 import { SecurityManager } from '../../../redux';
-import { getNavigationItems, resolveNavigationParameters, collapseNavigation, i18nChange } from '../../../redux/layout/layoutActions';
+import { getNavigationItems, resolveNavigationParameters, collapseNavigation, i18nChange } from '../../../redux/config/actions';
 import NavigationItem from './NavigationItem';
 import NavigationSeparator from './NavigationSeparator';
 
@@ -403,12 +403,12 @@ function select(state) {
     environment = environment.toLowerCase();
   }
   return {
-    navigation: state.layout.get('navigation'),
-    navigationCollapsed: state.layout.get('navigationCollapsed'),
-    selectedNavigationItems: state.layout.get('selectedNavigationItems'),
+    navigation: state.config.get('navigation'),
+    navigationCollapsed: state.config.get('navigationCollapsed'),
+    selectedNavigationItems: state.config.get('selectedNavigationItems'),
     environment,
     userContext: state.security.userContext,
-    i18nReady: state.layout.get('i18nReady')
+    i18nReady: state.config.get('i18nReady')
   };
 }
 

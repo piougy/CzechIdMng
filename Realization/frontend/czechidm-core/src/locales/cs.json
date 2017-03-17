@@ -459,12 +459,14 @@
       "TREENODE": "Prvky struktur",
       "TREETYPE": "Typy struktur",
       "SCRIPT": "Pravidla",
-      "NOTIFICATIONCONFIGURATION": "Notifikace (konfigurace)",
-      "NOTIFICATIONTEMPLATE": "Notifikační (šablony)",
+      "EAVFORMATTRIBUTES": "Formuláře - atributy",
+      "EAVFORMDEFINITIONS": "Formuláře - definice",
+      "NOTIFICATIONCONFIGURATION": "Notifikace - konfigurace",
+      "NOTIFICATIONTEMPLATE": "Notifikace - Šablony",
       "PASSWORDPOLICY": "Politiky hesel",
-      "EAV_FORM_ATTRIBUTES": "Formuláře (atributy)",
-      "EAV_FORM_DEFINITIONS": "Formuláře (definice)",
-      "SCHEDULER": "Plánovač"
+      "ROLEREQUEST": "Adenda řádostí o role",
+      "ROLEREQUESTIMMEDIATELY": "Adenda řádostí o role - spuštění ihned",
+      "SCHEDULER": "Nastavení plánovače"
     }
   },
   "content": {
@@ -1300,6 +1302,11 @@
             "button": "Přidat PPV"
           }
         }
+      },
+      "authorities": {
+        "label": "Oprávnění",
+        "header": "Přidělená oprávnění <small>dle přiřazných rolí</small>",
+        "title": "Přidělená oprávnění"
       },
       "passwordChange": {
         "header": "Změna hesla",

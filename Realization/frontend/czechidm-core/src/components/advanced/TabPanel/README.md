@@ -1,6 +1,6 @@
 # TabPanel Component
 
-Renders navigation items as detail tabs. TabPanel is built from module descriptors. Tab panel renders child items by parameter **parentId**. Items are automatically propagated from redux context (layout - navigation).
+Renders navigation items as detail tabs. TabPanel is built from module descriptors. Tab panel renders child items by parameter **parentId**. Items are automatically propagated from redux context (config - navigation).
 
 ## Parameters
 

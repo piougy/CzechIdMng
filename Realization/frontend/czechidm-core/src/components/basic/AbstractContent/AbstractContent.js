@@ -5,7 +5,7 @@ import AbstractContextComponent from '../AbstractContextComponent/AbstractContex
 import PageHeader from '../PageHeader/PageHeader';
 import ContentHeader from '../ContentHeader/ContentHeader';
 import Icon from '../Icon/Icon';
-import { selectNavigationItems, selectNavigationItem, getNavigationItem } from '../../../redux/layout/layoutActions';
+import { selectNavigationItems, selectNavigationItem, getNavigationItem } from '../../../redux/config/actions';
 
 /**
 * Basic content = page representation
@@ -56,7 +56,7 @@ export default class AbstractContent extends AbstractContextComponent {
     if (!navigationId) {
       return null;
     }
-    return this.context.store.dispatch(getNavigationItem(this.context.store.getState().layout, navigationId));
+    return this.context.store.dispatch(getNavigationItem(this.context.store.getState().config, navigationId));
   }
 
   /**

@@ -440,11 +440,13 @@
       "TREENODE": "Tree nodes",
       "TREETYPE": "Structure types",
       "SCRIPT": "Scripts",
-      "NOTIFICATIONCONFIGURATION": "Notification (configuration)",
-      "NOTIFICATIONTEMPLATE": "Notification (templates)",
+      "EAVFORMATTRIBUTES": "Forms - attributes",
+      "EAVFORMDEFINITIONS": "Forms - definitions",
+      "NOTIFICATIONCONFIGURATION": "Notifications - configuration",
+      "NOTIFICATIONTEMPLATE": "Notifications - templates",
       "PASSWORDPOLICY": "Password policy",
-      "EAV_FORM_ATTRIBUTES": "Forms (attributes)",
-      "EAV_FORM_DEFINITIONS": "Forms (definitions)",
+      "ROLEREQUEST": "Role requests",
+      "ROLEREQUESTIMMEDIATELY": "Role requests - execute immediately",
       "SCHEDULER": "Scheduler"
     }
   },
@@ -1269,6 +1271,11 @@
             "button": "Add contracted position"
           }
         }
+      },
+      "authorities": {
+        "label": "Oprávnění",
+        "header": "Přidělená oprávnění <small>dle přiřazných rolí</small>",
+        "title": "Přidělená oprávnění"
       },
       "passwordChange": {
         "header": "Password",

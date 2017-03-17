@@ -44,6 +44,10 @@ module.exports = {
           component: require('./src/content/identity/IdentityRoles')
         },
         {
+          path: 'authorities',
+          component: require('./src/content/identity/IdentityAuthorities')
+        },
+        {
           path: 'contracts',
           component: require('./src/content/identity/IdentityContracts')
         },
@@ -435,7 +439,8 @@ module.exports = {
     // About site
     {
       path: 'about',
-      component: require('./src/content/About')
+      component: require('./src/content/About'),
+      priority: 5
     },
     // error pages
     {
@@ -451,7 +456,8 @@ module.exports = {
     {
       path: '*',
       component: require('./src/content/error/404'),
-      access: [ { type: 'PERMIT_ALL' } ]
-    }
+      access: [ { type: 'PERMIT_ALL' } ],
+      order: 99999 // need to be on end
+    },
   ]
 };

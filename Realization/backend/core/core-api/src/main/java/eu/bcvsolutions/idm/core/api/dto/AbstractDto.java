@@ -51,6 +51,8 @@ public abstract class AbstractDto implements BaseDto, Auditable {
 	private Map<String, AbstractDto> embedded;
 	@JsonIgnore
 	private UUID transactionId;
+	@JsonIgnore
+	private UUID realmId;
 	private boolean disabled;
 
 	public AbstractDto() {
@@ -225,6 +227,16 @@ public abstract class AbstractDto implements BaseDto, Auditable {
 
 	public void setDisabled(boolean disabled) {
 		this.disabled = disabled;
+	}
+	
+	@Override
+	public UUID getRealmId() {
+		return realmId;
+	}
+	
+	@Override
+	public void setRealmId(UUID realmId) {
+		this.realmId = realmId;
 	}
 
 	@Override

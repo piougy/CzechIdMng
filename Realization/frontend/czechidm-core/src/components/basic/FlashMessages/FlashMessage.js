@@ -14,7 +14,7 @@ export default class FlashMessage extends AbstractContextComponent {
   }
 
   render() {
-    const { rendered, message, showDate, onClose, style, level } = this.props;
+    const { rendered, message, showDate, onClose, style, level, icon } = this.props;
     //
     if (!rendered || !message) {
       return null;
@@ -39,6 +39,7 @@ export default class FlashMessage extends AbstractContextComponent {
     return (
       <Alert
         level={_level}
+        icon={icon}
         title={_title}
         text={message.message}
         onClose={onClose}
@@ -51,6 +52,7 @@ FlashMessage.propTypes = {
   rendered: PropTypes.bool,
   message: PropTypes.object,
   showDate: PropTypes.bool,
+  icon: PropTypes.string,
   /**
    * Close function - if it's set, then close icon is shown and this method is called on icon click
    */
@@ -60,5 +62,6 @@ FlashMessage.defaultProps = {
   level: null,
   rendered: true,
   message: null,
-  showDate: false
+  showDate: false,
+  icon: null
 };

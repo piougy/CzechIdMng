@@ -1,7 +1,7 @@
-
-
 /**
  * Helper methods for response error and info handling
+ *
+ * @author Radek Tomiška
  */
 export default class ResponseUtils {
 

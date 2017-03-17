@@ -113,6 +113,11 @@ public abstract class AbstractEntity implements BaseEntity, Auditable, Disableab
 	private UUID transactionId;
 	
 	@Audited
+	@Column(name = "realm_id")
+	@JsonIgnore // TODO: remove after implementation
+	private UUID realmId;
+	
+	@Audited
 	@NotNull
 	@Column(name = "disabled", nullable = false)
 	private boolean disabled;
@@ -261,6 +266,16 @@ public abstract class AbstractEntity implements BaseEntity, Auditable, Disableab
 	@Override
 	public void setDisabled(boolean disabled) {
 		this.disabled = disabled;
+	}
+	
+	@Override
+	public UUID getRealmId() {
+		return realmId;
+	}
+	
+	@Override
+	public void setRealmId(UUID realmId) {
+		this.realmId = realmId;
 	}
 	
 	/**

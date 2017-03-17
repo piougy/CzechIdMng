@@ -35,7 +35,7 @@ class FormDetail extends Basic.AbstractContent {
           _showLoading: false
         });
       }));
-      this.context.store.dispatch(manager.receiveEntity(entityId, { }));
+      this.context.store.dispatch(manager.receiveEntity(entityId, { systemDefinition: false }));
     } else {
       this.getLogger().debug(`[FormDetail] loading entity detail [id:${entityId}]`);
       this.context.store.dispatch(manager.fetchEntity(entityId, null, () => {

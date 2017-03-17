@@ -2536,6 +2536,14 @@
       "title": "Konfigurace nemůže být uložena",
       "message": "Topic [{{topic}}] a null level již existuje."
     },
+    "FORM_DEFINITION_DELETE_FAILED_SYSTEM_DEFINITION": {
+      "title": "Definice formuláře nelze smazat",
+      "message": "Definice [{{name}}] nelze smazat, protože je označená jako systémová."
+    },
+    "FORM_ATTRIBUTE_DELETE_FAILED_SYSTEM_ATTRIBUTE": {
+      "title": "Atribut formuláře nelze smazat",
+      "message": "Atribut [{{name}}] nelze smazat, protože je označený jako systémový."
+    },
     "ACCEPTED": {
       "title": "Požadavek přijat",
       "message": "Požadavek byl předán ke zpracování či schválení."

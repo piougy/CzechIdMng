@@ -36,7 +36,7 @@ public class IdmFormAttributeController extends DefaultReadWriteEntityController
 	public void deleteEntity(IdmFormAttribute entity) {
 		// attribute flagged as system attribute can't be deleted from controller
 		if (entity.isSystemAttribute()) {
-			throw new ResultCodeException(CoreResultCode.FORM_ATTRIBUTE_DELETE_FAILED_SYSTEM_ATTRIBUTE, ImmutableMap.of("formAttribute", entity.getName()));
+			throw new ResultCodeException(CoreResultCode.FORM_ATTRIBUTE_DELETE_FAILED_SYSTEM_ATTRIBUTE, ImmutableMap.of("name", entity.getName()));
 		}
 		super.deleteEntity(entity);
 	}

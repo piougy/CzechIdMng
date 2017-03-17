@@ -2510,6 +2510,14 @@
       "title": "Configuration can not be saved",
       "message": "Topic [{{topic}}] and null level exists!."
     },
+    "FORM_DEFINITION_DELETE_FAILED_SYSTEM_DEFINITION": {
+      "title": "Form definition can not be saved",
+      "message": "Definition [{{name}}] it can't be deleted, because is flagged as system."
+    },
+    "FORM_ATTRIBUTE_DELETE_FAILED_SYSTEM_ATTRIBUTE": {
+      "title": "Attribute definition can not be saved",
+      "message": "Attribute [{{name}}] it can't be deleted, because is flagged as system."
+    },
     "ACCEPTED": {
       "title": "Request added",
       "message": "Request will be proccesed / approved."

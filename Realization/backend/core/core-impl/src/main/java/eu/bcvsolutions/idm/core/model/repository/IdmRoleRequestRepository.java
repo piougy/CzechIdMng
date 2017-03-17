@@ -29,7 +29,7 @@ public interface IdmRoleRequestRepository extends AbstractEntityRepository<IdmRo
 	        " and" +
 	        " (?#{[0].applicant} is null or e.applicant.username = ?#{[0].applicant})" +
 	        " and" +
-	        " (?#{[0].notState} is null or e.state != ?#{[0].notState})"+
+	        " (?#{[0].states == null ? 0 : [0].states.size()} = 0 or e.state IN (?#{[0].states}))"+ // List must be tested via size not null (bug in spring data probably)
 	        " and" +
 	        " (?#{[0].state} is null or e.state = ?#{[0].state})")
 	Page<IdmRoleRequest> find(RoleRequestFilter filter, Pageable pageable);

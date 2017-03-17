@@ -100,7 +100,18 @@ public class IdmRoleRequestController extends DefaultReadWriteDtoController<IdmR
 		}
 		
 		filter.setState(getParameterConverter().toEnum(parameters, "state", RoleRequestState.class));
-		filter.setNotState(getParameterConverter().toEnum(parameters, "notState", RoleRequestState.class));
+		String statesStr = getParameterConverter().toString(parameters, "states");
+		if(!Strings.isNullOrEmpty(statesStr)){
+			List<RoleRequestState> states = new ArrayList<>();
+			for( String state : statesStr.split(",")){
+				if(!Strings.isNullOrEmpty(state.trim())){
+					states.add(RoleRequestState.valueOf(state.trim()));
+				}
+			}
+			if(!states.isEmpty()){
+				filter.setStates(states);
+			}
+		}
 		return filter;
 	}
 	

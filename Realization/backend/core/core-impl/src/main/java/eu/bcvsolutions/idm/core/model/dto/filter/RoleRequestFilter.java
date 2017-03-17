@@ -17,7 +17,7 @@ public class RoleRequestFilter extends QuickFilter {
 	private String applicant;
 	private RoleRequestState state;
 	private UUID duplicatedToRequestId;
-	private RoleRequestState notState;
+	private List<RoleRequestState> states;
 
 	public UUID getApplicantId() {
 		return applicantId;
@@ -51,12 +51,12 @@ public class RoleRequestFilter extends QuickFilter {
 		this.duplicatedToRequestId = duplicatedToRequestId;
 	}
 
-	public RoleRequestState getNotState() {
-		return notState;
+	public List<RoleRequestState> getStates() {
+		return states;
 	}
 
-	public void setNotState(RoleRequestState notState) {
-		this.notState = notState;
+	public void setStates(List<RoleRequestState> states) {
+		this.states = states;
 	}
 
 }

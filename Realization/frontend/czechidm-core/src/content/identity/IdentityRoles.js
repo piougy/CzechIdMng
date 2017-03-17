@@ -257,7 +257,7 @@ class Roles extends Basic.AbstractContent {
     force = force.setFilter('category', 'eu.bcvsolutions.role.approve');
     let roleRequestsForceSearch = new SearchParameters();
     roleRequestsForceSearch = roleRequestsForceSearch.setFilter('applicant', entityId);
-    roleRequestsForceSearch = roleRequestsForceSearch.setFilter('notState', 'CONCEPT');
+    roleRequestsForceSearch = roleRequestsForceSearch.setFilter('states', 'IN_PROGRESS, DUPLICATED, EXCEPTION');
     let conceptsForceSearch = new SearchParameters();
     conceptsForceSearch = conceptsForceSearch.setFilter('applicant', entityId);
     conceptsForceSearch = conceptsForceSearch.setFilter('state', 'CONCEPT');

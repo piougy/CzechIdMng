@@ -97,7 +97,6 @@ public class IdmAudit implements BaseEntity {
 	@Column(name = "original_modifier_id")
 	private UUID originalModifierId;
 	
-	@Audited
 	@Column(name = "realm_id")
 	@JsonIgnore // TODO: remove after implementation
 	private UUID realmId;

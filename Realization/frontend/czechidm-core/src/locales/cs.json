@@ -1100,7 +1100,7 @@
     "roleRequests": {
       "header": "Žádosti o změnu oprávnění",
       "title": "Žádosti o role",
-      "applicant": "Žadatel",
+      "applicant": "Žádost pro uživatele",
       "create": {
         "header": "Vytvořit novou žádost o změnu oprávnění"
       },
@@ -1110,9 +1110,11 @@
       },
       "action": {
         "startRequest": {
-          "header": "Opravdu chcete spustit tuto žádost",
+          "header": "Opravdu chcete podat tuto žádost",
           "message": "Opravdu chcete spustit schvalovací process pro tuto žádost?",
-          "started": "Žádost byla spuštěna"
+          "started": "Žádost byla úspěšně podána",
+          "exception": "Při podání žádosti nastala chyba. Žádost nebyla podána!",
+          "duplicated": "Žádost nebyla úspěšně podána, protože je duplicitní k jiné žádosti vytvořené [{{created}}]."
         }
       },
       "filter": {

@@ -49,7 +49,7 @@ public class DefaultEncryptService implements CryptService {
 	/**
 	 * Initialization vector
 	 */
-	private static byte [] IV = { 98, 99, 118, 115, 111, 108, 117, 116, 105, 111, 110, 115, 101, 99, 117, 114 };
+	private static byte [] IV = { 48, 104, 118, 113, 103, 116, 51, 114, 107, 54, 51, 57, 108, 121, 119, 101 };
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultEncryptService.class);
 	

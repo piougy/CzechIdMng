@@ -459,12 +459,14 @@
       "TREENODE": "Prvky struktur",
       "TREETYPE": "Typy struktur",
       "SCRIPT": "Pravidla",
-      "NOTIFICATIONCONFIGURATION": "Notifikace (konfigurace)",
-      "NOTIFICATIONTEMPLATE": "Notifikační (šablony)",
+      "EAVFORMATTRIBUTES": "Formuláře - atributy",
+      "EAVFORMDEFINITIONS": "Formuláře - definice",
+      "NOTIFICATIONCONFIGURATION": "Notifikace - konfigurace",
+      "NOTIFICATIONTEMPLATE": "Notifikace - Šablony",
       "PASSWORDPOLICY": "Politiky hesel",
-      "EAV_FORM_ATTRIBUTES": "Formuláře (atributy)",
-      "EAV_FORM_DEFINITIONS": "Formuláře (definice)",
-      "SCHEDULER": "Plánovač"
+      "ROLEREQUEST": "Adenda řádostí o role",
+      "ROLEREQUESTIMMEDIATELY": "Adenda řádostí o role - spuštění ihned",
+      "SCHEDULER": "Nastavení plánovače"
     }
   },
   "content": {
@@ -1302,6 +1304,11 @@
             "button": "Přidat PPV"
           }
         }
+      },
+      "authorities": {
+        "label": "Oprávnění",
+        "header": "Přidělená oprávnění <small>dle přiřazných rolí</small>",
+        "title": "Přidělená oprávnění"
       },
       "passwordChange": {
         "header": "Změna hesla",
@@ -2539,6 +2546,14 @@
     "NOTIFICATION_TOPIC_AND_LEVEL_EXISTS": {
       "title": "Konfigurace nemůže být uložena",
       "message": "Topic [{{topic}}] a null level již existuje."
+    },
+    "FORM_DEFINITION_DELETE_FAILED_SYSTEM_DEFINITION": {
+      "title": "Definice formuláře nelze smazat",
+      "message": "Definice [{{name}}] nelze smazat, protože je označená jako systémová."
+    },
+    "FORM_ATTRIBUTE_DELETE_FAILED_SYSTEM_ATTRIBUTE": {
+      "title": "Atribut formuláře nelze smazat",
+      "message": "Atribut [{{name}}] nelze smazat, protože je označený jako systémový."
     },
     "ACCEPTED": {
       "title": "Požadavek přijat",

@@ -440,11 +440,13 @@
       "TREENODE": "Tree nodes",
       "TREETYPE": "Structure types",
       "SCRIPT": "Scripts",
-      "NOTIFICATIONCONFIGURATION": "Notification (configuration)",
-      "NOTIFICATIONTEMPLATE": "Notification (templates)",
+      "EAVFORMATTRIBUTES": "Forms - attributes",
+      "EAVFORMDEFINITIONS": "Forms - definitions",
+      "NOTIFICATIONCONFIGURATION": "Notifications - configuration",
+      "NOTIFICATIONTEMPLATE": "Notifications - templates",
       "PASSWORDPOLICY": "Password policy",
-      "EAV_FORM_ATTRIBUTES": "Forms (attributes)",
-      "EAV_FORM_DEFINITIONS": "Forms (definitions)",
+      "ROLEREQUEST": "Role requests",
+      "ROLEREQUESTIMMEDIATELY": "Role requests - execute immediately",
       "SCHEDULER": "Scheduler"
     }
   },
@@ -1269,6 +1271,11 @@
             "button": "Add contracted position"
           }
         }
+      },
+      "authorities": {
+        "label": "Oprávnění",
+        "header": "Přidělená oprávnění <small>dle přiřazných rolí</small>",
+        "title": "Přidělená oprávnění"
       },
       "passwordChange": {
         "header": "Password",
@@ -2511,6 +2518,14 @@
     "NOTIFICATION_TOPIC_AND_LEVEL_EXISTS": {
       "title": "Configuration can not be saved",
       "message": "Topic [{{topic}}] and null level exists!."
+    },
+    "FORM_DEFINITION_DELETE_FAILED_SYSTEM_DEFINITION": {
+      "title": "Form definition can not be saved",
+      "message": "Definition [{{name}}] it can't be deleted, because is flagged as system."
+    },
+    "FORM_ATTRIBUTE_DELETE_FAILED_SYSTEM_ATTRIBUTE": {
+      "title": "Attribute definition can not be saved",
+      "message": "Attribute [{{name}}] it can't be deleted, because is flagged as system."
     },
     "ACCEPTED": {
       "title": "Request added",

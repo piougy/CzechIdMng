@@ -1,25 +1,11 @@
 import Immutable from 'immutable';
 //
-import {
-  SELECT_NAVIGATION_ITEMS,
-  SELECT_NAVIGATION_ITEM,
-  COLLAPSE_NAVIGATION,
-  I18N_INIT,
-  I18N_READY,
-  MODULES_INIT,
-  MODULES_READY,
-  NAVIGATION_INIT,
-  NAVIGATION_READY,
-  CONFIGURATION_INIT,
-  CONFIGURATION_READY,
-  APP_INIT,
-  APP_READY,
-  APP_UNAVAILABLE,
-  getNavigationItem
-} from './layoutActions';
+import { getNavigationItem } from './actions';
+import { Actions, Properties } from './constants';
 
 const INITIAL_STATE = new Immutable.Map({
-  navigation: null,  // all navigation items from enabled modules as Map
+  [Properties.PROPERTIES]: null, // public configuration propereties
+  [Properties.NAVIGATION]: null,  // all navigation items from enabled modules as Map
   selectedNavigationItems: ['home'], // homepage by default
   navigationCollapsed: false, // TODO: move to local storage - different reducer
   i18nReady: null,              // localization language is ready
@@ -30,9 +16,9 @@ const INITIAL_STATE = new Immutable.Map({
   appUnavailable: false
 });
 
-export function layout(state = INITIAL_STATE, action) {
+export function config(state = INITIAL_STATE, action) {
   switch (action.type) {
-    case SELECT_NAVIGATION_ITEMS: {
+    case Actions.SELECT_NAVIGATION_ITEMS: {
       const prevState = state.get('selectedNavigationItems');
       const newState = [];
       for (let i = 0; i < action.selectedNavigationItems.length; i++) {
@@ -40,7 +26,7 @@ export function layout(state = INITIAL_STATE, action) {
       }
       return state.set('selectedNavigationItems', newState);
     }
-    case SELECT_NAVIGATION_ITEM: {
+    case Actions.SELECT_NAVIGATION_ITEM: {
       const newState = [];
       // traverse to item parent
       let itemId = action.selectedNavigationItemId;
@@ -54,53 +40,56 @@ export function layout(state = INITIAL_STATE, action) {
       }
       return state.set('selectedNavigationItems', newState);
     }
-    case COLLAPSE_NAVIGATION: {
+    case Actions.COLLAPSE_NAVIGATION: {
       return state.set('navigationCollapsed', action.collapsed);
     }
-    case I18N_INIT: {
+    case Actions.I18N_INIT: {
       return state.set('i18nReady', null);
     }
-    case I18N_READY: {
+    case Actions.I18N_READY: {
       LOGGER.debug('i18n ready [' + action.lng + ']');
       return state.set('i18nReady', action.lng);
     }
-    case MODULES_INIT: {
+    case Actions.MODULES_INIT: {
       return state.set('modulesReady', false);
     }
-    case MODULES_READY: {
+    case Actions.MODULES_READY: {
       LOGGER.debug('modules ready [' + action.ready + ']');
       return state.set('modulesReady', action.ready);
     }
-    case NAVIGATION_INIT: {
+    case Actions.NAVIGATION_INIT: {
       return state.set('navigationReady', false);
     }
-    case NAVIGATION_READY: {
+    case Actions.NAVIGATION_READY: {
       LOGGER.debug('navigation ready [' + action.ready + ']');
-      let newState = state.set('navigation', action.navigation);
+      let newState = state.set(Properties.NAVIGATION, action.navigation);
       newState = newState.set('navigationReady', action.ready);
       return newState;
     }
-    case CONFIGURATION_INIT: {
+    case Actions.CONFIGURATION_INIT: {
       return state.set('configurationReady', false);
     }
-    case CONFIGURATION_READY: {
+    case Actions.CONFIGURATION_READY: {
       LOGGER.debug('configuration ready [' + action.ready + ']');
       const newState = state.set('configurationReady', action.ready);
       return newState;
     }
-    case APP_INIT: {
+    case Actions.APP_INIT: {
       let newState = state.set('appReady', false);
       newState = newState.set('appUnavailable', false);
       return newState;
     }
-    case APP_READY: {
+    case Actions.APP_READY: {
       LOGGER.debug('app ready [' + action.ready + ']');
       return state.set('appReady', action.ready);
     }
-    case APP_UNAVAILABLE: {
+    case Actions.APP_UNAVAILABLE: {
       let newState = state.set('appReady', false);
       newState = newState.set('appUnavailable', true);
       return newState;
+    }
+    case Actions.CONFIGURATION_RECEIVED: {
+      return state.set(Properties.PROPERTIES, action.data);
     }
     default:
       return state;

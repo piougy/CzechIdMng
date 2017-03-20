@@ -2,8 +2,8 @@ import * as Basic from './src/components/basic';
 import * as Advanced from './src/components/advanced';
 import * as Services from './src/services';
 import * as Managers from './src/redux';
-import * as LayoutActions from './src/redux/layout/layoutActions';
-import * as LayoutReducers from './src/redux/layout/layoutReducers';
+import * as ConfigActions from './src/redux/config/actions';
+import * as ConfigReducers from './src/redux/config/reducer';
 import * as FlashReducers from './src/redux/flash/reducer';
 import * as DataReducers from './src/redux/data/reducer';
 import * as SecurityReducers from './src/redux/security/reducer';
@@ -23,9 +23,9 @@ const ModuleRoot = {
   Advanced,
   Services,
   Managers,
-  LayoutActions,
+  ConfigActions,
   Reducers: {
-    layout: LayoutReducers.layout,
+    config: ConfigReducers.config,
     messages: FlashReducers.messages,
     data: DataReducers.data,
     security: SecurityReducers.security

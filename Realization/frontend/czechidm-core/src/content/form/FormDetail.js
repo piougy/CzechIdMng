@@ -35,7 +35,7 @@ class FormDetail extends Basic.AbstractContent {
           _showLoading: false
         });
       }));
-      this.context.store.dispatch(manager.receiveEntity(entityId, { }));
+      this.context.store.dispatch(manager.receiveEntity(entityId, { systemDefinition: false }));
     } else {
       this.getLogger().debug(`[FormDetail] loading entity detail [id:${entityId}]`);
       this.context.store.dispatch(manager.fetchEntity(entityId, null, () => {
@@ -94,13 +94,17 @@ class FormDetail extends Basic.AbstractContent {
     const { uiKey, entity, showLoading, isNew } = this.props;
     const { types, _showLoading } = this.state;
 
+    let showLoadingFinal = true;
+    if (!showLoading && !_showLoading) {
+      showLoadingFinal = false;
+    }
     return (
       <form onSubmit={this.save.bind(this)}>
-        <Basic.Panel className={isNew ? '' : 'no-border last'} showLoading={showLoading || _showLoading}>
+        <Basic.Panel className={isNew ? '' : 'no-border last'} showLoading={showLoadingFinal}>
           <Basic.PanelHeader text={isNew ? this.i18n('create.header') : this.i18n('content.formDefinitions.detail.title')} />
-          <Basic.PanelBody style={isNew ? { paddingTop: 0, paddingBottom: 0 } : { padding: 0 }}>
+          <Basic.PanelBody style={isNew ? { paddingTop: 0, paddingBottom: 0 } : { padding: 0 }} rendered={!showLoadingFinal}>
             <Basic.AbstractForm ref="form" uiKey={uiKey} data={entity}
-            readOnly={!SecurityManager.hasAuthority('EAV_FORM_DEFINITIONS_WRITE')} rendered={!(showLoading || _showLoading)}>
+              readOnly={!SecurityManager.hasAuthority('EAV_FORM_DEFINITIONS_WRITE')}>
             <Basic.TextField
               ref="name"
               label={this.i18n('entity.FormDefinition.name')}

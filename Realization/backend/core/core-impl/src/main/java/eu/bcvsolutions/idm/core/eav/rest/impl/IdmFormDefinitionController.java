@@ -53,6 +53,15 @@ public class IdmFormDefinitionController extends DefaultReadWriteEntityControlle
 		this.formService = formService;
 	}
 	
+	@Override
+	public void deleteEntity(IdmFormDefinition entity) {
+		// definitions flagged as system definition can't be deleted from controller
+		if (entity.isSystemDefinition()) {
+			throw new ResultCodeException(CoreResultCode.FORM_DEFINITION_DELETE_FAILED_SYSTEM_DEFINITION, ImmutableMap.of("nameß", entity.getName()));
+		}
+		super.deleteEntity(entity);
+	}
+	
 	public ResponseEntity<?> getDefinition(Class<? extends FormableEntity> ownerClass, PersistentEntityResourceAssembler assembler) {
 		return new ResponseEntity<>(toResource(getDefinition(ownerClass, (IdmFormDefinition) null), assembler), HttpStatus.OK);
 	}

@@ -8,7 +8,6 @@ import javax.persistence.EntityListeners;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import org.hibernate.annotations.GenericGenerator;
@@ -27,7 +26,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import eu.bcvsolutions.idm.core.api.domain.Auditable;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
-import eu.bcvsolutions.idm.core.api.domain.Disableable;
 import eu.bcvsolutions.idm.core.api.repository.listener.AuditableEntityListener;
 
 /**
@@ -38,7 +36,7 @@ import eu.bcvsolutions.idm.core.api.repository.listener.AuditableEntityListener;
  */
 @MappedSuperclass
 @EntityListeners(AuditableEntityListener.class)
-public abstract class AbstractEntity implements BaseEntity, Auditable, Disableable {
+public abstract class AbstractEntity implements BaseEntity, Auditable {
 
 	private static final long serialVersionUID = 1969969154030951507L;
 
@@ -113,9 +111,9 @@ public abstract class AbstractEntity implements BaseEntity, Auditable, Disableab
 	private UUID transactionId;
 	
 	@Audited
-	@NotNull
-	@Column(name = "disabled", nullable = false)
-	private boolean disabled;
+	@Column(name = "realm_id")
+	@JsonIgnore // TODO: remove after implementation
+	private UUID realmId;
 
 	public AbstractEntity() {
 	}
@@ -254,13 +252,13 @@ public abstract class AbstractEntity implements BaseEntity, Auditable, Disableab
 	}
 	
 	@Override
-	public boolean isDisabled() {
-		return disabled;
+	public UUID getRealmId() {
+		return realmId;
 	}
-
+	
 	@Override
-	public void setDisabled(boolean disabled) {
-		this.disabled = disabled;
+	public void setRealmId(UUID realmId) {
+		this.realmId = realmId;
 	}
 	
 	/**

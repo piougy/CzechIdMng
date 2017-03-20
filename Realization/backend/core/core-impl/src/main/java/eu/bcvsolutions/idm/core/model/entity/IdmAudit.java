@@ -27,6 +27,8 @@ import org.hibernate.envers.RevisionEntity;
 import org.hibernate.envers.RevisionNumber;
 import org.hibernate.envers.RevisionTimestamp;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.model.repository.listener.IdmAuditListener;
@@ -94,6 +96,10 @@ public class IdmAudit implements BaseEntity {
 	@Column(name = "original_modifier_id")
 	private UUID originalModifierId;
 	
+	@Column(name = "realm_id")
+	@JsonIgnore // TODO: remove after implementation
+	private UUID realmId;
+	
 	@Override
 	public Serializable getId() {
 		return this.id;
@@ -142,6 +148,14 @@ public class IdmAudit implements BaseEntity {
 
 	public void setOriginalModifierId(UUID originalModifierId) {
 		this.originalModifierId = originalModifierId;
+	}
+	
+	public UUID getRealmId() {
+		return realmId;
+	}
+	
+	public void setRealmId(UUID realmId) {
+		this.realmId = realmId;
 	}
 
 	public String getChangedAttributes() {

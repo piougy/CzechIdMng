@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.model.dto;
 
 import java.util.List;
 
+import eu.bcvsolutions.idm.core.api.domain.Disableable;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.model.domain.RoleType;
 
@@ -11,12 +12,12 @@ import eu.bcvsolutions.idm.core.model.domain.RoleType;
  * @author svandav
  *
  */
-public class IdmRoleDto extends AbstractDto {
+public class IdmRoleDto extends AbstractDto implements Disableable {
 
 	private static final long serialVersionUID = 1L;
 
 	private String name;
-	private boolean disabled = false;
+	private boolean disabled;
 	private Long version;
 	private RoleType roleType;
 	private int priority = 0;
@@ -28,6 +29,7 @@ public class IdmRoleDto extends AbstractDto {
 	private List<IdmRoleAuthorityDto> authorities;
 	// private List<IdmRoleGuarantee> guarantees;
 	// private List<IdmRoleCatalogueRole> roleCatalogues;
+	
 	public String getName() {
 		return name;
 	}

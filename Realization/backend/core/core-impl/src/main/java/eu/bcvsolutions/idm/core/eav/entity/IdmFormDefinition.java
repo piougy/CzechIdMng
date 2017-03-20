@@ -61,6 +61,10 @@ public class IdmFormDefinition extends AbstractEntity {
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private List<IdmFormAttribute> formAttributes;
+	
+	@NotNull
+	@Column(name = "system_definition", nullable = false)
+	private boolean systemDefinition = true;
 	//
 	// attribute definitions cache
 	private transient Map<UUID, IdmFormAttribute> mappedAttributes;
@@ -167,5 +171,13 @@ public class IdmFormDefinition extends AbstractEntity {
 			return null;
 		}
 		return getMappedAttributes().get(getMappedNames().get(attributeName));
+	}
+
+	public boolean isSystemDefinition() {
+		return systemDefinition;
+	}
+
+	public void setSystemDefinition(boolean systemDefinition) {
+		this.systemDefinition = systemDefinition;
 	}
 }

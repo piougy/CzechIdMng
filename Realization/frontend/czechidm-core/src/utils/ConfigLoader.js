@@ -1,6 +1,6 @@
 import Immutable from 'immutable';
 import _ from 'lodash';
-
+//
 let _config = null;
 let _moduleDescriptors = new Immutable.Map();
 
@@ -26,7 +26,9 @@ const MODULE_DESCRIPTOR_DEFAULTS = {
 };
 
 /**
-* Loads configuration
+* Loads frontend configuration
+*
+* @author Radek Tomiška
 */
 export default class ConfigLoader {
 

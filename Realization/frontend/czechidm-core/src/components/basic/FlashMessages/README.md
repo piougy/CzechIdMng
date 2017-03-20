@@ -5,7 +5,7 @@ Messages are propagated by redux layer.
 
 ## Usage
 
-Component is included in layout (App.js). Its not recommended use more than one FlashMessages component on page.
+Component is included in config (App.js). Its not recommended use more than one FlashMessages component on page.
 
 ```html
 <FlashMessages ref="messages"/>

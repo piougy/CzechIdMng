@@ -5,7 +5,7 @@ module.exports = {
   'name': 'Example module for CzechIdM 2.0 devstack.',
   'description': 'Example module for CzechIdM 2.0 devstack. This module can be duplicated and renamed for create new optional czechidm module.',
   // 'mainStyleFile': 'src/css/main.less',
-  // 'mainRouteFile': 'routes.js',
+  'mainRouteFile': 'routes.js',
   'mainComponentDescriptorFile': 'component-descriptor.js',
   'mainLocalePath': 'src/locales/',
   'navigation': {
@@ -14,12 +14,12 @@ module.exports = {
         'id': 'example-main-menu',
         'type': 'DYNAMIC',
         'section': 'main',
-        'labelKey': 'example:content.example.menu',
+        'labelKey': 'example:content.example.label',
         'titleKey': 'example:content.example.title',
         'icon': 'gift',
         'iconColor': '#FF8A80',
         'order': 9,
-        'path': '/identity/:entityId/roles',
+        'path': '/example/content',
         'priority': 0
       },
       {

@@ -141,6 +141,36 @@ export default class FlashMessagesManager {
     });
   }
 
+  convertFromError(error) {
+    if (this.isServerUnavailableError(error)) {
+      return {
+        key: 'error-app-load',
+        level: 'error',
+        title: LocalizationService.i18n('content.error.503.description'),
+        message: LocalizationService.i18n('content.error.503.note'),
+        dismissible: false/* ,
+        action: {
+          label: 'Odeslat na podporu',
+          callback: () => {
+            alert('Comming soon.')
+          }
+        }*/
+      };
+    }
+    //
+    let errorMessage;
+    if (error.statusEnum) { // our error message
+      errorMessage = this.convertFromResultModel(error);
+    } else { // system error - only contain message
+      errorMessage = {
+        level: error.level || 'error',
+        title: error.title,
+        message: error.message
+      };
+    }
+    return errorMessage;
+  }
+
   /**
    * Converts message from BE message
    *
@@ -167,21 +197,13 @@ export default class FlashMessagesManager {
       if (DEBUG) {
         getState().logger.error(message, error);
       }
-      let errorMessage;
-      if (error.statusEnum) { // our error message
-        errorMessage = _.merge({}, this.convertFromResultModel(error), message);
-      } else { // system error - only contain message
-        errorMessage = _.merge({}, {
-          level: 'error',
-          message: error.message
-        }, message);
-      }
+      const errorMessage = _.merge({}, this.convertFromError(error), message);
       // error redirect handler
       if (this.isServerUnavailableError(error)) {
         // timeout to prevent showing message on ajax call interuption
         setTimeout(
           () => {
-            dispatch(this.addUnavailableMessage());
+            dispatch(this.addMessage(errorMessage));
             dispatch(this._clearConfiguations());
           }
           , this.getServerUnavailableTimeout());
@@ -198,24 +220,6 @@ export default class FlashMessagesManager {
       } else {
         dispatch(this.addMessage(errorMessage));
       }
-    };
-  }
-
-  addUnavailableMessage() {
-    return dispatch => {
-      dispatch(this.addMessage({
-        key: 'error-app-load',
-        level: 'error',
-        title: LocalizationService.i18n('content.error.503.description'),
-        message: LocalizationService.i18n('content.error.503.note'),
-        dismissible: false/* ,
-        action: {
-          label: 'Odeslat na podporu',
-          callback: () => {
-            alert('Comming soon.')
-          }
-        }*/
-      }));
     };
   }
 
@@ -265,7 +269,9 @@ export default class FlashMessagesManager {
    * Returns true, if BE is not available
    */
   isServerUnavailableError(error) {
-    if (error.message && (error.message.indexOf('NetworkError') > -1 || error.message.indexOf('Failed to fetch') > -1 || (error.statusCode && (error.statusCode === '400' || error.statusCode === '503')))) {
+    if (error
+        && error.message
+        && (error.message.indexOf('NetworkError') > -1 || error.message.indexOf('Failed to fetch') > -1 || (error.statusCode && (error.statusCode === '400' || error.statusCode === '503')))) {
       return true;
     }
     return false;

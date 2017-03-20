@@ -445,7 +445,8 @@
       "ADMIN": "Administrace",
       "READ": "Čtení",
       "WRITE": "Zápis",
-      "DELETE": "Mazání"
+      "DELETE": "Mazání",
+      "EXECUTEIMMEDIATELY":"Podat bez schvalování"
     },
     "group": {
       "APP": "Správa aplikace",
@@ -462,10 +463,9 @@
       "EAVFORMATTRIBUTES": "Formuláře - atributy",
       "EAVFORMDEFINITIONS": "Formuláře - definice",
       "NOTIFICATIONCONFIGURATION": "Notifikace - konfigurace",
-      "NOTIFICATIONTEMPLATE": "Notifikace - Šablony",
+      "NOTIFICATIONTEMPLATE": "Notifikace - šablony",
       "PASSWORDPOLICY": "Politiky hesel",
-      "ROLEREQUEST": "Adenda řádostí o role",
-      "ROLEREQUESTIMMEDIATELY": "Adenda řádostí o role - spuštění ihned",
+      "ROLEREQUEST": "Agenda žádostí o role",
       "SCHEDULER": "Nastavení plánovače"
     }
   },

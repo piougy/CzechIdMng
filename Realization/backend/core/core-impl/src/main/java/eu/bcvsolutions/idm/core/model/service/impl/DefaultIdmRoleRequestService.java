@@ -115,7 +115,7 @@ public class DefaultIdmRoleRequestService
 	public IdmRoleRequestDto save(IdmRoleRequestDto dto) {
 		// Load applicant (check read right)
 		identityService.get(dto.getApplicant());
-		return this.save(dto);
+		return super.save(dto);
 	}
 
 	@Override
@@ -228,7 +228,7 @@ public class DefaultIdmRoleRequestService
 		// and do realization immediately (without start approval process) 
 		if (request.isExecuteImmediately()) {
 			boolean haveRightExecuteImmediately = securityService
-					.hasAnyAuthority(IdmGroupPermission.ROLE_REQUEST_IMMEDIATELY_WRITE);
+					.hasAnyAuthority(IdmGroupPermission.ROLE_REQUEST_EXECUTE_IMMEDIATELY);
 
 			if (checkRight && !haveRightExecuteImmediately) {
 				throw new RoleRequestException(CoreResultCode.ROLE_REQUEST_NO_EXECUTE_IMMEDIATELY_RIGHT,

@@ -24,6 +24,7 @@ import eu.bcvsolutions.idm.core.model.domain.RoleRequestState;
 public class IdmConceptRoleRequestDto extends AbstractDto implements Loggable {
 
 	private static final long serialVersionUID = 1L;
+	public static final String WF_PROCESS_FIELD = "wfProcessId";
 
 	@Embedded(dtoClass = IdmRoleRequestDto.class)
 	private UUID roleRequest;

@@ -1,12 +1,19 @@
 package eu.bcvsolutions.idm.core.workflow.model.dto;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class WorkflowHistoricTaskInstanceDto {
+import org.activiti.engine.IdentityService;
+import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.core.api.dto.BaseDto;
+
+public class WorkflowHistoricTaskInstanceDto implements BaseDto {
+
+	private static final long serialVersionUID = 1L;
 	private String processDefinitionId;
 	private String id;
 	private String name;
@@ -155,6 +162,14 @@ public class WorkflowHistoricTaskInstanceDto {
 
 	public void setCandicateUsers(List<String> candicateUsers) {
 		this.candicateUsers = candicateUsers;
+	}
+
+	@Override
+	public void setId(Serializable id) {
+		if (id != null) {
+			Assert.isInstanceOf(String.class, id, "WorkflowHistoricTaskInstanceDto supports only String identifier.");
+		}
+		this.id = (String) id;
 	}
 
 }

@@ -1,11 +1,13 @@
 import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
+import moment from 'moment';
 //
 import * as Basic from '../../components/basic';
 import { RoleRequestManager, IdentityManager} from '../../redux';
 import RoleRequestTable from './RoleRequestTable';
 import uuid from 'uuid';
+import RoleRequestStateEnum from '../../enums/RoleRequestStateEnum';
 
 const uiKey = 'role-request-table';
 const manager = new RoleRequestManager();
@@ -79,7 +81,15 @@ class RoleRequests extends Basic.AbstractTableContent {
         if (this.refs.table) {
           this.refs.table.getWrappedInstance().reload();
         }
-        this.addMessage({ message: this.i18n('action.startRequest.started', { name: json.name }) });
+        if (json.state === RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.DUPLICATED)) {
+          this.addMessage({ message: this.i18n('content.roleRequests.action.startRequest.duplicated', { created: moment(json._embedded.duplicatedToRequest.created).format(this.i18n('format.datetime'))}), level: 'warning'});
+          return;
+        }
+        if (json.state === RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.EXCEPTION)) {
+          this.addMessage({ message: this.i18n('content.roleRequests.action.startRequest.exception'), level: 'error' });
+          return;
+        }
+        this.addMessage({ message: this.i18n('content.roleRequests.action.startRequest.started') });
       }).catch(ex => {
         this.setState({
           showLoading: false

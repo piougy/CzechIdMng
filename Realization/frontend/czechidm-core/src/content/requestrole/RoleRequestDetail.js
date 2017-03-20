@@ -2,6 +2,7 @@ import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import _ from 'lodash';
+import moment from 'moment';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
@@ -10,7 +11,6 @@ import RoleRequestStateEnum from '../../enums/RoleRequestStateEnum';
 import ConceptRoleRequestOperationEnum from '../../enums/ConceptRoleRequestOperationEnum';
 import SearchParameters from '../../domain/SearchParameters';
 import EntityUtils from '../../utils/EntityUtils';
-import UiUtils from '../../utils/UiUtils';
 import RoleConceptTable from './RoleConceptTable';
 
 const uiKey = 'role-request';
@@ -293,7 +293,15 @@ class RoleRequestDetail extends Basic.AbstractTableContent {
           showLoading: false
         });
         this.context.router.goBack();
-        this.addMessage({ message: this.i18n('content.roleRequests.action.startRequest.started', { name: json.name }) });
+        if (json.state === RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.DUPLICATED)) {
+          this.addMessage({ message: this.i18n('content.roleRequests.action.startRequest.duplicated', { created: moment(json._embedded.duplicatedToRequest.created).format(this.i18n('format.datetime'))}), level: 'warning'});
+          return;
+        }
+        if (json.state === RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.EXCEPTION)) {
+          this.addMessage({ message: this.i18n('content.roleRequests.action.startRequest.exception'), level: 'error' });
+          return;
+        }
+        this.addMessage({ message: this.i18n('content.roleRequests.action.startRequest.started') });
       }).catch(ex => {
         this.setState({
           showLoading: false

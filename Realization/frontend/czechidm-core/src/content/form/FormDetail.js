@@ -104,7 +104,7 @@ class FormDetail extends Basic.AbstractContent {
           <Basic.PanelHeader text={isNew ? this.i18n('create.header') : this.i18n('content.formDefinitions.detail.title')} />
           <Basic.PanelBody style={isNew ? { paddingTop: 0, paddingBottom: 0 } : { padding: 0 }} rendered={!showLoadingFinal}>
             <Basic.AbstractForm ref="form" uiKey={uiKey} data={entity}
-              readOnly={!SecurityManager.hasAuthority('EAV_FORM_DEFINITIONS_WRITE')}>
+              readOnly={!SecurityManager.hasAuthority('EAVFORMDEFINITIONS_WRITE')}>
             <Basic.TextField
               ref="name"
               label={this.i18n('entity.FormDefinition.name')}
@@ -135,7 +135,7 @@ class FormDetail extends Basic.AbstractContent {
               level="success"
               showLoadingIcon
               showLoadingText={this.i18n('button.saving')}
-              rendered={SecurityManager.hasAuthority('EAV_FORM_DEFINITIONS_WRITE')}>
+              rendered={SecurityManager.hasAuthority('EAVFORMDEFINITIONS_WRITE')}>
               {this.i18n('button.save')}
             </Basic.Button>
           </Basic.PanelFooter>

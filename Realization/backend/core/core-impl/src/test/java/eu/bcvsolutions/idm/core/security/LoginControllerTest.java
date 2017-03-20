@@ -6,11 +6,10 @@ import static org.junit.Assert.assertNotNull;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.Resource;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.InitTestData;
-import eu.bcvsolutions.idm.core.api.rest.domain.ResourceWrapper;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.dto.IdmJwtAuthenticationDto;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
@@ -29,14 +28,13 @@ public class LoginControllerTest extends AbstractIntegrationTest {
 	private LoginController loginController;
 	
 	@Test
-	@Transactional
 	public void testSuccesfulLogIn() throws Exception {
 		LoginDto loginDto = new LoginDto();
 		loginDto.setUsername(InitTestData.TEST_ADMIN_USERNAME);
 		loginDto.setPassword(new GuardedString(InitTestData.TEST_ADMIN_PASSWORD));
-		ResourceWrapper<LoginDto> response = loginController.login(loginDto);
+		Resource<LoginDto> response = loginController.login(loginDto);
 		
-		IdmJwtAuthenticationDto authentication = response.getResource().getAuthentication();
+		IdmJwtAuthenticationDto authentication = response.getContent().getAuthentication();
 		
 		assertNotNull(authentication);
 		assertEquals(InitTestData.TEST_ADMIN_USERNAME, authentication.getCurrentUsername());

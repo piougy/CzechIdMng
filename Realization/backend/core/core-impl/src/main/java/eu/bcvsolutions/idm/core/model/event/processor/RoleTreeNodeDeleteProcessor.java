@@ -55,6 +55,7 @@ public class RoleTreeNodeDeleteProcessor extends CoreEventProcessor<IdmRoleTreeN
 		//
 		// delete all assigned roles gained by this automatic role
 		// TODO: long running task
+		// TODO: integrate with role request api
 		// TODO: optional remove by logged user input
 		identityRoleService.getRolesByAutomaticRole(roleTreeNode.getId(), null).forEach(identityRole -> {
 			identityRoleService.delete(identityRole);

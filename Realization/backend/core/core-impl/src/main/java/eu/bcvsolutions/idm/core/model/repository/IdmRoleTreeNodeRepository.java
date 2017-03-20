@@ -41,7 +41,7 @@ public interface IdmRoleTreeNodeRepository extends AbstractEntityRepository<IdmR
 	 * @param treeNode
 	 * @return
 	 */
-	@Query(value = "select distinct e from #{#entityName} e"
+	@Query(value = "select e from #{#entityName} e"
 			+ " where"
 			+ " (e.treeNode = ?#{[0]})" // takes all recursion
 			+ " or"

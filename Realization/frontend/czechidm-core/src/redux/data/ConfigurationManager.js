@@ -123,7 +123,7 @@ export default class ConfigurationManager extends EntityManager {
    * Returns setting value
    */
   static getPublicValue(state, key) {
-    const publicConfigurations = state.config.get(Properties.PROPERITES);
+    const publicConfigurations = state.config.get(Properties.PROPERTIES);
     if (!publicConfigurations) {
       return null;
     }

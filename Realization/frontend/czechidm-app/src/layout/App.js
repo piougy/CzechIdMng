@@ -29,7 +29,6 @@ export class App extends Basic.AbstractContent {
   * Look out: This method is aplication entry point
   */
   componentDidMount() {
-    this.hideAllMessages(); // move to init app
   }
 
   /**
@@ -107,12 +106,10 @@ export class App extends Basic.AbstractContent {
             <Helmet title={this.i18n('navigation.menu.home')} titleTemplate={titleTemplate}/>
             <Advanced.Navigation/>
             <div id="content-container" className={classnames}>
-              {
-                userContext.isExpired
-                ||
-                this.props.children
-              }
-
+              {/* children is hidden only - prevent to lost form data, when token is expired */}
+              <div style={ userContext.isExpired ? { display: 'none'} : {} }>
+                { this.props.children }
+              </div>
               {
                 /* TODO: move to redux and hide it, when is needed */
                 !userContext.isExpired && location.pathname !== '/login' && location.pathname !== '/password/reset' && location.pathname !== '/password/change'

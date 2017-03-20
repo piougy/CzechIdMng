@@ -1514,6 +1514,9 @@
           "type": "Typ",
           "order": "Pořadí",
           "overriden": "Komponenta přetížena v modulu: {{moduleId}}"
+        },
+        "activate": {
+          "disabled": "Frontendový modul závisí na backendovém modulu [{{backendId}}]. Aktivujte nejprve jej."
         }
       },
       "be-modules": {

@@ -81,7 +81,13 @@ export function backendConfigurationInit(cb = () => {}) {
         ConfigLoader.getModuleDescriptors().forEach(moduleDescriptor => {
           if (moduleDescriptor.backendId) { // FE module depends on be module
             const isEnabled = ConfigurationManager.isModuleEnabled(getState(), moduleDescriptor.backendId) || false;
-            ConfigLoader.enable(moduleDescriptor.id, isEnabled);
+            //
+            // FE module can be disabed sepatelly
+            if (isEnabled && (moduleDescriptor.backendId === moduleDescriptor.id || ConfigurationManager.isModuleEnabled(getState(), moduleDescriptor.id))) {
+              ConfigLoader.enable(moduleDescriptor.id, true);
+            } else {
+              ConfigLoader.enable(moduleDescriptor.id, false);
+            }
           } else {
             const isEnabled = ConfigurationManager.isModuleEnabled(getState(), moduleDescriptor.id);
             ConfigLoader.enable(moduleDescriptor.id, isEnabled === null || isEnabled);

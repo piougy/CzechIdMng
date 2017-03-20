@@ -34,6 +34,8 @@ class BackendModules extends Basic.AbstractContent {
       this.context.store.dispatch(this.backendModuleManager.setEnabled(entity.id, enable, (patchedEntity, error) => {
         if (!error) {
           this.addMessage({ message: this.i18n(`action.${enable ? '' : 'de'}activate.success`, { count: 1, record: entity.name }) });
+          // reload is needed - rotes could be disabled too
+          window.location.reload();
         } else {
           this.addError(error);
         }

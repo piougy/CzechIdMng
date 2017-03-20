@@ -24,7 +24,7 @@ export default {
   },
   // redux properties
   Properties: {
-    PROPERITES: 'properties',
+    PROPERTIES: 'properties',
     NAVIGATION: 'navigation'
   }
 };

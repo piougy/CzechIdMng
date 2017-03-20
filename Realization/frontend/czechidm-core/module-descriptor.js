@@ -363,14 +363,14 @@ module.exports = {
             'id': 'system-configuration',
             'labelKey': 'navigation.menu.configuration',
             'icon': 'cog',
-            'order': 20,
+            'order': 10,
             'path': '/configurations',
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONFIGURATION_WRITE', 'CONFIGURATIONSECURED_READ'] } ]
           },
           {
             'id': 'modules',
             'labelKey': 'content.system.modules.title',
-            'order': 30,
+            'order': 50,
             'path': '/modules/fe-modules',
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['MODULE_READ'] } ],
             'items': [
@@ -406,7 +406,7 @@ module.exports = {
           {
             'id': 'scheduler',
             'labelKey': 'content.scheduler.title',
-            'order': 35,
+            'order': 55,
             'path': '/scheduler/running-tasks',
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCHEDULER_READ'] } ],
             'items': [
@@ -453,7 +453,7 @@ module.exports = {
             'labelKey': 'content.tree.header',
             'titleKey': 'content.tree.title',
             'icon': 'tree-deciduous',
-            'order': 40,
+            'order': 80,
             'iconColor': '#419641',
             'path': '/tree/nodes',
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREENODE_WRITE'] } ],
@@ -508,7 +508,7 @@ module.exports = {
             'titleKey': 'content.roleCatalogues.title',
             'icon': 'fa:list-alt',
             'iconColor': '#dad727',
-            'order': 50,
+            'order': 100,
             'path': '/role-catalogues',
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ'] } ],
           },
@@ -557,7 +557,7 @@ module.exports = {
             'titleKey': 'content.scripts.title',
             'icon': 'fa:clone',
             'iconColor': '#272fd8',
-            'order': 26,
+            'order': 30,
             'path': '/scripts',
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCRIPT_READ'] } ],
           },
@@ -567,7 +567,7 @@ module.exports = {
             'titleKey': 'content.formDefinitions.title',
             'icon': 'fa:wpforms',
             'iconColor': '#000000',
-            'order': 30,
+            'order': 40,
             'path': '/forms',
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['EAVFORMDEFINITIONS_READ'] } ],
             'items': [

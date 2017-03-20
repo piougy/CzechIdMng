@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
@@ -14,6 +15,7 @@ import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.core.model.domain.RecursionType;
 import eu.bcvsolutions.idm.core.model.dto.filter.IdentityContractFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
@@ -24,6 +26,7 @@ import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContra
 import eu.bcvsolutions.idm.core.model.event.processor.IdentityContractDeleteProcessor;
 import eu.bcvsolutions.idm.core.model.event.processor.IdentityContractSaveProcessor;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
+import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeTypeRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 
@@ -44,24 +47,40 @@ public class DefaultIdmIdentityContractService
 	private final IdmIdentityContractRepository repository;
 	private final EntityEventManager entityEventManager;
 	private final IdmTreeTypeRepository treeTypeRepository;
+	private final IdmTreeNodeRepository treeNodeRepository;
 	
 	@Autowired
 	public DefaultIdmIdentityContractService(
 			IdmIdentityContractRepository repository,
 			EntityEventManager entityEventManager,
-			IdmTreeTypeRepository treeTypeRepository) {
+			IdmTreeTypeRepository treeTypeRepository,
+			IdmTreeNodeRepository treeNodeRepository) {
 		super(repository);
 		//
 		Assert.notNull(entityEventManager);
 		Assert.notNull(treeTypeRepository);
+		Assert.notNull(treeNodeRepository);
 		//
 		this.repository = repository;
 		this.entityEventManager = entityEventManager;
 		this.treeTypeRepository = treeTypeRepository;
+		this.treeNodeRepository = treeNodeRepository;
 	}
 	
+	@Override
+	@Transactional(readOnly = true)
 	public List<IdmIdentityContract> getContracts(IdmIdentity identity) {
 		return repository.findAllByIdentity(identity, new Sort("validFrom"));
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<IdmIdentityContract> getContractsByWorkPosition(UUID workPositionId, RecursionType recursion) {
+		Assert.notNull(workPositionId);
+		IdmTreeNode workPosition = treeNodeRepository.findOne(workPositionId);
+		Assert.notNull(workPosition);
+		//
+		return repository.findAllByWorkPosition(workPosition, recursion == null ? RecursionType.NO : recursion);
 	}
 	
 	/**

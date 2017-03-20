@@ -20,7 +20,7 @@ import promiseMiddleware from 'redux-promise';
 import Promise from 'es6-promise';
 import log4js from 'log4js';
 //
-import persistState, {mergePersistedState} from 'redux-localstorage';
+import persistState, { mergePersistedState } from 'redux-localstorage';
 import filter from 'redux-localstorage-filter';
 //
 import { syncHistory, routeReducer } from 'react-router-redux';
@@ -315,6 +315,8 @@ store.dispatch(ConfigActions.appInit(config, moduleDescriptors, componentDescrip
         }
       ]
     };
+    // init websocket for user messages (after F5 etc.)
+    store.dispatch(Managers.SecurityManager.connectStompClient());
     //
     // app entry point
     ReactDOM.render(

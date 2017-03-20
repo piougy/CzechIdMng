@@ -28,9 +28,9 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
  */
 @Component
 @Description("Automatic roles recount while enabled identity cotract is created.")
-public class IdentityContractCreateAutomaticRoleProcessor extends CoreEventProcessor<IdmIdentityContract> {
+public class IdentityContractCreateByAutomaticRoleProcessor extends CoreEventProcessor<IdmIdentityContract> {
 	
-	public static final String PROCESSOR_NAME = "identity-contract-create-automatic-role-processor";
+	public static final String PROCESSOR_NAME = "identity-contract-create-by-automatic-role-processor";
 	@Autowired
 	private IdmRoleTreeNodeService roleTreeNodeService;
 //	@Autowired
@@ -40,7 +40,7 @@ public class IdentityContractCreateAutomaticRoleProcessor extends CoreEventProce
 	@Autowired
 	private IdmIdentityRoleService identityRoleService;
 	
-	public IdentityContractCreateAutomaticRoleProcessor() {
+	public IdentityContractCreateByAutomaticRoleProcessor() {
 		super(IdentityContractEventType.CREATE);
 	}
 	

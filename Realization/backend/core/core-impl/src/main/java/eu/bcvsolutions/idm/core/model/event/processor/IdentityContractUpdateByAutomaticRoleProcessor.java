@@ -34,9 +34,9 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
  */
 @Component
 @Description("Automatic roles recount while identity contract is updated, disabled or enabled.")
-public class IdentityContractUpdateAutomaticRoleProcessor extends CoreEventProcessor<IdmIdentityContract> {
+public class IdentityContractUpdateByAutomaticRoleProcessor extends CoreEventProcessor<IdmIdentityContract> {
 	
-	public static final String PROCESSOR_NAME = "identity-contract-update-automatic-role-processor";
+	public static final String PROCESSOR_NAME = "identity-contract-update-by-automatic-role-processor";
 	@Autowired
 	private IdmIdentityContractRepository repository;
 	@Autowired
@@ -44,9 +44,9 @@ public class IdentityContractUpdateAutomaticRoleProcessor extends CoreEventProce
 	@Autowired
 	private IdmIdentityRoleService identityRoleService;
 	@Autowired
-	private IdentityContractCreateAutomaticRoleProcessor createProcessor;
+	private IdentityContractCreateByAutomaticRoleProcessor createProcessor;
 	
-	public IdentityContractUpdateAutomaticRoleProcessor() {
+	public IdentityContractUpdateByAutomaticRoleProcessor() {
 		super(IdentityContractEventType.UPDATE);
 	}
 	

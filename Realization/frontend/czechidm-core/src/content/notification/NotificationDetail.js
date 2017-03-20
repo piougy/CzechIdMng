@@ -158,7 +158,8 @@ class NotificationDetail extends Basic.AbstractContent {
             ref="level"
             enum={NotificationLevelEnum}
             useSymbol={false}
-            label={this.i18n('entity.Notification.message.level')}/>
+            label={this.i18n('entity.Notification.message.level')}
+            required/>
 
           <Basic.LabelWrapper hidden={isNew || !notification.message.level}
               label={this.i18n('entity.Notification.message.level')}>

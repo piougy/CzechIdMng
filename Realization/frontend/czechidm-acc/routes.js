@@ -3,11 +3,6 @@ module.exports = {
   component: 'div',
   childRoutes: [
     {
-      path: 'about',
-      component: require('./src/content/system/Systems'),
-      priority: 10
-    },
-    {
       path: 'systems',
       component: require('./src/content/system/Systems'),
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]

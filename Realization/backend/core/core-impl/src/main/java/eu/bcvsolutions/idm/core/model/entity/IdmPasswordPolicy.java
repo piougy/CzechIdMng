@@ -6,6 +6,7 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Index;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import org.hibernate.envers.Audited;
@@ -14,6 +15,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
+import eu.bcvsolutions.idm.core.api.domain.Disableable;
 import eu.bcvsolutions.idm.core.api.domain.IdentifiableByName;
 import eu.bcvsolutions.idm.core.api.domain.PasswordGenerate;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
@@ -37,7 +39,7 @@ import eu.bcvsolutions.idm.core.model.domain.IdmPasswordPolicyType;
 @Table(name = "idm_password_policy", indexes = {
 		@Index(name = "ux_idm_pass_policy_name", columnList = "name", unique = true)
 		})
-public class IdmPasswordPolicy extends AbstractEntity implements IdentifiableByName, PasswordGenerate {
+public class IdmPasswordPolicy extends AbstractEntity implements IdentifiableByName, PasswordGenerate, Disableable {
 
 	private static final long serialVersionUID = -7107125399784973455L;
 	
@@ -165,6 +167,11 @@ public class IdmPasswordPolicy extends AbstractEntity implements IdentifiableByN
 	@Audited
 	@Column(name = "identity_attribute_check")
 	private String identityAttributeCheck;
+	
+	@Audited
+	@NotNull
+	@Column(name = "disabled", nullable = false)
+	private boolean disabled;
 	
 	public int getMaxHistorySimilar() {
 		return maxHistorySimilar;
@@ -420,6 +427,16 @@ public class IdmPasswordPolicy extends AbstractEntity implements IdentifiableByN
 
 	public void setIdentityAttributeCheck(String identityAttributeCheck) {
 		this.identityAttributeCheck = identityAttributeCheck;
+	}
+	
+	@Override
+	public boolean isDisabled() {
+		return disabled;
+	}
+
+	@Override
+	public void setDisabled(boolean disabled) {
+		this.disabled = disabled;
 	}
 
 	@Override

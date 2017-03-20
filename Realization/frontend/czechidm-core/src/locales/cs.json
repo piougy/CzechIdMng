@@ -419,7 +419,7 @@
       "EXECUTED": "Provedeno",
       "CANCELED": "Zrušeno",
       "APPROVED": "Schváleno",
-      "IN_PROGRESS": "Probíhá",
+      "IN_PROGRESS": "Zpracovává se",
       "EXCEPTION": "Chyba",
       "DUPLICATED": "Duplicitní"
     },
@@ -1102,7 +1102,7 @@
     "roleRequests": {
       "header": "Žádosti o změnu oprávnění",
       "title": "Žádosti o role",
-      "applicant": "Žadatel",
+      "applicant": "Žádost pro uživatele",
       "create": {
         "header": "Vytvořit novou žádost o změnu oprávnění"
       },
@@ -1112,9 +1112,11 @@
       },
       "action": {
         "startRequest": {
-          "header": "Opravdu chcete spustit tuto žádost",
+          "header": "Opravdu chcete podat tuto žádost",
           "message": "Opravdu chcete spustit schvalovací process pro tuto žádost?",
-          "started": "Žádost byla spuštěna"
+          "started": "Žádost byla úspěšně podána",
+          "exception": "Při podání žádosti nastala chyba. Žádost nebyla podána!",
+          "duplicated": "Žádost nebyla úspěšně podána, protože je duplicitní k jiné žádosti vytvořené [{{created}}]."
         }
       },
       "filter": {
@@ -1514,6 +1516,9 @@
           "type": "Typ",
           "order": "Pořadí",
           "overriden": "Komponenta přetížena v modulu: {{moduleId}}"
+        },
+        "activate": {
+          "disabled": "Frontendový modul závisí na backendovém modulu [{{backendId}}]. Aktivujte nejprve jej."
         }
       },
       "be-modules": {
@@ -2267,7 +2272,9 @@
       },
       "created": "Vytvořeno",
       "modified": "Upraveno",
-      "wfProcessId": "WF identifikátor"
+      "candicateUsers": "Schvalují",
+      "currentActivity": "Stav schvalování",
+      "wfProcessId": "WF ID"
     },
     "ConceptRoleRequest": {
       "identityContract": "Vztah",

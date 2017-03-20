@@ -22,6 +22,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
+import eu.bcvsolutions.idm.core.api.domain.Disableable;
 import eu.bcvsolutions.idm.core.api.domain.IdentifiableByName;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
@@ -40,7 +41,7 @@ import eu.bcvsolutions.idm.ic.impl.IcConnectorInstanceImpl;
 		@Index(name = "ux_system_name", columnList = "name", unique = true),
 		@Index(name = "idx_idm_password_pol_gen", columnList = "password_pol_val_id"),
 		@Index(name = "idx_idm_password_pol_val", columnList = "password_pol_gen_id")})
-public class SysSystem extends AbstractEntity implements IdentifiableByName, FormableEntity {
+public class SysSystem extends AbstractEntity implements IdentifiableByName, FormableEntity, Disableable {
 
 	private static final long serialVersionUID = -8276147852371288351L;
 	
@@ -59,6 +60,11 @@ public class SysSystem extends AbstractEntity implements IdentifiableByName, For
 	@NotNull
 	@Column(name = "readonly", nullable = false)
 	private boolean readonly;
+	
+	@Audited
+	@NotNull
+	@Column(name = "disabled", nullable = false)
+	private boolean disabled;
 	
 	@Audited
 	@NotNull
@@ -166,6 +172,16 @@ public class SysSystem extends AbstractEntity implements IdentifiableByName, For
 
 	public void setReadonly(boolean readonly) {
 		this.readonly = readonly;
+	}
+	
+	@Override
+	public boolean isDisabled() {
+		return disabled;
+	}
+
+	@Override
+	public void setDisabled(boolean disabled) {
+		this.disabled = disabled;
 	}
 
 	public boolean isQueue() {

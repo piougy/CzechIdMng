@@ -209,7 +209,7 @@ class FormAttributeDetail extends Basic.AbstractContent {
                     <Basic.TextArea
                       ref="description"
                       label={this.i18n('entity.FormAttribute.description')}
-                      max={255}/>
+                      max={2000}/>
                   </div>
                 </Basic.Row>
                 <Basic.Checkbox

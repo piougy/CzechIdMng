@@ -12,6 +12,7 @@ import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
+import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
 
@@ -42,7 +43,7 @@ public class EntityToUiidConverter implements Converter<BaseEntity, UUID> {
 				try {
 					AbstractDto parentDto = (AbstractDto) parentContext.getDestination();
 					BaseEntity entity = (BaseEntity) context.getSource();
-					Map<String, AbstractDto> embedded = parentDto.getEmbedded();
+					Map<String, BaseDto> embedded = parentDto.getEmbedded();
 
 					PropertyMapping propertyMapping = (PropertyMapping) context.getMapping();
 					// Find name of field by property mapping

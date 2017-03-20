@@ -1482,6 +1482,9 @@
           "type": "Type",
           "order": "Order",
           "overriden": "Component overriden in module: {{moduleId}}"
+        },
+        "activate": {
+          "disabled": "Frontend module depends on backend module [{{backendId}}]. Activate backend module at first."
         }
       },
       "be-modules": {
@@ -2242,6 +2245,8 @@
       },
       "created": "Created",
       "modified": "Modified",
+      "candicateUsers": "Approvers",
+      "currentActivity": "State of approval",
       "wfProcessId": "WF identificator"
     },
     "ConceptRoleRequest": {

@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import org.joda.time.LocalDate;
 
+import eu.bcvsolutions.idm.core.api.domain.Disableable;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdentityDto;
@@ -14,7 +15,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdentityDto;
  * @author Svanda
  */
 
-public class IdmIdentityContractDto extends AbstractDto {
+public class IdmIdentityContractDto extends AbstractDto implements Disableable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -26,6 +27,7 @@ public class IdmIdentityContractDto extends AbstractDto {
 	private UUID guarantee;
 	private String position;
 	private boolean externe;
+	private boolean disabled;
 
 	// private IdmTreeNode workingPosition;
 	
@@ -76,5 +78,12 @@ public class IdmIdentityContractDto extends AbstractDto {
 	public void setExterne(boolean externe) {
 		this.externe = externe;
 	}
-
+	
+	public void setDisabled(boolean disabled) {
+		this.disabled = disabled;
+	}
+	
+	public boolean isDisabled() {
+		return disabled;
+	}
 }

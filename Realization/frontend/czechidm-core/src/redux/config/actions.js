@@ -8,23 +8,7 @@ import ComponentLoader from '../../utils/ComponentLoader';
 import { LocalizationService } from '../../services';
 import SecurityManager from '../security/SecurityManager';
 import ConfigurationManager from '../data/ConfigurationManager';
-/*
- * action types
- */
-export const SELECT_NAVIGATION_ITEMS = 'SELECT_NAVIGATION_ITEMS';
-export const SELECT_NAVIGATION_ITEM = 'SELECT_NAVIGATION_ITEM';
-export const I18N_INIT = 'I18N_INIT';
-export const I18N_READY = 'I18N_READY';
-export const APP_INIT = 'APP_INIT';
-export const APP_READY = 'APP_READY';
-export const APP_UNAVAILABLE = 'APP_UNAVAILABLE';
-export const NAVIGATION_INIT = 'NAVIGATION_INIT';
-export const NAVIGATION_READY = 'NAVIGATION_READY';
-export const MODULES_INIT = 'MODULES_INIT';
-export const MODULES_READY = 'MODULES_READY';
-export const CONFIGURATION_INIT = 'CONFIGURATION_INIT';
-export const CONFIGURATION_READY = 'CONFIGURATION_READY';
-export const COLLAPSE_NAVIGATION = 'COLLAPSE_NAVIGATION';
+import { Actions, Properties } from './constants';
 
 /**
  * Select navigation items
@@ -33,7 +17,7 @@ export const COLLAPSE_NAVIGATION = 'COLLAPSE_NAVIGATION';
  */
 export function selectNavigationItems(selectedNavigationItems) {
   return {
-    type: SELECT_NAVIGATION_ITEMS,
+    type: Actions.SELECT_NAVIGATION_ITEMS,
     selectedNavigationItems
   };
 }
@@ -43,7 +27,7 @@ export function selectNavigationItems(selectedNavigationItems) {
  */
 export function selectNavigationItem(selectedNavigationItemId) {
   return {
-    type: SELECT_NAVIGATION_ITEM,
+    type: Actions.SELECT_NAVIGATION_ITEM,
     selectedNavigationItemId
   };
 }
@@ -56,7 +40,7 @@ export function selectNavigationItem(selectedNavigationItemId) {
  */
 export function collapseNavigation(collapsed = false) {
   return {
-    type: COLLAPSE_NAVIGATION,
+    type: Actions.COLLAPSE_NAVIGATION,
     collapsed
   };
 }
@@ -67,21 +51,27 @@ export function collapseNavigation(collapsed = false) {
 function navigationInit(cb) {
   return (dispatch) => {
     dispatch({
-      type: NAVIGATION_INIT
+      type: Actions.NAVIGATION_INIT
     });
     dispatch({
-      type: NAVIGATION_READY,
+      type: Actions.NAVIGATION_READY,
       navigation: ConfigLoader.getNavigation(),
       ready: true
     });
     dispatch({
-      type: APP_READY,
+      type: Actions.APP_READY,
       ready: true
     });
     cb();
   };
 }
 
+/**
+ * Loads BE public configuration and store them into config storage
+ *
+ * @param  {func} cb callback
+ * @return {action}
+ */
 export function backendConfigurationInit(cb = () => {}) {
   return (dispatch, getState) => {
     const configurationManager = new ConfigurationManager();
@@ -91,7 +81,13 @@ export function backendConfigurationInit(cb = () => {}) {
         ConfigLoader.getModuleDescriptors().forEach(moduleDescriptor => {
           if (moduleDescriptor.backendId) { // FE module depends on be module
             const isEnabled = ConfigurationManager.isModuleEnabled(getState(), moduleDescriptor.backendId) || false;
-            ConfigLoader.enable(moduleDescriptor.id, isEnabled);
+            //
+            // FE module can be disabed sepatelly
+            if (isEnabled && (moduleDescriptor.backendId === moduleDescriptor.id || ConfigurationManager.isModuleEnabled(getState(), moduleDescriptor.id))) {
+              ConfigLoader.enable(moduleDescriptor.id, true);
+            } else {
+              ConfigLoader.enable(moduleDescriptor.id, false);
+            }
           } else {
             const isEnabled = ConfigurationManager.isModuleEnabled(getState(), moduleDescriptor.id);
             ConfigLoader.enable(moduleDescriptor.id, isEnabled === null || isEnabled);
@@ -100,13 +96,13 @@ export function backendConfigurationInit(cb = () => {}) {
         ComponentLoader.reloadComponents();
         //
         dispatch({
-          type: CONFIGURATION_READY,
+          type: Actions.CONFIGURATION_READY,
           ready: true
         });
         dispatch(navigationInit(cb));
       } else {
         dispatch({
-          type: APP_UNAVAILABLE
+          type: Actions.APP_UNAVAILABLE
         });
         cb(error);
       }
@@ -120,7 +116,7 @@ export function backendConfigurationInit(cb = () => {}) {
 function i18nReady(lng, cb, reloadBackendConfiguration) {
   return (dispatch) => {
     dispatch({
-      type: I18N_READY,
+      type: Actions.I18N_READY,
       lng
     });
     if (reloadBackendConfiguration) {
@@ -148,6 +144,13 @@ function i18nInit(cb) {
   };
 }
 
+/**
+ * Changes locale
+ *
+ * @param  {string} lng locale (e.g. en)
+ * @param  {func} cb callback fnction
+ * @return {action}
+ */
 export function i18nChange(lng, cb = () => {}) {
   return (dispatch) => {
     LocalizationService.changeLanguage(lng,
@@ -168,12 +171,12 @@ export function i18nChange(lng, cb = () => {}) {
 */
 function modulesInit(config, moduleDescriptors, componentDescriptors, cb) {
   return (dispatch) => {
-    dispatch({ type: MODULES_INIT });
-    dispatch({ type: CONFIGURATION_INIT });
+    dispatch({ type: Actions.MODULES_INIT });
+    dispatch({ type: Actions.CONFIGURATION_INIT });
     ConfigLoader.init(config, moduleDescriptors);
     ComponentLoader.initComponents(componentDescriptors);
     dispatch({
-      type: MODULES_READY,
+      type: Actions.MODULES_READY,
       ready: true
     });
     dispatch(i18nInit(cb));
@@ -258,7 +261,7 @@ export function getNavigationItem(configState, id) {
   if (!configState || !id) {
     return null;
   }
-  const navigation = configState.get('navigation');
+  const navigation = configState.get(Properties.NAVIGATION);
   //
   if (!navigation) {
     return null;

@@ -13,9 +13,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @author svandav
  *
  * @param <T> DTO type
- * @deprecated use Resource or Resources from spring instead 
  */
-@Deprecated 
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ResourcesWrapper<T> extends ResourceSupport {
 	

@@ -24,4 +24,11 @@ public interface WorkflowHistoricTaskInstanceService {
 	 */
 	WorkflowHistoricTaskInstanceDto get(String historicTaskInstanceId);
 
+	/**
+	 * Search historic task by process ID
+	 * @param processId
+	 * @return
+	 */
+	WorkflowHistoricTaskInstanceDto getTaskByProcessId(String processId);
+
 }

@@ -29,6 +29,4 @@ public interface AbstractDtoProjection extends BaseDtoProjection {
 	String getModifier();
 	
 	DateTime getModified();
-	
-	boolean isDisabled();
 }

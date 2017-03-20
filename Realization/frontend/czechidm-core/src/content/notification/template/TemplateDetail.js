@@ -25,8 +25,16 @@ export default class TemplateDetail extends Basic.AbstractContent {
     return 'content.notificationTemplate';
   }
 
+  getNavigationKey() {
+    return 'notification-templates';
+  }
+
   componentDidMount() {
-    this.selectNavigationItems(['notification', 'notification-templates']);
+    super.componentDidMount();
+    //
+    if (this.refs.form) {
+      this.refs.code.focus();
+    }
   }
 
   /**
@@ -50,7 +58,6 @@ export default class TemplateDetail extends Basic.AbstractContent {
       const loadedEntity = _.merge({}, entity);
       //
       this.refs.form.setData(loadedEntity);
-      this.refs.code.focus();
     }
   }
 

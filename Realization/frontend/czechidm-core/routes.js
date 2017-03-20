@@ -176,7 +176,7 @@ module.exports = {
     {
       path: 'role-requests',
       component: require('./src/content/requestrole/RoleRequests'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_REQUEST_READ'] } ]
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLEREQUEST_READ'] } ]
     },
     {
       path: 'role-requests/:entityId/detail',
@@ -313,29 +313,29 @@ module.exports = {
     {
       path: 'forms',
       component: require('./src/content/form/Forms'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['EAV_FORM_DEFINITIONS_READ'] } ]
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['EAVFORMDEFINITIONS_READ'] } ]
     },
     {
       path: 'forms/',
       component: require('./src/content/form/FormRoutes'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['EAV_FORM_DEFINITIONS_READ'] } ],
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['EAVFORMDEFINITIONS_READ'] } ],
       childRoutes: [
         {
           path: ':entityId/detail',
           component: require('./src/content/form/FormDetail'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['EAV_FORM_ATTRIBUTES_READ'] } ]
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['EAVFORMATTRIBUTES_READ'] } ]
         },
         {
           path: ':entityId/attributes',
           component: require('./src/content/form/FormAttributes'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['EAV_FORM_ATTRIBUTES_READ'] } ]
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['EAVFORMATTRIBUTES_READ'] } ]
         }
       ]
     },
     {
       path: 'forms/attribute/:entityId',
       component: require('./src/content/form/FormAttributeDetail'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['EAV_FORM_ATTRIBUTES_READ'] } ]
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['EAVFORMATTRIBUTES_READ'] } ]
     },
     {
       path: 'password-policies',

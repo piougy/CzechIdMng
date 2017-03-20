@@ -15,6 +15,7 @@ import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdentityDto;
 import eu.bcvsolutions.idm.core.model.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.model.domain.RoleRequestedByType;
+import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowHistoricTaskInstanceDto;
 
 /**
  * Dto for role request
@@ -26,6 +27,7 @@ import eu.bcvsolutions.idm.core.model.domain.RoleRequestedByType;
 public class IdmRoleRequestDto extends AbstractDto implements Loggable {
 
 	private static final long serialVersionUID = 1L;
+	public static final String WF_PROCESS_FIELD = "wfProcessId";
 
 	@Embedded(dtoClass = IdentityDto.class)
 	private UUID applicant;
@@ -33,9 +35,11 @@ public class IdmRoleRequestDto extends AbstractDto implements Loggable {
 	private RoleRequestState state;
 	private RoleRequestedByType requestedByType;
 	@JsonProperty(access = Access.READ_ONLY)
+	//In embedded map, is under wfProcessId key actual task - WorkflowHistoricTaskInstanceDto.class
 	private String wfProcessId;
 	@JsonProperty(access = Access.READ_ONLY)
 	private String originalRequest;
+	@JsonProperty(access = Access.READ_ONLY)
 	private List<IdmConceptRoleRequestDto> conceptRoles;
 	private boolean executeImmediately = false;
 	@Embedded(dtoClass = IdmRoleRequestDto.class)

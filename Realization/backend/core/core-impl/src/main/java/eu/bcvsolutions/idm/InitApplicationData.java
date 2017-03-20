@@ -27,6 +27,7 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmTreeTypeService;
 import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationConfigurationService;
 import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationTemplateService;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
+import eu.bcvsolutions.idm.core.security.api.service.CryptService;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 
 /**
@@ -71,6 +72,9 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 	
 	@Autowired
 	private IdmNotificationTemplateService notificationTemplateService;
+	
+	@Autowired
+	private CryptService cryptoService;
 
 	@Override
 	public void onApplicationEvent(ContextRefreshedEvent event) {
@@ -149,6 +153,11 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 			//
 			// init notification configuration, initialization topic need exists system templates!
 			notificationConfigurationService.initDefaultTopics();
+			//
+			//
+			if (!cryptoService.existsKeyFile()) {
+				LOG.warn("Key for crypt and decrypt confidential storage doesn't exists!!!");
+			}
 		} finally {
 			SecurityContextHolder.clearContext();
 		}

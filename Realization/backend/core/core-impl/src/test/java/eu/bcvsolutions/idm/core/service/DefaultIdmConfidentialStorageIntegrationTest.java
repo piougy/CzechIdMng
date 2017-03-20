@@ -22,6 +22,7 @@ import eu.bcvsolutions.idm.core.model.repository.IdmConfidentialStorageValueRepo
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmConfidentialStorage;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
+import eu.bcvsolutions.idm.core.security.api.service.CryptService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
@@ -38,6 +39,9 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 	@Autowired
 	private IdmIdentityService identityService;
 	
+	@Autowired
+	private CryptService cryptService;
+	
 	private DefaultIdmConfidentialStorage confidentalStorage;
 	
 	private static final String STORAGE_KEY_ONE = "test_key_one";
@@ -45,7 +49,7 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 	
 	@Before
 	public void initStorage() {
-		confidentalStorage = new DefaultIdmConfidentialStorage(repository);
+		confidentalStorage = new DefaultIdmConfidentialStorage(repository, cryptService);
 		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
 	}
 	

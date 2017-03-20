@@ -17,9 +17,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableMap;
 
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.exception.RoleRequestException;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.model.domain.RoleRequestState;
+import eu.bcvsolutions.idm.core.model.domain.RoleRequestedByType;
 import eu.bcvsolutions.idm.core.model.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.model.dto.filter.RoleRequestFilter;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleRequestService;
@@ -51,6 +55,10 @@ public class IdmRoleRequestController extends DefaultReadWriteDtoController<IdmR
 //	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_REQUEST_WRITE + "') or hasAuthority('"
 //			+ IdmGroupPermission.IDENTITY_WRITE + "')")
 	public ResponseEntity<?> post(@RequestBody @NotNull IdmRoleRequestDto dto) {
+		if (RoleRequestedByType.AUTOMATICALLY == dto.getRequestedByType()) {
+			throw new RoleRequestException(CoreResultCode.ROLE_REQUEST_AUTOMATICALLY_NOT_ALLOWED,
+					ImmutableMap.of("new", dto));
+		}
 		return super.post(dto);
 	}
 	

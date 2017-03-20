@@ -107,6 +107,15 @@ public class DefaultWorkflowHistoricTaskInstanceService implements WorkflowHisto
 		Collection<WorkflowHistoricTaskInstanceDto> resources = this.search(filter).getResources();
 		return !resources.isEmpty() ? resources.iterator().next() : null;
 	}
+	
+	@Override
+	public WorkflowHistoricTaskInstanceDto getTaskByProcessId(String processId) {
+		WorkflowFilterDto filter = new WorkflowFilterDto();
+		filter.setProcessInstanceId(processId);
+		filter.setSortAsc(true);
+		Collection<WorkflowHistoricTaskInstanceDto> resources = this.search(filter).getResources();
+		return !resources.isEmpty() ? resources.iterator().next() : null;
+	}
 
 	private WorkflowHistoricTaskInstanceDto toResource(HistoricTaskInstance instance) {
 		if (instance == null) {
@@ -114,10 +123,13 @@ public class DefaultWorkflowHistoricTaskInstanceService implements WorkflowHisto
 		}
 
 		WorkflowHistoricTaskInstanceDto dto = new WorkflowHistoricTaskInstanceDto();
-// Not working ... variables are not local but global in process scope ... may be logged level?
-//		if(instance.getTaskLocalVariables() != null && instance.getTaskLocalVariables().containsKey(WorkflowHistoricTaskInstanceService.TASK_COMPLETE_DECISION)){
-//			dto.setCompleteTaskDecision((String) instance.getTaskLocalVariables().get(WorkflowHistoricTaskInstanceService.TASK_COMPLETE_DECISION));
-//		}		
+		// Not working ... variables are not local but global in process scope
+		// ... may be logged level?
+		// if(instance.getTaskLocalVariables() != null &&
+		// instance.getTaskLocalVariables().containsKey(WorkflowHistoricTaskInstanceService.TASK_COMPLETE_DECISION)){
+		// dto.setCompleteTaskDecision((String)
+		// instance.getTaskLocalVariables().get(WorkflowHistoricTaskInstanceService.TASK_COMPLETE_DECISION));
+		// }	
 		dto.setId(instance.getId());
 		dto.setName(instance.getName());
 		dto.setProcessDefinitionId(instance.getProcessDefinitionId());

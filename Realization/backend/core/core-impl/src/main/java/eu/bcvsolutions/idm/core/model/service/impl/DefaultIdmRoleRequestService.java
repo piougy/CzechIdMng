@@ -18,6 +18,7 @@ import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
 
@@ -48,6 +49,9 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
+import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
+import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowHistoricTaskInstanceDto;
+import eu.bcvsolutions.idm.core.workflow.service.WorkflowHistoricTaskInstanceService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 
 /**
@@ -69,15 +73,21 @@ public class DefaultIdmRoleRequestService
 	private final SecurityService securityService;
 	private final ApplicationContext applicationContext;
 	private final WorkflowProcessInstanceService workflowProcessInstanceService;
+	private final WorkflowHistoricTaskInstanceService workflowHistoricTaskInstanceService;
 	private final EntityEventManager entityEventManager;
 	private IdmRoleRequestService roleRequestService;
 
 	@Autowired
 	public DefaultIdmRoleRequestService(AbstractEntityRepository<IdmRoleRequest, RoleRequestFilter> repository,
-			IdmConceptRoleRequestService conceptRoleRequestService, IdmIdentityRoleService identityRoleService,
-			IdmIdentityService identityService, ObjectMapper objectMapper, SecurityService securityService,
-			ApplicationContext applicationContext, WorkflowProcessInstanceService workflowProcessInstanceService,
-			EntityEventManager entityEventManager) {
+			IdmConceptRoleRequestService conceptRoleRequestService,
+			IdmIdentityRoleService identityRoleService,
+			IdmIdentityService identityService,
+			ObjectMapper objectMapper,
+			SecurityService securityService,
+			ApplicationContext applicationContext,
+			WorkflowProcessInstanceService workflowProcessInstanceService,
+			EntityEventManager entityEventManager,
+			WorkflowHistoricTaskInstanceService workflowHistoricTaskInstanceService) {
 		super(repository);
 
 		Assert.notNull(conceptRoleRequestService, "Concept role request service is required!");
@@ -87,6 +97,7 @@ public class DefaultIdmRoleRequestService
 		Assert.notNull(securityService, "Security service is required!");
 		Assert.notNull(applicationContext, "Application context is required!");
 		Assert.notNull(workflowProcessInstanceService, "Workflow process instance service is required!");
+		Assert.notNull(workflowHistoricTaskInstanceService, "Workflow task historic service is required!");
 		Assert.notNull(entityEventManager, "Entity event manager is required!");
 
 		this.conceptRoleRequestService = conceptRoleRequestService;
@@ -97,54 +108,31 @@ public class DefaultIdmRoleRequestService
 		this.applicationContext = applicationContext;
 		this.workflowProcessInstanceService = workflowProcessInstanceService;
 		this.entityEventManager = entityEventManager;
+		this.workflowHistoricTaskInstanceService = workflowHistoricTaskInstanceService;
 	}
 
 	@Override
 	public IdmRoleRequestDto save(IdmRoleRequestDto dto) {
-		boolean created = false;
-		if (dto.getId() == null) {
-			created = true;
-		}
 		// Load applicant (check read right)
-		IdmIdentity applicant = identityService.get(dto.getApplicant());
-		List<IdmConceptRoleRequestDto> concepts = dto.getConceptRoles();
-		if (!created) {
-			// validateOnDuplicity(dto);
-		}
-		IdmRoleRequestDto savedRequest = super.save(dto);
-
-		// Concepts will be save only on create request
-		if (created && concepts != null) {
-			concepts.forEach(concept -> {
-				concept.setRoleRequest(savedRequest.getId());
-			});
-			this.conceptRoleRequestService.saveAll(concepts);
-		}
-
-		// Check on same applicants in all role concepts
-		boolean identityNotSame = this.getDto(savedRequest.getId()).getConceptRoles().stream().filter(concept -> {
-			// get contract dto from embedded map
-			IdmIdentityContractDto contract = (IdmIdentityContractDto) concept.getEmbedded()
-					.get(IdmConceptRoleRequestService.IDENTITY_CONTRACT_FIELD);
-			return !dto.getApplicant().equals(contract.getIdentity());
-		}).findFirst().isPresent();
-
-		if (identityNotSame) {
-			throw new RoleRequestException(CoreResultCode.ROLE_REQUEST_APPLICANTS_NOT_SAME,
-					ImmutableMap.of("request", dto, "applicant", applicant.getUsername()));
-		}
-
-		return this.getDto(savedRequest.getId());
+		identityService.get(dto.getApplicant());
+		return this.save(dto);
 	}
 
 	@Override
 	public IdmRoleRequestDto toDto(IdmRoleRequest entity, IdmRoleRequestDto dto) {
 		IdmRoleRequestDto requestDto = super.toDto(entity, dto);
+		// Set concepts to request DTO
 		if (requestDto != null) {
 			ConceptRoleRequestFilter conceptFilter = new ConceptRoleRequestFilter();
 			conceptFilter.setRoleRequestId(requestDto.getId());
 			requestDto.setConceptRoles(conceptRoleRequestService.findDto(conceptFilter, null).getContent());
 		}
+		
+		if(requestDto.getWfProcessId() != null){
+			WorkflowHistoricTaskInstanceDto historicTask = workflowHistoricTaskInstanceService.getTaskByProcessId(requestDto.getWfProcessId());
+			requestDto.getEmbedded().put(IdmRoleRequestDto.WF_PROCESS_FIELD, historicTask);
+		}
+		
 		return requestDto;
 	}
 
@@ -166,6 +154,9 @@ public class DefaultIdmRoleRequestService
 			}
 			if (dto.getLog() == null) {
 				dto.setLog(dtoPersisited.getLog());
+			}
+			if (dto.getConceptRoles() == null) {
+				dto.setConceptRoles(dtoPersisited.getConceptRoles());
 			}
 			if (dto.getWfProcessId() == null) {
 				dto.setWfProcessId(dtoPersisited.getWfProcessId());
@@ -438,11 +429,18 @@ public class DefaultIdmRoleRequestService
 		conceptRequestFilter.setDuplicatedToRequestId(dto.getId());
 		this.findDto(conceptRequestFilter, null).getContent().forEach(duplicant -> {
 			duplicant.setDuplicatedToRequest(null);
-			duplicant.setState(RoleRequestState.CONCEPT);
+			if(RoleRequestState.DUPLICATED == duplicant.getState()){
+				duplicant.setState(RoleRequestState.CONCEPT);
+			}
 			String message = MessageFormat.format("Duplicated request [{0}] was deleted!", dto.getId());
 			this.addToLog(duplicant, message);
 			this.save(duplicant);
 		});
+	
+		if(!Strings.isNullOrEmpty(dto.getWfProcessId())){
+			workflowProcessInstanceService.delete(dto.getWfProcessId(), "Role request use this WF, was deleted. This WF was deleted too.");
+		}
+		
 		super.delete(dto);
 	}
 
@@ -466,5 +464,6 @@ public class DefaultIdmRoleRequestService
 		}
 		return this.roleRequestService;
 	}
+
 
 }

@@ -1,11 +1,13 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
+import { Link } from 'react-router';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import {SecurityManager} from '../../redux';
 import RoleRequestStateEnum from '../../enums/RoleRequestStateEnum';
+import CandicateUsersCell from '../workflow/CandicateUsersCell';
 
 class RoleRequestTable extends Basic.AbstractTableContent {
 
@@ -37,6 +39,36 @@ class RoleRequestTable extends Basic.AbstractTableContent {
 
   reload() {
     this.refs.table.getWrappedInstance().reload();
+  }
+
+  _getCandidatesCell({ rowIndex, data, property}) {
+    const entity = data[rowIndex];
+    if (!entity || !entity._embedded || !entity._embedded.wfProcessId) {
+      return '';
+    }
+    return (
+      <CandicateUsersCell rowIndex={0} data={[entity._embedded.wfProcessId]} property={property} maxEntry={5} />
+    );
+  }
+
+  _getCurrentActivitiCell({ rowIndex, data}) {
+    const entity = data[rowIndex];
+    if (!entity || !entity._embedded || !entity._embedded.wfProcessId) {
+      return '';
+    }
+    return (
+      entity._embedded.wfProcessId.name
+    );
+  }
+
+  _getWfProcessCell({ rowIndex, data}) {
+    const entity = data[rowIndex];
+    if (!entity || !entity.wfProcessId) {
+      return '';
+    }
+    return (
+      <Link to={`/workflow/history/processes/${entity.wfProcessId}`}>{entity.wfProcessId}</Link>
+    );
   }
 
   render() {
@@ -106,6 +138,18 @@ class RoleRequestTable extends Basic.AbstractTableContent {
               }
             }/>
           <Advanced.Column
+            property="currentActivity"
+            rendered={_.includes(columns, 'wf')}
+            face="text"
+            cell={this._getCurrentActivitiCell}
+            />
+          <Advanced.Column
+            property="candicateUsers"
+            rendered={_.includes(columns, 'wf')}
+            face="text"
+            cell={this._getCandidatesCell}
+            />
+          <Advanced.Column
             property="state"
             rendered={_.includes(columns, 'state')}
             sort
@@ -141,6 +185,7 @@ class RoleRequestTable extends Basic.AbstractTableContent {
           <Advanced.Column
             property="wfProcessId"
             rendered={_.includes(columns, 'wf')}
+            cell={this._getWfProcessCell}
             sort
             face="text"/>
           <Advanced.Column

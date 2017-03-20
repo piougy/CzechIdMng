@@ -419,7 +419,7 @@
       "EXECUTED": "Provedeno",
       "CANCELED": "Zrušeno",
       "APPROVED": "Schváleno",
-      "IN_PROGRESS": "Probíhá",
+      "IN_PROGRESS": "Zpracovává se",
       "EXCEPTION": "Chyba",
       "DUPLICATED": "Duplicitní"
     },
@@ -2262,7 +2262,9 @@
       },
       "created": "Vytvořeno",
       "modified": "Upraveno",
-      "wfProcessId": "WF identifikátor"
+      "candicateUsers": "Schvalují",
+      "currentActivity": "Stav schvalování",
+      "wfProcessId": "WF ID"
     },
     "ConceptRoleRequest": {
       "identityContract": "Vztah",

@@ -569,7 +569,7 @@ module.exports = {
             'iconColor': '#000000',
             'order': 30,
             'path': '/forms',
-            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['EAV_FORM_DEFINITIONS_READ'] } ],
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['EAVFORMDEFINITIONS_READ'] } ],
             'items': [
               {
                 'id': 'forms-detail',
@@ -578,7 +578,7 @@ module.exports = {
                 'path': '/forms/:entityId/detail',
                 'icon': '',
                 'type': 'TAB',
-                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['EAV_FORM_DEFINITIONS_READ'] } ]
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['EAVFORMDEFINITIONS_READ'] } ]
               },
               {
                 'id': 'forms-attributes',
@@ -587,7 +587,7 @@ module.exports = {
                 'path': '/forms/:entityId/attributes',
                 'icon': '',
                 'type': 'TAB',
-                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['EAV_FORM_ATTRIBUTES_READ'] } ]
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['EAVFORMATTRIBUTES_READ'] } ]
               }
             ]
           }

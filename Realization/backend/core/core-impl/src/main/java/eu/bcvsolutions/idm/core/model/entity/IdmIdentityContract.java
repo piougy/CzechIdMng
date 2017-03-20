@@ -22,6 +22,7 @@ import org.joda.time.LocalDate;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
+import eu.bcvsolutions.idm.core.api.domain.Disableable;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.ValidableEntity;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
@@ -36,7 +37,7 @@ import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 		@Index(name = "idx_idm_identity_contract_gnt", columnList = "guarantee_id"),
 		@Index(name = "idx_idm_identity_contract_idnt", columnList = "identity_id"),
 		@Index(name = "idx_idm_identity_contract_wp", columnList = "working_position_id")})
-public class IdmIdentityContract extends AbstractEntity implements ValidableEntity, FormableEntity {
+public class IdmIdentityContract extends AbstractEntity implements ValidableEntity, FormableEntity, Disableable {
 
 	private static final long serialVersionUID = 328041550861866181L;
 
@@ -94,6 +95,11 @@ public class IdmIdentityContract extends AbstractEntity implements ValidableEnti
 	@Size(max = DefaultFieldLengths.DESCRIPTION)
 	@Column(name = "description", length = DefaultFieldLengths.DESCRIPTION)
 	private String description;
+	
+	@Audited
+	@NotNull
+	@Column(name = "disabled", nullable = false)
+	private boolean disabled;
 	
 	public IdmIdentityContract() {
 	}
@@ -197,5 +203,15 @@ public class IdmIdentityContract extends AbstractEntity implements ValidableEnti
 	
 	public void setDescription(String description) {
 		this.description = description;
+	}
+	
+	@Override
+	public boolean isDisabled() {
+		return disabled;
+	}
+
+	@Override
+	public void setDisabled(boolean disabled) {
+		this.disabled = disabled;
 	}
 }

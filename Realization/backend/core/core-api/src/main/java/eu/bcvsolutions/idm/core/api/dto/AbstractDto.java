@@ -53,7 +53,6 @@ public abstract class AbstractDto implements BaseDto, Auditable {
 	private UUID transactionId;
 	@JsonIgnore
 	private UUID realmId;
-	private boolean disabled;
 
 	public AbstractDto() {
 	}
@@ -219,14 +218,6 @@ public abstract class AbstractDto implements BaseDto, Auditable {
 	@Override
 	public void setTransactionId(UUID transactionId) {
 		this.transactionId = transactionId;	
-	}
-	
-	public boolean isDisabled() {
-		return disabled;
-	}
-
-	public void setDisabled(boolean disabled) {
-		this.disabled = disabled;
 	}
 	
 	@Override

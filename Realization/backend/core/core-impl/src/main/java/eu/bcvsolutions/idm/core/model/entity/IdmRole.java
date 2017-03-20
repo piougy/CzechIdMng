@@ -25,6 +25,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
+import eu.bcvsolutions.idm.core.api.domain.Disableable;
 import eu.bcvsolutions.idm.core.api.domain.IdentifiableByName;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
@@ -39,7 +40,7 @@ import eu.bcvsolutions.idm.core.model.domain.RoleType;
 @Entity
 @Table(name = "idm_role", indexes = { 
 		@Index(name = "ux_idm_role_name", columnList = "name", unique = true)})
-public class IdmRole extends AbstractEntity implements IdentifiableByName, FormableEntity {
+public class IdmRole extends AbstractEntity implements IdentifiableByName, FormableEntity, Disableable {
 	
 	private static final long serialVersionUID = -3099001738101202320L;
 
@@ -96,6 +97,11 @@ public class IdmRole extends AbstractEntity implements IdentifiableByName, Forma
 	@JsonManagedReference
 	@OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<IdmRoleCatalogueRole> roleCatalogues;
+	
+	@Audited
+	@NotNull
+	@Column(name = "disabled", nullable = false)
+	private boolean disabled;
 
 	public IdmRole() {
 	}
@@ -237,5 +243,15 @@ public class IdmRole extends AbstractEntity implements IdentifiableByName, Forma
 
 	public void setPriority(int priority) {
 		this.priority = priority;
+	}
+	
+	@Override
+	public boolean isDisabled() {
+		return disabled;
+	}
+
+	@Override
+	public void setDisabled(boolean disabled) {
+		this.disabled = disabled;
 	}
 }

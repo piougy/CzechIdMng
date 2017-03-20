@@ -9,6 +9,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.hateoas.core.Relation;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
+import eu.bcvsolutions.idm.core.api.domain.Disableable;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 
@@ -19,7 +20,7 @@ import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
  *
  */
 @Relation(collectionRelation = "treeNodes")
-public class IdmTreeNodeDto extends AbstractDto {
+public class IdmTreeNodeDto extends AbstractDto implements Disableable {
 
 	private static final long serialVersionUID = 1337282508070610164L;
 	@NotEmpty
@@ -33,6 +34,7 @@ public class IdmTreeNodeDto extends AbstractDto {
 	@NotNull
 	@Embedded(dtoClass = IdmTreeTypeDto.class)
 	private UUID treeType;
+	private boolean disabled;
 
 	public String getCode() {
 		return code;
@@ -64,5 +66,13 @@ public class IdmTreeNodeDto extends AbstractDto {
 
 	public void setTreeType(UUID treeType) {
 		this.treeType = treeType;
+	}
+	
+	public boolean isDisabled() {
+		return disabled;
+	}
+	
+	public void setDisabled(boolean disabled) {
+		this.disabled = disabled;
 	}
 }

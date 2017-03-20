@@ -260,17 +260,7 @@ export function data(state = INITIAL_STATE, action) {
     }
     case LOGOUT: {
       // clear whole state - except configurations
-      // TODO: save configuration to different storage
-      let newState;
-      if (state.data.has('public-configurations')) {
-        const config = state.data.get('public-configurations');
-        newState = merge({}, INITIAL_STATE, {
-          data: INITIAL_STATE.data.set('public-configurations', config)
-        });
-      } else {
-        newState = INITIAL_STATE;
-      }
-      return merge({}, newState);
+      return merge({}, INITIAL_STATE);
     }
     case RECEIVE_DATA: {
       const ui = merge({}, state.ui, {

@@ -23,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import eu.bcvsolutions.forest.index.domain.ForestContent;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
+import eu.bcvsolutions.idm.core.api.domain.Disableable;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.BaseTreeEntity;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
@@ -39,7 +40,8 @@ import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 		@Index(name = "idx_idm_tree_node_type", columnList = "tree_type_id")
 })
 public class IdmTreeNode extends AbstractEntity 
-		implements BaseTreeEntity<IdmTreeNode>, ForestContent<IdmTreeNode, IdmForestIndexEntity, UUID>, FormableEntity {
+		implements BaseTreeEntity<IdmTreeNode>, ForestContent<IdmTreeNode, 
+			IdmForestIndexEntity, UUID>, FormableEntity, Disableable {
 
 	private static final long serialVersionUID = -3099001738101202320L;
 	public static final String TREE_TYPE_PREFIX = "tree-type-";
@@ -82,6 +84,11 @@ public class IdmTreeNode extends AbstractEntity
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmForestIndexEntity forestIndex;
+	
+	@Audited
+	@NotNull
+	@Column(name = "disabled", nullable = false)
+	private boolean disabled;
 
 	public String getName() {
 		return name;
@@ -165,6 +172,16 @@ public class IdmTreeNode extends AbstractEntity
 	@JsonIgnore
 	public String getForestTreeType() {
 		return toForestTreeType(treeType);
+	}
+	
+	@Override
+	public boolean isDisabled() {
+		return disabled;
+	}
+
+	@Override
+	public void setDisabled(boolean disabled) {
+		this.disabled = disabled;
 	}
 	
 	/**

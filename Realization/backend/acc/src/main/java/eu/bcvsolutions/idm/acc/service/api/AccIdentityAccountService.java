@@ -1,8 +1,5 @@
 package eu.bcvsolutions.idm.acc.service.api;
 
-import java.util.List;
-import java.util.UUID;
-
 import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;

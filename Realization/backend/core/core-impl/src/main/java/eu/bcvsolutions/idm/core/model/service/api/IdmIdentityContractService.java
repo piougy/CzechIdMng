@@ -1,12 +1,14 @@
 package eu.bcvsolutions.idm.core.model.service.api;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.joda.time.LocalDate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
+import eu.bcvsolutions.idm.core.model.domain.RecursionType;
 import eu.bcvsolutions.idm.core.model.dto.filter.IdentityContractFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
@@ -28,6 +30,15 @@ public interface IdmIdentityContractService extends ReadWriteEntityService<IdmId
 	 * @return
 	 */
 	List<IdmIdentityContract> getContracts(IdmIdentity identity);
+	
+	/**
+	 * Returns all identity contract, where fits conttract's work position with given work position by recursionType.
+	 * 
+	 * @param workPositionId
+	 * @param recursion
+	 * @return
+	 */
+	List<IdmIdentityContract> getContractsByWorkPosition(UUID workPositionId, RecursionType recursion);
 	
 	/**
 	 * Clears guarantee from all contracts, where identity is guarantee (=identity disclaims guarantee).

@@ -24,7 +24,6 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
-import eu.bcvsolutions.idm.core.model.repository.IdmRoleTreeNodeRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
@@ -49,8 +48,6 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 	private IdmIdentityContractService identityContractService;
 	@Autowired
 	private IdmRoleTreeNodeService roleTreeNodeService;
-	@Autowired
-	private IdmRoleTreeNodeRepository roleTreeNodeRepository;
 	//
 	private IdmTreeType treeType;
 	private IdmTreeNode nodeA;
@@ -74,8 +71,9 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 	
 	@After 
 	public void logout() {
-		roleTreeNodeRepository.findAll().forEach(entity -> {
-			roleTreeNodeService.deleteInternalById(entity.getId());
+		// TODO: delete this test auth roles only ... this could break other tests ...  
+		roleTreeNodeService.findDto(null).forEach(entity -> {
+			roleTreeNodeService.delete(entity);
 		});
 		super.logout();
 	}	
@@ -312,28 +310,6 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 		}
 	}
 	
-	/**
-	 * When contract already exist and automatic role is added, then nothing is done for now
-	 * TODO: add automatic role?
-	 */
-	@Test
-	public void testAddAutomaticRoleWithContractAlreadyExists() {
-		// prepare identity and contract
-		IdmIdentity identity = helper.createIdentity("test");
-		IdmIdentityContract contract = new IdmIdentityContract();
-		contract.setIdentity(identity);
-		contract.setWorkingPosition(nodeD);
-		contract = identityContractService.save(contract);
-		//
-		List<IdmIdentityRole> identityRoles = identityRoleService.getRoles(contract);
-		assertTrue(identityRoles.isEmpty());
-		//
-		prepareAutomaticRoles();
-		//
-		identityRoles = identityRoleService.getRoles(contract);
-		assertTrue(identityRoles.isEmpty());
-	}
-	
 	@Test
 	public void testDeleteAutomaticRoleWithContractAlreadyExists() {
 		//
@@ -394,5 +370,50 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 		assertEquals(roleA, identityRoles.get(0).getRole());
 		assertEquals(automaticRoleE.getId(), identityRoles.get(0).getRoleTreeNode().getId());
 		assertEquals(id, identityRoles.get(0).getId());
+	}
+	
+	@Test
+	public void testAssingRoleByNewAutomaticRoleForExistingContracts() {
+		// prepare contracts
+		IdmIdentity identity = helper.createIdentity("test-exists");
+		//
+		IdmIdentityContract contract = new IdmIdentityContract();
+		contract.setIdentity(identity);
+		contract.setPosition("new position");
+		contract = identityContractService.save(contract);
+		//
+		IdmIdentityContract contractF = new IdmIdentityContract();
+		contractF.setIdentity(identity);
+		contractF.setWorkingPosition(nodeF);
+		contractF = identityContractService.save(contractF);
+		//
+		IdmIdentityContract contractD = new IdmIdentityContract();
+		contractD.setIdentity(identity);
+		contractD.setWorkingPosition(nodeD);
+		contractD = identityContractService.save(contractD);
+		//
+		IdmIdentityContract contractB = new IdmIdentityContract();
+		contractB.setIdentity(identity);
+		contractB.setWorkingPosition(nodeB);
+		contractB = identityContractService.save(contractB);
+		//
+		// create new automatic role
+		IdmRoleTreeNodeDto automaticRoleD = new IdmRoleTreeNodeDto();
+		automaticRoleD.setRecursionType(RecursionType.DOWN);
+		automaticRoleD.setRole(roleA.getId());
+		automaticRoleD.setTreeNode(nodeD.getId());
+		automaticRoleD = roleTreeNodeService.save(automaticRoleD);
+		//
+		// check
+		List<IdmIdentityRole> identityRoles = identityRoleService.getRoles(contractB);
+		assertTrue(identityRoles.isEmpty());
+		//
+		identityRoles = identityRoleService.getRoles(contractD);
+		assertEquals(1, identityRoles.size());
+		assertEquals(automaticRoleD.getId(), identityRoles.get(0).getRoleTreeNode().getId());
+		//
+		identityRoles = identityRoleService.getRoles(contractF);
+		assertEquals(1, identityRoles.size());
+		assertEquals(automaticRoleD.getId(), identityRoles.get(0).getRoleTreeNode().getId());
 	}
 }

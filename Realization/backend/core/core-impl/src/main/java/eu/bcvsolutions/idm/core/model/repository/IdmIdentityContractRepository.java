@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
+import eu.bcvsolutions.idm.core.model.domain.RecursionType;
 import eu.bcvsolutions.idm.core.model.dto.filter.IdentityContractFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
@@ -61,6 +62,15 @@ public interface IdmIdentityContractRepository extends AbstractEntityRepository<
 	Page<IdmIdentityContract> find(IdentityContractFilter filter, Pageable pageable);
 	
 	List<IdmIdentityContract> findAllByIdentity(@Param("identity") IdmIdentity identity, Sort sort);
+	
+	@Query(value = "select e from #{#entityName} e"
+			+ " where"
+			+ " (e.workingPosition = ?#{[0]})" // takes all recursion
+			+ " or"
+			+ " (?#{[1].name()} = 'DOWN' and e.workingPosition.forestIndex.lft between ?#{[0].lft} and ?#{[0].rgt})"
+			+ " or"
+			+ " (?#{[1].name()} = 'UP' and ?#{[0].lft} between e.workingPosition.forestIndex.lft and e.workingPosition.forestIndex.rgt)")
+	List<IdmIdentityContract> findAllByWorkPosition(IdmTreeNode workPosition, RecursionType recursionType);
 	
 	Long countByWorkingPosition(@Param("treeNode") IdmTreeNode treeNode);
 	

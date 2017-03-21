@@ -1,14 +1,12 @@
 package eu.bcvsolutions.idm.core.security.service.impl;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.List;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -19,6 +17,8 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.commons.codec.binary.Base64;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.ImmutableMap;
@@ -36,8 +36,9 @@ import eu.bcvsolutions.idm.core.security.api.service.CryptService;
 @Service
 public class DefaultCryptService implements CryptService {
 	
-	public static String DEMO_KEY_FILE_PATH = "eu/bcvsolutions/idm/confidential/demo_key.key";
-	public static String KEY_FILE_PATH = "eu/bcvsolutions/idm/confidential/key.key";
+	public static String KEY_FILE_PATH = "eu/bcvsolutions/idm/confidential/";
+	public static String DEMO_KEY = "demo_key.key";
+	public static String PRIMARY_KEY = "key.key";
 	
 	/**
 	 * Algorithm, mode and block padding
@@ -76,7 +77,7 @@ public class DefaultCryptService implements CryptService {
 			Cipher cipher = initCipher(Cipher.DECRYPT_MODE);
 			// cipher is not initialized
 			if (cipher == null) {
-				throw new ResultCodeException(CoreResultCode.CRYPT_DEMO_KEY_NOT_FOUND, ImmutableMap.of("demoKey", DEMO_KEY_FILE_PATH, "primaryKey", KEY_FILE_PATH));
+				throw new ResultCodeException(CoreResultCode.CRYPT_DEMO_KEY_NOT_FOUND, ImmutableMap.of("demoKey", DEMO_KEY, "primaryKey", PRIMARY_KEY));
 			}
 			decryptValue = cipher.doFinal(value);
 		} catch (InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
@@ -93,7 +94,7 @@ public class DefaultCryptService implements CryptService {
 			Cipher cipher = initCipher(Cipher.ENCRYPT_MODE);
 			// cipher is not initialized
 			if (cipher == null) {
-				throw new ResultCodeException(CoreResultCode.CRYPT_DEMO_KEY_NOT_FOUND, ImmutableMap.of("demoKey", DEMO_KEY_FILE_PATH, "primaryKey", KEY_FILE_PATH));
+				throw new ResultCodeException(CoreResultCode.CRYPT_DEMO_KEY_NOT_FOUND, ImmutableMap.of("demoKey", DEMO_KEY, "primaryKey", PRIMARY_KEY));
 			}
 			encryptValue = cipher.doFinal(value);
 		} catch (InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
@@ -112,30 +113,38 @@ public class DefaultCryptService implements CryptService {
 	 * @throws IOException
 	 */
 	private SecretKey getKeyFromResource() throws UnsupportedEncodingException {
-		List<String> lines = null;
+		String key;
+		Resource resource = null;
+		BufferedReader in = null;
+		
 		try {
-			// get primary key
-			URL fileUrl = ClassLoader.getSystemClassLoader().getResource(KEY_FILE_PATH);
-			if (fileUrl == null) {
+			// get primary key from resource
+			resource = new ClassPathResource(KEY_FILE_PATH + PRIMARY_KEY);
+			// check if primary key exists
+			if (resource.exists()) {
+				in = new BufferedReader(new InputStreamReader(resource.getInputStream()));
+			} else {
 				LOG.warn("[DefaultCryptService] Using DEMO key! Please create new file with key file: {}", KEY_FILE_PATH);
-				// get demo key, primary key doesnt exists
-				fileUrl = ClassLoader.getSystemClassLoader().getResource(DEMO_KEY_FILE_PATH);
+				// get demo key from resource
+				resource = new ClassPathResource(KEY_FILE_PATH + DEMO_KEY);
+				if (resource.exists()) {
+					in = new BufferedReader(new InputStreamReader(resource.getInputStream()));
+				} else {
+					LOG.warn("[DefaultCryptService] Demo file with key not found.");
+					return null;
+				}
 			}
-			if (fileUrl == null) {
-				LOG.warn("[DefaultCryptService] Demo key dost exists!");
-				return null;
-			}
-			String keyPath = fileUrl.getPath();
-			lines = Files.readAllLines(Paths.get(keyPath));
-			if (lines.isEmpty() || lines.size() > 1) {
-				LOG.warn("[DefaultCryptService] File with key has more or nothing keys. Size: {} ", lines.size());
+			// read first line with key
+			key = in.readLine();
+			if (key == null || key.isEmpty()) {
+				LOG.warn("[DefaultCryptService] Key in file not found.");
 				return null;
 			}
 		} catch (IOException e) {
 			LOG.warn("[DefaultCryptService] Problem with load key file!", e);
-			throw new ResultCodeException(CoreResultCode.CRYPT_DEMO_KEY_NOT_FOUND, ImmutableMap.of("demoKey", DEMO_KEY_FILE_PATH, "primaryKey", KEY_FILE_PATH), e);
+			throw new ResultCodeException(CoreResultCode.CRYPT_DEMO_KEY_NOT_FOUND, ImmutableMap.of("demoKey", DEMO_KEY, "primaryKey", PRIMARY_KEY), e);
 		}
-		return new SecretKeySpec(lines.get(0).getBytes(ENCODING), ALGORITHM);
+		return new SecretKeySpec(key.getBytes(ENCODING), ALGORITHM);
 	}
 	
 	/**
@@ -162,17 +171,22 @@ public class DefaultCryptService implements CryptService {
 
 	@Override
 	public boolean existsKeyFile() {
-		URL fileUrl = ClassLoader.getSystemClassLoader().getResource(KEY_FILE_PATH);
-		if (fileUrl != null) {
+		Resource resource = null;
+		// get primary key from resource
+		resource = new ClassPathResource(KEY_FILE_PATH + PRIMARY_KEY);
+		if (resource.exists()) {
+			LOG.info("[DefaultCryptService] Using primary key.");
 			return true;
+		} else {
+			LOG.warn("[DefaultCryptService] Primary key doesn't exists!");
+			resource = new ClassPathResource(KEY_FILE_PATH + DEMO_KEY);
+			if (resource.exists()) {
+				LOG.warn("[DefaultCryptService] Using DEMO key! Please create new file with key file: {}", KEY_FILE_PATH);
+				return true;
+			} else {
+				LOG.warn("[DefaultCryptService] Demo or primary key doesn't exists!");
+				return false;
+			}
 		}
-		// try to load demo key
-		fileUrl = ClassLoader.getSystemClassLoader().getResource(DEMO_KEY_FILE_PATH);
-		if (fileUrl != null) {
-			LOG.warn("[DefaultCryptService] Using DEMO key! Please create new file with key file: {}", KEY_FILE_PATH);
-			return true;
-		}
-		LOG.warn("[DefaultCryptService] Demo key dost exists!");
-		return false;
 	}
 }

@@ -10,7 +10,7 @@ const uiKey = 'schema-object-classes-entities-table';
 const manager = new SchemaObjectClassManager();
 const systemManager = new SystemManager();
 
-class SchemaObjectClasses extends Basic.AbstractTableContent {
+class SchemaObjectClasses extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);

@@ -2,7 +2,7 @@ import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 //
-import { Basic, Utils, Domain} from 'czechidm-core';
+import { Basic, Advanced, Utils, Domain } from 'czechidm-core';
 import { SystemMappingManager, SystemAttributeMappingManager, SchemaAttributeManager} from '../../redux';
 import AttributeMappingStrategyTypeEnum from '../../domain/AttributeMappingStrategyTypeEnum';
 import SystemEntityTypeEnum from '../../domain/SystemEntityTypeEnum';
@@ -12,7 +12,7 @@ const manager = new SystemAttributeMappingManager();
 const systemMappingManager = new SystemMappingManager();
 const schemaAttributeManager = new SchemaAttributeManager();
 
-class SystemAttributeMappingDetail extends Basic.AbstractTableContent {
+class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);

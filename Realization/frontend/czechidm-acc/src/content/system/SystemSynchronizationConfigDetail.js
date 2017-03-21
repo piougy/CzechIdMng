@@ -20,7 +20,7 @@ const systemMappingManager = new SystemMappingManager();
 const systemAttributeMappingManager = new SystemAttributeMappingManager();
 const workflowProcessDefinitionManager = new Managers.WorkflowProcessDefinitionManager();
 
-class SystemSynchronizationConfigDetail extends Basic.AbstractTableContent {
+class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);

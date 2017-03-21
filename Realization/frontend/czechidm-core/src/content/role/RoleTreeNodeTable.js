@@ -17,7 +17,7 @@ const treeNodeManager = new TreeNodeManager();
 *
 * @author Radek Tomiška
 */
-export class RoleTreeNodeTable extends Basic.AbstractTableContent {
+export class RoleTreeNodeTable extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);

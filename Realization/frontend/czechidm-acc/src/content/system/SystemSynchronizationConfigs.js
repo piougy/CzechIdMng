@@ -10,7 +10,7 @@ const uiKey = 'system-synchronization-configs-table';
 const manager = new SynchronizationConfigManager();
 const systemManager = new SystemManager();
 
-class SystemSynchronizationConfigs extends Basic.AbstractTableContent {
+class SystemSynchronizationConfigs extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);

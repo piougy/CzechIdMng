@@ -12,7 +12,7 @@ const uiKey = 'system-mappings-table';
 const manager = new SystemMappingManager();
 const systemManager = new SystemManager();
 
-class SystemMappings extends Basic.AbstractTableContent {
+class SystemMappings extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);

@@ -12,7 +12,7 @@ const uiKeyLogs = 'system-synchronization-item-logs';
 const syncItemLogManager = new SyncItemLogManager();
 const syncActionLogManager = new SyncActionLogManager();
 
-class SystemSyncActionLogDetail extends Basic.AbstractTableContent {
+class SystemSyncActionLogDetail extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);

@@ -53,8 +53,8 @@ public class IdentityContractCreateByAutomaticRoleProcessor extends CoreEventPro
 	public EventResult<IdmIdentityContract> process(EntityEvent<IdmIdentityContract> event) {
 		IdmIdentityContract contract = event.getContent();
 		
-		if(!contract.isDisabled() && contract.getWorkingPosition() != null) {
-			assignAutomaticRoles(contract, roleTreeNodeService.getAutomaticRoles(contract.getWorkingPosition()));
+		if(!contract.isDisabled() && contract.getWorkPosition() != null) {
+			assignAutomaticRoles(contract, roleTreeNodeService.getAutomaticRoles(contract.getWorkPosition()));
 		}
 		//
 		// TODO: clone content - mutable previous event content :/

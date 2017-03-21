@@ -194,7 +194,7 @@ public class IdentityFindPositionsTest extends AbstractIntegrationTest{
 		IdmIdentityContract position = new IdmIdentityContract();
 		position.setIdentity(user);
 		position.setGuarantee(quarantee);
-		position.setWorkingPosition(node);
+		position.setWorkPosition(node);
 		
 		return identityContractRepository.save(position);
 	}

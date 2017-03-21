@@ -29,7 +29,7 @@ public class IdmIdentityContractDto extends AbstractDto implements Disableable {
 	private boolean externe;
 	private boolean disabled;
 
-	// private IdmTreeNode workingPosition;
+	// private IdmTreeNode workPosition;
 	
 	public UUID getIdentity() {
 		return identity;

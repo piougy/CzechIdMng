@@ -24,11 +24,11 @@ class ManagersInfo extends Basic.AbstractContextComponent {
 
   componentDidMount() {
     const { identityContract } = this.props;
-    if (identityContract._embedded && identityContract._embedded.workingPosition) {
+    if (identityContract._embedded && identityContract._embedded.workPosition) {
       // load managers by Tree
-      if (!Utils.Ui.isShowLoading(this.context.store.getState(), `${uiKey}-${identityContract._embedded.workingPosition.id}`)) {
-        const searchParameters = new SearchParameters().setFilter('managersByTreeNode', identityContract._embedded.workingPosition.id);
-        this.context.store.dispatch(this.identityManager.fetchEntities(searchParameters, `${uiKey}-${identityContract._embedded.workingPosition.id}`));
+      if (!Utils.Ui.isShowLoading(this.context.store.getState(), `${uiKey}-${identityContract._embedded.workPosition.id}`)) {
+        const searchParameters = new SearchParameters().setFilter('managersByTreeNode', identityContract._embedded.workPosition.id);
+        this.context.store.dispatch(this.identityManager.fetchEntities(searchParameters, `${uiKey}-${identityContract._embedded.workPosition.id}`));
       }
     }
   }
@@ -91,10 +91,10 @@ ManagersInfo.defaultProps = {
 };
 
 function select(state, component) {
-  if (!component.identityContract || !component.identityContract._embedded || !component.identityContract._embedded.workingPosition) {
+  if (!component.identityContract || !component.identityContract._embedded || !component.identityContract._embedded.workPosition) {
     return {};
   }
-  const uiKeyId = `${uiKey}-${component.identityContract._embedded.workingPosition.id}`;
+  const uiKeyId = `${uiKey}-${component.identityContract._embedded.workPosition.id}`;
   return {
     _showLoading: Utils.Ui.isShowLoading(state, uiKeyId),
     _managers: Utils.Ui.getEntities(state, uiKeyId)

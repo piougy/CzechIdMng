@@ -23,9 +23,9 @@ Basic component for every form components. Contains basic methods for cloning ch
     onChange={this.onChangeTreeType.bind(this)}
     required/>
   <Basic.SelectBox
-    ref="workingPosition"
+    ref="workPosition"
     manager={this.treeNodeManager}
-    label={this.i18n('entity.IdentityContract.workingPosition')}
+    label={this.i18n('entity.IdentityContract.workPosition')}
     required
     forceSearchParameters={forceSearchParameters}
     hidden={treeTypeId === null}/>

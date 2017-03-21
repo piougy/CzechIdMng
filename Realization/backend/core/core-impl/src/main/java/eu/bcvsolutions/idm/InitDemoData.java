@@ -244,11 +244,11 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				organization2.setTreeType(treeType);
 				this.treeNodeService.save(organization2);
 				//
-				IdmIdentityContract identityWorkingPosition = new IdmIdentityContract();
-				identityWorkingPosition.setIdentity(identityAdmin);
-				identityWorkingPosition.setGuarantee(identity2);
-				identityWorkingPosition.setWorkingPosition(organization2);
-				identityContractService.save(identityWorkingPosition);
+				IdmIdentityContract identityWorkPosition = new IdmIdentityContract();
+				identityWorkPosition.setIdentity(identityAdmin);
+				identityWorkPosition.setGuarantee(identity2);
+				identityWorkPosition.setWorkPosition(organization2);
+				identityContractService.save(identityWorkPosition);
 				//
 				LOG.info("Demo data was created.");
 				//				

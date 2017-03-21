@@ -49,7 +49,7 @@ public interface IdmIdentityRepository extends AbstractEntityRepository<IdmIdent
 		        // manager as guarantee
 		        + " or ((?#{[0].subordinatesByTreeType} is null) and exists(from IdmIdentityContract ic where ic.identity = e and ic.guarantee = ?#{[0].subordinatesFor}))"
 		        // manager from tree structure - only direct subordinate are supported now
-		        + " or exists(from IdmIdentityContract ic where ic.identity = e and ic.workingPosition.parent IN (select vic.workingPosition from IdmIdentityContract vic where vic.identity = ?#{[0].subordinatesFor} and (?#{[0].subordinatesByTreeType} is null or vic.workingPosition.treeType = ?#{[0].subordinatesByTreeType}) ))"
+		        + " or exists(from IdmIdentityContract ic where ic.identity = e and ic.workPosition.parent IN (select vic.workPosition from IdmIdentityContract vic where vic.identity = ?#{[0].subordinatesFor} and (?#{[0].subordinatesByTreeType} is null or vic.workPosition.treeType = ?#{[0].subordinatesByTreeType}) ))"
 	        + " )"
 	        + " and"
 	        + "	("
@@ -57,13 +57,13 @@ public interface IdmIdentityRepository extends AbstractEntityRepository<IdmIdent
 		        // manager as guarantee
 	        	+ " or ((?#{[0].managersByTreeType} is null) and exists(from IdmIdentityContract ic where ic.identity = ?#{[0].managersFor} and e = ic.guarantee))"
 	        	// manager from tree structure - only direct managers are supported now
-	        	+ " or exists(from IdmIdentityContract ic where ic.identity = e and ic.workingPosition IN (select vic.workingPosition.parent from IdmIdentityContract vic where (?#{[0].managersFor} is null or vic.identity = ?#{[0].managersFor}) and (?#{[0].managersByTreeType} is null or vic.workingPosition.treeType = ?#{[0].managersByTreeType}) ))"
+	        	+ " or exists(from IdmIdentityContract ic where ic.identity = e and ic.workPosition IN (select vic.workPosition.parent from IdmIdentityContract vic where (?#{[0].managersFor} is null or vic.identity = ?#{[0].managersFor}) and (?#{[0].managersByTreeType} is null or vic.workPosition.treeType = ?#{[0].managersByTreeType}) ))"
 	        + " )"
 	        + " and"
 	        + " ("
 	        	+ " ?#{[0].managersByTreeNode} is null"
 	        	// managers by tree node (working position)
-	        	+ " or exists(from IdmIdentityContract ic where ic.identity = e and ic.workingPosition IN (select vic.workingPosition.parent from IdmIdentityContract vic where vic.workingPosition = ?#{[0].managersByTreeNode} ))"
+	        	+ " or exists(from IdmIdentityContract ic where ic.identity = e and ic.workPosition IN (select vic.workPosition.parent from IdmIdentityContract vic where vic.workPosition = ?#{[0].managersByTreeNode} ))"
 	        + " )"
 	        + " and "
 	        + " ("
@@ -81,17 +81,17 @@ public interface IdmIdentityRepository extends AbstractEntityRepository<IdmIdent
 	        	// identities on selected structure recursively
 	        + " and"
 	        + "	("
-	        	+ " ?#{[0].treeNode} is null or ?#{[0].recursively == true ? 'true' : 'false'} = 'false' or exists(from IdmIdentityContract ic where ic.identity = e and ic.workingPosition.forestIndex.lft BETWEEN ?#{[0].treeNode == null ? null : [0].treeNode.lft} and ?#{[0].treeNode == null ? null : [0].treeNode.rgt})"
+	        	+ " ?#{[0].treeNode} is null or ?#{[0].recursively == true ? 'true' : 'false'} = 'false' or exists(from IdmIdentityContract ic where ic.identity = e and ic.workPosition.forestIndex.lft BETWEEN ?#{[0].treeNode == null ? null : [0].treeNode.lft} and ?#{[0].treeNode == null ? null : [0].treeNode.rgt})"
 	        + "	)"
 	        	// identities on selected structure only
 	        + " and"
 	        + "	("
-	        	+ " ?#{[0].treeNode} is null or ?#{[0].recursively == false ? 'true' : 'false'} = 'false' or exists(from IdmIdentityContract ic where ic.identity = e and ic.workingPosition = ?#{[0].treeNode})"
+	        	+ " ?#{[0].treeNode} is null or ?#{[0].recursively == false ? 'true' : 'false'} = 'false' or exists(from IdmIdentityContract ic where ic.identity = e and ic.workPosition = ?#{[0].treeNode})"
 	        + "	)"
 	        	// identities related to tree type structure
 	        + " and"
 	        + "	("
-	        	+ " ?#{[0].treeTypeId} is null or exists(from IdmIdentityContract ic where ic.identity = e and ic.workingPosition.treeType.id = ?#{[0].treeTypeId})"
+	        	+ " ?#{[0].treeTypeId} is null or exists(from IdmIdentityContract ic where ic.identity = e and ic.workPosition.treeType.id = ?#{[0].treeTypeId})"
 	        + "	)")
 	Page<IdmIdentity> find(IdentityFilter filter, Pageable pageable);
 	

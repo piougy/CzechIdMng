@@ -166,7 +166,7 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 	
 	@ResponseBody
 	@RequestMapping(value = "/{identityId}/identity-contracts", method = RequestMethod.GET)
-	public Resources<?> workingPositions(@PathVariable String identityId, PersistentEntityResourceAssembler assembler) {	
+	public Resources<?> workPositions(@PathVariable String identityId, PersistentEntityResourceAssembler assembler) {	
 		IdmIdentity identity = getEntity(identityId);
 		if (identity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", identityId));
@@ -193,10 +193,10 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 			return new ResponseEntity<Object>(HttpStatus.NO_CONTENT);
 		}
 		WorkPosition position = new WorkPosition(identity, primeContract);
-		if (primeContract.getWorkingPosition() != null) {
+		if (primeContract.getWorkPosition() != null) {
 			List<IdmTreeNode> positions = new ArrayList<>();
-			positions = treeNodeService.findAllParents(primeContract.getWorkingPosition(), new Sort(Direction.ASC, "forestIndex.lft"));
-			positions.add(primeContract.getWorkingPosition());
+			positions = treeNodeService.findAllParents(primeContract.getWorkPosition(), new Sort(Direction.ASC, "forestIndex.lft"));
+			positions.add(primeContract.getWorkPosition());
 			position.setPath(positions);
 		}		
 		return new ResponseEntity<WorkPosition>(position, HttpStatus.OK);

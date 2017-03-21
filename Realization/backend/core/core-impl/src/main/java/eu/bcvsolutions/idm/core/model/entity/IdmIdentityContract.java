@@ -36,7 +36,7 @@ import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 @Table(name = "idm_identity_contract", indexes = {
 		@Index(name = "idx_idm_identity_contract_gnt", columnList = "guarantee_id"),
 		@Index(name = "idx_idm_identity_contract_idnt", columnList = "identity_id"),
-		@Index(name = "idx_idm_identity_contract_wp", columnList = "working_position_id")})
+		@Index(name = "idx_idm_identity_contract_wp", columnList = "work_position_id")})
 public class IdmIdentityContract extends AbstractEntity implements ValidableEntity, FormableEntity, Disableable {
 
 	private static final long serialVersionUID = 328041550861866181L;
@@ -65,10 +65,10 @@ public class IdmIdentityContract extends AbstractEntity implements ValidableEnti
 	
 	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
 	@ManyToOne(optional = true)
-	@JoinColumn(name = "working_position_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@JoinColumn(name = "work_position_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )
-	private IdmTreeNode workingPosition;
+	private IdmTreeNode workPosition;
 	
 	@Audited
 	@Size(max = DefaultFieldLengths.NAME)
@@ -132,12 +132,12 @@ public class IdmIdentityContract extends AbstractEntity implements ValidableEnti
 		this.identity = identity;
 	}
 
-	public IdmTreeNode getWorkingPosition() {
-		return workingPosition;
+	public IdmTreeNode getWorkPosition() {
+		return workPosition;
 	}
 
-	public void setWorkingPosition(IdmTreeNode workingPosition) {
-		this.workingPosition = workingPosition;
+	public void setWorkPosition(IdmTreeNode workPosition) {
+		this.workPosition = workPosition;
 	}
 
 	/**

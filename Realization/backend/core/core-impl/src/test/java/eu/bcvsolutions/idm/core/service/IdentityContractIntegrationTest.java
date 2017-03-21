@@ -191,14 +191,14 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 		contract.setIdentity(identity);
 		contract.setValidFrom(new LocalDate().minusDays(1));
 		contract.setValidTill(new LocalDate().plusMonths(1));
-		contract.setWorkingPosition(nodeD);
+		contract.setWorkPosition(nodeD);
 		contract.setMain(true);
 		contract.setDescription("test-node-d");
 		identityContractService.save(contract);
 		contract = identityContractService.getPrimeContract(identity);
 		//
 		// test after create
-		assertEquals(nodeD, contract.getWorkingPosition());
+		assertEquals(nodeD, contract.getWorkPosition());
 		assertEquals("test-node-d", contract.getDescription());
 		List<IdmIdentityRole> identityRoles = identityRoleService.getRoles(contract);
 		assertEquals(3, identityRoles.size());
@@ -243,7 +243,7 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 		contract.setIdentity(identity);
 		contract.setValidFrom(new LocalDate().minusDays(1));
 		contract.setValidTill(new LocalDate().plusMonths(1));
-		contract.setWorkingPosition(nodeD);
+		contract.setWorkPosition(nodeD);
 		contract = identityContractService.save(contract);
 		// 
 		// test after create
@@ -273,7 +273,7 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 		IdmIdentity identity = helper.createIdentity("test");
 		IdmIdentityContract contract = new IdmIdentityContract();
 		contract.setIdentity(identity);
-		contract.setWorkingPosition(nodeD);
+		contract.setWorkPosition(nodeD);
 		contract = identityContractService.save(contract);
 		// 
 		// test after create
@@ -291,7 +291,7 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 			}
 		}
 		//
-		contract.setWorkingPosition(nodeE);
+		contract.setWorkPosition(nodeE);
 		contract = identityContractService.save(contract);
 		//
 		// test after change
@@ -319,7 +319,7 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 		IdmIdentity identity = helper.createIdentity("test");
 		IdmIdentityContract contract = new IdmIdentityContract();
 		contract.setIdentity(identity);
-		contract.setWorkingPosition(nodeC);
+		contract.setWorkPosition(nodeC);
 		contract = identityContractService.save(contract);
 		//
 		assertEquals(1, identityRoleService.getRoles(contract).size());
@@ -349,7 +349,7 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 		IdmIdentity identity = helper.createIdentity("test");
 		IdmIdentityContract contract = new IdmIdentityContract();
 		contract.setIdentity(identity);
-		contract.setWorkingPosition(nodeF);
+		contract.setWorkPosition(nodeF);
 		contract = identityContractService.save(contract);
 		//
 		// check assigned role after creation 
@@ -361,7 +361,7 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 		UUID id = identityRoles.get(0).getId();
 		//
 		// change
-		contract.setWorkingPosition(nodeE);
+		contract.setWorkPosition(nodeE);
 		contract = identityContractService.save(contract);
 		//
 		// check assigned role after creation 
@@ -384,17 +384,17 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 		//
 		IdmIdentityContract contractF = new IdmIdentityContract();
 		contractF.setIdentity(identity);
-		contractF.setWorkingPosition(nodeF);
+		contractF.setWorkPosition(nodeF);
 		contractF = identityContractService.save(contractF);
 		//
 		IdmIdentityContract contractD = new IdmIdentityContract();
 		contractD.setIdentity(identity);
-		contractD.setWorkingPosition(nodeD);
+		contractD.setWorkPosition(nodeD);
 		contractD = identityContractService.save(contractD);
 		//
 		IdmIdentityContract contractB = new IdmIdentityContract();
 		contractB.setIdentity(identity);
-		contractB.setWorkingPosition(nodeB);
+		contractB.setWorkPosition(nodeB);
 		contractB = identityContractService.save(contractB);
 		//
 		// create new automatic role

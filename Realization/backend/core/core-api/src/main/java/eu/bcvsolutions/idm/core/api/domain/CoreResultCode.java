@@ -112,9 +112,9 @@ public enum CoreResultCode implements ResultCode {
 	NOTIFICATION_TOPIC_AND_LEVEL_EXISTS(HttpStatus.CONFLICT, "Configuration can not be saved. Topic [%s] and null level exists!"),
 	//
 	// Role request
-	ROLE_REQUEST_DUPLICATE_REQUEST(HttpStatus.CONFLICT, "Request [%s] is a duplicated of another request [%s]!"),
-	ROLE_REQUEST_NO_EXECUTE_IMMEDIATELY_RIGHT(HttpStatus.CONFLICT, "You do not have right for immidiately execute role request [%]!"),
+	ROLE_REQUEST_NO_EXECUTE_IMMEDIATELY_RIGHT(HttpStatus.FORBIDDEN, "You do not have right for immidiately execute role request [%]!"),
 	ROLE_REQUEST_APPLICANTS_NOT_SAME(HttpStatus.BAD_REQUEST, "Some concept/s role in role request [%] have different applicant than [%]!"),
+	ROLE_REQUEST_EXECUTED_CANNOT_DELETE(HttpStatus.BAD_REQUEST, "Request [%] in EXECUTED state cannot be deleted!"),
 	ROLE_REQUEST_AUTOMATICALLY_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "Field 'requested by' in request [%] cannot be 'AUTOMATICALLY' via REST API!"),
 	//
 	// 5xx	

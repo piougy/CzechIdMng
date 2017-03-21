@@ -454,11 +454,23 @@ public class DefaultIdmRoleRequestService
 			this.save(duplicant);
 		});
 	
-		if(!Strings.isNullOrEmpty(dto.getWfProcessId())){
-			workflowProcessInstanceService.delete(dto.getWfProcessId(), "Role request use this WF, was deleted. This WF was deleted too.");
+		// Request in Executed state can not be delete or change
+		if(RoleRequestState.EXECUTED == dto.getState()){
+			throw new RoleRequestException(CoreResultCode.ROLE_REQUEST_EXECUTED_CANNOT_DELETE,
+					ImmutableMap.of("request", dto));
 		}
 		
-		super.delete(dto);
+		if(!Strings.isNullOrEmpty(dto.getWfProcessId())){
+			workflowProcessInstanceService.delete(dto.getWfProcessId(), "Role request use this WF, was deleted. This WF was deleted too.");
+			this.addToLog(dto, MessageFormat.format("Workflow process with ID [{0}] was deleted, because this request is deleted/canceled", dto.getWfProcessId()));
+		}
+		// Only request in Concept state, can be deleted. In others states, will be request set to Canceled state and save.
+		if(RoleRequestState.CONCEPT == dto.getState()){
+			super.delete(dto);
+		}else {
+			dto.setState(RoleRequestState.CANCELED);
+			this.save(dto);
+		}
 	}
 
 	private IdmIdentityRole convertConceptRoleToIdentityRole(IdmConceptRoleRequest conceptRole,

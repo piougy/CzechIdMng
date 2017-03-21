@@ -2533,6 +2533,18 @@
     "ACCEPTED": {
       "title": "Request added",
       "message": "Request will be proccesed / approved."
+    },
+    "ROLE_REQUEST_EXECUTED_CANNOT_DELETE": {
+      "title": "Request for change permission cannot be deleted",
+      "message": "Request for change permission in state 'Executed' cannot be delete!"
+    },
+    "ROLE_REQUEST_APPLICANTS_NOT_SAME": {
+      "title": "Request for change permission have not same applicants",
+      "message": "Some concepts have not same applicant [{{applicant}}]!"
+    },
+    "ROLE_REQUEST_NO_EXECUTE_IMMEDIATELY_RIGHT": {
+      "title": "You don`t have permission for start request for change permissions without approval.",
+      "message": "You don`t have permission (EXECUTEIMMEDIATELY) for start request for change permissions without approval!"
     }
   },
   "validationError": {

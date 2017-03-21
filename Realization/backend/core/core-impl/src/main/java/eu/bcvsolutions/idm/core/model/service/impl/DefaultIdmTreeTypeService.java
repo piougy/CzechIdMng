@@ -73,7 +73,7 @@ public class DefaultIdmTreeTypeService extends AbstractReadWriteEntityService<Id
 		if (nodes.getTotalElements() > 0) {
 			throw new TreeTypeException(CoreResultCode.TREE_TYPE_DELETE_FAILED_HAS_CHILDREN,  ImmutableMap.of("treeType", treeType.getName()));
 		}		
-		if (identityContractRepository.countByWorkingPosition_TreeType(treeType) > 0) {
+		if (identityContractRepository.countByWorkPosition_TreeType(treeType) > 0) {
 			throw new TreeTypeException(CoreResultCode.TREE_TYPE_DELETE_FAILED_HAS_CONTRACTS,  ImmutableMap.of("treeType", treeType.getName()));
 		}		
 		//

@@ -1968,7 +1968,7 @@
       "_type": "Pracovní pozice",
       "id": "Interní id pozice",
       "treeType": "Typ struktury",
-      "workingPosition": "Pozice",
+      "workPosition": "Pozice",
       "position": "Pracovní pozice",
       "identity": "Uživatel",
       "validFrom": "Platnost od",

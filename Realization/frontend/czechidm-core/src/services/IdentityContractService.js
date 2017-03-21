@@ -41,8 +41,8 @@ class IdentityContractService extends FormableEntityService {
       niceLabel = this.identityService.getNiceLabel(entity._embedded.identity);
     }
     let positionName = entity.position;
-    if (entity._embedded.workingPosition) {
-      positionName = this.treeNodeService.getNiceLabel(entity._embedded.workingPosition);
+    if (entity._embedded.workPosition) {
+      positionName = this.treeNodeService.getNiceLabel(entity._embedded.workPosition);
     }
     return niceLabel ? `${niceLabel} - ${positionName}` : positionName;
   }

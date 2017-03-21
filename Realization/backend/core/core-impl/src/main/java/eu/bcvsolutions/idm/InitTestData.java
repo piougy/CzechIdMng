@@ -143,11 +143,11 @@ public class InitTestData implements ApplicationListener<ContextRefreshedEvent> 
 				organization.setTreeType(type);
 				this.treeNodeService.save(organization);
 				
-				IdmIdentityContract identityWorkingPosition2 = new IdmIdentityContract();
-				identityWorkingPosition2.setIdentity(testUser1);
-				identityWorkingPosition2.setGuarantee(testUser2);
-				identityWorkingPosition2.setWorkingPosition(organization);
-				identityContractService.save(identityWorkingPosition2);
+				IdmIdentityContract identityWorkPosition2 = new IdmIdentityContract();
+				identityWorkPosition2.setIdentity(testUser1);
+				identityWorkPosition2.setGuarantee(testUser2);
+				identityWorkPosition2.setWorkPosition(organization);
+				identityContractService.save(identityWorkPosition2);
 				//
 				log.info("Test data was created.");
 				//

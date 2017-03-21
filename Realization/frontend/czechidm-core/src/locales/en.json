@@ -1941,7 +1941,7 @@
       "_type": "Positions",
       "id": "Internal position ID",
       "treeType": "Structure type",
-      "workingPosition": "Position",
+      "workPosition": "Position",
       "position": "Work position",
       "identity": "User",
       "validFrom": "Valid from",

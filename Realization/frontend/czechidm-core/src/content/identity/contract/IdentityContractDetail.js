@@ -47,10 +47,10 @@ export default class IdentityContractDetail extends Basic.AbstractContent {
    * TODO: prevent set state in did mount
    */
   _setSelectedEntity(entity) {
-    const treeTypeId = entity._embedded && entity._embedded.workingPosition ? entity._embedded.workingPosition.treeType.id : null;
+    const treeTypeId = entity._embedded && entity._embedded.workPosition ? entity._embedded.workPosition.treeType.id : null;
     const entityFormData = _.merge({}, entity, {
       guarantee: entity._embedded ? entity._embedded.guarantee : null,
-      workingPosition: entity._embedded ? entity._embedded.workingPosition : null,
+      workPosition: entity._embedded ? entity._embedded.workPosition : null,
       treeTypeId
     });
     //
@@ -83,7 +83,7 @@ export default class IdentityContractDetail extends Basic.AbstractContent {
       //
       entity.identity = this.identityManager.getSelfLink(identityId);
       entity.guarantee = this.identityManager.getSelfLink(entity.guarantee);
-      entity.workingPosition = this.treeNodeManager.getSelfLink(entity.workingPosition);
+      entity.workPosition = this.treeNodeManager.getSelfLink(entity.workPosition);
 
       if (entity.id === undefined) {
         this.context.store.dispatch(this.getManager().createEntity(entity, `${uiKey}-detail`, (createdEntity, error) => {
@@ -129,7 +129,7 @@ export default class IdentityContractDetail extends Basic.AbstractContent {
       forceSearchParameters: this.state.forceSearchParameters.setFilter('treeTypeId', treeTypeId || SearchParameters.BLANK_UUID)
     }, () => {
       // focus automatically - maybe will be usefull?
-      // this.refs.workingPosition.focus();
+      // this.refs.workPosition.focus();
     });
   }
 
@@ -159,9 +159,9 @@ export default class IdentityContractDetail extends Basic.AbstractContent {
                   label={this.i18n('entity.IdentityContract.treeType')}
                   onChange={this.onChangeTreeType.bind(this)}/>
                 <Basic.SelectBox
-                  ref="workingPosition"
+                  ref="workPosition"
                   manager={this.treeNodeManager}
-                  label={this.i18n('entity.IdentityContract.workingPosition')}
+                  label={this.i18n('entity.IdentityContract.workPosition')}
                   forceSearchParameters={forceSearchParameters}
                   hidden={treeTypeId === null}/>
                 <Basic.SelectBox

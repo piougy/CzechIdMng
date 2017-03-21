@@ -44,7 +44,7 @@ public interface IdmIdentityContractRepository extends AbstractEntityRepository<
 	 */
 	@Override
 	@Query(value = "select e from #{#entityName} e"
-			+ " left join e.workingPosition wp" +
+			+ " left join e.workPosition wp" +
 	        " where"
 	        + " ("
 	        	+ " ?#{[0].text} is null"
@@ -65,16 +65,16 @@ public interface IdmIdentityContractRepository extends AbstractEntityRepository<
 	
 	@Query(value = "select e from #{#entityName} e"
 			+ " where"
-			+ " (e.workingPosition = ?#{[0]})" // takes all recursion
+			+ " (e.workPosition = ?#{[0]})" // takes all recursion
 			+ " or"
-			+ " (?#{[1].name()} = 'DOWN' and e.workingPosition.forestIndex.lft between ?#{[0].lft} and ?#{[0].rgt})"
+			+ " (?#{[1].name()} = 'DOWN' and e.workPosition.forestIndex.lft between ?#{[0].lft} and ?#{[0].rgt})"
 			+ " or"
-			+ " (?#{[1].name()} = 'UP' and ?#{[0].lft} between e.workingPosition.forestIndex.lft and e.workingPosition.forestIndex.rgt)")
+			+ " (?#{[1].name()} = 'UP' and ?#{[0].lft} between e.workPosition.forestIndex.lft and e.workPosition.forestIndex.rgt)")
 	List<IdmIdentityContract> findAllByWorkPosition(IdmTreeNode workPosition, RecursionType recursionType);
 	
-	Long countByWorkingPosition(@Param("treeNode") IdmTreeNode treeNode);
+	Long countByWorkPosition(@Param("treeNode") IdmTreeNode treeNode);
 	
-	Long countByWorkingPosition_TreeType(@Param("treeType") IdmTreeType treeType);
+	Long countByWorkPosition_TreeType(@Param("treeType") IdmTreeType treeType);
 
 	/**
 	 * Removes all contracts of given identity

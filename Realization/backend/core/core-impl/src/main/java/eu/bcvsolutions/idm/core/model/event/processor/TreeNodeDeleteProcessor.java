@@ -69,7 +69,7 @@ public class TreeNodeDeleteProcessor extends CoreEventProcessor<IdmTreeNode> {
 		if (nodes.getTotalElements() > 0) {
 			throw new TreeNodeException(CoreResultCode.TREE_NODE_DELETE_FAILED_HAS_CHILDREN,  ImmutableMap.of("treeNode", treeNode.getName()));
 		}		
-		if (this.identityContractRepository.countByWorkingPosition(treeNode) > 0) {
+		if (this.identityContractRepository.countByWorkPosition(treeNode) > 0) {
 			throw new TreeNodeException(CoreResultCode.TREE_NODE_DELETE_FAILED_HAS_CONTRACTS,  ImmutableMap.of("treeNode", treeNode.getName()));
 		}
 		// clear default tree nodes from type

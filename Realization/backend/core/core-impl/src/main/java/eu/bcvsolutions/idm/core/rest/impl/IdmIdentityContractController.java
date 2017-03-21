@@ -52,9 +52,9 @@ public class IdmIdentityContractController extends DefaultReadWriteEntityControl
 	@Autowired
 	public IdmIdentityContractController(
 			EntityLookupService entityLookupService, 
-			IdmIdentityContractService identityWorkingPositionService,
+			IdmIdentityContractService identityWorkPositionService,
 			IdmFormDefinitionController formDefinitionController) {
-		super(entityLookupService, identityWorkingPositionService);
+		super(entityLookupService, identityWorkPositionService);
 		//
 		Assert.notNull(formDefinitionController);
 		//

@@ -50,7 +50,7 @@ class IdentityContent extends Basic.AbstractContent {
 
         <OrganizationPosition identity={entityId}/>
 
-        <Advanced.TabPanel position="left" parentId="identity-profile" params={this.props.params}>
+        <Advanced.TabPanel position="left" parentId="identity-profile" params={this.props.params} style={{ display: 'none'}}>
           {this.props.children}
         </Advanced.TabPanel>
       </div>

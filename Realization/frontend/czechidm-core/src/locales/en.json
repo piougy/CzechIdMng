@@ -1941,7 +1941,7 @@
       "_type": "Positions",
       "id": "Internal position ID",
       "treeType": "Structure type",
-      "workingPosition": "Position",
+      "workPosition": "Position",
       "position": "Work position",
       "identity": "User",
       "validFrom": "Valid from",
@@ -2545,6 +2545,14 @@
     "ROLE_REQUEST_NO_EXECUTE_IMMEDIATELY_RIGHT": {
       "title": "You don`t have permission for start request for change permissions without approval.",
       "message": "You don`t have permission (EXECUTEIMMEDIATELY) for start request for change permissions without approval!"
+    },
+    "CRYPT_DEMO_KEY_NOT_FOUND": {
+      "title": "Demo key was not found",
+      "message": "Encryption and decryption into the local repository is not possible."
+    },
+    "CRYPT_INITIALIZATION_PROBLEM": {
+      "title": "Error in initializing an encryption tool",
+      "message": "Encryption and decryption into the local repository is not possible."
     }
   },
   "validationError": {

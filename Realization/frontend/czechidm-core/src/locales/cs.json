@@ -1968,7 +1968,7 @@
       "_type": "Pracovní pozice",
       "id": "Interní id pozice",
       "treeType": "Typ struktury",
-      "workingPosition": "Pozice",
+      "workPosition": "Pozice",
       "position": "Pracovní pozice",
       "identity": "Uživatel",
       "validFrom": "Platnost od",
@@ -2573,6 +2573,14 @@
     "ROLE_REQUEST_NO_EXECUTE_IMMEDIATELY_RIGHT": {
       "title": "Nemáte oprávnění pro podání žádosti bez schválení",
       "message": "Nemáte oprávnění pro podání žádosti bez schválení!"
+    },
+    "CRYPT_DEMO_KEY_NOT_FOUND": {
+      "title": "Demo klíč pro šifrování nebyl nalezen",
+      "message": "Šifrování a dešifrování do lokálního repozitáře není možné."
+    },
+    "CRYPT_INITIALIZATION_PROBLEM": {
+      "title": "Chyba v inicializaci šifrovacího nástroje",
+      "message": "Šifrování a dešifrování do lokálního repozitáře není možné."
     }
   },
   "validationError": {

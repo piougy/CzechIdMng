@@ -55,7 +55,7 @@ public class IdentityContractSecurityTest extends AbstractRestTest {
 	protected ObjectMapper mapper;
 	
 	@Test
-	public void getWorkingPositions() {	
+	public void getWorkPositions() {	
 		SecurityMockMvcRequestPostProcessors.securityContext(null);
 		Exception ex = null;
 		int status = 0;
@@ -85,7 +85,7 @@ public class IdentityContractSecurityTest extends AbstractRestTest {
 	}
 	
 	@Test
-	public void createWorkingPositions() {
+	public void createWorkPositions() {
 		SecurityMockMvcRequestPostProcessors.securityContext(null);
 
 		IdmIdentity user = identityRepository.findOneByUsername("kopr");
@@ -137,7 +137,7 @@ public class IdentityContractSecurityTest extends AbstractRestTest {
 	}
 	
 	@Test
-	public void deleteWorkingPositions() {
+	public void deleteWorkPositions() {
 		SecurityMockMvcRequestPostProcessors.securityContext(null);
 
 		IdmIdentity user = identityRepository.findOneByUsername("kopr");

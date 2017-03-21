@@ -64,10 +64,10 @@ public class IdentityContractUpdateByAutomaticRoleProcessor extends CoreEventPro
 		}
 		//
 		IdmIdentityContract previous = repository.getPersistedIdentityContract(contract);
-		IdmTreeNode newPosition = contract.getWorkingPosition();
+		IdmTreeNode newPosition = contract.getWorkPosition();
 		//
 		// check automatic roles - if position or disabled was changed
-		if (!Objects.equals(newPosition, previous.getWorkingPosition())
+		if (!Objects.equals(newPosition, previous.getWorkPosition())
 				|| (!contract.isDisabled() && previous.isDisabled() != contract.isDisabled())) {
 			List<IdmIdentityRole> assignedRoles = identityRoleService.getRoles(contract);
 			Set<IdmRoleTreeNode> previousAutomaticRoles = assignedRoles.stream()

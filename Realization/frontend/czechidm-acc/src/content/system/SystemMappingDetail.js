@@ -15,7 +15,7 @@ const systemManager = new SystemManager();
 const systemMappingManager = new SystemMappingManager();
 const schemaObjectClassManager = new SchemaObjectClassManager();
 
-class SystemMappingDetail extends Basic.AbstractTableContent {
+class SystemMappingDetail extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);

@@ -109,17 +109,17 @@ export default class IdentityContracts extends Basic.AbstractContent {
               width={75}
               sort/>
             <Basic.Column
-              property="workingPosition"
-              header={this.i18n('entity.IdentityContract.workingPosition')}
+              property="workPosition"
+              header={this.i18n('entity.IdentityContract.workPosition')}
               width="175px"
               cell={
                 ({ rowIndex, data }) => {
                   return (
                     <span>
                       {
-                        data[rowIndex]._embedded && data[rowIndex]._embedded.workingPosition
+                        data[rowIndex]._embedded && data[rowIndex]._embedded.workPosition
                         ?
-                        this.treeNodeManager.getNiceLabel(data[rowIndex]._embedded.workingPosition)
+                        this.treeNodeManager.getNiceLabel(data[rowIndex]._embedded.workPosition)
                         :
                         data[rowIndex].position
                       }
@@ -137,9 +137,9 @@ export default class IdentityContracts extends Basic.AbstractContent {
                   return (
                     <span>
                       {
-                        !data[rowIndex]._embedded || !data[rowIndex]._embedded.workingPosition
+                        !data[rowIndex]._embedded || !data[rowIndex]._embedded.workPosition
                         ||
-                        this.treeTypeManager.getNiceLabel(data[rowIndex]._embedded.workingPosition.treeType)
+                        this.treeTypeManager.getNiceLabel(data[rowIndex]._embedded.workPosition.treeType)
                       }
                     </span>
                   );

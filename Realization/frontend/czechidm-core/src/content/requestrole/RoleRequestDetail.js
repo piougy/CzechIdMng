@@ -19,7 +19,7 @@ const conceptRoleRequestManager = new ConceptRoleRequestManager();
 const roleRequestManager = new RoleRequestManager();
 const identityRoleManager = new IdentityRoleManager();
 
-class RoleRequestDetail extends Basic.AbstractTableContent {
+class RoleRequestDetail extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);

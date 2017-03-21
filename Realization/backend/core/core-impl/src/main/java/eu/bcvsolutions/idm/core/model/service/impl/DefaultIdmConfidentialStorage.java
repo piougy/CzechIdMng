@@ -15,6 +15,7 @@ import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.model.entity.IdmConfidentialStorageValue;
 import eu.bcvsolutions.idm.core.model.repository.IdmConfidentialStorageValueRepository;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
+import eu.bcvsolutions.idm.core.security.api.service.CryptService;
 
 /**
  * "Naive" confidential storage. Values are persisted in standard database.
@@ -27,12 +28,16 @@ public class DefaultIdmConfidentialStorage implements ConfidentialStorage {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmConfidentialStorage.class);
 	private final IdmConfidentialStorageValueRepository repository;
+	private final CryptService cryptService;
 	
 	@Autowired
-	public DefaultIdmConfidentialStorage(IdmConfidentialStorageValueRepository repository) {
+	public DefaultIdmConfidentialStorage(IdmConfidentialStorageValueRepository repository,
+			CryptService encryptService) {
 		Assert.notNull(repository, "Confidential storage repository is required");
+		Assert.notNull(encryptService);
 		//
 		this.repository = repository;
+		this.cryptService = encryptService;
 	}
 	
 	/**
@@ -180,7 +185,8 @@ public class DefaultIdmConfidentialStorage implements ConfidentialStorage {
 		if (value == null) {
 			return null;
 		}
-	    return SerializationUtils.deserialize(value);
+		byte [] decryptValue = cryptService.decrypt(value);
+	    return SerializationUtils.deserialize(decryptValue);
 	}
 
 	/**
@@ -190,6 +196,7 @@ public class DefaultIdmConfidentialStorage implements ConfidentialStorage {
 	 * @return
 	 */
 	private byte[] toStorageValue(Serializable value) {
-	    return SerializationUtils.serialize(value);
+		byte [] serializedValue = SerializationUtils.serialize(value);
+		return cryptService.encrypt(serializedValue);
 	}
 }

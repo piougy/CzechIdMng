@@ -12,7 +12,7 @@ const manager = new IdentityAccountManager();
 const accountManager = new AccountManager();
 const identityManager = new Managers.IdentityManager();
 
-class IdentityAccountsContent extends Basic.AbstractTableContent {
+class IdentityAccountsContent extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);

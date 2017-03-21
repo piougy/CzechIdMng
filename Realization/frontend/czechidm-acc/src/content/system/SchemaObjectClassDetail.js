@@ -12,7 +12,7 @@ const schemaAttributeManager = new SchemaAttributeManager();
 const systemManager = new SystemManager();
 const schemaObjectClassManager = new SchemaObjectClassManager();
 
-class SchemaObjectClassDetail extends Basic.AbstractTableContent {
+class SchemaObjectClassDetail extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);

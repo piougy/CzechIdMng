@@ -2561,6 +2561,14 @@
     "ACCEPTED": {
       "title": "Požadavek přijat",
       "message": "Požadavek byl předán ke zpracování či schválení."
+    },
+    "CRYPT_DEMO_KEY_NOT_FOUND": {
+      "title": "Demo klíč pro šifrování nebyl nalezen",
+      "message": "Šifrování a dešifrování do lokálního repozitáře není možné."
+    },
+    "CRYPT_INITIALIZATION_PROBLEM": {
+      "title": "Chyba v inicializaci šifrovacího nástroje",
+      "message": "Šifrování a dešifrování do lokálního repozitáře není možné."
     }
   },
   "validationError": {

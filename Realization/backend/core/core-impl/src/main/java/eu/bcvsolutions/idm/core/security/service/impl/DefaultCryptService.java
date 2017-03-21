@@ -21,6 +21,10 @@ import javax.crypto.spec.SecretKeySpec;
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.stereotype.Service;
 
+import com.google.common.collect.ImmutableMap;
+
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.security.api.service.CryptService;
 
 /**
@@ -30,7 +34,7 @@ import eu.bcvsolutions.idm.core.security.api.service.CryptService;
  */
 
 @Service
-public class DefaultEncryptService implements CryptService {
+public class DefaultCryptService implements CryptService {
 	
 	public static String DEMO_KEY_FILE_PATH = "eu/bcvsolutions/idm/confidential/demo_key.key";
 	public static String KEY_FILE_PATH = "eu/bcvsolutions/idm/confidential/key.key";
@@ -51,14 +55,11 @@ public class DefaultEncryptService implements CryptService {
 	 */
 	private static byte [] IV = { 48, 104, 118, 113, 103, 116, 51, 114, 107, 54, 51, 57, 108, 121, 119, 101 };
 	
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultEncryptService.class);
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultCryptService.class);
 	
 	@Override
 	public String encryptString(String value) {
 		byte[] encryptValue = this.encrypt(value.getBytes());
-		if (encryptValue == null) {
-			return null;
-		}
 		return Base64.encodeBase64String(encryptValue);
 	}
 
@@ -73,15 +74,14 @@ public class DefaultEncryptService implements CryptService {
 		byte[] decryptValue = null;
 		try {
 			Cipher cipher = initCipher(Cipher.DECRYPT_MODE);
-			// cipher is not initialized return plain value
+			// cipher is not initialized
 			if (cipher == null) {
-				return value;
+				throw new ResultCodeException(CoreResultCode.CRYPT_DEMO_KEY_NOT_FOUND, ImmutableMap.of("demoKey", DEMO_KEY_FILE_PATH, "primaryKey", KEY_FILE_PATH));
 			}
 			decryptValue = cipher.doFinal(value);
 		} catch (InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
-			LOG.error("[DefaultEncryptService] Decrypt problem! Password will not be decrypthed! Error: {}", e.getLocalizedMessage());
-			// defensive, return plain value
-			return value;
+			LOG.error("[DefaultCryptService] Decrypt problem! Password will not be decrypthed! Error: {}", e.getLocalizedMessage());
+			throw new ResultCodeException(CoreResultCode.CRYPT_INITIALIZATION_PROBLEM, ImmutableMap.of("algorithm", ALGORITHM), e);
 		}
 		return decryptValue;
 	}
@@ -91,15 +91,14 @@ public class DefaultEncryptService implements CryptService {
 		byte[] encryptValue = null;
 		try {
 			Cipher cipher = initCipher(Cipher.ENCRYPT_MODE);
-			// cipher is not initialized return plain value
+			// cipher is not initialized
 			if (cipher == null) {
-				return value;
+				throw new ResultCodeException(CoreResultCode.CRYPT_DEMO_KEY_NOT_FOUND, ImmutableMap.of("demoKey", DEMO_KEY_FILE_PATH, "primaryKey", KEY_FILE_PATH));
 			}
 			encryptValue = cipher.doFinal(value);
 		} catch (InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
-			LOG.error("[DefaultEncryptService] Encrypt problem! Password will not be encrypted! Error: {}", e);
-			// defensive, return plain value
-			return value;
+			LOG.error("[DefaultCryptService] Encrypt problem! Password will not be encrypted! Error: {}", e);
+			throw new ResultCodeException(CoreResultCode.CRYPT_INITIALIZATION_PROBLEM, ImmutableMap.of("algorithm", ALGORITHM), e);
 		}
 		
 		return encryptValue;
@@ -115,24 +114,26 @@ public class DefaultEncryptService implements CryptService {
 	private SecretKey getKeyFromResource() throws UnsupportedEncodingException {
 		List<String> lines = null;
 		try {
+			// get primary key
 			URL fileUrl = this.getClass().getClassLoader().getResource(KEY_FILE_PATH);
 			if (fileUrl == null) {
-				LOG.warn("[DefaultEncryptService] Using DEMO key! Please create new file with key and put it on this path: {}", KEY_FILE_PATH);
+				LOG.warn("[DefaultCryptService] Using DEMO key! Please create new file with key and put it on this path: {}", KEY_FILE_PATH);
+				// get demo key, primary key doesnt exists
 				fileUrl = this.getClass().getClassLoader().getResource(DEMO_KEY_FILE_PATH);
 			}
 			if (fileUrl == null) {
-				LOG.warn("[DefaultEncryptService] Demo key dost exists! Password will be saved in plaintext!");
+				LOG.warn("[DefaultCryptService] Demo key dost exists!");
 				return null;
 			}
 			String keyPath = fileUrl.getPath();
 			lines = Files.readAllLines(Paths.get(keyPath));
 			if (lines.isEmpty() || lines.size() > 1) {
-				LOG.warn("[DefaultEncryptService] File with key has more or nothing keys. Size: {} ", lines.size());
+				LOG.warn("[DefaultCryptService] File with key has more or nothing keys. Size: {} ", lines.size());
 				return null;
 			}
 		} catch (IOException e) {
-			LOG.warn("[DefaultEncryptService] Problem with load key file! Password will be saved in plaintext!", e);
-			return null;
+			LOG.warn("[DefaultCryptService] Problem with load key file!", e);
+			throw new ResultCodeException(CoreResultCode.CRYPT_DEMO_KEY_NOT_FOUND, ImmutableMap.of("demoKey", DEMO_KEY_FILE_PATH, "primaryKey", KEY_FILE_PATH), e);
 		}
 		return new SecretKeySpec(lines.get(0).getBytes(ENCODING), ALGORITHM);
 	}
@@ -153,7 +154,8 @@ public class DefaultEncryptService implements CryptService {
 			cipher = Cipher.getInstance(ALGORITHM + "/" + ALGORITHM_MODE + "/" + ALGORITHM_PADDING);
 			cipher.init(encryptMode, key, new IvParameterSpec(IV));
 		} catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidAlgorithmParameterException | UnsupportedEncodingException e) {
-			LOG.error("[DefaultEncryptService] Cipher cant be initialized! Password will not be encrypted!", e);
+			LOG.error("[DefaultCryptService] Cipher can't be initialized!");
+			throw new ResultCodeException(CoreResultCode.CRYPT_INITIALIZATION_PROBLEM, ImmutableMap.of("algorithm", ALGORITHM), e);
 		}
 		return cipher;
 	}

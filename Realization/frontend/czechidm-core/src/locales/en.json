@@ -2533,6 +2533,14 @@
     "ACCEPTED": {
       "title": "Request added",
       "message": "Request will be proccesed / approved."
+    },
+    "CRYPT_DEMO_KEY_NOT_FOUND": {
+      "title": "Demo key was not found",
+      "message": "Encryption and decryption into the local repository is not possible."
+    },
+    "CRYPT_INITIALIZATION_PROBLEM": {
+      "title": "Error in initializing an encryption tool",
+      "message": "Encryption and decryption into the local repository is not possible."
     }
   },
   "validationError": {

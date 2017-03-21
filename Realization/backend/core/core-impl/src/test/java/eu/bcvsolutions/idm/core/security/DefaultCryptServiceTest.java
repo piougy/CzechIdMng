@@ -105,7 +105,9 @@ public class DefaultCryptServiceTest extends AbstractIntegrationTest {
 		
 		byte [] decryptString = cryptService.decrypt(encrypt);
 		
+		// defensive while is file not found encrypt is not working
 		assertNotEquals(password, new String(encrypt));
+		
 		assertEquals(password, new String(decryptString));
 	}
 }

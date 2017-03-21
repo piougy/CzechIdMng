@@ -32,8 +32,8 @@ import eu.bcvsolutions.idm.core.security.api.service.CryptService;
 @Service
 public class DefaultEncryptService implements CryptService {
 	
-	public static String DEMO_KEY_FILE_PATH = "eu/bcvsolutions/idm/core/confidential/demo_key.key";
-	public static String KEY_FILE_PATH = "eu/bcvsolutions/idm/core/confidential/key.key";
+	public static String DEMO_KEY_FILE_PATH = "eu/bcvsolutions/idm/confidential/demo_key.key";
+	public static String KEY_FILE_PATH = "eu/bcvsolutions/idm/confidential/key.key";
 	
 	/**
 	 * Algorithm, mode and block padding
@@ -73,10 +73,15 @@ public class DefaultEncryptService implements CryptService {
 		byte[] decryptValue = null;
 		try {
 			Cipher cipher = initCipher(Cipher.DECRYPT_MODE);
+			// cipher is not initialized return plain value
+			if (cipher == null) {
+				return value;
+			}
 			decryptValue = cipher.doFinal(value);
 		} catch (InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
 			LOG.error("[DefaultEncryptService] Decrypt problem! Password will not be decrypthed! Error: {}", e.getLocalizedMessage());
-			return null;
+			// defensive, return plain value
+			return value;
 		}
 		return decryptValue;
 	}
@@ -86,10 +91,15 @@ public class DefaultEncryptService implements CryptService {
 		byte[] encryptValue = null;
 		try {
 			Cipher cipher = initCipher(Cipher.ENCRYPT_MODE);
+			// cipher is not initialized return plain value
+			if (cipher == null) {
+				return value;
+			}
 			encryptValue = cipher.doFinal(value);
 		} catch (InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
 			LOG.error("[DefaultEncryptService] Encrypt problem! Password will not be encrypted! Error: {}", e);
-			return null;
+			// defensive, return plain value
+			return value;
 		}
 		
 		return encryptValue;

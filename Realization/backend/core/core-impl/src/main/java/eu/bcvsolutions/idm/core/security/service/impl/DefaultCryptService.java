@@ -115,11 +115,11 @@ public class DefaultCryptService implements CryptService {
 		List<String> lines = null;
 		try {
 			// get primary key
-			URL fileUrl = this.getClass().getClassLoader().getResource(KEY_FILE_PATH);
+			URL fileUrl = ClassLoader.getSystemClassLoader().getResource(KEY_FILE_PATH);
 			if (fileUrl == null) {
 				LOG.warn("[DefaultCryptService] Using DEMO key! Please create new file with key and put it on this path: {}", KEY_FILE_PATH);
 				// get demo key, primary key doesnt exists
-				fileUrl = this.getClass().getClassLoader().getResource(DEMO_KEY_FILE_PATH);
+				fileUrl = ClassLoader.getSystemClassLoader().getResource(DEMO_KEY_FILE_PATH);
 			}
 			if (fileUrl == null) {
 				LOG.warn("[DefaultCryptService] Demo key dost exists!");

@@ -1,26 +1,18 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
-import java.text.MessageFormat;
-
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableMap;
 
-import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.Loggable;
-import eu.bcvsolutions.idm.core.api.exception.RoleRequestException;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.model.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.model.dto.IdmConceptRoleRequestDto;
-import eu.bcvsolutions.idm.core.model.dto.IdmIdentityContractDto;
-import eu.bcvsolutions.idm.core.model.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.model.dto.filter.ConceptRoleRequestFilter;
-import eu.bcvsolutions.idm.core.model.dto.filter.RoleRequestFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmConceptRoleRequest;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
@@ -49,26 +41,6 @@ public class DefaultIdmConceptRoleRequestService
 		Assert.notNull(workflowProcessInstanceService, "Workflow process instance service is required!");
 		
 		this.workflowProcessInstanceService = workflowProcessInstanceService;
-	}
-	
-	@Override
-	public IdmConceptRoleRequestDto save(IdmConceptRoleRequestDto concept) {
-
-		// get contract dto from embedded map
-		IdmIdentityContractDto contract = (IdmIdentityContractDto) concept.getEmbedded()
-				.get(IdmConceptRoleRequestService.IDENTITY_CONTRACT_FIELD);
-		// get request dto form embedded map
-		IdmRoleRequestDto request = (IdmRoleRequestDto) concept.getEmbedded()
-				.get(IdmConceptRoleRequestService.ROLE_REQUEST_FIELD);
-
-		Assert.notNull(contract, "Contract in concept is required!");
-		Assert.notNull(request, "Request in concept is required!");
-
-		if (!request.getApplicant().equals(contract.getIdentity())) {
-			throw new RoleRequestException(CoreResultCode.ROLE_REQUEST_APPLICANTS_NOT_SAME,
-					ImmutableMap.of("request", request, "applicant", request.getApplicant()));
-		}
-		return super.save(concept);
 	}
 
 	@Override

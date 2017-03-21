@@ -426,7 +426,8 @@
       "ADMIN": "Administration",
       "READ": "Read",
       "WRITE": "Write",
-      "DELETE": "Delete"
+      "DELETE": "Delete",
+      "EXECUTEIMMEDIATELY": "Start without approval"
     },
     "group": {
       "APP": "App configuration",
@@ -446,7 +447,6 @@
       "NOTIFICATIONTEMPLATE": "Notifications - templates",
       "PASSWORDPOLICY": "Password policy",
       "ROLEREQUEST": "Role requests",
-      "ROLEREQUESTIMMEDIATELY": "Role requests - execute immediately",
       "SCHEDULER": "Scheduler"
     }
   },

@@ -49,7 +49,6 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
-import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowHistoricTaskInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowHistoricTaskInstanceService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
@@ -115,7 +114,7 @@ public class DefaultIdmRoleRequestService
 	public IdmRoleRequestDto save(IdmRoleRequestDto dto) {
 		// Load applicant (check read right)
 		identityService.get(dto.getApplicant());
-		return this.save(dto);
+		return super.save(dto);
 	}
 
 	@Override
@@ -209,7 +208,24 @@ public class DefaultIdmRoleRequestService
 			this.save(request);
 			return;
 		}
-		// TODO: check on same identities
+		
+		// Duplicant is fill, but request is not duplicated (maybe in past)
+		if (request.getDuplicatedToRequest() != null){
+			request.setDuplicatedToRequest(null);
+		}
+		
+		// Check on same applicants in all role concepts
+		boolean identityNotSame = this.getDto(request.getId()).getConceptRoles().stream().filter(concept -> {
+			// get contract dto from embedded map
+			IdmIdentityContractDto contract = (IdmIdentityContractDto) concept.getEmbedded()
+					.get(IdmConceptRoleRequestService.IDENTITY_CONTRACT_FIELD);
+			return !request.getApplicant().equals(contract.getIdentity());
+		}).findFirst().isPresent();
+
+		if (identityNotSame) {
+			throw new RoleRequestException(CoreResultCode.ROLE_REQUEST_APPLICANTS_NOT_SAME,
+					ImmutableMap.of("request", request, "applicant", request.getApplicant()));
+		}
 
 		// Request will be set on in progress state
 		request.setState(RoleRequestState.IN_PROGRESS);
@@ -228,7 +244,7 @@ public class DefaultIdmRoleRequestService
 		// and do realization immediately (without start approval process) 
 		if (request.isExecuteImmediately()) {
 			boolean haveRightExecuteImmediately = securityService
-					.hasAnyAuthority(IdmGroupPermission.ROLE_REQUEST_IMMEDIATELY_WRITE);
+					.hasAnyAuthority(IdmGroupPermission.ROLE_REQUEST_EXECUTE_IMMEDIATELY);
 
 			if (checkRight && !haveRightExecuteImmediately) {
 				throw new RoleRequestException(CoreResultCode.ROLE_REQUEST_NO_EXECUTE_IMMEDIATELY_RIGHT,
@@ -431,6 +447,7 @@ public class DefaultIdmRoleRequestService
 			duplicant.setDuplicatedToRequest(null);
 			if(RoleRequestState.DUPLICATED == duplicant.getState()){
 				duplicant.setState(RoleRequestState.CONCEPT);
+				duplicant.setDuplicatedToRequest(null);
 			}
 			String message = MessageFormat.format("Duplicated request [{0}] was deleted!", dto.getId());
 			this.addToLog(duplicant, message);

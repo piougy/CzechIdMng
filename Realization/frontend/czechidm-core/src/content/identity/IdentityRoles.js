@@ -396,7 +396,7 @@ class Roles extends Basic.AbstractContent {
                   adminMode={false}
                   showLoading={_showLoading}
                   forceSearchParameters={conceptsForceSearch}
-                  columns={['state', 'created', 'modified', 'wf', 'detail']}
+                  columns={['state', 'created', 'modified', 'detail']}
                   manager={roleRequestManager}/>
             </Basic.Panel>
 

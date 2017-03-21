@@ -3,14 +3,14 @@ package eu.bcvsolutions.idm.core.model.domain;
 import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 
-public enum IdmBasePermission implements BasePermission {
+public enum IdmRoleRequestPermission implements BasePermission {
 	
 	ADMIN, // wildcard - all base permissions
 	CREATE,
 	READ,
 	WRITE,
 	DELETE,
-	EXECUTE;
+	EXECUTEIMMEDIATELY;
 	
 	@Override
 	public String getName() {

@@ -117,7 +117,7 @@ public class DefaultCryptService implements CryptService {
 			// get primary key
 			URL fileUrl = ClassLoader.getSystemClassLoader().getResource(KEY_FILE_PATH);
 			if (fileUrl == null) {
-				LOG.warn("[DefaultCryptService] Using DEMO key! Please create new file with key and put it on this path: {}", KEY_FILE_PATH);
+				LOG.warn("[DefaultCryptService] Using DEMO key! Please create new file with key file: {}", KEY_FILE_PATH);
 				// get demo key, primary key doesnt exists
 				fileUrl = ClassLoader.getSystemClassLoader().getResource(DEMO_KEY_FILE_PATH);
 			}
@@ -162,13 +162,17 @@ public class DefaultCryptService implements CryptService {
 
 	@Override
 	public boolean existsKeyFile() {
-		try {
-			if (getKeyFromResource() != null) {
-				return true;
-			}
-			return false;
-		} catch (UnsupportedEncodingException e) {
-			return false;
+		URL fileUrl = ClassLoader.getSystemClassLoader().getResource(KEY_FILE_PATH);
+		if (fileUrl != null) {
+			return true;
 		}
+		// try to load demo key
+		fileUrl = ClassLoader.getSystemClassLoader().getResource(DEMO_KEY_FILE_PATH);
+		if (fileUrl != null) {
+			LOG.warn("[DefaultCryptService] Using DEMO key! Please create new file with key file: {}", KEY_FILE_PATH);
+			return true;
+		}
+		LOG.warn("[DefaultCryptService] Demo key dost exists!");
+		return false;
 	}
 }

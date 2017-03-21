@@ -14,7 +14,6 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.Type;
 import org.hibernate.envers.Audited;
-import org.hibernate.envers.RelationTargetAuditMode;
 import org.joda.time.LocalDate;
 
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
@@ -47,27 +46,32 @@ public class IdmConceptRoleRequest extends AbstractEntity implements ValidableEn
 	private IdmRoleRequest roleRequest;
 	
 	@Audited
-	@NotNull
-	@ManyToOne(optional = false)
+	@ManyToOne(optional = true)
 	@JoinColumn(name = "identity_contract_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmIdentityContract identityContract;
 	
-	@NotNull
-	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
-	@ManyToOne(optional = false)
+	@Audited
+	@ManyToOne(optional = true)
 	@JoinColumn(name = "role_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmRole role;
 	
-	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
+	@Audited
 	@ManyToOne(optional = true)
 	@JoinColumn(name = "identity_role_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmIdentityRole identityRole;
+	
+	@Audited
+	@ManyToOne(optional = true)
+	@JoinColumn(name = "role_tree_node_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
+	@org.hibernate.annotations.ForeignKey( name = "none" )
+	private IdmRoleTreeNode roleTreeNode;
 	
 	@Audited
 	@Column(name = "valid_from")
@@ -174,6 +178,14 @@ public class IdmConceptRoleRequest extends AbstractEntity implements ValidableEn
 
 	public void setLog(String log) {
 		this.log = log;
+	}
+
+	public IdmRoleTreeNode getRoleTreeNode() {
+		return roleTreeNode;
+	}
+
+	public void setRoleTreeNode(IdmRoleTreeNode roleTreeNode) {
+		this.roleTreeNode = roleTreeNode;
 	}
 	
 }

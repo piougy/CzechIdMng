@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.rest.impl;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -76,6 +77,21 @@ public class IdmRoleRequestController extends DefaultReadWriteDtoController<IdmR
 //	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_REQUEST_DELETE + "') or hasAuthority('"
 //			+ IdmGroupPermission.IDENTITY_DELETE + "')")
 	public ResponseEntity<?> delete(@PathVariable @NotNull String backendId) {
+		IdmRoleRequestService service = ((IdmRoleRequestService)this.getService());
+		IdmRoleRequestDto dto = service.getDto(backendId);
+		// Request in Executed state can not be delete or change
+		if(RoleRequestState.EXECUTED == dto.getState()){
+			throw new RoleRequestException(CoreResultCode.ROLE_REQUEST_EXECUTED_CANNOT_DELETE,
+					ImmutableMap.of("request", dto));
+		}
+		
+		// Only request in Concept state, can be deleted. In others states, will be request set to Canceled state and save.
+		if(RoleRequestState.CONCEPT == dto.getState()){
+			service.delete(dto);
+		}else {
+			service.cancel(dto);
+		}
+		
 		return super.delete(backendId);
 	}
 

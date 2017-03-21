@@ -420,8 +420,10 @@ export class RoleConceptTable extends Basic.AbstractContent {
                 let contractName;
                 if (data[rowIndex]._embedded.identityContract) {
                   contractName = data[rowIndex]._embedded.identityContract.position;
-                } else {
+                } else if (data[rowIndex].identityContract) {
                   contractName = data[rowIndex].identityContract.position;
+                } else {
+                  contractName = null;
                 }
                 return (
                   <span>{ contractName }</span>

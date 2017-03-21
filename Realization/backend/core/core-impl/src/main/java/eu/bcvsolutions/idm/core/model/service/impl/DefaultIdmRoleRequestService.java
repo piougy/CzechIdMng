@@ -288,9 +288,6 @@ public class DefaultIdmRoleRequestService
 		requestFilter.setState(RoleRequestState.APPROVED);
 		potentialDuplicatedRequests.addAll(this.findDto(requestFilter, null).getContent());
 
-		requestFilter.setState(RoleRequestState.CONCEPT);
-		potentialDuplicatedRequests.addAll(this.findDto(requestFilter, null).getContent());
-
 		Optional<IdmRoleRequestDto> duplicatedRequestOptional = potentialDuplicatedRequests.stream()
 				.filter(requestDuplicate -> {
 					return isDuplicated(request, requestDuplicate) && !(request.getId() != null
@@ -453,23 +450,32 @@ public class DefaultIdmRoleRequestService
 			this.addToLog(duplicant, message);
 			this.save(duplicant);
 		});
-	
-		// Request in Executed state can not be delete or change
-		if(RoleRequestState.EXECUTED == dto.getState()){
-			throw new RoleRequestException(CoreResultCode.ROLE_REQUEST_EXECUTED_CANNOT_DELETE,
-					ImmutableMap.of("request", dto));
-		}
 		
-		if(!Strings.isNullOrEmpty(dto.getWfProcessId())){
-			workflowProcessInstanceService.delete(dto.getWfProcessId(), "Role request use this WF, was deleted. This WF was deleted too.");
-			this.addToLog(dto, MessageFormat.format("Workflow process with ID [{0}] was deleted, because this request is deleted/canceled", dto.getWfProcessId()));
-		}
-		// Only request in Concept state, can be deleted. In others states, will be request set to Canceled state and save.
-		if(RoleRequestState.CONCEPT == dto.getState()){
-			super.delete(dto);
-		}else {
-			dto.setState(RoleRequestState.CANCELED);
-			this.save(dto);
+		// Stop connected WF process
+		cancelWF(dto);
+
+		// First we have to delete all concepts for this request
+		dto.getConceptRoles().forEach(concept -> {
+			conceptRoleRequestService.delete(concept);
+		});
+		super.delete(dto);
+	}
+	
+	@Override
+	public void cancel(IdmRoleRequestDto dto) {
+		cancelWF(dto);
+		dto.setState(RoleRequestState.CANCELED);
+		this.save(dto);
+	}
+
+	private void cancelWF(IdmRoleRequestDto dto) {
+		if (!Strings.isNullOrEmpty(dto.getWfProcessId())) {
+			workflowProcessInstanceService.delete(dto.getWfProcessId(),
+					"Role request use this WF, was deleted. This WF was deleted too.");
+			this.addToLog(dto,
+					MessageFormat.format(
+							"Workflow process with ID [{0}] was deleted, because this request is deleted/canceled",
+							dto.getWfProcessId()));
 		}
 	}
 

@@ -9,7 +9,7 @@ import {SecurityManager} from '../../redux';
 import RoleRequestStateEnum from '../../enums/RoleRequestStateEnum';
 import CandicateUsersCell from '../workflow/CandicateUsersCell';
 
-class RoleRequestTable extends Basic.AbstractTableContent {
+class RoleRequestTable extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);

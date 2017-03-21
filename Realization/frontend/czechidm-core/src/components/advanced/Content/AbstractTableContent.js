@@ -1,13 +1,11 @@
-import AbstractContent from './AbstractContent';
+import * as Basic from '../../basic';
 
 /**
 * Advance table content with entity CRUD methods id modal
 *
-* TODO: move to advanced, add readme
-*
 * @author Radek Tomiška
 */
-export default class AbstractTableContent extends AbstractContent {
+export default class AbstractTableContent extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
@@ -149,13 +147,13 @@ export default class AbstractTableContent extends AbstractContent {
 }
 
 AbstractTableContent.propTypes = {
-  ...AbstractContent.propTypes
+  ...Basic.AbstractContent.propTypes
 };
 
 AbstractTableContent.defaultProps = {
-  ...AbstractContent.defaultProps
+  ...Basic.AbstractContent.defaultProps
 };
 
 AbstractTableContent.contextTypes = {
-  ...AbstractContent.contextTypes
+  ...Basic.AbstractContent.contextTypes
 };

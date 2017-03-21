@@ -17,7 +17,7 @@ const manager = new SchedulerManager();
  *
  * @author Radek Tomiška
  */
-class ScheduleTasks extends Basic.AbstractTableContent {
+class ScheduleTasks extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);

@@ -11,7 +11,7 @@ const uiKey = 'system-entities-table';
 const manager = new SystemEntityManager();
 const systemManager = new SystemManager();
 
-class SystemEntitiesContent extends Basic.AbstractTableContent {
+class SystemEntitiesContent extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);

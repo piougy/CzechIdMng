@@ -13,7 +13,7 @@ const manager = new AccountManager();
 const systemEntityManager = new SystemEntityManager();
 const systemManager = new SystemManager();
 
-class SystemAccountsContent extends Basic.AbstractTableContent {
+class SystemAccountsContent extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);

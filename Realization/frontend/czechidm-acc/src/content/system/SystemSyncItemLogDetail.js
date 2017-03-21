@@ -2,13 +2,13 @@ import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 //
-import { Basic, Utils} from 'czechidm-core';
-import { SyncItemLogManager} from '../../redux';
+import { Basic, Advanced, Utils } from 'czechidm-core';
+import { SyncItemLogManager } from '../../redux';
 
 const uiKey = 'system-synchronization-item-log';
 const syncItemLogManager = new SyncItemLogManager();
 
-class SystemSyncItemLogDetail extends Basic.AbstractTableContent {
+class SystemSyncItemLogDetail extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);

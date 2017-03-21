@@ -15,7 +15,7 @@ const roleSystemManager = new RoleSystemManager();
 const roleManager = new Managers.RoleManager();
 const systemMappingManager = new SystemMappingManager();
 
-class RoleSystemDetail extends Basic.AbstractTableContent {
+class RoleSystemDetail extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);

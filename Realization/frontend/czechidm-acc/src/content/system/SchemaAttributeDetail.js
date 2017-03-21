@@ -2,14 +2,14 @@ import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 //
-import { Basic, Utils} from 'czechidm-core';
+import { Basic, Advanced, Utils} from 'czechidm-core';
 import { SchemaObjectClassManager, SchemaAttributeManager } from '../../redux';
 
 const uiKey = 'schema-attribute';
 const manager = new SchemaAttributeManager();
 const schemaObjectClassManager = new SchemaObjectClassManager();
 
-class SchemaAttributeDetail extends Basic.AbstractTableContent {
+class SchemaAttributeDetail extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);

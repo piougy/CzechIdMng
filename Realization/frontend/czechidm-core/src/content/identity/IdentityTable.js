@@ -15,7 +15,7 @@ import filterHelp from '../../components/advanced/Filter/README_cs.md';
 *
 * @author Radek Tomiška
 */
-export class IdentityTable extends Basic.AbstractTableContent {
+export class IdentityTable extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);

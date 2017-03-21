@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import moment from 'moment';
 //
 import * as Basic from '../../components/basic';
+import * as Advanced from '../../components/advanced';
 import { RoleRequestManager, IdentityManager} from '../../redux';
 import RoleRequestTable from './RoleRequestTable';
 import uuid from 'uuid';
@@ -13,7 +14,7 @@ const uiKey = 'role-request-table';
 const manager = new RoleRequestManager();
 const identityManager = new IdentityManager();
 
-class RoleRequests extends Basic.AbstractTableContent {
+class RoleRequests extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);

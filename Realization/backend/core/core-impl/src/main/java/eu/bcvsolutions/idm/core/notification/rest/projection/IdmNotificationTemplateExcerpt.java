@@ -8,7 +8,7 @@ import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationTemplate;
 @Projection(name = "excerpt", types = IdmNotificationTemplate.class)
 public interface IdmNotificationTemplateExcerpt extends AbstractDtoProjection {
 	
-	public boolean isSystemTemplate();
+	public boolean isUnmodifiable();
 
 	public String getBodyHtml();
 

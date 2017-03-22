@@ -4,7 +4,6 @@ import _ from 'lodash';
 import { Basic, Advanced, Enums } from 'czechidm-core';
 import SystemEntityTypeEnum from '../../domain/SystemEntityTypeEnum';
 import ProvisioningOperationTypeEnum from '../../domain/ProvisioningOperationTypeEnum';
-import EntityInfo from '../../components/EntityInfo';
 import { SystemManager } from '../../redux';
 
 const systemManager = new SystemManager();
@@ -188,7 +187,7 @@ export default class ProvisioningOperationTable extends Basic.AbstractContent {
             ({ rowIndex, data }) => {
               const entity = data[rowIndex];
               return (
-                <EntityInfo entityType={entity.entityType} entityIdentifier={entity.entityIdentifier} face="link"/>
+                <Advanced.EntityInfo entityType={entity.entityType} entityIdentifier={entity.entityIdentifier} face="popover"/>
               );
             }
           }

@@ -151,7 +151,7 @@ export default class FormAttributeTable extends Basic.AbstractContent {
             <Advanced.Column property="seq" sort width="5%"/>
             <Advanced.Column property="displayName" sort/>
             <Advanced.Column property="persistentType" sort />
-            <Advanced.Column property="systemAttribute" face="bool" sort />
+            <Advanced.Column property="unmodifiable" header={this.i18n('entity.FormAttribute.unmodifiable.label')} face="bool" sort />
           </Advanced.Table>
         </div>
       </Basic.Row>

@@ -159,8 +159,8 @@ export class TemplateTable extends Basic.AbstractContent {
             }/>
             <Advanced.Column property="subject" sort/>
             <Advanced.Column
-              property="systemTemplate"
-              header={this.i18n('entity.NotificationTemplate.systemTemplate.name')}
+              property="unmodifiable"
+              header={this.i18n('entity.NotificationTemplate.unmodifiable.name')}
               face="bool"
               sort />
           </Advanced.Table>

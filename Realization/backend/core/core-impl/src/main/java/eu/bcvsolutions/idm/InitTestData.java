@@ -52,9 +52,9 @@ public class InitTestData implements ApplicationListener<ContextRefreshedEvent> 
 	public static final String TEST_ADMIN_ROLE = InitApplicationData.ADMIN_ROLE;
 	public static final String TEST_USER_ROLE = "testUserRole";
 	public static final String TEST_CUSTOM_ROLE = "testCustomRole";
-
+	
 	@Autowired
-	private InitApplicationData initApplicationData;
+	private InitDemoData initDemoData;
 	
 	@Autowired
 	private IdmIdentityService identityService;
@@ -83,8 +83,8 @@ public class InitTestData implements ApplicationListener<ContextRefreshedEvent> 
 	}
 	
 	protected void init() {
-		// we need to be ensured admin and and admin role exists.
-		initApplicationData.init();
+		// we are reusing demo data in tests as well
+		initDemoData.init();
 		//
 		securityService.setSystemAuthentication();
 		//

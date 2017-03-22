@@ -18,6 +18,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.google.common.collect.ImmutableMap;
+
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.notification.domain.NotificationGroupPermission;
@@ -41,6 +45,28 @@ public class IdmNotificationTemplateController extends DefaultReadWriteEntityCon
 	public IdmNotificationTemplateController(EntityLookupService entityLookupService,
 			IdmNotificationTemplateService notificationTemplateService) {
 		super(entityLookupService, notificationTemplateService);
+	}
+	
+	@Override
+	protected IdmNotificationTemplate validateEntity(IdmNotificationTemplate entity) {
+		// check if exist id = create entity, then check if exist old entity = create entity with id
+		if (entity.getId() == null) {
+			return super.validateEntity(entity);
+		}
+		IdmNotificationTemplate oldEntity = getEntity(entity.getId());
+		if (oldEntity != null) {
+			// check explicit attributes that can't be changed
+			if (!oldEntity.getCode().equals(entity.getCode())) {
+				throw new ResultCodeException(CoreResultCode.UNMODIFIABLE_ATTRIBUTE_CHANGE, ImmutableMap.of("name", "code", "class", entity.getClass().getSimpleName()));
+			}
+			if (!oldEntity.getParameter().equals(entity.getParameter())) {
+				throw new ResultCodeException(CoreResultCode.UNMODIFIABLE_ATTRIBUTE_CHANGE, ImmutableMap.of("name", "parameter", "class", entity.getClass().getSimpleName()));
+			}
+			if (oldEntity.isUnmodifiable() != entity.isUnmodifiable()) {
+				throw new ResultCodeException(CoreResultCode.UNMODIFIABLE_ATTRIBUTE_CHANGE, ImmutableMap.of("name", "parameter", "class", entity.getClass().getSimpleName()));
+			}
+		}
+		return super.validateEntity(entity);
 	}
 	
 	@ResponseBody

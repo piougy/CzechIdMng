@@ -36,7 +36,7 @@ public interface IdmNotificationTemplateRepository extends AbstractEntityReposit
 	        	+ "or lower(e.subject) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')} "
         	+ ") "
         	+ "AND "
-        		+ " ?#{[0].systemTemplate} is null or e.systemTemplate = ?#{[0].systemTemplate} ")
+        		+ " ?#{[0].unmodifiable} is null or e.unmodifiable = ?#{[0].unmodifiable} ")
 	Page<IdmNotificationTemplate> find(NotificationTemplateFilter filter, Pageable pageable);
 
 	/**

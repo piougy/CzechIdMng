@@ -12,14 +12,13 @@ import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
 
 public class NotificationTemplateFilter extends QuickFilter {
 	
-	private Boolean systemTemplate;
+	private Boolean unmodifiable;
 
-	public Boolean getSystemTemplate() {
-		return systemTemplate;
+	public Boolean getUnmodifiable() {
+		return unmodifiable;
 	}
 
-	public void setSystemTemplate(Boolean systemTemplate) {
-		this.systemTemplate = systemTemplate;
+	public void setUnmodifiable(Boolean unmodifiable) {
+		this.unmodifiable = unmodifiable;
 	}
-	
 }

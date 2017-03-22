@@ -26,6 +26,7 @@ import com.google.common.collect.Maps;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
+import eu.bcvsolutions.idm.core.api.entity.UnmodifiableEntity;
 
 /**
  * Form definition for different entity / object types 
@@ -37,7 +38,7 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 @Table(name = "idm_form_definition", indexes = { @Index(name = "ux_idm_form_definition_tn", columnList = "definition_type,name", unique = true) })
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class IdmFormDefinition extends AbstractEntity {
+public class IdmFormDefinition extends AbstractEntity implements UnmodifiableEntity {
 
 	private static final long serialVersionUID = 8267096009610364911L;
 	
@@ -63,8 +64,8 @@ public class IdmFormDefinition extends AbstractEntity {
 	private List<IdmFormAttribute> formAttributes;
 	
 	@NotNull
-	@Column(name = "system_definition", nullable = false)
-	private boolean systemDefinition = true;
+	@Column(name = "unmodifiable", nullable = false)
+	private boolean unmodifiable = false;
 	//
 	// attribute definitions cache
 	private transient Map<UUID, IdmFormAttribute> mappedAttributes;
@@ -173,11 +174,13 @@ public class IdmFormDefinition extends AbstractEntity {
 		return getMappedAttributes().get(getMappedNames().get(attributeName));
 	}
 
-	public boolean isSystemDefinition() {
-		return systemDefinition;
+	@Override
+	public boolean isUnmodifiable() {
+		return this.unmodifiable;
 	}
 
-	public void setSystemDefinition(boolean systemDefinition) {
-		this.systemDefinition = systemDefinition;
+	@Override
+	public void setUnmodifiable(boolean unmodifiable) {
+		this.unmodifiable = unmodifiable;
 	}
 }

@@ -77,7 +77,7 @@ public enum IdmGroupPermission implements GroupPermission {
 	public static final String ROLE_REQUEST_EXECUTE_IMMEDIATELY = "ROLEREQUEST" + BasePermission.SEPARATOR + "EXECUTEIMMEDIATELY";
 	//
 	public static final String EAV_FORM_DEFINITIONS_READ = "EAVFORMDEFINITIONS" + BasePermission.SEPARATOR + "READ";
-	public static final String EAV_FORM_DEFINITIONS_WRITE = "EAV_ORMDEFINITIONS" + BasePermission.SEPARATOR + "WRITE";
+	public static final String EAV_FORM_DEFINITIONS_WRITE = "EAVFORMDEFINITIONS" + BasePermission.SEPARATOR + "WRITE";
 	public static final String EAV_FORM_DEFINITIONS_DELETE = "EAVFORMDEFINITIONS" + BasePermission.SEPARATOR + "DELETE";
 	//
 	public static final String EAV_FORM_ATTRIBUTES_READ = "EAVFORMATTRIBUTES" + BasePermission.SEPARATOR + "READ";

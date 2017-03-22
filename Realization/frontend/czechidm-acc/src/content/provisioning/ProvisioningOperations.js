@@ -9,8 +9,8 @@ import { Basic, Advanced, Managers, Domain, Enums } from 'czechidm-core';
 import { ProvisioningOperationManager, ProvisioningArchiveManager } from '../../redux';
 import ProvisioningOperationTable from './ProvisioningOperationTable';
 import ProvisioningOperationTypeEnum from '../../domain/ProvisioningOperationTypeEnum';
-import EntityInfo from '../../components/EntityInfo';
-
+import SystemEntityTypeEnum from '../../domain/SystemEntityTypeEnum';
+//
 const manager = new ProvisioningOperationManager();
 const archiveManager = new ProvisioningArchiveManager();
 
@@ -190,31 +190,54 @@ class ProvisioningOperations extends Basic.AbstractContent {
               ||
               <div>
                 <Basic.AbstractForm data={detail.entity} readOnly>
-                  <Basic.LabelWrapper label={this.i18n('entity.created')}>
-                    <div style={{ margin: '7px 0' }}>
-                      <Advanced.DateValue value={detail.entity.created} showTime/>
+
+                  <Basic.Row>
+                    <div className="col-lg-4">
+                      <Basic.LabelWrapper label={this.i18n('entity.created')}>
+                        <div style={{ margin: '7px 0' }}>
+                          <Advanced.DateValue value={detail.entity.created} showTime/>
+                        </div>
+                      </Basic.LabelWrapper>
                     </div>
-                  </Basic.LabelWrapper>
-                  <Basic.EnumLabel ref="operationType" label={this.i18n('acc:entity.ProvisioningOperation.operationType')} enum={ProvisioningOperationTypeEnum}/>
-                  <Basic.LabelWrapper label={this.i18n('acc:entity.ProvisioningOperation.entity')}>
-                    {
-                      !detail.entity.entityIdentifier
-                      ?
-                      <span>N/A</span>
-                      :
-                      <EntityInfo entityType={detail.entity.entityType} entityIdentifier={detail.entity.entityIdentifier} style={{ margin: 0 }}/>
-                    }
-                  </Basic.LabelWrapper>
-                  <Basic.LabelWrapper label={this.i18n('acc:entity.System.name')}>
-                    <div style={{ margin: '7px 0' }}>
-                      <Link to={`/system/${detail.entity.system.id}/detail`} >{detail.entity.system.name}</Link>
+                    <div className="col-lg-8">
+                      <Basic.EnumLabel ref="operationType" label={this.i18n('acc:entity.ProvisioningOperation.operationType')} enum={ProvisioningOperationTypeEnum}/>
                     </div>
-                  </Basic.LabelWrapper>
-                  <Basic.LabelWrapper label={this.i18n('acc:entity.SystemEntity.uid')}>
-                    <div style={{ margin: '7px 0' }}>
-                      {detail.entity.systemEntityUid}
+                  </Basic.Row>
+
+                  <Basic.Row>
+                    <div className="col-lg-4">
+                      <Basic.EnumLabel ref="entityType" label={this.i18n('acc:entity.SystemEntity.entityType')} enum={SystemEntityTypeEnum}/>
                     </div>
-                  </Basic.LabelWrapper>
+                    <div className="col-lg-8">
+                      <Basic.LabelWrapper label={this.i18n('acc:entity.ProvisioningOperation.entity')}>
+                        {
+                          !detail.entity.entityIdentifier
+                          ?
+                          <span>N/A</span>
+                          :
+                          <Advanced.EntityInfo entityType={detail.entity.entityType} entityIdentifier={detail.entity.entityIdentifier} style={{ margin: 0 }}/>
+                        }
+                      </Basic.LabelWrapper>
+                    </div>
+                  </Basic.Row>
+
+                  <Basic.Row>
+                    <div className="col-lg-4">
+                      <Basic.LabelWrapper label={this.i18n('acc:entity.System.name')}>
+                        <div style={{ margin: '7px 0' }}>
+                          <Link to={`/system/${detail.entity.system.id}/detail`} >{detail.entity.system.name}</Link>
+                        </div>
+                      </Basic.LabelWrapper>
+                    </div>
+                    <div className="col-lg-8">
+                      <Basic.LabelWrapper label={this.i18n('acc:entity.SystemEntity.uid')}>
+                        <div style={{ margin: '7px 0' }}>
+                          {detail.entity.systemEntityUid}
+                        </div>
+                      </Basic.LabelWrapper>
+                    </div>
+                  </Basic.Row>
+
                 </Basic.AbstractForm>
                 <br />
 

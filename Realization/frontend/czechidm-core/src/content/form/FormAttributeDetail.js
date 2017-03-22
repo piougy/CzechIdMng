@@ -32,15 +32,23 @@ class FormAttributeDetail extends Basic.AbstractContent {
   }
 
   componentDidMount() {
+    super.componentDidMount();
     const { entityId } = this.props.params;
-    this.selectNavigationItems(['system', 'forms']);
 
     if (this._getIsNew()) {
-      this.context.store.dispatch(attributeManager.receiveEntity(entityId, { seq: 0, systemAttribute: false, formDefinition: this._getFormDefinitionId() }));
+      this.context.store.dispatch(attributeManager.receiveEntity(entityId, { seq: 0, unmodifiable: false, formDefinition: this._getFormDefinitionId() }, null, () => {
+        this.refs.name.focus();
+      }));
     } else {
       this.getLogger().debug(`[FormAttributeDetail] loading entity detail [id:${entityId}]`);
-      this.context.store.dispatch(attributeManager.fetchEntity(entityId));
+      this.context.store.dispatch(attributeManager.fetchEntity(entityId, null, () => {
+        this.refs.displayName.focus();
+      }));
     }
+  }
+
+  getNavigationKey() {
+    return 'forms';
   }
 
   /**
@@ -89,9 +97,9 @@ class FormAttributeDetail extends Basic.AbstractContent {
     }
   }
 
-  _isSystemAttribute() {
+  _isUnmodifiable() {
     const { entity } = this.props;
-    return entity ? entity.systemAttribute : false;
+    return entity ? entity.unmodifiable : false;
   }
 
   /**
@@ -161,7 +169,7 @@ class FormAttributeDetail extends Basic.AbstractContent {
                     <Basic.TextField
                       ref="name"
                       label={this.i18n('entity.FormAttribute.name')}
-                      readOnly={this._isSystemAttribute()}
+                      readOnly={this._isUnmodifiable()}
                       required
                       max={255}/>
                   </div>
@@ -178,7 +186,7 @@ class FormAttributeDetail extends Basic.AbstractContent {
                     <Basic.EnumSelectBox
                       ref="persistentType"
                       enum={PersistentTypeEnum}
-                      readOnly={this._isSystemAttribute()}
+                      readOnly={this._isUnmodifiable()}
                       label={this.i18n('entity.FormAttribute.persistentType')}
                       max={255}
                       required/>
@@ -214,20 +222,25 @@ class FormAttributeDetail extends Basic.AbstractContent {
                 </Basic.Row>
                 <Basic.Checkbox
                   ref="required"
-                  readOnly={this._isSystemAttribute()}
+                  readOnly={this._isUnmodifiable()}
                   label={this.i18n('entity.FormAttribute.required')}/>
                 <Basic.Checkbox
                   ref="readonly"
-                  readOnly={this._isSystemAttribute()}
+                  readOnly={this._isUnmodifiable()}
                   label={this.i18n('entity.FormAttribute.readonly')}/>
                 <Basic.Checkbox
                   ref="confidential"
-                  readOnly={this._isSystemAttribute()}
+                  readOnly={this._isUnmodifiable()}
                   label={this.i18n('entity.FormAttribute.confidential')}/>
                 <Basic.Checkbox
                   ref="multiple"
-                  readOnly={this._isSystemAttribute()}
+                  readOnly={this._isUnmodifiable()}
                   label={this.i18n('entity.FormAttribute.multiple')}/>
+                <Basic.Checkbox
+                  ref="unmodifiable"
+                  readOnly
+                  label={this.i18n('entity.FormAttribute.unmodifiable.label')}
+                  helpBlock={this.i18n('entity.FormAttribute.unmodifiable.help')}/>
               </Basic.AbstractForm>
               <Basic.PanelFooter showLoading={showLoading || _showLoading} >
                 <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>{this.i18n('button.back')}</Basic.Button>

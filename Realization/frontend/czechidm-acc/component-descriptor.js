@@ -9,6 +9,13 @@ module.exports = {
       'description': 'Adds change password on selected accounts',
       'priority': 10,
       'component': require('./src/content/identity/PasswordChangeAccounts')
+    },
+    {
+      'id': 'system-info',
+      'type': 'entity-info',
+      'entityType': ['system', 'SysSystem'],
+      'component': require('./src/components/SystemInfo/SystemInfo').default,
+      'manager': require('./src/redux').SystemManager
     }
   ]
 };

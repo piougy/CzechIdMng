@@ -23,6 +23,7 @@ public enum CoreResultCode implements ResultCode {
 	NOT_FOUND(HttpStatus.NOT_FOUND, "%s not found."),
 	WF_WARNING(HttpStatus.BAD_REQUEST, "Warning occured during workflow execution: %s"),
 	BAD_FILTER(HttpStatus.BAD_REQUEST, "The filter is wrong!"),
+	UNMODIFIABLE_ATTRIBUTE_CHANGE(HttpStatus.BAD_REQUEST, "Attribute %s for class %s can't be changed!"),
 	// http
 	ENDPOINT_NOT_FOUND(HttpStatus.NOT_FOUND, "The given endpoint doesn't exist!"),
 	METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "Method is not allowed!"),
@@ -112,10 +113,14 @@ public enum CoreResultCode implements ResultCode {
 	NOTIFICATION_TOPIC_AND_LEVEL_EXISTS(HttpStatus.CONFLICT, "Configuration can not be saved. Topic [%s] and null level exists!"),
 	//
 	// Role request
-	ROLE_REQUEST_DUPLICATE_REQUEST(HttpStatus.CONFLICT, "Request [%s] is a duplicated of another request [%s]!"),
-	ROLE_REQUEST_NO_EXECUTE_IMMEDIATELY_RIGHT(HttpStatus.CONFLICT, "You do not have right for immidiately execute role request [%]!"),
+	ROLE_REQUEST_NO_EXECUTE_IMMEDIATELY_RIGHT(HttpStatus.FORBIDDEN, "You do not have right for immidiately execute role request [%]!"),
 	ROLE_REQUEST_APPLICANTS_NOT_SAME(HttpStatus.BAD_REQUEST, "Some concept/s role in role request [%] have different applicant than [%]!"),
+	ROLE_REQUEST_EXECUTED_CANNOT_DELETE(HttpStatus.BAD_REQUEST, "Request [%] in EXECUTED state cannot be deleted!"),
 	ROLE_REQUEST_AUTOMATICALLY_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "Field 'requested by' in request [%] cannot be 'AUTOMATICALLY' via REST API!"),
+	//
+	// Crypt
+	CRYPT_DEMO_KEY_NOT_FOUND(HttpStatus.BAD_REQUEST, "Demo key: [%s] cannot be found! Please create primary key: [%s] or fix demo key."),
+	CRYPT_INITIALIZATION_PROBLEM(HttpStatus.BAD_REQUEST, "Initialization problem, algorithm [%s]."),
 	//
 	// 5xx	
 	INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "%s"),

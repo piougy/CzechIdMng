@@ -10,11 +10,13 @@ import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
+import eu.bcvsolutions.idm.core.model.dto.filter.RoleRequestFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleGuaranteeRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.notification.repository.IdmNotificationRecipientRepository;
 
 /**
@@ -34,6 +36,7 @@ public class IdentityDeleteProcessor extends CoreEventProcessor<IdmIdentity> {
 	private final IdmRoleGuaranteeRepository roleGuaranteeRepository;
 	private final IdmIdentityContractService identityContractService;
 	private final IdmNotificationRecipientRepository notificationRecipientRepository;
+	private final IdmRoleRequestService roleRequestService;
 	
 	@Autowired
 	public IdentityDeleteProcessor(
@@ -42,7 +45,8 @@ public class IdentityDeleteProcessor extends CoreEventProcessor<IdmIdentity> {
 			IdentityPasswordProcessor passwordProcessor,
 			IdmRoleGuaranteeRepository roleGuaranteeRepository,
 			IdmIdentityContractService identityContractService,
-			IdmNotificationRecipientRepository notificationRecipientRepository) {
+			IdmNotificationRecipientRepository notificationRecipientRepository,
+			IdmRoleRequestService roleRequestService) {
 		super(IdentityEventType.DELETE);
 		//
 		Assert.notNull(repository);
@@ -51,6 +55,7 @@ public class IdentityDeleteProcessor extends CoreEventProcessor<IdmIdentity> {
 		Assert.notNull(roleGuaranteeRepository);
 		Assert.notNull(identityContractService);
 		Assert.notNull(notificationRecipientRepository);
+		Assert.notNull(roleRequestService);
 		//
 		this.repository = repository;
 		this.formService = formService;
@@ -58,6 +63,7 @@ public class IdentityDeleteProcessor extends CoreEventProcessor<IdmIdentity> {
 		this.roleGuaranteeRepository = roleGuaranteeRepository;
 		this.identityContractService = identityContractService;
 		this.notificationRecipientRepository = notificationRecipientRepository;
+		this.roleRequestService = roleRequestService;
 	}
 	
 	@Override
@@ -82,9 +88,16 @@ public class IdentityDeleteProcessor extends CoreEventProcessor<IdmIdentity> {
 		formService.deleteValues(identity);
 		// set to null all notification recipients - real recipient remains (email etc.)
 		notificationRecipientRepository.clearIdentity(identity);
+		
+		// Delete all role requests where is this identity applicant
+		RoleRequestFilter roleRequestFilter = new RoleRequestFilter();
+		roleRequestFilter.setApplicantId(identity.getId());
+		roleRequestService.findDto(roleRequestFilter, null).forEach(request ->{
+			roleRequestService.delete(request);
+		});
+		
 		// deletes identity
 		repository.delete(identity);
-		//
 		return new DefaultEventResult<>(event, this);
 	}
 	

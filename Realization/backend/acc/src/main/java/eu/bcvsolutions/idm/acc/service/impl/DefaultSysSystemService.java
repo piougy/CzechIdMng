@@ -402,6 +402,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		if (formDefinition == null) {
 			// we creates new form definition
 			formDefinition = createConnectorFormDefinition(connectorInstance);
+			formDefinition.setUnmodifiable(true);
 		}
 		return formDefinition;
 	}

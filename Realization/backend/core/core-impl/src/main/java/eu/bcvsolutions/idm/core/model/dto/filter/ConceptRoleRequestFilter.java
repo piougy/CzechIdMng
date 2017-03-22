@@ -15,6 +15,9 @@ public class ConceptRoleRequestFilter extends QuickFilter {
 	private UUID roleRequestId;
 	private RoleRequestState state;
 	private UUID identityRoleId;
+	private UUID roleId;
+	private UUID identityContractId;
+	private UUID roleTreeNodeId;
 	
 	public UUID getRoleRequestId() {
 		return roleRequestId;
@@ -38,6 +41,30 @@ public class ConceptRoleRequestFilter extends QuickFilter {
 
 	public void setIdentityRoleId(UUID identityRoleId) {
 		this.identityRoleId = identityRoleId;
+	}
+
+	public UUID getRoleId() {
+		return roleId;
+	}
+
+	public void setRoleId(UUID roleId) {
+		this.roleId = roleId;
+	}
+
+	public UUID getIdentityContractId() {
+		return identityContractId;
+	}
+
+	public void setIdentityContractId(UUID identityContractId) {
+		this.identityContractId = identityContractId;
+	}
+
+	public UUID getRoleTreeNodeId() {
+		return roleTreeNodeId;
+	}
+
+	public void setRoleTreeNodeId(UUID roleTreeNodeId) {
+		this.roleTreeNodeId = roleTreeNodeId;
 	}
 
 }

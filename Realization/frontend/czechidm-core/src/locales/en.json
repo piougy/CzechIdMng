@@ -1857,7 +1857,11 @@
     },
     "FormDefinition" : {
       "type": "Type",
-      "name": "Name"
+      "name": "Name",
+      "unmodifiable": {
+        "help": "System definition can't be deleted and can't be edited some of her attributes.",
+        "label": "System definition"
+       }
     },
     "FormAttribute" : {
       "displayName": "Display name",
@@ -1871,7 +1875,10 @@
       "multiple": "Multi valued",
       "placeholder": "Placeholder",
       "defaultValue": "Default value",
-      "systemAttribute": "System attribute"
+      "unmodifiable": {
+        "help": "System attribute can't be deleted and can't be edited some of his attributes.",
+        "label": "System attribute"
+       }
     },
     "Role": {
       "_type": "Role",
@@ -2053,7 +2060,7 @@
         "name": "Parameters",
         "help": "List of template parameters. Parameters separate by comma."
       },
-      "systemTemplate": {
+      "unmodifiable": {
         "name": "System template",
         "help": "System templates is necessary for correct functioning application. System templates can't be removed or change their code."
       },
@@ -2248,6 +2255,7 @@
       "modified": "Modified",
       "candicateUsers": "Approvers",
       "currentActivity": "State of approval",
+      "originalRequest": "Original request",
       "wfProcessId": "WF identificator"
     },
     "ConceptRoleRequest": {
@@ -2524,16 +2532,44 @@
       "message": "Topic [{{topic}}] and null level exists!."
     },
     "FORM_DEFINITION_DELETE_FAILED_SYSTEM_DEFINITION": {
-      "title": "Form definition can not be saved",
+      "title": "Form definition can not be deleted",
       "message": "Definition [{{name}}] it can't be deleted, because is flagged as system."
     },
     "FORM_ATTRIBUTE_DELETE_FAILED_SYSTEM_ATTRIBUTE": {
-      "title": "Attribute definition can not be saved",
+      "title": "Attribute definition can not be deleted",
       "message": "Attribute [{{name}}] it can't be deleted, because is flagged as system."
+    },
+    "FORM_ATTRIBUTE_DELETE_FAILED_HAS_VALUES": {
+      "title": "Form attribute can not be deleted",
+      "message": "Form attribute cannot be deleted - some form values already using this attribute."
     },
     "ACCEPTED": {
       "title": "Request added",
       "message": "Request will be proccesed / approved."
+    },
+    "ROLE_REQUEST_EXECUTED_CANNOT_DELETE": {
+      "title": "Request for change permission cannot be deleted",
+      "message": "Request for change permission in state 'Executed' cannot be delete!"
+    },
+    "ROLE_REQUEST_APPLICANTS_NOT_SAME": {
+      "title": "Request for change permission have not same applicants",
+      "message": "Some concepts have not same applicant [{{applicant}}]!"
+    },
+    "ROLE_REQUEST_NO_EXECUTE_IMMEDIATELY_RIGHT": {
+      "title": "You don`t have permission for start request for change permissions without approval.",
+      "message": "You don`t have permission (EXECUTEIMMEDIATELY) for start request for change permissions without approval!"
+    },
+    "CRYPT_DEMO_KEY_NOT_FOUND": {
+      "title": "Demo key was not found",
+      "message": "Encryption and decryption into the local repository is not possible."
+    },
+    "CRYPT_INITIALIZATION_PROBLEM": {
+      "title": "Error in initializing an encryption tool",
+      "message": "Encryption and decryption into the local repository is not possible."
+    },
+    "UNMODIFIABLE_ATTRIBUTE_CHANGE": {
+      "title": "Attribute {{name}} can't change",
+      "message": "Attribute {{name}} in entity {{class}} can't change."
     }
   },
   "validationError": {

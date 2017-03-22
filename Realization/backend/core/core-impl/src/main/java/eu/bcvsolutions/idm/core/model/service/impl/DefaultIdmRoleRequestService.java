@@ -127,7 +127,7 @@ public class DefaultIdmRoleRequestService
 			requestDto.setConceptRoles(conceptRoleRequestService.findDto(conceptFilter, null).getContent());
 		}
 		
-		if(requestDto.getWfProcessId() != null){
+		if(requestDto != null && requestDto.getWfProcessId() != null){
 			WorkflowHistoricTaskInstanceDto historicTask = workflowHistoricTaskInstanceService.getTaskByProcessId(requestDto.getWfProcessId());
 			requestDto.getEmbedded().put(IdmRoleRequestDto.WF_PROCESS_FIELD, historicTask);
 		}
@@ -137,13 +137,6 @@ public class DefaultIdmRoleRequestService
 
 	@Override
 	public IdmRoleRequest toEntity(IdmRoleRequestDto dto, IdmRoleRequest entity) {
-		if (entity == null || entity.getId() == null) {
-			try {
-				dto.setOriginalRequest(objectMapper.writeValueAsString(dto));
-			} catch (JsonProcessingException e) {
-				throw new RoleRequestException(CoreResultCode.BAD_REQUEST, e);
-			}
-		}
 		// Set persisted value to read only properties
 		// TODO: Create converter for skip fields mark as read only
 		if (dto.getId() != null) {
@@ -226,6 +219,13 @@ public class DefaultIdmRoleRequestService
 			throw new RoleRequestException(CoreResultCode.ROLE_REQUEST_APPLICANTS_NOT_SAME,
 					ImmutableMap.of("request", request, "applicant", request.getApplicant()));
 		}
+	
+		// Convert whole request to JSON and persist
+		try {
+			request.setOriginalRequest(objectMapper.writeValueAsString(request));
+		} catch (JsonProcessingException e) {
+			throw new RoleRequestException(CoreResultCode.BAD_REQUEST, e);
+		}
 
 		// Request will be set on in progress state
 		request.setState(RoleRequestState.IN_PROGRESS);
@@ -288,9 +288,6 @@ public class DefaultIdmRoleRequestService
 		requestFilter.setState(RoleRequestState.APPROVED);
 		potentialDuplicatedRequests.addAll(this.findDto(requestFilter, null).getContent());
 
-		requestFilter.setState(RoleRequestState.CONCEPT);
-		potentialDuplicatedRequests.addAll(this.findDto(requestFilter, null).getContent());
-
 		Optional<IdmRoleRequestDto> duplicatedRequestOptional = potentialDuplicatedRequests.stream()
 				.filter(requestDuplicate -> {
 					return isDuplicated(request, requestDuplicate) && !(request.getId() != null
@@ -346,7 +343,7 @@ public class DefaultIdmRoleRequestService
 			conceptsToSave.add(concept);
 		});
 
-		// Create new identity role
+		// Update identity role
 		concepts.stream().filter(concept -> {
 			return ConceptRoleRequestOperation.UPDATE == concept.getOperation();
 		}).filter(concept -> {
@@ -453,12 +450,33 @@ public class DefaultIdmRoleRequestService
 			this.addToLog(duplicant, message);
 			this.save(duplicant);
 		});
-	
-		if(!Strings.isNullOrEmpty(dto.getWfProcessId())){
-			workflowProcessInstanceService.delete(dto.getWfProcessId(), "Role request use this WF, was deleted. This WF was deleted too.");
-		}
 		
+		// Stop connected WF process
+		cancelWF(dto);
+
+		// First we have to delete all concepts for this request
+		dto.getConceptRoles().forEach(concept -> {
+			conceptRoleRequestService.delete(concept);
+		});
 		super.delete(dto);
+	}
+	
+	@Override
+	public void cancel(IdmRoleRequestDto dto) {
+		cancelWF(dto);
+		dto.setState(RoleRequestState.CANCELED);
+		this.save(dto);
+	}
+
+	private void cancelWF(IdmRoleRequestDto dto) {
+		if (!Strings.isNullOrEmpty(dto.getWfProcessId())) {
+			workflowProcessInstanceService.delete(dto.getWfProcessId(),
+					"Role request use this WF, was deleted. This WF was deleted too.");
+			this.addToLog(dto,
+					MessageFormat.format(
+							"Workflow process with ID [{0}] was deleted, because this request is deleted/canceled",
+							dto.getWfProcessId()));
+		}
 	}
 
 	private IdmIdentityRole convertConceptRoleToIdentityRole(IdmConceptRoleRequest conceptRole,

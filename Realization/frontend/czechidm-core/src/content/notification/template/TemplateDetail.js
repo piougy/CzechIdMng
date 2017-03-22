@@ -144,7 +144,7 @@ export default class TemplateDetail extends Basic.AbstractContent {
             <Basic.Row>
               <div className="col-lg-3">
                 <Basic.TextField
-                  ref="code" readOnly={entity.systemTemplate}
+                  ref="code" readOnly={entity.unmodifiable}
                   label={this.i18n('entity.NotificationTemplate.code')}
                   required
                   max={255}/>
@@ -158,7 +158,7 @@ export default class TemplateDetail extends Basic.AbstractContent {
               </div>
             </Basic.Row>
             <Basic.TextField
-              ref="parameter" readOnly={entity.systemTemplate} max={255}
+              ref="parameter" readOnly={entity.unmodifiable} max={255}
               label={this.i18n('entity.NotificationTemplate.parameter.name')}
               helpBlock={this.i18n('entity.NotificationTemplate.parameter.help')} />
             <Basic.TextField
@@ -166,10 +166,10 @@ export default class TemplateDetail extends Basic.AbstractContent {
               label={this.i18n('entity.NotificationTemplate.subject')}
               required
               max={255}/>
-            <Basic.Checkbox readOnly={entity.systemTemplate}
-              ref="systemTemplate"
-              label={this.i18n('entity.NotificationTemplate.systemTemplate.name')}
-              helpBlock={this.i18n('entity.NotificationTemplate.systemTemplate.help')}/>
+            <Basic.Checkbox readOnly={entity.unmodifiable}
+              ref="unmodifiable"
+              label={this.i18n('entity.NotificationTemplate.unmodifiable.name')}
+              helpBlock={this.i18n('entity.NotificationTemplate.unmodifiable.help')}/>
             <Basic.TextArea ref="bodyText" label={this.i18n('entity.NotificationTemplate.bodyText')} />
             <Advanced.RichTextArea ref="bodyHtml" label={this.i18n('entity.NotificationTemplate.bodyHtml.name')}
               showToolbar

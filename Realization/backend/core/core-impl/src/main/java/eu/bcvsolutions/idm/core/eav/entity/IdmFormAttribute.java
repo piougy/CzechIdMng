@@ -24,6 +24,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
+import eu.bcvsolutions.idm.core.api.entity.UnmodifiableEntity;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 
 /**
@@ -39,7 +40,7 @@ import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 		@Index(name = "ux_idm_f_a_definition_name", columnList = "definition_id, name", unique = true) })
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class IdmFormAttribute extends AbstractEntity {
+public class IdmFormAttribute extends AbstractEntity implements UnmodifiableEntity {
 
 	private static final long serialVersionUID = 6037781154742359100L;
 	//
@@ -99,8 +100,8 @@ public class IdmFormAttribute extends AbstractEntity {
 	private String defaultValue;
 	
 	@NotNull
-	@Column(name = "system_attribute", nullable = false)
-	private boolean systemAttribute = true;
+	@Column(name = "unmodifiable", nullable = false)
+	private boolean unmodifiable = false;
 
 	public IdmFormAttribute() {
 	}
@@ -258,11 +259,13 @@ public class IdmFormAttribute extends AbstractEntity {
 		this.placeholder = placeholder;
 	}
 
-	public boolean isSystemAttribute() {
-		return systemAttribute;
+	@Override
+	public boolean isUnmodifiable() {
+		return this.unmodifiable;
 	}
 
-	public void setSystemAttribute(boolean systemAttribute) {
-		this.systemAttribute = systemAttribute;
-	}
+	@Override
+	public void setUnmodifiable(boolean unmodifiable) {
+		this.unmodifiable = unmodifiable;
+	}	
 }

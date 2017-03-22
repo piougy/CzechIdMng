@@ -51,6 +51,7 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.core.security.api.authentication.AuthenticationManager;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
+import eu.bcvsolutions.idm.core.security.exception.IdmAuthenticationException;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
@@ -248,7 +249,7 @@ public class DefaultAccAuthenticatorTest extends AbstractIntegrationTest {
 		assertEquals("core", loginDto.getAuthenticationModule());
 	}
 	
-	@Test(expected = ResultCodeException.class)
+	@Test(expected = IdmAuthenticationException.class)
 	public void loginViaManagerBadCredentials() {
 		IdmIdentity identity = identityService.getByUsername(USERNAME);
 

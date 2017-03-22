@@ -2281,6 +2281,7 @@
       "modified": "Upraveno",
       "candicateUsers": "Schvalují",
       "currentActivity": "Stav schvalování",
+      "originalRequest": "Žádost v okamžiku podání",
       "wfProcessId": "WF ID"
     },
     "ConceptRoleRequest": {
@@ -2572,6 +2573,18 @@
     "ACCEPTED": {
       "title": "Požadavek přijat",
       "message": "Požadavek byl předán ke zpracování či schválení."
+    },
+    "ROLE_REQUEST_EXECUTED_CANNOT_DELETE": {
+      "title": "Žádost o změnu opravnění nemohla být smazána",
+      "message": "Žádost ve stavu 'Provedeno' nemůže být smazána!"
+    },
+    "ROLE_REQUEST_APPLICANTS_NOT_SAME": {
+      "title": "Žádost o změnu opravnění nemá stejné žadatele",
+      "message": "Některé koncepty nemají stejného žadatele [{{applicant}}]!"
+    },
+    "ROLE_REQUEST_NO_EXECUTE_IMMEDIATELY_RIGHT": {
+      "title": "Nemáte oprávnění pro podání žádosti bez schválení",
+      "message": "Nemáte oprávnění pro podání žádosti bez schválení!"
     },
     "CRYPT_DEMO_KEY_NOT_FOUND": {
       "title": "Demo klíč pro šifrování nebyl nalezen",

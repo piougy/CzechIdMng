@@ -107,6 +107,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
       return;
     }
 
+    this.setState({showLoading: true});
     const formEntity = this.refs.form.getData();
 
     if (formEntity.id === undefined) {
@@ -123,6 +124,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
   }
 
   afterSave(entity, error) {
+    this.setState({showLoading: false});
     if (!error) {
       const {adminMode} = this.state;
       this.addMessage({ message: this.i18n('save.success') });
@@ -135,6 +137,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
   }
 
   afterSaveAndStartRequest(entity, error) {
+    this.setState({showLoading: false});
     if (!error) {
       this._startRequest(entity.id);
     } else {
@@ -415,12 +418,33 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
                 ref="executeImmediately"
                 hidden={!_adminMode}
                 label={this.i18n('entity.RoleRequest.executeImmediately')}/>
+              <Basic.TextField
+                ref="wfProcessId"
+                hidden={!_adminMode}
+                readOnly
+                label={this.i18n('entity.RoleRequest.wfProcessId')}/>
+              <Basic.TextField
+                ref="currentActivity"
+                hidden={!_adminMode}
+                readOnly
+                label={this.i18n('entity.RoleRequest.currentActivity')}/>
+              <Basic.TextField
+                ref="candicateUsers"
+                hidden={!_adminMode}
+                readOnly
+                label={this.i18n('entity.RoleRequest.candicateUsers')}/>
               <Basic.TextArea
                 ref="log"
                 rows="8"
                 hidden={!_adminMode}
                 readOnly
                 label={this.i18n('entity.RoleRequest.log')}/>
+              <Basic.TextArea
+                ref="originalRequest"
+                rows="5"
+                hidden={!_adminMode}
+                readOnly
+                label={this.i18n('entity.RoleRequest.originalRequest')}/>
               <Basic.TextArea
                 ref="description"
                 rows="3"
@@ -505,6 +529,10 @@ function select(state, component) {
     _currentIdentityRoles = identityRoleManager.getEntities(state, `${uiKey}-${entity.applicant}`);
   } else if (applicantFromUrl) {
     _currentIdentityRoles = identityRoleManager.getEntities(state, `${uiKey}-${applicantFromUrl}`);
+  }
+  if (entity && entity._embedded && entity._embedded.wfProcessId) {
+    entity.currentActivity = entity._embedded.wfProcessId.name;
+    entity.candicateUsers = entity._embedded.wfProcessId.candicateUsers;
   }
   return {
     _request: entity,

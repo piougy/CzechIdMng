@@ -14,7 +14,11 @@ export default class FormAttributes extends Basic.AbstractContent {
   }
 
   componentDidMount() {
-    this.selectNavigationItems(['system', 'forms', 'forms-attributes']);
+    super.componentDidMount();
+  }
+
+  getNavigationKey() {
+    return 'forms-attributes';
   }
 
   render() {
@@ -25,9 +29,6 @@ export default class FormAttributes extends Basic.AbstractContent {
         <Basic.PanelBody style={{ padding: 0 }}>
         <FormAttributeTable formDefinitionId={entityId} />
         </Basic.PanelBody>
-        <Basic.PanelFooter>
-          <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>{this.i18n('button.back')}</Basic.Button>
-        </Basic.PanelFooter>
       </Basic.Panel>
     );
   }

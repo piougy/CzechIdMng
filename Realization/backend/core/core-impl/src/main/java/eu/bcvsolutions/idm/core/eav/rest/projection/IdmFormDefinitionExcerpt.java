@@ -22,4 +22,6 @@ public interface IdmFormDefinitionExcerpt extends AbstractDtoProjection {
 	String getName();
 	
 	List<IdmFormAttribute> getFormAttributes();
+	
+	boolean isUnmodifiable();
 }

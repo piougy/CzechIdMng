@@ -13,6 +13,7 @@ import org.hibernate.envers.Audited;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.IdentifiableByName;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
+import eu.bcvsolutions.idm.core.api.entity.UnmodifiableEntity;
 
 /**
  * Entity that store email/text templates for apache velocity
@@ -25,7 +26,7 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 @Table(name = "idm_notification_template", indexes = { 
 		@Index(name = "ux_idm_notification_template_name", columnList = "name", unique = true),
 		@Index(name = "ux_idm_notification_template_code", columnList = "code", unique = true)})
-public class IdmNotificationTemplate extends AbstractEntity implements IdentifiableByName {
+public class IdmNotificationTemplate extends AbstractEntity implements IdentifiableByName, UnmodifiableEntity {
 
 	private static final long serialVersionUID = 4978924621333160086L;
 	
@@ -61,22 +62,14 @@ public class IdmNotificationTemplate extends AbstractEntity implements Identifia
 	@Column(name = "parameter")
 	private String parameter; // TODO: better place/table? Only information characters
 	
-	@Audited
-	@Column(name = "system_template", nullable = false)
-	private boolean systemTemplate = false;
+	@NotNull
+	@Column(name = "unmodifiable", nullable = false)
+	private boolean unmodifiable = false;
 	
 	@Audited
 	@Size(max = DefaultFieldLengths.NAME)
 	@Column(name = "module")
 	private String module;
-	
-	public boolean isSystemTemplate() {
-		return systemTemplate;
-	}
-
-	public void setSystemTemplate(boolean systemTemplate) {
-		this.systemTemplate = systemTemplate;
-	}
 
 	public String getBodyHtml() {
 		return bodyHtml;
@@ -138,5 +131,15 @@ public class IdmNotificationTemplate extends AbstractEntity implements Identifia
 
 	public void setModule(String module) {
 		this.module = module;
+	}
+
+	@Override
+	public boolean isUnmodifiable() {
+		return this.unmodifiable;
+	}
+
+	@Override
+	public void setUnmodifiable(boolean unmodifiable) {
+		this.unmodifiable = unmodifiable;
 	}
 }

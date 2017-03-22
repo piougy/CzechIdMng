@@ -23,7 +23,7 @@ class FormDetail extends Basic.AbstractContent {
   }
 
   componentDidMount() {
-    this.selectNavigationItems(['system', 'forms', 'forms-detail']);
+    super.componentDidMount();
     const { entityId } = this.props.params;
     const { isNew } = this.props;
 
@@ -34,8 +34,10 @@ class FormDetail extends Basic.AbstractContent {
           types,
           _showLoading: false
         });
+        // set focus into name, only when is new
+        this.refs.name.focus();
       }));
-      this.context.store.dispatch(manager.receiveEntity(entityId, { systemDefinition: false }));
+      this.context.store.dispatch(manager.receiveEntity(entityId, { unmodifiable: false }));
     } else {
       this.getLogger().debug(`[FormDetail] loading entity detail [id:${entityId}]`);
       this.context.store.dispatch(manager.fetchEntity(entityId, null, () => {
@@ -44,6 +46,10 @@ class FormDetail extends Basic.AbstractContent {
         });
       }));
     }
+  }
+
+  getNavigationKey() {
+    return 'forms-detail';
   }
 
   save(event) {
@@ -115,6 +121,7 @@ class FormDetail extends Basic.AbstractContent {
               ?
               <Basic.EnumSelectBox
                 ref="type"
+                label={this.i18n('entity.FormDefinition.type')}
                 placeholder={this.i18n('entity.FormDefinition.type')}
                 required
                 showLoading={types}
@@ -126,6 +133,11 @@ class FormDetail extends Basic.AbstractContent {
                 label={this.i18n('entity.FormDefinition.type')}
                 max={255}/>
             }
+          <Basic.Checkbox
+            ref="unmodifiable"
+            readOnly
+            label={this.i18n('entity.FormDefinition.unmodifiable.label')}
+            helpBlock={this.i18n('entity.FormDefinition.unmodifiable.help')}/>
           </Basic.AbstractForm>
           </Basic.PanelBody>
           <Basic.PanelFooter showLoading={showLoading} >

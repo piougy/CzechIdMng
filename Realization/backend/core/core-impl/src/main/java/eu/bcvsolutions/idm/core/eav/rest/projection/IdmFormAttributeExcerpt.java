@@ -40,5 +40,5 @@ public interface IdmFormAttributeExcerpt extends AbstractDtoProjection {
 	
 	String getPlaceholder();
 	
-	boolean isSystemAttribute();
+	boolean isUnmodifiable();
 }

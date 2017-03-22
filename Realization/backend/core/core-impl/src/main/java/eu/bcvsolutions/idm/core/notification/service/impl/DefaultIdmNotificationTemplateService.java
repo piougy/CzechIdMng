@@ -103,7 +103,7 @@ public class DefaultIdmNotificationTemplateService extends AbstractReadWriteEnti
 	@Override
 	@Transactional
 	public void delete(IdmNotificationTemplate entity) {
-		if (entity.isSystemTemplate()) {
+		if (entity.isUnmodifiable()) {
 			throw new ResultCodeException(CoreResultCode.NOTIFICATION_SYSTEM_TEMPLATE_DELETE_FAILED, ImmutableMap.of("template", entity.getName()));
 		}
 		super.delete(entity);
@@ -210,6 +210,7 @@ public class DefaultIdmNotificationTemplateService extends AbstractReadWriteEnti
 		DocumentBuilder builder;
 		try {
 			builder = factory.newDocumentBuilder();
+			LOG.info("[DefaultIdmNotificationTemplateService] initialization system template from path: {}, with file sufix: {} ", TEMPLATE_FOLDER, TEMPLATE_FILE_SUFIX);
 			//
 			// found all resources on all classpath by properties from configuration file
 			Resource[] resources = applicationContext.getResources(configurationService.getValue(TEMPLATE_FOLDER) + configurationService.getValue(TEMPLATE_FILE_SUFIX));
@@ -232,15 +233,17 @@ public class DefaultIdmNotificationTemplateService extends AbstractReadWriteEnti
 							//
 							// try to found template by code, if not found save it
 							String code = temp.getElementsByTagName("code").item(0).getTextContent();
+							LOG.info("[DefaultIdmNotificationTemplateService] Load template with code {} ", code);
 							IdmNotificationTemplate oldTemplate = this.getTemplateByCode(code);
 							if (oldTemplate == null) {
+								LOG.info("[DefaultIdmNotificationTemplateService] Create template with code {} ", code);
 								newTemplate.setName(temp.getElementsByTagName("name").item(0).getTextContent());
 								newTemplate.setCode(code);
 								newTemplate.setSubject(temp.getElementsByTagName("subject").item(0).getTextContent());
 								newTemplate.setBodyHtml(temp.getElementsByTagName("bodyHtml").item(0).getTextContent());
 								newTemplate.setBodyText(temp.getElementsByTagName("bodyText").item(0).getTextContent());
 								newTemplate.setParameter(temp.getElementsByTagName("parameter").item(0).getTextContent());
-								newTemplate.setSystemTemplate(new Boolean(temp.getElementsByTagName("systemTemplate").item(0).getTextContent()));
+								newTemplate.setUnmodifiable(new Boolean(temp.getElementsByTagName("systemTemplate").item(0).getTextContent()));
 								newTemplate.setModule(temp.getElementsByTagName("moduleId").item(0).getTextContent());
 								//
 								entities.add(newTemplate);
@@ -260,7 +263,7 @@ public class DefaultIdmNotificationTemplateService extends AbstractReadWriteEnti
 	@Override
 	public List<IdmNotificationTemplate> findAllSystemTemplates() {
 		NotificationTemplateFilter filter = new NotificationTemplateFilter();
-		filter.setSystemTemplate(true);
+		filter.setUnmodifiable(true);
 		return this.find(filter, null).getContent();
 	}
 

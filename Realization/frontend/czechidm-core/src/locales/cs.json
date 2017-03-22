@@ -1884,7 +1884,11 @@
     },
     "FormDefinition" : {
       "type": "Typ",
-      "name": "Jméno"
+      "name": "Jméno",
+      "unmodifiable": {
+        "help": "Systémová definice nemůže být smazána a nelze upravovat některé její atributy.",
+        "label": "Systémová definice"
+       }
     },
     "FormAttribute" : {
       "displayName": "Jméno položky",
@@ -1898,7 +1902,10 @@
       "multiple": "Více hodnotový",
       "placeholder": "Placeholder",
       "defaultValue": "Výchozí hodnota",
-      "systemAttribute": "Systémový atribut"
+      "unmodifiable": {
+        "help": "Systémový atribut nemůže být smazán a nelze upravovat některé jeho atributy.",
+        "label": "Systémový atribut"
+       }
     },
     "Role": {
       "_type": "Role",
@@ -2080,7 +2087,7 @@
         "name": "Parametry",
         "help": "Seznam parametrů šablony. Parametry oddělujte čárkou."
       },
-      "systemTemplate": {
+      "unmodifiable": {
         "name": "Systémová šablona",
         "help": "Systémová šablona je nezbytná pro správný chod aplikace, nelze odstranit a změnit její kód."
       },
@@ -2558,6 +2565,10 @@
       "title": "Atribut formuláře nelze smazat",
       "message": "Atribut [{{name}}] nelze smazat, protože je označený jako systémový."
     },
+    "FORM_ATTRIBUTE_DELETE_FAILED_HAS_VALUES": {
+      "title": "Atribut formuláře nelze smazat",
+      "message": "Atribut nelze smazat, některé formulářové hodnoty používají tento atribut."
+    },
     "ACCEPTED": {
       "title": "Požadavek přijat",
       "message": "Požadavek byl předán ke zpracování či schválení."
@@ -2569,6 +2580,10 @@
     "CRYPT_INITIALIZATION_PROBLEM": {
       "title": "Chyba v inicializaci šifrovacího nástroje",
       "message": "Šifrování a dešifrování do lokálního repozitáře není možné."
+    },
+    "UNMODIFIABLE_ATTRIBUTE_CHANGE": {
+      "title": "Atribut {{name}} nelze změnit",
+      "message": "Atribut {{name}} v entitě {{class}} nelze změnit."
     }
   },
   "validationError": {

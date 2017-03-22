@@ -155,6 +155,7 @@ export default class FormTable extends Basic.AbstractContent {
                   return this._getType(data[rowIndex][property]);
                 }}/>
             <Advanced.Column property="name" sort/>
+            <Advanced.Column property="unmodifiable" header={this.i18n('entity.FormDefinition.unmodifiable.label')} face="bool" sort />
           </Advanced.Table>
         </div>
       </Basic.Row>

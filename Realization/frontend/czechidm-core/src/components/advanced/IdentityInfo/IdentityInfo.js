@@ -126,7 +126,8 @@ export class IdentityInfo extends AbstractEntityInfo {
     if (showLoading || (_showLoading && this._id() && !_identity)) {
       switch (face) {
         case 'text':
-        case 'link': {
+        case 'link':
+        case 'popover': {
           return (
             <Basic.Icon value="refresh" showLoading className={className} style={style}/>
           );

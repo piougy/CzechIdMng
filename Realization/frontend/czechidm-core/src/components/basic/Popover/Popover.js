@@ -40,6 +40,10 @@ export default class BasicPopover extends AbstractComponent {
             id={_id}
             className={classNames}
             title={
+              !title
+              ?
+              null
+              :
               <div>
                 {
                   !icon

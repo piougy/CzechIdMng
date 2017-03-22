@@ -2123,7 +2123,8 @@
       "type": "Entity type",
       "key": "Attribute",
       "value": "Value",
-      "entityId": "Entity ID"
+      "entityId": "Entity ID",
+      "entity": "Entita (IdM)"
     },
     "PasswordPolicy": {
       "type": "Type",

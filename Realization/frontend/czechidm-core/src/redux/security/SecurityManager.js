@@ -263,7 +263,7 @@ export default class SecurityManager {
     if (!accessItems) {
       return false;
     }
-    if (!Array.isArray(accessItems)) {
+    if (!_.isArray(accessItems)) {
       accessItems = [accessItems];
     }
 
@@ -315,7 +315,7 @@ export default class SecurityManager {
     if (accessItems.length === 0) {
       return false;
     }
-    if (!Array.isArray(accessItems)) {
+    if (!_.isArray(accessItems)) {
       accessItems = [accessItems];
     }
     return accessItems.some(accessItem => {

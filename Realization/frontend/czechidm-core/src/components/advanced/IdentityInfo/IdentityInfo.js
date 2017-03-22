@@ -6,44 +6,48 @@ import { Link } from 'react-router';
 import * as Basic from '../../basic';
 import * as Utils from '../../../utils';
 import { IdentityManager, SecurityManager } from '../../../redux/';
+import UuidInfo from '../UuidInfo/UuidInfo';
+import AbstractEntityInfo from '../EntityInfo/AbstractEntityInfo';
 
 const identityManager = new IdentityManager();
 
-export class IdentityInfo extends Basic.AbstractContextComponent {
+/**
+ * Identity basic information (info card)
+ *
+ * @author Radek Tomiška
+ */
+export class IdentityInfo extends AbstractEntityInfo {
 
   constructor(props, context) {
     super(props, context);
   }
 
-  componentDidMount() {
-    this._loadIdentityIfNeeded();
-  }
-
-  componentDidUpdate() {
-    this._loadIdentityIfNeeded();
+  getManager() {
+    return identityManager;
   }
 
   /**
    * if username is setted and identity is not - then load identity
    */
-  _loadIdentityIfNeeded() {
-    const { identity, _identity } = this.props;
-    if (this._id() && !identity && !_identity) {
+  loadIdentityIfNeeded() {
+    const { entity, _identity } = this.props;
+    if (this._id() && !entity && !_identity) {
       const uiKey = identityManager.resolveUiKey(null, this._id());
+      const error = Utils.Ui.getError(this.context.store.getState(), uiKey);
       if (!Utils.Ui.isShowLoading(this.context.store.getState(), uiKey)
-          && !Utils.Ui.getError(this.context.store.getState(), uiKey)) { // show loading check has to be here - new state is needed
+          && (!error || error.statusCode === 401)) { // show loading check has to be here - new state is needed
         this.context.store.dispatch(identityManager.fetchEntityIfNeeded(this._id(), null, () => {}));
       }
     }
   }
 
   _id() {
-    const { username, id } = this.props;
+    const { username, entityIdentifier } = this.props;
     // id ha higher priority
-    return id || username;
+    return entityIdentifier || username;
   }
 
-  _showLink() {
+  showLink() {
     const { showLink } = this.props;
     if (!showLink) {
       return false;
@@ -54,17 +58,16 @@ export class IdentityInfo extends Basic.AbstractContextComponent {
     return true;
   }
 
-  render() {
-    const { rendered, showLoading, className, identity, face, _showLoading, style } = this.props;
+  /**
+   * Renders full info card
+   */
+  _renderFull() {
+    const { className, entity, style } = this.props;
     //
-    if (!rendered) {
-      return null;
-    }
     let _identity = this.props._identity;
-    if (identity) { // identity prop has higher priority
-      _identity = identity;
+    if (entity) { // identity prop has higher priority
+      _identity = entity;
     }
-
     //
     const panelClassNames = classNames(
       'identity-info',
@@ -72,8 +75,57 @@ export class IdentityInfo extends Basic.AbstractContextComponent {
       { 'panel-warning': _identity && _identity.disabled },
       className
     );
+    //
+    return (
+      <Basic.Panel className={panelClassNames} style={style}>
+        <Basic.PanelHeader>
+          <Basic.Row>
+            <div className="col-lg-2">
+              {
+                _identity.disabled
+                ?
+                <Basic.Icon type="fa" icon="user-times" className="fa-4x"/>
+                :
+                <Basic.Icon type="fa" icon="user" className="fa-4x"/>
+              }
+            </div>
+            <div className="col-lg-10">
+              <div><strong>{identityManager.getNiceLabel(_identity)}</strong></div>
+              <div>{_identity.email}</div>
+              <div>{_identity.phone}</div>
+              <div><i>{_identity.disabled ? this.i18n('component.advanced.IdentityInfo.disabledInfo') : null}</i></div>
+              {
+                !this.showLink()
+                ||
+                <div>
+                  <Link to={`/identity/${this._id()}/profile`}>
+                    <Basic.Icon value="fa:angle-double-right"/>
+                    {' '}
+                    {this.i18n('component.advanced.IdentityInfo.profileLink')}
+                  </Link>
+                </div>
+              }
+            </div>
+          </Basic.Row>
+        </Basic.PanelHeader>
+      </Basic.Panel>
+    );
+  }
+
+  render() {
+    const { rendered, showLoading, className, entity, face, _showLoading, style } = this.props;
+    //
+    if (!rendered) {
+      return null;
+    }
+    let _identity = this.props._identity;
+    if (entity) { // identity prop has higher priority
+      _identity = entity;
+    }
+    //
     if (showLoading || (_showLoading && this._id() && !_identity)) {
       switch (face) {
+        case 'text':
         case 'link': {
           return (
             <Basic.Icon value="refresh" showLoading className={className} style={style}/>
@@ -90,100 +142,75 @@ export class IdentityInfo extends Basic.AbstractContextComponent {
       if (!this._id()) {
         return null;
       }
-      return (<span>{this._id()}</span>);
+      return (<UuidInfo className={className} value={ this._id() } style={style} />);
     }
     //
     switch (face) {
+      case 'text':
       case 'link': {
-        if (!this._showLink()) {
+        if (!this.showLink() || face === 'text') {
           return (
-            <span>{ identityManager.getNiceLabel(_identity) }</span>
+            <span className={className} style={style}>{ identityManager.getNiceLabel(_identity) }</span>
           );
         }
         return (
           <Link to={`/identity/${this._id()}/profile`}>{identityManager.getNiceLabel(_identity)}</Link>
         );
       }
-      default: {
+      case 'popover': {
         return (
-          <Basic.Panel className={panelClassNames} style={style}>
-            <Basic.PanelHeader>
-              <Basic.Row>
-                <div className="col-lg-2">
-                  {
-                    _identity.disabled
-                    ?
-                    <Basic.Icon type="fa" icon="user-times" className="fa-4x"/>
-                    :
-                    <Basic.Icon type="fa" icon="user" className="fa-4x"/>
-                  }
-                </div>
-                <div className="col-lg-10">
-                  <div><strong>{identityManager.getNiceLabel(_identity)}</strong></div>
-                  <div>{_identity.email}</div>
-                  <div>{_identity.phone}</div>
-                  <div><i>{_identity.disabled ? this.i18n('component.advanced.IdentityInfo.disabledInfo') : null}</i></div>
-                  {
-                    !this._showLink()
-                    ||
-                    <div>
-                      <Link to={`/identity/${this._id()}/profile`}>
-                        <Basic.Icon value="fa:angle-double-right"/>
-                        {' '}
-                        {this.i18n('component.advanced.IdentityInfo.profileLink')}
-                      </Link>
-                    </div>
-                  }
-                </div>
-              </Basic.Row>
-            </Basic.PanelHeader>
-          </Basic.Panel>
+          <Basic.Popover
+            trigger="click"
+            value={this._renderFull()}
+            className="identity-info-popover">
+            {
+              <span
+                className={ classNames }
+                style={ style }>
+                <a href="#" onClick={ (e) => e.preventDefault() }>{ identityManager.getNiceLabel(_identity) }</a>
+              </span>
+            }
+          </Basic.Popover>
         );
+      }
+      default: {
+        return this._renderFull();
       }
     }
   }
 }
 
 IdentityInfo.propTypes = {
-  ...Basic.AbstractContextComponent.propTypes,
+  ...AbstractEntityInfo.propTypes,
   /**
-   * Selected identity
+   * Selected entity - has higher priority
    */
-  identity: PropTypes.object,
+  entity: PropTypes.object,
   /**
-   * Selected identity's username - identity will be loaded automatically
+   * Selected identity's username - identity will be loaded automatically  (username entityIdentifier)
    */
   username: PropTypes.string,
   /**
    * Selected identity's id (username alias) - identity will be loaded automatically
    */
-  id: PropTypes.string,
+  entityIdentifier: PropTypes.string,
   /**
    * Internal identity loaded by given username
    */
   _identity: PropTypes.object,
-  /**
-   * Decorator
-   */
-  face: PropTypes.oneOf(['full', 'link']),
-  /**
-   * Shows link to full identity detail (if currently logged user has appropriate permission)
-   */
-  showLink: PropTypes.bool,
   _showLoading: PropTypes.bool
 };
 IdentityInfo.defaultProps = {
-  ...Basic.AbstractContextComponent.defaultProps,
-  identity: null,
+  ...AbstractEntityInfo.defaultProps,
+  entity: null,
   face: 'full',
-  showLink: true,
   _showLoading: true,
 };
 
 function select(state, component) {
   return {
-    _identity: identityManager.getEntity(state, component.id || component.username),
-    _showLoading: identityManager.isShowLoading(state, null, component.id || component.username)
+    _identity: identityManager.getEntity(state, component.entityIdentifier || component.username),
+    _showLoading: identityManager.isShowLoading(state, null, component.entityIdentifier || component.username)
   };
 }
 export default connect(select)(IdentityInfo);

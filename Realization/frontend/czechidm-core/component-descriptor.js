@@ -1,4 +1,3 @@
-
 module.exports = {
   'id': 'core',
   'name': 'Core',
@@ -30,6 +29,20 @@ module.exports = {
       'id': 'password-change-content',
       'priority': 0,
       'component': require('./src/content/identity/PasswordChangeContent')
+    },
+    {
+      'id': 'identity-info',
+      'type': 'entity-info',
+      'entityType': ['identity', 'IdmIdentity'],
+      'component': require('./src/components/advanced/IdentityInfo/IdentityInfo').default,
+      'manager': require('./src/redux').IdentityManager
+    },
+    {
+      'id': 'role-info',
+      'type': 'entity-info',
+      'entityType': ['role', 'IdmRole'],
+      'component': require('./src/components/advanced/RoleInfo/RoleInfo').default,
+      'manager': require('./src/redux').RoleManager
     }
   ]
 };

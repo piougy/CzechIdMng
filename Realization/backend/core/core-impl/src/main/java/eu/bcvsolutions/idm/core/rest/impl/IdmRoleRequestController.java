@@ -9,6 +9,7 @@ import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -92,7 +93,7 @@ public class IdmRoleRequestController extends DefaultReadWriteDtoController<IdmR
 			service.cancel(dto);
 		}
 		
-		return super.delete(backendId);
+		return new ResponseEntity<Object>(HttpStatus.NO_CONTENT);
 	}
 
 	@ResponseBody

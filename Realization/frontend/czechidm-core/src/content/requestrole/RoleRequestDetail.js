@@ -440,6 +440,12 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
                 readOnly
                 label={this.i18n('entity.RoleRequest.log')}/>
               <Basic.TextArea
+                ref="originalRequest"
+                rows="5"
+                hidden={!_adminMode}
+                readOnly
+                label={this.i18n('entity.RoleRequest.originalRequest')}/>
+              <Basic.TextArea
                 ref="description"
                 rows="3"
                 placeholder={this.i18n('entity.RoleRequest.description.placeholder')}

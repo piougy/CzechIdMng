@@ -127,7 +127,7 @@ public class DefaultIdmRoleRequestService
 			requestDto.setConceptRoles(conceptRoleRequestService.findDto(conceptFilter, null).getContent());
 		}
 		
-		if(requestDto.getWfProcessId() != null){
+		if(requestDto != null && requestDto.getWfProcessId() != null){
 			WorkflowHistoricTaskInstanceDto historicTask = workflowHistoricTaskInstanceService.getTaskByProcessId(requestDto.getWfProcessId());
 			requestDto.getEmbedded().put(IdmRoleRequestDto.WF_PROCESS_FIELD, historicTask);
 		}
@@ -137,13 +137,6 @@ public class DefaultIdmRoleRequestService
 
 	@Override
 	public IdmRoleRequest toEntity(IdmRoleRequestDto dto, IdmRoleRequest entity) {
-		if (entity == null || entity.getId() == null) {
-			try {
-				dto.setOriginalRequest(objectMapper.writeValueAsString(dto));
-			} catch (JsonProcessingException e) {
-				throw new RoleRequestException(CoreResultCode.BAD_REQUEST, e);
-			}
-		}
 		// Set persisted value to read only properties
 		// TODO: Create converter for skip fields mark as read only
 		if (dto.getId() != null) {
@@ -225,6 +218,13 @@ public class DefaultIdmRoleRequestService
 		if (identityNotSame) {
 			throw new RoleRequestException(CoreResultCode.ROLE_REQUEST_APPLICANTS_NOT_SAME,
 					ImmutableMap.of("request", request, "applicant", request.getApplicant()));
+		}
+	
+		// Convert whole request to JSON and persist
+		try {
+			request.setOriginalRequest(objectMapper.writeValueAsString(request));
+		} catch (JsonProcessingException e) {
+			throw new RoleRequestException(CoreResultCode.BAD_REQUEST, e);
 		}
 
 		// Request will be set on in progress state
@@ -343,7 +343,7 @@ public class DefaultIdmRoleRequestService
 			conceptsToSave.add(concept);
 		});
 
-		// Create new identity role
+		// Update identity role
 		concepts.stream().filter(concept -> {
 			return ConceptRoleRequestOperation.UPDATE == concept.getOperation();
 		}).filter(concept -> {

@@ -2274,6 +2274,7 @@
       "modified": "Upraveno",
       "candicateUsers": "Schvalují",
       "currentActivity": "Stav schvalování",
+      "originalRequest": "Žádost v okamžiku podání",
       "wfProcessId": "WF ID"
     },
     "ConceptRoleRequest": {

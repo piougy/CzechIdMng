@@ -2247,6 +2247,7 @@
       "modified": "Modified",
       "candicateUsers": "Approvers",
       "currentActivity": "State of approval",
+      "originalRequest": "Original request",
       "wfProcessId": "WF identificator"
     },
     "ConceptRoleRequest": {

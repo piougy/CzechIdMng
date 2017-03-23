@@ -26,7 +26,7 @@ import eu.bcvsolutions.idm.core.model.repository.IdmTreeTypeRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeTypeService;
 
-@Service
+@Service("treeTypeService")
 public class DefaultIdmTreeTypeService extends AbstractReadWriteEntityService<IdmTreeType, QuickFilter> implements IdmTreeTypeService {
 
 	private final IdmTreeTypeRepository repository;

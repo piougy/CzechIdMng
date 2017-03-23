@@ -83,8 +83,7 @@ public class RoleDeleteProcessor extends CoreEventProcessor<IdmRole> {
 		RoleTreeNodeFilter filter = new RoleTreeNodeFilter();
 		filter.setRoleId(role.getId());
 		roleTreeNodeService.findDto(filter, null).forEach(roleTreeNode -> {
-			// delete without approving
-			roleTreeNodeService.deleteInternal(roleTreeNode);
+			roleTreeNodeService.delete(roleTreeNode);
 		});
 		// Find all concepts and remove relation on role
 		ConceptRoleRequestFilter conceptRequestFilter = new ConceptRoleRequestFilter();

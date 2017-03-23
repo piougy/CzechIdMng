@@ -83,8 +83,7 @@ public class TreeNodeDeleteProcessor extends CoreEventProcessor<IdmTreeNode> {
 		RoleTreeNodeFilter filter = new RoleTreeNodeFilter();
 		filter.setTreeNodeId(treeNode.getId());
 		roleTreeNodeService.findDto(filter, null).forEach(roleTreeNode -> {
-			// delete without approving
-			roleTreeNodeService.deleteInternal(roleTreeNode);
+			roleTreeNodeService.delete(roleTreeNode);
 		});
 		//
 		repository.delete(saveProcessor.getForestContentService().deleteIndex(treeNode));

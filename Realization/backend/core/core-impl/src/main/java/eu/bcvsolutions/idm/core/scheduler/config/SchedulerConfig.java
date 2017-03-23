@@ -3,6 +3,10 @@ package eu.bcvsolutions.idm.core.scheduler.config;
 import java.io.IOException;
 import java.util.Properties;
 
+import javax.sql.DataSource;
+
+import org.apache.commons.lang3.StringUtils;
+import org.quartz.simpl.RAMJobStore;
 import org.springframework.beans.factory.config.PropertiesFactoryBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.ApplicationContext;
@@ -49,12 +53,17 @@ public class SchedulerConfig {
 	@Bean
     public SchedulerFactoryBean schedulerFactoryBean(ApplicationContext context) {
 		try {
+			Properties quartzProperties = quartzProperties();
 			SchedulerFactoryBean factory = new SchedulerFactoryBean();
 	        factory.setOverwriteExistingJobs(true); // update triggers in DB whe config file is changed
-	        // TODO: after flyway will be enabled
-	        // factory.setDataSource(dataSource);
+	        // if store is set to DB set data source, else store in RAM
+	        Object store = quartzProperties.get("org.quartz.jobStore.class");
+	        if (store != null && !StringUtils.equals(store.toString(), RAMJobStore.class.getCanonicalName())) {
+	        	DataSource dataSource = (DataSource)context.getBean("dataSource");
+	        	factory.setDataSource(dataSource);
+	        }
 	        factory.setJobFactory(jobFactory(context));
-	        factory.setQuartzProperties(quartzProperties());
+	        factory.setQuartzProperties(quartzProperties);
 	        return factory;
 		} catch (IOException ex) {
 			throw new CoreException("Quartz properties initialization failed", ex);

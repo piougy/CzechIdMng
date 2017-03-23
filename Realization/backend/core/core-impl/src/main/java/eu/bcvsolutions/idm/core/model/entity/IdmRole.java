@@ -80,22 +80,32 @@ public class IdmRole extends AbstractEntity implements IdentifiableByName, Forma
 	
 	@JsonManagedReference
 	@OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
+	@org.hibernate.annotations.ForeignKey( name = "none" )	
 	private List<IdmRoleAuthority> authorities;
 	
 	@JsonManagedReference
 	@OneToMany(mappedBy = "superior", cascade = CascadeType.ALL, orphanRemoval = true)
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
+	@org.hibernate.annotations.ForeignKey( name = "none" )	
 	private List<IdmRoleComposition> subRoles;
 	
 	@JsonProperty(access = Access.READ_ONLY)
 	@OneToMany(mappedBy = "sub")
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
+	@org.hibernate.annotations.ForeignKey( name = "none" )	
 	private List<IdmRoleComposition> superiorRoles;
 	
 	@JsonManagedReference
 	@OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
+	@org.hibernate.annotations.ForeignKey( name = "none" )	
 	private List<IdmRoleGuarantee> guarantees;
 	
 	@JsonManagedReference
 	@OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
+	@org.hibernate.annotations.ForeignKey( name = "none" )	
 	private List<IdmRoleCatalogueRole> roleCatalogues;
 	
 	@Audited

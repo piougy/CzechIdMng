@@ -24,7 +24,7 @@ import eu.bcvsolutions.idm.core.api.entity.ValidableEntity;
 
 @Entity
 @Table(name = "idm_password", indexes = {
-		@Index(name = "idx_idm_password_identity", columnList = "identity_id")
+		@Index(name = "ux_idm_password_identity", columnList = "identity_id", unique = true)
 })
 public class IdmPassword extends AbstractEntity implements ValidableEntity {
 

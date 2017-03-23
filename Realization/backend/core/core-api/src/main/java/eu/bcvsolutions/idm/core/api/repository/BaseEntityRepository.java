@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.NoRepositoryBean;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,7 +24,8 @@ import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
  * @param <F> basic filter
  */
 @NoRepositoryBean
-public interface BaseEntityRepository<E extends BaseEntity, ID extends Serializable, F extends BaseFilter> extends PagingAndSortingRepository<E, ID> {
+public interface BaseEntityRepository<E extends BaseEntity, ID extends Serializable, F extends BaseFilter> 
+		extends PagingAndSortingRepository<E, ID>, JpaSpecificationExecutor<E> {
 
 	/**
 	 * Find all is not supposed to be used on big recourd counts

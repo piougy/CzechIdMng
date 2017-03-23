@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.config;
 
+import java.util.concurrent.Executor;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEventPublisher;
@@ -7,13 +9,18 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 
+import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleTreeNodeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultEntityEventManager;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmRoleTreeNodeService;
+import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
+import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskService;
+import eu.bcvsolutions.idm.core.scheduler.service.impl.DefaultLongRunningTaskManager;
 import eu.bcvsolutions.idm.core.security.api.service.EnabledEvaluator;
+import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 
 /**
  * Core services initialization
@@ -58,6 +65,24 @@ public class IdmServiceConfiguration {
 	 */
 	@Bean
 	public IdmRoleTreeNodeService roleTreeNodeService(IdmRoleTreeNodeRepository repository, IdmTreeNodeRepository treeNodeRepository) {
-		return new DefaultIdmRoleTreeNodeService(repository, treeNodeRepository,entityEventManager());
+		return new DefaultIdmRoleTreeNodeService(repository, treeNodeRepository, entityEventManager());
+	}
+	
+	/**
+	 * Long running task manager
+	 * 
+	 * @param service
+	 * @param executor
+	 * @param configurationService
+	 * @param securityService
+	 * @return
+	 */
+	@Bean
+	public LongRunningTaskManager longRunningTaskManager(
+			IdmLongRunningTaskService service,
+			Executor executor,
+			ConfigurationService configurationService,
+			SecurityService securityService) {
+		return new DefaultLongRunningTaskManager(service, executor, configurationService, securityService);
 	}
 }

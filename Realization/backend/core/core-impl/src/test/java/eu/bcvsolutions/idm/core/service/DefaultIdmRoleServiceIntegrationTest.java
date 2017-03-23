@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.InitTestData;
+import eu.bcvsolutions.idm.core.TestHelper;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
@@ -33,6 +34,8 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  */
 public class DefaultIdmRoleServiceIntegrationTest extends AbstractIntegrationTest {
 
+	@Autowired 
+	protected TestHelper helper;
 	@Autowired
 	private IdmIdentityService identityService;
 	@Autowired
@@ -84,24 +87,15 @@ public class DefaultIdmRoleServiceIntegrationTest extends AbstractIntegrationTes
 	
 	@Test(expected = ResultCodeException.class)
 	public void testReferentialIntegrityAssignedRoles() {
-		IdmIdentity identity = new IdmIdentity();
-		String username = "delete_test_" + System.currentTimeMillis();
-		identity.setUsername(username);
-		identity.setPassword(new GuardedString("heslo")); // confidential storage
-		identity.setFirstName("Test");
-		identity.setLastName("Identity");
-		identity = identityService.save(identity);
-		// role
-		IdmRole role = new IdmRole();
-		String roleName = "test_r_" + System.currentTimeMillis();
-		role.setName(roleName);
-		roleService.save(role);
+		// prepare data
+		IdmIdentity identity = helper.createIdentity("delete-test");
+		IdmRole role = helper.createRole("test-delete");
 		// assigned role
 		IdmIdentityRole identityRole = new IdmIdentityRole();
 		identityRole.setIdentityContract(identityContractService.getContracts(identity).get(0));
 		identityRole.setRole(role);
 		identityRoleService.save(identityRole);
-		
+		//
 		roleService.delete(role);
-	}	
+	}
 }

@@ -111,7 +111,7 @@ public class DefaultAccAuthenticator implements Authenticator {
 	
 	@Override
 	public int getOrder() {
-		return DEFAULT_AUTHENTICATOR_ORDER - 10;
+		return DEFAULT_AUTHENTICATOR_ORDER + 10;
 	}
 
 	@Override

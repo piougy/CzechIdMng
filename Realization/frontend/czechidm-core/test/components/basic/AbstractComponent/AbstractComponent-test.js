@@ -14,6 +14,11 @@ const componentLibraries = [Basic, Advanced];
 
 const componentLibrariesBasic = [Basic];
 
+/**
+ * Component common properties test
+ *
+ * @author Radek Tomiška
+ */
 describe('Basic AbstractComponent', function abstractComponent() {
   it('- supportsRendered', function test() {
     expect(Basic.AbstractComponent.supportsRendered(Basic.AbstractComponent)).to.be.true();

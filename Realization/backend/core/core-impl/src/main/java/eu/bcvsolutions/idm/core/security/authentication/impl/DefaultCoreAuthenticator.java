@@ -50,7 +50,7 @@ public class DefaultCoreAuthenticator implements Authenticator {
 
 	@Override
 	public AuthenticationResponseEnum getResponse() {
-		return AuthenticationResponseEnum.OPTIONAL;
+		return AuthenticationResponseEnum.SUFFICIENT;
 	}
 
 }

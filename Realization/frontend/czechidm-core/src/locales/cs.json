@@ -225,7 +225,7 @@
     "advanced": {
       "IdentityInfo": {
         "disabledInfo": "Uživatel je deaktivový",
-        "profileLink": "Zobrazit celý detail"
+        "profileLink": "Přejít na detail"
       },
       "Filter": {
         "option": {
@@ -2157,7 +2157,8 @@
       "type": "Typ entity",
       "key": "Atribut",
       "value": "Hodnota",
-      "entityId": "Id entity"
+      "entityId": "Id entity",
+      "entity": "Entita (IdM)"
     },
     "PasswordPolicy": {
       "type": "Typ",

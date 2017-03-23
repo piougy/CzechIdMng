@@ -53,7 +53,8 @@ import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(InitDemoData.class);
-	private static final String PARAMETER_DEMO_DATA_CREATED = "idm.sec.core.demo.data";
+	private static final String PARAMETER_DEMO_DATA_ENABLED = "idm.sec.core.demo.data.enabled";
+	private static final String PARAMETER_DEMO_DATA_CREATED = "idm.sec.core.demo.data.created";
 	public static final String FORM_ATTRIBUTE_PHONE = "phone";
 	public static final String FORM_ATTRIBUTE_WWW = "webPages";
 	public static final String FORM_ATTRIBUTE_PASSWORD = "password";
@@ -94,7 +95,10 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 
 	@Override
 	public void onApplicationEvent(ContextRefreshedEvent event) {
-		init();
+		// init only, when demo data is enabled
+		if (configurationService.getBooleanValue(PARAMETER_DEMO_DATA_ENABLED, false)) {
+			init();
+		}
 	}
 	
 	protected void init() {

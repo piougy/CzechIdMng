@@ -127,7 +127,7 @@ export default class ConfigLoader {
 
 
   static _getConfigModuleDescriptor(moduleId) {
-    if (_config.overrideModuleDescriptor) {
+    if (_config && _config.overrideModuleDescriptor) {
       return _config.overrideModuleDescriptor[moduleId];
     }
     return {};

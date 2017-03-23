@@ -15,6 +15,10 @@ import PasswordField from './PasswordField/PasswordField';
 import ProgressBar from './ProgressBar/ProgressBar';
 import RichTextArea from './RichTextArea/RichTextArea';
 import AbstractTableContent from './Content/AbstractTableContent';
+import EntityInfo from './EntityInfo/EntityInfo';
+import AbstractEntityInfo from './EntityInfo/AbstractEntityInfo';
+import UuidInfo from './UuidInfo/UuidInfo';
+import RoleInfo from './RoleInfo/RoleInfo';
 
 const Components = {
   Table,
@@ -35,7 +39,11 @@ const Components = {
   EavContent,
   PasswordField,
   RichTextArea,
-  AbstractTableContent
+  AbstractTableContent,
+  EntityInfo,
+  AbstractEntityInfo,
+  UuidInfo,
+  RoleInfo
 };
 
 Components.version = '0.0.1';

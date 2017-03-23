@@ -2,9 +2,10 @@ import ComponentLoader from '../utils/ComponentLoader';
 
 /**
 * Service for load module components
+*
+* @author Radek Tomiška
 */
 export default class ComponentService {
-
 
   getComponentDescriptor(moduleId) {
     return ComponentLoader.getComponentDescriptor(moduleId);
@@ -34,9 +35,12 @@ export default class ComponentService {
    * Finds component definitions by the given type
    *
    * @param  {string} componentType
-   * @return {array[object]} array of component definitions with the given type
+   * @return {immutable.map} immutable map of component definitions with the given type, key is component id
    */
   getComponentDefinitions(componentType) {
     return ComponentLoader.getComponentDefinitions(componentType);
   }
 }
+// reserved component types
+ComponentService.ENTITY_INFO_COMPONENT_TYPE = 'entity-info';
+ComponentService.DASHBOARD_COMPONENT_TYPE = 'dashboard';

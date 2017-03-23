@@ -208,18 +208,45 @@ export class AuditTable extends Basic.AbstractContent {
               }
               sort={false}/>
           }
-          <Advanced.Column property="id" sort face="text" rendered={_.includes(columns, 'id')}/>
-          <Advanced.Column property="entityId" sort face="text" rendered={_.includes(columns, 'entityId')}/>
+          <Advanced.Column
+            property="id"
+            sort
+            face="text"
+            rendered={_.includes(columns, 'id')}
+            width={ 75 }/>
           <Advanced.Column
             property="type"
             rendered={_.includes(columns, 'type')}
+            width={ 200 }
             cell={
               ({ rowIndex, data, property }) => {
-                return this._getType(data[rowIndex][property]);
+                return (
+                  <span title={data[rowIndex][property]}>
+                    { this._getType(data[rowIndex][property]) }
+                  </span>
+                );
               }}
           />
           <Advanced.Column
-            property="modification" sort
+            property="entityId"
+            header={ this.i18n('entity.Audit.entity') }
+            rendered={_.includes(columns, 'entityId')}
+            cell={
+              /* eslint-disable react/no-multi-comp */
+              ({ rowIndex, data, property }) => {
+                return (
+                  <Advanced.EntityInfo
+                    entityType={ this._getType(data[rowIndex].type) }
+                    entityIdentifier={ data[rowIndex][property] }
+                    face="popover"
+                    showEntityType={ false }/>
+                );
+              }
+            }/>
+          <Advanced.Column
+            property="modification"
+            width={ 100 }
+            sort
             rendered={_.includes(columns, 'modification')}
             cell={
               ({ rowIndex, data, property }) => {

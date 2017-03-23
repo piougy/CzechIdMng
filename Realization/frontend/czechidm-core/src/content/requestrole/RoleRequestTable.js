@@ -163,7 +163,7 @@ class RoleRequestTable extends Advanced.AbstractTableContent {
               ({ rowIndex, data }) => {
                 const entity = data[rowIndex];
                 return (
-                  <Advanced.IdentityInfo id={entity.applicant} face="link" />
+                  <Advanced.IdentityInfo entityIdentifier={entity.applicant} face="link" />
                 );
               }
             }/>

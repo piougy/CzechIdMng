@@ -1,6 +1,8 @@
 package eu.bcvsolutions.idm.core.service;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
@@ -12,6 +14,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.TestHelper;
@@ -49,19 +52,21 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 	@Autowired
 	private IdmRoleTreeNodeService roleTreeNodeService;
 	//
-	private IdmTreeType treeType;
-	private IdmTreeNode nodeA;
-	private IdmTreeNode nodeB;
-	private IdmTreeNode nodeC;
-	private IdmTreeNode nodeD;
-	private IdmTreeNode nodeE;
-	private IdmTreeNode nodeF;
-	private IdmRole roleA;
-	private IdmRole roleB;
-	private IdmRole roleC;
-	private IdmRole roleD;
-	private IdmRoleTreeNodeDto automaticRoleA;
-	private IdmRoleTreeNodeDto automaticRoleD;
+	private IdmTreeType treeType = null;
+	private IdmTreeNode nodeA = null;
+	private IdmTreeNode nodeB = null;
+	private IdmTreeNode nodeC = null;
+	private IdmTreeNode nodeD = null;
+	private IdmTreeNode nodeE = null;
+	private IdmTreeNode nodeF = null;
+	private IdmRole roleA = null;
+	private IdmRole roleB = null;
+	private IdmRole roleC = null;
+	private IdmRole roleD = null;
+	private IdmRoleTreeNodeDto automaticRoleA = null;
+	private IdmRoleTreeNodeDto automaticRoleD = null;
+	private IdmRoleTreeNodeDto automaticRoleE = null;
+	private IdmRoleTreeNodeDto automaticRoleF = null;
 	
 	@Before
 	public void init() {
@@ -71,10 +76,12 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 	
 	@After 
 	public void logout() {
-		// TODO: delete this test auth roles only ... this could break other tests ...  
-		roleTreeNodeService.findDto(null).forEach(entity -> {
-			roleTreeNodeService.delete(entity);
-		});
+		// delete this test automatic roles only	
+		if(automaticRoleA != null) try { roleTreeNodeService.delete(automaticRoleA); } catch (EmptyResultDataAccessException ex) {} ;
+		if(automaticRoleD != null) try { roleTreeNodeService.delete(automaticRoleD); } catch (EmptyResultDataAccessException ex) {} ;
+		if(automaticRoleE != null) try { roleTreeNodeService.delete(automaticRoleE); } catch (EmptyResultDataAccessException ex) {} ;
+		if(automaticRoleF != null) try { roleTreeNodeService.delete(automaticRoleF); } catch (EmptyResultDataAccessException ex) {} ;
+		//
 		super.logout();
 	}	
 	
@@ -113,13 +120,13 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 		automaticRoleD.setTreeNode(nodeD.getId());
 		automaticRoleD = roleTreeNodeService.save(automaticRoleD);
 		
-		IdmRoleTreeNodeDto automaticRoleF = new IdmRoleTreeNodeDto();
+		automaticRoleF = new IdmRoleTreeNodeDto();
 		automaticRoleF.setRecursionType(RecursionType.UP);
 		automaticRoleF.setRole(roleC.getId());
 		automaticRoleF.setTreeNode(nodeF.getId());
 		automaticRoleF = roleTreeNodeService.save(automaticRoleF);
 		
-		IdmRoleTreeNodeDto automaticRoleE = new IdmRoleTreeNodeDto();
+		automaticRoleE = new IdmRoleTreeNodeDto();
 		automaticRoleE.setRecursionType(RecursionType.NO);
 		automaticRoleE.setRole(roleD.getId());
 		automaticRoleE.setTreeNode(nodeE.getId());
@@ -129,11 +136,11 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 	@Test
 	public void testFindAutomaticRoleWithoutRecursion() {
 		// prepare
-		IdmRoleTreeNodeDto automaticRoleNoRecursion = new IdmRoleTreeNodeDto();
-		automaticRoleNoRecursion.setRecursionType(RecursionType.NO);
-		automaticRoleNoRecursion.setRole(roleA.getId());
-		automaticRoleNoRecursion.setTreeNode(nodeD.getId());
-		automaticRoleNoRecursion = roleTreeNodeService.save(automaticRoleNoRecursion);
+		automaticRoleA = new IdmRoleTreeNodeDto();
+		automaticRoleA.setRecursionType(RecursionType.NO);
+		automaticRoleA.setRole(roleA.getId());
+		automaticRoleA.setTreeNode(nodeD.getId());
+		automaticRoleA = roleTreeNodeService.save(automaticRoleA);
 		//
 		// test
 		Set<IdmRoleTreeNode> automaticRoles = roleTreeNodeService.getAutomaticRoles(nodeD);
@@ -146,11 +153,11 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 	@Test
 	public void testFindAutomaticRoleWithRecursionDown() {
 		// prepare
-		IdmRoleTreeNodeDto automaticRoleWithRecursion = new IdmRoleTreeNodeDto();
-		automaticRoleWithRecursion.setRecursionType(RecursionType.DOWN);
-		automaticRoleWithRecursion.setRole(roleA.getId());
-		automaticRoleWithRecursion.setTreeNode(nodeD.getId());
-		automaticRoleWithRecursion = roleTreeNodeService.save(automaticRoleWithRecursion);
+		automaticRoleA = new IdmRoleTreeNodeDto();
+		automaticRoleA.setRecursionType(RecursionType.DOWN);
+		automaticRoleA.setRole(roleA.getId());
+		automaticRoleA.setTreeNode(nodeD.getId());
+		automaticRoleA = roleTreeNodeService.save(automaticRoleA);
 		//
 		// test
 		Set<IdmRoleTreeNode> automaticRoles = roleTreeNodeService.getAutomaticRoles(nodeD);
@@ -165,11 +172,11 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 	@Test
 	public void testFindAutomaticRoleWithRecursionUp() {
 		// prepare
-		IdmRoleTreeNodeDto automaticRoleWithRecursion = new IdmRoleTreeNodeDto();
-		automaticRoleWithRecursion.setRecursionType(RecursionType.UP);
-		automaticRoleWithRecursion.setRole(roleA.getId());
-		automaticRoleWithRecursion.setTreeNode(nodeD.getId());
-		automaticRoleWithRecursion = roleTreeNodeService.save(automaticRoleWithRecursion);
+		automaticRoleA = new IdmRoleTreeNodeDto();
+		automaticRoleA.setRecursionType(RecursionType.UP);
+		automaticRoleA.setRole(roleA.getId());
+		automaticRoleA.setTreeNode(nodeD.getId());
+		automaticRoleA = roleTreeNodeService.save(automaticRoleA);
 		//
 		// test
 		Set<IdmRoleTreeNode> automaticRoles = roleTreeNodeService.getAutomaticRoles(nodeD);
@@ -333,13 +340,13 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 	
 	@Test
 	public void testDontRemoveSameRole() {
-		IdmRoleTreeNodeDto automaticRoleF = new IdmRoleTreeNodeDto();
+		automaticRoleF = new IdmRoleTreeNodeDto();
 		automaticRoleF.setRecursionType(RecursionType.UP);
 		automaticRoleF.setRole(roleA.getId());
 		automaticRoleF.setTreeNode(nodeF.getId());
 		automaticRoleF = roleTreeNodeService.save(automaticRoleF);
 		//
-		IdmRoleTreeNodeDto automaticRoleE = new IdmRoleTreeNodeDto();
+		automaticRoleE = new IdmRoleTreeNodeDto();
 		automaticRoleE.setRecursionType(RecursionType.NO);
 		automaticRoleE.setRole(roleA.getId());
 		automaticRoleE.setTreeNode(nodeE.getId());
@@ -398,7 +405,7 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 		contractB = identityContractService.save(contractB);
 		//
 		// create new automatic role
-		IdmRoleTreeNodeDto automaticRoleD = new IdmRoleTreeNodeDto();
+		automaticRoleD = new IdmRoleTreeNodeDto();
 		automaticRoleD.setRecursionType(RecursionType.DOWN);
 		automaticRoleD.setRole(roleA.getId());
 		automaticRoleD.setTreeNode(nodeD.getId());
@@ -415,5 +422,37 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 		identityRoles = identityRoleService.getRoles(contractF);
 		assertEquals(1, identityRoles.size());
 		assertEquals(automaticRoleD.getId(), identityRoles.get(0).getRoleTreeNode().getId());
+	}
+	
+	@Test
+	public void testReferentialIntegrityOnRole() {
+		// prepare data
+		IdmRole role = helper.createRole();
+		IdmTreeNode treeNode = helper.createTreeNode();
+		// automatic role
+		IdmRoleTreeNodeDto roleTreeNode = helper.createRoleTreeNode(role, treeNode);
+		//
+		assertNotNull(roleTreeNode.getId());
+		assertEquals(roleTreeNode.getId(), roleTreeNodeService.get(roleTreeNode.getId()).getId());
+		//
+		helper.deleteRole(role.getId());
+		//
+		assertNull(roleTreeNodeService.get(roleTreeNode.getId()));		
+	}
+	
+	@Test
+	public void testReferentialIntegrityOnTreeType() {
+		// prepare data
+		IdmRole role = helper.createRole();
+		IdmTreeNode treeNode = helper.createTreeNode();
+		// automatic role
+		IdmRoleTreeNodeDto roleTreeNode = helper.createRoleTreeNode(role, treeNode);
+		//
+		assertNotNull(roleTreeNode.getId());
+		assertEquals(roleTreeNode.getId(), roleTreeNodeService.get(roleTreeNode.getId()).getId());
+		//
+		helper.deleteTreeNode(treeNode.getId());
+		//
+		assertNull(roleTreeNodeService.get(roleTreeNode.getId()));		
 	}
 }

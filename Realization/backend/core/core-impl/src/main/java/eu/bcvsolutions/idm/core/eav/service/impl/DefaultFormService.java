@@ -306,13 +306,14 @@ public class DefaultFormService implements FormService {
 		deleteValues(owner, attribute); // TODO: iterate through values and use some equals method on Serializable value?
 		// and create
 		List<E> results = new ArrayList<>();
-		persistentValues.forEach(persistentValue -> {
+		for (short seq = 0; seq < persistentValues.size(); seq++) {
 			E value = formValueService.newValue();
 			value.setOwnerAndAttribute(owner, attribute);
 			//
-			value.setValue(persistentValue);
+			value.setValue(persistentValues.get(seq));
+			value.setSeq(seq);
 			results.add(formValueService.save(value));
-		});
+		};
 		//
 		return results;
 	}

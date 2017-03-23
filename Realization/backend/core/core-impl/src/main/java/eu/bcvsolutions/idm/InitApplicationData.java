@@ -26,6 +26,7 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeTypeService;
 import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationConfigurationService;
 import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationTemplateService;
+import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.service.CryptService;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
@@ -75,6 +76,9 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 	
 	@Autowired
 	private CryptService cryptoService;
+	
+	@Autowired
+	private LongRunningTaskManager longRunningTaskManager;
 
 	@Override
 	public void onApplicationEvent(ContextRefreshedEvent event) {
@@ -158,6 +162,8 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 			if (!cryptoService.existsKeyFile()) {
 				LOG.warn("Key for crypt and decrypt confidential storage doesn't exists!!!");
 			}
+			// Cancels all previously ran tasks
+			longRunningTaskManager.init();
 		} finally {
 			SecurityContextHolder.clearContext();
 		}

@@ -15,10 +15,12 @@ import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.exception.TreeNodeException;
+import eu.bcvsolutions.idm.core.model.dto.filter.RoleTreeNodeFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.event.TreeNodeEvent.TreeNodeEventType;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
+import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
 
 /**
  * Deletes tree node - ensures referential integrity.
@@ -34,22 +36,25 @@ public class TreeNodeDeleteProcessor extends CoreEventProcessor<IdmTreeNode> {
 	private final IdmTreeNodeRepository repository;
 	private final IdmIdentityContractRepository identityContractRepository;
 	private final TreeNodeSaveProcessor saveProcessor;
+	private final IdmRoleTreeNodeService roleTreeNodeService;
 	
 	@Autowired
 	public TreeNodeDeleteProcessor(
 			IdmTreeNodeRepository repository,
 			IdmIdentityContractRepository identityContractRepository,
-			TreeNodeSaveProcessor saveProcessor) {
+			TreeNodeSaveProcessor saveProcessor,
+			IdmRoleTreeNodeService roleTreeNodeService) {
 		super(TreeNodeEventType.DELETE);
 		//
 		Assert.notNull(repository);
 		Assert.notNull(saveProcessor);
 		Assert.notNull(identityContractRepository);
+		Assert.notNull(roleTreeNodeService);
 		//
 		this.repository = repository;
 		this.saveProcessor = saveProcessor;
 		this.identityContractRepository = identityContractRepository;
-		
+		this.roleTreeNodeService = roleTreeNodeService;	
 	}
 	
 	@Override
@@ -74,6 +79,13 @@ public class TreeNodeDeleteProcessor extends CoreEventProcessor<IdmTreeNode> {
 		}
 		// clear default tree nodes from type
 		saveProcessor.getTreeTypeService().clearDefaultTreeNode(treeNode);
+		// remove related automatic roles
+		RoleTreeNodeFilter filter = new RoleTreeNodeFilter();
+		filter.setTreeNodeId(treeNode.getId());
+		roleTreeNodeService.findDto(filter, null).forEach(roleTreeNode -> {
+			// delete without approving
+			roleTreeNodeService.deleteInternal(roleTreeNode);
+		});
 		//
 		repository.delete(saveProcessor.getForestContentService().deleteIndex(treeNode));
 		//

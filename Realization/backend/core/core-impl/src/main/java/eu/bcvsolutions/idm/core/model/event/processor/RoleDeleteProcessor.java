@@ -18,12 +18,14 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.model.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.model.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.model.dto.filter.ConceptRoleRequestFilter;
+import eu.bcvsolutions.idm.core.model.dto.filter.RoleTreeNodeFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.event.RoleEvent.RoleEventType;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleRequestService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
 
 /**
  * Deletes role - ensures referential integrity.
@@ -40,24 +42,28 @@ public class RoleDeleteProcessor extends CoreEventProcessor<IdmRole> {
 	private final IdmIdentityRoleRepository identityRoleRepository;
 	private final IdmConceptRoleRequestService conceptRoleRequestService;
 	private final IdmRoleRequestService roleRequestService;
+	private final IdmRoleTreeNodeService roleTreeNodeService;
 	
 	@Autowired
 	public RoleDeleteProcessor(
 			IdmRoleRepository repository,
 			IdmIdentityRoleRepository identityRoleRepository,
 			IdmConceptRoleRequestService conceptRoleRequestService,
-			IdmRoleRequestService roleRequestService) {
+			IdmRoleRequestService roleRequestService,
+			IdmRoleTreeNodeService roleTreeNodeService) {
 		super(RoleEventType.DELETE);
 		//
 		Assert.notNull(repository);
 		Assert.notNull(identityRoleRepository);
 		Assert.notNull(conceptRoleRequestService);
 		Assert.notNull(roleRequestService);
+		Assert.notNull(roleTreeNodeService);
 		//
 		this.repository = repository;
 		this.identityRoleRepository = identityRoleRepository;
 		this.conceptRoleRequestService = conceptRoleRequestService;
 		this.roleRequestService = roleRequestService;
+		this.roleTreeNodeService = roleTreeNodeService;
 	}
 	
 	@Override
@@ -73,7 +79,13 @@ public class RoleDeleteProcessor extends CoreEventProcessor<IdmRole> {
 		if(identityRoleRepository.countByRole(role) > 0) {
 			throw new ResultCodeException(CoreResultCode.ROLE_DELETE_FAILED_IDENTITY_ASSIGNED, ImmutableMap.of("role", role.getName()));
 		}
-
+		// remove related automatic roles
+		RoleTreeNodeFilter filter = new RoleTreeNodeFilter();
+		filter.setRoleId(role.getId());
+		roleTreeNodeService.findDto(filter, null).forEach(roleTreeNode -> {
+			// delete without approving
+			roleTreeNodeService.deleteInternal(roleTreeNode);
+		});
 		// Find all concepts and remove relation on role
 		ConceptRoleRequestFilter conceptRequestFilter = new ConceptRoleRequestFilter();
 		conceptRequestFilter.setRoleId(role.getId());

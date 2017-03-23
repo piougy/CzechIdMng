@@ -28,7 +28,7 @@ public class IdmRoleTreeNodeDto extends AbstractDto {
 	@Embedded(dtoClass = IdmTreeNodeDto.class)
 	private UUID treeNode;
 	@NotNull
-	private RecursionType recursionType;
+	private RecursionType recursionType = RecursionType.NO;
 
 	public UUID getRole() {
 		return role;

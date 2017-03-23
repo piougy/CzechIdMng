@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.tree;
+package eu.bcvsolutions.idm.core.rest;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -30,7 +30,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.test.api.AbstractRestTest;
 
-public class TreeNodeAndTypeTest extends AbstractRestTest {
+public class TreeNodeAndTypeRestTest extends AbstractRestTest {
 	
 	@Autowired
 	private IdmTreeTypeRepository treeTypeRepository;

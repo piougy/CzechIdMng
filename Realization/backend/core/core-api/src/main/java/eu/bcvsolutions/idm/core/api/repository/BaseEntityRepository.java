@@ -33,7 +33,7 @@ public interface BaseEntityRepository<E extends BaseEntity, ID extends Serializa
 	Iterable<E> findAll();
 
 	/**
-	 * Quick filter
+	 * Quick filter - is need to be overridden in all sub interfaces.
 	 * 
 	 * @see {@link QuickFilter}
 	 * @see {@link EmptyFilter}

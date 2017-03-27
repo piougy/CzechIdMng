@@ -1,11 +1,25 @@
 package eu.bcvsolutions.idm.core.workflow.model.dto;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-public class WorkflowHistoricProcessInstanceDto {
+import org.activiti.engine.IdentityService;
+import org.springframework.util.Assert;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
+
+import eu.bcvsolutions.idm.core.api.dto.BaseDto;
+
+
+public class WorkflowHistoricProcessInstanceDto implements BaseDto {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private String processDefinitionId;
 	private String id;
 	private String name;
@@ -33,7 +47,9 @@ public class WorkflowHistoricProcessInstanceDto {
 	 */
 	private String superProcessInstanceId;
 	private Map<String, Object> processVariables;
-
+	@JsonProperty(value = "_trimmed", access=Access.READ_ONLY)
+	private boolean trimmed = false;
+	
 	public String getProcessDefinitionId() {
 		return processDefinitionId;
 	}
@@ -45,9 +61,13 @@ public class WorkflowHistoricProcessInstanceDto {
 	public String getId() {
 		return id;
 	}
-
-	public void setId(String id) {
-		this.id = id;
+	
+	@Override
+	public void setId(Serializable id) {
+		if (id != null) {
+			Assert.isInstanceOf(String.class, id, "WorkflowHistoricTaskInstanceDto supports only String identifier.");
+		}
+		this.id = (String) id;
 	}
 
 	public String getName() {
@@ -123,6 +143,14 @@ public class WorkflowHistoricProcessInstanceDto {
 
 	public void setProcessVariables(Map<String, Object> processVariables) {
 		this.processVariables = processVariables;
+	}
+
+	public boolean isTrimmed() {
+		return trimmed;
+	}
+
+	public void setTrimmed(boolean trimmed) {
+		this.trimmed = trimmed;
 	}
 
 }

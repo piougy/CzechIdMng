@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import com.google.common.base.Strings;
+
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.eav.service.impl.AbstractFormableService;
@@ -97,4 +99,29 @@ public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, Role
 		}
 		return idmRoles;
 	}
+	
+	@Override
+	public String findAssignRoleWorkflowDefinition(UUID roleId){
+		Assert.notNull(roleId, "Role ID is required!");
+		
+		String key =  "change-role-without-approve";
+		return Strings.isNullOrEmpty(key) ? null : key;
+	}
+
+	@Override
+	public String findChangeAssignRoleWorkflowDefinition(UUID roleId){
+		Assert.notNull(roleId, "Role ID is required!");
+	
+		String key =  this.get(roleId).getApproveAddWorkflow();
+		return Strings.isNullOrEmpty(key) ? null : key;
+	}
+	
+	@Override
+	public String findUnAssignRoleWorkflowDefinition(UUID roleId){
+		Assert.notNull(roleId, "Role ID is required!");
+
+		String key =  this.get(roleId).getApproveRemoveWorkflow();
+		return Strings.isNullOrEmpty(key) ? null : key;
+	}
+	
 }

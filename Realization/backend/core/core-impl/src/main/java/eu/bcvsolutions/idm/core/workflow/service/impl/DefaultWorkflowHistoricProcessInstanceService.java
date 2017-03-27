@@ -79,8 +79,10 @@ public class DefaultWorkflowHistoricProcessInstanceService implements WorkflowHi
 
 		HistoricProcessInstanceQuery query = historyService.createHistoricProcessInstanceQuery();
 
+		boolean trimmed = true;
 		if (processInstanceId != null) {
 			// Process variables will be included only for get by instance ID
+			trimmed = false;
 			query.includeProcessVariables();
 			query.processInstanceId(processInstanceId);
 		}
@@ -129,7 +131,7 @@ public class DefaultWorkflowHistoricProcessInstanceService implements WorkflowHi
 
 		if (processInstances != null) {
 			for (HistoricProcessInstance instance : processInstances) {
-				dtos.add(toResource(instance));
+				dtos.add(toResource(instance, trimmed));
 			}
 		}
 		double totalPageDouble = ((double) count / filter.getPageSize());
@@ -302,7 +304,7 @@ public class DefaultWorkflowHistoricProcessInstanceService implements WorkflowHi
 		}
 	}
 
-	private WorkflowHistoricProcessInstanceDto toResource(HistoricProcessInstance instance) {
+	private WorkflowHistoricProcessInstanceDto toResource(HistoricProcessInstance instance, boolean trimmed) {
 		if (instance == null) {
 			return null;
 		}
@@ -328,6 +330,7 @@ public class DefaultWorkflowHistoricProcessInstanceService implements WorkflowHi
 		}
 
 		WorkflowHistoricProcessInstanceDto dto = new WorkflowHistoricProcessInstanceDto();
+		dto.setTrimmed(trimmed);
 		dto.setId(instance.getId());
 		dto.setName(instanceName);
 		dto.setProcessDefinitionId(instance.getProcessDefinitionId());

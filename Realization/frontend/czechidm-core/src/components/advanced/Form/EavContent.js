@@ -91,6 +91,7 @@ class EavContent extends Basic.AbstractContent {
               <Basic.Button
                 type="submit"
                 level="success"
+                rendered={ formInstance.getAttributes().size > 0 }
                 showLoadingIcon
                 showLoadingText={this.i18n('button.saving')}>
                 {this.i18n('button.save')}

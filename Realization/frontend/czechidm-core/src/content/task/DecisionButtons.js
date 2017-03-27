@@ -32,8 +32,8 @@ class DecisionButtons extends Basic.AbstractContent {
                       level={decision.level}
                       onClick={this._onClick.bind(this, decision)}
                       showLoading={showLoading}
-                      tooltip={this.i18n(decision.tooltip ? decision.tooltip : `decision.${decision.id}.tooltip` )}>
-                        {this.i18n(decision.label ? decision.label : `decision.${decision.id}.label` )}
+                      tooltip={this.i18n(decision.tooltip ? decision.tooltip : `wf.decision.${decision.id}.tooltip` )}>
+                        {this.i18n(decision.label ? decision.label : `wf.decision.${decision.id}.label` )}
                     </Basic.Button>
                   );
       buttons.push(' ');

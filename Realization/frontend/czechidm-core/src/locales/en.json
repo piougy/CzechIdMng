@@ -400,6 +400,7 @@
       "EXECUTED": "Executed",
       "CANCELED": "Canceled",
       "APPROVED": "Approved",
+      "DISAPPROVED": "Disapproved",
       "IN_PROGRESS": "In progress",
       "EXCEPTION": "Exception",
       "DUPLICATED": "Duplicated"
@@ -2270,48 +2271,70 @@
       "modified": "Modified"
     }
   },
-  "decision" : {
-    "approve": {
-      "label" : "Accept",
-      "tooltip": "Executes approval of the task.",
-      "warning": "Do you want to approve the request?"
+  "wf": {
+    "decision" : {
+      "approve": {
+        "label" : "Accept",
+        "tooltip": "Executes approval of the task.",
+        "warning": "Do you want to approve the request?"
+      },
+      "disapprove": {
+        "label" : "Reject",
+        "tooltip": "Reject task.",
+        "warning": "Do you want to reject the request?"
+      },
+      "backToApplicant": {
+        "label" : "Return for edit",
+        "tooltip": "Returns request to requester.",
+        "warning": "Do you want to return the request?"
+      },
+      "createRequest": {
+        "label" : "Submit request",
+        "tooltip": "Submit request.",
+        "warning": "Do you want to submit the request?"
+      },
+      "cancelRequest": {
+        "label" : "Delete request",
+        "tooltip": "Delete this request.",
+        "warning": "Do you want to delete the request?"
+      }
     },
-    "disapprove": {
-      "label" : "Reject",
-      "tooltip": "Reject task.",
-      "warning": "Do you want to reject the request?"
-    },
-    "backToApplicant": {
-      "label" : "Return for edit",
-      "tooltip": "Returns request to requester.",
-      "warning": "Do you want to return the request?"
-    },
-    "createRequest": {
-      "label" : "Submit request",
-      "tooltip": "Submit request.",
-      "warning": "Do you want to submit the request?"
-    },
-    "cancelRequest": {
-      "label" : "Delete request",
-      "tooltip": "Delete this request.",
-      "warning": "Do you want to delete the request?"
-    }
-  },
-  "formData" : {
-    "applicantDescription": {
-      "name" : "Requester's note",
-      "tooltip": "Requester's note in submitted request",
-      "placeholder": "Requester's note in submitted request"
-    },
-    "managerDescriptionForApplicant": {
-      "name" : "Note for requester",
-      "tooltip": "Note for requester in returned request",
-      "placeholder": "Note for requester in returned request"
-    },
-    "managerDescription": {
-      "name" : "Authorizer's note",
-      "tooltip": "Note from authorizer.",
-      "placeholder": "Note from authorizer."
+    "formData" : {
+      "applicantDescription": {
+        "name" : "Requester's note",
+        "tooltip": "Requester's note in submitted request",
+        "placeholder": "Requester's note in submitted request"
+      },
+      "managerDescriptionForApplicant": {
+        "name" : "Note for requester",
+        "tooltip": "Note for requester in returned request",
+        "placeholder": "Note for requester in returned request"
+      },
+      "managerDescription": {
+        "name" : "Authorizer's note",
+        "tooltip": "Note from authorizer.",
+        "placeholder": "Note from authorizer."
+      },
+      "description": {
+        "name" : "Note",
+        "tooltip": "",
+        "placeholder": ""
+      },
+      "roleName": {
+        "name" : "Role name",
+        "tooltip": "",
+        "placeholder": ""
+      },
+      "validFrom": {
+        "name" : "Valid from",
+        "tooltip": "",
+        "placeholder": ""
+      },
+      "validTill": {
+        "name" : "Valid till",
+        "tooltip": "",
+        "placeholder": ""
+      }
     }
   },
   "error": {

@@ -419,6 +419,7 @@
       "EXECUTED": "Provedeno",
       "CANCELED": "Zrušeno",
       "APPROVED": "Schváleno",
+      "DISAPPROVED": "Zamítnuto",
       "IN_PROGRESS": "Zpracovává se",
       "EXCEPTION": "Chyba",
       "DUPLICATED": "Duplicitní"
@@ -2298,48 +2299,70 @@
     }
 
   },
-  "decision" : {
-    "approve": {
-      "label" : "Schválit",
-      "tooltip": "Provede schválení tohoto úkolu.",
-      "warning": "Opravdu chcete provést schválení?"
+  "wf": {
+    "decision" : {
+      "approve": {
+        "label" : "Schválit",
+        "tooltip": "Provede schválení tohoto úkolu.",
+        "warning": "Opravdu chcete provést schválení?"
+      },
+      "disapprove": {
+        "label" : "Zamítnout",
+        "tooltip": "Zamítnout úkol.",
+        "warning": "Opravdu chcete zamítnout úkol?"
+      },
+      "backToApplicant": {
+        "label" : "Vrátit žadateli",
+        "tooltip": "Vrátí žádost žadateli.",
+        "warning": "Opravdu chcete vrátit žádost žadateli?"
+      },
+      "createRequest": {
+        "label" : "Vytvořit žádost",
+        "tooltip": "Vytvoří žádost.",
+        "warning": "Opravdu chcete vytvořit žádost?"
+      },
+      "cancelRequest": {
+        "label" : "Smazat žádost",
+        "tooltip": "Zruší tuto žádost.",
+        "warning": "Opravdu chcete zrušit tuto žádost?"
+      }
     },
-    "disapprove": {
-      "label" : "Zamítnout",
-      "tooltip": "Zamítnout úkol.",
-      "warning": "Opravdu chcete zamítnout úkol?"
-    },
-    "backToApplicant": {
-      "label" : "Vrátit žadateli",
-      "tooltip": "Vrátí žádost žadateli.",
-      "warning": "Opravdu chcete vrátit žádost žadateli?"
-    },
-    "createRequest": {
-      "label" : "Vytvořit žádost",
-      "tooltip": "Vytvoří žádost.",
-      "warning": "Opravdu chcete vytvořit žádost?"
-    },
-    "cancelRequest": {
-      "label" : "Smazat žádost",
-      "tooltip": "Zruší tuto žádost.",
-      "warning": "Opravdu chcete zrušit tuto žádost?"
-    }
-  },
-  "formData" : {
-    "applicantDescription": {
-      "name" : "Poznámka žadatele",
-      "tooltip": "Poznámka zadaná žadatelem při založení žádosti",
-      "placeholder": "Poznámka zadaná žadatelem při založení žádosti"
-    },
-    "managerDescriptionForApplicant": {
-      "name" : "Poznámka pro žadatele",
-      "tooltip": "Poznámka, která bude žadateli zobrazena při várcení žádosti.",
-      "placeholder": "Poznámka, která bude žadateli zobrazena při várcení žádosti."
-    },
-    "managerDescription": {
-      "name" : "Poznámka vedoucího",
-      "tooltip": "Poznámka od vedoucího.",
-      "placeholder": "Poznámka od vedoucího."
+    "formData" : {
+      "applicantDescription": {
+        "name" : "Poznámka žadatele",
+        "tooltip": "Poznámka zadaná žadatelem při založení žádosti",
+        "placeholder": "Poznámka zadaná žadatelem při založení žádosti"
+      },
+      "managerDescriptionForApplicant": {
+        "name" : "Poznámka pro žadatele",
+        "tooltip": "Poznámka, která bude žadateli zobrazena při várcení žádosti.",
+        "placeholder": "Poznámka, která bude žadateli zobrazena při várcení žádosti."
+      },
+      "managerDescription": {
+        "name" : "Poznámka vedoucího",
+        "tooltip": "Poznámka od vedoucího.",
+        "placeholder": "Poznámka od vedoucího."
+      },
+      "description": {
+        "name" : "Poznámka",
+        "tooltip": "",
+        "placeholder": ""
+      },
+      "roleName": {
+        "name" : "Název role",
+        "tooltip": "",
+        "placeholder": ""
+      },
+      "validFrom": {
+        "name" : "Platnost od",
+        "tooltip": "",
+        "placeholder": ""
+      },
+      "validTill": {
+        "name" : "Platnost do",
+        "tooltip": "",
+        "placeholder": ""
+      }
     }
   },
   "error": {

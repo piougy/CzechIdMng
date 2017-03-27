@@ -75,6 +75,10 @@ class DynamicTaskDetail extends Basic.AbstractContent {
     this.context.store.dispatch(taskManager.completeTask(task, formData, `${uiKey}`, this._afterComplete.bind(this)));
   }
 
+  _getLocalization(property, formData) {
+    return this.i18n(formData[property] ? formData[property] : `wf.formData.${formData.id}.${property}`);
+  }
+
   _afterComplete(task, error) {
     if (error) {
       this.setState({
@@ -103,9 +107,9 @@ class DynamicTaskDetail extends Basic.AbstractContent {
               ref={formData.id}
               readOnly={!formData.writable}
               required={formData.required}
-              tooltip={this.i18n(formData.tooltip ? formData.tooltip : `formData.${formData.id}.tooltip`)}
-              placeholder={this.i18n(formData.placeholder ? formData.placeholder : `formData.${formData.id}.placeholder`)}
-              label={this.i18n(formData.name ? formData.name : `formData.${formData.id}.name`)}/>
+              tooltip={this._getLocalization('tooltip', formData)}
+              placeholder={this._getLocalization('placeholder', formData)}
+              label={this._getLocalization('name', formData)}/>
           );
           break;
         }
@@ -118,9 +122,9 @@ class DynamicTaskDetail extends Basic.AbstractContent {
               mode="date"
               readOnly={!formData.writable}
               required={formData.required}
-              tooltip={this.i18n(formData.tooltip ? formData.tooltip : `formData.${formData.id}.tooltip`)}
-              placeholder={this.i18n(formData.placeholder ? formData.placeholder : `formData.${formData.id}.placeholder`)}
-              label={this.i18n(formData.name ? formData.name : `formData.${formData.id}.name`)}/>
+              tooltip={this._getLocalization('tooltip', formData)}
+              placeholder={this._getLocalization('placeholder', formData)}
+              label={this._getLocalization('name', formData)}/>
           );
           break;
         }
@@ -131,9 +135,9 @@ class DynamicTaskDetail extends Basic.AbstractContent {
               ref={formData.id}
               readOnly={!formData.writable}
               required={formData.required}
-              tooltip={this.i18n(formData.tooltip ? formData.tooltip : `formData.${formData.id}.tooltip`)}
-              placeholder={this.i18n(formData.placeholder ? formData.placeholder : `formData.${formData.id}.placeholder`)}
-              label={this.i18n(formData.name ? formData.name : `formData.${formData.id}.name`)}/>
+              tooltip={this._getLocalization('tooltip', formData)}
+              placeholder={this._getLocalization('placeholder', formData)}
+              label={this._getLocalization('name', formData)}/>
           );
           break;
         }
@@ -144,9 +148,9 @@ class DynamicTaskDetail extends Basic.AbstractContent {
               ref={formData.id}
               readOnly={!formData.writable}
               required={formData.required}
-              tooltip={this.i18n(formData.tooltip ? formData.tooltip : `formData.${formData.id}.tooltip`)}
-              placeholder={this.i18n(formData.placeholder ? formData.placeholder : `formData.${formData.id}.placeholder`)}
-              label={this.i18n(formData.name ? formData.name : `formData.${formData.id}.name`)}/>
+              tooltip={this._getLocalization('tooltip', formData)}
+              placeholder={this._getLocalization('placeholder', formData)}
+              label={this._getLocalization('name', formData)}/>
           );
           break;
         }
@@ -157,9 +161,9 @@ class DynamicTaskDetail extends Basic.AbstractContent {
               ref={formData.id}
               readOnly={!formData.writable}
               required={formData.required}
-              tooltip={this.i18n(formData.tooltip ? formData.tooltip : `formData.${formData.id}.tooltip`)}
-              placeholder={this.i18n(formData.placeholder ? formData.placeholder : `formData.${formData.id}.placeholder`)}
-              label={this.i18n(formData.name ? formData.name : `formData.${formData.id}.name`)}/>
+              tooltip={this._getLocalization('tooltip', formData)}
+              placeholder={this._getLocalization('placeholder', formData)}
+              label={this._getLocalization('name', formData)}/>
           );
         }
       }

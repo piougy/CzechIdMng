@@ -1,11 +1,13 @@
 import EntityManager from './EntityManager';
 import { FormDefinitionService } from '../../services';
+import DataManager from './DataManager';
 
 export default class FormDefinitionManager extends EntityManager {
 
   constructor() {
     super();
     this.service = new FormDefinitionService();
+    this.dataManager = new DataManager();
   }
 
   getService() {
@@ -25,5 +27,21 @@ export default class FormDefinitionManager extends EntityManager {
    */
   getDefinitionTypesSearchParameters() {
     return this.getService().getDefinitionTypesSearchParameters();
+  }
+
+  fetchTypes(uiKey = null, cb = null) {
+    return (dispatch) => {
+      dispatch(this.requestEntities(null, uiKey));
+      this.getService().getTypes()
+      .then(json => {
+        if (cb) {
+          cb(json, null);
+        }
+        dispatch(this.dataManager.receiveData(uiKey, json));
+      })
+      .catch(error => {
+        dispatch(this.receiveError({}, uiKey, error, cb));
+      });
+    };
   }
 }

@@ -43,6 +43,27 @@ module.exports = {
       'entityType': ['role', 'IdmRole'],
       'component': require('./src/components/advanced/RoleInfo/RoleInfo').default,
       'manager': require('./src/redux').RoleManager
+    },
+    {
+      'id': 'tree-node-info',
+      'type': 'entity-info',
+      'entityType': ['treeNode', 'IdmTreeNode'],
+      'component': require('./src/components/advanced/TreeNodeInfo/TreeNodeInfo').default,
+      'manager': require('./src/redux').TreeNodeManager
+    },
+    {
+      'id': 'tree-type-info',
+      'type': 'entity-info',
+      'entityType': ['treeType', 'IdmTreeType'],
+      'component': require('./src/components/advanced/TreeTypeInfo/TreeTypeInfo').default,
+      'manager': require('./src/redux').TreeTypeManager
+    },
+    {
+      'id': 'identity-contract-info',
+      'type': 'entity-info',
+      'entityType': ['identityContract', 'IdmIdentityContract'],
+      'component': require('./src/components/advanced/IdentityContractInfo/IdentityContractInfo').default,
+      'manager': require('./src/redux').IdentityContractManager
     }
   ]
 };

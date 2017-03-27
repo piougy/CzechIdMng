@@ -119,6 +119,8 @@ export default class EntityUtils {
    * @return {Boolean}
    */
   static isNew(entity) {
-    return !entity || !entity._links || !entity._links.self;
+    // TODO: new dtos doesn't contain self link
+    // return !entity || !entity._links || !entity._links.self;
+    return !entity || !entity.id;
   }
 }

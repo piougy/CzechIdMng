@@ -11,8 +11,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
+import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.model.domain.RoleType;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleAuthority;
@@ -79,6 +81,9 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 	
 	@Autowired
 	private LongRunningTaskManager longRunningTaskManager;
+	
+	@Autowired
+	private FormService formService;
 
 	@Override
 	public void onApplicationEvent(ContextRefreshedEvent event) {
@@ -164,6 +169,20 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 			}
 			// Cancels all previously ran tasks
 			longRunningTaskManager.init();
+			//
+			// prepare default form definitions
+			if (formService.getDefinition(IdmIdentity.class) == null) {
+				formService.createDefinition(IdmIdentity.class, new ArrayList<>());
+			}
+			if (formService.getDefinition(IdmRole.class) == null) {
+				formService.createDefinition(IdmRole.class, new ArrayList<>());
+			}
+			if (formService.getDefinition(IdmTreeNode.class) == null) {
+				formService.createDefinition(IdmTreeNode.class, new ArrayList<>());
+			}
+			if (formService.getDefinition(IdmIdentityContract.class) == null) {
+				formService.createDefinition(IdmIdentityContract.class, new ArrayList<>());
+			}
 		} finally {
 			SecurityContextHolder.clearContext();
 		}

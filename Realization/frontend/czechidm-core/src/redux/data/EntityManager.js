@@ -372,17 +372,22 @@ export default class EntityManager {
         )
       );
       const successEntities = [];
+      const approveEntities = [];
       let currentEntity = null; // currentEntity in loop
       entities.reduce((sequence, entity) => {
         return sequence.then(() => {
           // stops when first error occurs
           currentEntity = entity;
           return this.getService().deleteById(entity.id);
-        }).then(() => {
+        }).then((json) => {
           dispatch(this.updateBulkAction());
-          successEntities.push(entity);
-          // new entity to redux store
-          dispatch(this.deletedEntity(entity.id, entity, uiKey));
+          if (json && json.statusCode === 202) {
+            approveEntities.push(entity);
+          } else {
+            successEntities.push(entity);
+            // remove entity to redux store
+            dispatch(this.deletedEntity(entity.id, entity, uiKey));
+          }
         }).catch(error => {
           if (currentEntity.id === entity.id) { // we want show message for entity, when loop stops
             if (!cb) { // if no callback given, we need show error
@@ -402,8 +407,14 @@ export default class EntityManager {
       .then((error) => {
         if (successEntities.length > 0) {
           dispatch(this.flashMessagesManager.addMessage({
-            level: successEntities.length === entities.length ? 'success' : 'info',
+            level: 'success',
             message: this.i18n(`action.delete.success`, { count: successEntities.length, records: this.getNiceLabels(successEntities).join(', '), record: this.getNiceLabel(successEntities[0]) })
+          }));
+        }
+        if (approveEntities.length > 0) {
+          dispatch(this.flashMessagesManager.addMessage({
+            level: 'info',
+            message: this.i18n(`action.delete.approve`, { count: approveEntities.length, records: this.getNiceLabels(approveEntities).join(', '), record: this.getNiceLabel(approveEntities[0]) })
           }));
         }
         dispatch(this.stopBulkAction());

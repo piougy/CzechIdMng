@@ -33,7 +33,7 @@ public class IdmConfiguration extends AbstractEntity implements IdentifiableByNa
 
 	@NotEmpty
 	@Size(min = 1, max = DefaultFieldLengths.NAME)
-	@Column(name = "name", length = DefaultFieldLengths.NAME, nullable = false, unique = true)
+	@Column(name = "name", length = DefaultFieldLengths.NAME, nullable = false)
 	private String name;
 	
 	@Column(name = "value")

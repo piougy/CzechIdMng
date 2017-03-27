@@ -7,6 +7,7 @@ import javax.persistence.ConstraintMode;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.ForeignKey;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
@@ -28,7 +29,8 @@ import eu.bcvsolutions.idm.core.api.entity.OperationResult;
  *
  */
 @Entity
-@Table(name = "sys_provisioning_request")
+@Table(name = "sys_provisioning_request", indexes = { 
+		@Index(name = "ux_sys_prov_req_operation_id", columnList = "provisioning_operation_id", unique = true)})
 public class SysProvisioningRequest extends AbstractEntity {
 
 	private static final long serialVersionUID = -783887291617766366L;

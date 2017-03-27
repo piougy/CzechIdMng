@@ -1,10 +1,13 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 //
+import * as Utils from '../../utils';
 import * as Basic from '../../components/basic';
-import { FormDefinitionManager, SecurityManager } from '../../redux';
+import { FormDefinitionManager, SecurityManager, DataManager } from '../../redux';
 
 const manager = new FormDefinitionManager();
+
+const TYPES_UIKEY = 'typesUiKey';
 
 /**
 * Form detail
@@ -14,7 +17,7 @@ class FormDetail extends Basic.AbstractContent {
   constructor(props, context) {
     super(props, context);
     this.state = {
-      _showLoading: true,
+      _showLoading: true
     };
   }
 
@@ -26,24 +29,28 @@ class FormDetail extends Basic.AbstractContent {
     super.componentDidMount();
     const { entityId } = this.props.params;
     const { isNew } = this.props;
-
-    if (isNew) {
-      this.context.store.dispatch(manager.fetchEntities(manager.getDefinitionTypesSearchParameters(), null, (typesFromBe) => {
-        const types = typesFromBe._embedded.resources.map(item => { return {value: item, niceLabel: item }; });
+    this.context.store.dispatch(manager.fetchTypes(TYPES_UIKEY, (types) => {
+      const values = [];
+      if (types && types._embedded) {
+        types._embedded.resources.forEach((value) => {
+          values.push({
+            value,
+            niceLabel: value
+          });
+        });
         this.setState({
-          types,
+          types: values,
           _showLoading: false
         });
-        // set focus into name, only when is new
-        this.refs.name.focus();
-      }));
+      }
+    }));
+    if (isNew) {
       this.context.store.dispatch(manager.receiveEntity(entityId, { unmodifiable: false }));
     } else {
       this.getLogger().debug(`[FormDetail] loading entity detail [id:${entityId}]`);
       this.context.store.dispatch(manager.fetchEntity(entityId, null, () => {
-        this.setState({
-          _showLoading: false
-        });
+        // set focus into name
+        this.refs.name.focus();
       }));
     }
   }
@@ -90,6 +97,9 @@ class FormDetail extends Basic.AbstractContent {
       this.addError(error);
       return;
     }
+    this.setState({
+      _showLoading: false
+    });
     this.addMessage({ message: this.i18n('save.success', { name: entity.name }) });
     if (isNew) {
       this.context.router.replace(`/forms`);
@@ -97,47 +107,34 @@ class FormDetail extends Basic.AbstractContent {
   }
 
   render() {
-    const { uiKey, entity, showLoading, isNew } = this.props;
-    const { types, _showLoading } = this.state;
+    const { uiKey, entity, showLoading } = this.props;
+    const { _showLoading, types } = this.state;
 
-    let showLoadingFinal = true;
-    if (!showLoading && !_showLoading) {
-      showLoadingFinal = false;
-    }
     return (
       <form onSubmit={this.save.bind(this)}>
-        <Basic.Panel className={isNew ? '' : 'no-border last'} showLoading={showLoadingFinal}>
-          <Basic.PanelHeader text={isNew ? this.i18n('create.header') : this.i18n('content.formDefinitions.detail.title')} />
-          <Basic.PanelBody style={isNew ? { paddingTop: 0, paddingBottom: 0 } : { padding: 0 }} rendered={!showLoadingFinal}>
-            <Basic.AbstractForm ref="form" uiKey={uiKey} data={entity}
+        <Basic.Panel className={Utils.Entity.isNew(entity) ? '' : 'no-border last'}>
+          <Basic.PanelHeader text={Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('content.formDefinitions.detail.title')} />
+          <Basic.PanelBody style={Utils.Entity.isNew(entity) ? { paddingTop: 0, paddingBottom: 0 } : { padding: 0 }}>
+            <Basic.AbstractForm ref="form" uiKey={uiKey} data={entity} rendered={types !== undefined}
               readOnly={!SecurityManager.hasAuthority('EAVFORMDEFINITIONS_WRITE')}>
             <Basic.TextField
               ref="name"
               label={this.i18n('entity.FormDefinition.name')}
-              readOnly={!isNew}
-              max={255}/>
-            {
-              isNew
-              ?
-              <Basic.EnumSelectBox
-                ref="type"
-                label={this.i18n('entity.FormDefinition.type')}
-                placeholder={this.i18n('entity.FormDefinition.type')}
-                required
-                showLoading={types}
-                options={types}/>
-              :
-              <Basic.TextField
-                ref="type"
-                readOnly={!isNew}
-                label={this.i18n('entity.FormDefinition.type')}
-                max={255}/>
-            }
-          <Basic.Checkbox
-            ref="unmodifiable"
-            readOnly
-            label={this.i18n('entity.FormDefinition.unmodifiable.label')}
-            helpBlock={this.i18n('entity.FormDefinition.unmodifiable.help')}/>
+              readOnly={!entity || entity.unmodifiable}
+              max={255}
+              required/>
+            <Basic.EnumSelectBox
+              ref="type"
+              label={this.i18n('entity.FormDefinition.type')}
+              placeholder={this.i18n('entity.FormDefinition.type')}
+              required
+              readOnly={!entity || entity.unmodifiable}
+              options={types}/>
+            <Basic.Checkbox
+              ref="unmodifiable"
+              readOnly
+              label={this.i18n('entity.FormDefinition.unmodifiable.label')}
+              helpBlock={this.i18n('entity.FormDefinition.unmodifiable.help')}/>
           </Basic.AbstractForm>
           </Basic.PanelBody>
           <Basic.PanelFooter showLoading={showLoading} >
@@ -171,7 +168,8 @@ function select(state, component) {
   //
   return {
     entity: manager.getEntity(state, entityId),
-    showLoading: manager.isShowLoading(state, null, entityId)
+    showLoading: manager.isShowLoading(state, null, entityId),
+    types: DataManager.getData(state, TYPES_UIKEY)
   };
 }
 

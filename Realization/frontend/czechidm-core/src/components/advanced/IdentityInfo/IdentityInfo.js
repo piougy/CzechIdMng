@@ -20,6 +20,9 @@ export class IdentityInfo extends AbstractEntityInfo {
 
   constructor(props, context) {
     super(props, context);
+    this.state = {
+      error: null
+    };
   }
 
   getManager() {
@@ -29,7 +32,7 @@ export class IdentityInfo extends AbstractEntityInfo {
   /**
    * if username is setted and identity is not - then load identity
    */
-  loadIdentityIfNeeded() {
+  loadEntityIfNeeded() {
     const { entity, _identity } = this.props;
     if (this._id() && !entity && !_identity) {
       const uiKey = identityManager.resolveUiKey(null, this._id());
@@ -211,7 +214,8 @@ IdentityInfo.defaultProps = {
 function select(state, component) {
   return {
     _identity: identityManager.getEntity(state, component.entityIdentifier || component.username),
-    _showLoading: identityManager.isShowLoading(state, null, component.entityIdentifier || component.username)
+    _showLoading: identityManager.isShowLoading(state, null, component.entityIdentifier || component.username),
+    userContext: state.security.userContext // is needed for refresh after login
   };
 }
 export default connect(select)(IdentityInfo);

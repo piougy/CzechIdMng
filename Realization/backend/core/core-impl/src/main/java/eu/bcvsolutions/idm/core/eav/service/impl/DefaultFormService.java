@@ -189,6 +189,9 @@ public class DefaultFormService implements FormService {
 	@Override
 	@Transactional
 	public IdmFormAttribute saveAttribute(IdmFormAttribute attribute) {
+		Assert.notNull(attribute);
+		Assert.notNull(attribute.getFormDefinition(), String.format("Form definition for attribute [%s] is required!", attribute.getName()));
+		//
 		return formAttributeService.save(attribute);
 	}
 	

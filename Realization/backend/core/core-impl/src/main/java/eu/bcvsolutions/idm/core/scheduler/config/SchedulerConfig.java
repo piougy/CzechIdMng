@@ -7,6 +7,7 @@ import javax.sql.DataSource;
 
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.simpl.RAMJobStore;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.PropertiesFactoryBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.ApplicationContext;
@@ -34,7 +35,10 @@ public class SchedulerConfig {
 	
 //	@Autowired
 //	private DataSource dataSource; // TODO: after flyway will be enabled
-
+	
+	@Value("${scheduler.properties.location:/quartz.properties}")
+    private String propertiesLocation;
+	
 	@Bean
 	public AutowiringSpringBeanJobFactory jobFactory(ApplicationContext applicationContext) {
 		AutowiringSpringBeanJobFactory jobFactory = new AutowiringSpringBeanJobFactory();
@@ -73,7 +77,7 @@ public class SchedulerConfig {
     @Bean
     public Properties quartzProperties() throws IOException {
         PropertiesFactoryBean propertiesFactoryBean = new PropertiesFactoryBean();
-        propertiesFactoryBean.setLocation(new ClassPathResource("/quartz.properties"));
+        propertiesFactoryBean.setLocation(new ClassPathResource(propertiesLocation));
         propertiesFactoryBean.afterPropertiesSet();
         return propertiesFactoryBean.getObject();
     }

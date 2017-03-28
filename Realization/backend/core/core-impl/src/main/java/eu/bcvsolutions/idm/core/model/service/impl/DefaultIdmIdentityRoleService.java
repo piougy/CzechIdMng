@@ -189,4 +189,11 @@ public class DefaultIdmIdentityRoleService extends AbstractReadWriteEntityServic
 		}
 		return false;
 	}	
+
+	public Page<IdmIdentityRole> findExpiredRoles(org.joda.time.LocalDate expirationDate, Pageable page) {
+		Assert.notNull(expirationDate);
+		//
+		return repository.findExpiredRoles(expirationDate, page);
+	}
+
 }

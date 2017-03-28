@@ -28,6 +28,7 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.scheduler.exception.InvalidCronExpressionException;
 import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskService;
 import eu.bcvsolutions.idm.core.scheduler.service.impl.DefaultSchedulerManager;
+import eu.bcvsolutions.idm.core.scheduler.task.impl.IdentityRoleExpirationTaskExecutor;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
@@ -94,27 +95,26 @@ public class DefaultSchedulerManagerIntegrationTest extends AbstractIntegrationT
 		String result = "TEST_SCHEDULER_TWO";
 		Task task = createTask(result);
 		//
-		SimpleTaskTrigger trigger = new SimpleTaskTrigger();
-		trigger.setTaskId(task.getId());
-		trigger.setFireTime(new DateTime());
+		manager.createTrigger(task.getId(), getSimpleTrigger(task));
 		//
-		manager.createTrigger(task.getId(), trigger);
+		DefaultLongRunningTaskManagerIntegrationTest.waitForResult(getContinueFunction());
 		//
-		Function<String, Boolean> continueFunction = res -> {
-			return longRunningTaskService.getTasks(configurationService.getInstanceId(), OperationState.CREATED).size() == 0;
-		};
-		DefaultLongRunningTaskManagerIntegrationTest.waitForResult(continueFunction);
-		//
-		List<FutureTask<?>> taskList = new ArrayList<>();
-		for (LongRunningFutureTask<?> longRunningFutureTask : longRunningTaskManager.processCreated()) {
-			if (longRunningFutureTask.getExecutor() instanceof TestSchedulableTask) {
-				taskList.add(longRunningFutureTask.getFutureTask());
-			}
-		}
-		// assertEquals(1, taskList.size());
+		List<FutureTask<?>> taskList = getFutureTaskList(TestSchedulableTask.class);
 		assertEquals(result, taskList.get(0).get());
 	}
-	
+
+	@Test
+	public void testCreateAndRunRoleExpirationTask() throws Exception {
+		Task task = createRoleExpirationTask();
+		//
+		manager.createTrigger(task.getId(), getSimpleTrigger(task));
+		//
+		DefaultLongRunningTaskManagerIntegrationTest.waitForResult(getContinueFunction());
+		//
+		List<FutureTask<?>> taskList = getFutureTaskList(IdentityRoleExpirationTaskExecutor.class);
+		assertEquals(Boolean.TRUE, taskList.get(0).get());
+	}
+
 	@Test
 	public void testCreateAndDeleteCronTrigger() {
 		Task task = createTask(null);
@@ -156,5 +156,39 @@ public class DefaultSchedulerManagerIntegrationTest extends AbstractIntegrationT
 		task.getParameters().put(RESULT_PROPERTY, result);
 		//
 		return manager.createTask(task);
+	}
+	
+	private Task createRoleExpirationTask() {
+		Task task = new Task();
+		task.setInstanceId(configurationService.getInstanceId());
+		task.setTaskType(IdentityRoleExpirationTaskExecutor.class);
+		task.setDescription("test role expiration task");
+		//
+		return manager.createTask(task);
+	}
+
+	private List<FutureTask<?>> getFutureTaskList(Class<?> clazz) {
+		List<FutureTask<?>> taskList = new ArrayList<>();
+		for (LongRunningFutureTask<?> longRunningFutureTask : longRunningTaskManager.processCreated()) {
+			if (longRunningFutureTask.getExecutor().getClass().equals(clazz)) {
+				taskList.add(longRunningFutureTask.getFutureTask());
+			}
+		}
+		return taskList;
+	}
+
+	private SimpleTaskTrigger getSimpleTrigger(Task task) {
+		SimpleTaskTrigger trigger = new SimpleTaskTrigger();
+		trigger.setTaskId(task.getId());
+		trigger.setFireTime(new DateTime());
+		return trigger;
+	}
+
+	private Function<String, Boolean> getContinueFunction() {
+		Function<String, Boolean> continueFunction = res -> {
+			return longRunningTaskService.getTasks(configurationService.getInstanceId(),
+					OperationState.CREATED).size() == 0;
+		};
+		return continueFunction;
 	}
 }

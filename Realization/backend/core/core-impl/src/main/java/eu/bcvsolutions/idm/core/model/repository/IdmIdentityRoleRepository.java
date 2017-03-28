@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.core.model.repository;
 import java.util.List;
 import java.util.UUID;
 
+import org.joda.time.LocalDate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -64,4 +65,8 @@ public interface IdmIdentityRoleRepository extends AbstractEntityRepository<IdmI
 	Page<IdmIdentityRole> findByRoleTreeNode_Id(@Param("roleTreeNodeId") UUID roleTreeNodeId, Pageable pageable);
 	
 	List<IdmIdentityRole> findAllByIdentityContract_IdentityAndRole(@Param("identity") IdmIdentity identity, @Param("role") IdmRole role);
+
+	@Query(value = "select e from #{#entityName} e"
+			+ " where e.validTill is not null and e.validTill < :expirationDate")
+	Page<IdmIdentityRole> findExpiredRoles(@Param("expirationDate") LocalDate expirationDate, Pageable page);
 }

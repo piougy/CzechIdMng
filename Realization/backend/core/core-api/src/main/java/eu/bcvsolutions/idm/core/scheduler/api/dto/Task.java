@@ -77,6 +77,17 @@ public class Task {
 		this.parameters = parameters;
 	}
 	
+	/**
+	 * Adds task parameter. Returs previous values associated
+	 * with the provided key.
+	 * @param key
+	 * @param value
+	 * @return previous value
+	 */
+	public String addParameter(String key, String value) {
+		return getParameters().put(key, value);
+	}
+	
 	public String getDescription() {
 		return description;
 	}

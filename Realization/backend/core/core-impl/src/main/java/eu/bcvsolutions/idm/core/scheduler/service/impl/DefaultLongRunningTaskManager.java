@@ -97,7 +97,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 	@Override
 	@SuppressWarnings("unchecked")
 	public List<LongRunningFutureTask<?>> processCreated() {
-		LOG.debug("Processing created tasks from long running tas queue");
+		LOG.debug("Processing created tasks from long running task queue");
 		// run as system - called from scheduler internally
 		securityService.setSystemAuthentication();
 		//

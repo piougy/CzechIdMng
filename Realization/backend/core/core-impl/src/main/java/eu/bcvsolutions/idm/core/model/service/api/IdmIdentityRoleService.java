@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.core.model.service.api;
 import java.util.List;
 import java.util.UUID;
 
+import org.joda.time.LocalDate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -79,4 +80,10 @@ public interface IdmIdentityRoleService extends ReadWriteEntityService<IdmIdenti
 	 * @return
 	 */
 	boolean isIdentityRoleValidFromNow(IdmIdentityRole identityRole);
+	
+	/**
+	 * Returns all roles with date lower than given expiration date.
+	 * @return
+	 */
+	Page<IdmIdentityRole> findExpiredRoles(LocalDate expirationDate, Pageable page);
 }

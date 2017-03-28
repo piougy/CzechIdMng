@@ -56,16 +56,18 @@ public class DefaultWorkflowHistoricTaskInstanceService implements WorkflowHisto
 			query.processDefinitionKey(filter.getProcessDefinitionKey());
 		}
 		// check security ... only assigneed user to task or process applicant or implementer can work with
-		// historic task instance
-		// TODO Now we don't have detail for historic task. When we need detail, then we will need create different projection (detail can't be read by applicant)
-		String loggedUsername = securityService.getUsername();
-		query.or();
-		query.processVariableValueEquals(WorkflowProcessInstanceService.APPLICANT_USERNAME, loggedUsername);
-		query.processVariableValueEquals(WorkflowProcessInstanceService.IMPLEMENTER_USERNAME, loggedUsername);
-		query.taskInvolvedUser(loggedUsername);
-		// TODO admin
-		query.endOr();
-
+		// historic task instance ... admin can see all historic tasks every time
+		if(!securityService.isAdmin()) {
+			// TODO Now we don't have detail for historic task. When we need detail, then we will need create different projection (detail can't be read by applicant)
+			
+			String loggedUsername = securityService.getUsername();
+			query.or();
+			query.processVariableValueEquals(WorkflowProcessInstanceService.APPLICANT_USERNAME, loggedUsername);
+			query.processVariableValueEquals(WorkflowProcessInstanceService.IMPLEMENTER_USERNAME, loggedUsername);
+			query.taskInvolvedUser(loggedUsername);
+			// TODO admin
+			query.endOr();
+		}
 		if (WorkflowHistoricTaskInstanceService.SORT_BY_CREATE_TIME.equals(filter.getSortByFields())) {
 			query.orderByTaskCreateTime();
 		} else if (WorkflowHistoricTaskInstanceService.SORT_BY_END_TIME.equals(filter.getSortByFields())) {

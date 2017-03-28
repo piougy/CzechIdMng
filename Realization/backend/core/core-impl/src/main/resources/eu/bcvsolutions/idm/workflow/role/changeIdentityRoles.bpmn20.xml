@@ -8,7 +8,7 @@ Input variables:
     <startEvent id="startevent1" name="Start"></startEvent>
     <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway"></exclusiveGateway>
     <userTask id="managerTask" name="Approve by manager" activiti:candidateUsers="#{identityService.findAllManagersAsString(applicantIdentifier)}" activiti:formKey="dynamicRoleTaskDetail">
-      <documentation>Change identity permissions - approve by applicant manager</documentation>
+      <documentation>${processInstanceName}</documentation>
       <extensionElements>
         <activiti:formProperty id="disapprove" type="decision"></activiti:formProperty>
         <activiti:formProperty id="backToApplicant" type="decision"></activiti:formProperty>
@@ -31,25 +31,26 @@ Input variables:
       <documentation>Canceled by applicant</documentation>
     </endEvent>
     <userTask id="applicantReturnedTask" name="Returned request" activiti:assignee=" ${applicantUsername}" activiti:formKey="dynamicRoleTaskDetail">
-      <documentation>Authorizations change: Returned request</documentation>
+      <documentation>Returned request for change permissions from manager</documentation>
       <extensionElements>
         <activiti:formProperty id="cancelRequest" type="decision"></activiti:formProperty>
         <activiti:formProperty id="repairedRequest" type="decision"></activiti:formProperty>
-        <activiti:formProperty id="managerDescription" type="textArea" writable="false"></activiti:formProperty>
-        <activiti:formProperty id="applicantDescription" type="textArea"></activiti:formProperty>
+        <activiti:formProperty id="managerDescription" type="textArea" variable="managerDescription" writable="false"></activiti:formProperty>
+        <activiti:formProperty id="applicantDescription" type="textArea" expression="#{entityEvent.content.description}"></activiti:formProperty>
       </extensionElements>
     </userTask>
     <sequenceFlow id="flow15" sourceRef="applicantReturnedTask" targetRef="exclusivegateway1"></sequenceFlow>
     <endEvent id="endByManager" name="Rejected by manager"></endEvent>
-    <callActivity id="startAddSubWorkflow" name="Approval assign of particular authorizations" calledElement="${roleService.findAssignRoleWorkflowDefinition(conceptRole.role) == null ? 'change-role-without-approve' : roleService.findAssignRoleWorkflowDefinition(conceptRole.role) }">
+    <callActivity id="startAddSubWorkflow" name="Approval assign of particular authorizations" calledElement="${roleService.findAssignRoleWorkflowDefinition(conceptRole.role) == null ? &quot;change-role-without-approve&quot; : roleService.findAssignRoleWorkflowDefinition(conceptRole.role) }">
       <extensionElements>
-        <activiti:in source="identityIdentifier" target="identityIdentifier"></activiti:in>
         <activiti:in source="applicantIdentifier" target="applicantIdentifier"></activiti:in>
         <activiti:in source="applicantUsername" target="applicantUsername"></activiti:in>
         <activiti:in source="approve" target="approve"></activiti:in>
         <activiti:in source="disapprove" target="disapprove"></activiti:in>
         <activiti:in sourceExpression="#{&quot;add&quot;}" target="operationType"></activiti:in>
         <activiti:in sourceExpression="#{conceptRole}" target="conceptRole"></activiti:in>
+        <activiti:in sourceExpression="#{entityEvent.content.description}" target="applicantDescription"></activiti:in>
+        <activiti:in source="implementerUsername" target="implementerUsername"></activiti:in>
       </extensionElements>
       <multiInstanceLoopCharacteristics isSequential="false" activiti:collection="addedConceptRoles" activiti:elementVariable="conceptRole"></multiInstanceLoopCharacteristics>
     </callActivity>
@@ -76,7 +77,7 @@ def addedConceptRoles = conceptRoleRequestService.findDto(conceptFilter, null).g
 
 execution.setVariable("addedConceptRoles", addedConceptRoles);</script>
     </scriptTask>
-    <serviceTask id="servicetaskCreateProcessName" name="Generating process name" activiti:expression="Žádost o změnu oprávnění pro &quot;${identityService.getNiceLabel(identityService.get(applicantIdentifier))}&quot;" activiti:resultVariableName="processInstanceName"></serviceTask>
+    <serviceTask id="servicetaskCreateProcessName" name="Generating process name" activiti:expression="Change permissions request for &quot;${identityService.getNiceLabel(identityService.get(applicantIdentifier))}&quot;" activiti:resultVariableName="processInstanceName"></serviceTask>
     <sequenceFlow id="flow23" sourceRef="startevent1" targetRef="servicetaskCreateProcessName"></sequenceFlow>
     <scriptTask id="scripttask2" name="Loading concepts for change permissions" scriptFormat="groovy" activiti:autoStoreVariables="false">
       <script>import org.joda.time.LocalDate;
@@ -98,13 +99,14 @@ execution.setVariable("changedConceptRoles", changedConceptRoles);</script>
     <sequenceFlow id="flow24" sourceRef="parallelgateway1" targetRef="scripttask2"></sequenceFlow>
     <callActivity id="startChangeSubWorkflow" name="Approval change of particular authorizations" calledElement="${roleService.findChangeAssignRoleWorkflowDefinition(conceptRole.role) == null ? 'change-role-without-approve' : roleService.findChangeAssignRoleWorkflowDefinition(conceptRole.role) }">
       <extensionElements>
-        <activiti:in source="identityIdentifier" target="identityIdentifier"></activiti:in>
         <activiti:in source="applicantIdentifier" target="applicantIdentifier"></activiti:in>
         <activiti:in source="applicantUsername" target="applicantUsername"></activiti:in>
         <activiti:in source="approve" target="approve"></activiti:in>
         <activiti:in source="disapprove" target="disapprove"></activiti:in>
         <activiti:in sourceExpression="#{&quot;change&quot;}" target="operationType"></activiti:in>
         <activiti:in sourceExpression="#{conceptRole}" target="conceptRole"></activiti:in>
+        <activiti:in sourceExpression="#{entityEvent.content.description}" target="applicantDescription"></activiti:in>
+        <activiti:in source="implementerUsername" target="implementerUsername"></activiti:in>
       </extensionElements>
       <multiInstanceLoopCharacteristics isSequential="false" activiti:collection="changedConceptRoles" activiti:elementVariable="conceptRole"></multiInstanceLoopCharacteristics>
     </callActivity>
@@ -122,6 +124,8 @@ execution.setVariable("changedConceptRoles", changedConceptRoles);</script>
         <activiti:in source="disapprove" target="disapprove"></activiti:in>
         <activiti:in sourceExpression="#{&quot;remove&quot;}" target="operationType"></activiti:in>
         <activiti:in sourceExpression="#{conceptRole}" target="conceptRole"></activiti:in>
+        <activiti:in sourceExpression="#{entityEvent.content.description}" target="applicantDescription"></activiti:in>
+        <activiti:in source="implementerUsername" target="implementerUsername"></activiti:in>
       </extensionElements>
       <multiInstanceLoopCharacteristics isSequential="false" activiti:collection="removedConceptRoles" activiti:elementVariable="conceptRole"></multiInstanceLoopCharacteristics>
     </callActivity>
@@ -240,11 +244,12 @@ roleRequestService.save(requestDto);</script>
         <activiti:value>{"label": "Žádost opravena","showWarning":false,"warningMessage":"Opravdu chcete opravenou žádost podat ke schválení?","level":"success","tooltip":"Opravenou žádost a předat ke schválení"}</activiti:value>
       </extensionElements>
     </dataObject>
+    <dataObject id="applicantDescription" name="applicantDescription" itemSubjectRef="xsd:string"></dataObject>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_approve-identity-change-permissions">
     <bpmndi:BPMNPlane bpmnElement="approve-identity-change-permissions" id="BPMNPlane_approve-identity-change-permissions">
       <bpmndi:BPMNShape bpmnElement="startevent1" id="BPMNShape_startevent1">
-        <omgdc:Bounds height="35.0" width="35.0" x="310.0" y="129.0"></omgdc:Bounds>
+        <omgdc:Bounds height="35.0" width="35.0" x="320.0" y="127.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="exclusivegateway1" id="BPMNShape_exclusivegateway1">
         <omgdc:Bounds height="40.0" width="40.0" x="693.0" y="121.0"></omgdc:Bounds>
@@ -262,7 +267,7 @@ roleRequestService.save(requestDto);</script>
         <omgdc:Bounds height="71.0" width="130.0" x="806.0" y="106.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="endByManager" id="BPMNShape_endByManager">
-        <omgdc:Bounds height="35.0" width="35.0" x="856.0" y="660.0"></omgdc:Bounds>
+        <omgdc:Bounds height="35.0" width="35.0" x="853.0" y="661.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="startAddSubWorkflow" id="BPMNShape_startAddSubWorkflow">
         <omgdc:Bounds height="96.0" width="201.0" x="1272.0" y="280.0"></omgdc:Bounds>
@@ -342,7 +347,7 @@ roleRequestService.save(requestDto);</script>
         <omgdi:waypoint x="1272.0" y="328.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow23" id="BPMNEdge_flow23">
-        <omgdi:waypoint x="345.0" y="146.0"></omgdi:waypoint>
+        <omgdi:waypoint x="355.0" y="144.0"></omgdi:waypoint>
         <omgdi:waypoint x="460.0" y="144.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow24" id="BPMNEdge_flow24">
@@ -409,7 +414,7 @@ roleRequestService.save(requestDto);</script>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="sid-870523FE-67F8-4023-B801-86ED53A96062" id="BPMNEdge_sid-870523FE-67F8-4023-B801-86ED53A96062">
         <omgdi:waypoint x="870.0" y="631.0"></omgdi:waypoint>
-        <omgdi:waypoint x="873.0" y="660.0"></omgdi:waypoint>
+        <omgdi:waypoint x="870.0" y="661.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="eu.bcvsolutions.role.withoutapprove">
-  <process id="change-role-without-approve" name="Process for assign role idenity without approve." isExecutable="true">
-    <documentation>Workflow for assign new role to identity without approve.</documentation>
+  <process id="change-role-without-approve" name="Process for assign/change/remove role idenity without approve." isExecutable="true">
+    <documentation>Workflow for assign/change/remove role to identity without approve.</documentation>
     <startEvent id="startevent1" name="Start"></startEvent>
-    <endEvent id="endevent2" name="End"></endEvent>
-    <serviceTask id="servicetask2" name="Create name of process" activiti:expression="Přiřazení role &quot;${roleService.get(conceptRole.role).name}&quot; (bez schvalování) pro &quot;${identityService.getNiceLabel(identityService.get(applicantIdentifier))}&quot;" activiti:resultVariableName="processInstanceName"></serviceTask>
+    <endEvent id="endevent2" name="End" activiti:async="true"></endEvent>
+    <serviceTask id="servicetask2" name="Create name of process" activiti:expression="Assign role &quot;${roleService.get(conceptRole.role).name}&quot; to &quot;${identityService.getNiceLabel(identityService.get(applicantIdentifier))} without approving&quot;" activiti:resultVariableName="processInstanceName"></serviceTask>
     <sequenceFlow id="flow7" sourceRef="startevent1" targetRef="exclusivegateway2"></sequenceFlow>
     <exclusiveGateway id="exclusivegateway2" name="Exclusive Gateway"></exclusiveGateway>
     <sequenceFlow id="flow9" sourceRef="exclusivegateway2" targetRef="servicetask2">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[#{operationType.equals("add")}]]></conditionExpression>
     </sequenceFlow>
-    <serviceTask id="servicetask5" name="Create name of process" activiti:expression="Úprava role &quot;${roleService.get(conceptRole.role).name}&quot; (bez schvalování) pro &quot;${identityService.getNiceLabel(identityService.get(applicantIdentifier))}&quot;" activiti:resultVariableName="processInstanceName"></serviceTask>
+    <serviceTask id="servicetask5" name="Create name of process" activiti:expression="Change role &quot;${roleService.get(conceptRole.role).name}&quot; assigned on &quot;${identityService.getNiceLabel(identityService.get(applicantIdentifier))}  without approving&quot;" activiti:resultVariableName="processInstanceName"></serviceTask>
     <sequenceFlow id="flow27" sourceRef="exclusivegateway2" targetRef="servicetask5">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[#{operationType.equals("change")}]]></conditionExpression>
     </sequenceFlow>
@@ -20,10 +20,10 @@
 // Set and save state APPROVED to concept
 def conceptDto = conceptRoleRequestService.getDto(conceptRole.id);
 conceptDto.setState(RoleRequestState.APPROVED);
-conceptRoleRequestService.save(conceptDto);</script>
+conceptRoleRequestService.save(conceptDto);
+</script>
     </scriptTask>
-    <sequenceFlow id="flow36" sourceRef="scripttask5" targetRef="endevent2"></sequenceFlow>
-    <serviceTask id="servicetask6" name="Create name of process" activiti:expression="Odebrání role &quot;${roleService.get(conceptRole.role).name}&quot; (bez schvalování) pro &quot;${identityService.getNiceLabel(identityService.get(applicantIdentifier))}&quot;" activiti:resultVariableName="processInstanceName"></serviceTask>
+    <serviceTask id="servicetask6" name="Create name of process" activiti:expression="Remove role &quot;${roleService.get(conceptRole.role).name}&quot; (bez schvalování) asigned on &quot;${identityService.getNiceLabel(identityService.get(applicantIdentifier))} without approving&quot;" activiti:resultVariableName="processInstanceName"></serviceTask>
     <sequenceFlow id="flow37" sourceRef="exclusivegateway2" targetRef="servicetask6">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[#{operationType.equals("remove")}]]></conditionExpression>
     </sequenceFlow>
@@ -41,6 +41,7 @@ conceptRoleRequestService.save(conceptDto);</script>
       </extensionElements>
     </dataObject>
     <dataObject id="decision" name="decision" itemSubjectRef="xsd:string"></dataObject>
+    <sequenceFlow id="flow41" sourceRef="scripttask5" targetRef="endevent2"></sequenceFlow>
     <textAnnotation id="textannotation1">
       <text>Assign role to identity</text>
     </textAnnotation>
@@ -69,7 +70,7 @@ conceptRoleRequestService.save(conceptDto);</script>
         <omgdc:Bounds height="70.0" width="105.0" x="242.0" y="312.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="scripttask5" id="BPMNShape_scripttask5">
-        <omgdc:Bounds height="67.0" width="160.0" x="690.0" y="271.0"></omgdc:Bounds>
+        <omgdc:Bounds height="67.0" width="160.0" x="520.0" y="271.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="servicetask6" id="BPMNShape_servicetask6">
         <omgdc:Bounds height="70.0" width="105.0" x="242.0" y="420.0"></omgdc:Bounds>
@@ -97,10 +98,6 @@ conceptRoleRequestService.save(conceptDto);</script>
         <omgdi:waypoint x="177.0" y="347.0"></omgdi:waypoint>
         <omgdi:waypoint x="242.0" y="347.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow36" id="BPMNEdge_flow36">
-        <omgdi:waypoint x="850.0" y="304.0"></omgdi:waypoint>
-        <omgdi:waypoint x="960.0" y="304.0"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow37" id="BPMNEdge_flow37">
         <omgdi:waypoint x="177.0" y="303.0"></omgdi:waypoint>
         <omgdi:waypoint x="177.0" y="455.0"></omgdi:waypoint>
@@ -108,15 +105,19 @@ conceptRoleRequestService.save(conceptDto);</script>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow38" id="BPMNEdge_flow38">
         <omgdi:waypoint x="294.0" y="420.0"></omgdi:waypoint>
-        <omgdi:waypoint x="770.0" y="338.0"></omgdi:waypoint>
+        <omgdi:waypoint x="600.0" y="338.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow39" id="BPMNEdge_flow39">
         <omgdi:waypoint x="347.0" y="347.0"></omgdi:waypoint>
-        <omgdi:waypoint x="690.0" y="304.0"></omgdi:waypoint>
+        <omgdi:waypoint x="520.0" y="304.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow40" id="BPMNEdge_flow40">
         <omgdi:waypoint x="347.0" y="225.0"></omgdi:waypoint>
-        <omgdi:waypoint x="770.0" y="271.0"></omgdi:waypoint>
+        <omgdi:waypoint x="600.0" y="271.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow41" id="BPMNEdge_flow41">
+        <omgdi:waypoint x="680.0" y="304.0"></omgdi:waypoint>
+        <omgdi:waypoint x="960.0" y="304.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

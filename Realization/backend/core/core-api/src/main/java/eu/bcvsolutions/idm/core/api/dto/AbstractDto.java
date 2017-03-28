@@ -46,6 +46,7 @@ public abstract class AbstractDto implements BaseDto, Auditable {
 	@Size(max = DefaultFieldLengths.NAME)
 	private String originalModifier;
 	private UUID originalModifierId;
+	@JsonProperty(value = "_trimmed", access=Access.READ_ONLY)
 	private boolean trimmed = false;
 	@JsonProperty(value = "_embedded", access=Access.READ_ONLY)
 	private Map<String, BaseDto> embedded;

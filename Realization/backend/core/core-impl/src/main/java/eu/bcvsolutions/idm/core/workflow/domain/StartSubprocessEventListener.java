@@ -31,7 +31,7 @@ public class StartSubprocessEventListener implements ActivitiEventListener {
 		switch (event.getType()) {
 
 		case PROCESS_STARTED:
-			log.debug("StartSubprocesEventListener - receive event [{}]", event.getType());
+			log.debug("StartSubprocesEventListener - recieve event [{}]", event.getType());
 			
 			ActivitiProcessStartedEvent eventStarted = ((ActivitiProcessStartedEvent)event);
 			if (eventStarted.getNestedProcessInstanceId()  == null) {

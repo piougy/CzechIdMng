@@ -105,11 +105,14 @@ public class DefaultWorkflowHistoricProcessInstanceService implements WorkflowHi
 				query.variableValueEquals(entry.getKey(), entry.getValue());
 			}
 		}
+		
 		// check security ... only involved user or applicant can work with
-		// historic process instance
-		// Applicant and Implementer is added to involved user after process
-		// (subprocess) started. This modification allow not use OR clause.
-		query.involvedUser(securityService.getUsername());
+		// historic process instance ... admin can see all historic processes every time
+		if(!securityService.isAdmin()) {
+			// Applicant and Implementer is added to involved user after process
+			// (subprocess) started. This modification allow not use OR clause.
+			query.involvedUser(securityService.getUsername());
+		}
 
 		if (WorkflowHistoricProcessInstanceService.SORT_BY_START_TIME.equals(filter.getSortByFields())) {
 			query.orderByProcessInstanceStartTime();

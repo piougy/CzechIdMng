@@ -104,7 +104,7 @@ public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, Role
 	public String findAssignRoleWorkflowDefinition(UUID roleId){
 		Assert.notNull(roleId, "Role ID is required!");
 		
-		String key =  "change-role-without-approve";
+		String key =  this.get(roleId).getApproveAddWorkflow();
 		return Strings.isNullOrEmpty(key) ? null : key;
 	}
 

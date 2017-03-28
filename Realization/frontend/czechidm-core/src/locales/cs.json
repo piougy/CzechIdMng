@@ -1766,6 +1766,7 @@
           "startTime": "$t(entity.WorkflowHistoricProcessInstance.startTime)",
           "endTime": "$t(entity.WorkflowHistoricProcessInstance.endTime)",
           "deleteReason": "$t(entity.WorkflowHistoricProcessInstance.deleteReason)",
+          "processVariables": "$t(entity.WorkflowHistoricProcessInstance.processVariables)",
           "name": "$t(entity.WorkflowHistoricProcessInstance.name)",
           "startActivityId": "$t(entity.WorkflowHistoricProcessInstance.startActivityId)",
           "superProcessInstanceId": "$t(entity.WorkflowHistoricProcessInstance.superProcessInstanceId)",
@@ -2046,6 +2047,7 @@
       "endTime": "Datum ukončení",
       "startActivityId": "Zahájeno aktivitou",
       "deleteReason": "Důvod smazání",
+      "processVariables": "Proměnné procesu",
       "superProcessInstanceId": "ID nadřízeného procesu",
       "id": "ID",
       "applicant": "Žadatel"
@@ -2360,6 +2362,26 @@
       },
       "validTill": {
         "name" : "Platnost do",
+        "tooltip": "",
+        "placeholder": ""
+      },
+      "validFromDateOld": {
+        "name" : "Platnost od (původní)",
+        "tooltip": "",
+        "placeholder": ""
+      },
+      "validTillDateOld": {
+        "name" : "Platnost do (původní)",
+        "tooltip": "",
+        "placeholder": ""
+      },
+      "validFromDateNew": {
+        "name" : "Platnost od (nová)",
+        "tooltip": "",
+        "placeholder": ""
+      },
+      "validTillDateNew": {
+        "name" : "Platnost do (nová)",
         "tooltip": "",
         "placeholder": ""
       }

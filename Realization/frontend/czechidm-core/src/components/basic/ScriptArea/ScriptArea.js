@@ -44,7 +44,7 @@ class ScriptArea extends AbstractFormComponent {
 
   _showModalEditor() {
     this.setState({showModalEditor: true}, ()=>{
-      this.refs.inputModal.focus();
+      // this.refs.inputModal.focus();
     });
   }
 
@@ -86,6 +86,7 @@ class ScriptArea extends AbstractFormComponent {
     let AceEditor;
     AceEditor = require('react-ace').default;
     require('brace/mode/groovy');
+    require('brace/mode/json');
     require('brace/theme/github');
     const AceEditorInstance = this._getAceEditor(AceEditor, mode, className, height, showModalEditor);
     return (

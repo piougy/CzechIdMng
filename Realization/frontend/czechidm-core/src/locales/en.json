@@ -1732,6 +1732,7 @@
           "startTime": "$t(entity.WorkflowHistoricProcessInstance.startTime)",
           "endTime": "$t(entity.WorkflowHistoricProcessInstance.endTime)",
           "deleteReason": "$t(entity.WorkflowHistoricProcessInstance.deleteReason)",
+          "processVariables": "$t(entity.WorkflowHistoricProcessInstance.processVariables)",
           "name": "$t(entity.WorkflowHistoricProcessInstance.name)",
           "startActivityId": "$t(entity.WorkflowHistoricProcessInstance.startActivityId)",
           "superProcessInstanceId": "$t(entity.WorkflowHistoricProcessInstance.superProcessInstanceId)",
@@ -2019,6 +2020,7 @@
       "endTime": "Ends on",
       "startActivityId": "Started by activity",
       "deleteReason": "Reason for deletion",
+      "processVariables": "Process variables",
       "superProcessInstanceId": "Parent process ID",
       "id": "ID",
       "applicant": "Applicant"
@@ -2332,6 +2334,26 @@
       },
       "validTill": {
         "name" : "Valid till",
+        "tooltip": "",
+        "placeholder": ""
+      },
+      "validFromDateOld": {
+        "name" : "Valid from (old)",
+        "tooltip": "",
+        "placeholder": ""
+      },
+      "validTillDateOld": {
+        "name" : "Valid till (old)",
+        "tooltip": "",
+        "placeholder": ""
+      },
+      "validFromDateNew": {
+        "name" : "Valid from (new)",
+        "tooltip": "",
+        "placeholder": ""
+      },
+      "validTillDateNew": {
+        "name" : "Valid till (new)",
         "tooltip": "",
         "placeholder": ""
       }

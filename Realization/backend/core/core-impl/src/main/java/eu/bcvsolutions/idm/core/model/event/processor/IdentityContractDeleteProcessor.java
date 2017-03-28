@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.model.event.processor;
 
 import java.text.MessageFormat;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
@@ -15,10 +16,12 @@ import eu.bcvsolutions.idm.core.model.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.model.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.model.dto.filter.ConceptRoleRequestFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRoleValidRequest;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleValidRequestService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleRequestService;
 
 /**
@@ -36,24 +39,28 @@ public class IdentityContractDeleteProcessor extends CoreEventProcessor<IdmIdent
 	private final IdmIdentityRoleService identityRoleService;
 	private final IdmConceptRoleRequestService conceptRequestService;
 	private final IdmRoleRequestService roleRequestService;
+	private final IdmIdentityRoleValidRequestService identityRoleValidRequestService;
 	
 	@Autowired
 	public IdentityContractDeleteProcessor(
 			IdmIdentityContractRepository repository,
 			IdmIdentityRoleService identityRoleService,
 			IdmConceptRoleRequestService conceptRequestService,
-			IdmRoleRequestService roleRequestService) {
+			IdmRoleRequestService roleRequestService,
+			IdmIdentityRoleValidRequestService identityRoleValidRequestService) {
 		super(IdentityContractEventType.DELETE);
 		//
 		Assert.notNull(repository);
 		Assert.notNull(identityRoleService);
 		Assert.notNull(conceptRequestService);
 		Assert.notNull(roleRequestService);
+		Assert.notNull(identityRoleValidRequestService);
 		//
 		this.repository = repository;
 		this.identityRoleService = identityRoleService;
 		this.conceptRequestService = conceptRequestService;
 		this.roleRequestService = roleRequestService;
+		this.identityRoleValidRequestService = identityRoleValidRequestService;
 		
 	}
 	
@@ -94,6 +101,10 @@ public class IdentityContractDeleteProcessor extends CoreEventProcessor<IdmIdent
 			roleRequestService.save(request);
 			conceptRequestService.save(concept);
 		});
+		
+		// remove all IdentityRoleValidRequest for this contract
+		List<IdmIdentityRoleValidRequest> validRequests = identityRoleValidRequestService.findAllValidRequestForIdentityContract(contract);
+		identityRoleValidRequestService.deleteAll(validRequests);
 		
 		// delete identity contract
 		repository.delete(contract);

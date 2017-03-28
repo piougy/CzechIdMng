@@ -265,7 +265,7 @@ public class DefaultAuditServiceTest extends AbstractIntegrationTest {
 
 		for (IdmAudit idmAudit : result) {
 			assertEquals("admin", idmAudit.getModifier());
-			assertEquals(IdmRole.class.getSimpleName(), idmAudit.getType());
+			assertEquals(IdmRole.class.getName(), idmAudit.getType());
 		}
 	}
 

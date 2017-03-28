@@ -72,4 +72,11 @@ public interface IdmIdentityRoleService extends ReadWriteEntityService<IdmIdenti
 	 * @return
 	 */
 	IdmIdentityRole addByDto(IdmIdentityRoleDto dto);
+	
+	/**
+	 * Check if {@link IdmIdentityRole} is valid from now. Use localDate
+	 * @param identityRole
+	 * @return
+	 */
+	boolean isIdentityRoleValidFromNow(IdmIdentityRole identityRole);
 }

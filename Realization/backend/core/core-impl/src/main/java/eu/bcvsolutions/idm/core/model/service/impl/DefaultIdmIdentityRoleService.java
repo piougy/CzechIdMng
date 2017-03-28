@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -168,5 +170,23 @@ public class DefaultIdmIdentityRoleService extends AbstractReadWriteEntityServic
 		identityRole.setOriginalCreator(identityRoleDto.getOriginalCreator());
 		identityRole.setOriginalModifier(identityRoleDto.getOriginalModifier());
 		return identityRole;
+	}
+
+	@Override
+	public boolean isIdentityRoleValidFromNow(IdmIdentityRole identityRole) {
+		LocalDate fromDate = LocalDate.MIN;
+		if (identityRole.getValidFrom() != null) {
+			fromDate = identityRole.getValidFrom().toDateTimeAtStartOfDay().toDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+		}
+
+		LocalDate tillDate = LocalDate.MAX;
+		if (identityRole.getValidTill() != null) {
+			tillDate = identityRole.getValidTill().toDateTimeAtStartOfDay().toDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+		}
+		LocalDate now = LocalDate.now();
+		if ((now.isAfter(fromDate) || now.isEqual(fromDate)) && (now.isBefore(tillDate) || now.isEqual(tillDate))) {
+			return true;
+		}
+		return false;
 	}	
 }

@@ -30,7 +30,7 @@ import eu.bcvsolutions.idm.core.api.rest.AbstractReadEntityController;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
-import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
+import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.dto.IdmAuditDiffDto;
 import eu.bcvsolutions.idm.core.model.dto.IdmAuditDto;
 import eu.bcvsolutions.idm.core.model.dto.filter.AuditFilter;
@@ -58,7 +58,7 @@ public class IdmAuditController extends AbstractReadEntityController<IdmAudit, A
 	}
 	
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.AUDIT_READ + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.AUDIT_READ + "')")
 	@RequestMapping(value= "/search/quick", method = RequestMethod.GET)
 	public Resources<?> findQuick(@RequestParam MultiValueMap<String, Object> parameters, 
 			@PageableDefault Pageable pageable, 			
@@ -67,7 +67,7 @@ public class IdmAuditController extends AbstractReadEntityController<IdmAudit, A
 	}
 	
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.AUDIT_READ + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.AUDIT_READ + "')")
 	@RequestMapping(value= "/search/entities", method = RequestMethod.GET)
 	public ResponseEntity<ResourcesWrapper<String>> findAuditedEntity(@PageableDefault Pageable pageable, PersistentEntityResourceAssembler assembler) {
 		// TODO: pageable is necessary? 
@@ -79,7 +79,7 @@ public class IdmAuditController extends AbstractReadEntityController<IdmAudit, A
 	
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.GET, value = "/{backendId}")
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.AUDIT_READ + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.AUDIT_READ + "')")
 	@Override
 	public ResponseEntity<?> get(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler) {
 		IdmAudit audit = auditService.get(backendId);
@@ -107,7 +107,7 @@ public class IdmAuditController extends AbstractReadEntityController<IdmAudit, A
 	
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.GET, value = "/{revId}/diff/previous")
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.AUDIT_READ + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.AUDIT_READ + "')")
 	public ResponseEntity<?> previousVersion(@PathVariable @NotNull String revId, PersistentEntityResourceAssembler assembler) {
 		IdmAudit currentAudit = auditService.get(revId);
 		IdmAudit previousAudit;
@@ -140,7 +140,7 @@ public class IdmAuditController extends AbstractReadEntityController<IdmAudit, A
 	
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.GET, value = "/{firstRevId}/diff/{secondRevId}")
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.AUDIT_READ + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.AUDIT_READ + "')")
 	public ResponseEntity<?> diff(@PathVariable @NotNull String firstRevId, @PathVariable String secondRevId, PersistentEntityResourceAssembler assembler) {
 		IdmAuditDiffDto dto = new IdmAuditDiffDto();
 		dto.setDiffValues(auditService.getDiffBetweenVersion(Long.parseLong(firstRevId), Long.valueOf(secondRevId)));

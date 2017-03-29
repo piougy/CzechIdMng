@@ -17,6 +17,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -27,6 +30,9 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.domain.RequestResourceResolver;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
+import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
+import eu.bcvsolutions.idm.core.security.api.service.AuthorizationManager;
 
 /**
  * CRUD operations
@@ -34,11 +40,15 @@ import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
  * @author Radek Tomiška
  * @param <E> {@link BaseEntity} type
  * @param <F> {@link BaseFilter} type
+ * @deprecated use {@link AbstractReadWriteDtoController}
  */
+@Deprecated
 public abstract class AbstractReadWriteEntityController<E extends BaseEntity, F extends BaseFilter> extends AbstractReadEntityController<E, F> {
 	
 	@Autowired
 	private RequestResourceResolver requestResourceResolver;
+	@Autowired
+	private AuthorizationManager authorizationManager;
 	
 	public AbstractReadWriteEntityController(EntityLookupService entityLookupService) {
 		super(entityLookupService);
@@ -57,7 +67,11 @@ public abstract class AbstractReadWriteEntityController<E extends BaseEntity, F 
 	 * @throws HttpMessageNotReadableException
 	 */
 	public ResponseEntity<?> post(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {		
-		E createdIdentity = postEntity(validateEntity((E) requestResourceResolver.resolve(nativeRequest, getEntityClass(), null)));
+		E entity = (E) requestResourceResolver.resolve(nativeRequest, getEntityClass(), null);
+		if (getEntityService() instanceof AuthorizableService && !authorizationManager.evaluate(entity, getEntityService().isNew(entity) ? IdmBasePermission.CREATE : IdmBasePermission.UPDATE)) {
+			throw new ResultCodeException(CoreResultCode.FORBIDDEN);
+		}
+		E createdIdentity = postEntity(validateEntity(entity));
 		if (createdIdentity.getId() == null) {
 			throw new ResultCodeException(CoreResultCode.ACCEPTED);
 		}
@@ -86,11 +100,15 @@ public abstract class AbstractReadWriteEntityController<E extends BaseEntity, F 
 	 * @throws HttpMessageNotReadableException
 	 */
 	public ResponseEntity<?> put(
-			@PathVariable @NotNull String backendId,
-			HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
+			String backendId,
+			HttpServletRequest nativeRequest, 
+			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
 		E updateEntity = getEntity(backendId);
 		if (updateEntity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+		}
+		if (getEntityService() instanceof AuthorizableService && !authorizationManager.evaluate(updateEntity, IdmBasePermission.UPDATE)) {
+			throw new ResultCodeException(CoreResultCode.FORBIDDEN);
 		}
 		E updatedEntity = putEntity(validateEntity((E) requestResourceResolver.resolve(nativeRequest, getEntityService().getEntityClass(), updateEntity)));
 		return new ResponseEntity<>(toResource(updatedEntity, assembler), HttpStatus.OK);
@@ -118,11 +136,15 @@ public abstract class AbstractReadWriteEntityController<E extends BaseEntity, F 
 	 * @throws HttpMessageNotReadableException
 	 */
 	public ResponseEntity<?> patch(
-			@PathVariable @NotNull String backendId,
-			HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
+			String backendId,
+			HttpServletRequest nativeRequest, 
+			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
 		E updateEntity = getEntity(backendId);
 		if (updateEntity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+		}
+		if (getEntityService() instanceof AuthorizableService && !authorizationManager.evaluate(updateEntity, IdmBasePermission.UPDATE)) {
+			throw new ResultCodeException(CoreResultCode.FORBIDDEN);
 		}
 		E updatedEntity = patchEntity((E) requestResourceResolver.resolve(nativeRequest, getEntityService().getEntityClass(), updateEntity));
 		return new ResponseEntity<>(toResource(updatedEntity, assembler), HttpStatus.OK);
@@ -162,10 +184,13 @@ public abstract class AbstractReadWriteEntityController<E extends BaseEntity, F 
 	 * @param backendId
 	 * @return
 	 */
-	public ResponseEntity<?> delete(@PathVariable @NotNull String backendId) {
+	public ResponseEntity<?> delete(String backendId) {
 		E entity = getEntity(backendId);
 		if (entity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+		}
+		if (!authorizationManager.evaluate(entity, IdmBasePermission.DELETE)) {
+			throw new ResultCodeException(CoreResultCode.FORBIDDEN);
 		}
 		deleteEntity(entity);
 		return new ResponseEntity<Object>(HttpStatus.NO_CONTENT);
@@ -188,6 +213,16 @@ public abstract class AbstractReadWriteEntityController<E extends BaseEntity, F 
 	@Override
 	protected ReadWriteEntityService<E, F> getEntityService() {
 		return (ReadWriteEntityService<E, F>) super.getEntityService();
+	}
+	
+	@ResponseBody
+	@RequestMapping(value = "/{backendId}/permissions", method = RequestMethod.GET)
+	public Set<String> permissions(@PathVariable @NotNull String backendId) {
+		E entity = getEntity(backendId);
+		if (entity == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+		}
+		return authorizationManager.evaluate(entity);
 	}
 
 }

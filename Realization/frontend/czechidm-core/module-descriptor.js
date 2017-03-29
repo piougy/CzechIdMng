@@ -198,7 +198,7 @@ module.exports = {
                 'id': 'role-detail',
                 'type': 'TAB',
                 'labelKey': 'content.roles.tabs.basic',
-                'order': 10,
+                'order': 100,
                 'path': '/role/:entityId/detail',
                 'icon': 'fa:newspaper-o'
               },
@@ -206,23 +206,31 @@ module.exports = {
                 'id': 'role-eav',
                 'type': 'TAB',
                 'labelKey': 'content.role.eav.title',
-                'order': 11,
+                'order': 110,
                 'priority': 0,
                 'path': '/role/:entityId/eav',
+              },
+              {
+                'id': 'role-authorization-policies',
+                'type': 'TAB',
+                'labelKey': 'content.role.authorization-policies.label',
+                'titleKey': 'content.role.authorization-policies.title',
+                'order': 200,
+                'path': '/role/:entityId/authorization-policies'
               },
               {
                 'id': 'role-tree-nodes',
                 'type': 'TAB',
                 'labelKey': 'content.role.tree-nodes.label',
                 'titleKey': 'content.role.tree-nodes.title',
-                'order': 30,
+                'order': 300,
                 'path': '/role/:entityId/tree-nodes'
               },
               {
                 'id': 'role-identities',
                 'type': 'TAB',
                 'labelKey': 'content.role.identities.title',
-                'order': 40,
+                'order': 400,
                 'path': '/role/:entityId/identities',
                 'icon': 'fa:group'
               }

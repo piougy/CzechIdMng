@@ -1,13 +1,11 @@
 package eu.bcvsolutions.idm.core.api.rest;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.constraints.NotNull;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.util.Assert;
-import org.springframework.web.bind.annotation.PathVariable;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -57,7 +55,7 @@ public abstract class AbstractReadWriteDtoController<DTO extends BaseDto, F exte
 	 * @param dto
 	 * @return
 	 */
-	public ResponseEntity<?> put(@PathVariable @NotNull String backendId, DTO dto) {
+	public ResponseEntity<?> put(String backendId, DTO dto) {
 		DTO updateDto = getDto(backendId);
 		if (updateDto == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
@@ -85,7 +83,7 @@ public abstract class AbstractReadWriteDtoController<DTO extends BaseDto, F exte
 	 * @return
 	 * @throws HttpMessageNotReadableException
 	 */
-	public ResponseEntity<?> patch(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest)
+	public ResponseEntity<?> patch(String backendId, HttpServletRequest nativeRequest)
 			throws HttpMessageNotReadableException {
 		throw new ResultCodeException(CoreResultCode.NOT_IMPLEMENTED, "patch method");
 	}
@@ -96,7 +94,7 @@ public abstract class AbstractReadWriteDtoController<DTO extends BaseDto, F exte
 	 * @param backendId
 	 * @return
 	 */
-	public ResponseEntity<?> delete(@PathVariable @NotNull String backendId) {
+	public ResponseEntity<?> delete(String backendId) {
 		DTO dto = getDto(backendId);
 		if (dto == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));

@@ -22,6 +22,7 @@ import org.springframework.util.Assert;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.eav.service.impl.AbstractFormableService;
+import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.dto.filter.RoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogueRole;
@@ -32,6 +33,9 @@ import eu.bcvsolutions.idm.core.model.event.processor.RoleDeleteProcessor;
 import eu.bcvsolutions.idm.core.model.event.processor.RoleSaveProcessor;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
+import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
+import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
+import eu.bcvsolutions.idm.core.security.api.service.AuthorizationManager;
 
 /**
  * Default role service
@@ -41,7 +45,7 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
  *
  */
 @Service("roleService")
-public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, RoleFilter> implements IdmRoleService {
+public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, RoleFilter> implements IdmRoleService, AuthorizableService {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmRoleService.class);
 	private final IdmRoleRepository repository;
@@ -58,6 +62,11 @@ public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, Role
 		//
 		this.repository = repository;
 		this.entityEventManager = entityEventManager;
+	}
+	
+	@Override
+	public AuthorizableType getAuthorizableType() {
+		return new AuthorizableType(getEntityClass(), CoreGroupPermission.ROLE);
 	}
 
 	@Override
@@ -94,6 +103,9 @@ public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, Role
 		LOG.debug("Deleting role [{}]", role.getName());
 		entityEventManager.process(new RoleEvent(RoleEventType.DELETE, role));
 	}
+	
+	@Autowired
+	private AuthorizationManager authorizationManager;
 	
 	@Override
 	public Page<IdmRole> find(final RoleFilter filter, Pageable pageable) {
@@ -136,7 +148,10 @@ public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, Role
 	                        		)
 	                );
 					predicates.add(builder.exists(subquery));
-				}
+				} 
+				//
+				// append security queries
+				predicates.add(authorizationManager.getPredicate(root, query, builder));
 				//
 				return query.where(predicates.toArray(new Predicate[predicates.size()])).getRestriction();
 			}

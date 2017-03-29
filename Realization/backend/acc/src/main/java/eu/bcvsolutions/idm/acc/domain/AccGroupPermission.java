@@ -4,9 +4,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
-import eu.bcvsolutions.idm.core.model.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 
 /**
  * Aggregate base permission. Name can't contain character '_' - its used for joining to authority name.
@@ -16,9 +16,9 @@ import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
  */
 public enum AccGroupPermission implements GroupPermission {
 	
-	SYSTEM(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.WRITE, IdmBasePermission.DELETE),
-	ACCOUNT(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.WRITE, IdmBasePermission.DELETE),
-	SYNCHRONIZATION(IdmBasePermission.WRITE);
+	SYSTEM(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
+	ACCOUNT(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
+	SYNCHRONIZATION(IdmBasePermission.CREATE, IdmBasePermission.UPDATE);
 	
 	// String constants could be used in pre / post authotize SpEl expressions
 	

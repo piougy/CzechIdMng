@@ -16,7 +16,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
-import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
+import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmConfiguration;;
 
 /**
@@ -48,7 +48,7 @@ public class IdmConfigurationController extends DefaultReadWriteEntityController
 	 * @return
 	 */
 	@ResponseBody
-	@PostFilter("filterObject.name.startsWith('idm.pub.') or hasAuthority('" + IdmGroupPermission.CONFIGURATIONSECURED_READ + "')")
+	@PostFilter("filterObject.name.startsWith('idm.pub.') or hasAuthority('" + CoreGroupPermission.CONFIGURATIONSECURED_READ + "')")
 	@RequestMapping(path = "/all/file", method = RequestMethod.GET)
 	public List<ConfigurationDto> getAllConfigurationsFromFiles() {
 		// TODO: resource wrapper + assembler
@@ -61,7 +61,7 @@ public class IdmConfigurationController extends DefaultReadWriteEntityController
 	 * @return
 	 */
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.CONFIGURATIONSECURED_READ + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.CONFIGURATIONSECURED_READ + "')")
 	@RequestMapping(path = "/all/environment", method = RequestMethod.GET)
 	public List<ConfigurationDto> getAllConfigurationsFromEnvironment() {
 		// TODO: resource wrapper + assembler + hateoas links

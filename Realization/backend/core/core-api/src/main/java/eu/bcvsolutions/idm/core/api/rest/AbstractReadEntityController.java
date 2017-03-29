@@ -40,6 +40,9 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.api.service.ReadEntityService;
 import eu.bcvsolutions.idm.core.api.utils.FilterConverter;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
+import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
+import eu.bcvsolutions.idm.core.security.api.service.AuthorizationManager;
 
 /**
  * Read operations (get, find)
@@ -47,7 +50,9 @@ import eu.bcvsolutions.idm.core.api.utils.FilterConverter;
  * @author Radek Tomiška
  *
  * @param <E>
+ * @deprecated use {@link AbstractReadDtoController}
  */
+@Deprecated
 public abstract class AbstractReadEntityController<E extends BaseEntity, F extends BaseFilter> implements BaseEntityController<E> {
 	
 	private static final EmbeddedWrappers WRAPPERS = new EmbeddedWrappers(false);	
@@ -61,6 +66,9 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 	@Autowired(required = false)
 	@Qualifier("objectMapper")
 	private ObjectMapper mapper;
+	
+	@Autowired
+	private AuthorizationManager authorizationManager;
 	
 	@SuppressWarnings("unchecked")
 	public AbstractReadEntityController(EntityLookupService entityLookupService) {
@@ -118,7 +126,10 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 		E entity = getEntity(backendId);
 		if (entity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
-		}		
+		}
+		if (getEntityService() instanceof AuthorizableService && !authorizationManager.evaluate(entity, IdmBasePermission.READ)) {
+			throw new ResultCodeException(CoreResultCode.FORBIDDEN);
+		}
 		return new ResponseEntity<>(toResource(entity, assembler), HttpStatus.OK);
 	}
 	
@@ -132,7 +143,7 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 	public E getEntity(Serializable backendId) {
 		if(getEntityLookup() == null) {
 			return getEntityService().get(backendId);
-		}		
+		}	
 		return (E) getEntityLookup().lookupEntity(backendId);
 	}
 	

@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
-import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
+import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.domain.IdmScriptCategory;
 import eu.bcvsolutions.idm.core.model.dto.filter.ScriptFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmScript;
@@ -39,7 +39,7 @@ public class IdmScriptController extends DefaultReadWriteEntityController<IdmScr
 
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.SCRIPT_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCRIPT_WRITE + "')")
 	public ResponseEntity<?> post(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler)
 			throws HttpMessageNotReadableException {
 		return super.post(nativeRequest, assembler);
@@ -47,14 +47,14 @@ public class IdmScriptController extends DefaultReadWriteEntityController<IdmScr
 
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.SCRIPT_DELETE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCRIPT_DELETE + "')")
 	public ResponseEntity<?> delete(@PathVariable @NotNull String backendId) {
 		return super.delete(backendId);
 	}
 
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.SCRIPT_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCRIPT_WRITE + "')")
 	public ResponseEntity<?> put(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest,
 			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
 		return super.put(backendId, nativeRequest, assembler);
@@ -62,7 +62,7 @@ public class IdmScriptController extends DefaultReadWriteEntityController<IdmScr
 
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.SCRIPT_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCRIPT_WRITE + "')")
 	public ResponseEntity<?> patch(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest,
 			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
 		return super.patch(backendId, nativeRequest, assembler);

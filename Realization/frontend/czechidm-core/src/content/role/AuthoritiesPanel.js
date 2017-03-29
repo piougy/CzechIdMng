@@ -5,9 +5,7 @@ import _ from 'lodash';
 //
 import * as Basic from '../../components/basic';
 import * as Utils from '../../utils';
-import { DataManager } from '../../redux';
-
-const AVAILABLE_AUTHORITIES_UIKEY = 'available-authorities';
+import { DataManager, RoleManager } from '../../redux';
 
 /**
 * Panel of identities
@@ -17,7 +15,7 @@ export class AuthoritiesPanel extends Basic.AbstractContextComponent {
   componentDidMount() {
     const { roleManager } = this.props;
     //
-    this.context.store.dispatch(roleManager.fetchAvailableAuthorities(AVAILABLE_AUTHORITIES_UIKEY));
+    this.context.store.dispatch(roleManager.fetchAvailableAuthorities());
   }
 
   constructor(props, context) {
@@ -235,8 +233,8 @@ AuthoritiesPanel.defaultProps = {
 
 function select(state) {
   return {
-    availableAuthorities: DataManager.getData(state, AVAILABLE_AUTHORITIES_UIKEY),
-    _showLoading: Utils.Ui.isShowLoading(state, AVAILABLE_AUTHORITIES_UIKEY)
+    availableAuthorities: DataManager.getData(state, RoleManager.UI_KEY_AVAILABLE_AUTHORITIES),
+    _showLoading: Utils.Ui.isShowLoading(state, RoleManager.UI_KEY_AVAILABLE_AUTHORITIES_UIKEY)
   };
 }
 

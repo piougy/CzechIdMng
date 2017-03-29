@@ -257,4 +257,18 @@ export default class AbstractService {
       return json;
     });
   }
+
+  getPermissions(id) {
+    return RestApiService
+    .get(this.getApiPath() + `/${encodeURIComponent(id)}/permissions`)
+    .then(response => {
+      return response.json();
+    })
+    .then(json => {
+      if (Utils.Response.hasError(json)) {
+        throw Utils.Response.getFirstError(json);
+      }
+      return json;
+    });
+  }
 }

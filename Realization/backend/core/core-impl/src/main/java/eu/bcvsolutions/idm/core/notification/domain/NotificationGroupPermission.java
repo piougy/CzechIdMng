@@ -4,9 +4,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
-import eu.bcvsolutions.idm.core.model.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 
 /**
  * Notification module permissions
@@ -16,9 +16,9 @@ import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
  */
 public enum NotificationGroupPermission implements GroupPermission {
 	
-	NOTIFICATION(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.WRITE),
-	NOTIFICATIONCONFIGURATION(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.WRITE, IdmBasePermission.DELETE),
-	NOTIFICATIONTEMPLATE(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.WRITE, IdmBasePermission.DELETE);
+	NOTIFICATION(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE),
+	NOTIFICATIONCONFIGURATION(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
+	NOTIFICATIONTEMPLATE(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE);
 	
 	// String constants could be used in pre / post authotize SpEl expressions
 	

@@ -11,19 +11,24 @@ import org.springframework.core.annotation.Order;
 
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.core.model.repository.IdmAuthorizationPolicyRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleTreeNodeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
+import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultEntityEventManager;
+import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmRoleTreeNodeService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskService;
 import eu.bcvsolutions.idm.core.scheduler.service.impl.DefaultLongRunningTaskManager;
+import eu.bcvsolutions.idm.core.security.api.service.AuthorizationManager;
 import eu.bcvsolutions.idm.core.security.api.service.EnabledEvaluator;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
+import eu.bcvsolutions.idm.core.security.service.impl.DefaultAuthorizationManager;
 
 /**
- * Core services initialization
+ * Overridable core services initialization
  * 
  * TODO: move all @Service annotated bean here
  * 
@@ -59,6 +64,7 @@ public class IdmServiceConfiguration {
 	}
 	
 	/**
+	 * Automatic role service
 	 * 
 	 * @param repository
 	 * @return
@@ -84,5 +90,28 @@ public class IdmServiceConfiguration {
 			ConfigurationService configurationService,
 			SecurityService securityService) {
 		return new DefaultLongRunningTaskManager(service, executor, configurationService, securityService);
+	}
+	
+	/**
+	 * Service for assigning authorization evaluators to roles.
+	 * 
+	 * @param repository
+	 * @return
+	 */
+	@Bean
+	public IdmAuthorizationPolicyService authorizationPolicyService(IdmAuthorizationPolicyRepository repository) {
+		return new DefaultIdmAuthorizationPolicyService(repository);
+	}
+	
+	/**
+	 * Authorization manager
+	 * 
+	 * @param service
+	 * @param evaluators
+	 * @return
+	 */
+	@Bean
+	public AuthorizationManager authorizationManager(IdmAuthorizationPolicyRepository repository, SecurityService securityService) {
+		return new DefaultAuthorizationManager(context, authorizationPolicyService(repository), securityService);
 	}
 }

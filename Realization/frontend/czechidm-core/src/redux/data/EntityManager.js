@@ -17,6 +17,7 @@ export const CLEAR_ENTITIES = 'CLEAR_ENTITIES';
 export const START_BULK_ACTION = 'START_BULK_ACTION';
 export const PROCESS_BULK_ACTION = 'PROCESS_BULK_ACTION';
 export const STOP_BULK_ACTION = 'STOP_BULK_ACTION';
+export const RECEIVE_PERMISSIONS = 'RECEIVE_PERMISSIONS';
 
 /**
  * Encapsulate redux action for entity type
@@ -170,6 +171,17 @@ export default class EntityManager {
   }
 
   /**
+   * Returns true, if `patch`  method is supported
+   *
+   * Added for enddpoints with dto - dto's doesn't support `patch` method for now
+   *
+   * @return {bool} Returns true, if `patch`  method is supported
+   */
+  supportsPatch() {
+    return true;
+  }
+
+  /**
    * Load data from server
    */
   fetchEntities(searchParameters = null, uiKey = null, cb = null) {
@@ -241,7 +253,17 @@ export default class EntityManager {
       dispatch(this.requestEntity(id, uiKey));
       this.getService().getById(id)
       .then(json => {
-        dispatch(this.receiveEntity(id, json, uiKey, cb));
+        this.getService().getPermissions(id)
+        .then(permissions => {
+          dispatch({
+            type: RECEIVE_PERMISSIONS,
+            id,
+            entityType: this.getEntityType(),
+            permissions,
+            uiKey
+          });
+          dispatch(this.receiveEntity(id, json, uiKey, cb));
+        });
       })
       .catch(error => {
         // TODO: 404, 403 simple redirect,
@@ -619,6 +641,7 @@ export default class EntityManager {
    *
    * @param  {state} state - application state
    * @param  {string} uiKey - ui key for loading indicator etc.
+   * @param  {string} id - entity identifier
    * @return {boolean} - true, when loading for given uiKey proceed
    */
   isShowLoading(state, uiKey = null, id = null) {
@@ -767,5 +790,17 @@ export default class EntityManager {
           dispatch(this.receiveError(null, uiKey, error));
         });
     };
+  }
+
+  /**
+   * What logged user can do with ui key and underlying entity.
+   *
+   * @param  {state} state - application state
+   * @param  {string} uiKey - ui key for loading indicator etc.
+   * @param  {string} id - entity identifier
+   * @return {arrayOf(authority)} what logged user can do with ui key and underlying entity
+   */
+  getPermissions(state, uiKey = null, id = null) {
+    return Utils.Permission.getPermissions(state, this.resolveUiKey(uiKey, id));
   }
 }

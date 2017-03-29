@@ -25,7 +25,7 @@ import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
-import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
+import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.rest.impl.DefaultReadWriteEntityController;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;;
 
@@ -48,7 +48,7 @@ public class SysRoleSystemController extends DefaultReadWriteEntityController<Sy
 	@Override
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.GET)
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_READ + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_READ + "')")
 	public Resources<?> find(@RequestParam MultiValueMap<String, Object> parameters, 
 			@PageableDefault Pageable pageable, 			
 			PersistentEntityResourceAssembler assembler) {
@@ -56,7 +56,7 @@ public class SysRoleSystemController extends DefaultReadWriteEntityController<Sy
 	}
 	
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_READ + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_READ + "')")
 	@RequestMapping(value= "/search/quick", method = RequestMethod.GET)
 	public Resources<?> findQuick(@RequestParam MultiValueMap<String, Object> parameters, 
 			@PageableDefault Pageable pageable, 			
@@ -66,7 +66,7 @@ public class SysRoleSystemController extends DefaultReadWriteEntityController<Sy
 	
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_READ + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_READ + "')")
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.GET)
 	public ResponseEntity<?> get(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler) {
 		return super.get(backendId, assembler);
@@ -74,7 +74,7 @@ public class SysRoleSystemController extends DefaultReadWriteEntityController<Sy
 	
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_WRITE + "')")
 	@RequestMapping(method = RequestMethod.POST)
 	public ResponseEntity<?> post(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
 		return super.post(nativeRequest, assembler);
@@ -82,7 +82,7 @@ public class SysRoleSystemController extends DefaultReadWriteEntityController<Sy
 	
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_WRITE + "')")
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.PUT)
 	public ResponseEntity<?> put(
 			@PathVariable @NotNull String backendId,
@@ -93,7 +93,7 @@ public class SysRoleSystemController extends DefaultReadWriteEntityController<Sy
 	
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_WRITE + "')")
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.PATCH)
 	public ResponseEntity<?> patch(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler) 
 			throws HttpMessageNotReadableException {
@@ -102,7 +102,7 @@ public class SysRoleSystemController extends DefaultReadWriteEntityController<Sy
 	
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_WRITE + "')")
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.DELETE)
 	public ResponseEntity<?> delete(@PathVariable @NotNull String backendId) {
 		return super.delete(backendId);

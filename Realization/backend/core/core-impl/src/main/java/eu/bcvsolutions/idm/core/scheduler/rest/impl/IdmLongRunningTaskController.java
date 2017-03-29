@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteEntityController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
-import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
+import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.scheduler.dto.filter.LongRunningTaskFilter;
 import eu.bcvsolutions.idm.core.scheduler.entity.IdmLongRunningTask;
@@ -59,7 +59,7 @@ public class IdmLongRunningTaskController extends AbstractReadWriteEntityControl
 	@Override
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.GET)
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.SCHEDULER_READ + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCHEDULER_READ + "')")
 	public Resources<?> find(@RequestParam MultiValueMap<String, Object> parameters, 
 			@PageableDefault Pageable pageable, 			
 			PersistentEntityResourceAssembler assembler) {
@@ -76,7 +76,7 @@ public class IdmLongRunningTaskController extends AbstractReadWriteEntityControl
 	 */
 	@ResponseBody
 	@RequestMapping(value= "/search/quick", method = RequestMethod.GET)
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.SCHEDULER_READ + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCHEDULER_READ + "')")
 	public Resources<?> findQuick(@RequestParam MultiValueMap<String, Object> parameters, 
 			@PageableDefault Pageable pageable, 			
 			PersistentEntityResourceAssembler assembler) {
@@ -89,7 +89,7 @@ public class IdmLongRunningTaskController extends AbstractReadWriteEntityControl
 	@Override
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.GET)
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.SCHEDULER_READ + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCHEDULER_READ + "')")
 	public ResponseEntity<?> get(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler) {
 		return super.get(backendId, assembler);
 	}
@@ -102,7 +102,7 @@ public class IdmLongRunningTaskController extends AbstractReadWriteEntityControl
 	 */
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.PUT, value = "/{backendId}/cancel")
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.SCHEDULER_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCHEDULER_WRITE + "')")
 	public ResponseEntity<?> cancel(@PathVariable UUID backendId) {
 		longRunningTaskManager.cancel(backendId);
 		//
@@ -117,7 +117,7 @@ public class IdmLongRunningTaskController extends AbstractReadWriteEntityControl
 	 */
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.PUT, value = "/{backendId}/interrupt")
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.SCHEDULER_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCHEDULER_WRITE + "')")
 	public ResponseEntity<?> interrupt(@PathVariable UUID backendId) {
 		longRunningTaskManager.interrupt(backendId);
 		//
@@ -131,7 +131,7 @@ public class IdmLongRunningTaskController extends AbstractReadWriteEntityControl
 	 */
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.POST, value = "/action/process-created")
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.SCHEDULER_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCHEDULER_WRITE + "')")
 	public ResponseEntity<?> processCreated() {
 		longRunningTaskManager.processCreated();
 		//

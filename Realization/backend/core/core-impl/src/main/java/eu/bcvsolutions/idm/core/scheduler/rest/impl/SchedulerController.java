@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
-import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
+import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.AbstractTaskTrigger;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.CronTaskTrigger;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.SimpleTaskTrigger;
@@ -43,7 +43,7 @@ public class SchedulerController implements BaseController {
 	 */
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.GET, value = "/search/supported")
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.SCHEDULER_READ + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCHEDULER_READ + "')")
 	public Resources<Task> getSupportedTasks() {
 		return new Resources<>(schedulerService.getSupportedTasks());
 	}
@@ -55,7 +55,7 @@ public class SchedulerController implements BaseController {
 	 */
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.GET)
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.SCHEDULER_READ + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCHEDULER_READ + "')")
 	public Resources<Task> getAll() {
 		return new Resources<>(schedulerService.getAllTasks());
 	}
@@ -74,7 +74,7 @@ public class SchedulerController implements BaseController {
 	 */
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.POST)
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.SCHEDULER_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCHEDULER_WRITE + "')")
 	public Task createTask(@Valid @RequestBody Task task) {
 		return schedulerService.createTask(task);
 	}
@@ -87,7 +87,7 @@ public class SchedulerController implements BaseController {
 	 */
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.DELETE, value = "/{taskId}")
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.SCHEDULER_DELETE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCHEDULER_DELETE + "')")
 	public ResponseEntity<?> deleteTask(@PathVariable String taskId) {
 		schedulerService.deleteTask(taskId);
 		//
@@ -96,7 +96,7 @@ public class SchedulerController implements BaseController {
 	
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.POST, value = "/{taskId}/run")
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.SCHEDULER_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCHEDULER_WRITE + "')")
 	public AbstractTaskTrigger runTask(@PathVariable String taskId) {
 		return schedulerService.runTask(taskId); 
 	}
@@ -110,7 +110,7 @@ public class SchedulerController implements BaseController {
 	 */
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.POST, value = "/{taskId}/triggers/simple")
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.SCHEDULER_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCHEDULER_WRITE + "')")
 	public AbstractTaskTrigger createSimpleTrigger(@PathVariable String taskId, @Valid @RequestBody SimpleTaskTrigger trigger) {
 		return schedulerService.createTrigger(taskId, trigger);
 	}
@@ -124,7 +124,7 @@ public class SchedulerController implements BaseController {
 	 */
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.POST, value = "/{taskId}/triggers/cron")
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.SCHEDULER_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCHEDULER_WRITE + "')")
 	public AbstractTaskTrigger createCronTrigger(@PathVariable String taskId, @Valid @RequestBody CronTaskTrigger trigger) {
 		return schedulerService.createTrigger(taskId, trigger);
 	}
@@ -137,7 +137,7 @@ public class SchedulerController implements BaseController {
 	 */
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.DELETE, value = "/{taskId}/triggers/{triggerName}")
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.SCHEDULER_DELETE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCHEDULER_DELETE + "')")
 	public ResponseEntity<?> deleteTrigger(@PathVariable String taskId, @PathVariable String triggerName) {
 		schedulerService.deleteTrigger(taskId, triggerName);
 		//
@@ -152,7 +152,7 @@ public class SchedulerController implements BaseController {
 	 */
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.PUT, value = "/{taskId}/triggers/{triggerName}/pause")
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.SCHEDULER_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCHEDULER_WRITE + "')")
 	public ResponseEntity<?> pauseTrigger(@PathVariable String taskId, @PathVariable String triggerName) {
 		schedulerService.pauseTrigger(taskId, triggerName);
 		//
@@ -167,7 +167,7 @@ public class SchedulerController implements BaseController {
 	 */
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.PUT, value = "/{taskId}/triggers/{triggerName}/resume")
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.SCHEDULER_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCHEDULER_WRITE + "')")
 	public ResponseEntity<?> resumeTrigger(@PathVariable String taskId, @PathVariable String triggerName) {
 		schedulerService.resumeTrigger(taskId, triggerName);
 		//

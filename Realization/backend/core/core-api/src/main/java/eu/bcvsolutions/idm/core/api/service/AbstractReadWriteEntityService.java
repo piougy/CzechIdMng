@@ -19,7 +19,9 @@ import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
  *
  * @param <E> {@link BaseEntity} type
  * @param <F> {@link BaseFilter} type
+ * @deprecated use {@link AbstractReadWriteDtoService}
  */
+@Deprecated
 public abstract class AbstractReadWriteEntityService<E extends BaseEntity, F extends BaseFilter>
 		extends AbstractReadEntityService<E, F> implements ReadWriteEntityService<E, F> {
 	

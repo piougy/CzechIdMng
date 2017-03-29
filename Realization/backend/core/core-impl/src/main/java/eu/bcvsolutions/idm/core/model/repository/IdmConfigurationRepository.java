@@ -15,7 +15,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 
 import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
-import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
+import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmConfiguration;
 
 /**
@@ -55,7 +55,7 @@ public interface IdmConfigurationRepository extends AbstractEntityRepository<Idm
 	 * @param name
 	 * @return
 	 */
-	@PostAuthorize("returnObject == null or returnObject.secured == false or hasAuthority('" + IdmGroupPermission.CONFIGURATIONSECURED_READ + "')")
+	@PostAuthorize("returnObject == null or returnObject.secured == false or hasAuthority('" + CoreGroupPermission.CONFIGURATIONSECURED_READ + "')")
 	IdmConfiguration findOneByName(@Param("name") String name);
 	
 	/**
@@ -71,7 +71,7 @@ public interface IdmConfigurationRepository extends AbstractEntityRepository<Idm
 	        "(?#{[0].text} is null or lower(e.name) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')}) "
 	        + "and "
 	        + "( "
-	        	+ "e.secured = :#{hasAuthority('" + IdmGroupPermission.CONFIGURATIONSECURED_READ + "')} "
+	        	+ "e.secured = :#{hasAuthority('" + CoreGroupPermission.CONFIGURATIONSECURED_READ + "')} "
 	        	+ "or e.secured = false"
 	        + ")")
 	Page<IdmConfiguration> find(QuickFilter filter, Pageable pageable);
@@ -89,7 +89,7 @@ public interface IdmConfigurationRepository extends AbstractEntityRepository<Idm
 	 * Returns all configurations based on current user authorities
 	 */
 	@Override
-	@PostFilter("filterObject.secured == false or hasAuthority('" + IdmGroupPermission.CONFIGURATIONSECURED_READ + "')")
+	@PostFilter("filterObject.secured == false or hasAuthority('" + CoreGroupPermission.CONFIGURATIONSECURED_READ + "')")
 	Iterable<IdmConfiguration> findAll();
 	
 	/**
@@ -99,7 +99,7 @@ public interface IdmConfigurationRepository extends AbstractEntityRepository<Idm
 	@Query(value = "select e from IdmConfiguration e" +
 	        " where "
 	        + "( "
-	        	+ "e.secured = :#{hasAuthority('" + IdmGroupPermission.CONFIGURATIONSECURED_READ + "')} "
+	        	+ "e.secured = :#{hasAuthority('" + CoreGroupPermission.CONFIGURATIONSECURED_READ + "')} "
 	        	+ "or e.secured = false"
 	        + ")")
 	Page<IdmConfiguration> findAll(Pageable pageable);
@@ -108,7 +108,7 @@ public interface IdmConfigurationRepository extends AbstractEntityRepository<Idm
 	 * Returns all configurations based on current user authorities
 	 */
 	@Override
-	@PostFilter("filterObject.secured == false or hasAuthority('" + IdmGroupPermission.CONFIGURATIONSECURED_READ + "')")
+	@PostFilter("filterObject.secured == false or hasAuthority('" + CoreGroupPermission.CONFIGURATIONSECURED_READ + "')")
 	Iterable<IdmConfiguration> findAll(Sort sort);	
 	
 	/**
@@ -118,20 +118,20 @@ public interface IdmConfigurationRepository extends AbstractEntityRepository<Idm
 	 * @return
 	 */
 	@Override
-	@PostAuthorize("returnObject == null or returnObject.secured == false or hasAuthority('" + IdmGroupPermission.CONFIGURATIONSECURED_READ + "')")
+	@PostAuthorize("returnObject == null or returnObject.secured == false or hasAuthority('" + CoreGroupPermission.CONFIGURATIONSECURED_READ + "')")
 	IdmConfiguration findOne(@Param("id") UUID id);
 	
 	
 	@Override
 	@SuppressWarnings("unchecked")
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.CONFIGURATIONSECURED_WRITE + "') or (hasAuthority('" + IdmGroupPermission.CONFIGURATION_WRITE + "') and #entity?.secured == false)")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.CONFIGURATIONSECURED_WRITE + "') or (hasAuthority('" + CoreGroupPermission.CONFIGURATION_WRITE + "') and #entity?.secured == false)")
 	IdmConfiguration save(@Param("entity") IdmConfiguration entity);
 	
 	@Override
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.CONFIGURATIONSECURED_DELETE + "') or (hasAuthority('" + IdmGroupPermission.CONFIGURATION_DELETE + "') and @idmConfigurationRepository.findOne(#id)?.secured == false)")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.CONFIGURATIONSECURED_DELETE + "') or (hasAuthority('" + CoreGroupPermission.CONFIGURATION_DELETE + "') and @idmConfigurationRepository.findOne(#id)?.secured == false)")
 	void delete(@Param("id") UUID id);
 	
 	@Override
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.CONFIGURATIONSECURED_DELETE + "') or (hasAuthority('" + IdmGroupPermission.CONFIGURATION_DELETE + "') and #entity?.secured == false)")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.CONFIGURATIONSECURED_DELETE + "') or (hasAuthority('" + CoreGroupPermission.CONFIGURATION_DELETE + "') and #entity?.secured == false)")
 	void delete(@Param("entity") IdmConfiguration entity);
 }

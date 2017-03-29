@@ -426,8 +426,10 @@
   "permission": {
     "base" : {
       "ADMIN": "Administration",
+      "SEARCH": "View in select box (autocomplete)",
       "READ": "Read",
-      "WRITE": "Write",
+      "CREATE": "Create",
+      "UPDATE": "Update",
       "DELETE": "Delete",
       "EXECUTEIMMEDIATELY": "Start without approval"
     },
@@ -1152,6 +1154,20 @@
             "success_2": "Selected records [{{records}}] were successfully deleted",
             "success_5": "Selected records [{{records}}] were successfully deleted"
           }
+        }
+      },
+      "authorization-policies": {
+        "header": "Granted permissions",
+        "title": "Granted permissions",
+        "label": "Permissions",
+        "edit": {
+          "header": "{{name}} <small>permission detail</small>"
+        },
+        "create": {
+          "header": "New permission"
+        },
+        "save": {
+          "success": "Permission [{{record}}] was successfully saved"
         }
       }
     },
@@ -1899,12 +1915,35 @@
       "guarantees": "Role authorizers",
       "roleCatalog": {
         "name": "Catalog"
+      }
+    },
+    "RoleTreeNode": {
+      "_type": "Automatic role",
+      "role": "Role",
+      "treeNode": "Tree node",
+      "recursionType": "Reursion type"
+    },
+    "AuthorizationPolicy": {
+      "_type": "Permission",
+      "role": "Role",
+      "disabled": "Inactive",
+      "description": "Desription",
+      "seq": "Order",
+      "authorizableType": {
+        "label": "Entity type",
+        "placeholder": "Select entity type or leave it empty for all types",
+        "help": "If entity type is not selected, then all types will be evaluating"
       },
-      "RoleTreeNode": {
-        "_type": "Automatic role",
-        "role": "Role",
-        "treeNode": "Tree node",
-        "recursionType": "Reursion type"
+      "evaluatorType": "Evaluator type",
+      "evaluatorProperties": {
+        "label": "Configuration",
+        "title": "Evaluator configuration"
+      },
+      "basePermissions": {
+        "label": "Permissions",
+        "title": "Granted permission",
+        "placeholder": "Select permissions",
+        "help": "Permissions will be granted by eveluator configuration"
       }
     },
     "IdentityRole": {

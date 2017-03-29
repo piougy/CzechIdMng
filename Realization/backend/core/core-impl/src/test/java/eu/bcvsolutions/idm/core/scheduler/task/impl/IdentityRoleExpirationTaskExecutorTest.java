@@ -58,6 +58,29 @@ public class IdentityRoleExpirationTaskExecutorTest extends AbstractVerifiableUn
 		verify(service, times(2)).delete(any(IdmIdentityRole.class));
 		verify(executor, times(2)).updateState();
 	}
+	
+	@Test
+	public void testBreakOnUpdateStateFail() {
+		List<IdmIdentityRole> roles = new ArrayList<>();
+		roles.add(getTestRole());
+		roles.add(getTestRole());
+		//
+		when(service.findExpiredRoles(any(LocalDate.class), any(PageRequest.class)))
+			.thenReturn(new PageImpl<IdmIdentityRole>(roles)); // first call
+		//
+		doNothing().when(service).delete(any(IdmIdentityRole.class));
+		//
+		when(executor.updateState())
+			.thenReturn(true) // first call - OK
+			.thenReturn(false); // second call - fail update state and break
+		//
+		Boolean result = executor.process();
+		Assert.assertTrue(result);
+		verify(service, times(1)).findExpiredRoles(any(LocalDate.class), any(PageRequest.class));
+		verify(service, times(2)).delete(any(IdmIdentityRole.class));
+		verify(executor, times(2)).updateState();
+	}
+
 
 	private IdmIdentityRole getTestRole() {
 		return new IdmIdentityRole();

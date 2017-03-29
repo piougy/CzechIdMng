@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.scheduler.task.impl;
 
+import java.util.Iterator;
+
 import org.joda.time.LocalDate;
 import org.quartz.DisallowConcurrentExecution;
 import org.slf4j.Logger;
@@ -50,7 +52,8 @@ public class IdentityRoleExpirationTaskExecutor extends AbstractSchedulableTaskE
 					count = roles.getTotalElements();
 				}
 				
-				for (IdmIdentityRole role : roles) {
+				for (Iterator<IdmIdentityRole> i = roles.iterator(); i.hasNext() && hasNextPage;) {
+					IdmIdentityRole role = i.next();
 					service.delete(role);
 					++counter;
 					hasNextPage &= updateState();

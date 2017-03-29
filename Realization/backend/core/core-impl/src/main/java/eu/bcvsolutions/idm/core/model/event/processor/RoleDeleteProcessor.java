@@ -1,7 +1,6 @@
 package eu.bcvsolutions.idm.core.model.event.processor;
 
 import java.text.MessageFormat;
-import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
@@ -20,13 +19,11 @@ import eu.bcvsolutions.idm.core.model.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.model.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.model.dto.filter.ConceptRoleRequestFilter;
 import eu.bcvsolutions.idm.core.model.dto.filter.RoleTreeNodeFilter;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRoleValidRequest;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.event.RoleEvent.RoleEventType;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConceptRoleRequestService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleValidRequestService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
 
@@ -46,7 +43,6 @@ public class RoleDeleteProcessor extends CoreEventProcessor<IdmRole> {
 	private final IdmConceptRoleRequestService conceptRoleRequestService;
 	private final IdmRoleRequestService roleRequestService;
 	private final IdmRoleTreeNodeService roleTreeNodeService;
-	private final IdmIdentityRoleValidRequestService identityRoleValidRequestService;
 	
 	@Autowired
 	public RoleDeleteProcessor(
@@ -54,8 +50,7 @@ public class RoleDeleteProcessor extends CoreEventProcessor<IdmRole> {
 			IdmIdentityRoleRepository identityRoleRepository,
 			IdmConceptRoleRequestService conceptRoleRequestService,
 			IdmRoleRequestService roleRequestService,
-			IdmRoleTreeNodeService roleTreeNodeService,
-			IdmIdentityRoleValidRequestService identityRoleValidRequestService) {
+			IdmRoleTreeNodeService roleTreeNodeService) {
 		super(RoleEventType.DELETE);
 		//
 		Assert.notNull(repository);
@@ -63,14 +58,12 @@ public class RoleDeleteProcessor extends CoreEventProcessor<IdmRole> {
 		Assert.notNull(conceptRoleRequestService);
 		Assert.notNull(roleRequestService);
 		Assert.notNull(roleTreeNodeService);
-		Assert.notNull(identityRoleValidRequestService);
 		//
 		this.repository = repository;
 		this.identityRoleRepository = identityRoleRepository;
 		this.conceptRoleRequestService = conceptRoleRequestService;
 		this.roleRequestService = roleRequestService;
 		this.roleTreeNodeService = roleTreeNodeService;
-		this.identityRoleValidRequestService = identityRoleValidRequestService;
 	}
 	
 	@Override
@@ -115,11 +108,7 @@ public class RoleDeleteProcessor extends CoreEventProcessor<IdmRole> {
 			roleRequestService.save(request);
 			conceptRoleRequestService.save(concept);
 		});
-		
-		// remove all IdentityRoleValidRequest for this role
-		List<IdmIdentityRoleValidRequest> validRequests = identityRoleValidRequestService.findAllValidRequestForRole(role);
-		identityRoleValidRequestService.deleteAll(validRequests);
-		
+		//		
 		// guarantees and compositions are deleted by hibernate mapping
 		repository.delete(role);
 		//

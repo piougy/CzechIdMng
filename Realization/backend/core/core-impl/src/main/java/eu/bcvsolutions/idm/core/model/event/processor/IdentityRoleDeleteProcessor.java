@@ -13,10 +13,10 @@ import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.model.domain.RoleRequestState;
+import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleValidRequestDto;
 import eu.bcvsolutions.idm.core.model.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.model.dto.filter.ConceptRoleRequestFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRoleValidRequest;
 import eu.bcvsolutions.idm.core.model.event.IdentityRoleEvent.IdentityRoleEventType;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConceptRoleRequestService;
@@ -88,11 +88,11 @@ public class IdentityRoleDeleteProcessor extends CoreEventProcessor<IdmIdentityR
 			roleRequestService.save(request);
 			conceptRequestService.save(concept);
 		});
-		
-		// remove all IdentityRoleValidRequest for this identityRole
-		List<IdmIdentityRoleValidRequest> validRequests = identityRoleValidRequestService.findAllValidRequestForIdentityRole(identityRole);
+		//
+		// remove all IdentityRoleValidRequest for this role
+		List<IdmIdentityRoleValidRequestDto> validRequests = identityRoleValidRequestService.findAllValidRequestForIdentityRoleId(identityRole.getId());
 		identityRoleValidRequestService.deleteAll(validRequests);
-		
+		//
 		// Delete identity role
 		repository.delete(identityRole);
 		//

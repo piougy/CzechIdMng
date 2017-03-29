@@ -11,6 +11,7 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleValidRequestDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
@@ -81,15 +82,15 @@ public class IdentityRoleValidRequestIntegrationTest extends AbstractIntegration
 		from = from.plusDays(5);
 		createAndSaveIdentityRole(identityContract, role, null, from);
 		
-		List<IdmIdentityRoleValidRequest> list = identityRoleValidRequestService.find(null).getContent();
+		List<IdmIdentityRoleValidRequestDto> list = identityRoleValidRequestService.findDto(null).getContent();
 		int size = list.size();
 		
 		identityService.delete(identity);
 		
-		list = identityRoleValidRequestService.find(null).getContent();
+		list = identityRoleValidRequestService.findDto(null).getContent();
 		
 		assertNotEquals(size, list.size());
-		list = identityRoleValidRequestService.findAllValidRequestForIdentity(identity);
+		list = identityRoleValidRequestService.findAllValidRequestForIdentityId(identity.getId());
 		assertEquals(true, list.isEmpty());
 	}
 	
@@ -104,16 +105,16 @@ public class IdentityRoleValidRequestIntegrationTest extends AbstractIntegration
 		from = from.plusDays(5);
 		createAndSaveIdentityRole(identityContract, role, null, from);
 		
-		List<IdmIdentityRoleValidRequest> list = identityRoleValidRequestService.find(null).getContent();
+		List<IdmIdentityRoleValidRequestDto> list = identityRoleValidRequestService.findDto(null).getContent();
 		int size = list.size();
 		
 		// role has identity, ok - throw error
 		roleService.delete(role);
 		
-		list = identityRoleValidRequestService.find(null).getContent();
+		list = identityRoleValidRequestService.findDto(null).getContent();
 		
 		assertNotEquals(size, list.size());
-		list = identityRoleValidRequestService.findAllValidRequestForRole(role);
+		list = identityRoleValidRequestService.findAllValidRequestForRoleId(role.getId());
 		assertEquals(true, list.isEmpty());
 	}
 	
@@ -128,15 +129,15 @@ public class IdentityRoleValidRequestIntegrationTest extends AbstractIntegration
 		from = from.plusDays(5);
 		createAndSaveIdentityRole(identityContract, role, null, from);
 		
-		List<IdmIdentityRoleValidRequest> list = identityRoleValidRequestService.find(null).getContent();
+		List<IdmIdentityRoleValidRequestDto> list = identityRoleValidRequestService.findDto(null).getContent();
 		int size = list.size();
 		
 		identityContractService.delete(identityContract);
 		
-		list = identityRoleValidRequestService.find(null).getContent();
+		list = identityRoleValidRequestService.findDto(null).getContent();
 		
 		assertNotEquals(size, list.size());
-		list = identityRoleValidRequestService.findAllValidRequestForIdentityContract(identityContract);
+		list = identityRoleValidRequestService.findAllValidRequestForIdentityContractId(identityContract.getId());
 		assertEquals(true, list.isEmpty());
 	}
 	
@@ -151,15 +152,15 @@ public class IdentityRoleValidRequestIntegrationTest extends AbstractIntegration
 		from = from.plusDays(5);
 		IdmIdentityRole identityRole = createAndSaveIdentityRole(identityContract, role, null, from);
 		
-		List<IdmIdentityRoleValidRequest> list = identityRoleValidRequestService.find(null).getContent();
+		List<IdmIdentityRoleValidRequestDto> list = identityRoleValidRequestService.findDto(null).getContent();
 		int size = list.size();
 		
 		idmIdentityRoleSerivce.delete(identityRole);
 		
-		list = identityRoleValidRequestService.find(null).getContent();
+		list = identityRoleValidRequestService.findDto(null).getContent();
 		
 		assertNotEquals(size, list.size());
-		list = identityRoleValidRequestService.findAllValidRequestForIdentityRole(identityRole);
+		list = identityRoleValidRequestService.findAllValidRequestForIdentityRoleId(identityRole.getId());
 		assertEquals(true, list.isEmpty());
 	}
 	

@@ -12,9 +12,9 @@ import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
+import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleValidRequestDto;
 import eu.bcvsolutions.idm.core.model.dto.filter.RoleRequestFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRoleValidRequest;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleGuaranteeRepository;
@@ -105,7 +105,7 @@ public class IdentityDeleteProcessor extends CoreEventProcessor<IdmIdentity> {
 		});
 		
 		// remove all IdentityRoleValidRequest for this identity
-		List<IdmIdentityRoleValidRequest> validRequests = identityRoleValidRequestService.findAllValidRequestForIdentity(identity);
+		List<IdmIdentityRoleValidRequestDto> validRequests = identityRoleValidRequestService.findAllValidRequestForIdentityId(identity.getId());
 		identityRoleValidRequestService.deleteAll(validRequests);
 		
 		// deletes identity

@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.acc.event.processor;
 
+import java.util.UUID;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Description;
@@ -13,9 +15,11 @@ import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
+import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleValidRequestDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRoleValidRequest;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.event.IdentityRoleValidRequestEvent.IdentityRoleValidRequestEventType;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 
 /**
  * Processor for catch {@link IdentityRoleValidRequestEventType.IDENTITY_ROLE_VALID} - start account management for newly valid identityRoles
@@ -25,28 +29,41 @@ import eu.bcvsolutions.idm.core.model.event.IdentityRoleValidRequestEvent.Identi
  */
 @Component
 @Description("Start provisioning for role valid request result operation type [IDENTITY_ROLE_VALID].")
-public class IdentityRoleValidRequestProvisioningProcessor extends AbstractEntityEventProcessor<IdmIdentityRoleValidRequest> {
+public class IdentityRoleValidRequestProvisioningProcessor extends AbstractEntityEventProcessor<IdmIdentityRoleValidRequestDto> {
 	
 	public static final String PROCESSOR_NAME = "identity-role-valid-request-provisioning-processor";
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdentityRoleValidRequestProvisioningProcessor.class);
 	private ProvisioningService provisioningService;
 	private final ApplicationContext applicationContext;
 	private AccAccountManagementService accountManagementService;
+	private final IdmIdentityRoleService identityRoleService;
 	
 	@Autowired
-	public IdentityRoleValidRequestProvisioningProcessor(ApplicationContext applicationContext) {
+	public IdentityRoleValidRequestProvisioningProcessor(ApplicationContext applicationContext,
+			IdmIdentityRoleService identityRoleService) {
 		super(IdentityRoleValidRequestEventType.IDENTITY_ROLE_VALID);
 		//
 		Assert.notNull(applicationContext);
+		Assert.notNull(identityRoleService);
 		//
 		this.applicationContext = applicationContext;
+		this.identityRoleService =identityRoleService;
 	}
 	
 	@Override
-	public EventResult<IdmIdentityRoleValidRequest> process(EntityEvent<IdmIdentityRoleValidRequest> event) {
+	public EventResult<IdmIdentityRoleValidRequestDto> process(EntityEvent<IdmIdentityRoleValidRequestDto> event) {
+		// IdentityRole and IdentityContract must exist - referential integrity.
 		//
 		// object identityRole is never null
-		IdmIdentityContract identityContract = event.getContent().getIdentityRole().getIdentityContract();
+		UUID identityRoleId = event.getContent().getIdentityRole();
+		IdmIdentityRole identityRole = identityRoleService.get(identityRoleId);
+		//
+		if (identityRole == null) {
+			LOG.error("[IdentityRoleValidRequestProvisioningProcessor] Identity role isn't exists for identity role valid request id: [{0}]", event.getContent().getId());
+			return new DefaultEventResult<>(event, this);
+		}
+		//
+		IdmIdentityContract identityContract = identityRole.getIdentityContract();
 		if (identityContract != null) {
 			LOG.info("[IdentityRoleValidRequestProvisioningProcessor] Start with provisioning for identity role valid request id : [{0}]", event.getContent().getId());
 			//
@@ -57,8 +74,7 @@ public class IdentityRoleValidRequestProvisioningProcessor extends AbstractEntit
 			}
 			//
 		} else {
-			// TODO: continue with remove identity role valid request
-			LOG.warn("[IdentityRoleValidRequestProvisioningProcessor] Identity contract isn't exists for identity role valid request id: [{0}]", event.getContent().getId());
+			LOG.error("[IdentityRoleValidRequestProvisioningProcessor] Identity contract isn't exists for identity role valid request id: [{0}]", event.getContent().getId());
 		}
 		//
 		return new DefaultEventResult<>(event, this);

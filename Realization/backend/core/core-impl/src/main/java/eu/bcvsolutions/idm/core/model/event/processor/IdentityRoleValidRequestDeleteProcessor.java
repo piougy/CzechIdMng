@@ -10,7 +10,7 @@ import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRoleValidRequest;
+import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleValidRequestDto;
 import eu.bcvsolutions.idm.core.model.event.IdentityRoleValidRequestEvent.IdentityRoleValidRequestEventType;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleValidRequestService;
 
@@ -23,7 +23,7 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleValidRequestSer
 
 @Component
 @Description("Remove unless entity [IDENTITY_ROLE_VALID].")
-public class IdentityRoleValidRequestDeleteProcessor extends AbstractEntityEventProcessor<IdmIdentityRoleValidRequest> {
+public class IdentityRoleValidRequestDeleteProcessor extends AbstractEntityEventProcessor<IdmIdentityRoleValidRequestDto> {
 	
 	public static final String PROCESSOR_NAME = "identity-role-valid-request-delete-processor";
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdentityRoleValidRequestDeleteProcessor.class);
@@ -40,11 +40,11 @@ public class IdentityRoleValidRequestDeleteProcessor extends AbstractEntityEvent
 	}
 	
 	@Override
-	public EventResult<IdmIdentityRoleValidRequest> process(EntityEvent<IdmIdentityRoleValidRequest> event) {
+	public EventResult<IdmIdentityRoleValidRequestDto> process(EntityEvent<IdmIdentityRoleValidRequestDto> event) {
 		//
 		LOG.debug("[IdentityRoleValidRequestDeleteProcessor] Delete IdentityRoleValidRequest with id: [{0}]", event.getContent().getId());
 		// remove unless identity role valid request
-		validRequestService.delete(event.getContent());
+		validRequestService.deleteInternalById(event.getContent().getId());
 		return new DefaultEventResult<>(event, this);
 	}
 	

@@ -5,6 +5,7 @@ import static org.junit.Assert.assertNotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import org.joda.time.LocalDate;
 import org.junit.After;
@@ -33,10 +34,10 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleValidRequestDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRoleValidRequest;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
@@ -48,6 +49,7 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeTypeService;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.LongRunningFutureTask;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.scheduler.entity.IdmLongRunningTask;
 import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskService;
@@ -110,7 +112,7 @@ public class IdentityRoleValidRequestSchedulerTest extends AbstractIntegrationTe
 	// local variables
 	private SysSystem system = null;
 	private SysSystemMapping systemMapping = null;
-	private int MAX_CREATE = 15;
+	private int MAX_CREATE = 10;
 	
 	@Before
 	public void loginAndInit() {
@@ -166,7 +168,7 @@ public class IdentityRoleValidRequestSchedulerTest extends AbstractIntegrationTe
 	}
 	
 	@Test
-	public void createNonValidRoleAndValid() {
+	public void createNonValidRoleAndValid() throws InterruptedException, ExecutionException {
 		IdmIdentity identity = createAndSaveIdentity();
 		IdmRole role = createAndSaveRole();
 		createAndSaveRoleSystem(role, system);
@@ -187,7 +189,11 @@ public class IdentityRoleValidRequestSchedulerTest extends AbstractIntegrationTe
 		//
 		IdentityRoleValidRequestTaskExecutor taskExecutor1 = new IdentityRoleValidRequestTaskExecutor();
 		
-		longRunningTaskManager.execute(taskExecutor1);
+		LongRunningFutureTask<Boolean> futureTask1 = longRunningTaskManager.execute(taskExecutor1);
+		assertEquals(true, futureTask1.getFutureTask().get());
+		
+		IdmLongRunningTask longRunningTask1 = longRunningTaskService.get(taskExecutor1.getLongRunningTaskId());
+		assertEquals(OperationState.EXECUTED, longRunningTask1.getResult().getState());
 		
 		list = identityAccountService.find(filter, null).getContent();
 		// still empty, role isn't valid
@@ -204,12 +210,13 @@ public class IdentityRoleValidRequestSchedulerTest extends AbstractIntegrationTe
 		
 		// execute again
 		IdentityRoleValidRequestTaskExecutor taskExecutor2 = new IdentityRoleValidRequestTaskExecutor();
-		longRunningTaskManager.execute(taskExecutor2);
+
+		LongRunningFutureTask<Boolean> futureTask2 = longRunningTaskManager.execute(taskExecutor2);
 		
-		IdmLongRunningTask longRunningTask = longRunningTaskService.get(taskExecutor2.getLongRunningTaskId());
-		while (!longRunningTask.getResult().getState().equals(OperationState.EXECUTED)) {
-			longRunningTask = longRunningTaskService.get(taskExecutor2.getLongRunningTaskId());
-		}
+		assertEquals(true, futureTask2.getFutureTask().get());
+		
+		IdmLongRunningTask longRunningTask2 = longRunningTaskService.get(taskExecutor2.getLongRunningTaskId());
+		assertEquals(OperationState.EXECUTED, longRunningTask2.getResult().getState());
 		
 		list = identityAccountService.find(filter, null).getContent();
 		assertEquals(false, list.isEmpty());
@@ -219,7 +226,7 @@ public class IdentityRoleValidRequestSchedulerTest extends AbstractIntegrationTe
 	}
 	
 	@Test
-	public void createLotsOfValidRequests() {
+	public void createLotsOfValidRequests() throws InterruptedException, ExecutionException{
 		IdmRole role = createAndSaveRole();
 		createAndSaveRoleSystem(role, system);
 		IdmTreeType treeType = createAndSaveTreeType();
@@ -230,8 +237,8 @@ public class IdentityRoleValidRequestSchedulerTest extends AbstractIntegrationTe
 		validFrom = validFrom.plusDays(5);
 		
 		// clear request, if any
-		List<IdmIdentityRoleValidRequest> list = identityRoleValidRequestService.findAllValid();
-		for (IdmIdentityRoleValidRequest request : list) {
+		List<IdmIdentityRoleValidRequestDto> list = identityRoleValidRequestService.findAllValid();
+		for (IdmIdentityRoleValidRequestDto request : list) {
 			identityRoleValidRequestService.delete(request);
 		}
 		
@@ -260,14 +267,13 @@ public class IdentityRoleValidRequestSchedulerTest extends AbstractIntegrationTe
 		list = identityRoleValidRequestService.findAllValid();
 		assertEquals(MAX_CREATE, list.size());
 		
-		// execute again
 		IdentityRoleValidRequestTaskExecutor taskExecutor = new IdentityRoleValidRequestTaskExecutor();
-		longRunningTaskManager.execute(taskExecutor);
+		LongRunningFutureTask<Boolean> futureTask = longRunningTaskManager.execute(taskExecutor);
+		
+		assertEquals(true, futureTask.getFutureTask().get());
 		
 		IdmLongRunningTask longRunningTask = longRunningTaskService.get(taskExecutor.getLongRunningTaskId());
-		while (!longRunningTask.getResult().getState().equals(OperationState.EXECUTED)) {
-			longRunningTask = longRunningTaskService.get(taskExecutor.getLongRunningTaskId());
-		}
+		assertEquals(OperationState.EXECUTED, longRunningTask.getResult().getState());
 		
 		list = identityRoleValidRequestService.findAllValid();
 		assertEquals(0, list.size());

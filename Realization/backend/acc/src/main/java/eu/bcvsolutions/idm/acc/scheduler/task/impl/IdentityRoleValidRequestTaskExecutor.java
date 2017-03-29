@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRoleValidRequest;
+import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleValidRequestDto;
 import eu.bcvsolutions.idm.core.model.event.IdentityRoleValidRequestEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityRoleValidRequestEvent.IdentityRoleValidRequestEventType;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleValidRequestService;
@@ -35,13 +35,13 @@ public class IdentityRoleValidRequestTaskExecutor extends AbstractSchedulableTas
 	public Boolean process() {
 		boolean canContinue = true;
 		counter = 0L;
-		List<IdmIdentityRoleValidRequest> list = validRequestService.findAllValid();
+		List<IdmIdentityRoleValidRequestDto> list = validRequestService.findAllValid();
 		// init count
 		if (count == null) {
 			count = Long.valueOf(list.size());
 		}
 		LOG.info("Account management starts for all newly valid roles from now. Count [{0}]", count);
-		for (IdmIdentityRoleValidRequest request : list) {
+		for (IdmIdentityRoleValidRequestDto request : list) {
 			try {
 				// after success provisioning is request removed from db
 				entityEventManager.process(new IdentityRoleValidRequestEvent(IdentityRoleValidRequestEventType.IDENTITY_ROLE_VALID, request));

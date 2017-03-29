@@ -52,7 +52,7 @@ Input variables:
         <activiti:in sourceExpression="#{entityEvent.content.description}" target="applicantDescription"></activiti:in>
         <activiti:in source="implementerUsername" target="implementerUsername"></activiti:in>
       </extensionElements>
-      <multiInstanceLoopCharacteristics isSequential="false" activiti:collection="addedConceptRoles" activiti:elementVariable="conceptRole"></multiInstanceLoopCharacteristics>
+      <multiInstanceLoopCharacteristics isSequential="true" activiti:collection="addedConceptRoles" activiti:elementVariable="conceptRole"></multiInstanceLoopCharacteristics>
     </callActivity>
     <sequenceFlow id="flow17" sourceRef="startAddSubWorkflow" targetRef="parallelgateway2"></sequenceFlow>
     <sequenceFlow id="flow19" sourceRef="managerTask" targetRef="exclusivegateway2"></sequenceFlow>
@@ -108,7 +108,7 @@ execution.setVariable("changedConceptRoles", changedConceptRoles);</script>
         <activiti:in sourceExpression="#{entityEvent.content.description}" target="applicantDescription"></activiti:in>
         <activiti:in source="implementerUsername" target="implementerUsername"></activiti:in>
       </extensionElements>
-      <multiInstanceLoopCharacteristics isSequential="false" activiti:collection="changedConceptRoles" activiti:elementVariable="conceptRole"></multiInstanceLoopCharacteristics>
+      <multiInstanceLoopCharacteristics isSequential="true" activiti:collection="changedConceptRoles" activiti:elementVariable="conceptRole"></multiInstanceLoopCharacteristics>
     </callActivity>
     <sequenceFlow id="flow25" sourceRef="scripttask2" targetRef="startChangeSubWorkflow"></sequenceFlow>
     <parallelGateway id="parallelgateway1" name="Split to subprocesses"></parallelGateway>
@@ -127,7 +127,7 @@ execution.setVariable("changedConceptRoles", changedConceptRoles);</script>
         <activiti:in sourceExpression="#{entityEvent.content.description}" target="applicantDescription"></activiti:in>
         <activiti:in source="implementerUsername" target="implementerUsername"></activiti:in>
       </extensionElements>
-      <multiInstanceLoopCharacteristics isSequential="false" activiti:collection="removedConceptRoles" activiti:elementVariable="conceptRole"></multiInstanceLoopCharacteristics>
+      <multiInstanceLoopCharacteristics isSequential="true" activiti:collection="removedConceptRoles" activiti:elementVariable="conceptRole"></multiInstanceLoopCharacteristics>
     </callActivity>
     <scriptTask id="scripttask3" name="Loading concepts for remove assigned permissions" scriptFormat="groovy" activiti:autoStoreVariables="false">
       <script>import org.joda.time.LocalDate;

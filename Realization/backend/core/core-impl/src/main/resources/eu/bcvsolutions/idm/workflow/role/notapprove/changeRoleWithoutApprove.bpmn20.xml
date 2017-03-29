@@ -3,7 +3,6 @@
   <process id="change-role-without-approve" name="Process for assign/change/remove role idenity without approve." isExecutable="true">
     <documentation>Workflow for assign/change/remove role to identity without approve.</documentation>
     <startEvent id="startevent1" name="Start"></startEvent>
-    <endEvent id="endevent2" name="End" activiti:async="true"></endEvent>
     <serviceTask id="servicetask2" name="Create name of process" activiti:expression="Assign role &quot;${roleService.get(conceptRole.role).name}&quot; to &quot;${identityService.getNiceLabel(identityService.get(applicantIdentifier))} without approving&quot;" activiti:resultVariableName="processInstanceName"></serviceTask>
     <sequenceFlow id="flow7" sourceRef="startevent1" targetRef="exclusivegateway2"></sequenceFlow>
     <exclusiveGateway id="exclusivegateway2" name="Exclusive Gateway"></exclusiveGateway>
@@ -41,7 +40,8 @@ conceptRoleRequestService.save(conceptDto);
       </extensionElements>
     </dataObject>
     <dataObject id="decision" name="decision" itemSubjectRef="xsd:string"></dataObject>
-    <sequenceFlow id="flow41" sourceRef="scripttask5" targetRef="endevent2"></sequenceFlow>
+    <endEvent id="endevent1" name="End" activiti:async="true"></endEvent>
+    <sequenceFlow id="flow41" sourceRef="scripttask5" targetRef="endevent1"></sequenceFlow>
     <textAnnotation id="textannotation1">
       <text>Assign role to identity</text>
     </textAnnotation>
@@ -57,9 +57,6 @@ conceptRoleRequestService.save(conceptDto);
       <bpmndi:BPMNShape bpmnElement="startevent1" id="BPMNShape_startevent1">
         <omgdc:Bounds height="35.0" width="35.0" x="87.0" y="266.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="endevent2" id="BPMNShape_endevent2">
-        <omgdc:Bounds height="35.0" width="35.0" x="960.0" y="287.0"></omgdc:Bounds>
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="servicetask2" id="BPMNShape_servicetask2">
         <omgdc:Bounds height="74.0" width="105.0" x="242.0" y="188.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
@@ -74,6 +71,9 @@ conceptRoleRequestService.save(conceptDto);
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="servicetask6" id="BPMNShape_servicetask6">
         <omgdc:Bounds height="70.0" width="105.0" x="242.0" y="420.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent1" id="BPMNShape_endevent1">
+        <omgdc:Bounds height="35.0" width="35.0" x="800.0" y="287.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="textannotation1" id="BPMNShape_textannotation1">
         <omgdc:Bounds height="120.0" width="125.0" x="206.0" y="151.0"></omgdc:Bounds>
@@ -117,7 +117,7 @@ conceptRoleRequestService.save(conceptDto);
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow41" id="BPMNEdge_flow41">
         <omgdi:waypoint x="680.0" y="304.0"></omgdi:waypoint>
-        <omgdi:waypoint x="960.0" y="304.0"></omgdi:waypoint>
+        <omgdi:waypoint x="800.0" y="304.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

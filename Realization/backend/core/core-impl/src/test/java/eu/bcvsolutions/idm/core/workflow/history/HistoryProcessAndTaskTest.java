@@ -5,17 +5,25 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import java.io.InputStream;
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.activiti.engine.runtime.ProcessInstance;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.AbstractWorkflowIntegrationTest;
+import eu.bcvsolutions.idm.core.api.dto.IdentityDto;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
+import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
+import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.workflow.api.dto.WorkflowDeploymentDto;
 import eu.bcvsolutions.idm.core.workflow.api.service.WorkflowDeploymentService;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
@@ -48,6 +56,8 @@ public class HistoryProcessAndTaskTest extends AbstractWorkflowIntegrationTest {
 	private WorkflowTaskInstanceService taskInstanceService;
 	@Autowired
 	private WorkflowHistoricTaskInstanceService historicTaskService;
+	@Autowired
+	private SecurityService securityService;
 
 	@Before
 	public void login() {
@@ -70,6 +80,9 @@ public class HistoryProcessAndTaskTest extends AbstractWorkflowIntegrationTest {
 		//Start instance of process
 		ProcessInstance instance = processInstanceService.startProcess(PROCESS_KEY, null, InitTestData.TEST_USER_1, null,
 				null);
+		logout();
+		// Log as user without ADMIN rights
+		loginAsNoAdmin(InitTestData.TEST_USER_1);
 		WorkflowFilterDto filter = new WorkflowFilterDto();
 		filter.setProcessInstanceId(instance.getId());;
 		ResourcesWrapper<WorkflowProcessInstanceDto> processes = processInstanceService.search(filter);
@@ -79,16 +92,32 @@ public class HistoryProcessAndTaskTest extends AbstractWorkflowIntegrationTest {
 		assertNotNull(historicProcessDto);
 
 		this.logout();
-		this.loginAsAdmin(InitTestData.TEST_USER_2);
+		// Log as user without ADMIN rights
+		loginAsNoAdmin(InitTestData.TEST_USER_2);
 		// Applicant for this process is testUser1. For testUser2 must be result
 		// null
-		WorkflowHistoricProcessInstanceDto historicProcessDto2 = historicProcessService.get(instance.getId());
-		assertNull(historicProcessDto2);
+		historicProcessDto = historicProcessService.get(instance.getId());
+		assertNull(historicProcessDto);
+		
+		this.logout();
+		// Log as ADMIN
+		loginAsAdmin(InitTestData.TEST_USER_2);
+		// Applicant for this process is testUser1. For testUser2 must be result
+		// null, but as ADMIN can see all historic processes
+		historicProcessDto = historicProcessService.get(instance.getId());
+		assertNotNull(historicProcessDto);
 
 		this.logout();
 		this.loginAsAdmin(InitTestData.TEST_USER_1);
 		
 		completeTasksAndCheckHistory();
+	}
+
+	private void loginAsNoAdmin(String user) {
+		Collection<GrantedAuthority> authorities = securityService.getAllAvailableAuthorities().stream().filter(authority -> {
+			return !IdmGroupPermission.APP_ADMIN.equals(authority.getAuthority());
+		}).collect(Collectors.toList());
+		SecurityContextHolder.getContext().setAuthentication(new IdmJwtAuthentication(new IdentityDto(user), null, authorities, "test"));
 	}
 
 	

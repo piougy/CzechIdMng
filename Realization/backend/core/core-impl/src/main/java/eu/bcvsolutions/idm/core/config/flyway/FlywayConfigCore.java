@@ -18,6 +18,12 @@ import eu.bcvsolutions.idm.core.api.config.flyway.AbstractFlywayConfiguration;
 import eu.bcvsolutions.idm.core.api.config.flyway.IdmFlywayAutoConfiguration;
 import eu.bcvsolutions.idm.core.api.config.flyway.IdmFlywayPostProcessor;
 
+/**
+ * Core flyway config
+ * 
+ * @author Radek Tomiška
+ *
+ */
 @Configuration
 @ConditionalOnClass(Flyway.class)
 @ConditionalOnProperty(prefix = "flyway", name = "enabled", matchIfMissing = false)
@@ -27,9 +33,10 @@ import eu.bcvsolutions.idm.core.api.config.flyway.IdmFlywayPostProcessor;
 public class FlywayConfigCore extends AbstractFlywayConfiguration {
 	
 	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(FlywayConfigCore.class);
-
+	public static final String NAME = "flywayCore";
+	
 	@Bean
-	@ConditionalOnMissingBean(name = "flywayCore")
+	@ConditionalOnMissingBean(name = NAME)
 	@DependsOn(IdmFlywayPostProcessor.NAME)
 	@ConditionalOnExpression("${flyway.enabled:true} && '${flyway.core.locations}'!=''")
 	@ConfigurationProperties(prefix = "flyway.core")

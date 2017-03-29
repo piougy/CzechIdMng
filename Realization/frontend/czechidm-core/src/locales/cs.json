@@ -87,7 +87,10 @@
       "error": "Při odebírání záznamu [{{record}}] nastala chyba",
       "success_1": "Vybraný záznam [{{record}}] byl úspěšně smazán",
       "success_2": "Vybrané záznamy [{{records}}] byly úspěšně smazány",
-      "success_5": "Vybrané záznamy [{{records}}] byly úspěšně smazány"
+      "success_5": "Vybrané záznamy [{{records}}] byly úspěšně smazány",
+      "approve_1": "Smazání záznamu [{{record}}] podléhá schválení, schvalovací úkol byl úspěšně založen",
+      "approve_2": "Smazání záznamů [{{records}}] podléhá schválení, schvalovací úkoly byly úspěšně založeny",
+      "approve_5": "Smazání záznamů [{{records}}] podléhá schválení, schvalovací úkoly byly úspěšně založeny"
     },
     "activate": {
       "action": "Aktivovat",
@@ -268,9 +271,12 @@
         },
         "persistentType": {
           "unsupported": {
-            "title": "{{name}} - unsupported persistentType",
-            "confidential": "{{name}} - confidential is not supported"
+            "title": "{{name}} - nepodrorovaný typ (opravte definici formuláře)",
+            "confidential": "{{name}} - tajný typ není podporovaný (opravte definici formuláře)"
           }
+        },
+        "attributes": {
+          "empty": "Definice dalších atributů byla nalezena, ale neobsahuje žádné položky."
         }
       }
     }

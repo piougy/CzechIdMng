@@ -1,5 +1,7 @@
 import AbstractService from './AbstractService';
 import SearchParameters from '../domain/SearchParameters';
+import RestApiService from './RestApiService';
+import * as Utils from '../utils';
 
 class FormDefinitionService extends AbstractService {
 
@@ -25,6 +27,19 @@ class FormDefinitionService extends AbstractService {
 
   getDefinitionTypesSearchParameters() {
     return super.getDefaultSearchParameters().setName(FormDefinitionService.TYPES_SEARCH);
+  }
+
+  getTypes() {
+    return RestApiService.get(this.getApiPath() + `/search/types`)
+    .then(response => {
+      return response.json();
+    })
+    .then(json => {
+      if (Utils.Response.hasError(json)) {
+        throw Utils.Response.getFirstError(json);
+      }
+      return json;
+    });
   }
 }
 

@@ -8,11 +8,8 @@ import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.concurrent.FutureTask;
 
-import javax.annotation.PostConstruct;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
@@ -41,7 +38,6 @@ import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
  * @author Radek Tomiška
  *
  */
-@Service
 public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultLongRunningTaskManager.class);
@@ -72,9 +68,12 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 	 */
 	@Override
 	@Transactional
-	@PostConstruct
-	public void init() {		
-		service.getTasks(configurationService.getInstanceId(), OperationState.RUNNING).forEach(task -> {
+	public void init() {
+		LOG.info("Cancel unprocessed long running task - tasks was interrupt during instance restart");
+		//
+		String instanceId = configurationService.getInstanceId();
+		service.getTasks(instanceId, OperationState.RUNNING).forEach(task -> {
+			LOG.info("Cancel unprocessed long running task [{}] - tasks was interrupt during instance [{}] restart", task, instanceId);
 			task.setRunning(false);
 			ResultModel resultModel = new DefaultResultModel(CoreResultCode.LONG_RUNNING_TASK_CANCELED_BY_RESTART, 
 					ImmutableMap.of(
@@ -98,6 +97,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 	@Override
 	@SuppressWarnings("unchecked")
 	public List<LongRunningFutureTask<?>> processCreated() {
+		LOG.debug("Processing created tasks from long running task queue");
 		// run as system - called from scheduler internally
 		securityService.setSystemAuthentication();
 		//

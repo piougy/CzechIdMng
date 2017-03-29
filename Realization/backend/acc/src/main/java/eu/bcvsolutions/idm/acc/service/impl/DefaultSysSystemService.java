@@ -396,7 +396,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		Assert.notNull(connectorInstance);
 		Assert.notNull(connectorInstance.getConnectorKey());
 		//
-		IdmFormDefinition formDefinition = getFormService().getDefinition(connectorInstance.getConnectorKey().getConnectorName(),
+		IdmFormDefinition formDefinition = getFormService().getDefinition(SysSystem.class.getName(),
 					connectorInstance.getConnectorKey().getFullName());
 		//
 		if (formDefinition == null) {
@@ -427,7 +427,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 			attribute.setSeq(seq);
 			formAttributes.add(attribute);
 		}
-		return getFormService().createDefinition(connectorInstance.getConnectorKey().getConnectorName(),
+		return getFormService().createDefinition(SysSystem.class.getName(),
 					connectorInstance.getConnectorKey().getFullName(), formAttributes);
 	}
 	

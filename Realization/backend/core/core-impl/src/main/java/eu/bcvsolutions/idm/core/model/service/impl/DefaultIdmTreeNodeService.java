@@ -34,7 +34,7 @@ import eu.bcvsolutions.idm.core.scheduler.task.impl.RebuildTreeNodeIndexTaskExec
  * @author Radek Tomiška
  *
  */
-@Service
+@Service("treeNodeService")
 public class DefaultIdmTreeNodeService extends AbstractFormableService<IdmTreeNode, TreeNodeFilter> 
 		implements IdmTreeNodeService {
 	

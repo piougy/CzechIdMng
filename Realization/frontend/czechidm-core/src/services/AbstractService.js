@@ -6,6 +6,8 @@ import * as Utils from '../utils';
 
 /**
  * Contains basic CRUD + search operation
+ *
+ * @author Radek Tomiška
  */
 export default class AbstractService {
 
@@ -99,13 +101,16 @@ export default class AbstractService {
       .delete(this.getApiPath() + `/${encodeURIComponent(id)}`)
       .then(response => {
         if (response.status === 204) {
-          return {};
+          return null;
         }
         return response.json();
       })
       .then(json => {
         if (Utils.Response.hasError(json)) {
           throw Utils.Response.getFirstError(json);
+        }
+        if (Utils.Response.hasInfo(json)) {
+          return Utils.Response.getFirstInfo(json);
         }
         return json;
       });

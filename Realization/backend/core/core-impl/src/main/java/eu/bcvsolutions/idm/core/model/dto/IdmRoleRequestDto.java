@@ -15,7 +15,6 @@ import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdentityDto;
 import eu.bcvsolutions.idm.core.model.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.model.domain.RoleRequestedByType;
-import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowHistoricTaskInstanceDto;
 
 /**
  * Dto for role request

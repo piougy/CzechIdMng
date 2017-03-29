@@ -181,6 +181,7 @@ export class RoleTreeNodeTable extends Advanced.AbstractTableContent {
               <Basic.Button
                 type="submit"
                 level="success"
+                rendered={Utils.Entity.isNew(detail.entity)}
                 showLoading={_showLoading}
                 showLoadingIcon
                 showLoadingText={this.i18n('button.saving')}>

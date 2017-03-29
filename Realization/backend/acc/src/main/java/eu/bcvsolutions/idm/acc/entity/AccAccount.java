@@ -72,6 +72,8 @@ public class AccAccount extends AbstractEntity {
 	
 	@JsonIgnore
 	@OneToMany(mappedBy = "account")
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
+	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private List<AccIdentityAccount> identityAccounts;  // only for hibernate mappnig - we dont want lazy lists
 
 	public void setAccountType(AccountType accountType) {

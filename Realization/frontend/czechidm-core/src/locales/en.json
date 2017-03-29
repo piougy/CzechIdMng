@@ -84,7 +84,9 @@
       "message_plural": "Selected records: [<strong>{{records}}</strong>].<br /><br /> Do you want to remove <strong>{{count}}</strong> selected records?",
       "error": "An error occurred while removing [{{record}}].",
       "success": "Selected record [{{record}}] was successfully deleted",
-      "success_plural": "Selected records [{{records}}] were successfully deleted"
+      "success_plural": "Selected records [{{records}}] were successfully deleted",
+      "approve": "Record deletion [{{record}}] has to be approved, task was successfully created",
+      "approve_plural": "Records deletion [{{records}}] have to be approved, tasks was successfully created"
     },
     "activate": {
       "action": "Activate",

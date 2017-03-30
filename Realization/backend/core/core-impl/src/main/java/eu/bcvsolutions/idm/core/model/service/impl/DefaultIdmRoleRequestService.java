@@ -49,8 +49,7 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
-import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowHistoricTaskInstanceDto;
-import eu.bcvsolutions.idm.core.workflow.service.WorkflowHistoricTaskInstanceService;
+import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowProcessInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 
 /**
@@ -72,7 +71,6 @@ public class DefaultIdmRoleRequestService
 	private final SecurityService securityService;
 	private final ApplicationContext applicationContext;
 	private final WorkflowProcessInstanceService workflowProcessInstanceService;
-	private final WorkflowHistoricTaskInstanceService workflowHistoricTaskInstanceService;
 	private final EntityEventManager entityEventManager;
 	private IdmRoleRequestService roleRequestService;
 
@@ -85,8 +83,7 @@ public class DefaultIdmRoleRequestService
 			SecurityService securityService,
 			ApplicationContext applicationContext,
 			WorkflowProcessInstanceService workflowProcessInstanceService,
-			EntityEventManager entityEventManager,
-			WorkflowHistoricTaskInstanceService workflowHistoricTaskInstanceService) {
+			EntityEventManager entityEventManager) {
 		super(repository);
 
 		Assert.notNull(conceptRoleRequestService, "Concept role request service is required!");
@@ -96,7 +93,6 @@ public class DefaultIdmRoleRequestService
 		Assert.notNull(securityService, "Security service is required!");
 		Assert.notNull(applicationContext, "Application context is required!");
 		Assert.notNull(workflowProcessInstanceService, "Workflow process instance service is required!");
-		Assert.notNull(workflowHistoricTaskInstanceService, "Workflow task historic service is required!");
 		Assert.notNull(entityEventManager, "Entity event manager is required!");
 
 		this.conceptRoleRequestService = conceptRoleRequestService;
@@ -107,14 +103,6 @@ public class DefaultIdmRoleRequestService
 		this.applicationContext = applicationContext;
 		this.workflowProcessInstanceService = workflowProcessInstanceService;
 		this.entityEventManager = entityEventManager;
-		this.workflowHistoricTaskInstanceService = workflowHistoricTaskInstanceService;
-	}
-
-	@Override
-	public IdmRoleRequestDto save(IdmRoleRequestDto dto) {
-		// Load applicant (check read right)
-		identityService.get(dto.getApplicant());
-		return super.save(dto);
 	}
 
 	@Override
@@ -128,8 +116,12 @@ public class DefaultIdmRoleRequestService
 		}
 		
 		if(requestDto != null && requestDto.getWfProcessId() != null){
-			WorkflowHistoricTaskInstanceDto historicTask = workflowHistoricTaskInstanceService.getTaskByProcessId(requestDto.getWfProcessId());
-			requestDto.getEmbedded().put(IdmRoleRequestDto.WF_PROCESS_FIELD, historicTask);
+			WorkflowProcessInstanceDto processDto = workflowProcessInstanceService.get(requestDto.getWfProcessId());
+			// TODO: create trimmed variant in workflow process instance service
+			if(processDto != null) {
+				processDto.setProcessVariables(null);
+			}
+			requestDto.getEmbedded().put(IdmRoleRequestDto.WF_PROCESS_FIELD, processDto);
 		}
 		
 		return requestDto;
@@ -220,9 +212,16 @@ public class DefaultIdmRoleRequestService
 					ImmutableMap.of("request", request, "applicant", request.getApplicant()));
 		}
 	
-		// Convert whole request to JSON and persist
+		// Convert whole request to JSON and persist (without logs and embedded data)
 		try {
-			request.setOriginalRequest(objectMapper.writeValueAsString(request));
+			IdmRoleRequestDto requestOriginal = getDto(requestId);
+			requestOriginal.setLog(null);
+			requestOriginal.setEmbedded(null);
+			requestOriginal.getConceptRoles().forEach(concept -> {
+				concept.setEmbedded(null);
+				concept.setLog(null);
+			});
+			request.setOriginalRequest(objectMapper.writeValueAsString(requestOriginal));
 		} catch (JsonProcessingException e) {
 			throw new RoleRequestException(CoreResultCode.BAD_REQUEST, e);
 		}

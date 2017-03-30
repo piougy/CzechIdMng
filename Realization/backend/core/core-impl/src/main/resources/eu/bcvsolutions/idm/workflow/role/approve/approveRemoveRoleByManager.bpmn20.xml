@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="eu.bcvsolutions.role.approve.remove">
-  <process id="approve-remove-role-by-manager" name="Process for remove assigned idenity role.  Approvers are all managers for given applicant." isExecutable="true">
+  <process id="approve-remove-role-by-manager" name="Remove assigned idenity role.  Approvers are all managers for given applicant." isExecutable="true">
     <documentation>Approval workflow for remove assigned identity role. Approvers are all managers for given applicant.
 
 Input variables:
@@ -10,9 +10,9 @@ Input variables:
 - conceptRole (IdmConceptRoleRequestDto)
 - applicantDescription</documentation>
     <startEvent id="startevent1" name="Start"></startEvent>
-    <endEvent id="endevent2" name="End"></endEvent>
+    <endEvent id="endevent2" name="End" activiti:async="true"></endEvent>
     <serviceTask id="servicetask5" name="Create name of process" activiti:expression="Approve role &quot;${roleService.get(conceptRole.role).name}&quot; remove by manager for &quot;${identityService.getNiceLabel(identityService.get(applicantIdentifier))}&quot;" activiti:resultVariableName="processInstanceName"></serviceTask>
-    <userTask id="usertask1" name="Approve by manager" activiti:candidateUsers="#{identityService.findAllManagersAsString(applicantIdentifier)}">
+    <userTask id="usertask1" name="Approve by manager" activiti:candidateUsers="#{candidatesApproveByManager}" activiti:skipExpression="#{skipApproveByManager}">
       <documentation>${processInstanceName}</documentation>
       <extensionElements>
         <activiti:formProperty id="disapprove" type="decision"></activiti:formProperty>
@@ -28,7 +28,7 @@ Input variables:
     <sequenceFlow id="flow21" name="Disapproved" sourceRef="exclusivegateway3" targetRef="scripttask6">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[#{decision.equals("disapprove")}]]></conditionExpression>
     </sequenceFlow>
-    <endEvent id="endevent4" name="End"></endEvent>
+    <endEvent id="endevent4" name="End" activiti:async="true"></endEvent>
     <exclusiveGateway id="exclusivegateway5" name="Exclusive Gateway"></exclusiveGateway>
     <sequenceFlow id="flow29" sourceRef="exclusivegateway3" targetRef="exclusivegateway5">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[#{decision.equals("approve")}]]></conditionExpression>
@@ -36,7 +36,7 @@ Input variables:
     <sequenceFlow id="flow31" name="Identity role not exist" sourceRef="exclusivegateway5" targetRef="scripttask7">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[#{identityRoleService.get(conceptRole.identityRole) == null}]]></conditionExpression>
     </sequenceFlow>
-    <endEvent id="endevent5" name="End - Identity role with given ID not found">
+    <endEvent id="endevent5" name="End - Identity role with given ID not found" activiti:async="true">
       <documentation>Identity role with given ID not found</documentation>
     </endEvent>
     <sequenceFlow id="flow34" sourceRef="servicetask5" targetRef="scripttask8"></sequenceFlow>
@@ -85,7 +85,7 @@ def conceptDto = conceptRoleRequestService.getDto(conceptRole.id);
 conceptDto.setState(RoleRequestState.IN_PROGRESS);
 conceptRoleRequestService.save(conceptDto);</script>
     </scriptTask>
-    <sequenceFlow id="flow40" sourceRef="scripttask8" targetRef="usertask1"></sequenceFlow>
+    <sequenceFlow id="flow40" sourceRef="scripttask8" targetRef="scripttask9"></sequenceFlow>
     <dataObject id="approve" name="approve" itemSubjectRef="xsd:string">
       <extensionElements>
         <activiti:value>{"showWarning":false,,"level":"success"}</activiti:value>
@@ -97,6 +97,42 @@ conceptRoleRequestService.save(conceptDto);</script>
       </extensionElements>
     </dataObject>
     <dataObject id="decision" name="decision" itemSubjectRef="xsd:string"></dataObject>
+    <scriptTask id="scripttask9" name="Find all managers (for applicant) and resolve if we can skip next task" scriptFormat="groovy" activiti:autoStoreVariables="false">
+      <script>boolean skip = false;
+def candidates = null;
+
+//Find all managers
+candidates = identityService.findAllManagers(applicantIdentifier);
+
+// If is list of candidates empty, then will be added ADMIN user as default approver
+if(candidates.isEmpty()){
+  candidates.add(identityService.getByUsername("admin"));
+}
+
+//Is current logged user = implemeneter user and is betwen candidates? If yes, then we can skip task.
+if(implementerUsername.equals(securityService.getUsername())){
+  skip = identityService.containsUser(candidates, implementerUsername);
+}else{
+  skip = false; 
+}
+
+// If is skip == true, then set decision for next task on approve
+if (skip) {
+ execution.setVariable("decision", "approve");
+}
+
+//Save skip resolution to variables
+execution.setVariable("skipApproveByManager", skip);
+
+if(!skip){
+  // Convert all candidates to string separate by comma		
+  def candidatesString = identityService.convertIdentitiesToString(candidates);
+
+  //Save candidates to variables
+  execution.setVariable("candidatesApproveByManager", candidatesString);
+}</script>
+    </scriptTask>
+    <sequenceFlow id="flow41" sourceRef="scripttask9" targetRef="usertask1"></sequenceFlow>
     <textAnnotation id="textannotation2">
       <text>Remove identity assigned role</text>
     </textAnnotation>
@@ -107,61 +143,64 @@ conceptRoleRequestService.save(conceptDto);</script>
         <omgdc:Bounds height="35.0" width="35.0" x="1.0" y="167.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="endevent2" id="BPMNShape_endevent2">
-        <omgdc:Bounds height="35.0" width="35.0" x="1353.0" y="167.0"></omgdc:Bounds>
+        <omgdc:Bounds height="35.0" width="35.0" x="1560.0" y="167.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="servicetask5" id="BPMNShape_servicetask5">
         <omgdc:Bounds height="70.0" width="105.0" x="146.0" y="150.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="usertask1" id="BPMNShape_usertask1">
-        <omgdc:Bounds height="77.0" width="144.0" x="480.0" y="146.0"></omgdc:Bounds>
+        <omgdc:Bounds height="77.0" width="144.0" x="671.0" y="146.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="exclusivegateway3" id="BPMNShape_exclusivegateway3">
-        <omgdc:Bounds height="40.0" width="40.0" x="671.0" y="164.0"></omgdc:Bounds>
+        <omgdc:Bounds height="40.0" width="40.0" x="862.0" y="164.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="endevent4" id="BPMNShape_endevent4">
-        <omgdc:Bounds height="35.0" width="35.0" x="674.0" y="370.0"></omgdc:Bounds>
+        <omgdc:Bounds height="35.0" width="35.0" x="865.0" y="370.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="exclusivegateway5" id="BPMNShape_exclusivegateway5">
-        <omgdc:Bounds height="40.0" width="40.0" x="938.0" y="164.0"></omgdc:Bounds>
+        <omgdc:Bounds height="40.0" width="40.0" x="1129.0" y="164.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="endevent5" id="BPMNShape_endevent5">
-        <omgdc:Bounds height="35.0" width="35.0" x="941.0" y="370.0"></omgdc:Bounds>
+        <omgdc:Bounds height="35.0" width="35.0" x="1132.0" y="370.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="scripttask5" id="BPMNShape_scripttask5">
-        <omgdc:Bounds height="67.0" width="160.0" x="1103.0" y="151.0"></omgdc:Bounds>
+        <omgdc:Bounds height="67.0" width="160.0" x="1290.0" y="151.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="scripttask6" id="BPMNShape_scripttask6">
-        <omgdc:Bounds height="67.0" width="160.0" x="612.0" y="255.0"></omgdc:Bounds>
+        <omgdc:Bounds height="67.0" width="160.0" x="803.0" y="255.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="scripttask7" id="BPMNShape_scripttask7">
-        <omgdc:Bounds height="67.0" width="160.0" x="879.0" y="250.0"></omgdc:Bounds>
+        <omgdc:Bounds height="67.0" width="160.0" x="1070.0" y="250.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="scripttask8" id="BPMNShape_scripttask8">
         <omgdc:Bounds height="77.0" width="160.0" x="280.0" y="146.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="scripttask9" id="BPMNShape_scripttask9">
+        <omgdc:Bounds height="76.0" width="161.0" x="472.0" y="147.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="textannotation2" id="BPMNShape_textannotation2">
         <omgdc:Bounds height="130.0" width="125.0" x="110.0" y="120.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge bpmnElement="flow19" id="BPMNEdge_flow19">
-        <omgdi:waypoint x="624.0" y="184.0"></omgdi:waypoint>
-        <omgdi:waypoint x="671.0" y="184.0"></omgdi:waypoint>
+        <omgdi:waypoint x="815.0" y="184.0"></omgdi:waypoint>
+        <omgdi:waypoint x="862.0" y="184.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow21" id="BPMNEdge_flow21">
-        <omgdi:waypoint x="691.0" y="204.0"></omgdi:waypoint>
-        <omgdi:waypoint x="692.0" y="255.0"></omgdi:waypoint>
+        <omgdi:waypoint x="882.0" y="204.0"></omgdi:waypoint>
+        <omgdi:waypoint x="883.0" y="255.0"></omgdi:waypoint>
         <bpmndi:BPMNLabel>
-          <omgdc:Bounds height="12.0" width="61.0" x="712.0" y="219.0"></omgdc:Bounds>
+          <omgdc:Bounds height="12.0" width="61.0" x="903.0" y="219.0"></omgdc:Bounds>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow29" id="BPMNEdge_flow29">
-        <omgdi:waypoint x="711.0" y="184.0"></omgdi:waypoint>
-        <omgdi:waypoint x="938.0" y="184.0"></omgdi:waypoint>
+        <omgdi:waypoint x="902.0" y="184.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1129.0" y="184.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow31" id="BPMNEdge_flow31">
-        <omgdi:waypoint x="958.0" y="204.0"></omgdi:waypoint>
-        <omgdi:waypoint x="959.0" y="250.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1149.0" y="204.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1150.0" y="250.0"></omgdi:waypoint>
         <bpmndi:BPMNLabel>
-          <omgdc:Bounds height="12.0" width="99.0" x="963.0" y="228.0"></omgdc:Bounds>
+          <omgdc:Bounds height="12.0" width="99.0" x="1154.0" y="228.0"></omgdc:Bounds>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow34" id="BPMNEdge_flow34">
@@ -169,20 +208,20 @@ conceptRoleRequestService.save(conceptDto);</script>
         <omgdi:waypoint x="280.0" y="184.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow35" id="BPMNEdge_flow35">
-        <omgdi:waypoint x="978.0" y="184.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1103.0" y="184.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1169.0" y="184.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1290.0" y="184.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow36" id="BPMNEdge_flow36">
-        <omgdi:waypoint x="1263.0" y="184.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1353.0" y="184.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1450.0" y="184.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1560.0" y="184.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow37" id="BPMNEdge_flow37">
-        <omgdi:waypoint x="692.0" y="322.0"></omgdi:waypoint>
-        <omgdi:waypoint x="691.0" y="370.0"></omgdi:waypoint>
+        <omgdi:waypoint x="883.0" y="322.0"></omgdi:waypoint>
+        <omgdi:waypoint x="882.0" y="370.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow38" id="BPMNEdge_flow38">
-        <omgdi:waypoint x="959.0" y="317.0"></omgdi:waypoint>
-        <omgdi:waypoint x="958.0" y="370.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1150.0" y="317.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1149.0" y="370.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow39" id="BPMNEdge_flow39">
         <omgdi:waypoint x="36.0" y="184.0"></omgdi:waypoint>
@@ -190,7 +229,11 @@ conceptRoleRequestService.save(conceptDto);</script>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow40" id="BPMNEdge_flow40">
         <omgdi:waypoint x="440.0" y="184.0"></omgdi:waypoint>
-        <omgdi:waypoint x="480.0" y="184.0"></omgdi:waypoint>
+        <omgdi:waypoint x="472.0" y="185.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow41" id="BPMNEdge_flow41">
+        <omgdi:waypoint x="633.0" y="185.0"></omgdi:waypoint>
+        <omgdi:waypoint x="671.0" y="184.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

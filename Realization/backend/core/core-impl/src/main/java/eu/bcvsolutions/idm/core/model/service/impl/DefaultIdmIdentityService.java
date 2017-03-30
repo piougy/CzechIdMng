@@ -23,6 +23,7 @@ import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.model.dto.filter.IdentityFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
+import eu.bcvsolutions.idm.core.model.entity.IdmRoleGuarantee;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
@@ -150,24 +151,20 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 	}
 
 	/**
-	 * Find all identities usernames by assigned role
+	 * Find all identities by assigned role name
 	 * 
-	 * @param roleId
-	 * @return String with all found usernames separate with comma
+	 * @param Role name
+	 * @return Identities with give role
 	 */
 	@Override
 	@Transactional(readOnly = true)
-	public String findAllByRoleAsString(UUID roleId) {
-		IdmRole role = roleRepository.findOne(roleId);
-		Assert.notNull(role, "Role is required. Role by id [" + roleId + "] not foud.");
-		
-		List<IdmIdentity> identities = this.findAllByRole(role);				
-		StringBuilder sb = new StringBuilder();
-		for (IdmIdentity i : identities) {
-			sb.append(i.getUsername());
-			sb.append(',');
+	public List<IdmIdentity> findAllByRoleName(String roleName) {
+		IdmRole role = roleRepository.findOneByName(roleName);
+		if(role == null){
+			return new ArrayList<>();
 		}
-		return sb.toString();
+		
+		return this.findAllByRole(role);				
 	}
 	
 	/**
@@ -185,23 +182,17 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 	}
 
 	/**
-	 * Method find all managers by identity contract and return manager's usernames,
-	 * separate by commas
+	 * Method find all managers by identity contract and return manager's
 	 * 
 	 * @param identityId
 	 * @return String - usernames separate by commas
 	 */
 	@Override
 	@Transactional(readOnly = true)
-	public String findAllManagersAsString(UUID identityId) {
+	public List<IdmIdentity> findAllManagers(UUID identityId) {
 		IdmIdentity identity = this.get(identityId);
 		Assert.notNull(identity, "Identity is required. Identity by id [" + identityId + "] not found.");
-		
-		List<String> list = this.findAllManagers(identity, null)
-				.stream()
-				.map(IdmIdentity::getUsername)
-				.collect(Collectors.toList());
-		return StringUtils.join(list, ',');
+		return this.findAllManagers(identity, null);
 	}
 
 	/**
@@ -214,6 +205,7 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 	@Override
 	@Transactional(readOnly = true)
 	public List<IdmIdentity> findAllManagers(IdmIdentity forIdentity, IdmTreeType byTreeType) {
+		
 		Assert.notNull(forIdentity, "Identity is required");
 		//		
 		IdentityFilter filter = new IdentityFilter();
@@ -233,6 +225,44 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 		}
 		// return all identities with admin role
 		return this.findAllByRole(this.getAdminRole());
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<IdmIdentity> findAllGuaranteesByRoleId(UUID roleId) {
+		IdmRole role = roleRepository.findOne(roleId);
+		Assert.notNull(role, "Role is required. Role by name [" + roleId + "] not found.");
+		return role.getGuarantees().stream().map(IdmRoleGuarantee::getGuarantee).collect(Collectors.toList());				
+	}
+	
+	/**
+	 * Contains list of identities some identity with given username.
+	 * If yes, then return true.
+	 * @param identities
+	 * @param username
+	 * @return
+	 */
+	@Override
+	public boolean containsUser(List<IdmIdentity> identities, String username){
+		return identities.stream().filter(identity -> {
+			return identity.getUsername().equals(username);
+		}).findFirst().isPresent();
+	}
+	
+	/**
+	 * Convert given identities to string of user names separate with comma 
+	 * @param identities
+	 * @return
+	 */
+	@Override
+	public String convertIdentitiesToString(List<IdmIdentity> identities) {
+		if(identities == null){
+			return "";
+		}
+		List<String> list = identities.stream()
+				.map(IdmIdentity::getUsername)
+				.collect(Collectors.toList());
+		return StringUtils.join(list, ',');
 	}
 	
 	/**

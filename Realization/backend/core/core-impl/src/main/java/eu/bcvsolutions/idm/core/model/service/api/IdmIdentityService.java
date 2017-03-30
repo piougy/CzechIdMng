@@ -46,13 +46,6 @@ public interface IdmIdentityService extends ReadWriteEntityService<IdmIdentity, 
 	 */
 	void passwordChange(IdmIdentity identity, PasswordChangeDto passwordChangeDto);
 	
-	/**
-	 * Find all identities usernames by assigned role
-	 * 
-	 * @param roleId
-	 * @return String with all found usernames separate with comma
-	 */
-	String findAllByRoleAsString(UUID roleId);
 	
 	/**
 	 * Find all identities by assigned role
@@ -61,16 +54,15 @@ public interface IdmIdentityService extends ReadWriteEntityService<IdmIdentity, 
 	 * @return List of IdmIdentity with assigned role
 	 */
 	List<IdmIdentity> findAllByRole(IdmRole role);
-
+	
 	/**
-	 * Method finds all identity's managers by identity contract and return manager's usernames,
+	 * Find all identities by assigned role name
 	 * 
-	 * separated by commas
-	 * 
-	 * @param id
-	 * @return String - usernames separate by commas
+	 * @param Role name
+	 * @return List of IdmIdentity with assigned role
 	 */
-	String findAllManagersAsString(UUID identityId);
+	List<IdmIdentity> findAllByRoleName(String roleName);
+	
 
 	/**
 	 * Method finds all identity's managers by identity contract (guarantee or by assigned tree structure).
@@ -80,4 +72,36 @@ public interface IdmIdentityService extends ReadWriteEntityService<IdmIdentity, 
 	 * @return
 	 */
 	List<IdmIdentity> findAllManagers(IdmIdentity forIdentity, IdmTreeType byTreeType);
+
+	/**
+	 * Method finds all identity's managers by identity contract and return managers
+	 * 
+	 * @param id
+	 * @return String - usernames separate by commas
+	 */
+	List<IdmIdentity> findAllManagers(UUID identityId);
+
+	/**
+	 * Contains list of identities some identity with given username.
+	 * If yes, then return true.
+	 * @param identities
+	 * @param username
+	 * @return
+	 */
+	boolean containsUser(List<IdmIdentity> identities, String username);
+
+	/**
+	 * Convert given identities to string of user names separate with comma 
+	 * @param identities
+	 * @return
+	 */
+	String convertIdentitiesToString(List<IdmIdentity> identities);
+
+	/**
+	 * Find all guarantees for given role ID
+	 * @param roleId
+	 * @return
+	 */
+	List<IdmIdentity> findAllGuaranteesByRoleId(UUID roleId);
+
 }

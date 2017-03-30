@@ -1,0 +1,517 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="eu.bcvsolutions.role.approve.add">
+  <process id="approve-role-by-authorizer-security" name="Assign role to idenity.  Approvers are all authorizers for given role and all with security role." isExecutable="true">
+    <documentation>Approval workflow for assign new role to identity or change validity dates on assigned role. Approvers are all authorizers for given role and all with security role.
+
+Input variables:
+- applicantIdentifier
+- applicantUsername
+- operationType (add/change/remove)
+- conceptRole (IdmConceptRoleRequestDto)
+- applicantDescription</documentation>
+    <startEvent id="startevent1" name="Start"></startEvent>
+    <userTask id="approveTask" name="Approve by role authorizer" activiti:candidateUsers="#{candidatesApproveByAuthorizers}" activiti:skipExpression="#{skipApproveByAuthorizers}">
+      <documentation>${processInstanceName}</documentation>
+      <extensionElements>
+        <activiti:formProperty id="disapprove" type="decision"></activiti:formProperty>
+        <activiti:formProperty id="approve" type="decision"></activiti:formProperty>
+        <activiti:formProperty id="roleName" type="textField" expression="${roleService.get(conceptRole.role).name}" writable="false"></activiti:formProperty>
+        <activiti:formProperty id="applicantDescription" type="textArea" writable="false"></activiti:formProperty>
+        <activiti:formProperty id="validFrom" type="localDate" expression="#{conceptRole.validFrom}"></activiti:formProperty>
+        <activiti:formProperty id="validTill" type="localDate" expression="#{conceptRole.validTill}"></activiti:formProperty>
+      </extensionElements>
+    </userTask>
+    <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow2" sourceRef="approveTask" targetRef="exclusivegateway1"></sequenceFlow>
+    <endEvent id="endevent1" name="End" activiti:async="true"></endEvent>
+    <sequenceFlow id="flow3" name="disapproved" sourceRef="exclusivegateway1" targetRef="scripttask4">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[#{decision.equals("disapprove")}]]></conditionExpression>
+    </sequenceFlow>
+    <serviceTask id="servicetask2" name="Create name of process" activiti:expression="Approve role &quot;${roleService.get(conceptRole.role).name}&quot; assignment by role authorizer for &quot;${identityService.getNiceLabel(identityService.get(applicantIdentifier))}&quot;" activiti:resultVariableName="processInstanceName"></serviceTask>
+    <sequenceFlow id="flow7" sourceRef="startevent1" targetRef="scripttask8"></sequenceFlow>
+    <sequenceFlow id="flow8" sourceRef="servicetask2" targetRef="scripttask9"></sequenceFlow>
+    <exclusiveGateway id="exclusivegateway2" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow9" sourceRef="exclusivegateway2" targetRef="servicetask2">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[#{operationType.equals("add")}]]></conditionExpression>
+    </sequenceFlow>
+    <serviceTask id="servicetask5" name="Create name of process" activiti:expression="Approve role &quot;${roleService.get(conceptRole.role).name}&quot; change by role authorizer for &quot;${identityService.getNiceLabel(identityService.get(applicantIdentifier))}&quot;" activiti:resultVariableName="processInstanceName"></serviceTask>
+    <userTask id="usertask1" name="Approve by role authorizer" activiti:candidateUsers="#{candidatesApproveByAuthorizers}" activiti:skipExpression="#{skipApproveByAuthorizers}">
+      <documentation>${processInstanceName}</documentation>
+      <extensionElements>
+        <activiti:formProperty id="disapprove" type="decision"></activiti:formProperty>
+        <activiti:formProperty id="approve" type="decision"></activiti:formProperty>
+        <activiti:formProperty id="roleName" type="textField" expression="${roleService.get(conceptRole.role).name}" writable="false"></activiti:formProperty>
+        <activiti:formProperty id="applicantDescription" type="textArea" writable="false"></activiti:formProperty>
+        <activiti:formProperty id="validFromDateOld" type="localDate" expression="${identityRoleService.get(conceptRole.identityRole).validFrom}" writable="false"></activiti:formProperty>
+        <activiti:formProperty id="validFromDateNew" type="localDate" expression="${conceptRole.validFrom}"></activiti:formProperty>
+        <activiti:formProperty id="validTillDateOld" type="localDate" expression="${identityRoleService.get(conceptRole.identityRole).validTill}" writable="false"></activiti:formProperty>
+        <activiti:formProperty id="validTillDateNew" type="localDate" expression="${conceptRole.validTill}">
+          <activiti:value id="tooltip" name="Platnost přiřazení role"></activiti:value>
+        </activiti:formProperty>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow19" sourceRef="usertask1" targetRef="exclusivegateway3"></sequenceFlow>
+    <exclusiveGateway id="exclusivegateway3" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow27" sourceRef="exclusivegateway2" targetRef="servicetask5">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[#{operationType.equals("change")}]]></conditionExpression>
+    </sequenceFlow>
+    <exclusiveGateway id="exclusivegateway5" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow29" sourceRef="exclusivegateway3" targetRef="scripttask12">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[#{decision.equals("approve")}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow31" name="Identity role not exist" sourceRef="exclusivegateway5" targetRef="scripttask7">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[#{identityRoleService.get(conceptRole.identityRole) == null}]]></conditionExpression>
+    </sequenceFlow>
+    <endEvent id="endevent5" name="End - Identity role with given ID not found" activiti:async="true">
+      <documentation>Identity role with given ID not found</documentation>
+    </endEvent>
+    <scriptTask id="scripttask4" name="Set DISAPPROVED state to concept" scriptFormat="groovy" activiti:autoStoreVariables="false">
+      <script>import eu.bcvsolutions.idm.core.model.domain.RoleRequestState;
+ 
+// Set and save state DISAPPROVED to concept
+def conceptDto = conceptRoleRequestService.getDto(conceptRole.id);
+conceptDto.setState(RoleRequestState.DISAPPROVED);
+conceptRoleRequestService.save(conceptDto);</script>
+    </scriptTask>
+    <sequenceFlow id="flow32" sourceRef="scripttask4" targetRef="endevent1"></sequenceFlow>
+    <sequenceFlow id="flow34" sourceRef="servicetask5" targetRef="scripttask11"></sequenceFlow>
+    <scriptTask id="scripttask5" name="Set APPROVED state to concept" scriptFormat="groovy" activiti:autoStoreVariables="false">
+      <script>import eu.bcvsolutions.idm.core.model.domain.RoleRequestState;
+ 
+// Set and save state APPROVED to concept
+def conceptDto = conceptRoleRequestService.getDto(conceptRole.id);
+conceptDto.setState(RoleRequestState.APPROVED);
+
+// Set current validity dates
+conceptDto.setValidFrom(conceptRole.validFrom);
+conceptDto.setValidTill(conceptRole.validTill);
+
+conceptRoleRequestService.save(conceptDto);</script>
+    </scriptTask>
+    <sequenceFlow id="flow35" sourceRef="exclusivegateway5" targetRef="scripttask5">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[#{identityRoleService.get(conceptRole.identityRole) != null}]]></conditionExpression>
+    </sequenceFlow>
+    <scriptTask id="scripttask7" name="Set CANCELED state to concept" scriptFormat="groovy" activiti:autoStoreVariables="false">
+      <script>import eu.bcvsolutions.idm.core.model.domain.RoleRequestState;
+ 
+// Set and save state CANCELED to concept
+def conceptDto = conceptRoleRequestService.getDto(conceptRole.id);
+conceptDto.setState(RoleRequestState.CANCELED);
+conceptRoleRequestService.addToLog(conceptDto, 'Identity role not exist!');
+conceptRoleRequestService.save(conceptDto);</script>
+    </scriptTask>
+    <sequenceFlow id="flow38" sourceRef="scripttask7" targetRef="endevent5"></sequenceFlow>
+    <sequenceFlow id="flow39" sourceRef="exclusivegateway1" targetRef="scripttask10"></sequenceFlow>
+    <scriptTask id="scripttask8" name="Set IN_PROGRESS state to concept" scriptFormat="groovy" activiti:autoStoreVariables="false">
+      <script>import eu.bcvsolutions.idm.core.model.domain.RoleRequestState;
+ 
+// Set and save state IN_PROGRESS to concept
+def conceptDto = conceptRoleRequestService.getDto(conceptRole.id);
+conceptDto.setState(RoleRequestState.IN_PROGRESS);
+conceptRoleRequestService.save(conceptDto);</script>
+    </scriptTask>
+    <sequenceFlow id="flow40" sourceRef="scripttask8" targetRef="exclusivegateway2"></sequenceFlow>
+    <scriptTask id="scripttask9" name="Find all role authorizers and resolve if we can skip next task" scriptFormat="groovy" activiti:autoStoreVariables="false">
+      <script>boolean skip = false;
+def candidates = null;
+
+//Find all role authorizers
+candidates = identityService.findAllGuaranteesByRoleId(conceptRole.role);
+if(candidates.isEmpty()){
+  candidates.add(identityService.getByUsername("admin"));
+}
+
+//Is current logged user = implemeneter user and is betwen candidates? If yes, then we can skip task.
+if(implementerUsername.equals(securityService.getUsername())){
+  skip = identityService.containsUser(candidates, implementerUsername);
+}else{
+  skip = false; 
+}
+
+// If is skip == true, then set decision for next task on approve
+if (skip) {
+ execution.setVariable("decision", "approve");
+}
+
+//Save skip resolution to variables
+execution.setVariable("skipApproveByAuthorizers", skip);
+
+if(!skip){
+  // Convert all candidates to string separate by comma		
+  def candidatesString = identityService.convertIdentitiesToString(candidates);
+
+  //Save candidates to variables
+  execution.setVariable("candidatesApproveByAuthorizers", candidatesString);
+}</script>
+    </scriptTask>
+    <sequenceFlow id="flow41" sourceRef="scripttask9" targetRef="approveTask"></sequenceFlow>
+    <scriptTask id="scripttask10" name="Find all security approvers and resolve if we can skip next task" scriptFormat="groovy" activiti:autoStoreVariables="false">
+      <script>boolean skip = false;
+def candidates = null;
+
+//Find all security identities
+candidates = identityService.findAllByRoleName("security");
+// If is list of candidates empty, then add ADMIN user as default approver
+if(candidates.isEmpty()){
+  candidates.add(identityService.getByUsername("admin"));
+}
+
+//Is current logged user = implemeneter user and is betwen candidates? If yes, then we can skip task.
+if(implementerUsername.equals(securityService.getUsername())){
+  skip = identityService.containsUser(candidates, implementerUsername);
+}else{
+  skip = false; 
+}
+
+// If is skip == true, then set decision for next task on approve
+if (skip) {
+ execution.setVariable("decision", "approve");
+}
+//Save skip resolution to variables
+execution.setVariable("skipApproveBySecurity", skip);
+
+if(!skip){
+  // Convert all candidates to string separate by comma		
+  def candidatesString = identityService.convertIdentitiesToString(candidates);
+
+  //Save candidates to variables
+  execution.setVariable("candidatesApproveBySecurity", candidatesString);
+}</script>
+    </scriptTask>
+    <userTask id="usertask2" name="Approve by security" activiti:candidateUsers="#{candidatesApproveBySecurity}" activiti:skipExpression="#{skipApproveBySecurity}">
+      <documentation>${processInstanceName}</documentation>
+      <extensionElements>
+        <activiti:formProperty id="disapprove" type="decision"></activiti:formProperty>
+        <activiti:formProperty id="approve" type="decision"></activiti:formProperty>
+        <activiti:formProperty id="roleName" type="textField" expression="${roleService.get(conceptRole.role).name}" writable="false"></activiti:formProperty>
+        <activiti:formProperty id="applicantDescription" type="textArea" writable="false"></activiti:formProperty>
+        <activiti:formProperty id="validFrom" type="localDate" expression="#{conceptRole.validFrom}"></activiti:formProperty>
+        <activiti:formProperty id="validTill" type="localDate" expression="#{conceptRole.validTill}"></activiti:formProperty>
+      </extensionElements>
+    </userTask>
+    <exclusiveGateway id="exclusivegateway6" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow42" sourceRef="exclusivegateway6" targetRef="scripttask4">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[#{decision.equals("disapprove")}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow43" sourceRef="exclusivegateway6" targetRef="scripttask5">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[#{decision.equals("approve")}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow44" sourceRef="scripttask10" targetRef="usertask2"></sequenceFlow>
+    <sequenceFlow id="flow45" sourceRef="usertask2" targetRef="exclusivegateway6"></sequenceFlow>
+    <scriptTask id="scripttask11" name="Find all role authorizers and resolve if we can skip next task" scriptFormat="groovy" activiti:autoStoreVariables="false">
+      <script>boolean skip = false;
+def candidates = null;
+
+//Find all role authorizers
+candidates = identityService.findAllGuaranteesByRoleId(conceptRole.role);
+if(candidates.isEmpty()){
+  candidates.add(identityService.getByUsername("admin"));
+}
+
+//Is current logged user = implemeneter user and is betwen candidates? If yes, then we can skip task.
+if(implementerUsername.equals(securityService.getUsername())){
+  skip = identityService.containsUser(candidates, implementerUsername);
+}else{
+  skip = false; 
+}
+
+// If is skip == true, then set decision for next task on approve
+if (skip) {
+ execution.setVariable("decision", "approve");
+}
+
+//Save skip resolution to variables
+execution.setVariable("skipApproveByAuthorizers", skip);
+
+if(!skip){
+  // Convert all candidates to string separate by comma		
+  def candidatesString = identityService.convertIdentitiesToString(candidates);
+
+  //Save candidates to variables
+  execution.setVariable("candidatesApproveByAuthorizers", candidatesString);
+}</script>
+    </scriptTask>
+    <sequenceFlow id="flow46" sourceRef="scripttask11" targetRef="usertask1"></sequenceFlow>
+    <sequenceFlow id="flow47" name="disapproved" sourceRef="exclusivegateway3" targetRef="scripttask4">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[#{decision.equals("disapprove")}]]></conditionExpression>
+    </sequenceFlow>
+    <scriptTask id="scripttask12" name="Find all security approvers and resolve if we can skip next task" scriptFormat="groovy" activiti:autoStoreVariables="false">
+      <script>boolean skip = false;
+def candidates = null;
+
+//Find all security identities
+candidates = identityService.findAllByRoleName("security");
+// If is list of candidates empty, then add ADMIN user as default approver
+if(candidates.isEmpty()){
+  candidates.add(identityService.getByUsername("admin"));
+}
+
+//Is current logged user = implemeneter user and is betwen candidates? If yes, then we can skip task.
+if(implementerUsername.equals(securityService.getUsername())){
+  skip = identityService.containsUser(candidates, implementerUsername);
+}else{
+  skip = false; 
+}
+
+// If is skip == true, then set decision for next task on approve
+if (skip) {
+ execution.setVariable("decision", "approve");
+}
+//Save skip resolution to variables
+execution.setVariable("skipApproveBySecurity", skip);
+
+if(!skip){
+  // Convert all candidates to string separate by comma		
+  def candidatesString = identityService.convertIdentitiesToString(candidates);
+
+  //Save candidates to variables
+  execution.setVariable("candidatesApproveBySecurity", candidatesString);
+}</script>
+    </scriptTask>
+    <userTask id="usertask3" name="Approve by role authorizer" activiti:candidateUsers="#{candidatesApproveBySecurity}" activiti:skipExpression="#{skipApproveBySecurity}">
+      <extensionElements>
+        <activiti:formProperty id="disapprove" type="decision"></activiti:formProperty>
+        <activiti:formProperty id="approve" type="decision"></activiti:formProperty>
+        <activiti:formProperty id="roleName" type="textField" expression="${roleService.get(conceptRole.role).name}" writable="false"></activiti:formProperty>
+        <activiti:formProperty id="applicantDescription" type="textArea" writable="false"></activiti:formProperty>
+        <activiti:formProperty id="validFromDateOld" type="localDate" expression="${identityRoleService.get(conceptRole.identityRole).validFrom}" writable="false"></activiti:formProperty>
+        <activiti:formProperty id="validFromDateNew" type="localDate" expression="${conceptRole.validFrom}"></activiti:formProperty>
+        <activiti:formProperty id="validTillDateOld" type="localDate" expression="${identityRoleService.get(conceptRole.identityRole).validTill}" writable="false"></activiti:formProperty>
+        <activiti:formProperty id="validTillDateNew" type="localDate" expression="${conceptRole.validTill}">
+          <activiti:value id="tooltip" name="Platnost přiřazení role"></activiti:value>
+        </activiti:formProperty>
+      </extensionElements>
+    </userTask>
+    <exclusiveGateway id="exclusivegateway7" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow48" sourceRef="scripttask12" targetRef="usertask3"></sequenceFlow>
+    <sequenceFlow id="flow49" sourceRef="usertask3" targetRef="exclusivegateway7"></sequenceFlow>
+    <sequenceFlow id="flow50" sourceRef="exclusivegateway7" targetRef="exclusivegateway5">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[#{decision.equals("approve")}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow51" sourceRef="exclusivegateway7" targetRef="scripttask4"></sequenceFlow>
+    <dataObject id="approve" name="approve" itemSubjectRef="xsd:string">
+      <extensionElements>
+        <activiti:value>{"showWarning":false,,"level":"success"}</activiti:value>
+      </extensionElements>
+    </dataObject>
+    <dataObject id="disapprove" name="disapprove" itemSubjectRef="xsd:string">
+      <extensionElements>
+        <activiti:value>{"showWarning":true,"level":"danger"}</activiti:value>
+      </extensionElements>
+    </dataObject>
+    <dataObject id="decision" name="decision" itemSubjectRef="xsd:string"></dataObject>
+    <endEvent id="endevent6" name="End" activiti:async="true"></endEvent>
+    <sequenceFlow id="flow52" sourceRef="scripttask5" targetRef="endevent6"></sequenceFlow>
+    <textAnnotation id="textannotation1">
+      <text>Assign role to identity</text>
+    </textAnnotation>
+    <textAnnotation id="textannotation2">
+      <text>Change validate dates for assigned role</text>
+    </textAnnotation>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_approve-role-by-authorizer-security">
+    <bpmndi:BPMNPlane bpmnElement="approve-role-by-authorizer-security" id="BPMNPlane_approve-role-by-authorizer-security">
+      <bpmndi:BPMNShape bpmnElement="startevent1" id="BPMNShape_startevent1">
+        <omgdc:Bounds height="35.0" width="35.0" x="1.0" y="335.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="approveTask" id="BPMNShape_approveTask">
+        <omgdc:Bounds height="86.0" width="171.0" x="761.0" y="182.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway1" id="BPMNShape_exclusivegateway1">
+        <omgdc:Bounds height="40.0" width="40.0" x="1049.0" y="204.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent1" id="BPMNShape_endevent1">
+        <omgdc:Bounds height="35.0" width="35.0" x="1754.0" y="384.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="servicetask2" id="BPMNShape_servicetask2">
+        <omgdc:Bounds height="74.0" width="105.0" x="372.0" y="188.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway2" id="BPMNShape_exclusivegateway2">
+        <omgdc:Bounds height="40.0" width="40.0" x="287.0" y="332.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="servicetask5" id="BPMNShape_servicetask5">
+        <omgdc:Bounds height="70.0" width="105.0" x="372.0" y="431.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="usertask1" id="BPMNShape_usertask1">
+        <omgdc:Bounds height="86.0" width="171.0" x="761.0" y="423.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway3" id="BPMNShape_exclusivegateway3">
+        <omgdc:Bounds height="40.0" width="40.0" x="1049.0" y="445.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway5" id="BPMNShape_exclusivegateway5">
+        <omgdc:Bounds height="40.0" width="40.0" x="1851.0" y="445.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent5" id="BPMNShape_endevent5">
+        <omgdc:Bounds height="35.0" width="35.0" x="1854.0" y="651.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="scripttask4" id="BPMNShape_scripttask4">
+        <omgdc:Bounds height="67.0" width="160.0" x="1692.0" y="286.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="scripttask5" id="BPMNShape_scripttask5">
+        <omgdc:Bounds height="67.0" width="160.0" x="1974.0" y="310.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="scripttask7" id="BPMNShape_scripttask7">
+        <omgdc:Bounds height="67.0" width="160.0" x="1792.0" y="531.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="scripttask8" id="BPMNShape_scripttask8">
+        <omgdc:Bounds height="67.0" width="160.0" x="82.0" y="319.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="scripttask9" id="BPMNShape_scripttask9">
+        <omgdc:Bounds height="95.0" width="151.0" x="541.0" y="177.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="scripttask10" id="BPMNShape_scripttask10">
+        <omgdc:Bounds height="95.0" width="151.0" x="1211.0" y="177.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="usertask2" id="BPMNShape_usertask2">
+        <omgdc:Bounds height="86.0" width="171.0" x="1441.0" y="182.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway6" id="BPMNShape_exclusivegateway6">
+        <omgdc:Bounds height="40.0" width="40.0" x="1661.0" y="204.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="scripttask11" id="BPMNShape_scripttask11">
+        <omgdc:Bounds height="95.0" width="151.0" x="541.0" y="418.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="scripttask12" id="BPMNShape_scripttask12">
+        <omgdc:Bounds height="95.0" width="151.0" x="1241.0" y="418.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="usertask3" id="BPMNShape_usertask3">
+        <omgdc:Bounds height="86.0" width="171.0" x="1441.0" y="423.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway7" id="BPMNShape_exclusivegateway7">
+        <omgdc:Bounds height="40.0" width="40.0" x="1661.0" y="445.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent6" id="BPMNShape_endevent6">
+        <omgdc:Bounds height="35.0" width="35.0" x="2181.0" y="326.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="textannotation1" id="BPMNShape_textannotation1">
+        <omgdc:Bounds height="120.0" width="125.0" x="336.0" y="151.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="textannotation2" id="BPMNShape_textannotation2">
+        <omgdc:Bounds height="130.0" width="125.0" x="336.0" y="401.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="flow2" id="BPMNEdge_flow2">
+        <omgdi:waypoint x="932.0" y="225.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1049.0" y="224.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow3" id="BPMNEdge_flow3">
+        <omgdi:waypoint x="1069.0" y="244.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1095.0" y="317.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1692.0" y="319.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="12.0" width="100.0" x="1104.0" y="299.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow7" id="BPMNEdge_flow7">
+        <omgdi:waypoint x="36.0" y="352.0"></omgdi:waypoint>
+        <omgdi:waypoint x="82.0" y="352.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow8" id="BPMNEdge_flow8">
+        <omgdi:waypoint x="477.0" y="225.0"></omgdi:waypoint>
+        <omgdi:waypoint x="541.0" y="224.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow9" id="BPMNEdge_flow9">
+        <omgdi:waypoint x="307.0" y="332.0"></omgdi:waypoint>
+        <omgdi:waypoint x="307.0" y="224.0"></omgdi:waypoint>
+        <omgdi:waypoint x="372.0" y="225.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow19" id="BPMNEdge_flow19">
+        <omgdi:waypoint x="932.0" y="466.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1049.0" y="465.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow27" id="BPMNEdge_flow27">
+        <omgdi:waypoint x="307.0" y="372.0"></omgdi:waypoint>
+        <omgdi:waypoint x="307.0" y="466.0"></omgdi:waypoint>
+        <omgdi:waypoint x="372.0" y="466.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow29" id="BPMNEdge_flow29">
+        <omgdi:waypoint x="1089.0" y="465.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1241.0" y="465.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow31" id="BPMNEdge_flow31">
+        <omgdi:waypoint x="1871.0" y="485.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1872.0" y="531.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="12.0" width="99.0" x="1876.0" y="509.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow32" id="BPMNEdge_flow32">
+        <omgdi:waypoint x="1772.0" y="353.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1771.0" y="384.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow34" id="BPMNEdge_flow34">
+        <omgdi:waypoint x="477.0" y="466.0"></omgdi:waypoint>
+        <omgdi:waypoint x="541.0" y="465.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow35" id="BPMNEdge_flow35">
+        <omgdi:waypoint x="1871.0" y="445.0"></omgdi:waypoint>
+        <omgdi:waypoint x="2054.0" y="377.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow38" id="BPMNEdge_flow38">
+        <omgdi:waypoint x="1872.0" y="598.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1871.0" y="651.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow39" id="BPMNEdge_flow39">
+        <omgdi:waypoint x="1089.0" y="224.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1211.0" y="224.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow40" id="BPMNEdge_flow40">
+        <omgdi:waypoint x="242.0" y="352.0"></omgdi:waypoint>
+        <omgdi:waypoint x="287.0" y="352.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow41" id="BPMNEdge_flow41">
+        <omgdi:waypoint x="692.0" y="224.0"></omgdi:waypoint>
+        <omgdi:waypoint x="761.0" y="225.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow42" id="BPMNEdge_flow42">
+        <omgdi:waypoint x="1681.0" y="244.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1772.0" y="286.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow43" id="BPMNEdge_flow43">
+        <omgdi:waypoint x="1701.0" y="224.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1859.0" y="224.0"></omgdi:waypoint>
+        <omgdi:waypoint x="2054.0" y="310.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow44" id="BPMNEdge_flow44">
+        <omgdi:waypoint x="1362.0" y="224.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1441.0" y="225.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow45" id="BPMNEdge_flow45">
+        <omgdi:waypoint x="1612.0" y="225.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1661.0" y="224.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow46" id="BPMNEdge_flow46">
+        <omgdi:waypoint x="692.0" y="465.0"></omgdi:waypoint>
+        <omgdi:waypoint x="761.0" y="466.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow47" id="BPMNEdge_flow47">
+        <omgdi:waypoint x="1069.0" y="445.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1113.0" y="368.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1632.0" y="368.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1772.0" y="353.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="12.0" width="100.0" x="1126.0" y="386.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow48" id="BPMNEdge_flow48">
+        <omgdi:waypoint x="1392.0" y="465.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1441.0" y="466.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow49" id="BPMNEdge_flow49">
+        <omgdi:waypoint x="1612.0" y="466.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1661.0" y="465.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow50" id="BPMNEdge_flow50">
+        <omgdi:waypoint x="1701.0" y="465.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1851.0" y="465.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow51" id="BPMNEdge_flow51">
+        <omgdi:waypoint x="1681.0" y="445.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1772.0" y="353.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow52" id="BPMNEdge_flow52">
+        <omgdi:waypoint x="2134.0" y="343.0"></omgdi:waypoint>
+        <omgdi:waypoint x="2181.0" y="343.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

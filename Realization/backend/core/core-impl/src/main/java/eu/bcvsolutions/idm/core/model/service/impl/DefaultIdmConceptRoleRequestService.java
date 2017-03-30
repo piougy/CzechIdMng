@@ -72,7 +72,7 @@ public class DefaultIdmConceptRoleRequestService
 		if(!Strings.isNullOrEmpty(dto.getWfProcessId())){
 			workflowProcessInstanceService.delete(dto.getWfProcessId(), "Role concept use this WF, was deleted. This WF was deleted too.");
 		}
-		
+			
 		super.delete(dto);
 	}
 

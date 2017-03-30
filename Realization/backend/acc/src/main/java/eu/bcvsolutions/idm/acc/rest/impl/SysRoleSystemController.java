@@ -74,7 +74,7 @@ public class SysRoleSystemController extends DefaultReadWriteEntityController<Sy
 	
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_UPDATE + "')")
 	@RequestMapping(method = RequestMethod.POST)
 	public ResponseEntity<?> post(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
 		return super.post(nativeRequest, assembler);
@@ -82,7 +82,7 @@ public class SysRoleSystemController extends DefaultReadWriteEntityController<Sy
 	
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_UPDATE + "')")
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.PUT)
 	public ResponseEntity<?> put(
 			@PathVariable @NotNull String backendId,
@@ -93,7 +93,7 @@ public class SysRoleSystemController extends DefaultReadWriteEntityController<Sy
 	
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_UPDATE + "')")
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.PATCH)
 	public ResponseEntity<?> patch(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler) 
 			throws HttpMessageNotReadableException {
@@ -102,7 +102,7 @@ public class SysRoleSystemController extends DefaultReadWriteEntityController<Sy
 	
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_UPDATE + "')")
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.DELETE)
 	public ResponseEntity<?> delete(@PathVariable @NotNull String backendId) {
 		return super.delete(backendId);

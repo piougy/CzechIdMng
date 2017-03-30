@@ -31,8 +31,6 @@ import eu.bcvsolutions.idm.core.api.rest.domain.RequestResourceResolver;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
-import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
-import eu.bcvsolutions.idm.core.security.api.service.AuthorizationManager;
 
 /**
  * CRUD operations
@@ -47,8 +45,6 @@ public abstract class AbstractReadWriteEntityController<E extends BaseEntity, F 
 	
 	@Autowired
 	private RequestResourceResolver requestResourceResolver;
-	@Autowired
-	private AuthorizationManager authorizationManager;
 	
 	public AbstractReadWriteEntityController(EntityLookupService entityLookupService) {
 		super(entityLookupService);
@@ -68,9 +64,9 @@ public abstract class AbstractReadWriteEntityController<E extends BaseEntity, F 
 	 */
 	public ResponseEntity<?> post(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {		
 		E entity = (E) requestResourceResolver.resolve(nativeRequest, getEntityClass(), null);
-		if (getEntityService() instanceof AuthorizableService && !authorizationManager.evaluate(entity, getEntityService().isNew(entity) ? IdmBasePermission.CREATE : IdmBasePermission.UPDATE)) {
-			throw new ResultCodeException(CoreResultCode.FORBIDDEN);
-		}
+		//
+		checkAccess(entity, getEntityService().isNew(entity) ? IdmBasePermission.CREATE : IdmBasePermission.UPDATE);
+		//
 		E createdIdentity = postEntity(validateEntity(entity));
 		if (createdIdentity.getId() == null) {
 			throw new ResultCodeException(CoreResultCode.ACCEPTED);
@@ -107,9 +103,8 @@ public abstract class AbstractReadWriteEntityController<E extends BaseEntity, F 
 		if (updateEntity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
-		if (getEntityService() instanceof AuthorizableService && !authorizationManager.evaluate(updateEntity, IdmBasePermission.UPDATE)) {
-			throw new ResultCodeException(CoreResultCode.FORBIDDEN);
-		}
+		checkAccess(updateEntity, IdmBasePermission.UPDATE);
+		//
 		E updatedEntity = putEntity(validateEntity((E) requestResourceResolver.resolve(nativeRequest, getEntityService().getEntityClass(), updateEntity)));
 		return new ResponseEntity<>(toResource(updatedEntity, assembler), HttpStatus.OK);
 	}
@@ -143,9 +138,8 @@ public abstract class AbstractReadWriteEntityController<E extends BaseEntity, F 
 		if (updateEntity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
-		if (getEntityService() instanceof AuthorizableService && !authorizationManager.evaluate(updateEntity, IdmBasePermission.UPDATE)) {
-			throw new ResultCodeException(CoreResultCode.FORBIDDEN);
-		}
+		checkAccess(updateEntity, IdmBasePermission.UPDATE);;
+		//
 		E updatedEntity = patchEntity((E) requestResourceResolver.resolve(nativeRequest, getEntityService().getEntityClass(), updateEntity));
 		return new ResponseEntity<>(toResource(updatedEntity, assembler), HttpStatus.OK);
 	}
@@ -189,7 +183,7 @@ public abstract class AbstractReadWriteEntityController<E extends BaseEntity, F 
 		if (entity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
-		if (!authorizationManager.evaluate(entity, IdmBasePermission.DELETE)) {
+		if (!getAuthorizationManager().evaluate(entity, IdmBasePermission.DELETE)) {
 			throw new ResultCodeException(CoreResultCode.FORBIDDEN);
 		}
 		deleteEntity(entity);
@@ -204,6 +198,7 @@ public abstract class AbstractReadWriteEntityController<E extends BaseEntity, F 
 	 */
 	public void deleteEntity(E entity) {
 		Assert.notNull(entity, "Entity is required");
+		//
 		getEntityService().delete(entity);
 	}
 	
@@ -222,7 +217,6 @@ public abstract class AbstractReadWriteEntityController<E extends BaseEntity, F 
 		if (entity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
-		return authorizationManager.evaluate(entity);
+		return getAuthorizationManager().evaluate(entity);
 	}
-
 }

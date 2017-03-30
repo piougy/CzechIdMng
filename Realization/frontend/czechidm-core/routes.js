@@ -149,7 +149,7 @@ module.exports = {
         {
           path: 'types/new',
           component: require('./src/content/tree/type/TypeContent'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREETYPE_WRITE' ] } ]
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREETYPE_CREATE' ] } ]
         },
         {
           path: 'types/:entityId',
@@ -161,12 +161,12 @@ module.exports = {
     {
       path: 'role-catalogues',
       component: require('./src/content/rolecatalogue/RoleCatalogues'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ'] } ]
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLECATALOGUE_READ'] } ]
     },
     {
       path: 'rolecatalogue/:entityId',
       component: require('./src/content/rolecatalogue/RoleCatalogueContent'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ'] } ],
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLECATALOGUE_READ'] } ],
     },
     {
       path: 'roles',
@@ -239,7 +239,7 @@ module.exports = {
     {
       path: 'configurations',
       component: require('./src/content/Configurations'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONFIGURATION_WRITE', 'CONFIGURATIONSECURED_READ'] } ]
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONFIGURATION_CREATE', 'CONFIGURATION_UPDATE', 'CONFIGURATIONSECURED_READ'] } ]
     },
     {
       path: 'modules',

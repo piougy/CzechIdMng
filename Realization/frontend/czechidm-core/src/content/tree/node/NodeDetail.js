@@ -121,7 +121,12 @@ export default class NodeDetail extends Basic.AbstractContent {
             <Basic.PanelHeader text={Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('label')} />
 
             <Basic.PanelBody style={Utils.Entity.isNew(entity) ? { paddingTop: 0, paddingBottom: 0 } : { padding: 0 }}>
-              <Basic.AbstractForm ref="form" showLoading={ _showLoading || showLoading } uiKey={uiKey} readOnly={!SecurityManager.hasAuthority('TREENODE_WRITE')}>
+              <Basic.AbstractForm
+                ref="form"
+                showLoading={ _showLoading || showLoading }
+                uiKey={uiKey}
+                readOnly={!SecurityManager.hasAuthority(Utils.Entity.isNew(entity) ? 'TREENODE_CREATE' : 'TREENODE_UPDATE')}>
+
                 <Basic.SelectBox
                   ref="treeType"
                   label={this.i18n('entity.TreeNode.treeType.name')}
@@ -168,7 +173,7 @@ export default class NodeDetail extends Basic.AbstractContent {
                 showLoading={_showLoading}
                 showLoadingIcon
                 showLoadingText={this.i18n('button.saving')}
-                rendered={SecurityManager.hasAuthority('TREENODE_WRITE')}
+                rendered={SecurityManager.hasAuthority(Utils.Entity.isNew(entity) ? 'TREENODE_CREATE' : 'TREENODE_UPDATE')}
                 pullRight
                 dropup>
                 <Basic.MenuItem eventKey="1" onClick={this.save.bind(this, 'CLOSE')}>{this.i18n('button.saveAndClose')}</Basic.MenuItem>

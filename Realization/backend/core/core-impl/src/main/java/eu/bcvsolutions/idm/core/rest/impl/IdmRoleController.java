@@ -140,7 +140,7 @@ public class IdmRoleController extends DefaultReadWriteEntityController<IdmRole,
 	 * @return
 	 */
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_UPDATE + "')")
 	@RequestMapping(value = "/{backendId}/form-values", method = RequestMethod.POST)
 	public Resources<?> saveFormValues(
 			@PathVariable @NotNull String backendId,

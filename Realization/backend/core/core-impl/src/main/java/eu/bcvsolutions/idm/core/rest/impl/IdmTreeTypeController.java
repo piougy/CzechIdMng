@@ -124,7 +124,7 @@ public class IdmTreeTypeController extends DefaultReadWriteEntityController<IdmT
 	 */
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}/index/rebuild", method = RequestMethod.PUT)
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCHEDULER_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCHEDULER_EXECUTE + "')")
 	public ResponseEntity<?> rebuildIndex(@PathVariable String backendId, PersistentEntityResourceAssembler assembler) {
 		IdmTreeType treeType = getEntity(backendId);
 		if (treeType == null) {

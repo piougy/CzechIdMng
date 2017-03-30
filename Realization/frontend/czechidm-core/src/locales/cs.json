@@ -1194,9 +1194,9 @@
         }
       },
       "authorization-policies": {
-        "header": "Přidělená oprávnění",
-        "title": "Přidělená oprávnění",
-        "label": "Oprávnění",
+        "header": "Přidělená oprávnění na data",
+        "title": "Práva na data",
+        "label": "Práva na data",
         "edit": {
           "header": "{{name}} <small>detail oprávnění</small>"
         },

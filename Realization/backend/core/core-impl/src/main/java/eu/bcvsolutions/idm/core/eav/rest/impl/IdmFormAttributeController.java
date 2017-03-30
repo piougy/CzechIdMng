@@ -87,7 +87,7 @@ public class IdmFormAttributeController extends DefaultReadWriteEntityController
 	
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.EAV_FORM_ATTRIBUTES_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.EAV_FORM_ATTRIBUTES_CREATE + "') or hasAuthority('" + CoreGroupPermission.EAV_FORM_ATTRIBUTES_UPDATE + "')")
 	public ResponseEntity<?> post(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler)
 			throws HttpMessageNotReadableException {
 		return super.post(nativeRequest, assembler);
@@ -95,7 +95,7 @@ public class IdmFormAttributeController extends DefaultReadWriteEntityController
 	
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.EAV_FORM_ATTRIBUTES_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.EAV_FORM_ATTRIBUTES_UPDATE + "')")
 	public ResponseEntity<?> put(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest,
 			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
 		return super.put(backendId, nativeRequest, assembler);
@@ -103,7 +103,7 @@ public class IdmFormAttributeController extends DefaultReadWriteEntityController
 	
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.EAV_FORM_ATTRIBUTES_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.EAV_FORM_ATTRIBUTES_UPDATE + "')")
 	public ResponseEntity<?> patch(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest,
 			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
 		return super.patch(backendId, nativeRequest, assembler);

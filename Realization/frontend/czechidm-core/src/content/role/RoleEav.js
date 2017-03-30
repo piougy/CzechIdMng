@@ -35,7 +35,7 @@ export default class RoleEav extends Basic.AbstractContent {
         formableManager={manager}
         entityId={entityId}
         contentKey={this.getContentKey()}
-        showSaveButton={SecurityManager.hasAuthority('ROLE_WRITE')}/>
+        showSaveButton={SecurityManager.hasAuthority('ROLE_UPDATE')}/>
     );
   }
 }

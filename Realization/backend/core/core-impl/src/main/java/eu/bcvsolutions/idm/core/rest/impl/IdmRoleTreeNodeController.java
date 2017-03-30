@@ -66,7 +66,7 @@ public class IdmRoleTreeNodeController extends AbstractReadWriteDtoController<Id
 	@Override
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.POST)
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_UPDATE + "')")
 	public ResponseEntity<?> post(@Valid @RequestBody @NotNull IdmRoleTreeNodeDto dto) throws HttpMessageNotReadableException {		
 		return super.post(dto);
 	}

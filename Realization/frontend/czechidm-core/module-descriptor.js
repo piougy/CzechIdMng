@@ -170,7 +170,7 @@ module.exports = {
       {
         'id': 'profile-system-separator',
         'type': 'SEPARATOR',
-        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ', 'IDENTITY_READ', 'NOTIFICATION_READ', 'CONFIGURATION_WRITE', 'MODULE_READ'] } ],
+        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ', 'IDENTITY_READ', 'NOTIFICATION_READ', 'CONFIGURATION_UPDATE', 'MODULE_READ'] } ],
         'labelKey': 'navigation.menu.separator.system',
         'order': 999
       },
@@ -365,7 +365,7 @@ module.exports = {
         'order': 2000,
         'path': '/configurations',
         'iconColor': '#c12e2a',
-        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONFIGURATION_WRITE', 'CONFIGURATIONSECURED_READ', 'MODULE_READ'] } ],
+        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONFIGURATION_UPDATE', 'CONFIGURATIONSECURED_READ', 'MODULE_READ'] } ],
         'items': [
           {
             'id': 'system-configuration',
@@ -373,7 +373,7 @@ module.exports = {
             'icon': 'cog',
             'order': 10,
             'path': '/configurations',
-            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONFIGURATION_WRITE', 'CONFIGURATIONSECURED_READ'] } ]
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONFIGURATION_UPDATE', 'CONFIGURATIONSECURED_READ'] } ]
           },
           {
             'id': 'modules',
@@ -464,7 +464,7 @@ module.exports = {
             'order': 80,
             'iconColor': '#419641',
             'path': '/tree/nodes',
-            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREENODE_WRITE'] } ],
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREENODE_UPDATE'] } ],
             'items': [
               {
                 'id': 'tree-nodes',
@@ -472,7 +472,7 @@ module.exports = {
                 'order': 15,
                 'icon': 'apple',
                 'path': '/tree/nodes',
-                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREENODE_WRITE'] } ],
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREENODE_UPDATE'] } ],
                 'items': [
                   {
                     'id': 'tree-node-detail',
@@ -506,7 +506,7 @@ module.exports = {
                 'order': 10,
                 'icon': 'tree-deciduous',
                 'path': '/tree/types',
-                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREETYPE_WRITE'] } ]
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREETYPE_UPDATE'] } ]
               }
             ]
           },
@@ -518,7 +518,7 @@ module.exports = {
             'iconColor': '#dad727',
             'order': 100,
             'path': '/role-catalogues',
-            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ'] } ],
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLECATALOGUE_READ'] } ],
           },
           {
             'id': 'password-policies',

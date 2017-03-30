@@ -35,7 +35,7 @@ export default class NodeEav extends Basic.AbstractContent {
         formableManager={manager}
         entityId={entityId}
         contentKey={this.getContentKey()}
-        showSaveButton={SecurityManager.hasAuthority('TREENODE_WRITE')}/>
+        showSaveButton={SecurityManager.hasAuthority('TREENODE_UPDATE')}/>
     );
   }
 }

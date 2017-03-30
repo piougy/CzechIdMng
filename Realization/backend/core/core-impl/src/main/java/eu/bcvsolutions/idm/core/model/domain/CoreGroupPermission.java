@@ -18,7 +18,7 @@ public enum CoreGroupPermission implements GroupPermission {
 	
 	IDENTITY(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
 	ROLE(IdmBasePermission.ADMIN, IdmBasePermission.SEARCH, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
-	// TODO: role catalogue
+	ROLECATALOGUE(IdmBasePermission.ADMIN, IdmBasePermission.SEARCH, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
 	TREENODE(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
 	TREETYPE(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
 	CONFIGURATION(IdmBasePermission.ADMIN, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE), // read configuration is public operation
@@ -27,7 +27,7 @@ public enum CoreGroupPermission implements GroupPermission {
 	SCRIPT(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
 	AUDIT(IdmBasePermission.ADMIN, IdmBasePermission.READ),
 	MODULE(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE),
-	SCHEDULER(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
+	SCHEDULER(IdmBasePermission.ADMIN, IdmBasePermission.EXECUTE, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
 	ROLEREQUEST(IdmRoleRequestPermission.ADMIN, IdmRoleRequestPermission.READ, IdmRoleRequestPermission.WRITE, IdmRoleRequestPermission.DELETE, IdmRoleRequestPermission.EXECUTEIMMEDIATELY),
 	EAVFORMDEFINITIONS(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
 	EAVFORMATTRIBUTES(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE);
@@ -38,50 +38,67 @@ public enum CoreGroupPermission implements GroupPermission {
 	public static final String IDENTITY_UPDATE = "IDENTITY" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String IDENTITY_DELETE = "IDENTITY" + BasePermission.SEPARATOR + "DELETE";
 	//
-	public static final String CONFIGURATION_WRITE = "CONFIGURATION" + BasePermission.SEPARATOR + "WRITE";
+	public static final String CONFIGURATION_CREATE = "CONFIGURATION" + BasePermission.SEPARATOR + "CREATE";
+	public static final String CONFIGURATION_UPDATE = "CONFIGURATION" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String CONFIGURATION_DELETE = "CONFIGURATION" + BasePermission.SEPARATOR + "DELETE";
 	//
 	public static final String CONFIGURATIONSECURED_READ = "CONFIGURATIONSECURED" + BasePermission.SEPARATOR + "READ";
-	public static final String CONFIGURATIONSECURED_WRITE = "CONFIGURATIONSECURED" + BasePermission.SEPARATOR + "WRITE";
+	public static final String CONFIGURATIONSECURED_CREATE = "CONFIGURATIONSECURED" + BasePermission.SEPARATOR + "CREATE";
+	public static final String CONFIGURATIONSECURED_UPDATE = "CONFIGURATIONSECURED" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String CONFIGURATIONSECURED_DELETE = "CONFIGURATIONSECURED" + BasePermission.SEPARATOR + "DELETE";
 	//
-	public static final String TREENODE_WRITE = "TREENODE" + BasePermission.SEPARATOR + "WRITE";
+	public static final String TREENODE_CREATE = "TREENODE" + BasePermission.SEPARATOR + "CREATE";
+	public static final String TREENODE_UPDATE = "TREENODE" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String TREENODE_DELETE = "TREENODE" + BasePermission.SEPARATOR + "DELETE";
 	//
 	public static final String TREETYPE_WRITE = "TREETYPE" + BasePermission.SEPARATOR + "WRITE";
 	public static final String TREETYPE_DELETE = "TREETYPE" + BasePermission.SEPARATOR + "DELETE";
 	//
 	public static final String ROLE_READ = "ROLE" + BasePermission.SEPARATOR + "READ";
-	public static final String ROLE_WRITE = "ROLE" + BasePermission.SEPARATOR + "WRITE";
+	public static final String ROLE_CREATE = "ROLE" + BasePermission.SEPARATOR + "CREATE";
+	public static final String ROLE_UPDATE = "ROLE" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String ROLE_DELETE = "ROLE" + BasePermission.SEPARATOR + "DELETE";
 	//
-	public static final String PASSWORDPOLICY_WRITE = "PASSWORDPOLICY" + BasePermission.SEPARATOR + "WRITE";
+	public static final String ROLECATALOGUE_READ = "ROLECATALOGUE" + BasePermission.SEPARATOR + "READ";
+	public static final String ROLECATALOGUE_CREATE = "ROLECATALOGUE" + BasePermission.SEPARATOR + "CREATE";
+	public static final String ROLECATALOGUE_UPDATE = "ROLECATALOGUE" + BasePermission.SEPARATOR + "UPDATE";
+	public static final String ROLECATALOGUE_DELETE = "ROLECATALOGUE" + BasePermission.SEPARATOR + "DELETE";
+	//
+	public static final String PASSWORDPOLICY_CREATE = "PASSWORDPOLICY" + BasePermission.SEPARATOR + "CREATE";
+	public static final String PASSWORDPOLICY_UPDATE = "PASSWORDPOLICY" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String PASSWORDPOLICY_DELETE = "PASSWORDPOLICY" + BasePermission.SEPARATOR + "DELETE";
 	//
 	public static final String SCRIPT_READ = "SCRIPT" + BasePermission.SEPARATOR + "READ";
-	public static final String SCRIPT_WRITE = "SCRIPT" + BasePermission.SEPARATOR + "WRITE";
+	public static final String SCRIPT_CREATE = "SCRIPT" + BasePermission.SEPARATOR + "CREATE";
+	public static final String SCRIPT_UPDATE = "SCRIPT" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String SCRIPT_DELETE = "SCRIPT" + BasePermission.SEPARATOR + "DELETE";
 	//
 	public static final String AUDIT_READ = "AUDIT" + BasePermission.SEPARATOR + "READ";
 	//
 	public static final String MODULE_READ = "MODULE" + BasePermission.SEPARATOR + "READ";
-	public static final String MODULE_WRITE = "MODULE" + BasePermission.SEPARATOR + "WRITE";
+	public static final String MODULE_CREATE = "MODULE" + BasePermission.SEPARATOR + "CREATE";
+	public static final String MODULE_UPDATE = "MODULE" + BasePermission.SEPARATOR + "UPDATE";
 	//
 	public static final String SCHEDULER_READ = "SCHEDULER" + BasePermission.SEPARATOR + "READ";
-	public static final String SCHEDULER_WRITE = "SCHEDULER" + BasePermission.SEPARATOR + "WRITE";
+	public static final String SCHEDULER_CREATE = "SCHEDULER" + BasePermission.SEPARATOR + "CREATE";
+	public static final String SCHEDULER_UPDATE = "SCHEDULER" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String SCHEDULER_DELETE = "SCHEDULER" + BasePermission.SEPARATOR + "DELETE";
+	public static final String SCHEDULER_EXECUTE = "SCHEDULER" + BasePermission.SEPARATOR + "EXECUTE";
 	//
 	public static final String ROLE_REQUEST_READ = "ROLEREQUEST" + BasePermission.SEPARATOR + "READ";
-	public static final String ROLE_REQUEST_WRITE = "ROLEREQUEST" + BasePermission.SEPARATOR + "WRITE";
+	public static final String ROLE_REQUEST_CREATE = "ROLEREQUEST" + BasePermission.SEPARATOR + "CREATE";
+	public static final String ROLE_REQUEST_UPDATE = "ROLEREQUEST" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String ROLE_REQUEST_DELETE = "ROLEREQUEST" + BasePermission.SEPARATOR + "DELETE";
 	public static final String ROLE_REQUEST_EXECUTE_IMMEDIATELY = "ROLEREQUEST" + BasePermission.SEPARATOR + "EXECUTEIMMEDIATELY";
 	//
 	public static final String EAV_FORM_DEFINITIONS_READ = "EAVFORMDEFINITIONS" + BasePermission.SEPARATOR + "READ";
-	public static final String EAV_FORM_DEFINITIONS_WRITE = "EAVFORMDEFINITIONS" + BasePermission.SEPARATOR + "WRITE";
+	public static final String EAV_FORM_DEFINITIONS_CREATE = "EAVFORMDEFINITIONS" + BasePermission.SEPARATOR + "CREATE";
+	public static final String EAV_FORM_DEFINITIONS_UPDATE = "EAVFORMDEFINITIONS" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String EAV_FORM_DEFINITIONS_DELETE = "EAVFORMDEFINITIONS" + BasePermission.SEPARATOR + "DELETE";
 	//
 	public static final String EAV_FORM_ATTRIBUTES_READ = "EAVFORMATTRIBUTES" + BasePermission.SEPARATOR + "READ";
-	public static final String EAV_FORM_ATTRIBUTES_WRITE = "EAVFORMATTRIBUTES" + BasePermission.SEPARATOR + "WRITE";
+	public static final String EAV_FORM_ATTRIBUTES_CREATE = "EAVFORMATTRIBUTES" + BasePermission.SEPARATOR + "CREATE";
+	public static final String EAV_FORM_ATTRIBUTES_UPDATE = "EAVFORMATTRIBUTES" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String EAV_FORM_ATTRIBUTES_DELETE = "EAVFORMATTRIBUTES" + BasePermission.SEPARATOR + "DELETE";
 	
 	private final List<BasePermission> permissions;

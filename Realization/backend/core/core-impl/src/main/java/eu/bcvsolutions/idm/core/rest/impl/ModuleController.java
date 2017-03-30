@@ -94,7 +94,7 @@ public class ModuleController {
 	 */
 	@ResponseBody
 	@RequestMapping(value = "/{moduleId}", method = RequestMethod.PUT)
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.MODULE_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.MODULE_UPDATE + "')")
 	public ModuleDescriptorDto put(@PathVariable @NotNull String moduleId, HttpServletRequest nativeRequest) {	
 		ModuleDescriptor updatedModuleDescriptor = moduleService.getModule(moduleId);
 		if (updatedModuleDescriptor == null) {
@@ -114,7 +114,7 @@ public class ModuleController {
 	 */
 	@ResponseBody
 	@RequestMapping(value = "/{moduleId}", method = RequestMethod.PATCH)
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.MODULE_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.MODULE_UPDATE + "')")
 	public ModuleDescriptorDto patch(@PathVariable @NotNull String moduleId, HttpServletRequest nativeRequest) {	
 		ModuleDescriptor updatedModuleDescriptor = moduleService.getModule(moduleId);
 		if (updatedModuleDescriptor == null) {
@@ -133,7 +133,7 @@ public class ModuleController {
 	 */
 	@ResponseStatus(code = HttpStatus.NO_CONTENT)
 	@RequestMapping(value = "/{moduleId}/enable", method = RequestMethod.PATCH)
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.MODULE_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.MODULE_UPDATE + "')")
 	public void enable(@PathVariable @NotNull String moduleId) {		
 		moduleService.setEnabled(moduleId, true);
 	}
@@ -145,7 +145,7 @@ public class ModuleController {
 	 */
 	@ResponseStatus(code = HttpStatus.NO_CONTENT)
 	@RequestMapping(value = "/{moduleId}/disable", method = RequestMethod.PATCH)
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.MODULE_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.MODULE_UPDATE + "')")
 	public void disable(@PathVariable @NotNull String moduleId) {		
 		moduleService.setEnabled(moduleId, false);
 	}

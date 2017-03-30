@@ -96,7 +96,7 @@ export class RoleTreeNodeTable extends Advanced.AbstractTableContent {
                 key="add_button"
                 className="btn-xs"
                 onClick={this.showDetail.bind(this, { recursionType: RecursionTypeEnum.findKeyBySymbol(RecursionTypeEnum.NO) })}
-                rendered={SecurityManager.hasAuthority('ROLE_WRITE')}>
+                rendered={SecurityManager.hasAuthority('ROLE_UPDATE')}>
                 <Basic.Icon type="fa" icon="plus"/>
                 {' '}
                 {this.i18n('button.add')}

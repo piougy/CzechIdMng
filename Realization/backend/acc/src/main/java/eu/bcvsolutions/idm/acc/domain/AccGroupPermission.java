@@ -23,14 +23,17 @@ public enum AccGroupPermission implements GroupPermission {
 	// String constants could be used in pre / post authotize SpEl expressions
 	
 	public static final String SYSTEM_READ = "SYSTEM" + BasePermission.SEPARATOR + "READ";
-	public static final String SYSTEM_WRITE = "SYSTEM" + BasePermission.SEPARATOR + "WRITE";
+	public static final String SYSTEM_CREATE = "SYSTEM" + BasePermission.SEPARATOR + "CREATE";
+	public static final String SYSTEM_UPDATE = "SYSTEM" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String SYSTEM_DELETE = "SYSTEM" + BasePermission.SEPARATOR + "DELETE";
 	//
 	public static final String ACCOUNT_READ = "ACCOUNT" + BasePermission.SEPARATOR + "READ";
-	public static final String ACCOUNT_WRITE = "ACCOUNT" + BasePermission.SEPARATOR + "WRITE";
+	public static final String ACCOUNT_CREATE = "ACCOUNT" + BasePermission.SEPARATOR + "CREATE";
+	public static final String ACCOUNT_UPDATE = "ACCOUNT" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String ACCOUNT_DELETE = "ACCOUNT" + BasePermission.SEPARATOR + "DELETE";
 	
-	public static final String SYNCHRONIZATION_WRITE = "SYNCHRONIZATION" + BasePermission.SEPARATOR + "WRITE";
+	public static final String SYNCHRONIZATION_CREATE = "SYNCHRONIZATION" + BasePermission.SEPARATOR + "CREATE";
+	public static final String SYNCHRONIZATION_UPDATE = "SYNCHRONIZATION" + BasePermission.SEPARATOR + "UPDATE";
 	
 	private final List<BasePermission> permissions;
 

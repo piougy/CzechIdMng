@@ -111,7 +111,7 @@ class BackendModules extends Basic.AbstractContent {
                 );
               }
             }
-            rendered={SecurityManager.hasAuthority('MODULE_WRITE')}/>
+            rendered={SecurityManager.hasAuthority('MODULE_UPDATE')}/>
         </Basic.Table>
       </div>
     );

@@ -91,7 +91,7 @@ public class IdmTreeNodeController extends DefaultReadWriteEntityController<IdmT
 	
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.TREENODE_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.TREENODE_CREATE + "') or hasAuthority('" + CoreGroupPermission.TREENODE_UPDATE + "')")
 	public ResponseEntity<?> post(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler)
 			throws HttpMessageNotReadableException {
 		return super.post(nativeRequest, assembler);
@@ -99,7 +99,7 @@ public class IdmTreeNodeController extends DefaultReadWriteEntityController<IdmT
 	
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.TREENODE_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.TREENODE_UPDATE + "')")
 	public ResponseEntity<?> patch(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest,
 			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
 		return super.patch(backendId, nativeRequest, assembler);
@@ -107,7 +107,7 @@ public class IdmTreeNodeController extends DefaultReadWriteEntityController<IdmT
 	
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.TREENODE_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.TREENODE_UPDATE + "')")
 	public ResponseEntity<?> put(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest,
 			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
 		return super.put(backendId, nativeRequest, assembler);
@@ -219,7 +219,7 @@ public class IdmTreeNodeController extends DefaultReadWriteEntityController<IdmT
 	 * @return
 	 */
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.TREENODE_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.TREENODE_UPDATE + "')")
 	@RequestMapping(value = "/{backendId}/form-values", method = RequestMethod.POST)
 	public Resources<?> saveFormValues(
 			@PathVariable @NotNull String backendId,

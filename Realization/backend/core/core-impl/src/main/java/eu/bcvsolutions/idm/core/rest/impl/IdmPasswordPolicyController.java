@@ -52,7 +52,7 @@ public class IdmPasswordPolicyController extends DefaultReadWriteEntityControlle
 	
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.PASSWORDPOLICY_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.PASSWORDPOLICY_CREATE + "') or hasAuthority('" + CoreGroupPermission.PASSWORDPOLICY_UPDATE + "')")
 	public ResponseEntity<?> post(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler)
 			throws HttpMessageNotReadableException {
 		return super.post(nativeRequest, assembler);
@@ -67,7 +67,7 @@ public class IdmPasswordPolicyController extends DefaultReadWriteEntityControlle
 	
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.PASSWORDPOLICY_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.PASSWORDPOLICY_UPDATE + "')")
 	public ResponseEntity<?> patch(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest,
 			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
 		return super.patch(backendId, nativeRequest, assembler);
@@ -75,7 +75,7 @@ public class IdmPasswordPolicyController extends DefaultReadWriteEntityControlle
 	
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.PASSWORDPOLICY_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.PASSWORDPOLICY_UPDATE + "')")
 	public ResponseEntity<?> put(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest,
 			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
 		return super.put(backendId, nativeRequest, assembler);

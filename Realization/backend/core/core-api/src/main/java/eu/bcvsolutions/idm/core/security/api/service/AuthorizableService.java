@@ -1,5 +1,10 @@
 package eu.bcvsolutions.idm.core.security.api.service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
+import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
+import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
 /**
@@ -8,7 +13,7 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
  * @author Radek Tomiška
  *
  */
-public interface AuthorizableService {
+public interface AuthorizableService<E extends BaseEntity, F extends BaseFilter> {
 
 	/**
 	 * Secured type
@@ -16,5 +21,14 @@ public interface AuthorizableService {
 	 * @return
 	 */
 	AuthorizableType getAuthorizableType();
+	
+	/**
+	 * Returns data by authorization polices
+	 * 
+	 * @param filter
+	 * @param pageable
+	 * @return
+	 */
+	Page<E> findSecured(F filter, Pageable pageable);
 	
 }

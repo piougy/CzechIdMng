@@ -160,7 +160,10 @@ class RoleDetail extends Basic.AbstractContent {
             <Basic.PanelHeader text={Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('tabs.basic')} />
 
             <Basic.PanelBody style={Utils.Entity.isNew(entity) ? { paddingTop: 0, paddingBottom: 0 } : { padding: 0 }}>
-              <Basic.AbstractForm ref="form" showLoading={ _showLoading || showLoading } readOnly={ !Utils.Entity.isNew(entity) ? !Utils.Permission.hasPermission(_permissions, 'UPDATE') : !SecurityManager.hasAuthority('ROLE_CREATE') }>
+              <Basic.AbstractForm
+                ref="form"
+                showLoading={ _showLoading || showLoading }
+                readOnly={ !Utils.Entity.isNew(entity) ? !Utils.Permission.hasPermission(_permissions, 'UPDATE') : !SecurityManager.hasAuthority('ROLE_CREATE') }>
                 <Basic.Row>
                   <div className="col-lg-8">
                     <div>

@@ -23,14 +23,17 @@ public enum NotificationGroupPermission implements GroupPermission {
 	// String constants could be used in pre / post authotize SpEl expressions
 	
 	public static final String NOTIFICATION_READ = "NOTIFICATION" + BasePermission.SEPARATOR + "READ";
-	public static final String NOTIFICATION_WRITE = "NOTIFICATION" + BasePermission.SEPARATOR + "WRITE";
+	public static final String NOTIFICATION_CREATE = "NOTIFICATION" + BasePermission.SEPARATOR + "CREATE";
+	public static final String NOTIFICATION_UPDATE = "NOTIFICATION" + BasePermission.SEPARATOR + "UPDATE";
 	//
 	public static final String NOTIFICATIONCONFIGURATION_READ = "NOTIFICATIONCONFIGURATION" + BasePermission.SEPARATOR + "READ";
-	public static final String NOTIFICATIONCONFIGURATION_WRITE = "NOTIFICATIONCONFIGURATION" + BasePermission.SEPARATOR + "WRITE";
+	public static final String NOTIFICATIONCONFIGURATION_CREATE = "NOTIFICATIONCONFIGURATION" + BasePermission.SEPARATOR + "CREATE";
+	public static final String NOTIFICATIONCONFIGURATION_UPDATE = "NOTIFICATIONCONFIGURATION" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String NOTIFICATIONCONFIGURATION_DELETE = "NOTIFICATIONCONFIGURATION" + BasePermission.SEPARATOR + "DELETE";
 	//
 	public static final String NOTIFICATIONTEMPLATE_READ = "NOTIFICATIONTEMPLATE" + BasePermission.SEPARATOR + "READ";
-	public static final String NOTIFICATIONTEMPLATE_WRITE = "NOTIFICATIONTEMPLATE" + BasePermission.SEPARATOR + "WRITE";
+	public static final String NOTIFICATIONTEMPLATE_CREATE = "NOTIFICATIONTEMPLATE" + BasePermission.SEPARATOR + "CREATE";
+	public static final String NOTIFICATIONTEMPLATE_UPDATE = "NOTIFICATIONTEMPLATE" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String NOTIFICATIONTEMPLATE_DELETE = "NOTIFICATIONTEMPLATE" + BasePermission.SEPARATOR + "DELETE";
 	
 	private final List<BasePermission> permissions;

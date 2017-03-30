@@ -85,18 +85,18 @@ public class IdmNotificationTemplateController extends DefaultReadWriteEntityCon
 	
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + NotificationGroupPermission.NOTIFICATIONTEMPLATE_WRITE + "')")
-	public ResponseEntity<?> put(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest,
-			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
-		return super.put(backendId, nativeRequest, assembler);
+	@PreAuthorize("hasAuthority('" + NotificationGroupPermission.NOTIFICATIONTEMPLATE_CREATE + "') or hasAuthority('" + NotificationGroupPermission.NOTIFICATIONTEMPLATE_UPDATE + "')")
+	public ResponseEntity<?> post(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler)
+			throws HttpMessageNotReadableException {
+		return super.post(nativeRequest, assembler);
 	}
 	
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + NotificationGroupPermission.NOTIFICATIONTEMPLATE_WRITE + "')")
-	public ResponseEntity<?> post(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler)
-			throws HttpMessageNotReadableException {
-		return super.post(nativeRequest, assembler);
+	@PreAuthorize("hasAuthority('" + NotificationGroupPermission.NOTIFICATIONTEMPLATE_UPDATE + "')")
+	public ResponseEntity<?> put(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest,
+			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
+		return super.put(backendId, nativeRequest, assembler);
 	}
 	
 	@Override
@@ -108,7 +108,7 @@ public class IdmNotificationTemplateController extends DefaultReadWriteEntityCon
 	
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + NotificationGroupPermission.NOTIFICATIONTEMPLATE_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + NotificationGroupPermission.NOTIFICATIONTEMPLATE_UPDATE + "')")
 	public ResponseEntity<?> patch(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest,
 			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
 		return super.patch(backendId, nativeRequest, assembler);

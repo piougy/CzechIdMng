@@ -141,7 +141,7 @@ export class NotificationTable extends Basic.AbstractContent {
           }
           buttons={
             [
-              <Basic.Button level="success" key="add_button" className="btn-xs" onClick={this.showDetail.bind(this, {})} rendered={SecurityManager.hasAuthority('NOTIFICATION_WRITE')}>
+              <Basic.Button level="success" key="add_button" className="btn-xs" onClick={this.showDetail.bind(this, {})} rendered={SecurityManager.hasAuthority('NOTIFICATION_CREATE')}>
                 <Basic.Icon type="fa" icon="plus"/>
                 {' '}
                 {this.i18n('button.send')}

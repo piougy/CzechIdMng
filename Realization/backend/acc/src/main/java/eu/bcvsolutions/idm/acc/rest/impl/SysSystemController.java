@@ -124,7 +124,7 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_CREATE + "') or hasAuthority('" + AccGroupPermission.SYSTEM_UPDATE + "')")
 	@RequestMapping(method = RequestMethod.POST)
 	public ResponseEntity<?> post(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler)
 			throws HttpMessageNotReadableException {
@@ -133,7 +133,7 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_UPDATE + "')")
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.PUT)
 	public ResponseEntity<?> put(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest,
 			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
@@ -142,7 +142,7 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_UPDATE + "')")
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.PATCH)
 	public ResponseEntity<?> patch(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest,
 			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
@@ -158,7 +158,7 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 	}
 	
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_UPDATE + "')")
 	@RequestMapping(value = "/{backendId}/generate-schema", method = RequestMethod.POST)
 	public ResponseEntity<?> generateSchema(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler) {
 		SysSystem system = getEntity(backendId);
@@ -242,7 +242,7 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 	 * @return
 	 */
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_UPDATE + "')")
 	@RequestMapping(value = "/{backendId}/connector-form-values", method = RequestMethod.POST)
 	public Resources<?> saveConnectorFormValues(
 			@PathVariable @NotNull String backendId,

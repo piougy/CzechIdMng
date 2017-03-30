@@ -267,7 +267,7 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
               key="add_button"
               className="btn-xs"
               onClick={ this.showDetail.bind(this, _supportedTasks.length === 0 ? {} : { name: _supportedTasks[0], instanceId }) }
-              rendered={ _supportedTasks.length > 0 && SecurityManager.hasAnyAuthority(['SCHEDULER_WRITE'])}>
+              rendered={ _supportedTasks.length > 0 && SecurityManager.hasAnyAuthority(['SCHEDULER_CREATE'])}>
               <Basic.Icon type="fa" icon="plus"/>
               {' '}
               {this.i18n('button.add')}
@@ -358,7 +358,7 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
                       level="success"
                       className="btn-xs"
                       onClick={this.showTriggerDetail.bind(this, { type: triggerType, taskId: data[rowIndex].id })}
-                      rendered={SecurityManager.hasAnyAuthority(['SCHEDULER_WRITE'])}>
+                      rendered={SecurityManager.hasAnyAuthority(['SCHEDULER_CREATE'])}>
                       <Basic.Icon value="plus"/>
                       {' '}
                       { this.i18n('button.add') }
@@ -390,7 +390,7 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
                         title={this.i18n('button.run')}
                         titlePlacement="bottom"
                         style={{ marginLeft: 3 }}
-                        rendered={SecurityManager.hasAnyAuthority(['SCHEDULER_WRITE'])}>
+                        rendered={SecurityManager.hasAnyAuthority(['SCHEDULER_EXECUTE'])}>
                         <Basic.Icon icon="play"/>
                       </Basic.Button>
                     </div>
@@ -479,7 +479,7 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
                 showLoading={showLoading}
                 showLoadingIcon
                 showLoadingText={this.i18n('button.saving')}
-                rendered={detail.entity.id === undefined && SecurityManager.hasAnyAuthority(['SCHEDULER_WRITE'])}>
+                rendered={detail.entity.id === undefined && SecurityManager.hasAnyAuthority(['SCHEDULER_CREATE'])}>
                 {this.i18n('button.save')}
               </Basic.Button>
             </Basic.Modal.Footer>

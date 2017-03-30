@@ -84,9 +84,9 @@ export default class NotificationConfigurations extends Advanced.AbstractTableCo
             ref="table"
             uiKey={uiKey}
             manager={this.getManager()}
-            showRowSelection={SecurityManager.hasAnyAuthority(['NOTIFICATIONCONFIGURATION_WRITE'])}
+            showRowSelection={SecurityManager.hasAnyAuthority(['NOTIFICATIONCONFIGURATION_UPDATE'])}
             actions={
-              SecurityManager.hasAnyAuthority(['NOTIFICATIONCONFIGURATION_WRITE'])
+              SecurityManager.hasAnyAuthority(['NOTIFICATIONCONFIGURATION_DELETE'])
               ?
               [{ value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }]
               :
@@ -99,7 +99,7 @@ export default class NotificationConfigurations extends Advanced.AbstractTableCo
                   key="add_button"
                   className="btn-xs"
                   onClick={this.showDetail.bind(this, { level: NotificationLevelEnum.findKeyBySymbol(NotificationLevelEnum.SUCCESS) })}
-                  rendered={SecurityManager.hasAnyAuthority(['NOTIFICATIONCONFIGURATION_WRITE'])}>
+                  rendered={SecurityManager.hasAnyAuthority(['NOTIFICATIONCONFIGURATION_CREATE'])}>
                   <Basic.Icon type="fa" icon="plus"/>
                   {' '}
                   {this.i18n('button.add')}

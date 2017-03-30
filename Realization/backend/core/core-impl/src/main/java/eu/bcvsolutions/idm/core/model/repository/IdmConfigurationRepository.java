@@ -124,7 +124,7 @@ public interface IdmConfigurationRepository extends AbstractEntityRepository<Idm
 	
 	@Override
 	@SuppressWarnings("unchecked")
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.CONFIGURATIONSECURED_WRITE + "') or (hasAuthority('" + CoreGroupPermission.CONFIGURATION_WRITE + "') and #entity?.secured == false)")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.CONFIGURATIONSECURED_CREATE + "') or hasAuthority('" + CoreGroupPermission.CONFIGURATIONSECURED_UPDATE + "') or ((hasAuthority('" + CoreGroupPermission.CONFIGURATION_CREATE + "') or hasAuthority('" + CoreGroupPermission.CONFIGURATION_UPDATE + "')) and #entity?.secured == false)")
 	IdmConfiguration save(@Param("entity") IdmConfiguration entity);
 	
 	@Override

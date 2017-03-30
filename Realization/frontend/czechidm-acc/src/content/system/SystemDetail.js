@@ -169,7 +169,7 @@ class SystemDetail extends Basic.AbstractContent {
             <Basic.PanelHeader text={Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('basic')} />
 
             <Basic.PanelBody style={Utils.Entity.isNew(entity) ? { paddingTop: 0, paddingBottom: 0 } : { padding: 0 }} showLoading={_showLoading} >
-              <Basic.AbstractForm ref="form" uiKey={uiKey} readOnly={!Managers.SecurityManager.hasAuthority('SYSTEM_WRITE')} >
+              <Basic.AbstractForm ref="form" uiKey={uiKey} readOnly={Utils.Entity.isNew(entity) ? !Managers.SecurityManager.hasAuthority('SYSTEM_CREATE') : !Managers.SecurityManager.hasAuthority('SYSTEM_UPDATE')} >
                 <Basic.TextField
                   ref="name"
                   label={this.i18n('acc:entity.System.name')}
@@ -253,7 +253,7 @@ class SystemDetail extends Basic.AbstractContent {
                 showLoading={_showLoading}
                 showLoadingIcon
                 showLoadingText={this.i18n('button.saving')}
-                rendered={Managers.SecurityManager.hasAuthority('SYSTEM_WRITE')}
+                rendered={ Utils.Entity.isNew(entity) ? Managers.SecurityManager.hasAuthority('SYSTEM_CREATE') : Managers.SecurityManager.hasAuthority('SYSTEM_UPDATE') }
                 pullRight
                 dropup>
                 <Basic.MenuItem eventKey="1" onClick={this.save.bind(this, 'CLOSE')}>{this.i18n('button.saveAndClose')}</Basic.MenuItem>

@@ -24,10 +24,11 @@ import eu.bcvsolutions.idm.core.model.entity.IdmScript;
 /**
  * Default controller for scripts, basic methods.
  * 
+ * TODO: Secure read !
+ * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
-
 @RepositoryRestController
 @RequestMapping(value = BaseEntityController.BASE_PATH + "/scripts")
 public class IdmScriptController extends DefaultReadWriteEntityController<IdmScript, ScriptFilter> {
@@ -39,7 +40,7 @@ public class IdmScriptController extends DefaultReadWriteEntityController<IdmScr
 
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCRIPT_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCRIPT_CREATE + "') or hasAuthority('" + CoreGroupPermission.SCRIPT_UPDATE + "')")
 	public ResponseEntity<?> post(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler)
 			throws HttpMessageNotReadableException {
 		return super.post(nativeRequest, assembler);
@@ -54,7 +55,7 @@ public class IdmScriptController extends DefaultReadWriteEntityController<IdmScr
 
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCRIPT_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCRIPT_UPDATE + "')")
 	public ResponseEntity<?> put(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest,
 			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
 		return super.put(backendId, nativeRequest, assembler);
@@ -62,7 +63,7 @@ public class IdmScriptController extends DefaultReadWriteEntityController<IdmScr
 
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCRIPT_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCRIPT_UPDATE + "')")
 	public ResponseEntity<?> patch(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest,
 			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
 		return super.patch(backendId, nativeRequest, assembler);

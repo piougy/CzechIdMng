@@ -127,7 +127,7 @@ export class TemplateTable extends Basic.AbstractContent {
               [
                 <Basic.Button level="success" key="add_button" className="btn-xs"
                         onClick={this.showDetail.bind(this, {})}
-                        rendered={SecurityManager.hasAuthority('NOTIFICATIONTEMPLATE_WRITE')}>
+                        rendered={SecurityManager.hasAuthority('NOTIFICATIONTEMPLATE_CREATE')}>
                   <Basic.Icon type="fa" icon="plus"/>
                   {' '}
                   {this.i18n('button.add')}

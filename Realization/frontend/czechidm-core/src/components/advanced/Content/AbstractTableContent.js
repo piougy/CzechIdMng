@@ -63,7 +63,7 @@ export default class AbstractTableContent extends Basic.AbstractContent {
   }
 
   /**
-   * Saves give entity
+   * Saves given entity
    */
   save(entity, event) {
     if (event) {

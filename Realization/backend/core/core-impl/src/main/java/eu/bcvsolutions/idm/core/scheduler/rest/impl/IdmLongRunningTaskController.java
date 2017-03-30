@@ -102,7 +102,7 @@ public class IdmLongRunningTaskController extends AbstractReadWriteEntityControl
 	 */
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.PUT, value = "/{backendId}/cancel")
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCHEDULER_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCHEDULER_UPDATE + "')")
 	public ResponseEntity<?> cancel(@PathVariable UUID backendId) {
 		longRunningTaskManager.cancel(backendId);
 		//
@@ -117,7 +117,7 @@ public class IdmLongRunningTaskController extends AbstractReadWriteEntityControl
 	 */
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.PUT, value = "/{backendId}/interrupt")
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCHEDULER_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCHEDULER_UPDATE + "')")
 	public ResponseEntity<?> interrupt(@PathVariable UUID backendId) {
 		longRunningTaskManager.interrupt(backendId);
 		//
@@ -131,7 +131,7 @@ public class IdmLongRunningTaskController extends AbstractReadWriteEntityControl
 	 */
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.POST, value = "/action/process-created")
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCHEDULER_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCHEDULER_EXECUTE + "')")
 	public ResponseEntity<?> processCreated() {
 		longRunningTaskManager.processCreated();
 		//

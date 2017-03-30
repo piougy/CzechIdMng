@@ -74,7 +74,7 @@ public class SchedulerController implements BaseController {
 	 */
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.POST)
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCHEDULER_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCHEDULER_CREATE + "')")
 	public Task createTask(@Valid @RequestBody Task task) {
 		return schedulerService.createTask(task);
 	}
@@ -96,7 +96,7 @@ public class SchedulerController implements BaseController {
 	
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.POST, value = "/{taskId}/run")
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCHEDULER_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCHEDULER_EXECUTE + "')")
 	public AbstractTaskTrigger runTask(@PathVariable String taskId) {
 		return schedulerService.runTask(taskId); 
 	}
@@ -110,7 +110,7 @@ public class SchedulerController implements BaseController {
 	 */
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.POST, value = "/{taskId}/triggers/simple")
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCHEDULER_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCHEDULER_CREATE + "')")
 	public AbstractTaskTrigger createSimpleTrigger(@PathVariable String taskId, @Valid @RequestBody SimpleTaskTrigger trigger) {
 		return schedulerService.createTrigger(taskId, trigger);
 	}
@@ -124,7 +124,7 @@ public class SchedulerController implements BaseController {
 	 */
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.POST, value = "/{taskId}/triggers/cron")
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCHEDULER_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCHEDULER_CREATE + "')")
 	public AbstractTaskTrigger createCronTrigger(@PathVariable String taskId, @Valid @RequestBody CronTaskTrigger trigger) {
 		return schedulerService.createTrigger(taskId, trigger);
 	}
@@ -152,7 +152,7 @@ public class SchedulerController implements BaseController {
 	 */
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.PUT, value = "/{taskId}/triggers/{triggerName}/pause")
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCHEDULER_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCHEDULER_UPDATE + "')")
 	public ResponseEntity<?> pauseTrigger(@PathVariable String taskId, @PathVariable String triggerName) {
 		schedulerService.pauseTrigger(taskId, triggerName);
 		//
@@ -167,7 +167,7 @@ public class SchedulerController implements BaseController {
 	 */
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.PUT, value = "/{taskId}/triggers/{triggerName}/resume")
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCHEDULER_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCHEDULER_UPDATE + "')")
 	public ResponseEntity<?> resumeTrigger(@PathVariable String taskId, @PathVariable String triggerName) {
 		schedulerService.resumeTrigger(taskId, triggerName);
 		//

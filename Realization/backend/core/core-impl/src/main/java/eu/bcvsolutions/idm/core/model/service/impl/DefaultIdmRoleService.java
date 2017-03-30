@@ -45,7 +45,7 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizationManager;
  *
  */
 @Service("roleService")
-public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, RoleFilter> implements IdmRoleService, AuthorizableService {
+public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, RoleFilter> implements IdmRoleService, AuthorizableService<IdmRole, RoleFilter> {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmRoleService.class);
 	private final IdmRoleRepository repository;
@@ -112,51 +112,77 @@ public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, Role
 		// transform filter to criteria
 		Specification<IdmRole> criteria = new Specification<IdmRole>() {
 			public Predicate toPredicate(Root<IdmRole> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
-				List<Predicate> predicates = new ArrayList<>();
-				// quick
-				if (StringUtils.isNotEmpty(filter.getText())) {
-					predicates.add(builder.like(builder.lower(root.get("name")), "%" + filter.getText().toLowerCase() + "%"));
-				}
-				// role type
-				if (filter.getRoleType() != null) {
-					predicates.add(builder.equal(root.get("roleType"), filter.getRoleType()));
-				}
-				// guarantee	
-				if (filter.getGuarantee() != null) {
-					Subquery<IdmRoleGuarantee> subquery = query.subquery(IdmRoleGuarantee.class);
-					Root<IdmRoleGuarantee> subRoot = subquery.from(IdmRoleGuarantee.class);
-					subquery.select(subRoot);
-				
-					subquery.where(
-	                        builder.and(
-	                        		builder.equal(subRoot.get("role"), root), // correlation attr
-	                        		builder.equal(subRoot.get("guarantee"), filter.getGuarantee())
-	                        		)
-	                );
-					predicates.add(builder.exists(subquery));
-				}
-				// role catalogue by forest index
-				if (filter.getRoleCatalogue() != null) {
-					Subquery<IdmRoleCatalogueRole> subquery = query.subquery(IdmRoleCatalogueRole.class);
-					Root<IdmRoleCatalogueRole> subRoot = subquery.from(IdmRoleCatalogueRole.class);
-					subquery.select(subRoot);
-				
-					subquery.where(
-	                        builder.and(
-	                        		builder.equal(subRoot.get("role"), root), // correlation attr
-	                        		builder.between(subRoot.get("roleCatalogue").get("forestIndex").get("lft"), filter.getRoleCatalogue().getLft(), filter.getRoleCatalogue().getRgt())
-	                        		)
-	                );
-					predicates.add(builder.exists(subquery));
-				} 
-				//
-				// append security queries
-				predicates.add(authorizationManager.getPredicate(root, query, builder));
-				//
-				return query.where(predicates.toArray(new Predicate[predicates.size()])).getRestriction();
+				Predicate predicate = DefaultIdmRoleService.this.toPredicate(filter, root, query, builder);
+				return query.where(predicate).getRestriction();
 			}
 		};
 		return getRepository().findAll(criteria, pageable);
+	}
+	
+	@Override
+	public Page<IdmRole> findSecured(final RoleFilter filter, Pageable pageable) {
+		// transform filter to criteria
+		Specification<IdmRole> criteria = new Specification<IdmRole>() {
+			public Predicate toPredicate(Root<IdmRole> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
+				Predicate predicate = builder.and(
+					DefaultIdmRoleService.this.toPredicate(filter, root, query, builder),
+					authorizationManager.getPredicate(root, query, builder)
+				);
+				//
+				return query.where(predicate).getRestriction();
+			}
+		};
+		return getRepository().findAll(criteria, pageable);
+	}
+	
+	/**
+	 * Converts given filter to jap predicate
+	 * 
+	 * @param filter
+	 * @param root
+	 * @param query
+	 * @param builder
+	 * @return
+	 */
+	private Predicate toPredicate(RoleFilter filter, Root<IdmRole> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
+		List<Predicate> predicates = new ArrayList<>();
+		// quick
+		if (StringUtils.isNotEmpty(filter.getText())) {
+			predicates.add(builder.like(builder.lower(root.get("name")), "%" + filter.getText().toLowerCase() + "%"));
+		}
+		// role type
+		if (filter.getRoleType() != null) {
+			predicates.add(builder.equal(root.get("roleType"), filter.getRoleType()));
+		}
+		// guarantee	
+		if (filter.getGuarantee() != null) {
+			Subquery<IdmRoleGuarantee> subquery = query.subquery(IdmRoleGuarantee.class);
+			Root<IdmRoleGuarantee> subRoot = subquery.from(IdmRoleGuarantee.class);
+			subquery.select(subRoot);
+		
+			subquery.where(
+                    builder.and(
+                    		builder.equal(subRoot.get("role"), root), // correlation attr
+                    		builder.equal(subRoot.get("guarantee"), filter.getGuarantee())
+                    		)
+            );
+			predicates.add(builder.exists(subquery));
+		}
+		// role catalogue by forest index
+		if (filter.getRoleCatalogue() != null) {
+			Subquery<IdmRoleCatalogueRole> subquery = query.subquery(IdmRoleCatalogueRole.class);
+			Root<IdmRoleCatalogueRole> subRoot = subquery.from(IdmRoleCatalogueRole.class);
+			subquery.select(subRoot);
+		
+			subquery.where(
+                    builder.and(
+                    		builder.equal(subRoot.get("role"), root), // correlation attr
+                    		builder.between(subRoot.get("roleCatalogue").get("forestIndex").get("lft"), filter.getRoleCatalogue().getLft(), filter.getRoleCatalogue().getRgt())
+                    		)
+            );
+			predicates.add(builder.exists(subquery));
+		}
+		return builder.and(predicates.toArray(new Predicate[predicates.size()]));
 	}
 	
 	@Override

@@ -40,6 +40,7 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.api.service.ReadEntityService;
 import eu.bcvsolutions.idm.core.api.utils.FilterConverter;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizationManager;
@@ -127,9 +128,8 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 		if (entity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
-		if (getEntityService() instanceof AuthorizableService && !authorizationManager.evaluate(entity, IdmBasePermission.READ)) {
-			throw new ResultCodeException(CoreResultCode.FORBIDDEN);
-		}
+		checkAccess(entity, IdmBasePermission.READ);
+		//
 		return new ResponseEntity<>(toResource(entity, assembler), HttpStatus.OK);
 	}
 	
@@ -174,7 +174,7 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 			@RequestParam MultiValueMap<String, Object> parameters,
 			@PageableDefault Pageable pageable, 
 			PersistentEntityResourceAssembler assembler) {
-		return toResources(findEntities(toFilter(parameters), pageable), assembler, getEntityClass(), null);
+		return toResources(findSecuredEntities(toFilter(parameters), pageable), assembler, getEntityClass(), null);
 	}
 	
 	/**
@@ -186,7 +186,23 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 	 */
 	public Page<E> findEntities(F filter, Pageable pageable) {
 		return getEntityService().find(filter, pageable);
-	}	
+	}
+	
+	/**
+	 * Finds secured entities, is entity service supports authorization policies
+	 * 
+	 * @param filter
+	 * @param pageable
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public Page<E> findSecuredEntities(F filter, Pageable pageable) {
+		if (getEntityService() instanceof AuthorizableService) {
+			return ((AuthorizableService<E, F>) getEntityService()).findSecured(filter, pageable);
+		}
+		return findEntities(filter, pageable);
+	}
+	
 	
 	/**
 	 * Converts entity to dto (using controller defined assembler or default)
@@ -266,5 +282,20 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 			filterConverter = new FilterConverter(entityLookupService, mapper);
 		}
 		return filterConverter;
+	}
+	
+	protected void checkAccess(E entity, BasePermission permission) {
+		if (getEntityService() instanceof AuthorizableService && !getAuthorizationManager().evaluate(entity, permission)) {
+			throw new ResultCodeException(CoreResultCode.FORBIDDEN);
+		}
+	}
+	
+	/**
+	 * Returns authorization manager
+	 * 
+	 * @return
+	 */
+	protected AuthorizationManager getAuthorizationManager() {
+		return authorizationManager;
 	}
 }

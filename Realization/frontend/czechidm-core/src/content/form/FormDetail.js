@@ -108,21 +108,19 @@ class FormDetail extends Basic.AbstractContent {
 
   render() {
     const { uiKey, entity, showLoading } = this.props;
-    const { _showLoading, types } = this.state;
+    const { types } = this.state;
 
     return (
       <form onSubmit={this.save.bind(this)}>
         <Basic.Panel className={Utils.Entity.isNew(entity) ? '' : 'no-border last'}>
           <Basic.PanelHeader text={Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('content.formDefinitions.detail.title')} />
           <Basic.PanelBody style={Utils.Entity.isNew(entity) ? { paddingTop: 0, paddingBottom: 0 } : { padding: 0 }}>
-            <Basic.AbstractForm ref="form" uiKey={uiKey} data={entity} rendered={types !== undefined}
-              readOnly={!SecurityManager.hasAuthority('EAVFORMDEFINITIONS_WRITE')}>
-            <Basic.TextField
-              ref="name"
-              label={this.i18n('entity.FormDefinition.name')}
-              readOnly={!entity || entity.unmodifiable}
-              max={255}
-              required/>
+            <Basic.AbstractForm
+              ref="form"
+              uiKey={uiKey}
+              data={entity}
+              rendered={types !== undefined}
+              readOnly={ Utils.Entity.isNew(entity) ? !SecurityManager.hasAuthority('EAVFORMDEFINITIONS_CREATE') : !SecurityManager.hasAuthority('EAVFORMDEFINITIONS_UPDATE') }>
             <Basic.EnumSelectBox
               ref="type"
               label={this.i18n('entity.FormDefinition.type')}
@@ -130,6 +128,12 @@ class FormDetail extends Basic.AbstractContent {
               required
               readOnly={!entity || entity.unmodifiable}
               options={types}/>
+            <Basic.TextField
+              ref="name"
+              label={this.i18n('entity.FormDefinition.name')}
+              readOnly={!entity || entity.unmodifiable}
+              max={255}
+              required/>
             <Basic.Checkbox
               ref="unmodifiable"
               readOnly
@@ -144,7 +148,7 @@ class FormDetail extends Basic.AbstractContent {
               level="success"
               showLoadingIcon
               showLoadingText={this.i18n('button.saving')}
-              rendered={SecurityManager.hasAuthority('EAVFORMDEFINITIONS_WRITE')}>
+              rendered={ Utils.Entity.isNew(entity) ? SecurityManager.hasAuthority('EAVFORMDEFINITIONS_CREATE') : SecurityManager.hasAuthority('EAVFORMDEFINITIONS_UPDATE') }>
               {this.i18n('button.save')}
             </Basic.Button>
           </Basic.PanelFooter>

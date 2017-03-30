@@ -33,6 +33,8 @@ import eu.bcvsolutions.idm.core.model.event.processor.RoleDeleteProcessor;
 import eu.bcvsolutions.idm.core.model.event.processor.RoleSaveProcessor;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizationManager;
@@ -120,13 +122,13 @@ public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, Role
 	}
 	
 	@Override
-	public Page<IdmRole> findSecured(final RoleFilter filter, Pageable pageable) {
+	public Page<IdmRole> findSecured(final RoleFilter filter, BasePermission permission, Pageable pageable) {
 		// transform filter to criteria
 		Specification<IdmRole> criteria = new Specification<IdmRole>() {
 			public Predicate toPredicate(Root<IdmRole> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
 				Predicate predicate = builder.and(
 					DefaultIdmRoleService.this.toPredicate(filter, root, query, builder),
-					authorizationManager.getPredicate(root, query, builder)
+					authorizationManager.getPredicate(permission, root, query, builder)
 				);
 				//
 				return query.where(predicate).getRestriction();

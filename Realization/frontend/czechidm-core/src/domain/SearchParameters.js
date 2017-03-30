@@ -4,6 +4,8 @@ import Immutable from 'immutable';
 /**
  * Immutable search representation - filter, sort, pageable.
  * Every modify operation returns new cloned SearchParameters with new values
+ *
+ * @author Radek Tomiška
  */
 export default class SearchParameters {
 
@@ -274,6 +276,11 @@ export default class SearchParameters {
  * @type {String}
  */
 SearchParameters.NAME_QUICK = 'quick';
+/**
+ * Search name for autocomplete (select box etc.)
+ * @type {String}
+ */
+SearchParameters.NAME_AUTOCOMPLETE = 'autocomplete';
 /**
  * Default page size
  * @type {Number}

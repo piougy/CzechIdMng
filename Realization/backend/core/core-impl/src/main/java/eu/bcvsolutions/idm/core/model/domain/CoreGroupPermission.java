@@ -17,8 +17,8 @@ import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 public enum CoreGroupPermission implements GroupPermission {
 	
 	IDENTITY(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
-	ROLE(IdmBasePermission.ADMIN, IdmBasePermission.SEARCH, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
-	ROLECATALOGUE(IdmBasePermission.ADMIN, IdmBasePermission.SEARCH, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
+	ROLE(IdmBasePermission.ADMIN, IdmBasePermission.AUTOCOMPLETE, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
+	ROLECATALOGUE(IdmBasePermission.ADMIN, IdmBasePermission.AUTOCOMPLETE, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
 	TREENODE(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
 	TREETYPE(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
 	CONFIGURATION(IdmBasePermission.ADMIN, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE), // read configuration is public operation
@@ -54,6 +54,7 @@ public enum CoreGroupPermission implements GroupPermission {
 	public static final String TREETYPE_WRITE = "TREETYPE" + BasePermission.SEPARATOR + "WRITE";
 	public static final String TREETYPE_DELETE = "TREETYPE" + BasePermission.SEPARATOR + "DELETE";
 	//
+	public static final String ROLE_AUTOCOMPLETE = "ROLE" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
 	public static final String ROLE_READ = "ROLE" + BasePermission.SEPARATOR + "READ";
 	public static final String ROLE_CREATE = "ROLE" + BasePermission.SEPARATOR + "CREATE";
 	public static final String ROLE_UPDATE = "ROLE" + BasePermission.SEPARATOR + "UPDATE";

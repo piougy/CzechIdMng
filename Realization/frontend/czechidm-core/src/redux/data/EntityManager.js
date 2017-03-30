@@ -63,6 +63,26 @@ export default class EntityManager {
   }
 
   /**
+   * Returns true, if `patch`  method is supported
+   *
+   * Added for enddpoints with dto - dto's doesn't support `patch` method for now
+   *
+   * @return {bool} Returns true, if `patch`  method is supported
+   */
+  supportsPatch() {
+    return this.getService().supportsPatch();
+  }
+
+  /**
+   * Added for enddpoints with authorization policies evaluation
+   *
+   * @return {bool} Returns true, when endpoint suppors uthorization policies evaluation
+   */
+  supportsAuthorization() {
+    return this.getService().supportsAuthorization();
+  }
+
+  /**
    * Return resource identifier on FE (see BE - IdentifiableByName)
    *
    * @return {string} secondary identifier (unique property)
@@ -168,17 +188,6 @@ export default class EntityManager {
    */
   mergeSearchParameters(previousSearchParameters, newSearchParameters) {
     return this.getService().mergeSearchParameters(previousSearchParameters, newSearchParameters);
-  }
-
-  /**
-   * Returns true, if `patch`  method is supported
-   *
-   * Added for enddpoints with dto - dto's doesn't support `patch` method for now
-   *
-   * @return {bool} Returns true, if `patch`  method is supported
-   */
-  supportsPatch() {
-    return true;
   }
 
   /**

@@ -37,6 +37,26 @@ export default class AbstractService {
   }
 
   /**
+   * Returns true, if `patch`  method is supported
+   *
+   * Added for enddpoints with dto - dto's doesn't support `patch` method for now
+   *
+   * @return {bool} Returns true, if `patch`  method is supported
+   */
+  supportsPatch() {
+    return true;
+  }
+
+  /**
+   * Added for enddpoints with authorization policies evaluation
+   *
+   * @return {bool} Returns true, when endpoint suppors uthorization policies evaluation
+   */
+  supportsAuthorization() {
+    return false;
+  }
+
+  /**
    * Returns resource by given id
    *
    * @param  {string|number} id resource identifier

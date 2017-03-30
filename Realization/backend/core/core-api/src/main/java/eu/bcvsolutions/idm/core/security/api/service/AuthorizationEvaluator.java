@@ -9,7 +9,6 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.springframework.core.Ordered;
-import org.springframework.security.core.GrantedAuthority;
 
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
@@ -56,25 +55,18 @@ public interface AuthorizationEvaluator<E extends Identifiable> extends Ordered 
 	List<String> getParameterNames();
 	
 	/**
-	 * Returns "resource" permissions for given policy - default authorities after login
-	 * 
-	 * @param policy
-	 * @return
-	 */
-	Set<GrantedAuthority> getGrantedAuthorities(AuthorizationPolicy policy);
-	
-	/**
-	 * Returns jpa criteria predicate for given policy, which can be used in queries - adds security on entities. 
+	 * Returns jpa criteria predicate for given policy and permission, which can be used in queries - adds security on entities. 
 	 * Predicate with "exist" subquery is recommended. 
 	 * Could return {@code null}, if evaluator doesn't want to append a predicate. 
 	 * 
 	 * @param policy
+	 * @param permission
 	 * @param root evaluated {@link BaseEntity} type root 
 	 * @param query
 	 * @param builder
 	 * @return predicate with "exists" subquery is recommended
 	 */
-	Predicate getPredicate(AuthorizationPolicy policy, Root<E> root, CriteriaQuery<?> query, CriteriaBuilder builder);
+	Predicate getPredicate(AuthorizationPolicy policy, BasePermission permission, Root<E> root, CriteriaQuery<?> query, CriteriaBuilder builder);
 	
 	/**
 	 * Returns base permissions - what logged user could do with given authorizable object by given policy

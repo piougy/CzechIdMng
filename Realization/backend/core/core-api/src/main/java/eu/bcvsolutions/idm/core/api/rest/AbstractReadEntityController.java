@@ -174,7 +174,24 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 			@RequestParam MultiValueMap<String, Object> parameters,
 			@PageableDefault Pageable pageable, 
 			PersistentEntityResourceAssembler assembler) {
-		return toResources(findSecuredEntities(toFilter(parameters), pageable), assembler, getEntityClass(), null);
+		return toResources(findSecuredEntities(toFilter(parameters), IdmBasePermission.READ, pageable), assembler, getEntityClass(), null);
+	}
+	
+	/**
+	 * Quick search for autocomplete (read data to select box etc.) - parameters will be transformed to filter object
+	 * 
+	 * @see #toFilter(MultiValueMap)
+	 * 
+	 * @param parameters
+	 * @param pageable
+	 * @param assembler
+	 * @return
+	 */
+	public Resources<?> autocomplete(
+			@RequestParam MultiValueMap<String, Object> parameters,
+			@PageableDefault Pageable pageable, 
+			PersistentEntityResourceAssembler assembler) {
+		return toResources(findSecuredEntities(toFilter(parameters), IdmBasePermission.AUTOCOMPLETE, pageable), assembler, getEntityClass(), null);
 	}
 	
 	/**
@@ -196,9 +213,9 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public Page<E> findSecuredEntities(F filter, Pageable pageable) {
+	public Page<E> findSecuredEntities(F filter, BasePermission permission, Pageable pageable) {
 		if (getEntityService() instanceof AuthorizableService) {
-			return ((AuthorizableService<E, F>) getEntityService()).findSecured(filter, pageable);
+			return ((AuthorizableService<E, F>) getEntityService()).findSecured(filter, permission, pageable);
 		}
 		return findEntities(filter, pageable);
 	}

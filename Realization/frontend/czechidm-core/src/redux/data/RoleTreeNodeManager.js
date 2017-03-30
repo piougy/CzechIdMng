@@ -24,8 +24,4 @@ export default class RoleTreeNodeManager extends EntityManager {
   getCollectionType() {
     return 'roleTreeNodes';
   }
-
-  supportsPatch() {
-    return false;
-  }
 }

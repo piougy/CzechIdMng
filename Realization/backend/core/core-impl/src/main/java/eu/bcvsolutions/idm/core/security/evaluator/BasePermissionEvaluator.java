@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.security.api.domain.AuthorizationPolicy;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 
 /**
  * Adds base permissions by policy configuration
@@ -24,8 +25,8 @@ import eu.bcvsolutions.idm.core.security.api.domain.AuthorizationPolicy;
 public class BasePermissionEvaluator extends AbstractAuthorizationEvaluator<BaseEntity> {
 	
 	@Override
-	public Predicate getPredicate(AuthorizationPolicy policy, Root<BaseEntity> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
-		if (canSearch(policy)) {
+	public Predicate getPredicate(AuthorizationPolicy policy, BasePermission permission, Root<BaseEntity> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
+		if (hasPermission(policy, permission)) {
 			return builder.conjunction();
 		}
 		return null;

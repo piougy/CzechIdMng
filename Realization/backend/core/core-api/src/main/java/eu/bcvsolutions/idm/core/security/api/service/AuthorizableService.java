@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
 /**
@@ -26,9 +27,10 @@ public interface AuthorizableService<E extends BaseEntity, F extends BaseFilter>
 	 * Returns data by authorization polices
 	 * 
 	 * @param filter
+	 * @param permission evaluate permission
 	 * @param pageable
 	 * @return
 	 */
-	Page<E> findSecured(F filter, Pageable pageable);
+	Page<E> findSecured(F filter, BasePermission permission, Pageable pageable);
 	
 }

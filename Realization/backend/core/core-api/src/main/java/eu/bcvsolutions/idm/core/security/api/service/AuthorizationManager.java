@@ -22,15 +22,16 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizationEvaluatorDto;
 public interface AuthorizationManager {
 	
 	/**
-	 * Return security predicate for given root by {@link BaseEntity} type.
+	 * Return security predicate for given permission and root by {@link BaseEntity} type.
 	 * Calls all registered and enabled {@link AuthorizationEvaluator} which support {@link BaseEntity} type.
 	 * 
+	 * @param permission
 	 * @param root evaluated {@link BaseEntity} type root
 	 * @param query
 	 * @param builder
 	 * @return
 	 */
-	<E extends BaseEntity> Predicate getPredicate(Root<E> root, CriteriaQuery<?> query, CriteriaBuilder builder);
+	<E extends BaseEntity> Predicate getPredicate(BasePermission permission, Root<E> root, CriteriaQuery<?> query, CriteriaBuilder builder);
 	
 	/**
 	 * Returns, what logged user could do with given entity

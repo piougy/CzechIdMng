@@ -240,7 +240,8 @@ module.exports = {
             'id': 'role-requests',
             'labelKey': 'content.roleRequests.title',
             'order': 20,
-            'path': '/role-requests'
+            'path': '/role-requests',
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLEREQUEST_READ'] } ],
           }
         ]
       },

@@ -12,7 +12,6 @@ import javax.persistence.criteria.Root;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.GenericTypeResolver;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
@@ -74,20 +73,14 @@ public abstract class AbstractAuthorizationEvaluator<E extends Identifiable> imp
 		// any parameter for now
 		return new ArrayList<>();
 	}
-
-	@Override
-	public Set<GrantedAuthority> getGrantedAuthorities(AuthorizationPolicy policy) {
-		// TODO: Reimplement DefaultGrantedAuthorityFactory ...
-		// could be implemented as evaluate on null entity by default
-		return new HashSet<>();
-	}
 	
 	/**
 	 * Returns null as default. Supposed to
 	 * be overriden.
 	 */
 	@Override
-	public Predicate getPredicate(AuthorizationPolicy policy, Root<E> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
+	public Predicate getPredicate(AuthorizationPolicy policy, BasePermission permission, Root<E> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
+		
 		return null;
 	}
 
@@ -151,12 +144,11 @@ public abstract class AbstractAuthorizationEvaluator<E extends Identifiable> imp
 	 * @param policy
 	 * @return
 	 */
-	protected boolean canSearch(AuthorizationPolicy policy) {
+	protected boolean hasPermission(AuthorizationPolicy policy, BasePermission permission) {
+		Assert.notNull(permission);
 		Set<String> permissions = getBasePermissions(policy);
 		//
 		return permissions.contains(IdmBasePermission.ADMIN.getName())
-				|| permissions.contains(IdmBasePermission.READ.getName())
-				|| permissions.contains(IdmBasePermission.SEARCH.getName());
+				|| permissions.contains(permission.getName());
 	}
-
 }

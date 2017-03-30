@@ -26,6 +26,10 @@ public class ConfigurationMap extends JobDataMap {
      */
 	public UUID getUuid(String key) {
         Object obj = get(key);
+        
+        if(obj == null) {
+        	return null;
+        }
     
         try {
             if(obj instanceof UUID) {
@@ -33,7 +37,7 @@ public class ConfigurationMap extends JobDataMap {
             }
             return UUID.fromString((String)obj);
         } catch (Exception e) {
-            throw new ClassCastException("Identified object is not an UUID.");
+            throw new ClassCastException(String.format("Identified object [%s] is not an UUID.", obj));
         }
     }
 }

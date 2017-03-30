@@ -66,6 +66,14 @@ public abstract class DefaultReadWriteEntityController<E extends BaseEntity, F e
 		return super.find(parameters, pageable, assembler);
 	}
 	
+	@ResponseBody
+	@RequestMapping(value= "/search/autocomplete", method = RequestMethod.GET)
+	public Resources<?> autocomplete(@RequestParam MultiValueMap<String, Object> parameters, 
+			@PageableDefault Pageable pageable, 			
+			PersistentEntityResourceAssembler assembler) {
+		return super.autocomplete(parameters, pageable, assembler);
+	}
+	
 	@Override
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.GET)

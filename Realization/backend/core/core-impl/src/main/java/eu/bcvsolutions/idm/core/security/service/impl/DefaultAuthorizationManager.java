@@ -61,13 +61,13 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 	}
 	
 	@Override
-	public <E extends BaseEntity> Predicate getPredicate(Root<E> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
+	public <E extends BaseEntity> Predicate getPredicate(BasePermission permission, Root<E> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
 		final List<Predicate> predicates = Lists.newArrayList(builder.disjunction()); // disjunction - no data by default
 		//
 		service.getEnabledPolicies(securityService.getAuthentication().getCurrentIdentity().getId(), root.getJavaType()).forEach(policy -> {
 			AuthorizationEvaluator<E> evaluator = getEvaluator(policy);
 			if (evaluator != null && evaluator.supports(root.getJavaType())) {
-				Predicate predicate = evaluator.getPredicate(policy, root, query, builder);
+				Predicate predicate = evaluator.getPredicate(policy, permission, root, query, builder);
 				if (predicate != null) {
 					predicates.add(predicate);
 				}

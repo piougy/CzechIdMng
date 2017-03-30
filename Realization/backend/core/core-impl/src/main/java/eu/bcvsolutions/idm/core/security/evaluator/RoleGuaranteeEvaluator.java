@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleGuarantee;
 import eu.bcvsolutions.idm.core.security.api.domain.AuthorizationPolicy;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 
 /**
@@ -31,8 +32,8 @@ public class RoleGuaranteeEvaluator extends AbstractAuthorizationEvaluator<IdmRo
 	private SecurityService securityService;
 
 	@Override
-	public Predicate getPredicate(AuthorizationPolicy policy, Root<IdmRole> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
-		if (canSearch(policy)) {
+	public Predicate getPredicate(AuthorizationPolicy policy, BasePermission permission, Root<IdmRole> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
+		if (hasPermission(policy, permission)) {
 			Subquery<IdmRoleGuarantee> subquery = query.subquery(IdmRoleGuarantee.class);
 			Root<IdmRoleGuarantee> subRoot = subquery.from(IdmRoleGuarantee.class);
 			subquery.select(subRoot);

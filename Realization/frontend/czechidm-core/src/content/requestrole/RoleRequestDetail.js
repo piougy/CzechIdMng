@@ -467,12 +467,13 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
                 showLoading={showLoading}>
                 {this.i18n('button.save')}
               </Basic.Button>
+                {' '}
               <Basic.Button
                 level="success"
                 disabled={!isEditable}
                 showLoading={showLoading}
                 onClick={this.save.bind(this, true)}
-                rendered={request && !_adminMode}
+                rendered={request}
                 titlePlacement="bottom"
                 title={this.i18n('button.createRequest.tooltip')}>
                 <Basic.Icon type="fa" icon="object-group"/>

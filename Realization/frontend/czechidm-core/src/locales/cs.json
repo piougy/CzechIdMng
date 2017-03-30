@@ -2333,6 +2333,11 @@
         "label" : "Smazat žádost",
         "tooltip": "Zruší tuto žádost.",
         "warning": "Opravdu chcete zrušit tuto žádost?"
+      },
+      "repairedRequest": {
+        "label" : "Žádost opravena",
+        "tooltip": "Žádost byla opravena/doplněna dle připomínek.",
+        "warning": "Opravdu chcete žádost vrátit ke schválení?"
       }
     },
     "formData" : {

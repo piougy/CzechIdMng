@@ -57,7 +57,7 @@ class RoleRequestTable extends Advanced.AbstractTableContent {
       return '';
     }
     return (
-      entity._embedded.wfProcessId.name
+      entity._embedded.wfProcessId.currentActivityName
     );
   }
 
@@ -138,18 +138,6 @@ class RoleRequestTable extends Advanced.AbstractTableContent {
               }
             }/>
           <Advanced.Column
-            property="currentActivity"
-            rendered={_.includes(columns, 'wf')}
-            face="text"
-            cell={this._getCurrentActivitiCell}
-            />
-          <Advanced.Column
-            property="candicateUsers"
-            rendered={_.includes(columns, 'wf')}
-            face="text"
-            cell={this._getCandidatesCell}
-            />
-          <Advanced.Column
             property="state"
             rendered={_.includes(columns, 'state')}
             sort
@@ -167,6 +155,18 @@ class RoleRequestTable extends Advanced.AbstractTableContent {
                 );
               }
             }/>
+          <Advanced.Column
+            property="currentActivity"
+            rendered={_.includes(columns, 'wf')}
+            face="text"
+            cell={this._getCurrentActivitiCell}
+            />
+          <Advanced.Column
+            property="candicateUsers"
+            rendered={_.includes(columns, 'wf')}
+            face="text"
+            cell={this._getCandidatesCell}
+            />
           <Advanced.Column
             property="executeImmediately"
             rendered={_.includes(columns, 'executeImmediately')}

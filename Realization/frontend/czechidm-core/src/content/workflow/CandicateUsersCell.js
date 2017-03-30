@@ -7,14 +7,17 @@ import _ from 'lodash';
  */
 const CandicateUsersCell = ({rowIndex, data, property, maxEntry}) => {
   let candidates = data[rowIndex][property];
-  const isMoreResults = candidates.length > maxEntry;
-  candidates = _.uniq(candidates);
+  let isMoreResults = false;
+  if (candidates) {
+    isMoreResults = candidates.length > maxEntry;
+    candidates = _.uniq(candidates);
 
-  if (maxEntry !== undefined) {
-    candidates = _.slice(candidates, 0, maxEntry);
+    if (maxEntry !== undefined) {
+      candidates = _.slice(candidates, 0, maxEntry);
+    }
+
+    candidates = _.join(candidates, ', ');
   }
-
-  candidates = _.join(candidates, ', ');
 
   return (
     <span>

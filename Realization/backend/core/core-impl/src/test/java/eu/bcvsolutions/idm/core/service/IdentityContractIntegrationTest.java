@@ -49,7 +49,7 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdentityContractIntegrationTest.class);
 	
-	private static final int MAX_COUNT_OF_ITER = 50;
+	private static final int MAX_COUNT_OF_ITER = 5;
 	
 	@Autowired 
 	protected TestHelper helper;
@@ -504,7 +504,7 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 		while (count != 0) {
 			LOG.info("Wait for [{}] tasks, current iteration [{}].", count, actualCountIter);
 			try {
-				Thread.sleep(250); // wait 10ms
+				Thread.sleep(250); // wait 250ms
 			} catch (InterruptedException ex) {
 				throw new CoreException(ex);
 			}

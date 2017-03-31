@@ -3,6 +3,7 @@ import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 import moment from 'moment';
+import { Link } from 'react-router';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
@@ -320,6 +321,16 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
     return;
   }
 
+  _getWfProcessCell({ rowIndex, data}) {
+    const entity = data[rowIndex];
+    if (!entity || !entity.wfProcessId) {
+      return '';
+    }
+    return (
+      <Link to={`/workflow/history/processes/${entity.wfProcessId}`}>{entity.wfProcessId}</Link>
+    );
+  }
+
   _renderRoleConceptChangesTable(request, forceSearchParameters, rendered) {
     if (!rendered) {
       return null;
@@ -347,7 +358,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
             <Advanced.Column property="state" face="enum" enumClass={RoleRequestStateEnum} header={this.i18n('entity.ConceptRoleRequest.state')} sort/>
             <Advanced.Column property="validFrom" face="date" header={this.i18n('entity.ConceptRoleRequest.validFrom')} sort/>
             <Advanced.Column property="validTill" face="date" header={this.i18n('entity.ConceptRoleRequest.validTill')} sort/>
-            <Advanced.Column property="wfProcessId" face="text" header={this.i18n('entity.ConceptRoleRequest.wfProcessId')} sort/>
+            <Advanced.Column property="wfProcessId" cell={this._getWfProcessCell} header={this.i18n('entity.ConceptRoleRequest.wfProcessId')} sort/>
           </Advanced.Table>
         </Basic.Panel>
       </div>

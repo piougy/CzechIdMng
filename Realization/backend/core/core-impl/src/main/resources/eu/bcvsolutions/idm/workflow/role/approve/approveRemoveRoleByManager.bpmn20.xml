@@ -83,6 +83,8 @@ conceptRoleRequestService.save(conceptDto);</script>
 // Set and save state IN_PROGRESS to concept
 def conceptDto = conceptRoleRequestService.getDto(conceptRole.id);
 conceptDto.setState(RoleRequestState.IN_PROGRESS);
+// Save process ID to concept
+conceptDto.setWfProcessId(processInstanceId);
 conceptRoleRequestService.save(conceptDto);</script>
     </scriptTask>
     <sequenceFlow id="flow40" sourceRef="scripttask8" targetRef="scripttask9"></sequenceFlow>
@@ -118,7 +120,7 @@ if(implementerUsername.equals(securityService.getUsername())){
 
 // If is skip == true, then set decision for next task on approve
 if (skip) {
- execution.setVariable("decision", "approve");
+ decision = approve;
 }
 
 //Save skip resolution to variables

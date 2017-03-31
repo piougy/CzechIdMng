@@ -215,12 +215,7 @@ public class DefaultIdmRoleRequestService
 		// Convert whole request to JSON and persist (without logs and embedded data)
 		try {
 			IdmRoleRequestDto requestOriginal = getDto(requestId);
-			requestOriginal.setLog(null);
-			requestOriginal.setEmbedded(null);
-			requestOriginal.getConceptRoles().forEach(concept -> {
-				concept.setEmbedded(null);
-				concept.setLog(null);
-			});
+			trimRequest(requestOriginal);
 			request.setOriginalRequest(objectMapper.writeValueAsString(requestOriginal));
 		} catch (JsonProcessingException e) {
 			throw new RoleRequestException(CoreResultCode.BAD_REQUEST, e);
@@ -265,6 +260,8 @@ public class DefaultIdmRoleRequestService
 			IdmIdentity applicant = identityService.get(request.getApplicant());
 			
 			Map<String, Object> variables = new HashMap<>();
+			// Minimize size of DTO persisting to WF
+			trimRequest(event.getContent());
 			variables.put(EntityEvent.EVENT_PROPERTY, event);
 			
 			ProcessInstance processInstance = workflowProcessInstanceService.startProcess(wfDefinition,
@@ -497,6 +494,20 @@ public class DefaultIdmRoleRequestService
 			this.roleRequestService = applicationContext.getBean(IdmRoleRequestService.class);
 		}
 		return this.roleRequestService;
+	}
+	
+	/**
+	 * Trim request and his role concepts. Remove embedded objects.
+	 * It is important for minimize size of dto persisted for example in WF process. 
+	 * @param requestOriginal
+	 */
+	private void trimRequest(IdmRoleRequestDto requestOriginal) {
+		requestOriginal.setLog(null);
+		requestOriginal.setEmbedded(null);
+		requestOriginal.getConceptRoles().forEach(concept -> {
+			concept.setEmbedded(null);
+			concept.setLog(null);
+		});
 	}
 
 

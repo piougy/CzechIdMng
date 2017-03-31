@@ -16,6 +16,10 @@ import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
+import eu.bcvsolutions.idm.core.model.domain.ConceptRoleRequestOperation;
+import eu.bcvsolutions.idm.core.model.domain.RoleRequestedByType;
+import eu.bcvsolutions.idm.core.model.dto.IdmConceptRoleRequestDto;
+import eu.bcvsolutions.idm.core.model.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
@@ -23,7 +27,9 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRoleTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
+import eu.bcvsolutions.idm.core.model.service.api.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
 
 /**
@@ -44,7 +50,9 @@ public class IdentityContractUpdateByAutomaticRoleProcessor extends CoreEventPro
 	@Autowired
 	private IdmIdentityRoleService identityRoleService;
 	@Autowired
-	private IdentityContractCreateByAutomaticRoleProcessor createProcessor;
+	private IdmRoleRequestService roleRequestService;
+	@Autowired
+	private IdmConceptRoleRequestService conceptRoleRequestService;
 	
 	public IdentityContractUpdateByAutomaticRoleProcessor() {
 		super(IdentityContractEventType.UPDATE);
@@ -63,12 +71,21 @@ public class IdentityContractUpdateByAutomaticRoleProcessor extends CoreEventPro
 			return new DefaultEventResult<>(event, this);
 		}
 		//
+		// prepare request
+		IdmRoleRequestDto roleRequest = new IdmRoleRequestDto();
+		roleRequest.setApplicant(contract.getIdentity().getId());
+		roleRequest.setRequestedByType(RoleRequestedByType.AUTOMATICALLY);
+		roleRequest.setExecuteImmediately(true);
+		roleRequest = roleRequestService.save(roleRequest);
+		//
 		IdmIdentityContract previous = repository.getPersistedIdentityContract(contract);
 		IdmTreeNode newPosition = contract.getWorkPosition();
 		//
+		// check if new and old work position are same
 		// check automatic roles - if position or disabled was changed
 		if (!Objects.equals(newPosition, previous.getWorkPosition())
 				|| (!contract.isDisabled() && previous.isDisabled() != contract.isDisabled())) {
+			// work positions has some difference
 			List<IdmIdentityRole> assignedRoles = identityRoleService.getRoles(contract);
 			Set<IdmRoleTreeNode> previousAutomaticRoles = assignedRoles.stream()
 					.filter(identityRole -> {
@@ -88,15 +105,15 @@ public class IdentityContractUpdateByAutomaticRoleProcessor extends CoreEventPro
 			for(IdmRoleTreeNode removedAutomaticRole : removedAutomaticRoles) {
 				Iterator<IdmIdentityRole> iter = assignedRoles.iterator();
 				while (iter.hasNext()){
-					IdmIdentityRole identityRole = iter.next();
-					if (Objects.equals(identityRole.getRoleTreeNode(), removedAutomaticRole)) {
+					IdmIdentityRole identityRole = iter.next();				
+					if (Objects.equals(identityRole.getRoleTreeNode(), removedAutomaticRole)) {					
 						// check, if role will be added by new automatic roles and prevent removing
 						IdmRoleTreeNode addedAutomaticRole = getByRole(identityRole.getRole(), addedAutomaticRoles);
 						if (addedAutomaticRole == null) {
-							identityRoleService.delete(identityRole);
+							createConcept(roleRequest, identityRole, contract, identityRole.getRole(), removedAutomaticRole, ConceptRoleRequestOperation.REMOVE);
 							iter.remove();
 						} else {
-							// change relation only							
+							// change relation only
 							identityRole.setRoleTreeNode(addedAutomaticRole);
 							identityRoleService.save(identityRole);
 							// new automatic role is not needed
@@ -105,20 +122,58 @@ public class IdentityContractUpdateByAutomaticRoleProcessor extends CoreEventPro
 					}
 			    }
 			}
+			//
 			// change date - for unchanged assigned roles only
 			if (EntityUtils.validableChanged(previous, contract)) {
-				changeValidable(contract, assignedRoles);
+				changeValidable(contract, assignedRoles, roleRequest);
 			}
+			
+			for (IdmRoleTreeNode addedAutomaticRole : addedAutomaticRoles) {
+				createConcept(roleRequest, null, contract, addedAutomaticRole.getRole(), addedAutomaticRole, ConceptRoleRequestOperation.ADD);
+			}
+			//
 			// assign new roles
-			createProcessor.assignAutomaticRoles(contract, addedAutomaticRoles);
+			// createProcessor.assignAutomaticRoles(contract, addedAutomaticRoles);		
 		}
 		//
 		// process validable change
 		else if (EntityUtils.validableChanged(previous, contract)) {
-			changeValidable(contract, identityRoleService.getRoles(contract));
+			changeValidable(contract, identityRoleService.getRoles(contract), roleRequest);
 		}
 		//
+		roleRequestService.startRequestInternal(roleRequest.getId(), false);
+		//
 		return new DefaultEventResult<>(event, this);
+	}
+	
+	/**
+	 * Method create {@link IdmConceptRoleRequestDto}
+	 * @param roleRequest
+	 * @param contract
+	 * @param role
+	 * @param roleTreeNode
+	 * @param operation
+	 * @return
+	 */
+	private IdmConceptRoleRequestDto createConcept(IdmRoleRequestDto roleRequest, IdmIdentityRole identityRole,
+			IdmIdentityContract contract, IdmRole role, IdmRoleTreeNode roleTreeNode,
+			ConceptRoleRequestOperation operation) {
+		IdmConceptRoleRequestDto conceptRoleRequest = new IdmConceptRoleRequestDto();
+		conceptRoleRequest.setRoleRequest(roleRequest.getId());
+		conceptRoleRequest.setIdentityContract(contract.getId());
+		conceptRoleRequest.setValidFrom(contract.getValidFrom());
+		conceptRoleRequest.setValidTill(contract.getValidTill());
+		//
+		// identity role can be null (CREATE)
+		if (identityRole != null) {
+			conceptRoleRequest.setIdentityRole(identityRole.getId());
+		}
+		//
+		conceptRoleRequest.setRole(role.getId());
+		conceptRoleRequest.setRoleTreeNode(roleTreeNode.getId());
+		conceptRoleRequest.setOperation(operation);
+		conceptRoleRequestService.save(conceptRoleRequest);
+		return conceptRoleRequest;
 	}
 	
 	private IdmRoleTreeNode getByRole(IdmRole role, Set<IdmRoleTreeNode> automaticRoles) {
@@ -131,21 +186,17 @@ public class IdentityContractUpdateByAutomaticRoleProcessor extends CoreEventPro
 	}
 	
 	/**
-	 * TODO: connect to role request API 
 	 * 
 	 * @param contract
 	 * @param assignedRoles
 	 */
-	private void changeValidable(IdmIdentityContract contract, List<IdmIdentityRole> assignedRoles) {
+	private void changeValidable(IdmIdentityContract contract, List<IdmIdentityRole> assignedRoles, IdmRoleRequestDto roleRequest) {
 		assignedRoles.stream()
 		.filter(identityRole -> {
 			// TODO: automatic roles only?
 			return identityRole.getRoleTreeNode() != null;
 		}).forEach(identityRole -> {
-			identityRole.setValidFrom(contract.getValidFrom());
-			identityRole.setValidTill(contract.getValidTill());
-			// TODO: connect to role request API 
-			identityRoleService.save(identityRole);
+			createConcept(roleRequest, identityRole, contract, identityRole.getRole(), identityRole.getRoleTreeNode(), ConceptRoleRequestOperation.UPDATE);
 		});
 	}
 	

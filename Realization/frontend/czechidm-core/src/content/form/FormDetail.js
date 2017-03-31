@@ -108,7 +108,7 @@ class FormDetail extends Basic.AbstractContent {
 
   render() {
     const { uiKey, entity, showLoading } = this.props;
-    const { _showLoading, types } = this.state;
+    const { types } = this.state;
 
     return (
       <form onSubmit={this.save.bind(this)}>

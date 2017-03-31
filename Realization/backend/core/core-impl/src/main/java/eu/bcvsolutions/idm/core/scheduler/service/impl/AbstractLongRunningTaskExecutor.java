@@ -65,6 +65,9 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements LongRunningT
 	protected boolean start() {
 		Assert.notNull(taskId);
 		IdmLongRunningTask task = service.get(taskId);
+		if (task == null) {
+			LOG.error("Long running task hasn't prepared before task started! Task id: [{}]", taskId);
+		}
 		Assert.notNull(task, "Long running task has to be prepared before task is started");
 		//
 		if (task.isRunning()) {

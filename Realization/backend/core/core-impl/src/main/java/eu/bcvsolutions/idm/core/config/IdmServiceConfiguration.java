@@ -13,6 +13,8 @@ import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleTreeNodeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
+import eu.bcvsolutions.idm.core.model.service.api.IdmConceptRoleRequestService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultEntityEventManager;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmRoleTreeNodeService;
@@ -64,8 +66,10 @@ public class IdmServiceConfiguration {
 	 * @return
 	 */
 	@Bean
-	public IdmRoleTreeNodeService roleTreeNodeService(IdmRoleTreeNodeRepository repository, IdmTreeNodeRepository treeNodeRepository) {
-		return new DefaultIdmRoleTreeNodeService(repository, treeNodeRepository, entityEventManager());
+	public IdmRoleTreeNodeService roleTreeNodeService(IdmRoleTreeNodeRepository repository,
+			IdmTreeNodeRepository treeNodeRepository, IdmRoleRequestService roleRequestService,
+			IdmConceptRoleRequestService conceptRoleRequestService) {
+		return new DefaultIdmRoleTreeNodeService(repository, treeNodeRepository, entityEventManager(), roleRequestService, conceptRoleRequestService);
 	}
 	
 	/**

@@ -79,7 +79,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
     this.setState({
       detail: {
         show: true,
-        edit: isEdit,
+        edit: isEdit && !entity.automaticRole,
         entity: entityFormData,
         add: multiAdd
       }
@@ -336,13 +336,14 @@ export class RoleConceptTable extends Basic.AbstractContent {
     const actions = [];
     const value = data[rowIndex];
     const notModificated = !(value._added || value._removed || value._changed);
+    const isAutomaticRole = value.automaticRole;
 
     actions.push(
       <Basic.Button
         level={'danger'}
         onClick={this._deleteConcept.bind(this, data[rowIndex])}
         className="btn-xs"
-        disabled={readOnly}
+        disabled={readOnly || isAutomaticRole}
         role="group"
         title={this.i18n('button.delete')}
         titlePlacement="bottom">
@@ -355,7 +356,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
           level={'warning'}
           onClick={this._showDetail.bind(this, data[rowIndex], true, false)}
           className="btn-xs"
-          disabled={readOnly}
+          disabled={readOnly || isAutomaticRole}
           role="group"
           title={this.i18n('button.edit')}
           titlePlacement="bottom">
@@ -448,6 +449,10 @@ export class RoleConceptTable extends Basic.AbstractContent {
             header={this.i18n('label.validTill')}
             cell={this._conceptDateCell.bind(this)}/>
           <Basic.Column
+            property="automaticRole"
+            header={<Basic.Cell className="column-face-bool">{this.i18n('entity.IdentityRole.roleTreeNode.label')}</Basic.Cell>}
+            cell={<Basic.BooleanCell className="column-face-bool"/>}/>
+          <Basic.Column
             header={this.i18n('label.action')}
             className="action"
             cell={this._conceptActionsCell.bind(this)}/>
@@ -482,6 +487,10 @@ export class RoleConceptTable extends Basic.AbstractContent {
                   multiSelect={detail.entity._added && detail.add}
                   readOnly={!detail.entity._added}
                   required/>
+                <Basic.Checkbox
+                  ref="automaticRole"
+                  label={this.i18n('entity.IdentityRole.roleTreeNode.label')}
+                  readOnly/>
 
                 <Basic.Row>
                   <div className="col-md-6">

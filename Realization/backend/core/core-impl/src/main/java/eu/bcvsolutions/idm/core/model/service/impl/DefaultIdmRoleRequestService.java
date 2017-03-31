@@ -490,6 +490,12 @@ public class DefaultIdmRoleRequestService
 		identityRole.setValidTill(conceptRole.getValidTill());
 		identityRole.setOriginalCreator(conceptRole.getOriginalCreator());
 		identityRole.setOriginalModifier(conceptRole.getOriginalModifier());
+		identityRole.setRoleTreeNode(conceptRole.getRoleTreeNode());
+		//
+		// if exists role tree node, set automatic role
+		if (conceptRole.getRoleTreeNode() != null) {
+			identityRole.setAutomaticRole(true);
+		}
 		return identityRole;
 	}
 

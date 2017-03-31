@@ -504,7 +504,7 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 		while (count != 0) {
 			LOG.info("Wait for [{}] tasks, current iteration [{}].", count, actualCountIter);
 			try {
-				Thread.sleep(10); // wait 10ms
+				Thread.sleep(250); // wait 10ms
 			} catch (InterruptedException ex) {
 				throw new CoreException(ex);
 			}
@@ -512,6 +512,7 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 				LOG.error("Wait for long running task wasn't complete, unsolved task: [{}].", count);
 				break;
 			}
+			actualCountIter++;
 			count = longRunningTaskService.find(filterRunning, null).getContent().size();
 			count += longRunningTaskService.find(filterRunningState, null).getContent().size();
 		}

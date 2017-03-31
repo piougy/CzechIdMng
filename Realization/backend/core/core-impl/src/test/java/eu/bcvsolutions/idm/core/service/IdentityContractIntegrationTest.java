@@ -47,6 +47,10 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  */
 public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 	
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdentityContractIntegrationTest.class);
+	
+	private static final int MAX_COUNT_OF_ITER = 50;
+	
 	@Autowired 
 	protected TestHelper helper;
 	@Autowired
@@ -495,12 +499,18 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 		LongRunningTaskFilter filterRunningState = new LongRunningTaskFilter();
 		filterRunningState.setOperationState(OperationState.RUNNING);
 		count += longRunningTaskService.find(filterRunningState, null).getContent().size();
+		int actualCountIter = 0;
 		//
 		while (count != 0) {
+			LOG.info("Wait for [{}] tasks, current iteration [{}].", count, actualCountIter);
 			try {
-				Thread.sleep(10); // wait 2 seconds
+				Thread.sleep(10); // wait 10ms
 			} catch (InterruptedException ex) {
 				throw new CoreException(ex);
+			}
+			if (actualCountIter >= MAX_COUNT_OF_ITER) {
+				LOG.error("Wait for long running task wasn't complete, unsolved task: [{}].", count);
+				break;
 			}
 			count = longRunningTaskService.find(filterRunning, null).getContent().size();
 			count += longRunningTaskService.find(filterRunningState, null).getContent().size();

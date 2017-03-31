@@ -2301,6 +2301,11 @@
         "label" : "Delete request",
         "tooltip": "Delete this request.",
         "warning": "Do you want to delete the request?"
+      },
+      "repairedRequest": {
+        "label" : "Reqeust repaired",
+        "tooltip": "Request was repaired by comments.",
+        "warning": "Do you want return request to approve?"
       }
     },
     "formData" : {

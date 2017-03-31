@@ -1,10 +1,15 @@
 package eu.bcvsolutions.idm.core.workflow.model.dto;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class WorkflowProcessInstanceDto {
+import org.springframework.util.Assert;
+
+import eu.bcvsolutions.idm.core.api.dto.BaseDto;
+
+public class WorkflowProcessInstanceDto implements BaseDto{
 
 	protected String processDefinitionId;
 	protected String processDefinitionKey;
@@ -134,6 +139,14 @@ public class WorkflowProcessInstanceDto {
 
 	public void setCurrentActivityDocumentation(String currentActivityDocumentation) {
 		this.currentActivityDocumentation = currentActivityDocumentation;
+	}
+
+	@Override
+	public void setId(Serializable id) {
+		if (id != null) {
+			Assert.isInstanceOf(String.class, id, "WorkflowProcessInstanceDto supports only String identifier.");
+		}
+		this.id = (String) id;
 	}
 
 }

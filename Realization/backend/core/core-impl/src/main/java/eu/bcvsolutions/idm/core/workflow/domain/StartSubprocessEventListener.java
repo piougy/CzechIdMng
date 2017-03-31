@@ -40,6 +40,10 @@ public class StartSubprocessEventListener implements ActivitiEventListener {
 			}
 			// Manual load bean ... autowired is not possible, because this listeners are create before runtimeService 
 			RuntimeService runtimeService = beanFactory.getBean(RuntimeService.class);
+			
+			// To subprocess set process instance ID as variable (we need use id in subprocess)
+			runtimeService.setVariable(event.getProcessInstanceId(), WorkflowProcessInstanceService.PROCESS_INSTANCE_ID, event.getProcessInstanceId());
+			
 			@SuppressWarnings("unchecked") Map<String, Object> variables = eventStarted.getVariables();
 			variables.forEach((k, v) -> {
 				if (WorkflowProcessInstanceService.APPLICANT_USERNAME.equals(k)) {

@@ -74,7 +74,7 @@ class Definition extends Basic.AbstractContent {
             <Basic.TextField ref="version" label={this.i18n('version')}/>
             <Basic.TextField ref="id" label={this.i18n('id')}/>
             <Basic.TextField ref="deploymentId" label={this.i18n('deploymentId')}/>
-            <Basic.TextArea ref="description" label={this.i18n('description')}/>
+            <Basic.TextArea ref="description" rows={6} label={this.i18n('description')}/>
           </Basic.AbstractForm>
           <Basic.PanelFooter>
             <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>

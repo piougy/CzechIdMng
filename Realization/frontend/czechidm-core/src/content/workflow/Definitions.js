@@ -112,11 +112,11 @@ class Definitions extends Basic.AbstractContent {
             rowClass={({rowIndex, data}) => { return data[rowIndex].disabled ? 'disabled' : ''; }}
             noData={this.i18n('component.basic.Table.noData')}>
 
-            <Advanced.Column property="key" header={this.i18n('key')} width="10%"
+            <Advanced.Column property="key" header={this.i18n('key')} width="25%"
               cell={<Basic.LinkCell property="key" to="workflow/definitions/:key"/>} sort />
             <Advanced.Column property="name" header={this.i18n('name')} width="20%" sort />
-            <Advanced.Column property="resourceName" header={this.i18n('resourceName')} width="20%" sort />
-            <Advanced.Column property="description" header={this.i18n('description')} width="35%" sort />
+            <Advanced.Column property="resourceName" header={this.i18n('resourceName')} width="15%" sort />
+            <Advanced.Column property="description" header={this.i18n('description')} width="25%" sort />
             <Advanced.Column property="version" header={this.i18n('version')} width="5%" sort />
           </Advanced.Table>
         </Basic.Panel>

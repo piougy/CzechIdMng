@@ -88,11 +88,6 @@ public class IdentityFindPositionsTest extends AbstractIntegrationTest{
 		List<IdmIdentity> result = identityService.findAllManagers(user, null);
 		
 		assertEquals(2, result.size());
-
-		String resutlString = identityService.findAllManagersAsString(user.getId());
-		
-		assertEquals(true, resutlString.contains(quarantee1.getUsername()));
-		assertEquals(true, resutlString.contains(quarantee2.getUsername()));
 	}
 	
 	@Test

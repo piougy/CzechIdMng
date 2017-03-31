@@ -23,6 +23,7 @@ public class IdmIdentityRoleDto extends AbstractDto {
 	private UUID role;
 	private LocalDate validFrom;
 	private LocalDate validTill;
+	private boolean automaticRole;
 
 	public IdmIdentityRoleDto() {
 	}
@@ -61,6 +62,14 @@ public class IdmIdentityRoleDto extends AbstractDto {
 
 	public void setRole(UUID role) {
 		this.role = role;
+	}
+
+	public boolean isAutomaticRole() {
+		return automaticRole;
+	}
+
+	public void setAutomaticRole(boolean automaticRole) {
+		this.automaticRole = automaticRole;
 	}
 
 

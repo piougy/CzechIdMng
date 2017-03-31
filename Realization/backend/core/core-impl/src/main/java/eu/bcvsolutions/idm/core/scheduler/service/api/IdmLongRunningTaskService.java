@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
+import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.dto.filter.LongRunningTaskFilter;
 import eu.bcvsolutions.idm.core.scheduler.entity.IdmLongRunningTask;
 
@@ -31,6 +32,7 @@ public interface IdmLongRunningTaskService extends ReadWriteEntityService<IdmLon
 	 */
 	List<IdmLongRunningTask> getTasks(String instanceId, OperationState state);
 	
+	<V> IdmLongRunningTask saveInNewTransaction(LongRunningTaskExecutor<V> taskExecutor, OperationState operationState);
 	
 	void updateState(UUID id, Long count, Long counter);
 	

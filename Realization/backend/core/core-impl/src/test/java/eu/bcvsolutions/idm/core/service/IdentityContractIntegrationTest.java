@@ -504,7 +504,7 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 		while (count != 0) {
 			LOG.info("Wait for [{}] tasks, current iteration [{}].", count, actualCountIter);
 			try {
-				Thread.sleep(250); // wait 250ms
+				Thread.sleep(1000); // wait 1second
 			} catch (InterruptedException ex) {
 				throw new CoreException(ex);
 			}

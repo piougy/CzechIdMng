@@ -183,9 +183,8 @@ public abstract class AbstractReadWriteEntityController<E extends BaseEntity, F 
 		if (entity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
-		if (!getAuthorizationManager().evaluate(entity, IdmBasePermission.DELETE)) {
-			throw new ResultCodeException(CoreResultCode.FORBIDDEN);
-		}
+		checkAccess(entity, IdmBasePermission.DELETE);
+		//
 		deleteEntity(entity);
 		return new ResponseEntity<Object>(HttpStatus.NO_CONTENT);
 	}

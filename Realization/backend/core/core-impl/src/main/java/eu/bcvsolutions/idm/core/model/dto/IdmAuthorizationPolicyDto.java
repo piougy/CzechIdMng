@@ -6,14 +6,20 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import org.apache.commons.lang.StringUtils;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.hateoas.core.Relation;
+import org.springframework.util.Assert;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.security.api.domain.AuthorizationPolicy;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
+import eu.bcvsolutions.idm.core.security.api.service.AuthorizationEvaluator;
 
 /**
  * Assign authorization evaluator to role.
@@ -84,6 +90,13 @@ public class IdmAuthorizationPolicyDto extends AbstractDto implements Authorizat
 		this.evaluatorType = evaluatorType;
 	}
 	
+	@JsonIgnore
+	public void setEvaluatorType(Class<? extends AuthorizationEvaluator<?>> evaluatorType) {
+		Assert.notNull(evaluatorType);
+		//
+		this.evaluatorType = evaluatorType.getClass().getCanonicalName();
+	}
+	
 	public void setAuthorizableType(String authorizableType) {
 		this.authorizableType = authorizableType;
 	}
@@ -109,5 +122,12 @@ public class IdmAuthorizationPolicyDto extends AbstractDto implements Authorizat
 	
 	public void setBasePermissions(String basePermissions) {
 		this.basePermissions = basePermissions;
+	}
+	
+	@JsonIgnore
+	public void setBasePermissions(BasePermission... permisions) {
+		Assert.notNull(permisions);
+		//
+		this.basePermissions = StringUtils.join(permisions, ",");
 	}
 }

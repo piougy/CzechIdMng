@@ -22,7 +22,7 @@ import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
+import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.core.security.service.impl.JwtAuthenticationMapper;
 
@@ -54,7 +54,7 @@ public class WebSocketConfig extends AbstractWebSocketMessageBrokerConfigurer {
 
 	@Override
 	public void registerStompEndpoints(StompEndpointRegistry registry) {
-		registry.addEndpoint(BaseEntityController.BASE_PATH + "/websocket-info").setAllowedOrigins("*").withSockJS();
+		registry.addEndpoint(BaseDtoController.BASE_PATH + "/websocket-info").setAllowedOrigins("*").withSockJS();
 	}
 
 	/**

@@ -1,6 +1,8 @@
 import React, { PropTypes } from 'react';
+//
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
+import * as Utils from '../../utils';
 import { ScriptManager, SecurityManager } from '../../redux';
 import ScriptCategoryEnum from '../../enums/ScriptCategoryEnum';
 import EntityUtils from '../../utils/EntityUtils';
@@ -104,12 +106,16 @@ export default class ScriptDetail extends Basic.AbstractContent {
   }
 
   render() {
-    const { uiKey } = this.props;
+    const { uiKey, entity } = this.props;
     const { showLoading } = this.state;
     return (
       <div>
         <form onSubmit={this.save.bind(this)}>
-          <Basic.AbstractForm ref="form" uiKey={uiKey} readOnly={!SecurityManager.hasAuthority('SCRIPT_WRITE')} style={{ padding: '15px 15px 0 15px' }}>
+          <Basic.AbstractForm
+            ref="form"
+            uiKey={uiKey}
+            readOnly={!SecurityManager.hasAuthority(Utils.Entity.isNew(entity) ? 'SCRIPT_CREATE' : 'SCRIPT_UPDATE')}
+            style={{ padding: '15px 15px 0 15px' }}>
             <Basic.TextField
               ref="name"
               label={this.i18n('entity.Script.name')}
@@ -137,7 +143,7 @@ export default class ScriptDetail extends Basic.AbstractContent {
               level="success"
               showLoadingIcon
               showLoadingText={this.i18n('button.saving')}
-              rendered={SecurityManager.hasAuthority('SCRIPT_WRITE')}>
+              rendered={SecurityManager.hasAuthority(Utils.Entity.isNew(entity) ? 'SCRIPT_CREATE' : 'SCRIPT_UPDATE')}>
               {this.i18n('button.save')}
             </Basic.Button>
           </Basic.PanelFooter>

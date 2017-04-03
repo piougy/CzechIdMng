@@ -4,10 +4,12 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
 import org.joda.time.LocalDate;
 import org.junit.After;
@@ -18,8 +20,6 @@ import org.springframework.dao.EmptyResultDataAccessException;
 
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.TestHelper;
-import eu.bcvsolutions.idm.core.api.domain.OperationState;
-import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.model.domain.RecursionType;
 import eu.bcvsolutions.idm.core.model.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
@@ -29,11 +29,13 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
+import eu.bcvsolutions.idm.core.model.repository.IdmRoleTreeNodeRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
-import eu.bcvsolutions.idm.core.scheduler.dto.filter.LongRunningTaskFilter;
-import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskService;
+import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
+import eu.bcvsolutions.idm.core.scheduler.task.impl.AddNewAutomaticRoleTaskExecutor;
+import eu.bcvsolutions.idm.core.scheduler.task.impl.RemoveAutomaticRoleTaskExecutor;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
@@ -45,12 +47,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * @author Radek Tomiška
  *
  */
-public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
-	
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdentityContractIntegrationTest.class);
-	
-	private static final int MAX_COUNT_OF_ITER = 5;
-	
+public class IdentityContractIntegrationTest extends AbstractIntegrationTest {	
 	@Autowired 
 	protected TestHelper helper;
 	@Autowired
@@ -60,7 +57,9 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 	@Autowired
 	private IdmRoleTreeNodeService roleTreeNodeService;
 	@Autowired
-	private IdmLongRunningTaskService longRunningTaskService;
+	private IdmRoleTreeNodeRepository roleTreeNodeRepository;
+	@Autowired
+	private LongRunningTaskManager taskManager;
 	//
 	private IdmTreeType treeType = null;
 	private IdmTreeNode nodeA = null;
@@ -87,10 +86,10 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 	@After 
 	public void logout() {
 		// delete this test automatic roles only	
-		if(automaticRoleA != null) try { roleTreeNodeService.delete(automaticRoleA); } catch (EmptyResultDataAccessException ex) {} ;
-		if(automaticRoleD != null) try { roleTreeNodeService.delete(automaticRoleD); } catch (EmptyResultDataAccessException ex) {} ;
-		if(automaticRoleE != null) try { roleTreeNodeService.delete(automaticRoleE); } catch (EmptyResultDataAccessException ex) {} ;
-		if(automaticRoleF != null) try { roleTreeNodeService.delete(automaticRoleF); } catch (EmptyResultDataAccessException ex) {} ;
+		if(automaticRoleA != null) try { deleteAutomaticRole(automaticRoleA); } catch (EmptyResultDataAccessException ex) {} ;
+		if(automaticRoleD != null) try { deleteAutomaticRole(automaticRoleD); } catch (EmptyResultDataAccessException ex) {} ;
+		if(automaticRoleE != null) try { deleteAutomaticRole(automaticRoleE); } catch (EmptyResultDataAccessException ex) {} ;
+		if(automaticRoleF != null) try { deleteAutomaticRole(automaticRoleF); } catch (EmptyResultDataAccessException ex) {} ;
 		//
 		super.logout();
 	}	
@@ -114,6 +113,41 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 	}
 	
 	/**
+	 * Save automatic role with repository and manual create and wait for task
+	 * @param automaticRole
+	 * @return
+	 */
+	private IdmRoleTreeNodeDto saveAutomaticRole(IdmRoleTreeNodeDto automaticRole) {
+		IdmRoleTreeNode entity = roleTreeNodeService.toEntity(automaticRole, null);
+		entity = roleTreeNodeRepository.save(entity);
+		//
+		AddNewAutomaticRoleTaskExecutor task = new AddNewAutomaticRoleTaskExecutor();
+		task.setRoleTreeNode(entity);
+		//
+		// active wait for save
+		try {
+			taskManager.execute(task).getFutureTask().get();
+		} catch (InterruptedException | ExecutionException e) {
+			fail("Unexpected error, while wait for save automatic role: " + e.getLocalizedMessage());
+		}
+		//
+		return roleTreeNodeService.getDto(entity.getId());
+	}
+	
+	private void deleteAutomaticRole(IdmRoleTreeNodeDto automaticRole) {
+		IdmRoleTreeNode entity = roleTreeNodeService.toEntity(automaticRole, null);
+		RemoveAutomaticRoleTaskExecutor task = new RemoveAutomaticRoleTaskExecutor();
+		task.setRoleTreeNode(entity);
+		//
+		// active wait for delete
+		try {
+			taskManager.execute(task).getFutureTask().get();
+		} catch (InterruptedException | ExecutionException e) {
+			fail("Unexpected error, while wait for save automatic role: " + e.getLocalizedMessage());
+		}
+	}
+	
+	/**
 	 * 
 	 */
 	private void prepareAutomaticRoles() {
@@ -122,36 +156,35 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 		automaticRoleA.setRecursionType(RecursionType.DOWN);
 		automaticRoleA.setRole(roleA.getId());
 		automaticRoleA.setTreeNode(nodeA.getId());
-		automaticRoleA = roleTreeNodeService.save(automaticRoleA);	
+		automaticRoleA = saveAutomaticRole(automaticRoleA);	
 		
 		automaticRoleD = new IdmRoleTreeNodeDto();
 		automaticRoleD.setRecursionType(RecursionType.DOWN);
 		automaticRoleD.setRole(roleB.getId());
 		automaticRoleD.setTreeNode(nodeD.getId());
-		automaticRoleD = roleTreeNodeService.save(automaticRoleD);
+		automaticRoleD = saveAutomaticRole(automaticRoleD);
 		
 		automaticRoleF = new IdmRoleTreeNodeDto();
 		automaticRoleF.setRecursionType(RecursionType.UP);
 		automaticRoleF.setRole(roleC.getId());
 		automaticRoleF.setTreeNode(nodeF.getId());
-		automaticRoleF = roleTreeNodeService.save(automaticRoleF);
+		automaticRoleF = saveAutomaticRole(automaticRoleF);
 		
 		automaticRoleE = new IdmRoleTreeNodeDto();
 		automaticRoleE.setRecursionType(RecursionType.NO);
 		automaticRoleE.setRole(roleD.getId());
 		automaticRoleE.setTreeNode(nodeE.getId());
-		automaticRoleE = roleTreeNodeService.save(automaticRoleE);
+		automaticRoleE = saveAutomaticRole(automaticRoleE);
 	}
 	
 	@Test
 	public void testFindAutomaticRoleWithoutRecursion() {
-		waitForLongRunningTask();
 		// prepare
 		automaticRoleA = new IdmRoleTreeNodeDto();
 		automaticRoleA.setRecursionType(RecursionType.NO);
 		automaticRoleA.setRole(roleA.getId());
 		automaticRoleA.setTreeNode(nodeD.getId());
-		automaticRoleA = roleTreeNodeService.save(automaticRoleA);
+		automaticRoleA = saveAutomaticRole(automaticRoleA);
 		//
 		// test
 		Set<IdmRoleTreeNode> automaticRoles = roleTreeNodeService.getAutomaticRoles(nodeD);
@@ -163,15 +196,12 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 	
 	@Test
 	public void testFindAutomaticRoleWithRecursionDown() {
-		waitForLongRunningTask();
 		// prepare
 		automaticRoleA = new IdmRoleTreeNodeDto();
 		automaticRoleA.setRecursionType(RecursionType.DOWN);
 		automaticRoleA.setRole(roleA.getId());
 		automaticRoleA.setTreeNode(nodeD.getId());
-		automaticRoleA = roleTreeNodeService.save(automaticRoleA);
-		//
-		waitForLongRunningTask();
+		automaticRoleA = saveAutomaticRole(automaticRoleA);
 		//
 		// test
 		Set<IdmRoleTreeNode> automaticRoles = roleTreeNodeService.getAutomaticRoles(nodeD);
@@ -185,15 +215,12 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 	
 	@Test
 	public void testFindAutomaticRoleWithRecursionUp() {
-		waitForLongRunningTask();
 		// prepare
 		automaticRoleA = new IdmRoleTreeNodeDto();
 		automaticRoleA.setRecursionType(RecursionType.UP);
 		automaticRoleA.setRole(roleA.getId());
 		automaticRoleA.setTreeNode(nodeD.getId());
-		automaticRoleA = roleTreeNodeService.save(automaticRoleA);
-		//
-		waitForLongRunningTask();
+		automaticRoleA = saveAutomaticRole(automaticRoleA);
 		//
 		// test
 		Set<IdmRoleTreeNode> automaticRoles = roleTreeNodeService.getAutomaticRoles(nodeD);
@@ -207,7 +234,6 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 	
 	@Test
 	public void testCRUDContractWithAutomaticRoles() {
-		waitForLongRunningTask();
 		prepareAutomaticRoles();
 		//
 		// prepare identity and contract
@@ -220,8 +246,6 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 		contract.setMain(true);
 		contract.setDescription("test-node-d");
 		identityContractService.save(contract);
-		//
-		waitForLongRunningTask();
 		//
 		contract = identityContractService.getPrimeContract(identity);
 		//
@@ -263,7 +287,6 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 	
 	@Test
 	public void testChangeContractValidityWithAssignedRoles() {
-		waitForLongRunningTask();
 		prepareAutomaticRoles();
 		//
 		// prepare identity and contract
@@ -275,8 +298,6 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 		contract.setWorkPosition(nodeD);
 		contract = identityContractService.save(contract);
 		//
-		waitForLongRunningTask();
-		// 
 		// test after create
 		List<IdmIdentityRole> identityRoles = identityRoleService.getRoles(contract);
 		assertEquals(3, identityRoles.size());
@@ -298,7 +319,6 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 	
 	@Test
 	public void testChangeContractPositionWithAutomaticRolesAssigned() {
-		waitForLongRunningTask();
 		prepareAutomaticRoles();
 		//
 		// prepare identity and contract
@@ -344,8 +364,6 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 	
 	@Test
 	public void testDeleteAutomaticRoleWithContractAlreadyExists() {
-		waitForLongRunningTask();
-		//
 		prepareAutomaticRoles();
 		//
 		// prepare identity and contract
@@ -355,32 +373,28 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 		contract.setWorkPosition(nodeC);
 		contract = identityContractService.save(contract);
 		//
-		waitForLongRunningTask();
-		//
 		assertEquals(1, identityRoleService.getRoles(contract).size());
 		//
-		roleTreeNodeService.delete(automaticRoleD);
+		deleteAutomaticRole(automaticRoleD);
 		assertEquals(1, identityRoleService.getRoles(contract).size());
 		//
-		roleTreeNodeService.delete(automaticRoleA);
-		waitForLongRunningTask();
+		deleteAutomaticRole(automaticRoleA);
 		assertTrue(identityRoleService.getRoles(contract).isEmpty());
 	}
 	
 	@Test
 	public void testDontRemoveSameRole() {
-		waitForLongRunningTask();
 		automaticRoleF = new IdmRoleTreeNodeDto();
 		automaticRoleF.setRecursionType(RecursionType.UP);
 		automaticRoleF.setRole(roleA.getId());
 		automaticRoleF.setTreeNode(nodeF.getId());
-		automaticRoleF = roleTreeNodeService.save(automaticRoleF);
+		automaticRoleF = saveAutomaticRole(automaticRoleF);
 		//
 		automaticRoleE = new IdmRoleTreeNodeDto();
 		automaticRoleE.setRecursionType(RecursionType.NO);
 		automaticRoleE.setRole(roleA.getId());
 		automaticRoleE.setTreeNode(nodeE.getId());
-		automaticRoleE = roleTreeNodeService.save(automaticRoleE);
+		automaticRoleE = saveAutomaticRole(automaticRoleE);
 		//
 		// prepare identity and contract
 		IdmIdentity identity = helper.createIdentity("test");
@@ -411,7 +425,6 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 	
 	@Test
 	public void testAssingRoleByNewAutomaticRoleForExistingContracts() {
-		waitForLongRunningTask();
 		IdmIdentity identity = helper.createIdentity("test-exists");
 		//
 		IdmIdentityContract contract = new IdmIdentityContract();
@@ -439,10 +452,8 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 		automaticRoleD.setRecursionType(RecursionType.DOWN);
 		automaticRoleD.setRole(roleA.getId());
 		automaticRoleD.setTreeNode(nodeD.getId());
-		automaticRoleD = roleTreeNodeService.save(automaticRoleD);
+		automaticRoleD = saveAutomaticRole(automaticRoleD);
 		//
-		//
-		waitForLongRunningTask();
 		// check
 		List<IdmIdentityRole> identityRoles = identityRoleService.getRoles(contractB);
 		assertTrue(identityRoles.isEmpty());
@@ -458,12 +469,11 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 	
 	@Test
 	public void testReferentialIntegrityOnRole() {
-		waitForLongRunningTask();
 		// prepare data
 		IdmRole role = helper.createRole();
 		IdmTreeNode treeNode = helper.createTreeNode();
 		// automatic role
-		IdmRoleTreeNodeDto roleTreeNode = helper.createRoleTreeNode(role, treeNode);
+		IdmRoleTreeNodeDto roleTreeNode = helper.createRoleTreeNode(role, treeNode, true);
 		//
 		assertNotNull(roleTreeNode.getId());
 		assertEquals(roleTreeNode.getId(), roleTreeNodeService.get(roleTreeNode.getId()).getId());
@@ -475,12 +485,11 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 	
 	@Test
 	public void testReferentialIntegrityOnTreeType() {
-		waitForLongRunningTask();
 		// prepare data
 		IdmRole role = helper.createRole();
 		IdmTreeNode treeNode = helper.createTreeNode();
 		// automatic role
-		IdmRoleTreeNodeDto roleTreeNode = helper.createRoleTreeNode(role, treeNode);
+		IdmRoleTreeNodeDto roleTreeNode = helper.createRoleTreeNode(role, treeNode, true);
 		//
 		assertNotNull(roleTreeNode.getId());
 		assertEquals(roleTreeNode.getId(), roleTreeNodeService.get(roleTreeNode.getId()).getId());
@@ -490,7 +499,7 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 		assertNull(roleTreeNodeService.get(roleTreeNode.getId()));		
 	}
 	
-	protected void waitForLongRunningTask() {
+	/*protected void waitForLongRunningTask() {
 		// TODO: force cancel after some count?
 		LongRunningTaskFilter filterRunning = new LongRunningTaskFilter();
 		filterRunning.setRunning(true);
@@ -516,5 +525,5 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 			count = longRunningTaskService.find(filterRunning, null).getContent().size();
 			count += longRunningTaskService.find(filterRunningState, null).getContent().size();
 		}
-	}
+	}*/
 }

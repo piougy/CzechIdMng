@@ -2,12 +2,15 @@ package eu.bcvsolutions.idm.core;
 
 import java.util.UUID;
 
+import eu.bcvsolutions.idm.core.model.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.model.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeTypeService;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 
 /**
  * Creates common test entities
@@ -18,6 +21,8 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmTreeTypeService;
  *
  */
 public interface TestHelper {
+	
+	IdmIdentity createIdentity();
 
 	IdmIdentity createIdentity(String name);
 
@@ -45,6 +50,33 @@ public interface TestHelper {
 
 	void deleteRole(UUID id);
 
-	IdmRoleTreeNodeDto createRoleTreeNode(IdmRole role, IdmTreeNode treeNode);
+	IdmRoleTreeNodeDto createRoleTreeNode(IdmRole role, IdmTreeNode treeNode, boolean skipLongRunningTask);
+	
+	/**
+	 * Creates uuid permission evaluator authorization policy 
+	 * 
+	 * @param role
+	 * @param permission
+	 * @return
+	 */
+	IdmAuthorizationPolicyDto createUuidPolicy(UUID role, UUID authorizableEntity, BasePermission... permission);
+	
+	/**
+	 * Creates base permission evaluator authorization policy 
+	 * 
+	 * @param role
+	 * @param permission
+	 * @return
+	 */
+	IdmAuthorizationPolicyDto createBasePolicy(UUID role, BasePermission... permission);
+	
+	/**
+	 * Creates assigned identity's role directly (without approving etc.)
+	 * 
+	 * @param identity
+	 * @param role
+	 * @return
+	 */
+	IdmIdentityRole createIdentityRole(IdmIdentity identity, IdmRole role);
 
 }

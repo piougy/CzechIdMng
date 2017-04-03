@@ -21,6 +21,10 @@ export default class RoleService extends FormableEntityService {
     return role.name;
   }
 
+  supportsAuthorization() {
+    return true;
+  }
+
   /**
    * Returns default searchParameters for current entity type
    *

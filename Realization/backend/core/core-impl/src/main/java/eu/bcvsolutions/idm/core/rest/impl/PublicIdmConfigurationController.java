@@ -19,8 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 import eu.bcvsolutions.idm.core.api.dto.ConfigurationDto;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
-import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmConfiguration;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
 
 /**
  * Provides public configurations
@@ -55,7 +55,7 @@ public class PublicIdmConfigurationController implements BaseEntityController<Id
 	/**
 	 * Bulk configuration save
 	 * 
-	 * TODO: move to better controller - IdmConfigurationController could not be used (consumes does not work in repository rest controller)
+	 * TODO: move to better controller - IdmConfigurationController could not be used ('consumes' does not work in repository rest controller)
 	 * 
 	 * @param configuration
 	 * @return

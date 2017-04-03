@@ -20,7 +20,7 @@ import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.TestHelper;
 import eu.bcvsolutions.idm.core.api.dto.IdentityDto;
 import eu.bcvsolutions.idm.core.model.domain.ConceptRoleRequestOperation;
-import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
+import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.model.domain.RoleRequestedByType;
 import eu.bcvsolutions.idm.core.model.dto.IdmConceptRoleRequestDto;
@@ -330,7 +330,7 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractIntegra
 		this.logout();
 		// Log as user without right for immediately execute role request (without approval)
 		Collection<GrantedAuthority> authorities = securityService.getAllAvailableAuthorities().stream().filter(authority -> {
-			return !IdmGroupPermission.ROLE_REQUEST_EXECUTE_IMMEDIATELY.equals(authority.getAuthority());
+			return !CoreGroupPermission.ROLE_REQUEST_EXECUTE_IMMEDIATELY.equals(authority.getAuthority());
 		}).collect(Collectors.toList());
 		SecurityContextHolder.getContext().setAuthentication(new IdmJwtAuthentication(new IdentityDto(USER_TEST_A), null, authorities, "test"));
 		

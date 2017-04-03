@@ -63,7 +63,7 @@ export default class AbstractTableContent extends Basic.AbstractContent {
   }
 
   /**
-   * Saves give entity
+   * Saves given entity
    */
   save(entity, event) {
     if (event) {
@@ -80,8 +80,10 @@ export default class AbstractTableContent extends Basic.AbstractContent {
           this.refs.table.getWrappedInstance().reload();
         }
       }));
-    } else {
+    } else if (this.getManager().supportsPatch()) {
       this.context.store.dispatch(this.getManager().patchEntity(entity, `${this.getUiKey()}-detail`, this.afterSave.bind(this)));
+    } else {
+      this.context.store.dispatch(this.getManager().updateEntity(entity, `${this.getUiKey()}-detail`, this.afterSave.bind(this)));
     }
   }
 

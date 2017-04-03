@@ -1,9 +1,10 @@
 import React from 'react';
-import * as Basic from '../../components/basic';
 import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
 import Joi from 'joi';
 //
+import * as Basic from '../../components/basic';
+import * as Utils from '../../utils';
 import { SecurityManager, FormAttributeManager, FormDefinitionManager } from '../../redux';
 import PersistentTypeEnum from '../../enums/PersistentTypeEnum';
 
@@ -163,7 +164,7 @@ class FormAttributeDetail extends Basic.AbstractContent {
         <Basic.Panel>
             <form onSubmit={this.save.bind(this)}>
               <Basic.AbstractForm ref="form" data={loadedEntity} showLoading={showLoading || _showLoading}
-                readOnly={!SecurityManager.hasAuthority('EAVFORMATTRIBUTES_WRITE')} style={{ padding: '15px 15px 0 15px' }}>
+                readOnly={!SecurityManager.hasAuthority(Utils.Entity.isNew(entity) ? 'EAVFORMATTRIBUTES_CREATE' : 'EAVFORMATTRIBUTES_UPDATE')} style={{ padding: '15px 15px 0 15px' }}>
                 <Basic.Row>
                   <div className="col-lg-4">
                     <Basic.TextField
@@ -249,7 +250,7 @@ class FormAttributeDetail extends Basic.AbstractContent {
                   level="success"
                   showLoadingIcon
                   showLoadingText={this.i18n('button.saving')}
-                  rendered={SecurityManager.hasAuthority('EAVFORMATTRIBUTES_WRITE')}>
+                  rendered={SecurityManager.hasAuthority(Utils.Entity.isNew(entity) ? 'EAVFORMATTRIBUTES_CREATE' : 'EAVFORMATTRIBUTES_UPDATE')}>
                   {this.i18n('button.save')}
                 </Basic.Button>
               </Basic.PanelFooter>

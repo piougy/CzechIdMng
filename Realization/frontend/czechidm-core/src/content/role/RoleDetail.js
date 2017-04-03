@@ -8,7 +8,7 @@ import RolePriorityEnum from '../../enums/RolePriorityEnum';
 import authorityHelp from './AuthoritiesPanel_cs.md';
 import AuthoritiesPanel from './AuthoritiesPanel';
 import * as Basic from '../../components/basic';
-import { RoleManager, SecurityManager, IdentityManager, RoleCatalogueManager } from '../../redux';
+import { RoleManager, IdentityManager, RoleCatalogueManager, SecurityManager } from '../../redux';
 
 const roleManager = new RoleManager();
 const identityManger = new IdentityManager();
@@ -148,7 +148,7 @@ class RoleDetail extends Basic.AbstractContent {
   }
 
   render() {
-    const { entity, showLoading } = this.props;
+    const { entity, showLoading, _permissions } = this.props;
     const { _showLoading } = this.state;
     return (
       <div>
@@ -159,7 +159,10 @@ class RoleDetail extends Basic.AbstractContent {
             <Basic.PanelHeader text={Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('tabs.basic')} />
 
             <Basic.PanelBody style={Utils.Entity.isNew(entity) ? { paddingTop: 0, paddingBottom: 0 } : { padding: 0 }}>
-              <Basic.AbstractForm ref="form" showLoading={ _showLoading || showLoading } readOnly={!SecurityManager.hasAuthority('ROLE_WRITE')}>
+              <Basic.AbstractForm
+                ref="form"
+                showLoading={ _showLoading || showLoading }
+                readOnly={ !Utils.Entity.isNew(entity) ? !Utils.Permission.hasPermission(_permissions, 'UPDATE') : !SecurityManager.hasAuthority('ROLE_CREATE') }>
                 <Basic.Row>
                   <div className="col-lg-8">
                     <div>
@@ -210,7 +213,7 @@ class RoleDetail extends Basic.AbstractContent {
                       <Basic.TextArea
                         ref="description"
                         label={this.i18n('entity.Role.description')}
-                        max={255}/>
+                        max={2000}/>
                       <Basic.Checkbox
                         ref="disabled"
                         label={this.i18n('entity.Role.disabled')}/>
@@ -227,9 +230,9 @@ class RoleDetail extends Basic.AbstractContent {
                     </h3>
                     <AuthoritiesPanel
                       ref="authorities"
-                      roleManager={roleManager}
-                      authorities={entity.authorities}
-                      disabled={!SecurityManager.hasAuthority('ROLE_WRITE')}/>
+                      roleManager={ roleManager }
+                      authorities={ entity.authorities }
+                      disabled={ !Utils.Entity.isNew(entity) ? !Utils.Permission.hasPermission(_permissions, 'UPDATE') : !SecurityManager.hasAuthority('ROLE_CREATE') } />
                   </div>
                 </Basic.Row>
               </Basic.AbstractForm>
@@ -240,12 +243,12 @@ class RoleDetail extends Basic.AbstractContent {
 
               <Basic.SplitButton
                 level="success"
-                title={this.i18n('button.saveAndContinue')}
-                onClick={this.save.bind(this, 'CONTINUE')}
-                showLoading={_showLoading}
+                title={ this.i18n('button.saveAndContinue') }
+                onClick={ this.save.bind(this, 'CONTINUE') }
+                showLoading={ _showLoading }
                 showLoadingIcon
-                showLoadingText={this.i18n('button.saving')}
-                rendered={SecurityManager.hasAuthority('ROLE_WRITE')}
+                showLoadingText={ this.i18n('button.saving') }
+                rendered={ !Utils.Entity.isNew(entity) ? Utils.Permission.hasPermission(_permissions, 'UPDATE') : SecurityManager.hasAuthority('ROLE_CREATE') }
                 pullRight
                 dropup>
                 <Basic.MenuItem eventKey="1" onClick={this.save.bind(this, 'CLOSE')}>{this.i18n('button.saveAndClose')}</Basic.MenuItem>
@@ -260,12 +263,22 @@ class RoleDetail extends Basic.AbstractContent {
   }
 }
 
-
 RoleDetail.propTypes = {
   entity: PropTypes.object,
-  showLoading: PropTypes.bool
+  showLoading: PropTypes.bool,
+  _permissions: PropTypes.arrayOf(PropTypes.string)
 };
 RoleDetail.defaultProps = {
+  _permissions: null
 };
 
-export default connect()(RoleDetail);
+function select(state, component) {
+  if (!component.entity) {
+    return {};
+  }
+  return {
+    _permissions: roleManager.getPermissions(state, null, component.entity.id)
+  };
+}
+
+export default connect(select)(RoleDetail);

@@ -115,7 +115,7 @@ class TreeTypeConfiguration extends Basic.AbstractContent {
     }
     // action buttons
     const buttons = [];
-    if (SecurityManager.hasAuthority('SCHEDULER_WRITE')) {
+    if (SecurityManager.hasAuthority('SCHEDULER_EXECUTE')) {
       buttons.push(
         <Basic.Button
           onClick={this.onRebuildIndex.bind(this)}>

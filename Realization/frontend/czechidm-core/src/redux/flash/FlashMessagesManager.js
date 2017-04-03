@@ -148,7 +148,7 @@ export default class FlashMessagesManager {
         level: 'error',
         title: LocalizationService.i18n('content.error.503.description'),
         message: LocalizationService.i18n('content.error.503.note'),
-        dismissible: false/* ,
+        dismissible: true/* ,
         action: {
           label: 'Odeslat na podporu',
           callback: () => {

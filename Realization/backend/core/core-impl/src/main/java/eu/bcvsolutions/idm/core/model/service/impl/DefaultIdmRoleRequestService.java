@@ -30,7 +30,7 @@ import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.model.domain.ConceptRoleRequestOperation;
-import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
+import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.model.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.model.dto.IdmIdentityContractDto;
@@ -238,7 +238,7 @@ public class DefaultIdmRoleRequestService
 		// and do realization immediately (without start approval process) 
 		if (request.isExecuteImmediately()) {
 			boolean haveRightExecuteImmediately = securityService
-					.hasAnyAuthority(IdmGroupPermission.ROLE_REQUEST_EXECUTE_IMMEDIATELY);
+					.hasAnyAuthority(CoreGroupPermission.ROLE_REQUEST_EXECUTE_IMMEDIATELY);
 
 			if (checkRight && !haveRightExecuteImmediately) {
 				throw new RoleRequestException(CoreResultCode.ROLE_REQUEST_NO_EXECUTE_IMMEDIATELY_RIGHT,

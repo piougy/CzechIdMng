@@ -233,7 +233,7 @@ export default class NodeTable extends Basic.AbstractContent {
                     className="btn-xs"
                     style={{ marginRight: 3 }}
                     onClick={this.showTypeDetail.bind(this, {})}
-                    rendered={showTreeTypeSelect && SecurityManager.hasAuthority('TREETYPE_WRITE')}>
+                    rendered={showTreeTypeSelect && SecurityManager.hasAuthority('TREETYPE_CREATE')}>
                     <Basic.Icon value="fa:plus"/>
                   </Basic.Button>
                   <Basic.Button
@@ -334,7 +334,7 @@ export default class NodeTable extends Basic.AbstractContent {
                     }
                     buttons={
                       [
-                        <Basic.Button level="success" key="add_button" className="btn-xs" onClick={this.showDetail.bind(this, {})} rendered={SecurityManager.hasAuthority('TREENODE_WRITE')}>
+                        <Basic.Button level="success" key="add_button" className="btn-xs" onClick={this.showDetail.bind(this, {})} rendered={SecurityManager.hasAuthority('TREENODE_CREATE')}>
                           <Basic.Icon type="fa" icon="plus"/>
                           {' '}
                           {this.i18n('button.add')}

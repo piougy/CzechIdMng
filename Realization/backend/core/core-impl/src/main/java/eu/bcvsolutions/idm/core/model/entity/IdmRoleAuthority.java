@@ -23,8 +23,9 @@ import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
 import eu.bcvsolutions.idm.core.security.domain.DefaultGrantedAuthority;
 
 /**
- * Role privileges
+ * Role privileges. Privileges to data is evaluated by {@link IdmAuthorizationPolicy}.
  * 
+ * @see {@link IdmAuthorizationPolicy}
  * @author Radek Tomiška 
  *
  */

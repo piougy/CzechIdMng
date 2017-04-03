@@ -24,7 +24,9 @@ import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
  * @see Sort
  * @see Pageable
  * @see Page
+ * @deprecated use {@link AbstractReadDtoService}
  */
+@Deprecated
 public abstract class AbstractReadEntityService<E extends BaseEntity, F extends BaseFilter> implements ReadEntityService<E, F> {
 	
 	private final Class<E> entityClass;

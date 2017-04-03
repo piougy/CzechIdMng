@@ -83,7 +83,7 @@ class RoleRequestTable extends Advanced.AbstractTableContent {
           showLoading={innerShowLoading}
           forceSearchParameters={forceSearchParameters}
           manager={this.getManager()}
-          showRowSelection={SecurityManager.hasAnyAuthority(['ROLEREQUEST_WRITE'])}
+          showRowSelection={SecurityManager.hasAuthority('ROLEREQUEST_UPDATE')}
           actions={
             [{ value: 'delete', niceLabel: this.i18n('action.delete.action'),
                action: this.onDelete.bind(this), disabled: false }]
@@ -114,7 +114,7 @@ class RoleRequestTable extends Advanced.AbstractTableContent {
                 className="btn-xs"
                 onClick={this.showDetail.bind(this, { }, true)}
                 rendered={_.includes(columns, 'createNew') && createNewRequestFunc
-                  && SecurityManager.hasAnyAuthority(['ROLEREQUEST_WRITE'])}>
+                  && SecurityManager.hasAnyAuthority(['ROLEREQUEST_CREATE'])}>
                 <Basic.Icon type="fa" icon="plus"/>
                 {' '}
                 {this.i18n('button.add')}
@@ -206,7 +206,7 @@ class RoleRequestTable extends Advanced.AbstractTableContent {
                       ref="startButton"
                       type="button"
                       level="success"
-                      rendered={startRequestFunc && SecurityManager.hasAnyAuthority(['ROLEREQUEST_WRITE']) && canBeStart}
+                      rendered={startRequestFunc && SecurityManager.hasAnyAuthority(['ROLEREQUEST_UPDATE']) && canBeStart}
                       style={{marginRight: '2px'}}
                       title={this.i18n('button.start')}
                       titlePlacement="bottom"

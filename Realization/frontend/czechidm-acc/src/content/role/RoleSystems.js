@@ -65,9 +65,9 @@ class RoleSystems extends Advanced.AbstractTableContent {
             uiKey={uiKey}
             manager={this.getManager()}
             forceSearchParameters={forceSearchParameters}
-            showRowSelection={Managers.SecurityManager.hasAnyAuthority(['ROLE_WRITE'])}
+            showRowSelection={Managers.SecurityManager.hasAnyAuthority(['ROLE_UPDATE'])}
             actions={
-              Managers.SecurityManager.hasAnyAuthority(['ROLE_WRITE'])
+              Managers.SecurityManager.hasAnyAuthority(['ROLE_UPDATE'])
               ?
               [{ value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }]
               :
@@ -75,7 +75,7 @@ class RoleSystems extends Advanced.AbstractTableContent {
             }
             buttons={
               [
-                <Basic.Button level="success" key="add_button" className="btn-xs" onClick={this.showDetail.bind(this, null, true)} rendered={Managers.SecurityManager.hasAnyAuthority(['ROLE_WRITE'])}>
+                <Basic.Button level="success" key="add_button" className="btn-xs" onClick={this.showDetail.bind(this, null, true)} rendered={Managers.SecurityManager.hasAnyAuthority(['ROLE_UPDATE'])}>
                   <Basic.Icon type="fa" icon="plus"/>
                   {' '}
                   {this.i18n('button.add')}

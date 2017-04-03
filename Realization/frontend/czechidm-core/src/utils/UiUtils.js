@@ -152,4 +152,18 @@ export default class UiUtils {
       }
     }
   }
+
+
+  /**
+   * Return simple class name
+   *
+   * @param  {string} taskType cannonical class name
+   * @return {string}
+   */
+  static getSimpleJavaType(javaType) {
+    if (!javaType) {
+      return null;
+    }
+    return javaType.split('.').pop(-1);
+  }
 }

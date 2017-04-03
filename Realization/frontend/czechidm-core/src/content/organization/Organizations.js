@@ -67,7 +67,7 @@ class Organizations extends Basic.AbstractContent {
             buttons={[
               <Basic.Button
                 level="info"
-                rendered={ SecurityManager.hasAuthority('TREETYPE_WRITE') }
+                rendered={ SecurityManager.hasAuthority('TREETYPE_CREATE') }
                 onClick={ this.showTreeTypes.bind(this) }>
                 {this.i18n('defaultTreeType.empty.button')}
               </Basic.Button>

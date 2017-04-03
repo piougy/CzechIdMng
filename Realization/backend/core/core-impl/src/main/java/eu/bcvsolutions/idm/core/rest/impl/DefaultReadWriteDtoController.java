@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.rest.impl;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 import org.springframework.data.domain.Pageable;
@@ -76,7 +77,7 @@ public abstract class DefaultReadWriteDtoController<DTO extends BaseDto, F exten
 	@Override
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.POST)
-	public ResponseEntity<?> post(@RequestBody DTO dto) {
+	public ResponseEntity<?> post(@Valid @RequestBody DTO dto) {
 		return super.post(dto);
 	}
 
@@ -86,7 +87,7 @@ public abstract class DefaultReadWriteDtoController<DTO extends BaseDto, F exten
 	@Override
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.PUT)
-	public ResponseEntity<?> put(@PathVariable @NotNull String backendId, @RequestBody DTO dto) {
+	public ResponseEntity<?> put(@PathVariable @NotNull String backendId, @Valid @RequestBody DTO dto) {
 		return super.put(backendId, dto);
 	}
 

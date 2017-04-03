@@ -1,7 +1,5 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
-import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -38,6 +36,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 
 /**
  * Service for control account management
@@ -54,26 +53,31 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 	private final IdmIdentityRoleRepository identityRoleRepository;
 	private final SysRoleSystemAttributeService roleSystemAttributeService;
 	private final SysSystemAttributeMappingService systeAttributeMappingService;
+	private final IdmIdentityRoleService identityRoleService;
 
 	@Autowired
 	public DefaultAccAccountManagementService(SysRoleSystemService roleSystemService, AccAccountService accountService,
 			AccIdentityAccountService identityAccountService, IdmIdentityRoleRepository identityRoleRepository,
 			SysRoleSystemAttributeService roleSystemAttributeService,
-			SysSystemAttributeMappingService systeAttributeMappingService) {
+			SysSystemAttributeMappingService systeAttributeMappingService,
+			IdmIdentityRoleService identityRoleService) {
 		super();
+		//
 		Assert.notNull(identityAccountService);
 		Assert.notNull(roleSystemService);
 		Assert.notNull(accountService);
 		Assert.notNull(identityRoleRepository);
 		Assert.notNull(roleSystemAttributeService);
 		Assert.notNull(systeAttributeMappingService);
-
+		Assert.notNull(identityRoleService);
+		//
 		this.roleSystemService = roleSystemService;
 		this.accountService = accountService;
 		this.identityAccountService = identityAccountService;
 		this.identityRoleRepository = identityRoleRepository;
 		this.roleSystemAttributeService = roleSystemAttributeService;
 		this.systeAttributeMappingService = systeAttributeMappingService;
+		this.identityRoleService = identityRoleService;
 	}
 
 	@Override
@@ -131,20 +135,7 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 			List<IdmIdentityRole> identityRoles, List<AccIdentityAccount> identityAccountsToDelete) {
 
 		identityRoles.stream().filter(identityRole -> {
-			LocalDate fromDate = LocalDate.MIN;
-			if (identityRole.getValidFrom() != null) {
-				fromDate = identityRole.getValidFrom().toDateTimeAtStartOfDay().toDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-			}
-
-			LocalDate tillDate = LocalDate.MAX;
-			if (identityRole.getValidTill() != null) {
-				tillDate = identityRole.getValidTill().toDateTimeAtStartOfDay().toDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-			}
-			LocalDate now = LocalDate.now();
-			if ((now.isAfter(fromDate) || now.isEqual(fromDate)) && (now.isBefore(tillDate) || now.isEqual(tillDate))) {
-				return false;
-			}
-			return true;
+			return !identityRoleService.isIdentityRoleValidFromNow(identityRole);
 		}).forEach(identityRole -> {
 			// Search IdentityAccounts to delete
 			identityAccountList.stream().filter(identityAccount -> {
@@ -170,21 +161,7 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 		
 		// Is role valid in this moment
 		identityRoles.stream().filter(identityRole -> {
-
-			LocalDate fromDate = LocalDate.MIN;
-			if (identityRole.getValidFrom() != null) {
-				fromDate = identityRole.getValidFrom().toDateTimeAtStartOfDay().toDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-			}
-
-			LocalDate tillDate = LocalDate.MAX;
-			if (identityRole.getValidTill() != null) {
-				tillDate = identityRole.getValidTill().toDateTimeAtStartOfDay().toDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-			}
-			LocalDate now = LocalDate.now();
-			if ((now.isAfter(fromDate) || now.isEqual(fromDate)) && (now.isBefore(tillDate) || now.isEqual(tillDate))) {
-				return true;
-			}
-			return false;
+			return identityRoleService.isIdentityRoleValidFromNow(identityRole);
 		}).forEach(identityRole -> {
 			
 			IdmRole role = identityRole.getRole();
@@ -240,7 +217,7 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 					} else {
 						// We use existed account
 						account = sameAccounts.get(0);
-				}
+					}
 				}
 				AccIdentityAccount identityAccount = new AccIdentityAccount();
 				identityAccount.setAccount(account);

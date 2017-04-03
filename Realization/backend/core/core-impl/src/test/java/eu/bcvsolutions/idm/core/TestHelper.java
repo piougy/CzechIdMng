@@ -45,6 +45,6 @@ public interface TestHelper {
 
 	void deleteRole(UUID id);
 
-	IdmRoleTreeNodeDto createRoleTreeNode(IdmRole role, IdmTreeNode treeNode);
+	IdmRoleTreeNodeDto createRoleTreeNode(IdmRole role, IdmTreeNode treeNode, boolean skipLongRunningTask);
 
 }

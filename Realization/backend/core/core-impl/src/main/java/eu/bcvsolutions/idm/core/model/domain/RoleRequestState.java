@@ -11,6 +11,7 @@ public enum RoleRequestState {
 	EXECUTED(true),
 	CANCELED(true),
 	APPROVED(false),
+	DISAPPROVED(true),
 	IN_PROGRESS(false),
 	EXCEPTION(true),
 	DUPLICATED(true);

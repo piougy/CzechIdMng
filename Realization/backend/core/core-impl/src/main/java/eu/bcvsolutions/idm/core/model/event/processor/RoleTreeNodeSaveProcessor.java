@@ -4,17 +4,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 
-import com.google.common.collect.Sets;
-
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
+import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.model.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleTreeNode;
 import eu.bcvsolutions.idm.core.model.event.RoleTreeNodeEvent.RoleTreeNodeEventType;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
+import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
+import eu.bcvsolutions.idm.core.scheduler.task.impl.AddNewAutomaticRoleTaskExecutor;
 
 /**
  * Persists automatic role.
@@ -30,9 +30,7 @@ public class RoleTreeNodeSaveProcessor extends CoreEventProcessor<IdmRoleTreeNod
 	@Autowired
 	private IdmRoleTreeNodeService service;
 	@Autowired
-	private IdmIdentityContractService identityContractService;
-	@Autowired
-	private IdentityContractCreateByAutomaticRoleProcessor createByAutomaticRoleProcessor;
+	private LongRunningTaskManager longRunningTaskManager;
 	
 	public RoleTreeNodeSaveProcessor() {
 		super(RoleTreeNodeEventType.CREATE); // update is not supported
@@ -51,14 +49,11 @@ public class RoleTreeNodeSaveProcessor extends CoreEventProcessor<IdmRoleTreeNod
 		event.setContent(dto);
 		IdmRoleTreeNode entity = service.get(dto.getId());
 		//
-		// assign role by this added automatic role to all existing identity contracts
-		// TODO: long running task
-		// TODO: integrate with role request api
+		// assign role by this added automatic role to all existing identity contracts with long running task
 		// TODO: optional remove by logged user input
-		identityContractService.getContractsByWorkPosition(dto.getTreeNode(), dto.getRecursionType()).forEach(identityContract -> {
-			createByAutomaticRoleProcessor.assignAutomaticRoles(identityContract, Sets.newHashSet(entity));
-		});
-		//		
+		AddNewAutomaticRoleTaskExecutor automaticRoleTask = AutowireHelper.createBean(AddNewAutomaticRoleTaskExecutor.class);
+		automaticRoleTask.setRoleTreeNode(entity);
+		longRunningTaskManager.execute(automaticRoleTask);
 		return new DefaultEventResult<>(event, this);
 	}
 }

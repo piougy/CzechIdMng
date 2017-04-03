@@ -55,6 +55,7 @@ public class IdentityContractDeleteProcessor extends CoreEventProcessor<IdmIdent
 		this.conceptRequestService = conceptRequestService;
 		this.roleRequestService = roleRequestService;
 		
+		
 	}
 	
 	@Override
@@ -93,8 +94,7 @@ public class IdentityContractDeleteProcessor extends CoreEventProcessor<IdmIdent
 
 			roleRequestService.save(request);
 			conceptRequestService.save(concept);
-		});
-		
+		});		
 		// delete identity contract
 		repository.delete(contract);
 		//

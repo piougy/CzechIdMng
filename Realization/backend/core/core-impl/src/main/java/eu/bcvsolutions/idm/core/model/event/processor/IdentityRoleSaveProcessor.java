@@ -12,6 +12,8 @@ import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.event.IdentityRoleEvent.IdentityRoleEventType;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleValidRequestService;
 
 /**
  * Save identity role
@@ -25,15 +27,23 @@ public class IdentityRoleSaveProcessor extends CoreEventProcessor<IdmIdentityRol
 
 	public static final String PROCESSOR_NAME = "identity-role-save-processor";
 	private final IdmIdentityRoleRepository repository;
+	private final IdmIdentityRoleService identityRoleService;
+	private final IdmIdentityRoleValidRequestService validRequestService;
 	
 	@Autowired
 	public IdentityRoleSaveProcessor(
-			IdmIdentityRoleRepository repository) {
+			IdmIdentityRoleRepository repository,
+			IdmIdentityRoleService identityRoleService,
+			IdmIdentityRoleValidRequestService validRequestService) {
 		super(IdentityRoleEventType.CREATE, IdentityRoleEventType.UPDATE);
 		//
 		Assert.notNull(repository);
+		Assert.notNull(identityRoleService);
+		Assert.notNull(validRequestService);
 		//
 		this.repository = repository;
+		this.identityRoleService = identityRoleService;
+		this.validRequestService = validRequestService;
 	}
 	
 	@Override
@@ -43,7 +53,15 @@ public class IdentityRoleSaveProcessor extends CoreEventProcessor<IdmIdentityRol
 
 	@Override
 	public EventResult<IdmIdentityRole> process(EntityEvent<IdmIdentityRole> event) {
-		repository.save(event.getContent());
+		IdmIdentityRole identityRole = event.getContent();
+		repository.save(identityRole);
+		//
+		// TODO: move in another processor?
+		// if identityRole isn't valid save request into validRequests
+		if (!identityRoleService.isIdentityRoleValidFromNow(identityRole)) {
+			// create new IdmIdentityRoleValidRequest
+			validRequestService.createByIdentityRoleId(identityRole.getId());
+		}
 		//
 		return new DefaultEventResult<>(event, this);
 	}

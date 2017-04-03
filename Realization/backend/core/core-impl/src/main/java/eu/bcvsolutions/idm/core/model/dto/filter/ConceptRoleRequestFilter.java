@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.core.model.dto.filter;
 import java.util.UUID;
 
 import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
+import eu.bcvsolutions.idm.core.model.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.model.domain.RoleRequestState;
 
 /**
@@ -18,6 +19,7 @@ public class ConceptRoleRequestFilter extends QuickFilter {
 	private UUID roleId;
 	private UUID identityContractId;
 	private UUID roleTreeNodeId;
+	private ConceptRoleRequestOperation operation;
 	
 	public UUID getRoleRequestId() {
 		return roleRequestId;
@@ -65,6 +67,14 @@ public class ConceptRoleRequestFilter extends QuickFilter {
 
 	public void setRoleTreeNodeId(UUID roleTreeNodeId) {
 		this.roleTreeNodeId = roleTreeNodeId;
+	}
+
+	public ConceptRoleRequestOperation getOperation() {
+		return operation;
+	}
+
+	public void setOperation(ConceptRoleRequestOperation operation) {
+		this.operation = operation;
 	}
 
 }

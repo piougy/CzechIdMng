@@ -44,6 +44,9 @@ export default class RoleRequestStateEnum extends AbstractEnum {
       case this.EXCEPTION: {
         return 'danger';
       }
+      case this.DISAPPROVED: {
+        return 'danger';
+      }
       case this.DUPLICATED: {
         return 'danger';
       }
@@ -61,3 +64,4 @@ RoleRequestStateEnum.APPROVED = Symbol('APPROVED');
 RoleRequestStateEnum.IN_PROGRESS = Symbol('IN_PROGRESS');
 RoleRequestStateEnum.EXCEPTION = Symbol('EXCEPTION');
 RoleRequestStateEnum.DUPLICATED = Symbol('DUPLICATED');
+RoleRequestStateEnum.DUPLICATED = Symbol('DISAPPROVED');

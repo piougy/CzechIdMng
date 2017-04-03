@@ -108,7 +108,7 @@ public class RoleDeleteProcessor extends CoreEventProcessor<IdmRole> {
 			roleRequestService.save(request);
 			conceptRoleRequestService.save(concept);
 		});
-		
+		//		
 		// guarantees and compositions are deleted by hibernate mapping
 		repository.delete(role);
 		//

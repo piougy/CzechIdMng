@@ -52,6 +52,11 @@ public class IdmIdentityRole extends AbstractEntity implements ValidableEntity {
 	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmRole role;
 	
+	@NotNull
+	@Audited
+	@Column(name = "automatic_role", nullable = false)
+	private boolean automaticRole = false;
+	
 	@Audited
 	@ManyToOne
 	@JoinColumn(name = "role_tree_node_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
@@ -125,5 +130,13 @@ public class IdmIdentityRole extends AbstractEntity implements ValidableEntity {
 	
 	public void setRoleTreeNode(IdmRoleTreeNode roleTreeNode) {
 		this.roleTreeNode = roleTreeNode;
+	}
+
+	public boolean isAutomaticRole() {
+		return automaticRole;
+	}
+
+	public void setAutomaticRole(boolean automaticRole) {
+		this.automaticRole = automaticRole;
 	}
 }

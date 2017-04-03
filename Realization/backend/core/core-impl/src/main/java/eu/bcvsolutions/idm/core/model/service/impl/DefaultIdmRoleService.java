@@ -19,6 +19,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import com.google.common.base.Strings;
+
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.eav.service.impl.AbstractFormableService;
@@ -34,7 +36,6 @@ import eu.bcvsolutions.idm.core.model.event.processor.RoleSaveProcessor;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
-import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizationManager;
@@ -201,4 +202,29 @@ public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, Role
 		}
 		return idmRoles;
 	}
+	
+	@Override
+	public String findAssignRoleWorkflowDefinition(UUID roleId){
+		Assert.notNull(roleId, "Role ID is required!");
+		
+		String key =  this.get(roleId).getApproveAddWorkflow();
+		return Strings.isNullOrEmpty(key) ? null : key;
+	}
+
+	@Override
+	public String findChangeAssignRoleWorkflowDefinition(UUID roleId){
+		Assert.notNull(roleId, "Role ID is required!");
+	
+		String key =  this.get(roleId).getApproveAddWorkflow();
+		return Strings.isNullOrEmpty(key) ? null : key;
+	}
+	
+	@Override
+	public String findUnAssignRoleWorkflowDefinition(UUID roleId){
+		Assert.notNull(roleId, "Role ID is required!");
+
+		String key =  this.get(roleId).getApproveRemoveWorkflow();
+		return Strings.isNullOrEmpty(key) ? null : key;
+	}
+	
 }

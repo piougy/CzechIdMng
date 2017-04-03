@@ -11,6 +11,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
+import eu.bcvsolutions.idm.core.model.repository.IdmRoleTreeNodeRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
@@ -37,7 +38,9 @@ public class DefaultTestHelper implements TestHelper {
 	private IdmIdentityService identityService;
 	@Autowired
 	private IdmRoleTreeNodeService roleTreeNodeService;
-
+	@Autowired
+	private IdmRoleTreeNodeRepository roleTreeNodeReposiotry;
+	
 	/* (non-Javadoc)
 	 * @see eu.bcvsolutions.idm.core.TestHelper#createIdentity(java.lang.String)
 	 */
@@ -132,10 +135,14 @@ public class DefaultTestHelper implements TestHelper {
 	 * @see eu.bcvsolutions.idm.core.TestHelper#createRoleTreeNode(eu.bcvsolutions.idm.core.model.entity.IdmRole, eu.bcvsolutions.idm.core.model.entity.IdmTreeNode)
 	 */
 	@Override
-	public IdmRoleTreeNodeDto createRoleTreeNode(IdmRole role, IdmTreeNode treeNode) {
+	public IdmRoleTreeNodeDto createRoleTreeNode(IdmRole role, IdmTreeNode treeNode, boolean skipLongRunningTask) {
 		IdmRoleTreeNodeDto roleTreeNode = new IdmRoleTreeNodeDto();
 		roleTreeNode.setRole(role.getId());
 		roleTreeNode.setTreeNode(treeNode.getId());
+		if (skipLongRunningTask) {
+			UUID id = roleTreeNodeReposiotry.save(roleTreeNodeService.toEntity(roleTreeNode, null)).getId();
+			return roleTreeNodeService.getDto(id);
+		}
 		return roleTreeNodeService.save(roleTreeNode);
 	}
 	

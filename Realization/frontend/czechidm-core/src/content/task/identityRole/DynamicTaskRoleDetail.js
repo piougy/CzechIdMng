@@ -27,7 +27,9 @@ class DynamicTaskRoleDetail extends DynamicTaskDetail {
     const formDataValues = this.refs.formData.getData();
     const task = this.refs.form.getData();
     const formDataConverted = this._toFormData(formDataValues, task.formData);
-
+    this.setState({
+      showLoading: true
+    });
     const formData = {'decision': decision.id, 'formData': formDataConverted};
     const { taskManager} = this.props;
     this.context.store.dispatch(taskManager.completeTask(task, formData, this.props.uiKey, this._afterComplete.bind(this)));

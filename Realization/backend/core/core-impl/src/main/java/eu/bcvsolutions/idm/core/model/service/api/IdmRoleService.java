@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.model.service.api;
 
 import java.util.List;
+import java.util.UUID;
 
 import eu.bcvsolutions.idm.core.api.service.IdentifiableByNameEntityService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
@@ -22,4 +23,27 @@ public interface IdmRoleService extends ReadWriteEntityService<IdmRole, RoleFilt
 	 * @return
 	 */
 	List<IdmRole> getRolesByIds(String roleIds);
+
+	/**
+	 * Find workflow definition key for assign Role to Identity
+	 * @param roleId
+	 * @return
+	 */
+	String findAssignRoleWorkflowDefinition(UUID roleId);
+
+
+	/**
+	 * Find workflow definition key for change assigned Role on Identity
+	 * @param roleId
+	 * @return
+	 */
+	String findChangeAssignRoleWorkflowDefinition(UUID roleId);
+
+
+	/**
+	 * Find workflow definition key for remove assigned Role on Identity
+	 * @param roleId
+	 * @return
+	 */
+	String findUnAssignRoleWorkflowDefinition(UUID roleId);
 }

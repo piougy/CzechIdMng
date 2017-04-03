@@ -37,7 +37,7 @@ public class SchedulerConfig {
 //	private DataSource dataSource; // TODO: after flyway will be enabled
 	
 	@Value("${scheduler.properties.location:/quartz.properties}")
-	private String propertiesLocation;
+    private String propertiesLocation;
 
 	@Bean
 	public AutowiringSpringBeanJobFactory jobFactory(ApplicationContext applicationContext) {

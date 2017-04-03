@@ -29,7 +29,7 @@ import eu.bcvsolutions.idm.core.security.domain.DefaultGrantedAuthority;
  * @author svandav
  *
  */
-@Service
+@Service("securityService")
 public class DefaultSecurityService implements SecurityService {
 	
 	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(DefaultSecurityService.class);

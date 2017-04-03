@@ -10,6 +10,7 @@ import java.util.concurrent.FutureTask;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
@@ -97,7 +98,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 	@Override
 	@SuppressWarnings("unchecked")
 	public List<LongRunningFutureTask<?>> processCreated() {
-		LOG.debug("Processing created tasks from long running tas queue");
+		LOG.debug("Processing created tasks from long running task queue");
 		// run as system - called from scheduler internally
 		securityService.setSystemAuthentication();
 		//
@@ -139,17 +140,14 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 	}
 	
 	@Override
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public <V> LongRunningFutureTask<V> execute(LongRunningTaskExecutor<V> taskExecutor) {
 		// autowire task properties
 		AutowireHelper.autowire(taskExecutor);
 		// prepare task
 		if (taskExecutor.getLongRunningTaskId() == null) {
-			IdmLongRunningTask task = new IdmLongRunningTask();
-			task.setTaskType(taskExecutor.getClass().getCanonicalName());
-			task.setTaskDescription(taskExecutor.getDescription());	
-			task.setInstanceId(configurationService.getInstanceId());
-			task.setResult(new OperationResult.Builder(OperationState.RUNNING).build());
-			taskExecutor.setLongRunningTaskId(service.save(task).getId());
+			IdmLongRunningTask task = service.saveInNewTransaction(taskExecutor, OperationState.RUNNING);
+			taskExecutor.setLongRunningTaskId(task.getId());
 		} else {
 			IdmLongRunningTask task = service.get(taskExecutor.getLongRunningTaskId());
 			Assert.notNull(task);

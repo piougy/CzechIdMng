@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.workflow.service.impl;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +35,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
+import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowHistoricProcessInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowProcessInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowHistoricProcessInstanceService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
@@ -74,10 +76,10 @@ public class DefaultWorkflowProcessInstanceService implements WorkflowProcessIns
 		if (applicant != null) {
 			applicantIdentity = identityService.getByUsername(applicant);
 		}
-
 		ProcessInstanceBuilder builder = runtimeService.createProcessInstanceBuilder()
 				.processDefinitionKey(definitionKey)//
 				.addVariable(WorkflowProcessInstanceService.OBJECT_TYPE, objectType)
+				.addVariable(WorkflowProcessInstanceService.ACTIVITI_SKIP_EXPRESSION_ENABLED, true) // Allow skip expression on user task
 				.addVariable(WorkflowProcessInstanceService.OBJECT_IDENTIFIER, objectIdentifier)
 				.addVariable(WorkflowProcessInstanceService.IMPLEMENTER_USERNAME, securityService.getUsername())
 				.addVariable(WorkflowProcessInstanceService.APPLICANT_USERNAME, applicant)
@@ -113,6 +115,9 @@ public class DefaultWorkflowProcessInstanceService implements WorkflowProcessIns
 		}
 		if (filter.getProcessDefinitionKey() != null) {
 			query.processDefinitionKey(filter.getProcessDefinitionKey());
+		}
+		if (filter.getProcessInstanceId() != null) {
+			query.processInstanceId(filter.getProcessInstanceId());
 		}
 		if (filter.getCategory() != null) {
 			// Find definitions with this category (use double sided like)
@@ -164,6 +169,15 @@ public class DefaultWorkflowProcessInstanceService implements WorkflowProcessIns
 		ResourcesWrapper<WorkflowProcessInstanceDto> result = new ResourcesWrapper<>(dtos, count, totalPage,
 				filter.getPageNumber(), filter.getPageSize());
 		return result;
+	}
+	
+	@Override
+	public WorkflowProcessInstanceDto get(String processInstanceId) {
+		WorkflowFilterDto filter = new WorkflowFilterDto();
+		filter.setProcessInstanceId(processInstanceId);
+		filter.setSortAsc(true);
+		Collection<WorkflowProcessInstanceDto> resources = this.search(filter).getResources();
+		return !resources.isEmpty() ? resources.iterator().next() : null;
 	}
 
 	@Override

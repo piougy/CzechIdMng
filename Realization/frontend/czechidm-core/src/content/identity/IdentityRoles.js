@@ -3,6 +3,7 @@ import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 import uuid from 'uuid';
+import { Link } from 'react-router';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
@@ -52,8 +53,8 @@ class Roles extends Basic.AbstractContent {
     if (_addRoleProcessIds && _addRoleProcessIds !== this.props._addRoleProcessIds) {
       for (const idProcess of _addRoleProcessIds) {
         const processEntity = workflowProcessInstanceManager.getEntity(this.context.store.getState(), idProcess);
-        if (processEntity && processEntity.processVariables.roleIdentifier && !roleManager.isShowLoading(this.context.store.getState(), `role-${processEntity.processVariables.roleIdentifier}`)) {
-          this.context.store.dispatch(roleManager.fetchEntityIfNeeded(processEntity.processVariables.roleIdentifier, `role-${processEntity.processVariables.roleIdentifier}`));
+        if (processEntity && processEntity.processVariables.conceptRole.role && !roleManager.isShowLoading(this.context.store.getState(), `role-${processEntity.processVariables.conceptRole.role}`)) {
+          this.context.store.dispatch(roleManager.fetchEntityIfNeeded(processEntity.processVariables.conceptRole.role, `role-${processEntity.processVariables.conceptRole.role}`));
         }
       }
     }
@@ -198,7 +199,7 @@ class Roles extends Basic.AbstractContent {
   }
 
   _roleNameCell({ rowIndex, data }) {
-    const role = roleManager.getEntity(this.context.store.getState(), data[rowIndex].processVariables.roleIdentifier);
+    const role = roleManager.getEntity(this.context.store.getState(), data[rowIndex].processVariables.conceptRole.role);
     if (role) {
       return role.name;
     }
@@ -244,6 +245,16 @@ class Roles extends Basic.AbstractContent {
    */
   showContracts(identityId) {
     this.context.router.push(`/identity/${identityId}/contracts`);
+  }
+
+  _getWfProcessCell({ rowIndex, data}) {
+    const entity = data[rowIndex];
+    if (!entity || !entity.id) {
+      return '';
+    }
+    return (
+      <Link to={`/workflow/history/processes/${entity.id}`}>{entity.id}</Link>
+    );
   }
 
   render() {
@@ -442,43 +453,27 @@ class Roles extends Basic.AbstractContent {
                   sort={false}
                   face="text"/>
                 <Advanced.Column
-                  property="processVariables.roleIdentifier"
+                  property="processVariables.conceptRole.role"
                   cell={this._roleNameCell.bind(this)}
                   header={this.i18n('content.roles.processRoleChange.roleName')}
                   sort={false}
                   face="text"/>
                 <Advanced.Column
-                  property="processVariables.validFrom"
+                  property="processVariables.conceptRole.validFrom"
                   header={this.i18n('content.roles.processRoleChange.roleValidFrom')}
                   sort={false}
                   face="date"/>
                 <Advanced.Column
-                  property="processVariables.validTill"
+                  property="processVariables.conceptRole.validTill"
                   header={this.i18n('content.roles.processRoleChange.roleValidTill')}
                   sort={false}
                   face="date"/>
                 <Advanced.Column
                   property="id"
+                  cell={this._getWfProcessCell}
                   header={this.i18n('label.id')}
                   sort={false}
                   face="text"/>
-                <Advanced.Column
-                  header={this.i18n('label.action')}
-                  className="action"
-                  cell={
-                    ({ rowIndex, data }) => {
-                      return (
-                        <Basic.Button
-                          level="danger"
-                          onClick={this._onDeleteAddRoleProcessInstance.bind(this, data[rowIndex])}
-                          className="btn-xs"
-                          title={this.i18n('button.delete')}
-                          titlePlacement="bottom">
-                          <Basic.Icon icon="trash"/>
-                        </Basic.Button>
-                      );
-                    }
-                  }/>
               </Advanced.Table>
             </Basic.Panel>
             <Basic.Modal

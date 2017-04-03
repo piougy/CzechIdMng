@@ -4,12 +4,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import javax.annotation.Resource;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
@@ -18,14 +24,21 @@ import com.google.common.base.Strings;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.eav.service.impl.AbstractFormableService;
+import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.dto.filter.RoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
+import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogueRole;
+import eu.bcvsolutions.idm.core.model.entity.IdmRoleGuarantee;
 import eu.bcvsolutions.idm.core.model.event.RoleEvent;
 import eu.bcvsolutions.idm.core.model.event.RoleEvent.RoleEventType;
 import eu.bcvsolutions.idm.core.model.event.processor.RoleDeleteProcessor;
 import eu.bcvsolutions.idm.core.model.event.processor.RoleSaveProcessor;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
+import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
+import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
+import eu.bcvsolutions.idm.core.security.api.service.AuthorizationManager;
 
 /**
  * Default role service
@@ -35,13 +48,11 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
  *
  */
 @Service("roleService")
-public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, RoleFilter>  implements IdmRoleService {
+public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, RoleFilter> implements IdmRoleService, AuthorizableService<IdmRole, RoleFilter> {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmRoleService.class);
 	private final IdmRoleRepository repository;
 	private final EntityEventManager entityEventManager;
-	@Resource
-	private PlatformTransactionManager platformTransactionManager;
 	
 	@Autowired
 	public DefaultIdmRoleService(
@@ -54,6 +65,11 @@ public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, Role
 		//
 		this.repository = repository;
 		this.entityEventManager = entityEventManager;
+	}
+	
+	@Override
+	public AuthorizableType getAuthorizableType() {
+		return new AuthorizableType(getEntityClass(), CoreGroupPermission.ROLE);
 	}
 
 	@Override
@@ -89,6 +105,87 @@ public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, Role
 		//
 		LOG.debug("Deleting role [{}]", role.getName());
 		entityEventManager.process(new RoleEvent(RoleEventType.DELETE, role));
+	}
+	
+	@Autowired
+	private AuthorizationManager authorizationManager;
+	
+	@Override
+	public Page<IdmRole> find(final RoleFilter filter, Pageable pageable) {
+		// transform filter to criteria
+		Specification<IdmRole> criteria = new Specification<IdmRole>() {
+			public Predicate toPredicate(Root<IdmRole> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
+				Predicate predicate = DefaultIdmRoleService.this.toPredicate(filter, root, query, builder);
+				return query.where(predicate).getRestriction();
+			}
+		};
+		return getRepository().findAll(criteria, pageable);
+	}
+	
+	@Override
+	public Page<IdmRole> findSecured(final RoleFilter filter, BasePermission permission, Pageable pageable) {
+		// transform filter to criteria
+		Specification<IdmRole> criteria = new Specification<IdmRole>() {
+			public Predicate toPredicate(Root<IdmRole> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
+				Predicate predicate = builder.and(
+					DefaultIdmRoleService.this.toPredicate(filter, root, query, builder),
+					authorizationManager.getPredicate(permission, root, query, builder)
+				);
+				//
+				return query.where(predicate).getRestriction();
+			}
+		};
+		return getRepository().findAll(criteria, pageable);
+	}
+	
+	/**
+	 * Converts given filter to jap predicate
+	 * 
+	 * @param filter
+	 * @param root
+	 * @param query
+	 * @param builder
+	 * @return
+	 */
+	private Predicate toPredicate(RoleFilter filter, Root<IdmRole> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
+		List<Predicate> predicates = new ArrayList<>();
+		// quick
+		if (StringUtils.isNotEmpty(filter.getText())) {
+			predicates.add(builder.like(builder.lower(root.get("name")), "%" + filter.getText().toLowerCase() + "%"));
+		}
+		// role type
+		if (filter.getRoleType() != null) {
+			predicates.add(builder.equal(root.get("roleType"), filter.getRoleType()));
+		}
+		// guarantee	
+		if (filter.getGuarantee() != null) {
+			Subquery<IdmRoleGuarantee> subquery = query.subquery(IdmRoleGuarantee.class);
+			Root<IdmRoleGuarantee> subRoot = subquery.from(IdmRoleGuarantee.class);
+			subquery.select(subRoot);
+		
+			subquery.where(
+                    builder.and(
+                    		builder.equal(subRoot.get("role"), root), // correlation attr
+                    		builder.equal(subRoot.get("guarantee"), filter.getGuarantee())
+                    		)
+            );
+			predicates.add(builder.exists(subquery));
+		}
+		// role catalogue by forest index
+		if (filter.getRoleCatalogue() != null) {
+			Subquery<IdmRoleCatalogueRole> subquery = query.subquery(IdmRoleCatalogueRole.class);
+			Root<IdmRoleCatalogueRole> subRoot = subquery.from(IdmRoleCatalogueRole.class);
+			subquery.select(subRoot);
+		
+			subquery.where(
+                    builder.and(
+                    		builder.equal(subRoot.get("role"), root), // correlation attr
+                    		builder.between(subRoot.get("roleCatalogue").get("forestIndex").get("lft"), filter.getRoleCatalogue().getLft(), filter.getRoleCatalogue().getRgt())
+                    		)
+            );
+			predicates.add(builder.exists(subquery));
+		}
+		return builder.and(predicates.toArray(new Predicate[predicates.size()]));
 	}
 	
 	@Override

@@ -12,22 +12,18 @@ class EnumSelectBox extends SelectBox {
     this.useSymbol = props.useSymbol;
   }
 
+
+  // Did mount only call initComponent method
   componentDidMount() {
     super.componentDidMount();
-    // nothing - just override parent behaviour
-  }
-
-  _initComponent() {
-    // initialize value
   }
 
   setValue(value) {
     super.setValue(this.normalizeValue(value));
   }
 
-  getOptions(input, callback) {
+  getOptions() {
     if (this.props.enum) {
-      let data = null;
       const enumeration = this.props.enum;
       const results = [];
       if (enumeration) {
@@ -37,29 +33,19 @@ class EnumSelectBox extends SelectBox {
             results.push(item);
           }
         }
-        data = {
-          options: results,
-          complete: true,
-        };
+        return results;
       }
-      callback(null, data);
     }
     if (this.props.options) {
       const options = this.props.options;
       const results = [];
-      let data = null;
       for (const item in options) {
         if (!options.hasOwnProperty(item)) {
           continue;
         }
         results.push(this.itemRenderer(options[item]));
       }
-
-      data = {
-        options: results,
-        complete: true
-      };
-      callback(null, data);
+      return results;
     }
   }
 
@@ -226,13 +212,17 @@ class EnumSelectBox extends SelectBox {
     return convertedValue;
   }
 
+  onInputChange(value) {
+    this.getOptions(value);
+  }
+
   getSelectComponent() {
     const { placeholder, multiSelect, fieldLabel, searchable, clearable } = this.props;
     const { value, readOnly, disabled } = this.state;
     //
     return (
       <span>
-        <Select.Async
+        <Select
           ref="selectComponent"
           title={"title"}
           value={value}
@@ -249,7 +239,8 @@ class EnumSelectBox extends SelectBox {
           placeholder={this.getPlaceholder(placeholder)}
           searchingText={this.i18n('component.basic.SelectBox.searchingText')}
           searchPromptText={this.i18n('component.basic.SelectBox.searchPromptText')}
-          loadOptions={this.getOptions}
+          onInputChange={this.onInputChange.bind(this)}
+          options={this.getOptions()}
           searchable={searchable}/>
       </span>
     );

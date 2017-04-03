@@ -45,8 +45,9 @@ import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.core.eav.rest.impl.IdmFormDefinitionController;
-import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
+import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInfo;
 import eu.bcvsolutions.idm.ic.domain.IcResultCode;
 import eu.bcvsolutions.idm.ic.exception.IcCantConnectException;
@@ -97,7 +98,7 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_READ + "') or hasAuthority('"
-			+ IdmGroupPermission.ROLE_READ + "')")
+			+ CoreGroupPermission.ROLE_READ + "')")
 	public Resources<?> find(@RequestParam MultiValueMap<String, Object> parameters, @PageableDefault Pageable pageable,
 			PersistentEntityResourceAssembler assembler) {
 		return super.find(parameters, pageable, assembler);
@@ -105,7 +106,7 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 
 	@ResponseBody
 	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_READ + "') or hasAuthority('"
-			+ IdmGroupPermission.ROLE_READ + "')")
+			+ CoreGroupPermission.ROLE_READ + "')")
 	@RequestMapping(value = "/search/quick", method = RequestMethod.GET)
 	public Resources<?> findQuick(@RequestParam MultiValueMap<String, Object> parameters,
 			@PageableDefault Pageable pageable, PersistentEntityResourceAssembler assembler) {
@@ -115,7 +116,7 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 	@Override
 	@ResponseBody
 	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_READ + "') or hasAuthority('"
-			+ IdmGroupPermission.ROLE_READ + "')")
+			+ CoreGroupPermission.ROLE_READ + "')")
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.GET)
 	public ResponseEntity<?> get(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler) {
 		return super.get(backendId, assembler);
@@ -123,7 +124,7 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_CREATE + "') or hasAuthority('" + AccGroupPermission.SYSTEM_UPDATE + "')")
 	@RequestMapping(method = RequestMethod.POST)
 	public ResponseEntity<?> post(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler)
 			throws HttpMessageNotReadableException {
@@ -132,7 +133,7 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_UPDATE + "')")
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.PUT)
 	public ResponseEntity<?> put(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest,
 			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
@@ -141,7 +142,7 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_UPDATE + "')")
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.PATCH)
 	public ResponseEntity<?> patch(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest,
 			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
@@ -157,7 +158,7 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 	}
 	
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_UPDATE + "')")
 	@RequestMapping(value = "/{backendId}/generate-schema", method = RequestMethod.POST)
 	public ResponseEntity<?> generateSchema(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler) {
 		SysSystem system = getEntity(backendId);
@@ -241,7 +242,7 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 	 * @return
 	 */
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_UPDATE + "')")
 	@RequestMapping(value = "/{backendId}/connector-form-values", method = RequestMethod.POST)
 	public Resources<?> saveConnectorFormValues(
 			@PathVariable @NotNull String backendId,

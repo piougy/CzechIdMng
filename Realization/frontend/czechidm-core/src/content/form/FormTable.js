@@ -127,7 +127,7 @@ export default class FormTable extends Basic.AbstractContent {
                   key="add_button"
                   className="btn-xs"
                   onClick={this.showDetail.bind(this, { })}
-                  rendered={SecurityManager.hasAuthority('EAVFORMDEFINITIONS_WRITE')}>
+                  rendered={SecurityManager.hasAuthority('EAVFORMDEFINITIONS_CREATE')}>
                   <Basic.Icon type="fa" icon="plus"/>
                   {' '}
                   {this.i18n('button.add')}

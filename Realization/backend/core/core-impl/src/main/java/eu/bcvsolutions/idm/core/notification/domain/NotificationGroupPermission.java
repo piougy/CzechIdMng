@@ -4,9 +4,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
-import eu.bcvsolutions.idm.core.model.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 
 /**
  * Notification module permissions
@@ -16,21 +16,24 @@ import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
  */
 public enum NotificationGroupPermission implements GroupPermission {
 	
-	NOTIFICATION(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.WRITE),
-	NOTIFICATIONCONFIGURATION(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.WRITE, IdmBasePermission.DELETE),
-	NOTIFICATIONTEMPLATE(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.WRITE, IdmBasePermission.DELETE);
+	NOTIFICATION(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE),
+	NOTIFICATIONCONFIGURATION(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
+	NOTIFICATIONTEMPLATE(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE);
 	
 	// String constants could be used in pre / post authotize SpEl expressions
 	
 	public static final String NOTIFICATION_READ = "NOTIFICATION" + BasePermission.SEPARATOR + "READ";
-	public static final String NOTIFICATION_WRITE = "NOTIFICATION" + BasePermission.SEPARATOR + "WRITE";
+	public static final String NOTIFICATION_CREATE = "NOTIFICATION" + BasePermission.SEPARATOR + "CREATE";
+	public static final String NOTIFICATION_UPDATE = "NOTIFICATION" + BasePermission.SEPARATOR + "UPDATE";
 	//
 	public static final String NOTIFICATIONCONFIGURATION_READ = "NOTIFICATIONCONFIGURATION" + BasePermission.SEPARATOR + "READ";
-	public static final String NOTIFICATIONCONFIGURATION_WRITE = "NOTIFICATIONCONFIGURATION" + BasePermission.SEPARATOR + "WRITE";
+	public static final String NOTIFICATIONCONFIGURATION_CREATE = "NOTIFICATIONCONFIGURATION" + BasePermission.SEPARATOR + "CREATE";
+	public static final String NOTIFICATIONCONFIGURATION_UPDATE = "NOTIFICATIONCONFIGURATION" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String NOTIFICATIONCONFIGURATION_DELETE = "NOTIFICATIONCONFIGURATION" + BasePermission.SEPARATOR + "DELETE";
 	//
 	public static final String NOTIFICATIONTEMPLATE_READ = "NOTIFICATIONTEMPLATE" + BasePermission.SEPARATOR + "READ";
-	public static final String NOTIFICATIONTEMPLATE_WRITE = "NOTIFICATIONTEMPLATE" + BasePermission.SEPARATOR + "WRITE";
+	public static final String NOTIFICATIONTEMPLATE_CREATE = "NOTIFICATIONTEMPLATE" + BasePermission.SEPARATOR + "CREATE";
+	public static final String NOTIFICATIONTEMPLATE_UPDATE = "NOTIFICATIONTEMPLATE" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String NOTIFICATIONTEMPLATE_DELETE = "NOTIFICATIONTEMPLATE" + BasePermission.SEPARATOR + "DELETE";
 	
 	private final List<BasePermission> permissions;

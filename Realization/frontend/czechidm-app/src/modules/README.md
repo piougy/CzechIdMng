@@ -139,7 +139,7 @@ Single navigation item parameters:
       'order': 1000,
       'path': '/configurations',
       'iconColor': '#c12e2a',
-      'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONFIGURATION_WRITE', 'CONFIGURATIONSECURED_READ'] } ],
+      'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONFIGURATION_CREATE', 'CONFIGURATION_UPDATE', 'CONFIGURATIONSECURED_READ'] } ],
       'items': [
         {
           'id': 'system-configuration',
@@ -147,7 +147,7 @@ Single navigation item parameters:
           'icon': 'cog',
           'order': 20,
           'path': '/configurations',
-          'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONFIGURATION_WRITE', 'CONFIGURATIONSECURED_READ'] } ]
+          'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONFIGURATION_CREATE', 'CONFIGURATION_UPDATE', 'CONFIGURATIONSECURED_READ'] } ]
         },
         {
           'id': 'system-modules',
@@ -183,4 +183,4 @@ Access item properties:
 | PERMIT_ALL | Visible always | { 'type': 'PERMIT_ALL' } |
 | NOT_AUTHENTICATED | Visible, when identity is not logged in | { 'type': 'NOT_AUTHENTICATED' } |
 | IS_AUTHENTICATED | Visible, when identity is not logged in | { 'type': 'IS_AUTHENTICATED' } |
-| HAS_ANY_AUTHORITY | Visible, when logged identity has at least on of given authorities |  { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONFIGURATION_WRITE', 'CONFIGURATIONSECURED_READ'] } |
+| HAS_ANY_AUTHORITY | Visible, when logged identity has at least on of given authorities |  { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONFIGURATION_CREATE, 'CONFIGURATION_UPDATE', 'CONFIGURATIONSECURED_READ'] } |

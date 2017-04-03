@@ -37,6 +37,26 @@ export default class AbstractService {
   }
 
   /**
+   * Returns true, if `patch`  method is supported
+   *
+   * Added for enddpoints with dto - dto's doesn't support `patch` method for now
+   *
+   * @return {bool} Returns true, if `patch`  method is supported
+   */
+  supportsPatch() {
+    return true;
+  }
+
+  /**
+   * Added for enddpoints with authorization policies evaluation
+   *
+   * @return {bool} Returns true, when endpoint suppors uthorization policies evaluation
+   */
+  supportsAuthorization() {
+    return false;
+  }
+
+  /**
    * Returns resource by given id
    *
    * @param  {string|number} id resource identifier
@@ -247,6 +267,20 @@ export default class AbstractService {
   getRevision(entityId, revId) {
     return RestApiService
     .get(this.getApiPath() + `/${encodeURIComponent(entityId)}/revisions/${encodeURIComponent(revId)}`)
+    .then(response => {
+      return response.json();
+    })
+    .then(json => {
+      if (Utils.Response.hasError(json)) {
+        throw Utils.Response.getFirstError(json);
+      }
+      return json;
+    });
+  }
+
+  getPermissions(id) {
+    return RestApiService
+    .get(this.getApiPath() + `/${encodeURIComponent(id)}/permissions`)
     .then(response => {
       return response.json();
     })

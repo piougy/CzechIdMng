@@ -3,6 +3,7 @@ import _ from 'lodash';
 //
 import * as Basic from '../../../components/basic';
 import * as Advanced from '../../../components/advanced';
+import * as Utils from '../../../utils';
 import { NotificationTemplateManager, SecurityManager } from '../../../redux';
 
 /**
@@ -140,7 +141,12 @@ export default class TemplateDetail extends Basic.AbstractContent {
     return (
       <div>
         <form onSubmit={this.save.bind(this)}>
-          <Basic.AbstractForm data={entity} ref="form" uiKey={uiKey} readOnly={!SecurityManager.hasAuthority('NOTIFICATIONTEMPLATE_WRITE')} style={{ padding: '15px 15px 0 15px' }}>
+          <Basic.AbstractForm
+            data={entity}
+            ref="form"
+            uiKey={uiKey}
+            readOnly={ !SecurityManager.hasAuthority(Utils.Entity.isNew(entity) ? 'NOTIFICATIONTEMPLATE_CREATE' : 'NOTIFICATIONTEMPLATE_UPDATE') }
+            style={{ padding: '15px 15px 0 15px' }}>
             <Basic.Row>
               <div className="col-lg-3">
                 <Basic.TextField
@@ -184,7 +190,7 @@ export default class TemplateDetail extends Basic.AbstractContent {
               level="success"
               showLoadingIcon
               showLoadingText={this.i18n('button.saving')}
-              rendered={SecurityManager.hasAuthority('NOTIFICATIONTEMPLATE_WRITE')}>
+              rendered={SecurityManager.hasAuthority(Utils.Entity.isNew(entity) ? 'NOTIFICATIONTEMPLATE_CREATE' : 'NOTIFICATIONTEMPLATE_UPDATE')}>
               {this.i18n('button.save')}
             </Basic.Button>
           </Basic.PanelFooter>

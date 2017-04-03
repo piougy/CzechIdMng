@@ -19,7 +19,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
-import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
+import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.security.rest.filter.OAuthAuthenticationFilter;
 import eu.bcvsolutions.idm.core.security.service.impl.OAuthAuthenticationManager;
 
@@ -41,9 +41,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     	 http.addFilterAfter(oAuthAuthenticationFilter(), BasicAuthenticationFilter.class)
 			.authorizeRequests()
 			.antMatchers(HttpMethod.OPTIONS).permitAll()
-			.antMatchers(BaseEntityController.BASE_PATH + "/public/**").permitAll()
-			.antMatchers(BaseEntityController.BASE_PATH + "/websocket-info/**").permitAll() // websockets has their own security configuration
-			.antMatchers(BaseEntityController.BASE_PATH + "/**").fullyAuthenticated() // TODO: controllers should choose security?
+			.antMatchers(BaseDtoController.BASE_PATH + "/public/**").permitAll()
+			.antMatchers(BaseDtoController.BASE_PATH + "/websocket-info/**").permitAll() // websockets has their own security configuration
+			.antMatchers(BaseDtoController.BASE_PATH + "/**").fullyAuthenticated() // TODO: controllers should choose security?
 			.anyRequest().permitAll(); // gui could run in application context
     }
 
@@ -51,12 +51,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	public void configure(WebSecurity web) throws Exception {
 		// public controllers
 		web.ignoring().antMatchers( //
-				BaseEntityController.BASE_PATH, // endpoint with supported services list
-				BaseEntityController.BASE_PATH + "/authentication", // login / out
+				BaseDtoController.BASE_PATH, // endpoint with supported services list
+				BaseDtoController.BASE_PATH + "/authentication", // login / out
 				"/error/**",
-				BaseEntityController.BASE_PATH + "/doc", // documentation is public
-				BaseEntityController.BASE_PATH + "/doc/**",
-				BaseEntityController.BASE_PATH + "/status" // status page
+				BaseDtoController.BASE_PATH + "/doc", // documentation is public
+				BaseDtoController.BASE_PATH + "/doc/**",
+				BaseDtoController.BASE_PATH + "/status" // status page
 			);
 	}
 

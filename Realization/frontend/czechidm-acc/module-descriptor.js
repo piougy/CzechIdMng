@@ -120,7 +120,7 @@ module.exports = {
         'parentId': 'roles',
         'labelKey': 'acc:content.role.systems.title',
         'titleKey': 'acc:content.role.systems.title',
-        'order': 50,
+        'order': 500,
         'path': '/role/:entityId/systems',
         'icon': 'link',
         'access': [ { 'type': 'HAS_ALL_AUTHORITIES', 'authorities': ['ROLE_READ', 'SYSTEM_READ'] } ]

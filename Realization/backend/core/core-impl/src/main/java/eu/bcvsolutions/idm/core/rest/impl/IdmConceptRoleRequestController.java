@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
+import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.model.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.model.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.model.dto.filter.ConceptRoleRequestFilter;
@@ -24,7 +24,7 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmConceptRoleRequestService;
  *
  */
 @RepositoryRestController
-@RequestMapping(value = BaseEntityController.BASE_PATH + "/concept-role-requests")
+@RequestMapping(value = BaseDtoController.BASE_PATH + "/concept-role-requests")
 public class IdmConceptRoleRequestController
 		extends DefaultReadWriteDtoController<IdmConceptRoleRequestDto, ConceptRoleRequestFilter> {
 

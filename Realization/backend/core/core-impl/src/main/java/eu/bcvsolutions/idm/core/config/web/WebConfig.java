@@ -27,7 +27,7 @@ import org.springframework.web.util.UrlPathHelper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 
-import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
+import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.api.rest.domain.NotExportedAssociations;
 import eu.bcvsolutions.idm.core.api.rest.domain.RequestResourceResolver;
 import eu.bcvsolutions.idm.core.config.domain.DynamicCorsConfiguration;
@@ -65,7 +65,7 @@ public class WebConfig extends RepositoryRestMvcConfiguration {
 		config.addAllowedMethod("POST");
 		config.addAllowedMethod("DELETE");
 		config.addAllowedMethod("PATCH");
-		source.registerCorsConfiguration(BaseEntityController.BASE_PATH + "/**", config);
+		source.registerCorsConfiguration(BaseDtoController.BASE_PATH + "/**", config);
 		FilterRegistrationBean bean = new FilterRegistrationBean(new CorsFilter(source));
 		bean.setOrder(Ordered.HIGHEST_PRECEDENCE);
 		return bean;
@@ -155,7 +155,7 @@ public class WebConfig extends RepositoryRestMvcConfiguration {
 			config.exposeIdsFor(entityType.getJavaType());
 		});
 		// conventional base api endpoint. TODO: define version here?
-		config.setBasePath(BaseEntityController.BASE_PATH);
+		config.setBasePath(BaseDtoController.BASE_PATH);
 		// it will be usefull for some clients (e.g. for putting new / updated
 		// resource to client storage - redux etc.)
 		config.setReturnBodyForPutAndPost(Boolean.TRUE);

@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
@@ -16,6 +17,9 @@ import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
  * 
  * @author Svanda
  * 
+ * @see Sort
+ * @see Pageable
+ * @see Page
  * @param <DTO> {@link BaseDto} type
  * @param <E> {@link BaseEntity} type
  * @param <F> {@link BaseFilter} type

@@ -132,7 +132,7 @@ export default class LongRunningTaskTable extends Basic.AbstractContent {
                 key="start-button"
                 type="submit"
                 className="btn-xs"
-                rendered={SecurityManager.hasAuthority('SCHEDULER_WRITE')}
+                rendered={SecurityManager.hasAuthority('SCHEDULER_EXECUTE')}
                 onClick={ this.processCreated.bind(this) }>
                 <Basic.Icon icon="play"/>
                 {' '}
@@ -200,17 +200,24 @@ export default class LongRunningTaskTable extends Basic.AbstractContent {
               ||
               <div>
                 <Basic.AbstractForm data={detail.entity} readOnly>
-                  <Basic.LabelWrapper label={this.i18n('entity.created')}>
-                    <div style={{ margin: '7px 0' }}>
-                      <Advanced.DateValue value={detail.entity.created} showTime/>
+                  <Basic.Row>
+                    <div className="col-lg-6">
+                      <Basic.LabelWrapper label={this.i18n('entity.created')}>
+                        <div style={{ margin: '7px 0' }}>
+                          <Advanced.DateValue value={detail.entity.created} showTime/>
+                        </div>
+                      </Basic.LabelWrapper>
                     </div>
-                  </Basic.LabelWrapper>
-                  <Basic.LabelWrapper label={this.i18n('entity.LongRunningTask.instanceId.label')}>
-                    <div style={{ margin: '7px 0' }}>
-                      {detail.entity.instanceId}
-                      <span className="help-block">{this.i18n('entity.LongRunningTask.instanceId.help')}</span>
+                    <div className="col-lg-6">
+                      <Basic.LabelWrapper label={this.i18n('entity.LongRunningTask.instanceId.label')}>
+                        <div style={{ margin: '7px 0' }}>
+                          {detail.entity.instanceId}
+                          <span className="help-block">{this.i18n('entity.LongRunningTask.instanceId.help')}</span>
+                        </div>
+                      </Basic.LabelWrapper>
                     </div>
-                  </Basic.LabelWrapper>
+                  </Basic.Row>
+
                   <Basic.LabelWrapper label={this.i18n('entity.LongRunningTask.taskType')}>
                     <div style={{ margin: '7px 0' }}>
                       {detail.entity.taskType}
@@ -220,20 +227,28 @@ export default class LongRunningTaskTable extends Basic.AbstractContent {
                     label={this.i18n('entity.LongRunningTask.taskDescription')}
                     disabled
                     value={detail.entity.taskDescription}/>
-                  <Basic.LabelWrapper label={this.i18n('entity.LongRunningTask.counter')}>
-                    <div style={{ margin: '7px 0' }}>
-                      { manager.getProcessedCount(detail.entity) }
+
+                  <Basic.Row>
+                    <div className="col-lg-6">
+                      <Basic.LabelWrapper label={this.i18n('entity.LongRunningTask.counter')}>
+                        <div style={{ margin: '7px 0' }}>
+                          { manager.getProcessedCount(detail.entity) }
+                        </div>
+                      </Basic.LabelWrapper>
                     </div>
-                  </Basic.LabelWrapper>
-                  {
-                    !detail.entity.modified
-                    ||
-                    <Basic.LabelWrapper label={this.i18n('entity.LongRunningTask.duration')}>
-                      <div style={{ margin: '7px 0' }}>
-                        { moment.duration(moment(detail.entity.created).diff(moment(detail.entity.modified))).locale(LocalizationService.getCurrentLanguage()).humanize() }
-                      </div>
-                    </Basic.LabelWrapper>
-                  }
+                    <div className="col-lg-6">
+                      {
+                        !detail.entity.modified
+                        ||
+                        <Basic.LabelWrapper label={this.i18n('entity.LongRunningTask.duration')}>
+                          <div style={{ margin: '7px 0' }}>
+                            { moment.duration(moment(detail.entity.created).diff(moment(detail.entity.modified))).locale(LocalizationService.getCurrentLanguage()).humanize() }
+                          </div>
+                        </Basic.LabelWrapper>
+                      }
+                    </div>
+                  </Basic.Row>
+
                 </Basic.AbstractForm>
                 <br />
 

@@ -450,8 +450,10 @@
   "permission": {
     "base" : {
       "ADMIN": "Administrace",
+      "AUTOCOMPLETE": "Zobrazení v našeptávačích, výběrech",
       "READ": "Čtení",
-      "WRITE": "Zápis",
+      "CREATE": "Vytvoření",
+      "UPDATE": "Úprava",
       "DELETE": "Mazání",
       "EXECUTEIMMEDIATELY":"Podat bez schvalování"
     },
@@ -1190,6 +1192,20 @@
             "success_2": "Vybrané záznamy [{{records}}] byly úspěšně smazány",
             "success_5": "Vybrané záznamy [{{records}}] byly úspěšně smazány"
           }
+        }
+      },
+      "authorization-policies": {
+        "header": "Přidělená oprávnění na data",
+        "title": "Práva na data",
+        "label": "Práva na data",
+        "edit": {
+          "header": "{{name}} <small>detail oprávnění</small>"
+        },
+        "create": {
+          "header": "Nové oprávnění"
+        },
+        "save": {
+          "success": "Oprávnění [{{record}}] bylo úspěšně uloženo"
         }
       }
     },
@@ -1939,6 +1955,29 @@
       "role": "Role",
       "treeNode": "Prvek stromové struktury",
       "recursionType": "Typ rekurze"
+    },
+    "AuthorizationPolicy": {
+      "_type": "Oprávnění",
+      "role": "Role",
+      "disabled": "Neaktivní",
+      "description": "Popis",
+      "seq": "Pořadí",
+      "evaluatorType": "Typ vyhodnocení",
+      "authorizableType": {
+        "label": "Typ entity",
+        "placeholder": "Vyberte typ entity nebo nechte prázdné (všechny typy)",
+        "help": "Pokud není vybrán konkrétní typ entity, bude vyhodnocení spuštěno nad všemi typy entit"
+      },
+      "evaluatorProperties": {
+        "label": "Nastavení",
+        "title": "Nastavení vyhodnocení"
+      },
+      "basePermissions": {
+        "label": "Oprávnění",
+        "title": "Přidělená oprávnění",
+        "placeholder": "Vyberte oprávnění, které chcete přidělit",
+        "help": "Oprávnění, které budou přidělana pro vybraný typ entity dle nastaveného vyhodnocení"
+      }
     },
     "IdentityRole": {
       "role" : "Role",

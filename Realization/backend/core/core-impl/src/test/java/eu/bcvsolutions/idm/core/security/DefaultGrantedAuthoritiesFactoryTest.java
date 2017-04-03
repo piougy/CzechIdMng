@@ -16,8 +16,7 @@ import org.springframework.security.core.GrantedAuthority;
 
 import com.google.common.collect.Lists;
 
-import eu.bcvsolutions.idm.core.model.domain.IdmBasePermission;
-import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
+import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
@@ -27,6 +26,8 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRoleComposition;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.security.service.impl.DefaultGrantedAuthoritiesFactory;
 import eu.bcvsolutions.idm.core.security.service.impl.DefaultSecurityService;
@@ -60,14 +61,14 @@ public class DefaultGrantedAuthoritiesFactoryTest extends AbstractVerifiableUnit
 		subRole.setName("sub_role");
 		IdmRoleAuthority subRoleAuthority = new IdmRoleAuthority();
 		subRoleAuthority.setActionPermission(IdmBasePermission.DELETE);
-		subRoleAuthority.setTargetPermission(IdmGroupPermission.IDENTITY);
+		subRoleAuthority.setTargetPermission(CoreGroupPermission.IDENTITY);
 		SUB_ROLE_AUTHORITY = subRoleAuthority;
 		subRole.getAuthorities().add(subRoleAuthority);
 		IdmRole superiorRole = new IdmRole();
 		superiorRole.setName("superior_role");
 		IdmRoleAuthority superiorRoleAuthority = new IdmRoleAuthority();
 		superiorRoleAuthority.setActionPermission(IdmBasePermission.DELETE);
-		superiorRoleAuthority.setTargetPermission(IdmGroupPermission.IDENTITY);
+		superiorRoleAuthority.setTargetPermission(CoreGroupPermission.IDENTITY);
 		superiorRole.getAuthorities().add(superiorRoleAuthority);
 		superiorRole.getSubRoles().add(new IdmRoleComposition(superiorRole, subRole));
 		
@@ -84,7 +85,7 @@ public class DefaultGrantedAuthoritiesFactoryTest extends AbstractVerifiableUnit
 		
 		TEST_IDENTITY = identity;
 		
-		groupPermissions.addAll(Arrays.asList(IdmGroupPermission.values()));
+		groupPermissions.addAll(Arrays.asList(CoreGroupPermission.values()));
 	}
 	
 	@Before
@@ -163,7 +164,7 @@ public class DefaultGrantedAuthoritiesFactoryTest extends AbstractVerifiableUnit
 		IdmRole role = new IdmRole();
 		role.setName("role");
 		IdmRoleAuthority roleAuthority = new IdmRoleAuthority();
-		roleAuthority.setTargetPermission(IdmGroupPermission.IDENTITY);
+		roleAuthority.setTargetPermission(CoreGroupPermission.IDENTITY);
 		roleAuthority.setActionPermission(IdmBasePermission.ADMIN);
 		role.getAuthorities().add(roleAuthority);
 		
@@ -182,8 +183,8 @@ public class DefaultGrantedAuthoritiesFactoryTest extends AbstractVerifiableUnit
 		
 		List<GrantedAuthority> grantedAuthorities = defaultGrantedAuthoritiesFactory.getGrantedAuthorities(identity.getUsername());
 			
-		assertTrue(grantedAuthorities.containsAll(DefaultSecurityService.toAuthorities(IdmGroupPermission.IDENTITY)));
-		assertEquals(IdmGroupPermission.IDENTITY.getPermissions().size(), grantedAuthorities.size());
+		assertTrue(grantedAuthorities.containsAll(DefaultSecurityService.toAuthorities(CoreGroupPermission.IDENTITY)));
+		assertEquals(CoreGroupPermission.IDENTITY.getPermissions().size(), grantedAuthorities.size());
 		
 		verify(securityService).getAvailableGroupPermissions();
 		verify(identityService).getByUsername(identity.getUsername());

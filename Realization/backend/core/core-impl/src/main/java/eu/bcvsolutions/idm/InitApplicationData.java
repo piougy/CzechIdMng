@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.model.domain.RoleType;
+import eu.bcvsolutions.idm.core.model.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
@@ -20,6 +21,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleAuthority;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
+import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
@@ -30,13 +32,17 @@ import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationConfigur
 import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationTemplateService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.CryptService;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
+import eu.bcvsolutions.idm.core.security.evaluator.BasePermissionEvaluator;
 
 /**
  * Initialize required application data:
  * * admin user admin/admin
  * * superAdminRole with system admin authority
+ * 
+ * TODO: split initializatons
  * 
  * @author Radek Tomiška 
  *
@@ -54,36 +60,28 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 	private IdmIdentityService identityService;
 	@Autowired
 	private IdmIdentityContractService identityContractService;
-
 	@Autowired
 	private IdmRoleService roleService;
-
 	@Autowired
-	private IdmIdentityRoleService identityRoleService;
-	
+	private IdmIdentityRoleService identityRoleService;	
 	@Autowired
-	private IdmTreeNodeService treeNodeService;
-	
+	private IdmTreeNodeService treeNodeService;	
 	@Autowired
 	private IdmTreeTypeService treeTypeService;
-
 	@Autowired
-	private SecurityService securityService;
-	
+	private SecurityService securityService;	
 	@Autowired
-	private IdmNotificationConfigurationService notificationConfigurationService;
-	
+	private IdmNotificationConfigurationService notificationConfigurationService;	
 	@Autowired
-	private IdmNotificationTemplateService notificationTemplateService;
-	
+	private IdmNotificationTemplateService notificationTemplateService;	
 	@Autowired
-	private CryptService cryptoService;
-	
+	private CryptService cryptoService;	
 	@Autowired
-	private LongRunningTaskManager longRunningTaskManager;
-	
+	private LongRunningTaskManager longRunningTaskManager;	
 	@Autowired
-	private FormService formService;
+	private FormService formService;	
+	@Autowired
+	private IdmAuthorizationPolicyService authorizationPolicyService;
 
 	@Override
 	public void onApplicationEvent(ContextRefreshedEvent event) {
@@ -117,6 +115,13 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 				});
 				superAdminRole.setAuthorities(authorities);
 				existsSuperAdminRole = this.roleService.save(superAdminRole);
+				// super admin authorization policy
+				IdmAuthorizationPolicyDto policy = new IdmAuthorizationPolicyDto();
+				policy.setBasePermissions(IdmBasePermission.ADMIN.getName());
+				policy.setRole(existsSuperAdminRole.getId());
+				policy.setEvaluatorType(BasePermissionEvaluator.class.getCanonicalName());
+				authorizationPolicyService.save(policy);
+				//
 				LOG.info(MessageFormat.format("Super admin Role created [id: {0}]", superAdminRole.getId()));
 			}
 			//

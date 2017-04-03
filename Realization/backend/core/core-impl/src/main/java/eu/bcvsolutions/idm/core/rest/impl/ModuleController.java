@@ -27,7 +27,7 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.rest.domain.RequestResourceResolver;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
-import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
+import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 
 /**
  * Module controler can enable / disable module etc.
@@ -57,7 +57,7 @@ public class ModuleController {
 	 */
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.GET)
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.MODULE_READ + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.MODULE_READ + "')")
 	public List<ModuleDescriptorDto> getInstalledModules() {
 		return moduleService.getInstalledModules() //
 				.stream() //
@@ -75,7 +75,7 @@ public class ModuleController {
 	 */	
 	@ResponseBody
 	@RequestMapping(value = "/{moduleId}", method = RequestMethod.GET)
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.MODULE_READ + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.MODULE_READ + "')")
 	public ModuleDescriptorDto get(@PathVariable @NotNull String moduleId) {
 		ModuleDescriptor moduleDescriptor = moduleService.getModule(moduleId);
 		if (moduleDescriptor == null) {
@@ -94,7 +94,7 @@ public class ModuleController {
 	 */
 	@ResponseBody
 	@RequestMapping(value = "/{moduleId}", method = RequestMethod.PUT)
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.MODULE_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.MODULE_UPDATE + "')")
 	public ModuleDescriptorDto put(@PathVariable @NotNull String moduleId, HttpServletRequest nativeRequest) {	
 		ModuleDescriptor updatedModuleDescriptor = moduleService.getModule(moduleId);
 		if (updatedModuleDescriptor == null) {
@@ -114,7 +114,7 @@ public class ModuleController {
 	 */
 	@ResponseBody
 	@RequestMapping(value = "/{moduleId}", method = RequestMethod.PATCH)
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.MODULE_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.MODULE_UPDATE + "')")
 	public ModuleDescriptorDto patch(@PathVariable @NotNull String moduleId, HttpServletRequest nativeRequest) {	
 		ModuleDescriptor updatedModuleDescriptor = moduleService.getModule(moduleId);
 		if (updatedModuleDescriptor == null) {
@@ -133,7 +133,7 @@ public class ModuleController {
 	 */
 	@ResponseStatus(code = HttpStatus.NO_CONTENT)
 	@RequestMapping(value = "/{moduleId}/enable", method = RequestMethod.PATCH)
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.MODULE_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.MODULE_UPDATE + "')")
 	public void enable(@PathVariable @NotNull String moduleId) {		
 		moduleService.setEnabled(moduleId, true);
 	}
@@ -145,7 +145,7 @@ public class ModuleController {
 	 */
 	@ResponseStatus(code = HttpStatus.NO_CONTENT)
 	@RequestMapping(value = "/{moduleId}/disable", method = RequestMethod.PATCH)
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.MODULE_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.MODULE_UPDATE + "')")
 	public void disable(@PathVariable @NotNull String moduleId) {		
 		moduleService.setEnabled(moduleId, false);
 	}

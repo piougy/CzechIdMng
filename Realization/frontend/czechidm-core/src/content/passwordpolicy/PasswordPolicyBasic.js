@@ -189,11 +189,17 @@ class PasswordPolicyBasic extends Basic.AbstractContent {
         <Basic.Panel className={Utils.Entity.isNew(entity) ? '' : 'no-border last'}>
           <Basic.PanelHeader text={Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('content.passwordPolicies.basic.title')} />
           <Basic.PanelBody style={Utils.Entity.isNew(entity) ? { paddingTop: 0, paddingBottom: 0 } : { padding: 0 }}>
-            <Basic.AbstractForm ref="form" uiKey={uiKey} readOnly={!SecurityManager.hasAuthority('PASSWORDPOLICY_WRITE')} showLoading={entity === null}>
+            <Basic.AbstractForm
+              ref="form"
+              uiKey={uiKey}
+              readOnly={!SecurityManager.hasAuthority(Utils.Entity.isNew(entity) ? 'PASSWORDPOLICY_CREATE' : 'PASSWORDPOLICY_UPDATE')}
+              showLoading={entity === null}>
               {/* readOnly for edit is necessary */}
               <Basic.EnumSelectBox
                 readOnly={!Utils.Entity.isNew(entity)}
-                ref="type" onChange={this._changeType.bind(this)} required
+                ref="type"
+                onChange={this._changeType.bind(this)}
+                required
                 enum={PasswordPolicyTypeEnum}
                 label={this.i18n('entity.PasswordPolicy.type')}/>
               <Basic.TextField
@@ -260,14 +266,14 @@ class PasswordPolicyBasic extends Basic.AbstractContent {
               ?
               <Basic.SplitButton level="success" title={this.i18n('button.createContinue')}
                 onClick={this.save.bind(this, 'CREATE_CONTINUE')}
-                rendered={SecurityManager.hasAuthority('PASSWORDPOLICY_WRITE')}
+                rendered={SecurityManager.hasAuthority(Utils.Entity.isNew(entity) ? 'PASSWORDPOLICY_CREATE' : 'PASSWORDPOLICY_UPDATE')}
                 showLoading={showLoading} pullRight dropup>
                 <Basic.MenuItem eventKey="1" onClick={this.save.bind(this, 'CREATE')}>{this.i18n('button.create')}</Basic.MenuItem>
               </Basic.SplitButton>
               :
               <Basic.SplitButton level="success" title={this.i18n('button.saveAndContinue')}
                 onClick={this.save.bind(this, 'SAVE_CONTINUE')}
-                rendered={SecurityManager.hasAuthority('PASSWORDPOLICY_WRITE')}
+                rendered={SecurityManager.hasAuthority(Utils.Entity.isNew(entity) ? 'PASSWORDPOLICY_CREATE' : 'PASSWORDPOLICY_UPDATE')}
                 showLoading={showLoading} pullRight dropup>
                 <Basic.MenuItem eventKey="1" onClick={this.save.bind(this, 'SAVE')}>{this.i18n('button.saveAndClose')}</Basic.MenuItem>
               </Basic.SplitButton>

@@ -3,7 +3,6 @@ package eu.bcvsolutions.idm.core.rest.impl;
 import java.util.List;
 import java.util.UUID;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
@@ -16,7 +15,6 @@ import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
@@ -33,7 +31,7 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.eav.rest.impl.IdmFormDefinitionController;
-import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
+import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.domain.RoleType;
 import eu.bcvsolutions.idm.core.model.dto.filter.RoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmAudit;
@@ -44,7 +42,7 @@ import eu.bcvsolutions.idm.core.model.entity.eav.IdmRoleFormValue;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuditService;
 
 /**
- * IdmRole endpoint
+ * Endpoint for roles
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
  * @author Radek Tomiška
@@ -55,7 +53,6 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmAuditService;
 public class IdmRoleController extends DefaultReadWriteEntityController<IdmRole, RoleFilter> {
 	
 	private final IdmAuditService auditService;
-	//
 	private final IdmFormDefinitionController formDefinitionController;
 	
 	@Autowired
@@ -70,37 +67,6 @@ public class IdmRoleController extends DefaultReadWriteEntityController<IdmRole,
 		//
 		this.auditService = auditService;
 		this.formDefinitionController = formDefinitionController;
-	}
-	
-	@Override
-	@ResponseBody
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_WRITE + "')")
-	public ResponseEntity<?> post(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler)
-			throws HttpMessageNotReadableException {
-		return super.post(nativeRequest, assembler);
-	}
-	
-	@Override
-	@ResponseBody
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_WRITE + "')")
-	public ResponseEntity<?> put(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest,
-			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
-		return super.put(backendId, nativeRequest, assembler);
-	}
-	
-	@Override
-	@ResponseBody
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_WRITE + "')")
-	public ResponseEntity<?> patch(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest,
-			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
-		return super.patch(backendId, nativeRequest, assembler);
-	}
-	
-	@Override
-	@ResponseBody
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_DELETE + "')")
-	public ResponseEntity<?> delete(@PathVariable @NotNull String backendId) {
-		return super.delete(backendId);
 	}
 
 	@ResponseBody
@@ -174,7 +140,7 @@ public class IdmRoleController extends DefaultReadWriteEntityController<IdmRole,
 	 * @return
 	 */
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.IDENTITY_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_UPDATE + "')")
 	@RequestMapping(value = "/{backendId}/form-values", method = RequestMethod.POST)
 	public Resources<?> saveFormValues(
 			@PathVariable @NotNull String backendId,

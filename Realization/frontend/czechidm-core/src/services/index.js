@@ -33,6 +33,7 @@ import ConceptRoleRequestService from './ConceptRoleRequestService';
 import RoleTreeNodeService from './RoleTreeNodeService';
 import FormDefinitionService from './FormDefinitionService';
 import FormAttributeService from './FormAttributeService';
+import AuthorizationPolicyService from './AuthorizationPolicyService';
 
 const ServiceRoot = {
   RestApiService,
@@ -69,7 +70,8 @@ const ServiceRoot = {
   ConceptRoleRequestService,
   RoleTreeNodeService,
   FormDefinitionService,
-  FormAttributeService
+  FormAttributeService,
+  AuthorizationPolicyService
 };
 
 ServiceRoot.version = '0.0.1';

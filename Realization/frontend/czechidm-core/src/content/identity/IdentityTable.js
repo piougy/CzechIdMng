@@ -148,7 +148,7 @@ export class IdentityTable extends Advanced.AbstractTableContent {
           ref="table"
           uiKey={uiKey}
           manager={identityManager}
-          showRowSelection={showRowSelection && SecurityManager.hasAuthority('IDENTITY_WRITE')}
+          showRowSelection={showRowSelection && SecurityManager.hasAuthority('IDENTITY_UPDATE')}
           filter={
             <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
               <Basic.AbstractForm ref="filterForm">
@@ -205,7 +205,7 @@ export class IdentityTable extends Advanced.AbstractTableContent {
                 type="submit"
                 className="btn-xs"
                 onClick={this.showDetail.bind(this, {})}
-                rendered={showAddButton && SecurityManager.hasAuthority('IDENTITY_WRITE')}>
+                rendered={showAddButton && SecurityManager.hasAuthority('IDENTITY_CREATE')}>
                 <Basic.Icon type="fa" icon="user-plus"/>
                 {this.i18n('content.identity.create.button.add')}
               </Basic.Button>

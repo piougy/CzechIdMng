@@ -27,6 +27,10 @@ export default class RoleTreeNodeService extends AbstractService {
     return `${this.roleService.getNiceLabel(entity._embedded.role)} - ${this.treeNodeService.getNiceLabel(entity._embedded.treeNode)}`;
   }
 
+  supportsPatch() {
+    return false;
+  }
+
   /**
    * Returns default searchParameters for current entity type
    *

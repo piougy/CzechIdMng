@@ -79,7 +79,7 @@ public class IdmNotificationLogController extends AbstractReadWriteEntityControl
 
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + NotificationGroupPermission.NOTIFICATION_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + NotificationGroupPermission.NOTIFICATION_CREATE + "') or hasAuthority('" + NotificationGroupPermission.NOTIFICATION_UPDATE + "')")
 	@RequestMapping(method = RequestMethod.POST)
 	public ResponseEntity<?> post(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler)
 			throws HttpMessageNotReadableException {

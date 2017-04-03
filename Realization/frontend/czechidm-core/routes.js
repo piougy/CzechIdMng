@@ -25,7 +25,7 @@ module.exports = {
     {
       path: 'identity/new',
       component: require('./src/content/identity/Create'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN' ] } ]
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_CREATE' ] } ]
     },
     {
       path: 'identity/:entityId/',
@@ -149,7 +149,7 @@ module.exports = {
         {
           path: 'types/new',
           component: require('./src/content/tree/type/TypeContent'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREETYPE_WRITE' ] } ]
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREETYPE_CREATE' ] } ]
         },
         {
           path: 'types/:entityId',
@@ -161,12 +161,12 @@ module.exports = {
     {
       path: 'role-catalogues',
       component: require('./src/content/rolecatalogue/RoleCatalogues'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ'] } ]
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLECATALOGUE_READ'] } ]
     },
     {
       path: 'rolecatalogue/:entityId',
       component: require('./src/content/rolecatalogue/RoleCatalogueContent'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ'] } ],
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLECATALOGUE_READ'] } ],
     },
     {
       path: 'roles',
@@ -193,26 +193,35 @@ module.exports = {
       childRoutes: [
         {
           path: 'detail',
-          component: require('./src/content/role/RoleContent')
+          component: require('./src/content/role/RoleContent'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ'] } ]
         },
         {
           path: 'identities',
-          component: require('./src/content/role/RoleIdentities')
+          component: require('./src/content/role/RoleIdentities'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ'] } ]
         },
         {
           path: 'eav',
-          component: require('./src/content/role/RoleEav')
+          component: require('./src/content/role/RoleEav'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ'] } ]
         },
         {
           path: 'tree-nodes',
-          component: require('./src/content/role/RoleTreeNodes')
+          component: require('./src/content/role/RoleTreeNodes'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ'] } ]
+        },
+        {
+          path: 'authorization-policies',
+          component: require('./src/content/role/AuthorizationPolicies'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ'] } ]
         }
       ]
     },
     {
       path: 'role/:entityId/new',
       component: require('./src/content/role/RoleContent'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_WRITE'] } ],
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_CREATE'] } ],
     },
     {
       path: 'tasks/:entityId',
@@ -230,7 +239,7 @@ module.exports = {
     {
       path: 'configurations',
       component: require('./src/content/Configurations'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONFIGURATION_WRITE', 'CONFIGURATIONSECURED_READ'] } ]
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONFIGURATION_CREATE', 'CONFIGURATION_UPDATE', 'CONFIGURATIONSECURED_READ'] } ]
     },
     {
       path: 'modules',

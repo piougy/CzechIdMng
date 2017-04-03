@@ -28,7 +28,9 @@ import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
  * @author Radek Tomiška
  *
  * @param <E> controlled {@link BaseEntity} type.
+ * @deprecated use {@link DefaultReadWriteDtoController}
  */
+@Deprecated
 public abstract class DefaultReadWriteEntityController<E extends BaseEntity, F extends BaseFilter> extends AbstractReadWriteEntityController<E, F> {
 	
 	public DefaultReadWriteEntityController(EntityLookupService entityLookupService) {
@@ -62,6 +64,14 @@ public abstract class DefaultReadWriteEntityController<E extends BaseEntity, F e
 			@PageableDefault Pageable pageable, 			
 			PersistentEntityResourceAssembler assembler) {
 		return super.find(parameters, pageable, assembler);
+	}
+	
+	@ResponseBody
+	@RequestMapping(value= "/search/autocomplete", method = RequestMethod.GET)
+	public Resources<?> autocomplete(@RequestParam MultiValueMap<String, Object> parameters, 
+			@PageableDefault Pageable pageable, 			
+			PersistentEntityResourceAssembler assembler) {
+		return super.autocomplete(parameters, pageable, assembler);
 	}
 	
 	@Override

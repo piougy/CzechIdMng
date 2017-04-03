@@ -16,6 +16,8 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRole;
  */
 public interface IdmRoleService extends ReadWriteEntityService<IdmRole, RoleFilter>, IdentifiableByNameEntityService<IdmRole> {
 
+	public static final String WF_BY_ROLE_PRIORITY_PREFIX = "idm.sec.core.wf.role.approval.";
+	
 	/**
 	 * Return roles by uuids in string
 	 * 

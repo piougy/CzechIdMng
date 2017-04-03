@@ -390,11 +390,11 @@
       "CRON": "Cron"
     },
     "RolePriorityEnum": {
-      "NONE": "None",
-      "MINOR": "Minor",
-      "MAJOR": "Major",
-      "CRITICAL": "Critical",
-      "TRIVIAL": "Trivial"
+      "NONE": "None (0)",
+      "MINOR": "Minor (2)",
+      "MAJOR": "Major (3)",
+      "CRITICAL": "Critical (4)",
+      "TRIVIAL": "Trivial (1)"
     },
     "RoleRequestStateEnum": {
       "CREATED": "Created",

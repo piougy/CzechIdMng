@@ -8,9 +8,8 @@ import RolePriorityEnum from '../../enums/RolePriorityEnum';
 import authorityHelp from './AuthoritiesPanel_cs.md';
 import AuthoritiesPanel from './AuthoritiesPanel';
 import * as Basic from '../../components/basic';
-import { RoleManager, WorkflowProcessDefinitionManager, SecurityManager, IdentityManager, RoleCatalogueManager } from '../../redux';
+import { RoleManager, SecurityManager, IdentityManager, RoleCatalogueManager } from '../../redux';
 
-const workflowProcessDefinitionManager = new WorkflowProcessDefinitionManager();
 const roleManager = new RoleManager();
 const identityManger = new IdentityManager();
 const roleCatalogueManager = new RoleCatalogueManager();
@@ -218,23 +217,6 @@ class RoleDetail extends Basic.AbstractContent {
                     </div>
 
                     <Basic.ContentHeader text={ this.i18n('setting.approval.header') } />
-
-                    <Basic.SelectBox
-                      labelSpan=""
-                      componentSpan=""
-                      ref="approveAddWorkflow"
-                      label={this.i18n('entity.Role.approveAddWorkflow')}
-                      forceSearchParameters={ workflowProcessDefinitionManager.getDefaultSearchParameters().setFilter('category', 'eu.bcvsolutions.role.approve.add') }
-                      multiSelect={false}
-                      manager={workflowProcessDefinitionManager}/>
-                    <Basic.SelectBox
-                      labelSpan=""
-                      componentSpan=""
-                      ref="approveRemoveWorkflow"
-                      label={this.i18n('entity.Role.approveRemoveWorkflow')}
-                      forceSearchParameters={ workflowProcessDefinitionManager.getDefaultSearchParameters().setFilter('category', 'eu.bcvsolutions.role.approve.remove') }
-                      multiSelect={false}
-                      manager={workflowProcessDefinitionManager}/>
                   </div>
 
                   <div className="col-lg-4">

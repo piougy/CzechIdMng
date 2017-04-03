@@ -413,11 +413,11 @@
       "CRON": "Cron"
     },
     "RolePriorityEnum": {
-      "NONE": "Žádná",
-      "MINOR": "Malá",
-      "MAJOR": "Velká",
-      "CRITICAL": "Kritická",
-      "TRIVIAL": "Triviální"
+      "NONE": "Žádná (0)",
+      "MINOR": "Malá (2)",
+      "MAJOR": "Velká (3)",
+      "CRITICAL": "Kritická (4)",
+      "TRIVIAL": "Triviální (1)"
     },
     "RoleRequestStateEnum": {
       "CREATED": "Vytvořeno",

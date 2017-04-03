@@ -7,10 +7,14 @@ Input variables:
 - entityEvent: event with IdmRoleRequestDto
 
 Configuration properties:
-- idm.sec.wf.approve.helpdesk.enabled: If is "false", then process will be not do approving by helpdesk
-- idm.sec.wf.approve.manager.enabled: If is "false", then process will be not do approving by manager
-- idm.sec.wf.approve.usermanager.enabled: If is "false", then process will be not do approving by user manager
-- idm.sec.wf.approve.security.enabled: If is "false", then process will be not do approving by security</documentation>
+- idm.sec.core.wf.approval.helpdesk.enabled: If is "false", then process will be not do approving by helpdesk
+- idm.sec.core.wf.approval.helpdesk.role: Role using for find candates (approve by Helpdesk department)
+- idm.sec.core.wf.approval.manager.enabled: If is "false", then process will be not do approving by manager
+- idm.sec.core.wf.approval.usermanager.enabled: If is "false", then process will be not do approving by user manager
+- idm.sec.core.wf.approval.usermanager.role: Role using for find candates (approve by User manage department)
+- idm.sec.core.wf.approval.security.enabled: If is "false", then process will be not do approving by security
+- idm.sec.core.wf.approval.security.role: Role using for find candates (approve by Security department)
+</documentation>
     <startEvent id="startevent1" name="Start"></startEvent>
     <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway"></exclusiveGateway>
     <userTask id="managerTask" name="Approve by help desk" activiti:candidateUsers="#{candidatesApproveByHelpDesk}" activiti:formKey="dynamicRoleTaskDetail" activiti:skipExpression="#{skipApproveByHelpDesk}">
@@ -215,14 +219,14 @@ roleRequestService.save(requestDto);</script>
 def helpdesks = null;
 
 // Is approving by helpdesk enabled in application configuration? If not, then next task can be skipped
-def configResult = configurationService.getValue("idm.sec.wf.approve.helpdesk.enabled");
+def configResult = configurationService.getValue("idm.sec.core.wf.approval.helpdesk.enabled");
 if(configResult &amp;&amp; configResult.equals("false")){
 	skip = true;
 }
 
 if(!skip){
   //Find all helpdesk identities
-  helpdesks = identityService.findAllByRoleName("helpdesk");
+  helpdesks = identityService.findAllByRoleName(configurationService.getValue("idm.sec.core.wf.approval.helpdesk.role"));
   if(helpdesks.isEmpty()){
     helpdesks.add(identityService.getByUsername("admin"));
   }
@@ -305,7 +309,7 @@ if(!skip){
 def managers = null;
 
 // Is approving by manager enabled in application configuration? If not, then next task can be skipped
-def configResult = configurationService.getValue("idm.sec.wf.approve.manager.enabled");
+def configResult = configurationService.getValue("idm.sec.core.wf.approval.manager.enabled");
 if(configResult &amp;&amp; configResult.equals("false")){
 	skip = true;
 }
@@ -396,14 +400,14 @@ if(!skip){
 def usermanagers = null;
 
 // Is approving by user manager enabled in application configuration? If not, then next task can be skipped
-def configResult = configurationService.getValue("idm.sec.wf.approve.usermanager.enabled");
+def configResult = configurationService.getValue("idm.sec.core.wf.approval.usermanager.enabled");
 if(configResult &amp;&amp; configResult.equals("false")){
 	skip = true;
 }
 
 if(!skip){
   //Find all user managers
-  usermanagers = identityService.findAllByRoleName("usermanager");
+  usermanagers = identityService.findAllByRoleName(configurationService.getValue("idm.sec.core.wf.approval.usermanager.role"));
   if(usermanagers.isEmpty()){
     usermanagers.add(identityService.getByUsername("admin"));
   }
@@ -488,14 +492,14 @@ roleRequestService.save(requestDto);</script>
 def securities = null;
 
 // Is approving by security enabled in application configuration? If not, then next task can be skipped
-def configResult = configurationService.getValue("idm.sec.wf.approve.security.enabled");
+def configResult = configurationService.getValue("idm.sec.core.wf.approval.security.enabled");
 if(configResult &amp;&amp; configResult.equals("false")){
 	skip = true;
 }
 
 if(!skip){
   //Find all security identities
-  securities = identityService.findAllByRoleName("security");
+  securities = identityService.findAllByRoleName(configurationService.getValue("idm.sec.core.wf.approval.security.role"));
   if(securities.isEmpty()){
     securities.add(identityService.getByUsername("admin"));
   }
@@ -526,6 +530,7 @@ if(!skip){
     <sequenceFlow id="flow44" sourceRef="exclusivegateway3" targetRef="sid-02963C54-77A0-4E79-8EBD-4FBA5CCD4501">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${decision.equals("disapprove")}]]></conditionExpression>
     </sequenceFlow>
+    <sequenceFlow id="flow45" sourceRef="sid-02963C54-77A0-4E79-8EBD-4FBA5CCD4501" targetRef="endByManager"></sequenceFlow>
     <dataObject id="approve" name="approve" itemSubjectRef="xsd:string">
       <extensionElements>
         <activiti:value>{"showWarning":false,"level":"success"}</activiti:value>
@@ -562,7 +567,6 @@ if(!skip){
         <activiti:value>none</activiti:value>
       </extensionElements>
     </dataObject>
-    <sequenceFlow id="flow45" sourceRef="sid-02963C54-77A0-4E79-8EBD-4FBA5CCD4501" targetRef="endByManager"></sequenceFlow>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_approve-identity-change-permissions">
     <bpmndi:BPMNPlane bpmnElement="approve-identity-change-permissions" id="BPMNPlane_approve-identity-change-permissions">

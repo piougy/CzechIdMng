@@ -30,10 +30,12 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConceptRoleRequestService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleRequestService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
@@ -63,12 +65,17 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractIntegra
 	private IdmRoleRequestService roleRequestService;
 	@Autowired
 	private SecurityService securityService;
+	@Autowired
+	private IdmRoleService roleService;;
+	@Autowired
+	private IdmConfigurationService configurationService;
 
 	//
 	private IdmRole roleA;
 
 	private static final String USER_TEST_A = "testA";
 	private static final String USER_TEST_B = "testB";
+	private static final String APPROVE_BY_MANAGER_ENABLE = "idm.sec.core.wf.approval.manager.enabled";
 
 	@Before
 	public void init() {
@@ -84,6 +91,10 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractIntegra
 	private void prepareIdentityAndRoles() {
 		// create roles
 		roleA = helper.createRole("A");
+		roleA.setPriority(100);
+		roleService.save(roleA);
+		
+		configurationService.setValue(APPROVE_BY_MANAGER_ENABLE, "true");
 
 		// prepare identity and contract
 		preapareContractAndIdentity(USER_TEST_A);
@@ -262,6 +273,8 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractIntegra
 	@Test()
 	@Transactional()
 	public void duplicatedRequestExceptionTest() {
+		loginAsAdmin(USER_TEST_A);
+		
 		IdmIdentity testA = identityService.getByUsername(USER_TEST_A);
 		IdmIdentityContract contractA = identityContractService.getPrimeContract(testA);
 

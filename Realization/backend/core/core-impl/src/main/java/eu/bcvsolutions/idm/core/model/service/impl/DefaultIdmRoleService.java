@@ -25,6 +25,7 @@ import eu.bcvsolutions.idm.core.model.event.RoleEvent.RoleEventType;
 import eu.bcvsolutions.idm.core.model.event.processor.RoleDeleteProcessor;
 import eu.bcvsolutions.idm.core.model.event.processor.RoleSaveProcessor;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
+import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 
 /**
@@ -40,20 +41,22 @@ public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, Role
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmRoleService.class);
 	private final IdmRoleRepository repository;
 	private final EntityEventManager entityEventManager;
-	@Resource
-	private PlatformTransactionManager platformTransactionManager;
+	private final IdmConfigurationService configurationService;
 	
 	@Autowired
 	public DefaultIdmRoleService(
 			IdmRoleRepository repository,
 			EntityEventManager entityEventManager,
-			FormService formService) {
+			FormService formService,
+			IdmConfigurationService configurationService) {
 		super(repository, formService);
 		//
 		Assert.notNull(entityEventManager);
+		Assert.notNull(configurationService);
 		//
 		this.repository = repository;
 		this.entityEventManager = entityEventManager;
+		this.configurationService = configurationService;
 	}
 
 	@Override
@@ -110,7 +113,7 @@ public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, Role
 	public String findAssignRoleWorkflowDefinition(UUID roleId){
 		Assert.notNull(roleId, "Role ID is required!");
 		
-		String key =  this.get(roleId).getApproveAddWorkflow();
+		String key =  configurationService.getValue(WF_BY_ROLE_PRIORITY_PREFIX + this.get(roleId).getPriority());
 		return Strings.isNullOrEmpty(key) ? null : key;
 	}
 
@@ -118,7 +121,7 @@ public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, Role
 	public String findChangeAssignRoleWorkflowDefinition(UUID roleId){
 		Assert.notNull(roleId, "Role ID is required!");
 	
-		String key =  this.get(roleId).getApproveAddWorkflow();
+		String key =  configurationService.getValue(WF_BY_ROLE_PRIORITY_PREFIX + this.get(roleId).getPriority());
 		return Strings.isNullOrEmpty(key) ? null : key;
 	}
 	
@@ -126,7 +129,7 @@ public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, Role
 	public String findUnAssignRoleWorkflowDefinition(UUID roleId){
 		Assert.notNull(roleId, "Role ID is required!");
 
-		String key =  this.get(roleId).getApproveRemoveWorkflow();
+		String key =  configurationService.getValue(WF_BY_ROLE_PRIORITY_PREFIX + "remove");
 		return Strings.isNullOrEmpty(key) ? null : key;
 	}
 	

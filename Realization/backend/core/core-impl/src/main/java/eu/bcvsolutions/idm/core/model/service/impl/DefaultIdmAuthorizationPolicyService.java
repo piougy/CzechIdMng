@@ -37,6 +37,6 @@ public class DefaultIdmAuthorizationPolicyService
 	public List<IdmAuthorizationPolicyDto> getEnabledPolicies(UUID identityId, Class<? extends BaseEntity> entityType) {
 		Assert.notNull(entityType);
 		//
-		return toDtos(repository.getPolicies(identityId,entityType.getCanonicalName(), false), false);
+		return toDtos(repository.getPolicies(identityId, entityType.getCanonicalName(), false), false);
 	}
 }

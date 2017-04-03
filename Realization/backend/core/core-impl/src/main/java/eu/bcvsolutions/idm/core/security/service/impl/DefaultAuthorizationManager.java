@@ -24,6 +24,7 @@ import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.model.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
+import eu.bcvsolutions.idm.core.security.api.domain.AbstractAuthentication;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizationEvaluatorDto;
@@ -64,29 +65,35 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 	public <E extends BaseEntity> Predicate getPredicate(BasePermission permission, Root<E> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
 		final List<Predicate> predicates = Lists.newArrayList(builder.disjunction()); // disjunction - no data by default
 		//
-		service.getEnabledPolicies(securityService.getAuthentication().getCurrentIdentity().getId(), root.getJavaType()).forEach(policy -> {
-			AuthorizationEvaluator<E> evaluator = getEvaluator(policy);
-			if (evaluator != null && evaluator.supports(root.getJavaType())) {
-				Predicate predicate = evaluator.getPredicate(policy, permission, root, query, builder);
-				if (predicate != null) {
-					predicates.add(predicate);
+		AbstractAuthentication authentication = securityService.getAuthentication();
+		if (authentication != null && authentication.getCurrentIdentity() != null) { // TODO: public data?
+			service.getEnabledPolicies(authentication.getCurrentIdentity().getId(), root.getJavaType()).forEach(policy -> {
+				AuthorizationEvaluator<E> evaluator = getEvaluator(policy);
+				if (evaluator != null && evaluator.supports(root.getJavaType())) {
+					Predicate predicate = evaluator.getPredicate(policy, permission, root, query, builder);
+					if (predicate != null) {
+						predicates.add(predicate);
+					}
 				}
-			}
-		});	
+			});	
+		}
 		return builder.or(predicates.toArray(new Predicate[predicates.size()]));
 	}
 
 	@Override
-	public <E extends BaseEntity> Set<String> evaluate(E entity) {
+	public <E extends BaseEntity> Set<String> getPermissions(E entity) {
 		Assert.notNull(entity);
 		//
 		final Set<String> permissions = new HashSet<>();
-		service.getEnabledPolicies(securityService.getAuthentication().getCurrentIdentity().getId(), entity.getClass()).forEach(policy -> {
-			AuthorizationEvaluator<E> evaluator = getEvaluator(policy);
-			if (evaluator != null) {
-				permissions.addAll(evaluator.evaluate(policy, entity));
-			}
-		});
+		AbstractAuthentication authentication = securityService.getAuthentication();
+		if (authentication != null && authentication.getCurrentIdentity() != null) { // TODO: public data?
+			service.getEnabledPolicies(authentication.getCurrentIdentity().getId(), entity.getClass()).forEach(policy -> {
+				AuthorizationEvaluator<E> evaluator = getEvaluator(policy);
+				if (evaluator != null) {
+					permissions.addAll(evaluator.getPermissions(policy, entity));
+				}
+			});
+		}
 		return permissions;
 	}
 	
@@ -94,10 +101,13 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 	public <E extends BaseEntity> boolean evaluate(E entity, BasePermission permission) {
 		Assert.notNull(entity);
 		//
-		for (IdmAuthorizationPolicyDto policy : service.getEnabledPolicies(securityService.getAuthentication().getCurrentIdentity().getId(), entity.getClass())) {
-			AuthorizationEvaluator<E> evaluator = getEvaluator(policy);
-			if (evaluator != null && evaluator.supports(entity.getClass()) && evaluator.evaluate(policy, entity, permission)) {
-				return true;
+		AbstractAuthentication authentication = securityService.getAuthentication();
+		if (authentication != null && authentication.getCurrentIdentity() != null) { // TODO: public data?
+			for (IdmAuthorizationPolicyDto policy : service.getEnabledPolicies(authentication.getCurrentIdentity().getId(), entity.getClass())) {
+				AuthorizationEvaluator<E> evaluator = getEvaluator(policy);
+				if (evaluator != null && evaluator.supports(entity.getClass()) && evaluator.evaluate(policy, entity, permission)) {
+					return true;
+				}
 			}
 		}
 		return false;

@@ -28,7 +28,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 public class UuidEvaluator extends AbstractAuthorizationEvaluator<AbstractEntity> {
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(UuidEvaluator.class);
-	private static final String PARAMETER_UUID = "uuid";
+	public static final String PARAMETER_UUID = "uuid";
 	
 	@Override
 	public Predicate getPredicate(AuthorizationPolicy policy, BasePermission permission, Root<AbstractEntity> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
@@ -44,8 +44,8 @@ public class UuidEvaluator extends AbstractAuthorizationEvaluator<AbstractEntity
 	}
 	
 	@Override
-	public Set<String> evaluate(AuthorizationPolicy policy, AbstractEntity entity) {
-		Set<String> permissions = super.evaluate(policy, entity);
+	public Set<String> getPermissions(AuthorizationPolicy policy, AbstractEntity entity) {
+		Set<String> permissions = super.getPermissions(policy, entity);
 		if (entity == null) {
 			return permissions;
 		}	

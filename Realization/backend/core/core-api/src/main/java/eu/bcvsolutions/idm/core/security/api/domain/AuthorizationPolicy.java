@@ -3,6 +3,8 @@ package eu.bcvsolutions.idm.core.security.api.domain;
 import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
 
 public interface AuthorizationPolicy {
+	
+	static final String PERMISSION_SEPARATOR = ",";
 
 	/**
 	 * Policy for identifiable type

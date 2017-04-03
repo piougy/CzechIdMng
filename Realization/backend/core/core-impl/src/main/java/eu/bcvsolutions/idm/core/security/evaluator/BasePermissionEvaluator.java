@@ -33,8 +33,8 @@ public class BasePermissionEvaluator extends AbstractAuthorizationEvaluator<Base
 	}
 	
 	@Override
-	public Set<String> evaluate(AuthorizationPolicy policy, BaseEntity entity) {
-		final Set<String> permissions = super.evaluate(policy, entity);
+	public Set<String> getPermissions(AuthorizationPolicy policy, BaseEntity entity) {
+		final Set<String> permissions = super.getPermissions(policy, entity);
 		permissions.addAll(getBasePermissions(policy));
 		return permissions;
 	}

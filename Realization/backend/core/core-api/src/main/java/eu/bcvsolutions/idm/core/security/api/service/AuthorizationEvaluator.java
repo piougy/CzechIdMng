@@ -75,7 +75,7 @@ public interface AuthorizationEvaluator<E extends Identifiable> extends Ordered 
 	 * @param authorizable
 	 * @return set of {@link BasePermission}s 
 	 */
-	Set<String> evaluate(AuthorizationPolicy policy, E authorizable);
+	Set<String> getPermissions(AuthorizationPolicy policy, E authorizable);
 	
 	/**
 	 * Returns true, when currently logged user has given permission on given authorizable object by given policy.

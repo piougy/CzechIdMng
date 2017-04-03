@@ -20,8 +20,8 @@ import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 public class RoleWriteNewOnlyEvaluator extends AbstractAuthorizationEvaluator<IdmRole> {	
 	
 	@Override
-	public Set<String> evaluate(AuthorizationPolicy policy, IdmRole entity) {
-		Set<String> permissions = super.evaluate(policy, entity);	
+	public Set<String> getPermissions(AuthorizationPolicy policy, IdmRole entity) {
+		Set<String> permissions = super.getPermissions(policy, entity);	
 		permissions.add(IdmBasePermission.CREATE.getName());
 		return permissions;
 	}

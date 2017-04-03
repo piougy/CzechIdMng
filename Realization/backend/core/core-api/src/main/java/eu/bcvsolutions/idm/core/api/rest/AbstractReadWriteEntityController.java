@@ -216,6 +216,6 @@ public abstract class AbstractReadWriteEntityController<E extends BaseEntity, F 
 		if (entity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
-		return getAuthorizationManager().evaluate(entity);
+		return getAuthorizationManager().getPermissions(entity);
 	}
 }

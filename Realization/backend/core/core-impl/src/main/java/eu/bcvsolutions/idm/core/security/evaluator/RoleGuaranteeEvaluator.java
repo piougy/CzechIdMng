@@ -11,9 +11,11 @@ import javax.persistence.criteria.Subquery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleGuarantee;
+import eu.bcvsolutions.idm.core.security.api.domain.AbstractAuthentication;
 import eu.bcvsolutions.idm.core.security.api.domain.AuthorizationPolicy;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
@@ -28,11 +30,22 @@ import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 @Description("Role guarantee will have selected permissions.")
 public class RoleGuaranteeEvaluator extends AbstractAuthorizationEvaluator<IdmRole> {
 	
+	private final SecurityService securityService;
+	
 	@Autowired
-	private SecurityService securityService;
+	public RoleGuaranteeEvaluator(SecurityService securityService) {
+		Assert.notNull(securityService);
+		//
+		this.securityService = securityService;
+	}
 
 	@Override
 	public Predicate getPredicate(AuthorizationPolicy policy, BasePermission permission, Root<IdmRole> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
+		AbstractAuthentication authentication = securityService.getAuthentication();
+		if (authentication == null || authentication.getCurrentIdentity() == null) {
+			return null;
+		}
+		//
 		if (hasPermission(policy, permission)) {
 			Subquery<IdmRoleGuarantee> subquery = query.subquery(IdmRoleGuarantee.class);
 			Root<IdmRoleGuarantee> subRoot = subquery.from(IdmRoleGuarantee.class);
@@ -41,7 +54,7 @@ public class RoleGuaranteeEvaluator extends AbstractAuthorizationEvaluator<IdmRo
 			subquery.where(
 	                builder.and(
 	                		builder.equal(subRoot.get("role"), root), // correlation attr
-	                		builder.equal(subRoot.get("guarantee").get("id"), securityService.getAuthentication().getCurrentIdentity().getId())
+	                		builder.equal(subRoot.get("guarantee").get("id"), authentication.getCurrentIdentity().getId())
 	                		)
 	        );	
 			return builder.exists(subquery);
@@ -50,8 +63,8 @@ public class RoleGuaranteeEvaluator extends AbstractAuthorizationEvaluator<IdmRo
 	}
 	
 	@Override
-	public Set<String> evaluate(AuthorizationPolicy policy, IdmRole entity) {
-		Set<String> permissions = super.evaluate(policy, entity);
+	public Set<String> getPermissions(AuthorizationPolicy policy, IdmRole entity) {
+		Set<String> permissions = super.getPermissions(policy, entity);
 		if (entity == null) {
 			return permissions;
 		}

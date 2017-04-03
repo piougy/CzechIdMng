@@ -88,7 +88,7 @@ public abstract class AbstractAuthorizationEvaluator<E extends Identifiable> imp
 	 * Returns empty set - no data will be available. Supposed to be overriden.
 	 */
 	@Override
-	public Set<String> evaluate(AuthorizationPolicy policy, E authorizable) {
+	public Set<String> getPermissions(AuthorizationPolicy policy, E authorizable) {
 		return new HashSet<>();
 	}
 
@@ -97,7 +97,7 @@ public abstract class AbstractAuthorizationEvaluator<E extends Identifiable> imp
 	 */
 	@Override
 	public boolean evaluate(AuthorizationPolicy policy, E authorizable, BasePermission permission) {
-		Set<String> permissions = evaluate(policy, authorizable);
+		Set<String> permissions = getPermissions(policy, authorizable);
 		//
 		return permissions.contains(permission.toString()) || permissions.contains(IdmBasePermission.ADMIN.getName());
 	}
@@ -129,7 +129,7 @@ public abstract class AbstractAuthorizationEvaluator<E extends Identifiable> imp
 	protected Set<String> getBasePermissions(AuthorizationPolicy policy) {
 		Set<String> permissions = new HashSet<>();
 		if (StringUtils.isNotEmpty(policy.getBasePermissions())) {
-			for (String basePermission : policy.getBasePermissions().split(",")) {
+			for (String basePermission : policy.getBasePermissions().split(AuthorizationPolicy.PERMISSION_SEPARATOR)) {
 				if(StringUtils.isNotBlank(basePermission)) {
 					permissions.add(basePermission.toUpperCase().trim());
 				}

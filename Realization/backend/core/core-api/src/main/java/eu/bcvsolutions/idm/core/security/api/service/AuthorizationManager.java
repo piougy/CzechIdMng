@@ -39,7 +39,7 @@ public interface AuthorizationManager {
 	 * @param entity
 	 * @return
 	 */
-	<E extends BaseEntity> Set<String> evaluate(E entity);
+	<E extends BaseEntity> Set<String> getPermissions(E entity);
 	
 	/**
 	 * Returns true, when currently logged user has given permission on given entity.

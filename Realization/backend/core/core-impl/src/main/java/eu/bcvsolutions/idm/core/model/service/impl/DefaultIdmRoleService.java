@@ -37,7 +37,6 @@ import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
-import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizationManager;
 
 /**
@@ -48,7 +47,7 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizationManager;
  *
  */
 @Service("roleService")
-public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, RoleFilter> implements IdmRoleService, AuthorizableService<IdmRole, RoleFilter> {
+public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, RoleFilter> implements IdmRoleService {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmRoleService.class);
 	private final IdmRoleRepository repository;

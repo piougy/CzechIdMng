@@ -119,9 +119,9 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 				existsSuperAdminRole = this.roleService.save(superAdminRole);
 				// super admin authorization policy
 				IdmAuthorizationPolicyDto policy = new IdmAuthorizationPolicyDto();
-				policy.setBasePermissions(IdmBasePermission.ADMIN);
+				policy.setBasePermissions(IdmBasePermission.ADMIN.getName());
 				policy.setRole(existsSuperAdminRole.getId());
-				policy.setEvaluatorType(BasePermissionEvaluator.class);
+				policy.setEvaluatorType(BasePermissionEvaluator.class.getCanonicalName());
 				authorizationPolicyService.save(policy);
 				//
 				LOG.info(MessageFormat.format("Super admin Role created [id: {0}]", superAdminRole.getId()));

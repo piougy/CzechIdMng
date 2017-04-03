@@ -158,7 +158,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 					objectClass, 
 					uidAttribute);
 			if (existsConnectorObject == null) {
-				processCreate(provisioningOperation, connectorConfig);
+				processCreate(provisioningOperation);
 			} else {
 				processUpdate(provisioningOperation, connectorConfig, existsConnectorObject);
 			}
@@ -202,7 +202,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 	 * @param provisioningOperation
 	 * @param connectorConfig
 	 */
-	private void processCreate(SysProvisioningOperation provisioningOperation, IcConnectorConfiguration connectorConfig) {
+	private void processCreate(SysProvisioningOperation provisioningOperation) {
 		SysSystem system = provisioningOperation.getSystem();
 		ProvisioningContext provisioningContext = provisioningOperation.getProvisioningContext();
 		IcConnectorObject connectorObject = provisioningContext.getConnectorObject();
@@ -398,10 +398,10 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 							}
 							
 						 	// Merge IdM values with connector values
-							if(connectorValue != null && connectorValue instanceof List){
+							if(connectorValue instanceof List){
 								List<Object> connectorValues = new ArrayList<>((List<Object>)connectorValue);
 								List<Object> idmValues = null;
-								if(idmValue != null && idmValue instanceof List){
+								if(idmValue instanceof List){
 									idmValues = (List<Object>) idmValue;
 								}
 								if(idmValues != null){
@@ -421,12 +421,12 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 									&& lastSuccessEntity.getProvisioningContext().getAccountObject() != null 
 									&& lastSuccessEntity.getProvisioningContext().getAccountObject().containsKey(provisioningAttribute)){
 								Object oldValue = lastSuccessEntity.getProvisioningContext().getAccountObject().get(provisioningAttribute);
-								if(oldValue != null && oldValue instanceof List){
+								if(oldValue instanceof List){
 									if(!oldValue.equals(idmValue)){
 										// Search all deleted values (managed by IdM) by founded last provisioning values
 										List<?> deletedValues = ((List<?>)oldValue).stream().filter(value -> {
 											List<?> idmValues = null;
-											if(idmValue != null && idmValue instanceof List){
+											if(idmValue instanceof List){
 												idmValues = (List<?>) idmValue;
 											}
 											if(idmValues != null && idmValues.contains(value)){
@@ -434,7 +434,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 											} 
 											return true;
 										}).collect(Collectors.toList());
-										if(resultValue != null && resultValue instanceof List){
+										if(resultValue instanceof List){
 											List<?> resultValues = new ArrayList<>((List<Object>)resultValue);
 											
 											// Remove all deleted values (managed by IdM) 

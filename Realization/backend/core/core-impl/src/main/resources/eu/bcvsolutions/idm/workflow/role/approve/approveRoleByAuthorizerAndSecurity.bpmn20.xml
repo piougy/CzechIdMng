@@ -23,7 +23,7 @@ Input variables:
     </userTask>
     <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway"></exclusiveGateway>
     <sequenceFlow id="flow2" sourceRef="approveTask" targetRef="exclusivegateway1"></sequenceFlow>
-    <endEvent id="endevent1" name="End"></endEvent>
+    <endEvent id="endevent1" name="End" activiti:async="true"></endEvent>
     <sequenceFlow id="flow3" name="disapproved" sourceRef="exclusivegateway1" targetRef="scripttask4">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[#{decision.equals("disapprove")}]]></conditionExpression>
     </sequenceFlow>
@@ -62,7 +62,7 @@ Input variables:
     <sequenceFlow id="flow31" name="Identity role not exist" sourceRef="exclusivegateway5" targetRef="scripttask7">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[#{identityRoleService.get(conceptRole.identityRole) == null}]]></conditionExpression>
     </sequenceFlow>
-    <endEvent id="endevent5" name="End - Identity role with given ID not found">
+    <endEvent id="endevent5" name="End - Identity role with given ID not found" activiti:async="true">
       <documentation>Identity role with given ID not found</documentation>
     </endEvent>
     <scriptTask id="scripttask4" name="Set DISAPPROVED state to concept" scriptFormat="groovy" activiti:autoStoreVariables="false">
@@ -132,7 +132,7 @@ if(implementerUsername.equals(securityService.getUsername())){
 
 // If is skip == true, then set decision for next task on approve
 if (skip) {
- decision = approve;
+ execution.setVariable("decision", "approve");
 }
 
 //Save skip resolution to variables
@@ -167,7 +167,7 @@ if(implementerUsername.equals(securityService.getUsername())){
 
 // If is skip == true, then set decision for next task on approve
 if (skip) {
- decision = approve;
+ execution.setVariable("decision", "approve");
 }
 //Save skip resolution to variables
 execution.setVariable("skipApproveBySecurity", skip);
@@ -219,7 +219,7 @@ if(implementerUsername.equals(securityService.getUsername())){
 
 // If is skip == true, then set decision for next task on approve
 if (skip) {
- decision = approve;
+ execution.setVariable("decision", "approve");
 }
 
 //Save skip resolution to variables
@@ -257,7 +257,7 @@ if(implementerUsername.equals(securityService.getUsername())){
 
 // If is skip == true, then set decision for next task on approve
 if (skip) {
- decision = approve;
+ execution.setVariable("decision", "approve");
 }
 //Save skip resolution to variables
 execution.setVariable("skipApproveBySecurity", skip);
@@ -302,7 +302,7 @@ if(!skip){
       </extensionElements>
     </dataObject>
     <dataObject id="decision" name="decision" itemSubjectRef="xsd:string"></dataObject>
-    <endEvent id="endevent6" name="End"></endEvent>
+    <endEvent id="endevent6" name="End" activiti:async="true"></endEvent>
     <sequenceFlow id="flow52" sourceRef="scripttask5" targetRef="endevent6"></sequenceFlow>
     <textAnnotation id="textannotation1">
       <text>Assign role to identity</text>
@@ -400,7 +400,7 @@ if(!skip){
         <omgdi:waypoint x="1095.0" y="317.0"></omgdi:waypoint>
         <omgdi:waypoint x="1692.0" y="319.0"></omgdi:waypoint>
         <bpmndi:BPMNLabel>
-          <omgdc:Bounds height="12.0" width="100.0" x="1104.0" y="299.0"></omgdc:Bounds>
+          <omgdc:Bounds height="12.0" width="60.0" x="1104.0" y="299.0"></omgdc:Bounds>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow7" id="BPMNEdge_flow7">
@@ -491,7 +491,7 @@ if(!skip){
         <omgdi:waypoint x="1632.0" y="368.0"></omgdi:waypoint>
         <omgdi:waypoint x="1772.0" y="353.0"></omgdi:waypoint>
         <bpmndi:BPMNLabel>
-          <omgdc:Bounds height="12.0" width="100.0" x="1126.0" y="386.0"></omgdc:Bounds>
+          <omgdc:Bounds height="12.0" width="60.0" x="1126.0" y="386.0"></omgdc:Bounds>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow48" id="BPMNEdge_flow48">

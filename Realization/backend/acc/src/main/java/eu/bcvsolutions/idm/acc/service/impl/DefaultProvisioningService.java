@@ -576,7 +576,7 @@ public class DefaultProvisioningService implements ProvisioningService {
 			return attributeMapping.equals(defaultAttribute);
 		}).sorted((att1, att2) -> {
 			// Sort attributes by role priority
-			return new Integer(att2.getRoleSystem().getRole().getPriority())
+			return Integer.valueOf(att2.getRoleSystem().getRole().getPriority())
 					.compareTo(new Integer(att1.getRoleSystem().getRole().getPriority()));
 		}).collect(Collectors.toList());
 

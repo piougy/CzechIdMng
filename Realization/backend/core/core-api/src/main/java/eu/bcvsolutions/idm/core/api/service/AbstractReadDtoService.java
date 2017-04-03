@@ -109,12 +109,14 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public Page<DTO> findDto(Pageable pageable) {
 		Page<E> page = find(pageable);
 		return toDtoPage(page);
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public Page<DTO> findDto(F filter, Pageable pageable) {
 		Page<E> page = find(filter, pageable);
 		return toDtoPage(page);
@@ -171,6 +173,7 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	}
 
 	@Override
+	@Transactional
 	public DTO toDto(E entity, DTO dto) {
 		if (entity == null) {
 			return null;
@@ -183,6 +186,7 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	}
 
 	@Override
+	@Transactional
 	public Page<DTO> toDtoPage(Page<E> entityPage) {
 		List<DTO> dtos = this.toDtos(entityPage.getContent(), true);
 		PageRequest pageRequest = null;
@@ -220,6 +224,7 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	}
 
 	@Override
+	@Transactional
 	public E toEntity(DTO dto, E entity) {
 		if (dto == null) {
 			return null;

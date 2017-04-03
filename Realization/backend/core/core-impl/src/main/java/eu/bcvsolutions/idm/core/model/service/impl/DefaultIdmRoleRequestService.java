@@ -261,7 +261,10 @@ public class DefaultIdmRoleRequestService
 			
 			Map<String, Object> variables = new HashMap<>();
 			// Minimize size of DTO persisting to WF
-			trimRequest(event.getContent());
+			IdmRoleRequestDto eventRequest = event.getContent();
+			trimRequest(eventRequest);
+			eventRequest.setConceptRoles(null);
+			eventRequest.setOriginalRequest(null);
 			variables.put(EntityEvent.EVENT_PROPERTY, event);
 			
 			ProcessInstance processInstance = workflowProcessInstanceService.startProcess(wfDefinition,

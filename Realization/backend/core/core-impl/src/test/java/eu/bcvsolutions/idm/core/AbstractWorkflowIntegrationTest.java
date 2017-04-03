@@ -35,7 +35,6 @@ public abstract class AbstractWorkflowIntegrationTest extends AbstractIntegratio
 	@Autowired
 	private WorkflowDeploymentService processDeploymentService;
 
-	
 	@Autowired
 	private AutowireCapableBeanFactory beanFactory;
     

@@ -13,8 +13,7 @@ Configuration properties:
 - idm.sec.core.wf.approval.usermanager.enabled: If is "false", then process will be not do approving by user manager
 - idm.sec.core.wf.approval.usermanager.role: Role using for find candates (approve by User manage department)
 - idm.sec.core.wf.approval.security.enabled: If is "false", then process will be not do approving by security
-- idm.sec.core.wf.approval.security.role: Role using for find candates (approve by Security department)
-</documentation>
+- idm.sec.core.wf.approval.security.role: Role using for find candates (approve by Security department)</documentation>
     <startEvent id="startevent1" name="Start"></startEvent>
     <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway"></exclusiveGateway>
     <userTask id="managerTask" name="Approve by help desk" activiti:candidateUsers="#{candidatesApproveByHelpDesk}" activiti:formKey="dynamicRoleTaskDetail" activiti:skipExpression="#{skipApproveByHelpDesk}">

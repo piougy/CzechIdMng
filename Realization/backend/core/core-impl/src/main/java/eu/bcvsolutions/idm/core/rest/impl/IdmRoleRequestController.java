@@ -128,8 +128,9 @@ public class IdmRoleRequestController extends DefaultReadWriteDtoController<IdmR
 		if(!Strings.isNullOrEmpty(statesStr)){
 			List<RoleRequestState> states = new ArrayList<>();
 			for( String state : statesStr.split(",")){
-				if(!Strings.isNullOrEmpty(state.trim())){
-					states.add(RoleRequestState.valueOf(state.trim()));
+				String stateTrimmed = state.trim();
+				if(!Strings.isNullOrEmpty(stateTrimmed)){
+					states.add(RoleRequestState.valueOf(stateTrimmed));
 				}
 			}
 			if(!states.isEmpty()){

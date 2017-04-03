@@ -20,8 +20,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
+import eu.bcvsolutions.idm.core.api.config.domain.EmailerConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
-import eu.bcvsolutions.idm.core.config.domain.DefaultEmailerConfiguration;
 import eu.bcvsolutions.idm.core.notification.entity.IdmEmailLog;
 import eu.bcvsolutions.idm.core.notification.entity.IdmMessage;
 import eu.bcvsolutions.idm.core.notification.service.api.Emailer;
@@ -49,7 +49,7 @@ public class DefaultEmailer implements Emailer {
     private ProducerTemplate producerTemplate;
 	
 	@Autowired
-	private DefaultEmailerConfiguration configuration;
+	private EmailerConfiguration configuration;
 	
 	@Autowired
 	private IdmNotificationTemplateService notificationTemplateService;

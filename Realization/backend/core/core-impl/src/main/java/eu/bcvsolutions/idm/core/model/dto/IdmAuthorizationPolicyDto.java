@@ -82,6 +82,7 @@ public class IdmAuthorizationPolicyDto extends AbstractDto implements Authorizat
 		this.seq = seq;
 	}
 
+	@Override
 	public String getEvaluatorType() {
 		return evaluatorType;
 	}

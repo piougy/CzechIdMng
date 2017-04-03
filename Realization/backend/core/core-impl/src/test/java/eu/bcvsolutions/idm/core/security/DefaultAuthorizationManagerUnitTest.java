@@ -15,12 +15,10 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.springframework.context.ApplicationContext;
 
-import eu.bcvsolutions.idm.core.api.dto.IdentityDto;
 import eu.bcvsolutions.idm.core.model.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
-import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizationManager;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.security.evaluator.BasePermissionEvaluator;
@@ -66,7 +64,7 @@ public class DefaultAuthorizationManagerUnitTest extends AbstractUnitTest {
 	@Test
 	public void testGetPermissions() {
 		when(service.getEnabledPolicies(any(), any())).thenReturn(enabledPolicies);
-		when(securityService.getAuthentication()).thenReturn(new IdmJwtAuthentication(new IdentityDto(), null, null, null, null));
+		when(securityService.isAuthenticated()).thenReturn(true);
 		when(context.getBean(BasePermissionEvaluator.class)).thenReturn(evaluator);
 		//
 		Set<String> basePermissions = manager.getPermissions(new IdmRole());
@@ -78,7 +76,7 @@ public class DefaultAuthorizationManagerUnitTest extends AbstractUnitTest {
 	@Test
 	public void testEvaluate() {
 		when(service.getEnabledPolicies(any(), any())).thenReturn(enabledPolicies);
-		when(securityService.getAuthentication()).thenReturn(new IdmJwtAuthentication(new IdentityDto(), null, null, null, null));
+		when(securityService.isAuthenticated()).thenReturn(true);
 		when(context.getBean(BasePermissionEvaluator.class)).thenReturn(evaluator);
 		//
 		assertTrue(manager.evaluate(new IdmRole(), IdmBasePermission.READ));

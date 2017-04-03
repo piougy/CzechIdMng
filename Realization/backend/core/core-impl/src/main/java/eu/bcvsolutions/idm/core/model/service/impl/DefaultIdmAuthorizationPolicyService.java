@@ -1,7 +1,6 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
 import java.util.List;
-import java.util.UUID;
 
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -34,9 +33,9 @@ public class DefaultIdmAuthorizationPolicyService
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<IdmAuthorizationPolicyDto> getEnabledPolicies(UUID identityId, Class<? extends BaseEntity> entityType) {
+	public List<IdmAuthorizationPolicyDto> getEnabledPolicies(String username, Class<? extends BaseEntity> entityType) {
 		Assert.notNull(entityType);
 		//
-		return toDtos(repository.getPolicies(identityId, entityType.getCanonicalName(), false), false);
+		return toDtos(repository.getPolicies(username, entityType.getCanonicalName(), false), false);
 	}
 }

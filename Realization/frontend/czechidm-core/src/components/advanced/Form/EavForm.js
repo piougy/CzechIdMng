@@ -7,6 +7,8 @@ import RichTextArea from '../RichTextArea/RichTextArea';
 
 /**
  * Content of eav form by given form instance (= form definition + form values)
+ *
+ * @author Radek Tomiška
  */
 export default class EavForm extends Basic.AbstractContextComponent {
 

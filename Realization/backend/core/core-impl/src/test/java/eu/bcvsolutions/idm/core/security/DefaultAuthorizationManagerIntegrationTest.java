@@ -7,17 +7,24 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
+import org.joda.time.LocalDate;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.TestHelper;
+import eu.bcvsolutions.idm.core.model.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.model.dto.filter.RoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
@@ -49,6 +56,10 @@ public class DefaultAuthorizationManagerIntegrationTest extends AbstractIntegrat
 	private LoginService loginService;
 	@Autowired
 	private IdmRoleService roleService;
+	@Autowired
+	private IdmIdentityRoleService identityRoleService;
+	@Autowired
+	private IdmIdentityContractService identityContractService;
 	//
 	private AuthorizationManager manager;
 	
@@ -139,5 +150,132 @@ public class DefaultAuthorizationManagerIntegrationTest extends AbstractIntegrat
 		}
 	}
 	
+	@Test
+	public void testFindValidPolicies() {
+		try {
+			loginAsAdmin(InitTestData.TEST_USER_1);
+			// prepare role
+			IdmRole role = helper.createRole();
+			IdmRole role2 = helper.createRole();
+			helper.createUuidPolicy(role.getId(), role.getId(), IdmBasePermission.READ);		
+			helper.createBasePolicy(role2.getId(), IdmBasePermission.AUTOCOMPLETE);
+			// prepare identity
+			IdmIdentity identity = helper.createIdentity();
+			// assign role
+			helper.createIdentityRole(identity, role);
+			helper.createIdentityRole(identity, role2);
+			//
+			assertEquals(2, service.getEnabledPolicies(identity.getUsername(), IdmRole.class).size());
+		} finally {
+			logout();
+		}
+	}
 	
+	@Test
+	@Transactional
+	public void testFindValidPoliciesWithInvalidRole() {
+		try {
+			loginAsAdmin(InitTestData.TEST_USER_1);
+			// prepare role
+			IdmRole role = helper.createRole();
+			IdmRole role2 = helper.createRole();
+			role2.setDisabled(true);
+			roleService.save(role2);
+			helper.createUuidPolicy(role.getId(), role.getId(), IdmBasePermission.READ);		
+			helper.createBasePolicy(role2.getId(), IdmBasePermission.AUTOCOMPLETE);	
+			// prepare identity
+			IdmIdentity identity = helper.createIdentity();
+			// assign role
+			helper.createIdentityRole(identity, role);
+			helper.createIdentityRole(identity, role2);
+			//
+			List<IdmAuthorizationPolicyDto> policies = service.getEnabledPolicies(identity.getUsername(), IdmRole.class);
+			assertEquals(1, policies.size());
+			assertEquals(role.getId(), policies.get(0).getRole());
+		} finally {
+			logout();
+		}
+	}
+	
+	@Test
+	@Transactional
+	public void testFindValidPoliciesWithInvalidIdentityRole() {
+		try {
+			loginAsAdmin(InitTestData.TEST_USER_1);
+			// prepare role
+			IdmRole role = helper.createRole();
+			IdmRole role2 = helper.createRole();
+			helper.createUuidPolicy(role.getId(), role.getId(), IdmBasePermission.READ);		
+			helper.createBasePolicy(role2.getId(), IdmBasePermission.AUTOCOMPLETE);	
+			// prepare identity
+			IdmIdentity identity = helper.createIdentity();
+			// assign role
+			helper.createIdentityRole(identity, role);
+			IdmIdentityRole assignedRole = helper.createIdentityRole(identity, role2);
+			assignedRole.setValidFrom(new LocalDate().plusDays(1));
+			identityRoleService.save(assignedRole);
+			//
+			List<IdmAuthorizationPolicyDto> policies = service.getEnabledPolicies(identity.getUsername(), IdmRole.class);
+			assertEquals(1, policies.size());
+			assertEquals(role.getId(), policies.get(0).getRole());
+		} finally {
+			logout();
+		}
+	}
+	
+	@Test
+	@Transactional
+	public void testFindValidPoliciesWithInvalidIdentityContractByDisabled() {
+		try {
+			loginAsAdmin(InitTestData.TEST_USER_1);
+			// prepare role
+			IdmRole role = helper.createRole();
+			IdmRole role2 = helper.createRole();
+			helper.createUuidPolicy(role.getId(), role.getId(), IdmBasePermission.READ);		
+			helper.createBasePolicy(role2.getId(), IdmBasePermission.AUTOCOMPLETE);	
+			// prepare identity
+			IdmIdentity identity = helper.createIdentity();
+			// assign role
+			helper.createIdentityRole(identity, role);
+			IdmIdentityContract contract = helper.createIdentityContact(identity);
+			contract.setDisabled(true);	
+			identityContractService.save(contract);
+			helper.createIdentityRole(contract, role2);
+			//
+			List<IdmAuthorizationPolicyDto> policies = service.getEnabledPolicies(identity.getUsername(), IdmRole.class);
+			assertEquals(1, policies.size());
+			assertEquals(role.getId(), policies.get(0).getRole());
+		} finally {
+			logout();
+		}
+	}
+	
+	@Test
+	@Transactional
+	public void testFindValidPoliciesWithInvalidIdentityContractByDates() {
+		try {
+			loginAsAdmin(InitTestData.TEST_USER_1);
+			// prepare role
+			IdmRole role = helper.createRole();
+			IdmRole role2 = helper.createRole();
+			helper.createUuidPolicy(role.getId(), role.getId(), IdmBasePermission.READ);		
+			helper.createBasePolicy(role2.getId(), IdmBasePermission.AUTOCOMPLETE);	
+			// prepare identity
+			IdmIdentity identity = helper.createIdentity();
+			// assign role
+			helper.createIdentityRole(identity, role);
+			IdmIdentityContract contract = new IdmIdentityContract();
+			contract.setIdentity(identity);
+			contract.setPosition("position-" + System.currentTimeMillis());
+			contract.setValidFrom(new LocalDate().plusDays(1));
+			identityContractService.save(contract);
+			helper.createIdentityRole(contract, role2);
+			//
+			List<IdmAuthorizationPolicyDto> policies = service.getEnabledPolicies(identity.getUsername(), IdmRole.class);
+			assertEquals(1, policies.size());
+			assertEquals(role.getId(), policies.get(0).getRole());
+		} finally {
+			logout();
+		}
+	}
 }

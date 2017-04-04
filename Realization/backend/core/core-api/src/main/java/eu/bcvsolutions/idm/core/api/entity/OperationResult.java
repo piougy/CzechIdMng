@@ -4,11 +4,11 @@ import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.Type;
 
 import com.google.common.base.Throwables;
-import com.sun.istack.NotNull;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;

@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.model.service.impl;
 
 import java.util.List;
 
+import org.joda.time.LocalDate;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
@@ -36,6 +37,6 @@ public class DefaultIdmAuthorizationPolicyService
 	public List<IdmAuthorizationPolicyDto> getEnabledPolicies(String username, Class<? extends BaseEntity> entityType) {
 		Assert.notNull(entityType);
 		//
-		return toDtos(repository.getPolicies(username, entityType.getCanonicalName(), false), false);
+		return toDtos(repository.getPolicies(username, entityType.getCanonicalName(), false, new LocalDate()), false);
 	}
 }

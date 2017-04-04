@@ -15,7 +15,7 @@ import javax.validation.constraints.Size;
 import org.hibernate.annotations.Type;
 import org.hibernate.envers.Audited;
 
-import com.sun.istack.NotNull;
+import javax.validation.constraints.NotNull;
 
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
 import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType;

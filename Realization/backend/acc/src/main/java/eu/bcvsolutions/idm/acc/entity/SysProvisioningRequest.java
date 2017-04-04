@@ -16,7 +16,7 @@ import javax.persistence.Table;
 import org.joda.time.DateTime;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.sun.istack.NotNull;
+import javax.validation.constraints.NotNull;
 
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;

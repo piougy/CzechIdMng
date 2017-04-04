@@ -17,7 +17,7 @@ import javax.persistence.Table;
 import org.hibernate.annotations.Type;
 import org.joda.time.LocalDateTime;
 
-import com.sun.istack.NotNull;
+import javax.validation.constraints.NotNull;
 
 import eu.bcvsolutions.idm.core.api.domain.Loggable;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;

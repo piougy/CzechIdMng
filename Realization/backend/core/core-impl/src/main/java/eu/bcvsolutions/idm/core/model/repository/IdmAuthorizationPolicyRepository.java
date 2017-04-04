@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.model.repository;
 
 import java.util.List;
 
+import org.joda.time.LocalDate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
@@ -30,23 +31,29 @@ public interface IdmAuthorizationPolicyRepository extends AbstractEntityReposito
 	Page<IdmAuthorizationPolicy> find(AuthorizationPolicyFilter filter, Pageable pageable);
 	
 	/**
-	 * Returns all policies for given identity and entity type. 
-	 * 
-	 * TODO: valid ir and ic ...
+	 * Returns all valid policies for given identity and entity type. 
 	 * 
 	 * @param username identity's username
 	 * @param authorizableType
 	 * @param disabled
+	 * @param currentDate
 	 * @return
 	 */
 	@Query(value = "select e from #{#entityName} e" +
 	        " where"
-	        + " (e.authorizableType is null or e.authorizableType = :authorizableType)"
+	        + " (e.role.disabled = :disabled)"
+	        + " and (e.authorizableType is null or e.authorizableType = :authorizableType)"
 	        + " and (e.disabled = :disabled)"
-	        + " and exists(from IdmIdentityRole ir where ir.role = e.role and ir.identityContract.identity.username = :username)"
+	        + " and exists("
+	        	+ " from IdmIdentityRole ir join ir.identityContract ic"
+	        	+ " where ir.role = e.role and ic.identity.username = :username"
+	        	+ " and (ir.validTill is null or ir.validTill >= :currentDate) and (ir.validFrom is null or ir.validFrom <= :currentDate)"
+	        	+ " and (ic.disabled = :disabled and ic.validTill is null or ic.validTill >= :currentDate) and (ic.validFrom is null or ic.validFrom <= :currentDate)"
+	        	+ ")"
 	        + " order by seq asc")
 	List<IdmAuthorizationPolicy> getPolicies(
 			@Param("username") String username, 
 			@Param("authorizableType") String authorizableType, 
-			@Param("disabled") boolean disabled);
+			@Param("disabled") boolean disabled,
+			@Param("currentDate") LocalDate currentDate);
 }

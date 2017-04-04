@@ -5,6 +5,7 @@ import java.util.UUID;
 import eu.bcvsolutions.idm.core.model.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.model.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
@@ -78,5 +79,22 @@ public interface TestHelper {
 	 * @return
 	 */
 	IdmIdentityRole createIdentityRole(IdmIdentity identity, IdmRole role);
+	
+	/**
+	 * Creates assigned identity's role directly (without approving etc.)
+	 * 
+	 * @param identityContract
+	 * @param role
+	 * @return
+	 */
+	IdmIdentityRole createIdentityRole(IdmIdentityContract identityContract, IdmRole role);
+	
+	/**
+	 * Creates simple identity contract
+	 * 
+	 * @param identity
+	 * @return
+	 */
+	IdmIdentityContract createIdentityContact(IdmIdentity identity);
 
 }

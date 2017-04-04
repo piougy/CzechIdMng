@@ -9,6 +9,7 @@ import org.springframework.util.Assert;
 import eu.bcvsolutions.idm.core.model.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.model.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
@@ -183,10 +184,23 @@ public class DefaultTestHelper implements TestHelper {
 	
 	@Override
 	public IdmIdentityRole createIdentityRole(IdmIdentity identity, IdmRole role) {
+		return createIdentityRole(identityContractService.getPrimeContract(identity), role);
+	}
+	
+	@Override
+	public IdmIdentityRole createIdentityRole(IdmIdentityContract identityContract, IdmRole role) {
 		IdmIdentityRole identityRole = new IdmIdentityRole();
-		identityRole.setIdentityContract(identityContractService.getPrimeContract(identity));
+		identityRole.setIdentityContract(identityContract);
 		identityRole.setRole(role);
 		return identityRoleRepository.save(identityRole);
+	}
+
+	@Override
+	public IdmIdentityContract createIdentityContact(IdmIdentity identity) {
+		IdmIdentityContract contract = new IdmIdentityContract();
+		contract.setIdentity(identity);
+		contract.setPosition("position-" + System.currentTimeMillis());
+		return identityContractService.save(contract);
 	}
 	
 }

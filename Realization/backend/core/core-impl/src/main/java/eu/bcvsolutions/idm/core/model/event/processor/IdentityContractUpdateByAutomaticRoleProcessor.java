@@ -131,9 +131,6 @@ public class IdentityContractUpdateByAutomaticRoleProcessor extends CoreEventPro
 			for (IdmRoleTreeNode addedAutomaticRole : addedAutomaticRoles) {
 				createConcept(roleRequest, null, contract, addedAutomaticRole.getRole(), addedAutomaticRole, ConceptRoleRequestOperation.ADD);
 			}
-			//
-			// assign new roles
-			// createProcessor.assignAutomaticRoles(contract, addedAutomaticRoles);		
 		}
 		//
 		// process validable change

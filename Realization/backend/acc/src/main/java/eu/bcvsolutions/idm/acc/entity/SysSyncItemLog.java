@@ -12,7 +12,7 @@ import javax.validation.constraints.Size;
 
 import org.hibernate.annotations.Type;
 
-import com.sun.istack.NotNull;
+import javax.validation.constraints.NotNull;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.Loggable;

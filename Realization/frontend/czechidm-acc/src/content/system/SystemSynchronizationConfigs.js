@@ -138,7 +138,7 @@ class SystemSynchronizationConfigs extends Advanced.AbstractTableContent {
 
   _getBulkActions() {
     const actions = [];
-    if (Managers.SecurityManager.hasAnyAuthority(['SYSTEM_WRITE'])) {
+    if (Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE'])) {
       actions.push({ value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false });
     }
     return actions;
@@ -163,7 +163,7 @@ class SystemSynchronizationConfigs extends Advanced.AbstractTableContent {
             manager={this.getManager()}
             forceSearchParameters={forceSearchParameters}
             rowClass={({rowIndex, data}) => { return !(data[rowIndex].enabled) ? 'disabled' : ''; }}
-            showRowSelection={Managers.SecurityManager.hasAnyAuthority(['SYSTEM_WRITE'])}
+            showRowSelection={Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE'])}
             actions={this._getBulkActions()}
             buttons={
               [
@@ -172,7 +172,7 @@ class SystemSynchronizationConfigs extends Advanced.AbstractTableContent {
                   key="add_button"
                   className="btn-xs"
                   onClick={this.showDetail.bind(this, { }, true)}
-                  rendered={Managers.SecurityManager.hasAnyAuthority(['SYSTEM_WRITE'])}>
+                  rendered={Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE'])}>
                   <Basic.Icon type="fa" icon="plus"/>
                   {' '}
                   {this.i18n('button.add')}
@@ -246,7 +246,7 @@ class SystemSynchronizationConfigs extends Advanced.AbstractTableContent {
                         ref="startButton"
                         type="button"
                         level="success"
-                        rendered={Managers.SecurityManager.hasAnyAuthority(['SYNCHRONIZATION_WRITE']) && !running}
+                        rendered={Managers.SecurityManager.hasAnyAuthority(['SYNCHRONIZATION_CREATE']) && !running}
                         style={{marginRight: '2px'}}
                         title={this.i18n('button.start')}
                         titlePlacement="bottom"
@@ -258,7 +258,7 @@ class SystemSynchronizationConfigs extends Advanced.AbstractTableContent {
                         ref="cancelButton"
                         type="button"
                         level="danger"
-                        rendered={Managers.SecurityManager.hasAnyAuthority(['SYNCHRONIZATION_WRITE']) && running}
+                        rendered={Managers.SecurityManager.hasAnyAuthority(['SYNCHRONIZATION_UPDATE']) && running}
                         style={{marginRight: '2px'}}
                         title={this.i18n('button.cancel')}
                         titlePlacement="bottom"

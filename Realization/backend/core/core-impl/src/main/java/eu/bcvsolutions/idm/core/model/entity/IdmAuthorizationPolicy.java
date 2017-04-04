@@ -104,6 +104,7 @@ public class IdmAuthorizationPolicy extends AbstractEntity implements Authorizat
 		this.seq = seq;
 	}
 
+	@Override
 	public String getEvaluatorType() {
 		return evaluatorType;
 	}

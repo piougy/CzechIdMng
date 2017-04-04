@@ -14,6 +14,13 @@ public interface AuthorizationPolicy {
 	String getAuthorizableType();
 	
 	/**
+	 * Policy evaluator
+	 * 
+	 * @return
+	 */
+	String getEvaluatorType();
+	
+	/**
 	 * Policy properties
 	 * 
 	 * @return

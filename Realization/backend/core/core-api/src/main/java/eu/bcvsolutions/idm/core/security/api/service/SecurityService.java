@@ -9,7 +9,9 @@ import eu.bcvsolutions.idm.core.security.api.domain.AbstractAuthentication;
 import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
 
 /**
- * Security context helper methods 
+ * Security context helper methods
+ * 
+ * TODO: logout - clear authentication
  * 
  * @author svandav
  */

@@ -1,7 +1,6 @@
 package eu.bcvsolutions.idm.core.model.service.api;
 
 import java.util.List;
-import java.util.UUID;
 
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
@@ -20,9 +19,9 @@ public interface IdmAuthorizationPolicyService extends ReadWriteDtoService<IdmAu
 	/**
 	 * Returns all enabled policies for given identity and entity type
 	 * 
-	 * @param identityId
+	 * @param username identity's username
 	 * @param entityType
 	 * @return
 	 */
-	List<IdmAuthorizationPolicyDto> getEnabledPolicies(UUID identityId, Class<? extends BaseEntity> entityType);
+	List<IdmAuthorizationPolicyDto> getEnabledPolicies(String username, Class<? extends BaseEntity> entityType);
 }

@@ -1,7 +1,6 @@
 package eu.bcvsolutions.idm.core.model.repository;
 
 import java.util.List;
-import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -31,9 +30,11 @@ public interface IdmAuthorizationPolicyRepository extends AbstractEntityReposito
 	Page<IdmAuthorizationPolicy> find(AuthorizationPolicyFilter filter, Pageable pageable);
 	
 	/**
-	 * Returns all policies for given identity and entity type
+	 * Returns all policies for given identity and entity type. 
 	 * 
-	 * @param identityId
+	 * TODO: valid ir and ic ...
+	 * 
+	 * @param username identity's username
 	 * @param authorizableType
 	 * @param disabled
 	 * @return
@@ -42,10 +43,10 @@ public interface IdmAuthorizationPolicyRepository extends AbstractEntityReposito
 	        " where"
 	        + " (e.authorizableType is null or e.authorizableType = :authorizableType)"
 	        + " and (e.disabled = :disabled)"
-	        + " and exists(from IdmIdentityRole ir where ir.role = e.role and ir.identityContract.identity.id = :identityId)"
+	        + " and exists(from IdmIdentityRole ir where ir.role = e.role and ir.identityContract.identity.username = :username)"
 	        + " order by seq asc")
 	List<IdmAuthorizationPolicy> getPolicies(
-			@Param("identityId") UUID identityId, 
+			@Param("username") String username, 
 			@Param("authorizableType") String authorizableType, 
 			@Param("disabled") boolean disabled);
 }

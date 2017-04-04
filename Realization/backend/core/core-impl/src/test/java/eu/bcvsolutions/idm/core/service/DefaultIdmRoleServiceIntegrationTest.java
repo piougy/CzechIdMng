@@ -14,16 +14,19 @@ import com.google.common.collect.Lists;
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.TestHelper;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.model.dto.filter.AuthorizationPolicyFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleGuarantee;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleGuaranteeRepository;
+import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
@@ -46,6 +49,8 @@ public class DefaultIdmRoleServiceIntegrationTest extends AbstractIntegrationTes
 	private IdmRoleService roleService;
 	@Autowired
 	private IdmRoleGuaranteeRepository roleGuaranteeRepository;
+	@Autowired
+	private IdmAuthorizationPolicyService authorizationPolicyService;
 	
 	@Before
 	public void init() {
@@ -97,5 +102,19 @@ public class DefaultIdmRoleServiceIntegrationTest extends AbstractIntegrationTes
 		identityRoleService.save(identityRole);
 		//
 		roleService.delete(role);
+	}
+	
+	@Test
+	public void testReferentialIntegrityAuthorizationPolicies() {
+		// prepare data
+		IdmRole role = helper.createRole();
+		// policy
+		helper.createBasePolicy(role.getId(), IdmBasePermission.ADMIN);
+		//
+		roleService.delete(role);
+		//
+		AuthorizationPolicyFilter policyFilter = new AuthorizationPolicyFilter();
+		policyFilter.setRoleId(role.getId());
+		assertEquals(0, authorizationPolicyService.findDto(policyFilter, null).getTotalElements());
 	}
 }

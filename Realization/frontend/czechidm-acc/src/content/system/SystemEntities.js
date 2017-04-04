@@ -76,11 +76,11 @@ class SystemEntitiesContent extends Advanced.AbstractTableContent {
           <Advanced.Table
             ref="table"
             uiKey={uiKey}
-              manager={this.getManager()}
-              forceSearchParameters={forceSearchParameters}
-            showRowSelection={Managers.SecurityManager.hasAnyAuthority(['SYSTEM_WRITE'])}
+            manager={this.getManager()}
+            forceSearchParameters={forceSearchParameters}
+            showRowSelection={Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE'])}
             actions={
-              Managers.SecurityManager.hasAnyAuthority(['SYSTEM_WRITE'])
+              Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE'])
               ?
               [{ value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }]
               :
@@ -93,7 +93,7 @@ class SystemEntitiesContent extends Advanced.AbstractTableContent {
                   key="add_button"
                   className="btn-xs"
                   onClick={this.showDetail.bind(this, { entityType: SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.IDENTITY) })}
-                  rendered={Managers.SecurityManager.hasAnyAuthority(['ROLE_WRITE'])}>
+                  rendered={Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE'])}>
                   <Basic.Icon type="fa" icon="plus"/>
                   {' '}
                   {this.i18n('button.add')}

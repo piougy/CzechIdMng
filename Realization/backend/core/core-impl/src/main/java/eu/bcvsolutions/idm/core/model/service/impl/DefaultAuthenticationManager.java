@@ -108,4 +108,17 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 		clone.setPassword(new GuardedString(loginDto.getPassword().asBytes()));
 		return clone;
 	}
+
+	@Override
+	public boolean authenticate(String username, GuardedString password) {
+		LoginDto loginDto = new LoginDto();
+		loginDto.setUsername(username);
+		loginDto.setPassword(password);
+		try {
+			this.authenticate(loginDto);
+		} catch (RuntimeException e) {
+			return false;
+		}
+		return true;
+	}
 }

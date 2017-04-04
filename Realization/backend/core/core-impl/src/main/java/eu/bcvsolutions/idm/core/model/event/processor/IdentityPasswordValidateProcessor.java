@@ -14,11 +14,12 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.model.dto.IdmPasswordValidationDto;
 import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.entity.IdmPassword;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
-import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordService;
-import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordPolicyService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordService;
+import eu.bcvsolutions.idm.core.security.api.authentication.AuthenticationManager;
+import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 
 /**
  * Validate identity password
@@ -35,19 +36,27 @@ public class IdentityPasswordValidateProcessor extends CoreEventProcessor<IdmIde
 	private final SecurityService securityService;
 	private final IdmPasswordService passwordService;
 	private final IdmPasswordPolicyService passwordPolicyService;
+	private final IdmConfigurationService configuration;
+	private final AuthenticationManager authenticationManager;
 
 	@Autowired
 	public IdentityPasswordValidateProcessor(SecurityService securityService,
-			IdmPasswordService passwordService, IdmPasswordPolicyService passwordPolicyService) {
+			IdmPasswordService passwordService, IdmPasswordPolicyService passwordPolicyService,
+			IdmConfigurationService configuration,
+			AuthenticationManager authenticationManager) {
 		super(IdentityEventType.PASSWORD);
 		//
 		Assert.notNull(securityService);
 		Assert.notNull(passwordPolicyService);
 		Assert.notNull(passwordService);
+		Assert.notNull(configuration);
+		Assert.notNull(authenticationManager);
 		//
 		this.securityService = securityService;
 		this.passwordService = passwordService;
 		this.passwordPolicyService = passwordPolicyService;
+		this.configuration = configuration;
+		this.authenticationManager = authenticationManager;
 	}
 
 	@Override
@@ -66,10 +75,15 @@ public class IdentityPasswordValidateProcessor extends CoreEventProcessor<IdmIde
 			if (passwordChangeDto.getOldPassword() == null) {
 				throw new ResultCodeException(CoreResultCode.PASSWORD_CHANGE_CURRENT_FAILED_IDM);
 			}
-			// previous password check
-			IdmPassword idmPassword = passwordService.get(identity);
-			if (!passwordService.checkPassword(passwordChangeDto.getOldPassword(), idmPassword)) {
-				throw new ResultCodeException(CoreResultCode.PASSWORD_CHANGE_CURRENT_FAILED_IDM);
+			// get configuration
+			boolean oldPasswordRequired = configuration.getBooleanValue("idm.pub.core.identity.passwordChange.requireOldPassword", true);
+			//
+			if (oldPasswordRequired) {
+				// authentication trough chain 
+				boolean successChainAuthentication = authenticationManager.authenticate(identity.getUsername(), passwordChangeDto.getOldPassword());
+				if (!successChainAuthentication) {
+					throw new ResultCodeException(CoreResultCode.PASSWORD_CHANGE_CURRENT_FAILED_IDM);
+				}
 			}
 		}
 

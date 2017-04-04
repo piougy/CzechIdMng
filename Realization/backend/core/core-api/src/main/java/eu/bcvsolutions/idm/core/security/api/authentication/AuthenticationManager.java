@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.security.api.authentication;
 
 import org.springframework.core.Ordered;
 
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
 
 /**
@@ -17,9 +18,19 @@ import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
 public interface AuthenticationManager {
 	
 	/**
-	 * Process authenticate over all founded {@link Authenticator},
+	 * Process authenticate over all founded {@link Authenticator}
 	 * 
 	 * @param loginDto
 	 */
 	LoginDto authenticate(LoginDto loginDto);
+	
+	/**
+	 * Process authenticate over all founded {@link Authenticator},
+	 * return true if authentication is success.
+	 * 
+	 * @param username
+	 * @param password
+	 * @return
+	 */
+	boolean authenticate(String username, GuardedString password);
 }

@@ -60,7 +60,7 @@ public class IdmFormAttributeController extends DefaultReadWriteEntityController
 			if (!oldEntity.getName().equals(entity.getName())) {
 				throw new ResultCodeException(CoreResultCode.UNMODIFIABLE_ATTRIBUTE_CHANGE, ImmutableMap.of("name", "name", "class", entity.getClass().getSimpleName()));
 			}
-			if (!oldEntity.getPersistentType().equals(entity.getPersistentType())) {
+			if (oldEntity.getPersistentType() != entity.getPersistentType()) {
 				throw new ResultCodeException(CoreResultCode.UNMODIFIABLE_ATTRIBUTE_CHANGE, ImmutableMap.of("name", "persistentType", "class", entity.getClass().getSimpleName()));
 			}
 			if (oldEntity.isConfidential() != entity.isConfidential()) {

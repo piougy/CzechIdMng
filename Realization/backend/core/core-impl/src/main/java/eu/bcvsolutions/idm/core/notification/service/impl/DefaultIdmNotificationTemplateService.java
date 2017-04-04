@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -42,38 +43,40 @@ import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationTemplate
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 
 /**
- * Default implementation interface {@link IdmNotificationTemplateService} basic method
- * for template engine - apache velocity. Initialization apache velocity is in constructor.
+ * Default implementation interface {@link IdmNotificationTemplateService} basic
+ * method for template engine - apache velocity. Initialization apache velocity
+ * is in constructor.
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
 @Service
-public class DefaultIdmNotificationTemplateService extends AbstractReadWriteEntityService<IdmNotificationTemplate, NotificationTemplateFilter> implements IdmNotificationTemplateService {
-	
+public class DefaultIdmNotificationTemplateService
+		extends AbstractReadWriteEntityService<IdmNotificationTemplate, NotificationTemplateFilter>
+		implements IdmNotificationTemplateService {
+
 	private static final String TEMPLATE_FOLDER = "idm.pub.core.notification.template.folder";
-	
+
 	private static final String TEMPLATE_FILE_SUFIX = "idm.pub.core.notification.template.fileSuffix";
-	
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmNotificationTemplateService.class);
-	
+
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory
+			.getLogger(DefaultIdmNotificationTemplateService.class);
+
 	// private static final String ENCODING = "UTF-8";
-	
+
 	private final IdmNotificationTemplateRepository repository;
-	
+
 	private final VelocityEngine velocityEngine;
-	
+
 	private final ApplicationContext applicationContext;
-	
+
 	private final ConfigurationService configurationService;
-	
+
 	private final IdmNotificationConfigurationRepository notificationConfigurationRepository;
-	
+
 	@Autowired
-	public DefaultIdmNotificationTemplateService(
-			IdmNotificationTemplateRepository repository,
-			ConfigurationService configurationService,
-			ApplicationContext applicationContext,
+	public DefaultIdmNotificationTemplateService(IdmNotificationTemplateRepository repository,
+			ConfigurationService configurationService, ApplicationContext applicationContext,
 			IdmNotificationConfigurationRepository notificationConfigurationRepository) {
 		super(repository);
 		//
@@ -93,18 +96,19 @@ public class DefaultIdmNotificationTemplateService extends AbstractReadWriteEnti
 		this.applicationContext = applicationContext;
 		this.notificationConfigurationRepository = notificationConfigurationRepository;
 	}
-	
+
 	@Override
 	@Transactional
 	public IdmNotificationTemplate save(IdmNotificationTemplate entity) {
 		return super.save(entity);
 	}
-	
+
 	@Override
 	@Transactional
 	public void delete(IdmNotificationTemplate entity) {
 		if (entity.isUnmodifiable()) {
-			throw new ResultCodeException(CoreResultCode.NOTIFICATION_SYSTEM_TEMPLATE_DELETE_FAILED, ImmutableMap.of("template", entity.getName()));
+			throw new ResultCodeException(CoreResultCode.NOTIFICATION_SYSTEM_TEMPLATE_DELETE_FAILED,
+					ImmutableMap.of("template", entity.getName()));
 		}
 		super.delete(entity);
 	}
@@ -118,7 +122,7 @@ public class DefaultIdmNotificationTemplateService extends AbstractReadWriteEnti
 	public IdmNotificationTemplate getTemplateByCode(String code) {
 		return this.repository.findOneByCode(code);
 	}
-	
+
 	/**
 	 * Return {@link VelocityContext} for create templates
 	 * 
@@ -144,15 +148,16 @@ public class DefaultIdmNotificationTemplateService extends AbstractReadWriteEnti
 		//
 		// create copy of parameters
 		Map<String, Object> parameters = new HashMap<>();
-		// iterate trough parameters and find GuardedStrings, there may be templates, but no parameters
+		// iterate trough parameters and find GuardedStrings, there may be
+		// templates, but no parameters
 		if (model != null) {
-			for (String key : model.keySet()) {
-				if (model.get(key) instanceof GuardedString && showGuardedString) {
-					parameters.put(key, ((GuardedString) model.get(key)).asString());
-				} else if (model.get(key) instanceof GuardedString) {
-					parameters.put(key, ((GuardedString) model.get(key)).toString());
+			for (Entry<String, Object> entry : model.entrySet()) {
+				if (entry.getValue() instanceof GuardedString && showGuardedString) {
+					parameters.put(entry.getKey(), ((GuardedString) entry.getValue()).asString());
+				} else if (entry.getValue() instanceof GuardedString) {
+					parameters.put(entry.getKey(), ((GuardedString) entry.getValue()).toString());
 				} else {
-					parameters.put(key, model.get(key));
+					parameters.put(entry.getKey(), entry.getValue());
 				}
 			}
 		}
@@ -170,30 +175,23 @@ public class DefaultIdmNotificationTemplateService extends AbstractReadWriteEnti
 		IdmMessage newMessage = null;
 		// if is set model from message build with them
 		if (message.getModel() != null) {
-			 newMessage = new IdmMessage.Builder()
-						.setHtmlMessage(bodyHtml.toString())
-						.setTextMessage(bodyText.toString())
-						.setSubject(message.getModel().getStatusEnum())
-						.setLevel(message.getLevel()) // level get from old message
-						.setTemplate(template)
-						.setParameters(model)
-						.setModel(message.getModel())
-						.build();
+			newMessage = new IdmMessage.Builder().setHtmlMessage(bodyHtml.toString())
+					.setTextMessage(bodyText.toString()).setSubject(message.getModel().getStatusEnum())
+					.setLevel(message.getLevel()) // level get from old message
+					.setTemplate(template).setParameters(model).setModel(message.getModel()).build();
 		} else {
 			// Build IdmMessage
-			newMessage = new IdmMessage.Builder()
-					.setHtmlMessage(bodyHtml.toString())
-					.setTextMessage(bodyText.toString())
-					.setSubject(subject.toString())
-					.setLevel(message.getLevel()) // level get from old message
-					.setTemplate(template)
-					.setParameters(model)
-					.build();
+			newMessage = new IdmMessage.Builder().setHtmlMessage(bodyHtml.toString())
+					.setTextMessage(bodyText.toString()).setSubject(subject.toString()).setLevel(message.getLevel()) // level
+																														// get
+																														// from
+																														// old
+																														// message
+					.setTemplate(template).setParameters(model).build();
 		}
 		//
 		return newMessage;
 	}
-
 
 	@Override
 	public IdmMessage buildMessage(IdmMessage message) {
@@ -210,28 +208,34 @@ public class DefaultIdmNotificationTemplateService extends AbstractReadWriteEnti
 		DocumentBuilder builder;
 		try {
 			builder = factory.newDocumentBuilder();
-			LOG.info("[DefaultIdmNotificationTemplateService] initialization system template from path: {}, with file sufix: {} ", TEMPLATE_FOLDER, TEMPLATE_FILE_SUFIX);
+			LOG.info(
+					"[DefaultIdmNotificationTemplateService] initialization system template from path: {}, with file sufix: {} ",
+					TEMPLATE_FOLDER, TEMPLATE_FILE_SUFIX);
 			//
-			// found all resources on all classpath by properties from configuration file
-			Resource[] resources = applicationContext.getResources(configurationService.getValue(TEMPLATE_FOLDER) + configurationService.getValue(TEMPLATE_FILE_SUFIX));
+			// found all resources on all classpath by properties from
+			// configuration file
+			Resource[] resources = applicationContext.getResources(configurationService.getValue(TEMPLATE_FOLDER)
+					+ configurationService.getValue(TEMPLATE_FILE_SUFIX));
 			//
-        	List<IdmNotificationTemplate> entities = new ArrayList<>();
-        	// iterate trough all found resources
+			List<IdmNotificationTemplate> entities = new ArrayList<>();
+			// iterate trough all found resources
 			for (Resource resource : resources) {
-	        	Document doc = builder.parse(resource.getInputStream());
-	        	doc.getDocumentElement().normalize();
-	        	NodeList templates = (NodeList) doc.getElementsByTagName("template");
-	        	if (templates != null) {
-		        	//
-		        	// iterate trough templates, now can one file contains only one templates, but in future...
-		        	for (int i = 0; i < templates.getLength(); i++) {
+				Document doc = builder.parse(resource.getInputStream());
+				doc.getDocumentElement().normalize();
+				NodeList templates = (NodeList) doc.getElementsByTagName("template");
+				if (templates != null) {
+					//
+					// iterate trough templates, now can one file contains only
+					// one templates, but in future...
+					for (int i = 0; i < templates.getLength(); i++) {
 						Node template = templates.item(i);
 						if (template.getNodeType() == Node.ELEMENT_NODE) {
 							IdmNotificationTemplate newTemplate = new IdmNotificationTemplate();
 							//
 							Element temp = (Element) template;
 							//
-							// try to found template by code, if not found save it
+							// try to found template by code, if not found save
+							// it
 							String code = temp.getElementsByTagName("code").item(0).getTextContent();
 							LOG.info("[DefaultIdmNotificationTemplateService] Load template with code {} ", code);
 							IdmNotificationTemplate oldTemplate = this.getTemplateByCode(code);
@@ -242,18 +246,20 @@ public class DefaultIdmNotificationTemplateService extends AbstractReadWriteEnti
 								newTemplate.setSubject(temp.getElementsByTagName("subject").item(0).getTextContent());
 								newTemplate.setBodyHtml(temp.getElementsByTagName("bodyHtml").item(0).getTextContent());
 								newTemplate.setBodyText(temp.getElementsByTagName("bodyText").item(0).getTextContent());
-								newTemplate.setParameter(temp.getElementsByTagName("parameter").item(0).getTextContent());
-								newTemplate.setUnmodifiable(new Boolean(temp.getElementsByTagName("systemTemplate").item(0).getTextContent()));
+								newTemplate
+										.setParameter(temp.getElementsByTagName("parameter").item(0).getTextContent());
+								newTemplate.setUnmodifiable(Boolean
+										.valueOf(temp.getElementsByTagName("systemTemplate").item(0).getTextContent()));
 								newTemplate.setModule(temp.getElementsByTagName("moduleId").item(0).getTextContent());
 								//
 								entities.add(newTemplate);
 							}
 						}
 					}
-	        	}
+				}
 			}
 			//
-        	this.saveAll(entities);
+			this.saveAll(entities);
 		} catch (ParserConfigurationException | IOException | SAXException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -263,14 +269,15 @@ public class DefaultIdmNotificationTemplateService extends AbstractReadWriteEnti
 	@Override
 	public List<IdmNotificationTemplate> findAllSystemTemplates() {
 		NotificationTemplateFilter filter = new NotificationTemplateFilter();
-		filter.setUnmodifiable(true);
+		filter.setUnmodifiable(Boolean.TRUE);
 		return this.find(filter, null).getContent();
 	}
 
 	@Override
 	public IdmNotificationTemplate resolveTemplate(String topic, NotificationLevel level) {
-		IdmNotificationConfiguration configuration = notificationConfigurationRepository.findNotificationByTopicLevel(topic, level);
-		
+		IdmNotificationConfiguration configuration = notificationConfigurationRepository
+				.findNotificationByTopicLevel(topic, level);
+
 		// if configurations is empty try to wildcard with null level
 		if (configuration == null) {
 			configuration = notificationConfigurationRepository.findNotificationByTopicLevel(topic, null);

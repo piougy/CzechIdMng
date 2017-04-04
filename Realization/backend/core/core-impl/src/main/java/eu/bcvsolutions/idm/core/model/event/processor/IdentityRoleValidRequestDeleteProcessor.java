@@ -42,7 +42,7 @@ public class IdentityRoleValidRequestDeleteProcessor extends AbstractEntityEvent
 	@Override
 	public EventResult<IdmIdentityRoleValidRequestDto> process(EntityEvent<IdmIdentityRoleValidRequestDto> event) {
 		//
-		LOG.debug("[IdentityRoleValidRequestDeleteProcessor] Delete IdentityRoleValidRequest with id: [{0}]", event.getContent().getId());
+		LOG.debug("[IdentityRoleValidRequestDeleteProcessor] Delete IdentityRoleValidRequest with id: [{}]", event.getContent().getId());
 		// remove unless identity role valid request
 		validRequestService.deleteInternalById(event.getContent().getId());
 		return new DefaultEventResult<>(event, this);

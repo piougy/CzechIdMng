@@ -70,14 +70,14 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 					// continue, authenticator is not implemented or etc.
 					continue;
 				}
-				if (authenticator.getResponse().equals(AuthenticationResponseEnum.SUFFICIENT)) {
+				if (authenticator.getResponse() == AuthenticationResponseEnum.SUFFICIENT) {
 					return result;
 				}
 				// if otherwise add result too list and continue
 				resultsList.add(result);
 			} catch (RuntimeException e) {
 				// if excepted response is REQUISITE exit immediately with error
-				if (authenticator.getResponse().equals(AuthenticationResponseEnum.REQUISITE)) {
+				if (authenticator.getResponse() == AuthenticationResponseEnum.REQUISITE) {
 					throw e;
 				}
 				// if otherwise save first failure into exception

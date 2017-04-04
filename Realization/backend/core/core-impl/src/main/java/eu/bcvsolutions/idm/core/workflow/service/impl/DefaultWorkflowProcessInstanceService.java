@@ -24,6 +24,8 @@ import org.activiti.engine.task.IdentityLinkType;
 import org.activiti.engine.task.Task;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
@@ -67,6 +69,7 @@ public class DefaultWorkflowProcessInstanceService implements WorkflowProcessIns
 	private TaskService taskService;
 
 	@Override
+	@Transactional
 	public ProcessInstance startProcess(String definitionKey, String objectType, String applicant,
 			String objectIdentifier, Map<String, Object> variables) {
 		Assert.hasText(definitionKey, "Definition key cannot be null!");

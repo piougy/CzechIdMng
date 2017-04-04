@@ -29,7 +29,7 @@ export class RoleInfo extends AbstractEntityInfo {
     if (!super.showLink()) {
       return false;
     }
-    if (!SecurityManager.hasAccess({ 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ']})) {
+    if (!SecurityManager.hasAccess({ 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ']})) { // TODO: asynchronous permissions by fetch autorities on selected entity
       return false;
     }
     return true;

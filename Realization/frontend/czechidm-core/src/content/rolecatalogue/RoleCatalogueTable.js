@@ -214,7 +214,7 @@ export default class RoleCatalogueTable extends Basic.AbstractContent {
                   key="add_button"
                   className="btn-xs"
                   onClick={this.showDetail.bind(this, { })}
-                  rendered={SecurityManager.hasAuthority('ROLE_WRITE')}>
+                  rendered={SecurityManager.hasAuthority('ROLECATALOGUE_CREATE')}>
                   <Basic.Icon type="fa" icon="plus"/>
                   {' '}
                   {this.i18n('button.add')}

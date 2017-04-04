@@ -111,7 +111,7 @@ export class SystemTable extends Basic.AbstractContent {
                 key="add_button"
                 className="btn-xs"
                 onClick={this.showDetail.bind(this, { })}
-                rendered={Managers.SecurityManager.hasAuthority('SYSTEM_WRITE') && showAddButton}>
+                rendered={Managers.SecurityManager.hasAuthority('SYSTEM_CREATE') && showAddButton}>
                 <Basic.Icon type="fa" icon="plus"/>
                 {' '}
                 {this.i18n('button.add')}

@@ -23,7 +23,7 @@ import eu.bcvsolutions.idm.core.api.domain.AbstractModuleDescriptor;
 import eu.bcvsolutions.idm.core.api.domain.ModuleDescriptor;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.exception.ModuleNotDisableableException;
-import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
+import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultModuleService;
 import eu.bcvsolutions.idm.core.notification.domain.NotificationGroupPermission;
 import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
@@ -42,7 +42,7 @@ public class DefaultModuleServiceUnitTest extends AbstractVerifiableUnitTest {
 
 	static {
 		ALL_PERMISSIONS = new ArrayList<>();
-		ALL_PERMISSIONS.add(Arrays.asList(IdmGroupPermission.values()));
+		ALL_PERMISSIONS.add(Arrays.asList(CoreGroupPermission.values()));
 		ALL_PERMISSIONS.add(Arrays.asList(NotificationGroupPermission.values()));
 	}
 

@@ -38,7 +38,7 @@ import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.core.eav.rest.impl.IdmFormDefinitionController;
-import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
+import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.dto.filter.TreeNodeFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmAudit;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
@@ -47,6 +47,7 @@ import eu.bcvsolutions.idm.core.model.entity.eav.IdmTreeNodeFormValue;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuditService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeTypeService;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
 
 /**
  * 
@@ -90,7 +91,7 @@ public class IdmTreeNodeController extends DefaultReadWriteEntityController<IdmT
 	
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.TREENODE_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.TREENODE_CREATE + "') or hasAuthority('" + CoreGroupPermission.TREENODE_UPDATE + "')")
 	public ResponseEntity<?> post(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler)
 			throws HttpMessageNotReadableException {
 		return super.post(nativeRequest, assembler);
@@ -98,7 +99,7 @@ public class IdmTreeNodeController extends DefaultReadWriteEntityController<IdmT
 	
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.TREENODE_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.TREENODE_UPDATE + "')")
 	public ResponseEntity<?> patch(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest,
 			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
 		return super.patch(backendId, nativeRequest, assembler);
@@ -106,7 +107,7 @@ public class IdmTreeNodeController extends DefaultReadWriteEntityController<IdmT
 	
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.TREENODE_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.TREENODE_UPDATE + "')")
 	public ResponseEntity<?> put(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest,
 			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
 		return super.put(backendId, nativeRequest, assembler);
@@ -114,7 +115,7 @@ public class IdmTreeNodeController extends DefaultReadWriteEntityController<IdmT
 	
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.TREENODE_DELETE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.TREENODE_DELETE + "')")
 	public ResponseEntity<?> delete(@PathVariable @NotNull String backendId) {
 		return super.delete(backendId);
 	}
@@ -218,7 +219,7 @@ public class IdmTreeNodeController extends DefaultReadWriteEntityController<IdmT
 	 * @return
 	 */
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.IDENTITY_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.TREENODE_UPDATE + "')")
 	@RequestMapping(value = "/{backendId}/form-values", method = RequestMethod.POST)
 	public Resources<?> saveFormValues(
 			@PathVariable @NotNull String backendId,

@@ -62,7 +62,10 @@ class SelectBox extends AbstractFormComponent {
   _createSearchParameters(inputText, forceSearchParameters) {
     const {manager } = this.props;
     // user input
-    const searchParameters = manager.getDefaultSearchParameters().setFilter('text', inputText); // TODO: configurable search properties
+    let searchParameters = manager.getDefaultSearchParameters().setFilter('text', inputText); // TODO: configurable search properties
+    if (manager.supportsAuthorization()) {
+      searchParameters = searchParameters.setName(SearchParameters.NAME_AUTOCOMPLETE);
+    }
     // hard filters
     let _forceSearchParameters = null;
     if (forceSearchParameters) {

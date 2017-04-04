@@ -63,16 +63,16 @@ export default class RolePriorityEnum extends AbstractEnum {
         return 0;
       }
       case this.TRIVIAL: {
-        return 100;
+        return 1;
       }
       case this.MINOR: {
-        return 200;
+        return 2;
       }
       case this.MAJOR: {
-        return 300;
+        return 3;
       }
       case this.CRITICAL: {
-        return 400;
+        return 4;
       }
       default: {
         return 0;
@@ -89,16 +89,16 @@ export default class RolePriorityEnum extends AbstractEnum {
       case 0: {
         return this.NONE;
       }
-      case 100: {
+      case 1: {
         return this.TRIVIAL;
       }
-      case 200: {
+      case 2: {
         return this.MINOR;
       }
-      case 300: {
+      case 3: {
         return this.MAJOR;
       }
-      case 400: {
+      case 4: {
         return this.CRITICAL;
       }
       default: {

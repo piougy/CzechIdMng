@@ -1,10 +1,10 @@
 package eu.bcvsolutions.idm.core.rest.impl;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.ResponseEntity;
@@ -17,12 +17,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
-import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
-import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
+import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
+import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.model.dto.filter.RoleTreeNodeFilter;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
@@ -33,8 +34,8 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
  * @author Radek Tomiška
  *
  */
-@RepositoryRestController
-@RequestMapping(value = BaseEntityController.BASE_PATH + "/role-tree-nodes")
+@RestController
+@RequestMapping(value = BaseDtoController.BASE_PATH + "/role-tree-nodes")
 public class IdmRoleTreeNodeController extends AbstractReadWriteDtoController<IdmRoleTreeNodeDto, RoleTreeNodeFilter> {
 	
 	@Autowired
@@ -65,8 +66,8 @@ public class IdmRoleTreeNodeController extends AbstractReadWriteDtoController<Id
 	@Override
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.POST)
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_WRITE + "')")
-	public ResponseEntity<?> post(@RequestBody @NotNull IdmRoleTreeNodeDto dto) throws HttpMessageNotReadableException {		
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_UPDATE + "')")
+	public ResponseEntity<?> post(@Valid @RequestBody @NotNull IdmRoleTreeNodeDto dto) throws HttpMessageNotReadableException {		
 		return super.post(dto);
 	}
 	
@@ -81,7 +82,7 @@ public class IdmRoleTreeNodeController extends AbstractReadWriteDtoController<Id
 	@Override
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.DELETE)
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_DELETE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_DELETE + "')")
 	public ResponseEntity<?> delete(@PathVariable @NotNull String backendId) {
 		return super.delete(backendId);
 	}

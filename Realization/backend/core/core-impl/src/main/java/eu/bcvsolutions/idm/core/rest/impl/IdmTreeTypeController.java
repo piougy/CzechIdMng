@@ -26,7 +26,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
-import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
+import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
@@ -53,7 +53,7 @@ public class IdmTreeTypeController extends DefaultReadWriteEntityController<IdmT
 	
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.TREETYPE_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.TREETYPE_WRITE + "')")
 	public ResponseEntity<?> post(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler)
 			throws HttpMessageNotReadableException {
 		return super.post(nativeRequest, assembler);
@@ -61,14 +61,14 @@ public class IdmTreeTypeController extends DefaultReadWriteEntityController<IdmT
 	
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.TREETYPE_DELETE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.TREETYPE_DELETE + "')")
 	public ResponseEntity<?> delete(@PathVariable @NotNull String backendId) {
 		return super.delete(backendId);
 	}
 	
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.TREETYPE_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.TREETYPE_WRITE + "')")
 	public ResponseEntity<?> patch(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest,
 			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
 		return super.patch(backendId, nativeRequest, assembler);
@@ -76,7 +76,7 @@ public class IdmTreeTypeController extends DefaultReadWriteEntityController<IdmT
 	
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.TREETYPE_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.TREETYPE_WRITE + "')")
 	public ResponseEntity<?> put(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest,
 			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
 		return super.put(backendId, nativeRequest, assembler);
@@ -124,7 +124,7 @@ public class IdmTreeTypeController extends DefaultReadWriteEntityController<IdmT
 	 */
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}/index/rebuild", method = RequestMethod.PUT)
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.SCHEDULER_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCHEDULER_EXECUTE + "')")
 	public ResponseEntity<?> rebuildIndex(@PathVariable String backendId, PersistentEntityResourceAssembler assembler) {
 		IdmTreeType treeType = getEntity(backendId);
 		if (treeType == null) {

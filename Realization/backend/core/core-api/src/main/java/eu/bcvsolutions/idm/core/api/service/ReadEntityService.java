@@ -17,6 +17,7 @@ import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
  * @see Sort
  * @see Pageable
  * @see Page
+ * @deprecated use {@link ReadDtoService}
  */
 public interface ReadEntityService<E extends BaseEntity, F extends BaseFilter> extends BaseEntityService<E> {
 

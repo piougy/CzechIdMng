@@ -6,18 +6,26 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.core.model.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.model.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
+import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleTreeNodeRepository;
+import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeTypeService;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
+import eu.bcvsolutions.idm.core.security.evaluator.BasePermissionEvaluator;
+import eu.bcvsolutions.idm.core.security.evaluator.UuidEvaluator;
 
 /**
  * Creates common test entities
@@ -37,13 +45,21 @@ public class DefaultTestHelper implements TestHelper {
 	@Autowired
 	private IdmIdentityService identityService;
 	@Autowired
+	private IdmIdentityContractService identityContractService;
+	@Autowired
 	private IdmRoleTreeNodeService roleTreeNodeService;
 	@Autowired
 	private IdmRoleTreeNodeRepository roleTreeNodeReposiotry;
+	@Autowired
+	private IdmAuthorizationPolicyService authorizationPolicyService;
+	@Autowired
+	private IdmIdentityRoleRepository identityRoleRepository;
 	
-	/* (non-Javadoc)
-	 * @see eu.bcvsolutions.idm.core.TestHelper#createIdentity(java.lang.String)
-	 */
+	@Override
+	public IdmIdentity createIdentity() {
+		return createIdentity("test");
+	}
+	
 	@Override
 	public IdmIdentity createIdentity(String name) {
 		IdmIdentity identity = new IdmIdentity();
@@ -144,6 +160,33 @@ public class DefaultTestHelper implements TestHelper {
 			return roleTreeNodeService.getDto(id);
 		}
 		return roleTreeNodeService.save(roleTreeNode);
+	}
+	
+	@Override
+	public IdmAuthorizationPolicyDto createBasePolicy(UUID role, BasePermission... permission) {
+		IdmAuthorizationPolicyDto dto = new IdmAuthorizationPolicyDto();
+		dto.setRole(role);
+		dto.setEvaluator(BasePermissionEvaluator.class);
+		dto.setPermissions(permission);
+		return authorizationPolicyService.save(dto);
+	}
+	
+	@Override
+	public IdmAuthorizationPolicyDto createUuidPolicy(UUID role, UUID authorizableEntity, BasePermission... permission){
+		IdmAuthorizationPolicyDto dto = new IdmAuthorizationPolicyDto();
+		dto.setRole(role);
+		dto.setEvaluator(UuidEvaluator.class);
+		dto.getEvaluatorProperties().put(UuidEvaluator.PARAMETER_UUID, authorizableEntity);
+		dto.setPermissions(permission);
+		return authorizationPolicyService.save(dto);
+	}
+	
+	@Override
+	public IdmIdentityRole createIdentityRole(IdmIdentity identity, IdmRole role) {
+		IdmIdentityRole identityRole = new IdmIdentityRole();
+		identityRole.setIdentityContract(identityContractService.getPrimeContract(identity));
+		identityRole.setRole(role);
+		return identityRoleRepository.save(identityRole);
 	}
 	
 }

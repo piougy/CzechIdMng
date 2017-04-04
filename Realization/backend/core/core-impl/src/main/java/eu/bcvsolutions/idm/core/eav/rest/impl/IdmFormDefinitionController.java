@@ -31,7 +31,7 @@ import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 import eu.bcvsolutions.idm.core.eav.entity.AbstractFormValue;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
-import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
+import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.rest.impl.DefaultReadWriteEntityController;
 
 /**
@@ -59,7 +59,7 @@ public class IdmFormDefinitionController extends DefaultReadWriteEntityControlle
 	
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.EAV_FORM_DEFINITIONS_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.EAV_FORM_DEFINITIONS_CREATE + "') or hasAuthority('" + CoreGroupPermission.EAV_FORM_DEFINITIONS_UPDATE + "')")
 	public ResponseEntity<?> post(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler)
 			throws HttpMessageNotReadableException {
 		return super.post(nativeRequest, assembler);
@@ -67,7 +67,7 @@ public class IdmFormDefinitionController extends DefaultReadWriteEntityControlle
 	
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.EAV_FORM_DEFINITIONS_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.EAV_FORM_DEFINITIONS_UPDATE + "')")
 	public ResponseEntity<?> put(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest,
 			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
 		return super.put(backendId, nativeRequest, assembler);
@@ -75,7 +75,7 @@ public class IdmFormDefinitionController extends DefaultReadWriteEntityControlle
 	
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.EAV_FORM_DEFINITIONS_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.EAV_FORM_DEFINITIONS_UPDATE + "')")
 	public ResponseEntity<?> patch(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest,
 			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
 		return super.patch(backendId, nativeRequest, assembler);
@@ -83,7 +83,7 @@ public class IdmFormDefinitionController extends DefaultReadWriteEntityControlle
 	
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.EAV_FORM_DEFINITIONS_DELETE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.EAV_FORM_DEFINITIONS_DELETE + "')")
 	public ResponseEntity<?> delete(@PathVariable @NotNull String backendId) {
 		return super.delete(backendId);
 	}

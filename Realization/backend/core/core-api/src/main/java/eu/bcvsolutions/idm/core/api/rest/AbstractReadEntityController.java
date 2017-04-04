@@ -40,6 +40,10 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.api.service.ReadEntityService;
 import eu.bcvsolutions.idm.core.api.utils.FilterConverter;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
+import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
+import eu.bcvsolutions.idm.core.security.api.service.AuthorizationManager;
 
 /**
  * Read operations (get, find)
@@ -47,7 +51,9 @@ import eu.bcvsolutions.idm.core.api.utils.FilterConverter;
  * @author Radek Tomiška
  *
  * @param <E>
+ * @deprecated use {@link AbstractReadDtoController}
  */
+@Deprecated
 public abstract class AbstractReadEntityController<E extends BaseEntity, F extends BaseFilter> implements BaseEntityController<E> {
 	
 	private static final EmbeddedWrappers WRAPPERS = new EmbeddedWrappers(false);	
@@ -61,6 +67,9 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 	@Autowired(required = false)
 	@Qualifier("objectMapper")
 	private ObjectMapper mapper;
+	
+	@Autowired
+	private AuthorizationManager authorizationManager;
 	
 	@SuppressWarnings("unchecked")
 	public AbstractReadEntityController(EntityLookupService entityLookupService) {
@@ -118,7 +127,9 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 		E entity = getEntity(backendId);
 		if (entity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
-		}		
+		}
+		checkAccess(entity, IdmBasePermission.READ);
+		//
 		return new ResponseEntity<>(toResource(entity, assembler), HttpStatus.OK);
 	}
 	
@@ -132,7 +143,7 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 	public E getEntity(Serializable backendId) {
 		if(getEntityLookup() == null) {
 			return getEntityService().get(backendId);
-		}		
+		}	
 		return (E) getEntityLookup().lookupEntity(backendId);
 	}
 	
@@ -163,7 +174,24 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 			@RequestParam MultiValueMap<String, Object> parameters,
 			@PageableDefault Pageable pageable, 
 			PersistentEntityResourceAssembler assembler) {
-		return toResources(findEntities(toFilter(parameters), pageable), assembler, getEntityClass(), null);
+		return toResources(findSecuredEntities(toFilter(parameters), IdmBasePermission.READ, pageable), assembler, getEntityClass(), null);
+	}
+	
+	/**
+	 * Quick search for autocomplete (read data to select box etc.) - parameters will be transformed to filter object
+	 * 
+	 * @see #toFilter(MultiValueMap)
+	 * 
+	 * @param parameters
+	 * @param pageable
+	 * @param assembler
+	 * @return
+	 */
+	public Resources<?> autocomplete(
+			@RequestParam MultiValueMap<String, Object> parameters,
+			@PageableDefault Pageable pageable, 
+			PersistentEntityResourceAssembler assembler) {
+		return toResources(findSecuredEntities(toFilter(parameters), IdmBasePermission.AUTOCOMPLETE, pageable), assembler, getEntityClass(), null);
 	}
 	
 	/**
@@ -175,7 +203,23 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 	 */
 	public Page<E> findEntities(F filter, Pageable pageable) {
 		return getEntityService().find(filter, pageable);
-	}	
+	}
+	
+	/**
+	 * Finds secured entities, is entity service supports authorization policies
+	 * 
+	 * @param filter
+	 * @param pageable
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public Page<E> findSecuredEntities(F filter, BasePermission permission, Pageable pageable) {
+		if (getEntityService() instanceof AuthorizableService) {
+			return ((AuthorizableService<E, F>) getEntityService()).findSecured(filter, permission, pageable);
+		}
+		return findEntities(filter, pageable);
+	}
+	
 	
 	/**
 	 * Converts entity to dto (using controller defined assembler or default)
@@ -255,5 +299,20 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 			filterConverter = new FilterConverter(entityLookupService, mapper);
 		}
 		return filterConverter;
+	}
+	
+	protected void checkAccess(E entity, BasePermission permission) {
+		if (getEntityService() instanceof AuthorizableService && !getAuthorizationManager().evaluate(entity, permission)) {
+			throw new ResultCodeException(CoreResultCode.FORBIDDEN);
+		}
+	}
+	
+	/**
+	 * Returns authorization manager
+	 * 
+	 * @return
+	 */
+	protected AuthorizationManager getAuthorizationManager() {
+		return authorizationManager;
 	}
 }

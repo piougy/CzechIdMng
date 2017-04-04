@@ -88,7 +88,11 @@ export default class TypeDetail extends Basic.AbstractContent {
     return (
       <div>
         <form onSubmit={this.save.bind(this)} >
-          <Basic.AbstractForm ref="form" uiKey={uiKey} readOnly={!SecurityManager.hasAuthority('TREETYPE_WRITE')} style={{ padding: '15px 15px 0px 15px' }} >
+          <Basic.AbstractForm
+            ref="form"
+            uiKey={uiKey}
+            readOnly={ !SecurityManager.hasAuthority(Utils.Entity.isNew(entity) ? 'TREETYPE_CREATE' : 'TREETYPE_UPDATE') }
+            style={{ padding: '15px 15px 0px 15px' }} >
             <Basic.Row>
               <div className="col-lg-2">
                 <Basic.TextField
@@ -126,7 +130,7 @@ export default class TypeDetail extends Basic.AbstractContent {
               level="success"
               showLoadingIcon
               showLoadingText={this.i18n('button.saving')}
-              rendered={SecurityManager.hasAuthority('TREETYPE_WRITE')}>
+              rendered={SecurityManager.hasAuthority(Utils.Entity.isNew(entity) ? 'TREETYPE_CREATE' : 'TREETYPE_UPDATE')}>
               {this.i18n('button.save')}
             </Basic.Button>
           </Basic.PanelFooter>

@@ -111,14 +111,14 @@ class LongRunningTask extends Basic.AbstractContent {
             onClick={this.onInterrupt.bind(this, _entity)}
             level="danger"
             style={{ marginRight: 5 }}
-            rendered={_entity.instanceId === instanceId && SecurityManager.hasAnyAuthority(['SCHEDULER_WRITE'])}
+            rendered={_entity.instanceId === instanceId && SecurityManager.hasAnyAuthority(['SCHEDULER_UPDATE'])}
             disabled={_showLoading}>
             {this.i18n('button.interrupt')}
           </Basic.Button>
           <Basic.Button
             level="warning"
             onClick={this.onCancel.bind(this, _entity)}
-            rendered={SecurityManager.hasAnyAuthority(['SCHEDULER_WRITE'])}
+            rendered={SecurityManager.hasAnyAuthority(['SCHEDULER_UPDATE'])}
             disabled={_showLoading}>
             {this.i18n('button.cancel')}
           </Basic.Button>

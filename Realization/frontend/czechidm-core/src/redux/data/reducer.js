@@ -17,7 +17,8 @@ import {
   RECEIVE_ERROR,
   START_BULK_ACTION,
   PROCESS_BULK_ACTION,
-  STOP_BULK_ACTION
+  STOP_BULK_ACTION,
+  RECEIVE_PERMISSIONS
 } from './EntityManager';
 
 import {
@@ -188,6 +189,16 @@ export function data(state = INITIAL_STATE, action) {
         trimmed: merge({}, state.trimmed, {
           [entityType]: trimmed
         }),
+        ui: merge({}, state.ui, ui)
+      });
+    }
+    case RECEIVE_PERMISSIONS: {
+      const ui = merge({}, state.ui, {
+        [uiKey]: merge({}, state.ui[uiKey], {
+          permissions: action.permissions
+        })
+      });
+      return merge({}, state, {
         ui: merge({}, state.ui, ui)
       });
     }

@@ -159,7 +159,7 @@ export function i18nChange(lng, cb = () => {}) {
           const flashMessagesManager = new FlashMessagesManager();
           dispatch(flashMessagesManager.addMessage({level: 'error', title: 'Nepodařilo se iniciovat lokalizaci', message: error }));
         } else {
-          dispatch(i18nReady(LocalizationService.getCurrentLanguage()), cb, false);
+          dispatch(i18nReady(LocalizationService.getCurrentLanguage(), cb, false));
         }
       }
     );

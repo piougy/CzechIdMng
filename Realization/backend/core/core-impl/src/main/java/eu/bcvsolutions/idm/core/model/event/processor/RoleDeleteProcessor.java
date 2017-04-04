@@ -17,12 +17,14 @@ import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.model.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.model.dto.IdmRoleRequestDto;
+import eu.bcvsolutions.idm.core.model.dto.filter.AuthorizationPolicyFilter;
 import eu.bcvsolutions.idm.core.model.dto.filter.ConceptRoleRequestFilter;
 import eu.bcvsolutions.idm.core.model.dto.filter.RoleTreeNodeFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.event.RoleEvent.RoleEventType;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
+import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
@@ -43,6 +45,7 @@ public class RoleDeleteProcessor extends CoreEventProcessor<IdmRole> {
 	private final IdmConceptRoleRequestService conceptRoleRequestService;
 	private final IdmRoleRequestService roleRequestService;
 	private final IdmRoleTreeNodeService roleTreeNodeService;
+	private final IdmAuthorizationPolicyService authorizationPolicyService;
 	
 	@Autowired
 	public RoleDeleteProcessor(
@@ -50,7 +53,8 @@ public class RoleDeleteProcessor extends CoreEventProcessor<IdmRole> {
 			IdmIdentityRoleRepository identityRoleRepository,
 			IdmConceptRoleRequestService conceptRoleRequestService,
 			IdmRoleRequestService roleRequestService,
-			IdmRoleTreeNodeService roleTreeNodeService) {
+			IdmRoleTreeNodeService roleTreeNodeService,
+			IdmAuthorizationPolicyService authorizationPolicyService) {
 		super(RoleEventType.DELETE);
 		//
 		Assert.notNull(repository);
@@ -58,12 +62,14 @@ public class RoleDeleteProcessor extends CoreEventProcessor<IdmRole> {
 		Assert.notNull(conceptRoleRequestService);
 		Assert.notNull(roleRequestService);
 		Assert.notNull(roleTreeNodeService);
+		Assert.notNull(authorizationPolicyService);
 		//
 		this.repository = repository;
 		this.identityRoleRepository = identityRoleRepository;
 		this.conceptRoleRequestService = conceptRoleRequestService;
 		this.roleRequestService = roleRequestService;
 		this.roleTreeNodeService = roleTreeNodeService;
+		this.authorizationPolicyService = authorizationPolicyService;
 	}
 	
 	@Override
@@ -107,6 +113,12 @@ public class RoleDeleteProcessor extends CoreEventProcessor<IdmRole> {
 
 			roleRequestService.save(request);
 			conceptRoleRequestService.save(concept);
+		});
+		// remove all policies
+		AuthorizationPolicyFilter policyFilter = new AuthorizationPolicyFilter();
+		policyFilter.setRoleId(role.getId());
+		authorizationPolicyService.findDto(policyFilter, null).forEach(dto -> {
+			authorizationPolicyService.delete(dto);
 		});
 		//		
 		// guarantees and compositions are deleted by hibernate mapping

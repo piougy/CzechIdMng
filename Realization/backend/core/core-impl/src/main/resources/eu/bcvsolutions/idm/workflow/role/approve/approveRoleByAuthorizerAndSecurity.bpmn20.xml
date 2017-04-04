@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="eu.bcvsolutions.role.approve.add">
-  <process id="approve-role-by-authorizer-security" name="Assign role to idenity.  Approvers are all authorizers for given role and all with security role." isExecutable="true">
-    <documentation>Approval workflow for assign new role to identity or change validity dates on assigned role. Approvers are all authorizers for given role and all with security role.
+  <process id="approve-role-by-guarantee-security" name="Assign role to idenity.  Approvers are all guarantees for given role and all with security role." isExecutable="true">
+    <documentation>Approval workflow for assign new role to identity or change validity dates on assigned role. Approvers are all guarantees for given role and all with security role.
 
 Input variables:
 - applicantIdentifier
@@ -10,7 +10,7 @@ Input variables:
 - conceptRole (IdmConceptRoleRequestDto)
 - applicantDescription</documentation>
     <startEvent id="startevent1" name="Start"></startEvent>
-    <userTask id="approveTask" name="Approve by role authorizer" activiti:candidateUsers="#{candidatesApproveByAuthorizers}" activiti:skipExpression="#{skipApproveByAuthorizers}">
+    <userTask id="approveTask" name="Approve by role guarantee" activiti:candidateUsers="#{candidatesApproveByAuthorizers}" activiti:skipExpression="#{skipApproveByAuthorizers}">
       <documentation>${processInstanceName}</documentation>
       <extensionElements>
         <activiti:formProperty id="disapprove" type="decision"></activiti:formProperty>
@@ -23,19 +23,19 @@ Input variables:
     </userTask>
     <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway"></exclusiveGateway>
     <sequenceFlow id="flow2" sourceRef="approveTask" targetRef="exclusivegateway1"></sequenceFlow>
-    <endEvent id="endevent1" name="End"></endEvent>
+    <endEvent id="endevent1" name="End" activiti:async="true"></endEvent>
     <sequenceFlow id="flow3" name="disapproved" sourceRef="exclusivegateway1" targetRef="scripttask4">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[#{decision.equals("disapprove")}]]></conditionExpression>
     </sequenceFlow>
-    <serviceTask id="servicetask2" name="Create name of process" activiti:expression="Approve role &quot;${roleService.get(conceptRole.role).name}&quot; assignment by role authorizer for &quot;${identityService.getNiceLabel(identityService.get(applicantIdentifier))}&quot;" activiti:resultVariableName="processInstanceName"></serviceTask>
+    <serviceTask id="servicetask2" name="Create name of process" activiti:expression="Approve role &quot;${roleService.get(conceptRole.role).name}&quot; assignment by role guarantee for &quot;${identityService.getNiceLabel(identityService.get(applicantIdentifier))}&quot;" activiti:resultVariableName="processInstanceName"></serviceTask>
     <sequenceFlow id="flow7" sourceRef="startevent1" targetRef="scripttask8"></sequenceFlow>
     <sequenceFlow id="flow8" sourceRef="servicetask2" targetRef="scripttask9"></sequenceFlow>
     <exclusiveGateway id="exclusivegateway2" name="Exclusive Gateway"></exclusiveGateway>
     <sequenceFlow id="flow9" sourceRef="exclusivegateway2" targetRef="servicetask2">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[#{operationType.equals("add")}]]></conditionExpression>
     </sequenceFlow>
-    <serviceTask id="servicetask5" name="Create name of process" activiti:expression="Approve role &quot;${roleService.get(conceptRole.role).name}&quot; change by role authorizer for &quot;${identityService.getNiceLabel(identityService.get(applicantIdentifier))}&quot;" activiti:resultVariableName="processInstanceName"></serviceTask>
-    <userTask id="usertask1" name="Approve by role authorizer" activiti:candidateUsers="#{candidatesApproveByAuthorizers}" activiti:skipExpression="#{skipApproveByAuthorizers}">
+    <serviceTask id="servicetask5" name="Create name of process" activiti:expression="Approve role &quot;${roleService.get(conceptRole.role).name}&quot; change by role guarantee for &quot;${identityService.getNiceLabel(identityService.get(applicantIdentifier))}&quot;" activiti:resultVariableName="processInstanceName"></serviceTask>
+    <userTask id="usertask1" name="Approve by role guarantee" activiti:candidateUsers="#{candidatesApproveByAuthorizers}" activiti:skipExpression="#{skipApproveByAuthorizers}">
       <documentation>${processInstanceName}</documentation>
       <extensionElements>
         <activiti:formProperty id="disapprove" type="decision"></activiti:formProperty>
@@ -62,7 +62,7 @@ Input variables:
     <sequenceFlow id="flow31" name="Identity role not exist" sourceRef="exclusivegateway5" targetRef="scripttask7">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[#{identityRoleService.get(conceptRole.identityRole) == null}]]></conditionExpression>
     </sequenceFlow>
-    <endEvent id="endevent5" name="End - Identity role with given ID not found">
+    <endEvent id="endevent5" name="End - Identity role with given ID not found" activiti:async="true">
       <documentation>Identity role with given ID not found</documentation>
     </endEvent>
     <scriptTask id="scripttask4" name="Set DISAPPROVED state to concept" scriptFormat="groovy" activiti:autoStoreVariables="false">
@@ -113,11 +113,11 @@ conceptDto.setWfProcessId(processInstanceId);
 conceptRoleRequestService.save(conceptDto);</script>
     </scriptTask>
     <sequenceFlow id="flow40" sourceRef="scripttask8" targetRef="exclusivegateway2"></sequenceFlow>
-    <scriptTask id="scripttask9" name="Find all role authorizers and resolve if we can skip next task" scriptFormat="groovy" activiti:autoStoreVariables="false">
+    <scriptTask id="scripttask9" name="Find all role guarantees and resolve if we can skip next task" scriptFormat="groovy" activiti:autoStoreVariables="false">
       <script>boolean skip = false;
 def candidates = null;
 
-//Find all role authorizers
+//Find all role guarantees
 candidates = identityService.findAllGuaranteesByRoleId(conceptRole.role);
 if(candidates.isEmpty()){
   candidates.add(identityService.getByUsername("admin"));
@@ -132,7 +132,7 @@ if(implementerUsername.equals(securityService.getUsername())){
 
 // If is skip == true, then set decision for next task on approve
 if (skip) {
- decision = approve;
+ execution.setVariable("decision", "approve");
 }
 
 //Save skip resolution to variables
@@ -152,7 +152,7 @@ if(!skip){
 def candidates = null;
 
 //Find all security identities
-candidates = identityService.findAllByRoleName("security");
+candidates = identityService.findAllByRoleName(configurationService.getValue("idm.sec.core.wf.approval.security.role"));
 // If is list of candidates empty, then add ADMIN user as default approver
 if(candidates.isEmpty()){
   candidates.add(identityService.getByUsername("admin"));
@@ -167,7 +167,7 @@ if(implementerUsername.equals(securityService.getUsername())){
 
 // If is skip == true, then set decision for next task on approve
 if (skip) {
- decision = approve;
+ execution.setVariable("decision", "approve");
 }
 //Save skip resolution to variables
 execution.setVariable("skipApproveBySecurity", skip);
@@ -200,11 +200,11 @@ if(!skip){
     </sequenceFlow>
     <sequenceFlow id="flow44" sourceRef="scripttask10" targetRef="usertask2"></sequenceFlow>
     <sequenceFlow id="flow45" sourceRef="usertask2" targetRef="exclusivegateway6"></sequenceFlow>
-    <scriptTask id="scripttask11" name="Find all role authorizers and resolve if we can skip next task" scriptFormat="groovy" activiti:autoStoreVariables="false">
+    <scriptTask id="scripttask11" name="Find all role guarantees and resolve if we can skip next task" scriptFormat="groovy" activiti:autoStoreVariables="false">
       <script>boolean skip = false;
 def candidates = null;
 
-//Find all role authorizers
+//Find all role guarantees
 candidates = identityService.findAllGuaranteesByRoleId(conceptRole.role);
 if(candidates.isEmpty()){
   candidates.add(identityService.getByUsername("admin"));
@@ -219,7 +219,7 @@ if(implementerUsername.equals(securityService.getUsername())){
 
 // If is skip == true, then set decision for next task on approve
 if (skip) {
- decision = approve;
+ execution.setVariable("decision", "approve");
 }
 
 //Save skip resolution to variables
@@ -242,7 +242,7 @@ if(!skip){
 def candidates = null;
 
 //Find all security identities
-candidates = identityService.findAllByRoleName("security");
+candidates = identityService.findAllByRoleName(configurationService.getValue("idm.sec.core.wf.approval.security.role"));
 // If is list of candidates empty, then add ADMIN user as default approver
 if(candidates.isEmpty()){
   candidates.add(identityService.getByUsername("admin"));
@@ -257,7 +257,7 @@ if(implementerUsername.equals(securityService.getUsername())){
 
 // If is skip == true, then set decision for next task on approve
 if (skip) {
- decision = approve;
+ execution.setVariable("decision", "approve");
 }
 //Save skip resolution to variables
 execution.setVariable("skipApproveBySecurity", skip);
@@ -270,7 +270,7 @@ if(!skip){
   execution.setVariable("candidatesApproveBySecurity", candidatesString);
 }</script>
     </scriptTask>
-    <userTask id="usertask3" name="Approve by role authorizer" activiti:candidateUsers="#{candidatesApproveBySecurity}" activiti:skipExpression="#{skipApproveBySecurity}">
+    <userTask id="usertask3" name="Approve by role guarantee" activiti:candidateUsers="#{candidatesApproveBySecurity}" activiti:skipExpression="#{skipApproveBySecurity}">
       <extensionElements>
         <activiti:formProperty id="disapprove" type="decision"></activiti:formProperty>
         <activiti:formProperty id="approve" type="decision"></activiti:formProperty>
@@ -302,7 +302,7 @@ if(!skip){
       </extensionElements>
     </dataObject>
     <dataObject id="decision" name="decision" itemSubjectRef="xsd:string"></dataObject>
-    <endEvent id="endevent6" name="End"></endEvent>
+    <endEvent id="endevent6" name="End" activiti:async="true"></endEvent>
     <sequenceFlow id="flow52" sourceRef="scripttask5" targetRef="endevent6"></sequenceFlow>
     <textAnnotation id="textannotation1">
       <text>Assign role to identity</text>
@@ -311,8 +311,8 @@ if(!skip){
       <text>Change validate dates for assigned role</text>
     </textAnnotation>
   </process>
-  <bpmndi:BPMNDiagram id="BPMNDiagram_approve-role-by-authorizer-security">
-    <bpmndi:BPMNPlane bpmnElement="approve-role-by-authorizer-security" id="BPMNPlane_approve-role-by-authorizer-security">
+  <bpmndi:BPMNDiagram id="BPMNDiagram_approve-role-by-guarantee-security">
+    <bpmndi:BPMNPlane bpmnElement="approve-role-by-guarantee-security" id="BPMNPlane_approve-role-by-guarantee-security">
       <bpmndi:BPMNShape bpmnElement="startevent1" id="BPMNShape_startevent1">
         <omgdc:Bounds height="35.0" width="35.0" x="1.0" y="335.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
@@ -400,7 +400,7 @@ if(!skip){
         <omgdi:waypoint x="1095.0" y="317.0"></omgdi:waypoint>
         <omgdi:waypoint x="1692.0" y="319.0"></omgdi:waypoint>
         <bpmndi:BPMNLabel>
-          <omgdc:Bounds height="12.0" width="100.0" x="1104.0" y="299.0"></omgdc:Bounds>
+          <omgdc:Bounds height="12.0" width="60.0" x="1104.0" y="299.0"></omgdc:Bounds>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow7" id="BPMNEdge_flow7">
@@ -491,7 +491,7 @@ if(!skip){
         <omgdi:waypoint x="1632.0" y="368.0"></omgdi:waypoint>
         <omgdi:waypoint x="1772.0" y="353.0"></omgdi:waypoint>
         <bpmndi:BPMNLabel>
-          <omgdc:Bounds height="12.0" width="100.0" x="1126.0" y="386.0"></omgdc:Bounds>
+          <omgdc:Bounds height="12.0" width="60.0" x="1126.0" y="386.0"></omgdc:Bounds>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow48" id="BPMNEdge_flow48">

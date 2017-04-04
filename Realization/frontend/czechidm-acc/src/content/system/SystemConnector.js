@@ -266,7 +266,7 @@ class SystemConnectorContent extends Basic.AbstractContent {
             rendered={_availableConnectors.length !== 0}
             ref="formConnector"
             uiKey={uiKey}
-            readOnly={!Managers.SecurityManager.hasAuthority('SYSTEM_WRITE')}
+            readOnly={!Managers.SecurityManager.hasAuthority('SYSTEM_UPDATE')}
             style={{ paddingBottom: 0 }}>
 
             <Basic.Row className="last">

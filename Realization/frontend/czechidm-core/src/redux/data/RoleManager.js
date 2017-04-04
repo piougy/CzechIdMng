@@ -33,11 +33,13 @@ export default class RoleManager extends FormableEntityManager {
    * @param  {string} uiKey
    * @return {array[object]}
    */
-  fetchAvailableAuthorities(uiKey) {
+  fetchAvailableAuthorities() {
+    const uiKey = RoleManager.UI_KEY_AVAILABLE_AUTHORITIES;
+    //
     return (dispatch, getState) => {
       const availableAuthorities = DataManager.getData(getState(), uiKey);
       if (availableAuthorities) {
-        // we dont need to load them again - change depends on BE restart
+        // we dont need to load them again - identity needs to be logged in / out
       } else {
         dispatch(this.dataManager.requestData(uiKey));
         this.getService().getAvailableAuthorities()
@@ -52,3 +54,5 @@ export default class RoleManager extends FormableEntityManager {
     };
   }
 }
+
+RoleManager.UI_KEY_AVAILABLE_AUTHORITIES = 'available-authorities';

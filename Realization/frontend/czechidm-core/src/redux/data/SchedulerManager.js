@@ -39,22 +39,27 @@ export default class SchedulerManager extends EntityManager {
   fetchSupportedTasks() {
     const uiKey = SchedulerManager.UI_KEY_SUPPORTED_TASKS;
     //
-    return (dispatch) => {
-      dispatch(this.dataManager.requestData(uiKey));
-      this.getService().getSupportedTasks()
-        .then(json => {
-          let tasks = new Immutable.Map();
-          if (json._embedded && json._embedded.tasks) {
-            json._embedded.tasks.forEach(item => {
-              tasks = tasks.set(item.id, item);
-            });
-          }
-          dispatch(this.dataManager.receiveData(uiKey, tasks));
-        })
-        .catch(error => {
-          // TODO: data uiKey
-          dispatch(this.dataManager.receiveError(null, uiKey, error));
-        });
+    return (dispatch, getState) => {
+      const loaded = DataManager.getData(getState(), uiKey);
+      if (loaded) {
+        // we dont need to load them again - change depends on BE restart
+      } else {
+        dispatch(this.dataManager.requestData(uiKey));
+        this.getService().getSupportedTasks()
+          .then(json => {
+            let tasks = new Immutable.Map();
+            if (json._embedded && json._embedded.tasks) {
+              json._embedded.tasks.forEach(item => {
+                tasks = tasks.set(item.id, item);
+              });
+            }
+            dispatch(this.dataManager.receiveData(uiKey, tasks));
+          })
+          .catch(error => {
+            // TODO: data uiKey
+            dispatch(this.dataManager.receiveError(null, uiKey, error));
+          });
+      }
     };
   }
 

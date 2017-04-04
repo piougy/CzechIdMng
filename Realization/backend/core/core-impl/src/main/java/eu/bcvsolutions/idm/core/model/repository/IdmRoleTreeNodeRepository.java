@@ -22,14 +22,14 @@ public interface IdmRoleTreeNodeRepository extends AbstractEntityRepository<IdmR
 	@Override
 	@Query(value = "select e from #{#entityName} e" +
 	        " where"
-	        + " ( "
-	        	+ "?#{[0].roleId} is null"
+	        + " ("
+	        	+ " ?#{[0].roleId} is null"
 	        	+ " or"
 	        	+ " e.role.id = ?#{[0].roleId}"
 	        + " ) "
 	        + " and"
 	        + "	("
-	        	+ "?#{[0].treeNodeId} is null"
+	        	+ " ?#{[0].treeNodeId} is null"
 	        	+ " or"
 	        	+ " e.treeNode.id = ?#{[0].treeNodeId}"
         	+ " )")

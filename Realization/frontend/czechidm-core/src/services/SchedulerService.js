@@ -27,10 +27,7 @@ export default class SchedulerService extends AbstractService {
    * @return {string}
    */
   getSimpleTaskType(taskType) {
-    if (!taskType) {
-      return null;
-    }
-    return taskType.split('.').pop(-1);
+    return Utils.Ui.getSimpleJavaType(taskType);
   }
 
   /**

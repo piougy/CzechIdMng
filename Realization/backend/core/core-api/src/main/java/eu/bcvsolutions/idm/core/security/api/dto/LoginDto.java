@@ -20,6 +20,14 @@ public class LoginDto {
 	private boolean skipMustChange = false;
 	// identifier which module authenticate user
 	private String authenticationModule;
+	
+	public LoginDto() {
+	}
+	
+	public LoginDto(String username, GuardedString password) {
+		this.username = username;
+		this.password = password;
+	}
 
 	public String getUsername() {
 		return username;

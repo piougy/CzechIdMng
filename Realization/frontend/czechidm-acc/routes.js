@@ -50,7 +50,7 @@ module.exports = {
         {
           path: 'object-classes/:objectClassId/new',
           component: require('./src/content/system/SchemaObjectClassDetail'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_WRITE'] } ]
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_UPDATE'] } ]
         },
         {
           path: 'schema-attributes/:attributeId/detail',
@@ -60,7 +60,7 @@ module.exports = {
         {
           path: 'schema-attributes/:attributeId/new',
           component: require('./src/content/system/SchemaAttributeDetail'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_WRITE'] } ]
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_UPDATE'] } ]
         },
         {
           path: 'mappings',
@@ -75,7 +75,7 @@ module.exports = {
         {
           path: 'mappings/:mappingId/new',
           component: require('./src/content/system/SystemMappingDetail'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_WRITE'] } ]
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_UPDATE'] } ]
         },
         {
           path: 'attribute-mappings/:attributeId/detail',
@@ -85,7 +85,7 @@ module.exports = {
         {
           path: 'attribute-mappings/:attributeId/new',
           component: require('./src/content/system/SystemAttributeMappingDetail'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_WRITE'] } ]
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_UPDATE'] } ]
         },
         {
           path: 'synchronization-configs/:configId/detail',
@@ -95,7 +95,7 @@ module.exports = {
         {
           path: 'synchronization-configs/:configId/new',
           component: require('./src/content/system/SystemSynchronizationConfigDetail'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_WRITE'] } ]
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_UPDATE'] } ]
         },
         {
           path: 'synchronization-logs/:logId/detail',
@@ -122,7 +122,7 @@ module.exports = {
     {
       path: 'system/:entityId/new',
       component: require('./src/content/system/SystemContent'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_WRITE'] } ]
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_CREATE'] } ]
     },
     {
       path: 'identity/:entityId/',
@@ -159,7 +159,7 @@ module.exports = {
         {
           path: 'systems/:roleSystemId/new',
           component: require('./src/content/role/RoleSystemDetail'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_WRITE', 'SYSTEM_READ'] } ]
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_UPDATE', 'SYSTEM_READ'] } ]
         },
         {
           path: 'systems/:roleSystemId/detail',
@@ -174,7 +174,7 @@ module.exports = {
         {
           path: 'systems/:roleSystemId/attributes/:attributeId/new',
           component: require('./src/content/role/RoleSystemAttributeDetail'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_WRITE', 'SYSTEM_READ'] } ]
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_UPDATE', 'SYSTEM_READ'] } ]
         }
       ]
     },

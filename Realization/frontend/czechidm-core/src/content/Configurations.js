@@ -140,7 +140,7 @@ class Configurations extends Basic.AbstractContent {
     const confidential = this.refs.confidential.getValue();
     const name = event.currentTarget.value;
     //
-    if (SecurityManager.hasAuthority('CONFIGURATIONSECURED_WRITE')) {
+    if (SecurityManager.hasAuthority('CONFIGURATIONSECURED_UPDATE')) {
       this._setForceProperties(confidential, name);
     }
   }
@@ -149,7 +149,7 @@ class Configurations extends Basic.AbstractContent {
     const confidential = event.currentTarget.checked;
     const name = this.refs.name.getValue();
     //
-    if (SecurityManager.hasAuthority('CONFIGURATIONSECURED_WRITE')) {
+    if (SecurityManager.hasAuthority('CONFIGURATIONSECURED_UPDATE')) {
       this._setForceProperties(confidential, name);
     }
   }
@@ -186,7 +186,7 @@ class Configurations extends Basic.AbstractContent {
   }
 
   _validateName() {
-    if (!SecurityManager.hasAuthority('CONFIGURATIONSECURED_WRITE')) {
+    if (!SecurityManager.hasAuthority('CONFIGURATIONSECURED_UPDATE')) {
       const entityName = this.refs.name.getValue();
       //
       if (this.configurationManager.shouldBeGuarded(entityName)) {
@@ -259,7 +259,7 @@ class Configurations extends Basic.AbstractContent {
                   key="add_button"
                   className="btn-xs"
                   onClick={this.showDetail.bind(this, { public: true })}
-                  rendered={SecurityManager.hasAnyAuthority(['CONFIGURATION_WRITE', 'CONFIGURATIONSECURED_WRITE'])}>
+                  rendered={SecurityManager.hasAnyAuthority(['CONFIGURATION_CREATE', 'CONFIGURATIONSECURED_CREATE'])}>
                   <Basic.Icon type="fa" icon="plus"/>
                   {' '}
                   {this.i18n('button.add')}
@@ -315,14 +315,14 @@ class Configurations extends Basic.AbstractContent {
                   label={this.i18n('entity.Configuration.confidential')}
                   helpBlock={this.i18n('confidential.help')}
                   onChange={this._changeConfidential.bind(this)}
-                  readOnly={isGuarded === 'by_name' || !SecurityManager.hasAuthority('CONFIGURATIONSECURED_WRITE')}>
+                  readOnly={isGuarded === 'by_name' || !SecurityManager.hasAuthority('CONFIGURATIONSECURED_UPDATE')}>
                 </Basic.Checkbox>
                 <Basic.Checkbox
                   ref="public"
                   label={this.i18n('entity.Configuration.public')}
-                  readOnly={ isSecured || !SecurityManager.hasAuthority('CONFIGURATIONSECURED_WRITE') }
+                  readOnly={ isSecured || !SecurityManager.hasAuthority('CONFIGURATIONSECURED_UPDATE') }
                   helpBlock={this.i18n('secured.help')}>
-                  <Basic.Alert level="info" text={this.i18n('secured.notAllowed')} style={{ marginTop: 7 }} rendered={!SecurityManager.hasAuthority('CONFIGURATIONSECURED_WRITE')}/>
+                  <Basic.Alert level="info" text={this.i18n('secured.notAllowed')} style={{ marginTop: 7 }} rendered={!SecurityManager.hasAuthority('CONFIGURATIONSECURED_UPDATE')}/>
                 </Basic.Checkbox>
               </Basic.AbstractForm>
             </Basic.Modal.Body>

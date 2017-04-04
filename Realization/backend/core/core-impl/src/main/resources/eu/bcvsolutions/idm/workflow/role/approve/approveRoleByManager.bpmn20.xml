@@ -23,13 +23,13 @@ Input variables:
         <activiti:formProperty id="validTill" type="localDate" expression="#{conceptRole.validTill}"></activiti:formProperty>
       </extensionElements>
     </userTask>
-    <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway"></exclusiveGateway>
+    <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway" default="flow39"></exclusiveGateway>
     <sequenceFlow id="flow2" sourceRef="approveTask" targetRef="exclusivegateway1"></sequenceFlow>
-    <endEvent id="endevent1" name="End"></endEvent>
+    <endEvent id="endevent1" name="End" activiti:async="true"></endEvent>
     <sequenceFlow id="flow3" sourceRef="exclusivegateway1" targetRef="scripttask4">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[#{decision.equals("disapprove")}]]></conditionExpression>
     </sequenceFlow>
-    <endEvent id="endevent2" name="End"></endEvent>
+    <endEvent id="endevent2" name="End" activiti:async="true"></endEvent>
     <serviceTask id="servicetask2" name="Create name of process" activiti:expression="Approve role &quot;${roleService.get(conceptRole.role).name}&quot; assignment by manager for &quot;${identityService.getNiceLabel(identityService.get(applicantIdentifier))}&quot;" activiti:resultVariableName="processInstanceName"></serviceTask>
     <sequenceFlow id="flow7" sourceRef="startevent1" targetRef="scripttask8"></sequenceFlow>
     <sequenceFlow id="flow8" sourceRef="servicetask2" targetRef="scripttask9"></sequenceFlow>
@@ -58,7 +58,7 @@ Input variables:
     <sequenceFlow id="flow21" name="Disapproved" sourceRef="exclusivegateway3" targetRef="scripttask6">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[#{decision.equals("disapprove")}]]></conditionExpression>
     </sequenceFlow>
-    <endEvent id="endevent4" name="End"></endEvent>
+    <endEvent id="endevent4" name="End" activiti:async="true"></endEvent>
     <sequenceFlow id="flow27" sourceRef="exclusivegateway2" targetRef="servicetask5">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[#{operationType.equals("change")}]]></conditionExpression>
     </sequenceFlow>
@@ -69,7 +69,7 @@ Input variables:
     <sequenceFlow id="flow31" name="Identity role not exist" sourceRef="exclusivegateway5" targetRef="scripttask7">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[#{identityRoleService.get(conceptRole.identityRole) == null}]]></conditionExpression>
     </sequenceFlow>
-    <endEvent id="endevent5" name="End - Identity role with given ID not found">
+    <endEvent id="endevent5" name="End - Identity role with given ID not found" activiti:async="true">
       <documentation>Identity role with given ID not found</documentation>
     </endEvent>
     <scriptTask id="scripttask4" name="Set DISAPPROVED state to concept" scriptFormat="groovy" activiti:autoStoreVariables="false">
@@ -130,17 +130,6 @@ conceptDto.setWfProcessId(processInstanceId);
 conceptRoleRequestService.save(conceptDto);</script>
     </scriptTask>
     <sequenceFlow id="flow40" sourceRef="scripttask8" targetRef="exclusivegateway2"></sequenceFlow>
-    <dataObject id="approve" name="approve" itemSubjectRef="xsd:string">
-      <extensionElements>
-        <activiti:value>{"showWarning":false,,"level":"success"}</activiti:value>
-      </extensionElements>
-    </dataObject>
-    <dataObject id="disapprove" name="disapprove" itemSubjectRef="xsd:string">
-      <extensionElements>
-        <activiti:value>{"showWarning":true,"level":"danger"}</activiti:value>
-      </extensionElements>
-    </dataObject>
-    <dataObject id="decision" name="decision" itemSubjectRef="xsd:string"></dataObject>
     <scriptTask id="scripttask9" name="Find all managers (for applicant) and resolve if we can skip next task" scriptFormat="groovy" activiti:autoStoreVariables="false">
       <script>boolean skip = false;
 def candidates = null;
@@ -162,9 +151,8 @@ if(implementerUsername.equals(securityService.getUsername())){
 
 // If is skip == true, then set decision for next task on approve
 if (skip) {
- decision = approve;
+ execution.setVariable("decision", "approve");
 }
-
 //Save skip resolution to variables
 execution.setVariable("skipApproveByManager", skip);
 
@@ -198,7 +186,7 @@ if(implementerUsername.equals(securityService.getUsername())){
 
 // If is skip == true, then set decision for next task on approve
 if (skip) {
- decision = approve;
+ execution.setVariable("decision", "approve");
 }
 
 //Save skip resolution to variables
@@ -213,6 +201,21 @@ if(!skip){
 }</script>
     </scriptTask>
     <sequenceFlow id="flow42" sourceRef="scripttask10" targetRef="usertask1"></sequenceFlow>
+    <dataObject id="approve" name="approve" itemSubjectRef="xsd:string">
+      <extensionElements>
+        <activiti:value>{"showWarning":false,"level":"success"}</activiti:value>
+      </extensionElements>
+    </dataObject>
+    <dataObject id="disapprove" name="disapprove" itemSubjectRef="xsd:string">
+      <extensionElements>
+        <activiti:value>{"showWarning":true,"level":"danger"}</activiti:value>
+      </extensionElements>
+    </dataObject>
+    <dataObject id="decision" name="decision" itemSubjectRef="xsd:string">
+      <extensionElements>
+        <activiti:value>none</activiti:value>
+      </extensionElements>
+    </dataObject>
     <textAnnotation id="textannotation1">
       <text>Assign role to identity</text>
     </textAnnotation>

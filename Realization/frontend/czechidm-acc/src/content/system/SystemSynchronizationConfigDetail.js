@@ -391,12 +391,12 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
                     type="submit"
                     showLoadingIcon
                     showLoadingText={this.i18n('button.saving')}
-                    rendered={Managers.SecurityManager.hasAuthority('SYSTEM_WRITE')}
+                    rendered={Managers.SecurityManager.hasAuthority('SYSTEM_UPDATE')}
                     pullRight
                     dropup>
                     <Basic.MenuItem
                       eventKey="1"
-                      rendered={Managers.SecurityManager.hasAuthority('SYNCHRONIZATION_WRITE')}
+                      rendered={Managers.SecurityManager.hasAuthority('SYNCHRONIZATION_CREATE')}
                       onClick={this.save.bind(this, true, false)}>
                       {this.i18n('button.saveAndStartSynchronization')}
                     </Basic.MenuItem>
@@ -464,12 +464,12 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
                     type="submit"
                     showLoadingIcon
                     showLoadingText={this.i18n('button.saving')}
-                    rendered={Managers.SecurityManager.hasAuthority('SYSTEM_WRITE')}
+                    rendered={Managers.SecurityManager.hasAuthority('SYSTEM_UPDATE')}
                     pullRight
                     dropup>
                     <Basic.MenuItem
                       eventKey="1"
-                      rendered={Managers.SecurityManager.hasAuthority('SYNCHRONIZATION_WRITE')}
+                      rendered={Managers.SecurityManager.hasAuthority('SYNCHRONIZATION_UPDATE')}
                       onClick={this.save.bind(this, true, false)}>
                       {this.i18n('button.saveAndStartSynchronization')}
                     </Basic.MenuItem>
@@ -496,10 +496,10 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
               manager={synchronizationLogManager}
               showLoading={innerShowLoading}
               forceSearchParameters={forceSearchParameters}
-              showRowSelection={Managers.SecurityManager.hasAnyAuthority(['SYSTEM_WRITE'])}
+              showRowSelection={Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE'])}
               rowClass={({rowIndex, data}) => { return data[rowIndex].containsError ? 'danger' : ''; }}
               actions={
-                Managers.SecurityManager.hasAnyAuthority(['SYSTEM_WRITE'])
+                Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE'])
                 ?
                 [{ value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }]
                 :

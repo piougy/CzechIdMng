@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import _ from 'lodash';
 //
 import * as Basic from '../../components/basic';
+import * as Utils from '../../utils';
 import { PasswordPolicyManager, SecurityManager } from '../../redux';
 import PasswordPolicyIdentityAttributeEnum from '../../enums/PasswordPolicyIdentityAttributeEnum';
 
@@ -138,7 +139,11 @@ class PasswordPolicyCharacters extends Basic.AbstractContent {
           <Basic.Panel className="no-border last">
             <Basic.PanelHeader text={this.i18n('content.passwordPolicies.characters.title')} />
             <Basic.PanelBody style={{ padding: 0 }}>
-              <Basic.AbstractForm ref="form" uiKey={uiKey} readOnly={!SecurityManager.hasAuthority('PASSWORDPOLICY_WRITE')} showLoading={entity === null}>
+              <Basic.AbstractForm
+                ref="form"
+                uiKey={uiKey}
+                readOnly={!SecurityManager.hasAuthority(Utils.Entity.isNew(entity) ? 'PASSWORDPOLICY_CREATE' : 'PASSWORDPOLICY_UPDATE')}
+                showLoading={entity === null}>
                 <Basic.TextField ref="prohibitedCharacters"
                   helpBlock={this.i18n('entity.PasswordPolicy.help.prohibitedCharacters')}
                   label={this.i18n('entity.PasswordPolicy.prohibitedCharacters')} />
@@ -170,7 +175,7 @@ class PasswordPolicyCharacters extends Basic.AbstractContent {
               <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>{this.i18n('button.back')}</Basic.Button>
               <Basic.SplitButton level="success" title={this.i18n('button.saveAndContinue')}
                 onClick={this.save.bind(this, 'CONTINUE')}
-                rendered={SecurityManager.hasAuthority('PASSWORDPOLICY_WRITE')}
+                rendered={SecurityManager.hasAuthority(Utils.Entity.isNew(entity) ? 'PASSWORDPOLICY_CREATE' : 'PASSWORDPOLICY_UPDATE')}
                 showLoading={showLoading} pullRight dropup>
                 <Basic.MenuItem eventKey="1" onClick={this.save.bind(this, 'SAVE')}>{this.i18n('button.saveAndClose')}</Basic.MenuItem>
               </Basic.SplitButton>

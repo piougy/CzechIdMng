@@ -1,7 +1,10 @@
 import React, { PropTypes } from 'react';
-import * as Basic from '../../components/basic';
-import { RoleCatalogueManager, SecurityManager } from '../../redux';
 import _ from 'lodash';
+//
+import * as Basic from '../../components/basic';
+import * as Utils from '../../utils';
+import { RoleCatalogueManager, SecurityManager } from '../../redux';
+
 
 /**
 * Role catalogue detail.
@@ -85,14 +88,19 @@ export default class RoleCatalogueDetail extends Basic.AbstractContent {
   }
 
   render() {
-    const { uiKey } = this.props;
+    const { uiKey, entity } = this.props;
     const { showLoading } = this.state;
 
     return (
       <div>
         <form onSubmit={this.save.bind(this)}>
           <Basic.PanelBody>
-            <Basic.AbstractForm showLoading={showLoading} ref="form" uiKey={uiKey} readOnly={!SecurityManager.hasAuthority('ROLE_WRITE')} style={{ padding: 0 }} >
+            <Basic.AbstractForm
+              showLoading={showLoading}
+              ref="form"
+              uiKey={uiKey} r
+              eadOnly={!SecurityManager.hasAuthority(Utils.Entity.isNew(entity) ? 'ROLECATALOGUE_CREATE' : 'ROLECATALOGUE_UPDATE')}
+              style={{ padding: 0 }} >
               <Basic.Row>
                 <div className="col-lg-2">
                   <Basic.TextField
@@ -143,7 +151,7 @@ export default class RoleCatalogueDetail extends Basic.AbstractContent {
               level="success"
               showLoadingIcon
               showLoadingText={this.i18n('button.saving')}
-              rendered={SecurityManager.hasAuthority('ROLE_WRITE')}>
+              rendered={SecurityManager.hasAuthority(Utils.Entity.isNew(entity) ? 'ROLECATALOGUE_CREATE' : 'ROLECATALOGUE_UPDATE')}>
               {this.i18n('button.save')}
             </Basic.Button>
           </Basic.PanelFooter>

@@ -26,7 +26,7 @@ import eu.bcvsolutions.idm.core.api.service.ReadEntityService;
  *
  */
 
-public class UiidToEntityConverter implements Converter<UUID, BaseEntity> {
+public class UuidToEntityConverter implements Converter<UUID, BaseEntity> {
 
 	private EntityLookupService lookupService;
 	private ApplicationContext applicationContext;
@@ -38,7 +38,7 @@ public class UiidToEntityConverter implements Converter<UUID, BaseEntity> {
 	 * 
 	 * @param applicationContext
 	 */
-	public UiidToEntityConverter(ApplicationContext applicationContext) {
+	public UuidToEntityConverter(ApplicationContext applicationContext) {
 		Assert.notNull(applicationContext, "Application context is required!");
 		this.applicationContext = applicationContext;
 	}

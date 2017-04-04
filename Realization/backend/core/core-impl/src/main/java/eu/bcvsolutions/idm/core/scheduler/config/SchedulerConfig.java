@@ -38,7 +38,7 @@ public class SchedulerConfig {
 	
 	@Value("${scheduler.properties.location:/quartz.properties}")
     private String propertiesLocation;
-	
+
 	@Bean
 	public AutowiringSpringBeanJobFactory jobFactory(ApplicationContext applicationContext) {
 		AutowiringSpringBeanJobFactory jobFactory = new AutowiringSpringBeanJobFactory();

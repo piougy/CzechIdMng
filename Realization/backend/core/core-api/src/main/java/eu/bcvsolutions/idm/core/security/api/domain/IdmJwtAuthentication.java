@@ -33,7 +33,11 @@ public class IdmJwtAuthentication extends AbstractAuthentication {
 		//
 		this.fromModule = fromModule;
 		this.expiration = expiration;
-		this.authorities = Collections.unmodifiableList(new ArrayList<>(authorities));
+		if (authorities == null) {
+			this.authorities = new ArrayList<>();
+		} else {
+			this.authorities = Collections.unmodifiableList(new ArrayList<>(authorities));
+		}
 	}
 
 	@Override

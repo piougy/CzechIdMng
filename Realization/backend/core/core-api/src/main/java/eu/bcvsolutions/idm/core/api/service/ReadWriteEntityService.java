@@ -11,7 +11,9 @@ import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
  * @author Radek Tomiška
  *
  * @param <E> {@link BaseEntity} type
+ * @deprecated use {@link ReadWriteDtoService}
  */
+@Deprecated
 public interface ReadWriteEntityService<E extends BaseEntity, F extends BaseFilter> extends ReadEntityService<E, F> {
 
 	/**

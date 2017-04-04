@@ -17,7 +17,7 @@ import eu.bcvsolutions.idm.core.notification.service.api.IdmWebsocketLogService;
 import eu.bcvsolutions.idm.core.notification.service.api.WebsocketNotificationSender;
 
 /**
- * Send messages throgh websocket
+ * Send messages through websocket
  * 
  * @author Radek Tomiška
  *
@@ -45,7 +45,7 @@ public class DefaultWebsocketNotificationSender extends AbstractNotificationSend
 	public IdmWebsocketLog send(IdmNotification notification) {
 		Assert.notNull(notification, "Noticition is required!");
 		//
-		LOG.info("Adding email notification to queue [{}]", notification);
+		LOG.info("Adding websocket notification to queue [{}]", notification);
 		IdmWebsocketLog log = createLog(notification);
 		// send flashmessage
 		FlashMessage message = toFlashMessage(log);
@@ -80,7 +80,7 @@ public class DefaultWebsocketNotificationSender extends AbstractNotificationSend
 	}	
 	
 	/**
-	 * Persists new emailog record from given notification
+	 * Persists new websocket record from given notification
 	 * 
 	 * @param notification
 	 * @return

@@ -35,7 +35,6 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
-import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowHistoricProcessInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowProcessInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowHistoricProcessInstanceService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
@@ -166,9 +165,8 @@ public class DefaultWorkflowProcessInstanceService implements WorkflowProcessIns
 			totalPage = (long) (totlaPageFlorred + 1);
 		}
 
-		ResourcesWrapper<WorkflowProcessInstanceDto> result = new ResourcesWrapper<>(dtos, count, totalPage,
+		return new ResourcesWrapper<>(dtos, count, totalPage,
 				filter.getPageNumber(), filter.getPageSize());
-		return result;
 	}
 	
 	@Override
@@ -254,7 +252,7 @@ public class DefaultWorkflowProcessInstanceService implements WorkflowProcessIns
 			if (identityLinks != null && !identityLinks.isEmpty()) {
 				List<String> candicateUsers = new ArrayList<>();
 				for	(HistoricIdentityLink identity : identityLinks) {
-					if (identity.getType().equals(IdentityLinkType.CANDIDATE)) {
+					if (IdentityLinkType.CANDIDATE.equals(identity.getType())) {
 						candicateUsers.add(identity.getUserId());
 					}
 				}

@@ -262,17 +262,21 @@ export default class EntityManager {
       dispatch(this.requestEntity(id, uiKey));
       this.getService().getById(id)
       .then(json => {
-        this.getService().getPermissions(id)
-        .then(permissions => {
-          dispatch({
-            type: RECEIVE_PERMISSIONS,
-            id,
-            entityType: this.getEntityType(),
-            permissions,
-            uiKey
+        if (this.getService().supportsAuthorization()) {
+          this.getService().getPermissions(id)
+          .then(permissions => {
+            dispatch({
+              type: RECEIVE_PERMISSIONS,
+              id,
+              entityType: this.getEntityType(),
+              permissions,
+              uiKey
+            });
+            dispatch(this.receiveEntity(id, json, uiKey, cb));
           });
+        } else {
           dispatch(this.receiveEntity(id, json, uiKey, cb));
-        });
+        }
       })
       .catch(error => {
         // TODO: 404, 403 simple redirect,

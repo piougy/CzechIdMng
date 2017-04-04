@@ -249,19 +249,6 @@ export default class RoleTable extends Basic.AbstractContent {
             <Advanced.Column property="roleType" width="75px" sort face="enum" enumClass={RoleTypeEnum} rendered={_.includes(columns, 'roleType')}/>
             <Advanced.Column property="roleCatalogue.name" width="75px" face="text" rendered={_.includes(columns, 'roleCatalogue')}/>
             <Advanced.Column property="description" sort face="text" rendered={_.includes(columns, 'description')}/>
-            <Advanced.Column
-              header={this.i18n('entity.Role.approvable')}
-              width="75px"
-              className="column-face-bool"
-              cell={
-                ({ rowIndex, data }) => {
-                  return (
-                    <input type="checkbox" disabled checked={data[rowIndex].approveAddWorkflow || data[rowIndex].approveRemoveWorkflow} />
-                  );
-                }
-              }
-              sort={false}
-              rendered={_.includes(columns, 'approvable')}/>
             <Advanced.Column property="disabled" sort face="bool" width="75px" rendered={_.includes(columns, 'disabled')}/>
           </Advanced.Table>
         </div>

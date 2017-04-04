@@ -1911,8 +1911,7 @@
       "superiorRoles": "Superior roles",
       "subRoles": "Subordinate roles",
       "authorities": "Authorizations",
-      "approveAddWorkflow": "Assign approval (WF)",
-      "approveRemoveWorkflow": "Remove approval (WF)",
+      "approveRemove": "Approve remove role",
       "description": "Description",
       "guarantees": "Role authorizers",
       "roleCatalog": {

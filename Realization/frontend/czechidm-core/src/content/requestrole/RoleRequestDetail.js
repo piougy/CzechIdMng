@@ -75,7 +75,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
           state: RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.CONCEPT),
           requestedByType: 'MANUALLY'
         }}, () => {
-        this.save(null, false);
+        this.save(this, false);
       });
     } else {
       this.context.store.dispatch(roleRequestManager.fetchEntity(_entityId));
@@ -365,6 +365,38 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
     );
   }
 
+  _renderRoleConceptTable(request, rendered, isEditable, showLoading, _currentIdentityRoles, addedIdentityRoles, changedIdentityRoles, removedIdentityRoles) {
+    if (!rendered) {
+      return null;
+    }
+    return (
+      <div>
+        <Basic.ContentHeader>
+          <Basic.Icon value="list"/>
+          {' '}
+          <span dangerouslySetInnerHTML={{ __html: this.i18n('conceptWithCurrentRoleHeader') }}/>
+        </Basic.ContentHeader>
+        <Basic.Panel rendered={request && _currentIdentityRoles}>
+          <RoleConceptTable
+            ref="identityRoleConceptTable"
+            uiKey="identity-role-concept-table"
+            showLoading={showLoading}
+            classNameBasicTable="verticalScrollTable"
+            readOnly={!isEditable}
+            identityUsername={request && request.applicant}
+            identityRoles={_currentIdentityRoles}
+            addedIdentityRoles={addedIdentityRoles}
+            changedIdentityRoles={changedIdentityRoles}
+            removedIdentityRoles={removedIdentityRoles}
+            removeConceptFunc={this._removeConcept.bind(this)}
+            createConceptFunc={this._createConcept.bind(this)}
+            updateConceptFunc={this._updateConcept.bind(this)}
+            />
+        </Basic.Panel>
+      </div>
+    );
+  }
+
   render() {
     const { _showLoading, _request, _currentIdentityRoles, adminMode, editableInStates, showRequestDetail} = this.props;
 
@@ -372,7 +404,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
     const forceSearchParameters = new SearchParameters().setFilter('roleRequestId', _request ? _request.id : SearchParameters.BLANK_UUID);
     const isNew = this._getIsNew();
     const request = isNew ? this.state.request : _request;
-    const showLoading = !request || _showLoading || this.state.showLoading;
+    const showLoading = !request || _showLoading;
     const isEditable = request && _.includes(editableInStates, request.state);
 
     const addedIdentityRoles = [];
@@ -461,6 +493,9 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
                 rows="3"
                 placeholder={this.i18n('entity.RoleRequest.description.placeholder')}
                 label={this.i18n('entity.RoleRequest.description.label')}/>
+              {this._renderRoleConceptTable(request, true,
+                   isEditable, showLoading, _currentIdentityRoles, addedIdentityRoles,
+                   changedIdentityRoles, removedIdentityRoles)}
               {this._renderRoleConceptChangesTable(request, forceSearchParameters, true)}
             </Basic.AbstractForm>
             <Basic.PanelFooter>
@@ -495,27 +530,9 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
           </Basic.Panel>
         </form>
         {this._renderRoleConceptChangesTable(request, forceSearchParameters, !showRequestDetail)}
-        <Basic.ContentHeader rendered={request && !isNew}>
-          <Basic.Icon value="list"/>
-          {' '}
-          <span dangerouslySetInnerHTML={{ __html: this.i18n('conceptWithCurrentRoleHeader') }}/>
-        </Basic.ContentHeader>
-        <Basic.Panel rendered={request && _currentIdentityRoles}>
-          <RoleConceptTable
-            ref="identityRoleConceptTable"
-            uiKey="identity-role-concept-table"
-            showLoading={showLoading}
-            readOnly={!isEditable}
-            identityUsername={request && request.applicant}
-            identityRoles={_currentIdentityRoles}
-            addedIdentityRoles={addedIdentityRoles}
-            changedIdentityRoles={changedIdentityRoles}
-            removedIdentityRoles={removedIdentityRoles}
-            removeConceptFunc={this._removeConcept.bind(this)}
-            createConceptFunc={this._createConcept.bind(this)}
-            updateConceptFunc={this._updateConcept.bind(this)}
-            />
-        </Basic.Panel>
+        {this._renderRoleConceptTable(request, !showRequestDetail,
+           isEditable, showLoading, _currentIdentityRoles, addedIdentityRoles,
+           changedIdentityRoles, removedIdentityRoles)}
       </div>
     );
   }

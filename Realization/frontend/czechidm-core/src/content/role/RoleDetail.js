@@ -210,6 +210,9 @@ class RoleDetail extends Basic.AbstractContent {
                         label={this.i18n('entity.Role.guarantees')}
                         multiSelect
                         manager={identityManger}/>
+                      <Basic.Checkbox
+                        ref="approveRemove"
+                        label={this.i18n('entity.Role.approveRemove')}/>
                       <Basic.TextArea
                         ref="description"
                         label={this.i18n('entity.Role.description')}
@@ -218,8 +221,6 @@ class RoleDetail extends Basic.AbstractContent {
                         ref="disabled"
                         label={this.i18n('entity.Role.disabled')}/>
                     </div>
-
-                    <Basic.ContentHeader text={ this.i18n('setting.approval.header') } />
                   </div>
 
                   <div className="col-lg-4">

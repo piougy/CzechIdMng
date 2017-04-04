@@ -14,6 +14,7 @@ import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -106,57 +107,7 @@ public class DefaultIdmRoleRequestService
 	}
 
 	@Override
-	public IdmRoleRequestDto toDto(IdmRoleRequest entity, IdmRoleRequestDto dto) {
-		IdmRoleRequestDto requestDto = super.toDto(entity, dto);
-		// Set concepts to request DTO
-		if (requestDto != null) {
-			ConceptRoleRequestFilter conceptFilter = new ConceptRoleRequestFilter();
-			conceptFilter.setRoleRequestId(requestDto.getId());
-			requestDto.setConceptRoles(conceptRoleRequestService.findDto(conceptFilter, null).getContent());
-		}
-		
-		if(requestDto != null && requestDto.getWfProcessId() != null){
-			WorkflowProcessInstanceDto processDto = workflowProcessInstanceService.get(requestDto.getWfProcessId());
-			// TODO: create trimmed variant in workflow process instance service
-			if(processDto != null) {
-				processDto.setProcessVariables(null);
-			}
-			requestDto.getEmbedded().put(IdmRoleRequestDto.WF_PROCESS_FIELD, processDto);
-		}
-		
-		return requestDto;
-	}
-
-	@Override
-	public IdmRoleRequest toEntity(IdmRoleRequestDto dto, IdmRoleRequest entity) {
-		// Set persisted value to read only properties
-		// TODO: Create converter for skip fields mark as read only
-		if (dto.getId() != null) {
-			IdmRoleRequestDto dtoPersisited = this.getDto(dto.getId());
-			if (dto.getState() == null) {
-				dto.setState(dtoPersisited.getState());
-			}
-			if (dto.getLog() == null) {
-				dto.setLog(dtoPersisited.getLog());
-			}
-			if (dto.getConceptRoles() == null) {
-				dto.setConceptRoles(dtoPersisited.getConceptRoles());
-			}
-			if (dto.getWfProcessId() == null) {
-				dto.setWfProcessId(dtoPersisited.getWfProcessId());
-			}
-			if (dto.getOriginalRequest() == null) {
-				dto.setOriginalRequest(dtoPersisited.getOriginalRequest());
-			}
-		} else {
-			dto.setState(RoleRequestState.CONCEPT);
-		}
-
-		return super.toEntity(dto, entity);
-
-	}
-
-	@Override
+	@Transactional
 	public void startRequest(UUID requestId) {
 
 		try {
@@ -172,6 +123,7 @@ public class DefaultIdmRoleRequestService
 	}
 
 	@Override
+	@Transactional
 	public void startRequestInternal(UUID requestId, boolean checkRight) {
 		LOG.debug("Start role request [{}]", requestId);
 		Assert.notNull(requestId, "Role request ID is required!");
@@ -233,6 +185,7 @@ public class DefaultIdmRoleRequestService
 	
 
 	@Override
+	@Transactional
 	public boolean startApprovalProcess(IdmRoleRequestDto request, boolean checkRight, EntityEvent<IdmRoleRequestDto> event,  String wfDefinition){
 		// If is request marked as executed immediately, then we will check right
 		// and do realization immediately (without start approval process) 
@@ -276,30 +229,9 @@ public class DefaultIdmRoleRequestService
 		return false;
 	}
 	
-	private IdmRoleRequestDto validateOnDuplicity(IdmRoleRequestDto request) {
-		List<IdmRoleRequestDto> potentialDuplicatedRequests = new ArrayList<>();
-
-		RoleRequestFilter requestFilter = new RoleRequestFilter();
-		requestFilter.setApplicantId(request.getApplicant());
-		requestFilter.setState(RoleRequestState.IN_PROGRESS);
-		potentialDuplicatedRequests.addAll(this.findDto(requestFilter, null).getContent());
-
-		requestFilter.setState(RoleRequestState.APPROVED);
-		potentialDuplicatedRequests.addAll(this.findDto(requestFilter, null).getContent());
-
-		Optional<IdmRoleRequestDto> duplicatedRequestOptional = potentialDuplicatedRequests.stream()
-				.filter(requestDuplicate -> {
-					return isDuplicated(request, requestDuplicate) && !(request.getId() != null
-							&& requestDuplicate.getId() != null && request.getId().equals(requestDuplicate.getId()));
-				}).findFirst();
-
-		if (duplicatedRequestOptional.isPresent()) {
-			return duplicatedRequestOptional.get();
-		}
-		return null;
-	}
-
+	
 	@Override
+	@Transactional
 	public IdmRoleRequestDto executeRequest(UUID requestId) {
 		Assert.notNull(requestId, "Role request ID is required!");
 		IdmRoleRequestDto request = this.getDto(requestId);
@@ -388,6 +320,57 @@ public class DefaultIdmRoleRequestService
 		conceptRoleRequestService.saveAll(conceptsToSave);
 		request.setState(RoleRequestState.EXECUTED);
 		return this.save(request);
+
+	}
+	
+	@Override
+	public IdmRoleRequestDto toDto(IdmRoleRequest entity, IdmRoleRequestDto dto) {
+		IdmRoleRequestDto requestDto = super.toDto(entity, dto);
+		// Set concepts to request DTO
+		if (requestDto != null) {
+			ConceptRoleRequestFilter conceptFilter = new ConceptRoleRequestFilter();
+			conceptFilter.setRoleRequestId(requestDto.getId());
+			requestDto.setConceptRoles(conceptRoleRequestService.findDto(conceptFilter, null).getContent());
+		}
+		
+		if(requestDto != null && requestDto.getWfProcessId() != null){
+			WorkflowProcessInstanceDto processDto = workflowProcessInstanceService.get(requestDto.getWfProcessId());
+			// TODO: create trimmed variant in workflow process instance service
+			if(processDto != null) {
+				processDto.setProcessVariables(null);
+			}
+			requestDto.getEmbedded().put(IdmRoleRequestDto.WF_PROCESS_FIELD, processDto);
+		}
+		
+		return requestDto;
+	}
+
+	@Override
+	public IdmRoleRequest toEntity(IdmRoleRequestDto dto, IdmRoleRequest entity) {
+		// Set persisted value to read only properties
+		// TODO: Create converter for skip fields mark as read only
+		if (dto.getId() != null) {
+			IdmRoleRequestDto dtoPersisited = this.getDto(dto.getId());
+			if (dto.getState() == null) {
+				dto.setState(dtoPersisited.getState());
+			}
+			if (dto.getLog() == null) {
+				dto.setLog(dtoPersisited.getLog());
+			}
+			if (dto.getConceptRoles() == null) {
+				dto.setConceptRoles(dtoPersisited.getConceptRoles());
+			}
+			if (dto.getWfProcessId() == null) {
+				dto.setWfProcessId(dtoPersisited.getWfProcessId());
+			}
+			if (dto.getOriginalRequest() == null) {
+				dto.setOriginalRequest(dtoPersisited.getOriginalRequest());
+			}
+		} else {
+			dto.setState(RoleRequestState.CONCEPT);
+		}
+
+		return super.toEntity(dto, entity);
 
 	}
 
@@ -504,6 +487,30 @@ public class DefaultIdmRoleRequestService
 		}
 		return this.roleRequestService;
 	}
+	
+	private IdmRoleRequestDto validateOnDuplicity(IdmRoleRequestDto request) {
+		List<IdmRoleRequestDto> potentialDuplicatedRequests = new ArrayList<>();
+
+		RoleRequestFilter requestFilter = new RoleRequestFilter();
+		requestFilter.setApplicantId(request.getApplicant());
+		requestFilter.setState(RoleRequestState.IN_PROGRESS);
+		potentialDuplicatedRequests.addAll(this.findDto(requestFilter, null).getContent());
+
+		requestFilter.setState(RoleRequestState.APPROVED);
+		potentialDuplicatedRequests.addAll(this.findDto(requestFilter, null).getContent());
+
+		Optional<IdmRoleRequestDto> duplicatedRequestOptional = potentialDuplicatedRequests.stream()
+				.filter(requestDuplicate -> {
+					return isDuplicated(request, requestDuplicate) && !(request.getId() != null
+							&& requestDuplicate.getId() != null && request.getId().equals(requestDuplicate.getId()));
+				}).findFirst();
+
+		if (duplicatedRequestOptional.isPresent()) {
+			return duplicatedRequestOptional.get();
+		}
+		return null;
+	}
+
 	
 	/**
 	 * Trim request and his role concepts. Remove embedded objects.

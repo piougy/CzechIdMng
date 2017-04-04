@@ -32,7 +32,6 @@ public class StartSubprocessEventListener implements ActivitiEventListener {
 
 		case PROCESS_STARTED:
 			log.debug("StartSubprocesEventListener - recieve event [{}]", event.getType());
-			
 			ActivitiProcessStartedEvent eventStarted = ((ActivitiProcessStartedEvent)event);
 			if (eventStarted.getNestedProcessInstanceId()  == null) {
 				// Only superprocess have nested process null;

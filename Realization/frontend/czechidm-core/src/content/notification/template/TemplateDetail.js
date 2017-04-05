@@ -177,10 +177,13 @@ export default class TemplateDetail extends Basic.AbstractContent {
               label={this.i18n('entity.NotificationTemplate.unmodifiable.name')}
               helpBlock={this.i18n('entity.NotificationTemplate.unmodifiable.help')}/>
             <Basic.TextArea ref="bodyText" label={this.i18n('entity.NotificationTemplate.bodyText')} />
-            <Advanced.RichTextArea ref="bodyHtml" label={this.i18n('entity.NotificationTemplate.bodyHtml.name')}
+            {/* TODO: add two areas - text area for plain html and WYSIWYG editor for edit html tags */}
+            <Basic.TextArea ref="bodyHtml" label={this.i18n('entity.NotificationTemplate.bodyHtml.name')} rows="20"/>
+            {/*
+            <Basic.TextArea ref="bodyHtml" label={this.i18n('entity.NotificationTemplate.bodyHtml.name')}
               showToolbar
               helpBlock={this.i18n('entity.NotificationTemplate.bodyHtml.help')}
-              mentions={this.getParameters()}/>
+              mentions={this.getParameters()}/>*/}
           </Basic.AbstractForm>
 
           <Basic.PanelFooter showLoading={showLoading} >

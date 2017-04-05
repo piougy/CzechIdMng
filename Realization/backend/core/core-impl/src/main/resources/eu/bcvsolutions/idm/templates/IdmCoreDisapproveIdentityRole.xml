@@ -1,0 +1,48 @@
+<?xml version = "1.0" encoding = "UTF-8" standalone = "yes"?>
+<!-- 
+Notification with result WF about disapproved request
+
+parameters:
+	-	managerDescription
+	-	url
+	-	from
+ -->
+
+<template>
+	<name>Send result WF - Disapprove identity roles</name>
+	<code>disapproveIdentityRole</code>
+	<subject>CzechIdMng v7 - Změna oprávnění byla zamítnuta</subject>
+	<bodyHtml>
+<![CDATA[
+<html>
+<body>
+Dobrý den,<br />
+<br />
+Vaše žádnost ze dne $from byla zamítnuta. Odkaz žádosti: <a href='$url'>$url</a><br />
+<br />
+Poznámka vedoucího:<br />
+<b>$managerDescription</b><br />
+<br />
+<br />
+S pozdravem BCV Solutions s.r.o.
+<br />
+<br />
+-------------------------------------------------------------------------------------<br />
+Hello,<br />
+<br />
+Your request dated $from was disapproved. Request url: <a href='$url'>$url</a><br />
+<br />
+Manager's note:<br />
+<b>$managerDescription</b><br />
+<br />
+<br />
+Regards BCV Solutions Ltd.
+</body>
+</html>
+]]>
+	</bodyHtml>
+	<bodyText></bodyText>
+	<parameter>managerDescription, from, url</parameter>
+	<systemTemplate>true</systemTemplate>
+	<moduleId>core</moduleId>
+</template>

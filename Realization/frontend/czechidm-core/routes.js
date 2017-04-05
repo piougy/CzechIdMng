@@ -214,7 +214,7 @@ module.exports = {
         {
           path: 'authorization-policies',
           component: require('./src/content/role/AuthorizationPolicies'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ'] } ]
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUTHORIZATIONPOLICY_READ'] } ]
         }
       ]
     },

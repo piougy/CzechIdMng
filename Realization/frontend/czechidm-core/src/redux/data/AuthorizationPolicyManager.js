@@ -28,8 +28,8 @@ export default class AuthorizationPolicyManager extends EntityManager {
     return 'authorizationPolicies';
   }
 
-  supportsPatch() {
-    return false;
+  getGroupPermission() {
+    return 'AUTHORIZATIONPOLICY';
   }
 
   /**

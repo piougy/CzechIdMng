@@ -8,6 +8,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
@@ -31,7 +32,7 @@ public interface AuthorizationManager {
 	 * @param builder
 	 * @return
 	 */
-	<E extends BaseEntity> Predicate getPredicate(BasePermission permission, Root<E> root, CriteriaQuery<?> query, CriteriaBuilder builder);
+	<E extends Identifiable> Predicate getPredicate(BasePermission permission, Root<E> root, CriteriaQuery<?> query, CriteriaBuilder builder);
 	
 	/**
 	 * Returns, what logged user could do with given entity
@@ -39,7 +40,7 @@ public interface AuthorizationManager {
 	 * @param entity
 	 * @return
 	 */
-	<E extends BaseEntity> Set<String> getPermissions(E entity);
+	<E extends Identifiable> Set<String> getPermissions(E entity);
 	
 	/**
 	 * Returns true, when currently logged user has given permission on given entity.
@@ -48,7 +49,7 @@ public interface AuthorizationManager {
 	 * @param permission
 	 * @return
 	 */
-	<E extends BaseEntity> boolean evaluate(E entity, BasePermission permission);
+	<E extends Identifiable> boolean evaluate(E entity, BasePermission permission);
 	
 	/**
 	 * Returns supported evaluators definitions

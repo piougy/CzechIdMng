@@ -54,6 +54,8 @@ public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, Role
 	private final IdmRoleRepository repository;
 	private final EntityEventManager entityEventManager;
 	private final IdmConfigurationService configurationService;
+	@Autowired
+	private AuthorizationManager authorizationManager;
 	
 	@Autowired
 	public DefaultIdmRoleService(
@@ -110,9 +112,6 @@ public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, Role
 		LOG.debug("Deleting role [{}]", role.getName());
 		entityEventManager.process(new RoleEvent(RoleEventType.DELETE, role));
 	}
-	
-	@Autowired
-	private AuthorizationManager authorizationManager;
 	
 	@Override
 	public Page<IdmRole> find(final RoleFilter filter, Pageable pageable) {

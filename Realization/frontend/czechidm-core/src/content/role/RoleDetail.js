@@ -79,7 +79,9 @@ class RoleDetail extends Basic.AbstractContent {
       const entity = this.refs.form.getData();
       this.refs.form.processStarted();
       // append selected authorities
-      entity.authorities = this.refs.authorities.getWrappedInstance().getSelectedAuthorities();
+      if (this.refs.authorities) {
+        entity.authorities = this.refs.authorities.getWrappedInstance().getSelectedAuthorities();
+      }
       // append subroles
       if (entity.subRoles) {
         entity.subRoles = entity.subRoles.map(subRoleId => {
@@ -162,9 +164,9 @@ class RoleDetail extends Basic.AbstractContent {
               <Basic.AbstractForm
                 ref="form"
                 showLoading={ _showLoading || showLoading }
-                readOnly={ !Utils.Entity.isNew(entity) ? !Utils.Permission.hasPermission(_permissions, 'UPDATE') : !SecurityManager.hasAuthority('ROLE_CREATE') }>
+                readOnly={ !roleManager.canSave(entity, _permissions) }>
                 <Basic.Row>
-                  <div className="col-lg-8">
+                  <Basic.Col lg={ 8 }>
                     <div>
                       <Basic.TextField
                         ref="name"
@@ -220,9 +222,9 @@ class RoleDetail extends Basic.AbstractContent {
                     </div>
 
                     <Basic.ContentHeader text={ this.i18n('setting.approval.header') } />
-                  </div>
+                  </Basic.Col>
 
-                  <div className="col-lg-4">
+                  <Basic.Col lg={ 4 }>
                     <h3 style={{ margin: '0 0 10px 0', padding: 0, borderBottom: '1px solid #ddd' }}>
                       <span dangerouslySetInnerHTML={{ __html: this.i18n('setting.authority.header') }} className="pull-left"/>
                       <Basic.HelpIcon content={authorityHelp} className="pull-right"/>
@@ -232,8 +234,8 @@ class RoleDetail extends Basic.AbstractContent {
                       ref="authorities"
                       roleManager={ roleManager }
                       authorities={ entity.authorities }
-                      disabled={ !Utils.Entity.isNew(entity) ? !Utils.Permission.hasPermission(_permissions, 'UPDATE') : !SecurityManager.hasAuthority('ROLE_CREATE') } />
-                  </div>
+                      disabled={ !SecurityManager.hasAuthority('AUTHORITY_UPDATE') || !roleManager.canSave(entity, _permissions) } />
+                  </Basic.Col>
                 </Basic.Row>
               </Basic.AbstractForm>
             </Basic.PanelBody>
@@ -248,7 +250,7 @@ class RoleDetail extends Basic.AbstractContent {
                 showLoading={ _showLoading }
                 showLoadingIcon
                 showLoadingText={ this.i18n('button.saving') }
-                rendered={ !Utils.Entity.isNew(entity) ? Utils.Permission.hasPermission(_permissions, 'UPDATE') : SecurityManager.hasAuthority('ROLE_CREATE') }
+                rendered={ roleManager.canSave(entity, _permissions) }
                 pullRight
                 dropup>
                 <Basic.MenuItem eventKey="1" onClick={this.save.bind(this, 'CLOSE')}>{this.i18n('button.saveAndClose')}</Basic.MenuItem>

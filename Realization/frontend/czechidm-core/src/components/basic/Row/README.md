@@ -1,17 +1,17 @@
 # Row Component
 
-Wraps simple bootstrap row
+Wraps simple bootstrap row and column
 
 
 ## Usage
 
 ```html
 <Basic.Row rendered={true}>
-  <div className="col-sm-6">
+  <Basic.Column lg={6}>
     ...
-  </div>
-  <div className="col-sm-6">
+  </Basic.Column>
+  <Basic.Column lg={6}>
     ...
-  </div>
+  </Basic.Column>
 </Basic.Row>
 ```

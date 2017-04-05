@@ -216,7 +216,8 @@ module.exports = {
                 'labelKey': 'content.role.authorization-policies.label',
                 'titleKey': 'content.role.authorization-policies.title',
                 'order': 200,
-                'path': '/role/:entityId/authorization-policies'
+                'path': '/role/:entityId/authorization-policies',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUTHORIZATIONPOLICY_READ'] } ],
               },
               {
                 'id': 'role-tree-nodes',

@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.rest.impl;
 
+import java.util.Set;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -35,9 +37,6 @@ public abstract class DefaultReadWriteDtoController<DTO extends BaseDto, F exten
 		super(service);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.GET)
@@ -61,9 +60,6 @@ public abstract class DefaultReadWriteDtoController<DTO extends BaseDto, F exten
 		return super.find(parameters, pageable);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.GET)
@@ -71,9 +67,6 @@ public abstract class DefaultReadWriteDtoController<DTO extends BaseDto, F exten
 		return super.get(backendId);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.POST)
@@ -81,9 +74,6 @@ public abstract class DefaultReadWriteDtoController<DTO extends BaseDto, F exten
 		return super.post(dto);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.PUT)
@@ -91,9 +81,6 @@ public abstract class DefaultReadWriteDtoController<DTO extends BaseDto, F exten
 		return super.put(backendId, dto);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.PATCH)
@@ -102,13 +89,17 @@ public abstract class DefaultReadWriteDtoController<DTO extends BaseDto, F exten
 		return super.patch(backendId, nativeRequest);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.DELETE)
 	public ResponseEntity<?> delete(@PathVariable @NotNull String backendId) {
 		return super.delete(backendId);
+	}
+	
+	@Override
+	@ResponseBody
+	@RequestMapping(value = "/{backendId}/permissions", method = RequestMethod.GET)
+	public Set<String> getPermissions(@PathVariable @NotNull String backendId) {
+		return super.getPermissions(backendId);
 	}
 }

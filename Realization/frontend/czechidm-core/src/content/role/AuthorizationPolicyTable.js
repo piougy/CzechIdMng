@@ -7,9 +7,8 @@ import Immutable from 'immutable';
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
-import RecursionTypeEnum from '../../enums/RecursionTypeEnum';
 //
-import { RoleManager, AuthorizationPolicyManager, SecurityManager, DataManager } from '../../redux';
+import { RoleManager, AuthorizationPolicyManager, DataManager } from '../../redux';
 
 const manager = new AuthorizationPolicyManager();
 const roleManager = new RoleManager();
@@ -52,6 +51,10 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
   showDetail(entity) {
     const { forceSearchParameters, supportedEvaluators, authorizableTypes } = this.props;
     //
+    if (!Utils.Entity.isNew(entity)) {
+      this.context.store.dispatch(this.getManager().fetchPermissions(entity.id, `${this.getUiKey()}-detail`));
+    }
+    //
     let roleId = null;
     if (forceSearchParameters.getFilters().has('roleId')) {
       roleId = forceSearchParameters.getFilters().get('roleId');
@@ -92,8 +95,8 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
   closeDetail() {
     this.setState({
       detail: {
-        show: false,
-        entity: {}
+        ...this.state.detail,
+        show: false
       },
       authorizableType: null,
       evaluatorType: null
@@ -118,7 +121,9 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
       });
     }
     // transform base permissions
-    formEntity.basePermissions = formEntity.basePermissions.join(',');
+    if (formEntity.basePermissions) {
+      formEntity.basePermissions = formEntity.basePermissions.join(',');
+    }
     //
     super.save(formEntity, event);
   }
@@ -126,6 +131,8 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
   afterSave(entity, error) {
     if (!error) {
       this.addMessage({ message: this.i18n('save.success', { count: 1, record: this.getManager().getNiceLabel(entity) }) });
+      // TODO: trimmed vs. not trimmed view ...
+      this.refs.table.getWrappedInstance().reload();
     }
     //
     super.afterSave(entity, error);
@@ -144,15 +151,15 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
   }
 
   render() {
-    const { uiKey, columns, forceSearchParameters, _showLoading, supportedEvaluators, authorizableTypes, availableAuthorities } = this.props;
+    const { uiKey, columns, forceSearchParameters, _showLoading, supportedEvaluators, authorizableTypes, availableAuthorities, _permissions } = this.props;
     const { detail, evaluatorType, authorizableType } = this.state;
     //
     const _supportedEvaluators = [];
     if (supportedEvaluators) {
       supportedEvaluators.forEach(evaluator => {
         // TODO: add filter to BE and evaluate all superclasses
-        if ((!authorizableType && (Utils.Ui.getSimpleJavaType(evaluator.entityType) === 'BaseEntity' || Utils.Ui.getSimpleJavaType(evaluator.entityType) === 'AbstractEntity'))
-            || (authorizableType && (authorizableType.value === evaluator.entityType || Utils.Ui.getSimpleJavaType(evaluator.entityType) === 'BaseEntity' || Utils.Ui.getSimpleJavaType(evaluator.entityType) === 'AbstractEntity'))) {
+        if ((!authorizableType && (Utils.Ui.getSimpleJavaType(evaluator.entityType) === 'Identifiable'))
+            || (authorizableType && (authorizableType.value === evaluator.entityType || Utils.Ui.getSimpleJavaType(evaluator.entityType) === 'Identifiable'))) {
           _supportedEvaluators.push({
             niceLabel: Utils.Ui.getSimpleJavaType(evaluator.evaluatorType),
             value: evaluator.id,
@@ -196,10 +203,10 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
         <Basic.Confirm ref="confirm-delete" level="danger"/>
         <Advanced.Table
           ref="table"
-          uiKey={uiKey}
-          manager={manager}
-          forceSearchParameters={forceSearchParameters}
-          showRowSelection={SecurityManager.hasAuthority('ROLE_DELETE')}
+          uiKey={ uiKey }
+          manager={ manager }
+          forceSearchParameters={ forceSearchParameters }
+          showRowSelection={ manager.canDelete() }
           actions={
             [
               { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }
@@ -211,8 +218,8 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
                 level="success"
                 key="add_button"
                 className="btn-xs"
-                onClick={ this.showDetail.bind(this, { recursionType: RecursionTypeEnum.findKeyBySymbol(RecursionTypeEnum.NO) }) }
-                rendered={ _supportedEvaluators.length > 0 && SecurityManager.hasAuthority('ROLE_UPDATE') }>
+                onClick={ this.showDetail.bind(this, { evaluatorType: 'eu.bcvsolutions.idm.core.security.evaluator.BasePermissionEvaluator' }) }
+                rendered={ _supportedEvaluators.length > 0 && manager.canSave() }>
                 <Basic.Icon type="fa" icon="plus"/>
                 {' '}
                 {this.i18n('button.add')}
@@ -313,7 +320,10 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
             <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('create.header')} rendered={Utils.Entity.isNew(detail.entity)}/>
             <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('edit.header', { name: detail.entity.name })} rendered={!Utils.Entity.isNew(detail.entity)}/>
             <Basic.Modal.Body>
-              <Basic.AbstractForm ref="form" showLoading={_showLoading}>
+              <Basic.AbstractForm
+                ref="form"
+                showLoading={_showLoading}
+                readOnly={ !manager.canSave(detail.entity, _permissions) }>
                 <Basic.Row>
                   <div className="col-lg-6">
                     <Basic.SelectBox
@@ -391,7 +401,8 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
                 level="success"
                 showLoading={_showLoading}
                 showLoadingIcon
-                showLoadingText={this.i18n('button.saving')}>
+                showLoadingText={this.i18n('button.saving')}
+                rendered={ manager.canSave(detail.entity, _permissions) }>
                 {this.i18n('button.save')}
               </Basic.Button>
             </Basic.Modal.Footer>
@@ -410,13 +421,15 @@ AuthorizationPolicyTable.propTypes = {
    */
   forceSearchParameters: PropTypes.object,
   //
-  _showLoading: PropTypes.bool
+  _showLoading: PropTypes.bool,
+  _permissions: PropTypes.arrayOf(PropTypes.string)
 };
 
 AuthorizationPolicyTable.defaultProps = {
   columns: ['disabled', 'description', 'seq', 'authorizableType', 'evaluatorType', 'evaluatorProperties', 'basePermissions'],
   forceSearchParameters: null,
-  _showLoading: false
+  _showLoading: false,
+  _permissions: null
 };
 
 function select(state, component) {
@@ -428,6 +441,7 @@ function select(state, component) {
       || Utils.Ui.isShowLoading(state, AuthorizationPolicyManager.UI_KEY_SUPPORTED_EVALUATORS)
       || Utils.Ui.isShowLoading(state, AuthorizationPolicyManager.UI_KEY_AUTHORIZABLE_TYPES)
       || Utils.Ui.isShowLoading(state, RoleManager.UI_KEY_AVAILABLE_AUTHORITIES_UIKEY),
+    _permissions: Utils.Permission.getPermissions(state, `${component.uiKey}-detail`)
   };
 }
 

@@ -12,6 +12,8 @@ import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 
 /**
  * Abstract implementation for generic CRUD operations on a repository for a
@@ -35,7 +37,23 @@ public abstract class AbstractReadWriteDtoService<DTO extends BaseDto, E extends
 	@Override
 	@Transactional
 	public DTO save(DTO dto) {
-		return saveInternal(dto);
+		return save(dto, null);
+	}
+	
+	@Override
+	@Transactional
+	public DTO save(DTO dto, BasePermission permission) {
+		E persistEntity = null;
+		if (dto.getId() != null) {
+			persistEntity = this.get(dto.getId());
+			if (persistEntity != null && permission != null) {
+				// check access on previous entity - update is needed
+				checkAccess(persistEntity, IdmBasePermission.UPDATE);
+			}
+		}
+		persistEntity = checkAccess(toEntity(dto, persistEntity), permission); // TODO: remove one checkAccess?
+		E entity = getRepository().save(persistEntity);
+		return toDto(entity);
 	}
 
 	@Override
@@ -75,6 +93,14 @@ public abstract class AbstractReadWriteDtoService<DTO extends BaseDto, E extends
 	@Override
 	@Transactional
 	public void delete(DTO dto) {
+		delete(dto, null);
+	}
+	
+	@Override
+	@Transactional
+	public void delete(DTO dto, BasePermission permission) {
+		checkAccess(this.get(dto.getId()), permission);
+		//
 		deleteInternal(dto);
 	}
 

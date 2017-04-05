@@ -1,13 +1,13 @@
 package eu.bcvsolutions.idm.core.api.entity;
 
-import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteEntityController;
+import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 
 /**
  * Entity that implements this interface must have attribute (column) - Unmodifiable
  * Column is type of boolean with default value true.
  * Entity that has this flag on true, cant be deleted from rest, from service is remove possible.
  * 
- * Good place for check entity is method validateEntity on {@link AbstractReadWriteEntityController}
+ * Good place for check entity is method validateEntity on {@link AbstractReadWriteDtoController}
  * 
  * This interface is only for information, is not bound by any logic.
  * TODO: add some logic into abstract...

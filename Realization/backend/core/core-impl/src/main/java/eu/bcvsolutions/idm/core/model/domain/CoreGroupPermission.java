@@ -16,6 +16,8 @@ import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
  */
 public enum CoreGroupPermission implements GroupPermission {
 	
+	AUTHORITY(IdmBasePermission.ADMIN, IdmBasePermission.UPDATE), // TODO: refactor role authorities to solo endpoint
+	AUTHORIZATIONPOLICY(IdmBasePermission.ADMIN, IdmBasePermission.AUTOCOMPLETE, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
 	IDENTITY(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
 	ROLE(IdmBasePermission.ADMIN, IdmBasePermission.AUTOCOMPLETE, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
 	ROLECATALOGUE(IdmBasePermission.ADMIN, IdmBasePermission.AUTOCOMPLETE, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
@@ -34,6 +36,12 @@ public enum CoreGroupPermission implements GroupPermission {
 	
 	// String constants could be used in pre / post authotize SpEl expressions
 	
+	public static final String AUTHORIZATIONPOLICY_AUTOCOMPLETE = "AUTHORIZATIONPOLICY" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
+	public static final String AUTHORIZATIONPOLICY_READ = "AUTHORIZATIONPOLICY" + BasePermission.SEPARATOR + "READ";
+	public static final String AUTHORIZATIONPOLICY_CREATE = "AUTHORIZATIONPOLICY" + BasePermission.SEPARATOR + "CREATE";
+	public static final String AUTHORIZATIONPOLICY_UPDATE = "AUTHORIZATIONPOLICY" + BasePermission.SEPARATOR + "UPDATE";
+	public static final String AUTHORIZATIONPOLICY_DELETE = "AUTHORIZATIONPOLICY" + BasePermission.SEPARATOR + "DELETE";
+	//
 	public static final String IDENTITY_CREATE = "IDENTITY" + BasePermission.SEPARATOR + "CREATE";
 	public static final String IDENTITY_UPDATE = "IDENTITY" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String IDENTITY_DELETE = "IDENTITY" + BasePermission.SEPARATOR + "DELETE";

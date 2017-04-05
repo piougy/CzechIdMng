@@ -173,7 +173,7 @@ export class Navigation extends Basic.AbstractContent {
       if (children && !navigationCollapsed) {
         items.push(
           <li key={`nav-item-${levelItem.id}`} className={isActive ? 'has-children active' : 'has-children'}>
-            <Basic.Tooltip id={`${levelItem.id}-tooltip`} placement="right" value={ this.i18n(levelItem.titleKey, { defaultValue: levelItem.title }) } delayShow={200}>
+            <Basic.Tooltip id={`${levelItem.id}-tooltip`} placement="right" value={ this.i18n(levelItem.titleKey, { defaultValue: levelItem.title }) }>
               <a href="#">
                 <Basic.Icon icon={levelItem.icon} color={levelItem.iconColor}/>
                 {

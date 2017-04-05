@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.api.rest;
 
 import java.io.Serializable;
 import java.util.Collections;
+import java.util.Set;
 
 import javax.validation.constraints.NotNull;
 
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.Link;
@@ -33,21 +35,24 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.api.service.ReadDtoService;
 import eu.bcvsolutions.idm.core.api.utils.FilterConverter;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 
 /**
- * Read operations (get, find)
+ * Read operations (get, find, autocomplete)
  * 
  * @author Svanda
+ * @author Radek Tomiška
  *
+ * @param <DTO> dto type
+ * @param <F> filter type
  */
 public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends BaseFilter>
 		implements BaseDtoController<DTO> {
 
 	private FilterConverter filterConverter;
-
 	@Autowired
 	private PagedResourcesAssembler<Object> pagedResourcesAssembler;
-
 	@Autowired(required = false)
 	@Qualifier("objectMapper")
 	private ObjectMapper mapper;
@@ -87,11 +92,12 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 	 * @return
 	 */
 	public ResponseEntity<?> get(@PathVariable @NotNull String backendId) {
-		DTO entity = getDto(backendId);
-		if (entity == null) {
+		DTO dto = getDto(backendId);
+		if (dto == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
-		return new ResponseEntity<>(toResource(entity), HttpStatus.OK);
+		//
+		return new ResponseEntity<>(toResource(dto), HttpStatus.OK);
 	}
 
 	/**
@@ -101,7 +107,7 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 	 * @return
 	 */
 	public DTO getDto(Serializable backendId) {
-		return getService().getDto(backendId);
+		return getService().get(backendId, IdmBasePermission.READ);
 	}
 
 	/**
@@ -116,7 +122,24 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 	 */
 	public Resources<?> find(@RequestParam MultiValueMap<String, Object> parameters,
 			@PageableDefault Pageable pageable) {
-		return toResources(findDtos(toFilter(parameters), pageable), getDtoClass());
+		return toResources(findDtos(toFilter(parameters), pageable, IdmBasePermission.READ), getDtoClass());
+	}
+	
+	/**
+	 * Quick search for autocomplete (read data to select box etc.) - parameters will be transformed to filter object
+	 * 
+	 * @see #toFilter(MultiValueMap)
+	 * 
+	 * @param parameters
+	 * @param pageable
+	 * @param assembler
+	 * @return
+	 */
+	public Resources<?> autocomplete(
+			@RequestParam MultiValueMap<String, Object> parameters,
+			@PageableDefault Pageable pageable, 
+			PersistentEntityResourceAssembler assembler) {
+		return toResources(findDtos(toFilter(parameters), pageable, IdmBasePermission.AUTOCOMPLETE), getDtoClass());
 	}
 
 	/**
@@ -124,10 +147,25 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 	 * 
 	 * @param filter
 	 * @param pageable
+	 * @param permission
 	 * @return
 	 */
-	public Page<DTO> findDtos(F filter, Pageable pageable) {
-		return getService().findDto(filter, pageable);
+	public Page<DTO> findDtos(F filter, Pageable pageable, BasePermission permission) {
+		return getService().find(filter, pageable, permission);
+	}
+	
+	/**
+	 * Returns, what currently logged identity can do with given dto
+	 * 
+	 * @param backendId
+	 * @return
+	 */
+	public Set<String> getPermissions(String backendId) {
+		DTO dto = getDto(backendId);
+		if (dto == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+		}
+		return getService().getPermissions(backendId);
 	}
 
 	/**

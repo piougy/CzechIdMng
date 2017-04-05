@@ -4,16 +4,24 @@ import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
@@ -23,16 +31,28 @@ import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
+import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
+import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
+import eu.bcvsolutions.idm.core.security.api.service.AuthorizationManager;
 
 /**
  * Provide additional methods to retrieve DTOs and entities using the pagination
  * and sorting abstraction.
  * 
+ * TODO: Move autowired fields to e.g. BeanPostProcessor
+ * 
  * @author Svanda
+ * @author Radek Tomiška
  * @see Sort
  * @see Pageable
  * @see Page
+ *
+ * @param <DTO> dto type for entity type
+ * @param <E> entity type
+ * @param <F> filter
  */
 public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends BaseEntity, F extends BaseFilter>
 		implements ReadDtoService<DTO, E, F> {
@@ -42,7 +62,10 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	private final Class<DTO> dtoClass;
 	@Autowired
 	private ModelMapper modelMapper;
-
+	@Autowired
+	private ApplicationContext context;
+	//
+	private AuthorizationManager authorizationManager;
 	private final AbstractEntityRepository<E, F> repository;
 
 	@SuppressWarnings("unchecked")
@@ -82,7 +105,7 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	 * 
 	 * @return
 	 */
-	private Class<E> getEntityClass() {
+	protected Class<E> getEntityClass() {
 		return entityClass;
 	}
 
@@ -104,7 +127,13 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	@Override
 	@Transactional(readOnly = true)
 	public DTO getDto(Serializable id) {
-		E entity = get(id);
+		return get(id, null);
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public DTO get(Serializable id, BasePermission permission) {
+		E entity = checkAccess(get(id), IdmBasePermission.READ);
 		return toDto(entity);
 	}
 
@@ -114,12 +143,45 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 		Page<E> page = find(pageable);
 		return toDtoPage(page);
 	}
-
+	
 	@Override
 	@Transactional(readOnly = true)
-	public Page<DTO> findDto(F filter, Pageable pageable) {
-		Page<E> page = find(filter, pageable);
-		return toDtoPage(page);
+	public Page<DTO> findDto(final F filter, Pageable pageable) {
+		return find(filter, pageable, null);
+	}
+	
+	@Override
+	public Page<DTO> find(final F filter, Pageable pageable, BasePermission permission) {
+		if (permission == null || !(this instanceof AuthorizableService)) {
+			// TODO: remove filter method from repository with dto
+			return toDtoPage(getRepository().find(filter, pageable));
+		}
+		// transform filter to criteria
+		Specification<E> criteria = new Specification<E>() {
+			public Predicate toPredicate(Root<E> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
+				Predicate predicate = builder.and(
+					AbstractReadDtoService.this.toPredicate(filter, root, query, builder),
+					getAuthorizationManager().getPredicate(permission, root, query, builder)
+				);
+				//
+				return query.where(predicate).getRestriction();
+			}
+		};
+		return toDtoPage(getRepository().findAll(criteria, pageable));
+	}
+	
+	/**
+	 * Supposed to be overriden. 
+	 * Transforms given filter to jpa predicate, never returns null.
+	 * 
+	 * @param filter
+	 * @param root
+	 * @param query
+	 * @param builder
+	 * @return
+	 */
+	protected Predicate toPredicate(F filter, Root<E> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
+		return builder.conjunction(); 
 	}
 
 	/**
@@ -242,6 +304,50 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 		Assert.notNull(dto);
 		//
 		return dto.getId() == null || !getRepository().exists((UUID) dto.getId());
+	}
+	
+	
+	/**
+	 * Returns, what currently logged identity can do with given dto
+	 * 
+	 * @param backendId
+	 * @return
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public Set<String> getPermissions(Serializable id) {
+		E entity = get(id);
+		Assert.notNull(entity);
+		//
+		return getAuthorizationManager().getPermissions(entity); // null is for create
+	}
+	
+	/**
+	 * Evaluate authorization permission on given entity
+	 *  
+	 * @param entity
+	 * @param permission
+	 * @return
+	 */
+	protected E checkAccess(E entity, BasePermission permission) {
+		Assert.notNull(entity);
+		//
+		if (permission != null && this instanceof AuthorizableService && !getAuthorizationManager().evaluate(entity, permission)) {
+			throw new ForbiddenEntityException(entity.getId());
+		}
+		return entity;
+	}
+	
+	/**
+	 * Returns authorization manager
+	 * 
+	 * @return
+	 */
+	protected AuthorizationManager getAuthorizationManager() {
+		if (authorizationManager == null) {
+			authorizationManager = context.getBean(AuthorizationManager.class);
+		}
+		return authorizationManager;
 	}
 
 }

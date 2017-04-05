@@ -53,7 +53,7 @@ public class IdmTreeTypeController extends DefaultReadWriteEntityController<IdmT
 	
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.TREETYPE_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.TREETYPE_CREATE + "') or hasAuthority('" + CoreGroupPermission.TREETYPE_UPDATE + "')")
 	public ResponseEntity<?> post(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler)
 			throws HttpMessageNotReadableException {
 		return super.post(nativeRequest, assembler);
@@ -68,7 +68,7 @@ public class IdmTreeTypeController extends DefaultReadWriteEntityController<IdmT
 	
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.TREETYPE_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.TREETYPE_UPDATE + "')")
 	public ResponseEntity<?> patch(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest,
 			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
 		return super.patch(backendId, nativeRequest, assembler);
@@ -76,7 +76,7 @@ public class IdmTreeTypeController extends DefaultReadWriteEntityController<IdmT
 	
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.TREETYPE_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.TREETYPE_UPDATE + "')")
 	public ResponseEntity<?> put(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest,
 			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
 		return super.put(backendId, nativeRequest, assembler);

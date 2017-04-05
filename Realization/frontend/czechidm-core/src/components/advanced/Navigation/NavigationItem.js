@@ -34,7 +34,7 @@ export default class NavigationItem extends Basic.AbstractContextComponent {
 
     return (
       <li className={itemClassNames}>
-        <Basic.Tooltip id={`${id}-tooltip`} placement={titlePlacement} value={title} delayShow={200}>
+        <Basic.Tooltip id={`${id}-tooltip`} placement={titlePlacement} value={title}>
           {
             <Link to={to} className={linkClassNames}>
               <Basic.Icon icon={_icon} color={iconColor} showLoading={showLoading}/>

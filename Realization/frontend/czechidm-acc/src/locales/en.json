@@ -825,7 +825,8 @@
   "permission": {
     "group": {
       "ACCOUNT": "Účty na koncových systémech",
-      "SYSTEM": "Napojené systémy"
+      "SYSTEM": "Napojené systémy",
+      "SYNCHRONIZATION": "Synchronization"
     }
   },
   "error": {

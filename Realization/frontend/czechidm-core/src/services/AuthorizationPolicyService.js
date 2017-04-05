@@ -24,7 +24,15 @@ export default class AuthorizationPolicyService extends AbstractService {
     if (!entity || !entity._embedded) {
       return '';
     }
-    return `${this.roleService.getNiceLabel(entity._embedded.role)} - ${entity.evaluatorType}`;
+    return `${this.roleService.getNiceLabel(entity._embedded.role)} - ${Utils.Ui.getSimpleJavaType(entity.evaluatorType)}`;
+  }
+
+  supportsPatch() {
+    return false;
+  }
+
+  supportsAuthorization() {
+    return true;
   }
 
   /**

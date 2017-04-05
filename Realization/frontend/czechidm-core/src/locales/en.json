@@ -426,7 +426,7 @@
   },
   "permission": {
     "base" : {
-      "ADMIN": "Administration",
+      "ADMIN": "Administration (all)",
       "AUTOCOMPLETE": "View in select box (autocomplete)",
       "READ": "Read",
       "CREATE": "Create",
@@ -435,6 +435,8 @@
       "EXECUTEIMMEDIATELY": "Start without approval"
     },
     "group": {
+      "AUTHORITY": "Authorities",
+      "AUTHORIZATIONPOLICY": "Rights to data",
       "APP": "App configuration",
       "AUDIT": "Audit",
       "CONFIGURATION": "Configuration (app)",
@@ -443,6 +445,7 @@
       "MODULE": "Modules",
       "NOTIFICATION": "Notifications",
       "ROLE": "Roles",
+      "ROLECATALOGUE": "Role catalogue",
       "TREENODE": "Tree nodes",
       "TREETYPE": "Structure types",
       "SCRIPT": "Scripts",
@@ -1158,9 +1161,9 @@
         }
       },
       "authorization-policies": {
-        "header": "Granted permissions",
-        "title": "Granted permissions",
-        "label": "Permissions",
+        "header": "Rights to data",
+        "title": "Rights to data",
+        "label": "Rights to data",
         "edit": {
           "header": "{{name}} <small>permission detail</small>"
         },
@@ -1911,8 +1914,7 @@
       "superiorRoles": "Superior roles",
       "subRoles": "Subordinate roles",
       "authorities": "Authorizations",
-      "approveAddWorkflow": "Assign approval (WF)",
-      "approveRemoveWorkflow": "Remove approval (WF)",
+      "approveRemove": "Approve remove role",
       "description": "Description",
       "guarantees": "Role authorizers",
       "roleCatalog": {

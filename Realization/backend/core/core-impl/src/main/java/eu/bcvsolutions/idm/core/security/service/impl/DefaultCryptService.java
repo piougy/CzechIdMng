@@ -124,7 +124,7 @@ public class DefaultCryptService implements CryptService {
 			if (resource.exists()) {
 				in = new BufferedReader(new InputStreamReader(resource.getInputStream()));
 			} else {
-				LOG.warn("[DefaultCryptService] Using DEMO key! Please create new file with key file: {}", KEY_FILE_PATH);
+				LOG.warn("[DefaultCryptService] Using DEMO key! Please create new file with key file: {}", KEY_FILE_PATH + PRIMARY_KEY);
 				// get demo key from resource
 				resource = new ClassPathResource(KEY_FILE_PATH + DEMO_KEY);
 				if (resource.exists()) {

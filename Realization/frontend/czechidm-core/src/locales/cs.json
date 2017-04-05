@@ -449,7 +449,7 @@
   },
   "permission": {
     "base" : {
-      "ADMIN": "Administrace",
+      "ADMIN": "Administrace (vše)",
       "AUTOCOMPLETE": "Zobrazení v našeptávačích, výběrech",
       "READ": "Čtení",
       "CREATE": "Vytvoření",
@@ -458,6 +458,8 @@
       "EXECUTEIMMEDIATELY":"Podat bez schvalování"
     },
     "group": {
+      "AUTHORITY": "Oprávnění na agendy",
+      "AUTHORIZATIONPOLICY": "Práva na data",
       "APP": "Správa aplikace",
       "AUDIT": "Audit",
       "CONFIGURATION": "Konfigurace aplikace (veřejná)",
@@ -466,6 +468,7 @@
       "MODULE": "Moduly",
       "NOTIFICATION": "Notifikace",
       "ROLE": "Role",
+      "ROLECATALOGUE": "Katalog rolí",
       "TREENODE": "Prvky struktur",
       "TREETYPE": "Typy struktur",
       "SCRIPT": "Pravidla",
@@ -1942,8 +1945,7 @@
       "superiorRoles": "Nadřazené role",
       "subRoles": "Podřazené role",
       "authorities": "Oprávnění",
-      "approveAddWorkflow": "Schválení přiřazení (WF)",
-      "approveRemoveWorkflow": "Schválení odebrání (WF)",
+      "approveRemove": "Schvalovat odebírání rolí",
       "description": "Popis",
       "guarantees": "Garanti role",
       "roleCatalogue": {

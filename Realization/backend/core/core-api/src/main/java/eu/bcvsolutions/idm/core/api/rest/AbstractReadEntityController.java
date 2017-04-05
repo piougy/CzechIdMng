@@ -42,7 +42,7 @@ import eu.bcvsolutions.idm.core.api.service.ReadEntityService;
 import eu.bcvsolutions.idm.core.api.utils.FilterConverter;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
-import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
+import eu.bcvsolutions.idm.core.security.api.service.AuthorizableEntityService;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizationManager;
 
 /**
@@ -214,8 +214,8 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 	 */
 	@SuppressWarnings("unchecked")
 	public Page<E> findSecuredEntities(F filter, BasePermission permission, Pageable pageable) {
-		if (getEntityService() instanceof AuthorizableService) {
-			return ((AuthorizableService<E, F>) getEntityService()).findSecured(filter, permission, pageable);
+		if (getEntityService() instanceof AuthorizableEntityService) {
+			return ((AuthorizableEntityService<E, F>) getEntityService()).findSecured(filter, permission, pageable);
 		}
 		return findEntities(filter, pageable);
 	}
@@ -302,7 +302,7 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 	}
 	
 	protected void checkAccess(E entity, BasePermission permission) {
-		if (getEntityService() instanceof AuthorizableService && !getAuthorizationManager().evaluate(entity, permission)) {
+		if (getEntityService() instanceof AuthorizableEntityService && !getAuthorizationManager().evaluate(entity, permission)) {
 			throw new ResultCodeException(CoreResultCode.FORBIDDEN);
 		}
 	}

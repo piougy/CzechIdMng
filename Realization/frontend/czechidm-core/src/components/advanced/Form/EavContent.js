@@ -123,7 +123,7 @@ EavContent.propTypes = {
   entityId: PropTypes.string.isRequired,
   formableManager: PropTypes.object,
   showSaveButton: PropTypes.bool,
-  formInstance: PropTypes.oject,
+  formInstance: PropTypes.object,
   _showLoading: PropTypes.bool
 };
 EavContent.defaultProps = {

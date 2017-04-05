@@ -28,6 +28,7 @@ import Modal from './Modal/Modal';
 import ProgressBar from './ProgressBar/ProgressBar';
 import Confirm from './Confirm/Confirm';
 import Row from './Row/Row';
+import Col from './Row/Column';
 import Well from './Well/Well';
 import Tabs from './Tabs/Tabs';
 import PageHeader from './PageHeader/PageHeader';
@@ -88,6 +89,7 @@ const Components = {
   ProgressBar,
   Confirm,
   Row,
+  Col,
   Well,
   Tabs,
   Tab: Tabs.Tab,

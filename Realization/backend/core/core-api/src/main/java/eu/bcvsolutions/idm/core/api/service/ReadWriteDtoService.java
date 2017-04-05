@@ -5,6 +5,7 @@ import java.io.Serializable;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 
 /**
  * Interface for generic CRUD operations on a repository for a specific DTO type.
@@ -35,6 +36,16 @@ public interface ReadWriteDtoService<DTO extends BaseDto, E extends BaseEntity, 
 	DTO saveInternal(DTO dto);
 	
 	/**
+	 * Saves a given DTO. Event could be published instead persisting dto directly. Authorization policies are evaluated.
+	 * 
+	 * @param dto
+	 * @param permission permission to evaluate
+	 * @return the saved DTO
+	 * @throws ForbiddenEntityException if authorization policies doesn't met
+	 */
+	DTO save(DTO dto, BasePermission permission);	
+	
+	/**
 	 * Saves all given DTO. Event could be published instead persisting directly.
 	 * 
 	 * @param dtos
@@ -50,6 +61,15 @@ public interface ReadWriteDtoService<DTO extends BaseDto, E extends BaseEntity, 
 	 * @throws IllegalArgumentException in case the given entity is {@literal null}.
 	 */
 	void delete(DTO dto);
+	
+	/**
+	 * Deletes a given DTO. Event could be published instead persisting dto directly. Authorization policies are evaluated.
+	 * 
+	 * @param dto
+	 * @throws IllegalArgumentException in case the given entity is {@literal null}.
+	 * @throws ForbiddenEntityException if authorization policies doesn't met
+	 */
+	void delete(DTO dto, BasePermission permission);
 	
 	/**
 	 * Deletes a given DTO (from repository).

@@ -32,7 +32,7 @@ import eu.bcvsolutions.idm.core.security.service.impl.DefaultAuthorizationManage
 /**
  * Overridable core services initialization
  * 
- * TODO: move all @Service annotated bean here
+ * TODO: move all @Service annotated beans here
  * 
  * @author Radek Tomiška
  *

@@ -10,7 +10,7 @@ import javax.persistence.criteria.Root;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 
-import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
+import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.security.api.domain.AuthorizationPolicy;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 
@@ -22,10 +22,10 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
  */
 @Component
 @Description("Simple permission evaluator - evaluates selected permissions on selected entity type")
-public class BasePermissionEvaluator extends AbstractAuthorizationEvaluator<BaseEntity> {
+public class BasePermissionEvaluator extends AbstractAuthorizationEvaluator<Identifiable> {
 	
 	@Override
-	public Predicate getPredicate(AuthorizationPolicy policy, BasePermission permission, Root<BaseEntity> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
+	public Predicate getPredicate(AuthorizationPolicy policy, BasePermission permission, Root<Identifiable> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
 		if (hasPermission(policy, permission)) {
 			return builder.conjunction();
 		}
@@ -33,7 +33,7 @@ public class BasePermissionEvaluator extends AbstractAuthorizationEvaluator<Base
 	}
 	
 	@Override
-	public Set<String> getPermissions(AuthorizationPolicy policy, BaseEntity entity) {
+	public Set<String> getPermissions(AuthorizationPolicy policy, Identifiable entity) {
 		final Set<String> permissions = super.getPermissions(policy, entity);
 		permissions.addAll(getBasePermissions(policy));
 		return permissions;

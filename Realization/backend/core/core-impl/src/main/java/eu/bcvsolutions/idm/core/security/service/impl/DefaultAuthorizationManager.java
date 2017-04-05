@@ -20,7 +20,7 @@ import org.springframework.util.Assert;
 
 import com.google.common.collect.Lists;
 
-import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
+import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.model.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
@@ -61,7 +61,7 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 	}
 	
 	@Override
-	public <E extends BaseEntity> Predicate getPredicate(BasePermission permission, Root<E> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
+	public <E extends Identifiable> Predicate getPredicate(BasePermission permission, Root<E> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
 		final List<Predicate> predicates = Lists.newArrayList(builder.disjunction()); // disjunction - no data by default
 		//S
 		if (securityService.isAuthenticated()) { // TODO: public data?
@@ -79,7 +79,7 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 	}
 
 	@Override
-	public <E extends BaseEntity> Set<String> getPermissions(E entity) {
+	public <E extends Identifiable> Set<String> getPermissions(E entity) {
 		Assert.notNull(entity);
 		//
 		final Set<String> permissions = new HashSet<>();
@@ -95,7 +95,7 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 	}
 	
 	@Override
-	public <E extends BaseEntity> boolean evaluate(E entity, BasePermission permission) {
+	public <E extends Identifiable> boolean evaluate(E entity, BasePermission permission) {
 		Assert.notNull(entity);
 		//
 		if (securityService.isAuthenticated()) { // TODO: public data?
@@ -117,7 +117,7 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	private <E extends BaseEntity> AuthorizationEvaluator<E> getEvaluator(IdmAuthorizationPolicyDto policy) {
+	private <E extends Identifiable> AuthorizationEvaluator<E> getEvaluator(IdmAuthorizationPolicyDto policy) {
 		String evaluatorType = policy.getEvaluatorType();
 		if (!evaluators.containsKey(evaluatorType)) {
 			try {

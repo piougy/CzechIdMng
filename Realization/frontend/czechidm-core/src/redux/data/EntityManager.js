@@ -1,6 +1,7 @@
 import { LocalizationService } from '../../services';
 import FlashMessagesManager from '../flash/FlashMessagesManager';
 import DataManager from './DataManager';
+import SecurityManager from '../security/SecurityManager';
 import * as Utils from '../../utils';
 
 /**
@@ -18,6 +19,7 @@ export const START_BULK_ACTION = 'START_BULK_ACTION';
 export const PROCESS_BULK_ACTION = 'PROCESS_BULK_ACTION';
 export const STOP_BULK_ACTION = 'STOP_BULK_ACTION';
 export const RECEIVE_PERMISSIONS = 'RECEIVE_PERMISSIONS';
+export const EMPTY = 'VOID_ACTION'; // dispatch cannot return null
 
 /**
  * Encapsulate redux action for entity type
@@ -80,6 +82,15 @@ export default class EntityManager {
    */
   supportsAuthorization() {
     return this.getService().supportsAuthorization();
+  }
+
+  /**
+   * Returns group permission for given manager / agenda
+   *
+   * @return {string} GroupPermission name
+   */
+  getGroupPermission() {
+    return null;
   }
 
   /**
@@ -196,7 +207,9 @@ export default class EntityManager {
   fetchEntities(searchParameters = null, uiKey = null, cb = null) {
     return (dispatch, getState) => {
       if (getState().security.userContext.isExpired) {
-        return;
+        return dispatch({
+          type: EMPTY
+        });
       }
       searchParameters = this.getSearchParameters(searchParameters);
       uiKey = this.resolveUiKey(uiKey);
@@ -255,34 +268,56 @@ export default class EntityManager {
   fetchEntity(id, uiKey = null, cb = null) {
     return (dispatch, getState) => {
       if (getState().security.userContext.isExpired) {
-        return;
+        return dispatch({
+          type: EMPTY
+        });
       }
       //
       uiKey = this.resolveUiKey(uiKey, id);
       dispatch(this.requestEntity(id, uiKey));
       this.getService().getById(id)
       .then(json => {
-        if (this.getService().supportsAuthorization()) {
-          this.getService().getPermissions(id)
-          .then(permissions => {
-            dispatch({
-              type: RECEIVE_PERMISSIONS,
-              id,
-              entityType: this.getEntityType(),
-              permissions,
-              uiKey
-            });
-            dispatch(this.receiveEntity(id, json, uiKey, cb));
-          });
-        } else {
+        dispatch(this.fetchPermissions(id, uiKey, () => {
           dispatch(this.receiveEntity(id, json, uiKey, cb));
-        }
+        }));
       })
       .catch(error => {
         // TODO: 404, 403 simple redirect,
         // TODO: overlay to preserve url?
         // TODO: sub error class
         dispatch(this.receiveError(id, uiKey, error, cb));
+      });
+    };
+  }
+
+  fetchPermissions(id, uiKey = null, cb = null) {
+    if (!this.getService().supportsAuthorization()) {
+      if (cb) {
+        cb();
+      }
+      return {
+        type: EMPTY
+      };
+    }
+    //
+    return (dispatch, getState) => {
+      if (getState().security.userContext.isExpired) {
+        return;
+      }
+      //
+      uiKey = this.resolveUiKey(uiKey, id);
+      this.getService().getPermissions(id)
+      .then(permissions => {
+        dispatch({
+          type: RECEIVE_PERMISSIONS,
+          id,
+          entityType: this.getEntityType(),
+          permissions,
+          uiKey
+        });
+        if (cb) {
+          cb();
+        }
       });
     };
   }
@@ -297,7 +332,9 @@ export default class EntityManager {
    */
   updateEntity(entity, uiKey = null, cb = null) {
     if (!entity) {
-      return null;
+      return {
+        type: EMPTY
+      };
     }
     uiKey = this.resolveUiKey(uiKey, entity.id);
     return (dispatch) => {
@@ -322,7 +359,9 @@ export default class EntityManager {
    */
   patchEntity(entity, uiKey = null, cb = null) {
     if (!entity) {
-      return null;
+      return {
+        type: EMPTY
+      };
     }
     uiKey = this.resolveUiKey(uiKey, entity.id);
     return (dispatch) => {
@@ -347,7 +386,9 @@ export default class EntityManager {
    */
   createEntity(entity, uiKey = null, cb = null) {
     if (!entity) {
-      return null;
+      return {
+        type: EMPTY
+      };
     }
     uiKey = this.resolveUiKey(uiKey, '[new]');
     return (dispatch) => {
@@ -372,7 +413,9 @@ export default class EntityManager {
    */
   deleteEntity(entity, uiKey = null, cb = null) {
     if (!entity) {
-      return null;
+      return {
+        type: EMPTY
+      };
     }
     uiKey = this.resolveUiKey(uiKey, entity.id);
     return (dispatch) => {
@@ -489,7 +532,9 @@ export default class EntityManager {
    */
   receiveEntity(id, entity, uiKey = null, cb = null) {
     if (!id && !entity) { // nothing was recieved
-      return null;
+      return {
+        type: EMPTY
+      };
     }
     //
     if (!id) {
@@ -531,7 +576,9 @@ export default class EntityManager {
    */
   deletedEntity(id, entity, uiKey = null, cb = null) {
     if (!id) { // nothing was recieved
-      return null;
+      return {
+        type: EMPTY
+      };
     }
     uiKey = this.resolveUiKey(uiKey, id);
     if (cb) {
@@ -815,5 +862,41 @@ export default class EntityManager {
    */
   getPermissions(state, uiKey = null, id = null) {
     return Utils.Permission.getPermissions(state, this.resolveUiKey(uiKey, id));
+  }
+
+  /**
+   * Authorization evaluator helper - evaluates save permission on given entity
+   *
+   * If entity is null - CREATE is evaluated
+   *
+   * @param  {object} entity
+   * @param  {arrayOf(string)} permissions
+   * @return {bool}
+   */
+  canSave(entity = null, permissions = null) {
+    if (!this.getGroupPermission()) {
+      return false;
+    }
+    if (Utils.Entity.isNew(entity)) {
+      return SecurityManager.hasAuthority(`${this.getGroupPermission()}_CREATE`);
+    }
+    return (!this.supportsAuthorization() || Utils.Permission.hasPermission(permissions, 'UPDATE')) && SecurityManager.hasAuthority(`${this.getGroupPermission()}_UPDATE`);
+  }
+
+  /**
+   * Authorization evaluator helper - evaluates delete permission on given entity
+   *
+   * @param  {object} entity
+   * @param  {arrayOf(string)} permissions
+   * @return {bool}
+   */
+  canDelete(entity = null, permissions = null) {
+    if (!this.getGroupPermission()) {
+      return false;
+    }
+    if (!this.supportsAuthorization() || !entity) {
+      return SecurityManager.hasAuthority(`${this.getGroupPermission()}_DELETE`);
+    }
+    return Utils.Permission.hasPermission(permissions, 'DELETE') && SecurityManager.hasAuthority(`${this.getGroupPermission()}_DELETE`);
   }
 }

@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.api.service;
 
 import java.io.Serializable;
+import java.util.Set;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -10,6 +11,7 @@ import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 
 /**
  * Provide additional methods to retrieve entities using the pagination and
@@ -42,6 +44,16 @@ public interface ReadDtoService<DTO extends BaseDto, E extends BaseEntity, F ext
 	 * @return
 	 */
 	DTO getDto(Serializable id);
+	
+	/**
+	 * Returns DTO by given id. Returns null, if dto is not exists. Authorization policies are evaluated.
+	 *
+	 * @param id
+	 * @param permission to evaluate
+	 * @return
+	 * @throws ForbiddenEntityException if authorization policies doesn't met
+	 */
+	DTO get(Serializable id, BasePermission permission);
 
 	/**
 	 * Returns page of DTOs
@@ -59,6 +71,17 @@ public interface ReadDtoService<DTO extends BaseDto, E extends BaseEntity, F ext
 	 * @return
 	 */
 	Page<DTO> findDto(F filter, Pageable pageable);
+	
+	/**
+	 * Returns page of DTOs by given filter, authorization permission will be evaluated. 
+	 * Never throws {@link ForbiddenEntityException} - returning available dtos by given permission.
+	 * 
+	 * @param filter
+	 * @param pageable
+	 * @param permission
+	 * @return
+	 */
+	Page<DTO> find(F filter, Pageable pageable, BasePermission permission);
 
 	/**
 	 * Returns page of entities by given filter
@@ -121,5 +144,13 @@ public interface ReadDtoService<DTO extends BaseDto, E extends BaseEntity, F ext
 	 * @return
 	 */
 	boolean isNew(DTO dto);
+	
+	/**
+	 * Returns, what currently logged identity can do with given dto / entity
+	 * 
+	 * @param backendId
+	 * @return
+	 */
+	Set<String> getPermissions(Serializable id);
 
 }

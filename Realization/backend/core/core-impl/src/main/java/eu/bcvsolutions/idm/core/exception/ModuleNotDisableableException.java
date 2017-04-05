@@ -5,6 +5,12 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 
+/**
+ * Module is not disableable
+ * 
+ * @author Radek Tomiška
+ *
+ */
 public class ModuleNotDisableableException extends ResultCodeException {
 	
 	private static final long serialVersionUID = 1L;

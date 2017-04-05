@@ -106,7 +106,6 @@ public class InitTestData implements ApplicationListener<ContextRefreshedEvent> 
 				subRoles.add(new IdmRoleComposition(role2, superAdminRole));
 				role2.setSubRoles(subRoles);
 				role2 = this.roleService.save(role2);
-				role2.setApproveAddWorkflow("approveRoleByUserTomiska");
 				log.info(MessageFormat.format("Test role created [id: {0}]", role2.getId()));
 				//
 				// TODO: split test and demo data - use flyway?

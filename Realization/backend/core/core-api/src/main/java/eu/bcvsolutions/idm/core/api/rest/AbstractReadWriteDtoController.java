@@ -14,12 +14,16 @@ import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 
 /**
  * CRUD operations for DTO
  * 
  * @author Svanda
+ * @author Radek Tomiška
  *
+ * @param <DTO> dto type
+ * @param <F> filter type
  */
 public abstract class AbstractReadWriteDtoController<DTO extends BaseDto, F extends BaseFilter>
 		extends AbstractReadDtoController<DTO, F> {
@@ -45,7 +49,7 @@ public abstract class AbstractReadWriteDtoController<DTO extends BaseDto, F exte
 	 * @return
 	 */
 	public DTO postDto(DTO dto) {
-		return getService().save(dto);
+		return getService().save(dto, getService().isNew(dto) ? IdmBasePermission.CREATE : IdmBasePermission.UPDATE);
 	}
 
 	/**
@@ -72,7 +76,7 @@ public abstract class AbstractReadWriteDtoController<DTO extends BaseDto, F exte
 	 */
 	public DTO putDto(DTO dto) {
 		Assert.notNull(dto, "DTO is required");
-		return getService().save(dto);
+		return getService().save(dto, IdmBasePermission.UPDATE);
 	}
 
 	/**
@@ -111,7 +115,8 @@ public abstract class AbstractReadWriteDtoController<DTO extends BaseDto, F exte
 	 */
 	public void deleteDto(DTO dto) {
 		Assert.notNull(dto, "DTO is required");
-		getService().delete(dto);
+		//
+		getService().delete(dto, IdmBasePermission.DELETE);
 	}
 
 	/**
@@ -121,5 +126,4 @@ public abstract class AbstractReadWriteDtoController<DTO extends BaseDto, F exte
 	protected ReadWriteDtoService<DTO, ?, F> getService() {
 		return (ReadWriteDtoService<DTO, ?, F>) super.getService();
 	}
-
 }

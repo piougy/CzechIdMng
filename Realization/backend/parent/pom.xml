@@ -289,6 +289,11 @@
 			<version>0.8.5</version>
 		</dependency>
 		<dependency>
+			<groupId>net.tirasa.connid.bundles.db</groupId>
+			<artifactId>net.tirasa.connid.bundles.db.scriptedsql</artifactId>
+			<version>2.2.4</version>
+		</dependency>
+		<dependency>
 			<groupId>org.reflections</groupId>
 			<artifactId>reflections</artifactId>
 			<version>0.9.9-RC1</version>

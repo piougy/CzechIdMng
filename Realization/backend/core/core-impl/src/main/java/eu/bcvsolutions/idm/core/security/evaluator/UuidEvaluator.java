@@ -11,7 +11,10 @@ import javax.persistence.criteria.Root;
 
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.core.api.domain.Identifiable;
+import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.security.api.domain.AuthorizationPolicy;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
@@ -25,13 +28,21 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
  */
 @Component
 @Description("Share entity with uuid")
-public class UuidEvaluator extends AbstractAuthorizationEvaluator<AbstractEntity> {
+public class UuidEvaluator extends AbstractAuthorizationEvaluator<Identifiable> {
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(UuidEvaluator.class);
 	public static final String PARAMETER_UUID = "uuid";
 	
 	@Override
-	public Predicate getPredicate(AuthorizationPolicy policy, BasePermission permission, Root<AbstractEntity> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
+	public boolean supports(Class<?> authorizableType) {
+		Assert.notNull(authorizableType);
+		// uuid superclasses only
+		return super.supports(authorizableType)
+				&& (AbstractEntity.class.isAssignableFrom(authorizableType) || AbstractDto.class.isAssignableFrom(authorizableType));
+	}
+	
+	@Override
+	public Predicate getPredicate(AuthorizationPolicy policy, BasePermission permission, Root<Identifiable> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
 		if (!hasPermission(policy, permission)) {
 			return null;
 		}
@@ -44,7 +55,7 @@ public class UuidEvaluator extends AbstractAuthorizationEvaluator<AbstractEntity
 	}
 	
 	@Override
-	public Set<String> getPermissions(AuthorizationPolicy policy, AbstractEntity entity) {
+	public Set<String> getPermissions(AuthorizationPolicy policy, Identifiable entity) {
 		Set<String> permissions = super.getPermissions(policy, entity);
 		if (entity == null) {
 			return permissions;

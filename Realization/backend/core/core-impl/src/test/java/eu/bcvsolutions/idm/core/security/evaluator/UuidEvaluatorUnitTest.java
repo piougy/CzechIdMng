@@ -7,6 +7,8 @@ import java.util.UUID;
 
 import org.junit.Test;
 
+import eu.bcvsolutions.idm.core.api.domain.Identifiable;
+import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.model.dto.IdmAuthorizationPolicyDto;
@@ -26,7 +28,9 @@ public class UuidEvaluatorUnitTest extends AbstractUnitTest {
 	
 	@Test
 	public void testSupportsType() {
+		assertFalse(evaluator.supports(Identifiable.class));
 		assertFalse(evaluator.supports(BaseEntity.class));
+		assertTrue(evaluator.supports(AbstractDto.class));
 		assertTrue(evaluator.supports(AbstractEntity.class));
 		assertTrue(evaluator.supports(IdmRole.class));
 	}

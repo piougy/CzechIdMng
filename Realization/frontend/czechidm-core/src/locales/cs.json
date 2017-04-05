@@ -455,7 +455,7 @@
       "CREATE": "Vytvoření",
       "UPDATE": "Úprava",
       "DELETE": "Mazání",
-      "EXECUTEIMMEDIATELY":"Podat bez schvalování"
+      "EXECUTE": "Spouštení"
     },
     "group": {
       "AUTHORITY": "Oprávnění na agendy",

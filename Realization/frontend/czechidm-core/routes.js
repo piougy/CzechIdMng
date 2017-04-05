@@ -66,7 +66,8 @@ module.exports = {
         },
         {
           path: 'garanted-roles',
-          component: require('./src/content/identity/IdentityGarantedRoles')
+          component: require('./src/content/identity/IdentityGarantedRoles'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ'] } ]
         },
       ]
     },

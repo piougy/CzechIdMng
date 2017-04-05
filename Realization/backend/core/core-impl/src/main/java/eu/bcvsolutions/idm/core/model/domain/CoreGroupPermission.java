@@ -30,7 +30,7 @@ public enum CoreGroupPermission implements GroupPermission {
 	AUDIT(IdmBasePermission.ADMIN, IdmBasePermission.READ),
 	MODULE(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE),
 	SCHEDULER(IdmBasePermission.ADMIN, IdmBasePermission.EXECUTE, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
-	ROLEREQUEST(IdmRoleRequestPermission.ADMIN, IdmRoleRequestPermission.READ, IdmRoleRequestPermission.WRITE, IdmRoleRequestPermission.DELETE, IdmRoleRequestPermission.EXECUTEIMMEDIATELY),
+	ROLEREQUEST(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
 	EAVFORMDEFINITIONS(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
 	EAVFORMATTRIBUTES(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE);
 	

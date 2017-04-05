@@ -150,6 +150,16 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
     });
   }
 
+  /**
+   * TODO: module
+   *
+   * @param  {[type]} perrmission [description]
+   * @return {[type]}             [description]
+   */
+  _getPermissionNiceLabel(permission) {
+    return this.i18n(`core:permission.base.${permission}`, { defaultValue: permission});
+  }
+
   render() {
     const { uiKey, columns, forceSearchParameters, _showLoading, supportedEvaluators, authorizableTypes, availableAuthorities, _permissions } = this.props;
     const { detail, evaluatorType, authorizableType } = this.state;
@@ -179,23 +189,23 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
         });
       });
     }
-    let _uniqueBasePermissions = new Immutable.Set();
+    let _uniqueBasePermissions = new Immutable.Map();
     if (availableAuthorities) {
       availableAuthorities.forEach(groupPermission => {
         if (!authorizableType || authorizableType.group === groupPermission.name) {
           groupPermission.permissions.forEach(permission => {
-            _uniqueBasePermissions = _uniqueBasePermissions.add(permission.name);
+            _uniqueBasePermissions = _uniqueBasePermissions.set(permission.name, permission);
           });
         }
       });
     }
-    const _basePermissions = _uniqueBasePermissions.toArray().sort((one, two) => {
-      return one > two;
-    }).map(permission => {
+    const _basePermissions = _uniqueBasePermissions.toArray().map(permission => {
       return {
-        niceLabel: permission,
-        value: permission
+        niceLabel: this._getPermissionNiceLabel(permission.name),
+        value: permission.name
       };
+    }).sort((one, two) => {
+      return one.niceLabel.localeCompare(two.niceLabel);
     });
     //
     return (
@@ -257,8 +267,21 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
           <Advanced.Column
             property="basePermissions"
             header={ this.i18n('entity.AuthorizationPolicy.basePermissions.label') }
-            face="text"
-            rendered={_.includes(columns, 'basePermissions')}/>
+            rendered={_.includes(columns, 'basePermissions')}
+            cell={
+              /* eslint-disable react/no-multi-comp */
+              ({ rowIndex, data, property }) => {
+                const propertyValue = data[rowIndex][property];
+                if (!propertyValue) {
+                  return null;
+                }
+                return propertyValue.split(',').map(permission => {
+                  return (
+                    <div>{ this._getPermissionNiceLabel(permission) }</div>
+                  );
+                });
+              }
+            }/>
           <Advanced.Column
             property="evaluatorType"
             sort

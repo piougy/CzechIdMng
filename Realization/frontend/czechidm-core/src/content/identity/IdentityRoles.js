@@ -485,7 +485,7 @@ class Roles extends Basic.AbstractContent {
 
               <form onSubmit={this.save.bind(this)}>
                 <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('create.header')} rendered={detail.entity.id === undefined}/>
-                <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('edit.header', { role: detail.entity.role })} rendered={detail.entity.id !== undefined}/>
+                <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('edit.header', { role: roleManager.getNiceLabel(detail.entity.role) })} rendered={detail.entity.id !== undefined}/>
                 <Basic.Modal.Body>
                   <Basic.AbstractForm ref="form" showLoading={_showLoading} readOnly={!TEST_ADD_ROLE_DIRECTLY}>
                     <Basic.TextField

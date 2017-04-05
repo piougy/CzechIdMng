@@ -6,6 +6,7 @@ import _ from 'lodash';
 //
 import Icon from '../Icon/Icon';
 import Tooltip from '../Tooltip/Tooltip';
+import FlashMessage from '../FlashMessages/FlashMessage';
 import AbstractFormComponent from '../AbstractFormComponent/AbstractFormComponent';
 import EntityManager from '../../../redux/data/EntityManager';
 import SearchParameters from '../../../domain/SearchParameters';
@@ -21,7 +22,8 @@ class SelectBox extends AbstractFormComponent {
     this.getOptions = this.getOptions.bind(this);
     this.state = {
       ...this.state,
-      options: []
+      options: [],
+      error: null
     };
   }
 
@@ -117,9 +119,9 @@ class SelectBox extends AbstractFormComponent {
             isLoading: false
           });
         } else {
-          this.addError(error);
           this.setState({
-            isLoading: false
+            isLoading: false,
+            error
           });
         }
       }));
@@ -217,9 +219,11 @@ class SelectBox extends AbstractFormComponent {
                         }
                       }
                     } else {
-                      this.addError(error);
                       isError = true;
                       renderedValues.push(item);
+                      this.setState({
+                        error
+                      });
                     }
                   }));
                 }
@@ -241,8 +245,11 @@ class SelectBox extends AbstractFormComponent {
                 this.itemRenderer(json, '');
                 this.setState({ value: json, isLoading: false }, this.validate);
               } else {
-                this.addError(error);
-                this.setState({value: null, isLoading: false});
+                this.setState({
+                  value: null,
+                  isLoading: false,
+                  error
+                });
               }
             }));
           }
@@ -315,10 +322,18 @@ class SelectBox extends AbstractFormComponent {
 
   getBody(feedback) {
     const { labelSpan, label, componentSpan, required } = this.props;
+    const { value, disabled, isLoading, error } = this.state;
+    //
     const labelClassName = classNames(labelSpan, 'control-label');
+    //
     let showAsterix = false;
-    if (required && !this.state.value) {
+    if (required && !value) {
       showAsterix = true;
+    }
+    if (error) {
+      return (
+        <FlashMessage message={ this.flashMessagesManager.convertFromError(error) }/>
+      );
     }
     //
     return (
@@ -334,10 +349,11 @@ class SelectBox extends AbstractFormComponent {
         }
         <div className={componentSpan}>
           {
-            (this.state.disabled === true && this.props.multiSelect !== true)
+            (disabled === true && this.props.multiSelect !== true)
             ?
-            <div ref="selectComponent" className="form-text">{this.state.value ? this.state.value[this.props.fieldLabel] : null}
-              <Icon type="fa" icon="refresh" className="icon-loading" rendered={this.state.isLoading === true} showLoading/>
+            <div ref="selectComponent" className="form-text">
+              { value ? value[this.props.fieldLabel] : null }
+              <Icon type="fa" icon="refresh" className="icon-loading" rendered={ isLoading === true } showLoading/>
             </div>
             :
             <Tooltip ref="popover" placement={ this.getTitlePlacement() } value={ this.getTitle() }>

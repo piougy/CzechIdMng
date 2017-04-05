@@ -208,25 +208,25 @@ export class RoleConceptTable extends Basic.AbstractContent {
    * removed (remove id from array of deleted entities)
    */
   _deleteConcept(data) {
-    let messageKey;
-    if (data._added) {
-      messageKey = 'Added';
-    } else if (data._removed) {
-      messageKey = 'Removed';
-    } else if (data._changed) {
-      messageKey = 'Changed';
-    } else {
-      this._internalDeleteConcept(data);
-      return;
-    }
-    this.refs['confirm-delete'].show(
-      this.i18n(`action.delete${messageKey}.message`),
-      this.i18n(`action.delete${messageKey}.header`)
-    ).then(() => {
-      this._internalDeleteConcept(data);
-    }, () => {
-      // Rejected
-    });
+    // let messageKey;
+    // if (data._added) {
+    //   messageKey = 'Added';
+    // } else if (data._removed) {
+    //   messageKey = 'Removed';
+    // } else if (data._changed) {
+    //   messageKey = 'Changed';
+    // } else {
+    //   this._internalDeleteConcept(data);
+    //   return;
+    // }
+    // this.refs['confirm-delete'].show(
+    //   this.i18n(`action.delete${messageKey}.message`),
+    //   this.i18n(`action.delete${messageKey}.header`)
+    // ).then(() => {
+    // }, () => {
+    //   // Rejected
+    // });
+    this._internalDeleteConcept(data);
   }
 
   _internalDeleteConcept(data) {

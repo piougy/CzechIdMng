@@ -157,18 +157,19 @@ public class DefaultAccAuthenticator implements Authenticator {
 		}
 		//
 		ResultCodeException authFailedException = null;
+		IcUidAttribute auth = null;
 		//
 		// authenticate over all accounts find first, or throw error
 		for (AccAccount account : accounts) {
 			IcConnectorObject attributes = systemService.readObject(system, attribute.getSystemMapping(),
-					new IcUidAttributeImpl(attribute.getName(), account.getUid(), null));
+					new IcUidAttributeImpl(null, account.getSystemEntity().getUid(), null));
 			//
 			if (attributes == null) {
 				continue;
 			}
 			//
 			String transformUsername = null;
-			// iterate over all attributes to fined authentication attribute
+			// iterate over all attributes to find authentication attribute
 			for (IcAttribute icAttribute : attributes.getAttributes()) {
 				if (icAttribute.getName().equals(attribute.getName())) {
 					transformUsername = String.valueOf(icAttribute.getValue());
@@ -181,8 +182,6 @@ public class DefaultAccAuthenticator implements Authenticator {
 			// other method to get username for system: String.valueOf(systemAttributeMappingService.transformValueToResource(loginDto.getUsername(), attribute, identity));
 			//
 			// authentication over system, when password or username not exist or bad credentials - throw error
-			IcUidAttribute auth = null;
-			//
 			try {
 				// authentication against system
 				auth = provisioningService.authenticate(transformUsername, loginDto.getPassword(), system, SystemEntityType.IDENTITY);
@@ -199,6 +198,9 @@ public class DefaultAccAuthenticator implements Authenticator {
 				// failed, continue to another
 				authFailedException = new ResultCodeException(CoreResultCode.AUTH_FAILED, "Invalid login or password.", e);
 			}
+		}
+		if (auth == null || auth.getValue() == null) {
+			authFailedException = new ResultCodeException(AccResultCode.AUTHENTICATION_AGAINST_SYSTEM_FAILED,  ImmutableMap.of("name", system.getName(), "username", loginDto.getUsername()));
 		}
 		//
 		if (authFailedException != null) {

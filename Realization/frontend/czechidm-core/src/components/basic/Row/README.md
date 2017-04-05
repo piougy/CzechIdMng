@@ -7,11 +7,11 @@ Wraps simple bootstrap row and column
 
 ```html
 <Basic.Row rendered={true}>
-  <Basic.Column lg={6}>
+  <Basic.Col lg={6}>
     ...
-  </Basic.Column>
-  <Basic.Column lg={6}>
+  </Basic.Col>
+  <Basic.Col lg={6}>
     ...
-  </Basic.Column>
+  </Basic.Col>
 </Basic.Row>
 ```

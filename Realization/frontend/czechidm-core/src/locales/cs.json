@@ -1945,8 +1945,7 @@
       "superiorRoles": "Nadřazené role",
       "subRoles": "Podřazené role",
       "authorities": "Oprávnění",
-      "approveAddWorkflow": "Schválení přiřazení (WF)",
-      "approveRemoveWorkflow": "Schválení odebrání (WF)",
+      "approveRemove": "Schvalovat odebírání rolí",
       "description": "Popis",
       "guarantees": "Garanti role",
       "roleCatalogue": {

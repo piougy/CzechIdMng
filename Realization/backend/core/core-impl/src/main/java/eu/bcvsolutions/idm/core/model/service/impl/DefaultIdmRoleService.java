@@ -225,8 +225,10 @@ public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, Role
 	@Override
 	public String findUnAssignRoleWorkflowDefinition(UUID roleId){
 		Assert.notNull(roleId, "Role ID is required!");
-
-		String key =  configurationService.getValue(WF_BY_ROLE_PRIORITY_PREFIX + "remove");
+		String key = null;
+		if(this.get(roleId).isApproveRemove()){
+			key =  configurationService.getValue(WF_BY_ROLE_PRIORITY_PREFIX + "remove");
+		}
 		return Strings.isNullOrEmpty(key) ? null : key;
 	}
 	

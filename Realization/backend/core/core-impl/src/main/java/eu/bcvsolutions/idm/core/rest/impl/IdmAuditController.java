@@ -143,7 +143,7 @@ public class IdmAuditController extends AbstractReadEntityController<IdmAudit, A
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.AUDIT_READ + "')")
 	public ResponseEntity<?> diff(@PathVariable @NotNull String firstRevId, @PathVariable String secondRevId, PersistentEntityResourceAssembler assembler) {
 		IdmAuditDiffDto dto = new IdmAuditDiffDto();
-		dto.setDiffValues(auditService.getDiffBetweenVersion(Long.parseLong(firstRevId), Long.valueOf(secondRevId)));
+		dto.setDiffValues(auditService.getDiffBetweenVersion(Long.valueOf(firstRevId), Long.valueOf(secondRevId)));
 		dto.setIdFirstRevision(Long.valueOf(firstRevId));
 		dto.setIdSecondRevision(Long.valueOf(secondRevId));
 		

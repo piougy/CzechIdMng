@@ -19,10 +19,6 @@ public interface IdmRoleExcerpt extends AbstractDtoProjection {
 	
 	boolean isDisabled();
 	
-	String getApproveAddWorkflow();
-	
-	String getApproveRemoveWorkflow();
-	
 	RoleType getRoleType();
 	
 	String getDescription();

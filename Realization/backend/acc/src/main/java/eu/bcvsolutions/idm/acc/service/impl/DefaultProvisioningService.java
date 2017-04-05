@@ -810,7 +810,7 @@ public class DefaultProvisioningService implements ProvisioningService {
 	private SysSystemMapping getMapping(SysSystem system, SystemEntityType entityType) {
 		List<SysSystemMapping> systemMappings = systemMappingService.findBySystem(system, SystemOperationType.PROVISIONING, entityType);
 		if (systemMappings == null || systemMappings.isEmpty()) {
-			LOG.info(MessageFormat.format("System [{0}] does not have mapping, provisioning will not be executed. Add some mapping for entity type [{1}]", system.getName(), entityType));
+			LOG.info(MessageFormat.format("System [{}] does not have mapping, provisioning will not be executed. Add some mapping for entity type [{}]", system.getName(), entityType));
 			return null;
 		}
 		if (systemMappings.size() != 1) {

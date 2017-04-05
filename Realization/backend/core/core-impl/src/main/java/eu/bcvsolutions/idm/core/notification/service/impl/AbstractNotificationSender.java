@@ -128,6 +128,7 @@ public abstract class AbstractNotificationSender<N extends IdmNotification> impl
 			message.setTemplate(notificationTemplateService.resolveTemplate(notification.getTopic(), message.getLevel()));
 		}
 		notification.setMessage(this.notificationTemplateService.buildMessage(message, false));
+		message = notification.getMessage(); // set build message back to message
 		//
 		// check if exist text for message, TODO: send only with subject?
 		if (message.getHtmlMessage() == null && message.getSubject() == null && message.getTextMessage() == null && message.getModel() == null) {

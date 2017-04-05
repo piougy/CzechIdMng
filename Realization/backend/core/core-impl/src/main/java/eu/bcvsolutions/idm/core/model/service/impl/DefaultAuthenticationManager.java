@@ -70,14 +70,14 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 					// continue, authenticator is not implemented or etc.
 					continue;
 				}
-				if (authenticator.getResponse().equals(AuthenticationResponseEnum.SUFFICIENT)) {
+				if (authenticator.getResponse() == AuthenticationResponseEnum.SUFFICIENT) {
 					return result;
 				}
 				// if otherwise add result too list and continue
 				resultsList.add(result);
 			} catch (RuntimeException e) {
 				// if excepted response is REQUISITE exit immediately with error
-				if (authenticator.getResponse().equals(AuthenticationResponseEnum.REQUISITE)) {
+				if (authenticator.getResponse() == AuthenticationResponseEnum.REQUISITE) {
 					throw e;
 				}
 				// if otherwise save first failure into exception
@@ -107,5 +107,18 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 		clone.setSkipMustChange(loginDto.isSkipMustChange());
 		clone.setPassword(new GuardedString(loginDto.getPassword().asBytes()));
 		return clone;
+	}
+
+	@Override
+	public boolean authenticate(String username, GuardedString password) {
+		LoginDto loginDto = new LoginDto();
+		loginDto.setUsername(username);
+		loginDto.setPassword(password);
+		try {
+			this.authenticate(loginDto);
+		} catch (RuntimeException e) {
+			return false;
+		}
+		return true;
 	}
 }

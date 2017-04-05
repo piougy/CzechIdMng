@@ -21,14 +21,11 @@ public class IdmRoleDto extends AbstractDto implements Disableable {
 	private Long version;
 	private RoleType roleType;
 	private int priority = 0;
-	private String approveAddWorkflow;
-	private String approveRemoveWorkflow;
+	private boolean approveRemove;
 	private String description;
 	private List<IdmRoleCompositionDto> subRoles;
 	private List<IdmRoleCompositionDto> superiorRoles;
 	private List<IdmRoleAuthorityDto> authorities;
-	// private List<IdmRoleGuarantee> guarantees;
-	// private List<IdmRoleCatalogueRole> roleCatalogues;
 	
 	public String getName() {
 		return name;
@@ -78,22 +75,6 @@ public class IdmRoleDto extends AbstractDto implements Disableable {
 		this.priority = priority;
 	}
 
-	public String getApproveAddWorkflow() {
-		return approveAddWorkflow;
-	}
-
-	public void setApproveAddWorkflow(String approveAddWorkflow) {
-		this.approveAddWorkflow = approveAddWorkflow;
-	}
-
-	public String getApproveRemoveWorkflow() {
-		return approveRemoveWorkflow;
-	}
-
-	public void setApproveRemoveWorkflow(String approveRemoveWorkflow) {
-		this.approveRemoveWorkflow = approveRemoveWorkflow;
-	}
-
 	public String getDescription() {
 		return description;
 	}
@@ -119,4 +100,11 @@ public class IdmRoleDto extends AbstractDto implements Disableable {
 		this.superiorRoles = superiorRoles;
 	}
 
+	public boolean isApproveRemove() {
+		return approveRemove;
+	}
+
+	public void setApproveRemove(boolean approveRemove) {
+		this.approveRemove = approveRemove;
+	}
 }

@@ -172,12 +172,18 @@ class PasswordChangeForm extends Basic.AbstractContent {
   }
 
   render() {
-    const { passwordChangeType, requireOldPassword, userContext, accountOptions, requireOldPasswordConfig } = this.props;
+    const { passwordChangeType, userContext, accountOptions, requireOldPasswordConfig } = this.props;
     const { preload, validationError } = this.state;
     const allOnlyWarningClassNames = classnames(
       'form-group',
       { 'hidden': passwordChangeType !== IdentityManager.PASSWORD_ALL_ONLY || SecurityManager.isAdmin(userContext) }
     );
+    //
+    // if current user is admin, old password is never required
+    let oldPasswordRequired = !SecurityManager.isAdmin(userContext);
+    if (oldPasswordRequired) {
+      oldPasswordRequired = requireOldPasswordConfig;
+    }
     // TODO: All accounts in enumSelectBox, selectBox isn't ideal component for this.
     return (
       <div>
@@ -205,8 +211,8 @@ class PasswordChangeForm extends Basic.AbstractContent {
 
                   <Basic.AbstractForm ref="form">
                     <Basic.TextField type="password" ref="oldPassword" label={this.i18n('password.old')}
-                      hidden={!requireOldPassword || SecurityManager.isAdmin(userContext) || requireOldPasswordConfig}
-                      required={requireOldPassword && !SecurityManager.isAdmin(userContext) || requireOldPasswordConfig}/>
+                      hidden={!oldPasswordRequired}
+                      required={oldPasswordRequired}/>
 
                     <Advanced.PasswordField className="form-control" ref="passwords" />
 
@@ -258,7 +264,7 @@ PasswordChangeForm.defaultProps = {
 function select(state) {
   return {
     passwordChangeType: ConfigurationManager.getPublicValue(state, 'idm.pub.core.identity.passwordChange'),
-    requireOldPasswordConfig: ConfigurationManager.getPublicValue(state, 'idm.pub.core.identity.passwordChange.requireOldPassword')
+    requireOldPasswordConfig: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.core.identity.passwordChange.requireOldPassword')
   };
 }
 

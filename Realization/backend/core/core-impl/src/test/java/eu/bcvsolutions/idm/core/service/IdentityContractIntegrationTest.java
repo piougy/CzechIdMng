@@ -9,7 +9,11 @@ import static org.junit.Assert.fail;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.joda.time.LocalDate;
 import org.junit.After;
@@ -117,18 +121,23 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 	 * @param automaticRole
 	 * @return
 	 */
-	private IdmRoleTreeNodeDto saveAutomaticRole(IdmRoleTreeNodeDto automaticRole) {
+	private IdmRoleTreeNodeDto saveAutomaticRole(IdmRoleTreeNodeDto automaticRole, boolean withLongRunningTask) {
 		IdmRoleTreeNode entity = roleTreeNodeService.toEntity(automaticRole, null);
 		entity = roleTreeNodeRepository.save(entity);
 		//
-		AddNewAutomaticRoleTaskExecutor task = new AddNewAutomaticRoleTaskExecutor();
-		task.setRoleTreeNode(entity);
-		//
-		// active wait for save
-		try {
-			taskManager.execute(task).getFutureTask().get();
-		} catch (InterruptedException | ExecutionException e) {
-			fail("Unexpected error, while wait for save automatic role: " + e.getLocalizedMessage());
+		if (withLongRunningTask) {
+			AddNewAutomaticRoleTaskExecutor task = new AddNewAutomaticRoleTaskExecutor();
+			task.setRoleTreeNode(entity);
+			//
+			// active wait for save
+			try {
+				FutureTask<Boolean> futureTask = taskManager.execute(task).getFutureTask();
+				futureTask.get();
+			} catch (InterruptedException | ExecutionException e) {
+				fail("Unexpected error, while wait for save automatic role: " + e.getLocalizedMessage());
+			}
+			//
+			return roleTreeNodeService.getDto(entity.getId());
 		}
 		//
 		return roleTreeNodeService.getDto(entity.getId());
@@ -141,9 +150,10 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 		//
 		// active wait for delete
 		try {
-			taskManager.execute(task).getFutureTask().get();
+			FutureTask<Boolean> futureTask = taskManager.execute(task).getFutureTask();
+			futureTask.get();
 		} catch (InterruptedException | ExecutionException e) {
-			fail("Unexpected error, while wait for save automatic role: " + e.getLocalizedMessage());
+			fail("Unexpected error, while wait for delete automatic role: " + e.getLocalizedMessage());
 		}
 	}
 	
@@ -156,25 +166,25 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 		automaticRoleA.setRecursionType(RecursionType.DOWN);
 		automaticRoleA.setRole(roleA.getId());
 		automaticRoleA.setTreeNode(nodeA.getId());
-		automaticRoleA = saveAutomaticRole(automaticRoleA);	
+		automaticRoleA = saveAutomaticRole(automaticRoleA, false);	
 		
 		automaticRoleD = new IdmRoleTreeNodeDto();
 		automaticRoleD.setRecursionType(RecursionType.DOWN);
 		automaticRoleD.setRole(roleB.getId());
 		automaticRoleD.setTreeNode(nodeD.getId());
-		automaticRoleD = saveAutomaticRole(automaticRoleD);
+		automaticRoleD = saveAutomaticRole(automaticRoleD, false);
 		
 		automaticRoleF = new IdmRoleTreeNodeDto();
 		automaticRoleF.setRecursionType(RecursionType.UP);
 		automaticRoleF.setRole(roleC.getId());
 		automaticRoleF.setTreeNode(nodeF.getId());
-		automaticRoleF = saveAutomaticRole(automaticRoleF);
+		automaticRoleF = saveAutomaticRole(automaticRoleF, false);
 		
 		automaticRoleE = new IdmRoleTreeNodeDto();
 		automaticRoleE.setRecursionType(RecursionType.NO);
 		automaticRoleE.setRole(roleD.getId());
 		automaticRoleE.setTreeNode(nodeE.getId());
-		automaticRoleE = saveAutomaticRole(automaticRoleE);
+		automaticRoleE = saveAutomaticRole(automaticRoleE, false);
 	}
 	
 	@Test
@@ -184,7 +194,7 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 		automaticRoleA.setRecursionType(RecursionType.NO);
 		automaticRoleA.setRole(roleA.getId());
 		automaticRoleA.setTreeNode(nodeD.getId());
-		automaticRoleA = saveAutomaticRole(automaticRoleA);
+		automaticRoleA = saveAutomaticRole(automaticRoleA, false);
 		//
 		// test
 		Set<IdmRoleTreeNode> automaticRoles = roleTreeNodeService.getAutomaticRoles(nodeD);
@@ -201,7 +211,7 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 		automaticRoleA.setRecursionType(RecursionType.DOWN);
 		automaticRoleA.setRole(roleA.getId());
 		automaticRoleA.setTreeNode(nodeD.getId());
-		automaticRoleA = saveAutomaticRole(automaticRoleA);
+		automaticRoleA = saveAutomaticRole(automaticRoleA, false);
 		//
 		// test
 		Set<IdmRoleTreeNode> automaticRoles = roleTreeNodeService.getAutomaticRoles(nodeD);
@@ -220,7 +230,7 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 		automaticRoleA.setRecursionType(RecursionType.UP);
 		automaticRoleA.setRole(roleA.getId());
 		automaticRoleA.setTreeNode(nodeD.getId());
-		automaticRoleA = saveAutomaticRole(automaticRoleA);
+		automaticRoleA = saveAutomaticRole(automaticRoleA, false);
 		//
 		// test
 		Set<IdmRoleTreeNode> automaticRoles = roleTreeNodeService.getAutomaticRoles(nodeD);
@@ -388,13 +398,13 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 		automaticRoleF.setRecursionType(RecursionType.UP);
 		automaticRoleF.setRole(roleA.getId());
 		automaticRoleF.setTreeNode(nodeF.getId());
-		automaticRoleF = saveAutomaticRole(automaticRoleF);
+		automaticRoleF = saveAutomaticRole(automaticRoleF, false);
 		//
 		automaticRoleE = new IdmRoleTreeNodeDto();
 		automaticRoleE.setRecursionType(RecursionType.NO);
 		automaticRoleE.setRole(roleA.getId());
 		automaticRoleE.setTreeNode(nodeE.getId());
-		automaticRoleE = saveAutomaticRole(automaticRoleE);
+		automaticRoleE = saveAutomaticRole(automaticRoleE, false);
 		//
 		// prepare identity and contract
 		IdmIdentity identity = helper.createIdentity("test");
@@ -452,7 +462,7 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 		automaticRoleD.setRecursionType(RecursionType.DOWN);
 		automaticRoleD.setRole(roleA.getId());
 		automaticRoleD.setTreeNode(nodeD.getId());
-		automaticRoleD = saveAutomaticRole(automaticRoleD);
+		automaticRoleD = saveAutomaticRole(automaticRoleD, true);
 		//
 		// check
 		List<IdmIdentityRole> identityRoles = identityRoleService.getRoles(contractB);
@@ -473,7 +483,7 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 		IdmRole role = helper.createRole();
 		IdmTreeNode treeNode = helper.createTreeNode();
 		// automatic role
-		IdmRoleTreeNodeDto roleTreeNode = helper.createRoleTreeNode(role, treeNode, true);
+		IdmRoleTreeNodeDto roleTreeNode = helper.createRoleTreeNode(role, treeNode, false);
 		//
 		assertNotNull(roleTreeNode.getId());
 		assertEquals(roleTreeNode.getId(), roleTreeNodeService.get(roleTreeNode.getId()).getId());
@@ -489,7 +499,7 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 		IdmRole role = helper.createRole();
 		IdmTreeNode treeNode = helper.createTreeNode();
 		// automatic role
-		IdmRoleTreeNodeDto roleTreeNode = helper.createRoleTreeNode(role, treeNode, true);
+		IdmRoleTreeNodeDto roleTreeNode = helper.createRoleTreeNode(role, treeNode, false);
 		//
 		assertNotNull(roleTreeNode.getId());
 		assertEquals(roleTreeNode.getId(), roleTreeNodeService.get(roleTreeNode.getId()).getId());
@@ -498,32 +508,4 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 		//
 		assertNull(roleTreeNodeService.get(roleTreeNode.getId()));		
 	}
-	
-	/*protected void waitForLongRunningTask() {
-		// TODO: force cancel after some count?
-		LongRunningTaskFilter filterRunning = new LongRunningTaskFilter();
-		filterRunning.setRunning(true);
-		int count = longRunningTaskService.find(filterRunning, null).getContent().size();
-		//
-		LongRunningTaskFilter filterRunningState = new LongRunningTaskFilter();
-		filterRunningState.setOperationState(OperationState.RUNNING);
-		count += longRunningTaskService.find(filterRunningState, null).getContent().size();
-		int actualCountIter = 0;
-		//
-		while (count != 0) {
-			LOG.info("Wait for [{}] tasks, current iteration [{}].", count, actualCountIter);
-			try {
-				Thread.sleep(1000); // wait 1second
-			} catch (InterruptedException ex) {
-				throw new CoreException(ex);
-			}
-			if (actualCountIter >= MAX_COUNT_OF_ITER) {
-				LOG.error("Wait for long running task wasn't complete, unsolved task: [{}].", count);
-				break;
-			}
-			actualCountIter++;
-			count = longRunningTaskService.find(filterRunning, null).getContent().size();
-			count += longRunningTaskService.find(filterRunningState, null).getContent().size();
-		}
-	}*/
 }

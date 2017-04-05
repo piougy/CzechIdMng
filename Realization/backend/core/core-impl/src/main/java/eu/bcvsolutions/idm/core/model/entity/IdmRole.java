@@ -66,12 +66,9 @@ public class IdmRole extends AbstractEntity implements IdentifiableByName, Forma
 	private int priority = 0;
 
 	@Audited
-	@Column(name = "approve_add_workflow", length = DefaultFieldLengths.NAME)
-	private String approveAddWorkflow;
-	
-	@Audited
-	@Column(name = "approve_remove_workflow", length = DefaultFieldLengths.NAME)
-	private String approveRemoveWorkflow;
+	@NotNull
+	@Column(name = "approve_remove", nullable = false)
+	private boolean approveRemove = false;
 	
 	@Audited
 	@Size(max = DefaultFieldLengths.DESCRIPTION)
@@ -222,22 +219,6 @@ public class IdmRole extends AbstractEntity implements IdentifiableByName, Forma
 	public void setSuperiorRoles(List<IdmRoleComposition> superiorRoles) {
 		this.superiorRoles = superiorRoles;
 	}
-
-	public String getApproveAddWorkflow() {
-		return approveAddWorkflow;
-	}
-
-	public void setApproveAddWorkflow(String approveAddWorkflow) {
-		this.approveAddWorkflow = approveAddWorkflow;
-	}
-
-	public String getApproveRemoveWorkflow() {
-		return approveRemoveWorkflow;
-	}
-
-	public void setApproveRemoveWorkflow(String approveRemoveWorkflow) {
-		this.approveRemoveWorkflow = approveRemoveWorkflow;
-	}
 	
 	public void setDescription(String description) {
 		this.description = description;
@@ -263,5 +244,13 @@ public class IdmRole extends AbstractEntity implements IdentifiableByName, Forma
 	@Override
 	public void setDisabled(boolean disabled) {
 		this.disabled = disabled;
+	}
+
+	public boolean isApproveRemove() {
+		return approveRemove;
+	}
+
+	public void setApproveRemove(boolean approveRemove) {
+		this.approveRemove = approveRemove;
 	}
 }

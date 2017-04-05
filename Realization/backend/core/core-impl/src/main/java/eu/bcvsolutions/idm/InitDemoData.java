@@ -180,7 +180,6 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				subRoles.add(new IdmRoleComposition(role2, superAdminRole));
 				role2.setSubRoles(subRoles);
 				role2 = this.roleService.save(role2);
-				role2.setApproveAddWorkflow("approveRoleByUserTomiska");
 				LOG.info(MessageFormat.format("Role created [id: {0}]", role2.getId()));
 				//
 				IdmRole roleManager = new IdmRole();

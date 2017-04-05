@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -319,15 +320,15 @@ public class DefaultAuditService extends AbstractReadWriteEntityService<IdmAudit
 				secondValues = this.getValuesFromVersion(secondVersion, auditedClass);
 			}
 			
-			Set<String> keys = firstValues.keySet();
+			Set<Entry<String, Object>> entries = firstValues.entrySet();
 			
-			if (keys.isEmpty()) {
-				keys = secondValues.keySet();
+			if (entries.isEmpty()) {
+				entries = secondValues.entrySet();
 			}
 			
-			for (String key : keys) {
-				if (!compareObject(firstValues.get(key), secondValues.get(key))) {
-					result.put(key, secondValues.get(key));
+			for (Entry<String, Object> entry : entries) {
+				if (!Objects.equals(entry.getValue(), secondValues.get(entry.getKey()))) {
+					result.put(entry.getKey(), secondValues.get(entry.getKey()));
 				}
 			}
 			
@@ -340,10 +341,6 @@ public class DefaultAuditService extends AbstractReadWriteEntityService<IdmAudit
 	
 	public Map<String, Object> getDiffBetweenVersion(Long firstRevId, Long secondRevId) {
 		return this.getDiffBetweenVersion(null, firstRevId, secondRevId);
-	}
-	
-	private boolean compareObject(Object o1, Object o2) {
-		return Objects.equals(o1, o2);
 	}
 	
 	@Override

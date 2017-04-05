@@ -349,5 +349,10 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 		}
 		return authorizationManager;
 	}
+	
+	@Override
+	public void setModelMapper(ModelMapper modelMapper) {
+		this.modelMapper = modelMapper;
+	}
 
 }

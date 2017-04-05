@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.config.web;
+package eu.bcvsolutions.idm.core.config;
 
 import java.util.List;
 import java.util.UUID;
@@ -26,12 +26,13 @@ import eu.bcvsolutions.idm.core.config.domain.UuidToEntityConverter;
 
 /**
  * Configuration for model mapper. Set specific converters ...
+ * 
  * @author svandav
  *
  */
 @Configuration
 @Order(Ordered.HIGHEST_PRECEDENCE + 90)
-public class WebModelMapperConfig {
+public class ModelMapperConfig {
 
 	@PersistenceContext
 	private EntityManager entityManager;

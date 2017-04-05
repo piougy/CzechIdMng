@@ -84,6 +84,4 @@ public class DefaultAuthorizationManagerUnitTest extends AbstractUnitTest {
 		assertFalse(manager.evaluate(new IdmRole(), IdmBasePermission.ADMIN));
 		assertFalse(manager.evaluate(new IdmRole(), IdmBasePermission.AUTOCOMPLETE));
 	}
-	
-	
 }

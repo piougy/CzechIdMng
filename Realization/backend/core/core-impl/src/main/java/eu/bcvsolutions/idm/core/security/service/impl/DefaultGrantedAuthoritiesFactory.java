@@ -16,6 +16,7 @@ import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleAuthority;
+import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
@@ -35,19 +36,23 @@ public class DefaultGrantedAuthoritiesFactory implements GrantedAuthoritiesFacto
 	private final IdmIdentityService identityService;
 	private final IdmIdentityRoleService identityRoleService;
 	private final SecurityService securityService;
+	private final IdmAuthorizationPolicyService authorizationPolicyService;
 	
 	@Autowired
 	public DefaultGrantedAuthoritiesFactory(
 			IdmIdentityService identityService,
 			IdmIdentityRoleService identityRoleService,
-			SecurityService securityService) {
+			SecurityService securityService,
+			IdmAuthorizationPolicyService authorizationPolicyService) {
 		Assert.notNull(identityService);
 		Assert.notNull(identityRoleService);
 		Assert.notNull(securityService);
+		Assert.notNull(authorizationPolicyService);
 		//
 		this.identityService = identityService;
 		this.identityRoleService = identityRoleService;
 		this.securityService = securityService;
+		this.authorizationPolicyService = authorizationPolicyService;
 	}
 	
 	@Transactional(readOnly = true)
@@ -65,6 +70,10 @@ public class DefaultGrantedAuthoritiesFactory implements GrantedAuthoritiesFacto
 				.forEach(identityRole -> {
 					grantedAuthorities.addAll(getActiveRoleAuthorities(identityRole.getRole(), new HashSet<>()));
 				});
+		// add default authorities
+		authorizationPolicyService.getDefaultAuthorities().forEach(authority -> {
+			grantedAuthorities.add(new DefaultGrantedAuthority(authority));
+		});
 		return Lists.newArrayList(grantedAuthorities);
 	}
 	

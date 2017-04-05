@@ -19,16 +19,20 @@ import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
+import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.domain.IdmPasswordPolicyType;
+import eu.bcvsolutions.idm.core.model.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
+import eu.bcvsolutions.idm.core.model.entity.IdmRoleAuthority;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleComposition;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.entity.eav.IdmIdentityFormValue;
+import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
@@ -37,7 +41,9 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeTypeService;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
+import eu.bcvsolutions.idm.core.security.evaluator.BasePermissionEvaluator;
 
 /**
  * Initialize demo data for application
@@ -58,37 +64,29 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 	public static final String FORM_ATTRIBUTE_DATETIME = "datetime";
 	
 	@Autowired
-	private InitApplicationData initApplicationData;
-	
+	private InitApplicationData initApplicationData;	
 	@Autowired
 	private IdmIdentityService identityService;
-
 	@Autowired
 	private IdmRoleService roleService;
-
 	@Autowired
 	private IdmIdentityRoleService identityRoleService;
-
 	@Autowired
-	private IdmTreeNodeService treeNodeService;
-	
+	private IdmTreeNodeService treeNodeService;	
 	@Autowired
 	private IdmTreeTypeService treeTypeService;
-
 	@Autowired
 	private IdmIdentityContractService identityContractService;
-
 	@Autowired
-	private SecurityService securityService;
-	
+	private SecurityService securityService;	
 	@Autowired
-	private ConfigurationService configurationService;
-	
+	private ConfigurationService configurationService;	
 	@Autowired
-	private FormService formService;
-	
+	private FormService formService;	
 	@Autowired
 	private IdmPasswordPolicyService passwordPolicyService;
+	@Autowired
+	private IdmAuthorizationPolicyService authorizationPolicyService;
 
 	@Override
 	public void onApplicationEvent(ContextRefreshedEvent event) {
@@ -171,7 +169,24 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				//
 				IdmRole role1 = new IdmRole();
 				role1.setName("userRole");
+				// add autocomplete endpoint access
+				IdmRoleAuthority p1 = new IdmRoleAuthority();
+				p1.setRole(role1);
+				p1.setTargetPermission(CoreGroupPermission.IDENTITY);
+				p1.setActionPermission(IdmBasePermission.AUTOCOMPLETE);
+				role1.getAuthorities().add(p1);
+				IdmRoleAuthority p2 = new IdmRoleAuthority();
+				p2.setRole(role1);
+				p2.setTargetPermission(CoreGroupPermission.ROLE);
+				p2.setActionPermission(IdmBasePermission.AUTOCOMPLETE);
+				role1.getAuthorities().add(p2);
 				role1 = this.roleService.save(role1);
+				IdmAuthorizationPolicyDto policy = new IdmAuthorizationPolicyDto();
+				// add autocomplete data access
+				policy.setPermissions(IdmBasePermission.AUTOCOMPLETE);
+				policy.setRole(role1.getId());
+				policy.setEvaluator(BasePermissionEvaluator.class);
+				authorizationPolicyService.save(policy);
 				LOG.info(MessageFormat.format("Role created [id: {0}]", role1.getId()));
 				//
 				IdmRole role2 = new IdmRole();

@@ -21,6 +21,7 @@ import org.springframework.util.Assert;
 
 import com.google.common.base.Strings;
 
+import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.eav.service.impl.AbstractFormableService;
@@ -34,7 +35,6 @@ import eu.bcvsolutions.idm.core.model.event.RoleEvent.RoleEventType;
 import eu.bcvsolutions.idm.core.model.event.processor.RoleDeleteProcessor;
 import eu.bcvsolutions.idm.core.model.event.processor.RoleSaveProcessor;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
-import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
@@ -53,7 +53,7 @@ public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, Role
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmRoleService.class);
 	private final IdmRoleRepository repository;
 	private final EntityEventManager entityEventManager;
-	private final IdmConfigurationService configurationService;
+	private final ConfigurationService configurationService;
 	@Autowired
 	private AuthorizationManager authorizationManager;
 	
@@ -62,7 +62,7 @@ public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, Role
 			IdmRoleRepository repository,
 			EntityEventManager entityEventManager,
 			FormService formService,
-			IdmConfigurationService configurationService) {
+			ConfigurationService configurationService) {
 		super(repository, formService);
 		//
 		Assert.notNull(entityEventManager);
@@ -230,6 +230,20 @@ public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, Role
 			key =  configurationService.getValue(WF_BY_ROLE_PRIORITY_PREFIX + "remove");
 		}
 		return Strings.isNullOrEmpty(key) ? null : key;
+	}
+
+	@Override
+	public IdmRole getDefaultRole() {
+		String roleName = configurationService.getValue(PROPERTY_DEFAULT_ROLE);
+		if (StringUtils.isEmpty(roleName)) {
+			LOG.debug("Default role is not configured. Change configuration [{}].", PROPERTY_DEFAULT_ROLE);
+			return null;
+		}
+		IdmRole defaultRole = getByName(configurationService.getValue(PROPERTY_DEFAULT_ROLE));
+		if (defaultRole == null) {
+			LOG.warn("Default role [{}] not found. Change configuration [{}].", roleName, PROPERTY_DEFAULT_ROLE);
+		}
+		return defaultRole;
 	}
 	
 }

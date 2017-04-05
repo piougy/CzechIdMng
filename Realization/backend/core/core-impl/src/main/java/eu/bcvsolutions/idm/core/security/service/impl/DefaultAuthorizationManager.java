@@ -158,5 +158,5 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 				return service.getAuthorizableType();
 			})
 			.collect(Collectors.toList());
-	}	
+	}
 }

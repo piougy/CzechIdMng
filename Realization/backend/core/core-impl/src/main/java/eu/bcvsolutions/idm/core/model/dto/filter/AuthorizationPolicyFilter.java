@@ -13,6 +13,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 public class AuthorizationPolicyFilter implements BaseFilter {
 
 	private UUID roleId;
+	private Boolean disabled;
 
 	public UUID getRoleId() {
 		return roleId;
@@ -20,5 +21,13 @@ public class AuthorizationPolicyFilter implements BaseFilter {
 
 	public void setRoleId(UUID roleId) {
 		this.roleId = roleId;
+	}
+	
+	public Boolean getDisabled() {
+		return disabled;
+	}
+	
+	public void setDisabled(Boolean disabled) {
+		this.disabled = disabled;
 	}
 }

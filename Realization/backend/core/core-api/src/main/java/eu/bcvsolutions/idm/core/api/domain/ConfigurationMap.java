@@ -36,7 +36,7 @@ public class ConfigurationMap extends JobDataMap {
                 return (UUID) obj;
             }
             return UUID.fromString((String)obj);
-        } catch (Exception e) {
+        } catch (Exception ex) {
             throw new ClassCastException(String.format("Identified object [%s] is not an UUID.", obj));
         }
     }

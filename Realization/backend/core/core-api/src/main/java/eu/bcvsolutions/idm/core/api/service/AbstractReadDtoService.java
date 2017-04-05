@@ -151,6 +151,7 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	}
 	
 	@Override
+	@Transactional(readOnly = true)
 	public Page<DTO> find(final F filter, Pageable pageable, BasePermission permission) {
 		if (permission == null || !(this instanceof AuthorizableService)) {
 			// TODO: remove filter method from repository with dto

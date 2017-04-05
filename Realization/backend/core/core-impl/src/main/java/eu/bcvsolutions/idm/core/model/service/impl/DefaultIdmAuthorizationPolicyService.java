@@ -116,7 +116,7 @@ public class DefaultIdmAuthorizationPolicyService
 		//
 		AuthorizationPolicyFilter filter = new AuthorizationPolicyFilter();
 		filter.setRoleId(defaultRole.getId());
-		filter.setDisabled(false);
+		filter.setDisabled(Boolean.FALSE);
 		List<IdmAuthorizationPolicy> defaultPolicies = repository.find(filter, null).getContent();
 		//
 		LOG.debug("Found [{}] default policies", defaultPolicies.size());

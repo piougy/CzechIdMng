@@ -239,24 +239,25 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 		Assert.notNull(attribute);
 		DefaultFormValue value = new DefaultFormValue(attribute);
 		value.setValue(persistentValue);
+		AbstractFormValueRepository<O, E> repository = getRepository();
 		//
 		switch (attribute.getPersistentType()) {
 			case INT:
 			case LONG:
-				return getRepository().findOwnersByLongValue(attribute, value.getLongValue(), pageable);
+				return repository.findOwnersByLongValue(attribute, value.getLongValue(), pageable);
 			case BOOLEAN:
-				return getRepository().findOwnersByBooleanValue(attribute, value.getBooleanValue(), pageable);
+				return repository.findOwnersByBooleanValue(attribute, value.getBooleanValue(), pageable);
 			case DATE:
 			case DATETIME:
-				return getRepository().findOwnersByDateValue(attribute, value.getDateValue(), pageable);
+				return repository.findOwnersByDateValue(attribute, value.getDateValue(), pageable);
 			case DOUBLE:
 			case CURRENCY:
-				return getRepository().findOwnersByDoubleValue(attribute, value.getDoubleValue(), pageable);
+				return repository.findOwnersByDoubleValue(attribute, value.getDoubleValue(), pageable);
 			case BYTEARRAY: {
-				return getRepository().findOwnersByByteArrayValue(attribute, value.getByteValue(), pageable);
+				return repository.findOwnersByByteArrayValue(attribute, value.getByteValue(), pageable);
 			}
 			default:
-				return getRepository().findOwnersByStringValue(attribute, value.getStringValue(), pageable);
+				return repository.findOwnersByStringValue(attribute, value.getStringValue(), pageable);
 		}
 	}
 	

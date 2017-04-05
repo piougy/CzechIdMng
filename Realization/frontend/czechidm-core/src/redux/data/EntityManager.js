@@ -3,6 +3,7 @@ import FlashMessagesManager from '../flash/FlashMessagesManager';
 import DataManager from './DataManager';
 import SecurityManager from '../security/SecurityManager';
 import * as Utils from '../../utils';
+import SearchParameters from '../../domain/SearchParameters';
 
 /**
  * action types
@@ -746,7 +747,7 @@ export default class EntityManager {
    * Loads requested entity by given id, if entity is not in application state and entity loading does not processing
    *
    * @param  {store}  store - application store
-   * @param  {string|number} id - entity identofoer
+   * @param  {string|number} id - entity identifier
    * @param  {string} uiKey - ui key for loading indicator etc.
    */
   fetchEntityIfNeeded(id, uiKey = null, cb = null) {
@@ -754,6 +755,37 @@ export default class EntityManager {
     return (dispatch, getState) => {
       if (this.fetchEntityIsNeeded(getState(), id, uiKey, cb)) {
         dispatch(this.fetchEntity(id, uiKey, cb));
+      } else if (cb) {
+        cb(this.getEntity(getState(), id), null);
+      }
+    };
+  }
+
+  /**
+   * Autocomplete requested entity by given id from BE, if entity is not in application state and entity loading does not processing
+   *
+   * @param  {store}  store - application store
+   * @param  {string|number} id - entity identifier
+   * @param  {string} uiKey - ui key for loading indicator etc.
+   */
+  autocompleteEntityIfNeeded(id, uiKey = null, cb = null) {
+    uiKey = this.resolveUiKey(uiKey, id);
+    return (dispatch, getState) => {
+      if (this.fetchEntityIsNeeded(getState(), id, uiKey, cb)) {
+        if (this.supportsAuthorization()) {
+          // autocomplete search by id
+          const searchParameters = this.getDefaultSearchParameters().setName(SearchParameters.NAME_AUTOCOMPLETE).setFilter('id', id);
+          dispatch(this.fetchEntities(searchParameters, uiKey, (json, error) => {
+            if (!error) {
+              const data = json._embedded[this.getCollectionType()] || [];
+              dispatch(this.receiveEntity(id, data.length > 0 ? data[0] : null, uiKey, cb));
+            } else {
+              dispatch(this.receiveError(id, uiKey, error, cb));
+            }
+          }));
+        } else {
+          dispatch(this.fetchEntity(id, uiKey, cb));
+        }
       } else if (cb) {
         cb(this.getEntity(getState(), id), null);
       }

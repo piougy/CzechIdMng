@@ -198,7 +198,7 @@ class SelectBox extends AbstractFormComponent {
                 // value is string, we try load entity by id
                 if (!manager.isShowLoading(this.context.store.getState(), null, item)) {
                   /* eslint-disable no-loop-func */
-                  this.context.store.dispatch(manager.fetchEntityIfNeeded(item, null, (json, error) => {
+                  this.context.store.dispatch(manager.autocompleteEntityIfNeeded(item, null, (json, error) => {
                     if (!error) {
                       this.itemRenderer(json, '');
                       // add item to array
@@ -236,7 +236,7 @@ class SelectBox extends AbstractFormComponent {
         } else if (typeof value === 'string' || typeof value === 'number') {
           // value is string, we try load entity by id
           if (!manager.isShowLoading(this.context.store.getState(), null, value)) {
-            this.context.store.dispatch(manager.fetchEntityIfNeeded(value, null, (json, error) => {
+            this.context.store.dispatch(manager.autocompleteEntityIfNeeded(value, null, (json, error) => {
               if (!error) {
                 this.itemRenderer(json, '');
                 this.setState({ value: json, isLoading: false }, this.validate);

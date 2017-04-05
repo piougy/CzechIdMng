@@ -62,7 +62,7 @@ class Roles extends Basic.AbstractContent {
 
   showDetail(entity) {
     const entityFormData = _.merge({}, entity, {
-      role: entity.id ? entity._embedded.role.name : null
+      role: entity.id ? entity._embedded.role : null
     });
 
     this.setState({

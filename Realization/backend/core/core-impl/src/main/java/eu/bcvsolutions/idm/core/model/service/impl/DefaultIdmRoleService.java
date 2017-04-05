@@ -152,6 +152,10 @@ public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, Role
 	 */
 	private Predicate toPredicate(RoleFilter filter, Root<IdmRole> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
 		List<Predicate> predicates = new ArrayList<>();
+		// id
+		if (filter.getId() != null) {
+			predicates.add(builder.equal(root.get("id"), filter.getId()));
+		}
 		// quick
 		if (StringUtils.isNotEmpty(filter.getText())) {
 			predicates.add(builder.like(builder.lower(root.get("name")), "%" + filter.getText().toLowerCase() + "%"));

@@ -73,7 +73,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
    */
   _showDetail(entity, isEdit = false, multiAdd = false) {
     const entityFormData = _.merge({}, entity, {
-      role: entity._embedded && entity._embedded.role ? entity._embedded.role.name : null
+      role: entity._embedded && entity._embedded.role ? entity._embedded.role : null
     });
 
     this.setState({

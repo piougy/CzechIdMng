@@ -404,7 +404,6 @@ roleRequestService.save(requestDto);</script>
       <documentation>${processInstanceName}</documentation>
       <extensionElements>
         <activiti:formProperty id="disapprove" type="decision"></activiti:formProperty>
-        <activiti:formProperty id="backToApplicant" type="decision"></activiti:formProperty>
         <activiti:formProperty id="approve" type="decision"></activiti:formProperty>
         <activiti:formProperty id="managerDescriptionForApplicant" type="textArea" variable="managerDescription"></activiti:formProperty>
         <activiti:formProperty id="applicantDescription" type="textArea" expression="#{entityEvent.content.description}" writable="false"></activiti:formProperty>

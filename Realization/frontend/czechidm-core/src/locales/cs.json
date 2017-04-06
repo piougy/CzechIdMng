@@ -1886,7 +1886,7 @@
       "_type": "Složka katalogu",
       "code": {
         "name": "Kód",
-        "help": "Kód katalogu je unikátní v rámci všech katalogů."
+        "help": "Kód složky je unikátní v rámci všech složek."
       },
       "name": {
         "name": "Jméno složky",

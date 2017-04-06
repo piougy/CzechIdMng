@@ -432,7 +432,7 @@
       "CREATE": "Create",
       "UPDATE": "Update",
       "DELETE": "Delete",
-      "EXECUTEIMMEDIATELY": "Start without approval"
+      "EXECUTE": "Execute"
     },
     "group": {
       "AUTHORITY": "Authorities",

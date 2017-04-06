@@ -2,9 +2,11 @@ package eu.bcvsolutions.idm.core.security.service.impl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -147,12 +149,38 @@ public class DefaultSecurityService implements SecurityService {
 		return new ArrayList<>(authorities);
 	}
 	
-	public static List<GrantedAuthority> toAuthorities(GroupPermission groupPermission) {
+	/**
+	 * Returns all authorities from given groupPermissions
+	 * 
+	 * @param groupPermissions
+	 * @return
+	 */
+	public static List<GrantedAuthority> toAuthorities(GroupPermission... groupPermissions) {
+		Assert.notNull(groupPermissions);
+		//
 		Set<GrantedAuthority> authorities = new HashSet<>();
-		groupPermission.getPermissions().forEach(basePermission -> {
-			authorities.add(new DefaultGrantedAuthority(groupPermission, basePermission));
-		});					
+		for (GroupPermission groupPermission : groupPermissions) {
+			groupPermission.getPermissions().forEach(basePermission -> {
+				authorities.add(new DefaultGrantedAuthority(groupPermission, basePermission));
+			});					
+		}
 		return new ArrayList<>(authorities);
+	}
+	
+	/**
+	 * Transforms given authorities (string representation) to {@link GrantedAuthority}'s list.
+	 * 
+	 * @param authorities
+	 * @return
+	 */
+	public static List<GrantedAuthority> toAuthorities(Collection<String> authorities) {
+		Assert.notNull(authorities);
+		//
+		return authorities.stream()
+				.map(authority -> {
+					return new DefaultGrantedAuthority(authority);
+				})
+				.collect(Collectors.toList());
 	}
 
 }

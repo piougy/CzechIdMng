@@ -4,24 +4,18 @@ import java.util.UUID;
 
 import org.joda.time.DateTime;
 
-import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 
-public class AuditFilter extends QuickFilter {
+public class AuditFilter implements BaseFilter {
 	
-	private Long id;
-	
-	private String type;
-	
-	private DateTime from;
-	
-	private DateTime till;
-	
-	private String modification;
-	
-	private String modifier;
-	
-	private String changedAttributes;
-	
+	private Long id;	
+	private String text;	
+	private String type;	
+	private DateTime from;	
+	private DateTime till;	
+	private String modification;	
+	private String modifier;	
+	private String changedAttributes;	
 	private UUID entityId;
 
 	public String getModifier() {
@@ -86,5 +80,13 @@ public class AuditFilter extends QuickFilter {
 
 	public void setId(Long id) {
 		this.id = id;
+	}
+	
+	public String getText() {
+		return text;
+	}
+	
+	public void setText(String text) {
+		this.text = text;
 	}
 }

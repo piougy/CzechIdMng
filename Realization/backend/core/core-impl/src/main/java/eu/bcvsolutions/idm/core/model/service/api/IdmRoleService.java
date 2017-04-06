@@ -19,7 +19,8 @@ public interface IdmRoleService
 		extends ReadWriteEntityService<IdmRole, RoleFilter>, 
 		IdentifiableByNameEntityService<IdmRole>, AuthorizableEntityService<IdmRole, RoleFilter> {
 
-	public static final String WF_BY_ROLE_PRIORITY_PREFIX = "idm.sec.core.wf.role.approval.";
+	static final String WF_BY_ROLE_PRIORITY_PREFIX = "idm.sec.core.wf.role.approval.";
+	static final String PROPERTY_DEFAULT_ROLE = "idm.sec.core.role.default";	
 	
 	/**
 	 * Return roles by uuids in string
@@ -51,4 +52,11 @@ public interface IdmRoleService
 	 * @return
 	 */
 	String findUnAssignRoleWorkflowDefinition(UUID roleId);
+	
+	/**
+	 * Returns default user role by configuration {@value #PROPERTY_DEFAULT_ROLE}.
+	 * 
+	 * @return
+	 */
+	IdmRole getDefaultRole();
 }

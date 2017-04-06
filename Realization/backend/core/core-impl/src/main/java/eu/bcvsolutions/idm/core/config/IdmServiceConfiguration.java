@@ -17,6 +17,7 @@ import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleRequestService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultEntityEventManager;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmAuthorizationPolicyService;
@@ -103,8 +104,10 @@ public class IdmServiceConfiguration {
 	 * @return
 	 */
 	@Bean
-	public IdmAuthorizationPolicyService authorizationPolicyService(IdmAuthorizationPolicyRepository repository) {
-		return new DefaultIdmAuthorizationPolicyService(repository);
+	public IdmAuthorizationPolicyService authorizationPolicyService(
+			IdmAuthorizationPolicyRepository repository,
+			IdmRoleService roleService) {
+		return new DefaultIdmAuthorizationPolicyService(repository, roleService);
 	}
 	
 	/**
@@ -115,7 +118,7 @@ public class IdmServiceConfiguration {
 	 * @return
 	 */
 	@Bean
-	public AuthorizationManager authorizationManager(IdmAuthorizationPolicyRepository repository, SecurityService securityService) {
-		return new DefaultAuthorizationManager(context, authorizationPolicyService(repository), securityService);
+	public AuthorizationManager authorizationManager(IdmAuthorizationPolicyRepository repository, IdmRoleService roleService, SecurityService securityService) {
+		return new DefaultAuthorizationManager(context, authorizationPolicyService(repository, roleService), securityService);
 	}
 }

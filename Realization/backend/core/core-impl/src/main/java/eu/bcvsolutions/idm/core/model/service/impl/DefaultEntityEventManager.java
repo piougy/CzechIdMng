@@ -56,7 +56,7 @@ public class DefaultEntityEventManager implements EntityEventManager {
 		//
 		Serializable content = event.getContent();
 		//
-		LOG.debug("Publishing event [{}] [{}] [{}]", content.getClass().getSimpleName(), event.getType());
+		LOG.debug("Publishing event [{}] [{}]", content.getClass().getSimpleName(), event.getType());
 		// continue suspended event
 		event.getContext().setSuspended(false);
 		//

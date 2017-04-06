@@ -23,11 +23,9 @@ public interface IdmAuthorizationPolicyRepository extends AbstractEntityReposito
 	@Override
 	@Query(value = "select e from #{#entityName} e" +
 	        " where"
-	        + " ("
-	        	+ " ?#{[0].roleId} is null"
-	        	+ " or"
-	        	+ " e.role.id = ?#{[0].roleId}"
-	        + " )")
+	        + " (?#{[0].roleId} is null or e.role.id = ?#{[0].roleId})"
+	        + " and"
+	        + " (?#{[0].disabled} is null or e.disabled = ?#{[0].disabled})")
 	Page<IdmAuthorizationPolicy> find(AuthorizationPolicyFilter filter, Pageable pageable);
 	
 	/**

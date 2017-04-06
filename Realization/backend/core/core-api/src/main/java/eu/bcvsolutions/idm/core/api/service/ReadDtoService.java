@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.core.api.service;
 import java.io.Serializable;
 import java.util.Set;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -152,5 +153,12 @@ public interface ReadDtoService<DTO extends BaseDto, E extends BaseEntity, F ext
 	 * @return
 	 */
 	Set<String> getPermissions(Serializable id);
+	
+	/**
+	 * Transform entity to dto
+	 * 
+	 * @param modelMapper
+	 */
+	void setModelMapper(ModelMapper modelMapper);
 
 }

@@ -133,7 +133,7 @@ module.exports = {
             'order': 70,
             'path': '/identity/:entityId/garanted-roles',
             'icon': 'fa:universal-access',
-            'access': [ { 'type': 'IS_AUTHENTICATED' } ]
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ'] } ]
           }
         ]
       },

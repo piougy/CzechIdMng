@@ -214,8 +214,9 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 	 */
 	@SuppressWarnings("unchecked")
 	public Page<E> findSecuredEntities(F filter, BasePermission permission, Pageable pageable) {
-		if (getEntityService() instanceof AuthorizableEntityService) {
-			return ((AuthorizableEntityService<E, F>) getEntityService()).findSecured(filter, permission, pageable);
+		ReadEntityService<E, F> service = getEntityService();
+		if (service instanceof AuthorizableEntityService) {
+			return ((AuthorizableEntityService<E, F>) service).findSecured(filter, permission, pageable);
 		}
 		return findEntities(filter, pageable);
 	}

@@ -49,7 +49,8 @@ public abstract class AbstractReadWriteDtoController<DTO extends BaseDto, F exte
 	 * @return
 	 */
 	public DTO postDto(DTO dto) {
-		return getService().save(dto, getService().isNew(dto) ? IdmBasePermission.CREATE : IdmBasePermission.UPDATE);
+		ReadWriteDtoService<DTO, ?, F> service = getService();
+		return service.save(dto, service.isNew(dto) ? IdmBasePermission.CREATE : IdmBasePermission.UPDATE);
 	}
 
 	/**

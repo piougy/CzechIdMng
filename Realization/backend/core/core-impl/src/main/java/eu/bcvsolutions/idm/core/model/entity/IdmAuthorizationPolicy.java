@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.model.entity;
 
+import java.util.UUID;
+
 import javax.persistence.Column;
 import javax.persistence.ConstraintMode;
 import javax.persistence.Entity;
@@ -71,6 +73,13 @@ public class IdmAuthorizationPolicy extends AbstractEntity implements Authorizat
 	@Column(name = "base_permissions", length = DefaultFieldLengths.NAME)
 	//@Convert(converter = StringSetConverter.class) // TODO: doesn't work with envers
 	private String basePermissions;
+	
+	public IdmAuthorizationPolicy() {
+	}
+	
+	public IdmAuthorizationPolicy(UUID id) {
+		super(id);
+	}
 	
 	public IdmRole getRole() {
 		return role;

@@ -151,6 +151,7 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	}
 	
 	@Override
+	@Transactional(readOnly = true)
 	public Page<DTO> find(final F filter, Pageable pageable, BasePermission permission) {
 		if (permission == null || !(this instanceof AuthorizableService)) {
 			// TODO: remove filter method from repository with dto
@@ -348,6 +349,11 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 			authorizationManager = context.getBean(AuthorizationManager.class);
 		}
 		return authorizationManager;
+	}
+	
+	@Override
+	public void setModelMapper(ModelMapper modelMapper) {
+		this.modelMapper = modelMapper;
 	}
 
 }

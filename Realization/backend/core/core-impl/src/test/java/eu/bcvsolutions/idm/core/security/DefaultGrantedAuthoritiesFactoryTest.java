@@ -7,7 +7,9 @@ import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -15,6 +17,7 @@ import org.mockito.Mock;
 import org.springframework.security.core.GrantedAuthority;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
@@ -23,6 +26,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleAuthority;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleComposition;
+import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
@@ -52,8 +56,11 @@ public class DefaultGrantedAuthoritiesFactoryTest extends AbstractVerifiableUnit
 	private IdmIdentityRoleService identityRoleService;
 	@Mock
 	private SecurityService securityService;
-	
+	@Mock
+	private IdmAuthorizationPolicyService authorizationPolicyService;
+	//
 	private DefaultGrantedAuthoritiesFactory defaultGrantedAuthoritiesFactory;
+	
 	
 	static {
 		// prepare roles and authorities
@@ -93,13 +100,15 @@ public class DefaultGrantedAuthoritiesFactoryTest extends AbstractVerifiableUnit
 		defaultGrantedAuthoritiesFactory = new DefaultGrantedAuthoritiesFactory(
 				identityService, 
 				identityRoleService, 
-				securityService);
+				securityService,
+				authorizationPolicyService);
 	}
 	
 	@Test
 	public void testRoleComposition() {	
 		when(identityService.getByUsername(TEST_IDENTITY.getUsername())).thenReturn(TEST_IDENTITY);
 		when(identityRoleService.getRoles(TEST_IDENTITY)).thenReturn(IDENTITY_ROLES);
+		when(authorizationPolicyService.getDefaultAuthorities()).thenReturn(new HashSet<String>());
 		
 		List<GrantedAuthority> grantedAuthorities =  defaultGrantedAuthoritiesFactory.getGrantedAuthorities(TEST_IDENTITY.getUsername());
 		
@@ -107,12 +116,14 @@ public class DefaultGrantedAuthoritiesFactoryTest extends AbstractVerifiableUnit
 		
 		verify(identityService).getByUsername(TEST_IDENTITY.getUsername());
 		verify(identityRoleService).getRoles(TEST_IDENTITY);
+		verify(authorizationPolicyService).getDefaultAuthorities();
 	}
 	
 	@Test
 	public void testUniqueAuthorities() {
 		when(identityService.getByUsername(TEST_IDENTITY.getUsername())).thenReturn(TEST_IDENTITY);
 		when(identityRoleService.getRoles(TEST_IDENTITY)).thenReturn(IDENTITY_ROLES);
+		when(authorizationPolicyService.getDefaultAuthorities()).thenReturn(new HashSet<String>());
 		
 		List<GrantedAuthority> grantedAuthorities =  defaultGrantedAuthoritiesFactory.getGrantedAuthorities(TEST_IDENTITY.getUsername());
 		
@@ -120,6 +131,7 @@ public class DefaultGrantedAuthoritiesFactoryTest extends AbstractVerifiableUnit
 		
 		verify(identityService).getByUsername(TEST_IDENTITY.getUsername());
 		verify(identityRoleService).getRoles(TEST_IDENTITY);
+		verify(authorizationPolicyService).getDefaultAuthorities();
 	}
 	
 	/**
@@ -146,6 +158,7 @@ public class DefaultGrantedAuthoritiesFactoryTest extends AbstractVerifiableUnit
 		when(securityService.getAllAvailableAuthorities()).thenReturn(DefaultSecurityService.toAuthorities(groupPermissions));
 		when(identityService.getByUsername(identity.getUsername())).thenReturn(identity);
 		when(identityRoleService.getRoles(identity)).thenReturn(roles);
+		when(authorizationPolicyService.getDefaultAuthorities()).thenReturn(new HashSet<String>());
 		
 		List<GrantedAuthority> grantedAuthorities = defaultGrantedAuthoritiesFactory.getGrantedAuthorities(identity.getUsername());
 		
@@ -154,6 +167,7 @@ public class DefaultGrantedAuthoritiesFactoryTest extends AbstractVerifiableUnit
 		verify(securityService).getAllAvailableAuthorities();
 		verify(identityService).getByUsername(identity.getUsername());
 		verify(identityRoleService).getRoles(identity);
+		verify(authorizationPolicyService).getDefaultAuthorities();
 	}
 	
 	/**
@@ -180,6 +194,7 @@ public class DefaultGrantedAuthoritiesFactoryTest extends AbstractVerifiableUnit
 		when(securityService.getAvailableGroupPermissions()).thenReturn(groupPermissions);
 		when(identityService.getByUsername(identity.getUsername())).thenReturn(identity);
 		when(identityRoleService.getRoles(identity)).thenReturn(roles);
+		when(authorizationPolicyService.getDefaultAuthorities()).thenReturn(new HashSet<String>());
 		
 		List<GrantedAuthority> grantedAuthorities = defaultGrantedAuthoritiesFactory.getGrantedAuthorities(identity.getUsername());
 			
@@ -189,5 +204,23 @@ public class DefaultGrantedAuthoritiesFactoryTest extends AbstractVerifiableUnit
 		verify(securityService).getAvailableGroupPermissions();
 		verify(identityService).getByUsername(identity.getUsername());
 		verify(identityRoleService).getRoles(identity);
+		verify(authorizationPolicyService).getDefaultAuthorities();
+	}
+	
+	@Test
+	public void testDefaultRoleAutorities() {
+		Set<String> authorities = Sets.newHashSet(CoreGroupPermission.ROLE_CREATE, CoreGroupPermission.ROLE_DELETE);
+		when(identityService.getByUsername(TEST_IDENTITY.getUsername())).thenReturn(TEST_IDENTITY);
+		when(identityRoleService.getRoles(TEST_IDENTITY)).thenReturn(new ArrayList<>());
+		when(authorizationPolicyService.getDefaultAuthorities()).thenReturn(authorities);
+		
+		List<GrantedAuthority> grantedAuthorities =  defaultGrantedAuthoritiesFactory.getGrantedAuthorities(TEST_IDENTITY.getUsername());
+		
+		assertEquals(2, grantedAuthorities.size());
+		assertTrue(grantedAuthorities.containsAll(DefaultSecurityService.toAuthorities(authorities)));
+		
+		verify(identityService).getByUsername(TEST_IDENTITY.getUsername());
+		verify(identityRoleService).getRoles(TEST_IDENTITY);
+		verify(authorizationPolicyService).getDefaultAuthorities();
 	}
 }

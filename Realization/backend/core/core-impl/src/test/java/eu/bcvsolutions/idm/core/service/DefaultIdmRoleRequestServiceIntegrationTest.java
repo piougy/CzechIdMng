@@ -330,7 +330,7 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractIntegra
 		this.logout();
 		// Log as user without right for immediately execute role request (without approval)
 		Collection<GrantedAuthority> authorities = securityService.getAllAvailableAuthorities().stream().filter(authority -> {
-			return !CoreGroupPermission.ROLE_REQUEST_EXECUTE_IMMEDIATELY.equals(authority.getAuthority());
+			return !CoreGroupPermission.ROLE_REQUEST_EXECUTE.equals(authority.getAuthority());
 		}).collect(Collectors.toList());
 		SecurityContextHolder.getContext().setAuthentication(new IdmJwtAuthentication(new IdentityDto(USER_TEST_A), null, authorities, "test"));
 		

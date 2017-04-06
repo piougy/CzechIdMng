@@ -174,9 +174,12 @@ public class DefaultIdmIdentityContractService
 			if (contract.isMain()) {
 				return contract;
 			}
-			IdmTreeNode workPosition = contract.getWorkPosition();
-			if (primeContract == null || (workPosition != null && defaultTreeType != null && defaultTreeType.equals(workPosition.getTreeType()))) {
+			if (primeContract == null) {
 				primeContract = contract;
+			}
+			IdmTreeNode workPosition = contract.getWorkPosition();
+			if (workPosition != null && defaultTreeType != null && defaultTreeType.equals(workPosition.getTreeType())) {
+				return contract;
 			}
 		}
 		return primeContract;

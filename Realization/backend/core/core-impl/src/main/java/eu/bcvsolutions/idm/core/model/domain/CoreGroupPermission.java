@@ -30,7 +30,7 @@ public enum CoreGroupPermission implements GroupPermission {
 	AUDIT(IdmBasePermission.ADMIN, IdmBasePermission.READ),
 	MODULE(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE),
 	SCHEDULER(IdmBasePermission.ADMIN, IdmBasePermission.EXECUTE, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
-	ROLEREQUEST(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
+	ROLEREQUEST(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE, IdmBasePermission.EXECUTE),
 	EAVFORMDEFINITIONS(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
 	EAVFORMATTRIBUTES(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE);
 	
@@ -99,7 +99,7 @@ public enum CoreGroupPermission implements GroupPermission {
 	public static final String ROLE_REQUEST_CREATE = "ROLEREQUEST" + BasePermission.SEPARATOR + "CREATE";
 	public static final String ROLE_REQUEST_UPDATE = "ROLEREQUEST" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String ROLE_REQUEST_DELETE = "ROLEREQUEST" + BasePermission.SEPARATOR + "DELETE";
-	public static final String ROLE_REQUEST_EXECUTE_IMMEDIATELY = "ROLEREQUEST" + BasePermission.SEPARATOR + "EXECUTEIMMEDIATELY";
+	public static final String ROLE_REQUEST_EXECUTE = "ROLEREQUEST" + BasePermission.SEPARATOR + "EXECUTE";
 	//
 	public static final String EAV_FORM_DEFINITIONS_READ = "EAVFORMDEFINITIONS" + BasePermission.SEPARATOR + "READ";
 	public static final String EAV_FORM_DEFINITIONS_CREATE = "EAVFORMDEFINITIONS" + BasePermission.SEPARATOR + "CREATE";

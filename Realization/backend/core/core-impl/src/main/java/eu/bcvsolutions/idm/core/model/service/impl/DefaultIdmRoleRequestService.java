@@ -191,7 +191,7 @@ public class DefaultIdmRoleRequestService
 		// and do realization immediately (without start approval process) 
 		if (request.isExecuteImmediately()) {
 			boolean haveRightExecuteImmediately = securityService
-					.hasAnyAuthority(CoreGroupPermission.ROLE_REQUEST_EXECUTE_IMMEDIATELY);
+					.hasAnyAuthority(CoreGroupPermission.ROLE_REQUEST_EXECUTE);
 
 			if (checkRight && !haveRightExecuteImmediately) {
 				throw new RoleRequestException(CoreResultCode.ROLE_REQUEST_NO_EXECUTE_IMMEDIATELY_RIGHT,

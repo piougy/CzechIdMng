@@ -2,7 +2,6 @@ import React, { PropTypes } from 'react';
 import _ from 'lodash';
 //
 import * as Basic from '../../../components/basic';
-import * as Advanced from '../../../components/advanced';
 import * as Utils from '../../../utils';
 import { NotificationTemplateManager, SecurityManager } from '../../../redux';
 

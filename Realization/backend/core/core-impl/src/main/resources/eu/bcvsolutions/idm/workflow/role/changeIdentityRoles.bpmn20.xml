@@ -552,7 +552,9 @@ def requestId = entityEvent.content.id;
 // get url of application
 def url = configurationService.getValue("idm.pub.security.allowed-origins");
 // TODO: move higher
-url = url.split(",")[0] + "/#/workflow/history/processes/" + execution.getVariable("processInstanceId");;
+if (url != null) {
+	url = url.split(",")[0] + "/#/workflow/history/processes/" + execution.getVariable("processInstanceId");
+}
 
 def applicantUsername = execution.getVariable("applicantUsername");
 def identity = identityService.getByUsername(applicantUsername);

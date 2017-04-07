@@ -58,9 +58,9 @@ public class RoleGuaranteeEvaluatorUnitTest extends AbstractUnitTest {
 		//
 		when(securityService.getAuthentication()).thenReturn(new IdmJwtAuthentication(new IdentityDto(UUID.randomUUID(), null), null, null, null, null));
 		//
-		assertFalse(evaluator.evaluate(policy, authorizable, IdmBasePermission.READ));
-		assertFalse(evaluator.evaluate(policy, authorizable, IdmBasePermission.UPDATE));
-		assertFalse(evaluator.evaluate(policy, authorizable, IdmBasePermission.ADMIN));
+		assertFalse(evaluator.evaluate(authorizable, policy, IdmBasePermission.READ));
+		assertFalse(evaluator.evaluate(authorizable, policy, IdmBasePermission.UPDATE));
+		assertFalse(evaluator.evaluate(authorizable, policy, IdmBasePermission.ADMIN));
 	}
 	
 	@Test
@@ -71,9 +71,9 @@ public class RoleGuaranteeEvaluatorUnitTest extends AbstractUnitTest {
 		//
 		when(securityService.getAuthentication()).thenReturn(new IdmJwtAuthentication(new IdentityDto(UUID.randomUUID(), null), null, null, null, null));
 		//
-		assertFalse(evaluator.evaluate(policy, authorizable, IdmBasePermission.READ));
-		assertFalse(evaluator.evaluate(policy, authorizable, IdmBasePermission.UPDATE));
-		assertFalse(evaluator.evaluate(policy, authorizable, IdmBasePermission.ADMIN));
+		assertFalse(evaluator.evaluate(authorizable, policy, IdmBasePermission.READ));
+		assertFalse(evaluator.evaluate(authorizable, policy, IdmBasePermission.UPDATE));
+		assertFalse(evaluator.evaluate(authorizable, policy, IdmBasePermission.ADMIN));
 	}
 	
 	@Test
@@ -88,9 +88,9 @@ public class RoleGuaranteeEvaluatorUnitTest extends AbstractUnitTest {
 		//
 		when(securityService.getAuthentication()).thenReturn(new IdmJwtAuthentication(new IdentityDto(uuid, null), null, null, null, null));
 		//
-		assertTrue(evaluator.evaluate(policy, authorizable, IdmBasePermission.READ));
-		assertFalse(evaluator.evaluate(policy, authorizable, IdmBasePermission.UPDATE));
-		assertFalse(evaluator.evaluate(policy, authorizable, IdmBasePermission.ADMIN));
+		assertTrue(evaluator.evaluate(authorizable, policy, IdmBasePermission.READ));
+		assertFalse(evaluator.evaluate(authorizable, policy, IdmBasePermission.UPDATE));
+		assertFalse(evaluator.evaluate(authorizable, policy, IdmBasePermission.ADMIN));
 	}
 }
 	

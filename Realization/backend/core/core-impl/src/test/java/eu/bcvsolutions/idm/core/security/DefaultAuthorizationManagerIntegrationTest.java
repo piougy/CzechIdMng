@@ -135,16 +135,16 @@ public class DefaultAuthorizationManagerIntegrationTest extends AbstractIntegrat
 		//
 		// empty without login
 		RoleFilter filter = new RoleFilter();
-		assertEquals(0, roleService.findSecured(filter, IdmBasePermission.READ, null).getTotalElements());
-		assertEquals(0, roleService.findSecured(filter, IdmBasePermission.AUTOCOMPLETE, null).getTotalElements());
+		assertEquals(0, roleService.findSecured(filter, null, IdmBasePermission.READ).getTotalElements());
+		assertEquals(0, roleService.findSecured(filter, null, IdmBasePermission.AUTOCOMPLETE).getTotalElements());
 		//
 		try {			
 			loginService.login(new LoginDto(identity.getUsername(), identity.getPassword()));
 			//
 			// evaluate	access
-			assertEquals(1, roleService.findSecured(filter, IdmBasePermission.READ, null).getTotalElements());
+			assertEquals(1, roleService.findSecured(filter, null, IdmBasePermission.READ).getTotalElements());
 			assertEquals(roleService.find(null).getTotalElements(), 
-					roleService.findSecured(filter, IdmBasePermission.AUTOCOMPLETE, null).getTotalElements());			
+					roleService.findSecured(filter, null, IdmBasePermission.AUTOCOMPLETE).getTotalElements());			
 		} finally {
 			logout();
 		}

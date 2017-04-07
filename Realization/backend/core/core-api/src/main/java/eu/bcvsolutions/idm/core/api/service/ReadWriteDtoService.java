@@ -18,14 +18,6 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
  * @param <F> {@link BaseFilter} type
  */
 public interface ReadWriteDtoService<DTO extends BaseDto, E extends BaseEntity, F extends BaseFilter> extends ReadDtoService<DTO, E, F> {
-
-	/**
-	 * Saves a given DTO. Event could be published instead persisting directly.
-	 * 
-	 * @param dto
-	 * @return the saved DTO
-	 */
-	DTO save(DTO dto);	
 	
 	/**
 	 * Persists a given DTO to repository.
@@ -39,11 +31,11 @@ public interface ReadWriteDtoService<DTO extends BaseDto, E extends BaseEntity, 
 	 * Saves a given DTO. Event could be published instead persisting dto directly. Authorization policies are evaluated.
 	 * 
 	 * @param dto
-	 * @param permission permission to evaluate
+	 * @param permission permissions to evaluate
 	 * @return the saved DTO
 	 * @throws ForbiddenEntityException if authorization policies doesn't met
 	 */
-	DTO save(DTO dto, BasePermission permission);	
+	DTO save(DTO dto, BasePermission... permission);	
 	
 	/**
 	 * Saves all given DTO. Event could be published instead persisting directly.
@@ -55,21 +47,14 @@ public interface ReadWriteDtoService<DTO extends BaseDto, E extends BaseEntity, 
 	Iterable<DTO> saveAll(Iterable<DTO> dtos);
 	
 	/**
-	 * Deletes a given DTO. Event could be published instead persisting directly.
-	 * 
-	 * @param dto
-	 * @throws IllegalArgumentException in case the given entity is {@literal null}.
-	 */
-	void delete(DTO dto);
-	
-	/**
 	 * Deletes a given DTO. Event could be published instead persisting dto directly. Authorization policies are evaluated.
 	 * 
 	 * @param dto
+	 * @param permission permissions to evaluate
 	 * @throws IllegalArgumentException in case the given entity is {@literal null}.
 	 * @throws ForbiddenEntityException if authorization policies doesn't met
 	 */
-	void delete(DTO dto, BasePermission permission);
+	void delete(DTO dto, BasePermission... permission);
 	
 	/**
 	 * Deletes a given DTO (from repository).

@@ -42,7 +42,7 @@ public class UuidEvaluator extends AbstractAuthorizationEvaluator<Identifiable> 
 	}
 	
 	@Override
-	public Predicate getPredicate(AuthorizationPolicy policy, BasePermission permission, Root<Identifiable> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
+	public Predicate getPredicate(Root<Identifiable> root, CriteriaQuery<?> query, CriteriaBuilder builder, AuthorizationPolicy policy, BasePermission... permission) {
 		if (!hasPermission(policy, permission)) {
 			return null;
 		}
@@ -55,8 +55,8 @@ public class UuidEvaluator extends AbstractAuthorizationEvaluator<Identifiable> 
 	}
 	
 	@Override
-	public Set<String> getPermissions(AuthorizationPolicy policy, Identifiable entity) {
-		Set<String> permissions = super.getPermissions(policy, entity);
+	public Set<String> getPermissions(Identifiable entity, AuthorizationPolicy policy) {
+		Set<String> permissions = super.getPermissions(entity, policy);
 		if (entity == null) {
 			return permissions;
 		}	

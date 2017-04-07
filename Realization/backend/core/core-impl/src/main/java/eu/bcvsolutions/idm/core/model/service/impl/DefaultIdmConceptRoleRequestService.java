@@ -15,6 +15,7 @@ import eu.bcvsolutions.idm.core.model.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.model.dto.filter.ConceptRoleRequestFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmConceptRoleRequest;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConceptRoleRequestService;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 
 /**
@@ -67,7 +68,7 @@ public class DefaultIdmConceptRoleRequestService
 	}
 	
 	@Override
-	public void delete(IdmConceptRoleRequestDto dto) {
+	public void delete(IdmConceptRoleRequestDto dto, BasePermission... permission) {
 		
 		if(!Strings.isNullOrEmpty(dto.getWfProcessId())){
 			workflowProcessInstanceService.delete(dto.getWfProcessId(), "Role concept use this WF, was deleted. This WF was deleted too.");

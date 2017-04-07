@@ -20,7 +20,11 @@ import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
  * specific type.
  * 
  * @author Svanda
+ * @author Radek Tomiška
  *
+ * @param <DTO> dto type
+ * @param <E> entity type
+ * @param <F> filter type
  */
 public abstract class AbstractReadWriteDtoService<DTO extends BaseDto, E extends BaseEntity, F extends BaseFilter>
 		extends AbstractReadDtoService<DTO, E, F> implements ReadWriteDtoService<DTO, E, F> {
@@ -28,7 +32,6 @@ public abstract class AbstractReadWriteDtoService<DTO extends BaseDto, E extends
 	public AbstractReadWriteDtoService(AbstractEntityRepository<E, F> repository) {
 		super(repository);
 	}
-	
 	/**
 	 * {@inheritDoc}
 	 * 
@@ -36,13 +39,7 @@ public abstract class AbstractReadWriteDtoService<DTO extends BaseDto, E extends
 	 */
 	@Override
 	@Transactional
-	public DTO save(DTO dto) {
-		return save(dto, null);
-	}
-	
-	@Override
-	@Transactional
-	public DTO save(DTO dto, BasePermission permission) {
+	public DTO save(DTO dto, BasePermission... permission) {
 		E persistEntity = null;
 		if (dto.getId() != null) {
 			persistEntity = this.get(dto.getId());
@@ -85,20 +82,10 @@ public abstract class AbstractReadWriteDtoService<DTO extends BaseDto, E extends
 	 * {@inheritDoc}
 	 * 
 	 * Override for include event processing etc.
-	 * 
-	 * @param dto
-	 * @throws IllegalArgumentException
-	 *  in case the given DTO is {@literal null}.
 	 */
 	@Override
 	@Transactional
-	public void delete(DTO dto) {
-		delete(dto, null);
-	}
-	
-	@Override
-	@Transactional
-	public void delete(DTO dto, BasePermission permission) {
+	public void delete(DTO dto, BasePermission... permission) {
 		checkAccess(this.get(dto.getId()), permission);
 		//
 		deleteInternal(dto);

@@ -43,9 +43,9 @@ public class UuidEvaluatorUnitTest extends AbstractUnitTest {
 		policy.getEvaluatorProperties().put(UuidEvaluator.PARAMETER_UUID, uuid);
 		policy.setPermissions(IdmBasePermission.READ);
 		//
-		assertTrue(evaluator.evaluate(policy, authorizable, IdmBasePermission.READ));
-		assertFalse(evaluator.evaluate(policy, authorizable, IdmBasePermission.UPDATE));
-		assertFalse(evaluator.evaluate(policy, authorizable, IdmBasePermission.ADMIN));
+		assertTrue(evaluator.evaluate(authorizable, policy, IdmBasePermission.READ));
+		assertFalse(evaluator.evaluate(authorizable, policy, IdmBasePermission.UPDATE));
+		assertFalse(evaluator.evaluate(authorizable, policy, IdmBasePermission.ADMIN));
 	}
 	
 	@Test
@@ -56,9 +56,9 @@ public class UuidEvaluatorUnitTest extends AbstractUnitTest {
 		policy.getEvaluatorProperties().put(UuidEvaluator.PARAMETER_UUID, uuid);
 		policy.setPermissions(IdmBasePermission.ADMIN);
 		//
-		assertTrue(evaluator.evaluate(policy, authorizable, IdmBasePermission.READ));
-		assertTrue(evaluator.evaluate(policy, authorizable, IdmBasePermission.UPDATE));
-		assertTrue(evaluator.evaluate(policy, authorizable, IdmBasePermission.ADMIN));
+		assertTrue(evaluator.evaluate(authorizable, policy, IdmBasePermission.READ));
+		assertTrue(evaluator.evaluate(authorizable, policy, IdmBasePermission.UPDATE));
+		assertTrue(evaluator.evaluate(authorizable, policy, IdmBasePermission.ADMIN));
 	}
 }
 	

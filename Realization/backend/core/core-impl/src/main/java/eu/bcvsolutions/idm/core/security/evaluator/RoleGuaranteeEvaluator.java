@@ -40,7 +40,7 @@ public class RoleGuaranteeEvaluator extends AbstractAuthorizationEvaluator<IdmRo
 	}
 
 	@Override
-	public Predicate getPredicate(AuthorizationPolicy policy, BasePermission permission, Root<IdmRole> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
+	public Predicate getPredicate(Root<IdmRole> root, CriteriaQuery<?> query, CriteriaBuilder builder, AuthorizationPolicy policy, BasePermission... permission) {
 		AbstractAuthentication authentication = securityService.getAuthentication();
 		if (authentication == null || authentication.getCurrentIdentity() == null) {
 			return null;
@@ -63,8 +63,8 @@ public class RoleGuaranteeEvaluator extends AbstractAuthorizationEvaluator<IdmRo
 	}
 	
 	@Override
-	public Set<String> getPermissions(AuthorizationPolicy policy, IdmRole entity) {
-		Set<String> permissions = super.getPermissions(policy, entity);
+	public Set<String> getPermissions(IdmRole entity, AuthorizationPolicy policy) {
+		Set<String> permissions = super.getPermissions(entity, policy);
 		if (entity == null) {
 			return permissions;
 		}

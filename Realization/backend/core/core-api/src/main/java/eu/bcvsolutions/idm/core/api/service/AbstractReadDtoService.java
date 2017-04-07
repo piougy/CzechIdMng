@@ -24,6 +24,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
+import org.springframework.util.ObjectUtils;
 
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
@@ -34,7 +35,6 @@ import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
-import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizationManager;
 
@@ -123,17 +123,11 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	/**
 	 * Returns DTO by given id. Returns null, if DTO is not exists. For
 	 * AbstractDto uuid or string could be given.
-	 */
+	 */	
 	@Override
 	@Transactional(readOnly = true)
-	public DTO getDto(Serializable id) {
-		return get(id, null);
-	}
-	
-	@Override
-	@Transactional(readOnly = true)
-	public DTO get(Serializable id, BasePermission permission) {
-		E entity = checkAccess(get(id), IdmBasePermission.READ);
+	public DTO getDto(Serializable id, BasePermission... permission) {
+		E entity = checkAccess(get(id), permission);
 		return toDto(entity);
 	}
 
@@ -146,14 +140,8 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	
 	@Override
 	@Transactional(readOnly = true)
-	public Page<DTO> findDto(final F filter, Pageable pageable) {
-		return find(filter, pageable, null);
-	}
-	
-	@Override
-	@Transactional(readOnly = true)
-	public Page<DTO> find(final F filter, Pageable pageable, BasePermission permission) {
-		if (permission == null || !(this instanceof AuthorizableService)) {
+	public Page<DTO> findDto(final F filter, Pageable pageable, BasePermission... permission) {
+		if (ObjectUtils.isEmpty(permission) || !(this instanceof AuthorizableService)) {
 			// TODO: remove filter method from repository with dto
 			return toDtoPage(getRepository().find(filter, pageable));
 		}
@@ -162,7 +150,7 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 			public Predicate toPredicate(Root<E> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
 				Predicate predicate = builder.and(
 					AbstractReadDtoService.this.toPredicate(filter, root, query, builder),
-					getAuthorizationManager().getPredicate(permission, root, query, builder)
+					getAuthorizationManager().getPredicate(root, query, builder, permission)
 				);
 				//
 				return query.where(predicate).getRestriction();
@@ -330,10 +318,10 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	 * @param permission
 	 * @return
 	 */
-	protected E checkAccess(E entity, BasePermission permission) {
+	protected E checkAccess(E entity, BasePermission... permission) {
 		Assert.notNull(entity);
 		//
-		if (permission != null && this instanceof AuthorizableService && !getAuthorizationManager().evaluate(entity, permission)) {
+		if (!ObjectUtils.isEmpty(permission) && this instanceof AuthorizableService && !getAuthorizationManager().evaluate(entity, permission)) {
 			throw new ForbiddenEntityException(entity.getId());
 		}
 		return entity;

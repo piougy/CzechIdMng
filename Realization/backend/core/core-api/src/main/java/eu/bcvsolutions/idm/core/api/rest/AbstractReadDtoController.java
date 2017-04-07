@@ -107,7 +107,7 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 	 * @return
 	 */
 	public DTO getDto(Serializable backendId) {
-		return getService().get(backendId, IdmBasePermission.READ);
+		return getService().getDto(backendId, IdmBasePermission.READ);
 	}
 
 	/**
@@ -151,7 +151,7 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 	 * @return
 	 */
 	public Page<DTO> findDtos(F filter, Pageable pageable, BasePermission permission) {
-		return getService().find(filter, pageable, permission);
+		return getService().findDto(filter, pageable, permission);
 	}
 	
 	/**

@@ -1,9 +1,12 @@
 package eu.bcvsolutions.idm.core.security.evaluator;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -79,8 +82,7 @@ public abstract class AbstractAuthorizationEvaluator<E extends Identifiable> imp
 	 * be overriden.
 	 */
 	@Override
-	public Predicate getPredicate(AuthorizationPolicy policy, BasePermission permission, Root<E> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
-		
+	public Predicate getPredicate(Root<E> root, CriteriaQuery<?> query, CriteriaBuilder builder, AuthorizationPolicy policy, BasePermission... permission) {
 		return null;
 	}
 
@@ -88,7 +90,7 @@ public abstract class AbstractAuthorizationEvaluator<E extends Identifiable> imp
 	 * Returns empty set - no data will be available. Supposed to be overriden.
 	 */
 	@Override
-	public Set<String> getPermissions(AuthorizationPolicy policy, E authorizable) {
+	public Set<String> getPermissions(E authorizable, AuthorizationPolicy policy) {
 		return new HashSet<>();
 	}
 
@@ -96,10 +98,12 @@ public abstract class AbstractAuthorizationEvaluator<E extends Identifiable> imp
 	 * Supposed to be overriden for orderable optimalizations.
 	 */
 	@Override
-	public boolean evaluate(AuthorizationPolicy policy, E authorizable, BasePermission permission) {
-		Set<String> permissions = getPermissions(policy, authorizable);
-		//
-		return permissions.contains(permission.toString()) || permissions.contains(IdmBasePermission.ADMIN.getName());
+	public boolean evaluate(E authorizable, AuthorizationPolicy policy, BasePermission... permission) {
+		Assert.notEmpty(permission);
+		Set<String> permissions = getPermissions(authorizable, policy);
+		//		
+		return permissions.contains(IdmBasePermission.ADMIN.getName())
+				|| hasPermission(permissions, permission);
 	}
 	
 	@Override
@@ -139,16 +143,28 @@ public abstract class AbstractAuthorizationEvaluator<E extends Identifiable> imp
 	}
 	
 	/**
-	 * Returns true, when policy have some search permission
+	 * Returns true, when policy has all given permissions
 	 * 
 	 * @param policy
+	 * @param permission permissions to evaluate (AND)
 	 * @return
 	 */
-	protected boolean hasPermission(AuthorizationPolicy policy, BasePermission permission) {
+	protected boolean hasPermission(AuthorizationPolicy policy, BasePermission... permission) {
 		Assert.notNull(permission);
 		Set<String> permissions = getBasePermissions(policy);
 		//
 		return permissions.contains(IdmBasePermission.ADMIN.getName())
-				|| permissions.contains(permission.getName());
+				|| hasPermission(permissions, permission);
+	}
+	
+	/**
+	 * Returns true, when permissions have all given permissions
+	 * 
+	 * @param permissions
+	 * @param permission
+	 * @return
+	 */
+	protected boolean hasPermission(Collection<String> permissions, BasePermission... permission) {
+		return permissions.containsAll(Arrays.stream(permission).map(Object::toString).collect(Collectors.toList()));
 	}
 }

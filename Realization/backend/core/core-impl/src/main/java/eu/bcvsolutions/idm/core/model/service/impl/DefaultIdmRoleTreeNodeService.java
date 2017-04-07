@@ -32,6 +32,7 @@ import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 
 /**
  * Automatic role service
@@ -78,7 +79,7 @@ public class DefaultIdmRoleTreeNodeService
 	 */
 	@Override
 	@Transactional(noRollbackFor = AcceptedException.class)
-	public IdmRoleTreeNodeDto save(IdmRoleTreeNodeDto roleTreeNode) {
+	public IdmRoleTreeNodeDto save(IdmRoleTreeNodeDto roleTreeNode, BasePermission... permission) {
 		Assert.notNull(roleTreeNode);
 		//
 		LOG.debug("Saving automatic role [{}] - [{}] - [{}]", roleTreeNode.getRole(), roleTreeNode.getTreeNode(), roleTreeNode.getRecursionType());
@@ -100,7 +101,7 @@ public class DefaultIdmRoleTreeNodeService
 	 */
 	@Override
 	@Transactional(noRollbackFor = AcceptedException.class)
-	public void delete(IdmRoleTreeNodeDto roleTreeNode) {
+	public void delete(IdmRoleTreeNodeDto roleTreeNode, BasePermission... permission) {
 		Assert.notNull(roleTreeNode);
 		//
 		LOG.debug("Deleting automatic role [{}] - [{}] - [{}]", roleTreeNode.getRole(), roleTreeNode.getTreeNode(), roleTreeNode.getRecursionType());

@@ -37,24 +37,16 @@ public interface ReadDtoService<DTO extends BaseDto, E extends BaseEntity, F ext
 	 * @return
 	 */
 	Class<F> getFilterClass();
-
-	/**
-	 * Returns DTO by given id. Returns null, if dto is not exists.
-	 * 
-	 * @param id
-	 * @return
-	 */
-	DTO getDto(Serializable id);
 	
 	/**
 	 * Returns DTO by given id. Returns null, if dto is not exists. Authorization policies are evaluated.
 	 *
 	 * @param id
-	 * @param permission to evaluate
+	 * @param permission permissions to evaluate (AND)
 	 * @return
 	 * @throws ForbiddenEntityException if authorization policies doesn't met
 	 */
-	DTO get(Serializable id, BasePermission permission);
+	DTO getDto(Serializable id, BasePermission... permission);
 
 	/**
 	 * Returns page of DTOs
@@ -63,26 +55,17 @@ public interface ReadDtoService<DTO extends BaseDto, E extends BaseEntity, F ext
 	 * @return
 	 */
 	Page<DTO> findDto(Pageable pageable);
-
-	/**
-	 * Returns page of DTOs by given filter
-	 * 
-	 * @param filter
-	 * @param pageable
-	 * @return
-	 */
-	Page<DTO> findDto(F filter, Pageable pageable);
 	
 	/**
 	 * Returns page of DTOs by given filter, authorization permission will be evaluated. 
-	 * Never throws {@link ForbiddenEntityException} - returning available dtos by given permission.
+	 * Never throws {@link ForbiddenEntityException} - returning available dtos by given permissions (AND).
 	 * 
 	 * @param filter
 	 * @param pageable
 	 * @param permission
 	 * @return
 	 */
-	Page<DTO> find(F filter, Pageable pageable, BasePermission permission);
+	Page<DTO> findDto(F filter, Pageable pageable, BasePermission... permission);
 
 	/**
 	 * Returns page of entities by given filter

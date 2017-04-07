@@ -22,9 +22,9 @@ public interface AuthorizableEntityService<E extends Identifiable, F extends Bas
 	 * Returns data by authorization polices
 	 * 
 	 * @param filter
-	 * @param permission evaluate permission
 	 * @param pageable
+	 * @param permission evaluate permission
 	 * @return
 	 */
-	Page<E> findSecured(F filter, BasePermission permission, Pageable pageable);
+	Page<E> findSecured(F filter, Pageable pageable, BasePermission permission);
 }

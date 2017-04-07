@@ -126,13 +126,13 @@ public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, Role
 	}
 	
 	@Override
-	public Page<IdmRole> findSecured(final RoleFilter filter, BasePermission permission, Pageable pageable) {
+	public Page<IdmRole> findSecured(final RoleFilter filter, Pageable pageable, BasePermission permission) {
 		// transform filter to criteria
 		Specification<IdmRole> criteria = new Specification<IdmRole>() {
 			public Predicate toPredicate(Root<IdmRole> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
 				Predicate predicate = builder.and(
 					DefaultIdmRoleService.this.toPredicate(filter, root, query, builder),
-					authorizationManager.getPredicate(permission, root, query, builder)
+					authorizationManager.getPredicate(root, query, builder, permission)
 				);
 				//
 				return query.where(predicate).getRestriction();

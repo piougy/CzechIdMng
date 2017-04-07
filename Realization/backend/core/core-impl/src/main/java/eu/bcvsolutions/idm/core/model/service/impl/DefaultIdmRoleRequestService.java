@@ -49,6 +49,7 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleRequestService;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowProcessInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
@@ -417,7 +418,7 @@ public class DefaultIdmRoleRequestService
 	}
 	
 	@Override
-	public void delete(IdmRoleRequestDto dto) {
+	public void delete(IdmRoleRequestDto dto, BasePermission... permission) {
 		
 		// Find all request where is this request duplicated and remove relation
 		RoleRequestFilter conceptRequestFilter = new RoleRequestFilter();

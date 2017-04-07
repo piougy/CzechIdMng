@@ -25,7 +25,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 public class BasePermissionEvaluator extends AbstractAuthorizationEvaluator<Identifiable> {
 	
 	@Override
-	public Predicate getPredicate(AuthorizationPolicy policy, BasePermission permission, Root<Identifiable> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
+	public Predicate getPredicate(Root<Identifiable> root, CriteriaQuery<?> query, CriteriaBuilder builder, AuthorizationPolicy policy, BasePermission... permission) {
 		if (hasPermission(policy, permission)) {
 			return builder.conjunction();
 		}
@@ -33,8 +33,8 @@ public class BasePermissionEvaluator extends AbstractAuthorizationEvaluator<Iden
 	}
 	
 	@Override
-	public Set<String> getPermissions(AuthorizationPolicy policy, Identifiable entity) {
-		final Set<String> permissions = super.getPermissions(policy, entity);
+	public Set<String> getPermissions(Identifiable entity, AuthorizationPolicy policy) {
+		final Set<String> permissions = super.getPermissions(entity, policy);
 		permissions.addAll(getBasePermissions(policy));
 		return permissions;
 	}

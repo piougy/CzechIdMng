@@ -55,37 +55,37 @@ public interface AuthorizationEvaluator<E extends Identifiable> extends Ordered 
 	List<String> getParameterNames();
 	
 	/**
-	 * Returns jpa criteria predicate for given policy and permission, which can be used in queries - adds security on entities. 
+	 * Returns jpa criteria predicate for given policy and all permissions, which can be used in queries - adds security on entities. 
 	 * Predicate with "exist" subquery is recommended. 
 	 * Could return {@code null}, if evaluator doesn't want to append a predicate. 
 	 * 
-	 * @param policy
-	 * @param permission
 	 * @param root evaluated {@link BaseEntity} type root 
 	 * @param query
 	 * @param builder
+	 * @param policy
+	 * @param permission permissions to evaluate (AND)
 	 * @return predicate with "exists" subquery is recommended
 	 */
-	Predicate getPredicate(AuthorizationPolicy policy, BasePermission permission, Root<E> root, CriteriaQuery<?> query, CriteriaBuilder builder);
+	Predicate getPredicate(Root<E> root, CriteriaQuery<?> query, CriteriaBuilder builder, AuthorizationPolicy policy, BasePermission... permission);
 	
 	/**
 	 * Returns base permissions - what logged user could do with given authorizable object by given policy
 	 * 
-	 * @param policy
 	 * @param authorizable
+	 * @param policy
 	 * @return set of {@link BasePermission}s 
 	 */
-	Set<String> getPermissions(AuthorizationPolicy policy, E authorizable);
+	Set<String> getPermissions(E authorizable, AuthorizationPolicy policy);
 	
 	/**
-	 * Returns true, when currently logged user has given permission on given authorizable object by given policy.
+	 * Returns true, when currently logged user has all given permissions on given authorizable object by given policy.
 	 * 
-	 * @param policy
 	 * @param authorizable
-	 * @param permission
+	 * @param policy
+	 * @param permission permissions to evaluate (AND)
 	 * @return
 	 */
-	boolean evaluate(AuthorizationPolicy policy, E authorizable, BasePermission permission);
+	boolean evaluate(E authorizable, AuthorizationPolicy policy, BasePermission... permission);
 	
 	/**
 	 * Returns true, when evaluator could be disabled

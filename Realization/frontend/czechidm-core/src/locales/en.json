@@ -1853,7 +1853,7 @@
       "_type": "Role name",
       "code": {
         "name": "Code",
-        "help": "Catalogue code is unique within all folder codes in catalogue."
+        "help": "Folder code is unique within all folder codes in catalogue."
       },
       "name": {
         "name": "Folder name",

@@ -12,6 +12,7 @@ const uiKey = 'system-mappings';
 const uiKeyAttributes = 'system-attribute-mappings';
 const systemAttributeMappingManager = new SystemAttributeMappingManager();
 const systemManager = new SystemManager();
+const treeTypeManager = new Managers.TreeTypeManager();
 const systemMappingManager = new SystemMappingManager();
 const schemaObjectClassManager = new SchemaObjectClassManager();
 
@@ -92,6 +93,7 @@ class SystemMappingDetail extends Advanced.AbstractTableContent {
     const formEntity = this.refs.form.getData();
     formEntity.system = systemManager.getSelfLink(formEntity.system);
     formEntity.objectClass = schemaObjectClassManager.getSelfLink(formEntity.objectClass);
+    formEntity.treeType = treeTypeManager.getSelfLink(formEntity.treeType);
     if (formEntity.id === undefined) {
       this.context.store.dispatch(systemMappingManager.createEntity(formEntity, `${uiKey}-detail`, (createdEntity, error) => {
         this.afterSave(createdEntity, error);
@@ -171,6 +173,11 @@ class SystemMappingDetail extends Advanced.AbstractTableContent {
                 label={this.i18n('acc:entity.SystemMapping.entityType')}
                 readOnly={!Utils.Entity.isNew(mapping)}
                 required/>
+              <Basic.SelectBox
+                ref="treeType"
+                label={this.i18n('acc:entity.SystemMapping.treeType')}
+                manager={treeTypeManager}
+              />
             </Basic.AbstractForm>
             <Basic.PanelFooter>
               <Basic.Button type="button" level="link"
@@ -282,6 +289,7 @@ function select(state, component) {
   if (entity && entity._embedded && entity._embedded.objectClass) {
     entity.system = entity._embedded.objectClass.system;
     entity.objectClass = entity._embedded.objectClass;
+    entity.treeType = entity._embedded.treeType;
   }
   return {
     _mapping: entity,

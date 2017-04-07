@@ -22,6 +22,7 @@ import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
+import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 
 /**
  * <i>SysSystemMapping</i> is responsible for mapping attribute to entity
@@ -68,6 +69,14 @@ public class SysSystemMapping extends AbstractEntity {
 	@Column(name = "operation_type", nullable = false)
 	private SystemOperationType operationType;
 	
+	@Audited
+	@NotNull
+	@ManyToOne(optional = false)
+	@JoinColumn(name = "tree_type_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
+	@org.hibernate.annotations.ForeignKey( name = "none" )
+	private IdmTreeType treeType;
+	
 	public void setName(String name) {
 		this.name = name;
 	}
@@ -106,5 +115,13 @@ public class SysSystemMapping extends AbstractEntity {
 	
 	public SysSchemaObjectClass getObjectClass() {
 		return objectClass;
+	}
+
+	public IdmTreeType getTreeType() {
+		return treeType;
+	}
+
+	public void setTreeType(IdmTreeType treeType) {
+		this.treeType = treeType;
 	}
 }

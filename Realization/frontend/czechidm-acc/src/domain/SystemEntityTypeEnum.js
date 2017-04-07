@@ -56,4 +56,5 @@ export default class SystemEntityTypeEnum extends Enums.AbstractEnum {
 }
 
 SystemEntityTypeEnum.IDENTITY = Symbol('IDENTITY');
+SystemEntityTypeEnum.TREE = Symbol('TREE');
 // SystemEntityTypeEnum.GROUP = Symbol('GROUP');

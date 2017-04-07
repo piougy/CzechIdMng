@@ -493,7 +493,8 @@
       "entityType": "Typ IdM entity",
       "operationType": "Typ operace",
       "system": "Napojený systém",
-      "objectClass": "Název objektu"
+      "objectClass": "Název objektu",
+      "treeType": "Tree type"
     },
     "SchemaAttribute": {
       "name": "Název atributu",

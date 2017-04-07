@@ -154,6 +154,20 @@ export default class ConfigurationManager extends EntityManager {
     }
     return isModuleEnabled === 'true';
   }
+
+  /**
+   * Returns environment stage [development, production, test]
+   *
+   * @param  {redux state} state
+   * @return {string} stage [development, production, test]
+   */
+  static getEnvironmentStage(state) {
+    const environment = ConfigurationManager.getPublicValue(state, 'idm.pub.app.stage');
+    if (environment) {
+      return environment.toLowerCase();
+    }
+    return null;
+  }
 }
 
 ConfigurationManager.PUBLIC_CONFIGURATIONS = 'public-configurations'; // ui key only

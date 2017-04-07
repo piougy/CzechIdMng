@@ -1825,6 +1825,11 @@
     }
   },
   "entity": {
+    "id": {
+      "label": "Id",
+      "title": "Identifikátor",
+      "help": "Interní identifikátor"
+    },
     "created": "Created",
 
      "Identity": {

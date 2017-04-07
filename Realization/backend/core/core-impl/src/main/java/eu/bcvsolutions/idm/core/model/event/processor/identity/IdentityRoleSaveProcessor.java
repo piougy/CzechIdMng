@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.model.event.processor;
+package eu.bcvsolutions.idm.core.model.event.processor.identity;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
@@ -56,7 +56,6 @@ public class IdentityRoleSaveProcessor extends CoreEventProcessor<IdmIdentityRol
 		IdmIdentityRole identityRole = event.getContent();
 		repository.save(identityRole);
 		//
-		// TODO: move in another processor?
 		// if identityRole isn't valid save request into validRequests
 		if (!identityRoleService.isIdentityRoleValidFromNow(identityRole)) {
 			// create new IdmIdentityRoleValidRequest

@@ -1,6 +1,6 @@
 # AdvancedTable Component
 
-Encapsulates all features from BasicTable component.
+Encapsulates all features from BasicTable component. All BasicTable parameters are supported. Added parameters:
 
 | Parameter | Type | Description | Default  |
 | --- | :--- | :--- | :--- |
@@ -16,7 +16,8 @@ Encapsulates all features from BasicTable component.
 | filterOpened | bool | If filter is opened by default | false |
 | filterCollapsible | bool | If filter can be collapsed |  |
 | actions | arrayOf(object) | Bulk actions e.g. { value: 'activate', niceLabel: this.i18n('content.identities.action.activate.action'), action: this.onActivate.bind(this) } |  |
-| buttons | arrayOf(element) | Buttons are shown on the right of toogle filter button | ||
+| buttons | arrayOf(element) | Buttons are shown on the right of toogle filter button | |
+| showId | bool | Shows column with id. Default is id shown in Development stage. | true on development, false otherwise |
 
 
 # AdvancedColumn Component

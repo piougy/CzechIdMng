@@ -188,6 +188,7 @@ export class AuditTable extends Basic.AbstractContent {
           manager={auditManager}
           forceSearchParameters={this._getForceSearchParameters()}
           rowClass={({rowIndex, data}) => { return Utils.Ui.getRowClass(data[rowIndex]); }}
+          showId
           filter={
             !auditedEntities
             ||
@@ -208,12 +209,6 @@ export class AuditTable extends Basic.AbstractContent {
               }
               sort={false}/>
           }
-          <Advanced.Column
-            property="id"
-            sort
-            face="text"
-            rendered={_.includes(columns, 'id')}
-            width={ 75 }/>
           <Advanced.Column
             property="type"
             rendered={_.includes(columns, 'type')}

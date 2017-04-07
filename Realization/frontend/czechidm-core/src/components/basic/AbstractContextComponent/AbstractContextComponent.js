@@ -1,7 +1,7 @@
 import React, { PropTypes } from 'react';
 //
 import AbstractComponent from '../AbstractComponent/AbstractComponent';
-import { FlashMessagesManager } from '../../../redux';
+import { FlashMessagesManager, ConfigurationManager } from '../../../redux';
 import { i18n } from '../../../services/LocalizationService';
 
 /**
@@ -140,6 +140,15 @@ class AbstractContextComponent extends AbstractComponent {
    */
   getFlashManager() {
     return this.flashMessagesManager;
+  }
+
+  /**
+   * Returns true, when application (BE) is in development stage
+   *
+   * @return {Boolean}
+   */
+  isDevelopment() {
+    return ConfigurationManager.getEnvironmentStage(this.context.store.getState()) === 'development';
   }
 }
 

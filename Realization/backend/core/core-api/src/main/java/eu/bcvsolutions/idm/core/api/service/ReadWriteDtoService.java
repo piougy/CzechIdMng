@@ -28,7 +28,7 @@ public interface ReadWriteDtoService<DTO extends BaseDto, E extends BaseEntity, 
 	DTO save(DTO dto);	
 	
 	/**
-	 * Persists a given DTO.
+	 * Persists a given DTO to repository.
 	 * 
 	 * @param entity
 	 * @return the saved DTO

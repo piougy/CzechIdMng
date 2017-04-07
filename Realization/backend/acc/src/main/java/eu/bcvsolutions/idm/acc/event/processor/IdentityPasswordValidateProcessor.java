@@ -24,7 +24,7 @@ import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
-import eu.bcvsolutions.idm.core.model.event.processor.IdentityPasswordProcessor;
+import eu.bcvsolutions.idm.core.model.event.processor.identity.IdentityPasswordProcessor;
 import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordPolicyService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordService;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;

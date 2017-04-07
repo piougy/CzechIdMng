@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.model.event.processor;
+package eu.bcvsolutions.idm.core.model.event.processor.identity;
 
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;

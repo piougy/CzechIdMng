@@ -44,7 +44,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleRequest;
 import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent;
 import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent.RoleRequestEventType;
-import eu.bcvsolutions.idm.core.model.event.processor.RoleRequestApprovalProcessor;
+import eu.bcvsolutions.idm.core.model.event.processor.role.RoleRequestApprovalProcessor;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;

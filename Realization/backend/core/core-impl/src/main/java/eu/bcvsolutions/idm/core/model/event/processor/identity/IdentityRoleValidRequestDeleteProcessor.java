@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.model.event.processor;
+package eu.bcvsolutions.idm.core.model.event.processor.identity;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;

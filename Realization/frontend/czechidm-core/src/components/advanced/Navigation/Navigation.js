@@ -398,15 +398,11 @@ Navigation.contextTypes = {
 };
 
 function select(state) {
-  let environment = ConfigurationManager.getPublicValue(state, 'idm.pub.app.stage');
-  if (environment) {
-    environment = environment.toLowerCase();
-  }
   return {
     navigation: state.config.get('navigation'),
     navigationCollapsed: state.config.get('navigationCollapsed'),
     selectedNavigationItems: state.config.get('selectedNavigationItems'),
-    environment,
+    environment: ConfigurationManager.getEnvironmentStage(state),
     userContext: state.security.userContext,
     i18nReady: state.config.get('i18nReady')
   };

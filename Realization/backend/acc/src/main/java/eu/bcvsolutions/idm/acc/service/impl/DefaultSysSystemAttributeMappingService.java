@@ -294,7 +294,12 @@ public class DefaultSysSystemAttributeMappingService
 	@Override
 	public SysSystemAttributeMapping getAuthenticationAttribute(UUID systemId) {
 		// authentication attribute is only from provisioning operation type
-		return this.repository.findAuthenticationAttribute(systemId, SystemOperationType.PROVISIONING);
+		SysSystemAttributeMapping attr = this.repository.findAuthenticationAttribute(systemId, SystemOperationType.PROVISIONING);
+		// defensive, if authentication attribute don't exists find attribute flagged as UID
+		if (attr == null) {
+			return this.repository.findUidAttribute(systemId, SystemOperationType.PROVISIONING);
+		}
+		return attr;
 	}
 
 }

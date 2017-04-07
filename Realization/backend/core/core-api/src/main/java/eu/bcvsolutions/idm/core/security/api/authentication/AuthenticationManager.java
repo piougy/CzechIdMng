@@ -25,12 +25,12 @@ public interface AuthenticationManager {
 	LoginDto authenticate(LoginDto loginDto);
 	
 	/**
-	 * Process authenticate over all founded {@link Authenticator},
+	 * Validate over all founded {@link Authenticator},
 	 * return true if authentication is success.
 	 * 
 	 * @param username
 	 * @param password
 	 * @return
 	 */
-	boolean authenticate(String username, GuardedString password);
+	boolean validate(String username, GuardedString password);
 }

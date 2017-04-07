@@ -71,6 +71,7 @@ public interface SysSystemAttributeMappingService extends ReadWriteEntityService
 	
 	/**
 	 * Method return {@link SysSystemAttributeMapping} for system id, that has flag for authentication attribute.
+	 * If this attribute don't exist, found attribute flagged as UID, this attribute must exists.
 	 * 
 	 * @param systemId
 	 * @return

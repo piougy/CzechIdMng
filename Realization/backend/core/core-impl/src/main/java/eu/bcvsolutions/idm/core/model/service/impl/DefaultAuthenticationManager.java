@@ -2,9 +2,9 @@ package eu.bcvsolutions.idm.core.model.service.impl;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
@@ -27,28 +27,30 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultAuthenticationManager.class);
 	
-	@Autowired
-	private ApplicationContext context;
+	private final List<Authenticator> authenticators;
 	
-	private List<Authenticator> authenticators;
+	@Autowired
+	public DefaultAuthenticationManager(List<Authenticator> authenticators) {
+		Assert.notNull(authenticators);
+		//
+		this.authenticators = authenticators;
+	}
 	
 	@Override
 	public LoginDto authenticate(LoginDto loginDto) {
-		// init authenticator
-		initAuthenticators();
-		
 		// authenticate
 		return autneticateOverAuthenticator(loginDto);
 	}
 	
 	/**
-	 * If authenticators is empty or null, init it again.
+	 * Get enabled {@link Authenticator} and sort by order
 	 */
-	private void initAuthenticators() {
-		// reload every time, dynamically disable/enable BE modules
-		this.authenticators = new LinkedList<>(this.context.getBeansOfType(Authenticator.class).values());
+	private List<Authenticator> getEnabledAuthenticators() {
+		// disable/enable BE modules
+		List<Authenticator> enabledAuthenticator = this.authenticators.stream().filter(auth -> !auth.isDisabled()).collect(Collectors.toList());
 		// sort by ordered
-		AnnotationAwareOrderComparator.sort(this.authenticators);
+		AnnotationAwareOrderComparator.sort(enabledAuthenticator);
+		return enabledAuthenticator;
 	}
 	
 	/**
@@ -62,7 +64,7 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 		List<LoginDto> resultsList = new LinkedList<>();
 		RuntimeException firstFailture = null;
 		//
-		for(Authenticator authenticator : authenticators) {
+		for(Authenticator authenticator : getEnabledAuthenticators()) {
 			LOG.debug("AuthenticationManager call authenticate by [{}].", authenticator.getName());
 			try {
 				LoginDto result = authenticator.authenticate(cloneLoginDto(loginDto));
@@ -70,14 +72,14 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 					// continue, authenticator is not implemented or etc.
 					continue;
 				}
-				if (authenticator.getResponse() == AuthenticationResponseEnum.SUFFICIENT) {
+				if (authenticator.getExceptedResult() == AuthenticationResponseEnum.SUFFICIENT) {
 					return result;
 				}
 				// if otherwise add result too list and continue
 				resultsList.add(result);
 			} catch (RuntimeException e) {
 				// if excepted response is REQUISITE exit immediately with error
-				if (authenticator.getResponse() == AuthenticationResponseEnum.REQUISITE) {
+				if (authenticator.getExceptedResult() == AuthenticationResponseEnum.REQUISITE) {
 					throw e;
 				}
 				// if otherwise save first failure into exception
@@ -110,7 +112,7 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 	}
 
 	@Override
-	public boolean authenticate(String username, GuardedString password) {
+	public boolean validate(String username, GuardedString password) {
 		LoginDto loginDto = new LoginDto();
 		loginDto.setUsername(username);
 		loginDto.setPassword(password);

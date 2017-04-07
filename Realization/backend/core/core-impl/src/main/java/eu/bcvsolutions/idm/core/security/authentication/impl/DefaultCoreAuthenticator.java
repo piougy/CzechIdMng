@@ -5,22 +5,28 @@ import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
+import eu.bcvsolutions.idm.core.security.api.authentication.AbstractAuthenticator;
 import eu.bcvsolutions.idm.core.security.api.authentication.Authenticator;
 import eu.bcvsolutions.idm.core.security.api.domain.AuthenticationResponseEnum;
+import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
 import eu.bcvsolutions.idm.core.security.service.LoginService;
 
 @Component
+@Enabled(CoreModuleDescriptor.MODULE_ID)
 @Description("Default authenticator, authenticate over password saved in IdmPassword.")
-public class DefaultCoreAuthenticator implements Authenticator {
-	
+public class DefaultCoreAuthenticator extends AbstractAuthenticator implements Authenticator {
+
 	private static final String AUTHENTICATOR_NAME = "core-authenticator";
 	
 	private final LoginService loginService;
 	
 	@Autowired
 	public DefaultCoreAuthenticator(LoginService loginService) {
+		super();
+		//
 		Assert.notNull(loginService);
 		//
 		this.loginService = loginService;
@@ -49,8 +55,7 @@ public class DefaultCoreAuthenticator implements Authenticator {
 	}
 
 	@Override
-	public AuthenticationResponseEnum getResponse() {
+	public AuthenticationResponseEnum getExceptedResult() {
 		return AuthenticationResponseEnum.SUFFICIENT;
 	}
-
 }

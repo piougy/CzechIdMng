@@ -46,9 +46,16 @@ public interface Authenticator extends Ordered {
 	LoginDto authenticate(LoginDto loginDto);
 	
 	/**
-	 * Authenticator excepted response to the result
+	 * Authenticator excepted result
 	 * 
 	 * @return
 	 */
-	AuthenticationResponseEnum getResponse();
-}	
+	AuthenticationResponseEnum getExceptedResult();
+	
+	/**
+	 * Return if authenticator is enabled by module
+	 * 
+	 * @return
+	 */
+	boolean isDisabled();
+}

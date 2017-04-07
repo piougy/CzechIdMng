@@ -56,4 +56,12 @@ public interface SysSystemAttributeMappingRepository extends AbstractEntityRepos
 			+ "AND "
 			+ "e.systemMapping.objectClass.system.id = :systemId ")
 	SysSystemAttributeMapping findAuthenticationAttribute(@Param("systemId") UUID systemId, @Param("operationType") SystemOperationType operationType);
+	
+	@Query("SELECT e FROM SysSystemAttributeMapping e WHERE "
+			+ "e.uid = true "
+			+ "AND "
+			+ "e.systemMapping.operationType = :operationType "
+			+ "AND "
+			+ "e.systemMapping.objectClass.system.id = :systemId ")
+	SysSystemAttributeMapping findUidAttribute(@Param("systemId") UUID systemId, @Param("operationType") SystemOperationType operationType);
 }

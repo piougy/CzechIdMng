@@ -12,6 +12,7 @@ import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
 
+import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
@@ -28,8 +29,10 @@ import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
+import eu.bcvsolutions.idm.core.security.api.authentication.AbstractAuthenticator;
 import eu.bcvsolutions.idm.core.security.api.authentication.Authenticator;
 import eu.bcvsolutions.idm.core.security.api.domain.AuthenticationResponseEnum;
+import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.core.security.api.dto.IdmJwtAuthenticationDto;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
@@ -51,8 +54,9 @@ import eu.bcvsolutions.idm.ic.impl.IcUidAttributeImpl;
  */
 
 @Component
+@Enabled(AccModuleDescriptor.MODULE_ID)
 @Description("ACC module authenticator, authenticate over system defined by properties.")
-public class DefaultAccAuthenticator implements Authenticator {
+public class DefaultAccAuthenticator extends AbstractAuthenticator implements Authenticator {
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultAccAuthenticator.class);
 	
@@ -146,6 +150,7 @@ public class DefaultAccAuthenticator implements Authenticator {
 		SysSystemAttributeMapping attribute = systemAttributeMappingService.getAuthenticationAttribute(system.getId());
 		//
 		if (attribute == null) {
+			// attribute MUST exist
 			throw new ResultCodeException(AccResultCode.AUTHENTICATION_AUTHENTICATION_ATTRIBUTE_DONT_SET,  ImmutableMap.of("name", system.getName()));
 		}
 		//
@@ -234,7 +239,7 @@ public class DefaultAccAuthenticator implements Authenticator {
 	}
 
 	@Override
-	public AuthenticationResponseEnum getResponse() {
+	public AuthenticationResponseEnum getExceptedResult() {
 		return AuthenticationResponseEnum.SUFFICIENT;
 	}
 

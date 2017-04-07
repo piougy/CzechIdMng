@@ -386,12 +386,12 @@ module.exports = {
         {
           path: 'entities/:entityId/diff/:revID',
           component: require('./src/content/audit/AuditDetail'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['NOTIFICATION_READ'] } ]
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUDIT_READ'] } ]
         },
         {
           path: 'entities/:entityId/diff',
           component: require('./src/content/audit/AuditDetail'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['NOTIFICATION_READ'] } ]
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUDIT_READ'] } ]
         }
       ]
     },

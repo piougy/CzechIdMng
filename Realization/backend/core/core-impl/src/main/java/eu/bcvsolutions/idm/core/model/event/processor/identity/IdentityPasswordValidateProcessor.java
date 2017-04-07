@@ -80,7 +80,7 @@ public class IdentityPasswordValidateProcessor extends CoreEventProcessor<IdmIde
 			//
 			if (oldPasswordRequired) {
 				// authentication trough chain 
-				boolean successChainAuthentication = authenticationManager.authenticate(identity.getUsername(), passwordChangeDto.getOldPassword());
+				boolean successChainAuthentication = authenticationManager.validate(identity.getUsername(), passwordChangeDto.getOldPassword());
 				if (!successChainAuthentication) {
 					throw new ResultCodeException(CoreResultCode.PASSWORD_CHANGE_CURRENT_FAILED_IDM);
 				}

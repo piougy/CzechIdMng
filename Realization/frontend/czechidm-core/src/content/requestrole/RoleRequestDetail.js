@@ -66,7 +66,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
   _initComponent(props) {
     const { entityId} = props;
     const _entityId = entityId ? entityId : props.params.entityId;
-    const adminMode = props.adminMode !== undefined ? props.adminMode : props.location.state.adminMode;
+    const adminMode = props.adminMode !== undefined ? props.adminMode : props.location.query.adminMode;
     if (this._getIsNew(props)) {
       this.setState({
         adminMode,
@@ -128,9 +128,9 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
     this.setState({showLoading: false});
     if (!error) {
       const {adminMode} = this.state;
-      this.addMessage({ message: this.i18n('save.success') });
+      // this.addMessage({ message: this.i18n('save.success') });
       if (this._getIsNew()) {
-        this.context.router.replace({pathname: `/role-requests/${entity.id}/detail`, param: {entityId: entity.id}, state: {adminMode}});
+        this.context.router.replace(`/role-requests/${entity.id}/detail?adminMode=${adminMode}`);
       }
     } else {
       this.addError(error);
@@ -400,7 +400,8 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
   render() {
     const { _showLoading, _request, _currentIdentityRoles, adminMode, editableInStates, showRequestDetail} = this.props;
 
-    const _adminMode = this.state.adminMode !== null ? this.state.adminMode : adminMode;
+    let _adminMode = this.state.adminMode !== null ? this.state.adminMode : adminMode;
+    _adminMode = _adminMode === 'true' ? true : false;
     const forceSearchParameters = new SearchParameters().setFilter('roleRequestId', _request ? _request.id : SearchParameters.BLANK_UUID);
     const isNew = this._getIsNew();
     const request = isNew ? this.state.request : _request;

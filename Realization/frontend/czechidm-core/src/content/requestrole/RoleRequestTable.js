@@ -33,7 +33,7 @@ class RoleRequestTable extends Advanced.AbstractTableContent {
     if (add) {
       createNewRequestFunc(entity);
     } else {
-      this.context.router.push({pathname: `/role-requests/${entity.id}/detail`, state: {adminMode}});
+      this.context.router.push(`/role-requests/${entity.id}/detail?adminMode=${adminMode}`);
     }
   }
 

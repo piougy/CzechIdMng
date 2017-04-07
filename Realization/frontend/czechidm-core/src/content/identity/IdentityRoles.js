@@ -218,7 +218,7 @@ class Roles extends Basic.AbstractContent {
         showLoading: false
       });
       const uuidId = uuid.v1();
-      this.context.router.push({pathname: `/role-requests/${uuidId}/new?new=1&applicantId=${json.id}`, state: {adminMode: false}});
+      this.context.router.push(`/role-requests/${uuidId}/new?new=1&applicantId=${json.id}&adminMode=${false}`);
     }).catch(ex => {
       this.setState({
         showLoading: false

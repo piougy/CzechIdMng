@@ -128,6 +128,7 @@ export class HistoricProcessInstanceTable extends Basic.AbstractContent {
           forceSearchParameters={forceSearchParameters}
           manager={workflowHistoricProcessInstanceManager}
           showRowSelection={false}
+          showId
           filter={this._filter()}
           filterOpened={filterOpened}>
 
@@ -151,7 +152,6 @@ export class HistoricProcessInstanceTable extends Basic.AbstractContent {
           <Advanced.Column property="startActivityId" sort={false} face="text" rendered={_.includes(columns, 'startActivityId')}/>
           <Advanced.Column property="deleteReason" sort={false} face="text" rendered={_.includes(columns, 'deleteReason')}/>
           <Advanced.Column property="superProcessInstanceId" sort={false} face="text" rendered={_.includes(columns, 'superProcessInstanceId')}/>
-          <Advanced.Column property="id" sort={false} face="text" rendered={_.includes(columns, 'id')}/>
         </Advanced.Table>
       </div>
     );

@@ -37,8 +37,6 @@ public class DefaultIdentityRoleValidRequestService
 		//
 		this.repository = repository;
 	}
-	
-	
 
 	@Override
 	public IdmIdentityRoleValidRequestDto createByIdentityRoleId(UUID identityRoleId) {
@@ -54,8 +52,6 @@ public class DefaultIdentityRoleValidRequestService
 		return this.save(dto);
 	}
 
-
-
 	@Override
 	public List<IdmIdentityRoleValidRequestDto> findAllValid() {
 		return this.findAllValidFrom(new DateTime());
@@ -66,21 +62,15 @@ public class DefaultIdentityRoleValidRequestService
 		return toDtos(this.repository.findAllValidFrom(from.toLocalDate()), true);
 	}
 
-
-
 	@Override
 	public List<IdmIdentityRoleValidRequestDto> findAllValidRequestForRoleId(UUID roleId) {
 		return toDtos(repository.findAllByIdentityRole_Id(roleId), true);
 	}
 
-
-
 	@Override
 	public List<IdmIdentityRoleValidRequestDto> findAllValidRequestForIdentityId(UUID identityId) {
 		return toDtos(repository.findAllByIdentityRole_IdentityContract_Identity_Id(identityId), true);
 	}
-
-
 
 	@Override
 	public void deleteAll(List<IdmIdentityRoleValidRequestDto> entities) {
@@ -91,15 +81,11 @@ public class DefaultIdentityRoleValidRequestService
 		}
 	}
 
-
-
 	@Override
 	public List<IdmIdentityRoleValidRequestDto> findAllValidRequestForIdentityRoleId(UUID identityRoleId) {
 		return toDtos(repository.findAllByIdentityRole_Id(identityRoleId), true);
 
 	}
-
-
 
 	@Override
 	public List<IdmIdentityRoleValidRequestDto> findAllValidRequestForIdentityContractId(

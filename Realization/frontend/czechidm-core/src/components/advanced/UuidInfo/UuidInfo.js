@@ -16,6 +16,19 @@ export default class UuidInfo extends Basic.AbstractContextComponent {
     super(props, context);
   }
 
+  /**
+   * Shortens given value, if value is type of string, returns value otherwise.
+   *
+   * @param  {object} value
+   * @return {string|object}
+   */
+  shorten(value) {
+    if (typeof value === 'string') {
+      return value.substring(0, MAX_UUID_LENGTH);
+    }
+    return value;
+  }
+
   render() {
     const { rendered, showLoading, value, style, className } = this.props;
     //
@@ -44,7 +57,7 @@ export default class UuidInfo extends Basic.AbstractContextComponent {
           <span
             className={ classNames }
             style={ style }>
-            <a href="#" onClick={ (e) => e.preventDefault() }>{ value.substring(0, MAX_UUID_LENGTH) }</a>
+            <a href="#" onClick={ (e) => e.preventDefault() }>{ this.shorten(value) }</a>
           </span>
         }
       </Basic.Popover>

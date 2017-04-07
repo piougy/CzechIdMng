@@ -7,6 +7,7 @@ import * as Basic from '../../basic';
 import * as Utils from '../../../utils';
 import Filter from '../Filter/Filter';
 import SearchParameters from '../../../domain/SearchParameters';
+import UuidInfo from '../UuidInfo/UuidInfo';
 
 /**
  * Table component with header and columns.
@@ -227,6 +228,14 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     return this.i18n('noData', { defaultValue: 'No record found' });
   }
 
+  _showId() {
+    const { showId } = this.props;
+    //
+    if (showId === null || showId === undefined) {
+      return this.isDevelopment();
+    }
+  }
+
   render() {
     const {
       _entities,
@@ -428,7 +437,22 @@ class AdvancedTable extends Basic.AbstractContextComponent {
               onRowSelect={this._onRowSelect.bind(this)}
               rowClass={_rowClass}
               noData={this.getNoData(noData)}>
+
               {renderedColumns}
+
+              <Basic.Column
+                header={ this.i18n('entity.id.label') }
+                property="id"
+                rendered={ this._showId() }
+                className="text-center"
+                width={ 100 }
+                cell={
+                  ({rowIndex, data, property}) => {
+                    return (
+                      <UuidInfo value={data[rowIndex][property]}/>
+                    );
+                  }
+                }/>
             </Basic.BasicTable.Table>
             <Basic.BasicTable.Pagination
               ref="pagination"
@@ -479,6 +503,10 @@ AdvancedTable.propTypes = {
    * Enable row selection - checkbox in first cell
    */
   showRowSelection: PropTypes.oneOfType([PropTypes.bool, PropTypes.func]),
+  /**
+   * Shows column with id. Default is id shown in Development stage.
+   */
+  showId: PropTypes.bool,
   /**
    * selected row indexes as immutable set
    */
@@ -546,6 +574,7 @@ AdvancedTable.defaultProps = {
   _error: null,
   pagination: true,
   showRowSelection: false,
+  showId: null,
   selectedRows: [],
   filterCollapsible: true,
   actions: [],

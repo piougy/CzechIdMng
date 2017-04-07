@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.model.event.processor;
+package eu.bcvsolutions.idm.core.model.event.processor.identity;
 
 import java.util.List;
 

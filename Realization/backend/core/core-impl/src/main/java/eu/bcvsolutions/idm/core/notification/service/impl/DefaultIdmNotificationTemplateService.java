@@ -14,6 +14,8 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
+import org.apache.velocity.tools.generic.DateTool;
+import org.apache.velocity.tools.generic.DisplayTool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.Resource;
@@ -167,6 +169,9 @@ public class DefaultIdmNotificationTemplateService
 		String subjectString = template != null ? template.getSubject() : message.getSubject();
 		// Same parameters for all (html, txt, subject)
 		VelocityContext velocityContext = getContext(parameters);
+		// include some tools from Apache velocity - http://velocity.apache.org/tools/devel/generic.html#tools
+		velocityContext.put("display", new DisplayTool());
+		velocityContext.put("date", new DateTool());
 		// TODO: get from DataSource?
 		velocityEngine.evaluate(velocityContext, bodyHtml, template.getCode(), html);
 		velocityEngine.evaluate(velocityContext, bodyText, template.getCode(), text);

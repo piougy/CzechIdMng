@@ -381,7 +381,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
             ref="identityRoleConceptTable"
             uiKey="identity-role-concept-table"
             showLoading={showLoading}
-            classNameBasicTable="verticalScrollTable"
+            className="vertical-scroll"
             readOnly={!isEditable}
             identityUsername={request && request.applicant}
             identityRoles={_currentIdentityRoles}

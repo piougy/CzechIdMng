@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.acc.scheduler.task.impl;
+package eu.bcvsolutions.idm.core.scheduler.task.impl;
 
 import java.util.List;
 

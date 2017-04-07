@@ -59,7 +59,7 @@ public class IdentityRoleValidRequestProvisioningProcessor extends AbstractEntit
 		IdmIdentityRole identityRole = identityRoleService.get(identityRoleId);
 		//
 		if (identityRole == null) {
-			LOG.error("[IdentityRoleValidRequestProvisioningProcessor] Identity role isn't exists for identity role valid request id: [{0}]", event.getContent().getId());
+			LOG.warn("[IdentityRoleValidRequestProvisioningProcessor] Identity role isn't exists for identity role valid request id: [{0}]", event.getContent().getId());
 			return new DefaultEventResult<>(event, this);
 		}
 		//
@@ -74,7 +74,7 @@ public class IdentityRoleValidRequestProvisioningProcessor extends AbstractEntit
 			}
 			//
 		} else {
-			LOG.error("[IdentityRoleValidRequestProvisioningProcessor] Identity contract isn't exists for identity role valid request id: [{0}]", event.getContent().getId());
+			LOG.warn("[IdentityRoleValidRequestProvisioningProcessor] Identity contract isn't exists for identity role valid request id: [{0}]", event.getContent().getId());
 		}
 		//
 		return new DefaultEventResult<>(event, this);

@@ -23,8 +23,8 @@ import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
-import eu.bcvsolutions.idm.core.model.event.processor.IdentityContractDeleteProcessor;
-import eu.bcvsolutions.idm.core.model.event.processor.IdentityContractSaveProcessor;
+import eu.bcvsolutions.idm.core.model.event.processor.identity.IdentityContractDeleteProcessor;
+import eu.bcvsolutions.idm.core.model.event.processor.identity.IdentityContractSaveProcessor;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeTypeRepository;
@@ -174,9 +174,12 @@ public class DefaultIdmIdentityContractService
 			if (contract.isMain()) {
 				return contract;
 			}
-			IdmTreeNode workPosition = contract.getWorkPosition();
-			if (primeContract == null || (workPosition != null && defaultTreeType != null && defaultTreeType.equals(workPosition.getTreeType()))) {
+			if (primeContract == null) {
 				primeContract = contract;
+			}
+			IdmTreeNode workPosition = contract.getWorkPosition();
+			if (workPosition != null && defaultTreeType != null && defaultTreeType.equals(workPosition.getTreeType())) {
+				return contract;
 			}
 		}
 		return primeContract;

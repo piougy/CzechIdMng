@@ -18,6 +18,7 @@ import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
+import eu.bcvsolutions.idm.core.api.utils.SpinalCase;
 import eu.bcvsolutions.idm.core.security.api.service.EnabledEvaluator;
 
 /**
@@ -70,7 +71,7 @@ public abstract class AbstractEntityEventProcessor<E extends Serializable> imple
 			// TODO: inline classes ...
 			return null;
 		}
-		return name;
+		return SpinalCase.format(name);
 	}
 	
 	@Override
@@ -86,8 +87,8 @@ public abstract class AbstractEntityEventProcessor<E extends Serializable> imple
 	@Override
 	public boolean supports(EntityEvent<?> entityEvent) {
 		Assert.notNull(entityEvent);
-		Assert.notNull(entityEvent.getContent(), "EntityeEvent does not contain content, content is required!");
-		
+		Assert.notNull(entityEvent.getContent(), "Entity event does not contain content, content is required!");
+		//
 		return entityEvent.getContent().getClass().isAssignableFrom(entityClass)
 				&& (types.isEmpty() || types.contains(entityEvent.getType().name()));
 	}

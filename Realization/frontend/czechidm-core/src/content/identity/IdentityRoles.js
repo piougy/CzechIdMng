@@ -7,6 +7,7 @@ import { Link } from 'react-router';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
+import * as Utils from '../../utils';
 import SearchParameters from '../../domain/SearchParameters';
 import { IdentityRoleManager, IdentityContractManager, IdentityManager, RoleManager, RoleTreeNodeManager, WorkflowProcessInstanceManager, DataManager, SecurityManager, RoleRequestManager } from '../../redux';
 import RoleRequestTable from '../requestrole/RoleRequestTable';
@@ -343,8 +344,9 @@ class Roles extends Basic.AbstractContent {
                 <Basic.Table
                   data={entities}
                   showRowSelection={false}
-                  classNameBasicTable="verticalScrollTable"
-                  noData={this.i18n('component.basic.Table.noData')}>
+                  className="vertical-scroll"
+                  noData={this.i18n('component.basic.Table.noData')}
+                  rowClass={({rowIndex, data}) => { return Utils.Ui.getRowClass(data[rowIndex]); }}>
                   <Basic.Column
                     header=""
                     className="detail-button"
@@ -362,6 +364,7 @@ class Roles extends Basic.AbstractContent {
                     header={this.i18n('entity.IdentityRole.identityContract.title')}
                     property="identityContract"
                     cell={
+                      /* eslint-disable react/no-multi-comp */
                       ({rowIndex, data, property}) => {
                         return (
                           <span>{ identityContractManager.getNiceLabel(data[rowIndex][property], false) }</span>
@@ -382,164 +385,176 @@ class Roles extends Basic.AbstractContent {
                     header={this.i18n('label.validTill')}
                     cell={<Basic.DateCell format={this.i18n('format.date')}/>}/>
 
-                    <Basic.Column
-                      header={<Basic.Cell className="column-face-bool">{this.i18n('entity.IdentityRole.roleTreeNode.label')}</Basic.Cell>}
-                      cell={
-                        /* eslint-disable react/no-multi-comp */
-                        ({ rowIndex, data }) => {
-                          return (
-                            <Basic.BooleanCell propertyValue={ data[rowIndex].roleTreeNode !== null } className="column-face-bool"/>
-                          );
-                        }
+                  <Basic.Column
+                    header={<Basic.Cell className="column-face-bool">{this.i18n('entity.IdentityRole.roleTreeNode.label')}</Basic.Cell>}
+                    cell={
+                      /* eslint-disable react/no-multi-comp */
+                      ({ rowIndex, data }) => {
+                        return (
+                          <Basic.BooleanCell propertyValue={ data[rowIndex].roleTreeNode !== null } className="column-face-bool"/>
+                        );
                       }
-                      width="150px"/>
-                  </Basic.Table>
-                </div>
-              }
-            </Basic.Panel>
-
-            <Basic.Panel style={{display: hasRoleConcepts ? 'block' : 'none'}}>
-              <Basic.PanelHeader text={this.i18n('conceptPermissionRequests.header')}/>
-                <RoleRequestTable
-                  ref="conceptTable"
-                  uiKey={uiKeyConceptTable}
-                  showFilter={false}
-                  adminMode={false}
-                  showLoading={_showLoading}
-                  forceSearchParameters={conceptsForceSearch}
-                  columns={['state', 'created', 'modified', 'detail']}
-                  manager={roleRequestManager}/>
-            </Basic.Panel>
-
-            <Basic.Panel>
-              <Basic.PanelHeader text={this.i18n('changePermissionRequests.header')}/>
-                <RoleRequestTable
-                  ref="requestTable"
-                  uiKey={'table-applicant-requests'}
-                  showFilter={false}
-                  adminMode={false}
-                  showLoading={_showLoading}
-                  forceSearchParameters={roleRequestsForceSearch}
-                  columns={['state', 'created', 'modified', 'wf', 'detail']}
-                  manager={roleRequestManager}/>
-            </Basic.Panel>
-
-            <Basic.Panel>
-              <Basic.PanelHeader text={this.i18n('changeRoleProcesses.header')}/>
-              <Advanced.Table
-                ref="tableProcesses"
-                uiKey="table-processes"
-                rowClass={this._rowClass}
-                forceSearchParameters={force}
-                manager={workflowProcessInstanceManager}
-                pagination={false}>
-                <Advanced.Column
-                  property="detail"
-                  cell={
-                    ({ rowIndex, data }) => {
-                      return (
-                        <Advanced.DetailButton
-                          title={this.i18n('button.detail')}
-                          onClick={this.showProcessDetail.bind(this, data[rowIndex])}/>
-                      );
                     }
+                    width="150px"/>
+                  <Basic.Column
+                    header={ this.i18n('entity.id.label') }
+                    property="id"
+                    rendered={ this.isDevelopment() }
+                    className="text-center"
+                    cell={
+                      ({rowIndex, data, property}) => {
+                        return (
+                          <Advanced.UuidInfo value={data[rowIndex][property]}/>
+                        );
+                      }
+                    }/>
+                </Basic.Table>
+              </div>
+            }
+          </Basic.Panel>
+
+          <Basic.Panel style={{display: hasRoleConcepts ? 'block' : 'none'}}>
+            <Basic.PanelHeader text={this.i18n('conceptPermissionRequests.header')}/>
+              <RoleRequestTable
+                ref="conceptTable"
+                uiKey={uiKeyConceptTable}
+                showFilter={false}
+                adminMode={false}
+                showLoading={_showLoading}
+                forceSearchParameters={conceptsForceSearch}
+                columns={['state', 'created', 'modified', 'detail']}
+                manager={roleRequestManager}/>
+          </Basic.Panel>
+
+          <Basic.Panel>
+            <Basic.PanelHeader text={this.i18n('changePermissionRequests.header')}/>
+              <RoleRequestTable
+                ref="requestTable"
+                uiKey={'table-applicant-requests'}
+                showFilter={false}
+                adminMode={false}
+                showLoading={_showLoading}
+                forceSearchParameters={roleRequestsForceSearch}
+                columns={['state', 'created', 'modified', 'wf', 'detail']}
+                manager={roleRequestManager}/>
+          </Basic.Panel>
+
+          <Basic.Panel>
+            <Basic.PanelHeader text={this.i18n('changeRoleProcesses.header')}/>
+            <Advanced.Table
+              ref="tableProcesses"
+              uiKey="table-processes"
+              rowClass={this._rowClass}
+              forceSearchParameters={force}
+              manager={workflowProcessInstanceManager}
+              pagination={false}>
+              <Advanced.Column
+                property="detail"
+                cell={
+                  ({ rowIndex, data }) => {
+                    return (
+                      <Advanced.DetailButton
+                        title={this.i18n('button.detail')}
+                        onClick={this.showProcessDetail.bind(this, data[rowIndex])}/>
+                    );
                   }
-                  header={' '}
-                  sort={false}
-                  face="text"/>
-                <Advanced.Column
-                  property="currentActivityName"
-                  header={this.i18n('content.roles.processRoleChange.currentActivity')}
-                  sort={false}
-                  face="text"/>
-                <Advanced.Column
-                  property="processVariables.conceptRole.role"
-                  cell={this._roleNameCell.bind(this)}
-                  header={this.i18n('content.roles.processRoleChange.roleName')}
-                  sort={false}
-                  face="text"/>
-                <Advanced.Column
-                  property="processVariables.conceptRole.validFrom"
-                  header={this.i18n('content.roles.processRoleChange.roleValidFrom')}
-                  sort={false}
-                  face="date"/>
-                <Advanced.Column
-                  property="processVariables.conceptRole.validTill"
-                  header={this.i18n('content.roles.processRoleChange.roleValidTill')}
-                  sort={false}
-                  face="date"/>
-                <Advanced.Column
-                  property="id"
-                  cell={this._getWfProcessCell}
-                  header={this.i18n('label.id')}
-                  sort={false}
-                  face="text"/>
-              </Advanced.Table>
-            </Basic.Panel>
-            <Basic.Modal
-              bsSize="default"
-              show={detail.show}
-              onHide={this.closeDetail.bind(this)}
-              backdrop="static"
-              keyboard={!_showLoading}>
+                }
+                header={' '}
+                sort={false}
+                face="text"/>
+              <Advanced.Column
+                property="currentActivityName"
+                header={this.i18n('content.roles.processRoleChange.currentActivity')}
+                sort={false}
+                face="text"/>
+              <Advanced.Column
+                property="processVariables.conceptRole.role"
+                cell={this._roleNameCell.bind(this)}
+                header={this.i18n('content.roles.processRoleChange.roleName')}
+                sort={false}
+                face="text"/>
+              <Advanced.Column
+                property="processVariables.conceptRole.validFrom"
+                header={this.i18n('content.roles.processRoleChange.roleValidFrom')}
+                sort={false}
+                face="date"/>
+              <Advanced.Column
+                property="processVariables.conceptRole.validTill"
+                header={this.i18n('content.roles.processRoleChange.roleValidTill')}
+                sort={false}
+                face="date"/>
+              <Advanced.Column
+                property="id"
+                cell={this._getWfProcessCell}
+                header={this.i18n('label.id')}
+                sort={false}
+                face="text"/>
+            </Advanced.Table>
+          </Basic.Panel>
+          <Basic.Modal
+            bsSize="default"
+            show={detail.show}
+            onHide={this.closeDetail.bind(this)}
+            backdrop="static"
+            keyboard={!_showLoading}>
 
-              <form onSubmit={this.save.bind(this)}>
-                <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('create.header')} rendered={detail.entity.id === undefined}/>
-                <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('edit.header', { role: roleManager.getNiceLabel(detail.entity.role) })} rendered={detail.entity.id !== undefined}/>
-                <Basic.Modal.Body>
-                  <Basic.AbstractForm ref="form" showLoading={_showLoading} readOnly={!TEST_ADD_ROLE_DIRECTLY}>
-                    <Basic.TextField
-                      label={this.i18n('entity.IdentityRole.identityContract.label')}
-                      helpBlock={this.i18n('entity.IdentityRole.identityContract.help')}
-                      value={ identityContractManager.getNiceLabel(detail.entity.identityContract) }
-                      readOnly={!TEST_ADD_ROLE_DIRECTLY}
-                      required/>
-                    <Basic.SelectBox
-                      ref="role"
-                      manager={roleManager}
-                      label={this.i18n('entity.IdentityRole.role')}
-                      required/>
-                    <Basic.LabelWrapper
-                      label={this.i18n('entity.IdentityRole.roleTreeNode.label')}
-                      helpBlock={this.i18n('entity.IdentityRole.roleTreeNode.help')}>
-                      { roleTreeNodeManager.getNiceLabel(detail.entity.roleTreeNode) }
-                    </Basic.LabelWrapper>
-                    <Basic.Row>
-                      <div className="col-md-6">
-                        <Basic.DateTimePicker
-                          mode="date"
-                          ref="validFrom"
-                          label={this.i18n('label.validFrom')}/>
-                      </div>
-                      <div className="col-md-6">
-                        <Basic.DateTimePicker
-                          mode="date"
-                          ref="validTill"
-                          label={this.i18n('label.validTill')}/>
-                      </div>
-                    </Basic.Row>
-                  </Basic.AbstractForm>
-                </Basic.Modal.Body>
+            <form onSubmit={this.save.bind(this)}>
+              <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('create.header')} rendered={detail.entity.id === undefined}/>
+              <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('edit.header', { role: roleManager.getNiceLabel(detail.entity.role) })} rendered={detail.entity.id !== undefined}/>
+              <Basic.Modal.Body>
+                <Basic.AbstractForm ref="form" showLoading={_showLoading} readOnly={!TEST_ADD_ROLE_DIRECTLY}>
+                  <Basic.TextField
+                    label={this.i18n('entity.IdentityRole.identityContract.label')}
+                    helpBlock={this.i18n('entity.IdentityRole.identityContract.help')}
+                    value={ identityContractManager.getNiceLabel(detail.entity.identityContract) }
+                    readOnly={!TEST_ADD_ROLE_DIRECTLY}
+                    required/>
+                  <Basic.SelectBox
+                    ref="role"
+                    manager={roleManager}
+                    label={this.i18n('entity.IdentityRole.role')}
+                    required/>
+                  <Basic.LabelWrapper
+                    label={this.i18n('entity.IdentityRole.roleTreeNode.label')}
+                    helpBlock={this.i18n('entity.IdentityRole.roleTreeNode.help')}>
+                    { roleTreeNodeManager.getNiceLabel(detail.entity.roleTreeNode) }
+                  </Basic.LabelWrapper>
+                  <Basic.Row>
+                    <div className="col-md-6">
+                      <Basic.DateTimePicker
+                        mode="date"
+                        ref="validFrom"
+                        label={this.i18n('label.validFrom')}/>
+                    </div>
+                    <div className="col-md-6">
+                      <Basic.DateTimePicker
+                        mode="date"
+                        ref="validTill"
+                        label={this.i18n('label.validTill')}/>
+                    </div>
+                  </Basic.Row>
+                </Basic.AbstractForm>
+              </Basic.Modal.Body>
 
-                <Basic.Modal.Footer>
-                  <Basic.Button
-                    level="link"
-                    onClick={this.closeDetail.bind(this)}
-                    showLoading={_showLoading}>
-                    {this.i18n('button.close')}
-                  </Basic.Button>
-                  <Basic.Button
-                    type="submit"
-                    level="success"
-                    showLoading={_showLoading}
-                    showLoadingIcon
-                    showLoadingText={this.i18n('button.saving')}
-                    rendered={TEST_ADD_ROLE_DIRECTLY}>
-                    {this.i18n('button.save')}
-                  </Basic.Button>
-                </Basic.Modal.Footer>
-              </form>
-            </Basic.Modal>
+              <Basic.Modal.Footer>
+                <Basic.Button
+                  level="link"
+                  onClick={this.closeDetail.bind(this)}
+                  showLoading={_showLoading}>
+                  {this.i18n('button.close')}
+                </Basic.Button>
+                <Basic.Button
+                  type="submit"
+                  level="success"
+                  showLoading={_showLoading}
+                  showLoadingIcon
+                  showLoadingText={this.i18n('button.saving')}
+                  rendered={TEST_ADD_ROLE_DIRECTLY}>
+                  {this.i18n('button.save')}
+                </Basic.Button>
+              </Basic.Modal.Footer>
+            </form>
+          </Basic.Modal>
         </div>
       );
     }

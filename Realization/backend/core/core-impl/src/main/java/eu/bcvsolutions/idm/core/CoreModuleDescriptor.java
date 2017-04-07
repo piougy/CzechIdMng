@@ -8,7 +8,9 @@ import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.core.api.domain.AbstractModuleDescriptor;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
+import eu.bcvsolutions.idm.core.notification.api.dto.NotificationConfigurationDto;
 import eu.bcvsolutions.idm.core.notification.domain.NotificationGroupPermission;
+import eu.bcvsolutions.idm.core.notification.entity.IdmEmailLog;
 import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
 
@@ -22,6 +24,9 @@ import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
 public class CoreModuleDescriptor extends AbstractModuleDescriptor {
 
 	public static final String MODULE_ID = "core";
+	public static final String CHANGE_IDENTITY_ROLES = String.format("%s:changeIdentityRole", MODULE_ID);
+	public static final String DISAPPROVE_IDENTITY_ROLES = String.format("%s:disapproveIdentityRole", MODULE_ID);
+	public static final String RETURN_REQUEST_IDENTITY_ROLES = String.format("%s:returnRequestIdentityRole", MODULE_ID);
 	
 	@Override
 	public String getId() {
@@ -45,4 +50,19 @@ public class CoreModuleDescriptor extends AbstractModuleDescriptor {
 		return groupPermissions;
 	}
 	
+	@Override
+	public List<NotificationConfigurationDto> getDefaultNotificationConfigurations() {
+		List<NotificationConfigurationDto> configs = new ArrayList<>();
+		//
+		configs.add(new NotificationConfigurationDto(CHANGE_IDENTITY_ROLES, null, IdmEmailLog.NOTIFICATION_TYPE,
+				"This message contains information about result WF (change identity roles).", "changeIdentityRole"));
+		//
+		configs.add(new NotificationConfigurationDto(DISAPPROVE_IDENTITY_ROLES, null, IdmEmailLog.NOTIFICATION_TYPE,
+				"This message contains information about disapprove role request.", "disapproveIdentityRole"));
+		//
+		configs.add(new NotificationConfigurationDto(RETURN_REQUEST_IDENTITY_ROLES, null, IdmEmailLog.NOTIFICATION_TYPE,
+				"This message contains information about return role request.", "returnRequestIdentityRole"));
+		//
+		return configs;
+	}
 }

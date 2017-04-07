@@ -141,24 +141,24 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 				identityRole.setRole(existsSuperAdminRole);
 				identityRoleService.save(identityRole);
 			}
-			// create Node type for organization
-			
+			//
+			// create Node type for organization			
 			IdmTreeType treeType = treeTypeService.getByCode(DEFAULT_TREE_TYPE);
-			if (treeType == null) {
+			if (treeType == null && this.treeTypeService.find(new PageRequest(0, 1)).getTotalElements() == 0) {
 				treeType = new IdmTreeType();
 				treeType.setCode(DEFAULT_TREE_TYPE);
 				treeType.setName("Organization structure");
 				treeType.setDefaultTreeType(true);
 				this.treeTypeService.save(treeType);
-			}
-			//
-			// create organization root
-			if (treeNodeService.findRoots(treeType.getId(), new PageRequest(0, 1)).getTotalElements() == 0) {
-				IdmTreeNode organizationRoot = new IdmTreeNode();
-				organizationRoot.setCode("root");
-				organizationRoot.setName("Root organization");
-				organizationRoot.setTreeType(treeType);
-				organizationRoot = this.treeNodeService.save(organizationRoot);
+				//
+				// create organization root
+				if (treeNodeService.findRoots(treeType.getId(), new PageRequest(0, 1)).getTotalElements() == 0) {
+					IdmTreeNode organizationRoot = new IdmTreeNode();
+					organizationRoot.setCode("root");
+					organizationRoot.setName("Root organization");
+					organizationRoot.setTreeType(treeType);
+					organizationRoot = this.treeNodeService.save(organizationRoot);
+				}
 			}
 			// save only missing templates, current templates is not redeploys
 			notificationTemplateService.initSystemTemplates();

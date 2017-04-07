@@ -372,7 +372,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
   }
 
   render() {
-    const { showLoading, identityUsername, readOnly, classNameBasicTable} = this.props;
+    const { showLoading, identityUsername, readOnly, className } = this.props;
     const { conceptData, detail } = this.state;
     //
     return (
@@ -397,7 +397,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
           showLoading={showLoading}
           data={conceptData}
           rowClass={this._rowClass}
-          classNameBasicTable={classNameBasicTable}
+          className={className}
           showRowSelection={false}
           noData={this.i18n('component.basic.Table.noData')}>
           <Basic.Column
@@ -537,7 +537,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
 RoleConceptTable.propTypes = {
   uiKey: PropTypes.string.isRequired,
   identityUsername: PropTypes.string.isRequired,
-  classNameBasicTable: PropTypes.string
+  className: PropTypes.string
 };
 
 RoleConceptTable.defaultProps = {

@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.model.event.processor;
+package eu.bcvsolutions.idm.core.model.event.processor.role;
 
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.model.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.model.event.RoleTreeNodeEvent.RoleTreeNodeEventType;
+import eu.bcvsolutions.idm.core.model.event.processor.AbstractApprovableEventProcessor;
 
 /**
  * Approve automatic role.
@@ -14,13 +15,13 @@ import eu.bcvsolutions.idm.core.model.event.RoleTreeNodeEvent.RoleTreeNodeEventT
  *
  */
 @Component
-@Description("Approve detele automatic role.")
-public class RoleTreeNodeDeleteApproveProcessor extends AbstractApprovableEventProcessor<IdmRoleTreeNodeDto> {
+@Description("Approve create automatic role.")
+public class RoleTreeNodeCreateApproveProcessor extends AbstractApprovableEventProcessor<IdmRoleTreeNodeDto> {
 	
-	public static final String PROCESSOR_NAME = "role-tree-node-delete-approve-processor";
-	
-	public RoleTreeNodeDeleteApproveProcessor() {
-		super(RoleTreeNodeEventType.DELETE);
+	public static final String PROCESSOR_NAME = "role-tree-node-create-approve-processor";
+
+	public RoleTreeNodeCreateApproveProcessor() {
+		super(RoleTreeNodeEventType.CREATE); // update is not supported
 	}
 	
 	@Override

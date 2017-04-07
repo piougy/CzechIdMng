@@ -1,0 +1,48 @@
+<?xml version = "1.0" encoding = "UTF-8" standalone = "yes"?>
+<!-- 
+Notification with result WF with information about returned request
+
+parameters:
+	-	managerDescription
+	-	url
+	-	from
+ -->
+
+<template>
+	<name>Send result WF - Return request</name>
+	<code>returnRequestIdentityRole</code>
+	<subject>CzechIdMng v7 - Vrácení žadateli</subject>
+	<bodyHtml>
+<![CDATA[
+<html>
+<body>
+Dobrý den,<br />
+<br />
+Vaše žádnost ze dne $from Vám byla vrácena k přepracování. Odkaz žádosti: <a href='$url'>$url</a><br />
+<br />
+Poznámka vedoucího:<br />
+<b>$managerDescription</b><br />
+<br />
+<br />
+S pozdravem BCV Solutions s.r.o.
+<br />
+<br />
+-------------------------------------------------------------------------------------<br />
+Hello,<br />
+<br />
+Your request dated $from was returned for revision. Request url: <a href='$url'>$url</a><br />
+<br />
+Manager's note:<br />
+<b>$managerDescription</b><br />
+<br />
+<br />
+Regards BCV Solutions Ltd.
+</body>
+</html>
+]]>
+	</bodyHtml>
+	<bodyText></bodyText>
+	<parameter>managerDescription, from, url</parameter>
+	<systemTemplate>true</systemTemplate>
+	<moduleId>core</moduleId>
+</template>

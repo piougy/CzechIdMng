@@ -381,13 +381,13 @@ module.exports = {
             'id': 'modules',
             'labelKey': 'content.system.modules.title',
             'order': 50,
-            'path': '/modules/fe-modules',
+            'path': '/modules/be-modules',
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['MODULE_READ'] } ],
             'items': [
               {
                 'id': 'fe-modules',
                 'labelKey': 'content.system.fe-modules.title',
-                'order': 10,
+                'order': 20,
                 'path': '/modules/fe-modules',
                 'icon': '',
                 'type': 'TAB',
@@ -396,7 +396,7 @@ module.exports = {
               {
                 'id': 'be-modules',
                 'labelKey': 'content.system.be-modules.title',
-                'order': 20,
+                'order': 10,
                 'path': '/modules/be-modules',
                 'icon': '',
                 'type': 'TAB',

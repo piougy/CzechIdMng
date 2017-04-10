@@ -41,8 +41,8 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements LongRunningT
 	//
 	private ParameterConverter parameterConverter;	
 	private UUID taskId;
-	protected Long count = null;
-	protected Long counter = null;
+	public Long count = null;
+	public Long counter = null;
 	
 	/**
 	 * Default implementation returns module by package conventions.

@@ -47,7 +47,7 @@ public class IdentityDeleteProcessor extends AbstractEntityEventProcessor<IdmIde
 		IdentityAccountFilter filter = new IdentityAccountFilter();
 		filter.setIdentityId(event.getContent().getId());
 		identityAccountService.find(filter, null).forEach(identityAccount -> {
-			identityAccountService.delete(identityAccount);
+			identityAccountService.delete(identityAccountService.toDto(identityAccount, null));
 		});
 		return new DefaultEventResult<>(event, this);
 	}

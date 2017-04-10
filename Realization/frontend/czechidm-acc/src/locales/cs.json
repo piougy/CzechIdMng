@@ -734,7 +734,8 @@
   "enums" : {
     "SystemEntityTypeEnum": {
       "IDENTITY": "Identita",
-      "GROUP": "Skupina"
+      "GROUP": "Skupina",
+      "TREE": "Strom"
     },
     "SystemOperationTypeEnum": {
       "PROVISIONING": "Provisioning",

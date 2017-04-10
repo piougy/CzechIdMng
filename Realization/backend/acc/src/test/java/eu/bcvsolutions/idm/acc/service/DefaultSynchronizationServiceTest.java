@@ -31,6 +31,7 @@ import eu.bcvsolutions.idm.acc.domain.SynchronizationMissingEntityActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationUnlinkedActionType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
+import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SyncActionLogFilter;
@@ -40,7 +41,6 @@ import eu.bcvsolutions.idm.acc.dto.filter.SynchronizationLogFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
-import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
 import eu.bcvsolutions.idm.acc.entity.SysSyncActionLog;
@@ -589,6 +589,7 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		List<SysSyncLog> logs = syncLogService.find(logFilter, null).getContent();
 		Assert.assertEquals(1, logs.size());
 		SysSyncLog log = logs.get(0);
+		log.getSyncActionLogs();
 		Assert.assertFalse(log.isRunning());
 		Assert.assertFalse(log.isContainsError());
 
@@ -723,10 +724,10 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		accountOne.setAccountType(AccountType.PERSONAL);
 		accountOne = accountService.save(accountOne);
 
-		AccIdentityAccount accountIdentityOne = new AccIdentityAccount();
-		accountIdentityOne.setIdentity(identity);
+		AccIdentityAccountDto accountIdentityOne = new AccIdentityAccountDto();
+		accountIdentityOne.setIdentity(identity.getId());
 		accountIdentityOne.setOwnership(true);
-		accountIdentityOne.setAccount(accountOne);
+		accountIdentityOne.setAccount(accountOne.getId());
 
 		accountIdentityOne = identityAccoutnService.save(accountIdentityOne);
 

@@ -12,9 +12,9 @@ import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.acc.domain.AccountType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
+import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.filter.RoleSystemFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
-import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
@@ -80,9 +80,9 @@ public class CoreReferentialIntegrityIntegrationTest extends AbstractIntegration
 		account.setUid("test_uid_" + System.currentTimeMillis());
 		account.setAccountType(AccountType.PERSONAL);
 		account = accountService.save(account);
-		AccIdentityAccount identityAccount = new AccIdentityAccount();  
-		identityAccount.setIdentity(identity);
-		identityAccount.setAccount(account);
+		AccIdentityAccountDto identityAccount = new AccIdentityAccountDto();  
+		identityAccount.setIdentity(identity.getId());
+		identityAccount.setAccount(account.getId());
 		identityAccount.setOwnership(true);
 		identityAccount = identityAccountService.save(identityAccount);
 		

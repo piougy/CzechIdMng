@@ -2527,7 +2527,12 @@
       "message": "Record with this name already exists."
     },
     "IDENTITY_NOT_FOUND": {
+      "title": "Not found",
       "message": "Identity [{{identity}}] does not exist"
+    },
+    "NOT_FOUND": {
+      "title": "Not found",
+      "message": "Record [{{entity}}] not found"
     },
     "MODULE_NOT_DISABLEABLE": {
       "title": "Module [{{module}}] cannot be disabled",

@@ -2559,7 +2559,12 @@
       "message": "Záznam s tímto jménem již existuje."
     },
     "IDENTITY_NOT_FOUND": {
+      "title": "Nenalezeno",
       "message": "Identita [{{identity}}] neexistuje"
+    },
+    "NOT_FOUND": {
+      "title": "Nenalezeno",
+      "message": "Záznam [{{entity}}] nebyl nalezen"
     },
     "MODULE_NOT_DISABLEABLE": {
       "title": "Modul [{{module}}] není možné disablovat",

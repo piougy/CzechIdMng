@@ -25,7 +25,9 @@ public interface IdmAuthorizationPolicyRepository extends AbstractEntityReposito
 	        " where"
 	        + " (?#{[0].roleId} is null or e.role.id = ?#{[0].roleId})"
 	        + " and"
-	        + " (?#{[0].disabled} is null or e.disabled = ?#{[0].disabled})")
+	        + " (?#{[0].disabled} is null or e.disabled = ?#{[0].disabled})"
+	        + " and"
+	        + " (?#{[0].authorizableType} is null or e.authorizableType is null or e.authorizableType = ?#{[0].authorizableType})")
 	Page<IdmAuthorizationPolicy> find(AuthorizationPolicyFilter filter, Pageable pageable);
 	
 	/**

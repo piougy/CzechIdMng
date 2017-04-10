@@ -66,12 +66,6 @@ export default class AbstractService {
     return RestApiService
       .get(this.getApiPath() + `/${encodeURIComponent(id)}`)
       .then(response => {
-        if (response.status === 403) {
-          throw new Error(403);
-        }
-        if (response.status === 404) {
-          throw new Error(404);
-        }
         return response.json();
       })
       .then(json => {

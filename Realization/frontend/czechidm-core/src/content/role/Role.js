@@ -5,18 +5,21 @@ import * as Basic from '../../components/basic';
 import { RoleManager } from '../../redux';
 import * as Advanced from '../../components/advanced';
 
-
 const manager = new RoleManager();
 
+/**
+ * Role's tab panel
+ *
+ * @author Radek Tomiška
+ */
 class Role extends Basic.AbstractContent {
 
   componentDidMount() {
     const { entityId } = this.props.params;
     //
-    this.context.store.dispatch(manager.fetchEntityIfNeeded(entityId));
-  }
-
-  componentDidUpdate() {
+    this.context.store.dispatch(manager.fetchEntityIfNeeded(entityId, null, (entity, error) => {
+      this.handleError(error);
+    }));
   }
 
   render() {
@@ -27,11 +30,11 @@ class Role extends Basic.AbstractContent {
         <Helmet title={this.i18n('navigation.menu.profile')} />
 
         <Basic.PageHeader showLoading={!entity && showLoading}>
-          {manager.getNiceLabel(entity)} <small> {this.i18n('content.roles.edit.header')}</small>
+          { manager.getNiceLabel(entity)} <small> {this.i18n('content.roles.edit.header') }</small>
         </Basic.PageHeader>
 
         <Advanced.TabPanel parentId="roles" params={this.props.params}>
-          {this.props.children}
+          { this.props.children }
         </Advanced.TabPanel>
       </div>
     );

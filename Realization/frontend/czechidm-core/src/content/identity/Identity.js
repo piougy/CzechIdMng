@@ -23,7 +23,9 @@ class IdentityContent extends Basic.AbstractContent {
     // TODO: move to componentWillReceiveNextProps
     const { entityId } = this.props.params;
     //
-    this.context.store.dispatch(identityManager.fetchEntityIfNeeded(entityId));
+    this.context.store.dispatch(identityManager.fetchEntityIfNeeded(entityId, null, (entity, error) => {
+      this.handleError(error);
+    }));
   }
 
   _selectNavigationItem() {

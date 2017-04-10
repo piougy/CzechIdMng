@@ -140,6 +140,33 @@ export default class AbstractContent extends AbstractContextComponent {
   reloadRoute() {
     this.context.router.replace(this.context.store.getState().routing.location.pathname);
   }
+
+  /**
+   * Makes redirect to error pages or show given error.
+   *
+   * @param  {error} error from BE
+   */
+  handleError(error) {
+    if (!error) {
+      return;
+    }
+    //
+    const message = {};
+    if (error.statusCode === 403) {
+      this.context.router.push('/error/403');
+      message.hidden = true;
+    } else if (error.statusCode === 404) {
+      if (error.parameters && error.parameters.entity) {
+        this.context.router.push(`/error/404?id=${error.parameters.entity}`);
+        message.hidden = true;
+      } else {
+        this.context.router.push(`/error/404`);
+        message.hidden = true;
+      }
+    }
+    //
+    this.addErrorMessage(message, error);
+  }
 }
 
 AbstractContent.propTypes = {

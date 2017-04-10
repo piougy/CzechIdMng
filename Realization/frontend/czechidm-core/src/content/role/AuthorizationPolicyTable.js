@@ -141,6 +141,11 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
   onChangeAuthorizableType(authorizableType) {
     this.setState({
       authorizableType
+    }, () => {
+      const { evaluatorType } = this.state;
+      if (evaluatorType && Utils.Ui.getSimpleJavaType(evaluatorType.entityType) !== 'Identifiable') {
+        this.refs.evaluatorType.setValue(null);
+      }
     });
   }
 

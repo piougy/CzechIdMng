@@ -14,6 +14,7 @@ public class AuthorizationPolicyFilter implements BaseFilter {
 
 	private UUID roleId;
 	private Boolean disabled;
+	private String authorizableType;
 
 	public UUID getRoleId() {
 		return roleId;
@@ -29,5 +30,13 @@ public class AuthorizationPolicyFilter implements BaseFilter {
 	
 	public void setDisabled(Boolean disabled) {
 		this.disabled = disabled;
+	}
+	
+	public void setAuthorizableType(String authorizableType) {
+		this.authorizableType = authorizableType;
+	}
+	
+	public String getAuthorizableType() {
+		return authorizableType;
 	}
 }

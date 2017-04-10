@@ -201,12 +201,14 @@ class RoleDetail extends Basic.AbstractContent {
                         manager={roleManager}
                         multiSelect
                         readOnly
-                        placeholder=""/>
+                        placeholder=""
+                        rendered={ false }/> {/* TODO: redesign subroles agenda */}
                       <Basic.SelectBox
                         ref="subRoles"
                         label={this.i18n('entity.Role.subRoles')}
                         manager={roleManager}
-                        multiSelect/>
+                        multiSelect
+                        rendered={ false }/> {/* TODO: redesign subroles agenda */}
                       <Basic.SelectBox
                         ref="guarantees"
                         label={this.i18n('entity.Role.guarantees')}

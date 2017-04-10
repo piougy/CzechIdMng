@@ -86,7 +86,7 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 		if (securityService.isAuthenticated()) { // TODO: public data?
 			service.getEnabledPolicies(securityService.getUsername(), entity.getClass()).forEach(policy -> {
 				AuthorizationEvaluator<E> evaluator = getEvaluator(policy);
-				if (evaluator != null) {
+				if (evaluator != null && evaluator.supports(entity.getClass())) {
 					permissions.addAll(evaluator.getPermissions(entity, policy));
 				}
 			});

@@ -19,6 +19,7 @@ import org.springframework.data.domain.PageImpl;
 
 import com.google.common.collect.Lists;
 
+import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmAuthorizationPolicy;
@@ -94,7 +95,7 @@ public class DefaultIdmAuthorizationServiceUnitTest extends AbstractUnitTest {
 		Page<IdmAuthorizationPolicy> policies = new PageImpl<>(Lists.newArrayList(new IdmAuthorizationPolicy(UUID.randomUUID()), new IdmAuthorizationPolicy(UUID.randomUUID())));
 		when(repository.find(any(), any())).thenReturn(policies);
 		//
-		List<UUID> defaultPolicies = service.getDefaultPolicies().stream().map(IdmAuthorizationPolicyDto::getId).collect(Collectors.toList());
+		List<UUID> defaultPolicies = service.getDefaultPolicies(Identifiable.class).stream().map(IdmAuthorizationPolicyDto::getId).collect(Collectors.toList());
 		assertEquals(2, defaultPolicies.size());
 		assertTrue(defaultPolicies.containsAll(policies.getContent().stream().map(IdmAuthorizationPolicy::getId).collect(Collectors.toList())));
 	}
@@ -104,13 +105,13 @@ public class DefaultIdmAuthorizationServiceUnitTest extends AbstractUnitTest {
 		DEFAULT_ROLE.setDisabled(true);
 		when(roleService.getDefaultRole()).thenReturn(DEFAULT_ROLE);
 		//
-		assertTrue(service.getDefaultPolicies().isEmpty());
+		assertTrue(service.getDefaultPolicies(Identifiable.class).isEmpty());
 	}
 	
 	@Test
 	public void testDefaultPoliciesRoleNotFound() {
 		when(roleService.getDefaultRole()).thenReturn(null);
 		//
-		assertTrue(service.getDefaultPolicies().isEmpty());
+		assertTrue(service.getDefaultPolicies(Identifiable.class).isEmpty());
 	}
 }

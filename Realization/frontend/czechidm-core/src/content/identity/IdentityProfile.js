@@ -30,7 +30,9 @@ class Profile extends Basic.AbstractContent {
   componentDidMount() {
     const { entityId } = this.props.params;
     this.selectNavigationItems(['identity-profile', 'profile-personal']);
-    this.context.store.dispatch(identityManager.fetchEntity(entityId));
+    this.context.store.dispatch(identityManager.fetchEntity(entityId, null, (entity, error) => {
+      this.handleError(error);
+    }));
   }
 
   render() {

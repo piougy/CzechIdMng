@@ -29,7 +29,9 @@ class Content extends Basic.AbstractContent {
     if (this._isNew()) {
       this.context.store.dispatch(roleManager.receiveEntity(entityId, { roleType: RoleTypeEnum.findKeyBySymbol(RoleTypeEnum.TECHNICAL) }));
     } else {
-      this.context.store.dispatch(roleManager.fetchEntity(entityId));
+      this.context.store.dispatch(roleManager.fetchEntity(entityId, null, (entity, error) => {
+        this.handleError(error);
+      }));
     }
   }
 

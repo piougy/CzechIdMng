@@ -85,5 +85,4 @@ export default class ResponseUtils {
   static getErrors(/* responseJson */) {
     throw new Error('unsupported operation');
   }
-
 }

@@ -283,9 +283,6 @@ export default class EntityManager {
         }));
       })
       .catch(error => {
-        // TODO: 404, 403 simple redirect,
-        // TODO: overlay to preserve url?
-        // TODO: sub error class
         dispatch(this.receiveError(id, uiKey, error, cb));
       });
     };

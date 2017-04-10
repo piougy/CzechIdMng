@@ -63,7 +63,7 @@ public class DefaultIdmAuthorizationPolicyService
 		Assert.notNull(entityType);
 		//
 		List<IdmAuthorizationPolicyDto> results = toDtos(repository.getPolicies(username, entityType.getCanonicalName(), false, new LocalDate()), false);
-		results.addAll(getDefaultPolicies());
+		results.addAll(getDefaultPolicies(entityType));
 		return results;
 	}
 	
@@ -103,7 +103,7 @@ public class DefaultIdmAuthorizationPolicyService
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<IdmAuthorizationPolicyDto> getDefaultPolicies() {
+	public List<IdmAuthorizationPolicyDto> getDefaultPolicies(Class<? extends Identifiable> entityType) {
 		IdmRole defaultRole = roleService.getDefaultRole();
 		if (defaultRole == null) {
 			LOG.debug("Default role not found, no default authorization policies will be added.  Change configuration [{}].", IdmRoleService.PROPERTY_DEFAULT_ROLE);
@@ -117,6 +117,9 @@ public class DefaultIdmAuthorizationPolicyService
 		AuthorizationPolicyFilter filter = new AuthorizationPolicyFilter();
 		filter.setRoleId(defaultRole.getId());
 		filter.setDisabled(Boolean.FALSE);
+		if(entityType != null) { // optional
+			filter.setAuthorizableType(entityType.getCanonicalName());
+		}
 		List<IdmAuthorizationPolicy> defaultPolicies = repository.find(filter, null).getContent();
 		//
 		LOG.debug("Found [{}] default policies", defaultPolicies.size());

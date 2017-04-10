@@ -46,5 +46,5 @@ public interface IdmAuthorizationPolicyService
 	 * 
 	 * @return
 	 */
-	List<IdmAuthorizationPolicyDto> getDefaultPolicies();
+	List<IdmAuthorizationPolicyDto> getDefaultPolicies(Class<? extends Identifiable> entityType);
 }

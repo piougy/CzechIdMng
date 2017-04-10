@@ -328,4 +328,10 @@ export default class FlashMessagesManager {
     };
   }
 
+  redirect() {
+    return dispatch => {
+      dispatch(routeActions.push(`/error/403`));
+    };
+  }
+
 }

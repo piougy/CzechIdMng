@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.scheduler.task.impl;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
@@ -33,18 +34,23 @@ public class AddNewAutomaticRoleTaskExecutor extends AbstractLongRunningTaskExec
 	@Autowired
 	private IdmRoleTreeNodeService roleTreeNodeService;
 	
-	private IdmRoleTreeNode roleTreeNode = null;
+	private UUID roleTreeNodeId = null;
 	
-	public IdmRoleTreeNode getRoleTreeNode() {
-		return roleTreeNode;
+	public UUID getRoleTreeNodeId() {
+		return roleTreeNodeId;
 	}
 
-	public void setRoleTreeNode(IdmRoleTreeNode roleTreeNode) {
-		this.roleTreeNode = roleTreeNode;
+	public void setRoleTreeNodeId(UUID roleTreeNodeId) {
+		this.roleTreeNodeId = roleTreeNodeId;
 	}
 
 	@Override
 	public Boolean process() {
+		if (roleTreeNodeId == null) {
+			return Boolean.FALSE;
+		}
+		//
+		IdmRoleTreeNode roleTreeNode = roleTreeNodeService.get(roleTreeNodeId);
 		if (roleTreeNode == null) {
 			return Boolean.FALSE;
 		}

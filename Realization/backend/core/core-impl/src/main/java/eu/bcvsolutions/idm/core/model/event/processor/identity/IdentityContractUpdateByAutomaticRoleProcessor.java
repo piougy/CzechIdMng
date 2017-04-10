@@ -76,7 +76,7 @@ public class IdentityContractUpdateByAutomaticRoleProcessor extends CoreEventPro
 		roleRequest.setApplicant(contract.getIdentity().getId());
 		roleRequest.setRequestedByType(RoleRequestedByType.AUTOMATICALLY);
 		roleRequest.setExecuteImmediately(true);
-		roleRequest = roleRequestService.save(roleRequest);
+		// we cann't save immediately, request will be saved in method 'checkSavedRequest'
 		//
 		IdmIdentityContract previous = repository.getPersistedIdentityContract(contract);
 		IdmTreeNode newPosition = contract.getWorkPosition();
@@ -110,6 +110,7 @@ public class IdentityContractUpdateByAutomaticRoleProcessor extends CoreEventPro
 						// check, if role will be added by new automatic roles and prevent removing
 						IdmRoleTreeNode addedAutomaticRole = getByRole(identityRole.getRole(), addedAutomaticRoles);
 						if (addedAutomaticRole == null) {
+							roleRequest = checkSavedRequest(roleRequest);
 							createConcept(roleRequest, identityRole, contract, identityRole.getRole(), removedAutomaticRole, ConceptRoleRequestOperation.REMOVE);
 							iter.remove();
 						} else {
@@ -125,22 +126,41 @@ public class IdentityContractUpdateByAutomaticRoleProcessor extends CoreEventPro
 			//
 			// change date - for unchanged assigned roles only
 			if (EntityUtils.validableChanged(previous, contract)) {
+				roleRequest = checkSavedRequest(roleRequest);
 				changeValidable(contract, assignedRoles, roleRequest);
 			}
 			
 			for (IdmRoleTreeNode addedAutomaticRole : addedAutomaticRoles) {
+				roleRequest = checkSavedRequest(roleRequest);
 				createConcept(roleRequest, null, contract, addedAutomaticRole.getRole(), addedAutomaticRole, ConceptRoleRequestOperation.ADD);
 			}
 		}
 		//
 		// process validable change
 		else if (EntityUtils.validableChanged(previous, contract)) {
+			roleRequest = checkSavedRequest(roleRequest);
 			changeValidable(contract, identityRoleService.getRoles(contract), roleRequest);
 		}
 		//
-		roleRequestService.startRequestInternal(roleRequest.getId(), false);
+		// role request may not exist
+		if (roleRequest.getId() != null) {
+			roleRequestService.startRequestInternal(roleRequest.getId(), false);
+		}
 		//
 		return new DefaultEventResult<>(event, this);
+	}
+	
+	/**
+	 * Method check if role request is saved, when request isn't saved save them.
+	 * 
+	 * @param roleRequest
+	 * @return
+	 */
+	private IdmRoleRequestDto checkSavedRequest(IdmRoleRequestDto roleRequest) {
+		if (roleRequest.getId() == null) {
+			roleRequest = this.roleRequestService.save(roleRequest);
+		}
+		return roleRequest;
 	}
 	
 	/**
@@ -169,8 +189,7 @@ public class IdentityContractUpdateByAutomaticRoleProcessor extends CoreEventPro
 		conceptRoleRequest.setRole(role.getId());
 		conceptRoleRequest.setRoleTreeNode(roleTreeNode.getId());
 		conceptRoleRequest.setOperation(operation);
-		conceptRoleRequestService.save(conceptRoleRequest);
-		return conceptRoleRequest;
+		return conceptRoleRequestService.save(conceptRoleRequest);
 	}
 	
 	private IdmRoleTreeNode getByRole(IdmRole role, Set<IdmRoleTreeNode> automaticRoles) {

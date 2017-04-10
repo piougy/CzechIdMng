@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.core.service;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.Serializable;
 import java.util.List;
@@ -13,7 +14,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import org.hibernate.envers.RevisionType;
-import org.hibernate.envers.exception.RevisionDoesNotExistException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -104,27 +104,27 @@ public class DefaultAuditServiceTest extends AbstractIntegrationTest {
 		assertEquals(null, roleRevision);
 
 		List<IdmAudit> result = auditService.find(null).getContent();
-
-		if (!result.isEmpty()) {
-
-			Exception ex = null;
-
-			for (IdmAudit idmAudit : result) {
-				try {
-					BaseEntity object = (BaseEntity) auditService.findRevision(Class.forName(idmAudit.getType()),
-							idmAudit.getEntityId(), (Long) idmAudit.getId());
-
-					if (object != null) {
-						assertEquals((UUID) object.getId(), idmAudit.getEntityId());
-
-						Class.forName(idmAudit.getType()).cast(object);
-					}
-				} catch (RevisionDoesNotExistException | ClassNotFoundException | ClassCastException e) {
-					ex = e;
-				}
+		// test only first and second
+		try {
+			IdmAudit idmAudit = result.get(0);
+			BaseEntity object = (BaseEntity) auditService.findRevision(Class.forName(idmAudit.getType()),
+					idmAudit.getEntityId(), (Long) idmAudit.getId());
+			if (object != null) {
+				assertEquals((UUID) object.getId(), idmAudit.getEntityId());
+	
+				Class.forName(idmAudit.getType()).cast(object);
 			}
-
-			assertEquals(null, ex);
+			
+			// second
+			idmAudit = result.get(1);
+			object = (BaseEntity) auditService.findRevision(Class.forName(idmAudit.getType()),
+					idmAudit.getEntityId(), (Long) idmAudit.getId());
+			if (object != null) {
+				assertEquals((UUID) object.getId(), idmAudit.getEntityId());
+				Class.forName(idmAudit.getType()).cast(object);
+			}
+		} catch (ClassNotFoundException e) {
+			fail(e.getLocalizedMessage());
 		}
 
 		/*

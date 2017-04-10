@@ -57,7 +57,7 @@ public class IdentityRoleSaveProcessor extends CoreEventProcessor<IdmIdentityRol
 		repository.save(identityRole);
 		//
 		// if identityRole isn't valid save request into validRequests
-		if (!identityRoleService.isIdentityRoleValidFromNow(identityRole)) {
+		if (!identityRole.isValid()) {
 			// create new IdmIdentityRoleValidRequest
 			validRequestService.createByIdentityRoleId(identityRole.getId());
 		}

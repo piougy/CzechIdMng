@@ -13,6 +13,7 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.envers.Audited;
+import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.springframework.util.Assert;
 
@@ -138,5 +139,26 @@ public class IdmIdentityRole extends AbstractEntity implements ValidableEntity {
 
 	public void setAutomaticRole(boolean automaticRole) {
 		this.automaticRole = automaticRole;
+	}
+	
+	/**
+	 * Check if this entity is valid from now
+	 * @return
+	 */
+	public boolean isValid() {
+		LocalDate fromDate = MIN_TIME.toLocalDate();
+		if (this.getValidFrom() != null) {
+			fromDate = this.getValidFrom();
+		}
+
+		LocalDate tillDate = MAX_TIME.toLocalDate();
+		if (this.getValidTill() != null) {
+			tillDate = this.getValidTill();
+		}
+		LocalDate now = LocalDate.now();
+		if ((now.isAfter(fromDate) || now.isEqual(fromDate)) && (now.isBefore(tillDate) || now.isEqual(tillDate))) {
+			return true;
+		}
+		return false;
 	}
 }

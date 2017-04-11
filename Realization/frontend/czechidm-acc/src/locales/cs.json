@@ -284,6 +284,7 @@
         "title" : "Atribut v IdM",
         "header" : "Detail mapování atributu ",
         "alertNoRepository": "Atribut není mapován na žádné IdM úložiště (entitu ani rozšířený atribut). Výstupem bude konstanta, z 'Transformace do systému'",
+        "infoPasswordMapping": "V případě že atribut __PASSWORD__ je roven hodnotě NULL bude automaticky vygenerován z politiky hesel pro tento systém.",
         "save": {
           "success": "Atribut [{{name}}] IdM byl úspěšně uložen"
         },

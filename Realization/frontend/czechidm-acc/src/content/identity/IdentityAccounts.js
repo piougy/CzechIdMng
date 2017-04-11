@@ -47,11 +47,11 @@ class IdentityAccountsContent extends Advanced.AbstractTableContent {
 
   save(entity, event) {
     const formEntity = this.refs.form.getData();
-    formEntity.identity = identityManager.getSelfLink(formEntity.identity);
+    const state = this.context.store.getState();
+    const identity = Utils.Entity.getEntity(state, identityManager.getEntityType(), formEntity.identity);
+    formEntity.identity = identity.id;
     if (Utils.Entity.isNew(entity)) {
-      formEntity.account = {
-        id: formEntity.account
-      };
+      formEntity.account = formEntity.account;
     }
     //
     super.save(formEntity, event);
@@ -121,15 +121,15 @@ class IdentityAccountsContent extends Advanced.AbstractTableContent {
                   );
                 }
               }/>
-            <Advanced.Column property="account.accountType" width="75px" header={this.i18n('acc:entity.Account.accountType')} sort face="enum" enumClass={AccountTypeEnum} />
-            <Advanced.Column property="account.uid" header={this.i18n('acc:entity.Account.uid')} sort face="text" />
+            <Advanced.Column property="_embedded.account.accountType" width="75px" header={this.i18n('acc:entity.Account.accountType')} sort face="enum" enumClass={AccountTypeEnum} />
+            <Advanced.Column property="_embedded.account.uid" header={this.i18n('acc:entity.Account.uid')} sort face="text" />
             <Advanced.ColumnLink
               to="/system/:_target/detail"
-              target="account._embedded.system.id"
+              target="_embedded.account._embedded.system.id"
               access={{ 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ']}}
-              property="account._embedded.system.name"
+              property="_embedded.account._embedded.system.name"
               header={this.i18n('acc:entity.System.name')} />
-            <Advanced.Column property="identityRole._embedded.role.name" header={this.i18n('acc:entity.IdentityAccount.role')} face="text" />
+            <Advanced.Column property="_embedded.identityRole._embedded.role.name" header={this.i18n('acc:entity.IdentityAccount.role')} face="text" />
             <Advanced.Column property="ownership" width="75px" header={this.i18n('acc:entity.IdentityAccount.ownership')} sort face="bool" />
           </Advanced.Table>
         </Basic.Panel>

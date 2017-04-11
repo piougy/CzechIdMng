@@ -45,7 +45,7 @@ class PasswordChangeAccounts extends Basic.AbstractContent {
     accounts.forEach(acc => {
       options.push({
         value: acc.id,
-        niceLabel: identityAccountManager.getNiceLabelWithSystem(acc.account._embedded.system.name, acc._embedded.identity.username) });
+        niceLabel: identityAccountManager.getNiceLabelWithSystem(acc._embedded.account._embedded.system.name, acc._embedded.identity.username) });
     });
 
     return options;

@@ -115,7 +115,6 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractIntegra
 	private IdmIdentity createIdentity(String name) {
 		IdmIdentity identity = new IdmIdentity();
 		identity.setUsername(name);
-		// identity.setPassword(new GuardedString("heslo"));
 		identity.setFirstName("Test");
 		identity.setLastName("Identity");
 		identity = identityService.save(identity);

@@ -268,7 +268,6 @@
 		    <version>0.7.4</version>
 		</dependency>
 		<!--IC dependency -->
-		<!-- for connectors: csvdir, table, scriptedsql need exclusion to connector-framework-internal version 1.4.0  -->
 		<dependency>
 			<groupId>net.tirasa.connid</groupId>
 			<artifactId>connector-framework</artifactId>
@@ -283,13 +282,6 @@
 			<groupId>net.tirasa.connid.bundles.db</groupId>
 			<artifactId>net.tirasa.connid.bundles.db.table</artifactId>
 			<version>2.2.4</version>
-			<exclusions>
-        		<exclusion>
-	        		<groupId>net.tirasa.connid</groupId>
-					<artifactId>connector-framework-internal</artifactId>
-					<version>1.4.0.0</version>
-        		</exclusion>
-       		</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>net.tirasa.connid.bundles</groupId>
@@ -300,25 +292,11 @@
 			<groupId>net.tirasa.connid.bundles</groupId>
 			<artifactId>net.tirasa.connid.bundles.csvdir</artifactId>
 			<version>0.8.5</version>
-			<exclusions>
-        		<exclusion>
-	        		<groupId>net.tirasa.connid</groupId>
-					<artifactId>connector-framework-internal</artifactId>
-					<version>1.4.0.0</version>
-        		</exclusion>
-       		</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>net.tirasa.connid.bundles.db</groupId>
 			<artifactId>net.tirasa.connid.bundles.db.scriptedsql</artifactId>
 			<version>2.2.4</version>
-			<exclusions>
-        		<exclusion>
-	        		<groupId>net.tirasa.connid</groupId>
-					<artifactId>connector-framework-internal</artifactId>
-					<version>1.4.0.0</version>
-        		</exclusion>
-       		</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.reflections</groupId>

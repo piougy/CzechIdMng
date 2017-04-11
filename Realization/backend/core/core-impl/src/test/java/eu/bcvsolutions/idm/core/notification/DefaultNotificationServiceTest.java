@@ -101,7 +101,8 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 		IdmNotificationTemplate template = createTestTemplate("Idm notification", "subject");
 		IdmIdentity identity = identityRepository.findOneByUsername(InitTestData.TEST_USER_1);
 		
-		DateTime start = new DateTime();
+		DateTime from = new DateTime().minusDays(1);
+		DateTime till = new DateTime().minusDays(1);
 		notificationManager.send(TOPIC, new IdmMessage.Builder()
 				.setTemplate(template)
 				.build(),
@@ -114,11 +115,11 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 		NotificationFilter filter = new NotificationFilter();
 		assertEquals(2, idmNotificationRepository.find(filter, null).getTotalElements());
 		
-		filter.setFrom(start);
+		filter.setFrom(from);
 		assertEquals(2, idmNotificationRepository.find(filter, null).getTotalElements());
 		
 		filter.setFrom(null);
-		filter.setTill(start);
+		filter.setTill(till);
 		assertEquals(0, idmNotificationRepository.find(filter, null).getTotalElements());
 	}
 	

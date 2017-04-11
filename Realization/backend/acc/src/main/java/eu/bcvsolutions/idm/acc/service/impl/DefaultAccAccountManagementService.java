@@ -135,7 +135,7 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 			List<IdmIdentityRole> identityRoles, List<AccIdentityAccount> identityAccountsToDelete) {
 
 		identityRoles.stream().filter(identityRole -> {
-			return !identityRoleService.isIdentityRoleValidFromNow(identityRole);
+			return !identityRole.isValid();
 		}).forEach(identityRole -> {
 			// Search IdentityAccounts to delete
 			identityAccountList.stream().filter(identityAccount -> {
@@ -161,7 +161,7 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 		
 		// Is role valid in this moment
 		identityRoles.stream().filter(identityRole -> {
-			return identityRoleService.isIdentityRoleValidFromNow(identityRole);
+			return identityRole.isValid();
 		}).forEach(identityRole -> {
 			
 			IdmRole role = identityRole.getRole();

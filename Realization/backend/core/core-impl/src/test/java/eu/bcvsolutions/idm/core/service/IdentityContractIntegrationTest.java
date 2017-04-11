@@ -9,11 +9,8 @@ import static org.junit.Assert.fail;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import org.joda.time.LocalDate;
 import org.junit.After;
@@ -127,7 +124,7 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 		//
 		if (withLongRunningTask) {
 			AddNewAutomaticRoleTaskExecutor task = new AddNewAutomaticRoleTaskExecutor();
-			task.setRoleTreeNode(entity);
+			task.setRoleTreeNodeId(entity.getId());
 			//
 			// active wait for save
 			try {
@@ -146,7 +143,7 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 	private void deleteAutomaticRole(IdmRoleTreeNodeDto automaticRole) {
 		IdmRoleTreeNode entity = roleTreeNodeService.toEntity(automaticRole, null);
 		RemoveAutomaticRoleTaskExecutor task = new RemoveAutomaticRoleTaskExecutor();
-		task.setRoleTreeNode(entity);
+		task.setRoleTreeNodeId(entity.getId());
 		//
 		// active wait for delete
 		try {

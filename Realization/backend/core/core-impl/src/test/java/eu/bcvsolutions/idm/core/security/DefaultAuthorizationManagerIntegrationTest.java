@@ -26,7 +26,9 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizationEvaluatorDto;
@@ -49,6 +51,8 @@ public class DefaultAuthorizationManagerIntegrationTest extends AbstractIntegrat
 	protected TestHelper helper;
 	@Autowired
 	private ApplicationContext context;
+	@Autowired
+	private IdmIdentityService identityService;
 	@Autowired
 	private IdmAuthorizationPolicyService service;
 	@Autowired
@@ -97,6 +101,8 @@ public class DefaultAuthorizationManagerIntegrationTest extends AbstractIntegrat
 		helper.createBasePolicy(role.getId(), IdmBasePermission.READ);		
 		// prepare identity
 		IdmIdentity identity = helper.createIdentity();
+		identity.setPassword(new GuardedString("heslo"));
+		identityService.save(identity);
 		// assign role
 		helper.createIdentityRole(identity, role);
 		logout();
@@ -130,6 +136,8 @@ public class DefaultAuthorizationManagerIntegrationTest extends AbstractIntegrat
 		helper.createBasePolicy(role.getId(), IdmBasePermission.AUTOCOMPLETE);	
 		// prepare identity
 		IdmIdentity identity = helper.createIdentity();
+		identity.setPassword(new GuardedString("heslo"));
+		identityService.save(identity);
 		// assign role
 		helper.createIdentityRole(identity, role);
 		logout();

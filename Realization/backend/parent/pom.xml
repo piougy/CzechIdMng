@@ -271,7 +271,12 @@
 		<dependency>
 			<groupId>net.tirasa.connid</groupId>
 			<artifactId>connector-framework</artifactId>
-			<version>1.4.0.0</version>
+			<version>1.4.2.0</version>
+		</dependency>
+		<dependency>
+			<groupId>net.tirasa.connid</groupId>
+			<artifactId>connector-framework-internal</artifactId>
+			<version>1.4.2.0</version>
 		</dependency>
 		<dependency>
 			<groupId>net.tirasa.connid.bundles.db</groupId>
@@ -281,7 +286,7 @@
 		<dependency>
 			<groupId>net.tirasa.connid.bundles</groupId>
 			<artifactId>net.tirasa.connid.bundles.ldap</artifactId>
-			<version>1.4.0</version>
+			<version>1.5.1</version>
 		</dependency>
 		<dependency>
 			<groupId>net.tirasa.connid.bundles</groupId>

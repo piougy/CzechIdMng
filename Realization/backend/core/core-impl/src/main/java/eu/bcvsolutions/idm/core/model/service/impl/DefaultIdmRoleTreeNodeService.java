@@ -133,11 +133,11 @@ public class DefaultIdmRoleTreeNodeService
 
 	@Override
 	@Transactional
-	public IdmRoleRequestDto updateOrRemoveAutomaticRoles(IdmIdentityRole identityRole,
-			Set<IdmRoleTreeNode> automaticRoles, ConceptRoleRequestOperation operation, boolean startRequestInternal) {
+	public IdmRoleRequestDto removeAutomaticRoles(IdmIdentityRole identityRole,
+			Set<IdmRoleTreeNode> automaticRoles, boolean startRequestInternal) {
 		Assert.notNull(identityRole);
 		//
-		return this.processAutomaticRoles(identityRole.getIdentityContract(), identityRole.getId(), automaticRoles, operation, startRequestInternal);
+		return this.processAutomaticRoles(identityRole.getIdentityContract(), identityRole.getId(), automaticRoles, ConceptRoleRequestOperation.REMOVE, startRequestInternal);
 	}
 	
 	private IdmRoleRequestDto processAutomaticRoles(IdmIdentityContract contract, UUID identityRoleId,

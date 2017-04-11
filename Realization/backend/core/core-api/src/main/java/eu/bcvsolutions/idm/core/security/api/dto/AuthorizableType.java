@@ -2,12 +2,15 @@ package eu.bcvsolutions.idm.core.security.api.dto;
 
 import java.io.Serializable;
 
+import org.springframework.util.Assert;
+
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
 
 /**
- * Authorizable type info - assign permission group to type.
+ * Authorizable group to type mapping - assign permission group to type.
+ * Unique - group could have only once type. TODO: this could be extended - remove equals method etc.
  * 
  * @author Radek Tomiška
  *
@@ -16,28 +19,36 @@ public class AuthorizableType implements BaseDto {
 	
 	private static final long serialVersionUID = -866021631923877118L;
 	//
-	private Class<? extends Identifiable> type;
 	private GroupPermission group;
+	private Class<? extends Identifiable> type;
 	
 	public AuthorizableType() {
 	}
 	
-	public AuthorizableType(Class<? extends Identifiable> type, GroupPermission group) {
-		this.type = type;
+	public AuthorizableType(GroupPermission group, Class<? extends Identifiable> type) {
+		Assert.notNull(group);
+		//
 		this.group = group;
+		this.type = type;
 	}
 
 	@Override
 	public Serializable getId() {
-		return type;
+		return group.getName();
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public void setId(Serializable id) {
-		type = (Class<? extends Identifiable>) id;
+		Assert.notNull(group);
+		//
+		group = (GroupPermission) id;
 	}
 	
+	/**
+	 * Secured domain type
+	 * 
+	 * @return
+	 */
 	public Class<? extends Identifiable> getType() {
 		return type;
 	}
@@ -46,11 +57,63 @@ public class AuthorizableType implements BaseDto {
 		this.type = type;
 	}
 	
+	/**
+	 * Group module
+	 * 
+	 * @return
+	 */
+	public String getModule() {
+		if (group == null) {
+			return null;
+		}
+		return group.getModule();
+	}
+	
+	/**
+	 * Assigned group
+	 * 
+	 * @return
+	 */
 	public GroupPermission getGroup() {
 		return group;
 	}
 	
 	public void setGroup(GroupPermission group) {
+		Assert.notNull(group);
+		//
 		this.group = group;
+	}
+	
+	/**
+	 * True - supports authorization evaluators. Added mainly for back compatibility issues.
+	 * 
+	 * @return
+	 */
+	public boolean isAuthorizable() {
+		return type == null;
+	}
+	
+	@Override
+	public String toString() {
+		return getClass().getCanonicalName() + "[ id=" + getId() + " ]";
+	}
+
+	@Override
+	public int hashCode() {
+		int hash = 0;
+		hash += (getId() != null ? getId().hashCode() : 0);
+		return hash;
+	}
+
+	@Override
+	public boolean equals(Object object) {
+		if (object == null || !object.getClass().equals(getClass())) {
+			return false;
+		}
+
+		AuthorizableType other = (AuthorizableType) object;
+		return !((this.getId() == null && other.getId() != null)
+				|| (this.getId() != null && !this.getId().equals(other.getId()))
+				|| (this.getId() == null && other.getId() == null && this != other));
 	}
 }

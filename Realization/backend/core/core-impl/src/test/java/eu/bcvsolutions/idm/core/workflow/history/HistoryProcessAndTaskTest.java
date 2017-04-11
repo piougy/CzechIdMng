@@ -114,7 +114,7 @@ public class HistoryProcessAndTaskTest extends AbstractWorkflowIntegrationTest {
 	}
 
 	private void loginAsNoAdmin(String user) {
-		Collection<GrantedAuthority> authorities = securityService.getAllAvailableAuthorities().stream().filter(authority -> {
+		Collection<GrantedAuthority> authorities = securityService.getAvailableAuthorities().stream().filter(authority -> {
 			return !IdmGroupPermission.APP_ADMIN.equals(authority.getAuthority());
 		}).collect(Collectors.toList());
 		SecurityContextHolder.getContext().setAuthentication(new IdmJwtAuthentication(new IdentityDto(user), null, authorities, "test"));

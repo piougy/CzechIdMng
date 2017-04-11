@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -46,6 +45,7 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 	private final SecurityService securityService;
 	// cache
 	private final Map<String, AuthorizationEvaluator<?>> evaluators = new HashMap<>();
+	private Set<AuthorizableType> authorizableTypes = null;
 	
 	public DefaultAuthorizationManager(
 			ApplicationContext context,
@@ -130,7 +130,13 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 				return null;
 			}
 		}
-		return (AuthorizationEvaluator<E>) evaluators.get(evaluatorType);
+		AuthorizationEvaluator<E> evaluator = (AuthorizationEvaluator<E>) evaluators.get(evaluatorType);
+		if (evaluator.isDisabled()) {
+			LOG.warn("Evaluator type [{}] for policy [{}] is disabled - policy will not be evaluated.", evaluatorType, policy.getId());
+			return null;
+		}
+		//
+		return evaluator;
 	}
 
 	@Override
@@ -152,11 +158,18 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 	}
 
 	@Override
-	public List<AuthorizableType> getAuthorizableTypes() {
-		return context.getBeansOfType(AuthorizableService.class).values().stream()
-			.map(service -> {
-				return service.getAuthorizableType();
-			})
-			.collect(Collectors.toList());
+	public Set<AuthorizableType> getAuthorizableTypes() {
+		if (authorizableTypes == null) {
+			authorizableTypes = new HashSet<>();
+			// types with authorization evaluators support
+			context.getBeansOfType(AuthorizableService.class).values().forEach(service -> {
+				authorizableTypes.add(service.getAuthorizableType());
+			});
+			// add default - doesn't supports authorization evaluators
+			securityService.getAvailableGroupPermissions().forEach(groupPermission -> {
+				authorizableTypes.add(new AuthorizableType(groupPermission, null));
+			});
+		}
+		return authorizableTypes;
 	}
 }

@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
+import java.util.Set;
 
 import org.joda.time.LocalDate;
 import org.junit.Before;
@@ -70,11 +71,11 @@ public class DefaultAuthorizationManagerIntegrationTest extends AbstractIntegrat
 	
 	@Test
 	public void testAuthorizableTypes() {
-		List<AuthorizableType> authorizableTypes = manager.getAuthorizableTypes();
+		Set<AuthorizableType> authorizableTypes = manager.getAuthorizableTypes();
 		//
 		AuthorizableType role = authorizableTypes.stream()
 				.filter(a -> {
-					return a.getType().equals(IdmRole.class);
+					return IdmRole.class.equals(a.getType());
 				})
 				.findFirst()
 	            .get();

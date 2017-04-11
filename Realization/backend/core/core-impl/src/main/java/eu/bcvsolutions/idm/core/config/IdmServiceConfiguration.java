@@ -8,6 +8,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
@@ -29,6 +30,7 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizationManager;
 import eu.bcvsolutions.idm.core.security.api.service.EnabledEvaluator;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.security.service.impl.DefaultAuthorizationManager;
+import eu.bcvsolutions.idm.core.security.service.impl.IdmAuthorityHierarchy;
 
 /**
  * Overridable core services initialization
@@ -52,6 +54,12 @@ public class IdmServiceConfiguration {
 	// Own beans - TODO: move to @Bean init here
 	@Autowired
 	private EnabledEvaluator enabledEvaluator;
+	
+	
+	@Bean
+	public RoleHierarchy roleHierarchy(SecurityService securityService) {
+	    return new IdmAuthorityHierarchy(securityService);
+	}
 	
 	/**
 	 * Event manager for entity event publishing.

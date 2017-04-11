@@ -56,36 +56,30 @@ public class DefaultEntityLookupService implements EntityLookupService {
 		this.entityLookups = OrderAwarePluginRegistry.create(entityLookupsWithDefault);
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	@SuppressWarnings("unchecked")
 	public <E extends BaseEntity> ReadEntityService<E, ?> getEntityService(Class<E> entityClass) {
 		return (ReadEntityService<E, ?>)entityServices.getPluginFor(entityClass);
 	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	@SuppressWarnings("unchecked")
 	public  <DTO extends BaseDto> ReadDtoService<DTO, ?, ?> getDtoService(Class<DTO> dtoClass) {
 		return (ReadDtoService<DTO,?,?>)dtoServices.getPluginFor(dtoClass);
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	@SuppressWarnings("unchecked")
 	public <E extends BaseEntity, S extends ReadEntityService<E, ?>> S getEntityService(Class<E> entityClass, Class<S> entityServiceClass) {
 		return (S)entityServices.getPluginFor(entityClass);
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
+	@SuppressWarnings("unchecked")
+	public <DTO extends BaseDto, S extends ReadDtoService<DTO, ?, ?>> S getDtoService(Class<DTO> dtoClass, Class<S> dtoServiceClass) {
+		return (S)dtoServices.getPluginFor(dtoClass);
+	}
+	
 	@Override
 	@SuppressWarnings("unchecked")
 	public <E extends BaseEntity> EntityLookup<E> getEntityLookup(Class<E> entityClass) {
@@ -101,9 +95,6 @@ public class DefaultEntityLookupService implements EntityLookupService {
 		
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	@SuppressWarnings("unchecked")
 	public <E extends BaseEntity> E lookup(Class<E> entityClass, Serializable entityId) {

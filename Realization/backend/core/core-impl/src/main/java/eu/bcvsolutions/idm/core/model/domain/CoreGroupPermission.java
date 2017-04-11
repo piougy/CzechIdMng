@@ -16,7 +16,6 @@ import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
  */
 public enum CoreGroupPermission implements GroupPermission {
 	
-	AUTHORITY(IdmBasePermission.ADMIN, IdmBasePermission.UPDATE), // TODO: refactor role authorities to solo endpoint
 	AUTHORIZATIONPOLICY(IdmBasePermission.ADMIN, IdmBasePermission.AUTOCOMPLETE, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
 	IDENTITY(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
 	ROLE(IdmBasePermission.ADMIN, IdmBasePermission.AUTOCOMPLETE, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),

@@ -93,7 +93,7 @@ public interface SecurityService {
 	 * 
 	 * @return
 	 */
-	List<GrantedAuthority> getAllAvailableAuthorities();
+	List<GrantedAuthority> getAvailableAuthorities();
 	
 	/**
 	 * Returns true, if logged identity is super administrator. Could be used for single user mode.
@@ -101,5 +101,12 @@ public interface SecurityService {
 	 * @return
 	 */
 	boolean isAdmin();
+	
+	/**
+	 * Returns super administrator authority.
+	 * 
+	 * @return
+	 */
+	GrantedAuthority getAdminAuthority();
 
 }

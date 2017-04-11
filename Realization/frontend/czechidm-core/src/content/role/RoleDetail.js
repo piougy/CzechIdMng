@@ -5,10 +5,8 @@ import { connect } from 'react-redux';
 import * as Utils from '../../utils';
 import RoleTypeEnum from '../../enums/RoleTypeEnum';
 import RolePriorityEnum from '../../enums/RolePriorityEnum';
-import authorityHelp from './AuthoritiesPanel_cs.md';
-import AuthoritiesPanel from './AuthoritiesPanel';
 import * as Basic from '../../components/basic';
-import { RoleManager, IdentityManager, RoleCatalogueManager, SecurityManager } from '../../redux';
+import { RoleManager, IdentityManager, RoleCatalogueManager } from '../../redux';
 
 const roleManager = new RoleManager();
 const identityManger = new IdentityManager();
@@ -165,81 +163,64 @@ class RoleDetail extends Basic.AbstractContent {
                 ref="form"
                 showLoading={ _showLoading || showLoading }
                 readOnly={ !roleManager.canSave(entity, _permissions) }>
-                <Basic.Row>
-                  <Basic.Col lg={ 8 }>
-                    <div>
-                      <Basic.TextField
-                        ref="name"
-                        label={this.i18n('entity.Role.name')}
-                        required
-                        min={0}
-                        max={255}/>
-                      <Basic.EnumSelectBox
-                        ref="roleType"
-                        label={this.i18n('entity.Role.roleType')}
-                        enum={RoleTypeEnum}
-                        required
-                        readOnly={!Utils.Entity.isNew(entity)}/>
-                      <Basic.EnumSelectBox
-                        ref="priorityEnum"
-                        label={this.i18n('entity.Role.priorityEnum')}
-                        enum={RolePriorityEnum}
-                        onChange={this._onChangePriorityEnum.bind(this)}/>
-                      <Basic.TextField
-                        ref="priority"
-                        label={this.i18n('entity.Role.priority')}
-                        readOnly
-                        required/>
-                      <Basic.SelectBox
-                        multiSelect
-                        ref="roleCatalogues"
-                        label={this.i18n('entity.Role.roleCatalogue.name')}
-                        manager={roleCatalogueManager}/>
-                      <Basic.SelectBox
-                        ref="superiorRoles"
-                        label={this.i18n('entity.Role.superiorRoles')}
-                        manager={roleManager}
-                        multiSelect
-                        readOnly
-                        placeholder=""
-                        rendered={ false }/> {/* TODO: redesign subroles agenda */}
-                      <Basic.SelectBox
-                        ref="subRoles"
-                        label={this.i18n('entity.Role.subRoles')}
-                        manager={roleManager}
-                        multiSelect
-                        rendered={ false }/> {/* TODO: redesign subroles agenda */}
-                      <Basic.SelectBox
-                        ref="guarantees"
-                        label={this.i18n('entity.Role.guarantees')}
-                        multiSelect
-                        manager={identityManger}/>
-                      <Basic.Checkbox
-                        ref="approveRemove"
-                        label={this.i18n('entity.Role.approveRemove')}/>
-                      <Basic.TextArea
-                        ref="description"
-                        label={this.i18n('entity.Role.description')}
-                        max={2000}/>
-                      <Basic.Checkbox
-                        ref="disabled"
-                        label={this.i18n('entity.Role.disabled')}/>
-                    </div>
-                  </Basic.Col>
-
-                  <Basic.Col lg={ 4 }>
-                    <h3 style={{ margin: '0 0 10px 0', padding: 0, borderBottom: '1px solid #ddd' }}>
-                      <span dangerouslySetInnerHTML={{ __html: this.i18n('setting.authority.header') }} className="pull-left"/>
-                      <Basic.HelpIcon content={authorityHelp} className="pull-right"/>
-                      <div className="clearfix"/>
-                    </h3>
-                    <AuthoritiesPanel
-                      ref="authorities"
-                      roleManager={ roleManager }
-                      authorities={ entity.authorities }
-                      disabled={ !SecurityManager.hasAuthority('AUTHORITY_UPDATE') || !roleManager.canSave(entity, _permissions) } />
-                  </Basic.Col>
-                </Basic.Row>
+                <div>
+                  <Basic.TextField
+                    ref="name"
+                    label={this.i18n('entity.Role.name')}
+                    required
+                    min={0}
+                    max={255}/>
+                  <Basic.EnumSelectBox
+                    ref="roleType"
+                    label={this.i18n('entity.Role.roleType')}
+                    enum={RoleTypeEnum}
+                    required
+                    readOnly={!Utils.Entity.isNew(entity)}/>
+                  <Basic.EnumSelectBox
+                    ref="priorityEnum"
+                    label={this.i18n('entity.Role.priorityEnum')}
+                    enum={RolePriorityEnum}
+                    onChange={this._onChangePriorityEnum.bind(this)}/>
+                  <Basic.TextField
+                    ref="priority"
+                    label={this.i18n('entity.Role.priority')}
+                    readOnly
+                    required/>
+                  <Basic.SelectBox
+                    multiSelect
+                    ref="roleCatalogues"
+                    label={this.i18n('entity.Role.roleCatalogue.name')}
+                    manager={roleCatalogueManager}/>
+                  <Basic.SelectBox
+                    ref="superiorRoles"
+                    label={this.i18n('entity.Role.superiorRoles')}
+                    manager={roleManager}
+                    multiSelect
+                    readOnly
+                    placeholder=""
+                    rendered={ false }/> {/* TODO: redesign subroles agenda */}
+                  <Basic.SelectBox
+                    ref="subRoles"
+                    label={this.i18n('entity.Role.subRoles')}
+                    manager={roleManager}
+                    multiSelect
+                    rendered={ false }/> {/* TODO: redesign subroles agenda */}
+                  <Basic.SelectBox
+                    ref="guarantees"
+                    label={this.i18n('entity.Role.guarantees')}
+                    multiSelect
+                    manager={identityManger}/>
+                  <Basic.Checkbox
+                    ref="approveRemove"
+                    label={this.i18n('entity.Role.approveRemove')}/>
+                  <Basic.TextArea
+                    ref="description"
+                    label={this.i18n('entity.Role.description')}
+                    max={2000}/>
+                  <Basic.Checkbox
+                    ref="disabled"
+                    label={this.i18n('entity.Role.disabled')}/>
+                </div>
               </Basic.AbstractForm>
             </Basic.PanelBody>
 

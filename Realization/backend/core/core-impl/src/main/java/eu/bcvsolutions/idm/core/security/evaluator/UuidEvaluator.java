@@ -62,7 +62,7 @@ public class UuidEvaluator extends AbstractAuthorizationEvaluator<Identifiable> 
 		}	
 		UUID uuid = getUuid(policy);
 		if (uuid != null && uuid.equals(entity.getId())) {
-			permissions.addAll(getBasePermissions(policy));
+			permissions.addAll(policy.getPermissions());
 		}
 		return permissions;
 	}

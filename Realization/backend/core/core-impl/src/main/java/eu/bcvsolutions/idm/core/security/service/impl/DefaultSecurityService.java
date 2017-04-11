@@ -6,12 +6,12 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
@@ -20,6 +20,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdentityDto;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.security.api.domain.AbstractAuthentication;
 import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
@@ -52,7 +53,7 @@ public class DefaultSecurityService implements SecurityService {
 	
 	@Override
 	public void setSystemAuthentication() {
-		this.setAuthentication(new IdmJwtAuthentication(new IdentityDto("[SYSTEM]"), null, getAllAvailableAuthorities(), null));
+		this.setAuthentication(new IdmJwtAuthentication(new IdentityDto("[SYSTEM]"), null, getAvailableAuthorities(), null));
 	}
 	
 	@Override
@@ -121,12 +122,15 @@ public class DefaultSecurityService implements SecurityService {
 		return result;
 	}
 	
-	/**
-	 * Returns true, if logged identity has APP_ADMIN authority. Could be used for single user mode.
-	 */
+
 	@Override
 	public boolean isAdmin() {
-		return hasAnyAuthority(IdmGroupPermission.APP_ADMIN);
+		return hasAnyAuthority(getAdminAuthority().getAuthority());
+	}
+	
+	@Override
+	public GrantedAuthority getAdminAuthority() {
+		return new DefaultGrantedAuthority(IdmGroupPermission.APP, IdmBasePermission.ADMIN);
 	}
 	
 	@Override
@@ -137,10 +141,16 @@ public class DefaultSecurityService implements SecurityService {
 	}
 	
 	@Override
-	public List<GrantedAuthority> getAllAvailableAuthorities() {
+	public List<GrantedAuthority> getAvailableAuthorities() {
 		return toAuthorities(getAvailableGroupPermissions());
 	}
 	
+	/**
+	 * TODO: move to utils
+	 * 
+	 * @param groupPermissions
+	 * @return
+	 */
 	public static List<GrantedAuthority> toAuthorities(List<GroupPermission> groupPermissions) {
 		Set<GrantedAuthority> authorities = new HashSet<>();
 		groupPermissions.forEach(groupPermission -> {
@@ -151,6 +161,8 @@ public class DefaultSecurityService implements SecurityService {
 	
 	/**
 	 * Returns all authorities from given groupPermissions
+	 * 
+	 * TODO: move to utils
 	 * 
 	 * @param groupPermissions
 	 * @return
@@ -170,17 +182,15 @@ public class DefaultSecurityService implements SecurityService {
 	/**
 	 * Transforms given authorities (string representation) to {@link GrantedAuthority}'s list.
 	 * 
+	 * TODO: move to utils (or remove at all and use AuthorityUtils directly)
+	 * 
 	 * @param authorities
 	 * @return
 	 */
 	public static List<GrantedAuthority> toAuthorities(Collection<String> authorities) {
 		Assert.notNull(authorities);
 		//
-		return authorities.stream()
-				.map(authority -> {
-					return new DefaultGrantedAuthority(authority);
-				})
-				.collect(Collectors.toList());
+		return AuthorityUtils.createAuthorityList(authorities.toArray(new String[authorities.size()]));
 	}
 
 }

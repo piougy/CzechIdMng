@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.rest.impl;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
@@ -19,6 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -38,6 +40,7 @@ import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.eav.rest.impl.IdmFormDefinitionController;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.domain.RoleType;
+import eu.bcvsolutions.idm.core.model.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.model.dto.filter.RoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmAudit;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
@@ -45,6 +48,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
 import eu.bcvsolutions.idm.core.model.entity.eav.IdmRoleFormValue;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuditService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 
 /**
@@ -239,6 +243,19 @@ public class IdmRoleController extends AbstractReadWriteEntityController<IdmRole
 		checkAccess(entity, IdmBasePermission.UPDATE);
 		//
 		return formDefinitionController.saveFormValues(entity, null, formValues, assembler);
+	}
+	
+	@ResponseBody
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_READ + "')")
+	@RequestMapping(value = "/{backendId}/authorities", method = RequestMethod.GET)
+	public Set<GrantedAuthority> getAuthorities(@PathVariable @NotNull String backendId) {
+		IdmRole entity = getEntity(backendId);
+		if (entity == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+		}
+		checkAccess(entity, IdmBasePermission.READ);
+		//
+		return entityLookupService.getDtoService(IdmAuthorizationPolicyDto.class, IdmAuthorizationPolicyService.class).getEnabledRoleAuthorities(entity.getId());
 	}
 	
 	@Override

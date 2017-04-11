@@ -13,7 +13,6 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.util.Assert;
 
@@ -125,24 +124,6 @@ public abstract class AbstractAuthorizationEvaluator<E extends Identifiable> imp
 	}
 	
 	/**
-	 * Returns policy's configured base permissons
-	 * 
-	 * @param policy
-	 * @return
-	 */
-	protected Set<String> getBasePermissions(AuthorizationPolicy policy) {
-		Set<String> permissions = new HashSet<>();
-		if (StringUtils.isNotEmpty(policy.getBasePermissions())) {
-			for (String basePermission : policy.getBasePermissions().split(AuthorizationPolicy.PERMISSION_SEPARATOR)) {
-				if(StringUtils.isNotBlank(basePermission)) {
-					permissions.add(basePermission.toUpperCase().trim());
-				}
-			}
-		}
-		return permissions;
-	}
-	
-	/**
 	 * Returns true, when policy has all given permissions
 	 * 
 	 * @param policy
@@ -151,7 +132,7 @@ public abstract class AbstractAuthorizationEvaluator<E extends Identifiable> imp
 	 */
 	protected boolean hasPermission(AuthorizationPolicy policy, BasePermission... permission) {
 		Assert.notNull(permission);
-		Set<String> permissions = getBasePermissions(policy);
+		Set<String> permissions = policy.getPermissions();
 		//
 		return permissions.contains(IdmBasePermission.ADMIN.getName())
 				|| hasPermission(permissions, permission);

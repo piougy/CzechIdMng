@@ -458,8 +458,7 @@
       "EXECUTE": "Spouštení"
     },
     "group": {
-      "AUTHORITY": "Oprávnění na agendy",
-      "AUTHORIZATIONPOLICY": "Práva na data",
+      "AUTHORIZATIONPOLICY": "Oprávnění",
       "APP": "Správa aplikace",
       "AUDIT": "Audit",
       "CONFIGURATION": "Konfigurace aplikace (veřejná)",
@@ -1198,9 +1197,9 @@
         }
       },
       "authorization-policies": {
-        "header": "Přidělená oprávnění na data",
-        "title": "Práva na data",
-        "label": "Práva na data",
+        "header": "Přidělená oprávnění",
+        "title": "Oprávnění",
+        "label": "Oprávnění",
         "edit": {
           "header": "{{name}} <small>detail oprávnění</small>"
         },
@@ -1209,6 +1208,9 @@
         },
         "save": {
           "success": "Oprávnění [{{record}}] bylo úspěšně uloženo"
+        },
+        "evaluator": {
+          "default": "Bude použit výchozí typ vyhodnocení pro zvolenou agendu. Agenda nepodporuje jiné typy vyhodnocení."
         }
       }
     },
@@ -1971,9 +1973,9 @@
       "seq": "Pořadí",
       "evaluatorType": "Typ vyhodnocení",
       "authorizableType": {
-        "label": "Typ entity",
-        "placeholder": "Vyberte typ entity nebo nechte prázdné (všechny typy)",
-        "help": "Pokud není vybrán konkrétní typ entity, bude vyhodnocení spuštěno nad všemi typy entit"
+        "label": "Agenda / Typ entity",
+        "placeholder": "Vyberte agendu (typ entity) nebo nechte prázdné (všechny agendy / typy)",
+        "help": "Pokud není vybrána konkrétní agenda, bude vyhodnocení spuštěno nad všemi agendami (typy entit)"
       },
       "evaluatorProperties": {
         "label": "Nastavení",

@@ -2,7 +2,6 @@ package eu.bcvsolutions.idm;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
@@ -18,7 +17,6 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
-import eu.bcvsolutions.idm.core.model.entity.IdmRoleAuthority;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
@@ -33,6 +31,7 @@ import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationTemplate
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.security.api.service.CryptService;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.security.evaluator.BasePermissionEvaluator;
@@ -101,22 +100,10 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 				final IdmRole superAdminRole = new IdmRole();
 				superAdminRole.setName(ADMIN_ROLE);
 				superAdminRole.setRoleType(RoleType.SYSTEM);
-				superAdminRole.setRoleType(RoleType.SYSTEM);
-				List<IdmRoleAuthority> authorities = new ArrayList<>();
-				securityService.getAvailableGroupPermissions().forEach(groupPermission -> {
-					groupPermission.getPermissions().forEach(basePermission -> {
-						IdmRoleAuthority privilege = new IdmRoleAuthority();
-						privilege.setRole(superAdminRole);
-						privilege.setTargetPermission(groupPermission);
-						privilege.setActionPermission(basePermission);
-						authorities.add(privilege);
-					});
-		
-				});
-				superAdminRole.setAuthorities(authorities);
 				existsSuperAdminRole = this.roleService.save(superAdminRole);
 				// super admin authorization policy
 				IdmAuthorizationPolicyDto policy = new IdmAuthorizationPolicyDto();
+				policy.setGroupPermission(IdmGroupPermission.APP.getName());
 				policy.setPermissions(IdmBasePermission.ADMIN);
 				policy.setRole(existsSuperAdminRole.getId());
 				policy.setEvaluator(BasePermissionEvaluator.class);

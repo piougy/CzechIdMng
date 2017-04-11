@@ -66,4 +66,14 @@ public interface EntityLookupService {
 	 * @return
 	 */
 	<E extends BaseEntity, S extends ReadEntityService<E, ?>> S getEntityService(Class<E> entityClass, Class<S> entityServiceClass);
+	
+	/**
+	 * Returns base service for given dto
+	 * 
+	 * @param dtoClass
+	 * @param <DTO> {@link BaseDto} type
+	 * @param <S> {@link ReadDtoService} type
+	 * @return
+	 */
+	<DTO extends BaseDto, S extends ReadDtoService<DTO, ?, ?>> S getDtoService(Class<DTO> dtoClass, Class<S> dtoServiceClass);
 }

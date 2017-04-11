@@ -19,7 +19,8 @@ class EnumSelectBox extends SelectBox {
   }
 
   setValue(value) {
-    super.setValue(this.normalizeValue(value));
+    const option = this.getOptions().find(o => { return o.value === value; });
+    super.setValue(option ? option : this.normalizeValue(value));
   }
 
   getOptions() {
@@ -172,31 +173,36 @@ class EnumSelectBox extends SelectBox {
     if (value instanceof Array && this.props.multiSelect === true) {
       const copyValue = [];
       for (const item of value) {
-        copyValue.push(this._convertValue((this._deletePrivateField(_.merge({}, item))).value));
+        copyValue.push(this._convertValue(_.merge({}, item)));
       }
       return copyValue;
     }
     // value is not array
-    const copyValue = _.merge({}, value);
-    this._deletePrivateField(copyValue);
-    return this._convertValue(copyValue.value);
+    return this._convertValue(_.merge({}, value));
   }
 
   /**
-   * Converts value to / from symbol - is dependent on input - when input is string - results is string. Enum property has to be setted.
+   * Converts value to / from symbol or object. Is dependent on input and props:
+   * - when input is string - results is string. Enum property has to be setted.
+   * - when useObject is true, then returns whole object
    *
    * @param  {[type]} value selected value
    * @return {string|symbol}
    */
-  _convertValue(value) {
-    if (!value) {
+  _convertValue(item) {
+    if (!item) {
       // nothing to convert
-      return value;
+      return item;
+    }
+    if (this.props.useObject) {
+      // or useObject - keeping value intouched
+      return item;
     }
     if (!this.props.enum) {
       // Enum property has to be setted - when option props is given, then nothing can be done.
-      return value;
+      return item.value;
     }
+    const value = item.value;
     //
     let convertedValue = value;
     if (this.useSymbol) {
@@ -260,6 +266,7 @@ EnumSelectBox.propTypes = {
   ]),
   searchable: PropTypes.bool,
   useSymbol: PropTypes.bool,
+  useObject: PropTypes.bool,
   clearable: PropTypes.bool
 };
 
@@ -267,6 +274,7 @@ EnumSelectBox.defaultProps = {
   ...SelectBox.defaultProps,
   searchable: false,
   useSymbol: true,
+  useObject: false,
   clearable: true
 };
 

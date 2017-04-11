@@ -4,13 +4,12 @@ import { connect } from 'react-redux';
 //
 import * as Basic from '../../components/basic';
 import * as Utils from '../../utils';
-import { IdentityManager, RoleManager, DataManager } from '../../redux';
+import { IdentityManager, DataManager } from '../../redux';
 import AuthoritiesPanel from '../role/AuthoritiesPanel';
 import authorityHelp from '../role/AuthoritiesPanel_cs.md';
 
 const uiKeyAuthorities = 'identity-roles';
 const identityManager = new IdentityManager();
-const roleManager = new RoleManager();
 
 /**
  * Identity's authorities
@@ -50,10 +49,7 @@ class IdentityAuthorities extends Basic.AbstractContent {
             <h3><span dangerouslySetInnerHTML={{ __html: this.i18n('header') }}/></h3>
           </Basic.PanelHeader>
 
-          <AuthoritiesPanel
-            roleManager={roleManager}
-            authorities={authorities}
-            disabled/>
+          <AuthoritiesPanel authorities={authorities} />
 
         </Basic.Panel>
       </div>

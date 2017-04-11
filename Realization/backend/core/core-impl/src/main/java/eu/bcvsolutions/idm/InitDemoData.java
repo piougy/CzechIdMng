@@ -19,7 +19,6 @@ import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
-import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.domain.IdmPasswordPolicyType;
 import eu.bcvsolutions.idm.core.model.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
@@ -27,7 +26,6 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
-import eu.bcvsolutions.idm.core.model.entity.IdmRoleAuthority;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleComposition;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
@@ -169,17 +167,6 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				//
 				IdmRole role1 = new IdmRole();
 				role1.setName("userRole");
-				// add autocomplete endpoint access
-				IdmRoleAuthority p1 = new IdmRoleAuthority();
-				p1.setRole(role1);
-				p1.setTargetPermission(CoreGroupPermission.IDENTITY);
-				p1.setActionPermission(IdmBasePermission.AUTOCOMPLETE);
-				role1.getAuthorities().add(p1);
-				IdmRoleAuthority p2 = new IdmRoleAuthority();
-				p2.setRole(role1);
-				p2.setTargetPermission(CoreGroupPermission.ROLE);
-				p2.setActionPermission(IdmBasePermission.AUTOCOMPLETE);
-				role1.getAuthorities().add(p2);
 				role1 = this.roleService.save(role1);
 				IdmAuthorizationPolicyDto policy = new IdmAuthorizationPolicyDto();
 				// add autocomplete data access

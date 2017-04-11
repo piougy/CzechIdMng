@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
+import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.security.dto.BasePermissionDto;
@@ -23,7 +23,7 @@ import eu.bcvsolutions.idm.core.security.dto.GroupPermissionDto;
  *
  */
 @RestController
-@RequestMapping(value = BaseEntityController.BASE_PATH + "/authorities/")
+@RequestMapping(value = BaseDtoController.BASE_PATH + "/authorities/")
 public class IdmAuthorityController {
 	
 	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(IdmAuthorityController.class);

@@ -63,5 +63,5 @@ public interface AuthorizationManager {
 	 * 
 	 * @return
 	 */
-	List<AuthorizableType> getAuthorizableTypes();
+	Set<AuthorizableType> getAuthorizableTypes();
 }

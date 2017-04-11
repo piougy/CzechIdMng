@@ -14,7 +14,7 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
-import eu.bcvsolutions.idm.core.model.entity.IdmRoleAuthority;
+import eu.bcvsolutions.idm.core.model.entity.IdmRoleGuarantee;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultGroovyScriptService;
 import eu.bcvsolutions.idm.core.security.exception.IdmSecurityException;
 import eu.bcvsolutions.idm.test.api.AbstractVerifiableUnitTest;
@@ -119,12 +119,12 @@ public class DefaultGroovyScriptServiceTest extends AbstractVerifiableUnitTest {
 
 	@Test(expected = IdmSecurityException.class)
 	public void testSecurityScriptListDeepUnvalid() {
-		String script = "return entity.authorities;";
+		String script = "return entity.guarantees;";
 		groovyScriptService.validateScript(script);
 		IdmRole role = new IdmRole();
-		List<IdmRoleAuthority> authorities = new ArrayList<>();
-		authorities.add(new IdmRoleAuthority());
-		role.setAuthorities(authorities);
+		List<IdmRoleGuarantee> guarantees = new ArrayList<>();
+		guarantees.add(new IdmRoleGuarantee());
+		role.setGuarantees(guarantees);
 		role.setName(TEST_ONE);
 		groovyScriptService.evaluate(script, ImmutableMap.of("entity", role));
 	}
@@ -134,12 +134,12 @@ public class DefaultGroovyScriptServiceTest extends AbstractVerifiableUnitTest {
 		String script = "return list;";
 		groovyScriptService.validateScript(script);
 		IdmRole role = new IdmRole();
-		List<IdmRoleAuthority> authorities = new ArrayList<>();
-		authorities.add(new IdmRoleAuthority());
-		role.setAuthorities(authorities);
+		List<IdmRoleGuarantee> guarantees = new ArrayList<>();
+		guarantees.add(new IdmRoleGuarantee());
+		role.setGuarantees(guarantees);
 		role.setName(TEST_ONE);
-		Object result = groovyScriptService.evaluate(script, ImmutableMap.of("entity", role, "list", authorities));
-		assertEquals(role.getAuthorities(), result);
+		Object result = groovyScriptService.evaluate(script, ImmutableMap.of("entity", role, "list", guarantees));
+		assertEquals(role.getGuarantees(), result);
 	}
 
 	@Test(expected = IdmSecurityException.class)

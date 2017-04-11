@@ -76,12 +76,6 @@ public class IdmRole extends AbstractEntity implements IdentifiableByName, Forma
 	private String description;
 	
 	@JsonManagedReference
-	@OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey( name = "none" )	
-	private List<IdmRoleAuthority> authorities;
-	
-	@JsonManagedReference
 	@OneToMany(mappedBy = "superior", cascade = CascadeType.ALL, orphanRemoval = true)
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )	
@@ -150,25 +144,6 @@ public class IdmRole extends AbstractEntity implements IdentifiableByName, Forma
 	
 	public RoleType getRoleType() {
 		return roleType;
-	}
-	
-	public List<IdmRoleAuthority> getAuthorities() {
-		if (authorities == null) {
-			authorities = new ArrayList<>();
-		}
-		return authorities;
-	}
-
-	public void setAuthorities(List<IdmRoleAuthority> authorities) {
-		// workaround - orphan removal needs to preserve original list reference
-		if (this.authorities == null) {
-	        this.authorities = authorities;
-	    } else {
-	        this.authorities.clear();
-	        if(authorities != null){
-	        	this.authorities.addAll(authorities);
-	        }
-	    }
 	}
 	
 	public List<IdmRoleComposition> getSubRoles() {

@@ -23,6 +23,7 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.dto.IdentityDto;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
@@ -183,6 +184,6 @@ public class IdentityContractSecurityTest extends AbstractRestTest {
 	}
 	
 	private Authentication getAuthentication() {
-		return new IdmJwtAuthentication(new IdentityDto("[SYSTEM]"), null, securityService.getAllAvailableAuthorities(), "test");
+		return new IdmJwtAuthentication(new IdentityDto("[SYSTEM]"), null, Lists.newArrayList(securityService.getAdminAuthority()), "test");
 	}
 }

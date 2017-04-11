@@ -25,6 +25,7 @@ import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
+import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.model.dto.filter.AuthorizationPolicyFilter;
@@ -33,10 +34,10 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.repository.IdmAuthorizationPolicyRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
+import eu.bcvsolutions.idm.core.security.api.domain.DefaultGrantedAuthority;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
-import eu.bcvsolutions.idm.core.security.domain.DefaultGrantedAuthority;
 
 /**
  * Assign authorization evaluator to role.
@@ -51,16 +52,20 @@ public class DefaultIdmAuthorizationPolicyService
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmAuthorizationPolicyService.class);
 	private final IdmAuthorizationPolicyRepository repository;
 	private final IdmRoleService roleService;
+	private final ModuleService moduleService;
 	
 	public DefaultIdmAuthorizationPolicyService(
 			IdmAuthorizationPolicyRepository repository, 
-			IdmRoleService roleService) {
+			IdmRoleService roleService,
+			ModuleService moduleService) {
 		super(repository);
 		//
 		Assert.notNull(roleService);
+		Assert.notNull(moduleService);
 		//
 		this.repository = repository;
 		this.roleService = roleService;
+		this.moduleService = moduleService;
 	}
 	
 	@Override
@@ -150,11 +155,20 @@ public class DefaultIdmAuthorizationPolicyService
 		final Set<GrantedAuthority> authorities = new HashSet<>();
 		// find all active policies and return their authority by authorizable type
 		for (IdmAuthorizationPolicy policy : repository.getPolicies(roleId, false)) {
-			if (StringUtils.isEmpty(policy.getGroupPermission()) || IdmGroupPermission.APP.getName().equals(policy.getGroupPermission())) {
-				// admin - one "big boss" authority
+			if (IdmGroupPermission.APP.getName().equals(policy.getGroupPermission())
+					|| (StringUtils.isEmpty(policy.getGroupPermission()) && policy.getPermissions().contains(IdmBasePermission.ADMIN.getName()))) {
+				// admin
 				return Sets.newHashSet(new DefaultGrantedAuthority(IdmGroupPermission.APP.getName(), IdmBasePermission.ADMIN.getName()));
-			}			
-			if (policy.getPermissions().contains(IdmBasePermission.ADMIN.getName())) {				
+			}
+			if (StringUtils.isEmpty(policy.getGroupPermission())) {			
+				moduleService.getAvailablePermissions().forEach(groupPermission -> {
+					if (!IdmGroupPermission.APP.equals(groupPermission)) { // app is wildcard only
+						for(String permission : policy.getPermissions()) {
+							authorities.add(new DefaultGrantedAuthority(groupPermission.getName(), permission));
+						};
+					}
+				});
+			} else if (policy.getPermissions().contains(IdmBasePermission.ADMIN.getName())) {	
 				authorities.add(new DefaultGrantedAuthority(policy.getGroupPermission(), IdmBasePermission.ADMIN.getName()));					
 			} else {
 				for(String permission : policy.getPermissions()) {

@@ -12,6 +12,7 @@ import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.model.repository.IdmAuthorizationPolicyRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleTreeNodeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
@@ -57,8 +58,8 @@ public class IdmServiceConfiguration {
 	
 	
 	@Bean
-	public RoleHierarchy roleHierarchy(SecurityService securityService) {
-	    return new IdmAuthorityHierarchy(securityService);
+	public RoleHierarchy roleHierarchy(ModuleService moduleService) {
+	    return new IdmAuthorityHierarchy(moduleService);
 	}
 	
 	/**
@@ -114,8 +115,9 @@ public class IdmServiceConfiguration {
 	@Bean
 	public IdmAuthorizationPolicyService authorizationPolicyService(
 			IdmAuthorizationPolicyRepository repository,
-			IdmRoleService roleService) {
-		return new DefaultIdmAuthorizationPolicyService(repository, roleService);
+			IdmRoleService roleService,
+			ModuleService moduleService) {
+		return new DefaultIdmAuthorizationPolicyService(repository, roleService, moduleService);
 	}
 	
 	/**
@@ -126,7 +128,11 @@ public class IdmServiceConfiguration {
 	 * @return
 	 */
 	@Bean
-	public AuthorizationManager authorizationManager(IdmAuthorizationPolicyRepository repository, IdmRoleService roleService, SecurityService securityService) {
-		return new DefaultAuthorizationManager(context, authorizationPolicyService(repository, roleService), securityService);
+	public AuthorizationManager authorizationManager(
+			IdmAuthorizationPolicyRepository repository, 
+			IdmRoleService roleService, 
+			SecurityService securityService,
+			ModuleService moduleService) {
+		return new DefaultAuthorizationManager(context, authorizationPolicyService(repository, roleService, moduleService), securityService, moduleService);
 	}
 }

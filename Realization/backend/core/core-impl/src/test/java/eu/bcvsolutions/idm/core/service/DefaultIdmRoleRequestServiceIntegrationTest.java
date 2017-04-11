@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.TestHelper;
 import eu.bcvsolutions.idm.core.api.dto.IdentityDto;
+import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.model.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.domain.RoleRequestState;
@@ -36,9 +37,9 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
-import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
-import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
+import eu.bcvsolutions.idm.core.security.api.utils.IdmAuthorityUtils;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
@@ -64,9 +65,9 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractIntegra
 	@Autowired
 	private IdmRoleRequestService roleRequestService;
 	@Autowired
-	private SecurityService securityService;
+	private ModuleService moduleService;
 	@Autowired
-	private IdmRoleService roleService;;
+	private IdmRoleService roleService;
 	@Autowired
 	private IdmConfigurationService configurationService;
 
@@ -328,8 +329,10 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractIntegra
 	public void notRightForExecuteImmediatelyExceptionTest() {
 		this.logout();
 		// Log as user without right for immediately execute role request (without approval)
-		Collection<GrantedAuthority> authorities = securityService.getAvailableAuthorities().stream().filter(authority -> {
-			return !CoreGroupPermission.ROLE_REQUEST_EXECUTE.equals(authority.getAuthority());
+		Collection<GrantedAuthority> authorities = IdmAuthorityUtils.toAuthorities(moduleService.getAvailablePermissions()).stream().filter(authority -> {
+			return !CoreGroupPermission.ROLE_REQUEST_EXECUTE.equals(authority.getAuthority())
+					&& !CoreGroupPermission.ROLE_REQUEST_ADMIN.equals(authority.getAuthority())
+					&& !IdmGroupPermission.APP_ADMIN.equals(authority.getAuthority());
 		}).collect(Collectors.toList());
 		SecurityContextHolder.getContext().setAuthentication(new IdmJwtAuthentication(new IdentityDto(USER_TEST_A), null, authorities, "test"));
 		

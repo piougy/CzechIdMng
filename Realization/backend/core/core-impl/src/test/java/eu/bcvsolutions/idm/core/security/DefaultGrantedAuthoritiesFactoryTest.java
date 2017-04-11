@@ -2,17 +2,14 @@ package eu.bcvsolutions.idm.core.security;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.springframework.security.core.GrantedAuthority;
@@ -20,6 +17,7 @@ import org.springframework.security.core.GrantedAuthority;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
+import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
@@ -29,12 +27,13 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRoleComposition;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
+import eu.bcvsolutions.idm.core.security.api.domain.DefaultGrantedAuthority;
 import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
-import eu.bcvsolutions.idm.core.security.domain.DefaultGrantedAuthority;
 import eu.bcvsolutions.idm.core.security.service.impl.DefaultGrantedAuthoritiesFactory;
-import eu.bcvsolutions.idm.core.security.service.impl.DefaultSecurityService;
-import eu.bcvsolutions.idm.test.api.AbstractVerifiableUnitTest;
+import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
 
 /**
  * Test for {@link DefaultGrantedAuthoritiesFactory}
@@ -42,12 +41,17 @@ import eu.bcvsolutions.idm.test.api.AbstractVerifiableUnitTest;
  * @author Radek Tomiška 
  *
  */
-@Ignore
-public class DefaultGrantedAuthoritiesFactoryTest extends AbstractVerifiableUnitTest {
+public class DefaultGrantedAuthoritiesFactoryTest extends AbstractUnitTest {
 	
 	private static final IdmIdentity TEST_IDENTITY;
 	private static final List<IdmIdentityRole> IDENTITY_ROLES;
 	private static final List<GroupPermission> groupPermissions = new ArrayList<>();
+	private static final Set<GrantedAuthority> DEFAULT_AUTHORITIES = Sets.newHashSet(
+			new DefaultGrantedAuthority(CoreGroupPermission.ROLE_CREATE), 
+			new DefaultGrantedAuthority(CoreGroupPermission.ROLE_CREATE), 
+			new DefaultGrantedAuthority(CoreGroupPermission.ROLE_CREATE), 
+			new DefaultGrantedAuthority(CoreGroupPermission.ROLE_DELETE),
+			new DefaultGrantedAuthority(CoreGroupPermission.ROLE_DELETE));
 	
 	@Mock
 	private IdmIdentityService identityService;	
@@ -55,6 +59,8 @@ public class DefaultGrantedAuthoritiesFactoryTest extends AbstractVerifiableUnit
 	private IdmIdentityRoleService identityRoleService;
 	@Mock
 	private SecurityService securityService;
+	@Mock
+	private ModuleService moduleService;
 	@Mock
 	private IdmAuthorizationPolicyService authorizationPolicyService;
 	//
@@ -104,24 +110,17 @@ public class DefaultGrantedAuthoritiesFactoryTest extends AbstractVerifiableUnit
 //		
 //		assertEquals(SUB_ROLE_AUTHORITY.getAuthority(), grantedAuthorities.get(0).getAuthority());
 //		
-//		verify(identityService).getByUsername(TEST_IDENTITY.getUsername());
-//		verify(identityRoleService).getRoles(TEST_IDENTITY);
-//		verify(authorizationPolicyService).getDefaultAuthorities();
 //	}
 	
 	@Test
 	public void testUniqueAuthorities() {
 		when(identityService.getByUsername(TEST_IDENTITY.getUsername())).thenReturn(TEST_IDENTITY);
 		when(identityRoleService.getRoles(TEST_IDENTITY)).thenReturn(IDENTITY_ROLES);
-		when(authorizationPolicyService.getDefaultAuthorities()).thenReturn(new HashSet<GrantedAuthority>());
+		when(authorizationPolicyService.getDefaultAuthorities()).thenReturn(DEFAULT_AUTHORITIES);
 		
 		List<GrantedAuthority> grantedAuthorities =  defaultGrantedAuthoritiesFactory.getGrantedAuthorities(TEST_IDENTITY.getUsername());
 		
-		assertEquals(1, grantedAuthorities.size());
-		
-		verify(identityService).getByUsername(TEST_IDENTITY.getUsername());
-		verify(identityRoleService).getRoles(TEST_IDENTITY);
-		verify(authorizationPolicyService).getDefaultAuthorities();
+		assertEquals(2, grantedAuthorities.size());
 	}
 	
 	/**
@@ -140,19 +139,19 @@ public class DefaultGrantedAuthoritiesFactoryTest extends AbstractVerifiableUnit
 		identityRole.setRole(role);
 		List<IdmIdentityRole> roles = Lists.newArrayList(identityRole);
 		
-		when(securityService.getAvailableAuthorities()).thenReturn(DefaultSecurityService.toAuthorities(groupPermissions));
+		when(moduleService.getAvailablePermissions()).thenReturn(groupPermissions);
 		when(identityService.getByUsername(identity.getUsername())).thenReturn(identity);
 		when(identityRoleService.getRoles(identity)).thenReturn(roles);
-		when(authorizationPolicyService.getDefaultAuthorities()).thenReturn(new HashSet<GrantedAuthority>());
+		when(authorizationPolicyService.getDefaultAuthorities()).thenReturn(Sets.newHashSet(
+				new DefaultGrantedAuthority(IdmGroupPermission.APP, IdmBasePermission.ADMIN),
+				new DefaultGrantedAuthority(CoreGroupPermission.IDENTITY, IdmBasePermission.READ),
+				new DefaultGrantedAuthority(CoreGroupPermission.IDENTITY, IdmBasePermission.ADMIN)
+				));
 		
 		List<GrantedAuthority> grantedAuthorities = defaultGrantedAuthoritiesFactory.getGrantedAuthorities(identity.getUsername());
 		
-		assertTrue(grantedAuthorities.containsAll(DefaultSecurityService.toAuthorities(groupPermissions)));
-		
-		verify(securityService).getAvailableAuthorities();
-		verify(identityService).getByUsername(identity.getUsername());
-		verify(identityRoleService).getRoles(identity);
-		verify(authorizationPolicyService).getDefaultAuthorities();
+		assertEquals(1, grantedAuthorities.size());
+		assertEquals(new DefaultGrantedAuthority(IdmGroupPermission.APP, IdmBasePermission.ADMIN), grantedAuthorities.iterator().next());
 	}
 	
 	/**
@@ -172,36 +171,30 @@ public class DefaultGrantedAuthoritiesFactoryTest extends AbstractVerifiableUnit
 		identityRole.setRole(role);
 		List<IdmIdentityRole> roles = Lists.newArrayList(identityRole);
 		
-		when(securityService.getAvailableGroupPermissions()).thenReturn(groupPermissions);
+		when(moduleService.getAvailablePermissions()).thenReturn(groupPermissions);
 		when(identityService.getByUsername(identity.getUsername())).thenReturn(identity);
 		when(identityRoleService.getRoles(identity)).thenReturn(roles);
-		when(authorizationPolicyService.getDefaultAuthorities()).thenReturn(new HashSet<GrantedAuthority>());
-		
+		when(authorizationPolicyService.getDefaultAuthorities()).thenReturn(Sets.newHashSet(
+				new DefaultGrantedAuthority(CoreGroupPermission.IDENTITY, IdmBasePermission.ADMIN),
+				new DefaultGrantedAuthority(CoreGroupPermission.IDENTITY, IdmBasePermission.READ),
+				new DefaultGrantedAuthority(CoreGroupPermission.IDENTITY, IdmBasePermission.DELETE)
+				));
+		// returns trimmed authorities
 		List<GrantedAuthority> grantedAuthorities = defaultGrantedAuthoritiesFactory.getGrantedAuthorities(identity.getUsername());
-			
-		assertTrue(grantedAuthorities.containsAll(DefaultSecurityService.toAuthorities(CoreGroupPermission.IDENTITY)));
-		assertEquals(CoreGroupPermission.IDENTITY.getPermissions().size(), grantedAuthorities.size());
-		
-		verify(securityService).getAvailableGroupPermissions();
-		verify(identityService).getByUsername(identity.getUsername());
-		verify(identityRoleService).getRoles(identity);
-		verify(authorizationPolicyService).getDefaultAuthorities();
+		//
+		assertEquals(1, grantedAuthorities.size());
+		assertEquals(new DefaultGrantedAuthority(CoreGroupPermission.IDENTITY, IdmBasePermission.ADMIN), grantedAuthorities.iterator().next());
 	}
 	
 	@Test
 	public void testDefaultRoleAutorities() {
-		Set<GrantedAuthority> authorities = Sets.newHashSet(new DefaultGrantedAuthority(CoreGroupPermission.ROLE_CREATE), new DefaultGrantedAuthority(CoreGroupPermission.ROLE_DELETE));
 		when(identityService.getByUsername(TEST_IDENTITY.getUsername())).thenReturn(TEST_IDENTITY);
 		when(identityRoleService.getRoles(TEST_IDENTITY)).thenReturn(new ArrayList<>());
-		when(authorizationPolicyService.getDefaultAuthorities()).thenReturn(authorities);
+		when(authorizationPolicyService.getDefaultAuthorities()).thenReturn(DEFAULT_AUTHORITIES);
 		
 		List<GrantedAuthority> grantedAuthorities =  defaultGrantedAuthoritiesFactory.getGrantedAuthorities(TEST_IDENTITY.getUsername());
 		
 		assertEquals(2, grantedAuthorities.size());
-		assertTrue(grantedAuthorities.containsAll(authorities));
-		
-		verify(identityService).getByUsername(TEST_IDENTITY.getUsername());
-		verify(identityRoleService).getRoles(TEST_IDENTITY);
-		verify(authorizationPolicyService).getDefaultAuthorities();
+		assertTrue(grantedAuthorities.containsAll(DEFAULT_AUTHORITIES));
 	}
 }

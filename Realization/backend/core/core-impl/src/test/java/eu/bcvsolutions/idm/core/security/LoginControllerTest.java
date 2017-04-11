@@ -41,7 +41,6 @@ public class LoginControllerTest extends AbstractIntegrationTest {
 		assertEquals(InitTestData.TEST_ADMIN_USERNAME, authentication.getOriginalUsername());
 	}
 	
-	@Ignore
 	@Test(expected = AuthenticationException.class)
 	public void testBadCredentialsLogIn() {
 		LoginDto loginDto = new LoginDto();

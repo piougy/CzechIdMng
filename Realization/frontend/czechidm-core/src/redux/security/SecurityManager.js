@@ -258,7 +258,10 @@ export default class SecurityManager {
     if (!this.isAuthenticated(userContext) || !userContext.authorities || !authorities) {
       return false;
     }
-    return this.isAdmin(userContext) || _.difference(authorities, userContext.authorities).length === 0;
+    if (this.isAdmin(userContext)) {
+      return true;
+    }
+    return _.difference(authorities, userContext.authorities).length === 0;
   }
 
   /**

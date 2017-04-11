@@ -10,10 +10,11 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
-import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
+import eu.bcvsolutions.idm.core.security.api.utils.IdmAuthorityUtils;
 
 /**
  * Adds admin wildcard roles APP_ADMIN > *, ROLE_ADMIN > ROLE_*
@@ -25,13 +26,13 @@ import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
  */
 public class IdmAuthorityHierarchy implements RoleHierarchy {
 	
-	private final SecurityService securityService;
-	public final String ADMIN_SUFFIX = String.format("_%s", IdmBasePermission.ADMIN);
+	private final ModuleService moduleService;
+	public static final String ADMIN_SUFFIX = String.format("_%s", IdmBasePermission.ADMIN);
 	
-	public IdmAuthorityHierarchy(SecurityService securityService) {
-		Assert.notNull(securityService);
+	public IdmAuthorityHierarchy(ModuleService moduleService) {
+		Assert.notNull(moduleService);
 		//
-		this.securityService = securityService;
+		this.moduleService = moduleService;
 	}
 
 	@Override
@@ -46,21 +47,33 @@ public class IdmAuthorityHierarchy implements RoleHierarchy {
 			String authority = grantedAuthority.getAuthority();
 			//
 			if (authority.equals(IdmGroupPermission.APP_ADMIN)) {
-				// super admin has all available authorities
-				return securityService.getAvailableAuthorities();
+				// super admin has all available authorities				
+				return IdmAuthorityUtils.toAuthorities(moduleService.getAvailablePermissions());
 			}
 			reachableRoles.add(grantedAuthority);
 			if (authority.endsWith(ADMIN_SUFFIX)) {
-				String groupName = authority.substring(0, - ADMIN_SUFFIX.length());
-				for (GroupPermission groupPermission : securityService.getAvailableGroupPermissions()) {
+				String groupName = getGroupName(authority);
+				for (GroupPermission groupPermission : moduleService.getAvailablePermissions()) {
 					if (groupPermission.getName().equals(groupName)) {
-						reachableRoles.addAll(DefaultSecurityService.toAuthorities(groupPermission));
+						reachableRoles.addAll(IdmAuthorityUtils.toAuthorities(groupPermission));
 						break;
 					}
 				}
 			}			
 		}		
 		return Collections.unmodifiableCollection(reachableRoles);
+	}
+	
+	/**
+	 * Returns group permission name from given authority.
+	 * 
+	 * TODO: Move to utils
+	 * 
+	 * @param authority
+	 * @return
+	 */
+	public static String getGroupName(String authority) {
+		return authority.substring(0, authority.lastIndexOf('_'));
 	}
 
 }

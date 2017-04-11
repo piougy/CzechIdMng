@@ -20,6 +20,7 @@ import org.springframework.util.Assert;
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
+import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.model.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
@@ -43,6 +44,7 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 	private final IdmAuthorizationPolicyService service;
 	private final ApplicationContext context;
 	private final SecurityService securityService;
+	private final ModuleService moduleService;
 	// cache
 	private final Map<String, AuthorizationEvaluator<?>> evaluators = new HashMap<>();
 	private Set<AuthorizableType> authorizableTypes = null;
@@ -50,14 +52,17 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 	public DefaultAuthorizationManager(
 			ApplicationContext context,
 			IdmAuthorizationPolicyService service,
-			SecurityService securityService) {
+			SecurityService securityService,
+			ModuleService moduleService) {
 		Assert.notNull(service);
 		Assert.notNull(context);
 		Assert.notNull(securityService);
+		Assert.notNull(moduleService);
 		//
 		this.service = service;
 		this.context = context;
 		this.securityService = securityService;
+		this.moduleService = moduleService;
 	}
 	
 	@Override
@@ -166,7 +171,7 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 				authorizableTypes.add(service.getAuthorizableType());
 			});
 			// add default - doesn't supports authorization evaluators
-			securityService.getAvailableGroupPermissions().forEach(groupPermission -> {
+			moduleService.getAvailablePermissions().forEach(groupPermission -> {
 				authorizableTypes.add(new AuthorizableType(groupPermission, null));
 			});
 		}

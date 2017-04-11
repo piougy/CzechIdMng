@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
+import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
-import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.security.dto.BasePermissionDto;
 import eu.bcvsolutions.idm.core.security.dto.GroupPermissionDto;
 
@@ -29,7 +29,7 @@ public class IdmAuthorityController {
 	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(IdmAuthorityController.class);
 	
 	@Autowired
-	private SecurityService securityService;
+	private ModuleService moduleService;
 	
 	/**
 	 * Provides authorities configurable for idm roles
@@ -40,7 +40,7 @@ public class IdmAuthorityController {
 	public List<GroupPermissionDto> getAvailableAuthorities() {
 		log.debug("Loading all available authorities");
 		Map<String, GroupPermissionDto> distinctAuthorities = new HashMap<>();
-		List<GroupPermission> groupPermissions = securityService.getAvailableGroupPermissions();		
+		List<GroupPermission> groupPermissions = moduleService.getAvailablePermissions();		
 		groupPermissions.forEach(groupPermission -> {
 			if (!distinctAuthorities.containsKey(groupPermission.getName())) {
 				distinctAuthorities.put(groupPermission.getName(), new GroupPermissionDto(groupPermission));

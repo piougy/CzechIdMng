@@ -19,8 +19,9 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
+import eu.bcvsolutions.idm.core.security.api.domain.DefaultGrantedAuthority;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
-import eu.bcvsolutions.idm.core.security.domain.DefaultGrantedAuthority;
 import eu.bcvsolutions.idm.core.security.exception.IdmAuthenticationException;
 import eu.bcvsolutions.idm.core.security.service.GrantedAuthoritiesFactory;
 
@@ -91,11 +92,29 @@ public class DefaultGrantedAuthoritiesFactory implements GrantedAuthoritiesFacto
 		return grantedAuthorities;
 	}
 	
-	private Set<GrantedAuthority> trimAdminAuthorities(Set<GrantedAuthority> authotities) {
-		if (authotities.contains(new DefaultGrantedAuthority(IdmGroupPermission.APP_ADMIN))) {
+	/**
+	 * trims redundant authorities
+	 * 
+	 * @param authorities
+	 * @return
+	 */
+	private Set<GrantedAuthority> trimAdminAuthorities(Set<GrantedAuthority> authorities) {
+		if (authorities.contains(new DefaultGrantedAuthority(IdmGroupPermission.APP_ADMIN))) {
 			return Sets.newHashSet(new DefaultGrantedAuthority(IdmGroupPermission.APP_ADMIN));
 		}
-		// TODO: trim groups with admin suffix - IdmAuthorityHierarchy.ADMIN_SUFFIX
-		return authotities;
+		Set<GrantedAuthority> trimmedAuthorities = new HashSet<>();
+		authorities.forEach(grantedAuthority -> {
+			String authority = grantedAuthority.getAuthority();
+			if (authority.endsWith(IdmAuthorityHierarchy.ADMIN_SUFFIX)) {
+				trimmedAuthorities.add(grantedAuthority);
+			} else {
+				String groupName = IdmAuthorityHierarchy.getGroupName(authority);
+				if (!authorities.contains(new DefaultGrantedAuthority(groupName, IdmBasePermission.ADMIN.getName()))) {
+					trimmedAuthorities.add(grantedAuthority);
+				}				
+			}	
+			
+		});
+		return trimmedAuthorities;
 	}
 }

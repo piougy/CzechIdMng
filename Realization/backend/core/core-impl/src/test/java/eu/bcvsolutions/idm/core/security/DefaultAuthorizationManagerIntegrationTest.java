@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.TestHelper;
+import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.model.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.model.dto.filter.RoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
@@ -58,6 +59,8 @@ public class DefaultAuthorizationManagerIntegrationTest extends AbstractIntegrat
 	@Autowired
 	private SecurityService securityService;
 	@Autowired
+	private ModuleService moduleService;
+	@Autowired
 	private LoginService loginService;
 	@Autowired
 	private IdmRoleService roleService;
@@ -70,7 +73,7 @@ public class DefaultAuthorizationManagerIntegrationTest extends AbstractIntegrat
 	
 	@Before
 	public void init() {		
-		manager = new DefaultAuthorizationManager(context, service, securityService);
+		manager = new DefaultAuthorizationManager(context, service, securityService, moduleService);
 	}
 	
 	@Test

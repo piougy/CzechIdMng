@@ -15,6 +15,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.springframework.context.ApplicationContext;
 
+import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.model.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
@@ -39,6 +40,8 @@ public class DefaultAuthorizationManagerUnitTest extends AbstractUnitTest {
 	private IdmAuthorizationPolicyService service;
 	@Mock
 	private SecurityService securityService;
+	@Mock
+	private ModuleService moduleService;
 	//
 	private AuthorizationManager manager;
 	private List<IdmAuthorizationPolicyDto> enabledPolicies;
@@ -46,7 +49,7 @@ public class DefaultAuthorizationManagerUnitTest extends AbstractUnitTest {
 	
 	@Before
 	public void init() {		
-		manager = new DefaultAuthorizationManager(context, service, securityService);
+		manager = new DefaultAuthorizationManager(context, service, securityService, moduleService);
 		//
 		enabledPolicies = new ArrayList<>();
 		//

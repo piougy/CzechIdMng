@@ -143,7 +143,7 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	public Page<DTO> findDto(final F filter, Pageable pageable, BasePermission... permission) {
 		if (ObjectUtils.isEmpty(permission) || !(this instanceof AuthorizableService)) {
 			// TODO: remove filter method from repository with dto
-			return toDtoPage(getRepository().find(filter, pageable));
+			return toDtoPage(find(filter, pageable));
 		}
 		// transform filter to criteria
 		Specification<E> criteria = new Specification<E>() {

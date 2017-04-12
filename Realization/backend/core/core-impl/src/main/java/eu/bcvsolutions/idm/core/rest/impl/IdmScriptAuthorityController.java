@@ -20,23 +20,24 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
-import eu.bcvsolutions.idm.core.model.domain.IdmScriptCategory;
-import eu.bcvsolutions.idm.core.model.dto.IdmScriptDto;
-import eu.bcvsolutions.idm.core.model.dto.filter.ScriptFilter;
-import eu.bcvsolutions.idm.core.model.service.api.IdmScriptService;
+import eu.bcvsolutions.idm.core.model.dto.IdmScriptAuthorityDto;
+import eu.bcvsolutions.idm.core.model.dto.filter.ScriptAuthorityFilter;
+import eu.bcvsolutions.idm.core.model.service.api.IdmScriptAuthorityService;
 
 /**
- * Default controller for scripts, basic methods.
+ * Default controller for script authority (allowed services and class)
+ * Same permission as scripts
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
+
 @RepositoryRestController
-@RequestMapping(value = BaseDtoController.BASE_PATH + "/scripts")
-public class IdmScriptController extends DefaultReadWriteDtoController<IdmScriptDto, ScriptFilter> {
+@RequestMapping(value = BaseDtoController.BASE_PATH + "/script-authorities")
+public class IdmScriptAuthorityController extends DefaultReadWriteDtoController<IdmScriptAuthorityDto, ScriptAuthorityFilter>{
 
 	@Autowired
-	public IdmScriptController(IdmScriptService service) {
+	public IdmScriptAuthorityController(IdmScriptAuthorityService service) {
 		super(service);
 	}
 	
@@ -83,7 +84,7 @@ public class IdmScriptController extends DefaultReadWriteDtoController<IdmScript
 	@Override
 	@ResponseBody
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCRIPT_CREATE + "') or hasAuthority('" + CoreGroupPermission.SCRIPT_UPDATE + "')")
-	public ResponseEntity<?> post(IdmScriptDto dto) {
+	public ResponseEntity<?> post(IdmScriptAuthorityDto dto) {
 		return super.post(dto);
 	}
 
@@ -99,16 +100,7 @@ public class IdmScriptController extends DefaultReadWriteDtoController<IdmScript
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.PUT)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCRIPT_UPDATE + "')")
-	public ResponseEntity<?> put(@PathVariable @NotNull String backendId, @RequestBody @NotNull IdmScriptDto dto) {
+	public ResponseEntity<?> put(@PathVariable @NotNull String backendId, @RequestBody @NotNull IdmScriptAuthorityDto dto) {
 		return super.put(backendId, dto);
-	}
-
-	@Override
-	protected ScriptFilter toFilter(MultiValueMap<String, Object> parameters) {
-		ScriptFilter filter = new ScriptFilter();
-		filter.setText(getParameterConverter().toString(parameters, "text"));
-		filter.setCategory(getParameterConverter().toEnum(parameters, "category", IdmScriptCategory.class));
-		filter.setDescription(getParameterConverter().toString(parameters, "description"));
-		return filter;
 	}
 }

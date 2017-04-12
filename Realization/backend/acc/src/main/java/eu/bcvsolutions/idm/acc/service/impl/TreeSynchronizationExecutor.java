@@ -1,16 +1,24 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
+import java.beans.IntrospectionException;
+import java.lang.reflect.InvocationTargetException;
 import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 import javax.persistence.EntityManager;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.joda.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
@@ -18,19 +26,23 @@ import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
 import eu.bcvsolutions.idm.acc.domain.OperationResultType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationActionType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
-import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
-import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
+import eu.bcvsolutions.idm.acc.dto.AccTreeAccountDto;
+import eu.bcvsolutions.idm.acc.dto.EntityAccountDto;
+import eu.bcvsolutions.idm.acc.dto.filter.EntityAccountFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SynchronizationLogFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SystemAttributeMappingFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.TreeAccountFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
-import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount;
 import eu.bcvsolutions.idm.acc.entity.SysSyncActionLog;
+import eu.bcvsolutions.idm.acc.entity.SysSyncConfig;
 import eu.bcvsolutions.idm.acc.entity.SysSyncItemLog;
 import eu.bcvsolutions.idm.acc.entity.SysSyncLog;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
-import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
+import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
-import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
+import eu.bcvsolutions.idm.acc.service.api.AccTreeAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SynchronizationExecutor;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncActionLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
@@ -43,78 +55,259 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
+import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
-import eu.bcvsolutions.idm.core.model.dto.filter.IdentityFilter;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
-import eu.bcvsolutions.idm.core.model.event.IdentityEvent;
-import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
+import eu.bcvsolutions.idm.core.model.dto.IdmTreeNodeDto;
+import eu.bcvsolutions.idm.core.model.dto.filter.TreeNodeFilter;
+import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
+import eu.bcvsolutions.idm.core.model.event.TreeNodeEvent;
+import eu.bcvsolutions.idm.core.model.event.TreeNodeEvent.TreeNodeEventType;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
+import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
+import eu.bcvsolutions.idm.ic.api.IcConnectorKey;
+import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
+import eu.bcvsolutions.idm.ic.api.IcObjectClass;
+import eu.bcvsolutions.idm.ic.api.IcSyncToken;
+import eu.bcvsolutions.idm.ic.filter.api.IcFilter;
+import eu.bcvsolutions.idm.ic.filter.api.IcResultsHandler;
+import eu.bcvsolutions.idm.ic.impl.IcAttributeImpl;
+import eu.bcvsolutions.idm.ic.impl.IcObjectClassImpl;
+import eu.bcvsolutions.idm.ic.impl.IcSyncTokenImpl;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 
 @Component
-public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor implements SynchronizationExecutor  {
+public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor<IdmTreeNodeDto>
+		implements SynchronizationExecutor {
+	
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory
+			.getLogger(TreeSynchronizationExecutor.class);
+	private final static String PARENT_FIELD = "parent";
+	private final static String CODE_FIELD = "code";
+	private final static String EXTERNAL_ID_FIELD = "externalId";
 
 	private final IdmTreeNodeService treeNodeService;
-	private final AccIdentityAccountService identityAccoutnService;
-	private final IdmIdentityRoleService identityRoleService;
-	
+	private final AccTreeAccountService treeAccoutnService;
+
 	@Autowired
 	public TreeSynchronizationExecutor(IcConnectorFacade connectorFacade, SysSystemService systemService,
 			SysSystemAttributeMappingService attributeHandlingService,
 			SysSyncConfigService synchronizationConfigService, SysSyncLogService synchronizationLogService,
 			SysSyncActionLogService syncActionLogService, AccAccountService accountService,
 			SysSystemEntityService systemEntityService, ConfidentialStorage confidentialStorage,
-			FormService formService,
-			AccIdentityAccountService identityAccoutnService, SysSyncItemLogService syncItemLogService,
-			IdmIdentityRoleService identityRoleService, EntityEventManager entityEventManager,
-			GroovyScriptService groovyScriptService, WorkflowProcessInstanceService workflowProcessInstanceService,
-			EntityManager entityManager, IdmTreeNodeService treeNodeService) {
-		super(connectorFacade, systemService, attributeHandlingService, synchronizationConfigService, synchronizationLogService,
-				syncActionLogService, accountService, systemEntityService, confidentialStorage, formService, syncItemLogService,
-				entityEventManager, groovyScriptService, workflowProcessInstanceService, entityManager);
-		
+			FormService formService, AccTreeAccountService treeAccoutnService, SysSyncItemLogService syncItemLogService,
+			EntityEventManager entityEventManager, GroovyScriptService groovyScriptService,
+			WorkflowProcessInstanceService workflowProcessInstanceService, EntityManager entityManager,
+			IdmTreeNodeService treeNodeService) {
+		super(connectorFacade, systemService, attributeHandlingService, synchronizationConfigService,
+				synchronizationLogService, syncActionLogService, accountService, systemEntityService,
+				confidentialStorage, formService, syncItemLogService, entityEventManager, groovyScriptService,
+				workflowProcessInstanceService, entityManager);
+
 		Assert.notNull(treeNodeService, "Tree node service is mandatory!");
-		Assert.notNull(identityAccoutnService, "Identity account service is mandatory!");
-		Assert.notNull(identityRoleService, "Identity role service is mandatory!");
-		
-		
+		Assert.notNull(treeAccoutnService, "Tree account service is mandatory!");
+
 		this.treeNodeService = treeNodeService;
-		this.identityAccoutnService = identityAccoutnService;
-		this.identityRoleService = identityRoleService;
-		
+		this.treeAccoutnService = treeAccoutnService;
+
 	}
 	
-	/**
-	 * Delete entity linked with given account
-	 * 
-	 * @param account
-	 * @param entityType
-	 * @param log
-	 * @param logItem
-	 * @param actionLogs
-	 */
-	protected void doDeleteEntity(AccAccount account, SystemEntityType entityType, SysSyncLog log,
-			SysSyncItemLog logItem, List<SysSyncActionLog> actionLogs) {
-		if (SystemEntityType.IDENTITY == entityType) {
-			IdmIdentity identity = getIdentityByAccount(account);
-			if (identity == null) {
-				addToItemLog(logItem, "Identity account relation (with ownership = true) was not found!");
-				initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.WARNING, logItem, log,
-						actionLogs);
-				return;
-			}
-			// Delete identity
-//			identityService.delete(identity);
-		} else if (SystemEntityType.GROUP == entityType) {
-			// TODO: group
+	
+	@Override
+	public SysSyncConfig process(UUID synchronizationConfigId) {
+		SysSyncConfig config = synchronizationConfigService.get(synchronizationConfigId);
+		//
+		if (config == null) {
+			throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_NOT_FOUND,
+					ImmutableMap.of("id", synchronizationConfigId));
 		}
+		//
+		// Synchronization must be enabled
+		if (!config.isEnabled()) {
+			throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_IS_NOT_ENABLED,
+					ImmutableMap.of("name", config.getName()));
+		}
+
+		// Synchronization can not be running twice
+		SynchronizationLogFilter logFilter = new SynchronizationLogFilter();
+		logFilter.setSynchronizationConfigId(config.getId());
+		logFilter.setRunning(Boolean.TRUE);
+		if (!synchronizationLogService.find(logFilter, null).getContent().isEmpty()) {
+			throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_IS_RUNNING,
+					ImmutableMap.of("name", config.getName()));
+		}
+
+		SysSystemMapping mapping = config.getSystemMapping();
+		Assert.notNull(mapping);
+		SysSystem system = mapping.getSystem();
+		Assert.notNull(system);
+
+		// System must be enabled
+		if (system.isDisabled()) {
+			throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_SYSTEM_IS_NOT_ENABLED,
+					ImmutableMap.of("name", config.getName(), "system", system.getName()));
+		}
+
+		SystemEntityType entityType = mapping.getEntityType();
+		SystemAttributeMappingFilter attributeHandlingFilter = new SystemAttributeMappingFilter();
+		attributeHandlingFilter.setSystemMappingId(mapping.getId());
+		List<SysSystemAttributeMapping> mappedAttributes = attributeHandlingService.find(attributeHandlingFilter, null)
+				.getContent();
+
+		// Find connector identification persisted in system
+		IcConnectorKey connectorKey = system.getConnectorKey();
+		if (connectorKey == null) {
+			throw new ProvisioningException(AccResultCode.CONNECTOR_KEY_FOR_SYSTEM_NOT_FOUND,
+					ImmutableMap.of("system", system.getName()));
+		}
+
+		// Find connector configuration persisted in system
+		IcConnectorConfiguration connectorConfig = systemService.getConnectorConfiguration(system);
+		if (connectorConfig == null) {
+			throw new ProvisioningException(AccResultCode.CONNECTOR_CONFIGURATION_FOR_SYSTEM_NOT_FOUND,
+					ImmutableMap.of("system", system.getName()));
+		}
+
+		IcObjectClass objectClass = new IcObjectClassImpl(mapping.getObjectClass().getObjectClassName());
+
+		Object lastToken = config.isReconciliation() ? null : config.getToken();
+		IcSyncToken lastIcToken = lastToken != null ? new IcSyncTokenImpl(lastToken) : null;
+
+		// Create basic synchronization log
+		SysSyncLog log = new SysSyncLog();
+		log.setSynchronizationConfig(config);
+		log.setStarted(LocalDateTime.now());
+		log.setRunning(true);
+		log.setToken(lastToken != null ? lastToken.toString() : null);
+
+		log.addToLog(MessageFormat.format("Synchronization was started in {0}.", log.getStarted()));
+
+		// List of all accounts keys (used in reconciliation)
+		List<String> systemAccountsList = new ArrayList<>();
+
+		// List of all accounts with full IC object (used in tree sync)
+		Map<String, IcConnectorObject> accountsMap = new HashMap<>();
+
+		longRunningTaskExecutor.counter = 0L;
+
+		try {
+			synchronizationLogService.save(log);
+			List<SysSyncActionLog> actionsLog = new ArrayList<>();
+
+				log.addToLog("Synchronization will use custom filter (not synchronization implemented in connector).");
+				AttributeMapping tokenAttribute = config.getTokenAttribute();
+				if (tokenAttribute == null && !config.isReconciliation()) {
+					throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_TOKEN_ATTRIBUTE_NOT_FOUND);
+				}
+
+				IcResultsHandler resultHandler = new IcResultsHandler() {
+
+					@Override
+					public boolean handle(IcConnectorObject connectorObject) {
+						Assert.notNull(connectorObject);
+						Assert.notNull(connectorObject.getUidValue());
+						String uid = connectorObject.getUidValue();
+							accountsMap.put(uid, connectorObject);
+							return true;
+
+					}
+				};
+
+				IcFilter filter = null; // We have to search all data for tree
+				log.addToLog(MessageFormat.format("Start search with filter {0}.", filter != null ? filter : "NONE"));
+				synchronizationLogService.save(log);
+
+				connectorFacade.search(system.getConnectorInstance(), connectorConfig, objectClass, filter,
+						resultHandler);
+
+				SysSystemAttributeMapping uidAttribute = getUidAttribute(mappedAttributes);
+				if(uidAttribute == null){
+					// TODO: exception
+				}
+				SysSystemAttributeMapping parentAttribute = getAttributeByIdmProperty(PARENT_FIELD, mappedAttributes);
+				if(parentAttribute == null){
+					// TODO: exception
+				}
+				SysSystemAttributeMapping codeAttribute = getAttributeByIdmProperty(CODE_FIELD, mappedAttributes);
+				if(codeAttribute == null){
+					// TODO: exception
+				}
+				
+				List<String> roots = new ArrayList<>();
+				accountsMap.forEach((uid, account) -> {
+					Object parentValue = this.getValueByMappedAttribute(parentAttribute, account.getAttributes());
+					Object uidValue = this.getValueByMappedAttribute(uidAttribute, account.getAttributes());
+					// TODO: execute in script
+					if(parentValue != null && parentValue.equals(uidValue)){
+						roots.add(uid); 
+						((IcAttributeImpl)accountsMap.get(uid).getAttributeByName(parentAttribute.getSchemaAttribute().getName())).setValues(null);
+					}
+				});
+				
+				if(roots.isEmpty()){
+					// TODO: exception
+				}
+				
+				roots.forEach(root -> {
+					IcConnectorObject parentIcObject = accountsMap.get(root);
+					boolean result = handleIcObject(root, parentIcObject, tokenAttribute, config, system, entityType, log,
+							mappedAttributes, actionsLog);
+					if(!result){
+						return;
+					}
+					Object uidValueParent = this.getValueByMappedAttribute(uidAttribute, parentIcObject.getAttributes());
+					processChildren(parentAttribute, uidValueParent, uidAttribute, config, system, entityType, mappedAttributes, log, accountsMap, actionsLog, tokenAttribute);
+				});
+				
+				
+
+			// We do reconciliation (find missing account)
+//			if (config.isReconciliation()) {
+//				startReconciliation(entityType, systemAccountsList, config, system, log, actionsLog);
+//			}
+			//
+			log.addToLog(MessageFormat.format("Synchronization was correctly ended in {0}.", LocalDateTime.now()));
+			synchronizationConfigService.save(config);
+		} catch (Exception e) {
+			String message = "Error during synchronization";
+			log.addToLog(message);
+			log.setContainsError(true);
+			log.addToLog(Throwables.getStackTraceAsString(e));
+			LOG.error(message, e);
+		} finally {
+			log.setRunning(false);
+			log.setEnded(LocalDateTime.now());
+			synchronizationLogService.save(log);
+			//
+			longRunningTaskExecutor.count = longRunningTaskExecutor.counter;
+			longRunningTaskExecutor.updateState();
+		}
+		return config;
 	}
-	
+
+
+	private void processChildren(SysSystemAttributeMapping parentAttribute, Object uidValueParent, SysSystemAttributeMapping uidAttribute, 
+			SysSyncConfig config, SysSystem system, SystemEntityType entityType,
+			List<SysSystemAttributeMapping> mappedAttributes, SysSyncLog log,
+			Map<String, IcConnectorObject> accountsMap, List<SysSyncActionLog> actionsLog,
+			AttributeMapping tokenAttribute) {
+		
+		accountsMap.forEach((uid, account) -> {
+			Object parentValue = this.getValueByMappedAttribute(parentAttribute, account.getAttributes());
+			if(parentValue != null && parentValue.equals(uidValueParent)){
+				 boolean resultChild = handleIcObject(uid, account, tokenAttribute, config, system, entityType, log,
+						mappedAttributes, actionsLog);
+				if(!resultChild){
+					return;
+				}
+				Object uidValueParentChilde = this.getValueByMappedAttribute(uidAttribute, account.getAttributes());
+				processChildren(parentAttribute, uidValueParentChilde, uidAttribute, config, system, entityType, mappedAttributes, log, accountsMap, actionsLog, tokenAttribute);
+			}
+		});
+	}
+
+
 	/**
 	 * Call provisioning for given account
 	 * 
@@ -126,19 +319,21 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 	 */
 	protected void doUpdateAccount(AccAccount account, SystemEntityType entityType, SysSyncLog log,
 			SysSyncItemLog logItem, List<SysSyncActionLog> actionLogs) {
-		if (SystemEntityType.IDENTITY == entityType) {
-			IdmIdentity identity = getIdentityByAccount(account);
-			if (identity == null) {
-				addToItemLog(logItem, "Identity account relation (with ownership = true) was not found!");
-				initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.WARNING, logItem, log,
-						actionLogs);
-				return;
-			}
-			// Call provisioning for this entity
-			doUpdateAccountByEntity(identity, entityType, logItem);
+		UUID entityId = getEntityByAccount(account);
+		IdmTreeNode treeNode = null;
+		if (entityId != null) {
+			treeNode = treeNodeService.get(entityId);
 		}
+		if (treeNode == null) {
+			addToItemLog(logItem, "Tree account relation (with ownership = true) was not found!");
+			initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.WARNING, logItem, log,
+					actionLogs);
+			return;
+		}
+		// Call provisioning for this entity
+		doUpdateAccountByEntity(treeNode, entityType, logItem);
 	}
-	
+
 	/**
 	 * Call provisioning for given account
 	 * 
@@ -147,16 +342,14 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 	 * @param logItem
 	 */
 	protected void doUpdateAccountByEntity(AbstractEntity entity, SystemEntityType entityType, SysSyncItemLog logItem) {
-		if (SystemEntityType.IDENTITY == entityType) {
-			IdmIdentity identity = (IdmIdentity) entity;
-			addToItemLog(logItem,
-					MessageFormat.format(
-							"Call provisioning (process IdentityEventType.SAVE) for identity ({0}) with username ({1}).",
-							identity.getId(), identity.getUsername()));
-			entityEventManager.process(new IdentityEvent(IdentityEventType.UPDATE, identity)).getContent();
-		}
+		IdmTreeNode treeNode = (IdmTreeNode) entity;
+		addToItemLog(logItem,
+				MessageFormat.format(
+						"Call provisioning (process TreeNodeEventType.SAVE) for treeNode ({0}) with name ({1}).",
+						treeNode.getId(), treeNode.getName()));
+		entityEventManager.process(new TreeNodeEvent(TreeNodeEventType.UPDATE, treeNode)).getContent();
 	}
-	
+
 	/**
 	 * Create and persist new entity by data from IC attributes
 	 * 
@@ -167,86 +360,36 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 	 * @param icAttributes
 	 * @param account
 	 */
+	@SuppressWarnings("unchecked")
 	protected void doCreateEntity(SystemEntityType entityType, List<SysSystemAttributeMapping> mappedAttributes,
 			SysSyncItemLog logItem, String uid, List<IcAttribute> icAttributes, AccAccount account) {
-		if (SystemEntityType.IDENTITY == entityType) {
-//			// We will create new Identity
-//			addToItemLog(logItem, "Missing entity action is CREATE_ENTITY, we will do create new identity.");
-//			IdmIdentity identity = new IdmIdentity();
-//			// Fill Identity by mapped attribute
-//			identity = (IdmIdentity) fillEntity(mappedAttributes, uid, icAttributes, identity);
-//			// Create new Identity
-//			identityService.save(identity);
-//			// Update extended attribute (entity must be persisted first)
-//			updateExtendedAttributes(mappedAttributes, uid, icAttributes, identity);
-//			// Update confidential attribute (entity must be persisted first)
-//			updateConfidentialAttributes(mappedAttributes, uid, icAttributes, identity);
-//
-//			// Create new Identity account relation
-//			AccIdentityAccount identityAccount = new AccIdentityAccount();
-//			identityAccount.setAccount(account);
-//			identityAccount.setIdentity(identity);
-//			identityAccount.setOwnership(true);
-//			identityAccoutnService.save(identityAccount);
+		// We will create new TreeNode
+		addToItemLog(logItem, "Missing entity action is CREATE_ENTITY, we will do create new entity.");
+		IdmTreeNode treeNode = new IdmTreeNode();
+		// Fill entity by mapped attribute
+		treeNode = (IdmTreeNode) fillEntity(mappedAttributes, uid, icAttributes, treeNode);
+		treeNode.setTreeType(this.getSystemMapping(mappedAttributes).getTreeType());
+		// Create new Entity
+		treeNodeService.save(treeNode);
+		// Update extended attribute (entity must be persisted first)
+		updateExtendedAttributes(mappedAttributes, uid, icAttributes, treeNode);
+		// Update confidential attribute (entity must be persisted first)
+		updateConfidentialAttributes(mappedAttributes, uid, icAttributes, treeNode);
 
-			// Identity Created
-//			addToItemLog(logItem, MessageFormat.format("Identity with id {0} was created", identity.getId()));
-//			if (logItem != null) {
-//				logItem.setDisplayName(identity.getUsername());
-//			}
+		// Create new Entity account relation
+		EntityAccountDto entityAccount = this.createEntityAccountDto();
+		entityAccount.setAccount(account.getId());
+		entityAccount.setEntity(treeNode.getId());
+		entityAccount.setOwnership(true);
+		this.getEntityAccountService().save(entityAccount);
+
+		// Entity Created
+		addToItemLog(logItem, MessageFormat.format("Tree node with id {0} was created", treeNode.getId()));
+		if (logItem != null) {
+			logItem.setDisplayName(treeNode.getCode());
 		}
 	}
-	
-	/**
-	 * Create account and relation on him
-	 * 
-	 * @param uid
-	 * @param callProvisioning
-	 * @param entity
-	 * @param systemEntity
-	 * @param entityType
-	 * @param system
-	 * @param logItem
-	 */
-	protected void doCreateLink(String uid, boolean callProvisioning, AbstractEntity entity, SysSystemEntity systemEntity,
-			SystemEntityType entityType, SysSystem system, SysSyncItemLog logItem) {
-		AccAccount account = doCreateIdmAccount(uid, system);
-		if (systemEntity != null) {
-			// If SystemEntity for this account already exist, then we linked
-			// him to new account
-			account.setSystemEntity(systemEntity);
-		}
 
-		accountService.save(account);
-		addToItemLog(logItem,
-				MessageFormat.format("Account with uid {0} and id {1} was created", uid, account.getId()));
-		
-		if (SystemEntityType.IDENTITY == entityType) {
-//			IdmIdentity identity = (IdmIdentity) entity;
-//
-//			// Create new Identity account relation
-//			AccIdentityAccount identityAccount = new AccIdentityAccount();
-//			identityAccount.setAccount(account);
-//			identityAccount.setIdentity(identity);
-//			identityAccount.setOwnership(true);
-//			identityAccoutnService.save(identityAccount);
-//
-//			// Identity account Created
-//			addToItemLog(logItem,
-//					MessageFormat.format(
-//							"Identity account relation  with id ({0}), between account ({1}) and identity ({2}) was created",
-//							uid, identity.getUsername(), identityAccount.getId()));
-//			logItem.setDisplayName(identity.getUsername());
-//			logItem.setType(AccIdentityAccount.class.getSimpleName());
-//			logItem.setIdentification(identityAccount.getId().toString());
-
-			if (callProvisioning) {
-				// Call provisioning for this identity
-				doUpdateAccountByEntity(entity, entityType, logItem);
-			}
-		}
-	}
-	
 	/**
 	 * Fill data from IC attributes to entity (EAV and confidential storage too)
 	 * 
@@ -262,37 +405,37 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 	protected void doUpdateEntity(AccAccount account, SystemEntityType entityType, String uid,
 			List<IcAttribute> icAttributes, List<SysSystemAttributeMapping> mappedAttributes, SysSyncLog log,
 			SysSyncItemLog logItem, List<SysSyncActionLog> actionLogs) {
-		if (SystemEntityType.IDENTITY == entityType) {
-			IdmIdentity identity = null;
+		UUID entityId = getEntityByAccount(account);
+		IdmTreeNode treeNode = null;
+		if (entityId != null) {
+			treeNode = treeNodeService.get(entityId);
+		}
+		if (treeNode != null) {
+			// Update entity
+			treeNode = (IdmTreeNode) fillEntity(mappedAttributes, uid, icAttributes, treeNode);
+			treeNodeService.save(treeNode);
+			// Update extended attribute (entity must be persisted first)
+			updateExtendedAttributes(mappedAttributes, uid, icAttributes, treeNode);
+			// Update confidential attribute (entity must be persisted first)
+			updateConfidentialAttributes(mappedAttributes, uid, icAttributes, treeNode);
 
-			identity = getIdentityByAccount(account);
-			if (identity != null) {
-//				// Update identity
-//				identity = (IdmIdentity) fillEntity(mappedAttributes, uid, icAttributes, identity);
-//				identityService.save(identity);
-//				// Update extended attribute (entity must be persisted first)
-//				updateExtendedAttributes(mappedAttributes, uid, icAttributes, identity);
-//				// Update confidential attribute (entity must be persisted first)
-//				updateConfidentialAttributes(mappedAttributes, uid, icAttributes, identity);
-//
-//				// Identity Updated
-//				addToItemLog(logItem, MessageFormat.format("Identity with id {0} was updated", identity.getId()));
-//				if (logItem != null) {
-//					logItem.setDisplayName(identity.getUsername());
-//				}
-//
-//				return;
-			} else {
-				addToItemLog(logItem, "Identity account relation (with ownership = true) was not found!");
-				initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.WARNING, logItem, log,
-						actionLogs);
-				return;
+			// TreeNode Updated
+			addToItemLog(logItem, MessageFormat.format("TreeNode with id {0} was updated", treeNode.getId()));
+			if (logItem != null) {
+				logItem.setDisplayName(treeNode.getName());
 			}
+
+			return;
+		} else {
+			addToItemLog(logItem, "Tree - account relation (with ownership = true) was not found!");
+			initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.WARNING, logItem, log,
+					actionLogs);
+			return;
 		}
 	}
-	
+
 	/**
-	 * Operation remove IdentityAccount relations and linked roles
+	 * Operation remove EntityAccount relations and linked roles
 	 * 
 	 * @param account
 	 * @param removeIdentityRole
@@ -300,54 +443,69 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 	 * @param logItem
 	 * @param actionLogs
 	 */
-	protected void doUnlink(AccAccount account, boolean removeIdentityRole, SysSyncLog log,
-			SysSyncItemLog logItem, List<SysSyncActionLog> actionLogs) {
+	protected void doUnlink(AccAccount account, boolean removeIdentityRole, SysSyncLog log, SysSyncItemLog logItem,
+			List<SysSyncActionLog> actionLogs) {
 
-		IdentityAccountFilter identityAccountFilter = new IdentityAccountFilter();
-		identityAccountFilter.setAccountId(account.getId());
-		List<AccIdentityAccountDto> identityAccounts = identityAccoutnService.findDto(identityAccountFilter, null)
-				.getContent();
-		if (identityAccounts.isEmpty()) {
-			addToItemLog(logItem, "Identity account relation was not found!");
+		TreeAccountFilter treeAccountFilter = new TreeAccountFilter();
+		treeAccountFilter.setAccountId(account.getId());
+		List<AccTreeAccountDto> treeAccounts = treeAccoutnService.findDto(treeAccountFilter, null).getContent();
+		if (treeAccounts.isEmpty()) {
+			addToItemLog(logItem, "Tree account relation was not found!");
 			initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.WARNING, logItem, log,
 					actionLogs);
 			return;
 		}
-		addToItemLog(logItem, MessageFormat.format("Identity-account relations to delete {0}", identityAccounts));
+		addToItemLog(logItem, MessageFormat.format("Tree-account relations to delete {0}", treeAccounts));
 
-//		identityAccounts.stream().forEach(identityAccount -> {
-//			// We will remove identity account, but without delete connected
-//			// account
-//			identityAccoutnService.delete(identityAccount, false);
-//			addToItemLog(logItem,
-//					MessageFormat.format(
-//							"Identity-account relation deleted (without call delete provisioning) (username: {0}, id: {1})",
-//							identityAccount.getIdentity().getUsername(), identityAccount.getId()));
-//			IdmIdentityRole identityRole = identityAccount.getIdentityRole();
-//
-//			if (removeIdentityRole && identityRole != null) {
-//				// We will remove connected identity role
-//				identityRoleService.delete(identityRole);
-//				addToItemLog(logItem, MessageFormat.format("Identity-role relation deleted (username: {0}, id: {1})",
-//						identityRole.getIdentityContract().getIdentity().getUsername(), identityRole.getId()));
-//			}
-//
-//		});
+		treeAccounts.stream().forEach(treeAccount -> {
+			// We will remove tree account, but without delete connected
+			// account
+			treeAccoutnService.delete(treeAccount, false);
+			addToItemLog(logItem,
+					MessageFormat.format(
+							"Tree-account relation deleted (without call delete provisioning) (treeNode: {0}, id: {1})",
+							treeAccount.getTreeNode(), treeAccount.getId()));
+
+		});
 		return;
 	}
-	
+
+	/**
+	 * Delete entity linked with given account
+	 * 
+	 * @param account
+	 * @param entityType
+	 * @param log
+	 * @param logItem
+	 * @param actionLogs
+	 */
+	protected void doDeleteEntity(AccAccount account, SystemEntityType entityType, SysSyncLog log,
+			SysSyncItemLog logItem, List<SysSyncActionLog> actionLogs) {
+		UUID entityId = getEntityByAccount(account);
+		IdmTreeNode treeNode = null;
+		if (entityId != null) {
+			treeNode = treeNodeService.get(entityId);
+		}
+		if (treeNode == null) {
+			addToItemLog(logItem, "Tree account relation (with ownership = true) was not found!");
+			initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.WARNING, logItem, log,
+					actionLogs);
+			return;
+		}
+		// Delete entity
+		treeNodeService.delete(treeNode);
+	}
+
 	/**
 	 * Find entity by correlation attribute
 	 * 
 	 * @param attribute
-	 * @param entityType
 	 * @param icAttributes
 	 * @return
 	 */
-	protected AbstractEntity findEntityByCorrelationAttribute(AttributeMapping attribute, SystemEntityType entityType,
+	protected AbstractEntity findEntityByCorrelationAttribute(AttributeMapping attribute,
 			List<IcAttribute> icAttributes) {
 		Assert.notNull(attribute);
-		Assert.notNull(entityType);
 		Assert.notNull(icAttributes);
 
 		Object value = getValueByMappedAttribute(attribute, icAttributes);
@@ -355,22 +513,22 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 			return null;
 		}
 		if (attribute.isEntityAttribute()) {
-//			if (SystemEntityType.IDENTITY == entityType) {
-//				IdentityFilter identityFilter = new IdentityFilter();
-//				identityFilter.setProperty(attribute.getIdmPropertyName());
-//				identityFilter.setValue(value);
-//				List<IdmIdentity> identities = identityService.find(identityFilter, null).getContent();
-//				if (CollectionUtils.isEmpty(identities)) {
-//					return null;
-//				}
-//				if (identities.size() > 1) {
-//					throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_CORRELATION_TO_MANY_RESULTS,
-//							ImmutableMap.of("correlationAttribute", attribute.getName(), "value", value));
-//				}
-//				if (identities.size() == 1) {
-//					return identities.get(0);
-//				}
-//			}
+			TreeNodeFilter correlationFilter = new TreeNodeFilter();
+			correlationFilter.setProperty(attribute.getIdmPropertyName());
+			correlationFilter.setValue(value.toString());
+			// TODO filtering !!
+			List<IdmTreeNode> treeNodes = treeNodeService.find(correlationFilter, null).getContent();
+			if (CollectionUtils.isEmpty(treeNodes)) {
+				return null;
+			}
+			if (treeNodes.size() > 1) {
+				throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_CORRELATION_TO_MANY_RESULTS,
+						ImmutableMap.of("correlationAttribute", attribute.getName(), "value", value));
+			}
+			if (treeNodes.size() == 1) {
+				return treeNodes.get(0);
+			}
+
 		} else if (attribute.isExtendedAttribute()) {
 			// TODO: not supported now
 
@@ -378,8 +536,57 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 		}
 		return null;
 	}
-
 	
+	/**
+	 * Fill entity with attributes from IC module (by mapped attributes).
+	 * 
+	 * @param mappedAttributes
+	 * @param uid
+	 * @param icAttributes
+	 * @param entity
+	 * @return
+	 */
+	@Override
+	protected AbstractEntity fillEntity(List<SysSystemAttributeMapping> mappedAttributes, String uid,
+			List<IcAttribute> icAttributes, AbstractEntity entity) {
+		mappedAttributes.stream().filter(attribute -> {
+			// Skip disabled attributes
+			// Skip extended attributes (we need update/ create entity first)
+			// Skip confidential attributes (we need update/ create entity
+			// first)
+			return !attribute.isDisabledAttribute() && attribute.isEntityAttribute()
+					&& !attribute.isConfidentialAttribute();
+
+		}).forEach(attribute -> {
+			String attributeProperty = attribute.getIdmPropertyName();
+			Object transformedValue = getValueByMappedAttribute(attribute, icAttributes);
+			if(attributeProperty.equals(PARENT_FIELD)){
+				
+				TreeNodeFilter nodeFilter = new TreeNodeFilter();
+				nodeFilter.setProperty(EXTERNAL_ID_FIELD);
+				nodeFilter.setValue(transformedValue != null ? transformedValue.toString() : null);
+				List<IdmTreeNode> parents = treeNodeService.find(nodeFilter, null).getContent();
+				// TODO: exception for more parents
+				if(!parents.isEmpty()){
+					transformedValue = parents.get(0);
+				}else {
+					transformedValue = null;
+				}
+			}
+			
+			// Set transformed value from target system to entity
+			try {
+				setEntityValue(entity, attributeProperty, transformedValue);
+			} catch (IntrospectionException | IllegalAccessException | IllegalArgumentException
+					| InvocationTargetException | ProvisioningException e) {
+				throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_IDM_FIELD_NOT_SET,
+						ImmutableMap.of("property", attributeProperty, "uid", uid), e);
+			}
+
+		});
+		return entity;
+	}
+
 	@Override
 	public boolean supports(SystemEntityType delimiter) {
 		return SystemEntityType.TREE == delimiter;
@@ -387,37 +594,28 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 
 	@Override
 	protected AbstractEntity findEntityById(UUID entityId, SystemEntityType entityType) {
-		if (SystemEntityType.IDENTITY == entityType) {
-			return treeNodeService.get(entityId);
-		} else {
-			throw new UnsupportedOperationException(
-					MessageFormat.format("SystemEntityType {0} is not supported!", entityType));
-		}
+		return treeNodeService.get(entityId);
 	}
 
-	
-	/**
-	 * Find identity by account
-	 * 
-	 * @param account
-	 * @param log
-	 * @param logItem
-	 * @param actionLogs
-	 * @return
-	 */
-	private IdmIdentity getIdentityByAccount(AccAccount account) {
-		IdentityAccountFilter identityAccountFilter = new IdentityAccountFilter();
-		identityAccountFilter.setAccountId(account.getId());
-		identityAccountFilter.setOwnership(Boolean.TRUE);
-		List<AccIdentityAccount> identityAccounts = identityAccoutnService.find(identityAccountFilter, null)
-				.getContent();
-		if (identityAccounts.isEmpty()) {
-			return null;
-		} else {
-			// We assume that all identity accounts
-			// (mark as
-			// ownership) have same identity!
-			return identityAccounts.get(0).getIdentity();
-		}
+	@Override
+	protected EntityAccountFilter createEntityAccountFilter() {
+		return new TreeAccountFilter();
+	}
+
+	@SuppressWarnings("rawtypes")
+	@Override
+	protected ReadWriteDtoService getEntityAccountService() {
+		return treeAccoutnService;
+	}
+
+	@Override
+	protected EntityAccountDto createEntityAccountDto() {
+		return new AccTreeAccountDto();
+	}
+
+	@SuppressWarnings("rawtypes")
+	@Override
+	protected ReadWriteDtoService getEntityService() {
+		return null; // We don't have DTO service for IdmTreeNode now
 	}
 }

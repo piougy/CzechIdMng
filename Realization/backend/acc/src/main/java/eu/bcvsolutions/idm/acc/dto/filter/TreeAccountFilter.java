@@ -5,55 +5,34 @@ import java.util.UUID;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 
 /**
- * Filter for accounts
+ * Filter for tree - accounts
  * 
- * @author Radek Tomiška
+ * @author Svanda
  *
  */
-public class IdentityAccountFilter implements BaseFilter, EntityAccountFilter {
+public class TreeAccountFilter implements BaseFilter, EntityAccountFilter {
 
 	private UUID accountId;
-	private UUID identityId;
-	private UUID roleId;
+	private UUID treeNodeId;
 	private UUID systemId;
 	private UUID identityRoleId;
 	private UUID roleSystemId;
 	private Boolean ownership;
 
-	@Override
 	public Boolean isOwnership() {
 		return ownership;
 	}
 
-	@Override
 	public void setOwnership(Boolean ownership) {
 		this.ownership = ownership;
 	}
 
-	@Override
 	public UUID getAccountId() {
 		return accountId;
 	}
 
-	@Override
 	public void setAccountId(UUID accountId) {
 		this.accountId = accountId;
-	}
-
-	public UUID getIdentityId() {
-		return identityId;
-	}
-
-	public void setIdentityId(UUID identityId) {
-		this.identityId = identityId;
-	}
-
-	public UUID getRoleId() {
-		return roleId;
-	}
-
-	public void setRoleId(UUID roleId) {
-		this.roleId = roleId;
 	}
 	
 	public void setSystemId(UUID systemId) {
@@ -80,4 +59,13 @@ public class IdentityAccountFilter implements BaseFilter, EntityAccountFilter {
 		this.roleSystemId = roleSystemId;
 	}
 
+	public UUID getTreeNodeId() {
+		return treeNodeId;
+	}
+
+	public void setTreeNodeId(UUID treeNodeId) {
+		this.treeNodeId = treeNodeId;
+	}
+	
+	
 }

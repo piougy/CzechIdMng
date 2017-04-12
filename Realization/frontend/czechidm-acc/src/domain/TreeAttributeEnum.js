@@ -34,6 +34,9 @@ export default class TreeAttributeEnum extends Enums.AbstractEnum {
       case this.PARENT: {
         return 'parent';
       }
+      case this.EXTERNAL_ID: {
+        return 'externalId';
+      }
       case this.DISABLED: {
         return 'disabled';
       }
@@ -57,6 +60,9 @@ export default class TreeAttributeEnum extends Enums.AbstractEnum {
       }
       case 'parent': {
         return this.PARENT;
+      }
+      case 'externalId': {
+        return this.EXTERNAL_ID;
       }
       case 'disabled': {
         return this.DISABLED;
@@ -85,4 +91,5 @@ export default class TreeAttributeEnum extends Enums.AbstractEnum {
 TreeAttributeEnum.CODE = Symbol('CODE');
 TreeAttributeEnum.NAME = Symbol('NAME');
 TreeAttributeEnum.PARENT = Symbol('PARENT');
+TreeAttributeEnum.EXTERNAL_ID = Symbol('EXTERNAL_ID');
 TreeAttributeEnum.DISABLED = Symbol('DISABLED');

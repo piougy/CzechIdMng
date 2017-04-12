@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
+import eu.bcvsolutions.idm.acc.dto.EntityAccountDto;
+import eu.bcvsolutions.idm.acc.dto.filter.EntityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
@@ -38,33 +40,12 @@ public class AccIdentityAccountController extends DefaultReadWriteDtoController<
 	public AccIdentityAccountController(AccIdentityAccountService service) {
 		super(service);
 	}
-	
-	
 
 	@Override
 	@ResponseBody
 	public ResponseEntity<?> get(@PathVariable @NotNull String backendId) {
 		return super.get(backendId);
 	}
-
-//	@Override
-//	@ResponseBody
-//	@RequestMapping(method = RequestMethod.GET)
-//	public Resources<?> find(@RequestParam MultiValueMap<String, Object> parameters, 
-//			@PageableDefault Pageable pageable, 			
-//			PersistentEntityResourceAssembler assembler) {
-//		return super.find(parameters, pageable, assembler);
-//	}
-//	
-//	@Override
-//	@ResponseBody
-//	@RequestMapping(value= "/search/quick", method = RequestMethod.GET)
-//	public Resources<?> findQuick(@RequestParam MultiValueMap<String, Object> parameters, 
-//			@PageableDefault Pageable pageable, 			
-//			PersistentEntityResourceAssembler assembler) {
-//		return super.find(parameters, pageable, assembler);
-//	}
-
 	
 	@Override
 	@ResponseBody
@@ -81,25 +62,6 @@ public class AccIdentityAccountController extends DefaultReadWriteDtoController<
 	public ResponseEntity<?> put(@PathVariable @NotNull String backendId, @RequestBody @NotNull AccIdentityAccountDto dto){
 		return super.put(backendId,dto);
 	}	
-	
-//	@Override
-//	@ResponseBody
-//	@PreAuthorize("hasAuthority('" + AccGroupPermission.ACCOUNT_UPDATE + "')")
-//	@RequestMapping(value = "/{backendId}", method = RequestMethod.PATCH)
-//	public ResponseEntity<?> patch(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler) 
-//			throws HttpMessageNotReadableException {
-//		return super.patch(backendId, nativeRequest, assembler);
-//	}
-//	
-//	@Override
-//	public AccIdentityAccount patchEntity(AccIdentityAccount entity) {
-//		Assert.notNull(entity);
-//		Assert.notNull(entity.getAccount());
-//		Assert.notNull(entity.getAccount().getId());
-//		// we don't have excerpt projection - we need to fill account manually (id only from  FE) 
-//		entity.setAccount(entityLookupService.lookup(AccAccount.class, entity.getAccount().getId()));
-//		return super.patchEntity(entity);
-//	}
 	
 	@Override
 	@ResponseBody

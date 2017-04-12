@@ -80,6 +80,11 @@ public class SysSyncConfig extends AbstractEntity {
 	@Type(type = "org.hibernate.type.StringClobType") // TODO: test on oracle/ mysql
 	@Column(name = "custom_filter_script")
 	private String customFilterScript;
+	
+	@Audited
+	@Type(type = "org.hibernate.type.StringClobType") // TODO: test on oracle/ mysql
+	@Column(name = "roots_filter_script")
+	private String rootsFilterScript;
 
 	@Audited
 	@NotNull
@@ -324,6 +329,14 @@ public class SysSyncConfig extends AbstractEntity {
 
 	public void setMissingAccountActionWfKey(String missingAccountActionWfKey) {
 		this.missingAccountActionWfKey = missingAccountActionWfKey;
+	}
+
+	public String getRootsFilterScript() {
+		return rootsFilterScript;
+	}
+
+	public void setRootsFilterScript(String rootsFilterScript) {
+		this.rootsFilterScript = rootsFilterScript;
 	}
 
 }

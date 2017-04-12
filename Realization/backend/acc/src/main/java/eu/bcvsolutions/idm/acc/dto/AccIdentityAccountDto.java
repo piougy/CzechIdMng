@@ -2,6 +2,8 @@ package eu.bcvsolutions.idm.acc.dto;
 
 import java.util.UUID;
 
+import org.springframework.hateoas.core.Relation;
+
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdentityDto;
@@ -11,8 +13,8 @@ import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleDto;
  * Identity account DTO
  * 
  */
-
-public class AccIdentityAccountDto extends AbstractDto {
+@Relation(collectionRelation = "identityAccounts")
+public class AccIdentityAccountDto extends AbstractDto implements EntityAccountDto {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -26,9 +28,11 @@ public class AccIdentityAccountDto extends AbstractDto {
 	private UUID roleSystem;
 	private boolean ownership = true;
 	
+	@Override
 	public UUID getAccount() {
 		return account;
 	}
+	@Override
 	public void setAccount(UUID account) {
 		this.account = account;
 	}
@@ -44,16 +48,30 @@ public class AccIdentityAccountDto extends AbstractDto {
 	public void setIdentityRole(UUID identityRole) {
 		this.identityRole = identityRole;
 	}
+	@Override
 	public UUID getRoleSystem() {
 		return roleSystem;
 	}
+	@Override
 	public void setRoleSystem(UUID roleSystem) {
 		this.roleSystem = roleSystem;
 	}
+	@Override
 	public boolean isOwnership() {
 		return ownership;
 	}
+	@Override
 	public void setOwnership(boolean ownership) {
 		this.ownership = ownership;
 	} 
+	
+	@Override
+	public UUID getEntity(){
+		return this.identity;
+	}
+	
+	@Override
+	public void setEntity(UUID entity){
+		this.identity = entity;
+	}
 }

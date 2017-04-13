@@ -5,7 +5,7 @@ Component supported single select and multi select mode.
 
 ## Parameters
 
-All parameters form parent component (AbstractFormComponent).
+All parameters form parent components (AbstractFormComponent and SelectBox).
 <br><br>Extra component parameters:
 
 | Parameter | Type | Description | Default  |
@@ -16,7 +16,7 @@ All parameters form parent component (AbstractFormComponent).
 | multiSelect | bool   | If is true then component is in multi select mode| false |
 | value | symbol or Array of symbols | Value can contains symbol (have to part of enum). In multi select mod can be in value array symbols | |
 | placeholder  | string   | Short description for input  |  |
-| searchable  | bool   | whether to enable searching feature or not | false | 
+| searchable  | bool   | whether to enable searching feature or not | false |
 
 
 ## Usage

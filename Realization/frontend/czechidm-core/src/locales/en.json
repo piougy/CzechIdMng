@@ -435,8 +435,7 @@
       "EXECUTE": "Execute"
     },
     "group": {
-      "AUTHORITY": "Authorities",
-      "AUTHORIZATIONPOLICY": "Rights to data",
+      "AUTHORIZATIONPOLICY": "Permissions",
       "APP": "App configuration",
       "AUDIT": "Audit",
       "CONFIGURATION": "Configuration (app)",
@@ -1161,9 +1160,9 @@
         }
       },
       "authorization-policies": {
-        "header": "Rights to data",
-        "title": "Rights to data",
-        "label": "Rights to data",
+        "header": "Permissions",
+        "title": "Permissions",
+        "label": "Permissions",
         "edit": {
           "header": "{{name}} <small>permission detail</small>"
         },
@@ -1172,6 +1171,9 @@
         },
         "save": {
           "success": "Permission [{{record}}] was successfully saved"
+        },
+        "evaluator": {
+          "default": "Default evaluator will be used. Agenda doesn't support other evaluator types."
         }
       }
     },
@@ -1295,9 +1297,9 @@
         }
       },
       "authorities": {
-        "label": "Oprávnění",
-        "header": "Přidělená oprávnění <small>dle přiřazných rolí</small>",
-        "title": "Přidělená oprávnění"
+        "label": "Permissions",
+        "header": "Granted permissions <small>by assigned roles</small>",
+        "title": "Granted permissions"
       },
       "passwordChange": {
         "header": "Password",

@@ -1,12 +1,8 @@
 package eu.bcvsolutions.idm.core.security.api.service;
 
-import java.util.List;
 import java.util.Set;
 
-import org.springframework.security.core.GrantedAuthority;
-
 import eu.bcvsolutions.idm.core.security.api.domain.AbstractAuthentication;
-import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
 
 /**
  * Security context helper methods
@@ -82,24 +78,9 @@ public interface SecurityService {
 	boolean hasAnyAuthority(String... authorities);
 	
 	/**
-	 * Returns all available permissions configurable for roles in idm 
-	 * 
-	 * @return
-	 */
-	List<GroupPermission> getAvailableGroupPermissions();
-	
-	/**
-	 * Returns all available authorities to identity in idm
-	 * 
-	 * @return
-	 */
-	List<GrantedAuthority> getAllAvailableAuthorities();
-	
-	/**
 	 * Returns true, if logged identity is super administrator. Could be used for single user mode.
 	 * 
 	 * @return
 	 */
 	boolean isAdmin();
-
 }

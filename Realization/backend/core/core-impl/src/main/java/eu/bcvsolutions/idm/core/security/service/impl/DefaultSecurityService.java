@@ -1,29 +1,25 @@
 package eu.bcvsolutions.idm.core.security.service.impl;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
+import com.google.common.collect.Lists;
+
 import eu.bcvsolutions.idm.core.api.dto.IdentityDto;
-import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.security.api.domain.AbstractAuthentication;
-import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
-import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
-import eu.bcvsolutions.idm.core.security.domain.DefaultGrantedAuthority;
+import eu.bcvsolutions.idm.core.security.api.utils.IdmAuthorityUtils;
 
 /**
  * Default implementation of security service
@@ -34,15 +30,14 @@ import eu.bcvsolutions.idm.core.security.domain.DefaultGrantedAuthority;
 @Service("securityService")
 public class DefaultSecurityService implements SecurityService {
 	
-	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(DefaultSecurityService.class);
-	
-	private final ModuleService moduleService;
-	
-	@Autowired
-	public DefaultSecurityService(ModuleService moduleService) {
-		Assert.notNull(moduleService, "Module service is required!");
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultSecurityService.class);
+	private final RoleHierarchy authorityHierarchy;
 		
-		this.moduleService = moduleService;
+	@Autowired
+	public DefaultSecurityService(RoleHierarchy authorityHierarchy) {
+		Assert.notNull(authorityHierarchy, "Authority hierarchy is required!");
+		
+		this.authorityHierarchy = authorityHierarchy;
 	}
 	
 	@Override
@@ -52,7 +47,7 @@ public class DefaultSecurityService implements SecurityService {
 	
 	@Override
 	public void setSystemAuthentication() {
-		this.setAuthentication(new IdmJwtAuthentication(new IdentityDto("[SYSTEM]"), null, getAllAvailableAuthorities(), null));
+		this.setAuthentication(new IdmJwtAuthentication(new IdentityDto("[SYSTEM]"), null, Lists.newArrayList(IdmAuthorityUtils.getAdminAuthority()), null));
 	}
 	
 	@Override
@@ -102,10 +97,8 @@ public class DefaultSecurityService implements SecurityService {
 			return authorities;
 		}
 		Authentication authentication = getAuthentication();
-		for (GrantedAuthority authority : authentication.getAuthorities()) {
-			authorities.add(authority.getAuthority());
-		}
-		return authorities;
+		//
+		return AuthorityUtils.authorityListToSet(authorityHierarchy.getReachableGrantedAuthorities(authentication.getAuthorities()));
 	}
 
 	@Override
@@ -117,70 +110,12 @@ public class DefaultSecurityService implements SecurityService {
 		Set<String> allAuthorities = getAllAuthorities();
 		
 		boolean result = CollectionUtils.containsAny(requiredAuthorities, allAuthorities);
-		log.trace("Logged identity hasAnyAuthotity [{}] evaluated to [{}]", authorities, result);
+		LOG.trace("Logged identity hasAnyAuthotity [{}] evaluated to [{}]", authorities, result);
 		return result;
 	}
-	
-	/**
-	 * Returns true, if logged identity has APP_ADMIN authority. Could be used for single user mode.
-	 */
+
 	@Override
 	public boolean isAdmin() {
-		return hasAnyAuthority(IdmGroupPermission.APP_ADMIN);
+		return hasAnyAuthority(IdmAuthorityUtils.getAdminAuthority().getAuthority());
 	}
-	
-	@Override
-	public List<GroupPermission> getAvailableGroupPermissions() {
-		List<GroupPermission> groupPermissions = moduleService.getAvailablePermissions();
-		log.debug("Loaded available groupPermissions [size:{}]", groupPermissions.size());
-		return groupPermissions;
-	}
-	
-	@Override
-	public List<GrantedAuthority> getAllAvailableAuthorities() {
-		return toAuthorities(getAvailableGroupPermissions());
-	}
-	
-	public static List<GrantedAuthority> toAuthorities(List<GroupPermission> groupPermissions) {
-		Set<GrantedAuthority> authorities = new HashSet<>();
-		groupPermissions.forEach(groupPermission -> {
-			authorities.addAll(toAuthorities(groupPermission));				
-		});
-		return new ArrayList<>(authorities);
-	}
-	
-	/**
-	 * Returns all authorities from given groupPermissions
-	 * 
-	 * @param groupPermissions
-	 * @return
-	 */
-	public static List<GrantedAuthority> toAuthorities(GroupPermission... groupPermissions) {
-		Assert.notNull(groupPermissions);
-		//
-		Set<GrantedAuthority> authorities = new HashSet<>();
-		for (GroupPermission groupPermission : groupPermissions) {
-			groupPermission.getPermissions().forEach(basePermission -> {
-				authorities.add(new DefaultGrantedAuthority(groupPermission, basePermission));
-			});					
-		}
-		return new ArrayList<>(authorities);
-	}
-	
-	/**
-	 * Transforms given authorities (string representation) to {@link GrantedAuthority}'s list.
-	 * 
-	 * @param authorities
-	 * @return
-	 */
-	public static List<GrantedAuthority> toAuthorities(Collection<String> authorities) {
-		Assert.notNull(authorities);
-		//
-		return authorities.stream()
-				.map(authority -> {
-					return new DefaultGrantedAuthority(authority);
-				})
-				.collect(Collectors.toList());
-	}
-
 }

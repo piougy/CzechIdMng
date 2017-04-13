@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
+import java.util.Set;
 
 import org.joda.time.LocalDate;
 import org.junit.Before;
@@ -16,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.TestHelper;
+import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.model.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.model.dto.filter.RoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
@@ -25,7 +27,9 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizationEvaluatorDto;
@@ -49,9 +53,13 @@ public class DefaultAuthorizationManagerIntegrationTest extends AbstractIntegrat
 	@Autowired
 	private ApplicationContext context;
 	@Autowired
+	private IdmIdentityService identityService;
+	@Autowired
 	private IdmAuthorizationPolicyService service;
 	@Autowired
 	private SecurityService securityService;
+	@Autowired
+	private ModuleService moduleService;
 	@Autowired
 	private LoginService loginService;
 	@Autowired
@@ -65,16 +73,16 @@ public class DefaultAuthorizationManagerIntegrationTest extends AbstractIntegrat
 	
 	@Before
 	public void init() {		
-		manager = new DefaultAuthorizationManager(context, service, securityService);
+		manager = new DefaultAuthorizationManager(context, service, securityService, moduleService);
 	}
 	
 	@Test
 	public void testAuthorizableTypes() {
-		List<AuthorizableType> authorizableTypes = manager.getAuthorizableTypes();
+		Set<AuthorizableType> authorizableTypes = manager.getAuthorizableTypes();
 		//
 		AuthorizableType role = authorizableTypes.stream()
 				.filter(a -> {
-					return a.getType().equals(IdmRole.class);
+					return IdmRole.class.equals(a.getType());
 				})
 				.findFirst()
 	            .get();
@@ -96,6 +104,8 @@ public class DefaultAuthorizationManagerIntegrationTest extends AbstractIntegrat
 		helper.createBasePolicy(role.getId(), IdmBasePermission.READ);		
 		// prepare identity
 		IdmIdentity identity = helper.createIdentity();
+		identity.setPassword(new GuardedString("heslo"));
+		identityService.save(identity);
 		// assign role
 		helper.createIdentityRole(identity, role);
 		logout();
@@ -129,6 +139,8 @@ public class DefaultAuthorizationManagerIntegrationTest extends AbstractIntegrat
 		helper.createBasePolicy(role.getId(), IdmBasePermission.AUTOCOMPLETE);	
 		// prepare identity
 		IdmIdentity identity = helper.createIdentity();
+		identity.setPassword(new GuardedString("heslo"));
+		identityService.save(identity);
 		// assign role
 		helper.createIdentityRole(identity, role);
 		logout();

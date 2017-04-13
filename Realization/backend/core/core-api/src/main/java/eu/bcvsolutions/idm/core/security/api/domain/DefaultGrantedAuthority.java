@@ -1,12 +1,10 @@
-package eu.bcvsolutions.idm.core.security.domain;
+package eu.bcvsolutions.idm.core.security.api.domain;
 
 import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.util.Assert;
-
-import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 
 /**
  * 	Default implementation of granted authority

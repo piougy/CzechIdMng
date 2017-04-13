@@ -75,7 +75,7 @@ public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, Role
 	
 	@Override
 	public AuthorizableType getAuthorizableType() {
-		return new AuthorizableType(getEntityClass(), CoreGroupPermission.ROLE);
+		return new AuthorizableType(CoreGroupPermission.ROLE, getEntityClass());
 	}
 
 	@Override
@@ -249,5 +249,4 @@ public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, Role
 		}
 		return defaultRole;
 	}
-	
 }

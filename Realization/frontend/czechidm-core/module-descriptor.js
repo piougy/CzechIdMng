@@ -25,7 +25,6 @@ module.exports = {
           {
             'id': 'profile-personal',
             'type': 'TAB',
-            'label': 'Osobní údaje',
             'labelKey': 'content.identity.sidebar.profile',
             'order': 10,
             'priority': 0,
@@ -43,7 +42,6 @@ module.exports = {
           {
             'id': 'profile-password',
             'type': 'TAB',
-            'label': 'Změna hesla',
             'labelKey': 'content.identity.sidebar.password',
             'order': 20,
             'path': '/identity/:entityId/password',

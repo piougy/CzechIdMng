@@ -361,6 +361,10 @@ class Roles extends Basic.AbstractContent {
                     }
                     sort={false}/>
                   <Basic.Column
+                    header={this.i18n('entity.IdentityRole.role')}
+                    property="_embedded.role.name"
+                    />
+                  <Basic.Column
                     header={this.i18n('entity.IdentityRole.identityContract.title')}
                     property="identityContract"
                     cell={
@@ -371,10 +375,6 @@ class Roles extends Basic.AbstractContent {
                         );
                       }
                     }/>
-                  <Basic.Column
-                    header={this.i18n('entity.IdentityRole.role')}
-                    property="_embedded.role.name"
-                    />
                   <Basic.Column
                     property="validFrom"
                     header={this.i18n('label.validFrom')}
@@ -503,16 +503,16 @@ class Roles extends Basic.AbstractContent {
               <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('edit.header', { role: roleManager.getNiceLabel(detail.entity.role) })} rendered={detail.entity.id !== undefined}/>
               <Basic.Modal.Body>
                 <Basic.AbstractForm ref="form" showLoading={_showLoading} readOnly={!TEST_ADD_ROLE_DIRECTLY}>
+                  <Basic.SelectBox
+                    ref="role"
+                    manager={roleManager}
+                    label={this.i18n('entity.IdentityRole.role')}
+                    required/>
                   <Basic.TextField
                     label={this.i18n('entity.IdentityRole.identityContract.label')}
                     helpBlock={this.i18n('entity.IdentityRole.identityContract.help')}
                     value={ identityContractManager.getNiceLabel(detail.entity.identityContract) }
                     readOnly={!TEST_ADD_ROLE_DIRECTLY}
-                    required/>
-                  <Basic.SelectBox
-                    ref="role"
-                    manager={roleManager}
-                    label={this.i18n('entity.IdentityRole.role')}
                     required/>
                   <Basic.LabelWrapper
                     label={this.i18n('entity.IdentityRole.roleTreeNode.label')}

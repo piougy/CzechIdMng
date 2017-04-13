@@ -48,6 +48,27 @@ public class IdmAuthorizationPolicy extends AbstractEntity implements Authorizat
 	@org.hibernate.annotations.ForeignKey( name = "none" )	
 	private IdmRole role;
 	
+	@Size(max = DefaultFieldLengths.NAME)
+	@Column(name = "authorizable_type", length = DefaultFieldLengths.NAME)
+	private String authorizableType;
+	
+	@Size(max = DefaultFieldLengths.NAME)
+	@Column(name = "group_permission", length = DefaultFieldLengths.NAME)
+	private String groupPermission;
+	
+	@Size(max = DefaultFieldLengths.NAME)
+	@Column(name = "base_permissions", length = DefaultFieldLengths.NAME)
+	//@Convert(converter = StringSetConverter.class) // TODO: doesn't work with envers
+	private String basePermissions;
+	
+	@NotEmpty
+	@Size(max = DefaultFieldLengths.NAME)
+	@Column(name = "evaluator_type", length = DefaultFieldLengths.NAME, nullable = false)
+	private String evaluatorType;
+	
+	@Column(name = "evaluator_properties", length = Integer.MAX_VALUE)
+	private ConfigurationMap evaluatorProperties;
+	
 	@NotNull
 	@Column(name = "disabled", nullable = false)
 	private boolean disabled;
@@ -60,19 +81,6 @@ public class IdmAuthorizationPolicy extends AbstractEntity implements Authorizat
 	@Column(name = "seq")
 	private Short seq;
 	
-	@Column(name = "authorizable_type", length = DefaultFieldLengths.NAME)
-	private String authorizableType;
-	
-	@NotEmpty
-	@Column(name = "evaluator_type", length = DefaultFieldLengths.NAME, nullable = false)
-	private String evaluatorType;
-	
-	@Column(name = "evaluator_properties", length = Integer.MAX_VALUE)
-	private ConfigurationMap evaluatorProperties;
-	
-	@Column(name = "base_permissions", length = DefaultFieldLengths.NAME)
-	//@Convert(converter = StringSetConverter.class) // TODO: doesn't work with envers
-	private String basePermissions;
 	
 	public IdmAuthorizationPolicy() {
 	}
@@ -150,5 +158,14 @@ public class IdmAuthorizationPolicy extends AbstractEntity implements Authorizat
 	
 	public void setBasePermissions(String basePermissions) {
 		this.basePermissions = basePermissions;
+	}
+	
+	public void setGroupPermission(String groupPermission) {
+		this.groupPermission = groupPermission;
+	}
+	
+	@Override
+	public String getGroupPermission() {
+		return groupPermission;
 	}
 }

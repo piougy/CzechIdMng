@@ -11,6 +11,7 @@ const uiKey = 'system-attribute-mapping';
 const manager = new SystemAttributeMappingManager();
 const systemMappingManager = new SystemMappingManager();
 const schemaAttributeManager = new SchemaAttributeManager();
+const PASSWORD_ATTRIBUTE = '__PASSWORD__';
 
 class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
 
@@ -38,9 +39,12 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
     }
     if (_attribute && _attribute !== this.props._attribute) {
       if (_attribute && this.refs.form) {
-        this.setState({disabledAttribute: _attribute.disabledAttribute});
-        this.setState({entityAttribute: _attribute.entityAttribute});
-        this.setState({extendedAttribute: _attribute.extendedAttribute});
+        this.setState({
+          disabledAttribute: _attribute.disabledAttribute,
+          entityAttribute: _attribute.entityAttribute,
+          extendedAttribute: _attribute.extendedAttribute,
+          showPasswordInfo: _attribute.schemaAttribute.name === PASSWORD_ATTRIBUTE
+        });
       }
     }
   }
@@ -119,9 +123,16 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
   }
 
   _schemaAttributeChange(value) {
+    let showPasswordInfo = false;
     if (!this.refs.name.getValue()) {
       this.refs.name.setValue(value.name);
     }
+    if (value.name === PASSWORD_ATTRIBUTE) {
+      showPasswordInfo = true;
+    }
+    this.setState({
+      showPasswordInfo
+    });
   }
 
   _onChangeEntityEnum(item) {
@@ -135,8 +146,8 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
   }
 
   render() {
-    const { _showLoading, _attribute, _systemMapping} = this.props;
-    const { disabledAttribute, entityAttribute, extendedAttribute} = this.state;
+    const { _showLoading, _attribute, _systemMapping } = this.props;
+    const { disabledAttribute, entityAttribute, extendedAttribute, showPasswordInfo } = this.state;
     const isNew = this._getIsNew();
     const attribute = isNew ? this.state.attribute : _attribute;
     const forceSearchParameters = new Domain.SearchParameters().setFilter('objectClassId',
@@ -246,11 +257,17 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
               </Basic.Row>
               <Basic.LabelWrapper label=" ">
                 <Basic.Alert
-                   rendered={_showNoRepositoryAlert}
+                   rendered={_showNoRepositoryAlert && !showPasswordInfo}
                    key="no-repository-alert"
                    icon="exclamation-sign"
                    className="no-margin"
                    text={this.i18n('alertNoRepository')}/>
+                 <Basic.Alert
+                    rendered={showPasswordInfo === true}
+                    key="password-info-alert"
+                    icon="exclamation-sign"
+                    className="no-margin"
+                    text={this.i18n('infoPasswordMapping')}/>
               </Basic.LabelWrapper>
               <Basic.ScriptArea
                 ref="transformFromResourceScript"

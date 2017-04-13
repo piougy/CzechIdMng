@@ -35,7 +35,7 @@ public class BasePermissionEvaluator extends AbstractAuthorizationEvaluator<Iden
 	@Override
 	public Set<String> getPermissions(Identifiable entity, AuthorizationPolicy policy) {
 		final Set<String> permissions = super.getPermissions(entity, policy);
-		permissions.addAll(getBasePermissions(policy));
+		permissions.addAll(policy.getPermissions());
 		return permissions;
 	}
 }

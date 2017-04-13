@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.model.repository;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.joda.time.LocalDate;
 import org.springframework.data.domain.Page;
@@ -56,4 +57,22 @@ public interface IdmAuthorizationPolicyRepository extends AbstractEntityReposito
 			@Param("authorizableType") String authorizableType, 
 			@Param("disabled") boolean disabled,
 			@Param("currentDate") LocalDate currentDate);
+	
+	/**
+	 * Return enabled role's policies (role and policy has to be enabled).
+	 * 
+	 * @param roleId
+	 * @param disabled
+	 * @return
+	 */
+	@Query(value = "select e from #{#entityName} e join e.role r"
+			+ " where"
+			+ " r.id = :roleId"
+			+ " and"
+			+ " r.disabled = :disabled"
+			+ " and"
+			+ " e.disabled = :disabled")
+	List<IdmAuthorizationPolicy> getPolicies(
+			@Param("roleId") UUID roleId,
+			@Param("disabled") boolean disabled);
 }

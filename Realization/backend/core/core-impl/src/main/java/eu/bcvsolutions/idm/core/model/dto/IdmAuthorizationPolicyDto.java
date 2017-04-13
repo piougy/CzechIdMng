@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.model.dto;
 
+import java.util.Set;
 import java.util.UUID;
 
 import javax.validation.constraints.Max;
@@ -41,10 +42,15 @@ public class IdmAuthorizationPolicyDto extends AbstractDto implements Authorizat
 	private String description;
 	@Max(99999)
 	private Short seq;
+	@Size(max = DefaultFieldLengths.NAME)
+	private String groupPermission;
+	@Size(max = DefaultFieldLengths.NAME)
 	private String authorizableType;
 	@NotEmpty
+	@Size(min = 1, max = DefaultFieldLengths.NAME)
 	private String evaluatorType;
 	private ConfigurationMap evaluatorProperties;
+	@Size(max = DefaultFieldLengths.DESCRIPTION)
 	private String basePermissions;
 	
 	public IdmAuthorizationPolicyDto() {
@@ -132,5 +138,20 @@ public class IdmAuthorizationPolicyDto extends AbstractDto implements Authorizat
 		Assert.notNull(permissions);
 		//
 		this.basePermissions = StringUtils.join(permissions, ",");
+	}
+	
+	@JsonIgnore
+	@Override
+	public Set<String> getPermissions() {
+		return AuthorizationPolicy.super.getPermissions();
+	}
+	
+	@Override
+	public String getGroupPermission() {
+		return groupPermission;
+	}
+	
+	public void setGroupPermission(String groupPermission) {
+		this.groupPermission = groupPermission;
 	}
 }

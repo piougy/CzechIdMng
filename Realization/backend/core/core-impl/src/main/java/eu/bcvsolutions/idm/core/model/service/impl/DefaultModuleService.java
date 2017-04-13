@@ -115,11 +115,12 @@ public class DefaultModuleService implements ModuleService {
 	
 	@Override
 	public List<GroupPermission> getAvailablePermissions() {
-		List<GroupPermission> perrmissions = new ArrayList<>();
+		List<GroupPermission> permissions = new ArrayList<>();
 		getEnabledModules().forEach(moduleDescriptor -> {
-			perrmissions.addAll(moduleDescriptor.getPermissions());
+			permissions.addAll(moduleDescriptor.getPermissions());
 		});
-		return Collections.unmodifiableList(perrmissions);
+		LOG.debug("Loaded available groupPermissions [size:{}]", permissions.size());
+		return Collections.unmodifiableList(permissions);
 	}
 
 	/**

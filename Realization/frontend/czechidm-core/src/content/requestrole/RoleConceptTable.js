@@ -85,7 +85,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
       }
     }, () => {
       this.refs.form.setData(entityFormData);
-      this.refs.identityContract.focus();
+      this.refs.role.focus();
     });
   }
 
@@ -414,6 +414,10 @@ export class RoleConceptTable extends Basic.AbstractContent {
             }
             sort={false}/>
           <Basic.Column
+            header={this.i18n('entity.IdentityRole.role')}
+            property="_embedded.role.name"
+            />
+          <Basic.Column
             header={this.i18n('entity.IdentityRole.identityContract.title')}
             property="_embedded.identityContract"
             cell={
@@ -431,10 +435,6 @@ export class RoleConceptTable extends Basic.AbstractContent {
                 );
               }
             }/>
-          <Basic.Column
-            header={this.i18n('entity.IdentityRole.role')}
-            property="_embedded.role.name"
-            />
           <Basic.Column
             header={this.i18n('entity.Role.description')}
             property="_embedded.role.description"
@@ -471,6 +471,13 @@ export class RoleConceptTable extends Basic.AbstractContent {
             <Basic.Modal.Body>
               <Basic.AbstractForm ref="form" showLoading={showLoading} readOnly={!detail.edit}>
                 <Basic.SelectBox
+                  ref="role"
+                  manager={roleManager}
+                  label={this.i18n('entity.IdentityRole.role')}
+                  multiSelect={detail.entity._added && detail.add}
+                  readOnly={!detail.entity._added}
+                  required/>
+                <Basic.SelectBox
                   ref="identityContract"
                   manager={ identityContractManager }
                   forceSearchParameters={ new SearchParameters().setFilter('identity', identityUsername) }
@@ -478,13 +485,6 @@ export class RoleConceptTable extends Basic.AbstractContent {
                   placeholder={ this.i18n('entity.IdentityRole.identityContract.placeholder') }
                   helpBlock={ this.i18n('entity.IdentityRole.identityContract.help') }
                   returnProperty={false}
-                  readOnly={!detail.entity._added}
-                  required/>
-                <Basic.SelectBox
-                  ref="role"
-                  manager={roleManager}
-                  label={this.i18n('entity.IdentityRole.role')}
-                  multiSelect={detail.entity._added && detail.add}
                   readOnly={!detail.entity._added}
                   required/>
                 <Basic.Checkbox

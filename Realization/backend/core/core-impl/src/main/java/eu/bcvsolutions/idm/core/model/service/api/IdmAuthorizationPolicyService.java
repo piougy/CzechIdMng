@@ -2,6 +2,9 @@ package eu.bcvsolutions.idm.core.model.service.api;
 
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
+
+import org.springframework.security.core.GrantedAuthority;
 
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
@@ -31,13 +34,20 @@ public interface IdmAuthorizationPolicyService
 	List<IdmAuthorizationPolicyDto> getEnabledPolicies(String username, Class<? extends Identifiable> entityType);
 	
 	/**
+	 * Returns active role's authorities by configured policies
+	 * 
+	 * @param role
+	 */
+	Set<GrantedAuthority> getEnabledRoleAuthorities(UUID roleId);
+	
+	/**
 	 * Returns authorities from default user role by configuration {@value #PROPERTY_DEFAULT_ROLE}
 	 * 
 	 * Attention: Doesn't returns authorities from subroles
 	 * 
 	 * @return
 	 */
-	Set<String> getDefaultAuthorities();
+	Set<GrantedAuthority> getDefaultAuthorities();
 	
 	/**
 	 * Returns policies from default user role by configuration {@value IdmRoleService#PROPERTY_DEFAULT_ROLE}.

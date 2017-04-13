@@ -21,9 +21,10 @@ import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.AbstractWorkflowIntegrationTest;
 import eu.bcvsolutions.idm.core.api.dto.IdentityDto;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
+import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
-import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
+import eu.bcvsolutions.idm.core.security.api.utils.IdmAuthorityUtils;
 import eu.bcvsolutions.idm.core.workflow.api.dto.WorkflowDeploymentDto;
 import eu.bcvsolutions.idm.core.workflow.api.service.WorkflowDeploymentService;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
@@ -57,7 +58,7 @@ public class HistoryProcessAndTaskTest extends AbstractWorkflowIntegrationTest {
 	@Autowired
 	private WorkflowHistoricTaskInstanceService historicTaskService;
 	@Autowired
-	private SecurityService securityService;
+	private ModuleService moduleService;
 
 	@Before
 	public void login() {
@@ -114,7 +115,7 @@ public class HistoryProcessAndTaskTest extends AbstractWorkflowIntegrationTest {
 	}
 
 	private void loginAsNoAdmin(String user) {
-		Collection<GrantedAuthority> authorities = securityService.getAllAvailableAuthorities().stream().filter(authority -> {
+		Collection<GrantedAuthority> authorities = IdmAuthorityUtils.toAuthorities(moduleService.getAvailablePermissions()).stream().filter(authority -> {
 			return !IdmGroupPermission.APP_ADMIN.equals(authority.getAuthority());
 		}).collect(Collectors.toList());
 		SecurityContextHolder.getContext().setAuthentication(new IdmJwtAuthentication(new IdentityDto(user), null, authorities, "test"));

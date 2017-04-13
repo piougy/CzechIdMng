@@ -8,9 +8,11 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.model.repository.IdmAuthorizationPolicyRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleTreeNodeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
@@ -29,6 +31,7 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizationManager;
 import eu.bcvsolutions.idm.core.security.api.service.EnabledEvaluator;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.security.service.impl.DefaultAuthorizationManager;
+import eu.bcvsolutions.idm.core.security.service.impl.IdmAuthorityHierarchy;
 
 /**
  * Overridable core services initialization
@@ -52,6 +55,12 @@ public class IdmServiceConfiguration {
 	// Own beans - TODO: move to @Bean init here
 	@Autowired
 	private EnabledEvaluator enabledEvaluator;
+	
+	
+	@Bean
+	public RoleHierarchy roleHierarchy(ModuleService moduleService) {
+	    return new IdmAuthorityHierarchy(moduleService);
+	}
 	
 	/**
 	 * Event manager for entity event publishing.
@@ -106,8 +115,9 @@ public class IdmServiceConfiguration {
 	@Bean
 	public IdmAuthorizationPolicyService authorizationPolicyService(
 			IdmAuthorizationPolicyRepository repository,
-			IdmRoleService roleService) {
-		return new DefaultIdmAuthorizationPolicyService(repository, roleService);
+			IdmRoleService roleService,
+			ModuleService moduleService) {
+		return new DefaultIdmAuthorizationPolicyService(repository, roleService, moduleService);
 	}
 	
 	/**
@@ -118,7 +128,11 @@ public class IdmServiceConfiguration {
 	 * @return
 	 */
 	@Bean
-	public AuthorizationManager authorizationManager(IdmAuthorizationPolicyRepository repository, IdmRoleService roleService, SecurityService securityService) {
-		return new DefaultAuthorizationManager(context, authorizationPolicyService(repository, roleService), securityService);
+	public AuthorizationManager authorizationManager(
+			IdmAuthorizationPolicyRepository repository, 
+			IdmRoleService roleService, 
+			SecurityService securityService,
+			ModuleService moduleService) {
+		return new DefaultAuthorizationManager(context, authorizationPolicyService(repository, roleService, moduleService), securityService, moduleService);
 	}
 }

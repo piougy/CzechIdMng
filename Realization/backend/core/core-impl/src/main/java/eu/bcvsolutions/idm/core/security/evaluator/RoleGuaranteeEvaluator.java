@@ -70,7 +70,7 @@ public class RoleGuaranteeEvaluator extends AbstractAuthorizationEvaluator<IdmRo
 		}
 		for (IdmRoleGuarantee guarantee : entity.getGuarantees()) {
 			if (guarantee.getGuarantee().getId().equals(securityService.getAuthentication().getCurrentIdentity().getId())) {
-				permissions.addAll(getBasePermissions(policy));
+				permissions.addAll(policy.getPermissions());
 				break;
 			}
 		}

@@ -17,6 +17,8 @@ export const RECEIVE_LOGIN_ERROR = 'RECEIVE_LOGIN_ERROR';
 export const LOGOUT = 'LOGOUT';
 //
 const TOKEN_COOKIE_NAME = 'XSRF-TOKEN';
+const ADMIN_PERMISSION = 'ADMIN';
+const ADMIN_AUTHORITY = `APP_${ADMIN_PERMISSION}`;
 
 const authenticateService = new AuthenticateService();
 const flashMessagesManager = new FlashMessagesManager();
@@ -190,7 +192,10 @@ export default class SecurityManager {
     if (!userContext) {
       userContext = AuthenticateService.getUserContext();
     }
-    return this.hasAuthority('APP_ADMIN', userContext);
+    if (!this.isAuthenticated(userContext) || !userContext.authorities) {
+      return false;
+    }
+    return _.includes(userContext.authorities, ADMIN_AUTHORITY);
   }
 
   /**
@@ -219,7 +224,7 @@ export default class SecurityManager {
     if (!this.isAuthenticated(userContext) || !userContext.authorities || !authority) {
       return false;
     }
-    return _.includes(userContext.authorities, authority);
+    return this.isAdmin(userContext) || _.includes(userContext.authorities, authority);
   }
 
   /**
@@ -236,7 +241,7 @@ export default class SecurityManager {
     if (!this.isAuthenticated(userContext) || !userContext.authorities || !authorities) {
       return false;
     }
-    return _.intersection(userContext.authorities, authorities).length > 0;
+    return this.isAdmin(userContext) || _.intersection(userContext.authorities, authorities).length > 0;
   }
 
   /**
@@ -252,6 +257,9 @@ export default class SecurityManager {
     }
     if (!this.isAuthenticated(userContext) || !userContext.authorities || !authorities) {
       return false;
+    }
+    if (this.isAdmin(userContext)) {
+      return true;
     }
     return _.difference(authorities, userContext.authorities).length === 0;
   }

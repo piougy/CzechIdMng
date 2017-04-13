@@ -4,7 +4,7 @@ import java.util.UUID;
 
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
-import eu.bcvsolutions.idm.core.security.domain.DefaultGrantedAuthority;
+import eu.bcvsolutions.idm.core.security.api.domain.DefaultGrantedAuthority;
 
 /**
  * Dto for authority role

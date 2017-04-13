@@ -134,6 +134,7 @@ class SchemaAttributeDetail extends Advanced.AbstractTableContent {
                 label={this.i18n('acc:entity.SchemaAttribute.updateable')}/>
               <Basic.Checkbox
                 ref="returnedByDefault"
+                tooltip={this.i18n('returnedByDefaultTooltip')}
                 label={this.i18n('acc:entity.SchemaAttribute.returned_by_default')}/>
             </Basic.AbstractForm>
             <Basic.PanelFooter>

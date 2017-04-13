@@ -272,6 +272,7 @@
       "attributeDetail": {
         "title" : "Atribut ve schématu",
         "header" : "Detail atributu systému",
+        "returnedByDefaultTooltip": "Při vyhledání účtu, je atribut součástí výsledku. Toto neplatí například pro atribut hesla, který standardně není ve výsledku obsažen (vracen).",
         "save": {
           "success": "Atribut [{{name}}] systému byl úspěšně uložen"
         },
@@ -823,6 +824,13 @@
       "DESCRIPTION": "Poznámka (String)",
       "PHONE": "Telefon (String)",
       "EMAIL": "Email (String)"
+    },
+    "TreeAttributeEnum": {
+      "CODE": "Kód (String)",
+      "NAME": "Název (String)",
+      "PARENT": "Rodič (String)",
+      "EXTERNAL_ID": "Externí ID (String)",
+      "DISABLED": "Zakázaný (boolean)"
     }
   },
   "permission": {

@@ -46,6 +46,9 @@ public class SynchronizationItemWrapper implements Serializable {
 	private SysSyncItemLog logItem;
 	private List<SysSyncActionLog> actionLogs;
 	
+	public SynchronizationItemWrapper() {
+	}
+	
 	public SynchronizationItemWrapper(String uid, IcConnectorObject icObject, IcSyncDeltaTypeEnum type,
 			SysSyncConfig config, SysSystem system, SystemEntityType entityType,
 			List<SysSystemAttributeMapping> mappedAttributes, AccAccount account, SysSyncLog log,

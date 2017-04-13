@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 
 import javax.persistence.EntityManager;
@@ -26,6 +25,7 @@ import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
 import eu.bcvsolutions.idm.acc.domain.OperationResultType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationActionType;
+import eu.bcvsolutions.idm.acc.domain.SynchronizationItemWrapper;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.AccTreeAccountDto;
 import eu.bcvsolutions.idm.acc.dto.EntityAccountDto;
@@ -81,9 +81,8 @@ import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 @Component
 public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor<IdmTreeNodeDto>
 		implements SynchronizationExecutor {
-	
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory
-			.getLogger(TreeSynchronizationExecutor.class);
+
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(TreeSynchronizationExecutor.class);
 	private final static String PARENT_FIELD = "parent";
 	private final static String CODE_FIELD = "code";
 	private final static String EXTERNAL_ID_FIELD = "externalId";
@@ -113,8 +112,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 		this.treeAccoutnService = treeAccoutnService;
 
 	}
-	
-	
+
 	@Override
 	public SysSyncConfig process(UUID synchronizationConfigId) {
 		SysSyncConfig config = synchronizationConfigService.get(synchronizationConfigId);
@@ -186,6 +184,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 
 		// List of all accounts with full IC object (used in tree sync)
 		Map<String, IcConnectorObject> accountsMap = new HashMap<>();
+		List<String> accountsUseInTreeList = new ArrayList<>();
 
 		longRunningTaskExecutor.counter = 0L;
 
@@ -193,64 +192,75 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 			synchronizationLogService.save(log);
 			List<SysSyncActionLog> actionsLog = new ArrayList<>();
 
-				log.addToLog("Synchronization will use custom filter (not synchronization implemented in connector).");
-				AttributeMapping tokenAttribute = config.getTokenAttribute();
-				if (tokenAttribute == null && !config.isReconciliation()) {
-					throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_TOKEN_ATTRIBUTE_NOT_FOUND);
-				}
-				
-				TreeResultsHandler resultHandler = new TreeResultsHandler(accountsMap);
-				
+			log.addToLog("Synchronization will use custom filter (not synchronization implemented in connector).");
+			AttributeMapping tokenAttribute = config.getTokenAttribute();
+			if (tokenAttribute == null && !config.isReconciliation()) {
+				throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_TOKEN_ATTRIBUTE_NOT_FOUND);
+			}
 
-				IcFilter filter = null; // We have to search all data for tree
-				log.addToLog(MessageFormat.format("Start search with filter {0}.", filter != null ? filter : "NONE"));
-				synchronizationLogService.save(log);
+			TreeResultsHandler resultHandler = new TreeResultsHandler(accountsMap);
 
-				connectorFacade.search(system.getConnectorInstance(), connectorConfig, objectClass, filter,
-						resultHandler);
+			IcFilter filter = null; // We have to search all data for tree
+			log.addToLog(MessageFormat.format("Start search with filter {0}.", filter != null ? filter : "NONE"));
+			synchronizationLogService.save(log);
 
-				SysSystemAttributeMapping uidAttribute = getUidAttribute(mappedAttributes);
-				if(uidAttribute == null){
-					// TODO: exception
+			connectorFacade.search(system.getConnectorInstance(), connectorConfig, objectClass, filter, resultHandler);
+
+			SysSystemAttributeMapping uidAttribute = getUidAttribute(mappedAttributes);
+			if (uidAttribute == null) {
+				throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_ATTRIBUTE_NOT_FOUND,
+						ImmutableMap.of("name", "UID"));
+			}
+			SysSystemAttributeMapping parentAttribute = getAttributeByIdmProperty(PARENT_FIELD, mappedAttributes);
+			if (parentAttribute == null) {
+				throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_ATTRIBUTE_NOT_FOUND,
+						ImmutableMap.of("name", PARENT_FIELD));
+			}
+			SysSystemAttributeMapping codeAttribute = getAttributeByIdmProperty(CODE_FIELD, mappedAttributes);
+			if (codeAttribute == null) {
+				throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_ATTRIBUTE_NOT_FOUND,
+						ImmutableMap.of("name", CODE_FIELD));
+			}
+
+			List<String> roots = new ArrayList<>();
+			accountsMap.forEach((uid, account) -> {
+				Object parentValue = this.getValueByMappedAttribute(parentAttribute, account.getAttributes());
+				Object uidValue = this.getValueByMappedAttribute(uidAttribute, account.getAttributes());
+				// TODO: execute in script
+				if (parentValue != null && parentValue.equals(uidValue)) {
+					roots.add(uid);
+					((IcAttributeImpl) accountsMap.get(uid)
+							.getAttributeByName(parentAttribute.getSchemaAttribute().getName())).setValues(null);
 				}
-				SysSystemAttributeMapping parentAttribute = getAttributeByIdmProperty(PARENT_FIELD, mappedAttributes);
-				if(parentAttribute == null){
-					// TODO: exception
+			});
+
+			if (roots.isEmpty()) {
+				log.addToLog("No roots to synchronization found!");
+			}
+
+			roots.forEach(root -> {
+				IcConnectorObject parentIcObject = accountsMap.get(root);
+				boolean result = handleIcObject(root, parentIcObject, tokenAttribute, config, system, entityType, log,
+						mappedAttributes, actionsLog);
+				if (!result) {
+					return;
 				}
-				SysSystemAttributeMapping codeAttribute = getAttributeByIdmProperty(CODE_FIELD, mappedAttributes);
-				if(codeAttribute == null){
-					// TODO: exception
-				}
-				
-				List<String> roots = new ArrayList<>();
-				accountsMap.forEach((uid, account) -> {
-					Object parentValue = this.getValueByMappedAttribute(parentAttribute, account.getAttributes());
-					Object uidValue = this.getValueByMappedAttribute(uidAttribute, account.getAttributes());
-					// TODO: execute in script
-					if(parentValue != null && parentValue.equals(uidValue)){
-						roots.add(uid); 
-						((IcAttributeImpl)accountsMap.get(uid).getAttributeByName(parentAttribute.getSchemaAttribute().getName())).setValues(null);
-					}
-				});
-				
-				if(roots.isEmpty()){
-					// TODO: exception
-				}
-				
-				roots.forEach(root -> {
-					IcConnectorObject parentIcObject = accountsMap.get(root);
-					boolean result = handleIcObject(root, parentIcObject, tokenAttribute, config, system, entityType, log,
-							mappedAttributes, actionsLog);
-					if(!result){
-						return;
-					}
-					Object uidValueParent = this.getValueByMappedAttribute(uidAttribute, parentIcObject.getAttributes());
-					processChildren(parentAttribute, uidValueParent, uidAttribute, config, system, entityType, mappedAttributes, log, accountsMap, actionsLog, tokenAttribute);
-				});
-	
+				Object uidValueParent = this.getValueByMappedAttribute(uidAttribute, parentIcObject.getAttributes());
+				SynchronizationItemWrapper wrapper = new SynchronizationItemWrapper();
+				wrapper.setConfig(config);
+				wrapper.setSystem(system);
+				wrapper.setEntityType(entityType);
+				wrapper.setMappedAttributes(mappedAttributes);
+				wrapper.setLog(log);
+				wrapper.setActionLogs(actionsLog);
+
+				processChildren(parentAttribute, uidValueParent, uidAttribute, tokenAttribute, accountsMap,
+						accountsUseInTreeList, wrapper);
+			});
+
 			// We do reconciliation (find missing account)
 			if (config.isReconciliation()) {
-				startReconciliation(entityType, Lists.newArrayList(accountsMap.keySet()), config, system, log, actionsLog);
+				startReconciliation(entityType, accountsUseInTreeList, config, system, log, actionsLog);
 			}
 			//
 			log.addToLog(MessageFormat.format("Synchronization was correctly ended in {0}.", LocalDateTime.now()));
@@ -272,27 +282,40 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 		return config;
 	}
 
+	/**
+	 * Process recursively tree children
+	 * 
+	 * @param parentAttribute
+	 * @param uidValueParent
+	 * @param uidAttribute
+	 * @param tokenAttribute
+	 * @param accountsMap
+	 * @param wrapper
+	 */
+	private void processChildren(SysSystemAttributeMapping parentAttribute, Object uidValueParent,
+			SysSystemAttributeMapping uidAttribute, AttributeMapping tokenAttribute,
+			Map<String, IcConnectorObject> accountsMap, List<String> accountsUseInTreeList,
+			SynchronizationItemWrapper wrapper) {
 
-	private void processChildren(SysSystemAttributeMapping parentAttribute, Object uidValueParent, SysSystemAttributeMapping uidAttribute, 
-			SysSyncConfig config, SysSystem system, SystemEntityType entityType,
-			List<SysSystemAttributeMapping> mappedAttributes, SysSyncLog log,
-			Map<String, IcConnectorObject> accountsMap, List<SysSyncActionLog> actionsLog,
-			AttributeMapping tokenAttribute) {
-		
 		accountsMap.forEach((uid, account) -> {
 			Object parentValue = this.getValueByMappedAttribute(parentAttribute, account.getAttributes());
-			if(parentValue != null && parentValue.equals(uidValueParent)){
-				 boolean resultChild = handleIcObject(uid, account, tokenAttribute, config, system, entityType, log,
-						mappedAttributes, actionsLog);
-				if(!resultChild){
+			if (parentValue != null && parentValue.equals(uidValueParent)) {
+				// Account is use in tree
+				accountsUseInTreeList.add(uid);
+				// Do provisioning for this account
+				boolean resultChild = handleIcObject(uid, account, tokenAttribute, wrapper.getConfig(),
+						wrapper.getSystem(), wrapper.getEntityType(), wrapper.getLog(), wrapper.getMappedAttributes(),
+						wrapper.getActionLogs());
+				if (!resultChild) {
 					return;
 				}
 				Object uidValueParentChilde = this.getValueByMappedAttribute(uidAttribute, account.getAttributes());
-				processChildren(parentAttribute, uidValueParentChilde, uidAttribute, config, system, entityType, mappedAttributes, log, accountsMap, actionsLog, tokenAttribute);
+				processChildren(parentAttribute, uidValueParentChilde, uidAttribute, tokenAttribute, accountsMap,
+						accountsUseInTreeList, wrapper);
+
 			}
 		});
 	}
-
 
 	/**
 	 * Call provisioning for given account
@@ -488,7 +511,9 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 			treeNodeService.delete(treeNode);
 			addToItemLog(logItem, MessageFormat.format("Tree node [{0}] was deleted.", treeNode.getName()));
 		} else {
-			addToItemLog(logItem, MessageFormat.format("Tree node [{0}] has children [count={1}]. We have to delete it first.", treeNode.getName(), children.size()));
+			addToItemLog(logItem,
+					MessageFormat.format("Tree node [{0}] has children [count={1}]. We have to delete it first.",
+							treeNode.getName(), children.size()));
 			children.forEach(child -> {
 				deleteChildrenRecursively(child, logItem);
 			});
@@ -535,7 +560,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Fill entity with attributes from IC module (by mapped attributes).
 	 * 
@@ -559,20 +584,20 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 		}).forEach(attribute -> {
 			String attributeProperty = attribute.getIdmPropertyName();
 			Object transformedValue = getValueByMappedAttribute(attribute, icAttributes);
-			if(attributeProperty.equals(PARENT_FIELD)){
-				
+			if (attributeProperty.equals(PARENT_FIELD)) {
+
 				TreeNodeFilter nodeFilter = new TreeNodeFilter();
 				nodeFilter.setProperty(EXTERNAL_ID_FIELD);
 				nodeFilter.setValue(transformedValue != null ? transformedValue.toString() : null);
 				List<IdmTreeNode> parents = treeNodeService.find(nodeFilter, null).getContent();
 				// TODO: exception for more parents
-				if(!parents.isEmpty()){
+				if (!parents.isEmpty()) {
 					transformedValue = parents.get(0);
-				}else {
+				} else {
 					transformedValue = null;
 				}
 			}
-			
+
 			// Set transformed value from target system to entity
 			try {
 				setEntityValue(entity, attributeProperty, transformedValue);
@@ -617,23 +642,23 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 	protected ReadWriteDtoService getEntityService() {
 		return null; // We don't have DTO service for IdmTreeNode now
 	}
-	
+
 	public class TreeResultsHandler implements IcResultsHandler {
-		
+
 		// List of all accounts
 		private Map<String, IcConnectorObject> accountsMap = new HashMap<>();
-		
+
 		public TreeResultsHandler(Map<String, IcConnectorObject> accountsMap) {
 			this.accountsMap = accountsMap;
 		}
-		
+
 		@Override
 		public boolean handle(IcConnectorObject connectorObject) {
 			Assert.notNull(connectorObject);
 			Assert.notNull(connectorObject.getUidValue());
 			String uid = connectorObject.getUidValue();
-				accountsMap.put(uid, connectorObject);
-				return true;
+			accountsMap.put(uid, connectorObject);
+			return true;
 
 		}
 	};

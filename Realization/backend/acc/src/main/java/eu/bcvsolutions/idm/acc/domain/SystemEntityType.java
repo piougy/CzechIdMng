@@ -3,7 +3,7 @@ package eu.bcvsolutions.idm.acc.domain;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
-import eu.bcvsolutions.idm.core.model.entity.IdmRoleTreeNode;
+import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 
 /**
  * Type of entity on target system
@@ -15,7 +15,7 @@ public enum SystemEntityType {
 
 	IDENTITY(IdmIdentity.class),
 	GROUP(IdmRole.class),  // unimplemented for now: 
-	TREE(IdmRoleTreeNode.class);
+	TREE(IdmTreeNode.class);
 
 	private Class<? extends AbstractEntity> entityType;
 

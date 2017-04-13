@@ -273,7 +273,7 @@ EnumSelectBox.propTypes = {
 EnumSelectBox.defaultProps = {
   ...SelectBox.defaultProps,
   searchable: false,
-  useSymbol: true,
+  useSymbol: false,
   useObject: false,
   clearable: true
 };

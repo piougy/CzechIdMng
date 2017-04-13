@@ -103,6 +103,11 @@ public class DefaultWorkflowProcessInstanceService implements WorkflowProcessIns
 
 	@Override
 	public ResourcesWrapper<WorkflowProcessInstanceDto> search(WorkflowFilterDto filter) {
+		return searchInternal(filter, true);
+	}
+	
+	@Override
+	public ResourcesWrapper<WorkflowProcessInstanceDto> searchInternal(WorkflowFilterDto filter, boolean checkRight) {
 		String processDefinitionId = filter.getProcessDefinitionId();
 
 		Map<String, Object> equalsVariables = filter.getEqualsVariables();
@@ -147,7 +152,9 @@ public class DefaultWorkflowProcessInstanceService implements WorkflowProcessIns
 		// historic process instance
 		// Applicant and Implementer is added to involved user after process
 		// (subprocess) started. This modification allow not use OR clause.
-		query.involvedUser(securityService.getUsername());
+		if(checkRight && !securityService.isAdmin()){
+			query.involvedUser(securityService.getUsername());
+		}
 
 		query.orderByProcessDefinitionId();
 		query.desc();
@@ -189,25 +196,24 @@ public class DefaultWorkflowProcessInstanceService implements WorkflowProcessIns
 		if (deleteReason == null) {
 			deleteReason = "Deleted by " + securityService.getUsername();
 		}
-		ProcessInstanceQuery query = runtimeService.createProcessInstanceQuery();
-		query.processInstanceId(processInstanceId);
-		// check security ... only applicant or implementer can delete process
-		// instance
-		query.or();
-		query.variableValueEquals(WorkflowProcessInstanceService.APPLICANT_USERNAME,
-				securityService.getOriginalUsername());
-		query.variableValueEquals(WorkflowProcessInstanceService.IMPLEMENTER_USERNAME,
-				securityService.getOriginalUsername());
-		query.endOr();
-		ProcessInstance processInstance = query.singleResult();
-		if (processInstance == null) {
+		
+		WorkflowFilterDto filter = new WorkflowFilterDto();
+		filter.setProcessInstanceId(processInstanceId);
+		
+		Collection<WorkflowProcessInstanceDto> resources = this.searchInternal(filter, false).getResources();
+		WorkflowProcessInstanceDto processInstanceToDelete = null;
+		if(!resources.isEmpty()){
+			processInstanceToDelete = resources.iterator().next();
+		}
+
+		if (processInstanceToDelete == null) {
 			throw new ResultCodeException(CoreResultCode.FORBIDDEN,
 					"You do not have permission for delete process instance with ID: %s !",
 					ImmutableMap.of("processInstanceId", processInstanceId));
 		}
-		runtimeService.deleteProcessInstance(processInstance.getId(), deleteReason);
+		runtimeService.deleteProcessInstance(processInstanceToDelete.getProcessInstanceId(), deleteReason);
 
-		return toResource(processInstance);
+		return processInstanceToDelete;
 	}
 
 	private WorkflowProcessInstanceDto toResource(ProcessInstance instance) {

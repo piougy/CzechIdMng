@@ -644,7 +644,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 	 * @param log
 	 * @param actionsLog
 	 */
-	protected void startReconciliation(SystemEntityType entityType, List<String> systemAccountsList, SysSyncConfig config,
+	protected void startReconciliation(SystemEntityType entityType, List<String> allAccountsList, SysSyncConfig config,
 			SysSystem system, SysSyncLog log, List<SysSyncActionLog> actionsLog) {
 		AccountFilter accountFilter = new AccountFilter();
 		accountFilter.setSystemId(system.getId());
@@ -655,7 +655,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 				return;
 			}
 			String uid = account.getRealUid();
-			if (!systemAccountsList.contains(uid)) {
+			if (!allAccountsList.contains(uid)) {
 				SysSyncItemLog itemLog = new SysSyncItemLog();
 				try {
 

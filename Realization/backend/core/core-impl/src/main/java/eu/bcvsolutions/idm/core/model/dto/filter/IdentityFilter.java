@@ -16,7 +16,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
  * @author Radek Tomiška
  *
  */
-public class IdentityFilter extends QuickFilter {
+public class IdentityFilter extends QuickFilter implements CorrelationFilter {
 	
 	/**
 	 * Subordinates for given identity
@@ -46,7 +46,7 @@ public class IdentityFilter extends QuickFilter {
 	 * Little dynamic search by identity property and value
 	 */
 	private String property;
-	private Object value;
+	private String value;
 	/**
 	 * Identities for tree structure (by identity contract)
 	 */
@@ -111,19 +111,23 @@ public class IdentityFilter extends QuickFilter {
 		return roles;
 	}
 
+	@Override
 	public String getProperty() {
 		return property;
 	}
 
+	@Override
 	public void setProperty(String property) {
 		this.property = property;
 	}
 
-	public Object getValue() {
+	@Override
+	public String getValue() {
 		return value;
 	}
 
-	public void setValue(Object value) {
+	@Override
+	public void setValue(String value) {
 		this.value = value;
 	}
 	

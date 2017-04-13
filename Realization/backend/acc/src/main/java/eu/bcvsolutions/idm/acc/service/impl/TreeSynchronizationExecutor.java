@@ -20,6 +20,7 @@ import org.springframework.util.Assert;
 
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
@@ -183,9 +184,6 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 
 		log.addToLog(MessageFormat.format("Synchronization was started in {0}.", log.getStarted()));
 
-		// List of all accounts keys (used in reconciliation)
-		List<String> systemAccountsList = new ArrayList<>();
-
 		// List of all accounts with full IC object (used in tree sync)
 		Map<String, IcConnectorObject> accountsMap = new HashMap<>();
 
@@ -200,19 +198,9 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 				if (tokenAttribute == null && !config.isReconciliation()) {
 					throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_TOKEN_ATTRIBUTE_NOT_FOUND);
 				}
-
-				IcResultsHandler resultHandler = new IcResultsHandler() {
-
-					@Override
-					public boolean handle(IcConnectorObject connectorObject) {
-						Assert.notNull(connectorObject);
-						Assert.notNull(connectorObject.getUidValue());
-						String uid = connectorObject.getUidValue();
-							accountsMap.put(uid, connectorObject);
-							return true;
-
-					}
-				};
+				
+				TreeResultsHandler resultHandler = new TreeResultsHandler(accountsMap);
+				
 
 				IcFilter filter = null; // We have to search all data for tree
 				log.addToLog(MessageFormat.format("Start search with filter {0}.", filter != null ? filter : "NONE"));
@@ -259,13 +247,11 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 					Object uidValueParent = this.getValueByMappedAttribute(uidAttribute, parentIcObject.getAttributes());
 					processChildren(parentAttribute, uidValueParent, uidAttribute, config, system, entityType, mappedAttributes, log, accountsMap, actionsLog, tokenAttribute);
 				});
-				
-				
-
+	
 			// We do reconciliation (find missing account)
-//			if (config.isReconciliation()) {
-//				startReconciliation(entityType, systemAccountsList, config, system, log, actionsLog);
-//			}
+			if (config.isReconciliation()) {
+				startReconciliation(entityType, Lists.newArrayList(accountsMap.keySet()), config, system, log, actionsLog);
+			}
 			//
 			log.addToLog(MessageFormat.format("Synchronization was correctly ended in {0}.", LocalDateTime.now()));
 			synchronizationConfigService.save(config);
@@ -492,8 +478,21 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 					actionLogs);
 			return;
 		}
-		// Delete entity
-		treeNodeService.delete(treeNode);
+		// Delete entity (recursively)
+		deleteChildrenRecursively(treeNode, logItem);
+	}
+
+	private void deleteChildrenRecursively(IdmTreeNode treeNode, SysSyncItemLog logItem) {
+		List<IdmTreeNode> children = treeNodeService.findChildrenByParent(treeNode.getId(), null).getContent();
+		if (children.isEmpty()) {
+			treeNodeService.delete(treeNode);
+			addToItemLog(logItem, MessageFormat.format("Tree node [{0}] was deleted.", treeNode.getName()));
+		} else {
+			addToItemLog(logItem, MessageFormat.format("Tree node [{0}] has children [count={1}]. We have to delete it first.", treeNode.getName(), children.size()));
+			children.forEach(child -> {
+				deleteChildrenRecursively(child, logItem);
+			});
+		}
 	}
 
 	/**
@@ -618,4 +617,24 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 	protected ReadWriteDtoService getEntityService() {
 		return null; // We don't have DTO service for IdmTreeNode now
 	}
+	
+	public class TreeResultsHandler implements IcResultsHandler {
+		
+		// List of all accounts
+		private Map<String, IcConnectorObject> accountsMap = new HashMap<>();
+		
+		public TreeResultsHandler(Map<String, IcConnectorObject> accountsMap) {
+			this.accountsMap = accountsMap;
+		}
+		
+		@Override
+		public boolean handle(IcConnectorObject connectorObject) {
+			Assert.notNull(connectorObject);
+			Assert.notNull(connectorObject.getUidValue());
+			String uid = connectorObject.getUidValue();
+				accountsMap.put(uid, connectorObject);
+				return true;
+
+		}
+	};
 }

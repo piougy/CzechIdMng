@@ -89,6 +89,11 @@ public class IdmTreeNode extends AbstractEntity
 	@NotNull
 	@Column(name = "disabled", nullable = false)
 	private boolean disabled;
+	
+	@Audited
+	@Size(max = DefaultFieldLengths.NAME)
+	@Column(name = "external_id", length = DefaultFieldLengths.NAME)
+	private String externalId;
 
 	public String getName() {
 		return name;
@@ -184,6 +189,14 @@ public class IdmTreeNode extends AbstractEntity
 		this.disabled = disabled;
 	}
 	
+	public String getExternalId() {
+		return externalId;
+	}
+
+	public void setExternalId(String externalId) {
+		this.externalId = externalId;
+	}
+
 	/**
 	 * Return tree type code from forest tree type
 	 * 

@@ -13,7 +13,7 @@ Input variables:
 + accountId(UUID),
 + entityId(UUID)</documentation>
     <startEvent id="startevent1" name="Start"></startEvent>
-    <endEvent id="endevent" name="End" activiti:async="true"></endEvent>
+    <endEvent id="endevent" name="End" activiti:async="false"></endEvent>
     <serviceTask id="servicetaskRealization" name="Realization (missing entity)" activiti:expression="#{defaultSynchronizationService.resolveMissingEntitySituation(uid, entityType, icAttributes, syncConfigId, actionType).getLog()}" activiti:resultVariableName="logItem"></serviceTask>
     <sequenceFlow id="flow36" sourceRef="servicetaskRealization" targetRef="endevent"></sequenceFlow>
     <sequenceFlow id="flow37" sourceRef="startevent1" targetRef="servicetask1"></sequenceFlow>

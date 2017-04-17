@@ -37,6 +37,7 @@ public abstract class AbstractWorkflowIntegrationTest extends AbstractIntegratio
 
 	@Autowired
 	private AutowireCapableBeanFactory beanFactory;
+
     
 	/**
 	 * Behavior injection from configuration doesn't work - we need to initialize it manually

@@ -118,16 +118,13 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowIntegrationTes
 		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
 		checkAndCompleteOneTask(taskFilter, InitTestData.TEST_USER_1, "approve");
 		// SECURITY
+		checkAndCompleteOneTask(taskFilter, InitTestData.TEST_USER_1, "approve");
 		
-		//TODO: End of this test not work (Main workflow not continue after subprocess ended. 
-		// Problem occurs only when subprocess has END activity mark as async.)
-//		checkAndCompleteOneTask(taskFilter, InitTestData.TEST_USER_1, "approve");
-//		
-//		request = roleRequestService.getDto(request.getId());
-//		assertEquals(RoleRequestState.EXECUTED, request.getState());
-//		assertNotNull(request.getWfProcessId());
-//		concept = conceptRoleRequestService.getDto(concept.getId());
-//		assertNotNull(concept.getWfProcessId());
+		request = roleRequestService.getDto(request.getId());
+		assertEquals(RoleRequestState.EXECUTED, request.getState());
+		assertNotNull(request.getWfProcessId());
+		concept = conceptRoleRequestService.getDto(concept.getId());
+		assertNotNull(concept.getWfProcessId());
 	}
 	
 	@Test
@@ -161,15 +158,11 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowIntegrationTes
 		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
 		checkAndCompleteOneTask(taskFilter, InitTestData.TEST_USER_1, "approve");
 		// SECURITY - must be skipped
-		
-		//TODO: End of this test not work (Main workflow not continue after subprocess ended. 
-		// Problem occurs only when subprocess has END activity mark as async.)
-		
-//		request = roleRequestService.getDto(request.getId());
-//		assertEquals(RoleRequestState.EXECUTED, request.getState());
-//		assertNotNull(request.getWfProcessId());
-//		concept = conceptRoleRequestService.getDto(concept.getId());
-//		assertNotNull(concept.getWfProcessId());
+		request = roleRequestService.getDto(request.getId());
+		assertEquals(RoleRequestState.EXECUTED, request.getState());
+		assertNotNull(request.getWfProcessId());
+		concept = conceptRoleRequestService.getDto(concept.getId());
+		assertNotNull(concept.getWfProcessId());
 	}
 	
 	@Test
@@ -252,19 +245,16 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowIntegrationTes
 		// Subprocess - approve by GUARANTEE
 		loginAsAdmin(InitTestData.TEST_USER_2);
 		checkAndCompleteOneTask(taskFilter, InitTestData.TEST_USER_1, "approve");
-		
-		//TODO: End of this test not work (Main workflow not continue after subprocess ended. 
-		// Problem occurs only when subprocess has END activity mark as async.)
-		
+
 		// SECURITY 
-//		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
-//		checkAndCompleteOneTask(taskFilter, InitTestData.TEST_USER_1, "approve");
-//		
-//		request = roleRequestService.getDto(request.getId());
-//		assertEquals(RoleRequestState.EXECUTED, request.getState());
-//		assertNotNull(request.getWfProcessId());
-//		concept = conceptRoleRequestService.getDto(concept.getId());
-//		assertNotNull(concept.getWfProcessId());
+		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		checkAndCompleteOneTask(taskFilter, InitTestData.TEST_USER_1, "approve");
+		
+		request = roleRequestService.getDto(request.getId());
+		assertEquals(RoleRequestState.EXECUTED, request.getState());
+		assertNotNull(request.getWfProcessId());
+		concept = conceptRoleRequestService.getDto(concept.getId());
+		assertNotNull(concept.getWfProcessId());
 	}
 	
 	
@@ -309,19 +299,14 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowIntegrationTes
 		// MANAGER 		turn off
 		// USER MANAGER	turn off
 		// SECURITY
+		loginAsAdmin(InitTestData.TEST_USER_1);
+		checkAndCompleteOneTask(taskFilter, InitTestData.TEST_USER_1, "approve");
 		
-		//TODO: End of this test not work (Main workflow not continue after subprocess ended. 
-		// Problem occurs only when subprocess has END activity mark as async.)
-				
-		
-//		loginAsAdmin(InitTestData.TEST_USER_1);
-//		checkAndCompleteOneTask(taskFilter, InitTestData.TEST_USER_1, "approve");
-//		
-//		request = roleRequestService.getDto(request.getId());
-//		assertEquals(RoleRequestState.EXECUTED, request.getState());
-//		assertNotNull(request.getWfProcessId());
-//		concept = conceptRoleRequestService.getDto(concept.getId());
-//		assertNotNull(concept.getWfProcessId());
+		request = roleRequestService.getDto(request.getId());
+		assertEquals(RoleRequestState.EXECUTED, request.getState());
+		assertNotNull(request.getWfProcessId());
+		concept = conceptRoleRequestService.getDto(concept.getId());
+		assertNotNull(concept.getWfProcessId());
 	}
 
 

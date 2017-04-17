@@ -225,6 +225,8 @@ public class DefaultIdmRoleRequestService
 			
 			ProcessInstance processInstance = workflowProcessInstanceService.startProcess(wfDefinition,
 					IdmIdentity.class.getSimpleName(), applicant.getUsername(), applicant.getId().toString(), variables);
+			// We have to refresh request (maybe was changed in wf process)
+			request = this.getDto(request.getId());
 			request.setWfProcessId(processInstance.getProcessInstanceId());
 			this.save(request);
 		}
@@ -545,6 +547,4 @@ public class DefaultIdmRoleRequestService
 			concept.setLog(null);
 		});
 	}
-
-
 }

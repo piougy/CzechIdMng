@@ -94,10 +94,12 @@ public class DefaultWorkflowProcessInstanceService implements WorkflowProcessIns
 		}
 
 		ProcessInstance instance = builder.start();
-		// Set applicant as owner of process
-		runtimeService.addUserIdentityLink(instance.getId(), applicant, IdentityLinkType.OWNER);
-		// Set current logged user (implementer) as starter of process
-		runtimeService.addUserIdentityLink(instance.getId(), securityService.getUsername(), IdentityLinkType.STARTER);
+		if(!instance.isEnded()){
+			// Set applicant as owner of process
+			runtimeService.addUserIdentityLink(instance.getId(), applicant, IdentityLinkType.OWNER);
+			// Set current logged user (implementer) as starter of process
+			runtimeService.addUserIdentityLink(instance.getId(), securityService.getUsername(), IdentityLinkType.STARTER);
+		}
 		return instance;
 	}
 

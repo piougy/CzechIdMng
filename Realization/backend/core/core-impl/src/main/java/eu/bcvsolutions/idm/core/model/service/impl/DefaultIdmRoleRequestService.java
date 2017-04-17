@@ -239,9 +239,10 @@ public class DefaultIdmRoleRequestService
 		Assert.notNull(requestId, "Role request ID is required!");
 		IdmRoleRequestDto request = this.getDto(requestId);
 		Assert.notNull(request, "Role request is required!");
-		if(RoleRequestState.APPROVED != request.getState()){
-			return request;
-		}
+//		if(RoleRequestState.APPROVED != request.getState() && RoleRequestState.CONCEPT != request.getState()){
+//			throw new RoleRequestException(CoreResultCode.ROLE_REQUEST_EXECUTE_WRONG_STATE,
+//					ImmutableMap.of("state", request.getState()));
+//		}
 
 		List<IdmConceptRoleRequestDto> concepts = request.getConceptRoles();
 		IdmIdentity identity = identityService.get(request.getApplicant());

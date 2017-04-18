@@ -9,6 +9,7 @@ import SynchronizationLinkedActionTypeEnum from '../../domain/SynchronizationLin
 import SynchronizationMissingEntityActionTypeEnum from '../../domain/SynchronizationMissingEntityActionTypeEnum';
 import SynchronizationUnlinkedActionTypeEnum from '../../domain/SynchronizationUnlinkedActionTypeEnum';
 import IcFilterOperationTypeEnum from '../../domain/IcFilterOperationTypeEnum';
+import SystemEntityTypeEnum from '../../domain/SystemEntityTypeEnum';
 import help from './SyncConfigFilterHelp_cs.md';
 
 const uiKey = 'system-synchronization-config';
@@ -206,8 +207,11 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
    */
   _onChangeSystemMapping(systemMapping) {
     const systemMappingId = systemMapping ? systemMapping.id : null;
+    const entityType = systemMapping ? systemMapping.entityType : null;
+    const isSelectedTree = entityType === SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.TREE);
     this.setState({
-      systemMappingId
+      systemMappingId,
+      entityType
     }, () => {
       // clear selected correlationAttribute
       this.refs.correlationAttribute.setValue(null);
@@ -215,6 +219,10 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
       this.refs.tokenAttribute.setValue(null);
       // clear selected filterAttribute
       this.refs.filterAttribute.setValue(null);
+
+      if (isSelectedTree) {
+        this.refs.reconciliation.setValue(true);
+      }
     });
   }
 
@@ -261,7 +269,7 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
 
   render() {
     const { _showLoading, _synchronizationConfig} = this.props;
-    const {systemMappingId, showLoading, activeKey} = this.state;
+    const {systemMappingId, showLoading, activeKey, entityType} = this.state;
     const isNew = this._getIsNew();
     const innerShowLoading = isNew ? showLoading : (_showLoading || showLoading);
     const systemId = this.props.params.entityId;
@@ -271,6 +279,17 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
     const synchronizationConfig = isNew ? this.state.synchronizationConfig : _synchronizationConfig;
     const attributeMappingIdFromEntity = synchronizationConfig && synchronizationConfig.systemMapping ? synchronizationConfig.systemMapping.id : null;
     const forceSearchCorrelationAttribute = new Domain.SearchParameters().setFilter('systemMappingId', systemMappingId || attributeMappingIdFromEntity || Domain.SearchParameters.BLANK_UUID);
+
+    let isSelectedTree = false;
+    if (entityType !== undefined) {
+      if (entityType === SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.TREE)) {
+        isSelectedTree = true;
+      }
+    } else {
+      if (synchronizationConfig && synchronizationConfig.systemMapping.entityType === SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.TREE)) {
+        isSelectedTree = true;
+      }
+    }
 
     return (
       <div>
@@ -291,8 +310,19 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
                     label={this.i18n('acc:entity.SynchronizationConfig.enabled')}/>
                   <Basic.Checkbox
                     ref="reconciliation"
+                    readOnly={isSelectedTree}
                     label={this.i18n('acc:entity.SynchronizationConfig.reconciliation.label')}
                     helpBlock={this.i18n('acc:entity.SynchronizationConfig.reconciliation.help')}/>
+                  <Basic.LabelWrapper
+                    hidden={!isSelectedTree}
+                    label=" ">
+                    <Basic.Alert
+                       key="treeInfo"
+                       level="warning"
+                       icon="exclamation-sign"
+                       className="no-margin"
+                       text={this.i18n('treeInfo')}/>
+                  </Basic.LabelWrapper>
                   <Basic.TextField
                     ref="name"
                     label={this.i18n('acc:entity.SynchronizationConfig.name')}
@@ -304,6 +334,12 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
                     onChange={this._onChangeSystemMapping.bind(this)}
                     label={this.i18n('acc:entity.SynchronizationConfig.systemMapping')}
                     required/>
+                  <Basic.ScriptArea
+                    ref="rootsFilterScript"
+                    height="20em"
+                    hidden={!isSelectedTree}
+                    helpBlock={this.i18n('acc:entity.SynchronizationConfig.rootsFilterScript.help')}
+                    label={this.i18n('acc:entity.SynchronizationConfig.rootsFilterScript.label')}/>
                   <Basic.TextField
                     ref="token"
                     label={this.i18n('acc:entity.SynchronizationConfig.token')}/>

@@ -11,6 +11,7 @@ import org.springframework.hateoas.core.Relation;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.Disableable;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
+import eu.bcvsolutions.idm.core.api.domain.IdentifiableByName;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 
 /**
@@ -20,7 +21,7 @@ import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
  *
  */
 @Relation(collectionRelation = "treeNodes")
-public class IdmTreeNodeDto extends AbstractDto implements Disableable {
+public class IdmTreeNodeDto extends AbstractDto implements Disableable, IdentifiableByName {
 
 	private static final long serialVersionUID = 1337282508070610164L;
 	@NotEmpty

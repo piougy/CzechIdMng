@@ -73,6 +73,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.domain.IdentifiableByName;
 import eu.bcvsolutions.idm.core.api.domain.Loggable;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
+import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
@@ -84,7 +85,6 @@ import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.scheduler.service.impl.AbstractLongRunningTaskExecutor;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
@@ -129,7 +129,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 	protected final SysSyncActionLogService syncActionLogService;
 	protected final SysSystemEntityService systemEntityService;
 	protected final AccAccountService accountService;
-	private final GroovyScriptService groovyScriptService;
+	protected final GroovyScriptService groovyScriptService;
 	private final ConfidentialStorage confidentialStorage;
 	private final FormService formService;
 	protected final EntityEventManager entityEventManager;
@@ -499,6 +499,16 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 			throw e;
 		}
 	}
+	
+	protected abstract EntityAccountFilter createEntityAccountFilter();
+
+	protected abstract EntityAccountDto createEntityAccountDto();
+
+	@SuppressWarnings("rawtypes")
+	protected abstract ReadWriteDtoService getEntityAccountService();
+
+	@SuppressWarnings("rawtypes")
+	protected abstract ReadWriteDtoService getEntityService();
 
 	/**
 	 * Handle IC connector object
@@ -1416,15 +1426,6 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 				actionLog.getOperationCount()));
 	}
 
-	protected abstract EntityAccountFilter createEntityAccountFilter();
-
-	protected abstract EntityAccountDto createEntityAccountDto();
-
-	@SuppressWarnings("rawtypes")
-	protected abstract ReadWriteDtoService getEntityAccountService();
-
-	@SuppressWarnings("rawtypes")
-	protected abstract ReadWriteDtoService getEntityService();
 
 	/**
 	 * Find entity by account
@@ -1510,12 +1511,18 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 		UUID entity = this.getEntityByAccount(account);
 		if (entity == null) {
 			addToItemLog(logItem, "Entity account relation (with ownership = true) was not found!");
-			initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.WARNING, logItem, log,
+			initSyncActionLog(SynchronizationActionType.DELETE_ENTITY, OperationResultType.WARNING, logItem, log,
 					actionLogs);
 			return;
 		}
+		BaseDto dto = getEntityService().getDto(entity);
+		String entityIdentification = dto.getId().toString();
+		if (dto instanceof IdentifiableByName) {
+			entityIdentification = ((IdentifiableByName) dto).getName();
+		}
+		logItem.setDisplayName(entityIdentification);
 		// Delete entity
-		getEntityService().delete(getEntityService().getDto(entity));
+		getEntityService().delete(dto);
 	}
 
 	@Override

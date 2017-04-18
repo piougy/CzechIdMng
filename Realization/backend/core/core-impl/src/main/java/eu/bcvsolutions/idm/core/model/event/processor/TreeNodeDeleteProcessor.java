@@ -32,7 +32,7 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
 @Description("Deletes tree node with forest index")
 public class TreeNodeDeleteProcessor extends CoreEventProcessor<IdmTreeNode> {
 
-	public static final String PROCESSOR_NAME = "role-tree-node-delete-processor";
+	public static final String PROCESSOR_NAME = "tree-node-delete-processor";
 	private final IdmTreeNodeRepository repository;
 	private final IdmIdentityContractRepository identityContractRepository;
 	private final TreeNodeSaveProcessor saveProcessor;

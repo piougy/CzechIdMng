@@ -86,8 +86,7 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 
 		IdentityAccountFilter filter = new IdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
-		Page<AccIdentityAccount> identityAccounts = identityAccountService.find(filter, null);
-		List<AccIdentityAccount> identityAccountList = identityAccounts.getContent();
+		List<AccIdentityAccount> identityAccountList = identityAccountService.find(filter, null).getContent();
 
 		List<IdmIdentityRole> identityRoles = identityRoleRepository.findAllByIdentityContract_Identity(identity, null);
 
@@ -111,14 +110,14 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 		// Delete invalid identity accounts
 		provisioningRequired = !identityAccountsToDelete.isEmpty() ? true : provisioningRequired;
 		identityAccountsToDelete.stream().forEach(identityAccount -> {
-			identityAccountService.delete(identityAccount);
+			identityAccountService.delete(identityAccountService.toDto(identityAccount, null));
 		});
 
 		// Create new identity accounts
 		provisioningRequired = !identityAccountsToCreate.isEmpty() ? true : provisioningRequired;
 		identityAccountsToCreate.stream().forEach(identityAccount -> {
 			identityAccount.setAccount(accountService.save(identityAccount.getAccount()));
-			identityAccountService.save(identityAccount);
+			identityAccountService.save(identityAccountService.toDto(identityAccount, null));
 
 		});
 
@@ -309,7 +308,7 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 		List<AccIdentityAccount> identityAccountList = identityAccounts.getContent();
 
 		identityAccountList.forEach(identityAccount -> {
-			identityAccountService.delete(identityAccount);
+			identityAccountService.delete(identityAccountService.toDto(identityAccount, null));
 		});
 	}
 }

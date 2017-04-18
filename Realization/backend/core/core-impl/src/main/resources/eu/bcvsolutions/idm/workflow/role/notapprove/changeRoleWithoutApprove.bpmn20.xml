@@ -42,7 +42,7 @@ conceptRoleRequestService.save(conceptDto);
       </extensionElements>
     </dataObject>
     <dataObject id="decision" name="decision" itemSubjectRef="xsd:string"></dataObject>
-    <endEvent id="endevent1" name="End" activiti:async="true"></endEvent>
+    <endEvent id="endevent1" name="End" activiti:async="false"></endEvent>
     <sequenceFlow id="flow41" sourceRef="scripttask5" targetRef="endevent1"></sequenceFlow>
     <textAnnotation id="textannotation1">
       <text>Assign role to identity</text>

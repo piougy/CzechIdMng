@@ -61,5 +61,7 @@ public interface WorkflowProcessInstanceService {
 	 */
 	WorkflowProcessInstanceDto get(String processInstanceId);
 
+	ResourcesWrapper<WorkflowProcessInstanceDto> searchInternal(WorkflowFilterDto filter, boolean checkRight);
+
 
 }

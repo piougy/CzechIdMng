@@ -23,7 +23,7 @@ Input variables:
     </userTask>
     <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway"></exclusiveGateway>
     <sequenceFlow id="flow2" sourceRef="approveTask" targetRef="exclusivegateway1"></sequenceFlow>
-    <endEvent id="endevent1" name="End" activiti:async="true"></endEvent>
+    <endEvent id="endevent1" name="End" activiti:async="false"></endEvent>
     <sequenceFlow id="flow3" name="disapproved" sourceRef="exclusivegateway1" targetRef="scripttask4">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[#{decision.equals("disapprove")}]]></conditionExpression>
     </sequenceFlow>
@@ -62,7 +62,7 @@ Input variables:
     <sequenceFlow id="flow31" name="Identity role not exist" sourceRef="exclusivegateway5" targetRef="scripttask7">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[#{identityRoleService.get(conceptRole.identityRole) == null}]]></conditionExpression>
     </sequenceFlow>
-    <endEvent id="endevent5" name="End - Identity role with given ID not found" activiti:async="true">
+    <endEvent id="endevent5" name="End - Identity role with given ID not found" activiti:async="false">
       <documentation>Identity role with given ID not found</documentation>
     </endEvent>
     <scriptTask id="scripttask4" name="Set DISAPPROVED state to concept" scriptFormat="groovy" activiti:autoStoreVariables="false">
@@ -302,7 +302,7 @@ if(!skip){
       </extensionElements>
     </dataObject>
     <dataObject id="decision" name="decision" itemSubjectRef="xsd:string"></dataObject>
-    <endEvent id="endevent6" name="End" activiti:async="true"></endEvent>
+    <endEvent id="endevent6" name="End" activiti:async="false"></endEvent>
     <sequenceFlow id="flow52" sourceRef="scripttask5" targetRef="endevent6"></sequenceFlow>
     <textAnnotation id="textannotation1">
       <text>Assign role to identity</text>

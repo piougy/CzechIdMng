@@ -30,7 +30,7 @@ Configuration properties:
     <sequenceFlow id="flow13" sourceRef="exclusivegateway2" targetRef="scripttask12">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${decision.equals("backToApplicant")}]]></conditionExpression>
     </sequenceFlow>
-    <endEvent id="endByApplicant" name="Canceled by applicant" activiti:async="true">
+    <endEvent id="endByApplicant" name="Canceled by applicant">
       <documentation>Canceled by applicant</documentation>
     </endEvent>
     <userTask id="applicantReturnedTask" name="Returned request (from helpdesk)" activiti:assignee=" ${applicantUsername}" activiti:formKey="dynamicRoleTaskDetail">
@@ -55,7 +55,7 @@ Configuration properties:
         <activiti:in source="implementerUsername" target="implementerUsername"></activiti:in>
         <activiti:in source="_ACTIVITI_SKIP_EXPRESSION_ENABLED" target="_ACTIVITI_SKIP_EXPRESSION_ENABLED"></activiti:in>
       </extensionElements>
-      <multiInstanceLoopCharacteristics isSequential="true" activiti:collection="addedConceptRoles" activiti:elementVariable="conceptRole"></multiInstanceLoopCharacteristics>
+      <multiInstanceLoopCharacteristics isSequential="false" activiti:collection="addedConceptRoles" activiti:elementVariable="conceptRole"></multiInstanceLoopCharacteristics>
     </callActivity>
     <sequenceFlow id="flow17" sourceRef="startAddSubWorkflow" targetRef="parallelgateway2"></sequenceFlow>
     <sequenceFlow id="flow19" sourceRef="managerTask" targetRef="exclusivegateway2"></sequenceFlow>
@@ -109,7 +109,7 @@ execution.setVariable("changedConceptRoles", changedConceptRoles);</script>
         <activiti:in source="implementerUsername" target="implementerUsername"></activiti:in>
         <activiti:in source="_ACTIVITI_SKIP_EXPRESSION_ENABLED" target="_ACTIVITI_SKIP_EXPRESSION_ENABLED"></activiti:in>
       </extensionElements>
-      <multiInstanceLoopCharacteristics isSequential="true" activiti:collection="changedConceptRoles" activiti:elementVariable="conceptRole"></multiInstanceLoopCharacteristics>
+      <multiInstanceLoopCharacteristics isSequential="false" activiti:collection="changedConceptRoles" activiti:elementVariable="conceptRole"></multiInstanceLoopCharacteristics>
     </callActivity>
     <sequenceFlow id="flow25" sourceRef="scripttask2" targetRef="startChangeSubWorkflow"></sequenceFlow>
     <parallelGateway id="parallelgateway1" name="Split to subprocesses"></parallelGateway>
@@ -129,7 +129,7 @@ execution.setVariable("changedConceptRoles", changedConceptRoles);</script>
         <activiti:in source="implementerUsername" target="implementerUsername"></activiti:in>
         <activiti:in source="_ACTIVITI_SKIP_EXPRESSION_ENABLED" target="_ACTIVITI_SKIP_EXPRESSION_ENABLED"></activiti:in>
       </extensionElements>
-      <multiInstanceLoopCharacteristics isSequential="true" activiti:collection="removedConceptRoles" activiti:elementVariable="conceptRole"></multiInstanceLoopCharacteristics>
+      <multiInstanceLoopCharacteristics isSequential="false" activiti:collection="removedConceptRoles" activiti:elementVariable="conceptRole"></multiInstanceLoopCharacteristics>
     </callActivity>
     <scriptTask id="scripttask3" name="Loading concepts for remove assigned permissions" scriptFormat="groovy" activiti:autoStoreVariables="false">
       <script>import org.joda.time.LocalDate;
@@ -156,7 +156,7 @@ execution.setVariable("removedConceptRoles", removedConceptRoles);</script>
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${decision.equals("repairedRequest")}]]></conditionExpression>
     </sequenceFlow>
     <serviceTask id="servicetaskRealization" name="Realization of request (evoke event)" activiti:expression="#{entityEventManager.process(entityEvent)}"></serviceTask>
-    <endEvent id="endevent1" name="End" activiti:async="true"></endEvent>
+    <endEvent id="endevent1" name="End"></endEvent>
     <sequenceFlow id="flow35" sourceRef="servicetaskRealization" targetRef="scripttask8"></sequenceFlow>
     <scriptTask id="scripttask4" name="Set request to approved" scriptFormat="groovy" activiti:autoStoreVariables="false">
       <script>import eu.bcvsolutions.idm.core.model.domain.RoleRequestState;
@@ -579,7 +579,7 @@ notificationManager.send(
 	identity
 );</script>
     </scriptTask>
-    <endEvent id="endByManager" name="End" activiti:async="true"></endEvent>
+    <endEvent id="endByManager" name="End"></endEvent>
     <sequenceFlow id="flow48" sourceRef="scripttask9" targetRef="endByManager"></sequenceFlow>
     <scriptTask id="scripttask10" name="Send notification with result (Return)" scriptFormat="groovy" activiti:autoStoreVariables="false">
       <script>import eu.bcvsolutions.idm.core.notification.entity.IdmMessage;

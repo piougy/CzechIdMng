@@ -1,5 +1,8 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
+import java.text.MessageFormat;
+import java.util.Collection;
+
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,6 +19,8 @@ import eu.bcvsolutions.idm.core.model.dto.filter.ConceptRoleRequestFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmConceptRoleRequest;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
+import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
+import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowProcessInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 
 /**
@@ -71,7 +76,23 @@ public class DefaultIdmConceptRoleRequestService
 	public void delete(IdmConceptRoleRequestDto dto, BasePermission... permission) {
 		
 		if(!Strings.isNullOrEmpty(dto.getWfProcessId())){
+			WorkflowFilterDto filter = new WorkflowFilterDto();
+			filter.setProcessInstanceId(dto.getWfProcessId());
+			
+			Collection<WorkflowProcessInstanceDto> resources = workflowProcessInstanceService.searchInternal(filter, false).getResources();
+			if(resources.isEmpty()){
+				// Process with this ID not exist ... maybe was ended 
+				this.addToLog(dto,
+						MessageFormat.format(
+								"Workflow process with ID [{0}] was not deleted, because was not found. Maybe was ended before.",
+								dto.getWfProcessId()));
+				return;
+			}
 			workflowProcessInstanceService.delete(dto.getWfProcessId(), "Role concept use this WF, was deleted. This WF was deleted too.");
+			this.addToLog(dto,
+					MessageFormat.format(
+							"Workflow process with ID [{0}] was deleted, because this concept is deleted/canceled",
+							dto.getWfProcessId()));
 		}
 			
 		super.delete(dto);

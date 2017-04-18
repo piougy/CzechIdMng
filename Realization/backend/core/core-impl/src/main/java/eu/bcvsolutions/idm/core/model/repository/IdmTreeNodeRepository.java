@@ -18,7 +18,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.rest.projection.IdmTreeNodeExcerpt;
 
 /**
- * Tree strusture nodes
+ * Tree structures nodes
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
@@ -48,7 +48,14 @@ public interface IdmTreeNodeRepository extends AbstractEntityRepository<IdmTreeN
 	        + " and (?#{[0].treeNode} is null or ?#{[0].recursively == true ? 'true' : 'false'} = 'false' or fi.lft BETWEEN ?#{[0].treeNode == null ? null : [0].treeNode.lft + 1} and ?#{[0].treeNode == null ? null : [0].treeNode.rgt - 1})"
 	        	// on selected tree node
         	+ " and (?#{[0].treeNode} is null or ?#{[0].recursively == false ? 'true' : 'false'} = 'false' or e.parent = ?#{[0].treeNode})"
-	        + " and (?#{[0].defaultTreeType} is null or e.treeType = (select tt from IdmTreeType tt where tt.defaultTreeType = ?#{[0].defaultTreeType}))")
+	        + " and (?#{[0].defaultTreeType} is null or e.treeType = (select tt from IdmTreeType tt where tt.defaultTreeType = ?#{[0].defaultTreeType}))"
+	        + " and "
+	  	    + " ("
+	  	    	+ " ?#{[0].property} is null "
+	  	    	+ " or (?#{[0].property} = 'name' and e.name = ?#{[0].value})"
+				+ " or (?#{[0].property} = 'code' and e.code = ?#{[0].value})"
+				+ " or (?#{[0].property} = 'externalId' and e.externalId = ?#{[0].value})"
+	        + " )")
 	Page<IdmTreeNode> find(TreeNodeFilter filter, Pageable pageable);
 
 	/**

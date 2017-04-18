@@ -10,7 +10,7 @@ Input variables:
 - conceptRole (IdmConceptRoleRequestDto)
 - applicantDescription</documentation>
     <startEvent id="startevent1" name="Start"></startEvent>
-    <endEvent id="endevent2" name="End" activiti:async="true"></endEvent>
+    <endEvent id="endevent2" name="End" activiti:async="false"></endEvent>
     <serviceTask id="servicetask5" name="Create name of process" activiti:expression="Approve role &quot;${roleService.get(conceptRole.role).name}&quot; remove by manager for &quot;${identityService.getNiceLabel(identityService.get(applicantIdentifier))}&quot;" activiti:resultVariableName="processInstanceName"></serviceTask>
     <userTask id="usertask1" name="Approve by manager" activiti:candidateUsers="#{candidatesApproveByManager}" activiti:skipExpression="#{skipApproveByManager}">
       <documentation>${processInstanceName}</documentation>
@@ -28,7 +28,7 @@ Input variables:
     <sequenceFlow id="flow21" name="Disapproved" sourceRef="exclusivegateway3" targetRef="scripttask6">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[#{decision.equals("disapprove")}]]></conditionExpression>
     </sequenceFlow>
-    <endEvent id="endevent4" name="End" activiti:async="true"></endEvent>
+    <endEvent id="endevent4" name="End" activiti:async="false"></endEvent>
     <exclusiveGateway id="exclusivegateway5" name="Exclusive Gateway"></exclusiveGateway>
     <sequenceFlow id="flow29" sourceRef="exclusivegateway3" targetRef="exclusivegateway5">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[#{decision.equals("approve")}]]></conditionExpression>
@@ -36,7 +36,7 @@ Input variables:
     <sequenceFlow id="flow31" name="Identity role not exist" sourceRef="exclusivegateway5" targetRef="scripttask7">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[#{identityRoleService.get(conceptRole.identityRole) == null}]]></conditionExpression>
     </sequenceFlow>
-    <endEvent id="endevent5" name="End - Identity role with given ID not found" activiti:async="true">
+    <endEvent id="endevent5" name="End - Identity role with given ID not found" activiti:async="false">
       <documentation>Identity role with given ID not found</documentation>
     </endEvent>
     <sequenceFlow id="flow34" sourceRef="servicetask5" targetRef="scripttask8"></sequenceFlow>

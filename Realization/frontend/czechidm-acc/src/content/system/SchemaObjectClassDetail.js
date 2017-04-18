@@ -140,7 +140,7 @@ class SchemaObjectClassDetail extends Advanced.AbstractTableContent {
                 label={this.i18n('acc:entity.SchemaObjectClass.objectClassName')}
                 required
                 max={255}/>
-              <Basic.Checkbox
+              <Basic.Checkbox hidden
                 ref="container"
                 label={this.i18n('acc:entity.SchemaObjectClass.container')}/>
               <Basic.Checkbox hidden

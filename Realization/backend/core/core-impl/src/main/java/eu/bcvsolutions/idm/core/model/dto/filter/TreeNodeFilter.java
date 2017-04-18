@@ -11,11 +11,13 @@ import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
-public class TreeNodeFilter extends QuickFilter {
+public class TreeNodeFilter extends QuickFilter implements CorrelationFilter {
 	
 	private UUID treeTypeId;	
 	private IdmTreeNode treeNode;	
 	private Boolean defaultTreeType; // default tree type wil be used
+	private String property;
+	private String value;
 	/**
 	 * Tree nodes by tree structure recursively down
 	 */
@@ -52,4 +54,25 @@ public class TreeNodeFilter extends QuickFilter {
 	public void setRecursively(boolean recursively) {
 		this.recursively = recursively;
 	}
+
+	@Override
+	public String getProperty() {
+		return property;
+	}
+
+	@Override
+	public void setProperty(String property) {
+		this.property = property;
+	}
+
+	@Override
+	public String getValue() {
+		return value;
+	}
+
+	@Override
+	public void setValue(String value) {
+		this.value = value;
+	}
+
 }

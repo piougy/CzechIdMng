@@ -17,6 +17,10 @@ export default class IdentityAccountManager extends Managers.EntityManager {
     return systemName + ' (' + username + ')';
   }
 
+  supportsPatch() {
+    return false;
+  }
+
   getEntityType() {
     return 'IdentityAccount'; // TODO: constant or enumeration
   }

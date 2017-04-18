@@ -10,7 +10,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
  * @author Radek Tomiška
  *
  */
-public class IdentityAccountFilter implements BaseFilter {
+public class IdentityAccountFilter implements BaseFilter, EntityAccountFilter {
 
 	private UUID accountId;
 	private UUID identityId;
@@ -20,18 +20,22 @@ public class IdentityAccountFilter implements BaseFilter {
 	private UUID roleSystemId;
 	private Boolean ownership;
 
+	@Override
 	public Boolean isOwnership() {
 		return ownership;
 	}
 
+	@Override
 	public void setOwnership(Boolean ownership) {
 		this.ownership = ownership;
 	}
 
+	@Override
 	public UUID getAccountId() {
 		return accountId;
 	}
 
+	@Override
 	public void setAccountId(UUID accountId) {
 		this.accountId = accountId;
 	}

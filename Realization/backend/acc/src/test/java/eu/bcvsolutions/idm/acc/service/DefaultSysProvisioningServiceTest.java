@@ -25,6 +25,7 @@ import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
+import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.MappingAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SchemaAttributeFilter;
@@ -817,7 +818,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 	private void initData() {
 		IdmIdentity identity;
 		AccAccount accountOne;
-		AccIdentityAccount accountIdentityOne;
+		AccIdentityAccountDto accountIdentityOne;
 		SysSystem system;
 
 		// create test system
@@ -852,10 +853,10 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		accountOne.setAccountType(AccountType.PERSONAL);
 		accountOne = accountService.save(accountOne);
 
-		accountIdentityOne = new AccIdentityAccount();
-		accountIdentityOne.setIdentity(identity);
+		accountIdentityOne = new AccIdentityAccountDto();
+		accountIdentityOne.setIdentity(identity.getId());
 		accountIdentityOne.setOwnership(true);
-		accountIdentityOne.setAccount(accountOne);
+		accountIdentityOne.setAccount(accountOne.getId());
 
 		accountIdentityOne = identityAccoutnService.save(accountIdentityOne);
 

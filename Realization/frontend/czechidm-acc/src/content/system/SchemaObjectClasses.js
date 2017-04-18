@@ -194,7 +194,7 @@ class SchemaObjectClasses extends Advanced.AbstractTableContent {
               header={this.i18n('acc:entity.SchemaObjectClass.objectClassName')}
               sort />
             <Advanced.Column property="auxiliary" face="boolean" header={this.i18n('acc:entity.SchemaObjectClass.auxiliary')} hidden sort/>
-            <Advanced.Column property="container" face="boolean" header={this.i18n('acc:entity.SchemaObjectClass.container')} sort/>
+            <Advanced.Column property="container" face="boolean" header={this.i18n('acc:entity.SchemaObjectClass.container')} hidden sort/>
           </Advanced.Table>
         </Basic.Panel>
       </div>

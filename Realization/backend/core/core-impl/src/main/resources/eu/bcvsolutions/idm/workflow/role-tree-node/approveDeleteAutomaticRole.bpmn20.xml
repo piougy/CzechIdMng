@@ -14,7 +14,7 @@ Input variables:
         <activiti:formProperty id="approve" type="decision"></activiti:formProperty>
       </extensionElements>
     </userTask>
-    <endEvent id="endevent1" name="End" activiti:async="true"></endEvent>
+    <endEvent id="endevent1" name="End" activiti:async="false"></endEvent>
     <serviceTask id="servicetask1" name="Generate process name" activiti:expression="Delete automatic role ${roleService.get(entityEvent.content.role).getName()} on tree node ${treeNodeService.get(entityEvent.content.treeNode).getName()} " activiti:resultVariableName="processInstanceName"></serviceTask>
     <serviceTask id="servicetask2" name="Continue entity event processing" activiti:expression="#{entityEventManager.process(entityEvent)}"></serviceTask>
     <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway"></exclusiveGateway>

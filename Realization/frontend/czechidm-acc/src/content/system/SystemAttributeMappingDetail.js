@@ -68,6 +68,7 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
           strategyType: AttributeMappingStrategyTypeEnum.findKeyBySymbol(AttributeMappingStrategyTypeEnum.SET)
         }
       });
+    //  this.context.store.dispatch(systemMappingManager.fetchEntity(props.location.query.mappingId));
     } else {
       this.context.store.dispatch(this.getManager().fetchEntity(attributeId));
     }
@@ -129,15 +130,15 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
     if (value.name === PASSWORD_ATTRIBUTE) {
       showPasswordInfo = true;
     }
-    console.log(11, showPasswordInfo);
     this.setState({
       showPasswordInfo
     });
   }
 
   _onChangeEntityEnum(item) {
+    const {_systemMapping} = this.props;
     if (item) {
-      const field = SystemEntityTypeEnum.getEntityEnum('IDENTITY').getField(item.value);
+      const field = SystemEntityTypeEnum.getEntityEnum(_systemMapping ? _systemMapping.entityType : 'IDENTITY').getField(item.value);
       this.refs.idmPropertyName.setValue(field);
     } else {
       this.refs.idmPropertyName.setValue(null);
@@ -145,7 +146,7 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
   }
 
   render() {
-    const { _showLoading, _attribute } = this.props;
+    const { _showLoading, _attribute, _systemMapping } = this.props;
     const { disabledAttribute, entityAttribute, extendedAttribute, showPasswordInfo } = this.state;
     const isNew = this._getIsNew();
     const attribute = isNew ? this.state.attribute : _attribute;
@@ -155,7 +156,7 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
     const _isEntityAttribute = entityAttribute;
     const _isExtendedAttribute = extendedAttribute;
     const _showNoRepositoryAlert = (!_isExtendedAttribute && !_isEntityAttribute);
-
+    const entityTypeEnum = SystemEntityTypeEnum.getEntityEnum(_systemMapping ? _systemMapping.entityType : 'IDENTITY');
     const _isRequiredIdmField = (_isEntityAttribute || _isExtendedAttribute) && !_isDisabled;
 
     return (
@@ -239,7 +240,7 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
                   <Basic.EnumSelectBox
                     ref="idmPropertyEnum"
                     readOnly = {_isDisabled || !_isEntityAttribute}
-                    enum={SystemEntityTypeEnum.getEntityEnum('IDENTITY')}
+                    enum={entityTypeEnum}
                     onChange={this._onChangeEntityEnum.bind(this)}
                     label={this.i18n('acc:entity.SystemAttributeMapping.idmPropertyEnum')}
                     />
@@ -309,17 +310,22 @@ SystemAttributeMappingDetail.defaultProps = {
 
 function select(state, component) {
   const entity = Utils.Entity.getEntity(state, manager.getEntityType(), component.params.attributeId);
+  let systemMapping = null;
+  if (component && component.location && component.location.query.new) {
+    systemMapping = Utils.Entity.getEntity(state, systemMappingManager.getEntityType(), component.location.query.mappingId);
+  }
   if (entity) {
-    const systemMapping = entity._embedded && entity._embedded.systemMapping ? entity._embedded.systemMapping : null;
+    systemMapping = entity._embedded && entity._embedded.systemMapping ? entity._embedded.systemMapping : null;
     const schemaAttribute = entity._embedded && entity._embedded.schemaAttribute ? entity._embedded.schemaAttribute : null;
     entity.systemMapping = systemMapping;
     entity.schemaAttribute = schemaAttribute;
     entity.objectClassId = systemMapping ? systemMapping.objectClass.id : Domain.SearchParameters.BLANK_UUID;
-    entity.idmPropertyEnum = SystemEntityTypeEnum.getEntityEnum('IDENTITY').getEnum(entity.idmPropertyName);
+    entity.idmPropertyEnum = SystemEntityTypeEnum.getEntityEnum(systemMapping ? systemMapping.entityType : 'IDENTITY').getEnum(entity.idmPropertyName);
   }
   return {
     _attribute: entity,
     _showLoading: Utils.Ui.isShowLoading(state, `${uiKey}-detail`),
+    _systemMapping: systemMapping
   };
 }
 

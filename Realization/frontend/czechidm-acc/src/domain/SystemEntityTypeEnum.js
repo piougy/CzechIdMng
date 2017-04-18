@@ -1,5 +1,6 @@
 import { Enums } from 'czechidm-core';
 import IdentityAttributeEnum from './IdentityAttributeEnum';
+import TreeAttributeEnum from './TreeAttributeEnum';
 
 /**
  * OperationType for adit operation etc.
@@ -47,6 +48,9 @@ export default class SystemEntityTypeEnum extends Enums.AbstractEnum {
     switch (sym) {
       case this.IDENTITY: {
         return IdentityAttributeEnum;
+      }
+      case this.TREE: {
+        return TreeAttributeEnum;
       }
       default: {
         return null;

@@ -58,5 +58,4 @@ public interface IdmRoleRequestService extends ReadWriteDtoService<IdmRoleReques
 	 * @param dto
 	 */
 	void cancel(IdmRoleRequestDto dto);
-	
 }

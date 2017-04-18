@@ -180,6 +180,7 @@ module.exports = {
         'iconColor': '#eb9316',
         'order': 1030,
         'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ'] } ],
+        'path': '/roles',
         'items': [
           {
             'id': 'roles',

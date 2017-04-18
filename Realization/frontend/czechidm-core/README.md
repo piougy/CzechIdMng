@@ -5,7 +5,6 @@ Each module could have his own routes definition => expose new or override other
 ```javascript
 module.exports = {
   module: 'core',
-  component: 'div',
   childRoutes: []
 };
 ```

@@ -1,6 +1,5 @@
 module.exports = {
   module: 'example',
-  component: 'div',
   childRoutes: [
     {
       path: '/example/content',

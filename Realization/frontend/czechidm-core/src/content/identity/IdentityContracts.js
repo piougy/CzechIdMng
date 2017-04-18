@@ -10,6 +10,11 @@ import ManagersInfo from './ManagersInfo';
 
 const uiKey = 'identity-contracts';
 
+/**
+ * Identity's work positions - reference to tree structures and garants
+ *
+ * @author Radek Tomiška
+ */
 export default class IdentityContracts extends Basic.AbstractContent {
 
   constructor(props, context) {

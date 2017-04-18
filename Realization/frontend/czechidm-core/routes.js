@@ -1,6 +1,5 @@
 module.exports = {
   module: 'core',
-  component: 'div',
   childRoutes: [
     {
       path: 'login',

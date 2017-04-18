@@ -1,5 +1,4 @@
 import React, { PropTypes } from 'react';
-import ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 //
@@ -7,36 +6,17 @@ import TabPanelItem from './TabPanelItem';
 import { getNavigationItems, resolveNavigationParameters } from '../../../redux/config/actions';
 import * as Basic from '../../basic';
 
+const ITEM_HEIGTH = 45; // item heigth for dynamic content resize
+
 /**
  * Sidebar renders tabs by given navigation parent (parentId)
+ *
+ * @author Radek Tomiška
  */
 class TabPanel extends Basic.AbstractContextComponent {
 
   constructor(props, context) {
     super(props, context);
-  }
-
-  componentDidMount() {
-    // window.addEventListener('resize', this.handleResize);
-    this.handleResize();
-  }
-
-  componentDidUpdate() {
-    this.handleResize();
-  }
-
-  componentWillUnmount() {
-    // window.removeEventListener('resize', this.handleResize);
-  }
-
-  handleResize() {
-    if (typeof $ !== undefined) {
-      const tabPanelSidebar = $(ReactDOM.findDOMNode(this.refs.tabPanelSidebar));
-      const tabPanelContent = $(ReactDOM.findDOMNode(this.refs.tabPanelContent));
-      tabPanelSidebar.css({
-        height: tabPanelContent.height()
-      });
-    }
   }
 
   getNavigationItems() {
@@ -81,7 +61,7 @@ class TabPanel extends Basic.AbstractContextComponent {
   render() {
     const { position } = this.props;
     const navigationItems = this.getNavigationItems();
-
+    //
     if (position === 'top') {
       return (
         <div className="tab-horizontal">
@@ -102,10 +82,10 @@ class TabPanel extends Basic.AbstractContextComponent {
       <Basic.Panel className="clearfix">
         <div ref="tabPanel" className="tab-panel tab-vertical clearfix">
           <ul ref="tabPanelSidebar" className="tab-panel-sidebar nav nav-pills nav-stacked">
-            {navigationItems}
+            { navigationItems }
           </ul>
-          <div ref="tabPanelContent" className="tab-panel-content tab-content">
-            {this.props.children}
+          <div ref="tabPanelContent" className="tab-panel-content tab-content" style={{ minHeight: navigationItems.length * ITEM_HEIGTH }}>
+            { this.props.children }
           </div>
         </div>
       </Basic.Panel>

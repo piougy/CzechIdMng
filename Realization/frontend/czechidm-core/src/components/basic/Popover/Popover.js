@@ -94,15 +94,15 @@ BasicPopover.propTypes = {
   /**
    * Popover value / text
    */
-  value: PropTypes.string,
+  value: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
   /**
    * Popover value / text - alias to value
    */
-  text: PropTypes.string,
+  text: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
   /**
    * Specify which action or actions trigger popover visibility
    */
-  trigger: PropTypes.arrayOf(PropTypes.oneOf(['click', 'hover', 'focus'])),
+  trigger: PropTypes.oneOf(['click', 'hover', 'focus']),
   /**
    * A millisecond delay amount before showing the Popover once triggered.
    */

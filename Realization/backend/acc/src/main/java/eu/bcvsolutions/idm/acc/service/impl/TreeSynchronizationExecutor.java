@@ -16,10 +16,10 @@ import org.joda.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
@@ -225,20 +225,37 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 			List<String> roots = new ArrayList<>();
 			accountsMap.forEach((uid, account) -> {
 				Object parentValue = this.getValueByMappedAttribute(parentAttribute, account.getAttributes());
-				Object uidValue = this.getValueByMappedAttribute(uidAttribute, account.getAttributes());
 				// TODO: execute in script
-				if (parentValue != null && parentValue.equals(uidValue)) {
-					roots.add(uid);
-					((IcAttributeImpl) accountsMap.get(uid)
-							.getAttributeByName(parentAttribute.getSchemaAttribute().getName())).setValues(null);
+				if (StringUtils.hasLength(config.getRootsFilterScript())) {
+					Map<String, Object> variables = new HashMap<>();
+					variables.put("account", account);
+
+					List<Class<?>> allowTypes = new ArrayList<>();
+					allowTypes.add(IcAttributeImpl.class);
+					allowTypes.add(IcAttribute.class);
+					Object isRoot = groovyScriptService.evaluate(config.getRootsFilterScript(), variables, allowTypes);
+					if (isRoot != null && !(isRoot instanceof Boolean)) {
+						throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_TREE_ROOT_FILTER_VALUE_WRONG_TYPE,
+								ImmutableMap.of("type", isRoot.getClass().getName()));
+					}
+					if((Boolean)isRoot){
+						roots.add(uid);
+					}
+				}else {
+					if (parentValue == null) {
+						roots.add(uid);
+					}
 				}
 			});
 
 			if (roots.isEmpty()) {
 				log.addToLog("No roots to synchronization found!");
+			}else {
+				log.addToLog(MessageFormat.format("We found [{0}] roots: [{1}]", roots.size(), roots));
 			}
 
 			roots.forEach(root -> {
+				accountsUseInTreeList.add(root);
 				IcConnectorObject parentIcObject = accountsMap.get(root);
 				boolean result = handleIcObject(root, parentIcObject, tokenAttribute, config, system, entityType, log,
 						mappedAttributes, actionsLog);
@@ -395,7 +412,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 		// Entity Created
 		addToItemLog(logItem, MessageFormat.format("Tree node with id {0} was created", treeNode.getId()));
 		if (logItem != null) {
-			logItem.setDisplayName(treeNode.getCode());
+			logItem.setDisplayName(treeNode.getName());
 		}
 	}
 
@@ -497,10 +514,12 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 		}
 		if (treeNode == null) {
 			addToItemLog(logItem, "Tree account relation (with ownership = true) was not found!");
-			initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.WARNING, logItem, log,
+			initSyncActionLog(SynchronizationActionType.DELETE_ENTITY, OperationResultType.WARNING, logItem, log,
 					actionLogs);
 			return;
 		}
+		
+		logItem.setDisplayName(treeNode.getName());
 		// Delete entity (recursively)
 		deleteChildrenRecursively(treeNode, logItem);
 	}
@@ -540,7 +559,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 			TreeNodeFilter correlationFilter = new TreeNodeFilter();
 			correlationFilter.setProperty(attribute.getIdmPropertyName());
 			correlationFilter.setValue(value.toString());
-			// TODO filtering !!
+
 			List<IdmTreeNode> treeNodes = treeNodeService.find(correlationFilter, null).getContent();
 			if (CollectionUtils.isEmpty(treeNodes)) {
 				return null;

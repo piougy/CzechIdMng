@@ -5,18 +5,22 @@ Component supported single select and multi select mode.
 
 ## Parameters
 
-All parameters form parent components (AbstractFormComponent and SelectBox).
+All parameters form parent component ``AbstractFormComponent`` is supported.
 <br><br>Extra component parameters:
 
 | Parameter | Type | Description | Default  |
 | --- | :--- | :--- | :--- |
 | enum  | Array of symbols   | Array of symbols and niceLabel function|  |
 | options | Array of custom objects (each item must have value and niceLabel field ) | If you want use custom data, then you can use options field | |
-| fieldLabel  | string   | Field use for show string representation of item in select box| 'niceLabel' this is automatic added field from service for item |
+| fieldLabel  | string   | Field use for show string representation of item in select box| ``niceLabel`` this is automatic added field from service for item |
 | multiSelect | bool   | If is true then component is in multi select mode| false |
 | value | symbol or Array of symbols | Value can contains symbol (have to part of enum). In multi select mod can be in value array symbols | |
 | placeholder  | string   | Short description for input  |  |
 | searchable  | bool   | whether to enable searching feature or not | false |
+| useSymbol | bool | returns ``Symbol`` from selected enumeration option. Otherwise returns symbol's key only (string). | true |
+| useObject | bool | Return whole object (option)  | false |
+| clearable | bool   | Selected options can be cleared| true |
+
 
 
 ## Usage

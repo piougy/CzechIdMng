@@ -65,7 +65,7 @@ class EavContent extends Basic.AbstractContent {
   }
 
   render() {
-    const { formInstance, _showLoading, showSaveButton } = this.props;
+    const { _formInstance, _showLoading, showSaveButton } = this.props;
     const { error } = this.state;
 
     let content;
@@ -74,7 +74,7 @@ class EavContent extends Basic.AbstractContent {
       content = (
         <Basic.Alert level="info" text={this.i18n('error.notFound')}/>
       );
-    } else if (!formInstance || _showLoading) {
+    } else if (!_formInstance || _showLoading) {
       // connector eav form is loaded from BE
       content = (
         <Basic.Loading isStatic showLoading/>
@@ -85,13 +85,13 @@ class EavContent extends Basic.AbstractContent {
         <form className="abstract-form" onSubmit={this.save.bind(this)}>
           <Basic.Panel className="no-border last">
 
-            <EavForm ref="eav" formInstance={formInstance} readOnly={!showSaveButton}/>
+            <EavForm ref="eav" formInstance={_formInstance} readOnly={!showSaveButton}/>
 
             <Basic.PanelFooter rendered={showSaveButton}>
               <Basic.Button
                 type="submit"
                 level="success"
-                rendered={ formInstance.getAttributes().size > 0 }
+                rendered={ _formInstance.getAttributes().size > 0 }
                 showLoadingIcon
                 showLoadingText={this.i18n('button.saving')}>
                 {this.i18n('button.save')}
@@ -119,16 +119,25 @@ class EavContent extends Basic.AbstractContent {
 }
 
 EavContent.propTypes = {
+  /**
+   * UI identifier - it's used as key in store (saving, loading ...)
+   */
   uiKey: PropTypes.string.isRequired,
+  /**
+   * Parent entity identifier
+   */
   entityId: PropTypes.string.isRequired,
-  formableManager: PropTypes.object,
+  formableManager: PropTypes.object.isRequired,
   showSaveButton: PropTypes.bool,
-  formInstance: PropTypes.object,
+  /**
+   * Internal properties (loaded by redux)
+   */
+  _formInstance: PropTypes.object,
   _showLoading: PropTypes.bool
 };
 EavContent.defaultProps = {
   showSaveButton: false,
-  formInstance: null,
+  _formInstance: null,
   _showLoading: false
 };
 
@@ -138,7 +147,7 @@ function select(state, component) {
   //
   return {
     _showLoading: Utils.Ui.isShowLoading(state, `${uiKey}-${entityId}`),
-    formInstance: DataManager.getData(state, `${uiKey}-${entityId}`)
+    _formInstance: DataManager.getData(state, `${uiKey}-${entityId}`)
   };
 }
 

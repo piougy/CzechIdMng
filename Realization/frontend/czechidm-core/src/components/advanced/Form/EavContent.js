@@ -83,7 +83,7 @@ class EavContent extends Basic.AbstractContent {
       // connector setting is ready
       content = (
         <form className="abstract-form" onSubmit={this.save.bind(this)}>
-          <Basic.Panel className="no-border">
+          <Basic.Panel className="no-border last">
 
             <EavForm ref="eav" formInstance={formInstance} readOnly={!showSaveButton}/>
 

@@ -299,7 +299,6 @@ store.dispatch(ConfigActions.appInit(config, moduleDescriptors, componentDescrip
     });
     //
     const routes = {
-      component: 'div',
       childRoutes: [
         {
           path: '/',

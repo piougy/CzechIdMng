@@ -1,6 +1,5 @@
 module.exports = {
   module: 'acc',
-  component: 'div',
   childRoutes: [
     {
       path: 'systems',

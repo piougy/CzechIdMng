@@ -1,6 +1,6 @@
 # HelpIcon Component
 
-Help icon open modal window with user documentation.
+Help icon opens modal window with user documentation.
 
 ## Parameters
 

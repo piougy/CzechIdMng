@@ -19,8 +19,12 @@ class EnumSelectBox extends SelectBox {
   }
 
   setValue(value) {
-    const option = this.getOptions().find(o => { return o.value === value; });
-    super.setValue(option ? option : this.normalizeValue(value));
+    if (this.props.useObject) {
+      const option = this.getOptions().find(o => { return o.value === value; });
+      super.setValue(option ? option : this.normalizeValue(value));
+    } else {
+      super.setValue(this.normalizeValue(value));
+    }
   }
 
   getOptions() {
@@ -273,7 +277,7 @@ EnumSelectBox.propTypes = {
 EnumSelectBox.defaultProps = {
   ...SelectBox.defaultProps,
   searchable: false,
-  useSymbol: false,
+  useSymbol: true,
   useObject: false,
   clearable: true
 };

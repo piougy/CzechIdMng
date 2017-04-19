@@ -2,6 +2,8 @@ package eu.bcvsolutions.idm.core.model.dto;
 
 import java.util.UUID;
 
+import org.springframework.hateoas.core.Relation;
+
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.model.domain.ScriptAuthorityType;
@@ -12,7 +14,7 @@ import eu.bcvsolutions.idm.core.model.domain.ScriptAuthorityType;
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
-
+@Relation(collectionRelation = "scriptAuthorities")
 public class IdmScriptAuthorityDto extends AbstractDto {
 	
 	private static final long serialVersionUID = 1L;

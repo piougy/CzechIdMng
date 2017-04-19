@@ -3,10 +3,11 @@ import React, { PropTypes } from 'react';
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
-import { ScriptManager, SecurityManager } from '../../redux';
+import { ScriptManager, SecurityManager, ScriptAuthorityManager } from '../../redux';
 import ScriptCategoryEnum from '../../enums/ScriptCategoryEnum';
 import EntityUtils from '../../utils/EntityUtils';
 import AbstractEnum from '../../enums/AbstractEnum';
+import ScriptAuthorityTable from './ScriptAuthorityTable';
 
 /**
  * Detail for sript
@@ -14,6 +15,7 @@ import AbstractEnum from '../../enums/AbstractEnum';
  * * description
  * * script area
  * * category
+ * * script authorities (table)
  *
  */
 export default class ScriptDetail extends Basic.AbstractContent {
@@ -21,6 +23,7 @@ export default class ScriptDetail extends Basic.AbstractContent {
   constructor(props, context) {
     super(props, context);
     this.scriptManager = new ScriptManager();
+    this.scriptAuthorityManager = new ScriptAuthorityManager();
     this.state = {
       showLoading: false
     };
@@ -78,12 +81,13 @@ export default class ScriptDetail extends Basic.AbstractContent {
     }, this.refs.form.processStarted());
 
     const entity = this.refs.form.getData();
+    // entity.category = AbstractEnum.findKeyBySymbol(ScriptCategoryEnum, entity.category);
     if (entity.id === undefined) {
       this.context.store.dispatch(this.scriptManager.createEntity(entity, `${uiKey}-detail`, (createdEntity, error) => {
         this._afterSave(createdEntity, error);
       }));
     } else {
-      this.context.store.dispatch(this.scriptManager.patchEntity(entity, `${uiKey}-detail`, this._afterSave.bind(this)));
+      this.context.store.dispatch(this.scriptManager.updateEntity(entity, `${uiKey}-detail`, this._afterSave.bind(this)));
     }
   }
 
@@ -135,6 +139,8 @@ export default class ScriptDetail extends Basic.AbstractContent {
               helpBlock={this.i18n('entity.Script.script.help')}
               label={this.i18n('entity.Script.script.label')}/>
           </Basic.AbstractForm>
+
+          <ScriptAuthorityTable uiKey={entity.id} scriptId={entity.id} />
 
           <Basic.PanelFooter showLoading={showLoading} >
             <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>{this.i18n('button.back')}</Basic.Button>

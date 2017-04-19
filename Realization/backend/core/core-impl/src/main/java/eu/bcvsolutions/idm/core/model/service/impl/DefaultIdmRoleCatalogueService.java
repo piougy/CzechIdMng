@@ -79,6 +79,7 @@ public class DefaultIdmRoleCatalogueService extends AbstractReadWriteEntityServi
 	}
 	
 	@Override
+	@Transactional
 	public IdmRoleCatalogue save(IdmRoleCatalogue entity) {
 		// validate role
 		this.validate(entity);

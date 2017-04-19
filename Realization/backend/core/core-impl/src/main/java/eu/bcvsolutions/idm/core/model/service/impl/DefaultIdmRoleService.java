@@ -111,6 +111,7 @@ public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, Role
 	}
 	
 	@Override
+	@Transactional(readOnly = true)
 	public Page<IdmRole> find(final RoleFilter filter, Pageable pageable) {
 		// transform filter to criteria
 		Specification<IdmRole> criteria = new Specification<IdmRole>() {
@@ -123,6 +124,7 @@ public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, Role
 	}
 	
 	@Override
+	@Transactional(readOnly = true)
 	public Page<IdmRole> findSecured(final RoleFilter filter, Pageable pageable, BasePermission permission) {
 		// transform filter to criteria
 		Specification<IdmRole> criteria = new Specification<IdmRole>() {
@@ -234,6 +236,7 @@ public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, Role
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public IdmRole getDefaultRole() {
 		String roleName = configurationService.getValue(PROPERTY_DEFAULT_ROLE);
 		if (StringUtils.isEmpty(roleName)) {

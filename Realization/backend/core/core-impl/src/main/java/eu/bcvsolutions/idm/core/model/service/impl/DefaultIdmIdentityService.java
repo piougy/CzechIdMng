@@ -197,14 +197,15 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 			predicates.add(builder.exists(subquery));
 		}
 		// identity with any of given role (OR)
-		if (!filter.getRoles().isEmpty()) {
+		List<IdmRole> roles = filter.getRoles();
+		if (!roles.isEmpty()) {
 			Subquery<IdmIdentityRole> subquery = query.subquery(IdmIdentityRole.class);
 			Root<IdmIdentityRole> subRoot = subquery.from(IdmIdentityRole.class);
 			subquery.select(subRoot);
 			subquery.where(
                     builder.and(
                     		builder.equal(subRoot.get("identityContract").get("identity"), root), // correlation attr
-                    		subRoot.get("role").get("id").in(RepositoryUtils.queryEntityIds(filter.getRoles()))
+                    		subRoot.get("role").get("id").in(RepositoryUtils.queryEntityIds(roles))
                     		)
             );			
 			predicates.add(builder.exists(subquery));
@@ -266,7 +267,7 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 		}
 		// managers
 		if (filter.getManagersFor() != null) {
-			predicates.add(subordinatesCriteriaBuilder.getSubordinatesPredicate(root, query, builder, filter.getManagersFor().getUsername(), filter.getManagersByTreeType()));
+			predicates.add(subordinatesCriteriaBuilder.getManagersPredicate(root, query, builder, filter.getManagersFor().getUsername(), filter.getManagersByTreeType()));
 		}
 		//
 		return builder.and(predicates.toArray(new Predicate[predicates.size()]));

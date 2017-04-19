@@ -35,7 +35,7 @@ public class AuthorizationEvaluatorDto implements BaseDto {
 	
 	@Override
 	public void setId(Serializable id) {
-		evaluatorType = (String) evaluatorType;	
+		evaluatorType = (String) id;	
 	}
 	
 	public String getModule() {

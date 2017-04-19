@@ -12,7 +12,6 @@ import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.event.IdentityRoleEvent.IdentityRoleEventType;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleValidRequestService;
 
 /**
@@ -27,22 +26,18 @@ public class IdentityRoleSaveProcessor extends CoreEventProcessor<IdmIdentityRol
 
 	public static final String PROCESSOR_NAME = "identity-role-save-processor";
 	private final IdmIdentityRoleRepository repository;
-	private final IdmIdentityRoleService identityRoleService;
 	private final IdmIdentityRoleValidRequestService validRequestService;
 	
 	@Autowired
 	public IdentityRoleSaveProcessor(
 			IdmIdentityRoleRepository repository,
-			IdmIdentityRoleService identityRoleService,
 			IdmIdentityRoleValidRequestService validRequestService) {
 		super(IdentityRoleEventType.CREATE, IdentityRoleEventType.UPDATE);
 		//
 		Assert.notNull(repository);
-		Assert.notNull(identityRoleService);
 		Assert.notNull(validRequestService);
 		//
 		this.repository = repository;
-		this.identityRoleService = identityRoleService;
 		this.validRequestService = validRequestService;
 	}
 	

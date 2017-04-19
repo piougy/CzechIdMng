@@ -237,7 +237,6 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	}
 
 	@Override
-	@Transactional
 	public Page<DTO> toDtoPage(Page<E> entityPage) {
 		List<DTO> dtos = this.toDtos(entityPage.getContent(), true);
 		PageRequest pageRequest = null;

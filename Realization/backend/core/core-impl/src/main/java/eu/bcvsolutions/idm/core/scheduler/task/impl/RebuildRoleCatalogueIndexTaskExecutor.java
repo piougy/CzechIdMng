@@ -86,11 +86,11 @@ public class RebuildRoleCatalogueIndexTaskExecutor extends AbstractSchedulableTa
 			if (count.equals(counter)) {
 				configurationService.deleteValue(roleCatalogueService.getConfigurationPropertyName(IdmRoleCatalogueService.CONFIGURATION_PROPERTY_VALID));
 				LOG.info("Forest index for role catalogue was successfully rebuilt (index size [{}]).", counter);
-				return true;
+				return Boolean.TRUE;
 			} 
 			//
 			LOG.warn("Forest index for role catalogue rebuild was canceled (index size [{}]).", counter);
-			return false;
+			return Boolean.FALSE;
 		} finally {
 			configurationService.deleteValue(roleCatalogueService.getConfigurationPropertyName(IdmRoleCatalogueService.CONFIGURATION_PROPERTY_REBUILD));
 		}

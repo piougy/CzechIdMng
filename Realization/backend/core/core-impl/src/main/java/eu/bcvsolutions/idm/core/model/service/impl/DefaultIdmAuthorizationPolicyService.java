@@ -162,7 +162,7 @@ public class DefaultIdmAuthorizationPolicyService
 			}
 			if (StringUtils.isEmpty(policy.getGroupPermission())) {			
 				moduleService.getAvailablePermissions().forEach(groupPermission -> {
-					if (!IdmGroupPermission.APP.equals(groupPermission)) { // app is wildcard only
+					if (IdmGroupPermission.APP != groupPermission) { // app is wildcard only
 						for(String permission : policy.getPermissions()) {
 							authorities.add(new DefaultGrantedAuthority(groupPermission.getName(), permission));
 						};

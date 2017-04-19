@@ -70,6 +70,7 @@ public enum AccResultCode implements ResultCode {
 	SYNCHRONIZATION_ERROR_DURING_SYNC_ITEM(HttpStatus.BAD_REQUEST, "Error during synchronization item with UID %s (%s)!"),
 	SYNCHRONIZATION_TO_MANY_ACC_ACCOUNT(HttpStatus.CONFLICT, "To many acc account items for same uid [%s]. Only one item is allowed!"),
 	SYNCHRONIZATION_IDM_FIELD_NOT_SET(HttpStatus.NOT_FOUND, "IDM field %s for entity %s cannot be set!"),
+	SYNCHRONIZATION_TREE_ROOT_FILTER_VALUE_WRONG_TYPE(HttpStatus.BAD_REQUEST, "Synchronization root filter result must be instance of Boolean, but value is type %s!"), 
 	SYNCHRONIZATION_ATTRIBUTE_NOT_FOUND(HttpStatus.NOT_FOUND, "IDM attribute %s not found!"),
 	//
 	// authentication against system

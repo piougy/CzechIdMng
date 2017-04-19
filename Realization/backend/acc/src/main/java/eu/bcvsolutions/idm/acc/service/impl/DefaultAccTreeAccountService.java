@@ -60,14 +60,14 @@ public class DefaultAccTreeAccountService
 		filter.setAccountId(account);
 		filter.setOwnership(Boolean.TRUE);
 
-		List<AccTreeAccountDto> identityAccounts = this.findDto(filter, null).getContent();
-		boolean moreIdentityAccounts = identityAccounts.stream().filter(identityAccount -> {
-			return identityAccount.isOwnership() && !identityAccount.equals(entity);
+		List<AccTreeAccountDto> treeAccounts = this.findDto(filter, null).getContent();
+		boolean moreTreeAccounts = treeAccounts.stream().filter(treeAccount -> {
+			return treeAccount.isOwnership() && !treeAccount.equals(entity);
 		}).findAny().isPresent();
 
-		if (!moreIdentityAccounts && entity.isOwnership()) {
-			// We delete all identity accounts first
-			identityAccounts.forEach(identityAccount -> {
+		if (!moreTreeAccounts && entity.isOwnership()) {
+			// We delete all tree accounts first
+			treeAccounts.forEach(identityAccount -> {
 				super.delete(identityAccount);
 			});
 			// Finally we can delete account

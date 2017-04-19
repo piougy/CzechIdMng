@@ -126,10 +126,27 @@ class SystemMappingDetail extends Advanced.AbstractTableContent {
     return (query) ? query.new : null;
   }
 
+  _onChangeEntityType(entity) {
+    this.setState({_entityType: entity.value});
+  }
+
   render() {
     const { _showLoading, _mapping } = this.props;
+    const { _entityType} = this.state;
     const isNew = this._getIsNew();
     const mapping = isNew ? this.state.mapping : _mapping;
+
+    let isSelectedTree = false;
+    if (_entityType !== undefined) {
+      if (_entityType === SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.TREE)) {
+        isSelectedTree = true;
+      }
+    } else {
+      if (mapping && mapping.entityType === SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.TREE)) {
+        isSelectedTree = true;
+      }
+    }
+
     const systemId = this.props.params.entityId;
     const forceSearchParameters = new Domain.SearchParameters().setFilter('systemMappingId', _mapping ? _mapping.id : Domain.SearchParameters.BLANK_UUID);
     const objectClassSearchParameters = new Domain.SearchParameters().setFilter('systemId', systemId ? systemId : Domain.SearchParameters.BLANK_UUID);
@@ -170,12 +187,15 @@ class SystemMappingDetail extends Advanced.AbstractTableContent {
               <Basic.EnumSelectBox
                 ref="entityType"
                 enum={SystemEntityTypeEnum}
+                onChange={this._onChangeEntityType.bind(this)}
                 label={this.i18n('acc:entity.SystemMapping.entityType')}
                 readOnly={!Utils.Entity.isNew(mapping)}
                 required/>
               <Basic.SelectBox
                 ref="treeType"
                 label={this.i18n('acc:entity.SystemMapping.treeType')}
+                hidden={!isSelectedTree}
+                required={isSelectedTree}
                 manager={treeTypeManager}
               />
             </Basic.AbstractForm>

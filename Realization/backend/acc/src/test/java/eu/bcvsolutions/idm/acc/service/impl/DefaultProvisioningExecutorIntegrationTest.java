@@ -105,7 +105,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 	
 	private void initSystem() {
 		// prepare test system
-		system = defaultSysAccountManagementServiceTest.createTestSystem();
+		system = defaultSysAccountManagementServiceTest.createTestSystem("test_resource");
 		// generate schema
 		List<SysSchemaObjectClass> objectClasses = systemService.generateSchema(system);
 		// create test mapping

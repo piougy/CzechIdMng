@@ -907,7 +907,7 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 	private void initData() {
 
 		// create test system
-		system = defaultSysAccountManagementServiceTest.createTestSystem();
+		system = defaultSysAccountManagementServiceTest.createTestSystem("test_resource");
 
 		// generate schema for system
 		List<SysSchemaObjectClass> objectClasses = systemService.generateSchema(system);

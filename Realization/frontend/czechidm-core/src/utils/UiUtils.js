@@ -166,4 +166,20 @@ export default class UiUtils {
     }
     return javaType.split('.').pop(-1);
   }
+
+/**
+ * Do substring on given data by max length. Substring is not on char byt on word.
+ * Last word will be whole.
+ * @param  {[type]} data      [description]
+ * @param  {[type]} maxLength [description]
+ * @return {[type]}           [description]
+ */
+  static substringByWord(data, maxLength) {
+    if (data) {
+      data = data + ' ';
+      const result = data.replace(/<(?:.|\n)*?>/gm, '').substr(0, maxLength);
+      return result.substr(0, Math.min(result.length, result.lastIndexOf(' ')));
+    }
+    return null;
+  }
 }

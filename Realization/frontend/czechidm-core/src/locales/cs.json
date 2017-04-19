@@ -1036,18 +1036,18 @@
       }
     },
     "scripts": {
-      "header": "Definice pravidel",
-      "title": "Definice pravidel",
+      "header": "Definice skriptů",
+      "title": "Definice skriptů",
       "edit": {
-        "title": "Detail pravidla",
-        "header": "{{name}} detail pravidla"
+        "title": "Detail skriptu",
+        "header": "{{name}} detail skriptu"
       },
       "create": {
-        "title": "Nové pravidlo",
-        "header": "Nové pravidlo"
+        "title": "Nový skript",
+        "header": "Nový skript"
       },
       "save": {
-        "success": "Pravidlo [{{name}}] bylo úspěšně uloženo"
+        "success": "Skript [{{name}}] bylo úspěšně uložen"
       },
       "filter": {
         "text": "Název / Popis"
@@ -1908,10 +1908,10 @@
 
     },
     "Script": {
-      "name": "Název pravidla",
+      "name": "Název skriptu",
       "category": "Kategorie",
       "script": {
-        "help": "Tělo pravidla, skript v jazyce Groovy.",
+        "help": "Tělo skriptu v jazyce Groovy.",
         "label": "Pravidlo"
        },
       "description": "Popis pravidla"

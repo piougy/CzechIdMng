@@ -1880,7 +1880,7 @@
       "name": "Script name",
       "category": "Category",
       "script": {
-        "help": "Script body, Groovy script.",
+        "help": "Body of script in groovy.",
         "label": "Script"
        },
       "description": "Script description"

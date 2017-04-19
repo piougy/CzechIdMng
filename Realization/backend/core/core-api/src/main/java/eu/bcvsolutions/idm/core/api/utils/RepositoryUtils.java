@@ -15,10 +15,7 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
  * @author Radek Tomiška
  *
  */
-public final class RepositoryUtils {
-	
-	private RepositoryUtils() {
-	}
+public abstract class RepositoryUtils {
 
 	/**
 	 * Return collection of entity ids usable in repository query. 
@@ -27,7 +24,7 @@ public final class RepositoryUtils {
 	 * @param entities
 	 * @return
 	 */
-	public static List<UUID> queryEntityIds(List<AbstractEntity> entities) {
+	public static List<UUID> queryEntityIds(List<? extends AbstractEntity> entities) {
 		List<UUID> entityIds = new ArrayList<>();
 		if (entities != null && !entities.isEmpty()) {
 			for(AbstractEntity entity : entities) {

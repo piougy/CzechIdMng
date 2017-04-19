@@ -17,15 +17,18 @@ export const RECEIVE_LOGIN_ERROR = 'RECEIVE_LOGIN_ERROR';
 export const LOGOUT = 'LOGOUT';
 //
 const TOKEN_COOKIE_NAME = 'XSRF-TOKEN';
+const PERMISSION_SEPARATOR = '_';
 const ADMIN_PERMISSION = 'ADMIN';
-const ADMIN_AUTHORITY = `APP_${ADMIN_PERMISSION}`;
+const ADMIN_AUTHORITY = `APP${PERMISSION_SEPARATOR}${ADMIN_PERMISSION}`;
 
 const authenticateService = new AuthenticateService();
 const flashMessagesManager = new FlashMessagesManager();
 let stompClient = null;
 
 /**
- * Encapsulate user context / authentication and authorization (commig soon)
+ * Encapsulate user context / authentication and authorization
+ *
+ * @author Radek Tomiška
  */
 export default class SecurityManager {
 
@@ -224,7 +227,9 @@ export default class SecurityManager {
     if (!this.isAuthenticated(userContext) || !userContext.authorities || !authority) {
       return false;
     }
-    return this.isAdmin(userContext) || _.includes(userContext.authorities, authority);
+    return this.isAdmin(userContext) // admin
+      || _.includes(userContext.authorities, `${authority.split(PERMISSION_SEPARATOR)[0]}${PERMISSION_SEPARATOR}${ADMIN_PERMISSION}`) // group admin
+      || _.includes(userContext.authorities, authority); // single authority
   }
 
   /**
@@ -241,7 +246,12 @@ export default class SecurityManager {
     if (!this.isAuthenticated(userContext) || !userContext.authorities || !authorities) {
       return false;
     }
-    return this.isAdmin(userContext) || _.intersection(userContext.authorities, authorities).length > 0;
+    if (this.isAdmin(userContext)) {
+      return true;
+    }
+    return authorities.some(authority => {
+      return this.hasAuthority(authority, userContext);
+    });
   }
 
   /**
@@ -261,7 +271,9 @@ export default class SecurityManager {
     if (this.isAdmin(userContext)) {
       return true;
     }
-    return _.difference(authorities, userContext.authorities).length === 0;
+    return authorities.every(authority => {
+      return this.hasAuthority(authority, userContext);
+    });
   }
 
   /**
@@ -395,3 +407,6 @@ export default class SecurityManager {
     };
   }
 }
+
+SecurityManager.ADMIN_PERMISSION = ADMIN_PERMISSION;
+SecurityManager.ADMIN_AUTHORITY = ADMIN_AUTHORITY;

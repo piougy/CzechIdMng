@@ -1,4 +1,3 @@
-import Immutable from 'immutable';
 import FormableEntityManager from './FormableEntityManager';
 import SecurityManager from '../security/SecurityManager';
 import { IdentityService } from '../../services';
@@ -43,22 +42,6 @@ export default class IdentityManager extends FormableEntityManager {
   }
 
   /**
-   * Who can edit identity - just for ui, rest is secured as well
-   *
-   * @return {Immutable.Map<string, boolean>} UI elements, which is editable <key, boolean>
-   */
-  canEditMap(userContext) {
-    let canEditMap = new Immutable.Map();
-    canEditMap = canEditMap.set('isSaveEnabled', false);
-    //
-    // super admin or user's garant can edit user profile
-    if (SecurityManager.isAdmin(userContext)) {
-      canEditMap = canEditMap.set('isSaveEnabled', true);
-    }
-    return canEditMap;
-  }
-
-  /**
    * Sets user activity
    *
    * @param {array[string]} usernames selected usernames
@@ -98,10 +81,12 @@ export default class IdentityManager extends FormableEntityManager {
         // catch is before then - we want execute nex then clausule
       })
       .then(() => {
-        dispatch(this.flashMessagesManager.addMessage({
-          level: successUsernames.length === usernames.length ? 'success' : 'info',
-          message: this.i18n(`content.identities.action.${bulkActionName}.success`, { usernames: successUsernames.join(', ') })
-        }));
+        if (successUsernames.lengt > 0) {
+          dispatch(this.flashMessagesManager.addMessage({
+            level: successUsernames.length === usernames.length ? 'success' : 'info',
+            message: this.i18n(`content.identities.action.${bulkActionName}.success`, { usernames: successUsernames.join(', ') })
+          }));
+        }
         dispatch(this.stopBulkAction());
       });
     };

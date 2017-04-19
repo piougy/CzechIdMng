@@ -92,6 +92,4 @@ public class IdmScript extends AbstractEntity implements IdentifiableByName {
 	public void setDescription(String description) {
 		this.description = description;
 	}
-	
-	
 }

@@ -27,11 +27,11 @@ public interface IdmRoleRepository extends AbstractEntityRepository<IdmRole, Rol
 	
 	public static final String ADMIN_ROLE = "superAdminRole"; // TODO: move to configurationService
 	
-	/*
-	 * (non-Javadoc)
-	 * @see eu.bcvsolutions.idm.core.api.repository.BaseEntityRepository#find(eu.bcvsolutions.idm.core.api.dto.BaseFilter, Pageable)
+	/**
+	 * @deprecated use criteria api
 	 */
 	@Override
+	@Deprecated
 	@Query(value = "select e from #{#entityName} e" +
 	        " where"
 	        + " (?#{[0].text} is null or lower(e.name) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')})"

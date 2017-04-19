@@ -21,6 +21,7 @@ import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.InitDemoData;
 import eu.bcvsolutions.idm.InitTestData;
+import eu.bcvsolutions.idm.core.TestHelper;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
@@ -49,6 +50,8 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 	private final static String FORM_VALUE_THREE = "three";
 	private final static String FORM_VALUE_FOUR = "four";
 	
+	@Autowired
+	private TestHelper helper;
 	@Autowired
 	private ApplicationContext context;
 	@Autowired
@@ -356,7 +359,7 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 	}
 	
 	@Test
-	public void testFindOwnersByStringAttributeValue() {
+	public void testFindOwnersByMultiStringAttributeValue() {
 		FormableEntity owner = createTestOwner("test12");
 		FormableEntity ownerTwo = createTestOwner("test13");
 		FormableEntity ownerThree = createTestOwner("test14");
@@ -372,7 +375,7 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 		assertEquals(1, owners.getTotalElements());
 		assertEquals(owner.getId(), owners.getContent().get(0).getId());
 		//
-		owners = formService.findOwners(owner.getClass(), attribute, FORM_VALUE_TWO, null);
+		owners = formService.findOwners(owner.getClass(), attribute.getName(), FORM_VALUE_TWO, null);
 		assertEquals(2, owners.getTotalElements());
 		//
 		owners = formService.findOwners(owner.getClass(), attribute, FORM_VALUE_FOUR, null);
@@ -381,6 +384,51 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 		identityService.delete((IdmIdentity) owner);
 		identityService.delete((IdmIdentity) ownerTwo);
 		identityService.delete((IdmIdentity) ownerThree);
+	}
+	
+	@Test
+	public void testFindOwnersByStringAttributeValue() {
+		FormableEntity owner = helper.createIdentity();
+		FormableEntity ownerTwo = helper.createIdentity();
+		FormableEntity ownerThree = helper.createIdentity();
+		IdmFormDefinition formDefinition = formService.getDefinition(owner.getClass());
+		IdmFormAttribute attribute = formDefinition.getMappedAttributeByName(InitDemoData.FORM_ATTRIBUTE_PHONE);
+		// save values
+		formService.saveValues(owner, attribute, Lists.newArrayList(FORM_VALUE_ONE));
+		formService.saveValues(ownerTwo, attribute, Lists.newArrayList(FORM_VALUE_TWO));
+		formService.saveValues(ownerThree, attribute, Lists.newArrayList(FORM_VALUE_FOUR));
+		//
+		Page<? extends FormableEntity> owners = formService.findOwners(owner.getClass(), attribute, FORM_VALUE_ONE, null);
+		//
+		assertEquals(1, owners.getTotalElements());
+		assertEquals(owner.getId(), owners.getContent().get(0).getId());
+		//
+		owners = formService.findOwners(owner.getClass(), attribute.getName(), FORM_VALUE_TWO, null);
+		assertEquals(1, owners.getTotalElements());
+		//
+		owners = formService.findOwners(owner.getClass(), attribute, FORM_VALUE_FOUR, null);
+		assertEquals(1, owners.getTotalElements());
+		//
+		identityService.delete((IdmIdentity) owner);
+		identityService.delete((IdmIdentity) ownerTwo);
+		identityService.delete((IdmIdentity) ownerThree);
+	}
+	
+	@Test
+	public void testFindTreeNodesByNullAttributeValue() {
+		FormableEntity owner = helper.createTreeNode();
+		IdmFormDefinition formDefinition = formService.getDefinition(owner.getClass());
+		IdmFormAttribute attribute = formDefinition.getFormAttributes().get(0);
+		// save values
+		formService.saveValues(owner, attribute, Lists.newArrayList(FORM_VALUE_ONE));
+		//
+		Page<? extends FormableEntity> owners = formService.findOwners(owner.getClass(), attribute, FORM_VALUE_ONE, null);
+		//
+		assertEquals(1, owners.getTotalElements());
+		assertEquals(owner.getId(), owners.getContent().get(0).getId());
+		//
+		owners = formService.findOwners(owner.getClass(), attribute.getName(), null, null);
+		assertEquals(0, owners.getTotalElements());
 	}
 	
 	@Test

@@ -5,6 +5,11 @@ import { IdentityManager } from '../../redux';
 import SearchParameters from '../../domain/SearchParameters';
 import IdentityTable from './IdentityTable';
 
+/**
+ * Identity's subordinates
+ *
+ * @author Radek Tomiška
+ */
 export default class IdentitySubordinates extends Basic.AbstractContent {
 
   constructor(props, context) {

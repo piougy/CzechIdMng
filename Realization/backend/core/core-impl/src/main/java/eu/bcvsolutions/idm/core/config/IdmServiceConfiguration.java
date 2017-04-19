@@ -14,6 +14,7 @@ import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.model.repository.IdmAuthorizationPolicyRepository;
+import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleTreeNodeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
@@ -24,6 +25,7 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultEntityEventManager;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmRoleTreeNodeService;
+import eu.bcvsolutions.idm.core.model.service.impl.DefaultSubordinatesCriteriaBuilder;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskService;
 import eu.bcvsolutions.idm.core.scheduler.service.impl.DefaultLongRunningTaskManager;
@@ -47,15 +49,18 @@ public class IdmServiceConfiguration {
 	
 	//
 	// Environment
-	@Autowired
+	@Autowired 
 	private ApplicationContext context;
-	@Autowired
+	@Autowired 
 	private ApplicationEventPublisher publisher;
 	//
+	// Spring Data repositories through interfaces - they are constructed automatically
+	@Autowired 
+	private IdmIdentityRepository identityRepository;
+	//
 	// Own beans - TODO: move to @Bean init here
-	@Autowired
+	@Autowired 
 	private EnabledEvaluator enabledEvaluator;
-	
 	
 	@Bean
 	public RoleHierarchy roleHierarchy(ModuleService moduleService) {
@@ -134,5 +139,17 @@ public class IdmServiceConfiguration {
 			SecurityService securityService,
 			ModuleService moduleService) {
 		return new DefaultAuthorizationManager(context, authorizationPolicyService(repository, roleService, moduleService), securityService, moduleService);
+	}
+	
+	/**
+	 * Subordinates criteria builder.
+	 * 
+	 * Override in custom module for changing subordinates evaluation.
+	 * 
+	 * @return
+	 */
+	@Bean
+	public DefaultSubordinatesCriteriaBuilder subordinatesCriteriaBuilder() {
+		return new DefaultSubordinatesCriteriaBuilder(identityRepository);
 	}
 }

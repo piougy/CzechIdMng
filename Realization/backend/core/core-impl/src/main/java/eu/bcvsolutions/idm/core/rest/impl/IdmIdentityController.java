@@ -16,6 +16,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,20 +29,20 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.forest.index.service.api.ForestContentService;
-import eu.bcvsolutions.idm.core.api.config.domain.IdentityConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteEntityController;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.eav.rest.impl.IdmFormDefinitionController;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.dto.WorkPosition;
-import eu.bcvsolutions.idm.core.model.dto.filter.CorrelationFilter;
 import eu.bcvsolutions.idm.core.model.dto.filter.IdentityFilter;
 import eu.bcvsolutions.idm.core.model.dto.filter.IdentityRoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmAudit;
@@ -56,7 +57,7 @@ import eu.bcvsolutions.idm.core.model.entity.eav.IdmIdentityFormValue;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuditService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
-import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.service.GrantedAuthoritiesFactory;
 
 /**
@@ -67,7 +68,7 @@ import eu.bcvsolutions.idm.core.security.service.GrantedAuthoritiesFactory;
  */
 @RepositoryRestController
 @RequestMapping(value = BaseEntityController.BASE_PATH + "/identities")
-public class IdmIdentityController extends DefaultReadWriteEntityController<IdmIdentity, IdentityFilter> {
+public class IdmIdentityController extends AbstractReadWriteEntityController<IdmIdentity, IdentityFilter> {
 
 	private final GrantedAuthoritiesFactory grantedAuthoritiesFactory;
 	private final IdmIdentityContractService identityContractService;
@@ -105,31 +106,71 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 	
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_CREATE + "')")
-	public ResponseEntity<?> post(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler)
-			throws HttpMessageNotReadableException {
+	@RequestMapping(method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_READ + "')")
+	public Resources<?> find(@RequestParam MultiValueMap<String, Object> parameters, 
+			@PageableDefault Pageable pageable, 			
+			PersistentEntityResourceAssembler assembler) {
+		return super.find(parameters, pageable, assembler);
+	}
+	
+	@ResponseBody
+	@RequestMapping(value= "/search/quick", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_READ + "')")
+	public Resources<?> findQuick(@RequestParam MultiValueMap<String, Object> parameters, 
+			@PageableDefault Pageable pageable, 			
+			PersistentEntityResourceAssembler assembler) {
+		return super.find(parameters, pageable, assembler);
+	}
+	
+	@ResponseBody
+	@RequestMapping(value= "/search/autocomplete", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_AUTOCOMPLETE + "')")
+	public Resources<?> autocomplete(@RequestParam MultiValueMap<String, Object> parameters, 
+			@PageableDefault Pageable pageable, 			
+			PersistentEntityResourceAssembler assembler) {
+		return super.autocomplete(parameters, pageable, assembler);
+	}
+	
+	@Override
+	@ResponseBody
+	@RequestMapping(value = "/{backendId}", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_READ + "')")
+	public ResponseEntity<?> get(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler) {
+		return super.get(backendId, assembler);
+	}
+	
+	@Override
+	@ResponseBody
+	@RequestMapping(method = RequestMethod.POST)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_CREATE + "') or hasAuthority('" + CoreGroupPermission.IDENTITY_UPDATE + "')")
+	public ResponseEntity<?> post(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
 		return super.post(nativeRequest, assembler);
 	}
 	
 	@Override
 	@ResponseBody
+	@RequestMapping(value = "/{backendId}", method = RequestMethod.PUT)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_UPDATE + "')")
-	public ResponseEntity<?> put(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest,
+	public ResponseEntity<?> put(
+			@PathVariable @NotNull String backendId,
+			HttpServletRequest nativeRequest,
 			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
 		return super.put(backendId, nativeRequest, assembler);
 	}
 	
 	@Override
 	@ResponseBody
+	@RequestMapping(value = "/{backendId}", method = RequestMethod.PATCH)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_UPDATE + "')")
-	public ResponseEntity<?> patch(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest,
-			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
+	public ResponseEntity<?> patch(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler) 
+			throws HttpMessageNotReadableException {
 		return super.patch(backendId, nativeRequest, assembler);
 	}
 	
 	@Override
 	@ResponseBody
-	@Enabled(property = IdentityConfiguration.PROPERTY_IDENTITY_DELETE)
+	@RequestMapping(value = "/{backendId}", method = RequestMethod.DELETE)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_DELETE + "')")
 	public ResponseEntity<?> delete(@PathVariable @NotNull String backendId) {
 		return super.delete(backendId);
@@ -143,22 +184,27 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 	 */
 	@ResponseBody
 	@RequestMapping(value = "/{identityId}/authorities", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_READ + "')")
 	public List<? extends GrantedAuthority> getGrantedAuthotrities(@PathVariable String identityId) {
 		IdmIdentity identity = getEntity(identityId);
 		if (identity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", identityId));
 		}
+		checkAccess(identity, IdmBasePermission.READ);
 		//
 		return grantedAuthoritiesFactory.getGrantedAuthorities(identity.getUsername());
 	}
 	
 	@ResponseBody
 	@RequestMapping(value = "/{identityId}/roles", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_READ + "')")
 	public Resources<?> roles(@PathVariable String identityId, PersistentEntityResourceAssembler assembler) {	
 		IdmIdentity identity = getEntity(identityId);
 		if (identity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", identityId));
 		}
+		//
+		checkAccess(identity, IdmBasePermission.READ);
 		// TODO: pageable support 
 		IdentityRoleFilter filter = new IdentityRoleFilter();
 		filter.setIdentityId(identity.getId());
@@ -167,11 +213,15 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 	
 	@ResponseBody
 	@RequestMapping(value = "/{identityId}/identity-contracts", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_READ + "')")
 	public Resources<?> workPositions(@PathVariable String identityId, PersistentEntityResourceAssembler assembler) {	
 		IdmIdentity identity = getEntity(identityId);
 		if (identity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", identityId));
-		}		
+		}	
+		//
+		checkAccess(identity, IdmBasePermission.READ);
+		//
 		return toResources((Iterable<?>) identityContractService.getContracts(identity), assembler, IdmIdentityContract.class, null);
 	}
 	
@@ -184,11 +234,15 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 	 */
 	@ResponseBody
 	@RequestMapping(value = "/{identityId}/work-position", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_READ + "')")
 	public ResponseEntity<?> organizationPosition(@PathVariable String identityId, PersistentEntityResourceAssembler assembler) {
 		IdmIdentity identity = getEntity(identityId);
 		if (identity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", identityId));
 		}
+		//
+		checkAccess(identity, IdmBasePermission.READ);
+		//
 		IdmIdentityContract primeContract = identityContractService.getPrimeContract(identity);
 		if (primeContract == null) {
 			return new ResponseEntity<Object>(HttpStatus.NO_CONTENT);
@@ -205,15 +259,18 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 	
 	@ResponseBody
 	@RequestMapping(value = "/{identityId}/revisions/{revId}", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_READ + "')")
 	public ResponseEntity<?> findRevision(@PathVariable("identityId") String identityId, @PathVariable("revId") Long revId, PersistentEntityResourceAssembler assembler) {
 		IdmIdentity originalEntity = getEntity(identityId);
 		if (originalEntity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", identityId));
 		}
-		
+		checkAccess(originalEntity, IdmBasePermission.READ);
+		//
 		IdmIdentity revisionIdentity;
 		try {
 			revisionIdentity = this.auditService.findRevision(IdmIdentity.class, originalEntity.getId(), revId);
+			checkAccess(revisionIdentity, IdmBasePermission.READ);
 		} catch (RevisionDoesNotExistException ex) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND,  ImmutableMap.of("revision", revId), ex);
 		}
@@ -223,16 +280,18 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 	
 	@ResponseBody
 	@RequestMapping(value = "/{identityId}/revisions", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_READ + "')")
 	public Resources<?> findRevisions(@PathVariable("identityId") String identityId, Pageable pageable,
 			PersistentEntityResourceAssembler assembler) {
 		IdmIdentity originalEntity = getEntity(identityId);
 		if (originalEntity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("identity", identityId));
 		}
-		
+		//
+		checkAccess(originalEntity, IdmBasePermission.READ);
 		// get original entity id
 		Page<IdmAudit> results = this.auditService.getRevisionsForEntity(IdmIdentity.class.getSimpleName(), originalEntity.getId(), pageable);
-		
+		//
 		return toResources(results, assembler, IdmAudit.class, null);
 	}
 	
@@ -258,11 +317,15 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 	 */
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}/form-values", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_READ + "')")
 	public Resources<?> getFormValues(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler) {
 		IdmIdentity entity = getEntity(backendId);
 		if (entity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
+		//
+		checkAccess(entity, IdmBasePermission.READ);
+		//
 		return formDefinitionController.getFormValues(entity, null, assembler);
 	}
 	
@@ -285,6 +348,8 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 		if (entity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
+		checkAccess(entity, IdmBasePermission.UPDATE);
+		//
 		return formDefinitionController.saveFormValues(entity, null, formValues, assembler);
 	}	
 	

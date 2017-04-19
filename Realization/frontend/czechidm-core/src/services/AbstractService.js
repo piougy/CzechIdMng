@@ -57,6 +57,15 @@ export default class AbstractService {
   }
 
   /**
+   * Returns group permission for given manager / agenda
+   *
+   * @return {string} GroupPermission name
+   */
+  getGroupPermission() {
+    return null;
+  }
+
+  /**
    * Returns resource by given id
    *
    * @param  {string|number} id resource identifier

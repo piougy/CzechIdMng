@@ -32,7 +32,9 @@ public interface AbstractEntityRepository<E extends BaseEntity, F extends BaseFi
 	 * 
 	 * @param filter
 	 * @param pageable
+	 * @deprecated use criteria api
 	 * @return
 	 */
+	@Deprecated
 	Page<E> find(F filter, Pageable pageable);
 }

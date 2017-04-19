@@ -35,6 +35,10 @@ export default class AuthorizationPolicyService extends AbstractService {
     return true;
   }
 
+  getGroupPermission() {
+    return 'AUTHORIZATIONPOLICY';
+  }
+
   /**
    * Returns default searchParameters for current entity type
    *

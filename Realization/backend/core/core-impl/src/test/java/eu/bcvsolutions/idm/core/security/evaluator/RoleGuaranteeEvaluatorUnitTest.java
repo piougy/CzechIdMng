@@ -20,6 +20,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRoleGuarantee;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
+import eu.bcvsolutions.idm.core.security.evaluator.role.RoleGuaranteeEvaluator;
 import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
 
 /**

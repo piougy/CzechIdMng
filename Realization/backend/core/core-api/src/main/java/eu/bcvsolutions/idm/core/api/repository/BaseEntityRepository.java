@@ -43,7 +43,9 @@ public interface BaseEntityRepository<E extends BaseEntity, ID extends Serializa
 	 * @param filter
 	 * @param pageable
 	 * @return
+	 * @deprecated use criteria api
 	 */
+	@Deprecated
 	Page<E> find(F filter, Pageable pageable);
 }
 

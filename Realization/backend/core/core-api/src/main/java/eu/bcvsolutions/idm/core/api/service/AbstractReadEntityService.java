@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,6 +17,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
+import eu.bcvsolutions.idm.core.security.api.service.AuthorizationManager;
 
 /**
  * Provide additional methods to retrieve entities using the pagination and
@@ -31,8 +34,10 @@ public abstract class AbstractReadEntityService<E extends BaseEntity, F extends 
 	
 	private final Class<E> entityClass;
 	private final Class<F> filterClass;
-	
 	private final AbstractEntityRepository<E, F> repository;
+	private AuthorizationManager authorizationManager;
+	@Autowired
+	private ApplicationContext context;
 	
 	@SuppressWarnings("unchecked")
 	public AbstractReadEntityService(AbstractEntityRepository<E, F> repository) {
@@ -122,5 +127,17 @@ public abstract class AbstractReadEntityService<E extends BaseEntity, F extends 
 		Assert.notNull(entity);
 		//
 		return entity.getId() == null || !getRepository().exists((UUID) entity.getId());
+	}
+	
+	/**
+	 * Returns authorization manager
+	 * 
+	 * @return
+	 */
+	protected AuthorizationManager getAuthorizationManager() {
+		if (authorizationManager == null) {
+			authorizationManager = context.getBean(AuthorizationManager.class);
+		}
+		return authorizationManager;
 	}
 }

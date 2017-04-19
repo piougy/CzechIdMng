@@ -168,7 +168,7 @@ module.exports = {
       {
         'id': 'profile-system-separator',
         'type': 'SEPARATOR',
-        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ', 'IDENTITY_READ', 'NOTIFICATION_READ', 'CONFIGURATION_UPDATE', 'MODULE_READ'] } ],
+        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ', 'IDENTITY_READ', 'NOTIFICATION_READ', 'CONFIGURATION_UPDATE', 'MODULE_READ', 'SCHEDULER_READ', 'EAVFORMDEFINITIONS_READ'] } ],
         'labelKey': 'navigation.menu.separator.system',
         'order': 999
       },
@@ -366,7 +366,7 @@ module.exports = {
         'order': 2000,
         'path': '/configurations',
         'iconColor': '#c12e2a',
-        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONFIGURATION_UPDATE', 'CONFIGURATIONSECURED_READ', 'MODULE_READ'] } ],
+        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ', 'IDENTITY_READ', 'NOTIFICATION_READ', 'CONFIGURATION_UPDATE', 'MODULE_READ', 'SCHEDULER_READ', 'EAVFORMDEFINITIONS_READ'] } ],
         'items': [
           {
             'id': 'system-configuration',

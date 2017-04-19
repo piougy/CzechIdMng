@@ -38,7 +38,6 @@ import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
-import eu.bcvsolutions.idm.core.security.api.service.AuthorizationManager;
 
 /**
  * Default role service
@@ -54,8 +53,6 @@ public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, Role
 	private final IdmRoleRepository repository;
 	private final EntityEventManager entityEventManager;
 	private final ConfigurationService configurationService;
-	@Autowired
-	private AuthorizationManager authorizationManager;
 	
 	@Autowired
 	public DefaultIdmRoleService(
@@ -132,7 +129,7 @@ public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, Role
 			public Predicate toPredicate(Root<IdmRole> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
 				Predicate predicate = builder.and(
 					DefaultIdmRoleService.this.toPredicate(filter, root, query, builder),
-					authorizationManager.getPredicate(root, query, builder, permission)
+					getAuthorizationManager().getPredicate(root, query, builder, permission)
 				);
 				//
 				return query.where(predicate).getRestriction();
@@ -142,7 +139,7 @@ public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, Role
 	}
 	
 	/**
-	 * Converts given filter to jap predicate
+	 * Converts given filter to jpa predicate
 	 * 
 	 * @param filter
 	 * @param root

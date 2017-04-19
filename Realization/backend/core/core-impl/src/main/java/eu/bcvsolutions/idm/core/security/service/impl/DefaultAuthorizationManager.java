@@ -13,6 +13,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.util.Assert;
@@ -25,6 +26,7 @@ import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.model.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizationEvaluatorDto;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
@@ -41,7 +43,7 @@ import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 public class DefaultAuthorizationManager implements AuthorizationManager {
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultAuthorizationManager.class);
-	private final IdmAuthorizationPolicyService service;
+	private IdmAuthorizationPolicyService service;
 	private final ApplicationContext context;
 	private final SecurityService securityService;
 	private final ModuleService moduleService;
@@ -90,9 +92,13 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 		final Set<String> permissions = new HashSet<>();
 		if (securityService.isAuthenticated()) { // TODO: public data?
 			service.getEnabledPolicies(securityService.getUsername(), entity.getClass()).forEach(policy -> {
-				AuthorizationEvaluator<E> evaluator = getEvaluator(policy);
-				if (evaluator != null && evaluator.supports(entity.getClass())) {
-					permissions.addAll(evaluator.getPermissions(entity, policy));
+				if (!supportsEntityType(policy, entity.getClass())) {
+					// TODO: compatibility issues - agendas without authorization support
+				} else {
+					AuthorizationEvaluator<E> evaluator = getEvaluator(policy);
+					if (evaluator != null && evaluator.supports(entity.getClass())) {
+						permissions.addAll(evaluator.getPermissions(entity, policy));
+					}
 				}
 			});
 		}
@@ -105,6 +111,10 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 		//
 		if (securityService.isAuthenticated()) { // TODO: public data?
 			for (IdmAuthorizationPolicyDto policy : service.getEnabledPolicies(securityService.getUsername(), entity.getClass())) {
+				if (!supportsEntityType(policy, entity.getClass())) {
+					// TODO: compatibility issues - agendas without authorization support
+					continue;
+				}
 				AuthorizationEvaluator<E> evaluator = getEvaluator(policy);
 				if (evaluator != null && evaluator.supports(entity.getClass()) && evaluator.evaluate(entity, policy, permission)) {
 					return true;
@@ -160,6 +170,21 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 			evaluators.add(evaluatorDto);
 		}
 		return evaluators;
+	}
+	
+	/**
+	 * Returns true, when given policy supports given entityType.
+	 * 
+	 * TODO: remove after all agendas will be rewritten to authorization policy support (authorizableType could be empty now).
+	 * 
+	 * @param policy
+	 * @param entityType
+	 * @return
+	 */
+	private boolean supportsEntityType(IdmAuthorizationPolicyDto policy, Class<? extends Identifiable> entityType) {
+		return (StringUtils.isEmpty(policy.getGroupPermission()) && StringUtils.isEmpty(policy.getAuthorizableType()))
+				|| IdmGroupPermission.APP.getName().equals(policy.getGroupPermission())
+				|| entityType.getCanonicalName().equals(policy.getAuthorizableType());
 	}
 
 	@Override

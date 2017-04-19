@@ -10,6 +10,7 @@ import eu.bcvsolutions.idm.core.model.dto.filter.IdentityFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
+import eu.bcvsolutions.idm.core.security.api.service.AuthorizableEntityService;
 
 /**
  * Operations with IdmIdentity
@@ -17,7 +18,10 @@ import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
  * @author Radek Tomiška
  *
  */
-public interface IdmIdentityService extends ReadWriteEntityService<IdmIdentity, IdentityFilter>, IdentifiableByNameEntityService<IdmIdentity> {
+public interface IdmIdentityService extends 
+		ReadWriteEntityService<IdmIdentity, IdentityFilter>, 
+		IdentifiableByNameEntityService<IdmIdentity>,
+		AuthorizableEntityService<IdmIdentity, IdentityFilter>{
 	
 	@Deprecated
 	static final String CONFIDENTIAL_PROPERTY_PASSWORD = "password";

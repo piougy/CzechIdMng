@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.security.evaluator;
+package eu.bcvsolutions.idm.core.security.evaluator.role;
 
 import java.util.Set;
 
@@ -19,6 +19,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.AbstractAuthentication;
 import eu.bcvsolutions.idm.core.security.api.domain.AuthorizationPolicy;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
+import eu.bcvsolutions.idm.core.security.evaluator.AbstractAuthorizationEvaluator;
 
 /**
  * Returns roles, where logged user is in role guarantees

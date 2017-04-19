@@ -84,8 +84,7 @@ class FormAttributeDetail extends Basic.AbstractContent {
 
     const entity = this.refs.form.getData();
     const saveEntity = {
-      ...entity,
-      persistentType: PersistentTypeEnum.findKeyBySymbol(entity.persistentType)
+      ...entity
     };
 
     if (entity.id === undefined) {

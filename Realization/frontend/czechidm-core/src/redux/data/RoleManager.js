@@ -27,10 +27,6 @@ export default class RoleManager extends FormableEntityManager {
     return 'roles';
   }
 
-  getGroupPermission() {
-    return 'ROLE';
-  }
-
   /**
    * Load available authorities from BE if needed (available authorites can be changed just with BE restart)
    *

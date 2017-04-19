@@ -25,6 +25,10 @@ export default class RoleService extends FormableEntityService {
     return true;
   }
 
+  getGroupPermission() {
+    return 'ROLE';
+  }
+
   /**
    * Returns default searchParameters for current entity type
    *

@@ -94,16 +94,16 @@ class IdentityDetail extends Basic.AbstractContent {
   }
 
   render() {
-    const { userContext, identity, entityId, readOnly } = this.props;
+    const { userContext, identity, entityId, readOnly, _permissions } = this.props;
     const { showLoading, showLoadingIdentityTrimmed } = this.state;
-    const canEditMap = identityManager.canEditMap(userContext, identity);
-    const deactiveDisabled = !userContext || entityId === userContext.username || !canEditMap.get('isSaveEnabled');
+    const deactiveDisabled = !userContext || entityId === userContext.username || !identityManager.canSave(identity, _permissions);
+    //
     return (
       <div>
         <form onSubmit={this.onSave.bind(this)}>
           <Basic.Panel className="no-border last">
             <Basic.PanelHeader text={this.i18n('header')}/>
-            <Basic.AbstractForm ref="form" readOnly={!canEditMap.get('isSaveEnabled') || readOnly} showLoading={showLoadingIdentityTrimmed || showLoading}>
+            <Basic.AbstractForm ref="form" readOnly={ !identityManager.canSave(identity, _permissions) || readOnly } showLoading={showLoadingIdentityTrimmed || showLoading}>
               <Basic.TextField ref="username" readOnly label={this.i18n('content.identity.profile.username')} required min={3} max={255}/>
               <Basic.TextField ref="firstName" label={this.i18n('content.identity.profile.firstName')} max={255} />
               <Basic.TextField ref="lastName" label={this.i18n('content.identity.profile.lastName')} required max={255} />
@@ -153,11 +153,11 @@ class IdentityDetail extends Basic.AbstractContent {
               <Basic.Button
                 type="submit"
                 level="success"
-                showLoading={showLoading}
+                showLoading={ showLoading }
                 showLoadingIcon
-                showLoadingText={this.i18n('button.saving')}
-                rendered={canEditMap.get('isSaveEnabled')}
-                hidden={readOnly}>
+                showLoadingText={ this.i18n('button.saving') }
+                rendered={ identityManager.canSave(identity, _permissions) }
+                hidden={ readOnly }>
                 { this.i18n('button.save') }
               </Basic.Button>
             </Basic.PanelFooter>
@@ -168,20 +168,23 @@ class IdentityDetail extends Basic.AbstractContent {
   }
 }
 
-
 IdentityDetail.propTypes = {
   identity: PropTypes.object,
   entityId: PropTypes.string.isRequired,
   readOnly: PropTypes.bool,
-  userContext: PropTypes.object
+  userContext: PropTypes.object,
+  _permissions: PropTypes.arrayOf(PropTypes.string)
 };
 IdentityDetail.defaultProps = {
-  userContext: null
+  userContext: null,
+  _permissions: null,
+  readOnly: false
 };
 
-function select(state) {
+function select(state, component) {
   return {
-    userContext: state.security.userContext
+    userContext: state.security.userContext,
+    _permissions: identityManager.getPermissions(state, null, component.entityId)
   };
 }
 export default connect(select)(IdentityDetail);

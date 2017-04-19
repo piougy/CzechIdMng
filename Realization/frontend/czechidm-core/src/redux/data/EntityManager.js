@@ -91,7 +91,7 @@ export default class EntityManager {
    * @return {string} GroupPermission name
    */
   getGroupPermission() {
-    return null;
+    return this.getService().getGroupPermission();
   }
 
   /**

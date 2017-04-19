@@ -19,6 +19,7 @@ import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
+import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.domain.IdmPasswordPolicyType;
 import eu.bcvsolutions.idm.core.model.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
@@ -42,6 +43,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.security.evaluator.BasePermissionEvaluator;
+import eu.bcvsolutions.idm.core.security.evaluator.identity.SelfIdentityEvaluator;
 
 /**
  * Initialize demo data for application
@@ -174,6 +176,14 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				policy.setRole(role1.getId());
 				policy.setEvaluator(BasePermissionEvaluator.class);
 				authorizationPolicyService.save(policy);
+				// self policy
+				IdmAuthorizationPolicyDto selfPolicy = new IdmAuthorizationPolicyDto();
+				selfPolicy.setPermissions(IdmBasePermission.READ);
+				selfPolicy.setRole(role1.getId());
+				selfPolicy.setGroupPermission(CoreGroupPermission.IDENTITY.getName());
+				selfPolicy.setEvaluator(SelfIdentityEvaluator.class);
+				authorizationPolicyService.save(selfPolicy);
+				//
 				LOG.info(MessageFormat.format("Role created [id: {0}]", role1.getId()));
 				//
 				IdmRole role2 = new IdmRole();

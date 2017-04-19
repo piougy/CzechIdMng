@@ -33,7 +33,7 @@ public class IdmIdentityControllerRestTest extends AbstractRestTest {
 	private IdmIdentityService identityService;
 	
 	private Authentication getAuthentication() {
-		return new IdmJwtAuthentication(new IdentityDto("[SYSTEM]"), null, Lists.newArrayList(IdmAuthorityUtils.getAdminAuthority()), "test");
+		return new IdmJwtAuthentication(new IdentityDto(InitTestData.TEST_ADMIN_USERNAME), null, Lists.newArrayList(IdmAuthorityUtils.getAdminAuthority()), "test");
 	}
 	
 	@After

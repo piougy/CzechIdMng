@@ -3,7 +3,6 @@ import _ from 'lodash';
 import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
 import Joi from 'joi';
-import Immutable from 'immutable';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
@@ -180,12 +179,6 @@ class Profile extends Basic.AbstractContent {
         generatePassword: false
       });
     });
-  }
-
-  canEditMap() {
-    let canEditMap = new Immutable.Map();
-    canEditMap = canEditMap.set('isSaveEnabled', true);
-    return canEditMap;
   }
 
   render() {

@@ -28,31 +28,33 @@ class IdentityEav extends Basic.AbstractContent {
   }
 
   render() {
-    const { userContext } = this.props;
-    const canEditMap = manager.canEditMap(userContext);
     const { entityId } = this.props.params;
+    const { _entity, _permissions } = this.props;
     //
     return (
       <Advanced.EavContent
-        uiKey={uiKey}
-        formableManager={manager}
-        entityId={entityId}
-        contentKey={this.getContentKey()}
-        showSaveButton={ canEditMap.get('isSaveEnabled') }/>
+        uiKey={ uiKey }
+        formableManager={ manager }
+        entityId={ entityId }
+        contentKey={ this.getContentKey() }
+        showSaveButton={ manager.canSave(_entity, _permissions) }/>
     );
   }
 }
 
 IdentityEav.propTypes = {
-  userContext: PropTypes.object
+  _entity: PropTypes.object,
+  _permissions: PropTypes.arrayOf(PropTypes.string)
 };
 IdentityEav.defaultProps = {
-  userContext: null
+  _entity: null,
+  _permissions: null
 };
 
-function select(state) {
+function select(state, component) {
   return {
-    userContext: state.security.userContext
+    _entity: manager.getEntity(state, component.params.entityId),
+    _permissions: manager.getPermissions(state, null, component.params.entityId)
   };
 }
 

@@ -28,10 +28,6 @@ export default class AuthorizationPolicyManager extends EntityManager {
     return 'authorizationPolicies';
   }
 
-  getGroupPermission() {
-    return 'AUTHORIZATIONPOLICY';
-  }
-
   /**
    * Loads all registered evaluators (available for authorization policies)
    *

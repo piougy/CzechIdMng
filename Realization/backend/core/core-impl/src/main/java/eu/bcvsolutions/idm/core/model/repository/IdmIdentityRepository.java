@@ -10,7 +10,6 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
-import eu.bcvsolutions.idm.core.model.dto.filter.CorrelationFilter;
 import eu.bcvsolutions.idm.core.model.dto.filter.IdentityFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
@@ -33,7 +32,11 @@ public interface IdmIdentityRepository extends AbstractEntityRepository<IdmIdent
 
 	IdmIdentity findOneByUsername(@Param("username") String username);
 
+	/**
+	 * @deprecated use criteria api
+	 */
 	@Override
+	@Deprecated
 	@Query(value = "select e from IdmIdentity e"
 	        + " where"
 			+ " ("
@@ -74,7 +77,8 @@ public interface IdmIdentityRepository extends AbstractEntityRepository<IdmIdent
 	        + " )"
 	  	    + " and "
 	  	    + " ("
-	  	    	+ " ?#{[0].property} is null or (?#{[0].property} = 'username' and e.username = ?#{[0].value}) "
+	  	    	+ " ?#{[0].property} is null "
+	  	    		+ "or (?#{[0].property} = 'username' and e.username = ?#{[0].value}) "
 	  	    		+ "or (?#{[0].property} = 'firstName' and e.firstName = ?#{[0].value}) "
 	  	    		+ "or (?#{[0].property} = 'lastName' and e.lastName = ?#{[0].value}) "
 	  	    		+ "or (?#{[0].property} = 'email' and e.email = ?#{[0].value}) "

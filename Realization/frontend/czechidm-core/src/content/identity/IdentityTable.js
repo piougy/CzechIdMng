@@ -148,7 +148,7 @@ export class IdentityTable extends Advanced.AbstractTableContent {
           ref="table"
           uiKey={uiKey}
           manager={identityManager}
-          showRowSelection={showRowSelection && SecurityManager.hasAuthority('IDENTITY_UPDATE')}
+          showRowSelection={showRowSelection && (SecurityManager.hasAuthority('IDENTITY_UPDATE') || SecurityManager.hasAuthority('IDENTITY_DELETE'))}
           filter={
             <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
               <Basic.AbstractForm ref="filterForm">

@@ -17,6 +17,14 @@ class IdentityService extends FormableEntityService {
     return '/identities';
   }
 
+  supportsAuthorization() {
+    return true;
+  }
+
+  getGroupPermission() {
+    return 'IDENTITY';
+  }
+
   getNiceLabel(entity) {
     let toString = '';
     if (entity) {

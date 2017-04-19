@@ -332,7 +332,7 @@ module.exports = {
         {
           path: ':entityId/detail',
           component: require('./src/content/form/FormDetail'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['EAVFORMATTRIBUTES_READ'] } ]
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['EAVFORMDEFINITIONS_READ'] } ]
         },
         {
           path: ':entityId/attributes',

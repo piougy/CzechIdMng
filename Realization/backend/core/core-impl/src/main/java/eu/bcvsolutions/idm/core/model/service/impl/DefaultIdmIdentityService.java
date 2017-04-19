@@ -5,11 +5,19 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -17,11 +25,15 @@ import org.springframework.util.Assert;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.core.api.utils.RepositoryUtils;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.eav.service.impl.AbstractFormableService;
+import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.model.dto.filter.IdentityFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleGuarantee;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
@@ -33,6 +45,9 @@ import eu.bcvsolutions.idm.core.model.event.processor.identity.IdentitySaveProce
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
+import eu.bcvsolutions.idm.core.model.service.api.SubordinatesCriteriaBuilder;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
+import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
 /**
  * Operations with IdmIdentity
@@ -49,21 +64,30 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 	private final IdmIdentityRepository repository;
 	private final IdmRoleRepository roleRepository;
 	private final EntityEventManager entityEventManager;
+	private final SubordinatesCriteriaBuilder subordinatesCriteriaBuilder;
 	
 	@Autowired
 	public DefaultIdmIdentityService(
 			IdmIdentityRepository repository,
 			FormService formService,
 			IdmRoleRepository roleRepository,
-			EntityEventManager entityEventManager) {
+			EntityEventManager entityEventManager,
+			SubordinatesCriteriaBuilder subordinatesCriteriaBuilder) {
 		super(repository, formService);
 		//
 		Assert.notNull(roleRepository);
 		Assert.notNull(entityEventManager);
+		Assert.notNull(subordinatesCriteriaBuilder);
 		//
 		this.repository = repository;
 		this.roleRepository = roleRepository;
 		this.entityEventManager = entityEventManager;
+		this.subordinatesCriteriaBuilder = subordinatesCriteriaBuilder;
+	}
+	
+	@Override
+	public AuthorizableType getAuthorizableType() {
+		return new AuthorizableType(CoreGroupPermission.IDENTITY, getEntityClass());
 	}
 	
 	/**
@@ -96,6 +120,156 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 		//
 		LOG.debug("Deleting identity [{}]", identity.getUsername());
 		entityEventManager.process(new IdentityEvent(IdentityEventType.DELETE, identity));
+	}
+	
+	@Override
+	public Page<IdmIdentity> find(final IdentityFilter filter, Pageable pageable) {
+		// transform filter to criteria
+		Specification<IdmIdentity> criteria = new Specification<IdmIdentity>() {
+			public Predicate toPredicate(Root<IdmIdentity> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
+				Predicate predicate = DefaultIdmIdentityService.this.toPredicate(filter, root, query, builder);
+				return query.where(predicate).getRestriction();
+			}
+		};
+		return getRepository().findAll(criteria, pageable);
+	}
+	
+	@Override
+	public Page<IdmIdentity> findSecured(final IdentityFilter filter, Pageable pageable, BasePermission permission) {
+		// transform filter to criteria
+		Specification<IdmIdentity> criteria = new Specification<IdmIdentity>() {
+			public Predicate toPredicate(Root<IdmIdentity> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
+				Predicate predicate = builder.and(
+					DefaultIdmIdentityService.this.toPredicate(filter, root, query, builder),
+					getAuthorizationManager().getPredicate(root, query, builder, permission)
+				);
+				//
+				return query.where(predicate).getRestriction();
+			}
+		};
+		return getRepository().findAll(criteria, pageable);
+	}
+	
+	/**
+	 * Converts given filter to jpa predicate
+	 * 
+	 * @param filter
+	 * @param root
+	 * @param query
+	 * @param builder
+	 * @return
+	 */
+	private Predicate toPredicate(IdentityFilter filter, Root<IdmIdentity> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
+		List<Predicate> predicates = new ArrayList<>();
+		// id
+		if (filter.getId() != null) {
+			predicates.add(builder.equal(root.get("id"), filter.getId()));
+		}
+		// quick - "fulltext"
+		if (StringUtils.isNotEmpty(filter.getText())) {
+			predicates.add(builder.or(
+					builder.like(builder.lower(root.get("username")), "%" + filter.getText().toLowerCase() + "%"),
+					builder.like(builder.lower(root.get("firstName")), "%" + filter.getText().toLowerCase() + "%"),
+					builder.like(builder.lower(root.get("lastName")), "%" + filter.getText().toLowerCase() + "%"),
+					builder.like(builder.lower(root.get("email")), "%" + filter.getText().toLowerCase() + "%"),
+					builder.like(builder.lower(root.get("description")), "%" + filter.getText().toLowerCase() + "%")					
+					));
+		}
+		// managers by tree node (working position)
+		if (filter.getManagersByTreeNode() != null) {
+			Subquery<IdmIdentityContract> subquery = query.subquery(IdmIdentityContract.class);
+			Root<IdmIdentityContract> subRoot = subquery.from(IdmIdentityContract.class);
+			subquery.select(subRoot);
+			//
+			Subquery<IdmIdentityContract> subqueryWp = query.subquery(IdmIdentityContract.class);
+			Root<IdmIdentityContract> subqueryWpRoot = subqueryWp.from(IdmIdentityContract.class);
+			subqueryWp.select(subqueryWpRoot.get("workPosition").get("parent"));
+			subqueryWp.where(builder.and(
+					builder.equal(subqueryWpRoot.get("workPosition"), filter.getManagersByTreeNode())
+					));
+			//
+			subquery.where(
+                    builder.and(
+                    		builder.equal(subRoot.get("identity"), root), // correlation attr
+                    		subRoot.get("workPosition").in(subqueryWp)
+                    		)
+            );			
+			predicates.add(builder.exists(subquery));
+		}
+		// identity with any of given role (OR)
+		if (!filter.getRoles().isEmpty()) {
+			Subquery<IdmIdentityRole> subquery = query.subquery(IdmIdentityRole.class);
+			Root<IdmIdentityRole> subRoot = subquery.from(IdmIdentityRole.class);
+			subquery.select(subRoot);
+			subquery.where(
+                    builder.and(
+                    		builder.equal(subRoot.get("identityContract").get("identity"), root), // correlation attr
+                    		subRoot.get("role").get("id").in(RepositoryUtils.queryEntityIds(filter.getRoles()))
+                    		)
+            );			
+			predicates.add(builder.exists(subquery));
+		}
+		// property
+		if (StringUtils.equals("username", filter.getProperty())) {
+			predicates.add(builder.equal(root.get("username"), filter.getValue()));
+		}
+		if (StringUtils.equals("firstName", filter.getProperty())) {
+			predicates.add(builder.equal(root.get("firstName"), filter.getValue()));
+		}
+		if (StringUtils.equals("lastName", filter.getProperty())) {
+			predicates.add(builder.equal(root.get("lastName"), filter.getValue()));
+		}
+		if (StringUtils.equals("email", filter.getProperty())) {
+			predicates.add(builder.equal(root.get("email"), filter.getValue()));
+		}
+		// treeNode
+		if (filter.getTreeNode() != null) {
+			Subquery<IdmIdentityContract> subquery = query.subquery(IdmIdentityContract.class);
+			Root<IdmIdentityContract> subRoot = subquery.from(IdmIdentityContract.class);
+			subquery.select(subRoot);
+			//
+			if (filter.isRecursively()) {
+				subquery.where(
+	                    builder.and(
+	                    		builder.equal(subRoot.get("identity"), root), // correlation attr
+	                    		builder.between(subRoot.get("workPosition").get("forestIndex").get("lft"), filter.getTreeNode().getLft(), filter.getTreeNode().getRgt())
+	                    		)
+	            );
+			} else {
+				subquery.where(
+	                    builder.and(
+	                    		builder.equal(subRoot.get("identity"), root), // correlation attr
+	                    		builder.equal(subRoot.get("workPosition"), filter.getTreeNode())
+	                    		)
+	            );
+			}
+			predicates.add(builder.exists(subquery));
+		}
+		// treeType
+		if (filter.getTreeTypeId() != null) {
+			Subquery<IdmIdentityContract> subquery = query.subquery(IdmIdentityContract.class);
+			Root<IdmIdentityContract> subRoot = subquery.from(IdmIdentityContract.class);
+			subquery.select(subRoot);
+			subquery.where(
+                    builder.and(
+                    		builder.equal(subRoot.get("identity"), root), // correlation attr
+                    		builder.equal(subRoot.get("workPosition").get("treeType").get("id"), filter.getTreeTypeId())
+                    		)
+            );			
+			predicates.add(builder.exists(subquery));
+		}
+		// TODO: dynamic filters (added, overriden by module)
+		//
+		// subordinates
+		if (filter.getSubordinatesFor() != null) {
+			predicates.add(subordinatesCriteriaBuilder.getSubordinatesPredicate(root, query, builder, filter.getSubordinatesFor().getUsername(), filter.getSubordinatesByTreeType()));
+		}
+		// managers
+		if (filter.getManagersFor() != null) {
+			predicates.add(subordinatesCriteriaBuilder.getSubordinatesPredicate(root, query, builder, filter.getManagersFor().getUsername(), filter.getManagersByTreeType()));
+		}
+		//
+		return builder.and(predicates.toArray(new Predicate[predicates.size()]));
 	}
 
 	@Override

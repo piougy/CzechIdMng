@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.security.evaluator;
+package eu.bcvsolutions.idm.core.security.evaluator.role;
 
 import java.util.Set;
 
@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.security.api.domain.AuthorizationPolicy;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
+import eu.bcvsolutions.idm.core.security.evaluator.AbstractAuthorizationEvaluator;
 
 /**
  * Adds permission for create new role

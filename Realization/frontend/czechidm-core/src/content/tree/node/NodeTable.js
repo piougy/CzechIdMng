@@ -178,8 +178,8 @@ export default class NodeTable extends Basic.AbstractContent {
       <div style={style.base}>
         <div style={style.title}>
           <Basic.Icon type="fa" icon={icon} style={{ marginRight: '5px' }}/>
-          <Basic.Button level="link" onClick={this._useFilterByTree.bind(this, props.node.id)} style={{padding: '0px 0px 0px 0px'}}>
-            { props.node.name }
+          <Basic.Button level="link" title={props.node.name} onClick={this._useFilterByTree.bind(this, props.node.id)} style={{padding: '0px 0px 0px 0px'}}>
+            { Utils.Ui.substringByWord(props.node.name, 25)}
             {
               !props.node.childrenCount
               ||

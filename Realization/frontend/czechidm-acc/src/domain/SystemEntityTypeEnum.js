@@ -30,7 +30,7 @@ export default class SystemEntityTypeEnum extends Enums.AbstractEnum {
       case this.IDENTITY: {
         return 'success';
       }
-      case this.GROUP: {
+      case this.TREE: {
         return 'primary';
       }
       default: {

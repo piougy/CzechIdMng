@@ -68,6 +68,7 @@ public enum CoreResultCode implements ResultCode {
 	// groovy script
 	GROOVY_SCRIPT_VALIDATION(HttpStatus.BAD_REQUEST, "Script contains compillation errors"),
 	GROOVY_SCRIPT_SECURITY_VALIDATION(HttpStatus.BAD_REQUEST, "Script did not pass security inspection!"),
+	GROOVY_SCRIPT_NOT_ACCESSIBLE_CLASS(HttpStatus.BAD_REQUEST, "Class (%s) isn't accessible!"),
 	// eav
 	FORM_ATTRIBUTE_DELETE_FAILED_HAS_VALUES(HttpStatus.CONFLICT, "Form attribute (%s) cannot be deleted - some form values already using this attribute."),
 	FORM_ATTRIBUTE_DELETE_FAILED_SYSTEM_ATTRIBUTE(HttpStatus.CONFLICT, "Form attribute (%s) cannot be deleted - this attribute is flaged as system attribute."),

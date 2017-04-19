@@ -8,12 +8,18 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.plugin.core.PluginRegistry;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 
+import eu.bcvsolutions.idm.core.api.domain.ModuleDescriptor;
+import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.model.repository.IdmAuthorizationPolicyRepository;
+import eu.bcvsolutions.idm.core.model.repository.IdmConfidentialStorageValueRepository;
+import eu.bcvsolutions.idm.core.model.repository.IdmConfigurationRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleTreeNodeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
@@ -22,17 +28,24 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
+import eu.bcvsolutions.idm.core.model.service.impl.DefaultConfigurationService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultEntityEventManager;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmAuthorizationPolicyService;
+import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmConfidentialStorage;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmRoleTreeNodeService;
+import eu.bcvsolutions.idm.core.model.service.impl.DefaultModuleService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultSubordinatesCriteriaBuilder;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskService;
 import eu.bcvsolutions.idm.core.scheduler.service.impl.DefaultLongRunningTaskManager;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizationManager;
+import eu.bcvsolutions.idm.core.security.api.service.CryptService;
 import eu.bcvsolutions.idm.core.security.api.service.EnabledEvaluator;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.security.service.impl.DefaultAuthorizationManager;
+import eu.bcvsolutions.idm.core.security.service.impl.DefaultCryptService;
+import eu.bcvsolutions.idm.core.security.service.impl.DefaultEnabledEvaluator;
+import eu.bcvsolutions.idm.core.security.service.impl.DefaultSecurityService;
 import eu.bcvsolutions.idm.core.security.service.impl.IdmAuthorityHierarchy;
 
 /**
@@ -48,23 +61,81 @@ import eu.bcvsolutions.idm.core.security.service.impl.IdmAuthorityHierarchy;
 public class IdmServiceConfiguration {
 	
 	//
-	// Environment
-	@Autowired 
-	private ApplicationContext context;
-	@Autowired 
-	private ApplicationEventPublisher publisher;
+	// Spring environment
+	@Autowired private ConfigurableEnvironment environment;
+	@Autowired private ApplicationContext context;
+	@Autowired private ApplicationEventPublisher publisher;
+	@Autowired private Executor executor;
 	//
 	// Spring Data repositories through interfaces - they are constructed automatically
-	@Autowired 
-	private IdmIdentityRepository identityRepository;
+	@Autowired private IdmConfigurationRepository configurationRepository;
+	@Autowired private IdmIdentityRepository identityRepository;
+	@Autowired private IdmRoleTreeNodeRepository roleTreeNodeRepository;
+	@Autowired private IdmTreeNodeRepository treeNodeRepository;
+	@Autowired private IdmAuthorizationPolicyRepository authorizationPolicyRepository;
+	@Autowired private IdmConfidentialStorageValueRepository confidentialStorageValueRepository;
 	//
-	// Own beans - TODO: move to @Bean init here
-	@Autowired 
-	private EnabledEvaluator enabledEvaluator;
+	// Own auto registered beans
+	@Autowired private PluginRegistry<ModuleDescriptor, String> moduleDescriptorRegistry;
 	
+	/**
+	 * Crypt service for confidential storage
+	 * 
+	 * @return
+	 */
 	@Bean
-	public RoleHierarchy roleHierarchy(ModuleService moduleService) {
-	    return new IdmAuthorityHierarchy(moduleService);
+	public CryptService cryptService() {
+		return new DefaultCryptService();
+	}
+	
+	/**
+	 * Saving confidential values
+	 * 
+	 * @return
+	 */
+	@Bean
+	public ConfidentialStorage confidentialStorage() {
+		return new DefaultIdmConfidentialStorage(confidentialStorageValueRepository,  cryptService());
+	}
+	
+	/**
+	 * App configuration 
+	 * 
+	 * @return
+	 */
+	@Bean
+	public ConfigurationService configurationService() {
+		return new DefaultConfigurationService(configurationRepository, confidentialStorage(), environment);
+	}
+	
+	/**
+	 * App modules
+	 * 
+	 * @return
+	 */
+	@Bean
+	public ModuleService moduleService() {
+		return new DefaultModuleService(moduleDescriptorRegistry, configurationService());
+	}
+	
+	/**
+	 * IdM authority hierarchy (group and app admin wildcards)
+	 * 
+	 * @return
+	 */
+	@Bean
+	public RoleHierarchy roleHierarchy() {
+	    return new IdmAuthorityHierarchy(moduleService());
+	}
+	
+	/**
+	 * Enabled modules and enabled configuration property helper
+	 * 
+	 * @return
+	 */
+	@Bean
+	public EnabledEvaluator enabledEvaluator() {
+		return new DefaultEnabledEvaluator(moduleService(), configurationService());
 	}
 	
 	/**
@@ -77,21 +148,31 @@ public class IdmServiceConfiguration {
 	 */
 	@Bean
 	public EntityEventManager entityEventManager() {
-		return new DefaultEntityEventManager(context, publisher, enabledEvaluator);
+		return new DefaultEntityEventManager(context, publisher, enabledEvaluator());
 	}
 	
 	/**
-	 * Automatic role service
+	 * Authentication security service
 	 * 
-	 * @param repository
 	 * @return
 	 */
 	@Bean
-	public IdmRoleTreeNodeService roleTreeNodeService(IdmRoleTreeNodeRepository repository,
-			IdmTreeNodeRepository treeNodeRepository, IdmRoleRequestService roleRequestService,
-			IdmConceptRoleRequestService conceptRoleRequestService) {
-		return new DefaultIdmRoleTreeNodeService(repository, treeNodeRepository, entityEventManager(), roleRequestService, conceptRoleRequestService);
+	public SecurityService securityService() {
+		return new DefaultSecurityService(roleHierarchy());
 	}
+	
+	/**
+	 * Authorization manager - authorization security service
+	 * 
+	 * @param service
+	 * @param evaluators
+	 * @return
+	 */
+	@Bean
+	public AuthorizationManager authorizationManager(IdmRoleService roleService) {
+		return new DefaultAuthorizationManager(context, authorizationPolicyService(roleService), securityService(), moduleService());
+	}
+	
 	
 	/**
 	 * Long running task manager
@@ -103,12 +184,8 @@ public class IdmServiceConfiguration {
 	 * @return
 	 */
 	@Bean
-	public LongRunningTaskManager longRunningTaskManager(
-			IdmLongRunningTaskService service,
-			Executor executor,
-			ConfigurationService configurationService,
-			SecurityService securityService) {
-		return new DefaultLongRunningTaskManager(service, executor, configurationService, securityService);
+	public LongRunningTaskManager longRunningTaskManager(IdmLongRunningTaskService service) {
+		return new DefaultLongRunningTaskManager(service, executor, configurationService(), securityService());
 	}
 	
 	/**
@@ -118,27 +195,8 @@ public class IdmServiceConfiguration {
 	 * @return
 	 */
 	@Bean
-	public IdmAuthorizationPolicyService authorizationPolicyService(
-			IdmAuthorizationPolicyRepository repository,
-			IdmRoleService roleService,
-			ModuleService moduleService) {
-		return new DefaultIdmAuthorizationPolicyService(repository, roleService, moduleService);
-	}
-	
-	/**
-	 * Authorization manager
-	 * 
-	 * @param service
-	 * @param evaluators
-	 * @return
-	 */
-	@Bean
-	public AuthorizationManager authorizationManager(
-			IdmAuthorizationPolicyRepository repository, 
-			IdmRoleService roleService, 
-			SecurityService securityService,
-			ModuleService moduleService) {
-		return new DefaultAuthorizationManager(context, authorizationPolicyService(repository, roleService, moduleService), securityService, moduleService);
+	public IdmAuthorizationPolicyService authorizationPolicyService(IdmRoleService roleService) {
+		return new DefaultIdmAuthorizationPolicyService(authorizationPolicyRepository, roleService, moduleService());
 	}
 	
 	/**
@@ -151,5 +209,16 @@ public class IdmServiceConfiguration {
 	@Bean
 	public DefaultSubordinatesCriteriaBuilder subordinatesCriteriaBuilder() {
 		return new DefaultSubordinatesCriteriaBuilder(identityRepository);
+	}
+	
+	/**
+	 * Automatic role service
+	 * 
+	 * @param repository
+	 * @return
+	 */
+	@Bean
+	public IdmRoleTreeNodeService roleTreeNodeService(IdmRoleRequestService roleRequestService, IdmConceptRoleRequestService conceptRoleRequestService) {
+		return new DefaultIdmRoleTreeNodeService(roleTreeNodeRepository, treeNodeRepository, entityEventManager(), roleRequestService, conceptRoleRequestService);
 	}
 }

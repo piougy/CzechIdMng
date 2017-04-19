@@ -71,7 +71,7 @@ public class RebuildTreeNodeIndexTaskExecutor extends AbstractSchedulableTaskExe
 			throw new ResultCodeException(CoreResultCode.FOREST_INDEX_RUNNING, ImmutableMap.of("type", IdmTreeNode.toForestTreeType(treeType)));
 		}
 		//
-		LOG.info("Starting rebuilding tree node index for tree type code [" + treeTypeCode + "].");
+		LOG.info("Starting rebuilding tree node index for tree type code [{}].", treeTypeCode);
 		//
 		// clear all rgt, lft
 		try {

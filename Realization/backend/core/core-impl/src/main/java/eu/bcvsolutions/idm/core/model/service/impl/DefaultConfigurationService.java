@@ -14,7 +14,6 @@ import org.springframework.core.env.CompositePropertySource;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.EnumerablePropertySource;
 import org.springframework.core.env.PropertySource;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
@@ -34,10 +33,12 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
  * Public (not secured) configuration could be read without authentication. 
  * Confidential properties are saved to confidential storage.
  * 
+ * TODO: cache
+ * TODO: dto
+ * 
  * @author Radek Tomiška 
  *
  */
-@Service("configurationService")
 public class DefaultConfigurationService extends AbstractReadWriteEntityService<IdmConfiguration, QuickFilter> implements IdmConfigurationService, ConfigurationService {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultConfigurationService.class);

@@ -1,8 +1,6 @@
 package eu.bcvsolutions.idm.core.security.service.impl;
 
 import org.springframework.aop.framework.AopProxyUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
@@ -19,13 +17,11 @@ import eu.bcvsolutions.idm.core.security.api.service.EnabledEvaluator;
  * @author Radek Tomiška
  *
  */
-@Component
 public class DefaultEnabledEvaluator implements EnabledEvaluator {
 	
 	private final ModuleService moduleService;
 	private final ConfigurationService configurationService;
 	
-	@Autowired
 	public DefaultEnabledEvaluator(ModuleService moduleService, ConfigurationService configurationService) {
 		Assert.notNull(moduleService, "ModuleService is required");
 		Assert.notNull(configurationService, "ConfigurationService is configurationService");

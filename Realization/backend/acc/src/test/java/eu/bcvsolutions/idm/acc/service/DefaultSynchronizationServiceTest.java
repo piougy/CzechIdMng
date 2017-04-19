@@ -933,7 +933,9 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		createMapping(system, syncMapping);
 
 		initResourceData();
-
+		syncConfigService.find(null).getContent().forEach(config -> {
+			syncConfigService.delete(config);
+		});
 	}
 
 	private void createMapping(SysSystem system, final SysSystemMapping entityHandlingResult) {

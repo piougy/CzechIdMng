@@ -399,6 +399,10 @@ public class DefaultTreeSynchronizationServiceTest extends AbstractIntegrationTe
 
 		createMapping(system, syncMapping);
 		initTreeData();
+		
+		syncConfigService.find(null).getContent().forEach(config -> {
+			syncConfigService.delete(config);
+		});
 
 	}
 	

@@ -20,7 +20,6 @@ import eu.bcvsolutions.idm.core.eav.service.api.IdmFormDefinitionService;
  * @author Radek Tomiška
  *
  */
-@Service
 public class DefaultIdmFormDefinitionService extends AbstractReadWriteEntityService<IdmFormDefinition, QuickFilter> implements IdmFormDefinitionService {
 
 	private final IdmFormDefinitionRepository formDefinitionRepository;

@@ -158,7 +158,7 @@ public class IdmFormDefinitionController extends DefaultReadWriteEntityControlle
 	@ResponseBody
 	@RequestMapping(value = "/search/types", method = RequestMethod.GET)
 	public ResponseEntity<ResourcesWrapper<String>>  getFormDefinition() {
-		List<String> types = formService.getTypes();
+		List<String> types = formService.getOwnerTypes();
 		ResourcesWrapper<String> resource = new ResourcesWrapper<>(types);
 		return new ResponseEntity<ResourcesWrapper<String>>(resource, HttpStatus.OK);
 	}

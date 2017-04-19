@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.plugin.core.OrderAwarePluginRegistry;
 import org.springframework.plugin.core.PluginRegistry;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
@@ -28,7 +27,6 @@ import eu.bcvsolutions.idm.core.eav.service.api.IdmFormAttributeService;
  * @author Radek Tomiška
  *
  */
-@Service
 public class DefaultIdmFormAttributeService extends AbstractReadWriteEntityService<IdmFormAttribute, FormAttributeFilter> implements IdmFormAttributeService{
 
 	private final IdmFormAttributeRepository repository;

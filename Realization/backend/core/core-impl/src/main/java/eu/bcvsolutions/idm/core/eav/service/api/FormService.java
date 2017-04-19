@@ -374,5 +374,5 @@ public interface FormService {
 	 * 
 	 * @return
 	 */
-	List<String> getTypes();
+	List<String> getOwnerTypes();
 }

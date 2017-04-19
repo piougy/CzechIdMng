@@ -166,17 +166,17 @@ public class DefaultAccAuthenticator extends AbstractAuthenticator implements Au
 		//
 		// authenticate over all accounts find first, or throw error
 		for (AccAccount account : accounts) {
-			IcConnectorObject attributes = systemService.readObject(system, attribute.getSystemMapping(),
+			IcConnectorObject connectorObject = systemService.readObject(system, attribute.getSystemMapping(),
 					new IcUidAttributeImpl(null, account.getSystemEntity().getUid(), null));
 			//
-			if (attributes == null) {
+			if (connectorObject == null) {
 				continue;
 			}
 			//
 			String transformUsername = null;
 			// iterate over all attributes to find authentication attribute
-			for (IcAttribute icAttribute : attributes.getAttributes()) {
-				if (icAttribute.getName().equals(attribute.getName())) {
+			for (IcAttribute icAttribute : connectorObject.getAttributes()) {
+				if (icAttribute.getName().equals(attribute.getSchemaAttribute().getName())) {
 					transformUsername = String.valueOf(icAttribute.getValue());
 					break;
 				}

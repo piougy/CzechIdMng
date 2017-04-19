@@ -822,7 +822,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		SysSystem system;
 
 		// create test system
-		system = defaultSysAccountManagementServiceTest.createTestSystem();
+		system = defaultSysAccountManagementServiceTest.createTestSystem("test_resource");
 
 		// set default generate password policy for system
 		IdmPasswordPolicy passwordPolicy = new IdmPasswordPolicy();

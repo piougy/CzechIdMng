@@ -369,7 +369,7 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 	@Test
 	public void checkSystemValid() {
 		// create test system
-		SysSystem system =  defaultSysAccountManagementServiceTest.createTestSystem();
+		SysSystem system =  defaultSysAccountManagementServiceTest.createTestSystem("test_resource");
 		// do test system
 		systemService.checkSystem(system);
 	}
@@ -377,7 +377,7 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 	@Test(expected = RuntimeException.class)
 	public void checkSystemUnValid() {
 		// create test system
-		SysSystem system =  defaultSysAccountManagementServiceTest.createTestSystem();
+		SysSystem system =  defaultSysAccountManagementServiceTest.createTestSystem("test_resource");
 		// set wrong password
 		IdmFormDefinition savedFormDefinition = systemService.getConnectorFormDefinition(system.getConnectorInstance());
 		List<AbstractFormValue<SysSystem>> values = formService.getValues(system, savedFormDefinition);

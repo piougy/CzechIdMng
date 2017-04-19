@@ -445,7 +445,7 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 	 * @return
 	 */
 	@SuppressWarnings("deprecation")
-	public SysSystem createTestSystem() {
+	public SysSystem createTestSystem(String tableName) {
 		// create owner
 		org.apache.tomcat.jdbc.pool.DataSource tomcatDataSource = ((org.apache.tomcat.jdbc.pool.DataSource) dataSource);
 		SysSystem system = new SysSystem();
@@ -474,7 +474,7 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 		password.setValue(tomcatDataSource.getPoolProperties().getPassword());
 		values.add(password);
 		SysSystemFormValue table = new SysSystemFormValue(savedFormDefinition.getMappedAttributeByName("table"));
-		table.setValue("test_resource");
+		table.setValue(tableName);
 		values.add(table);
 		SysSystemFormValue keyColumn = new SysSystemFormValue(
 				savedFormDefinition.getMappedAttributeByName("keyColumn"));
@@ -519,7 +519,7 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 
 		// create test system
 		
-		SysSystem system = createTestSystem();
+		SysSystem system = createTestSystem("test_resource");
 
 		// generate schema for system
 		 List<SysSchemaObjectClass> objectClasses = sysSystemService.generateSchema(system);

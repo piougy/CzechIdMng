@@ -536,6 +536,8 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 			children.forEach(child -> {
 				deleteChildrenRecursively(child, logItem);
 			});
+			treeNodeService.delete(treeNode);
+			addToItemLog(logItem, MessageFormat.format("Tree node [{0}] was deleted.", treeNode.getName()));
 		}
 	}
 

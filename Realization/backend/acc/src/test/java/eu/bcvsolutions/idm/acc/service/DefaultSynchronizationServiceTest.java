@@ -907,7 +907,7 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 	private void initData() {
 
 		// create test system
-		system = defaultSysAccountManagementServiceTest.createTestSystem();
+		system = defaultSysAccountManagementServiceTest.createTestSystem("test_resource");
 
 		// generate schema for system
 		List<SysSchemaObjectClass> objectClasses = systemService.generateSchema(system);
@@ -933,7 +933,9 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		createMapping(system, syncMapping);
 
 		initResourceData();
-
+		syncConfigService.find(null).getContent().forEach(config -> {
+			syncConfigService.delete(config);
+		});
 	}
 
 	private void createMapping(SysSystem system, final SysSystemMapping entityHandlingResult) {

@@ -352,7 +352,7 @@ public class DefaultAccAuthenticatorTest extends AbstractIntegrationTest {
 	}
 	
 	private SysSystem createTestSystem() {
-		SysSystem system = defaultSysAccountManagementServiceTest.createTestSystem();
+		SysSystem system = defaultSysAccountManagementServiceTest.createTestSystem("test_resource");
 		system = sysSystemService.save(system);
 		
 		// set system id to application property

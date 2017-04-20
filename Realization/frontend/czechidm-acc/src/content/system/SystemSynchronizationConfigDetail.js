@@ -286,7 +286,7 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
         isSelectedTree = true;
       }
     } else {
-      if (synchronizationConfig && synchronizationConfig.systemMapping.entityType === SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.TREE)) {
+      if (synchronizationConfig && synchronizationConfig.systemMapping && synchronizationConfig.systemMapping.entityType === SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.TREE)) {
         isSelectedTree = true;
       }
     }

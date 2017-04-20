@@ -254,7 +254,7 @@ public class DefaultIdmNotificationTemplateService
 								newTemplate
 										.setParameter(temp.getElementsByTagName("parameter").item(0).getTextContent());
 								newTemplate.setUnmodifiable(Boolean
-										.valueOf(temp.getElementsByTagName("systemTemplate").item(0).getTextContent()));
+										.parseBoolean(temp.getElementsByTagName("systemTemplate").item(0).getTextContent()));
 								newTemplate.setModule(temp.getElementsByTagName("moduleId").item(0).getTextContent());
 								//
 								entities.add(newTemplate);

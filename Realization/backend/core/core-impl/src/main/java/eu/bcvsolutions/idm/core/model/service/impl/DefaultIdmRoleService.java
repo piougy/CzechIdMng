@@ -15,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
@@ -46,7 +45,6 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
  * @author Radek Tomiška
  *
  */
-@Service("roleService")
 public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, RoleFilter> implements IdmRoleService {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmRoleService.class);
@@ -111,6 +109,7 @@ public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, Role
 	}
 	
 	@Override
+	@Transactional(readOnly = true)
 	public Page<IdmRole> find(final RoleFilter filter, Pageable pageable) {
 		// transform filter to criteria
 		Specification<IdmRole> criteria = new Specification<IdmRole>() {
@@ -123,6 +122,7 @@ public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, Role
 	}
 	
 	@Override
+	@Transactional(readOnly = true)
 	public Page<IdmRole> findSecured(final RoleFilter filter, Pageable pageable, BasePermission permission) {
 		// transform filter to criteria
 		Specification<IdmRole> criteria = new Specification<IdmRole>() {
@@ -234,6 +234,7 @@ public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, Role
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public IdmRole getDefaultRole() {
 		String roleName = configurationService.getValue(PROPERTY_DEFAULT_ROLE);
 		if (StringUtils.isEmpty(roleName)) {

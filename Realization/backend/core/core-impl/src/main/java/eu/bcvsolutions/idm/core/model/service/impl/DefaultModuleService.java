@@ -5,10 +5,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.plugin.core.Plugin;
 import org.springframework.plugin.core.PluginRegistry;
-import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.domain.ModuleDescriptor;
@@ -26,7 +24,6 @@ import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
  * @see Plugin
  * @see PluginRegistry
  */
-@Service
 public class DefaultModuleService implements ModuleService {
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultModuleService.class);
@@ -34,7 +31,6 @@ public class DefaultModuleService implements ModuleService {
 	private final PluginRegistry<ModuleDescriptor, String> moduleDescriptorRegistry;
 	private final ConfigurationService configurationService;
 
-	@Autowired
 	public DefaultModuleService(PluginRegistry<ModuleDescriptor, String> moduleDescriptorRegistry,
 			ConfigurationService configurationService) {
 		Assert.notNull(moduleDescriptorRegistry, "Module registry is required!");

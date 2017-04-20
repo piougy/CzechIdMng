@@ -13,7 +13,6 @@ import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.model.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.model.event.RoleTreeNodeEvent.RoleTreeNodeEventType;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleRequestService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.RemoveAutomaticRoleTaskExecutor;
 
@@ -28,21 +27,17 @@ import eu.bcvsolutions.idm.core.scheduler.task.impl.RemoveAutomaticRoleTaskExecu
 public class RoleTreeNodeDeleteProcessor extends CoreEventProcessor<IdmRoleTreeNodeDto> {
 
 	public static final String PROCESSOR_NAME = "role-tree-node-delete-processor";
-	private final IdmRoleTreeNodeService roleTreeNodeService;
 	private final LongRunningTaskManager longRunningTaskManager;
 	
 	@Autowired
 	public RoleTreeNodeDeleteProcessor(
 			IdmRoleRequestService roleRequestService,
-			IdmRoleTreeNodeService roleTreeNodeService,
 			LongRunningTaskManager longRunningTaskManager) {
 		super(RoleTreeNodeEventType.DELETE);
 		//
 		Assert.notNull(roleRequestService);
-		Assert.notNull(roleTreeNodeService);
 		Assert.notNull(longRunningTaskManager);
 		//
-		this.roleTreeNodeService = roleTreeNodeService;
 		this.longRunningTaskManager = longRunningTaskManager;
 	}
 	

@@ -7,23 +7,15 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.metamodel.EntityType;
-
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.annotations.LazyCollection;
-import org.hibernate.annotations.LazyCollectionOption;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.plugin.core.OrderAwarePluginRegistry;
 import org.springframework.plugin.core.PluginRegistry;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
@@ -48,7 +40,6 @@ import eu.bcvsolutions.idm.core.eav.service.api.IdmFormDefinitionService;
  * @author Radek Tomiška
  *
  */
-@Service
 public class DefaultFormService implements FormService {
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultFormService.class);
@@ -56,12 +47,6 @@ public class DefaultFormService implements FormService {
 	private final IdmFormAttributeService formAttributeService;
 	private final PluginRegistry<FormValueService<?, ?>, Class<?>> formValueServices;
 	private final EntityEventManager entityEventManager;
-	
-	@PersistenceContext
-	private EntityManager entityManager;
-	
-	@LazyCollection(LazyCollectionOption.TRUE)
-	private List<String> allAuditedEntititesNames;
 	
 	@Autowired
 	public DefaultFormService(
@@ -535,30 +520,13 @@ public class DefaultFormService implements FormService {
 	}
 
 	@Override
-	public List<String> getTypes() {
-		// load from cache
-		if (this.allAuditedEntititesNames != null) {
-			return this.allAuditedEntititesNames;
-		}
-		//
-		List<String> result = new ArrayList<>();
-		Set<EntityType<?>> entities = entityManager.getMetamodel().getEntities();
-		for (EntityType<?> entityType : entities) {
-			if (entityType.getJavaType() == null) {
-				continue;
-			}
-			// search in interfaces
-			for (Class<?> inter : entityType.getJavaType().getInterfaces()) {
-				if (inter.equals(FormableEntity.class)) {
-					result.add(entityType.getJavaType().getName());
-					break;
-				}
-			}
-		}
-		// sort entities by name
-		Collections.sort(result);
-		//
-		this.allAuditedEntititesNames = result;
-		return result;
+	public List<String> getOwnerTypes() {
+		return formValueServices.getPlugins()
+			.stream()
+			.map(service -> {
+				return service.getOwnerClass().getCanonicalName();
+			})
+			.sorted()
+			.collect(Collectors.toList());
 	}
 }

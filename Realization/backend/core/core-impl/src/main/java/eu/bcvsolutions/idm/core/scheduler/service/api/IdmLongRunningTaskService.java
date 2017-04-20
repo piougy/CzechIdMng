@@ -32,8 +32,22 @@ public interface IdmLongRunningTaskService extends ReadWriteEntityService<IdmLon
 	 */
 	List<IdmLongRunningTask> getTasks(String instanceId, OperationState state);
 	
+	/**
+	 * Persists long running task in new transaction
+	 * 
+	 * @param taskExecutor
+	 * @param operationState
+	 * @return
+	 */
 	<V> IdmLongRunningTask saveInNewTransaction(LongRunningTaskExecutor<V> taskExecutor, OperationState operationState);
 	
+	/**
+	 * Updates long running task attributes
+	 * 
+	 * @param id
+	 * @param count
+	 * @param counter
+	 */
 	void updateState(UUID id, Long count, Long counter);
 	
 }

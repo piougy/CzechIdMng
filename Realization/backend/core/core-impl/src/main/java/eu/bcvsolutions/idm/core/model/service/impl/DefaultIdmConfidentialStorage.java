@@ -4,8 +4,6 @@ import java.io.Serializable;
 import java.text.MessageFormat;
 
 import org.apache.commons.lang3.SerializationUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
@@ -23,14 +21,12 @@ import eu.bcvsolutions.idm.core.security.api.service.CryptService;
  * @author Radek Tomiška
  *
  */
-@Service
 public class DefaultIdmConfidentialStorage implements ConfidentialStorage {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmConfidentialStorage.class);
 	private final IdmConfidentialStorageValueRepository repository;
 	private final CryptService cryptService;
 	
-	@Autowired
 	public DefaultIdmConfidentialStorage(IdmConfidentialStorageValueRepository repository,
 			CryptService encryptService) {
 		Assert.notNull(repository, "Confidential storage repository is required");

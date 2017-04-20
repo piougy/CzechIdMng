@@ -40,7 +40,7 @@ public class IdentityRoleValidRequestTaskExecutor extends AbstractSchedulableTas
 		if (count == null) {
 			count = Long.valueOf(list.size());
 		}
-		LOG.info("Account management starts for all newly valid roles from now. Count [{0}]", count);
+		LOG.info("Account management starts for all newly valid roles from now. Count [{}]", count);
 		for (IdmIdentityRoleValidRequestDto request : list) {
 			try {
 				// after success provisioning is request removed from db

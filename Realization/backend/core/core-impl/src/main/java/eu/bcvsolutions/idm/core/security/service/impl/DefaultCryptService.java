@@ -19,7 +19,6 @@ import javax.crypto.spec.SecretKeySpec;
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
-import org.springframework.stereotype.Service;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -29,11 +28,10 @@ import eu.bcvsolutions.idm.core.security.api.service.CryptService;
 
 /**
  * Default implementation of {@link CryptService}
+ * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
-
-@Service
 public class DefaultCryptService implements CryptService {
 	
 	public static String KEY_FILE_PATH = "eu/bcvsolutions/idm/confidential/";

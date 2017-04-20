@@ -71,7 +71,7 @@ public class RebuildTreeNodeIndexTaskExecutor extends AbstractSchedulableTaskExe
 			throw new ResultCodeException(CoreResultCode.FOREST_INDEX_RUNNING, ImmutableMap.of("type", IdmTreeNode.toForestTreeType(treeType)));
 		}
 		//
-		LOG.info("Starting rebuilding tree node index for tree type code [" + treeTypeCode + "].");
+		LOG.info("Starting rebuilding tree node index for tree type code [{}].", treeTypeCode);
 		//
 		// clear all rgt, lft
 		try {
@@ -108,11 +108,11 @@ public class RebuildTreeNodeIndexTaskExecutor extends AbstractSchedulableTaskExe
 			if (count.equals(counter)) {
 				configurationService.deleteValue(treeTypeService.getConfigurationPropertyName(treeTypeCode, IdmTreeTypeService.CONFIGURATION_PROPERTY_VALID));
 				LOG.info("Tree node index for tree type code [{}] was successfully rebuilt (index size [{}]).", treeTypeCode, counter);
-				return true;
+				return Boolean.TRUE;
 			} 
 			//
 			LOG.warn("Tree node index for tree type code [{}] rebuild was canceled (index size [{}]).", treeTypeCode, counter);
-			return false;
+			return Boolean.FALSE;
 		} finally {
 			configurationService.deleteValue(treeTypeService.getConfigurationPropertyName(treeTypeCode, IdmTreeTypeService.CONFIGURATION_PROPERTY_REBUILD));
 		}

@@ -262,8 +262,8 @@ function fillRouteTree(routesMap, targetRoute, parentRouteId, route) {
       fillRouteTree(routesMap, targetChildRoute, routeId, childRoute);
     });
     // sort routes by order
-    route.childRoutes.sort((one, two) => {
-      return one.order > two.order;
+    route.childRoutes = route.childRoutes.sort((one, two) => {
+      return one.order - two.order;
     });
   }
 }
@@ -273,7 +273,7 @@ store.dispatch(ConfigActions.appInit(config, moduleDescriptors, componentDescrip
     const routeAssembler = require('../dist/modules/routeAssembler');
     //
     // prepare routes in flat map
-    let routeMap = new Immutable.Map();
+    let routeMap = new Immutable.OrderedMap();
     routeAssembler.childRoutes.forEach(moduleRoute => { // wee need to skip "decorator" routes
       if (moduleRoute.childRoutes) {
         moduleRoute.childRoutes.forEach(route => {
@@ -283,7 +283,7 @@ store.dispatch(ConfigActions.appInit(config, moduleDescriptors, componentDescrip
     });
     //
     // rebuild target routes
-    const resultRoutes = [];
+    let resultRoutes = [];
     routeAssembler.childRoutes.forEach(moduleRoute => { // wee need to skip "decorator" routes
       if (moduleRoute.childRoutes) {
         moduleRoute.childRoutes.forEach(route => {
@@ -294,8 +294,11 @@ store.dispatch(ConfigActions.appInit(config, moduleDescriptors, componentDescrip
       }
     });
     // sort routes by order
-    resultRoutes.sort((one, two) => {
-      return one.order > two.order;
+    //
+    resultRoutes = resultRoutes.filter(i => {
+      return i.id !== null && i.id !== undefined;
+    }).sort((one, two) => {
+      return one.order - two.order;
     });
     //
     const routes = {

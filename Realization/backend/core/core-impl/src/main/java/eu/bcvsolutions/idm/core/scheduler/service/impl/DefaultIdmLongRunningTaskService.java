@@ -5,7 +5,6 @@ import java.util.UUID;
 
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -26,7 +25,6 @@ import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskService;
  * @author Radek Tomiška
  *
  */
-@Service
 public class DefaultIdmLongRunningTaskService extends AbstractReadWriteEntityService<IdmLongRunningTask, LongRunningTaskFilter> implements IdmLongRunningTaskService {
 	
 	private final IdmLongRunningTaskRepository repository;

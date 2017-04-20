@@ -74,6 +74,7 @@ import eu.bcvsolutions.idm.ic.api.IcSyncToken;
 import eu.bcvsolutions.idm.ic.filter.api.IcFilter;
 import eu.bcvsolutions.idm.ic.filter.api.IcResultsHandler;
 import eu.bcvsolutions.idm.ic.impl.IcAttributeImpl;
+import eu.bcvsolutions.idm.ic.impl.IcLoginAttributeImpl;
 import eu.bcvsolutions.idm.ic.impl.IcObjectClassImpl;
 import eu.bcvsolutions.idm.ic.impl.IcSyncTokenImpl;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
@@ -225,7 +226,6 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 			List<String> roots = new ArrayList<>();
 			accountsMap.forEach((uid, account) -> {
 				Object parentValue = this.getValueByMappedAttribute(parentAttribute, account.getAttributes());
-				// TODO: execute in script
 				if (StringUtils.hasLength(config.getRootsFilterScript())) {
 					Map<String, Object> variables = new HashMap<>();
 					variables.put("account", account);
@@ -233,6 +233,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 					List<Class<?>> allowTypes = new ArrayList<>();
 					allowTypes.add(IcAttributeImpl.class);
 					allowTypes.add(IcAttribute.class);
+					allowTypes.add(IcLoginAttributeImpl.class);
 					Object isRoot = groovyScriptService.evaluate(config.getRootsFilterScript(), variables, allowTypes);
 					if (isRoot != null && !(isRoot instanceof Boolean)) {
 						throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_TREE_ROOT_FILTER_VALUE_WRONG_TYPE,

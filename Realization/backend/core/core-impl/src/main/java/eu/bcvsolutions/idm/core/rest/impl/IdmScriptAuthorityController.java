@@ -1,9 +1,13 @@
 package eu.bcvsolutions.idm.core.rest.impl;
 
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
@@ -12,6 +16,7 @@ import org.springframework.hateoas.Resources;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,12 +28,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.dto.IdmScriptAuthorityDto;
+import eu.bcvsolutions.idm.core.model.dto.IdmScriptAuthorityServiceDto;
 import eu.bcvsolutions.idm.core.model.dto.filter.ScriptAuthorityFilter;
 import eu.bcvsolutions.idm.core.model.service.api.IdmScriptAuthorityService;
 
 /**
  * Default controller for script authority (allowed services and class)
- * Same permission as scripts
+ * TODO: Same permission as scripts?
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
@@ -37,10 +43,16 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmScriptAuthorityService;
 @RepositoryRestController
 @RequestMapping(value = BaseDtoController.BASE_PATH + "/script-authorities")
 public class IdmScriptAuthorityController extends DefaultReadWriteDtoController<IdmScriptAuthorityDto, ScriptAuthorityFilter>{
-
+	
+	private final IdmScriptAuthorityService service;
+	
 	@Autowired
 	public IdmScriptAuthorityController(IdmScriptAuthorityService service) {
 		super(service);
+		//
+		Assert.notNull(service);
+		//
+		this.service = service;
 	}
 	
 	@Override
@@ -65,6 +77,23 @@ public class IdmScriptAuthorityController extends DefaultReadWriteDtoController<
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCRIPT_READ + "')")
 	public Resources<?> findQuick(@RequestParam MultiValueMap<String, Object> parameters, @PageableDefault Pageable pageable) {
 		return super.findQuick(parameters, pageable);
+	}
+	
+	@ResponseBody
+	@RequestMapping(value= "/search/service", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCRIPT_READ + "')")
+	public Resources<?> findService(@RequestParam MultiValueMap<String, Object> parameters, @PageableDefault Pageable pageable) {
+		String serviceName = parameters.get("text") == null ? null : String.valueOf(parameters.get("text"));
+		List<IdmScriptAuthorityServiceDto> services = service.findServices(serviceName);
+		// TODO: pageable?
+//		int start = pageable.getPageNumber() * pageable.getPageSize();
+//		int end = (pageable.getPageNumber() * pageable.getPageSize()) + pageable.getPageSize();
+//		if (end > services.size()) {
+//			end = services.size();
+//		}
+		Page<IdmScriptAuthorityServiceDto> pages = new PageImpl<IdmScriptAuthorityServiceDto>(
+				services, pageable, services.size());
+		return toResources(pages, IdmScriptAuthorityServiceDto.class);
 	}
 	
 	@Override

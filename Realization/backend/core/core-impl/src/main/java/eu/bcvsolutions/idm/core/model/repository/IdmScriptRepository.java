@@ -3,13 +3,10 @@ package eu.bcvsolutions.idm.core.model.repository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.rest.core.annotation.Description;
-import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.model.dto.filter.ScriptFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmScript;
-import eu.bcvsolutions.idm.core.rest.projection.IdmScriptExcerpt;
 
 /**
  * Repository for scripts.
@@ -20,14 +17,6 @@ import eu.bcvsolutions.idm.core.rest.projection.IdmScriptExcerpt;
  *
  */
 
-@RepositoryRestResource(
-		collectionResourceRel = "scripts",
-		itemResourceRel = "script",
-		collectionResourceDescription = @Description("Scripts"),
-		itemResourceDescription = @Description("Script"),
-		excerptProjection = IdmScriptExcerpt.class,
-		exported = false
-	)
 public interface IdmScriptRepository extends AbstractEntityRepository<IdmScript, ScriptFilter> {
 
 	@Override

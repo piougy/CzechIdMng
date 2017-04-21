@@ -1,9 +1,11 @@
 package eu.bcvsolutions.idm.core.model.service.api;
 
+import java.util.List;
 import java.util.UUID;
 
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.model.dto.IdmScriptAuthorityDto;
+import eu.bcvsolutions.idm.core.model.dto.IdmScriptAuthorityServiceDto;
 import eu.bcvsolutions.idm.core.model.dto.filter.ScriptAuthorityFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmScriptAuthority;
 
@@ -20,4 +22,12 @@ public interface IdmScriptAuthorityService extends ReadWriteDtoService<IdmScript
 	 * @param scriptId
 	 */
 	void deleteAllByScript(UUID scriptId);
+	
+	/**
+	 * Method find all service that can be used in scripts, return className
+	 * 
+	 * @param serviceName
+	 * @return
+	 */
+	List<IdmScriptAuthorityServiceDto> findServices(String serviceName);
 }

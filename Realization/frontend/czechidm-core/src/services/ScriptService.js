@@ -14,6 +14,11 @@ class ScriptService extends AbstractService {
     return entity.name;
   }
 
+  // dto
+  supportsPatch() {
+    return false;
+  }
+
   /**
    * Returns default searchParameters for scripts
    *

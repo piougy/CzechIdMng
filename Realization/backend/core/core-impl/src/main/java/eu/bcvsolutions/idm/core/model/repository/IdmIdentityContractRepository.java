@@ -58,7 +58,13 @@ public interface IdmIdentityContractRepository extends AbstractEntityRepository<
 	        + " and"
 	        + "	("
 	        	+ "?#{[0].identity} is null or e.identity = ?#{[0].identity}"
-        	+ " )")
+        	+ " ) "
+        	+ " and"
+        	+ " (?#{[0].validTill == null ? 'null' : ''} = 'null' or e.validTill <= ?#{[0].validTill}) "
+        	+ " and"
+        	+ " (?#{[0].validFrom == null ? 'null' : ''} = 'null' or e.validFrom >= ?#{[0].validFrom}) "
+        	+ " and"
+        	+ " ( ?#{[0].externe} is null or e.externe = ?#{[0].externe} )")
 	Page<IdmIdentityContract> find(IdentityContractFilter filter, Pageable pageable);
 	
 	List<IdmIdentityContract> findAllByIdentity(@Param("identity") IdmIdentity identity, Sort sort);
@@ -71,6 +77,19 @@ public interface IdmIdentityContractRepository extends AbstractEntityRepository<
 			+ " or"
 			+ " (?#{[1].name()} = 'UP' and ?#{[0].lft} between e.workPosition.forestIndex.lft and e.workPosition.forestIndex.rgt)")
 	List<IdmIdentityContract> findAllByWorkPosition(IdmTreeNode workPosition, RecursionType recursionType);
+	
+	@Query(value = "select e from #{#entityName} e"
+			+ " where"
+			+ " (e.disabled = false)"
+			+ " and"
+			+ " (:identityId is null or e.identity.id = :identityId)"
+			+ " and"
+			+ "  (:onlyExterne is null or e.externe = :onlyExterne)"
+			+ " and"
+			+ " ( e.validTill is null or (?#{[0] == null ? 'null' : ''} = 'null' or e.validTill >= :date ))"
+			+ " and"
+			+ " ( e.validFrom is null or (?#{[0] == null ? 'null' : ''} = 'null' or e.validFrom <= :date ))")
+	List<IdmIdentityContract> findAllValidContracts(@Param("identityId") UUID identityId, @Param("date") LocalDate date, @Param("onlyExterne") Boolean onlyExterne);
 	
 	Long countByWorkPosition(@Param("treeNode") IdmTreeNode treeNode);
 	

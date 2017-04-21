@@ -41,8 +41,8 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements LongRunningT
 	//
 	private ParameterConverter parameterConverter;	
 	private UUID taskId;
-	public Long count = null;
-	public Long counter = null;
+	protected Long count = null;
+	protected Long counter = null;
 	
 	/**
 	 * Default implementation returns module by package conventions.
@@ -151,6 +151,27 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements LongRunningT
 		return counter;
 	}
 	
+	/**
+	 * Override for counter support
+	 */
+	@Override
+	public void setCount(Long count) {
+		this.count = count;
+	}
+
+	/**
+	 * Override for counter support
+	 */
+	@Override
+	public void setCounter(Long counter) {
+		this.counter = counter;
+	}
+	
+	@Override
+	public Long increaseCounter(){
+		return this.counter++;
+	}
+
 	@Override
 	public boolean updateState() {
 		// TODO: interface only + AOP => task can be ran directly without executor

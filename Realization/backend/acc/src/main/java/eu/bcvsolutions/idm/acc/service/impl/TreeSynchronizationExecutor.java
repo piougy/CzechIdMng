@@ -188,7 +188,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 		Map<String, IcConnectorObject> accountsMap = new HashMap<>();
 		List<String> accountsUseInTreeList = new ArrayList<>();
 
-		longRunningTaskExecutor.counter = 0L;
+		longRunningTaskExecutor.setCounter(0L);
 
 		try {
 			synchronizationLogService.save(log);
@@ -295,7 +295,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 			log.setEnded(LocalDateTime.now());
 			synchronizationLogService.save(log);
 			//
-			longRunningTaskExecutor.count = longRunningTaskExecutor.counter;
+			longRunningTaskExecutor.setCount(longRunningTaskExecutor.getCounter());
 			longRunningTaskExecutor.updateState();
 		}
 		return config;

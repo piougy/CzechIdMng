@@ -184,5 +184,10 @@ public class DefaultIdmIdentityContractService
 		}
 		return primeContract;
 	}
+
+	@Override
+	public List<IdmIdentityContract> getValidContractsForDate(UUID identityId, LocalDate date, Boolean onlyExterne) {
+		return this.repository.findAllValidContracts(identityId, date, onlyExterne);
+	}
 }
 

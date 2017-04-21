@@ -75,4 +75,14 @@ public interface IdmIdentityContractService extends ReadWriteEntityService<IdmId
 	 * @return
 	 */
 	IdmIdentityContract getPrimeContract(IdmIdentity identity);
+	
+	/**
+	 * Method get valid {@link IdmIdentityContract} for date and {@link IdmIdentity} id given in parameter.
+	 * Parameter onlyExterne if it's true search only contracts where is {@link IdmIdentity} marked as externe, this param can be null - search all contracts.
+	 * @param identityId
+	 * @param date
+	 * @param onlyExterne
+	 * @return
+	 */
+	List<IdmIdentityContract> getValidContractsForDate(UUID identityId, LocalDate date, Boolean onlyExterne);
 }

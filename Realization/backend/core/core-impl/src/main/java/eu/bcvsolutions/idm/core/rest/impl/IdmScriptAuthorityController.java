@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
@@ -53,7 +55,7 @@ public class IdmScriptAuthorityController extends DefaultReadWriteDtoController<
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCRIPT_READ + "')")
-	public Resources<?> find(MultiValueMap<String, Object> parameters, Pageable pageable) {
+	public Resources<?> find(@RequestParam MultiValueMap<String, Object> parameters, @PageableDefault Pageable pageable) {
 		return super.find(parameters, pageable);
 	}
 	
@@ -61,13 +63,13 @@ public class IdmScriptAuthorityController extends DefaultReadWriteDtoController<
 	@ResponseBody
 	@RequestMapping(value= "/search/quick", method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCRIPT_READ + "')")
-	public Resources<?> findQuick(MultiValueMap<String, Object> parameters, Pageable pageable) {
+	public Resources<?> findQuick(@RequestParam MultiValueMap<String, Object> parameters, @PageableDefault Pageable pageable) {
 		return super.findQuick(parameters, pageable);
 	}
 	
 	@Override
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCRIPT_AUTOCOMPLETE + "')")
-	public Resources<?> autocomplete(MultiValueMap<String, Object> parameters, Pageable pageable,
+	public Resources<?> autocomplete(@RequestParam MultiValueMap<String, Object> parameters, @PageableDefault Pageable pageable,
 			PersistentEntityResourceAssembler assembler) {
 		return super.autocomplete(parameters, pageable, assembler);
 	}
@@ -76,7 +78,7 @@ public class IdmScriptAuthorityController extends DefaultReadWriteDtoController<
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.PATCH)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCRIPT_UPDATE + "')")
-	public ResponseEntity<?> patch(String backendId, HttpServletRequest nativeRequest)
+	public ResponseEntity<?> patch(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest)
 			throws HttpMessageNotReadableException {
 		return super.patch(backendId, nativeRequest);
 	}
@@ -84,7 +86,7 @@ public class IdmScriptAuthorityController extends DefaultReadWriteDtoController<
 	@Override
 	@ResponseBody
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCRIPT_CREATE + "') or hasAuthority('" + CoreGroupPermission.SCRIPT_UPDATE + "')")
-	public ResponseEntity<?> post(IdmScriptAuthorityDto dto) {
+	public ResponseEntity<?> post(@RequestBody @NotNull IdmScriptAuthorityDto dto) {
 		return super.post(dto);
 	}
 

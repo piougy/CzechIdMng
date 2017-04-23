@@ -23,7 +23,7 @@ import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
-import eu.bcvsolutions.idm.core.api.dto.IdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
@@ -216,7 +216,7 @@ public class DefaultAccAuthenticator extends AbstractAuthenticator implements Au
 		Date expiration = new Date(System.currentTimeMillis() + configurationService.getIntegerValue(DefaultLoginService.PROPERTY_EXPIRATION_TIMEOUT, DefaultLoginService.DEFAULT_EXPIRATION_TIMEOUT));
 		//
 		IdmJwtAuthentication authentication = new IdmJwtAuthentication(
-				new IdentityDto(identity, identity.getUsername()),
+				new IdmIdentityDto(identity, identity.getUsername()),
 				expiration,
 				grantedAuthoritiesFactory.getGrantedAuthorities(loginDto.getUsername()),
 				this.getModule());

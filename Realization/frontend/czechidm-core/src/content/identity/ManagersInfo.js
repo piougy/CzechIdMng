@@ -23,23 +23,21 @@ class ManagersInfo extends Basic.AbstractContextComponent {
   }
 
   componentDidMount() {
-    const { identityContract } = this.props;
-    if (identityContract._embedded && identityContract._embedded.workPosition) {
+    const { identityContractId } = this.props;
+    if (identityContractId) {
       // load managers by Tree
-      if (!Utils.Ui.isShowLoading(this.context.store.getState(), `${uiKey}-${identityContract._embedded.workPosition.id}`)) {
-        const searchParameters = new SearchParameters().setFilter('managersByTreeNode', identityContract._embedded.workPosition.id);
-        this.context.store.dispatch(this.identityManager.fetchEntities(searchParameters, `${uiKey}-${identityContract._embedded.workPosition.id}`));
+      const uiKeyId = `${uiKey}-${identityContractId}`;
+      if (!Utils.Ui.isShowLoading(this.context.store.getState(), uiKeyId)) {
+        const searchParameters = new SearchParameters().setFilter('managersByContractId', identityContractId).setFilter('includeGuarantees', true);
+        this.context.store.dispatch(this.identityManager.fetchEntities(searchParameters, uiKeyId));
       }
     }
   }
 
   getAllManagers() {
-    const { identityContract, _managers } = this.props;
+    const { _managers } = this.props;
     //
     let managers = new Immutable.OrderedMap();
-    if (identityContract._embedded && identityContract._embedded.guarantee) {
-      managers = managers.set(identityContract._embedded.guarantee.username, identityContract._embedded.guarantee);
-    }
     _managers.forEach(manager => {
       managers = managers.set(manager.username, manager);
     });
@@ -47,8 +45,8 @@ class ManagersInfo extends Basic.AbstractContextComponent {
   }
 
   render() {
-    const { identityContract, _showLoading} = this.props;
-    if (!identityContract) {
+    const { identityContractId, _showLoading} = this.props;
+    if (!identityContractId) {
       return null;
     }
 
@@ -81,7 +79,7 @@ class ManagersInfo extends Basic.AbstractContextComponent {
 }
 
 ManagersInfo.propTypes = {
-  identityContract: PropTypes.object.required,
+  identityContractId: PropTypes.string.required,
   _showLoading: PropTypes.bool,
   _managers: PropTypes.arrayOf(PropTypes.object)
 };
@@ -91,10 +89,10 @@ ManagersInfo.defaultProps = {
 };
 
 function select(state, component) {
-  if (!component.identityContract || !component.identityContract._embedded || !component.identityContract._embedded.workPosition) {
+  if (!component.identityContractId) {
     return {};
   }
-  const uiKeyId = `${uiKey}-${component.identityContract._embedded.workPosition.id}`;
+  const uiKeyId = `${uiKey}-${component.identityContractId}`;
   return {
     _showLoading: Utils.Ui.isShowLoading(state, uiKeyId),
     _managers: Utils.Ui.getEntities(state, uiKeyId)

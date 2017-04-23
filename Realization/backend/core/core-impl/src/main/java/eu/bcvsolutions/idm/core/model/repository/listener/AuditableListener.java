@@ -18,7 +18,7 @@ import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import eu.bcvsolutions.idm.core.api.domain.Auditable;
-import eu.bcvsolutions.idm.core.api.dto.IdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.repository.listener.AuditableEntityListener;
 import eu.bcvsolutions.idm.core.security.api.domain.AbstractAuthentication;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
@@ -52,8 +52,8 @@ public class AuditableListener implements PreInsertEventListener, PreUpdateEvent
 			entity.setCreated(date);
 			//
 			AbstractAuthentication authentication = securityService.getAuthentication();
-			IdentityDto currentIdentity = authentication == null ? null : authentication.getCurrentIdentity();
-			IdentityDto originalIdentity = authentication == null ? null : authentication.getOriginalIdentity();
+			IdmIdentityDto currentIdentity = authentication == null ? null : authentication.getCurrentIdentity();
+			IdmIdentityDto originalIdentity = authentication == null ? null : authentication.getOriginalIdentity();
 			if (entity.getCreator() == null) {
 				String creator = currentIdentity == null ? securityService.getUsername()
 						: currentIdentity.getUsername();
@@ -89,8 +89,8 @@ public class AuditableListener implements PreInsertEventListener, PreUpdateEvent
 			//
 			AbstractAuthentication authentication = securityService.getAuthentication();
 			//
-			IdentityDto currentIdentity = authentication == null ? null : authentication.getCurrentIdentity();
-			IdentityDto originalIdentity = authentication == null ? null : authentication.getOriginalIdentity();
+			IdmIdentityDto currentIdentity = authentication == null ? null : authentication.getCurrentIdentity();
+			IdmIdentityDto originalIdentity = authentication == null ? null : authentication.getOriginalIdentity();
 			//
 			String modifier = currentIdentity == null ? securityService.getUsername() : currentIdentity.getUsername();
 			setValue(event.getState(), event, Auditable.PROPERTY_MODIFIER, modifier);

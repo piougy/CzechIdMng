@@ -19,7 +19,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.InitTestData;
-import eu.bcvsolutions.idm.core.api.dto.IdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
@@ -33,7 +33,7 @@ public class IdmIdentityControllerRestTest extends AbstractRestTest {
 	private IdmIdentityService identityService;
 	
 	private Authentication getAuthentication() {
-		return new IdmJwtAuthentication(new IdentityDto(InitTestData.TEST_ADMIN_USERNAME), null, Lists.newArrayList(IdmAuthorityUtils.getAdminAuthority()), "test");
+		return new IdmJwtAuthentication(new IdmIdentityDto(InitTestData.TEST_ADMIN_USERNAME), null, Lists.newArrayList(IdmAuthorityUtils.getAdminAuthority()), "test");
 	}
 	
 	@After

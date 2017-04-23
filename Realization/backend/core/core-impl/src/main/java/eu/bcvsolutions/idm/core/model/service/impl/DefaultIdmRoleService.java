@@ -26,9 +26,14 @@ import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.eav.service.impl.AbstractFormableService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.dto.filter.RoleFilter;
+import eu.bcvsolutions.idm.core.model.entity.IdmForestIndexEntity_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogueRole;
+import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogueRole_;
+import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleGuarantee;
+import eu.bcvsolutions.idm.core.model.entity.IdmRoleGuarantee_;
+import eu.bcvsolutions.idm.core.model.entity.IdmRole_;
 import eu.bcvsolutions.idm.core.model.event.RoleEvent;
 import eu.bcvsolutions.idm.core.model.event.RoleEvent.RoleEventType;
 import eu.bcvsolutions.idm.core.model.event.processor.role.RoleDeleteProcessor;
@@ -151,15 +156,15 @@ public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, Role
 		List<Predicate> predicates = new ArrayList<>();
 		// id
 		if (filter.getId() != null) {
-			predicates.add(builder.equal(root.get("id"), filter.getId()));
+			predicates.add(builder.equal(root.get(IdmRole_.id), filter.getId()));
 		}
 		// quick
 		if (StringUtils.isNotEmpty(filter.getText())) {
-			predicates.add(builder.like(builder.lower(root.get("name")), "%" + filter.getText().toLowerCase() + "%"));
+			predicates.add(builder.like(builder.lower(root.get(IdmRole_.name)), "%" + filter.getText().toLowerCase() + "%"));
 		}
 		// role type
 		if (filter.getRoleType() != null) {
-			predicates.add(builder.equal(root.get("roleType"), filter.getRoleType()));
+			predicates.add(builder.equal(root.get(IdmRole_.roleType), filter.getRoleType()));
 		}
 		// guarantee	
 		if (filter.getGuarantee() != null) {
@@ -169,8 +174,8 @@ public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, Role
 		
 			subquery.where(
                     builder.and(
-                    		builder.equal(subRoot.get("role"), root), // correlation attr
-                    		builder.equal(subRoot.get("guarantee"), filter.getGuarantee())
+                    		builder.equal(subRoot.get(IdmRoleGuarantee_.role), root), // correlation attr
+                    		builder.equal(subRoot.get(IdmRoleGuarantee_.guarantee), filter.getGuarantee())
                     		)
             );
 			predicates.add(builder.exists(subquery));
@@ -183,8 +188,10 @@ public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, Role
 		
 			subquery.where(
                     builder.and(
-                    		builder.equal(subRoot.get("role"), root), // correlation attr
-                    		builder.between(subRoot.get("roleCatalogue").get("forestIndex").get("lft"), filter.getRoleCatalogue().getLft(), filter.getRoleCatalogue().getRgt())
+                    		builder.equal(subRoot.get(IdmRoleCatalogueRole_.role), root), // correlation attr
+                    		builder.between(subRoot.get(
+                    				IdmRoleCatalogueRole_.roleCatalogue).get(IdmRoleCatalogue_.forestIndex).get(IdmForestIndexEntity_.lft), 
+                    				filter.getRoleCatalogue().getLft(), filter.getRoleCatalogue().getRgt())
                     		)
             );
 			predicates.add(builder.exists(subquery));

@@ -41,14 +41,6 @@ public interface IdmIdentityContractService extends ReadWriteEntityService<IdmId
 	List<IdmIdentityContract> getContractsByWorkPosition(UUID workPositionId, RecursionType recursion);
 	
 	/**
-	 * Clears guarantee from all contracts, where identity is guarantee (=identity disclaims guarantee).
-	 * 
-	 * @param identity
-	 * @return Returns number of affected contracts
-	 */
-	int clearGuarantee(IdmIdentity identity);
-	
-	/**
 	 * Returns expired contracts
 	 * 
 	 * @param expiration date to compare

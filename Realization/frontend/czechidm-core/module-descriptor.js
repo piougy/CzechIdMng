@@ -92,6 +92,14 @@ module.exports = {
                 'order': 20,
                 'path': '/identity/:identityId/identity-contract/:entityId/eav',
                 'access': [ { 'type': 'IS_AUTHENTICATED' } ]
+              },
+              {
+                'id': 'identity-contract-guarantees',
+                'type': 'TAB',
+                'labelKey': 'content.identity-contract.guarantees.label',
+                'order': 30,
+                'path': '/identity/:identityId/identity-contract/:entityId/guarantees',
+                'access': [ { 'type': 'IS_AUTHENTICATED' } ]
               }
             ]
           },

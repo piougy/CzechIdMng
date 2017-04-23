@@ -18,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.TestHelper;
-import eu.bcvsolutions.idm.core.api.dto.IdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.model.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
@@ -334,7 +334,7 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractIntegra
 					&& !CoreGroupPermission.ROLE_REQUEST_ADMIN.equals(authority.getAuthority())
 					&& !IdmGroupPermission.APP_ADMIN.equals(authority.getAuthority());
 		}).collect(Collectors.toList());
-		SecurityContextHolder.getContext().setAuthentication(new IdmJwtAuthentication(new IdentityDto(USER_TEST_A), null, authorities, "test"));
+		SecurityContextHolder.getContext().setAuthentication(new IdmJwtAuthentication(new IdmIdentityDto(USER_TEST_A), null, authorities, "test"));
 		
 		IdmIdentity testA = identityService.getByUsername(USER_TEST_A);
 		IdmIdentityContract contractA = identityContractService.getPrimeContract(testA);

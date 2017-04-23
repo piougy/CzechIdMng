@@ -32,6 +32,7 @@ import RoleTreeNodeManager from './RoleTreeNodeManager';
 import FormDefinitionManager from './FormDefinitionManager';
 import FormAttributeManager from './FormAttributeManager';
 import AuthorizationPolicyManager from './AuthorizationPolicyManager';
+import ContractGuaranteeManager from './ContractGuaranteeManager';
 
 const ManagerRoot = {
   EntityManager,
@@ -67,7 +68,8 @@ const ManagerRoot = {
   RoleTreeNodeManager,
   FormDefinitionManager,
   FormAttributeManager,
-  AuthorizationPolicyManager
+  AuthorizationPolicyManager,
+  ContractGuaranteeManager
 };
 
 ManagerRoot.version = '0.0.1';

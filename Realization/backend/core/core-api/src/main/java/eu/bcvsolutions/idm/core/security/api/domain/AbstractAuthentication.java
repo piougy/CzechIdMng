@@ -2,7 +2,7 @@ package eu.bcvsolutions.idm.core.security.api.domain;
 
 import org.springframework.security.core.Authentication;
 
-import eu.bcvsolutions.idm.core.api.dto.IdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 
 /**
  * Default authentication with support current and original user name (for login as)
@@ -13,8 +13,8 @@ public abstract class AbstractAuthentication implements Authentication {
 
 	private static final long serialVersionUID = 896638566635125212L;
 	
-	private final IdentityDto currentIdentity;
-	private final IdentityDto originalIdentity;
+	private final IdmIdentityDto currentIdentity;
+	private final IdmIdentityDto originalIdentity;
 	
 	/**
 	 * Creates a new instance
@@ -22,7 +22,7 @@ public abstract class AbstractAuthentication implements Authentication {
 	 * @param currentIdentity 
 	 * @param originalIdentity (for login as)
 	 */
-	public AbstractAuthentication(IdentityDto currentIdentity, IdentityDto originalIdentity) {
+	public AbstractAuthentication(IdmIdentityDto currentIdentity, IdmIdentityDto originalIdentity) {
 		this.currentIdentity = currentIdentity;
 		this.originalIdentity = originalIdentity;
 	}
@@ -37,7 +37,7 @@ public abstract class AbstractAuthentication implements Authentication {
 		return getName();
 	}
 	
-	public IdentityDto getCurrentIdentity() {
+	public IdmIdentityDto getCurrentIdentity() {
 		return currentIdentity;
 	}
 
@@ -45,7 +45,7 @@ public abstract class AbstractAuthentication implements Authentication {
 		return currentIdentity == null ? null : currentIdentity.getUsername();
 	}
 	
-	public IdentityDto getOriginalIdentity() {
+	public IdmIdentityDto getOriginalIdentity() {
 		return originalIdentity;
 	}
 	

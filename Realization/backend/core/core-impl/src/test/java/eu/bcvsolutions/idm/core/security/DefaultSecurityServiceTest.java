@@ -18,7 +18,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import eu.bcvsolutions.idm.core.api.dto.IdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.security.api.domain.AbstractAuthentication;
 import eu.bcvsolutions.idm.core.security.api.domain.DefaultGrantedAuthority;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
@@ -38,8 +38,8 @@ public class DefaultSecurityServiceTest extends AbstractUnitTest {
 	private static final String TEST_AUTHORITY = "TEST_AUTHORITY";
 	private static final Collection<GrantedAuthority> AUTHORITIES = Arrays.asList(new DefaultGrantedAuthority(TEST_AUTHORITY));	
 	private static final IdmJwtAuthentication AUTHENTICATION = new IdmJwtAuthentication(
-			new IdentityDto(CURRENT_USERNAME), 
-			new IdentityDto(ORIGINAL_USERNAME), 
+			new IdmIdentityDto(CURRENT_USERNAME), 
+			new IdmIdentityDto(ORIGINAL_USERNAME), 
 			new Date(), 
 			AUTHORITIES,
 			"test");

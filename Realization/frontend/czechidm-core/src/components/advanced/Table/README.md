@@ -18,6 +18,7 @@ Encapsulates all features from BasicTable component. All BasicTable parameters a
 | actions | arrayOf(object) | Bulk actions e.g. { value: 'activate', niceLabel: this.i18n('content.identities.action.activate.action'), action: this.onActivate.bind(this) } |  |
 | buttons | arrayOf(element) | Buttons are shown on the right of toogle filter button | |
 | showId | bool | Shows column with id. Default is id shown in Development stage. | true on development, false otherwise |
+| showFilter | bool | Shows filter. | true |
 
 
 # AdvancedColumn Component

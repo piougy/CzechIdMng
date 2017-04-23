@@ -13,11 +13,13 @@ import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleValidRequestDto;
+import eu.bcvsolutions.idm.core.model.dto.filter.ContractGuaranteeFilter;
 import eu.bcvsolutions.idm.core.model.dto.filter.RoleRequestFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleGuaranteeRepository;
+import eu.bcvsolutions.idm.core.model.service.api.IdmContractGuaranteeService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleValidRequestService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleRequestService;
@@ -30,7 +32,7 @@ import eu.bcvsolutions.idm.core.notification.repository.IdmNotificationRecipient
  *
  */
 @Component
-@Description("Deletes identity.")
+@Description("Deletes identity - ensures core referential integrity.")
 public class IdentityDeleteProcessor extends CoreEventProcessor<IdmIdentity> {
 
 	public static final String PROCESSOR_NAME = "identity-delete-processor";
@@ -42,6 +44,7 @@ public class IdentityDeleteProcessor extends CoreEventProcessor<IdmIdentity> {
 	private final IdmNotificationRecipientRepository notificationRecipientRepository;
 	private final IdmRoleRequestService roleRequestService;
 	private final IdmIdentityRoleValidRequestService identityRoleValidRequestService;
+	private final IdmContractGuaranteeService contractGuaranteeService;
 	
 	@Autowired
 	public IdentityDeleteProcessor(
@@ -52,7 +55,8 @@ public class IdentityDeleteProcessor extends CoreEventProcessor<IdmIdentity> {
 			IdmIdentityContractService identityContractService,
 			IdmNotificationRecipientRepository notificationRecipientRepository,
 			IdmRoleRequestService roleRequestService,
-			IdmIdentityRoleValidRequestService identityRoleValidRequestService) {
+			IdmIdentityRoleValidRequestService identityRoleValidRequestService,
+			IdmContractGuaranteeService contractGuaranteeService) {
 		super(IdentityEventType.DELETE);
 		//
 		Assert.notNull(repository);
@@ -63,6 +67,7 @@ public class IdentityDeleteProcessor extends CoreEventProcessor<IdmIdentity> {
 		Assert.notNull(notificationRecipientRepository);
 		Assert.notNull(roleRequestService);
 		Assert.notNull(identityRoleValidRequestService);
+		Assert.notNull(contractGuaranteeService);
 		//
 		this.repository = repository;
 		this.formService = formService;
@@ -72,6 +77,7 @@ public class IdentityDeleteProcessor extends CoreEventProcessor<IdmIdentity> {
 		this.notificationRecipientRepository = notificationRecipientRepository;
 		this.roleRequestService = roleRequestService;
 		this.identityRoleValidRequestService = identityRoleValidRequestService;
+		this.contractGuaranteeService = contractGuaranteeService;
 	}
 	
 	@Override
@@ -87,7 +93,12 @@ public class IdentityDeleteProcessor extends CoreEventProcessor<IdmIdentity> {
 			identityContractService.delete(identityContract);
 		});
 		// contract guaratee - set to null
-		identityContractService.clearGuarantee(identity);
+		// delete contract guarantees
+		ContractGuaranteeFilter filter = new ContractGuaranteeFilter();
+		filter.setGuaranteeId(identity.getId());
+		contractGuaranteeService.findDto(filter, null).forEach(guarantee -> {
+			contractGuaranteeService.delete(guarantee);
+		});
 		// remove role guarantee
 		roleGuaranteeRepository.deleteByGuarantee(identity);
 		// remove password from confidential storage
@@ -96,18 +107,15 @@ public class IdentityDeleteProcessor extends CoreEventProcessor<IdmIdentity> {
 		formService.deleteValues(identity);
 		// set to null all notification recipients - real recipient remains (email etc.)
 		notificationRecipientRepository.clearIdentity(identity);
-		
 		// Delete all role requests where is this identity applicant
 		RoleRequestFilter roleRequestFilter = new RoleRequestFilter();
 		roleRequestFilter.setApplicantId(identity.getId());
 		roleRequestService.findDto(roleRequestFilter, null).forEach(request ->{
 			roleRequestService.delete(request);
 		});
-		
 		// remove all IdentityRoleValidRequest for this identity
 		List<IdmIdentityRoleValidRequestDto> validRequests = identityRoleValidRequestService.findAllValidRequestForIdentityId(identity.getId());
 		identityRoleValidRequestService.deleteAll(validRequests);
-		
 		// deletes identity
 		repository.delete(identity);
 		return new DefaultEventResult<>(event, this);

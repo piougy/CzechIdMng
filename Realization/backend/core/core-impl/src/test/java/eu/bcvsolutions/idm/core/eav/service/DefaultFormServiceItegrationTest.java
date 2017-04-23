@@ -8,6 +8,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
+
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
@@ -16,6 +22,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 
 import com.google.common.collect.Lists;
 
@@ -27,12 +35,19 @@ import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 import eu.bcvsolutions.idm.core.eav.entity.AbstractFormValue;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute;
+import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute_;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.eav.service.api.IdmFormDefinitionService;
 import eu.bcvsolutions.idm.core.eav.service.impl.DefaultFormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.model.entity.IdmRole;
+import eu.bcvsolutions.idm.core.model.entity.IdmRoleGuarantee;
+import eu.bcvsolutions.idm.core.model.entity.IdmRole_;
 import eu.bcvsolutions.idm.core.model.entity.eav.IdmIdentityFormValue;
+import eu.bcvsolutions.idm.core.model.entity.eav.IdmRoleFormValue;
+import eu.bcvsolutions.idm.core.model.entity.eav.IdmRoleFormValue_;
+import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
@@ -58,6 +73,8 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 	private IdmIdentityService identityService;
 	@Autowired
 	private IdmFormDefinitionService formDefinitionService;	
+	@Autowired
+	private IdmRoleRepository roleRepository;
 	//
 	private FormService formService;
 	
@@ -494,6 +511,37 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 		savedAttr = formService.getAttribute(IdmIdentity.class, attribute.getName());
 		//
 		assertNull(savedAttr);
+	}
+	
+	@Test
+	public void findOwnerByCriteria() {
+		IdmRole owner = helper.createRole();
+		IdmRole ownerTwo = helper.createRole();
+		
+		IdmFormDefinition formDefinition = formService.getDefinition(owner.getClass());
+		IdmFormAttribute attribute = formDefinition.getFormAttributes().get(0);
+		//
+		formService.saveValues(owner, attribute, Lists.newArrayList("test"));
+		formService.saveValues(ownerTwo, attribute, Lists.newArrayList("test2"));
+		
+		Specification<IdmRole> criteria = new Specification<IdmRole>() {
+			public Predicate toPredicate(Root<IdmRole> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
+				Subquery<IdmRoleFormValue> subquery = query.subquery(IdmRoleFormValue.class);
+				Root<IdmRoleFormValue> subRoot = subquery.from(IdmRoleFormValue.class);
+				subquery.select(subRoot);
+				
+				Predicate predicate = builder.and(
+						builder.equal(subRoot.get(IdmRoleFormValue_.owner), root),
+						builder.equal(subRoot.get(IdmRoleFormValue_.formAttribute), attribute),
+						builder.equal(subRoot.get(IdmRoleFormValue_.stringValue), "test"));				
+				subquery.where(predicate);
+				//
+				return query.where(builder.exists(subquery)).getRestriction();
+			}
+		};
+		List<IdmRole> roles = roleRepository.findAll(criteria, (Pageable) null).getContent();
+		assertEquals(1, roles.size());
+		assertEquals(owner.getId(), roles.get(0).getId());
 	}
 	
 	private FormableEntity createTestOwner(String name) {

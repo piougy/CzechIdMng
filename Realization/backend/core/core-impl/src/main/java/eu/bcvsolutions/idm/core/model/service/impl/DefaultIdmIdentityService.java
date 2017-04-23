@@ -31,12 +31,22 @@ import eu.bcvsolutions.idm.core.eav.service.impl.AbstractFormableService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.model.dto.filter.IdentityFilter;
+import eu.bcvsolutions.idm.core.model.entity.IdmContractGuarantee;
+import eu.bcvsolutions.idm.core.model.entity.IdmContractGuarantee_;
+import eu.bcvsolutions.idm.core.model.entity.IdmForestIndexEntity_;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole_;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleGuarantee;
+import eu.bcvsolutions.idm.core.model.entity.IdmRole_;
+import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
+import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode_;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
+import eu.bcvsolutions.idm.core.model.entity.IdmTreeType_;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.core.model.event.processor.identity.IdentityDeleteProcessor;
@@ -163,16 +173,16 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 		List<Predicate> predicates = new ArrayList<>();
 		// id
 		if (filter.getId() != null) {
-			predicates.add(builder.equal(root.get("id"), filter.getId()));
+			predicates.add(builder.equal(root.get(IdmIdentity_.id), filter.getId()));
 		}
 		// quick - "fulltext"
 		if (StringUtils.isNotEmpty(filter.getText())) {
 			predicates.add(builder.or(
-					builder.like(builder.lower(root.get("username")), "%" + filter.getText().toLowerCase() + "%"),
-					builder.like(builder.lower(root.get("firstName")), "%" + filter.getText().toLowerCase() + "%"),
-					builder.like(builder.lower(root.get("lastName")), "%" + filter.getText().toLowerCase() + "%"),
-					builder.like(builder.lower(root.get("email")), "%" + filter.getText().toLowerCase() + "%"),
-					builder.like(builder.lower(root.get("description")), "%" + filter.getText().toLowerCase() + "%")					
+					builder.like(builder.lower(root.get(IdmIdentity_.username)), "%" + filter.getText().toLowerCase() + "%"),
+					builder.like(builder.lower(root.get(IdmIdentity_.firstName)), "%" + filter.getText().toLowerCase() + "%"),
+					builder.like(builder.lower(root.get(IdmIdentity_.lastName)), "%" + filter.getText().toLowerCase() + "%"),
+					builder.like(builder.lower(root.get(IdmIdentity_.email)), "%" + filter.getText().toLowerCase() + "%"),
+					builder.like(builder.lower(root.get(IdmIdentity_.description)), "%" + filter.getText().toLowerCase() + "%")					
 					));
 		}
 		// managers by tree node (working position)
@@ -181,20 +191,53 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 			Root<IdmIdentityContract> subRoot = subquery.from(IdmIdentityContract.class);
 			subquery.select(subRoot);
 			//
-			Subquery<IdmIdentityContract> subqueryWp = query.subquery(IdmIdentityContract.class);
+			Subquery<IdmTreeNode> subqueryWp = query.subquery(IdmTreeNode.class);
 			Root<IdmIdentityContract> subqueryWpRoot = subqueryWp.from(IdmIdentityContract.class);
-			subqueryWp.select(subqueryWpRoot.get("workPosition").get("parent"));
+			subqueryWp.select(subqueryWpRoot.get(IdmIdentityContract_.workPosition).get(IdmTreeNode_.parent));
 			subqueryWp.where(builder.and(
-					builder.equal(subqueryWpRoot.get("workPosition"), filter.getManagersByTreeNode())
+					builder.equal(subqueryWpRoot.get(IdmIdentityContract_.workPosition), filter.getManagersByTreeNode())
 					));
 			//
 			subquery.where(
                     builder.and(
-                    		builder.equal(subRoot.get("identity"), root), // correlation attr
-                    		subRoot.get("workPosition").in(subqueryWp)
+                    		builder.equal(subRoot.get(IdmIdentityContract_.identity), root), // correlation attr
+                    		subRoot.get(IdmIdentityContract_.workPosition).in(subqueryWp)
                     		)
             );			
 			predicates.add(builder.exists(subquery));
+		}
+		// managers by identity contract working position
+		if (filter.getManagersByContractId() != null) {
+			Subquery<IdmIdentityContract> subquery = query.subquery(IdmIdentityContract.class);
+			Root<IdmIdentityContract> subRoot = subquery.from(IdmIdentityContract.class);
+			subquery.select(subRoot);
+			// by tree structure
+			Subquery<IdmTreeNode> subqueryWp = query.subquery(IdmTreeNode.class);
+			Root<IdmIdentityContract> subqueryWpRoot = subqueryWp.from(IdmIdentityContract.class);
+			subqueryWp.select(subqueryWpRoot.get(IdmIdentityContract_.workPosition).get(IdmTreeNode_.parent));
+			subqueryWp.where(builder.equal(subqueryWpRoot.get(IdmIdentityContract_.id), filter.getManagersByContractId()));
+			//
+			subquery.where(
+                    builder.and(
+                    		builder.equal(subRoot.get(IdmIdentityContract_.identity), root), // correlation attr
+                    		subRoot.get(IdmIdentityContract_.workPosition).in(subqueryWp))
+            );
+			if (!filter.isIncludeGuarantees()) {
+				predicates.add(builder.exists(subquery));
+			} else {
+				// by identity contract guarantees
+				Subquery<IdmIdentity> subqueryGuarantee = query.subquery(IdmIdentity.class);
+				Root<IdmIdentityContract> subqueryGuaranteeRoot = subqueryGuarantee.from(IdmIdentityContract.class);
+				subqueryGuarantee.select(subqueryGuaranteeRoot.join(IdmIdentityContract_.guarantees).get(IdmContractGuarantee_.guarantee));
+				subqueryGuarantee.where(builder.and(
+						builder.equal(subqueryGuaranteeRoot.get(IdmIdentityContract_.id), filter.getManagersByContractId())
+						));
+				
+				predicates.add(builder.or(
+						builder.exists(subquery),
+						root.in(subqueryGuarantee)
+						));
+			}
 		}
 		// identity with any of given role (OR)
 		List<IdmRole> roles = filter.getRoles();
@@ -204,24 +247,24 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 			subquery.select(subRoot);
 			subquery.where(
                     builder.and(
-                    		builder.equal(subRoot.get("identityContract").get("identity"), root), // correlation attr
-                    		subRoot.get("role").get("id").in(RepositoryUtils.queryEntityIds(roles))
+                    		builder.equal(subRoot.get(IdmIdentityRole_.identityContract).get(IdmIdentityContract_.identity), root), // correlation attr
+                    		subRoot.get(IdmIdentityRole_.role).get(IdmRole_.id).in(RepositoryUtils.queryEntityIds(roles))
                     		)
             );			
 			predicates.add(builder.exists(subquery));
 		}
 		// property
-		if (StringUtils.equals("username", filter.getProperty())) {
-			predicates.add(builder.equal(root.get("username"), filter.getValue()));
+		if (StringUtils.equals(IdmIdentity_.username.getName(), filter.getProperty())) {
+			predicates.add(builder.equal(root.get(IdmIdentity_.username), filter.getValue()));
 		}
-		if (StringUtils.equals("firstName", filter.getProperty())) {
-			predicates.add(builder.equal(root.get("firstName"), filter.getValue()));
+		if (StringUtils.equals(IdmIdentity_.firstName.getName(), filter.getProperty())) {
+			predicates.add(builder.equal(root.get(IdmIdentity_.firstName), filter.getValue()));
 		}
-		if (StringUtils.equals("lastName", filter.getProperty())) {
-			predicates.add(builder.equal(root.get("lastName"), filter.getValue()));
+		if (StringUtils.equals(IdmIdentity_.lastName.getName(), filter.getProperty())) {
+			predicates.add(builder.equal(root.get(IdmIdentity_.lastName), filter.getValue()));
 		}
-		if (StringUtils.equals("email", filter.getProperty())) {
-			predicates.add(builder.equal(root.get("email"), filter.getValue()));
+		if (StringUtils.equals(IdmIdentity_.email.getName(), filter.getProperty())) {
+			predicates.add(builder.equal(root.get(IdmIdentity_.email), filter.getValue()));
 		}
 		// treeNode
 		if (filter.getTreeNode() != null) {
@@ -232,15 +275,18 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 			if (filter.isRecursively()) {
 				subquery.where(
 	                    builder.and(
-	                    		builder.equal(subRoot.get("identity"), root), // correlation attr
-	                    		builder.between(subRoot.get("workPosition").get("forestIndex").get("lft"), filter.getTreeNode().getLft(), filter.getTreeNode().getRgt())
+	                    		builder.equal(subRoot.get(IdmIdentityContract_.identity), root), // correlation attr
+	                    		builder.between(
+	                    				subRoot.get(IdmIdentityContract_.workPosition).get(IdmTreeNode_.forestIndex).get(IdmForestIndexEntity_.lft), 
+	                    				filter.getTreeNode().getLft(), 
+	                    				filter.getTreeNode().getRgt())
 	                    		)
 	            );
 			} else {
 				subquery.where(
 	                    builder.and(
-	                    		builder.equal(subRoot.get("identity"), root), // correlation attr
-	                    		builder.equal(subRoot.get("workPosition"), filter.getTreeNode())
+	                    		builder.equal(subRoot.get(IdmIdentityContract_.identity), root), // correlation attr
+	                    		builder.equal(subRoot.get(IdmIdentityContract_.workPosition), filter.getTreeNode())
 	                    		)
 	            );
 			}
@@ -253,8 +299,10 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 			subquery.select(subRoot);
 			subquery.where(
                     builder.and(
-                    		builder.equal(subRoot.get("identity"), root), // correlation attr
-                    		builder.equal(subRoot.get("workPosition").get("treeType").get("id"), filter.getTreeTypeId())
+                    		builder.equal(subRoot.get(IdmIdentityContract_.identity), root), // correlation attr
+                    		builder.equal(
+                    				subRoot.get(IdmIdentityContract_.workPosition).get(IdmTreeNode_.treeType).get(IdmTreeType_.id), 
+                    				filter.getTreeTypeId())
                     		)
             );			
 			predicates.add(builder.exists(subquery));
@@ -388,10 +436,10 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 		filter.setManagersByTreeType(byTreeType);
 		//
 		List<IdmIdentity> results = new ArrayList<IdmIdentity>();		
-		Page<IdmIdentity> managers = repository.find(filter, new PageRequest(0, 50, Sort.Direction.ASC, "username"));
+		Page<IdmIdentity> managers = find(filter, new PageRequest(0, 50, Sort.Direction.ASC, "username"));
 		results.addAll(managers.getContent());
 		while (managers.hasNext()) {
-			managers = repository.find(filter, managers.nextPageable());
+			managers = find(filter, managers.nextPageable());
 			results.addAll(managers.getContent());
 		}
 		//

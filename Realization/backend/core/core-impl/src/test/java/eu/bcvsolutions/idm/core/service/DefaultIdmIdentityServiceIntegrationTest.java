@@ -19,6 +19,8 @@ import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.eav.entity.AbstractFormValue;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
+import eu.bcvsolutions.idm.core.model.dto.IdmContractGuaranteeDto;
+import eu.bcvsolutions.idm.core.model.dto.filter.ContractGuaranteeFilter;
 import eu.bcvsolutions.idm.core.model.dto.filter.IdentityRoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
@@ -27,6 +29,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleGuarantee;
 import eu.bcvsolutions.idm.core.model.entity.eav.IdmIdentityFormValue;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleGuaranteeRepository;
+import eu.bcvsolutions.idm.core.model.service.api.IdmContractGuaranteeService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
@@ -52,6 +55,8 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 	private IdmIdentityRoleService identityRoleService;
 	@Autowired
 	private IdmIdentityContractService identityContractService;
+	@Autowired
+	private IdmContractGuaranteeService contractGuaranteeService;
 	@Autowired
 	private IdmRoleService roleService;
 	@Autowired
@@ -105,11 +110,11 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 		contract.setPosition("test");
 		identityContractService.save(contract);
 		// contract guarantee
-		IdmIdentityContract contractGuarantee = new IdmIdentityContract();
-		contractGuarantee.setIdentity(identityService.getByUsername(InitTestData.TEST_USER_1));
-		contractGuarantee.setPosition("test");
-		contractGuarantee.setGuarantee(identity);
-		contractGuarantee = identityContractService.save(contractGuarantee);
+		IdmIdentityContract contract2 = new IdmIdentityContract();
+		contract2.setIdentity(identityService.getByUsername(InitTestData.TEST_USER_1));
+		contract2.setPosition("test");
+		contract2 = identityContractService.save(contract2);
+		contractGuaranteeService.save(new IdmContractGuaranteeDto(contract2.getId(), identity.getId()));
 		// assigned role
 		IdmIdentityRole identityRole = new IdmIdentityRole();
 		identityRole.setIdentityContract(contract);
@@ -123,11 +128,12 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 		assertEquals(1, formService.getValues(identity).size());
 		assertEquals(username, roleGuaranteeRepository.findAllByRole(role).get(0).getGuarantee().getUsername());
 		assertEquals(1, identityRoleService.find(identityRolefilter, null).getTotalElements());
-		assertEquals(2, identityContractService.getContracts(identity).size()); // +default
-																				// contract
-																				// is
-																				// created
-		assertEquals(username, identityContractService.get(contractGuarantee.getId()).getGuarantee().getUsername());
+		assertEquals(2, identityContractService.getContracts(identity).size()); // + default contract is created
+		ContractGuaranteeFilter filter = new ContractGuaranteeFilter();
+		filter.setIdentityContractId(contract2.getId());
+		List<IdmContractGuaranteeDto> guarantees = contractGuaranteeService.findDto(filter, null).getContent();
+		assertEquals(1, guarantees.size());
+		assertEquals(identity.getId(), guarantees.get(0).getGuarantee());
 
 		identityService.delete(identity);
 
@@ -137,7 +143,8 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 		assertEquals(0, roleGuaranteeRepository.findAllByRole(role).size());
 		assertEquals(0, identityRoleService.find(identityRolefilter, null).getTotalElements());
 		assertEquals(0, identityContractService.getContracts(identity).size());
-		assertNull(identityContractService.get(contractGuarantee.getId()).getGuarantee());
+		
+		assertEquals(0, contractGuaranteeService.findDto(filter, null).getTotalElements());
 	}
 
 	/**
@@ -148,8 +155,7 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 		IdmIdentity identity = new IdmIdentity();
 		String username = "contract_test_" + System.currentTimeMillis();
 		identity.setUsername(username);
-		identity.setPassword(new GuardedString("heslo")); // confidential
-															// storage
+		identity.setPassword(new GuardedString("heslo")); // confidential storage
 		identity.setFirstName("Test");
 		identity.setLastName("Identity");
 		identity = identityService.save(identity);

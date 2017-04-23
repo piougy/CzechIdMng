@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.model.dto.IdmAuthorizationPolicyDto;
+import eu.bcvsolutions.idm.core.model.dto.IdmContractGuaranteeDto;
 import eu.bcvsolutions.idm.core.model.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
@@ -17,6 +18,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleTreeNodeRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmContractGuaranteeService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
@@ -24,7 +26,6 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeTypeService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
-import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.evaluator.BasePermissionEvaluator;
 import eu.bcvsolutions.idm.core.security.evaluator.UuidEvaluator;
 
@@ -48,6 +49,8 @@ public class DefaultTestHelper implements TestHelper {
 	@Autowired
 	private IdmIdentityContractService identityContractService;
 	@Autowired
+	private IdmContractGuaranteeService contractGuaranteeService;
+	@Autowired
 	private IdmRoleTreeNodeService roleTreeNodeService;
 	@Autowired
 	private IdmRoleTreeNodeRepository roleTreeNodeReposiotry;
@@ -69,6 +72,11 @@ public class DefaultTestHelper implements TestHelper {
 		identity.setLastName("Identity");
 		identity = identityService.save(identity);
 		return identity;
+	}
+	
+	@Override
+	public void deleteIdentity(UUID id) {
+		identityService.deleteById(id);
 	}
 	
 	/* (non-Javadoc)
@@ -202,4 +210,13 @@ public class DefaultTestHelper implements TestHelper {
 		return identityContractService.save(contract);
 	}
 	
+	@Override
+	public void deleteIdentityContact(UUID id) {
+		identityContractService.deleteById(id);		
+	}
+	
+	@Override
+	public IdmContractGuaranteeDto createContractGuarantee(UUID identityContractId, UUID identityId) {
+		return contractGuaranteeService.save(new IdmContractGuaranteeDto(identityContractId, identityId));
+	}
 }

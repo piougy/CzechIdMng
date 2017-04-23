@@ -18,7 +18,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.IdmApplication;
-import eu.bcvsolutions.idm.core.api.dto.IdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
@@ -51,7 +51,7 @@ public abstract class AbstractIntegrationTest {
 	 * @param username
 	 */
 	public void loginAsAdmin(String username) {
-		SecurityContextHolder.getContext().setAuthentication(new IdmJwtAuthentication(new IdentityDto(username), null, Lists.newArrayList(IdmAuthorityUtils.getAdminAuthority()), "test"));
+		SecurityContextHolder.getContext().setAuthentication(new IdmJwtAuthentication(new IdmIdentityDto(username), null, Lists.newArrayList(IdmAuthorityUtils.getAdminAuthority()), "test"));
 	}
 	
 	/**

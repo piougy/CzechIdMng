@@ -59,6 +59,14 @@ public class IdentityFilter extends QuickFilter implements CorrelationFilter {
 	 * Identities for tree structure (by identity contract)
 	 */
 	private UUID treeTypeId;
+	/**
+	 * Returns managers by identity's contract working prosition 
+	 */
+	private UUID managersByContractId;
+	/**
+	 * managersByContractId with contract guarantees
+	 */
+	private boolean includeGuarantees;
 
 	public IdmIdentity getSubordinatesFor() {
 		return subordinatesFor;
@@ -153,5 +161,21 @@ public class IdentityFilter extends QuickFilter implements CorrelationFilter {
 	
 	public void setRecursively(boolean recursively) {
 		this.recursively = recursively;
+	}
+	
+	public UUID getManagersByContractId() {
+		return managersByContractId;
+	}
+	
+	public void setManagersByContractId(UUID managersByContractId) {
+		this.managersByContractId = managersByContractId;
+	}
+	
+	public boolean isIncludeGuarantees() {
+		return includeGuarantees;
+	}
+	
+	public void setIncludeGuarantees(boolean includeGuarantees) {
+		this.includeGuarantees = includeGuarantees;
 	}
 }

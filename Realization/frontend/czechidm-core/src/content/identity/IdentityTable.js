@@ -116,6 +116,7 @@ export class IdentityTable extends Advanced.AbstractTableContent {
       columns,
       forceSearchParameters,
       showAddButton,
+      showFilter,
       deleteEnabled,
       showRowSelection,
       rendered,
@@ -187,7 +188,8 @@ export class IdentityTable extends Advanced.AbstractTableContent {
               </Basic.AbstractForm>
             </Advanced.Filter>
           }
-          filterOpened={filterOpened}
+          filterOpened={ filterOpened }
+          showFilter={ showFilter }
           forceSearchParameters={_forceSearchParameters}
           actions={
             [
@@ -224,16 +226,24 @@ export class IdentityTable extends Advanced.AbstractTableContent {
               }
             }
             sort={false}/>
+          <Advanced.Column
+            header={ this.i18n('entity.Identity._type') }
+            cell={
+              ({ rowIndex, data }) => {
+                // TODO: generalize to advanced table - column position?
+                return (
+                  <Advanced.IdentityInfo entityId={ data[rowIndex].id } entity={ data[rowIndex] } face="popover"/>
+                );
+              }
+            }
+            rendered={_.includes(columns, 'entityInfo')}/>
           <Advanced.Column property="_links.self.href" face="text" rendered={false}/>
           <Advanced.ColumnLink to="identity/:username/profile" property="username" width="20%" sort face="text" rendered={_.includes(columns, 'username')}/>
           <Advanced.Column property="lastName" sort face="text" rendered={_.includes(columns, 'lastName')}/>
           <Advanced.Column property="firstName" width="10%" face="text" rendered={_.includes(columns, 'firstName')}/>
           <Advanced.Column property="email" width="15%" face="text" sort rendered={_.includes(columns, 'email')}/>
           <Advanced.Column property="disabled" face="bool" sort width="100px" rendered={_.includes(columns, 'disabled')}/>
-          <Basic.Column
-            header={this.i18n('entity.Identity.description')}
-            cell={<Basic.TextCell property="description" />}
-            rendered={_.includes(columns, 'description')}/>
+          <Advanced.Column property="description" face="text" rendered={_.includes(columns, 'description')}/>
         </Advanced.Table>
       </div>
     );
@@ -244,7 +254,9 @@ IdentityTable.propTypes = {
   uiKey: PropTypes.string.isRequired,
   identityManager: PropTypes.object.isRequired,
   /**
-   * Rendered columns
+   * Rendered columns - see table columns above
+   *
+   * TODO: move to advanced table and add column sorting
    */
   columns: PropTypes.arrayOf(PropTypes.string),
   filterOpened: PropTypes.bool,
@@ -256,6 +268,10 @@ IdentityTable.propTypes = {
    * Button for create user is rendered
    */
   showAddButton: PropTypes.bool,
+  /**
+   * Show filter
+   */
+  showFilter: PropTypes.bool,
   /**
    * Table supports delete identities
    */
@@ -279,6 +295,7 @@ IdentityTable.defaultProps = {
   columns: ['username', 'lastName', 'firstName', 'email', 'disabled', 'description'],
   filterOpened: false,
   showAddButton: true,
+  showFilter: true,
   deleteEnabled: false,
   showRowSelection: false,
   forceSearchParameters: null,

@@ -13,7 +13,6 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.envers.Audited;
-import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.springframework.util.Assert;
 

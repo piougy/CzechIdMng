@@ -30,7 +30,9 @@ import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.model.dto.filter.AuthorizationPolicyFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmAuthorizationPolicy;
+import eu.bcvsolutions.idm.core.model.entity.IdmAuthorizationPolicy_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
+import eu.bcvsolutions.idm.core.model.entity.IdmRole_;
 import eu.bcvsolutions.idm.core.model.repository.IdmAuthorizationPolicyRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
@@ -100,7 +102,7 @@ public class DefaultIdmAuthorizationPolicyService
 		List<Predicate> predicates = new ArrayList<>();
 		// role id
 		if (filter.getRoleId() != null) {
-			predicates.add(builder.equal(root.get("role").get("id"), filter.getRoleId()));
+			predicates.add(builder.equal(root.get(IdmAuthorizationPolicy_.role).get(IdmRole_.id), filter.getRoleId()));
 		}
 		return builder.and(predicates.toArray(new Predicate[predicates.size()]));
 	}

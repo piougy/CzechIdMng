@@ -27,6 +27,33 @@ class SelectBox extends AbstractFormComponent {
     };
   }
 
+  componentWillReceiveProps(nextProps) {
+    super.componentWillReceiveProps(nextProps);
+    const { forceSearchParameters} = nextProps;
+    if (!SearchParameters.is(forceSearchParameters, this.props.forceSearchParameters)) {
+      this._initComponent(nextProps);
+    }
+  }
+
+  // Did mount only call initComponent method
+  componentDidMount() {
+    super.componentDidMount();
+    this._initComponent(this.props);
+  }
+
+  /**
+   * Method for init component from didMount method and from willReceiveProps method
+   * @param  {properties of component} props For didmount call is this.props for call from willReceiveProps is nextProps.
+   */
+  _initComponent(props) {
+    // initialize value
+    // We have to propagate actual forceSearchParameters (maybe from this.props, maybe from nextProps)
+    const { useFirst, forceSearchParameters } = props;
+    if (useFirst) {
+      this.getOptions('', forceSearchParameters, true);
+    }
+  }
+
   getRequiredValidationSchema() {
     if (this.props.multiSelect === true) {
       return Joi.array().min(1).required();
@@ -53,7 +80,7 @@ class SelectBox extends AbstractFormComponent {
     return manager.mergeSearchParameters(searchParameters, _forceSearchParameters);
   }
 
-  getOptions(input, forceSearchParameters) {
+  getOptions(input, forceSearchParameters, useFirst = false) {
     const { manager } = this.props;
     const searchParameters = this._createSearchParameters(input, forceSearchParameters);
     const timeInMs = Date.now();
@@ -84,6 +111,10 @@ class SelectBox extends AbstractFormComponent {
                 continue;
               }
               this.itemRenderer(results[item], input);
+              // use the first value
+              if (this.state.value === null && useFirst) {
+                this.onChange(results[item]);
+              }
             }
             data = {
               options: result._embedded[manager.getCollectionType()],
@@ -438,7 +469,11 @@ SelectBox.propTypes = {
   /**
    * Function with transform label in select box
    */
-  niceLabel: PropTypes.func
+  niceLabel: PropTypes.func,
+  /**
+   * Use the first searched value, if value is empty
+   */
+  useFirst: PropTypes.bool
 };
 
 SelectBox.defaultProps = {
@@ -447,7 +482,8 @@ SelectBox.defaultProps = {
   multiSelect: false,
   returnProperty: 'id',
   searchInFields: [],
-  clearable: true
+  clearable: true,
+  useFirst: false
 };
 
 SelectBox.NICE_LABEL = NICE_LABEL;

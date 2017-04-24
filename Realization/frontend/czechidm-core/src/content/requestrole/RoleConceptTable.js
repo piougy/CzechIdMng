@@ -422,16 +422,14 @@ export class RoleConceptTable extends Basic.AbstractContent {
             property="_embedded.identityContract"
             cell={
               ({rowIndex, data}) => {
-                let contractName;
+                let contract = null;
                 if (data[rowIndex]._embedded.identityContract) {
-                  contractName = data[rowIndex]._embedded.identityContract.position;
+                  contract = data[rowIndex]._embedded.identityContract;
                 } else if (data[rowIndex].identityContract) {
-                  contractName = data[rowIndex].identityContract.position;
-                } else {
-                  contractName = null;
+                  contract = data[rowIndex].identityContract;
                 }
                 return (
-                  <span>{ contractName }</span>
+                  <Advanced.IdentityContractInfo entityIdentifier={ contract.id } entity={ contract } showIdentity={ false } face="popover" showLink={ false } />
                 );
               }
             }/>
@@ -486,11 +484,13 @@ export class RoleConceptTable extends Basic.AbstractContent {
                   helpBlock={ this.i18n('entity.IdentityRole.identityContract.help') }
                   returnProperty={false}
                   readOnly={!detail.entity._added}
-                  required/>
+                  required
+                  useFirst/>
                 <Basic.Checkbox
                   ref="automaticRole"
                   label={this.i18n('entity.IdentityRole.roleTreeNode.label')}
-                  readOnly/>
+                  readOnly
+                  hidden={ detail.entity._added }/>
 
                 <Basic.Row>
                   <div className="col-md-6">

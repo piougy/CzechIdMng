@@ -19,6 +19,7 @@ import EntityInfo from './EntityInfo/EntityInfo';
 import AbstractEntityInfo from './EntityInfo/AbstractEntityInfo';
 import UuidInfo from './UuidInfo/UuidInfo';
 import RoleInfo from './RoleInfo/RoleInfo';
+import IdentityContractInfo from './IdentityContractInfo/IdentityContractInfo';
 
 const Components = {
   Table,
@@ -43,7 +44,8 @@ const Components = {
   EntityInfo,
   AbstractEntityInfo,
   UuidInfo,
-  RoleInfo
+  RoleInfo,
+  IdentityContractInfo
 };
 
 Components.version = '0.0.1';

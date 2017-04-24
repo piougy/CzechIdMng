@@ -21,11 +21,14 @@ import eu.bcvsolutions.idm.core.model.entity.IdmAuthorizationPolicy;
  */
 public interface IdmAuthorizationPolicyRepository extends AbstractEntityRepository<IdmAuthorizationPolicy, AuthorizationPolicyFilter> {
 	
+	/**
+	 * @deprecated Use IdmAuthorizationPolicyService (uses criteria api)
+	 */
 	@Override
 	@Deprecated
 	@Query(value = "select e from #{#entityName} e")
 	default Page<IdmAuthorizationPolicy> find(AuthorizationPolicyFilter filter, Pageable pageable) {
-		throw new UnsupportedOperationException("Use IdmIdentityService (uses criteria api)");
+		throw new UnsupportedOperationException("Use IdmAuthorizationPolicyService (uses criteria api)");
 	}
 	
 	/**

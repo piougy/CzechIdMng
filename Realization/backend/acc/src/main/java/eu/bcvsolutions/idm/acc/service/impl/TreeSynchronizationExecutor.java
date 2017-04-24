@@ -46,6 +46,7 @@ import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccTreeAccountService;
+import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.SynchronizationExecutor;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncActionLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
@@ -60,6 +61,7 @@ import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
+import eu.bcvsolutions.idm.core.model.domain.EntityUtilities;
 import eu.bcvsolutions.idm.core.model.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.model.dto.filter.TreeNodeFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
@@ -395,14 +397,14 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 		addToItemLog(logItem, "Missing entity action is CREATE_ENTITY, we will do create new entity.");
 		IdmTreeNode treeNode = new IdmTreeNode();
 		// Fill entity by mapped attribute
-		treeNode = (IdmTreeNode) fillEntity(mappedAttributes, uid, icAttributes, treeNode);
+		treeNode = (IdmTreeNode) fillEntity(mappedAttributes, uid, icAttributes, treeNode, true);
 		treeNode.setTreeType(this.getSystemMapping(mappedAttributes).getTreeType());
 		// Create new Entity
 		treeNodeService.save(treeNode);
 		// Update extended attribute (entity must be persisted first)
-		updateExtendedAttributes(mappedAttributes, uid, icAttributes, treeNode);
+		updateExtendedAttributes(mappedAttributes, uid, icAttributes, treeNode, true);
 		// Update confidential attribute (entity must be persisted first)
-		updateConfidentialAttributes(mappedAttributes, uid, icAttributes, treeNode);
+		updateConfidentialAttributes(mappedAttributes, uid, icAttributes, treeNode, true);
 
 		// Create new Entity account relation
 		EntityAccountDto entityAccount = this.createEntityAccountDto();
@@ -440,12 +442,12 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 		}
 		if (treeNode != null) {
 			// Update entity
-			treeNode = (IdmTreeNode) fillEntity(mappedAttributes, uid, icAttributes, treeNode);
+			treeNode = (IdmTreeNode) fillEntity(mappedAttributes, uid, icAttributes, treeNode, false);
 			treeNodeService.save(treeNode);
 			// Update extended attribute (entity must be persisted first)
-			updateExtendedAttributes(mappedAttributes, uid, icAttributes, treeNode);
+			updateExtendedAttributes(mappedAttributes, uid, icAttributes, treeNode, false);
 			// Update confidential attribute (entity must be persisted first)
-			updateConfidentialAttributes(mappedAttributes, uid, icAttributes, treeNode);
+			updateConfidentialAttributes(mappedAttributes, uid, icAttributes, treeNode, false);
 
 			// TreeNode Updated
 			addToItemLog(logItem, MessageFormat.format("TreeNode with id {0} was updated", treeNode.getId()));
@@ -591,18 +593,24 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 	 * @param uid
 	 * @param icAttributes
 	 * @param entity
+	 * @param create (is create or update entity situation)
 	 * @return
 	 */
 	@Override
 	protected AbstractEntity fillEntity(List<SysSystemAttributeMapping> mappedAttributes, String uid,
-			List<IcAttribute> icAttributes, AbstractEntity entity) {
+			List<IcAttribute> icAttributes, AbstractEntity entity, boolean create) {
 		mappedAttributes.stream().filter(attribute -> {
 			// Skip disabled attributes
-			// Skip extended attributes (we need update/ create entity first)
-			// Skip confidential attributes (we need update/ create entity
-			// first)
-			return !attribute.isDisabledAttribute() && attribute.isEntityAttribute()
-					&& !attribute.isConfidentialAttribute();
+						// Skip extended attributes (we need update/ create entity first)
+						// Skip confidential attributes (we need update/ create entity
+						// first)
+						boolean fastResult =  !attribute.isDisabledAttribute() && attribute.isEntityAttribute()
+								&& !attribute.isConfidentialAttribute();
+						if(!fastResult){
+							return false;
+						}
+						// Can be value set by attribute strategy?
+						return this.canSetValue(uid, attribute, entity, create);
 
 		}).forEach(attribute -> {
 			String attributeProperty = attribute.getIdmPropertyName();
@@ -629,7 +637,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 
 			// Set transformed value from target system to entity
 			try {
-				setEntityValue(entity, attributeProperty, transformedValue);
+				EntityUtilities.setEntityValue(entity, attributeProperty, transformedValue);
 			} catch (IntrospectionException | IllegalAccessException | IllegalArgumentException
 					| InvocationTargetException | ProvisioningException e) {
 				throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_IDM_FIELD_NOT_SET,

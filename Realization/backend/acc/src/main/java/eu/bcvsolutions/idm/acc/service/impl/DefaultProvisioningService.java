@@ -63,6 +63,7 @@ import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 import eu.bcvsolutions.idm.core.eav.entity.AbstractFormValue;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
+import eu.bcvsolutions.idm.core.model.domain.EntityUtilities;
 import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
@@ -92,8 +93,6 @@ public class DefaultProvisioningService implements ProvisioningService {
 	private final IcConnectorFacade connectorFacade;
 	private final SysSystemService systemService;
 	private final AccIdentityAccountService identityAccountService;
-	private final ConfidentialStorage confidentialStorage;
-	private final FormService formService;
 	private final SysRoleSystemService roleSystemService;
 	private final AccAccountManagementService accountManagementService;
 	private final SysRoleSystemAttributeService roleSystemAttributeService;
@@ -104,7 +103,7 @@ public class DefaultProvisioningService implements ProvisioningService {
 	@Autowired
 	public DefaultProvisioningService(SysSystemMappingService systemMappingService,
 			SysSystemAttributeMappingService attributeMappingService, IcConnectorFacade connectorFacade,
-			SysSystemService systemService, ConfidentialStorage confidentialStorage, FormService formService,
+			SysSystemService systemService,
 			SysRoleSystemService roleSystemService, AccAccountManagementService accountManagementService,
 			SysRoleSystemAttributeService roleSystemAttributeService, SysSystemEntityService systemEntityService,
 			AccAccountService accountService, AccIdentityAccountService identityAccountService,
@@ -114,8 +113,6 @@ public class DefaultProvisioningService implements ProvisioningService {
 		Assert.notNull(attributeMappingService);
 		Assert.notNull(connectorFacade);
 		Assert.notNull(systemService);
-		Assert.notNull(confidentialStorage);
-		Assert.notNull(formService);
 		Assert.notNull(roleSystemService);
 		Assert.notNull(accountManagementService);
 		Assert.notNull(roleSystemAttributeService);
@@ -128,8 +125,6 @@ public class DefaultProvisioningService implements ProvisioningService {
 		this.attributeMappingService = attributeMappingService;
 		this.connectorFacade = connectorFacade;
 		this.systemService = systemService;
-		this.confidentialStorage = confidentialStorage;
-		this.formService = formService;
 		this.roleSystemService = roleSystemService;
 		this.accountManagementService = accountManagementService;
 		this.roleSystemAttributeService = roleSystemAttributeService;
@@ -321,7 +316,7 @@ public class DefaultProvisioningService implements ProvisioningService {
 						&& AttributeMappingStrategyType.AUTHORITATIVE_MERGE != attribute.getStrategyType() 
 						&& AttributeMappingStrategyType.MERGE != attribute.getStrategyType() ;
 			}).forEach(attribute -> {
-				accountAttributes.put(ProvisioningAttributeDto.createProvisioningAttributeKey(attribute), getAttributeValue(entity, attribute));
+				accountAttributes.put(ProvisioningAttributeDto.createProvisioningAttributeKey(attribute), attributeMappingService.getAttributeValue(entity, attribute));
 			});
 			
 			// Second we will resolve MERGE attributes
@@ -346,7 +341,7 @@ public class DefaultProvisioningService implements ProvisioningService {
 							&& attributeParent.getSchemaAttribute().equals(attribute.getSchemaAttribute()) 
 							&& attributeParent.getStrategyType() == attribute.getStrategyType();
 				}).forEach(attribute -> {
-					Object value = getAttributeValue(entity, attribute);
+					Object value = attributeMappingService.getAttributeValue(entity, attribute);
 					// We don`t want null item in list (problem with provisioning in IC)
 					if(value != null){
 						// If is value collection, then we add all its items to main list!
@@ -749,65 +744,6 @@ public class DefaultProvisioningService implements ProvisioningService {
 		return roleSystemAttributesAll;
 	}
 	
-	/**
-	 * Find value for this mapped attribute by property name. Return value can be list of objects. Returns transformed value.
-	 * 
-	 * @param uid
-	 * @param entity
-	 * @param attributeHandling
-	 * @param idmValue
-	 * @return
-	 * @throws IntrospectionException
-	 * @throws IllegalAccessException
-	 * @throws InvocationTargetException
-	 */
-	private Object getAttributeValue(AbstractEntity entity, AttributeMapping attributeHandling) {
-		Object idmValue = null;
-		//
-		if (attributeHandling.isExtendedAttribute()) {
-			List<AbstractFormValue<FormableEntity>> formValues = formService.getValues((FormableEntity) entity, attributeHandling.getIdmPropertyName());
-			if (formValues.isEmpty()) {
-				idmValue = null;
-			} else if(attributeHandling.getSchemaAttribute().isMultivalued()){
-				// Multiple value extended attribute
-				List<Object> values = new ArrayList<>();
-				formValues.stream().forEachOrdered(formValue -> {
-					values.add(formValue.getValue());
-				});
-				idmValue = values;
-			} else {
-				// Single value extended attribute
-				AbstractFormValue<FormableEntity> formValue = formValues.get(0);
-				if (formValue.isConfidential()) {
-					idmValue = formService.getConfidentialPersistentValue(formValue);
-				} else {
-					idmValue = formValue.getValue();
-				}
-			}
-		}
-		// Find value from entity
-		else if (attributeHandling.isEntityAttribute()) {
-			if (attributeHandling.isConfidentialAttribute()) {
-				// If is attribute isConfidential, then we will find value in
-				// secured storage
-				idmValue = confidentialStorage.getGuardedString(entity, attributeHandling.getIdmPropertyName());
-			} else {
-				try {
-					// We will search value directly in entity by property name
-					idmValue = getEntityValue(entity, attributeHandling.getIdmPropertyName());
-				} catch (IntrospectionException | IllegalAccessException | IllegalArgumentException
-						| InvocationTargetException | ProvisioningException o_O) {
-					throw new ProvisioningException(AccResultCode.PROVISIONING_IDM_FIELD_NOT_FOUND,
-							ImmutableMap.of("property", attributeHandling.getIdmPropertyName(), "entityType", entity.getClass()), o_O);
-				}
-			}
-		} else {
-			// If Attribute value is not in entity nor in extended attribute, then idmValue is null.
-			// It means attribute is static ... we will call transformation to resource.
-		}
-		return attributeMappingService.transformValueToResource(idmValue, attributeHandling, entity);
-	}
-	
 	private SysSystemMapping getMapping(SysSystem system, SystemEntityType entityType) {
 		List<SysSystemMapping> systemMappings = systemMappingService.findBySystem(system, SystemOperationType.PROVISIONING, entityType);
 		if (systemMappings == null || systemMappings.isEmpty()) {
@@ -835,32 +771,5 @@ public class DefaultProvisioningService implements ProvisioningService {
 			return null;
 		}
 		return attributeMappingService.findBySystemMapping(mapping);
-	}
-
-	/**
-	 * Return object from entity for given property name
-	 * 
-	 * @param entity
-	 * @param propertyName
-	 * @return
-	 * @throws IntrospectionException
-	 * @throws IllegalAccessException
-	 * @throws IllegalArgumentException
-	 * @throws InvocationTargetException
-	 */
-	private Object getEntityValue(AbstractEntity entity, String propertyName) throws 
-	IntrospectionException, IllegalAccessException, IllegalArgumentException, InvocationTargetException
-			 {
-		Optional<PropertyDescriptor> propertyDescriptionOptional = Arrays
-				.asList(Introspector.getBeanInfo(entity.getClass()).getPropertyDescriptors())
-				.stream().filter(propertyDescriptor -> {
-					return propertyName.equals(propertyDescriptor.getName());
-				}).findFirst();
-		if (!propertyDescriptionOptional.isPresent()) {
-			throw new IllegalAccessException("Field " + propertyName + " not found!");
-		}
-		PropertyDescriptor propertyDescriptor = propertyDescriptionOptional.get();
-
-		return propertyDescriptor.getReadMethod().invoke(entity);
 	}
 }

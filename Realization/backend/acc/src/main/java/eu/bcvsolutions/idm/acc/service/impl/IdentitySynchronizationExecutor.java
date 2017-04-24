@@ -183,13 +183,13 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 			addToItemLog(logItem, "Missing entity action is CREATE_ENTITY, we will do create new identity.");
 			IdmIdentity identity = new IdmIdentity();
 			// Fill Identity by mapped attribute
-			identity = (IdmIdentity) fillEntity(mappedAttributes, uid, icAttributes, identity);
+			identity = (IdmIdentity) fillEntity(mappedAttributes, uid, icAttributes, identity, true);
 			// Create new Identity
 			identityService.save(identity);
 			// Update extended attribute (entity must be persisted first)
-			updateExtendedAttributes(mappedAttributes, uid, icAttributes, identity);
+			updateExtendedAttributes(mappedAttributes, uid, icAttributes, identity, true);
 			// Update confidential attribute (entity must be persisted first)
-			updateConfidentialAttributes(mappedAttributes, uid, icAttributes, identity);
+			updateConfidentialAttributes(mappedAttributes, uid, icAttributes, identity, true);
 
 			// Create new Identity account relation
 			AccIdentityAccountDto identityAccount = new AccIdentityAccountDto();
@@ -229,13 +229,13 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 			}
 			if (identity != null) {
 				// Update identity
-				identity = (IdmIdentity) fillEntity(mappedAttributes, uid, icAttributes, identity);
+				identity = (IdmIdentity) fillEntity(mappedAttributes, uid, icAttributes, identity, false);
 				identityService.save(identity);
 				// Update extended attribute (entity must be persisted first)
-				updateExtendedAttributes(mappedAttributes, uid, icAttributes, identity);
+				updateExtendedAttributes(mappedAttributes, uid, icAttributes, identity, false);
 				// Update confidential attribute (entity must be persisted
 				// first)
-				updateConfidentialAttributes(mappedAttributes, uid, icAttributes, identity);
+				updateConfidentialAttributes(mappedAttributes, uid, icAttributes, identity, false);
 
 				// Identity Updated
 				addToItemLog(logItem, MessageFormat.format("Identity with id {0} was updated", identity.getId()));

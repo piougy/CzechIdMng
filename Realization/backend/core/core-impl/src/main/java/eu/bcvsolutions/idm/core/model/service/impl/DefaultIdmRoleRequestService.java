@@ -15,6 +15,7 @@ import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
@@ -114,8 +115,7 @@ public class DefaultIdmRoleRequestService
 	public void startRequest(UUID requestId) {
 
 		try {
-			// Request will be started in new transaction
-			this.getIdmRoleRequestService().startRequestInternal(requestId, true);
+			this.getIdmRoleRequestService().startRequestNewTransactional(requestId, true);
 		} catch (Exception ex) {
 			LOG.error(ex.getLocalizedMessage(), ex);
 			IdmRoleRequestDto request = getDto(requestId);
@@ -124,7 +124,13 @@ public class DefaultIdmRoleRequestService
 			save(request);
 		}
 	}
-
+	
+	@Override
+	@Transactional(propagation=Propagation.REQUIRES_NEW)
+	public void startRequestNewTransactional(UUID requestId, boolean checkRight) {
+		this.getIdmRoleRequestService().startRequestInternal(requestId, true);
+	}
+	
 	@Override
 	@Transactional
 	public void startRequestInternal(UUID requestId, boolean checkRight) {
@@ -238,6 +244,19 @@ public class DefaultIdmRoleRequestService
 	@Override
 	@Transactional
 	public IdmRoleRequestDto executeRequest(UUID requestId) {
+		try {
+			return this.executeRequestInternal(requestId);
+		} catch (Exception ex) {
+			LOG.error(ex.getLocalizedMessage(), ex);
+			IdmRoleRequestDto request = getDto(requestId);
+			this.addToLog(request, Throwables.getStackTraceAsString(ex));
+			request.setState(RoleRequestState.EXCEPTION);
+			return save(request);
+		}
+
+	}
+	
+	protected IdmRoleRequestDto executeRequestInternal(UUID requestId) {
 		Assert.notNull(requestId, "Role request ID is required!");
 		IdmRoleRequestDto request = this.getDto(requestId);
 		Assert.notNull(request, "Role request is required!");

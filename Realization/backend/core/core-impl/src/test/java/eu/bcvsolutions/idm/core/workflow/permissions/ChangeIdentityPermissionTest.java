@@ -100,7 +100,7 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowIntegrationTes
 		IdmConceptRoleRequestDto concept = createRoleConcept(adminRole, contract, request);
 		concept = conceptRoleRequestService.save(concept);
 		
-		roleRequestService.startRequest(request.getId());
+		roleRequestService.startRequestInternal(request.getId(), true);
 		request = roleRequestService.getDto(request.getId());
 		assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
 		
@@ -142,7 +142,7 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowIntegrationTes
 		IdmConceptRoleRequestDto concept = createRoleConcept(adminRole, contract, request);
 		concept = conceptRoleRequestService.save(concept);
 		
-		roleRequestService.startRequest(request.getId());
+		roleRequestService.startRequestInternal(request.getId(), true);
 		request = roleRequestService.getDto(request.getId());
 		assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
 		
@@ -180,7 +180,7 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowIntegrationTes
 		IdmConceptRoleRequestDto concept = createRoleConcept(adminRole, contract, request);
 		concept = conceptRoleRequestService.save(concept);
 		
-		roleRequestService.startRequest(request.getId());
+		roleRequestService.startRequestInternal(request.getId(), true);
 		request = roleRequestService.getDto(request.getId());
 		assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
 		
@@ -227,7 +227,7 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowIntegrationTes
 		IdmConceptRoleRequestDto concept = createRoleConcept(adminRole, contract, request);
 		concept = conceptRoleRequestService.save(concept);
 		
-		roleRequestService.startRequest(request.getId());
+		roleRequestService.startRequestInternal(request.getId(), true);
 		request = roleRequestService.getDto(request.getId());
 		assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
 		
@@ -287,7 +287,7 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowIntegrationTes
 		IdmConceptRoleRequestDto concept = createRoleConcept(adminRole, contract, request);
 		concept = conceptRoleRequestService.save(concept);
 		
-		roleRequestService.startRequest(request.getId());
+		roleRequestService.startRequestInternal(request.getId(), true);
 		request = roleRequestService.getDto(request.getId());
 		assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
 		

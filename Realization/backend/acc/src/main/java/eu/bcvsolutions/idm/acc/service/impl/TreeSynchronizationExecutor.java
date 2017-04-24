@@ -29,11 +29,13 @@ import eu.bcvsolutions.idm.acc.domain.SynchronizationItemWrapper;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.AccTreeAccountDto;
 import eu.bcvsolutions.idm.acc.dto.EntityAccountDto;
+import eu.bcvsolutions.idm.acc.dto.filter.AccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.EntityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SynchronizationLogFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.TreeAccountFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
+import eu.bcvsolutions.idm.acc.entity.AccTreeAccount;
 import eu.bcvsolutions.idm.acc.entity.SysSyncActionLog;
 import eu.bcvsolutions.idm.acc.entity.SysSyncConfig;
 import eu.bcvsolutions.idm.acc.entity.SysSyncItemLog;
@@ -74,6 +76,7 @@ import eu.bcvsolutions.idm.ic.api.IcSyncToken;
 import eu.bcvsolutions.idm.ic.filter.api.IcFilter;
 import eu.bcvsolutions.idm.ic.filter.api.IcResultsHandler;
 import eu.bcvsolutions.idm.ic.impl.IcAttributeImpl;
+import eu.bcvsolutions.idm.ic.impl.IcLoginAttributeImpl;
 import eu.bcvsolutions.idm.ic.impl.IcObjectClassImpl;
 import eu.bcvsolutions.idm.ic.impl.IcSyncTokenImpl;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
@@ -85,7 +88,6 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(TreeSynchronizationExecutor.class);
 	private final static String PARENT_FIELD = "parent";
 	private final static String CODE_FIELD = "code";
-	private final static String EXTERNAL_ID_FIELD = "externalId";
 
 	private final IdmTreeNodeService treeNodeService;
 	private final AccTreeAccountService treeAccoutnService;
@@ -186,7 +188,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 		Map<String, IcConnectorObject> accountsMap = new HashMap<>();
 		List<String> accountsUseInTreeList = new ArrayList<>();
 
-		longRunningTaskExecutor.counter = 0L;
+		longRunningTaskExecutor.setCounter(0L);
 
 		try {
 			synchronizationLogService.save(log);
@@ -225,7 +227,6 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 			List<String> roots = new ArrayList<>();
 			accountsMap.forEach((uid, account) -> {
 				Object parentValue = this.getValueByMappedAttribute(parentAttribute, account.getAttributes());
-				// TODO: execute in script
 				if (StringUtils.hasLength(config.getRootsFilterScript())) {
 					Map<String, Object> variables = new HashMap<>();
 					variables.put("account", account);
@@ -233,6 +234,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 					List<Class<?>> allowTypes = new ArrayList<>();
 					allowTypes.add(IcAttributeImpl.class);
 					allowTypes.add(IcAttribute.class);
+					allowTypes.add(IcLoginAttributeImpl.class);
 					Object isRoot = groovyScriptService.evaluate(config.getRootsFilterScript(), variables, allowTypes);
 					if (isRoot != null && !(isRoot instanceof Boolean)) {
 						throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_TREE_ROOT_FILTER_VALUE_WRONG_TYPE,
@@ -293,7 +295,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 			log.setEnded(LocalDateTime.now());
 			synchronizationLogService.save(log);
 			//
-			longRunningTaskExecutor.count = longRunningTaskExecutor.counter;
+			longRunningTaskExecutor.setCount(longRunningTaskExecutor.getCounter());
 			longRunningTaskExecutor.updateState();
 		}
 		return config;
@@ -605,17 +607,23 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 		}).forEach(attribute -> {
 			String attributeProperty = attribute.getIdmPropertyName();
 			Object transformedValue = getValueByMappedAttribute(attribute, icAttributes);
-			if (attributeProperty.equals(PARENT_FIELD)) {
-
-				TreeNodeFilter nodeFilter = new TreeNodeFilter();
-				nodeFilter.setProperty(EXTERNAL_ID_FIELD);
-				nodeFilter.setValue(transformedValue != null ? transformedValue.toString() : null);
-				List<IdmTreeNode> parents = treeNodeService.find(nodeFilter, null).getContent();
-				// TODO: exception for more parents
-				if (!parents.isEmpty()) {
-					transformedValue = parents.get(0);
-				} else {
-					transformedValue = null;
+			if (attributeProperty.equals(PARENT_FIELD) && transformedValue != null) {
+				// Find account by UID from parent field
+				AccountFilter accountFilter = new AccountFilter();
+				accountFilter.setUidId(transformedValue.toString());
+				accountFilter.setSystemId(attribute.getSystemMapping().getSystem().getId());
+				transformedValue = null;
+				List<AccAccount> parentAccounts = accountService.find(accountFilter, null).getContent();
+				if (!parentAccounts.isEmpty()) {
+					// Find relation between tree and account
+					TreeAccountFilter treeAccountFilter = new TreeAccountFilter();
+					treeAccountFilter.setAccountId(parentAccounts.get(0).getId());
+					List<AccTreeAccount> treeAccounts = treeAccoutnService.find(treeAccountFilter, null).getContent();
+					if(!treeAccounts.isEmpty()){
+						// Find parent tree node by ID
+						// TODO: resolve more treeAccounts situations
+						transformedValue = treeNodeService.get(treeAccounts.get(0).getTreeNode().getId());
+					}
 				}
 			}
 

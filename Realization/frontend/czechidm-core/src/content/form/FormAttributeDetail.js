@@ -37,9 +37,15 @@ class FormAttributeDetail extends Basic.AbstractContent {
     const { entityId } = this.props.params;
 
     if (this._getIsNew()) {
-      this.context.store.dispatch(attributeManager.receiveEntity(entityId, { seq: 0, unmodifiable: false, formDefinition: this._getFormDefinitionId() }, null, () => {
-        this.refs.name.focus();
-      }));
+      this.context.store.dispatch(attributeManager.receiveEntity(entityId,
+        {
+          persistentType: PersistentTypeEnum.TEXT,
+          seq: 0,
+          unmodifiable: false,
+          formDefinition: this._getFormDefinitionId()
+        }, null, () => {
+          this.refs.name.focus();
+        }));
     } else {
       this.getLogger().debug(`[FormAttributeDetail] loading entity detail [id:${entityId}]`);
       this.context.store.dispatch(attributeManager.fetchEntity(entityId, null, () => {
@@ -189,6 +195,7 @@ class FormAttributeDetail extends Basic.AbstractContent {
                       readOnly={this._isUnmodifiable()}
                       label={this.i18n('entity.FormAttribute.persistentType')}
                       max={255}
+                      useSymbol={false}
                       required/>
                   </div>
                   <div className="col-lg-8">

@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.TestHelper;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.exception.RoleRequestException;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.model.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
@@ -155,7 +156,7 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractIntegra
 
 		Assert.assertEquals(RoleRequestState.CONCEPT, conceptA.getState());
 
-		roleRequestService.startRequest(request.getId());
+		roleRequestService.startRequestInternal(request.getId(), true);
 		request = roleRequestService.getDto(request.getId());
 
 		Assert.assertEquals(RoleRequestState.EXECUTED, request.getState());
@@ -195,7 +196,7 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractIntegra
 		conceptA.setIdentityRole(identityRoles.get(0).getId());
 		conceptA = conceptRoleRequestService.save(conceptA);
 
-		roleRequestService.startRequest(request.getId());
+		roleRequestService.startRequestInternal(request.getId(), true);
 		request = roleRequestService.getDto(request.getId());
 
 		Assert.assertEquals(RoleRequestState.EXECUTED, request.getState());
@@ -232,7 +233,7 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractIntegra
 		conceptA.setIdentityRole(identityRoles.get(0).getId());
 		conceptA = conceptRoleRequestService.save(conceptA);
 
-		roleRequestService.startRequest(request.getId());
+		roleRequestService.startRequestInternal(request.getId(), true);
 		request = roleRequestService.getDto(request.getId());
 
 		Assert.assertEquals(RoleRequestState.EXECUTED, request.getState());
@@ -241,7 +242,7 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractIntegra
 
 	}
 
-	@Test()
+	@Test(expected = RoleRequestException.class)
 	@Transactional()
 	public void noSameApplicantExceptionTest() {
 		IdmIdentity testA = identityService.getByUsername(USER_TEST_A);
@@ -263,10 +264,7 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractIntegra
 		conceptA = conceptRoleRequestService.save(conceptA);
 
 		// excepted ROLE_REQUEST_APPLICANTS_NOT_SAME exception
-		roleRequestService.startRequest(request.getId());
-		request = roleRequestService.getDto(request.getId());
-
-		Assert.assertEquals(RoleRequestState.EXCEPTION, request.getState());
+		roleRequestService.startRequestInternal(request.getId(), true);
 
 	}
 	
@@ -297,7 +295,7 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractIntegra
 		conceptA.setIdentityContract(contractA.getId());
 		conceptRoleRequestService.save(conceptA);
 
-		roleRequestService.startRequest(requestA.getId());
+		roleRequestService.startRequestInternal(requestA.getId(), true);
 		requestA = roleRequestService.getDto(requestA.getId());
 		Assert.assertEquals(RoleRequestState.IN_PROGRESS, requestA.getState());
 
@@ -306,7 +304,7 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractIntegra
 		conceptRoleRequestService.save(conceptA);
 		
 		// We expect duplication exception
-		roleRequestService.startRequest(requestB.getId());
+		roleRequestService.startRequestInternal(requestB.getId(), true);
 		requestB = roleRequestService.getDto(requestB.getId());
 		Assert.assertEquals(RoleRequestState.DUPLICATED, requestB.getState());
 		Assert.assertEquals(requestA.getId(), requestB.getDuplicatedToRequest());
@@ -317,14 +315,14 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractIntegra
 		roleRequestService.save(requestB);
 		
 		// We expect correct start
-		roleRequestService.startRequest(requestB.getId());
+		roleRequestService.startRequestInternal(requestB.getId(), true);
 		requestB = roleRequestService.getDto(requestB.getId());
 		Assert.assertEquals(RoleRequestState.IN_PROGRESS, requestB.getState());
 		Assert.assertEquals(null, requestB.getDuplicatedToRequest());
 		
 	}
-	
-	@Test
+
+	@Test(expected = RoleRequestException.class)
 	@Transactional()
 	public void notRightForExecuteImmediatelyExceptionTest() {
 		this.logout();
@@ -356,11 +354,8 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractIntegra
 
 		Assert.assertEquals(RoleRequestState.CONCEPT, conceptA.getState());
 
-		roleRequestService.startRequest(request.getId());
-		request = roleRequestService.getDto(request.getId());
-		
 		// We expect exception state (we don`t have right for execute without approval)
-		Assert.assertEquals(RoleRequestState.EXCEPTION, request.getState());
+		roleRequestService.startRequestInternal(request.getId(), true);
 
 	}
 

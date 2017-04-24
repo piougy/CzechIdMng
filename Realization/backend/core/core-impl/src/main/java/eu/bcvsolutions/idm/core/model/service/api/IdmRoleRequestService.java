@@ -58,4 +58,11 @@ public interface IdmRoleRequestService extends ReadWriteDtoService<IdmRoleReques
 	 * @param dto
 	 */
 	void cancel(IdmRoleRequestDto dto);
+
+	/**
+	 * Internal start request. Start in new transaction 
+	 * @param requestId
+	 * @param checkRight - If is true, then will be check right for immediately execution (if is requires)
+	 */
+	void startRequestNewTransactional(UUID requestId, boolean checkRight);
 }

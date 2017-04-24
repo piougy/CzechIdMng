@@ -91,15 +91,6 @@ public class DefaultTreeSynchronizationServiceTest extends AbstractIntegrationTe
 	
 	@Autowired
 	private SysSystemService systemService;
-	
-	@Autowired
-	private IdmIdentityService identityService;
-
-	@Autowired
-	private AccIdentityAccountService identityAccoutnService;
-
-	@Autowired
-	private AccAccountService accountService;
 
 	@Autowired
 	private SysSystemMappingService systemMappingService;
@@ -127,9 +118,6 @@ public class DefaultTreeSynchronizationServiceTest extends AbstractIntegrationTe
 
 	@Autowired
 	private ApplicationContext applicationContext;
-	
-	@Autowired
-	private FormService formService;
 	
 	@Autowired
 	private IdmTreeTypeService treeTypeService;
@@ -364,6 +352,58 @@ public class DefaultTreeSynchronizationServiceTest extends AbstractIntegrationTe
 		// Delete log
 		syncLogService.delete(log);
 
+	}
+	
+	@Test
+	public void doStartSyncC_MissingEntity() {
+		SynchronizationConfigFilter configFilter = new SynchronizationConfigFilter();
+		configFilter.setName(SYNC_CONFIG_NAME);
+		List<SysSyncConfig> syncConfigs = syncConfigService.find(configFilter, null).getContent();
+
+		Assert.assertEquals(1, syncConfigs.size());
+		SysSyncConfig syncConfigCustom = syncConfigs.get(0);
+		Assert.assertFalse(syncConfigService.isRunning(syncConfigCustom));
+		syncConfigCustom.setRootsFilterScript("if(account){ def parentValue = account.getAttributeByName(\"PARENT\").getValue(); def uidValue = account.getAttributeByName(\"__NAME__\").getValue(); if(parentValue != null && parentValue.equals(uidValue)){ account.getAttributeByName(\"PARENT\").setValues(null); return Boolean.TRUE;}} \nreturn Boolean.FALSE;");
+		// Set sync config
+		syncConfigCustom.setLinkedAction(SynchronizationLinkedActionType.IGNORE);
+		syncConfigCustom.setUnlinkedAction(SynchronizationUnlinkedActionType.IGNORE);
+		syncConfigCustom.setMissingEntityAction(SynchronizationMissingEntityActionType.CREATE_ENTITY);
+		syncConfigCustom.setMissingAccountAction(ReconciliationMissingAccountActionType.IGNORE);
+		syncConfigService.save(syncConfigCustom);
+		//
+		synchornizationService.setSynchronizationConfigId(syncConfigCustom.getId());
+		synchornizationService.process();
+		//		
+		SynchronizationLogFilter logFilter = new SynchronizationLogFilter();
+		logFilter.setSynchronizationConfigId(syncConfigCustom.getId());
+		List<SysSyncLog> logs = syncLogService.find(logFilter, null).getContent();
+		Assert.assertEquals(1, logs.size());
+		SysSyncLog log = logs.get(0);
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+
+		SyncActionLogFilter actionLogFilter = new SyncActionLogFilter();
+		actionLogFilter.setSynchronizationLogId(log.getId());
+		List<SysSyncActionLog> actions = syncActionLogService.find(actionLogFilter, null).getContent();
+		Assert.assertEquals(2, actions.size());
+
+		SysSyncActionLog createEntityActionLog = actions.stream().filter(action -> {
+			return SynchronizationActionType.CREATE_ENTITY == action.getSyncAction();
+		}).findFirst().get();
+
+		SyncItemLogFilter itemLogFilter = new SyncItemLogFilter();
+		itemLogFilter.setSyncActionLogId(createEntityActionLog.getId());
+		List<SysSyncItemLog> items = syncItemLogService.find(itemLogFilter, null).getContent();
+		Assert.assertEquals(6, items.size());
+		
+		IdmTreeType treeType = treeTypeService.find(null).getContent().stream().filter(tree -> {
+			return tree.getName().equals(TREE_TYPE_TEST);
+		}).findFirst().get();
+		
+		Assert.assertEquals(2, treeNodeService.findRoots(treeType.getId(), null).getContent().size());
+
+		// Delete log
+		syncLogService.delete(log);
 	}
 	
 

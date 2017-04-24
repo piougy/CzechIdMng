@@ -104,6 +104,18 @@ public class DefaultIdmAuthorizationPolicyService
 		if (filter.getRoleId() != null) {
 			predicates.add(builder.equal(root.get(IdmAuthorizationPolicy_.role).get(IdmRole_.id), filter.getRoleId()));
 		}
+		if (filter.getDisabled() != null) {
+			predicates.add(builder.equal(root.get(IdmAuthorizationPolicy_.disabled), filter.getDisabled()));
+		}
+		if (filter.getAuthorizableType() != null) {
+			predicates.add(builder.or(
+					builder.and(
+							builder.isNull(root.get(IdmAuthorizationPolicy_.authorizableType)),
+							builder.isNull(root.get(IdmAuthorizationPolicy_.groupPermission))
+							),
+					builder.equal(root.get(IdmAuthorizationPolicy_.authorizableType), filter.getAuthorizableType())
+					));
+		}
 		return builder.and(predicates.toArray(new Predicate[predicates.size()]));
 	}
 	
@@ -145,7 +157,7 @@ public class DefaultIdmAuthorizationPolicyService
 		if(entityType != null) { // optional
 			filter.setAuthorizableType(entityType.getCanonicalName());
 		}
-		List<IdmAuthorizationPolicy> defaultPolicies = repository.find(filter, null).getContent();
+		List<IdmAuthorizationPolicy> defaultPolicies = find(filter, null).getContent();
 		//
 		LOG.debug("Found [{}] default policies", defaultPolicies.size());
 		return toDtos(defaultPolicies, true);

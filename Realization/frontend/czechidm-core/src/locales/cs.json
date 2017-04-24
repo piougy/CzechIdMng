@@ -464,6 +464,8 @@
       "CONFIGURATION": "Konfigurace aplikace (veřejná)",
       "CONFIGURATIONSECURED": "Konfigurace aplikace (systémová)",
       "IDENTITY": "Uživatelé",
+      "IDENTITYCONTRACT": "Pracovně právní vztahy",
+      "CONTRACTGUARANTEE": "Garanti pracovně právního vztahu",
       "MODULE": "Moduly",
       "NOTIFICATION": "Notifikace",
       "ROLE": "Role",

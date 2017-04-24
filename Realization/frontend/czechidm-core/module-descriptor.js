@@ -176,7 +176,7 @@ module.exports = {
       {
         'id': 'profile-system-separator',
         'type': 'SEPARATOR',
-        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ', 'IDENTITY_READ', 'NOTIFICATION_READ', 'CONFIGURATION_UPDATE', 'MODULE_READ', 'SCHEDULER_READ', 'EAVFORMDEFINITIONS_READ'] } ],
+        'access': [ { 'type': 'DENY_ALL' } ], // RT: PoC only - design is ugly ...
         'labelKey': 'navigation.menu.separator.system',
         'order': 999
       },
@@ -374,7 +374,15 @@ module.exports = {
         'order': 2000,
         'path': '/configurations',
         'iconColor': '#c12e2a',
-        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREENODE_UPDATE', 'CONFIGURATION_UPDATE', 'MODULE_READ', 'SCHEDULER_READ', 'EAVFORMDEFINITIONS_READ'] } ],
+        'access': [
+          {
+            'type': 'HAS_ANY_AUTHORITY',
+            'authorities': [
+              'TREENODE_UPDATE', 'CONFIGURATION_UPDATE', 'MODULE_READ',
+              'SCHEDULER_READ', 'EAVFORMDEFINITIONS_READ', 'PASSWORDPOLICY_READ', 'SCRIPT_READ', 'ROLECATALOGUE_UPDATE'
+            ]
+          }
+        ],
         'items': [
           {
             'id': 'system-configuration',

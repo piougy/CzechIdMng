@@ -22,14 +22,11 @@ import eu.bcvsolutions.idm.core.model.entity.IdmAuthorizationPolicy;
 public interface IdmAuthorizationPolicyRepository extends AbstractEntityRepository<IdmAuthorizationPolicy, AuthorizationPolicyFilter> {
 	
 	@Override
-	@Query(value = "select e from #{#entityName} e" +
-	        " where"
-	        + " (?#{[0].roleId} is null or e.role.id = ?#{[0].roleId})"
-	        + " and"
-	        + " (?#{[0].disabled} is null or e.disabled = ?#{[0].disabled})"
-	        + " and"
-	        + " (?#{[0].authorizableType} is null or e.authorizableType is null or e.authorizableType = ?#{[0].authorizableType})")
-	Page<IdmAuthorizationPolicy> find(AuthorizationPolicyFilter filter, Pageable pageable);
+	@Deprecated
+	@Query(value = "select e from #{#entityName} e")
+	default Page<IdmAuthorizationPolicy> find(AuthorizationPolicyFilter filter, Pageable pageable) {
+		throw new UnsupportedOperationException("Use IdmIdentityService (uses criteria api)");
+	}
 	
 	/**
 	 * Returns all valid policies for given identity and entity type. 

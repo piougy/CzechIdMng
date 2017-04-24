@@ -27,30 +27,6 @@ class SelectBox extends AbstractFormComponent {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
-    super.componentWillReceiveProps(nextProps);
-    const { forceSearchParameters} = nextProps;
-    if (!SearchParameters.is(forceSearchParameters, this.props.forceSearchParameters)) {
-      this._initComponent(nextProps);
-    }
-  }
-
-  // Did mount only call initComponent method
-  componentDidMount() {
-    super.componentDidMount();
-    this._initComponent(this.props);
-  }
-
-  /**
-   * Method for init component from didMount method and from willReceiveProps method
-   * @param  {properties of component} props For didmount call is this.props for call from willReceiveProps is nextProps.
-   */
-  _initComponent(props) {
-    // initialize value
-    // We have to propagat actual forceSearchParameters (maybe from this.props, maybe from nextProps)
-    this.getOptions('', props.forceSearchParameters);
-  }
-
   getRequiredValidationSchema() {
     if (this.props.multiSelect === true) {
       return Joi.array().min(1).required();
@@ -393,6 +369,14 @@ class SelectBox extends AbstractFormComponent {
     return this.i18n('label.select', { defaultValue: 'Select ...' });
   }
 
+  /**
+   * Load first page on input is opened
+   */
+  onOpen() {
+    // loads default first page.
+    this.getOptions('', this.props.forceSearchParameters);
+  }
+
   getSelectComponent() {
     const { placeholder, fieldLabel, multiSelect, clearable} = this.props;
     const { isLoading, options, readOnly, disabled, value } = this.state;
@@ -416,7 +400,8 @@ class SelectBox extends AbstractFormComponent {
           searchPromptText={this.i18n('component.basic.SelectBox.searchPromptText')}
           clearable={clearable}
           onInputChange={this.onInputChange.bind(this)}
-          options={options}/>
+          options={options}
+          onOpen={ this.onOpen.bind(this) }/>
     );
   }
 }

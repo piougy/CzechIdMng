@@ -17,7 +17,7 @@ import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import eu.bcvsolutions.idm.core.api.dto.IdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.security.api.domain.DefaultGrantedAuthority;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
@@ -122,8 +122,8 @@ public class JwtAuthenticationMapper {
 			}
 		}
 		IdmJwtAuthentication authentication = new IdmJwtAuthentication(
-				new IdentityDto(dto.getCurrentIdentityId(), dto.getCurrentUsername()),
-				new IdentityDto(dto.getOriginaIdentityId(), dto.getOriginalUsername()), 
+				new IdmIdentityDto(dto.getCurrentIdentityId(), dto.getCurrentUsername()),
+				new IdmIdentityDto(dto.getOriginaIdentityId(), dto.getOriginalUsername()), 
 				dto.getExpiration(), 
 				grantedAuthorities,
 				dto.getFromModule());

@@ -40,6 +40,8 @@ public abstract class AbstractReadWriteDtoService<DTO extends BaseDto, E extends
 	@Override
 	@Transactional
 	public DTO save(DTO dto, BasePermission... permission) {
+		Assert.notNull(dto);
+		//
 		E persistEntity = null;
 		if (dto.getId() != null) {
 			persistEntity = this.get(dto.getId());
@@ -68,12 +70,12 @@ public abstract class AbstractReadWriteDtoService<DTO extends BaseDto, E extends
 
 	@Override
 	@Transactional
-	public Iterable<DTO> saveAll(Iterable<DTO> dtos) {
+	public Iterable<DTO> saveAll(Iterable<DTO> dtos, BasePermission... permission) {
 		Assert.notNull(dtos);
 		//
 		List<DTO> savedDtos = new ArrayList<>();
 		dtos.forEach(entity -> {
-			savedDtos.add(save(entity));
+			savedDtos.add(save(entity, permission));
 		});
 		return savedDtos;
 	}

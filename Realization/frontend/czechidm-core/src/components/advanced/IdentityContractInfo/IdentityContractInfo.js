@@ -14,8 +14,8 @@ const manager = new IdentityContractManager();
 /**
  * Component for rendering nice identifier for identity contracts, similar function as roleInfo
  *
- * @author Radek Tomiška (main component)
  * @author Ondrej Kopr
+ * @author Radek Tomiška
  */
 export class IdentityContractInfo extends AbstractEntityInfo {
 
@@ -38,7 +38,7 @@ export class IdentityContractInfo extends AbstractEntityInfo {
   }
 
   render() {
-    const { rendered, showLoading, className, entity, entityIdentifier, _showLoading, style } = this.props;
+    const { rendered, showLoading, className, entity, entityIdentifier, _showLoading, style, showIdentity } = this.props;
     //
     if (!rendered) {
       return null;
@@ -71,11 +71,11 @@ export class IdentityContractInfo extends AbstractEntityInfo {
     //
     if (!this.showLink()) {
       return (
-        <span className={ classNames }>{ manager.getNiceLabel(_entity) }</span>
+        <span className={ classNames }>{ manager.getNiceLabel(_entity, showIdentity) }</span>
       );
     }
     return (
-      <Link className={ classNames } to={`/identity/${username}/identity-contract/${entityIdentifier}/detail`}>{manager.getNiceLabel(_entity)}</Link>
+      <Link className={ classNames } to={`/identity/${username}/identity-contract/${entityIdentifier}/detail`}>{manager.getNiceLabel(_entity, showIdentity)}</Link>
     );
   }
 }
@@ -91,6 +91,10 @@ IdentityContractInfo.propTypes = {
    */
   entityIdentifier: PropTypes.string,
   /**
+   * Show contract's identity
+   */
+  showIdentity: PropTypes.bool,
+  /**
    * Internal entity loaded by given identifier
    */
   _entity: PropTypes.object,
@@ -101,6 +105,7 @@ IdentityContractInfo.defaultProps = {
   entity: null,
   face: 'link',
   _showLoading: true,
+  showIdentity: true
 };
 
 function select(state, component) {

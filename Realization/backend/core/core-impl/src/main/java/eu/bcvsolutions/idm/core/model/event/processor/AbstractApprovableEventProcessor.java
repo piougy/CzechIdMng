@@ -11,7 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
-import eu.bcvsolutions.idm.core.api.dto.IdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
@@ -52,7 +52,7 @@ public abstract class AbstractApprovableEventProcessor<E extends Serializable> e
 		Map<String, Object> variables = new HashMap<>();
 		variables.put(EntityEvent.EVENT_PROPERTY, event);
 		//
-		IdentityDto modifier = securityService.getAuthentication().getCurrentIdentity();
+		IdmIdentityDto modifier = securityService.getAuthentication().getCurrentIdentity();
 		ProcessInstance processInstance = workflowProcessInstanceService.startProcess(
 				getWorkflowDefinitionKey(),
 				modifier.getClass().getSimpleName(), 

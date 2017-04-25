@@ -74,7 +74,7 @@ public class DefaultIdmAuthorizationPolicyServiceUnitTest extends AbstractUnitTe
 	public void testDefaultPolicies() {
 		when(roleService.getDefaultRole()).thenReturn(DEFAULT_ROLE);
 		Page<IdmAuthorizationPolicy> policies = new PageImpl<>(Lists.newArrayList(new IdmAuthorizationPolicy(UUID.randomUUID()), new IdmAuthorizationPolicy(UUID.randomUUID())));
-		when(repository.find(any(), any())).thenReturn(policies);
+		when(service.find(any(), any())).thenReturn(policies);
 		//
 		List<UUID> defaultPolicies = service.getDefaultPolicies(Identifiable.class).stream().map(IdmAuthorizationPolicyDto::getId).collect(Collectors.toList());
 		assertEquals(2, defaultPolicies.size());

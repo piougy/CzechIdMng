@@ -50,11 +50,13 @@ public interface ReadDtoService<DTO extends BaseDto, E extends BaseEntity, F ext
 
 	/**
 	 * Returns page of DTOs
+	 * Never throws {@link ForbiddenEntityException} - returning available dtos by given permissions (AND).
 	 * 
 	 * @param pageable
+	 * @param permission permissions to evaluate
 	 * @return
 	 */
-	Page<DTO> findDto(Pageable pageable);
+	Page<DTO> findDto(Pageable pageable, BasePermission... permission);
 	
 	/**
 	 * Returns page of DTOs by given filter, authorization permission will be evaluated. 
@@ -62,33 +64,41 @@ public interface ReadDtoService<DTO extends BaseDto, E extends BaseEntity, F ext
 	 * 
 	 * @param filter
 	 * @param pageable
-	 * @param permission
+	 * @param permission permissions to evaluate
 	 * @return
 	 */
 	Page<DTO> findDto(F filter, Pageable pageable, BasePermission... permission);
 
 	/**
-	 * Returns page of entities by given filter
+	 * Returns page of entities by given filter.
+	 * Never throws {@link ForbiddenEntityException} - returning available dtos by given permissions (AND).
 	 * 
 	 * @param filter
 	 * @param pageable
+	 * @param permission permissions to evaluate
 	 * @return
 	 */
-	Page<E> find(F filter, Pageable pageable);
+	Page<E> find(F filter, Pageable pageable, BasePermission... permission);
 
 	/**
-	 * Returns page of entities
+	 * Returns page of entities.
+	 * Never throws {@link ForbiddenEntityException} - returning available dtos by given permissions (AND).
 	 * 
 	 * @param pageable
+	 * @param permission permissions to evaluate
 	 * @return
 	 */
-	Page<E> find(Pageable pageable);
+	Page<E> find(Pageable pageable, BasePermission... permission);
 
 	/**
-	 * Returns entity by given id. Returns null, if entity is not exists. For
-	 * AbstractEntity uuid or string could be given.
+	 * Returns entity by given id. Returns null, if entity is not exists. For AbstractEntity uuid or string could be given.
+	 * 
+	 * @param id entity identifier
+	 * @param permission permissions to evaluate
+	 * @return
+	 * @throws ForbiddenEntityException if authorization policies doesn't met
 	 */
-	E get(Serializable id);
+	E get(Serializable id, BasePermission... permission);
 
 	/**
 	 * Converts entity to DTO

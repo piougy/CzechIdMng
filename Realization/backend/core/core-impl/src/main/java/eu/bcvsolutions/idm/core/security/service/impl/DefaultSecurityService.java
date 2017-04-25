@@ -15,7 +15,7 @@ import org.springframework.util.Assert;
 
 import com.google.common.collect.Lists;
 
-import eu.bcvsolutions.idm.core.api.dto.IdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.security.api.domain.AbstractAuthentication;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
@@ -47,7 +47,7 @@ public class DefaultSecurityService implements SecurityService {
 	
 	@Override
 	public void setSystemAuthentication() {
-		this.setAuthentication(new IdmJwtAuthentication(new IdentityDto("[SYSTEM]"), null, Lists.newArrayList(IdmAuthorityUtils.getAdminAuthority()), null));
+		this.setAuthentication(new IdmJwtAuthentication(new IdmIdentityDto("[SYSTEM]"), null, Lists.newArrayList(IdmAuthorityUtils.getAdminAuthority()), null));
 	}
 	
 	@Override

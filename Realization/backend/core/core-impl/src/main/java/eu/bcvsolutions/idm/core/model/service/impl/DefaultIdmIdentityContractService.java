@@ -3,7 +3,6 @@ package eu.bcvsolutions.idm.core.model.service.impl;
 import java.util.List;
 import java.util.UUID;
 
-import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -117,12 +116,6 @@ public class DefaultIdmIdentityContractService
 		//
 		LOG.debug("Deleting contract [{}] for identity [{}]", entity.getId(), entity.getIdentity().getUsername());
 		entityEventManager.process(new IdentityContractEvent(IdentityContractEventType.DELETE, entity));
-	}
-
-	@Override
-	@Transactional
-	public int clearGuarantee(IdmIdentity identity) {
-		return repository.clearGuarantee(identity, new DateTime());
 	}
 
 	@Override

@@ -22,7 +22,9 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.TestHelper;
 import eu.bcvsolutions.idm.core.model.domain.RecursionType;
+import eu.bcvsolutions.idm.core.model.dto.IdmContractGuaranteeDto;
 import eu.bcvsolutions.idm.core.model.dto.IdmRoleTreeNodeDto;
+import eu.bcvsolutions.idm.core.model.dto.filter.ContractGuaranteeFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
@@ -31,6 +33,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRoleTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleTreeNodeRepository;
+import eu.bcvsolutions.idm.core.model.service.api.IdmContractGuaranteeService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
@@ -61,6 +64,8 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 	private IdmRoleTreeNodeRepository roleTreeNodeRepository;
 	@Autowired
 	private LongRunningTaskManager taskManager;
+	@Autowired
+	private IdmContractGuaranteeService contractGuaranteeService;
 	//
 	private IdmTreeType treeType = null;
 	private IdmTreeNode nodeA = null;
@@ -504,5 +509,43 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 		helper.deleteTreeNode(treeNode.getId());
 		//
 		assertNull(roleTreeNodeService.get(roleTreeNode.getId()));		
+	}
+	
+	@Test
+	public void testReferentialIntegrityOnIdentityDelete() {
+		// prepare data
+		IdmIdentity identity = helper.createIdentity();
+		IdmIdentity identityWithContract = helper.createIdentity();
+		IdmIdentityContract contract = helper.createIdentityContact(identityWithContract);
+		helper.createContractGuarantee(contract.getId(), identity.getId());
+		//
+		ContractGuaranteeFilter filter = new ContractGuaranteeFilter();
+		filter.setIdentityContractId(contract.getId());
+		List<IdmContractGuaranteeDto> guarantees = contractGuaranteeService.findDto(filter, null).getContent();
+		assertEquals(1, guarantees.size());
+		//
+		helper.deleteIdentity(identity.getId());
+		//
+		guarantees = contractGuaranteeService.findDto(filter, null).getContent();
+		assertEquals(0, guarantees.size());
+	}
+	
+	@Test
+	public void testReferentialIntegrityOnContractDelete() {
+		// prepare data
+		IdmIdentity identity = helper.createIdentity();
+		IdmIdentity identityWithContract = helper.createIdentity();
+		IdmIdentityContract contract = helper.createIdentityContact(identityWithContract);
+		helper.createContractGuarantee(contract.getId(), identity.getId());
+		//
+		ContractGuaranteeFilter filter = new ContractGuaranteeFilter();
+		filter.setGuaranteeId(identity.getId());
+		List<IdmContractGuaranteeDto> guarantees = contractGuaranteeService.findDto(filter, null).getContent();
+		assertEquals(1, guarantees.size());
+		//
+		helper.deleteIdentityContact(contract.getId());
+		//
+		guarantees = contractGuaranteeService.findDto(filter, null).getContent();
+		assertEquals(0, guarantees.size());
 	}
 }

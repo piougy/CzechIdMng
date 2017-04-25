@@ -53,6 +53,25 @@ public interface LongRunningTaskExecutor<V> extends Callable<V> {
 	Long getCounter();
 	
 	/**
+	 * Sets total item count
+	 * 
+	 */
+	void setCount(Long count);
+
+	/**
+	 * Sets processed items count
+	 * 
+	 */
+	void setCounter(Long counter);
+	
+	/**
+	 * Increase counter by 1 and return it.
+	 * @return
+	 */
+	Long increaseCounter();
+
+	
+	/**
 	 * Updates persisted task state (count, counter, etc.)
 	 * 
 	 * @param context

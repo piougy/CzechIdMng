@@ -44,6 +44,16 @@ mvn clean install -PfullApp
 which build whole application - backend and frontend in one `idm.war` file (require gulp installation - see [frontend installation guide](../frontend/README.txt)).
 Deploy `idm.war` package is the same as above.
 
+## Development
+
+### Setup jpa metamodel generation in Eclipse
+
+* Go to `Project` -> `Properties` -> `Java Compliler` -> `Annotation Processing` -> check `Enable project specific settings` and fill **target/metamodel** as `Generated source directory`.
+* Go to `Project` -> `Properties` -> `Java Compliler` -> `Annotation Processing` -> `Factory path` -> check `Enable project specific settings` and add external jar `hibernate-jpamodelgen.jar` (version 5.x.x). Artefact could be found in local maven repository or downloaded from any public maven repository.
+* remove Eclipse pom.xml error - `Plugin execution not covered by lifecycle configuration: org.bsc.maven:maven-processor-plugin:3.3.1:process (execution: process, phase: generate-sources)` - go to `Window` -> `Preferences` -> `Maven` -> `Errors/Warnings` -> set `Plugins execution not covered by lifecycle configuration` to `warning`.
+
+[Other IDEs](https://docs.jboss.org/hibernate/jpamodelgen/1.0/reference/en-US/html_single/#d0e319)
+
 ## Demo user credentials
 
 * username: `admin`

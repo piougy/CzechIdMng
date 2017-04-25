@@ -14,12 +14,14 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
+import eu.bcvsolutions.idm.core.model.dto.IdmContractGuaranteeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
-import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
+import eu.bcvsolutions.idm.core.model.service.api.IdmContractGuaranteeService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeTypeService;
@@ -35,19 +37,17 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 public class IdentityFindPositionsTest extends AbstractIntegrationTest{
 
 	@Autowired
-	private IdmIdentityRepository identityRepository;
-	
+	private IdmIdentityRepository identityRepository;	
 	@Autowired
-	private IdmIdentityService identityService;
-	
+	private IdmIdentityService identityService;	
 	@Autowired
-	private IdmTreeNodeService treeNodeService;
-	
+	private IdmTreeNodeService treeNodeService;	
 	@Autowired
-	private IdmTreeTypeService treeTypeService;
-	
+	private IdmTreeTypeService treeTypeService;	
 	@Autowired
-	private IdmIdentityContractRepository identityContractRepository;
+	private IdmIdentityContractService identityContractService;	
+	@Autowired
+	private IdmContractGuaranteeService contractGuaranteeService;
 	
 	@PersistenceContext
 	private EntityManager entityManager;
@@ -185,13 +185,18 @@ public class IdentityFindPositionsTest extends AbstractIntegrationTest{
 		}
 	}
 	
-	private IdmIdentityContract createIdentityContract(IdmIdentity user, IdmIdentity quarantee, IdmTreeNode node) {
+	private IdmIdentityContract createIdentityContract(IdmIdentity user, IdmIdentity guarantee, IdmTreeNode node) {
 		IdmIdentityContract position = new IdmIdentityContract();
 		position.setIdentity(user);
-		position.setGuarantee(quarantee);
 		position.setWorkPosition(node);
 		
-		return identityContractRepository.save(position);
+		position = identityContractService.save(position);
+		
+		if (guarantee != null) {
+			contractGuaranteeService.save(new IdmContractGuaranteeDto(position.getId(), guarantee.getId()));
+		}
+		
+		return position;
 	}
 	
 	private IdmIdentity createAndSaveIdentity(String userName) {

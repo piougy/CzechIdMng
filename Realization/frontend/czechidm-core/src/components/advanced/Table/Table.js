@@ -251,6 +251,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
       rowClass,
       rendered,
       filter,
+      showFilter,
       filterCollapsible,
       filterViewportOffsetTop,
       actions,
@@ -386,21 +387,26 @@ class AdvancedTable extends Basic.AbstractContextComponent {
               </div>
               <div className="pull-right">
                 { buttons }
-                {' '}
-                <Filter.ToogleButton filterOpen={ (open)=> this.setState({ filterOpened: open }) } filterOpened={filterOpened} rendered={filter !== undefined && filterCollapsible} />
-                {' '}
+
+                <Filter.ToogleButton
+                  filterOpen={ (open)=> this.setState({ filterOpened: open }) }
+                  filterOpened={ filterOpened }
+                  rendered={ showFilter && filter !== undefined && filterCollapsible }
+                  style={{ marginLeft: 3 }}/>
+
                 <Basic.Button
                   className="btn-xs"
                   title={ this.i18n('button.refresh') }
                   titlePlacement="bottom"
                   showLoading={ _showLoading }
-                  onClick={ this.fetchEntities.bind(this, _searchParameters, this.props) }>
+                  onClick={ this.fetchEntities.bind(this, _searchParameters, this.props) }
+                  style={{ marginLeft: 3 }}>
                   <Basic.Icon value="fa:refresh" showLoading={ _showLoading }/>
                 </Basic.Button>
               </div>
               <div className="clearfix"></div>
             </div>
-            <Basic.Collapse in={filterOpened}>
+            <Basic.Collapse in={filterOpened} rendered={ showFilter }>
               <div>
                 { filter }
               </div>
@@ -524,6 +530,10 @@ AdvancedTable.propTypes = {
    */
   filter: PropTypes.element,
   /**
+   * Show filter
+   */
+  showFilter: PropTypes.bool,
+  /**
    * If filter is opened by default
    */
   filterOpened: PropTypes.bool,
@@ -574,6 +584,7 @@ AdvancedTable.defaultProps = {
   _error: null,
   pagination: true,
   showRowSelection: false,
+  showFilter: true,
   showId: null,
   selectedRows: [],
   filterCollapsible: true,

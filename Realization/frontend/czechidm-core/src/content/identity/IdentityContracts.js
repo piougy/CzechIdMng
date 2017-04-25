@@ -157,7 +157,7 @@ export default class IdentityContracts extends Basic.AbstractContent {
               cell={
                 ({ rowIndex, data }) => {
                   return (
-                    <ManagersInfo identityContract={data[rowIndex]}/>
+                    <ManagersInfo identityContractId={data[rowIndex].id}/>
                   );
                 }
               }

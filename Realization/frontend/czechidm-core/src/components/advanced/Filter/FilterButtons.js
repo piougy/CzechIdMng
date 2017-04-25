@@ -20,13 +20,13 @@ export default class FilterButtons extends Basic.AbstractContextComponent {
   }
 
   render() {
-    const { rendered, showLoading, ...others } = this.props;
+    const { rendered, showLoading, style, className } = this.props;
     if (!rendered || showLoading) {
       return null;
     }
     //
     return (
-      <span>
+      <span style={ style } className={ className }>
         <Basic.Button onClick={this._cancelFilter.bind(this)} style={{ marginRight: 5 }}>
           {this.i18n('button.filter.cancel')}
         </Basic.Button>

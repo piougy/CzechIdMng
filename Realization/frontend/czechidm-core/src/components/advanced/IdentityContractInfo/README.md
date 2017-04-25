@@ -13,6 +13,7 @@ All parameters from AbstractComponent are supported. Added parameters:
 | entityIdentifier | string  |  Selected entity's identifier - entity will be loaded automatically.  |  |
 | face | oneOf(['link'])  |  Decorator: <ul><li>TODO:  `text`: entity's nice label only</li><li>`link`: entity's nice label with link to detail</li><li>TODO: `full`: full info card</li></ul>  |  full |
 | showLink | bool | Shows link to entity's detail | true |
+| showIdentity | bool | Shows contract's identity | true |
 
 
 ## Usage
@@ -24,5 +25,5 @@ All parameters from AbstractComponent are supported. Added parameters:
 or
 
 ```html
-<Advanced.IdentityContractInfo entityIdentifier="identityContract" />
+<Advanced.IdentityContractInfo entityIdentifier="uuid" />
 ```

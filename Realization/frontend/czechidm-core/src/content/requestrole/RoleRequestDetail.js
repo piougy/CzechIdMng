@@ -352,8 +352,25 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
               [{ value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }]
             }
             >
-            <Advanced.Column property="_embedded.identityContract.position" header={this.i18n('entity.ConceptRoleRequest.identityContract')} sort/>
             <Advanced.Column property="_embedded.role.name" header={this.i18n('entity.ConceptRoleRequest.role')} sort/>
+            <Advanced.Column
+              property="identityContract"
+              header={this.i18n('entity.ConceptRoleRequest.identityContract')}
+              sort
+              cell={
+                ({rowIndex, data}) => {
+                  const contract = data[rowIndex]._embedded.identityContract;
+                  return (
+                    <Advanced.IdentityContractInfo
+                      entityIdentifier={ contract.id }
+                      entity={contract }
+                      showIdentity={ false }
+                      face="popover"
+                      showLink={ false } />
+                  );
+                }
+              }
+              />
             <Advanced.Column property="operation" face="enum" enumClass={ConceptRoleRequestOperationEnum} header={this.i18n('entity.ConceptRoleRequest.operation')} sort/>
             <Advanced.Column property="state" face="enum" enumClass={RoleRequestStateEnum} header={this.i18n('entity.ConceptRoleRequest.state')} sort/>
             <Advanced.Column property="validFrom" face="date" header={this.i18n('entity.ConceptRoleRequest.validFrom')} sort/>

@@ -12,7 +12,7 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.domain.Loggable;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
-import eu.bcvsolutions.idm.core.api.dto.IdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.model.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.model.domain.RoleRequestedByType;
 
@@ -28,7 +28,7 @@ public class IdmRoleRequestDto extends AbstractDto implements Loggable {
 	private static final long serialVersionUID = 1L;
 	public static final String WF_PROCESS_FIELD = "wfProcessId";
 
-	@Embedded(dtoClass = IdentityDto.class)
+	@Embedded(dtoClass = IdmIdentityDto.class)
 	private UUID applicant;
 	@JsonProperty(access = Access.READ_ONLY)
 	private RoleRequestState state;

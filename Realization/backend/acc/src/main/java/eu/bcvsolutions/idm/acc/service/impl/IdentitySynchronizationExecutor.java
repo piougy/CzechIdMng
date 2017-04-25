@@ -38,7 +38,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSyncLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
-import eu.bcvsolutions.idm.core.api.dto.IdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
@@ -57,7 +57,7 @@ import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 
 @Component
-public class IdentitySynchronizationExecutor extends AbstractSynchronizationExecutor<IdentityDto>
+public class IdentitySynchronizationExecutor extends AbstractSynchronizationExecutor<IdmIdentityDto>
 		implements SynchronizationExecutor {
 
 	private final IdmIdentityService identityService;

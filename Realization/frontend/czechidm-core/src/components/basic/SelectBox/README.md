@@ -17,7 +17,8 @@ All parameters from AbstractFormComponent are supported. Added parameters:
 | placeholder  | string   | Short description for input  |  |
 | clearable | bool   | Selected options can be cleared| true |
 | niceLabel | func   | Function for transform nice label in select box|  |
-| returnProperty | oneOfType([string, bool])  | If object is selected, then this property value will be returned. If value is false, then whole object is returned. | 'id' | 
+| returnProperty | oneOfType([string, bool])  | If object is selected, then this property value will be returned. If value is false, then whole object is returned. | 'id' |
+| useFirst | bool | Use the first searched value on component is inited, if selcted value is empty | false |
 
 
 ## Usage

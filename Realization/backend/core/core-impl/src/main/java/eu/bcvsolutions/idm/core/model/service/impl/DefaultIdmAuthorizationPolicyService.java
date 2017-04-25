@@ -30,7 +30,9 @@ import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.model.dto.filter.AuthorizationPolicyFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmAuthorizationPolicy;
+import eu.bcvsolutions.idm.core.model.entity.IdmAuthorizationPolicy_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
+import eu.bcvsolutions.idm.core.model.entity.IdmRole_;
 import eu.bcvsolutions.idm.core.model.repository.IdmAuthorizationPolicyRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
@@ -100,7 +102,19 @@ public class DefaultIdmAuthorizationPolicyService
 		List<Predicate> predicates = new ArrayList<>();
 		// role id
 		if (filter.getRoleId() != null) {
-			predicates.add(builder.equal(root.get("role").get("id"), filter.getRoleId()));
+			predicates.add(builder.equal(root.get(IdmAuthorizationPolicy_.role).get(IdmRole_.id), filter.getRoleId()));
+		}
+		if (filter.getDisabled() != null) {
+			predicates.add(builder.equal(root.get(IdmAuthorizationPolicy_.disabled), filter.getDisabled()));
+		}
+		if (filter.getAuthorizableType() != null) {
+			predicates.add(builder.or(
+					builder.and(
+							builder.isNull(root.get(IdmAuthorizationPolicy_.authorizableType)),
+							builder.isNull(root.get(IdmAuthorizationPolicy_.groupPermission))
+							),
+					builder.equal(root.get(IdmAuthorizationPolicy_.authorizableType), filter.getAuthorizableType())
+					));
 		}
 		return builder.and(predicates.toArray(new Predicate[predicates.size()]));
 	}
@@ -143,7 +157,7 @@ public class DefaultIdmAuthorizationPolicyService
 		if(entityType != null) { // optional
 			filter.setAuthorizableType(entityType.getCanonicalName());
 		}
-		List<IdmAuthorizationPolicy> defaultPolicies = repository.find(filter, null).getContent();
+		List<IdmAuthorizationPolicy> defaultPolicies = find(filter, null).getContent();
 		//
 		LOG.debug("Found [{}] default policies", defaultPolicies.size());
 		return toDtos(defaultPolicies, true);

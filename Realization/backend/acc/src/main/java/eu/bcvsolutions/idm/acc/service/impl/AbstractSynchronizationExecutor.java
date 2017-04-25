@@ -255,7 +255,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 		Map<String, Object> systemAccountsMap = new HashMap<>();
 		boolean loadAllData = false;
 
-		longRunningTaskExecutor.counter = 0L;
+		longRunningTaskExecutor.setCounter(0L);
 
 		try {
 			synchronizationLogService.save(log);
@@ -325,7 +325,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 
 						// We reload log (maybe was synchronization canceled)
 						log.setRunning(synchronizationLogService.get(log.getId()).isRunning());
-						longRunningTaskExecutor.counter++;
+						longRunningTaskExecutor.increaseCounter();
 						if (!log.isRunning()) {
 							result = false;
 						}
@@ -363,7 +363,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 			log.setEnded(LocalDateTime.now());
 			synchronizationLogService.save(log);
 			//
-			longRunningTaskExecutor.count = longRunningTaskExecutor.counter;
+			longRunningTaskExecutor.setCount(longRunningTaskExecutor.getCounter());
 			longRunningTaskExecutor.updateState();
 		}
 		return config;
@@ -556,7 +556,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 				mappedAttributes, log);
 
 		// We reload log (maybe was synchronization canceled)
-		longRunningTaskExecutor.counter++;
+		longRunningTaskExecutor.increaseCounter();
 		log.setRunning(synchronizationLogService.get(log.getId()).isRunning());
 		if (!log.isRunning()) {
 			result = false;

@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import eu.bcvsolutions.idm.core.api.domain.Auditable;
-import eu.bcvsolutions.idm.core.api.dto.IdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.security.api.domain.AbstractAuthentication;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
@@ -50,8 +50,8 @@ public class AuditableEntityListener {
 			
 			//
 			AbstractAuthentication authentication = securityService.getAuthentication();
-			IdentityDto currentIdentity = authentication == null ? null : authentication.getCurrentIdentity();
-			IdentityDto originalIdentity = authentication == null ? null : authentication.getOriginalIdentity();
+			IdmIdentityDto currentIdentity = authentication == null ? null : authentication.getCurrentIdentity();
+			IdmIdentityDto originalIdentity = authentication == null ? null : authentication.getOriginalIdentity();
 			if (entity.getCreator() == null) {
 				String creator = currentIdentity == null ? securityService.getUsername()
 						: currentIdentity.getUsername();
@@ -89,8 +89,8 @@ public class AuditableEntityListener {
 			//
 			AbstractAuthentication authentication = securityService.getAuthentication();
 			//
-			IdentityDto currentIdentity = authentication == null ? null : authentication.getCurrentIdentity();
-			IdentityDto originalIdentity = authentication == null ? null : authentication.getOriginalIdentity();
+			IdmIdentityDto currentIdentity = authentication == null ? null : authentication.getCurrentIdentity();
+			IdmIdentityDto originalIdentity = authentication == null ? null : authentication.getOriginalIdentity();
 			//
 			String modifier = currentIdentity == null ? securityService.getUsername() : currentIdentity.getUsername();
 			entity.setModifier(modifier);

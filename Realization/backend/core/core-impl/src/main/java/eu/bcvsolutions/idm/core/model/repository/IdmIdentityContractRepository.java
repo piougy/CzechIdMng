@@ -104,16 +104,6 @@ public interface IdmIdentityContractRepository extends AbstractEntityRepository<
 	int deleteByIdentity(@Param("identity") IdmIdentity identity);
 	
 	/**
-	 * Clears guarantee from all contracts, where identity is guarantee (=identity disclaims guarantee).
-	 * 
-	 * @param identity
-	 * @return
-	 */
-	@Modifying
-	@Query("update #{#entityName} e set e.guarantee = null, e.modified = :modified where e.guarantee = :identity")
-	int clearGuarantee(@Param("identity") IdmIdentity identity, @Param("modified") DateTime modified);
-	
-	/**
 	 * Returns expired contracts. Its useful to find enabled contracts only.
 	 * 
 	 * @param expiration date to compare

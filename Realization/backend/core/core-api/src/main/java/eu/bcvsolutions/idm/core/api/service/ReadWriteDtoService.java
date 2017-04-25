@@ -33,6 +33,7 @@ public interface ReadWriteDtoService<DTO extends BaseDto, E extends BaseEntity, 
 	 * @param dto
 	 * @param permission permissions to evaluate
 	 * @return the saved DTO
+	 * @throws IllegalArgumentException in case the given DTO is {@literal null}.
 	 * @throws ForbiddenEntityException if authorization policies doesn't met
 	 */
 	DTO save(DTO dto, BasePermission... permission);	
@@ -41,17 +42,19 @@ public interface ReadWriteDtoService<DTO extends BaseDto, E extends BaseEntity, 
 	 * Saves all given DTO. Event could be published instead persisting directly.
 	 * 
 	 * @param dtos
+	 * @param permission permissions to evaluate
 	 * @return the saved DTOs
-	 * @throws IllegalArgumentException in case the given entity is {@literal null}.
+	 * @throws IllegalArgumentException in case the given DTO is {@literal null}.
+	 * @throws ForbiddenEntityException if authorization policies doesn't met
 	 */
-	Iterable<DTO> saveAll(Iterable<DTO> dtos);
+	Iterable<DTO> saveAll(Iterable<DTO> dtos, BasePermission... permission);
 	
 	/**
 	 * Deletes a given DTO. Event could be published instead persisting dto directly. Authorization policies are evaluated.
 	 * 
 	 * @param dto
 	 * @param permission permissions to evaluate
-	 * @throws IllegalArgumentException in case the given entity is {@literal null}.
+	 * @throws IllegalArgumentException in case the given DTO is {@literal null}.
 	 * @throws ForbiddenEntityException if authorization policies doesn't met
 	 */
 	void delete(DTO dto, BasePermission... permission);
@@ -60,7 +63,7 @@ public interface ReadWriteDtoService<DTO extends BaseDto, E extends BaseEntity, 
 	 * Deletes a given DTO (from repository).
 	 * 
 	 * @param dto
-	 * @throws IllegalArgumentException in case the given entity is {@literal null}.
+	 * @throws IllegalArgumentException in case the given DTO is {@literal null}.
 	 */
 	void deleteInternal(DTO dto);
 	
@@ -68,7 +71,7 @@ public interface ReadWriteDtoService<DTO extends BaseDto, E extends BaseEntity, 
 	 * Deletes a dto by given id (from repository).
 	 * 
 	 * @param dto id
-	 * @throws IllegalArgumentException in case the given dto id is {@literal null}.
+	 * @throws IllegalArgumentException in case the given DTO id is {@literal null}.
 	 */
 	void deleteInternalById(Serializable id);
 }

@@ -49,7 +49,6 @@ export default class IdentityContractDetail extends Basic.AbstractContent {
   _setSelectedEntity(entity) {
     const treeTypeId = entity._embedded && entity._embedded.workPosition ? entity._embedded.workPosition.treeType.id : null;
     const entityFormData = _.merge({}, entity, {
-      guarantee: entity._embedded ? entity._embedded.guarantee : null,
       workPosition: entity._embedded ? entity._embedded.workPosition : null,
       treeTypeId
     });
@@ -81,21 +80,22 @@ export default class IdentityContractDetail extends Basic.AbstractContent {
       const entity = this.refs.form.getData();
       const { identityId } = this.props.params;
       //
+      const state = this.context.store.getState();
+      const identity = this.identityManager.getEntity(state, identityId);
       entity.identity = this.identityManager.getSelfLink(identityId);
-      entity.guarantee = this.identityManager.getSelfLink(entity.guarantee);
       entity.workPosition = this.treeNodeManager.getSelfLink(entity.workPosition);
 
       if (entity.id === undefined) {
         this.context.store.dispatch(this.getManager().createEntity(entity, `${uiKey}-detail`, (createdEntity, error) => {
           if (!error) {
-            this.addMessage({ message: this.i18n('create.success', { position: this.getManager().getNiceLabel(createdEntity), username: 'todo' }) });
+            this.addMessage({ message: this.i18n('create.success', { position: this.getManager().getNiceLabel(createdEntity), username: this.identityManager.getNiceLabel(identity) }) });
           }
           this._afterSave(createdEntity, error, afterAction);
         }));
       } else {
         this.context.store.dispatch(this.getManager().patchEntity(entity, `${uiKey}-detail`, (patchedEntity, error) => {
           if (!error) {
-            this.addMessage({ message: this.i18n('edit.success', { position: this.getManager().getNiceLabel(patchedEntity), username: 'todo' }) });
+            this.addMessage({ message: this.i18n('edit.success', { position: this.getManager().getNiceLabel(patchedEntity), username: this.identityManager.getNiceLabel(identity) }) });
           }
           this._afterSave(patchedEntity, error, afterAction);
         }));
@@ -164,10 +164,6 @@ export default class IdentityContractDetail extends Basic.AbstractContent {
                   label={this.i18n('entity.IdentityContract.workPosition')}
                   forceSearchParameters={forceSearchParameters}
                   hidden={treeTypeId === null}/>
-                <Basic.SelectBox
-                  ref="guarantee"
-                  manager={this.identityManager}
-                  label={this.i18n('entity.IdentityContract.guarantee')}/>
 
                 <Basic.DateTimePicker
                   mode="date"

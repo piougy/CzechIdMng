@@ -47,8 +47,11 @@ class SelectBox extends AbstractFormComponent {
    */
   _initComponent(props) {
     // initialize value
-    // We have to propagat actual forceSearchParameters (maybe from this.props, maybe from nextProps)
-    this.getOptions('', props.forceSearchParameters);
+    // We have to propagate actual forceSearchParameters (maybe from this.props, maybe from nextProps)
+    const { useFirst, forceSearchParameters } = props;
+    if (useFirst) {
+      this.getOptions('', forceSearchParameters, true);
+    }
   }
 
   getRequiredValidationSchema() {
@@ -77,7 +80,7 @@ class SelectBox extends AbstractFormComponent {
     return manager.mergeSearchParameters(searchParameters, _forceSearchParameters);
   }
 
-  getOptions(input, forceSearchParameters) {
+  getOptions(input, forceSearchParameters, useFirst = false) {
     const { manager } = this.props;
     const searchParameters = this._createSearchParameters(input, forceSearchParameters);
     const timeInMs = Date.now();
@@ -108,6 +111,10 @@ class SelectBox extends AbstractFormComponent {
                 continue;
               }
               this.itemRenderer(results[item], input);
+              // use the first value
+              if (this.state.value === null && useFirst) {
+                this.onChange(results[item]);
+              }
             }
             data = {
               options: result._embedded[manager.getCollectionType()],
@@ -393,6 +400,14 @@ class SelectBox extends AbstractFormComponent {
     return this.i18n('label.select', { defaultValue: 'Select ...' });
   }
 
+  /**
+   * Load first page on input is opened
+   */
+  onOpen() {
+    // loads default first page.
+    this.getOptions('', this.props.forceSearchParameters);
+  }
+
   getSelectComponent() {
     const { placeholder, fieldLabel, multiSelect, clearable} = this.props;
     const { isLoading, options, readOnly, disabled, value } = this.state;
@@ -416,7 +431,8 @@ class SelectBox extends AbstractFormComponent {
           searchPromptText={this.i18n('component.basic.SelectBox.searchPromptText')}
           clearable={clearable}
           onInputChange={this.onInputChange.bind(this)}
-          options={options}/>
+          options={options}
+          onOpen={ this.onOpen.bind(this) }/>
     );
   }
 }
@@ -453,7 +469,11 @@ SelectBox.propTypes = {
   /**
    * Function with transform label in select box
    */
-  niceLabel: PropTypes.func
+  niceLabel: PropTypes.func,
+  /**
+   * Use the first searched value, if value is empty
+   */
+  useFirst: PropTypes.bool
 };
 
 SelectBox.defaultProps = {
@@ -462,7 +482,8 @@ SelectBox.defaultProps = {
   multiSelect: false,
   returnProperty: 'id',
   searchInFields: [],
-  clearable: true
+  clearable: true,
+  useFirst: false
 };
 
 SelectBox.NICE_LABEL = NICE_LABEL;

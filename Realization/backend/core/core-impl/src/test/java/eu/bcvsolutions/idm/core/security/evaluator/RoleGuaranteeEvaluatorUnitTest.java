@@ -10,7 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import eu.bcvsolutions.idm.core.api.dto.IdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.model.dto.IdmAuthorizationPolicyDto;
@@ -57,7 +57,7 @@ public class RoleGuaranteeEvaluatorUnitTest extends AbstractUnitTest {
 		authorizable.getGuarantees().add(guarantee);
 		policy.setPermissions(IdmBasePermission.READ);
 		//
-		when(securityService.getAuthentication()).thenReturn(new IdmJwtAuthentication(new IdentityDto(UUID.randomUUID(), null), null, null, null, null));
+		when(securityService.getAuthentication()).thenReturn(new IdmJwtAuthentication(new IdmIdentityDto(UUID.randomUUID(), null), null, null, null, null));
 		//
 		assertFalse(evaluator.evaluate(authorizable, policy, IdmBasePermission.READ));
 		assertFalse(evaluator.evaluate(authorizable, policy, IdmBasePermission.UPDATE));
@@ -70,7 +70,7 @@ public class RoleGuaranteeEvaluatorUnitTest extends AbstractUnitTest {
 		IdmRole authorizable = new IdmRole();
 		policy.setPermissions(IdmBasePermission.READ);
 		//
-		when(securityService.getAuthentication()).thenReturn(new IdmJwtAuthentication(new IdentityDto(UUID.randomUUID(), null), null, null, null, null));
+		when(securityService.getAuthentication()).thenReturn(new IdmJwtAuthentication(new IdmIdentityDto(UUID.randomUUID(), null), null, null, null, null));
 		//
 		assertFalse(evaluator.evaluate(authorizable, policy, IdmBasePermission.READ));
 		assertFalse(evaluator.evaluate(authorizable, policy, IdmBasePermission.UPDATE));
@@ -87,7 +87,7 @@ public class RoleGuaranteeEvaluatorUnitTest extends AbstractUnitTest {
 		authorizable.getGuarantees().add(guarantee);
 		policy.setPermissions(IdmBasePermission.READ);
 		//
-		when(securityService.getAuthentication()).thenReturn(new IdmJwtAuthentication(new IdentityDto(uuid, null), null, null, null, null));
+		when(securityService.getAuthentication()).thenReturn(new IdmJwtAuthentication(new IdmIdentityDto(uuid, null), null, null, null, null));
 		//
 		assertTrue(evaluator.evaluate(authorizable, policy, IdmBasePermission.READ));
 		assertFalse(evaluator.evaluate(authorizable, policy, IdmBasePermission.UPDATE));

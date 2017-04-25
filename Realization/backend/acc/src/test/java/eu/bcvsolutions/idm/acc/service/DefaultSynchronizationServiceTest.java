@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.google.common.collect.ImmutableList;
 
 import eu.bcvsolutions.idm.acc.domain.AccountType;
+import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType;
 import eu.bcvsolutions.idm.acc.domain.OperationResultType;
 import eu.bcvsolutions.idm.acc.domain.ReconciliationMissingAccountActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationActionType;
@@ -85,7 +86,9 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 	private static final String IDENTITY_USERNAME_ONE = "syncUserOneTest";
 	private static final String IDENTITY_USERNAME_TWO = "syncUserTwoTest";
 	private static final String IDENTITY_USERNAME_THREE = "syncUserThreeTest";
+	private static final String IDENTITY_USERNAME_FOUR = "syncUserFourTest";
 	private static final String ATTRIBUTE_NAME = "__NAME__";
+	private static final String ATTRIBUTE_EMAIL = "email";
 	private static final String ATTRIBUTE_MODIFIED = "modified";
 	private static final String ATTRIBUTE_VALUE_CHANGED = "changed";
 
@@ -93,6 +96,7 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 
 	private static final String IDENTITY_EMAIL_WRONG = "email";
 	private static final String IDENTITY_EMAIL_CORRECT = "email@test.cz";
+	private static final String IDENTITY_EMAIL_CORRECT_CHANGED = "email@changed.cz";
 
 	@Autowired
 	private ApplicationContext context;
@@ -835,14 +839,226 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		// Delete log
 		syncLogService.delete(log);
 	}
+	
+	@Test
+	public void doStartSyncE_StrategyCreate() {
+		SynchronizationConfigFilter configFilter = new SynchronizationConfigFilter();
+		configFilter.setName(SYNC_CONFIG_NAME);
+		List<SysSyncConfig> syncConfigs = syncConfigService.find(configFilter, null).getContent();
+
+		Assert.assertEquals(1, syncConfigs.size());
+		SysSyncConfig syncConfigCustom = syncConfigs.get(0);
+		Assert.assertFalse(syncConfigService.isRunning(syncConfigCustom));
+
+		// Delete all accounts in resource
+		this.getBean().deleteAllResourceData();
+		
+		// Create new accounts
+		this.getBean().initResourceData();
+		
+		// Find email attribute and change startegy on CREATE
+		SystemMappingFilter mappingFilter = new SystemMappingFilter();
+		mappingFilter.setEntityType(SystemEntityType.IDENTITY);
+		mappingFilter.setSystemId(syncConfigCustom.getSystemMapping().getSystem().getId());
+		mappingFilter.setOperationType(SystemOperationType.SYNCHRONIZATION);
+		List<SysSystemMapping> mappings = systemMappingService.find(mappingFilter, null).getContent();
+		Assert.assertEquals(1, mappings.size());
+		SysSystemMapping mapping = mappings.get(0);
+		SystemAttributeMappingFilter attributeMappingFilter = new SystemAttributeMappingFilter();
+		attributeMappingFilter.setSystemMappingId(mapping.getId());
+
+		List<SysSystemAttributeMapping> attributes = schemaAttributeMappingService.find(attributeMappingFilter, null)
+				.getContent();
+		SysSystemAttributeMapping emailAttribute = attributes.stream().filter(attribute -> {
+			return attribute.getName().equalsIgnoreCase(ATTRIBUTE_EMAIL);
+		}).findFirst().get();
+		
+		emailAttribute.setStrategyType(AttributeMappingStrategyType.CREATE);
+		schemaAttributeMappingService.save(emailAttribute);
+		//
+		
+		// Set sync config
+		syncConfigCustom.setLinkedAction(SynchronizationLinkedActionType.UPDATE_ENTITY);
+		syncConfigCustom.setUnlinkedAction(SynchronizationUnlinkedActionType.IGNORE);
+		syncConfigCustom.setMissingEntityAction(SynchronizationMissingEntityActionType.CREATE_ENTITY);
+		syncConfigCustom.setMissingAccountAction(ReconciliationMissingAccountActionType.IGNORE);
+		syncConfigCustom.setReconciliation(true);
+		syncConfigService.save(syncConfigCustom);
+
+		// Check state before sync
+		Assert.assertNull(identityService.getByUsername("x" + IDENTITY_USERNAME_ONE));
+		Assert.assertNull(identityService.getByUsername("x" + IDENTITY_USERNAME_TWO));
+
+		// Start synchronization
+		synchornizationService.setSynchronizationConfigId(syncConfigCustom.getId());
+		synchornizationService.process();
+		//
+		SynchronizationLogFilter logFilter = new SynchronizationLogFilter();
+		logFilter.setSynchronizationConfigId(syncConfigCustom.getId());
+		List<SysSyncLog> logs = syncLogService.find(logFilter, null).getContent();
+		Assert.assertEquals(1, logs.size());
+		SysSyncLog log = logs.get(0);
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+
+		SyncActionLogFilter actionLogFilter = new SyncActionLogFilter();
+		actionLogFilter.setSynchronizationLogId(log.getId());
+		List<SysSyncActionLog> actions = syncActionLogService.find(actionLogFilter, null).getContent();
+		Assert.assertEquals(1, actions.size());
+
+		SysSyncActionLog actionLog = actions.stream().filter(action -> {
+			return SynchronizationActionType.CREATE_ENTITY == action.getSyncAction();
+		}).findFirst().get();
+
+		SyncItemLogFilter itemLogFilter = new SyncItemLogFilter();
+		itemLogFilter.setSyncActionLogId(actionLog.getId());
+		List<SysSyncItemLog> items = syncItemLogService.find(itemLogFilter, null).getContent();
+		Assert.assertEquals(2, items.size());
+
+		// Check state after sync
+		Assert.assertEquals(IDENTITY_USERNAME_ONE, identityService.getByUsername("x" + IDENTITY_USERNAME_ONE).getFirstName());
+		Assert.assertEquals(IDENTITY_USERNAME_TWO, identityService.getByUsername("x" + IDENTITY_USERNAME_TWO).getLastName());
+		Assert.assertEquals(IDENTITY_EMAIL_CORRECT, identityService.getByUsername("x" + IDENTITY_USERNAME_ONE).getEmail());
+		Assert.assertEquals(IDENTITY_EMAIL_CORRECT, identityService.getByUsername("x" + IDENTITY_USERNAME_TWO).getEmail());
+		
+		// Delete log
+		syncLogService.delete(log);
+		
+		// Change data
+		this.getBean().changeResourceData();
+		
+		// Start synchronization aging
+		synchornizationService.setSynchronizationConfigId(syncConfigCustom.getId());
+		synchornizationService.process();
+		//
+		logFilter = new SynchronizationLogFilter();
+		logFilter.setSynchronizationConfigId(syncConfigCustom.getId());
+		logs = syncLogService.find(logFilter, null).getContent();
+		Assert.assertEquals(1, logs.size());
+		log = logs.get(0);
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+
+		actionLogFilter = new SyncActionLogFilter();
+		actionLogFilter.setSynchronizationLogId(log.getId());
+		actions = syncActionLogService.find(actionLogFilter, null).getContent();
+		Assert.assertEquals(1, actions.size());
+
+		actionLog = actions.stream().filter(action -> {
+			return SynchronizationActionType.UPDATE_ENTITY == action.getSyncAction();
+		}).findFirst().get();
+
+		itemLogFilter = new SyncItemLogFilter();
+		itemLogFilter.setSyncActionLogId(actionLog.getId());
+		items = syncItemLogService.find(itemLogFilter, null).getContent();
+		Assert.assertEquals(2, items.size());
+
+		// Check state after sync
+		Assert.assertEquals(ATTRIBUTE_VALUE_CHANGED, identityService.getByUsername("x" + IDENTITY_USERNAME_ONE).getFirstName());
+		Assert.assertEquals(ATTRIBUTE_VALUE_CHANGED, identityService.getByUsername("x" + IDENTITY_USERNAME_TWO).getLastName());
+		Assert.assertEquals(IDENTITY_EMAIL_CORRECT, identityService.getByUsername("x" + IDENTITY_USERNAME_ONE).getEmail());
+		Assert.assertEquals(IDENTITY_EMAIL_CORRECT, identityService.getByUsername("x" + IDENTITY_USERNAME_TWO).getEmail());
+		// Delete log
+		syncLogService.delete(log);
+	}
+	
+	@Test
+	public void doStartSyncE_StrategyWriteIfNull() {
+		SynchronizationConfigFilter configFilter = new SynchronizationConfigFilter();
+		configFilter.setName(SYNC_CONFIG_NAME);
+		List<SysSyncConfig> syncConfigs = syncConfigService.find(configFilter, null).getContent();
+
+		Assert.assertEquals(1, syncConfigs.size());
+		SysSyncConfig syncConfigCustom = syncConfigs.get(0);
+		Assert.assertFalse(syncConfigService.isRunning(syncConfigCustom));
+		
+		// Find email attribute and change strategy on WRITE_IF_NULL
+		SystemMappingFilter mappingFilter = new SystemMappingFilter();
+		mappingFilter.setEntityType(SystemEntityType.IDENTITY);
+		mappingFilter.setSystemId(syncConfigCustom.getSystemMapping().getSystem().getId());
+		mappingFilter.setOperationType(SystemOperationType.SYNCHRONIZATION);
+		List<SysSystemMapping> mappings = systemMappingService.find(mappingFilter, null).getContent();
+		Assert.assertEquals(1, mappings.size());
+		SysSystemMapping mapping = mappings.get(0);
+		SystemAttributeMappingFilter attributeMappingFilter = new SystemAttributeMappingFilter();
+		attributeMappingFilter.setSystemMappingId(mapping.getId());
+
+		List<SysSystemAttributeMapping> attributes = schemaAttributeMappingService.find(attributeMappingFilter, null)
+				.getContent();
+		SysSystemAttributeMapping emailAttribute = attributes.stream().filter(attribute -> {
+			return attribute.getName().equalsIgnoreCase(ATTRIBUTE_EMAIL);
+		}).findFirst().get();
+		
+		emailAttribute.setStrategyType(AttributeMappingStrategyType.WRITE_IF_NULL);
+		schemaAttributeMappingService.save(emailAttribute);
+		//
+		// Set email on identity ONE to null
+		IdmIdentity one = identityService.getByUsername("x" + IDENTITY_USERNAME_ONE);
+		one.setEmail(null);
+		identityService.save(one);
+		
+		// Prepare resource data
+		this.getBean().deleteAllResourceData();
+		this.getBean().initResourceData();
+		this.getBean().changeResourceData();
+		
+		// Set sync config
+		syncConfigCustom.setLinkedAction(SynchronizationLinkedActionType.UPDATE_ENTITY);
+		syncConfigCustom.setUnlinkedAction(SynchronizationUnlinkedActionType.IGNORE);
+		syncConfigCustom.setMissingEntityAction(SynchronizationMissingEntityActionType.CREATE_ENTITY);
+		syncConfigCustom.setMissingAccountAction(ReconciliationMissingAccountActionType.IGNORE);
+		syncConfigCustom.setReconciliation(true);
+		syncConfigService.save(syncConfigCustom);
+
+
+		// Check state before sync
+		Assert.assertEquals(null, identityService.getByUsername("x" + IDENTITY_USERNAME_ONE).getEmail());
+		Assert.assertEquals(IDENTITY_EMAIL_CORRECT, identityService.getByUsername("x" + IDENTITY_USERNAME_TWO).getEmail());
+		
+
+		// Start synchronization
+		synchornizationService.setSynchronizationConfigId(syncConfigCustom.getId());
+		synchornizationService.process();
+		//
+		SynchronizationLogFilter logFilter = new SynchronizationLogFilter();
+		logFilter.setSynchronizationConfigId(syncConfigCustom.getId());
+		List<SysSyncLog> logs = syncLogService.find(logFilter, null).getContent();
+		Assert.assertEquals(1, logs.size());
+		SysSyncLog log = logs.get(0);
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+
+		SyncActionLogFilter actionLogFilter = new SyncActionLogFilter();
+		actionLogFilter.setSynchronizationLogId(log.getId());
+		List<SysSyncActionLog> actions = syncActionLogService.find(actionLogFilter, null).getContent();
+		Assert.assertEquals(1, actions.size());
+
+		SysSyncActionLog actionLog = actions.stream().filter(action -> {
+			return SynchronizationActionType.UPDATE_ENTITY == action.getSyncAction();
+		}).findFirst().get();
+
+		SyncItemLogFilter itemLogFilter = new SyncItemLogFilter();
+		itemLogFilter.setSyncActionLogId(actionLog.getId());
+		List<SysSyncItemLog> items = syncItemLogService.find(itemLogFilter, null).getContent();
+		Assert.assertEquals(2, items.size());
+
+		// Check state after sync
+		Assert.assertEquals(IDENTITY_EMAIL_CORRECT_CHANGED, identityService.getByUsername("x" + IDENTITY_USERNAME_ONE).getEmail());
+		Assert.assertEquals(IDENTITY_EMAIL_CORRECT, identityService.getByUsername("x" + IDENTITY_USERNAME_TWO).getEmail());
+		
+		// Delete log
+		syncLogService.delete(log);
+	}
 
 	@Transactional
 	public void changeResourceData() {
 		// Change data on resource
 		TestResource one = entityManager.find(TestResource.class, "x" + IDENTITY_USERNAME_ONE);
 		one.setFirstname(ATTRIBUTE_VALUE_CHANGED);
+		one.setEmail(IDENTITY_EMAIL_CORRECT_CHANGED);
 		TestResource two = entityManager.find(TestResource.class, "x" + IDENTITY_USERNAME_TWO);
 		two.setLastname(ATTRIBUTE_VALUE_CHANGED);
+		two.setEmail(IDENTITY_EMAIL_CORRECT_CHANGED);
 		entityManager.persist(one);
 		entityManager.persist(two);
 	}
@@ -869,6 +1085,15 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		resourceUser.setLastname(IDENTITY_USERNAME_THREE);
 		resourceUser.setEmail(IDENTITY_EMAIL_CORRECT);
 		entityManager.persist(resourceUser);
+	}
+	
+	@Transactional
+	public void setEmailOneToNull() {
+		// Set null email to resource
+		TestResource one = entityManager.find(TestResource.class, "x" + IDENTITY_USERNAME_ONE);
+		one.setEmail(null);
+		// Change data on resource
+		entityManager.persist(one);
 	}
 
 	@Transactional
@@ -970,7 +1195,7 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 				attributeHandlingName.setSystemMapping(entityHandlingResult);
 				schemaAttributeMappingService.save(attributeHandlingName);
 
-			} else if ("email".equalsIgnoreCase(schemaAttr.getName())) {
+			} else if (ATTRIBUTE_EMAIL.equalsIgnoreCase(schemaAttr.getName())) {
 				SysSystemAttributeMapping attributeHandlingName = new SysSystemAttributeMapping();
 				attributeHandlingName.setIdmPropertyName("email");
 				attributeHandlingName.setName(schemaAttr.getName());

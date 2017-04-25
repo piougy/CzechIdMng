@@ -808,11 +808,11 @@
       "WARNING": "Varování"
     },
     "AttributeMappingStrategyTypeEnum": {
-      "SET": "Nastavit, tak jak IdM vypočítá",
-      "MERGE": "Sloučit",
-      "AUTHORITATIVE_MERGE": "Autoritativní sloučení",
+      "SET": "Nastavit hodnotu, tak jak je",
+      "MERGE": "Sloučit (pouze provisioning)",
+      "AUTHORITATIVE_MERGE": "Autoritativní sloučení (pouze provisioning)",
       "CREATE": "Nastavit pouze při vytvoření",
-      "WRITE_IF_NULL": "Nastavit pouze pokud je hodnota na systému prázdná"
+      "WRITE_IF_NULL": "Nastavit pouze pokud je cílová hodnota prázdná"
     },
     "ProvisioningOperationTypeEnum": {
       "CREATE": "Vytvoření",

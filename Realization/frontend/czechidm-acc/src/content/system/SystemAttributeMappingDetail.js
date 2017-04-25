@@ -44,6 +44,9 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
           entityAttribute: _attribute.entityAttribute,
           extendedAttribute: _attribute.extendedAttribute,
           showPasswordInfo: _attribute.schemaAttribute.name === PASSWORD_ATTRIBUTE
+        }, () => {
+          // Workaround - We need set value after enumeration type was changed
+          this.refs.idmPropertyEnum.setValue(_attribute.idmPropertyEnum);
         });
       }
     }
@@ -158,7 +161,8 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
     const _showNoRepositoryAlert = (!_isExtendedAttribute && !_isEntityAttribute);
     const entityTypeEnum = SystemEntityTypeEnum.getEntityEnum(_systemMapping ? _systemMapping.entityType : 'IDENTITY');
     const _isRequiredIdmField = (_isEntityAttribute || _isExtendedAttribute) && !_isDisabled;
-
+    const isSynchronization = _systemMapping && _systemMapping.operationType && _systemMapping.operationType === 'SYNCHRONIZATION' ? true : false;
+console.log("dddddddddddd", isSynchronization, _systemMapping);
     return (
       <div>
         <Helmet title={this.i18n('title')} />
@@ -203,11 +207,13 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
                 required/>
               <Basic.Checkbox
                 ref="sendAlways"
+                hidden={isSynchronization}
                 tooltip={this.i18n('acc:entity.SystemAttributeMapping.sendAlways.tooltip')}
                 label={this.i18n('acc:entity.SystemAttributeMapping.sendAlways.label')}
                 readOnly = {_isDisabled}/>
               <Basic.Checkbox
                 ref="sendOnlyIfNotNull"
+                hidden={isSynchronization}
                 tooltip={this.i18n('acc:entity.SystemAttributeMapping.sendOnlyIfNotNull.tooltip')}
                 label={this.i18n('acc:entity.SystemAttributeMapping.sendOnlyIfNotNull.label')}
                 readOnly = {_isDisabled}/>

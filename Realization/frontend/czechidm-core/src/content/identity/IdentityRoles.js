@@ -371,7 +371,11 @@ class Roles extends Basic.AbstractContent {
                       /* eslint-disable react/no-multi-comp */
                       ({rowIndex, data, property}) => {
                         return (
-                          <span>{ identityContractManager.getNiceLabel(data[rowIndex][property], false) }</span>
+                          <Advanced.IdentityContractInfo
+                            entityIdentifier={ data[rowIndex][property].id }
+                            entity={ data[rowIndex][property] }
+                            showIdentity={ false }
+                            face="link" />
                         );
                       }
                     }/>

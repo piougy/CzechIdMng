@@ -7,7 +7,7 @@ import java.util.Date;
 
 import org.springframework.security.core.GrantedAuthority;
 
-import eu.bcvsolutions.idm.core.api.dto.IdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 
 /**
  * Identity JWT authentication
@@ -22,12 +22,12 @@ public class IdmJwtAuthentication extends AbstractAuthentication {
 	private Collection<GrantedAuthority> authorities;
 	private String fromModule;
 	
-	public IdmJwtAuthentication(IdentityDto currentIdentity, Date expiration,
+	public IdmJwtAuthentication(IdmIdentityDto currentIdentity, Date expiration,
 			Collection<GrantedAuthority> authorities, String fromModule) {
 		this(currentIdentity, currentIdentity, expiration, authorities, fromModule);
 	}
 
-	public IdmJwtAuthentication(IdentityDto currentIdentity, IdentityDto originalIdentity, Date expiration,
+	public IdmJwtAuthentication(IdmIdentityDto currentIdentity, IdmIdentityDto originalIdentity, Date expiration,
 			Collection<GrantedAuthority> authorities, String fromModule) {
 		super(currentIdentity, originalIdentity);
 		//

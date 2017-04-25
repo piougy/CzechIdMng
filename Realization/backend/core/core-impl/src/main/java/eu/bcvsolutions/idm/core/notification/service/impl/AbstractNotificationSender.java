@@ -10,7 +10,7 @@ import org.springframework.util.Assert;
 
 import com.google.common.collect.Lists;
 
-import eu.bcvsolutions.idm.core.api.dto.IdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.notification.entity.IdmMessage;
@@ -100,7 +100,7 @@ public abstract class AbstractNotificationSender<N extends IdmNotification> impl
 		Assert.notNull(securityService, "Security service is required for this operation");
 		Assert.notNull(identityService, "Identity service is required for this operation");
 		//
-		IdentityDto currentIdentityDto = securityService.getAuthentication().getCurrentIdentity();	
+		IdmIdentityDto currentIdentityDto = securityService.getAuthentication().getCurrentIdentity();	
 		if (currentIdentityDto == null || currentIdentityDto.getId() == null) {
 			// system, guest, etc.
 			return null;

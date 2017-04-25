@@ -3,5 +3,6 @@
 /test-output/
 /.classpath
 /.project
+/.factorypath
 /.settings/
 /bin/

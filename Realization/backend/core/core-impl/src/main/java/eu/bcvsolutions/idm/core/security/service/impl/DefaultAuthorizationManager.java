@@ -70,7 +70,7 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 	@Override
 	public <E extends Identifiable> Predicate getPredicate(Root<E> root, CriteriaQuery<?> query, CriteriaBuilder builder, BasePermission... permission) {
 		final List<Predicate> predicates = Lists.newArrayList(builder.disjunction()); // disjunction - no data by default
-		//S
+		//
 		if (securityService.isAuthenticated()) { // TODO: public data?
 			service.getEnabledPolicies(securityService.getUsername(), root.getJavaType()).forEach(policy -> {
 				AuthorizationEvaluator<E> evaluator = getEvaluator(policy);

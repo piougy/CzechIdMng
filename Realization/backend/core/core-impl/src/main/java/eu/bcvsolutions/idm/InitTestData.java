@@ -15,12 +15,14 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
+import eu.bcvsolutions.idm.core.model.dto.IdmContractGuaranteeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleComposition;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
+import eu.bcvsolutions.idm.core.model.service.api.IdmContractGuaranteeService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
@@ -54,26 +56,21 @@ public class InitTestData implements ApplicationListener<ContextRefreshedEvent> 
 	public static final String TEST_CUSTOM_ROLE = "testCustomRole";
 	
 	@Autowired
-	private InitDemoData initDemoData;
-	
+	private InitDemoData initDemoData;	
 	@Autowired
 	private IdmIdentityService identityService;
-
 	@Autowired
 	private IdmRoleService roleService;
-
 	@Autowired
-	private IdmTreeNodeService treeNodeService;
-	
+	private IdmTreeNodeService treeNodeService;	
 	@Autowired
 	private IdmTreeTypeService treeTypeService;
-
 	@Autowired
 	private IdmIdentityContractService identityContractService;
-
 	@Autowired
-	private SecurityService securityService;
-	
+	private IdmContractGuaranteeService contractGuaranteeService;
+	@Autowired
+	private SecurityService securityService;	
 	@Autowired
 	private ConfigurationService configurationService;
 
@@ -144,9 +141,12 @@ public class InitTestData implements ApplicationListener<ContextRefreshedEvent> 
 				
 				IdmIdentityContract identityWorkPosition2 = new IdmIdentityContract();
 				identityWorkPosition2.setIdentity(testUser1);
-				identityWorkPosition2.setGuarantee(testUser2);
 				identityWorkPosition2.setWorkPosition(organization);
-				identityContractService.save(identityWorkPosition2);
+				identityWorkPosition2 = identityContractService.save(identityWorkPosition2);
+				IdmContractGuaranteeDto contractGuarantee = new IdmContractGuaranteeDto();
+				contractGuarantee.setIdentityContract(identityWorkPosition2.getId());
+				contractGuarantee.setGuarantee(testUser2.getId());
+				contractGuaranteeService.save(contractGuarantee);
 				//
 				log.info("Test data was created.");
 				//

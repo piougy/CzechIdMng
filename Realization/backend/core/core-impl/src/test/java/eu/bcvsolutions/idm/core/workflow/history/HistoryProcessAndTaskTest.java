@@ -19,7 +19,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.AbstractWorkflowIntegrationTest;
-import eu.bcvsolutions.idm.core.api.dto.IdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
@@ -118,7 +118,7 @@ public class HistoryProcessAndTaskTest extends AbstractWorkflowIntegrationTest {
 		Collection<GrantedAuthority> authorities = IdmAuthorityUtils.toAuthorities(moduleService.getAvailablePermissions()).stream().filter(authority -> {
 			return !IdmGroupPermission.APP_ADMIN.equals(authority.getAuthority());
 		}).collect(Collectors.toList());
-		SecurityContextHolder.getContext().setAuthentication(new IdmJwtAuthentication(new IdentityDto(user), null, authorities, "test"));
+		SecurityContextHolder.getContext().setAuthentication(new IdmJwtAuthentication(new IdmIdentityDto(user), null, authorities, "test"));
 	}
 
 	

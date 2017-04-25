@@ -6,7 +6,7 @@ import org.springframework.hateoas.core.Relation;
 
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
-import eu.bcvsolutions.idm.core.api.dto.IdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleDto;
 
 /*
@@ -20,7 +20,7 @@ public class AccIdentityAccountDto extends AbstractDto implements EntityAccountD
 	
 	@Embedded(dtoClass=AccAccountDto.class)
 	private UUID account;
-	@Embedded(dtoClass=IdentityDto.class)
+	@Embedded(dtoClass=IdmIdentityDto.class)
 	private UUID identity;
 	@Embedded(dtoClass=IdmIdentityRoleDto.class)
 	private UUID identityRole; // identity account is based on identity role asing and  system mapping

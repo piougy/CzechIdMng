@@ -85,6 +85,10 @@ module.exports = {
         {
           path: 'eav',
           component: require('./src/content/identity/contract/IdentityContractEav')
+        },
+        {
+          path: 'guarantees',
+          component: require('./src/content/identity/contract/IdentityContractGuarantees')
         }
       ]
     },

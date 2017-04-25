@@ -464,6 +464,8 @@
       "CONFIGURATION": "Konfigurace aplikace (veřejná)",
       "CONFIGURATIONSECURED": "Konfigurace aplikace (systémová)",
       "IDENTITY": "Uživatelé",
+      "IDENTITYCONTRACT": "Pracovně právní vztahy",
+      "CONTRACTGUARANTEE": "Garanti pracovně právního vztahu",
       "MODULE": "Moduly",
       "NOTIFICATION": "Notifikace",
       "ROLE": "Role",
@@ -1490,13 +1492,13 @@
         "edit": {
           "title": "Detail PPV",
           "header": "{{position}} <small>detail přiřazené pozice</small>",
-          "success": "Pozice [{{position}}] uživatele [{{username}}] byla úspěšně upravena."
+          "success": "Pozice [{{position}}] byla úspěšně upravena."
         },
         "create": {
           "title": "Přiřazení nové pozice",
           "header": "Přiřazení nové pozice",
-          "success": "Uživateli [{{username}}] byla úspěšně přidána pozice [{{position}}].",
-          "accepted": "Pozice [{{position}}] pro uživatele [{{username}}] byla úspěšně předána ke zpracování. Pozice musí býti před přiřazením nejdříve schválena."
+          "success": "Pozice [{{position}}] byla úspěšně přidána.",
+          "accepted": "Pozice [{{position}}] byla úspěšně předána ke zpracování. Pozice musí býti před přiřazením nejdříve schválena."
         },
         "save": {
           "success": "PPV [{{name}}] byl úspěšně uložen"
@@ -1511,6 +1513,29 @@
         },
         "error" : {
           "notFound": "Definice dalších atributů pro PPV nebyla nalezena."
+        }
+      },
+      "guarantees": {
+        "header": "Vedoucí a garanti",
+        "title": "Vedoucí",
+        "label": "Vedoucí",
+        "guarantees": {
+          "direct": "Nastavení garanti <small>napřímo na tento vztah</small>",
+          "byTree": "Vedoucí <small>dle stromových struktur</small>"
+        },
+        "edit": {
+          "title": "Detail garanta",
+          "header": "Detail garanta"
+        },
+        "create": {
+          "title": "Nový garant",
+          "header": "Nový garant"
+        },
+        "action": {
+          "save": {
+            "success_0": "N/A",
+            "success_1": "Pro pracovní pozici byl úspěšně uložen garant [{{record}}]"
+          }
         }
       }
     },
@@ -2044,7 +2069,7 @@
       },
       "disabled": {
         "label": "Neaktivní",
-        "help": "Pozice je neplatná, nelze na ni vázat žádné role. Má větší prioritu nežli platnosti - neplatné pracovní pozice jsou automaticky označnovány za neplatné - jsou rušeny všecny role na ně přiřazené."
+        "help": "Pozice je neplatná, nelze na ni vázat žádné role. Má větší prioritu nežli platnosti - neplatné pracovní pozice jsou automaticky označnovány za neaktivní - jsou rušeny všecny role na ně přiřazené."
       },
       "description": "Popis",
       "main": {
@@ -2352,8 +2377,14 @@
       "state": "Stav",
       "created": "Vytvořeno",
       "modified": "Upraveno"
+    },
+    "ContractGuarantee": {
+      "identityContractId": "Pracovně právní vztah",
+      "guarantee": {
+        "label": "Garant",
+        "help": "Garant napřímo přiřazený k pracovně právnímu vztahu"
+      }
     }
-
   },
   "wf": {
     "decision" : {

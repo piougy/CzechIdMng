@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
-import eu.bcvsolutions.idm.core.api.dto.IdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
@@ -75,7 +75,7 @@ public class DefaultLoginService implements LoginService {
 		Date expiration = new Date(System.currentTimeMillis() + configurationService.getIntegerValue(PROPERTY_EXPIRATION_TIMEOUT, DEFAULT_EXPIRATION_TIMEOUT));
 
 		IdmJwtAuthentication authentication = new IdmJwtAuthentication(
-				new IdentityDto(identity, identity.getUsername()),
+				new IdmIdentityDto(identity, identity.getUsername()),
 				expiration,
 				grantedAuthoritiesFactory.getGrantedAuthorities(username),
 				loginDto.getAuthenticationModule());

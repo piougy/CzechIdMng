@@ -11,7 +11,7 @@ import org.hibernate.envers.RevisionType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
-import eu.bcvsolutions.idm.core.api.dto.IdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.model.entity.IdmAudit;
@@ -67,8 +67,8 @@ public class IdmAuditListener implements EntityTrackingRevisionListener {
         revisionEntity.setModification(revisionType.name());
         // action executer identity
         AbstractAuthentication authentication = securityService.getAuthentication();
-        IdentityDto currentIdentity = authentication == null ? null : authentication.getCurrentIdentity();
-		IdentityDto originalIdentity = authentication == null ? null : authentication.getOriginalIdentity();
+        IdmIdentityDto currentIdentity = authentication == null ? null : authentication.getCurrentIdentity();
+		IdmIdentityDto originalIdentity = authentication == null ? null : authentication.getOriginalIdentity();
 		//
      	revisionEntity.setModifier(securityService.getUsername());
      	revisionEntity.setModifierId(currentIdentity == null ? null : currentIdentity.getId());

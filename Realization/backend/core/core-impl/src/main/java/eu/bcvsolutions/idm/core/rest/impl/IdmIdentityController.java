@@ -356,6 +356,7 @@ public class IdmIdentityController extends AbstractReadWriteEntityController<Idm
 	@Override
 	protected IdentityFilter toFilter(MultiValueMap<String, Object> parameters) {
 		IdentityFilter filter = new IdentityFilter();
+		filter.setId(getParameterConverter().toUuid(parameters, "id"));
 		filter.setText(getParameterConverter().toString(parameters, "text"));
 		filter.setSubordinatesFor(getParameterConverter().toEntity(parameters, "subordinatesFor", IdmIdentity.class));
 		filter.setSubordinatesByTreeType(getParameterConverter().toEntity(parameters, "subordinatesByTreeType", IdmTreeType.class));
@@ -365,6 +366,8 @@ public class IdmIdentityController extends AbstractReadWriteEntityController<Idm
 		filter.setTreeNode(getParameterConverter().toEntity(parameters, "treeNodeId", IdmTreeNode.class));
 		filter.setRecursively(getParameterConverter().toBoolean(parameters, "recursively", true));
 		filter.setTreeTypeId(getParameterConverter().toUuid(parameters, "treeTypeId"));
+		filter.setManagersByContractId(getParameterConverter().toUuid(parameters, "managersByContractId"));
+		filter.setIncludeGuarantees(getParameterConverter().toBoolean(parameters, "includeGuarantees", false));
 		// TODO: or / and in multivalues? OR is supported now
 		if (parameters.containsKey("role")) {
 			for(Object role : parameters.get("role")) {

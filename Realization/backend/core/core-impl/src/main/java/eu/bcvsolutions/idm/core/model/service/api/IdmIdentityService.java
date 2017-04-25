@@ -21,7 +21,7 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizableEntityService;
 public interface IdmIdentityService extends 
 		ReadWriteEntityService<IdmIdentity, IdentityFilter>, 
 		IdentifiableByNameEntityService<IdmIdentity>,
-		AuthorizableEntityService<IdmIdentity, IdentityFilter>{
+		AuthorizableEntityService<IdmIdentity, IdentityFilter> {
 	
 	@Deprecated
 	static final String CONFIDENTIAL_PROPERTY_PASSWORD = "password";

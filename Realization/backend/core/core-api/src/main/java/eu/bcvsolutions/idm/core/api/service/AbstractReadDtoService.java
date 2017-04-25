@@ -127,36 +127,19 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	@Override
 	@Transactional(readOnly = true)
 	public DTO getDto(Serializable id, BasePermission... permission) {
-		E entity = checkAccess(get(id), permission);
-		return toDto(entity);
+		return toDto(get(id, permission));
 	}
 
 	@Override
 	@Transactional(readOnly = true)
-	public Page<DTO> findDto(Pageable pageable) {
-		Page<E> page = find(pageable);
-		return toDtoPage(page);
+	public Page<DTO> findDto(Pageable pageable, BasePermission... permission) {
+		return findDto(null, pageable, permission);
 	}
 	
 	@Override
 	@Transactional(readOnly = true)
 	public Page<DTO> findDto(final F filter, Pageable pageable, BasePermission... permission) {
-		if (ObjectUtils.isEmpty(permission) || !(this instanceof AuthorizableService)) {
-			// TODO: remove filter method from repository with dto
-			return toDtoPage(find(filter, pageable));
-		}
-		// transform filter to criteria
-		Specification<E> criteria = new Specification<E>() {
-			public Predicate toPredicate(Root<E> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
-				Predicate predicate = builder.and(
-					AbstractReadDtoService.this.toPredicate(filter, root, query, builder),
-					getAuthorizationManager().getPredicate(root, query, builder, permission)
-				);
-				//
-				return query.where(predicate).getRestriction();
-			}
-		};
-		return toDtoPage(getRepository().findAll(criteria, pageable));
+		return toDtoPage(find(filter, pageable, permission));
 	}
 	
 	/**
@@ -179,7 +162,7 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	 */
 	@Override
 	@Transactional(readOnly = true)
-	public E get(Serializable id) {
+	public E get(Serializable id, BasePermission... permission) {
 		if (AbstractEntity.class.isAssignableFrom(getEntityClass()) && (id instanceof String)) {
 			// workflow / rest usage with string uuid variant
 			// EL does not recognize two methods with the same name and
@@ -191,22 +174,47 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 				return null;
 			}
 		}
-		return getRepository().findOne((UUID) id);
-	}
-
-	@Override
-	@Transactional(readOnly = true)
-	public Page<E> find(F filter, Pageable pageable) {
-		if (filter == null) {
-			return find(pageable);
+		E entity = getRepository().findOne((UUID) id);
+		if (entity == null) {
+			// entity not found
+			return null;
 		}
-		return getRepository().find(filter, pageable);
+		//
+		return checkAccess(entity, permission);
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public Page<E> find(Pageable pageable, BasePermission... permission) {
+		return find(null, pageable, permission);
 	}
 
 	@Override
 	@Transactional(readOnly = true)
-	public Page<E> find(Pageable pageable) {
-		return getRepository().findAll(pageable);
+	public Page<E> find(F filter, Pageable pageable, BasePermission... permission) {
+		// TODO: remove this if after all dtro services will be rewritten - remove getRepository().find(filter, pageable)
+		if (!(this instanceof AuthorizableService)) {
+			if (filter == null) {
+				return getRepository().findAll(pageable);
+			}
+			return getRepository().find(filter, pageable);
+		}
+		// transform filter to criteria
+		Specification<E> criteria = new Specification<E>() {
+			public Predicate toPredicate(Root<E> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
+				Predicate filterPredicate = AbstractReadDtoService.this.toPredicate(filter, root, query, builder);
+				if (ObjectUtils.isEmpty(permission)) {
+					return query.where(filterPredicate).getRestriction();
+				}				
+				Predicate predicate = builder.and(
+					filterPredicate,
+					getAuthorizationManager().getPredicate(root, query, builder, permission)
+				);
+				//
+				return query.where(predicate).getRestriction();
+			}
+		};
+		return getRepository().findAll(criteria, pageable);
 	}
 
 	/*

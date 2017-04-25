@@ -22,6 +22,8 @@ import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.domain.IdmPasswordPolicyType;
 import eu.bcvsolutions.idm.core.model.dto.IdmAuthorizationPolicyDto;
+import eu.bcvsolutions.idm.core.model.dto.IdmContractGuaranteeDto;
+import eu.bcvsolutions.idm.core.model.entity.IdmContractGuarantee;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
@@ -32,6 +34,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.entity.eav.IdmIdentityFormValue;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmContractGuaranteeService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
@@ -77,6 +80,8 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 	private IdmTreeTypeService treeTypeService;
 	@Autowired
 	private IdmIdentityContractService identityContractService;
+	@Autowired
+	private IdmContractGuaranteeService contractGuaranteeService;
 	@Autowired
 	private SecurityService securityService;	
 	@Autowired
@@ -258,9 +263,12 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				//
 				IdmIdentityContract identityWorkPosition = new IdmIdentityContract();
 				identityWorkPosition.setIdentity(identityAdmin);
-				identityWorkPosition.setGuarantee(identity2);
 				identityWorkPosition.setWorkPosition(organization2);
-				identityContractService.save(identityWorkPosition);
+				identityWorkPosition = identityContractService.save(identityWorkPosition);
+				IdmContractGuaranteeDto contractGuarantee = new IdmContractGuaranteeDto();
+				contractGuarantee.setIdentityContract(identityWorkPosition.getId());
+				contractGuarantee.setGuarantee(identity2.getId());
+				contractGuaranteeService.save(contractGuarantee);
 				//
 				LOG.info("Demo data was created.");
 				//				

@@ -27,3 +27,12 @@ getAppName() {
 }
 ...
 ```
+
+### Localization with html
+```javascript
+...
+getAppName() {
+  return this.i18n('app.name', { escape: false });
+}
+...
+```

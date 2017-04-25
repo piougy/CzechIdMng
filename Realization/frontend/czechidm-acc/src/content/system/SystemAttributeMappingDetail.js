@@ -162,7 +162,7 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
     const entityTypeEnum = SystemEntityTypeEnum.getEntityEnum(_systemMapping ? _systemMapping.entityType : 'IDENTITY');
     const _isRequiredIdmField = (_isEntityAttribute || _isExtendedAttribute) && !_isDisabled;
     const isSynchronization = _systemMapping && _systemMapping.operationType && _systemMapping.operationType === 'SYNCHRONIZATION' ? true : false;
-console.log("dddddddddddd", isSynchronization, _systemMapping);
+
     return (
       <div>
         <Helmet title={this.i18n('title')} />

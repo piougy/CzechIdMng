@@ -1048,6 +1048,7 @@
         "title": "Detail skriptu",
         "header": "{{name}} detail skriptu"
       },
+      "scriptAuthorities": "Oprávnění skriptu",
       "create": {
         "title": "Nový skript",
         "header": "Nový skript"

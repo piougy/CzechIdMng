@@ -14,7 +14,7 @@ import org.hibernate.envers.Audited;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
-import eu.bcvsolutions.idm.core.api.domain.IdentifiableByName;
+import eu.bcvsolutions.idm.core.api.domain.IdentifiableByCode;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.model.domain.IdmScriptCategory;
 
@@ -30,19 +30,17 @@ import eu.bcvsolutions.idm.core.model.domain.IdmScriptCategory;
  */
 
 @Entity
-@Table(name = "idm_script", indexes = { 
-		@Index(name = "ux_script_name", columnList = "name", unique = true),
+@Table(name = "idm_script", indexes = {
 		@Index(name = "ux_script_code", columnList = "code", unique = true),
 		@Index(name = "ux_script_category", columnList = "category") 
 		})
-public class IdmScript extends AbstractEntity implements IdentifiableByName {
+public class IdmScript extends AbstractEntity implements IdentifiableByCode{
 
 	private static final long serialVersionUID = -3827618803196757060L;
 
 	@Audited
-	@NotEmpty
 	@Size(min = 0, max = DefaultFieldLengths.NAME)
-	@Column(name = "name", length = DefaultFieldLengths.NAME, nullable = false)
+	@Column(name = "name", length = DefaultFieldLengths.NAME, nullable = true)
 	private String name;
 	
 	@Audited
@@ -75,7 +73,6 @@ public class IdmScript extends AbstractEntity implements IdentifiableByName {
 		this.script = script;
 	}
 	
-	@Override
 	public String getName() {
 		return name;
 	}

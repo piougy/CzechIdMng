@@ -151,7 +151,14 @@ export default class ScriptDetail extends Basic.AbstractContent {
             label={this.i18n('entity.Script.script.label')}/>
           </Basic.AbstractForm>
 
-          <ScriptAuthorityTable uiKey={entity.id} scriptId={entity.id} rendered={!Utils.Entity.isNew(entity)} />
+          {
+            Utils.Entity.isNew(entity)
+            ||
+            <Basic.Panel style={{display: 'block', borderColor: '#fff'}} showLoading={showLoading}>
+              <Basic.PanelHeader text={this.i18n('scriptAuthorities')}/>
+                <ScriptAuthorityTable uiKey={entity.id} scriptId={entity.id} rendered={!Utils.Entity.isNew(entity)} />
+            </Basic.Panel>
+          }
 
           <Basic.PanelFooter showLoading={showLoading} >
             <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>{this.i18n('button.back')}</Basic.Button>

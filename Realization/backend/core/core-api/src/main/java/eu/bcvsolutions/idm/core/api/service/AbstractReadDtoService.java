@@ -34,6 +34,7 @@ import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
+import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizationManager;
@@ -55,7 +56,7 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizationManager;
  * @param <F> filter
  */
 public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends BaseEntity, F extends BaseFilter>
-		implements ReadDtoService<DTO, E, F> {
+		implements ReadDtoService<DTO, E, F>, ScriptEnabled {
 
 	private final Class<E> entityClass;
 	private final Class<F> filterClass;

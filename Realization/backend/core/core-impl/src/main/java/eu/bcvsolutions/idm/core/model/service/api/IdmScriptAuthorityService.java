@@ -5,7 +5,7 @@ import java.util.UUID;
 
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.model.dto.IdmScriptAuthorityDto;
-import eu.bcvsolutions.idm.core.model.dto.IdmScriptAuthorityServiceDto;
+import eu.bcvsolutions.idm.core.model.dto.AvailableServiceDto;
 import eu.bcvsolutions.idm.core.model.dto.filter.ScriptAuthorityFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmScriptAuthority;
 
@@ -29,5 +29,5 @@ public interface IdmScriptAuthorityService extends ReadWriteDtoService<IdmScript
 	 * @param serviceName
 	 * @return
 	 */
-	List<IdmScriptAuthorityServiceDto> findServices(String serviceName);
+	List<AvailableServiceDto> findServices(String serviceName);
 }

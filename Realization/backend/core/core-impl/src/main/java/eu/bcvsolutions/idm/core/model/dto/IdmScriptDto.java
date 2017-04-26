@@ -10,10 +10,12 @@ public class IdmScriptDto extends AbstractDto {
 
 	private static final long serialVersionUID = 1L;
 	
+	private String code;
 	private String name;
 	private String script;
 	private IdmScriptCategory category = IdmScriptCategory.DEFAULT;
 	private String description;
+	private String template;
 	
 	public String getName() {
 		return name;
@@ -45,5 +47,21 @@ public class IdmScriptDto extends AbstractDto {
 	
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	public String getCode() {
+		return code;
+	}
+
+	public void setCode(String code) {
+		this.code = code;
+	}
+
+	public String getTemplate() {
+		return template;
+	}
+
+	public void setTemplate(String template) {
+		this.template = template;
 	}
 }

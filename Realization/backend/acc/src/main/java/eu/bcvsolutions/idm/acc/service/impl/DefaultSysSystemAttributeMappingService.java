@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,6 +9,8 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.plugin.core.OrderAwarePluginRegistry;
+import org.springframework.plugin.core.PluginRegistry;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -28,7 +31,10 @@ import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.repository.SysRoleSystemAttributeRepository;
 import eu.bcvsolutions.idm.acc.repository.SysSyncConfigRepository;
 import eu.bcvsolutions.idm.acc.repository.SysSystemAttributeMappingRepository;
+import eu.bcvsolutions.idm.acc.script.evaluator.DefaultTransformFromResourceEvaluator;
+import eu.bcvsolutions.idm.acc.script.evaluator.DefaultTransformToResourceEvaluator;
 import eu.bcvsolutions.idm.acc.service.api.FormPropertyManager;
+import eu.bcvsolutions.idm.acc.service.api.SynchronizationExecutor;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
@@ -37,6 +43,8 @@ import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
+import eu.bcvsolutions.idm.core.model.domain.IdmScriptCategory;
+import eu.bcvsolutions.idm.core.script.evaluator.AbstractScriptEvaluator;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.impl.IcAttributeImpl;
@@ -63,7 +71,7 @@ public class DefaultSysSystemAttributeMappingService
 	private final SysRoleSystemAttributeRepository roleSystemAttributeRepository;
 	private final FormPropertyManager formPropertyManager;
 	private final SysSyncConfigRepository syncConfigRepository;
-	
+	private final PluginRegistry<AbstractScriptEvaluator, IdmScriptCategory> pluginExecutors; 
 	@Autowired
 	public DefaultSysSystemAttributeMappingService(
 			SysSystemAttributeMappingRepository repository,
@@ -71,7 +79,8 @@ public class DefaultSysSystemAttributeMappingService
 			FormService formService,
 			SysRoleSystemAttributeRepository roleSystemAttributeRepository,
 			FormPropertyManager formPropertyManager,
-			SysSyncConfigRepository syncConfigRepository) {
+			SysSyncConfigRepository syncConfigRepository,
+			List<AbstractScriptEvaluator> evaluators) {
 		super(repository);
 		//
 		Assert.notNull(groovyScriptService);
@@ -79,6 +88,7 @@ public class DefaultSysSystemAttributeMappingService
 		Assert.notNull(roleSystemAttributeRepository);
 		Assert.notNull(formPropertyManager);
 		Assert.notNull(syncConfigRepository);
+		Assert.notNull(evaluators);
 		//
 		this.formService = formService;
 		this.repository = repository;
@@ -86,7 +96,8 @@ public class DefaultSysSystemAttributeMappingService
 		this.roleSystemAttributeRepository = roleSystemAttributeRepository;
 		this.formPropertyManager = formPropertyManager;
 		this.syncConfigRepository = syncConfigRepository;
-		
+		//
+		this.pluginExecutors = OrderAwarePluginRegistry.create(evaluators);
 	}
 
 	public List<SysSystemAttributeMapping> findBySystemMapping(SysSystemMapping systemMapping) {
@@ -114,7 +125,13 @@ public class DefaultSysSystemAttributeMappingService
 			variables.put(ATTRIBUTE_VALUE_KEY, value);
 			variables.put(SYSTEM_KEY, system);
 			variables.put(ENTITY_KEY, entity);
-			return groovyScriptService.evaluate(script, variables);
+			variables.put(AbstractScriptEvaluator.SCRIPT_EVALUATOR, pluginExecutors.getPluginFor(IdmScriptCategory.TRANSFORM_TO)); // add default script evaluator, for call another scripts
+			//
+			// Add access for script evaluator
+			List<Class<?>> extraClass = new ArrayList<>();
+			extraClass.add(AbstractScriptEvaluator.Builder.class);
+			//
+			return groovyScriptService.evaluate(script, variables, extraClass);
 		}
 
 		return value;
@@ -138,7 +155,12 @@ public class DefaultSysSystemAttributeMappingService
 			variables.put(ATTRIBUTE_VALUE_KEY, value);
 			variables.put(SYSTEM_KEY, system);
 			variables.put(IC_ATTRIBUTES_KEY, icAttributes);
-			return groovyScriptService.evaluate(script, variables);
+			variables.put(AbstractScriptEvaluator.SCRIPT_EVALUATOR, pluginExecutors.getPluginFor(IdmScriptCategory.TRANSFORM_FROM)); // add default script evaluator, for call another scripts
+			// Add access for script evaluator
+			List<Class<?>> extraClass = new ArrayList<>();
+			extraClass.add(AbstractScriptEvaluator.Builder.class);
+			//
+			return groovyScriptService.evaluate(script, variables, extraClass);
 		}
 
 		return value;

@@ -3,22 +3,22 @@ package eu.bcvsolutions.idm.core.model.dto;
 import org.springframework.hateoas.core.Relation;
 
 /**
- * DTO with information about available service that can be used in scripts.
+ * DTO with information about available service that can be used for example in scripts.
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
-@Relation(collectionRelation = "scriptAuthorityServices")
-public class IdmScriptAuthorityServiceDto  {
+@Relation(collectionRelation = "availableServices")
+public class AvailableServiceDto  {
 
 	private String serviceName;
 	
 	private String serviceClass;
 	
-	public IdmScriptAuthorityServiceDto() {
+	public AvailableServiceDto() {
 	}
 
-	public IdmScriptAuthorityServiceDto(String serviceName, String serviceClass) {
+	public AvailableServiceDto(String serviceName, String serviceClass) {
 		this.serviceName = serviceName;
 		this.serviceClass = serviceClass;
 	}

@@ -1021,6 +1021,11 @@
         "text": "Name / Description"
       }
     },
+    "scriptAuthorities": {
+      "save": {
+        "success": "Authority for script was successfully saved"
+      }
+    },
     "roles": {
       "menu-title": "Roles",
       "header": "Roles administration",
@@ -1904,11 +1909,20 @@
     "Script": {
       "name": "Script name",
       "category": "Category",
+      "code": "Code",
       "script": {
         "help": "Body of script in groovy.",
         "label": "Script"
        },
       "description": "Script description"
+    },
+    "ScriptAuthority": {
+      "type": {
+        "label": "Authority type",
+        "help": ""
+      },
+      "className": "Class name",
+      "service": "Service name"
     },
     "FormDefinition" : {
       "type": "Type",

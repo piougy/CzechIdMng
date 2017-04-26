@@ -521,6 +521,14 @@
         "label": "IdM klíč",
         "help": "Název atributu u entity, název rozšířeného attributu či klíč do šifrovaného úložiště."
       },
+      "transformToResourceScriptSelectBox": {
+        "label": "Available scripts to transformation from resource",
+        "help": "After selecting the script, will be inserted code for call script, including sample parameters."
+      },
+      "transformFromResourceScriptSelectBox": {
+        "label": "Available scripts to transformation to resource",
+        "help": "Po výběru skriptu se vloží kód pro zavolání daného skriptu, včetně ukázkových parametrů."
+      },
       "idmPropertyEnum": "Entity fields",
       "schemaAttribute": "Atribut ve schéma",
       "systemMapping": "Název mapování",

@@ -1,19 +1,21 @@
 import React, { PropTypes } from 'react';
+import { connect } from 'react-redux';
 //
-import { SecurityManager, ScriptAuthorityManager } from '../../redux';
+import { SecurityManager, ScriptAuthorityManager, DataManager } from '../../redux';
 import ScriptAuthorityTypeEnum from '../../enums/ScriptAuthorityTypeEnum';
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
-import SearchParameters from '../../domain/SearchParameters';
 
 const manager = new ScriptAuthorityManager();
+
+const AVAILABLE_SERVICES_UIKEY = 'availableServicesUiKey';
 
 /**
  * Table with authorities for scripts.
  * Allowed class and services for script
  */
-export default class ScriptAuthorityTable extends Basic.AbstractContent {
+class ScriptAuthorityTable extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
@@ -25,29 +27,12 @@ export default class ScriptAuthorityTable extends Basic.AbstractContent {
     };
     //
     this.state = {
-      showLoading: true,
+      _showLoading: true,
       filterOpened: false,
       detail
     };
     //
-    this.context.store.dispatch(manager.fetchEntities(new SearchParameters('service'), null, (services) => {
-      const servicesOptions = [];
-      if (services && services._embedded && services._embedded.scriptAuthorityServices) {
-        for (let index = 0; index < services._embedded.scriptAuthorityServices.length; index++) {
-          const service = services._embedded.scriptAuthorityServices[index];
-          const row = {
-            niceLabel: service.serviceName,
-            value: service.serviceClass
-          };
-          servicesOptions.push(row);
-        }
-      }
-      this.setState({
-        showLoading: false,
-        servicesOptions
-      });
-    }));
-    //
+    this.context.store.dispatch(manager.fetchAvailableServices(AVAILABLE_SERVICES_UIKEY));
   }
 
   getContentKey() {
@@ -108,12 +93,12 @@ export default class ScriptAuthorityTable extends Basic.AbstractContent {
     }
     //
     this.setState({
-      showLoading: true
+      _showLoading: true
     }, this.refs.form.processStarted());
 
     // set script id into script authority
     entity.script = scriptId;
-    console.log('saveeeed', entity);
+
     //
     if (entity.id === undefined) {
       this.context.store.dispatch(manager.createEntity(entity, `${uiKey}-detail`, (createdEntity, error) => {
@@ -125,13 +110,13 @@ export default class ScriptAuthorityTable extends Basic.AbstractContent {
   }
 
   /**
-   * Method set showLoading to false and if is'nt error then show success message
+   * Method set _showLoading to false and if is'nt error then show success message
    */
   _afterSave(entity, error) {
     let { detail } = this.state;
     if (error) {
       this.setState({
-        showLoading: false
+        _showLoading: false
       }, this.refs.form.processEnded());
       this.addError(error);
       return;
@@ -148,8 +133,26 @@ export default class ScriptAuthorityTable extends Basic.AbstractContent {
     //
     this.setState({
       detail,
-      showLoading: false
+      _showLoading: false
     });
+  }
+
+  getOptions(services) {
+    if (!services) {
+      return null;
+    }
+    const servicesOptions = [];
+    if (services && services._embedded && services._embedded.availableServices) {
+      for (let index = 0; index < services._embedded.availableServices.length; index++) {
+        const service = services._embedded.availableServices[index];
+        const row = {
+          niceLabel: service.serviceName,
+          value: service.serviceClass
+        };
+        servicesOptions.push(row);
+      }
+    }
+    return servicesOptions;
   }
 
   /**
@@ -223,8 +226,12 @@ export default class ScriptAuthorityTable extends Basic.AbstractContent {
   }
 
   render() {
-    const { uiKey } = this.props;
-    const { filterOpened, detail, _showLoading, showLoading, servicesOptions } = this.state;
+    const { uiKey, rendered, scriptId, availableServices } = this.props;
+    const { filterOpened, detail, _showLoading } = this.state;
+
+    if (!rendered) {
+      return null;
+    }
 
     return (
       <div>
@@ -233,9 +240,10 @@ export default class ScriptAuthorityTable extends Basic.AbstractContent {
           ref="table"
           uiKey={uiKey}
           manager={manager}
+          forceSearchParameters={manager.getDefaultSearchParameters().setFilter('scriptId', scriptId)}
           showRowSelection={SecurityManager.hasAuthority('SCRIPT_DELETE')}
           rowClass={({rowIndex, data}) => { return data[rowIndex].disabled ? 'disabled' : ''; }}
-          showLoading={showLoading}
+          _showLoading={_showLoading}
           filterOpened={!filterOpened}
           actions={
             [
@@ -266,7 +274,9 @@ export default class ScriptAuthorityTable extends Basic.AbstractContent {
               }
             }
             sort={false}/>
-          <Advanced.Column property="type" sort face="enum" enumClass={ScriptAuthorityTypeEnum}/>
+          <Advanced.Column property="type"
+            header={ this.i18n('entity.ScriptAuthority.type.label') }
+            sort face="enum" enumClass={ScriptAuthorityTypeEnum}/>
           <Advanced.Column property="className" sort />
           <Advanced.Column property="service" sort />
         </Advanced.Table>
@@ -285,7 +295,7 @@ export default class ScriptAuthorityTable extends Basic.AbstractContent {
               <Basic.AbstractForm
                 ref="form"
                 data={detail.entity}
-                showLoading={_showLoading}>
+                _showLoading={_showLoading}>
                 <Basic.Row>
                   <div className="col-lg-12">
                     <Basic.EnumSelectBox
@@ -302,7 +312,7 @@ export default class ScriptAuthorityTable extends Basic.AbstractContent {
                         required
                         ref="className"
                         onChange={ this.onChangeService.bind(this) }
-                        options={servicesOptions}
+                        options={this.getOptions(availableServices)}
                         label={ this.i18n('entity.ScriptAuthority.type.label') }
                         palceholder={ this.i18n('entity.ScriptAuthority.type.placeholder') }
                         helpBlock={ this.i18n('entity.ScriptAuthority.type.help') }/>
@@ -327,15 +337,15 @@ export default class ScriptAuthorityTable extends Basic.AbstractContent {
               <Basic.Button
                 level="link"
                 onClick={this.closeDetail.bind(this)}
-                showLoading={_showLoading}>
+                _showLoading={_showLoading}>
                 {this.i18n('button.close')}
               </Basic.Button>
               <Basic.Button
                 type="submit"
                 level="success"
-                showLoading={_showLoading}
-                showLoadingIcon
-                showLoadingText={this.i18n('button.saving')}
+                _showLoading={_showLoading}
+                _showLoadingIcon
+                _showLoadingText={this.i18n('button.saving')}
                 rendered={SecurityManager.hasAuthority('SCRIPT_CREATE')}>
                 {this.i18n('button.save')}
               </Basic.Button>
@@ -349,8 +359,18 @@ export default class ScriptAuthorityTable extends Basic.AbstractContent {
 
 ScriptAuthorityTable.propTypes = {
   uiKey: PropTypes.string.isRequired,
-  scriptId: PropTypes.string.isRequired
+  scriptId: PropTypes.string.isRequired,
+  rendered: PropTypes.bool.isRequired
 };
 
 ScriptAuthorityTable.defaultProps = {
+  rendered: true
 };
+
+function select(state) {
+  return {
+    availableServices: DataManager.getData(state, AVAILABLE_SERVICES_UIKEY)
+  };
+}
+
+export default connect(select)(ScriptAuthorityTable);

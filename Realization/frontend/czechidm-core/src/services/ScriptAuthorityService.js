@@ -1,5 +1,7 @@
 import AbstractService from './AbstractService';
 import SearchParameters from '../domain/SearchParameters';
+import RestApiService from './RestApiService';
+import * as Utils from '../utils';
 
 /**
  * Script authority service
@@ -36,5 +38,19 @@ export default class ScriptAuthorityService extends AbstractService {
    */
   getDefaultSearchParameters() {
     return super.getDefaultSearchParameters().setName(SearchParameters.NAME_QUICK).clearSort().setSort('service', 'asc');
+  }
+
+  getAvailableServices() {
+    return RestApiService
+    .get(RestApiService.getUrl(this.getApiPath() + '/search/service'))
+    .then(response => {
+      return response.json();
+    })
+    .then(json => {
+      if (Utils.Response.hasError(json)) {
+        throw Utils.Response.getFirstError(json);
+      }
+      return json;
+    });
   }
 }

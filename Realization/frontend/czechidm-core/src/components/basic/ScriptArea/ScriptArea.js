@@ -23,7 +23,12 @@ class ScriptArea extends AbstractFormComponent {
    * Focus input field
    */
   focus() {
-    this.refs.input.focus();
+    const { showModalEditor } = this.state;
+    if (showModalEditor) {
+      this.refs.inputModal.editor.focus();
+    } else {
+      this.refs.input.editor.focus();
+    }
   }
 
   onChange(newValue) {

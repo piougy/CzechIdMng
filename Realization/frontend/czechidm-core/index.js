@@ -17,6 +17,7 @@ import FormInstance from './src/domain/FormInstance';
 import AbstractEnum from './src/enums/AbstractEnum';
 import OperationStateEnum from './src/enums/OperationStateEnum';
 import PasswordPolicyTypeEnum from './src/enums/PasswordPolicyTypeEnum';
+import ScriptCategoryEnum from './src/enums/ScriptCategoryEnum';
 
 const ModuleRoot = {
   Basic,
@@ -39,7 +40,8 @@ const ModuleRoot = {
   Enums: {
     AbstractEnum,
     OperationStateEnum,
-    PasswordPolicyTypeEnum
+    PasswordPolicyTypeEnum,
+    ScriptCategoryEnum
   }
 };
 ModuleRoot.version = '0.0.1';

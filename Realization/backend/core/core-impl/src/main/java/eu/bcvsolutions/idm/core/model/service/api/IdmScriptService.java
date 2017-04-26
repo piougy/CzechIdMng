@@ -13,5 +13,11 @@ import eu.bcvsolutions.idm.core.model.entity.IdmScript;
  */
 
 public interface IdmScriptService extends ReadWriteDtoService<IdmScriptDto, IdmScript, ScriptFilter> {
-
+	
+	/**
+	 * Return {@link IdmScriptDto} byt name.
+	 * @param name
+	 * @return
+	 */
+	IdmScriptDto getScriptByName(String name);
 }

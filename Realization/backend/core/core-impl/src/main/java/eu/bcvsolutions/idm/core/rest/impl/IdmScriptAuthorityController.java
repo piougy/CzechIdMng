@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.dto.IdmScriptAuthorityDto;
-import eu.bcvsolutions.idm.core.model.dto.IdmScriptAuthorityServiceDto;
+import eu.bcvsolutions.idm.core.model.dto.AvailableServiceDto;
 import eu.bcvsolutions.idm.core.model.dto.filter.ScriptAuthorityFilter;
 import eu.bcvsolutions.idm.core.model.service.api.IdmScriptAuthorityService;
 
@@ -83,17 +83,17 @@ public class IdmScriptAuthorityController extends DefaultReadWriteDtoController<
 	@RequestMapping(value= "/search/service", method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCRIPT_READ + "')")
 	public Resources<?> findService(@RequestParam MultiValueMap<String, Object> parameters, @PageableDefault Pageable pageable) {
-		String serviceName = parameters.get("text") == null ? null : String.valueOf(parameters.get("text"));
-		List<IdmScriptAuthorityServiceDto> services = service.findServices(serviceName);
+		String serviceName = parameters.get("serviceName") == null ? null : String.valueOf(parameters.get("serviceName"));
+		List<AvailableServiceDto> services = service.findServices(serviceName);
 		// TODO: pageable?
 //		int start = pageable.getPageNumber() * pageable.getPageSize();
 //		int end = (pageable.getPageNumber() * pageable.getPageSize()) + pageable.getPageSize();
 //		if (end > services.size()) {
 //			end = services.size();
 //		}
-		Page<IdmScriptAuthorityServiceDto> pages = new PageImpl<IdmScriptAuthorityServiceDto>(
+		Page<AvailableServiceDto> pages = new PageImpl<AvailableServiceDto>(
 				services, pageable, services.size());
-		return toResources(pages, IdmScriptAuthorityServiceDto.class);
+		return toResources(pages, AvailableServiceDto.class);
 	}
 	
 	@Override

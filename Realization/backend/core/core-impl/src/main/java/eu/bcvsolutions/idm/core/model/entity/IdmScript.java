@@ -31,7 +31,8 @@ import eu.bcvsolutions.idm.core.model.domain.IdmScriptCategory;
 
 @Entity
 @Table(name = "idm_script", indexes = { 
-		@Index(name = "ux_script_name", columnList = "name", unique = true), 
+		@Index(name = "ux_script_name", columnList = "name", unique = true),
+		@Index(name = "ux_script_code", columnList = "code", unique = true),
 		@Index(name = "ux_script_category", columnList = "category") 
 		})
 public class IdmScript extends AbstractEntity implements IdentifiableByName {
@@ -45,10 +46,16 @@ public class IdmScript extends AbstractEntity implements IdentifiableByName {
 	private String name;
 	
 	@Audited
+	@NotEmpty
+	@Size(min = 0, max = DefaultFieldLengths.NAME)
+	@Column(name = "code", length = DefaultFieldLengths.NAME, nullable = false)
+	private String code;
+	
+	@Audited
 	@Type(type = "org.hibernate.type.StringClobType")
 	@Column(name = "script")
 	private String script;
-	
+
 	@Audited
 	@NotNull
 	@Enumerated(EnumType.STRING)
@@ -91,5 +98,13 @@ public class IdmScript extends AbstractEntity implements IdentifiableByName {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+	
+	public String getCode() {
+		return code;
+	}
+
+	public void setCode(String code) {
+		this.code = code;
 	}
 }

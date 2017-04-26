@@ -1,9 +1,12 @@
 package eu.bcvsolutions.idm.core.rest.impl;
 
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
@@ -11,7 +14,10 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.plugin.core.OrderAwarePluginRegistry;
+import org.springframework.plugin.core.PluginRegistry;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -26,6 +32,8 @@ import eu.bcvsolutions.idm.core.model.domain.IdmScriptCategory;
 import eu.bcvsolutions.idm.core.model.dto.IdmScriptDto;
 import eu.bcvsolutions.idm.core.model.dto.filter.ScriptFilter;
 import eu.bcvsolutions.idm.core.model.service.api.IdmScriptService;
+import eu.bcvsolutions.idm.core.script.evaluator.AbstractScriptEvaluator;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 
 /**
  * Default controller for scripts, basic methods.
@@ -36,7 +44,7 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmScriptService;
 @RepositoryRestController
 @RequestMapping(value = BaseDtoController.BASE_PATH + "/scripts")
 public class IdmScriptController extends DefaultReadWriteDtoController<IdmScriptDto, ScriptFilter> {
-
+	
 	@Autowired
 	public IdmScriptController(IdmScriptService service) {
 		super(service);

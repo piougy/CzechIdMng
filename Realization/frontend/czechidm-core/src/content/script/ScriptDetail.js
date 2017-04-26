@@ -120,27 +120,38 @@ export default class ScriptDetail extends Basic.AbstractContent {
             uiKey={uiKey}
             readOnly={!SecurityManager.hasAuthority(Utils.Entity.isNew(entity) ? 'SCRIPT_CREATE' : 'SCRIPT_UPDATE')}
             style={{ padding: '15px 15px 0 15px' }}>
-            <Basic.TextField
-              ref="name"
-              label={this.i18n('entity.Script.name')}
-              required
-              max={255}/>
-            <Basic.EnumSelectBox
-              ref="category"
-              label={this.i18n('entity.Script.category')}
-              enum={ScriptCategoryEnum}
-              max={255}
-              required/>
-            <Advanced.RichTextArea ref="description" label={this.i18n('entity.Script.description')} />
-            <Basic.ScriptArea
-              ref="script"
-              mode="groovy"
-              height="25em"
-              helpBlock={this.i18n('entity.Script.script.help')}
-              label={this.i18n('entity.Script.script.label')}/>
+          <Basic.Row>
+            <div className="col-lg-2">
+              <Basic.TextField
+                ref="code"
+                label={this.i18n('entity.Script.code')}
+                required
+                max={255}/>
+            </div>
+            <div className="col-lg-10">
+              <Basic.TextField
+                ref="name"
+                label={this.i18n('entity.Script.name')}
+                required
+                max={255}/>
+            </div>
+          </Basic.Row>
+          <Basic.EnumSelectBox
+            ref="category"
+            label={this.i18n('entity.Script.category')}
+            enum={ScriptCategoryEnum}
+            max={255}
+            required/>
+          <Advanced.RichTextArea ref="description" label={this.i18n('entity.Script.description')} />
+          <Basic.ScriptArea
+            ref="script"
+            mode="groovy"
+            height="25em"
+            helpBlock={this.i18n('entity.Script.script.help')}
+            label={this.i18n('entity.Script.script.label')}/>
           </Basic.AbstractForm>
 
-          <ScriptAuthorityTable uiKey={entity.id} scriptId={entity.id} />
+          <ScriptAuthorityTable uiKey={entity.id} scriptId={entity.id} rendered={!Utils.Entity.isNew(entity)} />
 
           <Basic.PanelFooter showLoading={showLoading} >
             <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>{this.i18n('button.back')}</Basic.Button>

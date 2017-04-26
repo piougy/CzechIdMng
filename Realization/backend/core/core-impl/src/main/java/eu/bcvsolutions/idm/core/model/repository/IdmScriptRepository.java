@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.core.model.repository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.model.dto.filter.ScriptFilter;
@@ -38,4 +39,8 @@ public interface IdmScriptRepository extends AbstractEntityRepository<IdmScript,
 	        	+ " or e.category = ?#{[0].category}" 
 	        + " )")
 	Page<IdmScript> find(ScriptFilter filter, Pageable pageable);
+	
+	IdmScript findOneByName(@Param("name") String name);
+	
+	IdmScript findOneByCode(@Param("code") String code);
 }

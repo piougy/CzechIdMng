@@ -1,6 +1,8 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -16,22 +18,29 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
-import eu.bcvsolutions.idm.core.api.service.BaseDtoService;
 import eu.bcvsolutions.idm.core.model.domain.ScriptAuthorityType;
+import eu.bcvsolutions.idm.core.model.dto.AvailableServiceDto;
 import eu.bcvsolutions.idm.core.model.dto.IdmScriptAuthorityDto;
-import eu.bcvsolutions.idm.core.model.dto.IdmScriptAuthorityServiceDto;
 import eu.bcvsolutions.idm.core.model.dto.filter.ScriptAuthorityFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmScriptAuthority;
 import eu.bcvsolutions.idm.core.model.repository.IdmScriptAuthorityRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmScriptAuthorityService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 
+/**
+ * Deafault implementation for {@link IdmScriptAuthorityService}
+ * 
+ * @author Ondrej Kopr <kopr@xyxy.cz>
+ *
+ */
+
 @Service("scriptAuthorityService")
 public class DefaultIdmScriptAuthorityService extends AbstractReadWriteDtoService<IdmScriptAuthorityDto, IdmScriptAuthority, ScriptAuthorityFilter> implements IdmScriptAuthorityService {
 	
 	private final ApplicationContext applicationContext;
-	private List<IdmScriptAuthorityServiceDto> services;
+	private List<AvailableServiceDto> services;
 	
 	@Autowired
 	public DefaultIdmScriptAuthorityService(
@@ -68,23 +77,28 @@ public class DefaultIdmScriptAuthorityService extends AbstractReadWriteDtoServic
 		find(filter, null).getContent().forEach(scriptAuthority -> this.deleteInternalById(scriptAuthority.getId()));
 	}
 
-	@SuppressWarnings("rawtypes")
 	@Override
-	public List<IdmScriptAuthorityServiceDto> findServices(String serviceName) {
-		List<IdmScriptAuthorityServiceDto> result = new ArrayList<>();
+	public List<AvailableServiceDto> findServices(String serviceName) {
+		List<AvailableServiceDto> result = new ArrayList<>();
 		// BaseDtoService, not all services implemented this
-		if (this.services != null || !this.services.isEmpty()) {
+		if (this.services != null && !this.services.isEmpty()) {
 			return this.services;
 		}
-		Map<String, BaseDtoService> services = applicationContext.getBeansOfType(BaseDtoService.class);
+		Map<String, ScriptEnabled> services = applicationContext.getBeansOfType(ScriptEnabled.class);
 		//
-		for (Entry<String, BaseDtoService> entry : services.entrySet()) {
+		for (Entry<String, ScriptEnabled> entry : services.entrySet()) {
 			if (serviceName == null || serviceName.isEmpty()) {
-				result.add(new IdmScriptAuthorityServiceDto(entry.getKey(), getServiceClassName(entry.getValue())));
+				result.add(new AvailableServiceDto(entry.getKey(), getServiceClassName(entry.getValue())));
 			} else if (entry.getKey().matches(".*" + serviceName + ".*")) {
-				result.add(new IdmScriptAuthorityServiceDto(entry.getKey(), getServiceClassName(entry.getValue())));
+				result.add(new AvailableServiceDto(entry.getKey(), getServiceClassName(entry.getValue())));
 			}
 		}
+		//
+		Collections.sort(result, new Comparator<AvailableServiceDto>(){
+		    public int compare(AvailableServiceDto o1, AvailableServiceDto o2) {
+		        return o1.getServiceName().compareToIgnoreCase(o2.getServiceName());
+		    }
+		});
 		//
 		this.services = result;
 		return this.services;

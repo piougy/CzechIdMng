@@ -12,8 +12,8 @@ import eu.bcvsolutions.idm.core.model.dto.IdmScriptDto;
  *
  */
 
-@Service("defaultResourceEvaluator")
-public class DefaultResourceEvaluator extends AbstractScriptEvaluator {
+@Service("defaultScriptEvaluator")
+public class DefaultScriptEvaluator extends AbstractScriptEvaluator {
 
 	@Override
 	public boolean supports(IdmScriptCategory arg0) {

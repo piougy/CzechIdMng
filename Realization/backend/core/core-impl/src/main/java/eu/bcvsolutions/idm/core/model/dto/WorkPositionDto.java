@@ -12,20 +12,22 @@ import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
  * - contains prime identity's working position
  * - contains all work position's parents in tree structure and contract's working position as path 
  * 
+ * TODO: use dtos
+ * 
  * @author Radek Tomiška
  *
  */
-public class WorkPosition extends AbstractDto {
+public class WorkPositionDto extends AbstractDto {
 
 	private static final long serialVersionUID = 6839506093315671159L;
 	private IdmIdentity identity;
 	private IdmIdentityContract contract;
 	private List<IdmTreeNode> path;
 	
-	public WorkPosition() {
+	public WorkPositionDto() {
 	}
 	
-	public WorkPosition(IdmIdentity identity, IdmIdentityContract contract) {
+	public WorkPositionDto(IdmIdentity identity, IdmIdentityContract contract) {
 		super(contract);
 		this.identity = identity;
 		this.contract = contract;

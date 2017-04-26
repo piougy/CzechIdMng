@@ -32,6 +32,7 @@ import RoleTreeNodeManager from './RoleTreeNodeManager';
 import FormDefinitionManager from './FormDefinitionManager';
 import FormAttributeManager from './FormAttributeManager';
 import AuthorizationPolicyManager from './AuthorizationPolicyManager';
+import ScriptAuthorityManager from './ScriptAuthorityManager';
 import ContractGuaranteeManager from './ContractGuaranteeManager';
 
 const ManagerRoot = {
@@ -69,6 +70,7 @@ const ManagerRoot = {
   FormDefinitionManager,
   FormAttributeManager,
   AuthorizationPolicyManager,
+  ScriptAuthorityManager,
   ContractGuaranteeManager
 };
 

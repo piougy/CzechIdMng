@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.core.security.domain;
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.text.MessageFormat;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -43,7 +44,23 @@ public class GroovySandboxFilter extends GroovyValueFilter {
 			allowedCustomTypes.addAll(allowedTypes);
 		}
 	}
-
+	
+	public void addCustomTypes(List<Class<?>> allowedTypes) {
+		if(allowedTypes != null) {
+			allowedCustomTypes.addAll(allowedTypes);
+		}
+	}
+	
+	public void clearCustomTypes(Collection<?> allowedTypes) {
+		if(allowedTypes != null && allowedTypes != null) {
+			allowedCustomTypes.removeAll(allowedTypes);
+		}
+	}
+	
+	public Set<Class<?>> getCustomTypes() {
+		return this.allowedCustomTypes;
+	}
+	
 	@Override
 	public Object filter(Object o) {
 		if (o == null || ALLOWED_TYPES.contains(o.getClass()) || allowedCustomTypes.contains(o.getClass())) {

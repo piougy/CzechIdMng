@@ -34,6 +34,7 @@ import RoleTreeNodeService from './RoleTreeNodeService';
 import FormDefinitionService from './FormDefinitionService';
 import FormAttributeService from './FormAttributeService';
 import AuthorizationPolicyService from './AuthorizationPolicyService';
+import ScriptAuthorityService from './ScriptAuthorityService';
 import ContractGuaranteeService from './ContractGuaranteeService';
 
 const ServiceRoot = {
@@ -73,6 +74,7 @@ const ServiceRoot = {
   FormDefinitionService,
   FormAttributeService,
   AuthorizationPolicyService,
+  ScriptAuthorityService,
   ContractGuaranteeService
 };
 

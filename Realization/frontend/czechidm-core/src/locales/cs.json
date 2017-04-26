@@ -439,6 +439,10 @@
       "NO": "Bez šíření",
       "DOWN": "Šířit dle struktury dolů",
       "UP": "Šířit dle struktury nahoru"
+    },
+    "ScriptAuthorityTypeEnum": {
+      "CLASS_NAME": "Třída",
+      "SERVICE": "Služba"
     }
   },
   "dashboard": {
@@ -1053,6 +1057,11 @@
       },
       "filter": {
         "text": "Název / Popis"
+      }
+    },
+    "scriptAuthorities": {
+      "save": {
+        "success": "Opravnnění pro skript bylo úspěšně uloženo"
       }
     },
     "roles": {
@@ -1935,11 +1944,20 @@
     "Script": {
       "name": "Název skriptu",
       "category": "Kategorie",
+      "code": "Kód",
       "script": {
         "help": "Tělo skriptu v jazyce Groovy.",
         "label": "Pravidlo"
        },
-      "description": "Popis pravidla"
+      "description": "Popis skriptu"
+    },
+    "ScriptAuthority": {
+      "type": {
+        "label": "Typ autority",
+        "help": ""
+      },
+      "className": "Jméno třídy",
+      "service": "Jméno služby"
     },
     "FormDefinition" : {
       "type": "Typ",

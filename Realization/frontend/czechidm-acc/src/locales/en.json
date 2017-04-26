@@ -521,6 +521,14 @@
         "label": "IdM klíč",
         "help": "Název atributu u entity, název rozšířeného attributu či klíč do šifrovaného úložiště."
       },
+      "transformToResourceScriptSelectBox": {
+        "label": "Available scripts to transformation from resource",
+        "help": "After selecting the script, will be inserted code for call script, including sample parameters."
+      },
+      "transformFromResourceScriptSelectBox": {
+        "label": "Available scripts to transformation to resource",
+        "help": "Po výběru skriptu se vloží kód pro zavolání daného skriptu, včetně ukázkových parametrů."
+      },
       "idmPropertyEnum": "Entity fields",
       "schemaAttribute": "Atribut ve schéma",
       "systemMapping": "Název mapování",
@@ -808,11 +816,11 @@
       "WARNING": "Varování"
     },
     "AttributeMappingStrategyTypeEnum": {
-      "SET": "Set value computed by IdM",
-      "MERGE": "Merge",
-      "AUTHORITATIVE_MERGE": "Authoritative merge",
+      "SET": "Set value as it is",
+      "MERGE": "Merge (only provisioning)",
+      "AUTHORITATIVE_MERGE": "Authoritative merge (only provisioning)",
       "CREATE": "Write only on create",
-      "WRITE_IF_NULL": "Write only if value (on resource) is null"
+      "WRITE_IF_NULL": "Write only if target value is null"
     },
     "ProvisioningOperationTypeEnum": {
       "CREATE": "Vytvoření",

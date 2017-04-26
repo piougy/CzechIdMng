@@ -48,6 +48,8 @@ Deploy `idm.war` package is the same as above.
 
 ### Setup jpa metamodel generation in Eclipse
 
+This setup has to be done for modules **core-api**, **core-impl** and other optional modules, which uses criteria api (e.g. **acc**).
+
 * Go to `Project` -> `Properties` -> `Java Compliler` -> `Annotation Processing` -> check `Enable project specific settings` and fill **target/metamodel** as `Generated source directory`.
 * Go to `Project` -> `Properties` -> `Java Compliler` -> `Annotation Processing` -> `Factory path` -> check `Enable project specific settings` and add external jar `hibernate-jpamodelgen.jar` (version 5.x.x). Artefact could be found in local maven repository or downloaded from any public maven repository.
 * remove Eclipse pom.xml error - `Plugin execution not covered by lifecycle configuration: org.bsc.maven:maven-processor-plugin:3.3.1:process (execution: process, phase: generate-sources)` - go to `Window` -> `Preferences` -> `Maven` -> `Errors/Warnings` -> set `Plugins execution not covered by lifecycle configuration` to `warning`.

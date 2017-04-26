@@ -21,6 +21,7 @@ import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
 import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
+import eu.bcvsolutions.idm.core.model.entity.IdmScript;
 
 /**
  * <i>SysSystemAttributeMapping</i> is responsible for mapping schema attribute
@@ -256,5 +257,4 @@ public class SysSystemAttributeMapping extends AbstractEntity implements Attribu
 	public void setAuthenticationAttribute(boolean authenticationAttribute) {
 		this.authenticationAttribute = authenticationAttribute;
 	}
-
 }

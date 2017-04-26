@@ -237,6 +237,9 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
 
   _generateResultCell(rowIndex, data) {
     const actions = [];
+    if (!data[rowIndex].syncActionLogs) {
+      return actions;
+    }
     for (const action of data[rowIndex].syncActionLogs) {
       let level = 'default';
       if (action.operationResult === 'SUCCESS') {

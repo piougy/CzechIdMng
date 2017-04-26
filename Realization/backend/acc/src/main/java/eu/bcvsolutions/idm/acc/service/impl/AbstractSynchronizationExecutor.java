@@ -1,13 +1,10 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
 import java.beans.IntrospectionException;
-import java.beans.Introspector;
-import java.beans.PropertyDescriptor;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +30,7 @@ import com.google.common.collect.Lists;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AccountType;
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
+import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType;
 import eu.bcvsolutions.idm.acc.domain.OperationResultType;
 import eu.bcvsolutions.idm.acc.domain.ReconciliationMissingAccountActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationActionType;
@@ -61,6 +59,7 @@ import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
+import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.SynchronizationExecutor;
 import eu.bcvsolutions.idm.acc.service.api.SynchronizationService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncActionLogService;
@@ -85,6 +84,7 @@ import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
+import eu.bcvsolutions.idm.core.model.domain.EntityUtilities;
 import eu.bcvsolutions.idm.core.scheduler.service.impl.AbstractLongRunningTaskExecutor;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
@@ -1086,35 +1086,6 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 	 */
 	protected abstract AbstractEntity findEntityByCorrelationAttribute(AttributeMapping attribute, List<IcAttribute> icAttributes);
 
-	/**
-	 * Get value from given entity field
-	 * 
-	 * @param entity
-	 * @param propertyName
-	 * @param value
-	 * @return
-	 * @throws IntrospectionException
-	 * @throws IllegalAccessException
-	 * @throws IllegalArgumentException
-	 * @throws InvocationTargetException
-	 */
-	protected Object setEntityValue(AbstractEntity entity, String propertyName, Object value)
-			throws IntrospectionException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-		Optional<PropertyDescriptor> propertyDescriptionOptional = Arrays
-				.asList(Introspector.getBeanInfo(entity.getClass()).getPropertyDescriptors()).stream()
-				.filter(propertyDescriptor -> {
-					return propertyName.equals(propertyDescriptor.getName());
-				}).findFirst(); 
-		if (!propertyDescriptionOptional.isPresent()) {
-			throw new IllegalAccessException("Field " + propertyName + " not found!");
-		}
-		PropertyDescriptor propertyDescriptor = propertyDescriptionOptional.get();
-		String parameterClass = propertyDescriptor.getWriteMethod().getParameterTypes()[0].getName();
-		if(value != null && String.class.getName().equals(parameterClass) && !(value instanceof String)){
-			value = String.valueOf(value);
-		}
-		return propertyDescriptor.getWriteMethod().invoke(entity, value);
-	}
 
 	/**
 	 * Fill entity with attributes from IC module (by mapped attributes).
@@ -1123,24 +1094,31 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 	 * @param uid
 	 * @param icAttributes
 	 * @param entity
+	 * @param create (is create or update entity situation)
 	 * @return
 	 */
 	protected AbstractEntity fillEntity(List<SysSystemAttributeMapping> mappedAttributes, String uid,
-			List<IcAttribute> icAttributes, AbstractEntity entity) {
+			List<IcAttribute> icAttributes, AbstractEntity entity, boolean create) {
 		mappedAttributes.stream().filter(attribute -> {
 			// Skip disabled attributes
 			// Skip extended attributes (we need update/ create entity first)
 			// Skip confidential attributes (we need update/ create entity
 			// first)
-			return !attribute.isDisabledAttribute() && attribute.isEntityAttribute()
+			boolean fastResult =  !attribute.isDisabledAttribute() && attribute.isEntityAttribute()
 					&& !attribute.isConfidentialAttribute();
+			if(!fastResult){
+				return false;
+			}
+			// Can be value set by attribute strategy?
+			return this.canSetValue(uid, attribute, entity, create);
+			
 
 		}).forEach(attribute -> {
 			String attributeProperty = attribute.getIdmPropertyName();
 			Object transformedValue = getValueByMappedAttribute(attribute, icAttributes);
 			// Set transformed value from target system to entity
 			try {
-				setEntityValue(entity, attributeProperty, transformedValue);
+				EntityUtilities.setEntityValue(entity, attributeProperty, transformedValue);
 			} catch (IntrospectionException | IllegalAccessException | IllegalArgumentException
 					| InvocationTargetException | ProvisioningException e) {
 				throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_IDM_FIELD_NOT_SET,
@@ -1159,15 +1137,21 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 	 * @param uid
 	 * @param icAttributes
 	 * @param entity
+	 * @param create (is create or update entity situation)
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
 	protected AbstractEntity updateExtendedAttributes(List<SysSystemAttributeMapping> mappedAttributes, String uid,
-			List<IcAttribute> icAttributes, AbstractEntity entity) {
+			List<IcAttribute> icAttributes, AbstractEntity entity, boolean create) {
 		mappedAttributes.stream().filter(attribute -> {
 			// Skip disabled attributes
 			// Only for extended attributes
-			return !attribute.isDisabledAttribute() && attribute.isExtendedAttribute();
+			boolean fastResult =  !attribute.isDisabledAttribute() && attribute.isExtendedAttribute();
+			if(!fastResult){
+				return false;
+			}
+			// Can be value set by attribute strategy?
+			return this.canSetValue(uid, attribute, entity, create);
 
 		}).forEach(attribute -> {
 			String attributeProperty = attribute.getIdmPropertyName();
@@ -1216,14 +1200,20 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 	 * @param uid
 	 * @param icAttributes
 	 * @param entity
+	 * @param create (is create or update entity situation)
 	 * @return
 	 */
 	protected AbstractEntity updateConfidentialAttributes(List<SysSystemAttributeMapping> mappedAttributes, String uid,
-			List<IcAttribute> icAttributes, AbstractEntity entity) {
+			List<IcAttribute> icAttributes, AbstractEntity entity, boolean create) {
 		mappedAttributes.stream().filter(attribute -> {
 			// Skip disabled attributes
 			// Only for confidential attribute
-			return !attribute.isDisabledAttribute() && attribute.isConfidentialAttribute();
+			boolean fastResult =  !attribute.isDisabledAttribute() && attribute.isConfidentialAttribute();
+			if(!fastResult){
+				return false;
+			}
+			// Can be value set by attribute strategy?
+			return this.canSetValue(uid, attribute, entity, create);
 
 		}).forEach(attribute -> {
 			String attributeProperty = attribute.getIdmPropertyName();
@@ -1241,6 +1231,36 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 
 		});
 		return entity;
+	}
+	
+	/**
+	 * Return true if can be value set to this entity for this mapped attribute.
+	 * @param uid
+	 * @param attribute
+	 * @param entity
+	 * @param create (create or update entity situation)
+	 * @return
+	 */
+	protected boolean canSetValue(String uid, SysSystemAttributeMapping attribute, AbstractEntity entity,
+			boolean create) {
+		Assert.notNull(attribute);
+		AttributeMappingStrategyType strategyType = attribute.getStrategyType();
+		switch (strategyType) {
+			case CREATE: {
+				return create ? true : false;
+			}
+			case SET: {
+				return true;
+			}
+	
+			case WRITE_IF_NULL: {
+				Object value = attributeHandlingService.getAttributeValue(entity, attribute);
+				return value == null ? true : false;
+			}
+			default: {
+				return false;
+			}
+		}
 	}
 
 	protected Object getValueByMappedAttribute(AttributeMapping attribute, List<IcAttribute> icAttributes) {

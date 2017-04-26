@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.acc.service.api;
 
+import java.beans.IntrospectionException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
@@ -113,7 +115,6 @@ public interface ProvisioningService {
 	 */
 	List<AttributeMapping> compileAttributes(List<? extends AttributeMapping> defaultAttributes,
 			List<SysRoleSystemAttribute> overloadingAttributes);
-
 
 	
 }

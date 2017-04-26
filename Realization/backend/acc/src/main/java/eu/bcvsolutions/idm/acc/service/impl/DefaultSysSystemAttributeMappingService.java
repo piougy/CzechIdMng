@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
+import java.beans.IntrospectionException;
+import java.lang.reflect.InvocationTargetException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,7 +22,6 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
-import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
@@ -31,18 +32,18 @@ import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.repository.SysRoleSystemAttributeRepository;
 import eu.bcvsolutions.idm.acc.repository.SysSyncConfigRepository;
 import eu.bcvsolutions.idm.acc.repository.SysSystemAttributeMappingRepository;
-import eu.bcvsolutions.idm.acc.script.evaluator.DefaultTransformFromResourceEvaluator;
-import eu.bcvsolutions.idm.acc.script.evaluator.DefaultTransformToResourceEvaluator;
 import eu.bcvsolutions.idm.acc.service.api.FormPropertyManager;
-import eu.bcvsolutions.idm.acc.service.api.SynchronizationExecutor;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
+import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
+import eu.bcvsolutions.idm.core.eav.entity.AbstractFormValue;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
+import eu.bcvsolutions.idm.core.model.domain.EntityUtilities;
 import eu.bcvsolutions.idm.core.model.domain.IdmScriptCategory;
 import eu.bcvsolutions.idm.core.script.evaluator.AbstractScriptEvaluator;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
@@ -68,6 +69,7 @@ public class DefaultSysSystemAttributeMappingService
 	private final SysSystemAttributeMappingRepository repository;
 	private final GroovyScriptService groovyScriptService;
 	private final FormService formService;
+	private final ConfidentialStorage confidentialStorage;
 	private final SysRoleSystemAttributeRepository roleSystemAttributeRepository;
 	private final FormPropertyManager formPropertyManager;
 	private final SysSyncConfigRepository syncConfigRepository;
@@ -80,7 +82,8 @@ public class DefaultSysSystemAttributeMappingService
 			SysRoleSystemAttributeRepository roleSystemAttributeRepository,
 			FormPropertyManager formPropertyManager,
 			SysSyncConfigRepository syncConfigRepository,
-			List<AbstractScriptEvaluator> evaluators) {
+			List<AbstractScriptEvaluator> evaluators,
+			ConfidentialStorage confidentialStorage) {
 		super(repository);
 		//
 		Assert.notNull(groovyScriptService);
@@ -89,6 +92,7 @@ public class DefaultSysSystemAttributeMappingService
 		Assert.notNull(formPropertyManager);
 		Assert.notNull(syncConfigRepository);
 		Assert.notNull(evaluators);
+		Assert.notNull(confidentialStorage);
 		//
 		this.formService = formService;
 		this.repository = repository;
@@ -96,6 +100,7 @@ public class DefaultSysSystemAttributeMappingService
 		this.roleSystemAttributeRepository = roleSystemAttributeRepository;
 		this.formPropertyManager = formPropertyManager;
 		this.syncConfigRepository = syncConfigRepository;
+		this.confidentialStorage = confidentialStorage;
 		//
 		this.pluginExecutors = OrderAwarePluginRegistry.create(evaluators);
 	}
@@ -323,6 +328,66 @@ public class DefaultSysSystemAttributeMappingService
 			return this.repository.findUidAttribute(systemId, SystemOperationType.PROVISIONING);
 		}
 		return attr;
+	}
+	
+	/**
+	 * Find value for this mapped attribute by property name. Returned value can be list of objects. Returns transformed value.
+	 * 
+	 * @param uid
+	 * @param entity
+	 * @param attributeHandling
+	 * @param idmValue
+	 * @return
+	 * @throws IntrospectionException
+	 * @throws IllegalAccessException
+	 * @throws InvocationTargetException
+	 */
+	@Override
+	public Object getAttributeValue(AbstractEntity entity, AttributeMapping attributeHandling) {
+		Object idmValue = null;
+		//
+		if (attributeHandling.isExtendedAttribute()) {
+			List<AbstractFormValue<FormableEntity>> formValues = formService.getValues((FormableEntity) entity, attributeHandling.getIdmPropertyName());
+			if (formValues.isEmpty()) {
+				idmValue = null;
+			} else if(attributeHandling.getSchemaAttribute().isMultivalued()){
+				// Multiple value extended attribute
+				List<Object> values = new ArrayList<>();
+				formValues.stream().forEachOrdered(formValue -> {
+					values.add(formValue.getValue());
+				});
+				idmValue = values;
+			} else {
+				// Single value extended attribute
+				AbstractFormValue<FormableEntity> formValue = formValues.get(0);
+				if (formValue.isConfidential()) {
+					idmValue = formService.getConfidentialPersistentValue(formValue);
+				} else {
+					idmValue = formValue.getValue();
+				}
+			}
+		}
+		// Find value from entity
+		else if (attributeHandling.isEntityAttribute()) {
+			if (attributeHandling.isConfidentialAttribute()) {
+				// If is attribute isConfidential, then we will find value in
+				// secured storage
+				idmValue = confidentialStorage.getGuardedString(entity, attributeHandling.getIdmPropertyName());
+			} else {
+				try {
+					// We will search value directly in entity by property name
+					idmValue = EntityUtilities.getEntityValue(entity, attributeHandling.getIdmPropertyName());
+				} catch (IntrospectionException | IllegalAccessException | IllegalArgumentException
+						| InvocationTargetException | ProvisioningException o_O) {
+					throw new ProvisioningException(AccResultCode.PROVISIONING_IDM_FIELD_NOT_FOUND,
+							ImmutableMap.of("property", attributeHandling.getIdmPropertyName(), "entityType", entity.getClass()), o_O);
+				}
+			}
+		} else {
+			// If Attribute value is not in entity nor in extended attribute, then idmValue is null.
+			// It means attribute is static ... we will call transformation to resource.
+		}
+		return this.transformValueToResource(idmValue, attributeHandling, entity);
 	}
 
 }

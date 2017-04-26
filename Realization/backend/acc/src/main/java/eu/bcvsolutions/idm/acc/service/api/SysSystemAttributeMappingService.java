@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.acc.service.api;
 
+import java.beans.IntrospectionException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.UUID;
 
@@ -77,4 +79,18 @@ public interface SysSystemAttributeMappingService extends ReadWriteEntityService
 	 * @return
 	 */
 	SysSystemAttributeMapping getAuthenticationAttribute(UUID systemId);
+
+	/**
+	 * Find value for this mapped attribute by property name. Returned value can be list of objects. Returns transformed value.
+	 * 
+	 * @param uid
+	 * @param entity
+	 * @param attributeHandling
+	 * @param idmValue
+	 * @return
+	 * @throws IntrospectionException
+	 * @throws IllegalAccessException
+	 * @throws InvocationTargetException
+	 */
+	Object getAttributeValue(AbstractEntity entity, AttributeMapping attributeHandling);
 }

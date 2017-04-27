@@ -2,8 +2,8 @@ package eu.bcvsolutions.idm.core.security.service.impl;
 
 import java.io.IOException;
 import java.text.MessageFormat;
-import java.util.Date;
 
+import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,6 +14,7 @@ import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
+import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmPassword;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
@@ -21,6 +22,7 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordService;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.core.security.api.dto.IdmJwtAuthenticationDto;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
+import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.security.exception.IdmAuthenticationException;
 import eu.bcvsolutions.idm.core.security.service.GrantedAuthoritiesFactory;
 import eu.bcvsolutions.idm.core.security.service.LoginService;
@@ -35,8 +37,6 @@ import eu.bcvsolutions.idm.core.security.service.LoginService;
 public class DefaultLoginService implements LoginService {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultLoginService.class);
-	public static final String PROPERTY_EXPIRATION_TIMEOUT = "idm.sec.security.jwt.expirationTimeout";
-	public static final int DEFAULT_EXPIRATION_TIMEOUT = 36000000;
 
 	@Autowired
 	private IdmIdentityService identityService;
@@ -55,6 +55,9 @@ public class DefaultLoginService implements LoginService {
 	
 	@Autowired
 	private IdmPasswordService passwordService;
+	
+	@Autowired
+	private SecurityService securityService;
 
 	@Override
 	public LoginDto login(LoginDto loginDto) {
@@ -64,19 +67,23 @@ public class DefaultLoginService implements LoginService {
 		IdmIdentity identity = identityService.getByUsername(username);
 		// identity exists
 		if (identity == null) {			
-			throw new IdmAuthenticationException(MessageFormat.format("Check identity can login: The identity [{0}] either doesn't exist or is deleted.", username));
+			throw new IdmAuthenticationException(MessageFormat.format(
+					"Check identity can login: The identity "
+					+ "[{0}] either doesn't exist or is deleted.",
+					username));
 		}
 		// validate identity
 		if (!validate(identity, loginDto)) {
 			LOG.debug("Username or password for identity [{}] is not correct!", username);			
-			throw new IdmAuthenticationException(MessageFormat.format("Check identity password: Failed for identity {0} because the password digests differ.", username));
+			throw new IdmAuthenticationException(MessageFormat.format(
+					"Check identity password: Failed for identity "
+					+ "{0} because the password digests differ.",
+					username));
 		}
-		// new expiration date
-		Date expiration = new Date(System.currentTimeMillis() + configurationService.getIntegerValue(PROPERTY_EXPIRATION_TIMEOUT, DEFAULT_EXPIRATION_TIMEOUT));
 
 		IdmJwtAuthentication authentication = new IdmJwtAuthentication(
 				new IdmIdentityDto(identity, identity.getUsername()),
-				expiration,
+				getLoginExpiration(),
 				grantedAuthoritiesFactory.getGrantedAuthorities(username),
 				loginDto.getAuthenticationModule());
 		
@@ -84,7 +91,6 @@ public class DefaultLoginService implements LoginService {
 
 		LOG.info("Identity with username [{}] is authenticated", username);
 
-		//JwtAuthenticationMapper jwtTokenMapper = new JwtAuthenticationMapper(mapper, configurationService.getValue(PROPERTY_SECRET_TOKEN, DEFAULT_SECRET_TOKEN));
 		IdmJwtAuthenticationDto authenticationDto = jwtTokenMapper.toDto(authentication);
 	
 		try {
@@ -96,6 +102,52 @@ public class DefaultLoginService implements LoginService {
 			throw new IdmAuthenticationException(ex.getMessage(), ex);
 		}
 	}
+
+	
+
+	@Override
+	public LoginDto loginAuthenticatedUser() {
+		if (!securityService.isAuthenticated()) {
+			throw new IdmAuthenticationException("Not authenticated!");
+		}
+		
+		String username = securityService.getAuthentication().getCurrentUsername();
+		
+		LOG.info("Identity with username [{}] authenticating", username);
+		
+		IdmIdentity identity = identityService.getByUsername(username);
+		// identity exists
+		if (identity == null) {			
+			throw new IdmAuthenticationException(MessageFormat.format(
+					"Check identity can login: The identity "
+					+ "[{0}] either doesn't exist or is deleted.",
+					username));
+		}
+		
+		IdmJwtAuthentication authentication = new IdmJwtAuthentication(
+				new IdmIdentityDto(identity, identity.getUsername()),
+				getLoginExpiration(),
+				grantedAuthoritiesFactory.getGrantedAuthorities(username),
+				EntityUtils.getModule(this.getClass()));
+		
+		authenticationManager.authenticate(authentication);
+
+		LOG.info("Identity with username [{}] is authenticated", username);
+
+		IdmJwtAuthenticationDto authenticationDto = jwtTokenMapper.toDto(authentication);
+	
+		try {
+			LoginDto loginDto = new LoginDto();
+			loginDto.setUsername(username);
+			loginDto.setAuthentication(authenticationDto);
+			loginDto.setToken(jwtTokenMapper.writeToken(authenticationDto));
+			return loginDto;
+		} catch (IOException ex) {
+			throw new IdmAuthenticationException(ex.getMessage(), ex);
+		}
+	}
+
+
 
 	/**
 	 * Validates given identity can log in
@@ -124,4 +176,12 @@ public class DefaultLoginService implements LoginService {
 		}
 		return passwordService.checkPassword(loginDto.getPassword(), idmPassword);
 	}
+	
+	private DateTime getLoginExpiration() {
+		// new expiration date
+		DateTime expiration = DateTime.now()
+				.plus(configurationService.getIntegerValue(PROPERTY_EXPIRATION_TIMEOUT, DEFAULT_EXPIRATION_TIMEOUT));
+		return expiration;
+	}
+	
 }

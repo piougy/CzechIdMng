@@ -19,6 +19,7 @@ import org.springframework.data.domain.PageImpl;
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
+import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.model.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmAuthorizationPolicy;
@@ -43,13 +44,15 @@ public class DefaultIdmAuthorizationPolicyServiceUnitTest extends AbstractUnitTe
 	private IdmRoleService roleService;
 	@Mock
 	private ModuleService moduleService;
+	@Mock
+	private EntityEventManager eventManager;
 	//
 	private IdmAuthorizationPolicyService service;
 	private IdmRole DEFAULT_ROLE;
 	
 	@Before
 	public void init() {		
-		service = new DefaultIdmAuthorizationPolicyService(repository, roleService, moduleService);
+		service = new DefaultIdmAuthorizationPolicyService(repository, roleService, moduleService, eventManager);
 		service.setModelMapper(new ModelMapper());
 		//
 		DEFAULT_ROLE = new IdmRole();

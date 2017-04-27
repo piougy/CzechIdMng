@@ -15,6 +15,7 @@ import org.junit.runners.MethodSorters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.ImmutableList;
 
@@ -412,6 +413,7 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 				identity.getLastName(), createdAccount.getLastname());
 	}
 
+	@Transactional
 	@Test
 	public void overloadedAttributeRemoveAllRoles() {
 		IdmIdentity identity = idmIdentityService.getByName(IDENTITY_USERNAME);

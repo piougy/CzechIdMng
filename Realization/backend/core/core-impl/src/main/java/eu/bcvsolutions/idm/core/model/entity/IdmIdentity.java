@@ -200,4 +200,5 @@ public class IdmIdentity extends AbstractEntity implements IdentifiableByName, F
 	public void setDisabled(boolean disabled) {
 		this.disabled = disabled;
 	}
+	
 }

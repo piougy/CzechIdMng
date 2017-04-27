@@ -2,12 +2,14 @@ package eu.bcvsolutions.idm.core.security;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -27,6 +29,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRoleComposition;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.core.security.api.domain.DefaultGrantedAuthority;
 import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
@@ -34,7 +37,6 @@ import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.security.service.impl.DefaultGrantedAuthoritiesFactory;
 import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
-
 /**
  * Test for {@link DefaultGrantedAuthoritiesFactory}
  * 
@@ -63,6 +65,8 @@ public class DefaultGrantedAuthoritiesFactoryTest extends AbstractUnitTest {
 	private ModuleService moduleService;
 	@Mock
 	private IdmAuthorizationPolicyService authorizationPolicyService;
+	@Mock
+	private IdmRoleService roleService;
 	//
 	private DefaultGrantedAuthoritiesFactory defaultGrantedAuthoritiesFactory;
 	
@@ -96,7 +100,8 @@ public class DefaultGrantedAuthoritiesFactoryTest extends AbstractUnitTest {
 		defaultGrantedAuthoritiesFactory = new DefaultGrantedAuthoritiesFactory(
 				identityService, 
 				identityRoleService, 
-				authorizationPolicyService);
+				authorizationPolicyService,
+				roleService);
 	}
 	
 	// TODO: enable after subroles rewrite
@@ -117,6 +122,7 @@ public class DefaultGrantedAuthoritiesFactoryTest extends AbstractUnitTest {
 		when(identityService.getByUsername(TEST_IDENTITY.getUsername())).thenReturn(TEST_IDENTITY);
 		when(identityRoleService.getRoles(TEST_IDENTITY)).thenReturn(IDENTITY_ROLES);
 		when(authorizationPolicyService.getDefaultAuthorities()).thenReturn(DEFAULT_AUTHORITIES);
+		when(roleService.getSubroles(any(UUID.class))).thenReturn(Lists.newArrayList());
 		
 		List<GrantedAuthority> grantedAuthorities =  defaultGrantedAuthoritiesFactory.getGrantedAuthorities(TEST_IDENTITY.getUsername());
 		
@@ -142,6 +148,7 @@ public class DefaultGrantedAuthoritiesFactoryTest extends AbstractUnitTest {
 		when(moduleService.getAvailablePermissions()).thenReturn(groupPermissions);
 		when(identityService.getByUsername(identity.getUsername())).thenReturn(identity);
 		when(identityRoleService.getRoles(identity)).thenReturn(roles);
+		when(roleService.getSubroles(any(UUID.class))).thenReturn(Lists.newArrayList());
 		when(authorizationPolicyService.getDefaultAuthorities()).thenReturn(Sets.newHashSet(
 				new DefaultGrantedAuthority(IdmGroupPermission.APP, IdmBasePermission.ADMIN),
 				new DefaultGrantedAuthority(CoreGroupPermission.IDENTITY, IdmBasePermission.READ),
@@ -174,6 +181,7 @@ public class DefaultGrantedAuthoritiesFactoryTest extends AbstractUnitTest {
 		when(moduleService.getAvailablePermissions()).thenReturn(groupPermissions);
 		when(identityService.getByUsername(identity.getUsername())).thenReturn(identity);
 		when(identityRoleService.getRoles(identity)).thenReturn(roles);
+		when(roleService.getSubroles(any(UUID.class))).thenReturn(Lists.newArrayList());
 		when(authorizationPolicyService.getDefaultAuthorities()).thenReturn(Sets.newHashSet(
 				new DefaultGrantedAuthority(CoreGroupPermission.IDENTITY, IdmBasePermission.ADMIN),
 				new DefaultGrantedAuthority(CoreGroupPermission.IDENTITY, IdmBasePermission.READ),
@@ -190,6 +198,7 @@ public class DefaultGrantedAuthoritiesFactoryTest extends AbstractUnitTest {
 	public void testDefaultRoleAutorities() {
 		when(identityService.getByUsername(TEST_IDENTITY.getUsername())).thenReturn(TEST_IDENTITY);
 		when(identityRoleService.getRoles(TEST_IDENTITY)).thenReturn(new ArrayList<>());
+		when(roleService.getSubroles(any(UUID.class))).thenReturn(Lists.newArrayList());
 		when(authorizationPolicyService.getDefaultAuthorities()).thenReturn(DEFAULT_AUTHORITIES);
 		
 		List<GrantedAuthority> grantedAuthorities =  defaultGrantedAuthoritiesFactory.getGrantedAuthorities(TEST_IDENTITY.getUsername());

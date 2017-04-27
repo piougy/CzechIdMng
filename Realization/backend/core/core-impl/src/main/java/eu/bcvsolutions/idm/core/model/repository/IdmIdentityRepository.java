@@ -2,8 +2,10 @@ package eu.bcvsolutions.idm.core.model.repository;
 
 import java.util.List;
 
+import org.joda.time.DateTime;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
@@ -49,4 +51,21 @@ public interface IdmIdentityRepository extends AbstractEntityRepository<IdmIdent
 			+ " WHERE"
 	        + " roles.role = :role")
 	List<IdmIdentity> findAllByRole(@Param(value = "role") IdmRole role);
+	
+	/**
+	 * Find identities where the IdmAuthorityChange relation does not
+	 * exist.
+	 * @param identities
+	 * @return
+	 */
+	@Query(value = "select e from IdmIdentity e where e in (:identities) and e not in"
+			+ "(select z.identity from IdmAuthorityChange z where z.identity in (:identities))")
+	List<IdmIdentity> findAllWithoutAuthorityChange(@Param("identities") List<IdmIdentity> identities);
+	
+	@Transactional
+	@Modifying
+	@Query(value = "update IdmAuthorityChange e set e.authChangeTimestamp = :authorityChange"
+			+ " where e.identity in (:identities)")
+	void setIdmAuthorityChangeForIdentity(@Param("identities") List<IdmIdentity> identities,
+			@Param("authorityChange") DateTime authorityChange);
 }

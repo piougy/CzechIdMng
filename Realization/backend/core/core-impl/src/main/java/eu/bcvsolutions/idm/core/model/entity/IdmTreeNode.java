@@ -24,6 +24,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import eu.bcvsolutions.forest.index.domain.ForestContent;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.Disableable;
+import eu.bcvsolutions.idm.core.api.domain.IdentifiableByCode;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.BaseTreeEntity;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
@@ -41,7 +42,7 @@ import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 })
 public class IdmTreeNode extends AbstractEntity 
 		implements BaseTreeEntity<IdmTreeNode>, ForestContent<IdmTreeNode, 
-			IdmForestIndexEntity, UUID>, FormableEntity, Disableable {
+			IdmForestIndexEntity, UUID>, FormableEntity, Disableable, IdentifiableByCode {
 
 	private static final long serialVersionUID = -3099001738101202320L;
 	public static final String TREE_TYPE_PREFIX = "tree-type-";

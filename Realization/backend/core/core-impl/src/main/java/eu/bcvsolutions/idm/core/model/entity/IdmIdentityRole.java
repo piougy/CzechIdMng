@@ -18,6 +18,7 @@ import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.ValidableEntity;
+import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 
 /**
  * Assigned identity role
@@ -145,19 +146,6 @@ public class IdmIdentityRole extends AbstractEntity implements ValidableEntity {
 	 * @return
 	 */
 	public boolean isValid() {
-		LocalDate fromDate = MIN_TIME.toLocalDate();
-		if (this.getValidFrom() != null) {
-			fromDate = this.getValidFrom();
-		}
-
-		LocalDate tillDate = MAX_TIME.toLocalDate();
-		if (this.getValidTill() != null) {
-			tillDate = this.getValidTill();
-		}
-		LocalDate now = LocalDate.now();
-		if ((now.isAfter(fromDate) || now.isEqual(fromDate)) && (now.isBefore(tillDate) || now.isEqual(tillDate))) {
-			return true;
-		}
-		return false;
+		return EntityUtils.isValid(this);
 	}
 }

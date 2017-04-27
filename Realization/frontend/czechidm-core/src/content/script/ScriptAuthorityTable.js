@@ -310,6 +310,7 @@ class ScriptAuthorityTable extends Basic.AbstractContent {
                       ?
                       <Basic.EnumSelectBox
                         required
+                        searchable
                         ref="className"
                         onChange={ this.onChangeService.bind(this) }
                         options={this.getOptions(availableServices)}

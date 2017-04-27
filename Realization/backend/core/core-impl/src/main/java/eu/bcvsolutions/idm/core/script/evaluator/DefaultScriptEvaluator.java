@@ -35,5 +35,4 @@ public class DefaultScriptEvaluator extends AbstractScriptEvaluator {
 		example.append("	.build());\n");
 		return example.toString();
 	}
-
 }

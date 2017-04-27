@@ -14,6 +14,7 @@ import org.hibernate.envers.Audited;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
+import eu.bcvsolutions.idm.core.api.domain.IdentifiableByCode;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 
 /**
@@ -27,7 +28,7 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 		@Index(name = "ux_tree_type_name", columnList = "name"), 
 		@Index(name = "ux_tree_type_code", columnList = "code", unique = true) 
 		})
-public class IdmTreeType extends AbstractEntity {
+public class IdmTreeType extends AbstractEntity implements IdentifiableByCode {
 	
 	private static final long serialVersionUID = -3099001738101202320L;
 	

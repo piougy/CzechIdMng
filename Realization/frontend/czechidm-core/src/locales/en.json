@@ -1010,6 +1010,7 @@
         "title": "Script detail",
         "header": "{{name}} rule detail"
       },
+      "scriptAuthorities": "Script authorities",
       "create": {
         "title": "New script",
         "header": "New script"

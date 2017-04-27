@@ -1,12 +1,7 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
-import java.beans.IntrospectionException;
-import java.beans.Introspector;
-import java.beans.PropertyDescriptor;
-import java.lang.reflect.InvocationTargetException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -15,8 +10,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
@@ -31,16 +24,11 @@ import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
+import eu.bcvsolutions.idm.acc.dto.EntityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.MappingAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.ProvisioningAttributeDto;
-import eu.bcvsolutions.idm.acc.dto.filter.EntityAccountFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.RoleSystemAttributeFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.RoleSystemFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
-import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
-import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
@@ -49,7 +37,6 @@ import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountManagementService;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
-import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningExecutor;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
@@ -59,14 +46,6 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
-import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
-import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
-import eu.bcvsolutions.idm.core.eav.entity.AbstractFormValue;
-import eu.bcvsolutions.idm.core.eav.service.api.FormService;
-import eu.bcvsolutions.idm.core.model.domain.EntityUtilities;
-import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
@@ -78,35 +57,30 @@ import eu.bcvsolutions.idm.ic.impl.IcObjectClassImpl;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 
 /**
- * Service for do provisioning or synchronisation or reconciliation
+ * Abstract service for do provisioning
  * 
  * @author svandav
  *
  */
-@Service
-public class DefaultProvisioningService implements ProvisioningService {
+public abstract class AbstractProvisioningService<ENTITY extends AbstractEntity> implements ProvisioningService<ENTITY>{
 
-	public static final String PASSWORD_SCHEMA_PROPERTY_NAME = "__PASSWORD__";
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultProvisioningService.class);
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(AbstractProvisioningService.class);
 	private final SysSystemMappingService systemMappingService;
-	private final SysSystemAttributeMappingService attributeMappingService;
+	protected final SysSystemAttributeMappingService attributeMappingService;
 	private final IcConnectorFacade connectorFacade;
 	private final SysSystemService systemService;
-	private final AccIdentityAccountService identityAccountService;
-	private final SysRoleSystemService roleSystemService;
-	private final AccAccountManagementService accountManagementService;
-	private final SysRoleSystemAttributeService roleSystemAttributeService;
+	protected final SysRoleSystemAttributeService roleSystemAttributeService;
 	private final SysSystemEntityService systemEntityService;
-	private final AccAccountService accountService;
+	protected final AccAccountService accountService;
 	private final ProvisioningExecutor provisioningExecutor;
 
 	@Autowired
-	public DefaultProvisioningService(SysSystemMappingService systemMappingService,
+	public AbstractProvisioningService(SysSystemMappingService systemMappingService,
 			SysSystemAttributeMappingService attributeMappingService, IcConnectorFacade connectorFacade,
 			SysSystemService systemService,
 			SysRoleSystemService roleSystemService, AccAccountManagementService accountManagementService,
 			SysRoleSystemAttributeService roleSystemAttributeService, SysSystemEntityService systemEntityService,
-			AccAccountService accountService, AccIdentityAccountService identityAccountService,
+			AccAccountService accountService,
 			ProvisioningExecutor provisioningExecutor) {
 
 		Assert.notNull(systemMappingService);
@@ -118,49 +92,18 @@ public class DefaultProvisioningService implements ProvisioningService {
 		Assert.notNull(roleSystemAttributeService);
 		Assert.notNull(systemEntityService);
 		Assert.notNull(accountService);
-		Assert.notNull(identityAccountService);
 		Assert.notNull(provisioningExecutor);
 		//
 		this.systemMappingService = systemMappingService;
 		this.attributeMappingService = attributeMappingService;
 		this.connectorFacade = connectorFacade;
 		this.systemService = systemService;
-		this.roleSystemService = roleSystemService;
-		this.accountManagementService = accountManagementService;
 		this.roleSystemAttributeService = roleSystemAttributeService;
 		this.systemEntityService = systemEntityService;
 		this.accountService = accountService;
-		this.identityAccountService = identityAccountService;
 		this.provisioningExecutor = provisioningExecutor;
 	}
 
-	@Override
-	public void doProvisioning(IdmIdentity identity) {
-		Assert.notNull(identity);
-		//
-		IdentityAccountFilter filter = new IdentityAccountFilter();
-		filter.setIdentityId(identity.getId());
-		Page<AccIdentityAccount> identityAccounts = identityAccountService.find(filter, null);
-		List<AccIdentityAccount> idenityAccoutnList = identityAccounts.getContent();
-		if (idenityAccoutnList == null) {
-			return;
-		}
-
-		List<AccAccount> accounts = new ArrayList<>();
-		idenityAccoutnList.stream().filter(ia -> {
-			return ia.isOwnership();
-		}).forEach((identityAccount) -> {
-			if (!accounts.contains(identityAccount.getAccount())) {
-				accounts.add(identityAccount.getAccount());
-			}
-		});
-
-		accounts.stream().forEach(account -> {
-			this.doProvisioning(account, identity);
-		});
-	}
-
-	@Override
 	public void doDeleteProvisioning(AccAccount account) {
 		Assert.notNull(account);
 		SysSystemEntity systemEntity = getSystemEntity(account);
@@ -183,28 +126,11 @@ public class DefaultProvisioningService implements ProvisioningService {
 		return account.getSystemEntity();
 	}
 
-	@Override
-	public void doProvisioning(AccAccount account) {
-		Assert.notNull(account);
+	public abstract void doProvisioning(AccAccount account);
 
-		IdentityAccountFilter filter = new IdentityAccountFilter();
-		filter.setAccountId(account.getId());
-		Page<AccIdentityAccount> identityAccounts = identityAccountService.find(filter, null);
-		List<AccIdentityAccount> idenittyAccoutnList = identityAccounts.getContent();
-		if (idenittyAccoutnList == null) {
-			return;
-		}
-		idenittyAccoutnList.stream().filter(identityAccount -> {
-			return identityAccount.isOwnership();
-		}).forEach((identityAccount) -> {
-			doProvisioning(account, identityAccount.getIdentity());
-		});
-	}
-
-	@Override
-	public void doProvisioning(AccAccount account, IdmIdentity identity) {
+	public void doProvisioning(AccAccount account, ENTITY entity) {
 		Assert.notNull(account);
-		Assert.notNull(identity);
+		Assert.notNull(entity);
 		//
 		ProvisioningOperationType operationType;
 		SysSystem system = account.getSystem();
@@ -228,20 +154,20 @@ public class DefaultProvisioningService implements ProvisioningService {
 			operationType = ProvisioningOperationType.UPDATE; // we wont update account, but after target system call can be switched to CREATE
 		}
 		
-		List<AttributeMapping> finalAttributes = resolveMappedAttributes(account.getUid(), account, identity, system, systemEntity.getEntityType());
+		List<AttributeMapping> finalAttributes = resolveMappedAttributes(account.getUid(), account, entity, system, systemEntity.getEntityType());
 		if(CollectionUtils.isEmpty(finalAttributes)){
 			// nothing to do - mapping is empty
 			return;
 		}
 		
-		doProvisioning(systemEntity, identity, operationType, finalAttributes);		
+		doProvisioning(systemEntity, entity, operationType, finalAttributes);		
 	}
 
 	/**
 	 * Validate attributes on incompatible strategies
 	 * @param finalAttributes
 	 */
-	private void validateAttributesStrategy(List<AttributeMapping> finalAttributes) {
+	protected void validateAttributesStrategy(List<AttributeMapping> finalAttributes) {
 		if(finalAttributes == null){
 			return;
 		}
@@ -269,7 +195,7 @@ public class DefaultProvisioningService implements ProvisioningService {
 	 * @param provisioningType
 	 * @param attributes
 	 */
-	private void doProvisioning(SysSystemEntity systemEntity, AbstractEntity entity, ProvisioningOperationType operationType, 
+	private void doProvisioning(SysSystemEntity systemEntity, ENTITY entity, ProvisioningOperationType operationType, 
 			List<? extends AttributeMapping> attributes) {
 		Assert.notNull(systemEntity);
 		Assert.notNull(systemEntity.getUid());
@@ -306,7 +232,29 @@ public class DefaultProvisioningService implements ProvisioningService {
 			return;
 		}
 		//
-		// prepare all mapped attribute values (= account)
+		Map<ProvisioningAttributeDto, Object> accountAttributes = preapareMappedAttributesValues(entity, operationType,
+				systemEntity, attributes);
+		// public provisioning event 
+		IcConnectorObject connectorObject = new IcConnectorObjectImpl(systemEntity.getUid(), new IcObjectClassImpl(mapping.getObjectClass().getObjectClassName()), null);
+		SysProvisioningOperation.Builder operationBuilder = new SysProvisioningOperation.Builder()
+				.setOperationType(operationType)
+				.setSystemEntity(systemEntity)
+				.setEntityIdentifier(entity == null ? null : entity.getId())
+				.setProvisioningContext(new ProvisioningContext(accountAttributes, connectorObject));
+		provisioningExecutor.execute(operationBuilder.build());
+	}
+
+	/**
+	 * Prepare all mapped attribute values (= account)
+	 * @param entity
+	 * @param operationType
+	 * @param systemEntity
+	 * @param attributes
+	 * @return
+	 */
+	protected Map<ProvisioningAttributeDto, Object> preapareMappedAttributesValues(ENTITY entity,
+			ProvisioningOperationType operationType, SysSystemEntity systemEntity,
+			List<? extends AttributeMapping> attributes) {
 		Map<ProvisioningAttributeDto, Object> accountAttributes = new HashMap<>();
 		if (ProvisioningOperationType.DELETE != operationType) { // delete - account attributes is not needed
 			
@@ -316,7 +264,13 @@ public class DefaultProvisioningService implements ProvisioningService {
 						&& AttributeMappingStrategyType.AUTHORITATIVE_MERGE != attribute.getStrategyType() 
 						&& AttributeMappingStrategyType.MERGE != attribute.getStrategyType() ;
 			}).forEach(attribute -> {
-				accountAttributes.put(ProvisioningAttributeDto.createProvisioningAttributeKey(attribute), attributeMappingService.getAttributeValue(entity, attribute));
+				if(attribute.isUid()){
+					// For UID attribute, we will set as value always UID form account
+					// TODO: now we set UID from SystemEntity, may be UID from AccAccount will be more correct
+					accountAttributes.put(ProvisioningAttributeDto.createProvisioningAttributeKey(attribute), systemEntity.getUid());
+				}else {
+					accountAttributes.put(ProvisioningAttributeDto.createProvisioningAttributeKey(attribute), attributeMappingService.getAttributeValue(entity, attribute));
+				}
 			});
 			
 			// Second we will resolve MERGE attributes
@@ -360,87 +314,12 @@ public class DefaultProvisioningService implements ProvisioningService {
 				}
 			}
 		}
-		// public provisioning event 
-		IcConnectorObject connectorObject = new IcConnectorObjectImpl(systemEntity.getUid(), new IcObjectClassImpl(mapping.getObjectClass().getObjectClassName()), null);
-		SysProvisioningOperation.Builder operationBuilder = new SysProvisioningOperation.Builder()
-				.setOperationType(operationType)
-				.setSystemEntity(systemEntity)
-				.setEntityIdentifier(entity == null ? null : entity.getId())
-				.setProvisioningContext(new ProvisioningContext(accountAttributes, connectorObject));
-		provisioningExecutor.execute(operationBuilder.build());
-	}
-	
-	@Override
-	public void fillOverloadedAttribute(SysRoleSystemAttribute overloadingAttribute,
-			AttributeMapping overloadedAttribute) {
-		overloadedAttribute.setName(overloadingAttribute.getName());
-		overloadedAttribute.setEntityAttribute(overloadingAttribute.isEntityAttribute());
-		overloadedAttribute.setConfidentialAttribute(overloadingAttribute.isConfidentialAttribute());
-		overloadedAttribute.setExtendedAttribute(overloadingAttribute.isExtendedAttribute());
-		overloadedAttribute.setIdmPropertyName(overloadingAttribute.getIdmPropertyName());
-		overloadedAttribute.setTransformToResourceScript(overloadingAttribute.getTransformScript());
-		overloadedAttribute.setUid(overloadingAttribute.isUid());
-		overloadedAttribute.setDisabledAttribute(overloadingAttribute.isDisabledDefaultAttribute());
-		overloadedAttribute.setStrategyType(overloadingAttribute.getStrategyType());
-		overloadedAttribute.setSendAlways(overloadingAttribute.isSendAlways());
-		overloadedAttribute.setSendOnlyIfNotNull(overloadingAttribute.isSendOnlyIfNotNull());
-	}
-
-	@Override
-	public void changePassword(IdmIdentity identity, PasswordChangeDto passwordChange) {
-		Assert.notNull(identity);
-		Assert.notNull(passwordChange);
-
-		IdentityAccountFilter filter = new IdentityAccountFilter();
-		filter.setIdentityId(identity.getId());
-		Page<AccIdentityAccount> identityAccounts = identityAccountService.find(filter, null);
-		List<AccIdentityAccount> identityAccountList = identityAccounts.getContent();
-		if (identityAccountList == null) {
-			return;
-		}
-		
-		// Distinct by accounts
-		List<AccAccount> accounts = new ArrayList<>();
-		identityAccountList.stream().filter(identityAccount -> {
-			return identityAccount.isOwnership() && (passwordChange.isAll()
-					|| passwordChange.getAccounts().contains(identityAccount.getId().toString()));
-		}).forEach(identityAccount -> {
-			if (!accounts.contains(identityAccount.getAccount())) {
-				accounts.add(identityAccount.getAccount());
-			}
-		});
-
-		accounts.forEach(account -> {
-			// find uid from system entity or from account
-			String uid = account.getUid();
-			SysSystem system = account.getSystem();
-			SysSystemEntity systemEntity = account.getSystemEntity();
-			//
-			// Find mapped attributes (include overloaded attributes)
-			List<AttributeMapping> finalAttributes = resolveMappedAttributes(uid, account, identity, system, systemEntity.getEntityType());
-			if (CollectionUtils.isEmpty(finalAttributes)) {
-				return;
-			}
-			
-			// We try find __PASSWORD__ attribute in mapped attributes
-			Optional<? extends AttributeMapping> attriubuteHandlingOptional = finalAttributes.stream()
-					.filter((attribute) -> {
-						return PASSWORD_SCHEMA_PROPERTY_NAME.equals(attribute.getSchemaAttribute().getName());
-					}).findFirst();
-			if (!attriubuteHandlingOptional.isPresent()) {
-				throw new ProvisioningException(AccResultCode.PROVISIONING_PASSWORD_FIELD_NOT_FOUND,
-						ImmutableMap.of("uid", uid));
-			}
-			AttributeMapping mappedAttribute = attriubuteHandlingOptional.get();
-
-			doProvisioningForAttribute(systemEntity, mappedAttribute, passwordChange.getNewPassword(),
-					ProvisioningOperationType.UPDATE, identity);
-		});
+		return accountAttributes;
 	}
 
 	@Override
 	public void doProvisioningForAttribute(SysSystemEntity systemEntity, AttributeMapping attributeMapping, Object value,
-			ProvisioningOperationType operationType, AbstractEntity entity) {
+			ProvisioningOperationType operationType, ENTITY entity) {
 
 		Assert.notNull(systemEntity);
 		Assert.notNull(systemEntity.getSystem());
@@ -496,34 +375,14 @@ public class DefaultProvisioningService implements ProvisioningService {
 	 * 
 	 * @param uid
 	 * @param account
-	 * @param identity
+	 * @param entity
 	 * @param system
 	 * @param entityType
 	 * @return
 	 */
 	@Override
-	public List<AttributeMapping> resolveMappedAttributes(String uid, AccAccount account, IdmIdentity identity, SysSystem system, SystemEntityType entityType) {
-		IdentityAccountFilter filter = new IdentityAccountFilter();
-		filter.setIdentityId(identity.getId());
-		filter.setSystemId(system.getId());
-		filter.setOwnership(Boolean.TRUE);
-		filter.setAccountId(account.getId());
-		Page<AccIdentityAccount> identityAccounts = identityAccountService.find(filter, null);
-		List<AccIdentityAccount> idenityAccoutnList = identityAccounts.getContent();
-		if (idenityAccoutnList == null) {
-			return null;
-		}
-		// All identity account with flag ownership on true
+	public abstract List<AttributeMapping> resolveMappedAttributes(String uid, AccAccount account, ENTITY entity, SysSystem system, SystemEntityType entityType);
 
-		// All role system attributes (overloading) for this uid and same system
-		List<SysRoleSystemAttribute> roleSystemAttributesAll = findOverloadingAttributes(uid, identity, system, idenityAccoutnList, entityType);
-
-		// All default mapped attributes from system
-		List<? extends AttributeMapping> defaultAttributes = findAttributeMappings(system, entityType);
-
-		// Final list of attributes use for provisioning
-		return compileAttributes(defaultAttributes, roleSystemAttributesAll);
-	}
 	
 	/**
 	 * Create final list of attributes for provisioning.
@@ -561,7 +420,7 @@ public class DefaultProvisioningService implements ProvisioningService {
 	 * @param overloadingAttributes
 	 * @return
 	 */
-	private List<AttributeMapping> compileAtributeForStrategy(AttributeMappingStrategyType strategy,
+	protected List<AttributeMapping> compileAtributeForStrategy(AttributeMappingStrategyType strategy,
 			AttributeMapping defaultAttribute, List<SysRoleSystemAttribute> overloadingAttributes) {
 
 		List<AttributeMapping> finalAttributes = new ArrayList<>();
@@ -624,7 +483,7 @@ public class DefaultProvisioningService implements ProvisioningService {
 							overloadedAttribute
 									.setTransformFromResourceScript(defaultAttribute.getTransformFromResourceScript());
 							// Overloaded values
-							fillOverloadedAttribute(attribute, overloadedAttribute);
+							roleSystemAttributeService.fillOverloadedAttribute(attribute, overloadedAttribute);
 
 							// Common properties (for MERGE strategy) will be
 							// set from MERGE attribute with highest priority
@@ -667,7 +526,7 @@ public class DefaultProvisioningService implements ProvisioningService {
 					overloadedAttribute
 							.setTransformFromResourceScript(defaultAttribute.getTransformFromResourceScript());
 					// Overloaded values
-					fillOverloadedAttribute(highestPriorityAttribute, overloadedAttribute);
+					roleSystemAttributeService.fillOverloadedAttribute(highestPriorityAttribute, overloadedAttribute);
 					// Add modified attribute to final list
 					finalAttributes.add(overloadedAttribute);
 					return finalAttributes;
@@ -696,53 +555,9 @@ public class DefaultProvisioningService implements ProvisioningService {
 	 * @param entityType
 	 * @return
 	 */
-	private List<SysRoleSystemAttribute> findOverloadingAttributes(String uid, IdmIdentity identity, SysSystem system,
-			List<AccIdentityAccount> idenityAccoutnList, SystemEntityType entityType) {
-
-		List<SysRoleSystemAttribute> roleSystemAttributesAll = new ArrayList<>();
-
-		idenityAccoutnList.stream().filter(ia -> {
-			return ia.getIdentityRole() != null && ia.getAccount().getSystem() != null
-					&& ia.getAccount().getSystem().equals(system) 
-					&& ia.isOwnership();
-		}).forEach((identityAccountInner) -> {
-			// All identity account with same system and with filled
-			// identityRole
-
-			IdmIdentityRole identityRole = identityAccountInner.getIdentityRole();
-			RoleSystemFilter roleSystemFilter = new RoleSystemFilter();
-			roleSystemFilter.setRoleId(identityRole.getRole().getId());
-			roleSystemFilter.setSystemId(identityAccountInner.getAccount().getSystem().getId());
-			List<SysRoleSystem> roleSystems = roleSystemService.find(roleSystemFilter, null).getContent();
-
-			List<SysRoleSystem> roleSystemsForSameAccount = roleSystems.stream().filter(roleSystem -> {
-				String roleSystemUID = accountManagementService.generateUID(identity, roleSystem);
-
-				SysSystemMapping systemMapping = roleSystem.getSystemMapping();
-				return (SystemOperationType.PROVISIONING == systemMapping.getOperationType()
-						&& entityType == systemMapping.getEntityType() && roleSystemUID.equals(uid));
-			}).collect(Collectors.toList());
-
-			if (roleSystemsForSameAccount.size() > 1) {
-				throw new ProvisioningException(AccResultCode.PROVISIONING_DUPLICATE_ROLE_MAPPING,
-						ImmutableMap.of("role", roleSystemsForSameAccount.get(0).getRole().getName(), "system",
-								roleSystemsForSameAccount.get(0).getSystem().getName(), "entityType", entityType));
-			}
-			if (!roleSystemsForSameAccount.isEmpty()) {
-				RoleSystemAttributeFilter roleSystemAttributeFilter = new RoleSystemAttributeFilter();
-				roleSystemAttributeFilter.setRoleSystemId(roleSystemsForSameAccount.get(0).getId());
-				List<SysRoleSystemAttribute> roleAttributes = roleSystemAttributeService
-						.find(roleSystemAttributeFilter, null).getContent();
-
-				if (!CollectionUtils.isEmpty(roleAttributes)) {
-					roleSystemAttributesAll.addAll(roleAttributes);
-				}
-			}
-
-		});
-
-		return roleSystemAttributesAll;
-	}
+	protected abstract List<SysRoleSystemAttribute> findOverloadingAttributes(String uid, ENTITY entity, SysSystem system,
+			List<? extends EntityAccountDto> idenityAccoutnList, SystemEntityType entityType);
+	
 	
 	private SysSystemMapping getMapping(SysSystem system, SystemEntityType entityType) {
 		List<SysSystemMapping> systemMappings = systemMappingService.findBySystem(system, SystemOperationType.PROVISIONING, entityType);
@@ -765,7 +580,7 @@ public class DefaultProvisioningService implements ProvisioningService {
 	 * @param system
 	 * @return
 	 */
-	private List<? extends AttributeMapping> findAttributeMappings(SysSystem system, SystemEntityType entityType) {
+	protected List<? extends AttributeMapping> findAttributeMappings(SysSystem system, SystemEntityType entityType) {
 		SysSystemMapping mapping = getMapping(system, entityType);
 		if (mapping == null) {
 			return null;

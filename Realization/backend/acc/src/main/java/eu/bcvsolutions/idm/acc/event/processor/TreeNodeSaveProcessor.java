@@ -9,6 +9,7 @@ import org.springframework.util.Assert;
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.event.ProvisioningEvent;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
+import eu.bcvsolutions.idm.acc.service.api.TreeProvisioningService;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
@@ -31,7 +32,7 @@ public class TreeNodeSaveProcessor extends AbstractEntityEventProcessor<IdmTreeN
 
 	public static final String PROCESSOR_NAME = "tree-node-save-processor";
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(TreeNodeSaveProcessor.class);
-	private ProvisioningService provisioningService;
+	private TreeProvisioningService provisioningService;
 	private final ApplicationContext applicationContext;
 	
 	@Autowired
@@ -56,9 +57,9 @@ public class TreeNodeSaveProcessor extends AbstractEntityEventProcessor<IdmTreeN
 	
 	private void doProvisioning(IdmTreeNode node) {
 		LOG.debug("Call provisioning for tree node [{}]", node.getCode());
-		//getProvisioningService().doProvisioning(node);
+		getProvisioningService().doProvisioning(node);
 	}
-	
+
 	@Override
 	public int getOrder() {
 		return ProvisioningEvent.DEFAULT_PROVISIONING_ORDER;
@@ -69,9 +70,9 @@ public class TreeNodeSaveProcessor extends AbstractEntityEventProcessor<IdmTreeN
 	 * 
 	 * @return
 	 */
-	private ProvisioningService getProvisioningService() {
+	private TreeProvisioningService getProvisioningService() {
 		if (provisioningService == null) {
-			provisioningService = applicationContext.getBean(ProvisioningService.class);
+			provisioningService = applicationContext.getBean(TreeProvisioningService.class);
 		}
 		return provisioningService;
 	}

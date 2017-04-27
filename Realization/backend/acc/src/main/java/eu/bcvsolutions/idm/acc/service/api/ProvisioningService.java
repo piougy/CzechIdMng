@@ -1,7 +1,5 @@
 package eu.bcvsolutions.idm.acc.service.api;
 
-import java.beans.IntrospectionException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
@@ -11,26 +9,24 @@ import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
-import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
 
 /**
- * Service for do provisioning or synchronisation or reconciliation
+ * Basic interface for do provisioning
  * 
  * @author svandav
  *
  */
-public interface ProvisioningService {
+public interface ProvisioningService<ENTITY> {
 
 	/**
 	 * Do provisioning for given identity on all connected systems
 	 * 
 	 * @param identity
 	 */
-	void doProvisioning(IdmIdentity identity);
+	void doProvisioning(ENTITY identity);
 	
 	/**
 	 * Do provisioning for given account on connected system
@@ -46,7 +42,7 @@ public interface ProvisioningService {
 	 * @param system
 	 * @return
 	 */
-	void doProvisioning(AccAccount account, IdmIdentity identity);
+	void doProvisioning(AccAccount account, ENTITY identity);
 
 	/**
 	 * Do delete provisioning for given account on connected system
@@ -61,7 +57,7 @@ public interface ProvisioningService {
 	 * @param identity
 	 * @param passwordChange
 	 */
-	void changePassword(IdmIdentity identity, PasswordChangeDto passwordChange);
+	void changePassword(ENTITY identity, PasswordChangeDto passwordChange);
 	
 	/**
 	 * Do provisioning only for single attribute. For example, it is needed to change password
@@ -74,7 +70,7 @@ public interface ProvisioningService {
 	 * @param entity
 	 */
 	void doProvisioningForAttribute(SysSystemEntity systemEntity, AttributeMapping mappedAttribute, Object value,
-			ProvisioningOperationType operationType, AbstractEntity entity);
+			ProvisioningOperationType operationType, ENTITY entity);
 	
 	/**
 	 * Do authenticate check for given username and password on target resource
@@ -87,13 +83,6 @@ public interface ProvisioningService {
 	IcUidAttribute authenticate(String username, GuardedString password, SysSystem system, SystemEntityType entityType);
 
 	/**
-	 * Convert method for SysRoleSystemAttribute to mapping attribute dto
-	 * @param overloadingAttribute
-	 * @param overloadedAttribute
-	 */
-	void fillOverloadedAttribute(SysRoleSystemAttribute overloadingAttribute, AttributeMapping overloadedAttribute);
-
-	/**
 	 * Return all mapped attributes for this account (include overloaded attributes)
 	 * 
 	 * @param uid
@@ -103,7 +92,7 @@ public interface ProvisioningService {
 	 * @param entityType
 	 * @return
 	 */
-	List<AttributeMapping> resolveMappedAttributes(String uid, AccAccount account, IdmIdentity identity, SysSystem system, SystemEntityType entityType);
+	List<AttributeMapping> resolveMappedAttributes(String uid, AccAccount account, ENTITY entity, SysSystem system, SystemEntityType entityType);
 
 	/**
 	 * Create final list of attributes for provisioning.

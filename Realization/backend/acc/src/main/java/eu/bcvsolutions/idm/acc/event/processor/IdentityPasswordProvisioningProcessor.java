@@ -7,7 +7,7 @@ import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.event.ProvisioningEvent;
-import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
+import eu.bcvsolutions.idm.acc.service.api.IdentityProvisioningService;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
@@ -31,10 +31,10 @@ public class IdentityPasswordProvisioningProcessor extends AbstractEntityEventPr
 
 	public static final String PROCESSOR_NAME = "identity-password-provisioning-processor";
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdentityPasswordProvisioningProcessor.class);
-	private final ProvisioningService provisioningService;
+	private final IdentityProvisioningService provisioningService;
 	
 	@Autowired
-	public IdentityPasswordProvisioningProcessor(ProvisioningService provisioningService) {
+	public IdentityPasswordProvisioningProcessor(IdentityProvisioningService provisioningService) {
 		super(IdentityEventType.PASSWORD);
 		//
 		Assert.notNull(provisioningService);

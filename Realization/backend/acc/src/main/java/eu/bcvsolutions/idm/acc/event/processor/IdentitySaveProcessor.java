@@ -8,6 +8,7 @@ import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.event.ProvisioningEvent;
+import eu.bcvsolutions.idm.acc.service.api.IdentityProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
@@ -31,7 +32,7 @@ public class IdentitySaveProcessor extends AbstractEntityEventProcessor<IdmIdent
 
 	public static final String PROCESSOR_NAME = "identity-save-processor";
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdentitySaveProcessor.class);
-	private ProvisioningService provisioningService;
+	private IdentityProvisioningService provisioningService;
 	private final ApplicationContext applicationContext;
 	
 	@Autowired
@@ -69,9 +70,9 @@ public class IdentitySaveProcessor extends AbstractEntityEventProcessor<IdmIdent
 	 * 
 	 * @return
 	 */
-	private ProvisioningService getProvisioningService() {
+	private IdentityProvisioningService getProvisioningService() {
 		if (provisioningService == null) {
-			provisioningService = applicationContext.getBean(ProvisioningService.class);
+			provisioningService = applicationContext.getBean(IdentityProvisioningService.class);
 		}
 		return provisioningService;
 	}

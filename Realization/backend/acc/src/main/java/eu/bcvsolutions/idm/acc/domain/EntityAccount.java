@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.acc.domain;
 
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
+import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 
 /**
@@ -9,7 +10,7 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
  * @author svandav
  *
  */
-public interface EntityAccount {
+public interface EntityAccount extends Identifiable {
 
 	AccAccount getAccount();
 

@@ -20,6 +20,7 @@ import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.repository.SysRoleSystemAttributeRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountManagementService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
+import eu.bcvsolutions.idm.acc.service.api.IdentityProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
@@ -49,7 +50,7 @@ public class DefaultSysRoleSystemAttributeService
 	@Autowired
 	private ApplicationContext applicationContext;
 	private AccAccountManagementService accountManagementService;
-	private ProvisioningService provisioningService;
+	private IdentityProvisioningService provisioningService;
 
 	@Autowired
 	public DefaultSysRoleSystemAttributeService(SysRoleSystemAttributeRepository repository) {
@@ -78,7 +79,7 @@ public class DefaultSysRoleSystemAttributeService
 		if (entity.isExtendedAttribute() && FormableEntity.class.isAssignableFrom(entityType)) {
 			AttributeMapping mappingAttributeDto = new MappingAttributeDto();
 			mappingAttributeDto.setSchemaAttribute(entity.getSystemAttributeMapping().getSchemaAttribute());
-			getProvisioningService().fillOverloadedAttribute(entity, mappingAttributeDto);
+			fillOverloadedAttribute(entity, mappingAttributeDto);
 			systeAttributeMappingService.createExtendedAttributeDefinition(mappingAttributeDto, entityType);
 		}
 		
@@ -113,6 +114,22 @@ public class DefaultSysRoleSystemAttributeService
 		return roleSystemAttribute;
 	}
 	
+	@Override
+	public void fillOverloadedAttribute(SysRoleSystemAttribute overloadingAttribute,
+			AttributeMapping overloadedAttribute) {
+		overloadedAttribute.setName(overloadingAttribute.getName());
+		overloadedAttribute.setEntityAttribute(overloadingAttribute.isEntityAttribute());
+		overloadedAttribute.setConfidentialAttribute(overloadingAttribute.isConfidentialAttribute());
+		overloadedAttribute.setExtendedAttribute(overloadingAttribute.isExtendedAttribute());
+		overloadedAttribute.setIdmPropertyName(overloadingAttribute.getIdmPropertyName());
+		overloadedAttribute.setTransformToResourceScript(overloadingAttribute.getTransformScript());
+		overloadedAttribute.setUid(overloadingAttribute.isUid());
+		overloadedAttribute.setDisabledAttribute(overloadingAttribute.isDisabledDefaultAttribute());
+		overloadedAttribute.setStrategyType(overloadingAttribute.getStrategyType());
+		overloadedAttribute.setSendAlways(overloadingAttribute.isSendAlways());
+		overloadedAttribute.setSendOnlyIfNotNull(overloadingAttribute.isSendOnlyIfNotNull());
+	}
+	
 	private AccAccountManagementService getAccountManagementService() {
 		if (accountManagementService == null) {
 			accountManagementService = applicationContext.getBean(AccAccountManagementService.class);
@@ -125,9 +142,9 @@ public class DefaultSysRoleSystemAttributeService
 	 * 
 	 * @return
 	 */
-	private ProvisioningService getProvisioningService() {
+	private IdentityProvisioningService getProvisioningService() {
 		if (provisioningService == null) {
-			provisioningService = applicationContext.getBean(ProvisioningService.class);
+			provisioningService = applicationContext.getBean(IdentityProvisioningService.class);
 		}
 		return provisioningService;
 	}

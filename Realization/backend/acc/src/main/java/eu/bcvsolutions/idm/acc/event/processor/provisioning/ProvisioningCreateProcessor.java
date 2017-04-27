@@ -12,7 +12,7 @@ import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
-import eu.bcvsolutions.idm.acc.service.impl.DefaultProvisioningService;
+import eu.bcvsolutions.idm.acc.service.impl.DefaultIdentityProvisioningService;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
 import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordPolicyService;
@@ -83,7 +83,7 @@ public class ProvisioningCreateProcessor extends AbstractProvisioningProcessor {
 				}
 				//
 				connectorObject.getAttributes().remove(attribute);
-				connectorObject.getAttributes().add(new IcPasswordAttributeImpl(DefaultProvisioningService.PASSWORD_SCHEMA_PROPERTY_NAME, new GuardedString(password)));
+				connectorObject.getAttributes().add(new IcPasswordAttributeImpl(DefaultIdentityProvisioningService.PASSWORD_SCHEMA_PROPERTY_NAME, new GuardedString(password)));
 				break;
 			}
 		}

@@ -15,6 +15,8 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AccountType;
+import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
+import eu.bcvsolutions.idm.acc.dto.MappingAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.RoleSystemAttributeFilter;
@@ -29,9 +31,11 @@ import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountManagementService;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
+import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
+import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
@@ -53,14 +57,12 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 	private final IdmIdentityRoleRepository identityRoleRepository;
 	private final SysRoleSystemAttributeService roleSystemAttributeService;
 	private final SysSystemAttributeMappingService systeAttributeMappingService;
-	private final IdmIdentityRoleService identityRoleService;
 
 	@Autowired
 	public DefaultAccAccountManagementService(SysRoleSystemService roleSystemService, AccAccountService accountService,
 			AccIdentityAccountService identityAccountService, IdmIdentityRoleRepository identityRoleRepository,
 			SysRoleSystemAttributeService roleSystemAttributeService,
-			SysSystemAttributeMappingService systeAttributeMappingService,
-			IdmIdentityRoleService identityRoleService) {
+			SysSystemAttributeMappingService systeAttributeMappingService) {
 		super();
 		//
 		Assert.notNull(identityAccountService);
@@ -69,7 +71,6 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 		Assert.notNull(identityRoleRepository);
 		Assert.notNull(roleSystemAttributeService);
 		Assert.notNull(systeAttributeMappingService);
-		Assert.notNull(identityRoleService);
 		//
 		this.roleSystemService = roleSystemService;
 		this.accountService = accountService;
@@ -77,7 +78,6 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 		this.identityRoleRepository = identityRoleRepository;
 		this.roleSystemAttributeService = roleSystemAttributeService;
 		this.systeAttributeMappingService = systeAttributeMappingService;
-		this.identityRoleService = identityRoleService;
 	}
 
 	@Override
@@ -236,12 +236,12 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 	 * transform script from roleSystem attribute. If isn't UID attribute for
 	 * roleSystem defined, then will be use default UID attribute handling.
 	 * 
-	 * @param identity
+	 * @param entity
 	 * @param roleSystem
 	 * @return
 	 */
 	@Override
-	public String generateUID(IdmIdentity identity, SysRoleSystem roleSystem) {
+	public String generateUID(AbstractEntity entity, SysRoleSystem roleSystem) {
 		// Find attributes for this roleSystem
 		RoleSystemAttributeFilter roleSystemAttrFilter = new RoleSystemAttributeFilter();
 		roleSystemAttrFilter.setRoleSystemId(roleSystem.getId());
@@ -261,8 +261,20 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 		// If roleSystem UID attribute found, then we use his transformation
 		// script.
 		if (uidRoleAttribute != null) {
-			Object uid = systeAttributeMappingService.transformValueToResource(identity.getUsername(),
-					uidRoleAttribute.getTransformScript(), identity, roleSystem.getSystem());
+			// We have to create own dto and set up all values
+			// (overloaded and default)
+			AttributeMapping overloadedAttribute = new MappingAttributeDto();
+			// Default values (values from schema attribute handling)
+			overloadedAttribute.setSchemaAttribute(uidRoleAttribute.getSystemAttributeMapping().getSchemaAttribute());
+			overloadedAttribute
+					.setTransformFromResourceScript(uidRoleAttribute.getSystemAttributeMapping().getTransformFromResourceScript());
+			// Overloaded values
+			roleSystemAttributeService.fillOverloadedAttribute(uidRoleAttribute, overloadedAttribute);
+			Object uid = systeAttributeMappingService.getAttributeValue(entity, overloadedAttribute);
+			if(uid == null) {
+				throw new ProvisioningException(AccResultCode.PROVISIONING_GENERATED_UID_IS_NULL,
+						ImmutableMap.of("system", roleSystem.getSystem().getName()));
+			}
 			if (!(uid instanceof String)) {
 				throw new ProvisioningException(AccResultCode.PROVISIONING_ATTRIBUTE_UID_IS_NOT_STRING,
 						ImmutableMap.of("uid", uid));
@@ -291,8 +303,11 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 		}
 
 		SysSystemAttributeMapping uidSchemaAttribute = schemaHandlingAttributesUid.get(0);
-		Object uid = systeAttributeMappingService.transformValueToResource(identity.getUsername(), uidSchemaAttribute,
-				identity);
+		Object uid = systeAttributeMappingService.getAttributeValue(entity, uidSchemaAttribute);
+		if(uid == null) {
+			throw new ProvisioningException(AccResultCode.PROVISIONING_GENERATED_UID_IS_NULL,
+					ImmutableMap.of("system", roleSystem.getSystem().getName()));
+		}
 		if (!(uid instanceof String)) {
 			throw new ProvisioningException(AccResultCode.PROVISIONING_ATTRIBUTE_UID_IS_NOT_STRING,
 					ImmutableMap.of("uid", uid));

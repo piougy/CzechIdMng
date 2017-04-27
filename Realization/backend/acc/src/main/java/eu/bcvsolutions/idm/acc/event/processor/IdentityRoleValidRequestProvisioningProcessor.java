@@ -9,7 +9,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.acc.service.api.AccAccountManagementService;
+import eu.bcvsolutions.idm.acc.service.api.IdentityProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
+import eu.bcvsolutions.idm.acc.service.impl.DefaultIdentityProvisioningService;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
@@ -33,7 +35,7 @@ public class IdentityRoleValidRequestProvisioningProcessor extends AbstractEntit
 	
 	public static final String PROCESSOR_NAME = "identity-role-valid-request-provisioning-processor";
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdentityRoleValidRequestProvisioningProcessor.class);
-	private ProvisioningService provisioningService;
+	private IdentityProvisioningService provisioningService;
 	private final ApplicationContext applicationContext;
 	private AccAccountManagementService accountManagementService;
 	private final IdmIdentityRoleService identityRoleService;
@@ -95,9 +97,9 @@ public class IdentityRoleValidRequestProvisioningProcessor extends AbstractEntit
 	 * 
 	 * @return
 	 */
-	private ProvisioningService getProvisioningService() {
+	private IdentityProvisioningService getProvisioningService() {
 		if (provisioningService == null) {
-			provisioningService = applicationContext.getBean(ProvisioningService.class);
+			provisioningService = applicationContext.getBean(IdentityProvisioningService.class);
 		}
 		return provisioningService;
 	}

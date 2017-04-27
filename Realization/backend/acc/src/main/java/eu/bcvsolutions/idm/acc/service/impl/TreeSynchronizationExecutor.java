@@ -88,8 +88,8 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 		implements SynchronizationExecutor {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(TreeSynchronizationExecutor.class);
-	private final static String PARENT_FIELD = "parent";
-	private final static String CODE_FIELD = "code";
+	public final static String PARENT_FIELD = "parent";
+	public final static String CODE_FIELD = "code";
 
 	private final IdmTreeNodeService treeNodeService;
 	private final AccTreeAccountService treeAccoutnService;

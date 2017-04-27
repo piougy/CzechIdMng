@@ -19,6 +19,7 @@ import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
+import eu.bcvsolutions.idm.acc.service.api.IdentityProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
@@ -67,7 +68,7 @@ public class DefaultAccAuthenticator extends AbstractAuthenticator implements Au
 	
 	private final SysSystemService systemService;
 	
-	private final ProvisioningService provisioningService;
+	private final IdentityProvisioningService provisioningService;
 	
 	private final AccAccountService accountService;
 	
@@ -84,7 +85,7 @@ public class DefaultAccAuthenticator extends AbstractAuthenticator implements Au
 	@Autowired
 	public DefaultAccAuthenticator(ConfigurationService configurationService,
 			SysSystemService systemService,
-			ProvisioningService provisioningService,
+			IdentityProvisioningService provisioningService,
 			AccAccountService accountService,
 			IdmIdentityService identityService,
 			SysSystemAttributeMappingService systemAttributeMappingService,

@@ -117,6 +117,7 @@ export class AuditTable extends Basic.AbstractContent {
               <div className="col-lg-4">
                 <Advanced.Filter.EnumSelectBox
                   ref="type"
+                  searchable
                   placeholder={this.i18n('entity.Audit.type')}
                   options={auditedEntities}/>
               </div>

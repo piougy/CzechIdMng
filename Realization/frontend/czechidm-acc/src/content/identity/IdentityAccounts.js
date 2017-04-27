@@ -117,6 +117,7 @@ class IdentityAccountsContent extends Advanced.AbstractTableContent {
                   return (
                     <Advanced.DetailButton
                       title={this.i18n('button.detail')}
+                      rendered={Managers.SecurityManager.hasAnyAuthority(['SYSTEM_READ'])}
                       onClick={this.showDetail.bind(this, data[rowIndex])}/>
                   );
                 }

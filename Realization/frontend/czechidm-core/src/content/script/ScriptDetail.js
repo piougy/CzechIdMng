@@ -57,8 +57,8 @@ export default class ScriptDetail extends Basic.AbstractContent {
       if (EntityUtils.isNew(entity)) {
         entity.description = '';
         entity.category = AbstractEnum.findKeyBySymbol(ScriptCategoryEnum, ScriptCategoryEnum.DEFAULT);
-        this.refs.name.focus();
       }
+      this.refs.code.focus();
       this.refs.form.setData(entity);
     }
   }

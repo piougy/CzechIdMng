@@ -2,7 +2,7 @@ import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 //
-import { Basic, Advanced, Utils, Domain } from 'czechidm-core';
+import { Basic, Advanced, Utils, Domain, Managers, Enums } from 'czechidm-core';
 import { RoleSystemAttributeManager, RoleSystemManager, SystemAttributeMappingManager} from '../../redux';
 import AttributeMappingStrategyTypeEnum from '../../domain/AttributeMappingStrategyTypeEnum';
 import SystemEntityTypeEnum from '../../domain/SystemEntityTypeEnum';
@@ -11,6 +11,7 @@ const uiKey = 'role-system-attribute';
 const roleSystemAttributeManager = new RoleSystemAttributeManager();
 const roleSystemManager = new RoleSystemManager();
 const systemAttributeMappingManager = new SystemAttributeMappingManager();
+const scriptManager = new Managers.ScriptManager();
 
 class RoleSystemAttributeDetail extends Advanced.AbstractTableContent {
 
@@ -125,6 +126,23 @@ class RoleSystemAttributeDetail extends Advanced.AbstractTableContent {
     } else {
       this.refs.idmPropertyName.setValue(null);
     }
+  }
+
+  _scriptChange(scriptArea, component, value, event) {
+    if (event) {
+      event.preventDefault();
+    }
+    //
+    if (!value) {
+      return;
+    }
+    // TODO: set into cursor?
+    const currentValue = this.refs[scriptArea].getValue() ? this.refs[scriptArea].getValue() : '';
+    this.context.store.dispatch(scriptManager.fetchEntity(value.id, value.id, (entity) => {
+      this.refs[scriptArea].setValue(currentValue + entity.template);
+    }));
+    // TODO: script area focus not working
+    // this.refs[scriptArea].focus();
   }
 
   render() {
@@ -242,11 +260,21 @@ class RoleSystemAttributeDetail extends Advanced.AbstractTableContent {
                    className="no-margin"
                    text={this.i18n('acc:content.system.attributeMappingDetail.alertNoRepository')}/>
               </Basic.LabelWrapper>
+
+              <Basic.SelectBox
+                ref="transformToResourceScriptSelectBox"
+                label={this.i18n('acc:entity.SystemAttributeMapping.transformToResourceScriptSelectBox.label')}
+                helpBlock={this.i18n('acc:entity.SystemAttributeMapping.transformToResourceScriptSelectBox.help')}
+                onChange={this._scriptChange.bind(this, 'transformScript', 'transformToResourceScriptSelectBox')}
+                forceSearchParameters={
+                  scriptManager.getDefaultSearchParameters().setFilter('category', Enums.ScriptCategoryEnum.findKeyBySymbol(Enums.ScriptCategoryEnum.TRANSFORM_TO))}
+                manager={scriptManager} />
               <Basic.ScriptArea
                 ref="transformScript"
                 readOnly = {_isDisabled}
                 helpBlock={this.i18n('acc:entity.RoleSystemAttribute.transformScript.help')}
                 label={this.i18n('acc:entity.RoleSystemAttribute.transformScript.label')}/>
+
             </Basic.AbstractForm>
             <Basic.PanelFooter>
               <Basic.Button type="button" level="link"

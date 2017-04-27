@@ -42,7 +42,7 @@ import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.eav.rest.impl.IdmFormDefinitionController;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
-import eu.bcvsolutions.idm.core.model.dto.WorkPosition;
+import eu.bcvsolutions.idm.core.model.dto.WorkPositionDto;
 import eu.bcvsolutions.idm.core.model.dto.filter.IdentityFilter;
 import eu.bcvsolutions.idm.core.model.dto.filter.IdentityRoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmAudit;
@@ -247,14 +247,19 @@ public class IdmIdentityController extends AbstractReadWriteEntityController<Idm
 		if (primeContract == null) {
 			return new ResponseEntity<Object>(HttpStatus.NO_CONTENT);
 		}
-		WorkPosition position = new WorkPosition(identity, primeContract);
+		WorkPositionDto position = new WorkPositionDto(identity, primeContract);
 		if (primeContract.getWorkPosition() != null) {
 			List<IdmTreeNode> positions = new ArrayList<>();
 			positions = treeNodeService.findAllParents(primeContract.getWorkPosition(), new Sort(Direction.ASC, "forestIndex.lft"));
 			positions.add(primeContract.getWorkPosition());
+			positions.forEach(treeNode -> {
+				// TODO: use DTOs!
+				treeNode.setTreeType(null);
+				treeNode.setParent(null);
+			});
 			position.setPath(positions);
 		}		
-		return new ResponseEntity<WorkPosition>(position, HttpStatus.OK);
+		return new ResponseEntity<WorkPositionDto>(position, HttpStatus.OK);
 	}
 	
 	@ResponseBody

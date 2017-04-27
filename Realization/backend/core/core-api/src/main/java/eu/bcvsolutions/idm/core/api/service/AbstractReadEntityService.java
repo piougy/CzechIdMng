@@ -17,6 +17,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
+import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizationManager;
 
 /**
@@ -30,7 +31,7 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizationManager;
  * @deprecated use {@link AbstractReadDtoService}
  */
 @Deprecated
-public abstract class AbstractReadEntityService<E extends BaseEntity, F extends BaseFilter> implements ReadEntityService<E, F> {
+public abstract class AbstractReadEntityService<E extends BaseEntity, F extends BaseFilter> implements ReadEntityService<E, F>, ScriptEnabled {
 	
 	private final Class<E> entityClass;
 	private final Class<F> filterClass;

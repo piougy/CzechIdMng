@@ -11,6 +11,8 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.plugin.core.OrderAwarePluginRegistry;
+import org.springframework.plugin.core.PluginRegistry;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -20,7 +22,6 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
-import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
@@ -43,6 +44,8 @@ import eu.bcvsolutions.idm.core.eav.entity.AbstractFormValue;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.model.domain.EntityUtilities;
+import eu.bcvsolutions.idm.core.model.domain.IdmScriptCategory;
+import eu.bcvsolutions.idm.core.script.evaluator.AbstractScriptEvaluator;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.impl.IcAttributeImpl;
@@ -70,7 +73,7 @@ public class DefaultSysSystemAttributeMappingService
 	private final SysRoleSystemAttributeRepository roleSystemAttributeRepository;
 	private final FormPropertyManager formPropertyManager;
 	private final SysSyncConfigRepository syncConfigRepository;
-	
+	private final PluginRegistry<AbstractScriptEvaluator, IdmScriptCategory> pluginExecutors; 
 	@Autowired
 	public DefaultSysSystemAttributeMappingService(
 			SysSystemAttributeMappingRepository repository,
@@ -79,6 +82,7 @@ public class DefaultSysSystemAttributeMappingService
 			SysRoleSystemAttributeRepository roleSystemAttributeRepository,
 			FormPropertyManager formPropertyManager,
 			SysSyncConfigRepository syncConfigRepository,
+			List<AbstractScriptEvaluator> evaluators,
 			ConfidentialStorage confidentialStorage) {
 		super(repository);
 		//
@@ -87,6 +91,7 @@ public class DefaultSysSystemAttributeMappingService
 		Assert.notNull(roleSystemAttributeRepository);
 		Assert.notNull(formPropertyManager);
 		Assert.notNull(syncConfigRepository);
+		Assert.notNull(evaluators);
 		Assert.notNull(confidentialStorage);
 		//
 		this.formService = formService;
@@ -96,7 +101,8 @@ public class DefaultSysSystemAttributeMappingService
 		this.formPropertyManager = formPropertyManager;
 		this.syncConfigRepository = syncConfigRepository;
 		this.confidentialStorage = confidentialStorage;
-		
+		//
+		this.pluginExecutors = OrderAwarePluginRegistry.create(evaluators);
 	}
 
 	public List<SysSystemAttributeMapping> findBySystemMapping(SysSystemMapping systemMapping) {
@@ -124,7 +130,13 @@ public class DefaultSysSystemAttributeMappingService
 			variables.put(ATTRIBUTE_VALUE_KEY, value);
 			variables.put(SYSTEM_KEY, system);
 			variables.put(ENTITY_KEY, entity);
-			return groovyScriptService.evaluate(script, variables);
+			variables.put(AbstractScriptEvaluator.SCRIPT_EVALUATOR, pluginExecutors.getPluginFor(IdmScriptCategory.TRANSFORM_TO)); // add default script evaluator, for call another scripts
+			//
+			// Add access for script evaluator
+			List<Class<?>> extraClass = new ArrayList<>();
+			extraClass.add(AbstractScriptEvaluator.Builder.class);
+			//
+			return groovyScriptService.evaluate(script, variables, extraClass);
 		}
 
 		return value;
@@ -148,7 +160,12 @@ public class DefaultSysSystemAttributeMappingService
 			variables.put(ATTRIBUTE_VALUE_KEY, value);
 			variables.put(SYSTEM_KEY, system);
 			variables.put(IC_ATTRIBUTES_KEY, icAttributes);
-			return groovyScriptService.evaluate(script, variables);
+			variables.put(AbstractScriptEvaluator.SCRIPT_EVALUATOR, pluginExecutors.getPluginFor(IdmScriptCategory.TRANSFORM_FROM)); // add default script evaluator, for call another scripts
+			// Add access for script evaluator
+			List<Class<?>> extraClass = new ArrayList<>();
+			extraClass.add(AbstractScriptEvaluator.Builder.class);
+			//
+			return groovyScriptService.evaluate(script, variables, extraClass);
 		}
 
 		return value;

@@ -2,7 +2,7 @@ import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 //
-import { Basic, Advanced, Utils, Domain } from 'czechidm-core';
+import { Basic, Advanced, Utils, Domain, Managers, Enums } from 'czechidm-core';
 import { SystemMappingManager, SystemAttributeMappingManager, SchemaAttributeManager} from '../../redux';
 import AttributeMappingStrategyTypeEnum from '../../domain/AttributeMappingStrategyTypeEnum';
 import SystemEntityTypeEnum from '../../domain/SystemEntityTypeEnum';
@@ -11,6 +11,7 @@ const uiKey = 'system-attribute-mapping';
 const manager = new SystemAttributeMappingManager();
 const systemMappingManager = new SystemMappingManager();
 const schemaAttributeManager = new SchemaAttributeManager();
+const scriptManager = new Managers.ScriptManager();
 const PASSWORD_ATTRIBUTE = '__PASSWORD__';
 
 class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
@@ -148,6 +149,24 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
     }
   }
 
+  _scriptChange(scriptArea, component, value, event) {
+    if (event) {
+      event.preventDefault();
+    }
+    //
+    if (!value) {
+      return;
+    }
+    // TODO: set into cursor?
+    const currentValue = this.refs[scriptArea].getValue() ? this.refs[scriptArea].getValue() : '';
+    //
+    this.context.store.dispatch(scriptManager.fetchEntity(value.id, value.id, (entity) => {
+      this.refs[scriptArea].setValue(currentValue + entity.template);
+    }));
+    // TODO: script area focus not working
+    // this.refs[scriptArea].focus();
+  }
+
   render() {
     const { _showLoading, _attribute, _systemMapping } = this.props;
     const { disabledAttribute, entityAttribute, extendedAttribute, showPasswordInfo } = this.state;
@@ -275,16 +294,35 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
                     className="no-margin"
                     text={this.i18n('infoPasswordMapping')}/>
               </Basic.LabelWrapper>
+
+              <Basic.SelectBox
+                ref="transformFromResourceScriptSelectBox"
+                label={this.i18n('acc:entity.SystemAttributeMapping.transformFromResourceScriptSelectBox.label')}
+                helpBlock={this.i18n('acc:entity.SystemAttributeMapping.transformFromResourceScriptSelectBox.help')}
+                onChange={this._scriptChange.bind(this, 'transformFromResourceScript', 'transformFromResourceScriptSelectBox')}
+                forceSearchParameters={
+                  scriptManager.getDefaultSearchParameters().setFilter('category', Enums.ScriptCategoryEnum.findKeyBySymbol(Enums.ScriptCategoryEnum.TRANSFORM_FROM))}
+                manager={scriptManager} />
               <Basic.ScriptArea
                 ref="transformFromResourceScript"
                 helpBlock={this.i18n('acc:entity.SystemAttributeMapping.transformFromResourceScript.help')}
                 readOnly = {_isDisabled}
                 label={this.i18n('acc:entity.SystemAttributeMapping.transformFromResourceScript.label')}/>
+
+              <Basic.SelectBox
+                ref="transformToResourceScriptSelectBox"
+                label={this.i18n('acc:entity.SystemAttributeMapping.transformToResourceScriptSelectBox.label')}
+                helpBlock={this.i18n('acc:entity.SystemAttributeMapping.transformToResourceScriptSelectBox.help')}
+                onChange={this._scriptChange.bind(this, 'transformToResourceScript', 'transformToResourceScriptSelectBox')}
+                forceSearchParameters={
+                  scriptManager.getDefaultSearchParameters().setFilter('category', Enums.ScriptCategoryEnum.findKeyBySymbol(Enums.ScriptCategoryEnum.TRANSFORM_TO))}
+                manager={scriptManager} />
               <Basic.ScriptArea
                 ref="transformToResourceScript"
                 helpBlock={this.i18n('acc:entity.SystemAttributeMapping.transformToResourceScript.help')}
                 readOnly = {_isDisabled}
                 label={this.i18n('acc:entity.SystemAttributeMapping.transformToResourceScript.label')}/>
+
             </Basic.AbstractForm>
             <Basic.PanelFooter>
               <Basic.Button type="button" level="link"

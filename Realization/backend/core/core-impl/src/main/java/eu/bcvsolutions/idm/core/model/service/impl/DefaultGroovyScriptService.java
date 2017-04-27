@@ -1,11 +1,14 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.codehaus.groovy.control.CompilationFailedException;
 import org.codehaus.groovy.control.CompilerConfiguration;
+import org.kohsuke.groovy.sandbox.GroovyInterceptor;
 import org.kohsuke.groovy.sandbox.SandboxTransformer;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
@@ -45,16 +48,32 @@ public class DefaultGroovyScriptService implements GroovyScriptService {
 		if(extraAllowedClasses != null){
 			allowedVariableClass.addAll(extraAllowedClasses);
 		}
-
-		GroovySandboxFilter sandboxFilter = new GroovySandboxFilter(allowedVariableClass);
+		GroovySandboxFilter sandboxFilter = null;
+		Collection<?> dis = null;
+		//
 		try {
-			sandboxFilter.register();
+			// if groovy filter exist add extraAllowedClasses, into this filter, otherwise create new
+			if (!GroovyInterceptor.getApplicableInterceptors().isEmpty()) {
+				// exists only one goovy filter
+				sandboxFilter = (GroovySandboxFilter) GroovyInterceptor.getApplicableInterceptors().get(0);
+				dis = CollectionUtils.disjunction(sandboxFilter.getCustomTypes(), allowedVariableClass);
+				sandboxFilter.addCustomTypes(allowedVariableClass);
+			} else {
+				sandboxFilter = new GroovySandboxFilter(allowedVariableClass);
+				sandboxFilter.register();
+			}
 
 			return shell.evaluate(script);
 		} catch (SecurityException ex) {
 			throw new IdmSecurityException(CoreResultCode.GROOVY_SCRIPT_SECURITY_VALIDATION, ImmutableMap.of("message", ex.getLocalizedMessage()), ex);
 		} finally {
-			sandboxFilter.unregister();
+			// if this script is called from another script, remove only allowed classes from them
+			// otherwise unregister all filter.
+			if (dis == null) {
+				sandboxFilter.unregister();
+			} else {
+				sandboxFilter.clearCustomTypes(dis);
+			}
 		}
 	}
 

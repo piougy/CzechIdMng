@@ -4,10 +4,10 @@ import java.util.UUID;
 
 import eu.bcvsolutions.idm.core.model.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.model.dto.IdmContractGuaranteeDto;
+import eu.bcvsolutions.idm.core.model.dto.IdmIdentityContractDto;
+import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.model.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
@@ -81,7 +81,7 @@ public interface TestHelper {
 	 * @param role
 	 * @return
 	 */
-	IdmIdentityRole createIdentityRole(IdmIdentity identity, IdmRole role);
+	IdmIdentityRoleDto createIdentityRole(IdmIdentity identity, IdmRole role);
 	
 	/**
 	 * Creates assigned identity's role directly (without approving etc.)
@@ -90,7 +90,7 @@ public interface TestHelper {
 	 * @param role
 	 * @return
 	 */
-	IdmIdentityRole createIdentityRole(IdmIdentityContract identityContract, IdmRole role);
+	IdmIdentityRoleDto createIdentityRole(IdmIdentityContractDto identityContract, IdmRole role);
 	
 	/**
 	 * Creates simple identity contract
@@ -98,7 +98,7 @@ public interface TestHelper {
 	 * @param identity
 	 * @return
 	 */
-	IdmIdentityContract createIdentityContact(IdmIdentity identity);
+	IdmIdentityContractDto createIdentityContact(IdmIdentity identity);
 	
 	/**
 	 * Deletes identity's contract

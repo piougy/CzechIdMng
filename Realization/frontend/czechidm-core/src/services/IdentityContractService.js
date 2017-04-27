@@ -1,9 +1,8 @@
-import moment from 'moment';
-//
 import FormableEntityService from './FormableEntityService';
 import TreeNodeService from './TreeNodeService';
 import IdentityService from './IdentityService';
 import SearchParameters from '../domain/SearchParameters';
+import * as Utils from '../utils';
 
 /**
  * Identity contracts - relation to tree structure
@@ -20,6 +19,10 @@ class IdentityContractService extends FormableEntityService {
 
   getApiPath() {
     return '/identity-contracts';
+  }
+
+  supportsPatch() {
+    return false;
   }
 
   /**
@@ -57,11 +60,7 @@ class IdentityContractService extends FormableEntityService {
   }
 
   isValid(identityContract) {
-    // TODO: use entityUtils
-    if (!identityContract || moment().isBefore(identityContract.validFrom) || moment().isAfter(identityContract.validTill)) {
-      return false;
-    }
-    return true;
+    return Utils.Entity.isValid(identityContract);
   }
 }
 

@@ -103,10 +103,12 @@ export default class EntityUtils {
       return false;
     }
     // entity does not support validable
-    if (entity.validFrom === undefined && entity.validTill === undefined) {
+    if ((entity.validFrom === undefined || entity.validFrom === null)
+        && (entity.validTill === undefined || entity.validTill === null)) {
       return true;
     }
-    if ((entity.validFrom !== null && moment().isBefore(entity.validFrom)) || (entity.validTill !== null && moment().subtract(1, 'days').isAfter(entity.validTill))) {
+    if ((entity.validFrom !== null && moment().startOf('day').isSameOrBefore(moment(entity.validFrom).startOf('day')))
+        || (entity.validTill !== null && moment().startOf('day').subtract(1, 'days').isSameOrAfter(moment(entity.validTill).startOf('day')))) {
       return false;
     }
     return true;

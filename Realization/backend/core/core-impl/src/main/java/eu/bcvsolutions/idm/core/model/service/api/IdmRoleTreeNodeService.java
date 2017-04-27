@@ -1,18 +1,20 @@
 package eu.bcvsolutions.idm.core.model.service.api;
 
 import java.util.Set;
+import java.util.UUID;
 
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
+import eu.bcvsolutions.idm.core.model.dto.IdmIdentityContractDto;
+import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.model.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.model.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.model.dto.filter.RoleTreeNodeFilter;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleTreeNode;
-import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 
 /**
  * Automatic role service
+ * 
+ * TODO: authorizable
  * 
  * @author Radek Tomiška
  *
@@ -25,7 +27,7 @@ public interface IdmRoleTreeNodeService extends ReadWriteDtoService<IdmRoleTreeN
 	 * @param workPosition
 	 * @return
 	 */
-	Set<IdmRoleTreeNode> getAutomaticRoles(IdmTreeNode workPosition);
+	Set<IdmRoleTreeNodeDto> getAutomaticRolesByTreeNode(UUID workPosition);
 	
 	/**
 	 * Assign automatic roles by standard role request.
@@ -36,7 +38,7 @@ public interface IdmRoleTreeNodeService extends ReadWriteDtoService<IdmRoleTreeN
 	 * @param startRequestInternal
 	 * @return
 	 */
-	IdmRoleRequestDto assignAutomaticRoles(IdmIdentityContract contract, Set<IdmRoleTreeNode> automaticRoles, boolean startRequestInternal);
+	IdmRoleRequestDto assignAutomaticRoles(IdmIdentityContractDto contract, Set<IdmRoleTreeNodeDto> automaticRoles, boolean startRequestInternal);
 	
 	/**
 	 * Delete automatic roles by standard role request.
@@ -47,5 +49,5 @@ public interface IdmRoleTreeNodeService extends ReadWriteDtoService<IdmRoleTreeN
 	 * @param startRequestInternal
 	 * @return
 	 */
-	IdmRoleRequestDto removeAutomaticRoles(IdmIdentityRole identityRole, Set<IdmRoleTreeNode> automaticRoles, boolean startRequestInternal);
+	IdmRoleRequestDto removeAutomaticRoles(IdmIdentityRoleDto identityRole, Set<IdmRoleTreeNodeDto> automaticRoles, boolean startRequestInternal);
 }

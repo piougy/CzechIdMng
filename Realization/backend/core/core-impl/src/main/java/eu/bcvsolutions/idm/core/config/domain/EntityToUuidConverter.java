@@ -19,14 +19,15 @@ import eu.bcvsolutions.idm.core.api.exception.CoreException;
 /**
  * Converter for transform fields (marked with {@link Embedded} annotation) from BaseEntity to UUID 
  * and add entity to embedded part main DTO.
+ * 
  * @author svandav
  *
  */
-public class EntityToUiidConverter implements Converter<BaseEntity, UUID> {
+public class EntityToUuidConverter implements Converter<BaseEntity, UUID> {
 
 	private ModelMapper modeler;
 
-	public EntityToUiidConverter(ModelMapper modeler) {
+	public EntityToUuidConverter(ModelMapper modeler) {
 		Assert.notNull(modeler, "Modeler is required!");
 		this.modeler = modeler;
 	}

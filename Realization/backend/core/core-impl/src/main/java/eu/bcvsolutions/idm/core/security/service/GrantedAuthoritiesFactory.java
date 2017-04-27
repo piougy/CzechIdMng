@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.security.core.GrantedAuthority;
 
 /**
- * Granted authorities for users
+ * Load identity's granted authorities
  * 
  * @author svandav
  */

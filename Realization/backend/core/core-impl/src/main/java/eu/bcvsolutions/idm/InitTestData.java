@@ -16,8 +16,8 @@ import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.model.dto.IdmContractGuaranteeDto;
+import eu.bcvsolutions.idm.core.model.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleComposition;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
@@ -139,9 +139,9 @@ public class InitTestData implements ApplicationListener<ContextRefreshedEvent> 
 				organization.setTreeType(type);
 				this.treeNodeService.save(organization);
 				
-				IdmIdentityContract identityWorkPosition2 = new IdmIdentityContract();
-				identityWorkPosition2.setIdentity(testUser1);
-				identityWorkPosition2.setWorkPosition(organization);
+				IdmIdentityContractDto identityWorkPosition2 = new IdmIdentityContractDto();
+				identityWorkPosition2.setIdentity(testUser1.getId());
+				identityWorkPosition2.setWorkPosition(organization.getId());
 				identityWorkPosition2 = identityContractService.save(identityWorkPosition2);
 				IdmContractGuaranteeDto contractGuarantee = new IdmContractGuaranteeDto();
 				contractGuarantee.setIdentityContract(identityWorkPosition2.getId());

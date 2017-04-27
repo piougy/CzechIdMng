@@ -177,6 +177,7 @@ class IdentityContractGuarantees extends Advanced.AbstractTableContent {
               identityManager={ identityManager }
               forceSearchParameters={ new SearchParameters().setFilter('managersByContractId', entityId) }
               showAddButton={ false }
+              showDetailButton={ false }
               showFilter={ false }
               columns={ ['entityInfo'] }/>
           </Basic.Col>

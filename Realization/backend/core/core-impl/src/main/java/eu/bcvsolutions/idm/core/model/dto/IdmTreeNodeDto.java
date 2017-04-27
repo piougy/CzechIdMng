@@ -30,7 +30,7 @@ public class IdmTreeNodeDto extends AbstractDto implements Disableable, Identifi
 	@NotEmpty
 	@Size(min = 0, max = DefaultFieldLengths.NAME)
 	private String name;
-	@Embedded(dtoClass = IdmTreeNodeDto.class)
+	@Embedded(dtoClass = IdmTreeNodeDto.class, enabled = false)
 	private UUID parent;
 	@NotNull
 	@Embedded(dtoClass = IdmTreeTypeDto.class)

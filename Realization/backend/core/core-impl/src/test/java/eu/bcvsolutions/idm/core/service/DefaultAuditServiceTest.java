@@ -24,21 +24,22 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionCallback;
 
+import eu.bcvsolutions.idm.core.TestHelper;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.model.dto.filter.AuditFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmAudit;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
-import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuditService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 public class DefaultAuditServiceTest extends AbstractIntegrationTest {
 
+	@Autowired
+	private TestHelper helper;
+	
 	@Autowired
 	private IdmAuditService auditService;
 
@@ -47,12 +48,6 @@ public class DefaultAuditServiceTest extends AbstractIntegrationTest {
 
 	@Autowired
 	private IdmIdentityService identityService;
-
-	@Autowired
-	private IdmIdentityRoleRepository identityRoleRepository;
-	
-	@Autowired
-	private IdmIdentityContractService identityContractService;
 
 	@PersistenceContext
 	private EntityManager entityManager;
@@ -230,16 +225,10 @@ public class DefaultAuditServiceTest extends AbstractIntegrationTest {
 	public void identityAuditCreateModify() {
 		IdmIdentity identity = this.constructIdentity("aud_test", "test", "test");
 		identityService.save(identity);
-
 		identity = identityService.get(identity.getId());
-
-		IdmRole role = roleService.save(constructRole("aud_test_role"));
-
-		IdmIdentityRole identityRole = new IdmIdentityRole();
-		identityRole.setIdentityContract(identityContractService.getContracts(identity).get(0));
-		identityRole.setRole(role);
-		identityRoleRepository.save(identityRole);
-
+		IdmRole role = roleService.save(constructRole("aud_test_role"));		
+		helper.createIdentityRole(identity, role);
+		//
 		List<IdmAudit> result = auditService.findRevisions(IdmIdentity.class, identity.getId());
 		assertEquals(1, result.size()); // only one remove audited list
 

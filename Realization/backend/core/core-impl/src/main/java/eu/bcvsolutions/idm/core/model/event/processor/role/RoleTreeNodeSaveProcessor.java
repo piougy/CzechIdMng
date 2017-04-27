@@ -10,7 +10,6 @@ import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.model.dto.IdmRoleTreeNodeDto;
-import eu.bcvsolutions.idm.core.model.entity.IdmRoleTreeNode;
 import eu.bcvsolutions.idm.core.model.event.RoleTreeNodeEvent.RoleTreeNodeEventType;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
@@ -47,12 +46,11 @@ public class RoleTreeNodeSaveProcessor extends CoreEventProcessor<IdmRoleTreeNod
 		//
 		dto = service.saveInternal(dto);
 		event.setContent(dto);
-		IdmRoleTreeNode entity = service.get(dto.getId());
 		//
 		// assign role by this added automatic role to all existing identity contracts with long running task
 		// TODO: optional remove by logged user input
 		AddNewAutomaticRoleTaskExecutor automaticRoleTask = AutowireHelper.createBean(AddNewAutomaticRoleTaskExecutor.class);
-		automaticRoleTask.setRoleTreeNodeId(entity.getId());
+		automaticRoleTask.setRoleTreeNodeId(dto.getId());
 		longRunningTaskManager.execute(automaticRoleTask);
 		return new DefaultEventResult<>(event, this);
 	}

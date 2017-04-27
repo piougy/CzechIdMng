@@ -46,7 +46,7 @@ class Roles extends Basic.AbstractContent {
     const { entityId } = this.props.params;
     this.context.store.dispatch(identityRoleManager.fetchRoles(entityId, `${uiKey}-${entityId}`));
     this.context.store.dispatch(identityManager.fetchAuthorities(entityId, `${uiKeyAuthorities}-${entityId}`));
-    this.context.store.dispatch(identityContractManager.fetchContracts(entityId, `${uiKeyContracts}-${entityId}`));
+    this.context.store.dispatch(identityContractManager.fetchEntities(new SearchParameters().setFilter('identity', entityId), `${uiKeyContracts}-${entityId}`));
   }
 
   componentWillReceiveProps(nextProps) {
@@ -372,8 +372,8 @@ class Roles extends Basic.AbstractContent {
                       ({rowIndex, data, property}) => {
                         return (
                           <Advanced.IdentityContractInfo
-                            entityIdentifier={ data[rowIndex][property].id }
-                            entity={ data[rowIndex][property] }
+                            entityIdentifier={ data[rowIndex][property] }
+                            entity={ data[rowIndex]._embedded.identityContract }
                             showIdentity={ false }
                             face="link" />
                         );
@@ -512,11 +512,12 @@ class Roles extends Basic.AbstractContent {
                     manager={roleManager}
                     label={this.i18n('entity.IdentityRole.role')}
                     required/>
-                  <Basic.TextField
-                    label={this.i18n('entity.IdentityRole.identityContract.label')}
-                    helpBlock={this.i18n('entity.IdentityRole.identityContract.help')}
-                    value={ identityContractManager.getNiceLabel(detail.entity.identityContract) }
-                    readOnly={!TEST_ADD_ROLE_DIRECTLY}
+                  <Basic.SelectBox
+                    ref="identityContract"
+                    manager={ identityContractManager }
+                    label={ this.i18n('entity.IdentityRole.identityContract.label') }
+                    helpBlock={ this.i18n('entity.IdentityRole.identityContract.help') }
+                    readOnly={ !TEST_ADD_ROLE_DIRECTLY }
                     required/>
                   <Basic.LabelWrapper
                     label={this.i18n('entity.IdentityRole.roleTreeNode.label')}

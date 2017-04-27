@@ -116,6 +116,7 @@ export class IdentityTable extends Advanced.AbstractTableContent {
       columns,
       forceSearchParameters,
       showAddButton,
+      showDetailButton,
       showFilter,
       deleteEnabled,
       showRowSelection,
@@ -225,7 +226,8 @@ export class IdentityTable extends Advanced.AbstractTableContent {
                 );
               }
             }
-            sort={false}/>
+            sort={ false }
+            rendered={ showDetailButton }/>
           <Advanced.Column
             header={ this.i18n('entity.Identity._type') }
             cell={
@@ -265,9 +267,13 @@ IdentityTable.propTypes = {
    */
   forceSearchParameters: PropTypes.object,
   /**
-   * Button for create user is rendered
+   * Button for create user will be shown
    */
   showAddButton: PropTypes.bool,
+  /**
+   * Detail button will be shown
+   */
+  showDetailButton: PropTypes.bool,
   /**
    * Show filter
    */
@@ -295,6 +301,7 @@ IdentityTable.defaultProps = {
   columns: ['username', 'lastName', 'firstName', 'email', 'disabled', 'description'],
   filterOpened: false,
   showAddButton: true,
+  showDetailButton: true,
   showFilter: true,
   deleteEnabled: false,
   showRowSelection: false,

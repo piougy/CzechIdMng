@@ -37,6 +37,7 @@ import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.rest.domain.ResourceWrapper;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.api.service.ReadEntityService;
 import eu.bcvsolutions.idm.core.api.utils.FilterConverter;
@@ -230,6 +231,9 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 	 * @return
 	 */
 	protected ResourceSupport toResource(E entity, PersistentEntityResourceAssembler assembler) {
+		if (assembler == null) {
+			return new ResourceWrapper<>(entity);
+		}
 		return assembler.toFullResource(entity);
 	}
 
@@ -254,8 +258,13 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 			return pagedResourcesAssembler.toEmptyResource(page, domainType, baseLink);
 		}
 
-		return baseLink == null ? pagedResourcesAssembler.toResource(page, assembler)
-				: pagedResourcesAssembler.toResource(page, assembler, baseLink);
+		if (baseLink == null) {
+			if (assembler == null) {
+				return pagedResourcesAssembler.toResource(page);
+			}
+			return pagedResourcesAssembler.toResource(page, assembler);
+		}
+		return pagedResourcesAssembler.toResource(page, assembler, baseLink);
 	}
 	
 	protected Resources<?> entitiesToResources(Iterable<Object> entities, PersistentEntityResourceAssembler assembler,

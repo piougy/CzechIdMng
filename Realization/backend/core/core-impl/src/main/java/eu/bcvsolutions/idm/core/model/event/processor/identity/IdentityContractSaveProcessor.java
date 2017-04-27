@@ -10,9 +10,10 @@ import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
+import eu.bcvsolutions.idm.core.model.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 
 /**
@@ -23,22 +24,26 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
  */
 @Component
 @Description("Persists identity contract.")
-public class IdentityContractSaveProcessor extends CoreEventProcessor<IdmIdentityContract> {
+public class IdentityContractSaveProcessor extends CoreEventProcessor<IdmIdentityContractDto> {
 	
 	public static final String PROCESSOR_NAME = "identity-contract-save-processor";
 	private final IdmIdentityContractRepository repository;
+	private final IdmIdentityContractService service;
 	private final IdmIdentityRoleService identityRoleService;
 	
 	@Autowired
 	public IdentityContractSaveProcessor(
 			IdmIdentityContractRepository repository,
+			IdmIdentityContractService service,
 			IdmIdentityRoleService identityRoleService) {
 		super(IdentityContractEventType.UPDATE, IdentityContractEventType.CREATE);
 		//
 		Assert.notNull(repository);
+		Assert.notNull(service);
 		Assert.notNull(identityRoleService);
 		//
 		this.repository = repository;
+		this.service = service;
 		this.identityRoleService = identityRoleService;
 	}
 	
@@ -48,17 +53,18 @@ public class IdentityContractSaveProcessor extends CoreEventProcessor<IdmIdentit
 	}
 
 	@Override
-	public EventResult<IdmIdentityContract> process(EntityEvent<IdmIdentityContract> event) {
-		IdmIdentityContract contract = event.getContent();
+	public EventResult<IdmIdentityContractDto> process(EntityEvent<IdmIdentityContractDto> event) {
+		IdmIdentityContractDto contract = event.getContent();
 		if (contract.isMain()) {
 			this.repository.clearMain(contract.getIdentity(), contract.getId(), new DateTime());
 		}
-		repository.save(contract);
+		contract = service.saveInternal(contract);
+		event.setContent(contract);
 		//
 		if (IdentityContractEventType.UPDATE == event.getType()) {
 			if (contract.isDisabled()) {
 				// remove all referenced roles
-				identityRoleService.getRoles(contract).forEach(identityRole -> {
+				identityRoleService.findAllByContract(contract.getId()).forEach(identityRole -> {
 					identityRoleService.delete(identityRole);
 				});
 			} else {

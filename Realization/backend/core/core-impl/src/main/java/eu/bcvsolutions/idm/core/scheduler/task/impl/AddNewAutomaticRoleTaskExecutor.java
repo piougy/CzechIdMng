@@ -9,8 +9,8 @@ import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Sets;
 
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
-import eu.bcvsolutions.idm.core.model.entity.IdmRoleTreeNode;
+import eu.bcvsolutions.idm.core.model.dto.IdmIdentityContractDto;
+import eu.bcvsolutions.idm.core.model.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
 import eu.bcvsolutions.idm.core.scheduler.service.impl.AbstractLongRunningTaskExecutor;
@@ -21,7 +21,6 @@ import eu.bcvsolutions.idm.core.scheduler.service.impl.AbstractLongRunningTaskEx
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
-
 @Service
 @Description("Add new automatic role from IdmRoleTreeNode.")
 public class AddNewAutomaticRoleTaskExecutor extends AbstractLongRunningTaskExecutor<Boolean> {
@@ -50,13 +49,13 @@ public class AddNewAutomaticRoleTaskExecutor extends AbstractLongRunningTaskExec
 			return Boolean.FALSE;
 		}
 		//
-		IdmRoleTreeNode roleTreeNode = roleTreeNodeService.get(roleTreeNodeId);
+		IdmRoleTreeNodeDto roleTreeNode = roleTreeNodeService.getDto(roleTreeNodeId);
 		if (roleTreeNode == null) {
 			return Boolean.FALSE;
 		}
 		//
 		// TODO: pageable?
-		List<IdmIdentityContract> contracts = identityContractService.getContractsByWorkPosition(roleTreeNode.getTreeNode().getId(), roleTreeNode.getRecursionType());
+		List<IdmIdentityContractDto> contracts = identityContractService.findAllByWorkPosition(roleTreeNode.getTreeNode(), roleTreeNode.getRecursionType());
 		//
 		counter = 0L;
 		count = Long.valueOf(contracts.size());
@@ -64,7 +63,7 @@ public class AddNewAutomaticRoleTaskExecutor extends AbstractLongRunningTaskExec
 		LOG.debug("[AddNewAutomaticRoleTaskExecutor] Add new automatic roles. Count: [{}]", count);
 		//
 		boolean canContinue = true;
-		for (IdmIdentityContract identityContract : contracts) {
+		for (IdmIdentityContractDto identityContract : contracts) {
 			roleTreeNodeService.assignAutomaticRoles(identityContract, Sets.newHashSet(roleTreeNode), true);
 			counter++;
 			canContinue = updateState();

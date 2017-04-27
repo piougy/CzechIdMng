@@ -26,7 +26,7 @@ import eu.bcvsolutions.idm.test.api.AbstractVerifiableUnitTest;
  * @author Radek Tomiška
  *
  */
-public class EntityEvenProcessorUnitTest extends AbstractVerifiableUnitTest {	
+public class EntityEventProcessorUnitTest extends AbstractVerifiableUnitTest {	
 	
 	private static enum CustomType implements EventType {
 		SAVE, CUSTOM

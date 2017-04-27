@@ -26,7 +26,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
-import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
+import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
@@ -58,7 +58,7 @@ public class IdentityContractSecurityTest extends AbstractRestTest {
 		Exception ex = null;
 		int status = 0;
 		try {
-			status = getMockMvc().perform(get(BaseEntityController.BASE_PATH + "/identity-contracts")).andReturn().getResponse().getStatus();
+			status = getMockMvc().perform(get(BaseDtoController.BASE_PATH + "/identity-contracts")).andReturn().getResponse().getStatus();
 		} catch (Exception e) {
 			ex = e;
 		}
@@ -70,7 +70,7 @@ public class IdentityContractSecurityTest extends AbstractRestTest {
 		ex = null;
 		status = 0;
 		try {
-			mvcResult = getMockMvc().perform(get(BaseEntityController.BASE_PATH + "/identity-contracts").with(authentication(getAuthentication()))).andReturn();
+			mvcResult = getMockMvc().perform(get(BaseDtoController.BASE_PATH + "/identity-contracts").with(authentication(getAuthentication()))).andReturn();
 		} catch (Exception e) {
 			ex = e;
 		}
@@ -89,7 +89,7 @@ public class IdentityContractSecurityTest extends AbstractRestTest {
 		IdmIdentity user = identityRepository.findOneByUsername("kopr");
 		
 		Map<String, String> body = new HashMap<>();
-		body.put("identity", "identity/" + user.getUsername());
+		body.put("identity", user.getId().toString());
 		body.put("position", "TEST_POSITION");
 		
         String jsonContent = null;
@@ -102,7 +102,7 @@ public class IdentityContractSecurityTest extends AbstractRestTest {
 		int status = 0;
 		Exception ex = null;
 		try {
-			status = getMockMvc().perform(post(BaseEntityController.BASE_PATH +  "/identity-contracts")
+			status = getMockMvc().perform(post(BaseDtoController.BASE_PATH +  "/identity-contracts")
 					.content(jsonContent)
 					.contentType(MediaType.APPLICATION_JSON))
 					.andReturn()
@@ -118,7 +118,7 @@ public class IdentityContractSecurityTest extends AbstractRestTest {
 		ex = null;
 		status = 0;
 		try {
-			status = getMockMvc().perform(post(BaseEntityController.BASE_PATH + "/identity-contracts").with(authentication(getAuthentication()))
+			status = getMockMvc().perform(post(BaseDtoController.BASE_PATH + "/identity-contracts").with(authentication(getAuthentication()))
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(jsonContent))
 						.andReturn()
@@ -150,7 +150,7 @@ public class IdentityContractSecurityTest extends AbstractRestTest {
 		int status = 0;
 		Exception ex = null;
 		try {
-			status = getMockMvc().perform(delete(BaseEntityController.BASE_PATH + "/identity-contracts/" + positionId).contentType(MediaType.APPLICATION_JSON))
+			status = getMockMvc().perform(delete(BaseDtoController.BASE_PATH + "/identity-contracts/" + positionId).contentType(MediaType.APPLICATION_JSON))
 					.andReturn()
 					.getResponse()
 					.getStatus();
@@ -165,7 +165,7 @@ public class IdentityContractSecurityTest extends AbstractRestTest {
 		ex = null;
 		status = 0;
 		try {
-			status = getMockMvc().perform(delete(BaseEntityController.BASE_PATH + "/identity-contracts/" + positionId).contentType(MediaType.APPLICATION_JSON)
+			status = getMockMvc().perform(delete(BaseDtoController.BASE_PATH + "/identity-contracts/" + positionId).contentType(MediaType.APPLICATION_JSON)
 						.with(authentication(getAuthentication())))
 						.andReturn()
 						.getResponse()

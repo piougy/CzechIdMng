@@ -46,9 +46,31 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
     }
   }
 
+  /**
+   * Returns entity identifier
+   *
+   * @return {string} entity identifier
+   */
+  getEntityId() {
+    const { entityIdentifier, entity } = this.props;
+    //
+    if (entityIdentifier) {
+      return entityIdentifier;
+    }
+    if (entity) {
+      return entity.id;
+    }
+    return null;
+  }
+
+  /**
+   * Returns true, when link to detail could be shown
+   *
+   * @return {bool} Returns true, when link to detail could be shown
+   */
   showLink() {
-    const { showLink, entityIdentifier } = this.props;
-    if (!showLink || !entityIdentifier) {
+    const { showLink } = this.props;
+    if (!showLink || !this.getEntityId()) {
       return false;
     }
     return true;

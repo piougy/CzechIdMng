@@ -20,7 +20,7 @@ import org.mockito.Spy;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
+import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.test.api.AbstractVerifiableUnitTest;
 
@@ -40,35 +40,35 @@ public class IdentityRoleExpirationTaskExecutorTest extends AbstractVerifiableUn
 	
 	@Test
 	public void testTwoPageIterations() {
-		List<IdmIdentityRole> roles = new ArrayList<>();
+		List<IdmIdentityRoleDto> roles = new ArrayList<>();
 		roles.add(getTestRole());
 		roles.add(getTestRole());
 		//
 		when(service.findExpiredRoles(any(LocalDate.class), any(PageRequest.class)))
-			.thenReturn(new PageImpl<IdmIdentityRole>(roles)) // first call
-			.thenReturn(new PageImpl<IdmIdentityRole>(new ArrayList<>())); // second call - empty page
+			.thenReturn(new PageImpl<IdmIdentityRoleDto>(roles)) // first call
+			.thenReturn(new PageImpl<IdmIdentityRoleDto>(new ArrayList<>())); // second call - empty page
 		//
-		doNothing().when(service).delete(any(IdmIdentityRole.class));
+		doNothing().when(service).delete(any(IdmIdentityRoleDto.class));
 		//
 		when(executor.updateState()).thenReturn(true);
 		//
 		Boolean result = executor.process();
 		Assert.assertTrue(result);
 		verify(service, times(2)).findExpiredRoles(any(LocalDate.class), any(PageRequest.class));
-		verify(service, times(2)).delete(any(IdmIdentityRole.class));
+		verify(service, times(2)).delete(any(IdmIdentityRoleDto.class));
 		verify(executor, times(2)).updateState();
 	}
 	
 	@Test
 	public void testBreakOnUpdateStateFail() {
-		List<IdmIdentityRole> roles = new ArrayList<>();
+		List<IdmIdentityRoleDto> roles = new ArrayList<>();
 		roles.add(getTestRole());
 		roles.add(getTestRole());
 		//
 		when(service.findExpiredRoles(any(LocalDate.class), any(PageRequest.class)))
-			.thenReturn(new PageImpl<IdmIdentityRole>(roles)); // first call
+			.thenReturn(new PageImpl<IdmIdentityRoleDto>(roles)); // first call
 		//
-		doNothing().when(service).delete(any(IdmIdentityRole.class));
+		doNothing().when(service).delete(any(IdmIdentityRoleDto.class));
 		//
 		when(executor.updateState())
 			.thenReturn(true) // first call - OK
@@ -77,12 +77,12 @@ public class IdentityRoleExpirationTaskExecutorTest extends AbstractVerifiableUn
 		Boolean result = executor.process();
 		Assert.assertTrue(result);
 		verify(service, times(1)).findExpiredRoles(any(LocalDate.class), any(PageRequest.class));
-		verify(service, times(2)).delete(any(IdmIdentityRole.class));
+		verify(service, times(2)).delete(any(IdmIdentityRoleDto.class));
 		verify(executor, times(2)).updateState();
 	}
 
 
-	private IdmIdentityRole getTestRole() {
-		return new IdmIdentityRole();
+	private IdmIdentityRoleDto getTestRole() {
+		return new IdmIdentityRoleDto();
 	}
 }

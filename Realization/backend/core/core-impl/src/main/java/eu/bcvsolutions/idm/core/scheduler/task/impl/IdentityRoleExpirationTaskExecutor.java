@@ -12,7 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
+import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.scheduler.service.impl.AbstractSchedulableTaskExecutor;
 
@@ -46,14 +46,14 @@ public class IdentityRoleExpirationTaskExecutor extends AbstractSchedulableTaskE
 		boolean hasNextPage = false;
 		try {
 			do {
-				Page<IdmIdentityRole> roles = getPagedRoles(page, pageSize);
+				Page<IdmIdentityRoleDto> roles = getPagedRoles(page, pageSize);
 				hasNextPage = roles.hasContent();
 				if (count == null) {
 					count = roles.getTotalElements();
 				}
 				
-				for (Iterator<IdmIdentityRole> i = roles.iterator(); i.hasNext() && hasNextPage;) {
-					IdmIdentityRole role = i.next();
+				for (Iterator<IdmIdentityRoleDto> i = roles.iterator(); i.hasNext() && hasNextPage;) {
+					IdmIdentityRoleDto role = i.next();
 					service.delete(role);
 					++counter;
 					hasNextPage &= updateState();
@@ -69,7 +69,7 @@ public class IdentityRoleExpirationTaskExecutor extends AbstractSchedulableTaskE
 		return Boolean.TRUE;
 	}
 
-	private Page<IdmIdentityRole> getPagedRoles(int page, int pageSize) {
+	private Page<IdmIdentityRoleDto> getPagedRoles(int page, int pageSize) {
 		return service.findExpiredRoles(expiration, new PageRequest(page, pageSize));
 	}
 

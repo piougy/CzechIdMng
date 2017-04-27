@@ -34,20 +34,29 @@ export class IdentityInfo extends AbstractEntityInfo {
    */
   loadEntityIfNeeded() {
     const { entity, _identity } = this.props;
-    if (this._id() && !entity && !_identity) {
-      const uiKey = identityManager.resolveUiKey(null, this._id());
+    if (this.getEntityId() && !entity && !_identity) {
+      const uiKey = identityManager.resolveUiKey(null, this.getEntityId());
       const error = Utils.Ui.getError(this.context.store.getState(), uiKey);
       if (!Utils.Ui.isShowLoading(this.context.store.getState(), uiKey)
           && (!error || error.statusCode === 401)) { // show loading check has to be here - new state is needed
-        this.context.store.dispatch(identityManager.fetchEntityIfNeeded(this._id(), null, () => {}));
+        this.context.store.dispatch(identityManager.fetchEntityIfNeeded(this.getEntityId(), null, () => {}));
       }
     }
   }
 
-  _id() {
-    const { username, entityIdentifier } = this.props;
-    // id ha higher priority
-    return entityIdentifier || username;
+  getEntityId() {
+    const { username, entityIdentifier, entity } = this.props;
+    // id has higher priority
+    if (entityIdentifier) {
+      return entityIdentifier;
+    }
+    if (username) {
+      return username;
+    }
+    if (entity) {
+      return entity.id;
+    }
+    return null;
   }
 
   showLink() {
@@ -55,6 +64,7 @@ export class IdentityInfo extends AbstractEntityInfo {
     if (!showLink) {
       return false;
     }
+    // todo: authorization policies
     if (!SecurityManager.hasAccess({ 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_READ']})) {
       return false;
     }
@@ -101,7 +111,7 @@ export class IdentityInfo extends AbstractEntityInfo {
                 !this.showLink()
                 ||
                 <div>
-                  <Link to={`/identity/${this._id()}/profile`}>
+                  <Link to={`/identity/${this.getEntityId()}/profile`}>
                     <Basic.Icon value="fa:angle-double-right"/>
                     {' '}
                     {this.i18n('component.advanced.IdentityInfo.profileLink')}
@@ -126,7 +136,7 @@ export class IdentityInfo extends AbstractEntityInfo {
       _identity = entity;
     }
     //
-    if (showLoading || (_showLoading && this._id() && !_identity)) {
+    if (showLoading || (_showLoading && this.getEntityId() && !_identity)) {
       switch (face) {
         case 'text':
         case 'link':
@@ -143,10 +153,10 @@ export class IdentityInfo extends AbstractEntityInfo {
       }
     }
     if (!_identity) {
-      if (!this._id()) {
+      if (!this.getEntityId()) {
         return null;
       }
-      return (<UuidInfo className={className} value={ this._id() } style={style} />);
+      return (<UuidInfo className={className} value={ this.getEntityId() } style={style} />);
     }
     //
     switch (face) {
@@ -158,7 +168,7 @@ export class IdentityInfo extends AbstractEntityInfo {
           );
         }
         return (
-          <Link to={`/identity/${this._id()}/profile`}>{identityManager.getNiceLabel(_identity)}</Link>
+          <Link to={`/identity/${this.getEntityId()}/profile`}>{identityManager.getNiceLabel(_identity)}</Link>
         );
       }
       case 'popover': {

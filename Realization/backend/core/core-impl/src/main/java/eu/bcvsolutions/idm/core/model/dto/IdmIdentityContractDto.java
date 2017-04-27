@@ -2,13 +2,18 @@ package eu.bcvsolutions.idm.core.model.dto;
 
 import java.util.UUID;
 
+import javax.validation.constraints.Size;
+
 import org.joda.time.LocalDate;
 import org.springframework.hateoas.core.Relation;
 
+import eu.bcvsolutions.idm.core.api.domain.Auditable;
+import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.Disableable;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.entity.ValidableEntity;
 
 /**
  * Identity contract - working position
@@ -17,8 +22,8 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
  * @author Radek Tomiška
  */
 @Relation(collectionRelation = "identityContracts")
-public class IdmIdentityContractDto extends AbstractDto implements Disableable {
-
+public class IdmIdentityContractDto extends AbstractDto implements ValidableEntity, Disableable {
+	
 	private static final long serialVersionUID = 8606180830493472930L;
 	
 	@Embedded(dtoClass = IdmIdentityDto.class)
@@ -26,10 +31,20 @@ public class IdmIdentityContractDto extends AbstractDto implements Disableable {
 	private LocalDate validFrom;
 	private LocalDate validTill;
 	private String position;
+	private boolean main = true;
 	private boolean externe;
 	private boolean disabled;
 	@Embedded(dtoClass = IdmTreeNodeDto.class)
 	private UUID workPosition;
+	@Size(max = DefaultFieldLengths.DESCRIPTION)
+	private String description;
+	
+	public IdmIdentityContractDto() {
+	}
+	
+	public IdmIdentityContractDto(Auditable auditable) {
+		super(auditable);
+	}
 	
 	public UUID getIdentity() {
 		return identity;
@@ -39,6 +54,7 @@ public class IdmIdentityContractDto extends AbstractDto implements Disableable {
 		this.identity = identity;
 	}
 
+	@Override
 	public LocalDate getValidFrom() {
 		return validFrom;
 	}
@@ -47,6 +63,7 @@ public class IdmIdentityContractDto extends AbstractDto implements Disableable {
 		this.validFrom = validFrom;
 	}
 
+	@Override
 	public LocalDate getValidTill() {
 		return validTill;
 	}
@@ -63,6 +80,11 @@ public class IdmIdentityContractDto extends AbstractDto implements Disableable {
 		this.position = position;
 	}
 
+	/**
+	 * Externe working position
+	 * 
+	 * @return
+	 */
 	public boolean isExterne() {
 		return externe;
 	}
@@ -87,5 +109,26 @@ public class IdmIdentityContractDto extends AbstractDto implements Disableable {
 	
 	public UUID getWorkPosition() {
 		return workPosition;
+	}
+
+	/**
+	 * main ~= default identity contract
+	 * 
+	 * @return
+	 */
+	public boolean isMain() {
+		return main;
+	}
+
+	public void setMain(boolean main) {
+		this.main = main;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
 	}
 }

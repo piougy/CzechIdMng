@@ -1,8 +1,5 @@
 import FormableEntityManager from './FormableEntityManager';
-import { IdentityContractService, IdentityService } from '../../services';
-
-const service = new IdentityContractService();
-const identityService = new IdentityService();
+import { IdentityContractService } from '../../services';
 
 /**
  * Identity contracts
@@ -13,10 +10,11 @@ export default class IdentityContractManager extends FormableEntityManager {
 
   constructor() {
     super();
+    this.service = new IdentityContractService();
   }
 
   getService() {
-    return service;
+    return this.service;
   }
 
   getEntityType() {
@@ -36,20 +34,5 @@ export default class IdentityContractManager extends FormableEntityManager {
    */
   getNiceLabel(entity, showIdentity = true) {
     return this.getService().getNiceLabel(entity, showIdentity);
-  }
-
-  // TODO: use force filters and search instread? Security on identityContracts endpoint?
-  fetchContracts(username, uiKey = null, cb = null) {
-    uiKey = this.resolveUiKey(uiKey);
-    return (dispatch) => {
-      dispatch(this.requestEntities(null, uiKey));
-      identityService.getContracts(username)
-      .then(json => {
-        dispatch(this.receiveEntities(null, json, uiKey, cb));
-      })
-      .catch(error => {
-        dispatch(this.receiveError({}, uiKey, error, cb));
-      });
-    };
   }
 }

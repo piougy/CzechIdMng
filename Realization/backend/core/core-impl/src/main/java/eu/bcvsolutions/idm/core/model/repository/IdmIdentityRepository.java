@@ -37,7 +37,7 @@ public interface IdmIdentityRepository extends AbstractEntityRepository<IdmIdent
 	 */
 	@Override
 	@Deprecated
-	@Query(value = "select e from IdmIdentity e")
+	@Query(value = "select e from #{#entityName} e")
 	default Page<IdmIdentity> find(IdentityFilter filter, Pageable pageable) {
 		throw new UnsupportedOperationException("Use IdmIdentityService (uses criteria api)");
 	}

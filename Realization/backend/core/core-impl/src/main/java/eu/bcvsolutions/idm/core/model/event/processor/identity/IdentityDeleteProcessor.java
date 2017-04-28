@@ -89,7 +89,7 @@ public class IdentityDeleteProcessor extends CoreEventProcessor<IdmIdentity> {
 	public EventResult<IdmIdentity> process(EntityEvent<IdmIdentity> event) {
 		IdmIdentity identity = event.getContent();
 		// contracts
-		identityContractService.getContracts(identity).forEach(identityContract -> {
+		identityContractService.findAllByIdentity(identity.getId()).forEach(identityContract -> {
 			identityContractService.delete(identityContract);
 		});
 		// contract guaratee - set to null

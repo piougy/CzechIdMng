@@ -16,15 +16,15 @@ import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.InitDemoData;
 import eu.bcvsolutions.idm.InitTestData;
+import eu.bcvsolutions.idm.core.TestHelper;
 import eu.bcvsolutions.idm.core.eav.entity.AbstractFormValue;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.model.dto.IdmContractGuaranteeDto;
+import eu.bcvsolutions.idm.core.model.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.model.dto.filter.ContractGuaranteeFilter;
 import eu.bcvsolutions.idm.core.model.dto.filter.IdentityRoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleGuarantee;
 import eu.bcvsolutions.idm.core.model.entity.eav.IdmIdentityFormValue;
@@ -47,6 +47,8 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  */
 public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegrationTest {
 	
+	@Autowired
+	private TestHelper helper;
 	@Autowired
 	private ApplicationContext context;
 	@Autowired
@@ -105,21 +107,13 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 		role.setGuarantees(Lists.newArrayList(roleGuarantee));
 		roleService.save(role);
 		// contract
-		IdmIdentityContract contract = new IdmIdentityContract();
-		contract.setIdentity(identity);
-		contract.setPosition("test");
-		identityContractService.save(contract);
+		IdmIdentityContractDto contract = helper.createIdentityContact(identity);
 		// contract guarantee
-		IdmIdentityContract contract2 = new IdmIdentityContract();
-		contract2.setIdentity(identityService.getByUsername(InitTestData.TEST_USER_1));
-		contract2.setPosition("test");
-		contract2 = identityContractService.save(contract2);
+		IdmIdentityContractDto contract2 = helper.createIdentityContact(identityService.getByUsername(InitTestData.TEST_USER_1));
+		
 		contractGuaranteeService.save(new IdmContractGuaranteeDto(contract2.getId(), identity.getId()));
 		// assigned role
-		IdmIdentityRole identityRole = new IdmIdentityRole();
-		identityRole.setIdentityContract(contract);
-		identityRole.setRole(role);
-		identityRoleService.save(identityRole);
+		helper.createIdentityRole(contract, role);
 		IdentityRoleFilter identityRolefilter = new IdentityRoleFilter();
 		identityRolefilter.setIdentityId(identity.getId());
 
@@ -128,7 +122,7 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 		assertEquals(1, formService.getValues(identity).size());
 		assertEquals(username, roleGuaranteeRepository.findAllByRole(role).get(0).getGuarantee().getUsername());
 		assertEquals(1, identityRoleService.find(identityRolefilter, null).getTotalElements());
-		assertEquals(2, identityContractService.getContracts(identity).size()); // + default contract is created
+		assertEquals(2, identityContractService.findAllByIdentity(identity.getId()).size()); // + default contract is created
 		ContractGuaranteeFilter filter = new ContractGuaranteeFilter();
 		filter.setIdentityContractId(contract2.getId());
 		List<IdmContractGuaranteeDto> guarantees = contractGuaranteeService.findDto(filter, null).getContent();
@@ -142,7 +136,7 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 		assertEquals(0, formService.getValues(identity).size());
 		assertEquals(0, roleGuaranteeRepository.findAllByRole(role).size());
 		assertEquals(0, identityRoleService.find(identityRolefilter, null).getTotalElements());
-		assertEquals(0, identityContractService.getContracts(identity).size());
+		assertEquals(0, identityContractService.findAllByIdentity(identity.getId()).size());
 		
 		assertEquals(0, contractGuaranteeService.findDto(filter, null).getTotalElements());
 	}
@@ -160,10 +154,10 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 		identity.setLastName("Identity");
 		identity = identityService.save(identity);
 		//
-		List<IdmIdentityContract> contracts = identityContractService.getContracts(identity);
+		List<IdmIdentityContractDto> contracts = identityContractService.findAllByIdentity(identity.getId());
 		assertEquals(1, contracts.size());
 		//
-		IdmIdentityContract defaultContract = identityContractService.prepareDefaultContract(identity);
+		IdmIdentityContractDto defaultContract = identityContractService.prepareDefaultContract(identity.getId());
 		assertEquals(defaultContract.getIdentity(), contracts.get(0).getIdentity());
 		assertEquals(defaultContract.getPosition(), contracts.get(0).getPosition());
 		assertEquals(defaultContract.getWorkPosition(), contracts.get(0).getWorkPosition());

@@ -422,12 +422,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
             property="_embedded.identityContract"
             cell={
               ({rowIndex, data}) => {
-                let contract = null;
-                if (data[rowIndex]._embedded.identityContract) {
-                  contract = data[rowIndex]._embedded.identityContract;
-                } else if (data[rowIndex].identityContract) {
-                  contract = data[rowIndex].identityContract;
-                }
+                const contract = data[rowIndex]._embedded.identityContract;
                 return (
                   <Advanced.IdentityContractInfo entityIdentifier={ contract.id } entity={ contract } showIdentity={ false } face="popover" showLink={ false } />
                 );

@@ -13,8 +13,10 @@ import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
+import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.event.IdentityRoleEvent.IdentityRoleEventType;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 
 /**
@@ -26,24 +28,28 @@ import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 @Component
 @Enabled(AccModuleDescriptor.MODULE_ID)
 @Description("Executes account management and provisioing after identity role is saved.")
-public class IdentityRoleSaveProvisioningProcessor extends AbstractEntityEventProcessor<IdmIdentityRole> {
+public class IdentityRoleSaveProvisioningProcessor extends AbstractEntityEventProcessor<IdmIdentityRoleDto> {
 
 	public static final String PROCESSOR_NAME = "identity-role-save-provisioning-processor";
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdentityRoleSaveProvisioningProcessor.class);
 	private final AccAccountManagementService accountManagementService;
 	private final IdentityProvisioningService provisioningService;
+	private final IdmIdentityContractService identityContractService;
 
 	@Autowired
 	public IdentityRoleSaveProvisioningProcessor(
 			AccAccountManagementService accountManagementService,
-			IdentityProvisioningService provisioningService) {
+			IdentityProvisioningService provisioningService,
+			IdmIdentityContractService identityContractService) {
 		super(IdentityRoleEventType.CREATE, IdentityRoleEventType.UPDATE);
 		//
 		Assert.notNull(accountManagementService);
 		Assert.notNull(provisioningService);
+		Assert.notNull(identityContractService);
 		//
 		this.accountManagementService = accountManagementService;
 		this.provisioningService = provisioningService;
+		this.identityContractService = identityContractService;
 	}
 	
 	@Override
@@ -52,13 +58,15 @@ public class IdentityRoleSaveProvisioningProcessor extends AbstractEntityEventPr
 	}
 
 	@Override
-	public EventResult<IdmIdentityRole> process(EntityEvent<IdmIdentityRole> event) {
+	public EventResult<IdmIdentityRoleDto> process(EntityEvent<IdmIdentityRoleDto> event) {
+		IdmIdentityRoleDto identityRole = event.getContent();
+		IdmIdentityContract identityContract = identityContractService.get(identityRole.getIdentityContract());
 		//
-		LOG.debug("Call account management for identity [{}]", event.getContent().getIdentityContract().getIdentity().getUsername());
-		boolean provisioningRequired = accountManagementService.resolveIdentityAccounts(event.getContent().getIdentityContract().getIdentity());
+		LOG.debug("Call account management for identity [{}]", identityContract.getIdentity().getUsername());
+		boolean provisioningRequired = accountManagementService.resolveIdentityAccounts(identityContract.getIdentity());
 		if (provisioningRequired) {
-			LOG.debug("Call provisioning for identity [{}]", event.getContent().getIdentityContract().getIdentity().getUsername());
-			provisioningService.doProvisioning(event.getContent().getIdentityContract().getIdentity());
+			LOG.debug("Call provisioning for identity [{}]", identityContract.getIdentity().getUsername());
+			provisioningService.doProvisioning(identityContract.getIdentity());
 		}
 		//
 		return new DefaultEventResult<>(event, this);

@@ -8,6 +8,8 @@ import RichTextArea from '../RichTextArea/RichTextArea';
 /**
  * Content of eav form by given form instance (= form definition + form values)
  *
+ * TODO: component for persistent type registration (remove 'switch' clausule)
+ *
  * @author Radek Tomiška
  */
 export default class EavForm extends Basic.AbstractContextComponent {

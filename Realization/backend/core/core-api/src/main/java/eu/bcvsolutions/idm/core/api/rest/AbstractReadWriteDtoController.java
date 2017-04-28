@@ -90,7 +90,7 @@ public abstract class AbstractReadWriteDtoController<DTO extends BaseDto, F exte
 	 */
 	public ResponseEntity<?> patch(String backendId, HttpServletRequest nativeRequest)
 			throws HttpMessageNotReadableException {
-		throw new ResultCodeException(CoreResultCode.NOT_IMPLEMENTED, "patch method");
+		throw new ResultCodeException(CoreResultCode.NOT_IMPLEMENTED, ImmutableMap.of("method", "patch method"));
 	}
 
 	/**

@@ -14,9 +14,9 @@ import com.google.common.collect.Lists;
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.TestHelper;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.model.dto.filter.AuthorizationPolicyFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleGuarantee;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleGuaranteeRepository;
@@ -96,10 +96,7 @@ public class DefaultIdmRoleServiceIntegrationTest extends AbstractIntegrationTes
 		IdmIdentity identity = helper.createIdentity("delete-test");
 		IdmRole role = helper.createRole("test-delete");
 		// assigned role
-		IdmIdentityRole identityRole = new IdmIdentityRole();
-		identityRole.setIdentityContract(identityContractService.getContracts(identity).get(0));
-		identityRole.setRole(role);
-		identityRoleService.save(identityRole);
+		IdmIdentityRoleDto identityRole = helper.createIdentityRole(identity, role);
 		//
 		roleService.delete(role);
 	}

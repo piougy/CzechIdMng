@@ -19,10 +19,10 @@ import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.TestHelper;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.model.dto.IdmAuthorizationPolicyDto;
+import eu.bcvsolutions.idm.core.model.dto.IdmIdentityContractDto;
+import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.model.dto.filter.RoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
@@ -223,7 +223,7 @@ public class DefaultAuthorizationManagerIntegrationTest extends AbstractIntegrat
 			IdmIdentity identity = helper.createIdentity();
 			// assign role
 			helper.createIdentityRole(identity, role);
-			IdmIdentityRole assignedRole = helper.createIdentityRole(identity, role2);
+			IdmIdentityRoleDto assignedRole = helper.createIdentityRole(identity, role2);
 			assignedRole.setValidFrom(new LocalDate().plusDays(1));
 			identityRoleService.save(assignedRole);
 			//
@@ -249,7 +249,7 @@ public class DefaultAuthorizationManagerIntegrationTest extends AbstractIntegrat
 			IdmIdentity identity = helper.createIdentity();
 			// assign role
 			helper.createIdentityRole(identity, role);
-			IdmIdentityContract contract = helper.createIdentityContact(identity);
+			IdmIdentityContractDto contract = helper.createIdentityContact(identity);
 			contract.setDisabled(true);	
 			identityContractService.save(contract);
 			helper.createIdentityRole(contract, role2);
@@ -276,11 +276,11 @@ public class DefaultAuthorizationManagerIntegrationTest extends AbstractIntegrat
 			IdmIdentity identity = helper.createIdentity();
 			// assign role
 			helper.createIdentityRole(identity, role);
-			IdmIdentityContract contract = new IdmIdentityContract();
-			contract.setIdentity(identity);
+			IdmIdentityContractDto contract = new IdmIdentityContractDto();
+			contract.setIdentity(identity.getId());
 			contract.setPosition("position-" + System.currentTimeMillis());
 			contract.setValidFrom(new LocalDate().plusDays(1));
-			identityContractService.save(contract);
+			contract = identityContractService.save(contract);
 			helper.createIdentityRole(contract, role2);
 			//
 			List<IdmAuthorizationPolicyDto> policies = service.getEnabledPolicies(identity.getUsername(), IdmRole.class);

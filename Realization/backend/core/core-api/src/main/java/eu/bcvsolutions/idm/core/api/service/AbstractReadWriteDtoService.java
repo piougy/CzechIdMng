@@ -91,6 +91,14 @@ public abstract class AbstractReadWriteDtoService<DTO extends BaseDto, E extends
 		checkAccess(this.get(dto.getId()), permission);
 		//
 		deleteInternal(dto);
+	}	
+
+	@Override
+	@Transactional
+	public void deleteById(Serializable id, BasePermission... permission) {
+		Assert.notNull(id);
+		//
+		delete(getDto(id), permission);
 	}
 
 	@Override

@@ -8,18 +8,18 @@ import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.model.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.model.dto.IdmContractGuaranteeDto;
+import eu.bcvsolutions.idm.core.model.dto.IdmIdentityContractDto;
+import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.model.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
-import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleTreeNodeRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmContractGuaranteeService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
@@ -57,7 +57,7 @@ public class DefaultTestHelper implements TestHelper {
 	@Autowired
 	private IdmAuthorizationPolicyService authorizationPolicyService;
 	@Autowired
-	private IdmIdentityRoleRepository identityRoleRepository;
+	private IdmIdentityRoleService identityRoleService;
 	
 	@Override
 	public IdmIdentity createIdentity() {
@@ -190,22 +190,22 @@ public class DefaultTestHelper implements TestHelper {
 	}
 	
 	@Override
-	public IdmIdentityRole createIdentityRole(IdmIdentity identity, IdmRole role) {
-		return createIdentityRole(identityContractService.getPrimeContract(identity), role);
+	public IdmIdentityRoleDto createIdentityRole(IdmIdentity identity, IdmRole role) {
+		return createIdentityRole(identityContractService.getPrimeContract(identity.getId()), role);
 	}
 	
 	@Override
-	public IdmIdentityRole createIdentityRole(IdmIdentityContract identityContract, IdmRole role) {
-		IdmIdentityRole identityRole = new IdmIdentityRole();
-		identityRole.setIdentityContract(identityContract);
-		identityRole.setRole(role);
-		return identityRoleRepository.save(identityRole);
+	public IdmIdentityRoleDto createIdentityRole(IdmIdentityContractDto identityContract, IdmRole role) {
+		IdmIdentityRoleDto identityRole = new IdmIdentityRoleDto();
+		identityRole.setIdentityContract(identityContract.getId());
+		identityRole.setRole(role.getId());
+		return identityRoleService.save(identityRole);
 	}
 
 	@Override
-	public IdmIdentityContract createIdentityContact(IdmIdentity identity) {
-		IdmIdentityContract contract = new IdmIdentityContract();
-		contract.setIdentity(identity);
+	public IdmIdentityContractDto createIdentityContact(IdmIdentity identity) {
+		IdmIdentityContractDto contract = new IdmIdentityContractDto();
+		contract.setIdentity(identity.getId());
 		contract.setPosition("position-" + System.currentTimeMillis());
 		return identityContractService.save(contract);
 	}

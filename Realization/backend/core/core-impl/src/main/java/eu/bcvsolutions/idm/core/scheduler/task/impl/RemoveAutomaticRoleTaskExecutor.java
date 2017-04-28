@@ -11,10 +11,10 @@ import org.springframework.stereotype.Service;
 import com.google.common.collect.Sets;
 
 import eu.bcvsolutions.idm.core.model.domain.RoleRequestState;
+import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.model.dto.IdmRoleRequestDto;
+import eu.bcvsolutions.idm.core.model.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.model.dto.filter.ConceptRoleRequestFilter;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
-import eu.bcvsolutions.idm.core.model.entity.IdmRoleTreeNode;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleTreeNodeRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
@@ -59,21 +59,21 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractLongRunningTaskExec
 		}
 		//
 		// TODO: pageable?
-		List<IdmIdentityRole> list = identityRoleService.getRolesByAutomaticRole(roleTreeNodeId, null).getContent();
+		List<IdmIdentityRoleDto> list = identityRoleService.findByAutomaticRole(roleTreeNodeId, null).getContent();
 		//
 		counter = 0L;
 		count = Long.valueOf(list.size());
 		//
 		LOG.debug("[RemoveAutomaticRoleTaskExecutor] Remove automatic roles. Count: [{}]", count);
 		//
-		IdmRoleTreeNode roleTreeNode = roleTreeNodeService.get(roleTreeNodeId);
+		IdmRoleTreeNodeDto roleTreeNode = roleTreeNodeService.getDto(roleTreeNodeId);
 		//
 		if (roleTreeNode == null) {
 			return Boolean.FALSE;
 		}
 		//
 		boolean canContinue = true;
-		for (IdmIdentityRole identityRole : list) {
+		for (IdmIdentityRoleDto identityRole : list) {
 			roleTreeNodeService.removeAutomaticRoles(identityRole, Sets.newHashSet(roleTreeNode), true);
 			counter++;
 			canContinue = updateState();

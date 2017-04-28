@@ -23,10 +23,10 @@ import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.domain.IdmPasswordPolicyType;
 import eu.bcvsolutions.idm.core.model.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.model.dto.IdmContractGuaranteeDto;
-import eu.bcvsolutions.idm.core.model.entity.IdmContractGuarantee;
+import eu.bcvsolutions.idm.core.model.dto.IdmIdentityContractDto;
+import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleComposition;
@@ -213,17 +213,17 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				identity.setEmail("radek.tomiska@bcvsolutions.eu");
 				identity = this.identityService.save(identity);
 				LOG.info(MessageFormat.format("Identity created [id: {0}]", identity.getId()));
-				IdmIdentityContract defaultContract = identityContractService.getContracts(identity).get(0);
+				IdmIdentityContractDto defaultContract = identityContractService.findAllByIdentity(identity.getId()).get(0);
 				//
-				IdmIdentityRole identityRole1 = new IdmIdentityRole();
-				identityRole1.setIdentityContract(defaultContract);
-				identityRole1.setRole(role1);
-				identityRoleService.save(identityRole1);
+				IdmIdentityRoleDto identityRole1 = new IdmIdentityRoleDto();
+				identityRole1.setIdentityContract(defaultContract.getId());
+				identityRole1.setRole(role1.getId());
+				identityRole1 = identityRoleService.save(identityRole1);
 				//
-				IdmIdentityRole identityRole2 = new IdmIdentityRole();
-				identityRole2.setIdentityContract(defaultContract);
-				identityRole2.setRole(role2);
-				identityRoleService.save(identityRole2);
+				IdmIdentityRoleDto identityRole2 = new IdmIdentityRoleDto();
+				identityRole2.setIdentityContract(defaultContract.getId());
+				identityRole2.setRole(role2.getId());
+				identityRole2 = identityRoleService.save(identityRole2);
 				//
 				IdmIdentity identity2 = new IdmIdentity();
 				identity2.setUsername("svanda");
@@ -261,9 +261,9 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				organization2.setTreeType(treeType);
 				this.treeNodeService.save(organization2);
 				//
-				IdmIdentityContract identityWorkPosition = new IdmIdentityContract();
-				identityWorkPosition.setIdentity(identityAdmin);
-				identityWorkPosition.setWorkPosition(organization2);
+				IdmIdentityContractDto identityWorkPosition = new IdmIdentityContractDto();
+				identityWorkPosition.setIdentity(identityAdmin.getId());
+				identityWorkPosition.setWorkPosition(organization2.getId());
 				identityWorkPosition = identityContractService.save(identityWorkPosition);
 				IdmContractGuaranteeDto contractGuarantee = new IdmContractGuaranteeDto();
 				contractGuarantee.setIdentityContract(identityWorkPosition.getId());

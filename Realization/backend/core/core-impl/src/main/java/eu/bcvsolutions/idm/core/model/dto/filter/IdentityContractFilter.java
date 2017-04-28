@@ -46,7 +46,7 @@ public class IdentityContractFilter extends QuickFilter {
 		this.validTill = validTill;
 	}
 
-	public Boolean isExterne() {
+	public Boolean getExterne() {
 		return externe;
 	}
 

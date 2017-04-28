@@ -11,6 +11,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
  *
  */
 public class IdentityRoleFilter extends QuickFilter {
+	
 	private UUID identityId;
 
 	public UUID getIdentityId() {

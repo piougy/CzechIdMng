@@ -13,9 +13,9 @@ import org.springframework.stereotype.Component;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.model.domain.RoleType;
 import eu.bcvsolutions.idm.core.model.dto.IdmAuthorizationPolicyDto;
+import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
@@ -122,10 +122,10 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 				identityAdmin.setLastName("Administrator");
 				identityAdmin = this.identityService.save(identityAdmin);
 				LOG.info(MessageFormat.format("Super admin identity created [id: {0}]", identityAdmin.getId()));
-		
-				IdmIdentityRole identityRole = new IdmIdentityRole();
-				identityRole.setIdentityContract(identityContractService.getContracts(identityAdmin).get(0));
-				identityRole.setRole(existsSuperAdminRole);
+				//
+				IdmIdentityRoleDto identityRole = new IdmIdentityRoleDto();
+				identityRole.setIdentityContract(identityContractService.findAllByIdentity(identityAdmin.getId()).get(0).getId());
+				identityRole.setRole(existsSuperAdminRole.getId());
 				identityRoleService.save(identityRole);
 			}
 			//

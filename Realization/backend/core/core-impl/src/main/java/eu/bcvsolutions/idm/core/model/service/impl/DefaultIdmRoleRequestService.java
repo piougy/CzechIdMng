@@ -37,12 +37,12 @@ import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.model.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.model.dto.IdmIdentityContractDto;
+import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.model.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.model.dto.filter.ConceptRoleRequestFilter;
 import eu.bcvsolutions.idm.core.model.dto.filter.RoleRequestFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmConceptRoleRequest;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleRequest;
 import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent;
 import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent.RoleRequestEventType;
@@ -280,7 +280,7 @@ public class DefaultIdmRoleRequestService
 					ImmutableMap.of("request", request, "applicant", identity.getUsername()));
 		}
 
-		List<IdmIdentityRole> identityRolesToSave = new ArrayList<>();
+		List<IdmIdentityRoleDto> identityRolesToSave = new ArrayList<>();
 		List<IdmConceptRoleRequestDto> conceptsToSave = new ArrayList<>();
 
 		// Create new identity role
@@ -291,12 +291,12 @@ public class DefaultIdmRoleRequestService
 			// Concepts in concept state will be executed too (for situation, when will be approval event disabled)
 			return RoleRequestState.APPROVED == concept.getState() || RoleRequestState.CONCEPT == concept.getState();
 		}).forEach(concept -> {
-			IdmIdentityRole identityRole = new IdmIdentityRole();
+			IdmIdentityRoleDto identityRole = new IdmIdentityRoleDto();
 			identityRolesToSave.add(
 					convertConceptRoleToIdentityRole(conceptRoleRequestService.get(concept.getId()), identityRole));
 			concept.setState(RoleRequestState.EXECUTED);
-			String message = MessageFormat.format("IdentityRole [{0}] was added to applicant. Requested in concept [{1}].",
-					identityRole.getRole().getName(), concept.getId());
+			String message = MessageFormat.format("Role [{0}] was added to applicant. Requested in concept [{1}].",
+					identityRole.getRole(), concept.getId());
 			conceptRoleRequestService.addToLog(concept, message);
 			conceptRoleRequestService.addToLog(request, message);
 			conceptsToSave.add(concept);
@@ -310,12 +310,12 @@ public class DefaultIdmRoleRequestService
 			// Concepts in concept state will be executed too (for situation, when will be approval event disabled)
 			return RoleRequestState.APPROVED == concept.getState() || RoleRequestState.CONCEPT == concept.getState();
 		}).forEach(concept -> {
-			IdmIdentityRole identityRole = identityRoleService.get(concept.getIdentityRole());
+			IdmIdentityRoleDto identityRole = identityRoleService.getDto(concept.getIdentityRole());
 			identityRolesToSave.add(
 					convertConceptRoleToIdentityRole(conceptRoleRequestService.get(concept.getId()), identityRole));
 			concept.setState(RoleRequestState.EXECUTED);
-			String message = MessageFormat.format("IdentityRole [{0}] was changed. Requested in concept [{1}].",
-					identityRole.getRole().getName(), concept.getId());
+			String message = MessageFormat.format("Role [{0}] was changed. Requested in concept [{1}].",
+					identityRole.getRole(), concept.getId());
 			conceptRoleRequestService.addToLog(concept, message);
 			conceptRoleRequestService.addToLog(request, message);
 			conceptsToSave.add(concept);
@@ -329,7 +329,7 @@ public class DefaultIdmRoleRequestService
 			// Concepts in concept state will be executed too (for situation, when will be approval event disabled)
 			return RoleRequestState.APPROVED == concept.getState() || RoleRequestState.CONCEPT == concept.getState();
 		}).forEach(concept -> {
-			IdmIdentityRole identityRole = identityRoleService.get(concept.getIdentityRole());
+			IdmIdentityRoleDto identityRole = identityRoleService.getDto(concept.getIdentityRole());
 			if (identityRole != null) {
 				concept.setState(RoleRequestState.EXECUTED);
 				concept.setIdentityRole(null); // we have to remove relation on
@@ -502,18 +502,18 @@ public class DefaultIdmRoleRequestService
 		}
 	}
 
-	private IdmIdentityRole convertConceptRoleToIdentityRole(IdmConceptRoleRequest conceptRole,
-			IdmIdentityRole identityRole) {
+	private IdmIdentityRoleDto convertConceptRoleToIdentityRole(IdmConceptRoleRequest conceptRole,
+			IdmIdentityRoleDto identityRole) {
 		if (conceptRole == null || identityRole == null) {
 			return null;
 		}
-		identityRole.setRole(conceptRole.getRole());
-		identityRole.setIdentityContract(conceptRole.getIdentityContract());
+		identityRole.setRole(conceptRole.getRole() == null ? null : conceptRole.getRole().getId());
+		identityRole.setIdentityContract(conceptRole.getIdentityContract() == null ? null : conceptRole.getIdentityContract().getId());
 		identityRole.setValidFrom(conceptRole.getValidFrom());
 		identityRole.setValidTill(conceptRole.getValidTill());
 		identityRole.setOriginalCreator(conceptRole.getOriginalCreator());
 		identityRole.setOriginalModifier(conceptRole.getOriginalModifier());
-		identityRole.setRoleTreeNode(conceptRole.getRoleTreeNode());
+		identityRole.setRoleTreeNode(conceptRole.getRoleTreeNode() == null ? null : conceptRole.getRoleTreeNode().getId());
 		//
 		// if exists role tree node, set automatic role
 		if (conceptRole.getRoleTreeNode() != null) {

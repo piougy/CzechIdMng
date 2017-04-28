@@ -5,7 +5,7 @@ import java.util.Map;
 
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.EventType;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
+import eu.bcvsolutions.idm.core.model.dto.IdmIdentityContractDto;
 
 /**
  * Events for identity contract
@@ -13,7 +13,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
  * @author Radek Tomiška
  *
  */
-public class IdentityContractEvent extends CoreEvent<IdmIdentityContract> {
+public class IdentityContractEvent extends CoreEvent<IdmIdentityContractDto> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -25,11 +25,11 @@ public class IdentityContractEvent extends CoreEvent<IdmIdentityContract> {
 		CREATE, UPDATE, DELETE
 	}
 	
-	public IdentityContractEvent(IdentityContractEventType operation, IdmIdentityContract content) {
+	public IdentityContractEvent(IdentityContractEventType operation, IdmIdentityContractDto content) {
 		super(operation, content);
 	}
 	
-	public IdentityContractEvent(IdentityContractEventType operation, IdmIdentityContract content, Map<String, Serializable> properties) {
+	public IdentityContractEvent(IdentityContractEventType operation, IdmIdentityContractDto content, Map<String, Serializable> properties) {
 		super(operation, content, properties);
 	}
 

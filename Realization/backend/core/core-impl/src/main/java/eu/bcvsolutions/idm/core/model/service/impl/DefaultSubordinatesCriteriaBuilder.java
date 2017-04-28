@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
@@ -15,6 +16,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.core.model.entity.IdmContractGuarantee;
 import eu.bcvsolutions.idm.core.model.entity.IdmContractGuarantee_;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
@@ -32,6 +34,7 @@ import eu.bcvsolutions.idm.core.model.service.api.SubordinatesCriteriaBuilder;
  * TODO: search subordinates and manager recursively by forest index on tree structures
  * TODO: better api
  * TODO: username -> UUID!
+ * TODO: managers validity
  * 
  * @author Radek Tomiška
  *
@@ -58,7 +61,17 @@ public class DefaultSubordinatesCriteriaBuilder implements SubordinatesCriteriaB
 		List<Predicate> subPredicates = new ArrayList<>();
 		if (byTreeType == null) {
 			// manager as guarantee
-			subPredicates.add(builder.equal(subRoot.join(IdmIdentityContract_.guarantees).get(IdmContractGuarantee_.guarantee).get(IdmIdentity_.username), subordinatesFor));
+			Subquery<IdmIdentityContract> subqueryGuarantees = query.subquery(IdmIdentityContract.class);
+			Root<IdmContractGuarantee> subRootGuarantees = subqueryGuarantees.from(IdmContractGuarantee.class);
+			subqueryGuarantees.select(subRootGuarantees.get(IdmContractGuarantee_.identityContract));
+			//
+			subqueryGuarantees.where(
+	                builder.and(
+	                		builder.equal(subRootGuarantees.get(IdmContractGuarantee_.identityContract), subRoot), // correlation attr
+	                		builder.equal(subRootGuarantees.get(IdmContractGuarantee_.guarantee).get(IdmIdentity_.username), subordinatesFor)
+	                		)
+	        );
+			subPredicates.add(builder.exists(subqueryGuarantees));
 		}
 		//  manager from tree structure - only direct subordinate are supported now			
 		Subquery<IdmTreeNode> subqueryWp = query.subquery(IdmTreeNode.class);
@@ -75,11 +88,11 @@ public class DefaultSubordinatesCriteriaBuilder implements SubordinatesCriteriaB
 					builder.equal(subqueryWpRoot.get(IdmIdentityContract_.workPosition).get(IdmTreeNode_.treeType), byTreeType)
 					));
 		}			
-		subPredicates.add(subRoot.get("workPosition").get("parent").in(subqueryWp));			
+		subPredicates.add(subRoot.get(IdmIdentityContract_.workPosition).get(IdmTreeNode_.parent).in(subqueryWp));			
 		// 
 		subquery.where(
                 builder.and(
-                		builder.equal(subRoot.get("identity"), root), // correlation attr
+                		builder.equal(subRoot.get(IdmIdentityContract_.identity), root), // correlation attr
                 		builder.or(subPredicates.toArray(new Predicate[subPredicates.size()]))
                 		)
         );
@@ -101,7 +114,7 @@ public class DefaultSubordinatesCriteriaBuilder implements SubordinatesCriteriaB
 			// manager as guarantee			
 			subPredicates.add(
                     builder.and(
-                    		builder.equal(subRoot.join(IdmIdentityContract_.guarantees).get(IdmContractGuarantee_.guarantee), root), // correlation attr
+                    		builder.equal(subRoot.join(IdmIdentityContract_.guarantees, JoinType.LEFT).get(IdmContractGuarantee_.guarantee), root), // correlation attr
                     		builder.equal(subRoot.get(IdmIdentityContract_.identity).get(IdmIdentity_.username), managersFor)
                     		)	           
 					);

@@ -42,14 +42,14 @@ import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.eav.rest.impl.IdmFormDefinitionController;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
+import eu.bcvsolutions.idm.core.model.dto.IdmIdentityContractDto;
+import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.model.dto.WorkPositionDto;
 import eu.bcvsolutions.idm.core.model.dto.filter.IdentityFilter;
 import eu.bcvsolutions.idm.core.model.dto.filter.IdentityRoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmAudit;
 import eu.bcvsolutions.idm.core.model.entity.IdmForestIndexEntity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
@@ -57,6 +57,7 @@ import eu.bcvsolutions.idm.core.model.entity.eav.IdmIdentityFormValue;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuditService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.service.GrantedAuthoritiesFactory;
 
@@ -74,7 +75,8 @@ public class IdmIdentityController extends AbstractReadWriteEntityController<Idm
 	private final IdmIdentityContractService identityContractService;
 	private final IdmIdentityRoleService identityRoleService;
 	private final IdmAuditService auditService; 	
-	private final ForestContentService<IdmTreeNode, IdmForestIndexEntity, UUID> treeNodeService;
+	private final IdmTreeNodeService treeNodeService;
+	private final ForestContentService<IdmTreeNode, IdmForestIndexEntity, UUID> treeNodeIndexService;
 	//
 	private final IdmFormDefinitionController formDefinitionController;
 	
@@ -86,7 +88,8 @@ public class IdmIdentityController extends AbstractReadWriteEntityController<Idm
 			IdmIdentityContractService identityContractService,
 			IdmIdentityRoleService identityRoleService,
 			IdmAuditService auditService,
-			ForestContentService<IdmTreeNode, IdmForestIndexEntity, UUID> treeNodeService) {
+			ForestContentService<IdmTreeNode, IdmForestIndexEntity, UUID> treeNodeIndexService,
+			IdmTreeNodeService treeNodeService) {
 		super(entityLookupService);
 		//
 		Assert.notNull(formDefinitionController);
@@ -94,6 +97,7 @@ public class IdmIdentityController extends AbstractReadWriteEntityController<Idm
 		Assert.notNull(identityContractService);
 		Assert.notNull(identityRoleService);
 		Assert.notNull(auditService);
+		Assert.notNull(treeNodeIndexService);
 		Assert.notNull(treeNodeService);
 		//
 		this.formDefinitionController = formDefinitionController;
@@ -101,6 +105,7 @@ public class IdmIdentityController extends AbstractReadWriteEntityController<Idm
 		this.identityContractService = identityContractService;
 		this.identityRoleService = identityRoleService;
 		this.auditService = auditService;
+		this.treeNodeIndexService = treeNodeIndexService;
 		this.treeNodeService = treeNodeService;
 	}
 	
@@ -205,24 +210,12 @@ public class IdmIdentityController extends AbstractReadWriteEntityController<Idm
 		}
 		//
 		checkAccess(identity, IdmBasePermission.READ);
-		// TODO: pageable support 
+		//
 		IdentityRoleFilter filter = new IdentityRoleFilter();
-		filter.setIdentityId(identity.getId());
-		return toResources((Iterable<?>) identityRoleService.find(filter, null), assembler, IdmIdentityRole.class, null);
-	}
-	
-	@ResponseBody
-	@RequestMapping(value = "/{identityId}/identity-contracts", method = RequestMethod.GET)
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_READ + "')")
-	public Resources<?> workPositions(@PathVariable String identityId, PersistentEntityResourceAssembler assembler) {	
-		IdmIdentity identity = getEntity(identityId);
-		if (identity == null) {
-			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", identityId));
-		}	
+		filter.setIdentityId(identity.getId());		
+		Page<IdmIdentityRoleDto> identityRoles = identityRoleService.findDto(filter, null);
 		//
-		checkAccess(identity, IdmBasePermission.READ);
-		//
-		return toResources((Iterable<?>) identityContractService.getContracts(identity), assembler, IdmIdentityContract.class, null);
+		return entitiesToResources((Page)identityRoles, null, IdmIdentityRoleDto.class, null);
 	}
 	
 	/**
@@ -243,15 +236,17 @@ public class IdmIdentityController extends AbstractReadWriteEntityController<Idm
 		//
 		checkAccess(identity, IdmBasePermission.READ);
 		//
-		IdmIdentityContract primeContract = identityContractService.getPrimeContract(identity);
+		IdmIdentityContractDto primeContract = identityContractService.getPrimeContract(identity.getId());
 		if (primeContract == null) {
 			return new ResponseEntity<Object>(HttpStatus.NO_CONTENT);
 		}
 		WorkPositionDto position = new WorkPositionDto(identity, primeContract);
 		if (primeContract.getWorkPosition() != null) {
 			List<IdmTreeNode> positions = new ArrayList<>();
-			positions = treeNodeService.findAllParents(primeContract.getWorkPosition(), new Sort(Direction.ASC, "forestIndex.lft"));
-			positions.add(primeContract.getWorkPosition());
+			// TODO: tree node service to dtos
+			IdmTreeNode contractPosition = treeNodeService.get(primeContract.getWorkPosition());
+			positions = treeNodeIndexService.findAllParents(contractPosition, new Sort(Direction.ASC, "forestIndex.lft"));
+			positions.add(contractPosition);
 			positions.forEach(treeNode -> {
 				// TODO: use DTOs!
 				treeNode.setTreeType(null);

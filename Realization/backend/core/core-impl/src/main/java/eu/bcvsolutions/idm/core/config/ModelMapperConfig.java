@@ -20,7 +20,7 @@ import org.springframework.core.annotation.Order;
 
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
-import eu.bcvsolutions.idm.core.config.domain.EntityToUiidConverter;
+import eu.bcvsolutions.idm.core.config.domain.EntityToUuidConverter;
 import eu.bcvsolutions.idm.core.config.domain.UuidToEntityConverter;
 
 
@@ -45,7 +45,7 @@ public class ModelMapperConfig {
 		ModelMapper modeler = new ModelMapper();
 
 		// Convert BaseEntity to UIID (get ID)
-		Converter<? extends BaseEntity, UUID> entityToUiid = new EntityToUiidConverter(modeler);
+		Converter<? extends BaseEntity, UUID> entityToUiid = new EntityToUuidConverter(modeler);
 		
 		// Convert UIID to Entity
 		Converter<UUID, ? extends BaseEntity> uiidToEntity = new UuidToEntityConverter(applicationContext);

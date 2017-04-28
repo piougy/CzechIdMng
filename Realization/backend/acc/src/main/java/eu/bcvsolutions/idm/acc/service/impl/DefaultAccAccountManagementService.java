@@ -38,6 +38,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
+import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
@@ -90,7 +91,7 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 		filter.setIdentityId(identity.getId());
 		List<AccIdentityAccount> identityAccountList = identityAccountService.find(filter, null).getContent();
 
-		List<IdmIdentityRole> identityRoles = identityRoleRepository.findAllByIdentityContract_Identity(identity, null);
+		List<IdmIdentityRole> identityRoles = identityRoleRepository.findAllByIdentityContract_Identity_Id(identity.getId(), null);
 
 		boolean provisioningRequired = false;
 
@@ -298,7 +299,7 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 	}
 
 	@Override
-	public void deleteIdentityAccount(IdmIdentityRole entity) {
+	public void deleteIdentityAccount(IdmIdentityRoleDto entity) {
 		IdentityAccountFilter filter = new IdentityAccountFilter();
 		filter.setIdentityRoleId(entity.getId());
 		Page<AccIdentityAccount> identityAccounts = identityAccountService.find(filter, null);

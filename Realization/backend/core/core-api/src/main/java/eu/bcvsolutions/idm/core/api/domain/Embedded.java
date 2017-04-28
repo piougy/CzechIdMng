@@ -22,7 +22,8 @@ import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 public @interface Embedded {
 
 	/**
-	 * If true, then will be add object as embedded entity to DTO
+	 * If true, then will be add object as embedded entity to DTO. 
+	 * Identifier (UUID) will be setted only.
 	 * 
 	 * @return
 	 */

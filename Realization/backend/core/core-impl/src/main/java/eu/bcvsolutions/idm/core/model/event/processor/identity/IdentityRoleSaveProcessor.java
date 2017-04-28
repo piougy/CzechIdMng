@@ -9,9 +9,10 @@ import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
+import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
+import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.model.event.IdentityRoleEvent.IdentityRoleEventType;
-import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleValidRequestService;
 
 /**
@@ -22,22 +23,22 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleValidRequestSer
  */
 @Component
 @Description("Persists identity role.")
-public class IdentityRoleSaveProcessor extends CoreEventProcessor<IdmIdentityRole> {
+public class IdentityRoleSaveProcessor extends CoreEventProcessor<IdmIdentityRoleDto> {
 
 	public static final String PROCESSOR_NAME = "identity-role-save-processor";
-	private final IdmIdentityRoleRepository repository;
+	private final IdmIdentityRoleService service;
 	private final IdmIdentityRoleValidRequestService validRequestService;
 	
 	@Autowired
 	public IdentityRoleSaveProcessor(
-			IdmIdentityRoleRepository repository,
+			IdmIdentityRoleService service,
 			IdmIdentityRoleValidRequestService validRequestService) {
 		super(IdentityRoleEventType.CREATE, IdentityRoleEventType.UPDATE);
 		//
-		Assert.notNull(repository);
+		Assert.notNull(service);
 		Assert.notNull(validRequestService);
 		//
-		this.repository = repository;
+		this.service = service;
 		this.validRequestService = validRequestService;
 	}
 	
@@ -47,12 +48,13 @@ public class IdentityRoleSaveProcessor extends CoreEventProcessor<IdmIdentityRol
 	}
 
 	@Override
-	public EventResult<IdmIdentityRole> process(EntityEvent<IdmIdentityRole> event) {
-		IdmIdentityRole identityRole = event.getContent();
-		repository.save(identityRole);
+	public EventResult<IdmIdentityRoleDto> process(EntityEvent<IdmIdentityRoleDto> event) {
+		IdmIdentityRoleDto identityRole = event.getContent();
+		identityRole = service.saveInternal(identityRole);
+		event.setContent(identityRole);
 		//
 		// if identityRole isn't valid save request into validRequests
-		if (!identityRole.isValid()) {
+		if (!EntityUtils.isValid(identityRole)) {
 			// create new IdmIdentityRoleValidRequest
 			validRequestService.createByIdentityRoleId(identityRole.getId());
 		}

@@ -8,7 +8,7 @@ import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
+import eu.bcvsolutions.idm.core.model.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
 
@@ -22,7 +22,7 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
  */
 @Component
 @Description("Automatic roles recount while enabled identity cotract is created.")
-public class IdentityContractCreateByAutomaticRoleProcessor extends CoreEventProcessor<IdmIdentityContract> {
+public class IdentityContractCreateByAutomaticRoleProcessor extends CoreEventProcessor<IdmIdentityContractDto> {
 	
 	public static final String PROCESSOR_NAME = "identity-contract-create-by-automatic-role-processor";
 	@Autowired
@@ -38,11 +38,11 @@ public class IdentityContractCreateByAutomaticRoleProcessor extends CoreEventPro
 	}
 
 	@Override
-	public EventResult<IdmIdentityContract> process(EntityEvent<IdmIdentityContract> event) {
-		IdmIdentityContract contract = event.getContent();
+	public EventResult<IdmIdentityContractDto> process(EntityEvent<IdmIdentityContractDto> event) {
+		IdmIdentityContractDto contract = event.getContent();
 		
 		if(!contract.isDisabled() && contract.getWorkPosition() != null) {
-			roleTreeNodeService.assignAutomaticRoles(contract, roleTreeNodeService.getAutomaticRoles(contract.getWorkPosition()), true);
+			roleTreeNodeService.assignAutomaticRoles(contract, roleTreeNodeService.getAutomaticRolesByTreeNode(contract.getWorkPosition()), true);
 		}
 		//
 		// TODO: clone content - mutable previous event content :/

@@ -12,14 +12,14 @@ import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.model.domain.RoleRequestState;
+import eu.bcvsolutions.idm.core.model.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.model.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.model.dto.filter.ConceptRoleRequestFilter;
 import eu.bcvsolutions.idm.core.model.dto.filter.ContractGuaranteeFilter;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
-import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmContractGuaranteeService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleRequestService;
 
@@ -31,10 +31,10 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmRoleRequestService;
  */
 @Component
 @Description("Deletes identity contract.")
-public class IdentityContractDeleteProcessor extends CoreEventProcessor<IdmIdentityContract> {
+public class IdentityContractDeleteProcessor extends CoreEventProcessor<IdmIdentityContractDto> {
 
 	public static final String PROCESSOR_NAME = "identity-contract-delete-processor";
-	private final IdmIdentityContractRepository repository;
+	private final IdmIdentityContractService service;
 	private final IdmIdentityRoleService identityRoleService;
 	private final IdmConceptRoleRequestService conceptRequestService;
 	private final IdmRoleRequestService roleRequestService;
@@ -42,20 +42,20 @@ public class IdentityContractDeleteProcessor extends CoreEventProcessor<IdmIdent
 	
 	@Autowired
 	public IdentityContractDeleteProcessor(
-			IdmIdentityContractRepository repository,
+			IdmIdentityContractService service,
 			IdmIdentityRoleService identityRoleService,
 			IdmConceptRoleRequestService conceptRequestService,
 			IdmRoleRequestService roleRequestService,
 			IdmContractGuaranteeService contractGuaranteeService) {
 		super(IdentityContractEventType.DELETE);
 		//
-		Assert.notNull(repository);
+		Assert.notNull(service);
 		Assert.notNull(identityRoleService);
 		Assert.notNull(conceptRequestService);
 		Assert.notNull(roleRequestService);
 		Assert.notNull(contractGuaranteeService);
 		//
-		this.repository = repository;
+		this.service = service;
 		this.identityRoleService = identityRoleService;
 		this.conceptRequestService = conceptRequestService;
 		this.roleRequestService = roleRequestService;
@@ -68,11 +68,11 @@ public class IdentityContractDeleteProcessor extends CoreEventProcessor<IdmIdent
 	}
 	
 	@Override
-	public EventResult<IdmIdentityContract> process(EntityEvent<IdmIdentityContract> event) {
-		IdmIdentityContract contract = event.getContent();
+	public EventResult<IdmIdentityContractDto> process(EntityEvent<IdmIdentityContractDto> event) {
+		IdmIdentityContractDto contract = event.getContent();
 		//
 		// delete referenced roles
-		identityRoleService.getRoles(contract).forEach(identityRole -> {
+		identityRoleService.findAllByContract(contract.getId()).forEach(identityRole -> {
 			identityRoleService.delete(identityRole);
 		});
 		
@@ -106,7 +106,7 @@ public class IdentityContractDeleteProcessor extends CoreEventProcessor<IdmIdent
 			contractGuaranteeService.delete(guarantee);
 		});
 		// delete identity contract
-		repository.delete(contract);
+		service.deleteInternal(contract);
 		//
 		return new DefaultEventResult<>(event, this);
 	}

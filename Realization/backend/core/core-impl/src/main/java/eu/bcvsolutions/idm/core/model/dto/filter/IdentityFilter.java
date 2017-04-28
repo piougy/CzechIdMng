@@ -4,7 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+
+import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
@@ -16,28 +19,29 @@ import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
  * @author Radek Tomiška
  *
  */
-public class IdentityFilter extends QuickFilter implements CorrelationFilter {
+public class IdentityFilter extends DataFilter implements CorrelationFilter {
 	
 	/**
 	 * Subordinates for given identity
 	 */
-	private IdmIdentity subordinatesFor;
+	public static final String PARAMETER_SUBORDINATES_FOR = "subordinatesFor";
 	/**
 	 * Subordinates by given tree structure
 	 */
-	private IdmTreeType subordinatesByTreeType;
+	public static final String PARAMETER_SUBORDINATES_BY_TREE_TYPE = "subordinatesByTreeType";
 	/**
 	 * Managers for given identity
 	 */
-	private IdmIdentity managersFor;
+	public static final String PARAMETER_MANAGERS_FOR = "managersFor";
 	/**
 	 * Managers by given tree structure
 	 */
-	private IdmTreeType managersByTreeType;
+	public static final String PARAMETER_MANAGERS_BY_TREE_TYPE = "managersByTreeType";
 	/**
-	 * Managers by given tree node
+	 * Returns managers by identity's contract working prosition 
 	 */
-	private IdmTreeNode managersByTreeNode;
+	public static final String PARAMETER_MANAGERS_BY_CONTRACT_ID = "managersByContractId";
+	
 	/**
 	 * roles - OR
 	 */
@@ -60,52 +64,56 @@ public class IdentityFilter extends QuickFilter implements CorrelationFilter {
 	 */
 	private UUID treeTypeId;
 	/**
-	 * Returns managers by identity's contract working prosition 
-	 */
-	private UUID managersByContractId;
-	/**
 	 * managersByContractId with contract guarantees
 	 */
 	private boolean includeGuarantees;
+	
+	public IdentityFilter() {
+		super(new LinkedMultiValueMap<>());
+	}
+	
+	public IdentityFilter(MultiValueMap<String, Object> data) {
+		super(data);
+	}
 
 	public IdmIdentity getSubordinatesFor() {
-		return subordinatesFor;
+		return (IdmIdentity) data.getFirst(PARAMETER_SUBORDINATES_FOR);
 	}
 
 	public void setSubordinatesFor(IdmIdentity subordinatesFor) {
-		this.subordinatesFor = subordinatesFor;
+		data.set(PARAMETER_SUBORDINATES_FOR, subordinatesFor);
 	}
 
 	public IdmTreeType getSubordinatesByTreeType() {
-		return subordinatesByTreeType;
+		return (IdmTreeType) data.getFirst(PARAMETER_SUBORDINATES_BY_TREE_TYPE);
 	}
 
 	public void setSubordinatesByTreeType(IdmTreeType subordinatesByTreeType) {
-		this.subordinatesByTreeType = subordinatesByTreeType;
+		data.set(PARAMETER_SUBORDINATES_BY_TREE_TYPE, subordinatesByTreeType);
 	}
 	
 	public void setManagersFor(IdmIdentity managersFor) {
-		this.managersFor = managersFor;
+		data.set(PARAMETER_MANAGERS_FOR, managersFor);
 	}
 	
 	public IdmIdentity getManagersFor() {
-		return managersFor;
+		return (IdmIdentity) data.getFirst(PARAMETER_MANAGERS_FOR);
 	}
 	
 	public void setManagersByTreeType(IdmTreeType managersByTreeType) {
-		this.managersByTreeType = managersByTreeType;
+		data.set(PARAMETER_MANAGERS_BY_TREE_TYPE, managersByTreeType);
 	}
 	
 	public IdmTreeType getManagersByTreeType() {
-		return managersByTreeType;
+		return (IdmTreeType) data.getFirst(PARAMETER_MANAGERS_BY_TREE_TYPE);
 	}
 	
-	public void setManagersByTreeNode(IdmTreeNode managersByTreeNode) {
-		this.managersByTreeNode = managersByTreeNode;
+	public UUID getManagersByContractId() {
+		return (UUID) data.getFirst(PARAMETER_MANAGERS_BY_CONTRACT_ID);
 	}
 	
-	public IdmTreeNode getManagersByTreeNode() {
-		return managersByTreeNode;
+	public void setManagersByContractId(UUID managersByContractId) {
+		data.set(PARAMETER_MANAGERS_BY_CONTRACT_ID, managersByContractId);
 	}
 	
 	public void setRoles(List<IdmRole> roles) {
@@ -161,14 +169,6 @@ public class IdentityFilter extends QuickFilter implements CorrelationFilter {
 	
 	public void setRecursively(boolean recursively) {
 		this.recursively = recursively;
-	}
-	
-	public UUID getManagersByContractId() {
-		return managersByContractId;
-	}
-	
-	public void setManagersByContractId(UUID managersByContractId) {
-		this.managersByContractId = managersByContractId;
 	}
 	
 	public boolean isIncludeGuarantees() {

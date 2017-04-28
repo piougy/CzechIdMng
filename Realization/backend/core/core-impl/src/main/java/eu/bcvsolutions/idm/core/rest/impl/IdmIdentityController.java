@@ -355,18 +355,17 @@ public class IdmIdentityController extends AbstractReadWriteEntityController<Idm
 	
 	@Override
 	protected IdentityFilter toFilter(MultiValueMap<String, Object> parameters) {
-		IdentityFilter filter = new IdentityFilter();
+		IdentityFilter filter = new IdentityFilter(parameters);
 		filter.setId(getParameterConverter().toUuid(parameters, "id"));
 		filter.setText(getParameterConverter().toString(parameters, "text"));
-		filter.setSubordinatesFor(getParameterConverter().toEntity(parameters, "subordinatesFor", IdmIdentity.class));
-		filter.setSubordinatesByTreeType(getParameterConverter().toEntity(parameters, "subordinatesByTreeType", IdmTreeType.class));
-		filter.setManagersFor(getParameterConverter().toEntity(parameters, "managersFor", IdmIdentity.class));
-		filter.setManagersByTreeType(getParameterConverter().toEntity(parameters, "managersByTreeType", IdmTreeType.class));
-		filter.setManagersByTreeNode(getParameterConverter().toEntity(parameters, "managersByTreeNode", IdmTreeNode.class));
+		filter.setSubordinatesFor(getParameterConverter().toEntity(parameters, IdentityFilter.PARAMETER_SUBORDINATES_FOR, IdmIdentity.class));
+		filter.setSubordinatesByTreeType(getParameterConverter().toEntity(parameters, IdentityFilter.PARAMETER_SUBORDINATES_BY_TREE_TYPE, IdmTreeType.class));
+		filter.setManagersFor(getParameterConverter().toEntity(parameters, IdentityFilter.PARAMETER_MANAGERS_FOR, IdmIdentity.class));
+		filter.setManagersByTreeType(getParameterConverter().toEntity(parameters, IdentityFilter.PARAMETER_MANAGERS_BY_TREE_TYPE, IdmTreeType.class));
 		filter.setTreeNode(getParameterConverter().toEntity(parameters, "treeNodeId", IdmTreeNode.class));
 		filter.setRecursively(getParameterConverter().toBoolean(parameters, "recursively", true));
 		filter.setTreeTypeId(getParameterConverter().toUuid(parameters, "treeTypeId"));
-		filter.setManagersByContractId(getParameterConverter().toUuid(parameters, "managersByContractId"));
+		filter.setManagersByContractId(getParameterConverter().toUuid(parameters, IdentityFilter.PARAMETER_MANAGERS_BY_CONTRACT_ID));
 		filter.setIncludeGuarantees(getParameterConverter().toBoolean(parameters, "includeGuarantees", false));
 		// TODO: or / and in multivalues? OR is supported now
 		if (parameters.containsKey("role")) {

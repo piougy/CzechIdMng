@@ -18,7 +18,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
@@ -31,8 +30,6 @@ import eu.bcvsolutions.idm.core.eav.service.impl.AbstractFormableService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.model.dto.filter.IdentityFilter;
-import eu.bcvsolutions.idm.core.model.entity.IdmContractGuarantee;
-import eu.bcvsolutions.idm.core.model.entity.IdmContractGuarantee_;
 import eu.bcvsolutions.idm.core.model.entity.IdmForestIndexEntity_;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
@@ -43,7 +40,6 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleGuarantee;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole_;
-import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode_;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType_;
@@ -54,8 +50,10 @@ import eu.bcvsolutions.idm.core.model.event.processor.identity.IdentityPasswordP
 import eu.bcvsolutions.idm.core.model.event.processor.identity.IdentitySaveProcessor;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
+import eu.bcvsolutions.idm.core.model.repository.filter.ManagersByContractFilter;
+import eu.bcvsolutions.idm.core.model.repository.filter.ManagersFilter;
+import eu.bcvsolutions.idm.core.model.repository.filter.SubordinatesFilter;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
-import eu.bcvsolutions.idm.core.model.service.api.SubordinatesCriteriaBuilder;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
@@ -66,7 +64,6 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
  * @author Radek Tomiška
  *
  */
-@Service("identityService")
 public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdentity, IdentityFilter> implements IdmIdentityService {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmIdentityService.class);
@@ -74,7 +71,9 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 	private final IdmIdentityRepository repository;
 	private final IdmRoleRepository roleRepository;
 	private final EntityEventManager entityEventManager;
-	private final SubordinatesCriteriaBuilder subordinatesCriteriaBuilder;
+	private final SubordinatesFilter subordinatesFilter;
+	private final ManagersFilter managersFilter;
+	private final ManagersByContractFilter managersByContractFilter;
 	
 	@Autowired
 	public DefaultIdmIdentityService(
@@ -82,17 +81,23 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 			FormService formService,
 			IdmRoleRepository roleRepository,
 			EntityEventManager entityEventManager,
-			SubordinatesCriteriaBuilder subordinatesCriteriaBuilder) {
+			SubordinatesFilter subordinatesFilter,
+			ManagersFilter managersFilter,
+			ManagersByContractFilter managersByContractFilter) {
 		super(repository, formService);
 		//
 		Assert.notNull(roleRepository);
 		Assert.notNull(entityEventManager);
-		Assert.notNull(subordinatesCriteriaBuilder);
+		Assert.notNull(subordinatesFilter);
+		Assert.notNull(managersFilter);
+		Assert.notNull(managersByContractFilter);
 		//
 		this.repository = repository;
 		this.roleRepository = roleRepository;
 		this.entityEventManager = entityEventManager;
-		this.subordinatesCriteriaBuilder = subordinatesCriteriaBuilder;
+		this.subordinatesFilter = subordinatesFilter;
+		this.managersFilter = managersFilter;
+		this.managersByContractFilter = managersByContractFilter;
 	}
 	
 	@Override
@@ -185,60 +190,6 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 					builder.like(builder.lower(root.get(IdmIdentity_.description)), "%" + filter.getText().toLowerCase() + "%")					
 					));
 		}
-		// managers by tree node (working position)
-		if (filter.getManagersByTreeNode() != null) {
-			Subquery<IdmIdentityContract> subquery = query.subquery(IdmIdentityContract.class);
-			Root<IdmIdentityContract> subRoot = subquery.from(IdmIdentityContract.class);
-			subquery.select(subRoot);
-			//
-			Subquery<IdmTreeNode> subqueryWp = query.subquery(IdmTreeNode.class);
-			Root<IdmIdentityContract> subqueryWpRoot = subqueryWp.from(IdmIdentityContract.class);
-			subqueryWp.select(subqueryWpRoot.get(IdmIdentityContract_.workPosition).get(IdmTreeNode_.parent));
-			subqueryWp.where(builder.and(
-					builder.equal(subqueryWpRoot.get(IdmIdentityContract_.workPosition), filter.getManagersByTreeNode())
-					));
-			//
-			subquery.where(
-                    builder.and(
-                    		builder.equal(subRoot.get(IdmIdentityContract_.identity), root), // correlation attr
-                    		subRoot.get(IdmIdentityContract_.workPosition).in(subqueryWp)
-                    		)
-            );			
-			predicates.add(builder.exists(subquery));
-		}
-		// managers by identity contract working position
-		if (filter.getManagersByContractId() != null) {
-			Subquery<IdmIdentityContract> subquery = query.subquery(IdmIdentityContract.class);
-			Root<IdmIdentityContract> subRoot = subquery.from(IdmIdentityContract.class);
-			subquery.select(subRoot);
-			// by tree structure
-			Subquery<IdmTreeNode> subqueryWp = query.subquery(IdmTreeNode.class);
-			Root<IdmIdentityContract> subqueryWpRoot = subqueryWp.from(IdmIdentityContract.class);
-			subqueryWp.select(subqueryWpRoot.get(IdmIdentityContract_.workPosition).get(IdmTreeNode_.parent));
-			subqueryWp.where(builder.equal(subqueryWpRoot.get(IdmIdentityContract_.id), filter.getManagersByContractId()));
-			//
-			subquery.where(
-                    builder.and(
-                    		builder.equal(subRoot.get(IdmIdentityContract_.identity), root), // correlation attr
-                    		subRoot.get(IdmIdentityContract_.workPosition).in(subqueryWp))
-            );
-			if (!filter.isIncludeGuarantees()) {
-				predicates.add(builder.exists(subquery));
-			} else {
-				// by identity contract guarantees
-				Subquery<IdmIdentity> subqueryGuarantee = query.subquery(IdmIdentity.class);
-				Root<IdmIdentityContract> subqueryGuaranteeRoot = subqueryGuarantee.from(IdmIdentityContract.class);
-				subqueryGuarantee.select(subqueryGuaranteeRoot.join(IdmIdentityContract_.guarantees).get(IdmContractGuarantee_.guarantee));
-				subqueryGuarantee.where(builder.and(
-						builder.equal(subqueryGuaranteeRoot.get(IdmIdentityContract_.id), filter.getManagersByContractId())
-						));
-				
-				predicates.add(builder.or(
-						builder.exists(subquery),
-						root.in(subqueryGuarantee)
-						));
-			}
-		}
 		// identity with any of given role (OR)
 		List<IdmRole> roles = filter.getRoles();
 		if (!roles.isEmpty()) {
@@ -311,11 +262,15 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 		//
 		// subordinates
 		if (filter.getSubordinatesFor() != null) {
-			predicates.add(subordinatesCriteriaBuilder.getSubordinatesPredicate(root, query, builder, filter.getSubordinatesFor().getUsername(), filter.getSubordinatesByTreeType()));
+			predicates.add(subordinatesFilter.getPredicate(root, query, builder, filter));
 		}
 		// managers
 		if (filter.getManagersFor() != null) {
-			predicates.add(subordinatesCriteriaBuilder.getManagersPredicate(root, query, builder, filter.getManagersFor().getUsername(), filter.getManagersByTreeType()));
+			predicates.add(managersFilter.getPredicate(root, query, builder, filter));
+		}
+		// managers by identity contract working position
+		if (filter.getManagersByContractId() != null) {
+			predicates.add(managersByContractFilter.getPredicate(root, query, builder, filter));
 		}
 		//
 		return builder.and(predicates.toArray(new Predicate[predicates.size()]));

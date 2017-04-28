@@ -37,12 +37,19 @@ import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleTreeNodeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeTypeRepository;
+import eu.bcvsolutions.idm.core.model.repository.filter.DefaultManagersByContractFilter;
+import eu.bcvsolutions.idm.core.model.repository.filter.DefaultManagersFilter;
+import eu.bcvsolutions.idm.core.model.repository.filter.DefaultSubordinatesFilter;
+import eu.bcvsolutions.idm.core.model.repository.filter.ManagersByContractFilter;
+import eu.bcvsolutions.idm.core.model.repository.filter.ManagersFilter;
+import eu.bcvsolutions.idm.core.model.repository.filter.SubordinatesFilter;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmContractGuaranteeService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
@@ -53,10 +60,10 @@ import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmConfidentialStorage
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmContractGuaranteeService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmIdentityRoleService;
+import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmRoleService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmRoleTreeNodeService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultModuleService;
-import eu.bcvsolutions.idm.core.model.service.impl.DefaultSubordinatesCriteriaBuilder;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.scheduler.repository.IdmLongRunningTaskRepository;
 import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskService;
@@ -231,7 +238,6 @@ public class IdmServiceConfiguration {
 		return new DefaultFormService(formDefinitionService(), formAttributeService(), formValueServices, entityEventManager());
 	}
 	
-	
 	/**
 	 * Role service
 	 * 
@@ -281,8 +287,42 @@ public class IdmServiceConfiguration {
 	 * @return
 	 */
 	@Bean
-	public DefaultSubordinatesCriteriaBuilder subordinatesCriteriaBuilder() {
-		return new DefaultSubordinatesCriteriaBuilder(identityRepository);
+	public SubordinatesFilter subordinatesFilter() {
+		return new DefaultSubordinatesFilter(identityRepository);
+	}
+	
+	/**
+	 * Managers criteria builder.
+	 * 
+	 * Override in custom module for changing managers evaluation.
+	 * 
+	 * @return
+	 */
+	@Bean
+	public ManagersFilter managersFilter() {
+		return new DefaultManagersFilter(identityRepository);
+	}
+	
+	/**
+	 * Managers criteria builder (by contract id).
+	 * 
+	 * Override in custom module for changing managers evaluation.
+	 * 
+	 * @return
+	 */
+	@Bean
+	public ManagersByContractFilter managersByContractFilter() {
+		return new DefaultManagersByContractFilter(identityRepository);
+	}
+	
+	/**
+	 * Identity service
+	 * 
+	 * @return
+	 */
+	@Bean
+	public IdmIdentityService identityService() {
+		return new DefaultIdmIdentityService(identityRepository, formService(), roleRepository, entityEventManager(), subordinatesFilter(), managersFilter(), managersByContractFilter());
 	}
 	
 	/**

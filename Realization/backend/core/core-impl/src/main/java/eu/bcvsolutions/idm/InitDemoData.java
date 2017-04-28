@@ -186,6 +186,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				selfPolicy.setPermissions(IdmBasePermission.READ);
 				selfPolicy.setRole(role1.getId());
 				selfPolicy.setGroupPermission(CoreGroupPermission.IDENTITY.getName());
+				selfPolicy.setAuthorizableType(IdmIdentity.class.getCanonicalName());
 				selfPolicy.setEvaluator(SelfIdentityEvaluator.class);
 				authorizationPolicyService.save(selfPolicy);
 				//

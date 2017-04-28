@@ -17,7 +17,7 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.ReconciliationMissingAccountActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationEventType;
-import eu.bcvsolutions.idm.acc.domain.SynchronizationItemWrapper;
+import eu.bcvsolutions.idm.acc.domain.SynchronizationItemBuilder;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationLinkedActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationMissingEntityActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationUnlinkedActionType;
@@ -234,7 +234,7 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 	
 	@Override
 	@Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
-	public boolean doItemSynchronization(SynchronizationItemWrapper wrapper) {
+	public boolean doItemSynchronization(SynchronizationItemBuilder wrapper) {
 		Assert.notNull(wrapper);
 		return getSyncExecutor(wrapper.getEntityType()).doItemSynchronization(wrapper);
 	}

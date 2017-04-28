@@ -25,7 +25,7 @@ import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
 import eu.bcvsolutions.idm.acc.domain.OperationResultType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationActionType;
-import eu.bcvsolutions.idm.acc.domain.SynchronizationItemWrapper;
+import eu.bcvsolutions.idm.acc.domain.SynchronizationItemBuilder;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.AccTreeAccountDto;
 import eu.bcvsolutions.idm.acc.dto.EntityAccountDto;
@@ -46,7 +46,6 @@ import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccTreeAccountService;
-import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.SynchronizationExecutor;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncActionLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
@@ -155,7 +154,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 		SystemEntityType entityType = mapping.getEntityType();
 		SystemAttributeMappingFilter attributeHandlingFilter = new SystemAttributeMappingFilter();
 		attributeHandlingFilter.setSystemMappingId(mapping.getId());
-		List<SysSystemAttributeMapping> mappedAttributes = attributeHandlingService.find(attributeHandlingFilter, null)
+		List<SysSystemAttributeMapping> mappedAttributes = systemAttributeMappingService.find(attributeHandlingFilter, null)
 				.getContent();
 
 		// Find connector identification persisted in system
@@ -195,93 +194,99 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 		try {
 			synchronizationLogService.save(log);
 			List<SysSyncActionLog> actionsLog = new ArrayList<>();
+			
+			boolean export = false;
 
-			log.addToLog("Synchronization will use custom filter (not synchronization implemented in connector).");
-			AttributeMapping tokenAttribute = config.getTokenAttribute();
-			if (tokenAttribute == null && !config.isReconciliation()) {
-				throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_TOKEN_ATTRIBUTE_NOT_FOUND);
-			}
+			if (export) {
+				// Start exporting entities to resource
+				log.addToLog("Exporting entities to resource started...");
+				this.startExport(entityType, config, mappedAttributes, log, actionsLog);
+			} else {
 
-			TreeResultsHandler resultHandler = new TreeResultsHandler(accountsMap);
-
-			IcFilter filter = null; // We have to search all data for tree
-			log.addToLog(MessageFormat.format("Start search with filter {0}.", filter != null ? filter : "NONE"));
-			synchronizationLogService.save(log);
-
-			connectorFacade.search(system.getConnectorInstance(), connectorConfig, objectClass, filter, resultHandler);
-
-			SysSystemAttributeMapping uidAttribute = getUidAttribute(mappedAttributes);
-			if (uidAttribute == null) {
-				throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_ATTRIBUTE_NOT_FOUND,
-						ImmutableMap.of("name", "UID"));
-			}
-			SysSystemAttributeMapping parentAttribute = getAttributeByIdmProperty(PARENT_FIELD, mappedAttributes);
-			if (parentAttribute == null) {
-				throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_ATTRIBUTE_NOT_FOUND,
-						ImmutableMap.of("name", PARENT_FIELD));
-			}
-			SysSystemAttributeMapping codeAttribute = getAttributeByIdmProperty(CODE_FIELD, mappedAttributes);
-			if (codeAttribute == null) {
-				throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_ATTRIBUTE_NOT_FOUND,
-						ImmutableMap.of("name", CODE_FIELD));
-			}
-
-			List<String> roots = new ArrayList<>();
-			accountsMap.forEach((uid, account) -> {
-				Object parentValue = this.getValueByMappedAttribute(parentAttribute, account.getAttributes());
-				if (StringUtils.hasLength(config.getRootsFilterScript())) {
-					Map<String, Object> variables = new HashMap<>();
-					variables.put("account", account);
-
-					List<Class<?>> allowTypes = new ArrayList<>();
-					allowTypes.add(IcAttributeImpl.class);
-					allowTypes.add(IcAttribute.class);
-					allowTypes.add(IcLoginAttributeImpl.class);
-					Object isRoot = groovyScriptService.evaluate(config.getRootsFilterScript(), variables, allowTypes);
-					if (isRoot != null && !(isRoot instanceof Boolean)) {
-						throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_TREE_ROOT_FILTER_VALUE_WRONG_TYPE,
-								ImmutableMap.of("type", isRoot.getClass().getName()));
-					}
-					if((Boolean)isRoot){
-						roots.add(uid);
-					}
-				}else {
-					if (parentValue == null) {
-						roots.add(uid);
-					}
+				AttributeMapping tokenAttribute = config.getTokenAttribute();
+				if (tokenAttribute == null && !config.isReconciliation()) {
+					throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_TOKEN_ATTRIBUTE_NOT_FOUND);
 				}
-			});
 
-			if (roots.isEmpty()) {
-				log.addToLog("No roots to synchronization found!");
-			}else {
-				log.addToLog(MessageFormat.format("We found [{0}] roots: [{1}]", roots.size(), roots));
-			}
+				TreeResultsHandler resultHandler = new TreeResultsHandler(accountsMap);
 
-			roots.forEach(root -> {
-				accountsUseInTreeList.add(root);
-				IcConnectorObject parentIcObject = accountsMap.get(root);
-				boolean result = handleIcObject(root, parentIcObject, tokenAttribute, config, system, entityType, log,
-						mappedAttributes, actionsLog);
-				if (!result) {
-					return;
+				IcFilter filter = null; // We have to search all data for tree
+				log.addToLog(MessageFormat.format("Start search with filter {0}.", filter != null ? filter : "NONE"));
+				synchronizationLogService.save(log);
+
+				connectorFacade.search(system.getConnectorInstance(), connectorConfig, objectClass, filter,
+						resultHandler);
+
+				SysSystemAttributeMapping uidAttribute = systemAttributeMappingService.getUidAttribute(mappedAttributes,
+						system);
+				SysSystemAttributeMapping parentAttribute = getAttributeByIdmProperty(PARENT_FIELD, mappedAttributes);
+				if (parentAttribute == null) {
+					throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_ATTRIBUTE_NOT_FOUND,
+							ImmutableMap.of("name", PARENT_FIELD));
 				}
-				Object uidValueParent = this.getValueByMappedAttribute(uidAttribute, parentIcObject.getAttributes());
-				SynchronizationItemWrapper wrapper = new SynchronizationItemWrapper();
-				wrapper.setConfig(config);
-				wrapper.setSystem(system);
-				wrapper.setEntityType(entityType);
-				wrapper.setMappedAttributes(mappedAttributes);
-				wrapper.setLog(log);
-				wrapper.setActionLogs(actionsLog);
+				SysSystemAttributeMapping codeAttribute = getAttributeByIdmProperty(CODE_FIELD, mappedAttributes);
+				if (codeAttribute == null) {
+					throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_ATTRIBUTE_NOT_FOUND,
+							ImmutableMap.of("name", CODE_FIELD));
+				}
 
-				processChildren(parentAttribute, uidValueParent, uidAttribute, tokenAttribute, accountsMap,
-						accountsUseInTreeList, wrapper);
-			});
+				List<String> roots = new ArrayList<>();
+				accountsMap.forEach((uid, account) -> {
+					Object parentValue = this.getValueByMappedAttribute(parentAttribute, account.getAttributes());
+					if (StringUtils.hasLength(config.getRootsFilterScript())) {
+						Map<String, Object> variables = new HashMap<>();
+						variables.put("account", account);
 
-			// We do reconciliation (find missing account)
-			if (config.isReconciliation()) {
-				startReconciliation(entityType, accountsUseInTreeList, config, system, log, actionsLog);
+						List<Class<?>> allowTypes = new ArrayList<>();
+						allowTypes.add(IcAttributeImpl.class);
+						allowTypes.add(IcAttribute.class);
+						allowTypes.add(IcLoginAttributeImpl.class);
+						Object isRoot = groovyScriptService.evaluate(config.getRootsFilterScript(), variables,
+								allowTypes);
+						if (isRoot != null && !(isRoot instanceof Boolean)) {
+							throw new ProvisioningException(
+									AccResultCode.SYNCHRONIZATION_TREE_ROOT_FILTER_VALUE_WRONG_TYPE,
+									ImmutableMap.of("type", isRoot.getClass().getName()));
+						}
+						if ((Boolean) isRoot) {
+							roots.add(uid);
+						}
+					} else {
+						if (parentValue == null) {
+							roots.add(uid);
+						}
+					}
+				});
+
+				if (roots.isEmpty()) {
+					log.addToLog("No roots to synchronization found!");
+				} else {
+					log.addToLog(MessageFormat.format("We found [{0}] roots: [{1}]", roots.size(), roots));
+				}
+
+				roots.forEach(root -> {
+					accountsUseInTreeList.add(root);
+					IcConnectorObject parentIcObject = accountsMap.get(root);
+					boolean result = handleIcObject(root, parentIcObject, tokenAttribute, config, system, entityType,
+							log, mappedAttributes, actionsLog);
+					if (!result) {
+						return;
+					}
+					Object uidValueParent = this.getValueByMappedAttribute(uidAttribute,
+							parentIcObject.getAttributes());
+					SynchronizationItemBuilder builder = new SynchronizationItemBuilder();
+
+					builder.addConfig(config).addSystem(system).addEntityType(entityType)
+							.addMappedAttributes(mappedAttributes).addLog(log).addActionLogs(actionsLog);
+
+					processChildren(parentAttribute, uidValueParent, uidAttribute, tokenAttribute, accountsMap,
+							accountsUseInTreeList, builder);
+				});
+
+				if (config.isReconciliation()) {
+					// We do reconciliation (find missing account)
+					startReconciliation(entityType, accountsUseInTreeList, config, system, log, actionsLog);
+				}
 			}
 			//
 			log.addToLog(MessageFormat.format("Synchronization was correctly ended in {0}.", LocalDateTime.now()));
@@ -316,7 +321,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 	private void processChildren(SysSystemAttributeMapping parentAttribute, Object uidValueParent,
 			SysSystemAttributeMapping uidAttribute, AttributeMapping tokenAttribute,
 			Map<String, IcConnectorObject> accountsMap, List<String> accountsUseInTreeList,
-			SynchronizationItemWrapper wrapper) {
+			SynchronizationItemBuilder wrapper) {
 
 		accountsMap.forEach((uid, account) -> {
 			Object parentValue = this.getValueByMappedAttribute(parentAttribute, account.getAttributes());
@@ -349,7 +354,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 	 */
 	protected void doUpdateAccount(AccAccount account, SystemEntityType entityType, SysSyncLog log,
 			SysSyncItemLog logItem, List<SysSyncActionLog> actionLogs) {
-		UUID entityId = getEntityByAccount(account);
+		UUID entityId = getEntityByAccount(account.getId());
 		IdmTreeNode treeNode = null;
 		if (entityId != null) {
 			treeNode = treeNodeService.get(entityId);
@@ -435,7 +440,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 	protected void doUpdateEntity(AccAccount account, SystemEntityType entityType, String uid,
 			List<IcAttribute> icAttributes, List<SysSystemAttributeMapping> mappedAttributes, SysSyncLog log,
 			SysSyncItemLog logItem, List<SysSyncActionLog> actionLogs) {
-		UUID entityId = getEntityByAccount(account);
+		UUID entityId = getEntityByAccount(account.getId());
 		IdmTreeNode treeNode = null;
 		if (entityId != null) {
 			treeNode = treeNodeService.get(entityId);
@@ -511,7 +516,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 	 */
 	protected void doDeleteEntity(AccAccount account, SystemEntityType entityType, SysSyncLog log,
 			SysSyncItemLog logItem, List<SysSyncActionLog> actionLogs) {
-		UUID entityId = getEntityByAccount(account);
+		UUID entityId = getEntityByAccount(account.getId());
 		IdmTreeNode treeNode = null;
 		if (entityId != null) {
 			treeNode = treeNodeService.get(entityId);
@@ -527,6 +532,52 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 		// Delete entity (recursively)
 		deleteChildrenRecursively(treeNode, logItem);
 	}
+	
+	/**
+	 * Start export entities to target resource
+	 * @param entityType
+	 * @param config
+	 * @param mappedAttributes
+	 * @param log
+	 * @param actionsLog
+	 */
+	@Override
+	protected void startExport(SystemEntityType entityType, SysSyncConfig config,
+			List<SysSystemAttributeMapping> mappedAttributes, SysSyncLog log, List<SysSyncActionLog> actionsLog) {
+
+		SysSystem system = config.getSystemMapping().getSystem();
+		SysSystemAttributeMapping uidAttribute = systemAttributeMappingService.getUidAttribute(mappedAttributes,
+				system);
+
+		List<IdmTreeNode> roots = treeNodeService.findRoots(config.getSystemMapping().getTreeType().getId(), null).getContent();
+		roots.stream().forEach(root -> {
+			SynchronizationItemBuilder itemBuilder = new SynchronizationItemBuilder();
+			itemBuilder.addConfig(config) //
+					.addSystem(system) //
+					.addEntityType(entityType) //
+					.addLog(log) //
+					.addActionLogs(actionsLog);
+			// Start export for this entity
+			exportChildrenRecursively(root, itemBuilder, uidAttribute);
+		});
+	}
+	
+	private void exportChildrenRecursively(IdmTreeNode treeNode, SynchronizationItemBuilder itemBuilder, SysSystemAttributeMapping uidAttribute){
+		SysSyncItemLog logItem = itemBuilder.getLogItem();
+		
+		List<IdmTreeNode> children = treeNodeService.findChildrenByParent(treeNode.getId(), null).getContent();
+		if (children.isEmpty()) {
+			this.exportEntity(itemBuilder, uidAttribute, treeNode);
+		} else {
+			addToItemLog(logItem,
+					MessageFormat.format("Tree node [{0}] has children [count={1}].",
+							treeNode.getName(), children.size()));
+			this.exportEntity(itemBuilder, uidAttribute, treeNode);
+			children.forEach(child -> {
+				exportChildrenRecursively(child, itemBuilder, uidAttribute);
+			});
+		}
+	}
 
 	private void deleteChildrenRecursively(IdmTreeNode treeNode, SysSyncItemLog logItem) {
 		List<IdmTreeNode> children = treeNodeService.findChildrenByParent(treeNode.getId(), null).getContent();
@@ -535,7 +586,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 			addToItemLog(logItem, MessageFormat.format("Tree node [{0}] was deleted.", treeNode.getName()));
 		} else {
 			addToItemLog(logItem,
-					MessageFormat.format("Tree node [{0}] has children [count={1}]. We have to delete it first.",
+					MessageFormat.format("Tree node [{0}] has children [count={1}]. We have to delete them first.",
 							treeNode.getName(), children.size()));
 			children.forEach(child -> {
 				deleteChildrenRecursively(child, logItem);
@@ -698,5 +749,10 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 			return true;
 
 		}
+	}
+
+	@Override
+	protected List<IdmTreeNode> findAllEntity() {
+		return treeNodeService.find(null).getContent();
 	};
 }

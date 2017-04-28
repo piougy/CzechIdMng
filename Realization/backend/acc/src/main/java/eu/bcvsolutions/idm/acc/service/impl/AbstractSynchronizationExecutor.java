@@ -35,7 +35,7 @@ import eu.bcvsolutions.idm.acc.domain.OperationResultType;
 import eu.bcvsolutions.idm.acc.domain.ReconciliationMissingAccountActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationEventType;
-import eu.bcvsolutions.idm.acc.domain.SynchronizationItemWrapper;
+import eu.bcvsolutions.idm.acc.domain.SynchronizationItemBuilder;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationLinkedActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationMissingEntityActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationSituationType;
@@ -59,7 +59,6 @@ import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
-import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.SynchronizationExecutor;
 import eu.bcvsolutions.idm.acc.service.api.SynchronizationService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncActionLogService;
@@ -122,7 +121,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 	private final WorkflowProcessInstanceService workflowProcessInstanceService;
 	protected final IcConnectorFacade connectorFacade;
 	protected final SysSystemService systemService;
-	protected final SysSystemAttributeMappingService attributeHandlingService;
+	protected final SysSystemAttributeMappingService systemAttributeMappingService;
 	protected final SysSyncConfigService synchronizationConfigService;
 	protected final SysSyncLogService synchronizationLogService;
 	protected final SysSyncItemLogService syncItemLogService;
@@ -164,7 +163,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 		//
 		this.connectorFacade = connectorFacade;
 		this.systemService = systemService;
-		this.attributeHandlingService = attributeHandlingService;
+		this.systemAttributeMappingService = attributeHandlingService;
 		this.synchronizationConfigService = synchronizationConfigService;
 		this.synchronizationLogService = synchronizationLogService;
 		this.accountService = accountService;
@@ -217,7 +216,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 		SystemEntityType entityType = mapping.getEntityType();
 		SystemAttributeMappingFilter attributeHandlingFilter = new SystemAttributeMappingFilter();
 		attributeHandlingFilter.setSystemMappingId(mapping.getId());
-		List<SysSystemAttributeMapping> mappedAttributes = attributeHandlingService.find(attributeHandlingFilter, null)
+		List<SysSystemAttributeMapping> mappedAttributes = systemAttributeMappingService.find(attributeHandlingFilter, null)
 				.getContent();
 
 		// Find connector identification persisted in system
@@ -251,17 +250,20 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 		// List of all accounts keys (used in reconciliation)
 		List<String> systemAccountsList = new ArrayList<>();
 
-		// List of all accounts with full IC object (used in tree sync)
-		Map<String, Object> systemAccountsMap = new HashMap<>();
-		boolean loadAllData = false;
+		boolean export = false;
 
 		longRunningTaskExecutor.setCounter(0L);
 
 		try {
 			synchronizationLogService.save(log);
 			List<SysSyncActionLog> actionsLog = new ArrayList<>();
-
-			if (config.isCustomFilter() || config.isReconciliation()) {
+			
+			if(export){
+				// Start exporting entities to resource
+				log.addToLog("Exporting entities to resource started...");
+				this.startExport(entityType, config, mappedAttributes, log, actionsLog);
+				
+			}else if (config.isCustomFilter() || config.isReconciliation()) {
 
 				log.addToLog("Synchronization will use custom filter (not synchronization implemented in connector).");
 				AttributeMapping tokenAttribute = config.getTokenAttribute();
@@ -276,11 +278,6 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 						Assert.notNull(connectorObject);
 						Assert.notNull(connectorObject.getUidValue());
 						String uid = connectorObject.getUidValue();
-
-						if (loadAllData) {
-							systemAccountsMap.put(uid, connectorObject);
-							return true;
-						}
 
 						if (config.isReconciliation()) {
 							systemAccountsList.add(uid);
@@ -370,7 +367,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 	}
 
 	@Override
-	public boolean doItemSynchronization(SynchronizationItemWrapper wrapper) {
+	public boolean doItemSynchronization(SynchronizationItemBuilder wrapper) {
 		Assert.notNull(wrapper);
 
 		String uid = wrapper.getUid();
@@ -487,6 +484,10 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 					this.resolveMissingAccountSituation(account.getRealUid(), account, entityType,
 							config.getMissingAccountAction(), system, log, logItem, actionLogs);
 				}
+			} else if (wrapper.isExportAction()) {
+				// Export situation - create account to system
+				this.resolveUnlinkedSituation(uid, wrapper.getEntityId(), entityType, systemEntity,
+						SynchronizationUnlinkedActionType.LINK_AND_UPDATE_ACCOUNT, system, log, logItem, actionLogs);
 			}
 			// Call hard hibernate session flush and clear
 			if (getHibernateSession().isOpen()) {
@@ -604,12 +605,21 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 
 			// Do synchronization for one item (produces item)
 			// Start in new Transaction
-			SynchronizationItemWrapper itemWrapper = new SynchronizationItemWrapper(uid, icObject, type, config, system,
-					entityType, mappedAttributes, null, log, itemLog, actionsLog);
-
+			SynchronizationItemBuilder builder = new SynchronizationItemBuilder();
+			builder.addUid(uid)
+			.addIcObject(icObject)
+			.addType(type)
+			.addConfig(config)
+			.addSystem(system)
+			.addEntityType(entityType)
+			.addMappedAttributes(mappedAttributes)
+			.addLog(log)
+			.addLogItem(itemLog)
+			.addActionLogs(actionsLog);
+			
 			CoreEvent<SysSyncItemLog> event = new CoreEvent<SysSyncItemLog>(SynchronizationEventType.START_ITEM,
 					itemLog);
-			event.getProperties().put(SynchronizationService.WRAPPER_SYNC_ITEM, itemWrapper);
+			event.getProperties().put(SynchronizationService.WRAPPER_SYNC_ITEM, builder);
 			EventResult<SysSyncItemLog> lastResult = entityEventManager.process(event).getLastResult();
 			boolean result = false;
 			if (lastResult != null
@@ -658,6 +668,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 			SysSystem system, SysSyncLog log, List<SysSyncActionLog> actionsLog) {
 		AccountFilter accountFilter = new AccountFilter();
 		accountFilter.setSystemId(system.getId());
+		
 		List<AccAccount> accounts = accountService.find(accountFilter, null).getContent();
 
 		for (AccAccount account : accounts) {
@@ -676,12 +687,21 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 
 					// Do reconciliation for one item (produces event)
 					// Start in new Transaction
-					SynchronizationItemWrapper itemWrapper = new SynchronizationItemWrapper(uid, null,
-							IcSyncDeltaTypeEnum.DELETE, config, system, entityType, null, account, log, itemLog,
-							actionsLog);
+					SynchronizationItemBuilder builder = new SynchronizationItemBuilder();
+					builder
+					.addUid(uid)
+					.addType(IcSyncDeltaTypeEnum.DELETE)
+					.addConfig(config)
+					.addSystem(system)
+					.addEntityType(entityType)
+					.addAccount(account)
+					.addLog(log)
+					.addLogItem(itemLog)
+					.addActionLogs(actionsLog);
+					
 					CoreEvent<SysSyncItemLog> event = new CoreEvent<SysSyncItemLog>(SynchronizationEventType.START_ITEM,
 							itemLog);
-					event.getProperties().put(SynchronizationService.WRAPPER_SYNC_ITEM, itemWrapper);
+					event.getProperties().put(SynchronizationService.WRAPPER_SYNC_ITEM, builder);
 					EventResult<SysSyncItemLog> lastResult = entityEventManager.process(event).getLastResult();
 					boolean result = false;
 					if (lastResult != null && lastResult.getEvent().getProperties()
@@ -726,6 +746,125 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 	}
 
 	/**
+	 * Start export entities to target resource
+	 * @param entityType
+	 * @param config
+	 * @param mappedAttributes
+	 * @param log
+	 * @param actionsLog
+	 */
+	protected void startExport(SystemEntityType entityType, SysSyncConfig config,
+			List<SysSystemAttributeMapping> mappedAttributes, SysSyncLog log, List<SysSyncActionLog> actionsLog) {
+
+		SysSystem system = config.getSystemMapping().getSystem();
+		SysSystemAttributeMapping uidAttribute = systemAttributeMappingService.getUidAttribute(mappedAttributes,
+				system);
+
+		List<? extends AbstractEntity> entities = this.findAllEntity();
+		entities.stream().forEach(entity -> {
+
+			// TODO: evaluate to groovy script
+			
+			SynchronizationItemBuilder itemBuilder = new SynchronizationItemBuilder();
+			itemBuilder.addConfig(config) //
+					.addSystem(system) //
+					.addEntityType(entityType) //
+					.addEntityId(entity.getId()) //
+					.addLog(log) //
+					.addActionLogs(actionsLog);
+			// Start export for this entity
+			exportEntity(itemBuilder, uidAttribute, entity);
+		});
+	}
+
+	/**
+	 * Start export item (entity) to target resource
+	 * @param itemBuilder
+	 * @param uidAttribute
+	 * @param entity
+	 */
+	protected void exportEntity(SynchronizationItemBuilder itemBuilder, SysSystemAttributeMapping uidAttribute,
+			AbstractEntity entity) {
+		SystemEntityType entityType = itemBuilder.getEntityType();
+		SysSyncConfig config = itemBuilder.getConfig();
+		SysSyncLog log = itemBuilder.getLog();
+		List<SysSyncActionLog> actionsLog = itemBuilder.getActionLogs();
+		SysSystem system = itemBuilder.getSystem();
+		SysSyncItemLog itemLog = new SysSyncItemLog();
+		try {
+			// Default setting for log item
+			itemLog.setIdentification(entity.getId().toString());
+			itemLog.setDisplayName(this.getDisplayNameForEntity(entity));
+			itemLog.setType(entityType.getEntityType().getSimpleName());
+			itemLog.addToLog(MessageFormat.format("Start export for entity [{0}].",this.getDisplayNameForEntity(entity)));
+
+			UUID accountId = this.getAccountByEntity(entity.getId(), system.getId());
+			if (accountId != null) {
+				initSyncActionLog(SynchronizationActionType.CREATE_ACCOUNT, OperationResultType.IGNORE, itemLog, log,
+						actionsLog);
+				itemLog.addToLog(MessageFormat.format(
+						"For entity [{0}] was found AccAccount [{1}]. Export for this entity ends (only entity without AccAccount can be export)!",
+						this.getDisplayNameForEntity(entity), accountId));
+				return;
+			}
+
+			String uid = systemAttributeMappingService.generateUid(entity, uidAttribute);
+
+			// Do export for one item (produces event)
+			// Start in new Transaction
+
+			itemBuilder.addUid(uid) //
+					.addConfig(config) //
+					.addSystem(system) //
+					.addEntityType(entityType) //
+					.addEntityId(entity.getId()).addLog(log) //
+					.addLogItem(itemLog) //
+					.addActionLogs(actionsLog) //
+					.addExportAction(true);
+
+			CoreEvent<SysSyncItemLog> event = new CoreEvent<SysSyncItemLog>(SynchronizationEventType.START_ITEM,
+					itemLog);
+			event.getProperties().put(SynchronizationService.WRAPPER_SYNC_ITEM, itemBuilder);
+			EventResult<SysSyncItemLog> lastResult = entityEventManager.process(event).getLastResult();
+			boolean result = false;
+			if (lastResult != null
+					&& lastResult.getEvent().getProperties().containsKey(SynchronizationService.RESULT_SYNC_ITEM)) {
+				result = (boolean) lastResult.getEvent().getProperties().get(SynchronizationService.RESULT_SYNC_ITEM);
+			}
+
+			// We reload log (maybe was synchronization canceled)
+			log.setRunning(synchronizationLogService.get(log.getId()).isRunning());
+			if (!log.isRunning()) {
+				result = false;
+			}
+			if (!result) {
+				log.setRunning(false);
+				log.addToLog(MessageFormat.format("Synchronization canceled during resolve UID [{0}]", uid));
+				addToItemLog(itemLog, "Canceled!");
+				initSyncActionLog(SynchronizationActionType.IGNORE, OperationResultType.WARNING, itemLog, log,
+						actionsLog);
+			}
+
+		} catch (Exception ex) {
+			String message = MessageFormat.format("Export - error for entity {0}", entity.getId());
+			log.addToLog(message);
+			log.addToLog(Throwables.getStackTraceAsString(ex));
+			LOG.error(message, ex);
+		} finally {
+			synchronizationConfigService.save(config);
+			if (itemLog.getSyncActionLog() == null) {
+				addToItemLog(itemLog, MessageFormat.format("Missing action log for entity {0}!", entity.getId()));
+				initSyncActionLog(SynchronizationActionType.IGNORE, OperationResultType.ERROR, itemLog, log,
+						actionsLog);
+			}
+			syncActionLogService.saveAll(actionsLog);
+			if (itemLog.getSyncActionLog() != null) {
+				syncItemLogService.save(itemLog);
+			}
+		}
+	}
+
+	/**
 	 * Compile filter for search from filter attribute and filter script
 	 * 
 	 * @param config
@@ -746,7 +885,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 		}
 
 		if (filterAttributeMapping != null) {
-			Object transformedValue = attributeHandlingService.transformValueToResource(configToken,
+			Object transformedValue = systemAttributeMappingService.transformValueToResource(configToken,
 					filterAttributeMapping, config);
 
 			if (transformedValue != null) {
@@ -1254,7 +1393,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 			}
 	
 			case WRITE_IF_NULL: {
-				Object value = attributeHandlingService.getAttributeValue(entity, attribute);
+				Object value = systemAttributeMappingService.getAttributeValue(entity, attribute);
 				return value == null ? true : false;
 			}
 			default: {
@@ -1277,7 +1416,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 			}
 		}
 
-		Object transformedValue = attributeHandlingService.transformValueFromResource(icValue, attribute, icAttributes);
+		Object transformedValue = systemAttributeMappingService.transformValueFromResource(icValue, attribute, icAttributes);
 		return transformedValue;
 	}
 
@@ -1456,9 +1595,9 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 	 * @param actionLogs
 	 * @return
 	 */
-	protected UUID getEntityByAccount(AccAccount account) {
+	protected UUID getEntityByAccount(UUID accountId) {
 		EntityAccountFilter entityAccountFilter = createEntityAccountFilter();
-		entityAccountFilter.setAccountId(account.getId());
+		entityAccountFilter.setAccountId(accountId);
 		entityAccountFilter.setOwnership(Boolean.TRUE);
 		@SuppressWarnings("unchecked")
 		List<EntityAccountDto> entityAccounts = this.getEntityAccountService()
@@ -1469,6 +1608,24 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 			// We assume that all identity accounts
 			// (mark as
 			// ownership) have same identity!
+			return entityAccounts.get(0).getEntity();
+		}
+	}
+	
+	protected UUID getAccountByEntity(UUID entityId, UUID systemId) {
+		EntityAccountFilter entityAccountFilter = createEntityAccountFilter();
+		entityAccountFilter.setEntityId(entityId);
+		entityAccountFilter.setSystemId(systemId);
+		entityAccountFilter.setOwnership(Boolean.TRUE);
+		@SuppressWarnings("unchecked")
+		List<EntityAccountDto> entityAccounts = this.getEntityAccountService()
+				.findDto((BaseFilter) entityAccountFilter, null).getContent();
+		if (entityAccounts.isEmpty()) {
+			return null;
+		} else {
+			// We assume that all entity accounts
+			// (mark as
+			// ownership) have same account!
 			return entityAccounts.get(0).getEntity();
 		}
 	}
@@ -1499,11 +1656,11 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 				MessageFormat.format("Account with uid {0} and id {1} was created", uid, account.getId()));
 
 		// Create new entity account relation
-		EntityAccountDto identityAccount = this.createEntityAccountDto();
-		identityAccount.setAccount(account.getId());
-		identityAccount.setEntity(entity.getId());
-		identityAccount.setOwnership(true);
-		identityAccount = (EntityAccountDto) getEntityAccountService().save(identityAccount);
+		EntityAccountDto entityAccount = this.createEntityAccountDto();
+		entityAccount.setAccount(account.getId());
+		entityAccount.setEntity(entity.getId());
+		entityAccount.setOwnership(true);
+		entityAccount = (EntityAccountDto) getEntityAccountService().save(entityAccount);
 
 		String entityIdentification = entity.getId().toString();
 		if (entity instanceof IdentifiableByName) {
@@ -1514,21 +1671,31 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 		addToItemLog(logItem,
 				MessageFormat.format(
 						"Entity account relation  with id ({0}), between account ({1}) and identity ({2}) was created",
-						identityAccount.getId(), uid, entityIdentification));
+						entityAccount.getId(), uid, entityIdentification));
 		logItem.setDisplayName(entityIdentification);
-		logItem.setType(identityAccount.getClass().getSimpleName());
-		logItem.setIdentification(identityAccount.getId().toString());
+		logItem.setType(entityAccount.getClass().getSimpleName());
+		logItem.setIdentification(entityAccount.getId().toString());
 
 		if (callProvisioning) {
 			// Call provisioning for this identity
 			doUpdateAccountByEntity(entity, entityType, logItem);
 		}
 	}
+	
+	private String getDisplayNameForEntity(AbstractEntity entity){
+		if(entity == null){
+			return null;
+		}
+		if(entity instanceof IdentifiableByName){
+			return ((IdentifiableByName)entity).getName();
+		}
+		return entity.getId().toString();
+	} 
 
 	@SuppressWarnings("unchecked")
 	protected void doDeleteEntity(AccAccount account, SystemEntityType entityType, SysSyncLog log,
 			SysSyncItemLog logItem, List<SysSyncActionLog> actionLogs) {
-		UUID entity = this.getEntityByAccount(account);
+		UUID entity = this.getEntityByAccount(account.getId());
 		if (entity == null) {
 			addToItemLog(logItem, "Entity account relation (with ownership = true) was not found!");
 			initSyncActionLog(SynchronizationActionType.DELETE_ENTITY, OperationResultType.WARNING, logItem, log,
@@ -1544,6 +1711,8 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 		// Delete entity
 		getEntityService().delete(dto);
 	}
+	
+	protected abstract List<? extends AbstractEntity> findAllEntity();
 
 	@Override
 	public void setLongRunningTaskExecutor(AbstractLongRunningTaskExecutor<SysSyncConfig> longRunningTaskExecutor) {
@@ -1568,15 +1737,5 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 		return optional.get();
 	}
 	
-	protected SysSystemAttributeMapping getUidAttribute(List<SysSystemAttributeMapping> mappedAttributes) {
-		Optional<SysSystemAttributeMapping> optional = mappedAttributes.stream().filter(attribute -> {
-			return !attribute.isDisabledAttribute() && attribute.isUid();
-		}).findFirst();
-		
-		if(!optional.isPresent()){
-			return null;
-		}
-		return optional.get();
-	}
 
 }

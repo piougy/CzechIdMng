@@ -93,4 +93,19 @@ public interface SysSystemAttributeMappingService extends ReadWriteEntityService
 	 * @throws InvocationTargetException
 	 */
 	Object getAttributeValue(AbstractEntity entity, AttributeMapping attributeHandling);
+
+	/**
+	 * Generate UID from UID attribute
+	 * @param entity
+	 * @param uidAttribute
+	 * @return
+	 */
+	String generateUid(AbstractEntity entity, SysSystemAttributeMapping uidAttribute);
+
+	/**
+	 * Return UID attribute from list of mapped attributes
+	 * @param mappedAttributes
+	 * @return
+	 */
+	SysSystemAttributeMapping getUidAttribute(List<SysSystemAttributeMapping> mappedAttributes, SysSystem system);
 }

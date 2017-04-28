@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
+import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.event.ProvisioningEvent;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.TreeProvisioningService;
@@ -56,6 +57,8 @@ public class TreeNodeSaveProcessor extends AbstractEntityEventProcessor<IdmTreeN
 	}
 	
 	private void doProvisioning(IdmTreeNode node) {
+		LOG.debug("Call account managment (create accounts for all systems) for tree node [{}]", node.getCode());
+		getProvisioningService().createAccountsForAllSystems(node);
 		LOG.debug("Call provisioning for tree node [{}]", node.getCode());
 		getProvisioningService().doProvisioning(node);
 	}

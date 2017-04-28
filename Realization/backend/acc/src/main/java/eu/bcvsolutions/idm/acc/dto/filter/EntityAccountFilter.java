@@ -17,4 +17,8 @@ public interface EntityAccountFilter {
 
 	void setAccountId(UUID accountId);
 
+	void setEntityId(UUID entityId);
+
+	void setSystemId(UUID systemId);
+
 }

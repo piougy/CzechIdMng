@@ -21,15 +21,18 @@ import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
 import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
+import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.AccTreeAccountDto;
 import eu.bcvsolutions.idm.acc.dto.EntityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.ProvisioningAttributeDto;
+import eu.bcvsolutions.idm.acc.dto.filter.EntityAccountFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SystemMappingFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.TreeAccountFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
-import eu.bcvsolutions.idm.acc.entity.AccTreeAccount;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
+import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountManagementService;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
@@ -42,6 +45,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.acc.service.api.TreeProvisioningService;
+import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
@@ -79,31 +83,6 @@ public class DefaultTreeProvisioningService extends AbstractProvisioningService<
 		
 		this.treeAccountService = treeAccountService;
 		this.treeNodeService = treeNodeService;
-	}
-
-	@Override
-	public void doProvisioning(IdmTreeNode node) {
-		Assert.notNull(node);
-		//
-		TreeAccountFilter filter = new TreeAccountFilter();
-		filter.setTreeNodeId(node.getId());
-		List<? extends EntityAccountDto> entityAccoutnList = treeAccountService.findDto(filter, null).getContent();
-		if (entityAccoutnList == null) {
-			return;
-		}
-
-		List<AccAccount> accounts = new ArrayList<>();
-		entityAccoutnList.stream().filter(ia -> {
-			return ia.isOwnership();
-		}).forEach((treeAccount) -> {
-			if (!accounts.contains(treeAccount.getAccount())) {
-				accounts.add(accountService.get(treeAccount.getAccount()));
-			}
-		});
-
-		accounts.stream().forEach(account -> {
-			this.doProvisioning(account, node);
-		});
 	}
 	
 	public void doProvisioning(AccAccount account) {
@@ -313,5 +292,36 @@ public class DefaultTreeProvisioningService extends AbstractProvisioningService<
 		// Overloading attributes is not implemented for TreeNode
 		return new ArrayList<>();
 	}
+	
+	@Override
+	protected List<SysSystemMapping> findSystemMappingsForEntityType(IdmTreeNode entity, SystemEntityType entityType) {
+		SystemMappingFilter mappingFilter = new SystemMappingFilter();
+		mappingFilter.setEntityType(entityType);
+		mappingFilter.setTreeTypeId(entity.getTreeType().getId());
+		mappingFilter.setOperationType(SystemOperationType.PROVISIONING);
+		List<SysSystemMapping> systemMappings = systemMappingService.find(mappingFilter, null).getContent();
+		return systemMappings;
+	}
 
+	@Override
+	protected EntityAccountFilter createEntityAccountFilter() {
+		return new TreeAccountFilter();
+	}
+
+	@SuppressWarnings("rawtypes")
+	@Override
+	protected ReadWriteDtoService getEntityAccountService() {
+		return treeAccountService;
+	}
+
+	@Override
+	protected EntityAccountDto createEntityAccountDto() {
+		return new AccTreeAccountDto();
+	}
+
+	@SuppressWarnings("rawtypes")
+	@Override
+	protected ReadWriteDtoService getEntityService() {
+		return null; // We don't have DTO service for IdmTreeNode now
+	}
 }

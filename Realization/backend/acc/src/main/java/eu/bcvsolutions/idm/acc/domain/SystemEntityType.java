@@ -26,5 +26,14 @@ public enum SystemEntityType {
 	public Class<? extends AbstractEntity> getEntityType() {
 		return entityType;
 	}
+	
+	public static SystemEntityType getByClass(Class<? extends AbstractEntity> clazz) {
+		for(SystemEntityType systemEntityType : SystemEntityType.values()){
+			if(systemEntityType.getEntityType().equals(clazz)){
+				return systemEntityType;
+			}
+		}
+		return null;
+	}
 
 }

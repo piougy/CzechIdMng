@@ -56,6 +56,7 @@ public class IdentityAccountFilter implements BaseFilter, EntityAccountFilter {
 		this.roleId = roleId;
 	}
 	
+	@Override
 	public void setSystemId(UUID systemId) {
 		this.systemId = systemId;
 	}
@@ -78,6 +79,11 @@ public class IdentityAccountFilter implements BaseFilter, EntityAccountFilter {
 
 	public void setRoleSystemId(UUID roleSystemId) {
 		this.roleSystemId = roleSystemId;
+	}
+	
+	@Override
+	public void setEntityId(UUID entityId) {
+		this.identityId = entityId;
 	}
 
 }

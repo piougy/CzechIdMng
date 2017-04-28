@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
+import eu.bcvsolutions.idm.acc.domain.AccountType;
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
 import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningContext;
@@ -27,6 +29,8 @@ import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.EntityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.MappingAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.ProvisioningAttributeDto;
+import eu.bcvsolutions.idm.acc.dto.filter.EntityAccountFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SystemMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute;
@@ -45,7 +49,9 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
+import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
+import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
@@ -65,7 +71,7 @@ import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 public abstract class AbstractProvisioningService<ENTITY extends AbstractEntity> implements ProvisioningService<ENTITY>{
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(AbstractProvisioningService.class);
-	private final SysSystemMappingService systemMappingService;
+	protected final SysSystemMappingService systemMappingService;
 	protected final SysSystemAttributeMappingService attributeMappingService;
 	private final IcConnectorFacade connectorFacade;
 	private final SysSystemService systemService;
@@ -104,30 +110,32 @@ public abstract class AbstractProvisioningService<ENTITY extends AbstractEntity>
 		this.provisioningExecutor = provisioningExecutor;
 	}
 
-	public void doDeleteProvisioning(AccAccount account) {
-		Assert.notNull(account);
-		SysSystemEntity systemEntity = getSystemEntity(account);
-		//
-		if (systemEntity != null){
-			doProvisioning(systemEntity, null, ProvisioningOperationType.DELETE, null);
-		}
-	}
-	
-	/**
-	 * Returns system entity associated to given account 
-	 * 
-	 * @param account
-	 * @return
-	 */
-	private SysSystemEntity getSystemEntity(AccAccount account) {
-		//
-		// TODO: we can find sysstem entity on target system, if no one existst etc.
-		//
-		return account.getSystemEntity();
-	}
-
+	@Override
 	public abstract void doProvisioning(AccAccount account);
+	
+	@Override
+	public void doProvisioning(ENTITY entity) {
+		Assert.notNull(entity);
+		//
+		EntityAccountFilter filter = createEntityAccountFilter();
+		filter.setEntityId(entity.getId());
+		filter.setOwnership(true);
+		@SuppressWarnings("unchecked")
+		List<EntityAccountDto> entityAccoutnList =  this.getEntityAccountService().findDto((BaseFilter) filter, null).getContent();
 
+		List<UUID> accounts = new ArrayList<>();
+		entityAccoutnList.stream().forEach((identityAccount) -> {
+			if (!accounts.contains(identityAccount.getAccount())) {
+				accounts.add(identityAccount.getAccount());
+			}
+		});
+
+		accounts.stream().forEach(account -> {
+			this.doProvisioning(accountService.get(account), entity);
+		});
+	}
+
+	@Override
 	public void doProvisioning(AccAccount account, ENTITY entity) {
 		Assert.notNull(account);
 		Assert.notNull(entity);
@@ -138,10 +146,10 @@ public abstract class AbstractProvisioningService<ENTITY extends AbstractEntity>
 		if (systemEntity == null) {
 			// prepare system entity - uid could be changed by provisioning, but we need to link her with account
 			// First we try find system entity with same uid. 
-			systemEntity = systemEntityService.getBySystemAndEntityTypeAndUid(system, SystemEntityType.IDENTITY, account.getUid());
+			systemEntity = systemEntityService.getBySystemAndEntityTypeAndUid(system, SystemEntityType.getByClass(entity.getClass()), account.getUid());
 			if (systemEntity == null) {
 				systemEntity = new SysSystemEntity();
-				systemEntity.setEntityType(SystemEntityType.IDENTITY);
+				systemEntity.setEntityType(SystemEntityType.getByClass(entity.getClass()));
 				systemEntity.setSystem(system);
 				systemEntity.setUid(account.getUid());
 				systemEntity.setWish(true);
@@ -161,6 +169,48 @@ public abstract class AbstractProvisioningService<ENTITY extends AbstractEntity>
 		}
 		
 		doProvisioning(systemEntity, entity, operationType, finalAttributes);		
+	}
+	
+	@Override
+	public void doDeleteProvisioning(AccAccount account) {
+		Assert.notNull(account);
+		SysSystemEntity systemEntity = getSystemEntity(account);
+		//
+		if (systemEntity != null){
+			doProvisioning(systemEntity, null, ProvisioningOperationType.DELETE, null);
+		}
+	}
+	
+	@Override
+	public void createAccountsForAllSystems(ENTITY entity){
+		SystemEntityType entityType = SystemEntityType.getByClass(entity.getClass());
+		List<SysSystemMapping> systemMappings = findSystemMappingsForEntityType(entity, entityType);
+		systemMappings.forEach(mapping -> {
+			UUID accountId = this.getAccountByEntity(entity.getId(), mapping.getSystem().getId());
+			if(accountId != null){
+				// We already have account for this system -> next
+				return;
+			}
+			List<SysSystemAttributeMapping> mappedAttributes = attributeMappingService.findBySystemMapping(mapping);
+			SysSystemAttributeMapping uidAttribute = attributeMappingService.getUidAttribute(mappedAttributes, mapping.getSystem());
+			String uid = attributeMappingService.generateUid(entity, uidAttribute);
+			
+			// Create AccAccount and relation between account and entity
+			createEntityAccount(uid, entity.getId(), mapping.getSystem().getId());
+		});
+	}
+	
+	/**
+	 * Returns system entity associated to given account 
+	 * 
+	 * @param account
+	 * @return
+	 */
+	private SysSystemEntity getSystemEntity(AccAccount account) {
+		//
+		// TODO: we can find sysstem entity on target system, if no one existst etc.
+		//
+		return account.getSystemEntity();
 	}
 
 	/**
@@ -587,4 +637,63 @@ public abstract class AbstractProvisioningService<ENTITY extends AbstractEntity>
 		}
 		return attributeMappingService.findBySystemMapping(mapping);
 	}
+
+	protected List<SysSystemMapping> findSystemMappingsForEntityType(ENTITY entity, SystemEntityType entityType) {
+		SystemMappingFilter mappingFilter = new SystemMappingFilter();
+		mappingFilter.setEntityType(entityType);
+		mappingFilter.setOperationType(SystemOperationType.PROVISIONING);
+		List<SysSystemMapping> systemMappings = systemMappingService.find(mappingFilter, null).getContent();
+		return systemMappings;
+	}
+	
+	@SuppressWarnings("unchecked")
+	/**
+	 * Create AccAccount and relation between account and entity
+	 * @param uid
+	 * @param entityId
+	 * @param systemId
+	 * @return Id of new EntityAccount
+	 */
+	protected UUID createEntityAccount(String uid, UUID entityId, UUID systemId){
+		AccAccount account = new AccAccount();
+		account.setSystem(systemService.get(systemId));
+		account.setAccountType(AccountType.PERSONAL);
+		account.setUid(uid);
+		accountService.save(account);
+		// Create new entity account relation
+		EntityAccountDto entityAccount = this.createEntityAccountDto();
+		entityAccount.setAccount(account.getId());
+		entityAccount.setEntity(entityId);
+		entityAccount.setOwnership(true);
+		entityAccount = (EntityAccountDto) getEntityAccountService().save(entityAccount);
+		return (UUID) entityAccount.getId();
+	}
+	
+	protected UUID getAccountByEntity(UUID entityId, UUID systemId) {
+		EntityAccountFilter entityAccountFilter = createEntityAccountFilter();
+		entityAccountFilter.setEntityId(entityId);
+		entityAccountFilter.setSystemId(systemId);
+		entityAccountFilter.setOwnership(Boolean.TRUE);
+		@SuppressWarnings("unchecked")
+		List<EntityAccountDto> entityAccounts = this.getEntityAccountService()
+				.findDto((BaseFilter) entityAccountFilter, null).getContent();
+		if (entityAccounts.isEmpty()) {
+			return null;
+		} else {
+			// We assume that all entity accounts
+			// (mark as
+			// ownership) have same account!
+			return entityAccounts.get(0).getEntity();
+		}
+	}
+	
+	protected abstract EntityAccountFilter createEntityAccountFilter();
+
+	protected abstract EntityAccountDto createEntityAccountDto();
+
+	@SuppressWarnings("rawtypes")
+	protected abstract ReadWriteDtoService getEntityAccountService();
+
+	@SuppressWarnings("rawtypes")
+	protected abstract ReadWriteDtoService getEntityService();
 }

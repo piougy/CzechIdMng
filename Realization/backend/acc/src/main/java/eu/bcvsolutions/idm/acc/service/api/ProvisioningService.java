@@ -105,5 +105,12 @@ public interface ProvisioningService<ENTITY> {
 	List<AttributeMapping> compileAttributes(List<? extends AttributeMapping> defaultAttributes,
 			List<SysRoleSystemAttribute> overloadingAttributes);
 
+	/**
+	 * Create accounts for given entity on all systems with provisioning mapping and same entity type.
+	 * @param entity
+	 * @param entityType
+	 */
+	void createAccountsForAllSystems(ENTITY entity);
+
 	
 }

@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.acc.domain.SynchronizationEventType;
-import eu.bcvsolutions.idm.acc.domain.SynchronizationItemWrapper;
+import eu.bcvsolutions.idm.acc.domain.SynchronizationItemBuilder;
 import eu.bcvsolutions.idm.acc.entity.SysSyncItemLog;
 import eu.bcvsolutions.idm.acc.service.api.SynchronizationService;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
@@ -46,7 +46,7 @@ public class SynchronizationItemProcessor extends AbstractEntityEventProcessor<S
 	@Override
 	public EventResult<SysSyncItemLog> process(EntityEvent<SysSyncItemLog> event) {
 		LOG.info("Synchronization item event");
-		SynchronizationItemWrapper itemWrapper = (SynchronizationItemWrapper) event.getProperties().get(SynchronizationService.WRAPPER_SYNC_ITEM);
+		SynchronizationItemBuilder itemWrapper = (SynchronizationItemBuilder) event.getProperties().get(SynchronizationService.WRAPPER_SYNC_ITEM);
 		// Do synchronization for one item (produces event)
 		// Start in new Transaction
 		boolean result = synchronizationService.doItemSynchronization(itemWrapper);

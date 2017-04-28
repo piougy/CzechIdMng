@@ -20,7 +20,9 @@ import eu.bcvsolutions.idm.acc.domain.EntityAccount;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
+import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.EntityAccountDto;
+import eu.bcvsolutions.idm.acc.dto.filter.EntityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.RoleSystemAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.RoleSystemFilter;
@@ -43,6 +45,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
+import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
@@ -84,32 +87,6 @@ public class DefaultIdentityProvisioningService extends AbstractProvisioningServ
 		this.identityAccountService = identityAccountService;
 		this.roleSystemService = roleSystemService;
 		this.accountManagementService = accountManagementService;
-	}
-
-	@Override
-	public void doProvisioning(IdmIdentity identity) {
-		Assert.notNull(identity);
-		//
-		IdentityAccountFilter filter = new IdentityAccountFilter();
-		filter.setIdentityId(identity.getId());
-		Page<AccIdentityAccount> identityAccounts = identityAccountService.find(filter, null);
-		List<AccIdentityAccount> idenityAccoutnList = identityAccounts.getContent();
-		if (idenityAccoutnList == null) {
-			return;
-		}
-
-		List<AccAccount> accounts = new ArrayList<>();
-		idenityAccoutnList.stream().filter(ia -> {
-			return ia.isOwnership();
-		}).forEach((identityAccount) -> {
-			if (!accounts.contains(identityAccount.getAccount())) {
-				accounts.add(identityAccount.getAccount());
-			}
-		});
-
-		accounts.stream().forEach(account -> {
-			this.doProvisioning(account, identity);
-		});
 	}
 	
 	public void doProvisioning(AccAccount account) {
@@ -282,6 +259,28 @@ public class DefaultIdentityProvisioningService extends AbstractProvisioningServ
 	protected List<SysRoleSystemAttribute> findOverloadingAttributes(String uid, IdmIdentity entity, SysSystem system,
 			List<? extends EntityAccountDto> idenityAccoutnList, SystemEntityType entityType) {
 		return null;
+	}
+
+	@Override
+	protected EntityAccountFilter createEntityAccountFilter() {
+		return new IdentityAccountFilter();
+	}
+
+	@SuppressWarnings("rawtypes")
+	@Override
+	protected ReadWriteDtoService getEntityAccountService() {
+		return identityAccountService;
+	}
+
+	@Override
+	protected EntityAccountDto createEntityAccountDto() {
+		return new AccIdentityAccountDto();
+	}
+
+	@SuppressWarnings("rawtypes")
+	@Override
+	protected ReadWriteDtoService getEntityService() {
+		return null; // We don't have DTO service for IdmIdentity now.
 	}
 
 }

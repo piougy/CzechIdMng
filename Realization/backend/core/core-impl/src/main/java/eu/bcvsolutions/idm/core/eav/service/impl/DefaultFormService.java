@@ -175,16 +175,21 @@ public class DefaultFormService implements FormService {
 	@Transactional
 	public IdmFormAttribute saveAttribute(IdmFormAttribute attribute) {
 		Assert.notNull(attribute);
-		Assert.notNull(attribute.getFormDefinition(), String.format("Form definition for attribute [%s] is required!", attribute.getName()));
+		IdmFormDefinition definition = attribute.getFormDefinition();
+		Assert.notNull(definition, String.format("Form definition for attribute [%s] is required!", attribute.getName()));
 		//
-		return formAttributeService.save(attribute);
+		IdmFormAttribute ret = formAttributeService.save(attribute);
+		definition.addFormAttribute(ret);
+		formDefinitionService.save(definition);
+		return ret;
 	}
 	
 	@Override
 	@Transactional
 	public IdmFormAttribute saveAttribute(Class<? extends FormableEntity> ownerClass, IdmFormAttribute attribute) {
 		Assert.notNull(attribute);
-		attribute.setFormDefinition(checkDefaultDefinition(ownerClass, attribute.getFormDefinition()));
+		IdmFormDefinition definition = checkDefaultDefinition(ownerClass, attribute.getFormDefinition());
+		attribute.setFormDefinition(definition);
 		//
 		return saveAttribute(attribute);
 	}

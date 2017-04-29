@@ -246,7 +246,10 @@ export default class FlashMessagesManager {
     if (!error.statusEnum) {
       return false;
     }
-    if (error.statusEnum === 'XSRF' || error.statusEnum === 'LOG_IN' || error.statusEnum === 'AUTH_EXPIRED') {
+    if (error.statusEnum === 'XSRF'
+        || error.statusEnum === 'LOG_IN'
+        || error.statusEnum === 'AUTH_EXPIRED'
+        || error.statusEnum === 'AUTHORITIES_CHANGED') {
       return true;
     }
     return false;

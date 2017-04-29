@@ -4,17 +4,23 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.jwt.Jwt;
 import org.springframework.security.jwt.JwtHelper;
 import org.springframework.security.jwt.crypto.sign.MacSigner;
 import org.springframework.security.jwt.crypto.sign.SignerVerifier;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
@@ -64,9 +70,17 @@ public class JwtAuthenticationMapper {
 			return null;
 		}
 		//
-		SignerVerifier verifier = new MacSigner(getSecret().asString());
+		SignerVerifier verifier = getVerifier();
 		String decoded = JwtHelper.decodeAndVerify(token, verifier).getClaims();
 		return fromDto(mapper.readValue(decoded, IdmJwtAuthenticationDto.class));
+	}
+	
+	/**
+	 * Return IdM OAuth token verifier.
+	 * @return
+	 */
+	public SignerVerifier getVerifier() {
+		return new MacSigner(getSecret().asString());
 	}
 	
 	/**
@@ -92,7 +106,7 @@ public class JwtAuthenticationMapper {
 	public String writeToken(IdmJwtAuthenticationDto dto) throws IOException {
 		Assert.notNull(dto);
 		//
-		String authenticationJson = mapper.writeValueAsString(dto);	
+		String authenticationJson = mapper.writeValueAsString(dto);
 		return JwtHelper.encode(authenticationJson, new MacSigner(getSecret().asString())).getEncoded();
 	}
 	
@@ -123,8 +137,9 @@ public class JwtAuthenticationMapper {
 		}
 		IdmJwtAuthentication authentication = new IdmJwtAuthentication(
 				new IdmIdentityDto(dto.getCurrentIdentityId(), dto.getCurrentUsername()),
-				new IdmIdentityDto(dto.getOriginaIdentityId(), dto.getOriginalUsername()), 
-				dto.getExpiration(), 
+				new IdmIdentityDto(dto.getOriginalIdentityId(), dto.getOriginalUsername()), 
+				dto.getExpiration(),
+				dto.getIssuedAt(),
 				grantedAuthorities,
 				dto.getFromModule());
 		return authentication;
@@ -136,17 +151,23 @@ public class JwtAuthenticationMapper {
 	 * @param authentication to dto
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
 	public IdmJwtAuthenticationDto toDto(IdmJwtAuthentication authentication) {
 		Assert.notNull(authentication);
 		//
 		IdmJwtAuthenticationDto authenticationDto = new IdmJwtAuthenticationDto();
 		authenticationDto.setCurrentUsername(authentication.getCurrentUsername());
-		authenticationDto.setCurrentIdentityId(authentication.getCurrentIdentity() == null ? null : authentication.getCurrentIdentity().getId());
+		authenticationDto.setCurrentIdentityId(getIdentityDtoId(authentication.getCurrentIdentity()));
 		authenticationDto.setOriginalUsername(authentication.getOriginalUsername());
-		authenticationDto.setOriginaIdentityId(authentication.getOriginalIdentity() == null ? null : authentication.getOriginalIdentity().getId());
+		authenticationDto.setOriginalIdentityId(getIdentityDtoId(authentication.getOriginalIdentity()));
 		authenticationDto.setExpiration(authentication.getExpiration());
 		authenticationDto.setFromModule(authentication.getFromModule());
+		authenticationDto.setIssuedAt(DateTime.now());
+		authenticationDto.setAuthorities(getDTOAuthorities(authentication));
+		return authenticationDto;
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<DefaultGrantedAuthorityDto> getDTOAuthorities(Authentication authentication) {
 		Collection<DefaultGrantedAuthority> authorities = (Collection<DefaultGrantedAuthority>) authentication
 				.getAuthorities();
 		List<DefaultGrantedAuthorityDto> grantedAuthorities = new ArrayList<>();
@@ -155,9 +176,16 @@ public class JwtAuthenticationMapper {
 				grantedAuthorities.add(new DefaultGrantedAuthorityDto(a.getAuthority()));
 			}
 		}
-		authenticationDto.setAuthorities(grantedAuthorities);
-		return authenticationDto;
+		return grantedAuthorities;
 	}
 	
+	public IdmJwtAuthenticationDto getClaims(Jwt jwt) 
+			throws JsonParseException, JsonMappingException, IOException {
+		return mapper.readValue(jwt.getClaims(), IdmJwtAuthenticationDto.class);
+	}
+	
+	private UUID getIdentityDtoId(IdmIdentityDto dto) {
+		return dto == null ? null : dto.getId();
+	}
 	
 }

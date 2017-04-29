@@ -249,9 +249,10 @@ public class IdmServiceConfiguration {
 	 */
 	@Bean
 	public IdmAuthorizationPolicyService authorizationPolicyService() {
-		return new DefaultIdmAuthorizationPolicyService(authorizationPolicyRepository, roleService(), moduleService());
+		return new DefaultIdmAuthorizationPolicyService(authorizationPolicyRepository, roleService(),
+				moduleService(), entityEventManager());
 	}
-	
+
 	/**
 	 * Persists long running tasks
 	 * 

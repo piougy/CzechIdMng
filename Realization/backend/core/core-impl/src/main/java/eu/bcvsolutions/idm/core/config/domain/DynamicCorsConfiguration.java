@@ -39,7 +39,7 @@ public class DynamicCorsConfiguration extends CorsConfiguration {
 		if (!StringUtils.hasText(requestOrigin)) {
 			return null;
 		}
-		List<String> allowedOrigins= getAllowedOrigins();
+		List<String> allowedOrigins = getAllowedOrigins();
 		
 		if (ObjectUtils.isEmpty(allowedOrigins)) {
 			return null;
@@ -74,5 +74,5 @@ public class DynamicCorsConfiguration extends CorsConfiguration {
 		// we want to replace white spaces and split by separator
 		return Arrays.asList(allowedOrigins.replaceAll("\\s*", "").split(PROPERTY_ALLOWED_ORIGIN_SEPARATOR));
 	}
-	
+
 }

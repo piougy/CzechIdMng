@@ -3,8 +3,8 @@ package eu.bcvsolutions.idm.core.security.api.domain;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 
+import org.joda.time.DateTime;
 import org.springframework.security.core.GrantedAuthority;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
@@ -18,20 +18,30 @@ public class IdmJwtAuthentication extends AbstractAuthentication {
 
 	private static final long serialVersionUID = -63165487654324844L;
 
-	private Date expiration;
+	private DateTime issuedAt; // issued at
+	private DateTime expiration; // expiration
 	private Collection<GrantedAuthority> authorities;
 	private String fromModule;
 	
-	public IdmJwtAuthentication(IdmIdentityDto currentIdentity, Date expiration,
-			Collection<GrantedAuthority> authorities, String fromModule) {
-		this(currentIdentity, currentIdentity, expiration, authorities, fromModule);
+	public IdmJwtAuthentication(
+			IdmIdentityDto currentIdentity,
+			DateTime expiration,
+			Collection<GrantedAuthority> authorities,
+			String fromModule) {
+		this(currentIdentity, currentIdentity, expiration, DateTime.now(), authorities, fromModule);
 	}
 
-	public IdmJwtAuthentication(IdmIdentityDto currentIdentity, IdmIdentityDto originalIdentity, Date expiration,
-			Collection<GrantedAuthority> authorities, String fromModule) {
+	public IdmJwtAuthentication(
+			IdmIdentityDto currentIdentity, 
+			IdmIdentityDto originalIdentity, 
+			DateTime expiration,
+			DateTime issuedAt,
+			Collection<GrantedAuthority> authorities,
+			String fromModule) {
 		super(currentIdentity, originalIdentity);
-		//
+
 		this.fromModule = fromModule;
+		this.issuedAt = issuedAt;
 		this.expiration = expiration;
 		if (authorities == null) {
 			this.authorities = new ArrayList<>();
@@ -45,15 +55,23 @@ public class IdmJwtAuthentication extends AbstractAuthentication {
 		return authorities;
 	}
 	
-	public Date getExpiration() {
+	public void setAuthorities(Collection<GrantedAuthority> authorities) {
+		this.authorities = authorities;
+	}
+
+	public DateTime getExpiration() {
 		return expiration;
 	}
 	
+	public DateTime getIssuedAt() {
+		return issuedAt;
+	}
+
 	public boolean isExpired() {
 		if (expiration == null) {
 			return false;
 		}
-		return expiration.before(new Date());
+		return expiration.isBefore(DateTime.now());
 	}
 
 	public String getFromModule() {

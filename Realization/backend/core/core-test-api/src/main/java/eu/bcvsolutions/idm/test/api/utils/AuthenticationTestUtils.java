@@ -1,6 +1,6 @@
 package eu.bcvsolutions.idm.test.api.utils;
 
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.UUID;
@@ -56,8 +56,8 @@ public class AuthenticationTestUtils {
 		return BaseDtoController.BASE_PATH + "/identities/" + user;
 	}
 
-	public static String getBasicAuth(String user, String password) throws UnsupportedEncodingException {
-		return Base64.encodeBase64String((user + ":" + password).getBytes("utf-8"));
+	public static String getBasicAuth(String user, String password) {
+		return Base64.encodeBase64String((user + ":" + password).getBytes(StandardCharsets.UTF_8));
 	}
 	
 	private static IdmJwtAuthentication getAuth(IdmIdentityDto identity, Collection<GrantedAuthority> authorities) {

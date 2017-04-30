@@ -1,6 +1,6 @@
 package eu.bcvsolutions.idm.core.security.auth.filter;
 
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -57,8 +57,8 @@ public class BasicIdmAuthenticationFilter implements IdmAuthenticationFilter {
 		return AUTHORIZATION_TYPE_BASIC_PREFIX;
 	}
 	
-	private String[] getBasicCredentials(String token) throws UnsupportedEncodingException {
-		return new String(Base64.decodeBase64(token), "utf-8").split(":");
+	private String[] getBasicCredentials(String token) {
+		return new String(Base64.decodeBase64(token), StandardCharsets.UTF_8).split(":");
 	}
 
 	private LoginDto createLoginDto(String[] creds) {

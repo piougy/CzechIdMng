@@ -68,13 +68,13 @@ public class DefaultGrantedAuthoritiesFactory implements GrantedAuthoritiesFacto
 		return Lists.newArrayList(getGrantedAuthoritiesForIdentity(identity));
 	}
 
-	@Transactional
+	@Transactional(readOnly = true)
 	@Override
 	public Collection<GrantedAuthority> getGrantedAuthoritiesForIdentity(IdmIdentity identity) {
 		return getGrantedAuthoritiesForValidRoles(identityRoleService.findAllByIdentity(identity.getId()));
 	}
 	
-	@Transactional
+	@Transactional(readOnly = true)
 	@Override
 	public Collection<GrantedAuthority> getGrantedAuthoritiesForValidRoles(Collection<IdmIdentityRoleDto> roles) {
 		// unique set of authorities from all active identity roles and subroles
@@ -90,7 +90,7 @@ public class DefaultGrantedAuthoritiesFactory implements GrantedAuthoritiesFacto
 		return Lists.newArrayList(trimAdminAuthorities(grantedAuthorities));
 	}
 	
-	@Transactional
+	@Transactional(readOnly = true)
 	@Override
 	public Collection<GrantedAuthority> getActiveRoleAuthorities(IdmRole role) {
 		return getActiveRoleAuthorities(role, new HashSet<>());

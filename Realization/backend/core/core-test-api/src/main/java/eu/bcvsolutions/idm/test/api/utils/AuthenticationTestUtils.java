@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.test.api.utils;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.UUID;
@@ -43,13 +44,20 @@ public class AuthenticationTestUtils {
 				Lists.newArrayList(IdmAuthorityUtils.getAdminAuthority()));
 	}
 
-	
 	public static IdmJwtAuthentication getAuth(String username, Collection<GrantedAuthority> authorities) {
 		return getAuth(new IdmIdentityDto(username), authorities);
 	}
 	
 	public static IdmJwtAuthentication getAuth(UUID userId, Collection<GrantedAuthority> authorities) {
 		return getAuth(new IdmIdentityDto(userId, null), authorities);
+	}
+	
+	public static String getSelfPath(String user) {
+		return BaseDtoController.BASE_PATH + "/identities/" + user;
+	}
+
+	public static String getBasicAuth(String user, String password) throws UnsupportedEncodingException {
+		return Base64.encodeBase64String((user + ":" + password).getBytes("utf-8"));
 	}
 	
 	private static IdmJwtAuthentication getAuth(IdmIdentityDto identity, Collection<GrantedAuthority> authorities) {
@@ -66,13 +74,4 @@ public class AuthenticationTestUtils {
 		return DateTime.now().plus(100000);
 	}
 
-	
-	public static String getSelfPath(String user) {
-		return BaseDtoController.BASE_PATH + "/identities/" + user;
-	}
-
-	public static String getBasicAuth(String user, String password) {
-		return Base64.encodeBase64String((user + ":" + password).getBytes());
-	}
-	
 }

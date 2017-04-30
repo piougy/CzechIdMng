@@ -18,7 +18,6 @@ import eu.bcvsolutions.idm.core.model.entity.IdmAuthorizationPolicy;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.event.AuthorizationPolicyEvent.AuthorizationPolicyEventType;
-import eu.bcvsolutions.idm.core.model.repository.IdmAuthorizationPolicyRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 
@@ -34,22 +33,18 @@ public class AuthorizationPolicyDeletePermissionsChangeProcessor extends CoreEve
 
 	private static final String PROCESSOR_NAME = "authorization-policy-delete-permissions-change-processor";
 
-	private final IdmAuthorizationPolicyRepository repository;
 	private final IdmAuthorizationPolicyService service;
 	private final IdmIdentityService identityService;
 
 	@Autowired
 	public AuthorizationPolicyDeletePermissionsChangeProcessor(
-			IdmAuthorizationPolicyRepository repository,
 			IdmAuthorizationPolicyService service,
 			IdmIdentityService identityService) {
 		super(AuthorizationPolicyEventType.values());
 		//
-		Assert.notNull(repository);
 		Assert.notNull(service);
 		Assert.notNull(identityService);
 		//
-		this.repository = repository;
 		this.service = service;
 		this.identityService = identityService;
 	}

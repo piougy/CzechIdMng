@@ -10,10 +10,11 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
+import eu.bcvsolutions.idm.core.model.dto.IdmIdentityContractDto;
+import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmAuthorityChange;
 import eu.bcvsolutions.idm.core.model.entity.IdmAuthorizationPolicy;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.repository.IdmAuthorizationPolicyRepository;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
@@ -46,8 +47,9 @@ public class PermissionsAuthorityChangeProcessorTest extends AbstractIdentityAut
 	public void testRemoveAuthorityUpdateUsers() throws Exception {
 		IdmRole role = getTestRole();
 		IdmIdentity i = getTestUser();
-		IdmIdentityContract c = getTestContract(i);
-		getTestIdentityRole(role, c);
+		IdmIdentityContractDto c = getTestContract(i);
+		@SuppressWarnings("unused")
+		IdmIdentityRoleDto ir = getTestIdentityRole(role, c);
 		
 		IdmAuthorityChange ac = acRepository.findByIdentity(i);
 		Assert.assertNotNull(ac);
@@ -68,8 +70,9 @@ public class PermissionsAuthorityChangeProcessorTest extends AbstractIdentityAut
 	public void testAddAuthorityUpdateUsers() throws Exception {
 		IdmRole role = getTestRole();
 		IdmIdentity i = getTestUser();
-		IdmIdentityContract c = getTestContract(i);
-		getTestIdentityRole(role, c);
+		IdmIdentityContractDto c = getTestContract(i);
+		@SuppressWarnings("unused")
+		IdmIdentityRoleDto ir = getTestIdentityRole(role, c);
 		
 		IdmAuthorityChange ac = acRepository.findByIdentity(i);
 		Assert.assertNotNull(ac);
@@ -100,8 +103,9 @@ public class PermissionsAuthorityChangeProcessorTest extends AbstractIdentityAut
 	public void testCreateAuthorityChangeEntity() throws Exception {
 		IdmRole role = getTestRole();
 		IdmIdentity i = getTestUser();
-		IdmIdentityContract c = getTestContract(i);
-		getTestIdentityRole(role, c);
+		IdmIdentityContractDto c = getTestContract(i);
+		@SuppressWarnings("unused")
+		IdmIdentityRoleDto ir = getTestIdentityRole(role, c);
 		
 		deleteAuthorityChangedEntity(i);
 		IdmAuthorityChange ac = acRepository.findByIdentity(i);
@@ -126,8 +130,9 @@ public class PermissionsAuthorityChangeProcessorTest extends AbstractIdentityAut
 		
 		IdmRole role = getTestRole();
 		IdmIdentity i = getTestUser();
-		IdmIdentityContract c = getTestContract(i);
-		getTestIdentityRole(role, c);
+		IdmIdentityContractDto c = getTestContract(i);
+		@SuppressWarnings("unused")
+		IdmIdentityRoleDto ir = getTestIdentityRole(role, c);
 		
 		IdmAuthorityChange ac = acRepository.findByIdentity(i);
 		Assert.assertNotNull(ac);

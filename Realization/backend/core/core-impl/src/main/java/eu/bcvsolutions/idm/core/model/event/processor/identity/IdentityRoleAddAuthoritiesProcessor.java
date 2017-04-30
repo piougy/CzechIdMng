@@ -17,9 +17,10 @@ import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmAuthorityChange;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.event.IdentityRoleEvent.IdentityRoleEventType;
 import eu.bcvsolutions.idm.core.model.repository.IdmAuthorityChangeRepository;
+import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.security.service.GrantedAuthoritiesFactory;
 
@@ -31,29 +32,33 @@ import eu.bcvsolutions.idm.core.security.service.GrantedAuthoritiesFactory;
  */
 @Component
 @Description("Checks modifications in identity authorities after role addition.")
-public class IdentityRoleAddAuthoritiesProcessor extends CoreEventProcessor<IdmIdentityRole> {
+public class IdentityRoleAddAuthoritiesProcessor extends CoreEventProcessor<IdmIdentityRoleDto> {
 
 	public static final String PROCESSOR_NAME = "identity-role-add-authorities-processor";
 
 	private final IdmAuthorityChangeRepository repository;
 	private final IdmIdentityRoleService identityRoleService;
 	private final GrantedAuthoritiesFactory authoritiesFactory;
+	private final IdmIdentityContractRepository contractRepository;
 
 	
 	@Autowired
 	public IdentityRoleAddAuthoritiesProcessor(
 			IdmAuthorityChangeRepository repository,
 			IdmIdentityRoleService identityRoleService,
-			GrantedAuthoritiesFactory authoritiesFactory) {
+			GrantedAuthoritiesFactory authoritiesFactory,
+			IdmIdentityContractRepository contractRepository) {
 		super(IdentityRoleEventType.CREATE);
 		//
 		Assert.notNull(repository);
 		Assert.notNull(identityRoleService);
 		Assert.notNull(authoritiesFactory);
+		Assert.notNull(contractRepository);
 		//
 		this.repository = repository;
 		this.authoritiesFactory = authoritiesFactory;
 		this.identityRoleService = identityRoleService;
+		this.contractRepository = contractRepository;
 	}
 
 	@Override
@@ -67,24 +72,25 @@ public class IdentityRoleAddAuthoritiesProcessor extends CoreEventProcessor<IdmI
 	}
 
 	@Override
-	public EventResult<IdmIdentityRole> process(EntityEvent<IdmIdentityRole> event) {
+	public EventResult<IdmIdentityRoleDto> process(EntityEvent<IdmIdentityRoleDto> event) {
 		checkAddedPermissions(event.getContent());
 		return new DefaultEventResult<>(event, this);
 	}
 
-	private void checkAddedPermissions(IdmIdentityRole identityRole) {
-		IdmIdentityRoleDto roleDto = identityRoleService.toDto(identityRole, null);
-		List<IdmIdentityRoleDto> withoutAdded = getIdentityRoles(identityRole);
-		withoutAdded.remove(roleDto);
+	private void checkAddedPermissions(IdmIdentityRoleDto identityRole) {
+		IdmIdentityContract contract = contractRepository.findOne(identityRole.getIdentityContract());
+		IdmIdentity identity = contract.getIdentity(); 
 		
+		List<IdmIdentityRoleDto> withoutAdded = identityRoleService.findAllByIdentity(identity.getId());
+		withoutAdded.remove(identityRole);
+
 		Collection<GrantedAuthority> original = authoritiesFactory
 				.getGrantedAuthoritiesForValidRoles(withoutAdded);
 		Collection<GrantedAuthority> addedAuthorities = authoritiesFactory
-				.getGrantedAuthoritiesForValidRoles(Collections.singletonList(roleDto));
+				.getGrantedAuthoritiesForValidRoles(Collections.singletonList(identityRole));
 		
 		if (!authoritiesFactory.containsAllAuthorities(original, addedAuthorities)) {
 			// authorities were changed, update identity flag
-			IdmIdentity identity = identityRole.getIdentityContract().getIdentity();
 			IdmAuthorityChange ac = repository.findByIdentity(identity);
 			if (ac == null) {
 				ac = new IdmAuthorityChange();
@@ -93,10 +99,6 @@ public class IdentityRoleAddAuthoritiesProcessor extends CoreEventProcessor<IdmI
 			ac.authoritiesChanged();
 			repository.save(ac);
 		}
-	}
-
-	private List<IdmIdentityRoleDto> getIdentityRoles(IdmIdentityRole identityRole) {
-		return identityRoleService.findAllByIdentity(identityRole.getIdentityContract().getIdentity().getId());
 	}
 	
 }

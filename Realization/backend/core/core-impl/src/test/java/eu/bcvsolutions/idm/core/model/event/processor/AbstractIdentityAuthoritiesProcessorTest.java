@@ -16,8 +16,6 @@ import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmAuthorityChange;
 import eu.bcvsolutions.idm.core.model.entity.IdmAuthorizationPolicy;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.repository.IdmAuthorityChangeRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
@@ -75,20 +73,18 @@ public abstract class AbstractIdentityAuthoritiesProcessorTest extends AbstractI
 		logout();
 	}
 	
-	protected IdmIdentityRole getTestIdentityRole(IdmRole role, IdmIdentityContract c) {
+	protected IdmIdentityRoleDto getTestIdentityRole(IdmRole role, IdmIdentityContractDto c) {
 		IdmIdentityRoleDto ir = new IdmIdentityRoleDto();
 		ir.setIdentityContract(c.getId());
 		ir.setRole(role.getId());
-		ir = saveInTransaction(ir, identityRoleService);
-		return identityRoleService.toEntity(ir, null);
+		return saveInTransaction(ir, identityRoleService);
 	}
 
-	protected IdmIdentityContract getTestContract(IdmIdentity i) {
+	protected IdmIdentityContractDto getTestContract(IdmIdentity i) {
 		IdmIdentityContractDto c = new IdmIdentityContractDto();
 		c.setExterne(false);
 		c.setIdentity(i.getId());
-		c = saveInTransaction(c, contractService);
-		return contractService.toEntity(c, null);
+		return saveInTransaction(c, contractService);
 	}
 
 	protected IdmRole getTestRole() {

@@ -9,10 +9,10 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
+import eu.bcvsolutions.idm.core.model.dto.IdmIdentityContractDto;
+import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmAuthorityChange;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.security.api.domain.DefaultGrantedAuthority;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
@@ -34,17 +34,17 @@ public class IdentityRoleDeleteAuthoritiesProcessorTest extends AbstractIdentity
 	public void testRoleRemovedAuthorityRemoved() {
 		IdmRole role = getTestRole();
 		IdmIdentity i = getTestUser();
-		IdmIdentityContract c = getTestContract(i);
-		IdmIdentityRole ir = getTestIdentityRole(role, c);
+		IdmIdentityContractDto c = getTestContract(i);
+		IdmIdentityRoleDto ir = getTestIdentityRole(role, c);
 		
 		removeModifiedTimestamp(i);
-		ir = identityRoleService.get(ir.getId());
+		ir = identityRoleService.getDto(ir.getId());
 		Assert.assertNull(getAuthorityChange(i));
 		Assert.assertEquals(1, identityRoleService.findAllByIdentity(i.getId()).size());
 		
 		checkAssignedAuthorities(i);
 	
-		identityRoleService.delete(identityRoleService.toDto(ir, null));
+		identityRoleService.delete(ir);
 		
 		DateTime comparableAuthChangeInstant = new DateTime().minusMinutes(1);
 		
@@ -66,9 +66,9 @@ public class IdentityRoleDeleteAuthoritiesProcessorTest extends AbstractIdentity
 		IdmRole role = getTestRole();
 		IdmRole role2 = getTestRole();
 		IdmIdentity i = getTestUser();
-		IdmIdentityContract c = getTestContract(i);
-		IdmIdentityRole ir = getTestIdentityRole(role, c);
-		IdmIdentityRole ir2 = getTestIdentityRole(role2, c);
+		IdmIdentityContractDto c = getTestContract(i);
+		IdmIdentityRoleDto ir = getTestIdentityRole(role, c);
+		IdmIdentityRoleDto ir2 = getTestIdentityRole(role2, c);
 		
 		removeModifiedTimestamp(i);
 		Assert.assertNull(getAuthorityChange(i));
@@ -76,7 +76,7 @@ public class IdentityRoleDeleteAuthoritiesProcessorTest extends AbstractIdentity
 		
 		checkAssignedAuthorities(i);
 	
-		identityRoleService.delete(identityRoleService.toDto(ir2, null));
+		identityRoleService.delete(ir2);
 		
 		Assert.assertNull(getAuthorityChange(i));
 		Assert.assertEquals(1, identityRoleService.findAllByIdentity(i.getId()).size());

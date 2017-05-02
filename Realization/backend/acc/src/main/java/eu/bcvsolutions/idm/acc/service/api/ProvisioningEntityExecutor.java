@@ -2,6 +2,8 @@ package eu.bcvsolutions.idm.acc.service.api;
 
 import java.util.List;
 
+import org.springframework.plugin.core.Plugin;
+
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
@@ -9,27 +11,23 @@ import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
-import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
 
 /**
- * Basic interface for do provisioning
- * 
+ * API for entity provisioning executors
  * @author svandav
  *
  */
-public interface ProvisioningService {
-	
-	public static final String PASSWORD_SCHEMA_PROPERTY_NAME = "__PASSWORD__";
+public interface ProvisioningEntityExecutor<ENTITY> extends Plugin<SystemEntityType>{
 
 	/**
 	 * Do provisioning for given identity on all connected systems
 	 * 
 	 * @param identity
 	 */
-	void doProvisioning(AbstractEntity identity);
+	void doProvisioning(ENTITY identity);
 	
 	/**
 	 * Do provisioning for given account on connected system
@@ -45,14 +43,14 @@ public interface ProvisioningService {
 	 * @param system
 	 * @return
 	 */
-	void doProvisioning(AccAccount account, AbstractEntity identity);
+	void doProvisioning(AccAccount account, ENTITY identity);
 
 	/**
 	 * Do delete provisioning for given account on connected system
 	 * 
 	 * @param account
 	 */
-	void doDeleteProvisioning(AccAccount account, SystemEntityType entityType);
+	void doDeleteProvisioning(AccAccount account);
 	
 	/**
 	 * 
@@ -60,7 +58,7 @@ public interface ProvisioningService {
 	 * @param identity
 	 * @param passwordChange
 	 */
-	void changePassword(AbstractEntity identity, PasswordChangeDto passwordChange);
+	void changePassword(ENTITY identity, PasswordChangeDto passwordChange);
 	
 	/**
 	 * Do provisioning only for single attribute. For example, it is needed to change password
@@ -73,7 +71,7 @@ public interface ProvisioningService {
 	 * @param entity
 	 */
 	void doProvisioningForAttribute(SysSystemEntity systemEntity, AttributeMapping mappedAttribute, Object value,
-			ProvisioningOperationType operationType, AbstractEntity entity);
+			ProvisioningOperationType operationType, ENTITY entity);
 	
 	/**
 	 * Do authenticate check for given username and password on target resource
@@ -95,7 +93,7 @@ public interface ProvisioningService {
 	 * @param entityType
 	 * @return
 	 */
-	List<AttributeMapping> resolveMappedAttributes(String uid, AccAccount account, AbstractEntity entity, SysSystem system, SystemEntityType entityType);
+	List<AttributeMapping> resolveMappedAttributes(String uid, AccAccount account, ENTITY entity, SysSystem system, SystemEntityType entityType);
 
 	/**
 	 * Create final list of attributes for provisioning.
@@ -113,7 +111,7 @@ public interface ProvisioningService {
 	 * @param entity
 	 * @param entityType
 	 */
-	void createAccountsForAllSystems(AbstractEntity entity);
+	void createAccountsForAllSystems(ENTITY entity);
 
-	
+
 }

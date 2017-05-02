@@ -30,7 +30,7 @@ import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
-import eu.bcvsolutions.idm.acc.service.api.SynchronizationExecutor;
+import eu.bcvsolutions.idm.acc.service.api.SynchronizationEntityExecutor;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncActionLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncItemLogService;
@@ -58,7 +58,7 @@ import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 
 @Component
 public class IdentitySynchronizationExecutor extends AbstractSynchronizationExecutor<IdmIdentityDto>
-		implements SynchronizationExecutor {
+		implements SynchronizationEntityExecutor {
 
 	private final IdmIdentityService identityService;
 	private final AccIdentityAccountService identityAccoutnService;

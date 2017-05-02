@@ -41,8 +41,8 @@ import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountManagementService;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
+import eu.bcvsolutions.idm.acc.service.api.ProvisioningEntityExecutor;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningExecutor;
-import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
@@ -68,9 +68,9 @@ import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
  * @author svandav
  *
  */
-public abstract class AbstractProvisioningService<ENTITY extends AbstractEntity> implements ProvisioningService<ENTITY>{
+public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity> implements ProvisioningEntityExecutor<ENTITY>{
 
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(AbstractProvisioningService.class);
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(AbstractProvisioningExecutor.class);
 	protected final SysSystemMappingService systemMappingService;
 	protected final SysSystemAttributeMappingService attributeMappingService;
 	private final IcConnectorFacade connectorFacade;
@@ -81,7 +81,7 @@ public abstract class AbstractProvisioningService<ENTITY extends AbstractEntity>
 	private final ProvisioningExecutor provisioningExecutor;
 
 	@Autowired
-	public AbstractProvisioningService(SysSystemMappingService systemMappingService,
+	public AbstractProvisioningExecutor(SysSystemMappingService systemMappingService,
 			SysSystemAttributeMappingService attributeMappingService, IcConnectorFacade connectorFacade,
 			SysSystemService systemService,
 			SysRoleSystemService roleSystemService, AccAccountManagementService accountManagementService,
@@ -444,7 +444,7 @@ public abstract class AbstractProvisioningService<ENTITY extends AbstractEntity>
 	 */
 	@Override
 	public List<AttributeMapping> compileAttributes(List<? extends AttributeMapping> defaultAttributes,
-			List<SysRoleSystemAttribute> overloadingAttributes) {
+			List<SysRoleSystemAttribute> overloadingAttributes, SystemEntityType entityType) {
 		Assert.notNull(overloadingAttributes, "List of overloading attributes cannot be null!");
 		
 		List<AttributeMapping> finalAttributes = new ArrayList<>();

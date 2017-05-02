@@ -20,7 +20,7 @@ import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.repository.SysRoleSystemAttributeRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountManagementService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
-import eu.bcvsolutions.idm.acc.service.api.IdentityProvisioningService;
+import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
@@ -50,7 +50,7 @@ public class DefaultSysRoleSystemAttributeService
 	@Autowired
 	private ApplicationContext applicationContext;
 	private AccAccountManagementService accountManagementService;
-	private IdentityProvisioningService provisioningService;
+	private ProvisioningService provisioningService;
 
 	@Autowired
 	public DefaultSysRoleSystemAttributeService(SysRoleSystemAttributeRepository repository) {
@@ -142,9 +142,9 @@ public class DefaultSysRoleSystemAttributeService
 	 * 
 	 * @return
 	 */
-	private IdentityProvisioningService getProvisioningService() {
+	private ProvisioningService getProvisioningService() {
 		if (provisioningService == null) {
-			provisioningService = applicationContext.getBean(IdentityProvisioningService.class);
+			provisioningService = applicationContext.getBean(ProvisioningService.class);
 		}
 		return provisioningService;
 	}

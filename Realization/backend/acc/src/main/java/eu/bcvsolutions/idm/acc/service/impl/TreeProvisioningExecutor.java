@@ -44,7 +44,6 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
-import eu.bcvsolutions.idm.acc.service.api.TreeProvisioningService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
@@ -58,8 +57,8 @@ import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
  *
  */
 @Service
-@Qualifier(value=DefaultTreeProvisioningService.NAME)
-public class DefaultTreeProvisioningService extends AbstractProvisioningService<IdmTreeNode> implements TreeProvisioningService {
+@Qualifier(value=TreeProvisioningExecutor.NAME)
+public class TreeProvisioningExecutor extends AbstractProvisioningExecutor<IdmTreeNode> {
  
 	public static final String NAME = "treeProvisioningService";
 	public static final String PASSWORD_SCHEMA_PROPERTY_NAME = "__PASSWORD__";
@@ -67,7 +66,7 @@ public class DefaultTreeProvisioningService extends AbstractProvisioningService<
 	private final IdmTreeNodeService treeNodeService;
 	
 	@Autowired
-	public DefaultTreeProvisioningService(SysSystemMappingService systemMappingService,
+	public TreeProvisioningExecutor(SysSystemMappingService systemMappingService,
 			SysSystemAttributeMappingService attributeMappingService, IcConnectorFacade connectorFacade,
 			SysSystemService systemService, SysRoleSystemService roleSystemService,
 			AccAccountManagementService accountManagementService,
@@ -283,7 +282,7 @@ public class DefaultTreeProvisioningService extends AbstractProvisioningService<
 		List<? extends AttributeMapping> defaultAttributes = findAttributeMappings(system, entityType);
 
 		// Final list of attributes use for provisioning
-		return compileAttributes(defaultAttributes, roleSystemAttributesAll);
+		return compileAttributes(defaultAttributes, roleSystemAttributesAll, entityType);
 	}
 	
 	@Override
@@ -323,5 +322,10 @@ public class DefaultTreeProvisioningService extends AbstractProvisioningService<
 	@Override
 	protected ReadWriteDtoService getEntityService() {
 		return null; // We don't have DTO service for IdmTreeNode now
+	}
+
+	@Override
+	public boolean supports(SystemEntityType delimiter) {
+		return SystemEntityType.TREE == delimiter;
 	}
 }

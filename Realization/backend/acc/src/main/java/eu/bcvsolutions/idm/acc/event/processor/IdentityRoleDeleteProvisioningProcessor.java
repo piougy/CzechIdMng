@@ -8,7 +8,7 @@ import org.springframework.util.Assert;
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.event.ProvisioningEvent;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountManagementService;
-import eu.bcvsolutions.idm.acc.service.api.IdentityProvisioningService;
+import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
@@ -33,14 +33,14 @@ public class IdentityRoleDeleteProvisioningProcessor extends AbstractEntityEvent
 	public static final String PROCESSOR_NAME = "identity-role-delete-provisioning-processor";
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdentityRoleDeleteProvisioningProcessor.class);
 	private final AccAccountManagementService accountManagementService;
-	private final IdentityProvisioningService provisioningService;
+	private final ProvisioningService provisioningService;
 	private final IdmIdentityContractService identityContractService;
 
 
 	@Autowired
 	public IdentityRoleDeleteProvisioningProcessor(
 			AccAccountManagementService accountManagementService,
-			IdentityProvisioningService provisioningService,
+			ProvisioningService provisioningService,
 			IdmIdentityContractService identityContractService) {
 		super(IdentityRoleEventType.DELETE);
 		//

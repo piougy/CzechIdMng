@@ -31,7 +31,7 @@ import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.acc.security.authentication.impl.DefaultAccAuthenticator;
 import eu.bcvsolutions.idm.acc.service.DefaultSysAccountManagementServiceTest;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
-import eu.bcvsolutions.idm.acc.service.api.IdentityProvisioningService;
+import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
@@ -106,7 +106,7 @@ public class DefaultAccAuthenticatorTest extends AbstractIntegrationTest {
 	private SysRoleSystemAttributeService roleSystemAttributeService;
 	
 	@Autowired
-	private IdentityProvisioningService provisioningService;
+	private ProvisioningService provisioningService;
 	
 	@Autowired
 	private ConfigurationService configurationService;

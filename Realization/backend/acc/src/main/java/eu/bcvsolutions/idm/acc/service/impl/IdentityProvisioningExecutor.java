@@ -37,7 +37,6 @@ import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountManagementService;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
-import eu.bcvsolutions.idm.acc.service.api.IdentityProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningExecutor;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
@@ -49,7 +48,6 @@ import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
-import eu.bcvsolutions.idm.core.rest.assembler.IdmIdentityAssembler;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 
 /**
@@ -59,8 +57,8 @@ import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
  *
  */
 @Service
-@Qualifier(value=DefaultIdentityProvisioningService.NAME)
-public class DefaultIdentityProvisioningService extends AbstractProvisioningService<IdmIdentity> implements IdentityProvisioningService {
+@Qualifier(value=IdentityProvisioningExecutor.NAME)
+public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<IdmIdentity> {
  
 	public static final String NAME = "identityProvisioningService";
 	public static final String PASSWORD_SCHEMA_PROPERTY_NAME = "__PASSWORD__";
@@ -69,7 +67,7 @@ public class DefaultIdentityProvisioningService extends AbstractProvisioningServ
 	private final AccAccountManagementService accountManagementService;
 	
 	@Autowired
-	public DefaultIdentityProvisioningService(SysSystemMappingService systemMappingService,
+	public IdentityProvisioningExecutor(SysSystemMappingService systemMappingService,
 			SysSystemAttributeMappingService attributeMappingService, IcConnectorFacade connectorFacade,
 			SysSystemService systemService, SysRoleSystemService roleSystemService,
 			AccAccountManagementService accountManagementService,
@@ -189,7 +187,7 @@ public class DefaultIdentityProvisioningService extends AbstractProvisioningServ
 		List<? extends AttributeMapping> defaultAttributes = findAttributeMappings(system, entityType);
 
 		// Final list of attributes use for provisioning
-		return compileAttributes(defaultAttributes, roleSystemAttributesAll);
+		return compileAttributes(defaultAttributes, roleSystemAttributesAll, entityType);
 	}
 	
 	/**
@@ -281,6 +279,11 @@ public class DefaultIdentityProvisioningService extends AbstractProvisioningServ
 	@Override
 	protected ReadWriteDtoService getEntityService() {
 		return null; // We don't have DTO service for IdmIdentity now.
+	}
+
+	@Override
+	public boolean supports(SystemEntityType delimiter) {
+		return SystemEntityType.IDENTITY == delimiter;
 	}
 
 }

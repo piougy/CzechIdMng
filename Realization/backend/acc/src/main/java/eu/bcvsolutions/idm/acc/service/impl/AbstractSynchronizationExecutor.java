@@ -59,7 +59,7 @@ import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
-import eu.bcvsolutions.idm.acc.service.api.SynchronizationExecutor;
+import eu.bcvsolutions.idm.acc.service.api.SynchronizationEntityExecutor;
 import eu.bcvsolutions.idm.acc.service.api.SynchronizationService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncActionLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
@@ -114,7 +114,7 @@ import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
  *
  */
 
-public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto> implements SynchronizationExecutor {
+public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto> implements SynchronizationEntityExecutor {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory
 			.getLogger(AbstractSynchronizationExecutor.class);
@@ -948,7 +948,8 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 	/**
 	 * Method for resolve linked situation for one item.
 	 */
-	protected void resolveLinkedSituation(String uid, SystemEntityType entityType, List<IcAttribute> icAttributes,
+	@Override
+	public void resolveLinkedSituation(String uid, SystemEntityType entityType, List<IcAttribute> icAttributes,
 			List<SysSystemAttributeMapping> mappedAttributes, AccAccount account,
 			SynchronizationLinkedActionType action, SysSyncLog log, SysSyncItemLog logItem,
 			List<SysSyncActionLog> actionLogs) {
@@ -994,7 +995,8 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 	/**
 	 * Method for resolve missing entity situation for one item.
 	 */
-	protected void resolveMissingEntitySituation(String uid, SystemEntityType entityType,
+	@Override
+	public void resolveMissingEntitySituation(String uid, SystemEntityType entityType,
 			List<SysSystemAttributeMapping> mappedAttributes, SysSystem system,
 			SynchronizationMissingEntityActionType actionType, SysSyncLog log, SysSyncItemLog logItem,
 			List<SysSyncActionLog> actionLogs, List<IcAttribute> icAttributes) {
@@ -1025,7 +1027,8 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 	/**
 	 * Method for resolve unlinked situation for one item.
 	 */
-	protected void resolveUnlinkedSituation(String uid, UUID entityId, SystemEntityType entityType,
+	@Override
+	public void resolveUnlinkedSituation(String uid, UUID entityId, SystemEntityType entityType,
 			SysSystemEntity systemEntity, SynchronizationUnlinkedActionType action, SysSystem system, SysSyncLog log,
 			SysSyncItemLog logItem, List<SysSyncActionLog> actionLogs) {
 		addToItemLog(logItem, "Account not exist but, entity by correlation was found (entity unlinked).");
@@ -1057,7 +1060,8 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 	/**
 	 * Method for resolve missing account situation for one item.
 	 */
-	protected void resolveMissingAccountSituation(String uid, AccAccount account, SystemEntityType entityType,
+	@Override
+	public void resolveMissingAccountSituation(String uid, AccAccount account, SystemEntityType entityType,
 			ReconciliationMissingAccountActionType action, SysSystem system, SysSyncLog log, SysSyncItemLog logItem,
 			List<SysSyncActionLog> actionLogs) {
 		addToItemLog(logItem,

@@ -7,10 +7,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
-import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.event.ProvisioningEvent;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
-import eu.bcvsolutions.idm.acc.service.api.TreeProvisioningService;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
@@ -33,7 +31,7 @@ public class TreeNodeSaveProcessor extends AbstractEntityEventProcessor<IdmTreeN
 
 	public static final String PROCESSOR_NAME = "tree-node-save-processor";
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(TreeNodeSaveProcessor.class);
-	private TreeProvisioningService provisioningService;
+	private ProvisioningService provisioningService;
 	private final ApplicationContext applicationContext;
 	
 	@Autowired
@@ -73,9 +71,9 @@ public class TreeNodeSaveProcessor extends AbstractEntityEventProcessor<IdmTreeN
 	 * 
 	 * @return
 	 */
-	private TreeProvisioningService getProvisioningService() {
+	private ProvisioningService getProvisioningService() {
 		if (provisioningService == null) {
-			provisioningService = applicationContext.getBean(TreeProvisioningService.class);
+			provisioningService = applicationContext.getBean(ProvisioningService.class);
 		}
 		return provisioningService;
 	}

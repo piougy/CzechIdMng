@@ -35,7 +35,7 @@ import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
-import eu.bcvsolutions.idm.acc.service.api.SynchronizationExecutor;
+import eu.bcvsolutions.idm.acc.service.api.SynchronizationEntityExecutor;
 import eu.bcvsolutions.idm.acc.service.api.SynchronizationService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncLogService;
@@ -64,8 +64,8 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 	private final AccAccountService accountService;
 	private final EntityEventManager entityEventManager;
 	private final LongRunningTaskManager longRunningTaskManager;
-	private final PluginRegistry<SynchronizationExecutor, SystemEntityType> pluginExecutors; 
-	private final List<SynchronizationExecutor> executors; 
+	private final PluginRegistry<SynchronizationEntityExecutor, SystemEntityType> pluginExecutors; 
+	private final List<SynchronizationEntityExecutor> executors; 
 	//
 	private UUID synchronizationConfigId = null;
 
@@ -76,7 +76,7 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 			SysSyncLogService synchronizationLogService,
 			AccAccountService accountService, SysSystemEntityService systemEntityService,
 			EntityEventManager entityEventManager,
-			LongRunningTaskManager longRunningTaskManager, List<SynchronizationExecutor>  executors) {
+			LongRunningTaskManager longRunningTaskManager, List<SynchronizationEntityExecutor>  executors) {
 		Assert.notNull(attributeHandlingService);
 		Assert.notNull(synchronizationConfigService);
 		Assert.notNull(synchronizationLogService);
@@ -173,7 +173,7 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 		
 		SystemEntityType entityType = mapping.getEntityType();
 	
-		SynchronizationExecutor executor =  getSyncExecutor(entityType);
+		SynchronizationEntityExecutor executor =  getSyncExecutor(entityType);
 		executor.setLongRunningTaskExecutor(this);
 		return executor.process(synchronizationConfigId);
 	}
@@ -216,21 +216,7 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 		synchronizationLogService.saveAll(logs);
 		return config;
 	}
-	
-	/**
-	 * Find executor for synchronization given entity type
-	 * @param entityType
-	 * @return
-	 */
-	private AbstractSynchronizationExecutor getSyncExecutor(SystemEntityType entityType){
-		
-		AbstractSynchronizationExecutor executor =  (AbstractSynchronizationExecutor)pluginExecutors.getPluginFor(entityType);
-		if (executor == null) {
-			throw new UnsupportedOperationException(
-					MessageFormat.format("SystemEntityType {0} is not supported!", entityType));
-		}
-		return executor;
-	}
+
 	
 	@Override
 	@Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
@@ -349,5 +335,20 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 	@Override
 	public void setSynchronizationConfigId(UUID synchronizationConfigId) {
 		this.synchronizationConfigId = synchronizationConfigId;
+	}
+	
+	/**
+	 * Find executor for synchronization given entity type
+	 * @param entityType
+	 * @return
+	 */
+	private SynchronizationEntityExecutor getSyncExecutor(SystemEntityType entityType){
+		
+		SynchronizationEntityExecutor executor =  pluginExecutors.getPluginFor(entityType);
+		if (executor == null) {
+			throw new UnsupportedOperationException(
+					MessageFormat.format("Synchronization executor for SystemEntityType {0} is not supported!", entityType));
+		}
+		return executor;
 	}
 }

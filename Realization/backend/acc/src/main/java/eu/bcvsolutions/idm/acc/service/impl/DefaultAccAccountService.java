@@ -9,12 +9,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.filter.AccountFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.repository.AccAccountRepository;
 import eu.bcvsolutions.idm.acc.repository.AccIdentityAccountRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
-import eu.bcvsolutions.idm.acc.service.api.IdentityProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 
@@ -32,7 +32,7 @@ public class DefaultAccAccountService extends AbstractReadWriteEntityService<Acc
 	private final AccIdentityAccountRepository accIdentityAccountRepository;
 	@Autowired
 	private ApplicationContext applicationContext;
-	private IdentityProvisioningService provisioningService;
+	private ProvisioningService provisioningService;
 
 	@Autowired
 	public DefaultAccAccountService(AccAccountRepository accountRepository,
@@ -72,9 +72,9 @@ public class DefaultAccAccountService extends AbstractReadWriteEntityService<Acc
 		// TODO: move to event
 		if (deleteTargetAccount) {
 			if (provisioningService == null) {
-				provisioningService = applicationContext.getBean(IdentityProvisioningService.class);
+				provisioningService = applicationContext.getBean(ProvisioningService.class);
 			}
-			this.provisioningService.doDeleteProvisioning(account);
+			this.provisioningService.doDeleteProvisioning(account, SystemEntityType.IDENTITY);
 		}
 	}
 

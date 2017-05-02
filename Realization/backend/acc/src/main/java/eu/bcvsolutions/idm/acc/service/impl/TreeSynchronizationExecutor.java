@@ -46,7 +46,7 @@ import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccTreeAccountService;
-import eu.bcvsolutions.idm.acc.service.api.SynchronizationExecutor;
+import eu.bcvsolutions.idm.acc.service.api.SynchronizationEntityExecutor;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncActionLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncItemLogService;
@@ -84,7 +84,7 @@ import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 
 @Component
 public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor<IdmTreeNodeDto>
-		implements SynchronizationExecutor {
+		implements SynchronizationEntityExecutor {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(TreeSynchronizationExecutor.class);
 	public final static String PARENT_FIELD = "parent";
@@ -174,7 +174,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 		IcObjectClass objectClass = new IcObjectClassImpl(mapping.getObjectClass().getObjectClassName());
 
 		Object lastToken = config.isReconciliation() ? null : config.getToken();
-		IcSyncToken lastIcToken = lastToken != null ? new IcSyncTokenImpl(lastToken) : null;
+		//IcSyncToken lastIcToken = lastToken != null ? new IcSyncTokenImpl(lastToken) : null;
 
 		// Create basic synchronization log
 		SysSyncLog log = new SysSyncLog();

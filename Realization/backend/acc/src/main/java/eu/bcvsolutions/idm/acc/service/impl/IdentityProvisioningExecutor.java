@@ -38,6 +38,7 @@ import eu.bcvsolutions.idm.acc.service.api.AccAccountManagementService;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningExecutor;
+import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
@@ -61,7 +62,6 @@ import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<IdmIdentity> {
  
 	public static final String NAME = "identityProvisioningService";
-	public static final String PASSWORD_SCHEMA_PROPERTY_NAME = "__PASSWORD__";
 	private final AccIdentityAccountService identityAccountService;
 	private final SysRoleSystemService roleSystemService;
 	private final AccAccountManagementService accountManagementService;
@@ -143,7 +143,7 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
 			// We try find __PASSWORD__ attribute in mapped attributes
 			Optional<? extends AttributeMapping> attriubuteHandlingOptional = finalAttributes.stream()
 					.filter((attribute) -> {
-						return PASSWORD_SCHEMA_PROPERTY_NAME.equals(attribute.getSchemaAttribute().getName());
+						return ProvisioningService.PASSWORD_SCHEMA_PROPERTY_NAME.equals(attribute.getSchemaAttribute().getName());
 					}).findFirst();
 			if (!attriubuteHandlingOptional.isPresent()) {
 				throw new ProvisioningException(AccResultCode.PROVISIONING_PASSWORD_FIELD_NOT_FOUND,

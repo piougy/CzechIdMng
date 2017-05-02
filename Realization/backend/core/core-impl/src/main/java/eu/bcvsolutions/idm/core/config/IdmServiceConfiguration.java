@@ -30,14 +30,19 @@ import eu.bcvsolutions.idm.core.model.repository.IdmAuthorizationPolicyRepositor
 import eu.bcvsolutions.idm.core.model.repository.IdmConfidentialStorageValueRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmConfigurationRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmContractGuaranteeRepository;
+import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
+import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleTreeNodeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
+import eu.bcvsolutions.idm.core.model.repository.IdmTreeTypeRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmContractGuaranteeService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
@@ -46,6 +51,8 @@ import eu.bcvsolutions.idm.core.model.service.impl.DefaultEntityEventManager;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmConfidentialStorage;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmContractGuaranteeService;
+import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmIdentityContractService;
+import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmRoleService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmRoleTreeNodeService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultModuleService;
@@ -89,6 +96,7 @@ public class IdmServiceConfiguration {
 	@Autowired private IdmIdentityRepository identityRepository;
 	@Autowired private IdmRoleRepository roleRepository;
 	@Autowired private IdmRoleTreeNodeRepository roleTreeNodeRepository;
+	@Autowired private IdmTreeTypeRepository treeTypeRepository;
 	@Autowired private IdmTreeNodeRepository treeNodeRepository;
 	@Autowired private IdmAuthorizationPolicyRepository authorizationPolicyRepository;
 	@Autowired private IdmConfidentialStorageValueRepository confidentialStorageValueRepository;
@@ -96,6 +104,8 @@ public class IdmServiceConfiguration {
 	@Autowired private IdmFormAttributeRepository formAttributeRepository;
 	@Autowired private IdmLongRunningTaskRepository longRunningTaskRepository;
 	@Autowired private IdmContractGuaranteeRepository contractGuaranteeRepository;
+	@Autowired private IdmIdentityRoleRepository identityRoleRepository;
+	@Autowired private IdmIdentityContractRepository identityContractRepository;
 	//
 	// Auto registered beans (plugins)
 	@Autowired private PluginRegistry<ModuleDescriptor, String> moduleDescriptorRegistry;
@@ -239,9 +249,10 @@ public class IdmServiceConfiguration {
 	 */
 	@Bean
 	public IdmAuthorizationPolicyService authorizationPolicyService() {
-		return new DefaultIdmAuthorizationPolicyService(authorizationPolicyRepository, roleService(), moduleService());
+		return new DefaultIdmAuthorizationPolicyService(authorizationPolicyRepository, roleService(),
+				moduleService(), entityEventManager());
 	}
-	
+
 	/**
 	 * Persists long running tasks
 	 * 
@@ -281,8 +292,11 @@ public class IdmServiceConfiguration {
 	 * @return
 	 */
 	@Bean
-	public IdmRoleTreeNodeService roleTreeNodeService(IdmRoleRequestService roleRequestService, IdmConceptRoleRequestService conceptRoleRequestService) {
-		return new DefaultIdmRoleTreeNodeService(roleTreeNodeRepository, treeNodeRepository, entityEventManager(), roleRequestService, conceptRoleRequestService);
+	public IdmRoleTreeNodeService roleTreeNodeService(
+			IdmRoleRequestService roleRequestService, 
+			IdmIdentityContractService identityContractService,
+			IdmConceptRoleRequestService conceptRoleRequestService) {
+		return new DefaultIdmRoleTreeNodeService(roleTreeNodeRepository, treeNodeRepository, entityEventManager(), roleRequestService, identityContractService, conceptRoleRequestService);
 	}
 	
 	/**
@@ -295,4 +309,23 @@ public class IdmServiceConfiguration {
 		return new DefaultIdmContractGuaranteeService(contractGuaranteeRepository);
 	}
 	
+	/**
+	 * Assigned identity's contract
+	 * 
+	 * @return
+	 */
+	@Bean
+	public IdmIdentityContractService identityContractService() {
+		return new DefaultIdmIdentityContractService(identityContractRepository, entityEventManager(), treeTypeRepository, treeNodeRepository);
+	}
+	
+	/**
+	 * Assigned identity's roles 
+	 * 
+	 * @return
+	 */
+	@Bean
+	public IdmIdentityRoleService idmIdentityRoleService() {
+		return new DefaultIdmIdentityRoleService(identityRoleRepository, entityEventManager());
+	}	
 }

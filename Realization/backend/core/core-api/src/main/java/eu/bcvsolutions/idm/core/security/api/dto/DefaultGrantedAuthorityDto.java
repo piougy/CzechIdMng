@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.security.api.dto;
 
+import com.google.common.base.Objects;
+
 public class DefaultGrantedAuthorityDto {
 	
 	private String authority;
@@ -18,5 +20,20 @@ public class DefaultGrantedAuthorityDto {
 	public void setAuthority(String authority) {
 		this.authority = authority;
 	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hashCode(getAuthority());
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj || getClass() != obj.getClass()) {
+			return false;
+		}
+		return Objects.equal(getAuthority(), ((DefaultGrantedAuthorityDto) obj).getAuthority());
+	}
+	
+	
 
 }

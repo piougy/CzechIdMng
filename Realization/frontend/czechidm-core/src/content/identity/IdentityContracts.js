@@ -15,13 +15,17 @@ const uiKey = 'identity-contracts';
  *
  * @author Radek Tomiška
  */
-export default class IdentityContracts extends Basic.AbstractContent {
+export default class IdentityContracts extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);
     this.identityContractManager = new IdentityContractManager();
     this.treeTypeManager = new TreeTypeManager();
     this.treeNodeManager = new TreeNodeManager();
+  }
+
+  getUiKey() {
+    return uiKey;
   }
 
   getManager() {
@@ -50,28 +54,6 @@ export default class IdentityContracts extends Basic.AbstractContent {
     }
   }
 
-  onDelete(entity, event) {
-    if (event) {
-      event.preventDefault();
-    }
-    //
-    const { entityId } = this.props.params;
-    this.refs['confirm-delete'].show(
-      this.i18n(`action.delete.message`, { count: 1, record: this.getManager().getNiceLabel(entity) }),
-      this.i18n(`action.delete.header`, { count: 1 })
-    ).then(() => {
-      this.context.store.dispatch(this.getManager().deleteEntity(entity, `${uiKey}-${entityId}`, (deletedEntity, error) => {
-        if (!error) {
-          this.addMessage({ message: this.i18n('delete.success', { position: this.getManager().getNiceLabel(entity), username: entityId }) });
-        } else {
-          this.addError(error);
-        }
-      }));
-    }, () => {
-      // Rejected
-    });
-  }
-
   render() {
     const { entityId } = this.props.params;
     //
@@ -88,9 +70,15 @@ export default class IdentityContracts extends Basic.AbstractContent {
             manager={ this.identityContractManager }
             forceSearchParameters={ new SearchParameters().setFilter('identity', entityId) }
             rowClass={({rowIndex, data}) => { return Utils.Ui.getRowClass(data[rowIndex]); }}
+            showRowSelection={ SecurityManager.hasAuthority('IDENTITYCONTRACT_DELETE') }
+            actions={
+              [
+                { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this) },
+              ]
+            }
             buttons={
               [
-                <Basic.Button level="success" className="btn-xs" onClick={this.showDetail.bind(this, {})} rendered={SecurityManager.isAdmin()}>
+                <Basic.Button level="success" className="btn-xs" onClick={this.showDetail.bind(this, {})} rendered={ SecurityManager.hasAuthority('IDENTITYCONTRACT_CREATE') }>
                   <Basic.Icon value="fa:plus"/>
                   {' '}
                   {this.i18n('button.add')}
@@ -142,9 +130,9 @@ export default class IdentityContracts extends Basic.AbstractContent {
                   return (
                     <span>
                       {
-                        !data[rowIndex]._embedded || !data[rowIndex]._embedded.workPosition
+                        !data[rowIndex]._embedded || !data[rowIndex]._embedded.workPosition || !data[rowIndex]._embedded.workPosition._embedded
                         ||
-                        this.treeTypeManager.getNiceLabel(data[rowIndex]._embedded.workPosition.treeType)
+                        this.treeTypeManager.getNiceLabel(data[rowIndex]._embedded.workPosition._embedded.treeType)
                       }
                     </span>
                   );
@@ -185,24 +173,6 @@ export default class IdentityContracts extends Basic.AbstractContent {
               face="bool"
               width={100}
               sort/>
-            <Basic.Column
-              header={this.i18n('label.action')}
-              className="action"
-              cell={
-                ({rowIndex, data}) => {
-                  return (
-                    <Basic.Button
-                      level="danger"
-                      onClick={this.onDelete.bind(this, data[rowIndex])}
-                      className="btn-xs"
-                      title={this.i18n('button.delete')}
-                      titlePlacement="bottom">
-                      <Basic.Icon icon="trash"/>
-                    </Basic.Button>
-                  );
-                }
-              }
-              rendered={SecurityManager.isAdmin()}/>
           </Advanced.Table>
         </Basic.Panel>
       </div>

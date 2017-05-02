@@ -30,7 +30,7 @@ import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
-import eu.bcvsolutions.idm.acc.service.api.SynchronizationExecutor;
+import eu.bcvsolutions.idm.acc.service.api.SynchronizationEntityExecutor;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncActionLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncItemLogService;
@@ -58,7 +58,7 @@ import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 
 @Component
 public class IdentitySynchronizationExecutor extends AbstractSynchronizationExecutor<IdmIdentityDto>
-		implements SynchronizationExecutor {
+		implements SynchronizationEntityExecutor {
 
 	private final IdmIdentityService identityService;
 	private final AccIdentityAccountService identityAccoutnService;
@@ -102,7 +102,7 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 	protected void doDeleteEntity(AccAccount account, SystemEntityType entityType, SysSyncLog log,
 			SysSyncItemLog logItem, List<SysSyncActionLog> actionLogs) {
 		if (SystemEntityType.IDENTITY == entityType) {
-			UUID entityId = getEntityByAccount(account);
+			UUID entityId = getEntityByAccount(account.getId());
 			IdmIdentity identity = null;
 			if (entityId != null) {
 				identity = identityService.get(entityId);
@@ -132,7 +132,7 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 	protected void doUpdateAccount(AccAccount account, SystemEntityType entityType, SysSyncLog log,
 			SysSyncItemLog logItem, List<SysSyncActionLog> actionLogs) {
 		if (SystemEntityType.IDENTITY == entityType) {
-			UUID entityId = getEntityByAccount(account);
+			UUID entityId = getEntityByAccount(account.getId());
 			IdmIdentity identity = null;
 			if (entityId != null) {
 				identity = identityService.get(entityId);
@@ -222,7 +222,7 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 			List<IcAttribute> icAttributes, List<SysSystemAttributeMapping> mappedAttributes, SysSyncLog log,
 			SysSyncItemLog logItem, List<SysSyncActionLog> actionLogs) {
 		if (SystemEntityType.IDENTITY == entityType) {
-			UUID entityId = getEntityByAccount(account);
+			UUID entityId = getEntityByAccount(account.getId());
 			IdmIdentity identity = null;
 			if (entityId != null) {
 				identity = identityService.get(entityId);
@@ -372,5 +372,10 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 	@Override
 	protected ReadWriteDtoService getEntityService() {
 		return null; // We don't have DTO service for IdmIdentity now.
+	}
+
+	@Override
+	protected List<? extends AbstractEntity> findAllEntity() {
+		return identityService.find(null).getContent();
 	}
 }

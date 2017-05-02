@@ -4,7 +4,6 @@ import java.util.List;
 
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 
 /**
@@ -21,13 +20,13 @@ public class WorkPositionDto extends AbstractDto {
 
 	private static final long serialVersionUID = 6839506093315671159L;
 	private IdmIdentity identity;
-	private IdmIdentityContract contract;
+	private IdmIdentityContractDto contract;
 	private List<IdmTreeNode> path;
 	
 	public WorkPositionDto() {
 	}
 	
-	public WorkPositionDto(IdmIdentity identity, IdmIdentityContract contract) {
+	public WorkPositionDto	(IdmIdentity identity, IdmIdentityContractDto contract) {
 		super(contract);
 		this.identity = identity;
 		this.contract = contract;
@@ -41,11 +40,11 @@ public class WorkPositionDto extends AbstractDto {
 		this.identity = identity;
 	}
 
-	public IdmIdentityContract getContract() {
+	public IdmIdentityContractDto getContract() {
 		return contract;
 	}
 
-	public void setContract(IdmIdentityContract contract) {
+	public void setContract(IdmIdentityContractDto contract) {
 		this.contract = contract;
 	}
 

@@ -136,11 +136,11 @@ public class DefaultAccAuthenticatorTest extends AbstractIntegrationTest {
 		IdmRole role = roleService.getByName(ROLE_NAME);
 		
 		IdmIdentityRoleDto irdto = new IdmIdentityRoleDto();
-		irdto.setIdentityContract(identityContractService.getContracts(identity).get(0).getId());
+		irdto.setIdentityContract(identityContractService.findAllByIdentity(identity.getId()).get(0).getId());
 		irdto.setRole(role.getId());
 		// This evokes IdentityRole SAVE event. On this event will be start
 		// account management and provisioning
-		identityRoleService.addByDto(irdto);
+		identityRoleService.save(irdto);
 		
 		// do provisioning
 		provisioningService.doProvisioning(identity);
@@ -184,10 +184,10 @@ public class DefaultAccAuthenticatorTest extends AbstractIntegrationTest {
 		IdmRole role2 = roleService.getByName(ROLE_NAME + "2");
 		
 		IdmIdentityRoleDto irdto = new IdmIdentityRoleDto();
-		irdto.setIdentityContract(identityContractService.getContracts(identity).get(0).getId());
+		irdto.setIdentityContract(identityContractService.findAllByIdentity(identity.getId()).get(0).getId());
 		irdto.setRole(role2.getId());
 
-		identityRoleService.addByDto(irdto);
+		identityRoleService.save(irdto);
 		
 		accounts = identityAccoutnService.find(filter, null).getContent();
 		assertEquals(2, accounts.size());

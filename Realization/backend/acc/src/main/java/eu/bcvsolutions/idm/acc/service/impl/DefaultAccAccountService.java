@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.filter.AccountFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.repository.AccAccountRepository;
@@ -73,7 +74,7 @@ public class DefaultAccAccountService extends AbstractReadWriteEntityService<Acc
 			if (provisioningService == null) {
 				provisioningService = applicationContext.getBean(ProvisioningService.class);
 			}
-			this.provisioningService.doDeleteProvisioning(account);
+			this.provisioningService.doDeleteProvisioning(account, SystemEntityType.IDENTITY);
 		}
 	}
 

@@ -532,7 +532,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		defaultAttributes.add(defTwo);
 
 		List<AttributeMapping> compilledAttributes = provisioningService.compileAttributes(defaultAttributes,
-				overloadingAttributes);
+				overloadingAttributes, SystemEntityType.IDENTITY);
 		Assert.assertEquals(1, compilledAttributes.size());
 		Assert.assertEquals("defTwo", compilledAttributes.get(0).getName());
 	}
@@ -579,7 +579,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		overloadingAttributes.add(overloadedOne);
 
 		List<AttributeMapping> compilledAttributes = provisioningService.compileAttributes(defaultAttributes,
-				overloadingAttributes);
+				overloadingAttributes, SystemEntityType.IDENTITY);
 		Assert.assertEquals(2, compilledAttributes.size());
 		Assert.assertTrue(compilledAttributes.stream().filter(attribute -> {
 			return "defOneOverloaded".equals(attribute.getName());
@@ -594,7 +594,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		initOverloadedAttributes(overloadingAttributes, defaultAttributes);
 
 		List<AttributeMapping> compilledAttributes = provisioningService.compileAttributes(defaultAttributes,
-				overloadingAttributes);
+				overloadingAttributes, SystemEntityType.IDENTITY);
 		Assert.assertEquals(2, compilledAttributes.size());
 		Assert.assertTrue(compilledAttributes.stream().filter(attribute -> {
 			return "defOneOverloadedRoleTwo".equals(attribute.getName());
@@ -603,7 +603,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		// set name role One to zroleOne
 		overloadingAttributes.get(0).getRoleSystem().getRole().setName("zroleOne");
 
-		compilledAttributes = provisioningService.compileAttributes(defaultAttributes, overloadingAttributes);
+		compilledAttributes = provisioningService.compileAttributes(defaultAttributes, overloadingAttributes, SystemEntityType.IDENTITY);
 		Assert.assertEquals(2, compilledAttributes.size());
 		Assert.assertTrue(compilledAttributes.stream().filter(attribute -> {
 			return "defOneOverloaded".equals(attribute.getName());
@@ -614,7 +614,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		// and must missing in result
 		overloadingAttributes.get(1).setDisabledDefaultAttribute(true);
 
-		compilledAttributes = provisioningService.compileAttributes(defaultAttributes, overloadingAttributes);
+		compilledAttributes = provisioningService.compileAttributes(defaultAttributes, overloadingAttributes, SystemEntityType.IDENTITY);
 		Assert.assertEquals(1, compilledAttributes.size());
 	}
 
@@ -631,7 +631,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		overloadingAttributes.get(1).getRoleSystem().getRole().setPriority(100);
 
 		List<AttributeMapping> compilledAttributes = provisioningService.compileAttributes(defaultAttributes,
-				overloadingAttributes);
+				overloadingAttributes, SystemEntityType.IDENTITY);
 		Assert.assertEquals(2, compilledAttributes.size());
 		Assert.assertTrue(compilledAttributes.stream().filter(attribute -> {
 			return "defOneOverloaded".equals(attribute.getName());
@@ -656,7 +656,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		overloadingAttributes.get(1).setStrategyType(AttributeMappingStrategyType.MERGE);
 
 		List<AttributeMapping> compilledAttributes = provisioningService.compileAttributes(defaultAttributes,
-				overloadingAttributes);
+				overloadingAttributes, SystemEntityType.IDENTITY);
 		Assert.assertEquals(3, compilledAttributes.size());
 		Assert.assertTrue(compilledAttributes.stream().filter(attribute -> {
 			return "defOneOverloadedRoleTwo".equals(attribute.getName());
@@ -681,7 +681,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		overloadingAttributes.get(1).setStrategyType(AttributeMappingStrategyType.AUTHORITATIVE_MERGE);
 
 		List<AttributeMapping> compilledAttributes = provisioningService.compileAttributes(defaultAttributes,
-				overloadingAttributes);
+				overloadingAttributes, SystemEntityType.IDENTITY);
 		Assert.assertEquals(3, compilledAttributes.size());
 		Assert.assertTrue(compilledAttributes.stream().filter(attribute -> {
 			return "defOneOverloadedRoleTwo".equals(attribute.getName());
@@ -707,7 +707,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		overloadingAttributes.get(1).setDisabledDefaultAttribute(true);
 
 		List<AttributeMapping> compilledAttributes = provisioningService.compileAttributes(defaultAttributes,
-				overloadingAttributes);
+				overloadingAttributes, SystemEntityType.IDENTITY);
 		Assert.assertEquals(2, compilledAttributes.size());
 		Assert.assertTrue(compilledAttributes.stream().filter(attribute -> {
 			return "defOneOverloaded".equals(attribute.getName());
@@ -731,7 +731,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		// overloadedRoleTwo
 		overloadingAttributes.get(1).setStrategyType(AttributeMappingStrategyType.AUTHORITATIVE_MERGE);
 
-		provisioningService.compileAttributes(defaultAttributes, overloadingAttributes);
+		provisioningService.compileAttributes(defaultAttributes, overloadingAttributes, SystemEntityType.IDENTITY);
 	}
 
 	@Test
@@ -752,7 +752,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		overloadingAttributes.get(1).setStrategyType(AttributeMappingStrategyType.CREATE);
 
 		List<AttributeMapping> compilledAttributes = provisioningService.compileAttributes(defaultAttributes,
-				overloadingAttributes);
+				overloadingAttributes, SystemEntityType.IDENTITY);
 		Assert.assertEquals(2, compilledAttributes.size());
 		Assert.assertTrue(compilledAttributes.stream().filter(attribute -> {
 			return "defOneOverloadedRoleTwo".equals(attribute.getName());

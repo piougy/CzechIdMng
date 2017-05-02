@@ -2,10 +2,14 @@ package eu.bcvsolutions.idm.core.model.dto;
 
 import java.util.UUID;
 
+import javax.validation.constraints.NotNull;
+
 import org.joda.time.LocalDate;
+import org.springframework.hateoas.core.Relation;
 
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
+import eu.bcvsolutions.idm.core.api.entity.ValidableEntity;
 
 /**
  * IdentityRole from WF
@@ -14,13 +18,18 @@ import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
  * @author Radek Tomiška
  *
  */
-public class IdmIdentityRoleDto extends AbstractDto {
+@Relation(collectionRelation = "identityRoles")
+public class IdmIdentityRoleDto extends AbstractDto implements ValidableEntity {
 
 	private static final long serialVersionUID = 1L;
+	@NotNull
 	@Embedded(dtoClass = IdmIdentityContractDto.class)
 	private UUID identityContract;
+	@NotNull
 	@Embedded(dtoClass = IdmRoleDto.class)
 	private UUID role;
+	@Embedded(dtoClass = IdmRoleTreeNodeDto.class)
+	private UUID roleTreeNode;
 	private LocalDate validFrom;
 	private LocalDate validTill;
 	private boolean automaticRole;
@@ -32,6 +41,7 @@ public class IdmIdentityRoleDto extends AbstractDto {
 		super(id);
 	}
 
+	@Override
 	public LocalDate getValidFrom() {
 		return validFrom;
 	}
@@ -40,6 +50,7 @@ public class IdmIdentityRoleDto extends AbstractDto {
 		this.validFrom = validFrom;
 	}
 
+	@Override
 	public LocalDate getValidTill() {
 		return validTill;
 	}
@@ -72,5 +83,11 @@ public class IdmIdentityRoleDto extends AbstractDto {
 		this.automaticRole = automaticRole;
 	}
 
+	public UUID getRoleTreeNode() {
+		return roleTreeNode;
+	}
 
+	public void setRoleTreeNode(UUID roleTreeNode) {
+		this.roleTreeNode = roleTreeNode;
+	}
 }

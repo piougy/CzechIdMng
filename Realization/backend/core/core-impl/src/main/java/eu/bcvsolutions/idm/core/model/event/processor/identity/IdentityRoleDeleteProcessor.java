@@ -13,13 +13,13 @@ import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.model.domain.RoleRequestState;
+import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleValidRequestDto;
 import eu.bcvsolutions.idm.core.model.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.model.dto.filter.ConceptRoleRequestFilter;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.event.IdentityRoleEvent.IdentityRoleEventType;
-import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConceptRoleRequestService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleValidRequestService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleRequestService;
 
@@ -31,26 +31,28 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmRoleRequestService;
  */
 @Component
 @Description("Deletes identity role from repository.")
-public class IdentityRoleDeleteProcessor extends CoreEventProcessor<IdmIdentityRole> {
+public class IdentityRoleDeleteProcessor extends CoreEventProcessor<IdmIdentityRoleDto> {
 
 	public static final String PROCESSOR_NAME = "identity-role-delete-processor";
-	private final IdmIdentityRoleRepository repository;
+	private final IdmIdentityRoleService service;
 	private final IdmConceptRoleRequestService conceptRequestService;
 	private final IdmRoleRequestService roleRequestService;
 	private final IdmIdentityRoleValidRequestService identityRoleValidRequestService;
 
 	@Autowired
-	public IdentityRoleDeleteProcessor(IdmIdentityRoleRepository repository,
-			IdmConceptRoleRequestService conceptRequestService, IdmRoleRequestService roleRequestService,
+	public IdentityRoleDeleteProcessor(
+			IdmIdentityRoleService service,
+			IdmConceptRoleRequestService conceptRequestService, 
+			IdmRoleRequestService roleRequestService,
 			IdmIdentityRoleValidRequestService identityRoleValidRequestService) {
 		super(IdentityRoleEventType.DELETE);
 		//
-		Assert.notNull(repository);
+		Assert.notNull(service);
 		Assert.notNull(conceptRequestService);
 		Assert.notNull(roleRequestService);
 		Assert.notNull(identityRoleValidRequestService);
 		//
-		this.repository = repository;
+		this.service = service;
 		this.conceptRequestService = conceptRequestService;
 		this.roleRequestService = roleRequestService;
 		this.identityRoleValidRequestService = identityRoleValidRequestService;
@@ -62,8 +64,8 @@ public class IdentityRoleDeleteProcessor extends CoreEventProcessor<IdmIdentityR
 	}
 
 	@Override
-	public EventResult<IdmIdentityRole> process(EntityEvent<IdmIdentityRole> event) {
-		IdmIdentityRole identityRole = event.getContent();
+	public EventResult<IdmIdentityRoleDto> process(EntityEvent<IdmIdentityRoleDto> event) {
+		IdmIdentityRoleDto identityRole = event.getContent();
 
 		// Find all concepts and remove relation on identity role
 		ConceptRoleRequestFilter conceptRequestFilter = new ConceptRoleRequestFilter();
@@ -94,7 +96,7 @@ public class IdentityRoleDeleteProcessor extends CoreEventProcessor<IdmIdentityR
 		identityRoleValidRequestService.deleteAll(validRequests);
 		//
 		// Delete identity role
-		repository.delete(identityRole);
+		service.deleteInternal(identityRole);
 		//
 		return new DefaultEventResult<>(event, this);
 	}

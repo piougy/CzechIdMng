@@ -18,6 +18,8 @@ public enum CoreGroupPermission implements GroupPermission {
 	
 	AUTHORIZATIONPOLICY(IdmBasePermission.ADMIN, IdmBasePermission.AUTOCOMPLETE, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
 	IDENTITY(IdmBasePermission.ADMIN, IdmBasePermission.AUTOCOMPLETE, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
+	IDENTITYCONTRACT(IdmBasePermission.ADMIN, IdmBasePermission.AUTOCOMPLETE, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
+	IDENTITYROLE(IdmBasePermission.ADMIN, IdmBasePermission.AUTOCOMPLETE, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
 	ROLE(IdmBasePermission.ADMIN, IdmBasePermission.AUTOCOMPLETE, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
 	ROLECATALOGUE(IdmBasePermission.ADMIN, IdmBasePermission.AUTOCOMPLETE, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
 	TREENODE(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
@@ -47,6 +49,12 @@ public enum CoreGroupPermission implements GroupPermission {
 	public static final String IDENTITY_CREATE = "IDENTITY" + BasePermission.SEPARATOR + "CREATE";
 	public static final String IDENTITY_UPDATE = "IDENTITY" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String IDENTITY_DELETE = "IDENTITY" + BasePermission.SEPARATOR + "DELETE";
+	//
+	public static final String IDENTITYCONTRACT_AUTOCOMPLETE = "IDENTITYCONTRACT" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
+	public static final String IDENTITYCONTRACT_READ = "IDENTITYCONTRACT" + BasePermission.SEPARATOR + "READ";
+	public static final String IDENTITYCONTRACT_CREATE = "IDENTITYCONTRACT" + BasePermission.SEPARATOR + "CREATE";
+	public static final String IDENTITYCONTRACT_UPDATE = "IDENTITYCONTRACT" + BasePermission.SEPARATOR + "UPDATE";
+	public static final String IDENTITYCONTRACT_DELETE = "IDENTITYCONTRACT" + BasePermission.SEPARATOR + "DELETE";
 	//
 	public static final String CONFIGURATION_CREATE = "CONFIGURATION" + BasePermission.SEPARATOR + "CREATE";
 	public static final String CONFIGURATION_UPDATE = "CONFIGURATION" + BasePermission.SEPARATOR + "UPDATE";

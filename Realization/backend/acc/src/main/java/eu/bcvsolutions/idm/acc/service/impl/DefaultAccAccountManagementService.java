@@ -15,6 +15,8 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AccountType;
+import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
+import eu.bcvsolutions.idm.acc.dto.MappingAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.RoleSystemAttributeFilter;
@@ -24,14 +26,19 @@ import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute;
+import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
+import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountManagementService;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
+import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
+import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
+import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
@@ -52,15 +59,13 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 	private final AccIdentityAccountService identityAccountService;
 	private final IdmIdentityRoleRepository identityRoleRepository;
 	private final SysRoleSystemAttributeService roleSystemAttributeService;
-	private final SysSystemAttributeMappingService systeAttributeMappingService;
-	private final IdmIdentityRoleService identityRoleService;
+	private final SysSystemAttributeMappingService systemAttributeMappingService;
 
 	@Autowired
 	public DefaultAccAccountManagementService(SysRoleSystemService roleSystemService, AccAccountService accountService,
 			AccIdentityAccountService identityAccountService, IdmIdentityRoleRepository identityRoleRepository,
 			SysRoleSystemAttributeService roleSystemAttributeService,
-			SysSystemAttributeMappingService systeAttributeMappingService,
-			IdmIdentityRoleService identityRoleService) {
+			SysSystemAttributeMappingService systemAttributeMappingService) {
 		super();
 		//
 		Assert.notNull(identityAccountService);
@@ -68,16 +73,14 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 		Assert.notNull(accountService);
 		Assert.notNull(identityRoleRepository);
 		Assert.notNull(roleSystemAttributeService);
-		Assert.notNull(systeAttributeMappingService);
-		Assert.notNull(identityRoleService);
+		Assert.notNull(systemAttributeMappingService);
 		//
 		this.roleSystemService = roleSystemService;
 		this.accountService = accountService;
 		this.identityAccountService = identityAccountService;
 		this.identityRoleRepository = identityRoleRepository;
 		this.roleSystemAttributeService = roleSystemAttributeService;
-		this.systeAttributeMappingService = systeAttributeMappingService;
-		this.identityRoleService = identityRoleService;
+		this.systemAttributeMappingService = systemAttributeMappingService;
 	}
 
 	@Override
@@ -88,7 +91,7 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 		filter.setIdentityId(identity.getId());
 		List<AccIdentityAccount> identityAccountList = identityAccountService.find(filter, null).getContent();
 
-		List<IdmIdentityRole> identityRoles = identityRoleRepository.findAllByIdentityContract_Identity(identity, null);
+		List<IdmIdentityRole> identityRoles = identityRoleRepository.findAllByIdentityContract_Identity_Id(identity.getId(), null);
 
 		boolean provisioningRequired = false;
 
@@ -236,12 +239,12 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 	 * transform script from roleSystem attribute. If isn't UID attribute for
 	 * roleSystem defined, then will be use default UID attribute handling.
 	 * 
-	 * @param identity
+	 * @param entity
 	 * @param roleSystem
 	 * @return
 	 */
 	@Override
-	public String generateUID(IdmIdentity identity, SysRoleSystem roleSystem) {
+	public String generateUID(AbstractEntity entity, SysRoleSystem roleSystem) {
 		// Find attributes for this roleSystem
 		RoleSystemAttributeFilter roleSystemAttrFilter = new RoleSystemAttributeFilter();
 		roleSystemAttrFilter.setRoleSystemId(roleSystem.getId());
@@ -261,8 +264,20 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 		// If roleSystem UID attribute found, then we use his transformation
 		// script.
 		if (uidRoleAttribute != null) {
-			Object uid = systeAttributeMappingService.transformValueToResource(identity.getUsername(),
-					uidRoleAttribute.getTransformScript(), identity, roleSystem.getSystem());
+			// We have to create own dto and set up all values
+			// (overloaded and default)
+			AttributeMapping overloadedAttribute = new MappingAttributeDto();
+			// Default values (values from schema attribute handling)
+			overloadedAttribute.setSchemaAttribute(uidRoleAttribute.getSystemAttributeMapping().getSchemaAttribute());
+			overloadedAttribute
+					.setTransformFromResourceScript(uidRoleAttribute.getSystemAttributeMapping().getTransformFromResourceScript());
+			// Overloaded values
+			roleSystemAttributeService.fillOverloadedAttribute(uidRoleAttribute, overloadedAttribute);
+			Object uid = systemAttributeMappingService.getAttributeValue(entity, overloadedAttribute);
+			if(uid == null) {
+				throw new ProvisioningException(AccResultCode.PROVISIONING_GENERATED_UID_IS_NULL,
+						ImmutableMap.of("system", roleSystem.getSystem().getName()));
+			}
 			if (!(uid instanceof String)) {
 				throw new ProvisioningException(AccResultCode.PROVISIONING_ATTRIBUTE_UID_IS_NOT_STRING,
 						ImmutableMap.of("uid", uid));
@@ -270,38 +285,21 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 			return (String) uid;
 		}
 
+		SysSystemMapping mapping = roleSystem.getSystemMapping();
 		// If roleSystem UID was not found, then we use default UID schema
 		// attribute handling
+	
+		SysSystem system = mapping.getSystem();
 		SystemAttributeMappingFilter systeAttributeMappingFilter = new SystemAttributeMappingFilter();
-		systeAttributeMappingFilter.setSystemId(roleSystem.getSystem().getId());
-		List<SysSystemAttributeMapping> schemaHandlingAttributes = systeAttributeMappingService
+		systeAttributeMappingFilter.setSystemMappingId(mapping.getId());
+		List<SysSystemAttributeMapping> schemaHandlingAttributes = systemAttributeMappingService
 				.find(systeAttributeMappingFilter, null).getContent();
-		List<SysSystemAttributeMapping> schemaHandlingAttributesUid = schemaHandlingAttributes.stream()
-				.filter(attributeHandling -> {
-					return attributeHandling.isUid();
-				}).collect(Collectors.toList());
-
-		if (schemaHandlingAttributesUid.size() > 1) {
-			throw new ProvisioningException(AccResultCode.PROVISIONING_ATTRIBUTE_MORE_UID,
-					ImmutableMap.of("system", roleSystem.getSystem().getName()));
-		}
-		if (schemaHandlingAttributesUid.isEmpty()) {
-			throw new ProvisioningException(AccResultCode.PROVISIONING_ATTRIBUTE_UID_NOT_FOUND,
-					ImmutableMap.of("system", roleSystem.getSystem().getName()));
-		}
-
-		SysSystemAttributeMapping uidSchemaAttribute = schemaHandlingAttributesUid.get(0);
-		Object uid = systeAttributeMappingService.transformValueToResource(identity.getUsername(), uidSchemaAttribute,
-				identity);
-		if (!(uid instanceof String)) {
-			throw new ProvisioningException(AccResultCode.PROVISIONING_ATTRIBUTE_UID_IS_NOT_STRING,
-					ImmutableMap.of("uid", uid));
-		}
-		return (String) uid;
+		SysSystemAttributeMapping uidAttribute = systemAttributeMappingService.getUidAttribute(schemaHandlingAttributes, system);
+		return systemAttributeMappingService.generateUid(entity, uidAttribute);
 	}
 
 	@Override
-	public void deleteIdentityAccount(IdmIdentityRole entity) {
+	public void deleteIdentityAccount(IdmIdentityRoleDto entity) {
 		IdentityAccountFilter filter = new IdentityAccountFilter();
 		filter.setIdentityRoleId(entity.getId());
 		Page<AccIdentityAccount> identityAccounts = identityAccountService.find(filter, null);

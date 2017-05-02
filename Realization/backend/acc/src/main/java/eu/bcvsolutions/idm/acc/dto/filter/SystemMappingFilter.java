@@ -18,6 +18,7 @@ public class SystemMappingFilter extends QuickFilter {
 	private UUID objectClassId;
 	private SystemOperationType operationType;
 	private SystemEntityType entityType;
+	private UUID treeTypeId;
 
 	public UUID getSystemId() {
 		return systemId;
@@ -49,5 +50,13 @@ public class SystemMappingFilter extends QuickFilter {
 	
 	public UUID getObjectClassId() {
 		return objectClassId;
+	}
+
+	public UUID getTreeTypeId() {
+		return treeTypeId;
+	}
+
+	public void setTreeTypeId(UUID treeTypeId) {
+		this.treeTypeId = treeTypeId;
 	}
 }

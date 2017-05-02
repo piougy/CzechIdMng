@@ -10,7 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
+import eu.bcvsolutions.idm.core.model.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.scheduler.service.impl.AbstractSchedulableTaskExecutor;
 
@@ -46,13 +46,13 @@ public class IdentityContractExpirationTaskExecutor extends AbstractSchedulableT
 		boolean canContinue = true;
 		while(canContinue) {
 			// we process all expired contract
-			Page<IdmIdentityContract> expiredContracts = identityContractService.findExpiredContracts(expiration, false, new PageRequest(0, 100));
+			Page<IdmIdentityContractDto> expiredContracts = identityContractService.findExpiredContracts(expiration, false, new PageRequest(0, 100));
 			// init count
 			if (count == null) {
 				count = expiredContracts.getTotalElements();
 			}
 			//
-			for(IdmIdentityContract contract : expiredContracts) {
+			for(IdmIdentityContractDto contract : expiredContracts) {
 				contract.setDisabled(true);
 				identityContractService.save(contract);
 				counter++;

@@ -7,7 +7,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -388,6 +390,38 @@ public class DefaultSysSystemAttributeMappingService
 			// It means attribute is static ... we will call transformation to resource.
 		}
 		return this.transformValueToResource(idmValue, attributeHandling, entity);
+	}
+	
+	@Override
+	public String generateUid(AbstractEntity entity, SysSystemAttributeMapping uidAttribute){
+		Object uid = this.getAttributeValue(entity, uidAttribute);
+		if(uid == null) {
+			throw new ProvisioningException(AccResultCode.PROVISIONING_GENERATED_UID_IS_NULL,
+					ImmutableMap.of("system", uidAttribute.getSystemMapping().getSystem().getName()));
+		}
+		if (!(uid instanceof String)) {
+			throw new ProvisioningException(AccResultCode.PROVISIONING_ATTRIBUTE_UID_IS_NOT_STRING,
+					ImmutableMap.of("uid", uid));
+		}
+		return (String)uid;
+	}
+	
+	@Override
+	public SysSystemAttributeMapping getUidAttribute(List<SysSystemAttributeMapping> mappedAttributes, SysSystem system) {
+		List<SysSystemAttributeMapping> schemaHandlingAttributesUid = mappedAttributes.stream()
+				.filter(attribute -> {
+					return !attribute.isDisabledAttribute() && attribute.isUid();
+				}).collect(Collectors.toList());
+
+		if (schemaHandlingAttributesUid.size() > 1) {
+			throw new ProvisioningException(AccResultCode.PROVISIONING_ATTRIBUTE_MORE_UID,
+					ImmutableMap.of("system", system.getName()));
+		}
+		if (schemaHandlingAttributesUid.isEmpty()) {
+			throw new ProvisioningException(AccResultCode.PROVISIONING_ATTRIBUTE_UID_NOT_FOUND,
+					ImmutableMap.of("system", system.getName()));
+		}
+		return schemaHandlingAttributesUid.get(0);
 	}
 
 }

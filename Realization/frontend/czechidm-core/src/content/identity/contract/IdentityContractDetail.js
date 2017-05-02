@@ -47,9 +47,8 @@ export default class IdentityContractDetail extends Basic.AbstractContent {
    * TODO: prevent set state in did mount
    */
   _setSelectedEntity(entity) {
-    const treeTypeId = entity._embedded && entity._embedded.workPosition ? entity._embedded.workPosition.treeType.id : null;
+    const treeTypeId = entity._embedded && entity._embedded.workPosition ? entity._embedded.workPosition.treeType : null;
     const entityFormData = _.merge({}, entity, {
-      workPosition: entity._embedded ? entity._embedded.workPosition : null,
       treeTypeId
     });
     //
@@ -82,9 +81,8 @@ export default class IdentityContractDetail extends Basic.AbstractContent {
       //
       const state = this.context.store.getState();
       const identity = this.identityManager.getEntity(state, identityId);
-      entity.identity = this.identityManager.getSelfLink(identityId);
-      entity.workPosition = this.treeNodeManager.getSelfLink(entity.workPosition);
-
+      entity.identity = identity.id;
+      //
       if (entity.id === undefined) {
         this.context.store.dispatch(this.getManager().createEntity(entity, `${uiKey}-detail`, (createdEntity, error) => {
           if (!error) {
@@ -93,7 +91,7 @@ export default class IdentityContractDetail extends Basic.AbstractContent {
           this._afterSave(createdEntity, error, afterAction);
         }));
       } else {
-        this.context.store.dispatch(this.getManager().patchEntity(entity, `${uiKey}-detail`, (patchedEntity, error) => {
+        this.context.store.dispatch(this.getManager().updateEntity(entity, `${uiKey}-detail`, (patchedEntity, error) => {
           if (!error) {
             this.addMessage({ message: this.i18n('edit.success', { position: this.getManager().getNiceLabel(patchedEntity), username: this.identityManager.getNiceLabel(identity) }) });
           }

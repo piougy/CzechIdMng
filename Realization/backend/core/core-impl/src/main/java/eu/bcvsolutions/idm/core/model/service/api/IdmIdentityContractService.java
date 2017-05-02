@@ -7,11 +7,14 @@ import org.joda.time.LocalDate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
+import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.model.domain.RecursionType;
+import eu.bcvsolutions.idm.core.model.dto.IdmIdentityContractDto;
+import eu.bcvsolutions.idm.core.model.dto.filter.ContractGuaranteeFilter;
 import eu.bcvsolutions.idm.core.model.dto.filter.IdentityContractFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
+import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 
 /**
  * Operations with working positions
@@ -19,7 +22,9 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
  * @author Radek Tomiška
  *
  */
-public interface IdmIdentityContractService extends ReadWriteEntityService<IdmIdentityContract, IdentityContractFilter> {
+public interface IdmIdentityContractService extends 
+		ReadWriteDtoService<IdmIdentityContractDto, IdmIdentityContract, IdentityContractFilter>,
+		AuthorizableService<IdmIdentityContractDto, ContractGuaranteeFilter> {
 	
 	static final String DEFAULT_POSITION_NAME = "Default"; // TODO: to configuration manager?
 	
@@ -29,7 +34,7 @@ public interface IdmIdentityContractService extends ReadWriteEntityService<IdmId
 	 * @param identity
 	 * @return
 	 */
-	List<IdmIdentityContract> getContracts(IdmIdentity identity);
+	List<IdmIdentityContractDto> findAllByIdentity(UUID identityId);
 	
 	/**
 	 * Returns all identity contract, where fits conttract's work position with given work position by recursionType.
@@ -38,7 +43,7 @@ public interface IdmIdentityContractService extends ReadWriteEntityService<IdmId
 	 * @param recursion
 	 * @return
 	 */
-	List<IdmIdentityContract> getContractsByWorkPosition(UUID workPositionId, RecursionType recursion);
+	List<IdmIdentityContractDto> findAllByWorkPosition(UUID workPositionId, RecursionType recursion);
 	
 	/**
 	 * Returns expired contracts
@@ -48,7 +53,7 @@ public interface IdmIdentityContractService extends ReadWriteEntityService<IdmId
 	 * @param pageable
 	 * @return
 	 */	
-	Page<IdmIdentityContract> findExpiredContracts(LocalDate expiration, boolean disabled, Pageable pageable);
+	Page<IdmIdentityContractDto> findExpiredContracts(LocalDate expiration, boolean disabled, Pageable pageable);
 	
 	/**
 	 * Constructs default contract for given identity by configuration.
@@ -57,24 +62,25 @@ public interface IdmIdentityContractService extends ReadWriteEntityService<IdmId
 	 * @param identity
 	 * @return
 	 */
-	IdmIdentityContract prepareDefaultContract(IdmIdentity identity);	
+	IdmIdentityContractDto prepareDefaultContract(UUID identityId);	
 	
 	/**
 	 * Returns given identity's prime contract.
 	 * If no main contract is defined, then returns the first contract with working position defined (default tree type has higher priority).
 	 * 
-	 * @param identity
+	 * @param identityId
 	 * @return
 	 */
-	IdmIdentityContract getPrimeContract(IdmIdentity identity);
+	IdmIdentityContractDto getPrimeContract(UUID identityId);
 	
 	/**
 	 * Method get valid {@link IdmIdentityContract} for date and {@link IdmIdentity} id given in parameter.
 	 * Parameter onlyExterne if it's true search only contracts where is {@link IdmIdentity} marked as externe, this param can be null - search all contracts.
+	 * 
 	 * @param identityId
 	 * @param date
 	 * @param onlyExterne
 	 * @return
 	 */
-	List<IdmIdentityContract> getValidContractsForDate(UUID identityId, LocalDate date, Boolean onlyExterne);
+	List<IdmIdentityContractDto> findAllValidForDate(UUID identityId, LocalDate date, Boolean onlyExterne);
 }

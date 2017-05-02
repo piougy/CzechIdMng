@@ -15,6 +15,7 @@ import org.junit.runners.MethodSorters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.ImmutableList;
 
@@ -151,11 +152,11 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 				entityManager.find(TestResource.class, "x" + IDENTITY_USERNAME));
 
 		IdmIdentityRoleDto irdto = new IdmIdentityRoleDto();
-		irdto.setIdentityContract(identityContractService.getContracts(identity).get(0).getId());
+		irdto.setIdentityContract(identityContractService.findAllByIdentity(identity.getId()).get(0).getId());
 		irdto.setRole(roleDefault.getId());
 		// This evokes IdentityRole SAVE event. On this event will be start
 		// account management and provisioning
-		IdmIdentityRole irCreated = idmIdentityRoleService.addByDto(irdto);
+		IdmIdentityRoleDto irCreated = idmIdentityRoleService.save(irdto);
 
 		IdentityAccountFilter iaccFilter = new IdentityAccountFilter();
 		iaccFilter.setIdentityId(identity.getId());
@@ -290,11 +291,11 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 		IdmRole rolePassword = idmRoleService.getByName(ROLE_OVERLOADING_PASSWORD);
 
 		IdmIdentityRoleDto irdto = new IdmIdentityRoleDto();
-		irdto.setIdentityContract(identityContractService.getContracts(identity).get(0).getId());
+		irdto.setIdentityContract(identityContractService.findAllByIdentity(identity.getId()).get(0).getId());
 		irdto.setRole(rolePassword.getId());
 		// This evokes IdentityRole SAVE event. On this event will be start
 		// account management and provisioning
-		idmIdentityRoleService.addByDto(irdto);
+		idmIdentityRoleService.save(irdto);
 		
 		
 		// Do change of password for selected accounts
@@ -315,11 +316,11 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 				entityManager.find(TestResource.class, "x" + IDENTITY_USERNAME));
 
 		IdmIdentityRoleDto irdto = new IdmIdentityRoleDto();
-		irdto.setIdentityContract(identityContractService.getContracts(identity).get(0).getId());
+		irdto.setIdentityContract(identityContractService.findAllByIdentity(identity.getId()).get(0).getId());
 		irdto.setRole(roleLastName.getId());
 		// This evokes IdentityRole SAVE event. On this event will be start
 		// account management and provisioning
-		IdmIdentityRole irCreated = idmIdentityRoleService.addByDto(irdto);
+		IdmIdentityRoleDto irCreated = idmIdentityRoleService.save(irdto);
 
 		IdentityAccountFilter iaccFilter = new IdentityAccountFilter();
 		iaccFilter.setIdentityId(identity.getId());
@@ -346,11 +347,11 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 				entityManager.find(TestResource.class, "x" + IDENTITY_USERNAME));
 
 		IdmIdentityRoleDto irdto = new IdmIdentityRoleDto();
-		irdto.setIdentityContract(identityContractService.getContracts(identity).get(0).getId());
+		irdto.setIdentityContract(identityContractService.findAllByIdentity(identity.getId()).get(0).getId());
 		irdto.setRole(roleLastName.getId());
 		// This evokes IdentityRole SAVE event. On this event will be start
 		// account management and provisioning
-		idmIdentityRoleService.addByDto(irdto);
+		idmIdentityRoleService.save(irdto);
 
 		IdentityAccountFilter iaccFilter = new IdentityAccountFilter();
 		iaccFilter.setIdentityId(identity.getId());
@@ -390,11 +391,11 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 				entityManager.find(TestResource.class, "x" + IDENTITY_USERNAME));
 
 		IdmIdentityRoleDto irdto = new IdmIdentityRoleDto();
-		irdto.setIdentityContract(identityContractService.getContracts(identity).get(0).getId());
+		irdto.setIdentityContract(identityContractService.findAllByIdentity(identity.getId()).get(0).getId());
 		irdto.setRole(role.getId());
 		// This evokes IdentityRole SAVE event. On this event will be start
 		// account management and provisioning
-		idmIdentityRoleService.addByDto(irdto);
+		idmIdentityRoleService.save(irdto);
 
 		IdentityAccountFilter iaccFilter = new IdentityAccountFilter();
 		iaccFilter.setIdentityId(identity.getId());
@@ -412,6 +413,7 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 				identity.getLastName(), createdAccount.getLastname());
 	}
 
+	@Transactional
 	@Test
 	public void overloadedAttributeRemoveAllRoles() {
 		IdmIdentity identity = idmIdentityService.getByName(IDENTITY_USERNAME);
@@ -430,7 +432,7 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 
 		IdentityRoleFilter irfilter = new IdentityRoleFilter();
 		irfilter.setIdentityId(identity.getId());
-		idmIdentityRoleService.find(irfilter, null).getContent().forEach(identityRole -> {
+		idmIdentityRoleService.findDto(irfilter, null).getContent().forEach(identityRole -> {
 			idmIdentityRoleService.delete(identityRole);
 		});
 

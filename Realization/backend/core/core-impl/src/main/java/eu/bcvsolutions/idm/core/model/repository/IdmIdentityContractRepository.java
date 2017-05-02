@@ -11,7 +11,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,44 +29,21 @@ import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
  * @author Radek Tomiška
  *
  */
-@RepositoryRestResource(//
-		collectionResourceRel = "identityContracts", //
-		path = "identity-contracts", //
-		itemResourceRel = "identityContract", //
-		exported = false
-)
 public interface IdmIdentityContractRepository extends AbstractEntityRepository<IdmIdentityContract, IdentityContractFilter> {
 
-	/*
-	 * (non-Javadoc)
-	 * @see eu.bcvsolutions.idm.core.api.repository.BaseEntityRepository#find(eu.bcvsolutions.idm.core.api.dto.BaseFilter, Pageable)
+	/**
+	 * @deprecated Use IdmIdentityContractService (uses criteria api)
 	 */
 	@Override
-	@Query(value = "select e from #{#entityName} e"
-			+ " left join e.workPosition wp" +
-	        " where"
-	        + " ("
-	        	+ " ?#{[0].text} is null"
-	        	+ " or "
-	        	+ "	lower(e.position) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')}"
-	        	+ " or"
-	        	+ " lower(wp.name) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')}"
-	        	+ " or"
-	        	+ " lower(wp.code) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')}"
-        	+ " )"
-	        + " and"
-	        + "	("
-	        	+ "?#{[0].identity} is null or e.identity = ?#{[0].identity}"
-        	+ " ) "
-        	+ " and"
-        	+ " (?#{[0].validTill == null ? 'null' : ''} = 'null' or e.validTill <= ?#{[0].validTill}) "
-        	+ " and"
-        	+ " (?#{[0].validFrom == null ? 'null' : ''} = 'null' or e.validFrom >= ?#{[0].validFrom}) "
-        	+ " and"
-        	+ " ( ?#{[0].externe} is null or e.externe = ?#{[0].externe} )")
-	Page<IdmIdentityContract> find(IdentityContractFilter filter, Pageable pageable);
+	@Deprecated
+	@Query(value = "select e from #{#entityName} e")
+	default Page<IdmIdentityContract> find(IdentityContractFilter filter, Pageable pageable) {
+		throw new UnsupportedOperationException("Use IdmIdentityContractService (uses criteria api)");
+	}
 	
 	List<IdmIdentityContract> findAllByIdentity(@Param("identity") IdmIdentity identity, Sort sort);
+	
+	List<IdmIdentityContract> findAllByIdentity_Id(@Param("identityId") UUID identityId, Sort sort);
 	
 	@Query(value = "select e from #{#entityName} e"
 			+ " where"
@@ -124,8 +100,8 @@ public interface IdmIdentityContractRepository extends AbstractEntityRepository<
 	 * @param updatedEntityId
 	 */
 	@Modifying
-	@Query("update #{#entityName} e set e.main = false, e.modified = :modified where e.identity = :identity and (:updatedEntityId is null or e.id != :updatedEntityId)")
-	void clearMain(@Param("identity") IdmIdentity identity, @Param("updatedEntityId") UUID updatedEntityId, @Param("modified") DateTime modified);
+	@Query("update #{#entityName} e set e.main = false, e.modified = :modified where e.identity.id = :identityId and (:updatedEntityId is null or e.id != :updatedEntityId)")
+	void clearMain(@Param("identityId") UUID identityId, @Param("updatedEntityId") UUID updatedEntityId, @Param("modified") DateTime modified);
 	
 	/**
 	 * Return persisted identity contract
@@ -134,6 +110,6 @@ public interface IdmIdentityContractRepository extends AbstractEntityRepository<
 	 * @return
 	 */
 	@Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.REPEATABLE_READ)
-	@Query("select e from #{#entityName} e where e = :identityContract")
-	IdmIdentityContract getPersistedIdentityContract(@Param("identityContract") IdmIdentityContract identityContract);
+	@Query("select e from #{#entityName} e where e.id = :identityContractId")
+	IdmIdentityContract getPersistedIdentityContract(@Param("identityContractId") UUID identityContractId);
 }

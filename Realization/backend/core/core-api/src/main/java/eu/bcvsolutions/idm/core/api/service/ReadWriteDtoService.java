@@ -59,6 +59,8 @@ public interface ReadWriteDtoService<DTO extends BaseDto, E extends BaseEntity, 
 	 */
 	void delete(DTO dto, BasePermission... permission);
 	
+	void deleteById(Serializable id, BasePermission... permission);
+	
 	/**
 	 * Deletes a given DTO (from repository).
 	 * 

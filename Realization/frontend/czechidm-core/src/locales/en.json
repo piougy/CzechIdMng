@@ -2473,6 +2473,10 @@
       "title": "Login failed",
       "message": "Invalid login or password."
     },
+    "AUTHORITIES_CHANGED": {
+      "title": "Your application permissions have been modified",
+      "message": "Your application permissions have been modified, please log-in again."
+    },
     "FORBIDDEN": {
       "title": "Nedostatečná oprávnění",
       "message": "Na požadovanou akci nemáte dostatečná oprávnění."

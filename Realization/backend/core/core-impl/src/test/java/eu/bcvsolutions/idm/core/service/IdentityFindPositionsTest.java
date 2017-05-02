@@ -15,8 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.core.model.dto.IdmContractGuaranteeDto;
+import eu.bcvsolutions.idm.core.model.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
@@ -185,10 +185,10 @@ public class IdentityFindPositionsTest extends AbstractIntegrationTest{
 		}
 	}
 	
-	private IdmIdentityContract createIdentityContract(IdmIdentity user, IdmIdentity guarantee, IdmTreeNode node) {
-		IdmIdentityContract position = new IdmIdentityContract();
-		position.setIdentity(user);
-		position.setWorkPosition(node);
+	private IdmIdentityContractDto createIdentityContract(IdmIdentity user, IdmIdentity guarantee, IdmTreeNode node) {
+		IdmIdentityContractDto position = new IdmIdentityContractDto();
+		position.setIdentity(user.getId());
+		position.setWorkPosition(node == null ? null : node.getId());
 		
 		position = identityContractService.save(position);
 		

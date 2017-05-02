@@ -154,7 +154,7 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	 * @return
 	 */
 	protected Predicate toPredicate(F filter, Root<E> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
-		return builder.conjunction(); 
+		return builder.conjunction();
 	}
 
 	/**
@@ -203,10 +203,18 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 		// transform filter to criteria
 		Specification<E> criteria = new Specification<E>() {
 			public Predicate toPredicate(Root<E> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
-				Predicate filterPredicate = AbstractReadDtoService.this.toPredicate(filter, root, query, builder);
+				Predicate filterPredicate;
+				// null filter could be given
+				if (filter == null) {
+					filterPredicate = builder.conjunction();
+				} else {
+					filterPredicate = AbstractReadDtoService.this.toPredicate(filter, root, query, builder);
+				}
+				// permisions are not evaluated, if no permission was given
 				if (ObjectUtils.isEmpty(permission)) {
 					return query.where(filterPredicate).getRestriction();
-				}				
+				}	
+				// append filter and permission
 				Predicate predicate = builder.and(
 					filterPredicate,
 					getAuthorizationManager().getPredicate(root, query, builder, permission)

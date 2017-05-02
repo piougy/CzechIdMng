@@ -28,7 +28,7 @@ public class IdmTreeTypeDto extends AbstractDto {
 	@Size(min = 0, max = DefaultFieldLengths.NAME)
 	private String name;	
 	private boolean defaultTreeType = false; // true, when this type is defined as default organization structure	
-	@Embedded(dtoClass = IdmTreeNodeDto.class)
+	@Embedded(dtoClass = IdmTreeNodeDto.class, enabled = false)
 	private UUID defaultTreeNode;
 
 	public String getCode() {

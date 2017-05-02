@@ -33,9 +33,10 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import eu.bcvsolutions.idm.core.model.dto.IdmIdentityContractDto;
+import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleValidRequestDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
@@ -132,7 +133,7 @@ public class IdentityRoleValidRequestSchedulerTest extends AbstractIntegrationTe
 		createAndSaveRoleSystem(role, system);
 		IdmTreeType treeType = createAndSaveTreeType();
 		IdmTreeNode treeNode = createAndSaveTreeNode(treeType);
-		IdmIdentityContract identityContract = createAndSaveIdentityContract(identity, treeNode);
+		IdmIdentityContractDto identityContract = createAndSaveIdentityContract(identity, treeNode);
 		LocalDate validFrom = new LocalDate();
 		// set minus days
 		validFrom = validFrom.minusDays(5);
@@ -153,7 +154,7 @@ public class IdentityRoleValidRequestSchedulerTest extends AbstractIntegrationTe
 		createAndSaveRoleSystem(role, system);
 		IdmTreeType treeType = createAndSaveTreeType();
 		IdmTreeNode treeNode = createAndSaveTreeNode(treeType);
-		IdmIdentityContract identityContract = createAndSaveIdentityContract(identity, treeNode);
+		IdmIdentityContractDto identityContract = createAndSaveIdentityContract(identity, treeNode);
 		LocalDate validFrom = new LocalDate();
 		// set plus days
 		validFrom = validFrom.plusDays(5);
@@ -174,7 +175,7 @@ public class IdentityRoleValidRequestSchedulerTest extends AbstractIntegrationTe
 		createAndSaveRoleSystem(role, system);
 		IdmTreeType treeType = createAndSaveTreeType();
 		IdmTreeNode treeNode = createAndSaveTreeNode(treeType);
-		IdmIdentityContract identityContract = createAndSaveIdentityContract(identity, treeNode);
+		IdmIdentityContractDto identityContract = createAndSaveIdentityContract(identity, treeNode);
 		LocalDate validFrom = new LocalDate();
 		// set plus days
 		validFrom = validFrom.plusDays(5);
@@ -199,7 +200,7 @@ public class IdentityRoleValidRequestSchedulerTest extends AbstractIntegrationTe
 		// still empty, role isn't valid
 		assertEquals(true, list.isEmpty());
 		
-		List<IdmIdentityRole> roles = identityRoleRepository.findAllByIdentityContract_Identity(identity, null);
+		List<IdmIdentityRole> roles = identityRoleRepository.findAllByIdentityContract_Identity_Id(identity.getId(), null);
 		assertEquals(1, roles.size());
 		IdmIdentityRole identityRole = roles.get(0);
 		
@@ -246,7 +247,7 @@ public class IdentityRoleValidRequestSchedulerTest extends AbstractIntegrationTe
 		
 		for (int index = 0; index < MAX_CREATE; index++) {
 			IdmIdentity identity = createAndSaveIdentity();
-			IdmIdentityContract identityContract = createAndSaveIdentityContract(identity, treeNode);
+			IdmIdentityContractDto identityContract = createAndSaveIdentityContract(identity, treeNode);
 			// provisioning is not executed, role isn't valid from now
 			createAndSaveIdentityRole(identityContract, role, null, validFrom);
 			identities.add(identity);
@@ -257,7 +258,7 @@ public class IdentityRoleValidRequestSchedulerTest extends AbstractIntegrationTe
 		
 		validFrom = validFrom.minusDays(15);
 		for (IdmIdentity identity : identities) {
-			List<IdmIdentityRole> roles = identityRoleRepository.findAllByIdentityContract_Identity(identity, null);
+			List<IdmIdentityRole> roles = identityRoleRepository.findAllByIdentityContract_Identity_Id(identity.getId(), null);
 			assertEquals(1, roles.size());
 			IdmIdentityRole identityRole = roles.get(0);
 			identityRole.setValidFrom(validFrom);
@@ -325,19 +326,19 @@ public class IdentityRoleValidRequestSchedulerTest extends AbstractIntegrationTe
 		return saveInTransaction(entity, treeNodeService);
 	}
 	
-	private IdmIdentityContract createAndSaveIdentityContract(IdmIdentity user, IdmTreeNode node) {
-		IdmIdentityContract entity = new IdmIdentityContract();
-		entity.setIdentity(user);
-		entity.setWorkPosition(node);
+	private IdmIdentityContractDto createAndSaveIdentityContract(IdmIdentity user, IdmTreeNode node) {
+		IdmIdentityContractDto entity = new IdmIdentityContractDto();
+		entity.setIdentity(user.getId());
+		entity.setWorkPosition(node == null ? null : node.getId());
 		return saveInTransaction(entity, identityContractService);
 	}
 	
-	private IdmIdentityRole createAndSaveIdentityRole(IdmIdentityContract identityContract, IdmRole role, LocalDate validTill, LocalDate validFrom) {
-		IdmIdentityRole entity = new IdmIdentityRole();
+	private IdmIdentityRoleDto createAndSaveIdentityRole(IdmIdentityContractDto identityContract, IdmRole role, LocalDate validTill, LocalDate validFrom) {
+		IdmIdentityRoleDto entity = new IdmIdentityRoleDto();
 		entity.setValidTill(validTill);
 		entity.setValidFrom(validFrom);
-		entity.setRole(role);
-		entity.setIdentityContract(identityContract);
+		entity.setRole(role.getId());
+		entity.setIdentityContract(identityContract.getId());
 		return saveInTransaction(entity, idmIdentityRoleSerivce);
 	}
 	
@@ -367,7 +368,8 @@ public class IdentityRoleValidRequestSchedulerTest extends AbstractIntegrationTe
 			if ("__NAME__".equals(schemaAttr.getName())) {
 				nameAttributeMapping = new SysSystemAttributeMapping();
 				nameAttributeMapping.setUid(true);
-				nameAttributeMapping.setEntityAttribute(false);
+				nameAttributeMapping.setEntityAttribute(true);
+				nameAttributeMapping.setIdmPropertyName("username");
 				nameAttributeMapping.setName(schemaAttr.getName());
 				nameAttributeMapping.setSchemaAttribute(schemaAttr);
 				nameAttributeMapping.setSystemMapping(systemMapping);

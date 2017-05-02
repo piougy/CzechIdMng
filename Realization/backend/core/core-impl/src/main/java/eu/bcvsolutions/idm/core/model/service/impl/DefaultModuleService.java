@@ -58,9 +58,7 @@ public class DefaultModuleService implements ModuleService {
 		return Collections.unmodifiableList( //
 				getInstalledModules() //
 				.stream() //
-				.filter(moduleDescriptor -> { //
-					return isEnabled(moduleDescriptor);
-				}) //
+				.filter(moduleDescriptor -> isEnabled(moduleDescriptor)) //
 				.collect(Collectors.toList()));
 	}
 

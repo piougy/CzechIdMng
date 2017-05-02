@@ -176,27 +176,6 @@ class IdentityService extends FormableEntityService {
   }
 
   /**
-   * Get given identity's contracts
-   *
-   * @param username {string}
-   * @param token {string}
-   * @return {Promise}
-   */
-  getContracts(username) {
-    return RestApiService
-    .get(this.getApiPath() + `/${encodeURIComponent(username)}/identity-contracts`)
-    .then(response => {
-      return response.json();
-    })
-    .then(json => {
-      if (Utils.Response.hasError(json)) {
-        throw Utils.Response.getFirstError(json);
-      }
-      return json;
-    });
-  }
-
-  /**
    * Get given identity's main position in organization
    *
    * @param username {string}

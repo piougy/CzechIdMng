@@ -13,8 +13,10 @@ import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
+import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.event.IdentityRoleEvent.IdentityRoleEventType;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 
 /**
@@ -26,24 +28,29 @@ import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 @Component
 @Enabled(AccModuleDescriptor.MODULE_ID)
 @Description("Executes account management and provisioing before identity role is deleted.")
-public class IdentityRoleDeleteProvisioningProcessor extends AbstractEntityEventProcessor<IdmIdentityRole> {
+public class IdentityRoleDeleteProvisioningProcessor extends AbstractEntityEventProcessor<IdmIdentityRoleDto> {
 
 	public static final String PROCESSOR_NAME = "identity-role-delete-provisioning-processor";
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdentityRoleDeleteProvisioningProcessor.class);
 	private final AccAccountManagementService accountManagementService;
 	private final ProvisioningService provisioningService;
+	private final IdmIdentityContractService identityContractService;
+
 
 	@Autowired
 	public IdentityRoleDeleteProvisioningProcessor(
 			AccAccountManagementService accountManagementService,
-			ProvisioningService provisioningService) {
+			ProvisioningService provisioningService,
+			IdmIdentityContractService identityContractService) {
 		super(IdentityRoleEventType.DELETE);
 		//
 		Assert.notNull(accountManagementService);
 		Assert.notNull(provisioningService);
+		Assert.notNull(identityContractService);
 		//
 		this.accountManagementService = accountManagementService;
 		this.provisioningService = provisioningService;
+		this.identityContractService = identityContractService;
 	}
 	
 	@Override
@@ -52,11 +59,13 @@ public class IdentityRoleDeleteProvisioningProcessor extends AbstractEntityEvent
 	}
 
 	@Override
-	public EventResult<IdmIdentityRole> process(EntityEvent<IdmIdentityRole> event) {
-		accountManagementService.deleteIdentityAccount(event.getContent());
+	public EventResult<IdmIdentityRoleDto> process(EntityEvent<IdmIdentityRoleDto> event) {
+		IdmIdentityRoleDto identityRole = event.getContent();
+		accountManagementService.deleteIdentityAccount(identityRole);
 		//
-		LOG.debug("Call provisioning for identity [{}]", event.getContent().getIdentityContract().getIdentity().getUsername());
-		provisioningService.doProvisioning(event.getContent().getIdentityContract().getIdentity());
+		IdmIdentityContract identityContract = identityContractService.get(identityRole.getIdentityContract());
+		LOG.debug("Call provisioning for identity [{}]", identityContract.getIdentity().getUsername());
+		provisioningService.doProvisioning(identityContract.getIdentity());
 		return new DefaultEventResult<>(event, this);
 	}
 	

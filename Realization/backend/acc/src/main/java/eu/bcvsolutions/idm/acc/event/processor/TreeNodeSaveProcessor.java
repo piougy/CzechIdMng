@@ -55,10 +55,12 @@ public class TreeNodeSaveProcessor extends AbstractEntityEventProcessor<IdmTreeN
 	}
 	
 	private void doProvisioning(IdmTreeNode node) {
+		LOG.debug("Call account managment (create accounts for all systems) for tree node [{}]", node.getCode());
+		getProvisioningService().createAccountsForAllSystems(node);
 		LOG.debug("Call provisioning for tree node [{}]", node.getCode());
-		//getProvisioningService().doProvisioning(node);
+		getProvisioningService().doProvisioning(node);
 	}
-	
+
 	@Override
 	public int getOrder() {
 		return ProvisioningEvent.DEFAULT_PROVISIONING_ORDER;

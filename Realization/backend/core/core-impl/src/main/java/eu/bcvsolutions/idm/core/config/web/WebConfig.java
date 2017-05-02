@@ -33,6 +33,7 @@ import eu.bcvsolutions.idm.core.api.rest.domain.RequestResourceResolver;
 import eu.bcvsolutions.idm.core.config.domain.DynamicCorsConfiguration;
 import eu.bcvsolutions.idm.core.config.flyway.FlywayConfigCore;
 import eu.bcvsolutions.idm.core.exception.RestErrorAttributes;
+import eu.bcvsolutions.idm.core.security.service.impl.JwtAuthenticationMapper;
 
 /**
  * Web configurations - we are reusing spring data rest web configuration
@@ -66,6 +67,7 @@ public class WebConfig extends RepositoryRestMvcConfiguration {
 		config.addAllowedMethod("DELETE");
 		config.addAllowedMethod("PATCH");
 		source.registerCorsConfiguration(BaseDtoController.BASE_PATH + "/**", config);
+		config.addExposedHeader(JwtAuthenticationMapper.AUTHENTICATION_TOKEN_NAME);
 		FilterRegistrationBean bean = new FilterRegistrationBean(new CorsFilter(source));
 		bean.setOrder(Ordered.HIGHEST_PRECEDENCE);
 		return bean;

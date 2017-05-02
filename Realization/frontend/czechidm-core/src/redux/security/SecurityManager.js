@@ -14,6 +14,8 @@ export const REQUEST_LOGIN = 'REQUEST_LOGIN';
 export const RECEIVE_LOGIN = 'RECEIVE_LOGIN';
 export const RECEIVE_LOGIN_EXPIRED = 'RECEIVE_LOGIN_EXPIRED';
 export const RECEIVE_LOGIN_ERROR = 'RECEIVE_LOGIN_ERROR';
+export const REQUEST_REMOTE_LOGIN = 'REQUEST_REMOTE_LOGIN';
+export const RECEIVE_REMOTE_LOGIN_ERROR = 'RECEIVE_REMOTE_LOGIN_ERROR';
 export const LOGOUT = 'LOGOUT';
 //
 const TOKEN_COOKIE_NAME = 'XSRF-TOKEN';
@@ -36,6 +38,27 @@ export default class SecurityManager {
   }
 
   /**
+   * If authentication token's expiration time has been extended or modified,
+   * it is stored in AuthenticateService#lastToken. The method checks if
+   * new exteded token is available and in case it is, the new token
+   * is set into userContext.
+   */
+  checkRefreshedToken() {
+    return (dispatch, getState) => {
+      const userContext = getState().security.userContext;
+      const lt = AuthenticateService.getLastToken();
+      if (lt && userContext.tokenCIDMST && userContext.tokenCIDMST !== lt) {
+        userContext.tokenCIDMST = lt;
+        userContext.authorities = AuthenticateService.getTokenAuthorities(lt);
+        dispatch({
+          type: RECEIVE_LOGIN,
+          userContext
+        });
+      }
+    };
+  }
+
+  /**
    * Login user
    * @param  {string} username
    * @param  {string} password
@@ -48,32 +71,43 @@ export default class SecurityManager {
       dispatch(flashMessagesManager.hideAllMessages());
       //
       authenticateService.login(username, password)
-      .then(json => {
-        getState().logger.debug('logged user', json);
-        //
-        // resolve authorities from auth
-        const authorities = json.authentication.authorities.map(authority => { return authority.authority; });
-        getState().logger.debug('logged user authorities', authorities);
-        //
-        // construct logged user context
-        const userContext = {
-          username: json.username,
-          isAuthenticated: true,
-          tokenCIDMST: json.token,
-          tokenCSRF: authenticateService.getCookie(TOKEN_COOKIE_NAME),
-          authorities
-        };
-        //
-        // remove all messages (only logout could be fond in messages after logout)
-        dispatch(flashMessagesManager.removeAllMessages());
-        //
-        // send userContext to state
-        dispatch(this.receiveLogin(userContext, redirect));
-      })
-      .catch(error => {
-        dispatch(this.receiveLoginError(error, redirect));
-      });
+        .then(json => this._handleUserAuthSuccess(dispatch, getState, redirect, json))
+        .catch(error => dispatch(this.receiveLoginError(error, redirect)));
     };
+  }
+
+  /**
+   * Tries to authenticate by remote authority token.
+   * In case of successful authentication sets the tokenCIDMST into userContext.
+   */
+  remoteLogin(redirect) {
+    return (dispatch, getState) => {
+      dispatch(this.requestRemoteLogin());
+      dispatch(flashMessagesManager.hideAllMessages());
+      //
+      authenticateService.remoteLogin()
+        .then(json => this._handleUserAuthSuccess(dispatch, getState, redirect, json))
+        .catch(error => dispatch(this.receiveRemoteLoginError(error, redirect)));
+    };
+  }
+
+  _handleUserAuthSuccess(dispatch, getState, redirect, json) {
+    const decoded = AuthenticateService.decodeToken(json.token);
+    const authorities = AuthenticateService.getAuthorities(decoded);
+    const userName = decoded.currentUsername;
+    // construct logged user context
+    const userContext = {
+      username: userName,
+      tokenCIDMST: json.token,
+      tokenCSRF: authenticateService.getCookie(TOKEN_COOKIE_NAME),
+      authorities
+    };
+    //
+    // remove all messages (only logout could be fond in messages after logout)
+    dispatch(flashMessagesManager.removeAllMessages());
+    //
+    // send userContext to state
+    dispatch(this.receiveLogin(userContext, redirect));
   }
 
   /*
@@ -85,9 +119,15 @@ export default class SecurityManager {
     };
   }
 
+  requestRemoteLogin() {
+    return {
+      type: REQUEST_REMOTE_LOGIN
+    };
+  }
+
   receiveLogin(userContext, redirect) {
     return dispatch => {
-      // login to websocke
+      // login to websocket
       dispatch(SecurityManager.connectStompClient(userContext));
       // getState().logger.debug('received login', userContext);
       // redirect after login, if needed
@@ -114,6 +154,18 @@ export default class SecurityManager {
       }
       dispatch({
         type: RECEIVE_LOGIN_ERROR
+      });
+    };
+  }
+
+  receiveRemoteLoginError(error) {
+    return (dispatch, getState) => {
+      // add error message
+      if (error) {
+        getState().logger.warn('Remote login error occurred:', error);
+      }
+      dispatch({
+        type: RECEIVE_REMOTE_LOGIN_ERROR
       });
     };
   }

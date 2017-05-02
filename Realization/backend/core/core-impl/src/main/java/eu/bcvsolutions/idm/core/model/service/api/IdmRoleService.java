@@ -59,4 +59,12 @@ public interface IdmRoleService
 	 * @return
 	 */
 	IdmRole getDefaultRole();
+	
+	/**
+	 * Return list of subroles (only one level in depth)
+	 * of role given by its role ID. 
+	 * @param roleId
+	 * @return
+	 */
+	List<IdmRole> getSubroles(UUID roleId);
 }

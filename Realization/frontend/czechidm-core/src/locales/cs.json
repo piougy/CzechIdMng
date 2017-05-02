@@ -2501,6 +2501,10 @@
       "title": "Chybné přihlašovací údaje",
       "message": "Zadány chybné přihlašovací údaje."
     },
+    "AUTHORITIES_CHANGED": {
+      "title": "Došlo ke změně Vašich systémových oprávnění",
+      "message": "Došlo ke změně Vašich systémových oprávnění, přihlašte se prosím znovu."
+    },
     "FORBIDDEN": {
       "title": "Nedostatečná oprávnění",
       "message": "Na požadovanou akci nemáte dostatečná oprávnění."

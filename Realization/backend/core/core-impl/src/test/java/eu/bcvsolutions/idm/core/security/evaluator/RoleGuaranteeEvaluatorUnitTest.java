@@ -57,12 +57,13 @@ public class RoleGuaranteeEvaluatorUnitTest extends AbstractUnitTest {
 		authorizable.getGuarantees().add(guarantee);
 		policy.setPermissions(IdmBasePermission.READ);
 		//
-		when(securityService.getAuthentication()).thenReturn(new IdmJwtAuthentication(new IdmIdentityDto(UUID.randomUUID(), null), null, null, null, null));
+		when(securityService.getAuthentication()).thenReturn(getAuthentication());
 		//
 		assertFalse(evaluator.evaluate(authorizable, policy, IdmBasePermission.READ));
 		assertFalse(evaluator.evaluate(authorizable, policy, IdmBasePermission.UPDATE));
 		assertFalse(evaluator.evaluate(authorizable, policy, IdmBasePermission.ADMIN));
 	}
+
 	
 	@Test
 	public void testEvaluateEmptyGuarantee() {		
@@ -70,7 +71,7 @@ public class RoleGuaranteeEvaluatorUnitTest extends AbstractUnitTest {
 		IdmRole authorizable = new IdmRole();
 		policy.setPermissions(IdmBasePermission.READ);
 		//
-		when(securityService.getAuthentication()).thenReturn(new IdmJwtAuthentication(new IdmIdentityDto(UUID.randomUUID(), null), null, null, null, null));
+		when(securityService.getAuthentication()).thenReturn(getAuthentication());
 		//
 		assertFalse(evaluator.evaluate(authorizable, policy, IdmBasePermission.READ));
 		assertFalse(evaluator.evaluate(authorizable, policy, IdmBasePermission.UPDATE));
@@ -87,11 +88,20 @@ public class RoleGuaranteeEvaluatorUnitTest extends AbstractUnitTest {
 		authorizable.getGuarantees().add(guarantee);
 		policy.setPermissions(IdmBasePermission.READ);
 		//
-		when(securityService.getAuthentication()).thenReturn(new IdmJwtAuthentication(new IdmIdentityDto(uuid, null), null, null, null, null));
+		when(securityService.getAuthentication()).thenReturn(getAuthentication(uuid));
 		//
 		assertTrue(evaluator.evaluate(authorizable, policy, IdmBasePermission.READ));
 		assertFalse(evaluator.evaluate(authorizable, policy, IdmBasePermission.UPDATE));
 		assertFalse(evaluator.evaluate(authorizable, policy, IdmBasePermission.ADMIN));
+	}
+	
+
+	private IdmJwtAuthentication getAuthentication() {
+		return getAuthentication(UUID.randomUUID());
+	}
+	
+	private IdmJwtAuthentication getAuthentication(UUID uuid) {
+		return new IdmJwtAuthentication(new IdmIdentityDto(uuid, null), null, null, null, null, null);
 	}
 }
 	

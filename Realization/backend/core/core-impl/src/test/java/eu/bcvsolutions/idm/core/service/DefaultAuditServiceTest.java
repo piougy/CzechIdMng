@@ -73,7 +73,7 @@ public class DefaultAuditServiceTest extends AbstractIntegrationTest {
 		role = roleService.get(role.getId());
 		role.setName("audit_test_role_2");
 		role.setDescription("desc");
-		roleService.save(role);
+		role = saveInTransaction(role, roleService);
 		result = auditService.findRevisions(IdmRole.class, role.getId());
 
 		assertEquals(2, result.size());

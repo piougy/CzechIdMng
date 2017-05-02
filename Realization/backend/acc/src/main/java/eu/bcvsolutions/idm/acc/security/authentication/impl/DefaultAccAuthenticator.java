@@ -2,9 +2,9 @@ package eu.bcvsolutions.idm.acc.security.authentication.impl;
 
 import java.io.IOException;
 import java.text.MessageFormat;
-import java.util.Date;
 import java.util.List;
 
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
@@ -39,7 +39,7 @@ import eu.bcvsolutions.idm.core.security.api.dto.IdmJwtAuthenticationDto;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
 import eu.bcvsolutions.idm.core.security.exception.IdmAuthenticationException;
 import eu.bcvsolutions.idm.core.security.service.GrantedAuthoritiesFactory;
-import eu.bcvsolutions.idm.core.security.service.impl.DefaultLoginService;
+import eu.bcvsolutions.idm.core.security.service.LoginService;
 import eu.bcvsolutions.idm.core.security.service.impl.JwtAuthenticationMapper;
 import eu.bcvsolutions.idm.core.security.service.impl.OAuthAuthenticationManager;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
@@ -212,13 +212,9 @@ public class DefaultAccAuthenticator extends AbstractAuthenticator implements Au
 		if (authFailedException != null) {
 			throw authFailedException;
 		}
-		//
-		// new expiration date
-		Date expiration = new Date(System.currentTimeMillis() + configurationService.getIntegerValue(DefaultLoginService.PROPERTY_EXPIRATION_TIMEOUT, DefaultLoginService.DEFAULT_EXPIRATION_TIMEOUT));
-		//
 		IdmJwtAuthentication authentication = new IdmJwtAuthentication(
 				new IdmIdentityDto(identity, identity.getUsername()),
-				expiration,
+				getAuthExpiration(),
 				grantedAuthoritiesFactory.getGrantedAuthorities(loginDto.getUsername()),
 				this.getModule());
 		//
@@ -237,6 +233,12 @@ public class DefaultAccAuthenticator extends AbstractAuthenticator implements Au
 		} catch (IOException ex) {
 			throw new IdmAuthenticationException(ex.getMessage(), ex);
 		}
+	}
+
+	private DateTime getAuthExpiration() {
+		return DateTime.now()
+				.plus(configurationService.getIntegerValue(LoginService.PROPERTY_EXPIRATION_TIMEOUT,
+						LoginService.DEFAULT_EXPIRATION_TIMEOUT));
 	}
 
 	@Override

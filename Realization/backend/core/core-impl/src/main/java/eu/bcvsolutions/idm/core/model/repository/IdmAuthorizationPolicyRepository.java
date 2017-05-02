@@ -8,6 +8,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.model.dto.filter.AuthorizationPolicyFilter;
@@ -75,4 +78,35 @@ public interface IdmAuthorizationPolicyRepository extends AbstractEntityReposito
 	List<IdmAuthorizationPolicy> getPolicies(
 			@Param("roleId") UUID roleId,
 			@Param("disabled") boolean disabled);
+	
+	/**
+	 * Return enabled and persisted (outside current transaction)
+	 * role's policies (role and policy has to be enabled).
+	 * 
+	 * @param roleId
+	 * @param disabled
+	 * @return
+	 */
+	@Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.REPEATABLE_READ)
+	@Query(value = "select e from #{#entityName} e join e.role r"
+			+ " where"
+			+ " r.id = :roleId"
+			+ " and"
+			+ " r.disabled = :disabled"
+			+ " and"
+			+ " e.disabled = :disabled")
+	List<IdmAuthorizationPolicy> getPersistedPolicies(
+			@Param("roleId") UUID roleId,
+			@Param("disabled") boolean disabled);
+	
+	/**
+	 * Return persisted policy by ID.
+	 * 
+	 * @param policyId
+	 * @return
+	 */
+	@Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.REPEATABLE_READ)
+	@Query(value = "select e from #{#entityName} e where e.id = :policyId")
+	IdmAuthorizationPolicy getPersistedPolicy(@Param("policyId") UUID policyId);
+
 }

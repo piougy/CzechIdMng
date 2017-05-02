@@ -1,9 +1,13 @@
 
 
+import jwtDecode from 'jwt-decode';
 import RestApiService from './RestApiService';
 import * as Utils from '../utils';
 
 const authPath = '/authentication';
+const remoteAuthPath = authPath + '/remote-auth';
+
+let lastToken = null;
 
 export default class AuthenticateService {
 
@@ -19,12 +23,22 @@ export default class AuthenticateService {
     .post(authPath, json, false) // false - we don't want to append auth token
     .then(response => {
       return response.json();
-    }).then(jsonResponse => {
-      if (Utils.Response.hasError(jsonResponse)) {
-        throw Utils.Response.getFirstError(jsonResponse);
-      }
-      return jsonResponse;
-    });
+    })
+    .then(this._handleOptionalErrorModel);
+  }
+
+  remoteLogin() {
+    return RestApiService
+      .get(remoteAuthPath)
+      .then(response => response.json())
+      .then(this._handleOptionalErrorModel);
+  }
+
+  _handleOptionalErrorModel(jsonResponse) {
+    if (Utils.Response.hasError(jsonResponse)) {
+      throw Utils.Response.getFirstError(jsonResponse);
+    }
+    return jsonResponse;
   }
 
   /**
@@ -70,6 +84,48 @@ export default class AuthenticateService {
     return userContext.tokenCIDMST;
   }
 
+  static getLastToken() {
+    const _lt = lastToken;
+    lastToken = null;
+    return _lt;
+  }
+
+  /**
+   * Returns logged user CIDMST token
+   * @return {string} token
+   */
+  static setTokenCIDMST(token) {
+    if (!token || token === null) {
+      return;
+    }
+    lastToken = token;
+  }
+
+  /**
+   * Decodes given JWT token and returns the 'authorities' field
+   * mapped as an array of strings.
+   * @return {array} authorities
+   */
+  static getTokenAuthorities(token) {
+    const decoded = AuthenticateService.decodeToken(token);
+    return AuthenticateService.getAuthorities(decoded);
+  }
+
+  /**
+   * @return {array} JWT token authorities as list of strings
+   */
+  static getAuthorities(decodedToken) {
+    return decodedToken.authorities.map(authority => authority.authority);
+  }
+
+  /**
+   * Decodes JWT token as a plain JSON object.
+   * @return {object} decoded token
+   */
+  static decodeToken(token) {
+    return jwtDecode(token);
+  }
+
   /**
    * Returns logged username
    * @return {strine} username
@@ -88,14 +144,28 @@ export default class AuthenticateService {
    * @return {object} userContext
    */
   static getUserContext() {
-    if (!localStorage['czechidm-storage']) {
-      return null;
-    }
-    const storage = JSON.parse(localStorage['czechidm-storage']);
+    return AuthenticateService.getSecurityStore().userContext;
+  }
+
+  /**
+   * @return {object} redux security store from local storage
+   */
+  static getSecurityStore() {
+    const storage = AuthenticateService.getStorage();
     if (!storage || !storage.security) {
       return null;
     }
-    return storage.security.userContext;
+    return storage.security;
+  }
+
+  /**
+   * @return {object} redux store from local storage
+   */
+  static getStorage() {
+    if (!localStorage['czechidm-storage']) {
+      return null;
+    }
+    return JSON.parse(localStorage['czechidm-storage']);
   }
 
   /**

@@ -30,6 +30,7 @@ public enum CoreResultCode implements ResultCode {
 	// auth errors
 	AUTH_FAILED(HttpStatus.UNAUTHORIZED, "Authentication failed - bad credentials."),
 	AUTH_EXPIRED(HttpStatus.UNAUTHORIZED, "Authentication expired."),
+	AUTHORITIES_CHANGED(HttpStatus.UNAUTHORIZED, "Authorities changed, log in again."),
 	LOG_IN(HttpStatus.UNAUTHORIZED, "You need to be logged in."),
 	XSRF(HttpStatus.UNAUTHORIZED, "XSRF cookie failed."),
 	FORBIDDEN(HttpStatus.FORBIDDEN, "Forbidden."),

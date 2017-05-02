@@ -1,8 +1,67 @@
 import chai, { expect } from 'chai';
 import dirtyChai from 'dirty-chai';
 chai.use(dirtyChai);
+
 //
-import { SecurityManager } from '../../src/redux';
+import { security } from '../../src/redux/security/reducer';
+
+import SecurityManager, {
+  RECEIVE_LOGIN, RECEIVE_LOGIN_EXPIRED, RECEIVE_LOGIN_ERROR,
+  RECEIVE_REMOTE_LOGIN_ERROR, REQUEST_REMOTE_LOGIN } from '../../src/redux/security/SecurityManager';
+
+const TEST_AUTHORITY = 'USER_READ';
+
+describe('security reducer', function reducer() {
+  it('[INITIAL_STATE]', function initialState() {
+    const uctx = security(undefined, {}).userContext;
+    expect(uctx).to.have.property('isAuthenticated', false);
+    expect(uctx).to.have.property('tokenCIDMST', null);
+    expect(uctx).to.have.property('username', null);
+    expect(uctx).to.have.property('authorities').that.eql([]);
+  });
+
+  it('[RECEIVE_LOGIN]', function test() {
+    const newctx = {
+      tokenCIDMST: 'test.jwt.token',
+      username: 'test-user-name',
+      authorities: [TEST_AUTHORITY]
+    };
+    const uctx = security(undefined, {
+      type: RECEIVE_LOGIN,
+      userContext: newctx
+    }).userContext;
+    expect(uctx).to.have.property('isAuthenticated', true);
+    expect(uctx).to.have.property('isExpired', false);
+    expect(uctx).to.have.property('tokenCIDMST', newctx.tokenCIDMST);
+    expect(uctx).to.have.property('username', newctx.username);
+    expect(uctx).to.have.property('authorities').that.eql([TEST_AUTHORITY]);
+  });
+
+  it('[RECEIVE_LOGIN_ERROR]', function test() {
+    const uctx = security(undefined, { type: RECEIVE_LOGIN_ERROR }).userContext;
+    expect(uctx).to.have.property('isAuthenticated', false);
+    expect(uctx).to.have.property('tokenCIDMST', null);
+  });
+
+  it('[RECEIVE_LOGIN_EXPIRED]', function test() {
+    const uctx = security(undefined, { type: RECEIVE_LOGIN_EXPIRED }).userContext;
+    expect(uctx).to.have.property('isAuthenticated', false);
+    expect(uctx).to.have.property('isExpired', true);
+    expect(uctx).to.have.property('isTryRemoteLogin', true);
+    expect(uctx).to.have.property('tokenCIDMST', null);
+  });
+
+  it('[RECEIVE_REMOTE_LOGIN_ERROR]', function test() {
+    const uctx = security(undefined, { type: RECEIVE_REMOTE_LOGIN_ERROR }).userContext;
+    expect(uctx).to.have.property('isTryRemoteLogin', false);
+  });
+
+  it('[REQUEST_REMOTE_LOGIN]', function test() {
+    const uctx = security(undefined, { type: REQUEST_REMOTE_LOGIN }).userContext;
+    expect(uctx).to.have.property('isTryRemoteLogin', false);
+    expect(uctx).to.have.property('showLoading', true);
+  });
+});
 
 describe('SecurityManager', function securityManagerTest() {
   //
@@ -11,6 +70,7 @@ describe('SecurityManager', function securityManagerTest() {
     isExpired: false,
     username: 'testUsername',
     isAuthenticated: true,
+    isTryRemoteLogin: false,
     tokenCSRF: null,
     tokenCIDMST: null,
     authorities: ['IDENTITY_READ', 'IDENTITY_WRITE', 'ROLE_ADMIN'], // user authorities

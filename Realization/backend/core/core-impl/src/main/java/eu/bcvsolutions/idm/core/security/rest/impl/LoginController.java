@@ -14,6 +14,7 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.security.api.authentication.AuthenticationManager;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
+import eu.bcvsolutions.idm.core.security.service.LoginService;
 
 /**
  * Identity authentication
@@ -26,8 +27,14 @@ import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
 @RequestMapping(value = BaseEntityController.BASE_PATH + "/authentication")
 public class LoginController {
 	
+	public static final String REMOTE_AUTH_PATH = "/remote-auth";
+	
 	@Autowired
 	private AuthenticationManager authenticationManager;
+	
+	@Autowired
+	private LoginService loginService;
+	
 
 	@RequestMapping(method = RequestMethod.POST)
 	public Resource<LoginDto> login(@Valid @RequestBody(required = true) LoginDto loginDto) {
@@ -35,6 +42,11 @@ public class LoginController {
 			throw new ResultCodeException(CoreResultCode.AUTH_FAILED, "Username and password must be filled");
 		}
 		return new Resource<LoginDto>(authenticationManager.authenticate(loginDto));
+	}
+	
+	@RequestMapping(path = REMOTE_AUTH_PATH, method = RequestMethod.GET)
+	public Resource<LoginDto> loginWithRemoteToken() {
+		return new Resource<LoginDto>(loginService.loginAuthenticatedUser());
 	}
 	
 }

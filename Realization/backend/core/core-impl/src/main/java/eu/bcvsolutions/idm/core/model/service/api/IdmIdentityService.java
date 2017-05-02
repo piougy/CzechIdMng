@@ -3,6 +3,8 @@ package eu.bcvsolutions.idm.core.model.service.api;
 import java.util.List;
 import java.util.UUID;
 
+import org.joda.time.DateTime;
+
 import eu.bcvsolutions.idm.core.api.service.IdentifiableByNameEntityService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
 import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
@@ -107,5 +109,14 @@ public interface IdmIdentityService extends
 	 * @return
 	 */
 	List<IdmIdentity> findAllGuaranteesByRoleId(UUID roleId);
+
+	
+	/**
+	 * Update IdmAuthorityChange for all given identities and set 
+	 * it to provided value. 
+	 * @param identities identities to update
+	 * @param changeTime change time to set
+	 */
+	void updateAuthorityChange(List<IdmIdentity> identities, DateTime changeTime);
 
 }

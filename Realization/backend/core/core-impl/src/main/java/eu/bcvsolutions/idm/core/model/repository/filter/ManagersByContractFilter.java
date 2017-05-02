@@ -15,7 +15,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 public interface ManagersByContractFilter extends FilterBuilder<IdmIdentity, IdentityFilter> {
 	
 	@Override
-	default String getPropertyName() {
+	default String getName() {
 		return IdentityFilter.PARAMETER_MANAGERS_BY_CONTRACT_ID;
 	}
 }

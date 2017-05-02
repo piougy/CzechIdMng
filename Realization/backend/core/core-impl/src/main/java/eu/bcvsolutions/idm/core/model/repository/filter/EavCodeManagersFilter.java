@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.model.repository.filter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -14,29 +15,46 @@ import org.joda.time.LocalDate;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.repository.filter.AbstractFilterBuilder;
+import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute;
+import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute_;
+import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition_;
+import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.model.dto.filter.IdentityFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmContractGuarantee;
 import eu.bcvsolutions.idm.core.model.entity.IdmContractGuarantee_;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
-import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode_;
+import eu.bcvsolutions.idm.core.model.entity.eav.IdmTreeNodeFormValue;
+import eu.bcvsolutions.idm.core.model.entity.eav.IdmTreeNodeFormValue_;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 
 /**
- * Managers criteria builder:
- * - by guarantee and tree structure - finds parent tree node standardly by tree structure
+ * Managers criteria builder.
+ * - by guarantee and tree structure - finds parent tree node by code in eav attribute value
  * 
  * @author Radek Tomiška
  *
  */
-public class DefaultManagersFilter 
+public class EavCodeManagersFilter 
 		extends AbstractFilterBuilder<IdmIdentity, IdentityFilter> 
 		implements ManagersFilter {
 	
-	public DefaultManagersFilter(IdmIdentityRepository repository) {
+	public static final String PROPERTY_FORM_DEFINITION = "formDefinition";
+	public static final String PROPERTY_FORM_ATTRIBUTE = "formAttribute";
+	public static final String DEFAULT_FORM_ATTRIBUTE = "parentCode";
+	
+	public EavCodeManagersFilter(IdmIdentityRepository repository) {
 		super(repository);
+	}
+	
+	@Override
+	public List<String> getPropertyNames() {
+		List<String> props = super.getPropertyNames();
+		props.add(PROPERTY_FORM_DEFINITION);
+		props.add(PROPERTY_FORM_ATTRIBUTE);
+		return props;
 	}
 
 	@Override
@@ -63,20 +81,26 @@ public class DefaultManagersFilter
 			subPredicates.add(builder.exists(subqueryGuarantee));
 		}		
 		// manager from tree structure - only direct managers are supported now
-		Subquery<IdmTreeNode> subqueryWp = query.subquery(IdmTreeNode.class);
+		Subquery<UUID> subqueryWp = query.subquery(UUID.class);
 		Root<IdmIdentityContract> subqueryWpRoot = subqueryWp.from(IdmIdentityContract.class);
-		subqueryWp.select(subqueryWpRoot.get(IdmIdentityContract_.workPosition).get(IdmTreeNode_.parent));			
-		Predicate identityPredicate = builder.and(
-				builder.equal(subqueryWpRoot.get(IdmIdentityContract_.identity), filter.getManagersFor())
-				);
-		if (filter.getManagersByTreeType() == null) {
-			subqueryWp.where(identityPredicate);	
-		} else {
-			subqueryWp.where(builder.and(
-					identityPredicate,
-					builder.equal(subqueryWpRoot.get(IdmIdentityContract_.workPosition).get(IdmTreeNode_.treeType), filter.getManagersByTreeType())
-					));	
-		}
+		subqueryWp.select(subqueryWpRoot.get(IdmIdentityContract_.id)); 		
+		Subquery<String> subqueryEav = query.subquery(String.class);
+		Root<IdmTreeNodeFormValue> subRootEav = subqueryEav.from(IdmTreeNodeFormValue.class);
+		subqueryEav.select(subRootEav.get(IdmTreeNodeFormValue_.stringValue));
+		Path<IdmFormAttribute> eavAttr = subRootEav.get(IdmTreeNodeFormValue_.formAttribute);		
+		subqueryEav.where(builder.and(
+						builder.equal(subRoot.get(IdmIdentityContract_.workPosition).get(IdmTreeNode_.code), subRootEav.get(IdmTreeNodeFormValue_.stringValue)),
+						builder.equal(subqueryWpRoot.get(IdmIdentityContract_.identity), filter.getManagersFor()),
+						builder.equal(subRootEav.get(IdmTreeNodeFormValue_.owner), subqueryWpRoot.get(IdmIdentityContract_.workPosition)),
+						builder.equal(
+								eavAttr.get(IdmFormAttribute_.formDefinition).get(IdmFormDefinition_.name), 
+								getConfigurationProperty(PROPERTY_FORM_DEFINITION, FormService.DEFAULT_DEFINITION_NAME)),
+						builder.equal(
+								eavAttr.get(IdmFormAttribute_.name), 
+								getConfigurationProperty(PROPERTY_FORM_ATTRIBUTE, DEFAULT_FORM_ATTRIBUTE))
+						));
+		subqueryWp.where(builder.exists(subqueryEav));
+		//
 		subPredicates.add(
                 builder.and(
                 		// valid contract only
@@ -89,8 +113,8 @@ public class DefaultManagersFilter
     							builder.greaterThanOrEqualTo(subRoot.get(IdmIdentityContract_.validTill), new LocalDate())
     							),
     					//
-                		builder.equal(subRoot.get(IdmIdentityContract_.identity), root), // correlation attr
-                		subRoot.get(IdmIdentityContract_.workPosition).in(subqueryWp)
+    					builder.equal(subRoot.get(IdmIdentityContract_.identity), root),
+    					builder.exists(subqueryWp)
                 		)
         );		
 		subquery.where(builder.or(subPredicates.toArray(new Predicate[subPredicates.size()])));

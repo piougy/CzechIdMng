@@ -14,6 +14,10 @@ import org.joda.time.LocalDate;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.repository.filter.AbstractFilterBuilder;
+import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute;
+import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute_;
+import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition_;
+import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.model.dto.filter.IdentityFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmContractGuarantee;
 import eu.bcvsolutions.idm.core.model.entity.IdmContractGuarantee_;
@@ -22,26 +26,41 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode_;
+import eu.bcvsolutions.idm.core.model.entity.eav.IdmTreeNodeFormValue;
+import eu.bcvsolutions.idm.core.model.entity.eav.IdmTreeNodeFormValue_;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 
 /**
  * Subordinates criteria builder:
- * - by guarantee and tree structure - finds parent tree node standardly by tree structure
+ * - by guarantee and tree structure - finds parent tree node by code in eav attribute value
  * 
  * @author Radek Tomiška
  *
  */
-public class DefaultSubordinatesFilter 
+public class EavCodeSubordinatesFilter 
 		extends AbstractFilterBuilder<IdmIdentity, IdentityFilter>
 		implements SubordinatesFilter {
 	
-	public DefaultSubordinatesFilter(IdmIdentityRepository repository) {
+	public static final String PROPERTY_FORM_DEFINITION = "formDefinition";
+	public static final String PROPERTY_FORM_ATTRIBUTE = "formAttribute";
+	public static final String DEFAULT_FORM_ATTRIBUTE = "parentCode";
+	
+	public EavCodeSubordinatesFilter(IdmIdentityRepository repository) {
 		super(repository);
+	}
+	
+	@Override
+	public List<String> getPropertyNames() {
+		List<String> props = super.getPropertyNames();
+		props.add(PROPERTY_FORM_DEFINITION);
+		props.add(PROPERTY_FORM_ATTRIBUTE);
+		return props;
 	}
 
 	@Override
 	public Predicate getPredicate(Root<IdmIdentity> root, CriteriaQuery<?> query, CriteriaBuilder builder, IdentityFilter filter) {
 		Assert.notNull(filter.getSubordinatesFor());
+		// tree node bude mit vazbu na "parenta" dle extended attributu
 		//
 		// identity has to have identity contract
 		Subquery<IdmIdentityContract> subquery = query.subquery(IdmIdentityContract.class);
@@ -62,12 +81,26 @@ public class DefaultSubordinatesFilter
 	                		)
 	        );
 			subPredicates.add(builder.exists(subqueryGuarantees));
-		}
+		}		
 		//
-		// managers from tree structure
 		Subquery<IdmTreeNode> subqueryWp = query.subquery(IdmTreeNode.class);
 		Root<IdmIdentityContract> subqueryWpRoot = subqueryWp.from(IdmIdentityContract.class);
 		subqueryWp.select(subqueryWpRoot.get(IdmIdentityContract_.workPosition));
+		//
+		Subquery<String> subqueryEav = query.subquery(String.class);
+		Root<IdmTreeNodeFormValue> subRootEav = subqueryEav.from(IdmTreeNodeFormValue.class);
+		subqueryEav.select(subRootEav.get(IdmTreeNodeFormValue_.stringValue));
+		Path<IdmFormAttribute> eavAttr = subRootEav.get(IdmTreeNodeFormValue_.formAttribute);
+		subqueryEav.where(builder.and(
+						builder.equal(subRootEav.get(IdmTreeNodeFormValue_.owner), subRoot.get(IdmIdentityContract_.workPosition)),
+						builder.equal(
+								eavAttr.get(IdmFormAttribute_.formDefinition).get(IdmFormDefinition_.name), 
+								getConfigurationProperty(PROPERTY_FORM_DEFINITION, FormService.DEFAULT_DEFINITION_NAME)),
+						builder.equal(
+								eavAttr.get(IdmFormAttribute_.name), 
+								getConfigurationProperty(PROPERTY_FORM_ATTRIBUTE, DEFAULT_FORM_ATTRIBUTE))
+						));
+		//
 		Path<IdmTreeNode> wp = subqueryWpRoot.get(IdmIdentityContract_.workPosition);
 		subqueryWp.where(builder.and(
 				// valid contract only
@@ -80,13 +113,13 @@ public class DefaultSubordinatesFilter
 						builder.greaterThanOrEqualTo(subqueryWpRoot.get(IdmIdentityContract_.validTill), new LocalDate())
 						),
 				//
-				(filter.getSubordinatesByTreeType() == null) // only id tree type is specified
+				(filter.getSubordinatesByTreeType() == null) 
 					? builder.conjunction() 
 					: builder.equal(wp.get(IdmTreeNode_.treeType), filter.getSubordinatesByTreeType()),
-				builder.equal(wp, subRoot.get(IdmIdentityContract_.workPosition).get(IdmTreeNode_.parent)),
+				builder.equal(wp.get(IdmTreeNode_.code), subqueryEav), // eav attribute
 				builder.equal(subqueryWpRoot.get(IdmIdentityContract_.identity), filter.getSubordinatesFor())
 				));
-		subPredicates.add(builder.exists(subqueryWp));		
+		subPredicates.add(builder.exists(subqueryWp));
 		// 
 		subquery.where(
                 builder.and(

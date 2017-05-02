@@ -79,7 +79,7 @@ public class DefaultModuleService implements ModuleService {
 			return true;
 		}
 		return configurationService.getBooleanValue(
-				getModuleConfigurationProperty(moduleDescriptor.getId(), PROPERTY_ENABLED), false);
+				getModuleConfigurationProperty(moduleDescriptor.getId(), ConfigurationService.PROPERTY_ENABLED), false);
 	}
 
 	@Override
@@ -106,7 +106,7 @@ public class DefaultModuleService implements ModuleService {
 			// TODO: license check if module is enabling
 		}		
 		configurationService.setBooleanValue(
-				getModuleConfigurationProperty(moduleId, PROPERTY_ENABLED), enabled);
+				getModuleConfigurationProperty(moduleId, ConfigurationService.PROPERTY_ENABLED), enabled);
 	}
 	
 	@Override

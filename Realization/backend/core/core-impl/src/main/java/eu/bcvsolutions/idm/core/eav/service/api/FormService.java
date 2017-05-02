@@ -35,6 +35,11 @@ import eu.bcvsolutions.idm.core.eav.service.impl.AbstractFormValueService;
 public interface FormService {
 	
 	/**
+	 * Default definition name for type (if no name is given)
+	 */
+	static final String DEFAULT_DEFINITION_NAME = IdmFormDefinitionService.DEFAULT_DEFINITION_NAME;
+	
+	/**
 	 * Finds default definition by given type
 	 * 
 	 * @param type

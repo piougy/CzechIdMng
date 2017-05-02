@@ -4,11 +4,11 @@ import java.util.List;
 import java.util.concurrent.Executor;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.plugin.core.PluginRegistry;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
@@ -37,9 +37,6 @@ import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleTreeNodeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeTypeRepository;
-import eu.bcvsolutions.idm.core.model.repository.filter.DefaultManagersByContractFilter;
-import eu.bcvsolutions.idm.core.model.repository.filter.DefaultManagersFilter;
-import eu.bcvsolutions.idm.core.model.repository.filter.DefaultSubordinatesFilter;
 import eu.bcvsolutions.idm.core.model.repository.filter.ManagersByContractFilter;
 import eu.bcvsolutions.idm.core.model.repository.filter.ManagersFilter;
 import eu.bcvsolutions.idm.core.model.repository.filter.SubordinatesFilter;
@@ -80,14 +77,13 @@ import eu.bcvsolutions.idm.core.security.service.impl.DefaultSecurityService;
 import eu.bcvsolutions.idm.core.security.service.impl.IdmAuthorityHierarchy;
 
 /**
- * Overridable core services initialization
+ * Overridable core services initialization (configuration with higher order wins).
  * 
  * TODO: move all @Service annotated beans here
  * 
  * @author Radek Tomiška
  *
  */
-@Order(0)
 @Configuration
 public class IdmServiceConfiguration {
 	
@@ -117,6 +113,11 @@ public class IdmServiceConfiguration {
 	// Auto registered beans (plugins)
 	@Autowired private PluginRegistry<ModuleDescriptor, String> moduleDescriptorRegistry;
 	@Autowired private List<? extends FormValueService<?, ?>> formValueServices;
+	//
+	// TODO: registrable
+	@Autowired private SubordinatesFilter subordinatesFilter;
+	@Autowired private ManagersFilter managersFilter;
+	@Autowired private ManagersByContractFilter managersByContractFilter;
 	
 	/**
 	 * Crypt service for confidential storage
@@ -124,6 +125,7 @@ public class IdmServiceConfiguration {
 	 * @return
 	 */
 	@Bean
+	@ConditionalOnMissingBean(CryptService.class)
 	public CryptService cryptService() {
 		return new DefaultCryptService();
 	}
@@ -134,6 +136,7 @@ public class IdmServiceConfiguration {
 	 * @return
 	 */
 	@Bean
+	@ConditionalOnMissingBean(ConfidentialStorage.class)
 	public ConfidentialStorage confidentialStorage() {
 		return new DefaultIdmConfidentialStorage(confidentialStorageValueRepository,  cryptService());
 	}
@@ -144,6 +147,7 @@ public class IdmServiceConfiguration {
 	 * @return
 	 */
 	@Bean
+	@ConditionalOnMissingBean(IdmConfigurationService.class)
 	public IdmConfigurationService configurationService() {
 		return new DefaultConfigurationService(configurationRepository, confidentialStorage(), environment);
 	}
@@ -154,6 +158,7 @@ public class IdmServiceConfiguration {
 	 * @return
 	 */
 	@Bean
+	@ConditionalOnMissingBean(ModuleService.class)
 	public ModuleService moduleService() {
 		return new DefaultModuleService(moduleDescriptorRegistry, configurationService());
 	}
@@ -164,6 +169,7 @@ public class IdmServiceConfiguration {
 	 * @return
 	 */
 	@Bean
+	@ConditionalOnMissingBean(name = "roleHierarchy")
 	public RoleHierarchy roleHierarchy() {
 	    return new IdmAuthorityHierarchy(moduleService());
 	}
@@ -174,6 +180,7 @@ public class IdmServiceConfiguration {
 	 * @return
 	 */
 	@Bean
+	@ConditionalOnMissingBean(EnabledEvaluator.class)
 	public EnabledEvaluator enabledEvaluator() {
 		return new DefaultEnabledEvaluator(moduleService(), configurationService());
 	}
@@ -184,6 +191,7 @@ public class IdmServiceConfiguration {
 	 * @return
 	 */
 	@Bean
+	@ConditionalOnMissingBean(EntityEventManager.class)
 	public EntityEventManager entityEventManager() {
 		return new DefaultEntityEventManager(context, publisher, enabledEvaluator());
 	}
@@ -194,6 +202,7 @@ public class IdmServiceConfiguration {
 	 * @return
 	 */
 	@Bean
+	@ConditionalOnMissingBean(SecurityService.class)
 	public SecurityService securityService() {
 		return new DefaultSecurityService(roleHierarchy());
 	}
@@ -204,6 +213,7 @@ public class IdmServiceConfiguration {
 	 * @return
 	 */
 	@Bean
+	@ConditionalOnMissingBean(AuthorizationManager.class)
 	public AuthorizationManager authorizationManager() {
 		return new DefaultAuthorizationManager(context, authorizationPolicyService(), securityService(), moduleService());
 	}
@@ -214,6 +224,7 @@ public class IdmServiceConfiguration {
 	 * @return
 	 */
 	@Bean
+	@ConditionalOnMissingBean(IdmFormAttributeService.class)
 	public IdmFormAttributeService formAttributeService() {
 		return new DefaultIdmFormAttributeService(formAttributeRepository, formValueServices);
 	}
@@ -224,6 +235,7 @@ public class IdmServiceConfiguration {
 	 * @return
 	 */
 	@Bean
+	@ConditionalOnMissingBean(IdmFormDefinitionService.class)
 	public IdmFormDefinitionService formDefinitionService() {
 		return new DefaultIdmFormDefinitionService(formDefinitionRepository, formAttributeService());
 	}
@@ -234,6 +246,7 @@ public class IdmServiceConfiguration {
 	 * @return
 	 */
 	@Bean
+	@ConditionalOnMissingBean(FormService.class)
 	public FormService formService() {
 		return new DefaultFormService(formDefinitionService(), formAttributeService(), formValueServices, entityEventManager());
 	}
@@ -244,6 +257,7 @@ public class IdmServiceConfiguration {
 	 * @return
 	 */
 	@Bean
+	@ConditionalOnMissingBean(IdmRoleService.class)
 	public IdmRoleService roleService() {
 		return new DefaultIdmRoleService(roleRepository, entityEventManager(), formService(), configurationService());
 	}
@@ -254,6 +268,7 @@ public class IdmServiceConfiguration {
 	 * @return
 	 */
 	@Bean
+	@ConditionalOnMissingBean(IdmAuthorizationPolicyService.class)
 	public IdmAuthorizationPolicyService authorizationPolicyService() {
 		return new DefaultIdmAuthorizationPolicyService(authorizationPolicyRepository, roleService(), moduleService());
 	}
@@ -264,6 +279,7 @@ public class IdmServiceConfiguration {
 	 * @return
 	 */
 	@Bean
+	@ConditionalOnMissingBean(IdmLongRunningTaskService.class)
 	public IdmLongRunningTaskService longRunningTaskService() {
 		return new DefaultIdmLongRunningTaskService(longRunningTaskRepository, configurationService());
 	}
@@ -275,44 +291,9 @@ public class IdmServiceConfiguration {
 	 * @return
 	 */
 	@Bean
+	@ConditionalOnMissingBean(LongRunningTaskManager.class)
 	public LongRunningTaskManager longRunningTaskManager() {
 		return new DefaultLongRunningTaskManager(longRunningTaskService(), executor, configurationService(), securityService());
-	}
-	
-	/**
-	 * Subordinates criteria builder.
-	 * 
-	 * Override in custom module for changing subordinates evaluation.
-	 * 
-	 * @return
-	 */
-	@Bean
-	public SubordinatesFilter subordinatesFilter() {
-		return new DefaultSubordinatesFilter(identityRepository);
-	}
-	
-	/**
-	 * Managers criteria builder.
-	 * 
-	 * Override in custom module for changing managers evaluation.
-	 * 
-	 * @return
-	 */
-	@Bean
-	public ManagersFilter managersFilter() {
-		return new DefaultManagersFilter(identityRepository);
-	}
-	
-	/**
-	 * Managers criteria builder (by contract id).
-	 * 
-	 * Override in custom module for changing managers evaluation.
-	 * 
-	 * @return
-	 */
-	@Bean
-	public ManagersByContractFilter managersByContractFilter() {
-		return new DefaultManagersByContractFilter(identityRepository);
 	}
 	
 	/**
@@ -321,8 +302,9 @@ public class IdmServiceConfiguration {
 	 * @return
 	 */
 	@Bean
+	@ConditionalOnMissingBean(IdmIdentityService.class)
 	public IdmIdentityService identityService() {
-		return new DefaultIdmIdentityService(identityRepository, formService(), roleRepository, entityEventManager(), subordinatesFilter(), managersFilter(), managersByContractFilter());
+		return new DefaultIdmIdentityService(identityRepository, formService(), roleRepository, entityEventManager(), subordinatesFilter, managersFilter, managersByContractFilter);
 	}
 	
 	/**
@@ -331,6 +313,7 @@ public class IdmServiceConfiguration {
 	 * @return
 	 */
 	@Bean
+	@ConditionalOnMissingBean(IdmRoleTreeNodeService.class)
 	public IdmRoleTreeNodeService roleTreeNodeService(
 			IdmRoleRequestService roleRequestService, 
 			IdmIdentityContractService identityContractService,
@@ -344,6 +327,7 @@ public class IdmServiceConfiguration {
 	 * @return
 	 */
 	@Bean
+	@ConditionalOnMissingBean(IdmContractGuaranteeService.class)
 	public IdmContractGuaranteeService contractGuaranteeService() {
 		return new DefaultIdmContractGuaranteeService(contractGuaranteeRepository);
 	}
@@ -354,6 +338,7 @@ public class IdmServiceConfiguration {
 	 * @return
 	 */
 	@Bean
+	@ConditionalOnMissingBean(IdmIdentityContractService.class)
 	public IdmIdentityContractService identityContractService() {
 		return new DefaultIdmIdentityContractService(identityContractRepository, entityEventManager(), treeTypeRepository, treeNodeRepository);
 	}
@@ -364,6 +349,7 @@ public class IdmServiceConfiguration {
 	 * @return
 	 */
 	@Bean
+	@ConditionalOnMissingBean(IdmIdentityRoleService.class)
 	public IdmIdentityRoleService idmIdentityRoleService() {
 		return new DefaultIdmIdentityRoleService(identityRoleRepository, entityEventManager());
 	}	

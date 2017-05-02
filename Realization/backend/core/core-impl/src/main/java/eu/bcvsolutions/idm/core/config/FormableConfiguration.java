@@ -2,7 +2,6 @@ package eu.bcvsolutions.idm.core.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
 
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.eav.repository.AbstractFormValueRepository;
@@ -22,7 +21,6 @@ import eu.bcvsolutions.idm.core.model.entity.eav.IdmTreeNodeFormValue;
  * @author Radek Tomiška
  *
  */
-@Order(0)
 @Configuration
 public class FormableConfiguration {
 

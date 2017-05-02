@@ -16,6 +16,7 @@ import org.springframework.data.domain.Page;
 
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
+import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount;
@@ -142,7 +143,7 @@ public class IdentityRoleValidRequestSchedulerTest extends AbstractIntegrationTe
 		
 		IdentityAccountFilter filter = new IdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
-		AccIdentityAccount accountIdentity = identityAccountService.find(filter, null).getContent().get(0);
+		AccIdentityAccountDto accountIdentity = identityAccountService.find(filter, null).getContent().get(0);
 		// it must exists
 		assertNotNull(accountIdentity);
 	}
@@ -163,7 +164,7 @@ public class IdentityRoleValidRequestSchedulerTest extends AbstractIntegrationTe
 		
 		IdentityAccountFilter filter = new IdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
-		List<AccIdentityAccount> list = identityAccountService.find(filter, null).getContent();
+		List<AccIdentityAccountDto> list = identityAccountService.find(filter, null).getContent();
 		// it must not exists
 		assertEquals(true, list.isEmpty());
 	}
@@ -184,7 +185,7 @@ public class IdentityRoleValidRequestSchedulerTest extends AbstractIntegrationTe
 		
 		IdentityAccountFilter filter = new IdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
-		List<AccIdentityAccount> list = identityAccountService.find(filter, null).getContent();
+		List<AccIdentityAccountDto> list = identityAccountService.find(filter, null).getContent();
 		// it must not exists
 		assertEquals(true, list.isEmpty());
 		//
@@ -282,7 +283,7 @@ public class IdentityRoleValidRequestSchedulerTest extends AbstractIntegrationTe
 		for (IdmIdentity identity : identities) {
 			IdentityAccountFilter filter = new IdentityAccountFilter();
 			filter.setIdentityId(identity.getId());
-			List<AccIdentityAccount> accountsList = identityAccountService.find(filter, null).getContent();
+			List<AccIdentityAccountDto> accountsList = identityAccountService.find(filter, null).getContent();
 			assertEquals(false, accountsList.isEmpty());
 			assertEquals(1, accountsList.size());
 		}

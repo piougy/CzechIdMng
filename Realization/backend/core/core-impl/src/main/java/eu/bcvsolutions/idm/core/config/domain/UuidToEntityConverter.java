@@ -3,6 +3,8 @@ package eu.bcvsolutions.idm.core.config.domain;
 import java.lang.reflect.Field;
 import java.util.UUID;
 
+import javax.persistence.EntityManager;
+
 import org.modelmapper.Converter;
 import org.modelmapper.spi.MappingContext;
 import org.modelmapper.spi.PropertyMapping;
@@ -25,11 +27,11 @@ import eu.bcvsolutions.idm.core.api.service.ReadEntityService;
  * @author svandav
  *
  */
-
 public class UuidToEntityConverter implements Converter<UUID, BaseEntity> {
 
 	private EntityLookupService lookupService;
 	private ApplicationContext applicationContext;
+	private EntityManager entityManager; // TODO: dto / entity lookup 
 
 	/**
 	 * {@link ApplicationContext} is required, because we need use
@@ -38,9 +40,10 @@ public class UuidToEntityConverter implements Converter<UUID, BaseEntity> {
 	 * 
 	 * @param applicationContext
 	 */
-	public UuidToEntityConverter(ApplicationContext applicationContext) {
+	public UuidToEntityConverter(ApplicationContext applicationContext, EntityManager entityManager) {
 		Assert.notNull(applicationContext, "Application context is required!");
 		this.applicationContext = applicationContext;
+		this.entityManager = entityManager;
 	}
 
 	@Override
@@ -54,7 +57,7 @@ public class UuidToEntityConverter implements Converter<UUID, BaseEntity> {
 			PropertyMapping propertyMapping = (PropertyMapping) context.getMapping();
 			// Find name of field by property mapping
 			String field = propertyMapping.getLastDestinationProperty().getName();
-			ReadDtoService<? extends BaseDto, ? extends BaseEntity, ? extends BaseFilter> dtoService = null;
+			ReadDtoService<? extends BaseDto, ? extends BaseFilter> dtoService = null;
 			try {
 				// Find field in DTO class
 				Field fieldTyp = parentContext.getSourceType().getDeclaredField(field);
@@ -74,7 +77,8 @@ public class UuidToEntityConverter implements Converter<UUID, BaseEntity> {
 				return entityService.get(sourceUUID);
 			} else {
 				if (dtoService instanceof ReadDtoService) {
-					return ((ReadDtoService<?, ?, ?>) dtoService).get(sourceUUID);
+					return entityManager.find(entityClass, sourceUUID);
+					// return ((AbstractReadDtoService<?, ?, ?>) dtoService).getEntity(sourceUUID);
 				}
 			}
 

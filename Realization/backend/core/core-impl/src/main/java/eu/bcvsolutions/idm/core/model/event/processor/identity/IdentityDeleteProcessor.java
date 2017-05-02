@@ -96,7 +96,7 @@ public class IdentityDeleteProcessor extends CoreEventProcessor<IdmIdentity> {
 		// delete contract guarantees
 		ContractGuaranteeFilter filter = new ContractGuaranteeFilter();
 		filter.setGuaranteeId(identity.getId());
-		contractGuaranteeService.findDto(filter, null).forEach(guarantee -> {
+		contractGuaranteeService.find(filter, null).forEach(guarantee -> {
 			contractGuaranteeService.delete(guarantee);
 		});
 		// remove role guarantee
@@ -110,7 +110,7 @@ public class IdentityDeleteProcessor extends CoreEventProcessor<IdmIdentity> {
 		// Delete all role requests where is this identity applicant
 		RoleRequestFilter roleRequestFilter = new RoleRequestFilter();
 		roleRequestFilter.setApplicantId(identity.getId());
-		roleRequestService.findDto(roleRequestFilter, null).forEach(request ->{
+		roleRequestService.find(roleRequestFilter, null).forEach(request ->{
 			roleRequestService.delete(request);
 		});
 		// remove all IdentityRoleValidRequest for this identity

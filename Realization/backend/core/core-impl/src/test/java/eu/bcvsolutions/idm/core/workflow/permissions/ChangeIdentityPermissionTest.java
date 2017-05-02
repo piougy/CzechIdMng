@@ -99,7 +99,7 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowIntegrationTes
 		concept = conceptRoleRequestService.save(concept);
 		
 		roleRequestService.startRequestInternal(request.getId(), true);
-		request = roleRequestService.getDto(request.getId());
+		request = roleRequestService.get(request.getId());
 		assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
 		
 		WorkflowFilterDto taskFilter = new WorkflowFilterDto();
@@ -118,10 +118,10 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowIntegrationTes
 		// SECURITY
 		checkAndCompleteOneTask(taskFilter, InitTestData.TEST_USER_1, "approve");
 		
-		request = roleRequestService.getDto(request.getId());
+		request = roleRequestService.get(request.getId());
 		assertEquals(RoleRequestState.EXECUTED, request.getState());
 		assertNotNull(request.getWfProcessId());
-		concept = conceptRoleRequestService.getDto(concept.getId());
+		concept = conceptRoleRequestService.get(concept.getId());
 		assertNotNull(concept.getWfProcessId());
 	}
 	
@@ -141,7 +141,7 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowIntegrationTes
 		concept = conceptRoleRequestService.save(concept);
 		
 		roleRequestService.startRequestInternal(request.getId(), true);
-		request = roleRequestService.getDto(request.getId());
+		request = roleRequestService.get(request.getId());
 		assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
 		
 		WorkflowFilterDto taskFilter = new WorkflowFilterDto();
@@ -156,10 +156,10 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowIntegrationTes
 		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
 		checkAndCompleteOneTask(taskFilter, InitTestData.TEST_USER_1, "approve");
 		// SECURITY - must be skipped
-		request = roleRequestService.getDto(request.getId());
+		request = roleRequestService.get(request.getId());
 		assertEquals(RoleRequestState.EXECUTED, request.getState());
 		assertNotNull(request.getWfProcessId());
-		concept = conceptRoleRequestService.getDto(concept.getId());
+		concept = conceptRoleRequestService.get(concept.getId());
 		assertNotNull(concept.getWfProcessId());
 	}
 	
@@ -179,7 +179,7 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowIntegrationTes
 		concept = conceptRoleRequestService.save(concept);
 		
 		roleRequestService.startRequestInternal(request.getId(), true);
-		request = roleRequestService.getDto(request.getId());
+		request = roleRequestService.get(request.getId());
 		assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
 		
 		WorkflowFilterDto taskFilter = new WorkflowFilterDto();
@@ -190,10 +190,10 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowIntegrationTes
 		// MANAGER
 		loginAsAdmin(InitTestData.TEST_USER_2);
 		checkAndCompleteOneTask(taskFilter, InitTestData.TEST_USER_1, "disapprove");
-		request = roleRequestService.getDto(request.getId());
+		request = roleRequestService.get(request.getId());
 		assertEquals(RoleRequestState.DISAPPROVED, request.getState());
 		assertNotNull(request.getWfProcessId());
-		concept = conceptRoleRequestService.getDto(concept.getId());
+		concept = conceptRoleRequestService.get(concept.getId());
 		assertEquals(null, concept.getWfProcessId());
 	}
 	
@@ -226,7 +226,7 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowIntegrationTes
 		concept = conceptRoleRequestService.save(concept);
 		
 		roleRequestService.startRequestInternal(request.getId(), true);
-		request = roleRequestService.getDto(request.getId());
+		request = roleRequestService.get(request.getId());
 		assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
 		
 		WorkflowFilterDto taskFilter = new WorkflowFilterDto();
@@ -248,10 +248,10 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowIntegrationTes
 		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
 		checkAndCompleteOneTask(taskFilter, InitTestData.TEST_USER_1, "approve");
 		
-		request = roleRequestService.getDto(request.getId());
+		request = roleRequestService.get(request.getId());
 		assertEquals(RoleRequestState.EXECUTED, request.getState());
 		assertNotNull(request.getWfProcessId());
-		concept = conceptRoleRequestService.getDto(concept.getId());
+		concept = conceptRoleRequestService.get(concept.getId());
 		assertNotNull(concept.getWfProcessId());
 	}
 	
@@ -283,7 +283,7 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowIntegrationTes
 		concept = conceptRoleRequestService.save(concept);
 		
 		roleRequestService.startRequestInternal(request.getId(), true);
-		request = roleRequestService.getDto(request.getId());
+		request = roleRequestService.get(request.getId());
 		assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
 		
 		WorkflowFilterDto taskFilter = new WorkflowFilterDto();
@@ -297,10 +297,10 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowIntegrationTes
 		loginAsAdmin(InitTestData.TEST_USER_1);
 		checkAndCompleteOneTask(taskFilter, InitTestData.TEST_USER_1, "approve");
 		
-		request = roleRequestService.getDto(request.getId());
+		request = roleRequestService.get(request.getId());
 		assertEquals(RoleRequestState.EXECUTED, request.getState());
 		assertNotNull(request.getWfProcessId());
-		concept = conceptRoleRequestService.getDto(concept.getId());
+		concept = conceptRoleRequestService.get(concept.getId());
 		assertNotNull(concept.getWfProcessId());
 	}
 

@@ -17,7 +17,7 @@
       <script>import eu.bcvsolutions.idm.core.model.domain.RoleRequestState;
  
 // Set and save state APPROVED to concept
-def conceptDto = conceptRoleRequestService.getDto(conceptRole.id);
+def conceptDto = conceptRoleRequestService.get(conceptRole.id);
 conceptDto.setState(RoleRequestState.APPROVED);
 // Save process ID to concept
 conceptDto.setWfProcessId(processInstanceId);

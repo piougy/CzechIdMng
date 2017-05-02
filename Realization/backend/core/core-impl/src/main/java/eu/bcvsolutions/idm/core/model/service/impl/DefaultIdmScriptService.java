@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.plugin.core.OrderAwarePluginRegistry;
 import org.springframework.plugin.core.PluginRegistry;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
@@ -55,8 +56,9 @@ public class DefaultIdmScriptService extends AbstractReadWriteDtoService<IdmScri
 	}
 	
 	@Override
-	public IdmScriptDto getDto(Serializable id, BasePermission... permission) {
-		IdmScriptDto dto = super.getDto(id, permission);
+	@Transactional(readOnly = true)
+	public IdmScriptDto get(Serializable id, BasePermission... permission) {
+		IdmScriptDto dto = super.get(id, permission);
 		//
 		if (dto != null && !dto.isTrimmed()) {
 			dto.setTemplate(pluginExecutors.getPluginFor(dto.getCategory()).generateTemplate(dto));

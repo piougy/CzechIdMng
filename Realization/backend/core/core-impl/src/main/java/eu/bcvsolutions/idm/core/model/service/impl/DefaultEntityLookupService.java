@@ -31,14 +31,14 @@ public class DefaultEntityLookupService implements EntityLookupService {
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultEntityLookupService.class);
 	private final PluginRegistry<EntityLookup<?>, Class<?>> entityLookups;
 	private final PluginRegistry<ReadEntityService<?, ?>, Class<?>> entityServices;
-	private final PluginRegistry<ReadDtoService<?, ?, ?>, Class<?>> dtoServices;
+	private final PluginRegistry<ReadDtoService<?, ?>, Class<?>> dtoServices;
 	
 	@Autowired
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public DefaultEntityLookupService(
 			List<? extends EntityLookup<?>> entityLookups,
 			List<? extends ReadEntityService<?, ?>> entityServices,
-			List<? extends ReadDtoService<?, ?, ?>> dtoServices) {
+			List<? extends ReadDtoService<?, ?>> dtoServices) {
 		Assert.notNull(entityLookups, "Entity lookups are required");
 		Assert.notNull(entityServices, "Entity services are required");
 		Assert.notNull(dtoServices, "Dto services are required");
@@ -64,8 +64,8 @@ public class DefaultEntityLookupService implements EntityLookupService {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public  <DTO extends BaseDto> ReadDtoService<DTO, ?, ?> getDtoService(Class<DTO> dtoClass) {
-		return (ReadDtoService<DTO,?,?>)dtoServices.getPluginFor(dtoClass);
+	public  <DTO extends BaseDto> ReadDtoService<DTO, ?> getDtoService(Class<DTO> dtoClass) {
+		return (ReadDtoService<DTO,?>)dtoServices.getPluginFor(dtoClass);
 	}
 	
 	@Override
@@ -76,7 +76,7 @@ public class DefaultEntityLookupService implements EntityLookupService {
 	
 	@Override
 	@SuppressWarnings("unchecked")
-	public <DTO extends BaseDto, S extends ReadDtoService<DTO, ?, ?>> S getDtoService(Class<DTO> dtoClass, Class<S> dtoServiceClass) {
+	public <DTO extends BaseDto, S extends ReadDtoService<DTO, ?>> S getDtoService(Class<DTO> dtoClass, Class<S> dtoServiceClass) {
 		return (S)dtoServices.getPluginFor(dtoClass);
 	}
 	

@@ -56,11 +56,11 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 	@Autowired(required = false)
 	@Qualifier("objectMapper")
 	private ObjectMapper mapper;
-	private final ReadDtoService<DTO, ?, F> service;
+	private final ReadDtoService<DTO, F> service;
 	@Autowired
 	private EntityLookupService entityLookupService;
 
-	public AbstractReadDtoController(ReadDtoService<DTO, ?, F> service) {
+	public AbstractReadDtoController(ReadDtoService<DTO, F> service) {
 		Assert.notNull(service, "Service is required!");
 
 		this.service = service;
@@ -71,7 +71,7 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 	 * 
 	 * @return
 	 */
-	protected ReadDtoService<DTO, ?, F> getService() {
+	protected ReadDtoService<DTO, F> getService() {
 		return service;
 	}
 
@@ -107,7 +107,7 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 	 * @return
 	 */
 	public DTO getDto(Serializable backendId) {
-		return getService().getDto(backendId, IdmBasePermission.READ);
+		return getService().get(backendId, IdmBasePermission.READ);
 	}
 
 	/**
@@ -122,7 +122,7 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 	 */
 	public Resources<?> find(@RequestParam MultiValueMap<String, Object> parameters,
 			@PageableDefault Pageable pageable) {
-		return toResources(findDtos(toFilter(parameters), pageable, IdmBasePermission.READ), getDtoClass());
+		return toResources(find(toFilter(parameters), pageable, IdmBasePermission.READ), getDtoClass());
 	}
 	
 	/**
@@ -139,7 +139,7 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 			@RequestParam MultiValueMap<String, Object> parameters,
 			@PageableDefault Pageable pageable, 
 			PersistentEntityResourceAssembler assembler) {
-		return toResources(findDtos(toFilter(parameters), pageable, IdmBasePermission.AUTOCOMPLETE), getDtoClass());
+		return toResources(find(toFilter(parameters), pageable, IdmBasePermission.AUTOCOMPLETE), getDtoClass());
 	}
 
 	/**
@@ -150,8 +150,8 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 	 * @param permission
 	 * @return
 	 */
-	public Page<DTO> findDtos(F filter, Pageable pageable, BasePermission permission) {
-		return getService().findDto(filter, pageable, permission);
+	public Page<DTO> find(F filter, Pageable pageable, BasePermission permission) {
+		return getService().find(filter, pageable, permission);
 	}
 	
 	/**

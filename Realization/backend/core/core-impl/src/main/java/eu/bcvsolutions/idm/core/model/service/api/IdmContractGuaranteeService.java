@@ -3,7 +3,6 @@ package eu.bcvsolutions.idm.core.model.service.api;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.model.dto.IdmContractGuaranteeDto;
 import eu.bcvsolutions.idm.core.model.dto.filter.ContractGuaranteeFilter;
-import eu.bcvsolutions.idm.core.model.entity.IdmContractGuarantee;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 
 /**
@@ -13,8 +12,8 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
  * @author Radek Tomiška
  *
  */
-public interface IdmContractGuaranteeService
-		extends ReadWriteDtoService<IdmContractGuaranteeDto, IdmContractGuarantee, ContractGuaranteeFilter>,
+public interface IdmContractGuaranteeService extends 
+		ReadWriteDtoService<IdmContractGuaranteeDto, ContractGuaranteeFilter>,
 		AuthorizableService<IdmContractGuaranteeDto, ContractGuaranteeFilter> {
 
 }

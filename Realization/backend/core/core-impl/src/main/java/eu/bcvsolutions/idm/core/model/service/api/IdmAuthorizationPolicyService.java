@@ -10,7 +10,6 @@ import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.model.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.model.dto.filter.AuthorizationPolicyFilter;
-import eu.bcvsolutions.idm.core.model.entity.IdmAuthorizationPolicy;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 
 /**
@@ -20,7 +19,7 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
  *
  */
 public interface IdmAuthorizationPolicyService
-		extends ReadWriteDtoService<IdmAuthorizationPolicyDto, IdmAuthorizationPolicy, AuthorizationPolicyFilter>,
+		extends ReadWriteDtoService<IdmAuthorizationPolicyDto, AuthorizationPolicyFilter>,
 		AuthorizableService<IdmAuthorizationPolicyDto, AuthorizationPolicyFilter> {
 	
 	/**

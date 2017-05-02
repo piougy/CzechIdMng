@@ -20,6 +20,7 @@ import com.google.common.collect.ImmutableList;
 
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
+import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SchemaAttributeFilter;
@@ -160,11 +161,11 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 		IdentityAccountFilter iaccFilter = new IdentityAccountFilter();
 		iaccFilter.setIdentityId(identity.getId());
 		iaccFilter.setIdentityRoleId(irCreated.getId());
-		AccIdentityAccount identityAccount = identityAccountService.find(iaccFilter, null).getContent().get(0);
+		AccIdentityAccountDto identityAccount = identityAccountService.find(iaccFilter, null).getContent().get(0);
 		Assert.assertNotNull("Idenitity account have to exists after account management was started!", identityAccount);
 		Assert.assertNotNull("Account have to exists after account management was started!",
 				identityAccount.getAccount());
-		Assert.assertEquals(identityAccount.getAccount().getUid(), "x" + IDENTITY_USERNAME);
+		Assert.assertEquals(accountService.get(identityAccount.getAccount()).getUid(), "x" + IDENTITY_USERNAME);
 
 		TestResource createdAccount = entityManager.find(TestResource.class, "x" + IDENTITY_USERNAME);
 		Assert.assertNotNull("Idenitity have to exists on target system (after account management)", createdAccount);
@@ -233,7 +234,7 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 		IdmIdentity identity = idmIdentityService.getByName(IDENTITY_USERNAME);
 		IdentityRoleFilter irfilter = new IdentityRoleFilter();
 		irfilter.setIdentityId(identity.getId());
-		IdmIdentityRole identityRoleToDelete = idmIdentityRoleService.find(irfilter, null).getContent().get(0);
+		IdmIdentityRoleDto identityRoleToDelete = idmIdentityRoleService.find(irfilter, null).getContent().get(0);
 
 		// This evokes IdentityRole DELETE event. On this event will be start
 		// account management and provisioning
@@ -269,7 +270,7 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 		IdmIdentity identity = idmIdentityService.getByName(IDENTITY_USERNAME);
 		IdentityAccountFilter filter = new IdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
-		List<AccIdentityAccount> identityAccounts = identityAccountService.find(filter, null).getContent();
+		List<AccIdentityAccountDto> identityAccounts = identityAccountService.find(filter, null).getContent();
 	
 		TestResource resourceAccount = entityManager.find(TestResource.class, "x" + IDENTITY_USERNAME);
 
@@ -324,11 +325,11 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 		IdentityAccountFilter iaccFilter = new IdentityAccountFilter();
 		iaccFilter.setIdentityId(identity.getId());
 		iaccFilter.setIdentityRoleId(irCreated.getId());
-		AccIdentityAccount identityAccount = identityAccountService.find(iaccFilter, null).getContent().get(0);
+		AccIdentityAccountDto identityAccount = identityAccountService.find(iaccFilter, null).getContent().get(0);
 		Assert.assertNotNull("Idenitity account have to exists after account management was started!", identityAccount);
 		Assert.assertNotNull("Account have to exists after account management was started!",
 				identityAccount.getAccount());
-		Assert.assertEquals(identityAccount.getAccount().getUid(), "x" + IDENTITY_USERNAME);
+		Assert.assertEquals(accountService.get(identityAccount.getAccount()).getUid(), "x" + IDENTITY_USERNAME);
 
 		TestResource createdAccount = entityManager.find(TestResource.class, "x" + IDENTITY_USERNAME);
 		Assert.assertNotNull("Idenitity have to exists on target system (after account management)", createdAccount);
@@ -424,13 +425,13 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 		// Now we have to identity roles (role_overloading_first_name and
 		// role_overloading_last_name and role_overloading_y_account) and
 		// identity accounts
-		List<AccIdentityAccount> identityAccounts = identityAccountService.find(iaccFilter, null).getContent();
+		List<AccIdentityAccountDto> identityAccounts = identityAccountService.find(iaccFilter, null).getContent();
 		Assert.assertEquals("Idenitity accounts have to exists (four items) after account management was started!", 4,
 				identityAccounts.size());
 
 		IdentityRoleFilter irfilter = new IdentityRoleFilter();
 		irfilter.setIdentityId(identity.getId());
-		idmIdentityRoleService.findDto(irfilter, null).getContent().forEach(identityRole -> {
+		idmIdentityRoleService.find(irfilter, null).getContent().forEach(identityRole -> {
 			idmIdentityRoleService.delete(identityRole);
 		});
 

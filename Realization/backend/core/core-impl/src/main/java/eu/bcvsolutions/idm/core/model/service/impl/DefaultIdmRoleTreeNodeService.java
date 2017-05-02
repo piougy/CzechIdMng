@@ -145,7 +145,7 @@ public class DefaultIdmRoleTreeNodeService
 			Set<IdmRoleTreeNodeDto> automaticRoles, boolean startRequestInternal) {
 		Assert.notNull(identityRole);
 		//
-		IdmIdentityContractDto dto = identityContractService.getDto(identityRole.getIdentityContract());
+		IdmIdentityContractDto dto = identityContractService.get(identityRole.getIdentityContract());
 		return this.processAutomaticRoles(dto, identityRole.getId(), automaticRoles, ConceptRoleRequestOperation.REMOVE, startRequestInternal);
 	}
 	

@@ -18,6 +18,7 @@ import org.springframework.data.domain.Page;
 
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
+import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount;
@@ -147,7 +148,7 @@ public class DefaultAccAuthenticatorTest extends AbstractIntegrationTest {
 		
 		IdentityAccountFilter filter = new IdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
-		List<AccIdentityAccount> accounts = identityAccoutnService.find(filter, null).getContent();
+		List<AccIdentityAccountDto> accounts = identityAccoutnService.find(filter, null).getContent();
 		
 		assertEquals(1, accounts.size());
 		
@@ -177,7 +178,7 @@ public class DefaultAccAuthenticatorTest extends AbstractIntegrationTest {
 		
 		IdentityAccountFilter filter = new IdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
-		List<AccIdentityAccount> accounts = identityAccoutnService.find(filter, null).getContent();
+		List<AccIdentityAccountDto> accounts = identityAccoutnService.find(filter, null).getContent();
 		
 		assertEquals(1, accounts.size());
 		

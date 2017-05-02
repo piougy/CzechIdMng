@@ -59,7 +59,6 @@ import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
-import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.SynchronizationExecutor;
 import eu.bcvsolutions.idm.acc.service.api.SynchronizationService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncActionLogService;
@@ -1462,7 +1461,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 		entityAccountFilter.setOwnership(Boolean.TRUE);
 		@SuppressWarnings("unchecked")
 		List<EntityAccountDto> entityAccounts = this.getEntityAccountService()
-				.findDto((BaseFilter) entityAccountFilter, null).getContent();
+				.find((BaseFilter) entityAccountFilter, null).getContent();
 		if (entityAccounts.isEmpty()) {
 			return null;
 		} else {
@@ -1535,7 +1534,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 					actionLogs);
 			return;
 		}
-		BaseDto dto = getEntityService().getDto(entity);
+		BaseDto dto = getEntityService().get(entity);
 		String entityIdentification = dto.getId().toString();
 		if (dto instanceof IdentifiableByName) {
 			entityIdentification = ((IdentifiableByName) dto).getName();

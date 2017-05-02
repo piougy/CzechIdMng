@@ -268,7 +268,7 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 		EntityAccountFilter identityAccountFilter = new IdentityAccountFilter();
 		identityAccountFilter.setAccountId(account.getId());
 		List<AccIdentityAccountDto> identityAccounts = identityAccoutnService
-				.findDto((IdentityAccountFilter) identityAccountFilter, null).getContent();
+				.find((IdentityAccountFilter) identityAccountFilter, null).getContent();
 		if (identityAccounts.isEmpty()) {
 			addToItemLog(logItem, "Identity account relation was not found!");
 			initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.WARNING, logItem, log,

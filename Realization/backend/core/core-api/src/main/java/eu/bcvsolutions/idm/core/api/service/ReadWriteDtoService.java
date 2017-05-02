@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
-import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
+import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 
 /**
@@ -14,10 +14,9 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
  * @author Radek Tomiška
  *
  * @param <DTO> {@link BaseDto} type
- * @param <E> {@link BaseEntity} type
  * @param <F> {@link BaseFilter} type
  */
-public interface ReadWriteDtoService<DTO extends BaseDto, E extends BaseEntity, F extends BaseFilter> extends ReadDtoService<DTO, E, F> {
+public interface ReadWriteDtoService<DTO extends BaseDto, F extends BaseFilter> extends ReadDtoService<DTO, F> {
 	
 	/**
 	 * Persists a given DTO to repository.
@@ -59,6 +58,14 @@ public interface ReadWriteDtoService<DTO extends BaseDto, E extends BaseEntity, 
 	 */
 	void delete(DTO dto, BasePermission... permission);
 	
+	/**
+	 * Deletes DTO by given identifier.
+	 * 
+	 * @param id
+	 * @param permission permissions to evaluate
+	 * @throws IllegalArgumentException in case the given DTO is {@literal null}.
+	 * @throws ForbiddenEntityException if authorization policies doesn't met
+	 */
 	void deleteById(Serializable id, BasePermission... permission);
 	
 	/**

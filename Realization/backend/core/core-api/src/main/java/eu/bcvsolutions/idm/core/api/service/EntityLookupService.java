@@ -11,8 +11,8 @@ import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
  * Support for loading {@link BaseEntity} by identifier.
  * Provide basic services through application.
  * 
- * @see {@link EntityLookup}
- * @see {@link ReadEntityService}
+ * @see EntityLookup
+ * @see ReadDtoService
  * 
  * @author Radek Tomiška
  *
@@ -54,7 +54,7 @@ public interface EntityLookupService {
 	 * @param <DTO> {@link BaseDto} type
 	 * @return
 	 */
-	<DTO extends BaseDto> ReadDtoService<DTO, ?, ?> getDtoService(Class<DTO> dtoClass);
+	<DTO extends BaseDto> ReadDtoService<DTO, ?> getDtoService(Class<DTO> dtoClass);
 	
 	/**
 	 * Returns base service for given entity in given type
@@ -75,5 +75,5 @@ public interface EntityLookupService {
 	 * @param <S> {@link ReadDtoService} type
 	 * @return
 	 */
-	<DTO extends BaseDto, S extends ReadDtoService<DTO, ?, ?>> S getDtoService(Class<DTO> dtoClass, Class<S> dtoServiceClass);
+	<DTO extends BaseDto, S extends ReadDtoService<DTO, ?>> S getDtoService(Class<DTO> dtoClass, Class<S> dtoServiceClass);
 }

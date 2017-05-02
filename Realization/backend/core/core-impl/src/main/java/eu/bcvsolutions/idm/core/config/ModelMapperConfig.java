@@ -48,7 +48,7 @@ public class ModelMapperConfig {
 		Converter<? extends BaseEntity, UUID> entityToUiid = new EntityToUuidConverter(modeler);
 		
 		// Convert UIID to Entity
-		Converter<UUID, ? extends BaseEntity> uiidToEntity = new UuidToEntityConverter(applicationContext);
+		Converter<UUID, ? extends BaseEntity> uiidToEntity = new UuidToEntityConverter(applicationContext, entityManager);
 
 
 		// Condition for property ... if is property list and dto is trimmed,

@@ -79,8 +79,8 @@ public class IdentityContractDeleteProcessor extends CoreEventProcessor<IdmIdent
 		// Find all concepts and remove relation on role
 		ConceptRoleRequestFilter conceptRequestFilter = new ConceptRoleRequestFilter();
 		conceptRequestFilter.setIdentityContractId(contract.getId());
-		conceptRequestService.findDto(conceptRequestFilter, null).getContent().forEach(concept -> {
-			IdmRoleRequestDto request = roleRequestService.getDto(concept.getRoleRequest());
+		conceptRequestService.find(conceptRequestFilter, null).getContent().forEach(concept -> {
+			IdmRoleRequestDto request = roleRequestService.get(concept.getRoleRequest());
 			String message = null;
 			if (concept.getState().isTerminatedState()) {
 				message = MessageFormat.format(
@@ -102,7 +102,7 @@ public class IdentityContractDeleteProcessor extends CoreEventProcessor<IdmIdent
 		// delete contract guarantees
 		ContractGuaranteeFilter filter = new ContractGuaranteeFilter();
 		filter.setIdentityContractId(contract.getId());
-		contractGuaranteeService.findDto(filter, null).forEach(guarantee -> {
+		contractGuaranteeService.find(filter, null).forEach(guarantee -> {
 			contractGuaranteeService.delete(guarantee);
 		});
 		// delete identity contract

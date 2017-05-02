@@ -6,6 +6,7 @@ import java.util.Collection;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import com.google.common.base.Strings;
@@ -50,11 +51,12 @@ public class DefaultIdmConceptRoleRequestService
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public IdmConceptRoleRequest toEntity(IdmConceptRoleRequestDto dto, IdmConceptRoleRequest entity) {
 		// Set persisted value to read only properties
 		// TODO: Create converter for skip fields mark as read only
 		if (dto.getId() != null) {
-			IdmConceptRoleRequestDto dtoPersisited = this.getDto(dto.getId());
+			IdmConceptRoleRequestDto dtoPersisited = this.get(dto.getId());
 			if (dto.getState() == null) {
 				dto.setState(dtoPersisited.getState());
 			}

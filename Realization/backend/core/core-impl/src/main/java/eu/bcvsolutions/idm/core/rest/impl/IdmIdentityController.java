@@ -213,7 +213,7 @@ public class IdmIdentityController extends AbstractReadWriteEntityController<Idm
 		//
 		IdentityRoleFilter filter = new IdentityRoleFilter();
 		filter.setIdentityId(identity.getId());		
-		Page<IdmIdentityRoleDto> identityRoles = identityRoleService.findDto(filter, null);
+		Page<IdmIdentityRoleDto> identityRoles = identityRoleService.find(filter, null);
 		//
 		return entitiesToResources((Page)identityRoles, null, IdmIdentityRoleDto.class, null);
 	}

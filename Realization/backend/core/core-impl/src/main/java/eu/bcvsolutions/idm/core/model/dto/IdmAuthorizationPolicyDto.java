@@ -55,6 +55,10 @@ public class IdmAuthorizationPolicyDto extends AbstractDto implements Authorizat
 	
 	public IdmAuthorizationPolicyDto() {
 	}
+	
+	public IdmAuthorizationPolicyDto(UUID id) {
+		super(id);
+	}
 
 	public UUID getRole() {
 		return role;

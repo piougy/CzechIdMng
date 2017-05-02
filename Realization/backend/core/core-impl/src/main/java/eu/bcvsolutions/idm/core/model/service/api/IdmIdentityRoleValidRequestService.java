@@ -8,7 +8,6 @@ import org.joda.time.DateTime;
 import eu.bcvsolutions.idm.core.api.dto.filter.EmptyFilter;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleValidRequestDto;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRoleValidRequest;
 
 /**
  * Service for create and read identity role valid requests.
@@ -17,7 +16,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRoleValidRequest;
  *
  */
 
-public interface IdmIdentityRoleValidRequestService extends ReadWriteDtoService<IdmIdentityRoleValidRequestDto, IdmIdentityRoleValidRequest, EmptyFilter> {
+public interface IdmIdentityRoleValidRequestService extends ReadWriteDtoService<IdmIdentityRoleValidRequestDto, EmptyFilter> {
 	
 	IdmIdentityRoleValidRequestDto createByIdentityRoleId(UUID identityRole);
 	
@@ -56,14 +55,14 @@ public interface IdmIdentityRoleValidRequestService extends ReadWriteDtoService<
 	List<IdmIdentityRoleValidRequestDto> findAllValidRequestForIdentityRoleId(UUID identityRole);
 	
 	/**
-	 * Find all {@link IdmIdentityRoleValidRequest} for identityContract
+	 * Find all {@link IdmIdentityRoleValidRequestDto} for identityContract
 	 * @param identityContract
 	 * @return
 	 */
 	List<IdmIdentityRoleValidRequestDto> findAllValidRequestForIdentityContractId(UUID identityContract);
 	
 	/**
-	 * Remove all entities {@link IdmIdentityRoleValidRequest} check for null and empty list.
+	 * Remove all entities {@link IdmIdentityRoleValidRequestDto} check for null and empty list.
 	 * @param entities
 	 */
 	void deleteAll(List<IdmIdentityRoleValidRequestDto> entities);

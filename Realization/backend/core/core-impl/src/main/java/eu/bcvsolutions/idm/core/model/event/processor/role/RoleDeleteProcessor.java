@@ -88,14 +88,14 @@ public class RoleDeleteProcessor extends CoreEventProcessor<IdmRole> {
 		// remove related automatic roles
 		RoleTreeNodeFilter filter = new RoleTreeNodeFilter();
 		filter.setRoleId(role.getId());
-		roleTreeNodeService.findDto(filter, null).forEach(roleTreeNode -> {
+		roleTreeNodeService.find(filter, null).forEach(roleTreeNode -> {
 			roleTreeNodeService.delete(roleTreeNode);
 		});
 		// Find all concepts and remove relation on role
 		ConceptRoleRequestFilter conceptRequestFilter = new ConceptRoleRequestFilter();
 		conceptRequestFilter.setRoleId(role.getId());
-		conceptRoleRequestService.findDto(conceptRequestFilter, null).getContent().forEach(concept -> {
-			IdmRoleRequestDto request = roleRequestService.getDto(concept.getRoleRequest());
+		conceptRoleRequestService.find(conceptRequestFilter, null).getContent().forEach(concept -> {
+			IdmRoleRequestDto request = roleRequestService.get(concept.getRoleRequest());
 			String message = null;
 			if (concept.getState().isTerminatedState()) {
 				message = MessageFormat.format(
@@ -117,7 +117,7 @@ public class RoleDeleteProcessor extends CoreEventProcessor<IdmRole> {
 		// remove all policies
 		AuthorizationPolicyFilter policyFilter = new AuthorizationPolicyFilter();
 		policyFilter.setRoleId(role.getId());
-		authorizationPolicyService.findDto(policyFilter, null).forEach(dto -> {
+		authorizationPolicyService.find(policyFilter, null).forEach(dto -> {
 			authorizationPolicyService.delete(dto);
 		});
 		//		

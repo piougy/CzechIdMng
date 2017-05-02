@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.rest.impl;
 
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -39,10 +40,13 @@ import eu.bcvsolutions.idm.core.model.dto.filter.IdentityContractFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.eav.IdmIdentityContractFormValue;
+import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 
 /**
  * Identity contract endpoint
+ * 
+ * TODO: eav to dtos
  * 
  * @author Radek Tomiška
  *
@@ -52,17 +56,21 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 public class IdmIdentityContractController extends AbstractReadWriteDtoController<IdmIdentityContractDto, IdentityContractFilter> {
 	
 	private final IdmFormDefinitionController formDefinitionController;
+	private final IdmIdentityContractRepository identityContractRepository;
 	
 	@Autowired
 	public IdmIdentityContractController(
 			EntityLookupService entityLookupService, 
-			IdmIdentityContractService identityWorkPositionService,
-			IdmFormDefinitionController formDefinitionController) {
-		super(identityWorkPositionService);
+			IdmIdentityContractService identityContractService,
+			IdmFormDefinitionController formDefinitionController,
+			IdmIdentityContractRepository identityContractRepository) {
+		super(identityContractService);
 		//
 		Assert.notNull(formDefinitionController);
+		Assert.notNull(identityContractRepository);
 		//
 		this.formDefinitionController = formDefinitionController;
+		this.identityContractRepository = identityContractRepository;
 	}
 	
 	@Override
@@ -155,7 +163,7 @@ public class IdmIdentityContractController extends AbstractReadWriteDtoControlle
 	@RequestMapping(value = "/{backendId}/form-values", method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITYCONTRACT_READ + "')")
 	public Resources<?> getFormValues(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler) {
-		IdmIdentityContract entity = (IdmIdentityContract) getService().get(backendId);
+		IdmIdentityContract entity = identityContractRepository.findOne(UUID.fromString(backendId));
 		if (entity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
@@ -179,7 +187,7 @@ public class IdmIdentityContractController extends AbstractReadWriteDtoControlle
 			@PathVariable @NotNull String backendId,
 			@RequestBody @Valid List<IdmIdentityContractFormValue> formValues,
 			PersistentEntityResourceAssembler assembler) {		
-		IdmIdentityContract entity = (IdmIdentityContract) getService().get(backendId);
+		IdmIdentityContract entity = identityContractRepository.findOne(UUID.fromString(backendId));
 		if (entity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}

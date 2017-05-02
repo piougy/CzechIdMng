@@ -73,7 +73,7 @@ ConceptRoleRequestFilter conceptFilter = new ConceptRoleRequestFilter();
 conceptFilter.setRoleRequestId(requestId);
 conceptFilter.setOperation(ConceptRoleRequestOperation.ADD);
 
-def addedConceptRoles = conceptRoleRequestService.findDto(conceptFilter, null).getContent();
+def addedConceptRoles = conceptRoleRequestService.find(conceptFilter, null).getContent();
 
 execution.setVariable("addedConceptRoles", addedConceptRoles);</script>
     </scriptTask>
@@ -92,7 +92,7 @@ ConceptRoleRequestFilter conceptFilter = new ConceptRoleRequestFilter();
 conceptFilter.setRoleRequestId(requestId);
 conceptFilter.setOperation(ConceptRoleRequestOperation.UPDATE);
 
-def changedConceptRoles = conceptRoleRequestService.findDto(conceptFilter, null).getContent();
+def changedConceptRoles = conceptRoleRequestService.find(conceptFilter, null).getContent();
 
 execution.setVariable("changedConceptRoles", changedConceptRoles);</script>
     </scriptTask>
@@ -144,7 +144,7 @@ ConceptRoleRequestFilter conceptFilter = new ConceptRoleRequestFilter();
 conceptFilter.setRoleRequestId(requestId);
 conceptFilter.setOperation(ConceptRoleRequestOperation.REMOVE);
 
-def removedConceptRoles = conceptRoleRequestService.findDto(conceptFilter, null).getContent();
+def removedConceptRoles = conceptRoleRequestService.find(conceptFilter, null).getContent();
 
 execution.setVariable("removedConceptRoles", removedConceptRoles);</script>
     </scriptTask>
@@ -162,7 +162,7 @@ execution.setVariable("removedConceptRoles", removedConceptRoles);</script>
       <script>import eu.bcvsolutions.idm.core.model.domain.RoleRequestState;
  
 // Set and save state APPROVED to request
-def requestDto = roleRequestService.getDto(entityEvent.content.id);
+def requestDto = roleRequestService.get(entityEvent.content.id);
 requestDto.setState(RoleRequestState.APPROVED);
 roleRequestService.save(requestDto);</script>
     </scriptTask>
@@ -177,13 +177,13 @@ import eu.bcvsolutions.idm.core.model.domain.RoleRequestState;
  ConceptRoleRequestFilter filter = new ConceptRoleRequestFilter();
  filter.setRoleRequestId(entityEvent.content.id);
 
- for (concept in conceptRoleRequestService.findDto(filter, null).getContent()) {
+ for (concept in conceptRoleRequestService.find(filter, null).getContent()) {
 	concept.setState(RoleRequestState.DISAPPROVED);
 	conceptRoleRequestService.save(concept);
  }
 
 // Set and save state DISAPPROVED to request
-def requestDto = roleRequestService.getDto(entityEvent.content.id);
+def requestDto = roleRequestService.get(entityEvent.content.id);
 requestDto.setState(RoleRequestState.DISAPPROVED);
 roleRequestService.save(requestDto);</script>
     </scriptTask>
@@ -385,14 +385,14 @@ if(!skip){
  ConceptRoleRequestFilter filter = new ConceptRoleRequestFilter();
  filter.setRoleRequestId(entityEvent.content.id);
 
- for (concept in conceptRoleRequestService.findDto(filter, null).getContent()) {
+ for (concept in conceptRoleRequestService.find(filter, null).getContent()) {
 	concept.setState(RoleRequestState.CANCELED);
         conceptRoleRequestService.addToLog(concept, "Canceled by applicant");
 	conceptRoleRequestService.save(concept);
  }
 
 // Set and save state CANCELED to request
-def requestDto = roleRequestService.getDto(entityEvent.content.id);
+def requestDto = roleRequestService.get(entityEvent.content.id);
 requestDto.setState(RoleRequestState.CANCELED);
 roleRequestService.addToLog(requestDto, "Canceled by applicant");
 roleRequestService.save(requestDto);</script>
@@ -512,13 +512,13 @@ conceptFilter.setRoleRequestId(requestId);
 
 
 conceptFilter.setOperation(ConceptRoleRequestOperation.ADD);
-def addedRoles = conceptRoleRequestService.findDto(conceptFilter, null).getContent();
+def addedRoles = conceptRoleRequestService.find(conceptFilter, null).getContent();
 
 conceptFilter.setOperation(ConceptRoleRequestOperation.UPDATE);
-def changedRoles = conceptRoleRequestService.findDto(conceptFilter, null).getContent();
+def changedRoles = conceptRoleRequestService.find(conceptFilter, null).getContent();
 
 conceptFilter.setOperation(ConceptRoleRequestOperation.REMOVE);
-def removedRoles = conceptRoleRequestService.findDto(conceptFilter, null).getContent();
+def removedRoles = conceptRoleRequestService.find(conceptFilter, null).getContent();
 
 def applicantUsername = execution.getVariable("applicantUsername");
 def identity = identityService.getByUsername(applicantUsername);

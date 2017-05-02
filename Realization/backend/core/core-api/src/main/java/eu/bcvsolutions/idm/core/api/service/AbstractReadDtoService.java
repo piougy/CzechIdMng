@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
+import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
@@ -54,11 +55,10 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizationManager;
  * @see Page
  *
  * @param <DTO> dto type for entity type
- * @param <E> entity type
  * @param <F> filter
  */
 public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends BaseEntity, F extends BaseFilter>
-		implements ReadDtoService<DTO, E, F>, ScriptEnabled {
+		implements ReadDtoService<DTO, F>, ScriptEnabled {
 
 	private final Class<E> entityClass;
 	private final Class<F> filterClass;
@@ -130,20 +130,20 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	 */	
 	@Override
 	@Transactional(readOnly = true)
-	public DTO getDto(Serializable id, BasePermission... permission) {
-		return toDto(get(id, permission));
+	public DTO get(Serializable id, BasePermission... permission) {
+		return toDto(getEntity(id, permission));
 	}
 
 	@Override
 	@Transactional(readOnly = true)
-	public Page<DTO> findDto(Pageable pageable, BasePermission... permission) {
-		return findDto(null, pageable, permission);
+	public Page<DTO> find(Pageable pageable, BasePermission... permission) {
+		return find(null, pageable, permission);
 	}
 	
 	@Override
 	@Transactional(readOnly = true)
-	public Page<DTO> findDto(final F filter, Pageable pageable, BasePermission... permission) {
-		return toDtoPage(find(filter, pageable, permission));
+	public Page<DTO> find(final F filter, Pageable pageable, BasePermission... permission) {
+		return toDtoPage(findEntities(filter, pageable, permission));
 	}
 	
 	/**
@@ -167,9 +167,8 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	 * Returns entity by given id. Returns null, if entity is not exists. For
 	 * AbstractEntity uuid or string could be given.
 	 */
-	@Override
 	@Transactional(readOnly = true)
-	public E get(Serializable id, BasePermission... permission) {
+	protected E getEntity(Serializable id, BasePermission... permission) {
 		if (AbstractEntity.class.isAssignableFrom(getEntityClass()) && (id instanceof String)) {
 			// workflow / rest usage with string uuid variant
 			// EL does not recognize two methods with the same name and
@@ -190,15 +189,13 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 		return checkAccess(entity, permission);
 	}
 	
-	@Override
 	@Transactional(readOnly = true)
-	public Page<E> find(Pageable pageable, BasePermission... permission) {
-		return find(null, pageable, permission);
+	protected Page<E> findEntities(Pageable pageable, BasePermission... permission) {
+		return findEntities(null, pageable, permission);
 	}
 
-	@Override
 	@Transactional(readOnly = true)
-	public Page<E> find(F filter, Pageable pageable, BasePermission... permission) {
+	protected Page<E> findEntities(F filter, Pageable pageable, BasePermission... permission) {
 		// TODO: remove this if after all dtro services will be rewritten - remove getRepository().find(filter, pageable)
 		if (!(this instanceof AuthorizableService)) {
 			if (filter == null) {
@@ -222,22 +219,31 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 		return getRepository().findAll(criteria, pageable);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.springframework.plugin.core.Plugin#supports(java.lang.Object)
-	 */
 	@Override
 	public boolean supports(Class<?> delimiter) {
 		return dtoClass.isAssignableFrom(delimiter);
 	}
 
+	/**
+	 * 
+	 * Converts entity to DTO
+	 * 
+	 * @param entity
+	 * @return
+	 */
 	protected DTO toDto(E entity) {
 		return toDto(entity, null);
 	}
 
-	@Override
-	@Transactional
+	/**
+	 * Converts entity to DTO
+	 * 
+	 * @see Embedded
+	 * @param entity
+	 * @param dto
+	 *            if is not null, then will be use as input to convert
+	 * @return
+	 */
 	public DTO toDto(E entity, DTO dto) {
 		if (entity == null) {
 			return null;
@@ -249,8 +255,14 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 		return dto;
 	}
 
-	@Override
-	public Page<DTO> toDtoPage(Page<E> entityPage) {
+	/**
+	 * Converts list of entities wrapped to Page object to list of DTOs wrapped
+	 * to Page object.
+	 * 
+	 * @param entityPage
+	 * @return
+	 */
+	protected Page<DTO> toDtoPage(Page<E> entityPage) {
 		List<DTO> dtos = this.toDtos(entityPage.getContent(), true);
 		PageRequest pageRequest = null;
 		if (entityPage.getSize() > 0) {
@@ -286,9 +298,16 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 		return dtos;
 	}
 
-	@Override
-	@Transactional
-	public E toEntity(DTO dto, E entity) {
+	/**
+	 * Converts DTO to entity
+	 * 
+	 * @see Embedded
+	 * @param entity
+	 *            if is not null, then will be use as input to convert
+	 * @param dto
+	 * @return
+	 */
+	protected E toEntity(DTO dto, E entity) {
 		if (dto == null) {
 			return null;
 		}
@@ -317,7 +336,7 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	@Override
 	@Transactional(readOnly = true)
 	public Set<String> getPermissions(Serializable id) {
-		E entity = get(id);
+		E entity = getEntity(id);
 		Assert.notNull(entity);
 		//
 		return getAuthorizationManager().getPermissions(entity); // null is for create
@@ -358,9 +377,7 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 		return filterManager;
 	}
 	
-	@Override
-	public void setModelMapper(ModelMapper modelMapper) {
+	protected void setModelMapper(ModelMapper modelMapper) {
 		this.modelMapper = modelMapper;
 	}
-
 }

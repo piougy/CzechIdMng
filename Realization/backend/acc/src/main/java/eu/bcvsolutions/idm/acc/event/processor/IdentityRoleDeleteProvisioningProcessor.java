@@ -16,7 +16,7 @@ import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.event.IdentityRoleEvent.IdentityRoleEventType;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
+import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 
 /**
@@ -34,22 +34,22 @@ public class IdentityRoleDeleteProvisioningProcessor extends AbstractEntityEvent
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdentityRoleDeleteProvisioningProcessor.class);
 	private final AccAccountManagementService accountManagementService;
 	private final ProvisioningService provisioningService;
-	private final IdmIdentityContractService identityContractService;
+	private final IdmIdentityContractRepository identityContractRepository;
 
 	@Autowired
 	public IdentityRoleDeleteProvisioningProcessor(
 			AccAccountManagementService accountManagementService,
 			ProvisioningService provisioningService,
-			IdmIdentityContractService identityContractService) {
+			IdmIdentityContractRepository identityContractRepository) {
 		super(IdentityRoleEventType.DELETE);
 		//
 		Assert.notNull(accountManagementService);
 		Assert.notNull(provisioningService);
-		Assert.notNull(identityContractService);
+		Assert.notNull(identityContractRepository);
 		//
 		this.accountManagementService = accountManagementService;
 		this.provisioningService = provisioningService;
-		this.identityContractService = identityContractService;
+		this.identityContractRepository = identityContractRepository;
 	}
 	
 	@Override
@@ -62,7 +62,7 @@ public class IdentityRoleDeleteProvisioningProcessor extends AbstractEntityEvent
 		IdmIdentityRoleDto identityRole = event.getContent();
 		accountManagementService.deleteIdentityAccount(identityRole);
 		//
-		IdmIdentityContract identityContract = identityContractService.get(identityRole.getIdentityContract());
+		IdmIdentityContract identityContract = identityContractRepository.findOne(identityRole.getIdentityContract());
 		LOG.debug("Call provisioning for identity [{}]", identityContract.getIdentity().getUsername());
 		provisioningService.doProvisioning(identityContract.getIdentity());
 		return new DefaultEventResult<>(event, this);

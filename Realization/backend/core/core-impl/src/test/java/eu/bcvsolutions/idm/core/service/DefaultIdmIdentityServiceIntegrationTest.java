@@ -125,7 +125,7 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 		assertEquals(2, identityContractService.findAllByIdentity(identity.getId()).size()); // + default contract is created
 		ContractGuaranteeFilter filter = new ContractGuaranteeFilter();
 		filter.setIdentityContractId(contract2.getId());
-		List<IdmContractGuaranteeDto> guarantees = contractGuaranteeService.findDto(filter, null).getContent();
+		List<IdmContractGuaranteeDto> guarantees = contractGuaranteeService.find(filter, null).getContent();
 		assertEquals(1, guarantees.size());
 		assertEquals(identity.getId(), guarantees.get(0).getGuarantee());
 
@@ -138,7 +138,7 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 		assertEquals(0, identityRoleService.find(identityRolefilter, null).getTotalElements());
 		assertEquals(0, identityContractService.findAllByIdentity(identity.getId()).size());
 		
-		assertEquals(0, contractGuaranteeService.findDto(filter, null).getTotalElements());
+		assertEquals(0, contractGuaranteeService.find(filter, null).getTotalElements());
 	}
 
 	/**

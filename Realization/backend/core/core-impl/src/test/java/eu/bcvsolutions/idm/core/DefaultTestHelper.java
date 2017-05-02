@@ -15,7 +15,6 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
-import eu.bcvsolutions.idm.core.model.repository.IdmRoleTreeNodeRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmContractGuaranteeService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
@@ -52,8 +51,6 @@ public class DefaultTestHelper implements TestHelper {
 	private IdmContractGuaranteeService contractGuaranteeService;
 	@Autowired
 	private IdmRoleTreeNodeService roleTreeNodeService;
-	@Autowired
-	private IdmRoleTreeNodeRepository roleTreeNodeReposiotry;
 	@Autowired
 	private IdmAuthorizationPolicyService authorizationPolicyService;
 	@Autowired
@@ -164,8 +161,7 @@ public class DefaultTestHelper implements TestHelper {
 		roleTreeNode.setRole(role.getId());
 		roleTreeNode.setTreeNode(treeNode.getId());
 		if (skipLongRunningTask) {
-			UUID id = roleTreeNodeReposiotry.save(roleTreeNodeService.toEntity(roleTreeNode, null)).getId();
-			return roleTreeNodeService.getDto(id);
+			return roleTreeNodeService.saveInternal(roleTreeNode);
 		}
 		return roleTreeNodeService.save(roleTreeNode);
 	}

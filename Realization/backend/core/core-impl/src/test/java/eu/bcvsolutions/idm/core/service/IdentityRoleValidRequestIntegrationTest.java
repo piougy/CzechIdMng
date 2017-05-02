@@ -83,12 +83,12 @@ public class IdentityRoleValidRequestIntegrationTest extends AbstractIntegration
 		from = from.plusDays(5);
 		createAndSaveIdentityRole(identityContract, role, null, from);
 		
-		List<IdmIdentityRoleValidRequestDto> list = identityRoleValidRequestService.findDto(null).getContent();
+		List<IdmIdentityRoleValidRequestDto> list = identityRoleValidRequestService.find(null).getContent();
 		int size = list.size();
 		
 		identityService.delete(identity);
 		
-		list = identityRoleValidRequestService.findDto(null).getContent();
+		list = identityRoleValidRequestService.find(null).getContent();
 		
 		assertNotEquals(size, list.size());
 		list = identityRoleValidRequestService.findAllValidRequestForIdentityId(identity.getId());
@@ -106,13 +106,13 @@ public class IdentityRoleValidRequestIntegrationTest extends AbstractIntegration
 		from = from.plusDays(5);
 		createAndSaveIdentityRole(identityContract, role, null, from);
 		
-		List<IdmIdentityRoleValidRequestDto> list = identityRoleValidRequestService.findDto(null).getContent();
+		List<IdmIdentityRoleValidRequestDto> list = identityRoleValidRequestService.find(null).getContent();
 		int size = list.size();
 		
 		// role has identity, ok - throw error
 		roleService.delete(role);
 		
-		list = identityRoleValidRequestService.findDto(null).getContent();
+		list = identityRoleValidRequestService.find(null).getContent();
 		
 		assertNotEquals(size, list.size());
 		list = identityRoleValidRequestService.findAllValidRequestForRoleId(role.getId());
@@ -130,12 +130,12 @@ public class IdentityRoleValidRequestIntegrationTest extends AbstractIntegration
 		from = from.plusDays(5);
 		createAndSaveIdentityRole(identityContract, role, null, from);
 		
-		List<IdmIdentityRoleValidRequestDto> list = identityRoleValidRequestService.findDto(null).getContent();
+		List<IdmIdentityRoleValidRequestDto> list = identityRoleValidRequestService.find(null).getContent();
 		int size = list.size();
 		
 		identityContractService.delete(identityContract);
 		
-		list = identityRoleValidRequestService.findDto(null).getContent();
+		list = identityRoleValidRequestService.find(null).getContent();
 		
 		assertNotEquals(size, list.size());
 		list = identityRoleValidRequestService.findAllValidRequestForIdentityContractId(identityContract.getId());
@@ -153,12 +153,12 @@ public class IdentityRoleValidRequestIntegrationTest extends AbstractIntegration
 		from = from.plusDays(5);
 		IdmIdentityRoleDto identityRole = createAndSaveIdentityRole(identityContract, role, null, from);
 		
-		List<IdmIdentityRoleValidRequestDto> list = identityRoleValidRequestService.findDto(null).getContent();
+		List<IdmIdentityRoleValidRequestDto> list = identityRoleValidRequestService.find(null).getContent();
 		int size = list.size();
 		
 		idmIdentityRoleSerivce.delete(identityRole);
 		
-		list = identityRoleValidRequestService.findDto(null).getContent();
+		list = identityRoleValidRequestService.find(null).getContent();
 		
 		assertNotEquals(size, list.size());
 		list = identityRoleValidRequestService.findAllValidRequestForIdentityRoleId(identityRole.getId());

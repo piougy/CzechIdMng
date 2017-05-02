@@ -156,10 +156,10 @@ public class DefaultIdmAuthorizationPolicyService
 		if(entityType != null) { // optional
 			filter.setAuthorizableType(entityType.getCanonicalName());
 		}
-		List<IdmAuthorizationPolicy> defaultPolicies = find(filter, null).getContent();
+		List<IdmAuthorizationPolicyDto> defaultPolicies = find(filter, null).getContent();
 		//
 		LOG.debug("Found [{}] default policies", defaultPolicies.size());
-		return toDtos(defaultPolicies, true);
+		return defaultPolicies;
 	}
 	
 	@Override

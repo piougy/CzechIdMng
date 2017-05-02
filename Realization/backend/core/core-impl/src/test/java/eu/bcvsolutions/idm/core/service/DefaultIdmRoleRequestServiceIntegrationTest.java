@@ -157,7 +157,7 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractIntegra
 		Assert.assertEquals(RoleRequestState.CONCEPT, conceptA.getState());
 
 		roleRequestService.startRequestInternal(request.getId(), true);
-		request = roleRequestService.getDto(request.getId());
+		request = roleRequestService.get(request.getId());
 
 		Assert.assertEquals(RoleRequestState.EXECUTED, request.getState());
 		List<IdmIdentityRoleDto> identityRoles = identityRoleService.findAllByIdentity(testA.getId());
@@ -197,7 +197,7 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractIntegra
 		conceptA = conceptRoleRequestService.save(conceptA);
 
 		roleRequestService.startRequestInternal(request.getId(), true);
-		request = roleRequestService.getDto(request.getId());
+		request = roleRequestService.get(request.getId());
 
 		Assert.assertEquals(RoleRequestState.EXECUTED, request.getState());
 		identityRoles = identityRoleService.findAllByIdentity(testA.getId());
@@ -234,7 +234,7 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractIntegra
 		conceptA = conceptRoleRequestService.save(conceptA);
 
 		roleRequestService.startRequestInternal(request.getId(), true);
-		request = roleRequestService.getDto(request.getId());
+		request = roleRequestService.get(request.getId());
 
 		Assert.assertEquals(RoleRequestState.EXECUTED, request.getState());
 		identityRoles = identityRoleService.findAllByIdentity(testA.getId());
@@ -296,7 +296,7 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractIntegra
 		conceptRoleRequestService.save(conceptA);
 
 		roleRequestService.startRequestInternal(requestA.getId(), true);
-		requestA = roleRequestService.getDto(requestA.getId());
+		requestA = roleRequestService.get(requestA.getId());
 		Assert.assertEquals(RoleRequestState.IN_PROGRESS, requestA.getState());
 
 		IdmRoleRequestDto requestB = roleRequestService.save(request);
@@ -305,7 +305,7 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractIntegra
 		
 		// We expect duplication exception
 		roleRequestService.startRequestInternal(requestB.getId(), true);
-		requestB = roleRequestService.getDto(requestB.getId());
+		requestB = roleRequestService.get(requestB.getId());
 		Assert.assertEquals(RoleRequestState.DUPLICATED, requestB.getState());
 		Assert.assertEquals(requestA.getId(), requestB.getDuplicatedToRequest());
 		
@@ -316,7 +316,7 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractIntegra
 		
 		// We expect correct start
 		roleRequestService.startRequestInternal(requestB.getId(), true);
-		requestB = roleRequestService.getDto(requestB.getId());
+		requestB = roleRequestService.get(requestB.getId());
 		Assert.assertEquals(RoleRequestState.IN_PROGRESS, requestB.getState());
 		Assert.assertEquals(null, requestB.getDuplicatedToRequest());
 		

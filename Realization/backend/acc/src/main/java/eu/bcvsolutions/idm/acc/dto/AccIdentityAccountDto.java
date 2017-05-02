@@ -17,61 +17,70 @@ import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleDto;
 public class AccIdentityAccountDto extends AbstractDto implements EntityAccountDto {
 
 	private static final long serialVersionUID = 1L;
-	
-	@Embedded(dtoClass=AccAccountDto.class)
+
+	@Embedded(dtoClass = AccAccountDto.class)
 	private UUID account;
-	@Embedded(dtoClass=IdmIdentityDto.class)
+	@Embedded(dtoClass = IdmIdentityDto.class)
 	private UUID identity;
-	@Embedded(dtoClass=IdmIdentityRoleDto.class)
-	private UUID identityRole; // identity account is based on identity role asing and  system mapping
-	@Embedded(dtoClass=SysRoleSystemDto.class)
+	@Embedded(dtoClass = IdmIdentityRoleDto.class)
+	private UUID identityRole; // identity account is based on identity role assign and system mapping
+	@Embedded(dtoClass = SysRoleSystemDto.class)
 	private UUID roleSystem;
 	private boolean ownership = true;
-	
+
 	@Override
 	public UUID getAccount() {
 		return account;
 	}
+
 	@Override
 	public void setAccount(UUID account) {
 		this.account = account;
 	}
+
 	public UUID getIdentity() {
 		return identity;
 	}
+
 	public void setIdentity(UUID identity) {
 		this.identity = identity;
 	}
+
 	public UUID getIdentityRole() {
 		return identityRole;
 	}
+
 	public void setIdentityRole(UUID identityRole) {
 		this.identityRole = identityRole;
 	}
+
 	@Override
 	public UUID getRoleSystem() {
 		return roleSystem;
 	}
+
 	@Override
 	public void setRoleSystem(UUID roleSystem) {
 		this.roleSystem = roleSystem;
 	}
+
 	@Override
 	public boolean isOwnership() {
 		return ownership;
 	}
+
 	@Override
 	public void setOwnership(boolean ownership) {
 		this.ownership = ownership;
-	} 
-	
+	}
+
 	@Override
-	public UUID getEntity(){
+	public UUID getEntity() {
 		return this.identity;
 	}
-	
+
 	@Override
-	public void setEntity(UUID entity){
+	public void setEntity(UUID entity) {
 		this.identity = entity;
 	}
 }

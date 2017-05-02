@@ -112,6 +112,6 @@ public class DefaultIdmRoleServiceIntegrationTest extends AbstractIntegrationTes
 		//
 		AuthorizationPolicyFilter policyFilter = new AuthorizationPolicyFilter();
 		policyFilter.setRoleId(role.getId());
-		assertEquals(0, authorizationPolicyService.findDto(policyFilter, null).getTotalElements());
+		assertEquals(0, authorizationPolicyService.find(policyFilter, null).getTotalElements());
 	}
 }

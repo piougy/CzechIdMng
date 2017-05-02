@@ -478,7 +478,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 
 		TreeAccountFilter treeAccountFilter = new TreeAccountFilter();
 		treeAccountFilter.setAccountId(account.getId());
-		List<AccTreeAccountDto> treeAccounts = treeAccoutnService.findDto(treeAccountFilter, null).getContent();
+		List<AccTreeAccountDto> treeAccounts = treeAccoutnService.find(treeAccountFilter, null).getContent();
 		if (treeAccounts.isEmpty()) {
 			addToItemLog(logItem, "Tree account relation was not found!");
 			initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.WARNING, logItem, log,
@@ -626,11 +626,11 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 					// Find relation between tree and account
 					TreeAccountFilter treeAccountFilter = new TreeAccountFilter();
 					treeAccountFilter.setAccountId(parentAccounts.get(0).getId());
-					List<AccTreeAccount> treeAccounts = treeAccoutnService.find(treeAccountFilter, null).getContent();
+					List<AccTreeAccountDto> treeAccounts = treeAccoutnService.find(treeAccountFilter, null).getContent();
 					if(!treeAccounts.isEmpty()){
 						// Find parent tree node by ID
 						// TODO: resolve more treeAccounts situations
-						transformedValue = treeNodeService.get(treeAccounts.get(0).getTreeNode().getId());
+						transformedValue = treeNodeService.get(treeAccounts.get(0).getTreeNode());
 					}
 				}
 			}

@@ -28,7 +28,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 public abstract class AbstractReadWriteDtoController<DTO extends BaseDto, F extends BaseFilter>
 		extends AbstractReadDtoController<DTO, F> {
 
-	public AbstractReadWriteDtoController(ReadWriteDtoService<DTO, ?, F> entityService) {
+	public AbstractReadWriteDtoController(ReadWriteDtoService<DTO, F> entityService) {
 		super(entityService);
 	}
 
@@ -49,7 +49,7 @@ public abstract class AbstractReadWriteDtoController<DTO extends BaseDto, F exte
 	 * @return
 	 */
 	public DTO postDto(DTO dto) {
-		ReadWriteDtoService<DTO, ?, F> service = getService();
+		ReadWriteDtoService<DTO, F> service = getService();
 		return service.save(dto, service.isNew(dto) ? IdmBasePermission.CREATE : IdmBasePermission.UPDATE);
 	}
 
@@ -124,7 +124,7 @@ public abstract class AbstractReadWriteDtoController<DTO extends BaseDto, F exte
 	 * Returns DTO service configured to current controller
 	 */
 	@Override
-	protected ReadWriteDtoService<DTO, ?, F> getService() {
-		return (ReadWriteDtoService<DTO, ?, F>) super.getService();
+	protected ReadWriteDtoService<DTO, F> getService() {
+		return (ReadWriteDtoService<DTO, F>) super.getService();
 	}
 }

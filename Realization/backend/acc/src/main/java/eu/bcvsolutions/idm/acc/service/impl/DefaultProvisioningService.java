@@ -1,12 +1,7 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
-import java.beans.IntrospectionException;
-import java.beans.Introspector;
-import java.beans.PropertyDescriptor;
-import java.lang.reflect.InvocationTargetException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -33,7 +28,6 @@ import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.MappingAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.ProvisioningAttributeDto;
-import eu.bcvsolutions.idm.acc.dto.filter.EntityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.RoleSystemAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.RoleSystemFilter;
@@ -47,9 +41,9 @@ import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
 import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
+import eu.bcvsolutions.idm.acc.repository.AccIdentityAccountRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountManagementService;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
-import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningExecutor;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
@@ -59,11 +53,6 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
-import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
-import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
-import eu.bcvsolutions.idm.core.eav.entity.AbstractFormValue;
-import eu.bcvsolutions.idm.core.eav.service.api.FormService;
-import eu.bcvsolutions.idm.core.model.domain.EntityUtilities;
 import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
@@ -92,7 +81,7 @@ public class DefaultProvisioningService implements ProvisioningService {
 	private final SysSystemAttributeMappingService attributeMappingService;
 	private final IcConnectorFacade connectorFacade;
 	private final SysSystemService systemService;
-	private final AccIdentityAccountService identityAccountService;
+	private final AccIdentityAccountRepository identityAccountRepository;
 	private final SysRoleSystemService roleSystemService;
 	private final AccAccountManagementService accountManagementService;
 	private final SysRoleSystemAttributeService roleSystemAttributeService;
@@ -106,7 +95,7 @@ public class DefaultProvisioningService implements ProvisioningService {
 			SysSystemService systemService,
 			SysRoleSystemService roleSystemService, AccAccountManagementService accountManagementService,
 			SysRoleSystemAttributeService roleSystemAttributeService, SysSystemEntityService systemEntityService,
-			AccAccountService accountService, AccIdentityAccountService identityAccountService,
+			AccAccountService accountService, AccIdentityAccountRepository identityAccountRepository,
 			ProvisioningExecutor provisioningExecutor) {
 
 		Assert.notNull(systemMappingService);
@@ -118,7 +107,7 @@ public class DefaultProvisioningService implements ProvisioningService {
 		Assert.notNull(roleSystemAttributeService);
 		Assert.notNull(systemEntityService);
 		Assert.notNull(accountService);
-		Assert.notNull(identityAccountService);
+		Assert.notNull(identityAccountRepository);
 		Assert.notNull(provisioningExecutor);
 		//
 		this.systemMappingService = systemMappingService;
@@ -130,7 +119,7 @@ public class DefaultProvisioningService implements ProvisioningService {
 		this.roleSystemAttributeService = roleSystemAttributeService;
 		this.systemEntityService = systemEntityService;
 		this.accountService = accountService;
-		this.identityAccountService = identityAccountService;
+		this.identityAccountRepository = identityAccountRepository;
 		this.provisioningExecutor = provisioningExecutor;
 	}
 
@@ -140,7 +129,7 @@ public class DefaultProvisioningService implements ProvisioningService {
 		//
 		IdentityAccountFilter filter = new IdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
-		Page<AccIdentityAccount> identityAccounts = identityAccountService.find(filter, null);
+		Page<AccIdentityAccount> identityAccounts = identityAccountRepository.find(filter, null);
 		List<AccIdentityAccount> idenityAccoutnList = identityAccounts.getContent();
 		if (idenityAccoutnList == null) {
 			return;
@@ -189,7 +178,7 @@ public class DefaultProvisioningService implements ProvisioningService {
 
 		IdentityAccountFilter filter = new IdentityAccountFilter();
 		filter.setAccountId(account.getId());
-		Page<AccIdentityAccount> identityAccounts = identityAccountService.find(filter, null);
+		Page<AccIdentityAccount> identityAccounts = identityAccountRepository.find(filter, null);
 		List<AccIdentityAccount> idenittyAccoutnList = identityAccounts.getContent();
 		if (idenittyAccoutnList == null) {
 			return;
@@ -393,7 +382,7 @@ public class DefaultProvisioningService implements ProvisioningService {
 
 		IdentityAccountFilter filter = new IdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
-		Page<AccIdentityAccount> identityAccounts = identityAccountService.find(filter, null);
+		Page<AccIdentityAccount> identityAccounts = identityAccountRepository.find(filter, null);
 		List<AccIdentityAccount> identityAccountList = identityAccounts.getContent();
 		if (identityAccountList == null) {
 			return;
@@ -508,7 +497,7 @@ public class DefaultProvisioningService implements ProvisioningService {
 		filter.setSystemId(system.getId());
 		filter.setOwnership(Boolean.TRUE);
 		filter.setAccountId(account.getId());
-		Page<AccIdentityAccount> identityAccounts = identityAccountService.find(filter, null);
+		Page<AccIdentityAccount> identityAccounts = identityAccountRepository.find(filter, null);
 		List<AccIdentityAccount> idenityAccoutnList = identityAccounts.getContent();
 		if (idenityAccoutnList == null) {
 			return null;

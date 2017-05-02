@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 import eu.bcvsolutions.idm.acc.domain.SynchronizationEventType;
-import eu.bcvsolutions.idm.acc.domain.SynchronizationItemWrapper;
+import eu.bcvsolutions.idm.acc.domain.SynchronizationItemBuilder;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.entity.SysSyncConfig;
 import eu.bcvsolutions.idm.acc.entity.SysSyncItemLog;
@@ -71,7 +71,7 @@ public interface SynchronizationService extends LongRunningTaskExecutor<SysSyncC
 	 * @param wrapper for easier handling required attributes for item synchronization
 	 * @return If is true, then well be synchronization continued, if is false, then will be cancel.
 	 */
-	boolean doItemSynchronization(SynchronizationItemWrapper wrapper);
+	boolean doItemSynchronization(SynchronizationItemBuilder wrapper);
 	
 	/**
 	 * Public method for resolve missing entity situation for one item.

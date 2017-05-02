@@ -15,17 +15,13 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import com.google.common.collect.Lists;
-
 import eu.bcvsolutions.idm.IdmApplication;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
-import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
-import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
-import eu.bcvsolutions.idm.core.security.api.utils.IdmAuthorityUtils;
+import eu.bcvsolutions.idm.test.api.utils.AuthenticationTestUtils;
 
 /**
  * Test rest services will be based on spring integration tests with MockMvc / hamcrest and junit test framework
@@ -53,7 +49,7 @@ public abstract class AbstractIntegrationTest {
 	 * @param username
 	 */
 	public void loginAsAdmin(String username) {
-		SecurityContextHolder.getContext().setAuthentication(new IdmJwtAuthentication(new IdmIdentityDto(username), null, Lists.newArrayList(IdmAuthorityUtils.getAdminAuthority()), "test"));
+		SecurityContextHolder.getContext().setAuthentication(AuthenticationTestUtils.getSystemAuthentication(username));
 	}
 	
 	/**

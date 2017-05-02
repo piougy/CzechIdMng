@@ -7,8 +7,8 @@ import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Date;
 
+import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,7 +40,8 @@ public class DefaultSecurityServiceTest extends AbstractUnitTest {
 	private static final IdmJwtAuthentication AUTHENTICATION = new IdmJwtAuthentication(
 			new IdmIdentityDto(CURRENT_USERNAME), 
 			new IdmIdentityDto(ORIGINAL_USERNAME), 
-			new Date(), 
+			DateTime.now(),
+			DateTime.now(), 
 			AUTHORITIES,
 			"test");
 	

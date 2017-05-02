@@ -33,6 +33,7 @@ class Login extends Basic.AbstractContent {
     this.selectNavigationItem('home');
     this.refs.form.setData({});
     this.refs.username.focus();
+    this.context.store.dispatch(securityManager.remoteLogin());
   }
 
   componentDidUpdate() {

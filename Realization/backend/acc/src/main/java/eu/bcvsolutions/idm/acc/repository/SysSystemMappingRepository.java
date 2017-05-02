@@ -41,6 +41,8 @@ public interface SysSystemMappingRepository extends AbstractEntityRepository<Sys
 			" and" +
 			" (?#{[0].operationType} is null or e.operationType = ?#{[0].operationType})"+
 			" and" +
+			" (?#{[0].treeTypeId} is null or e.treeType.id = ?#{[0].treeTypeId})"+
+			" and" +
 			" (?#{[0].entityType} is null or e.entityType = ?#{[0].entityType})"
 			)
 	Page<SysSystemMapping> find(SystemMappingFilter filter, Pageable pageable);

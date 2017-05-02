@@ -36,6 +36,7 @@ public class IdentityRoleDeleteProvisioningProcessor extends AbstractEntityEvent
 	private final ProvisioningService provisioningService;
 	private final IdmIdentityContractRepository identityContractRepository;
 
+
 	@Autowired
 	public IdentityRoleDeleteProvisioningProcessor(
 			AccAccountManagementService accountManagementService,

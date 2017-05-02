@@ -20,21 +20,21 @@ import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 public class TestTreeResource {
 
 	@Id
-	@Column(name = "id", length = DefaultFieldLengths.NAME)
+	@Column(name = "ID", length = DefaultFieldLengths.NAME)
 	private String id;
-	@Column(name = "code", length = DefaultFieldLengths.NAME)
+	@Column(name = "CODE", length = DefaultFieldLengths.NAME)
 	private String code;
-	@Column(name = "parent", length = DefaultFieldLengths.NAME)
+	@Column(name = "PARENT", length = DefaultFieldLengths.NAME)
 	private String parent;
-	@Column(name = "name", length = DefaultFieldLengths.NAME)
+	@Column(name = "NAME", length = DefaultFieldLengths.NAME)
 	private String name;
-	@Column(name = "email", length = DefaultFieldLengths.NAME)
+	@Column(name = "EMAIL", length = DefaultFieldLengths.NAME)
 	private String email;
-	@Column(name = "descrip", length = DefaultFieldLengths.NAME)
+	@Column(name = "DESCRIPT", length = DefaultFieldLengths.NAME)
 	private String descrip;
-	@Column(name = "status", length = DefaultFieldLengths.NAME)
+	@Column(name = "STATUS", length = DefaultFieldLengths.NAME)
 	private String status;
-	@Column(name = "modified", length = DefaultFieldLengths.NAME)
+	@Column(name = "MODIFIED", length = DefaultFieldLengths.NAME)
 	private LocalDateTime modified;
 
 	public String getName() {

@@ -8,6 +8,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
+import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.repository.IdmAuthorizationPolicyRepository;
@@ -30,13 +31,15 @@ public class DefaultIdmAuthorizationPolicyServiceUnitTest extends AbstractUnitTe
 	private IdmRoleService roleService;
 	@Mock
 	private ModuleService moduleService;
+	@Mock
+	private EntityEventManager eventManager;
 	//
 	private IdmAuthorizationPolicyService service;
 	private IdmRole DEFAULT_ROLE;
 	
 	@Before
-	public void init() {		
-		service = new DefaultIdmAuthorizationPolicyService(repository, roleService, moduleService);
+	public void init() {
+		service = new DefaultIdmAuthorizationPolicyService(repository, roleService, moduleService, eventManager);
 		//
 		DEFAULT_ROLE = new IdmRole();
 	}

@@ -19,22 +19,27 @@ public class TreeAccountFilter implements BaseFilter, EntityAccountFilter {
 	private UUID roleSystemId;
 	private Boolean ownership;
 
+	@Override
 	public Boolean isOwnership() {
 		return ownership;
 	}
 
+	@Override
 	public void setOwnership(Boolean ownership) {
 		this.ownership = ownership;
 	}
 
+	@Override
 	public UUID getAccountId() {
 		return accountId;
 	}
 
+	@Override
 	public void setAccountId(UUID accountId) {
 		this.accountId = accountId;
 	}
 	
+	@Override
 	public void setSystemId(UUID systemId) {
 		this.systemId = systemId;
 	}
@@ -65,6 +70,11 @@ public class TreeAccountFilter implements BaseFilter, EntityAccountFilter {
 
 	public void setTreeNodeId(UUID treeNodeId) {
 		this.treeNodeId = treeNodeId;
+	}
+
+	@Override
+	public void setEntityId(UUID entityId) {
+		this.treeNodeId = entityId;
 	}
 	
 	

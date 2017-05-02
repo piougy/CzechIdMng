@@ -1,7 +1,5 @@
 package eu.bcvsolutions.idm.acc.service.api;
 
-import java.beans.IntrospectionException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
@@ -13,24 +11,25 @@ import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
 
 /**
- * Service for do provisioning or synchronisation or reconciliation
+ * Basic interface for do provisioning
  * 
  * @author svandav
  *
  */
 public interface ProvisioningService {
+	
+	public static final String PASSWORD_SCHEMA_PROPERTY_NAME = "__PASSWORD__";
 
 	/**
 	 * Do provisioning for given identity on all connected systems
 	 * 
 	 * @param identity
 	 */
-	void doProvisioning(IdmIdentity identity);
+	void doProvisioning(AbstractEntity identity);
 	
 	/**
 	 * Do provisioning for given account on connected system
@@ -46,14 +45,14 @@ public interface ProvisioningService {
 	 * @param system
 	 * @return
 	 */
-	void doProvisioning(AccAccount account, IdmIdentity identity);
+	void doProvisioning(AccAccount account, AbstractEntity identity);
 
 	/**
 	 * Do delete provisioning for given account on connected system
 	 * 
 	 * @param account
 	 */
-	void doDeleteProvisioning(AccAccount account);
+	void doDeleteProvisioning(AccAccount account, SystemEntityType entityType);
 	
 	/**
 	 * 
@@ -61,7 +60,7 @@ public interface ProvisioningService {
 	 * @param identity
 	 * @param passwordChange
 	 */
-	void changePassword(IdmIdentity identity, PasswordChangeDto passwordChange);
+	void changePassword(AbstractEntity identity, PasswordChangeDto passwordChange);
 	
 	/**
 	 * Do provisioning only for single attribute. For example, it is needed to change password
@@ -87,13 +86,6 @@ public interface ProvisioningService {
 	IcUidAttribute authenticate(String username, GuardedString password, SysSystem system, SystemEntityType entityType);
 
 	/**
-	 * Convert method for SysRoleSystemAttribute to mapping attribute dto
-	 * @param overloadingAttribute
-	 * @param overloadedAttribute
-	 */
-	void fillOverloadedAttribute(SysRoleSystemAttribute overloadingAttribute, AttributeMapping overloadedAttribute);
-
-	/**
 	 * Return all mapped attributes for this account (include overloaded attributes)
 	 * 
 	 * @param uid
@@ -103,7 +95,7 @@ public interface ProvisioningService {
 	 * @param entityType
 	 * @return
 	 */
-	List<AttributeMapping> resolveMappedAttributes(String uid, AccAccount account, IdmIdentity identity, SysSystem system, SystemEntityType entityType);
+	List<AttributeMapping> resolveMappedAttributes(String uid, AccAccount account, AbstractEntity entity, SysSystem system, SystemEntityType entityType);
 
 	/**
 	 * Create final list of attributes for provisioning.
@@ -114,7 +106,14 @@ public interface ProvisioningService {
 	 * @return
 	 */
 	List<AttributeMapping> compileAttributes(List<? extends AttributeMapping> defaultAttributes,
-			List<SysRoleSystemAttribute> overloadingAttributes);
+			List<SysRoleSystemAttribute> overloadingAttributes, SystemEntityType entityType);
+
+	/**
+	 * Create accounts for given entity on all systems with provisioning mapping and same entity type.
+	 * @param entity
+	 * @param entityType
+	 */
+	void createAccountsForAllSystems(AbstractEntity entity);
 
 	
 }

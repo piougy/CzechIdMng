@@ -244,7 +244,7 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	 *            if is not null, then will be use as input to convert
 	 * @return
 	 */
-	public DTO toDto(E entity, DTO dto) {
+	protected DTO toDto(E entity, DTO dto) {
 		if (entity == null) {
 			return null;
 		}

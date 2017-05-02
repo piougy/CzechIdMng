@@ -28,6 +28,7 @@ import eu.bcvsolutions.idm.core.eav.service.api.IdmFormDefinitionService;
 import eu.bcvsolutions.idm.core.eav.service.impl.DefaultFormService;
 import eu.bcvsolutions.idm.core.eav.service.impl.DefaultIdmFormAttributeService;
 import eu.bcvsolutions.idm.core.eav.service.impl.DefaultIdmFormDefinitionService;
+import eu.bcvsolutions.idm.core.model.repository.IdmAuthorityChangeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmAuthorizationPolicyRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmConfidentialStorageValueRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmConfigurationRepository;
@@ -109,6 +110,7 @@ public class IdmServiceConfiguration {
 	@Autowired private IdmContractGuaranteeRepository contractGuaranteeRepository;
 	@Autowired private IdmIdentityRoleRepository identityRoleRepository;
 	@Autowired private IdmIdentityContractRepository identityContractRepository;
+	@Autowired private IdmAuthorityChangeRepository authChangeRepository;
 	//
 	// Auto registered beans (plugins)
 	@Autowired private PluginRegistry<ModuleDescriptor, String> moduleDescriptorRegistry;
@@ -277,9 +279,10 @@ public class IdmServiceConfiguration {
 	@Bean
 	@ConditionalOnMissingBean(IdmAuthorizationPolicyService.class)
 	public IdmAuthorizationPolicyService authorizationPolicyService() {
-		return new DefaultIdmAuthorizationPolicyService(authorizationPolicyRepository, roleService(), moduleService());
+		return new DefaultIdmAuthorizationPolicyService(authorizationPolicyRepository, roleService(),
+				moduleService(), entityEventManager());
 	}
-	
+
 	/**
 	 * Persists long running tasks
 	 * 
@@ -311,7 +314,7 @@ public class IdmServiceConfiguration {
 	@Bean
 	@ConditionalOnMissingBean(IdmIdentityService.class)
 	public IdmIdentityService identityService() {
-		return new DefaultIdmIdentityService(identityRepository, formService(), roleRepository, entityEventManager(), filterManager());
+		return new DefaultIdmIdentityService(identityRepository, formService(), roleRepository, entityEventManager(), filterManager(), authChangeRepository);
 	}
 	
 	/**

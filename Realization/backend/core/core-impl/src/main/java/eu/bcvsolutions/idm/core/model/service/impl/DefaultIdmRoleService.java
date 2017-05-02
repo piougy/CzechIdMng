@@ -259,4 +259,12 @@ public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, Role
 		}
 		return defaultRole;
 	}
+
+	@Override
+	public List<IdmRole> getSubroles(UUID roleId) {
+		Assert.notNull(roleId);
+		//
+		return repository.getSubroles(roleId);
+	}
+	
 }

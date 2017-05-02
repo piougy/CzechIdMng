@@ -19,17 +19,14 @@ import org.springframework.security.core.Authentication;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Lists;
 
-import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeTypeRepository;
-import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
-import eu.bcvsolutions.idm.core.security.api.utils.IdmAuthorityUtils;
 import eu.bcvsolutions.idm.test.api.AbstractRestTest;
+import eu.bcvsolutions.idm.test.api.utils.AuthenticationTestUtils;
 
 public class TreeNodeAndTypeRestTest extends AbstractRestTest {
 	
@@ -104,7 +101,8 @@ public class TreeNodeAndTypeRestTest extends AbstractRestTest {
 		ex = null;
 		int status = 0;
 		try {
-			status = getMockMvc().perform(post(BaseEntityController.BASE_PATH + "/tree-nodes").with(authentication(getAuthentication()))
+			status = getMockMvc().perform(post(BaseEntityController.BASE_PATH + "/tree-nodes")
+					.with(authentication(getAuthentication()))
 					.content(jsonContent)
 					.contentType(MediaType.APPLICATION_JSON))
 					.andReturn()
@@ -165,7 +163,8 @@ public class TreeNodeAndTypeRestTest extends AbstractRestTest {
 		int status = 0;
 		Exception ex = null;
 		try {
-			status = getMockMvc().perform(post(BaseEntityController.BASE_PATH + "/tree-nodes").with(authentication(getAuthentication()))
+			status = getMockMvc().perform(post(BaseEntityController.BASE_PATH + "/tree-nodes")
+					.with(authentication(getAuthentication()))
 					.content(jsonContent)
 					.contentType(MediaType.APPLICATION_JSON))
 					.andReturn()
@@ -216,7 +215,8 @@ public class TreeNodeAndTypeRestTest extends AbstractRestTest {
 		
 		// test with privileges
 		try {
-			status = getMockMvc().perform(post(BaseEntityController.BASE_PATH + "/tree-nodes").with(authentication(getAuthentication()))
+			status = getMockMvc().perform(post(BaseEntityController.BASE_PATH + "/tree-nodes")
+					.with(authentication(getAuthentication()))
 					.content(jsonContent)
 					.contentType(MediaType.APPLICATION_JSON))
 					.andReturn()
@@ -242,7 +242,8 @@ public class TreeNodeAndTypeRestTest extends AbstractRestTest {
 		status = 0;
 		ex = null;
 		try {
-			status = getMockMvc().perform(post(BaseEntityController.BASE_PATH + "/tree-nodes/").with(authentication(getAuthentication()))
+			status = getMockMvc().perform(post(BaseEntityController.BASE_PATH + "/tree-nodes/")
+					.with(authentication(getAuthentication()))
 					.content(jsonContent)
 					.contentType(MediaType.APPLICATION_JSON))
 					.andReturn()
@@ -267,6 +268,6 @@ public class TreeNodeAndTypeRestTest extends AbstractRestTest {
 	}
 	
 	private Authentication getAuthentication() {
-		return new IdmJwtAuthentication(new IdmIdentityDto("[SYSTEM]"), null, Lists.newArrayList(IdmAuthorityUtils.getAdminAuthority()), "test");
+		return AuthenticationTestUtils.getSystemAuthentication();
 	}
 }

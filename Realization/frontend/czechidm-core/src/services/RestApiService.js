@@ -6,7 +6,8 @@ export default class RestApiService {
 
   static get(path, token = null) {
     const fetchConfig = this._getFetchConfig('get', null, token);
-    return fetch(this.getUrl(path), fetchConfig);
+    return fetch(this.getUrl(path), fetchConfig)
+      .then(this.processHeaders);
   }
 
   static post(path, json, token = null) {
@@ -27,6 +28,11 @@ export default class RestApiService {
   static delete(path) {
     const fetchConfig = this._getFetchConfig('DELETE');
     return fetch(this.getUrl(path), fetchConfig);
+  }
+
+  static processHeaders(response) {
+    AuthenticateService.setTokenCIDMST(response.headers.get('CIDMST'));
+    return response;
   }
 
   static upload(path, formData) {
@@ -62,11 +68,12 @@ export default class RestApiService {
     if (token === null) {
       token = AuthenticateService.getTokenCIDMST();
     }
+
     const fetchConfig = {
       method: methodType,
       headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
+        'Accept': 'application/hal+json',
+        'Content-Type': 'application/hal+json;charset=UTF-8'
       },
       credentials: 'include'
     };

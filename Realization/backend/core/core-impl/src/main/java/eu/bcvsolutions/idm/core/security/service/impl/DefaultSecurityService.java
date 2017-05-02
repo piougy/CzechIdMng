@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.security.service.impl;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -8,6 +9,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.Assert;
@@ -45,9 +47,9 @@ public class DefaultSecurityService implements SecurityService {
 	
 	@Override
 	public void setSystemAuthentication() {
-		this.setAuthentication(new IdmJwtAuthentication(new IdmIdentityDto("[SYSTEM]"), null, Lists.newArrayList(IdmAuthorityUtils.getAdminAuthority()), null));
+		this.setAuthentication(new IdmJwtAuthentication(new IdmIdentityDto(SYSTEM_NAME), null, getAdminAuthorities(), null));
 	}
-	
+
 	@Override
 	public AbstractAuthentication getAuthentication() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -116,4 +118,9 @@ public class DefaultSecurityService implements SecurityService {
 	public boolean isAdmin() {
 		return hasAnyAuthority(IdmAuthorityUtils.getAdminAuthority().getAuthority());
 	}
+	
+	private ArrayList<GrantedAuthority> getAdminAuthorities() {
+		return Lists.newArrayList(IdmAuthorityUtils.getAdminAuthority());
+	}
+	
 }

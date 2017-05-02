@@ -369,7 +369,8 @@ public class IdentityRoleValidRequestSchedulerTest extends AbstractIntegrationTe
 			if ("__NAME__".equals(schemaAttr.getName())) {
 				nameAttributeMapping = new SysSystemAttributeMapping();
 				nameAttributeMapping.setUid(true);
-				nameAttributeMapping.setEntityAttribute(false);
+				nameAttributeMapping.setEntityAttribute(true);
+				nameAttributeMapping.setIdmPropertyName("username");
 				nameAttributeMapping.setName(schemaAttr.getName());
 				nameAttributeMapping.setSchemaAttribute(schemaAttr);
 				nameAttributeMapping.setSystemMapping(systemMapping);

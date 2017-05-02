@@ -2,6 +2,8 @@ package eu.bcvsolutions.idm.acc.domain;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.SysSyncActionLog;
@@ -31,7 +33,7 @@ import eu.bcvsolutions.idm.ic.impl.IcSyncDeltaTypeEnum;
  * @param actionLogs Relations between item log and full log and action.
  *
  */
-public class SynchronizationItemWrapper implements Serializable {
+public class SynchronizationItemBuilder implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	private String uid;
@@ -45,94 +47,103 @@ public class SynchronizationItemWrapper implements Serializable {
 	private SysSyncLog log;
 	private SysSyncItemLog logItem;
 	private List<SysSyncActionLog> actionLogs;
-	
-	public SynchronizationItemWrapper() {
-	}
-	
-	public SynchronizationItemWrapper(String uid, IcConnectorObject icObject, IcSyncDeltaTypeEnum type,
-			SysSyncConfig config, SysSystem system, SystemEntityType entityType,
-			List<SysSystemAttributeMapping> mappedAttributes, AccAccount account, SysSyncLog log,
-			SysSyncItemLog logItem, List<SysSyncActionLog> actionLogs) {
-		super();
-		this.uid = uid;
-		this.icObject = icObject;
-		this.type = type;
-		this.config = config;
-		this.system = system;
-		this.entityType = entityType;
-		this.mappedAttributes = mappedAttributes;
-		this.account = account;
-		this.log = log;
-		this.logItem = logItem;
-		this.actionLogs = actionLogs;
-	}
+	private UUID entityId;
+	private boolean exportAction = false;
 	
 	public String getUid() {
 		return uid;
 	}
-	public void setUid(String uid) {
+	public SynchronizationItemBuilder addUid(String uid) {
 		this.uid = uid;
+		return this;
 	}
 	public IcConnectorObject getIcObject() {
 		return icObject;
 	}
-	public void setIcObject(IcConnectorObject icObject) {
+	public SynchronizationItemBuilder addIcObject(IcConnectorObject icObject) {
 		this.icObject = icObject;
+		return this;
 	}
 	public IcSyncDeltaTypeEnum getType() {
 		return type;
 	}
-	public void setType(IcSyncDeltaTypeEnum type) {
+	public SynchronizationItemBuilder addType(IcSyncDeltaTypeEnum type) {
 		this.type = type;
+		return this;
 	}
 	public SysSyncConfig getConfig() {
 		return config;
 	}
-	public void setConfig(SysSyncConfig config) {
+	public SynchronizationItemBuilder addConfig(SysSyncConfig config) {
 		this.config = config;
+		return this;
 	}
 	public SysSystem getSystem() {
 		return system;
 	}
-	public void setSystem(SysSystem system) {
+	public SynchronizationItemBuilder addSystem(SysSystem system) {
 		this.system = system;
+		return this;
 	}
 	public SystemEntityType getEntityType() {
 		return entityType;
 	}
-	public void setEntityType(SystemEntityType entityType) {
+	public SynchronizationItemBuilder addEntityType(SystemEntityType entityType) {
 		this.entityType = entityType;
+		return this;
 	}
 	public List<SysSystemAttributeMapping> getMappedAttributes() {
 		return mappedAttributes;
 	}
-	public void setMappedAttributes(List<SysSystemAttributeMapping> mappedAttributes) {
+	public SynchronizationItemBuilder addMappedAttributes(List<SysSystemAttributeMapping> mappedAttributes) {
 		this.mappedAttributes = mappedAttributes;
+		return this;
 	}
 	public AccAccount getAccount() {
 		return account;
 	}
-	public void setAccount(AccAccount account) {
+	public SynchronizationItemBuilder addAccount(AccAccount account) {
 		this.account = account;
+		return this;
 	}
 	public SysSyncLog getLog() {
 		return log;
 	}
-	public void setLog(SysSyncLog log) {
+	public SynchronizationItemBuilder addLog(SysSyncLog log) {
 		this.log = log;
+		return this;
 	}
 	public SysSyncItemLog getLogItem() {
 		return logItem;
 	}
-	public void setLogItem(SysSyncItemLog logItem) {
+	public SynchronizationItemBuilder addLogItem(SysSyncItemLog logItem) {
 		this.logItem = logItem;
+		return this;
 	}
 	public List<SysSyncActionLog> getActionLogs() {
 		return actionLogs;
 	}
-	public void setActionLogs(List<SysSyncActionLog> actionLogs) {
+	public SynchronizationItemBuilder addActionLogs(List<SysSyncActionLog> actionLogs) {
 		this.actionLogs = actionLogs;
+		return this;
 	}
-	
+
+	public UUID getEntityId() {
+		return entityId;
+	}
+
+	public SynchronizationItemBuilder addEntityId(UUID entityId) {
+		this.entityId = entityId;
+		return this;
+	}
+
+	public boolean isExportAction() {
+		return exportAction;
+	}
+
+	public SynchronizationItemBuilder addExportAction(boolean exportAction) {
+		this.exportAction = exportAction;
+		return this;
+	}
 	
 }

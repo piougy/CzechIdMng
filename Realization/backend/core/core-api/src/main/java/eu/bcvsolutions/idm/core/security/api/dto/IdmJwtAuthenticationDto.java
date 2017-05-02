@@ -1,11 +1,14 @@
 package eu.bcvsolutions.idm.core.security.api.dto;
 
 import java.util.Collection;
-import java.util.Date;
 import java.util.UUID;
 
+import org.joda.time.DateTime;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
- * JWT token autentocation dto
+ * JWT token authentication dto
  * 
  * @author svandav
  *
@@ -13,11 +16,21 @@ import java.util.UUID;
 public class IdmJwtAuthenticationDto {
 
 	private String currentUsername;
+
 	private UUID currentIdentityId;
+	
 	private String originalUsername;
-	private UUID originaIdentityId;
-	private Date expiration; // TODO: datetime
+	
+	private UUID originalIdentityId;
+	
+	@JsonProperty("exp")
+	private DateTime expiration;
+	
+	@JsonProperty("iat")
+	private DateTime issuedAt;
+	
 	private Collection<DefaultGrantedAuthorityDto> authorities;
+
 	private String fromModule;
 
 	public IdmJwtAuthenticationDto() {
@@ -39,12 +52,20 @@ public class IdmJwtAuthenticationDto {
 		this.originalUsername = originalUsername;
 	}
 
-	public Date getExpiration() {
+	public DateTime getExpiration() {
 		return expiration;
 	}
 
-	public void setExpiration(Date expiration) {
+	public void setExpiration(DateTime expiration) {
 		this.expiration = expiration;
+	}
+
+	public DateTime getIssuedAt() {
+		return issuedAt;
+	}
+
+	public void setIssuedAt(DateTime issuedAt) {
+		this.issuedAt = issuedAt;
 	}
 
 	public Collection<DefaultGrantedAuthorityDto> getAuthorities() {
@@ -63,21 +84,21 @@ public class IdmJwtAuthenticationDto {
 		this.currentIdentityId = currentIdentityId;
 	}
 
-	public UUID getOriginaIdentityId() {
-		return originaIdentityId;
+	public UUID getOriginalIdentityId() {
+		return originalIdentityId;
 	}
 
-	public void setOriginaIdentityId(UUID originaIdentityId) {
-		this.originaIdentityId = originaIdentityId;
+	public void setOriginalIdentityId(UUID originaIdentityId) {
+		this.originalIdentityId = originaIdentityId;
 	}
 	
 	public boolean isExpired() {
 		if (expiration == null) {
 			return false;
 		}
-		return expiration.before(new Date());
+		return expiration.isBefore(DateTime.now());
 	}
-
+	
 	public String getFromModule() {
 		return fromModule;
 	}

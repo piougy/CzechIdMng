@@ -1049,6 +1049,7 @@
         "header": "{{name}} detail skriptu"
       },
       "scriptAuthorities": "Oprávnění skriptu",
+      "scriptAuthoritySaveFirst": "Oprávnění skriptu můžete přidat až po uložení.",
       "create": {
         "title": "Nový skript",
         "header": "Nový skript"
@@ -1061,6 +1062,12 @@
       }
     },
     "scriptAuthorities": {
+      "create": {
+        "header": "Vytvoření nové autorizace pro skript <small>{{name}}</small>"
+      },
+      "edit": {
+        "header": "Editace autorizace pro skript <small>{{name}}</small>"
+      },
       "save": {
         "success": "Opravnnění pro skript bylo úspěšně uloženo"
       }
@@ -2500,6 +2507,10 @@
     "AUTH_FAILED": {
       "title": "Chybné přihlašovací údaje",
       "message": "Zadány chybné přihlašovací údaje."
+    },
+    "AUTHORITIES_CHANGED": {
+      "title": "Došlo ke změně Vašich systémových oprávnění",
+      "message": "Došlo ke změně Vašich systémových oprávnění, přihlašte se prosím znovu."
     },
     "FORBIDDEN": {
       "title": "Nedostatečná oprávnění",

@@ -24,8 +24,8 @@ import org.springframework.security.web.access.expression.DefaultWebSecurityExpr
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
-import eu.bcvsolutions.idm.core.security.rest.filter.OAuthAuthenticationFilter;
-import eu.bcvsolutions.idm.core.security.service.impl.OAuthAuthenticationManager;
+import eu.bcvsolutions.idm.core.security.auth.filter.AuthenticationFilter;
+import eu.bcvsolutions.idm.core.security.auth.filter.ExtendExpirationFilter;
 
 /**
  * Web security configuration
@@ -44,7 +44,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
     	 http.csrf().disable();
     	 http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-    	 http.addFilterAfter(oAuthAuthenticationFilter(), BasicAuthenticationFilter.class)
+    	 
+    	 http
+    	 	.addFilterAfter(authenticationFilter(), BasicAuthenticationFilter.class)
+    	 	.addFilterAfter(extendExpirationFilter(), BasicAuthenticationFilter.class)
 			.authorizeRequests()
 			.expressionHandler(expressionHandler())
 			.antMatchers(HttpMethod.OPTIONS).permitAll()
@@ -66,20 +69,21 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 				BaseDtoController.BASE_PATH + "/status" // status page
 			);
 	}
-
-	@Bean
-	public OAuthAuthenticationManager oAuthAuthenticationManager() {
-		return new OAuthAuthenticationManager();
-	}
-
-	@Bean
-	public OAuthAuthenticationFilter oAuthAuthenticationFilter() {
-		return new OAuthAuthenticationFilter();
-	}
-
+	
+	
 	@Bean
 	public PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
+	}
+	
+	@Bean
+	public AuthenticationFilter authenticationFilter() {
+		return new AuthenticationFilter();
+	}
+	
+	@Bean
+	public ExtendExpirationFilter extendExpirationFilter() {
+		return new ExtendExpirationFilter();
 	}
 	
 	/**

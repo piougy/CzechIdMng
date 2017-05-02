@@ -1,8 +1,13 @@
 package eu.bcvsolutions.idm.core.security.service;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.springframework.security.core.GrantedAuthority;
+
+import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 
 /**
  * Load identity's granted authorities
@@ -12,10 +17,36 @@ import org.springframework.security.core.GrantedAuthority;
 public interface GrantedAuthoritiesFactory {
 
 	/**
-	 * Returns unique set authorities by assigned active roles to given identity
+	 * Returns unique set of authorities by assigned active roles for given identity.
+	 * Sub roles are also processed.
 	 * 
 	 * @param username
 	 * @return
 	 */
 	List<GrantedAuthority> getGrantedAuthorities(String username);
+
+	/**
+	 * @see GrantedAuthoritiesFactory#getGrantedAuthorities(String)
+	 */
+	Collection<GrantedAuthority> getActiveRoleAuthorities(IdmRole role);
+
+	/**
+	 * @see GrantedAuthoritiesFactory#getGrantedAuthorities(String)
+	 */
+	Collection<GrantedAuthority> getGrantedAuthoritiesForIdentity(IdmIdentity identity);
+
+	/**
+	 * @see GrantedAuthoritiesFactory#getGrantedAuthorities(String)
+	 */
+	Collection<GrantedAuthority> getGrantedAuthoritiesForValidRoles(Collection<IdmIdentityRoleDto> roles);
+	
+	/**
+	 * Decides whether the original collection contains all authorities
+	 * in the given subset.
+	 *  
+	 * @param original
+	 * @param subset
+	 * @return
+	 */
+	boolean containsAllAuthorities(Collection<GrantedAuthority> original, Collection<GrantedAuthority> subset);
 }

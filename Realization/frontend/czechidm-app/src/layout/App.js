@@ -62,6 +62,8 @@ export class App extends Basic.AbstractContent {
       if (currentRoute.module && !ConfigLoader.isEnabledModule(currentRoute.module)) {
         this.context.router.replace('/unavailable');
       }
+      this._handleRemoteAuth();
+      this._handleTokenRefresh();
     }
   }
 
@@ -84,6 +86,26 @@ export class App extends Basic.AbstractContent {
     this.context.store.dispatch(this.securityManager.logout(() => {
       this.context.router.replace('/login');
     }));
+  }
+
+  _handleRemoteAuth() {
+    const { userContext } = this.props;
+    // handle expiration
+    if (userContext && userContext.isTryRemoteLogin) {
+      this.context.store.dispatch(this.securityManager.remoteLogin());
+    }
+  }
+
+  _handleTokenRefresh() {
+    const { userContext } = this.props;
+    // handle token expiration extension
+    if (userContext) {
+      this.context.store.dispatch(this.securityManager.checkRefreshedToken());
+    }
+  }
+
+  _getPublicPaths() {
+    return ['/login', '/password/reset', '/password/change'];
   }
 
   render() {
@@ -112,7 +134,7 @@ export class App extends Basic.AbstractContent {
               </div>
               {
                 /* TODO: move to redux and hide it, when is needed */
-                !userContext.isExpired && location.pathname !== '/login' && location.pathname !== '/password/reset' && location.pathname !== '/password/change'
+                !userContext.isExpired && this._getPublicPaths().indexOf(location.pathname) < 0
                 ?
                 <Footer />
                 :

@@ -14,6 +14,8 @@ import org.springframework.plugin.core.PluginRegistry;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 
 import eu.bcvsolutions.idm.core.api.domain.ModuleDescriptor;
+import eu.bcvsolutions.idm.core.api.repository.filter.FilterBuilder;
+import eu.bcvsolutions.idm.core.api.repository.filter.FilterManager;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
@@ -37,9 +39,7 @@ import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleTreeNodeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeTypeRepository;
-import eu.bcvsolutions.idm.core.model.repository.filter.ManagersByContractFilter;
-import eu.bcvsolutions.idm.core.model.repository.filter.ManagersFilter;
-import eu.bcvsolutions.idm.core.model.repository.filter.SubordinatesFilter;
+import eu.bcvsolutions.idm.core.model.repository.filter.DefaultFilterManager;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
@@ -113,11 +113,7 @@ public class IdmServiceConfiguration {
 	// Auto registered beans (plugins)
 	@Autowired private PluginRegistry<ModuleDescriptor, String> moduleDescriptorRegistry;
 	@Autowired private List<? extends FormValueService<?, ?>> formValueServices;
-	//
-	// TODO: registrable
-	@Autowired private SubordinatesFilter subordinatesFilter;
-	@Autowired private ManagersFilter managersFilter;
-	@Autowired private ManagersByContractFilter managersByContractFilter;
+	@Autowired private List<? extends FilterBuilder<?, ?>> filterBuilders;
 	
 	/**
 	 * Crypt service for confidential storage
@@ -208,6 +204,17 @@ public class IdmServiceConfiguration {
 	}
 	
 	/**
+	 * Filter manager for repositories
+	 * 
+	 * @return
+	 */
+	@Bean
+	@ConditionalOnMissingBean(FilterManager.class)
+	public FilterManager filterManager() {
+		return new DefaultFilterManager(context, filterBuilders);
+	}
+	
+	/**
 	 * Authorization manager - authorization security service
 	 * 
 	 * @return
@@ -259,7 +266,7 @@ public class IdmServiceConfiguration {
 	@Bean
 	@ConditionalOnMissingBean(IdmRoleService.class)
 	public IdmRoleService roleService() {
-		return new DefaultIdmRoleService(roleRepository, entityEventManager(), formService(), configurationService());
+		return new DefaultIdmRoleService(roleRepository, entityEventManager(), formService(), configurationService(), filterManager());
 	}
 	
 	/**
@@ -304,7 +311,7 @@ public class IdmServiceConfiguration {
 	@Bean
 	@ConditionalOnMissingBean(IdmIdentityService.class)
 	public IdmIdentityService identityService() {
-		return new DefaultIdmIdentityService(identityRepository, formService(), roleRepository, entityEventManager(), subordinatesFilter, managersFilter, managersByContractFilter);
+		return new DefaultIdmIdentityService(identityRepository, formService(), roleRepository, entityEventManager(), filterManager());
 	}
 	
 	/**

@@ -11,7 +11,8 @@ import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
 import org.joda.time.LocalDate;
-import org.springframework.util.Assert;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.core.api.repository.filter.AbstractFilterBuilder;
 import eu.bcvsolutions.idm.core.model.dto.filter.IdentityFilter;
@@ -31,17 +32,21 @@ import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
  * @author Radek Tomiška
  *
  */
+@Component
 public class DefaultSubordinatesFilter 
 		extends AbstractFilterBuilder<IdmIdentity, IdentityFilter>
 		implements SubordinatesFilter {
 	
+	@Autowired
 	public DefaultSubordinatesFilter(IdmIdentityRepository repository) {
 		super(repository);
 	}
 
 	@Override
 	public Predicate getPredicate(Root<IdmIdentity> root, CriteriaQuery<?> query, CriteriaBuilder builder, IdentityFilter filter) {
-		Assert.notNull(filter.getSubordinatesFor());
+		if (filter.getSubordinatesFor() == null) {
+			return null;
+		}
 		//
 		// identity has to have identity contract
 		Subquery<IdmIdentityContract> subquery = query.subquery(IdmIdentityContract.class);

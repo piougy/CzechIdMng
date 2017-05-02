@@ -11,7 +11,8 @@ import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
 import org.joda.time.LocalDate;
-import org.springframework.util.Assert;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.core.api.repository.filter.AbstractFilterBuilder;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute;
@@ -37,6 +38,7 @@ import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
  * @author Radek Tomiška
  *
  */
+@Component
 public class EavCodeSubordinatesFilter 
 		extends AbstractFilterBuilder<IdmIdentity, IdentityFilter>
 		implements SubordinatesFilter {
@@ -45,6 +47,7 @@ public class EavCodeSubordinatesFilter
 	public static final String PROPERTY_FORM_ATTRIBUTE = "formAttribute";
 	public static final String DEFAULT_FORM_ATTRIBUTE = "parentCode";
 	
+	@Autowired
 	public EavCodeSubordinatesFilter(IdmIdentityRepository repository) {
 		super(repository);
 	}
@@ -59,7 +62,9 @@ public class EavCodeSubordinatesFilter
 
 	@Override
 	public Predicate getPredicate(Root<IdmIdentity> root, CriteriaQuery<?> query, CriteriaBuilder builder, IdentityFilter filter) {
-		Assert.notNull(filter.getSubordinatesFor());
+		if (filter.getSubordinatesFor() == null) {
+			return null;
+		}
 		// tree node bude mit vazbu na "parenta" dle extended attributu
 		//
 		// identity has to have identity contract
@@ -129,5 +134,10 @@ public class EavCodeSubordinatesFilter
         );
 		//		
 		return builder.exists(subquery);
+	}
+	
+	@Override
+	public int getOrder() {
+		return 10;
 	}
 }

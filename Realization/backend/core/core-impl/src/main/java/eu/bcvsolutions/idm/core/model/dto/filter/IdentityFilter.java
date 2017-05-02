@@ -7,6 +7,7 @@ import java.util.UUID;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
@@ -69,11 +70,11 @@ public class IdentityFilter extends DataFilter implements CorrelationFilter {
 	private boolean includeGuarantees;
 	
 	public IdentityFilter() {
-		super(new LinkedMultiValueMap<>());
+		this(new LinkedMultiValueMap<>());
 	}
 	
 	public IdentityFilter(MultiValueMap<String, Object> data) {
-		super(data);
+		super(IdmIdentityDto.class, data);
 	}
 
 	public IdmIdentity getSubordinatesFor() {

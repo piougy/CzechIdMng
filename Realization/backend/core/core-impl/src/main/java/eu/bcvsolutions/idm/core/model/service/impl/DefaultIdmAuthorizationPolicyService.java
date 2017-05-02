@@ -1,6 +1,5 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -98,8 +97,8 @@ public class DefaultIdmAuthorizationPolicyService
 	}
 	
 	@Override
-	protected Predicate toPredicate(AuthorizationPolicyFilter filter, Root<IdmAuthorizationPolicy> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
-		List<Predicate> predicates = new ArrayList<>();
+	protected List<Predicate> toPredicates(Root<IdmAuthorizationPolicy> root, CriteriaQuery<?> query, CriteriaBuilder builder, AuthorizationPolicyFilter filter) {
+		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
 		// role id
 		if (filter.getRoleId() != null) {
 			predicates.add(builder.equal(root.get(IdmAuthorizationPolicy_.role).get(IdmRole_.id), filter.getRoleId()));
@@ -116,7 +115,7 @@ public class DefaultIdmAuthorizationPolicyService
 					builder.equal(root.get(IdmAuthorizationPolicy_.authorizableType), filter.getAuthorizableType())
 					));
 		}
-		return builder.and(predicates.toArray(new Predicate[predicates.size()]));
+		return predicates;
 	}
 	
 	@Override

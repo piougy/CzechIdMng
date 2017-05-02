@@ -80,8 +80,8 @@ public interface Configurable {
 	}
 	
 	/**
-	 * Returns prefix to configuration for this entity event processor. 
-	 * Under this prefix could be found all event processor's properties.
+	 * Returns prefix to configuration for this configurable object. 
+	 * Under this prefix could be found all configurable object's properties.
 	 * 
 	 * @return
 	 */
@@ -127,19 +127,25 @@ public interface Configurable {
 	}
 	
 	/**
+	 * Returns whole property name with prefix in configuration
+	 * 
+	 * @param propertyName
+	 * @return
+	 */
+	default String getConfigurationPropertyName(String propertyName) {
+		return getConfigurationPrefix()
+				+ ConfigurationService.PROPERTY_SEPARATOR
+				+ propertyName;
+	}
+	
+	/**
 	 * Returns configured value for given propertyName. If no value for given key is configured, then returns {@code null}.
 	 * 
 	 * @param propertyName
 	 * @return
 	 */
 	default String getConfigurationProperty(String propertyName) {
-		if (getConfigurationService() == null) {
-			return null;
-		}
-		return getConfigurationService().getValue(
-				getConfigurationPrefix()
-				+ ConfigurationService.PROPERTY_SEPARATOR
-				+ propertyName);
+		return getConfigurationProperty(propertyName, null);
 	}
 	
 	/**
@@ -154,9 +160,7 @@ public interface Configurable {
 			return null;
 		}
 		return getConfigurationService().getValue(
-				getConfigurationPrefix()
-				+ ConfigurationService.PROPERTY_SEPARATOR
-				+ propertyName, 
+				getConfigurationPropertyName(propertyName), 
 				defaultValue);
 	}
 }

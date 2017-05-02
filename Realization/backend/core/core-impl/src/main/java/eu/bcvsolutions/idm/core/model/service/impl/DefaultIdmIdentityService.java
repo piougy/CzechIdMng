@@ -23,6 +23,7 @@ import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
 
+import eu.bcvsolutions.idm.core.api.repository.filter.FilterManager;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.utils.RepositoryUtils;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
@@ -50,9 +51,6 @@ import eu.bcvsolutions.idm.core.model.event.processor.identity.IdentityPasswordP
 import eu.bcvsolutions.idm.core.model.event.processor.identity.IdentitySaveProcessor;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
-import eu.bcvsolutions.idm.core.model.repository.filter.ManagersByContractFilter;
-import eu.bcvsolutions.idm.core.model.repository.filter.ManagersFilter;
-import eu.bcvsolutions.idm.core.model.repository.filter.SubordinatesFilter;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
@@ -71,9 +69,7 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 	private final IdmIdentityRepository repository;
 	private final IdmRoleRepository roleRepository;
 	private final EntityEventManager entityEventManager;
-	private final SubordinatesFilter subordinatesFilter;
-	private final ManagersFilter managersFilter;
-	private final ManagersByContractFilter managersByContractFilter;
+	private final FilterManager filterManager;
 	
 	@Autowired
 	public DefaultIdmIdentityService(
@@ -81,23 +77,17 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 			FormService formService,
 			IdmRoleRepository roleRepository,
 			EntityEventManager entityEventManager,
-			SubordinatesFilter subordinatesFilter,
-			ManagersFilter managersFilter,
-			ManagersByContractFilter managersByContractFilter) {
+			FilterManager filterManager) {
 		super(repository, formService);
 		//
 		Assert.notNull(roleRepository);
 		Assert.notNull(entityEventManager);
-		Assert.notNull(subordinatesFilter);
-		Assert.notNull(managersFilter);
-		Assert.notNull(managersByContractFilter);
+		Assert.notNull(filterManager);
 		//
 		this.repository = repository;
 		this.roleRepository = roleRepository;
 		this.entityEventManager = entityEventManager;
-		this.subordinatesFilter = subordinatesFilter;
-		this.managersFilter = managersFilter;
-		this.managersByContractFilter = managersByContractFilter;
+		this.filterManager = filterManager;
 	}
 	
 	@Override
@@ -142,7 +132,7 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 		// transform filter to criteria
 		Specification<IdmIdentity> criteria = new Specification<IdmIdentity>() {
 			public Predicate toPredicate(Root<IdmIdentity> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
-				Predicate predicate = DefaultIdmIdentityService.this.toPredicate(filter, root, query, builder);
+				Predicate predicate = DefaultIdmIdentityService.this.toPredicate(root, query, builder, filter);
 				return query.where(predicate).getRestriction();
 			}
 		};
@@ -155,7 +145,7 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 		Specification<IdmIdentity> criteria = new Specification<IdmIdentity>() {
 			public Predicate toPredicate(Root<IdmIdentity> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
 				Predicate predicate = builder.and(
-					DefaultIdmIdentityService.this.toPredicate(filter, root, query, builder),
+					DefaultIdmIdentityService.this.toPredicate(root, query, builder, filter),
 					getAuthorizationManager().getPredicate(root, query, builder, permission)
 				);
 				//
@@ -174,12 +164,8 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 	 * @param builder
 	 * @return
 	 */
-	private Predicate toPredicate(IdentityFilter filter, Root<IdmIdentity> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
+	private Predicate toPredicate(Root<IdmIdentity> root, CriteriaQuery<?> query, CriteriaBuilder builder, IdentityFilter filter) {
 		List<Predicate> predicates = new ArrayList<>();
-		// id
-		if (filter.getId() != null) {
-			predicates.add(builder.equal(root.get(IdmIdentity_.id), filter.getId()));
-		}
 		// quick - "fulltext"
 		if (StringUtils.isNotEmpty(filter.getText())) {
 			predicates.add(builder.or(
@@ -258,20 +244,9 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
             );			
 			predicates.add(builder.exists(subquery));
 		}
-		// TODO: dynamic filters (added, overriden by module)
 		//
-		// subordinates
-		if (filter.getSubordinatesFor() != null) {
-			predicates.add(subordinatesFilter.getPredicate(root, query, builder, filter));
-		}
-		// managers
-		if (filter.getManagersFor() != null) {
-			predicates.add(managersFilter.getPredicate(root, query, builder, filter));
-		}
-		// managers by identity contract working position
-		if (filter.getManagersByContractId() != null) {
-			predicates.add(managersByContractFilter.getPredicate(root, query, builder, filter));
-		}
+		// Dynamic filters (added, overriden by module)
+		predicates.addAll(filterManager.toPredicates(root, query, builder, filter));
 		//
 		return builder.and(predicates.toArray(new Predicate[predicates.size()]));
 	}

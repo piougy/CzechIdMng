@@ -1,7 +1,11 @@
 package eu.bcvsolutions.idm.core.model.dto.filter;
 
-import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+
+import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
 import eu.bcvsolutions.idm.core.model.domain.RoleType;
+import eu.bcvsolutions.idm.core.model.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
 
@@ -9,14 +13,22 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
  * Filter for roles
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
+ * @author Radek Tomiška
  *
  */
-
-public class RoleFilter extends QuickFilter {
+public class RoleFilter extends DataFilter {
 
 	private RoleType roleType;
 	private IdmRoleCatalogue roleCatalogue;
 	private IdmIdentity guarantee;
+	
+	public RoleFilter() {
+		this(new LinkedMultiValueMap<>());
+	}
+	
+	public RoleFilter(MultiValueMap<String, Object> data) {
+		super(IdmRoleDto.class, data);
+	}
 	
 	public IdmRoleCatalogue getRoleCatalogue() {
 		return roleCatalogue;

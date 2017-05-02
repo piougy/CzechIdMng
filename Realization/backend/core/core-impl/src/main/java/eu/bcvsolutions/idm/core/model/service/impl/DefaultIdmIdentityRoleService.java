@@ -105,8 +105,7 @@ public class DefaultIdmIdentityRoleService
 	}
 	
 	@Override
-	protected Predicate toPredicate(IdentityRoleFilter filter, Root<IdmIdentityRole> root, CriteriaQuery<?> query,
-			CriteriaBuilder builder) {
+	protected List<Predicate> toPredicates(Root<IdmIdentityRole> root, CriteriaQuery<?> query, CriteriaBuilder builder, IdentityRoleFilter filter) {
 		List<Predicate> predicates = new ArrayList<>();
 		// id
 		if (filter.getId() != null) {
@@ -125,7 +124,7 @@ public class DefaultIdmIdentityRoleService
 					filter.getIdentityId())
 					);
 		}
-		return builder.and(predicates.toArray(new Predicate[predicates.size()]));
+		return predicates;
 	}
 	
 	@Override

@@ -11,10 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 
+import eu.bcvsolutions.idm.core.api.repository.filter.FilterManager;
 import eu.bcvsolutions.idm.core.model.dto.filter.IdentityFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.repository.filter.ManagersFilter;
-import eu.bcvsolutions.idm.core.model.repository.filter.SubordinatesFilter;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.security.api.domain.AuthorizationPolicy;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
@@ -36,9 +35,7 @@ public class SubordinatesEvaluator extends AbstractAuthorizationEvaluator<IdmIde
 	@Autowired
 	private IdmIdentityService identityService; // TODO: Identity to dto
 	@Autowired
-	private SubordinatesFilter subordinatesFilter;
-	@Autowired
-	private ManagersFilter managersFilter;
+	private FilterManager filterManager;
 
 	@Override
 	public Predicate getPredicate(Root<IdmIdentity> root, CriteriaQuery<?> query, CriteriaBuilder builder, AuthorizationPolicy policy, BasePermission... permission) {
@@ -50,7 +47,7 @@ public class SubordinatesEvaluator extends AbstractAuthorizationEvaluator<IdmIde
 		}
 		IdentityFilter filter = new IdentityFilter();
 		filter.setSubordinatesFor(identityService.getByUsername(securityService.getUsername()));
-		return subordinatesFilter.getPredicate(root, query, builder, filter);
+		return filterManager.getBuilder(IdmIdentity.class, IdentityFilter.PARAMETER_SUBORDINATES_FOR).getPredicate(root, query, builder, filter);
 	}
 	
 	@Override
@@ -61,7 +58,7 @@ public class SubordinatesEvaluator extends AbstractAuthorizationEvaluator<IdmIde
 		}
 		IdentityFilter filter = new IdentityFilter();
 		filter.setManagersFor(identityService.getByUsername(entity.getUsername()));
-		boolean isManager = managersFilter.find(filter, null).getContent()
+		boolean isManager = filterManager.getBuilder(IdmIdentity.class, IdentityFilter.PARAMETER_MANAGERS_FOR).find(filter, null).getContent()
 				.stream()
 				.anyMatch(identity -> {
 			return identity.getUsername().equals(securityService.getUsername());

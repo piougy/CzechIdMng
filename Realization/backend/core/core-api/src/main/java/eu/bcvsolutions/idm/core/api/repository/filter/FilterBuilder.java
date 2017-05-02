@@ -5,10 +5,11 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import org.springframework.core.Ordered;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.plugin.core.Plugin;
 
-import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.service.Configurable;
@@ -21,10 +22,10 @@ import eu.bcvsolutions.idm.core.api.service.Configurable;
  * @see DataFilter
  *
  * @param <E> {@link BaseEntity} type - this filter will be applied to this domain type
- * @param <F> {@link BaseFilter} type
+ * @param <F> {@link DataFilter} type
  */
-public interface FilterBuilder<E extends BaseEntity, F extends BaseFilter> extends Configurable {
-
+public interface FilterBuilder<E extends BaseEntity, F extends DataFilter> extends Configurable, Plugin<FilterKey>, Ordered {
+	
 	@Override
 	default String getConfigurableType() {
 		return "filter";
@@ -40,6 +41,7 @@ public interface FilterBuilder<E extends BaseEntity, F extends BaseFilter> exten
 	
 	/**
 	 * Filter construct partial criteria where clause => {@link Predicate}, which will be appended to query for defined domain type.
+	 * Returned Predicate could be {@code null}, if builder doesn't have all parameters in filter set.
 	 * 
 	 * @param root
 	 * @param query

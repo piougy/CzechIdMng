@@ -29,11 +29,13 @@ import org.springframework.util.ObjectUtils;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
+import eu.bcvsolutions.idm.core.api.repository.filter.FilterManager;
 import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
@@ -67,6 +69,7 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	private ApplicationContext context;
 	//
 	private AuthorizationManager authorizationManager;
+	private FilterManager filterManager;
 	private final AbstractEntityRepository<E, F> repository;
 
 	@SuppressWarnings("unchecked")
@@ -144,7 +147,7 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	}
 	
 	/**
-	 * Supposed to be overriden. 
+	 * Supposed to be overriden - use super.toPredicates to transform default DataFilter props. 
 	 * Transforms given filter to jpa predicate, never returns null.
 	 * 
 	 * @param filter
@@ -153,8 +156,11 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	 * @param builder
 	 * @return
 	 */
-	protected Predicate toPredicate(F filter, Root<E> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
-		return builder.conjunction();
+	protected List<Predicate> toPredicates(Root<E> root, CriteriaQuery<?> query, CriteriaBuilder builder, F filter) {
+		if (filter instanceof DataFilter) {
+			return getFilterManager().toPredicates(root, query, builder, (DataFilter) filter);
+		}
+		return new ArrayList<>();
 	}
 
 	/**
@@ -203,24 +209,14 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 		// transform filter to criteria
 		Specification<E> criteria = new Specification<E>() {
 			public Predicate toPredicate(Root<E> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
-				Predicate filterPredicate;
-				// null filter could be given
-				if (filter == null) {
-					filterPredicate = builder.conjunction();
-				} else {
-					filterPredicate = AbstractReadDtoService.this.toPredicate(filter, root, query, builder);
-				}
-				// permisions are not evaluated, if no permission was given
-				if (ObjectUtils.isEmpty(permission)) {
-					return query.where(filterPredicate).getRestriction();
-				}	
-				// append filter and permission
-				Predicate predicate = builder.and(
-					filterPredicate,
-					getAuthorizationManager().getPredicate(root, query, builder, permission)
-				);
+				List<Predicate> predicates = AbstractReadDtoService.this.toPredicates(root, query, builder, filter);
 				//
-				return query.where(predicate).getRestriction();
+				// permisions are not evaluated, if no permission was given
+				if (!ObjectUtils.isEmpty(permission)) {
+					predicates.add(getAuthorizationManager().getPredicate(root, query, builder, permission));
+				}
+				//
+				return query.where(predicates.toArray(new Predicate[predicates.size()])).getRestriction();
 			}
 		};
 		return getRepository().findAll(criteria, pageable);
@@ -353,6 +349,13 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 			authorizationManager = context.getBean(AuthorizationManager.class);
 		}
 		return authorizationManager;
+	}
+	
+	protected FilterManager getFilterManager() {
+		if (filterManager == null) {
+			filterManager = context.getBean(FilterManager.class);
+		}
+		return filterManager;
 	}
 	
 	@Override

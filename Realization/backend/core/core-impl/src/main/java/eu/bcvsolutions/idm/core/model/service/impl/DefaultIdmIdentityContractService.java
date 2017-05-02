@@ -84,7 +84,7 @@ public class DefaultIdmIdentityContractService
 	}
 	
 	@Override
-	protected Predicate toPredicate(IdentityContractFilter filter, Root<IdmIdentityContract> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
+	protected List<Predicate> toPredicates(Root<IdmIdentityContract> root, CriteriaQuery<?> query, CriteriaBuilder builder, IdentityContractFilter filter) {
 		List<Predicate> predicates = new ArrayList<>();
 		// id
 		if (filter.getId() != null) {
@@ -113,7 +113,7 @@ public class DefaultIdmIdentityContractService
 		if (filter.getExterne() != null) {
 			predicates.add(builder.equal(root.get(IdmIdentityContract_.externe), filter.getExterne()));
 		}
-		return builder.and(predicates.toArray(new Predicate[predicates.size()]));
+		return predicates;
 	}
 	
 	@Override

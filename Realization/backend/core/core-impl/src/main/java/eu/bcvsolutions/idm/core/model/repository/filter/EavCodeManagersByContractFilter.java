@@ -11,7 +11,8 @@ import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
 import org.joda.time.LocalDate;
-import org.springframework.util.Assert;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.core.api.repository.filter.AbstractFilterBuilder;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute;
@@ -34,6 +35,7 @@ import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
  * @author Radek Tomiška
  *
  */
+@Component
 public class EavCodeManagersByContractFilter 
 		extends AbstractFilterBuilder<IdmIdentity, IdentityFilter> 
 		implements ManagersByContractFilter {
@@ -42,6 +44,7 @@ public class EavCodeManagersByContractFilter
 	public static final String PROPERTY_FORM_ATTRIBUTE = "formAttribute";
 	public static final String DEFAULT_FORM_ATTRIBUTE = "parentCode";
 	
+	@Autowired
 	public EavCodeManagersByContractFilter(IdmIdentityRepository repository) {
 		super(repository);
 	}
@@ -56,7 +59,9 @@ public class EavCodeManagersByContractFilter
 
 	@Override
 	public Predicate getPredicate(Root<IdmIdentity> root, CriteriaQuery<?> query, CriteriaBuilder builder, IdentityFilter filter) {
-		Assert.notNull(filter.getManagersByContractId());
+		if (filter.getManagersByContractId() == null) {
+			return null;
+		}
 		//
 		Subquery<IdmIdentityContract> subquery = query.subquery(IdmIdentityContract.class);
 		Root<IdmIdentityContract> subRoot = subquery.from(IdmIdentityContract.class);
@@ -114,5 +119,10 @@ public class EavCodeManagersByContractFilter
 					root.in(subqueryGuarantee)
 					);
 		}
+	}
+	
+	@Override
+	public int getOrder() {
+		return 10;
 	}
 }

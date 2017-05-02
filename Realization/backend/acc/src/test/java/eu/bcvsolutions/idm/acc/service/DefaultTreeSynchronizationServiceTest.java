@@ -19,6 +19,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.google.common.collect.ImmutableList;
+
 import eu.bcvsolutions.idm.acc.domain.ReconciliationMissingAccountActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationLinkedActionType;
@@ -31,6 +33,7 @@ import eu.bcvsolutions.idm.acc.dto.filter.SyncActionLogFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SyncItemLogFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SynchronizationConfigFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SynchronizationLogFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSystemFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
@@ -41,6 +44,7 @@ import eu.bcvsolutions.idm.acc.entity.SysSyncItemLog;
 import eu.bcvsolutions.idm.acc.entity.SysSyncLog;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
+import eu.bcvsolutions.idm.acc.entity.SysSystemFormValue;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.acc.entity.TestTreeResource;
 import eu.bcvsolutions.idm.acc.service.api.SynchronizationService;
@@ -53,6 +57,9 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.acc.service.impl.DefaultSynchronizationService;
+import eu.bcvsolutions.idm.core.eav.entity.AbstractFormValue;
+import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
+import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.model.dto.filter.TreeNodeFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
@@ -72,51 +79,41 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 public class DefaultTreeSynchronizationServiceTest extends AbstractIntegrationTest {
 
 	private static final String SYNC_CONFIG_NAME = "syncConfigName";
+	private static final String SYSTEM_NAME = "systemName";
 	private static final String TREE_TYPE_TEST = "TREE_TEST";
-	private static final String ATTRIBUTE_ID = "externalId";
-	private static final String ATTRIBUTE_CODE = "code";
+	private static final String NODE_NAME = "name";
 	private static final String ATTRIBUTE_NAME = "__NAME__";
 	private static final String CHANGED = "changed";
 	
 
 	@Autowired
 	private ApplicationContext context;
-	
 	@Autowired
 	private SysSystemService systemService;
-
 	@Autowired
 	private SysSystemMappingService systemMappingService;
-
 	@Autowired
 	private SysSystemAttributeMappingService schemaAttributeMappingService;
-
 	@Autowired
 	private SysSchemaAttributeService schemaAttributeService;
-
 	@Autowired
 	private SysSyncConfigService syncConfigService;
-
 	@Autowired
 	private SysSyncLogService syncLogService;
-
 	@Autowired
 	private SysSyncItemLogService syncItemLogService;
-
 	@Autowired
 	private SysSyncActionLogService syncActionLogService;
-
 	@Autowired
 	private EntityManager entityManager;
-
 	@Autowired
 	private ApplicationContext applicationContext;
-	
 	@Autowired
 	private IdmTreeTypeService treeTypeService;
-	
 	@Autowired
 	private IdmTreeNodeService treeNodeService;
+	@Autowired
+	private FormService formService;
 
 	@Autowired
 	DataSource dataSource;
@@ -247,7 +244,7 @@ public class DefaultTreeSynchronizationServiceTest extends AbstractIntegrationTe
 
 		// Check state before sync
 		TreeNodeFilter nodeFilter = new TreeNodeFilter();
-		nodeFilter.setProperty(ATTRIBUTE_CODE);
+		nodeFilter.setProperty(NODE_NAME);
 		nodeFilter.setValue("111");
 		IdmTreeNode treeNode = treeNodeService.find(nodeFilter, null).getContent().get(0);
 		Assert.assertEquals("111", treeNode.getCode());
@@ -308,7 +305,7 @@ public class DefaultTreeSynchronizationServiceTest extends AbstractIntegrationTe
 
 		// Check state before sync
 		TreeNodeFilter nodeFilter = new TreeNodeFilter();
-		nodeFilter.setProperty(ATTRIBUTE_ID);
+		nodeFilter.setProperty(NODE_NAME);
 		nodeFilter.setValue("111");
 		IdmTreeNode treeNode = treeNodeService.find(nodeFilter, null).getContent().get(0);
 		Assert.assertNotNull(treeNode.getCode());
@@ -399,6 +396,52 @@ public class DefaultTreeSynchronizationServiceTest extends AbstractIntegrationTe
 		syncLogService.delete(log);
 	}
 	
+	@Test
+	@Transactional
+	public void provCreateAccount() {
+		
+		// Delete all resource data
+		this.deleteAllResourceData();
+		
+		IdmTreeType treeType = treeTypeService.find(null).getContent().stream().filter(tree -> {
+			return tree.getName().equals(TREE_TYPE_TEST);
+		}).findFirst().get();
+		
+		// Create root node in IDM tree
+		IdmTreeNode nodeRoot = new IdmTreeNode();
+		nodeRoot.setCode("P1");
+		nodeRoot.setName(nodeRoot.getCode());
+		nodeRoot.setParent(null);
+		nodeRoot.setTreeType(treeType);
+		nodeRoot = treeNodeService.save(nodeRoot);
+
+		// Create node in IDM tree
+		IdmTreeNode nodeOne = new IdmTreeNode();
+		nodeOne.setCode("P12");
+		nodeOne.setName(nodeOne.getCode());
+		nodeOne.setParent(nodeRoot);
+		nodeOne.setTreeType(treeType);
+		nodeOne = treeNodeService.save(nodeOne);
+		
+		// Check state before provisioning
+		TestTreeResource one = entityManager.find(TestTreeResource.class, "P12");
+		Assert.assertNull(one);
+		
+		// Create mapping for provisioning
+		this.createProvisionigMapping();
+		
+		// Save IDM node again (must invoke provisioning)
+		// Root first
+		treeNodeService.save(nodeRoot);
+		// Node next
+		treeNodeService.save(nodeOne);
+		
+		// Check state before provisioning
+		one = entityManager.find(TestTreeResource.class, "P12");
+		Assert.assertNotNull(one);
+	}
+	
+	
 
 	@Transactional
 	public void deleteAllResourceData() {
@@ -407,11 +450,41 @@ public class DefaultTreeSynchronizationServiceTest extends AbstractIntegrationTe
 		q.executeUpdate();
 	}
 
+	private void createProvisionigMapping() {
+
+		SynchronizationConfigFilter configFilter = new SynchronizationConfigFilter();
+		configFilter.setName(SYNC_CONFIG_NAME);
+		List<SysSyncConfig> syncConfigs = syncConfigService.find(configFilter, null).getContent();
+		
+		Assert.assertEquals(1, syncConfigs.size());
+		SysSyncConfig syncConfigCustom = syncConfigs.get(0);
+	
+		SysSystemMapping systemMappingSync = syncConfigCustom.getSystemMapping();
+		
+		// Create provisioning mapping
+		SysSystemMapping systemMapping = new SysSystemMapping();
+		systemMapping.setName("default_" + System.currentTimeMillis());
+		systemMapping.setEntityType(SystemEntityType.TREE);
+		systemMapping.setTreeType(systemMappingSync.getTreeType());
+		systemMapping.setOperationType(SystemOperationType.PROVISIONING);
+		systemMapping.setObjectClass(systemMappingSync.getObjectClass());
+		final SysSystemMapping syncMapping = systemMappingService.save(systemMapping);
+
+		createMapping(systemMappingSync.getSystem(), syncMapping);
+
+	}
+	
 	private void initData() {
 
 		// create test system
 		system = defaultSysAccountManagementServiceTest.createTestSystem("test_tree_resource");
-
+		system.setName(SYSTEM_NAME);
+		system = systemService.save(system);
+		// key to EAV
+		IdmFormDefinition savedFormDefinition = systemService.getConnectorFormDefinition(system.getConnectorInstance());
+		List<AbstractFormValue<SysSystem>> values = formService.getValues(system, savedFormDefinition);
+		AbstractFormValue<SysSystem> changeLogColumn = values.stream().filter(value -> {return "keyColumn".equals(value.getFormAttribute().getName());}).findFirst().get();
+		formService.saveValues(system, changeLogColumn.getFormAttribute(), ImmutableList.of("ID"));
 		// generate schema for system
 		List<SysSchemaObjectClass> objectClasses = systemService.generateSchema(system);
 
@@ -494,10 +567,12 @@ public class DefaultTreeSynchronizationServiceTest extends AbstractIntegrationTe
 				attributeHandlingName.setIdmPropertyName("externalId");
 				attributeHandlingName.setName(schemaAttr.getName());
 				attributeHandlingName.setSchemaAttribute(schemaAttr);
+				// For provisioning .. we need create UID
+				attributeHandlingName.setTransformToResourceScript("return entity.getCode();");
 				attributeHandlingName.setSystemMapping(entityHandlingResult);
 				schemaAttributeMappingService.save(attributeHandlingName);
 
-			} else if ("code".equalsIgnoreCase(schemaAttr.getName())) {
+			} else if ("CODE".equalsIgnoreCase(schemaAttr.getName())) {
 				SysSystemAttributeMapping attributeHandlingName = new SysSystemAttributeMapping();
 				attributeHandlingName.setIdmPropertyName("code");
 				attributeHandlingName.setEntityAttribute(true);
@@ -506,7 +581,7 @@ public class DefaultTreeSynchronizationServiceTest extends AbstractIntegrationTe
 				attributeHandlingName.setSystemMapping(entityHandlingResult);
 				schemaAttributeMappingService.save(attributeHandlingName);
 			
-			} else if ("parent".equalsIgnoreCase(schemaAttr.getName())) {
+			} else if ("PARENT".equalsIgnoreCase(schemaAttr.getName())) {
 				SysSystemAttributeMapping attributeHandlingName = new SysSystemAttributeMapping();
 				attributeHandlingName.setIdmPropertyName("parent");
 				attributeHandlingName.setEntityAttribute(true);
@@ -515,7 +590,7 @@ public class DefaultTreeSynchronizationServiceTest extends AbstractIntegrationTe
 				attributeHandlingName.setSystemMapping(entityHandlingResult);
 				schemaAttributeMappingService.save(attributeHandlingName);
 
-			} else if ("name".equalsIgnoreCase(schemaAttr.getName())) {
+			} else if ("NAME".equalsIgnoreCase(schemaAttr.getName())) {
 				SysSystemAttributeMapping attributeHandlingName = new SysSystemAttributeMapping();
 				attributeHandlingName.setIdmPropertyName("name");
 				attributeHandlingName.setName(schemaAttr.getName());

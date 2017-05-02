@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
+import com.google.common.annotations.Beta;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -250,6 +251,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 		// List of all accounts keys (used in reconciliation)
 		List<String> systemAccountsList = new ArrayList<>();
 
+		// TODO: Export is not fully implemented (FE, configuration and Groovy part missing)
 		boolean export = false;
 
 		longRunningTaskExecutor.setCounter(0L);
@@ -753,6 +755,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 	 * @param log
 	 * @param actionsLog
 	 */
+	@Beta
 	protected void startExport(SystemEntityType entityType, SysSyncConfig config,
 			List<SysSystemAttributeMapping> mappedAttributes, SysSyncLog log, List<SysSyncActionLog> actionsLog) {
 

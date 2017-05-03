@@ -4,7 +4,7 @@ import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Test;
 
-import eu.bcvsolutions.idm.core.model.dto.IdmIdentityContractDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmAuthorityChange;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;

@@ -62,8 +62,8 @@ Configuration properties:
     <sequenceFlow id="flow21" sourceRef="scripttask1" targetRef="startAddSubWorkflow"></sequenceFlow>
     <scriptTask id="scripttask1" name="Loading concepts for add new permissions" scriptFormat="groovy" activiti:autoStoreVariables="false">
       <script>import org.joda.time.LocalDate;
-import eu.bcvsolutions.idm.core.model.dto.filter.ConceptRoleRequestFilter;
-import eu.bcvsolutions.idm.core.model.domain.ConceptRoleRequestOperation
+          import eu.bcvsolutions.idm.core.api.dto.filter.ConceptRoleRequestFilter;
+          import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation
 
 //Get request ID from event
 def requestId = entityEvent.content.id;
@@ -81,8 +81,8 @@ execution.setVariable("addedConceptRoles", addedConceptRoles);</script>
     <sequenceFlow id="flow23" sourceRef="startevent1" targetRef="servicetaskCreateProcessName"></sequenceFlow>
     <scriptTask id="scripttask2" name="Loading concepts for change permissions" scriptFormat="groovy" activiti:autoStoreVariables="false">
       <script>import org.joda.time.LocalDate;
-import eu.bcvsolutions.idm.core.model.dto.filter.ConceptRoleRequestFilter;
-import eu.bcvsolutions.idm.core.model.domain.ConceptRoleRequestOperation
+          import eu.bcvsolutions.idm.core.api.dto.filter.ConceptRoleRequestFilter;
+          import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation
 
 //Get request ID from event
 def requestId = entityEvent.content.id;
@@ -133,8 +133,8 @@ execution.setVariable("changedConceptRoles", changedConceptRoles);</script>
     </callActivity>
     <scriptTask id="scripttask3" name="Loading concepts for remove assigned permissions" scriptFormat="groovy" activiti:autoStoreVariables="false">
       <script>import org.joda.time.LocalDate;
-import eu.bcvsolutions.idm.core.model.dto.filter.ConceptRoleRequestFilter;
-import eu.bcvsolutions.idm.core.model.domain.ConceptRoleRequestOperation
+          import eu.bcvsolutions.idm.core.api.dto.filter.ConceptRoleRequestFilter;
+          import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation
 
 //Get request ID from event
 def requestId = entityEvent.content.id;
@@ -159,7 +159,7 @@ execution.setVariable("removedConceptRoles", removedConceptRoles);</script>
     <endEvent id="endevent1" name="End"></endEvent>
     <sequenceFlow id="flow35" sourceRef="servicetaskRealization" targetRef="scripttask8"></sequenceFlow>
     <scriptTask id="scripttask4" name="Set request to approved" scriptFormat="groovy" activiti:autoStoreVariables="false">
-      <script>import eu.bcvsolutions.idm.core.model.domain.RoleRequestState;
+      <script>import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
  
 // Set and save state APPROVED to request
 def requestDto = roleRequestService.getDto(entityEvent.content.id);
@@ -169,8 +169,8 @@ roleRequestService.save(requestDto);</script>
     <sequenceFlow id="flow36" sourceRef="scripttask4" targetRef="servicetaskRealization"></sequenceFlow>
     <sequenceFlow id="flow37" sourceRef="parallelgateway2" targetRef="scripttask7"></sequenceFlow>
     <scriptTask id="sid-02963C54-77A0-4E79-8EBD-4FBA5CCD4501" name="Set request and concepts to disapproved" scriptFormat="groovy" activiti:autoStoreVariables="false">
-      <script>import eu.bcvsolutions.idm.core.model.dto.filter.ConceptRoleRequestFilter 
-import eu.bcvsolutions.idm.core.model.domain.RoleRequestState;
+      <script>import eu.bcvsolutions.idm.core.api.dto.filter.ConceptRoleRequestFilter
+          import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
  
  //Request was disapproved, now we set DISAPPROVE state to all concepts and request
 
@@ -377,8 +377,8 @@ if(!skip){
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${decision.equals("disapprove")}]]></conditionExpression>
     </sequenceFlow>
     <scriptTask id="scripttask6" name="Set request and concepts to canceled by applicant" scriptFormat="groovy" activiti:autoStoreVariables="false">
-      <script>import eu.bcvsolutions.idm.core.model.dto.filter.ConceptRoleRequestFilter 
- import eu.bcvsolutions.idm.core.model.domain.RoleRequestState;
+      <script>import eu.bcvsolutions.idm.core.api.dto.filter.ConceptRoleRequestFilter
+          import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
  
  //Request was disapproved, now we set CANCELED state to all concepts and request
 
@@ -491,11 +491,11 @@ if(!skip){
     </dataObject>
     <scriptTask id="scripttask8" name="Send notification with result (Success)" scriptFormat="groovy" activiti:autoStoreVariables="false">
       <documentation>Send notification with template with result</documentation>
-      <script>import eu.bcvsolutions.idm.core.notification.entity.IdmMessage;
+      <script>import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
 import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
-import eu.bcvsolutions.idm.core.model.dto.filter.ConceptRoleRequestFilter;
-import eu.bcvsolutions.idm.core.model.domain.ConceptRoleRequestOperation;
+          import eu.bcvsolutions.idm.core.api.dto.filter.ConceptRoleRequestFilter;
+          import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
@@ -521,12 +521,12 @@ conceptFilter.setOperation(ConceptRoleRequestOperation.REMOVE);
 def removedRoles = conceptRoleRequestService.findDto(conceptFilter, null).getContent();
 
 def applicantUsername = execution.getVariable("applicantUsername");
-def identity = identityService.getByUsername(applicantUsername);
+          def identity = identityService.getDtoByUsername(applicantUsername);
 
 // send notification
 notificationManager.send(
 	CoreModuleDescriptor.CHANGE_IDENTITY_ROLES,
-	new IdmMessage.Builder()
+          new IdmMessageDto.Builder()
 		.setLevel(NotificationLevel.SUCCESS)
 		.addParameter("addedRoles", addedRoles)
 		.addParameter("changedRoles", changedRoles)
@@ -539,7 +539,7 @@ notificationManager.send(
     </scriptTask>
     <sequenceFlow id="flow46" sourceRef="scripttask8" targetRef="endevent1"></sequenceFlow>
     <scriptTask id="scripttask9" name="Send notification with result (Disapproved)" scriptFormat="groovy" activiti:autoStoreVariables="false">
-      <script>import eu.bcvsolutions.idm.core.notification.entity.IdmMessage;
+      <script>import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
 import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import org.joda.time.format.DateTimeFormat;
@@ -556,7 +556,7 @@ if (url != null) {
 }
 
 def applicantUsername = execution.getVariable("applicantUsername");
-def identity = identityService.getByUsername(applicantUsername);
+def identity = identityService.getDtoByUsername(applicantUsername);
 
 // transform date
 DateTimeFormatter dateFormat = DateTimeFormat.forPattern("dd. MM. yyyy HH:mm");
@@ -570,7 +570,7 @@ if (managerDescription == null || managerDescription.isEmpty()) {
 // send notification
 notificationManager.send(
 	CoreModuleDescriptor.DISAPPROVE_IDENTITY_ROLES,
-	new IdmMessage.Builder()
+	new IdmMessageDto.Builder()
 		.setLevel(NotificationLevel.SUCCESS)
 		.addParameter("managerDescription", managerDescription)
 		.addParameter("url", url)
@@ -582,7 +582,7 @@ notificationManager.send(
     <endEvent id="endByManager" name="End"></endEvent>
     <sequenceFlow id="flow48" sourceRef="scripttask9" targetRef="endByManager"></sequenceFlow>
     <scriptTask id="scripttask10" name="Send notification with result (Return)" scriptFormat="groovy" activiti:autoStoreVariables="false">
-      <script>import eu.bcvsolutions.idm.core.notification.entity.IdmMessage;
+      <script>import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
 import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import org.joda.time.format.DateTimeFormat;
@@ -599,7 +599,7 @@ if (url != null) {
 }
 
 def applicantUsername = execution.getVariable("applicantUsername");
-def identity = identityService.getByUsername(applicantUsername);
+def identity = identityService.getDtoByUsername(applicantUsername);
 
 // transform date
 DateTimeFormatter dateFormat = DateTimeFormat.forPattern("dd. MM. yyyy HH:mm");
@@ -613,7 +613,7 @@ if (managerDescription == null || managerDescription.isEmpty()) {
 // send notification
 notificationManager.send(
 	CoreModuleDescriptor.RETURN_REQUEST_IDENTITY_ROLES,
-	new IdmMessage.Builder()
+	new IdmMessageDto.Builder()
 		.setLevel(NotificationLevel.SUCCESS)
 		.addParameter("managerDescription", managerDescription)
 		.addParameter("url", url)
@@ -624,7 +624,7 @@ notificationManager.send(
     </scriptTask>
     <sequenceFlow id="flow49" sourceRef="scripttask10" targetRef="sid-9E6516EF-3FDE-4191-8134-33DEB6D7C507"></sequenceFlow>
     <scriptTask id="scripttask11" name="Send notification with result (Return)" scriptFormat="groovy" activiti:autoStoreVariables="false">
-      <script>import eu.bcvsolutions.idm.core.notification.entity.IdmMessage;
+      <script>import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
 import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import org.joda.time.format.DateTimeFormat;
@@ -641,7 +641,7 @@ if (url != null) {
 }
 
 def applicantUsername = execution.getVariable("applicantUsername");
-def identity = identityService.getByUsername(applicantUsername);
+def identity = identityService.getDtoByUsername(applicantUsername);
 
 // transform date
 DateTimeFormatter dateFormat = DateTimeFormat.forPattern("dd. MM. yyyy HH:mm");
@@ -655,7 +655,7 @@ if (managerDescription == null || managerDescription.isEmpty()) {
 // send notification
 notificationManager.send(
 	CoreModuleDescriptor.RETURN_REQUEST_IDENTITY_ROLES,
-	new IdmMessage.Builder()
+	new IdmMessageDto.Builder()
 		.setLevel(NotificationLevel.SUCCESS)
 		.addParameter("managerDescription", managerDescription)
 		.addParameter("url", url)
@@ -666,7 +666,7 @@ notificationManager.send(
     </scriptTask>
     <sequenceFlow id="flow50" sourceRef="scripttask11" targetRef="sid-12381137-9285-460E-8CCD-BC43D5679026"></sequenceFlow>
     <scriptTask id="scripttask12" name="Send notification with result (Return)" scriptFormat="groovy" activiti:autoStoreVariables="false">
-      <script>import eu.bcvsolutions.idm.core.notification.entity.IdmMessage;
+      <script>import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
 import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import org.joda.time.format.DateTimeFormat;
@@ -683,7 +683,7 @@ if (url != null) {
 }
 
 def applicantUsername = execution.getVariable("applicantUsername");
-def identity = identityService.getByUsername(applicantUsername);
+def identity = identityService.getDtoByUsername(applicantUsername);
 
 // transform date
 DateTimeFormatter dateFormat = DateTimeFormat.forPattern("dd. MM. yyyy HH:mm");
@@ -697,7 +697,7 @@ if (managerDescription == null || managerDescription.isEmpty()) {
 // send notification
 notificationManager.send(
 	CoreModuleDescriptor.RETURN_REQUEST_IDENTITY_ROLES,
-	new IdmMessage.Builder()
+	new IdmMessageDto.Builder()
 		.setLevel(NotificationLevel.SUCCESS)
 		.addParameter("managerDescription", managerDescription)
 		.addParameter("url", url)

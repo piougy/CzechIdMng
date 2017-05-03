@@ -23,7 +23,6 @@ import org.hibernate.envers.Audited;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.UnmodifiableEntity;

@@ -315,7 +315,7 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	/**
 	 * Returns, what currently logged identity can do with given dto
 	 * 
-	 * @param backendId
+	 * @param id
 	 * @return
 	 */
 	@Override

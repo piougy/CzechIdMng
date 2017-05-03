@@ -14,8 +14,8 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.envers.Audited;
 
+import eu.bcvsolutions.idm.core.api.domain.RecursionType;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
-import eu.bcvsolutions.idm.core.model.domain.RecursionType;
 
 /**
  * Automatic roles for tree structures

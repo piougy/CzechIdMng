@@ -1,6 +1,6 @@
 package eu.bcvsolutions.idm.core.notification.service.api;
 
-import eu.bcvsolutions.idm.core.notification.entity.IdmConsoleLog;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmConsoleLogDto;
 
 /**
  * Sends notifications to System log
@@ -8,6 +8,6 @@ import eu.bcvsolutions.idm.core.notification.entity.IdmConsoleLog;
  * @author Radek Tomiška
  *
  */
-public interface ConsoleNotificationSender extends NotificationSender<IdmConsoleLog> {
+public interface ConsoleNotificationSender extends NotificationSender<IdmConsoleLogDto> {
 
 }

@@ -3,7 +3,6 @@ package eu.bcvsolutions.idm.core.notification.repository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.notification.dto.filter.NotificationFilter;
@@ -15,12 +14,6 @@ import eu.bcvsolutions.idm.core.notification.entity.IdmWebsocketLog;
  * @author Radek Tomiška 
  *
  */
-@RepositoryRestResource(//
-	collectionResourceRel = "websocketLogs", //
-	path = "websocket-logs", //
-	itemResourceRel = "websocketLog",
-	exported = false
-)
 public interface IdmWebsocketLogRepository extends AbstractEntityRepository<IdmWebsocketLog, NotificationFilter> {
 	
 	@Override

@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.springframework.security.core.GrantedAuthority;
 
-import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 

@@ -3,8 +3,10 @@ package eu.bcvsolutions.idm.core.notification.service.api;
 import java.util.List;
 
 import eu.bcvsolutions.idm.core.api.service.IdentifiableByNameEntityService;
-import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
+import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationTemplateDto;
 import eu.bcvsolutions.idm.core.notification.dto.filter.NotificationTemplateFilter;
 import eu.bcvsolutions.idm.core.notification.entity.IdmMessage;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationTemplate;
@@ -18,17 +20,17 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
  *
  */
 
-public interface IdmNotificationTemplateService extends ReadWriteEntityService<IdmNotificationTemplate, NotificationTemplateFilter>, IdentifiableByNameEntityService<IdmNotificationTemplate> {
+public interface IdmNotificationTemplateService extends ReadWriteDtoService<IdmNotificationTemplateDto, IdmNotificationTemplate, NotificationTemplateFilter>, IdentifiableByNameEntityService<IdmNotificationTemplate> {
 	
 	static final String PARAMETER_DELIMITIER = ",";
 	
 	/**
-	 * Return {@link IdmNotificationTemplate} by given code.
+	 * Return {@link IdmNotificationTemplateDto} by given code.
 	 * 
 	 * @param code
 	 * @return
 	 */
-	IdmNotificationTemplate getTemplateByCode(String code);
+	IdmNotificationTemplateDto getTemplateByCode(String code);
 
 	/**
 	 * Return {@link IdmMessage}, generate by {@link IdmNotificationTemplate} from {@link IdmMessage}.
@@ -39,24 +41,24 @@ public interface IdmNotificationTemplateService extends ReadWriteEntityService<I
 	 * @param showGuardedString
 	 * @return
 	 */
-	IdmMessage buildMessage(IdmMessage message, boolean showGuardedString);
+	IdmMessageDto buildMessage(IdmMessageDto message, boolean showGuardedString);
 	
 	/**
-	 * Return {@link IdmMessage} generate by {@link IdmNotificationTemplate} from {@link IdmMessage}.
+	 * Return {@link IdmMessageDto} generate by {@link IdmNotificationTemplateDto} from {@link IdmMessageDto}.
 	 * Object instance of {@link GuardedString} will be replace by asterix.
-	 * For generate new message will be used parameters given in {@link IdmMessage}.
+	 * For generate new message will be used parameters given in {@link IdmMessageDto}.
 	 * 
-	 * @param template
+	 * @param message
 	 * @return
 	 */
-	IdmMessage buildMessage(IdmMessage message);
+	IdmMessageDto buildMessage(IdmMessageDto message);
 	
 	/**
 	 * Method find all system templates.
 	 * 
 	 * @return
 	 */
-	List<IdmNotificationTemplate> findAllSystemTemplates();
+	List<IdmNotificationTemplateDto> findAllSystemTemplates();
 	
 	/**
 	 * Method load system templates from resources by all classpath defined by application property,
@@ -72,5 +74,5 @@ public interface IdmNotificationTemplateService extends ReadWriteEntityService<I
 	 * @param level
 	 * @return
 	 */
-	IdmNotificationTemplate resolveTemplate(String topic, NotificationLevel level);
+	IdmNotificationTemplateDto resolveTemplate(String topic, NotificationLevel level);
 }

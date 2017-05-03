@@ -18,7 +18,6 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizationEvaluatorDto;
  * Provides authorization evaluators to target read / write services
  * 
  * @author Radek Tomiška
- *
  */
 public interface AuthorizationManager {
 	

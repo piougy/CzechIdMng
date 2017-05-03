@@ -20,7 +20,6 @@ import eu.bcvsolutions.idm.core.api.domain.PasswordGenerate;
  * Password generator
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
- *
  */
 
 public class PasswordGenerator {
@@ -134,6 +133,7 @@ public class PasswordGenerator {
 	 * 1 characters from special,
 	 * 1 characters from number
 	 * For generating will be use character base defined by this class.
+     *
 	 * @return
 	 */
 	public String generateRandom() {
@@ -435,7 +435,8 @@ public class PasswordGenerator {
 
 			randFile.seek(this.filePosition.get(rolls));
 			
-			String[] line = randFile.readLine().split(" ", 2);;
+            String[] line = randFile.readLine().split(" ", 2);
+            ;
 			word = line[1];
 			
 			randFile.close();

@@ -26,16 +26,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.common.collect.ImmutableMap;
-
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdentityContractFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.eav.rest.impl.IdmFormDefinitionController;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
-import eu.bcvsolutions.idm.core.model.dto.IdmIdentityContractDto;
-import eu.bcvsolutions.idm.core.model.dto.filter.IdentityContractFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.eav.IdmIdentityContractFormValue;
@@ -193,7 +192,8 @@ public class IdmIdentityContractController extends AbstractReadWriteDtoControlle
 	protected IdentityContractFilter toFilter(MultiValueMap<String, Object> parameters) {
 		IdentityContractFilter filter = new IdentityContractFilter();
 		filter.setText(getParameterConverter().toString(parameters, "text"));
-		filter.setIdentity(getParameterConverter().toEntity(parameters, "identity", IdmIdentity.class));
+		final IdmIdentity entity = getParameterConverter().toEntity(parameters, "identity", IdmIdentity.class);
+		filter.setIdentity(entity == null ? null : entity.getId());
 		return filter;
 	}
 }

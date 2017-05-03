@@ -10,7 +10,6 @@ import com.fasterxml.jackson.databind.SerializerProvider;
  * Writes ConfidentialString proxy string to json
  * 
  * @author Radek Tomiška
- *
  */
 public class ConfidentialStringSerializer extends JsonSerializer<ConfidentialString> {
 

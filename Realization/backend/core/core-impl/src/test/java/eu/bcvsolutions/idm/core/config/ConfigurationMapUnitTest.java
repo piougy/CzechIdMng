@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.config;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import java.util.UUID;
 

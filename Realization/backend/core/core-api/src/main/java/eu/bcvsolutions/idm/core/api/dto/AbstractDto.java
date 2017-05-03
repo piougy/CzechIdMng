@@ -15,7 +15,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-
 import eu.bcvsolutions.idm.core.api.domain.Auditable;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 
@@ -23,7 +22,6 @@ import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
  * Common dto
  * 
  * @author Radek Tomiška 
- *
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public abstract class AbstractDto implements BaseDto, Auditable {

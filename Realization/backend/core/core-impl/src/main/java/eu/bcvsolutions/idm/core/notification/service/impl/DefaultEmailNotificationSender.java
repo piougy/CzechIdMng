@@ -6,9 +6,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmEmailLogDto;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationDto;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationRecipientDto;
 import eu.bcvsolutions.idm.core.notification.entity.IdmEmailLog;
-import eu.bcvsolutions.idm.core.notification.entity.IdmNotification;
-import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationRecipient;
 import eu.bcvsolutions.idm.core.notification.service.api.EmailNotificationSender;
 import eu.bcvsolutions.idm.core.notification.service.api.IdmEmailLogService;
 
@@ -19,7 +20,7 @@ import eu.bcvsolutions.idm.core.notification.service.api.IdmEmailLogService;
  *
  */
 @Component("emailNotificationSender")
-public class DefaultEmailNotificationSender extends AbstractNotificationSender<IdmEmailLog> implements EmailNotificationSender {
+public class DefaultEmailNotificationSender extends AbstractNotificationSender<IdmEmailLogDto> implements EmailNotificationSender {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultEmailNotificationSender.class);
 	private final IdmEmailLogService emailLogService;
@@ -37,12 +38,17 @@ public class DefaultEmailNotificationSender extends AbstractNotificationSender<I
 	}
 	
 	@Override
+	public String getType() {
+		return IdmEmailLog.NOTIFICATION_TYPE;
+	}
+
+	@Override
 	@Transactional
-	public IdmEmailLog send(IdmNotification notification) {
-		Assert.notNull(notification, "Noticition is required!");
+	public IdmEmailLogDto send(IdmNotificationDto notification) {
+		Assert.notNull(notification, "Notification is required!");
 		//
 		LOG.info("Adding email notification to queue [{}]", notification);
-		IdmEmailLog log = createLog(notification);
+		IdmEmailLogDto log = createLog(notification);
 		// send notification to routing, generate new message
 		producerTemplate.sendBody("direct:emails", log);
 		return log;
@@ -54,14 +60,14 @@ public class DefaultEmailNotificationSender extends AbstractNotificationSender<I
 	 * @param notification
 	 * @return
 	 */
-	private IdmEmailLog createLog(IdmNotification notification) {
+	private IdmEmailLogDto createLog(IdmNotificationDto notification) {
 		Assert.notNull(notification);
 		Assert.notNull(notification.getMessage());
 		//
-		IdmEmailLog emailLog = new IdmEmailLog();
+		IdmEmailLogDto emailLog = new IdmEmailLogDto();
 		// parent message
 		if (notification.getId() != null) {
-			emailLog.setParent(notification);
+			emailLog.setParent(notification.getId());
 		}
 		// clone message
 		emailLog.setMessage(cloneMessage(notification));
@@ -80,8 +86,7 @@ public class DefaultEmailNotificationSender extends AbstractNotificationSender<I
 	 * @param recipient - source recipient
 	 * @return
 	 */
-	@Override
-	protected IdmNotificationRecipient cloneRecipient(IdmNotification notification, IdmNotificationRecipient recipient) {
-		return new IdmNotificationRecipient(notification, recipient.getIdentityRecipient(), emailLogService.getEmailAddress(recipient));
+	protected IdmNotificationRecipientDto cloneRecipient(IdmNotificationDto notification, IdmNotificationRecipientDto recipient) {
+		return new IdmNotificationRecipientDto(notification.getId(), recipient.getIdentityRecipient(), emailLogService.getEmailAddress(recipient));
 	}
 }

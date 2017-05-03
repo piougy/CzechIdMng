@@ -2,9 +2,9 @@ package eu.bcvsolutions.idm.core.workflow.service;
 
 import java.io.InputStream;
 
-import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowHistoricProcessInstanceDto;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
+import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowHistoricProcessInstanceDto;
 /**
  * Service for control workflow historic process instances.
  * @author svandav

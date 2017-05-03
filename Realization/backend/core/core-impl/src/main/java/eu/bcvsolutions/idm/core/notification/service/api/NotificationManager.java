@@ -1,6 +1,6 @@
 package eu.bcvsolutions.idm.core.notification.service.api;
 
-import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationLog;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationLogDto;
 
 /**
  * Sends notification over all registered sender by notification configuration.
@@ -8,6 +8,6 @@ import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationLog;
  * @author Radek Tomiška
  *
  */
-public interface NotificationManager extends NotificationSender<IdmNotificationLog> {
+public interface NotificationManager extends NotificationSender<IdmNotificationLogDto> {
 
 }

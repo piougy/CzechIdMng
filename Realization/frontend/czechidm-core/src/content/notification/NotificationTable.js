@@ -168,7 +168,13 @@ export class NotificationTable extends Basic.AbstractContent {
           <Advanced.Column property="message.subject" sort face="text"/>
           <Advanced.Column
             property="recipients"
-            cell={<NotificationRecipientsCell identityOnly />}/>
+            cell={
+              ({ rowIndex, data }) => {
+                return (
+                  <NotificationRecipientsCell notifId={data[rowIndex].id} identityOnly />
+                );
+              }
+            }/>
           <Advanced.Column
             property="sender"
             cell={

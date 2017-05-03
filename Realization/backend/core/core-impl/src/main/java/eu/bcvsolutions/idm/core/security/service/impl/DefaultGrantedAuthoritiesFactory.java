@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
@@ -13,9 +14,8 @@ import org.springframework.util.Assert;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
-import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
@@ -40,13 +40,15 @@ public class DefaultGrantedAuthoritiesFactory implements GrantedAuthoritiesFacto
 	private final IdmRoleService roleService;
 	private final IdmIdentityRoleService identityRoleService;
 	private final IdmAuthorizationPolicyService authorizationPolicyService;
+	private final ModelMapper modelMapper;
 	
 	@Autowired
 	public DefaultGrantedAuthoritiesFactory(
-			IdmIdentityService identityService,
-			IdmIdentityRoleService identityRoleService,
-			IdmAuthorizationPolicyService authorizationPolicyService,
-			IdmRoleService roleService) {
+		IdmIdentityService identityService,
+		IdmIdentityRoleService identityRoleService,
+		IdmAuthorizationPolicyService authorizationPolicyService,
+		IdmRoleService roleService, ModelMapper modelMapper) {
+		Assert.notNull(modelMapper);
 		Assert.notNull(identityService);
 		Assert.notNull(identityRoleService);
 		Assert.notNull(authorizationPolicyService);
@@ -56,6 +58,7 @@ public class DefaultGrantedAuthoritiesFactory implements GrantedAuthoritiesFacto
 		this.identityRoleService = identityRoleService;
 		this.authorizationPolicyService = authorizationPolicyService;
 		this.roleService = roleService;
+		this.modelMapper = modelMapper;
 	}
 	
 	@Transactional(readOnly = true)

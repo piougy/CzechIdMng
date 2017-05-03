@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.config.domain;
 
+import static eu.bcvsolutions.idm.core.api.utils.EntityUtils.getFirstFieldInClassHierarchy;
+
 import java.lang.reflect.Field;
 import java.util.UUID;
 
@@ -57,7 +59,7 @@ public class UuidToEntityConverter implements Converter<UUID, BaseEntity> {
 			ReadDtoService<? extends BaseDto, ? extends BaseEntity, ? extends BaseFilter> dtoService = null;
 			try {
 				// Find field in DTO class
-				Field fieldTyp = parentContext.getSourceType().getDeclaredField(field);
+				Field fieldTyp = getFirstFieldInClassHierarchy(parentContext.getSourceType(), field);
 				if (fieldTyp.isAnnotationPresent(Embedded.class)) {
 					Embedded embeddedAnnotation = fieldTyp.getAnnotation(Embedded.class);
 					if (embeddedAnnotation.enabled()) {

@@ -11,9 +11,9 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import eu.bcvsolutions.idm.InitTestData;
-import eu.bcvsolutions.idm.core.model.domain.IdmPasswordPolicyGenerateType;
-import eu.bcvsolutions.idm.core.model.domain.IdmPasswordPolicyType;
-import eu.bcvsolutions.idm.core.model.dto.IdmPasswordValidationDto;
+import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyGenerateType;
+import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyType;
+import eu.bcvsolutions.idm.core.api.dto.IdmPasswordValidationDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
 import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordPolicyService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;

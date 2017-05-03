@@ -8,7 +8,6 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
-
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
@@ -19,11 +18,10 @@ import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 /**
  * CRUD operations for DTO
  * 
- * @author Svanda
- * @author Radek Tomiška
- *
  * @param <DTO> dto type
  * @param <F> filter type
+ * @author Svanda
+ * @author Radek Tomiška
  */
 public abstract class AbstractReadWriteDtoController<DTO extends BaseDto, F extends BaseFilter>
 		extends AbstractReadDtoController<DTO, F> {

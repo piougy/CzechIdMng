@@ -14,7 +14,6 @@ import javax.validation.constraints.NotNull;
 import org.hibernate.envers.Audited;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.EntityComposition;
 

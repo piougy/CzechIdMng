@@ -1,6 +1,6 @@
 package eu.bcvsolutions.idm.core.notification.service.api;
 
-import eu.bcvsolutions.idm.core.notification.entity.IdmWebsocketLog;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmWebsocketLogDto;
 
 /**
  * Sends notifications through websocket
@@ -8,6 +8,6 @@ import eu.bcvsolutions.idm.core.notification.entity.IdmWebsocketLog;
  * @author Radek Tomiška
  *
  */
-public interface WebsocketNotificationSender extends NotificationSender<IdmWebsocketLog> {
+public interface WebsocketNotificationSender extends NotificationSender<IdmWebsocketLogDto> {
 
 }

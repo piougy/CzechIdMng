@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.List;
 
 import com.google.common.collect.Lists;
-
 import eu.bcvsolutions.idm.core.api.exception.ErrorModel;
 
 /**

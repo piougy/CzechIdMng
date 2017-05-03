@@ -23,14 +23,13 @@ import eu.bcvsolutions.idm.core.security.api.service.EnabledEvaluator;
 
 /**
  * Single entity event processor
- * 
+ * <p>
  * Types could be {@literal null}, then processor supports all event types
- * 
+ * <p>
  * TODO: move @Autowire to @Configuration bean post processor
  * 
- * @author Radek Tomiška
- *
  * @param <E> {@link BaseEntity}, {@link BaseDto} or any other {@link Serializable} content type
+ * @author Radek Tomiška
  */
 public abstract class AbstractEntityEventProcessor<E extends Serializable> implements EntityEventProcessor<E>, ApplicationListener<AbstractEntityEvent<E>> {
 

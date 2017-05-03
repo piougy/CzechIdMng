@@ -3,9 +3,8 @@ package eu.bcvsolutions.idm.core.api.domain;
 /**
  * Interface to mark objects that are identifiable by an NAME of any type.
  * 
- * @author Radek Tomiška 
- *
  * @param <NAME>
+ * @author Radek Tomiška
  */
 public interface IdentifiableByName {
 

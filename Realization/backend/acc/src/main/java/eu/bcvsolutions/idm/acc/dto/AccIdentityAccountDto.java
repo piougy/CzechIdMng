@@ -7,7 +7,7 @@ import org.springframework.hateoas.core.Relation;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
-import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 
 /*
  * Identity account DTO

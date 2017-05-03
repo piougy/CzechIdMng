@@ -12,8 +12,8 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import eu.bcvsolutions.idm.core.api.dto.filter.AuthorizationPolicyFilter;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
-import eu.bcvsolutions.idm.core.model.dto.filter.AuthorizationPolicyFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmAuthorizationPolicy;
 
 /**

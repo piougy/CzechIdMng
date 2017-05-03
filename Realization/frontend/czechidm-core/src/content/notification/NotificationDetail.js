@@ -33,7 +33,7 @@ class NotificationDetail extends Basic.AbstractContent {
     const { notification, isNew, userContext } = this.props;
     let data;
     if (isNew) {
-      notification.sender = userContext.username;
+      notification.sender = userContext.id;
       data = { ...notification };
       this.refs.subject.focus();
     } else {
@@ -74,11 +74,11 @@ class NotificationDetail extends Basic.AbstractContent {
     const recipientsData = [];
     if (entity.recipients) {
       entity.recipients.forEach(entityId => {
-        recipientsData.push({identityRecipient: this.identityManager.getSelfLink(entityId)});
+        recipientsData.push({identityRecipient: entityId});
       });
     }
-    const sender = this.identityManager.getSelfLink(entity.sender);
-    const template = this.notificationTemplateManager.getSelfLink(entity.template);
+    const sender = entity.sender;
+
     const saveEntity = {
       ...entity,
       sender,
@@ -88,7 +88,7 @@ class NotificationDetail extends Basic.AbstractContent {
         textMessage: entity.textMessage,
         htmlMessage: entity.htmlMessage,
         level: entity.level,
-        template
+        template: entity.template.id
       }
     };
 

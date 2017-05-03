@@ -50,8 +50,7 @@ export default class NotificationConfigurations extends Advanced.AbstractTableCo
     const formEntity = this.refs.form.getData();
     // transform template id
     const savedEntity = {
-      ...formEntity,
-      template: notificationTemplateManager.getSelfLink(formEntity.template)
+      ...formEntity
     };
     //
     super.save(savedEntity, event);
@@ -125,12 +124,13 @@ export default class NotificationConfigurations extends Advanced.AbstractTableCo
             <Advanced.Column property="template" header={this.i18n('entity.NotificationConfiguration.template')} sort
               cell={
                 ({ rowIndex, data }) => {
-                  if (data[rowIndex].template && data[rowIndex].template.module) {
-                    return (data[rowIndex].template.name + ' ' + '(' + data[rowIndex].template.module + ')');
-                  }
-                  return data[rowIndex].template ? data[rowIndex].template.name : '';
+                  const templId = data[rowIndex].template;
+                  return (
+                    <Advanced.NotificationTemplateInfo entityIdentifier={templId} face="link" />
+                  );
                 }
-              }/>
+                }
+              />
           </Advanced.Table>
         </Basic.Panel>
 

@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
-
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
@@ -35,7 +34,6 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
-
 @Service("scriptAuthorityService")
 public class DefaultIdmScriptAuthorityService extends AbstractReadWriteDtoService<IdmScriptAuthorityDto, IdmScriptAuthority, ScriptAuthorityFilter> implements IdmScriptAuthorityService {
 	

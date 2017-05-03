@@ -8,7 +8,6 @@ import eu.bcvsolutions.idm.core.api.dto.ResultModel;
  * Adds http status to universal response result model
  * 
  * @author Radek Tomiška 
- *
  */
 public interface ErrorModel extends ResultModel {
 

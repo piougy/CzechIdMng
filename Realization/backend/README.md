@@ -56,6 +56,12 @@ This setup has to be done for modules **core-api**, **core-impl** and other opti
 
 [Other IDEs](https://docs.jboss.org/hibernate/jpamodelgen/1.0/reference/en-US/html_single/#d0e319)
 
+### Setup jpa metamodel generation in IntelliJ Idea
+
+* Enable annotation procesors according to guide above. It does not matter where you generate sources to. Leave same path (generated-sources) but make sure to leave `Store generated sources relative to` set to `Module output directory`. Otherwise they wont be compiled and deployed.
+* Go to `File` -> `Project structure` -> `Libraries` and click on green plus sign in top portion of the window. Select hibernate-jpamodelgen.jar` (version 5.x.x).
+* In project view (Alt + 1) find folder with generated metamodel in each project and click right on in and select `Mark directory as` -> `Generated sources root`. Now Idea knows about metamodel and you can use it in code without typecheck errors
+
 ## Demo user credentials
 
 * username: `admin`

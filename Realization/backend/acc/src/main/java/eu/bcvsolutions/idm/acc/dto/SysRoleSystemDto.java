@@ -4,7 +4,7 @@ import java.util.UUID;
 
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
-import eu.bcvsolutions.idm.core.model.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 
 /**
  * Role could assign account on target system (account template) DTO.

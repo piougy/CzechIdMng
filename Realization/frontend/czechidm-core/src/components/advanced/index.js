@@ -20,6 +20,7 @@ import AbstractEntityInfo from './EntityInfo/AbstractEntityInfo';
 import UuidInfo from './UuidInfo/UuidInfo';
 import RoleInfo from './RoleInfo/RoleInfo';
 import IdentityContractInfo from './IdentityContractInfo/IdentityContractInfo';
+import NotificationTemplateInfo from './NotificationTemplateInfo/NotificationTemplateInfo';
 
 const Components = {
   Table,
@@ -45,7 +46,8 @@ const Components = {
   AbstractEntityInfo,
   UuidInfo,
   RoleInfo,
-  IdentityContractInfo
+  IdentityContractInfo,
+  NotificationTemplateInfo
 };
 
 Components.version = '0.0.1';

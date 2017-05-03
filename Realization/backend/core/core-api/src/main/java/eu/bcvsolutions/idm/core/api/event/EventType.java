@@ -4,13 +4,12 @@ import java.io.Serializable;
 
 /**
  * Event type (save, delete, etc.)
- * 
+ * <p>
  * Its not strongly checked and coupled with entity type - only constant representation.
  * 
+ * @author Radek Tomiška
  * @see EntityEvent
  * @see AbstractEntityEvent
- * @author Radek Tomiška
- * 
  */
 public interface EventType extends Serializable {
 

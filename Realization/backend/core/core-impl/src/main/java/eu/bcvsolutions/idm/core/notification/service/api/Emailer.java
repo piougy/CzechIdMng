@@ -1,6 +1,6 @@
 package eu.bcvsolutions.idm.core.notification.service.api;
 
-import eu.bcvsolutions.idm.core.notification.entity.IdmEmailLog;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmEmailLogDto;
 
 /**
  * Email sender
@@ -18,9 +18,9 @@ public interface Emailer {
 	/**
 	 * Sends email by given notification
 	 * 
-	 * @param notification
+	 * @param emailLog
 	 * @return
 	 */
-	boolean send(IdmEmailLog emailLog);
+	boolean send(IdmEmailLogDto emailLog);
 	
 }

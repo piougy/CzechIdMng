@@ -15,8 +15,8 @@ import org.hibernate.validator.constraints.NotEmpty;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.IdentifiableByCode;
+import eu.bcvsolutions.idm.core.api.domain.IdmScriptCategory;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
-import eu.bcvsolutions.idm.core.model.domain.IdmScriptCategory;
 
 /**
  * Default entity for Script

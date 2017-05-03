@@ -9,7 +9,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -18,12 +18,12 @@ import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
-import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleDto;
-import eu.bcvsolutions.idm.core.model.dto.filter.IdentityRoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole_;
@@ -107,7 +107,7 @@ public class DefaultIdmIdentityRoleService
 	
 	@Override
 	protected Predicate toPredicate(IdentityRoleFilter filter, Root<IdmIdentityRole> root, CriteriaQuery<?> query,
-			CriteriaBuilder builder) {
+	                                CriteriaBuilder builder) {
 		List<Predicate> predicates = new ArrayList<>();
 		// id
 		if (filter.getId() != null) {
@@ -116,7 +116,7 @@ public class DefaultIdmIdentityRoleService
 		// quick - by identity's username
 		if (StringUtils.isNotEmpty(filter.getText())) {
 			predicates.add(builder.like(
-					builder.lower(root.get(IdmIdentityRole_.identityContract).get(IdmIdentityContract_.identity).get(IdmIdentity_.username)), 
+					builder.lower(root.get(IdmIdentityRole_.identityContract).get(IdmIdentityContract_.identity).get(IdmIdentity_.username)),
 					"%" + filter.getText().toLowerCase() + "%")
 					);
 		}

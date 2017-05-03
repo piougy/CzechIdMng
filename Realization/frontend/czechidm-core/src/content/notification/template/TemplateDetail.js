@@ -86,8 +86,12 @@ export default class TemplateDetail extends Basic.AbstractContent {
       this.context.store.dispatch(manager.createEntity(entity, `${uiKey}-detail`, (createdEntity, error) => {
         this._afterSave(createdEntity, error);
       }));
-    } else {
+    } else if (manager.supportsPatch()) {
       this.context.store.dispatch(manager.patchEntity(entity, `${uiKey}-detail`, (savedEntity, error) => {
+        this._afterSave(entity, error);
+      }));
+    } else {
+      this.context.store.dispatch(manager.updateEntity(entity, `${uiKey}-detail`, (savedEntity, error) => {
         this._afterSave(entity, error);
       }));
     }

@@ -10,12 +10,11 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 /**
  * Interface for generic CRUD operations on a repository for a specific DTO type.
  * 
- * @author Svanda
- * @author Radek Tomiška
- *
  * @param <DTO> {@link BaseDto} type
  * @param <E> {@link BaseEntity} type
  * @param <F> {@link BaseFilter} type
+ * @author Svanda
+ * @author Radek Tomiška
  */
 public interface ReadWriteDtoService<DTO extends BaseDto, E extends BaseEntity, F extends BaseFilter> extends ReadDtoService<DTO, E, F> {
 	

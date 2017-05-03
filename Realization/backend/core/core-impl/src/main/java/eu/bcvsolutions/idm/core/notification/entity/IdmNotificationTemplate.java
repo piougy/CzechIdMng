@@ -112,11 +112,6 @@ public class IdmNotificationTemplate extends AbstractEntity implements Identifia
 		this.subject = subject;
 	}
 	
-	public void setBody(String body) {
-		this.bodyHtml = body;
-		this.bodyText = body;
-	}
-
 	public String getParameter() {
 		return parameter;
 	}

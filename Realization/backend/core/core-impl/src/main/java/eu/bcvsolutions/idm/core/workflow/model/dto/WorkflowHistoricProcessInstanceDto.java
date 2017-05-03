@@ -10,7 +10,6 @@ import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
-
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 
 

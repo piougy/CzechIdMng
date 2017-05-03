@@ -7,11 +7,11 @@ import org.joda.time.LocalDate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
-import eu.bcvsolutions.idm.core.model.dto.IdmIdentityContractDto;
-import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.model.dto.filter.ContractGuaranteeFilter;
-import eu.bcvsolutions.idm.core.model.dto.filter.IdentityRoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 
@@ -22,9 +22,9 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
  * @author Radek Tomiška
  *
  */
-public interface IdmIdentityRoleService extends 
-		ReadWriteDtoService<IdmIdentityRoleDto, IdmIdentityRole, IdentityRoleFilter>,
-		AuthorizableService<IdmIdentityRoleDto, ContractGuaranteeFilter> {
+public interface IdmIdentityRoleService extends
+	ReadWriteDtoService<IdmIdentityRoleDto, IdmIdentityRole, IdentityRoleFilter>,
+	AuthorizableService<IdmIdentityRoleDto, ContractGuaranteeFilter> {
 	
 	/**
 	 * Returns all identity's roles

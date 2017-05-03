@@ -12,12 +12,10 @@ import eu.bcvsolutions.idm.core.api.event.EventContext;
 /**
  * Entity processing based on spring plugins
  * 
+ * @author Radek Tomiška
  * @see {@link EntityEventProcessor}
  * @see {@link EntityEvent}
  * @see {@link EventContext}
- * 
- * @author Radek Tomiška
- *
  */
 public interface EntityEventManager {
 	

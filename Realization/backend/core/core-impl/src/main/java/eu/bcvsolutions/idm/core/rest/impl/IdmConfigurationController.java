@@ -17,7 +17,9 @@ import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
-import eu.bcvsolutions.idm.core.model.entity.IdmConfiguration;;
+import eu.bcvsolutions.idm.core.model.entity.IdmConfiguration;
+
+;
 
 /**
  * Configuration controller - add custom methods to configuration repository

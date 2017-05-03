@@ -18,14 +18,13 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
  * Provide additional methods to retrieve entities using the pagination and
  * sorting abstraction for DTO services.
  * 
+ * @param <DTO> {@link BaseDto} type
+ * @param <E>   {@link BaseEntity} type
+ * @param <F>   {@link BaseFilter} type
  * @author Svanda
- * 
  * @see Sort
  * @see Pageable
  * @see Page
- * @param <DTO> {@link BaseDto} type
- * @param <E> {@link BaseEntity} type
- * @param <F> {@link BaseFilter} type
  */
 public interface ReadDtoService<DTO extends BaseDto, E extends BaseEntity, F extends BaseFilter>
 		extends BaseDtoService<DTO> {

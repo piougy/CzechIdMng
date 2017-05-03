@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.model.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -16,6 +17,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
 import eu.bcvsolutions.idm.core.model.entity.IdmContractGuarantee;
 import eu.bcvsolutions.idm.core.model.entity.IdmContractGuarantee_;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
@@ -24,7 +26,6 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode_;
-import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.service.api.SubordinatesCriteriaBuilder;
 
@@ -51,7 +52,7 @@ public class DefaultSubordinatesCriteriaBuilder implements SubordinatesCriteriaB
 
 	@Override
 	public Predicate getSubordinatesPredicate(Root<IdmIdentity> root, CriteriaQuery<?> query, CriteriaBuilder builder, 
-			String subordinatesFor, IdmTreeType byTreeType) {
+											  String subordinatesFor, UUID byTreeType) {
 		Assert.notNull(subordinatesFor);
 		//
 		Subquery<IdmIdentityContract> subquery = query.subquery(IdmIdentityContract.class);
@@ -85,7 +86,7 @@ public class DefaultSubordinatesCriteriaBuilder implements SubordinatesCriteriaB
 		} else {
 			subqueryWp.where(builder.and(
 					identityPredicate,
-					builder.equal(subqueryWpRoot.get(IdmIdentityContract_.workPosition).get(IdmTreeNode_.treeType), byTreeType)
+					builder.equal(subqueryWpRoot.get(IdmIdentityContract_.workPosition).get(IdmTreeNode_.treeType).get(AbstractEntity_.id), byTreeType)
 					));
 		}			
 		subPredicates.add(subRoot.get(IdmIdentityContract_.workPosition).get(IdmTreeNode_.parent).in(subqueryWp));			
@@ -102,7 +103,7 @@ public class DefaultSubordinatesCriteriaBuilder implements SubordinatesCriteriaB
 
 	@Override
 	public Predicate getManagersPredicate(Root<IdmIdentity> root, CriteriaQuery<?> query, CriteriaBuilder builder,
-			String managersFor, IdmTreeType byTreeType) {
+										  String managersFor, UUID byTreeType) {
 		Assert.notNull(managersFor);
 		//
 		Subquery<IdmIdentityContract> subquery = query.subquery(IdmIdentityContract.class);
@@ -131,7 +132,7 @@ public class DefaultSubordinatesCriteriaBuilder implements SubordinatesCriteriaB
 		} else {
 			subqueryWp.where(builder.and(
 					identityPredicate,
-					builder.equal(subqueryWpRoot.get(IdmIdentityContract_.workPosition).get(IdmTreeNode_.treeType), byTreeType)
+					builder.equal(subqueryWpRoot.get(IdmIdentityContract_.workPosition).get(IdmTreeNode_.treeType).get(AbstractEntity_.id), byTreeType)
 					));	
 		}					
 		subPredicates.add(
@@ -147,7 +148,7 @@ public class DefaultSubordinatesCriteriaBuilder implements SubordinatesCriteriaB
 	
 	@Override
 	@Transactional(readOnly = true)
-	public Page<IdmIdentity> getManagers(String managersFor, IdmTreeType byTreeType , Pageable pageable) {
+	public Page<IdmIdentity> getManagers(String managersFor, UUID byTreeType , Pageable pageable) {
 		// transform filter to criteria
 		Specification<IdmIdentity> criteria = new Specification<IdmIdentity>() {
 			public Predicate toPredicate(Root<IdmIdentity> root, CriteriaQuery<?> query, CriteriaBuilder builder) {

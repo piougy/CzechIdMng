@@ -11,7 +11,6 @@ import javax.persistence.Converter;
  * "Naive" set to string converter
  * 
  * @author Radek Tomiška
- *
  */
 @Converter
 public class StringSetConverter implements AttributeConverter<Set<String>, String> {

@@ -41,7 +41,7 @@ public class DefaultSecurityServiceTest extends AbstractUnitTest {
 			new IdmIdentityDto(CURRENT_USERNAME), 
 			new IdmIdentityDto(ORIGINAL_USERNAME), 
 			DateTime.now(),
-			DateTime.now(), 
+			DateTime.now(),
 			AUTHORITIES,
 			"test");
 	

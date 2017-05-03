@@ -3,9 +3,9 @@ package eu.bcvsolutions.idm.core.model.event;
 import java.io.Serializable;
 import java.util.Map;
 
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.EventType;
-import eu.bcvsolutions.idm.core.model.dto.IdmRoleRequestDto;
 
 /**
  * Events for role request

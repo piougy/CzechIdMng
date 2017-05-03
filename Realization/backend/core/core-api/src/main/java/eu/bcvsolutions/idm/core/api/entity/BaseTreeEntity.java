@@ -5,9 +5,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 /**
  * Default interface class for entity with tree structure
  * 
- * @author Ondrej Kopr <kopr@xyxy.cz>
- *
  * @param <E>
+ * @author Ondrej Kopr <kopr@xyxy.cz>
  */
 public interface BaseTreeEntity<E> {
 	

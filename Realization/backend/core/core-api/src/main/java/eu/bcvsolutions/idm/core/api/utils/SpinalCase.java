@@ -6,7 +6,6 @@ import java.text.Normalizer;
  * Spinal case string transformation
  * 
  * @author Radek Tomiška
- *
  */
 public class SpinalCase {
 

@@ -17,11 +17,10 @@ import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 /**
  * Common repository for base entities
  * 
- * @author Radek Tomiška
- *
  * @param <E> entity type
  * @param <ID> entity identifier type
  * @param <F> basic filter
+ * @author Radek Tomiška
  */
 @NoRepositoryBean
 public interface BaseEntityRepository<E extends BaseEntity, ID extends Serializable, F extends BaseFilter> 

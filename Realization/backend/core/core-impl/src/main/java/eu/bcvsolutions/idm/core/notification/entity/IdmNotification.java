@@ -25,7 +25,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
-
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
@@ -78,7 +77,8 @@ public abstract class IdmNotification extends AbstractEntity implements BaseNoti
 	@JoinColumn(name = "parent_notification_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )
-	private IdmNotification parent;
+	private IdmNotificationLog parent;
+
 	
 	public String getTopic() {
 		return topic;
@@ -131,11 +131,11 @@ public abstract class IdmNotification extends AbstractEntity implements BaseNoti
 		return sent;
 	}
 	
-	public void setParent(IdmNotification parent) {
+	public void setParent(IdmNotificationLog parent) {
 		this.parent = parent;
 	}
 	
-	public IdmNotification getParent() {
+	public IdmNotificationLog getParent() {
 		return parent;
 	}
 	
@@ -143,4 +143,5 @@ public abstract class IdmNotification extends AbstractEntity implements BaseNoti
 	public String toString() {
 		return MessageFormat.format("Notification [id:{2}] [message:{0}] [first recipient:{1}]", getMessage(), getRecipients().isEmpty() ? null : getRecipients().get(0), getId());
 	}
+
 }

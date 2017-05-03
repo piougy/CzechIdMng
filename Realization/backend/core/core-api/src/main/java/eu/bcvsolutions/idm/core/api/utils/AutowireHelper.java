@@ -24,10 +24,8 @@ public final class AutowireHelper implements ApplicationContextAware {
 	 * Tries to autowire the specified instance of the class if one of the
 	 * specified beans which need to be autowired are null.
 	 *
-	 * @param classToAutowire
-	 *            the instance of the class which holds @Autowire annotations
-	 * @param beansToAutowireInClass
-	 *            the beans which have the @Autowire annotation in the specified
+     * @param classToAutowire        the instance of the class which holds @Autowire annotations
+     * @param beansToAutowireInClass the beans which have the @Autowire annotation in the specified
 	 *            {#classToAutowire}
 	 */
 	public static void autowire(Object classToAutowire, Object... beansToAutowireInClass) {

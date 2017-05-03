@@ -6,7 +6,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.notification.dto.filter.NotificationFilter;
@@ -18,12 +17,6 @@ import eu.bcvsolutions.idm.core.notification.entity.IdmEmailLog;
  * @author Radek Tomiška 
  *
  */
-@RepositoryRestResource(//
-	collectionResourceRel = "emails", //
-	path = "emails", //
-	itemResourceRel = "email",
-	exported = false
-)
 public interface IdmEmailLogRepository extends AbstractEntityRepository<IdmEmailLog, NotificationFilter> {
 	
 	@Override
@@ -60,7 +53,7 @@ public interface IdmEmailLogRepository extends AbstractEntityRepository<IdmEmail
 	/**
 	 * Returns email log by given id - for internal purpose.
 	 * 
-	 * @param name
+	 * @param id
 	 * @return
 	 */
 	@Query(value = "select e from #{#entityName} e" +

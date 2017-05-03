@@ -8,7 +8,6 @@ import eu.bcvsolutions.idm.core.security.api.exception.ModuleDisabledException;
  * Evaluates {@link Enabled} annotation.
  * 
  * @author Radek Tomiška
- *
  */
 public interface EnabledEvaluator {
 

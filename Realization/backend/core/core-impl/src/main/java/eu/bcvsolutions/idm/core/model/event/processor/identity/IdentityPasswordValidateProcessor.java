@@ -6,13 +6,13 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.dto.IdmPasswordValidationDto;
+import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.model.dto.IdmPasswordValidationDto;
-import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
@@ -91,9 +91,9 @@ public class IdentityPasswordValidateProcessor extends CoreEventProcessor<IdmIde
 			// validate password
 			IdmPasswordValidationDto passwordValidationDto = new IdmPasswordValidationDto();
 			// set old password for validation - valid till, from and history check
-			passwordValidationDto.setOldPassword(this.passwordService.get(identity));
+			passwordValidationDto.setOldPassword(this.passwordService.get(identity) == null ? null : this.passwordService.get(identity).getId());
 			passwordValidationDto.setPassword(passwordChangeDto.getNewPassword());
-			passwordValidationDto.setIdentity(identity);
+			passwordValidationDto.setIdentity(identity == null ? null : identity.getId());
 			this.passwordPolicyService.validate(passwordValidationDto);
 		}
 		return new DefaultEventResult<>(event, this);

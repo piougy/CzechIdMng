@@ -8,7 +8,6 @@ import eu.bcvsolutions.idm.core.api.domain.Identifiable;
  * Base entity
  * 
  * @author Radek Tomiška 
- *
  */
 public interface BaseEntity extends Identifiable, Serializable {
 	

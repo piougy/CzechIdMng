@@ -4,7 +4,6 @@ package eu.bcvsolutions.idm.core.security.api.domain;
  * Base application permission
  * 
  * @author Radek Tomiška 
- *
  */
 public interface BasePermission {
 	

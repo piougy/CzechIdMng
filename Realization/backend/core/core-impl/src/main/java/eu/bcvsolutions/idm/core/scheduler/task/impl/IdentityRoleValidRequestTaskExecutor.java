@@ -9,9 +9,9 @@ import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Service;
 
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleValidRequestDto;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
-import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleValidRequestDto;
 import eu.bcvsolutions.idm.core.model.event.IdentityRoleValidRequestEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityRoleValidRequestEvent.IdentityRoleValidRequestEventType;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleValidRequestService;

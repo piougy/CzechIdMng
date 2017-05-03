@@ -11,7 +11,6 @@ import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
  * One module will contain one module descriptor
  * 
  * @author Radek Tomiška
- *
  */
 public interface ModuleDescriptor extends Plugin<String> {
 	

@@ -8,7 +8,6 @@ import java.util.concurrent.Callable;
  * Long running task executor
  * 
  * @author Radek Tomiška
- *
  */
 public interface LongRunningTaskExecutor<V> extends Callable<V> {
 

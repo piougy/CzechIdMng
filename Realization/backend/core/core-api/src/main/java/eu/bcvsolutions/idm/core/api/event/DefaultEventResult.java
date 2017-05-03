@@ -5,16 +5,14 @@ import java.io.Serializable;
 import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 
 /**
  * Default event result holder
  * 
- * @author Radek Tomiška
- *
  * @param <E> {@link BaseEntity}, {@link BaseDto} or any other {@link Serializable} content type
+ * @author Radek Tomiška
  */
 public class DefaultEventResult<E extends Serializable> implements EventResult<E> {
 	
@@ -79,7 +77,6 @@ public class DefaultEventResult<E extends Serializable> implements EventResult<E
 	 * {@link DefaultEventResult} builder
 	 * 
 	 * @author Radek Tomiška
-	 *
 	 */
 	public static class Builder<E extends Serializable> {
 		// required

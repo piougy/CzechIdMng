@@ -1,8 +1,8 @@
 package eu.bcvsolutions.idm.core.model.service.api;
 
+import eu.bcvsolutions.idm.core.api.dto.filter.ScriptFilter;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.model.dto.IdmScriptDto;
-import eu.bcvsolutions.idm.core.model.dto.filter.ScriptFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmScript;
 
 /**

@@ -31,15 +31,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.common.collect.ImmutableMap;
-
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.dto.filter.TreeNodeFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.core.eav.rest.impl.IdmFormDefinitionController;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
-import eu.bcvsolutions.idm.core.model.dto.filter.TreeNodeFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmAudit;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
@@ -248,7 +247,7 @@ public class IdmTreeNodeController extends DefaultReadWriteEntityController<IdmT
 		TreeNodeFilter filter = new TreeNodeFilter();
 		filter.setText(getParameterConverter().toString(parameters, "text"));
 		filter.setTreeTypeId(getParameterConverter().toUuid(parameters, "treeTypeId"));
-		filter.setTreeNode(getParameterConverter().toEntity(parameters, "treeNodeId", IdmTreeNode.class));
+		filter.setTreeNode(getParameterConverter().toUuid(parameters, "treeNodeId"));
 		filter.setDefaultTreeType(getParameterConverter().toBoolean(parameters, "defaultTreeType"));
  		filter.setRecursively(getParameterConverter().toBoolean(parameters, "recursively", true));
 		return filter;

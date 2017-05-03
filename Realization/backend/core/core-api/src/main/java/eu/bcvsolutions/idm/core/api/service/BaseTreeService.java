@@ -6,12 +6,11 @@ import eu.bcvsolutions.idm.core.api.entity.BaseTreeEntity;
 
 /**
  * Defautl interface for implementation tree service.
- * 
+ * <p>
  * TODO: refactoring tree. Add connection to left/right
  * 
- * @author Ondrej Kopr <kopr@xyxy.cz>
- *
  * @param <E>
+ * @author Ondrej Kopr <kopr@xyxy.cz>
  */
 public interface BaseTreeService<E extends BaseTreeEntity<E>> {
 	

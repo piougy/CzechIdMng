@@ -21,7 +21,6 @@ import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
  * Mainly intended for internal use.
  * 
  * @author Radek Tomiška
- *
  */
 public abstract class IdmAuthorityUtils {
 	

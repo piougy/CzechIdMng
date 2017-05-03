@@ -17,7 +17,6 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulableTaskExecutor;
  * * could run manually through long running task service
  * 
  * @author Radek Tomiška
- *
  */
 public class Task {
 
@@ -80,6 +79,7 @@ public class Task {
 	/**
 	 * Adds task parameter. Returs previous values associated
 	 * with the provided key.
+     *
 	 * @param key
 	 * @param value
 	 * @return previous value

@@ -9,9 +9,8 @@ import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 /**
  * Event context state holder (event results + metadata)
  * 
- * @author Radek Tomiška
- *
  * @param <E> {@link BaseEntity}, {@link BaseDto} or any other {@link Serializable} content type
+ * @author Radek Tomiška
  */
 public interface EventContext<E extends Serializable> extends Serializable {
 	
@@ -55,8 +54,8 @@ public interface EventContext<E extends Serializable> extends Serializable {
 	/**
 	 * Sets suspended
 	 * 
-	 * @see {@link #isSuspended()}
 	 * @param suspended
+     * @see {@link #isSuspended()}
 	 */
 	void setSuspended(boolean suspended);
 

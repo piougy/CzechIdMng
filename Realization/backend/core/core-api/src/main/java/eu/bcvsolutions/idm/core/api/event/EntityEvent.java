@@ -11,9 +11,8 @@ import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 /**
  * Event state holder (content + metadata)
  * 
- * @author Radek Tomiška
- *
  * @param <E> {@link BaseEntity}, {@link BaseDto} or any other {@link Serializable} content type
+ * @author Radek Tomiška
  */
 public interface EntityEvent<E extends Serializable> extends ResolvableTypeProvider, Serializable {
 	public static final String EVENT_PROPERTY = "entityEvent";

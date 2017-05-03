@@ -36,6 +36,7 @@ import FormAttributeService from './FormAttributeService';
 import AuthorizationPolicyService from './AuthorizationPolicyService';
 import ScriptAuthorityService from './ScriptAuthorityService';
 import ContractGuaranteeService from './ContractGuaranteeService';
+import NotificationRecipientService from './NotificationRecipientService';
 
 const ServiceRoot = {
   RestApiService,
@@ -75,7 +76,8 @@ const ServiceRoot = {
   FormAttributeService,
   AuthorizationPolicyService,
   ScriptAuthorityService,
-  ContractGuaranteeService
+  ContractGuaranteeService,
+  NotificationRecipientService
 };
 
 ServiceRoot.version = '0.0.1';

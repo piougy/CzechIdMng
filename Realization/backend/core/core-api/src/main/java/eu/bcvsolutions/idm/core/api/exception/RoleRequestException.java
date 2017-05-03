@@ -3,13 +3,11 @@ package eu.bcvsolutions.idm.core.api.exception;
 import java.util.Map;
 
 import eu.bcvsolutions.idm.core.api.domain.ResultCode;
-import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 
 /**
  * Exception for role request
  * 
  * @author svandav
- *
  */
 public class RoleRequestException extends ResultCodeException {
 

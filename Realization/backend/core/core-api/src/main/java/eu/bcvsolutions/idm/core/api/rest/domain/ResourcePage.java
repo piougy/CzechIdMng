@@ -1,7 +1,6 @@
 package eu.bcvsolutions.idm.core.api.rest.domain;
 
 /**
- * 
  * @deprecated use Spring Pageable instead
  */
 @Deprecated

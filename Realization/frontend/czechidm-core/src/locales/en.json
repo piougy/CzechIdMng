@@ -1011,6 +1011,7 @@
         "header": "{{name}} rule detail"
       },
       "scriptAuthorities": "Script authorities",
+      "scriptAuthoritySaveFirst": "You can add script authorities only after saving.",
       "create": {
         "title": "New script",
         "header": "New script"
@@ -1023,6 +1024,12 @@
       }
     },
     "scriptAuthorities": {
+      "create": {
+        "header": "Create new authority for script <small>{{name}}</small>"
+      },
+      "edit": {
+        "header": "Edit authority for script <small>{{name}}</small>"
+      },
       "save": {
         "success": "Authority for script was successfully saved"
       }

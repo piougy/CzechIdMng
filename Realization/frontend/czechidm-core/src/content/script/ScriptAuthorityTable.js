@@ -81,7 +81,7 @@ class ScriptAuthorityTable extends Basic.AbstractContent {
    * Save new or old script authority
    */
   save(values, event) {
-    const { uiKey, scriptId } = this.props;
+    const { uiKey, script } = this.props;
     const entity = this.refs.form.getData();
     //
     if (event) {
@@ -97,7 +97,7 @@ class ScriptAuthorityTable extends Basic.AbstractContent {
     }, this.refs.form.processStarted());
 
     // set script id into script authority
-    entity.script = scriptId;
+    entity.script = script.id;
 
     //
     if (entity.id === undefined) {
@@ -226,7 +226,7 @@ class ScriptAuthorityTable extends Basic.AbstractContent {
   }
 
   render() {
-    const { uiKey, rendered, scriptId, availableServices } = this.props;
+    const { uiKey, rendered, script, availableServices } = this.props;
     const { filterOpened, detail, _showLoading } = this.state;
 
     if (!rendered) {
@@ -240,7 +240,7 @@ class ScriptAuthorityTable extends Basic.AbstractContent {
           ref="table"
           uiKey={uiKey}
           manager={manager}
-          forceSearchParameters={manager.getDefaultSearchParameters().setFilter('scriptId', scriptId)}
+          forceSearchParameters={manager.getDefaultSearchParameters().setFilter('scriptId', script.id)}
           showRowSelection={SecurityManager.hasAuthority('SCRIPT_DELETE')}
           rowClass={({rowIndex, data}) => { return data[rowIndex].disabled ? 'disabled' : ''; }}
           _showLoading={_showLoading}
@@ -289,8 +289,8 @@ class ScriptAuthorityTable extends Basic.AbstractContent {
           keyboard={!_showLoading}>
 
           <form onSubmit={this.save.bind(this, {})}>
-            <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('create.header')} rendered={Utils.Entity.isNew(detail.entity)}/>
-            <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('edit.header', { name: detail.entity })} rendered={!Utils.Entity.isNew(detail.entity)}/>
+            <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('create.header', { name: script.name })} rendered={Utils.Entity.isNew(detail.entity)}/>
+            <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('edit.header', { name: script.name })} rendered={!Utils.Entity.isNew(detail.entity)}/>
             <Basic.Modal.Body>
               <Basic.AbstractForm
                 ref="form"
@@ -360,7 +360,7 @@ class ScriptAuthorityTable extends Basic.AbstractContent {
 
 ScriptAuthorityTable.propTypes = {
   uiKey: PropTypes.string.isRequired,
-  scriptId: PropTypes.string.isRequired,
+  script: PropTypes.object.isRequired,
   rendered: PropTypes.bool.isRequired
 };
 

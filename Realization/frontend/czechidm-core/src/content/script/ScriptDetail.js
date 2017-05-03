@@ -66,7 +66,7 @@ export default class ScriptDetail extends Basic.AbstractContent {
   /**
    * Default save method that catch save event from form.
    */
-  save(event) {
+  save(afterAction = 'CONTINUE', event) {
     const { uiKey } = this.props;
 
     if (event) {
@@ -84,17 +84,19 @@ export default class ScriptDetail extends Basic.AbstractContent {
     // entity.category = AbstractEnum.findKeyBySymbol(ScriptCategoryEnum, entity.category);
     if (entity.id === undefined) {
       this.context.store.dispatch(this.scriptManager.createEntity(entity, `${uiKey}-detail`, (createdEntity, error) => {
-        this._afterSave(createdEntity, error);
+        this._afterSave(createdEntity, error, afterAction);
       }));
     } else {
-      this.context.store.dispatch(this.scriptManager.updateEntity(entity, `${uiKey}-detail`, this._afterSave.bind(this)));
+      this.context.store.dispatch(this.scriptManager.updateEntity(entity, `${uiKey}-detail`, (updateEntity, error) => {
+        this._afterSave(updateEntity, error, afterAction);
+      }));
     }
   }
 
   /**
    * Method set showLoading to false and if is'nt error then show success message
    */
-  _afterSave(entity, error) {
+  _afterSave(entity, error, afterAction) {
     if (error) {
       this.setState({
         showLoading: false
@@ -103,7 +105,15 @@ export default class ScriptDetail extends Basic.AbstractContent {
       return;
     }
     this.addMessage({ message: this.i18n('save.success', { name: entity.name }) });
-    this.context.router.goBack();
+    if (afterAction !== 'CONTINUE') {
+      this.context.router.goBack();
+    } else {
+      this.setState({
+        showLoading: false
+      }, this.refs.form.processEnded());
+      //
+      this.context.router.replace('/scripts/' + entity.id);
+    }
   }
 
   closeDetail() {
@@ -114,7 +124,7 @@ export default class ScriptDetail extends Basic.AbstractContent {
     const { showLoading } = this.state;
     return (
       <div>
-        <form onSubmit={this.save.bind(this)}>
+        <form onSubmit={this.save.bind(this, 'CONTINUE')}>
           <Basic.AbstractForm
             ref="form"
             uiKey={uiKey}
@@ -151,26 +161,27 @@ export default class ScriptDetail extends Basic.AbstractContent {
             label={this.i18n('entity.Script.script.label')}/>
           </Basic.AbstractForm>
 
-          {
-            Utils.Entity.isNew(entity)
-            ||
-            <Basic.Panel style={{display: 'block', borderColor: '#fff'}} showLoading={showLoading}>
-              <Basic.PanelHeader text={this.i18n('scriptAuthorities')}/>
-                <ScriptAuthorityTable uiKey={entity.id} scriptId={entity.id} rendered={!Utils.Entity.isNew(entity)} />
-            </Basic.Panel>
-          }
+          <Basic.Panel style={{display: 'block', borderColor: '#fff'}} showLoading={showLoading}>
+            <Basic.PanelHeader text={this.i18n('scriptAuthorities')}/>
+              <Basic.Alert level="info" text={this.i18n('scriptAuthoritySaveFirst')} rendered={Utils.Entity.isNew(entity)}/>
+              <ScriptAuthorityTable uiKey={entity.id} script={entity} rendered={!Utils.Entity.isNew(entity)} />
+          </Basic.Panel>
 
           <Basic.PanelFooter showLoading={showLoading} >
             <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>{this.i18n('button.back')}</Basic.Button>
-            <Basic.Button
-              type="submit"
+            <Basic.SplitButton
               level="success"
+              title={ this.i18n('button.saveAndContinue') }
+              onClick={ this.save.bind(this, 'CONTINUE') }
+              showLoading={ showLoading }
               showLoadingIcon
-              showLoadingText={this.i18n('button.saving')}
+              showLoadingText={ this.i18n('button.saving') }
               rendered={SecurityManager.hasAuthority(Utils.Entity.isNew(entity) ? 'SCRIPT_CREATE' : 'SCRIPT_UPDATE')}>
-              {this.i18n('button.save')}
-            </Basic.Button>
+              <Basic.MenuItem eventKey="1" onClick={this.save.bind(this, 'CLOSE')}>{this.i18n('button.saveAndClose')}</Basic.MenuItem>
+            </Basic.SplitButton>
           </Basic.PanelFooter>
+          {/* onEnter action - is needed because SplitButton is used instead standard submit button */}
+          <input type="submit" className="hidden"/>
         </form>
       </div>
     );

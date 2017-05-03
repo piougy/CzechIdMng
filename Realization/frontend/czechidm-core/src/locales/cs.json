@@ -1049,6 +1049,7 @@
         "header": "{{name}} detail skriptu"
       },
       "scriptAuthorities": "Oprávnění skriptu",
+      "scriptAuthoritySaveFirst": "Oprávnění skriptu můžete přidat až po uložení.",
       "create": {
         "title": "Nový skript",
         "header": "Nový skript"
@@ -1061,6 +1062,12 @@
       }
     },
     "scriptAuthorities": {
+      "create": {
+        "header": "Vytvoření nové autorizace pro skript <small>{{name}}</small>"
+      },
+      "edit": {
+        "header": "Editace autorizace pro skript <small>{{name}}</small>"
+      },
       "save": {
         "success": "Opravnnění pro skript bylo úspěšně uloženo"
       }

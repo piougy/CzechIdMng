@@ -1,6 +1,7 @@
 import { Enums } from 'czechidm-core';
 import IdentityAttributeEnum from './IdentityAttributeEnum';
 import TreeAttributeEnum from './TreeAttributeEnum';
+import RoleAttributeEnum from './RoleAttributeEnum';
 
 /**
  * OperationType for adit operation etc.
@@ -33,6 +34,9 @@ export default class SystemEntityTypeEnum extends Enums.AbstractEnum {
       case this.TREE: {
         return 'primary';
       }
+      case this.ROLE: {
+        return 'primary';
+      }
       default: {
         return 'default';
       }
@@ -52,6 +56,9 @@ export default class SystemEntityTypeEnum extends Enums.AbstractEnum {
       case this.TREE: {
         return TreeAttributeEnum;
       }
+      case this.ROLE: {
+        return RoleAttributeEnum;
+      }
       default: {
         return null;
       }
@@ -61,4 +68,4 @@ export default class SystemEntityTypeEnum extends Enums.AbstractEnum {
 
 SystemEntityTypeEnum.IDENTITY = Symbol('IDENTITY');
 SystemEntityTypeEnum.TREE = Symbol('TREE');
-// SystemEntityTypeEnum.GROUP = Symbol('GROUP');
+SystemEntityTypeEnum.ROLE = Symbol('ROLE');

@@ -10,10 +10,6 @@ public interface EntityAccountDto extends BaseDto{
 
 	void setAccount(UUID account);
 
-	UUID getRoleSystem();
-
-	void setRoleSystem(UUID roleSystem);
-
 	boolean isOwnership();
 
 	void setOwnership(boolean ownership);

@@ -5,14 +5,12 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
-import org.springframework.util.CollectionUtils;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -45,13 +43,12 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
-import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 
 /**
- * Service for do tree provisioning
+ * Service for do Tree provisioning
  * 
  * @author svandav
  *
@@ -97,57 +94,6 @@ public class TreeProvisioningExecutor extends AbstractProvisioningExecutor<IdmTr
 			return treeAccount.isOwnership();
 		}).forEach((treeAccount) -> {
 			doProvisioning(account, (IdmTreeNode) treeNodeService.get(treeAccount.getEntity()));
-		});
-	}
-
-	@Override
-	public void changePassword(IdmTreeNode node, PasswordChangeDto passwordChange) {
-		Assert.notNull(node);
-		Assert.notNull(passwordChange);
-
-		TreeAccountFilter filter = new TreeAccountFilter();
-		filter.setTreeNodeId(node.getId());
-		List<? extends EntityAccountDto> treeAccountList = treeAccountService.findDto(filter, null).getContent();
-		if (treeAccountList == null) {
-			return;
-		}
-		
-		// Distinct by accounts
-		List<AccAccount> accounts = new ArrayList<>();
-		treeAccountList.stream().filter(treeAccount -> {
-			return treeAccount.isOwnership() && (passwordChange.isAll()
-					|| passwordChange.getAccounts().contains(treeAccount.getId().toString()));
-		}).forEach(treeAccount -> {
-			if (!accounts.contains(treeAccount.getAccount())) {
-				accounts.add(accountService.get(treeAccount.getAccount()));
-			}
-		});
-
-		accounts.forEach(account -> {
-			// find uid from system entity or from account
-			String uid = account.getUid();
-			SysSystem system = account.getSystem();
-			SysSystemEntity systemEntity = account.getSystemEntity();
-			//
-			// Find mapped attributes (include overloaded attributes)
-			List<AttributeMapping> finalAttributes = resolveMappedAttributes(uid, account, node, system, systemEntity.getEntityType());
-			if (CollectionUtils.isEmpty(finalAttributes)) {
-				return;
-			}
-			
-			// We try find __PASSWORD__ attribute in mapped attributes
-			Optional<? extends AttributeMapping> attriubuteHandlingOptional = finalAttributes.stream()
-					.filter((attribute) -> {
-						return PASSWORD_SCHEMA_PROPERTY_NAME.equals(attribute.getSchemaAttribute().getName());
-					}).findFirst();
-			if (!attriubuteHandlingOptional.isPresent()) {
-				throw new ProvisioningException(AccResultCode.PROVISIONING_PASSWORD_FIELD_NOT_FOUND,
-						ImmutableMap.of("uid", uid));
-			}
-			AttributeMapping mappedAttribute = attriubuteHandlingOptional.get();
-
-			doProvisioningForAttribute(systemEntity, mappedAttribute, passwordChange.getNewPassword(),
-					ProvisioningOperationType.UPDATE, node);
 		});
 	}
 	
@@ -248,41 +194,6 @@ public class TreeProvisioningExecutor extends AbstractProvisioningExecutor<IdmTr
 			}
 		}
 		return accountAttributes;
-	}
-
-
-	/**
-	 * Return all mapped attributes for this account (include overloaded attributes)
-	 * 
-	 * @param uid
-	 * @param account
-	 * @param entity
-	 * @param system
-	 * @param entityType
-	 * @return
-	 */
-	@Override
-	public List<AttributeMapping> resolveMappedAttributes(String uid, AccAccount account, IdmTreeNode entity, SysSystem system, SystemEntityType entityType) {
-		TreeAccountFilter filter = new TreeAccountFilter();
-		filter.setTreeNodeId(entity.getId());
-		filter.setSystemId(system.getId());
-		filter.setOwnership(Boolean.TRUE);
-		filter.setAccountId(account.getId());
-		
-		List<? extends EntityAccountDto> entityAccoutnList = treeAccountService.findDto(filter, null).getContent();
-		if (entityAccoutnList == null) {
-			return null;
-		}
-		// All identity account with flag ownership on true
-
-		// All role system attributes (overloading) for this uid and same system
-		List<SysRoleSystemAttribute> roleSystemAttributesAll = findOverloadingAttributes(uid, entity, system, entityAccoutnList, entityType);
-
-		// All default mapped attributes from system
-		List<? extends AttributeMapping> defaultAttributes = findAttributeMappings(system, entityType);
-
-		// Final list of attributes use for provisioning
-		return compileAttributes(defaultAttributes, roleSystemAttributesAll, entityType);
 	}
 	
 	@Override

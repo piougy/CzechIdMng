@@ -16,8 +16,6 @@ public interface EntityAccount extends Identifiable {
 
 	boolean isOwnership();
 
-	SysRoleSystem getRoleSystem();
-
 	AbstractEntity getEntity();
 
 }

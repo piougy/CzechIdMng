@@ -101,23 +101,19 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 	 */
 	protected void doDeleteEntity(AccAccount account, SystemEntityType entityType, SysSyncLog log,
 			SysSyncItemLog logItem, List<SysSyncActionLog> actionLogs) {
-		if (SystemEntityType.IDENTITY == entityType) {
-			UUID entityId = getEntityByAccount(account.getId());
-			IdmIdentity identity = null;
-			if (entityId != null) {
-				identity = identityService.get(entityId);
-			}
-			if (identity == null) {
-				addToItemLog(logItem, "Identity account relation (with ownership = true) was not found!");
-				initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.WARNING, logItem, log,
-						actionLogs);
-				return;
-			}
-			// Delete identity
-			identityService.delete(identity);
-		} else if (SystemEntityType.GROUP == entityType) {
-			// TODO: group
+		UUID entityId = getEntityByAccount(account.getId());
+		IdmIdentity identity = null;
+		if (entityId != null) {
+			identity = identityService.get(entityId);
 		}
+		if (identity == null) {
+			addToItemLog(logItem, "Identity account relation (with ownership = true) was not found!");
+			initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.WARNING, logItem, log,
+					actionLogs);
+			return;
+		}
+		// Delete identity
+		identityService.delete(identity);
 	}
 
 	/**
@@ -131,21 +127,19 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 	 */
 	protected void doUpdateAccount(AccAccount account, SystemEntityType entityType, SysSyncLog log,
 			SysSyncItemLog logItem, List<SysSyncActionLog> actionLogs) {
-		if (SystemEntityType.IDENTITY == entityType) {
-			UUID entityId = getEntityByAccount(account.getId());
-			IdmIdentity identity = null;
-			if (entityId != null) {
-				identity = identityService.get(entityId);
-			}
-			if (identity == null) {
-				addToItemLog(logItem, "Identity account relation (with ownership = true) was not found!");
-				initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.WARNING, logItem, log,
-						actionLogs);
-				return;
-			}
-			// Call provisioning for this entity
-			doUpdateAccountByEntity(identity, entityType, logItem);
+		UUID entityId = getEntityByAccount(account.getId());
+		IdmIdentity identity = null;
+		if (entityId != null) {
+			identity = identityService.get(entityId);
 		}
+		if (identity == null) {
+			addToItemLog(logItem, "Identity account relation (with ownership = true) was not found!");
+			initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.WARNING, logItem, log,
+					actionLogs);
+			return;
+		}
+		// Call provisioning for this entity
+		doUpdateAccountByEntity(identity, entityType, logItem);
 	}
 
 	/**
@@ -156,14 +150,12 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 	 * @param logItem
 	 */
 	protected void doUpdateAccountByEntity(AbstractEntity entity, SystemEntityType entityType, SysSyncItemLog logItem) {
-		if (SystemEntityType.IDENTITY == entityType) {
-			IdmIdentity identity = (IdmIdentity) entity;
-			addToItemLog(logItem,
-					MessageFormat.format(
-							"Call provisioning (process IdentityEventType.SAVE) for identity ({0}) with username ({1}).",
-							identity.getId(), identity.getUsername()));
-			entityEventManager.process(new IdentityEvent(IdentityEventType.UPDATE, identity)).getContent();
-		}
+		IdmIdentity identity = (IdmIdentity) entity;
+		addToItemLog(logItem,
+				MessageFormat.format(
+						"Call provisioning (process IdentityEventType.SAVE) for identity ({0}) with username ({1}).",
+						identity.getId(), identity.getUsername()));
+		entityEventManager.process(new IdentityEvent(IdentityEventType.UPDATE, identity)).getContent();
 	}
 
 	/**
@@ -178,31 +170,29 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 	 */
 	protected void doCreateEntity(SystemEntityType entityType, List<SysSystemAttributeMapping> mappedAttributes,
 			SysSyncItemLog logItem, String uid, List<IcAttribute> icAttributes, AccAccount account) {
-		if (SystemEntityType.IDENTITY == entityType) {
-			// We will create new Identity
-			addToItemLog(logItem, "Missing entity action is CREATE_ENTITY, we will do create new identity.");
-			IdmIdentity identity = new IdmIdentity();
-			// Fill Identity by mapped attribute
-			identity = (IdmIdentity) fillEntity(mappedAttributes, uid, icAttributes, identity, true);
-			// Create new Identity
-			identityService.save(identity);
-			// Update extended attribute (entity must be persisted first)
-			updateExtendedAttributes(mappedAttributes, uid, icAttributes, identity, true);
-			// Update confidential attribute (entity must be persisted first)
-			updateConfidentialAttributes(mappedAttributes, uid, icAttributes, identity, true);
+		// We will create new Identity
+		addToItemLog(logItem, "Missing entity action is CREATE_ENTITY, we will do create new identity.");
+		IdmIdentity identity = new IdmIdentity();
+		// Fill Identity by mapped attribute
+		identity = (IdmIdentity) fillEntity(mappedAttributes, uid, icAttributes, identity, true);
+		// Create new Identity
+		identityService.save(identity);
+		// Update extended attribute (entity must be persisted first)
+		updateExtendedAttributes(mappedAttributes, uid, icAttributes, identity, true);
+		// Update confidential attribute (entity must be persisted first)
+		updateConfidentialAttributes(mappedAttributes, uid, icAttributes, identity, true);
 
-			// Create new Identity account relation
-			AccIdentityAccountDto identityAccount = new AccIdentityAccountDto();
-			identityAccount.setAccount(account.getId());
-			identityAccount.setIdentity(identity.getId());
-			identityAccount.setOwnership(true);
-			identityAccoutnService.save(identityAccount);
+		// Create new Identity account relation
+		AccIdentityAccountDto identityAccount = new AccIdentityAccountDto();
+		identityAccount.setAccount(account.getId());
+		identityAccount.setIdentity(identity.getId());
+		identityAccount.setOwnership(true);
+		identityAccoutnService.save(identityAccount);
 
-			// Identity Created
-			addToItemLog(logItem, MessageFormat.format("Identity with id {0} was created", identity.getId()));
-			if (logItem != null) {
-				logItem.setDisplayName(identity.getUsername());
-			}
+		// Identity Created
+		addToItemLog(logItem, MessageFormat.format("Identity with id {0} was created", identity.getId()));
+		if (logItem != null) {
+			logItem.setDisplayName(identity.getUsername());
 		}
 	}
 
@@ -221,35 +211,33 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 	protected void doUpdateEntity(AccAccount account, SystemEntityType entityType, String uid,
 			List<IcAttribute> icAttributes, List<SysSystemAttributeMapping> mappedAttributes, SysSyncLog log,
 			SysSyncItemLog logItem, List<SysSyncActionLog> actionLogs) {
-		if (SystemEntityType.IDENTITY == entityType) {
-			UUID entityId = getEntityByAccount(account.getId());
-			IdmIdentity identity = null;
-			if (entityId != null) {
-				identity = identityService.get(entityId);
-			}
-			if (identity != null) {
-				// Update identity
-				identity = (IdmIdentity) fillEntity(mappedAttributes, uid, icAttributes, identity, false);
-				identityService.save(identity);
-				// Update extended attribute (entity must be persisted first)
-				updateExtendedAttributes(mappedAttributes, uid, icAttributes, identity, false);
-				// Update confidential attribute (entity must be persisted
-				// first)
-				updateConfidentialAttributes(mappedAttributes, uid, icAttributes, identity, false);
+		UUID entityId = getEntityByAccount(account.getId());
+		IdmIdentity identity = null;
+		if (entityId != null) {
+			identity = identityService.get(entityId);
+		}
+		if (identity != null) {
+			// Update identity
+			identity = (IdmIdentity) fillEntity(mappedAttributes, uid, icAttributes, identity, false);
+			identityService.save(identity);
+			// Update extended attribute (entity must be persisted first)
+			updateExtendedAttributes(mappedAttributes, uid, icAttributes, identity, false);
+			// Update confidential attribute (entity must be persisted
+			// first)
+			updateConfidentialAttributes(mappedAttributes, uid, icAttributes, identity, false);
 
-				// Identity Updated
-				addToItemLog(logItem, MessageFormat.format("Identity with id {0} was updated", identity.getId()));
-				if (logItem != null) {
-					logItem.setDisplayName(identity.getUsername());
-				}
-
-				return;
-			} else {
-				addToItemLog(logItem, "Identity account relation (with ownership = true) was not found!");
-				initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.WARNING, logItem, log,
-						actionLogs);
-				return;
+			// Identity Updated
+			addToItemLog(logItem, MessageFormat.format("Identity with id {0} was updated", identity.getId()));
+			if (logItem != null) {
+				logItem.setDisplayName(identity.getUsername());
 			}
+
+			return;
+		} else {
+			addToItemLog(logItem, "Identity account relation (with ownership = true) was not found!");
+			initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.WARNING, logItem, log,
+					actionLogs);
+			return;
 		}
 	}
 
@@ -344,12 +332,7 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 
 	@Override
 	protected AbstractEntity findEntityById(UUID entityId, SystemEntityType entityType) {
-		if (SystemEntityType.IDENTITY == entityType) {
-			return identityService.get(entityId);
-		} else {
-			throw new UnsupportedOperationException(
-					MessageFormat.format("SystemEntityType {0} is not supported!", entityType));
-		}
+		return identityService.get(entityId);
 	}
 
 	@Override

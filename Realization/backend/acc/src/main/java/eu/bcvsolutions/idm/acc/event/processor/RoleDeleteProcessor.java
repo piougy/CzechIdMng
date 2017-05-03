@@ -5,7 +5,9 @@ import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.acc.dto.filter.RoleAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.RoleSystemFilter;
+import eu.bcvsolutions.idm.acc.service.api.AccRoleAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
@@ -27,14 +29,17 @@ public class RoleDeleteProcessor extends AbstractEntityEventProcessor<IdmRole> {
 	
 	public static final String PROCESSOR_NAME = "role-delete-processor";
 	private final SysRoleSystemService roleSystemService;
+	private final AccRoleAccountService roleAccountService;
 	
 	@Autowired
-	public RoleDeleteProcessor(SysRoleSystemService roleSystemService) {
+	public RoleDeleteProcessor(SysRoleSystemService roleSystemService, AccRoleAccountService roleAccountService) {
 		super(RoleEventType.DELETE);
 		//
 		Assert.notNull(roleSystemService);
+		Assert.notNull(roleAccountService);
 		//
 		this.roleSystemService = roleSystemService;
+		this.roleAccountService = roleAccountService;
 	}
 	
 	@Override
@@ -51,6 +56,12 @@ public class RoleDeleteProcessor extends AbstractEntityEventProcessor<IdmRole> {
 			roleSystemService.delete(roleSystem);
 		});
 		//
+		// delete relations on account (includes delete of account	)
+		RoleAccountFilter filter = new RoleAccountFilter();
+		filter.setRoleId(event.getContent().getId());
+		roleAccountService.findDto(filter, null).forEach(roleAccount -> {
+			roleAccountService.delete(roleAccount);
+		});
 		return new DefaultEventResult<>(event, this);
 	}
 

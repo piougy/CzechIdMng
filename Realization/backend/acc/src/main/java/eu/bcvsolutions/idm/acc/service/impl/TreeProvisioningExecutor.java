@@ -97,103 +97,39 @@ public class TreeProvisioningExecutor extends AbstractProvisioningExecutor<IdmTr
 		});
 	}
 	
-	/**
-	 * Prepare all mapped attribute values (= account)
-	 * @param entity
-	 * @param operationType
-	 * @param systemEntity
-	 * @param attributes
-	 * @return
-	 */
 	@Override
-	protected Map<ProvisioningAttributeDto, Object> preapareMappedAttributesValues(IdmTreeNode entity,
-			ProvisioningOperationType operationType, SysSystemEntity systemEntity,
-			List<? extends AttributeMapping> attributes) {
-		Map<ProvisioningAttributeDto, Object> accountAttributes = new HashMap<>();
-		if (ProvisioningOperationType.DELETE != operationType) { // delete - account attributes is not needed
-			
-			// First we will resolve attribute without MERGE strategy
-			attributes.stream().filter(attribute -> {
-				return !attribute.isDisabledAttribute() 
-						&& AttributeMappingStrategyType.AUTHORITATIVE_MERGE != attribute.getStrategyType() 
-						&& AttributeMappingStrategyType.MERGE != attribute.getStrategyType() ;
-			}).forEach(attribute -> {
-				ProvisioningAttributeDto provisioningAttributeDto = ProvisioningAttributeDto.createProvisioningAttributeKey(attribute);
-				if(attribute.isUid()){
-					// For UID attribute, we will set as value always UID form account
-					// TODO: now we set UID from SystemEntity, may be UID from AccAccount will be more correct
-					accountAttributes.put(provisioningAttributeDto, systemEntity.getUid());
-				}else if(attribute.isEntityAttribute() && TreeSynchronizationExecutor.PARENT_FIELD.equals(attribute.getIdmPropertyName())){
-					// For Tree we need do transform parent (IdmTreeNode) to resource parent format (UID of parent)
-					Object idmValue = attributeMappingService.getAttributeValue(entity, attribute);
-					if(idmValue instanceof IdmTreeNode){
-						// Generally we expect IdmTreeNode as parent (we will do transform)
-						TreeAccountFilter treeAccountFilter = new TreeAccountFilter();
-						treeAccountFilter.setSystemId(attribute.getSchemaAttribute().getObjectClass().getSystem().getId());
-						treeAccountFilter.setTreeNodeId(((IdmTreeNode)idmValue).getId());
-						List<AccTreeAccountDto> treeAccounts =  treeAccountService.findDto(treeAccountFilter, null).getContent();
-						if(treeAccounts.isEmpty()){
-							throw new ProvisioningException(AccResultCode.PROVISIONING_TREE_PARENT_ACCOUNT_NOT_FOUND,
-									ImmutableMap.of("parentNode", idmValue));
-						}
-						if(treeAccounts.size() != 1){
-							throw new ProvisioningException(AccResultCode.PROVISIONING_TREE_TOO_MANY_PARENT_ACCOUNTS,
-									ImmutableMap.of("parentNode", idmValue));
-						}
-						AccTreeAccountDto treeAccount = treeAccounts.get(0);
-						String parentUid = accountService.get(treeAccount.getAccount()).getUid();
-						accountAttributes.put(provisioningAttributeDto, parentUid);
-					}else {
-						// If is parent not instance of IdmTreeNode, then we set value without any transform
-						accountAttributes.put(provisioningAttributeDto, idmValue);
-					}
-				}else {
-					accountAttributes.put(provisioningAttributeDto, attributeMappingService.getAttributeValue(entity, attribute));
+	protected Object getAttributeValue(IdmTreeNode entity, AttributeMapping attribute) {
+		Object idmValue = super.getAttributeValue(entity, attribute);
+
+		if (attribute.isEntityAttribute()
+				&& TreeSynchronizationExecutor.PARENT_FIELD.equals(attribute.getIdmPropertyName())) {
+			// For Tree we need do transform parent (IdmTreeNode) to resource
+			// parent format (UID of parent)
+			if (idmValue instanceof IdmTreeNode) {
+				// Generally we expect IdmTreeNode as parent (we will do
+				// transform)
+				TreeAccountFilter treeAccountFilter = new TreeAccountFilter();
+				treeAccountFilter.setSystemId(attribute.getSchemaAttribute().getObjectClass().getSystem().getId());
+				treeAccountFilter.setTreeNodeId(((IdmTreeNode) idmValue).getId());
+				List<AccTreeAccountDto> treeAccounts = treeAccountService.findDto(treeAccountFilter, null).getContent();
+				if (treeAccounts.isEmpty()) {
+					throw new ProvisioningException(AccResultCode.PROVISIONING_TREE_PARENT_ACCOUNT_NOT_FOUND,
+							ImmutableMap.of("parentNode", idmValue));
 				}
-			});
-			
-			// Second we will resolve MERGE attributes
-			List<? extends AttributeMapping> attributesMerge = attributes.stream().filter(attribute -> {
-				return !attribute.isDisabledAttribute() 
-						&& (AttributeMappingStrategyType.AUTHORITATIVE_MERGE == attribute.getStrategyType() 
-						|| AttributeMappingStrategyType.MERGE == attribute.getStrategyType());
-				
-			}).collect(Collectors.toList());
-			
-			for(AttributeMapping attributeParent : attributesMerge){
-				ProvisioningAttributeDto attributeParentKey = ProvisioningAttributeDto.createProvisioningAttributeKey(attributeParent);
-			
-				if(!attributeParent.getSchemaAttribute().isMultivalued()){
-					throw new ProvisioningException(AccResultCode.PROVISIONING_MERGE_ATTRIBUTE_IS_NOT_MULTIVALUE,
-							ImmutableMap.of("object", systemEntity.getUid(), "attribute", attributeParent.getSchemaAttribute().getName()));
+				if (treeAccounts.size() != 1) {
+					throw new ProvisioningException(AccResultCode.PROVISIONING_TREE_TOO_MANY_PARENT_ACCOUNTS,
+							ImmutableMap.of("parentNode", idmValue));
 				}
-				
-				List<Object> mergedValues = new ArrayList<>();
-				attributes.stream().filter(attribute -> {
-					return !accountAttributes.containsKey(attributeParentKey)
-							&& attributeParent.getSchemaAttribute().equals(attribute.getSchemaAttribute()) 
-							&& attributeParent.getStrategyType() == attribute.getStrategyType();
-				}).forEach(attribute -> {
-					Object value = attributeMappingService.getAttributeValue(entity, attribute);
-					// We don`t want null item in list (problem with provisioning in IC)
-					if(value != null){
-						// If is value collection, then we add all its items to main list!
-						if(value instanceof Collection){
-							Collection<?> collectionNotNull = ((Collection<?>)value).stream().filter(item -> {
-								return item != null;
-							}).collect(Collectors.toList());
-							mergedValues.addAll(collectionNotNull);
-						}else {
-							mergedValues.add(value);
-						}
-					}
-				});
-				if(!accountAttributes.containsKey(attributeParentKey)){
-					accountAttributes.put(attributeParentKey, mergedValues);
-				}
+				AccTreeAccountDto treeAccount = treeAccounts.get(0);
+				String parentUid = accountService.get(treeAccount.getAccount()).getUid();
+				return parentUid;
+			} else {
+				// If is parent not instance of IdmTreeNode, then we set value
+				// without any transform
+				return idmValue;
 			}
 		}
-		return accountAttributes;
+		return idmValue;
 	}
 	
 	@Override

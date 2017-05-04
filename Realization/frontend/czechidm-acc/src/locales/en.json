@@ -847,7 +847,7 @@
     },
     "RoleAttributeEnum": {
       "NAME": "Name (String)",
-      "ROLE_TYPE": "Type of role (Enum RoleType)",
+      "ROLE_TYPE": "Type of role (String - RoleType)",
       "APPROVE_REMOVE": "Approve remove (Boolean)",
       "PRIORITY": "Priority (Integer)",
       "DESCRIPTION": "Description (String)",

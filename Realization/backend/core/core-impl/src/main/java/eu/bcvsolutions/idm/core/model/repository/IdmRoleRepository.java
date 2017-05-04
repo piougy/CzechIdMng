@@ -53,7 +53,12 @@ public interface IdmRoleRepository extends AbstractEntityRepository<IdmRole, Rol
 	        	+ "?#{[0].guarantee} is null"
 	        	+ " or"
 	        	+ " exists (from IdmRoleGuarantee rg where rg.role = e and rg.guarantee = ?#{[0].guarantee})"
-        	+ " )")
+        	+ " )"
+        	+ " and "
+ 	  	    + " ("
+ 	  	    	+ " ?#{[0].property} is null "
+ 	  	    	+ " or (?#{[0].property} = 'name' and e.name = ?#{[0].value})"
+ 	        + " )")
 	Page<IdmRole> find(RoleFilter filter, Pageable pageable);
 	
 	IdmRole findOneByName(@Param("name") String name);

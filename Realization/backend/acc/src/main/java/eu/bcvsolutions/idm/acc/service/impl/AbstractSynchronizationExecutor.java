@@ -1689,7 +1689,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 		}
 	}
 	
-	private String getDisplayNameForEntity(AbstractEntity entity){
+	protected String getDisplayNameForEntity(AbstractEntity entity){
 		if(entity == null){
 			return null;
 		}

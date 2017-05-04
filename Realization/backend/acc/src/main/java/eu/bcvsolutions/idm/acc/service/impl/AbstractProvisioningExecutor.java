@@ -128,9 +128,9 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 		List<EntityAccountDto> entityAccoutnList =  this.getEntityAccountService().findDto((BaseFilter) filter, null).getContent();
 
 		List<UUID> accounts = new ArrayList<>();
-		entityAccoutnList.stream().forEach((identityAccount) -> {
-			if (!accounts.contains(identityAccount.getAccount())) {
-				accounts.add(identityAccount.getAccount());
+		entityAccoutnList.stream().forEach((entityAccount) -> {
+			if (!accounts.contains(entityAccount.getAccount())) {
+				accounts.add(entityAccount.getAccount());
 			}
 		});
 
@@ -375,7 +375,7 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 					// TODO: now we set UID from SystemEntity, may be UID from AccAccount will be more correct
 					accountAttributes.put(ProvisioningAttributeDto.createProvisioningAttributeKey(attribute), systemEntity.getUid());
 				}else {
-					accountAttributes.put(ProvisioningAttributeDto.createProvisioningAttributeKey(attribute), attributeMappingService.getAttributeValue(entity, attribute));
+					accountAttributes.put(ProvisioningAttributeDto.createProvisioningAttributeKey(attribute), getAttributeValue(entity, attribute));
 				}
 			});
 			
@@ -401,7 +401,7 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 							&& attributeParent.getSchemaAttribute().equals(attribute.getSchemaAttribute()) 
 							&& attributeParent.getStrategyType() == attribute.getStrategyType();
 				}).forEach(attribute -> {
-					Object value = attributeMappingService.getAttributeValue(entity, attribute);
+					Object value = getAttributeValue(entity, attribute);
 					// We don`t want null item in list (problem with provisioning in IC)
 					if(value != null){
 						// If is value collection, then we add all its items to main list!
@@ -421,6 +421,10 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 			}
 		}
 		return accountAttributes;
+	}
+
+	protected Object getAttributeValue(ENTITY entity, AttributeMapping attribute){
+		return attributeMappingService.getAttributeValue(entity, attribute);
 	}
 
 	@Override

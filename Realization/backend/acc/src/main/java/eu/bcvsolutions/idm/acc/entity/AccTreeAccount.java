@@ -17,9 +17,10 @@ import eu.bcvsolutions.idm.acc.domain.EntityAccount;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 
-/*
+/**
  * Tree account
- * 
+ * @author svandav
+ *
  */
 @Entity
 @Table(name = "acc_tree_account", indexes = {

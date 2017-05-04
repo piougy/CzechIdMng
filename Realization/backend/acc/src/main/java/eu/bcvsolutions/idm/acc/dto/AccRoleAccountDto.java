@@ -8,9 +8,10 @@ import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.model.dto.IdmRoleDto;
 
-/*
+/**
  * Role account DTO
- * 
+ * @author svandav
+ *
  */
 @Relation(collectionRelation = "roleAccounts")
 public class AccRoleAccountDto extends AbstractDto implements EntityAccountDto {

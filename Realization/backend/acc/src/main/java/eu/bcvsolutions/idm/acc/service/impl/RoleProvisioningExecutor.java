@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.AccRoleAccountDto;
 import eu.bcvsolutions.idm.acc.dto.EntityAccountDto;
@@ -27,6 +28,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
+import eu.bcvsolutions.idm.core.model.domain.RoleType;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
@@ -85,6 +87,20 @@ public class RoleProvisioningExecutor extends AbstractProvisioningExecutor<IdmRo
 			List<? extends EntityAccountDto> idenityAccoutnList, SystemEntityType entityType) {
 		// Overloading attributes is not implemented for RoleNode
 		return new ArrayList<>();
+	}
+	
+	@Override
+	protected Object getAttributeValue(IdmRole entity, AttributeMapping attribute) {
+		Object idmValue = super.getAttributeValue(entity, attribute);
+
+		if (attribute.isEntityAttribute()
+				&& RoleSynchronizationExecutor.ROLE_TYPE_FIELD.equals(attribute.getIdmPropertyName())) {
+			// Role type enumeration we will do transform to String (name)
+			if (idmValue instanceof RoleType) {
+				return ((RoleType)idmValue).name();
+			}
+		}
+		return idmValue;
 	}
 
 	@Override

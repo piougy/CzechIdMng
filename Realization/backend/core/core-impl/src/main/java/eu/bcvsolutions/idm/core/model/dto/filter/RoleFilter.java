@@ -12,11 +12,16 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
  *
  */
 
-public class RoleFilter extends QuickFilter {
+public class RoleFilter extends QuickFilter implements CorrelationFilter {
 
 	private RoleType roleType;
 	private IdmRoleCatalogue roleCatalogue;
 	private IdmIdentity guarantee;
+	/**
+	 * Little dynamic search by role property and value
+	 */
+	private String property;
+	private String value;
 	
 	public IdmRoleCatalogue getRoleCatalogue() {
 		return roleCatalogue;
@@ -40,5 +45,25 @@ public class RoleFilter extends QuickFilter {
 	
 	public void setGuarantee(IdmIdentity guarantee) {
 		this.guarantee = guarantee;
+	}
+	
+	@Override
+	public String getProperty() {
+		return property;
+	}
+
+	@Override
+	public void setProperty(String property) {
+		this.property = property;
+	}
+
+	@Override
+	public String getValue() {
+		return value;
+	}
+
+	@Override
+	public void setValue(String value) {
+		this.value = value;
 	}
 }

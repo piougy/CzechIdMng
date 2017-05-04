@@ -73,13 +73,11 @@ import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorKey;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 import eu.bcvsolutions.idm.ic.api.IcObjectClass;
-import eu.bcvsolutions.idm.ic.api.IcSyncToken;
 import eu.bcvsolutions.idm.ic.filter.api.IcFilter;
 import eu.bcvsolutions.idm.ic.filter.api.IcResultsHandler;
 import eu.bcvsolutions.idm.ic.impl.IcAttributeImpl;
 import eu.bcvsolutions.idm.ic.impl.IcLoginAttributeImpl;
 import eu.bcvsolutions.idm.ic.impl.IcObjectClassImpl;
-import eu.bcvsolutions.idm.ic.impl.IcSyncTokenImpl;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 
 @Component
@@ -637,66 +635,31 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 		return null;
 	}
 
-	/**
-	 * Fill entity with attributes from IC module (by mapped attributes).
-	 * 
-	 * @param mappedAttributes
-	 * @param uid
-	 * @param icAttributes
-	 * @param entity
-	 * @param create (is create or update entity situation)
-	 * @return
-	 */
 	@Override
-	protected AbstractEntity fillEntity(List<SysSystemAttributeMapping> mappedAttributes, String uid,
-			List<IcAttribute> icAttributes, AbstractEntity entity, boolean create) {
-		mappedAttributes.stream().filter(attribute -> {
-			// Skip disabled attributes
-						// Skip extended attributes (we need update/ create entity first)
-						// Skip confidential attributes (we need update/ create entity
-						// first)
-						boolean fastResult =  !attribute.isDisabledAttribute() && attribute.isEntityAttribute()
-								&& !attribute.isConfidentialAttribute();
-						if(!fastResult){
-							return false;
-						}
-						// Can be value set by attribute strategy?
-						return this.canSetValue(uid, attribute, entity, create);
-
-		}).forEach(attribute -> {
-			String attributeProperty = attribute.getIdmPropertyName();
-			Object transformedValue = getValueByMappedAttribute(attribute, icAttributes);
-			if (attributeProperty.equals(PARENT_FIELD) && transformedValue != null) {
-				// Find account by UID from parent field
-				AccountFilter accountFilter = new AccountFilter();
-				accountFilter.setUidId(transformedValue.toString());
-				accountFilter.setSystemId(attribute.getSystemMapping().getSystem().getId());
-				transformedValue = null;
-				List<AccAccount> parentAccounts = accountService.find(accountFilter, null).getContent();
-				if (!parentAccounts.isEmpty()) {
-					// Find relation between tree and account
-					TreeAccountFilter treeAccountFilter = new TreeAccountFilter();
-					treeAccountFilter.setAccountId(parentAccounts.get(0).getId());
-					List<AccTreeAccount> treeAccounts = treeAccoutnService.find(treeAccountFilter, null).getContent();
-					if(!treeAccounts.isEmpty()){
-						// Find parent tree node by ID
-						// TODO: resolve more treeAccounts situations
-						transformedValue = treeNodeService.get(treeAccounts.get(0).getTreeNode().getId());
-					}
+	protected Object getValueByMappedAttribute(AttributeMapping attribute, List<IcAttribute> icAttributes) {
+		
+		Object transformedValue = super.getValueByMappedAttribute(attribute, icAttributes);
+		
+		if (attribute.getIdmPropertyName().equals(PARENT_FIELD) && transformedValue != null) {
+			// Find account by UID from parent field
+			AccountFilter accountFilter = new AccountFilter();
+			accountFilter.setUidId(transformedValue.toString());
+			accountFilter.setSystemId(((SysSystemAttributeMapping)attribute).getSystemMapping().getSystem().getId());
+			transformedValue = null;
+			List<AccAccount> parentAccounts = accountService.find(accountFilter, null).getContent();
+			if (!parentAccounts.isEmpty()) {
+				// Find relation between tree and account
+				TreeAccountFilter treeAccountFilter = new TreeAccountFilter();
+				treeAccountFilter.setAccountId(parentAccounts.get(0).getId());
+				List<AccTreeAccount> treeAccounts = treeAccoutnService.find(treeAccountFilter, null).getContent();
+				if(!treeAccounts.isEmpty()){
+					// Find parent tree node by ID
+					// TODO: resolve more treeAccounts situations
+					transformedValue = treeNodeService.get(treeAccounts.get(0).getTreeNode().getId());
 				}
 			}
-
-			// Set transformed value from target system to entity
-			try {
-				EntityUtilities.setEntityValue(entity, attributeProperty, transformedValue);
-			} catch (IntrospectionException | IllegalAccessException | IllegalArgumentException
-					| InvocationTargetException | ProvisioningException e) {
-				throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_IDM_FIELD_NOT_SET,
-						ImmutableMap.of("property", attributeProperty, "uid", uid), e);
-			}
-
-		});
-		return entity;
+		}
+		return transformedValue;
 	}
 
 	@Override

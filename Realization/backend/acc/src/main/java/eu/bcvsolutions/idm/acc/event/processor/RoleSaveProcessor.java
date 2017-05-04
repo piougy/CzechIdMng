@@ -30,6 +30,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 public class RoleSaveProcessor extends AbstractEntityEventProcessor<IdmRole> {
 
 	public static final String PROCESSOR_NAME = "role-save-processor";
+	public static final String BREAK_PROVISIONING = "break_provisioning";
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(RoleSaveProcessor.class);
 	private ProvisioningService provisioningService;
 	private final ApplicationContext applicationContext;
@@ -50,6 +51,11 @@ public class RoleSaveProcessor extends AbstractEntityEventProcessor<IdmRole> {
 
 	@Override
 	public EventResult<IdmRole> process(EntityEvent<IdmRole> event) {
+		Object breakProvisioning = event.getProperties().get(BREAK_PROVISIONING);
+		
+		if(breakProvisioning != null && breakProvisioning instanceof Boolean && (Boolean)breakProvisioning){
+			return new DefaultEventResult<>(event, this);
+		}
 		doProvisioning(event.getContent());
 		return new DefaultEventResult<>(event, this);
 	}

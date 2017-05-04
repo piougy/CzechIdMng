@@ -2,6 +2,8 @@ package eu.bcvsolutions.idm.core.api.service;
 
 import java.io.Serializable;
 
+import com.google.common.annotations.Beta;
+
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
@@ -17,14 +19,6 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
  * @param <F> {@link BaseFilter} type
  */
 public interface ReadWriteDtoService<DTO extends BaseDto, F extends BaseFilter> extends ReadDtoService<DTO, F> {
-	
-	/**
-	 * Persists a given DTO to repository.
-	 * 
-	 * @param entity
-	 * @return the saved DTO
-	 */
-	DTO saveInternal(DTO dto);
 	
 	/**
 	 * Saves a given DTO. Event could be published instead persisting dto directly. Authorization policies are evaluated.
@@ -69,11 +63,21 @@ public interface ReadWriteDtoService<DTO extends BaseDto, F extends BaseFilter> 
 	void deleteById(Serializable id, BasePermission... permission);
 	
 	/**
+	 * Persists a given DTO to repository.
+	 * 
+	 * @param entity
+	 * @return the saved DTO
+	 */
+	@Beta
+	DTO saveInternal(DTO dto);
+	
+	/**
 	 * Deletes a given DTO (from repository).
 	 * 
 	 * @param dto
 	 * @throws IllegalArgumentException in case the given DTO is {@literal null}.
 	 */
+	@Beta
 	void deleteInternal(DTO dto);
 	
 	/**
@@ -82,5 +86,6 @@ public interface ReadWriteDtoService<DTO extends BaseDto, F extends BaseFilter> 
 	 * @param dto id
 	 * @throws IllegalArgumentException in case the given DTO id is {@literal null}.
 	 */
+	@Beta
 	void deleteInternalById(Serializable id);
 }

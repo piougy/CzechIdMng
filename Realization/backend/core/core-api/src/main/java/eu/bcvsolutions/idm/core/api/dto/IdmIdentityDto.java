@@ -7,6 +7,7 @@ import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
+import org.springframework.hateoas.core.Relation;
 
 import eu.bcvsolutions.idm.core.api.domain.Auditable;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
@@ -18,6 +19,7 @@ import eu.bcvsolutions.idm.core.api.domain.Disableable;
  * @author Radek Tomiška
  *
  */
+@Relation(collectionRelation = "identities")
 public class IdmIdentityDto extends AbstractDto implements Disableable {
 
 	private static final long serialVersionUID = 1L;

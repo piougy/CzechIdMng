@@ -66,37 +66,6 @@ public interface ReadDtoService<DTO extends BaseDto, F extends BaseFilter>
 	 * @return
 	 */
 	Page<DTO> find(F filter, Pageable pageable, BasePermission... permission);
-
-	/**
-	 * Converts entity to DTO
-	 * 
-	 * @see Embedded
-	 * @param entity
-	 * @param dto
-	 *            if is not null, then will be use as input to convert
-	 * @return
-	 */
-	//DTO toDto(E entity, DTO dto);
-
-	/**
-	 * Converts DTO to entity
-	 * 
-	 * @see Embedded
-	 * @param entity
-	 *            if is not null, then will be use as input to convert
-	 * @param dto
-	 * @return
-	 */
-	//E toEntity(DTO dto, E entity);
-
-	/**
-	 * Converts list of entities wrapped to Page object to list of DTOs wrapped
-	 * to Page object.
-	 * 
-	 * @param entityPage
-	 * @return
-	 */
-	//Page<DTO> toDtoPage(Page<E> entityPage);
 	
 	/**
 	 * Returns whether the given dto is considered to be new.
@@ -113,12 +82,4 @@ public interface ReadDtoService<DTO extends BaseDto, F extends BaseFilter>
 	 * @return
 	 */
 	Set<String> getPermissions(Serializable id);
-	
-	/**
-	 * Transform entity to dto
-	 * 
-	 * @param modelMapper
-	 */
-	// void setModelMapper(ModelMapper modelMapper);
-
 }

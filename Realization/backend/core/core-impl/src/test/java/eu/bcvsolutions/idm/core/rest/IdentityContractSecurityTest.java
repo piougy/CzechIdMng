@@ -25,12 +25,13 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 
+import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
-import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.core.security.api.utils.IdmAuthorityUtils;
 import eu.bcvsolutions.idm.test.api.AbstractRestTest;
@@ -43,7 +44,7 @@ import eu.bcvsolutions.idm.test.api.AbstractRestTest;
 public class IdentityContractSecurityTest extends AbstractRestTest {	
 	
 	@Autowired
-	private IdmIdentityRepository identityRepository;
+	private IdmIdentityService identityService;
 	
 	@Autowired
 	private IdmIdentityContractRepository identityContractRepository;
@@ -86,7 +87,7 @@ public class IdentityContractSecurityTest extends AbstractRestTest {
 	public void createWorkPositions() {
 		SecurityMockMvcRequestPostProcessors.securityContext(null);
 
-		IdmIdentity user = identityRepository.findOneByUsername("kopr");
+		IdmIdentityDto user = identityService.getByUsername("kopr");
 		
 		Map<String, String> body = new HashMap<>();
 		body.put("identity", user.getId().toString());
@@ -138,8 +139,8 @@ public class IdentityContractSecurityTest extends AbstractRestTest {
 	public void deleteWorkPositions() {
 		SecurityMockMvcRequestPostProcessors.securityContext(null);
 
-		IdmIdentity user = identityRepository.findOneByUsername("kopr");
-		List<IdmIdentityContract> pages = identityContractRepository.findAllByIdentity(user, null);
+		IdmIdentityDto user = identityService.getByUsername("kopr");
+		List<IdmIdentityContract> pages = identityContractRepository.findAllByIdentity_Id(user.getId(), null);
 		
 		Serializable positionId = null;
 		for	(IdmIdentityContract position : pages) {
@@ -181,6 +182,11 @@ public class IdentityContractSecurityTest extends AbstractRestTest {
 	}
 	
 	private Authentication getAuthentication() {
-		return new IdmJwtAuthentication(new IdmIdentityDto("[SYSTEM]"), null, Lists.newArrayList(IdmAuthorityUtils.getAdminAuthority()), "test");
+		
+		return new IdmJwtAuthentication(
+				identityService.getByUsername(InitTestData.TEST_ADMIN_USERNAME), 
+				null, 
+				Lists.newArrayList(IdmAuthorityUtils.getAdminAuthority()), 
+				"test");
 	}
 }

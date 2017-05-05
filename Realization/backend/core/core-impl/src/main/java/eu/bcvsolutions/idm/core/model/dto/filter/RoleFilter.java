@@ -3,9 +3,9 @@ package eu.bcvsolutions.idm.core.model.dto.filter;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
+import eu.bcvsolutions.idm.core.api.domain.RoleType;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
-import eu.bcvsolutions.idm.core.model.domain.RoleType;
-import eu.bcvsolutions.idm.core.model.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
 

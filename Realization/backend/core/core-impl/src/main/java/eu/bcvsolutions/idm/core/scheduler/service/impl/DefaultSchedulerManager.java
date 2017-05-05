@@ -27,7 +27,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
-
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;

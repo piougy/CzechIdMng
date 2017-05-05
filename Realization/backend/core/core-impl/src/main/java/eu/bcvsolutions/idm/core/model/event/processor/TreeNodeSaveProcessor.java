@@ -9,7 +9,6 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import com.google.common.collect.ImmutableMap;
-
 import eu.bcvsolutions.forest.index.service.api.ForestContentService;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;

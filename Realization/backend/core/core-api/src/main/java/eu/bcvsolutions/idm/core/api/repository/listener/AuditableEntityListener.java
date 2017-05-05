@@ -19,10 +19,8 @@ import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 /**
  * Sets {@link Auditable} properties
  * 
- * @see {@link AuditingEntityListener}
- * 
  * @author Radek Tomiška
- *
+ * @see {@link AuditingEntityListener}
  */
 @Configurable
 public class AuditableEntityListener {

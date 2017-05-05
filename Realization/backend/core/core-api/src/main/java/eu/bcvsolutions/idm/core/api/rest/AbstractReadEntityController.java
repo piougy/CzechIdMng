@@ -32,7 +32,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
-
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
@@ -49,9 +48,8 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizationManager;
 /**
  * Read operations (get, find)
  * 
- * @author Radek Tomiška
- *
  * @param <E>
+ * @author Radek Tomiška
  * @deprecated use {@link AbstractReadDtoController}
  */
 @Deprecated
@@ -164,12 +162,11 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 	/**
 	 * Quick search - parameters will be transformed to filter object
 	 * 
-	 * @see #toFilter(MultiValueMap)
-	 * 
 	 * @param parameters
 	 * @param pageable
 	 * @param assembler
 	 * @return
+     * @see #toFilter(MultiValueMap)
 	 */
 	public Resources<?> find(
 			@RequestParam MultiValueMap<String, Object> parameters,
@@ -181,12 +178,11 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 	/**
 	 * Quick search for autocomplete (read data to select box etc.) - parameters will be transformed to filter object
 	 * 
-	 * @see #toFilter(MultiValueMap)
-	 * 
 	 * @param parameters
 	 * @param pageable
 	 * @param assembler
 	 * @return
+     * @see #toFilter(MultiValueMap)
 	 */
 	public Resources<?> autocomplete(
 			@RequestParam MultiValueMap<String, Object> parameters,

@@ -10,7 +10,6 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
-import eu.bcvsolutions.idm.core.security.evaluator.BasePermissionEvaluator;
 import eu.bcvsolutions.idm.core.security.evaluator.role.RoleGuaranteeEvaluator;
 import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
 

@@ -7,9 +7,9 @@ import java.util.UUID;
 
 import org.junit.Test;
 
+import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
-import eu.bcvsolutions.idm.core.model.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.test.api.AbstractUnitTest;

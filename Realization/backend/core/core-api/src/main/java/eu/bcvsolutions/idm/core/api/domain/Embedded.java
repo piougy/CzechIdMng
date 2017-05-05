@@ -13,7 +13,6 @@ import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
  * Mark field for convert BaseEntity to UUID (and conversely) and embedded DTO entity.
  * 
  * @author svandav
- *
  */
 @Target({ ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)

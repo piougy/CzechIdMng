@@ -19,11 +19,10 @@ import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 /**
  * CRUD operations for DTO
  * 
- * @author Svanda
- * @author Radek Tomiška
- *
  * @param <DTO> dto type
  * @param <F> filter type
+ * @author Svanda
+ * @author Radek Tomiška
  */
 public abstract class AbstractReadWriteDtoController<DTO extends BaseDto, F extends BaseFilter>
 		extends AbstractReadDtoController<DTO, F> {

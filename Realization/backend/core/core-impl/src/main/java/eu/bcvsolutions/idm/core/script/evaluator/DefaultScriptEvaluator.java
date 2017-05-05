@@ -2,7 +2,7 @@ package eu.bcvsolutions.idm.core.script.evaluator;
 
 import org.springframework.stereotype.Service;
 
-import eu.bcvsolutions.idm.core.model.domain.IdmScriptCategory;
+import eu.bcvsolutions.idm.core.api.domain.IdmScriptCategory;
 import eu.bcvsolutions.idm.core.model.dto.IdmScriptDto;
 
 /**

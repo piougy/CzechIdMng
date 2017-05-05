@@ -8,11 +8,11 @@ import org.junit.Test;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.transaction.annotation.Transactional;
 
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
-import eu.bcvsolutions.idm.core.model.dto.IdmIdentityContractDto;
-import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmAuthorityChange;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.security.api.domain.DefaultGrantedAuthority;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
@@ -33,7 +33,7 @@ public class IdentityRoleDeleteAuthoritiesProcessorTest extends AbstractIdentity
 	@Test
 	public void testRoleRemovedAuthorityRemoved() {
 		IdmRole role = getTestRole();
-		IdmIdentity i = getTestUser();
+		IdmIdentityDto i = getTestUser();
 		IdmIdentityContractDto c = getTestContract(i);
 		IdmIdentityRoleDto ir = getTestIdentityRole(role, c);
 		
@@ -65,7 +65,7 @@ public class IdentityRoleDeleteAuthoritiesProcessorTest extends AbstractIdentity
 		// two roles with same authorities
 		IdmRole role = getTestRole();
 		IdmRole role2 = getTestRole();
-		IdmIdentity i = getTestUser();
+		IdmIdentityDto i = getTestUser();
 		IdmIdentityContractDto c = getTestContract(i);
 		IdmIdentityRoleDto ir = getTestIdentityRole(role, c);
 		IdmIdentityRoleDto ir2 = getTestIdentityRole(role2, c);
@@ -84,14 +84,14 @@ public class IdentityRoleDeleteAuthoritiesProcessorTest extends AbstractIdentity
 		Assert.assertEquals(1, authoritiesFactory.getGrantedAuthoritiesForIdentity(i).size());
 	}
 	
-	private void removeModifiedTimestamp(IdmIdentity i) {
+	private void removeModifiedTimestamp(IdmIdentityDto i) {
 		// addition of roles also modifies authorities -> set to null for the sake of testing
 		IdmAuthorityChange ac = getAuthorityChange(i);
 		Assert.assertNotNull(ac);
 		acRepository.delete(ac);
 	}
 	
-	private void checkAssignedAuthorities(IdmIdentity i) {
+	private void checkAssignedAuthorities(IdmIdentityDto i) {
 		GrantedAuthority g = new DefaultGrantedAuthority(CoreGroupPermission.IDENTITY, IdmBasePermission.DELETE);
 		Collection<GrantedAuthority> authorities = authoritiesFactory.getGrantedAuthoritiesForIdentity(i);
 		Assert.assertEquals(1, authorities.size());

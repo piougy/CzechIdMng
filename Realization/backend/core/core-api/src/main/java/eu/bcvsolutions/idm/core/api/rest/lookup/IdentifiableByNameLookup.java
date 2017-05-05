@@ -11,10 +11,9 @@ import eu.bcvsolutions.idm.core.api.service.IdentifiableByNameEntityService;
 /**
  * Some entities could be found by name.
  * 
- * @author Radek Tomiška 
- *
  * @param <E>
  * @deprecated CodeableLookup will be added
+ * @author Radek Tomiška
  */
 @Deprecated
 public abstract class IdentifiableByNameLookup<E extends BaseEntity> extends EntityLookupSupport<E>{

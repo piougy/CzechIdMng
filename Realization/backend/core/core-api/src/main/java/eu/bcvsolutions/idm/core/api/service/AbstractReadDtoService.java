@@ -174,18 +174,14 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 			// EL does not recognize two methods with the same name and
 			// different argument type
 			try {
-				return getRepository().findOne(UUID.fromString((String) id));
+				return checkAccess(getRepository().findOne(UUID.fromString((String) id)), permission);
 			} catch (IllegalArgumentException ex) {
 				// simply not found
 				return null;
 			}
 		}
-		E entity = getRepository().findOne((UUID) id);
-		if (entity == null) {
-			// entity not found
-			return null;
-		}
 		//
+		E entity = getRepository().findOne((UUID) id);
 		return checkAccess(entity, permission);
 	}
 	
@@ -206,7 +202,12 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 		// transform filter to criteria
 		Specification<E> criteria = new Specification<E>() {
 			public Predicate toPredicate(Root<E> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
-				List<Predicate> predicates = AbstractReadDtoService.this.toPredicates(root, query, builder, filter);
+				List<Predicate> predicates = new ArrayList<>();
+				//
+				// if filter is null, no filter predicates will be built
+				if (filter != null) {
+					predicates.addAll(AbstractReadDtoService.this.toPredicates(root, query, builder, filter));
+				}
 				//
 				// permisions are not evaluated, if no permission was given
 				if (!ObjectUtils.isEmpty(permission)) {
@@ -222,6 +223,29 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	@Override
 	public boolean supports(Class<?> delimiter) {
 		return dtoClass.isAssignableFrom(delimiter);
+	}
+	
+	@Override
+	public boolean isNew(DTO dto) {
+		Assert.notNull(dto);
+		//
+		return dto.getId() == null || !getRepository().exists((UUID) dto.getId());
+	}
+	
+	
+	/**
+	 * Returns, what currently logged identity can do with given dto
+	 * 
+	 * @param id
+	 * @return
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public Set<String> getPermissions(Serializable id) {
+		E entity = getEntity(id);
+		Assert.notNull(entity);
+		//
+		return getAuthorizationManager().getPermissions(entity); // null is for create
 	}
 
 	/**
@@ -320,37 +344,18 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	}
 	
 	@Override
-	public boolean isNew(DTO dto) {
-		Assert.notNull(dto);
+	public DTO checkAccess(DTO dto, BasePermission... permission) {
+		// TODO: getEntity instead ?
+		checkAccess(toEntity(dto, null), permission);
 		//
-		return dto.getId() == null || !getRepository().exists((UUID) dto.getId());
+		return dto;
 	}
 	
-	
-	/**
-	 * Returns, what currently logged identity can do with given dto
-	 * 
-	 * @param backendId
-	 * @return
-	 */
-	@Override
-	@Transactional(readOnly = true)
-	public Set<String> getPermissions(Serializable id) {
-		E entity = getEntity(id);
-		Assert.notNull(entity);
-		//
-		return getAuthorizationManager().getPermissions(entity); // null is for create
-	}
-	
-	/**
-	 * Evaluate authorization permission on given entity
-	 *  
-	 * @param entity
-	 * @param permission
-	 * @return
-	 */
-	protected E checkAccess(E entity, BasePermission... permission) {
-		Assert.notNull(entity);
+	public E checkAccess(E entity, BasePermission... permission) {
+		if (entity == null) {
+			// nothing to check
+			return null;
+		}
 		//
 		if (!ObjectUtils.isEmpty(permission) && this instanceof AuthorizableService && !getAuthorizationManager().evaluate(entity, permission)) {
 			throw new ForbiddenEntityException(entity.getId());

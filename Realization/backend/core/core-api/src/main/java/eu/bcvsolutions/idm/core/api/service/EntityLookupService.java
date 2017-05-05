@@ -10,12 +10,11 @@ import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 /**
  * Support for loading {@link BaseEntity} by identifier.
  * Provide basic services through application.
- * 
+ *
  * @see EntityLookup
  * @see ReadDtoService
  * 
  * @author Radek Tomiška
- *
  */
 public interface EntityLookupService {
 
@@ -28,6 +27,8 @@ public interface EntityLookupService {
 	 * @return
 	 */
 	<E extends BaseEntity> E lookup(Class<E> entityClass, Serializable entityId);
+	
+	<DTO extends BaseDto> DTO lookupDto(Class<DTO> dtoClass, Serializable entityId);
 	
 	/**
 	 * Returns {@link EntityLookup} for given entityClass

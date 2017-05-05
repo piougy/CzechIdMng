@@ -21,7 +21,6 @@ import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SchemaAttributeFilter;
-import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
@@ -39,11 +38,12 @@ import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
-import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleDto;
-import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
+import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
@@ -83,6 +83,9 @@ public class DefaultAccAuthenticatorTest extends AbstractIntegrationTest {
 	
 	@Autowired
 	private IdmIdentityService identityService;
+	
+	@Autowired
+	private IdmIdentityRepository identityRepository;
 	
 	@Autowired
 	private SysSchemaAttributeService schemaAttributeService;
@@ -133,7 +136,7 @@ public class DefaultAccAuthenticatorTest extends AbstractIntegrationTest {
 	@Test
 	public void A_loginAgainstSystem() {
 		initData();
-		IdmIdentity identity = identityService.getByName(USERNAME);
+		IdmIdentityDto identity = identityService.getByUsername(USERNAME);
 		IdmRole role = roleService.getByName(ROLE_NAME);
 		
 		IdmIdentityRoleDto irdto = new IdmIdentityRoleDto();
@@ -144,7 +147,7 @@ public class DefaultAccAuthenticatorTest extends AbstractIntegrationTest {
 		identityRoleService.save(irdto);
 		
 		// do provisioning
-		provisioningService.doProvisioning(identity);
+		provisioningService.doProvisioning(identityRepository.findOne(identity.getId()));
 		
 		IdentityAccountFilter filter = new IdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
@@ -160,7 +163,7 @@ public class DefaultAccAuthenticatorTest extends AbstractIntegrationTest {
 		passwordChangeDto.setAll(true);
 		passwordChangeDto.setNewPassword(new GuardedString("test"));
 		// change password for system
-		provisioningService.changePassword(identity, passwordChangeDto);
+		provisioningService.changePassword(identityRepository.findOne(identity.getId()), passwordChangeDto);
 		
 		LoginDto loginDto = new LoginDto();
 		loginDto.setUsername(USERNAME);
@@ -174,7 +177,7 @@ public class DefaultAccAuthenticatorTest extends AbstractIntegrationTest {
 	
 	@Test
 	public void loginAgainstTwoAccount() {
-		IdmIdentity identity = identityService.getByName(USERNAME);
+		IdmIdentityDto identity = identityService.getByUsername(USERNAME);
 		
 		IdentityAccountFilter filter = new IdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
@@ -200,7 +203,7 @@ public class DefaultAccAuthenticatorTest extends AbstractIntegrationTest {
 		passwordChangeDto.setAll(false);
 		passwordChangeDto.setNewPassword(new GuardedString("1234"));
 		// change password for system
-		provisioningService.changePassword(identity, passwordChangeDto);
+		provisioningService.changePassword(identityRepository.findOne(identity.getId()), passwordChangeDto);
 		
 		passwordChangeDto = new PasswordChangeDto();
 		accs = new ArrayList<>();
@@ -209,7 +212,7 @@ public class DefaultAccAuthenticatorTest extends AbstractIntegrationTest {
 		passwordChangeDto.setAll(false);
 		passwordChangeDto.setNewPassword(new GuardedString("4321"));
 		// change password for system
-		provisioningService.changePassword(identity, passwordChangeDto);
+		provisioningService.changePassword(identityRepository.findOne(identity.getId()), passwordChangeDto);
 		
 		// bough password are right
 		LoginDto loginDto1 = new LoginDto();
@@ -233,7 +236,7 @@ public class DefaultAccAuthenticatorTest extends AbstractIntegrationTest {
 	
 	@Test
 	public void loginAgainstIdm() {
-		IdmIdentity identity = new IdmIdentity();
+		IdmIdentityDto identity = new IdmIdentityDto();
 		identity.setUsername("test_login_1");
 		identity.setLastName("test_login_1");
 		identity.setPassword(new GuardedString("test1234"));
@@ -251,14 +254,14 @@ public class DefaultAccAuthenticatorTest extends AbstractIntegrationTest {
 	
 	@Test(expected = IdmAuthenticationException.class)
 	public void loginViaManagerBadCredentials() {
-		IdmIdentity identity = identityService.getByUsername(USERNAME);
+		IdmIdentityDto identity = identityService.getByUsername(USERNAME);
 
 		PasswordChangeDto passwordChangeDto = new PasswordChangeDto();
 		passwordChangeDto.setAll(true);
 		passwordChangeDto.setIdm(false);
 		passwordChangeDto.setNewPassword(new GuardedString(PASSWORD));
 		// change password for system
-		provisioningService.changePassword(identity, passwordChangeDto);
+		provisioningService.changePassword(identityRepository.findOne(identity.getId()), passwordChangeDto);
 		
 		LoginDto loginDto = new LoginDto();
 		loginDto.setUsername(USERNAME);
@@ -270,7 +273,7 @@ public class DefaultAccAuthenticatorTest extends AbstractIntegrationTest {
 		SysSystem system = createTestSystem();
 		List<SysSchemaObjectClass> objectClasses = sysSystemService.generateSchema(system);
 		
-		IdmIdentity identity = new IdmIdentity();
+		IdmIdentityDto identity = new IdmIdentityDto();
 		identity.setUsername(USERNAME);
 		identity.setLastName(USERNAME);
 		identity.setPassword(new GuardedString(PASSWORD));

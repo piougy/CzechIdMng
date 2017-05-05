@@ -6,8 +6,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import eu.bcvsolutions.idm.core.api.dto.filter.TreeNodeFilter;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
-import eu.bcvsolutions.idm.core.model.dto.filter.TreeNodeFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 

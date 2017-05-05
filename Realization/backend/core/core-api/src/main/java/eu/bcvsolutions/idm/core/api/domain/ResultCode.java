@@ -26,12 +26,14 @@ public interface ResultCode {
 	
 	/**
 	 * HTTP status code
+     *
 	 * @return
 	 */
 	HttpStatus getStatus();
 	
 	/**
 	 * Error description
+     *
 	 * @return
 	 */
 	String getMessage();

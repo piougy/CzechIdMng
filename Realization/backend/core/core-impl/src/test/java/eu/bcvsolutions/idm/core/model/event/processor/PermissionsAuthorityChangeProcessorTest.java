@@ -9,12 +9,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
-import eu.bcvsolutions.idm.core.model.dto.IdmIdentityContractDto;
-import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmAuthorityChange;
 import eu.bcvsolutions.idm.core.model.entity.IdmAuthorizationPolicy;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.repository.IdmAuthorizationPolicyRepository;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
@@ -46,12 +46,12 @@ public class PermissionsAuthorityChangeProcessorTest extends AbstractIdentityAut
 	@Test
 	public void testRemoveAuthorityUpdateUsers() throws Exception {
 		IdmRole role = getTestRole();
-		IdmIdentity i = getTestUser();
+		IdmIdentityDto i = getTestUser();
 		IdmIdentityContractDto c = getTestContract(i);
 		@SuppressWarnings("unused")
 		IdmIdentityRoleDto ir = getTestIdentityRole(role, c);
 		
-		IdmAuthorityChange ac = acRepository.findByIdentity(i);
+		IdmAuthorityChange ac = acRepository.findOneByIdentity_Id(i.getId());
 		Assert.assertNotNull(ac);
 		Assert.assertNotNull(ac.getAuthChangeTimestamp());
 		DateTime origChangeTime = ac.getAuthChangeTimestamp();
@@ -60,7 +60,7 @@ public class PermissionsAuthorityChangeProcessorTest extends AbstractIdentityAut
 		
 		clearAuthPolicies(role);
 		
-		ac = acRepository.findByIdentity(i);
+		ac = acRepository.findOneByIdentity_Id(i.getId());
 		Assert.assertNotNull(ac);
 		Assert.assertNotNull(ac.getAuthChangeTimestamp());
 		Assert.assertTrue(origChangeTime.getMillis() < ac.getAuthChangeTimestamp().getMillis());
@@ -69,12 +69,12 @@ public class PermissionsAuthorityChangeProcessorTest extends AbstractIdentityAut
 	@Test
 	public void testAddAuthorityUpdateUsers() throws Exception {
 		IdmRole role = getTestRole();
-		IdmIdentity i = getTestUser();
+		IdmIdentityDto i = getTestUser();
 		IdmIdentityContractDto c = getTestContract(i);
 		@SuppressWarnings("unused")
 		IdmIdentityRoleDto ir = getTestIdentityRole(role, c);
 		
-		IdmAuthorityChange ac = acRepository.findByIdentity(i);
+		IdmAuthorityChange ac = acRepository.findOneByIdentity_Id(i.getId());
 		Assert.assertNotNull(ac);
 		Assert.assertNotNull(ac.getAuthChangeTimestamp());
 		DateTime origChangeTime = ac.getAuthChangeTimestamp();
@@ -88,7 +88,7 @@ public class PermissionsAuthorityChangeProcessorTest extends AbstractIdentityAut
 			}
 		});
 
-		ac = acRepository.findByIdentity(i);
+		ac = acRepository.findOneByIdentity_Id(i.getId());
 		Assert.assertNotNull(ac);
 		Assert.assertNotNull(ac.getAuthChangeTimestamp());
 		Assert.assertTrue(origChangeTime.getMillis() < ac.getAuthChangeTimestamp().getMillis());
@@ -102,20 +102,20 @@ public class PermissionsAuthorityChangeProcessorTest extends AbstractIdentityAut
 	@Test
 	public void testCreateAuthorityChangeEntity() throws Exception {
 		IdmRole role = getTestRole();
-		IdmIdentity i = getTestUser();
+		IdmIdentityDto i = getTestUser();
 		IdmIdentityContractDto c = getTestContract(i);
 		@SuppressWarnings("unused")
 		IdmIdentityRoleDto ir = getTestIdentityRole(role, c);
 		
 		deleteAuthorityChangedEntity(i);
-		IdmAuthorityChange ac = acRepository.findByIdentity(i);
+		IdmAuthorityChange ac = acRepository.findOneByIdentity_Id(i.getId());
 		Assert.assertNull(ac);
 		
 		sleep();
 		
 		clearAuthPolicies(role);
 		
-		ac = acRepository.findByIdentity(i);
+		ac = acRepository.findOneByIdentity_Id(i.getId());
 		Assert.assertNotNull(ac);
 		Assert.assertNotNull(ac.getAuthChangeTimestamp());
 	}
@@ -129,12 +129,12 @@ public class PermissionsAuthorityChangeProcessorTest extends AbstractIdentityAut
 		securityService.setSystemAuthentication();
 		
 		IdmRole role = getTestRole();
-		IdmIdentity i = getTestUser();
+		IdmIdentityDto i = getTestUser();
 		IdmIdentityContractDto c = getTestContract(i);
 		@SuppressWarnings("unused")
 		IdmIdentityRoleDto ir = getTestIdentityRole(role, c);
 		
-		IdmAuthorityChange ac = acRepository.findByIdentity(i);
+		IdmAuthorityChange ac = acRepository.findOneByIdentity_Id(i.getId());
 		Assert.assertNotNull(ac);
 		Assert.assertNotNull(ac.getAuthChangeTimestamp());
 		DateTime origChangeTime = ac.getAuthChangeTimestamp();
@@ -143,7 +143,7 @@ public class PermissionsAuthorityChangeProcessorTest extends AbstractIdentityAut
 		
 		changeAuthorizationPolicyPermissions(role);
 		
-		ac = acRepository.findByIdentity(i);
+		ac = acRepository.findOneByIdentity_Id(i.getId());
 		Assert.assertNotNull(ac);
 		Assert.assertNotNull(ac.getAuthChangeTimestamp());
 		Assert.assertTrue(origChangeTime.getMillis() < ac.getAuthChangeTimestamp().getMillis());
@@ -162,11 +162,11 @@ public class PermissionsAuthorityChangeProcessorTest extends AbstractIdentityAut
 		});
 	}
 
-	private void deleteAuthorityChangedEntity(IdmIdentity i) {
+	private void deleteAuthorityChangedEntity(IdmIdentityDto i) {
 		// delete authority change to simulate empty relation
 		getTransactionTemplate().execute(new TransactionCallback<Object>() {
 			public Object doInTransaction(TransactionStatus status) {
-				IdmAuthorityChange ac = acRepository.findByIdentity(i);
+				IdmAuthorityChange ac = acRepository.findOneByIdentity_Id(i.getId()	);
 				acRepository.delete(ac);
 				return null;
 			}

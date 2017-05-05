@@ -20,12 +20,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.RoleTreeNodeFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
-import eu.bcvsolutions.idm.core.model.dto.IdmRoleTreeNodeDto;
-import eu.bcvsolutions.idm.core.model.dto.filter.RoleTreeNodeFilter;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
 
 /**

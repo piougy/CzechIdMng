@@ -13,7 +13,6 @@ import eu.bcvsolutions.idm.core.api.dto.ResultModels;
  * Every error has it's unique id under which you can find it in log.
  * 
  * @author Radek Tomiška 
- *
  */
 public class ResultCodeException extends CoreException {
 	

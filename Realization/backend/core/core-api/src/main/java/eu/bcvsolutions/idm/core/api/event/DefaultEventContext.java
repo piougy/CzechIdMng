@@ -11,9 +11,8 @@ import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 /**
  * Default event context state holder (event results + metadata)
  * 
- * @author Radek Tomiška
- *
  * @param <E> {@link BaseEntity}, {@link BaseDto} or any other {@link Serializable} content type
+ * @author Radek Tomiška
  */
 public class DefaultEventContext<E extends Serializable> implements EventContext<E> {
 

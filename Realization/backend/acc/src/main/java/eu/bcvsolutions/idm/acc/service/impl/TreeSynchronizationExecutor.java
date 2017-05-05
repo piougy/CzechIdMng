@@ -20,7 +20,6 @@ import org.springframework.util.StringUtils;
 
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
-
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
 import eu.bcvsolutions.idm.acc.domain.OperationResultType;
@@ -54,6 +53,8 @@ import eu.bcvsolutions.idm.acc.service.api.SysSyncLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.TreeNodeFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
@@ -61,8 +62,6 @@ import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.model.domain.EntityUtilities;
-import eu.bcvsolutions.idm.core.model.dto.IdmTreeNodeDto;
-import eu.bcvsolutions.idm.core.model.dto.filter.TreeNodeFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.event.TreeNodeEvent;
 import eu.bcvsolutions.idm.core.model.event.TreeNodeEvent.TreeNodeEventType;
@@ -73,13 +72,11 @@ import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorKey;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 import eu.bcvsolutions.idm.ic.api.IcObjectClass;
-import eu.bcvsolutions.idm.ic.api.IcSyncToken;
 import eu.bcvsolutions.idm.ic.filter.api.IcFilter;
 import eu.bcvsolutions.idm.ic.filter.api.IcResultsHandler;
 import eu.bcvsolutions.idm.ic.impl.IcAttributeImpl;
 import eu.bcvsolutions.idm.ic.impl.IcLoginAttributeImpl;
 import eu.bcvsolutions.idm.ic.impl.IcObjectClassImpl;
-import eu.bcvsolutions.idm.ic.impl.IcSyncTokenImpl;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 
 @Component

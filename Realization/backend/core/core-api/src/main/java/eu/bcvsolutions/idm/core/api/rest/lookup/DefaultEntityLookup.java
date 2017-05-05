@@ -10,9 +10,8 @@ import eu.bcvsolutions.idm.core.api.service.ReadEntityService;
 /**
  * Default entity lookup by {@code Long} entityId
  * 
- * @author Radek Tomiška
- *
  * @param <E>
+ * @author Radek Tomiška
  */
 public class DefaultEntityLookup<E extends BaseEntity> extends EntityLookupSupport<E> {
 

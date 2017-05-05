@@ -7,7 +7,6 @@ import java.util.List;
  * Aggregate base permission. Name can't contain character '_' - its used for joining to authority name.
  * 
  * @author Radek Tomiška
- *
  */
 public enum IdmGroupPermission implements GroupPermission {
 	

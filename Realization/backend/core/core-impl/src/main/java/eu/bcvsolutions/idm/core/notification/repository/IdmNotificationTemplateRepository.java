@@ -3,12 +3,10 @@ package eu.bcvsolutions.idm.core.notification.repository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.notification.dto.filter.NotificationTemplateFilter;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationTemplate;
-import eu.bcvsolutions.idm.core.notification.rest.projection.IdmNotificationTemplateExcerpt;
 
 /**
  * Repository for stored notification templates
@@ -16,14 +14,6 @@ import eu.bcvsolutions.idm.core.notification.rest.projection.IdmNotificationTemp
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
-
-@RepositoryRestResource(//
-		collectionResourceRel = "notificationTemplates", //
-		path = "notification-templates", //
-		itemResourceRel = "notificationTemplate",
-		excerptProjection = IdmNotificationTemplateExcerpt.class,
-		exported = false
-	)
 public interface IdmNotificationTemplateRepository extends AbstractEntityRepository<IdmNotificationTemplate, NotificationTemplateFilter> {
 	
 	@Override

@@ -16,11 +16,11 @@ import org.springframework.web.bind.annotation.RestController;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
+import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
-import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
@@ -61,7 +61,7 @@ public class PasswordChangeController {
 	 * @return
 	 */
 	@ResponseStatus(code = HttpStatus.NO_CONTENT)
-	@RequestMapping(value = BaseEntityController.BASE_PATH + "/public/identities/{identityId}/password-change", method = RequestMethod.PUT)
+	@RequestMapping(value = BaseController.BASE_PATH + "/public/identities/{identityId}/password-change", method = RequestMethod.PUT)
 	public ResponseEntity<Void> passwordChange(
 			@PathVariable String identityId,
 			@RequestBody @Valid PasswordChangeDto passwordChangeDto) {
@@ -74,7 +74,7 @@ public class PasswordChangeController {
 			loginService.login(loginDto);
 		}
 		//
-		IdmIdentity identity = (IdmIdentity) entityLookupService.lookup(IdmIdentity.class, identityId);
+		IdmIdentityDto identity = entityLookupService.lookupDto(IdmIdentityDto.class, identityId);
 		if (identity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("identity", identityId));
 		}
@@ -83,6 +83,6 @@ public class PasswordChangeController {
 	}
 	
 	private IdmIdentityService getIdentityService() {
-		return entityLookupService.getEntityService(IdmIdentity.class, IdmIdentityService.class);
+		return entityLookupService.getDtoService(IdmIdentityDto.class, IdmIdentityService.class);
 	}
 }

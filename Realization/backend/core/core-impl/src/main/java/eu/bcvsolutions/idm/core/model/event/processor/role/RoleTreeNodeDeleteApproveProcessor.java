@@ -3,8 +3,8 @@ package eu.bcvsolutions.idm.core.model.event.processor.role;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
-import eu.bcvsolutions.idm.core.model.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.model.event.RoleTreeNodeEvent.RoleTreeNodeEventType;
 import eu.bcvsolutions.idm.core.model.event.processor.AbstractApprovableEventProcessor;
 

@@ -8,7 +8,6 @@ import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
  * Event processor dto
  * 
  * @author Radek Tomiška
- *
  */
 public class EntityEventProcessorDto {
 

@@ -8,7 +8,6 @@ import org.quartz.Job;
  * Interface for schedulable task services (this services will be automatically registered to sheduler tasks)
  * 
  * @author Radek Tomiška
- * 
  */
 public interface SchedulableTaskExecutor<V> extends LongRunningTaskExecutor<V>, Job {
 

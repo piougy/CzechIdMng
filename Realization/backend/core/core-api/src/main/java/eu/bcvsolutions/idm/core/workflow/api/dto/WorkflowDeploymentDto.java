@@ -1,14 +1,13 @@
-
 package eu.bcvsolutions.idm.core.workflow.api.dto;
 
 import java.util.Date;
+
 import org.activiti.engine.repository.Deployment;
 
 /**
  * Dto for workflow deploy
  * 
  * @author svandav
- *
  */
 public class WorkflowDeploymentDto {
 

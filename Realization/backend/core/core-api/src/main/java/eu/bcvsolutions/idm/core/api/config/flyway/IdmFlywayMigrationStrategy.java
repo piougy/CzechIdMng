@@ -16,7 +16,6 @@ import org.springframework.util.Assert;
  * Resolves used jdbc database dynamically - {@value #WILDCARD_DBNAME} in location could be used.
  * 
  * @author Radek Tomiška
- *
  */
 @Component
 public class IdmFlywayMigrationStrategy implements FlywayMigrationStrategy {

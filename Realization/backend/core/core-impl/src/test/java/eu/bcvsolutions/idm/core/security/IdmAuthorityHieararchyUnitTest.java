@@ -10,7 +10,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import com.google.common.collect.Lists;
-
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.security.api.domain.DefaultGrantedAuthority;

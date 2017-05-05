@@ -34,27 +34,14 @@ public interface IdmRoleRepository extends AbstractEntityRepository<IdmRole, Rol
 	public static final String ADMIN_ROLE = "superAdminRole"; // TODO: move to configurationService
 	
 	/**
-	 * @deprecated use criteria api
+	 * @deprecated use IdmRoleService (uses criteria api)
 	 */
 	@Override
 	@Deprecated
-	@Query(value = "select e from #{#entityName} e" +
-	        " where"
-	        + " (?#{[0].text} is null or lower(e.name) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')})"
-	        + " and (?#{[0].roleType} is null or e.roleType = ?#{[0].roleType})"
-	        + " and "
-	        + " ( "
-	        	+ "?#{[0].roleCatalogue} is null"
-	        	+ " or"
-	        	+ " exists (from IdmRoleCatalogueRole rc where rc.role = e and rc.roleCatalogue.forestIndex.lft BETWEEN ?#{[0].roleCatalogue == null ? null : [0].roleCatalogue.lft} and ?#{[0].roleCatalogue == null ? null : [0].roleCatalogue.rgt})"
-	        + " ) "
-	        + " and"
-	        + "	("
-	        	+ "?#{[0].guarantee} is null"
-	        	+ " or"
-	        	+ " exists (from IdmRoleGuarantee rg where rg.role = e and rg.guarantee = ?#{[0].guarantee})"
-        	+ " )")
-	Page<IdmRole> find(RoleFilter filter, Pageable pageable);
+	@Query(value = "select e from #{#entityName} e")
+	default Page<IdmRole> find(RoleFilter filter, Pageable pageable) {
+		throw new UnsupportedOperationException("Use IdmRoleService (uses criteria api)");
+	}
 	
 	IdmRole findOneByName(@Param("name") String name);
 	

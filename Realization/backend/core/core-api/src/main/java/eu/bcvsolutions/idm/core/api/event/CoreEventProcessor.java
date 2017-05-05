@@ -8,9 +8,8 @@ import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 /**
  * Core event processor - defines order only for now
  * 
- * @author Radek Tomiška
- *
  * @param <E> @param <E> {@link BaseEntity}, {@link BaseDto} or any other {@link Serializable} content type
+ * @author Radek Tomiška
  */
 public abstract class CoreEventProcessor<E extends Serializable> extends AbstractEntityEventProcessor<E> {
 

@@ -1,7 +1,7 @@
 import EntityManager from './EntityManager';
 import { NotificationTemplateService } from '../../services';
 
-export default class TreeTypeManager extends EntityManager {
+export default class NotificationTemplateManager extends EntityManager {
 
   constructor() {
     super();

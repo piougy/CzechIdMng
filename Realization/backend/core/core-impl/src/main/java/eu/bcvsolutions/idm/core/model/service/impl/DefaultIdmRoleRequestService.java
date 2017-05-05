@@ -25,22 +25,23 @@ import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
 
+import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.Loggable;
+import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
+import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.ConceptRoleRequestFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.RoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.exception.RoleRequestException;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
-import eu.bcvsolutions.idm.core.model.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
-import eu.bcvsolutions.idm.core.model.domain.RoleRequestState;
-import eu.bcvsolutions.idm.core.model.dto.IdmConceptRoleRequestDto;
-import eu.bcvsolutions.idm.core.model.dto.IdmIdentityContractDto;
-import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleDto;
-import eu.bcvsolutions.idm.core.model.dto.IdmRoleRequestDto;
-import eu.bcvsolutions.idm.core.model.dto.filter.ConceptRoleRequestFilter;
-import eu.bcvsolutions.idm.core.model.dto.filter.RoleRequestFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleRequest;
 import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent;
@@ -159,12 +160,12 @@ public class DefaultIdmRoleRequestService
 		}
 		
 		// Check on same applicants in all role concepts
-		boolean identityNotSame = this.get(request.getId()).getConceptRoles().stream().filter(concept -> {
+		boolean identityNotSame = this.get(request.getId()).getConceptRoles().stream().anyMatch(concept -> {
 			// get contract dto from embedded map
 			IdmIdentityContractDto contract = (IdmIdentityContractDto) concept.getEmbedded()
 					.get(IdmConceptRoleRequestService.IDENTITY_CONTRACT_FIELD);
 			return !request.getApplicant().equals(contract.getIdentity());
-		}).findFirst().isPresent();
+		});
 
 		if (identityNotSame) {
 			throw new RoleRequestException(CoreResultCode.ROLE_REQUEST_APPLICANTS_NOT_SAME,
@@ -217,7 +218,7 @@ public class DefaultIdmRoleRequestService
 			// Execute request immediately
 			return true;
 		}else {
-			IdmIdentity applicant = identityService.get(request.getApplicant());
+			IdmIdentityDto applicant = identityService.get(request.getApplicant());
 			
 			Map<String, Object> variables = new HashMap<>();
 			// Minimize size of DTO persisting to WF
@@ -264,14 +265,14 @@ public class DefaultIdmRoleRequestService
 //		}
 
 		List<IdmConceptRoleRequestDto> concepts = request.getConceptRoles();
-		IdmIdentity identity = identityService.get(request.getApplicant());
+		IdmIdentityDto identity = identityService.get(request.getApplicant());
 
-		boolean identityNotSame = concepts.stream().filter(concept -> {
+		boolean identityNotSame = concepts.stream().anyMatch(concept -> {
 			// get contract dto from embedded map
 			IdmIdentityContractDto contract = (IdmIdentityContractDto) concept.getEmbedded()
 					.get(IdmConceptRoleRequestService.IDENTITY_CONTRACT_FIELD);
 			return !identity.getId().equals(contract.getIdentity());
-		}).findFirst().isPresent();
+		});
 
 		if (identityNotSame) {
 			throw new RoleRequestException(CoreResultCode.ROLE_REQUEST_APPLICANTS_NOT_SAME,

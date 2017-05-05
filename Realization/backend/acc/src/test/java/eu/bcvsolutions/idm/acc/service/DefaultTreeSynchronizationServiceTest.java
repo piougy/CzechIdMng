@@ -20,7 +20,6 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.ImmutableList;
-
 import eu.bcvsolutions.idm.acc.domain.ReconciliationMissingAccountActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationLinkedActionType;
@@ -33,7 +32,6 @@ import eu.bcvsolutions.idm.acc.dto.filter.SyncActionLogFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SyncItemLogFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SynchronizationConfigFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SynchronizationLogFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.SysSystemFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
@@ -44,9 +42,9 @@ import eu.bcvsolutions.idm.acc.entity.SysSyncItemLog;
 import eu.bcvsolutions.idm.acc.entity.SysSyncLog;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
-import eu.bcvsolutions.idm.acc.entity.SysSystemFormValue;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.acc.entity.TestTreeResource;
+import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.SynchronizationService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncActionLogService;
@@ -57,15 +55,17 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.acc.service.impl.DefaultSynchronizationService;
+import eu.bcvsolutions.idm.core.api.dto.filter.TreeNodeFilter;
 import eu.bcvsolutions.idm.core.eav.entity.AbstractFormValue;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
-import eu.bcvsolutions.idm.core.model.dto.filter.TreeNodeFilter;
+import eu.bcvsolutions.idm.core.exception.TreeNodeException;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeTypeService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
+
 
 /**
  * Tree synchronization tests
@@ -398,7 +398,7 @@ public class DefaultTreeSynchronizationServiceTest extends AbstractIntegrationTe
 	
 	@Test
 	@Transactional
-	public void provCreateAccount() {
+	public void provisioningA_CreateAccount_withOutMapping() {
 		
 		// Delete all resource data
 		this.deleteAllResourceData();
@@ -426,9 +426,54 @@ public class DefaultTreeSynchronizationServiceTest extends AbstractIntegrationTe
 		// Check state before provisioning
 		TestTreeResource one = entityManager.find(TestTreeResource.class, "P12");
 		Assert.assertNull(one);
-		
+	}
+	
+	@Test(expected = ProvisioningException.class) // Provisioning tree in incorrect order
+	public void provisioningB_CreateAccounts_withException() {
+
+		TreeNodeFilter filter = new TreeNodeFilter();
+		filter.setProperty(NODE_NAME);
+		filter.setValue("P1");
+
+		IdmTreeNode nodeRoot = treeNodeService.find(filter, null).getContent().get(0);
+		Assert.assertNotNull(nodeRoot);
+
+		filter.setValue("P12");
+		IdmTreeNode nodeOne = treeNodeService.find(filter, null).getContent().get(0);
+		Assert.assertNotNull(nodeOne);
+
+		// Check state before provisioning
+		TestTreeResource one = entityManager.find(TestTreeResource.class, "P12");
+		Assert.assertNull(one);
+
 		// Create mapping for provisioning
 		this.createProvisionigMapping();
+
+		// Save IDM node (must invoke provisioning)
+		// We didn't provisioning for root first ... expect throw exception
+		treeNodeService.save(nodeOne);
+	}
+	
+	@Test
+	@Transactional
+	public void provisioningC_CreateAccounts_correct() {
+		
+		TreeNodeFilter filter = new TreeNodeFilter();
+		filter.setProperty(NODE_NAME);
+		filter.setValue("P1");
+		
+		IdmTreeNode nodeRoot = treeNodeService.find(filter, null).getContent().get(0);
+		Assert.assertNotNull(nodeRoot);
+
+		filter.setValue("P12");
+		IdmTreeNode nodeOne = treeNodeService.find(filter, null).getContent().get(0);
+		Assert.assertNotNull(nodeOne);
+		
+		// Check state before provisioning
+		TestTreeResource one = entityManager.find(TestTreeResource.class, "P12");
+		Assert.assertNull(one);
+		TestTreeResource root = entityManager.find(TestTreeResource.class, "P1");
+		Assert.assertNull(root);
 		
 		// Save IDM node again (must invoke provisioning)
 		// Root first
@@ -437,8 +482,71 @@ public class DefaultTreeSynchronizationServiceTest extends AbstractIntegrationTe
 		treeNodeService.save(nodeOne);
 		
 		// Check state before provisioning
+		root = entityManager.find(TestTreeResource.class, "P1");
+		Assert.assertNotNull(root);
 		one = entityManager.find(TestTreeResource.class, "P12");
 		Assert.assertNotNull(one);
+	}
+	
+	
+	@Test
+	public void provisioningD_UpdateAccount() {
+		
+		TreeNodeFilter filter = new TreeNodeFilter();
+		filter.setProperty(NODE_NAME);
+		filter.setValue("P1");
+		
+		IdmTreeNode nodeRoot = treeNodeService.find(filter, null).getContent().get(0);
+		Assert.assertNotNull(nodeRoot);
+
+		filter.setValue("P12");
+		IdmTreeNode nodeOne = treeNodeService.find(filter, null).getContent().get(0);
+		Assert.assertNotNull(nodeOne);
+		
+		// Check state before provisioning
+		TestTreeResource one = entityManager.find(TestTreeResource.class, "P12");
+		Assert.assertNotNull(one);
+		Assert.assertEquals("P12", one.getCode());
+		
+		nodeOne.setCode(CHANGED);
+		
+		// Save IDM changed node (must invoke provisioning)
+		treeNodeService.save(nodeOne);
+		
+		// Check state before provisioning
+		one = entityManager.find(TestTreeResource.class, "P12");
+		Assert.assertNotNull(one);
+		Assert.assertEquals(CHANGED, one.getCode());
+	}
+	
+	@Test(expected=TreeNodeException.class)
+	public void provisioningE_DeleteAccount_IntegrityException() {
+		
+		TreeNodeFilter filter = new TreeNodeFilter();
+		filter.setProperty(NODE_NAME);
+		filter.setValue("P1");
+		
+		IdmTreeNode nodeRoot = treeNodeService.find(filter, null).getContent().get(0);
+		Assert.assertNotNull(nodeRoot);
+		
+		// Delete IDM node (must invoke provisioning) .. We delete node with some children ... must throw integrity exception
+		// Generally we counts with provisioning on every node ... include children (Recursively delete is not good idea!) 
+		treeNodeService.delete(nodeRoot);
+	}
+	
+	@Test
+	public void provisioningF_DeleteAccount() {
+		
+		TreeNodeFilter filter = new TreeNodeFilter();
+		filter.setProperty(NODE_NAME);
+		filter.setValue("P12");
+		IdmTreeNode nodeOne = treeNodeService.find(filter, null).getContent().get(0);
+		Assert.assertNotNull(nodeOne);
+		
+		// Delete IDM node (must invoke provisioning) .. We delete child
+		treeNodeService.delete(nodeOne);
+		
+		Assert.assertTrue(treeNodeService.find(filter, null).getContent().isEmpty());
 	}
 	
 	

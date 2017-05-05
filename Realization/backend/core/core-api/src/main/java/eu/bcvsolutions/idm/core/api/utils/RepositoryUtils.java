@@ -13,7 +13,6 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
  * Utils for Spring Data repositories
  * 
  * @author Radek Tomiška
- *
  */
 public abstract class RepositoryUtils {
 

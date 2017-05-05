@@ -11,7 +11,6 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.Lists;
-
 import eu.bcvsolutions.idm.core.api.dto.EntityEventProcessorDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.EntityEventProcessorFilter;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;

@@ -23,9 +23,9 @@ import org.springframework.plugin.core.OrderAwarePluginRegistry;
 import org.springframework.plugin.core.PluginRegistry;
 
 import eu.bcvsolutions.idm.InitTestData;
+import eu.bcvsolutions.idm.core.api.domain.IdmScriptCategory;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
-import eu.bcvsolutions.idm.core.model.domain.IdmScriptCategory;
 import eu.bcvsolutions.idm.core.model.domain.ScriptAuthorityType;
 import eu.bcvsolutions.idm.core.model.dto.IdmScriptAuthorityDto;
 import eu.bcvsolutions.idm.core.model.dto.IdmScriptDto;

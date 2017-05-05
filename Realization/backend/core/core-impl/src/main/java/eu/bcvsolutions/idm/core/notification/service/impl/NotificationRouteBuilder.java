@@ -1,15 +1,15 @@
 package eu.bcvsolutions.idm.core.notification.service.impl;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import org.apache.camel.builder.RouteBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
-import eu.bcvsolutions.idm.core.notification.entity.IdmNotification;
+import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationDto;
 import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationConfigurationService;
 import eu.bcvsolutions.idm.core.notification.service.api.NotificationSender;
 
@@ -26,6 +26,9 @@ public class NotificationRouteBuilder extends RouteBuilder {
 	private IdmNotificationConfigurationService notificationConfigurationService;
 	@Autowired
 	private ApplicationContext context;
+	@Autowired
+	private IdmConfigurationService configurationService;
+
 	
 	@Override
     public void configure() throws Exception {		
@@ -43,19 +46,32 @@ public class NotificationRouteBuilder extends RouteBuilder {
 	 * @return
 	 */
 	@SuppressWarnings("rawtypes")
-	public List<String> routes(IdmNotification notification) {
-		List<String> routes = new ArrayList<>();
-		notificationConfigurationService.getSenders(notification).forEach(sender -> {
-			// we need to know spring bean id from instance
-			for(Entry<String, NotificationSender> entry : context.getBeansOfType(NotificationSender.class).entrySet()) {
-				if (entry.getValue().equals(sender)) {
-					routes.add(String.format("bean:%s?method=send", entry.getKey()));
-				}
-			}
-		});
-		if (routes.isEmpty()) {
-			return null; // no sender
+	public List<String> routes(IdmNotificationDto notification) {
+		//TODO: where to put the config property?
+		//final IdmConfiguration senderToUse = configurationService.get(notification.getSenderConfigPropertyName());
+
+		List<String> routes = notificationConfigurationService.getSenders(notification)
+				.stream()
+				// We will use only sender that is currently set in configuration
+				//.filter(sender -> senderToUse.getValue().equals(sender.getClass().getName()))
+				.map(this::getRouteForSender)
+				.filter(route -> route != null)
+				.collect(Collectors.toList());
+
+	    return routes.isEmpty() ? null : routes;
 		}
-	    return routes;
+
+	/**
+	 * Returns route
+	 *
+	 * @param sender
+	 * @return
+	 */
+	private String getRouteForSender(final NotificationSender<?> sender) {
+		return context.getBeansOfType(NotificationSender.class).entrySet().stream()
+				.filter(entry -> entry.getValue().equals(sender))
+				.map(entry -> String.format("bean:%s?method=send", entry.getKey()))
+				.findFirst()
+				.get();
 	}
 }

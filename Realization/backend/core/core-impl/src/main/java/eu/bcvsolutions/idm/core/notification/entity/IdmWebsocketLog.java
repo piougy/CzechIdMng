@@ -11,7 +11,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "idm_notification_websocket")
-public class IdmWebsocketLog extends IdmNotification {
+public class IdmWebsocketLog extends IdmNotificationLog {
 
 	private static final long serialVersionUID = 2144902485645685319L;
 	public static final String NOTIFICATION_TYPE = "websocket";

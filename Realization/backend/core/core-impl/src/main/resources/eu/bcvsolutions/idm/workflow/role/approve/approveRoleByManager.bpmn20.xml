@@ -30,14 +30,14 @@ Input variables:
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[#{decision.equals("disapprove")}]]></conditionExpression>
     </sequenceFlow>
     <endEvent id="endevent2" name="End" activiti:async="false"></endEvent>
-    <serviceTask id="servicetask2" name="Create name of process" activiti:expression="Approve role &quot;${roleService.get(conceptRole.role).name}&quot; assignment by manager for &quot;${identityService.getNiceLabel(identityService.get(applicantIdentifier))}&quot;" activiti:resultVariableName="processInstanceName"></serviceTask>
+    <serviceTask id="servicetask2" name="Create name of process" activiti:expression="Approve role &quot;${roleService.get(conceptRole.role).name}&quot; assignment by manager for &quot;${identityService.getNiceLabel(identityService.get(applicantIdentifier, null))}&quot;" activiti:resultVariableName="processInstanceName"></serviceTask>
     <sequenceFlow id="flow7" sourceRef="startevent1" targetRef="scripttask8"></sequenceFlow>
     <sequenceFlow id="flow8" sourceRef="servicetask2" targetRef="scripttask9"></sequenceFlow>
     <exclusiveGateway id="exclusivegateway2" name="Exclusive Gateway"></exclusiveGateway>
     <sequenceFlow id="flow9" sourceRef="exclusivegateway2" targetRef="servicetask2">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[#{operationType.equals("add")}]]></conditionExpression>
     </sequenceFlow>
-    <serviceTask id="servicetask5" name="Create name of process" activiti:expression="Approve role &quot;${roleService.get(conceptRole.role).name}&quot; change by manager for &quot;${identityService.getNiceLabel(identityService.get(applicantIdentifier))}&quot;" activiti:resultVariableName="processInstanceName"></serviceTask>
+    <serviceTask id="servicetask5" name="Create name of process" activiti:expression="Approve role &quot;${roleService.get(conceptRole.role).name}&quot; change by manager for &quot;${identityService.getNiceLabel(identityService.get(applicantIdentifier, null))}&quot;" activiti:resultVariableName="processInstanceName"></serviceTask>
     <userTask id="usertask1" name="Approve by manager" activiti:candidateUsers="#{candidatesApproveByManager}" activiti:skipExpression="#{skipApproveByManager}">
       <documentation>${processInstanceName}</documentation>
       <extensionElements>
@@ -73,7 +73,7 @@ Input variables:
       <documentation>Identity role with given ID not found</documentation>
     </endEvent>
     <scriptTask id="scripttask4" name="Set DISAPPROVED state to concept" scriptFormat="groovy" activiti:autoStoreVariables="false">
-      <script>import eu.bcvsolutions.idm.core.model.domain.RoleRequestState;
+      <script>import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
  
 // Set and save state DISAPPROVED to concept
 def conceptDto = conceptRoleRequestService.get(conceptRole.id);
@@ -83,7 +83,7 @@ conceptRoleRequestService.save(conceptDto);</script>
     <sequenceFlow id="flow32" sourceRef="scripttask4" targetRef="endevent1"></sequenceFlow>
     <sequenceFlow id="flow34" sourceRef="servicetask5" targetRef="scripttask10"></sequenceFlow>
     <scriptTask id="scripttask5" name="Set APPROVED state to concept" scriptFormat="groovy" activiti:autoStoreVariables="false">
-      <script>import eu.bcvsolutions.idm.core.model.domain.RoleRequestState;
+      <script>import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
  
 // Set and save state APPROVED to concept
 def conceptDto = conceptRoleRequestService.get(conceptRole.id);
@@ -100,7 +100,7 @@ conceptRoleRequestService.save(conceptDto);</script>
     </sequenceFlow>
     <sequenceFlow id="flow36" sourceRef="scripttask5" targetRef="endevent2"></sequenceFlow>
     <scriptTask id="scripttask6" name="Set DISAPPROVED state to concept" scriptFormat="groovy" activiti:autoStoreVariables="false">
-      <script>import eu.bcvsolutions.idm.core.model.domain.RoleRequestState;
+      <script>import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
  
 // Set and save state DISAPPROVED to concept
 def conceptDto = conceptRoleRequestService.get(conceptRole.id);
@@ -109,7 +109,7 @@ conceptRoleRequestService.save(conceptDto);</script>
     </scriptTask>
     <sequenceFlow id="flow37" sourceRef="scripttask6" targetRef="endevent4"></sequenceFlow>
     <scriptTask id="scripttask7" name="Set CANCELED state to concept" scriptFormat="groovy" activiti:autoStoreVariables="false">
-      <script>import eu.bcvsolutions.idm.core.model.domain.RoleRequestState;
+      <script>import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
  
 // Set and save state CANCELED to concept
 def conceptDto = conceptRoleRequestService.get(conceptRole.id);
@@ -120,7 +120,7 @@ conceptRoleRequestService.save(conceptDto);</script>
     <sequenceFlow id="flow38" sourceRef="scripttask7" targetRef="endevent5"></sequenceFlow>
     <sequenceFlow id="flow39" sourceRef="exclusivegateway1" targetRef="scripttask5"></sequenceFlow>
     <scriptTask id="scripttask8" name="Set IN_PROGRESS state to concept" scriptFormat="groovy" activiti:autoStoreVariables="false">
-      <script>import eu.bcvsolutions.idm.core.model.domain.RoleRequestState;
+      <script>import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
  
 // Set and save state IN_PROGRESS to concept
 def conceptDto = conceptRoleRequestService.get(conceptRole.id);

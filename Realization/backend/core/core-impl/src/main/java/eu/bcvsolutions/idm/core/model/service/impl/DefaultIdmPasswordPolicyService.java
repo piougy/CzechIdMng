@@ -19,23 +19,25 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyGenerateType;
+import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyIdentityAttributes;
+import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyType;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmPasswordValidationDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.PasswordPolicyFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.utils.PasswordGenerator;
-import eu.bcvsolutions.idm.core.model.domain.IdmPasswordPolicyGenerateType;
-import eu.bcvsolutions.idm.core.model.domain.IdmPasswordPolicyIdentityAttributes;
-import eu.bcvsolutions.idm.core.model.domain.IdmPasswordPolicyType;
-import eu.bcvsolutions.idm.core.model.dto.IdmPasswordValidationDto;
-import eu.bcvsolutions.idm.core.model.dto.filter.PasswordPolicyFilter;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmPassword;
 import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
 import eu.bcvsolutions.idm.core.model.event.PasswordPolicyEvent;
 import eu.bcvsolutions.idm.core.model.event.PasswordPolicyEvent.PasswordPolicyEvenType;
 import eu.bcvsolutions.idm.core.model.repository.IdmPasswordPolicyRepository;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordPolicyService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordService;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 
 /**
@@ -71,22 +73,29 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 	private final IdmPasswordPolicyRepository passwordPolicyRepository;
 	private final SecurityService securityService;
 	private final EntityEventManager entityEventProcessorService;
+	private final IdmPasswordService passwordService;
+	private final IdmIdentityService identityService;
 	
 	@Autowired
 	public DefaultIdmPasswordPolicyService(
 			AbstractEntityRepository<IdmPasswordPolicy, PasswordPolicyFilter> repository,
 			IdmPasswordPolicyRepository passwordPolicyRepository,
 			EntityEventManager entityEventProcessorService,
-			SecurityService securityService) {
+			SecurityService securityService, IdmPasswordService passwordService, IdmIdentityService identityService) {
 		super(repository);
 		//
 		Assert.notNull(entityEventProcessorService);
 		Assert.notNull(passwordPolicyRepository);
 		Assert.notNull(securityService);
+		Assert.notNull(passwordService);
+		Assert.notNull(identityService);
 		//
 		this.entityEventProcessorService = entityEventProcessorService;
 		this.passwordPolicyRepository = passwordPolicyRepository;
 		this.securityService = securityService;
+		this.passwordService = passwordService;
+		this.identityService = identityService;
+
 	}
 	
 	@Override
@@ -148,7 +157,7 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 			return;
 		}
 		
-		IdmPassword oldPassword = passwordValidationDto.getOldPassword();
+		IdmPassword oldPassword = passwordValidationDto.getOldPassword() != null ? passwordService.get(passwordValidationDto.getOldPassword()) : null;
 		String password = passwordValidationDto.getPassword().asString();
 		
 		DateTime now = new DateTime();
@@ -256,7 +265,7 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 			// check to similar identity attributes, enhanced control
 			if (passwordPolicy.isEnchancedControl()) {
 				String[] attributes = passwordPolicy.getIdentityAttributeCheck().split(", ");
-				IdmIdentity identity = passwordValidationDto.getIdentity();
+				IdmIdentityDto identity = identityService.get(passwordValidationDto.getIdentity());
 				for (int index = 0; index < attributes.length; index++) {
 					if (attributes[index].equals(IdmPasswordPolicyIdentityAttributes.EMAIL.name())) {
 						if (identity.getEmail()!= null && identity.getEmail().toLowerCase().matches("(?i).*" + password.toLowerCase() + ".*")) {

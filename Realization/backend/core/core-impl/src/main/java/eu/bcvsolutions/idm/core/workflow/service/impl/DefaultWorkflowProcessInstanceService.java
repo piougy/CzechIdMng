@@ -24,16 +24,15 @@ import org.activiti.engine.task.IdentityLinkType;
 import org.activiti.engine.task.Task;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
@@ -74,7 +73,7 @@ public class DefaultWorkflowProcessInstanceService implements WorkflowProcessIns
 			String objectIdentifier, Map<String, Object> variables) {
 		Assert.hasText(definitionKey, "Definition key cannot be null!");
 
-		IdmIdentity applicantIdentity = null;
+		IdmIdentityDto applicantIdentity = null;
 		if (applicant != null) {
 			applicantIdentity = identityService.getByUsername(applicant);
 		}

@@ -11,11 +11,11 @@ import org.springframework.core.annotation.AliasFor;
 
 import eu.bcvsolutions.idm.core.api.domain.ModuleDescriptor;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
+
 /**
  * Checks, if given modules or configuration properties are enabled before method invocation.
  * 
  * @author Radek Tomiška
- *
  * @see ModuleDescriptor
  * @see ModuleService
  * @see ConfigurationService
@@ -29,9 +29,8 @@ public @interface Enabled {
 	/**
 	 * Module ids (alias)
 	 * 
-	 * @see ModuleService
-	 * 
 	 * @return
+     * @see ModuleService
 	 */
 	@AliasFor("module")
 	String[] value() default {};
@@ -39,9 +38,8 @@ public @interface Enabled {
 	/**
 	 * Module ids
 	 * 
-	 * @see ModuleService
-	 * 
 	 * @return
+     * @see ModuleService
 	 */	
 	@AliasFor("value")
 	String[] module() default {};
@@ -49,9 +47,8 @@ public @interface Enabled {
 	/**
 	 * configuration property value
 	 * 
-	 * @see ConfigurationService
-	 * 
 	 * @return
+     * @see ConfigurationService
 	 */
 	String[] property() default {};
 }

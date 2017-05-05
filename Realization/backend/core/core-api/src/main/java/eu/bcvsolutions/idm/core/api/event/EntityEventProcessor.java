@@ -12,14 +12,13 @@ import eu.bcvsolutions.idm.core.api.service.Configurable;
 
 /**
  * Single entity event processor
- * 
+ * <p>
  * Its better to use {@link Ordered} interface instead {@link Order} annotation - does not work with aspects. 
  * 
+ * @param <E> {@link BaseEntity}, {@link BaseDto} or any other {@link Serializable} content type
  * @author Radek Tomiška
- *
  * @see {@link ApplicationListener}
  * @see {@link Ordered}
- * @param <E> {@link BaseEntity}, {@link BaseDto} or any other {@link Serializable} content type
  */
 public interface EntityEventProcessor<E extends Serializable> extends Ordered, Configurable {
 	

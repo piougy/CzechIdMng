@@ -6,7 +6,6 @@ import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
  * Operation was not processed, but accepted to next processing / approving etc.
  * 
  * @author Radek Tomiška
- *
  */
 public class AcceptedException extends ResultCodeException {
 

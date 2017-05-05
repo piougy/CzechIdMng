@@ -6,12 +6,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
-import eu.bcvsolutions.idm.core.model.dto.IdmAuthorizationPolicyDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.model.dto.IdmContractGuaranteeDto;
-import eu.bcvsolutions.idm.core.model.dto.IdmIdentityContractDto;
-import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleDto;
-import eu.bcvsolutions.idm.core.model.dto.IdmRoleTreeNodeDto;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
@@ -57,13 +57,13 @@ public class DefaultTestHelper implements TestHelper {
 	private IdmIdentityRoleService identityRoleService;
 	
 	@Override
-	public IdmIdentity createIdentity() {
+	public IdmIdentityDto createIdentity() {
 		return createIdentity("test");
 	}
 	
 	@Override
-	public IdmIdentity createIdentity(String name) {
-		IdmIdentity identity = new IdmIdentity();
+	public IdmIdentityDto createIdentity(String name) {
+		IdmIdentityDto identity = new IdmIdentityDto();
 		identity.setUsername(name + "_" + System.currentTimeMillis());
 		identity.setFirstName("Test");
 		identity.setLastName("Identity");
@@ -186,7 +186,7 @@ public class DefaultTestHelper implements TestHelper {
 	}
 	
 	@Override
-	public IdmIdentityRoleDto createIdentityRole(IdmIdentity identity, IdmRole role) {
+	public IdmIdentityRoleDto createIdentityRole(IdmIdentityDto identity, IdmRole role) {
 		return createIdentityRole(identityContractService.getPrimeContract(identity.getId()), role);
 	}
 	
@@ -199,7 +199,7 @@ public class DefaultTestHelper implements TestHelper {
 	}
 
 	@Override
-	public IdmIdentityContractDto createIdentityContact(IdmIdentity identity) {
+	public IdmIdentityContractDto createIdentityContact(IdmIdentityDto identity) {
 		IdmIdentityContractDto contract = new IdmIdentityContractDto();
 		contract.setIdentity(identity.getId());
 		contract.setPosition("position-" + System.currentTimeMillis());

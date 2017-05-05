@@ -11,12 +11,11 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.plugin.core.Plugin;
 
 import com.google.common.collect.ImmutableMap;
-
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.domain.IdmScriptCategory;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
-import eu.bcvsolutions.idm.core.model.domain.IdmScriptCategory;
 import eu.bcvsolutions.idm.core.model.domain.ScriptAuthorityType;
 import eu.bcvsolutions.idm.core.model.dto.IdmScriptAuthorityDto;
 import eu.bcvsolutions.idm.core.model.dto.IdmScriptDto;

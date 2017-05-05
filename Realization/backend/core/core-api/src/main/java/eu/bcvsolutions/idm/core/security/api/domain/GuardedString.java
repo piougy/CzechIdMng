@@ -7,14 +7,12 @@ import org.apache.commons.collections.CollectionUtils;
 import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 
 /**
  * Guarded string used for storing sensitive data.
  * 
  * @author BCV
- *
  */
 @JsonSerialize(using = GuardedStringSerializer.class)
 public final class GuardedString {

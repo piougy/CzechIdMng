@@ -11,10 +11,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleValidRequestDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.model.dto.IdmIdentityContractDto;
-import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleDto;
-import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleValidRequestDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRoleValidRequest;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
@@ -74,7 +75,7 @@ public class IdentityRoleValidRequestIntegrationTest extends AbstractIntegration
 	
 	@Test
 	public void deleteIdentity() {
-		IdmIdentity identity = createAndSaveIdentity();
+		IdmIdentityDto identity = createAndSaveIdentity();
 		IdmRole role = createAndSaveRole();
 		IdmTreeType treeType = createAndSaveTreeType();
 		IdmTreeNode treeNode = createAndSaveTreeNode(treeType);
@@ -97,7 +98,7 @@ public class IdentityRoleValidRequestIntegrationTest extends AbstractIntegration
 	
 	@Test(expected = ResultCodeException.class)
 	public void deleteRole() {
-		IdmIdentity identity = createAndSaveIdentity();
+		IdmIdentityDto identity = createAndSaveIdentity();
 		IdmRole role = createAndSaveRole();
 		IdmTreeType treeType = createAndSaveTreeType();
 		IdmTreeNode treeNode = createAndSaveTreeNode(treeType);
@@ -121,7 +122,7 @@ public class IdentityRoleValidRequestIntegrationTest extends AbstractIntegration
 	
 	@Test
 	public void deleteIdentityContract() {
-		IdmIdentity identity = createAndSaveIdentity();
+		IdmIdentityDto identity = createAndSaveIdentity();
 		IdmRole role = createAndSaveRole();
 		IdmTreeType treeType = createAndSaveTreeType();
 		IdmTreeNode treeNode = createAndSaveTreeNode(treeType);
@@ -144,7 +145,7 @@ public class IdentityRoleValidRequestIntegrationTest extends AbstractIntegration
 	
 	@Test
 	public void deleteIdentityRole() {
-		IdmIdentity identity = createAndSaveIdentity();
+		IdmIdentityDto identity = createAndSaveIdentity();
 		IdmRole role = createAndSaveRole();
 		IdmTreeType treeType = createAndSaveTreeType();
 		IdmTreeNode treeNode = createAndSaveTreeNode(treeType);
@@ -165,8 +166,8 @@ public class IdentityRoleValidRequestIntegrationTest extends AbstractIntegration
 		assertEquals(true, list.isEmpty());
 	}
 	
-	private IdmIdentity createAndSaveIdentity() {
-		IdmIdentity entity = new IdmIdentity();
+	private IdmIdentityDto createAndSaveIdentity() {
+		IdmIdentityDto entity = new IdmIdentityDto();
 		entity.setUsername("valid_identity_" + System.currentTimeMillis());
 		entity.setLastName("valid_last_name");
 		return saveInTransaction(entity, identityService);
@@ -194,7 +195,7 @@ public class IdentityRoleValidRequestIntegrationTest extends AbstractIntegration
 		return saveInTransaction(entity, treeNodeService);
 	}
 	
-	private IdmIdentityContractDto createAndSaveIdentityContract(IdmIdentity user, IdmTreeNode node) {
+	private IdmIdentityContractDto createAndSaveIdentityContract(IdmIdentityDto user, IdmTreeNode node) {
 		IdmIdentityContractDto entity = new IdmIdentityContractDto();
 		entity.setIdentity(user.getId());
 		entity.setWorkPosition(node == null ? null : node.getId());

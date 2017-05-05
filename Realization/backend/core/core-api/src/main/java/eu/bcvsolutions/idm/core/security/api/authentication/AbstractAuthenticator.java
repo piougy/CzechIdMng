@@ -8,7 +8,6 @@ import eu.bcvsolutions.idm.core.security.api.service.EnabledEvaluator;
  * Abstract authenticator, check if is moduel enabled
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
- *
  */
 
 public abstract class AbstractAuthenticator implements Authenticator {

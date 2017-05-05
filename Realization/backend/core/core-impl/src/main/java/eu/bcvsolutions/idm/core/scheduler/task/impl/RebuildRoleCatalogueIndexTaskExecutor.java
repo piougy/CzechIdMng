@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import com.google.common.collect.ImmutableMap;
-
 import eu.bcvsolutions.forest.index.service.api.ForestIndexService;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;

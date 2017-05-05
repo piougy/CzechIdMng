@@ -13,7 +13,6 @@ import eu.bcvsolutions.idm.core.api.dto.BaseDto;
  * Evaluator dto - definition only
  * 
  * @author Radek Tomiška
- *
  */
 @Relation(collectionRelation = "authorizationEvaluators")
 public class AuthorizationEvaluatorDto implements BaseDto {

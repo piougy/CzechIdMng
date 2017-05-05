@@ -16,15 +16,17 @@ import org.springframework.transaction.annotation.Transactional;
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.AbstractWorkflowIntegrationTest;
 import eu.bcvsolutions.idm.core.TestHelper;
-import eu.bcvsolutions.idm.core.model.domain.ConceptRoleRequestOperation;
-import eu.bcvsolutions.idm.core.model.domain.RoleRequestState;
-import eu.bcvsolutions.idm.core.model.domain.RoleRequestedByType;
-import eu.bcvsolutions.idm.core.model.dto.IdmConceptRoleRequestDto;
-import eu.bcvsolutions.idm.core.model.dto.IdmIdentityContractDto;
-import eu.bcvsolutions.idm.core.model.dto.IdmRoleRequestDto;
+import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
+import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
+import eu.bcvsolutions.idm.core.api.domain.RoleRequestedByType;
+import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleGuarantee;
+import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
@@ -59,6 +61,8 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowIntegrationTes
 	private WorkflowTaskInstanceService workflowTaskInstanceService;
 	@Autowired
 	private IdmIdentityService identityService;
+	@Autowired
+	private IdmIdentityRepository identityRepository;
 	@Autowired 
 	private IdmIdentityContractService identityContractService;
 	@Autowired
@@ -88,7 +92,7 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowIntegrationTes
 	@Transactional
 	public void addSuperAdminRoleTest() {
 		loginAsAdmin(InitTestData.TEST_USER_1);
-		IdmIdentity test1 = identityService.getByName(InitTestData.TEST_USER_1);
+		IdmIdentityDto test1 = identityService.getByUsername(InitTestData.TEST_USER_1);
 		IdmRole adminRole = roleService.getByName(InitTestData.TEST_ADMIN_ROLE);
 		IdmIdentityContractDto contract = identityContractService.getPrimeContract(test1.getId());
 		
@@ -130,7 +134,7 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowIntegrationTes
 	public void addSuperAdminRoleSkipTest() {
 		// We are logged as admin. By default is all approve tasks assigned to Admin. All this tasks will be skipped.
 		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
-		IdmIdentity test1 = identityService.getByName(InitTestData.TEST_USER_1);
+		IdmIdentityDto test1 = identityService.getByUsername(InitTestData.TEST_USER_1);
 		IdmRole adminRole = roleService.getByName(InitTestData.TEST_ADMIN_ROLE);
 		IdmIdentityContractDto contract = identityContractService.getPrimeContract(test1.getId());
 		
@@ -168,7 +172,7 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowIntegrationTes
 	public void addSuperAdminRoleDisapproveTest() {
 		// We are logged as admin. By default is all approve tasks assigned to Admin. All this tasks will be skipped.
 		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
-		IdmIdentity test1 = identityService.getByName(InitTestData.TEST_USER_1);
+		IdmIdentityDto test1 = identityService.getByUsername(InitTestData.TEST_USER_1);
 		IdmRole adminRole = roleService.getByName(InitTestData.TEST_ADMIN_ROLE);
 		IdmIdentityContractDto contract = identityContractService.getPrimeContract(test1.getId());
 		
@@ -203,8 +207,8 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowIntegrationTes
 	public void addSuperAdminRoleWithSubprocessTest() {
 		
 		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
-		IdmIdentity test1 = identityService.getByName(InitTestData.TEST_USER_1);
-		IdmIdentity test2 = identityService.getByName(InitTestData.TEST_USER_2);
+		IdmIdentityDto test1 = identityService.getByUsername(InitTestData.TEST_USER_1);
+		IdmIdentityDto test2 = identityService.getByUsername(InitTestData.TEST_USER_2);
 		
 		// Guarantee
 		int priority = 500;
@@ -212,7 +216,7 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowIntegrationTes
 		adminRole.setPriority(priority);		
 		IdmRoleGuarantee guarantee = new IdmRoleGuarantee();
 		guarantee.setRole(adminRole);
-		guarantee.setGuarantee(test2);
+		guarantee.setGuarantee(identityRepository.findOne(test2.getId()));
 		adminRole.getGuarantees().add(guarantee);
 		roleService.save(adminRole);
 		configurationService.setValue(IdmRoleService.WF_BY_ROLE_PRIORITY_PREFIX+priority, APPROVE_ROLE_BY_GUARANTEE_KEY);
@@ -269,10 +273,10 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowIntegrationTes
 		IdmRole role = new IdmRole();
 		role.setName(SECURITY_ROLE_TEST);
 		roleService.save(role);
-		helper.createIdentityRole(identityService.getByName(InitTestData.TEST_USER_1), role);
+		helper.createIdentityRole(identityService.getByUsername(InitTestData.TEST_USER_1), role);
 		
 		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
-		IdmIdentity test1 = identityService.getByName(InitTestData.TEST_USER_1);
+		IdmIdentityDto test1 = identityService.getByUsername(InitTestData.TEST_USER_1);
 		IdmRole adminRole = roleService.getByName(InitTestData.TEST_ADMIN_ROLE);
 		IdmIdentityContractDto contract = identityContractService.getPrimeContract(test1.getId());
 		
@@ -315,7 +319,7 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowIntegrationTes
 		return concept;
 	}
 
-	private IdmRoleRequestDto createRoleRequest(IdmIdentity test1) {
+	private IdmRoleRequestDto createRoleRequest(IdmIdentityDto test1) {
 		IdmRoleRequestDto request = new IdmRoleRequestDto();
 		request.setApplicant(test1.getId());
 		request.setExecuteImmediately(false);

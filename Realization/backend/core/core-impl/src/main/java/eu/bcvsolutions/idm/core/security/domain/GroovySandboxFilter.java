@@ -15,7 +15,6 @@ import org.joda.time.format.DateTimeFormatter;
 import org.kohsuke.groovy.sandbox.GroovyValueFilter;
 
 import com.google.common.collect.Sets;
-
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import groovy.lang.Closure;
 import groovy.lang.Script;

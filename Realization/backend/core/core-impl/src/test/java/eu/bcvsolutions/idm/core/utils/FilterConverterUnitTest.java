@@ -13,7 +13,6 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.api.utils.FilterConverter;

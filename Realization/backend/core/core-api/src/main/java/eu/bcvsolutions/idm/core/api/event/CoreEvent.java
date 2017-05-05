@@ -11,12 +11,11 @@ import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 
 /**
  * Core event - defines order only for now
- * 
+ * <p>
  * Its better to use {@link Ordered} interface instead {@link Order} annotation - does not work with aspects. 
  * 
- * @author Radek Tomiška
- * 
  * @param <E> {@link BaseEntity}, {@link BaseDto} or any other {@link Serializable} content type
+ * @author Radek Tomiška
  */
 public class CoreEvent<E extends Serializable> extends AbstractEntityEvent<E> {
 

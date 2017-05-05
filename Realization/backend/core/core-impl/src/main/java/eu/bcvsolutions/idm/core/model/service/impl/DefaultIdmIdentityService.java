@@ -16,22 +16,19 @@ import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
 
-import eu.bcvsolutions.idm.core.api.repository.filter.FilterManager;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdentityFilter;
+import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
-import eu.bcvsolutions.idm.core.api.utils.RepositoryUtils;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
-import eu.bcvsolutions.idm.core.eav.service.impl.AbstractFormableService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
-import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
-import eu.bcvsolutions.idm.core.model.dto.filter.IdentityFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmAuthorityChange;
 import eu.bcvsolutions.idm.core.model.entity.IdmForestIndexEntity_;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
@@ -43,8 +40,8 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleGuarantee;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole_;
+import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode_;
-import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType_;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
@@ -65,15 +62,17 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
  * @author Radek Tomiška
  *
  */
-public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdentity, IdentityFilter> implements IdmIdentityService {
+public class DefaultIdmIdentityService 
+		extends AbstractReadWriteDtoService<IdmIdentityDto, IdmIdentity, IdentityFilter> 
+		implements IdmIdentityService {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmIdentityService.class);
 
+	private final FormService formService;
 	private final IdmIdentityRepository repository;
 	private final IdmRoleRepository roleRepository;
 	private final IdmAuthorityChangeRepository authChangeRepository;
 	private final EntityEventManager entityEventManager;
-	private final FilterManager filterManager;
 	
 	@Autowired
 	public DefaultIdmIdentityService(
@@ -81,26 +80,31 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 			FormService formService,
 			IdmRoleRepository roleRepository,
 			EntityEventManager entityEventManager,
-			FilterManager filterManager,
 			IdmAuthorityChangeRepository authChangeRepository) {
-
-		super(repository, formService);
+		super(repository);
 		//
+		Assert.notNull(formService);
 		Assert.notNull(roleRepository);
 		Assert.notNull(entityEventManager);
-		Assert.notNull(filterManager);
 		Assert.notNull(authChangeRepository);
 		//
+		this.formService = formService;
 		this.repository = repository;
 		this.roleRepository = roleRepository;
 		this.authChangeRepository = authChangeRepository;
 		this.entityEventManager = entityEventManager;
-		this.filterManager = filterManager;
 	}
 	
 	@Override
 	public AuthorizableType getAuthorizableType() {
 		return new AuthorizableType(CoreGroupPermission.IDENTITY, getEntityClass());
+	}
+	
+	@Override
+	@Transactional
+	@Deprecated
+	public IdmIdentity saveIdentity(IdmIdentity identity) {
+		return toEntity(save(toDto(identity)), null);
 	}
 	
 	/**
@@ -110,11 +114,12 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 	 */
 	@Override
 	@Transactional
-	public IdmIdentity save(IdmIdentity identity) {
+	public IdmIdentityDto save(IdmIdentityDto identity, BasePermission... permission) {
 		Assert.notNull(identity);
+		checkAccess(toEntity(identity, null), permission);
 		//
 		LOG.debug("Saving identity [{}]", identity.getUsername());
-		
+		//
 		if (isNew(identity)) { // create
 			return entityEventManager.process(new IdentityEvent(IdentityEventType.CREATE, identity)).getContent();
 		}
@@ -128,52 +133,26 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 	 */
 	@Override
 	@Transactional
-	public void delete(IdmIdentity identity) {
+	public void delete(IdmIdentityDto identity, BasePermission... permission) {
 		Assert.notNull(identity);
+		checkAccess(this.getEntity(identity.getId()), permission);
 		//
 		LOG.debug("Deleting identity [{}]", identity.getUsername());
 		entityEventManager.process(new IdentityEvent(IdentityEventType.DELETE, identity));
 	}
 	
 	@Override
-	public Page<IdmIdentity> find(final IdentityFilter filter, Pageable pageable) {
-		// transform filter to criteria
-		Specification<IdmIdentity> criteria = new Specification<IdmIdentity>() {
-			public Predicate toPredicate(Root<IdmIdentity> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
-				Predicate predicate = DefaultIdmIdentityService.this.toPredicate(root, query, builder, filter);
-				return query.where(predicate).getRestriction();
-			}
-		};
-		return getRepository().findAll(criteria, pageable);
+	public void deleteInternal(IdmIdentityDto dto) {
+		// TODO: eav dto
+		formService.deleteValues(getRepository().findOne(dto.getId()));
+		//
+		super.deleteInternal(dto);
 	}
 	
 	@Override
-	public Page<IdmIdentity> findSecured(final IdentityFilter filter, Pageable pageable, BasePermission permission) {
-		// transform filter to criteria
-		Specification<IdmIdentity> criteria = new Specification<IdmIdentity>() {
-			public Predicate toPredicate(Root<IdmIdentity> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
-				Predicate predicate = builder.and(
-					DefaultIdmIdentityService.this.toPredicate(root, query, builder, filter),
-					getAuthorizationManager().getPredicate(root, query, builder, permission)
-				);
-				//
-				return query.where(predicate).getRestriction();
-			}
-		};
-		return getRepository().findAll(criteria, pageable);
-	}
-	
-	/**
-	 * Converts given filter to jpa predicate
-	 * 
-	 * @param filter
-	 * @param root
-	 * @param query
-	 * @param builder
-	 * @return
-	 */
-	private Predicate toPredicate(Root<IdmIdentity> root, CriteriaQuery<?> query, CriteriaBuilder builder, IdentityFilter filter) {
-		List<Predicate> predicates = new ArrayList<>();
+	protected List<Predicate> toPredicates(Root<IdmIdentity> root, CriteriaQuery<?> query, CriteriaBuilder builder, IdentityFilter filter) {
+		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
+		//
 		// quick - "fulltext"
 		if (StringUtils.isNotEmpty(filter.getText())) {
 			predicates.add(builder.or(
@@ -185,7 +164,7 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 					));
 		}
 		// identity with any of given role (OR)
-		List<IdmRole> roles = filter.getRoles();
+		List<UUID> roles = filter.getRoles();
 		if (!roles.isEmpty()) {
 			Subquery<IdmIdentityRole> subquery = query.subquery(IdmIdentityRole.class);
 			Root<IdmIdentityRole> subRoot = subquery.from(IdmIdentityRole.class);
@@ -193,7 +172,7 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 			subquery.where(
                     builder.and(
                     		builder.equal(subRoot.get(IdmIdentityRole_.identityContract).get(IdmIdentityContract_.identity), root), // correlation attr
-                    		subRoot.get(IdmIdentityRole_.role).get(IdmRole_.id).in(RepositoryUtils.queryEntityIds(roles))
+                    		subRoot.get(IdmIdentityRole_.role).get(IdmRole_.id).in(roles)
                     		)
             );			
 			predicates.add(builder.exists(subquery));
@@ -218,27 +197,37 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 			subquery.select(subRoot);
 			//
 			if (filter.isRecursively()) {
+				Subquery<IdmTreeNode> subqueryTreeNode = query.subquery(IdmTreeNode.class);
+				Root<IdmTreeNode> subqueryTreeNodeRoot = subqueryTreeNode.from(IdmTreeNode.class);
+				subqueryTreeNode.select(subqueryTreeNodeRoot);
+				subqueryTreeNode.where(
+						builder.and(
+								builder.equal(subqueryTreeNodeRoot.get(IdmTreeNode_.id), filter.getTreeNode()),
+								builder.between(
+	                    				subRoot.get(IdmIdentityContract_.workPosition).get(IdmTreeNode_.forestIndex).get(IdmForestIndexEntity_.lft), 
+	                    				subqueryTreeNodeRoot.get(IdmTreeNode_.forestIndex).get(IdmForestIndexEntity_.lft),
+	                    				subqueryTreeNodeRoot.get(IdmTreeNode_.forestIndex).get(IdmForestIndexEntity_.rgt)
+	                    		)
+						));				
+	
 				subquery.where(
 	                    builder.and(
 	                    		builder.equal(subRoot.get(IdmIdentityContract_.identity), root), // correlation attr
-	                    		builder.between(
-	                    				subRoot.get(IdmIdentityContract_.workPosition).get(IdmTreeNode_.forestIndex).get(IdmForestIndexEntity_.lft), 
-	                    				filter.getTreeNode().getLft(), 
-	                    				filter.getTreeNode().getRgt())
+	                    		builder.exists(subqueryTreeNode)
 	                    		)
-	            );
+	                    );
 			} else {
 				subquery.where(
 	                    builder.and(
 	                    		builder.equal(subRoot.get(IdmIdentityContract_.identity), root), // correlation attr
-	                    		builder.equal(subRoot.get(IdmIdentityContract_.workPosition), filter.getTreeNode())
+	                    		builder.equal(subRoot.get(IdmIdentityContract_.workPosition).get(IdmTreeNode_.id), filter.getTreeNode())
 	                    		)
-	            );
+	                    );
 			}
 			predicates.add(builder.exists(subquery));
 		}
 		// treeType
-		if (filter.getTreeTypeId() != null) {
+		if (filter.getTreeType() != null) {
 			Subquery<IdmIdentityContract> subquery = query.subquery(IdmIdentityContract.class);
 			Root<IdmIdentityContract> subRoot = subquery.from(IdmIdentityContract.class);
 			subquery.select(subRoot);
@@ -247,28 +236,19 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
                     		builder.equal(subRoot.get(IdmIdentityContract_.identity), root), // correlation attr
                     		builder.equal(
                     				subRoot.get(IdmIdentityContract_.workPosition).get(IdmTreeNode_.treeType).get(IdmTreeType_.id), 
-                    				filter.getTreeTypeId())
+                    				filter.getTreeType())
                     		)
             );			
 			predicates.add(builder.exists(subquery));
 		}
 		//
-		// Dynamic filters (added, overriden by module)
-		predicates.addAll(filterManager.toPredicates(root, query, builder, filter));
-		//
-		return builder.and(predicates.toArray(new Predicate[predicates.size()]));
+		return predicates;
 	}
 
 	@Override
 	@Transactional(readOnly = true)
-	public IdmIdentity getByUsername(String username) {
-		return repository.findOneByUsername(username);
-	}
-	
-	@Override
-	@Transactional(readOnly = true)
-	public IdmIdentity getByName(String username) {
-		return this.getByUsername(username);
+	public IdmIdentityDto getByUsername(String username) {
+		return toDto(repository.findOneByUsername(username));
 	}
 	
 	/**
@@ -279,7 +259,7 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 	 */
 	@Override
 	@Transactional
-	public void passwordChange(IdmIdentity identity, PasswordChangeDto passwordChangeDto) {
+	public void passwordChange(IdmIdentityDto identity, PasswordChangeDto passwordChangeDto) {
 		Assert.notNull(identity);
 		//
 		LOG.debug("Changing password for identity [{}]", identity.getUsername());
@@ -291,7 +271,7 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 	}
 	
 	@Override
-	public String getNiceLabel(IdmIdentity identity) {
+	public String getNiceLabel(IdmIdentityDto identity) {
 		if (identity == null) {
 			return null;
 		}
@@ -314,32 +294,32 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 	/**
 	 * Find all identities by assigned role name
 	 * 
-	 * @param Role name
+	 * @param roleName
 	 * @return Identities with give role
 	 */
 	@Override
 	@Transactional(readOnly = true)
-	public List<IdmIdentity> findAllByRoleName(String roleName) {
+	public List<IdmIdentityDto> findAllByRoleName(String roleName) {
 		IdmRole role = roleRepository.findOneByName(roleName);
 		if(role == null){
 			return new ArrayList<>();
 		}
 		
-		return this.findAllByRole(role);				
+		return this.findAllByRole(role.getId());				
 	}
 	
 	/**
 	 * Find all identities by assigned role
 	 * 
-	 * @param role
+	 * @param roleId
 	 * @return List of IdmIdentity with assigned role
 	 */
 	@Override
 	@Transactional(readOnly = true)
-	public List<IdmIdentity> findAllByRole(IdmRole role) {
-		Assert.notNull(role, "RoleIs required");
+	public List<IdmIdentityDto> findAllByRole(UUID roleId) {
+		Assert.notNull(roleId, "Role is required");
 		//
-		return repository.findAllByRole(role);
+		return toDtos(repository.findAllByRole(roleId), false);
 	}
 
 	/**
@@ -350,10 +330,8 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 	 */
 	@Override
 	@Transactional(readOnly = true)
-	public List<IdmIdentity> findAllManagers(UUID identityId) {
-		IdmIdentity identity = this.get(identityId);
-		Assert.notNull(identity, "Identity is required. Identity by id [" + identityId + "] not found.");
-		return this.findAllManagers(identity, null);
+	public List<IdmIdentityDto> findAllManagers(UUID forIdentity) {
+		return this.findAllManagers(forIdentity, null);
 	}
 
 	/**
@@ -365,16 +343,15 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 	 */
 	@Override
 	@Transactional(readOnly = true)
-	public List<IdmIdentity> findAllManagers(IdmIdentity forIdentity, IdmTreeType byTreeType) {
-		
-		Assert.notNull(forIdentity, "Identity is required");
+	public List<IdmIdentityDto> findAllManagers(UUID forIdentity, UUID byTreeType) {
+		Assert.notNull(forIdentity, "Identity id is required.");
 		//		
 		IdentityFilter filter = new IdentityFilter();
 		filter.setManagersFor(forIdentity);
 		filter.setManagersByTreeType(byTreeType);
 		//
-		List<IdmIdentity> results = new ArrayList<IdmIdentity>();		
-		Page<IdmIdentity> managers = find(filter, new PageRequest(0, 50, Sort.Direction.ASC, "username"));
+		List<IdmIdentityDto> results = new ArrayList<>();
+		Page<IdmIdentityDto> managers = find(filter, new PageRequest(0, 50, Sort.Direction.ASC, IdmIdentity_.username.getName()));
 		results.addAll(managers.getContent());
 		while (managers.hasNext()) {
 			managers = find(filter, managers.nextPageable());
@@ -385,15 +362,19 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 			return results;
 		}
 		// return all identities with admin role
-		return this.findAllByRole(this.getAdminRole());
+		return this.findAllByRole(this.getAdminRole().getId());
 	}
 	
 	@Override
 	@Transactional(readOnly = true)
-	public List<IdmIdentity> findAllGuaranteesByRoleId(UUID roleId) {
+	public List<IdmIdentityDto> findAllGuaranteesByRoleId(UUID roleId) {
 		IdmRole role = roleRepository.findOne(roleId);
 		Assert.notNull(role, "Role is required. Role by name [" + roleId + "] not found.");
-		return role.getGuarantees().stream().map(IdmRoleGuarantee::getGuarantee).collect(Collectors.toList());				
+		return role.getGuarantees()
+				.stream()
+				.map(IdmRoleGuarantee::getGuarantee)
+				.map(this::toDto)
+				.collect(Collectors.toList());			
 	}
 	
 	/**
@@ -404,10 +385,10 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 	 * @return
 	 */
 	@Override
-	public boolean containsUser(List<IdmIdentity> identities, String username){
-		return identities.stream().filter(identity -> {
+	public boolean containsUser(List<IdmIdentityDto> identities, String username){
+		return identities.stream().anyMatch(identity -> {
 			return identity.getUsername().equals(username);
-		}).findFirst().isPresent();
+		});
 	}
 	
 	/**
@@ -416,14 +397,14 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 	 * @return
 	 */
 	@Override
-	public String convertIdentitiesToString(List<IdmIdentity> identities) {
+	public String convertIdentitiesToString(List<IdmIdentityDto> identities) {
 		if(identities == null){
 			return "";
 		}
-		List<String> list = identities.stream()
-				.map(IdmIdentity::getUsername)
-				.collect(Collectors.toList());
-		return StringUtils.join(list, ',');
+		return identities
+				.stream()
+				.map(IdmIdentityDto::getUsername)
+				.collect(Collectors.joining(","));
 	}
 	
 	/**
@@ -443,7 +424,7 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 	 */
 	@Transactional
 	@Override
-	public void updateAuthorityChange(List<IdmIdentity> identities, DateTime changeTime) {
+	public void updateAuthorityChange(List<UUID> identities, DateTime changeTime) {
 		Assert.notNull(identities);
 		//
 		if (identities.isEmpty()) {

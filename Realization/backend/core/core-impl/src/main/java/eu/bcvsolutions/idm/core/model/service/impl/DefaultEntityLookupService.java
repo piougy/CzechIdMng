@@ -12,11 +12,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.rest.lookup.DefaultEntityLookup;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.api.service.ReadDtoService;
 import eu.bcvsolutions.idm.core.api.service.ReadEntityService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 
 /**
  * Provide entity services through whole application. 
@@ -104,5 +106,18 @@ public class DefaultEntityLookupService implements EntityLookupService {
 			return null;
 		}
 		return (E)lookup.lookupEntity(entityId);
+	}	
+	
+	@Override
+	@SuppressWarnings("unchecked")
+	public <DTO extends BaseDto> DTO lookupDto(Class<DTO> dtoClass, Serializable entityId) {
+		// TODO: dto lookup
+		if (dtoClass == IdmIdentityDto.class) {
+			IdmIdentityDto identity = ((IdmIdentityService) getDtoService(dtoClass)).getByUsername(entityId.toString());
+			if (identity != null) {
+				return (DTO) identity;
+			}
+		}
+		return getDtoService(dtoClass).get(entityId);
 	}	
 }

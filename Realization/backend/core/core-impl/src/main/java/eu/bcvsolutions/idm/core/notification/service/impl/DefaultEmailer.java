@@ -22,8 +22,9 @@ import org.springframework.util.ObjectUtils;
 
 import eu.bcvsolutions.idm.core.api.config.domain.EmailerConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
-import eu.bcvsolutions.idm.core.notification.entity.IdmEmailLog;
-import eu.bcvsolutions.idm.core.notification.entity.IdmMessage;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmEmailLogDto;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
 import eu.bcvsolutions.idm.core.notification.service.api.Emailer;
 import eu.bcvsolutions.idm.core.notification.service.api.IdmEmailLogService;
 import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationTemplateService;
@@ -54,13 +55,17 @@ public class DefaultEmailer implements Emailer {
 	@Autowired
 	private IdmNotificationTemplateService notificationTemplateService;
 	
+	@Autowired
+	private IdmIdentityService identityService;
+
+	
 	@Transactional
-	public boolean send(IdmEmailLog emailLog) {
+	public boolean send(IdmEmailLogDto emailLog) {
 		log.debug("Sending email [{}]", emailLog);
 		
 		if (ObjectUtils.isEmpty(emailLog.getRecipients())) {
 			log.info("Email recipiets is empty. Email [{}] is logged only.", emailLog);
-			emailLogService.setEmailSentLog(emailLog.getId(), "Email recipiets is empty. Email was logged only.");
+			emailLogService.setEmailSentLog(emailLog.getId(), "Email recipients is empty. Email was logged only.");
 			return false;
 		}
 		
@@ -68,7 +73,7 @@ public class DefaultEmailer implements Emailer {
 			Endpoint endpoint = configureEndpoint();
 			//
 			// If message contain template transform message, otherwise get simple message
-			IdmMessage idmMessage = notificationTemplateService.buildMessage(emailLog.getMessage(), true);
+			IdmMessageDto idmMessage = notificationTemplateService.buildMessage(emailLog.getMessage(), true);
 			
 			// create the exchange with the mail message that is multipart with a file and a Hello World text/plain message.
 			Exchange exchange = endpoint.createExchange();
@@ -115,7 +120,7 @@ public class DefaultEmailer implements Emailer {
 		return camelContext.getEndpoint(endpoint.toString());
 	}
 	
-	private Map<String, Object> createEmailHeaders(IdmEmailLog emailLog) {
+	private Map<String, Object> createEmailHeaders(IdmEmailLogDto emailLog) {
 		Map<String, Object> headers = new HashMap<String, Object>();		
 		// resolve recipients
 		headers.put("To", getRecipiets(emailLog));	
@@ -126,7 +131,7 @@ public class DefaultEmailer implements Emailer {
 		}
 		// when from is given - transform to reply to
 		if (emailLog.getIdentitySender() != null) {
-			String fromEmail = emailLogService.getEmailAddress(emailLog.getIdentitySender());
+			String fromEmail = emailLogService.getEmailAddress(identityService.get(emailLog.getIdentitySender()));
 			if (StringUtils.isNotBlank(fromEmail)) {
 				headers.put("Reply-To", fromEmail);
 			}			
@@ -140,10 +145,10 @@ public class DefaultEmailer implements Emailer {
 	/**
 	 * Returns filled recipients email addresses joined with comma
 	 * 
-	 * @param notification
+	 * @param emailLog
 	 * @return
 	 */
-	private String getRecipiets(IdmEmailLog emailLog) {
+	private String getRecipiets(IdmEmailLogDto emailLog) {
 		Assert.notNull(emailLog, "EmailLog is required!");
 		//
 		return emailLog.getRecipients().stream()

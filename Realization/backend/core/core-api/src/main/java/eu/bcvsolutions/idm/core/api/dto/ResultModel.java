@@ -11,7 +11,6 @@ import org.springframework.http.HttpStatus;
  * Universal operation result response
  * 
  * @author Radek Tomiška 
- *
  */
 public interface ResultModel extends Serializable {
 

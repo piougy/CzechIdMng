@@ -21,14 +21,13 @@ import eu.bcvsolutions.idm.acc.repository.SysRoleSystemAttributeRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountManagementService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
-import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
+import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 
 /**
  * Mapping attribute to system for role
@@ -49,7 +48,7 @@ public class DefaultSysRoleSystemAttributeService
 	@Autowired
 	private GroovyScriptService groovyScriptService;
 	@Autowired
-	private IdmIdentityService identityService;
+	private IdmIdentityRepository identityRepository;
 	@Autowired
 	private ApplicationContext applicationContext;
 	private AccAccountManagementService accountManagementService;
@@ -102,7 +101,7 @@ public class DefaultSysRoleSystemAttributeService
 		List<IdmIdentity> identities = new ArrayList<>();
 		identityAccounts.stream().forEach(identityAccount -> {
 			if (!identities.contains(identityAccount.getIdentity())) {
-				identities.add(identityService.get(identityAccount.getIdentity()));
+				identities.add(identityRepository.findOne(identityAccount.getIdentity()));
 			}
 		});
 		identities.stream().forEach(identity -> {		

@@ -14,15 +14,17 @@ import java.util.UUID;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+import org.modelmapper.ModelMapper;
 import org.springframework.security.core.GrantedAuthority;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
-import eu.bcvsolutions.idm.core.model.dto.IdmIdentityContractDto;
-import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleComposition;
@@ -45,7 +47,7 @@ import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
  */
 public class DefaultGrantedAuthoritiesFactoryTest extends AbstractUnitTest {
 	
-	private static final IdmIdentity TEST_IDENTITY;
+	private static final IdmIdentityDto TEST_IDENTITY;
 	private static final IdmRole TEST_ROLE;
 	private static final List<IdmIdentityRoleDto> IDENTITY_ROLES;
 	private static final List<GroupPermission> groupPermissions = new ArrayList<>();
@@ -68,6 +70,8 @@ public class DefaultGrantedAuthoritiesFactoryTest extends AbstractUnitTest {
 	private IdmAuthorizationPolicyService authorizationPolicyService;
 	@Mock
 	private IdmRoleService roleService;
+	@Mock
+	private ModelMapper modelMapper;
 	//
 	private DefaultGrantedAuthoritiesFactory defaultGrantedAuthoritiesFactory;
 	
@@ -82,7 +86,7 @@ public class DefaultGrantedAuthoritiesFactoryTest extends AbstractUnitTest {
 		TEST_ROLE.getSubRoles().add(new IdmRoleComposition(TEST_ROLE, subRole));
 		
 		// prepare identity		
-		IdmIdentity identity = new IdmIdentity();
+		IdmIdentityDto identity = new IdmIdentityDto();
 		identity.setId(UUID.randomUUID());
 		identity.setUsername("username");
 		IdmIdentityContractDto contract = new IdmIdentityContractDto();
@@ -105,7 +109,8 @@ public class DefaultGrantedAuthoritiesFactoryTest extends AbstractUnitTest {
 				identityService, 
 				identityRoleService, 
 				authorizationPolicyService,
-				roleService);
+				roleService,
+				modelMapper);
 	}
 	
 	// TODO: enable after subroles rewrite
@@ -146,7 +151,7 @@ public class DefaultGrantedAuthoritiesFactoryTest extends AbstractUnitTest {
 		IdmRole role = new IdmRole();
 		role.setName("role");
 		role.setId(UUID.randomUUID());
-		IdmIdentity identity = new IdmIdentity();
+		IdmIdentityDto identity = new IdmIdentityDto();
 		identity.setId(UUID.randomUUID());
 		identity.setUsername("admin");
 		IdmIdentityContractDto contract = new IdmIdentityContractDto();
@@ -181,7 +186,7 @@ public class DefaultGrantedAuthoritiesFactoryTest extends AbstractUnitTest {
 		IdmRole role = new IdmRole();
 		role.setName("role");
 		role.setId(UUID.randomUUID());
-		IdmIdentity identity = new IdmIdentity();
+		IdmIdentityDto identity = new IdmIdentityDto();
 		identity.setId(UUID.randomUUID());
 		identity.setUsername("identityAdmin");
 		IdmIdentityContractDto contract = new IdmIdentityContractDto();

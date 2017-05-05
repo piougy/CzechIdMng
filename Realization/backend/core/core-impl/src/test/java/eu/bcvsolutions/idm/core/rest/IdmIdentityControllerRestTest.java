@@ -21,7 +21,6 @@ import com.google.common.collect.Lists;
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.core.security.api.utils.IdmAuthorityUtils;
@@ -62,11 +61,11 @@ public class IdmIdentityControllerRestTest extends AbstractRestTest {
 	@Test
 	@Ignore // TODO: url decode does not works in test ... why? 
     public void testUsernameWithSpecialCharacters() throws Exception {
-		IdmIdentity identity = new IdmIdentity();
+		IdmIdentityDto identity = new IdmIdentityDto();
 		identity.setUsername("hh.hh#./sd");
 		identity.setFirstName("test");
 		identity.setLastName("test");
-		identityService.save(identity);
+		identity = identityService.save(identity);
 		//
 		getMockMvc().perform(get(BaseEntityController.BASE_PATH + "/identities/" + URLEncoder.encode(identity.getUsername(), "UTF-8"))
         		.with(authentication(getAuthentication()))

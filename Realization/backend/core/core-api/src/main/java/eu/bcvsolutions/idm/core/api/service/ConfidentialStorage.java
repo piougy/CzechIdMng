@@ -9,7 +9,6 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
  * Persists abstract entity's confidential informations (passwords, token etc.)
  * 
  * @author Radek Tomiška
- *
  */
 public interface ConfidentialStorage {
 

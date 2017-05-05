@@ -9,7 +9,6 @@ import eu.bcvsolutions.idm.core.scheduler.api.dto.Task;
  * Interface for scheduler service.
  * 
  * @author Radek Tomiška
- *
  */
 public interface SchedulerManager {
 

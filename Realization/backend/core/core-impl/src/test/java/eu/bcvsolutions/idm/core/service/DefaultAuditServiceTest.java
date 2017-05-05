@@ -25,8 +25,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionCallback;
 
 import eu.bcvsolutions.idm.core.TestHelper;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.AuditFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
-import eu.bcvsolutions.idm.core.model.dto.filter.AuditFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmAudit;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
@@ -132,7 +133,7 @@ public class DefaultAuditServiceTest extends AbstractIntegrationTest {
 
 	@Test
 	public void diffAuditTest() {
-		IdmIdentity identity = this.constructIdentity("test_diff", "John", "Doe");
+		IdmIdentityDto identity = this.constructIdentity("test_diff", "John", "Doe");
 		identity = saveInTransaction(identity, identityService);
 		// identityRepository.save(identity);
 
@@ -223,8 +224,8 @@ public class DefaultAuditServiceTest extends AbstractIntegrationTest {
 
 	@Test
 	public void identityAuditCreateModify() {
-		IdmIdentity identity = this.constructIdentity("aud_test", "test", "test");
-		identityService.save(identity);
+		IdmIdentityDto identity = this.constructIdentity("aud_test", "test", "test");
+		identity = identityService.save(identity);
 		identity = identityService.get(identity.getId());
 		IdmRole role = roleService.save(constructRole("aud_test_role"));		
 		helper.createIdentityRole(identity, role);
@@ -264,8 +265,8 @@ public class DefaultAuditServiceTest extends AbstractIntegrationTest {
 		return role;
 	}
 
-	private IdmIdentity constructIdentity(String username, String firstName, String secondName) {
-		IdmIdentity identity = new IdmIdentity();
+	private IdmIdentityDto constructIdentity(String username, String firstName, String secondName) {
+		IdmIdentityDto identity = new IdmIdentityDto();
 		identity.setUsername(username);
 		identity.setFirstName(firstName);
 		identity.setLastName(secondName);

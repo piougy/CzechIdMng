@@ -1,7 +1,7 @@
 package eu.bcvsolutions.idm.core.model.repository.filter;
 
+import eu.bcvsolutions.idm.core.api.dto.filter.IdentityFilter;
 import eu.bcvsolutions.idm.core.api.repository.filter.FilterBuilder;
-import eu.bcvsolutions.idm.core.model.dto.filter.IdentityFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 
 /**

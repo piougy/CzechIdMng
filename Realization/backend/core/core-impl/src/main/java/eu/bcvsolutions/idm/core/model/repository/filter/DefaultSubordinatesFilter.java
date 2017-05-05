@@ -14,15 +14,17 @@ import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import eu.bcvsolutions.idm.core.api.dto.filter.IdentityFilter;
 import eu.bcvsolutions.idm.core.api.repository.filter.AbstractFilterBuilder;
-import eu.bcvsolutions.idm.core.model.dto.filter.IdentityFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmContractGuarantee;
 import eu.bcvsolutions.idm.core.model.entity.IdmContractGuarantee_;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode_;
+import eu.bcvsolutions.idm.core.model.entity.IdmTreeType_;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 
 /**
@@ -63,7 +65,7 @@ public class DefaultSubordinatesFilter
 			subqueryGuarantees.where(
 	                builder.and(
 	                		builder.equal(subRootGuarantees.get(IdmContractGuarantee_.identityContract), subRoot), // correlation attr
-	                		builder.equal(subRootGuarantees.get(IdmContractGuarantee_.guarantee), filter.getSubordinatesFor())
+	                		builder.equal(subRootGuarantees.get(IdmContractGuarantee_.guarantee).get(IdmIdentity_.id), filter.getSubordinatesFor())
 	                		)
 	        );
 			subPredicates.add(builder.exists(subqueryGuarantees));
@@ -87,9 +89,9 @@ public class DefaultSubordinatesFilter
 				//
 				(filter.getSubordinatesByTreeType() == null) // only id tree type is specified
 					? builder.conjunction() 
-					: builder.equal(wp.get(IdmTreeNode_.treeType), filter.getSubordinatesByTreeType()),
+					: builder.equal(wp.get(IdmTreeNode_.treeType).get(IdmTreeType_.id), filter.getSubordinatesByTreeType()),
 				builder.equal(wp, subRoot.get(IdmIdentityContract_.workPosition).get(IdmTreeNode_.parent)),
-				builder.equal(subqueryWpRoot.get(IdmIdentityContract_.identity), filter.getSubordinatesFor())
+				builder.equal(subqueryWpRoot.get(IdmIdentityContract_.identity).get(IdmIdentity_.id), filter.getSubordinatesFor())
 				));
 		subPredicates.add(builder.exists(subqueryWp));		
 		// 

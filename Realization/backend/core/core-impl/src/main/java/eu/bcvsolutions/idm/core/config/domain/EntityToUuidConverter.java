@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.config.domain;
 
+import static eu.bcvsolutions.idm.core.api.utils.EntityUtils.getFirstFieldInClassHierarchy;
+
 import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.UUID;
@@ -50,7 +52,7 @@ public class EntityToUuidConverter implements Converter<BaseEntity, UUID> {
 					// Find name of field by property mapping
 					String field = propertyMapping.getLastDestinationProperty().getName();
 					// Find field in DTO class
-					Field fieldTyp = parentContext.getDestinationType().getDeclaredField(field);
+					Field fieldTyp = getFirstFieldInClassHierarchy(parentContext.getDestinationType(), field);
 					if (fieldTyp.isAnnotationPresent(Embedded.class)) {
 						Embedded embeddedAnnotation = fieldTyp.getAnnotation(Embedded.class);
 						if (embeddedAnnotation.enabled()) {

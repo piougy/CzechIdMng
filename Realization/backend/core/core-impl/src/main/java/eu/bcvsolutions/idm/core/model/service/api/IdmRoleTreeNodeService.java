@@ -3,12 +3,12 @@ package eu.bcvsolutions.idm.core.model.service.api;
 import java.util.Set;
 import java.util.UUID;
 
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.RoleTreeNodeFilter;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
-import eu.bcvsolutions.idm.core.model.dto.IdmIdentityContractDto;
-import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleDto;
-import eu.bcvsolutions.idm.core.model.dto.IdmRoleRequestDto;
-import eu.bcvsolutions.idm.core.model.dto.IdmRoleTreeNodeDto;
-import eu.bcvsolutions.idm.core.model.dto.filter.RoleTreeNodeFilter;
 
 /**
  * Automatic role service

@@ -3,6 +3,8 @@ package eu.bcvsolutions.idm.core.config;
 import java.util.List;
 import java.util.concurrent.Executor;
 
+import javax.persistence.EntityManager;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.ApplicationContext;
@@ -94,6 +96,7 @@ public class IdmServiceConfiguration {
 	@Autowired private ApplicationContext context;
 	@Autowired private ApplicationEventPublisher publisher;
 	@Autowired private Executor executor;
+	@Autowired private EntityManager entityManager;
 	//
 	// Spring Data repositories through interfaces - they are constructed automatically
 	@Autowired private IdmConfigurationRepository configurationRepository;
@@ -257,7 +260,7 @@ public class IdmServiceConfiguration {
 	@Bean
 	@ConditionalOnMissingBean(FormService.class)
 	public FormService formService() {
-		return new DefaultFormService(formDefinitionService(), formAttributeService(), formValueServices, entityEventManager());
+		return new DefaultFormService(formDefinitionService(), formAttributeService(), formValueServices, entityEventManager(), entityManager);
 	}
 	
 	/**
@@ -306,6 +309,8 @@ public class IdmServiceConfiguration {
 		return new DefaultLongRunningTaskManager(longRunningTaskService(), executor, configurationService(), securityService());
 	}
 	
+	
+	
 	/**
 	 * Identity service
 	 * 
@@ -314,7 +319,7 @@ public class IdmServiceConfiguration {
 	@Bean
 	@ConditionalOnMissingBean(IdmIdentityService.class)
 	public IdmIdentityService identityService() {
-		return new DefaultIdmIdentityService(identityRepository, formService(), roleRepository, entityEventManager(), filterManager(), authChangeRepository);
+		return new DefaultIdmIdentityService(identityRepository, formService(), roleRepository, entityEventManager(), authChangeRepository);
 	}
 	
 	/**

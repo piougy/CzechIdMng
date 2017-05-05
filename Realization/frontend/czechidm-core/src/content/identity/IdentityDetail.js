@@ -65,8 +65,8 @@ class IdentityDetail extends Basic.AbstractContent {
       showLoading: true,
       setDataToForm: false // Form will not be set new data (we are waiting to saved data)
     }, () => {
-      this.context.store.dispatch(identityManager.patchEntity(json, null, (patchedEntity, error) => {
-        this._afterSave(patchedEntity, error);
+      this.context.store.dispatch(identityManager.updateEntity(json, null, (updatedEntity, error) => {
+        this._afterSave(updatedEntity, error);
       }));
     });
   }

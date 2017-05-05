@@ -1,7 +1,7 @@
 package eu.bcvsolutions.idm.core.model.repository.filter;
 
+import eu.bcvsolutions.idm.core.api.dto.filter.IdentityFilter;
 import eu.bcvsolutions.idm.core.api.repository.filter.FilterBuilder;
-import eu.bcvsolutions.idm.core.model.dto.filter.IdentityFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 
 /**
@@ -16,6 +16,6 @@ public interface ManagersByContractFilter extends FilterBuilder<IdmIdentity, Ide
 	
 	@Override
 	default String getName() {
-		return IdentityFilter.PARAMETER_MANAGERS_BY_CONTRACT_ID;
+		return IdentityFilter.PARAMETER_MANAGERS_BY_CONTRACT;
 	}
 }

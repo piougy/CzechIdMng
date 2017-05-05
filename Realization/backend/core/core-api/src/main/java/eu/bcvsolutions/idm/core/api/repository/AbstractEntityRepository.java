@@ -13,13 +13,12 @@ import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 
 /**
  * Common repository for abstract entities
- * 
+ * <p>
  * TODO: QueryDslPredicateExecutor<E>
  * 
- * @author Radek Tomiška
- *
  * @param <E> entity type
  * @param <F> basic filter
+ * @author Radek Tomiška
  */
 @NoRepositoryBean
 public interface AbstractEntityRepository<E extends BaseEntity, F extends BaseFilter> extends BaseEntityRepository<E, UUID, F> {
@@ -27,14 +26,11 @@ public interface AbstractEntityRepository<E extends BaseEntity, F extends BaseFi
 	/**
 	 * Quick filter - is need to be overridden in all sub interfaces.
 	 * 
-	 * @see {@link QuickFilter}
-	 * @see {@link EmptyFilter}
-	 * 
 	 * @param filter
 	 * @param pageable
-	 * @deprecated use criteria api
 	 * @return
+     * @see {@link QuickFilter}
+     * @see {@link EmptyFilter}
 	 */
-	@Deprecated
 	Page<E> find(F filter, Pageable pageable);
 }

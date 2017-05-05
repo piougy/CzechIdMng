@@ -175,7 +175,7 @@ class IdentityContractGuarantees extends Advanced.AbstractTableContent {
               ref="managers"
               uiKey={ uiKeyManagers }
               identityManager={ identityManager }
-              forceSearchParameters={ new SearchParameters().setFilter('managersByContractId', entityId) }
+              forceSearchParameters={ new SearchParameters().setFilter('managersByContract', entityId) }
               showAddButton={ false }
               showDetailButton={ false }
               showFilter={ false }

@@ -11,7 +11,6 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Lists;
-
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;

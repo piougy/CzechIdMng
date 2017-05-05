@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.common.collect.ImmutableMap;
-
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
@@ -35,9 +34,9 @@ import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 /**
  * CRUD operations
  * 
- * @author Radek Tomiška
  * @param <E> {@link BaseEntity} type
  * @param <F> {@link BaseFilter} type
+ * @author Radek Tomiška
  * @deprecated use {@link AbstractReadWriteDtoController}
  */
 @Deprecated
@@ -138,7 +137,8 @@ public abstract class AbstractReadWriteEntityController<E extends BaseEntity, F 
 		if (updateEntity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
-		checkAccess(updateEntity, IdmBasePermission.UPDATE);;
+        checkAccess(updateEntity, IdmBasePermission.UPDATE);
+        ;
 		//
 		E updatedEntity = patchEntity((E) requestResourceResolver.resolve(nativeRequest, getEntityService().getEntityClass(), updateEntity));
 		return new ResponseEntity<>(toResource(updatedEntity, assembler), HttpStatus.OK);

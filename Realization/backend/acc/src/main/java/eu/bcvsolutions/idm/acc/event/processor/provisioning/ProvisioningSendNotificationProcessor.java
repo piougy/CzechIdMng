@@ -10,14 +10,14 @@ import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
-import eu.bcvsolutions.idm.core.notification.entity.IdmMessage;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
 import eu.bcvsolutions.idm.core.notification.service.api.NotificationManager;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
@@ -55,7 +55,7 @@ public class ProvisioningSendNotificationProcessor extends AbstractEntityEventPr
 	@Override
 	public EventResult<SysProvisioningOperation> process(EntityEvent<SysProvisioningOperation> event) {
 		SysProvisioningOperation provisioningOperation = event.getContent();
-		IdmIdentity identity = null;
+		IdmIdentityDto identity = null;
 		if (provisioningOperation.getEntityIdentifier() != null && SystemEntityType.IDENTITY == provisioningOperation.getEntityType()) {
 			identity = identityService.get(provisioningOperation.getEntityIdentifier());
 		}
@@ -69,7 +69,7 @@ public class ProvisioningSendNotificationProcessor extends AbstractEntityEventPr
 					// send message with new password to identity, topic has connection to templates
 					notificationManager.send(
 							AccModuleDescriptor.TOPIC_NEW_PASSWORD,
-							new IdmMessage.Builder()
+							new IdmMessageDto.Builder()
 							.setLevel(NotificationLevel.SUCCESS)
 							.addParameter("systemName", provisioningOperation.getSystem().getName())
 							.addParameter("uid", provisioningOperation.getSystemEntityUid())

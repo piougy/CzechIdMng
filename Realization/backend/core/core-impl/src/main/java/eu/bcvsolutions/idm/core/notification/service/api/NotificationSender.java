@@ -4,9 +4,10 @@ import java.util.List;
 
 import org.springframework.plugin.core.Plugin;
 
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.notification.domain.BaseNotification;
-import eu.bcvsolutions.idm.core.notification.entity.IdmMessage;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.notification.api.dto.BaseNotification;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationDto;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotification;
 
 /**
@@ -35,7 +36,7 @@ public interface NotificationSender<N extends BaseNotification> extends Plugin<S
 	 * @param recipient
 	 * @return sent IdmNotification or ex
 	 */
-	N send(IdmMessage message, IdmIdentity recipient);
+	N send(IdmMessageDto message, IdmIdentityDto recipient);
 	
 	/**
 	 * Sends given message to given identities.
@@ -44,7 +45,7 @@ public interface NotificationSender<N extends BaseNotification> extends Plugin<S
 	 * @param recipients
 	 * @return sent IdmNotification if notification was sent. Otherwise returns  null (not sent quietly) or ex (not sent and some error occurs).
 	 */
-	N send(IdmMessage message, List<IdmIdentity> recipients);
+	N send(IdmMessageDto message, List<IdmIdentityDto> recipients);
 	
 	/**
 	 * Sends given message with given topic to given identity.
@@ -54,7 +55,7 @@ public interface NotificationSender<N extends BaseNotification> extends Plugin<S
 	 * @param recipient
 	 * @return sent IdmNotification if notification was sent. Otherwise returns  null (not sent quietly) or ex (not sent and some error occurs).
 	 */
-	N send(String topic, IdmMessage message, IdmIdentity recipient);
+	N send(String topic, IdmMessageDto message, IdmIdentityDto recipient);
 	
 	/**
 	 * Sends given message with given topic to given identities.
@@ -64,7 +65,7 @@ public interface NotificationSender<N extends BaseNotification> extends Plugin<S
 	 * @param recipients
 	 * @return sent IdmNotification if notification was sent. Otherwise returns  null (not sent quietly) or ex (not sent and some error occurs).
 	 */
-	N send(String topic, IdmMessage message, List<IdmIdentity> recipients);
+	N send(String topic, IdmMessageDto message, List<IdmIdentityDto> recipients);
 	
 	/**
 	 * Sends given notification
@@ -72,7 +73,7 @@ public interface NotificationSender<N extends BaseNotification> extends Plugin<S
 	 * @param notification
 	 * @return sent IdmNotification if notification was sent. Otherwise returns  null (not sent quietly) or ex (not sent and some error occurs).
 	 */
-	N send(IdmNotification notification);
+	N send(IdmNotificationDto notification);
 	
 	/**
 	 * Sends given message with given topic to currently logged identity.
@@ -81,5 +82,5 @@ public interface NotificationSender<N extends BaseNotification> extends Plugin<S
 	 * @param message
 	 * @return sent IdmNotification if notification was sent. Otherwise returns  null (not sent quietly) or ex (not sent and some error occurs).
 	 */
-	N send(String topic, IdmMessage message);
+	N send(String topic, IdmMessageDto message);
 }

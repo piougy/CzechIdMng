@@ -25,6 +25,7 @@ public class CustomActivityBehaviorFactory extends DefaultActivityBehaviorFactor
 	@Autowired
 	private IdmIdentityService identityService;
 
+
 	@Override
 	protected MailActivityBehavior createMailActivityBehavior(String taskId, List<FieldExtension> fields) {
 		List<FieldDeclaration> fieldDeclarations = createFieldDeclarations(fields);

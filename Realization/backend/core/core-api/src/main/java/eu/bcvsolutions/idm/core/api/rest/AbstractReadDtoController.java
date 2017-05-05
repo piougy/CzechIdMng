@@ -27,7 +27,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
-
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
@@ -41,11 +40,10 @@ import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 /**
  * Read operations (get, find, autocomplete)
  * 
- * @author Svanda
- * @author Radek Tomiška
- *
  * @param <DTO> dto type
  * @param <F> filter type
+ * @author Svanda
+ * @author Radek Tomiška
  */
 public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends BaseFilter>
 		implements BaseDtoController<DTO> {
@@ -88,7 +86,6 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 	 * Returns response DTO by given backendId
 	 * 
 	 * @param backendId
-	 * @param assembler
 	 * @return
 	 */
 	public ResponseEntity<?> get(@PathVariable @NotNull String backendId) {
@@ -107,18 +104,20 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 	 * @return
 	 */
 	public DTO getDto(Serializable backendId) {
-		return getService().get(backendId, IdmBasePermission.READ);
+		if(entityLookupService == null) {
+			return getService().get(backendId, IdmBasePermission.READ);
+		}
+		DTO dto = entityLookupService.lookupDto(getDtoClass(), backendId);
+		return checkAccess(dto, IdmBasePermission.READ);
 	}
 
 	/**
 	 * Quick search - parameters will be transformed to filter object
 	 * 
-	 * @see #toFilter(MultiValueMap)
-	 * 
 	 * @param parameters
 	 * @param pageable
-	 * @param assembler
 	 * @return
+     * @see #toFilter(MultiValueMap)
 	 */
 	public Resources<?> find(@RequestParam MultiValueMap<String, Object> parameters,
 			@PageableDefault Pageable pageable) {
@@ -128,12 +127,11 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 	/**
 	 * Quick search for autocomplete (read data to select box etc.) - parameters will be transformed to filter object
 	 * 
-	 * @see #toFilter(MultiValueMap)
-	 * 
 	 * @param parameters
 	 * @param pageable
 	 * @param assembler
 	 * @return
+     * @see #toFilter(MultiValueMap)
 	 */
 	public Resources<?> autocomplete(
 			@RequestParam MultiValueMap<String, Object> parameters,
@@ -221,5 +219,16 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 			filterConverter = new FilterConverter(entityLookupService, mapper);
 		}
 		return filterConverter;
+	}
+	
+	/**
+	 * Evaluates authorization permission on given dto
+	 * 
+	 * @param dto
+	 * @param permission
+	 * @return
+	 */
+	protected DTO checkAccess(DTO dto, BasePermission... permission) {
+		return getService().checkAccess(dto, permission);
 	}
 }

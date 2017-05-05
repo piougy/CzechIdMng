@@ -4,11 +4,11 @@ import java.util.UUID;
 
 import org.joda.time.DateTime;
 
-import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmEmailLogDto;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationRecipientDto;
 import eu.bcvsolutions.idm.core.notification.dto.filter.NotificationFilter;
-import eu.bcvsolutions.idm.core.notification.entity.IdmEmailLog;
-import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationRecipient;
 
 /**
  * Email log service
@@ -16,7 +16,7 @@ import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationRecipient;
  * @author Radek Tomiška
  *
  */
-public interface IdmEmailLogService extends ReadWriteEntityService<IdmEmailLog, NotificationFilter> {
+public interface IdmEmailLogService extends ReadWriteDtoService<IdmEmailLogDto, NotificationFilter> {
 
 	/**
 	 * Returns recipient's email address
@@ -24,15 +24,15 @@ public interface IdmEmailLogService extends ReadWriteEntityService<IdmEmailLog, 
 	 * @param recipient
 	 * @return
 	 */
-	String getEmailAddress(IdmNotificationRecipient recipient);
+	String getEmailAddress(IdmNotificationRecipientDto recipient);
 	
 	/**
 	 * Returns identity's email address
 	 *  
-	 * @param recipient
+	 * @param identity
 	 * @return
 	 */
-	String getEmailAddress(IdmIdentity identity);
+	String getEmailAddress(IdmIdentityDto identity);
 	
 	/**
 	 * Persists sent date to given emailLogId

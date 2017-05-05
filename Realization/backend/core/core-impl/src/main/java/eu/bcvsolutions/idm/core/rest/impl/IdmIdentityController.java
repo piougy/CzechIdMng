@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.rest.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
@@ -36,17 +37,17 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.forest.index.service.api.ForestContentService;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdentityFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteEntityController;
-import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
-import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
+import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
+import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.eav.rest.impl.IdmFormDefinitionController;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
-import eu.bcvsolutions.idm.core.model.dto.IdmIdentityContractDto;
-import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.model.dto.WorkPositionDto;
-import eu.bcvsolutions.idm.core.model.dto.filter.IdentityFilter;
-import eu.bcvsolutions.idm.core.model.dto.filter.IdentityRoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmAudit;
 import eu.bcvsolutions.idm.core.model.entity.IdmForestIndexEntity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
@@ -54,9 +55,11 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.entity.eav.IdmIdentityFormValue;
+import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuditService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.service.GrantedAuthoritiesFactory;
@@ -68,8 +71,8 @@ import eu.bcvsolutions.idm.core.security.service.GrantedAuthoritiesFactory;
  *
  */
 @RepositoryRestController
-@RequestMapping(value = BaseEntityController.BASE_PATH + "/identities")
-public class IdmIdentityController extends AbstractReadWriteEntityController<IdmIdentity, IdentityFilter> {
+@RequestMapping(value = BaseDtoController.BASE_PATH + "/identities")
+public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIdentityDto, IdentityFilter> {
 
 	private final GrantedAuthoritiesFactory grantedAuthoritiesFactory;
 	private final IdmIdentityContractService identityContractService;
@@ -77,20 +80,22 @@ public class IdmIdentityController extends AbstractReadWriteEntityController<Idm
 	private final IdmAuditService auditService; 	
 	private final IdmTreeNodeService treeNodeService;
 	private final ForestContentService<IdmTreeNode, IdmForestIndexEntity, UUID> treeNodeIndexService;
+	private final IdmIdentityRepository identityRepository;
 	//
 	private final IdmFormDefinitionController formDefinitionController;
 	
 	@Autowired
 	public IdmIdentityController(
-			EntityLookupService entityLookupService, 
+			IdmIdentityService identityService, 
 			IdmFormDefinitionController formDefinitionController,
 			GrantedAuthoritiesFactory grantedAuthoritiesFactory,
 			IdmIdentityContractService identityContractService,
 			IdmIdentityRoleService identityRoleService,
 			IdmAuditService auditService,
 			ForestContentService<IdmTreeNode, IdmForestIndexEntity, UUID> treeNodeIndexService,
-			IdmTreeNodeService treeNodeService) {
-		super(entityLookupService);
+			IdmTreeNodeService treeNodeService,
+			IdmIdentityRepository identityRepository) {
+		super(identityService);
 		//
 		Assert.notNull(formDefinitionController);
 		Assert.notNull(grantedAuthoritiesFactory);
@@ -99,6 +104,7 @@ public class IdmIdentityController extends AbstractReadWriteEntityController<Idm
 		Assert.notNull(auditService);
 		Assert.notNull(treeNodeIndexService);
 		Assert.notNull(treeNodeService);
+		Assert.notNull(identityRepository);
 		//
 		this.formDefinitionController = formDefinitionController;
 		this.grantedAuthoritiesFactory = grantedAuthoritiesFactory;
@@ -107,78 +113,73 @@ public class IdmIdentityController extends AbstractReadWriteEntityController<Idm
 		this.auditService = auditService;
 		this.treeNodeIndexService = treeNodeIndexService;
 		this.treeNodeService = treeNodeService;
+		this.identityRepository = identityRepository;
 	}
 	
 	@Override
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_READ + "')")
-	public Resources<?> find(@RequestParam MultiValueMap<String, Object> parameters, 
-			@PageableDefault Pageable pageable, 			
-			PersistentEntityResourceAssembler assembler) {
-		return super.find(parameters, pageable, assembler);
+	public Resources<?> find(@RequestParam MultiValueMap<String, Object> parameters,
+			@PageableDefault Pageable pageable) {
+		return super.find(parameters, pageable);
 	}
-	
+
 	@ResponseBody
-	@RequestMapping(value= "/search/quick", method = RequestMethod.GET)
+	@RequestMapping(value = "/search/quick", method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_READ + "')")
-	public Resources<?> findQuick(@RequestParam MultiValueMap<String, Object> parameters, 
-			@PageableDefault Pageable pageable, 			
-			PersistentEntityResourceAssembler assembler) {
-		return super.find(parameters, pageable, assembler);
+	public Resources<?> findQuick(@RequestParam MultiValueMap<String, Object> parameters,
+			@PageableDefault Pageable pageable) {
+		return super.find(parameters, pageable);
 	}
-	
-	@ResponseBody
-	@RequestMapping(value= "/search/autocomplete", method = RequestMethod.GET)
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_AUTOCOMPLETE + "')")
-	public Resources<?> autocomplete(@RequestParam MultiValueMap<String, Object> parameters, 
-			@PageableDefault Pageable pageable, 			
-			PersistentEntityResourceAssembler assembler) {
-		return super.autocomplete(parameters, pageable, assembler);
-	}
-	
+
 	@Override
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_READ + "')")
-	public ResponseEntity<?> get(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler) {
-		return super.get(backendId, assembler);
+	public ResponseEntity<?> get(@PathVariable @NotNull String backendId) {
+		return super.get(backendId);
 	}
-	
+
 	@Override
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.POST)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_CREATE + "') or hasAuthority('" + CoreGroupPermission.IDENTITY_UPDATE + "')")
-	public ResponseEntity<?> post(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
-		return super.post(nativeRequest, assembler);
+	public ResponseEntity<?> post(@Valid @RequestBody IdmIdentityDto dto) {
+		return super.post(dto);
 	}
-	
+
 	@Override
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.PUT)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_UPDATE + "')")
-	public ResponseEntity<?> put(
-			@PathVariable @NotNull String backendId,
-			HttpServletRequest nativeRequest,
-			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
-		return super.put(backendId, nativeRequest, assembler);
+	public ResponseEntity<?> put(@PathVariable @NotNull String backendId, @Valid @RequestBody IdmIdentityDto dto) {
+		return super.put(backendId, dto);
 	}
-	
+
 	@Override
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.PATCH)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_UPDATE + "')")
-	public ResponseEntity<?> patch(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler) 
+	public ResponseEntity<?> patch(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest)
 			throws HttpMessageNotReadableException {
-		return super.patch(backendId, nativeRequest, assembler);
+		return super.patch(backendId, nativeRequest);
 	}
-	
+
 	@Override
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.DELETE)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_DELETE + "')")
 	public ResponseEntity<?> delete(@PathVariable @NotNull String backendId) {
 		return super.delete(backendId);
+	}
+	
+	@Override
+	@ResponseBody
+	@RequestMapping(value = "/{backendId}/permissions", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_READ + "')")
+	public Set<String> getPermissions(@PathVariable @NotNull String backendId) {
+		return super.getPermissions(backendId);
 	}
 
 	/**
@@ -191,7 +192,7 @@ public class IdmIdentityController extends AbstractReadWriteEntityController<Idm
 	@RequestMapping(value = "/{identityId}/authorities", method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_READ + "')")
 	public List<? extends GrantedAuthority> getGrantedAuthotrities(@PathVariable String identityId) {
-		IdmIdentity identity = getEntity(identityId);
+		IdmIdentityDto identity = getDto(identityId);
 		if (identity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", identityId));
 		}
@@ -204,7 +205,7 @@ public class IdmIdentityController extends AbstractReadWriteEntityController<Idm
 	@RequestMapping(value = "/{identityId}/roles", method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_READ + "')")
 	public Resources<?> roles(@PathVariable String identityId, PersistentEntityResourceAssembler assembler) {	
-		IdmIdentity identity = getEntity(identityId);
+		IdmIdentityDto identity = getDto(identityId);
 		if (identity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", identityId));
 		}
@@ -215,7 +216,7 @@ public class IdmIdentityController extends AbstractReadWriteEntityController<Idm
 		filter.setIdentityId(identity.getId());		
 		Page<IdmIdentityRoleDto> identityRoles = identityRoleService.find(filter, null);
 		//
-		return entitiesToResources((Page)identityRoles, null, IdmIdentityRoleDto.class, null);
+		return toResources(identityRoles, IdmIdentityRoleDto.class);
 	}
 	
 	/**
@@ -229,7 +230,7 @@ public class IdmIdentityController extends AbstractReadWriteEntityController<Idm
 	@RequestMapping(value = "/{identityId}/work-position", method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_READ + "')")
 	public ResponseEntity<?> organizationPosition(@PathVariable String identityId, PersistentEntityResourceAssembler assembler) {
-		IdmIdentity identity = getEntity(identityId);
+		IdmIdentityDto identity = getDto(identityId);
 		if (identity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", identityId));
 		}
@@ -260,8 +261,8 @@ public class IdmIdentityController extends AbstractReadWriteEntityController<Idm
 	@ResponseBody
 	@RequestMapping(value = "/{identityId}/revisions/{revId}", method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_READ + "')")
-	public ResponseEntity<?> findRevision(@PathVariable("identityId") String identityId, @PathVariable("revId") Long revId, PersistentEntityResourceAssembler assembler) {
-		IdmIdentity originalEntity = getEntity(identityId);
+	public ResponseEntity<?> findRevision(@PathVariable("identityId") String identityId, @PathVariable("revId") Long revId) {
+		IdmIdentityDto originalEntity = getDto(identityId);
 		if (originalEntity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", identityId));
 		}
@@ -270,12 +271,12 @@ public class IdmIdentityController extends AbstractReadWriteEntityController<Idm
 		IdmIdentity revisionIdentity;
 		try {
 			revisionIdentity = this.auditService.findRevision(IdmIdentity.class, originalEntity.getId(), revId);
-			checkAccess(revisionIdentity, IdmBasePermission.READ);
+			// checkAccess(revisionIdentity, IdmBasePermission.READ);
 		} catch (RevisionDoesNotExistException ex) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND,  ImmutableMap.of("revision", revId), ex);
 		}
-
-		return new ResponseEntity<>(toResource(revisionIdentity, assembler), HttpStatus.OK);
+		// TODO: dto
+		return new ResponseEntity<>(revisionIdentity, HttpStatus.OK);
 	}
 	
 	@ResponseBody
@@ -283,7 +284,7 @@ public class IdmIdentityController extends AbstractReadWriteEntityController<Idm
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_READ + "')")
 	public Resources<?> findRevisions(@PathVariable("identityId") String identityId, Pageable pageable,
 			PersistentEntityResourceAssembler assembler) {
-		IdmIdentity originalEntity = getEntity(identityId);
+		IdmIdentityDto originalEntity = getDto(identityId);
 		if (originalEntity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("identity", identityId));
 		}
@@ -291,8 +292,8 @@ public class IdmIdentityController extends AbstractReadWriteEntityController<Idm
 		checkAccess(originalEntity, IdmBasePermission.READ);
 		// get original entity id
 		Page<IdmAudit> results = this.auditService.getRevisionsForEntity(IdmIdentity.class.getSimpleName(), originalEntity.getId(), pageable);
-		//
-		return toResources(results, assembler, IdmAudit.class, null);
+		// TODO: dtos
+		return toResources(results, IdmAudit.class);
 	}
 	
 	/**
@@ -319,14 +320,14 @@ public class IdmIdentityController extends AbstractReadWriteEntityController<Idm
 	@RequestMapping(value = "/{backendId}/form-values", method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_READ + "')")
 	public Resources<?> getFormValues(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler) {
-		IdmIdentity entity = getEntity(backendId);
+		IdmIdentityDto entity = getDto(backendId);
 		if (entity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
 		//
 		checkAccess(entity, IdmBasePermission.READ);
 		//
-		return formDefinitionController.getFormValues(entity, null, assembler);
+		return formDefinitionController.getFormValues(identityRepository.findOne(entity.getId()), null, assembler);
 	}
 	
 	/**
@@ -344,13 +345,13 @@ public class IdmIdentityController extends AbstractReadWriteEntityController<Idm
 			@PathVariable @NotNull String backendId,
 			@RequestBody @Valid List<IdmIdentityFormValue> formValues,
 			PersistentEntityResourceAssembler assembler) {		
-		IdmIdentity entity = getEntity(backendId);
+		IdmIdentityDto entity = getDto(backendId);
 		if (entity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
 		checkAccess(entity, IdmBasePermission.UPDATE);
 		//
-		return formDefinitionController.saveFormValues(entity, null, formValues, assembler);
+		return formDefinitionController.saveFormValues(identityRepository.findOne(entity.getId()), null, formValues, assembler);
 	}	
 	
 	@Override
@@ -358,19 +359,19 @@ public class IdmIdentityController extends AbstractReadWriteEntityController<Idm
 		IdentityFilter filter = new IdentityFilter(parameters);
 		filter.setId(getParameterConverter().toUuid(parameters, "id"));
 		filter.setText(getParameterConverter().toString(parameters, "text"));
-		filter.setSubordinatesFor(getParameterConverter().toEntity(parameters, IdentityFilter.PARAMETER_SUBORDINATES_FOR, IdmIdentity.class));
-		filter.setSubordinatesByTreeType(getParameterConverter().toEntity(parameters, IdentityFilter.PARAMETER_SUBORDINATES_BY_TREE_TYPE, IdmTreeType.class));
-		filter.setManagersFor(getParameterConverter().toEntity(parameters, IdentityFilter.PARAMETER_MANAGERS_FOR, IdmIdentity.class));
-		filter.setManagersByTreeType(getParameterConverter().toEntity(parameters, IdentityFilter.PARAMETER_MANAGERS_BY_TREE_TYPE, IdmTreeType.class));
-		filter.setTreeNode(getParameterConverter().toEntity(parameters, "treeNodeId", IdmTreeNode.class));
+		filter.setSubordinatesFor(getParameterConverter().toEntityUuid(parameters, IdentityFilter.PARAMETER_SUBORDINATES_FOR, IdmIdentity.class));
+		filter.setSubordinatesByTreeType(getParameterConverter().toEntityUuid(parameters, IdentityFilter.PARAMETER_SUBORDINATES_BY_TREE_TYPE, IdmTreeType.class));
+		filter.setManagersFor(getParameterConverter().toEntityUuid(parameters, IdentityFilter.PARAMETER_MANAGERS_FOR, IdmIdentity.class));
+		filter.setManagersByTreeType(getParameterConverter().toEntityUuid(parameters, IdentityFilter.PARAMETER_MANAGERS_BY_TREE_TYPE, IdmTreeType.class));
+		filter.setTreeNode(getParameterConverter().toEntityUuid(parameters, "treeNodeId", IdmTreeNode.class));
 		filter.setRecursively(getParameterConverter().toBoolean(parameters, "recursively", true));
-		filter.setTreeTypeId(getParameterConverter().toUuid(parameters, "treeTypeId"));
-		filter.setManagersByContractId(getParameterConverter().toUuid(parameters, IdentityFilter.PARAMETER_MANAGERS_BY_CONTRACT_ID));
+		filter.setTreeType(getParameterConverter().toUuid(parameters, "treeTypeId"));
+		filter.setManagersByContract(getParameterConverter().toUuid(parameters, IdentityFilter.PARAMETER_MANAGERS_BY_CONTRACT));
 		filter.setIncludeGuarantees(getParameterConverter().toBoolean(parameters, "includeGuarantees", false));
 		// TODO: or / and in multivalues? OR is supported now
 		if (parameters.containsKey("role")) {
 			for(Object role : parameters.get("role")) {
-				filter.getRoles().add(getParameterConverter().toEntity((String)role, IdmRole.class));
+				filter.getRoles().add(getParameterConverter().toEntityUuid((String) role, IdmRole.class));
 			}
 		}
 		return filter;

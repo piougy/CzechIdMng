@@ -10,11 +10,11 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
-import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmAuthorityChange;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
@@ -91,7 +91,7 @@ public class IdentityRoleAddAuthoritiesProcessor extends CoreEventProcessor<IdmI
 		
 		if (!authoritiesFactory.containsAllAuthorities(original, addedAuthorities)) {
 			// authorities were changed, update identity flag
-			IdmAuthorityChange ac = repository.findByIdentity(identity);
+			IdmAuthorityChange ac = repository.findOneByIdentity_Id(identity.getId());
 			if (ac == null) {
 				ac = new IdmAuthorityChange();
 				ac.setIdentity(identity);

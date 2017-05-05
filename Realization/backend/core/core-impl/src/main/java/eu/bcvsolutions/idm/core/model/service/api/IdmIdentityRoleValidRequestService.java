@@ -5,9 +5,9 @@ import java.util.UUID;
 
 import org.joda.time.DateTime;
 
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleValidRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.EmptyFilter;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
-import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleValidRequestDto;
 
 /**
  * Service for create and read identity role valid requests.

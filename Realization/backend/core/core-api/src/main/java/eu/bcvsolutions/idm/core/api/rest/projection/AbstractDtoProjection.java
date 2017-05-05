@@ -9,7 +9,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * Projection for abstract entity
  * 
  * @author Radek Tomiška 
- *
  */
 public interface AbstractDtoProjection extends BaseDtoProjection {
 

@@ -5,8 +5,8 @@ import java.util.List;
 
 import org.springframework.security.core.GrantedAuthority;
 
-import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleDto;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 
 /**
@@ -33,7 +33,7 @@ public interface GrantedAuthoritiesFactory {
 	/**
 	 * @see GrantedAuthoritiesFactory#getGrantedAuthorities(String)
 	 */
-	Collection<GrantedAuthority> getGrantedAuthoritiesForIdentity(IdmIdentity identity);
+	Collection<GrantedAuthority> getGrantedAuthoritiesForIdentity(IdmIdentityDto identity);
 
 	/**
 	 * @see GrantedAuthoritiesFactory#getGrantedAuthorities(String)

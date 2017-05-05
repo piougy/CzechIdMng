@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
  * Module dependent {@link Flyway} configuration.
  * 
  * @author Radek Tomiška
- *
  */
 public abstract class AbstractFlywayConfiguration {
 

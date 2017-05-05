@@ -9,12 +9,11 @@ import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Sets;
-
-import eu.bcvsolutions.idm.core.model.domain.RoleRequestState;
-import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleDto;
-import eu.bcvsolutions.idm.core.model.dto.IdmRoleRequestDto;
-import eu.bcvsolutions.idm.core.model.dto.IdmRoleTreeNodeDto;
-import eu.bcvsolutions.idm.core.model.dto.filter.ConceptRoleRequestFilter;
+import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.ConceptRoleRequestFilter;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleTreeNodeRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;

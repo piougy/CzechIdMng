@@ -7,12 +7,12 @@ import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 
 /**
@@ -23,7 +23,7 @@ import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
  */
 @Component("accIdentityDeleteProcessor")
 @Description("Ensures referential integrity. Could not be disabled.")
-public class IdentityDeleteProcessor extends AbstractEntityEventProcessor<IdmIdentity> {
+public class IdentityDeleteProcessor extends AbstractEntityEventProcessor<IdmIdentityDto> {
 	
 	public static final String PROCESSOR_NAME = "identity-delete-processor";
 	private final AccIdentityAccountService identityAccountService;
@@ -43,7 +43,7 @@ public class IdentityDeleteProcessor extends AbstractEntityEventProcessor<IdmIde
 	}
 
 	@Override
-	public EventResult<IdmIdentity> process(EntityEvent<IdmIdentity> event) {
+	public EventResult<IdmIdentityDto> process(EntityEvent<IdmIdentityDto> event) {
 		IdentityAccountFilter filter = new IdentityAccountFilter();
 		filter.setIdentityId(event.getContent().getId());
 		identityAccountService.find(filter, null).forEach(identityAccount -> {

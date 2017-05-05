@@ -7,7 +7,6 @@ import java.util.Base64;
  * Encrypt is based as AES with key from resources and IV (initialization vector).
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
- *
  */
 public interface CryptService {
 	
@@ -37,6 +36,7 @@ public interface CryptService {
 	
 	/**
 	 * Basic decrypt byte array with key from resoruce and initialization vector define by this class.
+     *
 	 * @param value
 	 * @return
 	 */

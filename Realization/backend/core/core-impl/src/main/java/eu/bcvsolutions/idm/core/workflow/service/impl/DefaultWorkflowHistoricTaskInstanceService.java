@@ -2,7 +2,6 @@ package eu.bcvsolutions.idm.core.workflow.service.impl;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import org.activiti.engine.HistoryService;

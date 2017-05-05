@@ -8,18 +8,17 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
-
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.AuthorizationPolicyFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.ConceptRoleRequestFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.RoleTreeNodeFilter;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.model.domain.RoleRequestState;
-import eu.bcvsolutions.idm.core.model.dto.IdmRoleRequestDto;
-import eu.bcvsolutions.idm.core.model.dto.filter.AuthorizationPolicyFilter;
-import eu.bcvsolutions.idm.core.model.dto.filter.ConceptRoleRequestFilter;
-import eu.bcvsolutions.idm.core.model.dto.filter.RoleTreeNodeFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.event.RoleEvent.RoleEventType;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;

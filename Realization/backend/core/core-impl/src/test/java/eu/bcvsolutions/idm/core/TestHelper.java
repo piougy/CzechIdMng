@@ -2,12 +2,12 @@ package eu.bcvsolutions.idm.core;
 
 import java.util.UUID;
 
-import eu.bcvsolutions.idm.core.model.dto.IdmAuthorizationPolicyDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.model.dto.IdmContractGuaranteeDto;
-import eu.bcvsolutions.idm.core.model.dto.IdmIdentityContractDto;
-import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleDto;
-import eu.bcvsolutions.idm.core.model.dto.IdmRoleTreeNodeDto;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
@@ -24,9 +24,9 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
  */
 public interface TestHelper {
 	
-	IdmIdentity createIdentity();
+	IdmIdentityDto createIdentity();
 
-	IdmIdentity createIdentity(String name);
+	IdmIdentityDto createIdentity(String name);
 	
 	void deleteIdentity(UUID id);
 
@@ -81,7 +81,7 @@ public interface TestHelper {
 	 * @param role
 	 * @return
 	 */
-	IdmIdentityRoleDto createIdentityRole(IdmIdentity identity, IdmRole role);
+	IdmIdentityRoleDto createIdentityRole(IdmIdentityDto identity, IdmRole role);
 	
 	/**
 	 * Creates assigned identity's role directly (without approving etc.)
@@ -98,7 +98,7 @@ public interface TestHelper {
 	 * @param identity
 	 * @return
 	 */
-	IdmIdentityContractDto createIdentityContact(IdmIdentity identity);
+	IdmIdentityContractDto createIdentityContact(IdmIdentityDto identity);
 	
 	/**
 	 * Deletes identity's contract

@@ -21,13 +21,13 @@ import org.springframework.dao.EmptyResultDataAccessException;
 
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.TestHelper;
-import eu.bcvsolutions.idm.core.model.domain.RecursionType;
+import eu.bcvsolutions.idm.core.api.domain.RecursionType;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.model.dto.IdmContractGuaranteeDto;
-import eu.bcvsolutions.idm.core.model.dto.IdmIdentityContractDto;
-import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleDto;
-import eu.bcvsolutions.idm.core.model.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.model.dto.filter.ContractGuaranteeFilter;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
@@ -243,7 +243,7 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 		prepareAutomaticRoles();
 		//
 		// prepare identity and contract
-		IdmIdentity identity = helper.createIdentity("test");
+		IdmIdentityDto identity = helper.createIdentity("test");
 		IdmIdentityContractDto contract = new IdmIdentityContractDto();
 		contract.setIdentity(identity.getId());
 		contract.setValidFrom(new LocalDate().minusDays(1));
@@ -296,7 +296,7 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 		prepareAutomaticRoles();
 		//
 		// prepare identity and contract
-		IdmIdentity identity = helper.createIdentity("test");
+		IdmIdentityDto identity = helper.createIdentity("test");
 		IdmIdentityContractDto contract = new IdmIdentityContractDto();
 		contract.setIdentity(identity.getId());
 		contract.setValidFrom(new LocalDate().minusDays(1));
@@ -328,7 +328,7 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 		prepareAutomaticRoles();
 		//
 		// prepare identity and contract
-		IdmIdentity identity = helper.createIdentity("test");
+		IdmIdentityDto identity = helper.createIdentity("test");
 		IdmIdentityContractDto contract = new IdmIdentityContractDto();
 		contract.setIdentity(identity.getId());
 		contract.setWorkPosition(nodeD.getId());
@@ -373,7 +373,7 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 		prepareAutomaticRoles();
 		//
 		// prepare identity and contract
-		IdmIdentity identity = helper.createIdentity("test");
+		IdmIdentityDto identity = helper.createIdentity("test");
 		IdmIdentityContractDto contract = new IdmIdentityContractDto();
 		contract.setIdentity(identity.getId());
 		contract.setWorkPosition(nodeC.getId());
@@ -403,7 +403,7 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 		automaticRoleE = saveAutomaticRole(automaticRoleE, false);
 		//
 		// prepare identity and contract
-		IdmIdentity identity = helper.createIdentity("test");
+		IdmIdentityDto identity = helper.createIdentity("test");
 		IdmIdentityContractDto contract = new IdmIdentityContractDto();
 		contract.setIdentity(identity.getId());
 		contract.setWorkPosition(nodeF.getId());
@@ -431,7 +431,7 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 	
 	@Test
 	public void testAssingRoleByNewAutomaticRoleForExistingContracts() {
-		IdmIdentity identity = helper.createIdentity("test-exists");
+		IdmIdentityDto identity = helper.createIdentity("test-exists");
 		//
 		IdmIdentityContractDto contract = new IdmIdentityContractDto();
 		contract.setIdentity(identity.getId());
@@ -508,8 +508,8 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 	@Test
 	public void testReferentialIntegrityOnIdentityDelete() {
 		// prepare data
-		IdmIdentity identity = helper.createIdentity();
-		IdmIdentity identityWithContract = helper.createIdentity();
+		IdmIdentityDto identity = helper.createIdentity();
+		IdmIdentityDto identityWithContract = helper.createIdentity();
 		IdmIdentityContractDto contract = helper.createIdentityContact(identityWithContract);
 		helper.createContractGuarantee(contract.getId(), identity.getId());
 		//
@@ -527,8 +527,8 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 	@Test
 	public void testReferentialIntegrityOnContractDelete() {
 		// prepare data
-		IdmIdentity identity = helper.createIdentity();
-		IdmIdentity identityWithContract = helper.createIdentity();
+		IdmIdentityDto identity = helper.createIdentity();
+		IdmIdentityDto identityWithContract = helper.createIdentity();
 		IdmIdentityContractDto contract = helper.createIdentityContact(identityWithContract);
 		helper.createContractGuarantee(contract.getId(), identity.getId());
 		//

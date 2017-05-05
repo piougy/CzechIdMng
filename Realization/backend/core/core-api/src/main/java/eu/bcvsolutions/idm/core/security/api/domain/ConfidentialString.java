@@ -9,7 +9,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
  * String is stored in confidential storage. ConfidentialString's owner is needed to load value from confidential storage.
  * 
  * @author Radek Tomiška
- *
  */
 @JsonSerialize(using = ConfidentialStringSerializer.class)
 public class ConfidentialString implements Serializable {

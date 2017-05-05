@@ -6,7 +6,6 @@ import java.io.Serializable;
  * Entity event processors filter
  * 
  * @author Radek Tomiška
- *
  */
 public class EntityEventProcessorFilter implements BaseFilter {
 

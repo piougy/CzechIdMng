@@ -2,11 +2,11 @@ package eu.bcvsolutions.idm.core.model.service.api;
 
 import java.util.List;
 
+import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyType;
+import eu.bcvsolutions.idm.core.api.dto.IdmPasswordValidationDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.PasswordPolicyFilter;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
 import eu.bcvsolutions.idm.core.api.utils.PasswordGenerator;
-import eu.bcvsolutions.idm.core.model.domain.IdmPasswordPolicyType;
-import eu.bcvsolutions.idm.core.model.dto.IdmPasswordValidationDto;
-import eu.bcvsolutions.idm.core.model.dto.filter.PasswordPolicyFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
 
 /**

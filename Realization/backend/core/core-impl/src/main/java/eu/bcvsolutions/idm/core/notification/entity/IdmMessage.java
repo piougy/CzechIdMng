@@ -1,7 +1,6 @@
 package eu.bcvsolutions.idm.core.notification.entity;
 
 import java.text.MessageFormat;
-import java.util.HashMap;
 import java.util.Map;
 
 import javax.persistence.Column;
@@ -22,7 +21,6 @@ import org.springframework.data.annotation.Transient;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
-
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.dto.ResultModel;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
@@ -70,48 +68,6 @@ public class IdmMessage {
 	private transient Map<String, Object> parameters;
 
 	public IdmMessage() {
-	}
-
-	private IdmMessage(Builder builder) {		
-		if (builder.model != null) {
-			model = builder.model;
-			this.htmlMessage = builder.model.getMessage();
-			this.textMessage = builder.model.getMessage();
-			this.subject = builder.model.getStatusEnum();
-			this.parameters = builder.model.getParameters();
-			//
-			// set level from model, override level
-			if (model.getStatus().is5xxServerError()) {
-				level = NotificationLevel.ERROR;
-			} else if(model.getStatus().is2xxSuccessful()) {
-				level = NotificationLevel.SUCCESS;
-			} else {
-				level = NotificationLevel.WARNING;
-			}
-		} else {
-			if (builder.subject != null) {
-				subject = builder.subject;
-			} else if (builder.template != null && builder.template.getSubject() != null) {
-				subject = builder.template.getSubject();
-			}
-			//
-			if (builder.textMessage != null) {
-				textMessage = builder.textMessage;
-			} else if (builder.template != null && builder.template.getBodyText() != null) {
-				textMessage = builder.template.getBodyText();
-			}
-			//
-			if (builder.htmlMessage != null) {
-				htmlMessage = builder.htmlMessage;
-			} else if (builder.template != null && builder.template.getBodyHtml() != null) {
-				htmlMessage = builder.template.getBodyHtml();
-			}
-			//
-			template = builder.template;
-			parameters = builder.parameters;
-			model = builder.model;
-			level = builder.level == null ? DEFAULT_LEVEL : builder.level;
-		}
 	}
 
 	public String getSubject() {
@@ -176,105 +132,5 @@ public class IdmMessage {
 			return MessageFormat.format("{0}: subject [{1}], message [{2}]", level, subject, textMessage);
 		}
 		return MessageFormat.format("{0}: subject [{1}], text [{2}], html [{3}]", level, subject, textMessage, htmlMessage);
-	}
-
-	/**
-	 * {@link IdmMessage} builder
-	 * 
-	 * @author Radek Tomiška
-	 *
-	 */
-	public static class Builder {
-
-		private NotificationLevel level;
-		private String subject;
-		private String textMessage;
-		private String htmlMessage;
-		private ResultModel model;
-		private IdmNotificationTemplate template;
-		private Map<String, Object> parameters;
-		
-		public Builder() {
-		}
-		
-		public Builder(NotificationLevel level) {
-			this.level = level;
-		}
-
-		public Builder setLevel(NotificationLevel level) {
-			this.level = level;
-			return this;
-		}
-
-		public Builder setSubject(String subject) {
-			this.subject = subject;
-			return this;
-		}
-
-		public Builder setTextMessage(String textMessage) {
-			this.textMessage = textMessage;
-			return this;
-		}
-
-		public Builder setHtmlMessage(String htmlMessage) {
-			this.htmlMessage = htmlMessage;
-			return this;
-		}
-		
-		public Builder setParameters(Map<String, Object> parameters) {
-			this.parameters = parameters;
-			return this;
-		}
-		
-		public Builder addParameter(String key, Object value) {
-			if (this.parameters == null) {
-				this.parameters = new HashMap<>();
-			}
-			this.parameters.put(key, value);
-			return this;
-		}
-
-		public Builder setTemplate(IdmNotificationTemplate template) {
-			this.template = template;
-			return this;
-		}
-
-		/**
-		 * Sets all messages (text, html ...)
-		 * @param message
-		 * @return
-		 */
-		public Builder setMessage(String message) {
-			this.textMessage = message;
-			this.htmlMessage = message;
-			return this;
-		}
-
-		public Builder setModel(ResultModel model) {
-			this.model = model;
-			if (model != null) {
-				// set default subject and message
-				if (StringUtils.isEmpty(subject)) {
-					subject = model.getStatusEnum();
-				}
-				if (StringUtils.isEmpty(textMessage)) {
-					textMessage = model.getMessage();
-				}
-				if (level == null) {
-					if (model.getStatus().is5xxServerError()) {
-						level = NotificationLevel.ERROR;
-					} else if(model.getStatus().is2xxSuccessful()) {
-						level = NotificationLevel.SUCCESS;
-					} else {
-						level = NotificationLevel.WARNING;
-					}
-				}
-			}
-			return this;
-		}
-	
-		public IdmMessage build() {
-			return new IdmMessage(this);
-		}
 	}
 }

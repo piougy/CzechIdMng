@@ -3,7 +3,6 @@ package eu.bcvsolutions.idm.core.notification.repository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.notification.dto.filter.NotificationFilter;
@@ -15,12 +14,6 @@ import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationLog;
  * @author Radek Tomiška 
  *
  */
-@RepositoryRestResource(//
-	collectionResourceRel = "notifications", //
-	path = "notifications", //
-	itemResourceRel = "notification",
-	exported = false
-)
 public interface IdmNotificationLogRepository extends AbstractEntityRepository<IdmNotificationLog, NotificationFilter> {
 	
 	@Override
@@ -52,6 +45,12 @@ public interface IdmNotificationLogRepository extends AbstractEntityRepository<I
         	+ "and "
         	+ "(?#{[0].from == null ? 'null' : ''} = 'null' or e.created >= ?#{[0].from}) "
         	+ "and "
-        	+ "(?#{[0].till == null ? 'null' : ''} = 'null' or e.created <= ?#{[0].till})")
+        	+ "(?#{[0].till == null ? 'null' : ''} = 'null' or e.created <= ?#{[0].till})"
+			+ "and "
+			+ "(TYPE(e) = IdmNotificationLog)")
 	Page<IdmNotificationLog> find(NotificationFilter filter, Pageable pageable);
+
+	@Override
+	@Query("select count(e) from IdmNotificationLog e where TYPE(e) = IdmNotificationLog")
+	long count();
 }

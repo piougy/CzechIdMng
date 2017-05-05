@@ -8,22 +8,23 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 
+import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
+import eu.bcvsolutions.idm.core.api.domain.RoleRequestedByType;
+import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
-import eu.bcvsolutions.idm.core.model.domain.ConceptRoleRequestOperation;
-import eu.bcvsolutions.idm.core.model.domain.RoleRequestedByType;
-import eu.bcvsolutions.idm.core.model.dto.IdmConceptRoleRequestDto;
-import eu.bcvsolutions.idm.core.model.dto.IdmIdentityContractDto;
-import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleDto;
-import eu.bcvsolutions.idm.core.model.dto.IdmRoleRequestDto;
-import eu.bcvsolutions.idm.core.model.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
@@ -53,6 +54,8 @@ public class IdentityContractUpdateByAutomaticRoleProcessor extends CoreEventPro
 	private IdmRoleRequestService roleRequestService;
 	@Autowired
 	private IdmConceptRoleRequestService conceptRoleRequestService;
+	@Autowired
+	private ModelMapper modelMapper;
 	
 	public IdentityContractUpdateByAutomaticRoleProcessor() {
 		super(IdentityContractEventType.UPDATE);
@@ -66,6 +69,8 @@ public class IdentityContractUpdateByAutomaticRoleProcessor extends CoreEventPro
 	@Override
 	public EventResult<IdmIdentityContractDto> process(EntityEvent<IdmIdentityContractDto> event) {
 		IdmIdentityContractDto contract = event.getContent();
+		final IdmIdentityContract contractEntity = new IdmIdentityContract();
+		modelMapper.map(contract, contractEntity);
 		if (contract.isDisabled()) {
 			// Nothing to do - contract is disabled
 			return new DefaultEventResult<>(event, this);
@@ -88,22 +93,22 @@ public class IdentityContractUpdateByAutomaticRoleProcessor extends CoreEventPro
 				|| (!contract.isDisabled() && previous.isDisabled() != contract.isDisabled())) {
 			// work positions has some difference
 			List<IdmIdentityRoleDto> assignedRoles = identityRoleService.findAllByContract(contract.getId());
-			Set<UUID> previousAutomaticRoles = assignedRoles.stream()
+			Set<IdmRoleTreeNodeDto> previousAutomaticRoles = assignedRoles.stream()
 					.filter(identityRole -> {
 						return identityRole.getRoleTreeNode() != null;
 					}).map(identityRole -> {
-						return identityRole.getRoleTreeNode();
+						return roleTreeNodeService.get(identityRole.getRoleTreeNode());
 					}).collect(Collectors.toSet());
 			Set<IdmRoleTreeNodeDto> addedAutomaticRoles = new HashSet<>();
 			if (newPosition != null) {
 				addedAutomaticRoles = roleTreeNodeService.getAutomaticRolesByTreeNode(newPosition);
 			}
 			//
-			Set<UUID> removedAutomaticRoles = new HashSet<>(previousAutomaticRoles);
+			Set<IdmRoleTreeNodeDto> removedAutomaticRoles = new HashSet<>(previousAutomaticRoles);
 			removedAutomaticRoles.removeAll(addedAutomaticRoles);
 			addedAutomaticRoles.removeAll(previousAutomaticRoles);
 			//
-			for(UUID removedAutomaticRole : removedAutomaticRoles) {
+			for(IdmRoleTreeNodeDto removedAutomaticRole : removedAutomaticRoles) {
 				Iterator<IdmIdentityRoleDto> iter = assignedRoles.iterator();
 				while (iter.hasNext()){
 					IdmIdentityRoleDto identityRole = iter.next();				
@@ -112,7 +117,7 @@ public class IdentityContractUpdateByAutomaticRoleProcessor extends CoreEventPro
 						IdmRoleTreeNodeDto addedAutomaticRole = getByRole(identityRole.getRole(), addedAutomaticRoles);
 						if (addedAutomaticRole == null) {
 							roleRequest = checkSavedRequest(roleRequest);
-							createConcept(roleRequest, identityRole.getId(), contract, identityRole.getRole(), removedAutomaticRole, ConceptRoleRequestOperation.REMOVE);
+							createConcept(roleRequest, identityRole.getId(), contract, identityRole.getRole(), removedAutomaticRole.getId(), ConceptRoleRequestOperation.REMOVE);
 							iter.remove();
 						} else {
 							// change relation only
@@ -127,7 +132,7 @@ public class IdentityContractUpdateByAutomaticRoleProcessor extends CoreEventPro
 			}
 			//
 			// change date - for unchanged assigned roles only
-			if (EntityUtils.validableChanged(previous, contract)) {
+			if (EntityUtils.validableChanged(previous, contractEntity)) {
 				roleRequest = checkSavedRequest(roleRequest);
 				changeValidable(contract, assignedRoles, roleRequest);
 			}
@@ -139,7 +144,7 @@ public class IdentityContractUpdateByAutomaticRoleProcessor extends CoreEventPro
 		}
 		//
 		// process validable change
-		else if (EntityUtils.validableChanged(previous, contract)) {
+		else if (EntityUtils.validableChanged(previous, contractEntity)) {
 			roleRequest = checkSavedRequest(roleRequest);
 			changeValidable(contract, identityRoleService.findAllByContract(contract.getId()), roleRequest);
 		}
@@ -169,8 +174,8 @@ public class IdentityContractUpdateByAutomaticRoleProcessor extends CoreEventPro
 	 * Method create {@link IdmConceptRoleRequestDto}
 	 * @param roleRequest
 	 * @param contract
-	 * @param role
-	 * @param roleTreeNode
+	 * @param roleId
+	 * @param roleTreeNodeId
 	 * @param operation
 	 * @return
 	 */

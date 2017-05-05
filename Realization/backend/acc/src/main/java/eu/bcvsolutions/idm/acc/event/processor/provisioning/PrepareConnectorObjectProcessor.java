@@ -18,7 +18,6 @@ import org.springframework.util.Assert;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
-
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType;
@@ -52,7 +51,7 @@ import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.notification.entity.IdmMessage;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
 import eu.bcvsolutions.idm.core.notification.service.api.NotificationManager;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
@@ -189,7 +188,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 			provisioningOperationService.save(provisioningOperation);
 			//
 			notificationManager.send(
-					AccModuleDescriptor.TOPIC_PROVISIONING, new IdmMessage.Builder()
+					AccModuleDescriptor.TOPIC_PROVISIONING, new IdmMessageDto.Builder()
 					.setModel(resultModel)
 					.build());
 			return new DefaultEventResult<>(event, this, true);

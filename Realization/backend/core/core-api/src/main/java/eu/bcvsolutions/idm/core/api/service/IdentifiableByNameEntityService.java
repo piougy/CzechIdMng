@@ -10,7 +10,9 @@ import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
  * @author Radek Tomiška
  *
  * @param <E>
+ * @deprecated Codeable will be used
  */
+@Deprecated
 public interface IdentifiableByNameEntityService<E extends BaseEntity> {
 
 	/**

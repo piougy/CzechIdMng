@@ -14,7 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
-
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningContext;
@@ -35,7 +34,7 @@ import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
-import eu.bcvsolutions.idm.core.notification.entity.IdmMessage;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
 import eu.bcvsolutions.idm.core.notification.service.api.NotificationManager;
 import eu.bcvsolutions.idm.core.security.api.domain.ConfidentialString;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
@@ -254,7 +253,7 @@ public class DefaultSysProvisioningOperationService
 		}
 		//
 		notificationManager.send(
-				AccModuleDescriptor.TOPIC_PROVISIONING, new IdmMessage.Builder()
+				AccModuleDescriptor.TOPIC_PROVISIONING, new IdmMessageDto.Builder()
 				.setModel(resultModel)
 				.build());
 	}
@@ -273,7 +272,7 @@ public class DefaultSysProvisioningOperationService
 		save(operation);
 		//
 		LOG.debug(resultModel.toString());
-		notificationManager.send(AccModuleDescriptor.TOPIC_PROVISIONING, new IdmMessage.Builder()
+		notificationManager.send(AccModuleDescriptor.TOPIC_PROVISIONING, new IdmMessageDto.Builder()
 				.setModel(resultModel)
 				.build());
 	}
@@ -397,7 +396,7 @@ public class DefaultSysProvisioningOperationService
 	/**
 	 * Deletes persisted confidential storage values
 	 * 
-	 * @param context
+	 * @param provisioningOperation
 	 */
 	protected void deleteConfidentialStrings(SysProvisioningOperation provisioningOperation) {
 		Assert.notNull(provisioningOperation);

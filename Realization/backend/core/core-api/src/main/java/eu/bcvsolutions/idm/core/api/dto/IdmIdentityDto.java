@@ -9,9 +9,15 @@ import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.hateoas.core.Relation;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
 import eu.bcvsolutions.idm.core.api.domain.Auditable;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.Disableable;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedStringDeserializer;
 
 /**
  * Dto for identity
@@ -26,6 +32,11 @@ public class IdmIdentityDto extends AbstractDto implements Disableable {
 	@NotEmpty
 	@Size(min = 1, max = DefaultFieldLengths.NAME)
 	private String username;
+	
+	@JsonProperty(access = Access.WRITE_ONLY)
+	@JsonDeserialize(using = GuardedStringDeserializer.class)
+	private transient GuardedString password;
+	
 	@Size(max = DefaultFieldLengths.NAME)
 	private String firstName;
 	@NotEmpty
@@ -50,6 +61,10 @@ public class IdmIdentityDto extends AbstractDto implements Disableable {
 	
 	public IdmIdentityDto(String username) {
 		this.username = username;
+	}
+	
+	public IdmIdentityDto(Auditable auditable) {
+		super(auditable);
 	}
 	
 	public IdmIdentityDto(UUID id, String username) {
@@ -132,5 +147,13 @@ public class IdmIdentityDto extends AbstractDto implements Disableable {
 
 	public void setDisabled(boolean disabled) {
 		this.disabled = disabled;
+	}
+	
+	public void setPassword(GuardedString password) {
+		this.password = password;
+	}
+	
+	public GuardedString getPassword() {
+		return password;
 	}
 }

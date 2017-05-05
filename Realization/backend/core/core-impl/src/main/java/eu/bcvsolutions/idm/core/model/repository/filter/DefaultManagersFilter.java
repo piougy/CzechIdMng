@@ -14,15 +14,17 @@ import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import eu.bcvsolutions.idm.core.api.dto.filter.IdentityFilter;
 import eu.bcvsolutions.idm.core.api.repository.filter.AbstractFilterBuilder;
-import eu.bcvsolutions.idm.core.model.dto.filter.IdentityFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmContractGuarantee;
 import eu.bcvsolutions.idm.core.model.entity.IdmContractGuarantee_;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode_;
+import eu.bcvsolutions.idm.core.model.entity.IdmTreeType_;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 
 /**
@@ -62,7 +64,7 @@ public class DefaultManagersFilter
 			
 			subqueryGuarantee.where(
 	              builder.and(
-	            		  builder.equal(pathIc.get(IdmIdentityContract_.identity), filter.getManagersFor()),
+	            		  builder.equal(pathIc.get(IdmIdentityContract_.identity).get(IdmIdentity_.id), filter.getManagersFor()),
 	            		  builder.equal(subRootGuarantee.get(IdmContractGuarantee_.guarantee), root)
 	              		));
 			subPredicates.add(builder.exists(subqueryGuarantee));
@@ -72,14 +74,18 @@ public class DefaultManagersFilter
 		Root<IdmIdentityContract> subqueryWpRoot = subqueryWp.from(IdmIdentityContract.class);
 		subqueryWp.select(subqueryWpRoot.get(IdmIdentityContract_.workPosition).get(IdmTreeNode_.parent));			
 		Predicate identityPredicate = builder.and(
-				builder.equal(subqueryWpRoot.get(IdmIdentityContract_.identity), filter.getManagersFor())
+				builder.equal(
+						subqueryWpRoot.get(IdmIdentityContract_.identity).get(IdmIdentity_.id), 
+						filter.getManagersFor())
 				);
 		if (filter.getManagersByTreeType() == null) {
 			subqueryWp.where(identityPredicate);	
 		} else {
 			subqueryWp.where(builder.and(
 					identityPredicate,
-					builder.equal(subqueryWpRoot.get(IdmIdentityContract_.workPosition).get(IdmTreeNode_.treeType), filter.getManagersByTreeType())
+					builder.equal(
+							subqueryWpRoot.get(IdmIdentityContract_.workPosition).get(IdmTreeNode_.treeType).get(IdmTreeType_.id), 
+							filter.getManagersByTreeType())
 					));	
 		}
 		subPredicates.add(

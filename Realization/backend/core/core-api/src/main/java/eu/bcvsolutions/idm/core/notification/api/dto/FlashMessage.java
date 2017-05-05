@@ -13,7 +13,6 @@ import eu.bcvsolutions.idm.core.api.dto.ResultModel;
  * Websocket message
  * 
  * @author Radek Tomiška
- *
  */
 public class FlashMessage implements BaseDto {
 

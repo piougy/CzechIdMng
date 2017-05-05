@@ -17,12 +17,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.TestHelper;
+import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
-import eu.bcvsolutions.idm.core.model.dto.IdmAuthorizationPolicyDto;
-import eu.bcvsolutions.idm.core.model.dto.IdmIdentityContractDto;
-import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.model.dto.filter.RoleFilter;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
@@ -103,7 +103,7 @@ public class DefaultAuthorizationManagerIntegrationTest extends AbstractIntegrat
 		IdmRole role = helper.createRole();
 		helper.createBasePolicy(role.getId(), IdmBasePermission.READ);		
 		// prepare identity
-		IdmIdentity identity = helper.createIdentity();
+		IdmIdentityDto identity = helper.createIdentity();
 		identity.setPassword(new GuardedString("heslo"));
 		identityService.save(identity);
 		// assign role
@@ -138,7 +138,7 @@ public class DefaultAuthorizationManagerIntegrationTest extends AbstractIntegrat
 		helper.createUuidPolicy(role.getId(), role.getId(), IdmBasePermission.READ);		
 		helper.createBasePolicy(role.getId(), IdmBasePermission.AUTOCOMPLETE);	
 		// prepare identity
-		IdmIdentity identity = helper.createIdentity();
+		IdmIdentityDto identity = helper.createIdentity();
 		identity.setPassword(new GuardedString("heslo"));
 		identityService.save(identity);
 		// assign role
@@ -172,7 +172,7 @@ public class DefaultAuthorizationManagerIntegrationTest extends AbstractIntegrat
 			helper.createUuidPolicy(role.getId(), role.getId(), IdmBasePermission.READ);		
 			helper.createBasePolicy(role2.getId(), IdmBasePermission.AUTOCOMPLETE);
 			// prepare identity
-			IdmIdentity identity = helper.createIdentity();
+			IdmIdentityDto identity = helper.createIdentity();
 			// assign role
 			helper.createIdentityRole(identity, role);
 			helper.createIdentityRole(identity, role2);
@@ -196,7 +196,7 @@ public class DefaultAuthorizationManagerIntegrationTest extends AbstractIntegrat
 			helper.createUuidPolicy(role.getId(), role.getId(), IdmBasePermission.READ);		
 			helper.createBasePolicy(role2.getId(), IdmBasePermission.AUTOCOMPLETE);	
 			// prepare identity
-			IdmIdentity identity = helper.createIdentity();
+			IdmIdentityDto identity = helper.createIdentity();
 			// assign role
 			helper.createIdentityRole(identity, role);
 			helper.createIdentityRole(identity, role2);
@@ -220,7 +220,7 @@ public class DefaultAuthorizationManagerIntegrationTest extends AbstractIntegrat
 			helper.createUuidPolicy(role.getId(), role.getId(), IdmBasePermission.READ);		
 			helper.createBasePolicy(role2.getId(), IdmBasePermission.AUTOCOMPLETE);	
 			// prepare identity
-			IdmIdentity identity = helper.createIdentity();
+			IdmIdentityDto identity = helper.createIdentity();
 			// assign role
 			helper.createIdentityRole(identity, role);
 			IdmIdentityRoleDto assignedRole = helper.createIdentityRole(identity, role2);
@@ -246,7 +246,7 @@ public class DefaultAuthorizationManagerIntegrationTest extends AbstractIntegrat
 			helper.createUuidPolicy(role.getId(), role.getId(), IdmBasePermission.READ);		
 			helper.createBasePolicy(role2.getId(), IdmBasePermission.AUTOCOMPLETE);	
 			// prepare identity
-			IdmIdentity identity = helper.createIdentity();
+			IdmIdentityDto identity = helper.createIdentity();
 			// assign role
 			helper.createIdentityRole(identity, role);
 			IdmIdentityContractDto contract = helper.createIdentityContact(identity);
@@ -273,7 +273,7 @@ public class DefaultAuthorizationManagerIntegrationTest extends AbstractIntegrat
 			helper.createUuidPolicy(role.getId(), role.getId(), IdmBasePermission.READ);		
 			helper.createBasePolicy(role2.getId(), IdmBasePermission.AUTOCOMPLETE);	
 			// prepare identity
-			IdmIdentity identity = helper.createIdentity();
+			IdmIdentityDto identity = helper.createIdentity();
 			// assign role
 			helper.createIdentityRole(identity, role);
 			IdmIdentityContractDto contract = new IdmIdentityContractDto();

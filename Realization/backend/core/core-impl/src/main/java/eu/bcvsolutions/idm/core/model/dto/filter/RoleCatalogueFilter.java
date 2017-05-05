@@ -7,9 +7,8 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
  * Default filter for role catalogue, parent
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
- *
  */
-
+//TODO: Move to API
 public class RoleCatalogueFilter extends QuickFilter {
 	
 	private IdmRoleCatalogue parent;

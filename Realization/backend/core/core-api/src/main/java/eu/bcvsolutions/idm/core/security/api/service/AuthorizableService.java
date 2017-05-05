@@ -8,7 +8,6 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
  * Service supports authorization evaluation.
  * 
  * @author Radek Tomiška
- *
  */
 public interface AuthorizableService<E extends Identifiable, F extends BaseFilter> {
 

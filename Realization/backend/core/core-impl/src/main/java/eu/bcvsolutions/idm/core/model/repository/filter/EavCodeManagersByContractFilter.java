@@ -14,12 +14,12 @@ import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import eu.bcvsolutions.idm.core.api.dto.filter.IdentityFilter;
 import eu.bcvsolutions.idm.core.api.repository.filter.AbstractFilterBuilder;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute_;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition_;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
-import eu.bcvsolutions.idm.core.model.dto.filter.IdentityFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmContractGuarantee_;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
@@ -59,7 +59,7 @@ public class EavCodeManagersByContractFilter
 
 	@Override
 	public Predicate getPredicate(Root<IdmIdentity> root, CriteriaQuery<?> query, CriteriaBuilder builder, IdentityFilter filter) {
-		if (filter.getManagersByContractId() == null) {
+		if (filter.getManagersByContract() == null) {
 			return null;
 		}
 		//
@@ -77,7 +77,7 @@ public class EavCodeManagersByContractFilter
 		Path<IdmFormAttribute> eavAttr = subRootEav.get(IdmTreeNodeFormValue_.formAttribute);		
 		subqueryEav.where(builder.and(
 						builder.equal(subRoot.get(IdmIdentityContract_.workPosition).get(IdmTreeNode_.code), subRootEav.get(IdmTreeNodeFormValue_.stringValue)),
-						builder.equal(subqueryWpRoot.get(IdmIdentityContract_.id), filter.getManagersByContractId()),
+						builder.equal(subqueryWpRoot.get(IdmIdentityContract_.id), filter.getManagersByContract()),
 						builder.equal(subRootEav.get(IdmTreeNodeFormValue_.owner), subqueryWpRoot.get(IdmIdentityContract_.workPosition)),
 						builder.equal(
 								eavAttr.get(IdmFormAttribute_.formDefinition).get(IdmFormDefinition_.name), 
@@ -111,7 +111,7 @@ public class EavCodeManagersByContractFilter
 			Root<IdmIdentityContract> subqueryGuaranteeRoot = subqueryGuarantee.from(IdmIdentityContract.class);
 			subqueryGuarantee.select(subqueryGuaranteeRoot.join(IdmIdentityContract_.guarantees).get(IdmContractGuarantee_.guarantee));
 			subqueryGuarantee.where(builder.and(
-					builder.equal(subqueryGuaranteeRoot.get(IdmIdentityContract_.id), filter.getManagersByContractId())
+					builder.equal(subqueryGuaranteeRoot.get(IdmIdentityContract_.id), filter.getManagersByContract())
 					));
 			
 			return builder.or(

@@ -8,10 +8,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.notification.api.dto.FlashMessage;
-import eu.bcvsolutions.idm.core.notification.entity.IdmMessage;
-import eu.bcvsolutions.idm.core.notification.entity.IdmNotification;
-import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationRecipient;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationDto;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationRecipientDto;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmWebsocketLogDto;
 import eu.bcvsolutions.idm.core.notification.entity.IdmWebsocketLog;
 import eu.bcvsolutions.idm.core.notification.service.api.IdmWebsocketLogService;
 import eu.bcvsolutions.idm.core.notification.service.api.WebsocketNotificationSender;
@@ -23,34 +25,43 @@ import eu.bcvsolutions.idm.core.notification.service.api.WebsocketNotificationSe
  *
  */
 @Component("websocketNotificationSender")
-public class DefaultWebsocketNotificationSender extends AbstractNotificationSender<IdmWebsocketLog> implements WebsocketNotificationSender {
+public class DefaultWebsocketNotificationSender extends AbstractNotificationSender<IdmWebsocketLogDto> implements WebsocketNotificationSender {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultWebsocketNotificationSender.class);
 	private final IdmWebsocketLogService websocketLogService;
 	private final SimpMessagingTemplate websocket;
+	private final IdmIdentityService identityService;
     
     @Autowired
     public DefaultWebsocketNotificationSender(
     		IdmWebsocketLogService websocketLogService,
-    		SimpMessagingTemplate websocket) {
+			SimpMessagingTemplate websocket, IdmIdentityService identityService) {
     	Assert.notNull(websocket);
     	Assert.notNull(websocketLogService);
+		Assert.notNull(identityService);
     	//
 		this.websocket = websocket;
 		this.websocketLogService = websocketLogService;
+		this.identityService = identityService;
+
+	}
+
+	@Override
+	public String getType() {
+		return IdmWebsocketLog.NOTIFICATION_TYPE;
 	}
 	
 	@Override
 	@Transactional
-	public IdmWebsocketLog send(IdmNotification notification) {
-		Assert.notNull(notification, "Noticition is required!");
+	public IdmWebsocketLogDto send(IdmNotificationDto notification) {
+		Assert.notNull(notification, "Notification is required!");
 		//
 		LOG.info("Adding websocket notification to queue [{}]", notification);
-		IdmWebsocketLog log = createLog(notification);
+		IdmWebsocketLogDto log = createLog(notification);
 		// send flashmessage
 		FlashMessage message = toFlashMessage(log);
 		boolean sent = false;
-		for (IdmNotificationRecipient recipient : log.getRecipients()) {
+		for (IdmNotificationRecipientDto recipient : log.getRecipients()) {
 			websocket.convertAndSendToUser(
 					recipient.getRealRecipient(),
 					"/queue/messages", // TODO: configurable
@@ -65,7 +76,7 @@ public class DefaultWebsocketNotificationSender extends AbstractNotificationSend
 	 * @param recipient
 	 * @return
 	 */
-	public String getUsername(IdmNotificationRecipient recipient) {
+	public String getUsername(IdmNotificationRecipientDto recipient) {
 		if (recipient == null) {
 			return null;
 		}
@@ -74,7 +85,7 @@ public class DefaultWebsocketNotificationSender extends AbstractNotificationSend
 		}
 		
 		if (recipient.getIdentityRecipient() != null) {
-			return recipient.getIdentityRecipient().getUsername();
+			return identityService.get(recipient.getIdentityRecipient()).getUsername();
 		}
 		return null;
 	}	
@@ -85,21 +96,21 @@ public class DefaultWebsocketNotificationSender extends AbstractNotificationSend
 	 * @param notification
 	 * @return
 	 */
-	private IdmWebsocketLog createLog(IdmNotification notification) {
+	private IdmWebsocketLogDto createLog(IdmNotificationDto notification) {
 		Assert.notNull(notification);
 		Assert.notNull(notification.getMessage());
 		//
 		// we can only create log, if notification is instance of IdmNotificationLog
-		if (notification instanceof IdmWebsocketLog) {
+		if (notification instanceof IdmWebsocketLogDto) {
 			notification.setSent(new DateTime());
-			return websocketLogService.save((IdmWebsocketLog) notification);
+			return websocketLogService.save((IdmWebsocketLogDto) notification);
 		}
 		//
-		IdmWebsocketLog log = new IdmWebsocketLog();
+		IdmWebsocketLogDto log = new IdmWebsocketLogDto();
 		log.setSent(new DateTime());
 		// parent message
 		if (notification.getId() != null) {
-			log.setParent(notification);
+			log.setParent(notification.getId());
 		}
 		// clone message
 		log.setMessage(cloneMessage(notification));
@@ -119,12 +130,12 @@ public class DefaultWebsocketNotificationSender extends AbstractNotificationSend
 	 * @return
 	 */
 	@Override
-	protected IdmNotificationRecipient cloneRecipient(IdmNotification notification, IdmNotificationRecipient recipient) {
-		return new IdmNotificationRecipient(notification, recipient.getIdentityRecipient(), getUsername(recipient));
+	protected IdmNotificationRecipientDto cloneRecipient(IdmNotificationDto notification, IdmNotificationRecipientDto recipient) {
+		return new IdmNotificationRecipientDto(notification.getId(), recipient.getIdentityRecipient(), getUsername(recipient));
 	}
 	
-	private FlashMessage toFlashMessage(IdmWebsocketLog log) {
-		IdmMessage message = this.getMessage(log, true);
+	private FlashMessage toFlashMessage(IdmWebsocketLogDto log) {
+		IdmMessageDto message = this.getMessage(log, true);
 		//
 		FlashMessage flashMessage = new FlashMessage();
 		flashMessage.setId(log.getId());

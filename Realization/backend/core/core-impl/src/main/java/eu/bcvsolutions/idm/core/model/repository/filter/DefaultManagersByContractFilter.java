@@ -10,8 +10,8 @@ import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import eu.bcvsolutions.idm.core.api.dto.filter.IdentityFilter;
 import eu.bcvsolutions.idm.core.api.repository.filter.AbstractFilterBuilder;
-import eu.bcvsolutions.idm.core.model.dto.filter.IdentityFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmContractGuarantee_;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
@@ -38,7 +38,7 @@ public class DefaultManagersByContractFilter
 
 	@Override
 	public Predicate getPredicate(Root<IdmIdentity> root, CriteriaQuery<?> query, CriteriaBuilder builder, IdentityFilter filter) {
-		if (filter.getManagersByContractId() == null) {
+		if (filter.getManagersByContract() == null) {
 			return null;
 		}
 		//
@@ -50,7 +50,7 @@ public class DefaultManagersByContractFilter
 		Root<IdmIdentityContract> subqueryWpRoot = subqueryWp.from(IdmIdentityContract.class);
 		subqueryWp.select(subqueryWpRoot.get(IdmIdentityContract_.workPosition).get(IdmTreeNode_.parent));
 		subqueryWp.where(
-				builder.equal(subqueryWpRoot.get(IdmIdentityContract_.id), filter.getManagersByContractId())
+				builder.equal(subqueryWpRoot.get(IdmIdentityContract_.id), filter.getManagersByContract())
 				);
 		//
 		subquery.where(
@@ -76,7 +76,7 @@ public class DefaultManagersByContractFilter
 			Root<IdmIdentityContract> subqueryGuaranteeRoot = subqueryGuarantee.from(IdmIdentityContract.class);
 			subqueryGuarantee.select(subqueryGuaranteeRoot.join(IdmIdentityContract_.guarantees).get(IdmContractGuarantee_.guarantee));
 			subqueryGuarantee.where(builder.and(
-					builder.equal(subqueryGuaranteeRoot.get(IdmIdentityContract_.id), filter.getManagersByContractId())
+					builder.equal(subqueryGuaranteeRoot.get(IdmIdentityContract_.id), filter.getManagersByContract())
 					));
 			
 			return builder.or(

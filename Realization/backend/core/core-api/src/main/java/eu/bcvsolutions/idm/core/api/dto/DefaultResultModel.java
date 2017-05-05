@@ -13,14 +13,12 @@ import org.springframework.http.HttpStatus;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-
 import eu.bcvsolutions.idm.core.api.domain.ResultCode;
 
 /**
  * Detault response model
  * 
  * @author Radek Tomiška
- *
  */
 @JsonInclude(Include.NON_NULL)
 public class DefaultResultModel implements ResultModel {
@@ -70,7 +68,6 @@ public class DefaultResultModel implements ResultModel {
 	}
 	
 	/**
-	 * 
 	 * @param resultCode
 	 * @param message Overrides automatic resultCode message
 	 * @param parameters Linked hash map is needed - use ImmutableMap.of(..) or construct LinkedHashMap for preserve params order.

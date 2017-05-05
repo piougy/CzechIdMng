@@ -48,16 +48,18 @@ import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
+import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyGenerateType;
+import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyType;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
-import eu.bcvsolutions.idm.core.model.domain.IdmPasswordPolicyGenerateType;
-import eu.bcvsolutions.idm.core.model.domain.IdmPasswordPolicyType;
-import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.eav.IdmIdentityFormValue;
+import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordPolicyService;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
@@ -91,6 +93,9 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 
 	@Autowired
 	private IdmIdentityService idmIdentityService;
+	
+	@Autowired
+	private IdmIdentityRepository identityRepository;
 
 	@Autowired
 	private AccIdentityAccountService identityAccoutnService;
@@ -137,12 +142,12 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 	public void doIdentityProvisioningAddAccount() {
 		initData();
 
-		IdmIdentity identity = idmIdentityService.getByName(IDENTITY_USERNAME);
+		IdmIdentityDto identity = idmIdentityService.getByUsername(IDENTITY_USERNAME);
 		IdentityAccountFilter filter = new IdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
 		AccIdentityAccountDto accountIdentityOne = identityAccoutnService.find(filter, null).getContent().get(0);
 
-		provisioningService.doProvisioning(idmIdentityService.get(accountIdentityOne.getIdentity()));
+		provisioningService.doProvisioning(identityRepository.findOne(accountIdentityOne.getIdentity()));
 
 		TestResource createdAccount = entityManager.find(TestResource.class, accountService.get(accountIdentityOne.getAccount()).getUid());
 		Assert.assertNotNull(createdAccount);
@@ -151,7 +156,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 
 	@Test
 	public void doIdentityProvisioningChangeAccount() {
-		IdmIdentity identity = idmIdentityService.getByName(IDENTITY_USERNAME);
+		IdmIdentityDto identity = idmIdentityService.getByUsername(IDENTITY_USERNAME);
 		IdentityAccountFilter filter = new IdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
 
@@ -162,7 +167,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		identity = idmIdentityService.save(identity);
 		Assert.assertNotEquals(identity.getFirstName(), createdAccount.getFirstname());
 
-		provisioningService.doProvisioning(identity);
+		provisioningService.doProvisioning(identityRepository.findOne(identity.getId()));
 		TestResource changedAccount = entityManager.find(TestResource.class, accountService.get(accountIdentityOne.getAccount()).getUid());
 		Assert.assertNotNull(changedAccount);
 		Assert.assertEquals(identity.getFirstName(), changedAccount.getFirstname());
@@ -170,7 +175,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 
 	@Test
 	public void doIdentityProvisioningChangeAccountTransformFromResource() {
-		IdmIdentity identity = idmIdentityService.getByName(IDENTITY_USERNAME);
+		IdmIdentityDto identity = idmIdentityService.getByUsername(IDENTITY_USERNAME);
 		IdentityAccountFilter filter = new IdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
 
@@ -181,7 +186,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		identity = idmIdentityService.save(identity);
 		Assert.assertNotEquals(identity.getFirstName(), createdAccount.getFirstname());
 
-		provisioningService.doProvisioning(identity);
+		provisioningService.doProvisioning(identityRepository.findOne(identity.getId()));
 		TestResource changedAccount = entityManager.find(TestResource.class, accountService.get(accountIdentityOne.getAccount()).getUid());
 		Assert.assertNotNull(changedAccount);
 		// Must be with "c" on target system, because we have set transformation
@@ -191,7 +196,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 
 	@Test
 	public void doIdentityProvisioningChangeSingleAttribute() {
-		IdmIdentity identity = idmIdentityService.getByName(IDENTITY_USERNAME);
+		IdmIdentityDto identity = idmIdentityService.getByUsername(IDENTITY_USERNAME);
 		identity.setFirstName(IDENTITY_CHANGED_FIRST_NAME);
 		identity = idmIdentityService.save(identity);
 		Assert.assertEquals("Identity must have this first name!", IDENTITY_CHANGED_FIRST_NAME,
@@ -215,7 +220,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 
 		provisioningService.doProvisioningForAttribute(systemEntity,
 				schemaAttributeHandlingService.find(attributeFilter, null).getContent().get(0), IDENTITY_USERNAME,
-				ProvisioningOperationType.UPDATE, identity);
+				ProvisioningOperationType.UPDATE, identityRepository.findOne(identity.getId()));
 
 		resourceAccount = entityManager.find(TestResource.class, "x" + IDENTITY_USERNAME);
 		Assert.assertNotNull("Idenitity have to exists on target system (after account management)", resourceAccount);
@@ -225,7 +230,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 
 	@Test
 	public void doIdentityProvisioningChangePassword() {
-		IdmIdentity identity = idmIdentityService.getByName(IDENTITY_USERNAME);
+		IdmIdentityDto identity = idmIdentityService.getByUsername(IDENTITY_USERNAME);
 		IdentityAccountFilter filter = new IdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
 		AccIdentityAccountDto accountIdentityOne = identityAccoutnService.find(filter, null).getContent().get(0);
@@ -269,7 +274,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 
 	@Test
 	public void doIdentityProvisioningZRemoveAccount() {
-		IdmIdentity identity = idmIdentityService.getByName(IDENTITY_USERNAME);
+		IdmIdentityDto identity = idmIdentityService.getByUsername(IDENTITY_USERNAME);
 		IdentityAccountFilter filter = new IdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
 		AccIdentityAccountDto accountIdentityOne = identityAccoutnService.find(filter, null).getContent().get(0);
@@ -281,7 +286,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 
 	@Test
 	public void doIdentityProvisioningExtendedAttribute() {
-		IdmIdentity identity = idmIdentityService.getByName(IDENTITY_USERNAME);
+		IdmIdentityDto identity = idmIdentityService.getByUsername(IDENTITY_USERNAME);
 
 		IdentityAccountFilter filter = new IdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
@@ -312,10 +317,10 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		phoneValue.setFormAttribute(formDefinition.getMappedAttributeByName(IDENTITY_EXT_PASSWORD));
 		phoneValue.setStringValue(IDENTITY_PASSWORD_THREE);
 		values.add(phoneValue);
-		formService.saveValues(identity, formDefinition, values);
+		formService.saveValues(identityRepository.findOne(identity.getId()), formDefinition, values);
 
 		// save account
-		provisioningService.doProvisioning(identity);
+		provisioningService.doProvisioning(identityRepository.findOne(identity.getId()));
 		TestResource resourceAccoutn = entityManager.find(TestResource.class, accountService.get(accountIdentityOne.getAccount()).getUid());
 		Assert.assertEquals(IDENTITY_PASSWORD_THREE, resourceAccoutn.getFirstname());
 		;
@@ -323,7 +328,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 
 	@Test
 	public void doIdentityProvisioningStrategyCreate() {
-		IdmIdentity identity = idmIdentityService.getByName(IDENTITY_USERNAME);
+		IdmIdentityDto identity = idmIdentityService.getByUsername(IDENTITY_USERNAME);
 
 		IdentityAccountFilter filter = new IdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
@@ -345,7 +350,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		schemaAttributeHandlingService.save(attributeHandling);
 
 		// Do provisioning
-		provisioningService.doProvisioning(identity);
+		provisioningService.doProvisioning(identityRepository.findOne(identity.getId()));
 		// Email strategy is CREATE ... email in account must not have new value 
 		resourceAccoutn = entityManager.find(TestResource.class, accountService.get(accountIdentityOne.getAccount()).getUid());
 		Assert.assertNotEquals(EMAIL_TWO, resourceAccoutn.getEmail());
@@ -353,7 +358,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 	
 	@Test
 	public void doIdentityProvisioningStrategyIfNull() {
-		IdmIdentity identity = idmIdentityService.getByName(IDENTITY_USERNAME);
+		IdmIdentityDto identity = idmIdentityService.getByUsername(IDENTITY_USERNAME);
 
 		IdentityAccountFilter filter = new IdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
@@ -375,7 +380,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		schemaAttributeHandlingService.save(attributeHandling);
 
 		// Do provisioning
-		provisioningService.doProvisioning(identity);
+		provisioningService.doProvisioning(identityRepository.findOne(identity.getId()));
 		// Email strategy is WRITE_IF_NULL ... email in account must not have new value 
 		resourceAccoutn = entityManager.find(TestResource.class, accountService.get(accountIdentityOne.getAccount()).getUid());
 		Assert.assertNotEquals(EMAIL_TWO, resourceAccoutn.getEmail());
@@ -386,7 +391,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		schemaAttributeHandlingService.save(attributeHandling);
 		
 		// Do provisioning
-		provisioningService.doProvisioning(identity);
+		provisioningService.doProvisioning(identityRepository.findOne(identity.getId()));
 		// Email strategy is SET ... email in account must have new value 
 		resourceAccoutn = entityManager.find(TestResource.class, accountService.get(accountIdentityOne.getAccount()).getUid());
 		Assert.assertEquals(EMAIL_TWO, resourceAccoutn.getEmail());
@@ -395,7 +400,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 	
 	@Test
 	public void doIdentityProvisioningStrategySendOnlyIfNotNull() {
-		IdmIdentity identity = idmIdentityService.getByName(IDENTITY_USERNAME);
+		IdmIdentityDto identity = idmIdentityService.getByUsername(IDENTITY_USERNAME);
 
 		IdentityAccountFilter filter = new IdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
@@ -418,7 +423,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		schemaAttributeHandlingService.save(attributeHandling);
 
 		// Do provisioning
-		provisioningService.doProvisioning(identity);
+		provisioningService.doProvisioning(identityRepository.findOne(identity.getId()));
 		// Email strategy is SendOnlyIfNotNull ... email in account must have old value
 		resourceAccoutn = entityManager.find(TestResource.class, accountService.get(accountIdentityOne.getAccount()).getUid());
 		Assert.assertEquals(EMAIL_TWO, resourceAccoutn.getEmail());
@@ -428,7 +433,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		schemaAttributeHandlingService.save(attributeHandling);
 		
 		// Do provisioning
-		provisioningService.doProvisioning(identity);
+		provisioningService.doProvisioning(identityRepository.findOne(identity.getId()));
 		// Email strategy is SendOnlyIfNotNull (value is empty string) ... email in account must have old value
 		resourceAccoutn = entityManager.find(TestResource.class, accountService.get(accountIdentityOne.getAccount()).getUid());
 		Assert.assertEquals(EMAIL_TWO, resourceAccoutn.getEmail());
@@ -438,7 +443,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		schemaAttributeHandlingService.save(attributeHandling);
 		
 		// Do provisioning
-		provisioningService.doProvisioning(identity);
+		provisioningService.doProvisioning(identityRepository.findOne(identity.getId()));
 		// Email strategy is SendOnlyIfNotNull  (value is not null and not empty)... email in account must have new value 
 		resourceAccoutn = entityManager.find(TestResource.class, accountService.get(accountIdentityOne.getAccount()).getUid());
 		Assert.assertEquals(EMAIL_ONE, resourceAccoutn.getEmail());
@@ -447,7 +452,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 	
 	@Test()
 	public void doIdentityProvisioningStrategyMerge() {
-		IdmIdentity identity = idmIdentityService.getByName(IDENTITY_USERNAME);
+		IdmIdentityDto identity = idmIdentityService.getByUsername(IDENTITY_USERNAME);
 
 		IdentityAccountFilter filter = new IdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
@@ -466,13 +471,13 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		schemaAttributeHandlingService.save(attributeHandling);
 
 		// Do provisioning
-		provisioningService.doProvisioning(identity);
+		provisioningService.doProvisioning(identityRepository.findOne(identity.getId()));
 	}
 	
 	// Expected PROVISIONING_MERGE_ATTRIBUTE_IS_NOT_MULTIVALUE
 	@Test(expected = ProvisioningException.class)
 	public void doIdentityProvisioningStrategyMergeException() {
-		IdmIdentity identity = idmIdentityService.getByName(IDENTITY_USERNAME);
+		IdmIdentityDto identity = idmIdentityService.getByUsername(IDENTITY_USERNAME);
 
 		IdentityAccountFilter filter = new IdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
@@ -491,13 +496,13 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		schemaAttributeHandlingService.save(attributeHandling);
 
 		// Do provisioning
-		provisioningService.doProvisioning(identity);
+		provisioningService.doProvisioning(identityRepository.findOne(identity.getId()));
 	}
 
 	
 	@Test
 	public void doIdentityProvisioningAndPasswordCheck() {
-		IdmIdentity existIdentity = idmIdentityService.getByName(IDENTITY_USERNAME);
+		IdmIdentityDto existIdentity = idmIdentityService.getByUsername(IDENTITY_USERNAME);
 		IdentityAccountFilter filter = new IdentityAccountFilter();
 		filter.setIdentityId(existIdentity.getId());
 		AccIdentityAccountDto accountIdentityOne = identityAccoutnService.find(filter, null).getContent().get(0);
@@ -815,7 +820,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 	}
 
 	private void initData() {
-		IdmIdentity identity;
+		IdmIdentityDto identity;
 		AccAccount accountOne;
 		AccIdentityAccountDto accountIdentityOne;
 		SysSystem system;
@@ -840,7 +845,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		List<SysSchemaObjectClass> objectClasses = sysSystemService.generateSchema(system);
 
 		// Create test identity for provisioning test
-		identity = new IdmIdentity();
+		identity = new IdmIdentityDto();
 		identity.setUsername(IDENTITY_USERNAME);
 		identity.setFirstName(IDENTITY_USERNAME);
 		identity.setLastName(IDENTITY_USERNAME);

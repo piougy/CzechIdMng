@@ -6,11 +6,10 @@ import org.quartz.JobDataMap;
 
 /**
  * Common configuration properties.
- * 
+ * <p>
  * JobDataMap from quartz is reused (we want the same functionality)
  * 
  * @author Radek Tomiška
- *
  */
 public class ConfigurationMap extends JobDataMap {
 
@@ -21,8 +20,7 @@ public class ConfigurationMap extends JobDataMap {
      * Retrieve the identified <code>UUID</code> value from the <code>StringKeyDirtyFlagMap</code>.
      * </p>
      * 
-     * @throws ClassCastException
-     *           if the identified object is not an UUID.
+     * @throws ClassCastException if the identified object is not an UUID.
      */
 	public UUID getUuid(String key) {
         Object obj = get(key);

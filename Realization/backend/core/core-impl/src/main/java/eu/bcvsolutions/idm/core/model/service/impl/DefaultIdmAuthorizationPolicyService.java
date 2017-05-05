@@ -1,8 +1,6 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
-import static eu.bcvsolutions.idm.core.model.event.AuthorizationPolicyEvent.AuthorizationPolicyEventType.CREATE;
 import static eu.bcvsolutions.idm.core.model.event.AuthorizationPolicyEvent.AuthorizationPolicyEventType.DELETE;
-import static eu.bcvsolutions.idm.core.model.event.AuthorizationPolicyEvent.AuthorizationPolicyEventType.UPDATE;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -26,13 +24,13 @@ import com.google.common.collect.Sets;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
+import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.AuthorizationPolicyFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
-import eu.bcvsolutions.idm.core.model.dto.IdmAuthorizationPolicyDto;
-import eu.bcvsolutions.idm.core.model.dto.filter.AuthorizationPolicyFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmAuthorizationPolicy;
 import eu.bcvsolutions.idm.core.model.entity.IdmAuthorizationPolicy_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
@@ -89,18 +87,30 @@ public class DefaultIdmAuthorizationPolicyService
 	@Override
 	@Transactional
 	public IdmAuthorizationPolicyDto save(IdmAuthorizationPolicyDto dto, BasePermission... permissions) {
-		AuthorizationPolicyEventType eType = getSaveEventType(dto);
-		IdmAuthorizationPolicy policyEntity = checkAccess(getPolicyEntity(dto), permissions);
+		checkAccess(getPolicyEntity(dto), permissions);
 		//
-		return saveAuthorizationPolicy(eType, dto, policyEntity);
+		if (isNew(dto)) { // create
+			return eventManager.process(new AuthorizationPolicyEvent(AuthorizationPolicyEventType.CREATE, dto)).getContent();
+		}
+		return eventManager.process(new AuthorizationPolicyEvent(AuthorizationPolicyEventType.UPDATE, dto)).getContent();
 	}
-
+	
+	@Override
+	public IdmAuthorizationPolicyDto saveInternal(IdmAuthorizationPolicyDto dto) {
+		if (StringUtils.isNotEmpty(dto.getAuthorizableType()) && StringUtils.isEmpty(dto.getGroupPermission())) {
+			throw new ResultCodeException(CoreResultCode.AUTHORIZATION_POLICY_GROUP_AUTHORIZATION_TYPE, 
+					ImmutableMap.of("authorizableType", dto.getAuthorizableType(), "groupPermission", dto.getGroupPermission()));
+		}
+		//
+		return super.saveInternal(dto);
+	}
+	
 	@Override
 	@Transactional
-	public IdmAuthorizationPolicyDto saveInternal(IdmAuthorizationPolicyDto dto) {
-		Assert.notNull(dto);
+	public void delete(IdmAuthorizationPolicyDto dto, BasePermission... permissions) {
+		checkAccess(getPolicyEntity(dto), permissions);
 		//
-		return saveAuthorizationPolicy(getSaveEventType(dto), dto, getPolicyEntity(dto));
+		eventManager.process(new AuthorizationPolicyEvent(DELETE, dto));
 	}
 
 	@Override
@@ -226,29 +236,8 @@ public class DefaultIdmAuthorizationPolicyService
 		//
 		return authorities;
 	}
-	
-	@Override
-	protected void deleteEntity(UUID id) {
-		IdmAuthorizationPolicy entity = getEntity(id);
-		eventManager.process(new AuthorizationPolicyEvent(DELETE, entity));
-	}
-
-	private IdmAuthorizationPolicyDto saveAuthorizationPolicy(AuthorizationPolicyEventType eType, 
-			IdmAuthorizationPolicyDto dto, IdmAuthorizationPolicy entity) {
-		//
-		if (StringUtils.isNotEmpty(dto.getAuthorizableType()) && StringUtils.isEmpty(dto.getGroupPermission())) {
-			throw new ResultCodeException(CoreResultCode.AUTHORIZATION_POLICY_GROUP_AUTHORIZATION_TYPE, 
-					ImmutableMap.of("authorizableType", dto.getAuthorizableType(), "groupPermission", dto.getGroupPermission()));
-		}
-		//
-		return toDto(eventManager.process(new AuthorizationPolicyEvent(eType, entity)).getContent());
-	}
 
 	private IdmAuthorizationPolicy getPolicyEntity(IdmAuthorizationPolicyDto dto) {
 		return toEntity(dto, dto.getId() != null ? getEntity(dto.getId()) : null);
-	}
-
-	private AuthorizationPolicyEventType getSaveEventType(IdmAuthorizationPolicyDto dto) {
-		return dto.getId() == null ? CREATE : UPDATE;
 	}
 }

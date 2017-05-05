@@ -11,10 +11,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
+import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.ConceptRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
-import eu.bcvsolutions.idm.core.model.domain.RoleRequestState;
-import eu.bcvsolutions.idm.core.model.dto.IdmConceptRoleRequestDto;
-import eu.bcvsolutions.idm.core.model.dto.filter.ConceptRoleRequestFilter;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConceptRoleRequestService;
 
 /**

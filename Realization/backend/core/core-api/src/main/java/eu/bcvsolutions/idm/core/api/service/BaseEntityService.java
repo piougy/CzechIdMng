@@ -7,9 +7,8 @@ import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 /**
  * All entity services using this interface.
  * 
- * @author Radek Tomiška
- *
  * @param <T> {@link BaseEntity} type
+ * @author Radek Tomiška
  */
 public interface BaseEntityService<E extends BaseEntity> extends Plugin<Class<?>> {
 

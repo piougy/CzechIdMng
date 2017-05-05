@@ -12,7 +12,6 @@ import com.fasterxml.jackson.databind.JsonNode;
  * Reads string as guarded string from json.
  * 
  * @author Radek Tomiška
- *
  */
 public class GuardedStringDeserializer extends JsonDeserializer<GuardedString> {
 

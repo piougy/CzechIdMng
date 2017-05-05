@@ -12,8 +12,8 @@ import org.springframework.data.rest.core.annotation.Description;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import eu.bcvsolutions.forest.index.repository.TypeableForestContentRepository;
+import eu.bcvsolutions.idm.core.api.dto.filter.TreeNodeFilter;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
-import eu.bcvsolutions.idm.core.model.dto.filter.TreeNodeFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.rest.projection.IdmTreeNodeExcerpt;
 

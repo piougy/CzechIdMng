@@ -4,7 +4,6 @@ package eu.bcvsolutions.idm.core.api.domain;
  * Provisioning operation result
  * 
  * @author Radek Tomiška
- *
  */
 public enum OperationState {
 	CREATED, // newly created, not processed

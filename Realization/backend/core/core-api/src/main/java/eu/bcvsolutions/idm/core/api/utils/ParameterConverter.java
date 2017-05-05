@@ -11,6 +11,7 @@ import org.springframework.util.MultiValueMap;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
@@ -20,7 +21,6 @@ import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
  * - parameters converters
  * 
  * @author Radek Tomiška
- *
  */
 public class ParameterConverter {
 
@@ -225,15 +225,7 @@ public class ParameterConverter {
 	 * @return
 	 */
 	public <T extends BaseEntity> T toEntity(Map<String, Object> parameters, String parameterName, Class<T> entityClass) {
-		 String valueAsString = toString(parameters, parameterName);
-	    if(StringUtils.isEmpty(valueAsString)) {
-	    	return null;
-	    }
-		T entity = entityLookupService.lookup(entityClass, valueAsString);
-		if (entity == null) {
-			throw new ResultCodeException(CoreResultCode.BAD_VALUE, "Entity type [%s] with identifier [%s] does not found", ImmutableMap.of("entityClass", entityClass.getSimpleName(), parameterName, valueAsString));
-		}
-		return entity;
+		return toEntity(toString(parameters, parameterName), entityClass);
 	}
 	
 	/**
@@ -253,6 +245,30 @@ public class ParameterConverter {
 			throw new ResultCodeException(CoreResultCode.BAD_VALUE, "Entity type [%s] with identifier [%s] does not found", ImmutableMap.of("entityClass", entityClass.getSimpleName(), "identifier", parameterValue));
 		}
 		return entity;
+	}
+	
+	/**
+	 * Converts parameter to entity id.
+	 * 
+	 * @param parameters
+	 * @param parameterName
+	 * @param entityClass
+	 * @return
+	 */
+	public UUID toEntityUuid(MultiValueMap<String, Object> parameters, String parameterName, Class<? extends AbstractEntity> entityClass) {
+		return toEntityUuid(toString(parameters, parameterName), entityClass);
+	}
+	
+	/**
+	 * Converts parameter value to entity id.
+	 * 
+	 * @param parameterValue
+	 * @param entityClass
+	 * @return
+	 */
+	public UUID toEntityUuid(String parameterValue, Class<? extends AbstractEntity> entityClass) {
+		AbstractEntity entity = toEntity(parameterValue, entityClass);
+		return entity == null ? null : entity.getId();
 	}
 	
 	/**

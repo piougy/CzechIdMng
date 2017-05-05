@@ -5,8 +5,8 @@ import java.util.Map;
 
 /**
  * Service for evaluate and validate groovy scripts
- * @author svandav
  *
+ * @author svandav
  */
 public interface GroovyScriptService {
 
@@ -14,6 +14,7 @@ public interface GroovyScriptService {
 	 * Evaluates script and returns the result.
 	 * Script is secured with groovy sandbox. Only classes defined in GroovySandboxFilter and classes
 	 * from given variables will allowed in script.
+     *
 	 * @param script
 	 * @param variables
 	 * @return
@@ -22,6 +23,7 @@ public interface GroovyScriptService {
 
 	/**
 	 * Validation script on compilation errors
+     *
 	 * @param script
 	 * @return
 	 */
@@ -31,6 +33,7 @@ public interface GroovyScriptService {
 	 * Evaluates script and returns the result.
 	 * Script is secured with groovy sandbox. Only classes defined in GroovySandboxFilter, classes
 	 * from given variables will allowed in script and classes from extraAllowedCalsses parameter.
+     *
 	 * @param script
 	 * @param variables
 	 * @param extraAllowedClasses

@@ -10,13 +10,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import com.google.common.base.Strings;
-
 import eu.bcvsolutions.idm.core.api.domain.Loggable;
+import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
+import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.ConceptRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
-import eu.bcvsolutions.idm.core.model.domain.RoleRequestState;
-import eu.bcvsolutions.idm.core.model.dto.IdmConceptRoleRequestDto;
-import eu.bcvsolutions.idm.core.model.dto.filter.ConceptRoleRequestFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmConceptRoleRequest;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;

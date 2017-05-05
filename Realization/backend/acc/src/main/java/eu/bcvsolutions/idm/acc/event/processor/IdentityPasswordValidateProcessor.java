@@ -15,14 +15,14 @@ import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.event.ProvisioningEvent;
 import eu.bcvsolutions.idm.acc.repository.AccIdentityAccountRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
+import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyType;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmPasswordValidationDto;
+import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
-import eu.bcvsolutions.idm.core.model.domain.IdmPasswordPolicyType;
-import eu.bcvsolutions.idm.core.model.dto.IdmPasswordValidationDto;
-import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.core.model.event.processor.identity.IdentityPasswordProcessor;
@@ -41,7 +41,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 @Component("accIdentityPasswordValidateProcessor")
 @Enabled(AccModuleDescriptor.MODULE_ID)
 @Description("Validates identity's and all selected systems password, when password is changed.")
-public class IdentityPasswordValidateProcessor extends AbstractEntityEventProcessor<IdmIdentity> {
+public class IdentityPasswordValidateProcessor extends AbstractEntityEventProcessor<IdmIdentityDto> {
 	
 	public static final String PROCESSOR_NAME = "identity-password-validate-processor";
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdentityPasswordValidateProcessor.class);
@@ -74,9 +74,9 @@ public class IdentityPasswordValidateProcessor extends AbstractEntityEventProces
 	}
 	
 	@Override
-	public EventResult<IdmIdentity> process(EntityEvent<IdmIdentity> event) {
+	public EventResult<IdmIdentityDto> process(EntityEvent<IdmIdentityDto> event) {
 		PasswordChangeDto passwordChangeDto = (PasswordChangeDto) event.getProperties().get(IdentityPasswordProcessor.PROPERTY_PASSWORD_CHANGE_DTO);
-		IdmIdentity identity = event.getContent();
+		IdmIdentityDto identity = event.getContent();
 		//
 		Assert.notNull(passwordChangeDto);
 		Assert.notNull(identity);
@@ -116,8 +116,8 @@ public class IdentityPasswordValidateProcessor extends AbstractEntityEventProces
 		// validate TODO: validate for admin?
 		IdmPasswordValidationDto passwordValidationDto = new IdmPasswordValidationDto();
 		// get old password for validation - til, from and password history
-		passwordValidationDto.setOldPassword(this.passwordService.get(identity));
-		passwordValidationDto.setIdentity(identity);
+		passwordValidationDto.setOldPassword(this.passwordService.get(identity) == null ? null : this.passwordService.get(identity).getId());
+		passwordValidationDto.setIdentity(identity == null ? null : identity.getId());
 		passwordValidationDto.setPassword(passwordChangeDto.getNewPassword());
 		this.passwordPolicyService.validate(passwordValidationDto, passwordPolicyList);
 		//

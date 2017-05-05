@@ -9,7 +9,6 @@ import eu.bcvsolutions.idm.core.scheduler.api.dto.LongRunningFutureTask;
  * Long running task administration
  * 
  * @author Radek Tomiška
- *
  */
 public interface LongRunningTaskManager {
 	

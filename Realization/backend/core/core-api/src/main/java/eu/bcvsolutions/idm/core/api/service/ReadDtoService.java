@@ -9,6 +9,7 @@ import org.springframework.data.domain.Sort;
 
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
+import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 
@@ -16,6 +17,9 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
  * Provide additional methods to retrieve entities using the pagination and
  * sorting abstraction for DTO services.
  * 
+ * @param <DTO> {@link BaseDto} type
+ * @param <E>   {@link BaseEntity} type
+ * @param <F>   {@link BaseFilter} type
  * @author Svanda
  * @author Radek Tomiška
  * 
@@ -82,4 +86,13 @@ public interface ReadDtoService<DTO extends BaseDto, F extends BaseFilter>
 	 * @return
 	 */
 	Set<String> getPermissions(Serializable id);
+	
+	/**
+	 * Evaluates authorization permission on given dto
+	 *  
+	 * @param entity
+	 * @param permission
+	 * @return
+	 */
+	DTO checkAccess(DTO dto, BasePermission... permission);
 }

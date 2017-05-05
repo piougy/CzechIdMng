@@ -7,23 +7,22 @@ import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleValidRequestDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.RoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
-import eu.bcvsolutions.idm.core.eav.service.api.FormService;
-import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleValidRequestDto;
 import eu.bcvsolutions.idm.core.model.dto.filter.ContractGuaranteeFilter;
-import eu.bcvsolutions.idm.core.model.dto.filter.RoleRequestFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmAuthorityChange;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.core.model.repository.IdmAuthorityChangeRepository;
-import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleGuaranteeRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmContractGuaranteeService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleValidRequestService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.notification.repository.IdmNotificationRecipientRepository;
 
@@ -35,11 +34,10 @@ import eu.bcvsolutions.idm.core.notification.repository.IdmNotificationRecipient
  */
 @Component
 @Description("Deletes identity - ensures core referential integrity.")
-public class IdentityDeleteProcessor extends CoreEventProcessor<IdmIdentity> {
+public class IdentityDeleteProcessor extends CoreEventProcessor<IdmIdentityDto> {
 
 	public static final String PROCESSOR_NAME = "identity-delete-processor";
-	private final IdmIdentityRepository repository;
-	private final FormService formService;
+	private final IdmIdentityService service;
 	private final IdentityPasswordProcessor passwordProcessor;
 	private final IdmRoleGuaranteeRepository roleGuaranteeRepository;
 	private final IdmIdentityContractService identityContractService;
@@ -51,8 +49,7 @@ public class IdentityDeleteProcessor extends CoreEventProcessor<IdmIdentity> {
 	
 	@Autowired
 	public IdentityDeleteProcessor(
-			IdmIdentityRepository repository,
-			FormService formService,
+			IdmIdentityService service,
 			IdentityPasswordProcessor passwordProcessor,
 			IdmRoleGuaranteeRepository roleGuaranteeRepository,
 			IdmIdentityContractService identityContractService,
@@ -63,8 +60,7 @@ public class IdentityDeleteProcessor extends CoreEventProcessor<IdmIdentity> {
 			IdmContractGuaranteeService contractGuaranteeService) {
 		super(IdentityEventType.DELETE);
 		//
-		Assert.notNull(repository);
-		Assert.notNull(formService);
+		Assert.notNull(service);
 		Assert.notNull(passwordProcessor);
 		Assert.notNull(roleGuaranteeRepository);
 		Assert.notNull(identityContractService);
@@ -74,8 +70,7 @@ public class IdentityDeleteProcessor extends CoreEventProcessor<IdmIdentity> {
 		Assert.notNull(contractGuaranteeService);
 		Assert.notNull(authChangeRepository);
 		//
-		this.repository = repository;
-		this.formService = formService;
+		this.service = service;
 		this.passwordProcessor = passwordProcessor;
 		this.roleGuaranteeRepository = roleGuaranteeRepository;
 		this.identityContractService = identityContractService;
@@ -92,8 +87,8 @@ public class IdentityDeleteProcessor extends CoreEventProcessor<IdmIdentity> {
 	}
 
 	@Override
-	public EventResult<IdmIdentity> process(EntityEvent<IdmIdentity> event) {
-		IdmIdentity identity = event.getContent();
+	public EventResult<IdmIdentityDto> process(EntityEvent<IdmIdentityDto> event) {
+		IdmIdentityDto identity = event.getContent();
 		// contracts
 		identityContractService.findAllByIdentity(identity.getId()).forEach(identityContract -> {
 			identityContractService.delete(identityContract);
@@ -106,13 +101,11 @@ public class IdentityDeleteProcessor extends CoreEventProcessor<IdmIdentity> {
 			contractGuaranteeService.delete(guarantee);
 		});
 		// remove role guarantee
-		roleGuaranteeRepository.deleteByGuarantee(identity);
+		roleGuaranteeRepository.deleteByGuarantee_Id(identity.getId());
 		// remove password from confidential storage
 		passwordProcessor.deletePassword(identity);
-		// delete eav attrs
-		formService.deleteValues(identity);
 		// set to null all notification recipients - real recipient remains (email etc.)
-		notificationRecipientRepository.clearIdentity(identity);
+		notificationRecipientRepository.clearIdentity(identity.getId());
 		// remove authorities last changed relation
 		deleteAuthorityChange(identity);
 		
@@ -126,12 +119,12 @@ public class IdentityDeleteProcessor extends CoreEventProcessor<IdmIdentity> {
 		List<IdmIdentityRoleValidRequestDto> validRequests = identityRoleValidRequestService.findAllValidRequestForIdentityId(identity.getId());
 		identityRoleValidRequestService.deleteAll(validRequests);
 		// deletes identity
-		repository.delete(identity);
+		service.deleteInternal(identity);
 		return new DefaultEventResult<>(event, this);
 	}
 	
-	private void deleteAuthorityChange(IdmIdentity identity) {
-		IdmAuthorityChange ac = authChangeRepository.findByIdentity(identity);
+	private void deleteAuthorityChange(IdmIdentityDto identity) {
+		IdmAuthorityChange ac = authChangeRepository.findOneByIdentity_Id(identity.getId());
 		if (ac != null) {
 			authChangeRepository.delete(ac);
 		}

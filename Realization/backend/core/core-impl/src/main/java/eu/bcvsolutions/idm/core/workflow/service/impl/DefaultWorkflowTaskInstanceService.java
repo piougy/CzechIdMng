@@ -257,5 +257,4 @@ public class DefaultWorkflowTaskInstanceService implements WorkflowTaskInstanceS
 		dto.setUserId(link.getUserId());
 		return dto;
 	}
-
 }

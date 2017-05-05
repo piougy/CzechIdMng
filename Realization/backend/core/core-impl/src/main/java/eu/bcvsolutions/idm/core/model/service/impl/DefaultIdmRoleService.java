@@ -89,6 +89,12 @@ public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, Role
 		return repository.findOneByName(name);
 	}
 	
+	@Override
+	@Transactional(readOnly = true)
+	public IdmRole getByCode(String name) {
+		return getByName(name);
+	}
+	
 	/**
 	 * Publish {@link RoleEvent} only.
 	 * 

@@ -20,7 +20,7 @@ public class SysSystemProcessor implements ResourceProcessor<Resource<SysSystem>
 	
 	@Override
 	public Resource<SysSystem> process(Resource<SysSystem> resource) {
-		String name = String.valueOf(systemLookup.getResourceIdentifier(resource.getContent()));
+		String name = String.valueOf(systemLookup.getIdentifier(resource.getContent()));
 		SysSystemController systemController = methodOn(SysSystemController.class);
 		resource.add(linkTo(systemController
 				.getConnectorFormDefinition(name, null)).withRel("connector-form-definition"));

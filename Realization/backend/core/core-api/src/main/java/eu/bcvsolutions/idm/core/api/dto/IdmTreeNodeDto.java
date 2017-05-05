@@ -1,15 +1,17 @@
 package eu.bcvsolutions.idm.core.api.dto;
 
-import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
-import eu.bcvsolutions.idm.core.api.domain.Disableable;
-import eu.bcvsolutions.idm.core.api.domain.Embedded;
-import eu.bcvsolutions.idm.core.api.domain.IdentifiableByName;
-import org.hibernate.validator.constraints.NotEmpty;
-import org.springframework.hateoas.core.Relation;
+import java.util.UUID;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.util.UUID;
+
+import org.hibernate.validator.constraints.NotEmpty;
+import org.springframework.hateoas.core.Relation;
+
+import eu.bcvsolutions.idm.core.api.domain.Codeable;
+import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
+import eu.bcvsolutions.idm.core.api.domain.Disableable;
+import eu.bcvsolutions.idm.core.api.domain.Embedded;
 
 /**
  * Tree node
@@ -17,7 +19,7 @@ import java.util.UUID;
  * @author Radek Tomiška
  */
 @Relation(collectionRelation = "treeNodes")
-public class IdmTreeNodeDto extends AbstractDto implements Disableable, IdentifiableByName {
+public class IdmTreeNodeDto extends AbstractDto implements Disableable, Codeable {
 
     private static final long serialVersionUID = 1337282508070610164L;
     @NotEmpty
@@ -33,6 +35,7 @@ public class IdmTreeNodeDto extends AbstractDto implements Disableable, Identifi
     private UUID treeType;
     private boolean disabled;
 
+    @Override
     public String getCode() {
         return code;
     }

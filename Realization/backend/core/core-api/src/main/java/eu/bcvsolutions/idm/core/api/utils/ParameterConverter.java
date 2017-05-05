@@ -14,7 +14,7 @@ import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
 
 /**
  * Rest controller helpers
@@ -24,12 +24,12 @@ import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
  */
 public class ParameterConverter {
 
-	private final EntityLookupService entityLookupService;
+	private final LookupService lookupService;
 	
-	public ParameterConverter(EntityLookupService entityLookupService) {
-		Assert.notNull(entityLookupService);
+	public ParameterConverter(LookupService lookupService) {
+		Assert.notNull(lookupService);
 		//
-		this.entityLookupService = entityLookupService;
+		this.lookupService = lookupService;
 	}
 	
 	/**
@@ -236,11 +236,12 @@ public class ParameterConverter {
 	 * @param entityClass
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	public <T extends BaseEntity> T toEntity(String parameterValue, Class<T> entityClass) {
 	    if(StringUtils.isEmpty(parameterValue)) {
 	    	return null;
 	    }
-		T entity = entityLookupService.lookup(entityClass, parameterValue);
+		T entity = (T) lookupService.lookupEntity(entityClass, parameterValue);
 		if (entity == null) {
 			throw new ResultCodeException(CoreResultCode.BAD_VALUE, "Entity type [%s] with identifier [%s] does not found", ImmutableMap.of("entityClass", entityClass.getSimpleName(), "identifier", parameterValue));
 		}

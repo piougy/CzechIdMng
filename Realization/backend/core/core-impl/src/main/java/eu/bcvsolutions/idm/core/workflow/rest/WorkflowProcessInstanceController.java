@@ -15,11 +15,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourceWrapper;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
-import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowProcessInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
@@ -34,7 +34,7 @@ import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 @RequestMapping(value = BaseEntityController.BASE_PATH + "/workflow-processes")
 public class WorkflowProcessInstanceController {
 
-	private final EntityLookupService entityLookupService;
+	private final LookupService entityLookupService;
 	private final WorkflowProcessInstanceService workflowProcessInstanceService;
 	
 	@Value("${spring.data.rest.defaultPageSize}")
@@ -42,7 +42,7 @@ public class WorkflowProcessInstanceController {
 	
 	@Autowired
 	public WorkflowProcessInstanceController(
-			EntityLookupService entityLookupService,
+			LookupService entityLookupService,
 			WorkflowProcessInstanceService workflowProcessInstanceService) {
 		Assert.notNull(entityLookupService);
 		Assert.notNull(workflowProcessInstanceService);
@@ -96,8 +96,8 @@ public class WorkflowProcessInstanceController {
 			filter.setPageNumber(page);
 		}
 		if (identity != null) {
-			IdmIdentity idmIdentity = entityLookupService.lookup(IdmIdentity.class, identity);
-			filter.getEqualsVariables().put(WorkflowProcessInstanceService.APPLICANT_IDENTIFIER, idmIdentity.getId());
+			IdmIdentityDto identityDto = (IdmIdentityDto) entityLookupService.lookupDto(IdmIdentityDto.class, identity);
+			filter.getEqualsVariables().put(WorkflowProcessInstanceService.APPLICANT_IDENTIFIER, identityDto.getId());
 		}
 		filter.setProcessDefinitionKey(processDefinitionKey);
 		filter.setCategory(category);

@@ -14,9 +14,9 @@ import org.hibernate.validator.constraints.NotEmpty;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import eu.bcvsolutions.idm.core.api.domain.Codeable;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.Disableable;
-import eu.bcvsolutions.idm.core.api.domain.IdentifiableByName;
 import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyGenerateType;
 import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyType;
 import eu.bcvsolutions.idm.core.api.domain.PasswordGenerate;
@@ -39,7 +39,7 @@ import eu.bcvsolutions.idm.core.api.utils.PasswordGenerator;
 @Table(name = "idm_password_policy", indexes = {
 		@Index(name = "ux_idm_pass_policy_name", columnList = "name", unique = true)
 		})
-public class IdmPasswordPolicy extends AbstractEntity implements IdentifiableByName, PasswordGenerate, Disableable {
+public class IdmPasswordPolicy extends AbstractEntity implements Codeable, PasswordGenerate, Disableable {
 
 	private static final long serialVersionUID = -7107125399784973455L;
 	
@@ -439,11 +439,15 @@ public class IdmPasswordPolicy extends AbstractEntity implements IdentifiableByN
 		this.disabled = disabled;
 	}
 
-	@Override
 	public String getName() {
 		return name;
 	}
 	
+	@Override
+	@JsonIgnore
+	public String getCode() {
+		return getName();
+	}
 	
 	/**
 	 * Get how many rules in password policy isn't required

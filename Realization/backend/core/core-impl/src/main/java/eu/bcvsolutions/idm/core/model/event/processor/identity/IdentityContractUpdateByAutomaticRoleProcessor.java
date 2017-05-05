@@ -93,22 +93,22 @@ public class IdentityContractUpdateByAutomaticRoleProcessor extends CoreEventPro
 				|| (!contract.isDisabled() && previous.isDisabled() != contract.isDisabled())) {
 			// work positions has some difference
 			List<IdmIdentityRoleDto> assignedRoles = identityRoleService.findAllByContract(contract.getId());
-			Set<IdmRoleTreeNodeDto> previousAutomaticRoles = assignedRoles.stream()
+			Set<UUID> previousAutomaticRoles = assignedRoles.stream()
 					.filter(identityRole -> {
 						return identityRole.getRoleTreeNode() != null;
 					}).map(identityRole -> {
-						return roleTreeNodeService.get(identityRole.getRoleTreeNode());
+						return identityRole.getRoleTreeNode();
 					}).collect(Collectors.toSet());
 			Set<IdmRoleTreeNodeDto> addedAutomaticRoles = new HashSet<>();
 			if (newPosition != null) {
 				addedAutomaticRoles = roleTreeNodeService.getAutomaticRolesByTreeNode(newPosition);
 			}
 			//
-			Set<IdmRoleTreeNodeDto> removedAutomaticRoles = new HashSet<>(previousAutomaticRoles);
+			Set<UUID> removedAutomaticRoles = new HashSet<>(previousAutomaticRoles);
 			removedAutomaticRoles.removeAll(addedAutomaticRoles);
 			addedAutomaticRoles.removeAll(previousAutomaticRoles);
 			//
-			for(IdmRoleTreeNodeDto removedAutomaticRole : removedAutomaticRoles) {
+			for(UUID removedAutomaticRole : removedAutomaticRoles) {
 				Iterator<IdmIdentityRoleDto> iter = assignedRoles.iterator();
 				while (iter.hasNext()){
 					IdmIdentityRoleDto identityRole = iter.next();				
@@ -117,7 +117,7 @@ public class IdentityContractUpdateByAutomaticRoleProcessor extends CoreEventPro
 						IdmRoleTreeNodeDto addedAutomaticRole = getByRole(identityRole.getRole(), addedAutomaticRoles);
 						if (addedAutomaticRole == null) {
 							roleRequest = checkSavedRequest(roleRequest);
-							createConcept(roleRequest, identityRole.getId(), contract, identityRole.getRole(), removedAutomaticRole.getId(), ConceptRoleRequestOperation.REMOVE);
+							createConcept(roleRequest, identityRole.getId(), contract, identityRole.getRole(), removedAutomaticRole, ConceptRoleRequestOperation.REMOVE);
 							iter.remove();
 						} else {
 							// change relation only

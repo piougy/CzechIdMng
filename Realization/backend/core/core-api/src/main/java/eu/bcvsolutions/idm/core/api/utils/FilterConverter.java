@@ -6,11 +6,12 @@ import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.EmptyFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
 
 /**
  * Converts rest parameter to {@link BaseFilter}.
@@ -21,8 +22,8 @@ public class FilterConverter extends ParameterConverter {
 
 	private final ObjectMapper mapper;
 	
-	public FilterConverter(EntityLookupService entityLookupService, ObjectMapper mapper) {
-		super(entityLookupService);
+	public FilterConverter(LookupService lookupService, ObjectMapper mapper) {
+		super(lookupService);
 		//
 		this.mapper = mapper;
 	}

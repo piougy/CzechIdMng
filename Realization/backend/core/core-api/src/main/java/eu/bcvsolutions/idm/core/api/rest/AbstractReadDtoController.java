@@ -27,11 +27,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.service.ReadDtoService;
 import eu.bcvsolutions.idm.core.api.utils.FilterConverter;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
@@ -56,7 +57,7 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 	private ObjectMapper mapper;
 	private final ReadDtoService<DTO, F> service;
 	@Autowired
-	private EntityLookupService entityLookupService;
+	private LookupService lookupService;
 
 	public AbstractReadDtoController(ReadDtoService<DTO, F> service) {
 		Assert.notNull(service, "Service is required!");
@@ -103,11 +104,12 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 	 * @param backendId
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	public DTO getDto(Serializable backendId) {
-		if(entityLookupService == null) {
+		if(lookupService == null) {
 			return getService().get(backendId, IdmBasePermission.READ);
 		}
-		DTO dto = entityLookupService.lookupDto(getDtoClass(), backendId);
+		DTO dto = (DTO) lookupService.lookupDto(getDtoClass(), backendId);
 		return checkAccess(dto, IdmBasePermission.READ);
 	}
 
@@ -163,7 +165,7 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 		if (dto == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
-		return getService().getPermissions(backendId);
+		return getService().getPermissions(dto.getId());
 	}
 
 	/**
@@ -216,7 +218,7 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 	 */
 	protected FilterConverter getParameterConverter() {
 		if (filterConverter == null) {
-			filterConverter = new FilterConverter(entityLookupService, mapper);
+			filterConverter = new FilterConverter(lookupService, mapper);
 		}
 		return filterConverter;
 	}

@@ -33,7 +33,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.IdentityContractFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
-import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.eav.rest.impl.IdmFormDefinitionController;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
@@ -60,7 +60,7 @@ public class IdmIdentityContractController extends AbstractReadWriteDtoControlle
 	
 	@Autowired
 	public IdmIdentityContractController(
-			EntityLookupService entityLookupService, 
+			LookupService entityLookupService, 
 			IdmIdentityContractService identityContractService,
 			IdmFormDefinitionController formDefinitionController,
 			IdmIdentityContractRepository identityContractRepository) {

@@ -62,7 +62,7 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
  * @author Radek Tomiška
  *
  */
-public class DefaultIdmIdentityService 
+public class DefaultIdmIdentityService
 		extends AbstractReadWriteDtoService<IdmIdentityDto, IdmIdentity, IdentityFilter> 
 		implements IdmIdentityService {
 
@@ -98,6 +98,12 @@ public class DefaultIdmIdentityService
 	@Override
 	public AuthorizableType getAuthorizableType() {
 		return new AuthorizableType(CoreGroupPermission.IDENTITY, getEntityClass());
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public IdmIdentityDto getByCode(String code) {
+		return getByUsername(code);
 	}
 	
 	@Override

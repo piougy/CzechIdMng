@@ -27,7 +27,7 @@ import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteEntityController;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
-import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;;
 
@@ -44,7 +44,7 @@ public class SysSystemEntityController extends AbstractReadWriteEntityController
 
 	
 	@Autowired
-	public SysSystemEntityController(EntityLookupService entityLookupService, SysSystemEntityService systemEntityService) {
+	public SysSystemEntityController(LookupService entityLookupService, SysSystemEntityService systemEntityService) {
 		super(entityLookupService, systemEntityService);
 	}
 	

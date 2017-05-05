@@ -18,6 +18,7 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizationManager;
 
 /**
@@ -85,7 +86,7 @@ public abstract class AbstractReadEntityService<E extends BaseEntity, F extends 
 	 */
 	@Override
 	@Transactional(readOnly = true)
-	public E get(Serializable id) {
+	public E get(Serializable id, BasePermission... permission) {
 		if (AbstractEntity.class.isAssignableFrom(getEntityClass()) && (id instanceof String)) {
 			// workflow / rest usage with string uuid variant
 			// EL does not recognize two methods with the same name and different argument type

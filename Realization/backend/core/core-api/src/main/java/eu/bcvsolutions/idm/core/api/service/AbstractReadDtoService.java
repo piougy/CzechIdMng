@@ -83,6 +83,11 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 		//
 		this.repository = repository;
 	}
+	
+	@Override
+	public boolean supports(Class<?> delimiter) {
+		return dtoClass.isAssignableFrom(delimiter);
+	}
 
 	/**
 	 * Returns underlying repository
@@ -109,7 +114,7 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	 * 
 	 * @return
 	 */
-	protected Class<E> getEntityClass() {
+	public Class<E> getEntityClass() {
 		return entityClass;
 	}
 
@@ -218,11 +223,6 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 			}
 		};
 		return getRepository().findAll(criteria, pageable);
-	}
-
-	@Override
-	public boolean supports(Class<?> delimiter) {
-		return dtoClass.isAssignableFrom(delimiter);
 	}
 	
 	@Override

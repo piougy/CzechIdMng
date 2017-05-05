@@ -29,7 +29,7 @@ import eu.bcvsolutions.idm.acc.service.api.SynchronizationService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteEntityController;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
-import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;;
 
 /**
@@ -47,7 +47,7 @@ public class SysSyncConfigController
 	private final SynchronizationService synchronizationService;
 	
 	@Autowired
-	public SysSyncConfigController(EntityLookupService entityLookupService,
+	public SysSyncConfigController(LookupService entityLookupService,
 			SysSyncConfigService service, SynchronizationService synchronizationService) {
 		super(entityLookupService, service);
 		Assert.notNull(synchronizationService);

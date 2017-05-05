@@ -8,6 +8,7 @@ import org.springframework.data.domain.Sort;
 
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 
 /**
  * Provide additional methods to retrieve entities using the pagination and
@@ -28,13 +29,17 @@ public interface ReadEntityService<E extends BaseEntity, F extends BaseFilter> e
 	 */
 	Class<F> getFilterClass();
 	
+	default E get(Serializable id) {
+		return get(id, (BasePermission[]) null);
+	}
+	
 	/**
 	 * Returns entity by given id. Returns null, if entity is not exists.
 	 * 
 	 * @param id
 	 * @return
 	 */
-	E get(Serializable id);
+	E get(Serializable id, BasePermission... permission);
 	
 	/**
 	 * Returns page of entities

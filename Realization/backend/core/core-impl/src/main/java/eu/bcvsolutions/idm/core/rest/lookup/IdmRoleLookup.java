@@ -4,12 +4,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
-import eu.bcvsolutions.idm.core.api.rest.lookup.IdentifiableByNameLookup;
+import eu.bcvsolutions.idm.core.api.rest.lookup.CodeableServiceEntityLookup;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 
 @Component
-public class IdmRoleLookup extends IdentifiableByNameLookup<IdmRole>{
+public class IdmRoleLookup extends CodeableServiceEntityLookup<IdmRole>{
 
 	@Autowired 
 	private ApplicationContext applicationContext;
@@ -22,7 +22,7 @@ public class IdmRoleLookup extends IdentifiableByNameLookup<IdmRole>{
 	 * @return
 	 */
 	@Override
-	protected IdmRoleService getEntityService() {
+	protected IdmRoleService getService() {
 		if (roleService == null) {
 			roleService = applicationContext.getBean(IdmRoleService.class);
 		}

@@ -20,7 +20,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
-import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
@@ -35,22 +35,26 @@ import eu.bcvsolutions.idm.core.security.service.LoginService;
 @RestController
 public class PasswordChangeController {
 	
-	private final EntityLookupService entityLookupService;
+	private final LookupService entityLookupService;
 	private final LoginService loginService;
 	private final SecurityService securityService;
+	private final IdmIdentityService identityService;
 	
 	@Autowired
 	public PasswordChangeController(
-			EntityLookupService entityLookupService,
+			LookupService entityLookupService,
 			LoginService loginService,
-			SecurityService securityService) {
+			SecurityService securityService,
+			IdmIdentityService identityService) {
 		Assert.notNull(entityLookupService);
 		Assert.notNull(loginService);
 		Assert.notNull(securityService);
+		Assert.notNull(identityService);
 		//
 		this.entityLookupService = entityLookupService;
 		this.loginService = loginService;
 		this.securityService = securityService;
+		this.identityService = identityService;
 	}
 	
 	/**
@@ -74,15 +78,11 @@ public class PasswordChangeController {
 			loginService.login(loginDto);
 		}
 		//
-		IdmIdentityDto identity = entityLookupService.lookupDto(IdmIdentityDto.class, identityId);
+		IdmIdentityDto identity = (IdmIdentityDto) entityLookupService.lookupDto(IdmIdentityDto.class, identityId);
 		if (identity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("identity", identityId));
 		}
-		getIdentityService().passwordChange(identity, passwordChangeDto);
+		identityService.passwordChange(identity, passwordChangeDto);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-	}
-	
-	private IdmIdentityService getIdentityService() {
-		return entityLookupService.getDtoService(IdmIdentityDto.class, IdmIdentityService.class);
 	}
 }

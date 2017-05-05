@@ -22,7 +22,6 @@ import org.hibernate.annotations.Type;
 import org.hibernate.envers.Audited;
 import org.hibernate.validator.constraints.NotEmpty;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.UnmodifiableEntity;
@@ -51,7 +50,6 @@ public class IdmFormAttribute extends AbstractEntity implements UnmodifiableEnti
 	@Column(name = "name", nullable = false, length = DefaultFieldLengths.NAME)
 	private String name;
 	
-	@JsonIgnore // TODO: remove after dto will be used
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "definition_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4

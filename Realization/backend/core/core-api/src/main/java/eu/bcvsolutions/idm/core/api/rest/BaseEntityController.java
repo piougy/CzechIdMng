@@ -3,10 +3,8 @@ package eu.bcvsolutions.idm.core.api.rest;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 
 /**
- * 
- * @author Radek Tomiška
- *
  * @param <E>
+ * @author Radek Tomiška
  * @deprecated use {@link BaseDtoController}
  */
 public interface BaseEntityController<E extends BaseEntity> extends BaseController {

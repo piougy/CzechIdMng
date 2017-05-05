@@ -133,6 +133,7 @@ public enum CoreResultCode implements ResultCode {
 	WF_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Error occured during workflow execution: %s");
 	
 
+
 	private final HttpStatus status;
 	private final String message;
 	

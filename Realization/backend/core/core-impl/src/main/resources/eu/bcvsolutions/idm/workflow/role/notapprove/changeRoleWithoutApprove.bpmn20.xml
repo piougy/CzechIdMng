@@ -14,7 +14,7 @@
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[#{operationType.equals("change")}]]></conditionExpression>
     </sequenceFlow>
     <scriptTask id="scripttask5" name="Set APPROVED state to concept" scriptFormat="groovy" activiti:autoStoreVariables="false">
-      <script>import eu.bcvsolutions.idm.core.model.domain.RoleRequestState;
+      <script>import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
  
 // Set and save state APPROVED to concept
 def conceptDto = conceptRoleRequestService.getDto(conceptRole.id);

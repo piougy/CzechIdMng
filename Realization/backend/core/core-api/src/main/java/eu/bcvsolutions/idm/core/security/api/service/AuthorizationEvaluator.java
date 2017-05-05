@@ -18,9 +18,8 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 /**
  * Authorization policy evaluator. Ensures data security.
  * 
- * @author Radek Tomiška
- *
  * @param <E> evaluated {@link Identifiable} type - evaluator is designed for domain type (superclasses could be used as wildcard). 
+ * @author Radek Tomiška
  */
 public interface AuthorizationEvaluator<E extends Identifiable> extends Ordered {
 	

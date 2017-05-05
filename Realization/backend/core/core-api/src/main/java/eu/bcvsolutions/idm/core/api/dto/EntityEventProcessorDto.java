@@ -7,7 +7,6 @@ import java.util.Map;
  * Event processor dto
  * 
  * @author Radek Tomiška
- *
  */
 public class EntityEventProcessorDto {
 

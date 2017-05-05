@@ -11,11 +11,9 @@ import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
  * Support for loading {@link BaseEntity} by identifier.
  * Provide basic services through application.
  * 
+ * @author Radek Tomiška
  * @see {@link EntityLookup}
  * @see {@link ReadEntityService}
- * 
- * @author Radek Tomiška
- *
  */
 public interface EntityLookupService {
 

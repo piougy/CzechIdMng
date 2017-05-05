@@ -10,11 +10,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmEmailLogDto;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationRecipientDto;
 import eu.bcvsolutions.idm.core.notification.dto.filter.NotificationFilter;
 import eu.bcvsolutions.idm.core.notification.entity.IdmEmailLog;
-import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationRecipient;
 import eu.bcvsolutions.idm.core.notification.repository.IdmEmailLogRepository;
 import eu.bcvsolutions.idm.core.notification.service.api.IdmEmailLogService;
 
@@ -25,13 +26,16 @@ import eu.bcvsolutions.idm.core.notification.service.api.IdmEmailLogService;
  *
  */
 @Service
-public class DefaultIdmEmailLogService extends AbstractReadWriteEntityService<IdmEmailLog, NotificationFilter> implements IdmEmailLogService {
+public class DefaultIdmEmailLogService extends AbstractNotificationLogService<IdmEmailLogDto, IdmEmailLog, NotificationFilter> implements IdmEmailLogService {
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmEmailLogService.class);
 	
+	private final IdmIdentityService identityService;
+	
 	@Autowired
-	public DefaultIdmEmailLogService(IdmEmailLogRepository repository) {
+	public DefaultIdmEmailLogService(IdmEmailLogRepository repository, IdmIdentityService identityService) {
 		super(repository);		
+		this.identityService = identityService;
 	}
 	
 	/**
@@ -41,7 +45,7 @@ public class DefaultIdmEmailLogService extends AbstractReadWriteEntityService<Id
 	 * @return
 	 */
 	@Override
-	public String getEmailAddress(IdmNotificationRecipient recipient) {
+	public String getEmailAddress(IdmNotificationRecipientDto recipient) {
 		LOG.trace("Resolving email address to recipient [{}]", recipient);
 		String emailAddress = null;
 		try {
@@ -54,7 +58,7 @@ public class DefaultIdmEmailLogService extends AbstractReadWriteEntityService<Id
 			}
 			
 			if (recipient.getIdentityRecipient() != null) {
-				String identityEmail = getEmailAddress(recipient.getIdentityRecipient());
+				String identityEmail = getEmailAddress(identityService.getDto(recipient.getIdentityRecipient()));
 				if(StringUtils.isNotBlank(identityEmail)) {
 					emailAddress = identityEmail;
 				}
@@ -66,7 +70,7 @@ public class DefaultIdmEmailLogService extends AbstractReadWriteEntityService<Id
 	}	
 	
 	@Override
-	public String getEmailAddress(IdmIdentity recipient) {
+	public String getEmailAddress(IdmIdentityDto recipient) {
 		Assert.notNull(recipient, "Recipient has to be filled!");
 		//
 		// TODO: hook - resolve identity emails
@@ -87,7 +91,7 @@ public class DefaultIdmEmailLogService extends AbstractReadWriteEntityService<Id
 		//
 		LOG.debug("Persist sent date [{}] to emailLogId [{}]", sent, emailLogId);
 		emailLog.setSent(sent);
-		save(emailLog);
+		save(toDto(emailLog));
 	}
 	
 	/**
@@ -104,7 +108,7 @@ public class DefaultIdmEmailLogService extends AbstractReadWriteEntityService<Id
 		//
 		LOG.debug("Persist sent log [{}] to emailLogId [{}]", sentLog, emailLogId);
 		emailLog.setSentLog(sentLog);
-		save(emailLog);
+		save(toDto(emailLog));
 	}
 
 }

@@ -9,7 +9,6 @@ import javax.validation.constraints.NotNull;
 import org.hibernate.annotations.Type;
 
 import com.google.common.base.Throwables;
-
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.ResultModel;
@@ -18,7 +17,6 @@ import eu.bcvsolutions.idm.core.api.dto.ResultModel;
  * Universal operation result
  * 
  * @author Radek Tomiška
- *
  */
 @Embeddable
 public class OperationResult {
@@ -94,7 +92,6 @@ public class OperationResult {
 	 * {@link OperationResult} builder
 	 * 
 	 * @author Radek Tomiška
-	 *
 	 */
 	public static class Builder {
 		// required

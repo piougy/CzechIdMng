@@ -5,8 +5,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import eu.bcvsolutions.idm.core.api.dto.filter.ScriptFilter;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
-import eu.bcvsolutions.idm.core.model.dto.filter.ScriptFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmScript;
 
 /**

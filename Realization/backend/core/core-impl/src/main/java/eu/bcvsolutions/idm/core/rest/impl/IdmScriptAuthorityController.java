@@ -27,8 +27,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
-import eu.bcvsolutions.idm.core.model.dto.IdmScriptAuthorityDto;
 import eu.bcvsolutions.idm.core.model.dto.AvailableServiceDto;
+import eu.bcvsolutions.idm.core.model.dto.IdmScriptAuthorityDto;
 import eu.bcvsolutions.idm.core.model.dto.filter.ScriptAuthorityFilter;
 import eu.bcvsolutions.idm.core.model.service.api.IdmScriptAuthorityService;
 

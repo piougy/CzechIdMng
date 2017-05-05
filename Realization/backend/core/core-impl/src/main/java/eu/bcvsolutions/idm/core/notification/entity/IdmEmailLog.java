@@ -5,7 +5,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "idm_notification_email")
-public class IdmEmailLog extends IdmNotification {
+public class IdmEmailLog extends IdmNotificationLog {
 	
 	private static final long serialVersionUID = -6492542811469689133L;
 	public static final String NOTIFICATION_TYPE = "email";

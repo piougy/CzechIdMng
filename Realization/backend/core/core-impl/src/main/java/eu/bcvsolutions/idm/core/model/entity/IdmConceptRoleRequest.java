@@ -16,10 +16,10 @@ import org.hibernate.annotations.Type;
 import org.hibernate.envers.Audited;
 import org.joda.time.LocalDate;
 
+import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
+import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.ValidableEntity;
-import eu.bcvsolutions.idm.core.model.domain.ConceptRoleRequestOperation;
-import eu.bcvsolutions.idm.core.model.domain.RoleRequestState;
 
 /**
  * Concept for requested role.

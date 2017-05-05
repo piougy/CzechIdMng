@@ -12,11 +12,10 @@ import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
  * Interface for authenticator that will be called in {@link AuthenticationManager}.
  * Authenticator is ordered by {@link Ordered}, default order is in
  * {@link Authenticator.DEFAULT_AUTHENTICATOR_ORDER}
- * 
+ * <p>
  * TODO: better ordered {@link PriorityOrdered}
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
- *
  */
 
 public interface Authenticator extends Ordered {

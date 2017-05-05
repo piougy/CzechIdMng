@@ -7,7 +7,6 @@ import org.hibernate.EmptyInterceptor;
 import org.hibernate.type.Type;
 
 import com.google.common.collect.Sets;
-
 import eu.bcvsolutions.idm.core.api.domain.Auditable;
 
 /**

@@ -39,7 +39,7 @@ public interface BaseNotification {
 	 * Notification sender - could be filled, when notification is send from
 	 * some identity
 	 * 
-	 * @param sender
+	 * @param identitySender
 	 */
 	void setIdentitySender(IdmIdentity identitySender);
 

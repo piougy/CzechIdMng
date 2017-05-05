@@ -11,7 +11,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "idm_notification_console")
-public class IdmConsoleLog extends IdmNotification {
+public class IdmConsoleLog extends IdmNotificationLog {
 	
 	private static final long serialVersionUID = -6492542811469689133L;
 	public static final String NOTIFICATION_TYPE = "console";

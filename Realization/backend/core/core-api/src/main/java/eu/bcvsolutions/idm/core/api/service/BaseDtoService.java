@@ -7,9 +7,8 @@ import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 /**
  * All DTO services using this interface.
  * 
- * @author Svanda
- *
  * @param <T> {@link BaseDto} type
+ * @author Svanda
  */
 public interface BaseDtoService<DTO extends BaseDto> extends Plugin<Class<?>> {
 

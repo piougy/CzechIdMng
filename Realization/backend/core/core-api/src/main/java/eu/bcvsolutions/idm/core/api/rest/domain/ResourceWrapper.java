@@ -6,10 +6,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 
 /**
- * 
- * @author svandav
- *
  * @param <T> dto for resource
+ * @author svandav
  * @deprecated use Resource or Resources from spring instead
  */
 @Deprecated

@@ -8,9 +8,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmConsoleLogDto;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationDto;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationRecipientDto;
 import eu.bcvsolutions.idm.core.notification.entity.IdmConsoleLog;
-import eu.bcvsolutions.idm.core.notification.entity.IdmNotification;
-import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationRecipient;
 import eu.bcvsolutions.idm.core.notification.service.api.ConsoleNotificationSender;
 import eu.bcvsolutions.idm.core.notification.service.api.IdmConsoleLogService;
 
@@ -21,7 +22,7 @@ import eu.bcvsolutions.idm.core.notification.service.api.IdmConsoleLogService;
  *
  */
 @Component("consoleNotificationSender")
-public class DefaultConsoleNotificationSender extends AbstractNotificationSender<IdmConsoleLog> implements ConsoleNotificationSender {
+public class DefaultConsoleNotificationSender extends AbstractNotificationSender<IdmConsoleLogDto> implements ConsoleNotificationSender {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultConsoleNotificationSender.class);
 	private final IdmConsoleLogService emailConsoleService;
@@ -34,12 +35,17 @@ public class DefaultConsoleNotificationSender extends AbstractNotificationSender
 	}
 	
 	@Override
+	public String getType() {
+		return IdmConsoleLog.NOTIFICATION_TYPE;
+	}
+
+	@Override
 	@Transactional
-	public IdmConsoleLog send(IdmNotification notification) {
-		Assert.notNull(notification, "Noticition is required!");
+	public IdmConsoleLogDto send(IdmNotificationDto notification) {
+		Assert.notNull(notification, "Notification is required!");
 		//
 		LOG.info("Sending notification to console [{}]", notification);
-		IdmConsoleLog log = createLog(notification);
+		IdmConsoleLogDto log = createLog(notification);
 		System.out.println(MessageFormat.format("Sending notification [{0}]", createLogForSend(notification, true)));
 		return log;
 	}
@@ -50,7 +56,7 @@ public class DefaultConsoleNotificationSender extends AbstractNotificationSender
 	 * @param notification
 	 * @return
 	 */
-	private IdmConsoleLog createLog(IdmNotification notification) {
+	private IdmConsoleLogDto createLog(IdmNotificationDto notification) {
 		return emailConsoleService.save(createLogForSend(notification, false));
 	}
 	
@@ -61,18 +67,18 @@ public class DefaultConsoleNotificationSender extends AbstractNotificationSender
 	 * @param showGuardedString
 	 * @return
 	 */
-	private IdmConsoleLog createLogForSend(IdmNotification notification, boolean showGuardedString) {
+	private IdmConsoleLogDto createLogForSend(IdmNotificationDto notification, boolean showGuardedString) {
 		Assert.notNull(notification);
 		Assert.notNull(notification.getMessage());
 		//
-		IdmConsoleLog notificationLog = new IdmConsoleLog();
+		IdmConsoleLogDto notificationLog = new IdmConsoleLogDto();
 		notificationLog.setSent(new DateTime());
-		notificationLog.setParent(notification);
+		notificationLog.setParent(notification.getId());
 		// clone message
 		notificationLog.setMessage(getMessage(notification, showGuardedString));
 		// clone recipients - real recipient is console
 		notification.getRecipients().forEach(recipient -> {
-			notificationLog.getRecipients().add(new IdmNotificationRecipient(notificationLog, recipient.getIdentityRecipient(), IdmConsoleLog.NOTIFICATION_TYPE));
+			notificationLog.getRecipients().add(new IdmNotificationRecipientDto(notificationLog.getId(), recipient.getIdentityRecipient(), IdmConsoleLog.NOTIFICATION_TYPE));
 		});
 		// clone from - resolve real email
 		notificationLog.setIdentitySender(notification.getIdentitySender());

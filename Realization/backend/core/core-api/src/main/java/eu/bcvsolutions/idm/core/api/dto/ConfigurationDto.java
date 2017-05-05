@@ -4,7 +4,6 @@ package eu.bcvsolutions.idm.core.api.dto;
  * Configuration item
  * 
  * @author Radek Tomiška 
- *
  */
 public class ConfigurationDto {
 
@@ -68,6 +67,7 @@ public class ConfigurationDto {
 	
 	/**
 	 * Secured negate alias
+     *
 	 * @return
 	 */
 	public boolean isPublic() {

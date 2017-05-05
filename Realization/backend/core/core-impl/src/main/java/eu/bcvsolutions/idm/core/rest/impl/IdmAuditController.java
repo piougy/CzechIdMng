@@ -6,6 +6,7 @@ import java.util.Map;
 
 import javax.validation.constraints.NotNull;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
@@ -23,17 +24,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.common.collect.ImmutableMap;
-
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.dto.IdmAuditDiffDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmAuditDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.AuditFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadEntityController;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
-import eu.bcvsolutions.idm.core.model.dto.IdmAuditDiffDto;
-import eu.bcvsolutions.idm.core.model.dto.IdmAuditDto;
-import eu.bcvsolutions.idm.core.model.dto.filter.AuditFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmAudit;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuditService;
 
@@ -51,6 +51,10 @@ public class IdmAuditController extends AbstractReadEntityController<IdmAudit, A
 
 	@Autowired
 	private IdmAuditService auditService;
+	
+	//TODO: change to use dtos properly via service
+	@Autowired
+	ModelMapper mapper;
 	
 	@Autowired
 	public IdmAuditController(EntityLookupService entityLookupService) {
@@ -97,7 +101,8 @@ public class IdmAuditController extends AbstractReadEntityController<IdmAudit, A
 		revisionValues = auditService.getValuesFromVersion(revision);
 		
 		// create DTO and fill with values from IdmAudit
-		IdmAuditDto auditDto = new IdmAuditDto(audit);
+		IdmAuditDto auditDto = new IdmAuditDto();
+		mapper.map(audit, auditDto);
 		auditDto.setRevisionValues(revisionValues);
 		
 		ResponseEntity<IdmAuditDto> resource = new ResponseEntity<IdmAuditDto>(auditDto, HttpStatus.OK);
@@ -119,7 +124,8 @@ public class IdmAuditController extends AbstractReadEntityController<IdmAudit, A
 			
 			// previous version dost'n exist
 			if (previousAudit != null) {
-				dto = new IdmAuditDto(previousAudit);
+				dto = new IdmAuditDto();
+				mapper.map(previousAudit, dto);
 				dto.setRevisionValues(
 						auditService.getValuesFromVersion(
 								auditService.getPreviousVersion(

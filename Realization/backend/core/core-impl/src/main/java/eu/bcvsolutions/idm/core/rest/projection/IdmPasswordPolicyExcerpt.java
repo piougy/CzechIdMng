@@ -2,9 +2,9 @@ package eu.bcvsolutions.idm.core.rest.projection;
 
 import org.springframework.data.rest.core.config.Projection;
 
+import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyGenerateType;
+import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyType;
 import eu.bcvsolutions.idm.core.api.rest.projection.AbstractDtoProjection;
-import eu.bcvsolutions.idm.core.model.domain.IdmPasswordPolicyGenerateType;
-import eu.bcvsolutions.idm.core.model.domain.IdmPasswordPolicyType;
 import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
 
 /**

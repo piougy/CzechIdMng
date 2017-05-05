@@ -7,7 +7,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import eu.bcvsolutions.idm.core.notification.entity.IdmNotification;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationDto;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationLogDto;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationLog;
 import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationLogService;
 import eu.bcvsolutions.idm.core.notification.service.api.NotificationManager;
@@ -19,7 +20,7 @@ import eu.bcvsolutions.idm.core.notification.service.api.NotificationManager;
  *
  */
 @Component("notificationManager")
-public class DefaultNotificationManager extends AbstractNotificationSender<IdmNotificationLog> implements NotificationManager {
+public class DefaultNotificationManager extends AbstractNotificationSender<IdmNotificationLogDto> implements NotificationManager {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultNotificationManager.class);
 	private final IdmNotificationLogService notificationLogService;
@@ -38,21 +39,26 @@ public class DefaultNotificationManager extends AbstractNotificationSender<IdmNo
 	}
 	
 	@Override
+	public String getType() {
+		return IdmNotificationLog.NOTIFICATION_TYPE;
+	}
+
+	@Override
 	@Transactional
-	public IdmNotificationLog send(IdmNotification notification) {
+	public IdmNotificationLogDto send(IdmNotificationDto notification) {
 		Assert.notNull(notification, "Notification is required!");
 		//
-		IdmNotificationLog notificationLog = (IdmNotificationLog) createLog(notification);
+		IdmNotificationLogDto notificationLog = createLog(notification);
 		return sendNotificationLog(notificationLog);
 	}
 	
 	/**
 	 * Sends existing notification to routing
 	 * 
-	 * @param notification
+	 * @param notificationLog
 	 * @return
 	 */
-	private IdmNotificationLog sendNotificationLog(IdmNotificationLog notificationLog) {
+	private IdmNotificationLogDto sendNotificationLog(IdmNotificationLogDto notificationLog) {
 		LOG.info("Sending notification [{}]", notificationLog);
 		// send notification to routing
 		producerTemplate.sendBody("direct:notifications", notificationLog);
@@ -65,16 +71,16 @@ public class DefaultNotificationManager extends AbstractNotificationSender<IdmNo
 	 * @param notification
 	 * @return
 	 */
-	private IdmNotification createLog(IdmNotification notification) {
+	private IdmNotificationLogDto createLog(IdmNotificationDto notification) {
 		Assert.notNull(notification);
 		Assert.notNull(notification.getMessage());
 		// we can only create log, if notification is instance of IdmNotificationLog
-		if (notification instanceof IdmNotificationLog) {
+		if (notification instanceof IdmNotificationLogDto) {
 			notification.setSent(new DateTime());
-			return notificationLogService.save((IdmNotificationLog) notification);
+			return notificationLogService.save((IdmNotificationLogDto) notification);
 		}
 		// we need to clone notification
-		IdmNotificationLog notificationLog = new IdmNotificationLog();
+		IdmNotificationLogDto notificationLog = new IdmNotificationLogDto();
 		notificationLog.setSent(new DateTime());
 		// clone message
 		notificationLog.setMessage(cloneMessage(notification));

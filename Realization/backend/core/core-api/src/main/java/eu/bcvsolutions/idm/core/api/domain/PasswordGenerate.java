@@ -5,7 +5,6 @@ package eu.bcvsolutions.idm.core.api.domain;
  * password with {@link PasswordGenerator}
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
- *
  */
 
 public interface PasswordGenerate {

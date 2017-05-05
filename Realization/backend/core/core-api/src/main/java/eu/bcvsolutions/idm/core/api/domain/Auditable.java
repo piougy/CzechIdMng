@@ -8,7 +8,6 @@ import org.joda.time.DateTime;
  * Base audit information
  * 
  * @author Radek Tomiška 
- *
  */
 public interface Auditable {
 	
@@ -26,6 +25,7 @@ public interface Auditable {
 	
 	/**
 	 * Entity identifier
+     *
 	 * @return
 	 */
 	UUID getId();

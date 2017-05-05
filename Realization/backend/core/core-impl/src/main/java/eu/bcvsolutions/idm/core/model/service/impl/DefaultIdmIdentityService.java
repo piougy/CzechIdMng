@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -13,6 +14,7 @@ import javax.persistence.criteria.Subquery;
 
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -24,14 +26,13 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
-
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdentityFilter;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
-import eu.bcvsolutions.idm.core.api.utils.RepositoryUtils;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.eav.service.impl.AbstractFormableService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
-import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
-import eu.bcvsolutions.idm.core.model.dto.filter.IdentityFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmAuthorityChange;
 import eu.bcvsolutions.idm.core.model.entity.IdmContractGuarantee_;
 import eu.bcvsolutions.idm.core.model.entity.IdmForestIndexEntity_;
@@ -57,6 +58,7 @@ import eu.bcvsolutions.idm.core.model.repository.IdmAuthorityChangeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.model.service.api.SubordinatesCriteriaBuilder;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
@@ -78,6 +80,8 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 	private final IdmAuthorityChangeRepository authChangeRepository;
 	private final EntityEventManager entityEventManager;
 	private final SubordinatesCriteriaBuilder subordinatesCriteriaBuilder;
+	private final ModelMapper mapper;
+	private final IdmTreeNodeService treeNodeService;
 	
 	@Autowired
 	public DefaultIdmIdentityService(
@@ -86,19 +90,23 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 			IdmRoleRepository roleRepository,
 			EntityEventManager entityEventManager,
 			IdmAuthorityChangeRepository authChangeRepository,
-			SubordinatesCriteriaBuilder subordinatesCriteriaBuilder) {
+			SubordinatesCriteriaBuilder subordinatesCriteriaBuilder, ModelMapper mapper, IdmTreeNodeService treeNodeService) {
 		super(repository, formService);
 		//
 		Assert.notNull(roleRepository);
 		Assert.notNull(entityEventManager);
 		Assert.notNull(subordinatesCriteriaBuilder);
 		Assert.notNull(authChangeRepository);
+		Assert.notNull(mapper);
+		Assert.notNull(treeNodeService);
 		//
 		this.repository = repository;
 		this.roleRepository = roleRepository;
 		this.authChangeRepository = authChangeRepository;
 		this.entityEventManager = entityEventManager;
 		this.subordinatesCriteriaBuilder = subordinatesCriteriaBuilder;
+		this.mapper = mapper;
+		this.treeNodeService = treeNodeService;
 	}
 	
 	@Override
@@ -246,7 +254,7 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 			}
 		}
 		// identity with any of given role (OR)
-		List<IdmRole> roles = filter.getRoles();
+		List<UUID> roles = filter.getRoles();
 		if (!roles.isEmpty()) {
 			Subquery<IdmIdentityRole> subquery = query.subquery(IdmIdentityRole.class);
 			Root<IdmIdentityRole> subRoot = subquery.from(IdmIdentityRole.class);
@@ -254,7 +262,7 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 			subquery.where(
                     builder.and(
                     		builder.equal(subRoot.get(IdmIdentityRole_.identityContract).get(IdmIdentityContract_.identity), root), // correlation attr
-                    		subRoot.get(IdmIdentityRole_.role).get(IdmRole_.id).in(RepositoryUtils.queryEntityIds(roles))
+                    		subRoot.get(IdmIdentityRole_.role).get(IdmRole_.id).in(roles)
                     		)
             );			
 			predicates.add(builder.exists(subquery));
@@ -279,13 +287,15 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 			subquery.select(subRoot);
 			//
 			if (filter.isRecursively()) {
+				//TODO: Think of a way how to do this without the additional treenode query
+				final IdmTreeNode treeNode = treeNodeService.get(filter.getTreeNode());
 				subquery.where(
 	                    builder.and(
 	                    		builder.equal(subRoot.get(IdmIdentityContract_.identity), root), // correlation attr
 	                    		builder.between(
 	                    				subRoot.get(IdmIdentityContract_.workPosition).get(IdmTreeNode_.forestIndex).get(IdmForestIndexEntity_.lft), 
-	                    				filter.getTreeNode().getLft(), 
-	                    				filter.getTreeNode().getRgt())
+										treeNode.getLft(),
+										treeNode.getRgt())
 	                    		)
 	            );
 			} else {
@@ -317,11 +327,12 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 		//
 		// subordinates
 		if (filter.getSubordinatesFor() != null) {
-			predicates.add(subordinatesCriteriaBuilder.getSubordinatesPredicate(root, query, builder, filter.getSubordinatesFor().getUsername(), filter.getSubordinatesByTreeType()));
+			predicates.add(subordinatesCriteriaBuilder.getSubordinatesPredicate(root, query, builder, filter.getSubordinatesFor(), filter.getSubordinatesByTreeType()));
 		}
 		// managers
 		if (filter.getManagersFor() != null) {
-			predicates.add(subordinatesCriteriaBuilder.getManagersPredicate(root, query, builder, filter.getManagersFor().getUsername(), filter.getManagersByTreeType()));
+
+			predicates.add(subordinatesCriteriaBuilder.getManagersPredicate(root, query, builder, filter.getManagersFor(), filter.getManagersByTreeType()));
 		}
 		//
 		return builder.and(predicates.toArray(new Predicate[predicates.size()]));
@@ -333,6 +344,22 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 		return repository.findOneByUsername(username);
 	}
 	
+	@Override
+	public IdmIdentityDto getDtoByUsername(String username) {
+		final IdmIdentity entity = getByUsername(username);
+		final IdmIdentityDto dto = new IdmIdentityDto();
+		mapper.map(entity, dto);
+		return dto;
+	}
+
+	@Override
+	public IdmIdentityDto getDto(Serializable id) {
+		final IdmIdentity entity = get(id);
+		final IdmIdentityDto dto = new IdmIdentityDto();
+		mapper.map(entity, dto);
+		return dto;
+	}
+
 	@Override
 	@Transactional(readOnly = true)
 	public IdmIdentity getByName(String username) {
@@ -382,7 +409,7 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 	/**
 	 * Find all identities by assigned role name
 	 * 
-	 * @param Role name
+	 * @param roleName
 	 * @return Identities with give role
 	 */
 	@Override
@@ -438,10 +465,10 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 		Assert.notNull(forIdentity, "Identity is required");
 		//		
 		IdentityFilter filter = new IdentityFilter();
-		filter.setManagersFor(forIdentity);
-		filter.setManagersByTreeType(byTreeType);
+		filter.setManagersFor(forIdentity == null ? null : forIdentity.getUsername());
+		filter.setManagersByTreeType(byTreeType == null ? null : byTreeType.getId());
 		//
-		List<IdmIdentity> results = new ArrayList<IdmIdentity>();		
+		List<IdmIdentity> results = new ArrayList<>();
 		Page<IdmIdentity> managers = find(filter, new PageRequest(0, 50, Sort.Direction.ASC, "username"));
 		results.addAll(managers.getContent());
 		while (managers.hasNext()) {
@@ -473,9 +500,9 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 	 */
 	@Override
 	public boolean containsUser(List<IdmIdentity> identities, String username){
-		return identities.stream().filter(identity -> {
+		return identities.stream().anyMatch(identity -> {
 			return identity.getUsername().equals(username);
-		}).findFirst().isPresent();
+		});
 	}
 	
 	/**

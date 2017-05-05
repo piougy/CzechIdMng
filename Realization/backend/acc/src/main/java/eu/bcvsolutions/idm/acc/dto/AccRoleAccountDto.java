@@ -6,7 +6,7 @@ import org.springframework.hateoas.core.Relation;
 
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
-import eu.bcvsolutions.idm.core.model.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 
 /**
  * Role account DTO

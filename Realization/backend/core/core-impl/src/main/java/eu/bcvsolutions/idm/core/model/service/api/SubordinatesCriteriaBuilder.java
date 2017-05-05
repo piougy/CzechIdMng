@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.model.service.api;
 
+import java.util.UUID;
+
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
@@ -9,7 +11,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 
 /**
  * Subordinates criteria builder.
@@ -34,7 +35,7 @@ public interface SubordinatesCriteriaBuilder {
 	 * @return
 	 */
 	Predicate getSubordinatesPredicate(Root<IdmIdentity> root, CriteriaQuery<?> query, CriteriaBuilder builder, 
-			String subordinatesFor, IdmTreeType byTreeType);
+									   String subordinatesFor, UUID byTreeType);
 	
 	/**
 	 * Predicate for manager
@@ -47,7 +48,7 @@ public interface SubordinatesCriteriaBuilder {
 	 * @return
 	 */
 	Predicate getManagersPredicate(Root<IdmIdentity> root, CriteriaQuery<?> query, CriteriaBuilder builder, 
-			String managersFor, IdmTreeType byTreeType);
+								   String managersFor, UUID byTreeType);
 	
 	/**
 	 * Returns given identity's managers
@@ -57,6 +58,6 @@ public interface SubordinatesCriteriaBuilder {
 	 * @param pageable
 	 * @return
 	 */
-	Page<IdmIdentity> getManagers(String managersFor, IdmTreeType byTreeType , Pageable pageable);
+	Page<IdmIdentity> getManagers(String managersFor, UUID byTreeType , Pageable pageable);
 	
 }

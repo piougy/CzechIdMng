@@ -26,7 +26,6 @@ import org.springframework.web.util.UrlPathHelper;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
-
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.api.rest.domain.NotExportedAssociations;
 import eu.bcvsolutions.idm.core.api.rest.domain.RequestResourceResolver;

@@ -1,14 +1,16 @@
 package eu.bcvsolutions.idm.core.model.service.api;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
 
 import org.joda.time.DateTime;
 
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdentityFilter;
 import eu.bcvsolutions.idm.core.api.service.IdentifiableByNameEntityService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
-import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
-import eu.bcvsolutions.idm.core.model.dto.filter.IdentityFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
@@ -35,6 +37,20 @@ public interface IdmIdentityService extends
 	 * @return
 	 */
 	IdmIdentity getByUsername(String username);
+
+	/**
+	 * Returns identity by given username
+	 * @param username
+	 * @return
+	 */
+	IdmIdentityDto getDtoByUsername(String username);
+
+	/**
+	 * Returns identity by given id
+	 * @param id
+	 * @return
+	 */
+	IdmIdentityDto getDto(Serializable id);
 
 	/**
 	 * Better "toString"
@@ -64,7 +80,7 @@ public interface IdmIdentityService extends
 	/**
 	 * Find all identities by assigned role name
 	 * 
-	 * @param Role name
+	 * @param roleName
 	 * @return List of IdmIdentity with assigned role
 	 */
 	List<IdmIdentity> findAllByRoleName(String roleName);
@@ -82,7 +98,7 @@ public interface IdmIdentityService extends
 	/**
 	 * Method finds all identity's managers by identity contract and return managers
 	 * 
-	 * @param id
+	 * @param identityId
 	 * @return String - usernames separate by commas
 	 */
 	List<IdmIdentity> findAllManagers(UUID identityId);

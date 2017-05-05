@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.notification.service.api;
 
-import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
+import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmConsoleLogDto;
 import eu.bcvsolutions.idm.core.notification.dto.filter.NotificationFilter;
 import eu.bcvsolutions.idm.core.notification.entity.IdmConsoleLog;
 
@@ -10,6 +11,6 @@ import eu.bcvsolutions.idm.core.notification.entity.IdmConsoleLog;
  * @author Radek Tomiška
  *
  */
-public interface IdmConsoleLogService extends ReadWriteEntityService<IdmConsoleLog, NotificationFilter> {
+public interface IdmConsoleLogService extends ReadWriteDtoService<IdmConsoleLogDto, IdmConsoleLog, NotificationFilter> {
 
 }

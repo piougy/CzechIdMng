@@ -7,11 +7,11 @@ import org.joda.time.LocalDate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import eu.bcvsolutions.idm.core.api.domain.RecursionType;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdentityContractFilter;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
-import eu.bcvsolutions.idm.core.model.domain.RecursionType;
-import eu.bcvsolutions.idm.core.model.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.model.dto.filter.ContractGuaranteeFilter;
-import eu.bcvsolutions.idm.core.model.dto.filter.IdentityContractFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
@@ -22,16 +22,16 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
  * @author Radek Tomiška
  *
  */
-public interface IdmIdentityContractService extends 
-		ReadWriteDtoService<IdmIdentityContractDto, IdmIdentityContract, IdentityContractFilter>,
-		AuthorizableService<IdmIdentityContractDto, ContractGuaranteeFilter> {
+public interface IdmIdentityContractService extends
+	ReadWriteDtoService<IdmIdentityContractDto, IdmIdentityContract, IdentityContractFilter>,
+	AuthorizableService<IdmIdentityContractDto, ContractGuaranteeFilter> {
 	
 	static final String DEFAULT_POSITION_NAME = "Default"; // TODO: to configuration manager?
 	
 	/**
 	 * Returns working positions for given identity
 	 * 
-	 * @param identity
+	 * @param identityId
 	 * @return
 	 */
 	List<IdmIdentityContractDto> findAllByIdentity(UUID identityId);
@@ -59,7 +59,7 @@ public interface IdmIdentityContractService extends
 	 * Constructs default contract for given identity by configuration.
 	 * 
 	 * @see {@link IdmTreeTypeService#getDefaultTreeType()}
-	 * @param identity
+	 * @param identityId
 	 * @return
 	 */
 	IdmIdentityContractDto prepareDefaultContract(UUID identityId);	

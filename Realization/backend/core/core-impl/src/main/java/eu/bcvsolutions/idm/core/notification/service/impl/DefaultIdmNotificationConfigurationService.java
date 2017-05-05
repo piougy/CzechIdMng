@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,21 +16,21 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
-
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.filter.EmptyFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
+import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
-import eu.bcvsolutions.idm.core.notification.domain.BaseNotification;
+import eu.bcvsolutions.idm.core.notification.api.dto.BaseNotification;
+import eu.bcvsolutions.idm.core.notification.api.dto.NotificationConfigurationDto;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationConfiguration;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationLog;
-import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationTemplate;
 import eu.bcvsolutions.idm.core.notification.repository.IdmNotificationConfigurationRepository;
 import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationConfigurationService;
 import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationTemplateService;
 import eu.bcvsolutions.idm.core.notification.service.api.NotificationSender;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 
 /**
  * Configuration for notification routing
@@ -39,7 +40,7 @@ import eu.bcvsolutions.idm.core.notification.service.api.NotificationSender;
  */
 @Service
 public class DefaultIdmNotificationConfigurationService 
-		extends AbstractReadWriteEntityService<IdmNotificationConfiguration, EmptyFilter> 
+		extends AbstractReadWriteDtoService<NotificationConfigurationDto, IdmNotificationConfiguration, EmptyFilter>
 		implements IdmNotificationConfigurationService {
 	
 	private final IdmNotificationConfigurationRepository repository;
@@ -66,15 +67,15 @@ public class DefaultIdmNotificationConfigurationService
 	}
 	
 	@Override
-	public IdmNotificationConfiguration save(IdmNotificationConfiguration entity) {
+	public NotificationConfigurationDto save(NotificationConfigurationDto dto, BasePermission... permission) {
 		// create wild card, check if exist any another
-		if (entity.getLevel() == null) {
-			IdmNotificationConfiguration wildcard = repository.findNotificationByTopicLevel(entity.getTopic(), null);
-			if (wildcard != null && !wildcard.equals(entity)) {
-				throw new ResultCodeException(CoreResultCode.NOTIFICATION_TOPIC_AND_LEVEL_EXISTS, ImmutableMap.of("topic", entity.getTopic()));
+		if (dto.getLevel() == null) {
+			IdmNotificationConfiguration wildcard = repository.findNotificationByTopicLevel(dto.getTopic(), null);
+			if (wildcard != null && !wildcard.equals(dto)) {
+				throw new ResultCodeException(CoreResultCode.NOTIFICATION_TOPIC_AND_LEVEL_EXISTS, ImmutableMap.of("topic", dto.getTopic()));
 			}
 		}
-		return super.save(entity);
+		return super.save(dto);
 	}
 	
 	/**
@@ -90,10 +91,10 @@ public class DefaultIdmNotificationConfigurationService
 				Long count = repository.countByTopic(topic);
 				if (topicToCreate.contains(topic) || count == 0) {
 					topicToCreate.add(topic);
-					IdmNotificationTemplate template = notificationTemplateService.getTemplateByCode(config.getNotificationTemplateCode());
-					IdmNotificationConfiguration notConfiguration = new IdmNotificationConfiguration(config);
+					UUID template = config.getTemplate();
+					NotificationConfigurationDto notConfiguration = new NotificationConfigurationDto(config);
 					notConfiguration.setTemplate(template);
-					repository.save(notConfiguration);
+					repository.save(toEntity(notConfiguration, null));
 				}
 			});
 		});
@@ -116,7 +117,9 @@ public class DefaultIdmNotificationConfigurationService
 			return getDefaultSenders();
 		}
 		List<NotificationSender<?>> senders = new ArrayList<>();
-		repository.findTypes(topic, notification.getMessage().getLevel()).forEach(type -> {
+		final NotificationLevel lvl = notification.getMessage().getLevel();
+		final List<String> types = repository.findTypes(topic, lvl);
+		types.forEach(type -> {
 			if (notificationSenders.hasPluginFor(type)) {
 				senders.add(notificationSenders.getPluginFor(type));
 			}
@@ -141,8 +144,9 @@ public class DefaultIdmNotificationConfigurationService
 	}
 
 	@Override
-	public IdmNotificationConfiguration getConfigurationByTopicLevelNotification(String topic, NotificationLevel level) {
-		return this.repository.findNotificationByTopicLevel(topic, level);
+	public NotificationConfigurationDto getConfigurationByTopicLevelNotification(String topic, NotificationLevel level) {
+		final IdmNotificationConfiguration entity = this.repository.findNotificationByTopicLevel(topic, level);
+		return toDto(entity);
 	}
 
 }

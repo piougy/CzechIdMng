@@ -8,7 +8,6 @@ import java.util.Map;
  * Basic exception with named parameters
  * 
  * @author Radek Tomiška 
- *
  */
 public class CoreException extends RuntimeException {
 

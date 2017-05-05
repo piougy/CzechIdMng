@@ -14,15 +14,15 @@ import java.util.UUID;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+import org.modelmapper.ModelMapper;
 import org.springframework.security.core.GrantedAuthority;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
-import eu.bcvsolutions.idm.core.model.dto.IdmIdentityContractDto;
-import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleComposition;
@@ -68,6 +68,8 @@ public class DefaultGrantedAuthoritiesFactoryTest extends AbstractUnitTest {
 	private IdmAuthorizationPolicyService authorizationPolicyService;
 	@Mock
 	private IdmRoleService roleService;
+	@Mock
+	private ModelMapper modelMapper;
 	//
 	private DefaultGrantedAuthoritiesFactory defaultGrantedAuthoritiesFactory;
 	
@@ -105,7 +107,8 @@ public class DefaultGrantedAuthoritiesFactoryTest extends AbstractUnitTest {
 				identityService, 
 				identityRoleService, 
 				authorizationPolicyService,
-				roleService);
+				roleService,
+				modelMapper);
 	}
 	
 	// TODO: enable after subroles rewrite

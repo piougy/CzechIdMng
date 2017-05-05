@@ -66,7 +66,7 @@ Input variables:
       <documentation>Identity role with given ID not found</documentation>
     </endEvent>
     <scriptTask id="scripttask4" name="Set DISAPPROVED state to concept" scriptFormat="groovy" activiti:autoStoreVariables="false">
-      <script>import eu.bcvsolutions.idm.core.model.domain.RoleRequestState;
+      <script>import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
  
 // Set and save state DISAPPROVED to concept
 def conceptDto = conceptRoleRequestService.getDto(conceptRole.id);
@@ -76,7 +76,7 @@ conceptRoleRequestService.save(conceptDto);</script>
     <sequenceFlow id="flow32" sourceRef="scripttask4" targetRef="endevent1"></sequenceFlow>
     <sequenceFlow id="flow34" sourceRef="servicetask5" targetRef="scripttask11"></sequenceFlow>
     <scriptTask id="scripttask5" name="Set APPROVED state to concept" scriptFormat="groovy" activiti:autoStoreVariables="false">
-      <script>import eu.bcvsolutions.idm.core.model.domain.RoleRequestState;
+      <script>import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
  
 // Set and save state APPROVED to concept
 def conceptDto = conceptRoleRequestService.getDto(conceptRole.id);
@@ -92,7 +92,7 @@ conceptRoleRequestService.save(conceptDto);</script>
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[#{identityRoleService.get(conceptRole.identityRole) != null}]]></conditionExpression>
     </sequenceFlow>
     <scriptTask id="scripttask7" name="Set CANCELED state to concept" scriptFormat="groovy" activiti:autoStoreVariables="false">
-      <script>import eu.bcvsolutions.idm.core.model.domain.RoleRequestState;
+      <script>import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
  
 // Set and save state CANCELED to concept
 def conceptDto = conceptRoleRequestService.getDto(conceptRole.id);
@@ -103,7 +103,7 @@ conceptRoleRequestService.save(conceptDto);</script>
     <sequenceFlow id="flow38" sourceRef="scripttask7" targetRef="endevent5"></sequenceFlow>
     <sequenceFlow id="flow39" sourceRef="exclusivegateway1" targetRef="scripttask10"></sequenceFlow>
     <scriptTask id="scripttask8" name="Set IN_PROGRESS state to concept" scriptFormat="groovy" activiti:autoStoreVariables="false">
-      <script>import eu.bcvsolutions.idm.core.model.domain.RoleRequestState;
+      <script>import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
  
 // Set and save state IN_PROGRESS to concept
 def conceptDto = conceptRoleRequestService.getDto(conceptRole.id);

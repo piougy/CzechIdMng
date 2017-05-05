@@ -25,6 +25,10 @@ export default class NotificationService extends AbstractService {
     return super.getDefaultSearchParameters().setName(SearchParameters.NAME_QUICK).clearSort().setSort('topic');
   }
 
+  supportsPatch() {
+    return false;
+  }
+
   /**
    * Returns supported notification types
    *

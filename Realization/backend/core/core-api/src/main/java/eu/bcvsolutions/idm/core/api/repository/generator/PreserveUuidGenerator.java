@@ -10,14 +10,12 @@ import org.hibernate.id.UUIDGenerator;
  * Preserve given uuid, if was given. Otherwise generate new uuid.
  * 
  * @author Radek Tomiška
- *
  */
 public class PreserveUuidGenerator extends UUIDGenerator {
 
 	/**
-	 * 
 	 * Preserve given uuid, if was given. Otherwise generate new uuid.
-	 * 
+     * <p>
 	 * {@inheritDoc}
 	 */
 	@Override

@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
-
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
@@ -23,7 +22,7 @@ import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.EventContext;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
-import eu.bcvsolutions.idm.core.notification.entity.IdmMessage;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
 import eu.bcvsolutions.idm.core.notification.service.api.NotificationManager;
 
 /**
@@ -91,7 +90,7 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 			if (OperationState.NOT_EXECUTED == request.getResult().getState()) {
 				notificationManager.send(
 						AccModuleDescriptor.TOPIC_PROVISIONING,
-						new IdmMessage.Builder()
+						new IdmMessageDto.Builder()
 						.setModel(request.getResult().getModel())
 						.build());
 				return provisioningOperation;

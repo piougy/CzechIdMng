@@ -8,7 +8,6 @@ import eu.bcvsolutions.idm.core.api.domain.Identifiable;
  * Any dto has identifier
  * 
  * @author Radek Tomiška 
- *
  */
 public interface BaseDto extends Identifiable, Serializable {
 	

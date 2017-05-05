@@ -1,7 +1,8 @@
 package eu.bcvsolutions.idm.core.model.dto.filter;
 
+import eu.bcvsolutions.idm.core.api.domain.RoleType;
+import eu.bcvsolutions.idm.core.api.dto.filter.CorrelationFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
-import eu.bcvsolutions.idm.core.model.domain.RoleType;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
 
@@ -9,9 +10,9 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
  * Filter for roles
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
- *
  */
 
+//TODO: Move to API
 public class RoleFilter extends QuickFilter implements CorrelationFilter {
 
 	private RoleType roleType;

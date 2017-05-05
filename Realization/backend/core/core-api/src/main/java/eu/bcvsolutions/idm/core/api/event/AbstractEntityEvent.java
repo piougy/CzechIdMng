@@ -9,16 +9,14 @@ import org.springframework.core.ResolvableType;
 import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 
 /**
  * Event state holder (content + metadata)
  * 
- * @author Radek Tomiška
- *
  * @param <E> {@link BaseEntity}, {@link BaseDto} or any other {@link Serializable} content type
+ * @author Radek Tomiška
  */
 public abstract class AbstractEntityEvent<E extends Serializable> extends ApplicationEvent implements EntityEvent<E> {
 

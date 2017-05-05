@@ -6,7 +6,6 @@ import org.joda.time.LocalDate;
  * Entity with validity
  * 
  * @author Radek Tomiška 
- *
  */
 public interface ValidableEntity {
 	

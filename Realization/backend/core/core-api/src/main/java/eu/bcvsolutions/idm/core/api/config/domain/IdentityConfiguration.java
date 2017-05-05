@@ -3,9 +3,7 @@ package eu.bcvsolutions.idm.core.api.config.domain;
 /**
  * Configuration for identity
  * 
- * 
  * @author Radek Tomiška
- *
  */
 public interface IdentityConfiguration {
 	

@@ -8,9 +8,8 @@ import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 /**
  * Entity event processor result
  * 
- * @author Radek Tomiška
- *
  * @param <E> {@link BaseEntity}, {@link BaseDto} or any other {@link Identifiable} content type
+ * @author Radek Tomiška
  */
 public interface EventResult<E extends Serializable> extends Serializable {
 	

@@ -10,7 +10,6 @@ import com.fasterxml.jackson.databind.SerializerProvider;
  * Writes GuardedString proxy string to json
  * 
  * @author Radek Tomiška
- *
  */
 public class GuardedStringSerializer extends JsonSerializer<GuardedString> {
 

@@ -20,7 +20,6 @@ import org.springframework.util.StringUtils;
 
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
-
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
 import eu.bcvsolutions.idm.acc.domain.OperationResultType;
@@ -54,6 +53,8 @@ import eu.bcvsolutions.idm.acc.service.api.SysSyncLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.TreeNodeFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
@@ -61,8 +62,6 @@ import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.model.domain.EntityUtilities;
-import eu.bcvsolutions.idm.core.model.dto.IdmTreeNodeDto;
-import eu.bcvsolutions.idm.core.model.dto.filter.TreeNodeFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.event.TreeNodeEvent;
 import eu.bcvsolutions.idm.core.model.event.TreeNodeEvent.TreeNodeEventType;
@@ -230,7 +229,6 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 
 				List<String> roots = new ArrayList<>();
 				accountsMap.forEach((uid, account) -> {
-					Object parentValue = this.getValueByMappedAttribute(parentAttribute, account.getAttributes());
 					if (StringUtils.hasLength(config.getRootsFilterScript())) {
 						Map<String, Object> variables = new HashMap<>();
 						variables.put("account", account);
@@ -250,6 +248,8 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 							roots.add(uid);
 						}
 					} else {
+						// Default search root strategy (if is parent null, then is node root)
+						Object parentValue = super.getValueByMappedAttribute(parentAttribute, account.getAttributes());
 						if (parentValue == null) {
 							roots.add(uid);
 						}
@@ -322,7 +322,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 			SynchronizationItemBuilder wrapper) {
 
 		accountsMap.forEach((uid, account) -> {
-			Object parentValue = this.getValueByMappedAttribute(parentAttribute, account.getAttributes());
+			Object parentValue = super.getValueByMappedAttribute(parentAttribute, account.getAttributes());
 			if (parentValue != null && parentValue.equals(uidValueParent)) {
 				// Account is use in tree
 				accountsUseInTreeList.add(uid);
@@ -333,7 +333,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 				if (!resultChild) {
 					return;
 				}
-				Object uidValueParentChilde = this.getValueByMappedAttribute(uidAttribute, account.getAttributes());
+				Object uidValueParentChilde = super.getValueByMappedAttribute(uidAttribute, account.getAttributes());
 				processChildren(parentAttribute, uidValueParentChilde, uidAttribute, tokenAttribute, accountsMap,
 						accountsUseInTreeList, wrapper);
 
@@ -640,7 +640,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 		
 		Object transformedValue = super.getValueByMappedAttribute(attribute, icAttributes);
 		
-		if (attribute.getIdmPropertyName().equals(PARENT_FIELD) && transformedValue != null) {
+		if (PARENT_FIELD.equals(attribute.getIdmPropertyName()) && transformedValue != null) {
 			// Find account by UID from parent field
 			AccountFilter accountFilter = new AccountFilter();
 			accountFilter.setUidId(transformedValue.toString());

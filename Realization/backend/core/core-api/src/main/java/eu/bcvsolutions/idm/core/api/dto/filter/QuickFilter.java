@@ -6,7 +6,6 @@ import java.util.UUID;
  * Quick filter - "fulltext" search
  * 
  * @author Radek Tomiška
- *
  */
 public class QuickFilter implements BaseFilter {
 	

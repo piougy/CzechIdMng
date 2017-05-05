@@ -12,7 +12,6 @@ import com.fasterxml.jackson.databind.JsonNode;
  * Reads byte array as guarded string from json.
  * 
  * @author Radek Tomiška
- *
  */
 public class GuardedStringAsByteDeserializer extends JsonDeserializer<GuardedString> {
 

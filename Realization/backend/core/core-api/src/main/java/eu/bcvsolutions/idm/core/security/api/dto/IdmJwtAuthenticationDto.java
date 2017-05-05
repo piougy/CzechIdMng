@@ -11,7 +11,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * JWT token authentication dto
  * 
  * @author svandav
- *
  */
 public class IdmJwtAuthenticationDto {
 

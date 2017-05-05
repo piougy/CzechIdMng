@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.core.model.dto;
 import java.util.List;
 
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 

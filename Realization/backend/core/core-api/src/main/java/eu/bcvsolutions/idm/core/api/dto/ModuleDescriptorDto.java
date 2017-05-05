@@ -7,7 +7,6 @@ import org.springframework.hateoas.Identifiable;
  * - adds disabled info
  * 
  * @author Radek Tomiška
- *
  */
 public class ModuleDescriptorDto implements Identifiable<String> {
 

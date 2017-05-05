@@ -11,8 +11,6 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
  * Service supports authorization evaluation.
  * 
  * @author Radek Tomiška
- * 
- * 
  * @deprecated use dtos and {@link AuthorizableService}
  */
 @Deprecated

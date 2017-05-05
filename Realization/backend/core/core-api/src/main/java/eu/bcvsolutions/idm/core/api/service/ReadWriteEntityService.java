@@ -8,9 +8,8 @@ import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 /**
  * Interface for generic CRUD operations on a repository for a specific type.
  * 
- * @author Radek Tomiška
- *
  * @param <E> {@link BaseEntity} type
+ * @author Radek Tomiška
  * @deprecated use {@link ReadWriteDtoService}
  */
 @Deprecated
@@ -45,7 +44,7 @@ public interface ReadWriteEntityService<E extends BaseEntity, F extends BaseFilt
 	/**
 	 * Deletes a given entity.
 	 * 
-	 * @param entity
+     * @param id
 	 * @throws IllegalArgumentException in case the given entity is {@literal null}.
 	 */
 	void deleteById(Serializable id);

@@ -10,7 +10,6 @@ import org.quartz.Trigger;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
-
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 
 /**

@@ -19,7 +19,6 @@ import org.springframework.context.annotation.Import;
  * FlywayAutoConfiguration extension added support for multi modular {@link Flyway} configuration.
  * 
  * @author Radek Tomiška
- *
  */
 @Configuration
 @ConditionalOnClass(Flyway.class)
@@ -33,7 +32,6 @@ public class IdmFlywayAutoConfiguration extends FlywayAutoConfiguration {
 	 * Support for multi modular {@link Flyway} configuration
 	 * 
 	 * @author Radek Tomiška
-	 *
 	 */
 	@Configuration
 	@Import(FlywayJpaDependencyConfiguration.class)
@@ -41,6 +39,7 @@ public class IdmFlywayAutoConfiguration extends FlywayAutoConfiguration {
 
 		/**
 		 * Creates module dependent {@link Flyway} configuration.
+         *
 		 * @return
 		 */
 		public Flyway createFlyway() {

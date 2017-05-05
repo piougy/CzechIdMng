@@ -8,7 +8,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 
 /**
  * Provides configuration through application
- * 
+ * <p>
  * Conventions:
  * - all managed properties should start with {@value #IDM_PROPERTY_PREFIX} prefix
  * - all public properties should start with {@value #IDM_PUBLIC_PROPERTY_PREFIX} prefix. This properties are visible for everyone (public endpoits etc.)
@@ -16,7 +16,6 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
  * - after prefix moduleId should be given - e.g. idm.pub.core.
  * 
  * @author Radek Tomiška 
- *
  */
 public interface ConfigurationService {
 	

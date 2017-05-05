@@ -5,6 +5,8 @@
 package eu.bcvsolutions.idm.core.api.utils;
 
 import java.io.Serializable;
+import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -23,6 +25,7 @@ public class EntityUtils {
 
 	private EntityUtils() {
 	}
+
 	/**
 	 * Returns true, when given entity is valid, false otherwise
 	 *
@@ -51,7 +54,7 @@ public class EntityUtils {
 	
 	/**
 	 * Returns module name by entity package (by convention) 
-	 * 
+     * <p>
 	 * TODO: Does not work for inline classes
 	 * 
 	 * @param entityClass
@@ -76,8 +79,7 @@ public class EntityUtils {
 	 * 
 	 * @param identifier {@code string} or {@link UUID} 
 	 * @return
-	 * @throws  IllegalArgumentException
-     *          If identifier does not conform to the string representation as
+     * @throws IllegalArgumentException If identifier does not conform to the string representation as
      *          described in {@link #toString}
 	 */
 	public static UUID toUuid(Serializable identifier) {
@@ -86,4 +88,23 @@ public class EntityUtils {
 		}
 		return (UUID) identifier;
 	}
+
+    public static Field getFirstFieldInClassHierarchy(Class<?> sourceType, String field) throws NoSuchFieldException {
+        Field result = getFirstFieldInClassHierarchyInternal(sourceType, field);
+        if (result == null) {
+            throw new NoSuchFieldException(String.format("No field %s found in class %s", field, sourceType));
+        }
+        return result;
+    }
+
+    private static Field getFirstFieldInClassHierarchyInternal(Class<?> sourceType, String field) {
+        if (sourceType == null || field == null) {
+            return null;
+        }
+        final Field[] fields = sourceType.getDeclaredFields();
+        return Arrays.stream(fields)
+                .filter(f -> field.equals(f.getName()))
+                .findFirst()
+                .orElseGet(() -> getFirstFieldInClassHierarchyInternal(sourceType.getSuperclass(), field));
+    }
 }

@@ -18,6 +18,10 @@ class NotificationTemplateService extends AbstractService {
     return entity.name;
   }
 
+  supportsPatch() {
+    return false;
+  }
+
   /**
    * Returns default searchParameters for notification templates
    *

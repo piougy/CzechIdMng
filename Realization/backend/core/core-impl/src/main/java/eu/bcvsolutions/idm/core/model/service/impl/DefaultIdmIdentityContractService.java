@@ -10,7 +10,7 @@ import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -19,13 +19,13 @@ import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.core.api.domain.RecursionType;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdentityContractFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
-import eu.bcvsolutions.idm.core.model.domain.RecursionType;
-import eu.bcvsolutions.idm.core.model.dto.IdmIdentityContractDto;
-import eu.bcvsolutions.idm.core.model.dto.filter.IdentityContractFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
@@ -51,7 +51,7 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
  *
  */
 public class DefaultIdmIdentityContractService 
-		extends AbstractReadWriteDtoService<IdmIdentityContractDto, IdmIdentityContract, IdentityContractFilter> 
+		extends AbstractReadWriteDtoService<IdmIdentityContractDto, IdmIdentityContract, IdentityContractFilter>
 		implements IdmIdentityContractService {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmIdentityContractService.class);
@@ -102,7 +102,7 @@ public class DefaultIdmIdentityContractService
 					);
 		}
 		if (filter.getIdentity() != null) {
-			predicates.add(builder.equal(root.get(IdmIdentityContract_.identity), filter.getIdentity()));
+			predicates.add(builder.equal(root.get(IdmIdentityContract_.identity).get(AbstractEntity_.id), filter.getIdentity()));
 		}
 		if (filter.getValidTill() != null) {
 			predicates.add(builder.lessThanOrEqualTo(root.get(IdmIdentityContract_.validTill), filter.getValidTill()));
@@ -197,7 +197,7 @@ public class DefaultIdmIdentityContractService
 	 * Returns given identity's prime contract.
 	 * If no main contract is defined, then returns the first contract with working position defined (default tree type has higher priority).
 	 * 
-	 * @param identity
+	 * @param identityId
 	 * @return
 	 */
 	@Override

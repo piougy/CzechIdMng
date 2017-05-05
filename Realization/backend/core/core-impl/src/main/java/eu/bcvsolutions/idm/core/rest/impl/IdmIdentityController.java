@@ -33,26 +33,24 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.common.collect.ImmutableMap;
-
 import eu.bcvsolutions.forest.index.service.api.ForestContentService;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdentityFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteEntityController;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.eav.rest.impl.IdmFormDefinitionController;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
-import eu.bcvsolutions.idm.core.model.dto.IdmIdentityContractDto;
-import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.model.dto.WorkPositionDto;
-import eu.bcvsolutions.idm.core.model.dto.filter.IdentityFilter;
-import eu.bcvsolutions.idm.core.model.dto.filter.IdentityRoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmAudit;
 import eu.bcvsolutions.idm.core.model.entity.IdmForestIndexEntity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
-import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.entity.eav.IdmIdentityFormValue;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuditService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
@@ -358,20 +356,22 @@ public class IdmIdentityController extends AbstractReadWriteEntityController<Idm
 		IdentityFilter filter = new IdentityFilter();
 		filter.setId(getParameterConverter().toUuid(parameters, "id"));
 		filter.setText(getParameterConverter().toString(parameters, "text"));
-		filter.setSubordinatesFor(getParameterConverter().toEntity(parameters, "subordinatesFor", IdmIdentity.class));
-		filter.setSubordinatesByTreeType(getParameterConverter().toEntity(parameters, "subordinatesByTreeType", IdmTreeType.class));
-		filter.setManagersFor(getParameterConverter().toEntity(parameters, "managersFor", IdmIdentity.class));
-		filter.setManagersByTreeType(getParameterConverter().toEntity(parameters, "managersByTreeType", IdmTreeType.class));
-		filter.setManagersByTreeNode(getParameterConverter().toEntity(parameters, "managersByTreeNode", IdmTreeNode.class));
-		filter.setTreeNode(getParameterConverter().toEntity(parameters, "treeNodeId", IdmTreeNode.class));
+		final IdmIdentity subIdentity = getParameterConverter().toEntity(parameters, "subordinatesFor", IdmIdentity.class);
+		filter.setSubordinatesFor(subIdentity == null ? null : subIdentity.getUsername());
+		filter.setSubordinatesByTreeType(getParameterConverter().toUuid(parameters, "subordinatesByTreeType"));
+		final IdmIdentity manaIdentity = getParameterConverter().toEntity(parameters, "managersFor", IdmIdentity.class);
+		filter.setManagersFor(manaIdentity == null ? null : manaIdentity.getUsername());
+		filter.setManagersByTreeType(getParameterConverter().toUuid(parameters, "managersByTreeType"));
+		filter.setManagersByTreeNode(getParameterConverter().toUuid(parameters, "managersByTreeNode"));
+		filter.setTreeNode(getParameterConverter().toUuid(parameters, "treeNodeId"));
 		filter.setRecursively(getParameterConverter().toBoolean(parameters, "recursively", true));
 		filter.setTreeTypeId(getParameterConverter().toUuid(parameters, "treeTypeId"));
 		filter.setManagersByContractId(getParameterConverter().toUuid(parameters, "managersByContractId"));
-		filter.setIncludeGuarantees(getParameterConverter().toBoolean(parameters, "includeGuarantees", false));
+		filter.setIncludeGuarantees(getParameterConverter().toBoolean(parameters, "includeGuarantees"));
 		// TODO: or / and in multivalues? OR is supported now
 		if (parameters.containsKey("role")) {
 			for(Object role : parameters.get("role")) {
-				filter.getRoles().add(getParameterConverter().toEntity((String)role, IdmRole.class));
+				filter.getRoles().add(getParameterConverter().toEntity((String)role, IdmRole.class).getId());
 			}
 		}
 		return filter;

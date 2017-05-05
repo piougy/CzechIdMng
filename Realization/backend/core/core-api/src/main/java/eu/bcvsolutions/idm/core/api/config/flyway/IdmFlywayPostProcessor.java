@@ -12,7 +12,6 @@ import org.springframework.stereotype.Component;
  * We need to use {@link FlywayMigrationStrategy} directly after module dependent {@link Flyway} is created.
  * 
  * @author Radek Tomiška
- *
  */
 @Component(IdmFlywayPostProcessor.NAME)
 public class IdmFlywayPostProcessor implements BeanPostProcessor {

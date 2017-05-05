@@ -10,7 +10,6 @@ import org.springframework.data.rest.webmvc.mapping.Associations;
  * Spring data rest Associations extension - we want to assemble embedded object to not exported repositories too.
  * 
  * @author Radek Tomiška
- *
  */
 public class NotExportedAssociations extends Associations {
 	
@@ -46,6 +45,7 @@ public class NotExportedAssociations extends Associations {
 	
 	/**
 	 * We want to assemble embedded object to not exported repositories with excerpt projection too
+     *
 	 * @param metadata
 	 * @return
 	 */

@@ -6,7 +6,6 @@ import java.io.Serializable;
  * Common object with id
  * 
  * @author Radek Tomiška
- *
  */
 public interface Identifiable {
 	

@@ -13,7 +13,6 @@ import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
  * Unique - group could have only once type. TODO: this could be extended - remove equals method etc.
  * 
  * @author Radek Tomiška
- *
  */
 public class AuthorizableType implements BaseDto {
 	

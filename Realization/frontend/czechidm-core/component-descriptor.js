@@ -52,6 +52,13 @@ module.exports = {
       'manager': require('./src/redux').TreeNodeManager
     },
     {
+      'id': 'notification-template-info',
+      'type': 'entity-info',
+      'entityType': ['notificationTemplate', 'IdmNotificationtemplate'],
+      'component': require('./src/components/advanced/NotificationTemplateInfo/NotificationTemplateInfo').default,
+      'manager': require('./src/redux').NotificationTemplateManager
+    },
+    {
       'id': 'tree-type-info',
       'type': 'entity-info',
       'entityType': ['treeType', 'IdmTreeType'],

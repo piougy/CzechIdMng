@@ -10,7 +10,6 @@ import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
  * Add default methods implementaton for {@link ModuleDescriptor}.
  * 
  * @author Radek Tomiška
- *
  */
 public abstract class AbstractModuleDescriptor implements ModuleDescriptor {
 

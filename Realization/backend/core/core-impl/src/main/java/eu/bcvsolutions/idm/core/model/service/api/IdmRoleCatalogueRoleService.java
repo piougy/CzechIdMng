@@ -3,7 +3,7 @@ package eu.bcvsolutions.idm.core.model.service.api;
 import java.util.List;
 
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
-import eu.bcvsolutions.idm.core.model.dto.filter.RoleCatalogueRoleFilter;
+import eu.bcvsolutions.idm.core.model.dto.RoleCatalogueRoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogueRole;

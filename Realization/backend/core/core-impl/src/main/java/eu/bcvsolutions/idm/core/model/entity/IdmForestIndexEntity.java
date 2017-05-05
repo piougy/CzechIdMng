@@ -8,7 +8,6 @@ import javax.persistence.Index;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-
 import eu.bcvsolutions.forest.index.entity.AbstractForestIndex;
 
 /**

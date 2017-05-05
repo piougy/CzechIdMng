@@ -34,6 +34,7 @@ import FormAttributeManager from './FormAttributeManager';
 import AuthorizationPolicyManager from './AuthorizationPolicyManager';
 import ScriptAuthorityManager from './ScriptAuthorityManager';
 import ContractGuaranteeManager from './ContractGuaranteeManager';
+import NotificationRecipientManager from './NotificationRecipientManager';
 
 const ManagerRoot = {
   EntityManager,
@@ -71,7 +72,8 @@ const ManagerRoot = {
   FormAttributeManager,
   AuthorizationPolicyManager,
   ScriptAuthorityManager,
-  ContractGuaranteeManager
+  ContractGuaranteeManager,
+  NotificationRecipientManager
 };
 
 ManagerRoot.version = '0.0.1';

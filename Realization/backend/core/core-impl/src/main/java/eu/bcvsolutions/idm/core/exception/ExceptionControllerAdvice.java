@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
-
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.ResultModels;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;

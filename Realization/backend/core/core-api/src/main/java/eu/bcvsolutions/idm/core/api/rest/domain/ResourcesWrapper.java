@@ -9,10 +9,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * 
- * @author svandav
- *
  * @param <T> DTO type
+ * @author svandav
  * @deprecated use Resource or Resources from spring instead
  */
 @Deprecated

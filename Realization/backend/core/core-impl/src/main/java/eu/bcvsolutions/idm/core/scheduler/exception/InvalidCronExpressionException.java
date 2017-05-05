@@ -1,7 +1,6 @@
 package eu.bcvsolutions.idm.core.scheduler.exception;
 
 import com.google.common.collect.ImmutableMap;
-
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 
 /**

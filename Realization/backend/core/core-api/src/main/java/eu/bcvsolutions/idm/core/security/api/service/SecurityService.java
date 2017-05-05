@@ -6,7 +6,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.AbstractAuthentication;
 
 /**
  * Security context helper methods
- * 
+ * <p>
  * TODO: logout - clear authentication
  * 
  * @author svandav

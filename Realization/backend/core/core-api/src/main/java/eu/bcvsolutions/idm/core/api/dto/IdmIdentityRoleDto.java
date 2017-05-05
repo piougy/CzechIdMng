@@ -3,15 +3,17 @@ package eu.bcvsolutions.idm.core.api.dto;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.entity.ValidableEntity;
 import org.joda.time.LocalDate;
+import org.springframework.hateoas.core.Relation;
 
 import java.util.UUID;
 
 /**
- * IdentityRole from WF
+ * IdentityRole DTO
  *
  * @author svanda
  * @author Radek Tomiška
  */
+@Relation(collectionRelation = "identityRoles")
 public class IdmIdentityRoleDto extends AbstractDto implements ValidableEntity{
 
     private static final long serialVersionUID = 1L;

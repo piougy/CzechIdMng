@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.core.api.domain.RoleType;
 import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
@@ -113,10 +114,10 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 			}
 			//
 			// create super admin
-			IdmIdentity existsSuperAdmin = this.identityService.getByUsername("admin");
+			IdmIdentityDto existsSuperAdmin = this.identityService.getByUsername(ADMIN_USERNAME);
 			if (existsSuperAdmin == null || this.identityService.find(new PageRequest(0, 1)).getTotalElements() == 0) {
 				//
-				IdmIdentity identityAdmin = new IdmIdentity();
+				IdmIdentityDto identityAdmin = new IdmIdentityDto();
 				identityAdmin.setUsername(ADMIN_USERNAME);
 				identityAdmin.setPassword(new GuardedString(ADMIN_PASSWORD));
 				identityAdmin.setLastName("Administrator");

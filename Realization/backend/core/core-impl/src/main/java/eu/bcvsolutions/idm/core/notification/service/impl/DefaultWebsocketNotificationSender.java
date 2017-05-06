@@ -85,7 +85,7 @@ public class DefaultWebsocketNotificationSender extends AbstractNotificationSend
 		}
 		
 		if (recipient.getIdentityRecipient() != null) {
-			return identityService.getDto(recipient.getIdentityRecipient()).getUsername();
+			return identityService.get(recipient.getIdentityRecipient()).getUsername();
 		}
 		return null;
 	}	

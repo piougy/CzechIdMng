@@ -9,7 +9,6 @@ import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmEmailLogDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationRecipientDto;
 import eu.bcvsolutions.idm.core.notification.dto.filter.NotificationFilter;
-import eu.bcvsolutions.idm.core.notification.entity.IdmEmailLog;
 
 /**
  * Email log service
@@ -17,7 +16,7 @@ import eu.bcvsolutions.idm.core.notification.entity.IdmEmailLog;
  * @author Radek Tomiška
  *
  */
-public interface IdmEmailLogService extends ReadWriteDtoService<IdmEmailLogDto, IdmEmailLog, NotificationFilter> {
+public interface IdmEmailLogService extends ReadWriteDtoService<IdmEmailLogDto, NotificationFilter> {
 
 	/**
 	 * Returns recipient's email address

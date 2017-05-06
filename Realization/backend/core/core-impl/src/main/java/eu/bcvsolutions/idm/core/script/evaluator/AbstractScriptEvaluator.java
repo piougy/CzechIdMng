@@ -17,6 +17,7 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
 import eu.bcvsolutions.idm.core.model.domain.ScriptAuthorityType;
+import eu.bcvsolutions.idm.core.model.dto.IdmScriptAuthorityDto;
 import eu.bcvsolutions.idm.core.model.dto.IdmScriptDto;
 import eu.bcvsolutions.idm.core.model.dto.filter.ScriptAuthorityFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmScript;
@@ -70,14 +71,14 @@ public abstract class AbstractScriptEvaluator implements Plugin<IdmScriptCategor
 			throw new ResultCodeException(CoreResultCode.BAD_REQUEST, ImmutableMap.of("scriptCategory", script.getCategory()));
 		}
 		//
-		List<IdmScriptAuthority> scriptAuthorities = getScriptAuthorityForScript(script.getId());
+		List<IdmScriptAuthorityDto> scriptAuthorities = getScriptAuthorityForScript(script.getId());
 		//
 		List<Class<?>> extraAllowedClasses = new ArrayList<>();
 		//
 		// Add builder
 		extraAllowedClasses.add(Builder.class);
 		//
-		for (IdmScriptAuthority scriptAuthority : scriptAuthorities) {
+		for (IdmScriptAuthorityDto scriptAuthority : scriptAuthorities) {
 			if (scriptAuthority.getType() == ScriptAuthorityType.CLASS_NAME) {
 				try {
 					extraAllowedClasses.add(Class.forName(scriptAuthority.getClassName()));
@@ -118,7 +119,7 @@ public abstract class AbstractScriptEvaluator implements Plugin<IdmScriptCategor
 	 * @param scriptId
 	 * @return
 	 */
-	private List<IdmScriptAuthority> getScriptAuthorityForScript(UUID scriptId) {
+	private List<IdmScriptAuthorityDto> getScriptAuthorityForScript(UUID scriptId) {
 		ScriptAuthorityFilter filter = new ScriptAuthorityFilter();
 		filter.setScriptId(scriptId);
 		return scriptAuthorityService.find(filter, null).getContent();

@@ -16,9 +16,9 @@ import org.springframework.data.domain.Page;
 
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
+import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SchemaAttributeFilter;
-import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
@@ -34,9 +34,9 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleValidRequestDto;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
@@ -128,7 +128,7 @@ public class IdentityRoleValidRequestSchedulerTest extends AbstractIntegrationTe
 	
 	@Test
 	public void createValidRole() {
-		IdmIdentity identity = createAndSaveIdentity();
+		IdmIdentityDto identity = createAndSaveIdentity();
 		IdmRole role = createAndSaveRole();
 		createAndSaveRoleSystem(role, system);
 		IdmTreeType treeType = createAndSaveTreeType();
@@ -142,14 +142,14 @@ public class IdentityRoleValidRequestSchedulerTest extends AbstractIntegrationTe
 		
 		IdentityAccountFilter filter = new IdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
-		AccIdentityAccount accountIdentity = identityAccountService.find(filter, null).getContent().get(0);
+		AccIdentityAccountDto accountIdentity = identityAccountService.find(filter, null).getContent().get(0);
 		// it must exists
 		assertNotNull(accountIdentity);
 	}
 	
 	@Test
 	public void createNonValidRole() {
-		IdmIdentity identity = createAndSaveIdentity();
+		IdmIdentityDto identity = createAndSaveIdentity();
 		IdmRole role = createAndSaveRole();
 		createAndSaveRoleSystem(role, system);
 		IdmTreeType treeType = createAndSaveTreeType();
@@ -163,14 +163,14 @@ public class IdentityRoleValidRequestSchedulerTest extends AbstractIntegrationTe
 		
 		IdentityAccountFilter filter = new IdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
-		List<AccIdentityAccount> list = identityAccountService.find(filter, null).getContent();
+		List<AccIdentityAccountDto> list = identityAccountService.find(filter, null).getContent();
 		// it must not exists
 		assertEquals(true, list.isEmpty());
 	}
 	
 	@Test
 	public void createNonValidRoleAndValid() throws InterruptedException, ExecutionException {
-		IdmIdentity identity = createAndSaveIdentity();
+		IdmIdentityDto identity = createAndSaveIdentity();
 		IdmRole role = createAndSaveRole();
 		createAndSaveRoleSystem(role, system);
 		IdmTreeType treeType = createAndSaveTreeType();
@@ -184,7 +184,7 @@ public class IdentityRoleValidRequestSchedulerTest extends AbstractIntegrationTe
 		
 		IdentityAccountFilter filter = new IdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
-		List<AccIdentityAccount> list = identityAccountService.find(filter, null).getContent();
+		List<AccIdentityAccountDto> list = identityAccountService.find(filter, null).getContent();
 		// it must not exists
 		assertEquals(true, list.isEmpty());
 		//
@@ -243,10 +243,10 @@ public class IdentityRoleValidRequestSchedulerTest extends AbstractIntegrationTe
 			identityRoleValidRequestService.delete(request);
 		}
 		
-		List<IdmIdentity> identities = new ArrayList<>();
+		List<IdmIdentityDto> identities = new ArrayList<>();
 		
 		for (int index = 0; index < MAX_CREATE; index++) {
-			IdmIdentity identity = createAndSaveIdentity();
+			IdmIdentityDto identity = createAndSaveIdentity();
 			IdmIdentityContractDto identityContract = createAndSaveIdentityContract(identity, treeNode);
 			// provisioning is not executed, role isn't valid from now
 			createAndSaveIdentityRole(identityContract, role, null, validFrom);
@@ -257,7 +257,7 @@ public class IdentityRoleValidRequestSchedulerTest extends AbstractIntegrationTe
 		assertEquals(0, list.size());
 		
 		validFrom = validFrom.minusDays(15);
-		for (IdmIdentity identity : identities) {
+		for (IdmIdentityDto identity : identities) {
 			List<IdmIdentityRole> roles = identityRoleRepository.findAllByIdentityContract_Identity_Id(identity.getId(), null);
 			assertEquals(1, roles.size());
 			IdmIdentityRole identityRole = roles.get(0);
@@ -279,10 +279,10 @@ public class IdentityRoleValidRequestSchedulerTest extends AbstractIntegrationTe
 		list = identityRoleValidRequestService.findAllValid();
 		assertEquals(0, list.size());
 		
-		for (IdmIdentity identity : identities) {
+		for (IdmIdentityDto identity : identities) {
 			IdentityAccountFilter filter = new IdentityAccountFilter();
 			filter.setIdentityId(identity.getId());
-			List<AccIdentityAccount> accountsList = identityAccountService.find(filter, null).getContent();
+			List<AccIdentityAccountDto> accountsList = identityAccountService.find(filter, null).getContent();
 			assertEquals(false, accountsList.isEmpty());
 			assertEquals(1, accountsList.size());
 		}
@@ -290,8 +290,8 @@ public class IdentityRoleValidRequestSchedulerTest extends AbstractIntegrationTe
 	
 	// TODO: move all these methods higher
 	
-	private IdmIdentity createAndSaveIdentity() {
-		IdmIdentity entity = new IdmIdentity();
+	private IdmIdentityDto createAndSaveIdentity() {
+		IdmIdentityDto entity = new IdmIdentityDto();
 		entity.setUsername("valid_identity_" + System.currentTimeMillis());
 		entity.setLastName("valid_last_name");
 		return saveInTransaction(entity, identityService);
@@ -326,7 +326,7 @@ public class IdentityRoleValidRequestSchedulerTest extends AbstractIntegrationTe
 		return saveInTransaction(entity, treeNodeService);
 	}
 	
-	private IdmIdentityContractDto createAndSaveIdentityContract(IdmIdentity user, IdmTreeNode node) {
+	private IdmIdentityContractDto createAndSaveIdentityContract(IdmIdentityDto user, IdmTreeNode node) {
 		IdmIdentityContractDto entity = new IdmIdentityContractDto();
 		entity.setIdentity(user.getId());
 		entity.setWorkPosition(node == null ? null : node.getId());

@@ -7,7 +7,7 @@ import org.springframework.data.domain.Pageable;
 
 import eu.bcvsolutions.forest.index.service.api.ForestContentService;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
-import eu.bcvsolutions.idm.core.api.service.IdentifiableByNameEntityService;
+import eu.bcvsolutions.idm.core.api.service.CodeableService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
 import eu.bcvsolutions.idm.core.model.dto.filter.RoleCatalogueFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmForestIndexEntity;
@@ -21,7 +21,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
  */
 public interface IdmRoleCatalogueService extends 
 		ReadWriteEntityService<IdmRoleCatalogue, RoleCatalogueFilter>, 
-		IdentifiableByNameEntityService<IdmRoleCatalogue>,
+		CodeableService<IdmRoleCatalogue>,
 		ForestContentService<IdmRoleCatalogue, IdmForestIndexEntity, UUID> {
 	
 	/**

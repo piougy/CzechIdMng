@@ -37,7 +37,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteEntityController;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
-import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.eav.rest.impl.IdmFormDefinitionController;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.dto.filter.RoleFilter;
@@ -63,19 +63,23 @@ public class IdmRoleController extends AbstractReadWriteEntityController<IdmRole
 	
 	private final IdmAuditService auditService;
 	private final IdmFormDefinitionController formDefinitionController;
+	private final IdmAuthorizationPolicyService authorizationPolicyService;
 	
 	@Autowired
 	public IdmRoleController(
-			EntityLookupService entityLookupService, 
+			LookupService entityLookupService, 
 			IdmAuditService auditService,
+			IdmAuthorizationPolicyService authorizationPolicyService,
 			IdmFormDefinitionController formDefinitionController) {
 		super(entityLookupService);
 		//
 		Assert.notNull(auditService);
 		Assert.notNull(formDefinitionController);
+		Assert.notNull(authorizationPolicyService);
 		//
 		this.auditService = auditService;
 		this.formDefinitionController = formDefinitionController;
+		this.authorizationPolicyService = authorizationPolicyService;
 	}
 	
 	@Override
@@ -254,7 +258,7 @@ public class IdmRoleController extends AbstractReadWriteEntityController<IdmRole
 		}
 		checkAccess(entity, IdmBasePermission.READ);
 		//
-		return entityLookupService.getDtoService(IdmAuthorizationPolicyDto.class, IdmAuthorizationPolicyService.class).getEnabledRoleAuthorities(entity.getId());
+		return authorizationPolicyService.getEnabledRoleAuthorities(entity.getId());
 	}
 	
 	@Override

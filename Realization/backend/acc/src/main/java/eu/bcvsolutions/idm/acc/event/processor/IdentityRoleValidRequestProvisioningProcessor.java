@@ -19,7 +19,7 @@ import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.event.IdentityRoleValidRequestEvent.IdentityRoleValidRequestEventType;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
+import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
 
 /**
  * Processor for catch {@link IdentityRoleValidRequestEventType.IDENTITY_ROLE_VALID} - start account management for newly valid identityRoles
@@ -36,18 +36,18 @@ public class IdentityRoleValidRequestProvisioningProcessor extends AbstractEntit
 	private ProvisioningService provisioningService;
 	private final ApplicationContext applicationContext;
 	private AccAccountManagementService accountManagementService;
-	private final IdmIdentityRoleService identityRoleService;
+	private final IdmIdentityRoleRepository identityRoleRepository;
 	
 	@Autowired
 	public IdentityRoleValidRequestProvisioningProcessor(ApplicationContext applicationContext,
-			IdmIdentityRoleService identityRoleService) {
+			IdmIdentityRoleRepository identityRoleRepository) {
 		super(IdentityRoleValidRequestEventType.IDENTITY_ROLE_VALID);
 		//
 		Assert.notNull(applicationContext);
-		Assert.notNull(identityRoleService);
+		Assert.notNull(identityRoleRepository);
 		//
 		this.applicationContext = applicationContext;
-		this.identityRoleService =identityRoleService;
+		this.identityRoleRepository =identityRoleRepository;
 	}
 	
 	@Override
@@ -56,7 +56,7 @@ public class IdentityRoleValidRequestProvisioningProcessor extends AbstractEntit
 		//
 		// object identityRole is never null
 		UUID identityRoleId = event.getContent().getIdentityRole();
-		IdmIdentityRole identityRole = identityRoleService.get(identityRoleId);
+		IdmIdentityRole identityRole = identityRoleRepository.findOne(identityRoleId);
 		//
 		if (identityRole == null) {
 			LOG.warn("[IdentityRoleValidRequestProvisioningProcessor] Identity role isn't exists for identity role valid request id: [{0}]", event.getContent().getId());

@@ -15,7 +15,7 @@ import eu.bcvsolutions.idm.core.api.dto.ConfigurationDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
-import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmConfiguration;
 
@@ -35,7 +35,7 @@ public class IdmConfigurationController extends DefaultReadWriteEntityController
 	
 	@Autowired
 	public IdmConfigurationController(
-			EntityLookupService entityLookupService, 
+			LookupService entityLookupService, 
 			ConfigurationService configurationService) {
 		super(entityLookupService);
 		//

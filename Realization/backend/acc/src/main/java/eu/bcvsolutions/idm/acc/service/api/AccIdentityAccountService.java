@@ -2,7 +2,6 @@ package eu.bcvsolutions.idm.acc.service.api;
 
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
-import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 
@@ -12,7 +11,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
  * @author Svanda
  *
  */
-public interface AccIdentityAccountService extends ReadWriteDtoService<AccIdentityAccountDto, AccIdentityAccount, IdentityAccountFilter> {
+public interface AccIdentityAccountService extends ReadWriteDtoService<AccIdentityAccountDto, IdentityAccountFilter> {
 
 	/**
 	 * Delete identity account

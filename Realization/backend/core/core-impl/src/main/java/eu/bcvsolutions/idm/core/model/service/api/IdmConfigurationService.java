@@ -2,7 +2,7 @@ package eu.bcvsolutions.idm.core.model.service.api;
 
 import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
-import eu.bcvsolutions.idm.core.api.service.IdentifiableByNameEntityService;
+import eu.bcvsolutions.idm.core.api.service.CodeableService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
 import eu.bcvsolutions.idm.core.model.entity.IdmConfiguration;
 
@@ -15,7 +15,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmConfiguration;
  *
  */
 public interface IdmConfigurationService extends ReadWriteEntityService<IdmConfiguration, QuickFilter>, 
-		IdentifiableByNameEntityService<IdmConfiguration>, ConfigurationService {
+		CodeableService<IdmConfiguration>, ConfigurationService {
 	
 	static final String CONFIDENTIAL_PROPERTY_VALUE = "config:value";	
 }

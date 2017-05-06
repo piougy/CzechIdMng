@@ -6,10 +6,10 @@ import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
-import eu.bcvsolutions.idm.core.api.rest.lookup.IdentifiableByNameLookup;
+import eu.bcvsolutions.idm.core.api.rest.lookup.CodeableServiceEntityLookup;
 
 @Component
-public class SysSystemLookup extends IdentifiableByNameLookup<SysSystem> {
+public class SysSystemLookup extends CodeableServiceEntityLookup<SysSystem> {
 	
 	@Autowired 
 	private ApplicationContext applicationContext;
@@ -22,7 +22,7 @@ public class SysSystemLookup extends IdentifiableByNameLookup<SysSystem> {
 	 * @return
 	 */
 	@Override
-	protected SysSystemService getEntityService() {
+	protected SysSystemService getService() {
 		if (systemService == null) { 
 			systemService = applicationContext.getBean(SysSystemService.class);
 		}

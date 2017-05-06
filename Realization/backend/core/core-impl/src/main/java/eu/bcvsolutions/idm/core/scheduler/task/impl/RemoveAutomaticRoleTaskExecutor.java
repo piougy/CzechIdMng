@@ -65,7 +65,7 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractLongRunningTaskExec
 		//
 		LOG.debug("[RemoveAutomaticRoleTaskExecutor] Remove automatic roles. Count: [{}]", count);
 		//
-		IdmRoleTreeNodeDto roleTreeNode = roleTreeNodeService.getDto(roleTreeNodeId);
+		IdmRoleTreeNodeDto roleTreeNode = roleTreeNodeService.get(roleTreeNodeId);
 		//
 		if (roleTreeNode == null) {
 			return Boolean.FALSE;
@@ -83,8 +83,8 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractLongRunningTaskExec
 		// Find all concepts and remove relation on role tree
 		ConceptRoleRequestFilter conceptRequestFilter = new ConceptRoleRequestFilter();
 		conceptRequestFilter.setRoleTreeNodeId(roleTreeNodeId);
-		conceptRequestService.findDto(conceptRequestFilter, null).getContent().forEach(concept -> {
-			IdmRoleRequestDto request = roleRequestService.getDto(concept.getRoleRequest());
+		conceptRequestService.find(conceptRequestFilter, null).getContent().forEach(concept -> {
+			IdmRoleRequestDto request = roleRequestService.get(concept.getRoleRequest());
 			String message = null;
 			if (concept.getState().isTerminatedState()) {
 				message = MessageFormat.format(

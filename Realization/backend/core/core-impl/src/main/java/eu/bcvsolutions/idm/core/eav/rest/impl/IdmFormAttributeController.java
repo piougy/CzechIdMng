@@ -17,7 +17,7 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
-import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.eav.dto.filter.FormAttributeFilter;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
@@ -34,7 +34,7 @@ import eu.bcvsolutions.idm.core.rest.impl.DefaultReadWriteEntityController;
 public class IdmFormAttributeController extends DefaultReadWriteEntityController<IdmFormAttribute, FormAttributeFilter>  {
 
 	@Autowired
-	public IdmFormAttributeController(EntityLookupService entityLookupService) {
+	public IdmFormAttributeController(LookupService entityLookupService) {
 		super(entityLookupService);
 	}
 	

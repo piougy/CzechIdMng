@@ -12,30 +12,27 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
-import eu.bcvsolutions.idm.core.api.dto.BaseDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
-import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
-import eu.bcvsolutions.idm.core.api.service.ReadDtoService;
-import eu.bcvsolutions.idm.core.api.service.ReadEntityService;
+import eu.bcvsolutions.idm.core.api.rest.lookup.EntityLookup;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
 
 /**
  * Converter for transform fields (marked with {@link Embedded} annotation) from
  * UUID to BaseEntity.
  * 
  * @author svandav
+ * @author Radek Tomiška
  *
  */
-
 public class UuidToEntityConverter implements Converter<UUID, BaseEntity> {
 
-	private EntityLookupService lookupService;
+	private LookupService lookupService;
 	private ApplicationContext applicationContext;
 
 	/**
 	 * {@link ApplicationContext} is required, because we need use
-	 * {@link EntityLookupService}. This service but is not initialised in model
+	 * {@link LookupService}. This service but is not initialised in model
 	 * mapper create phase.
 	 * 
 	 * @param applicationContext
@@ -56,37 +53,34 @@ public class UuidToEntityConverter implements Converter<UUID, BaseEntity> {
 			PropertyMapping propertyMapping = (PropertyMapping) context.getMapping();
 			// Find name of field by property mapping
 			String field = propertyMapping.getLastDestinationProperty().getName();
-			ReadDtoService<? extends BaseDto, ? extends BaseEntity, ? extends BaseFilter> dtoService = null;
 			try {
 				// Find field in DTO class
 				Field fieldTyp = getFirstFieldInClassHierarchy(parentContext.getSourceType(), field);
 				if (fieldTyp.isAnnotationPresent(Embedded.class)) {
 					Embedded embeddedAnnotation = fieldTyp.getAnnotation(Embedded.class);
 					if (embeddedAnnotation.enabled()) {
-						dtoService = getLookupService().getDtoService(embeddedAnnotation.dtoClass());
+						EntityLookup<?> lookup = getLookupService().getEntityLookup(embeddedAnnotation.dtoClass());
+						if (lookup != null) {
+							return lookup.lookup(sourceUUID);
+						}
 					}
 				}
 			} catch (NoSuchFieldException | SecurityException e) {
 				throw new CoreException(e);
 			}
 
-			if (dtoService == null) {
-				// We do not have dto service. We try load service for entity
-				ReadEntityService<?, ?> entityService = getLookupService().getEntityService(entityClass);
-				return entityService.get(sourceUUID);
-			} else {
-				if (dtoService instanceof ReadDtoService) {
-					return ((ReadDtoService<?, ?, ?>) dtoService).get(sourceUUID);
-				}
+			// We do not have lookup by embedded annotation. We try load service for entity
+			EntityLookup<?> lookup = getLookupService().getEntityLookup(entityClass);
+			if (lookup != null) {
+				return lookup.lookup(sourceUUID);
 			}
-
 		}
 		return null;
 	}
 
-	private EntityLookupService getLookupService() {
+	private LookupService getLookupService() {
 		if (this.lookupService == null) {
-			this.lookupService = this.applicationContext.getBean(EntityLookupService.class);
+			this.lookupService = this.applicationContext.getBean(LookupService.class);
 		}
 		return this.lookupService;
 	}

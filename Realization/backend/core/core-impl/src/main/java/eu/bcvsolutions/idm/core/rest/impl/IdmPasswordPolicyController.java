@@ -25,7 +25,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.PasswordPolicyFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourceWrapper;
-import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
 import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordPolicyService;
@@ -44,7 +44,7 @@ public class IdmPasswordPolicyController extends DefaultReadWriteEntityControlle
 	private final IdmPasswordPolicyService passwordPolicyService;
 	
 	@Autowired
-	public IdmPasswordPolicyController(EntityLookupService entityLookupService, IdmPasswordPolicyService passwordPolicyService) {
+	public IdmPasswordPolicyController(LookupService entityLookupService, IdmPasswordPolicyService passwordPolicyService) {
 		super(entityLookupService);
 		this.passwordPolicyService = passwordPolicyService;
 	}

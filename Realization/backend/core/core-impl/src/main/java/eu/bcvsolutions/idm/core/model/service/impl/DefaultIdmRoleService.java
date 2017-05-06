@@ -19,6 +19,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import com.google.common.base.Strings;
+
+import eu.bcvsolutions.idm.core.api.repository.filter.FilterManager;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
@@ -56,21 +58,25 @@ public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, Role
 	private final IdmRoleRepository repository;
 	private final EntityEventManager entityEventManager;
 	private final ConfigurationService configurationService;
+	private final FilterManager filterManager;
 	
 	@Autowired
 	public DefaultIdmRoleService(
 			IdmRoleRepository repository,
 			EntityEventManager entityEventManager,
 			FormService formService,
-			ConfigurationService configurationService) {
+			ConfigurationService configurationService,
+			FilterManager filterManager) {
 		super(repository, formService);
 		//
 		Assert.notNull(entityEventManager);
 		Assert.notNull(configurationService);
+		Assert.notNull(filterManager);
 		//
 		this.repository = repository;
 		this.entityEventManager = entityEventManager;
 		this.configurationService = configurationService;
+		this.filterManager = filterManager;
 	}
 	
 	@Override
@@ -82,6 +88,12 @@ public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, Role
 	@Transactional(readOnly = true)
 	public IdmRole getByName(String name) {
 		return repository.findOneByName(name);
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public IdmRole getByCode(String name) {
+		return getByName(name);
 	}
 	
 	/**
@@ -154,10 +166,6 @@ public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, Role
 	 */
 	private Predicate toPredicate(RoleFilter filter, Root<IdmRole> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
 		List<Predicate> predicates = new ArrayList<>();
-		// id
-		if (filter.getId() != null) {
-			predicates.add(builder.equal(root.get(IdmRole_.id), filter.getId()));
-		}
 		// quick
 		if (StringUtils.isNotEmpty(filter.getText())) {
 			predicates.add(builder.like(builder.lower(root.get(IdmRole_.name)), "%" + filter.getText().toLowerCase() + "%"));
@@ -200,6 +208,10 @@ public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, Role
             );
 			predicates.add(builder.exists(subquery));
 		}
+		//
+		// Dynamic filters (added, overriden by module)
+		predicates.addAll(filterManager.toPredicates(root, query, builder, filter));
+		//
 		return builder.and(predicates.toArray(new Predicate[predicates.size()]));
 	}
 	

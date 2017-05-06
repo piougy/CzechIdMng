@@ -26,22 +26,27 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdentityContractFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
-import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.eav.rest.impl.IdmFormDefinitionController;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.eav.IdmIdentityContractFormValue;
+import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 
 /**
  * Identity contract endpoint
+ * 
+ * TODO: eav to dtos
  * 
  * @author Radek Tomiška
  *
@@ -51,17 +56,21 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 public class IdmIdentityContractController extends AbstractReadWriteDtoController<IdmIdentityContractDto, IdentityContractFilter> {
 	
 	private final IdmFormDefinitionController formDefinitionController;
+	private final IdmIdentityContractRepository identityContractRepository;
 	
 	@Autowired
 	public IdmIdentityContractController(
-			EntityLookupService entityLookupService, 
-			IdmIdentityContractService identityWorkPositionService,
-			IdmFormDefinitionController formDefinitionController) {
-		super(identityWorkPositionService);
+			LookupService entityLookupService, 
+			IdmIdentityContractService identityContractService,
+			IdmFormDefinitionController formDefinitionController,
+			IdmIdentityContractRepository identityContractRepository) {
+		super(identityContractService);
 		//
 		Assert.notNull(formDefinitionController);
+		Assert.notNull(identityContractRepository);
 		//
 		this.formDefinitionController = formDefinitionController;
+		this.identityContractRepository = identityContractRepository;
 	}
 	
 	@Override
@@ -154,13 +163,14 @@ public class IdmIdentityContractController extends AbstractReadWriteDtoControlle
 	@RequestMapping(value = "/{backendId}/form-values", method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITYCONTRACT_READ + "')")
 	public Resources<?> getFormValues(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler) {
-		IdmIdentityContract entity = (IdmIdentityContract) getService().get(backendId);
-		if (entity == null) {
+		IdmIdentityContractDto dto = getDto(backendId);
+		if (dto == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
-		// TODO: access
-		// getService().checkAccess(entity, IdmBasePermission.READ);
-		return formDefinitionController.getFormValues(entity, null, assembler);
+		//
+		checkAccess(dto, IdmBasePermission.READ);
+		//
+		return formDefinitionController.getFormValues(identityContractRepository.findOne(dto.getId()), null, assembler);
 	}
 	
 	/**
@@ -178,22 +188,21 @@ public class IdmIdentityContractController extends AbstractReadWriteDtoControlle
 			@PathVariable @NotNull String backendId,
 			@RequestBody @Valid List<IdmIdentityContractFormValue> formValues,
 			PersistentEntityResourceAssembler assembler) {		
-		IdmIdentityContract entity = (IdmIdentityContract) getService().get(backendId);
-		if (entity == null) {
+		IdmIdentityContractDto dto = getDto(backendId);
+		if (dto == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
-		// TODO: access
-		// getService().checkAccess(entity, IdmBasePermission.UPDATE);
+		// 
+		checkAccess(dto, IdmBasePermission.UPDATE);
 		//
-		return formDefinitionController.saveFormValues(entity, null, formValues, assembler);
+		return formDefinitionController.saveFormValues(identityContractRepository.findOne(dto.getId()), null, formValues, assembler);
 	}
 	
 	@Override
 	protected IdentityContractFilter toFilter(MultiValueMap<String, Object> parameters) {
 		IdentityContractFilter filter = new IdentityContractFilter();
 		filter.setText(getParameterConverter().toString(parameters, "text"));
-		final IdmIdentity entity = getParameterConverter().toEntity(parameters, "identity", IdmIdentity.class);
-		filter.setIdentity(entity == null ? null : entity.getId());
+		filter.setIdentity(getParameterConverter().toEntityUuid(parameters, "identity", IdmIdentity.class));
 		return filter;
 	}
 }

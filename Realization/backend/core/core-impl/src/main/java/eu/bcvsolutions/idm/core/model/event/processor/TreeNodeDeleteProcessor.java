@@ -81,7 +81,7 @@ public class TreeNodeDeleteProcessor extends CoreEventProcessor<IdmTreeNode> {
 		// remove related automatic roles
 		RoleTreeNodeFilter filter = new RoleTreeNodeFilter();
 		filter.setTreeNodeId(treeNode.getId());
-		roleTreeNodeService.findDto(filter, null).forEach(roleTreeNode -> {
+		roleTreeNodeService.find(filter, null).forEach(roleTreeNode -> {
 			roleTreeNodeService.delete(roleTreeNode);
 		});
 		//

@@ -12,7 +12,6 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.model.dto.filter.ContractGuaranteeFilter;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 
 /**
@@ -23,7 +22,7 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
  *
  */
 public interface IdmIdentityRoleService extends
-	ReadWriteDtoService<IdmIdentityRoleDto, IdmIdentityRole, IdentityRoleFilter>,
+	ReadWriteDtoService<IdmIdentityRoleDto, IdentityRoleFilter>,
 	AuthorizableService<IdmIdentityRoleDto, ContractGuaranteeFilter> {
 	
 	/**

@@ -13,7 +13,7 @@ import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
 import eu.bcvsolutions.idm.core.api.dto.ResultModel;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
@@ -36,7 +36,7 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements LongRunningT
 	@Autowired
 	private IdmLongRunningTaskService service;
 	@Autowired
-	private EntityLookupService entityLookupService;
+	private LookupService entityLookupService;
 	//
 	private ParameterConverter parameterConverter;	
 	private UUID taskId;

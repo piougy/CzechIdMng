@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteEntityController;
-import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
 
 /**
@@ -33,11 +33,11 @@ import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
 @Deprecated
 public abstract class DefaultReadWriteEntityController<E extends BaseEntity, F extends BaseFilter> extends AbstractReadWriteEntityController<E, F> {
 	
-	public DefaultReadWriteEntityController(EntityLookupService entityLookupService) {
+	public DefaultReadWriteEntityController(LookupService entityLookupService) {
 		super(entityLookupService);
 	}
 	
-	public DefaultReadWriteEntityController(EntityLookupService entityLookupService, ReadWriteEntityService<E, F> entityService) {
+	public DefaultReadWriteEntityController(LookupService entityLookupService, ReadWriteEntityService<E, F> entityService) {
 		super(entityLookupService, entityService);
 	}
 	

@@ -15,9 +15,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.model.dto.IdmContractGuaranteeDto;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleComposition;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
@@ -105,9 +105,8 @@ public class InitTestData implements ApplicationListener<ContextRefreshedEvent> 
 				role2 = this.roleService.save(role2);
 				log.info(MessageFormat.format("Test role created [id: {0}]", role2.getId()));
 				//
-				// TODO: split test and demo data - use flyway?
 				// Users for JUnit testing
-				IdmIdentity testUser1 = new IdmIdentity();
+				IdmIdentityDto testUser1 = new IdmIdentityDto();
 				testUser1.setUsername(TEST_USER_1);
 				testUser1.setPassword(new GuardedString("heslo"));
 				testUser1.setFirstName("Test");
@@ -116,7 +115,7 @@ public class InitTestData implements ApplicationListener<ContextRefreshedEvent> 
 				testUser1 = this.identityService.save(testUser1);
 				log.info(MessageFormat.format("Identity created [id: {0}]", testUser1.getId()));				
 
-				IdmIdentity testUser2 = new IdmIdentity();
+				IdmIdentityDto testUser2 = new IdmIdentityDto();
 				testUser2.setUsername(TEST_USER_2);
 				testUser2.setPassword(new GuardedString("heslo"));
 				testUser2.setFirstName("Test");

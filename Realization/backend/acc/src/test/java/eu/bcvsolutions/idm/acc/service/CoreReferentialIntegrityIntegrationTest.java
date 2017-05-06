@@ -25,7 +25,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
@@ -64,7 +64,7 @@ public class CoreReferentialIntegrityIntegrationTest extends AbstractIntegration
 	
 	@Test
 	public void testIdentityReferentialIntegrity() {
-		IdmIdentity identity = new IdmIdentity();
+		IdmIdentityDto identity = new IdmIdentityDto();
 		String username = "delete_test_" + System.currentTimeMillis();
 		identity.setUsername(username);
 		identity.setPassword(new GuardedString("heslo")); // confidential storage

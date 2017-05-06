@@ -11,11 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmAuthorityChange;
-import eu.bcvsolutions.idm.core.model.entity.IdmAuthorizationPolicy;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.repository.IdmAuthorityChangeRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
@@ -80,7 +79,7 @@ public abstract class AbstractIdentityAuthoritiesProcessorTest extends AbstractI
 		return saveInTransaction(ir, identityRoleService);
 	}
 
-	protected IdmIdentityContractDto getTestContract(IdmIdentity i) {
+	protected IdmIdentityContractDto getTestContract(IdmIdentityDto i) {
 		IdmIdentityContractDto c = new IdmIdentityContractDto();
 		c.setExterne(false);
 		c.setIdentity(i.getId());
@@ -95,11 +94,11 @@ public abstract class AbstractIdentityAuthoritiesProcessorTest extends AbstractI
 		return role;
 	}
 	
-	protected IdmAuthorizationPolicy getTestPolicy(IdmRole role) {
+	protected IdmAuthorizationPolicyDto getTestPolicy(IdmRole role) {
 		return getTestPolicy(role, IdmBasePermission.DELETE, CoreGroupPermission.IDENTITY);
 	}
 	
-	protected IdmAuthorizationPolicy getTestPolicy(IdmRole role, BasePermission base, GroupPermission group) {
+	protected IdmAuthorizationPolicyDto getTestPolicy(IdmRole role, BasePermission base, GroupPermission group) {
 		IdmAuthorizationPolicyDto policy = new IdmAuthorizationPolicyDto();
 		policy.setGroupPermission(group.getName());
 		policy.setPermissions(base);
@@ -108,8 +107,8 @@ public abstract class AbstractIdentityAuthoritiesProcessorTest extends AbstractI
 		return authorizationPolicyService.get(authorizationPolicyService.save(policy).getId());		
 	}
 
-	protected IdmIdentity getTestUser() {
-		IdmIdentity i = new IdmIdentity();
+	protected IdmIdentityDto getTestUser() {
+		IdmIdentityDto i = new IdmIdentityDto();
 		i.setUsername("testuser-" + UUID.randomUUID().toString());
 		i.setFirstName("Test");
 		i.setLastName("User");
@@ -118,8 +117,8 @@ public abstract class AbstractIdentityAuthoritiesProcessorTest extends AbstractI
 		return i;
 	}
 	
-	protected IdmAuthorityChange getAuthorityChange(IdmIdentity i) {
-		return acRepository.findByIdentity(i);
+	protected IdmAuthorityChange getAuthorityChange(IdmIdentityDto i) {
+		return acRepository.findOneByIdentity_Id(i.getId());
 	}
 
 }

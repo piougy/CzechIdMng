@@ -1,11 +1,7 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -13,22 +9,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
-import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType;
-import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.AccTreeAccountDto;
 import eu.bcvsolutions.idm.acc.dto.EntityAccountDto;
-import eu.bcvsolutions.idm.acc.dto.ProvisioningAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.filter.EntityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemMappingFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.TreeAccountFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountManagementService;
@@ -41,7 +34,6 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
-import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
@@ -86,7 +78,7 @@ public class TreeProvisioningExecutor extends AbstractProvisioningExecutor<IdmTr
 
 		TreeAccountFilter filter = new TreeAccountFilter();
 		filter.setAccountId(account.getId());
-		List<? extends EntityAccountDto> treeAccoutnList = treeAccountService.findDto(filter, null).getContent();
+		List<? extends EntityAccountDto> treeAccoutnList = treeAccountService.find(filter, null).getContent();
 		if (treeAccoutnList == null) {
 			return;
 		}
@@ -111,7 +103,7 @@ public class TreeProvisioningExecutor extends AbstractProvisioningExecutor<IdmTr
 				TreeAccountFilter treeAccountFilter = new TreeAccountFilter();
 				treeAccountFilter.setSystemId(attribute.getSchemaAttribute().getObjectClass().getSystem().getId());
 				treeAccountFilter.setTreeNodeId(((IdmTreeNode) idmValue).getId());
-				List<AccTreeAccountDto> treeAccounts = treeAccountService.findDto(treeAccountFilter, null).getContent();
+				List<AccTreeAccountDto> treeAccounts = treeAccountService.find(treeAccountFilter, null).getContent();
 				if (treeAccounts.isEmpty()) {
 					throw new ProvisioningException(AccResultCode.PROVISIONING_TREE_PARENT_ACCOUNT_NOT_FOUND,
 							ImmutableMap.of("parentNode", idmValue));

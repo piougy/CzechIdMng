@@ -5,7 +5,6 @@ import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.Resources;
@@ -68,9 +67,8 @@ public class IdmScriptController extends DefaultReadWriteDtoController<IdmScript
 	
 	@Override
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCRIPT_AUTOCOMPLETE + "')")
-	public Resources<?> autocomplete(@RequestParam MultiValueMap<String, Object> parameters, @PageableDefault Pageable pageable,
-			PersistentEntityResourceAssembler assembler) {
-		return super.autocomplete(parameters, pageable, assembler);
+	public Resources<?> autocomplete(@RequestParam MultiValueMap<String, Object> parameters, @PageableDefault Pageable pageable) {
+		return super.autocomplete(parameters, pageable);
 	}
 	
 	@Override

@@ -57,7 +57,7 @@ public class ProvisioningSendNotificationProcessor extends AbstractEntityEventPr
 		SysProvisioningOperation provisioningOperation = event.getContent();
 		IdmIdentityDto identity = null;
 		if (provisioningOperation.getEntityIdentifier() != null && SystemEntityType.IDENTITY == provisioningOperation.getEntityType()) {
-			identity = identityService.getDto(provisioningOperation.getEntityIdentifier());
+			identity = identityService.get(provisioningOperation.getEntityIdentifier());
 		}
 		// TODO: identity or email null, send message to actual log user?
 		if (identity != null) {

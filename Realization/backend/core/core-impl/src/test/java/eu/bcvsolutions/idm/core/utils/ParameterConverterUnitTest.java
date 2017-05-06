@@ -16,7 +16,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
-import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.test.api.AbstractVerifiableUnitTest;
@@ -32,7 +32,7 @@ public class ParameterConverterUnitTest extends AbstractVerifiableUnitTest {
 	private static final String PARAMETER_NAME = "test-parameter";
 	//
 	@Mock
-	private EntityLookupService entityLookupService;
+	private LookupService entityLookupService;
 	private ParameterConverter parameterConverter;
 	
 	@Before
@@ -118,11 +118,11 @@ public class ParameterConverterUnitTest extends AbstractVerifiableUnitTest {
 		Map<String, Object> parameters = new HashMap<>();
 		String value = "admin";
 		IdmIdentity identity = new IdmIdentity(UUID.randomUUID());		
-		when(entityLookupService.lookup(IdmIdentity.class, value)).thenReturn(identity);
+		when(entityLookupService.lookupEntity(IdmIdentity.class, value)).thenReturn(identity);
 		parameters.put(PARAMETER_NAME, value);
 		//
 		assertEquals(identity, parameterConverter.toEntity(parameters, PARAMETER_NAME, IdmIdentity.class));
 		//
-		verify(entityLookupService).lookup(IdmIdentity.class, value);
+		verify(entityLookupService).lookupEntity(IdmIdentity.class, value);
 	}
 }

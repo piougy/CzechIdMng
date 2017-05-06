@@ -15,6 +15,7 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AccountType;
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
+import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.MappingAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
@@ -29,6 +30,7 @@ import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
+import eu.bcvsolutions.idm.acc.repository.AccIdentityAccountRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountManagementService;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
@@ -54,6 +56,7 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 	private final AccAccountService accountService;
 	private final SysRoleSystemService roleSystemService;
 	private final AccIdentityAccountService identityAccountService;
+	private final AccIdentityAccountRepository identityAccountRepository;
 	private final IdmIdentityRoleRepository identityRoleRepository;
 	private final SysRoleSystemAttributeService roleSystemAttributeService;
 	private final SysSystemAttributeMappingService systemAttributeMappingService;
@@ -62,6 +65,7 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 	public DefaultAccAccountManagementService(SysRoleSystemService roleSystemService, AccAccountService accountService,
 			AccIdentityAccountService identityAccountService, IdmIdentityRoleRepository identityRoleRepository,
 			SysRoleSystemAttributeService roleSystemAttributeService,
+			AccIdentityAccountRepository identityAccountRepository,
 			SysSystemAttributeMappingService systemAttributeMappingService) {
 		super();
 		//
@@ -70,6 +74,7 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 		Assert.notNull(accountService);
 		Assert.notNull(identityRoleRepository);
 		Assert.notNull(roleSystemAttributeService);
+		Assert.notNull(identityAccountRepository);
 		Assert.notNull(systemAttributeMappingService);
 		//
 		this.roleSystemService = roleSystemService;
@@ -77,6 +82,7 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 		this.identityAccountService = identityAccountService;
 		this.identityRoleRepository = identityRoleRepository;
 		this.roleSystemAttributeService = roleSystemAttributeService;
+		this.identityAccountRepository = identityAccountRepository;
 		this.systemAttributeMappingService = systemAttributeMappingService;
 	}
 
@@ -86,7 +92,7 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 
 		IdentityAccountFilter filter = new IdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
-		List<AccIdentityAccount> identityAccountList = identityAccountService.find(filter, null).getContent();
+		List<AccIdentityAccount> identityAccountList = identityAccountRepository.find(filter, null).getContent();
 
 		List<IdmIdentityRole> identityRoles = identityRoleRepository.findAllByIdentityContract_Identity_Id(identity.getId(), null);
 
@@ -110,14 +116,14 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 		// Delete invalid identity accounts
 		provisioningRequired = !identityAccountsToDelete.isEmpty() ? true : provisioningRequired;
 		identityAccountsToDelete.stream().forEach(identityAccount -> {
-			identityAccountService.delete(identityAccountService.toDto(identityAccount, null));
+			identityAccountService.deleteById(identityAccount.getId());
 		});
 
 		// Create new identity accounts
 		provisioningRequired = !identityAccountsToCreate.isEmpty() ? true : provisioningRequired;
 		identityAccountsToCreate.stream().forEach(identityAccount -> {
 			identityAccount.setAccount(accountService.save(identityAccount.getAccount()));
-			identityAccountService.save(identityAccountService.toDto(identityAccount, null));
+			identityAccountRepository.save(identityAccount); // TODO: use DTO!
 
 		});
 
@@ -299,11 +305,11 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 	public void deleteIdentityAccount(IdmIdentityRoleDto entity) {
 		IdentityAccountFilter filter = new IdentityAccountFilter();
 		filter.setIdentityRoleId(entity.getId());
-		Page<AccIdentityAccount> identityAccounts = identityAccountService.find(filter, null);
-		List<AccIdentityAccount> identityAccountList = identityAccounts.getContent();
+		Page<AccIdentityAccountDto> identityAccounts = identityAccountService.find(filter, null);
+		List<AccIdentityAccountDto> identityAccountList = identityAccounts.getContent();
 
 		identityAccountList.forEach(identityAccount -> {
-			identityAccountService.delete(identityAccountService.toDto(identityAccount, null));
+			identityAccountService.delete(identityAccount);
 		});
 	}
 }

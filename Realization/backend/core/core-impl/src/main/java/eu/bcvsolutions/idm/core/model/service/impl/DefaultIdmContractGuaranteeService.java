@@ -39,8 +39,8 @@ public class DefaultIdmContractGuaranteeService
 	}
 	
 	@Override
-	protected Predicate toPredicate(ContractGuaranteeFilter filter, Root<IdmContractGuarantee> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
-		List<Predicate> predicates = new ArrayList<>();
+	protected List<Predicate> toPredicates(Root<IdmContractGuarantee> root, CriteriaQuery<?> query, CriteriaBuilder builder, ContractGuaranteeFilter filter) {
+		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
 		// contract id
 		if (filter.getIdentityContractId() != null) {
 			predicates.add(builder.equal(
@@ -53,6 +53,6 @@ public class DefaultIdmContractGuaranteeService
 					root.get(IdmContractGuarantee_.guarantee).get(AbstractEntity_.id), 
 					filter.getGuaranteeId()));
 		}
-		return builder.and(predicates.toArray(new Predicate[predicates.size()]));
+		return predicates;
 	}
 }

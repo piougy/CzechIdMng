@@ -35,7 +35,7 @@ import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.filter.TreeNodeFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
-import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.core.eav.rest.impl.IdmFormDefinitionController;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
@@ -70,7 +70,7 @@ public class IdmTreeNodeController extends DefaultReadWriteEntityController<IdmT
 	
 	@Autowired
 	public IdmTreeNodeController(
-			EntityLookupService entityLookupService, 
+			LookupService entityLookupService, 
 			IdmTreeNodeService treeNodeService,
 			IdmTreeTypeService treeTypeService,
 			IdmAuditService auditService,

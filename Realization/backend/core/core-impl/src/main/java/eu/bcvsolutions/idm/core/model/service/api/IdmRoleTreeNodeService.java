@@ -9,7 +9,6 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.RoleTreeNodeFilter;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
-import eu.bcvsolutions.idm.core.model.entity.IdmRoleTreeNode;
 
 /**
  * Automatic role service
@@ -19,7 +18,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRoleTreeNode;
  * @author Radek Tomiška
  *
  */
-public interface IdmRoleTreeNodeService extends ReadWriteDtoService<IdmRoleTreeNodeDto, IdmRoleTreeNode, RoleTreeNodeFilter> {
+public interface IdmRoleTreeNodeService extends ReadWriteDtoService<IdmRoleTreeNodeDto, RoleTreeNodeFilter> {
 	
 	/**
 	 * Returns all automatic role for given work position. 

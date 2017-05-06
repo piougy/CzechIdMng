@@ -24,7 +24,7 @@ import eu.bcvsolutions.idm.acc.dto.filter.RoleSystemAttributeFilter;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteEntityController;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
-import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;;
 
@@ -41,7 +41,7 @@ public class SysRoleSystemAttributeController
 		extends AbstractReadWriteEntityController<SysRoleSystemAttribute, RoleSystemAttributeFilter> {
 
 	@Autowired
-	public SysRoleSystemAttributeController(EntityLookupService entityLookupService) {
+	public SysRoleSystemAttributeController(LookupService entityLookupService) {
 		super(entityLookupService);
 	}
 

@@ -4,7 +4,7 @@ import java.util.List;
 
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 
 /**
@@ -12,7 +12,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
  * - contains prime identity's working position
  * - contains all work position's parents in tree structure and contract's working position as path 
  * 
- * TODO: use dtos
+ * TODO: use tree node dto
  * 
  * @author Radek Tomiška
  *
@@ -20,24 +20,24 @@ import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 public class WorkPositionDto extends AbstractDto {
 
 	private static final long serialVersionUID = 6839506093315671159L;
-	private IdmIdentity identity;
+	private IdmIdentityDto identity;
 	private IdmIdentityContractDto contract;
 	private List<IdmTreeNode> path;
 	
 	public WorkPositionDto() {
 	}
 	
-	public WorkPositionDto	(IdmIdentity identity, IdmIdentityContractDto contract) {
+	public WorkPositionDto(IdmIdentityDto identity, IdmIdentityContractDto contract) {
 		super(contract);
 		this.identity = identity;
 		this.contract = contract;
 	}
 
-	public IdmIdentity getIdentity() {
+	public IdmIdentityDto getIdentity() {
 		return identity;
 	}
 
-	public void setIdentity(IdmIdentity identity) {
+	public void setIdentity(IdmIdentityDto identity) {
 		this.identity = identity;
 	}
 

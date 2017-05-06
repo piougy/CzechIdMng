@@ -26,7 +26,7 @@ import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteEntityController;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
-import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;;
 
 /**
@@ -40,7 +40,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.Enabled;;
 public class SysSystemAttributeMappingController extends AbstractReadWriteEntityController<SysSystemAttributeMapping, SystemAttributeMappingFilter> {
 
 	@Autowired
-	public SysSystemAttributeMappingController(EntityLookupService entityLookupService, SysSystemAttributeMappingService service) {
+	public SysSystemAttributeMappingController(LookupService entityLookupService, SysSystemAttributeMappingService service) {
 		super(entityLookupService, service);
 	}
 

@@ -1,7 +1,5 @@
 package eu.bcvsolutions.idm.core.api.dto.filter;
 
-import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
-
 import java.util.UUID;
 
 /**

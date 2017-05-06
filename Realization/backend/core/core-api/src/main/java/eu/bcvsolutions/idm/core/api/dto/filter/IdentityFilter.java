@@ -4,165 +4,174 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+
 /**
  * Filter for identities
- *
+ * 
  * @author Radek Tomiška
+ *
  */
-public class IdentityFilter extends QuickFilter implements CorrelationFilter {
+public class IdentityFilter extends DataFilter implements CorrelationFilter {
+	
+	/**
+	 * Subordinates for given identity
+	 */
+	public static final String PARAMETER_SUBORDINATES_FOR = "subordinatesFor";
+	/**
+	 * Subordinates by given tree structure
+	 */
+	public static final String PARAMETER_SUBORDINATES_BY_TREE_TYPE = "subordinatesByTreeType";
+	/**
+	 * Managers for given identity
+	 */
+	public static final String PARAMETER_MANAGERS_FOR = "managersFor";
+	/**
+	 * Managers by given tree structure
+	 */
+	public static final String PARAMETER_MANAGERS_BY_TREE_TYPE = "managersByTreeType";
+	/**
+	 * Returns managers by identity's contract working prosition 
+	 */
+	public static final String PARAMETER_MANAGERS_BY_CONTRACT = "managersByContract";
+	
+	/**
+	 * roles - OR
+	 */
+	private List<UUID> roles;	
+	/**
+	 * Little dynamic search by identity property and value
+	 */
+	private String property;
+	private String value;
+	/**
+	 * Identities for tree structure (by identity contract)
+	 */
+	private UUID treeNode;
+	/**
+	 * Identities for tree structure recursively down
+	 */
+	private boolean recursively = true;
+	/**
+	 * Identities for tree structure (by identity contract)
+	 */
+	private UUID treeType;
+	/**
+	 * managersByContractId with contract guarantees
+	 */
+	private boolean includeGuarantees;
+	
+	public IdentityFilter() {
+		this(new LinkedMultiValueMap<>());
+	}
+	
+	public IdentityFilter(MultiValueMap<String, Object> data) {
+		super(IdmIdentityDto.class, data);
+	}
 
-    /**
-     * Subordinates for given identity (username)
-     */
-    private String subordinatesFor;
-    /**
-     * Subordinates by given tree structure
-     */
-    private UUID subordinatesByTreeType;
-    /**
-     * Managers for given identity (username)
-     */
-    private String managersFor;
-    /**
-     * Managers by given tree structure
-     */
-    private UUID managersByTreeType;
-    /**
-     * Managers by given tree node
-     */
-    private UUID managersByTreeNode;
-    /**
-     * roles - OR
-     */
-    private List<UUID> roles;
-    /**
-     * Little dynamic search by identity property and value
-     */
-    private String property;
-    private String value;
-    /**
-     * Identities for tree structure (by identity contract)
-     */
-    private UUID treeNode;
-    /**
-     * Identities for tree structure recursively down
-     */
-    private boolean recursively = true;
-    /**
-     * Identities for tree structure (by identity contract)
-     */
-    private UUID treeTypeId;
-    private UUID managersByContractId;
-    private Boolean includeGuarantees;
+	public UUID getSubordinatesFor() {
+		return (UUID) data.getFirst(PARAMETER_SUBORDINATES_FOR);
+	}
 
-    public String getSubordinatesFor() {
-        return subordinatesFor;
-    }
+	public void setSubordinatesFor(UUID subordinatesFor) {
+		data.set(PARAMETER_SUBORDINATES_FOR, subordinatesFor);
+	}
 
-    public void setSubordinatesFor(String subordinatesFor) {
-        this.subordinatesFor = subordinatesFor;
-    }
+	public UUID getSubordinatesByTreeType() {
+		return (UUID) data.getFirst(PARAMETER_SUBORDINATES_BY_TREE_TYPE);
+	}
 
-    public UUID getSubordinatesByTreeType() {
-        return subordinatesByTreeType;
-    }
+	public void setSubordinatesByTreeType(UUID subordinatesByTreeType) {
+		data.set(PARAMETER_SUBORDINATES_BY_TREE_TYPE, subordinatesByTreeType);
+	}
+	
+	public void setManagersFor(UUID managersFor) {
+		data.set(PARAMETER_MANAGERS_FOR, managersFor);
+	}
+	
+	public UUID getManagersFor() {
+		return (UUID) data.getFirst(PARAMETER_MANAGERS_FOR);
+	}
+	
+	public void setManagersByTreeType(UUID managersByTreeType) {
+		data.set(PARAMETER_MANAGERS_BY_TREE_TYPE, managersByTreeType);
+	}
+	
+	public UUID getManagersByTreeType() {
+		return (UUID) data.getFirst(PARAMETER_MANAGERS_BY_TREE_TYPE);
+	}
+	
+	public UUID getManagersByContract() {
+		return (UUID) data.getFirst(PARAMETER_MANAGERS_BY_CONTRACT);
+	}
+	
+	public void setManagersByContract(UUID managersByContract) {
+		data.set(PARAMETER_MANAGERS_BY_CONTRACT, managersByContract);
+	}
+	
+	public void setRoles(List<UUID> roles) {
+		this.roles = roles;
+	}
+	
+	public List<UUID> getRoles() {
+		if (roles == null) {
+			roles = new ArrayList<>();
+		}
+		return roles;
+	}
 
-    public void setSubordinatesByTreeType(UUID subordinatesByTreeType) {
-        this.subordinatesByTreeType = subordinatesByTreeType;
-    }
+	@Override
+	public String getProperty() {
+		return property;
+	}
 
-    public void setManagersFor(String managersFor) {
-        this.managersFor = managersFor;
-    }
+	@Override
+	public void setProperty(String property) {
+		this.property = property;
+	}
 
-    public String getManagersFor() {
-        return managersFor;
-    }
+	@Override
+	public String getValue() {
+		return value;
+	}
 
-    public void setManagersByTreeType(UUID managersByTreeType) {
-        this.managersByTreeType = managersByTreeType;
-    }
-
-    public UUID getManagersByTreeType() {
-        return managersByTreeType;
-    }
-
-    public void setManagersByTreeNode(UUID managersByTreeNode) {
-        this.managersByTreeNode = managersByTreeNode;
-    }
-
-    public UUID getManagersByTreeNode() {
-        return managersByTreeNode;
-    }
-
-    public void setRoles(List<UUID> roles) {
-        this.roles = roles;
-    }
-
-    public List<UUID> getRoles() {
-        if (roles == null) {
-            roles = new ArrayList<>();
-        }
-        return roles;
-    }
-
-    @Override
-    public String getProperty() {
-        return property;
-    }
-
-    @Override
-    public void setProperty(String property) {
-        this.property = property;
-    }
-
-    @Override
-    public String getValue() {
-        return value;
-    }
-
-    @Override
-    public void setValue(String value) {
-        this.value = value;
-    }
-
-    public UUID getTreeNode() {
-        return treeNode;
-    }
-
-    public void setTreeNode(UUID treeNode) {
-        this.treeNode = treeNode;
-    }
-
-    public UUID getTreeTypeId() {
-        return treeTypeId;
-    }
-
-    public void setTreeTypeId(UUID treeTypeId) {
-        this.treeTypeId = treeTypeId;
-    }
-
-    public boolean isRecursively() {
-        return recursively;
-    }
-
-    public void setRecursively(boolean recursively) {
-        this.recursively = recursively;
-    }
-
-    public UUID getManagersByContractId() {
-        return managersByContractId;
-    }
-
-    public void setManagersByContractId(UUID managersByContractId) {
-        this.managersByContractId = managersByContractId;
-    }
-
-    public Boolean isIncludeGuarantees() {
-        return includeGuarantees;
-    }
-
-    public void setIncludeGuarantees(Boolean includeGuarantees) {
-        this.includeGuarantees = includeGuarantees;
-    }
+	@Override
+	public void setValue(String value) {
+		this.value = value;
+	}
+	
+	public UUID getTreeNode() {
+		return treeNode;
+	}
+	
+	public void setTreeNode(UUID treeNode) {
+		this.treeNode = treeNode;
+	}
+	
+	public UUID getTreeType() {
+		return treeType;
+	}
+	
+	public void setTreeType(UUID treeType) {
+		this.treeType = treeType;
+	}
+	
+	public boolean isRecursively() {
+		return recursively;
+	}
+	
+	public void setRecursively(boolean recursively) {
+		this.recursively = recursively;
+	}
+	
+	public boolean isIncludeGuarantees() {
+		return includeGuarantees;
+	}
+	
+	public void setIncludeGuarantees(boolean includeGuarantees) {
+		this.includeGuarantees = includeGuarantees;
+	}
 }

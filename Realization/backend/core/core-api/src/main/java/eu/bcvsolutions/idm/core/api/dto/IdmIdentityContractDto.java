@@ -1,11 +1,12 @@
 package eu.bcvsolutions.idm.core.api.dto;
 
-import eu.bcvsolutions.idm.core.api.domain.Disableable;
-import eu.bcvsolutions.idm.core.api.domain.Embedded;
+import java.util.UUID;
+
 import org.joda.time.LocalDate;
 import org.springframework.hateoas.core.Relation;
 
-import java.util.UUID;
+import eu.bcvsolutions.idm.core.api.domain.Disableable;
+import eu.bcvsolutions.idm.core.api.domain.Embedded;
 
 /**
  * Identity contract - working position
@@ -27,10 +28,9 @@ public class IdmIdentityContractDto extends AbstractDto implements Disableable {
     private boolean externe;
     private boolean disabled;
     private boolean main;
+    @Embedded(dtoClass = IdmTreeNodeDto.class)
     private UUID workPosition;
     private String description;
-
-    // private IdmTreeNode workPosition;
 
     public UUID getIdentity() {
         return identity;

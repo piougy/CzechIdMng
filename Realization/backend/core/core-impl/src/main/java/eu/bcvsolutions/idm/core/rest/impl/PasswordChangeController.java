@@ -14,12 +14,13 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
-import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.api.rest.BaseController;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
@@ -34,22 +35,26 @@ import eu.bcvsolutions.idm.core.security.service.LoginService;
 @RestController
 public class PasswordChangeController {
 	
-	private final EntityLookupService entityLookupService;
+	private final LookupService entityLookupService;
 	private final LoginService loginService;
 	private final SecurityService securityService;
+	private final IdmIdentityService identityService;
 	
 	@Autowired
 	public PasswordChangeController(
-			EntityLookupService entityLookupService,
+			LookupService entityLookupService,
 			LoginService loginService,
-			SecurityService securityService) {
+			SecurityService securityService,
+			IdmIdentityService identityService) {
 		Assert.notNull(entityLookupService);
 		Assert.notNull(loginService);
 		Assert.notNull(securityService);
+		Assert.notNull(identityService);
 		//
 		this.entityLookupService = entityLookupService;
 		this.loginService = loginService;
 		this.securityService = securityService;
+		this.identityService = identityService;
 	}
 	
 	/**
@@ -60,7 +65,7 @@ public class PasswordChangeController {
 	 * @return
 	 */
 	@ResponseStatus(code = HttpStatus.NO_CONTENT)
-	@RequestMapping(value = BaseEntityController.BASE_PATH + "/public/identities/{identityId}/password-change", method = RequestMethod.PUT)
+	@RequestMapping(value = BaseController.BASE_PATH + "/public/identities/{identityId}/password-change", method = RequestMethod.PUT)
 	public ResponseEntity<Void> passwordChange(
 			@PathVariable String identityId,
 			@RequestBody @Valid PasswordChangeDto passwordChangeDto) {
@@ -73,15 +78,11 @@ public class PasswordChangeController {
 			loginService.login(loginDto);
 		}
 		//
-		IdmIdentity identity = (IdmIdentity) entityLookupService.lookup(IdmIdentity.class, identityId);
+		IdmIdentityDto identity = (IdmIdentityDto) entityLookupService.lookupDto(IdmIdentityDto.class, identityId);
 		if (identity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("identity", identityId));
 		}
-		getIdentityService().passwordChange(identity, passwordChangeDto);
+		identityService.passwordChange(identity, passwordChangeDto);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-	}
-	
-	private IdmIdentityService getIdentityService() {
-		return entityLookupService.getEntityService(IdmIdentity.class, IdmIdentityService.class);
 	}
 }

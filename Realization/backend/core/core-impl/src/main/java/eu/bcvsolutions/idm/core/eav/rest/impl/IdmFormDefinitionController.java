@@ -25,7 +25,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
-import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 import eu.bcvsolutions.idm.core.eav.entity.AbstractFormValue;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
@@ -48,7 +48,7 @@ public class IdmFormDefinitionController extends DefaultReadWriteEntityControlle
 	private final FormService formService;
 	
 	@Autowired
-	public IdmFormDefinitionController(EntityLookupService entityLookupService, FormService formService) {
+	public IdmFormDefinitionController(LookupService entityLookupService, FormService formService) {
 		super(entityLookupService);
 		//
 		Assert.notNull(formService);

@@ -3,17 +3,21 @@ package eu.bcvsolutions.idm.core.config;
 import java.util.List;
 import java.util.concurrent.Executor;
 
+import javax.persistence.EntityManager;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.plugin.core.PluginRegistry;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 
 import eu.bcvsolutions.idm.core.api.domain.ModuleDescriptor;
+import eu.bcvsolutions.idm.core.api.repository.filter.FilterBuilder;
+import eu.bcvsolutions.idm.core.api.repository.filter.FilterManager;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
@@ -26,6 +30,7 @@ import eu.bcvsolutions.idm.core.eav.service.api.IdmFormDefinitionService;
 import eu.bcvsolutions.idm.core.eav.service.impl.DefaultFormService;
 import eu.bcvsolutions.idm.core.eav.service.impl.DefaultIdmFormAttributeService;
 import eu.bcvsolutions.idm.core.eav.service.impl.DefaultIdmFormDefinitionService;
+import eu.bcvsolutions.idm.core.model.repository.IdmAuthorityChangeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmAuthorizationPolicyRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmConfidentialStorageValueRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmConfigurationRepository;
@@ -37,12 +42,14 @@ import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleTreeNodeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeTypeRepository;
+import eu.bcvsolutions.idm.core.model.repository.filter.DefaultFilterManager;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmContractGuaranteeService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
@@ -53,10 +60,10 @@ import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmConfidentialStorage
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmContractGuaranteeService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmIdentityRoleService;
+import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmRoleService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmRoleTreeNodeService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultModuleService;
-import eu.bcvsolutions.idm.core.model.service.impl.DefaultSubordinatesCriteriaBuilder;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.scheduler.repository.IdmLongRunningTaskRepository;
 import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskService;
@@ -73,14 +80,13 @@ import eu.bcvsolutions.idm.core.security.service.impl.DefaultSecurityService;
 import eu.bcvsolutions.idm.core.security.service.impl.IdmAuthorityHierarchy;
 
 /**
- * Overridable core services initialization
+ * Overridable core services initialization (configuration with higher order wins).
  * 
  * TODO: move all @Service annotated beans here
  * 
  * @author Radek Tomiška
  *
  */
-@Order(0)
 @Configuration
 public class IdmServiceConfiguration {
 	
@@ -90,6 +96,7 @@ public class IdmServiceConfiguration {
 	@Autowired private ApplicationContext context;
 	@Autowired private ApplicationEventPublisher publisher;
 	@Autowired private Executor executor;
+	@Autowired private EntityManager entityManager;
 	//
 	// Spring Data repositories through interfaces - they are constructed automatically
 	@Autowired private IdmConfigurationRepository configurationRepository;
@@ -106,10 +113,12 @@ public class IdmServiceConfiguration {
 	@Autowired private IdmContractGuaranteeRepository contractGuaranteeRepository;
 	@Autowired private IdmIdentityRoleRepository identityRoleRepository;
 	@Autowired private IdmIdentityContractRepository identityContractRepository;
+	@Autowired private IdmAuthorityChangeRepository authChangeRepository;
 	//
 	// Auto registered beans (plugins)
 	@Autowired private PluginRegistry<ModuleDescriptor, String> moduleDescriptorRegistry;
 	@Autowired private List<? extends FormValueService<?, ?>> formValueServices;
+	@Autowired private List<? extends FilterBuilder<?, ?>> filterBuilders;
 	
 	/**
 	 * Crypt service for confidential storage
@@ -117,6 +126,7 @@ public class IdmServiceConfiguration {
 	 * @return
 	 */
 	@Bean
+	@ConditionalOnMissingBean(CryptService.class)
 	public CryptService cryptService() {
 		return new DefaultCryptService();
 	}
@@ -127,6 +137,7 @@ public class IdmServiceConfiguration {
 	 * @return
 	 */
 	@Bean
+	@ConditionalOnMissingBean(ConfidentialStorage.class)
 	public ConfidentialStorage confidentialStorage() {
 		return new DefaultIdmConfidentialStorage(confidentialStorageValueRepository,  cryptService());
 	}
@@ -137,6 +148,7 @@ public class IdmServiceConfiguration {
 	 * @return
 	 */
 	@Bean
+	@ConditionalOnMissingBean(IdmConfigurationService.class)
 	public IdmConfigurationService configurationService() {
 		return new DefaultConfigurationService(configurationRepository, confidentialStorage(), environment);
 	}
@@ -147,6 +159,7 @@ public class IdmServiceConfiguration {
 	 * @return
 	 */
 	@Bean
+	@ConditionalOnMissingBean(ModuleService.class)
 	public ModuleService moduleService() {
 		return new DefaultModuleService(moduleDescriptorRegistry, configurationService());
 	}
@@ -157,6 +170,7 @@ public class IdmServiceConfiguration {
 	 * @return
 	 */
 	@Bean
+	@ConditionalOnMissingBean(name = "roleHierarchy")
 	public RoleHierarchy roleHierarchy() {
 	    return new IdmAuthorityHierarchy(moduleService());
 	}
@@ -167,6 +181,7 @@ public class IdmServiceConfiguration {
 	 * @return
 	 */
 	@Bean
+	@ConditionalOnMissingBean(EnabledEvaluator.class)
 	public EnabledEvaluator enabledEvaluator() {
 		return new DefaultEnabledEvaluator(moduleService(), configurationService());
 	}
@@ -177,6 +192,7 @@ public class IdmServiceConfiguration {
 	 * @return
 	 */
 	@Bean
+	@ConditionalOnMissingBean(EntityEventManager.class)
 	public EntityEventManager entityEventManager() {
 		return new DefaultEntityEventManager(context, publisher, enabledEvaluator());
 	}
@@ -187,8 +203,20 @@ public class IdmServiceConfiguration {
 	 * @return
 	 */
 	@Bean
+	@ConditionalOnMissingBean(SecurityService.class)
 	public SecurityService securityService() {
 		return new DefaultSecurityService(roleHierarchy());
+	}
+	
+	/**
+	 * Filter manager for repositories
+	 * 
+	 * @return
+	 */
+	@Bean
+	@ConditionalOnMissingBean(FilterManager.class)
+	public FilterManager filterManager() {
+		return new DefaultFilterManager(context, filterBuilders);
 	}
 	
 	/**
@@ -197,6 +225,7 @@ public class IdmServiceConfiguration {
 	 * @return
 	 */
 	@Bean
+	@ConditionalOnMissingBean(AuthorizationManager.class)
 	public AuthorizationManager authorizationManager() {
 		return new DefaultAuthorizationManager(context, authorizationPolicyService(), securityService(), moduleService());
 	}
@@ -207,6 +236,7 @@ public class IdmServiceConfiguration {
 	 * @return
 	 */
 	@Bean
+	@ConditionalOnMissingBean(IdmFormAttributeService.class)
 	public IdmFormAttributeService formAttributeService() {
 		return new DefaultIdmFormAttributeService(formAttributeRepository, formValueServices);
 	}
@@ -217,6 +247,7 @@ public class IdmServiceConfiguration {
 	 * @return
 	 */
 	@Bean
+	@ConditionalOnMissingBean(IdmFormDefinitionService.class)
 	public IdmFormDefinitionService formDefinitionService() {
 		return new DefaultIdmFormDefinitionService(formDefinitionRepository, formAttributeService());
 	}
@@ -227,10 +258,10 @@ public class IdmServiceConfiguration {
 	 * @return
 	 */
 	@Bean
+	@ConditionalOnMissingBean(FormService.class)
 	public FormService formService() {
-		return new DefaultFormService(formDefinitionService(), formAttributeService(), formValueServices, entityEventManager());
+		return new DefaultFormService(formDefinitionService(), formAttributeService(), formValueServices, entityEventManager(), entityManager);
 	}
-	
 	
 	/**
 	 * Role service
@@ -238,8 +269,9 @@ public class IdmServiceConfiguration {
 	 * @return
 	 */
 	@Bean
+	@ConditionalOnMissingBean(IdmRoleService.class)
 	public IdmRoleService roleService() {
-		return new DefaultIdmRoleService(roleRepository, entityEventManager(), formService(), configurationService());
+		return new DefaultIdmRoleService(roleRepository, entityEventManager(), formService(), configurationService(), filterManager());
 	}
 	
 	/**
@@ -248,6 +280,7 @@ public class IdmServiceConfiguration {
 	 * @return
 	 */
 	@Bean
+	@ConditionalOnMissingBean(IdmAuthorizationPolicyService.class)
 	public IdmAuthorizationPolicyService authorizationPolicyService() {
 		return new DefaultIdmAuthorizationPolicyService(authorizationPolicyRepository, roleService(),
 				moduleService(), entityEventManager());
@@ -259,6 +292,7 @@ public class IdmServiceConfiguration {
 	 * @return
 	 */
 	@Bean
+	@ConditionalOnMissingBean(IdmLongRunningTaskService.class)
 	public IdmLongRunningTaskService longRunningTaskService() {
 		return new DefaultIdmLongRunningTaskService(longRunningTaskRepository, configurationService());
 	}
@@ -270,20 +304,22 @@ public class IdmServiceConfiguration {
 	 * @return
 	 */
 	@Bean
+	@ConditionalOnMissingBean(LongRunningTaskManager.class)
 	public LongRunningTaskManager longRunningTaskManager() {
 		return new DefaultLongRunningTaskManager(longRunningTaskService(), executor, configurationService(), securityService());
 	}
 	
+	
+	
 	/**
-	 * Subordinates criteria builder.
-	 * 
-	 * Override in custom module for changing subordinates evaluation.
+	 * Identity service
 	 * 
 	 * @return
 	 */
 	@Bean
-	public DefaultSubordinatesCriteriaBuilder subordinatesCriteriaBuilder() {
-		return new DefaultSubordinatesCriteriaBuilder(identityRepository);
+	@ConditionalOnMissingBean(IdmIdentityService.class)
+	public IdmIdentityService identityService() {
+		return new DefaultIdmIdentityService(identityRepository, formService(), roleRepository, entityEventManager(), authChangeRepository);
 	}
 	
 	/**
@@ -292,6 +328,7 @@ public class IdmServiceConfiguration {
 	 * @return
 	 */
 	@Bean
+	@ConditionalOnMissingBean(IdmRoleTreeNodeService.class)
 	public IdmRoleTreeNodeService roleTreeNodeService(
 			IdmRoleRequestService roleRequestService, 
 			IdmIdentityContractService identityContractService,
@@ -305,6 +342,7 @@ public class IdmServiceConfiguration {
 	 * @return
 	 */
 	@Bean
+	@ConditionalOnMissingBean(IdmContractGuaranteeService.class)
 	public IdmContractGuaranteeService contractGuaranteeService() {
 		return new DefaultIdmContractGuaranteeService(contractGuaranteeRepository);
 	}
@@ -315,6 +353,7 @@ public class IdmServiceConfiguration {
 	 * @return
 	 */
 	@Bean
+	@ConditionalOnMissingBean(IdmIdentityContractService.class)
 	public IdmIdentityContractService identityContractService() {
 		return new DefaultIdmIdentityContractService(identityContractRepository, entityEventManager(), treeTypeRepository, treeNodeRepository);
 	}
@@ -325,7 +364,8 @@ public class IdmServiceConfiguration {
 	 * @return
 	 */
 	@Bean
+	@ConditionalOnMissingBean(IdmIdentityRoleService.class)
 	public IdmIdentityRoleService idmIdentityRoleService() {
 		return new DefaultIdmIdentityRoleService(identityRoleRepository, entityEventManager());
-	}	
+	}
 }

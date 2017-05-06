@@ -5,8 +5,8 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmAuthorityChange;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 
 /**
@@ -20,7 +20,7 @@ public class IdentityRoleAddAuthoritiesProcessorTest extends AbstractIdentityAut
 	@Test
 	public void testAddRoleModifyAuthorities() {
 		IdmRole role = getTestRole();
-		IdmIdentity i = getTestUser();
+		IdmIdentityDto i = getTestUser();
 		IdmIdentityContractDto c = getTestContract(i);
 		IdmAuthorityChange ac = getAuthorityChange(i);
 		
@@ -39,7 +39,7 @@ public class IdentityRoleAddAuthoritiesProcessorTest extends AbstractIdentityAut
 	public void testAddRoleDoNotModifyAuthorities() throws Exception {
 		IdmRole role = getTestRole();
 		IdmRole role2 = getTestRole();
-		IdmIdentity i = getTestUser();
+		IdmIdentityDto i = getTestUser();
 		IdmIdentityContractDto c = getTestContract(i);
 		IdmAuthorityChange ac = getAuthorityChange(i);
 		

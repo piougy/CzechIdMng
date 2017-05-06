@@ -11,16 +11,15 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
+import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.MappingAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.RoleSystemAttributeFilter;
-import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.repository.SysRoleSystemAttributeRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountManagementService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
-import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
@@ -28,6 +27,7 @@ import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 
 /**
  * Mapping attribute to system for role
@@ -47,6 +47,8 @@ public class DefaultSysRoleSystemAttributeService
 	private SysSystemAttributeMappingService systeAttributeMappingService;
 	@Autowired
 	private GroovyScriptService groovyScriptService;
+	@Autowired
+	private IdmIdentityRepository identityRepository;
 	@Autowired
 	private ApplicationContext applicationContext;
 	private AccAccountManagementService accountManagementService;
@@ -94,12 +96,12 @@ public class DefaultSysRoleSystemAttributeService
 		// connected identities
 		IdentityAccountFilter filter = new IdentityAccountFilter();
 		filter.setRoleSystemId(entity.getRoleSystem().getId());
-		List<AccIdentityAccount> identityAccounts = identityAccountService.find(filter, null).getContent();
+		List<AccIdentityAccountDto> identityAccounts = identityAccountService.find(filter, null).getContent();
 		// TODO: move to filter and use distinct
 		List<IdmIdentity> identities = new ArrayList<>();
 		identityAccounts.stream().forEach(identityAccount -> {
 			if (!identities.contains(identityAccount.getIdentity())) {
-				identities.add(identityAccount.getIdentity());
+				identities.add(identityRepository.findOne(identityAccount.getIdentity()));
 			}
 		});
 		identities.stream().forEach(identity -> {		

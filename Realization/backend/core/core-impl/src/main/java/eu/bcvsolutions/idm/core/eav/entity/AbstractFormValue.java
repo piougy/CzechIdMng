@@ -2,7 +2,6 @@ package eu.bcvsolutions.idm.core.eav.entity;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.text.MessageFormat;
 import java.util.Date;
 import java.util.Objects;
 import java.util.UUID;
@@ -27,7 +26,11 @@ import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
+import com.google.common.collect.ImmutableMap;
+
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 
@@ -248,8 +251,7 @@ public abstract class AbstractFormValue<O extends FormableEntity> extends Abstra
 				} else if (value instanceof Number) {
 					setLongValue(((Number) value).longValue());
 				} else {
-					throw new IllegalArgumentException(MessageFormat.format("Form value [{0}] has to be [{1}], given [{2}]", 
-							formAttribute.getName(), persistentType, value));
+					throw wrongType(value);
 				}
 				break;
 			case BOOLEAN:
@@ -258,8 +260,7 @@ public abstract class AbstractFormValue<O extends FormableEntity> extends Abstra
 				} else if (value instanceof Boolean) {
 					setBooleanValue((Boolean) value);
 				} else {
-					throw new IllegalArgumentException(MessageFormat.format("Form value [{0}] has to be [{1}], given [{2}]", 
-							formAttribute.getName(), persistentType, value));
+					throw wrongType(value);
 				}
 				break;
 			case DATE:
@@ -270,9 +271,10 @@ public abstract class AbstractFormValue<O extends FormableEntity> extends Abstra
 					setDateValue((DateTime) value);
 				} else if (value instanceof Date) {
 					setDateValue(new DateTime((Date) value));
+				} else if (value instanceof Long) {
+					setDateValue(new DateTime(( Long) value));
 				} else {
-					throw new IllegalArgumentException(MessageFormat.format("Form value [{0}] has to be [{1}], given [{2}]", 
-							formAttribute.getName(), persistentType, value));
+					throw wrongType(value);
 				}
 				break;
 			case DOUBLE:
@@ -292,8 +294,7 @@ public abstract class AbstractFormValue<O extends FormableEntity> extends Abstra
 				} else if (value instanceof Number) {
 					setDoubleValue(BigDecimal.valueOf(((Number) value).doubleValue()));
 				} else {
-					throw new IllegalArgumentException(MessageFormat.format("Form value [{0}] has to be [{1}], given [{2}]", 
-							formAttribute.getName(), persistentType, value));
+					throw wrongType(value);
 				}
 				break;
 			case BYTEARRAY: {
@@ -302,8 +303,7 @@ public abstract class AbstractFormValue<O extends FormableEntity> extends Abstra
 				} else if (value instanceof byte[]) {
 					setByteValue((byte[]) value);
 				} else {
-					throw new IllegalArgumentException(MessageFormat.format("Form value [{0}] has to be [{1}], given [{2}]", 
-							formAttribute.getName(), persistentType, value));
+					throw wrongType(value);
 				}
 				break;
 			}
@@ -313,10 +313,23 @@ public abstract class AbstractFormValue<O extends FormableEntity> extends Abstra
 				} else if (value instanceof String) {
 					setStringValue((String) value);
 				} else {
-					throw new IllegalArgumentException(MessageFormat.format("Form value [{0}] has to be [{1}], given [{2}]", 
-							formAttribute.getName(), persistentType, value));
+					throw wrongType(value);
 				}
 		}
+	}
+	
+	/**
+	 * Throws {@link ResultCodeException} exception only - value has wrong type
+	 * 
+	 * @param value
+	 */
+	private ResultCodeException wrongType(Serializable value) {
+		return new ResultCodeException(CoreResultCode.FORM_VALUE_WRONG_TYPE, ImmutableMap.of(
+				"value", Objects.toString(value), 
+				"formAttribute", formAttribute == null ? Objects.toString(formAttribute) : formAttribute.getName(), 
+				"persistentType", persistentType, 
+				"valueType", value == null ?  Objects.toString(null) : value.getClass().getCanonicalName()
+				));
 	}
 	
 	/**

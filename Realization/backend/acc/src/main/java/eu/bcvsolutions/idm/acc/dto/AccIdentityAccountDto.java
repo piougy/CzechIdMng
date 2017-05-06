@@ -54,12 +54,10 @@ public class AccIdentityAccountDto extends AbstractDto implements EntityAccountD
 		this.identityRole = identityRole;
 	}
 
-	@Override
 	public UUID getRoleSystem() {
 		return roleSystem;
 	}
 
-	@Override
 	public void setRoleSystem(UUID roleSystem) {
 		this.roleSystem = roleSystem;
 	}

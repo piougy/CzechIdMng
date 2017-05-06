@@ -749,7 +749,7 @@
   "enums" : {
     "SystemEntityTypeEnum": {
       "IDENTITY": "Identita",
-      "GROUP": "Skupina",
+      "ROLE": "Role",
       "TREE": "Strom"
     },
     "SystemOperationTypeEnum": {
@@ -843,6 +843,14 @@
       "NAME": "Název (String)",
       "PARENT": "Rodič (String)",
       "EXTERNAL_ID": "Externí ID (String)",
+      "DISABLED": "Zakázaný (boolean)"
+    },
+    "RoleAttributeEnum": {
+      "NAME": "Název (String)",
+      "ROLE_TYPE": "Typ role (String - RoleType)",
+      "APPROVE_REMOVE": "Schvalovat odebrání (Boolean)",
+      "PRIORITY": "Priorita (Integer)",
+      "DESCRIPTION": "Popis (String)",
       "DISABLED": "Zakázaný (boolean)"
     }
   },

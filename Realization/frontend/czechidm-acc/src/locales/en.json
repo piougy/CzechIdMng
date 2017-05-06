@@ -748,8 +748,8 @@
   },
   "enums" : {
     "SystemEntityTypeEnum": {
-      "IDENTITY": "Identita",
-      "GROUP": "Skupina",
+      "IDENTITY": "Identity",
+      "ROLE": "Group",
       "TREE": "Tree"
     },
     "SystemOperationTypeEnum": {
@@ -843,6 +843,14 @@
       "NAME": "Name (String)",
       "PARENT": "Parent (String)",
       "EXTERNAL_ID": "External ID (String)",
+      "DISABLED": "Disabled (boolean)"
+    },
+    "RoleAttributeEnum": {
+      "NAME": "Name (String)",
+      "ROLE_TYPE": "Type of role (String - RoleType)",
+      "APPROVE_REMOVE": "Approve remove (Boolean)",
+      "PRIORITY": "Priority (Integer)",
+      "DESCRIPTION": "Description (String)",
       "DISABLED": "Disabled (boolean)"
     }
   },

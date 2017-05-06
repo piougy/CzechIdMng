@@ -271,7 +271,7 @@ public class DefaultSysSystemAttributeMappingService
 						ImmutableMap.of("attribute", schemaAttribute.getName(), "schemaAttributeType",
 								schemaAttribute.getClassType(), "valueType", idmValue.getClass().getName()));
 			}
-		} catch (ClassNotFoundException | ProvisioningException e) {
+		} catch (ClassNotFoundException e) {
 			throw new ProvisioningException(AccResultCode.PROVISIONING_ATTRIBUTE_TYPE_NOT_FOUND,
 					ImmutableMap.of("attribute", schemaAttribute.getName(), "schemaAttributeType",
 							schemaAttribute.getClassType()),

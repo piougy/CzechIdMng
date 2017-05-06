@@ -14,7 +14,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 public enum SystemEntityType {
 
 	IDENTITY(IdmIdentity.class),
-	GROUP(IdmRole.class),  // unimplemented for now: 
+	ROLE(IdmRole.class),
 	TREE(IdmTreeNode.class);
 
 	private Class<? extends AbstractEntity> entityType;

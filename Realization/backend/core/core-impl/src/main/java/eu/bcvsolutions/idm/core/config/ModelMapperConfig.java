@@ -10,6 +10,7 @@ import org.modelmapper.Condition;
 import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeMap;
+import org.modelmapper.convention.MatchingStrategies;
 import org.modelmapper.spi.MappingContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -43,6 +44,9 @@ public class ModelMapperConfig {
 	@Bean
 	public ModelMapper modelMapper() {
 		ModelMapper modeler = new ModelMapper();
+		// We want use STRICT matching strategy ... others can be ambiguous 
+		modeler.getConfiguration()
+		  .setMatchingStrategy(MatchingStrategies.STRICT);
 
 		// Convert BaseEntity to UIID (get ID)
 		Converter<? extends BaseEntity, UUID> entityToUiid = new EntityToUuidConverter(modeler);

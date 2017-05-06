@@ -1,7 +1,5 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
-import java.beans.IntrospectionException;
-import java.lang.reflect.InvocationTargetException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,6 +18,7 @@ import org.springframework.util.StringUtils;
 
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
 import eu.bcvsolutions.idm.acc.domain.OperationResultType;
@@ -34,7 +33,6 @@ import eu.bcvsolutions.idm.acc.dto.filter.SynchronizationLogFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.TreeAccountFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
-import eu.bcvsolutions.idm.acc.entity.AccTreeAccount;
 import eu.bcvsolutions.idm.acc.entity.SysSyncActionLog;
 import eu.bcvsolutions.idm.acc.entity.SysSyncConfig;
 import eu.bcvsolutions.idm.acc.entity.SysSyncItemLog;
@@ -61,7 +59,6 @@ import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
-import eu.bcvsolutions.idm.core.model.domain.EntityUtilities;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.event.TreeNodeEvent;
 import eu.bcvsolutions.idm.core.model.event.TreeNodeEvent.TreeNodeEventType;
@@ -229,7 +226,6 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 
 				List<String> roots = new ArrayList<>();
 				accountsMap.forEach((uid, account) -> {
-					Object parentValue = this.getValueByMappedAttribute(parentAttribute, account.getAttributes());
 					if (StringUtils.hasLength(config.getRootsFilterScript())) {
 						Map<String, Object> variables = new HashMap<>();
 						variables.put("account", account);
@@ -249,6 +245,8 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 							roots.add(uid);
 						}
 					} else {
+						// Default search root strategy (if is parent null, then is node root)
+						Object parentValue = super.getValueByMappedAttribute(parentAttribute, account.getAttributes());
 						if (parentValue == null) {
 							roots.add(uid);
 						}
@@ -321,7 +319,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 			SynchronizationItemBuilder wrapper) {
 
 		accountsMap.forEach((uid, account) -> {
-			Object parentValue = this.getValueByMappedAttribute(parentAttribute, account.getAttributes());
+			Object parentValue = super.getValueByMappedAttribute(parentAttribute, account.getAttributes());
 			if (parentValue != null && parentValue.equals(uidValueParent)) {
 				// Account is use in tree
 				accountsUseInTreeList.add(uid);
@@ -332,7 +330,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 				if (!resultChild) {
 					return;
 				}
-				Object uidValueParentChilde = this.getValueByMappedAttribute(uidAttribute, account.getAttributes());
+				Object uidValueParentChilde = super.getValueByMappedAttribute(uidAttribute, account.getAttributes());
 				processChildren(parentAttribute, uidValueParentChilde, uidAttribute, tokenAttribute, accountsMap,
 						accountsUseInTreeList, wrapper);
 
@@ -634,66 +632,31 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 		return null;
 	}
 
-	/**
-	 * Fill entity with attributes from IC module (by mapped attributes).
-	 * 
-	 * @param mappedAttributes
-	 * @param uid
-	 * @param icAttributes
-	 * @param entity
-	 * @param create (is create or update entity situation)
-	 * @return
-	 */
 	@Override
-	protected AbstractEntity fillEntity(List<SysSystemAttributeMapping> mappedAttributes, String uid,
-			List<IcAttribute> icAttributes, AbstractEntity entity, boolean create) {
-		mappedAttributes.stream().filter(attribute -> {
-			// Skip disabled attributes
-						// Skip extended attributes (we need update/ create entity first)
-						// Skip confidential attributes (we need update/ create entity
-						// first)
-						boolean fastResult =  !attribute.isDisabledAttribute() && attribute.isEntityAttribute()
-								&& !attribute.isConfidentialAttribute();
-						if(!fastResult){
-							return false;
-						}
-						// Can be value set by attribute strategy?
-						return this.canSetValue(uid, attribute, entity, create);
-
-		}).forEach(attribute -> {
-			String attributeProperty = attribute.getIdmPropertyName();
-			Object transformedValue = getValueByMappedAttribute(attribute, icAttributes);
-			if (attributeProperty.equals(PARENT_FIELD) && transformedValue != null) {
-				// Find account by UID from parent field
-				AccountFilter accountFilter = new AccountFilter();
-				accountFilter.setUidId(transformedValue.toString());
-				accountFilter.setSystemId(attribute.getSystemMapping().getSystem().getId());
-				transformedValue = null;
-				List<AccAccount> parentAccounts = accountService.find(accountFilter, null).getContent();
-				if (!parentAccounts.isEmpty()) {
-					// Find relation between tree and account
-					TreeAccountFilter treeAccountFilter = new TreeAccountFilter();
-					treeAccountFilter.setAccountId(parentAccounts.get(0).getId());
-					List<AccTreeAccountDto> treeAccounts = treeAccoutnService.find(treeAccountFilter, null).getContent();
-					if(!treeAccounts.isEmpty()){
-						// Find parent tree node by ID
-						// TODO: resolve more treeAccounts situations
-						transformedValue = treeNodeService.get(treeAccounts.get(0).getTreeNode());
-					}
+	protected Object getValueByMappedAttribute(AttributeMapping attribute, List<IcAttribute> icAttributes) {
+		
+		Object transformedValue = super.getValueByMappedAttribute(attribute, icAttributes);
+		
+		if (PARENT_FIELD.equals(attribute.getIdmPropertyName()) && transformedValue != null) {
+			// Find account by UID from parent field
+			AccountFilter accountFilter = new AccountFilter();
+			accountFilter.setUidId(transformedValue.toString());
+			accountFilter.setSystemId(((SysSystemAttributeMapping)attribute).getSystemMapping().getSystem().getId());
+			transformedValue = null;
+			List<AccAccount> parentAccounts = accountService.find(accountFilter, null).getContent();
+			if (!parentAccounts.isEmpty()) {
+				// Find relation between tree and account
+				TreeAccountFilter treeAccountFilter = new TreeAccountFilter();
+				treeAccountFilter.setAccountId(parentAccounts.get(0).getId());
+				List<AccTreeAccountDto> treeAccounts = treeAccoutnService.find(treeAccountFilter, null).getContent();
+				if(!treeAccounts.isEmpty()){
+					// Find parent tree node by ID
+					// TODO: resolve more treeAccounts situations
+					transformedValue = treeNodeService.get(treeAccounts.get(0).getTreeNode());
 				}
 			}
-
-			// Set transformed value from target system to entity
-			try {
-				EntityUtilities.setEntityValue(entity, attributeProperty, transformedValue);
-			} catch (IntrospectionException | IllegalAccessException | IllegalArgumentException
-					| InvocationTargetException | ProvisioningException e) {
-				throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_IDM_FIELD_NOT_SET,
-						ImmutableMap.of("property", attributeProperty, "uid", uid), e);
-			}
-
-		});
-		return entity;
+		}
+		return transformedValue;
 	}
 
 	@Override

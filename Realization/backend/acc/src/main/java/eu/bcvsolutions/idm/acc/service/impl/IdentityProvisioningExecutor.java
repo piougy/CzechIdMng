@@ -2,7 +2,6 @@ package eu.bcvsolutions.idm.acc.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,10 +12,10 @@ import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
 import eu.bcvsolutions.idm.acc.domain.EntityAccount;
-import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
@@ -30,7 +29,6 @@ import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.repository.AccIdentityAccountRepository;
@@ -38,21 +36,19 @@ import eu.bcvsolutions.idm.acc.service.api.AccAccountManagementService;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningExecutor;
-import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
-import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 
 /**
- * Service for do identity provisioning
+ * Service for do Identity provisioning
  * 
  * @author svandav
  *
@@ -62,8 +58,8 @@ import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<IdmIdentity> {
  
 	public static final String NAME = "identityProvisioningService";
-	private final AccIdentityAccountRepository identityAccountRepository;
 	private final AccIdentityAccountService identityAccountService;
+	private final AccIdentityAccountRepository identityAccountRepository;
 	private final SysRoleSystemService roleSystemService;
 	private final AccAccountManagementService accountManagementService;
 	
@@ -73,20 +69,22 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
 			SysSystemService systemService, SysRoleSystemService roleSystemService,
 			AccAccountManagementService accountManagementService,
 			SysRoleSystemAttributeService roleSystemAttributeService, SysSystemEntityService systemEntityService,
-			AccAccountService accountService, AccIdentityAccountRepository identityAccountRepository,
-			ProvisioningExecutor provisioningExecutor, AccIdentityAccountService identityAccountService) {
+			AccAccountService accountService, AccIdentityAccountService identityAccountService,
+			AccIdentityAccountRepository identityAccountRepository,
+			ProvisioningExecutor provisioningExecutor) {
 		super(systemMappingService, attributeMappingService, connectorFacade, systemService, roleSystemService,
 				accountManagementService, roleSystemAttributeService, systemEntityService, accountService,
-				provisioningExecutor);		
-		Assert.notNull(identityAccountRepository);
+				provisioningExecutor);
+		
+		Assert.notNull(identityAccountService);
 		Assert.notNull(roleSystemService);
 		Assert.notNull(accountManagementService);
-		Assert.notNull(identityAccountService);
-		//
-		this.identityAccountRepository = identityAccountRepository;
+		Assert.notNull(identityAccountRepository);
+		
+		this.identityAccountService = identityAccountService;
 		this.roleSystemService = roleSystemService;
 		this.accountManagementService = accountManagementService;
-		this.identityAccountService = identityAccountService;
+		this.identityAccountRepository = identityAccountRepository;
 	}
 	
 	public void doProvisioning(AccAccount account) {
@@ -105,59 +103,6 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
 			doProvisioning(account, identityAccount.getIdentity());
 		});
 	}
-
-	@Override
-	public void changePassword(IdmIdentity identity, PasswordChangeDto passwordChange) {
-		Assert.notNull(identity);
-		Assert.notNull(passwordChange);
-
-		IdentityAccountFilter filter = new IdentityAccountFilter();
-		filter.setIdentityId(identity.getId());
-		Page<AccIdentityAccount> identityAccounts = identityAccountRepository.find(filter, null);
-		List<AccIdentityAccount> identityAccountList = identityAccounts.getContent();
-		if (identityAccountList == null) {
-			return;
-		}
-		
-		// Distinct by accounts
-		List<AccAccount> accounts = new ArrayList<>();
-		identityAccountList.stream().filter(identityAccount -> {
-			return identityAccount.isOwnership() && (passwordChange.isAll()
-					|| passwordChange.getAccounts().contains(identityAccount.getId().toString()));
-		}).forEach(identityAccount -> {
-			if (!accounts.contains(identityAccount.getAccount())) {
-				accounts.add(identityAccount.getAccount());
-			}
-		});
-
-		accounts.forEach(account -> {
-			// find uid from system entity or from account
-			String uid = account.getUid();
-			SysSystem system = account.getSystem();
-			SysSystemEntity systemEntity = account.getSystemEntity();
-			//
-			// Find mapped attributes (include overloaded attributes)
-			List<AttributeMapping> finalAttributes = resolveMappedAttributes(uid, account, identity, system, systemEntity.getEntityType());
-			if (CollectionUtils.isEmpty(finalAttributes)) {
-				return;
-			}
-			
-			// We try find __PASSWORD__ attribute in mapped attributes
-			Optional<? extends AttributeMapping> attriubuteHandlingOptional = finalAttributes.stream()
-					.filter((attribute) -> {
-						return ProvisioningService.PASSWORD_SCHEMA_PROPERTY_NAME.equals(attribute.getSchemaAttribute().getName());
-					}).findFirst();
-			if (!attriubuteHandlingOptional.isPresent()) {
-				throw new ProvisioningException(AccResultCode.PROVISIONING_PASSWORD_FIELD_NOT_FOUND,
-						ImmutableMap.of("uid", uid));
-			}
-			AttributeMapping mappedAttribute = attriubuteHandlingOptional.get();
-
-			doProvisioningForAttribute(systemEntity, mappedAttribute, passwordChange.getNewPassword(),
-					ProvisioningOperationType.UPDATE, identity);
-		});
-	}
-
 
 	/**
 	 * Return all mapped attributes for this account (include overloaded attributes)

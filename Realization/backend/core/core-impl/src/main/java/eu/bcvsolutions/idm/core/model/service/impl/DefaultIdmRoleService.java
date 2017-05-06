@@ -28,6 +28,7 @@ import eu.bcvsolutions.idm.core.eav.service.impl.AbstractFormableService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.dto.filter.RoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmForestIndexEntity_;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogueRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogueRole_;
@@ -172,6 +173,10 @@ public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, Role
 		// role type
 		if (filter.getRoleType() != null) {
 			predicates.add(builder.equal(root.get(IdmRole_.roleType), filter.getRoleType()));
+		}
+		// property
+		if (StringUtils.equals(IdmRole_.name.getName(), filter.getProperty())) {
+			predicates.add(builder.equal(root.get(IdmRole_.name), filter.getValue()));
 		}
 		// guarantee	
 		if (filter.getGuarantee() != null) {

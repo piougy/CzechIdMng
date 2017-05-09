@@ -31,8 +31,8 @@ public enum CoreGroupPermission implements GroupPermission {
 			IdmBasePermission.CREATE, 
 			IdmBasePermission.UPDATE,
 			IdmBasePermission.DELETE,
-			IdentityBasePermission.PASSWORDCHANGE,
-			IdentityBasePermission.PASSWORDRESET),
+			IdentityBasePermission.PASSWORDCHANGE),
+			// IdentityBasePermission.PASSWORDRESET),
 	IDENTITYCONTRACT(
 			IdmBasePermission.ADMIN, 
 			IdmBasePermission.AUTOCOMPLETE, 

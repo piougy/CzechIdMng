@@ -61,7 +61,7 @@ module.exports = {
             'order': 30,
             'path': '/identity/:entityId/roles',
             'icon': 'fa:universal-access',
-            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITYROLE_READ'] } ]
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_READ'] } ]
           },
           {
             'id': 'profile-authorities',

@@ -44,7 +44,7 @@ module.exports = {
         {
           path: 'roles',
           component: require('./src/content/identity/IdentityRoles'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITYROLES_READ' ] } ]
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_READ' ] } ]
         },
         {
           path: 'authorities',

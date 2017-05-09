@@ -5,11 +5,14 @@ import eu.bcvsolutions.idm.core.api.domain.RoleType;
 
 import java.util.List;
 
+import org.springframework.hateoas.core.Relation;
+
 /**
  * Dto for role
  *
  * @author svandav
  */
+@Relation(collectionRelation = "roles")
 public class IdmRoleDto extends AbstractDto implements Disableable {
 
     private static final long serialVersionUID = 1L;

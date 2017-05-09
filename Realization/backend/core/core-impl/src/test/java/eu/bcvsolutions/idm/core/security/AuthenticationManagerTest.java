@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.transaction.annotation.Transactional;
 
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.security.api.authentication.AuthenticationManager;
 import eu.bcvsolutions.idm.core.security.api.authentication.Authenticator;
@@ -47,7 +47,7 @@ public class AuthenticationManagerTest extends AbstractIntegrationTest {
 	@Transactional
 	@Test(expected = AuthenticationException.class)
 	public void loginViaManagerBadCredentials() {
-		IdmIdentity identity = new IdmIdentity();
+		IdmIdentityDto identity = new IdmIdentityDto();
 		identity.setUsername("test_login_1");
 		identity.setLastName("test_login_1");
 		identity.setPassword(new GuardedString("test1234"));
@@ -64,7 +64,7 @@ public class AuthenticationManagerTest extends AbstractIntegrationTest {
 	@Test
 	@Transactional
 	public void loginViaManagerSuccesful() {
-		IdmIdentity identity = new IdmIdentity();
+		IdmIdentityDto identity = new IdmIdentityDto();
 		identity.setUsername("test_login_2");
 		identity.setLastName("test_login_2");
 		identity.setPassword(new GuardedString("test1234"));

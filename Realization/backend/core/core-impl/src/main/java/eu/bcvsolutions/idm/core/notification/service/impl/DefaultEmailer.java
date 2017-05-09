@@ -131,7 +131,7 @@ public class DefaultEmailer implements Emailer {
 		}
 		// when from is given - transform to reply to
 		if (emailLog.getIdentitySender() != null) {
-			String fromEmail = emailLogService.getEmailAddress(identityService.getDto(emailLog.getIdentitySender()));
+			String fromEmail = emailLogService.getEmailAddress(identityService.get(emailLog.getIdentitySender()));
 			if (StringUtils.isNotBlank(fromEmail)) {
 				headers.put("Reply-To", fromEmail);
 			}			

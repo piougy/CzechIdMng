@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.notification.repository;
 
+import java.util.UUID;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
@@ -7,7 +9,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.notification.dto.filter.NotificationRecipientFilter;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationRecipient;
 
@@ -26,8 +27,8 @@ public interface IdmNotificationRecipientRepository extends AbstractEntityReposi
 	 * @return
 	 */
 	@Modifying
-	@Query("update #{#entityName} e set e.identityRecipient = null where e.identityRecipient = :identity")
-	int clearIdentity(@Param("identity") IdmIdentity identity);
+	@Query("update #{#entityName} e set e.identityRecipient = null where e.identityRecipient.id = :identityId")
+	int clearIdentity(@Param("identityId") UUID identityId);
 	
 
 	@Override

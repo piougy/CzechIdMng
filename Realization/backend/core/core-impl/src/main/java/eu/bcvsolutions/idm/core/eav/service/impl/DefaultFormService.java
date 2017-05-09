@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import javax.persistence.EntityManager;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -20,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.Lists;
+
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
@@ -46,22 +49,26 @@ public class DefaultFormService implements FormService {
 	private final IdmFormAttributeService formAttributeService;
 	private final PluginRegistry<FormValueService<?, ?>, Class<?>> formValueServices;
 	private final EntityEventManager entityEventManager;
+	private final EntityManager entityManager;
 	
 	@Autowired
 	public DefaultFormService(
 			IdmFormDefinitionService formDefinitionService,
 			IdmFormAttributeService formAttributeService,
 			List<? extends FormValueService<?, ?>> formValueServices,
-			EntityEventManager entityEventManager) {
+			EntityEventManager entityEventManager,
+			EntityManager entityManager) {
 		Assert.notNull(formDefinitionService);
 		Assert.notNull(formAttributeService);
 		Assert.notNull(formValueServices);
 		Assert.notNull(entityEventManager);
+		Assert.notNull(entityManager);
 		//
 		this.formDefinitionService = formDefinitionService;
 		this.formAttributeService = formAttributeService;
 		this.formValueServices = OrderAwarePluginRegistry.create(formValueServices);
 		this.entityEventManager = entityEventManager;
+		this.entityManager = entityManager;
 	}
 	
 	@Override
@@ -193,11 +200,21 @@ public class DefaultFormService implements FormService {
 		return saveAttribute(attribute);
 	}
 	
+	@Override
+	@Transactional
+	public <O extends FormableEntity, E extends AbstractFormValue<O>> List<E> saveValues(UUID ownerId, Class<O> ownerType, IdmFormDefinition formDefinition, List<E> values) {
+		O owner =  entityManager.find(ownerType, ownerId);
+		Assert.notNull(owner, "Form values owner is required!");
+		//
+		return saveValues(owner, formDefinition, values);
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 * 
 	 * TODO: validations by given form definition? I don't think, it will not be useful in synchronization etc. - only FE validations will be enough ...
 	 */
+	@Override
 	@Transactional
 	public <O extends FormableEntity, E extends AbstractFormValue<O>> List<E> saveValues(O owner, IdmFormDefinition formDefinition, List<E> values) {
 		Assert.notNull(owner, "Form values owner is required!");
@@ -259,15 +276,25 @@ public class DefaultFormService implements FormService {
 	
 	@Override
 	@Transactional
-	public <O extends FormableEntity, E extends AbstractFormValue<O>> List<E> saveValues(O owner, String attributeName,
-			List<Serializable> persistentValues) {
+	public <O extends FormableEntity, E extends AbstractFormValue<O>> List<E> saveValues(
+			UUID ownerId, Class<O> ownerType, String attributeName, List<Serializable> persistentValues) {
+		O owner =  entityManager.find(ownerType, ownerId);
+		Assert.notNull(owner, "Form values owner is required!");
+		//
+		return saveValues(owner, attributeName, persistentValues);
+	}
+	
+	@Override
+	@Transactional
+	public <O extends FormableEntity, E extends AbstractFormValue<O>> List<E> saveValues(
+			O owner, String attributeName, List<Serializable> persistentValues) {
 		return saveValues(owner, null, attributeName, persistentValues);
 	}
 	
 	@Override
 	@Transactional
-	public <O extends FormableEntity, E extends AbstractFormValue<O>> List<E> saveValues(O owner,
-			IdmFormDefinition formDefinition, String attributeName, List<Serializable> persistentValues) {
+	public <O extends FormableEntity, E extends AbstractFormValue<O>> List<E> saveValues(
+			O owner, IdmFormDefinition formDefinition, String attributeName, List<Serializable> persistentValues) {
 		Assert.notNull(owner, "Form values owner is required!");
 		Assert.notNull(owner.getId(), "Owner id is required!");
 		Assert.hasLength(attributeName, "Form attribute definition name is required!");
@@ -278,8 +305,18 @@ public class DefaultFormService implements FormService {
 	
 	@Override
 	@Transactional
-	public <O extends FormableEntity, E extends AbstractFormValue<O>> List<E> saveValues(O owner, 
-			IdmFormAttribute attribute, List<Serializable> persistentValues) {
+	public <O extends FormableEntity, E extends AbstractFormValue<O>> List<E> saveValues(
+			UUID ownerId, Class<O> ownerType, IdmFormAttribute attribute, List<Serializable> persistentValues) {
+		O owner =  entityManager.find(ownerType, ownerId);
+		Assert.notNull(owner, "Form values owner is required!");
+		//
+		return saveValues(owner, attribute, persistentValues);
+	}
+	
+	@Override
+	@Transactional
+	public <O extends FormableEntity, E extends AbstractFormValue<O>> List<E> saveValues(
+			O owner, IdmFormAttribute attribute, List<Serializable> persistentValues) {
 		Assert.notNull(owner, "Form values owner is required!");
 		Assert.notNull(owner.getId(), "Owner id is required!");
 		Assert.notNull(attribute, "Form attribute definition is required!");

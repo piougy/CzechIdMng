@@ -1,7 +1,5 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
-import java.beans.IntrospectionException;
-import java.lang.reflect.InvocationTargetException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,6 +18,7 @@ import org.springframework.util.StringUtils;
 
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
 import eu.bcvsolutions.idm.acc.domain.OperationResultType;
@@ -34,7 +33,6 @@ import eu.bcvsolutions.idm.acc.dto.filter.SynchronizationLogFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.TreeAccountFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
-import eu.bcvsolutions.idm.acc.entity.AccTreeAccount;
 import eu.bcvsolutions.idm.acc.entity.SysSyncActionLog;
 import eu.bcvsolutions.idm.acc.entity.SysSyncConfig;
 import eu.bcvsolutions.idm.acc.entity.SysSyncItemLog;
@@ -61,7 +59,6 @@ import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
-import eu.bcvsolutions.idm.core.model.domain.EntityUtilities;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.event.TreeNodeEvent;
 import eu.bcvsolutions.idm.core.model.event.TreeNodeEvent.TreeNodeEventType;
@@ -481,7 +478,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 
 		TreeAccountFilter treeAccountFilter = new TreeAccountFilter();
 		treeAccountFilter.setAccountId(account.getId());
-		List<AccTreeAccountDto> treeAccounts = treeAccoutnService.findDto(treeAccountFilter, null).getContent();
+		List<AccTreeAccountDto> treeAccounts = treeAccoutnService.find(treeAccountFilter, null).getContent();
 		if (treeAccounts.isEmpty()) {
 			addToItemLog(logItem, "Tree account relation was not found!");
 			initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.WARNING, logItem, log,
@@ -651,11 +648,11 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 				// Find relation between tree and account
 				TreeAccountFilter treeAccountFilter = new TreeAccountFilter();
 				treeAccountFilter.setAccountId(parentAccounts.get(0).getId());
-				List<AccTreeAccount> treeAccounts = treeAccoutnService.find(treeAccountFilter, null).getContent();
+				List<AccTreeAccountDto> treeAccounts = treeAccoutnService.find(treeAccountFilter, null).getContent();
 				if(!treeAccounts.isEmpty()){
 					// Find parent tree node by ID
 					// TODO: resolve more treeAccounts situations
-					transformedValue = treeNodeService.get(treeAccounts.get(0).getTreeNode().getId());
+					transformedValue = treeNodeService.get(treeAccounts.get(0).getTreeNode());
 				}
 			}
 		}

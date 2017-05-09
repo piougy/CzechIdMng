@@ -15,10 +15,11 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Lists;
+
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.repository.IdmConfidentialStorageValueRepository;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
+import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmConfidentialStorage;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.service.CryptService;
@@ -36,7 +37,7 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 	private IdmConfidentialStorageValueRepository repository;
 	
 	@Autowired
-	private IdmIdentityService identityService;
+	private IdmIdentityRepository identityRepository;
 	
 	@Autowired
 	private CryptService cryptService;
@@ -61,7 +62,7 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 	
 	@Test
 	public void testLoadUnexistedValue() {
-		IdmIdentity identity = identityService.getByUsername(InitTestData.TEST_USER_1);		
+		IdmIdentity identity = identityRepository.findOneByUsername(InitTestData.TEST_USER_1);		
 		
 		Serializable storageValue = confidentalStorage.get(identity, STORAGE_KEY_ONE);	
 		
@@ -75,7 +76,7 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 	
 	@Test
 	public void testSaveValue() {
-		IdmIdentity identity = identityService.getByUsername(InitTestData.TEST_USER_1);
+		IdmIdentity identity = identityRepository.findOneByUsername(InitTestData.TEST_USER_1);
 		
 		String value = "one";
 		confidentalStorage.save(identity, STORAGE_KEY_ONE, value);
@@ -87,7 +88,7 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 	@Test
 	@SuppressWarnings("unchecked")
 	public void testSaveValues() {
-		IdmIdentity identity = identityService.getByUsername(InitTestData.TEST_USER_1);
+		IdmIdentity identity = identityRepository.findOneByUsername(InitTestData.TEST_USER_1);
 		
 		ArrayList<String> values = Lists.newArrayList("one", "two", "three");
 		confidentalStorage.save(identity, STORAGE_KEY_ONE, values);		
@@ -100,7 +101,7 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 	@Test
 	@SuppressWarnings("unchecked")
 	public void testSaveMoreKeys() {
-		IdmIdentity identity = identityService.getByUsername(InitTestData.TEST_USER_1);
+		IdmIdentity identity = identityRepository.findOneByUsername(InitTestData.TEST_USER_1);
 		
 		String value = "one";
 		confidentalStorage.save(identity, STORAGE_KEY_ONE, value);		
@@ -118,7 +119,7 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 	
 	@Test
 	public void testEditSavedValues() {	
-		IdmIdentity identity = identityService.getByUsername(InitTestData.TEST_USER_1);
+		IdmIdentity identity = identityRepository.findOneByUsername(InitTestData.TEST_USER_1);
 		
 		String value = "one";
 		confidentalStorage.save(identity, STORAGE_KEY_ONE, value);
@@ -133,8 +134,8 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 	
 	@Test
 	public void testSaveValueDifferentOwner() {	
-		IdmIdentity identityOne = identityService.getByUsername(InitTestData.TEST_USER_1);
-		IdmIdentity identityTwo = identityService.getByUsername(InitTestData.TEST_USER_2);
+		IdmIdentity identityOne = identityRepository.findOneByUsername(InitTestData.TEST_USER_1);
+		IdmIdentity identityTwo = identityRepository.findOneByUsername(InitTestData.TEST_USER_2);
 		
 		String valueOne = "one";
 		confidentalStorage.save(identityOne, STORAGE_KEY_ONE, valueOne);		
@@ -148,7 +149,7 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 	@Test
 	@SuppressWarnings("unchecked")
 	public void testOverrideSavedValues() {	
-		IdmIdentity identity = identityService.getByUsername(InitTestData.TEST_USER_1);
+		IdmIdentity identity = identityRepository.findOneByUsername(InitTestData.TEST_USER_1);
 		
 		String value = "one";
 		confidentalStorage.save(identity, STORAGE_KEY_ONE, value);
@@ -165,8 +166,8 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 	
 	@Test
 	public void testDeleteSavedValues() {
-		IdmIdentity identityOne = identityService.getByUsername(InitTestData.TEST_USER_1);
-		IdmIdentity identityTwo = identityService.getByUsername(InitTestData.TEST_USER_2);
+		IdmIdentity identityOne = identityRepository.findOneByUsername(InitTestData.TEST_USER_1);
+		IdmIdentity identityTwo = identityRepository.findOneByUsername(InitTestData.TEST_USER_2);
 		
 		String valueOne = "one";
 		confidentalStorage.save(identityOne, STORAGE_KEY_ONE, valueOne);		
@@ -188,7 +189,7 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 	
 	@Test
 	public void testReadWithType() {
-		IdmIdentity identity = identityService.getByUsername(InitTestData.TEST_USER_1);
+		IdmIdentity identity = identityRepository.findOneByUsername(InitTestData.TEST_USER_1);
 		
 		String value = "one";
 		confidentalStorage.save(identity, STORAGE_KEY_ONE, value);
@@ -201,7 +202,7 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 	
 	@Test(expected = IllegalArgumentException.class)
 	public void testReadWrongType() {
-		IdmIdentity identity = identityService.getByUsername(InitTestData.TEST_USER_1);
+		IdmIdentity identity = identityRepository.findOneByUsername(InitTestData.TEST_USER_1);
 		
 		String value = "one";
 		confidentalStorage.save(identity, STORAGE_KEY_ONE, value);
@@ -211,7 +212,7 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 	
 	@Test
 	public void testReadWrongTypeWithDefaultValue() {
-		IdmIdentity identity = identityService.getByUsername(InitTestData.TEST_USER_1);
+		IdmIdentity identity = identityRepository.findOneByUsername(InitTestData.TEST_USER_1);
 		
 		String value = "one";
 		confidentalStorage.save(identity, STORAGE_KEY_ONE, value);
@@ -224,7 +225,7 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 	
 	@Test
 	public void testLoadUnexistedValueWithDefault() {
-		IdmIdentity identity = identityService.getByUsername(InitTestData.TEST_USER_1);
+		IdmIdentity identity = identityRepository.findOneByUsername(InitTestData.TEST_USER_1);
 
 		assertNull(confidentalStorage.get(identity, STORAGE_KEY_ONE, Integer.class));
 		
@@ -236,7 +237,7 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 	
 	@Test
 	public void testReadGuardedString() {
-		IdmIdentity identity = identityService.getByUsername(InitTestData.TEST_USER_1);
+		IdmIdentity identity = identityRepository.findOneByUsername(InitTestData.TEST_USER_1);
 		
 		String password = "heslo";
 		confidentalStorage.save(identity, STORAGE_KEY_ONE, new GuardedString(password).asString());
@@ -248,7 +249,7 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 	
 	@Test
 	public void testSaveAndReadGuardedString() {
-		IdmIdentity identity = identityService.getByUsername(InitTestData.TEST_USER_2);
+		IdmIdentity identity = identityRepository.findOneByUsername(InitTestData.TEST_USER_2);
 		
 		String password = "heslo_save";
 		confidentalStorage.saveGuardedString(identity, STORAGE_KEY_ONE, new GuardedString(password));

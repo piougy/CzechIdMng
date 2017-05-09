@@ -1,7 +1,8 @@
 package eu.bcvsolutions.idm.core.api.dto;
 
 import java.util.List;
-import java.util.Map;
+
+import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
 
 /**
  * Event processor dto
@@ -20,7 +21,7 @@ public class EntityEventProcessorDto {
 	private boolean disabled;
 	private boolean disableable;
 	private boolean closable;
-	private Map<String, String> configurationProperties;
+	private ConfigurationMap configurationProperties;
 
 	public String getId() {
 		return id;
@@ -102,11 +103,11 @@ public class EntityEventProcessorDto {
 		return description;
 	}
 	
-	public Map<String, String> getConfigurationProperties() {
+	public ConfigurationMap getConfigurationProperties() {
 		return configurationProperties;
 	}
 	
-	public void setConfigurationProperties(Map<String, String> configurationProperties) {
+	public void setConfigurationProperties(ConfigurationMap configurationProperties) {
 		this.configurationProperties = configurationProperties;
 	}
 }

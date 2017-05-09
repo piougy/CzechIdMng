@@ -6,7 +6,6 @@ import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationLogDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationRecipientDto;
 import eu.bcvsolutions.idm.core.notification.dto.filter.NotificationFilter;
-import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationLog;
 
 /**
  * Notification log service
@@ -14,8 +13,8 @@ import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationLog;
  * @author Radek Tomiška
  *
  */
-public interface IdmNotificationLogService extends ReadWriteDtoService<IdmNotificationLogDto, IdmNotificationLog, NotificationFilter> {
+public interface IdmNotificationLogService extends ReadWriteDtoService<IdmNotificationLogDto, NotificationFilter> {
 
-    List<IdmNotificationRecipientDto> getReciipientsForNotification(String backendId);
+    List<IdmNotificationRecipientDto> getRecipientsForNotification(String backendId);
 
 }

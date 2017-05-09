@@ -69,7 +69,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSyncLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
-import eu.bcvsolutions.idm.core.api.domain.IdentifiableByName;
+import eu.bcvsolutions.idm.core.api.domain.Codeable;
 import eu.bcvsolutions.idm.core.api.domain.Loggable;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
@@ -1608,7 +1608,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 		entityAccountFilter.setOwnership(Boolean.TRUE);
 		@SuppressWarnings("unchecked")
 		List<EntityAccountDto> entityAccounts = this.getEntityAccountService()
-				.findDto((BaseFilter) entityAccountFilter, null).getContent();
+				.find((BaseFilter) entityAccountFilter, null).getContent();
 		if (entityAccounts.isEmpty()) {
 			return null;
 		} else {
@@ -1625,8 +1625,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 		entityAccountFilter.setSystemId(systemId);
 		entityAccountFilter.setOwnership(Boolean.TRUE);
 		@SuppressWarnings("unchecked")
-		List<EntityAccountDto> entityAccounts = this.getEntityAccountService()
-				.findDto((BaseFilter) entityAccountFilter, null).getContent();
+		List<EntityAccountDto> entityAccounts = this.getEntityAccountService().find((BaseFilter) entityAccountFilter, null).getContent();
 		if (entityAccounts.isEmpty()) {
 			return null;
 		} else {
@@ -1670,8 +1669,8 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 		entityAccount = (EntityAccountDto) getEntityAccountService().save(entityAccount);
 
 		String entityIdentification = entity.getId().toString();
-		if (entity instanceof IdentifiableByName) {
-			entityIdentification = ((IdentifiableByName) entity).getName();
+		if (entity instanceof Codeable) {
+			entityIdentification = ((Codeable) entity).getCode();
 		}
 
 		// Identity account Created
@@ -1693,8 +1692,8 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 		if(entity == null){
 			return null;
 		}
-		if(entity instanceof IdentifiableByName){
-			return ((IdentifiableByName)entity).getName();
+		if(entity instanceof Codeable){
+			return ((Codeable)entity).getCode();
 		}
 		return entity.getId().toString();
 	} 
@@ -1709,10 +1708,10 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 					actionLogs);
 			return;
 		}
-		BaseDto dto = getEntityService().getDto(entity);
+		BaseDto dto = getEntityService().get(entity);
 		String entityIdentification = dto.getId().toString();
-		if (dto instanceof IdentifiableByName) {
-			entityIdentification = ((IdentifiableByName) dto).getName();
+		if (dto instanceof Codeable) {
+			entityIdentification = ((Codeable) dto).getCode();
 		}
 		logItem.setDisplayName(entityIdentification);
 		// Delete entity

@@ -48,7 +48,7 @@ public class AddNewAutomaticRoleTaskExecutor extends AbstractLongRunningTaskExec
 			return Boolean.FALSE;
 		}
 		//
-		IdmRoleTreeNodeDto roleTreeNode = roleTreeNodeService.getDto(roleTreeNodeId);
+		IdmRoleTreeNodeDto roleTreeNode = roleTreeNodeService.get(roleTreeNodeId);
 		if (roleTreeNode == null) {
 			return Boolean.FALSE;
 		}

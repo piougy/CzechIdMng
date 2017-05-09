@@ -83,55 +83,6 @@ public class DefaultIdmIdentityContractService
 		return new AuthorizableType(CoreGroupPermission.IDENTITYCONTRACT, getEntityClass());
 	}
 	
-	@Override
-	protected Predicate toPredicate(IdentityContractFilter filter, Root<IdmIdentityContract> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
-		List<Predicate> predicates = new ArrayList<>();
-		// id
-		if (filter.getId() != null) {
-			predicates.add(builder.equal(root.get(AbstractEntity_.id), filter.getId()));
-		}
-		// quick
-		if (StringUtils.isNotEmpty(filter.getText())) {
-			Path<IdmTreeNode> wp = root.get(IdmIdentityContract_.workPosition);
-			predicates.add(
-					builder.or(
-							builder.like(builder.lower(root.get(IdmIdentityContract_.position)), "%" + filter.getText().toLowerCase() + "%"),
-							builder.like(builder.lower(wp.get(IdmTreeNode_.name)), "%" + filter.getText().toLowerCase() + "%"),
-							builder.like(builder.lower(wp.get(IdmTreeNode_.code)), "%" + filter.getText().toLowerCase() + "%")
-							)
-					);
-		}
-		if (filter.getIdentity() != null) {
-			predicates.add(builder.equal(root.get(IdmIdentityContract_.identity).get(AbstractEntity_.id), filter.getIdentity()));
-		}
-		if (filter.getValidTill() != null) {
-			predicates.add(builder.lessThanOrEqualTo(root.get(IdmIdentityContract_.validTill), filter.getValidTill()));
-		}
-		if (filter.getValidFrom() != null) {
-			predicates.add(builder.greaterThanOrEqualTo(root.get(IdmIdentityContract_.validFrom), filter.getValidFrom()));
-		}
-		if (filter.getExterne() != null) {
-			predicates.add(builder.equal(root.get(IdmIdentityContract_.externe), filter.getExterne()));
-		}
-		return builder.and(predicates.toArray(new Predicate[predicates.size()]));
-	}
-	
-	@Override
-	@Transactional(readOnly = true)
-	public List<IdmIdentityContractDto> findAllByIdentity(UUID identityId) {
-		return toDtos(repository.findAllByIdentity_Id(identityId, new Sort(IdmIdentityContract_.validFrom.getName())), false);
-	}
-	
-	@Override
-	@Transactional(readOnly = true)
-	public List<IdmIdentityContractDto> findAllByWorkPosition(UUID workPositionId, RecursionType recursion) {
-		Assert.notNull(workPositionId);
-		IdmTreeNode workPosition = treeNodeRepository.findOne(workPositionId);
-		Assert.notNull(workPosition);
-		//
-		return toDtos(repository.findAllByWorkPosition(workPosition, recursion == null ? RecursionType.NO : recursion), false);
-	}
-	
 	/**
 	 * Publish {@link IdentityContractEvent} only.
 	 * 
@@ -166,6 +117,55 @@ public class DefaultIdmIdentityContractService
 		//
 		LOG.debug("Deleting contract [{}] for identity [{}]", entity.getId(), entity.getIdentity());
 		entityEventManager.process(new IdentityContractEvent(IdentityContractEventType.DELETE, entity));
+	}
+	
+	@Override
+	protected List<Predicate> toPredicates(Root<IdmIdentityContract> root, CriteriaQuery<?> query, CriteriaBuilder builder, IdentityContractFilter filter) {
+		List<Predicate> predicates = new ArrayList<>();
+		// id
+		if (filter.getId() != null) {
+			predicates.add(builder.equal(root.get(AbstractEntity_.id), filter.getId()));
+		}
+		// quick
+		if (StringUtils.isNotEmpty(filter.getText())) {
+			Path<IdmTreeNode> wp = root.get(IdmIdentityContract_.workPosition);
+			predicates.add(
+					builder.or(
+							builder.like(builder.lower(root.get(IdmIdentityContract_.position)), "%" + filter.getText().toLowerCase() + "%"),
+							builder.like(builder.lower(wp.get(IdmTreeNode_.name)), "%" + filter.getText().toLowerCase() + "%"),
+							builder.like(builder.lower(wp.get(IdmTreeNode_.code)), "%" + filter.getText().toLowerCase() + "%")
+							)
+					);
+		}
+		if (filter.getIdentity() != null) {
+			predicates.add(builder.equal(root.get(IdmIdentityContract_.identity).get(AbstractEntity_.id), filter.getIdentity()));
+		}
+		if (filter.getValidTill() != null) {
+			predicates.add(builder.lessThanOrEqualTo(root.get(IdmIdentityContract_.validTill), filter.getValidTill()));
+		}
+		if (filter.getValidFrom() != null) {
+			predicates.add(builder.greaterThanOrEqualTo(root.get(IdmIdentityContract_.validFrom), filter.getValidFrom()));
+		}
+		if (filter.getExterne() != null) {
+			predicates.add(builder.equal(root.get(IdmIdentityContract_.externe), filter.getExterne()));
+		}
+		return predicates;
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<IdmIdentityContractDto> findAllByIdentity(UUID identityId) {
+		return toDtos(repository.findAllByIdentity_Id(identityId, new Sort(IdmIdentityContract_.validFrom.getName())), false);
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<IdmIdentityContractDto> findAllByWorkPosition(UUID workPositionId, RecursionType recursion) {
+		Assert.notNull(workPositionId);
+		IdmTreeNode workPosition = treeNodeRepository.findOne(workPositionId);
+		Assert.notNull(workPosition);
+		//
+		return toDtos(repository.findAllByWorkPosition(workPosition, recursion == null ? RecursionType.NO : recursion), false);
 	}
 
 	@Override

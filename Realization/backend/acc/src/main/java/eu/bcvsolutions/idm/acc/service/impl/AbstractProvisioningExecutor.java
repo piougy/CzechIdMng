@@ -123,7 +123,7 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 		filter.setEntityId(entity.getId());
 		filter.setOwnership(true);
 		@SuppressWarnings("unchecked")
-		List<EntityAccountDto> entityAccoutnList =  this.getEntityAccountService().findDto((BaseFilter) filter, null).getContent();
+		List<EntityAccountDto> entityAccoutnList =  this.getEntityAccountService().find((BaseFilter) filter, null).getContent();
 
 		List<UUID> accounts = new ArrayList<>();
 		entityAccoutnList.stream().forEach((entityAccount) -> {
@@ -191,7 +191,7 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 		EntityAccountFilter filter = this.createEntityAccountFilter();
 		filter.setEntityId(entity.getId());
 		@SuppressWarnings("unchecked")
-		List<? extends EntityAccountDto> entityAccountList = getEntityAccountService().findDto((BaseFilter)filter, null).getContent();
+		List<? extends EntityAccountDto> entityAccountList = getEntityAccountService().find((BaseFilter)filter, null).getContent();
 		if (entityAccountList == null) {
 			return;
 		}
@@ -497,7 +497,7 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 		filter.setAccountId(account.getId());
 		
 		@SuppressWarnings("unchecked")
-		List<? extends EntityAccountDto> entityAccoutnList = this.getEntityAccountService().findDto((BaseFilter)filter, null).getContent();
+		List<? extends EntityAccountDto> entityAccoutnList = this.getEntityAccountService().find((BaseFilter)filter, null).getContent();
 		if (entityAccoutnList == null) {
 			return null;
 		}
@@ -754,7 +754,7 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 		entityAccountFilter.setOwnership(Boolean.TRUE);
 		@SuppressWarnings("unchecked")
 		List<EntityAccountDto> entityAccounts = this.getEntityAccountService()
-				.findDto((BaseFilter) entityAccountFilter, null).getContent();
+				.find((BaseFilter) entityAccountFilter, null).getContent();
 		if (entityAccounts.isEmpty()) {
 			return null;
 		} else {

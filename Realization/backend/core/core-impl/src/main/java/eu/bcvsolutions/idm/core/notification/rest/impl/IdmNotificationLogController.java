@@ -99,6 +99,6 @@ public class IdmNotificationLogController extends AbstractReadWriteDtoController
 	@PreAuthorize("hasAuthority('" + NotificationGroupPermission.NOTIFICATION_READ + "')")
 	@RequestMapping(value = "/{backendId}/recipients", method = RequestMethod.GET)
 	public List<IdmNotificationRecipientDto> getRecipients(@PathVariable @NotNull String backendId) {
-		return notificationLogService.getReciipientsForNotification(backendId);
+		return notificationLogService.getRecipientsForNotification(backendId);
 	}
 }

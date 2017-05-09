@@ -77,7 +77,7 @@ public class IdmRoleRequestController extends DefaultReadWriteDtoController<IdmR
 //			+ IdmGroupPermission.IDENTITY_DELETE + "')")
 	public ResponseEntity<?> delete(@PathVariable @NotNull String backendId) {
 		IdmRoleRequestService service = ((IdmRoleRequestService)this.getService());
-		IdmRoleRequestDto dto = service.getDto(backendId);
+		IdmRoleRequestDto dto = service.get(backendId);
 		// Request in Executed state can not be delete or change
 		if(RoleRequestState.EXECUTED == dto.getState()){
 			throw new RoleRequestException(CoreResultCode.ROLE_REQUEST_EXECUTED_CANNOT_DELETE,

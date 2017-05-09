@@ -1,7 +1,6 @@
 package eu.bcvsolutions.idm.core.notification.service.impl;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,6 +30,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
@@ -119,17 +119,6 @@ public class DefaultIdmNotificationTemplateService
 	}
 
 	@Override
-	public IdmNotificationTemplate get(Serializable id) {
-		return get(id);
-	}
-
-	@Override
-	public IdmNotificationTemplate getByName(String name) {
-		final IdmNotificationTemplate entity =  repository.findOneByName(name);
-		return entity;
-	}
-
-	@Override
 	public IdmNotificationTemplateDto getTemplateByCode(String code) {
 		final IdmNotificationTemplate entity = this.repository.findOneByCode(code);
 		return toDto(entity);
@@ -150,7 +139,7 @@ public class DefaultIdmNotificationTemplateService
 		StringWriter bodyHtml = new StringWriter();
 		StringWriter bodyText = new StringWriter();
 		StringWriter subject = new StringWriter();
-		IdmNotificationTemplateDto template = message.getTemplate() == null ? null : getDto(message.getTemplate().getId());
+		IdmNotificationTemplateDto template = message.getTemplate() == null ? null : get(message.getTemplate().getId());
 		//
 		if (template == null) {
 			return message;
@@ -286,7 +275,6 @@ public class DefaultIdmNotificationTemplateService
 		NotificationTemplateFilter filter = new NotificationTemplateFilter();
 		filter.setUnmodifiable(Boolean.TRUE);
 		return this.find(filter, null).getContent().stream()
-				.map(this::toDto)
 				.collect(Collectors.toList());
 	}
 

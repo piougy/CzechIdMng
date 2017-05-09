@@ -70,8 +70,8 @@ public class IdentityRoleDeleteProcessor extends CoreEventProcessor<IdmIdentityR
 		// Find all concepts and remove relation on identity role
 		ConceptRoleRequestFilter conceptRequestFilter = new ConceptRoleRequestFilter();
 		conceptRequestFilter.setIdentityRoleId(identityRole.getId());
-		conceptRequestService.findDto(conceptRequestFilter, null).getContent().forEach(concept -> {
-			IdmRoleRequestDto request = roleRequestService.getDto(concept.getRoleRequest());
+		conceptRequestService.find(conceptRequestFilter, null).getContent().forEach(concept -> {
+			IdmRoleRequestDto request = roleRequestService.get(concept.getRoleRequest());
 			String message = null;
 			if (concept.getState().isTerminatedState()) {
 				message = MessageFormat.format(

@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyType;
 import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
@@ -109,7 +110,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 		//
 		try {
 			IdmRole superAdminRole = this.roleService.getByName(InitApplicationData.ADMIN_ROLE);
-			IdmIdentity identityAdmin = this.identityService.getByName(InitApplicationData.ADMIN_USERNAME);
+			IdmIdentityDto identityAdmin = this.identityService.getByUsername(InitApplicationData.ADMIN_USERNAME);
 			//
 			Page<IdmTreeNode> rootsList = treeNodeService.findRoots((UUID) null, new PageRequest(0, 1));
 			IdmTreeNode rootOrganization = null;
@@ -186,6 +187,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				selfPolicy.setPermissions(IdmBasePermission.READ);
 				selfPolicy.setRole(role1.getId());
 				selfPolicy.setGroupPermission(CoreGroupPermission.IDENTITY.getName());
+				selfPolicy.setAuthorizableType(IdmIdentity.class.getCanonicalName());
 				selfPolicy.setEvaluator(SelfIdentityEvaluator.class);
 				authorizationPolicyService.save(selfPolicy);
 				//
@@ -205,7 +207,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				LOG.info(MessageFormat.format("Role created [id: {0}]", roleManager.getId()));
 				//
 				//
-				IdmIdentity identity = new IdmIdentity();
+				IdmIdentityDto identity = new IdmIdentityDto();
 				identity.setUsername("tomiska");
 				identity.setPassword(new GuardedString("heslo"));
 				identity.setFirstName("Radek");
@@ -225,7 +227,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				identityRole2.setRole(role2.getId());
 				identityRole2 = identityRoleService.save(identityRole2);
 				//
-				IdmIdentity identity2 = new IdmIdentity();
+				IdmIdentityDto identity2 = new IdmIdentityDto();
 				identity2.setUsername("svanda");
 				identity2.setFirstName("Vít");
 				identity2.setPassword(new GuardedString("heslo"));
@@ -234,7 +236,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				identity2 = this.identityService.save(identity2);
 				LOG.info(MessageFormat.format("Identity created [id: {0}]", identity2.getId()));
 				//
-				IdmIdentity identity3 = new IdmIdentity();
+				IdmIdentityDto identity3 = new IdmIdentityDto();
 				identity3.setUsername("kopr");
 				identity3.setFirstName("Ondrej");
 				identity3.setPassword(new GuardedString("heslo"));
@@ -382,7 +384,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				phoneValue.setStringValue("12345679");
 				values.add(phoneValue);
 				
-				formService.saveValues(identity, null, values);
+				formService.saveValues(identity.getId(), IdmIdentity.class, null, values);
 				
 				//
 				// demo eav role form

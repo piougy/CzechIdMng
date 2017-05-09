@@ -17,7 +17,9 @@ import eu.bcvsolutions.idm.core.eav.service.api.FormService;
  *
  * @param <E> {@link FormableEntity} type which supports extended atributes
  * @param <F> {@link BaseFilter} type
+ * @deprecated dtos will be used
  */
+@Deprecated
 public abstract class AbstractFormableService<E extends FormableEntity, F extends BaseFilter> extends AbstractReadWriteEntityService<E, F> {
 
 	private final FormService formService;

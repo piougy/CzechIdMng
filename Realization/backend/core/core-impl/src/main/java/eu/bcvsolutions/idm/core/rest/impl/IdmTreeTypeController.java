@@ -24,7 +24,7 @@ import eu.bcvsolutions.idm.core.api.dto.ConfigurationDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
-import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
@@ -46,7 +46,7 @@ public class IdmTreeTypeController extends DefaultReadWriteEntityController<IdmT
 	private IdmLongRunningTaskController longRunningTaskController;
 	
 	@Autowired
-	public IdmTreeTypeController(EntityLookupService entityLookupService) {
+	public IdmTreeTypeController(LookupService entityLookupService) {
 		super(entityLookupService);
 	}
 	

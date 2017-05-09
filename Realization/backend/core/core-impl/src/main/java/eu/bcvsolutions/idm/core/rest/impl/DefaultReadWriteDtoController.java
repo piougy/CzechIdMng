@@ -33,7 +33,7 @@ import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 public abstract class DefaultReadWriteDtoController<DTO extends BaseDto, F extends BaseFilter>
 		extends AbstractReadWriteDtoController<DTO, F> {
 
-	public DefaultReadWriteDtoController(ReadWriteDtoService<DTO, ?, F> service) {
+	public DefaultReadWriteDtoController(ReadWriteDtoService<DTO, F> service) {
 		super(service);
 	}
 
@@ -55,9 +55,18 @@ public abstract class DefaultReadWriteDtoController<DTO extends BaseDto, F exten
 	 */
 	@ResponseBody
 	@RequestMapping(value = "/search/quick", method = RequestMethod.GET)
-	public Resources<?> findQuick(@RequestParam MultiValueMap<String, Object> parameters,
+	public Resources<?> findQuick(
+			@RequestParam MultiValueMap<String, Object> parameters,
 			@PageableDefault Pageable pageable) {
 		return super.find(parameters, pageable);
+	}
+	
+	@ResponseBody
+	@RequestMapping(value = "/search/autocomplete", method = RequestMethod.GET)
+	public Resources<?> autocomplete(
+			@RequestParam MultiValueMap<String, Object> parameters,
+			@PageableDefault Pageable pageable) {
+		return super.autocomplete(parameters, pageable);
 	}
 
 	@Override

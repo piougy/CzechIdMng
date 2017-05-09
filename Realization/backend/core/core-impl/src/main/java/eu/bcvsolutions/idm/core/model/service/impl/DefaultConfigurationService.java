@@ -39,7 +39,9 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
  * @author Radek Tomiška 
  *
  */
-public class DefaultConfigurationService extends AbstractReadWriteEntityService<IdmConfiguration, QuickFilter> implements IdmConfigurationService, ConfigurationService {
+public class DefaultConfigurationService 
+		extends AbstractReadWriteEntityService<IdmConfiguration, QuickFilter> 
+		implements IdmConfigurationService, ConfigurationService {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultConfigurationService.class);
 
@@ -61,7 +63,7 @@ public class DefaultConfigurationService extends AbstractReadWriteEntityService<
 	
 	@Override
 	@Transactional(readOnly = true)
-	public IdmConfiguration getByName(String name) {
+	public IdmConfiguration getByCode(String name) {
 		return repository.findOneByName(name);
 	}
 
@@ -96,7 +98,7 @@ public class DefaultConfigurationService extends AbstractReadWriteEntityService<
 		Assert.notNull(configuration);
 		Assert.hasText(configuration.getName());
 		// only maps dto to entity
-		IdmConfiguration configurationEntity = getByName(configuration.getName());
+		IdmConfiguration configurationEntity = getByCode(configuration.getName());
 		if (configurationEntity == null) {
 			configurationEntity = new IdmConfiguration(configuration.getName(), configuration.getValue(), configuration.isSecured(), configuration.isConfidential());
 		} else {

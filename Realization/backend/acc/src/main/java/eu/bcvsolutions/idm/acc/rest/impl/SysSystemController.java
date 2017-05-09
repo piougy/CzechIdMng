@@ -42,7 +42,7 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteEntityController;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
-import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.core.eav.rest.impl.IdmFormDefinitionController;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
@@ -76,7 +76,7 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 	
 	@Autowired
 	public SysSystemController(
-			EntityLookupService entityLookupService, 
+			LookupService entityLookupService, 
 			SysSystemService systemService, 
 			IdmFormDefinitionController formDefinitionController,
 			IcConfigurationFacade icConfiguration,

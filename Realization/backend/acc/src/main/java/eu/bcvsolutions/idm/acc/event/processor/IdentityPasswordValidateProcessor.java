@@ -10,18 +10,19 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
+import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
-import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount;
 import eu.bcvsolutions.idm.acc.event.ProvisioningEvent;
+import eu.bcvsolutions.idm.acc.repository.AccIdentityAccountRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyType;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordValidationDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.core.model.event.processor.identity.IdentityPasswordProcessor;
@@ -40,27 +41,31 @@ import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 @Component("accIdentityPasswordValidateProcessor")
 @Enabled(AccModuleDescriptor.MODULE_ID)
 @Description("Validates identity's and all selected systems password, when password is changed.")
-public class IdentityPasswordValidateProcessor extends AbstractEntityEventProcessor<IdmIdentity> {
+public class IdentityPasswordValidateProcessor extends AbstractEntityEventProcessor<IdmIdentityDto> {
 	
 	public static final String PROCESSOR_NAME = "identity-password-validate-processor";
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdentityPasswordValidateProcessor.class);
 	private final IdmPasswordPolicyService passwordPolicyService;
-	private final AccIdentityAccountService identityAccountService; 
+	private final AccIdentityAccountService identityAccountService;
+	private final AccIdentityAccountRepository identityAccountRepository; 
 	private final IdmPasswordService passwordService;
 	
 	@Autowired
 	public IdentityPasswordValidateProcessor(IdmPasswordPolicyService passwordPolicyService,
 			AccIdentityAccountService identityAccountService,
+			AccIdentityAccountRepository identityAccountRepository,
 			IdmPasswordService passwordService) {
 		super(IdentityEventType.PASSWORD);
 		//
 		Assert.notNull(identityAccountService);
+		Assert.notNull(identityAccountRepository);
 		Assert.notNull(passwordPolicyService);
 		Assert.notNull(passwordService);
 		//
 		this.passwordPolicyService = passwordPolicyService;
 		this.identityAccountService = identityAccountService;
 		this.passwordService = passwordService;
+		this.identityAccountRepository = identityAccountRepository;
 	}
 	
 	@Override
@@ -69,9 +74,9 @@ public class IdentityPasswordValidateProcessor extends AbstractEntityEventProces
 	}
 	
 	@Override
-	public EventResult<IdmIdentity> process(EntityEvent<IdmIdentity> event) {
+	public EventResult<IdmIdentityDto> process(EntityEvent<IdmIdentityDto> event) {
 		PasswordChangeDto passwordChangeDto = (PasswordChangeDto) event.getProperties().get(IdentityPasswordProcessor.PROPERTY_PASSWORD_CHANGE_DTO);
-		IdmIdentity identity = event.getContent();
+		IdmIdentityDto identity = event.getContent();
 		//
 		Assert.notNull(passwordChangeDto);
 		Assert.notNull(identity);
@@ -83,7 +88,7 @@ public class IdentityPasswordValidateProcessor extends AbstractEntityEventProces
 		// Find user accounts
 		IdentityAccountFilter filter = new IdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
-		List<AccIdentityAccount> identityAccounts = identityAccountService.find(filter, null).getContent();
+		List<AccIdentityAccountDto> identityAccounts = identityAccountService.find(filter, null).getContent();
 		//
 		// get default password policy
 		IdmPasswordPolicy defaultPasswordPolicy = this.passwordPolicyService.getDefaultPasswordPolicy(IdmPasswordPolicyType.VALIDATE);
@@ -98,7 +103,7 @@ public class IdentityPasswordValidateProcessor extends AbstractEntityEventProces
 					|| passwordChangeDto.getAccounts().contains(identityAccount.getId().toString()));
 		}).forEach(identityAccount -> {
 			// get validate password policy from system
-			IdmPasswordPolicy passwordPolicy = identityAccount.getAccount().getSystem().getPasswordPolicyValidate();
+			IdmPasswordPolicy passwordPolicy = identityAccountRepository.findOne(identityAccount.getId()).getAccount().getSystem().getPasswordPolicyValidate();
 			// if passwordPolicy is null use default password policy for validate
 			if (passwordPolicy == null) {
 				passwordPolicy = defaultPasswordPolicy;

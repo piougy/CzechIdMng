@@ -60,7 +60,7 @@ public class DefaultAccRoleAccountService
 		filter.setAccountId(account);
 		filter.setOwnership(Boolean.TRUE);
 
-		List<AccRoleAccountDto> entityAccounts = this.findDto(filter, null).getContent();
+		List<AccRoleAccountDto> entityAccounts = this.find(filter, null).getContent();
 		boolean moreEntityAccounts = entityAccounts.stream().filter(treeAccount -> {
 			return treeAccount.isOwnership() && !treeAccount.equals(entity);
 		}).findAny().isPresent();

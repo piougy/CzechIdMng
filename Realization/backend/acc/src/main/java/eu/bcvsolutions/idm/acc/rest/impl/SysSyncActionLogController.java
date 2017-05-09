@@ -26,7 +26,7 @@ import eu.bcvsolutions.idm.acc.entity.SysSyncActionLog;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncActionLogService;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteEntityController;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
-import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;;
 
 /**
@@ -42,7 +42,7 @@ public class SysSyncActionLogController
 		extends AbstractReadWriteEntityController<SysSyncActionLog, SyncActionLogFilter> {
 
 	@Autowired
-	public SysSyncActionLogController(EntityLookupService entityLookupService,
+	public SysSyncActionLogController(LookupService entityLookupService,
 			SysSyncActionLogService service) {
 		super(entityLookupService, service);
 	}

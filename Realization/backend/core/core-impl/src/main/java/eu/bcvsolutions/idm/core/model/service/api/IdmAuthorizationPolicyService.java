@@ -10,7 +10,6 @@ import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.AuthorizationPolicyFilter;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
-import eu.bcvsolutions.idm.core.model.entity.IdmAuthorizationPolicy;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 
 /**
@@ -20,7 +19,7 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
  *
  */
 public interface IdmAuthorizationPolicyService
-		extends ReadWriteDtoService<IdmAuthorizationPolicyDto, IdmAuthorizationPolicy, AuthorizationPolicyFilter>,
+		extends ReadWriteDtoService<IdmAuthorizationPolicyDto, AuthorizationPolicyFilter>,
 		AuthorizableService<IdmAuthorizationPolicyDto, AuthorizationPolicyFilter> {
 	
 	/**
@@ -39,6 +38,15 @@ public interface IdmAuthorizationPolicyService
 	 * @param role
 	 */
 	Set<GrantedAuthority> getEnabledRoleAuthorities(UUID roleId);
+	
+	/**
+	 * Returns role policies
+	 * 
+	 * @param roleId
+	 * @param disabled
+	 * @return
+	 */
+	List<IdmAuthorizationPolicyDto> getRolePolicies(UUID roleId, boolean disabled);
 	
 	/**
 	 * Returns active and persisted role's authorities by configured policies.
@@ -67,11 +75,12 @@ public interface IdmAuthorizationPolicyService
 	List<IdmAuthorizationPolicyDto> getDefaultPolicies(Class<? extends Identifiable> entityType);
 
 	/**
-	 * Returns a set of granted authorities from enabled authorization policies. 
+	 * Returns a set of granted authorities from enabled authorization policies.
+	 * 
 	 * @param policies
 	 * @return
 	 */
-	Set<GrantedAuthority> getGrantedAuthorities(List<IdmAuthorizationPolicy> policies);
+	Set<GrantedAuthority> getGrantedAuthorities(List<IdmAuthorizationPolicyDto> policies);
 	
 	
 }

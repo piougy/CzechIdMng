@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
@@ -12,7 +13,6 @@ import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.event.EventType;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
@@ -36,12 +36,12 @@ public class EntityEventProcessorUnitTest extends AbstractVerifiableUnitTest {
 	public void testSupportAllIdentityEvents() {		
 		EntityEventProcessor<?> processor = new EventProcessorIdentity();
 		
-		assertTrue(processor.supports(new IdentityEvent(IdentityEventType.CREATE, new IdmIdentity())));
-		assertTrue(processor.supports(new IdentityEvent(IdentityEventType.UPDATE, new IdmIdentity())));
-		assertTrue(processor.supports(new IdentityEvent(IdentityEventType.DELETE, new IdmIdentity())));
+		assertTrue(processor.supports(new IdentityEvent(IdentityEventType.CREATE, new IdmIdentityDto())));
+		assertTrue(processor.supports(new IdentityEvent(IdentityEventType.UPDATE, new IdmIdentityDto())));
+		assertTrue(processor.supports(new IdentityEvent(IdentityEventType.DELETE, new IdmIdentityDto())));
 		assertFalse(processor.supports(new RoleEvent(RoleEventType.DELETE, new IdmRole())));
-		assertTrue(processor.supports(new CoreEvent<IdmIdentity>(CustomType.SAVE, new IdmIdentity())));
-		assertTrue(processor.supports(new CoreEvent<>(CustomType.CUSTOM, new IdmIdentity())));
+		assertTrue(processor.supports(new CoreEvent<IdmIdentityDto>(CustomType.SAVE, new IdmIdentityDto())));
+		assertTrue(processor.supports(new CoreEvent<>(CustomType.CUSTOM, new IdmIdentityDto())));
 	}
 	
 	@Test
@@ -49,18 +49,18 @@ public class EntityEventProcessorUnitTest extends AbstractVerifiableUnitTest {
 		
 		EntityEventProcessor<?> processor = new EventProcessorRole();
 		
-		assertFalse(processor.supports(new IdentityEvent(IdentityEventType.UPDATE, new IdmIdentity())));
-		assertFalse(processor.supports(new IdentityEvent(IdentityEventType.DELETE, new IdmIdentity())));
+		assertFalse(processor.supports(new IdentityEvent(IdentityEventType.UPDATE, new IdmIdentityDto())));
+		assertFalse(processor.supports(new IdentityEvent(IdentityEventType.DELETE, new IdmIdentityDto())));
 		assertTrue(processor.supports(new RoleEvent(RoleEventType.DELETE, new IdmRole())));
-		assertFalse(processor.supports(new CoreEvent<IdmIdentity>(CustomType.SAVE, new IdmIdentity())));
-		assertFalse(processor.supports(new CoreEvent<>(CustomType.CUSTOM, new IdmIdentity())));
+		assertFalse(processor.supports(new CoreEvent<IdmIdentityDto>(CustomType.SAVE, new IdmIdentityDto())));
+		assertFalse(processor.supports(new CoreEvent<>(CustomType.CUSTOM, new IdmIdentityDto())));
 		assertTrue(processor.supports(new CoreEvent<IdmRole>(IdentityEventType.UPDATE, new IdmRole())));
 	}
 
-	private class EventProcessorIdentity extends AbstractEntityEventProcessor<IdmIdentity> {
+	private class EventProcessorIdentity extends AbstractEntityEventProcessor<IdmIdentityDto> {
 
 		@Override
-		public EventResult<IdmIdentity> process(EntityEvent<IdmIdentity> event) {
+		public EventResult<IdmIdentityDto> process(EntityEvent<IdmIdentityDto> event) {
 			event.getContent().setUsername("one");
 			return new DefaultEventResult<>(event, this);
 		}

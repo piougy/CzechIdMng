@@ -29,7 +29,6 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.exception.RoleRequestException;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
@@ -104,7 +103,7 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractIntegra
 	}
 
 	private void preapareContractAndIdentity(String username) {
-		IdmIdentity identity = createIdentity(username);
+		IdmIdentityDto identity = createIdentity(username);
 		IdmIdentityContractDto contract = new IdmIdentityContractDto();
 		contract.setIdentity(identity.getId());
 		contract.setValidFrom(new LocalDate().minusDays(1));
@@ -114,8 +113,8 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractIntegra
 		identityContractService.save(contract);
 	}
 
-	private IdmIdentity createIdentity(String name) {
-		IdmIdentity identity = new IdmIdentity();
+	private IdmIdentityDto createIdentity(String name) {
+		IdmIdentityDto identity = new IdmIdentityDto();
 		identity.setUsername(name);
 		identity.setFirstName("Test");
 		identity.setLastName("Identity");
@@ -126,7 +125,7 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractIntegra
 	@Test
 	@Transactional()
 	public void addPermissionViaRoleRequestTest() {
-		IdmIdentity testA = identityService.getByUsername(USER_TEST_A);
+		IdmIdentityDto testA = identityService.getByUsername(USER_TEST_A);
 		IdmIdentityContractDto contractA = identityContractService.getPrimeContract(testA.getId());
 
 		IdmRoleRequestDto request = new IdmRoleRequestDto();
@@ -157,7 +156,7 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractIntegra
 		Assert.assertEquals(RoleRequestState.CONCEPT, conceptA.getState());
 
 		roleRequestService.startRequestInternal(request.getId(), true);
-		request = roleRequestService.getDto(request.getId());
+		request = roleRequestService.get(request.getId());
 
 		Assert.assertEquals(RoleRequestState.EXECUTED, request.getState());
 		List<IdmIdentityRoleDto> identityRoles = identityRoleService.findAllByIdentity(testA.getId());
@@ -173,7 +172,7 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractIntegra
 	@Transactional()
 	public void changePermissionViaRoleRequestTest() {
 		this.addPermissionViaRoleRequestTest();
-		IdmIdentity testA = identityService.getByUsername(USER_TEST_A);
+		IdmIdentityDto testA = identityService.getByUsername(USER_TEST_A);
 		IdmIdentityContractDto contractA = identityContractService.getPrimeContract(testA.getId());
 
 		IdmRoleRequestDto request = new IdmRoleRequestDto();
@@ -197,7 +196,7 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractIntegra
 		conceptA = conceptRoleRequestService.save(conceptA);
 
 		roleRequestService.startRequestInternal(request.getId(), true);
-		request = roleRequestService.getDto(request.getId());
+		request = roleRequestService.get(request.getId());
 
 		Assert.assertEquals(RoleRequestState.EXECUTED, request.getState());
 		identityRoles = identityRoleService.findAllByIdentity(testA.getId());
@@ -213,7 +212,7 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractIntegra
 	@Transactional()
 	public void removePermissionViaRoleRequestTest() {
 		this.addPermissionViaRoleRequestTest();
-		IdmIdentity testA = identityService.getByUsername(USER_TEST_A);
+		IdmIdentityDto testA = identityService.getByUsername(USER_TEST_A);
 		IdmIdentityContractDto contractA = identityContractService.getPrimeContract(testA.getId());
 
 		IdmRoleRequestDto request = new IdmRoleRequestDto();
@@ -234,7 +233,7 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractIntegra
 		conceptA = conceptRoleRequestService.save(conceptA);
 
 		roleRequestService.startRequestInternal(request.getId(), true);
-		request = roleRequestService.getDto(request.getId());
+		request = roleRequestService.get(request.getId());
 
 		Assert.assertEquals(RoleRequestState.EXECUTED, request.getState());
 		identityRoles = identityRoleService.findAllByIdentity(testA.getId());
@@ -245,8 +244,8 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractIntegra
 	@Test(expected = RoleRequestException.class)
 	@Transactional()
 	public void noSameApplicantExceptionTest() {
-		IdmIdentity testA = identityService.getByUsername(USER_TEST_A);
-		IdmIdentity testB = identityService.getByUsername(USER_TEST_B);
+		IdmIdentityDto testA = identityService.getByUsername(USER_TEST_A);
+		IdmIdentityDto testB = identityService.getByUsername(USER_TEST_B);
 		IdmIdentityContractDto contractB = identityContractService.getPrimeContract(testB.getId());
 
 		IdmRoleRequestDto request = new IdmRoleRequestDto();
@@ -273,7 +272,7 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractIntegra
 	public void duplicatedRequestExceptionTest() {
 		loginAsAdmin(USER_TEST_A);
 		
-		IdmIdentity testA = identityService.getByUsername(USER_TEST_A);
+		IdmIdentityDto testA = identityService.getByUsername(USER_TEST_A);
 		IdmIdentityContractDto contractA = identityContractService.getPrimeContract(testA.getId());
 
 		IdmRoleRequestDto request = new IdmRoleRequestDto();
@@ -296,7 +295,7 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractIntegra
 		conceptRoleRequestService.save(conceptA);
 
 		roleRequestService.startRequestInternal(requestA.getId(), true);
-		requestA = roleRequestService.getDto(requestA.getId());
+		requestA = roleRequestService.get(requestA.getId());
 		Assert.assertEquals(RoleRequestState.IN_PROGRESS, requestA.getState());
 
 		IdmRoleRequestDto requestB = roleRequestService.save(request);
@@ -305,7 +304,7 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractIntegra
 		
 		// We expect duplication exception
 		roleRequestService.startRequestInternal(requestB.getId(), true);
-		requestB = roleRequestService.getDto(requestB.getId());
+		requestB = roleRequestService.get(requestB.getId());
 		Assert.assertEquals(RoleRequestState.DUPLICATED, requestB.getState());
 		Assert.assertEquals(requestA.getId(), requestB.getDuplicatedToRequest());
 		
@@ -316,7 +315,7 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractIntegra
 		
 		// We expect correct start
 		roleRequestService.startRequestInternal(requestB.getId(), true);
-		requestB = roleRequestService.getDto(requestB.getId());
+		requestB = roleRequestService.get(requestB.getId());
 		Assert.assertEquals(RoleRequestState.IN_PROGRESS, requestB.getState());
 		Assert.assertEquals(null, requestB.getDuplicatedToRequest());
 		
@@ -334,7 +333,7 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractIntegra
 		}).collect(Collectors.toList());
 		SecurityContextHolder.getContext().setAuthentication(new IdmJwtAuthentication(new IdmIdentityDto(USER_TEST_A), null, authorities, "test"));
 		
-		IdmIdentity testA = identityService.getByUsername(USER_TEST_A);
+		IdmIdentityDto testA = identityService.getByUsername(USER_TEST_A);
 		IdmIdentityContractDto contractA = identityContractService.getPrimeContract(testA.getId());
 
 		IdmRoleRequestDto request = new IdmRoleRequestDto();

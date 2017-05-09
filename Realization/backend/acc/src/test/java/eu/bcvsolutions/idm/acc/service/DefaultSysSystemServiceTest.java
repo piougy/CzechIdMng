@@ -172,7 +172,7 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		roleSystemAttribute.setIdmPropertyName("name");
 		roleSystemAttribute = roleSystemAttributeService.save(roleSystemAttribute);
 		
-		assertEquals(systemName, systemService.getByName(systemName).getName());
+		assertEquals(systemName, systemService.getByCode(systemName).getName());
 		assertEquals(1, schemaObjectClassService.find(objectClassFilter, null).getTotalElements());
 		assertEquals(1, schemaAttributeService.find(schemaAttributeFilter, null).getTotalElements());
 		assertEquals(1, systemEntityHandlingService.find(entityHandlingFilter, null).getTotalElements());
@@ -182,7 +182,7 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		
 		systemService.delete(system);
 		
-		assertNull(systemService.getByName(systemName));
+		assertNull(systemService.getByCode(systemName));
 		assertEquals(0, schemaObjectClassService.find(objectClassFilter, null).getTotalElements());
 		assertEquals(0, schemaAttributeService.find(schemaAttributeFilter, null).getTotalElements());
 		assertEquals(0, systemEntityHandlingService.find(entityHandlingFilter, null).getTotalElements());
@@ -232,7 +232,7 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		SysSystem system = new SysSystem();
 		system.setName(SYSTEM_NAME_ONE);
 		systemService.save(system);	
-		SysSystem systemOne = systemService.getByName(SYSTEM_NAME_ONE);		
+		SysSystem systemOne = systemService.getByCode(SYSTEM_NAME_ONE);		
 		assertEquals(SYSTEM_NAME_ONE, systemOne.getName());
 		//
 		// create definition one

@@ -29,7 +29,7 @@ import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadEntityController;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
-import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
 
@@ -42,7 +42,7 @@ public class SysProvisioningOperationController
 	private final ProvisioningExecutor provisioningExecutor;
 
 	@Autowired
-	public SysProvisioningOperationController(EntityLookupService entityLookupService,
+	public SysProvisioningOperationController(LookupService entityLookupService,
 			ProvisioningExecutor provisioningExecutor) {
 		super(entityLookupService);
 		//

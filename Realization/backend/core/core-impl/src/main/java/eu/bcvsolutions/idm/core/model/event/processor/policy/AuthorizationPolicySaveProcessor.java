@@ -5,40 +5,35 @@ import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
-import eu.bcvsolutions.idm.core.api.event.CoreEvent;
+import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
-import eu.bcvsolutions.idm.core.model.entity.IdmAuthorizationPolicy;
 import eu.bcvsolutions.idm.core.model.event.AuthorizationPolicyEvent.AuthorizationPolicyEventType;
-import eu.bcvsolutions.idm.core.model.repository.IdmAuthorizationPolicyRepository;
+import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
 
 /**
  * Persists authorization policies.
  * 
  * @author Jan Helbich
+ * @author Radek Tomiška
  */
 @Component
 @Description("Persists authorization policies.")
-public class AuthorizationPolicySaveProcessor extends CoreEventProcessor<IdmAuthorizationPolicy> {
+public class AuthorizationPolicySaveProcessor extends CoreEventProcessor<IdmAuthorizationPolicyDto> {
 
 	private static final String PROCESSOR_NAME = "authorization-policy-save-processor";
 
-	private final IdmAuthorizationPolicyRepository repository;
+	private final IdmAuthorizationPolicyService service;
 
 	@Autowired
-	public AuthorizationPolicySaveProcessor(IdmAuthorizationPolicyRepository repository) {
+	public AuthorizationPolicySaveProcessor(IdmAuthorizationPolicyService service) {
 		super(AuthorizationPolicyEventType.CREATE, AuthorizationPolicyEventType.UPDATE);
 		//
-		Assert.notNull(repository);
+		Assert.notNull(service);
 		//
-		this.repository = repository;
-	}
-
-	@Override
-	public int getOrder() {
-		return CoreEvent.DEFAULT_ORDER;
+		this.service = service;
 	}
 
 	@Override
@@ -47,9 +42,10 @@ public class AuthorizationPolicySaveProcessor extends CoreEventProcessor<IdmAuth
 	}
 
 	@Override
-	public EventResult<IdmAuthorizationPolicy> process(EntityEvent<IdmAuthorizationPolicy> event) {
-		IdmAuthorizationPolicy entity = repository.save(event.getContent());
-		event.setContent(entity);
+	public EventResult<IdmAuthorizationPolicyDto> process(EntityEvent<IdmAuthorizationPolicyDto> event) {
+		IdmAuthorizationPolicyDto dto = event.getContent();
+		dto = service.saveInternal(dto);
+		event.setContent(dto);
 		//
 		return new DefaultEventResult<>(event, this);
 	}

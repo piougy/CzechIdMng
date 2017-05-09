@@ -4,7 +4,6 @@
  */
 package eu.bcvsolutions.idm.core.api.utils;
 
-import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Objects;
@@ -81,13 +80,21 @@ public class EntityUtils {
 	 * @return
      * @throws IllegalArgumentException If identifier does not conform to the string representation as
      *          described in {@link #toString}
-	 */
-	public static UUID toUuid(Serializable identifier) {
-		if (identifier instanceof String) {
-			return UUID.fromString((String) identifier);
-		}
-		return (UUID) identifier;
-	}
+	 */	
+	public static UUID toUuid(Object identifier) {        
+        if(identifier == null) {
+        	return null;
+        }
+    
+        try {
+            if(identifier instanceof UUID) {
+                return (UUID) identifier;
+            }
+            return UUID.fromString((String) identifier);
+        } catch (Exception ex) {
+            throw new ClassCastException(String.format("Identified object [%s] is not an UUID.", identifier));
+        }
+    }
 
     public static Field getFirstFieldInClassHierarchy(Class<?> sourceType, String field) throws NoSuchFieldException {
         Field result = getFirstFieldInClassHierarchyInternal(sourceType, field);

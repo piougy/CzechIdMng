@@ -10,14 +10,16 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Lists;
+
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.TestHelper;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.AuthorizationPolicyFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleGuarantee;
+import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleGuaranteeRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
@@ -41,6 +43,8 @@ public class DefaultIdmRoleServiceIntegrationTest extends AbstractIntegrationTes
 	@Autowired
 	private IdmIdentityService identityService;
 	@Autowired
+	private IdmIdentityRepository identityRepository;
+	@Autowired
 	private IdmIdentityRoleService identityRoleService;
 	@Autowired
 	private IdmIdentityContractService identityContractService;
@@ -63,7 +67,7 @@ public class DefaultIdmRoleServiceIntegrationTest extends AbstractIntegrationTes
 	
 	@Test
 	public void testReferentialIntegrity() {
-		IdmIdentity identity = new IdmIdentity();
+		IdmIdentityDto identity = new IdmIdentityDto();
 		String username = "delete_test_" + System.currentTimeMillis();
 		identity.setUsername(username);
 		identity.setPassword(new GuardedString("heslo")); // confidential storage
@@ -76,7 +80,7 @@ public class DefaultIdmRoleServiceIntegrationTest extends AbstractIntegrationTes
 		role.setName(roleName);
 		IdmRoleGuarantee roleGuarantee = new IdmRoleGuarantee();
 		roleGuarantee.setRole(role);
-		roleGuarantee.setGuarantee(identity);
+		roleGuarantee.setGuarantee(identityRepository.findOne(identity.getId()));
 		role.setGuarantees(Lists.newArrayList(roleGuarantee));
 		roleService.save(role);
 		
@@ -92,7 +96,7 @@ public class DefaultIdmRoleServiceIntegrationTest extends AbstractIntegrationTes
 	@Test(expected = ResultCodeException.class)
 	public void testReferentialIntegrityAssignedRoles() {
 		// prepare data
-		IdmIdentity identity = helper.createIdentity("delete-test");
+		IdmIdentityDto identity = helper.createIdentity("delete-test");
 		IdmRole role = helper.createRole("test-delete");
 		// assigned role
 		IdmIdentityRoleDto identityRole = helper.createIdentityRole(identity, role);
@@ -111,6 +115,6 @@ public class DefaultIdmRoleServiceIntegrationTest extends AbstractIntegrationTes
 		//
 		AuthorizationPolicyFilter policyFilter = new AuthorizationPolicyFilter();
 		policyFilter.setRoleId(role.getId());
-		assertEquals(0, authorizationPolicyService.findDto(policyFilter, null).getTotalElements());
+		assertEquals(0, authorizationPolicyService.find(policyFilter, null).getTotalElements());
 	}
 }

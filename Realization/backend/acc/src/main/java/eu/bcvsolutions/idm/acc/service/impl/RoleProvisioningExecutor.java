@@ -71,7 +71,7 @@ public class RoleProvisioningExecutor extends AbstractProvisioningExecutor<IdmRo
 
 		RoleAccountFilter filter = new RoleAccountFilter();
 		filter.setAccountId(account.getId());
-		List<? extends EntityAccountDto> entityAccoutnList = roleAccountService.findDto(filter, null).getContent();
+		List<? extends EntityAccountDto> entityAccoutnList = roleAccountService.find(filter, null).getContent();
 		if (entityAccoutnList == null) {
 			return;
 		}

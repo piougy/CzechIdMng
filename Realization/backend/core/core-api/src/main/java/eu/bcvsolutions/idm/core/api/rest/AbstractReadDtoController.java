@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.Link;
@@ -27,11 +26,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.service.ReadDtoService;
 import eu.bcvsolutions.idm.core.api.utils.FilterConverter;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
@@ -54,11 +54,11 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 	@Autowired(required = false)
 	@Qualifier("objectMapper")
 	private ObjectMapper mapper;
-	private final ReadDtoService<DTO, ?, F> service;
+	private final ReadDtoService<DTO, F> service;
 	@Autowired
-	private EntityLookupService entityLookupService;
+	private LookupService lookupService;
 
-	public AbstractReadDtoController(ReadDtoService<DTO, ?, F> service) {
+	public AbstractReadDtoController(ReadDtoService<DTO, F> service) {
 		Assert.notNull(service, "Service is required!");
 
 		this.service = service;
@@ -69,7 +69,7 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 	 * 
 	 * @return
 	 */
-	protected ReadDtoService<DTO, ?, F> getService() {
+	protected ReadDtoService<DTO, F> getService() {
 		return service;
 	}
 
@@ -103,8 +103,13 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 	 * @param backendId
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	public DTO getDto(Serializable backendId) {
-		return getService().getDto(backendId, IdmBasePermission.READ);
+		if(lookupService == null) {
+			return getService().get(backendId, IdmBasePermission.READ);
+		}
+		DTO dto = (DTO) lookupService.lookupDto(getDtoClass(), backendId);
+		return checkAccess(dto, IdmBasePermission.READ);
 	}
 
 	/**
@@ -117,7 +122,7 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 	 */
 	public Resources<?> find(@RequestParam MultiValueMap<String, Object> parameters,
 			@PageableDefault Pageable pageable) {
-		return toResources(findDtos(toFilter(parameters), pageable, IdmBasePermission.READ), getDtoClass());
+		return toResources(find(toFilter(parameters), pageable, IdmBasePermission.READ), getDtoClass());
 	}
 	
 	/**
@@ -131,9 +136,8 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 	 */
 	public Resources<?> autocomplete(
 			@RequestParam MultiValueMap<String, Object> parameters,
-			@PageableDefault Pageable pageable, 
-			PersistentEntityResourceAssembler assembler) {
-		return toResources(findDtos(toFilter(parameters), pageable, IdmBasePermission.AUTOCOMPLETE), getDtoClass());
+			@PageableDefault Pageable pageable) {
+		return toResources(find(toFilter(parameters), pageable, IdmBasePermission.AUTOCOMPLETE), getDtoClass());
 	}
 
 	/**
@@ -144,8 +148,8 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 	 * @param permission
 	 * @return
 	 */
-	public Page<DTO> findDtos(F filter, Pageable pageable, BasePermission permission) {
-		return getService().findDto(filter, pageable, permission);
+	public Page<DTO> find(F filter, Pageable pageable, BasePermission permission) {
+		return getService().find(filter, pageable, permission);
 	}
 	
 	/**
@@ -159,7 +163,7 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 		if (dto == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
-		return getService().getPermissions(backendId);
+		return getService().getPermissions(dto.getId());
 	}
 
 	/**
@@ -212,8 +216,19 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 	 */
 	protected FilterConverter getParameterConverter() {
 		if (filterConverter == null) {
-			filterConverter = new FilterConverter(entityLookupService, mapper);
+			filterConverter = new FilterConverter(lookupService, mapper);
 		}
 		return filterConverter;
+	}
+	
+	/**
+	 * Evaluates authorization permission on given dto
+	 * 
+	 * @param dto
+	 * @param permission
+	 * @return
+	 */
+	protected DTO checkAccess(DTO dto, BasePermission... permission) {
+		return getService().checkAccess(dto, permission);
 	}
 }

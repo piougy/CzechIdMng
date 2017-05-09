@@ -107,11 +107,8 @@ export default class EntityUtils {
         && (entity.validTill === undefined || entity.validTill === null)) {
       return true;
     }
-    if ((entity.validFrom !== null && moment().startOf('day').isSameOrBefore(moment(entity.validFrom).startOf('day')))
-        || (entity.validTill !== null && moment().startOf('day').subtract(1, 'days').isSameOrAfter(moment(entity.validTill).startOf('day')))) {
-      return false;
-    }
-    return true;
+    return ((entity.validFrom === null || moment().startOf('day').isSameOrAfter(moment(entity.validFrom).startOf('day')))
+        && (entity.validTill === null || moment().startOf('day').isSameOrBefore(moment(entity.validTill).startOf('day'))));
   }
 
   /**

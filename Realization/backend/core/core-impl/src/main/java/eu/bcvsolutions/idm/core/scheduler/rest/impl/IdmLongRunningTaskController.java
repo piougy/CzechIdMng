@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteEntityController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
-import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.scheduler.dto.filter.LongRunningTaskFilter;
@@ -44,7 +44,7 @@ public class IdmLongRunningTaskController extends AbstractReadWriteEntityControl
 	
 	@Autowired
 	public IdmLongRunningTaskController(
-			EntityLookupService entityLookupService,
+			LookupService entityLookupService,
 			LongRunningTaskManager longRunningTaskManager) {
 		super(entityLookupService);
 		//

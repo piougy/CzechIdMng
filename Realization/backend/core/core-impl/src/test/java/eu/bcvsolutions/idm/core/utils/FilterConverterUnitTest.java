@@ -14,7 +14,7 @@ import org.mockito.Mock;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
-import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.utils.FilterConverter;
 import eu.bcvsolutions.idm.test.api.AbstractVerifiableUnitTest;
 
@@ -27,7 +27,7 @@ import eu.bcvsolutions.idm.test.api.AbstractVerifiableUnitTest;
 public class FilterConverterUnitTest extends AbstractVerifiableUnitTest {
 
 	@Mock
-	private EntityLookupService entityLookupService;
+	private LookupService entityLookupService;
 	private FilterConverter filterConverter;
 	
 	@Before

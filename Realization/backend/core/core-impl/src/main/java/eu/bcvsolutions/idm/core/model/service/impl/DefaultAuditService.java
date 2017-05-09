@@ -41,6 +41,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.filter.AuditFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
@@ -50,6 +51,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmAudit;
 import eu.bcvsolutions.idm.core.model.repository.IdmAuditRepository;
 import eu.bcvsolutions.idm.core.model.repository.listener.IdmAuditListener;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuditService;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 
 /**
  * Implementation of service for auditing
@@ -246,7 +248,7 @@ public class DefaultAuditService extends AbstractReadWriteEntityService<IdmAudit
 	 * @return
 	 */
 	@Override
-	public IdmAudit get(Serializable id) {
+	public IdmAudit get(Serializable id, BasePermission... permission) {
 		Assert.notNull(id, "Id is required");
 		AuditFilter filter = new AuditFilter();
 		filter.setId(Long.valueOf(id.toString()));

@@ -60,6 +60,7 @@ export default class SecurityManager {
 
   /**
    * Login user
+   *
    * @param  {string} username
    * @param  {string} password
    * @param  {function} redirect
@@ -97,6 +98,7 @@ export default class SecurityManager {
     const userName = decoded.currentUsername;
     // construct logged user context
     const userContext = {
+      isAuthenticated: true,
       username: userName,
       tokenCIDMST: json.token,
       tokenCSRF: authenticateService.getCookie(TOKEN_COOKIE_NAME),

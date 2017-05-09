@@ -6,6 +6,7 @@ import java.util.List;
 import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
+import eu.bcvsolutions.idm.core.security.api.domain.IdentityBasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 
 /**
@@ -16,22 +17,85 @@ import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
  */
 public enum CoreGroupPermission implements GroupPermission {
 	
-	AUTHORIZATIONPOLICY(IdmBasePermission.ADMIN, IdmBasePermission.AUTOCOMPLETE, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
-	IDENTITY(IdmBasePermission.ADMIN, IdmBasePermission.AUTOCOMPLETE, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
-	IDENTITYCONTRACT(IdmBasePermission.ADMIN, IdmBasePermission.AUTOCOMPLETE, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
-	IDENTITYROLE(IdmBasePermission.ADMIN, IdmBasePermission.AUTOCOMPLETE, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
-	ROLE(IdmBasePermission.ADMIN, IdmBasePermission.AUTOCOMPLETE, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
-	ROLECATALOGUE(IdmBasePermission.ADMIN, IdmBasePermission.AUTOCOMPLETE, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
-	TREENODE(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
-	TREETYPE(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
-	CONFIGURATION(IdmBasePermission.ADMIN, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE), // read configuration is public operation
+	AUTHORIZATIONPOLICY(
+			IdmBasePermission.ADMIN, 
+			IdmBasePermission.AUTOCOMPLETE, 
+			IdmBasePermission.READ, 
+			IdmBasePermission.CREATE, 
+			IdmBasePermission.UPDATE, 
+			IdmBasePermission.DELETE),
+	IDENTITY(
+			IdmBasePermission.ADMIN, 
+			IdmBasePermission.AUTOCOMPLETE, 
+			IdmBasePermission.READ, 
+			IdmBasePermission.CREATE, 
+			IdmBasePermission.UPDATE,
+			IdmBasePermission.DELETE,
+			IdentityBasePermission.PASSWORDCHANGE,
+			IdentityBasePermission.PASSWORDRESET),
+	IDENTITYCONTRACT(
+			IdmBasePermission.ADMIN, 
+			IdmBasePermission.AUTOCOMPLETE, 
+			IdmBasePermission.READ, 
+			IdmBasePermission.CREATE, 
+			IdmBasePermission.UPDATE, 
+			IdmBasePermission.DELETE),
+	IDENTITYROLE(
+			IdmBasePermission.ADMIN, 
+			IdmBasePermission.AUTOCOMPLETE, 
+			IdmBasePermission.READ, 
+			IdmBasePermission.CREATE, 
+			IdmBasePermission.UPDATE, 
+			IdmBasePermission.DELETE),
+	ROLE(
+			IdmBasePermission.ADMIN, 
+			IdmBasePermission.AUTOCOMPLETE, 
+			IdmBasePermission.READ, 
+			IdmBasePermission.CREATE, 
+			IdmBasePermission.UPDATE, 
+			IdmBasePermission.DELETE),
+	ROLECATALOGUE(
+			IdmBasePermission.ADMIN, 
+			IdmBasePermission.AUTOCOMPLETE, 
+			IdmBasePermission.READ, 
+			IdmBasePermission.CREATE, 
+			IdmBasePermission.UPDATE, 
+			IdmBasePermission.DELETE),
+	TREENODE(
+			IdmBasePermission.ADMIN, 
+			IdmBasePermission.READ, 
+			IdmBasePermission.CREATE, 
+			IdmBasePermission.UPDATE, 
+			IdmBasePermission.DELETE),
+	TREETYPE(
+			IdmBasePermission.ADMIN, 
+			IdmBasePermission.READ,
+			IdmBasePermission.CREATE, 
+			IdmBasePermission.UPDATE, 
+			IdmBasePermission.DELETE),
+	CONFIGURATION( // read configuration is public operation
+			IdmBasePermission.ADMIN, 
+			IdmBasePermission.CREATE,
+			IdmBasePermission.UPDATE, 
+			IdmBasePermission.DELETE), 
 	CONFIGURATIONSECURED(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
 	PASSWORDPOLICY(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
 	SCRIPT(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
 	AUDIT(IdmBasePermission.ADMIN, IdmBasePermission.READ),
 	MODULE(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE),
-	SCHEDULER(IdmBasePermission.ADMIN, IdmBasePermission.EXECUTE, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
-	ROLEREQUEST(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE, IdmBasePermission.EXECUTE),
+	SCHEDULER(IdmBasePermission.ADMIN, 
+			IdmBasePermission.EXECUTE, 
+			IdmBasePermission.READ,
+			IdmBasePermission.CREATE, 
+			IdmBasePermission.UPDATE, 
+			IdmBasePermission.DELETE),
+	ROLEREQUEST(
+			IdmBasePermission.ADMIN, 
+			IdmBasePermission.READ, 
+			IdmBasePermission.CREATE, 
+			IdmBasePermission.UPDATE, 
+			IdmBasePermission.DELETE, 
+			IdmBasePermission.EXECUTE),
 	EAVFORMDEFINITIONS(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
 	EAVFORMATTRIBUTES(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
 	CONTRACTGUARANTEE(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE);

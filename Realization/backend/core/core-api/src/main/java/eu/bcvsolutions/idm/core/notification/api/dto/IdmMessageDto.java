@@ -1,17 +1,16 @@
 package eu.bcvsolutions.idm.core.notification.api.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import eu.bcvsolutions.idm.core.api.domain.Embedded;
-import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
-import eu.bcvsolutions.idm.core.api.dto.ResultModel;
-import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
-import org.apache.commons.collections.map.HashedMap;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.hateoas.core.Relation;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
+import eu.bcvsolutions.idm.core.api.dto.ResultModel;
+import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 
 /**
  * Generic log message dto

@@ -22,8 +22,10 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
+import eu.bcvsolutions.idm.core.security.api.domain.IdentityBasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
+import eu.bcvsolutions.idm.core.security.exception.IdmAuthenticationException;
 import eu.bcvsolutions.idm.core.security.service.LoginService;
 
 /**
@@ -70,18 +72,26 @@ public class PasswordChangeController {
 			@PathVariable String identityId,
 			@RequestBody @Valid PasswordChangeDto passwordChangeDto) {
 		// we need to login as identity, if no one is logged in
-		if (!securityService.isAuthenticated()) {
-			LoginDto loginDto = new LoginDto();
-			loginDto.setSkipMustChange(true);
-			loginDto.setUsername(identityId);
-			loginDto.setPassword(passwordChangeDto.getOldPassword());
-			loginService.login(loginDto);
+		try{
+			if (!securityService.isAuthenticated()) {
+				LoginDto loginDto = new LoginDto();
+				loginDto.setSkipMustChange(true);
+				loginDto.setUsername(identityId);
+				loginDto.setPassword(passwordChangeDto.getOldPassword());
+				loginService.login(loginDto);
+			}
+		} catch(IdmAuthenticationException ex) {
+			// TODO: Could be splitted to identity not found / wrong password
+			throw new ResultCodeException(CoreResultCode.PASSWORD_CHANGE_CURRENT_FAILED_IDM);
 		}
 		//
 		IdmIdentityDto identity = (IdmIdentityDto) entityLookupService.lookupDto(IdmIdentityDto.class, identityId);
 		if (identity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("identity", identityId));
 		}
+		//
+		identityService.checkAccess(identity, IdentityBasePermission.PASSWORDCHANGE);
+		//
 		identityService.passwordChange(identity, passwordChangeDto);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}

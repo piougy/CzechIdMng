@@ -48,6 +48,16 @@ public class DefaultIdmConceptRoleRequestService
 		
 		this.workflowProcessInstanceService = workflowProcessInstanceService;
 	}
+	
+	@Override
+	protected IdmConceptRoleRequestDto toDto(IdmConceptRoleRequest entity, IdmConceptRoleRequestDto dto) {
+		IdmConceptRoleRequestDto dtoResult = super.toDto(entity, dto);
+		// Contract from identity role has higher priority then contract ID in concept role
+		if(entity != null && entity.getIdentityRole() != null){
+			dtoResult.setIdentityContract(entity.getIdentityRole().getIdentityContract().getId());
+		}
+		return dtoResult;
+	}
 
 	@Override
 	@Transactional(readOnly = true)

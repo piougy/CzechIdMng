@@ -20,6 +20,7 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.ImmutableList;
+
 import eu.bcvsolutions.idm.acc.domain.ReconciliationMissingAccountActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationLinkedActionType;
@@ -138,6 +139,8 @@ public class DefaultTreeSynchronizationServiceTest extends AbstractIntegrationTe
 	@Test
 	@Transactional
 	public void doCreateSyncConfig() {
+		
+				
 		initData();
 
 		SystemMappingFilter mappingFilter = new SystemMappingFilter();

@@ -180,7 +180,7 @@ public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor
 		// Create new Role
 		// Workaround! We have to break provisioning in this phase.
 		RoleEvent event = new RoleEvent(RoleEventType.CREATE, role);
-		event.getProperties().put(RoleSaveProcessor.BREAK_PROVISIONING, Boolean.TRUE);
+		event.getProperties().put(RoleSaveProcessor.SKIP_PROVISIONING, Boolean.TRUE);
 		role = entityEventManager.process(event).getContent();
 		
 		// Update extended attribute (entity must be persisted first)

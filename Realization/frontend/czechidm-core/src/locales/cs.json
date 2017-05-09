@@ -2052,7 +2052,8 @@
         "title": "Automatická role",
         "placeholder": "Automatická role",
         "help": "Role vychází z pozice v PPV"
-      }
+      },
+      "roleCataloguePicker": "Výběr složky z katalogu"
     },
     "IdentityAccount": {
       "attribute": {

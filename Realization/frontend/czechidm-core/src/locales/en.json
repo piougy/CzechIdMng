@@ -2017,7 +2017,8 @@
         "title": "Automatic role",
         "placeholder": "Automatic role",
         "help": "Role from contracted position"
-      }
+      },
+      "roleCataloguePicker": "Select a folder from the catalog"
     },
     "IdentityAccount": {
       "attribute": {

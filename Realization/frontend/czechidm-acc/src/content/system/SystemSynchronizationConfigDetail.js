@@ -121,7 +121,8 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
     if (formEntity.id === undefined) {
       this.context.store.dispatch(synchronizationConfigManager.createEntity(formEntity, `${uiKey}-detail`, (createdEntity, error) => {
         if (startSynchronization) {
-          this.afterSaveAndStartSynchronization.bind(createdEntity, error);
+        console.log("creaddd", createdEntity, error, startSynchronization);
+          this.afterSaveAndStartSynchronization(createdEntity, error);
         } else {
           this.afterSave(createdEntity, error, close);
         }
@@ -136,14 +137,15 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
   }
 
   afterSave(entity, error, close) {
+    const { entityId } = this.props.params;
     if (!error) {
       if (this._getIsNew()) {
         this.addMessage({ message: this.i18n('create.success', { name: entity.name}) });
       } else {
         this.addMessage({ message: this.i18n('save.success', {name: entity.name}) });
       }
+      this.context.router.replace(`/system/${entityId}/synchronization-configs/${entity.id}/detail`, { configId: entity.id });
       if (close) {
-        const { entityId } = this.props.params;
         this.context.router.replace(`/system/${entityId}/synchronization-configs/`);
       }
     } else {
@@ -154,12 +156,9 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
   }
 
   afterSaveAndStartSynchronization(entity, error) {
+    const { entityId } = this.props.params;
     if (!error) {
-      if (this._getIsNew()) {
-        this.addMessage({ message: this.i18n('create.success', { name: entity.name}) });
-      } else {
-        this.addMessage({ message: this.i18n('save.success', {name: entity.name}) });
-      }
+      this.context.router.replace(`/system/${entityId}/synchronization-configs/${entity.id}/detail`, { configId: entity.id });
       this._startSynchronization(entity.id);
     } else {
       this.addError(error);

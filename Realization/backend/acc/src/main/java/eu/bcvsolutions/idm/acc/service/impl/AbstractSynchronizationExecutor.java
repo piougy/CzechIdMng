@@ -537,6 +537,8 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 		if (tokenAttribute != null) {
 			tokenObj = getValueByMappedAttribute(tokenAttribute, connectorObject.getAttributes());
 		}
+
+		// Token is saved in Sync as String, therefore we transform token (from IcObject) to String too.
 		String token = tokenObj != null ? tokenObj.toString() : null;
 
 		// In custom filter mode, we don't have token. We find
@@ -544,7 +546,8 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 		// order of returned (searched) objects is random. We
 		// have to do !!STRING!! compare and save only
 		// grater token to config and log.
-		if (token != null && config.getToken() != null && token.compareTo(config.getToken()) == -1) {
+
+		if (token != null && config.getToken() != null && token.compareTo(config.getToken()) <= -1) {
 			token = config.getToken();
 		}
 		// Save token

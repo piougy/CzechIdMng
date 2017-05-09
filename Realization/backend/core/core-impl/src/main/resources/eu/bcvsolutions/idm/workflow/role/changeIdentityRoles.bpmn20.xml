@@ -24,6 +24,7 @@ Configuration properties:
         <activiti:formProperty id="approve" type="decision"></activiti:formProperty>
         <activiti:formProperty id="managerDescriptionForApplicant" type="textArea" variable="managerDescription"></activiti:formProperty>
         <activiti:formProperty id="applicantDescription" type="textArea" expression="#{entityEvent.content.description}" writable="false"></activiti:formProperty>
+        <activiti:formProperty id="sendNotification" type="configuration" default="false" writable="false"></activiti:formProperty>
       </extensionElements>
     </userTask>
     <exclusiveGateway id="exclusivegateway2" default="flow20"></exclusiveGateway>
@@ -40,6 +41,7 @@ Configuration properties:
         <activiti:formProperty id="repairedRequest" type="decision"></activiti:formProperty>
         <activiti:formProperty id="managerDescription" type="textArea" variable="managerDescription" writable="false"></activiti:formProperty>
         <activiti:formProperty id="applicantDescription" type="textArea" expression="#{entityEvent.content.description}"></activiti:formProperty>
+        <activiti:formProperty id="sendNotification" type="configuration" default="false" writable="false"></activiti:formProperty>
       </extensionElements>
     </userTask>
     <sequenceFlow id="flow15" sourceRef="applicantReturnedTask" targetRef="exclusivegateway1"></sequenceFlow>
@@ -233,6 +235,7 @@ if(!skip){
         <activiti:formProperty id="approve" type="decision"></activiti:formProperty>
         <activiti:formProperty id="managerDescriptionForApplicant" type="textArea" variable="managerDescription"></activiti:formProperty>
         <activiti:formProperty id="applicantDescription" type="textArea" expression="#{entityEvent.content.description}" writable="false"></activiti:formProperty>
+        <activiti:formProperty id="sendNotification" type="configuration" default="false" writable="false"></activiti:formProperty>
       </extensionElements>
     </userTask>
     <exclusiveGateway id="sid-CB31E93D-4436-474F-B565-D990B2AC1E64" default="sid-97770AD6-3F73-4833-B2EE-918194BBA074"></exclusiveGateway>
@@ -246,6 +249,7 @@ if(!skip){
         <activiti:formProperty id="repairedRequest" type="decision"></activiti:formProperty>
         <activiti:formProperty id="managerDescription" type="textArea" variable="managerDescription" writable="false"></activiti:formProperty>
         <activiti:formProperty id="applicantDescription" type="textArea" expression="#{entityEvent.content.description}"></activiti:formProperty>
+        <activiti:formProperty id="sendNotification" type="configuration" default="false" writable="false"></activiti:formProperty>
       </extensionElements>
     </userTask>
     <sequenceFlow id="sid-503B495E-9455-44B9-8789-19E5D35765A9" sourceRef="sid-9E6516EF-3FDE-4191-8134-33DEB6D7C507" targetRef="sid-7A6483E5-707A-40F9-A0A7-DFB32DE745A4"></sequenceFlow>
@@ -298,6 +302,7 @@ if(!skip){
         <activiti:formProperty id="approve" type="decision"></activiti:formProperty>
         <activiti:formProperty id="managerDescriptionForApplicant" type="textArea" variable="managerDescription"></activiti:formProperty>
         <activiti:formProperty id="applicantDescription" type="textArea" expression="#{entityEvent.content.description}" writable="false"></activiti:formProperty>
+        <activiti:formProperty id="sendNotification" type="configuration" default="false" writable="false"></activiti:formProperty>
       </extensionElements>
     </userTask>
     <exclusiveGateway id="sid-5BBC5295-B11C-4FF1-AF93-B26B087B3471" default="sid-62F032AA-0D66-4AC4-9A9E-EC0276A2EEB3"></exclusiveGateway>
@@ -311,6 +316,7 @@ if(!skip){
         <activiti:formProperty id="repairedRequest" type="decision"></activiti:formProperty>
         <activiti:formProperty id="managerDescription" type="textArea" variable="managerDescription" writable="false"></activiti:formProperty>
         <activiti:formProperty id="applicantDescription" type="textArea" expression="#{entityEvent.content.description}"></activiti:formProperty>
+        <activiti:formProperty id="sendNotification" type="configuration" default="false" writable="false"></activiti:formProperty>
       </extensionElements>
     </userTask>
     <sequenceFlow id="sid-0311903F-711C-4751-81EB-814842E975FD" sourceRef="sid-12381137-9285-460E-8CCD-BC43D5679026" targetRef="sid-17EC3714-6324-4F6C-8BCB-8950E3D2911E"></sequenceFlow>
@@ -407,6 +413,7 @@ roleRequestService.save(requestDto);</script>
         <activiti:formProperty id="approve" type="decision"></activiti:formProperty>
         <activiti:formProperty id="managerDescriptionForApplicant" type="textArea" variable="managerDescription"></activiti:formProperty>
         <activiti:formProperty id="applicantDescription" type="textArea" expression="#{entityEvent.content.description}" writable="false"></activiti:formProperty>
+        <activiti:formProperty id="sendNotification" type="configuration" default="false" writable="false"></activiti:formProperty>
       </extensionElements>
     </userTask>
     <scriptTask id="scripttask7" name="Find all identities with security role and resolve if we can skip next task" scriptFormat="groovy" activiti:autoStoreVariables="false">

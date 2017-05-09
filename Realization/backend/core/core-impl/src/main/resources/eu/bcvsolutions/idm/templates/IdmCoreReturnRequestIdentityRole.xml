@@ -18,7 +18,11 @@ parameters:
 <body>
 Dobrý den,<br />
 <br />
-Vaše žádnost ze dne $from Vám byla vrácena k přepracování. Odkaz žádosti: <a href='$url'>$url</a><br />
+Vaše žádnost ze dne $from Vám byla vrácena k přepracování. 
+#*
+URL isn't working for now
+Odkaz žádosti: <a href='$url'>$url</a><br />
+*#
 <br />
 Poznámka vedoucího:<br />
 <b>$managerDescription</b><br />
@@ -30,7 +34,11 @@ S pozdravem BCV Solutions s.r.o.
 -------------------------------------------------------------------------------------<br />
 Hello,<br />
 <br />
-Your request dated $from was returned for revision. Request url: <a href='$url'>$url</a><br />
+Your request dated $from was returned for revision.
+#*
+URL isn't working for now
+Request url: <a href='$url'>$url</a><br />
+*#
 <br />
 Manager's note:<br />
 <b>$managerDescription</b><br />

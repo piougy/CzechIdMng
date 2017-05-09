@@ -22,6 +22,7 @@ import org.springframework.context.annotation.Configuration;
 import eu.bcvsolutions.idm.core.notification.service.api.EmailNotificationSender;
 import eu.bcvsolutions.idm.core.workflow.domain.CustomActivityBehaviorFactory;
 import eu.bcvsolutions.idm.core.workflow.domain.StartSubprocessEventListener;
+import eu.bcvsolutions.idm.core.workflow.domain.TaskSendNotificationEventListener;
 import eu.bcvsolutions.idm.core.workflow.domain.formtype.CustomFormTypes;
 
 /**
@@ -34,9 +35,26 @@ import eu.bcvsolutions.idm.core.workflow.domain.formtype.CustomFormTypes;
  */
 @Configuration
 public class WorkflowConfig {
-
+	
+	/*
+	 * Attribute that is in WF. Enable or disable send notification. When this
+	 * attribute is empty is send notification 
+	 */
+	public static String SEND_NOTIFICATION_FROM_WF_ATTRIBUTE = "sendNotification";
+	
+	/*
+	 * Configuration attribute that allow global enable
+	 * or disable bulk sending notification from WF
+	 * This application property has higher priority than attribute set into task. 
+	 */
+	public static String  SEND_NOTIFICATION_CONFIGURATION_PROPERTY = "idm.sec.core.wf.notification.send";
+	
 	@Autowired
 	private StartSubprocessEventListener startSubprocesEventListener;
+	
+	@Autowired
+	private TaskSendNotificationEventListener taskSendNotificationEventListener;
+	
 	// Only local variable (no autowired bean)
 	private ProcessEngineConfigurationImpl processEngineConfiguration;
 
@@ -108,6 +126,12 @@ public class WorkflowConfig {
 		Map<String, List<ActivitiEventListener>> typedListeners = new HashMap<>();
 		typedListeners.put(ActivitiEventType.PROCESS_STARTED.name(),
 				Stream.of(startSubprocesEventListener).collect(Collectors.toList()));
+		typedListeners.put(ActivitiEventType.TASK_ASSIGNED.name(), 
+				Stream.of(taskSendNotificationEventListener).collect(Collectors.toList()));
+		typedListeners.put(ActivitiEventType.TASK_CREATED.name(), 
+				Stream.of(taskSendNotificationEventListener).collect(Collectors.toList()));
+		typedListeners.put(ActivitiEventType.TASK_COMPLETED.name(), 
+				Stream.of(taskSendNotificationEventListener).collect(Collectors.toList()));
 		processEngineConfiguration.setTypedEventListeners(typedListeners);
 	}
 

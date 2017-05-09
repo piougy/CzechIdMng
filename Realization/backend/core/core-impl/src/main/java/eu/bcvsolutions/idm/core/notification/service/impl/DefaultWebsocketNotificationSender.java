@@ -60,16 +60,15 @@ public class DefaultWebsocketNotificationSender extends AbstractNotificationSend
 		IdmWebsocketLogDto log = createLog(notification);
 		// send flashmessage
 		FlashMessage message = toFlashMessage(log);
-		boolean sent = false;
 		for (IdmNotificationRecipientDto recipient : log.getRecipients()) {
 			websocket.convertAndSendToUser(
 					recipient.getRealRecipient(),
 					"/queue/messages", // TODO: configurable
 					message);
 		}
-		return sent ? log : null;
+		return log;
 	}
-	
+
 	/**
 	 * Returns recipient's username, if identity is defined and realRecipient is defined, then realRecipient is returned (has higher priority).
 	 *  
@@ -121,17 +120,16 @@ public class DefaultWebsocketNotificationSender extends AbstractNotificationSend
 		log.setIdentitySender(notification.getIdentitySender());
 		return websocketLogService.save(log);
 	}
-	
+
 	/**
 	 * clone recipients with resolved real email address
-	 * 
+	 *
 	 * @param notification - recipients new parent
 	 * @param recipient - source recipient
-	 * @return
+	 * @return Clone of recipient without specified identifier
 	 */
-	@Override
 	protected IdmNotificationRecipientDto cloneRecipient(IdmNotificationDto notification, IdmNotificationRecipientDto recipient) {
-		return new IdmNotificationRecipientDto(notification.getId(), recipient.getIdentityRecipient(), getUsername(recipient));
+		return super.cloneRecipient(notification, recipient, getUsername(recipient));
 	}
 	
 	private FlashMessage toFlashMessage(IdmWebsocketLogDto log) {

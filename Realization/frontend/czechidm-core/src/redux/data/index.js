@@ -35,6 +35,7 @@ import AuthorizationPolicyManager from './AuthorizationPolicyManager';
 import ScriptAuthorityManager from './ScriptAuthorityManager';
 import ContractGuaranteeManager from './ContractGuaranteeManager';
 import NotificationRecipientManager from './NotificationRecipientManager';
+import SmsManager from './SmsManager';
 
 const ManagerRoot = {
   EntityManager,
@@ -73,7 +74,8 @@ const ManagerRoot = {
   AuthorizationPolicyManager,
   ScriptAuthorityManager,
   ContractGuaranteeManager,
-  NotificationRecipientManager
+  NotificationRecipientManager,
+  SmsManager
 };
 
 ManagerRoot.version = '0.0.1';

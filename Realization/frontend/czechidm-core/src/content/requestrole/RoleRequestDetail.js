@@ -359,11 +359,10 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
               sort
               cell={
                 ({rowIndex, data}) => {
-                  const contract = data[rowIndex]._embedded.identityContract;
                   return (
                     <Advanced.IdentityContractInfo
-                      entityIdentifier={ contract.id }
-                      entity={contract }
+                      entityIdentifier={ data[rowIndex].identityContract }
+                      entity={ data[rowIndex]._embedded.identityContract }
                       showIdentity={ false }
                       face="popover"
                       showLink={ false } />

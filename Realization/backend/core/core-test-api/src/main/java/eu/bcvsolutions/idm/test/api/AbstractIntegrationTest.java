@@ -88,7 +88,7 @@ public abstract class AbstractIntegrationTest {
 		});
 	}
 	
-	protected <T extends BaseDto> T saveInTransaction(final T object, final ReadWriteDtoService<T, ?, ?> service) {
+	protected <T extends BaseDto> T saveInTransaction(final T object, final ReadWriteDtoService<T, ?> service) {
 		return getTransactionTemplate().execute(new TransactionCallback<T>() {
 			public T doInTransaction(TransactionStatus transactionStatus) {
 				return service.save(object);

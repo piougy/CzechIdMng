@@ -20,7 +20,6 @@ import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
-import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
@@ -28,7 +27,6 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.security.api.authentication.AbstractAuthenticator;
 import eu.bcvsolutions.idm.core.security.api.authentication.Authenticator;
@@ -142,7 +140,7 @@ public class DefaultAccAuthenticator extends AbstractAuthenticator implements Au
 		if (system == null) {
 			return null; // system dont exist
 		}
-		IdmIdentity identity = identityService.getByName(loginDto.getUsername());
+		IdmIdentityDto identity = identityService.getByUsername(loginDto.getUsername());
 		if (identity == null) {	
 			throw new IdmAuthenticationException(MessageFormat.format("Check identity can login: The identity [{0}] either doesn't exist or is deleted.", loginDto.getUsername()));
 		}
@@ -213,7 +211,7 @@ public class DefaultAccAuthenticator extends AbstractAuthenticator implements Au
 			throw authFailedException;
 		}
 		IdmJwtAuthentication authentication = new IdmJwtAuthentication(
-				new IdmIdentityDto(identity, identity.getUsername()),
+				identity,
 				getAuthExpiration(),
 				grantedAuthoritiesFactory.getGrantedAuthorities(loginDto.getUsername()),
 				this.getModule());

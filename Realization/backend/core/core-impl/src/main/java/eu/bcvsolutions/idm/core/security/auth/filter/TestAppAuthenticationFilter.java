@@ -31,10 +31,9 @@ import org.springframework.security.oauth2.common.util.JsonParserFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
-import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
+import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.api.utils.HttpFilterUtils;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.core.security.api.filter.IdmAuthenticationFilter;
@@ -68,8 +67,7 @@ public class TestAppAuthenticationFilter implements IdmAuthenticationFilter {
 			
 			Map<String, Object> claims = verifyTokenAndGetClaims(jwt.get());
 			String userName = (String) claims.get(HttpFilterUtils.JWT_USER_NAME);
-			IdmIdentity identity = identityService.getByUsername(userName);
-			IdmIdentityDto identityDto = new IdmIdentityDto(identity, userName);
+			IdmIdentityDto identity = identityService.getByUsername(userName);
 			// not important - either new refreshed token or data are returned to user
 			DateTime expiration = null; 
 			
@@ -80,7 +78,7 @@ public class TestAppAuthenticationFilter implements IdmAuthenticationFilter {
 				authorities = new ArrayList<>();
 			}
 			
-			IdmJwtAuthentication ija = new IdmJwtAuthentication(identityDto, expiration, 
+			IdmJwtAuthentication ija = new IdmJwtAuthentication(identity, expiration, 
 					authorities, EntityUtils.getModule(this.getClass()));
 			SecurityContextHolder.getContext().setAuthentication(ija);
 			
@@ -101,7 +99,7 @@ public class TestAppAuthenticationFilter implements IdmAuthenticationFilter {
 	}
 	
 	private String getIgnoreAuthoritiesPath() {
-		return BaseEntityController.BASE_PATH + "/authentication" + LoginController.REMOTE_AUTH_PATH + ".*";
+		return BaseController.BASE_PATH + "/authentication" + LoginController.REMOTE_AUTH_PATH + ".*";
 	}
 
 	private Map<String, Object> verifyTokenAndGetClaims(Jwt jwt) {

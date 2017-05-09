@@ -34,6 +34,9 @@ import eu.bcvsolutions.idm.core.rest.projection.IdmTreeNodeExcerpt;
 )
 public interface IdmTreeNodeRepository extends AbstractEntityRepository<IdmTreeNode, TreeNodeFilter>, TypeableForestContentRepository<IdmTreeNode, UUID> {
 	
+	/**
+	 * TODO: fix filter by treeNode
+	 */
 	@Override
 	@Query(value = "select e from IdmTreeNode e left join e.forestIndex fi"
 	        + " where"

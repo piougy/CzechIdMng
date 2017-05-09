@@ -14,9 +14,10 @@ import org.springframework.util.Assert;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
@@ -64,7 +65,7 @@ public class DefaultGrantedAuthoritiesFactory implements GrantedAuthoritiesFacto
 	@Transactional(readOnly = true)
 	@Override
 	public List<GrantedAuthority> getGrantedAuthorities(String username) {
-		IdmIdentity identity = identityService.getByUsername(username);
+		IdmIdentityDto identity = identityService.getByUsername(username);
 		if (identity == null) {
 			throw new IdmAuthenticationException("Identity " + username + " not found!");
 		}
@@ -73,7 +74,7 @@ public class DefaultGrantedAuthoritiesFactory implements GrantedAuthoritiesFacto
 
 	@Transactional(readOnly = true)
 	@Override
-	public Collection<GrantedAuthority> getGrantedAuthoritiesForIdentity(IdmIdentity identity) {
+	public Collection<GrantedAuthority> getGrantedAuthoritiesForIdentity(IdmIdentityDto identity) {
 		return getGrantedAuthoritiesForValidRoles(identityRoleService.findAllByIdentity(identity.getId()));
 	}
 	

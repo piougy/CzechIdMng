@@ -13,8 +13,10 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.hibernate.envers.Audited;
 import org.hibernate.validator.constraints.NotEmpty;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import eu.bcvsolutions.idm.core.api.domain.Codeable;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
-import eu.bcvsolutions.idm.core.api.domain.IdentifiableByName;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 
 /**
@@ -27,7 +29,7 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 @Audited
 @XmlRootElement
 @Table(name = "idm_configuration", indexes = { @Index(name = "ux_configuration_name", columnList = "name", unique = true) })
-public class IdmConfiguration extends AbstractEntity implements IdentifiableByName {
+public class IdmConfiguration extends AbstractEntity implements Codeable {
 	
 	private static final long serialVersionUID = -8377477231407116537L;
 
@@ -70,9 +72,19 @@ public class IdmConfiguration extends AbstractEntity implements IdentifiableByNa
 	 * 
 	 * @return
 	 */
-	@Override
 	public String getName() {
 		return name;
+	}
+	
+	/**
+	 * Configuration property key
+	 * 
+	 * @return
+	 */
+	@Override
+	@JsonIgnore
+	public String getCode() {
+		return getName();
 	}
 
 	public void setName(String name) {

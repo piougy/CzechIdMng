@@ -10,8 +10,8 @@ import javax.validation.constraints.Size;
 import org.hibernate.annotations.Type;
 import org.hibernate.envers.Audited;
 
+import eu.bcvsolutions.idm.core.api.domain.Codeable;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
-import eu.bcvsolutions.idm.core.api.domain.IdentifiableByName;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.UnmodifiableEntity;
 
@@ -26,7 +26,7 @@ import eu.bcvsolutions.idm.core.api.entity.UnmodifiableEntity;
 @Table(name = "idm_notification_template", indexes = { 
 		@Index(name = "ux_idm_notification_template_name", columnList = "name", unique = true),
 		@Index(name = "ux_idm_notification_template_code", columnList = "code", unique = true)})
-public class IdmNotificationTemplate extends AbstractEntity implements IdentifiableByName, UnmodifiableEntity {
+public class IdmNotificationTemplate extends AbstractEntity implements Codeable, UnmodifiableEntity {
 
 	private static final long serialVersionUID = 4978924621333160086L;
 	
@@ -87,11 +87,11 @@ public class IdmNotificationTemplate extends AbstractEntity implements Identifia
 		this.bodyText = bodyText;
 	}
 
-	@Override
 	public String getName() {
 		return name;
 	}
 
+	@Override
 	public String getCode() {
 		return code;
 	}

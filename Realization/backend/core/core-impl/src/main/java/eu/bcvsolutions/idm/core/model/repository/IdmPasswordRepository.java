@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.model.repository;
 
+import java.util.UUID;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
@@ -8,7 +10,6 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import eu.bcvsolutions.idm.core.api.dto.filter.PasswordFilter;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmPassword;
 
 @RepositoryRestResource(
@@ -33,5 +34,5 @@ public interface IdmPasswordRepository extends AbstractEntityRepository<IdmPassw
 	        + "(?#{[0].mustChange} is null or e.mustChange = ?#{[0].mustChange}) ")
 	Page<IdmPassword> find(PasswordFilter filter, Pageable pageable);
 	
-	IdmPassword findOneByIdentity(@Param("identity") IdmIdentity identity);
+	IdmPassword findOneByIdentity_Id(@Param("identityId") UUID identityId);
 }

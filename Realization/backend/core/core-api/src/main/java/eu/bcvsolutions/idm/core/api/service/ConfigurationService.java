@@ -27,8 +27,16 @@ public interface ConfigurationService {
 	//
 	static final String PROPERTY_APP_INSTANCE_ID = IDM_PUBLIC_PROPERTY_PREFIX + "app.instanceId";
 	static final String DEFAULT_PROPERTY_APP_INSTANCE_ID = "main";
+	//
+	// common properties
+	static final String PROPERTY_ORDER = "order";
+	static final String PROPERTY_ENABLED = "enabled";
+	static final String PROPERTY_IMPLEMENTATION = "impl";
+	//
+	// common properties default
+	static final int DEFAULT_ORDER = 0;
+	static final boolean DEFAULT_ENABLED = true;
 	
-
 	/**
 	 * Returns configured value for given key. If no value for given key is configured, then returns {@code null}.
 	 * 

@@ -64,6 +64,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.acc.service.impl.DefaultSynchronizationService;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.eav.entity.AbstractFormValue;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
@@ -574,8 +575,8 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 
 		// Check state before sync
 
-		IdmIdentity identityOne = identityService.getByUsername("x" + IDENTITY_USERNAME_ONE);
-		IdmIdentity identityTwo = identityService.getByUsername("x" + IDENTITY_USERNAME_TWO);
+		IdmIdentityDto identityOne = identityService.getByUsername("x" + IDENTITY_USERNAME_ONE);
+		IdmIdentityDto identityTwo = identityService.getByUsername("x" + IDENTITY_USERNAME_TWO);
 		IdentityAccountFilter identityAccountFilterOne = new IdentityAccountFilter();
 		identityAccountFilterOne.setIdentityId(identityOne.getId());
 		Assert.assertEquals(0, identityAccoutnService.find(identityAccountFilterOne, null).getTotalElements());
@@ -641,8 +642,8 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		syncConfigCustom.setReconciliation(true);
 		syncConfigService.save(syncConfigCustom);
 
-		IdmIdentity identityOne = identityService.getByUsername("x" + IDENTITY_USERNAME_ONE);
-		IdmIdentity identityTwo = identityService.getByUsername("x" + IDENTITY_USERNAME_TWO);
+		IdmIdentityDto identityOne = identityService.getByUsername("x" + IDENTITY_USERNAME_ONE);
+		IdmIdentityDto identityTwo = identityService.getByUsername("x" + IDENTITY_USERNAME_TWO);
 
 		identityOne.setFirstName(IDENTITY_USERNAME_ONE);
 		identityTwo.setLastName(IDENTITY_USERNAME_TWO);
@@ -716,7 +717,7 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		Assert.assertFalse(syncConfigService.isRunning(syncConfigCustom));
 
 		// Create new identity THREE, with account
-		IdmIdentity identity = new IdmIdentity();
+		IdmIdentityDto identity = new IdmIdentityDto();
 		identity.setUsername("x" + IDENTITY_USERNAME_THREE);
 		identity.setFirstName(IDENTITY_USERNAME_THREE);
 		identity.setLastName(IDENTITY_USERNAME_THREE);
@@ -993,7 +994,7 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		schemaAttributeMappingService.save(emailAttribute);
 		//
 		// Set email on identity ONE to null
-		IdmIdentity one = identityService.getByUsername("x" + IDENTITY_USERNAME_ONE);
+		IdmIdentityDto one = identityService.getByUsername("x" + IDENTITY_USERNAME_ONE);
 		one.setEmail(null);
 		identityService.save(one);
 		

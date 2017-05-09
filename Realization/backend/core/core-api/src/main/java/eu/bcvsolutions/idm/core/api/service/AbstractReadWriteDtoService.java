@@ -27,7 +27,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
  * @param <F> filter type
  */
 public abstract class AbstractReadWriteDtoService<DTO extends BaseDto, E extends BaseEntity, F extends BaseFilter>
-		extends AbstractReadDtoService<DTO, E, F> implements ReadWriteDtoService<DTO, E, F> {
+		extends AbstractReadDtoService<DTO, E, F> implements ReadWriteDtoService<DTO, F> {
 
 	public AbstractReadWriteDtoService(AbstractEntityRepository<E, F> repository) {
 		super(repository);
@@ -44,15 +44,15 @@ public abstract class AbstractReadWriteDtoService<DTO extends BaseDto, E extends
 		//
 		E persistEntity = null;
 		if (dto.getId() != null) {
-			persistEntity = this.get(dto.getId());
+			persistEntity = this.getEntity(dto.getId());
 			if (persistEntity != null && permission != null) {
 				// check access on previous entity - update is needed
 				checkAccess(persistEntity, IdmBasePermission.UPDATE);
 			}
 		}
-		persistEntity = checkAccess(toEntity(dto, persistEntity), permission); // TODO: remove one checkAccess?
-		E entity = saveEntity(persistEntity);
-		return toDto(entity);
+		checkAccess(toEntity(dto, persistEntity), permission); // TODO: remove one checkAccess?
+		//
+		return saveInternal(dto);
 	}
 
 	@Override
@@ -62,9 +62,9 @@ public abstract class AbstractReadWriteDtoService<DTO extends BaseDto, E extends
 		//
 		E persistedEntity = null;
 		if (dto.getId() != null) {
-			persistedEntity = this.get(dto.getId());
+			persistedEntity = this.getEntity(dto.getId());
 		}
-		E entity = saveEntity(toEntity(dto, persistedEntity));
+		E entity = getRepository().save(toEntity(dto, persistedEntity));
 		return toDto(entity);
 	}
 
@@ -88,7 +88,7 @@ public abstract class AbstractReadWriteDtoService<DTO extends BaseDto, E extends
 	@Override
 	@Transactional
 	public void delete(DTO dto, BasePermission... permission) {
-		checkAccess(this.get(dto.getId()), permission);
+		checkAccess(this.getEntity(dto.getId()), permission);
 		//
 		deleteInternal(dto);
 	}	
@@ -98,7 +98,7 @@ public abstract class AbstractReadWriteDtoService<DTO extends BaseDto, E extends
 	public void deleteById(Serializable id, BasePermission... permission) {
 		Assert.notNull(id);
 		//
-		delete(getDto(id), permission);
+		delete(get(id), permission);
 	}
 
 	@Override
@@ -106,7 +106,7 @@ public abstract class AbstractReadWriteDtoService<DTO extends BaseDto, E extends
 	public void deleteInternal(DTO dto) {
 		Assert.notNull(dto);
 		//
-		deleteEntity((UUID) dto.getId());
+		getRepository().delete((UUID) dto.getId());
 	}
 
 	@Override
@@ -114,24 +114,7 @@ public abstract class AbstractReadWriteDtoService<DTO extends BaseDto, E extends
 	public void deleteInternalById(Serializable id) {
 		Assert.notNull(id);
 		//
-		deleteEntity((UUID) id);
-	}
-	
-	/**
-	 * Entity delete strategy, overridable by extending classes.
-	 * @param id
-	 */
-	protected void deleteEntity(UUID id) {
-		getRepository().delete(id);
-	}
-	
-	/**
-	 * Entity save strategy, overridable by extending classes.
-	 * @param persistEntity
-	 * @return
-	 */
-	protected E saveEntity(E persistEntity) {
-		return getRepository().save(persistEntity);
+		deleteInternal(get(id));
 	}
 
 }

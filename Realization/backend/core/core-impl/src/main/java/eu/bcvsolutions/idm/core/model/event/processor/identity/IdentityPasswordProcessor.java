@@ -5,12 +5,12 @@ import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordService;
 
@@ -23,7 +23,7 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordService;
  */
 @Component
 @Description("Persist identity's password.")
-public class IdentityPasswordProcessor extends CoreEventProcessor<IdmIdentity> {
+public class IdentityPasswordProcessor extends CoreEventProcessor<IdmIdentityDto> {
 
 	public static final String PROCESSOR_NAME = "identity-password-processor";
 	public static final String PROPERTY_PASSWORD_CHANGE_DTO = "idm:password-change-dto"; 
@@ -45,8 +45,8 @@ public class IdentityPasswordProcessor extends CoreEventProcessor<IdmIdentity> {
 	}
 
 	@Override
-	public EventResult<IdmIdentity> process(EntityEvent<IdmIdentity> event) {
-		IdmIdentity identity = event.getContent();
+	public EventResult<IdmIdentityDto> process(EntityEvent<IdmIdentityDto> event) {
+		IdmIdentityDto identity = event.getContent();
 		PasswordChangeDto passwordChangeDto = (PasswordChangeDto) event.getProperties().get(PROPERTY_PASSWORD_CHANGE_DTO);
 		Assert.notNull(passwordChangeDto);
 		//		
@@ -62,7 +62,7 @@ public class IdentityPasswordProcessor extends CoreEventProcessor<IdmIdentity> {
 	 * @param identity
 	 * @param newPassword
 	 */
-	protected void savePassword(IdmIdentity identity, PasswordChangeDto passwordDto) {
+	protected void savePassword(IdmIdentityDto identity, PasswordChangeDto passwordDto) {
 		LOG.debug("Saving password for identity [{}].", identity.getUsername());
 		this.passwordService.save(identity, passwordDto);
 	}
@@ -72,7 +72,7 @@ public class IdentityPasswordProcessor extends CoreEventProcessor<IdmIdentity> {
 	 * 
 	 * @param identity
 	 */
-	protected void deletePassword(IdmIdentity identity) {
+	protected void deletePassword(IdmIdentityDto identity) {
 		LOG.debug("Deleting password for identity [{}]. ", identity.getUsername());
 		this.passwordService.delete(identity);
 	}

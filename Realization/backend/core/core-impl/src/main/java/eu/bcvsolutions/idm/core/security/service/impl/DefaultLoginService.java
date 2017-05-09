@@ -9,12 +9,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmPassword;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordService;
@@ -63,7 +63,7 @@ public class DefaultLoginService implements LoginService {
 		String username = loginDto.getUsername();
 		LOG.info("Identity with username [{}] authenticating", username);
 		
-		IdmIdentity identity = identityService.getByUsername(username);
+		IdmIdentityDto identity = identityService.getByUsername(username);
 		// identity exists
 		if (identity == null) {			
 			throw new IdmAuthenticationException(MessageFormat.format(
@@ -114,7 +114,7 @@ public class DefaultLoginService implements LoginService {
 		
 		LOG.info("Identity with username [{}] authenticating", username);
 		
-		IdmIdentity identity = identityService.getByUsername(username);
+		IdmIdentityDto identity = identityService.getByUsername(username);
 		// identity exists
 		if (identity == null) {			
 			throw new IdmAuthenticationException(MessageFormat.format(
@@ -155,7 +155,7 @@ public class DefaultLoginService implements LoginService {
 	 * @param password
 	 * @return
 	 */
-	private boolean validate(IdmIdentity identity, LoginDto loginDto) {
+	private boolean validate(IdmIdentityDto identity, LoginDto loginDto) {
 		if (identity.isDisabled()) {
 			throw new IdmAuthenticationException(MessageFormat.format("Check identity can login: The identity [{0}] is disabled.", identity.getUsername() ));
 		}

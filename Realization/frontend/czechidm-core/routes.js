@@ -29,26 +29,32 @@ module.exports = {
     {
       path: 'identity/:entityId/',
       component: require('./src/content/identity/Identity'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_READ' ] } ],
       childRoutes: [
         {
           path: 'profile',
-          component: require('./src/content/identity/IdentityProfile')
+          component: require('./src/content/identity/IdentityProfile'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_READ' ] } ]
         },
         {
           path: 'password',
-          component: require('./src/content/identity/PasswordChangeRoute')
+          component: require('./src/content/identity/PasswordChangeRoute'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_PASSWORDCHANGE' ] } ]
         },
         {
           path: 'roles',
-          component: require('./src/content/identity/IdentityRoles')
+          component: require('./src/content/identity/IdentityRoles'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITYROLES_READ' ] } ]
         },
         {
           path: 'authorities',
-          component: require('./src/content/identity/IdentityAuthorities')
+          component: require('./src/content/identity/IdentityAuthorities'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_READ' ] } ]
         },
         {
           path: 'contracts',
-          component: require('./src/content/identity/IdentityContracts')
+          component: require('./src/content/identity/IdentityContracts'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITYCONTRACT_READ' ] } ]
         },
         {
           path: 'revision',
@@ -57,11 +63,13 @@ module.exports = {
         },
         {
           path: 'subordinates',
-          component: require('./src/content/identity/IdentitySubordinates')
+          component: require('./src/content/identity/IdentitySubordinates'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_READ' ] } ]
         },
         {
           path: 'eav',
-          component: require('./src/content/identity/IdentityEav')
+          component: require('./src/content/identity/IdentityEav'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_READ' ] } ]
         },
         {
           path: 'garanted-roles',
@@ -72,30 +80,35 @@ module.exports = {
     },
     {
       path: 'identity/:entityId/revision/:revID',
-      component: require('./src/content/identity/AuditDetail')
+      component: require('./src/content/identity/AuditDetail'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUDIT_READ'] } ]
     },
     {
       path: 'identity/:identityId/identity-contract/:entityId/',
       component: require('./src/content/identity/contract/IdentityContract'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITYCONTRACT_UPDATE' ] } ],
       childRoutes: [
         {
           path: 'detail',
-          component: require('./src/content/identity/contract/IdentityContractContent')
+          component: require('./src/content/identity/contract/IdentityContractContent'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITYCONTRACT_UPDATE' ] } ]
         },
         {
           path: 'eav',
-          component: require('./src/content/identity/contract/IdentityContractEav')
+          component: require('./src/content/identity/contract/IdentityContractEav'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITYCONTRACT_UPDATE' ] } ]
         },
         {
           path: 'guarantees',
-          component: require('./src/content/identity/contract/IdentityContractGuarantees')
+          component: require('./src/content/identity/contract/IdentityContractGuarantees'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITYCONTRACT_UPDATE' ] } ]
         }
       ]
     },
     {
       path: 'identity/:identityId/identity-contract/:entityId/new',
       component: require('./src/content/identity/contract/IdentityContractContent'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ]
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITYCONTRACT_CREATE' ] } ]
     },
     {
       path: 'identities',

@@ -16,7 +16,7 @@ import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationConfiguration
  * @author Radek Tomiška
  *
  */
-public interface IdmNotificationConfigurationService extends ReadWriteDtoService<NotificationConfigurationDto, IdmNotificationConfiguration, EmptyFilter> {
+public interface IdmNotificationConfigurationService extends ReadWriteDtoService<NotificationConfigurationDto, EmptyFilter> {
 
 	/**
 	 * Returns default notification sender. Will be used for notification's topics, which can not be found in configuration.

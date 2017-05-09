@@ -14,6 +14,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.google.common.collect.ImmutableMap;
+
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourceWrapper;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
@@ -78,8 +82,14 @@ public class WorkflowTaskInstanceController {
 
 	@RequestMapping(method = RequestMethod.GET, value = "/{taskId}")
 	public ResponseEntity<ResourceWrapper<WorkflowTaskInstanceDto>> get(@PathVariable String taskId) {
+		WorkflowTaskInstanceDto taskInstanceDto = workflowTaskInstanceService.get(taskId);
+		//
+		if (taskInstanceDto == null) {
+			throw new ResultCodeException(CoreResultCode.FORBIDDEN, ImmutableMap.of("taskId", taskId));
+		}
+		//
 		ResourceWrapper<WorkflowTaskInstanceDto> resource = new ResourceWrapper<WorkflowTaskInstanceDto>(
-				workflowTaskInstanceService.get(taskId));
+				taskInstanceDto);
 		return new ResponseEntity<ResourceWrapper<WorkflowTaskInstanceDto>>(resource, HttpStatus.OK);
 	}
 

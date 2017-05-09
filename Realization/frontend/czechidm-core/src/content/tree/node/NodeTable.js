@@ -228,12 +228,12 @@ export default class NodeTable extends Basic.AbstractContent {
                 <div className="pull-right">
                   <Basic.Button
                     level="success"
-                    title={this.i18n('addType')}
+                    title={ this.i18n('addType') }
                     titlePlacement="bottom"
                     className="btn-xs"
                     style={{ marginRight: 3 }}
-                    onClick={this.showTypeDetail.bind(this, {})}
-                    rendered={showTreeTypeSelect && SecurityManager.hasAuthority('TREETYPE_CREATE')}>
+                    onClick={ this.showTypeDetail.bind(this, {}) }
+                    rendered={ false }>
                     <Basic.Icon value="fa:plus"/>
                   </Basic.Button>
                   <Basic.Button

@@ -3,9 +3,9 @@ package eu.bcvsolutions.idm.core.model.event;
 import java.io.Serializable;
 import java.util.Map;
 
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.EventType;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 
 /**
  * Events for identity
@@ -13,7 +13,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
  * @author Radek Tomiška
  *
  */
-public class IdentityEvent extends CoreEvent<IdmIdentity> {
+public class IdentityEvent extends CoreEvent<IdmIdentityDto> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -25,11 +25,11 @@ public class IdentityEvent extends CoreEvent<IdmIdentity> {
 		CREATE, UPDATE, DELETE, PASSWORD
 	}
 	
-	public IdentityEvent(IdentityEventType operation, IdmIdentity content) {
+	public IdentityEvent(IdentityEventType operation, IdmIdentityDto content) {
 		super(operation, content);
 	}
 	
-	public IdentityEvent(IdentityEventType operation, IdmIdentity content, Map<String, Serializable> properties) {
+	public IdentityEvent(IdentityEventType operation, IdmIdentityDto content, Map<String, Serializable> properties) {
 		super(operation, content, properties);
 	}
 

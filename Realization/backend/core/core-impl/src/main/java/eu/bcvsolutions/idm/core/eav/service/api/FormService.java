@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.core.eav.service.api;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -33,6 +34,11 @@ import eu.bcvsolutions.idm.core.eav.service.impl.AbstractFormValueService;
  *
  */
 public interface FormService {
+	
+	/**
+	 * Default definition name for type (if no name is given)
+	 */
+	static final String DEFAULT_DEFINITION_NAME = IdmFormDefinitionService.DEFAULT_DEFINITION_NAME;
 	
 	/**
 	 * Finds default definition by given type
@@ -149,6 +155,7 @@ public interface FormService {
 	 * @return persisted values
 	 */
 	<O extends FormableEntity, E extends AbstractFormValue<O>> List<E> saveValues(O owner, IdmFormDefinition formDefinition, List<E> values);
+	<O extends FormableEntity, E extends AbstractFormValue<O>> List<E> saveValues(UUID owner, Class<O> ownerType, IdmFormDefinition formDefinition, List<E> values);
 	
 	/**
 	 * Saves form values to given owner and form attribute - saves attribute values only.
@@ -161,6 +168,7 @@ public interface FormService {
 	 * @return persisted values
 	 */
 	<O extends FormableEntity, E extends AbstractFormValue<O>> List<E> saveValues(O owner, IdmFormAttribute attribute, List<Serializable> persistentValues);
+	<O extends FormableEntity, E extends AbstractFormValue<O>> List<E> saveValues(UUID owner, Class<O> ownerType, IdmFormAttribute attribute, List<Serializable> persistentValues);
 	
 	/**
 	 * Saves form values to given owner and form attribute - saves attribute values only.
@@ -190,6 +198,7 @@ public interface FormService {
 	 * @throws IllegalArgumentException if default definition does not exist
 	 */
 	<O extends FormableEntity, E extends AbstractFormValue<O>> List<E> saveValues(O owner, String attributeName, List<Serializable> persistentValues);
+	<O extends FormableEntity, E extends AbstractFormValue<O>> List<E> saveValues(UUID owner, Class<O> ownerType, String attributeName, List<Serializable> persistentValues);
 	
 	/**
 	 * Reads form values by given owner. Return values from default form definition.

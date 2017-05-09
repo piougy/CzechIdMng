@@ -22,7 +22,8 @@ import eu.bcvsolutions.idm.core.notification.service.api.EmailNotificationSender
 /**
  * Custom Mail implementation
  * 
- * @author svanda, tomiska
+ * @author svanda
+ * @author Radek Tomiška
  */
 public class CustomMailActivityBehavior extends MailActivityBehavior {
 
@@ -78,7 +79,7 @@ public class CustomMailActivityBehavior extends MailActivityBehavior {
 		if (StringUtils.isEmpty(identity)) {
 			return null;
 		}
-		return identityService.getDtoByUsername(identity);
+		return identityService.getByUsername(identity);
 	}
 
 	public void setEmailService(EmailNotificationSender emailService) {

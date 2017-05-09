@@ -1,8 +1,12 @@
 package eu.bcvsolutions.idm.core.model.dto.filter;
 
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+
 import eu.bcvsolutions.idm.core.api.domain.RoleType;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.CorrelationFilter;
-import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
 
@@ -10,10 +14,10 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
  * Filter for roles
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
+ * @author Radek Tomiška
+ *
  */
-
-//TODO: Move to API
-public class RoleFilter extends QuickFilter implements CorrelationFilter {
+public class RoleFilter extends DataFilter  implements CorrelationFilter {
 
 	private RoleType roleType;
 	private IdmRoleCatalogue roleCatalogue;
@@ -23,6 +27,14 @@ public class RoleFilter extends QuickFilter implements CorrelationFilter {
 	 */
 	private String property;
 	private String value;
+	
+	public RoleFilter() {
+		this(new LinkedMultiValueMap<>());
+	}
+	
+	public RoleFilter(MultiValueMap<String, Object> data) {
+		super(IdmRoleDto.class, data);
+	}
 	
 	public IdmRoleCatalogue getRoleCatalogue() {
 		return roleCatalogue;

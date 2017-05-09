@@ -73,7 +73,7 @@ public class DefaultIdmRoleCatalogueService extends AbstractReadWriteEntityServi
 	
 	@Override
 	@Transactional(readOnly = true)
-	public IdmRoleCatalogue getByName(String name) {
+	public IdmRoleCatalogue getByCode(String name) {
 		return repository.findOneByName(name);
 	}
 	

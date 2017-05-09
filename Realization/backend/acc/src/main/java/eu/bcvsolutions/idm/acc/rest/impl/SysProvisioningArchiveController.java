@@ -22,7 +22,7 @@ import eu.bcvsolutions.idm.acc.dto.filter.ProvisioningOperationFilter;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningArchive;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadEntityController;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
-import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
 
@@ -32,7 +32,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
 public class SysProvisioningArchiveController extends AbstractReadEntityController<SysProvisioningArchive, ProvisioningOperationFilter> {
 
 	@Autowired
-	public SysProvisioningArchiveController(EntityLookupService entityLookupService) {
+	public SysProvisioningArchiveController(LookupService entityLookupService) {
 		super(entityLookupService);
 	}
 

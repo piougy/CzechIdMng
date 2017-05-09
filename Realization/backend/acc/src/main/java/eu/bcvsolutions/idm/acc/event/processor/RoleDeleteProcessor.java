@@ -59,7 +59,7 @@ public class RoleDeleteProcessor extends AbstractEntityEventProcessor<IdmRole> {
 		// delete relations on account (includes delete of account	)
 		RoleAccountFilter filter = new RoleAccountFilter();
 		filter.setRoleId(event.getContent().getId());
-		roleAccountService.findDto(filter, null).forEach(roleAccount -> {
+		roleAccountService.find(filter, null).forEach(roleAccount -> {
 			roleAccountService.delete(roleAccount);
 		});
 		return new DefaultEventResult<>(event, this);

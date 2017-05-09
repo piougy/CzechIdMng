@@ -60,7 +60,7 @@ public class DefaultAccTreeAccountService
 		filter.setAccountId(account);
 		filter.setOwnership(Boolean.TRUE);
 
-		List<AccTreeAccountDto> treeAccounts = this.findDto(filter, null).getContent();
+		List<AccTreeAccountDto> treeAccounts = this.find(filter, null).getContent();
 		boolean moreTreeAccounts = treeAccounts.stream().filter(treeAccount -> {
 			return treeAccount.isOwnership() && !treeAccount.equals(entity);
 		}).findAny().isPresent();

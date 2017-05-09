@@ -4,6 +4,8 @@ import java.util.UUID;
 
 import org.quartz.JobDataMap;
 
+import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
+
 /**
  * Common configuration properties.
  * <p>
@@ -23,19 +25,6 @@ public class ConfigurationMap extends JobDataMap {
      * @throws ClassCastException if the identified object is not an UUID.
      */
 	public UUID getUuid(String key) {
-        Object obj = get(key);
-        
-        if(obj == null) {
-        	return null;
-        }
-    
-        try {
-            if(obj instanceof UUID) {
-                return (UUID) obj;
-            }
-            return UUID.fromString((String)obj);
-        } catch (Exception ex) {
-            throw new ClassCastException(String.format("Identified object [%s] is not an UUID.", obj));
-        }
+        return EntityUtils.toUuid(get(key));
     }
 }

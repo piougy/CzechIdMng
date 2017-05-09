@@ -23,7 +23,7 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
-import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.dto.filter.RoleCatalogueFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
@@ -44,7 +44,7 @@ public class IdmRoleCatalogueController extends DefaultReadWriteEntityController
 	private IdmRoleCatalogueService roleCatalogueService;
 	
 	@Autowired
-	public IdmRoleCatalogueController(EntityLookupService entityLookupService, IdmRoleCatalogueService entityService) {
+	public IdmRoleCatalogueController(LookupService entityLookupService, IdmRoleCatalogueService entityService) {
 		super(entityLookupService, entityService);
 	}
 	

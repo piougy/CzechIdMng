@@ -14,7 +14,7 @@ import org.hibernate.envers.Audited;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
-import eu.bcvsolutions.idm.core.api.domain.IdentifiableByCode;
+import eu.bcvsolutions.idm.core.api.domain.Codeable;
 import eu.bcvsolutions.idm.core.api.domain.IdmScriptCategory;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 
@@ -34,7 +34,7 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 		@Index(name = "ux_script_code", columnList = "code", unique = true),
 		@Index(name = "ux_script_category", columnList = "category") 
 		})
-public class IdmScript extends AbstractEntity implements IdentifiableByCode{
+public class IdmScript extends AbstractEntity implements Codeable{
 
 	private static final long serialVersionUID = -3827618803196757060L;
 

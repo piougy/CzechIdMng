@@ -262,7 +262,7 @@ public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor
 		EntityAccountFilter roleAccountFilter = new RoleAccountFilter();
 		roleAccountFilter.setAccountId(account.getId());
 		List<AccRoleAccountDto> roleAccounts = roleAccoutnService
-				.findDto((RoleAccountFilter) roleAccountFilter, null).getContent();
+				.find((RoleAccountFilter) roleAccountFilter, null).getContent();
 		if (roleAccounts.isEmpty()) {
 			addToItemLog(logItem, "Role account relation was not found!");
 			initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.WARNING, logItem, log,

@@ -21,6 +21,7 @@ module.exports = {
         'order': 10,
         'priority': 0,
         'path': '/identity/:loggedUsername/profile',
+        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_READ'] } ],
         'items': [
           {
             'id': 'profile-personal',
@@ -29,7 +30,8 @@ module.exports = {
             'order': 10,
             'priority': 0,
             'path': '/identity/:entityId/profile',
-            'icon': 'user'
+            'icon': 'user',
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_READ'] } ]
           },
           {
             'id': 'profile-eav',
@@ -38,6 +40,7 @@ module.exports = {
             'order': 11,
             'priority': 0,
             'path': '/identity/:entityId/eav',
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_READ'] } ]
           },
           {
             'id': 'profile-password',
@@ -48,7 +51,8 @@ module.exports = {
             'icon': 'lock',
             'conditions': [
               'entityId === userContext.username'
-            ]
+            ],
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_PASSWORDCHANGE'] } ]
           },
           {
             'id': 'profile-roles',
@@ -57,7 +61,7 @@ module.exports = {
             'order': 30,
             'path': '/identity/:entityId/roles',
             'icon': 'fa:universal-access',
-            'access': [ { 'type': 'IS_AUTHENTICATED' } ]
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITYROLE_READ'] } ]
           },
           {
             'id': 'profile-authorities',
@@ -66,7 +70,7 @@ module.exports = {
             'titleKey': 'content.identity.authorities.title',
             'order': 40,
             'path': '/identity/:entityId/authorities',
-            'access': [ { 'type': 'IS_AUTHENTICATED' } ]
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_READ'] } ]
           },
           {
             'id': 'profile-contracts',
@@ -75,7 +79,7 @@ module.exports = {
             'order': 50,
             'path': '/identity/:entityId/contracts',
             'icon': 'fa:building',
-            'access': [ { 'type': 'IS_AUTHENTICATED' } ],
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITYCONTRACT_READ'] } ],
             'items': [
               {
                 'id': 'identity-contract-detail',
@@ -83,7 +87,7 @@ module.exports = {
                 'labelKey': 'content.identity-contract.detail.label',
                 'order': 10,
                 'path': '/identity/:identityId/identity-contract/:entityId/detail',
-                'access': [ { 'type': 'IS_AUTHENTICATED' } ]
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITYCONTRACT_READ'] } ]
               },
               {
                 'id': 'identity-contract-eav',
@@ -91,7 +95,7 @@ module.exports = {
                 'labelKey': 'content.identity-contract.eav.label',
                 'order': 20,
                 'path': '/identity/:identityId/identity-contract/:entityId/eav',
-                'access': [ { 'type': 'IS_AUTHENTICATED' } ]
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITYCONTRACT_READ'] } ],
               },
               {
                 'id': 'identity-contract-guarantees',
@@ -99,7 +103,7 @@ module.exports = {
                 'labelKey': 'content.identity-contract.guarantees.label',
                 'order': 30,
                 'path': '/identity/:identityId/identity-contract/:entityId/guarantees',
-                'access': [ { 'type': 'IS_AUTHENTICATED' } ]
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITYCONTRACT_READ'] } ],
               }
             ]
           },
@@ -119,7 +123,8 @@ module.exports = {
                 'labelKey': 'content.identity.sidebar.profile',
                 'order': 10,
                 'path': '/identity/:entityId/revision/:revID',
-                'icon': 'user'
+                'icon': 'user',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUDIT_READ'] } ]
               }
             ]
           },
@@ -130,7 +135,7 @@ module.exports = {
             'order': 60,
             'path': '/identity/:entityId/subordinates',
             'icon': 'fa:group',
-            'access': [ { 'type': 'IS_AUTHENTICATED' } ]
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_READ'] } ]
           },
           {
             'id': 'profile-garanted-roles',

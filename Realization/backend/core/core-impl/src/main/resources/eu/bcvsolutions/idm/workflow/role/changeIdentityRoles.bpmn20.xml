@@ -24,6 +24,7 @@ Configuration properties:
         <activiti:formProperty id="approve" type="decision"></activiti:formProperty>
         <activiti:formProperty id="managerDescriptionForApplicant" type="textArea" variable="managerDescription"></activiti:formProperty>
         <activiti:formProperty id="applicantDescription" type="textArea" expression="#{entityEvent.content.description}" writable="false"></activiti:formProperty>
+        <activiti:formProperty id="sendNotification" type="configuration" default="false" writable="false"></activiti:formProperty>
       </extensionElements>
     </userTask>
     <exclusiveGateway id="exclusivegateway2" default="flow20"></exclusiveGateway>
@@ -40,6 +41,7 @@ Configuration properties:
         <activiti:formProperty id="repairedRequest" type="decision"></activiti:formProperty>
         <activiti:formProperty id="managerDescription" type="textArea" variable="managerDescription" writable="false"></activiti:formProperty>
         <activiti:formProperty id="applicantDescription" type="textArea" expression="#{entityEvent.content.description}"></activiti:formProperty>
+        <activiti:formProperty id="sendNotification" type="configuration" default="false" writable="false"></activiti:formProperty>
       </extensionElements>
     </userTask>
     <sequenceFlow id="flow15" sourceRef="applicantReturnedTask" targetRef="exclusivegateway1"></sequenceFlow>
@@ -73,11 +75,11 @@ ConceptRoleRequestFilter conceptFilter = new ConceptRoleRequestFilter();
 conceptFilter.setRoleRequestId(requestId);
 conceptFilter.setOperation(ConceptRoleRequestOperation.ADD);
 
-def addedConceptRoles = conceptRoleRequestService.findDto(conceptFilter, null).getContent();
+def addedConceptRoles = conceptRoleRequestService.find(conceptFilter, null).getContent();
 
 execution.setVariable("addedConceptRoles", addedConceptRoles);</script>
     </scriptTask>
-    <serviceTask id="servicetaskCreateProcessName" name="Generating process name" activiti:expression="Change permissions request for &quot;${identityService.getNiceLabel(identityService.get(applicantIdentifier))}&quot;" activiti:resultVariableName="processInstanceName"></serviceTask>
+    <serviceTask id="servicetaskCreateProcessName" name="Generating process name" activiti:expression="Change permissions request for &quot;${identityService.getNiceLabel(identityService.get(applicantIdentifier, null))}&quot;" activiti:resultVariableName="processInstanceName"></serviceTask>
     <sequenceFlow id="flow23" sourceRef="startevent1" targetRef="servicetaskCreateProcessName"></sequenceFlow>
     <scriptTask id="scripttask2" name="Loading concepts for change permissions" scriptFormat="groovy" activiti:autoStoreVariables="false">
       <script>import org.joda.time.LocalDate;
@@ -92,7 +94,7 @@ ConceptRoleRequestFilter conceptFilter = new ConceptRoleRequestFilter();
 conceptFilter.setRoleRequestId(requestId);
 conceptFilter.setOperation(ConceptRoleRequestOperation.UPDATE);
 
-def changedConceptRoles = conceptRoleRequestService.findDto(conceptFilter, null).getContent();
+def changedConceptRoles = conceptRoleRequestService.find(conceptFilter, null).getContent();
 
 execution.setVariable("changedConceptRoles", changedConceptRoles);</script>
     </scriptTask>
@@ -144,7 +146,7 @@ ConceptRoleRequestFilter conceptFilter = new ConceptRoleRequestFilter();
 conceptFilter.setRoleRequestId(requestId);
 conceptFilter.setOperation(ConceptRoleRequestOperation.REMOVE);
 
-def removedConceptRoles = conceptRoleRequestService.findDto(conceptFilter, null).getContent();
+def removedConceptRoles = conceptRoleRequestService.find(conceptFilter, null).getContent();
 
 execution.setVariable("removedConceptRoles", removedConceptRoles);</script>
     </scriptTask>
@@ -162,7 +164,7 @@ execution.setVariable("removedConceptRoles", removedConceptRoles);</script>
       <script>import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
  
 // Set and save state APPROVED to request
-def requestDto = roleRequestService.getDto(entityEvent.content.id);
+def requestDto = roleRequestService.get(entityEvent.content.id);
 requestDto.setState(RoleRequestState.APPROVED);
 roleRequestService.save(requestDto);</script>
     </scriptTask>
@@ -177,13 +179,13 @@ roleRequestService.save(requestDto);</script>
  ConceptRoleRequestFilter filter = new ConceptRoleRequestFilter();
  filter.setRoleRequestId(entityEvent.content.id);
 
- for (concept in conceptRoleRequestService.findDto(filter, null).getContent()) {
+ for (concept in conceptRoleRequestService.find(filter, null).getContent()) {
 	concept.setState(RoleRequestState.DISAPPROVED);
 	conceptRoleRequestService.save(concept);
  }
 
 // Set and save state DISAPPROVED to request
-def requestDto = roleRequestService.getDto(entityEvent.content.id);
+def requestDto = roleRequestService.get(entityEvent.content.id);
 requestDto.setState(RoleRequestState.DISAPPROVED);
 roleRequestService.save(requestDto);</script>
     </scriptTask>
@@ -233,6 +235,7 @@ if(!skip){
         <activiti:formProperty id="approve" type="decision"></activiti:formProperty>
         <activiti:formProperty id="managerDescriptionForApplicant" type="textArea" variable="managerDescription"></activiti:formProperty>
         <activiti:formProperty id="applicantDescription" type="textArea" expression="#{entityEvent.content.description}" writable="false"></activiti:formProperty>
+        <activiti:formProperty id="sendNotification" type="configuration" default="false" writable="false"></activiti:formProperty>
       </extensionElements>
     </userTask>
     <exclusiveGateway id="sid-CB31E93D-4436-474F-B565-D990B2AC1E64" default="sid-97770AD6-3F73-4833-B2EE-918194BBA074"></exclusiveGateway>
@@ -246,6 +249,7 @@ if(!skip){
         <activiti:formProperty id="repairedRequest" type="decision"></activiti:formProperty>
         <activiti:formProperty id="managerDescription" type="textArea" variable="managerDescription" writable="false"></activiti:formProperty>
         <activiti:formProperty id="applicantDescription" type="textArea" expression="#{entityEvent.content.description}"></activiti:formProperty>
+        <activiti:formProperty id="sendNotification" type="configuration" default="false" writable="false"></activiti:formProperty>
       </extensionElements>
     </userTask>
     <sequenceFlow id="sid-503B495E-9455-44B9-8789-19E5D35765A9" sourceRef="sid-9E6516EF-3FDE-4191-8134-33DEB6D7C507" targetRef="sid-7A6483E5-707A-40F9-A0A7-DFB32DE745A4"></sequenceFlow>
@@ -298,6 +302,7 @@ if(!skip){
         <activiti:formProperty id="approve" type="decision"></activiti:formProperty>
         <activiti:formProperty id="managerDescriptionForApplicant" type="textArea" variable="managerDescription"></activiti:formProperty>
         <activiti:formProperty id="applicantDescription" type="textArea" expression="#{entityEvent.content.description}" writable="false"></activiti:formProperty>
+        <activiti:formProperty id="sendNotification" type="configuration" default="false" writable="false"></activiti:formProperty>
       </extensionElements>
     </userTask>
     <exclusiveGateway id="sid-5BBC5295-B11C-4FF1-AF93-B26B087B3471" default="sid-62F032AA-0D66-4AC4-9A9E-EC0276A2EEB3"></exclusiveGateway>
@@ -311,6 +316,7 @@ if(!skip){
         <activiti:formProperty id="repairedRequest" type="decision"></activiti:formProperty>
         <activiti:formProperty id="managerDescription" type="textArea" variable="managerDescription" writable="false"></activiti:formProperty>
         <activiti:formProperty id="applicantDescription" type="textArea" expression="#{entityEvent.content.description}"></activiti:formProperty>
+        <activiti:formProperty id="sendNotification" type="configuration" default="false" writable="false"></activiti:formProperty>
       </extensionElements>
     </userTask>
     <sequenceFlow id="sid-0311903F-711C-4751-81EB-814842E975FD" sourceRef="sid-12381137-9285-460E-8CCD-BC43D5679026" targetRef="sid-17EC3714-6324-4F6C-8BCB-8950E3D2911E"></sequenceFlow>
@@ -385,14 +391,14 @@ if(!skip){
  ConceptRoleRequestFilter filter = new ConceptRoleRequestFilter();
  filter.setRoleRequestId(entityEvent.content.id);
 
- for (concept in conceptRoleRequestService.findDto(filter, null).getContent()) {
+ for (concept in conceptRoleRequestService.find(filter, null).getContent()) {
 	concept.setState(RoleRequestState.CANCELED);
         conceptRoleRequestService.addToLog(concept, "Canceled by applicant");
 	conceptRoleRequestService.save(concept);
  }
 
 // Set and save state CANCELED to request
-def requestDto = roleRequestService.getDto(entityEvent.content.id);
+def requestDto = roleRequestService.get(entityEvent.content.id);
 requestDto.setState(RoleRequestState.CANCELED);
 roleRequestService.addToLog(requestDto, "Canceled by applicant");
 roleRequestService.save(requestDto);</script>
@@ -407,6 +413,7 @@ roleRequestService.save(requestDto);</script>
         <activiti:formProperty id="approve" type="decision"></activiti:formProperty>
         <activiti:formProperty id="managerDescriptionForApplicant" type="textArea" variable="managerDescription"></activiti:formProperty>
         <activiti:formProperty id="applicantDescription" type="textArea" expression="#{entityEvent.content.description}" writable="false"></activiti:formProperty>
+        <activiti:formProperty id="sendNotification" type="configuration" default="false" writable="false"></activiti:formProperty>
       </extensionElements>
     </userTask>
     <scriptTask id="scripttask7" name="Find all identities with security role and resolve if we can skip next task" scriptFormat="groovy" activiti:autoStoreVariables="false">
@@ -512,16 +519,16 @@ conceptFilter.setRoleRequestId(requestId);
 
 
 conceptFilter.setOperation(ConceptRoleRequestOperation.ADD);
-def addedRoles = conceptRoleRequestService.findDto(conceptFilter, null).getContent();
+def addedRoles = conceptRoleRequestService.find(conceptFilter, null).getContent();
 
 conceptFilter.setOperation(ConceptRoleRequestOperation.UPDATE);
-def changedRoles = conceptRoleRequestService.findDto(conceptFilter, null).getContent();
+def changedRoles = conceptRoleRequestService.find(conceptFilter, null).getContent();
 
 conceptFilter.setOperation(ConceptRoleRequestOperation.REMOVE);
-def removedRoles = conceptRoleRequestService.findDto(conceptFilter, null).getContent();
+def removedRoles = conceptRoleRequestService.find(conceptFilter, null).getContent();
 
 def applicantUsername = execution.getVariable("applicantUsername");
-          def identity = identityService.getDtoByUsername(applicantUsername);
+          def identity = identityService.getByUsername(applicantUsername);
 
 // send notification
 notificationManager.send(
@@ -556,7 +563,7 @@ if (url != null) {
 }
 
 def applicantUsername = execution.getVariable("applicantUsername");
-def identity = identityService.getDtoByUsername(applicantUsername);
+def identity = identityService.getByUsername(applicantUsername);
 
 // transform date
 DateTimeFormatter dateFormat = DateTimeFormat.forPattern("dd. MM. yyyy HH:mm");
@@ -599,7 +606,7 @@ if (url != null) {
 }
 
 def applicantUsername = execution.getVariable("applicantUsername");
-def identity = identityService.getDtoByUsername(applicantUsername);
+def identity = identityService.getByUsername(applicantUsername);
 
 // transform date
 DateTimeFormatter dateFormat = DateTimeFormat.forPattern("dd. MM. yyyy HH:mm");
@@ -641,7 +648,7 @@ if (url != null) {
 }
 
 def applicantUsername = execution.getVariable("applicantUsername");
-def identity = identityService.getDtoByUsername(applicantUsername);
+def identity = identityService.getByUsername(applicantUsername);
 
 // transform date
 DateTimeFormatter dateFormat = DateTimeFormat.forPattern("dd. MM. yyyy HH:mm");
@@ -683,7 +690,7 @@ if (url != null) {
 }
 
 def applicantUsername = execution.getVariable("applicantUsername");
-def identity = identityService.getDtoByUsername(applicantUsername);
+def identity = identityService.getByUsername(applicantUsername);
 
 // transform date
 DateTimeFormatter dateFormat = DateTimeFormat.forPattern("dd. MM. yyyy HH:mm");

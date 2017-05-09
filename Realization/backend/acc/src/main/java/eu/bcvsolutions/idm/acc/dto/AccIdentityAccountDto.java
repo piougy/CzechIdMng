@@ -23,8 +23,7 @@ public class AccIdentityAccountDto extends AbstractDto implements EntityAccountD
 	@Embedded(dtoClass = IdmIdentityDto.class)
 	private UUID identity;
 	@Embedded(dtoClass = IdmIdentityRoleDto.class)
-	private UUID identityRole; // identity account is based on identity role
-								// asing and system mapping
+	private UUID identityRole; // identity account is based on identity role assign and system mapping
 	@Embedded(dtoClass = SysRoleSystemDto.class)
 	private UUID roleSystem;
 	private boolean ownership = true;

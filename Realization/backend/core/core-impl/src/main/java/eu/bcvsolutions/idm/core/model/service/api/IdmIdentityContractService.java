@@ -23,7 +23,7 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
  *
  */
 public interface IdmIdentityContractService extends
-	ReadWriteDtoService<IdmIdentityContractDto, IdmIdentityContract, IdentityContractFilter>,
+	ReadWriteDtoService<IdmIdentityContractDto, IdentityContractFilter>,
 	AuthorizableService<IdmIdentityContractDto, ContractGuaranteeFilter> {
 	
 	static final String DEFAULT_POSITION_NAME = "Default"; // TODO: to configuration manager?

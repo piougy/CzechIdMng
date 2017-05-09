@@ -27,7 +27,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.domain.RequestResourceResolver;
-import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 
@@ -45,11 +45,11 @@ public abstract class AbstractReadWriteEntityController<E extends BaseEntity, F 
 	@Autowired
 	private RequestResourceResolver requestResourceResolver;
 	
-	public AbstractReadWriteEntityController(EntityLookupService entityLookupService) {
+	public AbstractReadWriteEntityController(LookupService entityLookupService) {
 		super(entityLookupService);
 	}
 	
-	public AbstractReadWriteEntityController(EntityLookupService entityLookupService, ReadWriteEntityService<E, F> entityService) {
+	public AbstractReadWriteEntityController(LookupService entityLookupService, ReadWriteEntityService<E, F> entityService) {
 		super(entityLookupService, entityService);
 	}
 	

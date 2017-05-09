@@ -29,6 +29,8 @@ public class CoreModuleDescriptor extends AbstractModuleDescriptor {
 	public static final String CHANGE_IDENTITY_ROLES = String.format("%s:changeIdentityRole", MODULE_ID);
 	public static final String DISAPPROVE_IDENTITY_ROLES = String.format("%s:disapproveIdentityRole", MODULE_ID);
 	public static final String RETURN_REQUEST_IDENTITY_ROLES = String.format("%s:returnRequestIdentityRole", MODULE_ID);
+	public static final String WF_TASK_CREATED = String.format("%s:wfTaskCreated", MODULE_ID);
+	public static final String WF_TASK_ASSIGNED = String.format("%s:wfTaskAssigned", MODULE_ID);
 	
 	@Autowired
 	private IdmNotificationTemplateService templateService;
@@ -67,6 +69,12 @@ public class CoreModuleDescriptor extends AbstractModuleDescriptor {
 		//
 		configs.add(new NotificationConfigurationDto(RETURN_REQUEST_IDENTITY_ROLES, null, IdmEmailLog.NOTIFICATION_TYPE,
 				"This message contains information about return role request.", templateService.getTemplateByCode("returnRequestIdentityRole").getId()));
+		//
+		configs.add(new NotificationConfigurationDto(WF_TASK_ASSIGNED, null, IdmEmailLog.NOTIFICATION_TYPE,
+				"This message contains information about new assigned task to user.", templateService.getTemplateByCode("wfTaskNotificationMessage").getId()));
+		//
+		configs.add(new NotificationConfigurationDto(WF_TASK_CREATED, null, IdmEmailLog.NOTIFICATION_TYPE,
+				"This message contains information about new assigned task to user.", templateService.getTemplateByCode("wfTaskNotificationMessage").getId()));
 		//
 		return configs;
 	}

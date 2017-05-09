@@ -25,6 +25,7 @@ public class CustomFormTypes extends FormTypes {
 		addFormType(new BooleanFormType());
 		addFormType(new DoubleFormType());
 		addFormType(new DecisionFormType());
+		addFormType(new ConfigurationFormType());
 	}
 
 	@Override
@@ -45,6 +46,9 @@ public class CustomFormTypes extends FormTypes {
 			}
 			case LocalDateFormType.TYPE_NAME: {
 				return new LocalDateFormType(values);
+			}
+			case ConfigurationFormType.TYPE_NAME: {
+				return new ConfigurationFormType(values);
 			}
 			default: {
 				// delegate construction of all other types

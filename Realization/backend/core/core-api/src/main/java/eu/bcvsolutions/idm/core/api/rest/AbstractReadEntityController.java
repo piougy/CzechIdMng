@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.rest.core.support.EntityLookup;
 import org.springframework.data.rest.webmvc.ControllerUtils;
 import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
 import org.springframework.data.web.PageableDefault;
@@ -32,12 +31,14 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourceWrapper;
-import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
+import eu.bcvsolutions.idm.core.api.rest.lookup.EntityLookup;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.service.ReadEntityService;
 import eu.bcvsolutions.idm.core.api.utils.FilterConverter;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
@@ -56,7 +57,7 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizationManager;
 public abstract class AbstractReadEntityController<E extends BaseEntity, F extends BaseFilter> implements BaseEntityController<E> {
 	
 	private static final EmbeddedWrappers WRAPPERS = new EmbeddedWrappers(false);	
-	protected final EntityLookupService entityLookupService;	
+	protected final LookupService entityLookupService;	
 	private final ReadEntityService<E, F> entityService;
 	private FilterConverter filterConverter;
 	
@@ -71,7 +72,7 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 	private AuthorizationManager authorizationManager;
 	
 	@SuppressWarnings("unchecked")
-	public AbstractReadEntityController(EntityLookupService entityLookupService) {
+	public AbstractReadEntityController(LookupService entityLookupService) {
 		Assert.notNull(entityLookupService);
 		//
 		this.entityLookupService = entityLookupService;
@@ -80,7 +81,7 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 		this.entityService = (ReadEntityService<E, F>)entityLookupService.getEntityService(entityClass);
 	}
 	
-	public AbstractReadEntityController(EntityLookupService entityLookupService, ReadEntityService<E, F> entityService) {
+	public AbstractReadEntityController(LookupService entityLookupService, ReadEntityService<E, F> entityService) {
 		Assert.notNull(entityLookupService);
 		Assert.notNull(entityService);
 		//
@@ -93,8 +94,9 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 	 * 
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	protected EntityLookup<E> getEntityLookup() {
-		return entityLookupService.getEntityLookup(getEntityClass());
+		return (EntityLookup<E>) entityLookupService.getEntityLookup(getEntityClass());
 	}
 
 	/**
@@ -143,7 +145,7 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 		if(getEntityLookup() == null) {
 			return getEntityService().get(backendId);
 		}	
-		return (E) getEntityLookup().lookupEntity(backendId);
+		return (E) getEntityLookup().lookup(backendId);
 	}
 	
 	/**
@@ -156,7 +158,7 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 		if (getEntityLookup() == null) {
 			return entity.getId();
 		}
-		return getEntityLookup().getResourceIdentifier(entity);
+		return getEntityLookup().getIdentifier(entity);
 	}
 	
 	/**

@@ -9,7 +9,7 @@ import org.springframework.util.Assert;
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.event.ProvisioningEvent;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
-import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
@@ -17,6 +17,7 @@ import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
+import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 
 /**
@@ -28,20 +29,23 @@ import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 @Component("accIdentitySaveProcessor")
 @Enabled(AccModuleDescriptor.MODULE_ID)
 @Description("Executes provisioing after identity is saved.")
-public class IdentitySaveProcessor extends AbstractEntityEventProcessor<IdmIdentity> {
+public class IdentitySaveProcessor extends AbstractEntityEventProcessor<IdmIdentityDto> {
 
 	public static final String PROCESSOR_NAME = "identity-save-processor";
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdentitySaveProcessor.class);
 	private ProvisioningService provisioningService;
+	private final IdmIdentityRepository identityRepository;
 	private final ApplicationContext applicationContext;
 	
 	@Autowired
-	public IdentitySaveProcessor(ApplicationContext applicationContext) {
+	public IdentitySaveProcessor(ApplicationContext applicationContext, IdmIdentityRepository identityRepository) {
 		super(IdentityEventType.CREATE, IdentityEventType.UPDATE, CoreEventType.EAV_SAVE);
 		//
 		Assert.notNull(applicationContext);
+		Assert.notNull(identityRepository);
 		//
 		this.applicationContext = applicationContext;
+		this.identityRepository = identityRepository;
 	}
 	
 	@Override
@@ -50,8 +54,8 @@ public class IdentitySaveProcessor extends AbstractEntityEventProcessor<IdmIdent
 	}
 
 	@Override
-	public EventResult<IdmIdentity> process(EntityEvent<IdmIdentity> event) {
-		doProvisioning(event.getContent());
+	public EventResult<IdmIdentityDto> process(EntityEvent<IdmIdentityDto> event) {
+		doProvisioning(identityRepository.findOne(event.getContent().getId()));
 		return new DefaultEventResult<>(event, this);
 	}
 	

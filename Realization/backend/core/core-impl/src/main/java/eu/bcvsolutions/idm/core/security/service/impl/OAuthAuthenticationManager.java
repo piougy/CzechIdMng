@@ -9,9 +9,9 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.model.entity.IdmAuthorityChange;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.repository.IdmAuthorityChangeRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
@@ -51,7 +51,7 @@ public class OAuthAuthenticationManager implements AuthenticationManager {
 		}
 
 		IdmJwtAuthentication idmJwtAuthentication = (IdmJwtAuthentication) authentication;
-		IdmIdentity identity = getIdentityForToken(idmJwtAuthentication);
+		IdmIdentityDto identity = getIdentityForToken(idmJwtAuthentication);
 		IdmAuthorityChange authChange = getIdentityAuthorityChange(identity);
 		checkIssuedTime(idmJwtAuthentication.getIssuedAt(), authChange);
 		checkExpirationTime(idmJwtAuthentication);
@@ -77,22 +77,22 @@ public class OAuthAuthenticationManager implements AuthenticationManager {
 		}
 	}
 	
-	public void checkDisabled(IdmIdentity i) {
+	public void checkDisabled(IdmIdentityDto i) {
 		if (i.isDisabled()) {
 			throw new IdmAuthenticationException("Identity [" + i.getUsername() + "] is disabled!");
 		}
 	}
 
-	private IdmIdentity getIdentityForToken(IdmJwtAuthentication idmJwtAuthentication) {
-		IdmIdentity identity = identityService.getByUsername(idmJwtAuthentication.getName());
+	private IdmIdentityDto getIdentityForToken(IdmJwtAuthentication idmJwtAuthentication) {
+		IdmIdentityDto identity = identityService.getByUsername(idmJwtAuthentication.getName());
 		if (identity == null) {
 			throw new IdmAuthenticationException("Identity [" + idmJwtAuthentication.getName() + "] not found!");
 		}
 		return identity;
 	}
 	
-	private IdmAuthorityChange getIdentityAuthorityChange(IdmIdentity identity) {
-		return authorityChangeRepo.findByIdentity(identity);
+	private IdmAuthorityChange getIdentityAuthorityChange(IdmIdentityDto identity) {
+		return authorityChangeRepo.findOneByIdentity_Id(identity.getId());
 	}
 	
 }

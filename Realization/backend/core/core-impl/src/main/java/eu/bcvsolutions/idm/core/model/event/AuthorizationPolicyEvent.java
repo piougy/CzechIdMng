@@ -1,10 +1,16 @@
 package eu.bcvsolutions.idm.core.model.event;
 
+import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.EventType;
-import eu.bcvsolutions.idm.core.model.entity.IdmAuthorizationPolicy;
 
-public class AuthorizationPolicyEvent extends CoreEvent<IdmAuthorizationPolicy> {
+/**
+ * Events for authorization policy
+ * 
+ * @author Radek Tomiška
+ *
+ */
+public class AuthorizationPolicyEvent extends CoreEvent<IdmAuthorizationPolicyDto> {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -16,8 +22,7 @@ public class AuthorizationPolicyEvent extends CoreEvent<IdmAuthorizationPolicy> 
 		CREATE, UPDATE, DELETE
 	}
 
-
-	public AuthorizationPolicyEvent(EventType type, IdmAuthorizationPolicy content) {
+	public AuthorizationPolicyEvent(EventType type, IdmAuthorizationPolicyDto content) {
 		super(type, content);
 	}
 }

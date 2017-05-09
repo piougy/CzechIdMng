@@ -26,9 +26,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
 import com.google.common.collect.Lists;
+
 import eu.bcvsolutions.idm.InitDemoData;
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.TestHelper;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
@@ -43,6 +45,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.eav.IdmIdentityFormValue;
 import eu.bcvsolutions.idm.core.model.entity.eav.IdmRoleFormValue;
 import eu.bcvsolutions.idm.core.model.entity.eav.IdmRoleFormValue_;
+import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
@@ -67,6 +70,8 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 	private ApplicationContext context;
 	@Autowired
 	private IdmIdentityService identityService;
+	@Autowired
+	private IdmIdentityRepository identityRepository;
 	@Autowired
 	private IdmFormDefinitionService formDefinitionService;	
 	@Autowired
@@ -123,7 +128,7 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 		assertEquals(1, formService.getValues(owner, formDefinitionOne).size());
 		assertEquals(1, formService.getValues(owner, formDefinitionTwo).size());
 		
-		identityService.delete((IdmIdentity) owner2);
+		identityService.deleteById(owner2.getId());
 		
 		assertEquals(0, formService.getValues(owner2, formDefinitionOne).size());
 		assertEquals(1, formService.getValues(owner, formDefinitionOne).size());
@@ -134,7 +139,7 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 		assertEquals(1, formService.getValues(owner, formDefinitionTwo).size());
 		assertEquals(FORM_VALUE_TWO, formService.getValues(owner, formDefinitionTwo).get(0).getStringValue());
 		
-		identityService.delete((IdmIdentity) owner);
+		identityService.deleteById(owner.getId());
 		
 		assertEquals(0, formService.getValues(owner, formDefinitionOne).size());
 		assertEquals(0, formService.getValues(owner, formDefinitionTwo).size());		
@@ -187,7 +192,7 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 		assertEquals(1, v.get(multiAttributeName).size());
 		assertEquals(FORM_VALUE_ONE, v.get(multiAttributeName).get(0));
 		//
-		identityService.delete((IdmIdentity) owner);
+		identityService.deleteById(owner.getId());
 	}
 	
 	@Test
@@ -233,7 +238,7 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 		assertEquals(1, savedValues.size());
 		assertEquals(FORM_VALUE_ONE, formService.toSinglePersistentValue(savedValues));
 		//
-		identityService.delete((IdmIdentity) owner);
+		identityService.deleteById(owner.getId());
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -253,7 +258,7 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 		assertEquals(2, savedValues.size());
 		formService.toSinglePersistentValue(savedValues);
 		//
-		identityService.delete((IdmIdentity) owner);
+		identityService.deleteById(owner.getId());
 	}
 	
 	@Test
@@ -271,7 +276,7 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 		assertEquals(1, savedValues.size());
 		assertEquals(GuardedString.SECRED_PROXY_STRING, formService.toSinglePersistentValue(savedValues));
 		//
-		identityService.delete((IdmIdentity) owner);
+		identityService.deleteById(owner.getId());
 	}
 	
 	@Test(expected = ResultCodeException.class)
@@ -291,7 +296,7 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 		
 		formDefinitionService.delete(formDefinition);
 		//
-		identityService.delete((IdmIdentity) owner);
+		identityService.deleteById(owner.getId());
 	}
 	
 	@Test
@@ -310,7 +315,7 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 		assertEquals(1, attributeValues.size());
 		assertEquals(FORM_VALUE_ONE, attributeValues.get(0).getValue());
 		//
-		identityService.delete((IdmIdentity) owner);
+		identityService.deleteById(owner.getId());
 	}
 	
 	@Test(expected = IllegalArgumentException.class)
@@ -321,7 +326,7 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 		// save value
 		formService.saveValues(owner, attribute, Lists.newArrayList(FORM_VALUE_ONE, FORM_VALUE_TWO));
 		//
-		identityService.delete((IdmIdentity) owner);
+		identityService.deleteById(owner.getId());
 	}
 	
 	@Test
@@ -349,7 +354,7 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 		assertEquals(2, attributeWWWValues.size());
 		assertEquals(FORM_VALUE_ONE, attributeWWWValues.get(0).getValue());
 		//
-		identityService.delete((IdmIdentity) owner);
+		identityService.deleteById(owner.getId());
 	}
 	
 	@Test
@@ -368,7 +373,7 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 		assertEquals(1, attributeWWWValues.size());
 		assertEquals(FORM_VALUE_TWO, attributeWWWValues.get(0).getValue());
 		//
-		identityService.delete((IdmIdentity) owner);
+		identityService.deleteById(owner.getId());
 	}
 	
 	@Test
@@ -394,37 +399,37 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 		owners = formService.findOwners(owner.getClass(), attribute, FORM_VALUE_FOUR, null);
 		assertEquals(1, owners.getTotalElements());
 		//
-		identityService.delete((IdmIdentity) owner);
-		identityService.delete((IdmIdentity) ownerTwo);
-		identityService.delete((IdmIdentity) ownerThree);
+		identityService.deleteById(owner.getId());
+		identityService.deleteById(ownerTwo.getId());
+		identityService.deleteById(ownerThree.getId());
 	}
 	
 	@Test
 	public void testFindOwnersByStringAttributeValue() {
-		FormableEntity owner = helper.createIdentity();
-		FormableEntity ownerTwo = helper.createIdentity();
-		FormableEntity ownerThree = helper.createIdentity();
-		IdmFormDefinition formDefinition = formService.getDefinition(owner.getClass());
+		IdmIdentityDto owner = helper.createIdentity();
+		IdmIdentityDto ownerTwo = helper.createIdentity();
+		IdmIdentityDto ownerThree = helper.createIdentity();
+		IdmFormDefinition formDefinition = formService.getDefinition(IdmIdentity.class);
 		IdmFormAttribute attribute = formDefinition.getMappedAttributeByName(InitDemoData.FORM_ATTRIBUTE_PHONE);
 		// save values
-		formService.saveValues(owner, attribute, Lists.newArrayList(FORM_VALUE_ONE));
-		formService.saveValues(ownerTwo, attribute, Lists.newArrayList(FORM_VALUE_TWO));
-		formService.saveValues(ownerThree, attribute, Lists.newArrayList(FORM_VALUE_FOUR));
+		formService.saveValues(owner.getId(), IdmIdentity.class, attribute, Lists.newArrayList(FORM_VALUE_ONE));
+		formService.saveValues(ownerTwo.getId(), IdmIdentity.class, attribute, Lists.newArrayList(FORM_VALUE_TWO));
+		formService.saveValues(ownerThree.getId(), IdmIdentity.class, attribute, Lists.newArrayList(FORM_VALUE_FOUR));
 		//
-		Page<? extends FormableEntity> owners = formService.findOwners(owner.getClass(), attribute, FORM_VALUE_ONE, null);
+		Page<? extends FormableEntity> owners = formService.findOwners(IdmIdentity.class, attribute, FORM_VALUE_ONE, null);
 		//
 		assertEquals(1, owners.getTotalElements());
 		assertEquals(owner.getId(), owners.getContent().get(0).getId());
 		//
-		owners = formService.findOwners(owner.getClass(), attribute.getName(), FORM_VALUE_TWO, null);
+		owners = formService.findOwners(IdmIdentity.class, attribute.getName(), FORM_VALUE_TWO, null);
 		assertEquals(1, owners.getTotalElements());
 		//
-		owners = formService.findOwners(owner.getClass(), attribute, FORM_VALUE_FOUR, null);
+		owners = formService.findOwners(IdmIdentity.class, attribute, FORM_VALUE_FOUR, null);
 		assertEquals(1, owners.getTotalElements());
 		//
-		identityService.delete((IdmIdentity) owner);
-		identityService.delete((IdmIdentity) ownerTwo);
-		identityService.delete((IdmIdentity) ownerThree);
+		identityService.delete(owner);
+		identityService.delete(ownerTwo);
+		identityService.delete(ownerThree);
 	}
 	
 	@Test
@@ -467,8 +472,8 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 		assertEquals(1, owners.getTotalElements());
 		assertEquals(ownerTwo.getId(), owners.getContent().get(0).getId());
 		//
-		identityService.delete((IdmIdentity) owner);
-		identityService.delete((IdmIdentity) ownerTwo);
+		identityService.deleteById(owner.getId());
+		identityService.deleteById(ownerTwo.getId());
 	}
 	
 	@Test
@@ -541,12 +546,12 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 	}
 	
 	private FormableEntity createTestOwner(String name) {
-		IdmIdentity identity = new IdmIdentity();
+		IdmIdentityDto identity = new IdmIdentityDto();
 		identity.setUsername(name + "_" + System.currentTimeMillis());
 		identity.setPassword(new GuardedString("heslo"));
 		identity.setFirstName("Test");
 		identity.setLastName("Identity");
 		identity = identityService.save(identity);
-		return identity;
+		return identityRepository.findOne(identity.getId());
 	}
 }

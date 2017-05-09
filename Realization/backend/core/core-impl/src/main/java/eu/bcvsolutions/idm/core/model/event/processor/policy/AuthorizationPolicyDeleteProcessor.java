@@ -5,41 +5,36 @@ import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
-import eu.bcvsolutions.idm.core.api.event.CoreEvent;
+import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
-import eu.bcvsolutions.idm.core.model.entity.IdmAuthorizationPolicy;
 import eu.bcvsolutions.idm.core.model.event.AuthorizationPolicyEvent.AuthorizationPolicyEventType;
-import eu.bcvsolutions.idm.core.model.repository.IdmAuthorizationPolicyRepository;
+import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
 
 /**
  * Persists authorization policies.
  * 
  * @author Jan Helbich
+ * @author Radek Tomiška
  */
 @Component
 @Description("Deletes authorization policies.")
-public class AuthorizationPolicyDeleteProcessor extends CoreEventProcessor<IdmAuthorizationPolicy> {
+public class AuthorizationPolicyDeleteProcessor extends CoreEventProcessor<IdmAuthorizationPolicyDto> {
 
 	private static final String PROCESSOR_NAME = "authorization-policy-save-processor";
 
-	private final IdmAuthorizationPolicyRepository repository;
+	private final IdmAuthorizationPolicyService service;
 
 	@Autowired
 	public AuthorizationPolicyDeleteProcessor(
-			IdmAuthorizationPolicyRepository repository) {
+			IdmAuthorizationPolicyService service) {
 		super(AuthorizationPolicyEventType.DELETE);
 		//
-		Assert.notNull(repository);
+		Assert.notNull(service);
 		//
-		this.repository = repository;
-	}
-
-	@Override
-	public int getOrder() {
-		return CoreEvent.DEFAULT_ORDER;
+		this.service = service;
 	}
 
 	@Override
@@ -48,9 +43,8 @@ public class AuthorizationPolicyDeleteProcessor extends CoreEventProcessor<IdmAu
 	}
 
 	@Override
-	public EventResult<IdmAuthorizationPolicy> process(EntityEvent<IdmAuthorizationPolicy> event) {
-		IdmAuthorizationPolicy entity = repository.save(event.getContent());
-		repository.delete(entity);
+	public EventResult<IdmAuthorizationPolicyDto> process(EntityEvent<IdmAuthorizationPolicyDto> event) {
+		service.deleteInternal(event.getContent());
 		//
 		return new DefaultEventResult<>(event, this);
 	}

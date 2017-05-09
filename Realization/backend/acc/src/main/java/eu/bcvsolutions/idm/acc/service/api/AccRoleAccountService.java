@@ -12,7 +12,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
  * @author Svanda
  *
  */
-public interface AccRoleAccountService extends ReadWriteDtoService<AccRoleAccountDto, AccRoleAccount, RoleAccountFilter> {
+public interface AccRoleAccountService extends ReadWriteDtoService<AccRoleAccountDto, RoleAccountFilter> {
 
 	/**
 	 * Delete role account

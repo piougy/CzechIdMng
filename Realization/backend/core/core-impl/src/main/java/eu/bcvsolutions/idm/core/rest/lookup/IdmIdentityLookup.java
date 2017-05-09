@@ -1,30 +1,47 @@
 package eu.bcvsolutions.idm.core.rest.lookup;
 
+import java.io.Serializable;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
-import eu.bcvsolutions.idm.core.api.rest.lookup.IdentifiableByNameLookup;
+import com.google.common.annotations.Beta;
+
+import eu.bcvsolutions.idm.core.api.rest.lookup.AbstractEntityLookup;
+import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
+import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 
+/**
+ * TODO: Codeable repository? Or add public methods to droService?
+ * 
+ * @author Radek Tomiška
+ *
+ */
+@Beta
 @Component
-public class IdmIdentityLookup extends IdentifiableByNameLookup<IdmIdentity> {
+public class IdmIdentityLookup extends AbstractEntityLookup<IdmIdentity> {
 
-	@Autowired
-	private ApplicationContext applicationContext;
+	@Autowired private IdmIdentityRepository identityRepository;
 	
-	private IdmIdentityService identityService;
-
-	/**
-	 * We need to inject service lazily - we need security AOP to take effect
-	 * 
-	 * @return
-	 */
-	protected IdmIdentityService getEntityService() {
-		if (identityService == null) {
-			identityService = applicationContext.getBean(IdmIdentityService.class);
-		}
-		return identityService;
+	@Override
+	public Serializable getIdentifier(IdmIdentity identity) {
+		return identity.getCode();
 	}
+
+	@Override
+	public IdmIdentity lookup(Serializable id) {
+		IdmIdentity entity = null;
+		try {
+			entity = identityRepository.findOne(EntityUtils.toUuid(id));
+		} catch (ClassCastException ex) {
+			// simply not found
+		}
+		if (entity == null) {
+			entity = identityRepository.findOneByUsername(id.toString());
+		}
+		return entity;
+	}
+	
+	
 }

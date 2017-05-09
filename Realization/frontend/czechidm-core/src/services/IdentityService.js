@@ -21,6 +21,10 @@ class IdentityService extends FormableEntityService {
     return true;
   }
 
+  supportsPatch() {
+    return false;
+  }
+
   getGroupPermission() {
     return 'IDENTITY';
   }

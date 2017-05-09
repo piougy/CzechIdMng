@@ -6,7 +6,7 @@ import eu.bcvsolutions.idm.acc.dto.filter.SysSystemFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
-import eu.bcvsolutions.idm.core.api.service.IdentifiableByNameEntityService;
+import eu.bcvsolutions.idm.core.api.service.CodeableService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
@@ -21,7 +21,7 @@ import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
  * @author Radek Tomiška
  *
  */
-public interface SysSystemService extends ReadWriteEntityService<SysSystem, SysSystemFilter>, IdentifiableByNameEntityService<SysSystem> {
+public interface SysSystemService extends ReadWriteEntityService<SysSystem, SysSystemFilter>, CodeableService<SysSystem> {
 	
 	public static final String REMOTE_SERVER_PASSWORD = "remoteServerPassword";
 	

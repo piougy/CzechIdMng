@@ -12,6 +12,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
 import eu.bcvsolutions.idm.acc.domain.EntityAccount;
@@ -30,6 +31,7 @@ import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
+import eu.bcvsolutions.idm.acc.repository.AccIdentityAccountRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountManagementService;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
@@ -40,7 +42,6 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
-import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
@@ -58,6 +59,7 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
  
 	public static final String NAME = "identityProvisioningService";
 	private final AccIdentityAccountService identityAccountService;
+	private final AccIdentityAccountRepository identityAccountRepository;
 	private final SysRoleSystemService roleSystemService;
 	private final AccAccountManagementService accountManagementService;
 	
@@ -68,6 +70,7 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
 			AccAccountManagementService accountManagementService,
 			SysRoleSystemAttributeService roleSystemAttributeService, SysSystemEntityService systemEntityService,
 			AccAccountService accountService, AccIdentityAccountService identityAccountService,
+			AccIdentityAccountRepository identityAccountRepository,
 			ProvisioningExecutor provisioningExecutor) {
 		super(systemMappingService, attributeMappingService, connectorFacade, systemService, roleSystemService,
 				accountManagementService, roleSystemAttributeService, systemEntityService, accountService,
@@ -76,10 +79,12 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
 		Assert.notNull(identityAccountService);
 		Assert.notNull(roleSystemService);
 		Assert.notNull(accountManagementService);
+		Assert.notNull(identityAccountRepository);
 		
 		this.identityAccountService = identityAccountService;
 		this.roleSystemService = roleSystemService;
 		this.accountManagementService = accountManagementService;
+		this.identityAccountRepository = identityAccountRepository;
 	}
 	
 	public void doProvisioning(AccAccount account) {
@@ -87,7 +92,7 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
 
 		IdentityAccountFilter filter = new IdentityAccountFilter();
 		filter.setAccountId(account.getId());
-		Page<AccIdentityAccount> identityAccounts = identityAccountService.find(filter, null);
+		Page<AccIdentityAccount> identityAccounts = identityAccountRepository.find(filter, null);
 		List<AccIdentityAccount> idenittyAccoutnList = identityAccounts.getContent();
 		if (idenittyAccoutnList == null) {
 			return;
@@ -115,7 +120,7 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
 		filter.setSystemId(system.getId());
 		filter.setOwnership(Boolean.TRUE);
 		filter.setAccountId(account.getId());
-		Page<AccIdentityAccount> identityAccounts = identityAccountService.find(filter, null);
+		Page<AccIdentityAccount> identityAccounts = identityAccountRepository.find(filter, null);
 		List<AccIdentityAccount> idenityAccoutnList = identityAccounts.getContent();
 		if (idenityAccoutnList == null) {
 			return null;

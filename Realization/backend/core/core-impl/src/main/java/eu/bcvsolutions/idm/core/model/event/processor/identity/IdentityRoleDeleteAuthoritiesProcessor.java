@@ -92,7 +92,7 @@ public class IdentityRoleDeleteAuthoritiesProcessor extends CoreEventProcessor<I
 		
 		if (!authoritiesFactory.containsAllAuthorities(withoutDeleted, deletedAuthorities)) {
 			// authorities were changed, update identity flag
-			IdmAuthorityChange ac = repository.findByIdentity(identity);
+			IdmAuthorityChange ac = repository.findOneByIdentity_Id(identity.getId());
 			if (ac == null) {
 				ac = new IdmAuthorityChange();
 				ac.setIdentity(identity);

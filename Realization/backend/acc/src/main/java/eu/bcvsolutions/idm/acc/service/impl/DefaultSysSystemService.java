@@ -192,7 +192,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 
 	@Override
 	@Transactional(readOnly = true)
-	public SysSystem getByName(String name) {
+	public SysSystem getByCode(String name) {
 		return systemRepository.findOneByName(name);
 	}
 

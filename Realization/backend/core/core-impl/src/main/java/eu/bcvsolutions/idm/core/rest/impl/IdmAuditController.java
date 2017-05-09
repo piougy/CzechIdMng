@@ -32,7 +32,7 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadEntityController;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
-import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmAudit;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuditService;
@@ -57,7 +57,7 @@ public class IdmAuditController extends AbstractReadEntityController<IdmAudit, A
 	ModelMapper mapper;
 	
 	@Autowired
-	public IdmAuditController(EntityLookupService entityLookupService) {
+	public IdmAuditController(LookupService entityLookupService) {
 		super(entityLookupService);
 	}
 	

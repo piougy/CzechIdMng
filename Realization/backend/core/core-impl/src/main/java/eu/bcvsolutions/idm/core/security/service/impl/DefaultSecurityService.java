@@ -12,7 +12,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.Lists;
@@ -28,7 +27,6 @@ import eu.bcvsolutions.idm.core.security.api.utils.IdmAuthorityUtils;
  * @author svandav
  *
  */
-@Service("securityService")
 public class DefaultSecurityService implements SecurityService {
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultSecurityService.class);

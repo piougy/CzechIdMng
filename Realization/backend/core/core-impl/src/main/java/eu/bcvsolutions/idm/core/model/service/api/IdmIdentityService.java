@@ -1,20 +1,19 @@
 package eu.bcvsolutions.idm.core.model.service.api;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
 
 import org.joda.time.DateTime;
 
+import com.google.common.annotations.Beta;
+
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdentityFilter;
-import eu.bcvsolutions.idm.core.api.service.IdentifiableByNameEntityService;
-import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
+import eu.bcvsolutions.idm.core.api.service.CodeableService;
+import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.entity.IdmRole;
-import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
-import eu.bcvsolutions.idm.core.security.api.service.AuthorizableEntityService;
+import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 
 /**
  * Operations with IdmIdentity
@@ -23,34 +22,28 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizableEntityService;
  *
  */
 public interface IdmIdentityService extends 
-		ReadWriteEntityService<IdmIdentity, IdentityFilter>, 
-		IdentifiableByNameEntityService<IdmIdentity>,
-		AuthorizableEntityService<IdmIdentity, IdentityFilter> {
+		ReadWriteDtoService<IdmIdentityDto, IdentityFilter>,
+		AuthorizableService<IdmIdentityDto, IdentityFilter>,
+		CodeableService<IdmIdentityDto> {
 	
 	@Deprecated
 	static final String CONFIDENTIAL_PROPERTY_PASSWORD = "password";
-
 	
 	/**
-	 * Returns identity by given username
-	 * @param username
+	 * Will be removed after eav and synchronization refactoring
+	 * 
+	 * @param identity
 	 * @return
 	 */
-	IdmIdentity getByUsername(String username);
+	@Deprecated
+	IdmIdentity saveIdentity(IdmIdentity identity);
 
 	/**
 	 * Returns identity by given username
 	 * @param username
 	 * @return
 	 */
-	IdmIdentityDto getDtoByUsername(String username);
-
-	/**
-	 * Returns identity by given id
-	 * @param id
-	 * @return
-	 */
-	IdmIdentityDto getDto(Serializable id);
+	IdmIdentityDto getByUsername(String username);
 
 	/**
 	 * Better "toString"
@@ -58,7 +51,7 @@ public interface IdmIdentityService extends
 	 * @param identity
 	 * @return
 	 */
-	String getNiceLabel(IdmIdentity identity);
+	String getNiceLabel(IdmIdentityDto identity);
 	
 	/**
 	 * Changes given identity's password
@@ -66,24 +59,24 @@ public interface IdmIdentityService extends
 	 * @param identity
 	 * @param passwordChangeDto
 	 */
-	void passwordChange(IdmIdentity identity, PasswordChangeDto passwordChangeDto);
+	void passwordChange(IdmIdentityDto identity, PasswordChangeDto passwordChangeDto);
 	
 	
 	/**
 	 * Find all identities by assigned role
 	 * 
-	 * @param role
-	 * @return List of IdmIdentity with assigned role
+	 * @param roleId
+	 * @return List of identities with assigned role
 	 */
-	List<IdmIdentity> findAllByRole(IdmRole role);
+	List<IdmIdentityDto> findAllByRole(UUID roleId);
 	
 	/**
 	 * Find all identities by assigned role name
 	 * 
 	 * @param roleName
-	 * @return List of IdmIdentity with assigned role
+	 * @return List of identities with assigned role
 	 */
-	List<IdmIdentity> findAllByRoleName(String roleName);
+	List<IdmIdentityDto> findAllByRoleName(String roleName);
 	
 
 	/**
@@ -93,15 +86,15 @@ public interface IdmIdentityService extends
 	 * @param byTreeType If optional tree type is given, then only managers defined with this type is returned
 	 * @return
 	 */
-	List<IdmIdentity> findAllManagers(IdmIdentity forIdentity, IdmTreeType byTreeType);
+	List<IdmIdentityDto> findAllManagers(UUID forIdentity, UUID byTreeType);
 
 	/**
 	 * Method finds all identity's managers by identity contract and return managers
 	 * 
-	 * @param identityId
+	 * @param forIdentity
 	 * @return String - usernames separate by commas
 	 */
-	List<IdmIdentity> findAllManagers(UUID identityId);
+	List<IdmIdentityDto> findAllManagers(UUID forIdentity);
 
 	/**
 	 * Contains list of identities some identity with given username.
@@ -110,29 +103,36 @@ public interface IdmIdentityService extends
 	 * @param username
 	 * @return
 	 */
-	boolean containsUser(List<IdmIdentity> identities, String username);
+	@Beta
+	boolean containsUser(List<IdmIdentityDto> identities, String username);
 
 	/**
 	 * Convert given identities to string of user names separate with comma 
+	 * 
 	 * @param identities
 	 * @return
 	 */
-	String convertIdentitiesToString(List<IdmIdentity> identities);
+	@Beta
+	String convertIdentitiesToString(List<IdmIdentityDto> identities);
 
 	/**
 	 * Find all guarantees for given role ID
+	 * 
 	 * @param roleId
 	 * @return
 	 */
-	List<IdmIdentity> findAllGuaranteesByRoleId(UUID roleId);
+	@Beta
+	List<IdmIdentityDto> findAllGuaranteesByRoleId(UUID roleId);
 
 	
 	/**
 	 * Update IdmAuthorityChange for all given identities and set 
 	 * it to provided value. 
+	 * 
 	 * @param identities identities to update
 	 * @param changeTime change time to set
 	 */
-	void updateAuthorityChange(List<IdmIdentity> identities, DateTime changeTime);
+	@Beta
+	void updateAuthorityChange(List<UUID> identities, DateTime changeTime);
 
 }

@@ -63,7 +63,7 @@ public class OAuthAuthenticationManagerTest extends AbstractUnitTest {
 	 */
 	@Test
 	public void testAuthSuccess() {
-		IdmIdentity i = getTestIdentity();
+		IdmIdentityDto i = getTestIdentity();
 		IdmJwtAuthentication authentication = getAuthentication(USER_NAME,
 				DateTime.now().plusHours(1), DateTime.now());
 		
@@ -103,7 +103,7 @@ public class OAuthAuthenticationManagerTest extends AbstractUnitTest {
 	 */
 	@Test(expected = ResultCodeException.class)
 	public void testAuthExpired() {
-		IdmIdentity i = getTestIdentity();
+		IdmIdentityDto i = getTestIdentity();
 		when(identityService.getByUsername(USER_NAME)).thenReturn(i);
 		IdmJwtAuthentication authentication = getAuthentication(USER_NAME,
 				DateTime.now().minusHours(1), DateTime.now().plusHours(2));
@@ -118,13 +118,13 @@ public class OAuthAuthenticationManagerTest extends AbstractUnitTest {
 	 */
 	@Test
 	public void testAuthorityModification() {
-		IdmIdentity i = getTestIdentity();
+		IdmIdentityDto i = getTestIdentity();
 		IdmAuthorityChange ac = getAuthChange(i, DateTime.now());
 		
 		IdmJwtAuthentication authentication = getAuthentication(USER_NAME,
 				DateTime.now().plusHours(1), DateTime.now().minusHours(1));
 		when(identityService.getByUsername(USER_NAME)).thenReturn(i);
-		when(acRepository.findByIdentity(i)).thenReturn(ac);
+		when(acRepository.findOneByIdentity_Id(i.getId())).thenReturn(ac);
 		
 		try {
 			authManager.authenticate(authentication);
@@ -133,20 +133,20 @@ public class OAuthAuthenticationManagerTest extends AbstractUnitTest {
 			Assert.assertEquals(CoreResultCode.AUTHORITIES_CHANGED.getStatus(), e.getStatus());
 			Assert.assertEquals(CoreResultCode.AUTHORITIES_CHANGED.getMessage(), e.getMessage());
 			verify(identityService).getByUsername(USER_NAME);
-			verify(acRepository).findByIdentity(i);
+			verify(acRepository).findOneByIdentity_Id(i.getId());
 		}
 	}
 
 	
-	private IdmIdentity getTestIdentity() {
-		IdmIdentity i = new IdmIdentity();
+	private IdmIdentityDto getTestIdentity() {
+		IdmIdentityDto i = new IdmIdentityDto();
 		i.setUsername(USER_NAME);
 		return i;
 	}
 	
-	private IdmAuthorityChange getAuthChange(IdmIdentity i, DateTime dt) {
+	private IdmAuthorityChange getAuthChange(IdmIdentityDto i, DateTime dt) {
 		IdmAuthorityChange c = new IdmAuthorityChange();
-		c.setIdentity(i);
+		c.setIdentity(new IdmIdentity(i.getId()));
 		c.setAuthChangeTimestamp(dt);
 		return c;
 	}

@@ -44,6 +44,7 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeTypeService;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
+import eu.bcvsolutions.idm.core.security.api.domain.IdentityBasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.security.evaluator.BasePermissionEvaluator;
@@ -184,7 +185,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				authorizationPolicyService.save(policy);
 				// self policy
 				IdmAuthorizationPolicyDto selfPolicy = new IdmAuthorizationPolicyDto();
-				selfPolicy.setPermissions(IdmBasePermission.READ);
+				selfPolicy.setPermissions(IdmBasePermission.READ, IdentityBasePermission.PASSWORDCHANGE);
 				selfPolicy.setRole(role1.getId());
 				selfPolicy.setGroupPermission(CoreGroupPermission.IDENTITY.getName());
 				selfPolicy.setAuthorizableType(IdmIdentity.class.getCanonicalName());

@@ -66,6 +66,7 @@
     },
     "logout": "Odhlásit se",
     "no": "Ne",
+    "select": "Vybrat",
     "send": "Odeslat",
     "sending": "Odesílám ...",
     "save": "Uložit",
@@ -1955,7 +1956,12 @@
       "code": "Kód",
       "script": {
         "help": "Tělo skriptu v jazyce Groovy.",
-        "label": "Pravidlo"
+        "label": "Skript"
+       },
+       "select": {
+         "help": "",
+         "button": "Vložit skript",
+         "label": "Výběr dostupných skriptů"
        },
       "description": "Popis skriptu"
     },

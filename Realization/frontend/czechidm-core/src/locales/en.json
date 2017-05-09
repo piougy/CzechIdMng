@@ -66,6 +66,7 @@
     },
     "logout": "Log Out",
     "no": "No",
+    "select": "Select",
     "send": "Send",
     "sending": "Sending",
     "save": "Save",
@@ -1921,6 +1922,11 @@
       "script": {
         "help": "Body of script in groovy.",
         "label": "Script"
+       },
+       "select": {
+         "help": "",
+         "button": "Insert script",
+         "label": "Selection of available scripts"
        },
       "description": "Script description"
     },

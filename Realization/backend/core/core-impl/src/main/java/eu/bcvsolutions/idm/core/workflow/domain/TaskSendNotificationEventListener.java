@@ -155,7 +155,7 @@ public class TaskSendNotificationEventListener implements ActivitiEventListener{
 	 * @param username
 	 */
 	private void sendNotification(String topic, TaskEntity taskEntity, String username) {
-		IdmIdentityDto identity = identityService.getDtoByUsername(username);
+		IdmIdentityDto identity = identityService.getByUsername(username);
 		//
 		if (identity == null) {
 			LOG.info("TaskSendNotificationEventListener - Identity [{}] not found, message will not be send.", username);

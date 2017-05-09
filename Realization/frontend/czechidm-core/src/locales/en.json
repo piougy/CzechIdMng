@@ -433,7 +433,9 @@
       "CREATE": "Create",
       "UPDATE": "Update",
       "DELETE": "Delete",
-      "EXECUTE": "Execute"
+      "EXECUTE": "Execute",
+      "PASSWORDCHANGE": "Password change",
+      "PASSWORDRESET": "Password reset"
     },
     "group": {
       "AUTHORIZATIONPOLICY": "Permissions",
@@ -442,6 +444,7 @@
       "CONFIGURATION": "Configuration (app)",
       "CONFIGURATIONSECURED": "Configuration (system)",
       "IDENTITY": "Users",
+      "IDENTITYROLE": "Assigned roles",
       "IDENTITYCONTRACT": "Contracted positions",
       "CONTRACTGUARANTEE": "Contracted position's guarantees",
       "MODULE": "Modules",

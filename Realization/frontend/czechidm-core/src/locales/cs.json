@@ -460,7 +460,9 @@
       "CREATE": "Vytvoření",
       "UPDATE": "Úprava",
       "DELETE": "Mazání",
-      "EXECUTE": "Spouštení"
+      "EXECUTE": "Spouštení",
+      "PASSWORDCHANGE": "Změna hesla",
+      "PASSWORDRESET": "Reset hesla"
     },
     "group": {
       "AUTHORIZATIONPOLICY": "Oprávnění",
@@ -469,6 +471,7 @@
       "CONFIGURATION": "Konfigurace aplikace (veřejná)",
       "CONFIGURATIONSECURED": "Konfigurace aplikace (systémová)",
       "IDENTITY": "Uživatelé",
+      "IDENTITYROLE": "Přiřazené role uživatelům",
       "IDENTITYCONTRACT": "Pracovně právní vztahy",
       "CONTRACTGUARANTEE": "Garanti pracovně právního vztahu",
       "MODULE": "Moduly",

@@ -55,7 +55,6 @@ public class IdmTreeType extends AbstractEntity implements Codeable {
 	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmTreeNode defaultTreeNode; // default tree node - can be used for some automatism
 	
-	
 	public String getCode() {
 		return code;
 	}

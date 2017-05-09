@@ -66,7 +66,7 @@ public interface ReadDtoService<DTO extends BaseDto, F extends BaseFilter>
 	 * 
 	 * @param filter
 	 * @param pageable
-	 * @param permission permissions to evaluate
+	 * @param permission base permissions to evaluate
 	 * @return
 	 */
 	Page<DTO> find(F filter, Pageable pageable, BasePermission... permission);
@@ -90,8 +90,8 @@ public interface ReadDtoService<DTO extends BaseDto, F extends BaseFilter>
 	/**
 	 * Evaluates authorization permission on given dto
 	 *  
-	 * @param entity
-	 * @param permission
+	 * @param dto
+	 * @param permission base permissions to evaluate
 	 * @return
 	 */
 	DTO checkAccess(DTO dto, BasePermission... permission);

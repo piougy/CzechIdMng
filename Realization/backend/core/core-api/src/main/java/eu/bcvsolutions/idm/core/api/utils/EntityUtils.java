@@ -4,15 +4,21 @@
  */
 package eu.bcvsolutions.idm.core.api.utils;
 
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.LocalDate;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.ValidableEntity;
 
 /**
@@ -114,4 +120,62 @@ public class EntityUtils {
                 .findFirst()
                 .orElseGet(() -> getFirstFieldInClassHierarchyInternal(sourceType.getSuperclass(), field));
     }
+    
+	/**
+	 * Return object from entity for given property name
+	 * 
+	 * @param entity
+	 * @param propertyName
+	 * @return
+	 * @throws IntrospectionException
+	 * @throws IllegalAccessException
+	 * @throws IllegalArgumentException
+	 * @throws InvocationTargetException
+	 */
+	public static Object getEntityValue(AbstractEntity entity, String propertyName) throws 
+	IntrospectionException, IllegalAccessException, IllegalArgumentException, InvocationTargetException
+			 {
+		Optional<PropertyDescriptor> propertyDescriptionOptional = Arrays
+				.asList(Introspector.getBeanInfo(entity.getClass()).getPropertyDescriptors())
+				.stream().filter(propertyDescriptor -> {
+					return propertyName.equals(propertyDescriptor.getName());
+				}).findFirst();
+		if (!propertyDescriptionOptional.isPresent()) {
+			throw new IllegalAccessException("Field " + propertyName + " not found!");
+		}
+		PropertyDescriptor propertyDescriptor = propertyDescriptionOptional.get();
+
+		return propertyDescriptor.getReadMethod().invoke(entity);
+	}
+	
+	/**
+	 * Get value from given entity field. 
+	 * If is first parameter in write method String and value is not String, then will be value converted to String.
+	 * 
+	 * @param entity
+	 * @param propertyName
+	 * @param value
+	 * @return
+	 * @throws IntrospectionException
+	 * @throws IllegalAccessException
+	 * @throws IllegalArgumentException
+	 * @throws InvocationTargetException
+	 */
+	public static Object setEntityValue(AbstractEntity entity, String propertyName, Object value)
+			throws IntrospectionException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+		Optional<PropertyDescriptor> propertyDescriptionOptional = Arrays
+				.asList(Introspector.getBeanInfo(entity.getClass()).getPropertyDescriptors()).stream()
+				.filter(propertyDescriptor -> {
+					return propertyName.equals(propertyDescriptor.getName());
+				}).findFirst(); 
+		if (!propertyDescriptionOptional.isPresent()) {
+			throw new IllegalAccessException("Field " + propertyName + " not found!");
+		}
+		PropertyDescriptor propertyDescriptor = propertyDescriptionOptional.get();
+		String parameterClass = propertyDescriptor.getWriteMethod().getParameterTypes()[0].getName();
+		if(value != null && String.class.getName().equals(parameterClass) && !(value instanceof String)){
+			value = String.valueOf(value);
+		}
+		return propertyDescriptor.getWriteMethod().invoke(entity, value);
+	}
 }

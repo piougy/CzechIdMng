@@ -121,7 +121,6 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
     if (formEntity.id === undefined) {
       this.context.store.dispatch(synchronizationConfigManager.createEntity(formEntity, `${uiKey}-detail`, (createdEntity, error) => {
         if (startSynchronization) {
-        console.log("creaddd", createdEntity, error, startSynchronization);
           this.afterSaveAndStartSynchronization(createdEntity, error);
         } else {
           this.afterSave(createdEntity, error, close);

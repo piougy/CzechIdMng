@@ -11,13 +11,17 @@ import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
-import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
+import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
+import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.dto.filter.LongRunningTaskFilter;
 import eu.bcvsolutions.idm.core.scheduler.entity.IdmLongRunningTask;
 import eu.bcvsolutions.idm.core.scheduler.repository.IdmLongRunningTaskRepository;
-import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskService;
+import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskDtoService;
+import eu.bcvsolutions.idm.core.scheduler.service.api.IdmProcessedTaskItemDtoService;
+import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
 /**
  * Persists long running tasks
@@ -25,26 +29,33 @@ import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskService;
  * @author Radek Tomiška
  *
  */
-public class DefaultIdmLongRunningTaskService extends AbstractReadWriteEntityService<IdmLongRunningTask, LongRunningTaskFilter> implements IdmLongRunningTaskService {
+public class DefaultIdmLongRunningTaskDtoService
+	extends AbstractReadWriteDtoService<IdmLongRunningTaskDto, IdmLongRunningTask, LongRunningTaskFilter>
+	implements IdmLongRunningTaskDtoService {
 	
 	private final IdmLongRunningTaskRepository repository;
 	private final ConfigurationService configurationService;
+	private final IdmProcessedTaskItemDtoService itemService;
 	
 	@Autowired
-	public DefaultIdmLongRunningTaskService(IdmLongRunningTaskRepository repository,
-			ConfigurationService configurationService) {
+	public DefaultIdmLongRunningTaskDtoService(
+			IdmLongRunningTaskRepository repository,
+			ConfigurationService configurationService,
+			IdmProcessedTaskItemDtoService itemService) {
 		super(repository);
 		//
 		Assert.notNull(configurationService);
+		Assert.notNull(itemService);
 		//
 		this.repository = repository;
 		this.configurationService = configurationService;
+		this.itemService = itemService;
 	}
 	
 	@Override
 	@Transactional(readOnly = true)
-	public List<IdmLongRunningTask> getTasks(String instanceId, OperationState state) {
-		return repository.findAllByInstanceIdAndResult_State(instanceId, state);
+	public List<IdmLongRunningTaskDto> getTasks(String instanceId, OperationState state) {
+		return toDtos(repository.findAllByInstanceIdAndResult_State(instanceId, state), false);
 	}
 	
 	@Override
@@ -55,12 +66,30 @@ public class DefaultIdmLongRunningTaskService extends AbstractReadWriteEntitySer
 
 	@Override
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
-	public <V> IdmLongRunningTask saveInNewTransaction(LongRunningTaskExecutor<V> taskExecutor, OperationState operationState) {
-		IdmLongRunningTask task = new IdmLongRunningTask();
+	public <V> IdmLongRunningTaskDto saveInNewTransaction(
+			LongRunningTaskExecutor<V> taskExecutor,
+			OperationState operationState) {
+		//
+		IdmLongRunningTaskDto task = new IdmLongRunningTaskDto();
 		task.setTaskType(taskExecutor.getClass().getCanonicalName());
 		task.setTaskDescription(taskExecutor.getDescription());	
 		task.setInstanceId(configurationService.getInstanceId());
 		task.setResult(new OperationResult.Builder(operationState).build());
-		return this.save(task);
+		return this.saveInternal(task);
 	}
+	
+	@Override
+	public AuthorizableType getAuthorizableType() {
+		return new AuthorizableType(CoreGroupPermission.SCHEDULER, getEntityClass());
+	}
+
+	@Transactional
+	@Override
+	public void deleteInternal(IdmLongRunningTaskDto dto) {
+		Assert.notNull(dto);
+		//
+		itemService.deleteAllByLongRunningTask(get(dto.getId()));
+		super.deleteInternal(dto);
+	}
+	
 }

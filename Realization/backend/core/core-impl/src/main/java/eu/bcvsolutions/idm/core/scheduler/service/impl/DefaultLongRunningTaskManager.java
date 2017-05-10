@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
@@ -23,11 +24,11 @@ import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.LongRunningFutureTask;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
-import eu.bcvsolutions.idm.core.scheduler.entity.IdmLongRunningTask;
-import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskService;
+import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskDtoService;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 
 /**
@@ -41,14 +42,14 @@ import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultLongRunningTaskManager.class);
-	private final IdmLongRunningTaskService service;
+	private final IdmLongRunningTaskDtoService service;
 	private final Executor executor;
 	private final ConfigurationService configurationService;
 	private final SecurityService securityService;
 	
 	@Autowired
 	public DefaultLongRunningTaskManager(
-			IdmLongRunningTaskService service,
+			IdmLongRunningTaskDtoService service,
 			Executor executor,
 			ConfigurationService configurationService,
 			SecurityService securityService) {
@@ -81,7 +82,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 							"taskType", task.getTaskType(),
 							"instanceId", task.getInstanceId()));			
 			task.setResult(new OperationResult.Builder(OperationState.CANCELED).setModel(resultModel).build());
-			service.save(task);
+			service.saveInternal(task);
 		});
 	}
 	
@@ -95,7 +96,6 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 	 * Executes long running task on this instance
 	 */
 	@Override
-	@SuppressWarnings("unchecked")
 	public List<LongRunningFutureTask<?>> processCreated() {
 		LOG.debug("Processing created tasks from long running task queue");
 		// run as system - called from scheduler internally
@@ -130,7 +130,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 			if (ex != null) {
 				LOG.error(resultModel.toString(), ex);
 				task.setResult(new OperationResult.Builder(OperationState.EXCEPTION).setModel(resultModel).setCause(ex).build());
-				service.save(task);
+				service.saveInternal(task);
 			} else {
 				taskList.add(execute(taskExecutor));
 			}			
@@ -145,10 +145,10 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 		AutowireHelper.autowire(taskExecutor);
 		// prepare task
 		if (taskExecutor.getLongRunningTaskId() == null) {
-			IdmLongRunningTask task = service.saveInNewTransaction(taskExecutor, OperationState.RUNNING);
+			IdmLongRunningTaskDto task = service.saveInNewTransaction(taskExecutor, OperationState.RUNNING);
 			taskExecutor.setLongRunningTaskId(task.getId());
 		} else {
-			IdmLongRunningTask task = service.get(taskExecutor.getLongRunningTaskId());
+			IdmLongRunningTaskDto task = service.get(taskExecutor.getLongRunningTaskId());
 			Assert.notNull(task);
 			if (task.isRunning()) {
 				throw new ResultCodeException(CoreResultCode.LONG_RUNNING_TASK_IS_RUNNING, ImmutableMap.of("taskId", task.getId()));
@@ -171,7 +171,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 	@Transactional
 	public void cancel(UUID longRunningTaskId) {
 		Assert.notNull(longRunningTaskId);
-		IdmLongRunningTask task = service.get(longRunningTaskId);
+		IdmLongRunningTaskDto task = service.get(longRunningTaskId);
 		Assert.notNull(longRunningTaskId);
 		//
 		if (OperationState.RUNNING != task.getResult().getState()) {
@@ -181,14 +181,14 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 		//
 		task.setResult(new OperationResult.Builder(OperationState.CANCELED).build());
 		// running to false will be setted by task himself
-		service.save(task);
+		service.saveInternal(task);
 	}
 	
 	@Override
 	@Transactional
 	public boolean interrupt(UUID longRunningTaskId) {
 		Assert.notNull(longRunningTaskId);
-		IdmLongRunningTask task = service.get(longRunningTaskId);
+		IdmLongRunningTaskDto task = service.get(longRunningTaskId);
 		Assert.notNull(longRunningTaskId);
 		String instanceId = configurationService.getInstanceId();
 		if (!task.getInstanceId().equals(instanceId)) {			
@@ -222,7 +222,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 				} else {
 					task.setResult(new OperationResult.Builder(OperationState.EXCEPTION).setModel(resultModel).setCause(ex).build());
 				}				
-				service.save(task);
+				service.saveInternal(task);
 				return true;
 			}
 		}

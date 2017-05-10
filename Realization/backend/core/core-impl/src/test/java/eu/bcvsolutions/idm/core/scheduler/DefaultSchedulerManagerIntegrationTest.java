@@ -21,12 +21,14 @@ import org.springframework.context.ApplicationContext;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.CronTaskTrigger;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmScheduledTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.LongRunningFutureTask;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.SimpleTaskTrigger;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.Task;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.scheduler.exception.InvalidCronExpressionException;
-import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskService;
+import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskDtoService;
+import eu.bcvsolutions.idm.core.scheduler.service.api.IdmScheduledTaskDtoService;
 import eu.bcvsolutions.idm.core.scheduler.service.impl.DefaultSchedulerManager;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.IdentityRoleExpirationTaskExecutor;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
@@ -50,7 +52,9 @@ public class DefaultSchedulerManagerIntegrationTest extends AbstractIntegrationT
 	@Autowired
 	private LongRunningTaskManager longRunningTaskManager;
 	@Autowired
-	private IdmLongRunningTaskService longRunningTaskService;
+	private IdmLongRunningTaskDtoService longRunningTaskService;
+	@Autowired
+	private IdmScheduledTaskDtoService scheduledTaskService;
 	//
 	private DefaultSchedulerManager manager;
 	protected final static String RESULT_PROPERTY = "result";
@@ -101,6 +105,8 @@ public class DefaultSchedulerManagerIntegrationTest extends AbstractIntegrationT
 		//
 		List<FutureTask<?>> taskList = getFutureTaskList(TestSchedulableTask.class);
 		assertEquals(result, taskList.get(0).get());
+		//
+		checkScheduledTask(task);
 	}
 
 	@Test
@@ -113,6 +119,8 @@ public class DefaultSchedulerManagerIntegrationTest extends AbstractIntegrationT
 		//
 		List<FutureTask<?>> taskList = getFutureTaskList(IdentityRoleExpirationTaskExecutor.class);
 		assertEquals(Boolean.TRUE, taskList.get(0).get());
+		//
+		checkScheduledTask(task);
 	}
 
 	@Test
@@ -191,4 +199,12 @@ public class DefaultSchedulerManagerIntegrationTest extends AbstractIntegrationT
 		};
 		return continueFunction;
 	}
+	
+	private void checkScheduledTask(Task task) {
+		IdmScheduledTaskDto scheduledTask = scheduledTaskService.findByQuartzTaskName(task.getId());
+		assertNotNull(scheduledTask);
+		assertEquals(false, scheduledTask.isDryRun());
+		assertEquals(task.getId(), scheduledTask.getQuartzTaskName());
+	}
+	
 }

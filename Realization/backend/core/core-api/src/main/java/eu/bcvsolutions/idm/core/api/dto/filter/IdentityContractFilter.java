@@ -1,10 +1,10 @@
 package eu.bcvsolutions.idm.core.api.dto.filter;
 
+import java.util.UUID;
 
-import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import org.joda.time.LocalDate;
 
-import java.util.UUID;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 
 /**
  * Filter for {@link IdmIdentityDto} dtos.
@@ -13,43 +13,68 @@ import java.util.UUID;
  */
 public class IdentityContractFilter extends QuickFilter {
 
-    private UUID identity;
+	private UUID identity;
+	private LocalDate validFrom;
+	private LocalDate validTill;
+	private Boolean externe;
+	private Boolean disabled;
+	private Boolean valid;
+	private Boolean main;
 
-    private LocalDate validFrom;
+	public UUID getIdentity() {
+		return identity;
+	}
 
-    private LocalDate validTill;
+	public void setIdentity(UUID identity) {
+		this.identity = identity;
+	}
 
-    private Boolean externe;
+	public LocalDate getValidFrom() {
+		return validFrom;
+	}
 
-    public UUID getIdentity() {
-        return identity;
-    }
+	public void setValidFrom(LocalDate validFrom) {
+		this.validFrom = validFrom;
+	}
 
-    public void setIdentity(UUID identity) {
-        this.identity = identity;
-    }
+	public LocalDate getValidTill() {
+		return validTill;
+	}
 
-    public LocalDate getValidFrom() {
-        return validFrom;
-    }
+	public void setValidTill(LocalDate validTill) {
+		this.validTill = validTill;
+	}
 
-    public void setValidFrom(LocalDate validFrom) {
-        this.validFrom = validFrom;
-    }
+	public Boolean getExterne() {
+		return externe;
+	}
 
-    public LocalDate getValidTill() {
-        return validTill;
-    }
+	public void setExterne(Boolean externe) {
+		this.externe = externe;
+	}
 
-    public void setValidTill(LocalDate validTill) {
-        this.validTill = validTill;
-    }
+	public Boolean getDisabled() {
+		return disabled;
+	}
 
-    public Boolean getExterne() {
-        return externe;
-    }
+	public void setDisabled(Boolean disabled) {
+		this.disabled = disabled;
+	}
 
-    public void setExterne(Boolean externe) {
-        this.externe = externe;
-    }
+	public Boolean getValid() {
+		return valid;
+	}
+
+	public void setValid(Boolean valid) {
+		this.valid = valid;
+	}
+
+	public Boolean getMain() {
+		return main;
+	}
+
+	public void setMain(Boolean main) {
+		this.main = main;
+	}
+
 }

@@ -33,4 +33,5 @@ public interface AbstractEntityRepository<E extends BaseEntity, F extends BaseFi
      * @see {@link EmptyFilter}
 	 */
 	Page<E> find(F filter, Pageable pageable);
+
 }

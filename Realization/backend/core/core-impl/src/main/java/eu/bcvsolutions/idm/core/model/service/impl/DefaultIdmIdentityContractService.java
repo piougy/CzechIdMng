@@ -149,6 +149,36 @@ public class DefaultIdmIdentityContractService
 		if (filter.getExterne() != null) {
 			predicates.add(builder.equal(root.get(IdmIdentityContract_.externe), filter.getExterne()));
 		}
+		if (filter.getDisabled() != null) {
+			predicates.add(builder.equal(root.get(IdmIdentityContract_.disabled), filter.getDisabled()));
+		}
+		if (filter.getMain() != null) {
+			predicates.add(builder.equal(root.get(IdmIdentityContract_.main), filter.getMain()));
+		}
+		if (filter.getValid() != null && filter.getValid()) {
+			final LocalDate today = LocalDate.now();
+			predicates.add(
+					builder.and(
+							builder.or(
+									builder.lessThanOrEqualTo(root.get(IdmIdentityContract_.validFrom), today),
+									builder.isNull(root.get(IdmIdentityContract_.validFrom))
+									),
+							builder.or(
+									builder.greaterThanOrEqualTo(root.get(IdmIdentityContract_.validTill), today),
+									builder.isNull(root.get(IdmIdentityContract_.validTill))
+									)
+							)
+					);
+		}
+		if (filter.getValid() != null && !filter.getValid()) {
+			final LocalDate today = LocalDate.now();
+			predicates.add(
+					builder.or(
+							builder.lessThan(root.get(IdmIdentityContract_.validTill), today),
+							builder.greaterThan(root.get(IdmIdentityContract_.validFrom), today)
+							)
+					);
+		}
 		return predicates;
 	}
 	

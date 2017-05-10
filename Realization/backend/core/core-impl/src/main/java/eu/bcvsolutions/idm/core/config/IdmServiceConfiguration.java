@@ -66,8 +66,14 @@ import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmRoleTreeNodeService
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultModuleService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.scheduler.repository.IdmLongRunningTaskRepository;
-import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskService;
-import eu.bcvsolutions.idm.core.scheduler.service.impl.DefaultIdmLongRunningTaskService;
+import eu.bcvsolutions.idm.core.scheduler.repository.IdmProcessedTaskItemRepository;
+import eu.bcvsolutions.idm.core.scheduler.repository.IdmScheduledTaskRepository;
+import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskDtoService;
+import eu.bcvsolutions.idm.core.scheduler.service.api.IdmProcessedTaskItemDtoService;
+import eu.bcvsolutions.idm.core.scheduler.service.api.IdmScheduledTaskDtoService;
+import eu.bcvsolutions.idm.core.scheduler.service.impl.DefaultIdmLongRunningTaskDtoService;
+import eu.bcvsolutions.idm.core.scheduler.service.impl.DefaultIdmProcessedTaskItemDtoService;
+import eu.bcvsolutions.idm.core.scheduler.service.impl.DefaultIdmScheduledTaskDtoService;
 import eu.bcvsolutions.idm.core.scheduler.service.impl.DefaultLongRunningTaskManager;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizationManager;
 import eu.bcvsolutions.idm.core.security.api.service.CryptService;
@@ -114,6 +120,8 @@ public class IdmServiceConfiguration {
 	@Autowired private IdmIdentityRoleRepository identityRoleRepository;
 	@Autowired private IdmIdentityContractRepository identityContractRepository;
 	@Autowired private IdmAuthorityChangeRepository authChangeRepository;
+	@Autowired private IdmProcessedTaskItemRepository processedTaskRepository;
+	@Autowired private IdmScheduledTaskRepository scheduledTaskRepository;
 	//
 	// Auto registered beans (plugins)
 	@Autowired private PluginRegistry<ModuleDescriptor, String> moduleDescriptorRegistry;
@@ -292,9 +300,9 @@ public class IdmServiceConfiguration {
 	 * @return
 	 */
 	@Bean
-	@ConditionalOnMissingBean(IdmLongRunningTaskService.class)
-	public IdmLongRunningTaskService longRunningTaskService() {
-		return new DefaultIdmLongRunningTaskService(longRunningTaskRepository, configurationService());
+	@ConditionalOnMissingBean(IdmLongRunningTaskDtoService.class)
+	public IdmLongRunningTaskDtoService longRunningTaskService() {
+		return new DefaultIdmLongRunningTaskDtoService(longRunningTaskRepository, configurationService(), processedTaskItemService());
 	}
 	
 	
@@ -372,4 +380,24 @@ public class IdmServiceConfiguration {
 	public IdmIdentityRoleService idmIdentityRoleService() {
 		return new DefaultIdmIdentityRoleService(identityRoleRepository, entityEventManager());
 	}
+
+	/**
+	 * Processed long running task items service.
+	 * @return
+	 */
+	@Bean
+	public IdmProcessedTaskItemDtoService processedTaskItemService() {
+		return new DefaultIdmProcessedTaskItemDtoService(processedTaskRepository);
+	}
+	
+	/**
+	 * Scheduled tasks service for stateful tasks support.
+	 * @return
+	 */
+	@Bean
+	public IdmScheduledTaskDtoService scheduledTaskService() {
+		return new DefaultIdmScheduledTaskDtoService(scheduledTaskRepository, processedTaskItemService(),
+				longRunningTaskService());
+	}
+	
 }

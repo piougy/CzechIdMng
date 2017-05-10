@@ -22,9 +22,13 @@ import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
 
+import eu.bcvsolutions.idm.core.api.config.domain.IdentityConfiguration;
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.domain.PasswordChangeType;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdentityFilter;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
@@ -51,9 +55,11 @@ import eu.bcvsolutions.idm.core.model.event.processor.identity.IdentitySaveProce
 import eu.bcvsolutions.idm.core.model.repository.IdmAuthorityChangeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
+import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
+import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 
 /**
  * Operations with IdmIdentity
@@ -73,6 +79,8 @@ public class DefaultIdmIdentityService
 	private final IdmRoleRepository roleRepository;
 	private final IdmAuthorityChangeRepository authChangeRepository;
 	private final EntityEventManager entityEventManager;
+	private final IdmConfigurationService configurationService;
+	private final SecurityService securityService;
 	
 	@Autowired
 	public DefaultIdmIdentityService(
@@ -80,19 +88,25 @@ public class DefaultIdmIdentityService
 			FormService formService,
 			IdmRoleRepository roleRepository,
 			EntityEventManager entityEventManager,
-			IdmAuthorityChangeRepository authChangeRepository) {
+			IdmAuthorityChangeRepository authChangeRepository,
+			IdmConfigurationService configurationService,
+			SecurityService securityService) {
 		super(repository);
 		//
 		Assert.notNull(formService);
 		Assert.notNull(roleRepository);
 		Assert.notNull(entityEventManager);
 		Assert.notNull(authChangeRepository);
+		Assert.notNull(configurationService);
+		Assert.notNull(securityService);
 		//
 		this.formService = formService;
 		this.repository = repository;
 		this.roleRepository = roleRepository;
 		this.authChangeRepository = authChangeRepository;
 		this.entityEventManager = entityEventManager;
+		this.configurationService = configurationService;
+		this.securityService = securityService;
 	}
 	
 	@Override
@@ -269,9 +283,21 @@ public class DefaultIdmIdentityService
 		Assert.notNull(identity);
 		//
 		LOG.debug("Changing password for identity [{}]", identity.getUsername());
+		//
+		// check if change password is enabled (skip for admin)
+		if (!securityService.isAdmin()) {
+			String passwordChangeProperty = this.configurationService.getValue(IdentityConfiguration.PROPERTY_IDENTITY_CHANGE_PASSWORD);
+			if (passwordChangeProperty.equals(PasswordChangeType.DISABLED.toString())) {
+				LOG.debug("Password change is disabled by application property: [{}]", IdentityConfiguration.PROPERTY_IDENTITY_CHANGE_PASSWORD);
+				throw new ResultCodeException(CoreResultCode.PASSWORD_CHANGE_FAILED, ImmutableMap.of("note", "Password change is disabled"));
+			} else if (passwordChangeProperty.equals(PasswordChangeType.ALL_ONLY.toString())) {
+				passwordChangeDto.setAll(true);
+			}
+		}
+		//
 		entityEventManager.process(
 				new IdentityEvent(
-						IdentityEventType.PASSWORD, 
+						IdentityEventType.PASSWORD,
 						identity, 
 						ImmutableMap.of(IdentityPasswordProcessor.PROPERTY_PASSWORD_CHANGE_DTO, passwordChangeDto)));	
 	}

@@ -16,8 +16,8 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.ReconciliationMissingAccountActionType;
+import eu.bcvsolutions.idm.acc.domain.SynchronizationContext;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationEventType;
-import eu.bcvsolutions.idm.acc.domain.SynchronizationItemBuilder;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationLinkedActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationMissingEntityActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationUnlinkedActionType;
@@ -46,6 +46,8 @@ import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.scheduler.service.impl.AbstractLongRunningTaskExecutor;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
+import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
+import eu.bcvsolutions.idm.ic.impl.IcConnectorObjectImpl;
 
 /**
  * Service for do synchronization and reconciliation
@@ -54,8 +56,6 @@ import eu.bcvsolutions.idm.ic.api.IcAttribute;
  */
 @Service
 public class DefaultSynchronizationService extends AbstractLongRunningTaskExecutor<SysSyncConfig> implements SynchronizationService {
-
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultSynchronizationService.class);
 
 	private final SysSystemAttributeMappingService attributeHandlingService;
 	private final SysSyncConfigService synchronizationConfigService;
@@ -144,33 +144,8 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 			throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_NOT_FOUND,
 					ImmutableMap.of("id", synchronizationConfigId));
 		}
-		//
-		// Synchronization must be enabled
-		if (!config.isEnabled()) {
-			throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_IS_NOT_ENABLED,
-					ImmutableMap.of("name", config.getName()));
-		}
-
-		// Synchronization can not be running twice
-		SynchronizationLogFilter logFilter = new SynchronizationLogFilter();
-		logFilter.setSynchronizationConfigId(config.getId());
-		logFilter.setRunning(Boolean.TRUE);
-		if (!synchronizationLogService.find(logFilter, null).getContent().isEmpty()) {
-			throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_IS_RUNNING,
-					ImmutableMap.of("name", config.getName()));
-		}
-
 		SysSystemMapping mapping = config.getSystemMapping();
 		Assert.notNull(mapping);
-		SysSystem system = mapping.getSystem();
-		Assert.notNull(system);
-		
-		// System must be enabled
-		if (system.isDisabled()) {
-			throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_SYSTEM_IS_NOT_ENABLED,
-					ImmutableMap.of("name", config.getName(), "system", system.getName()));
-		}
-		
 		SystemEntityType entityType = mapping.getEntityType();
 	
 		SynchronizationEntityExecutor executor =  getSyncExecutor(entityType);
@@ -220,7 +195,7 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 	
 	@Override
 	@Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
-	public boolean doItemSynchronization(SynchronizationItemBuilder wrapper) {
+	public boolean doItemSynchronization(SynchronizationContext wrapper) {
 		Assert.notNull(wrapper);
 		return getSyncExecutor(wrapper.getEntityType()).doItemSynchronization(wrapper);
 	}
@@ -243,9 +218,21 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 		List<SysSystemAttributeMapping> mappedAttributes = attributeHandlingService.find(attributeHandlingFilter, null)
 				.getContent();
 		SysSyncItemLog itemLog = new SysSyncItemLog();
+		// Little workaround, we have only IcAttributes ... we create IcObject manually
+		IcConnectorObjectImpl icObject = new IcConnectorObjectImpl();
+		icObject.setAttributes(icAttributes);
+		icObject.setUidValue(uid);
 		
-		getSyncExecutor(entityType).resolveMissingEntitySituation(uid, entityType, mappedAttributes, system,
-				SynchronizationMissingEntityActionType.valueOf(actionType), null, itemLog, null, icAttributes);
+		SynchronizationContext context = new SynchronizationContext();
+		context.addUid(uid)
+		.addSystem(system)
+		.addConfig(config)
+		.addEntityType(entityType)
+		.addLogItem(itemLog)
+		.addMappedAttributes(mappedAttributes)
+		.addIcObject(icObject);
+		
+		getSyncExecutor(entityType).resolveMissingEntitySituation(SynchronizationMissingEntityActionType.valueOf(actionType), context);
 		return itemLog;
 
 	}
@@ -270,9 +257,22 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 		attributeHandlingFilter.setSystemMappingId(mapping.getId());
 		List<SysSystemAttributeMapping> mappedAttributes = attributeHandlingService.find(attributeHandlingFilter, null)
 				.getContent();
+	
+		// Little workaround, we have only IcAttributes ... we create IcObject manually
+		IcConnectorObjectImpl icObject = new IcConnectorObjectImpl();
+		icObject.setAttributes(icAttributes);
+		icObject.setUidValue(uid);
+				
+		SynchronizationContext context = new SynchronizationContext();
+		context.addUid(uid)
+		.addAccount(account)
+		.addConfig(config)
+		.addEntityType(entityType)
+		.addLogItem(itemLog)
+		.addMappedAttributes(mappedAttributes)
+		.addIcObject(icObject);
 
-		getSyncExecutor(entityType).resolveLinkedSituation(uid, entityType, icAttributes, mappedAttributes, account,
-				SynchronizationLinkedActionType.valueOf(actionType), null, itemLog, null);
+		getSyncExecutor(entityType).resolveLinkedSituation(SynchronizationLinkedActionType.valueOf(actionType), context);
 		return itemLog;
 	}
 
@@ -292,8 +292,15 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 		SysSystemEntity systemEntity = findSystemEntity(uid, system, entityType);
 		SysSyncItemLog itemLog = new SysSyncItemLog();
 
-		getSyncExecutor(entityType).resolveUnlinkedSituation(uid, entityId, entityType, systemEntity,
-				SynchronizationUnlinkedActionType.valueOf(actionType), system, null, itemLog, null);
+		SynchronizationContext context = new SynchronizationContext();
+		context.addUid(uid)
+		.addSystem(system)
+		.addConfig(config)
+		.addEntityType(entityType)
+		.addEntityId(entityId)
+		.addSystemEntity(systemEntity);
+		
+		getSyncExecutor(entityType).resolveUnlinkedSituation(SynchronizationUnlinkedActionType.valueOf(actionType), context);
 		return itemLog;
 	}
 
@@ -311,9 +318,15 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 		AccAccount account = accountService.get(accountId);
 		SysSystem system = mapping.getSystem();
 		SysSyncItemLog itemLog = new SysSyncItemLog();
+		SynchronizationContext context = new SynchronizationContext();
+		context.addUid(uid)
+		.addSystem(system)
+		.addConfig(config)
+		.addEntityType(entityType)
+		.addAccount(account)
+		.addLogItem(itemLog);
 
-		getSyncExecutor(entityType).resolveMissingAccountSituation(uid, account, entityType,
-				ReconciliationMissingAccountActionType.valueOf(actionType), system, null, itemLog, null);
+		getSyncExecutor(entityType).resolveMissingAccountSituation(ReconciliationMissingAccountActionType.valueOf(actionType), context);
 		return itemLog;
 	}
 	

@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.model.service.impl;
 
 import java.beans.PropertyDescriptor;
 import java.io.Serializable;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -206,9 +207,10 @@ public class DefaultAuditService extends AbstractReadWriteEntityService<IdmAudit
 
 	@Override
 	public List<String> getAllAuditedEntitiesNames() {
-		// load from cache
+		// load from 'cache'
+		// TODO: disable or enable modules?
 		if (this.allAuditedEntititesNames != null) {
-			return this.allAuditedEntititesNames;
+			// return this.allAuditedEntititesNames;
 		}
 		//
 		List<String> result = new ArrayList<>();
@@ -217,12 +219,24 @@ public class DefaultAuditService extends AbstractReadWriteEntityService<IdmAudit
 			if (entityType.getJavaType() == null) {
 				continue;
 			}
-			// get entities methods and search annotation Audited.
-			for (Field field : entityType.getJavaType().getDeclaredFields()) {
-				if (field.getAnnotation(Audited.class) != null) {
-					result.add(entityType.getJavaType().getSimpleName());
-					break;
-				}
+			// get entities methods and search annotation Audited in fields.
+			if (getAuditedField(entityType.getJavaType().getDeclaredFields())) {
+				result.add(entityType.getJavaType().getSimpleName());
+				continue;
+			}
+			//
+			// TODO: add some better get of all class annotations
+			Annotation[] annotations = null;
+			try {
+				annotations = entityType.getJavaType().newInstance().getClass().getAnnotations();
+			} catch (InstantiationException | IllegalAccessException e) {
+				// class is not accessible
+				continue;
+			}
+			// entity can be annotated for all class
+			if (getAuditedAnnotation(annotations)) {
+				result.add(entityType.getJavaType().getSimpleName());
+				continue;
 			}
 		}
 		// sort entities by name
@@ -456,5 +470,40 @@ public class DefaultAuditService extends AbstractReadWriteEntityService<IdmAudit
 		AuditReader reader = this.getAuditReader();
 
 		return reader.find(entityClass, entityId, revisionId);
+	}
+	
+	/**
+	 * Method return true if at least one fields has annotation {@link Audited} 
+	 * @param fields
+	 * @return
+	 */
+	private boolean getAuditedField(Field[] fields) {
+		if (fields == null) {
+			return false;
+		}
+		//
+		for (Field field : fields) {
+			if (field.getAnnotation(Audited.class) != null) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * Method return true if found {@link Audited} in annotations
+	 * @param annotations
+	 * @return
+	 */
+	private boolean getAuditedAnnotation(Annotation[] annotations) {
+		if (annotations == null) {
+			return false;
+		}
+		for (Annotation annotation : annotations) {
+			if (annotation.annotationType().equals(Audited.class)) {
+				return true;
+			}
+		}
+		return false;
 	}
 }

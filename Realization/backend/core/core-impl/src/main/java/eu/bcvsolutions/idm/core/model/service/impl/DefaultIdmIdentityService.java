@@ -210,6 +210,11 @@ public class DefaultIdmIdentityService
 		if (StringUtils.equals(IdmIdentity_.email.getName(), filter.getProperty())) {
 			predicates.add(builder.equal(root.get(IdmIdentity_.email), filter.getValue()));
 		}
+		//
+		// disabled
+		if (filter.getDisabled() != null) {
+			predicates.add(builder.equal(root.get(IdmIdentity_.disabled), filter.getDisabled()));
+		}
 		// treeNode
 		if (filter.getTreeNode() != null) {
 			Subquery<IdmIdentityContract> subquery = query.subquery(IdmIdentityContract.class);

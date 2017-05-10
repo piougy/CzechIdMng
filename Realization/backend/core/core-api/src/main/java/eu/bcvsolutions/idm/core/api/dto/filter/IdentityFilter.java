@@ -63,6 +63,10 @@ public class IdentityFilter extends DataFilter implements CorrelationFilter {
 	 * managersByContractId with contract guarantees
 	 */
 	private boolean includeGuarantees;
+	/**
+	 * Enabled, disable or empty filter for disabled identities
+	 */
+	private Boolean disabled;
 	
 	public IdentityFilter() {
 		this(new LinkedMultiValueMap<>());
@@ -173,5 +177,13 @@ public class IdentityFilter extends DataFilter implements CorrelationFilter {
 	
 	public void setIncludeGuarantees(boolean includeGuarantees) {
 		this.includeGuarantees = includeGuarantees;
+	}
+
+	public Boolean getDisabled() {
+		return disabled;
+	}
+
+	public void setDisabled(Boolean disabled) {
+		this.disabled = disabled;
 	}
 }

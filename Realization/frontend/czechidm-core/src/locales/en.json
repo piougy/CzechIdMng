@@ -817,6 +817,10 @@
         "role": {
           "label": "Role",
           "placeholder": "Assigned role"
+        },
+        "disabled": {
+          "label": "Disabled",
+          "placeholder": "Disabled"
         }
       },
       "action": {

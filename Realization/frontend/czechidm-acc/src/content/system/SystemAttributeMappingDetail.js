@@ -283,8 +283,7 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
                 headerText={this.i18n('acc:entity.SystemAttributeMapping.transformFromResourceScriptSelectBox.label')}
                 label={this.i18n('acc:entity.SystemAttributeMapping.transformFromResourceScript.label')}
                 helpBlock={this.i18n('acc:entity.SystemAttributeMapping.transformFromResourceScript.help')}
-                selectCb={this._scriptChangeFromResource}
-                returnTemplate scriptManager={scriptManager} />
+                scriptManager={scriptManager} />
 
               <Advanced.ScriptArea
                 ref="transformToResourceScript"
@@ -292,8 +291,7 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
                 headerText={this.i18n('acc:entity.SystemAttributeMapping.transformToResourceScriptSelectBox.label')}
                 helpBlock={this.i18n('acc:entity.SystemAttributeMapping.transformToResourceScript.help')}
                 label={this.i18n('acc:entity.SystemAttributeMapping.transformToResourceScript.label')}
-                selectCb={this._scriptChangeToResource}
-                returnTemplate scriptManager={scriptManager} />
+                scriptManager={scriptManager} />
 
             </Basic.AbstractForm>
             <Basic.PanelFooter>

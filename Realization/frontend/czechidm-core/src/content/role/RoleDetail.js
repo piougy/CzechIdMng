@@ -222,6 +222,9 @@ class RoleDetail extends Basic.AbstractContent {
                   <Basic.Checkbox
                     ref="approveRemove"
                     label={this.i18n('entity.Role.approveRemove')}/>
+                    <Basic.Checkbox
+                      ref="canBeRequested"
+                      label={this.i18n('entity.Role.canBeRequested')}/>
                   <Basic.TextArea
                     ref="description"
                     label={this.i18n('entity.Role.description')}

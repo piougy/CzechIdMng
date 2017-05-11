@@ -104,6 +104,11 @@ public class IdmRole extends AbstractEntity implements Codeable, FormableEntity,
 	@Column(name = "disabled", nullable = false)
 	private boolean disabled;
 
+	@Audited
+	@NotNull
+	@Column(name = "can_be_requested", nullable = false)
+	private boolean canBeRequested;
+
 	public IdmRole() {
 	}
 	
@@ -232,5 +237,13 @@ public class IdmRole extends AbstractEntity implements Codeable, FormableEntity,
 
 	public void setApproveRemove(boolean approveRemove) {
 		this.approveRemove = approveRemove;
+	}
+
+	public boolean isCanBeRequested() {
+		return canBeRequested;
+	}
+
+	public void setCanBeRequested(boolean canBeRequested) {
+		this.canBeRequested = canBeRequested;
 	}
 }

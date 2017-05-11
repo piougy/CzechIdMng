@@ -2003,6 +2003,7 @@
       "subRoles": "Subordinate roles",
       "authorities": "Authorizations",
       "approveRemove": "Approve remove role",
+      "canBeRequested": "Can be requested",
       "description": "Description",
       "guarantees": "Role authorizers",
       "roleCatalog": {

@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.Lists;
@@ -50,7 +49,6 @@ public abstract class AbstractSchedulableStatefulExecutor<T extends AbstractDto>
 	protected IdmProcessedTaskItemDtoService itemService;
 
 	@Override
-	@Transactional
 	public Boolean process() {
 		try {
 			this.counter = 0L;

@@ -77,8 +77,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTest {
 
 	private static final String SYNC_CONFIG_NAME = "syncConfigNameRole";
-	private static final String SYSTEM_NAME = "systemName";
-	private static final String NODE_NAME = "name";
+	private static final String SYSTEM_NAME = "systemRole";
 	private static final String ATTRIBUTE_NAME = "__NAME__";
 	private static final String CHANGED = "changed";
 	

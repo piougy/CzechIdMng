@@ -319,7 +319,11 @@ public class IdmServiceConfiguration {
 	@Bean
 	@ConditionalOnMissingBean(IdmIdentityService.class)
 	public IdmIdentityService identityService() {
-		return new DefaultIdmIdentityService(identityRepository, formService(), roleRepository, entityEventManager(), authChangeRepository);
+		return new DefaultIdmIdentityService(
+				identityRepository, formService(),
+				roleRepository, entityEventManager(),
+				authChangeRepository, configurationService(),
+				securityService());
 	}
 	
 	/**

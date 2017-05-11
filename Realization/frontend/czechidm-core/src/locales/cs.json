@@ -850,6 +850,10 @@
         "role": {
           "label": "Role",
           "placeholder": "Má přiřazenu roli"
+        },
+        "disabled": {
+          "label": "Zablokovaný",
+          "placeholder": "Zablokovaný"
         }
       },
       "action": {

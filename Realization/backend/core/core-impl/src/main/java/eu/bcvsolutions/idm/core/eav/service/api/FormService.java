@@ -8,6 +8,7 @@ import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
@@ -33,7 +34,7 @@ import eu.bcvsolutions.idm.core.eav.service.impl.AbstractFormValueService;
  * @author Radek Tomiška
  *
  */
-public interface FormService {
+public interface FormService extends ScriptEnabled {
 	
 	/**
 	 * Default definition name for type (if no name is given)

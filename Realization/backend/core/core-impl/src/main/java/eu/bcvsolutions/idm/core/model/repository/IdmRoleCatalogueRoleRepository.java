@@ -37,7 +37,10 @@ public interface IdmRoleCatalogueRoleRepository extends AbstractEntityRepository
 	@Query(value = "select e from IdmRoleCatalogueRole e " +
 	        " where" +
 	        " (?#{[0].role} is null or e.role = ?#{[0].role})" + 
-	        " and (?#{[0].roleCatalogue} is null or e.roleCatalogue = ?#{[0].roleCatalogue})")
+	        " and (?#{[0].roleCatalogue} is null or e.roleCatalogue = ?#{[0].roleCatalogue})" +
+	        " and (?#{[0].roleCatalogueId} is null or e.roleCatalogue.id = ?#{[0].roleCatalogueId})" + 
+	        " and (?#{[0].roleId} is null or e.role.id = ?#{[0].roleId})" + 
+	        " and (?#{[0].roleCatalogueCode} is null or e.roleCatalogue.code = ?#{[0].roleCatalogueCode})")
 	Page<IdmRoleCatalogueRole> find(RoleCatalogueRoleFilter filter, Pageable pageable);
 	
 	/**

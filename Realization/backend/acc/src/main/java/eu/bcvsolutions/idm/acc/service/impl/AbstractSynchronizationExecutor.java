@@ -85,6 +85,7 @@ import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.scheduler.service.impl.AbstractLongRunningTaskExecutor;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
@@ -379,12 +380,8 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 	protected SynchronizationActionType resolveAccountNotExistSituation(SynchronizationContext context, SysSystemEntity systemEntity, List<IcAttribute> icAttributes) {
 		Assert.notNull(context);
 		
-		String uid = context.getUid();
 		SysSyncConfig config = context.getConfig();
-		SystemEntityType entityType = context.getEntityType();
-		SysSyncLog log = context.getLog();
 		SysSyncItemLog logItem = context.getLogItem();
-		List<SysSyncActionLog> actionLogs = context.getActionLogs();
 		
 		addToItemLog(logItem, "Account not exist in IDM");
 		SynchronizationActionType actionType;
@@ -1337,9 +1334,9 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 								ImmutableMap.of("uid", uid, "message", message));
 					}
 				});
-				formService.saveValues((FormableEntity) entity, defAttribute, (List<Serializable>) transformedValue);
+				formService.saveValues(entity.getId(), (Class<FormableEntity>) entity.getClass(), defAttribute, (List<Serializable>) transformedValue);
 			} else {
-				formService.saveValues((FormableEntity) entity, defAttribute,
+				formService.saveValues(entity.getId(), (Class<FormableEntity>) entity.getClass(), defAttribute,
 						Lists.newArrayList((Serializable) transformedValue));
 			}
 		});

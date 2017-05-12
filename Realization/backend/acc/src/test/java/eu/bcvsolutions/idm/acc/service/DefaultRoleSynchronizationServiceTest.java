@@ -7,6 +7,8 @@ import javax.persistence.Query;
 import javax.sql.DataSource;
 
 import org.joda.time.LocalDateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -19,6 +21,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.google.common.collect.ImmutableList;
 
 import eu.bcvsolutions.idm.acc.domain.ReconciliationMissingAccountActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationActionType;
@@ -61,6 +65,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole_;
 import eu.bcvsolutions.idm.core.model.entity.eav.IdmRoleFormValue;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
+import eu.bcvsolutions.idm.core.workflow.domain.formtype.CustomFormTypes;
 import eu.bcvsolutions.idm.ic.domain.IcFilterOperationType;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
@@ -80,6 +85,8 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 	private static final String SYSTEM_NAME = "systemRole";
 	private static final String ATTRIBUTE_NAME = "__NAME__";
 	private static final String CHANGED = "changed";
+	private static final String ROLE_NAME_TEN = "roleName10";
+	private static final String DATE_TABLE_CONNECTOR_FORMAT = "yyyy-MM-dd HH:mm:ss";
 	
 
 	@Autowired
@@ -422,160 +429,126 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 		// Delete log
 		syncLogService.delete(log);
 	}
-//	
-//	@Test
-//	@Transactional
-//	public void provisioningA_CreateAccount_withOutMapping() {
-//		
-//		// Delete all resource data
-//		this.deleteAllResourceData();
-//		
-//		IdmTreeType treeType = treeTypeService.find(null).getContent().stream().filter(tree -> {
-//			return tree.getName().equals(TREE_TYPE_TEST);
-//		}).findFirst().get();
-//		
-//		// Create root node in IDM tree
-//		IdmTreeNode nodeRoot = new IdmTreeNode();
-//		nodeRoot.setCode("P1");
-//		nodeRoot.setName(nodeRoot.getCode());
-//		nodeRoot.setParent(null);
-//		nodeRoot.setTreeType(treeType);
-//		nodeRoot = treeNodeService.save(nodeRoot);
-//
-//		// Create node in IDM tree
-//		IdmTreeNode nodeOne = new IdmTreeNode();
-//		nodeOne.setCode("P12");
-//		nodeOne.setName(nodeOne.getCode());
-//		nodeOne.setParent(nodeRoot);
-//		nodeOne.setTreeType(treeType);
-//		nodeOne = treeNodeService.save(nodeOne);
-//		
-//		// Check state before provisioning
-//		TestTreeResource one = entityManager.find(TestTreeResource.class, "P12");
-//		Assert.assertNull(one);
-//	}
-//	
-//	@Test(expected = ProvisioningException.class) // Provisioning tree in incorrect order
-//	public void provisioningB_CreateAccounts_withException() {
-//
-//		TreeNodeFilter filter = new TreeNodeFilter();
-//		filter.setProperty(NODE_NAME);
-//		filter.setValue("P1");
-//
-//		IdmTreeNode nodeRoot = treeNodeService.find(filter, null).getContent().get(0);
-//		Assert.assertNotNull(nodeRoot);
-//
-//		filter.setValue("P12");
-//		IdmTreeNode nodeOne = treeNodeService.find(filter, null).getContent().get(0);
-//		Assert.assertNotNull(nodeOne);
-//
-//		// Check state before provisioning
-//		TestTreeResource one = entityManager.find(TestTreeResource.class, "P12");
-//		Assert.assertNull(one);
-//
-//		// Create mapping for provisioning
-//		this.createProvisionigMapping();
-//
-//		// Save IDM node (must invoke provisioning)
-//		// We didn't provisioning for root first ... expect throw exception
-//		treeNodeService.save(nodeOne);
-//	}
-//	
-//	@Test
-//	@Transactional
-//	public void provisioningC_CreateAccounts_correct() {
-//		
-//		TreeNodeFilter filter = new TreeNodeFilter();
-//		filter.setProperty(NODE_NAME);
-//		filter.setValue("P1");
-//		
-//		IdmTreeNode nodeRoot = treeNodeService.find(filter, null).getContent().get(0);
-//		Assert.assertNotNull(nodeRoot);
-//
-//		filter.setValue("P12");
-//		IdmTreeNode nodeOne = treeNodeService.find(filter, null).getContent().get(0);
-//		Assert.assertNotNull(nodeOne);
-//		
-//		// Check state before provisioning
-//		TestTreeResource one = entityManager.find(TestTreeResource.class, "P12");
-//		Assert.assertNull(one);
-//		TestTreeResource root = entityManager.find(TestTreeResource.class, "P1");
-//		Assert.assertNull(root);
-//		
-//		// Save IDM node again (must invoke provisioning)
-//		// Root first
-//		treeNodeService.save(nodeRoot);
-//		// Node next
-//		treeNodeService.save(nodeOne);
-//		
-//		// Check state before provisioning
-//		root = entityManager.find(TestTreeResource.class, "P1");
-//		Assert.assertNotNull(root);
-//		one = entityManager.find(TestTreeResource.class, "P12");
-//		Assert.assertNotNull(one);
-//	}
-//	
-//	
-//	@Test
-//	public void provisioningD_UpdateAccount() {
-//		
-//		TreeNodeFilter filter = new TreeNodeFilter();
-//		filter.setProperty(NODE_NAME);
-//		filter.setValue("P1");
-//		
-//		IdmTreeNode nodeRoot = treeNodeService.find(filter, null).getContent().get(0);
-//		Assert.assertNotNull(nodeRoot);
-//
-//		filter.setValue("P12");
-//		IdmTreeNode nodeOne = treeNodeService.find(filter, null).getContent().get(0);
-//		Assert.assertNotNull(nodeOne);
-//		
-//		// Check state before provisioning
-//		TestTreeResource one = entityManager.find(TestTreeResource.class, "P12");
-//		Assert.assertNotNull(one);
-//		Assert.assertEquals("P12", one.getCode());
-//		
-//		nodeOne.setCode(CHANGED);
-//		
-//		// Save IDM changed node (must invoke provisioning)
-//		treeNodeService.save(nodeOne);
-//		
-//		// Check state before provisioning
-//		one = entityManager.find(TestTreeResource.class, "P12");
-//		Assert.assertNotNull(one);
-//		Assert.assertEquals(CHANGED, one.getCode());
-//	}
-//	
-//	@Test(expected=TreeNodeException.class)
-//	public void provisioningE_DeleteAccount_IntegrityException() {
-//		
-//		TreeNodeFilter filter = new TreeNodeFilter();
-//		filter.setProperty(NODE_NAME);
-//		filter.setValue("P1");
-//		
-//		IdmTreeNode nodeRoot = treeNodeService.find(filter, null).getContent().get(0);
-//		Assert.assertNotNull(nodeRoot);
-//		
-//		// Delete IDM node (must invoke provisioning) .. We delete node with some children ... must throw integrity exception
-//		// Generally we counts with provisioning on every node ... include children (Recursively delete is not good idea!) 
-//		treeNodeService.delete(nodeRoot);
-//	}
-//	
-//	@Test
-//	public void provisioningF_DeleteAccount() {
-//		
-//		TreeNodeFilter filter = new TreeNodeFilter();
-//		filter.setProperty(NODE_NAME);
-//		filter.setValue("P12");
-//		IdmTreeNode nodeOne = treeNodeService.find(filter, null).getContent().get(0);
-//		Assert.assertNotNull(nodeOne);
-//		
-//		// Delete IDM node (must invoke provisioning) .. We delete child
-//		treeNodeService.delete(nodeOne);
-//		
-//		Assert.assertTrue(treeNodeService.find(filter, null).getContent().isEmpty());
-//	}
-//	
+	
+	@Test
+	@Transactional
+	public void provisioningA_CreateAccount_withOutMapping() {
+		
+		// Delete all resource data
+		this.deleteAllResourceData();
+		
+		
+		// Create role in IDM tree
+		IdmRole roleTen = new IdmRole();
+		roleTen.setName(ROLE_NAME_TEN);
+		roleTen.setPriority(2);
+		roleService.save(roleTen);
+		
+		// Check state before provisioning
+		TestRoleResource one = entityManager.find(TestRoleResource.class, ROLE_NAME_TEN);
+		Assert.assertNull(one);
+	}
+	
+	@Test
+	public void provisioningB_CreateAccounts() {
+
+		RoleFilter filter = new RoleFilter();
+		filter.setProperty(IdmRole_.name.getName());
+		filter.setValue(ROLE_NAME_TEN);
+
+		IdmRole roleTen = roleService.find(filter, null).getContent().get(0);
+		Assert.assertNotNull(roleTen);
+
+		// Check state before provisioning
+		TestRoleResource ten = entityManager.find(TestRoleResource.class, ROLE_NAME_TEN);
+		Assert.assertNull(ten);
+
+		// Create mapping for provisioning
+		this.createProvisionigMapping();
+
+		// Save IDM role (must invoke provisioning)
+		roleService.save(roleTen);
+		
+		// Check state before provisioning
+		ten = entityManager.find(TestRoleResource.class, ROLE_NAME_TEN);
+		Assert.assertNotNull(ten);
+	}
+	
+	@Test
+	public void provisioningD_UpdateAccount() {
+		
+		RoleFilter filter = new RoleFilter();
+		filter.setProperty(IdmRole_.name.getName());
+		filter.setValue(ROLE_NAME_TEN);
+
+		IdmRole roleTen = roleService.find(filter, null).getContent().get(0);
+		Assert.assertNotNull(roleTen);
+		
+		// Check state before provisioning
+		TestRoleResource ten = entityManager.find(TestRoleResource.class, ROLE_NAME_TEN);
+		Assert.assertNotNull(ten);
+		Assert.assertEquals(2, ten.getPriority());
+		
+		roleTen.setPriority(10);
+		
+		// Save IDM changed node (must invoke provisioning)
+		roleService.save(roleTen);
+		
+		// Check state after provisioning
+		ten = entityManager.find(TestRoleResource.class, ROLE_NAME_TEN);
+		Assert.assertNotNull(ten);
+		Assert.assertEquals(10, ten.getPriority());
+	}
+	
+	@Test
+	public void provisioningD_UpdateAccount_Extended_Attribute() {
+		
+		RoleFilter filter = new RoleFilter();
+		filter.setProperty(IdmRole_.name.getName());
+		filter.setValue(ROLE_NAME_TEN);
+
+		IdmRole roleTen = roleService.find(filter, null).getContent().get(0);
+		Assert.assertNotNull(roleTen);
+		Assert.assertTrue(formService.getValues(roleTen, "changed").isEmpty());
+		
+		// Check state before provisioning
+		TestRoleResource ten = entityManager.find(TestRoleResource.class, ROLE_NAME_TEN);
+		Assert.assertNotNull(ten);
+		Assert.assertEquals(null, ten.getModified());
+	
+		// Create extended attribute
+		LocalDateTime now = LocalDateTime.now();
+		formService.saveValues(roleTen, "changed", ImmutableList.of(now.toString(DATE_TABLE_CONNECTOR_FORMAT)));
+		
+		// Save IDM changed node (must invoke provisioning)
+		roleService.save(roleTen);
+		
+		// Check state after provisioning
+		ten = entityManager.find(TestRoleResource.class, ROLE_NAME_TEN);
+		Assert.assertNotNull(ten);
+		Assert.assertEquals(now.toString(DATE_TABLE_CONNECTOR_FORMAT), ten.getModified().toString(DATE_TABLE_CONNECTOR_FORMAT));
+	}
+	
+	@Test
+	public void provisioningF_DeleteAccount() {
+		
+		RoleFilter filter = new RoleFilter();
+		filter.setProperty(IdmRole_.name.getName());
+		filter.setValue(ROLE_NAME_TEN);
+
+		IdmRole roleTen = roleService.find(filter, null).getContent().get(0);
+		Assert.assertNotNull(roleTen);
+		
+		TestRoleResource ten = entityManager.find(TestRoleResource.class, ROLE_NAME_TEN);
+		Assert.assertNotNull(ten);
+		
+		// Delete IDM role (must invoke provisioning)
+		roleService.delete(roleTen);
+		
+		ten = entityManager.find(TestRoleResource.class, ROLE_NAME_TEN);
+		Assert.assertNull(ten);
+	}
+	
 	
 
 	@Transactional
@@ -599,8 +572,7 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 		// Create provisioning mapping
 		SysSystemMapping systemMapping = new SysSystemMapping();
 		systemMapping.setName("default_" + System.currentTimeMillis());
-		systemMapping.setEntityType(SystemEntityType.TREE);
-		systemMapping.setTreeType(systemMappingSync.getTreeType());
+		systemMapping.setEntityType(SystemEntityType.ROLE);
 		systemMapping.setOperationType(SystemOperationType.PROVISIONING);
 		systemMapping.setObjectClass(systemMappingSync.getObjectClass());
 		final SysSystemMapping syncMapping = systemMappingService.save(systemMapping);
@@ -721,7 +693,7 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 				attributeHandlingName.setIdmPropertyName("changed");
 				attributeHandlingName.setName(schemaAttr.getName());
 				attributeHandlingName.setEntityAttribute(false);
-				attributeHandlingName.setExtendedAttribute(true);;
+				attributeHandlingName.setExtendedAttribute(true);
 				attributeHandlingName.setSchemaAttribute(schemaAttr);
 				attributeHandlingName.setSystemMapping(entityHandlingResult);
 				schemaAttributeMappingService.save(attributeHandlingName);

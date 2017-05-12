@@ -25,6 +25,14 @@ class IdentityContractService extends FormableEntityService {
     return false;
   }
 
+  supportsAuthorization() {
+    return true;
+  }
+
+  getGroupPermission() {
+    return 'IDENTITYCONTRACT';
+  }
+
   /**
    * Extended nice label
    *

@@ -16,6 +16,7 @@ import org.springframework.util.Assert;
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
+import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
 import eu.bcvsolutions.idm.core.security.api.domain.AuthorizationPolicy;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 
@@ -51,7 +52,7 @@ public class UuidEvaluator extends AbstractAuthorizationEvaluator<Identifiable> 
 		if (uuid == null) { 
 			return null;
 		}
-		return builder.equal(root.get("id"), uuid);
+		return builder.equal(root.get(AbstractEntity_.id.getName()), uuid);
 	}
 	
 	@Override

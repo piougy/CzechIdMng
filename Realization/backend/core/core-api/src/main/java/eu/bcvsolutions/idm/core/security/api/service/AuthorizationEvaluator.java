@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.security.api.service;
 
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -22,7 +23,6 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
  * @author Radek Tomiška
  */
 public interface AuthorizationEvaluator<E extends Identifiable> extends Ordered {
-	
 	
 	/**
 	 * Module identifier
@@ -70,11 +70,20 @@ public interface AuthorizationEvaluator<E extends Identifiable> extends Ordered 
 	/**
 	 * Returns base permissions - what logged user could do with given authorizable object by given policy
 	 * 
-	 * @param authorizable
+	 * @param authorizable object or {@code null}
 	 * @param policy
 	 * @return set of {@link BasePermission}s 
 	 */
 	Set<String> getPermissions(E authorizable, AuthorizationPolicy policy);
+	
+	/**
+	 * Returns base authorities configured for given policy. Authorities are used as "given what identity" could do - without entity is defined.
+	 * 
+	 * @param identityId
+	 * @param policy
+	 * @return
+	 */
+	Set<String> getAuthorities(UUID identityId, AuthorizationPolicy policy);
 	
 	/**
 	 * Returns true, when currently logged user has all given permissions on given authorizable object by given policy.

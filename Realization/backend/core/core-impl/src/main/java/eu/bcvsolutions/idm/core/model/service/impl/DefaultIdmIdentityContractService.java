@@ -1,6 +1,5 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -93,6 +92,7 @@ public class DefaultIdmIdentityContractService
 	public IdmIdentityContractDto save(IdmIdentityContractDto entity, BasePermission... permission) {
 		Assert.notNull(entity);
 		Assert.notNull(entity.getIdentity());
+		checkAccess(toEntity(entity, null), permission);
 		//
 		// we need to read previous value ...
 		//
@@ -114,6 +114,7 @@ public class DefaultIdmIdentityContractService
 	public void delete(IdmIdentityContractDto entity, BasePermission... permission) {
 		Assert.notNull(entity);
 		Assert.notNull(entity.getIdentity());
+		checkAccess(this.getEntity(entity.getId()), permission);
 		//
 		LOG.debug("Deleting contract [{}] for identity [{}]", entity.getId(), entity.getIdentity());
 		entityEventManager.process(new IdentityContractEvent(IdentityContractEventType.DELETE, entity));
@@ -121,11 +122,7 @@ public class DefaultIdmIdentityContractService
 	
 	@Override
 	protected List<Predicate> toPredicates(Root<IdmIdentityContract> root, CriteriaQuery<?> query, CriteriaBuilder builder, IdentityContractFilter filter) {
-		List<Predicate> predicates = new ArrayList<>();
-		// id
-		if (filter.getId() != null) {
-			predicates.add(builder.equal(root.get(AbstractEntity_.id), filter.getId()));
-		}
+		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
 		// quick
 		if (StringUtils.isNotEmpty(filter.getText())) {
 			Path<IdmTreeNode> wp = root.get(IdmIdentityContract_.workPosition);

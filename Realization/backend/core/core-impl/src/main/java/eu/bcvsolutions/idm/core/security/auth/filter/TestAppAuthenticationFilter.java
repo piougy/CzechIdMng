@@ -73,7 +73,7 @@ public class TestAppAuthenticationFilter implements IdmAuthenticationFilter {
 			
 			Collection<GrantedAuthority> authorities = null;
 			if (shouldGrantAuthoritiesForPath(request.getServletPath())) {
-				authorities = grantedAuthoritiesFactory.getGrantedAuthoritiesForIdentity(identity);
+				authorities = grantedAuthoritiesFactory.getGrantedAuthoritiesForIdentity(identity.getId());
 			} else {
 				authorities = new ArrayList<>();
 			}

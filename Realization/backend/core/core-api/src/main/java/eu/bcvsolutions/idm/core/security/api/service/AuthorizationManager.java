@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.security.api.service;
 
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -10,6 +11,7 @@ import javax.persistence.criteria.Root;
 
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
+import eu.bcvsolutions.idm.core.security.api.domain.AuthorizationPolicy;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizationEvaluatorDto;
@@ -40,6 +42,33 @@ public interface AuthorizationManager {
 	 * @return
 	 */
 	<E extends Identifiable> Set<String> getPermissions(E entity);
+	
+	/**
+	 * Returns, what logged user could do with given entity by given policy
+	 * 
+	 * @param entity
+	 * @param policy
+	 * @return
+	 */
+	<E extends Identifiable> Set<String> getPermissions(E entity, AuthorizationPolicy policy);
+	
+	/**
+	 * Returns authorities, what given identity could do with given domain authorizable type.
+	 * 
+	 * @param identityId
+	 * @param authorizableType
+	 * @return
+	 */
+	<E extends Identifiable> Set<String> getAuthorities(UUID identityId, Class<E> authorizableType);
+	
+	/**
+	 * Returns base authorities configured for given policy. Authorities are used as "what given identity" could do - without entity is defined.
+	 * 
+	 * @param identityId
+	 * @param policy
+	 * @return
+	 */
+	Set<String> getAuthorities(UUID identityId, AuthorizationPolicy policy);
 	
 	/**
 	 * Returns true, when currently logged user has all given permissions on given entity.

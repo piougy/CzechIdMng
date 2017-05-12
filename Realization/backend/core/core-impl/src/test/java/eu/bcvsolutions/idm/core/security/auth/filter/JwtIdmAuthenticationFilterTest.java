@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.security.api.dto.IdmJwtAuthenticationDto;
 import eu.bcvsolutions.idm.core.security.api.utils.IdmAuthorityUtils;
 import eu.bcvsolutions.idm.core.security.service.impl.JwtAuthenticationMapper;
@@ -31,8 +32,8 @@ import eu.bcvsolutions.idm.test.api.utils.AuthenticationTestUtils;
  */
 public class JwtIdmAuthenticationFilterTest extends AbstractRestTest {
 	
-	@Autowired
-	protected JwtAuthenticationMapper jwtMapper;
+	@Autowired protected JwtAuthenticationMapper jwtMapper;
+	@Autowired private IdmIdentityService identityService;
 	
 	@Autowired
 	@Qualifier("objectMapper")
@@ -40,7 +41,7 @@ public class JwtIdmAuthenticationFilterTest extends AbstractRestTest {
 
 	@Test
 	public void testAuthSuccess() throws Exception {
-		String token = getAuthToken(AuthenticationTestUtils.getAuthDto(TEST_ADMIN_USERNAME,
+		String token = getAuthToken(AuthenticationTestUtils.getAuthDto(identityService.getByUsername(TEST_ADMIN_USERNAME),
 				Lists.newArrayList(IdmAuthorityUtils.getAdminAuthority())));
 		
 		getMockMvc().perform(get(AuthenticationTestUtils.getSelfPath(TEST_ADMIN_USERNAME))
@@ -53,7 +54,7 @@ public class JwtIdmAuthenticationFilterTest extends AbstractRestTest {
 
 	@Test
 	public void testTokenModified() throws Exception {
-		IdmJwtAuthenticationDto authDto = AuthenticationTestUtils.getAuthDto(TEST_ADMIN_USERNAME,
+		IdmJwtAuthenticationDto authDto = AuthenticationTestUtils.getAuthDto(identityService.getByUsername(TEST_ADMIN_USERNAME),
 				Lists.newArrayList(IdmAuthorityUtils.getAdminAuthority()));
 		String tokenOriginal = getAuthToken(authDto);
 		

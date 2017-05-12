@@ -2,7 +2,6 @@ package eu.bcvsolutions.idm.acc.domain;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import eu.bcvsolutions.idm.acc.entity.AccAccount;

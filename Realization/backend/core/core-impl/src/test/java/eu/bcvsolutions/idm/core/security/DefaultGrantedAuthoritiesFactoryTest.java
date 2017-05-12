@@ -25,7 +25,6 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleComposition;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
@@ -135,7 +134,7 @@ public class DefaultGrantedAuthoritiesFactoryTest extends AbstractUnitTest {
 		when(identityService.getByUsername(TEST_IDENTITY.getUsername())).thenReturn(TEST_IDENTITY);
 		when(identityRoleService.findAllByIdentity(TEST_IDENTITY.getId())).thenReturn(IDENTITY_ROLES);
 		when(roleService.get(TEST_ROLE.getId())).thenReturn(TEST_ROLE);
-		when(authorizationPolicyService.getDefaultAuthorities()).thenReturn(DEFAULT_AUTHORITIES);
+		when(authorizationPolicyService.getDefaultAuthorities(any())).thenReturn(DEFAULT_AUTHORITIES);
 		when(roleService.getSubroles(any(UUID.class))).thenReturn(Lists.newArrayList());
 		
 		List<GrantedAuthority> grantedAuthorities =  defaultGrantedAuthoritiesFactory.getGrantedAuthorities(TEST_IDENTITY.getUsername());
@@ -166,7 +165,7 @@ public class DefaultGrantedAuthoritiesFactoryTest extends AbstractUnitTest {
 		when(identityService.getByUsername(identity.getUsername())).thenReturn(identity);
 		when(identityRoleService.findAllByIdentity(identity.getId())).thenReturn(roles);
 		when(roleService.getSubroles(any(UUID.class))).thenReturn(Lists.newArrayList());
-		when(authorizationPolicyService.getDefaultAuthorities()).thenReturn(Sets.newHashSet(
+		when(authorizationPolicyService.getDefaultAuthorities(any())).thenReturn(Sets.newHashSet(
 				new DefaultGrantedAuthority(IdmGroupPermission.APP, IdmBasePermission.ADMIN),
 				new DefaultGrantedAuthority(CoreGroupPermission.IDENTITY, IdmBasePermission.READ),
 				new DefaultGrantedAuthority(CoreGroupPermission.IDENTITY, IdmBasePermission.ADMIN)
@@ -202,7 +201,7 @@ public class DefaultGrantedAuthoritiesFactoryTest extends AbstractUnitTest {
 		when(roleService.get(role.getId())).thenReturn(role);
 		when(identityRoleService.findAllByIdentity(identity.getId())).thenReturn(roles);
 		when(roleService.getSubroles(any(UUID.class))).thenReturn(Lists.newArrayList());
-		when(authorizationPolicyService.getDefaultAuthorities()).thenReturn(Sets.newHashSet(
+		when(authorizationPolicyService.getDefaultAuthorities(any())).thenReturn(Sets.newHashSet(
 				new DefaultGrantedAuthority(CoreGroupPermission.IDENTITY, IdmBasePermission.ADMIN),
 				new DefaultGrantedAuthority(CoreGroupPermission.IDENTITY, IdmBasePermission.READ),
 				new DefaultGrantedAuthority(CoreGroupPermission.IDENTITY, IdmBasePermission.DELETE)
@@ -219,7 +218,7 @@ public class DefaultGrantedAuthoritiesFactoryTest extends AbstractUnitTest {
 		when(identityService.getByUsername(TEST_IDENTITY.getUsername())).thenReturn(TEST_IDENTITY);
 		when(identityRoleService.findAllByIdentity(TEST_IDENTITY.getId())).thenReturn(new ArrayList<>());
 		when(roleService.getSubroles(any(UUID.class))).thenReturn(Lists.newArrayList());
-		when(authorizationPolicyService.getDefaultAuthorities()).thenReturn(DEFAULT_AUTHORITIES);
+		when(authorizationPolicyService.getDefaultAuthorities(any())).thenReturn(DEFAULT_AUTHORITIES);
 		
 		List<GrantedAuthority> grantedAuthorities =  defaultGrantedAuthoritiesFactory.getGrantedAuthorities(TEST_IDENTITY.getUsername());
 		

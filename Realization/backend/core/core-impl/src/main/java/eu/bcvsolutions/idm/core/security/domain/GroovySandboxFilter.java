@@ -10,11 +10,13 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.joda.time.DateTime;
+import org.joda.time.LocalDateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.kohsuke.groovy.sandbox.GroovyValueFilter;
 
 import com.google.common.collect.Sets;
+
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import groovy.lang.Closure;
 import groovy.lang.Script;
@@ -30,7 +32,7 @@ public class GroovySandboxFilter extends GroovyValueFilter {
 	private static final Set<Class<?>> ALLOWED_TYPES = Sets.newHashSet(
 			String.class, Integer.class, Double.class, Long.class, Date.class, Enum.class, Boolean.class, 
 			BigDecimal.class, UUID.class, Character.class, GuardedString.class, DateTimeFormatter.class,
-			DateTimeFormat.class, DateTime.class, String[].class);
+			DateTimeFormat.class, DateTime.class, String[].class, LocalDateTime.class);
 
 	private final Set<Class<?>> allowedCustomTypes = new HashSet<>();
 	

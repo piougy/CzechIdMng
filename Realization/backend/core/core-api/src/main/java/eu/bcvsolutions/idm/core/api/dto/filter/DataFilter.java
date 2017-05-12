@@ -6,6 +6,8 @@ import org.springframework.util.Assert;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.repository.filter.FilterBuilder;
 
@@ -30,6 +32,7 @@ public class DataFilter extends QuickFilter {
 	 * Dto class
 	 */
 	private final Class<? extends BaseDto> dtoClass;
+	@JsonIgnore
 	protected final MultiValueMap<String, Object> data;
 	
 	public DataFilter(Class<? extends BaseDto> dtoClass, MultiValueMap<String, Object> data) {

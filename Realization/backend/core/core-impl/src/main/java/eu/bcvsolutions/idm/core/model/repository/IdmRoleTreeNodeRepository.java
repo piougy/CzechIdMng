@@ -19,21 +19,15 @@ import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
  */
 public interface IdmRoleTreeNodeRepository extends AbstractEntityRepository<IdmRoleTreeNode, RoleTreeNodeFilter>{
 	
+	/**
+	 * @deprecated use IdmRoleTreeNodeService (uses criteria api)
+	 */
 	@Override
-	@Query(value = "select e from #{#entityName} e" +
-	        " where"
-	        + " ("
-	        	+ " ?#{[0].roleId} is null"
-	        	+ " or"
-	        	+ " e.role.id = ?#{[0].roleId}"
-	        + " ) "
-	        + " and"
-	        + "	("
-	        	+ " ?#{[0].treeNodeId} is null"
-	        	+ " or"
-	        	+ " e.treeNode.id = ?#{[0].treeNodeId}"
-        	+ " )")
-	Page<IdmRoleTreeNode> find(RoleTreeNodeFilter filter, Pageable pageable);
+	@Deprecated
+	@Query(value = "select e from #{#entityName} e")
+	default Page<IdmRoleTreeNode> find(RoleTreeNodeFilter filter, Pageable pageable) {
+		throw new UnsupportedOperationException("Use IdmRoleTreeNodeService (uses criteria api)");
+	}
 	
 	/**
 	 * Returns all automatic roles for given tree node by recursion

@@ -9,16 +9,17 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.RoleTreeNodeFilter;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
+import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 
 /**
  * Automatic role service
  * 
- * TODO: authorizable
- * 
  * @author Radek Tomiška
  *
  */
-public interface IdmRoleTreeNodeService extends ReadWriteDtoService<IdmRoleTreeNodeDto, RoleTreeNodeFilter> {
+public interface IdmRoleTreeNodeService extends 
+		ReadWriteDtoService<IdmRoleTreeNodeDto, RoleTreeNodeFilter>,
+		AuthorizableService<IdmRoleTreeNodeDto> {
 	
 	/**
 	 * Returns all automatic role for given work position. 

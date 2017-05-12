@@ -1,5 +1,8 @@
 package eu.bcvsolutions.idm.core.rest.impl;
 
+import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
@@ -46,29 +49,67 @@ public class IdmRoleTreeNodeController extends AbstractReadWriteDtoController<Id
 	@Override
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.GET)
-	public Resources<?> find(@RequestParam MultiValueMap<String, Object> parameters, @PageableDefault Pageable pageable) {
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLETREENODE_READ + "')")
+	public Resources<?> find(@RequestParam MultiValueMap<String, Object> parameters,
+			@PageableDefault Pageable pageable) {
 		return super.find(parameters, pageable);
 	}
-	
+
 	@ResponseBody
-	@RequestMapping(value= "/search/quick", method = RequestMethod.GET)
-	public Resources<?> findQuick(@RequestParam MultiValueMap<String, Object> parameters, @PageableDefault Pageable pageable) {
+	@RequestMapping(value = "/search/quick", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLETREENODE_READ + "')")
+	public Resources<?> findQuick(@RequestParam MultiValueMap<String, Object> parameters,
+			@PageableDefault Pageable pageable) {
 		return super.find(parameters, pageable);
 	}
-	
+
 	@Override
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLETREENODE_READ + "')")
 	public ResponseEntity<?> get(@PathVariable @NotNull String backendId) {
 		return super.get(backendId);
+	}
+
+	@Override
+	@ResponseBody
+	@RequestMapping(method = RequestMethod.POST)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLETREENODE_CREATE + "') or hasAuthority('" + CoreGroupPermission.ROLETREENODE_UPDATE + "')")
+	public ResponseEntity<?> post(@Valid @RequestBody IdmRoleTreeNodeDto dto) {
+		return super.post(dto);
+	}
+
+	@Override
+	@ResponseBody
+	@RequestMapping(value = "/{backendId}", method = RequestMethod.PUT)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLETREENODE_UPDATE + "')")
+	public ResponseEntity<?> put(@PathVariable @NotNull String backendId, @Valid @RequestBody IdmRoleTreeNodeDto dto) {
+		return super.put(backendId, dto);
+	}
+
+	@Override
+	@ResponseBody
+	@RequestMapping(value = "/{backendId}", method = RequestMethod.PATCH)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLETREENODE_UPDATE + "')")
+	public ResponseEntity<?> patch(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest)
+			throws HttpMessageNotReadableException {
+		return super.patch(backendId, nativeRequest);
+	}
+
+	@Override
+	@ResponseBody
+	@RequestMapping(value = "/{backendId}", method = RequestMethod.DELETE)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLETREENODE_DELETE + "')")
+	public ResponseEntity<?> delete(@PathVariable @NotNull String backendId) {
+		return super.delete(backendId);
 	}
 	
 	@Override
 	@ResponseBody
-	@RequestMapping(method = RequestMethod.POST)
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_UPDATE + "')")
-	public ResponseEntity<?> post(@Valid @RequestBody @NotNull IdmRoleTreeNodeDto dto) throws HttpMessageNotReadableException {		
-		return super.post(dto);
+	@RequestMapping(value = "/{backendId}/permissions", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLETREENODE_READ + "')")
+	public Set<String> getPermissions(@PathVariable @NotNull String backendId) {
+		return super.getPermissions(backendId);
 	}
 	
 	@Override
@@ -77,13 +118,5 @@ public class IdmRoleTreeNodeController extends AbstractReadWriteDtoController<Id
 			throw new ResultCodeException(CoreResultCode.METHOD_NOT_ALLOWED, "Automatic role update is not supported");
 		}
 		return super.postDto(entity);
-	}
-	
-	@Override
-	@ResponseBody
-	@RequestMapping(value = "/{backendId}", method = RequestMethod.DELETE)
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_DELETE + "')")
-	public ResponseEntity<?> delete(@PathVariable @NotNull String backendId) {
-		return super.delete(backendId);
 	}
 }

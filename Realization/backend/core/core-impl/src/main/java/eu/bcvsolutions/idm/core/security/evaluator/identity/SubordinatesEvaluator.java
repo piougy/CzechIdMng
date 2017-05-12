@@ -54,7 +54,7 @@ public class SubordinatesEvaluator extends AbstractAuthorizationEvaluator<IdmIde
 			return permissions;
 		}
 		IdentityFilter filter = new IdentityFilter();
-		filter.setManagersFor(securityService.getAuthentication().getCurrentIdentity().getId());
+		filter.setManagersFor(entity.getId());
 		boolean isManager = filterManager.getBuilder(IdmIdentity.class, IdentityFilter.PARAMETER_MANAGERS_FOR).find(filter, null).getContent()
 				.stream()
 				.anyMatch(identity -> {

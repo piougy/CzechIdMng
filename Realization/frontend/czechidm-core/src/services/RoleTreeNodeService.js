@@ -31,6 +31,14 @@ export default class RoleTreeNodeService extends AbstractService {
     return false;
   }
 
+  supportsAuthorization() {
+    return true;
+  }
+
+  getGroupPermission() {
+    return 'ROLETREENODE';
+  }
+
   /**
    * Returns default searchParameters for current entity type
    *

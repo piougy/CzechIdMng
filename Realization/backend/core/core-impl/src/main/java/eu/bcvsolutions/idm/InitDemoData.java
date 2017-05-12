@@ -26,8 +26,10 @@ import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.dto.IdmContractGuaranteeDto;
+import eu.bcvsolutions.idm.core.model.entity.IdmContractGuarantee;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleComposition;
@@ -48,6 +50,9 @@ import eu.bcvsolutions.idm.core.security.api.domain.IdentityBasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.security.evaluator.BasePermissionEvaluator;
+import eu.bcvsolutions.idm.core.security.evaluator.identity.ContractGuaranteeByIdentityContractEvaluator;
+import eu.bcvsolutions.idm.core.security.evaluator.identity.IdentityContractByIdentityEvaluator;
+import eu.bcvsolutions.idm.core.security.evaluator.identity.IdentityRoleByIdentityEvaluator;
 import eu.bcvsolutions.idm.core.security.evaluator.identity.SelfIdentityEvaluator;
 
 /**
@@ -191,6 +196,27 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				selfPolicy.setAuthorizableType(IdmIdentity.class.getCanonicalName());
 				selfPolicy.setEvaluator(SelfIdentityEvaluator.class);
 				authorizationPolicyService.save(selfPolicy);
+				// read identity roles by identity
+				IdmAuthorizationPolicyDto identityRolePolicy = new IdmAuthorizationPolicyDto();
+				identityRolePolicy.setRole(role1.getId());
+				identityRolePolicy.setGroupPermission(CoreGroupPermission.IDENTITYROLE.getName());
+				identityRolePolicy.setAuthorizableType(IdmIdentityRole.class.getCanonicalName());
+				identityRolePolicy.setEvaluator(IdentityRoleByIdentityEvaluator.class);
+				authorizationPolicyService.save(identityRolePolicy);				
+				// read identity contracts by identity
+				IdmAuthorizationPolicyDto identityContractPolicy = new IdmAuthorizationPolicyDto();
+				identityContractPolicy.setRole(role1.getId());
+				identityContractPolicy.setGroupPermission(CoreGroupPermission.IDENTITYCONTRACT.getName());
+				identityContractPolicy.setAuthorizableType(IdmIdentityContract.class.getCanonicalName());
+				identityContractPolicy.setEvaluator(IdentityContractByIdentityEvaluator.class);
+				authorizationPolicyService.save(identityContractPolicy);
+				// read contract guarantees by identity contract
+				IdmAuthorizationPolicyDto contractGuaranteePolicy = new IdmAuthorizationPolicyDto();
+				contractGuaranteePolicy.setRole(role1.getId());
+				contractGuaranteePolicy.setGroupPermission(CoreGroupPermission.CONTRACTGUARANTEE.getName());
+				contractGuaranteePolicy.setAuthorizableType(IdmContractGuarantee.class.getCanonicalName());
+				contractGuaranteePolicy.setEvaluator(ContractGuaranteeByIdentityContractEvaluator.class);
+				authorizationPolicyService.save(contractGuaranteePolicy);
 				//
 				LOG.info(MessageFormat.format("Role created [id: {0}]", role1.getId()));
 				//

@@ -229,7 +229,7 @@
     "advanced": {
       "IdentityInfo": {
         "disabledInfo": "Uživatel je deaktivový",
-        "profileLink": "Přejít na detail"
+        "profileLink": "Přejít na profil"
       },
       "Filter": {
         "option": {
@@ -478,6 +478,7 @@
       "NOTIFICATION": "Notifikace",
       "ROLE": "Role",
       "ROLECATALOGUE": "Katalog rolí",
+      "ROLETREENODE": "Automatické role",
       "TREENODE": "Prvky struktur",
       "TREETYPE": "Typy struktur",
       "SCRIPT": "Pravidla",
@@ -1373,6 +1374,9 @@
           "new": "Nové heslo",
           "newAgain": "Heslo znovu",
           "strength": "Síla hesla"
+        },
+        "permission": {
+          "failed": "Nemáte přiděleno oprávnění pro změnu hesla"
         },
         "changeType": {
           "DISABLED": "Změna hesla není na tomto prostředí povolena.",

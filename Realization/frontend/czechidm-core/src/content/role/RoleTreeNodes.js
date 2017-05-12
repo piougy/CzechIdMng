@@ -3,7 +3,6 @@ import Helmet from 'react-helmet';
 import _ from 'lodash';
 //
 import * as Basic from '../../components/basic';
-import { RoleTreeNodeManager } from '../../redux';
 import SearchParameters from '../../domain/SearchParameters';
 import RoleTreeNodeTableComponent, {RoleTreeNodeTable} from './RoleTreeNodeTable';
 
@@ -16,11 +15,6 @@ export default class RoleTreeNodes extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
-    this.manager = new RoleTreeNodeManager();
-  }
-
-  getManager() {
-    return this.manager;
   }
 
   getContentKey() {
@@ -45,7 +39,6 @@ export default class RoleTreeNodes extends Basic.AbstractContent {
         <Basic.Panel className="no-border last">
           <RoleTreeNodeTableComponent
             uiKey="role-tree-nodes-table"
-            manager={this.getManager()}
             forceSearchParameters={forceSearchParameters}
             columns={ _.without(RoleTreeNodeTable.defaultProps.columns, 'role') }/>
         </Basic.Panel>

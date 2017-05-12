@@ -61,6 +61,13 @@ public enum CoreGroupPermission implements GroupPermission {
 			IdmBasePermission.CREATE, 
 			IdmBasePermission.UPDATE, 
 			IdmBasePermission.DELETE),
+	ROLETREENODE(
+			IdmBasePermission.ADMIN, 
+			IdmBasePermission.AUTOCOMPLETE, 
+			IdmBasePermission.READ, 
+			IdmBasePermission.CREATE, 
+			IdmBasePermission.UPDATE, 
+			IdmBasePermission.DELETE),
 	TREENODE(
 			IdmBasePermission.ADMIN, 
 			IdmBasePermission.READ, 
@@ -147,6 +154,11 @@ public enum CoreGroupPermission implements GroupPermission {
 	public static final String ROLECATALOGUE_CREATE = "ROLECATALOGUE" + BasePermission.SEPARATOR + "CREATE";
 	public static final String ROLECATALOGUE_UPDATE = "ROLECATALOGUE" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String ROLECATALOGUE_DELETE = "ROLECATALOGUE" + BasePermission.SEPARATOR + "DELETE";
+	//
+	public static final String ROLETREENODE_READ = "ROLETREENODE" + BasePermission.SEPARATOR + "READ";
+	public static final String ROLETREENODE_CREATE = "ROLETREENODE" + BasePermission.SEPARATOR + "CREATE";
+	public static final String ROLETREENODE_UPDATE = "ROLETREENODE" + BasePermission.SEPARATOR + "UPDATE";
+	public static final String ROLETREENODE_DELETE = "ROLETREENODE" + BasePermission.SEPARATOR + "DELETE";
 	//
 	public static final String PASSWORDPOLICY_CREATE = "PASSWORDPOLICY" + BasePermission.SEPARATOR + "CREATE";
 	public static final String PASSWORDPOLICY_UPDATE = "PASSWORDPOLICY" + BasePermission.SEPARATOR + "UPDATE";

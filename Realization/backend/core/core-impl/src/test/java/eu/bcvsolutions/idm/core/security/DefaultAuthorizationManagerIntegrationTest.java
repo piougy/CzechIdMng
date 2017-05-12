@@ -177,7 +177,7 @@ public class DefaultAuthorizationManagerIntegrationTest extends AbstractIntegrat
 			helper.createIdentityRole(identity, role);
 			helper.createIdentityRole(identity, role2);
 			//
-			assertEquals(2, service.getEnabledPolicies(identity.getUsername(), IdmRole.class).size());
+			assertEquals(2, service.getEnabledPolicies(identity.getId(), IdmRole.class).size());
 		} finally {
 			logout();
 		}
@@ -201,7 +201,7 @@ public class DefaultAuthorizationManagerIntegrationTest extends AbstractIntegrat
 			helper.createIdentityRole(identity, role);
 			helper.createIdentityRole(identity, role2);
 			//
-			List<IdmAuthorizationPolicyDto> policies = service.getEnabledPolicies(identity.getUsername(), IdmRole.class);
+			List<IdmAuthorizationPolicyDto> policies = service.getEnabledPolicies(identity.getId(), IdmRole.class);
 			assertEquals(1, policies.size());
 			assertEquals(role.getId(), policies.get(0).getRole());
 		} finally {
@@ -227,7 +227,7 @@ public class DefaultAuthorizationManagerIntegrationTest extends AbstractIntegrat
 			assignedRole.setValidFrom(new LocalDate().plusDays(1));
 			identityRoleService.save(assignedRole);
 			//
-			List<IdmAuthorizationPolicyDto> policies = service.getEnabledPolicies(identity.getUsername(), IdmRole.class);
+			List<IdmAuthorizationPolicyDto> policies = service.getEnabledPolicies(identity.getId(), IdmRole.class);
 			assertEquals(1, policies.size());
 			assertEquals(role.getId(), policies.get(0).getRole());
 		} finally {
@@ -254,7 +254,7 @@ public class DefaultAuthorizationManagerIntegrationTest extends AbstractIntegrat
 			identityContractService.save(contract);
 			helper.createIdentityRole(contract, role2);
 			//
-			List<IdmAuthorizationPolicyDto> policies = service.getEnabledPolicies(identity.getUsername(), IdmRole.class);
+			List<IdmAuthorizationPolicyDto> policies = service.getEnabledPolicies(identity.getId(), IdmRole.class);
 			assertEquals(1, policies.size());
 			assertEquals(role.getId(), policies.get(0).getRole());
 		} finally {
@@ -283,7 +283,7 @@ public class DefaultAuthorizationManagerIntegrationTest extends AbstractIntegrat
 			contract = identityContractService.save(contract);
 			helper.createIdentityRole(contract, role2);
 			//
-			List<IdmAuthorizationPolicyDto> policies = service.getEnabledPolicies(identity.getUsername(), IdmRole.class);
+			List<IdmAuthorizationPolicyDto> policies = service.getEnabledPolicies(identity.getId(), IdmRole.class);
 			assertEquals(1, policies.size());
 			assertEquals(role.getId(), policies.get(0).getRole());
 		} finally {

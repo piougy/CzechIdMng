@@ -115,10 +115,10 @@ public class DefaultIdmAuthorizationPolicyService
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<IdmAuthorizationPolicyDto> getEnabledPolicies(String username, Class<? extends Identifiable> entityType) {
+	public List<IdmAuthorizationPolicyDto> getEnabledPolicies(UUID identityId, Class<? extends Identifiable> entityType) {
 		Assert.notNull(entityType);
 		//
-		List<IdmAuthorizationPolicyDto> results = toDtos(repository.getPolicies(username, entityType.getCanonicalName(), false, new LocalDate()), false);
+		List<IdmAuthorizationPolicyDto> results = toDtos(repository.getPolicies(identityId, entityType.getCanonicalName(), false, new LocalDate()), false);
 		results.addAll(getDefaultPolicies(entityType));
 		return results;
 	}
@@ -147,7 +147,7 @@ public class DefaultIdmAuthorizationPolicyService
 	
 	@Override
 	@Transactional(readOnly = true)
-	public Set<GrantedAuthority> getDefaultAuthorities() {
+	public Set<GrantedAuthority> getDefaultAuthorities(UUID identityId) {
 		IdmRole defaultRole = roleService.getDefaultRole();
 		if (defaultRole == null) {
 			LOG.debug("Default role not found, no default authorities will be added. Change configuration [{}].", IdmRoleService.PROPERTY_DEFAULT_ROLE);
@@ -158,7 +158,7 @@ public class DefaultIdmAuthorizationPolicyService
 			return Collections.<GrantedAuthority>emptySet();
 		}
 		//
-		Set<GrantedAuthority> defaultAuthorities = getEnabledRoleAuthorities(defaultRole.getId());
+		Set<GrantedAuthority> defaultAuthorities = getEnabledRoleAuthorities(identityId, defaultRole.getId());
 		//
 		LOG.debug("Found [{}] default authorities", defaultAuthorities.size());
 		return defaultAuthorities;
@@ -191,8 +191,8 @@ public class DefaultIdmAuthorizationPolicyService
 	
 	@Override
 	@Transactional(readOnly = true)
-	public Set<GrantedAuthority> getEnabledRoleAuthorities(UUID roleId) {
-		return getGrantedAuthorities(getRolePolicies(roleId, false));
+	public Set<GrantedAuthority> getEnabledRoleAuthorities(UUID identityId, UUID roleId) {
+		return getGrantedAuthorities(identityId, getRolePolicies(roleId, false));
 	}
 	
 	@Override
@@ -202,34 +202,44 @@ public class DefaultIdmAuthorizationPolicyService
 	
 	@Override
 	@Transactional(readOnly = true)
-	public Set<GrantedAuthority> getEnabledPersistedRoleAuthorities(UUID roleId) {
-		return getGrantedAuthorities(toDtos(repository.getPersistedPolicies(roleId, false), false));
+	public Set<GrantedAuthority> getEnabledPersistedRoleAuthorities(UUID identityId, UUID roleId) {
+		return getGrantedAuthorities(identityId, toDtos(repository.getPersistedPolicies(roleId, false), false));
 	}
 
 	@Override
 	@Transactional(readOnly = true)
-	public Set<GrantedAuthority> getGrantedAuthorities(List<IdmAuthorizationPolicyDto> policies) {
+	public Set<GrantedAuthority> getGrantedAuthorities(UUID identityId, List<IdmAuthorizationPolicyDto> policies) {
 		final Set<GrantedAuthority> authorities = new HashSet<>();
 		// find all active policies and return their authority by authorizable type
 		for (IdmAuthorizationPolicyDto policy : policies) {
-			if (IdmGroupPermission.APP.getName().equals(policy.getGroupPermission())
-					|| (StringUtils.isEmpty(policy.getGroupPermission()) && policy.getPermissions().contains(IdmBasePermission.ADMIN.getName()))) {
+			// evaluate policy permissions - authorities are eveluated on null entity
+			String groupPermission = policy.getGroupPermission();
+			Set<String> baseAuthorities = getAuthorizationManager().getAuthorities(identityId, policy);
+			//
+			if (IdmGroupPermission.APP.getName().equals(groupPermission)
+					|| (StringUtils.isEmpty(groupPermission) && baseAuthorities.contains(IdmBasePermission.ADMIN.getName()))) {
 				// admin
 				return Sets.newHashSet(new DefaultGrantedAuthority(IdmGroupPermission.APP.getName(), IdmBasePermission.ADMIN.getName()));
-			}
-			if (StringUtils.isEmpty(policy.getGroupPermission())) {			
-				moduleService.getAvailablePermissions().forEach(groupPermission -> {
-					if (IdmGroupPermission.APP != groupPermission) { // app is wildcard only
-						for(String permission : policy.getPermissions()) {
-							authorities.add(new DefaultGrantedAuthority(groupPermission.getName(), permission));
-						};
-					}
-				});
-			} else if (policy.getPermissions().contains(IdmBasePermission.ADMIN.getName())) {	
-				authorities.add(new DefaultGrantedAuthority(policy.getGroupPermission(), IdmBasePermission.ADMIN.getName()));					
+			}		
+			if (StringUtils.isEmpty(groupPermission)) {
+				if (baseAuthorities.contains(IdmBasePermission.ADMIN.getName())) {
+					// all groups => synonym to APP_ADMIN
+					authorities.add(new DefaultGrantedAuthority(IdmGroupPermission.APP.getName(), IdmBasePermission.ADMIN.getName()));					
+				} else {
+					// some base permission only
+					moduleService.getAvailablePermissions().forEach(availableGroupPermission -> {
+						if (IdmGroupPermission.APP != availableGroupPermission) { // app is wildcard only - skipping
+							for(String permission : baseAuthorities) {
+								authorities.add(new DefaultGrantedAuthority(availableGroupPermission.getName(), permission));
+							};
+						}
+					});
+				}
+			} else if (baseAuthorities.contains(IdmBasePermission.ADMIN.getName())) {	
+				authorities.add(new DefaultGrantedAuthority(groupPermission, IdmBasePermission.ADMIN.getName()));					
 			} else {
-				for(String permission : policy.getPermissions()) {
-					authorities.add(new DefaultGrantedAuthority(policy.getGroupPermission(), permission));
+				for(String permission : baseAuthorities) {
+					authorities.add(new DefaultGrantedAuthority(groupPermission, permission));
 				};
 			}			
 		}

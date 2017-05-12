@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -92,6 +93,16 @@ public abstract class AbstractAuthorizationEvaluator<E extends Identifiable> imp
 	public Set<String> getPermissions(E authorizable, AuthorizationPolicy policy) {
 		return new HashSet<>();
 	}
+	
+	/**
+	 * Returns configured policy permissions
+	 */
+	@Override
+	public Set<String> getAuthorities(UUID identityId, AuthorizationPolicy policy) {
+		Assert.notNull(policy);
+		//
+		return policy.getPermissions();
+	}
 
 	/**
 	 * Supposed to be overriden for orderable optimalizations.
@@ -139,13 +150,39 @@ public abstract class AbstractAuthorizationEvaluator<E extends Identifiable> imp
 	}
 	
 	/**
-	 * Returns true, when permissions have all given permissions
+	 * Returns true, when permissions have all given permission
 	 * 
 	 * @param permissions
-	 * @param permission
+	 * @param permission permissions to evaluate (AND)
 	 * @return
 	 */
 	protected boolean hasPermission(Collection<String> permissions, BasePermission... permission) {
 		return permissions.containsAll(Arrays.stream(permission).map(Object::toString).collect(Collectors.toList()));
+	}
+	
+	/**
+	 * Returns true, when policy has all given authority
+	 * 
+	 * @param policy
+	 * @param authority authority to evaluate (AND)
+	 * @return
+	 */
+	protected boolean hasAuthority(UUID identityId, AuthorizationPolicy policy, BasePermission... authority) {
+		Assert.notNull(authority);
+		Set<String> authorities = getAuthorities(identityId, policy);
+		//
+		return authorities.contains(IdmBasePermission.ADMIN.getName())
+				|| hasAuthority(authorities, authority);
+	}
+	
+	/**
+	 * Returns true, when authorities have all given authority
+	 * 
+	 * @param authorities
+	 * @param authority authority to evaluate (AND)
+	 * @return
+	 */
+	protected boolean hasAuthority(Collection<String> authorities, BasePermission... authority) {
+		return authorities.containsAll(Arrays.stream(authority).map(Object::toString).collect(Collectors.toList()));
 	}
 }

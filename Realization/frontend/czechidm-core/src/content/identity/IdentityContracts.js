@@ -93,8 +93,7 @@ export default class IdentityContracts extends Advanced.AbstractTableContent {
                     <Advanced.DetailButton onClick={this.showDetail.bind(this, data[rowIndex])}/>
                   );
                 }
-              }
-              rendered={SecurityManager.isAdmin()}/>
+              }/>
             <Advanced.Column
               property="main"
               header={this.i18n('entity.IdentityContract.main.label')}

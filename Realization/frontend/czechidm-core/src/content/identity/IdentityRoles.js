@@ -46,7 +46,7 @@ class Roles extends Basic.AbstractContent {
     const { entityId } = this.props.params;
     this.context.store.dispatch(identityRoleManager.fetchRoles(entityId, `${uiKey}-${entityId}`));
     this.context.store.dispatch(identityManager.fetchAuthorities(entityId, `${uiKeyAuthorities}-${entityId}`));
-    this.context.store.dispatch(identityContractManager.fetchEntities(new SearchParameters().setFilter('identity', entityId), `${uiKeyContracts}-${entityId}`));
+    this.context.store.dispatch(identityContractManager.fetchEntities(new SearchParameters(SearchParameters.NAME_AUTOCOMPLETE).setFilter('identity', entityId), `${uiKeyContracts}-${entityId}`));
   }
 
   componentWillReceiveProps(nextProps) {

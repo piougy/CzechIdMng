@@ -27,6 +27,14 @@ export default class ContractGuaranteeService extends AbstractService {
     return false;
   }
 
+  supportsAuthorization() {
+    return true;
+  }
+
+  getGroupPermission() {
+    return 'CONTRACTGUARANTEE';
+  }
+
   /**
    * Returns default searchParameters for current entity type
    *

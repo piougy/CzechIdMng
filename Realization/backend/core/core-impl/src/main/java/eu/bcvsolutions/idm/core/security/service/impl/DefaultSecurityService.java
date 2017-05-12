@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,10 +79,27 @@ public class DefaultSecurityService implements SecurityService {
 	}
 	
 	@Override
+	public String getCurrentUsername() {
+		return getUsername();
+	}
+	
+	@Override
+	public UUID getCurrentId() {
+		if (!isAuthenticated()) {
+			return null;
+		}
+		Authentication authentication = getAuthentication();
+		if (authentication instanceof AbstractAuthentication) {
+			return ((AbstractAuthentication) authentication).getCurrentIdentity().getId();
+		}
+		return null;
+	}
+	
+	@Override
 	public String getOriginalUsername() {
 		if (!isAuthenticated()) {
 			return null;
-		}	
+		}
 		Authentication authentication = getAuthentication();
 		if (authentication instanceof AbstractAuthentication) {
 			return ((AbstractAuthentication) authentication).getOriginalUsername();

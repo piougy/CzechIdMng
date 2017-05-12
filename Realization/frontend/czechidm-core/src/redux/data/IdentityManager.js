@@ -2,6 +2,7 @@ import FormableEntityManager from './FormableEntityManager';
 import SecurityManager from '../security/SecurityManager';
 import { IdentityService } from '../../services';
 import DataManager from './DataManager';
+import * as Utils from '../../utils';
 
 /**
  * Manager for identities fetching
@@ -132,8 +133,23 @@ export default class IdentityManager extends FormableEntityManager {
     };
   }
 
-  static canChangePassword(userContext, entityId, passwordChangeType) {
-    return (passwordChangeType && passwordChangeType !== IdentityManager.PASSWORD_DISABLED && entityId === userContext.username) || SecurityManager.isAdmin(userContext);
+  /**
+   * Return true when currently logged user can change password
+   *
+   * @param  {string} passwordChangeType see consts bottom
+   * @param  {arrayOf(string)} permissions logged identity's base permissions on selected identity
+   * @return {bool}
+   */
+  canChangePassword(passwordChangeType, permissions) {
+    if (!passwordChangeType || passwordChangeType === IdentityManager.PASSWORD_DISABLED) {
+      // password cannot be changed by environment configuration
+      return false;
+    }
+    if (SecurityManager.isAdmin()) {
+      // admin
+      return true;
+    }
+    return Utils.Permission.hasPermission(permissions, 'PASSWORDCHANGE');
   }
 }
 

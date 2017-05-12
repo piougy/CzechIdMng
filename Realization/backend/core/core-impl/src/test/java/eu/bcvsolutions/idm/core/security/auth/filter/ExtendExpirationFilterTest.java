@@ -22,6 +22,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.google.common.collect.Lists;
 
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.security.api.dto.IdmJwtAuthenticationDto;
 import eu.bcvsolutions.idm.core.security.api.utils.IdmAuthorityUtils;
 import eu.bcvsolutions.idm.core.security.service.impl.JwtAuthenticationMapper;
@@ -35,13 +36,12 @@ import eu.bcvsolutions.idm.test.api.utils.AuthenticationTestUtils;
  */
 public class ExtendExpirationFilterTest extends AbstractRestTest {
 	
-	@Autowired
-	protected JwtAuthenticationMapper jwtMapper;
-	
+	@Autowired protected JwtAuthenticationMapper jwtMapper;
+	@Autowired private IdmIdentityService identityService;
 
 	@Test
 	public void testSuccessfulTokenExtension() throws Exception {
-		IdmJwtAuthenticationDto authDto = AuthenticationTestUtils.getAuthDto(TEST_ADMIN_USERNAME,
+		IdmJwtAuthenticationDto authDto = AuthenticationTestUtils.getAuthDto(identityService.getByUsername(TEST_ADMIN_USERNAME),
 				Lists.newArrayList(IdmAuthorityUtils.getAdminAuthority()));
 		String token = getAuthToken(authDto);
 		
@@ -76,7 +76,7 @@ public class ExtendExpirationFilterTest extends AbstractRestTest {
 	
 	@Test
 	public void testSuccBasicAuthTokenExtension() throws Exception {
-		IdmJwtAuthenticationDto authDto = AuthenticationTestUtils.getAuthDto(TEST_ADMIN_USERNAME,
+		IdmJwtAuthenticationDto authDto = AuthenticationTestUtils.getAuthDto(identityService.getByUsername(TEST_ADMIN_USERNAME),
 				Lists.newArrayList(IdmAuthorityUtils.getAdminAuthority()));
 		String token = getAuthToken(authDto);
 		String basicAuth = AuthenticationTestUtils.getBasicAuth(TEST_ADMIN_USERNAME, TEST_ADMIN_PASSWORD);

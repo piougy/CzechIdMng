@@ -23,7 +23,7 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
  */
 public interface IdmIdentityService extends 
 		ReadWriteDtoService<IdmIdentityDto, IdentityFilter>,
-		AuthorizableService<IdmIdentityDto, IdentityFilter>,
+		AuthorizableService<IdmIdentityDto>,
 		CodeableService<IdmIdentityDto> {
 	
 	@Deprecated

@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { PropTypes } from 'react';
+import { connect } from 'react-redux';
 //
 import * as Basic from '../../../components/basic';
 import * as Advanced from '../../../components/advanced';
-import { IdentityContractManager, SecurityManager } from '../../../redux';
+import { IdentityContractManager } from '../../../redux';
 
 const uiKey = 'eav-identity-contract';
 const manager = new IdentityContractManager();
@@ -12,7 +13,7 @@ const manager = new IdentityContractManager();
  *
  * @author Radek Tomiška
  */
-export default class IdentityContractEav extends Basic.AbstractContent {
+class IdentityContractEav extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
@@ -27,7 +28,8 @@ export default class IdentityContractEav extends Basic.AbstractContent {
   }
 
   render() {
-    const { entityId } = this.props.params;
+    const { entityId} = this.props.params;
+    const { _entity, _permissions } = this.props;
     //
     return (
       <Advanced.EavContent
@@ -35,7 +37,25 @@ export default class IdentityContractEav extends Basic.AbstractContent {
         formableManager={manager}
         entityId={entityId}
         contentKey={this.getContentKey()}
-        showSaveButton={SecurityManager.hasAuthority('APP_ADMIN')}/>
+        showSaveButton={ manager.canSave(_entity, _permissions) }/>
     );
   }
 }
+
+IdentityContractEav.propTypes = {
+  _entity: PropTypes.object,
+  _permissions: PropTypes.arrayOf(PropTypes.string)
+};
+IdentityContractEav.defaultProps = {
+  _entity: null,
+  _permissions: null
+};
+
+function select(state, component) {
+  return {
+    _entity: manager.getEntity(state, component.params.entityId),
+    _permissions: manager.getPermissions(state, null, component.params.entityId)
+  };
+}
+
+export default connect(select)(IdentityContractEav);

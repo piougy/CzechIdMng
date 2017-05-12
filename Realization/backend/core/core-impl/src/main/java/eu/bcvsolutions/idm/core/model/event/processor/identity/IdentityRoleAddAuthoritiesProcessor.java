@@ -85,9 +85,9 @@ public class IdentityRoleAddAuthoritiesProcessor extends CoreEventProcessor<IdmI
 		withoutAdded.remove(identityRole);
 
 		Collection<GrantedAuthority> original = authoritiesFactory
-				.getGrantedAuthoritiesForValidRoles(withoutAdded);
+				.getGrantedAuthoritiesForValidRoles(identity.getId(), withoutAdded);
 		Collection<GrantedAuthority> addedAuthorities = authoritiesFactory
-				.getGrantedAuthoritiesForValidRoles(Collections.singletonList(identityRole));
+				.getGrantedAuthoritiesForValidRoles(identity.getId(), Collections.singletonList(identityRole));
 		
 		if (!authoritiesFactory.containsAllAuthorities(original, addedAuthorities)) {
 			// authorities were changed, update identity flag

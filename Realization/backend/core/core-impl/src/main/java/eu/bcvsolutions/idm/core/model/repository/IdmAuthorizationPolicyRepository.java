@@ -50,13 +50,13 @@ public interface IdmAuthorizationPolicyRepository extends AbstractEntityReposito
 	        + " and (e.disabled = :disabled)"
 	        + " and exists("
 	        	+ " from IdmIdentityRole ir join ir.identityContract ic"
-	        	+ " where ir.role = e.role and ic.identity.username = :username"
+	        	+ " where ir.role = e.role and ic.identity.id = :identityId"
 	        	+ " and (ir.validTill is null or ir.validTill >= :currentDate) and (ir.validFrom is null or ir.validFrom <= :currentDate)"
 	        	+ " and (ic.disabled = :disabled and ic.validTill is null or ic.validTill >= :currentDate) and (ic.validFrom is null or ic.validFrom <= :currentDate)"
 	        	+ ")"
 	        + " order by seq asc")
 	List<IdmAuthorizationPolicy> getPolicies(
-			@Param("username") String username, 
+			@Param("identityId") UUID identityId, 
 			@Param("authorizableType") String authorizableType, 
 			@Param("disabled") boolean disabled,
 			@Param("currentDate") LocalDate currentDate);

@@ -2,10 +2,10 @@ package eu.bcvsolutions.idm.core.security.service;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.security.core.GrantedAuthority;
 
-import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 
@@ -28,17 +28,17 @@ public interface GrantedAuthoritiesFactory {
 	/**
 	 * @see GrantedAuthoritiesFactory#getGrantedAuthorities(String)
 	 */
-	Collection<GrantedAuthority> getActiveRoleAuthorities(IdmRole role);
+	Collection<GrantedAuthority> getActiveRoleAuthorities(UUID identityId, IdmRole role);
 
 	/**
 	 * @see GrantedAuthoritiesFactory#getGrantedAuthorities(String)
 	 */
-	Collection<GrantedAuthority> getGrantedAuthoritiesForIdentity(IdmIdentityDto identity);
+	Collection<GrantedAuthority> getGrantedAuthoritiesForIdentity(UUID identityId);
 
 	/**
 	 * @see GrantedAuthoritiesFactory#getGrantedAuthorities(String)
 	 */
-	Collection<GrantedAuthority> getGrantedAuthoritiesForValidRoles(Collection<IdmIdentityRoleDto> roles);
+	Collection<GrantedAuthority> getGrantedAuthoritiesForValidRoles(UUID identityId, Collection<IdmIdentityRoleDto> roles);
 	
 	/**
 	 * Decides whether the original collection contains all authorities

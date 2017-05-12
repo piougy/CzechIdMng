@@ -31,9 +31,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.RoleType;
-import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteEntityController;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
@@ -49,6 +49,7 @@ import eu.bcvsolutions.idm.core.model.entity.eav.IdmRoleFormValue;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuditService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
+import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 
 /**
  * Endpoint for roles
@@ -64,22 +65,26 @@ public class IdmRoleController extends AbstractReadWriteEntityController<IdmRole
 	private final IdmAuditService auditService;
 	private final IdmFormDefinitionController formDefinitionController;
 	private final IdmAuthorizationPolicyService authorizationPolicyService;
+	private final SecurityService securityService;
 	
 	@Autowired
 	public IdmRoleController(
 			LookupService entityLookupService, 
 			IdmAuditService auditService,
 			IdmAuthorizationPolicyService authorizationPolicyService,
-			IdmFormDefinitionController formDefinitionController) {
+			IdmFormDefinitionController formDefinitionController,
+			SecurityService securityService) {
 		super(entityLookupService);
 		//
 		Assert.notNull(auditService);
 		Assert.notNull(formDefinitionController);
 		Assert.notNull(authorizationPolicyService);
+		Assert.notNull(securityService);
 		//
 		this.auditService = auditService;
 		this.formDefinitionController = formDefinitionController;
 		this.authorizationPolicyService = authorizationPolicyService;
+		this.securityService = securityService;
 	}
 	
 	@Override
@@ -258,7 +263,7 @@ public class IdmRoleController extends AbstractReadWriteEntityController<IdmRole
 		}
 		checkAccess(entity, IdmBasePermission.READ);
 		//
-		return authorizationPolicyService.getEnabledRoleAuthorities(entity.getId());
+		return authorizationPolicyService.getEnabledRoleAuthorities(securityService.getAuthentication().getCurrentIdentity().getId(), entity.getId());
 	}
 	
 	@Override

@@ -52,7 +52,7 @@ public class IdentityRoleDeleteAuthoritiesProcessorTest extends AbstractIdentity
 		Assert.assertNotNull(ac);
 		Assert.assertTrue(ac.getAuthChangeTimestamp().isAfter(comparableAuthChangeInstant));
 		Assert.assertEquals(0, identityRoleService.findAllByIdentity(i.getId()).size());
-		Assert.assertEquals(0, authoritiesFactory.getGrantedAuthoritiesForIdentity(i).size());
+		Assert.assertEquals(0, authoritiesFactory.getGrantedAuthoritiesForIdentity(i.getId()).size());
 	}
 
 	/**
@@ -81,7 +81,7 @@ public class IdentityRoleDeleteAuthoritiesProcessorTest extends AbstractIdentity
 		Assert.assertNull(getAuthorityChange(i));
 		Assert.assertEquals(1, identityRoleService.findAllByIdentity(i.getId()).size());
 		Assert.assertEquals(ir.getId(), identityRoleService.findAllByIdentity(i.getId()).get(0).getId());
-		Assert.assertEquals(1, authoritiesFactory.getGrantedAuthoritiesForIdentity(i).size());
+		Assert.assertEquals(1, authoritiesFactory.getGrantedAuthoritiesForIdentity(i.getId()).size());
 	}
 	
 	private void removeModifiedTimestamp(IdmIdentityDto i) {
@@ -93,7 +93,7 @@ public class IdentityRoleDeleteAuthoritiesProcessorTest extends AbstractIdentity
 	
 	private void checkAssignedAuthorities(IdmIdentityDto i) {
 		GrantedAuthority g = new DefaultGrantedAuthority(CoreGroupPermission.IDENTITY, IdmBasePermission.DELETE);
-		Collection<GrantedAuthority> authorities = authoritiesFactory.getGrantedAuthoritiesForIdentity(i);
+		Collection<GrantedAuthority> authorities = authoritiesFactory.getGrantedAuthoritiesForIdentity(i.getId());
 		Assert.assertEquals(1, authorities.size());
 		authorities.stream().forEach(a -> Assert.assertEquals(g, a));
 	}

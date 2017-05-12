@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -19,11 +20,13 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.Lists;
+
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
+import eu.bcvsolutions.idm.core.security.api.domain.AuthorizationPolicy;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
@@ -70,8 +73,10 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 	public <E extends Identifiable> Predicate getPredicate(Root<E> root, CriteriaQuery<?> query, CriteriaBuilder builder, BasePermission... permission) {
 		final List<Predicate> predicates = Lists.newArrayList(builder.disjunction()); // disjunction - no data by default
 		//
-		if (securityService.isAuthenticated()) { // TODO: public data?
-			service.getEnabledPolicies(securityService.getUsername(), root.getJavaType()).forEach(policy -> {
+		service.getEnabledPolicies(securityService.getCurrentId(), root.getJavaType()).forEach(policy -> {
+			if (!supportsEntityType(policy, root.getJavaType())) {
+				// TODO: compatibility issues - agendas without authorization support
+			} else {
 				AuthorizationEvaluator<E> evaluator = getEvaluator(policy);
 				if (evaluator != null && evaluator.supports(root.getJavaType())) {
 					Predicate predicate = evaluator.getPredicate(root, query, builder, policy, permission);
@@ -79,8 +84,8 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 						predicates.add(predicate);
 					}
 				}
-			});	
-		}
+			}
+		});
 		return builder.or(predicates.toArray(new Predicate[predicates.size()]));
 	}
 
@@ -89,35 +94,90 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 		Assert.notNull(entity);
 		//
 		final Set<String> permissions = new HashSet<>();
-		if (securityService.isAuthenticated()) { // TODO: public data?
-			service.getEnabledPolicies(securityService.getUsername(), entity.getClass()).forEach(policy -> {
-				if (!supportsEntityType(policy, entity.getClass())) {
-					// TODO: compatibility issues - agendas without authorization support
-				} else {
-					AuthorizationEvaluator<E> evaluator = getEvaluator(policy);
-					if (evaluator != null && evaluator.supports(entity.getClass())) {
-						permissions.addAll(evaluator.getPermissions(entity, policy));
-					}
-				}
-			});
-		}
+		service.getEnabledPolicies(securityService.getCurrentId(), entity.getClass()).forEach(policy -> {
+			if (!supportsEntityType(policy, entity.getClass())) {
+				// TODO: compatibility issues - agendas without authorization support
+			} else {					
+				permissions.addAll(getPermissions(entity, policy));
+			}
+		});
 		return permissions;
+	}
+	
+	@Override
+	public <E extends Identifiable> Set<String> getPermissions(E entity, AuthorizationPolicy policy) {
+		Assert.notNull(policy);
+		//
+		final Set<String> permissions = new HashSet<>();
+		AuthorizationEvaluator<E> evaluator = getEvaluator(policy);
+		if (evaluator == null) {
+			LOG.warn("Authorization evaluator for given policy [{}] not exists", policy.getId());
+			return permissions;
+		}
+		Class<?> authorizableClass = resolveAuthorizableClass(entity, policy);
+		if (authorizableClass != null && !evaluator.supports(authorizableClass)) {
+			LOG.debug("Authorization evaluator [{}] not supports given authorizable type [{}]", 
+					evaluator.getClass().getCanonicalName(), 
+					authorizableClass.getClass().getCanonicalName());
+			return permissions;
+		}
+		// evaluate permissions
+		permissions.addAll(evaluator.getPermissions(entity, policy));
+		//
+		return permissions;
+	}
+	
+	@Override
+	public <E extends Identifiable> Set<String> getAuthorities(UUID identityId, Class<E> authorizableType) {
+		Assert.notNull(authorizableType);
+		//
+		final Set<String> authorities = new HashSet<>();
+		service.getEnabledPolicies(identityId, authorizableType).forEach(policy -> {
+			if (!supportsEntityType(policy, authorizableType)) {
+				// TODO: compatibility issues - agendas without authorization support
+			} else {		
+				authorities.addAll(getAuthorities(identityId, policy));
+			}
+		});
+		return authorities;
+	}
+	
+	@Override
+	public Set<String> getAuthorities(UUID identityId, AuthorizationPolicy policy) {
+		Assert.notNull(policy);
+		//
+		final Set<String> authorities = new HashSet<>();
+		AuthorizationEvaluator<?> evaluator = getEvaluator(policy);
+		if (evaluator == null) {
+			LOG.warn("Authorization evaluator for given policy [{}] not exists", policy.getId());
+			return authorities;
+		}
+		//
+		Class<?> authorizableClass = resolveAuthorizableClass(null, policy);
+		if (authorizableClass != null && !evaluator.supports(authorizableClass)) {
+			LOG.debug("Authorization evaluator [{}] not supports given authorizable type [{}]", 
+					evaluator.getClass().getCanonicalName(), 
+					authorizableClass.getClass().getCanonicalName());
+			return authorities;
+		}
+		// evaluate authorities
+		authorities.addAll(evaluator.getAuthorities(identityId, policy));
+		//
+		return authorities;
 	}
 	
 	@Override
 	public <E extends Identifiable> boolean evaluate(E entity, BasePermission... permission) {
 		Assert.notNull(entity);
 		//
-		if (securityService.isAuthenticated()) { // TODO: public data?
-			for (IdmAuthorizationPolicyDto policy : service.getEnabledPolicies(securityService.getUsername(), entity.getClass())) {
-				if (!supportsEntityType(policy, entity.getClass())) {
-					// TODO: compatibility issues - agendas without authorization support
-					continue;
-				}
-				AuthorizationEvaluator<E> evaluator = getEvaluator(policy);
-				if (evaluator != null && evaluator.supports(entity.getClass()) && evaluator.evaluate(entity, policy, permission)) {
-					return true;
-				}
+		for (IdmAuthorizationPolicyDto policy : service.getEnabledPolicies(securityService.getCurrentId(), entity.getClass())) {
+			if (!supportsEntityType(policy, entity.getClass())) {
+				// TODO: compatibility issues - agendas without authorization support
+				continue;
+			}
+			AuthorizationEvaluator<E> evaluator = getEvaluator(policy);
+			if (evaluator != null && evaluator.supports(entity.getClass()) && evaluator.evaluate(entity, policy, permission)) {
+				return true;
 			}
 		}
 		return false;
@@ -131,7 +191,7 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	private <E extends Identifiable> AuthorizationEvaluator<E> getEvaluator(IdmAuthorizationPolicyDto policy) {
+	private <E extends Identifiable> AuthorizationEvaluator<E> getEvaluator(AuthorizationPolicy policy) {
 		String evaluatorType = policy.getEvaluatorType();
 		if (!evaluators.containsKey(evaluatorType)) {
 			try {
@@ -139,8 +199,9 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 			} catch (ClassNotFoundException | NoSuchBeanDefinitionException ex) {
 				// disable removed evaluator classes
 				LOG.warn("Evaluator type [{}] for policy [{}] not found. Policy will be disabled.", evaluatorType, policy.getId());
-				policy.setDisabled(true);
-				service.save(policy);
+				IdmAuthorizationPolicyDto policyDto = service.get(policy.getId());
+				policyDto.setDisabled(true);
+				service.save(policyDto);
 				return null;
 			}
 		}
@@ -184,6 +245,27 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 		return (StringUtils.isEmpty(policy.getGroupPermission()) && StringUtils.isEmpty(policy.getAuthorizableType()))
 				|| IdmGroupPermission.APP.getName().equals(policy.getGroupPermission())
 				|| entityType.getCanonicalName().equals(policy.getAuthorizableType());
+	}
+	
+	/**
+	 * Authorizable class from entity or policy
+	 * 
+	 * @param entity
+	 * @param policy
+	 * @return
+	 */
+	private Class<?> resolveAuthorizableClass(Identifiable entity, AuthorizationPolicy policy) {
+		if (entity != null) {
+			return entity.getClass();
+		}
+		if (StringUtils.isNotBlank(policy.getAuthorizableType())) {
+			try {
+				return Class.forName(policy.getAuthorizableType());
+			} catch (ClassNotFoundException ex) {
+				LOG.warn("Class not found for authorizable type [{}], retuning empty permissions", policy.getAuthorizableType(), ex);
+			}
+		}
+		return null;
 	}
 
 	@Override

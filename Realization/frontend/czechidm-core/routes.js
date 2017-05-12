@@ -44,12 +44,12 @@ module.exports = {
         {
           path: 'roles',
           component: require('./src/content/identity/IdentityRoles'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_READ' ] } ]
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITYROLE_READ' ] } ]
         },
         {
           path: 'authorities',
           component: require('./src/content/identity/IdentityAuthorities'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_READ' ] } ]
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUTHORIZATIONPOLICY_READ' ] } ]
         },
         {
           path: 'contracts',
@@ -86,22 +86,22 @@ module.exports = {
     {
       path: 'identity/:identityId/identity-contract/:entityId/',
       component: require('./src/content/identity/contract/IdentityContract'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITYCONTRACT_UPDATE' ] } ],
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITYCONTRACT_READ' ] } ],
       childRoutes: [
         {
           path: 'detail',
           component: require('./src/content/identity/contract/IdentityContractContent'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITYCONTRACT_UPDATE' ] } ]
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITYCONTRACT_READ' ] } ]
         },
         {
           path: 'eav',
           component: require('./src/content/identity/contract/IdentityContractEav'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITYCONTRACT_UPDATE' ] } ]
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITYCONTRACT_READ' ] } ]
         },
         {
           path: 'guarantees',
           component: require('./src/content/identity/contract/IdentityContractGuarantees'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITYCONTRACT_UPDATE' ] } ]
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITYCONTRACT_READ' ] } ]
         }
       ]
     },
@@ -122,7 +122,7 @@ module.exports = {
     {
       path: 'organizations',
       component: require('./src/content/organization/Organizations'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREETYPE_READ'] } ]
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREENODE_READ'] } ]
     },
     {
       path: 'tree',
@@ -149,7 +149,8 @@ module.exports = {
             },
             {
               path: 'roles',
-              component: require('./src/content/tree/node/TreeNodeRoles')
+              component: require('./src/content/tree/node/TreeNodeRoles'),
+              access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLETREENODE_READ'] } ]
             }
           ]
         },
@@ -226,7 +227,7 @@ module.exports = {
         {
           path: 'tree-nodes',
           component: require('./src/content/role/RoleTreeNodes'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ'] } ]
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLETREENODE_READ'] } ]
         },
         {
           path: 'authorization-policies',

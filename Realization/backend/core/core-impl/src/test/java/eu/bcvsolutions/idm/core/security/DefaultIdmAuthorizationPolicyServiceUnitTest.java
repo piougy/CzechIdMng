@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.security;
 
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
 import org.junit.Before;
@@ -49,14 +50,14 @@ public class DefaultIdmAuthorizationPolicyServiceUnitTest extends AbstractUnitTe
 		DEFAULT_ROLE.setDisabled(true);
 		when(roleService.getDefaultRole()).thenReturn(DEFAULT_ROLE);
 		//
-		assertTrue(service.getDefaultAuthorities().isEmpty());
+		assertTrue(service.getDefaultAuthorities(null).isEmpty());
 	}
 	
 	@Test
 	public void testDefaultAuthoritiesRoleNotFound() {
 		when(roleService.getDefaultRole()).thenReturn(null);
 		//
-		assertTrue(service.getDefaultAuthorities().isEmpty());
+		assertTrue(service.getDefaultAuthorities(null).isEmpty());
 	}
 	
 	@Test

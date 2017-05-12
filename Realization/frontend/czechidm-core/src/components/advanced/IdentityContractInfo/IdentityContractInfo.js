@@ -31,7 +31,7 @@ export class IdentityContractInfo extends AbstractEntityInfo {
     if (!super.showLink()) {
       return false;
     }
-    if (!SecurityManager.hasAccess({ 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_READ']})) {
+    if (!SecurityManager.hasAccess({ 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITYCONTRACT_READ']})) {
       return false;
     }
     return true;

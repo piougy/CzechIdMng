@@ -65,8 +65,8 @@ public class AuthorizationPolicyDeletePermissionsChangeProcessor extends CoreEve
 	@Override
 	public EventResult<IdmAuthorizationPolicyDto> process(EntityEvent<IdmAuthorizationPolicyDto> event) {
 		IdmAuthorizationPolicyDto entity = event.getContent();
-		Set<GrantedAuthority> currentRolePermissions = service.getEnabledRoleAuthorities(entity.getRole());
-		Set<GrantedAuthority> persistedRolePermissions = service.getEnabledPersistedRoleAuthorities(entity.getRole());
+		Set<GrantedAuthority> currentRolePermissions = service.getEnabledRoleAuthorities(null, entity.getRole());
+		Set<GrantedAuthority> persistedRolePermissions = service.getEnabledPersistedRoleAuthorities(null, entity.getRole());
 		//
 		if (!currentRolePermissions.equals(persistedRolePermissions)) {
 			updateIdentitiesAuthChangeInRole(entity.getRole());

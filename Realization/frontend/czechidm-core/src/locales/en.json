@@ -450,6 +450,7 @@
       "NOTIFICATION": "Notifications",
       "ROLE": "Roles",
       "ROLECATALOGUE": "Role catalogue",
+      "ROLETREENODE": "Automatic roles",
       "TREENODE": "Tree nodes",
       "TREETYPE": "Structure types",
       "SCRIPT": "Scripts",
@@ -1327,6 +1328,9 @@
           "new": "New password",
           "newAgain": "Re-enter new password",
           "strength": "Password strength:"
+        },
+        "permission": {
+          "failed": "You do not have permissions to change password"
         },
         "changeType": {
           "DISABLED": "Password change is not allowed in this environment.",

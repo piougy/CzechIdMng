@@ -215,6 +215,15 @@ gulp.task('clean', cb => {
   return rimraf('dist', cb);
 });
 
+gulp.task('browserNoSync', () => {
+  return browserSync({
+    server: {
+      baseDir: './'
+    },
+    ghostMode: false
+  });
+});
+
 gulp.task('browserSync', () => {
   return browserSync({
     server: {
@@ -427,6 +436,12 @@ gulp.task('watch', cb => {
   selectStageAndProfile();
   runSequence('clean', 'makeModules', 'loadModules', 'createModuleAssembler', 'loadModuleStyles', 'loadModuleRoutes', 'createRouteAssembler', 'loadModuleComponents', 'createComponentAssembler', 'themes', 'runTest', 'config', 'urlConfig', 'styles', 'lint', 'images', 'js', 'fonts', 'loadModuleLocales', 'browserSync', 'watchTask', 'watchify', cb);
 });
+
+gulp.task('watch-nosync', cb => {
+  selectStageAndProfile();
+  runSequence('clean', 'makeModules', 'loadModules', 'createModuleAssembler', 'loadModuleStyles', 'loadModuleRoutes', 'createRouteAssembler', 'loadModuleComponents', 'createComponentAssembler', 'themes', 'runTest', 'config', 'urlConfig', 'styles', 'lint', 'images', 'js', 'fonts', 'loadModuleLocales', 'browserNoSync', 'watchTask', 'watchify', cb);
+});
+
 
 gulp.task('build', cb => {
   selectStageAndProfile();

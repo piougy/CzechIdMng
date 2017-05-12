@@ -98,20 +98,20 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 	
 	private void prepareTreeStructureAndRoles() {
 		// tree type
-		treeType = helper.createTreeType("test");
+		treeType = helper.createTreeType();
 		// four levels
 		// https://proj.bcvsolutions.eu/ngidm/doku.php?id=roztridit:standardni_procesy#role_pridelovane_na_zaklade_zarazeni_v_organizacni_strukture
-		nodeA = helper.createTreeNode(treeType, "A", null);
-		nodeB = helper.createTreeNode(treeType, "B", nodeA);
-		nodeC = helper.createTreeNode(treeType, "C", nodeB);
-		nodeD = helper.createTreeNode(treeType, "D", nodeB);
-		nodeE = helper.createTreeNode(treeType, "E", nodeD);
-		nodeF = helper.createTreeNode(treeType, "F", nodeD);
+		nodeA = helper.createTreeNode(treeType, null);
+		nodeB = helper.createTreeNode(treeType, nodeA);
+		nodeC = helper.createTreeNode(treeType, nodeB);
+		nodeD = helper.createTreeNode(treeType, nodeB);
+		nodeE = helper.createTreeNode(treeType, nodeD);
+		nodeF = helper.createTreeNode(treeType, nodeD);
 		// create roles
-		roleA = helper.createRole("A");
-		roleB = helper.createRole("B");
-		roleC = helper.createRole("C");
-		roleD = helper.createRole("D");
+		roleA = helper.createRole();
+		roleB = helper.createRole();
+		roleC = helper.createRole();
+		roleD = helper.createRole();
 	}
 	
 	/**
@@ -243,7 +243,7 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 		prepareAutomaticRoles();
 		//
 		// prepare identity and contract
-		IdmIdentityDto identity = helper.createIdentity("test");
+		IdmIdentityDto identity = helper.createIdentity();
 		IdmIdentityContractDto contract = new IdmIdentityContractDto();
 		contract.setIdentity(identity.getId());
 		contract.setValidFrom(new LocalDate().minusDays(1));
@@ -296,7 +296,7 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 		prepareAutomaticRoles();
 		//
 		// prepare identity and contract
-		IdmIdentityDto identity = helper.createIdentity("test");
+		IdmIdentityDto identity = helper.createIdentity();
 		IdmIdentityContractDto contract = new IdmIdentityContractDto();
 		contract.setIdentity(identity.getId());
 		contract.setValidFrom(new LocalDate().minusDays(1));
@@ -328,7 +328,7 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 		prepareAutomaticRoles();
 		//
 		// prepare identity and contract
-		IdmIdentityDto identity = helper.createIdentity("test");
+		IdmIdentityDto identity = helper.createIdentity();
 		IdmIdentityContractDto contract = new IdmIdentityContractDto();
 		contract.setIdentity(identity.getId());
 		contract.setWorkPosition(nodeD.getId());
@@ -373,7 +373,7 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 		prepareAutomaticRoles();
 		//
 		// prepare identity and contract
-		IdmIdentityDto identity = helper.createIdentity("test");
+		IdmIdentityDto identity = helper.createIdentity();
 		IdmIdentityContractDto contract = new IdmIdentityContractDto();
 		contract.setIdentity(identity.getId());
 		contract.setWorkPosition(nodeC.getId());

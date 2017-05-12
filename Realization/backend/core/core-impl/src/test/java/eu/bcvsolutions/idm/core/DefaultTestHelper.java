@@ -58,13 +58,13 @@ public class DefaultTestHelper implements TestHelper {
 	
 	@Override
 	public IdmIdentityDto createIdentity() {
-		return createIdentity("test");
+		return createIdentity(createName());
 	}
 	
 	@Override
 	public IdmIdentityDto createIdentity(String name) {
 		IdmIdentityDto identity = new IdmIdentityDto();
-		identity.setUsername(name + "_" + System.currentTimeMillis());
+		identity.setUsername(name);
 		identity.setFirstName("Test");
 		identity.setLastName("Identity");
 		identity = identityService.save(identity);
@@ -76,85 +76,69 @@ public class DefaultTestHelper implements TestHelper {
 		identityService.deleteById(id);
 	}
 	
-	/* (non-Javadoc)
-	 * @see eu.bcvsolutions.idm.core.TestHelper#createTreeType(java.lang.String)
-	 */
+	@Override
+	public IdmTreeType createTreeType() {
+		return createTreeType(createName());
+	}
+	
 	@Override
 	public IdmTreeType createTreeType(String name) {
 		IdmTreeType treeType = new IdmTreeType();
-		treeType.setCode(name + "-" + System.currentTimeMillis());
+		treeType.setCode(name);
 		treeType.setName(name);
 		return treeTypeService.save(treeType);
 	}
 	
-	/* (non-Javadoc)
-	 * @see eu.bcvsolutions.idm.core.TestHelper#createTreeNode()
-	 */
 	@Override
 	public IdmTreeNode createTreeNode() {
-		return createTreeNode("test", null);
+		return createTreeNode(createName(), null);
 	}
 	
-	/* (non-Javadoc)
-	 * @see eu.bcvsolutions.idm.core.TestHelper#createTreeNode(java.lang.String, eu.bcvsolutions.idm.core.model.entity.IdmTreeNode)
-	 */
 	@Override
 	public IdmTreeNode createTreeNode(String name, IdmTreeNode parent) {
 		return createTreeNode(treeTypeService.getDefaultTreeType(), name, parent);
 	}
 	
-	/* (non-Javadoc)
-	 * @see eu.bcvsolutions.idm.core.TestHelper#createTreeNode(eu.bcvsolutions.idm.core.model.entity.IdmTreeType, java.lang.String, eu.bcvsolutions.idm.core.model.entity.IdmTreeNode)
-	 */
+	@Override
+	public IdmTreeNode createTreeNode(IdmTreeType treeType, IdmTreeNode parent) {
+		return createTreeNode(treeTypeService.getDefaultTreeType(), createName(), parent);
+	}
+	
 	@Override
 	public IdmTreeNode createTreeNode(IdmTreeType treeType, String name, IdmTreeNode parent) {
 		Assert.notNull(treeType, "Tree type is required - test environment is wrong configured, test data is not prepared!");
 		//
 		IdmTreeNode node = new IdmTreeNode();
 		node.setParent(parent);
-		node.setCode(name + "-" + System.currentTimeMillis());
+		node.setCode(name);
 		node.setName(name);
 		node.setTreeType(treeType);
 		return treeNodeService.save(node);
 	}
 	
-	/* (non-Javadoc)
-	 * @see eu.bcvsolutions.idm.core.TestHelper#deleteTreeNode(java.util.UUID)
-	 */
 	@Override
 	public void deleteTreeNode(UUID id) {
 		treeNodeService.deleteById(id);
 	}
-	
-	/* (non-Javadoc)
-	 * @see eu.bcvsolutions.idm.core.TestHelper#createRole()
-	 */
+
 	@Override
 	public IdmRole createRole() {
-		return createRole("test");
+		return createRole(createName());
 	}
 	
-	/* (non-Javadoc)
-	 * @see eu.bcvsolutions.idm.core.TestHelper#createRole(java.lang.String)
-	 */
+
 	@Override
 	public IdmRole createRole(String name) {
 		IdmRole roleC = new IdmRole();
-		roleC.setName(name + "-" + System.currentTimeMillis());
+		roleC.setName(name);
 		return roleService.save(roleC);
 	}
 	
-	/* (non-Javadoc)
-	 * @see eu.bcvsolutions.idm.core.TestHelper#deleteRole(java.util.UUID)
-	 */
 	@Override
 	public void deleteRole(UUID id) {
 		roleService.deleteById(id);
 	}
 	
-	/* (non-Javadoc)
-	 * @see eu.bcvsolutions.idm.core.TestHelper#createRoleTreeNode(eu.bcvsolutions.idm.core.model.entity.IdmRole, eu.bcvsolutions.idm.core.model.entity.IdmTreeNode)
-	 */
 	@Override
 	public IdmRoleTreeNodeDto createRoleTreeNode(IdmRole role, IdmTreeNode treeNode, boolean skipLongRunningTask) {
 		IdmRoleTreeNodeDto roleTreeNode = new IdmRoleTreeNodeDto();
@@ -202,7 +186,7 @@ public class DefaultTestHelper implements TestHelper {
 	public IdmIdentityContractDto createIdentityContact(IdmIdentityDto identity) {
 		IdmIdentityContractDto contract = new IdmIdentityContractDto();
 		contract.setIdentity(identity.getId());
-		contract.setPosition("position-" + System.currentTimeMillis());
+		contract.setPosition(createName());
 		return identityContractService.save(contract);
 	}
 	
@@ -214,5 +198,9 @@ public class DefaultTestHelper implements TestHelper {
 	@Override
 	public IdmContractGuaranteeDto createContractGuarantee(UUID identityContractId, UUID identityId) {
 		return contractGuaranteeService.save(new IdmContractGuaranteeDto(identityContractId, identityId));
+	}
+	
+	private String createName() {
+		return "test" + "-" + System.currentTimeMillis();
 	}
 }

@@ -7,8 +7,9 @@ import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
 import RecursionTypeEnum from '../../enums/RecursionTypeEnum';
 //
-import { RoleManager, TreeNodeManager, SecurityManager } from '../../redux';
+import { RoleManager, TreeNodeManager, RoleTreeNodeManager } from '../../redux';
 
+const manager = new RoleTreeNodeManager();
 const roleManager = new RoleManager();
 const treeNodeManager = new TreeNodeManager();
 
@@ -32,11 +33,15 @@ export class RoleTreeNodeTable extends Advanced.AbstractTableContent {
   }
 
   getManager() {
-    return this.props.manager;
+    return manager;
   }
 
   showDetail(entity) {
     const { forceSearchParameters } = this.props;
+    //
+    if (!Utils.Entity.isNew(entity)) {
+      this.context.store.dispatch(this.getManager().fetchPermissions(entity.id, `${this.getUiKey()}-detail`));
+    }
     //
     let roleId = null;
     let treeNodeId = null;
@@ -72,7 +77,7 @@ export class RoleTreeNodeTable extends Advanced.AbstractTableContent {
   }
 
   render() {
-    const { uiKey, manager, columns, forceSearchParameters, _showLoading } = this.props;
+    const { uiKey, columns, forceSearchParameters, _showLoading, _permissions } = this.props;
     const { detail } = this.state;
     //
     return (
@@ -83,7 +88,7 @@ export class RoleTreeNodeTable extends Advanced.AbstractTableContent {
           uiKey={uiKey}
           manager={manager}
           forceSearchParameters={forceSearchParameters}
-          showRowSelection={SecurityManager.hasAuthority('ROLE_DELETE')}
+          showRowSelection={ manager.canDelete() }
           actions={
             [
               { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }
@@ -95,11 +100,11 @@ export class RoleTreeNodeTable extends Advanced.AbstractTableContent {
                 level="success"
                 key="add_button"
                 className="btn-xs"
-                onClick={this.showDetail.bind(this, { recursionType: RecursionTypeEnum.findKeyBySymbol(RecursionTypeEnum.NO) })}
-                rendered={SecurityManager.hasAuthority('ROLE_UPDATE')}>
+                onClick={ this.showDetail.bind(this, { recursionType: RecursionTypeEnum.findKeyBySymbol(RecursionTypeEnum.NO) }) }
+                rendered={ manager.canSave() }>
                 <Basic.Icon type="fa" icon="plus"/>
                 {' '}
-                {this.i18n('button.add')}
+                { this.i18n('button.add') }
               </Basic.Button>
             ]
           }>
@@ -149,7 +154,10 @@ export class RoleTreeNodeTable extends Advanced.AbstractTableContent {
             <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('create.header')} rendered={Utils.Entity.isNew(detail.entity)}/>
             <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('edit.header', { name: detail.entity.name })} rendered={!Utils.Entity.isNew(detail.entity)}/>
             <Basic.Modal.Body>
-              <Basic.AbstractForm ref="form" showLoading={_showLoading}>
+              <Basic.AbstractForm
+                ref="form"
+                showLoading={ _showLoading }
+                readOnly={ !manager.canSave(detail.entity, _permissions) }>
                 <Basic.SelectBox
                   ref="role"
                   manager={roleManager}
@@ -181,10 +189,10 @@ export class RoleTreeNodeTable extends Advanced.AbstractTableContent {
               <Basic.Button
                 type="submit"
                 level="success"
-                rendered={Utils.Entity.isNew(detail.entity)}
-                showLoading={_showLoading}
+                rendered={ Utils.Entity.isNew(detail.entity) && manager.canSave(detail.entity, _permissions) }
+                showLoading={ _showLoading}
                 showLoadingIcon
-                showLoadingText={this.i18n('button.saving')}>
+                showLoadingText={ this.i18n('button.saving') }>
                 {this.i18n('button.save')}
               </Basic.Button>
             </Basic.Modal.Footer>
@@ -216,6 +224,7 @@ RoleTreeNodeTable.defaultProps = {
 function select(state, component) {
   return {
     _showLoading: Utils.Ui.isShowLoading(state, `${component.uiKey}-detail`),
+    _permissions: Utils.Permission.getPermissions(state, `${component.uiKey}-detail`)
   };
 }
 

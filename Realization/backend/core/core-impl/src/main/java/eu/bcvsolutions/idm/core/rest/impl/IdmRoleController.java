@@ -1,8 +1,10 @@
 package eu.bcvsolutions.idm.core.rest.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -45,6 +47,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmAudit;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
+import eu.bcvsolutions.idm.core.model.entity.IdmRoleGuarantee;
 import eu.bcvsolutions.idm.core.model.entity.eav.IdmRoleFormValue;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuditService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
@@ -264,6 +267,18 @@ public class IdmRoleController extends AbstractReadWriteEntityController<IdmRole
 		checkAccess(entity, IdmBasePermission.READ);
 		//
 		return authorizationPolicyService.getEnabledRoleAuthorities(securityService.getAuthentication().getCurrentIdentity().getId(), entity.getId());
+	}
+	
+	@Override
+	protected IdmRole validateEntity(IdmRole entity) {
+		// TODO: remove after dto refactoring or remove guarantees from role at all (create standalone endpoint).
+		entity.getGuarantees().forEach(guarantee -> {
+			if (guarantee.getGuarantee() != null && guarantee.getGuarantee().getId() != null) {
+				guarantee.setGuarantee((IdmIdentity) entityLookupService.lookupEntity(IdmIdentity.class, guarantee.getGuarantee().getId()));
+			}
+		});
+		//
+		return super.validateEntity(entity);
 	}
 	
 	@Override

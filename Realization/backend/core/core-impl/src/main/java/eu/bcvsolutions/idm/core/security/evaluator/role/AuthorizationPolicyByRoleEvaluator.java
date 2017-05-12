@@ -1,5 +1,8 @@
 package eu.bcvsolutions.idm.core.security.evaluator.role;
 
+import java.util.Set;
+import java.util.UUID;
+
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
@@ -16,6 +19,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmAuthorizationPolicy_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.security.api.domain.AuthorizationPolicy;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizationManager;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.security.evaluator.AbstractTransitiveEvaluator;
@@ -58,5 +62,27 @@ public class AuthorizationPolicyByRoleEvaluator extends AbstractTransitiveEvalua
 				));
 		//
 		return builder.exists(subquery);
+	}
+	
+	@Override
+	public Set<String> getPermissions(IdmAuthorizationPolicy entity, AuthorizationPolicy policy) {
+		Set<String> permissions = super.getPermissions(entity, policy);
+		// add permissions, when update is available
+		if (permissions.contains(IdmBasePermission.UPDATE.getName())) {
+			permissions.add(IdmBasePermission.CREATE.getName());
+			permissions.add(IdmBasePermission.DELETE.getName());
+		}
+		return permissions;
+	}
+	
+	@Override
+	public Set<String> getAuthorities(UUID identityId, AuthorizationPolicy policy) {
+		Set<String> authorities = super.getAuthorities(identityId, policy);
+		// add authorities, when update is available
+		if (authorities.contains(IdmBasePermission.UPDATE.getName())) {
+			authorities.add(IdmBasePermission.CREATE.getName());
+			authorities.add(IdmBasePermission.DELETE.getName());
+		}
+		return authorities;
 	}
 }

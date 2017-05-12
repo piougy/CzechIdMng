@@ -68,6 +68,10 @@ public interface Configurable {
 	 * @return
 	 */
 	default boolean isDisabled() {
+		// check configurable could be disabled
+		if (!isDisableable()) {
+			return false;
+		}
 		// check for processor is enabled, if configuration service is given
 		if (getConfigurationService() != null) {
 			return !getConfigurationService().getBooleanValue(

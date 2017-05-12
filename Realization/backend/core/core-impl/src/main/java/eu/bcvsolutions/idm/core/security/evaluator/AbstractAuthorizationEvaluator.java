@@ -14,11 +14,13 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
+import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.security.api.domain.AuthorizationPolicy;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
@@ -29,12 +31,17 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizationEvaluator;
  * Abstract authorization evaluator template.
  * 
  * @author Radek Tomiška
+ * 
+ * TODO: move @Autowire to @Configuration bean post processor
  *
  * @param <E> evaluated {@link Identifiable} type - evaluator is designed for one domain type. 
  */
 public abstract class AbstractAuthorizationEvaluator<E extends Identifiable> implements AuthorizationEvaluator<E> {
 
 	private final Class<E> entityClass;
+	
+	@Autowired(required = false)
+	private ConfigurationService configurationService; // optional internal dependency - checks for processor is enabled
 
 	@SuppressWarnings({ "unchecked" })
 	public AbstractAuthorizationEvaluator() {
@@ -117,21 +124,8 @@ public abstract class AbstractAuthorizationEvaluator<E extends Identifiable> imp
 	}
 	
 	@Override
-	public boolean isDisableable() {
+	public boolean supportsPermissions() {
 		return true;
-	}
-	
-	@Override
-	public boolean isDisabled() {
-		// check for processor is enabled, if configuration service is given
-//		if (configurationService != null) {
-//			return !configurationService.getBooleanValue(
-//					getConfigurationPrefix()
-//					+ ConfigurationService.PROPERTY_SEPARATOR
-//					+ PROPERTY_ENABLED, true);
-//		}
-		// enabled by default
-		return false;
 	}
 	
 	/**
@@ -184,5 +178,10 @@ public abstract class AbstractAuthorizationEvaluator<E extends Identifiable> imp
 	 */
 	protected boolean hasAuthority(Collection<String> authorities, BasePermission... authority) {
 		return authorities.containsAll(Arrays.stream(authority).map(Object::toString).collect(Collectors.toList()));
+	}
+	
+	@Override
+	public ConfigurationService getConfigurationService() {
+		return configurationService;
 	}
 }

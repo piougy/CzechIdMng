@@ -91,7 +91,7 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractIntegra
 
 	private void prepareIdentityAndRoles() {
 		// create roles
-		roleA = helper.createRole("A");
+		roleA = helper.createRole();
 		roleA.setPriority(100);
 		roleService.save(roleA);
 		

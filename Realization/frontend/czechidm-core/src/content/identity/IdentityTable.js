@@ -172,7 +172,7 @@ export class IdentityTable extends Advanced.AbstractTableContent {
                     <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
                   </div>
                 </Basic.Row>
-                <Basic.Row className="last">
+                <Basic.Row>
                   <div className="col-lg-6">
                     <Advanced.Filter.SelectBox
                       ref="treeNodeId"
@@ -184,6 +184,13 @@ export class IdentityTable extends Advanced.AbstractTableContent {
                     <Advanced.Filter.BooleanSelectBox
                       ref="recursively"
                       placeholder={ this.i18n('filter.recursively.placeholder') }/>
+                  </div>
+                </Basic.Row>
+                <Basic.Row className="last">
+                  <div className="col-lg-6">
+                    <Advanced.Filter.BooleanSelectBox
+                      ref="disabled"
+                      placeholder={ this.i18n('filter.disabled.placeholder') }/>
                   </div>
                 </Basic.Row>
               </Basic.AbstractForm>

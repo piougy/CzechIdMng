@@ -164,6 +164,10 @@ public class DefaultIdmRoleRequestService
 			// get contract dto from embedded map
 			IdmIdentityContractDto contract = (IdmIdentityContractDto) concept.getEmbedded()
 					.get(IdmConceptRoleRequestService.IDENTITY_CONTRACT_FIELD);
+			if(contract == null){
+				// If is contract from concept null, then contract via identity role must works
+				contract = (IdmIdentityContractDto) identityRoleService.get(concept.getIdentityRole()).getEmbedded().get(IdmConceptRoleRequestService.IDENTITY_CONTRACT_FIELD);
+			}
 			return !request.getApplicant().equals(contract.getIdentity());
 		});
 

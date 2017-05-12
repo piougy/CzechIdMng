@@ -66,6 +66,7 @@
     },
     "logout": "Log Out",
     "no": "No",
+    "select": "Select",
     "send": "Send",
     "sending": "Sending",
     "save": "Save",
@@ -817,6 +818,10 @@
         "role": {
           "label": "Role",
           "placeholder": "Assigned role"
+        },
+        "disabled": {
+          "label": "Disabled",
+          "placeholder": "Disabled"
         }
       },
       "action": {
@@ -1929,6 +1934,11 @@
         "help": "Body of script in groovy.",
         "label": "Script"
        },
+       "select": {
+         "help": "",
+         "button": "Insert script",
+         "label": "Selection of available scripts"
+       },
       "description": "Script description"
     },
     "ScriptAuthority": {
@@ -2024,7 +2034,8 @@
         "title": "Automatic role",
         "placeholder": "Automatic role",
         "help": "Role from contracted position"
-      }
+      },
+      "roleCataloguePicker": "Select a folder from the catalog"
     },
     "IdentityAccount": {
       "attribute": {

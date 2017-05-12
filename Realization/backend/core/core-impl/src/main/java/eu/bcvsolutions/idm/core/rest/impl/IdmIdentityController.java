@@ -368,6 +368,7 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 		IdentityFilter filter = new IdentityFilter(parameters);
 		filter.setId(getParameterConverter().toUuid(parameters, "id"));
 		filter.setText(getParameterConverter().toString(parameters, "text"));
+		filter.setDisabled(getParameterConverter().toBoolean(parameters, "disabled"));
 		filter.setSubordinatesFor(getParameterConverter().toEntityUuid(parameters, IdentityFilter.PARAMETER_SUBORDINATES_FOR, IdmIdentity.class));
 		filter.setSubordinatesByTreeType(getParameterConverter().toEntityUuid(parameters, IdentityFilter.PARAMETER_SUBORDINATES_BY_TREE_TYPE, IdmTreeType.class));
 		filter.setManagersFor(getParameterConverter().toEntityUuid(parameters, IdentityFilter.PARAMETER_MANAGERS_FOR, IdmIdentity.class));

@@ -7,7 +7,7 @@ import uuid from 'uuid';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
-import { RoleManager, IdentityManager, IdentityContractManager } from '../../redux';
+import { RoleManager, IdentityManager, IdentityContractManager, RoleCatalogueManager } from '../../redux';
 import SearchParameters from '../../domain/SearchParameters';
 
 /**
@@ -15,6 +15,7 @@ import SearchParameters from '../../domain/SearchParameters';
 * Designed for use in task detail.
 */
 
+const roleCatalogueManager = new RoleCatalogueManager();
 const roleManager = new RoleManager();
 const identityManager = new IdentityManager();
 const identityContractManager = new IdentityContractManager();
@@ -329,6 +330,47 @@ export class RoleConceptTable extends Basic.AbstractContent {
   }
 
   /**
+   * Method prefill roles to selectbox by folder (role catalogue)
+   */
+  _changeRoleCatalogue(catalogue, event) {
+    if (event) {
+      event.preventDefault();
+    }
+    //
+    if (!catalogue) {
+      this.refs.role.setValue([]);
+      return;
+    }
+    //
+    this.context.store.dispatch(
+      roleManager.fetchEntities(
+        roleManager.getDefaultSearchParameters().setFilter('roleCatalogue', catalogue.id), null,
+          roles => {
+            if (roles && roles._embedded) {
+              const rolesToSet = [];
+              for (let index = 0; index < roles._embedded.roles.length; index++) {
+                const role = roles._embedded.roles[index];
+                rolesToSet.push(role);
+              }
+              this.refs.role.setValue(rolesToSet);
+            }
+          }
+        )
+      );
+  }
+
+  /**
+   * Method clear selected folder from role catalogue picker
+   */
+  _clearRoleCatalogue(value, event) {
+    if (event) {
+      event.preventDefault();
+    }
+    //
+    this.refs.roleCatalogue.setValue();
+  }
+
+  /**
    * Generate cell with actions (buttons)
    */
   _conceptActionsCell({rowIndex, data}) {
@@ -464,8 +506,14 @@ export class RoleConceptTable extends Basic.AbstractContent {
             <Basic.Modal.Body>
               <Basic.AbstractForm ref="form" showLoading={showLoading} readOnly={!detail.edit}>
                 <Basic.SelectBox
+                  ref="roleCatalogue"
+                  onChange={this._changeRoleCatalogue.bind(this)}
+                  manager={roleCatalogueManager}
+                  label={this.i18n('entity.IdentityRole.roleCataloguePicker')}/>
+                <Basic.SelectBox
                   ref="role"
                   manager={roleManager}
+                  onChange={this._clearRoleCatalogue.bind(this)}
                   label={this.i18n('entity.IdentityRole.role')}
                   multiSelect={detail.entity._added && detail.add}
                   readOnly={!detail.entity._added}

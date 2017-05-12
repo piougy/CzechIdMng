@@ -42,11 +42,11 @@
 	        <includeCallerData>true</includeCallerData>
 	    </appender>
 	
-		<logger name="eu.bcvsolutions" level="INFO">
+		<logger name="eu.bcvsolutions" level="TRACE">
 			<appender-ref ref="DB_ASYNC" />
 		</logger>
 		<logger name="org.springframework" level="INFO"/>
-		<logger name="org.springframework.web" level="INFO"/>
+		<logger name="org.springframework.web" level="DEBUG"/>
 		<logger name="org.hibernate.SQL" level="DEBUG"/>
 		<logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="TRACE"/>        
     </springProfile>

@@ -66,6 +66,7 @@
     },
     "logout": "Odhlásit se",
     "no": "Ne",
+    "select": "Vybrat",
     "send": "Odeslat",
     "sending": "Odesílám ...",
     "save": "Uložit",
@@ -850,6 +851,10 @@
         "role": {
           "label": "Role",
           "placeholder": "Má přiřazenu roli"
+        },
+        "disabled": {
+          "label": "Zablokovaný",
+          "placeholder": "Zablokovaný"
         }
       },
       "action": {
@@ -1962,7 +1967,12 @@
       "code": "Kód",
       "script": {
         "help": "Tělo skriptu v jazyce Groovy.",
-        "label": "Pravidlo"
+        "label": "Skript"
+       },
+       "select": {
+         "help": "",
+         "button": "Vložit skript",
+         "label": "Výběr dostupných skriptů"
        },
       "description": "Popis skriptu"
     },
@@ -2059,7 +2069,8 @@
         "title": "Automatická role",
         "placeholder": "Automatická role",
         "help": "Role vychází z pozice v PPV"
-      }
+      },
+      "roleCataloguePicker": "Výběr složky z katalogu"
     },
     "IdentityAccount": {
       "attribute": {

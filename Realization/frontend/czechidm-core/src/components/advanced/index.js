@@ -21,6 +21,7 @@ import UuidInfo from './UuidInfo/UuidInfo';
 import RoleInfo from './RoleInfo/RoleInfo';
 import IdentityContractInfo from './IdentityContractInfo/IdentityContractInfo';
 import NotificationTemplateInfo from './NotificationTemplateInfo/NotificationTemplateInfo';
+import ScriptArea from './ScriptArea/ScriptArea';
 
 const Components = {
   Table,
@@ -47,7 +48,8 @@ const Components = {
   UuidInfo,
   RoleInfo,
   IdentityContractInfo,
-  NotificationTemplateInfo
+  NotificationTemplateInfo,
+  ScriptArea
 };
 
 Components.version = '0.0.1';

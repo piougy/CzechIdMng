@@ -76,8 +76,30 @@ class ScriptArea extends AbstractFormComponent {
     />);
   }
 
-  getBody(feedback) {
-    const { labelSpan, label, componentSpan, required, mode, height, showMaximalizationBtn } = this.props;
+  _getMaximalizationButton(showMaximalizationBtn) {
+    return (
+      <Button
+        type="button"
+        className="btn-xs"
+        level="success"
+        rendered={showMaximalizationBtn}
+        onClick={this._showModalEditor.bind(this)}>
+        <Icon icon="fullscreen"/>
+      </Button>
+    );
+  }
+
+  getOptionsButton() {
+    const { showMaximalizationBtn } = this.props;
+    return (
+      <div className="pull-right script-area-btn-max">
+        { this._getMaximalizationButton(showMaximalizationBtn) }
+      </div>
+    );
+  }
+
+  _getComponent(feedback) {
+    const { labelSpan, label, componentSpan, required, mode, height } = this.props;
     const {showModalEditor} = this.state;
     //
     const className = classNames('form-control');
@@ -109,14 +131,7 @@ class ScriptArea extends AbstractFormComponent {
         <div className={componentSpan}>
           <Tooltip ref="popover" placement={ this.getTitlePlacement() } value={ this.getTitle() }>
             <span>
-              <Button
-                type="button"
-                className="btn-xs pull-right script-area-btn-max"
-                level="success"
-                rendered={showMaximalizationBtn}
-                onClick={this._showModalEditor.bind(this)}>
-                <Icon icon="fullscreen"/>
-              </Button>
+              { this.getOptionsButton() }
               {!showModalEditor ? AceEditorInstance : null }
               {
                 feedback
@@ -144,6 +159,10 @@ class ScriptArea extends AbstractFormComponent {
         </div>
       </div>
     );
+  }
+
+  getBody(feedback) {
+    return this._getComponent(feedback);
   }
 }
 

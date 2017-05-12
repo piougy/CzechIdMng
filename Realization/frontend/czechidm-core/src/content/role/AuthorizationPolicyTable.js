@@ -159,12 +159,17 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
       if (newState.evaluatorType !== undefined) {
         this.refs.evaluatorType.setValue(newState.evaluatorType);
       }
+      this.refs.basePermissions.setValue(null);
     });
   }
 
   onChangeEvaluatorType(evaluatorType) {
     this.setState({
       evaluatorType
+    }, () => {
+      if (evaluatorType && !evaluatorType.supportsPermissions) {
+        this.refs.basePermissions.setValue(null);
+      }
     });
   }
 
@@ -207,13 +212,14 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
     if (supportedEvaluators) {
       supportedEvaluators.forEach(evaluator => {
         // TODO: add filter to BE and evaluate all superclasses
-        if ((!authorizableType && (Utils.Ui.getSimpleJavaType(evaluator.entityType) === 'Identifiable'))
+        if ((!authorizableType && (Utils.Ui.getSimpleJavaType(evaluator.entityType) === 'Identifiable') && (Utils.Ui.getSimpleJavaType(evaluator.evaluatorType) !== 'CodeableEvaluator'))
             || (authorizableType && (authorizableType.type === evaluator.entityType || Utils.Ui.getSimpleJavaType(evaluator.entityType) === 'Identifiable'))) {
           _supportedEvaluators.push({
             niceLabel: Utils.Ui.getSimpleJavaType(evaluator.evaluatorType),
             value: evaluator.id,
             description: evaluator.description,
-            parameters: evaluator.parameters
+            parameters: evaluator.parameters,
+            supportsPermissions: evaluator.supportsPermissions
           });
         }
       });
@@ -413,6 +419,7 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
                       label={ this.i18n('entity.AuthorizationPolicy.basePermissions.label') }
                       palceholder={ this.i18n('entity.AuthorizationPolicy.basePermissions.placeholder') }
                       helpBlock={ this.i18n('entity.AuthorizationPolicy.basePermissions.help') }
+                      readOnly={ evaluatorType ? !evaluatorType.supportsPermissions : false }
                       multiSelect/>
                     <Basic.TextField
                       ref="seq"

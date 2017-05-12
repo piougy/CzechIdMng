@@ -7,11 +7,13 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmEmailLogDto;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationRecipientDto;
 import eu.bcvsolutions.idm.core.notification.entity.IdmEmailLog;
 import eu.bcvsolutions.idm.core.notification.service.api.EmailNotificationSender;
 import eu.bcvsolutions.idm.core.notification.service.api.IdmEmailLogService;
+import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationTemplateService;
 
 /**
  * Sending emails to queue (email will be sent asynchronously)
@@ -25,16 +27,21 @@ public class DefaultEmailNotificationSender extends AbstractNotificationSender<I
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultEmailNotificationSender.class);
 	private final IdmEmailLogService emailLogService;
     private final ProducerTemplate producerTemplate;
+    private final IdmNotificationTemplateService notificationTemplateService;
     
     @Autowired
     public DefaultEmailNotificationSender(
     		IdmEmailLogService emailLogService,
-    		ProducerTemplate producerTemplate) {
+    		ProducerTemplate producerTemplate,
+    		IdmNotificationTemplateService notificationTemplateService) {
+    	//
     	Assert.notNull(emailLogService);
     	Assert.notNull(producerTemplate);
+    	Assert.notNull(notificationTemplateService);
     	//
 		this.producerTemplate = producerTemplate;
 		this.emailLogService = emailLogService;
+		this.notificationTemplateService = notificationTemplateService;
 	}
 	
 	@Override
@@ -52,6 +59,37 @@ public class DefaultEmailNotificationSender extends AbstractNotificationSender<I
 		// send notification to routing, generate new message
 		producerTemplate.sendBody("direct:emails", log);
 		return log;
+	}
+	
+	@Override
+	public IdmEmailLogDto send(IdmMessageDto message, String[] emails) {
+		Assert.notNull(message);
+		Assert.notNull(emails);
+		//
+		IdmEmailLogDto emailLog = new IdmEmailLogDto();
+		// there is no parent
+		// build message, without password
+		emailLog.setMessage(notificationTemplateService.buildMessage(message, false));
+		//
+		for (String email : emails){
+			// fill email to recipientDto
+			emailLog.getRecipients().add(new IdmNotificationRecipientDto(email));
+		}
+		emailLog = this.emailLogService.save(emailLog);
+		//
+		producerTemplate.sendBody("direct:emails", emailLog);
+		//
+		return emailLog;
+	}
+
+	@Override
+	public IdmEmailLogDto send(IdmMessageDto message, String email) {
+		Assert.notNull(email);
+		//
+		String[] emails = new String[1];
+		emails[0] = email;
+		//
+		return this.send(message, emails);
 	}
 	
 	/**

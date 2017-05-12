@@ -207,7 +207,7 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 		}
 		AuthorizationEvaluator<E> evaluator = (AuthorizationEvaluator<E>) evaluators.get(evaluatorType);
 		if (evaluator.isDisabled()) {
-			LOG.warn("Evaluator type [{}] for policy [{}] is disabled - policy will not be evaluated.", evaluatorType, policy.getId());
+			LOG.info("Evaluator type [{}] for policy [{}] is disabled - policy will not be evaluated.", evaluatorType, policy.getId());
 			return null;
 		}
 		//
@@ -225,6 +225,7 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 			evaluatorDto.setEvaluatorType(evaluator.getClass().getCanonicalName());
 			evaluatorDto.setModule(evaluator.getModule());
 			evaluatorDto.setParameters(evaluator.getParameterNames());
+			evaluatorDto.setSupportsPermissions(evaluator.supportsPermissions());
 			// resolve documentation
 			evaluatorDto.setDescription(AutowireHelper.getBeanDescription(entry.getKey()));
 			evaluators.add(evaluatorDto);

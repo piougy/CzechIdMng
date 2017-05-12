@@ -32,7 +32,7 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizationManager;
  * @deprecated use {@link AbstractReadDtoService}
  */
 @Deprecated
-public abstract class AbstractReadEntityService<E extends BaseEntity, F extends BaseFilter> implements ReadEntityService<E, F>, ScriptEnabled {
+public abstract class AbstractReadEntityService<E extends BaseEntity, F extends BaseFilter> implements ReadEntityService<E, F> {
 	
 	private final Class<E> entityClass;
 	private final Class<F> filterClass;

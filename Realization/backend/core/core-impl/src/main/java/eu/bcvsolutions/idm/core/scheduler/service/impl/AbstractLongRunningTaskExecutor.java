@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
@@ -17,8 +18,8 @@ import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskExecutor;
-import eu.bcvsolutions.idm.core.scheduler.entity.IdmLongRunningTask;
 import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskService;
 
 /**
@@ -63,10 +64,7 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements LongRunningT
 	
 	protected boolean start() {
 		Assert.notNull(taskId);
-		IdmLongRunningTask task = service.get(taskId);
-		if (task == null) {
-			LOG.error("Long running task hasn't prepared before task started! Task id: [{}]", taskId);
-		}
+		IdmLongRunningTaskDto task = service.get(taskId);
 		Assert.notNull(task, "Long running task has to be prepared before task is started");
 		//
 		if (task.isRunning()) {
@@ -85,7 +83,7 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements LongRunningT
 		task.setRunning(true);
 		task.setResult(new OperationResult.Builder(OperationState.RUNNING).build());
 		//
-		service.save(task);
+		service.saveInternal(task);
 		return true;
 	}
 	
@@ -106,7 +104,7 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements LongRunningT
 	
 	protected V end(V result, Exception ex) {
 		Assert.notNull(taskId);
-		IdmLongRunningTask task = service.get(taskId);
+		IdmLongRunningTaskDto task = service.get(taskId);
 		Assert.notNull(task, "Long running task has to be prepared before task is started");
 		//
 		setStateProperties(task);
@@ -129,7 +127,7 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements LongRunningT
 			task.setResult(new OperationResult.Builder(OperationState.EXECUTED).build());
 		}
 		task.setRunning(false);
-		service.save(task);
+		service.saveInternal(task);
 		//
 		return result;
 	}
@@ -179,7 +177,7 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements LongRunningT
 		}
 		service.updateState(taskId, count, counter);
 		//
-		IdmLongRunningTask task = service.get(taskId);
+		IdmLongRunningTaskDto task = service.get(taskId);
 		if (task == null) {
 			return true;
 		}
@@ -204,7 +202,7 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements LongRunningT
 	 * @param longRunningTask
 	 * @param taskExecutor
 	 */
-	private void setStateProperties(IdmLongRunningTask task) {
+	private void setStateProperties(IdmLongRunningTaskDto task) {
 		task.setCount(getCount());
 		task.setCounter(getCounter());
 		if (task.getCount() != null && task.getCounter() == null) {

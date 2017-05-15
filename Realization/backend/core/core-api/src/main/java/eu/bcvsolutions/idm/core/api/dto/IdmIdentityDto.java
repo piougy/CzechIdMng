@@ -59,6 +59,10 @@ public class IdmIdentityDto extends AbstractDto implements Disableable {
 	public IdmIdentityDto() {
 	}
 	
+	public IdmIdentityDto(UUID id) {
+		super(id);
+	}
+	
 	public IdmIdentityDto(String username) {
 		this.username = username;
 	}

@@ -99,14 +99,14 @@ public class CodeableEvaluator extends AbstractAuthorizationEvaluator<Identifiab
 	 */
 	@SuppressWarnings("unchecked")
 	private BaseEntity lookupEntity(AuthorizationPolicy policy) {
-		String identifier = policy.getEvaluatorProperties().getString(PARAMETER_IDENTIFIER);
+		Object identifier = policy.getEvaluatorProperties().get(PARAMETER_IDENTIFIER);
 		if (identifier == null || StringUtils.isEmpty(policy.getAuthorizableType())) { 
 			return null;
 		}
 		// find entity by identifiable object ... this is little strange (we find entity only for adding it to other search)
 		BaseEntity entity;
 		try {
-			entity = lookupService.lookupEntity((Class<? extends Identifiable>) Class.forName(policy.getAuthorizableType()), identifier);
+			entity = lookupService.lookupEntity((Class<? extends Identifiable>) Class.forName(policy.getAuthorizableType()), identifier.toString());
 		} catch (ClassNotFoundException ex) {
 			LOG.warn("Class for name [{}] not found - skipping", policy.getAuthorizableType());
 			return null;

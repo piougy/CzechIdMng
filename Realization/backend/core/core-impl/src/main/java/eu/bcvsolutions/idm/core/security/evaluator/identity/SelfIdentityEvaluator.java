@@ -54,7 +54,7 @@ public class SelfIdentityEvaluator extends AbstractAuthorizationEvaluator<IdmIde
 		if (entity == null || !securityService.isAuthenticated()) {
 			return permissions;
 		}
-		if (securityService.getUsername().equals(entity.getUsername())) {
+		if (securityService.getCurrentId().equals(entity.getId())) {
 			permissions.addAll(policy.getPermissions());
 		}
 		return permissions;

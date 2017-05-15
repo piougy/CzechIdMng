@@ -88,7 +88,6 @@ class PasswordChangeForm extends Basic.AbstractContent {
     }, this.refs.form.processStarted());
     //
     const requestData = {
-      identity: entityId,
       oldPassword: formData.oldPassword,
       newPassword: formData.newPassword,
       accounts: []

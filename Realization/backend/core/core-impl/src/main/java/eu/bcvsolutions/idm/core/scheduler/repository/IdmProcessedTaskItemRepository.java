@@ -16,17 +16,17 @@ import eu.bcvsolutions.idm.core.scheduler.entity.IdmProcessedTaskItem;
 
 /**
  * Processed task items repository.
+ * 
  * @author Jan Helbich
  *
  */
 public interface IdmProcessedTaskItemRepository
 	extends AbstractEntityRepository<IdmProcessedTaskItem, IdmProcessedTaskItemFilter> {
 
-	
 	@Override
 	@Deprecated
 	default Page<IdmProcessedTaskItem> find(IdmProcessedTaskItemFilter filter, Pageable pageable) {
-		throw new UnsupportedOperationException("Use IdmProcessedItemsQueueService (uses criteria api)");
+		throw new UnsupportedOperationException("Use IdmProcessedTaskItemService (uses criteria api)");
 	}
 	
 	@Transactional

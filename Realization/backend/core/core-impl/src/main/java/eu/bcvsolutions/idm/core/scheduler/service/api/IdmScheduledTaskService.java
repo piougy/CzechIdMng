@@ -13,7 +13,7 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
  * @author Jan Helbich
  *
  */
-public interface IdmScheduledTaskDtoService
+public interface IdmScheduledTaskService
 	extends ReadWriteDtoService<IdmScheduledTaskDto, IdmScheduledTaskFilter>, 
 	AuthorizableService<IdmScheduledTaskDto, IdmScheduledTaskFilter> {
 

@@ -14,15 +14,17 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 
 /**
  * Service layer for long running tasks.
+ * 
+ * @author Radek Tomiška
  * @author Jan Helbich
  *
  */
-public interface IdmLongRunningTaskDtoService extends
+public interface IdmLongRunningTaskService extends
 	ReadWriteDtoService<IdmLongRunningTaskDto, LongRunningTaskFilter>,
 	AuthorizableService<IdmLongRunningTask, LongRunningTaskFilter> {
 
 	/**
-	 * Returns task for given instance id (server) and state
+	 * Returns tasks for given instance id (server) and state
 	 * 
 	 * @param instanceId - server id 
 	 * @param state
@@ -30,7 +32,7 @@ public interface IdmLongRunningTaskDtoService extends
 	 * 
 	 * @see ConfigurationService
 	 */
-	List<IdmLongRunningTaskDto> getTasks(String instanceId, OperationState state);
+	List<IdmLongRunningTaskDto> findAllByInstance(String instanceId, OperationState state);
 	
 	/**
 	 * Persists long running task in new transaction

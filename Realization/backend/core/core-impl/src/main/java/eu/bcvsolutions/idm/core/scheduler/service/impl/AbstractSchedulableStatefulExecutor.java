@@ -24,29 +24,29 @@ import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmProcessedTaskItemDto;
 import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulableStatefulExecutor;
 import eu.bcvsolutions.idm.core.scheduler.dto.filter.IdmProcessedTaskItemFilter;
-import eu.bcvsolutions.idm.core.scheduler.service.api.IdmProcessedTaskItemDtoService;
+import eu.bcvsolutions.idm.core.scheduler.service.api.IdmProcessedTaskItemService;
 
 /**
- * Abstract base class for HR process tasks, which handles common
- * HR process flow for context-less and stateful processes (the ones
+ * Abstract base class for statefull tasks, which handles common
+ * process flow for context-less and stateful processes (the ones
  * with inner memory.
  * 
- * All stateful HR processes work with entity IDs (of type UUID) as
+ * All stateful processes work with entity IDs (of type UUID) as
  * references to already processed items. 
  * 
  * @author Jan Helbich
  *
- * @param <T> process DTO type, 
+ * @param <DTO> process DTO type, 
  */
-public abstract class AbstractSchedulableStatefulExecutor<T extends AbstractDto>
+public abstract class AbstractSchedulableStatefulExecutor<DTO extends AbstractDto>
 	extends AbstractSchedulableTaskExecutor<Boolean>
-	implements SchedulableStatefulExecutor<T, Boolean> {
+	implements SchedulableStatefulExecutor<DTO, Boolean> {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(AbstractSchedulableStatefulExecutor.class);
 	private static final int PAGE_SIZE = 100;
 	
 	@Autowired
-	protected IdmProcessedTaskItemDtoService itemService;
+	protected IdmProcessedTaskItemService itemService;
 
 	@Override
 	public Boolean process() {
@@ -61,7 +61,7 @@ public abstract class AbstractSchedulableStatefulExecutor<T extends AbstractDto>
 	}
 
 	@Override
-	public IdmProcessedTaskItemDto logItemProcessed(T dto, OperationResult opResult) {
+	public IdmProcessedTaskItemDto logItemProcessed(DTO dto, OperationResult opResult) {
 		Assert.notNull(dto);
 		Assert.notNull(opResult);
 		//
@@ -69,7 +69,7 @@ public abstract class AbstractSchedulableStatefulExecutor<T extends AbstractDto>
 	}
 
 	@Override
-	public IdmProcessedTaskItemDto addToProcessedQueue(T dto, OperationResult opResult) {
+	public IdmProcessedTaskItemDto addToProcessedQueue(DTO dto, OperationResult opResult) {
 		Assert.notNull(dto);
 		Assert.notNull(opResult);
 		//
@@ -91,7 +91,7 @@ public abstract class AbstractSchedulableStatefulExecutor<T extends AbstractDto>
 	}
 	
 	@Override
-	public boolean isInProcessedQueue(T dto) {
+	public boolean isInProcessedQueue(DTO dto) {
 		Assert.notNull(dto);
 		//
 		Page<IdmProcessedTaskItemDto> p = getItemFromQueue(dto.getId());
@@ -109,7 +109,7 @@ public abstract class AbstractSchedulableStatefulExecutor<T extends AbstractDto>
 	}
 
 	@Override
-	public void removeFromProcessedQueue(T dto) {
+	public void removeFromProcessedQueue(DTO dto) {
 		Assert.notNull(dto);
 		//
 		removeFromProcessedQueue(dto.getId());
@@ -119,35 +119,36 @@ public abstract class AbstractSchedulableStatefulExecutor<T extends AbstractDto>
 		Set<UUID> retrievedRefs = new HashSet<>();
 		//
 		int page = 0;
-		boolean hasNextPage = false;
+		boolean canContinue = true;
 		//
 		do {
-			Page<T> candidates = this.getItemsToProcess(new PageRequest(page, PAGE_SIZE));
-			hasNextPage = candidates.hasContent();
+			Page<DTO> candidates = this.getItemsToProcess(new PageRequest(page, PAGE_SIZE));
+			//
 			if (count == null) {
 				count = candidates.getTotalElements();
 			}
 			//
-			for (Iterator<T> i = candidates.iterator(); i.hasNext() && hasNextPage;) {
-				T candidate = i.next();
+			for (Iterator<DTO> i = candidates.iterator(); i.hasNext() && canContinue;) {
+				DTO candidate = i.next();
 				Assert.notNull(candidate);
 				Assert.notNull(candidate.getId());
 				//
 				retrievedRefs.add(candidate.getId());
 				processCandidate(candidate);
 				++counter;
-				hasNextPage &= updateState();
+				canContinue &= updateState();
 			}
+			canContinue &= candidates.hasNext();			
 			++page;
 			//
-		} while (hasNextPage);
+		} while (canContinue);
 		//
 		List<UUID> queueEntityRefs = Lists.newArrayList(this.getProcessedItemRefsFromQueue());
 		queueEntityRefs.removeAll(retrievedRefs);
 		queueEntityRefs.forEach(entityRef -> this.removeFromProcessedQueue(entityRef));
 	}
 
-	private void processCandidate(T candidate) {
+	private void processCandidate(DTO candidate) {
 		if (isInProcessedQueue(candidate)) {
 			return;
 		}

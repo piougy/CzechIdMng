@@ -1,6 +1,5 @@
 package eu.bcvsolutions.idm.core.scheduler.service.impl;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -17,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
-import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
@@ -31,22 +29,23 @@ import eu.bcvsolutions.idm.core.scheduler.entity.IdmProcessedTaskItem;
 import eu.bcvsolutions.idm.core.scheduler.entity.IdmProcessedTaskItem_;
 import eu.bcvsolutions.idm.core.scheduler.entity.IdmScheduledTask_;
 import eu.bcvsolutions.idm.core.scheduler.repository.IdmProcessedTaskItemRepository;
-import eu.bcvsolutions.idm.core.scheduler.service.api.IdmProcessedTaskItemDtoService;
+import eu.bcvsolutions.idm.core.scheduler.service.api.IdmProcessedTaskItemService;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
 /**
  * Default implementation of processed items service.
+ * 
  * @author Jan Helbich
  *
  */
-public class DefaultIdmProcessedTaskItemDtoService
+public class DefaultIdmProcessedTaskItemService
 	extends AbstractReadWriteDtoService<IdmProcessedTaskItemDto, IdmProcessedTaskItem, IdmProcessedTaskItemFilter>
-	implements IdmProcessedTaskItemDtoService {
+	implements IdmProcessedTaskItemService {
 	
 	private final IdmProcessedTaskItemRepository repository;
 
 	@Autowired
-	public DefaultIdmProcessedTaskItemDtoService(IdmProcessedTaskItemRepository repository) {
+	public DefaultIdmProcessedTaskItemService(IdmProcessedTaskItemRepository repository) {
 		super(repository);
 		//
 		this.repository = repository;
@@ -73,33 +72,29 @@ public class DefaultIdmProcessedTaskItemDtoService
 
 	@Override
 	protected List<Predicate> toPredicates(Root<IdmProcessedTaskItem> root, CriteriaQuery<?> query,
-			CriteriaBuilder bldr, IdmProcessedTaskItemFilter f) {
+			CriteriaBuilder builder, IdmProcessedTaskItemFilter filter) {
+		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
 		//
-		List<Predicate> p = new ArrayList<>();
-		// id
-		if (f.getId() != null) {
-			p.add(bldr.equal(root.get(AbstractEntity_.id), f.getId()));
-		}
 		// items queue filter
-		if (!StringUtils.isEmpty(f.getReferencedEntityType())) {
-			p.add(bldr.equal(root.get(IdmProcessedTaskItem_.referencedDtoType), f.getReferencedEntityType()));
+		if (!StringUtils.isEmpty(filter.getReferencedEntityType())) {
+			predicates.add(builder.equal(root.get(IdmProcessedTaskItem_.referencedDtoType), filter.getReferencedEntityType()));
 		}
-		if (f.getReferencedEntityId() != null) {
-			p.add(bldr.equal(root.get(IdmProcessedTaskItem_.referencedEntityId), f.getReferencedEntityId()));
+		if (filter.getReferencedEntityId() != null) {
+			predicates.add(builder.equal(root.get(IdmProcessedTaskItem_.referencedEntityId), filter.getReferencedEntityId()));
 		}
-		if (f.getLongRunningTaskId() != null) {
-			p.add(bldr.equal(root.get(
+		if (filter.getLongRunningTaskId() != null) {
+			predicates.add(builder.equal(root.get(
 					IdmProcessedTaskItem_.longRunningTask)
 					.get(IdmLongRunningTask_.id),
-					f.getLongRunningTaskId()));
+					filter.getLongRunningTaskId()));
 		}
-		if (f.getScheduledTaskId() != null) {
-			p.add(bldr.equal(root.get(
+		if (filter.getScheduledTaskId() != null) {
+			predicates.add(builder.equal(root.get(
 					IdmProcessedTaskItem_.scheduledTaskQueueOwner)
 					.get(IdmScheduledTask_.id),
-					f.getScheduledTaskId()));
+					filter.getScheduledTaskId()));
 		}
-		return p;
+		return predicates;
 	}
 
 	@Transactional

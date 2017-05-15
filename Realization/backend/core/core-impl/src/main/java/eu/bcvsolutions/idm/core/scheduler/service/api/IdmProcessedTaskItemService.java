@@ -20,7 +20,7 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
  * @author Jan Helbich
  *
  */
-public interface IdmProcessedTaskItemDtoService
+public interface IdmProcessedTaskItemService
 	extends ReadWriteDtoService<IdmProcessedTaskItemDto, IdmProcessedTaskItemFilter>, 
 	AuthorizableService<IdmProcessedTaskItemDto, IdmProcessedTaskItemFilter> {
 
@@ -59,8 +59,8 @@ public interface IdmProcessedTaskItemDtoService
 	 */
 	Page<IdmProcessedTaskItemDto> findLogItems(IdmLongRunningTaskDto longRunningTask, Pageable pageable);
 	
-	<E extends AbstractDto> IdmProcessedTaskItemDto createLogItem(E processedItem, OperationResult result, IdmLongRunningTaskDto lrt);
+	<DTO extends AbstractDto> IdmProcessedTaskItemDto createLogItem(DTO processedItem, OperationResult result, IdmLongRunningTaskDto lrt);
 	
-	<E extends AbstractDto> IdmProcessedTaskItemDto createQueueItem(E processedItem, OperationResult result, IdmScheduledTaskDto st);
+	<DTO extends AbstractDto> IdmProcessedTaskItemDto createQueueItem(DTO processedItem, OperationResult result, IdmScheduledTaskDto st);
 
 }

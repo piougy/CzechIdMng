@@ -19,9 +19,9 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmScheduledTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulableTaskExecutor;
-import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskDtoService;
-import eu.bcvsolutions.idm.core.scheduler.service.api.IdmProcessedTaskItemDtoService;
-import eu.bcvsolutions.idm.core.scheduler.service.api.IdmScheduledTaskDtoService;
+import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskService;
+import eu.bcvsolutions.idm.core.scheduler.service.api.IdmProcessedTaskItemService;
+import eu.bcvsolutions.idm.core.scheduler.service.api.IdmScheduledTaskService;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.hr.AbstractWorkflowStatefulExecutor;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.test.api.utils.SchedulerTestUtils;
@@ -30,9 +30,9 @@ public abstract class AbstractHrProcessTest<E extends AbstractDto> extends Abstr
 
 	@Autowired protected IdmIdentityContractService identityContractService;
 	@Autowired protected IdmIdentityService identityService;
-	@Autowired protected IdmScheduledTaskDtoService scheduledTaskService;
-	@Autowired protected IdmLongRunningTaskDtoService longRunningService;
-	@Autowired protected IdmProcessedTaskItemDtoService itemService;
+	@Autowired protected IdmScheduledTaskService scheduledTaskService;
+	@Autowired protected IdmLongRunningTaskService longRunningService;
+	@Autowired protected IdmProcessedTaskItemService itemService;
 	@Autowired protected IdmIdentityRoleService identityRoleService;
 	
 	protected AbstractWorkflowStatefulExecutor<E> executor;

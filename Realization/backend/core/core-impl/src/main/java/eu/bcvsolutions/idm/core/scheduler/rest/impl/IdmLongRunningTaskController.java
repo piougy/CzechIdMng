@@ -27,7 +27,7 @@ import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.scheduler.dto.filter.LongRunningTaskFilter;
-import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskDtoService;
+import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskService;
 
 /**
  * Default controller for scripts, basic methods.
@@ -45,7 +45,7 @@ public class IdmLongRunningTaskController
 	@Autowired
 	public IdmLongRunningTaskController(
 			LookupService entityLookupService,
-			IdmLongRunningTaskDtoService service,
+			IdmLongRunningTaskService service,
 			LongRunningTaskManager longRunningTaskManager) {
 		super(service);
 		//
@@ -53,7 +53,6 @@ public class IdmLongRunningTaskController
 		//
 		this.longRunningTaskManager = longRunningTaskManager;
 	}
-	
 	
 	/**
 	 * {@inheritDoc}

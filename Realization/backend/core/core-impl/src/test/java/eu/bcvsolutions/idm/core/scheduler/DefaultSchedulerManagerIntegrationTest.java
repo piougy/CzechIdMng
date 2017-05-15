@@ -27,8 +27,8 @@ import eu.bcvsolutions.idm.core.scheduler.api.dto.SimpleTaskTrigger;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.Task;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.scheduler.exception.InvalidCronExpressionException;
-import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskDtoService;
-import eu.bcvsolutions.idm.core.scheduler.service.api.IdmScheduledTaskDtoService;
+import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskService;
+import eu.bcvsolutions.idm.core.scheduler.service.api.IdmScheduledTaskService;
 import eu.bcvsolutions.idm.core.scheduler.service.impl.DefaultSchedulerManager;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.IdentityRoleExpirationTaskExecutor;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
@@ -52,9 +52,9 @@ public class DefaultSchedulerManagerIntegrationTest extends AbstractIntegrationT
 	@Autowired
 	private LongRunningTaskManager longRunningTaskManager;
 	@Autowired
-	private IdmLongRunningTaskDtoService longRunningTaskService;
+	private IdmLongRunningTaskService longRunningTaskService;
 	@Autowired
-	private IdmScheduledTaskDtoService scheduledTaskService;
+	private IdmScheduledTaskService scheduledTaskService;
 	//
 	private DefaultSchedulerManager manager;
 	protected final static String RESULT_PROPERTY = "result";
@@ -194,7 +194,7 @@ public class DefaultSchedulerManagerIntegrationTest extends AbstractIntegrationT
 
 	private Function<String, Boolean> getContinueFunction() {
 		Function<String, Boolean> continueFunction = res -> {
-			return longRunningTaskService.getTasks(configurationService.getInstanceId(),
+			return longRunningTaskService.findAllByInstance(configurationService.getInstanceId(),
 					OperationState.CREATED).size() == 0;
 		};
 		return continueFunction;

@@ -68,12 +68,12 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.scheduler.repository.IdmLongRunningTaskRepository;
 import eu.bcvsolutions.idm.core.scheduler.repository.IdmProcessedTaskItemRepository;
 import eu.bcvsolutions.idm.core.scheduler.repository.IdmScheduledTaskRepository;
-import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskDtoService;
-import eu.bcvsolutions.idm.core.scheduler.service.api.IdmProcessedTaskItemDtoService;
-import eu.bcvsolutions.idm.core.scheduler.service.api.IdmScheduledTaskDtoService;
-import eu.bcvsolutions.idm.core.scheduler.service.impl.DefaultIdmLongRunningTaskDtoService;
-import eu.bcvsolutions.idm.core.scheduler.service.impl.DefaultIdmProcessedTaskItemDtoService;
-import eu.bcvsolutions.idm.core.scheduler.service.impl.DefaultIdmScheduledTaskDtoService;
+import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskService;
+import eu.bcvsolutions.idm.core.scheduler.service.api.IdmProcessedTaskItemService;
+import eu.bcvsolutions.idm.core.scheduler.service.api.IdmScheduledTaskService;
+import eu.bcvsolutions.idm.core.scheduler.service.impl.DefaultIdmLongRunningTaskService;
+import eu.bcvsolutions.idm.core.scheduler.service.impl.DefaultIdmProcessedTaskItemService;
+import eu.bcvsolutions.idm.core.scheduler.service.impl.DefaultIdmScheduledTaskService;
 import eu.bcvsolutions.idm.core.scheduler.service.impl.DefaultLongRunningTaskManager;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizationManager;
 import eu.bcvsolutions.idm.core.security.api.service.CryptService;
@@ -300,9 +300,9 @@ public class IdmServiceConfiguration {
 	 * @return
 	 */
 	@Bean
-	@ConditionalOnMissingBean(IdmLongRunningTaskDtoService.class)
-	public IdmLongRunningTaskDtoService longRunningTaskService() {
-		return new DefaultIdmLongRunningTaskDtoService(longRunningTaskRepository, configurationService(), processedTaskItemService());
+	@ConditionalOnMissingBean(IdmLongRunningTaskService.class)
+	public IdmLongRunningTaskService longRunningTaskService() {
+		return new DefaultIdmLongRunningTaskService(longRunningTaskRepository, configurationService(), processedTaskItemService());
 	}
 	
 	
@@ -386,8 +386,8 @@ public class IdmServiceConfiguration {
 	 * @return
 	 */
 	@Bean
-	public IdmProcessedTaskItemDtoService processedTaskItemService() {
-		return new DefaultIdmProcessedTaskItemDtoService(processedTaskRepository);
+	public IdmProcessedTaskItemService processedTaskItemService() {
+		return new DefaultIdmProcessedTaskItemService(processedTaskRepository);
 	}
 	
 	/**
@@ -395,8 +395,8 @@ public class IdmServiceConfiguration {
 	 * @return
 	 */
 	@Bean
-	public IdmScheduledTaskDtoService scheduledTaskService() {
-		return new DefaultIdmScheduledTaskDtoService(scheduledTaskRepository, processedTaskItemService(),
+	public IdmScheduledTaskService scheduledTaskService() {
+		return new DefaultIdmScheduledTaskService(scheduledTaskRepository, processedTaskItemService(),
 				longRunningTaskService());
 	}
 	

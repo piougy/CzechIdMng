@@ -20,7 +20,7 @@ import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskExecutor;
-import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskDtoService;
+import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskService;
 
 /**
  * Template for long running task executor. This template persists long running tasks.
@@ -35,7 +35,7 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements LongRunningT
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(AbstractLongRunningTaskExecutor.class);
 	@Autowired
-	private IdmLongRunningTaskDtoService service;
+	private IdmLongRunningTaskService service;
 	@Autowired
 	private LookupService entityLookupService;
 	//

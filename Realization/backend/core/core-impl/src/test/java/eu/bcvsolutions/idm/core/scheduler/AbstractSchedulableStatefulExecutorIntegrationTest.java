@@ -24,9 +24,9 @@ import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmProcessedTaskItemDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmScheduledTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulableTaskExecutor;
-import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskDtoService;
-import eu.bcvsolutions.idm.core.scheduler.service.api.IdmProcessedTaskItemDtoService;
-import eu.bcvsolutions.idm.core.scheduler.service.api.IdmScheduledTaskDtoService;
+import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskService;
+import eu.bcvsolutions.idm.core.scheduler.service.api.IdmProcessedTaskItemService;
+import eu.bcvsolutions.idm.core.scheduler.service.api.IdmScheduledTaskService;
 import eu.bcvsolutions.idm.core.scheduler.service.impl.AbstractSchedulableStatefulExecutor;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 import eu.bcvsolutions.idm.test.api.utils.SchedulerTestUtils;
@@ -44,13 +44,13 @@ public class AbstractSchedulableStatefulExecutorIntegrationTest extends Abstract
 	private IdmIdentityService identityService;
 	
 	@Autowired
-	private IdmProcessedTaskItemDtoService itemService;
+	private IdmProcessedTaskItemService itemService;
 	
 	@Autowired
-	private IdmScheduledTaskDtoService scheduledTaskService;
+	private IdmScheduledTaskService scheduledTaskService;
 	
 	@Autowired
-	private IdmLongRunningTaskDtoService longRunningService;
+	private IdmLongRunningTaskService longRunningService;
 	
 	@Before
 	public void init() {

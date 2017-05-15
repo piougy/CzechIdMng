@@ -1,6 +1,5 @@
 package eu.bcvsolutions.idm.core.scheduler.service.impl;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -19,7 +18,6 @@ import org.springframework.util.Assert;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
-import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
@@ -29,23 +27,23 @@ import eu.bcvsolutions.idm.core.scheduler.entity.IdmScheduledTask;
 import eu.bcvsolutions.idm.core.scheduler.entity.IdmScheduledTask_;
 import eu.bcvsolutions.idm.core.scheduler.exception.SchedulerException;
 import eu.bcvsolutions.idm.core.scheduler.repository.IdmScheduledTaskRepository;
-import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskDtoService;
-import eu.bcvsolutions.idm.core.scheduler.service.api.IdmProcessedTaskItemDtoService;
-import eu.bcvsolutions.idm.core.scheduler.service.api.IdmScheduledTaskDtoService;
+import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskService;
+import eu.bcvsolutions.idm.core.scheduler.service.api.IdmProcessedTaskItemService;
+import eu.bcvsolutions.idm.core.scheduler.service.api.IdmScheduledTaskService;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
-public class DefaultIdmScheduledTaskDtoService
+public class DefaultIdmScheduledTaskService
 	extends AbstractReadWriteDtoService<IdmScheduledTaskDto, IdmScheduledTask, IdmScheduledTaskFilter>
-	implements IdmScheduledTaskDtoService {
+	implements IdmScheduledTaskService {
 	
-	private final IdmProcessedTaskItemDtoService itemService;
-	private final IdmLongRunningTaskDtoService lrtService;
+	private final IdmProcessedTaskItemService itemService;
+	private final IdmLongRunningTaskService lrtService;
 
 	@Autowired
-	public DefaultIdmScheduledTaskDtoService(
+	public DefaultIdmScheduledTaskService(
 			IdmScheduledTaskRepository repository,
-			IdmProcessedTaskItemDtoService itemService,
-			IdmLongRunningTaskDtoService lrtService) {
+			IdmProcessedTaskItemService itemService,
+			IdmLongRunningTaskService lrtService) {
 		super(repository);
 		//
 		Assert.notNull(itemService);
@@ -74,11 +72,8 @@ public class DefaultIdmScheduledTaskDtoService
 	@Override
 	protected List<Predicate> toPredicates(Root<IdmScheduledTask> root, CriteriaQuery<?> query, CriteriaBuilder builder,
 			IdmScheduledTaskFilter filter) {
-		List<Predicate> predicates = new ArrayList<>();
-		// id
-		if (filter.getId() != null) {
-			predicates.add(builder.equal(root.get(AbstractEntity_.id), filter.getId()));
-		}
+		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
+		//
 		// task filter
 		if (StringUtils.isNotEmpty(filter.getQuartzTaskName())) {
 			predicates.add(builder.equal(root.get(IdmScheduledTask_.quartzTaskName), filter.getQuartzTaskName()));

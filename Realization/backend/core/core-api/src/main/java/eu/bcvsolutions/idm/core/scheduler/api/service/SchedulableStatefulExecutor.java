@@ -17,10 +17,10 @@ import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmProcessedTaskItemDto;
  * 
  * @author Jan Helbich
  *
- * @param <E> entity DTO type
+ * @param <DTO> entity DTO type
  * @param <V> return value type
  */
-public interface SchedulableStatefulExecutor<E extends AbstractDto, V> extends SchedulableTaskExecutor<V> {
+public interface SchedulableStatefulExecutor<DTO extends AbstractDto, V> extends SchedulableTaskExecutor<V> {
 	
 	/**
 	 * Name of the workflow variable which stores the operation result
@@ -33,7 +33,7 @@ public interface SchedulableStatefulExecutor<E extends AbstractDto, V> extends S
 	 * @param pageable
 	 * @return
 	 */
-	Page<E> getItemsToProcess(Pageable pageable);
+	Page<DTO> getItemsToProcess(Pageable pageable);
 	
 	/**
 	 * Processes single entity DTO. If operation result is not returned,
@@ -43,7 +43,7 @@ public interface SchedulableStatefulExecutor<E extends AbstractDto, V> extends S
 	 * @param dto
 	 * @return
 	 */
-	Optional<OperationResult> processItem(E dto);
+	Optional<OperationResult> processItem(DTO dto);
 	
 	/**
 	 * Returns all entity references (of type {@link AbstractDto#getId()}
@@ -61,14 +61,14 @@ public interface SchedulableStatefulExecutor<E extends AbstractDto, V> extends S
 	 * @param dto
 	 * @return
 	 */
-	boolean isInProcessedQueue(E dto);
+	boolean isInProcessedQueue(DTO dto);
 	
 	/**
 	 * Adds entity DTO among processed items.
 	 * 
 	 * @param dto
 	 */
-	IdmProcessedTaskItemDto addToProcessedQueue(E dto, OperationResult opResult);
+	IdmProcessedTaskItemDto addToProcessedQueue(DTO dto, OperationResult opResult);
 	
 	/**
 	 * Removes entity reference from active items in processed queue by its ID.
@@ -82,7 +82,7 @@ public interface SchedulableStatefulExecutor<E extends AbstractDto, V> extends S
 	 * 
 	 * @param dto
 	 */
-	void removeFromProcessedQueue(E dto);
+	void removeFromProcessedQueue(DTO dto);
 
 	/**
 	 * Logs the operation result of given entity DTO processing.
@@ -90,6 +90,6 @@ public interface SchedulableStatefulExecutor<E extends AbstractDto, V> extends S
 	 * @param dto
 	 * @param opResult
 	 */
-	IdmProcessedTaskItemDto logItemProcessed(E dto, OperationResult opResult);
+	IdmProcessedTaskItemDto logItemProcessed(DTO dto, OperationResult opResult);
 	
 }

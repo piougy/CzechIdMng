@@ -28,7 +28,7 @@ import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.LongRunningFutureTask;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
-import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskDtoService;
+import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskService;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 
 /**
@@ -42,14 +42,14 @@ import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultLongRunningTaskManager.class);
-	private final IdmLongRunningTaskDtoService service;
+	private final IdmLongRunningTaskService service;
 	private final Executor executor;
 	private final ConfigurationService configurationService;
 	private final SecurityService securityService;
 	
 	@Autowired
 	public DefaultLongRunningTaskManager(
-			IdmLongRunningTaskDtoService service,
+			IdmLongRunningTaskService service,
 			Executor executor,
 			ConfigurationService configurationService,
 			SecurityService securityService) {
@@ -73,7 +73,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 		LOG.info("Cancel unprocessed long running task - tasks was interrupt during instance restart");
 		//
 		String instanceId = configurationService.getInstanceId();
-		service.getTasks(instanceId, OperationState.RUNNING).forEach(task -> {
+		service.findAllByInstance(instanceId, OperationState.RUNNING).forEach(task -> {
 			LOG.info("Cancel unprocessed long running task [{}] - tasks was interrupt during instance [{}] restart", task, instanceId);
 			task.setRunning(false);
 			ResultModel resultModel = new DefaultResultModel(CoreResultCode.LONG_RUNNING_TASK_CANCELED_BY_RESTART, 
@@ -102,7 +102,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 		securityService.setSystemAuthentication();
 		//
 		List<LongRunningFutureTask<?>> taskList = new ArrayList<LongRunningFutureTask<?>>();
-		service.getTasks(configurationService.getInstanceId(), OperationState.CREATED).forEach(task -> {
+		service.findAllByInstance(configurationService.getInstanceId(), OperationState.CREATED).forEach(task -> {
 			LongRunningTaskExecutor<?> taskExecutor = null;
 			ResultModel resultModel = null;
 			Exception ex = null;
@@ -176,7 +176,11 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 		//
 		if (OperationState.RUNNING != task.getResult().getState()) {
 			throw new ResultCodeException(CoreResultCode.LONG_RUNNING_TASK_NOT_RUNNING, 
-					ImmutableMap.of("taskId", longRunningTaskId, "taskType", task.getTaskType(), "instanceId", task.getInstanceId()));
+					ImmutableMap.of(
+							"taskId", longRunningTaskId, 
+							"taskType", task.getTaskType(), 
+							"instanceId", task.getInstanceId())
+					);
 		}
 		//
 		task.setResult(new OperationResult.Builder(OperationState.CANCELED).build());
@@ -193,10 +197,17 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 		String instanceId = configurationService.getInstanceId();
 		if (!task.getInstanceId().equals(instanceId)) {			
 			throw new ResultCodeException(CoreResultCode.LONG_RUNNING_TASK_DIFFERENT_INSTANCE, 
-					ImmutableMap.of("taskId", longRunningTaskId, "taskInstanceId", task.getInstanceId(), "currentInstanceId", instanceId));
+					ImmutableMap.of(
+							"taskId", longRunningTaskId, 
+							"taskInstanceId", task.getInstanceId(), 
+							"currentInstanceId", instanceId));
 		}
 		if (OperationState.RUNNING != task.getResult().getState()) {
-			throw new ResultCodeException(CoreResultCode.LONG_RUNNING_TASK_NOT_RUNNING, ImmutableMap.of("taskId", longRunningTaskId));
+			throw new ResultCodeException(CoreResultCode.LONG_RUNNING_TASK_NOT_RUNNING, 
+					ImmutableMap.of(
+							"taskId", longRunningTaskId,
+							"taskType", task.getTaskType(), 
+							"instanceId", task.getInstanceId()));
 		}
 		//
 		// interrupt thread

@@ -52,7 +52,7 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmTreeTypeService;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.LongRunningFutureTask;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
-import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskDtoService;
+import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskService;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.IdentityRoleValidRequestTaskExecutor;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
@@ -105,7 +105,7 @@ public class IdentityRoleValidRequestSchedulerTest extends AbstractIntegrationTe
 	private IdmIdentityRoleRepository identityRoleRepository;
 	
 	@Autowired
-	private IdmLongRunningTaskDtoService longRunningTaskService;
+	private IdmLongRunningTaskService longRunningTaskService;
 	
 	@Autowired
 	private IdmIdentityRoleValidRequestService identityRoleValidRequestService;

@@ -2,7 +2,7 @@
 -- CzechIdM 7.0 Flyway script 
 -- BCV solutions s.r.o.
 --
--- This SQL script adds multiple senders for notifications and sms support
+-- This SQL script adds tables to statefull scheduled tasks
 
 
 ----- TABLE idm_long_running_task -----

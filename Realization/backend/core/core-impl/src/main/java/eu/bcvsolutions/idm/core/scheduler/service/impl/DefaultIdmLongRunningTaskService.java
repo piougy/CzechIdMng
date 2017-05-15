@@ -3,6 +3,12 @@ package eu.bcvsolutions.idm.core.scheduler.service.impl;
 import java.util.List;
 import java.util.UUID;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+
+import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Propagation;
@@ -11,6 +17,7 @@ import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
+import eu.bcvsolutions.idm.core.api.entity.OperationResult_;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
@@ -18,9 +25,10 @@ import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.dto.filter.LongRunningTaskFilter;
 import eu.bcvsolutions.idm.core.scheduler.entity.IdmLongRunningTask;
+import eu.bcvsolutions.idm.core.scheduler.entity.IdmLongRunningTask_;
 import eu.bcvsolutions.idm.core.scheduler.repository.IdmLongRunningTaskRepository;
-import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskDtoService;
-import eu.bcvsolutions.idm.core.scheduler.service.api.IdmProcessedTaskItemDtoService;
+import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskService;
+import eu.bcvsolutions.idm.core.scheduler.service.api.IdmProcessedTaskItemService;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
 /**
@@ -29,19 +37,19 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
  * @author Radek Tomiška
  *
  */
-public class DefaultIdmLongRunningTaskDtoService
+public class DefaultIdmLongRunningTaskService
 	extends AbstractReadWriteDtoService<IdmLongRunningTaskDto, IdmLongRunningTask, LongRunningTaskFilter>
-	implements IdmLongRunningTaskDtoService {
+	implements IdmLongRunningTaskService {
 	
 	private final IdmLongRunningTaskRepository repository;
 	private final ConfigurationService configurationService;
-	private final IdmProcessedTaskItemDtoService itemService;
+	private final IdmProcessedTaskItemService itemService;
 	
 	@Autowired
-	public DefaultIdmLongRunningTaskDtoService(
+	public DefaultIdmLongRunningTaskService(
 			IdmLongRunningTaskRepository repository,
 			ConfigurationService configurationService,
-			IdmProcessedTaskItemDtoService itemService) {
+			IdmProcessedTaskItemService itemService) {
 		super(repository);
 		//
 		Assert.notNull(configurationService);
@@ -53,8 +61,44 @@ public class DefaultIdmLongRunningTaskDtoService
 	}
 	
 	@Override
+	public AuthorizableType getAuthorizableType() {
+		return new AuthorizableType(CoreGroupPermission.SCHEDULER, getEntityClass());
+	}
+	
+	@Override
+	protected List<Predicate> toPredicates(Root<IdmLongRunningTask> root, CriteriaQuery<?> query,
+			CriteriaBuilder builder, LongRunningTaskFilter filter) {
+		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
+		//
+		// quick - "fulltext"
+		if (StringUtils.isNotEmpty(filter.getText())) {
+			predicates.add(builder.or(
+					builder.like(builder.lower(root.get(IdmLongRunningTask_.taskType)), "%" + filter.getText().toLowerCase() + "%"),
+					builder.like(builder.lower(root.get(IdmLongRunningTask_.taskDescription)), "%" + filter.getText().toLowerCase() + "%")					
+					));
+		}
+		if (StringUtils.isNotEmpty(filter.getTaskType())) {
+			predicates.add(builder.equal(root.get(IdmLongRunningTask_.taskType), filter.getTaskType()));
+		}
+		if (filter.getFrom() != null) {
+			predicates.add(builder.greaterThanOrEqualTo(root.get(IdmLongRunningTask_.created), filter.getFrom()));
+		}
+		if (filter.getTill() != null) {
+			predicates.add(builder.lessThanOrEqualTo(root.get(IdmLongRunningTask_.created), filter.getTill().plusDays(1)));
+		}
+		if (filter.getOperationState() != null) {
+			predicates.add(builder.equal(root.get(IdmLongRunningTask_.result).get(OperationResult_.state), filter.getOperationState()));
+		}
+		if (filter.getRunning() != null) {
+			predicates.add(builder.equal(root.get(IdmLongRunningTask_.running), filter.getRunning()));
+		}
+		//
+		return predicates;
+	}
+	
+	@Override
 	@Transactional(readOnly = true)
-	public List<IdmLongRunningTaskDto> getTasks(String instanceId, OperationState state) {
+	public List<IdmLongRunningTaskDto> findAllByInstance(String instanceId, OperationState state) {
 		return toDtos(repository.findAllByInstanceIdAndResult_State(instanceId, state), false);
 	}
 	
@@ -76,11 +120,6 @@ public class DefaultIdmLongRunningTaskDtoService
 		task.setInstanceId(configurationService.getInstanceId());
 		task.setResult(new OperationResult.Builder(operationState).build());
 		return this.saveInternal(task);
-	}
-	
-	@Override
-	public AuthorizableType getAuthorizableType() {
-		return new AuthorizableType(CoreGroupPermission.SCHEDULER, getEntityClass());
 	}
 
 	@Transactional

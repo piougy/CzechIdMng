@@ -23,6 +23,7 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import com.google.common.collect.Lists;
@@ -35,10 +36,10 @@ import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmProcessedTaskItemDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmScheduledTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.dto.filter.IdmProcessedTaskItemFilter;
-import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskDtoService;
-import eu.bcvsolutions.idm.core.scheduler.service.api.IdmScheduledTaskDtoService;
+import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskService;
+import eu.bcvsolutions.idm.core.scheduler.service.api.IdmScheduledTaskService;
 import eu.bcvsolutions.idm.core.scheduler.service.impl.AbstractSchedulableStatefulExecutor;
-import eu.bcvsolutions.idm.core.scheduler.service.impl.DefaultIdmProcessedTaskItemDtoService;
+import eu.bcvsolutions.idm.core.scheduler.service.impl.DefaultIdmProcessedTaskItemService;
 import eu.bcvsolutions.idm.test.api.AbstractVerifiableUnitTest;
 
 /**
@@ -53,13 +54,13 @@ public class AbstractSchedulableStatefulExecutorUnitTest extends AbstractVerifia
 	private TestIdenityUnitExecutor executor;
 
 	@Mock
-	private DefaultIdmProcessedTaskItemDtoService itemService;
+	private DefaultIdmProcessedTaskItemService itemService;
 	
 	@Mock
-	private IdmScheduledTaskDtoService scheduledTaskService;
+	private IdmScheduledTaskService scheduledTaskService;
 	
 	@Mock
-	private IdmLongRunningTaskDtoService longRunningTaskService;
+	private IdmLongRunningTaskService longRunningTaskService;
 
 	@Test
 	public void testParentMocking() {
@@ -189,8 +190,8 @@ public class AbstractSchedulableStatefulExecutorUnitTest extends AbstractVerifia
 		when(scheduledTaskService.get(any(UUID.class)))
 			.thenReturn(scheduledTask);
 		when(executor.getItemsToProcess(any(Pageable.class)))
-			.thenReturn(new PageImpl<>(Lists.newArrayList(dto1, dto2)))
-			.thenReturn(new PageImpl<>(Lists.newArrayList(dto3)))
+			.thenReturn(new PageImpl<>(Lists.newArrayList(dto1, dto2), new PageRequest(0, 2), 6))
+			.thenReturn(new PageImpl<>(Lists.newArrayList(dto3), new PageRequest(0, 2), 6))
 			.thenReturn(new PageImpl<>(Lists.newArrayList()));
 		when(itemService.saveInternal(any(IdmProcessedTaskItemDto.class)))
 			.then(AdditionalAnswers.returnsFirstArg());
@@ -249,7 +250,7 @@ public class AbstractSchedulableStatefulExecutorUnitTest extends AbstractVerifia
 		assertTrue(processingResult);
 		//
 		//
-		verify(executor, times(2)).getItemsToProcess(any(Pageable.class));
+		verify(executor, times(1)).getItemsToProcess(any(Pageable.class));
 		verify(executor, times(1)).isInProcessedQueue(dto1);
 		verify(executor, times(1)).isInProcessedQueue(dto2);
 		verify(executor, times(1)).getProcessedItemRefsFromQueue();

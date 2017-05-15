@@ -23,7 +23,7 @@ import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.LongRunningFutureTask;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
-import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskDtoService;
+import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskService;
 import eu.bcvsolutions.idm.core.scheduler.service.impl.AbstractLongRunningTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.service.impl.DefaultLongRunningTaskManager;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
@@ -41,7 +41,7 @@ public class DefaultLongRunningTaskManagerIntegrationTest extends AbstractIntegr
 	@Autowired
 	private ApplicationContext context;
 	@Autowired
-	private IdmLongRunningTaskDtoService service;
+	private IdmLongRunningTaskService service;
 	@Autowired
 	private ConfigurationService configurationService;
 	//

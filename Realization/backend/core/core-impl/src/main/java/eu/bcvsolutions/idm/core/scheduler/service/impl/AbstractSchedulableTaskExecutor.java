@@ -13,14 +13,15 @@ import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmScheduledTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulableTaskExecutor;
-import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskDtoService;
-import eu.bcvsolutions.idm.core.scheduler.service.api.IdmScheduledTaskDtoService;
+import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskService;
+import eu.bcvsolutions.idm.core.scheduler.service.api.IdmScheduledTaskService;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 
 /**
  * Schedulable task services (this services will be automatically available as scheduled tasks)
  * 
  * @author Radek Tomiška
+ * @author Jan Helbich
  *
  */
 public abstract class AbstractSchedulableTaskExecutor<V> extends AbstractLongRunningTaskExecutor<V> implements SchedulableTaskExecutor<V> {
@@ -29,10 +30,10 @@ public abstract class AbstractSchedulableTaskExecutor<V> extends AbstractLongRun
 	protected SecurityService securityService;
 	
 	@Autowired
-	protected IdmLongRunningTaskDtoService longRunningTaskService;
+	protected IdmLongRunningTaskService longRunningTaskService;
 	
 	@Autowired
-	protected IdmScheduledTaskDtoService scheduledTaskService;
+	protected IdmScheduledTaskService scheduledTaskService;
 	
 	private UUID scheduledTaskId;
 	

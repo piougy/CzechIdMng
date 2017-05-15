@@ -19,9 +19,9 @@ import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmProcessedTaskItemDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmScheduledTaskDto;
-import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskDtoService;
-import eu.bcvsolutions.idm.core.scheduler.service.api.IdmProcessedTaskItemDtoService;
-import eu.bcvsolutions.idm.core.scheduler.service.api.IdmScheduledTaskDtoService;
+import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskService;
+import eu.bcvsolutions.idm.core.scheduler.service.api.IdmProcessedTaskItemService;
+import eu.bcvsolutions.idm.core.scheduler.service.api.IdmScheduledTaskService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
@@ -32,13 +32,13 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 public class DefaultIdmProcessedTaskItemDtoServiceTest extends AbstractIntegrationTest {
 
 	@Autowired
-	private IdmProcessedTaskItemDtoService service;
+	private IdmProcessedTaskItemService service;
 
 	@Autowired
-	private IdmScheduledTaskDtoService scheduledTaskService;
+	private IdmScheduledTaskService scheduledTaskService;
 
 	@Autowired
-	private IdmLongRunningTaskDtoService longrunningService;
+	private IdmLongRunningTaskService longrunningService;
 	
 	@Test
 	public void testCreateItem() {

@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import eu.bcvsolutions.idm.core.api.dto.filter.TreeNodeFilter;
+import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
@@ -19,7 +20,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
  *
  */
 @Service
-public interface IdmTreeNodeService extends ReadWriteEntityService<IdmTreeNode, TreeNodeFilter> {
+public interface IdmTreeNodeService extends ReadWriteEntityService<IdmTreeNode, TreeNodeFilter>, ScriptEnabled {
 	
 	/**
 	 * Method return all roots - @param treeType = null, or one root for treeType.

@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.core.model.service.api;
 import java.util.List;
 import java.util.UUID;
 
+import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
 import eu.bcvsolutions.idm.core.api.service.CodeableService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
 import eu.bcvsolutions.idm.core.model.dto.filter.RoleFilter;
@@ -17,7 +18,7 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizableEntityService;
  */
 public interface IdmRoleService 
 		extends ReadWriteEntityService<IdmRole, RoleFilter>, 
-		CodeableService<IdmRole>, AuthorizableEntityService<IdmRole, RoleFilter> {
+		CodeableService<IdmRole>, AuthorizableEntityService<IdmRole, RoleFilter>, ScriptEnabled {
 
 	static final String WF_BY_ROLE_PRIORITY_PREFIX = "idm.sec.core.wf.role.approval.";
 	static final String PROPERTY_DEFAULT_ROLE = "idm.sec.core.role.default";

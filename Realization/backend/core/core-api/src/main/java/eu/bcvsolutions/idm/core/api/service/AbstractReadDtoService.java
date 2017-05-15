@@ -58,7 +58,7 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizationManager;
  * @param <F> filter
  */
 public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends BaseEntity, F extends BaseFilter>
-		implements ReadDtoService<DTO, F>, ScriptEnabled {
+		implements ReadDtoService<DTO, F> {
 
 	private final Class<E> entityClass;
 	private final Class<F> filterClass;

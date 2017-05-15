@@ -438,6 +438,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 		if (attribute.isEntityAttribute()) {
 			TreeNodeFilter correlationFilter = new TreeNodeFilter();
 			correlationFilter.setProperty(attribute.getIdmPropertyName());
+			correlationFilter.setTreeTypeId(findTreeTypeId(attribute));
 			correlationFilter.setValue(value.toString());
 
 			List<IdmTreeNode> treeNodes = treeNodeService.find(correlationFilter, null).getContent();
@@ -721,5 +722,14 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 
 			}
 		});
+	}
+	
+	/**
+	 * Find tree type ID by attribute mapping
+	 * @param attribute
+	 * @return
+	 */
+	private UUID findTreeTypeId(AttributeMapping attribute){
+		return ((SysSystemAttributeMapping)attribute).getSystemMapping().getTreeType().getId();
 	}
 }

@@ -17,7 +17,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 /**
  * Creates common test entities
  * 
- * TODO: switch entities to dto, move to api, include in abstract integration test
+ * TODO: switch entities to dto, move to test-api, include in abstract integration test => then will be usable in other modules
  * 
  * @author Radek Tomiška
  *
@@ -95,6 +95,15 @@ public interface TestHelper {
 	 * @return
 	 */
 	IdmRole createRole(String name);
+	
+	/**
+	 * Creates role with given id and name
+	 * 
+	 * @param id [optional] if no id is given, then new id is generated
+	 * @param name
+	 * @return
+	 */
+	IdmRole createRole(UUID id, String name);
 
 	/**
 	 * Deletes role

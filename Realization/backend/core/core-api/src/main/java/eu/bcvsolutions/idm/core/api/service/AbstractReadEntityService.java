@@ -12,13 +12,16 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
+import org.springframework.util.ObjectUtils;
 
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
+import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
+import eu.bcvsolutions.idm.core.security.api.service.AuthorizableEntityService;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizationManager;
 
 /**
@@ -91,13 +94,13 @@ public abstract class AbstractReadEntityService<E extends BaseEntity, F extends 
 			// workflow / rest usage with string uuid variant
 			// EL does not recognize two methods with the same name and different argument type
 			try {
-				return getRepository().findOne(UUID.fromString((String)id));
+				return checkAccess(getRepository().findOne(UUID.fromString((String)id)), permission);
 			} catch(IllegalArgumentException ex) {
 				// simply not found
 				return null;
 			}
 		}
-		return getRepository().findOne((UUID)id);
+		return checkAccess(getRepository().findOne((UUID)id), permission);
 	}
 
 	@Override
@@ -114,11 +117,7 @@ public abstract class AbstractReadEntityService<E extends BaseEntity, F extends 
 	public Page<E> find(Pageable pageable) {
 		return getRepository().findAll(pageable);
 	}
-	
-	/* 
-	 * (non-Javadoc)
-	 * @see org.springframework.plugin.core.Plugin#supports(java.lang.Object)
-	 */
+
 	@Override
 	public boolean supports(Class<?> delimiter) {
 		return entityClass.isAssignableFrom(delimiter);
@@ -141,5 +140,18 @@ public abstract class AbstractReadEntityService<E extends BaseEntity, F extends 
 			authorizationManager = context.getBean(AuthorizationManager.class);
 		}
 		return authorizationManager;
+	}
+	
+	@Override
+	public E checkAccess(E entity, BasePermission... permission) {
+		if (entity == null) {
+			// nothing to check
+			return null;
+		}
+		//
+		if (!ObjectUtils.isEmpty(permission) && this instanceof AuthorizableEntityService && !getAuthorizationManager().evaluate(entity, permission)) {
+			throw new ForbiddenEntityException(entity.getId());
+		}
+		return entity;
 	}
 }

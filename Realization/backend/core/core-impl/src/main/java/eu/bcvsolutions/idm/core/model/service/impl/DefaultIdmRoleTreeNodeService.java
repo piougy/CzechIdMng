@@ -104,6 +104,7 @@ public class DefaultIdmRoleTreeNodeService
 	@Transactional(noRollbackFor = AcceptedException.class)
 	public IdmRoleTreeNodeDto save(IdmRoleTreeNodeDto roleTreeNode, BasePermission... permission) {
 		Assert.notNull(roleTreeNode);
+		checkAccess(toEntity(roleTreeNode, null), permission);
 		//
 		LOG.debug("Saving automatic role [{}] - [{}] - [{}]", roleTreeNode.getRole(), roleTreeNode.getTreeNode(), roleTreeNode.getRecursionType());
 		//
@@ -126,6 +127,7 @@ public class DefaultIdmRoleTreeNodeService
 	@Transactional(noRollbackFor = AcceptedException.class)
 	public void delete(IdmRoleTreeNodeDto roleTreeNode, BasePermission... permission) {
 		Assert.notNull(roleTreeNode);
+		checkAccess(this.getEntity(roleTreeNode.getId()), permission);
 		//
 		LOG.debug("Deleting automatic role [{}] - [{}] - [{}]", roleTreeNode.getRole(), roleTreeNode.getTreeNode(), roleTreeNode.getRecursionType());
 		//

@@ -10,7 +10,7 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import eu.bcvsolutions.idm.InitTestData;
-import eu.bcvsolutions.idm.core.AbstractWorkflowIntegrationTest;
+import eu.bcvsolutions.idm.core.AbstractCoreWorkflowIntegrationTest;
 import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
@@ -21,7 +21,7 @@ import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationLogServi
 import eu.bcvsolutions.idm.core.workflow.config.WorkflowConfig;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 
-public class SendNotificationFromTask extends AbstractWorkflowIntegrationTest {
+public class SendNotificationFromTask extends AbstractCoreWorkflowIntegrationTest {
 	
 	private static final String WF_1_ENABLED_PROCESS_KEY = "testNotificationEnable";
 	private static final String WF_2_FORM_DISABLED_PROCESS_KEY = "testNotificationDisable";

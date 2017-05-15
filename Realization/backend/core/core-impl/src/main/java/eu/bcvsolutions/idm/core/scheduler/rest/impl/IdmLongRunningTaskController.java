@@ -6,8 +6,6 @@ import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
-import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.HttpStatus;
@@ -20,14 +18,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
-import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteEntityController;
+import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.scheduler.dto.filter.LongRunningTaskFilter;
-import eu.bcvsolutions.idm.core.scheduler.entity.IdmLongRunningTask;
+import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskService;
 
 /**
  * Default controller for scripts, basic methods.
@@ -35,24 +35,25 @@ import eu.bcvsolutions.idm.core.scheduler.entity.IdmLongRunningTask;
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
-
-@RepositoryRestController
+@RestController
 @RequestMapping(value = BaseController.BASE_PATH + "/long-running-tasks")
-public class IdmLongRunningTaskController extends AbstractReadWriteEntityController<IdmLongRunningTask, LongRunningTaskFilter> {
+public class IdmLongRunningTaskController
+	extends AbstractReadWriteDtoController<IdmLongRunningTaskDto, LongRunningTaskFilter> {
 	
 	private final LongRunningTaskManager longRunningTaskManager;
 	
 	@Autowired
 	public IdmLongRunningTaskController(
 			LookupService entityLookupService,
+			IdmLongRunningTaskService service,
 			LongRunningTaskManager longRunningTaskManager) {
-		super(entityLookupService);
+		super(service);
 		//
 		Assert.notNull(longRunningTaskManager);
 		//
 		this.longRunningTaskManager = longRunningTaskManager;
 	}
-
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -61,9 +62,8 @@ public class IdmLongRunningTaskController extends AbstractReadWriteEntityControl
 	@RequestMapping(method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCHEDULER_READ + "')")
 	public Resources<?> find(@RequestParam MultiValueMap<String, Object> parameters, 
-			@PageableDefault Pageable pageable, 			
-			PersistentEntityResourceAssembler assembler) {
-		return super.find(parameters, pageable, assembler);
+			@PageableDefault Pageable pageable) {
+		return super.find(parameters, pageable);
 	}
 	
 	/**
@@ -78,9 +78,8 @@ public class IdmLongRunningTaskController extends AbstractReadWriteEntityControl
 	@RequestMapping(value= "/search/quick", method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCHEDULER_READ + "')")
 	public Resources<?> findQuick(@RequestParam MultiValueMap<String, Object> parameters, 
-			@PageableDefault Pageable pageable, 			
-			PersistentEntityResourceAssembler assembler) {
-		return super.find(parameters, pageable, assembler);
+			@PageableDefault Pageable pageable) {
+		return super.find(parameters, pageable);
 	}
 	
 	/**
@@ -90,8 +89,8 @@ public class IdmLongRunningTaskController extends AbstractReadWriteEntityControl
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCHEDULER_READ + "')")
-	public ResponseEntity<?> get(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler) {
-		return super.get(backendId, assembler);
+	public ResponseEntity<?> get(@PathVariable @NotNull String backendId) {
+		return super.get(backendId);
 	}
 	
 	/**
@@ -106,7 +105,7 @@ public class IdmLongRunningTaskController extends AbstractReadWriteEntityControl
 	public ResponseEntity<?> cancel(@PathVariable UUID backendId) {
 		longRunningTaskManager.cancel(backendId);
 		//
-		return new ResponseEntity<Object>(HttpStatus.NO_CONTENT);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 	
 	/**
@@ -121,7 +120,7 @@ public class IdmLongRunningTaskController extends AbstractReadWriteEntityControl
 	public ResponseEntity<?> interrupt(@PathVariable UUID backendId) {
 		longRunningTaskManager.interrupt(backendId);
 		//
-		return new ResponseEntity<Object>(HttpStatus.NO_CONTENT);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 	
 	/**
@@ -135,6 +134,6 @@ public class IdmLongRunningTaskController extends AbstractReadWriteEntityControl
 	public ResponseEntity<?> processCreated() {
 		longRunningTaskManager.processCreated();
 		//
-		return new ResponseEntity<Object>(HttpStatus.NO_CONTENT);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 }

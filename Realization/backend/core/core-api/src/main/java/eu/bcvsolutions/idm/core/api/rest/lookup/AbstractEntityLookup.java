@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.core.api.rest.lookup;
 import org.springframework.core.GenericTypeResolver;
 
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
+import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
 
 /**
  * Lookup support
@@ -11,7 +12,7 @@ import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
  *
  * @param <E>
  */
-public abstract class AbstractEntityLookup<E extends BaseEntity> implements EntityLookup<E> {
+public abstract class AbstractEntityLookup<E extends BaseEntity> implements EntityLookup<E>, ScriptEnabled {
 
 	private final Class<?> domainType;
 

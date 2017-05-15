@@ -29,7 +29,8 @@ public class CustomActivityBehaviorFactory extends DefaultActivityBehaviorFactor
 	@Override
 	protected MailActivityBehavior createMailActivityBehavior(String taskId, List<FieldExtension> fields) {
 		List<FieldDeclaration> fieldDeclarations = createFieldDeclarations(fields);
-		CustomMailActivityBehavior customMailActivityBehavior = (CustomMailActivityBehavior) ClassDelegate.defaultInstantiateDelegate(CustomMailActivityBehavior.class, fieldDeclarations);
+		CustomMailActivityBehavior customMailActivityBehavior = (CustomMailActivityBehavior) 
+				ClassDelegate.defaultInstantiateDelegate(CustomMailActivityBehavior.class, fieldDeclarations);
 		customMailActivityBehavior.setEmailService(emailService);
 		customMailActivityBehavior.setIdentityService(identityService);
 		return customMailActivityBehavior;

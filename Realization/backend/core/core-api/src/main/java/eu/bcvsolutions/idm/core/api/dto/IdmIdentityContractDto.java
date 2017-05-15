@@ -7,6 +7,7 @@ import org.springframework.hateoas.core.Relation;
 
 import eu.bcvsolutions.idm.core.api.domain.Disableable;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
+import eu.bcvsolutions.idm.core.api.entity.ValidableEntity;
 
 /**
  * Identity contract - working position
@@ -14,7 +15,7 @@ import eu.bcvsolutions.idm.core.api.domain.Embedded;
  * @author Svanda
  */
 @Relation(collectionRelation = "identityContracts")
-public class IdmIdentityContractDto extends AbstractDto implements Disableable {
+public class IdmIdentityContractDto extends AbstractDto implements Disableable, ValidableEntity {
 
     private static final long serialVersionUID = 1L;
 
@@ -40,6 +41,7 @@ public class IdmIdentityContractDto extends AbstractDto implements Disableable {
         this.identity = identity;
     }
 
+    @Override
     public LocalDate getValidFrom() {
         return validFrom;
     }
@@ -48,6 +50,7 @@ public class IdmIdentityContractDto extends AbstractDto implements Disableable {
         this.validFrom = validFrom;
     }
 
+    @Override
     public LocalDate getValidTill() {
         return validTill;
     }

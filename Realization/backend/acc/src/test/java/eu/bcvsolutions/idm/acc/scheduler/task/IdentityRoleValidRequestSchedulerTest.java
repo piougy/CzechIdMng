@@ -49,9 +49,9 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeTypeService;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.LongRunningFutureTask;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
-import eu.bcvsolutions.idm.core.scheduler.entity.IdmLongRunningTask;
 import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskService;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.IdentityRoleValidRequestTaskExecutor;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
@@ -193,7 +193,7 @@ public class IdentityRoleValidRequestSchedulerTest extends AbstractIntegrationTe
 		LongRunningFutureTask<Boolean> futureTask1 = longRunningTaskManager.execute(taskExecutor1);
 		assertEquals(true, futureTask1.getFutureTask().get());
 		
-		IdmLongRunningTask longRunningTask1 = longRunningTaskService.get(taskExecutor1.getLongRunningTaskId());
+		IdmLongRunningTaskDto longRunningTask1 = longRunningTaskService.get(taskExecutor1.getLongRunningTaskId());
 		assertEquals(OperationState.EXECUTED, longRunningTask1.getResult().getState());
 		
 		list = identityAccountService.find(filter, null).getContent();
@@ -216,7 +216,7 @@ public class IdentityRoleValidRequestSchedulerTest extends AbstractIntegrationTe
 		
 		assertEquals(true, futureTask2.getFutureTask().get());
 		
-		IdmLongRunningTask longRunningTask2 = longRunningTaskService.get(taskExecutor2.getLongRunningTaskId());
+		IdmLongRunningTaskDto longRunningTask2 = longRunningTaskService.get(taskExecutor2.getLongRunningTaskId());
 		assertEquals(OperationState.EXECUTED, longRunningTask2.getResult().getState());
 		
 		list = identityAccountService.find(filter, null).getContent();
@@ -273,7 +273,7 @@ public class IdentityRoleValidRequestSchedulerTest extends AbstractIntegrationTe
 		
 		assertEquals(true, futureTask.getFutureTask().get());
 		
-		IdmLongRunningTask longRunningTask = longRunningTaskService.get(taskExecutor.getLongRunningTaskId());
+		IdmLongRunningTaskDto longRunningTask = longRunningTaskService.get(taskExecutor.getLongRunningTaskId());
 		assertEquals(OperationState.EXECUTED, longRunningTask.getResult().getState());
 		
 		list = identityRoleValidRequestService.findAllValid();

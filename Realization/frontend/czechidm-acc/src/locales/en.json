@@ -548,7 +548,7 @@
       },
       "transformToResourceScript": {
         "label": "Transformace do systému",
-        "help": "Umožňuje transformovat hodnotu z IdM do podoby vohodné pro koncový systém. Vstupním parametrem tohoto Groovy skriptu, je hodnota atributu 'attributeValue' a IdM entita 'entity'."
+        "help": "Umožňuje transformovat hodnotu z IdM do podoby vohodné pro koncový systém. Vstupním parametrem tohoto Groovy skriptu, je hodnota atributu 'attributeValue' a IdM entita 'entity' a identifikátor účtu 'uid'. Pokud bude výstupní hodnota prázdná, pak se automaticky použije dostupný identifikátor účtu (uid)."
       },
       "uid": {
         "label": "Je identifikátorem",
@@ -580,7 +580,7 @@
       "transformScriptTable": "Transformace",
       "transformScript": {
         "label": "Transformace do systému",
-        "help": "Umožňuje transformovat hodnotu z IdM do podoby vohodné pro koncový systém. Vstupním parametrem tohoto Groovy skriptu, je hodnota atributu 'attributeValue' a IdM entita 'entity'."
+        "help": "Umožňuje transformovat hodnotu z IdM do podoby vohodné pro koncový systém. Vstupním parametrem tohoto Groovy skriptu, je hodnota atributu 'attributeValue' a IdM entita 'entity' a identifikátor účtu 'uid'. Pokud bude výstupní hodnota prázdná, pak se automaticky použije dostupný identifikátor účtu (uid)."
       }
     },
     "Account": {

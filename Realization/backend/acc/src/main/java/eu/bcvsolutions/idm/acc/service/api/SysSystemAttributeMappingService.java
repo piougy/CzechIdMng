@@ -27,19 +27,22 @@ public interface SysSystemAttributeMappingService extends ReadWriteEntityService
 	public static final String SYSTEM_KEY = "system";
 	public static final String IC_ATTRIBUTES_KEY = "icAttributes";
 	public static final String ENTITY_KEY = "entity";
+	public static final String ACCOUNT_UID = "uid";
 	
 	public List<SysSystemAttributeMapping> findBySystemMapping(SysSystemMapping systemMapping);
 	
 	/**
 	 * Do transformation given value to value for target system (resource)
+	 * @param uid - Account identifier, can be null
 	 * @param value
 	 * @param attributeMapping
 	 * @return transformed value
 	 */
-	public Object transformValueToResource(Object value, AttributeMapping attributeMapping, AbstractEntity entity);
+	public Object transformValueToResource(String uid, Object value, AttributeMapping attributeMapping, AbstractEntity entity);
 	
 	/**
 	 * Do transformation given value to value for IDM system
+	 * @param uid - Account identifier, can be null
 	 * @param value
 	 * @param attributeMapping
 	 * @param entity 
@@ -48,7 +51,7 @@ public interface SysSystemAttributeMappingService extends ReadWriteEntityService
 	 */
 	public Object transformValueFromResource(Object value, AttributeMapping attributeMapping,  List<IcAttribute> icAttributes );
 
-	Object transformValueToResource(Object value, String script, AbstractEntity entity, SysSystem system);
+	Object transformValueToResource(String uid, Object value, String script, AbstractEntity entity, SysSystem system);
 
 	Object transformValueFromResource(Object value, String script, List<IcAttribute> icAttributes, SysSystem system);
 
@@ -83,7 +86,7 @@ public interface SysSystemAttributeMappingService extends ReadWriteEntityService
 	/**
 	 * Find value for this mapped attribute by property name. Returned value can be list of objects. Returns transformed value.
 	 * 
-	 * @param uid
+	 * @param uid - Account identifier
 	 * @param entity
 	 * @param attributeHandling
 	 * @param idmValue
@@ -92,7 +95,7 @@ public interface SysSystemAttributeMappingService extends ReadWriteEntityService
 	 * @throws IllegalAccessException
 	 * @throws InvocationTargetException
 	 */
-	Object getAttributeValue(AbstractEntity entity, AttributeMapping attributeHandling);
+	Object getAttributeValue(String uid, AbstractEntity entity, AttributeMapping attributeHandling);
 
 	/**
 	 * Generate UID from UID attribute

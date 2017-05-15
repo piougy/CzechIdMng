@@ -31,6 +31,7 @@ import eu.bcvsolutions.idm.acc.event.processor.RoleSaveProcessor;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccRoleAccountService;
+import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.SynchronizationEntityExecutor;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncActionLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
@@ -180,7 +181,7 @@ public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor
 		// Create new Role
 		// Workaround! We have to break provisioning in this phase.
 		RoleEvent event = new RoleEvent(RoleEventType.CREATE, role);
-		event.getProperties().put(RoleSaveProcessor.SKIP_PROVISIONING, Boolean.TRUE);
+		event.getProperties().put(ProvisioningService.SKIP_PROVISIONING, Boolean.TRUE);
 		role = entityEventManager.process(event).getContent();
 		
 		// Update extended attribute (entity must be persisted first)

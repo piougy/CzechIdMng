@@ -22,7 +22,7 @@ export default class LongRunningTaskManager extends EntityManager {
   }
 
   getCollectionType() {
-    return 'longRunningTasks';
+    return 'idmLongRunningTaskDtoes';
   }
 
   /**

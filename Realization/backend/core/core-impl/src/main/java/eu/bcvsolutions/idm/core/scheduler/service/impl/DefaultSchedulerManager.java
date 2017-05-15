@@ -27,6 +27,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
@@ -73,8 +74,8 @@ public class DefaultSchedulerManager implements SchedulerManager {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public List<Task> getSupportedTasks() {		
 		List<Task> tasks = new ArrayList<>();		
-		for (Map.Entry<String, SchedulableTaskExecutor> entry : context.getBeansOfType(SchedulableTaskExecutor.class)
-				.entrySet()) {
+		Map<String, SchedulableTaskExecutor> beans = context.getBeansOfType(SchedulableTaskExecutor.class);
+		for (Map.Entry<String, SchedulableTaskExecutor> entry : beans.entrySet()) {
 			SchedulableTaskExecutor<?> taskExecutor = entry.getValue();
 			Task task = new Task();
 			task.setId(entry.getKey());

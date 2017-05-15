@@ -90,8 +90,8 @@ public class TreeProvisioningExecutor extends AbstractProvisioningExecutor<IdmTr
 	}
 	
 	@Override
-	protected Object getAttributeValue(IdmTreeNode entity, AttributeMapping attribute) {
-		Object idmValue = super.getAttributeValue(entity, attribute);
+	protected Object getAttributeValue(String uid, IdmTreeNode entity, AttributeMapping attribute) {
+		Object idmValue = super.getAttributeValue(uid, entity, attribute);
 
 		if (attribute.isEntityAttribute()
 				&& TreeSynchronizationExecutor.PARENT_FIELD.equals(attribute.getIdmPropertyName())) {

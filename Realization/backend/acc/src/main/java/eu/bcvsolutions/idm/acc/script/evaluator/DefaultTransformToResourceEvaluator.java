@@ -34,6 +34,7 @@ public class DefaultTransformToResourceEvaluator extends AbstractScriptEvaluator
 		example.append("    scriptEvaluator.newBuilder()\n");
 		example.append("        .setScriptCode('" + script.getCode() + "')\n");
 		example.append("        .addParameter('" + SCRIPT_EVALUATOR + "', " + SCRIPT_EVALUATOR + ")\n");
+		example.append("        .addParameter('" + SysSystemAttributeMappingService.ACCOUNT_UID + "', " + SysSystemAttributeMappingService.ACCOUNT_UID + ")\n");
 		example.append("        .addParameter('" + SysSystemAttributeMappingService.ATTRIBUTE_VALUE_KEY + "', " + SysSystemAttributeMappingService.ATTRIBUTE_VALUE_KEY + ")\n");
 		example.append("        .addParameter('" + SysSystemAttributeMappingService.ENTITY_KEY + "', " + SysSystemAttributeMappingService.ENTITY_KEY + ")\n");
 		example.append("	.build());\n");

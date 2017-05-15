@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.scheduler.api.service;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.quartz.Job;
 
@@ -19,4 +20,10 @@ public interface SchedulableTaskExecutor<V> extends LongRunningTaskExecutor<V>, 
 	 * @return
 	 */
 	List<String> getParameterNames();
+
+	/**
+	 * Returns entity ID of currently processed scheduled task. 
+	 * @return
+	 */
+	UUID getScheduledTaskId();
 }

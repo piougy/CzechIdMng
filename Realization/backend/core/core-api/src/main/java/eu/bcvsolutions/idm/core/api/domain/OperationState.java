@@ -22,4 +22,8 @@ public enum OperationState {
 	public static boolean isRunnable(OperationState state) {
 		return CREATED == state || RUNNING == state;
 	}
+	
+	public static boolean isSuccessful(OperationState state) {
+		return EXECUTED == state;
+	}
 }

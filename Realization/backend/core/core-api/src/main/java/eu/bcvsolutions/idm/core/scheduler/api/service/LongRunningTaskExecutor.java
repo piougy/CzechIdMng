@@ -91,4 +91,5 @@ public interface LongRunningTaskExecutor<V> extends Callable<V> {
 	 * @param longRunningTask
 	 */
 	void setLongRunningTaskId(UUID taskId);
+	
 }

@@ -1,8 +1,9 @@
-package eu.bcvsolutions.idm.core;
+package eu.bcvsolutions.idm.test.api;
 
 import java.io.InputStream;
 
 import org.activiti.engine.IdentityService;
+import org.activiti.engine.impl.bpmn.parser.factory.DefaultActivityBehaviorFactory;
 import org.activiti.engine.impl.cfg.ProcessEngineConfigurationImpl;
 import org.activiti.engine.test.ActivitiRule;
 import org.activiti.spring.SpringProcessEngineConfiguration;
@@ -13,8 +14,6 @@ import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 
 import eu.bcvsolutions.idm.core.workflow.api.dto.WorkflowDeploymentDto;
 import eu.bcvsolutions.idm.core.workflow.api.service.WorkflowDeploymentService;
-import eu.bcvsolutions.idm.core.workflow.domain.CustomActivityBehaviorFactory;
-import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
  * 
@@ -45,13 +44,15 @@ public abstract class AbstractWorkflowIntegrationTest extends AbstractIntegratio
 	@Before
     public void initBehavior() {
     	ProcessEngineConfigurationImpl processEngineConfiguration = (ProcessEngineConfigurationImpl)activitiRule.getProcessEngine().getProcessEngineConfiguration();
-		CustomActivityBehaviorFactory customActivityBehaviorFactory = new CustomActivityBehaviorFactory();
-		beanFactory.autowireBean(customActivityBehaviorFactory);
+    	DefaultActivityBehaviorFactory activityBehaviorFactory = getBehaviourFactory();
+		beanFactory.autowireBean(activityBehaviorFactory);
 		// Evaluate expression in workflow
-		customActivityBehaviorFactory.setExpressionManager(((SpringProcessEngineConfiguration) processEngineConfiguration).getExpressionManager());
+		activityBehaviorFactory.setExpressionManager(((SpringProcessEngineConfiguration) processEngineConfiguration).getExpressionManager());
 		// For catch email
-		((SpringProcessEngineConfiguration) processEngineConfiguration).getBpmnParser().setActivityBehaviorFactory(customActivityBehaviorFactory);
+		((SpringProcessEngineConfiguration) processEngineConfiguration).getBpmnParser().setActivityBehaviorFactory(activityBehaviorFactory);
     }
+
+
 	
     @Override
 	public void loginAsAdmin(String username){
@@ -72,7 +73,9 @@ public abstract class AbstractWorkflowIntegrationTest extends AbstractIntegratio
 	 */
 	public WorkflowDeploymentDto deployProcess(String xmlPath) {
 		InputStream is = this.getClass().getClassLoader().getResourceAsStream(xmlPath);
-		return  processDeploymentService.create(xmlPath,
-				xmlPath, is);
+		return processDeploymentService.create(xmlPath, xmlPath, is);
 	}
+	
+	public abstract DefaultActivityBehaviorFactory getBehaviourFactory();
+	
 }

@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.api.entity;
 
+import java.io.Serializable;
+
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.EnumType;
@@ -9,6 +11,7 @@ import javax.validation.constraints.NotNull;
 import org.hibernate.annotations.Type;
 
 import com.google.common.base.Throwables;
+
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.ResultModel;
@@ -19,7 +22,9 @@ import eu.bcvsolutions.idm.core.api.dto.ResultModel;
  * @author Radek Tomiška
  */
 @Embeddable
-public class OperationResult {
+public class OperationResult implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	@NotNull
 	@Enumerated(EnumType.STRING)

@@ -869,7 +869,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 		}
 
 		if (filterAttributeMapping != null) {
-			Object transformedValue = systemAttributeMappingService.transformValueToResource(configToken,
+			Object transformedValue = systemAttributeMappingService.transformValueToResource(null, configToken,
 					filterAttributeMapping, config);
 
 			if (transformedValue != null) {
@@ -1405,7 +1405,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 			}
 	
 			case WRITE_IF_NULL: {
-				Object value = systemAttributeMappingService.getAttributeValue(entity, attribute);
+				Object value = systemAttributeMappingService.getAttributeValue(uid, entity, attribute);
 				return value == null ? true : false;
 			}
 			default: {

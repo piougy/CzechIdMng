@@ -72,6 +72,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 	public static final String FORM_ATTRIBUTE_WWW = "webPages";
 	public static final String FORM_ATTRIBUTE_PASSWORD = "password";
 	public static final String FORM_ATTRIBUTE_DATETIME = "datetime";
+	public static final String DEFAULT_ROLE_NAME = "userRole";
 	
 	@Autowired
 	private InitApplicationData initApplicationData;	
@@ -180,7 +181,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				}
 				//
 				IdmRole role1 = new IdmRole();
-				role1.setName("userRole");
+				role1.setName(DEFAULT_ROLE_NAME);
 				role1 = this.roleService.save(role1);
 				IdmAuthorizationPolicyDto policy = new IdmAuthorizationPolicyDto();
 				// add autocomplete data access

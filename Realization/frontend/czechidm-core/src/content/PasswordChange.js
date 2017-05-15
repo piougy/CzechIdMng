@@ -62,7 +62,6 @@ class PasswordChange extends Basic.AbstractContent {
     const password = this.refs.passwords.getValue();
 
     identityManager.getService().passwordChange(username, {
-      identity: username,
       oldPassword,
       newPassword: password,
       all: true, // change in idm and in all accounts

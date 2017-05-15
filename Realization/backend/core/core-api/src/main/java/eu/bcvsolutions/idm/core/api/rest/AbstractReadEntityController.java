@@ -310,9 +310,7 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 	}
 	
 	protected void checkAccess(E entity, BasePermission permission) {
-		if (getEntityService() instanceof AuthorizableEntityService && !getAuthorizationManager().evaluate(entity, permission)) {
-			throw new ResultCodeException(CoreResultCode.FORBIDDEN);
-		}
+		getEntityService().checkAccess(entity, permission);
 	}
 	
 	/**

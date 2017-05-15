@@ -2,11 +2,17 @@ package eu.bcvsolutions.idm.core.scheduler.entity;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.Map;
 
 import javax.persistence.Column;
+import javax.persistence.ConstraintMode;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.ForeignKey;
 import javax.persistence.Index;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
@@ -18,7 +24,7 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 
 /**
- * Persisted long running task
+ * Persisted instance of one task execution.
  * 
  * @author Radek Tomiška
  *
@@ -26,7 +32,8 @@ import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 @Entity
 @Table(name = "idm_long_running_task", indexes = { 
 		@Index(name = "idx_idm_long_r_t_inst", columnList = "instance_id"),
-		@Index(name = "idx_idm_long_r_t_type", columnList = "task_type")
+		@Index(name = "idx_idm_long_r_t_type", columnList = "task_type"),
+		@Index(name = "idx_idm_long_r_t_s_task", columnList = "scheduled_task_id")
 		})
 public class IdmLongRunningTask extends AbstractEntity {
 	
@@ -62,8 +69,17 @@ public class IdmLongRunningTask extends AbstractEntity {
 	@Column(name = "thread_name", length = DefaultFieldLengths.NAME)
 	private String threadName;
 	
+	@NotNull
 	@Embedded
 	private OperationResult result;
+	
+	@SuppressWarnings("deprecation")
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "scheduled_task_id",
+		referencedColumnName = "id",
+		foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@org.hibernate.annotations.ForeignKey(name = "none")
+	private IdmScheduledTask scheduledTask;
 	
 	// TODO: optimistic lock for secure task canceling etc.
 //	@Version
@@ -149,14 +165,26 @@ public class IdmLongRunningTask extends AbstractEntity {
 		this.threadName = threadName;
 	}
 	
-	public void setTaskProperties(Serializable taskProperties) {
-		this.taskProperties = taskProperties;
+	public void setTaskProperties(Map<String, Object> taskProperties) {
+		this.taskProperties = (Serializable) taskProperties;
 	}
 	
-	public Serializable getTaskProperties() {
+	// workaround
+	// we need to change data type on getter/setter for modelmapper to work
+	@SuppressWarnings("unchecked")
+	public Map<String, Object> getTaskProperties() {
 		if (taskProperties == null) {
 			taskProperties = new HashMap<>();
 		}
-		return taskProperties;
+		return (Map<String, Object>) taskProperties;
 	}
+
+	public IdmScheduledTask getScheduledTask() {
+		return scheduledTask;
+	}
+
+	public void setScheduledTask(IdmScheduledTask scheduledTask) {
+		this.scheduledTask = scheduledTask;
+	}
+
 }

@@ -19,10 +19,10 @@ import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.LongRunningFutureTask;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
-import eu.bcvsolutions.idm.core.scheduler.entity.IdmLongRunningTask;
 import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskService;
 import eu.bcvsolutions.idm.core.scheduler.service.impl.AbstractLongRunningTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.service.impl.DefaultLongRunningTaskManager;
@@ -60,7 +60,7 @@ public class DefaultLongRunningTaskManagerIntegrationTest extends AbstractIntegr
 		//
 		LongRunningFutureTask<String> futureTask = manager.execute(taskExecutor);
 		//
-		IdmLongRunningTask longRunningTask = service.get(taskExecutor.getLongRunningTaskId());
+		IdmLongRunningTaskDto longRunningTask = service.get(taskExecutor.getLongRunningTaskId());
 		assertNotNull(longRunningTask);
 		assertEquals(result, longRunningTask.getTaskDescription());
 		assertEquals(taskExecutor.getClass().getCanonicalName(), longRunningTask.getTaskType());
@@ -82,7 +82,7 @@ public class DefaultLongRunningTaskManagerIntegrationTest extends AbstractIntegr
 		//
 		assertEquals(result, futureTask.getFutureTask().get());
 		//
-		IdmLongRunningTask longRunningTask = service.get(taskExecutor.getLongRunningTaskId());
+		IdmLongRunningTaskDto longRunningTask = service.get(taskExecutor.getLongRunningTaskId());
 		assertEquals(OperationState.EXECUTED, longRunningTask.getResult().getState());
 		assertEquals(count, longRunningTask.getCount());
 		assertEquals(count, longRunningTask.getCounter());
@@ -100,7 +100,7 @@ public class DefaultLongRunningTaskManagerIntegrationTest extends AbstractIntegr
 		//	
 		assertEquals(result, futureTask.getFutureTask().get());
 		//
-		IdmLongRunningTask longRunningTask = service.get(taskExecutor.getLongRunningTaskId());
+		IdmLongRunningTaskDto longRunningTask = service.get(taskExecutor.getLongRunningTaskId());
 		assertEquals(OperationState.CANCELED, longRunningTask.getResult().getState());
 		assertEquals(count, longRunningTask.getCount());
 		assertNotEquals(count, longRunningTask.getCounter());
@@ -123,7 +123,7 @@ public class DefaultLongRunningTaskManagerIntegrationTest extends AbstractIntegr
 		//
 		assertEquals(result, futureTask.getFutureTask().get());
 		//
-		IdmLongRunningTask longRunningTask = service.get(taskExecutor.getLongRunningTaskId());
+		IdmLongRunningTaskDto longRunningTask = service.get(taskExecutor.getLongRunningTaskId());
 		assertEquals(OperationState.CANCELED, longRunningTask.getResult().getState());
 		assertEquals(count, longRunningTask.getCount());
 		assertNotEquals(count, longRunningTask.getCounter());
@@ -142,7 +142,7 @@ public class DefaultLongRunningTaskManagerIntegrationTest extends AbstractIntegr
 		};
 		waitForResult(continueFunction);
 		//
-		IdmLongRunningTask longRunningTask = service.get(taskExecutor.getLongRunningTaskId());
+		IdmLongRunningTaskDto longRunningTask = service.get(taskExecutor.getLongRunningTaskId());
 		assertEquals(OperationState.RUNNING, longRunningTask.getResult().getState());
 		assertEquals(count, longRunningTask.getCount());
 		assertTrue(longRunningTask.isRunning());
@@ -158,14 +158,14 @@ public class DefaultLongRunningTaskManagerIntegrationTest extends AbstractIntegr
 	
 	@Test
 	public void testCancelPreviouslyRunnedTask() {
-		IdmLongRunningTask taskOne = new IdmLongRunningTask();
+		IdmLongRunningTaskDto taskOne = new IdmLongRunningTaskDto();
 		taskOne.setResult(new OperationResult.Builder(OperationState.RUNNING).build());
 		taskOne.setInstanceId(configurationService.getInstanceId());
 		taskOne.setTaskType(TestSimpleLongRunningTaskExecutor.class.getCanonicalName());
 		taskOne.setRunning(true);
 		taskOne = service.save(taskOne);
 		//
-		IdmLongRunningTask taskTwo = new IdmLongRunningTask();
+		IdmLongRunningTaskDto taskTwo = new IdmLongRunningTaskDto();
 		taskTwo.setResult(new OperationResult.Builder(OperationState.RUNNING).build());
 		taskTwo.setInstanceId("different-instance");
 		taskTwo.setTaskType(TestSimpleLongRunningTaskExecutor.class.getCanonicalName());

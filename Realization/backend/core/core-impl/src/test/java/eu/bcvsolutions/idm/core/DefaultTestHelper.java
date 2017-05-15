@@ -58,13 +58,13 @@ public class DefaultTestHelper implements TestHelper {
 	
 	@Override
 	public IdmIdentityDto createIdentity() {
-		return createIdentity(createName());
+		return createIdentity(null);
 	}
 	
 	@Override
 	public IdmIdentityDto createIdentity(String name) {
 		IdmIdentityDto identity = new IdmIdentityDto();
-		identity.setUsername(name);
+		identity.setUsername(name == null ? createName() : name);
 		identity.setFirstName("Test");
 		identity.setLastName("Identity");
 		identity = identityService.save(identity);
@@ -78,12 +78,13 @@ public class DefaultTestHelper implements TestHelper {
 	
 	@Override
 	public IdmTreeType createTreeType() {
-		return createTreeType(createName());
+		return createTreeType(null);
 	}
 	
 	@Override
 	public IdmTreeType createTreeType(String name) {
 		IdmTreeType treeType = new IdmTreeType();
+		name = name == null ? createName() : name;
 		treeType.setCode(name);
 		treeType.setName(name);
 		return treeTypeService.save(treeType);
@@ -91,7 +92,7 @@ public class DefaultTestHelper implements TestHelper {
 	
 	@Override
 	public IdmTreeNode createTreeNode() {
-		return createTreeNode(createName(), null);
+		return createTreeNode((String) null, null);
 	}
 	
 	@Override
@@ -101,13 +102,14 @@ public class DefaultTestHelper implements TestHelper {
 	
 	@Override
 	public IdmTreeNode createTreeNode(IdmTreeType treeType, IdmTreeNode parent) {
-		return createTreeNode(treeTypeService.getDefaultTreeType(), createName(), parent);
+		return createTreeNode(treeTypeService.getDefaultTreeType(), null, parent);
 	}
 	
 	@Override
 	public IdmTreeNode createTreeNode(IdmTreeType treeType, String name, IdmTreeNode parent) {
 		Assert.notNull(treeType, "Tree type is required - test environment is wrong configured, test data is not prepared!");
 		//
+		name = name == null ? createName() : name;
 		IdmTreeNode node = new IdmTreeNode();
 		node.setParent(parent);
 		node.setCode(name);
@@ -123,14 +125,21 @@ public class DefaultTestHelper implements TestHelper {
 
 	@Override
 	public IdmRole createRole() {
-		return createRole(createName());
+		return createRole(null);
 	}
-	
 
 	@Override
 	public IdmRole createRole(String name) {
+		return createRole(null, name);
+	}
+	
+	@Override
+	public IdmRole createRole(UUID id, String name) {
 		IdmRole roleC = new IdmRole();
-		roleC.setName(name);
+		if (id != null) {
+			roleC.setId(id);
+		}
+		roleC.setName(name == null ? createName() : name);
 		return roleService.save(roleC);
 	}
 	

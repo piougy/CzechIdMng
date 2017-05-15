@@ -1170,55 +1170,57 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		Page<SysSchemaAttribute> schemaAttributesPage = schemaAttributeService.find(schemaAttributeFilter, null);
 		schemaAttributesPage.forEach(schemaAttr -> {
 			if (ATTRIBUTE_NAME.equals(schemaAttr.getName())) {
-				SysSystemAttributeMapping attributeHandlingName = new SysSystemAttributeMapping();
-				attributeHandlingName.setUid(true);
-				attributeHandlingName.setEntityAttribute(true);
-				attributeHandlingName.setIdmPropertyName("username");
-				attributeHandlingName.setName(schemaAttr.getName());
-				attributeHandlingName.setSchemaAttribute(schemaAttr);
-				attributeHandlingName.setSystemMapping(entityHandlingResult);
-				schemaAttributeMappingService.save(attributeHandlingName);
+				SysSystemAttributeMapping attributeMapping = new SysSystemAttributeMapping();
+				attributeMapping.setUid(true);
+				attributeMapping.setEntityAttribute(true);
+				attributeMapping.setIdmPropertyName("username");
+				attributeMapping.setName(schemaAttr.getName());
+				attributeMapping.setSchemaAttribute(schemaAttr);
+				attributeMapping.setSystemMapping(entityHandlingResult);
+				schemaAttributeMappingService.save(attributeMapping);
 
 			} else if ("firstname".equalsIgnoreCase(schemaAttr.getName())) {
-				SysSystemAttributeMapping attributeHandlingName = new SysSystemAttributeMapping();
-				attributeHandlingName.setIdmPropertyName("firstName");
-				attributeHandlingName.setSchemaAttribute(schemaAttr);
-				attributeHandlingName.setName(schemaAttr.getName());
-				attributeHandlingName.setSystemMapping(entityHandlingResult);
-				schemaAttributeMappingService.save(attributeHandlingName);
+				SysSystemAttributeMapping attributeMapping = new SysSystemAttributeMapping();
+				attributeMapping.setIdmPropertyName("firstName");
+				attributeMapping.setSchemaAttribute(schemaAttr);
+				attributeMapping.setName(schemaAttr.getName());
+				attributeMapping.setSystemMapping(entityHandlingResult);
+				schemaAttributeMappingService.save(attributeMapping);
 
 			} else if ("lastname".equalsIgnoreCase(schemaAttr.getName())) {
-				SysSystemAttributeMapping attributeHandlingName = new SysSystemAttributeMapping();
-				attributeHandlingName.setIdmPropertyName("lastName");
-				attributeHandlingName.setName(schemaAttr.getName());
-				attributeHandlingName.setSchemaAttribute(schemaAttr);
-				attributeHandlingName.setSystemMapping(entityHandlingResult);
-				schemaAttributeMappingService.save(attributeHandlingName);
+				SysSystemAttributeMapping attributeMapping = new SysSystemAttributeMapping();
+				attributeMapping.setIdmPropertyName("lastName");
+				attributeMapping.setName(schemaAttr.getName());
+				attributeMapping.setSchemaAttribute(schemaAttr);
+				attributeMapping.setSystemMapping(entityHandlingResult);
+				schemaAttributeMappingService.save(attributeMapping);
 
 			} else if (ATTRIBUTE_EMAIL.equalsIgnoreCase(schemaAttr.getName())) {
-				SysSystemAttributeMapping attributeHandlingName = new SysSystemAttributeMapping();
-				attributeHandlingName.setIdmPropertyName("email");
-				attributeHandlingName.setName(schemaAttr.getName());
-				attributeHandlingName.setSchemaAttribute(schemaAttr);
-				attributeHandlingName.setSystemMapping(entityHandlingResult);
-				schemaAttributeMappingService.save(attributeHandlingName);
+				SysSystemAttributeMapping attributeMapping = new SysSystemAttributeMapping();
+				attributeMapping.setIdmPropertyName("email");
+				attributeMapping.setName(schemaAttr.getName());
+				attributeMapping.setSchemaAttribute(schemaAttr);
+				attributeMapping.setSystemMapping(entityHandlingResult);
+				schemaAttributeMappingService.save(attributeMapping);
 
 			} else if (IcConnectorFacade.PASSWORD_ATTRIBUTE_NAME.equalsIgnoreCase(schemaAttr.getName())) {
-				SysSystemAttributeMapping attributeHandlingName = new SysSystemAttributeMapping();
-				attributeHandlingName.setIdmPropertyName("password");
-				attributeHandlingName.setSchemaAttribute(schemaAttr);
-				attributeHandlingName.setName(schemaAttr.getName());
-				attributeHandlingName.setSystemMapping(entityHandlingResult);
-				schemaAttributeMappingService.save(attributeHandlingName);
+				SysSystemAttributeMapping attributeMapping = new SysSystemAttributeMapping();
+				attributeMapping.setIdmPropertyName("password");
+				attributeMapping.setSchemaAttribute(schemaAttr);
+				attributeMapping.setName(schemaAttr.getName());
+				attributeMapping.setSystemMapping(entityHandlingResult);
+				schemaAttributeMappingService.save(attributeMapping);
 
 			} else if (SystemOperationType.SYNCHRONIZATION == entityHandlingResult.getOperationType()
 					&& ATTRIBUTE_MODIFIED.equalsIgnoreCase(schemaAttr.getName())) {
-				SysSystemAttributeMapping attributeHandlingName = new SysSystemAttributeMapping();
-				attributeHandlingName.setEntityAttribute(false);
-				attributeHandlingName.setSchemaAttribute(schemaAttr);
-				attributeHandlingName.setName(ATTRIBUTE_MODIFIED);
-				attributeHandlingName.setSystemMapping(entityHandlingResult);
-				schemaAttributeMappingService.save(attributeHandlingName);
+				SysSystemAttributeMapping attributeMapping = new SysSystemAttributeMapping();
+				attributeMapping.setEntityAttribute(false);
+				attributeMapping.setExtendedAttribute(true);
+				attributeMapping.setSchemaAttribute(schemaAttr);
+				attributeMapping.setIdmPropertyName(ATTRIBUTE_MODIFIED);
+				attributeMapping.setName(ATTRIBUTE_MODIFIED);
+				attributeMapping.setSystemMapping(entityHandlingResult);
+				schemaAttributeMappingService.save(attributeMapping);
 
 			}
 		});

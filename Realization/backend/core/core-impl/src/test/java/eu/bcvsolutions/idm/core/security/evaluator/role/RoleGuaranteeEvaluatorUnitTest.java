@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.security.evaluator;
+package eu.bcvsolutions.idm.core.security.evaluator.role;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;

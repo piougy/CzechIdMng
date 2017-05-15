@@ -414,7 +414,8 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
                   label={this.i18n('entity.ScheduleTask.taskType')}
                   options={_supportedTasks}
                   onChange={this.onChangeTaskType.bind(this)}
-                  required/>
+                  required
+                  searchable/>
                 <Basic.TextArea
                   ref="description"
                   placeholder={taskType ? taskType.description : null}

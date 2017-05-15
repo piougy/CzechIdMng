@@ -1334,9 +1334,9 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 								ImmutableMap.of("uid", uid, "message", message));
 					}
 				});
-				formService.saveValues(entity.getId(), (Class<FormableEntity>) entity.getClass(), defAttribute, (List<Serializable>) transformedValue);
+				formService.saveValues(entity.getId(), (Class<? extends FormableEntity>) entity.getClass(), defAttribute, (List<Serializable>) transformedValue);
 			} else {
-				formService.saveValues(entity.getId(), (Class<FormableEntity>) entity.getClass(), defAttribute,
+				formService.saveValues(entity.getId(), (Class<? extends FormableEntity>) entity.getClass(), defAttribute,
 						Lists.newArrayList((Serializable) transformedValue));
 			}
 		});

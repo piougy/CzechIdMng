@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,6 +62,21 @@ public class DefaultIdmScriptAuthorityService extends AbstractReadWriteDtoServic
 				throw new ResultCodeException(
 						CoreResultCode.GROOVY_SCRIPT_NOT_ACCESSIBLE_CLASS,
 						ImmutableMap.of("class", dto.getClassName()), e);
+			}
+		} else {
+			// check service name with available services
+			boolean isNotAvailableService = this.findServices(null).stream()
+				.filter(
+						service -> (
+								service.getServiceName().equals(dto.getService()) &&
+								service.getServiceClass().equals(dto.getClassName())
+								)
+						).collect(Collectors.toList()).isEmpty();
+			//
+			if (isNotAvailableService) {
+				throw new ResultCodeException(
+						CoreResultCode.GROOVY_SCRIPT_NOT_ACCESSIBLE_SERVICE,
+						ImmutableMap.of("service", dto.getService()));
 			}
 		}
 		return super.save(dto, permission);

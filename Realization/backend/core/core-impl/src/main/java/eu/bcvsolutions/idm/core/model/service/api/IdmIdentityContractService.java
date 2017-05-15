@@ -10,8 +10,8 @@ import org.springframework.data.domain.Pageable;
 import eu.bcvsolutions.idm.core.api.domain.RecursionType;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdentityContractFilter;
+import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
-import eu.bcvsolutions.idm.core.model.dto.filter.ContractGuaranteeFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
@@ -24,7 +24,8 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
  */
 public interface IdmIdentityContractService extends
 	ReadWriteDtoService<IdmIdentityContractDto, IdentityContractFilter>,
-	AuthorizableService<IdmIdentityContractDto, ContractGuaranteeFilter> {
+	AuthorizableService<IdmIdentityContractDto>,
+	ScriptEnabled {
 	
 	static final String DEFAULT_POSITION_NAME = "Default"; // TODO: to configuration manager?
 	

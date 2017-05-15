@@ -22,9 +22,10 @@ import eu.bcvsolutions.idm.core.security.api.utils.IdmAuthorityUtils;
 
 public class AuthenticationTestUtils {
 
-	public static IdmJwtAuthenticationDto getAuthDto(String user, Collection<GrantedAuthority> authorities) {
+	public static IdmJwtAuthenticationDto getAuthDto(IdmIdentityDto user, Collection<GrantedAuthority> authorities) {
 		IdmJwtAuthenticationDto d = new IdmJwtAuthenticationDto();
-		d.setCurrentUsername(user);
+		d.setCurrentUsername(user.getUsername());
+		d.setCurrentIdentityId(user.getId());
 		d.setIssuedAt(getIat());
 		d.setExpiration(getExp());
 		d.setAuthorities(new ArrayList<>());

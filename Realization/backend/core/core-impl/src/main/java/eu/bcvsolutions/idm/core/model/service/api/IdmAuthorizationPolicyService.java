@@ -20,24 +20,24 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
  */
 public interface IdmAuthorizationPolicyService
 		extends ReadWriteDtoService<IdmAuthorizationPolicyDto, AuthorizationPolicyFilter>,
-		AuthorizableService<IdmAuthorizationPolicyDto, AuthorizationPolicyFilter> {
+		AuthorizableService<IdmAuthorizationPolicyDto> {
 	
 	/**
 	 * Returns all enabled policies for given identity and entity type
 	 * 
-	 * @param username
-	 *            identity's username
+	 * @param identityId identity's id
 	 * @param entityType
 	 * @return
 	 */
-	List<IdmAuthorizationPolicyDto> getEnabledPolicies(String username, Class<? extends Identifiable> entityType);
+	List<IdmAuthorizationPolicyDto> getEnabledPolicies(UUID identityId, Class<? extends Identifiable> entityType);
 	
 	/**
-	 * Returns active role's authorities by configured policies
+	 * Returns active role's authorities by configured policies for given identity
 	 * 
+	 * @param identityId
 	 * @param role
 	 */
-	Set<GrantedAuthority> getEnabledRoleAuthorities(UUID roleId);
+	Set<GrantedAuthority> getEnabledRoleAuthorities(UUID identityId, UUID roleId);
 	
 	/**
 	 * Returns role policies
@@ -49,21 +49,21 @@ public interface IdmAuthorizationPolicyService
 	List<IdmAuthorizationPolicyDto> getRolePolicies(UUID roleId, boolean disabled);
 	
 	/**
-	 * Returns active and persisted role's authorities by configured policies.
+	 * Returns active and persisted role's authorities by configured policies for given identity.
 	 * Persisted means persisted policies outside current transaction.
 	 * 
 	 * @param role
 	 */
-	Set<GrantedAuthority> getEnabledPersistedRoleAuthorities(UUID roleId);
+	Set<GrantedAuthority> getEnabledPersistedRoleAuthorities(UUID identityId, UUID roleId);
 	
 	/**
-	 * Returns authorities from default user role by configuration {@value #PROPERTY_DEFAULT_ROLE}
+	 * Returns authorities from default user role by configuration {@value #PROPERTY_DEFAULT_ROLE} for given identity.
 	 * 
 	 * Attention: Doesn't returns authorities from subroles
 	 * 
 	 * @return
 	 */
-	Set<GrantedAuthority> getDefaultAuthorities();
+	Set<GrantedAuthority> getDefaultAuthorities(UUID identityId);
 	
 	/**
 	 * Returns policies from default user role by configuration {@value IdmRoleService#PROPERTY_DEFAULT_ROLE}.
@@ -75,12 +75,13 @@ public interface IdmAuthorizationPolicyService
 	List<IdmAuthorizationPolicyDto> getDefaultPolicies(Class<? extends Identifiable> entityType);
 
 	/**
-	 * Returns a set of granted authorities from enabled authorization policies.
+	 * Returns a set of granted authorities from enabled authorization policies for given identity.
 	 * 
+	 * @param identityId
 	 * @param policies
 	 * @return
 	 */
-	Set<GrantedAuthority> getGrantedAuthorities(List<IdmAuthorizationPolicyDto> policies);
+	Set<GrantedAuthority> getGrantedAuthorities(UUID identityId, List<IdmAuthorizationPolicyDto> policies);
 	
 	
 }

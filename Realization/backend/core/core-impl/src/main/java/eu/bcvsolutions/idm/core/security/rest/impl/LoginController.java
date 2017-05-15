@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
+import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.security.api.authentication.AuthenticationManager;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
 import eu.bcvsolutions.idm.core.security.service.LoginService;
@@ -24,7 +24,7 @@ import eu.bcvsolutions.idm.core.security.service.LoginService;
  *
  */
 @RestController
-@RequestMapping(value = BaseEntityController.BASE_PATH + "/authentication")
+@RequestMapping(value = BaseController.BASE_PATH + "/authentication")
 public class LoginController {
 	
 	public static final String REMOTE_AUTH_PATH = "/remote-auth";

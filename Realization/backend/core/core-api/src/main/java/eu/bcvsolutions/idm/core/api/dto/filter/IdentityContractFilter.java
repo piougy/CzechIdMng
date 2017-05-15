@@ -3,7 +3,10 @@ package eu.bcvsolutions.idm.core.api.dto.filter;
 import java.util.UUID;
 
 import org.joda.time.LocalDate;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 
 /**
@@ -11,7 +14,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
  *
  * @author Radek Tomiška
  */
-public class IdentityContractFilter extends QuickFilter {
+public class IdentityContractFilter extends DataFilter {
 
 	private UUID identity;
 	private LocalDate validFrom;
@@ -20,6 +23,14 @@ public class IdentityContractFilter extends QuickFilter {
 	private Boolean disabled;
 	private Boolean valid;
 	private Boolean main;
+
+	public IdentityContractFilter() {
+		this(new LinkedMultiValueMap<>());
+	}
+
+	public IdentityContractFilter(MultiValueMap<String, Object> data) {
+		super(IdmIdentityContractDto.class, data);
+	}
 
 	public UUID getIdentity() {
 		return identity;
@@ -76,5 +87,4 @@ public class IdentityContractFilter extends QuickFilter {
 	public void setMain(Boolean main) {
 		this.main = main;
 	}
-
 }

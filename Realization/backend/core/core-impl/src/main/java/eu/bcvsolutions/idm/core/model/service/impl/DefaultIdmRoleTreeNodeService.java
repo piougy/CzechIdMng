@@ -1,8 +1,14 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,8 +28,12 @@ import eu.bcvsolutions.idm.core.api.exception.AcceptedException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleTreeNode;
+import eu.bcvsolutions.idm.core.model.entity.IdmRoleTreeNode_;
+import eu.bcvsolutions.idm.core.model.entity.IdmRole_;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
+import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode_;
 import eu.bcvsolutions.idm.core.model.event.RoleTreeNodeEvent;
 import eu.bcvsolutions.idm.core.model.event.RoleTreeNodeEvent.RoleTreeNodeEventType;
 import eu.bcvsolutions.idm.core.model.event.processor.role.RoleTreeNodeDeleteProcessor;
@@ -35,12 +45,11 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
+import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
 /**
  * Automatic role service
  * - supports {@link RoleTreeNodeEvent}
- * 
- * TODO: authorizable
  * 
  * @author Radek Tomiška
  *
@@ -81,6 +90,11 @@ public class DefaultIdmRoleTreeNodeService
 		this.identityContractService = identityContractService;
 	}
 	
+	@Override
+	public AuthorizableType getAuthorizableType() {
+		return new AuthorizableType(CoreGroupPermission.ROLETREENODE, getEntityClass());
+	}
+	
 	/**
 	 * Publish {@link RoleTreeNodeEvent} only.
 	 * 
@@ -90,6 +104,7 @@ public class DefaultIdmRoleTreeNodeService
 	@Transactional(noRollbackFor = AcceptedException.class)
 	public IdmRoleTreeNodeDto save(IdmRoleTreeNodeDto roleTreeNode, BasePermission... permission) {
 		Assert.notNull(roleTreeNode);
+		checkAccess(toEntity(roleTreeNode, null), permission);
 		//
 		LOG.debug("Saving automatic role [{}] - [{}] - [{}]", roleTreeNode.getRole(), roleTreeNode.getTreeNode(), roleTreeNode.getRecursionType());
 		//
@@ -112,6 +127,7 @@ public class DefaultIdmRoleTreeNodeService
 	@Transactional(noRollbackFor = AcceptedException.class)
 	public void delete(IdmRoleTreeNodeDto roleTreeNode, BasePermission... permission) {
 		Assert.notNull(roleTreeNode);
+		checkAccess(this.getEntity(roleTreeNode.getId()), permission);
 		//
 		LOG.debug("Deleting automatic role [{}] - [{}] - [{}]", roleTreeNode.getRole(), roleTreeNode.getTreeNode(), roleTreeNode.getRecursionType());
 		//
@@ -120,6 +136,20 @@ public class DefaultIdmRoleTreeNodeService
 		if (context.isSuspended()) {
 			throw new AcceptedException();
 		}
+	}
+	
+	@Override
+	protected List<Predicate> toPredicates(Root<IdmRoleTreeNode> root, CriteriaQuery<?> query, CriteriaBuilder builder, RoleTreeNodeFilter filter) {
+		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
+		// 
+		if (filter.getRoleId() != null) {
+			predicates.add(builder.equal(root.get(IdmRoleTreeNode_.role).get(IdmRole_.id), filter.getRoleId()));
+		}
+		//
+		if (filter.getTreeNodeId() != null) {
+			predicates.add(builder.equal(root.get(IdmRoleTreeNode_.treeNode).get(IdmTreeNode_.id), filter.getTreeNodeId()));
+		}
+		return predicates;
 	}
 
 	@Override

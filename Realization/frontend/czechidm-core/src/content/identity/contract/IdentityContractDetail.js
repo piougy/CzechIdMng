@@ -1,23 +1,25 @@
 import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
+import { connect } from 'react-redux';
 import _ from 'lodash';
 //
 import * as Basic from '../../../components/basic';
 import * as Advanced from '../../../components/advanced';
 import * as Utils from '../../../utils';
-import { IdentityContractManager, IdentityManager, TreeNodeManager, TreeTypeManager, SecurityManager } from '../../../redux';
+import { IdentityContractManager, IdentityManager, TreeNodeManager, TreeTypeManager } from '../../../redux';
 import SearchParameters from '../../../domain/SearchParameters';
+
+const identityContractManager = new IdentityContractManager();
 
 /**
  * Identity contract form
  *
  * @author Radek Tomiška
  */
-export default class IdentityContractDetail extends Basic.AbstractContent {
+class IdentityContractDetail extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
-    this.identityContractManager = new IdentityContractManager();
     this.identityManager = new IdentityManager();
     this.treeNodeManager = new TreeNodeManager();
     this.treeTypeManager = new TreeTypeManager();
@@ -33,7 +35,7 @@ export default class IdentityContractDetail extends Basic.AbstractContent {
   }
 
   getManager() {
-    return this.identityContractManager;
+    return identityContractManager;
   }
 
   componentDidMount() {
@@ -132,7 +134,7 @@ export default class IdentityContractDetail extends Basic.AbstractContent {
   }
 
   render() {
-    const { uiKey, entity, showLoading, params } = this.props;
+    const { uiKey, entity, showLoading, params, _permissions } = this.props;
     const { _showLoading, forceSearchParameters, treeTypeId } = this.state;
 
     return (
@@ -144,7 +146,11 @@ export default class IdentityContractDetail extends Basic.AbstractContent {
             <Basic.PanelHeader text={Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('label')} />
 
             <Basic.PanelBody style={Utils.Entity.isNew(entity) ? { paddingTop: 0, paddingBottom: 0 } : { padding: 0 }}>
-              <Basic.AbstractForm ref="form" showLoading={ _showLoading || showLoading } uiKey={uiKey} readOnly={!SecurityManager.isAdmin()}>
+              <Basic.AbstractForm
+                ref="form"
+                showLoading={ _showLoading || showLoading }
+                uiKey={uiKey}
+                readOnly={ !identityContractManager.canSave(entity, _permissions) }>
                 <Basic.LabelWrapper readOnly ref="identity" label={this.i18n('entity.IdentityContract.identity')}>
                   <Advanced.IdentityInfo username={params.identityId}/>
                 </Basic.LabelWrapper>
@@ -200,12 +206,12 @@ export default class IdentityContractDetail extends Basic.AbstractContent {
 
               <Basic.SplitButton
                 level="success"
-                title={this.i18n('button.saveAndContinue')}
-                onClick={this.save.bind(this, 'CONTINUE')}
-                showLoading={_showLoading}
+                title={ this.i18n('button.saveAndContinue') }
+                onClick={ this.save.bind(this, 'CONTINUE') }
+                showLoading={ _showLoading }
                 showLoadingIcon
-                showLoadingText={this.i18n('button.saving')}
-                rendered={SecurityManager.isAdmin()}
+                showLoadingText={ this.i18n('button.saving') }
+                rendered={ identityContractManager.canSave(entity, _permissions) }
                 pullRight
                 dropup>
                 <Basic.MenuItem eventKey="1" onClick={this.save.bind(this, 'CLOSE')}>{this.i18n('button.saveAndClose')}</Basic.MenuItem>
@@ -224,4 +230,16 @@ IdentityContractDetail.propTypes = {
   entity: PropTypes.object,
   type: PropTypes.string,
   uiKey: PropTypes.string.isRequired,
+  _permissions: PropTypes.arrayOf(PropTypes.string)
 };
+IdentityContractDetail.defaultProps = {
+  _permissions: null
+};
+
+function select(state, component) {
+  return {
+    userContext: state.security.userContext,
+    _permissions: identityContractManager.getPermissions(state, null, component.params.entityId)
+  };
+}
+export default connect(select)(IdentityContractDetail);

@@ -21,7 +21,7 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
  */
 public interface IdmLongRunningTaskService extends
 	ReadWriteDtoService<IdmLongRunningTaskDto, LongRunningTaskFilter>,
-	AuthorizableService<IdmLongRunningTask, LongRunningTaskFilter> {
+	AuthorizableService<IdmLongRunningTask> {
 
 	/**
 	 * Returns tasks for given instance id (server) and state

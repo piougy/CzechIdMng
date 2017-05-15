@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.security.api.service;
 
 import java.util.Set;
+import java.util.UUID;
 
 import eu.bcvsolutions.idm.core.security.api.domain.AbstractAuthentication;
 
@@ -54,6 +55,20 @@ public interface SecurityService {
 	 * @return logged identity's username or <code>null</code> if no authentication
 	 */
 	String getUsername();
+	
+	/**
+	 * Returns currently logged identity's username
+	 * 
+	 * @return logged identity's username or <code>null</code> if no authentication
+	 */
+	String getCurrentUsername();
+	
+	/**
+	 * Returns currently logged identity's id
+	 * 
+	 * @return logged identity's id or <code>null</code> if no authentication
+	 */
+	UUID getCurrentId();
 
 	/**
 	 * Returns originally logged identity's username (before identity was switched)

@@ -19,7 +19,6 @@ import java.util.List;
 public class PasswordChangeDto implements Serializable {
 
     private static final long serialVersionUID = 8418885222359043739L;
-    private String identity;
     @JsonDeserialize(using = GuardedStringDeserializer.class)
     private GuardedString oldPassword;
     @NotNull
@@ -30,14 +29,6 @@ public class PasswordChangeDto implements Serializable {
     private List<String> accounts; // selected accounts
     @JsonIgnore
     private DateTime maxPasswordAge = null; // max password age for new password, get by password policy
-
-    public String getIdentity() {
-        return identity;
-    }
-
-    public void setIdentity(String identity) {
-        this.identity = identity;
-    }
 
     public GuardedString getOldPassword() {
         return oldPassword;

@@ -140,7 +140,7 @@ public abstract class AbstractReadWriteEntityController<E extends BaseEntity, F 
         checkAccess(updateEntity, IdmBasePermission.UPDATE);
         ;
 		//
-		E updatedEntity = patchEntity((E) requestResourceResolver.resolve(nativeRequest, getEntityService().getEntityClass(), updateEntity));
+		E updatedEntity = patchEntity(validateEntity((E) requestResourceResolver.resolve(nativeRequest, getEntityService().getEntityClass(), updateEntity)));
 		return new ResponseEntity<>(toResource(updatedEntity, assembler), HttpStatus.OK);
 	}
 	

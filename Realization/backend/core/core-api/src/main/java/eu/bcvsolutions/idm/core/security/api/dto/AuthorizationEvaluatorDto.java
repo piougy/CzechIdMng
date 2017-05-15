@@ -26,6 +26,7 @@ public class AuthorizationEvaluatorDto implements BaseDto {
 	private String evaluatorType;
 	private List<String> parameters;
 	private String description;
+	private boolean supportsPermissions;
 	
 	@Override
 	public String getId() {
@@ -78,5 +79,13 @@ public class AuthorizationEvaluatorDto implements BaseDto {
 	
 	public void setDescription(String description) {
 		this.description = description;
+	}
+	
+	public void setSupportsPermissions(boolean supportsPermissions) {
+		this.supportsPermissions = supportsPermissions;
+	}
+	
+	public boolean isSupportsPermissions() {
+		return supportsPermissions;
 	}
 }

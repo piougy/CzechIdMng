@@ -65,4 +65,13 @@ public interface ReadEntityService<E extends BaseEntity, F extends BaseFilter> e
 	 * @return
 	 */
 	boolean isNew(E entity);
+	
+	/**
+	 * Evaluates authorization permission on given entity
+	 *  
+	 * @param entity
+	 * @param permission base permissions to evaluate
+	 * @return
+	 */
+	E checkAccess(E entity, BasePermission... permission);
 }

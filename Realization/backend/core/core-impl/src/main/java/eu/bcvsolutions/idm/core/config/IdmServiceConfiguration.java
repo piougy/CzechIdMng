@@ -38,6 +38,7 @@ import eu.bcvsolutions.idm.core.model.repository.IdmContractGuaranteeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
+import eu.bcvsolutions.idm.core.model.repository.IdmRoleGuaranteeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleTreeNodeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
@@ -50,6 +51,7 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmContractGuaranteeService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmRoleGuaranteeService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
@@ -61,6 +63,7 @@ import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmContractGuaranteeSe
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmIdentityService;
+import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmRoleGuaranteeService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmRoleService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmRoleTreeNodeService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultModuleService;
@@ -122,6 +125,7 @@ public class IdmServiceConfiguration {
 	@Autowired private IdmAuthorityChangeRepository authChangeRepository;
 	@Autowired private IdmProcessedTaskItemRepository processedTaskRepository;
 	@Autowired private IdmScheduledTaskRepository scheduledTaskRepository;
+	@Autowired private IdmRoleGuaranteeRepository roleGuaranteeRepository;
 	//
 	// Auto registered beans (plugins)
 	@Autowired private PluginRegistry<ModuleDescriptor, String> moduleDescriptorRegistry;
@@ -386,6 +390,7 @@ public class IdmServiceConfiguration {
 	 * @return
 	 */
 	@Bean
+	@ConditionalOnMissingBean(IdmProcessedTaskItemService.class)
 	public IdmProcessedTaskItemService processedTaskItemService() {
 		return new DefaultIdmProcessedTaskItemService(processedTaskRepository);
 	}
@@ -395,9 +400,20 @@ public class IdmServiceConfiguration {
 	 * @return
 	 */
 	@Bean
+	@ConditionalOnMissingBean(IdmScheduledTaskService.class)
 	public IdmScheduledTaskService scheduledTaskService() {
 		return new DefaultIdmScheduledTaskService(scheduledTaskRepository, processedTaskItemService(),
 				longRunningTaskService());
 	}
 	
+	/**
+	 * Role guarantees
+	 * 
+	 * @return
+	 */
+	@Bean
+	@ConditionalOnMissingBean(IdmRoleGuaranteeService.class)
+	public IdmRoleGuaranteeService roleGuaranteeService() {
+		return new DefaultIdmRoleGuaranteeService(roleGuaranteeRepository);
+	}
 }

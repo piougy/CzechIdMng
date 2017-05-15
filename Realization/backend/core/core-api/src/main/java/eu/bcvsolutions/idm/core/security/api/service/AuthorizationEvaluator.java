@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.security.api.service;
 
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -12,6 +13,7 @@ import org.springframework.core.Ordered;
 
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
+import eu.bcvsolutions.idm.core.api.service.Configurable;
 import eu.bcvsolutions.idm.core.security.api.domain.AuthorizationPolicy;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 
@@ -21,15 +23,12 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
  * @param <E> evaluated {@link Identifiable} type - evaluator is designed for domain type (superclasses could be used as wildcard). 
  * @author Radek Tomiška
  */
-public interface AuthorizationEvaluator<E extends Identifiable> extends Ordered {
+public interface AuthorizationEvaluator<E extends Identifiable> extends Ordered, Configurable {
 	
-	
-	/**
-	 * Module identifier
-	 * 
-	 * @return
-	 */
-	String getModule();
+	@Override
+	default String getConfigurableType() {
+		return "authorization-evaluator";
+	}
 	
 	/**
 	 * Returns entity class, which supports this processor
@@ -70,11 +69,20 @@ public interface AuthorizationEvaluator<E extends Identifiable> extends Ordered 
 	/**
 	 * Returns base permissions - what logged user could do with given authorizable object by given policy
 	 * 
-	 * @param authorizable
+	 * @param authorizable object or {@code null}
 	 * @param policy
 	 * @return set of {@link BasePermission}s 
 	 */
 	Set<String> getPermissions(E authorizable, AuthorizationPolicy policy);
+	
+	/**
+	 * Returns base authorities configured for given policy. Authorities are used as "given what identity" could do - without entity is defined.
+	 * 
+	 * @param identityId
+	 * @param policy
+	 * @return
+	 */
+	Set<String> getAuthorities(UUID identityId, AuthorizationPolicy policy);
 	
 	/**
 	 * Returns true, when currently logged user has all given permissions on given authorizable object by given policy.
@@ -87,17 +95,9 @@ public interface AuthorizationEvaluator<E extends Identifiable> extends Ordered 
 	boolean evaluate(E authorizable, AuthorizationPolicy policy, BasePermission... permission);
 	
 	/**
-	 * Returns true, when evaluator could be disabled
+	 * Returns true, when 
 	 * 
 	 * @return
 	 */
-	boolean isDisableable();
-	
-	/**
-	 * Returns true, when evaluator is disabled
-	 * 
-	 * @return
-	 */
-	boolean isDisabled();
-
+	boolean supportsPermissions();
 }

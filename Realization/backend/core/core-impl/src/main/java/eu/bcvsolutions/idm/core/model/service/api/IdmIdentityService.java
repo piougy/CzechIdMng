@@ -10,6 +10,7 @@ import com.google.common.annotations.Beta;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdentityFilter;
+import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
 import eu.bcvsolutions.idm.core.api.service.CodeableService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
@@ -23,8 +24,9 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
  */
 public interface IdmIdentityService extends 
 		ReadWriteDtoService<IdmIdentityDto, IdentityFilter>,
-		AuthorizableService<IdmIdentityDto, IdentityFilter>,
-		CodeableService<IdmIdentityDto> {
+		AuthorizableService<IdmIdentityDto>,
+		CodeableService<IdmIdentityDto>,
+		ScriptEnabled {
 	
 	@Deprecated
 	static final String CONFIDENTIAL_PROPERTY_PASSWORD = "password";

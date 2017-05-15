@@ -22,7 +22,7 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
  */
 public interface IdmProcessedTaskItemService
 	extends ReadWriteDtoService<IdmProcessedTaskItemDto, IdmProcessedTaskItemFilter>, 
-	AuthorizableService<IdmProcessedTaskItemDto, IdmProcessedTaskItemFilter> {
+	AuthorizableService<IdmProcessedTaskItemDto> {
 
 	/**
 	 * Deletes all processed task items by references long running task.

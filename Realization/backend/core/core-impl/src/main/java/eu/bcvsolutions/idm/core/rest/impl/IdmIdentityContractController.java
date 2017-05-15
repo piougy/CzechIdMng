@@ -89,6 +89,15 @@ public class IdmIdentityContractController extends AbstractReadWriteDtoControlle
 			@PageableDefault Pageable pageable) {
 		return super.find(parameters, pageable);
 	}
+	
+	@ResponseBody
+	@RequestMapping(value = "/search/autocomplete", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITYCONTRACT_AUTOCOMPLETE + "')")
+	public Resources<?> autocomplete(
+			@RequestParam MultiValueMap<String, Object> parameters,
+			@PageableDefault Pageable pageable) {
+		return super.autocomplete(parameters, pageable);
+	}
 
 	@Override
 	@ResponseBody

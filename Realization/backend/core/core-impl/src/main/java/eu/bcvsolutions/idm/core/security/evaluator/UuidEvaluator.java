@@ -16,18 +16,18 @@ import org.springframework.util.Assert;
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
+import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
 import eu.bcvsolutions.idm.core.security.api.domain.AuthorizationPolicy;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 
 /**
- * 
  * Share entity with uuid
  * 
  * @author Radek Tomiška
  *
  */
 @Component
-@Description("Share entity with uuid")
+@Description("Share entity by uuid")
 public class UuidEvaluator extends AbstractAuthorizationEvaluator<Identifiable> {
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(UuidEvaluator.class);
@@ -51,7 +51,7 @@ public class UuidEvaluator extends AbstractAuthorizationEvaluator<Identifiable> 
 		if (uuid == null) { 
 			return null;
 		}
-		return builder.equal(root.get("id"), uuid);
+		return builder.equal(root.get(AbstractEntity_.id.getName()), uuid);
 	}
 	
 	@Override
@@ -67,6 +67,13 @@ public class UuidEvaluator extends AbstractAuthorizationEvaluator<Identifiable> 
 		return permissions;
 	}
 	
+	@Override
+	public List<String> getParameterNames() {
+		List<String> parameters = super.getParameterNames();
+		parameters.add(PARAMETER_UUID);
+		return parameters;
+	}
+	
 	private UUID getUuid(AuthorizationPolicy policy) {
 		try {
 			return policy.getEvaluatorProperties().getUuid(PARAMETER_UUID);
@@ -74,12 +81,5 @@ public class UuidEvaluator extends AbstractAuthorizationEvaluator<Identifiable> 
 			LOG.warn("Wrong uuid for authorization evaluator - skipping.", ex);
 			return null;
 		}
-	}
-	
-	@Override
-	public List<String> getParameterNames() {
-		List<String> parameters = super.getParameterNames();
-		parameters.add(PARAMETER_UUID);
-		return parameters;
 	}
 }

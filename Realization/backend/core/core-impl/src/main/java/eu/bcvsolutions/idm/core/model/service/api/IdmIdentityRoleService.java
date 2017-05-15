@@ -10,8 +10,8 @@ import org.springframework.data.domain.Pageable;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdentityRoleFilter;
+import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
-import eu.bcvsolutions.idm.core.model.dto.filter.ContractGuaranteeFilter;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 
 /**
@@ -23,7 +23,8 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
  */
 public interface IdmIdentityRoleService extends
 	ReadWriteDtoService<IdmIdentityRoleDto, IdentityRoleFilter>,
-	AuthorizableService<IdmIdentityRoleDto, ContractGuaranteeFilter> {
+	AuthorizableService<IdmIdentityRoleDto>,
+	ScriptEnabled {
 	
 	/**
 	 * Returns all identity's roles
@@ -51,6 +52,7 @@ public interface IdmIdentityRoleService extends
 	
 	/**
 	 * Returns all roles with date lower than given expiration date.
+	 * 
 	 * @return
 	 */
 	Page<IdmIdentityRoleDto> findExpiredRoles(LocalDate expirationDate, Pageable page);

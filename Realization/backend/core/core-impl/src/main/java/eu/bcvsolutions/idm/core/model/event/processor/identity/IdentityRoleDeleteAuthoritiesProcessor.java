@@ -86,9 +86,9 @@ public class IdentityRoleDeleteAuthoritiesProcessor extends CoreEventProcessor<I
 
 		// represents the final authorities set after role removal
 		Collection<GrantedAuthority> withoutDeleted = authoritiesFactory
-				.getGrantedAuthoritiesForValidRoles(roles);
+				.getGrantedAuthoritiesForValidRoles(identity.getId(), roles);
 		Collection<GrantedAuthority> deletedAuthorities = authoritiesFactory
-				.getGrantedAuthoritiesForValidRoles(Collections.singletonList(identityRole));
+				.getGrantedAuthoritiesForValidRoles(identity.getId(), Collections.singletonList(identityRole));
 		
 		if (!authoritiesFactory.containsAllAuthorities(withoutDeleted, deletedAuthorities)) {
 			// authorities were changed, update identity flag

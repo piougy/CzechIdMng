@@ -58,7 +58,7 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizationManager;
  * @param <F> filter
  */
 public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends BaseEntity, F extends BaseFilter>
-		implements ReadDtoService<DTO, F>, ScriptEnabled {
+		implements ReadDtoService<DTO, F> {
 
 	private final Class<E> entityClass;
 	private final Class<F> filterClass;
@@ -170,9 +170,8 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 
 	/**
 	 * Returns entity by given id. Returns null, if entity is not exists. For
-	 * AbstractEntity uuid or string could be given.
+	 * AbstractEntity uuid or uuid as string could be given.
 	 */
-	@Transactional(readOnly = true)
 	protected E getEntity(Serializable id, BasePermission... permission) {
 		if (AbstractEntity.class.isAssignableFrom(getEntityClass()) && (id instanceof String)) {
 			// workflow / rest usage with string uuid variant
@@ -190,12 +189,10 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 		return checkAccess(entity, permission);
 	}
 	
-	@Transactional(readOnly = true)
 	protected Page<E> findEntities(Pageable pageable, BasePermission... permission) {
 		return findEntities(null, pageable, permission);
 	}
 
-	@Transactional(readOnly = true)
 	protected Page<E> findEntities(F filter, Pageable pageable, BasePermission... permission) {
 		// TODO: remove this if after all dtro services will be rewritten - remove getRepository().find(filter, pageable)
 		if (!(this instanceof AuthorizableService)) {

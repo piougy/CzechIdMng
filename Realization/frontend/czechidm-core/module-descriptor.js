@@ -50,7 +50,7 @@ module.exports = {
             'path': '/identity/:entityId/password',
             'icon': 'lock',
             'conditions': [
-              'entityId === userContext.username'
+              'todo: eval( canPasswordChange ...)'
             ],
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_PASSWORDCHANGE'] } ]
           },
@@ -61,7 +61,7 @@ module.exports = {
             'order': 30,
             'path': '/identity/:entityId/roles',
             'icon': 'fa:universal-access',
-            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_READ'] } ]
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITYROLE_READ'] } ]
           },
           {
             'id': 'profile-authorities',
@@ -70,7 +70,7 @@ module.exports = {
             'titleKey': 'content.identity.authorities.title',
             'order': 40,
             'path': '/identity/:entityId/authorities',
-            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_READ'] } ]
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUTHORIZATIONPOLICY_READ'] } ]
           },
           {
             'id': 'profile-contracts',
@@ -176,7 +176,7 @@ module.exports = {
         'order': 1020,
         'iconColor': '#419641',
         'path': '/organizations',
-        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREETYPE_READ'] } ]
+        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREENODE_READ'] } ]
       },
       {
         'id': 'profile-system-separator',
@@ -229,7 +229,7 @@ module.exports = {
                 'titleKey': 'content.role.authorization-policies.title',
                 'order': 200,
                 'path': '/role/:entityId/authorization-policies',
-                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUTHORIZATIONPOLICY_READ'] } ],
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUTHORIZATIONPOLICY_READ'] } ]
               },
               {
                 'id': 'role-tree-nodes',
@@ -237,7 +237,8 @@ module.exports = {
                 'labelKey': 'content.role.tree-nodes.label',
                 'titleKey': 'content.role.tree-nodes.title',
                 'order': 300,
-                'path': '/role/:entityId/tree-nodes'
+                'path': '/role/:entityId/tree-nodes',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLETREENODE_READ'] } ]
               },
               {
                 'id': 'role-identities',
@@ -254,7 +255,7 @@ module.exports = {
             'labelKey': 'content.roleRequests.title',
             'order': 20,
             'path': '/role-requests',
-            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLEREQUEST_READ'] } ],
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLEREQUEST_READ'] } ]
           }
         ]
       },
@@ -517,7 +518,8 @@ module.exports = {
                     'labelKey': 'content.tree.node.roles.label',
                     'titleKey': 'content.tree.node.roles.title',
                     'order': 30,
-                    'path': '/tree/nodes/:entityId/roles'
+                    'path': '/tree/nodes/:entityId/roles',
+                    'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLETREENODE_READ'] } ]
                   }
                 ]
               },

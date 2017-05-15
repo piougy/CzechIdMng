@@ -14,7 +14,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
  * @deprecated use dtos and {@link AuthorizableService}
  */
 @Deprecated
-public interface AuthorizableEntityService<E extends Identifiable, F extends BaseFilter> extends AuthorizableService<E, F> {
+public interface AuthorizableEntityService<E extends Identifiable, F extends BaseFilter> extends AuthorizableService<E> {
 	
 	/**
 	 * Returns data by authorization polices

@@ -32,6 +32,8 @@ import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 @Description("Validates identity's password, when password is changed.")
 public class IdentityPasswordValidateProcessor extends CoreEventProcessor<IdmIdentityDto> {
 
+	private static final String PROPERTY_REQUIRE_OLD_PASSWORD = "idm.pub.core.identity.passwordChange.requireOldPassword";
+	// private static final String PROPERTY_PASSWORD_CHANGE_TYPE = "idm.pub.core.identity.passwordChange"; // TODO: secure BE
 	public static final String PROCESSOR_NAME = "identity-password-validate-processor";
 	private final SecurityService securityService;
 	private final IdmPasswordService passwordService;
@@ -76,7 +78,7 @@ public class IdentityPasswordValidateProcessor extends CoreEventProcessor<IdmIde
 				throw new ResultCodeException(CoreResultCode.PASSWORD_CHANGE_CURRENT_FAILED_IDM);
 			}
 			// get configuration
-			boolean oldPasswordRequired = configuration.getBooleanValue("idm.pub.core.identity.passwordChange.requireOldPassword", true);
+			boolean oldPasswordRequired = configuration.getBooleanValue(PROPERTY_REQUIRE_OLD_PASSWORD, true);			
 			//
 			if (oldPasswordRequired) {
 				// authentication trough chain 

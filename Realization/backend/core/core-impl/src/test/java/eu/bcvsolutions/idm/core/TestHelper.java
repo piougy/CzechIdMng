@@ -17,21 +17,54 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 /**
  * Creates common test entities
  * 
- * TODO: switch entities to dto, move to api, include in abstract integration test
+ * TODO: switch entities to dto, move to test-api, include in abstract integration test => then will be usable in other modules
  * 
  * @author Radek Tomiška
  *
  */
 public interface TestHelper {
 	
+	/**
+	 * Creates test identity with random username
+	 * 
+	 * @return
+	 */
 	IdmIdentityDto createIdentity();
 
-	IdmIdentityDto createIdentity(String name);
+	/**
+	 * Creates test identity with given username
+	 * 
+	 * @param name
+	 * @return
+	 */
+	IdmIdentityDto createIdentity(String username);
 	
+	/**
+	 * Deletes identity
+	 * 
+	 * @param id
+	 */
 	void deleteIdentity(UUID id);
 
+	/**
+	 * Creates tree type with random name and code
+	 * @return
+	 */
+	IdmTreeType createTreeType();
+	
+	/**
+	 * Creates tree type with given name = code
+	 * 
+	 * @param name
+	 * @return
+	 */
 	IdmTreeType createTreeType(String name);
 
+	/**
+	 * Creates tree node with random name and code
+	 * 
+	 * @return
+	 */
 	IdmTreeNode createTreeNode();
 
 	/**
@@ -43,17 +76,50 @@ public interface TestHelper {
 	 * @return
 	 */
 	IdmTreeNode createTreeNode(String name, IdmTreeNode parent);
-
-	IdmTreeNode createTreeNode(IdmTreeType treeType, String name, IdmTreeNode parent);
+	IdmTreeNode createTreeNode(IdmTreeType treeType, String name, IdmTreeNode parent);	
+	IdmTreeNode createTreeNode(IdmTreeType treeType, IdmTreeNode parent);
 
 	void deleteTreeNode(UUID id);
 
+	/**
+	 * Creates role with random name
+	 * 
+	 * @return
+	 */
 	IdmRole createRole();
 
+	/**
+	 * Creates role with given name
+	 * 
+	 * @param name
+	 * @return
+	 */
 	IdmRole createRole(String name);
+	
+	/**
+	 * Creates role with given id and name
+	 * 
+	 * @param id [optional] if no id is given, then new id is generated
+	 * @param name
+	 * @return
+	 */
+	IdmRole createRole(UUID id, String name);
 
+	/**
+	 * Deletes role
+	 * 
+	 * @param id
+	 */
 	void deleteRole(UUID id);
 
+	/**
+	 * Creates automatic role
+	 * 
+	 * @param role
+	 * @param treeNode
+	 * @param skipLongRunningTask
+	 * @return
+	 */
 	IdmRoleTreeNodeDto createRoleTreeNode(IdmRole role, IdmTreeNode treeNode, boolean skipLongRunningTask);
 	
 	/**

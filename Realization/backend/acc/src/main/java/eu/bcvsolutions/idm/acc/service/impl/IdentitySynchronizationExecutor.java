@@ -176,6 +176,8 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 	 * @param icAttributes
 	 * @param account
 	 */
+	@SuppressWarnings("unchecked")
+	@Override
 	protected void doCreateEntity(SystemEntityType entityType, List<SysSystemAttributeMapping> mappedAttributes,
 			SysSyncItemLog logItem, String uid, List<IcAttribute> icAttributes, AccAccount account) {
 		// We will create new Identity

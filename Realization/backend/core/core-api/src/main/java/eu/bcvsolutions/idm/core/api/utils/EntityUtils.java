@@ -47,6 +47,35 @@ public class EntityUtils {
 	}
 	
 	/**
+	 * Returns true, if entity is valid in future, but not now.
+	 * 
+	 * @param entity
+	 * @return
+	 */
+	public static boolean isValidInFuture(ValidableEntity entity) {
+		if (entity == null) {
+			return false;
+		}		
+		LocalDate now = new LocalDate();	
+		return entity.getValidFrom() != null && entity.getValidFrom().compareTo(now) > 0
+				&& (entity.getValidTill() == null || entity.getValidTill().compareTo(now) > 0);
+	}
+	
+	/**
+	 * Returns true, if entity is valid now or in future.
+	 * 
+	 * @param entity
+	 * @return
+	 */
+	public static boolean isValidNowOrInFuture(ValidableEntity entity) {
+		if (entity == null) {
+			return false;
+		}	
+		LocalDate now = new LocalDate();
+		return entity.getValidTill() == null || entity.getValidTill().compareTo(now) >= 0;
+	}	
+	
+	/**
 	 * Returns false, when validable information are the same
 	 * 
 	 * @param previous

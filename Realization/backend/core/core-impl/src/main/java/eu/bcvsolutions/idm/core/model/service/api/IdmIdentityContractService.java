@@ -50,11 +50,10 @@ public interface IdmIdentityContractService extends
 	 * Returns expired contracts
 	 * 
 	 * @param expiration date to compare
-	 * @param disabled find disabled contracts or not
 	 * @param pageable
 	 * @return
 	 */	
-	Page<IdmIdentityContractDto> findExpiredContracts(LocalDate expiration, boolean disabled, Pageable pageable);
+	Page<IdmIdentityContractDto> findExpiredContracts(LocalDate expiration, Pageable pageable);
 	
 	/**
 	 * Constructs default contract for given identity by configuration.

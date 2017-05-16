@@ -176,6 +176,19 @@ public class DefaultIdmIdentityContractService
 							)
 					);
 		}
+		if (filter.getValidNowOrInFuture() != null) {
+			if (filter.getValidNowOrInFuture()) {
+				predicates.add(
+							builder.or(
+									builder.greaterThanOrEqualTo(root.get(IdmIdentityContract_.validTill), LocalDate.now()),
+									builder.isNull(root.get(IdmIdentityContract_.validTill))
+									)
+						);
+			} else {
+				predicates.add(builder.lessThan(root.get(IdmIdentityContract_.validTill), LocalDate.now()));
+			}
+		}
+		
 		return predicates;
 	}
 	
@@ -197,8 +210,8 @@ public class DefaultIdmIdentityContractService
 
 	@Override
 	@Transactional(readOnly = true)
-	public Page<IdmIdentityContractDto> findExpiredContracts(LocalDate expiration, boolean disabled, Pageable pageable) {
-		return toDtoPage(repository.findExpiredContracts(expiration, disabled, pageable));
+	public Page<IdmIdentityContractDto> findExpiredContracts(LocalDate expiration, Pageable pageable) {
+		return toDtoPage(repository.findExpiredContracts(expiration, pageable));
 	}
 
 	@Override

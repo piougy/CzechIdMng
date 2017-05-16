@@ -154,14 +154,17 @@ class IdentityContractDetail extends Basic.AbstractContent {
                 <Basic.LabelWrapper readOnly ref="identity" label={this.i18n('entity.IdentityContract.identity')}>
                   <Advanced.IdentityInfo username={params.identityId}/>
                 </Basic.LabelWrapper>
+
                 <Basic.TextField
                   ref="position"
                   label={this.i18n('entity.IdentityContract.position')}/>
+
                 <Basic.SelectBox
                   ref="treeTypeId"
                   manager={this.treeTypeManager}
                   label={this.i18n('entity.IdentityContract.treeType')}
                   onChange={this.onChangeTreeType.bind(this)}/>
+
                 <Basic.SelectBox
                   ref="workPosition"
                   manager={this.treeNodeManager}

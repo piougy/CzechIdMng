@@ -17,8 +17,8 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 public interface GrantedAuthoritiesFactory {
 
 	/**
-	 * Returns unique set of authorities by assigned active roles for given identity.
-	 * Sub roles are also processed.
+	 * Returns unique set of valid authorities by assigned active roles for given identity.
+	 * TODO: Sub roles are also processed - check implementation after subroles enabling.
 	 * 
 	 * @param username
 	 * @return
@@ -38,7 +38,7 @@ public interface GrantedAuthoritiesFactory {
 	/**
 	 * @see GrantedAuthoritiesFactory#getGrantedAuthorities(String)
 	 */
-	Collection<GrantedAuthority> getGrantedAuthoritiesForValidRoles(UUID identityId, Collection<IdmIdentityRoleDto> roles);
+	Collection<GrantedAuthority> getGrantedAuthoritiesForValidRoles(UUID identityId, Collection<IdmIdentityRoleDto> identityRoles);
 	
 	/**
 	 * Decides whether the original collection contains all authorities

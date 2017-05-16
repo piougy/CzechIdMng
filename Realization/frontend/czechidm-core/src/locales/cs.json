@@ -1356,7 +1356,7 @@
         },
         "contracts": {
           "empty": {
-            "message": "Uživatel nemá žádné pracovně právní vztahy, ke kterým by mohly býti přiřazeny role. Přidejte prosím alespoň jeden pracovně právní vztah.",
+            "message": "Uživatel nemá žádné platné pracovně právní vztahy, ke kterým by mohly býti přiřazeny role. Přidejte prosím alespoň jeden platný pracovně právní vztah.",
             "button": "Přidat PPV"
           }
         }

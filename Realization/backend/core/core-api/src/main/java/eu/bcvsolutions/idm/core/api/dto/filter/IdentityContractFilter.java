@@ -23,6 +23,7 @@ public class IdentityContractFilter extends DataFilter {
 	private Boolean disabled;
 	private Boolean valid;
 	private Boolean main;
+	private Boolean validNowOrInFuture;
 
 	public IdentityContractFilter() {
 		this(new LinkedMultiValueMap<>());
@@ -86,5 +87,13 @@ public class IdentityContractFilter extends DataFilter {
 
 	public void setMain(Boolean main) {
 		this.main = main;
+	}
+	
+	public void setValidNowOrInFuture(Boolean validNowOrInFuture) {
+		this.validNowOrInFuture = validNowOrInFuture;
+	}
+	
+	public Boolean getValidNowOrInFuture() {
+		return validNowOrInFuture;
 	}
 }

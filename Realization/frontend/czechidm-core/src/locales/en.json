@@ -1315,7 +1315,7 @@
         },
         "contracts": {
           "empty": {
-            "message": "User doesn't have any contracted positions, on which you can assign roles. Please, add contracted position.",
+            "message": "User doesn't have any valid contracted positions, on which you can assign roles. Please, add valid contracted position.",
             "button": "Add contracted position"
           }
         }

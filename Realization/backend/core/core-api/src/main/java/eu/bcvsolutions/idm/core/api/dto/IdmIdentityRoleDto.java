@@ -14,9 +14,11 @@ import java.util.UUID;
  * @author Radek Tomiška
  */
 @Relation(collectionRelation = "identityRoles")
-public class IdmIdentityRoleDto extends AbstractDto implements ValidableEntity{
-
-    private static final long serialVersionUID = 1L;
+public class IdmIdentityRoleDto extends AbstractDto implements ValidableEntity {
+	
+	private static final long serialVersionUID = 1L;
+	private final String PROPERTY_CONTRACT = "identityContract";
+	//
     @Embedded(dtoClass = IdmIdentityContractDto.class)
     private UUID identityContract;
     @Embedded(dtoClass = IdmRoleDto.class)
@@ -80,5 +82,12 @@ public class IdmIdentityRoleDto extends AbstractDto implements ValidableEntity{
 
     public void setRoleTreeNode(UUID roleTreeNode) {
         this.roleTreeNode = roleTreeNode;
+    }
+    
+    public IdmIdentityContractDto getIdentityContractDto() {
+    	if (!getEmbedded().containsKey(PROPERTY_CONTRACT)) {
+    		return null;
+    	}
+    	return (IdmIdentityContractDto) getEmbedded().get(PROPERTY_CONTRACT);
     }
 }

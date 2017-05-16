@@ -4,7 +4,7 @@ import org.joda.time.LocalDate;
 import org.springframework.util.Assert;
 
 /**
- * Entity with validity
+ * Entity (or dto) with validity
  * 
  * @author Radek Tomiška 
  */

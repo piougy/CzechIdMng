@@ -80,11 +80,14 @@ public class DefaultGrantedAuthoritiesFactory implements GrantedAuthoritiesFacto
 	
 	@Override
 	@Transactional(readOnly = true)
-	public Collection<GrantedAuthority> getGrantedAuthoritiesForValidRoles(UUID identityId, Collection<IdmIdentityRoleDto> roles) {
+	public Collection<GrantedAuthority> getGrantedAuthoritiesForValidRoles(UUID identityId, Collection<IdmIdentityRoleDto> identityRoles) {
 		// unique set of authorities from all active identity roles and subroles
 		Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
-		roles.stream()
-			.filter(EntityUtils::isValid) //
+		identityRoles.stream()
+			.filter(EntityUtils::isValid) // valid identity role
+			.filter(ir -> { // valid role's contract
+				return EntityUtils.isValid(ir.getIdentityContractDto());
+			})
 			.forEach(identityRole -> {
 				grantedAuthorities.addAll(getActiveRoleAuthorities(identityId, roleService.get(identityRole.getRole()), new HashSet<>()));
 			});

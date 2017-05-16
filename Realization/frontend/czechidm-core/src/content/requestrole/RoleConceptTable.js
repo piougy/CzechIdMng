@@ -521,7 +521,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
                 <Basic.SelectBox
                   ref="identityContract"
                   manager={ identityContractManager }
-                  forceSearchParameters={ new SearchParameters().setFilter('identity', identityUsername) }
+                  forceSearchParameters={ new SearchParameters().setFilter('identity', identityUsername).setFilter('validNowOrInFuture', true) }
                   label={ this.i18n('entity.IdentityRole.identityContract.label') }
                   placeholder={ this.i18n('entity.IdentityRole.identityContract.placeholder') }
                   helpBlock={ this.i18n('entity.IdentityRole.identityContract.help') }

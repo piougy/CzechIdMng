@@ -64,18 +64,12 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 	private final static String FORM_VALUE_THREE = "three";
 	private final static String FORM_VALUE_FOUR = "four";
 	
-	@Autowired
-	private TestHelper helper;
-	@Autowired
-	private ApplicationContext context;
-	@Autowired
-	private IdmIdentityService identityService;
-	@Autowired
-	private IdmIdentityRepository identityRepository;
-	@Autowired
-	private IdmFormDefinitionService formDefinitionService;	
-	@Autowired
-	private IdmRoleRepository roleRepository;
+	@Autowired private TestHelper helper;
+	@Autowired private ApplicationContext context;
+	@Autowired private IdmIdentityService identityService;
+	@Autowired private IdmIdentityRepository identityRepository;
+	@Autowired private IdmFormDefinitionService formDefinitionService;	
+	@Autowired private IdmRoleRepository roleRepository;
 	//
 	private FormService formService;
 	
@@ -543,6 +537,27 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 		List<IdmRole> roles = roleRepository.findAll(criteria, (Pageable) null).getContent();
 		assertEquals(1, roles.size());
 		assertEquals(owner.getId(), roles.get(0).getId());
+	}
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@Test
+	public void testSaveValuesByOwnerId() {
+		FormableEntity owner = createTestOwner("test8");
+		IdmFormDefinition formDefinition = formService.getDefinition(IdmIdentity.class);
+		IdmFormAttribute attribute = formDefinition.getMappedAttributeByName(InitDemoData.FORM_ATTRIBUTE_PHONE);
+		// save value
+		List<AbstractFormValue> attributeValues = formService.saveValues(
+				(UUID) owner.getId(), owner.getClass(), attribute, Lists.newArrayList(FORM_VALUE_ONE));
+		
+		assertEquals(1, attributeValues.size());
+		assertEquals(FORM_VALUE_ONE, attributeValues.get(0).getValue());
+		
+		List getValues = formService.getValues((UUID) owner.getId(), owner.getClass(), attribute);
+		
+		assertEquals(1, getValues.size());
+		assertEquals(FORM_VALUE_ONE, ((AbstractFormValue) getValues.get(0)).getValue());
+		//
+		identityService.deleteById(owner.getId());
 	}
 	
 	private FormableEntity createTestOwner(String name) {

@@ -13,6 +13,7 @@ import eu.bcvsolutions.idm.core.api.rest.lookup.EntityLookup;
  * Provide basic services through application.
  *
  * @see EntityLookup
+ * @see DtoLookup
  * @see ReadDtoService
  * 
  * @author Radek Tomiška

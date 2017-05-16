@@ -12,6 +12,12 @@ const roleManager = new RoleManager();
 const identityManger = new IdentityManager();
 const roleCatalogueManager = new RoleCatalogueManager();
 
+/**
+ * Role detail
+ *
+ * @author Ondřej Kopr
+ * @author Radek Tomiška
+ */
 class RoleDetail extends Basic.AbstractContent {
 
   constructor(props) {
@@ -174,10 +180,11 @@ class RoleDetail extends Basic.AbstractContent {
                     max={255}/>
                   <Basic.EnumSelectBox
                     ref="roleType"
-                    label={this.i18n('entity.Role.roleType')}
-                    enum={RoleTypeEnum}
+                    label={ this.i18n('entity.Role.roleType') }
+                    enum={ RoleTypeEnum }
                     required
-                    readOnly={!Utils.Entity.isNew(entity)}/>
+                    readOnly={ !Utils.Entity.isNew(entity) }
+                    rendered={ false }/>
                   <Basic.EnumSelectBox
                     ref="priorityEnum"
                     label={this.i18n('entity.Role.priorityEnum')}

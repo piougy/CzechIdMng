@@ -1051,6 +1051,11 @@
         "title": "Role details",
         "header": "{{name}} details"
       },
+      "filter": {
+        "text": {
+          "placeholder": "Name or description"
+        }
+      },
       "roleCataloguePick": "Select folder",
       "create": {
         "header": "New role"

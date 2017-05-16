@@ -171,7 +171,11 @@ public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, Role
 		}
 		// quick
 		if (StringUtils.isNotEmpty(filter.getText())) {
-			predicates.add(builder.like(builder.lower(root.get(IdmRole_.name)), "%" + filter.getText().toLowerCase() + "%"));
+			predicates.add(
+					builder.or(
+							builder.like(builder.lower(root.get(IdmRole_.name)), "%" + filter.getText().toLowerCase() + "%"),
+							builder.like(builder.lower(root.get(IdmRole_.description)), "%" + filter.getText().toLowerCase() + "%")
+							));
 		}
 		// role type
 		if (filter.getRoleType() != null) {

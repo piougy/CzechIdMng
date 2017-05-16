@@ -1089,6 +1089,11 @@
         "title": "Detail role",
         "header": "{{name}} detail role"
       },
+      "filter": {
+        "text": {
+          "placeholder": "Název či popis"
+        }
+      },
       "roleCataloguePick": "Vyberte složku",
       "create": {
         "header": "Nová role"

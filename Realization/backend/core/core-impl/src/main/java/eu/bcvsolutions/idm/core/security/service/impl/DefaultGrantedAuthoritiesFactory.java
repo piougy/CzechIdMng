@@ -20,7 +20,10 @@ import com.google.common.collect.Sets;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.entity.ValidableEntity;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
@@ -86,7 +89,7 @@ public class DefaultGrantedAuthoritiesFactory implements GrantedAuthoritiesFacto
 		identityRoles.stream()
 			.filter(EntityUtils::isValid) // valid identity role
 			.filter(ir -> { // valid role's contract
-				return EntityUtils.isValid(ir.getIdentityContractDto());
+				return EntityUtils.isValid(DtoUtils.getEmbedded(ir, IdmIdentityRole_.identityContract, ValidableEntity.class));
 			})
 			.forEach(identityRole -> {
 				grantedAuthorities.addAll(getActiveRoleAuthorities(identityId, roleService.get(identityRole.getRole()), new HashSet<>()));

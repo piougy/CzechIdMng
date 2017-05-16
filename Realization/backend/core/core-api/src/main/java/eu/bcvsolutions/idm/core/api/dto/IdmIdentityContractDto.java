@@ -32,6 +32,13 @@ public class IdmIdentityContractDto extends AbstractDto implements Disableable, 
     @Embedded(dtoClass = IdmTreeNodeDto.class)
     private UUID workPosition;
     private String description;
+    
+    public IdmIdentityContractDto() {
+	}
+    
+    public IdmIdentityContractDto(UUID id) {
+		super(id);
+	}
 
     public UUID getIdentity() {
         return identity;

@@ -89,7 +89,8 @@ public class DefaultGrantedAuthoritiesFactory implements GrantedAuthoritiesFacto
 		identityRoles.stream()
 			.filter(EntityUtils::isValid) // valid identity role
 			.filter(ir -> { // valid role's contract
-				return EntityUtils.isValid(DtoUtils.getEmbedded(ir, IdmIdentityRole_.identityContract, ValidableEntity.class));
+				// TODO: jpa metamodel generation in unit tests
+				return EntityUtils.isValid(DtoUtils.getEmbedded(ir, IdmIdentityRoleDto.PROPERTY_IDENTITY_CONTRACT, ValidableEntity.class));
 			})
 			.forEach(identityRole -> {
 				grantedAuthorities.addAll(getActiveRoleAuthorities(identityId, roleService.get(identityRole.getRole()), new HashSet<>()));

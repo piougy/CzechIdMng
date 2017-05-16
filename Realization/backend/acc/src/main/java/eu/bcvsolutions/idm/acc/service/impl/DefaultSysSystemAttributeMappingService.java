@@ -116,18 +116,19 @@ public class DefaultSysSystemAttributeMappingService
 	}
 
 	@Override
-	public Object transformValueToResource(Object value, AttributeMapping attributeMapping,
+	public Object transformValueToResource(String uid, Object value, AttributeMapping attributeMapping,
 			AbstractEntity entity) {
 		Assert.notNull(attributeMapping);
 		//
-		return transformValueToResource(value, attributeMapping.getTransformToResourceScript(), entity,
+		return transformValueToResource(uid, value, attributeMapping.getTransformToResourceScript(), entity,
 				attributeMapping.getSchemaAttribute().getObjectClass().getSystem());
 	}
 
 	@Override
-	public Object transformValueToResource(Object value, String script, AbstractEntity entity, SysSystem system) {
+	public Object transformValueToResource(String uid, Object value, String script, AbstractEntity entity, SysSystem system) {
 		if (!StringUtils.isEmpty(script)) {
 			Map<String, Object> variables = new HashMap<>();
+			variables.put(ACCOUNT_UID, uid);
 			variables.put(ATTRIBUTE_VALUE_KEY, value);
 			variables.put(SYSTEM_KEY, system);
 			variables.put(ENTITY_KEY, entity);
@@ -334,7 +335,7 @@ public class DefaultSysSystemAttributeMappingService
 	/**
 	 * Find value for this mapped attribute by property name. Returned value can be list of objects. Returns transformed value.
 	 * 
-	 * @param uid
+	 * @param uid - Account identifier
 	 * @param entity
 	 * @param attributeHandling
 	 * @param idmValue
@@ -344,7 +345,7 @@ public class DefaultSysSystemAttributeMappingService
 	 * @throws InvocationTargetException
 	 */
 	@Override
-	public Object getAttributeValue(AbstractEntity entity, AttributeMapping attributeHandling) {
+	public Object getAttributeValue(String uid, AbstractEntity entity, AttributeMapping attributeHandling) {
 		Object idmValue = null;
 		//
 		if (attributeHandling.isExtendedAttribute()) {
@@ -388,12 +389,12 @@ public class DefaultSysSystemAttributeMappingService
 			// If Attribute value is not in entity nor in extended attribute, then idmValue is null.
 			// It means attribute is static ... we will call transformation to resource.
 		}
-		return this.transformValueToResource(idmValue, attributeHandling, entity);
+		return this.transformValueToResource(uid, idmValue, attributeHandling, entity);
 	}
 	
 	@Override
 	public String generateUid(AbstractEntity entity, SysSystemAttributeMapping uidAttribute){
-		Object uid = this.getAttributeValue(entity, uidAttribute);
+		Object uid = this.getAttributeValue(null, entity, uidAttribute);
 		if(uid == null) {
 			throw new ProvisioningException(AccResultCode.PROVISIONING_GENERATED_UID_IS_NULL,
 					ImmutableMap.of("system", uidAttribute.getSystemMapping().getSystem().getName()));

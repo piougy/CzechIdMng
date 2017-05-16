@@ -29,6 +29,7 @@ import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.EntityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.MappingAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.ProvisioningAttributeDto;
+import eu.bcvsolutions.idm.acc.dto.filter.AccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.EntityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
@@ -359,6 +360,7 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 	protected Map<ProvisioningAttributeDto, Object> preapareMappedAttributesValues(ENTITY entity,
 			ProvisioningOperationType operationType, SysSystemEntity systemEntity,
 			List<? extends AttributeMapping> attributes) {
+		String uid = systemEntity.getUid();
 		Map<ProvisioningAttributeDto, Object> accountAttributes = new HashMap<>();
 		if (ProvisioningOperationType.DELETE != operationType) { // delete - account attributes is not needed
 			
@@ -368,12 +370,20 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 						&& AttributeMappingStrategyType.AUTHORITATIVE_MERGE != attribute.getStrategyType() 
 						&& AttributeMappingStrategyType.MERGE != attribute.getStrategyType() ;
 			}).forEach(attribute -> {
-				if(attribute.isUid()){
-					// For UID attribute, we will set as value always UID form account
+				if(attribute.isUid()) {
 					// TODO: now we set UID from SystemEntity, may be UID from AccAccount will be more correct
-					accountAttributes.put(ProvisioningAttributeDto.createProvisioningAttributeKey(attribute), systemEntity.getUid());
-				}else {
-					accountAttributes.put(ProvisioningAttributeDto.createProvisioningAttributeKey(attribute), getAttributeValue(entity, attribute));
+					Object uidValue = getAttributeValue(uid, entity, attribute);
+					// If is value form UID attribute null, then we will use UID from existed account (AccAccount/SystemEntity)
+					uidValue = uidValue == null ? uid : uidValue;
+					AccAccount account = getAccountSystemEntity(systemEntity.getId());
+					if(account != null && account.getUid() instanceof String && !account.getUid().equals(uidValue)){
+						// UID value must be string
+						account.setUid((String) uidValue);
+						accountService.save(account);
+					}
+					accountAttributes.put(ProvisioningAttributeDto.createProvisioningAttributeKey(attribute), uidValue);
+				}else{
+					accountAttributes.put(ProvisioningAttributeDto.createProvisioningAttributeKey(attribute), getAttributeValue(uid, entity, attribute));
 				}
 			});
 			
@@ -390,7 +400,7 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 			
 				if(!attributeParent.getSchemaAttribute().isMultivalued()){
 					throw new ProvisioningException(AccResultCode.PROVISIONING_MERGE_ATTRIBUTE_IS_NOT_MULTIVALUE,
-							ImmutableMap.of("object", systemEntity.getUid(), "attribute", attributeParent.getSchemaAttribute().getName()));
+							ImmutableMap.of("object", uid, "attribute", attributeParent.getSchemaAttribute().getName()));
 				}
 				
 				List<Object> mergedValues = new ArrayList<>();
@@ -399,7 +409,7 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 							&& attributeParent.getSchemaAttribute().equals(attribute.getSchemaAttribute()) 
 							&& attributeParent.getStrategyType() == attribute.getStrategyType();
 				}).forEach(attribute -> {
-					Object value = getAttributeValue(entity, attribute);
+					Object value = getAttributeValue(uid, entity, attribute);
 					// We don`t want null item in list (problem with provisioning in IC)
 					if(value != null){
 						// If is value collection, then we add all its items to main list!
@@ -421,8 +431,8 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 		return accountAttributes;
 	}
 
-	protected Object getAttributeValue(ENTITY entity, AttributeMapping attribute){
-		return attributeMappingService.getAttributeValue(entity, attribute);
+	protected Object getAttributeValue(String uid, ENTITY entity, AttributeMapping attribute){
+		return attributeMappingService.getAttributeValue(uid, entity, attribute);
 	}
 
 	@Override
@@ -446,7 +456,7 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 		if (!attributeMapping.isEntityAttribute() && !attributeMapping.isExtendedAttribute()){
 			// If is attribute handling resolve as constant, then we don't want do transformation again (was did in getAttributeValue)
 		} else {
-			valueTransformed = attributeMappingService.transformValueToResource(value, attributeMapping, entity);
+			valueTransformed = attributeMappingService.transformValueToResource(systemEntity.getUid(), value, attributeMapping, entity);
 		}
 		IcAttribute icAttributeForCreate = attributeMappingService.createIcAttribute(attributeMapping.getSchemaAttribute(), valueTransformed);
 		//
@@ -762,6 +772,18 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 			// (mark as
 			// ownership) have same account!
 			return entityAccounts.get(0).getEntity();
+		}
+	}
+	
+	protected AccAccount getAccountSystemEntity(UUID systemEntity) {
+		AccountFilter filter = new AccountFilter();
+		filter.setSystemEntityId(systemEntity);
+		List<AccAccount> accounts = this.accountService.find(filter, null).getContent();
+		if (accounts.isEmpty()) {
+			return null;
+		} else {
+			// We assume that system entity has only one account!
+			return accounts.get(0);
 		}
 	}
 	

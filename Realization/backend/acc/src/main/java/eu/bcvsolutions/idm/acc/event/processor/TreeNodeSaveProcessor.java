@@ -50,6 +50,11 @@ public class TreeNodeSaveProcessor extends AbstractEntityEventProcessor<IdmTreeN
 
 	@Override
 	public EventResult<IdmTreeNode> process(EntityEvent<IdmTreeNode> event) {
+		Object breakProvisioning = event.getProperties().get(ProvisioningService.SKIP_PROVISIONING);
+		
+		if(breakProvisioning != null && breakProvisioning instanceof Boolean && (Boolean)breakProvisioning){
+			return new DefaultEventResult<>(event, this);
+		}
 		doProvisioning(event.getContent());
 		return new DefaultEventResult<>(event, this);
 	}

@@ -356,7 +356,11 @@ public class DefaultTreeSynchronizationServiceTest extends AbstractIntegrationTe
 		Assert.assertEquals(1, syncConfigs.size());
 		SysSyncConfig syncConfigCustom = syncConfigs.get(0);
 		Assert.assertFalse(syncConfigService.isRunning(syncConfigCustom));
-		syncConfigCustom.setRootsFilterScript("if(account){ def parentValue = account.getAttributeByName(\"PARENT\").getValue(); def uidValue = account.getAttributeByName(\"__NAME__\").getValue(); if(parentValue != null && parentValue.equals(uidValue)){ account.getAttributeByName(\"PARENT\").setValues(null); return Boolean.TRUE;}} \nreturn Boolean.FALSE;");
+		syncConfigCustom.setRootsFilterScript("if(account){ def parentValue = account.getAttributeByName(\"PARENT\").getValue();"
+				+ " def uidValue = account.getAttributeByName(\"__NAME__\").getValue();"
+				+ " if(parentValue != null && parentValue.equals(uidValue)){"
+				+ "	 account.getAttributeByName(\"PARENT\").setValues(null); return Boolean.TRUE;}}"
+				+ " \nreturn Boolean.FALSE;");
 		// Set sync config
 		syncConfigCustom.setLinkedAction(SynchronizationLinkedActionType.IGNORE);
 		syncConfigCustom.setUnlinkedAction(SynchronizationUnlinkedActionType.IGNORE);
@@ -674,12 +678,11 @@ public class DefaultTreeSynchronizationServiceTest extends AbstractIntegrationTe
 			if (ATTRIBUTE_NAME.equals(schemaAttr.getName())) {
 				SysSystemAttributeMapping attributeHandlingName = new SysSystemAttributeMapping();
 				attributeHandlingName.setUid(true);
-				attributeHandlingName.setEntityAttribute(true);
-				attributeHandlingName.setIdmPropertyName("externalId");
+				attributeHandlingName.setEntityAttribute(false);
 				attributeHandlingName.setName(schemaAttr.getName());
 				attributeHandlingName.setSchemaAttribute(schemaAttr);
 				// For provisioning .. we need create UID
-				attributeHandlingName.setTransformToResourceScript("return entity.getCode();");
+				attributeHandlingName.setTransformToResourceScript("if(uid){return uid;}\nreturn entity.getCode();");
 				attributeHandlingName.setSystemMapping(entityHandlingResult);
 				schemaAttributeMappingService.save(attributeHandlingName);
 

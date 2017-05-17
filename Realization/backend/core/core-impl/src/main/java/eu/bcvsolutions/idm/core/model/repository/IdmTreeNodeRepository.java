@@ -33,10 +33,9 @@ import eu.bcvsolutions.idm.core.rest.projection.IdmTreeNodeExcerpt;
 	exported = false
 )
 public interface IdmTreeNodeRepository extends AbstractEntityRepository<IdmTreeNode, TreeNodeFilter>, TypeableForestContentRepository<IdmTreeNode, UUID> {
-	
-	/**
-	 * TODO: fix filter by treeNode
-	 */
+
+	// Obsolete - IdmTreeNodeService.find now uses Criteria
+	@Deprecated
 	@Override
 	@Query(value = "select e from IdmTreeNode e left join e.forestIndex fi"
 	        + " where"
@@ -48,7 +47,8 @@ public interface IdmTreeNodeRepository extends AbstractEntityRepository<IdmTreeN
         	+ " )"
         	+ " and (?#{[0].treeTypeId} is null or e.treeType.id = ?#{[0].treeTypeId})"
          		// on selected tree node recursively - given node is included true
-	        + " and (?#{[0].treeNode} is null or ?#{[0].recursively == true ? 'true' : 'false'} = 'false' or fi.lft BETWEEN ?#{[0].treeNode == null ? null : [0].treeNode.lft + 1} and ?#{[0].treeNode == null ? null : [0].treeNode.rgt - 1})"
+	        + " and (?#{[0].treeNode} is null or ?#{[0].recursively == true ? 'true' : 'false'} = 'false' " +
+			"or fi.lft BETWEEN ?#{[0].treeNode == null ? null : [0].treeNode.lft + 1} and ?#{[0].treeNode == null ? null : [0].treeNode.rgt - 1})"
 	        	// on selected tree node
         	+ " and (?#{[0].treeNode} is null or ?#{[0].recursively == false ? 'true' : 'false'} = 'false' or e.parent = ?#{[0].treeNode})"
 	        + " and (?#{[0].defaultTreeType} is null or e.treeType = (select tt from IdmTreeType tt where tt.defaultTreeType = ?#{[0].defaultTreeType}))"

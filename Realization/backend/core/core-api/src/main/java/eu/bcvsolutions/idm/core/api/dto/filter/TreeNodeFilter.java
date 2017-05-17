@@ -2,12 +2,17 @@ package eu.bcvsolutions.idm.core.api.dto.filter;
 
 import java.util.UUID;
 
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
+
 /**
  * Filter for tree node
  *
  * @author Ondrej Kopr <kopr@xyxy.cz>
  */
-public class TreeNodeFilter extends QuickFilter implements CorrelationFilter {
+public class TreeNodeFilter extends DataFilter implements CorrelationFilter {
 
     private UUID treeTypeId;
     private UUID treeNode;
@@ -18,6 +23,14 @@ public class TreeNodeFilter extends QuickFilter implements CorrelationFilter {
      * Tree nodes by tree structure recursively down
      */
     private boolean recursively = true;
+
+    public TreeNodeFilter() {
+        this(new LinkedMultiValueMap<>());
+    }
+
+    public TreeNodeFilter(MultiValueMap<String, Object> data) {
+        super(IdmTreeNodeDto.class, data);
+    }
 
     public UUID getTreeTypeId() {
         return treeTypeId;

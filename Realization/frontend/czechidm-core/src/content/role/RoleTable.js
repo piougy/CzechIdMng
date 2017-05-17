@@ -1,4 +1,5 @@
 import React, { PropTypes } from 'react';
+import { connect } from 'react-redux';
 import _ from 'lodash';
 //
 import * as Basic from '../../components/basic';
@@ -17,7 +18,7 @@ const rootsKey = 'role-catalogue-tree-roots';
 *
 * @author Radek Tomiška
 */
-export default class RoleTable extends Basic.AbstractContent {
+class RoleTable extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);
@@ -30,6 +31,8 @@ export default class RoleTable extends Basic.AbstractContent {
   }
 
   componentDidMount() {
+    super.componentDidMount();
+    //
     const searchParametersRoots = this.roleCatalogueManager.getService().getRootSearchParameters();
     this.context.store.dispatch(this.roleCatalogueManager.fetchEntities(searchParametersRoots, rootsKey, (loadedRoots) => {
       const rootNodes = loadedRoots._embedded[this.roleCatalogueManager.getCollectionType()];
@@ -230,6 +233,7 @@ export default class RoleTable extends Basic.AbstractContent {
                 </Basic.Button>
               ]
             }
+            _searchParameters={ this.getSearchParameters() }
             >
 
             <Advanced.Column
@@ -278,3 +282,11 @@ RoleTable.defaultProps = {
   showCatalogue: true,
   forceSearchParameters: null
 };
+
+function select(state, component) {
+  return {
+    _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey)
+  };
+}
+
+export default connect(select, null, null, { withRef: true })(RoleTable);

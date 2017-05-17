@@ -1,4 +1,5 @@
 import React, { PropTypes } from 'react';
+import { connect } from 'react-redux';
 import uuid from 'uuid';
 //
 import * as Basic from '../../../components/basic';
@@ -17,7 +18,7 @@ const identityManager = new IdentityManager();
 /**
 * Table of tree nodes
 */
-export default class NodeTable extends Basic.AbstractContent {
+class NodeTable extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);
@@ -35,7 +36,13 @@ export default class NodeTable extends Basic.AbstractContent {
     return 'content.tree.nodes';
   }
 
+  getManager() {
+    return this.props.treeNodeManager;
+  }
+
   componentDidMount() {
+    super.componentDidMount();
+    //
     const { treeNodeManager } = this.props;
     const { type } = this.state;
 
@@ -50,6 +57,10 @@ export default class NodeTable extends Basic.AbstractContent {
         showLoading: false
       });
     }));
+  }
+
+  getDefaultSearchParameters() {
+    return this.getManager().getDefaultSearchParameters().setFilter('recursively', 'true');
   }
 
   useFilter(event) {
@@ -253,10 +264,10 @@ export default class NodeTable extends Basic.AbstractContent {
                   ||
                   <Basic.SelectBox
                     ref="treeTypeId"
-                    value={type.name}
-                    manager={treeTypeManager}
-                    onChange={this._changeTree.bind(this)}
-                    clearable={false} />
+                    value={ type }
+                    manager={ treeTypeManager }
+                    onChange={ this._changeTree.bind(this) }
+                    clearable={ false } />
                 }
                 {
                   !showTree
@@ -320,7 +331,11 @@ export default class NodeTable extends Basic.AbstractContent {
                             <div className="col-lg-6">
                               <Advanced.Filter.BooleanSelectBox
                                 ref="recursively"
-                                placeholder={ this.i18n('content.identities.filter.recursively.placeholder') }/>
+                                placeholder={ this.i18n('content.identities.filter.recursively.placeholder') }
+                                options={ [
+                                  { value: 'true', niceLabel: this.i18n('content.identities.filter.recursively.yes') },
+                                  { value: 'false', niceLabel: this.i18n('content.identities.filter.recursively.no') }
+                                ]}/>
                             </div>
                           </Basic.Row>
                         </Basic.AbstractForm>
@@ -340,7 +355,8 @@ export default class NodeTable extends Basic.AbstractContent {
                           {this.i18n('button.add')}
                         </Basic.Button>
                       ]
-                    }>
+                    }
+                    _searchParameters={ this.getSearchParameters() }>
                     <Advanced.Column
                       header=""
                       className="detail-button"
@@ -395,3 +411,11 @@ NodeTable.defaultProps = {
   showTreeTypeSelect: true,
   activeTab: 1
 };
+
+function select(state, component) {
+  return {
+    _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey)
+  };
+}
+
+export default connect(select, null, null, { withRef: true })(NodeTable);

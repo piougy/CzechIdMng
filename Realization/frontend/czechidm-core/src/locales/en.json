@@ -39,9 +39,12 @@
     "validFrom": "Valid from",
     "validTill": "Valid to",
     "select": "Select ...",
+    "enabled": "Enabled",
     "disabled": "Disabled",
     "property": "Attribute",
-    "value": "Value"
+    "value": "Value",
+    "yes": "Yes",
+    "no": "No"
   },
   "button": {
     "activate": "Activate",
@@ -813,7 +816,9 @@
         },
         "recursively": {
           "label": "Recursively",
-          "placeholder": "Recursively by tree structure down"
+          "placeholder": "Recursively by tree structure down",
+          "yes": "Recursively by tree structure down",
+          "no": "On selected tree node only"
         },
         "role": {
           "label": "Role",

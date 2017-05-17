@@ -39,9 +39,12 @@
     "validFrom": "Platnost od",
     "validTill": "Platnost do",
     "select": "Vyberte ...",
+    "enabled": "Aktivní",
     "disabled": "Neaktivní",
     "property": "Attribut",
-    "value": "Hodnota"
+    "value": "Hodnota",
+    "yes": "Ano",
+    "no": "Ne"
   },
   "button": {
     "activate": "Aktivovat",
@@ -846,15 +849,17 @@
         },
         "recursively": {
           "label": "Rekurzivně",
-          "placeholder": "Rekurzivně dle struktury dolů"
+          "placeholder": "Rekurzivně dle struktury dolů",
+          "yes": "Rekurzivně dle struktury dolů",
+          "no": "Na aktuálně vybraném prvku struktury"
         },
         "role": {
           "label": "Role",
           "placeholder": "Má přiřazenu roli"
         },
         "disabled": {
-          "label": "Zablokovaný",
-          "placeholder": "Zablokovaný"
+          "label": "Neaktivní",
+          "placeholder": "Aktivita uživatele"
         }
       },
       "action": {

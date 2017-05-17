@@ -6,6 +6,8 @@ import SmsTable from './SmsTable';
 
 /**
  * List of sms logs
+ *
+ * @author Peter Sourek
  */
 export default class Sms extends Basic.AbstractContent {
 

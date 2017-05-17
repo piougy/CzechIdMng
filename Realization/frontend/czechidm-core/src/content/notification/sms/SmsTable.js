@@ -10,6 +10,8 @@ import NotificationLevelEnum from '../../../enums/NotificationLevelEnum';
 
 /**
 * Table of audit log for sms
+*
+* @author Peter Sourek
 */
 export class SmsTable extends Basic.AbstractContent {
 
@@ -54,6 +56,12 @@ export class SmsTable extends Basic.AbstractContent {
       event.preventDefault();
     }
     this.context.router.push('/notification/sms/' + entity.id);
+  }
+
+  _getStatus(data, rowIndex) {
+    return (
+      <NotificationSentState notification={data[rowIndex]}/>
+    );
   }
 
   render() {
@@ -165,9 +173,7 @@ export class SmsTable extends Basic.AbstractContent {
             property="sent"
             cell={
               ({ rowIndex, data}) => {
-                return (
-                  <NotificationSentState notification={data[rowIndex]}/>
-                );
+                return this._getStatus(data, rowIndex);
               }
             }/>
           <Advanced.Column property="sentLog" sort face="text" width="20%"/>

@@ -56,6 +56,12 @@ export class EmailTable extends Basic.AbstractContent {
     this.context.router.push('/notification/emails/' + entity.id);
   }
 
+  _getStatus(data, rowIndex) {
+    return (
+      <NotificationSentState notification={data[rowIndex]}/>
+    );
+  }
+
   render() {
     const { uiKey, emailManager } = this.props;
     const { filterOpened } = this.state;
@@ -164,12 +170,11 @@ export class EmailTable extends Basic.AbstractContent {
           <Advanced.Column
             property="sent"
             cell={
-              ({ rowIndex, data}) => {
-                return (
-                  <NotificationSentState notification={data[rowIndex]}/>
-                );
+              ({ data, rowIndex}) => {
+                this._getStatus(data, rowIndex);
               }
-            }/>
+            }
+            />
           <Advanced.Column property="sentLog" sort face="text" width="20%"/>
         </Advanced.Table>
       </div>

@@ -9,6 +9,8 @@ const manager = new SmsManager();
 
 /**
  * Sms audit log detail content
+ *
+ * @author Peter Sourek
  */
 class SmsContent extends Basic.AbstractContent {
 

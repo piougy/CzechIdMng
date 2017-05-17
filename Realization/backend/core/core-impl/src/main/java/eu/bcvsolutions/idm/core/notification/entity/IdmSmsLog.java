@@ -12,7 +12,7 @@ import javax.persistence.Table;
 @Table(name = "idm_notification_sms")
 public class IdmSmsLog extends IdmNotificationLog {
 
-    private static final Long serialVersionUID = -2038485392205141212L;
+    private static final long serialVersionUID = -2038485392205141212L;
     public static final String NOTIFICATION_TYPE = "sms";
 
     @Override

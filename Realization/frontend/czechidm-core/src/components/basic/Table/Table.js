@@ -335,10 +335,11 @@ Table.propTypes = {
   ]),
   /**
    * If table data is empty, then this text will be shown
-   *
-   * @type {string}
    */
   noData: PropTypes.oneOfType([PropTypes.string, PropTypes.element]),
+  /**
+   * Enable condensed table class, make tables more compact by cutting cell padding in half.
+   */
   condensed: PropTypes.bool
 };
 Table.defaultProps = {

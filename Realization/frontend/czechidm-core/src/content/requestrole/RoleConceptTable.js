@@ -505,28 +505,34 @@ export class RoleConceptTable extends Basic.AbstractContent {
         <Basic.Modal
           bsSize="large"
           show={detail.show}
-          onHide={this._closeDetail.bind(this)}
+          onHide={!showRoleCatalogue ? this._closeDetail.bind(this) : this._hideRoleCatalogueTable.bind(this)}
           backdrop="static"
           keyboard={!showLoading}>
 
           <form onSubmit={this._saveConcept.bind(this)}>
-            <Basic.Modal.Header closeButton={!showLoading} text={this.i18n('create.header')}
+            <Basic.Modal.Header
+              closeButton={!showLoading}
+              text={this.i18n('create.header')}
               rendered={detail.entity.id === undefined && !showRoleCatalogue}/>
-            <Basic.Modal.Header closeButton={!showLoading} text={this.i18n('edit.header', { role: detail.entity.role })}
+            <Basic.Modal.Header
+              closeButton={!showLoading}
+              text={this.i18n('edit.header', { role: detail.entity.role })}
               rendered={detail.entity.id !== undefined && !showRoleCatalogue}/>
-            <Basic.Modal.Header closeButton={!showLoading} text={this.i18n('selectRoleCatalogue.header')}
-              rendered={showRoleCatalogue}/>
+            <Basic.Modal.Header
+              closeButton={ !showLoading }
+              text={ this.i18n('selectRoleCatalogue.header') }
+              rendered={ showRoleCatalogue }/>
             <Basic.Modal.Body>
               <Basic.AbstractForm ref="form" showLoading={showLoading} readOnly={!detail.edit}>
 
                 <Advanced.RoleSelect
-                  isModal required
+                  required
                   readOnly={!detail.entity._added}
                   multiSelect={detail.entity._added && detail.add}
                   showActionButtons
                   onCatalogueShow={this._showRoleCatalogueTable.bind(this)}
                   ref="role"/>
-                <div className="clearfix"></div>
+
                 <Basic.SelectBox
                   ref="identityContract"
                   manager={ identityContractManager }
@@ -539,6 +545,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
                   hidden={showRoleCatalogue}
                   required
                   useFirst/>
+
                 <Basic.Checkbox
                   ref="automaticRole"
                   label={this.i18n('entity.IdentityRole.roleTreeNode.label')}
@@ -570,9 +577,18 @@ export class RoleConceptTable extends Basic.AbstractContent {
               <Basic.Button
                 level="link"
                 onClick={this._closeDetail.bind(this)}
-                showLoading={showLoading}>
+                showLoading={showLoading}
+                rendered={!showRoleCatalogue}>
                 {this.i18n('button.close')}
               </Basic.Button>
+              <Basic.Button
+                level="link"
+                onClick={ this._hideRoleCatalogueTable.bind(this) }
+                showLoading={ showLoading }
+                rendered={ showRoleCatalogue }>
+                { this.i18n('button.close') }
+              </Basic.Button>
+
               <Basic.Button
                 type="submit"
                 level="success"

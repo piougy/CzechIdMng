@@ -236,7 +236,6 @@ public class DefaultAuthorizationManagerIntegrationTest extends AbstractIntegrat
 	}
 	
 	@Test
-	@Transactional
 	public void testFindValidPoliciesWithInvalidIdentityContractByDisabled() {
 		try {
 			loginAsAdmin(InitTestData.TEST_USER_1);

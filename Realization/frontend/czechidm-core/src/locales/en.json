@@ -1054,6 +1054,11 @@
         "title": "Role details",
         "header": "{{name}} details"
       },
+      "filter": {
+        "text": {
+          "placeholder": "Name or description"
+        }
+      },
       "roleCataloguePick": "Select folder",
       "create": {
         "header": "New role"
@@ -1177,16 +1182,13 @@
         "action": {
           "delete": {
             "action": "Remove",
-            "header_1": "Removing automatic role",
-            "header_2": "Removing automatic roles",
-            "header_5": "$t(action.delete.header_2)",
-            "message_1": "Do you want to remove selected record [<strong>{{record}}</strong>]? All assigned roles dependent on removed automatic role will be removed too.",
-            "message_2": "Select records: [<strong>{{records}}</strong>].<br /><br />Do you want to remove <strong>{{count}}</strong> selected records? All assigned roles dependent on removed automatic role will be removed too.",
-            "message_5": "Select records: [<strong>{{records}}</strong>].<br /><br /Do you want to remove <strong>{{count}}</strong> selected records? All assigned roles dependent on removed automatic role will be removed too.",
+            "header": "Remove automatic role",
+            "header_plural": "Remove automatic roles",
+            "message": "Do you want to remove selected roles [<strong>{{record}}</strong>]? All assigned roles dependent on removed automatic role will be removed too.",
+            "message_plural": "Select records: [<strong>{{records}}</strong>].<br /><br />Do you want to remove <strong>{{count}}</strong> selected records? All assigned roles dependent on removed automatic role will be removed too.",
             "error": "An error occurred while removing [{{record}}].",
-            "success_1": "Selected record [{{record}}] was successfully deleted",
-            "success_2": "Selected records [{{records}}] were successfully deleted",
-            "success_5": "Selected records [{{records}}] were successfully deleted"
+            "success": "Selected record [{{record}}] was successfully deleted",
+            "success_plural": "Selected records [{{records}}] were successfully deleted"
           }
         }
       },
@@ -1322,7 +1324,7 @@
         },
         "contracts": {
           "empty": {
-            "message": "User doesn't have any contracted positions, on which you can assign roles. Please, add contracted position.",
+            "message": "User doesn't have any valid contracted positions, on which you can assign roles. Please, add valid contracted position.",
             "button": "Add contracted position"
           }
         }

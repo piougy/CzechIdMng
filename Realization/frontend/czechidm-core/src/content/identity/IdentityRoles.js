@@ -46,7 +46,7 @@ class Roles extends Basic.AbstractContent {
     const { entityId } = this.props.params;
     this.context.store.dispatch(identityRoleManager.fetchRoles(entityId, `${uiKey}-${entityId}`));
     this.context.store.dispatch(identityManager.fetchAuthorities(entityId, `${uiKeyAuthorities}-${entityId}`));
-    this.context.store.dispatch(identityContractManager.fetchEntities(new SearchParameters(SearchParameters.NAME_AUTOCOMPLETE).setFilter('identity', entityId), `${uiKeyContracts}-${entityId}`));
+    this.context.store.dispatch(identityContractManager.fetchEntities(new SearchParameters(SearchParameters.NAME_AUTOCOMPLETE).setFilter('identity', entityId).setFilter('validNowOrInFuture', true), `${uiKeyContracts}-${entityId}`));
   }
 
   componentWillReceiveProps(nextProps) {
@@ -294,27 +294,25 @@ class Roles extends Basic.AbstractContent {
           <Basic.Loading isStatic show/>
         </div>
       );
-    } else if (_contracts.length === 0) {
-      content = (
-        <div>
-          { this.renderContentHeader() }
-          <Basic.Alert
-            className="no-margin"
-            text={this.i18n('contracts.empty.message')}
-            buttons={[
-              <Basic.Button
-                level="info"
-                rendered={ SecurityManager.hasAuthority('APP_ADMIN') }
-                onClick={ this.showContracts.bind(this, entityId) }>
-                {this.i18n('contracts.empty.button')}
-              </Basic.Button>
-            ]}/>
-        </div>
-      );
     } else {
       content = (
-        <div>
-          <Basic.Panel style={{ marginTop: 15 }}>
+        <div style={{ paddingTop: 15 }}>
+          {
+            _contracts.length > 0
+            ||
+            <Basic.Alert
+              className="no-margin"
+              text={this.i18n('contracts.empty.message')}
+              buttons={[
+                <Basic.Button
+                  level="info"
+                  rendered={ SecurityManager.hasAuthority('APP_ADMIN') }
+                  onClick={ this.showContracts.bind(this, entityId) }>
+                  {this.i18n('contracts.empty.button')}
+                </Basic.Button>
+              ]}/>
+          }
+          <Basic.Panel>
             <Basic.PanelHeader text={this.i18n('navigation.menu.roles.title')}/>
             {
               _showLoading
@@ -330,10 +328,10 @@ class Roles extends Basic.AbstractContent {
                       {this.i18n('button.add')}
                     </Basic.Button>
                     <Basic.Button
-                      style={{display: 'block'}}
+                      style={{ display: 'block' }}
                       level="warning"
-                      onClick={this._changePermissions.bind(this)}
-                      rendered={this._canChangePermissions()}>
+                      onClick={ this._changePermissions.bind(this) }
+                      rendered={ _contracts.length > 0 && this._canChangePermissions() }>
                       <Basic.Icon type="fa" icon="key"/>
                       {' '}
                       { this.i18n('changePermissions') }

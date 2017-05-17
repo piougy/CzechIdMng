@@ -185,6 +185,7 @@ public interface FormService extends ScriptEnabled {
 	 * @throws IllegalArgumentException if default definition does not exist
 	 */
 	<O extends FormableEntity, E extends AbstractFormValue<O>> List<E> saveValues(O owner, IdmFormDefinition formDefinition, String attributeName, List<Serializable> persistentValues);
+	<O extends FormableEntity, E extends AbstractFormValue<O>> List<E> saveValues(UUID ownerId, Class<O> ownerType, IdmFormDefinition formDefinition, String attributeName, List<Serializable> persistentValues);
 	
 	/**
 	 * Saves form values to given owner and form attribute - saves attribute values only. Default form definition will be used.
@@ -199,7 +200,7 @@ public interface FormService extends ScriptEnabled {
 	 * @throws IllegalArgumentException if default definition does not exist
 	 */
 	<O extends FormableEntity, E extends AbstractFormValue<O>> List<E> saveValues(O owner, String attributeName, List<Serializable> persistentValues);
-	<O extends FormableEntity, E extends AbstractFormValue<O>> List<E> saveValues(UUID owner, Class<O> ownerType, String attributeName, List<Serializable> persistentValues);
+	<O extends FormableEntity, E extends AbstractFormValue<O>> List<E> saveValues(UUID ownerId, Class<O> ownerType, String attributeName, List<Serializable> persistentValues);
 	
 	/**
 	 * Reads form values by given owner. Return values from default form definition.
@@ -211,6 +212,7 @@ public interface FormService extends ScriptEnabled {
 	 * @throws IllegalArgumentException if default definition does not exist
 	 */
 	<O extends FormableEntity> List<AbstractFormValue<O>> getValues(O owner);
+	<O extends FormableEntity> List<AbstractFormValue<O>> getValues(UUID ownerId, Class<O> ownerType);
 
 	/**
 	 * Reads form values by given owner and form definition
@@ -222,6 +224,7 @@ public interface FormService extends ScriptEnabled {
 	 * @throws IllegalArgumentException if form definition is not given and default definition does not exist
 	 */
 	<O extends FormableEntity> List<AbstractFormValue<O>> getValues(O owner, IdmFormDefinition formDefinition);
+	<O extends FormableEntity> List<AbstractFormValue<O>> getValues(UUID ownerId, Class<O> ownerType, IdmFormDefinition formDefinition);
 	
 	/**
 	 * Returns attribute values by attributeName from given definition, or empty collection
@@ -235,6 +238,7 @@ public interface FormService extends ScriptEnabled {
 	 * @throws IllegalArgumentException if form definition is not given and default definition does not exist
 	 */
 	<O extends FormableEntity> List<AbstractFormValue<O>> getValues(O owner, IdmFormDefinition formDefinition, String attributeName);
+	<O extends FormableEntity> List<AbstractFormValue<O>> getValues(UUID ownerId, Class<O> ownerType, IdmFormDefinition formDefinition, String attributeName);
 	
 	/**
 	 * Returns attribute values by given attribute definition, or empty collection.
@@ -246,6 +250,7 @@ public interface FormService extends ScriptEnabled {
 	 * @throws IllegalArgumentException if attribute is not given
 	 */
 	<O extends FormableEntity> List<AbstractFormValue<O>> getValues(O owner, IdmFormAttribute attribute);
+	<O extends FormableEntity> List<AbstractFormValue<O>> getValues(UUID ownerId, Class<O> ownerType, IdmFormAttribute attribute);
 	
 	/**
 	 * Returns attribute values by attributeName from default definition, or empty collection
@@ -258,6 +263,7 @@ public interface FormService extends ScriptEnabled {
 	 * @throws IllegalArgumentException if default definition does not exist
 	 */
 	<O extends FormableEntity> List<AbstractFormValue<O>> getValues(O owner, String attributeName);
+	<O extends FormableEntity> List<AbstractFormValue<O>> getValues(UUID ownerId, Class<O> ownerType, String attributeName);
 	
 	/**
 	 * Returns form values as map, key is attribute name

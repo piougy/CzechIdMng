@@ -18,8 +18,11 @@ import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import eu.bcvsolutions.idm.core.api.domain.ModuleDescriptor;
 import eu.bcvsolutions.idm.core.api.repository.filter.FilterBuilder;
 import eu.bcvsolutions.idm.core.api.repository.filter.FilterManager;
+import eu.bcvsolutions.idm.core.api.rest.lookup.DtoLookup;
+import eu.bcvsolutions.idm.core.api.rest.lookup.EntityLookup;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.eav.repository.IdmFormAttributeRepository;
 import eu.bcvsolutions.idm.core.eav.repository.IdmFormDefinitionRepository;
@@ -66,6 +69,7 @@ import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmRoleGuaranteeService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmRoleService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmRoleTreeNodeService;
+import eu.bcvsolutions.idm.core.model.service.impl.DefaultLookupService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultModuleService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.scheduler.repository.IdmLongRunningTaskRepository;
@@ -131,6 +135,8 @@ public class IdmServiceConfiguration {
 	@Autowired private PluginRegistry<ModuleDescriptor, String> moduleDescriptorRegistry;
 	@Autowired private List<? extends FormValueService<?, ?>> formValueServices;
 	@Autowired private List<? extends FilterBuilder<?, ?>> filterBuilders;
+	@Autowired private List<? extends EntityLookup<?>> entityLookups;
+	@Autowired private List<? extends DtoLookup<?>> dtoLookups;
 	
 	/**
 	 * Crypt service for confidential storage
@@ -243,6 +249,17 @@ public class IdmServiceConfiguration {
 	}
 	
 	/**
+	 * Entity <=> Dto lookup service
+	 * 
+	 * @return
+	 */
+	@Bean
+	@ConditionalOnMissingBean(LookupService.class)
+	public LookupService lookupService() {
+		return new DefaultLookupService(context, entityManager, entityLookups, dtoLookups);
+	}
+	
+	/**
 	 * EAV attributes
 	 * 
 	 * @return
@@ -272,7 +289,7 @@ public class IdmServiceConfiguration {
 	@Bean
 	@ConditionalOnMissingBean(FormService.class)
 	public FormService formService() {
-		return new DefaultFormService(formDefinitionService(), formAttributeService(), formValueServices, entityEventManager(), entityManager);
+		return new DefaultFormService(formDefinitionService(), formAttributeService(), formValueServices, entityEventManager(), lookupService());
 	}
 	
 	/**

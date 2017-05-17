@@ -11,7 +11,6 @@ import eu.bcvsolutions.idm.acc.event.ProvisioningEvent;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
-import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
@@ -39,7 +38,7 @@ public class IdentitySaveProcessor extends AbstractEntityEventProcessor<IdmIdent
 	
 	@Autowired
 	public IdentitySaveProcessor(ApplicationContext applicationContext, IdmIdentityRepository identityRepository) {
-		super(IdentityEventType.CREATE, IdentityEventType.UPDATE, CoreEventType.EAV_SAVE);
+		super(IdentityEventType.CREATE, IdentityEventType.UPDATE /*, CoreEventType.EAV_SAVE*/); // TODO: uncomment after EAV will be refactored to dto 
 		//
 		Assert.notNull(applicationContext);
 		Assert.notNull(identityRepository);

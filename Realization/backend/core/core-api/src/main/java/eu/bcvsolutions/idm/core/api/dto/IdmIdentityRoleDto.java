@@ -1,11 +1,15 @@
 package eu.bcvsolutions.idm.core.api.dto;
 
-import eu.bcvsolutions.idm.core.api.domain.Embedded;
-import eu.bcvsolutions.idm.core.api.entity.ValidableEntity;
+import java.util.UUID;
+
 import org.joda.time.LocalDate;
 import org.springframework.hateoas.core.Relation;
+import org.springframework.util.Assert;
 
-import java.util.UUID;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import eu.bcvsolutions.idm.core.api.domain.Embedded;
+import eu.bcvsolutions.idm.core.api.entity.ValidableEntity;
 
 /**
  * IdentityRole DTO
@@ -14,9 +18,11 @@ import java.util.UUID;
  * @author Radek Tomiška
  */
 @Relation(collectionRelation = "identityRoles")
-public class IdmIdentityRoleDto extends AbstractDto implements ValidableEntity{
-
-    private static final long serialVersionUID = 1L;
+public class IdmIdentityRoleDto extends AbstractDto implements ValidableEntity {
+	
+	private static final long serialVersionUID = 1L;
+	public static final String PROPERTY_IDENTITY_CONTRACT = "identityContract";
+	//
     @Embedded(dtoClass = IdmIdentityContractDto.class)
     private UUID identityContract;
     @Embedded(dtoClass = IdmRoleDto.class)
@@ -56,6 +62,14 @@ public class IdmIdentityRoleDto extends AbstractDto implements ValidableEntity{
 
     public void setIdentityContract(UUID identityContract) {
         this.identityContract = identityContract;
+    }
+    
+    @JsonIgnore
+    public void setIdentityContractDto(IdmIdentityContractDto identityContract) {
+    	Assert.notNull(identityContract);
+    	//
+        this.identityContract = identityContract.getId();
+        this.getEmbedded().put(PROPERTY_IDENTITY_CONTRACT, identityContract);
     }
 
     public UUID getRole() {

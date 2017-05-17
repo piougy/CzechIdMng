@@ -8,9 +8,9 @@ import java.util.Map;
 import javax.persistence.EntityManager;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.plugin.core.OrderAwarePluginRegistry;
 import org.springframework.plugin.core.PluginRegistry;
-import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
@@ -34,36 +34,31 @@ import eu.bcvsolutions.idm.core.api.service.ReadEntityService;
  * @author Radek Tomiška
  *
  */
-@Service
 public class DefaultLookupService implements LookupService {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultLookupService.class);
+	private final ApplicationContext context;
+	private final EntityManager entityManager;
 	private final PluginRegistry<EntityLookup<?>, Class<?>> entityLookups;
 	private final PluginRegistry<DtoLookup<?>, Class<?>> dtoLookups;
 	// loaded services cache
 	private final Map<Class<? extends Identifiable>, Object> services = new HashMap<>();
-	private final EntityManager entityManager;
 	
 	@Autowired
 	public DefaultLookupService(
+			ApplicationContext context,
 			EntityManager entityManager,
 			List<? extends EntityLookup<?>> entityLookups,
-			List<? extends DtoLookup<?>> dtoLookups,
-			List<? extends ReadEntityService<?, ?>> entityServices,
-			List<? extends ReadDtoService<?, ?>> dtoServices) {
+			List<? extends DtoLookup<?>> dtoLookups) {
+		Assert.notNull(context);
+		Assert.notNull(entityManager);
 		Assert.notNull(entityLookups, "Entity lookups are required");
+		Assert.notNull(dtoLookups, "Dto lookups are required");
 		//
-		entityServices.forEach(service -> {
-			services.put(service.getEntityClass(), service);
-		});
-		dtoServices.forEach(service -> {
-			services.put(service.getEntityClass(), service);
-			services.put(service.getDtoClass(), service);
-		});
-		// TODO: init default lookups
+		this.context = context;
+		this.entityManager = entityManager;
 		this.entityLookups = OrderAwarePluginRegistry.create(entityLookups);
 		this.dtoLookups = OrderAwarePluginRegistry.create(dtoLookups);
-		this.entityManager = entityManager;
 	}
 	
 	@Override
@@ -88,18 +83,18 @@ public class DefaultLookupService implements LookupService {
 	@Override
 	@SuppressWarnings("unchecked")
 	public <E extends BaseEntity> ReadEntityService<E, ?> getEntityService(Class<E> entityClass) {
-		return (ReadEntityService<E, ?>) services.get(entityClass);
+		return (ReadEntityService<E, ?>) getService(entityClass);
 	}
 	
 	@Override
 	@SuppressWarnings("unchecked")
 	public <E extends BaseEntity, S extends ReadEntityService<E, ?>> S getEntityService(Class<E> entityClass, Class<S> entityServiceClass) {
-		return (S) services.get(entityClass);
+		return (S) getService(entityClass);
 	}
 	
 	@Override
 	public ReadDtoService<?, ?> getDtoService(Class<? extends Identifiable> identifiableType) {
-		Object service = services.get(identifiableType);
+		Object service = getService(identifiableType);
 		if (service == null) {
 			LOG.debug("ReadDtoService for identifiable type [{}] is not found", identifiableType);
 		}
@@ -122,7 +117,7 @@ public class DefaultLookupService implements LookupService {
 		//
 		EntityLookup<I> lookup = (EntityLookup<I>) entityLookups.getPluginFor(entityClass);
 		if (lookup == null) {
-			Object service = services.get(identifiableType);
+			Object service = getService(identifiableType);
 			if ((service instanceof ReadEntityService) && (service instanceof CodeableService)) {
 				return new CodeableServiceEntityLookup<I>((CodeableService)service);
 			}
@@ -152,7 +147,7 @@ public class DefaultLookupService implements LookupService {
 	
 	@SuppressWarnings({ "unchecked", "rawtypes", "deprecation" })
 	private Class<? extends BaseEntity> getEntityClass(Class<? extends Identifiable> identifiableType) {
-		Object service = services.get(identifiableType);
+		Object service = getService(identifiableType);
 		if (service == null) {
 			return null;
 		}
@@ -161,5 +156,25 @@ public class DefaultLookupService implements LookupService {
 			return ((ReadDtoService) service).getEntityClass();
 		}		
 		return ((ReadEntityService) service).getEntityClass();
+	}
+	
+	/**
+	 * Returs service for given {@link Identifiable} type.
+	 * 
+	 * @param identifiableType
+	 * @return
+	 */
+	@SuppressWarnings({ "unchecked" })
+	private Object getService(Class<? extends Identifiable> identifiableType) {
+		if (!services.containsKey(identifiableType)) {
+			context.getBeansOfType(ReadEntityService.class).values().forEach(s -> {
+				services.put(s.getEntityClass(), s);
+			});
+			context.getBeansOfType(ReadDtoService.class).values().forEach(s -> {
+				services.put(s.getEntityClass(), s);
+				services.put(s.getDtoClass(), s);
+			});
+		}
+		return services.get(identifiableType);
 	}
 }

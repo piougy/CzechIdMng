@@ -20,6 +20,8 @@ import com.google.common.collect.Sets;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.entity.ValidableEntity;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
@@ -80,11 +82,15 @@ public class DefaultGrantedAuthoritiesFactory implements GrantedAuthoritiesFacto
 	
 	@Override
 	@Transactional(readOnly = true)
-	public Collection<GrantedAuthority> getGrantedAuthoritiesForValidRoles(UUID identityId, Collection<IdmIdentityRoleDto> roles) {
+	public Collection<GrantedAuthority> getGrantedAuthoritiesForValidRoles(UUID identityId, Collection<IdmIdentityRoleDto> identityRoles) {
 		// unique set of authorities from all active identity roles and subroles
 		Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
-		roles.stream()
-			.filter(EntityUtils::isValid) //
+		identityRoles.stream()
+			.filter(EntityUtils::isValid) // valid identity role
+			.filter(ir -> { // valid role's contract
+				// TODO: jpa metamodel generation in unit tests
+				return EntityUtils.isValid(DtoUtils.getEmbedded(ir, IdmIdentityRoleDto.PROPERTY_IDENTITY_CONTRACT, ValidableEntity.class));
+			})
 			.forEach(identityRole -> {
 				grantedAuthorities.addAll(getActiveRoleAuthorities(identityId, roleService.get(identityRole.getRole()), new HashSet<>()));
 			});

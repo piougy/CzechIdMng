@@ -90,8 +90,8 @@ public class RoleProvisioningExecutor extends AbstractProvisioningExecutor<IdmRo
 	}
 	
 	@Override
-	protected Object getAttributeValue(IdmRole entity, AttributeMapping attribute) {
-		Object idmValue = super.getAttributeValue(entity, attribute);
+	protected Object getAttributeValue(String uid, IdmRole entity, AttributeMapping attribute) {
+		Object idmValue = super.getAttributeValue(uid, entity, attribute);
 
 		if (attribute.isEntityAttribute()
 				&& RoleSynchronizationExecutor.ROLE_TYPE_FIELD.equals(attribute.getIdmPropertyName())) {

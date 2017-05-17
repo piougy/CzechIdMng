@@ -38,6 +38,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.security.service.impl.DefaultGrantedAuthoritiesFactory;
 import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
+
 /**
  * Test for {@link DefaultGrantedAuthoritiesFactory}
  * 
@@ -92,7 +93,7 @@ public class DefaultGrantedAuthoritiesFactoryTest extends AbstractUnitTest {
 		contract.setId(UUID.randomUUID());
 		contract.setIdentity(identity.getId());
 		IdmIdentityRoleDto identityRole = new IdmIdentityRoleDto();
-		identityRole.setIdentityContract(contract.getId());
+		identityRole.setIdentityContractDto(contract);
 		identityRole.setRole(TEST_ROLE.getId());
 		IDENTITY_ROLES = new ArrayList<>();
 		IDENTITY_ROLES.add(identityRole);
@@ -192,7 +193,7 @@ public class DefaultGrantedAuthoritiesFactoryTest extends AbstractUnitTest {
 		contract.setId(UUID.randomUUID());
 		contract.setIdentity(identity.getId());
 		IdmIdentityRoleDto identityRole = new IdmIdentityRoleDto();
-		identityRole.setIdentityContract(contract.getId());
+		identityRole.setIdentityContractDto(contract);
 		identityRole.setRole(role.getId());
 		List<IdmIdentityRoleDto> roles = Lists.newArrayList(identityRole);
 		

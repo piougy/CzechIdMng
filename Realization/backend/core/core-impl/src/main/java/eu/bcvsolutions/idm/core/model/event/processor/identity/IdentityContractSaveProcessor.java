@@ -29,7 +29,6 @@ public class IdentityContractSaveProcessor extends CoreEventProcessor<IdmIdentit
 	public static final String PROCESSOR_NAME = "identity-contract-save-processor";
 	private final IdmIdentityContractRepository repository;
 	private final IdmIdentityContractService service;
-	private final IdmIdentityRoleService identityRoleService;
 	
 	@Autowired
 	public IdentityContractSaveProcessor(
@@ -44,7 +43,6 @@ public class IdentityContractSaveProcessor extends CoreEventProcessor<IdmIdentit
 		//
 		this.repository = repository;
 		this.service = service;
-		this.identityRoleService = identityRoleService;
 	}
 	
 	@Override
@@ -60,17 +58,6 @@ public class IdentityContractSaveProcessor extends CoreEventProcessor<IdmIdentit
 		}
 		contract = service.saveInternal(contract);
 		event.setContent(contract);
-		//
-		if (IdentityContractEventType.UPDATE == event.getType()) {
-			if (contract.isDisabled()) {
-				// remove all referenced roles
-				identityRoleService.findAllByContract(contract.getId()).forEach(identityRole -> {
-					identityRoleService.delete(identityRole);
-				});
-			} else {
-				// automatic roles was added by IdentityContractUpdateAutomaticRoleProcessor
-			}
-		}
 		//
 		// TODO: clone content - mutable previous event content :/
 		return new DefaultEventResult<>(event, this);

@@ -23,6 +23,10 @@ import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
 public interface ProvisioningService {
 	
 	public static final String PASSWORD_SCHEMA_PROPERTY_NAME = "__PASSWORD__";
+	/**
+	 * Property in event. If is value TRUE, then will be provisioning skipped. Skip must be implemented in every processor for now!
+	 */
+	public static final String SKIP_PROVISIONING = "skip_provisioning";
 
 	/**
 	 * Do provisioning for given identity on all connected systems

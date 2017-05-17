@@ -56,6 +56,7 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.eav.IdmIdentityFormValue;
@@ -79,6 +80,8 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 	private static final String IDENTITY_PASSWORD_TWO = "password_two";
 	private static final String IDENTITY_PASSWORD_THREE = "password_three";
 	private static final String IDENTITY_USERNAME = "provisioningTestUser";
+	private static final String IDENTITY_USERNAME_TWO = "provisioningTestUserTwo";
+	private static final String IDENTITY_USERNAME_CHANGED = "userChanged";
 	private static final String IDENTITY_EXT_PASSWORD = "passwordExt";
 	private static final String IDENTITY_CHANGED_FIRST_NAME = "changed first name";
 	private static final String PASSWORD_POLICY = "passwordPolicy";
@@ -171,6 +174,37 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		TestResource changedAccount = entityManager.find(TestResource.class, accountService.get(accountIdentityOne.getAccount()).getUid());
 		Assert.assertNotNull(changedAccount);
 		Assert.assertEquals(identity.getFirstName(), changedAccount.getFirstname());
+	}
+	
+	@Test
+	/**
+	 * Test for change account ID. Important! - because we test against Table connector, is here error in log after we try change PK. 
+	 */
+	public void doIdentityProvisioningChangeAccountIdentifier() {
+		IdmIdentityDto identity = idmIdentityService.getByUsername(IDENTITY_USERNAME_TWO);
+		IdentityAccountFilter filter = new IdentityAccountFilter();
+		filter.setIdentityId(identity.getId());
+
+		AccIdentityAccountDto accountIdentityOne = identityAccoutnService.find(filter, null).getContent().get(0);
+		AccAccount account = accountService.get(accountIdentityOne.getAccount());
+
+		identity.setUsername(IDENTITY_USERNAME_CHANGED);
+		identity = idmIdentityService.save(identity);
+		Assert.assertEquals("x"+IDENTITY_USERNAME_TWO, account.getUid());
+
+		provisioningService.doProvisioning(identityRepository.findOne(identity.getId()));
+		TestResource changedAccount = entityManager.find(TestResource.class, accountService.get(accountIdentityOne.getAccount()).getUid());
+		Assert.assertNotNull(changedAccount);
+		Assert.assertEquals(identity.getUsername(), changedAccount.getName().substring(1));
+		
+		account = accountService.get(account.getId());
+		Assert.assertEquals("x"+IDENTITY_USERNAME_CHANGED, account.getUid());
+		
+		// Change username back
+		identity.setUsername(IDENTITY_USERNAME_TWO);
+		identity = idmIdentityService.save(identity);
+		account = accountService.get(account.getId());
+		Assert.assertEquals("x"+IDENTITY_USERNAME_TWO, account.getUid());
 	}
 
 	@Test
@@ -322,7 +356,6 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		provisioningService.doProvisioning(identityRepository.findOne(identity.getId()));
 		TestResource resourceAccoutn = entityManager.find(TestResource.class, accountService.get(accountIdentityOne.getAccount()).getUid());
 		Assert.assertEquals(IDENTITY_PASSWORD_THREE, resourceAccoutn.getFirstname());
-		;
 	}
 
 	@Test
@@ -862,6 +895,25 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		accountIdentityOne.setAccount(accountOne.getId());
 
 		accountIdentityOne = identityAccoutnService.save(accountIdentityOne);
+		
+		IdmIdentityDto identityTwo = new IdmIdentityDto();
+		identityTwo.setUsername(IDENTITY_USERNAME_TWO);
+		identityTwo.setFirstName(IDENTITY_USERNAME_TWO);
+		identityTwo.setLastName(IDENTITY_USERNAME_TWO);
+		identityTwo = idmIdentityService.save(identityTwo);
+
+		AccAccount accountTwo = new AccAccount();
+		accountTwo.setSystem(system);
+		accountTwo.setUid("x" + IDENTITY_USERNAME_TWO);
+		accountTwo.setAccountType(AccountType.PERSONAL);
+		accountTwo = accountService.save(accountTwo);
+
+		AccIdentityAccountDto accountIdentityTwo = new AccIdentityAccountDto();
+		accountIdentityTwo.setIdentity(identityTwo.getId());
+		accountIdentityTwo.setOwnership(true);
+		accountIdentityTwo.setAccount(accountTwo.getId());
+
+		accountIdentityTwo = identityAccoutnService.save(accountIdentityTwo);
 
 		SysSystemMapping systemMapping = new SysSystemMapping();
 		systemMapping.setName("default_" + System.currentTimeMillis());
@@ -876,51 +928,51 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		Page<SysSchemaAttribute> schemaAttributesPage = schemaAttributeService.find(schemaAttributeFilter, null);
 		schemaAttributesPage.forEach(schemaAttr -> {
 			if ("__NAME__".equals(schemaAttr.getName())) {
-				SysSystemAttributeMapping attributeHandlingName = new SysSystemAttributeMapping();
-				attributeHandlingName.setUid(true);
-				attributeHandlingName.setEntityAttribute(true);
-				attributeHandlingName.setIdmPropertyName("username");
-				attributeHandlingName.setTransformToResourceScript("if(attributeValue){return \"x\"+ attributeValue;}");
-				attributeHandlingName.setName(schemaAttr.getName());
-				attributeHandlingName.setSchemaAttribute(schemaAttr);
-				attributeHandlingName.setSystemMapping(entityHandlingResult);
-				schemaAttributeHandlingService.save(attributeHandlingName);
+				SysSystemAttributeMapping attributeMapping = new SysSystemAttributeMapping();
+				attributeMapping.setUid(true);
+				attributeMapping.setEntityAttribute(true);
+				attributeMapping.setIdmPropertyName(IdmIdentity_.username.getName());
+				attributeMapping.setTransformToResourceScript("if(attributeValue){return \"x\"+ attributeValue;}");
+				attributeMapping.setName(schemaAttr.getName());
+				attributeMapping.setSchemaAttribute(schemaAttr);
+				attributeMapping.setSystemMapping(entityHandlingResult);
+				schemaAttributeHandlingService.save(attributeMapping);
 
 			} else if ("firstname".equalsIgnoreCase(schemaAttr.getName())) {
-				SysSystemAttributeMapping attributeHandlingName = new SysSystemAttributeMapping();
-				attributeHandlingName.setIdmPropertyName("firstName");
-				attributeHandlingName.setSchemaAttribute(schemaAttr);
-				attributeHandlingName.setName(schemaAttr.getName());
-				attributeHandlingName
+				SysSystemAttributeMapping attributeMapping = new SysSystemAttributeMapping();
+				attributeMapping.setIdmPropertyName(IdmIdentity_.firstName.getName());
+				attributeMapping.setSchemaAttribute(schemaAttr);
+				attributeMapping.setName(schemaAttr.getName());
+				attributeMapping
 						.setTransformFromResourceScript("if(attributeValue){return attributeValue.substring(1);}");
-				attributeHandlingName.setSystemMapping(entityHandlingResult);
-				schemaAttributeHandlingService.save(attributeHandlingName);
+				attributeMapping.setSystemMapping(entityHandlingResult);
+				schemaAttributeHandlingService.save(attributeMapping);
 
 			} else if ("lastname".equalsIgnoreCase(schemaAttr.getName())) {
-				SysSystemAttributeMapping attributeHandlingName = new SysSystemAttributeMapping();
-				attributeHandlingName.setIdmPropertyName("lastName");
-				attributeHandlingName.setName(schemaAttr.getName());
-				attributeHandlingName.setSchemaAttribute(schemaAttr);
-				attributeHandlingName.setSystemMapping(entityHandlingResult);
-				schemaAttributeHandlingService.save(attributeHandlingName);
+				SysSystemAttributeMapping attributeMapping = new SysSystemAttributeMapping();
+				attributeMapping.setIdmPropertyName(IdmIdentity_.lastName.getName());
+				attributeMapping.setName(schemaAttr.getName());
+				attributeMapping.setSchemaAttribute(schemaAttr);
+				attributeMapping.setSystemMapping(entityHandlingResult);
+				schemaAttributeHandlingService.save(attributeMapping);
 
 			} else if (IcConnectorFacade.PASSWORD_ATTRIBUTE_NAME.equalsIgnoreCase(schemaAttr.getName())) {
-				SysSystemAttributeMapping attributeHandlingName = new SysSystemAttributeMapping();
-				attributeHandlingName.setIdmPropertyName("password");
-				attributeHandlingName.setSchemaAttribute(schemaAttr);
-				attributeHandlingName.setName(schemaAttr.getName());
-				attributeHandlingName.setSystemMapping(entityHandlingResult);
-				schemaAttributeHandlingService.save(attributeHandlingName);
+				SysSystemAttributeMapping attributeMapping = new SysSystemAttributeMapping();
+				attributeMapping.setIdmPropertyName("password");
+				attributeMapping.setSchemaAttribute(schemaAttr);
+				attributeMapping.setName(schemaAttr.getName());
+				attributeMapping.setSystemMapping(entityHandlingResult);
+				schemaAttributeHandlingService.save(attributeMapping);
 
 			} else if ("email".equalsIgnoreCase(schemaAttr.getName())) {
-				SysSystemAttributeMapping attributeHandlingName = new SysSystemAttributeMapping();
-				attributeHandlingName.setIdmPropertyName("email");
-				attributeHandlingName.setName(schemaAttr.getName());
-				attributeHandlingName.setSchemaAttribute(schemaAttr);
-				attributeHandlingName.setStrategyType(AttributeMappingStrategyType.CREATE);
-				attributeHandlingName.setSystemMapping(entityHandlingResult);
-				attributeHandlingName.setTransformToResourceScript("return \"" + EMAIL_ONE + "\";");
-				schemaAttributeHandlingService.save(attributeHandlingName);
+				SysSystemAttributeMapping attributeMapping = new SysSystemAttributeMapping();
+				attributeMapping.setIdmPropertyName(IdmIdentity_.email.getName());
+				attributeMapping.setName(schemaAttr.getName());
+				attributeMapping.setSchemaAttribute(schemaAttr);
+				attributeMapping.setStrategyType(AttributeMappingStrategyType.CREATE);
+				attributeMapping.setSystemMapping(entityHandlingResult);
+				attributeMapping.setTransformToResourceScript("return \"" + EMAIL_ONE + "\";");
+				schemaAttributeHandlingService.save(attributeMapping);
 
 			}
 		});

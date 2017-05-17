@@ -209,9 +209,15 @@ public class IdmIdentityContractController extends AbstractReadWriteDtoControlle
 	
 	@Override
 	protected IdentityContractFilter toFilter(MultiValueMap<String, Object> parameters) {
-		IdentityContractFilter filter = new IdentityContractFilter();
+		IdentityContractFilter filter = new IdentityContractFilter(parameters);
 		filter.setText(getParameterConverter().toString(parameters, "text"));
 		filter.setIdentity(getParameterConverter().toEntityUuid(parameters, "identity", IdmIdentity.class));
+		filter.setValid(getParameterConverter().toBoolean(parameters, "valid"));
+		filter.setExterne(getParameterConverter().toBoolean(parameters, "externe"));
+		filter.setDisabled(getParameterConverter().toBoolean(parameters, "disabled"));
+		filter.setMain(getParameterConverter().toBoolean(parameters, "main"));
+		filter.setValidNowOrInFuture(getParameterConverter().toBoolean(parameters, "validNowOrInFuture"));
+		// TODO: localdate converters
 		return filter;
 	}
 }

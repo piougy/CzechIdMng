@@ -14,63 +14,56 @@ import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
-import eu.bcvsolutions.idm.core.model.entity.IdmRole;
-import eu.bcvsolutions.idm.core.model.event.RoleEvent.RoleEventType;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 
 /**
- * Run provisioning after role was saved.
+ * Executes provisioing after identity entity is saved
  * 
- * @author Svanda
- *
+ * @author Radek Tomiška
+ * @deprecated Will be removed after EAV will be refactored to dto
  */
-@Component("accRoleSaveProcessor")
+@Deprecated
+@Component("accIdentityEntitySaveProcessor")
 @Enabled(AccModuleDescriptor.MODULE_ID)
-@Description("Executes provisioing after role is saved.")
-public class RoleSaveProcessor extends AbstractEntityEventProcessor<IdmRole> {
+@Description("Executes provisioing after identity entity is saved (deprecated).")
+public class IdentityEntitySaveProcessor extends AbstractEntityEventProcessor<IdmIdentity> {
 
-	public static final String PROCESSOR_NAME = "role-save-processor";
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(RoleSaveProcessor.class);
+	public static final String PROCESSOR_NAME = "identity-save-processor";
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdentityEntitySaveProcessor.class);
 	private ProvisioningService provisioningService;
 	private final ApplicationContext applicationContext;
-
+	
 	@Autowired
-	public RoleSaveProcessor(ApplicationContext applicationContext) {
-		super(RoleEventType.CREATE, RoleEventType.UPDATE, CoreEventType.EAV_SAVE);
+	public IdentityEntitySaveProcessor(ApplicationContext applicationContext) {
+		super(CoreEventType.EAV_SAVE);
 		//
 		Assert.notNull(applicationContext);
 		//
 		this.applicationContext = applicationContext;
 	}
-
+	
 	@Override
 	public String getName() {
 		return PROCESSOR_NAME;
 	}
 
 	@Override
-	public EventResult<IdmRole> process(EntityEvent<IdmRole> event) {
-		Object breakProvisioning = event.getProperties().get(ProvisioningService.SKIP_PROVISIONING);
-		
-		if(breakProvisioning != null && breakProvisioning instanceof Boolean && (Boolean)breakProvisioning){
-			return new DefaultEventResult<>(event, this);
-		}
+	public EventResult<IdmIdentity> process(EntityEvent<IdmIdentity> event) {
 		doProvisioning(event.getContent());
 		return new DefaultEventResult<>(event, this);
 	}
-
-	private void doProvisioning(IdmRole node) {
-		LOG.debug("Call account managment (create accounts for all systems) for role [{}]", node.getName());
-		getProvisioningService().createAccountsForAllSystems(node);
-		LOG.debug("Call provisioning for role [{}]", node.getName());
-		getProvisioningService().doProvisioning(node);
+	
+	private void doProvisioning(IdmIdentity identity) {
+		LOG.debug("Call provisioning for identity [{}]", identity.getUsername());
+		getProvisioningService().doProvisioning(identity);
 	}
-
+	
 	@Override
 	public int getOrder() {
 		return ProvisioningEvent.DEFAULT_PROVISIONING_ORDER;
 	}
-
+	
 	/**
 	 * provisioningService has dependency everywhere - so we need lazy init ...
 	 * 
@@ -82,5 +75,5 @@ public class RoleSaveProcessor extends AbstractEntityEventProcessor<IdmRole> {
 		}
 		return provisioningService;
 	}
-
+	
 }

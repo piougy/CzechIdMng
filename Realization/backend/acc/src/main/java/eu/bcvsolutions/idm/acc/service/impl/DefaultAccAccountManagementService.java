@@ -276,7 +276,7 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 					.setTransformFromResourceScript(uidRoleAttribute.getSystemAttributeMapping().getTransformFromResourceScript());
 			// Overloaded values
 			roleSystemAttributeService.fillOverloadedAttribute(uidRoleAttribute, overloadedAttribute);
-			Object uid = systemAttributeMappingService.getAttributeValue(entity, overloadedAttribute);
+			Object uid = systemAttributeMappingService.getAttributeValue(null, entity, overloadedAttribute);
 			if(uid == null) {
 				throw new ProvisioningException(AccResultCode.PROVISIONING_GENERATED_UID_IS_NULL,
 						ImmutableMap.of("system", roleSystem.getSystem().getName()));

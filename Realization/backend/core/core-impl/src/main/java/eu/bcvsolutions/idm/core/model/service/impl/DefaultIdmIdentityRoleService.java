@@ -86,7 +86,6 @@ public class DefaultIdmIdentityRoleService
 		Assert.notNull(dto.getRole());
 		Assert.notNull(dto.getIdentityContract());
 		//
-		System.out.println(isNew(dto));
 		LOG.debug("Saving role [{}] for identity contract [{}]", dto.getRole(), dto.getIdentityContract());
 		return entityEventManager.process(
 				new IdentityRoleEvent(isNew(dto) ? IdentityRoleEventType.CREATE : IdentityRoleEventType.UPDATE, dto)).getContent();

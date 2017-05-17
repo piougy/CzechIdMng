@@ -9,13 +9,12 @@ import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
+import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
 
 /**
  * Automatic roles recount while enabled identity cotract is created
- * 
- * TODO: integrate with role requests
  * 
  * @author Radek Tomiška
  *
@@ -40,8 +39,8 @@ public class IdentityContractCreateByAutomaticRoleProcessor extends CoreEventPro
 	@Override
 	public EventResult<IdmIdentityContractDto> process(EntityEvent<IdmIdentityContractDto> event) {
 		IdmIdentityContractDto contract = event.getContent();
-		
-		if(!contract.isDisabled() && contract.getWorkPosition() != null) {
+		// contract is or could be valid in future
+		if(EntityUtils.isValidNowOrInFuture(contract) && contract.getWorkPosition() != null) {
 			roleTreeNodeService.assignAutomaticRoles(contract, roleTreeNodeService.getAutomaticRolesByTreeNode(contract.getWorkPosition()), true);
 		}
 		//

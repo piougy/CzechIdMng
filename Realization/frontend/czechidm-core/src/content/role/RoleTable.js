@@ -185,20 +185,20 @@ export default class RoleTable extends Basic.AbstractContent {
               <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
                 <Basic.AbstractForm ref="filterForm">
                   <Basic.Row className={ showTree ? '' : 'last'}>
-                    <div className="col-lg-4">
+                    <Basic.Col lg={ 8 }>
                       <Advanced.Filter.TextField
                         ref="text"
-                        placeholder={this.i18n('entity.Role.name')}/>
-                    </div>
-                    <div className="col-lg-4">
+                        placeholder={this.i18n('content.roles.filter.text.placeholder')}/>
+                    </Basic.Col>
+                    <Basic.Col lg={ 4 } rendered={ false }>
                       <Advanced.Filter.EnumSelectBox
                         ref="roleType"
                         placeholder={this.i18n('entity.Role.roleType')}
                         enum={RoleTypeEnum}/>
-                    </div>
-                    <div className="col-lg-4 text-right">
+                    </Basic.Col>
+                    <Basic.Col lg={ 4 } className="text-right">
                       <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
-                    </div>
+                    </Basic.Col>
                   </Basic.Row>
                   <Basic.Row className="last" rendered={showTree}>
                     <div className="col-lg-4">
@@ -246,7 +246,7 @@ export default class RoleTable extends Basic.AbstractContent {
               }
               sort={false}/>
             <Advanced.ColumnLink to="role/:id/detail" property="name" width="15%" sort face="text" rendered={_.includes(columns, 'name')}/>
-            <Advanced.Column property="roleType" width="75px" sort face="enum" enumClass={RoleTypeEnum} rendered={_.includes(columns, 'roleType')}/>
+            <Advanced.Column property="roleType" width="75px" sort face="enum" enumClass={RoleTypeEnum} rendered={false && _.includes(columns, 'roleType')}/>
             <Advanced.Column property="roleCatalogue.name" width="75px" face="text" rendered={_.includes(columns, 'roleCatalogue')}/>
             <Advanced.Column property="description" sort face="text" rendered={_.includes(columns, 'description')}/>
             <Advanced.Column property="disabled" sort face="bool" width="75px" rendered={_.includes(columns, 'disabled')}/>

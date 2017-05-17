@@ -276,16 +276,6 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 		identityRoles = identityRoleService.findAllByIdentity(identity.getId());
 		assertEquals(3, identityRoles.size());
 		//
-		// test after disabled
-		contract.setDisabled(true);
-		identityContractService.save(contract);
-		assertTrue(identityRoleService.findAllByIdentity(identity.getId()).isEmpty());
-		//
-		// test after enable
-		contract.setDisabled(false);
-		identityContractService.save(contract);
-		assertEquals(3, identityRoleService.findAllByIdentity(identity.getId()).size());
-		//
 		// test after delete
 		identityContractService.delete(contract);
 		assertTrue(identityRoleService.findAllByIdentity(identity.getId()).isEmpty());

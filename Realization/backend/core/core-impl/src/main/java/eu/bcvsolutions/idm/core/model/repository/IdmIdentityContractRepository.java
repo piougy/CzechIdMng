@@ -89,10 +89,8 @@ public interface IdmIdentityContractRepository extends AbstractEntityRepository<
 	 */
 	@Query(value = "select e from #{#entityName} e" +
 			" where"
-	        + " (validTill is not null and validTill < :expiration)"
-	        + " and"
-	        + " (disabled = :disabled)")
-	Page<IdmIdentityContract> findExpiredContracts(@Param("expiration") LocalDate expiration, @Param("disabled") boolean disabled, Pageable pageable);
+	        + " (validTill is not null and validTill < :expiration)")
+	Page<IdmIdentityContract> findExpiredContracts(@Param("expiration") LocalDate expiration, Pageable pageable);
 	
 	/**
 	 * Clears default tree type for all tree types instead given updatedEntityId

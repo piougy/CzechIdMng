@@ -10,17 +10,18 @@ import eu.bcvsolutions.idm.core.api.event.EntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.EventContext;
 
 /**
- * Entity processing based on spring plugins
+ * Entity processing based on synchronous {@link ApplicationEvent} publishing.
  * 
  * @author Radek Tomiška
- * @see {@link EntityEventProcessor}
- * @see {@link EntityEvent}
- * @see {@link EventContext}
+ * @see EntityEventProcessor
+ * @see EntityEvent
+ * @see EventContext
  */
 public interface EntityEventManager {
 	
 	/**
-	 * Process event through all registered entity processor in configured order with default context (newly created context).
+	 * Process event through all registered entity processor in configured order with default context (newly created context). 
+	 * Suspended event will continue.
 	 * 
 	 * @param event
 	 * @return

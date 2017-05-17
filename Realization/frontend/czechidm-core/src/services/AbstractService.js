@@ -101,6 +101,9 @@ export default class AbstractService {
         if (Utils.Response.hasError(jsonResponse)) {
           throw Utils.Response.getFirstError(jsonResponse);
         }
+        if (Utils.Response.hasInfo(jsonResponse)) {
+          throw Utils.Response.getFirstInfo(jsonResponse);
+        }
         return jsonResponse;
       });
   }
@@ -115,6 +118,9 @@ export default class AbstractService {
         if (Utils.Response.hasError(json)) {
           throw Utils.Response.getFirstError(json);
         }
+        if (Utils.Response.hasInfo(json)) {
+          throw Utils.Response.getFirstInfo(json);
+        }
         return json;
       });
   }
@@ -123,7 +129,7 @@ export default class AbstractService {
     return RestApiService
       .delete(this.getApiPath() + `/${encodeURIComponent(id)}`)
       .then(response => {
-        if (response.status === 204) {
+        if (response.status === 204) { // no content - ok
           return null;
         }
         return response.json();
@@ -133,7 +139,7 @@ export default class AbstractService {
           throw Utils.Response.getFirstError(json);
         }
         if (Utils.Response.hasInfo(json)) {
-          return Utils.Response.getFirstInfo(json);
+          throw Utils.Response.getFirstInfo(json);
         }
         return json;
       });
@@ -148,6 +154,9 @@ export default class AbstractService {
       .then(jsonResponse => {
         if (Utils.Response.hasError(jsonResponse)) {
           throw Utils.Response.getFirstError(jsonResponse);
+        }
+        if (Utils.Response.hasInfo(jsonResponse)) {
+          throw Utils.Response.getFirstInfo(jsonResponse);
         }
         return jsonResponse;
       });

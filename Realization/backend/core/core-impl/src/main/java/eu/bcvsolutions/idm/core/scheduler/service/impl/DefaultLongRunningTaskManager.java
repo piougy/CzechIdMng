@@ -143,28 +143,31 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 	public <V> LongRunningFutureTask<V> execute(LongRunningTaskExecutor<V> taskExecutor) {
 		// autowire task properties
 		AutowireHelper.autowire(taskExecutor);
-		// prepare task
-		if (taskExecutor.getLongRunningTaskId() == null) {
-			IdmLongRunningTaskDto task = service.saveInNewTransaction(taskExecutor, OperationState.RUNNING);
-			taskExecutor.setLongRunningTaskId(task.getId());
-		} else {
-			IdmLongRunningTaskDto task = service.get(taskExecutor.getLongRunningTaskId());
-			Assert.notNull(task);
-			if (task.isRunning()) {
-				throw new ResultCodeException(CoreResultCode.LONG_RUNNING_TASK_IS_RUNNING, ImmutableMap.of("taskId", task.getId()));
-			}
-			if (!OperationState.isRunnable(task.getResultState())) {
-				throw new ResultCodeException(CoreResultCode.LONG_RUNNING_TASK_IS_PROCESSED, ImmutableMap.of("taskId", task.getId()));
-			}
-			if (!task.getInstanceId().equals(configurationService.getInstanceId())) {
-				throw new ResultCodeException(CoreResultCode.LONG_RUNNING_TASK_DIFFERENT_INSTANCE, 
-						ImmutableMap.of("taskId", task.getId(), "taskInstanceId", task.getInstanceId(), "currentInstanceId", configurationService.getInstanceId()));
-			}
-		}		
+		// persist LRT
+		persistTask(taskExecutor);
 		// execute
 		FutureTask<V> futureTask = new FutureTask<>(taskExecutor);
 		executor.execute(futureTask);
 		return new LongRunningFutureTask<>(taskExecutor, futureTask);
+	}
+	
+	@Override
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	public <V> V executeSync(LongRunningTaskExecutor<V> taskExecutor) {
+		// autowire task properties
+		AutowireHelper.autowire(taskExecutor);
+		// persist LRT
+		IdmLongRunningTaskDto task = persistTask(taskExecutor);
+		// execute
+		try {
+			return taskExecutor.call();
+		} catch (Exception ex) {
+			throw new ResultCodeException(CoreResultCode.LONG_RUNNING_TASK_FAILED, 
+					ImmutableMap.of(
+							"taskId", task.getId(), 
+							"taskType", task.getTaskType(),
+							"instanceId", task.getInstanceId()), ex);
+		}
 	}
 
 	@Override
@@ -239,5 +242,34 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 		}
 		LOG.warn("Long ruuning task with id");
 		return false;
+	}
+	
+	/**
+	 * Persists task state do long running task
+	 * 
+	 * @param taskExecutor
+	 * @return
+	 */
+	private IdmLongRunningTaskDto persistTask(LongRunningTaskExecutor<?> taskExecutor) {
+		// prepare task
+		IdmLongRunningTaskDto task;
+		if (taskExecutor.getLongRunningTaskId() == null) {
+			task = service.saveInNewTransaction(taskExecutor, OperationState.RUNNING);
+			taskExecutor.setLongRunningTaskId(task.getId());
+		} else {
+			task = service.get(taskExecutor.getLongRunningTaskId());
+			Assert.notNull(task);
+			if (task.isRunning()) {
+				throw new ResultCodeException(CoreResultCode.LONG_RUNNING_TASK_IS_RUNNING, ImmutableMap.of("taskId", task.getId()));
+			}
+			if (!OperationState.isRunnable(task.getResultState())) {
+				throw new ResultCodeException(CoreResultCode.LONG_RUNNING_TASK_IS_PROCESSED, ImmutableMap.of("taskId", task.getId()));
+			}
+			if (!task.getInstanceId().equals(configurationService.getInstanceId())) {
+				throw new ResultCodeException(CoreResultCode.LONG_RUNNING_TASK_DIFFERENT_INSTANCE, 
+						ImmutableMap.of("taskId", task.getId(), "taskInstanceId", task.getInstanceId(), "currentInstanceId", configurationService.getInstanceId()));
+			}
+		}
+		return task;
 	}
 }

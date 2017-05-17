@@ -39,7 +39,6 @@ public class HrEnableContractProcess extends AbstractWorkflowStatefulExecutor<Id
 		IdentityContractFilter filter = new IdentityContractFilter();
 		filter.setValid(Boolean.TRUE);
 		filter.setDisabled(Boolean.FALSE);
-		filter.setMain(Boolean.FALSE);
 		return identityContractService.find(filter, pageable);
 	}
 

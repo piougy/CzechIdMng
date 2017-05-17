@@ -185,16 +185,10 @@ class SelectBox extends AbstractFormComponent {
     const { manager } = this.props;
     //
     if (value) {
-      // start loading
-      this.setState({
-        isLoading: true
-      });
       // value is array ... multiselect
       if (value instanceof Array && this.props.multiSelect === true) {
         if (_.isEmpty(value)) {
-          this.setState({
-            isLoading: false
-          });
+          // nothing
         } else {
           let isError = false;
           const renderedValues = [];
@@ -206,39 +200,40 @@ class SelectBox extends AbstractFormComponent {
             } else if (manager && ((typeof item === 'string') || (typeof item === 'number'))) {
               // value is string, we try load entity by id
               if (!manager.isShowLoading(this.context.store.getState(), null, item)) {
-                /* eslint-disable no-loop-func */
-                this.context.store.dispatch(manager.autocompleteEntityIfNeeded(item, null, (json, error) => {
-                  if (!error) {
-                    this.itemRenderer(json, '');
-                    // add item to array
-                    renderedValues.push(json);
-                    if (renderedValues.length === value.length) { // posledni callback
-                      if (!isError) {
-                        this.setState({
-                          value: renderedValues,
-                          isLoading: false
-                        }, this.validate);
-                      } else {
-                        this.setState({
-                          value: null,
-                          isLoading: false
-                        });
+                this.setState({
+                  isLoading: true
+                  /* eslint-disable no-loop-func */
+                }, () => {
+                  this.context.store.dispatch(manager.autocompleteEntityIfNeeded(item, null, (json, error) => {
+                    if (!error) {
+                      this.itemRenderer(json, '');
+                      // add item to array
+                      renderedValues.push(json);
+                      if (renderedValues.length === value.length) { // posledni callback
+                        if (!isError) {
+                          this.setState({
+                            value: renderedValues,
+                            isLoading: false
+                          }, this.validate);
+                        } else {
+                          this.setState({
+                            value: null,
+                            isLoading: false
+                          });
+                        }
                       }
+                    } else {
+                      isError = true;
+                      renderedValues.push(item);
+                      this.setState({
+                        error
+                      });
                     }
-                  } else {
-                    isError = true;
-                    renderedValues.push(item);
-                    this.setState({
-                      error
-                    });
-                  }
-                }));
+                  }));
+                });
               }
             }
           }
-          this.setState({
-            isLoading: false
-          });
         }
       } else if (value instanceof Object && !value.itemFullKey) {
         // value is object but doesn't have itemFullKey attribute
@@ -247,21 +242,23 @@ class SelectBox extends AbstractFormComponent {
       } else if (typeof value === 'string' || typeof value === 'number') {
         // value is string, we try load entity by id
         if (manager && !manager.isShowLoading(this.context.store.getState(), null, value)) {
-          this.context.store.dispatch(manager.autocompleteEntityIfNeeded(value, null, (json, error) => {
-            if (!error) {
-              this.itemRenderer(json, '');
-              this.setState({ value: json, isLoading: false }, this.validate);
-            } else {
-              this.setState({
-                value: null,
-                isLoading: false,
-                error
-              });
-            }
-          }));
+          this.setState({
+            isLoading: false
+          }, () => {
+            this.context.store.dispatch(manager.autocompleteEntityIfNeeded(value, null, (json, error) => {
+              if (!error) {
+                this.itemRenderer(json, '');
+                this.setState({ value: json, isLoading: false }, this.validate);
+              } else {
+                this.setState({
+                  value: null,
+                  isLoading: false,
+                  error
+                });
+              }
+            }));
+          });
         }
-      } else {
-        this.setState({isLoading: false});
       }
     }
     return value;

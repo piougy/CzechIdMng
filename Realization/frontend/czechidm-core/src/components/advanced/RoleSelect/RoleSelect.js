@@ -60,6 +60,17 @@ class RoleSelect extends Basic.AbstractFormComponent {
     return selectedRows;
   }
 
+  setValue(value) {
+    if (value) {
+      const selectedRows = [];
+      selectedRows.push(value.id);
+      this.setState({
+        selectedRows
+      });
+      this.refs.role.setValue(value);
+    }
+  }
+
   /**
   * Method clean filter from role table
   */
@@ -139,7 +150,7 @@ class RoleSelect extends Basic.AbstractFormComponent {
   */
   _roleCatalogueDecorator(props) {
     const style = props.style;
-    const icon = props.node.isLeaf ? 'circle' : 'list-alt';
+    const icon = props.node.isLeaf ? 'file-text' : 'folder';
     return (
       <div style={style.base}>
         <div style={style.title}>
@@ -412,6 +423,7 @@ class RoleSelect extends Basic.AbstractFormComponent {
                 level="primary"
                 title={this.i18n('content.roles.select.showRoleCatalogue')}
                 titlePlacement="bottom"
+                disabled={readOnly}
                 hidden={showRoleCatalogue}
                 onClick={this._showOrHideRoleCatalogueTable.bind(this)}>
                 {' '}

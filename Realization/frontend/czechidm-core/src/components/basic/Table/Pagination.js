@@ -222,7 +222,7 @@ class Pagination extends AbstractContextComponent {
   }
 
   renderRecords() {
-    const { total, paginationHandler, sizeOptions } = this.props;
+    const { total, paginationHandler, sizeOptions, showPageSize } = this.props;
     const { currentPage, currentSize } = this.state;
     //
     let minRecord = 0;
@@ -251,7 +251,7 @@ class Pagination extends AbstractContextComponent {
           { this.i18n('component.basic.Table.Pagination.recordInfo', { minRecord, maxRecord, totalRecords, escape: false }) }
         </div>
         {
-          totalRecords && paginationHandler && sizeOptions[0] < totalRecords
+          totalRecords && paginationHandler && sizeOptions[0] < totalRecords && showPageSize
           ?
           <div>
             {this.i18n('component.basic.Table.Pagination.size')}
@@ -323,6 +323,7 @@ Pagination.propTypes = {
    * Available Page sizes
    */
   sizeOptions: PropTypes.array,
+  showPageSize: PropTypes.bool
 };
 
 Pagination.defaultProps = {
@@ -330,7 +331,8 @@ Pagination.defaultProps = {
   page: 0,
   size: 10,
   paginationHandler: null,
-  sizeOptions: [10, 25, 50, 100]
+  sizeOptions: [10, 25, 50, 100],
+  showPageSize: true
 };
 
 export default Pagination;

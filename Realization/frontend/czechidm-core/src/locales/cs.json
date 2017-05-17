@@ -813,6 +813,9 @@
           "edit": {
             "header": "Upravit oprávnění"
           },
+          "selectRoleCatalogue": {
+            "header": "Výběr rolí ze složek katalogu"
+          },
           "action": {
             "deleteAdded": {
               "header": "Odstranění oprávnění",
@@ -1095,6 +1098,10 @@
       },
       "save": {
         "success": "Role [{{name}}] byla úspěšně uložena"
+      },
+      "select": {
+        "chooseFolder": "Vyberte složku",
+        "showRoleCatalogue": "Výběr z katalogu"
       },
       "processRoleChange": {
         "roleName": "Název role",

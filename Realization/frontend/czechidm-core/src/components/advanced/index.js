@@ -22,6 +22,7 @@ import RoleInfo from './RoleInfo/RoleInfo';
 import IdentityContractInfo from './IdentityContractInfo/IdentityContractInfo';
 import NotificationTemplateInfo from './NotificationTemplateInfo/NotificationTemplateInfo';
 import ScriptArea from './ScriptArea/ScriptArea';
+import RoleSelect from './RoleSelect/RoleSelect';
 
 const Components = {
   Table,
@@ -49,7 +50,8 @@ const Components = {
   RoleInfo,
   IdentityContractInfo,
   NotificationTemplateInfo,
-  ScriptArea
+  ScriptArea,
+  RoleSelect
 };
 
 Components.version = '0.0.1';

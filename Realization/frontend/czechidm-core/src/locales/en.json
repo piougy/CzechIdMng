@@ -783,6 +783,9 @@
           "edit": {
             "header": "Edit roles"
           },
+          "selectRoleCatalogue": {
+            "header": "Selection roles from folders of catalog"
+          },
           "action": {
             "deleteAdded": {
               "header": "Delete added roles",
@@ -1064,6 +1067,10 @@
       "roleCataloguePick": "Select folder",
       "create": {
         "header": "New role"
+      },
+      "select": {
+        "chooseFolder": "Choose folder",
+        "showRoleCatalogue": "Select from catalogue"
       },
       "save": {
         "success": "The role [{{name}}] was successfully saved."

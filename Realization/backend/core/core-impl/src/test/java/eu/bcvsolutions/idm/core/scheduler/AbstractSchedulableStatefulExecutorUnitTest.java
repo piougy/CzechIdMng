@@ -221,7 +221,6 @@ public class AbstractSchedulableStatefulExecutorUnitTest extends AbstractVerifia
 		verify(itemService, times(2)).deleteInternal(any(IdmProcessedTaskItemDto.class));
 		verify(itemService, times(3)).createLogItem(any(AbstractDto.class), any(OperationResult.class), any(IdmLongRunningTaskDto.class));
 		verify(itemService, times(3)).createQueueItem(any(AbstractDto.class), any(OperationResult.class), any(IdmScheduledTaskDto.class));
-//		verify(itemService, times(6)).saveInternal(any(IdmProcessedTaskItemDto.class));
 		// 2x from removeFromProcessedQueue, other invocations are stubbed
 		verify(itemService, times(2)).find(any(IdmProcessedTaskItemFilter.class), any(Pageable.class));
 	}

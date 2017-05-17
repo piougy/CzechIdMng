@@ -37,7 +37,6 @@ public class HrEndContractProcess extends AbstractWorkflowStatefulExecutor<IdmId
 	public Page<IdmIdentityContractDto> getItemsToProcess(Pageable pageable) {
 		IdentityContractFilter filter = new IdentityContractFilter();
 		filter.setValid(Boolean.FALSE);
-		filter.setMain(Boolean.FALSE);
 		return identityContractService.find(filter, pageable);
 	}
 

@@ -3,6 +3,8 @@ package eu.bcvsolutions.idm.core.utils;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.UUID;
+
 import org.joda.time.LocalDate;
 import org.junit.Test;
 
@@ -58,5 +60,19 @@ public class EntityUtilsUnitTest extends AbstractUnitTest {
 		role.setValidTill(new LocalDate().plusDays(2));
 		//
 		assertTrue(EntityUtils.isValidNowOrInFuture(role));
+	}
+	
+	@Test
+	public void testIsUUID() {
+		String strUUID = UUID.randomUUID().toString();
+		//
+		assertTrue(EntityUtils.isUuid(strUUID));
+	}
+	
+	@Test
+	public void testIsNotUUID() {
+		String strUUID = "thisIsNotDefinitivelyUUID";
+		//
+		assertFalse(EntityUtils.isUuid(strUUID));
 	}
 }

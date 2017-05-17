@@ -246,7 +246,7 @@ class SelectBox extends AbstractFormComponent {
         this.setState({isLoading: false});
       } else if (typeof value === 'string' || typeof value === 'number') {
         // value is string, we try load entity by id
-        if (!manager.isShowLoading(this.context.store.getState(), null, value)) {
+        if (manager && !manager.isShowLoading(this.context.store.getState(), null, value)) {
           this.context.store.dispatch(manager.autocompleteEntityIfNeeded(value, null, (json, error) => {
             if (!error) {
               this.itemRenderer(json, '');

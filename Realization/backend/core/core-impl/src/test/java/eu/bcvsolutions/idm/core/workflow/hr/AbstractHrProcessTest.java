@@ -52,6 +52,9 @@ public abstract class AbstractHrProcessTest<E extends AbstractDto> extends Abstr
 		identity.setEmail("test.user@example.tl");
 		identity.setDisabled(disabled);
 		identity = this.identityService.save(identity);
+		// make sure default contract is not created
+		identityContractService.findAllByIdentity(identity.getId())
+			.forEach(c -> identityContractService.deleteInternal(c));
 		return identity;
 	}
 

@@ -35,8 +35,8 @@ if (longRunningTaskId == null || scheduledTaskId == null || dto == null) {
 
 def result = null
 try {
-	// not default and valid contract
-	if (!dto.isMain() &amp;&amp; dto.isValid() &amp;&amp; !dto.isDisabled()) {
+	// only valid contracts and enabled contracts
+	if (dto.isValid() &amp;&amp; !dto.isDisabled()) {
 		def identity = identityService.get(dto.getIdentity())
 		if (identity.isDisabled()) {
 			identity.setDisabled(false)

@@ -38,7 +38,6 @@ public class HrContractExclusionProcess extends AbstractWorkflowStatefulExecutor
 		IdentityContractFilter filter = new IdentityContractFilter();
 		filter.setValid(Boolean.TRUE);
 		filter.setDisabled(Boolean.TRUE);
-		filter.setMain(Boolean.FALSE);
 		return identityContractService.find(filter, pageable);
 	}
 

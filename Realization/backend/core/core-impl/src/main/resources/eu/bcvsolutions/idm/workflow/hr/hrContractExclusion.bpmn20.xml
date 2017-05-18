@@ -38,7 +38,7 @@ try {
 	def contracts = identityContractService.findAllByIdentity(dto.getIdentity())
 	def hasValidContracts = false
 	for (c in contracts) {
-		if (!c.isDisabled() &amp;&amp; !c.isMain() &amp;&amp; c.isValid()) {
+		if (!c.isDisabled() &amp;&amp; c.isValid()) {
 			hasValidContracts = true
 			break
 		}

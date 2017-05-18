@@ -67,7 +67,6 @@ public class EavCodeSubordinatesFilter
 		if (filter.getSubordinatesFor() == null) {
 			return null;
 		}
-		// tree node bude mit vazbu na "parenta" dle extended attributu
 		//
 		// identity has to have identity contract
 		Subquery<IdmIdentityContract> subquery = query.subquery(IdmIdentityContract.class);

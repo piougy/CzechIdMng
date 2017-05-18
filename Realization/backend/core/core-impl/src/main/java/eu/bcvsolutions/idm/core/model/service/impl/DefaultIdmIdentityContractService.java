@@ -24,6 +24,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.IdentityContractFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
@@ -55,6 +56,7 @@ public class DefaultIdmIdentityContractService
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmIdentityContractService.class);
 	private final IdmIdentityContractRepository repository;
+	private final FormService formService;
 	private final EntityEventManager entityEventManager;
 	private final IdmTreeTypeRepository treeTypeRepository;
 	private final IdmTreeNodeRepository treeNodeRepository;
@@ -62,16 +64,19 @@ public class DefaultIdmIdentityContractService
 	@Autowired
 	public DefaultIdmIdentityContractService(
 			IdmIdentityContractRepository repository,
+			FormService formService,
 			EntityEventManager entityEventManager,
 			IdmTreeTypeRepository treeTypeRepository,
 			IdmTreeNodeRepository treeNodeRepository) {
 		super(repository);
 		//
+		Assert.notNull(formService);
 		Assert.notNull(entityEventManager);
 		Assert.notNull(treeTypeRepository);
 		Assert.notNull(treeNodeRepository);
 		//
 		this.repository = repository;
+		this.formService = formService;
 		this.entityEventManager = entityEventManager;
 		this.treeTypeRepository = treeTypeRepository;
 		this.treeNodeRepository = treeNodeRepository;
@@ -118,6 +123,14 @@ public class DefaultIdmIdentityContractService
 		//
 		LOG.debug("Deleting contract [{}] for identity [{}]", entity.getId(), entity.getIdentity());
 		entityEventManager.process(new IdentityContractEvent(IdentityContractEventType.DELETE, entity));
+	}
+	
+	@Override
+	public void deleteInternal(IdmIdentityContractDto dto) {
+		// TODO: eav dto
+		formService.deleteValues(getRepository().findOne(dto.getId()));
+		//
+		super.deleteInternal(dto);
 	}
 	
 	@Override
@@ -202,6 +215,7 @@ public class DefaultIdmIdentityContractService
 	@Transactional(readOnly = true)
 	public List<IdmIdentityContractDto> findAllByWorkPosition(UUID workPositionId, RecursionType recursion) {
 		Assert.notNull(workPositionId);
+		// TODO: useuuid only - rewrite to subquery
 		IdmTreeNode workPosition = treeNodeRepository.findOne(workPositionId);
 		Assert.notNull(workPosition);
 		//

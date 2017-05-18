@@ -20,6 +20,11 @@ import eu.bcvsolutions.idm.core.security.api.dto.IdmJwtAuthenticationDto;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.security.api.utils.IdmAuthorityUtils;
 
+/**
+ * 
+ * 
+ * @author Jan Helbich
+ */
 public class AuthenticationTestUtils {
 
 	public static IdmJwtAuthenticationDto getAuthDto(IdmIdentityDto user, Collection<GrantedAuthority> authorities) {

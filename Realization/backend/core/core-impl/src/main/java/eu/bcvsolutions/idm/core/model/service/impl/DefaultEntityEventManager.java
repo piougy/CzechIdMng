@@ -89,7 +89,7 @@ public class DefaultEntityEventManager implements EntityEventManager {
 			dto.setOrder(processor.getOrder());
 			// resolve documentation
 			dto.setDescription(AutowireHelper.getBeanDescription(dto.getId()));
-			dto.setConfigurationProperties(processor.getConfigurationProperties());
+			dto.setConfigurationProperties(processor.getConfigurationMap());
 			dtos.add(dto);
 		};
 		LOG.debug("Returning [{}] registered entity event processors", dtos.size());

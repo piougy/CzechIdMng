@@ -90,9 +90,9 @@ public class IdmNotificationLogController extends AbstractReadWriteDtoController
 	@RequestMapping(method = RequestMethod.POST)
 	public IdmNotificationLogDto postDto(@RequestBody @NotNull IdmNotificationLogDto dto) {
 		LOG.debug("Notification log [{}] was created and notification will be send.", dto);
-		notificationManager.send(dto);
+		 final IdmNotificationLogDto result = notificationManager.send(dto);
 		// TODO: send method should result notification or ex to prevent another loading
-		return getDto(dto.getId());
+		return getDto(result.getId());
 	}
 
 	@ResponseBody

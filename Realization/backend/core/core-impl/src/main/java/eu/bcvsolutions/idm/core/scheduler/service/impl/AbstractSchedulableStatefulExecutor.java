@@ -135,8 +135,7 @@ public abstract class AbstractSchedulableStatefulExecutor<DTO extends AbstractDt
 				//
 				retrievedRefs.add(candidate.getId());
 				processCandidate(candidate);
-				++counter;
-				canContinue &= updateState();
+				canContinue &= this.updateState();
 			}
 			canContinue &= candidates.hasNext();			
 			++page;
@@ -150,9 +149,12 @@ public abstract class AbstractSchedulableStatefulExecutor<DTO extends AbstractDt
 
 	private void processCandidate(DTO candidate) {
 		if (isInProcessedQueue(candidate)) {
+			// item was processed earlier - just drop the count by one
+			--count;
 			return;
 		}
 		Optional<OperationResult> result = this.processItem(candidate);
+		++counter;
 		if (result.isPresent()) {
 			OperationResult opResult = result.get();
 			this.logItemProcessed(candidate, opResult);

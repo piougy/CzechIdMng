@@ -93,9 +93,7 @@ import eu.bcvsolutions.idm.core.security.service.impl.DefaultSecurityService;
 import eu.bcvsolutions.idm.core.security.service.impl.IdmAuthorityHierarchy;
 
 /**
- * Overridable core services initialization (configuration with higher order wins).
- * 
- * TODO: move all @Service annotated beans here
+ * Overridable core services initialization (configuration with lower order wins).
  * 
  * @author Radek Tomiška
  *
@@ -351,8 +349,7 @@ public class IdmServiceConfiguration {
 		return new DefaultIdmIdentityService(
 				identityRepository, formService(),
 				roleRepository, entityEventManager(),
-				authChangeRepository, configurationService(),
-				securityService());
+				authChangeRepository);
 	}
 	
 	/**
@@ -388,7 +385,7 @@ public class IdmServiceConfiguration {
 	@Bean
 	@ConditionalOnMissingBean(IdmIdentityContractService.class)
 	public IdmIdentityContractService identityContractService() {
-		return new DefaultIdmIdentityContractService(identityContractRepository, entityEventManager(), treeTypeRepository, treeNodeRepository);
+		return new DefaultIdmIdentityContractService(identityContractRepository, formService(), entityEventManager(), treeTypeRepository, treeNodeRepository);
 	}
 	
 	/**

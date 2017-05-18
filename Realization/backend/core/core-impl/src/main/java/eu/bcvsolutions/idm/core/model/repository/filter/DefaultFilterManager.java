@@ -57,7 +57,7 @@ public class DefaultFilterManager implements FilterManager {
 		if (builder == null) {
 			return null;
 		}
-		String implName = builder.getConfigurationProperty(ConfigurationService.PROPERTY_IMPLEMENTATION);
+		String implName = builder.getConfigurationValue(ConfigurationService.PROPERTY_IMPLEMENTATION);
 		if (!StringUtils.hasLength(implName)) {
 			// return default builder - configuration is empty
 			return (FilterBuilder<E, DataFilter>) builder;

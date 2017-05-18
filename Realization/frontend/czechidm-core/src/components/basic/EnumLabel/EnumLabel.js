@@ -39,7 +39,7 @@ class EnumLabel extends AbstractFormComponent {
 
 EnumLabel.propTypes = {
   ...AbstractFormComponent.propTypes,
-  enum: PropTypes.object.isRequired
+  enum: PropTypes.func.isRequired
 };
 
 EnumLabel.defaultProps = {

@@ -80,8 +80,8 @@ class NotificationDetail extends Basic.AbstractContent {
     const sender = entity.sender;
 
     const saveEntity = {
-      ...entity,
-      sender,
+      topic: entity.topic,
+      identitySender: sender,
       recipients: recipientsData,
       message: {
         subject: entity.subject,

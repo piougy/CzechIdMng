@@ -204,8 +204,8 @@ public class DefaultConfigurationService
 	@Override
 	@Transactional(readOnly = true)
 	public boolean getBooleanValue(String key, boolean defaultValue) {
-		String value = getValue(key);
-		return value == null ? defaultValue : Boolean.parseBoolean(value);
+		Boolean value = getBooleanValue(key);
+		return value == null ? defaultValue : value;
 	}
 	
 	@Override

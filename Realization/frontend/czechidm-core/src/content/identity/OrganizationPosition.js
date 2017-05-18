@@ -1,6 +1,7 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
+import _ from 'lodash';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
@@ -47,7 +48,7 @@ class OrganizationPosition extends Basic.AbstractContextComponent {
       );
     }
     const items = [];
-    if (!_workPosition) {
+    if (!_workPosition || _.isEmpty(_workPosition)) {
       //
     } else if (!_workPosition.path) {
       items.push(

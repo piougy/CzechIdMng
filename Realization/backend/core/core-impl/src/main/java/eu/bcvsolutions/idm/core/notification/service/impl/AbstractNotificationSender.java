@@ -10,6 +10,8 @@ import org.springframework.util.Assert;
 
 import com.google.common.collect.Lists;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.model.entity.IdmConfiguration;
+import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationDto;
@@ -33,8 +35,7 @@ import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 public abstract class AbstractNotificationSender<N extends IdmNotificationDto> implements NotificationSender<N> {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(AbstractNotificationSender.class);
-	private final Class<N> notificationClass;
-	
+
 	@Autowired(required = false)
 	private SecurityService securityService;
 	
@@ -47,7 +48,6 @@ public abstract class AbstractNotificationSender<N extends IdmNotificationDto> i
 	
 	@SuppressWarnings("unchecked")
 	public AbstractNotificationSender() {
-		notificationClass = (Class<N>) GenericTypeResolver.resolveTypeArgument(getClass(), NotificationSender.class);
 	}
 	
 	/**
@@ -100,7 +100,7 @@ public abstract class AbstractNotificationSender<N extends IdmNotificationDto> i
 	public N send(String topic, IdmMessageDto message, List<IdmIdentityDto> recipients) {
 		Assert.notNull(message, "Message is required");
 		//
-		IdmNotificationLogDto notification = new IdmNotificationLogDto();
+		final IdmNotificationLogDto notification = new IdmNotificationLogDto();
 		notification.setTopic(topic);
 		//
 		notification.setMessage(message);
@@ -114,10 +114,10 @@ public abstract class AbstractNotificationSender<N extends IdmNotificationDto> i
 			message.setTemplate(notificationTemplateService.resolveTemplate(notification.getTopic(), message.getLevel()));
 		}
 		notification.setMessage(this.notificationTemplateService.buildMessage(message, false));
-		message = notification.getMessage(); // set build message back to message
+		final IdmMessageDto notificationMessage = notification.getMessage(); // set build message back to message
 		//
 		// check if exist text for message, TODO: send only with subject?
-		if (message.getHtmlMessage() == null && message.getSubject() == null && message.getTextMessage() == null && message.getModel() == null) {
+		if (notificationMessage.getHtmlMessage() == null && notificationMessage.getSubject() == null && notificationMessage.getTextMessage() == null && notificationMessage.getModel() == null) {
 			LOG.error("Notification has empty template and message. Message will not be send! [topic:{}]", topic);
 			return null;
 		}
@@ -168,17 +168,16 @@ public abstract class AbstractNotificationSender<N extends IdmNotificationDto> i
 	}
 
 	/**
-	 * Clone recipients
-	 * 
-	 * @param notification
-	 *            - recipients new parent
-	 * @param recipient
-	 *            - source recipient
-	 * @return
+	 * clone recipients with resolved real email address
+	 *
+	 * @param notification - recipients new parent
+	 * @param recipient - source recipient
+	 * @return Clone of recipient without specified identifier
 	 */
 	protected IdmNotificationRecipientDto cloneRecipient(IdmNotificationDto notification,
-			IdmNotificationRecipientDto recipient) {
+			IdmNotificationRecipientDto recipient, String realRecipient) {
 		return new IdmNotificationRecipientDto(notification.getId(), recipient.getIdentityRecipient(),
-				recipient.getRealRecipient());
+			realRecipient);
 	}
+
 }

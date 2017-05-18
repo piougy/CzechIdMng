@@ -1,11 +1,9 @@
 package eu.bcvsolutions.idm.core.config.domain;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.core.api.config.domain.AbstractConfiguration;
 import eu.bcvsolutions.idm.core.api.config.domain.EmailerConfiguration;
-import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 
 /**
@@ -14,55 +12,41 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
  * @author Radek Tomiška
  *
  */
-@Component
-public class DefaultEmailerConfiguration implements EmailerConfiguration {
-
-	protected static final String DEFAULT_PROTOCOL = "smtp";
-	protected static final String DEFAULT_HOST = "localhost";
-	protected static final String DEFAULT_PORT = "25";
-	protected static final boolean DEFAULT_TEST_ENABLED = true;
-	
-	private final ConfigurationService configurationService;
-	
-	@Autowired
-	public DefaultEmailerConfiguration(ConfigurationService configurationService) {
-		Assert.notNull(configurationService, "Configuration is required for loading default email configuration");
-		//
-		this.configurationService = configurationService;
-	}
+@Component("emailerConfiguration")
+public class DefaultEmailerConfiguration extends AbstractConfiguration implements EmailerConfiguration {
 	
 	@Override
 	public String getProtocol() {
-		return configurationService.getValue(PROPERTY_PROTOCOL, DEFAULT_PROTOCOL);
+		return getConfigurationService().getValue(PROPERTY_PROTOCOL, DEFAULT_PROTOCOL);
 	}
 
 	@Override
 	public String getHost() {
-		return configurationService.getValue(PROPERTY_HOST, DEFAULT_HOST);
+		return getConfigurationService().getValue(PROPERTY_HOST, DEFAULT_HOST);
 	}
 	
 	@Override
 	public String getPort() {
-		return configurationService.getValue(PROPERTY_PORT, DEFAULT_PORT);
+		return getConfigurationService().getValue(PROPERTY_PORT, DEFAULT_PORT);
 	}
 	
 	@Override
 	public String getFrom() {
-		return configurationService.getValue(PROPERTY_FROM);
+		return getConfigurationService().getValue(PROPERTY_FROM);
 	}
 	
 	@Override
 	public String getUsername() {
-		return configurationService.getValue(PROPERTY_USERNAME);
+		return getConfigurationService().getValue(PROPERTY_USERNAME);
 	}
 	
 	@Override
 	public GuardedString getPassword() {
-		return configurationService.getGuardedValue(PROPERTY_PASSWORD);
+		return getConfigurationService().getGuardedValue(PROPERTY_PASSWORD);
 	}
 	
 	@Override
 	public boolean isTestEnabled() {
-		return configurationService.getBooleanValue(PROPERTY_TEST_ENABLED, true);
+		return getConfigurationService().getBooleanValue(PROPERTY_TEST_ENABLED, true);
 	}
 }

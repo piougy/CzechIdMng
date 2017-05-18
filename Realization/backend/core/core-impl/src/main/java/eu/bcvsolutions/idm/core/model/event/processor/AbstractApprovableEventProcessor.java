@@ -44,7 +44,7 @@ public abstract class AbstractApprovableEventProcessor<E extends Serializable> e
 	}
 	
 	public String getWorkflowDefinitionKey() {
-		return getConfigurationProperty(PROPERTY_WF);
+		return getConfigurationValue(PROPERTY_WF);
 	}
 	
 	@Override

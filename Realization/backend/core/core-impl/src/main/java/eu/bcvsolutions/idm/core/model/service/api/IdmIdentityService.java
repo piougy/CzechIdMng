@@ -28,9 +28,6 @@ public interface IdmIdentityService extends
 		CodeableService<IdmIdentityDto>,
 		ScriptEnabled {
 	
-	@Deprecated
-	static final String CONFIDENTIAL_PROPERTY_PASSWORD = "password";
-	
 	/**
 	 * Will be removed after eav and synchronization refactoring
 	 * 

@@ -1,6 +1,7 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
+import classnames from 'classnames';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
@@ -203,7 +204,7 @@ class RoleTable extends Advanced.AbstractTableContent {
                       <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
                     </Basic.Col>
                   </Basic.Row>
-                  <Basic.Row className="last" rendered={showTree}>
+                  <Basic.Row className={ classnames('last', { 'hidden': !showTree })}>
                     <div className="col-lg-4">
                       <Advanced.Filter.SelectBox
                         ref="roleCatalogue"

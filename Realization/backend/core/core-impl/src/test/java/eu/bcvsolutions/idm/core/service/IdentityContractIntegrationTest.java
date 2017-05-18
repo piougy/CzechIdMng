@@ -21,11 +21,13 @@ import org.springframework.dao.EmptyResultDataAccessException;
 
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.TestHelper;
+import eu.bcvsolutions.idm.core.api.config.domain.IdentityConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.RecursionType;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
+import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.model.dto.IdmContractGuaranteeDto;
 import eu.bcvsolutions.idm.core.model.dto.filter.ContractGuaranteeFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
@@ -49,7 +51,8 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * @author Radek Tomiška
  *
  */
-public class IdentityContractIntegrationTest extends AbstractIntegrationTest {	
+public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
+	
 	@Autowired 
 	protected TestHelper helper;
 	@Autowired
@@ -62,6 +65,8 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 	private LongRunningTaskManager taskManager;
 	@Autowired
 	private IdmContractGuaranteeService contractGuaranteeService;
+	@Autowired
+	private ConfigurationService configurationService;
 	//
 	private IdmTreeType treeType = null;
 	private IdmTreeNode nodeA = null;
@@ -524,5 +529,17 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 		//
 		guarantees = contractGuaranteeService.find(filter, null).getContent();
 		assertEquals(0, guarantees.size());
+	}
+	
+	@Test
+	public void testDontCreateContractByConfiguration() {
+		configurationService.setBooleanValue(IdentityConfiguration.PROPERTY_IDENTITY_CREATE_DEFAULT_CONTRACT, false);
+		//
+		try {
+			IdmIdentityDto identity = helper.createIdentity();
+			assertNull(identityContractService.getPrimeContract(identity.getId()));
+		} finally {
+			configurationService.setBooleanValue(IdentityConfiguration.PROPERTY_IDENTITY_CREATE_DEFAULT_CONTRACT, true);
+		}		
 	}
 }

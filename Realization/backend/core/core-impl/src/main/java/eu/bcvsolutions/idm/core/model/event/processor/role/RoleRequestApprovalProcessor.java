@@ -51,7 +51,7 @@ public class RoleRequestApprovalProcessor extends CoreEventProcessor<IdmRoleRequ
 		IdmRoleRequestDto dto = event.getContent();
 		boolean checkRight = (boolean) event.getProperties().get(CHECK_RIGHT_PROPERTY);
 		//
-		String wfDefinition = getConfigurationProperty(PROPERTY_WF);
+		String wfDefinition = getConfigurationValue(PROPERTY_WF);
 		if(Strings.isNullOrEmpty(wfDefinition)){
 			wfDefinition = DEFAULT_WF_PROCESS_NAME;
 		}

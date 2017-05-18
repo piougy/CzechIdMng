@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
@@ -63,6 +64,16 @@ public interface Configurable {
 	}
 	
 	/**
+	 * Returns true, when all configuration properties are secured. False = public.
+	 * 
+	 * @see #getConfigurationPrefix() 
+	 * @return
+	 */
+	default boolean isSecured() {
+		return true;
+	}
+	
+	/**
 	 * Returns true, when configurable object is disabled
 	 * 
 	 * @return
@@ -90,7 +101,7 @@ public interface Configurable {
 	 * @return
 	 */
 	default String getConfigurationPrefix() {
-		return ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX
+		return (isSecured() ? ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX : ConfigurationService.IDM_PUBLIC_PROPERTY_PREFIX)
 				+ getModule()
 				+ ConfigurationService.PROPERTY_SEPARATOR
 				+ getConfigurableType()
@@ -119,13 +130,13 @@ public interface Configurable {
 	 * 
 	 * @return
 	 */
-	default ConfigurationMap getConfigurationProperties() {
+	default ConfigurationMap getConfigurationMap() {
 		ConfigurationMap configs = new ConfigurationMap();
 		if (getConfigurationService() == null) {
 			return configs;
 		}
 		for (String propertyName : getPropertyNames()) {
-			configs.put(propertyName, getConfigurationProperty(propertyName));
+			configs.put(propertyName, getConfigurationValue(propertyName));
 		}
 		return configs;
 	}
@@ -137,9 +148,23 @@ public interface Configurable {
 	 * @return
 	 */
 	default String getConfigurationPropertyName(String propertyName) {
+		Assert.hasLength(propertyName);
+		//
 		return getConfigurationPrefix()
 				+ ConfigurationService.PROPERTY_SEPARATOR
 				+ propertyName;
+	}
+	
+	/**
+	 * Returns property name without configuration prefix
+	 * 
+	 * @param configurationPropertyName
+	 * @return
+	 */
+	default String getPropertyName(String configurationPropertyName) {
+		Assert.hasLength(configurationPropertyName);
+		//
+		return configurationPropertyName.replaceFirst(getConfigurationPrefix(), "");
 	}
 	
 	/**
@@ -148,8 +173,19 @@ public interface Configurable {
 	 * @param propertyName
 	 * @return
 	 */
-	default String getConfigurationProperty(String propertyName) {
-		return getConfigurationProperty(propertyName, null);
+	default String getConfigurationValue(String propertyName) {
+		return getConfigurationValue(propertyName, null);
+	}
+	
+	/**
+	 * Returns configured boolean value for given propertyName. If no value for given key is configured, then returns {@code null}.
+	 * 
+	 * @param propertyName
+	 * @return
+	 */
+	default Boolean getConfigurationBooleanValue(String propertyName) {
+		String value = getConfigurationValue(propertyName);
+		return value == null ? null : Boolean.valueOf(value);
 	}
 	
 	/**
@@ -159,12 +195,24 @@ public interface Configurable {
 	 * @param defaultValue
 	 * @return
 	 */
-	default String getConfigurationProperty(String propertyName, String defaultValue) {
+	default String getConfigurationValue(String propertyName, String defaultValue) {
 		if (getConfigurationService() == null) {
 			return null;
 		}
 		return getConfigurationService().getValue(
 				getConfigurationPropertyName(propertyName), 
 				defaultValue);
+	}
+	
+	/**
+	 * Returns configured boolean value for given propertyName. If no value for given key is configured, then returns given defaultValue.
+	 * 
+	 * @param propertyName
+	 * @param defaultValue
+	 * @return
+	 */
+	default public boolean getConfigurationBooleanValue(String key, boolean defaultValue) {
+		Boolean value = getConfigurationBooleanValue(key);
+		return value == null ? defaultValue : value;
 	}
 }

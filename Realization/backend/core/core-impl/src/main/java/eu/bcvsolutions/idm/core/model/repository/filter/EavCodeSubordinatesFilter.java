@@ -101,10 +101,10 @@ public class EavCodeSubordinatesFilter
 						builder.equal(subRootEav.get(IdmTreeNodeFormValue_.owner), subRoot.get(IdmIdentityContract_.workPosition)),
 						builder.equal(
 								eavAttr.get(IdmFormAttribute_.formDefinition).get(IdmFormDefinition_.name), 
-								getConfigurationProperty(PROPERTY_FORM_DEFINITION, FormService.DEFAULT_DEFINITION_NAME)),
+								getConfigurationValue(PROPERTY_FORM_DEFINITION, FormService.DEFAULT_DEFINITION_NAME)),
 						builder.equal(
 								eavAttr.get(IdmFormAttribute_.name), 
-								getConfigurationProperty(PROPERTY_FORM_ATTRIBUTE, DEFAULT_FORM_ATTRIBUTE))
+								getConfigurationValue(PROPERTY_FORM_ATTRIBUTE, DEFAULT_FORM_ATTRIBUTE))
 						));
 		//
 		Path<IdmTreeNode> wp = subqueryWpRoot.get(IdmIdentityContract_.workPosition);

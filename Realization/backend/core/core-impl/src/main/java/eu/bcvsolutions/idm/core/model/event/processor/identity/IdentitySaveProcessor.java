@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.core.api.config.domain.IdentityConfiguration;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
@@ -30,21 +31,25 @@ public class IdentitySaveProcessor extends CoreEventProcessor<IdmIdentityDto> {
 	private final IdmIdentityService service;
 	private final IdentityPasswordProcessor passwordProcessor;
 	private final IdmIdentityContractService identityContractService;
+	private final IdentityConfiguration identityConfiguration;
 	
 	@Autowired
 	public IdentitySaveProcessor(
 			IdmIdentityService service,
 			IdentityPasswordProcessor passwordProcessor,
-			IdmIdentityContractService identityContractService) {
+			IdmIdentityContractService identityContractService,
+			IdentityConfiguration identityConfiguration) {
 		super(IdentityEventType.UPDATE, IdentityEventType.CREATE);
 		//
 		Assert.notNull(service);
 		Assert.notNull(passwordProcessor);
 		Assert.notNull(identityContractService);
+		Assert.notNull(identityConfiguration);
 		//
 		this.service = service;
 		this.passwordProcessor = passwordProcessor;
 		this.identityContractService = identityContractService;
+		this.identityConfiguration = identityConfiguration;
 	}
 	
 	@Override
@@ -68,7 +73,8 @@ public class IdentitySaveProcessor extends CoreEventProcessor<IdmIdentityDto> {
 		}
 		//
 		// create default identity contract
-		if (IdentityEventType.CREATE == event.getType()) {
+		if (IdentityEventType.CREATE == event.getType() 
+				&& identityConfiguration.isCreateDefaultContractEnabled()) {
 			identityContractService.save(identityContractService.prepareDefaultContract(identity.getId()));
 		}
 		//

@@ -2,7 +2,6 @@ package eu.bcvsolutions.idm.core.rest;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -19,6 +18,7 @@ import org.springframework.security.core.Authentication;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
@@ -27,51 +27,20 @@ import eu.bcvsolutions.idm.core.model.repository.IdmTreeTypeRepository;
 import eu.bcvsolutions.idm.test.api.AbstractRestTest;
 import eu.bcvsolutions.idm.test.api.utils.AuthenticationTestUtils;
 
+/**
+ * Tree nodes endpoint tests
+ * 
+ * @author Ondřej Kopr
+ *
+ */
 public class TreeNodeAndTypeRestTest extends AbstractRestTest {
 	
-	@Autowired
-	private IdmTreeTypeRepository treeTypeRepository;
-	
-	@Autowired
-	private IdmTreeNodeRepository treeNodeRepository;
-	
-	@Test
-	public void testCreateNode() {
-		IdmTreeNode node = new IdmTreeNode();
-		
-		node.setCode("TEST_NODE");
-		node.setName("TEST_NODE");
-		
-		Exception ex = null;
-		try {
-			treeNodeRepository.save(node);
-		} catch (Exception e) {
-			ex = e;
-		}
-		
-		assertNotNull(ex);
-		
-		IdmTreeType type = new IdmTreeType();
-		type.setCode("TEST_TYPE_A");
-		type.setName("TEST_TYPE_A");
-		treeTypeRepository.save(type);
-		node.setTreeType(type);
-		
-		ex = null;
-		try {
-			treeNodeRepository.save(node);
-		} catch (Exception e) {
-			ex = e;
-		}
-		
-		assertNull(ex);
-	}
-	
+	@Autowired private IdmTreeTypeRepository treeTypeRepository;
+	@Autowired private IdmTreeNodeRepository treeNodeRepository;
+
 	@Test
 	public void testCreateRootNodeTwice() {
-		IdmTreeType type = new IdmTreeType();
-		type.setCode("TEST_TYPE_ROOT");
-		type.setName("TEST_TYPE_ROOT");
+		IdmTreeType type = getIdmTreeType("TEST_TYPE_ROOT", "TEST_TYPE_ROOT");
 		treeTypeRepository.save(type);
 		
 		IdmTreeNode root = new IdmTreeNode();
@@ -116,33 +85,13 @@ public class TreeNodeAndTypeRestTest extends AbstractRestTest {
 	
 	@Test
 	public void addChildrenToParent() {
-		IdmTreeType type = new IdmTreeType();
-		type.setCode("TEST_TYPE");
-		type.setName("TEST_TYPE");
+		IdmTreeType type = getIdmTreeType("TEST_TYPE", "TEST_TYPE");
 		treeTypeRepository.save(type);
 		
-		IdmTreeNode node1 = new IdmTreeNode();
-		node1.setCode("TEST_ROOT");
-		node1.setName("TEST_ROOT");
-		node1.setTreeType(type);
-		
-		IdmTreeNode node2 = new IdmTreeNode();
-		node2.setCode("TEST_NODE_2");
-		node2.setName("TEST_NODE_2");
-		node2.setTreeType(type);
-		node2.setParent(node1);
-		
-		IdmTreeNode node3 = new IdmTreeNode();
-		node3.setCode("TEST_NODE_3");
-		node3.setName("TEST_NODE_3");
-		node3.setTreeType(type);
-		node3.setParent(node2);
-		
-		IdmTreeNode node4 = new IdmTreeNode();
-		node4.setCode("TEST_NODE_4");
-		node4.setName("TEST_NODE_4");
-		node4.setTreeType(type);
-		node4.setParent(node3);
+		IdmTreeNode node1 = getIdmTreeNode(type, null, "TEST_ROOT", "TEST_ROOT");
+		IdmTreeNode node2 = getIdmTreeNode(type, node1, "TEST_NODE_2", "TEST_NODE_2");
+		IdmTreeNode node3 = getIdmTreeNode(type, node2, "TEST_NODE_3", "TEST_NODE_2");
+		IdmTreeNode node4 = getIdmTreeNode(type, node3, "TEST_NODE_4", "TEST_NODE_2");
 		
 		treeNodeRepository.save(node1);
 		treeNodeRepository.save(node2);
@@ -175,17 +124,13 @@ public class TreeNodeAndTypeRestTest extends AbstractRestTest {
 		assertNull(ex);
 		assertEquals(400, status);
 	}
-	
+
 	@Test
 	public void changeType() {
-		IdmTreeType type = new IdmTreeType();
-		type.setCode("TEST_TYPE_1");
-		type.setName("TEST_TYPE_1");
+		IdmTreeType type = getIdmTreeType("TEST_TYPE_1", "TEST_TYPE_1");
 		treeTypeRepository.save(type);
-		
-		IdmTreeType type2 = new IdmTreeType();
-		type2.setCode("TEST_TYPE_2");
-		type2.setName("TEST_TYPE_2");
+
+		IdmTreeType type2 = getIdmTreeType("TEST_TYPE_2", "TEST_TYPE_2");
 		treeTypeRepository.save(type2);
 		
 		// save node trought rest
@@ -254,7 +199,7 @@ public class TreeNodeAndTypeRestTest extends AbstractRestTest {
 		assertEquals(400, status);
 		assertNull(ex);
 	}
-	
+
 	private String toJson(Map<String, String> body) {
 		final ObjectMapper mapper = new ObjectMapper();
 		String json = null;
@@ -264,6 +209,22 @@ public class TreeNodeAndTypeRestTest extends AbstractRestTest {
 			e1.printStackTrace();
 		}
 		return json;
+	}
+
+	private IdmTreeNode getIdmTreeNode(IdmTreeType type, IdmTreeNode parent, String code, String name) {
+		IdmTreeNode node2 = new IdmTreeNode();
+		node2.setCode(code);
+		node2.setName(name);
+		node2.setTreeType(type);
+		node2.setParent(parent);
+		return node2;
+	}
+
+	private IdmTreeType getIdmTreeType(String test_type_a, String test_type_aa) {
+		IdmTreeType type = new IdmTreeType();
+		type.setCode(test_type_a);
+		type.setName(test_type_aa);
+		return type;
 	}
 	
 	private Authentication getAuthentication() {

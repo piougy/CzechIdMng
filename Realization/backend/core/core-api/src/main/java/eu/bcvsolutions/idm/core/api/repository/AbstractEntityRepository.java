@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.NoRepositoryBean;
 
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
@@ -32,6 +33,7 @@ public interface AbstractEntityRepository<E extends BaseEntity, F extends BaseFi
      * @see {@link QuickFilter}
      * @see {@link EmptyFilter}
 	 */
+	@Query(value = "select e from #{#entityName} e")
 	Page<E> find(F filter, Pageable pageable);
 
 }

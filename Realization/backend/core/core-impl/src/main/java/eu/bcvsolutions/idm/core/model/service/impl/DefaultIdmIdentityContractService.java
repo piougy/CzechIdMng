@@ -202,6 +202,7 @@ public class DefaultIdmIdentityContractService
 	@Transactional(readOnly = true)
 	public List<IdmIdentityContractDto> findAllByWorkPosition(UUID workPositionId, RecursionType recursion) {
 		Assert.notNull(workPositionId);
+		// TODO: useuuid only - rewrite to subquery
 		IdmTreeNode workPosition = treeNodeRepository.findOne(workPositionId);
 		Assert.notNull(workPosition);
 		//

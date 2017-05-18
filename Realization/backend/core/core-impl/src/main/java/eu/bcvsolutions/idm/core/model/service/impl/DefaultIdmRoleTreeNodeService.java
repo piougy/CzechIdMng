@@ -156,7 +156,7 @@ public class DefaultIdmRoleTreeNodeService
 	@Transactional(readOnly = true)
 	public Set<IdmRoleTreeNodeDto> getAutomaticRolesByTreeNode(UUID workPosition) {
 		Assert.notNull(workPosition);
-		// we need actual forest index
+		// TODO: we need actual forest index - use uuid and rewrite to subquery
 		IdmTreeNode treeNode = treeNodeRepository.findOne(workPosition);
 		Assert.notNull(treeNode);
 		//

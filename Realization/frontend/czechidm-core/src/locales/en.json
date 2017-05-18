@@ -1079,7 +1079,9 @@
         "roleName": "Role name",
         "roleValidFrom": "Valid from",
         "roleValidTill": "Valid to",
-        "currentActivity": "application status"
+        "currentActivity": "application status",
+        "candicateUsers": "Approvers",
+        "wfProcessId": "WF"
       },
       "processPermissionChange": {
         "currentActivity": "Status",

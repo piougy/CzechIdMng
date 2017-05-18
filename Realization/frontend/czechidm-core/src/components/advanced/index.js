@@ -20,6 +20,7 @@ import AbstractEntityInfo from './EntityInfo/AbstractEntityInfo';
 import UuidInfo from './UuidInfo/UuidInfo';
 import RoleInfo from './RoleInfo/RoleInfo';
 import IdentityContractInfo from './IdentityContractInfo/IdentityContractInfo';
+import WorkflowProcessInfo from './WorkflowProcessInfo/WorkflowProcessInfo';
 import NotificationTemplateInfo from './NotificationTemplateInfo/NotificationTemplateInfo';
 import ScriptArea from './ScriptArea/ScriptArea';
 import RoleSelect from './RoleSelect/RoleSelect';
@@ -49,6 +50,7 @@ const Components = {
   UuidInfo,
   RoleInfo,
   IdentityContractInfo,
+  WorkflowProcessInfo,
   NotificationTemplateInfo,
   ScriptArea,
   RoleSelect

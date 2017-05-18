@@ -3,7 +3,6 @@ import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 import moment from 'moment';
-import { Link } from 'react-router';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
@@ -327,7 +326,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
       return '';
     }
     return (
-      <Link to={`/workflow/history/processes/${entity.wfProcessId}`}>{entity.wfProcessId}</Link>
+      <Advanced.WorkflowProcessInfo entityIdentifier={entity.wfProcessId}/>
     );
   }
 

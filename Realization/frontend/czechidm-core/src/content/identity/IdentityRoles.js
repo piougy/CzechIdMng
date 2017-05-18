@@ -3,7 +3,6 @@ import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 import uuid from 'uuid';
-import { Link } from 'react-router';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
@@ -11,6 +10,7 @@ import * as Utils from '../../utils';
 import SearchParameters from '../../domain/SearchParameters';
 import { IdentityRoleManager, IdentityContractManager, IdentityManager, RoleManager, RoleTreeNodeManager, WorkflowProcessInstanceManager, DataManager, SecurityManager, RoleRequestManager } from '../../redux';
 import RoleRequestTable from '../requestrole/RoleRequestTable';
+import CandicateUsersCell from '../workflow/CandicateUsersCell';
 
 const uiKey = 'identity-roles';
 const uiKeyContracts = 'identity-contracts';
@@ -254,7 +254,17 @@ class Roles extends Basic.AbstractContent {
       return '';
     }
     return (
-      <Link to={`/workflow/history/processes/${entity.id}`}>{entity.id}</Link>
+      <Advanced.WorkflowProcessInfo entityIdentifier={entity.id}/>
+    );
+  }
+
+  _getCandidatesCell({ rowIndex, data}) {
+    const entity = data[rowIndex];
+    if (!entity || !entity.candicateUsers) {
+      return '';
+    }
+    return (
+      <CandicateUsersCell candidates={entity.candicateUsers} maxEntry={2} />
     );
   }
 
@@ -476,6 +486,12 @@ class Roles extends Basic.AbstractContent {
                 sort={false}
                 face="text"/>
               <Advanced.Column
+                property="candicateUsers"
+                header={this.i18n('content.roles.processRoleChange.candicateUsers')}
+                face="text"
+                cell={this._getCandidatesCell}
+                />
+              <Advanced.Column
                 property="processVariables.conceptRole.validFrom"
                 header={this.i18n('content.roles.processRoleChange.roleValidFrom')}
                 sort={false}
@@ -488,7 +504,7 @@ class Roles extends Basic.AbstractContent {
               <Advanced.Column
                 property="id"
                 cell={this._getWfProcessCell}
-                header={this.i18n('label.id')}
+                header={this.i18n('content.roles.processRoleChange.wfProcessId')}
                 sort={false}
                 face="text"/>
             </Advanced.Table>

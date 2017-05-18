@@ -17,6 +17,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.InitTestData;
+import eu.bcvsolutions.idm.core.AbstractCoreWorkflowIntegrationTest;
 import eu.bcvsolutions.idm.core.TestHelper;
 import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
@@ -40,7 +41,6 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.core.security.api.utils.IdmAuthorityUtils;
-import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
  * Test for change permissions via Role request.
@@ -50,7 +50,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  */
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractIntegrationTest {
+public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWorkflowIntegrationTest {
 
 	@Autowired
 	protected TestHelper helper;

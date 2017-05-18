@@ -111,7 +111,7 @@ public class DefaultWorkflowHistoricProcessInstanceService implements WorkflowHi
 		if(!securityService.isAdmin()) {
 			// Applicant and Implementer is added to involved user after process
 			// (subprocess) started. This modification allow not use OR clause.
-			query.involvedUser(securityService.getUsername());
+			query.involvedUser(securityService.getCurrentId().toString());
 		}
 
 		if (WorkflowHistoricProcessInstanceService.SORT_BY_START_TIME.equals(filter.getSortByFields())) {

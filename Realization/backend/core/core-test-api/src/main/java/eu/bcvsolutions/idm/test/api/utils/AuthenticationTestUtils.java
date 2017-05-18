@@ -44,6 +44,11 @@ public class AuthenticationTestUtils {
 		return getAuth(new IdmIdentityDto(username),
 				Lists.newArrayList(IdmAuthorityUtils.getAdminAuthority()));
 	}
+	
+	public static IdmJwtAuthentication getSystemAuthentication(String username, UUID id) {
+		return getAuth(new IdmIdentityDto(id, username),
+				Lists.newArrayList(IdmAuthorityUtils.getAdminAuthority()));
+	}
 
 	public static IdmJwtAuthentication getAuth(String username, Collection<GrantedAuthority> authorities) {
 		return getAuth(new IdmIdentityDto(username), authorities);
@@ -61,7 +66,7 @@ public class AuthenticationTestUtils {
 		return Base64.encodeBase64String((user + ":" + password).getBytes(StandardCharsets.UTF_8));
 	}
 	
-	private static IdmJwtAuthentication getAuth(IdmIdentityDto identity, Collection<GrantedAuthority> authorities) {
+	public static IdmJwtAuthentication getAuth(IdmIdentityDto identity, Collection<GrantedAuthority> authorities) {
 		DateTime iat = getIat();
 		DateTime exp = getExp();
 		return new IdmJwtAuthentication(identity, identity, exp, iat, authorities, "test");

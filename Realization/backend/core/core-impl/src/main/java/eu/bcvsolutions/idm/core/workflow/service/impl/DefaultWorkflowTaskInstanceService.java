@@ -81,7 +81,7 @@ public class DefaultWorkflowTaskInstanceService implements WorkflowTaskInstanceS
 		}
 
 		// check security ... only candidate or assigned user can read task
-		String loggedUser = securityService.getUsername();
+		String loggedUser = securityService.getCurrentId().toString();
 		query.taskCandidateOrAssigned(loggedUser);
 		query.orderByTaskCreateTime();
 		query.desc();
@@ -128,7 +128,7 @@ public class DefaultWorkflowTaskInstanceService implements WorkflowTaskInstanceS
 
 	@Override
 	public void completeTask(String taskId, String decision, Map<String, String> formData, Map<String, Object> variables) {
-		String loggedUser = securityService.getUsername();
+		String loggedUser = securityService.getCurrentId().toString();
 		taskService.setAssignee(taskId, loggedUser);
 		taskService.setVariables(taskId, variables);
 		taskService.setVariableLocal(taskId, WorkflowHistoricTaskInstanceService.TASK_COMPLETE_DECISION, decision);
@@ -160,8 +160,8 @@ public class DefaultWorkflowTaskInstanceService implements WorkflowTaskInstanceS
 		
 		// Add applicant username to task dto (for easier work)
 		if (processVariables != null
-				&& processVariables.containsKey(WorkflowProcessInstanceService.APPLICANT_USERNAME)) {
-			dto.setApplicant((String) processVariables.get(WorkflowProcessInstanceService.APPLICANT_USERNAME));
+				&& processVariables.containsKey(WorkflowProcessInstanceService.APPLICANT_IDENTIFIER)) {
+			dto.setApplicant((String) processVariables.get(WorkflowProcessInstanceService.APPLICANT_IDENTIFIER).toString());
 		}
 
 		dto.setVariables(processVariables);

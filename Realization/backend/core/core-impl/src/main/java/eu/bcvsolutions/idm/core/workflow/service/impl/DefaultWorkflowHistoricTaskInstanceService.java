@@ -60,11 +60,11 @@ public class DefaultWorkflowHistoricTaskInstanceService implements WorkflowHisto
 		if(!securityService.isAdmin()) {
 			// TODO Now we don't have detail for historic task. When we need detail, then we will need create different projection (detail can't be read by applicant)
 			
-			String loggedUsername = securityService.getUsername();
+			String loggedUserId = securityService.getCurrentId().toString();
 			query.or();
-			query.processVariableValueEquals(WorkflowProcessInstanceService.APPLICANT_USERNAME, loggedUsername);
-			query.processVariableValueEquals(WorkflowProcessInstanceService.IMPLEMENTER_USERNAME, loggedUsername);
-			query.taskInvolvedUser(loggedUsername);
+			query.processVariableValueEquals(WorkflowProcessInstanceService.APPLICANT_IDENTIFIER, loggedUserId);
+			query.processVariableValueEquals(WorkflowProcessInstanceService.IMPLEMENTER_IDENTIFIER, loggedUserId);
+			query.taskInvolvedUser(loggedUserId);
 			// TODO admin
 			query.endOr();
 		}

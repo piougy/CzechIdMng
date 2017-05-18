@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.workflow.domain;
+package eu.bcvsolutions.idm.core.workflow.listener;
 
 import java.util.List;
 import java.util.stream.Collectors;

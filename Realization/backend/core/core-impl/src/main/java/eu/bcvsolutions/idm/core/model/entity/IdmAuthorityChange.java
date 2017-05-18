@@ -91,7 +91,7 @@ public class IdmAuthorityChange implements BaseEntity {
 		if (authChangeTimestamp == null) {
 			return true;
 		}
-		return authorizedTime.isAfter(authChangeTimestamp);
+		return authorizedTime != null && authorizedTime.isAfter(authChangeTimestamp);
 	}
 
 }

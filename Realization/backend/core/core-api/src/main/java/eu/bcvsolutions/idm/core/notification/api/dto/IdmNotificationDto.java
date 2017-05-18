@@ -27,7 +27,6 @@ public class IdmNotificationDto extends AbstractDto implements BaseNotification 
     private String sentLog;
 
     //TODO: can we use UUID with UuidToEntityConverter and embedded here?
-    @JsonManagedReference
     private List<IdmNotificationRecipientDto> recipients;
     @JsonProperty("parent")
     @Embedded(dtoClass = IdmNotificationLogDto.class)

@@ -65,6 +65,12 @@ export class NotificationTable extends Basic.AbstractContent {
     }
   }
 
+  _getStatus(data, rowIndex) {
+    return (
+      <NotificationSentState notification={data[rowIndex]}/>
+    );
+  }
+
   render() {
     const { uiKey, notificationManager } = this.props;
     const { filterOpened } = this.state;
@@ -186,9 +192,7 @@ export class NotificationTable extends Basic.AbstractContent {
             property="sent"
             cell={
               ({ rowIndex, data }) => {
-                return (
-                  <NotificationSentState notification={data[rowIndex]}/>
-                );
+                return this._getStatus(data, rowIndex);
               }
             }/>
           <Advanced.Column property="sentLog" sort face="text" rendered={false} width="300px"/>

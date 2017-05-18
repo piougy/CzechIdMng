@@ -54,7 +54,7 @@ EnumValue.propTypes = {
    * enum value
    */
   value: PropTypes.string,
-  enum: PropTypes.object.isRequired
+  enum: PropTypes.func.isRequired
 };
 
 EnumValue.defaultProps = {

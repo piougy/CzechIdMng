@@ -56,6 +56,12 @@ export class WebsocketTable extends Basic.AbstractContent {
     this.context.router.push('/notification/websockets/' + entity.id);
   }
 
+  _getStatus(data, rowIndex) {
+    return (
+      <NotificationSentState notification={data[rowIndex]}/>
+    );
+  }
+
   render() {
     const { uiKey, manager } = this.props;
     const { filterOpened } = this.state;
@@ -165,9 +171,7 @@ export class WebsocketTable extends Basic.AbstractContent {
             property="sent"
             cell={
               ({ rowIndex, data}) => {
-                return (
-                  <NotificationSentState notification={data[rowIndex]}/>
-                );
+                return this._getStatus(data, rowIndex);
               }
             }/>
           <Advanced.Column property="sentLog" sort face="text" width="20%"/>

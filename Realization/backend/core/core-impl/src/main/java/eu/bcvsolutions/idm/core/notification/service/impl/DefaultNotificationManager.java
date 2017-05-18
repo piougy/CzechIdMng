@@ -86,9 +86,10 @@ public class DefaultNotificationManager extends AbstractNotificationSender<IdmNo
 		notificationLog.setMessage(cloneMessage(notification));
 		// clone recipients
 		notification.getRecipients().forEach(recipient -> {
-			notificationLog.getRecipients().add(cloneRecipient(notificationLog, recipient));
+			notificationLog.getRecipients().add(cloneRecipient(notificationLog, recipient, recipient.getRealRecipient()));
 		});
 		notificationLog.setIdentitySender(notification.getIdentitySender());
 		return notificationLogService.save(notificationLog);
 	}
+
 }

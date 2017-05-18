@@ -31,19 +31,14 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 /**
  * Long running tasks test
  * 
- * TODO: use futures instead wait - its unstable
- * 
  * @author Radek Tomiška
  *
  */
 public class DefaultLongRunningTaskManagerIntegrationTest extends AbstractIntegrationTest {
 
-	@Autowired
-	private ApplicationContext context;
-	@Autowired
-	private IdmLongRunningTaskService service;
-	@Autowired
-	private ConfigurationService configurationService;
+	@Autowired private ApplicationContext context;
+	@Autowired private IdmLongRunningTaskService service;
+	@Autowired private ConfigurationService configurationService;
 	//
 	private LongRunningTaskManager manager;
 	
@@ -53,7 +48,7 @@ public class DefaultLongRunningTaskManagerIntegrationTest extends AbstractIntegr
 	}
 	
 	@Test
-	public void testRunSimpleTask() throws InterruptedException, ExecutionException {
+	public void testRunSimpleTaskAsync() throws InterruptedException, ExecutionException {
 		String result = "TEST_SUCCESS_01";
 		LongRunningTaskExecutor<String> taskExecutor = new TestSimpleLongRunningTaskExecutor(result);
 		assertNull(taskExecutor.getLongRunningTaskId());
@@ -67,6 +62,26 @@ public class DefaultLongRunningTaskManagerIntegrationTest extends AbstractIntegr
 		assertEquals(configurationService.getInstanceId(), longRunningTask.getInstanceId());
 		//
 		assertEquals(result, futureTask.getFutureTask().get());
+		//
+		longRunningTask = service.get(longRunningTask.getId());
+		assertEquals(OperationState.EXECUTED, longRunningTask.getResult().getState());
+	}
+	
+	@Test
+	public void testRunSimpleTaskSync() throws InterruptedException, ExecutionException {
+		String expectedResult = "TEST_SUCCESS_01_S";
+		LongRunningTaskExecutor<String> taskExecutor = new TestSimpleLongRunningTaskExecutor(expectedResult);
+		assertNull(taskExecutor.getLongRunningTaskId());
+		//
+		String result = manager.executeSync(taskExecutor);
+		//
+		IdmLongRunningTaskDto longRunningTask = service.get(taskExecutor.getLongRunningTaskId());
+		assertNotNull(longRunningTask);
+		assertEquals(expectedResult, longRunningTask.getTaskDescription());
+		assertEquals(taskExecutor.getClass().getCanonicalName(), longRunningTask.getTaskType());
+		assertEquals(configurationService.getInstanceId(), longRunningTask.getInstanceId());
+		//
+		assertEquals(expectedResult, result);
 		//
 		longRunningTask = service.get(longRunningTask.getId());
 		assertEquals(OperationState.EXECUTED, longRunningTask.getResult().getState());

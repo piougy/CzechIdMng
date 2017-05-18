@@ -7,7 +7,7 @@ import uuid from 'uuid';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
-import { RoleManager, IdentityManager, IdentityContractManager, RoleCatalogueManager } from '../../redux';
+import { RoleManager, IdentityManager, IdentityContractManager } from '../../redux';
 import SearchParameters from '../../domain/SearchParameters';
 
 /**
@@ -15,7 +15,6 @@ import SearchParameters from '../../domain/SearchParameters';
 * Designed for use in task detail.
 */
 
-const roleCatalogueManager = new RoleCatalogueManager();
 const roleManager = new RoleManager();
 const identityManager = new IdentityManager();
 const identityContractManager = new IdentityContractManager();
@@ -26,6 +25,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
     super(props, context);
     this.state = {
       conceptData: {},
+      showRoleCatalogue: false,
       filterOpened: this.props.filterOpened,
       detail: {
         show: false,
@@ -95,12 +95,14 @@ export class RoleConceptTable extends Basic.AbstractContent {
    */
   _closeDetail() {
     this.setState({
+      showRoleCatalogue: false,
       detail: {
         ... this.state.detail,
         show: false,
         add: false
       }
     });
+    this.refs.role.cleanFilter();
   }
 
   /**
@@ -111,6 +113,9 @@ export class RoleConceptTable extends Basic.AbstractContent {
       event.preventDefault();
     }
     if (!this.refs.form.isFormValid()) {
+      return;
+    }
+    if (!this.refs.role.validate()) {
       return;
     }
     const {identityUsername, createConceptFunc, updateConceptFunc} = this.props;
@@ -283,6 +288,21 @@ export class RoleConceptTable extends Basic.AbstractContent {
     return concepts;
   }
 
+  _showRoleCatalogueTable(isShow) {
+    this.setState({
+      showRoleCatalogue: isShow
+    });
+  }
+
+  _hideRoleCatalogueTable() {
+    if (this.refs.role) {
+      this.refs.role.hideRoleCatalogueTable();
+    }
+    this.setState({
+      showRoleCatalogue: false
+    });
+  }
+
   /**
    * Compute background color row (added, removed, changed)
    */
@@ -360,17 +380,6 @@ export class RoleConceptTable extends Basic.AbstractContent {
   }
 
   /**
-   * Method clear selected folder from role catalogue picker
-   */
-  _clearRoleCatalogue(value, event) {
-    if (event) {
-      event.preventDefault();
-    }
-    //
-    this.refs.roleCatalogue.setValue();
-  }
-
-  /**
    * Generate cell with actions (buttons)
    */
   _conceptActionsCell({rowIndex, data}) {
@@ -415,7 +424,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
 
   render() {
     const { showLoading, identityUsername, readOnly, className } = this.props;
-    const { conceptData, detail } = this.state;
+    const { conceptData, detail, showRoleCatalogue } = this.state;
     //
     return (
       <div>
@@ -494,30 +503,36 @@ export class RoleConceptTable extends Basic.AbstractContent {
         </Basic.Table>
 
         <Basic.Modal
-          bsSize="default"
+          bsSize="large"
           show={detail.show}
-          onHide={this._closeDetail.bind(this)}
+          onHide={!showRoleCatalogue ? this._closeDetail.bind(this) : this._hideRoleCatalogueTable.bind(this)}
           backdrop="static"
           keyboard={!showLoading}>
 
           <form onSubmit={this._saveConcept.bind(this)}>
-            <Basic.Modal.Header closeButton={!showLoading} text={this.i18n('create.header')} rendered={detail.entity.id === undefined}/>
-            <Basic.Modal.Header closeButton={!showLoading} text={this.i18n('edit.header', { role: detail.entity.role })} rendered={detail.entity.id !== undefined}/>
+            <Basic.Modal.Header
+              closeButton={!showLoading}
+              text={this.i18n('create.header')}
+              rendered={detail.entity.id === undefined && !showRoleCatalogue}/>
+            <Basic.Modal.Header
+              closeButton={!showLoading}
+              text={this.i18n('edit.header', { role: detail.entity.role })}
+              rendered={detail.entity.id !== undefined && !showRoleCatalogue}/>
+            <Basic.Modal.Header
+              closeButton={ !showLoading }
+              text={ this.i18n('selectRoleCatalogue.header') }
+              rendered={ showRoleCatalogue }/>
             <Basic.Modal.Body>
               <Basic.AbstractForm ref="form" showLoading={showLoading} readOnly={!detail.edit}>
-                <Basic.SelectBox
-                  ref="roleCatalogue"
-                  onChange={this._changeRoleCatalogue.bind(this)}
-                  manager={roleCatalogueManager}
-                  label={this.i18n('entity.IdentityRole.roleCataloguePicker')}/>
-                <Basic.SelectBox
-                  ref="role"
-                  manager={roleManager}
-                  onChange={this._clearRoleCatalogue.bind(this)}
-                  label={this.i18n('entity.IdentityRole.role')}
-                  multiSelect={detail.entity._added && detail.add}
+
+                <Advanced.RoleSelect
+                  required
                   readOnly={!detail.entity._added}
-                  required/>
+                  multiSelect={detail.entity._added && detail.add}
+                  showActionButtons
+                  onCatalogueShow={this._showRoleCatalogueTable.bind(this)}
+                  ref="role"/>
+
                 <Basic.SelectBox
                   ref="identityContract"
                   manager={ identityContractManager }
@@ -527,13 +542,15 @@ export class RoleConceptTable extends Basic.AbstractContent {
                   helpBlock={ this.i18n('entity.IdentityRole.identityContract.help') }
                   returnProperty={false}
                   readOnly={!detail.entity._added}
+                  hidden={showRoleCatalogue}
                   required
                   useFirst/>
+
                 <Basic.Checkbox
                   ref="automaticRole"
                   label={this.i18n('entity.IdentityRole.roleTreeNode.label')}
                   readOnly
-                  hidden={ detail.entity._added }/>
+                  hidden={ detail.entity._added || showRoleCatalogue}/>
 
                 <Basic.Row>
                   <div className="col-md-6">
@@ -541,6 +558,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
                       mode="date"
                       className={detail.entity.hasOwnProperty('_validFromChanged') ? 'text-danger' : null}
                       ref={detail.entity.hasOwnProperty('_validFromChanged') ? '_validFromChanged' : 'validFrom'}
+                      hidden={showRoleCatalogue}
                       label={this.i18n('label.validFrom')}/>
                   </div>
                   <div className="col-md-6">
@@ -548,6 +566,7 @@ export class RoleConceptTable extends Basic.AbstractContent {
                       mode="date"
                       className={detail.entity.hasOwnProperty('_validTillChanged') ? 'text-danger' : null}
                       ref={detail.entity.hasOwnProperty('_validTillChanged') ? '_validTillChanged' : 'validTill'}
+                      hidden={showRoleCatalogue}
                       label={this.i18n('label.validTill')}/>
                   </div>
                 </Basic.Row>
@@ -558,16 +577,33 @@ export class RoleConceptTable extends Basic.AbstractContent {
               <Basic.Button
                 level="link"
                 onClick={this._closeDetail.bind(this)}
-                showLoading={showLoading}>
+                showLoading={showLoading}
+                rendered={!showRoleCatalogue}>
                 {this.i18n('button.close')}
               </Basic.Button>
+              <Basic.Button
+                level="link"
+                onClick={ this._hideRoleCatalogueTable.bind(this) }
+                showLoading={ showLoading }
+                rendered={ showRoleCatalogue }>
+                { this.i18n('button.close') }
+              </Basic.Button>
+
               <Basic.Button
                 type="submit"
                 level="success"
                 showLoading={showLoading}
                 showLoadingIcon
-                rendered={detail.edit}>
+                rendered={detail.edit && !showRoleCatalogue}>
                 {this.i18n('button.set')}
+              </Basic.Button>
+              <Basic.Button
+                level="success"
+                showLoading={showLoading}
+                showLoadingIcon
+                onClick={this._hideRoleCatalogueTable.bind(this)}
+                rendered={showRoleCatalogue}>
+                {this.i18n('button.select')}
               </Basic.Button>
             </Basic.Modal.Footer>
           </form>

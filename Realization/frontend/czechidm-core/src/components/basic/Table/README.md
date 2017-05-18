@@ -15,6 +15,7 @@ Table of records, features
 | hover | bool | Activate table hover (highligth selected row) | true | |
 | noData | oneOfType([string, element]) | No data found | Nenalezeny žádné záznamy |
 | showRowSelection | bool | Enable row selection - checkbox in first cell | false |
+| condensed | bool | Enable condensed table class, make tables more compact by cutting cell padding in half. | false |
 
 # Column Component
 

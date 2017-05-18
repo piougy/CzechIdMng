@@ -39,9 +39,12 @@
     "validFrom": "Valid from",
     "validTill": "Valid to",
     "select": "Select ...",
+    "enabled": "Enabled",
     "disabled": "Disabled",
     "property": "Attribute",
-    "value": "Value"
+    "value": "Value",
+    "yes": "Yes",
+    "no": "No"
   },
   "button": {
     "activate": "Activate",
@@ -780,6 +783,9 @@
           "edit": {
             "header": "Edit roles"
           },
+          "selectRoleCatalogue": {
+            "header": "Selection roles from folders of catalog"
+          },
           "action": {
             "deleteAdded": {
               "header": "Delete added roles",
@@ -813,7 +819,9 @@
         },
         "recursively": {
           "label": "Recursively",
-          "placeholder": "Recursively by tree structure down"
+          "placeholder": "Recursively by tree structure down",
+          "yes": "Recursively by tree structure down",
+          "no": "On selected tree node only"
         },
         "role": {
           "label": "Role",
@@ -1051,9 +1059,18 @@
         "title": "Role details",
         "header": "{{name}} details"
       },
+      "filter": {
+        "text": {
+          "placeholder": "Name or description"
+        }
+      },
       "roleCataloguePick": "Select folder",
       "create": {
         "header": "New role"
+      },
+      "select": {
+        "chooseFolder": "Choose folder",
+        "showRoleCatalogue": "Select from catalogue"
       },
       "save": {
         "success": "The role [{{name}}] was successfully saved."

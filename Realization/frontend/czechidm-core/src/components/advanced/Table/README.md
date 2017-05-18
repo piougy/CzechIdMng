@@ -19,6 +19,8 @@ Encapsulates all features from BasicTable component. All BasicTable parameters a
 | buttons | arrayOf(element) | Buttons are shown on the right of toogle filter button | |
 | showId | bool | Shows column with id. Default is id shown in Development stage. | true on development, false otherwise |
 | showFilter | bool | Shows filter. | true |
+| showPageSize | bool | Shows page size. | true |
+| showToolbar | bool | Shows toolbar. | true |
 
 
 # AdvancedColumn Component

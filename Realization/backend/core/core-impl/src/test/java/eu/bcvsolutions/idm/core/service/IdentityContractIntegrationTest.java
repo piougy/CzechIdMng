@@ -143,14 +143,7 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 	private void deleteAutomaticRole(IdmRoleTreeNodeDto automaticRole) {
 		RemoveAutomaticRoleTaskExecutor task = new RemoveAutomaticRoleTaskExecutor();
 		task.setRoleTreeNodeId(automaticRole.getId());
-		//
-		// active wait for delete
-		try {
-			FutureTask<Boolean> futureTask = taskManager.execute(task).getFutureTask();
-			futureTask.get();
-		} catch (InterruptedException | ExecutionException e) {
-			fail("Unexpected error, while wait for delete automatic role: " + e.getLocalizedMessage());
-		}
+		taskManager.executeSync(task);
 	}
 	
 	/**

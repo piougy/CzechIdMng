@@ -27,14 +27,6 @@ export class IdentityTable extends Advanced.AbstractTableContent {
     this.roleManager = new RoleManager();
   }
 
-  componentDidMount() {
-    // TODO: filters from redux
-    // this.refs.recursively.setValue('true');
-  }
-
-  componentDidUpdate() {
-  }
-
   getContentKey() {
     return 'content.identities';
   }
@@ -68,6 +60,10 @@ export class IdentityTable extends Advanced.AbstractTableContent {
     } else {
       this.context.router.push(`/identity/${entity.username}/profile`);
     }
+  }
+
+  getDefaultSearchParameters() {
+    return this.getManager().getDefaultSearchParameters().setFilter('disabled', 'false').setFilter('recursively', 'true');
   }
 
   useFilter(event) {
@@ -183,14 +179,22 @@ export class IdentityTable extends Advanced.AbstractTableContent {
                   <div className="col-lg-6">
                     <Advanced.Filter.BooleanSelectBox
                       ref="recursively"
-                      placeholder={ this.i18n('filter.recursively.placeholder') }/>
+                      placeholder={ this.i18n('filter.recursively.placeholder') }
+                      options={ [
+                        { value: 'true', niceLabel: this.i18n('filter.recursively.yes') },
+                        { value: 'false', niceLabel: this.i18n('filter.recursively.no') }
+                      ]}/>
                   </div>
                 </Basic.Row>
                 <Basic.Row className="last">
                   <div className="col-lg-6">
                     <Advanced.Filter.BooleanSelectBox
                       ref="disabled"
-                      placeholder={ this.i18n('filter.disabled.placeholder') }/>
+                      placeholder={ this.i18n('filter.disabled.placeholder') }
+                      options={ [
+                        { value: 'true', niceLabel: this.i18n('label.disabled') },
+                        { value: 'false', niceLabel: this.i18n('label.enabled') }
+                      ]}/>
                   </div>
                 </Basic.Row>
               </Basic.AbstractForm>
@@ -220,7 +224,8 @@ export class IdentityTable extends Advanced.AbstractTableContent {
                 {this.i18n('content.identity.create.button.add')}
               </Basic.Button>
             ]
-          }>
+          }
+          _searchParameters={ this.getSearchParameters() }>
           <Advanced.Column
             header=""
             className="detail-button"
@@ -319,7 +324,7 @@ IdentityTable.defaultProps = {
 
 function select(state, component) {
   return {
-    _searchParameters: state.data.ui[component.uiKey] ? state.data.ui[component.uiKey].searchParameters : {},
+    _searchParameters: state.data.ui[component.uiKey] ? state.data.ui[component.uiKey].searchParameters : null,
     deleteEnabled: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.core.identity.delete')
   };
 }

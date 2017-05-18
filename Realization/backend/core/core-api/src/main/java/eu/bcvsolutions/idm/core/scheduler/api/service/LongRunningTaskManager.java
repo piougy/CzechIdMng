@@ -18,12 +18,22 @@ public interface LongRunningTaskManager {
 	void init();
 
 	/**
-	 * Executes given task asynchronously
+	 * * Executes given task asynchronously
 	 * 
 	 * @param <V> expected result type
-	 * @param executor
+	 * @param taskExecutor
+	 * @return
 	 */
 	<V> LongRunningFutureTask<V> execute(LongRunningTaskExecutor<V> taskExecutor);
+	
+	/**
+	 * * Executes given task asynchronously
+	 * 
+	 * @param <V> expected result type
+	 * @param taskExecutor
+	 * @return
+	 */
+	<V> V executeSync(LongRunningTaskExecutor<V> taskExecutor);
 	
 	/**
 	 * Cancels given task. Task flag will be set only and task needs to interact with this state and stop in next iteration.

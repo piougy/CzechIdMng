@@ -257,7 +257,10 @@ class AdvancedTable extends Basic.AbstractContextComponent {
       actions,
       buttons,
       noData,
-      style
+      style,
+      showPageSize,
+      showToolbar,
+      condensed
     } = this.props;
     const {
       filterOpened,
@@ -371,7 +374,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
         {
           !filter && (actions === null || actions.length === 0 || !showRowSelection) && (buttons === null || buttons.length === 0)
           ||
-          <Basic.Toolbar container={this} viewportOffsetTop={filterViewportOffsetTop}>
+          <Basic.Toolbar container={this} viewportOffsetTop={filterViewportOffsetTop} rendered={showToolbar}>
             <div className="advanced-table-heading">
               <div className="pull-left">
                 <Basic.EnumSelectBox
@@ -442,6 +445,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
               selectedRows={selectedRows}
               onRowSelect={this._onRowSelect.bind(this)}
               rowClass={_rowClass}
+              condensed={condensed}
               noData={this.getNoData(noData)}>
 
               {renderedColumns}
@@ -462,6 +466,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
             </Basic.BasicTable.Table>
             <Basic.BasicTable.Pagination
               ref="pagination"
+              showPageSize={showPageSize}
               paginationHandler={pagination ? this._handlePagination.bind(this) : null}
               total={ pagination ? _total : _entities.length } {...range} />
           </div>
@@ -573,7 +578,9 @@ AdvancedTable.propTypes = {
   /**
    * Persisted / used search parameters in redux
    */
-  _searchParameters: PropTypes.object
+  _searchParameters: PropTypes.object,
+  showPageSize: PropTypes.bool,
+  showToolbar: PropTypes.bool
 };
 AdvancedTable.defaultProps = {
   ...Basic.AbstractContextComponent.defaultProps,
@@ -589,7 +596,9 @@ AdvancedTable.defaultProps = {
   selectedRows: [],
   filterCollapsible: true,
   actions: [],
-  buttons: []
+  buttons: [],
+  showPageSize: true,
+  showToolbar: true
 };
 
 function select(state, component) {

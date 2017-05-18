@@ -61,7 +61,7 @@ export default class UiUtils {
    * @param  {string} uiKey - ui key for loading indicator etc.
    * @return {boolean} - true, when loading for given uiKey proceed
    */
-  static getSearchParameters(state, uiKey, defaultSearchParameters = {}) {
+  static getSearchParameters(state, uiKey, defaultSearchParameters = null) {
     const uiState = UiUtils.getUiState(state, uiKey);
     if (!uiState) {
       return false;

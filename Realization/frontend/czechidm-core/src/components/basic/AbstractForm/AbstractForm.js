@@ -86,6 +86,10 @@ class AbstractForm extends AbstractContextComponent {
         }
         const key = this.state.componentsKeys[componentRef];
         const component = this.getComponent(key);
+        if (!component) {
+          // component could not be rendered
+          continue;
+        }
         if (json.hasOwnProperty(key)) {
           const value = json[key];
           // set new value to component

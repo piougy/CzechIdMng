@@ -103,16 +103,11 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractLongRunningTaskExec
 			roleRequestService.save(request);
 			conceptRequestService.save(concept);
 		});
-		
+		//
 		// delete entity
 		roleTreeNodeRepository.delete(roleTreeNodeId);
 		//
-		//
 		return Boolean.TRUE;
-	}
-
-	public UUID getRoleTreeNodeId() {
-		return roleTreeNodeId;
 	}
 
 	public void setRoleTreeNodeId(UUID roleTreeNodeId) {

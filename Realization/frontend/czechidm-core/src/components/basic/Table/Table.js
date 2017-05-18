@@ -255,7 +255,7 @@ class Table extends AbstractComponent {
   }
 
   render() {
-    const { data, noData, rendered, showLoading, hover, className } = this.props;
+    const { data, noData, rendered, showLoading, hover, className, condensed } = this.props;
     if (!rendered) {
       return null;
     }
@@ -282,7 +282,8 @@ class Table extends AbstractComponent {
     const footer = this.renderFooter();
     const classNamesTable = classNames(
       { 'table': true },
-      { 'table-hover': hover}
+      { 'table-hover': hover},
+      { 'table-condensed': condensed }
     );
     //
     return (
@@ -334,10 +335,12 @@ Table.propTypes = {
   ]),
   /**
    * If table data is empty, then this text will be shown
-   *
-   * @type {string}
    */
-  noData: PropTypes.oneOfType([PropTypes.string, PropTypes.element])
+  noData: PropTypes.oneOfType([PropTypes.string, PropTypes.element]),
+  /**
+   * Enable condensed table class, make tables more compact by cutting cell padding in half.
+   */
+  condensed: PropTypes.bool
 };
 Table.defaultProps = {
   ...AbstractComponent.defaultProps,
@@ -345,7 +348,8 @@ Table.defaultProps = {
   selectedRows: [],
   showRowSelection: false,
   noData: 'No record found',
-  hover: true
+  hover: true,
+  condensed: false
 };
 
 export default Table;

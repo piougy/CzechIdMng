@@ -455,24 +455,25 @@ export default class EntityManager {
           // stops when first error occurs
           currentEntity = entity;
           return this.getService().deleteById(entity.id);
-        }).then((json) => {
+        }).then(() => {
           dispatch(this.updateBulkAction());
-          if (json && json.statusCode === 202) {
+          successEntities.push(entity);
+          // remove entity to redux store
+          dispatch(this.deletedEntity(entity.id, entity, uiKey));
+        }).catch(error => {
+          if (error && error.statusCode === 202) {
+            dispatch(this.updateBulkAction());
             approveEntities.push(entity);
           } else {
-            successEntities.push(entity);
-            // remove entity to redux store
-            dispatch(this.deletedEntity(entity.id, entity, uiKey));
-          }
-        }).catch(error => {
-          if (currentEntity.id === entity.id) { // we want show message for entity, when loop stops
-            if (!cb) { // if no callback given, we need show error
-              dispatch(this.flashMessagesManager.addErrorMessage({ title: this.i18n(`action.delete.error`, { record: this.getNiceLabel(entity) }) }, error));
-            } else { // otherwise caller has to show eror etc. himself
-              cb(entity, error, null);
+            if (currentEntity.id === entity.id) { // we want show message for entity, when loop stops
+              if (!cb) { // if no callback given, we need show error
+                dispatch(this.flashMessagesManager.addErrorMessage({ title: this.i18n(`action.delete.error`, { record: this.getNiceLabel(entity) }) }, error));
+              } else { // otherwise caller has to show eror etc. himself
+                cb(entity, error, null);
+              }
             }
+            throw error;
           }
-          throw error;
         });
       }, Promise.resolve())
       .catch((error) => {

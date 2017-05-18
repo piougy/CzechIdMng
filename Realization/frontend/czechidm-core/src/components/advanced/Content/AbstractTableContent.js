@@ -18,6 +18,12 @@ export default class AbstractTableContent extends Basic.AbstractContent {
     };
   }
 
+  componentDidMount() {
+    super.componentDidMount();
+    // loads filter from redux state
+    this.loadFilter();
+  }
+
   /**
    * Returns main content / table manager
    */
@@ -128,6 +134,22 @@ export default class AbstractTableContent extends Basic.AbstractContent {
   }
 
   /**
+   * Init default filter values
+   */
+  getDefaultSearchParameters() {
+    return null;
+  }
+
+  /**
+   * Returns filter from redux state or default
+   *
+   * @return {SearchParameters}
+   */
+  getSearchParameters() {
+    return this.props._searchParameters || this.getDefaultSearchParameters();
+  }
+
+  /**
    * Use filter form
    */
   useFilter(event) {
@@ -145,6 +167,24 @@ export default class AbstractTableContent extends Basic.AbstractContent {
       event.preventDefault();
     }
     this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
+  }
+
+  /**
+   * Loads filter from redux state or default
+   */
+  loadFilter() {
+    if (!this.refs.filterForm) {
+      return;
+    }
+    //  filters from redux
+    const _searchParameters = this.getSearchParameters();
+    if (_searchParameters) {
+      const filterData = {};
+      _searchParameters.getFilters().forEach((v, k) => {
+        filterData[k] = v;
+      });
+      this.refs.filterForm.setData(filterData);
+    }
   }
 }
 

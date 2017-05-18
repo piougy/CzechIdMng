@@ -53,6 +53,10 @@ export default class ResponseUtils {
     return true;
   }
 
+  static _isInfo(error) {
+    return error.statusCode >= 200 && error.statusCode < 300;
+  }
+
   static getFirstInfo(responseJson) {
     const content = responseJson;
     // no content = no error
@@ -61,7 +65,7 @@ export default class ResponseUtils {
     }
     // one error
     if (content.error) {
-      if (!ResponseUtils._isError(content.error)) {
+      if (!ResponseUtils._isInfo(content.error)) {
         return content.error;
       }
       return null;
@@ -71,7 +75,7 @@ export default class ResponseUtils {
       return null;
     }
     for (const error of content._errors) {
-      if (!ResponseUtils._isError(error)) {
+      if (ResponseUtils._isInfo(error)) {
         return error;
       }
     }

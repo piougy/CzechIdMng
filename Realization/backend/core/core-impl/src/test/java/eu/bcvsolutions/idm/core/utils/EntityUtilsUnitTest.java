@@ -1,6 +1,8 @@
 package eu.bcvsolutions.idm.core.utils;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.UUID;
@@ -8,6 +10,7 @@ import java.util.UUID;
 import org.joda.time.LocalDate;
 import org.junit.Test;
 
+import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
@@ -74,5 +77,58 @@ public class EntityUtilsUnitTest extends AbstractUnitTest {
 		String strUUID = "thisIsNotDefinitivelyUUID";
 		//
 		assertFalse(EntityUtils.isUuid(strUUID));
+	}	
+		
+	@Test 
+	public void testValidableChanged() {
+		LocalDate now = new LocalDate();
+		IdmIdentityRoleDto role = new IdmIdentityRoleDto();
+		role.setValidFrom(now.plusDays(1));
+		role.setValidTill(now.plusDays(2));
+		//
+		IdmIdentityRoleDto role2 = new IdmIdentityRoleDto();
+		role.setValidFrom(now.plusDays(1));
+		role.setValidTill(now.plusDays(3));
+		//
+		assertTrue(EntityUtils.validableChanged(role, role2));
+	}
+	
+	@Test 
+	public void testValidableNotChanged() {
+		LocalDate now = new LocalDate();
+		IdmIdentityRoleDto role = new IdmIdentityRoleDto();
+		role.setValidFrom(now.plusDays(1));
+		role.setValidTill(now.plusDays(2));
+		//
+		IdmIdentityRoleDto role2 = new IdmIdentityRoleDto();
+		role.setValidFrom(now.plusDays(1));
+		role.setValidTill(now.plusDays(2));
+		//
+		assertTrue(EntityUtils.validableChanged(role, role2));
+	}
+	
+	@Test
+	public void testGetModule() {
+		assertEquals(CoreModuleDescriptor.MODULE_ID, EntityUtils.getModule(IdmIdentityRoleDto.class));
+	}
+	
+	@Test
+	public void testToUuidValid() {
+		UUID uuid = UUID.randomUUID();
+		assertNull(EntityUtils.toUuid(null));
+		assertEquals(uuid, EntityUtils.toUuid(uuid));
+		assertEquals(uuid, EntityUtils.toUuid(uuid.toString()));
+		assertEquals(UUID.fromString("00000000-0000-0000-0000-000000000000"), EntityUtils.toUuid("00000000-0000-0000-0000-000000000000"));
+	}
+	
+	@Test(expected = ClassCastException.class)
+	public void testToUuidInvalid() {
+		EntityUtils.toUuid("");
+	}
+	
+	@Test(expected = ClassCastException.class)
+	public void testToUuidInvalid2() {
+		EntityUtils.toUuid("aaaa");
 	}
 }
+

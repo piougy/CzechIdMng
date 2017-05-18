@@ -351,8 +351,7 @@ public class IdmServiceConfiguration {
 		return new DefaultIdmIdentityService(
 				identityRepository, formService(),
 				roleRepository, entityEventManager(),
-				authChangeRepository, configurationService(),
-				securityService());
+				authChangeRepository);
 	}
 	
 	/**

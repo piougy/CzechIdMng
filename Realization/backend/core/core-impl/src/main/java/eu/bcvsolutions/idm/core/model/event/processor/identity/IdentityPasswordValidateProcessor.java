@@ -5,7 +5,11 @@ import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import com.google.common.collect.ImmutableMap;
+
+import eu.bcvsolutions.idm.core.api.config.domain.IdentityConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.domain.PasswordChangeType;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordValidationDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
@@ -14,6 +18,7 @@ import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordPolicyService;
@@ -40,12 +45,14 @@ public class IdentityPasswordValidateProcessor extends CoreEventProcessor<IdmIde
 	private final IdmPasswordPolicyService passwordPolicyService;
 	private final IdmConfigurationService configuration;
 	private final AuthenticationManager authenticationManager;
+	private final ConfigurationService configurationService;
 
 	@Autowired
 	public IdentityPasswordValidateProcessor(SecurityService securityService,
 			IdmPasswordService passwordService, IdmPasswordPolicyService passwordPolicyService,
 			IdmConfigurationService configuration,
-			AuthenticationManager authenticationManager) {
+			AuthenticationManager authenticationManager,
+			ConfigurationService configurationService) {
 		super(IdentityEventType.PASSWORD);
 		//
 		Assert.notNull(securityService);
@@ -53,12 +60,14 @@ public class IdentityPasswordValidateProcessor extends CoreEventProcessor<IdmIde
 		Assert.notNull(passwordService);
 		Assert.notNull(configuration);
 		Assert.notNull(authenticationManager);
+		Assert.notNull(configurationService);
 		//
 		this.securityService = securityService;
 		this.passwordService = passwordService;
 		this.passwordPolicyService = passwordPolicyService;
 		this.configuration = configuration;
 		this.authenticationManager = authenticationManager;
+		this.configurationService = configurationService;
 	}
 
 	@Override
@@ -74,6 +83,18 @@ public class IdentityPasswordValidateProcessor extends CoreEventProcessor<IdmIde
 		Assert.notNull(passwordChangeDto);
 		//
 		if (!securityService.isAdmin()) {
+			// check if isn't disable password change
+			String passwordChangeProperty = this.configurationService.getValue(IdentityConfiguration.PROPERTY_IDENTITY_CHANGE_PASSWORD);
+			if (passwordChangeProperty.equals(PasswordChangeType.DISABLED.toString())) {
+				throw new ResultCodeException(CoreResultCode.PASSWORD_CHANGE_FAILED, ImmutableMap.of("note", "Password change is disabled"));
+			} else if (passwordChangeProperty.equals(PasswordChangeType.ALL_ONLY.toString())) {
+				// for all only must change also password for czechidm
+				if (!passwordChangeDto.isIdm()) {
+					throw new ResultCodeException(CoreResultCode.PASSWORD_CHANGE_FAILED, ImmutableMap.of("note", "Password is allowed change only for all accounts."));
+				}
+			}
+			//
+			// check old password
 			if (passwordChangeDto.getOldPassword() == null) {
 				throw new ResultCodeException(CoreResultCode.PASSWORD_CHANGE_CURRENT_FAILED_IDM);
 			}
@@ -103,6 +124,6 @@ public class IdentityPasswordValidateProcessor extends CoreEventProcessor<IdmIde
 
 	@Override
 	public int getOrder() {
-		return super.getOrder() - 100;
+		return super.getOrder() - 1100;
 	}
 }

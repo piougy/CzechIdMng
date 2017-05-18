@@ -37,10 +37,15 @@ class PasswordChangeForm extends Basic.AbstractContent {
   /**
    * Return true when currently logged user can change password
    *
-   * @return {[type]} [description]
    */
   _canPasswordChange() {
-    const { passwordChangeType, _permissions } = this.props;
+    const { passwordChangeType, _permissions, userContext } = this.props;
+    //
+    // Check if current logged user is admin
+    if (SecurityManager.isAdmin(userContext)) {
+      return true;
+    }
+    //
     return identityManager.canChangePassword(passwordChangeType, _permissions);
   }
 
@@ -198,7 +203,7 @@ class PasswordChangeForm extends Basic.AbstractContent {
                 level="warning"
                 icon="exclamation-sign"
                 text={ this.i18n('changeType.DISABLED') }
-                rendered={ passwordChangeType === IdentityManager.PASSWORD_DISABLED }/>
+                rendered={ passwordChangeType === IdentityManager.PASSWORD_DISABLED && !SecurityManager.isAdmin(userContext)}/>
               <Basic.Alert
                 level="warning"
                 icon="exclamation-sign"

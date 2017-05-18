@@ -10,6 +10,7 @@ import org.activiti.engine.delegate.event.ActivitiEventListener;
 import org.activiti.engine.delegate.event.ActivitiEventType;
 import org.activiti.engine.impl.bpmn.parser.factory.ActivityBehaviorFactory;
 import org.activiti.engine.impl.cfg.ProcessEngineConfigurationImpl;
+import org.activiti.engine.impl.persistence.StrongUuidGenerator;
 import org.activiti.spring.ProcessEngineFactoryBean;
 import org.activiti.spring.SpringProcessEngineConfiguration;
 import org.activiti.spring.autodeployment.SingleResourceAutoDeploymentStrategy;
@@ -21,9 +22,10 @@ import org.springframework.context.annotation.Configuration;
 
 import eu.bcvsolutions.idm.core.notification.service.api.EmailNotificationSender;
 import eu.bcvsolutions.idm.core.workflow.domain.CustomActivityBehaviorFactory;
-import eu.bcvsolutions.idm.core.workflow.domain.StartSubprocessEventListener;
-import eu.bcvsolutions.idm.core.workflow.domain.TaskSendNotificationEventListener;
 import eu.bcvsolutions.idm.core.workflow.domain.formtype.CustomFormTypes;
+import eu.bcvsolutions.idm.core.workflow.listener.CandidateToUUIDEventListener;
+import eu.bcvsolutions.idm.core.workflow.listener.StartSubprocessEventListener;
+import eu.bcvsolutions.idm.core.workflow.listener.TaskSendNotificationEventListener;
 
 /**
  * Workflow configuration for: - custom behavior (sending email through
@@ -51,9 +53,10 @@ public class WorkflowConfig {
 	
 	@Autowired
 	private StartSubprocessEventListener startSubprocesEventListener;
-	
 	@Autowired
 	private TaskSendNotificationEventListener taskSendNotificationEventListener;
+	@Autowired
+	private CandidateToUUIDEventListener candidateToUUIDEventListener;
 	
 	// Only local variable (no autowired bean)
 	private ProcessEngineConfigurationImpl processEngineConfiguration;
@@ -91,12 +94,9 @@ public class WorkflowConfig {
 					processEngineConfiguration = (ProcessEngineConfigurationImpl) (((ProcessEngineFactoryBean) bean)
 							.getProcessEngineConfiguration());
 					
-					//Resource[] resources = new Resource[1];
-					//resources[0] = new ClassPathResource("classpath*:/eu/bcvsolutions/idm/workflow/**/**.bpmn20.xml");
-
-					/*((SpringProcessEngineConfiguration) processEngineConfiguration)
-							.setDeploymentResources(resources);*/
-					
+					// Set UUID ID generator
+					StrongUuidGenerator uuidGenerator = new StrongUuidGenerator();
+					processEngineConfiguration.setIdGenerator(uuidGenerator);
 					
 					((SpringProcessEngineConfiguration) processEngineConfiguration)
 							.setDeploymentMode(SingleResourceAutoDeploymentStrategy.DEPLOYMENT_MODE);
@@ -127,11 +127,17 @@ public class WorkflowConfig {
 		typedListeners.put(ActivitiEventType.PROCESS_STARTED.name(),
 				Stream.of(startSubprocesEventListener).collect(Collectors.toList()));
 		typedListeners.put(ActivitiEventType.TASK_ASSIGNED.name(), 
-				Stream.of(taskSendNotificationEventListener).collect(Collectors.toList()));
+				Stream.of(taskSendNotificationEventListener, candidateToUUIDEventListener).collect(Collectors.toList()));
 		typedListeners.put(ActivitiEventType.TASK_CREATED.name(), 
-				Stream.of(taskSendNotificationEventListener).collect(Collectors.toList()));
+				Stream.of(taskSendNotificationEventListener, candidateToUUIDEventListener).collect(Collectors.toList()));
 		typedListeners.put(ActivitiEventType.TASK_COMPLETED.name(), 
-				Stream.of(taskSendNotificationEventListener).collect(Collectors.toList()));
+				Stream.of(taskSendNotificationEventListener, candidateToUUIDEventListener).collect(Collectors.toList()));
+		typedListeners.put(ActivitiEventType.ENTITY_CREATED.name(), 
+				Stream.of(candidateToUUIDEventListener).collect(Collectors.toList()));
+		typedListeners.put(ActivitiEventType.ENTITY_INITIALIZED.name(), 
+				Stream.of(candidateToUUIDEventListener).collect(Collectors.toList()));
+		
+		
 		processEngineConfiguration.setTypedEventListeners(typedListeners);
 	}
 

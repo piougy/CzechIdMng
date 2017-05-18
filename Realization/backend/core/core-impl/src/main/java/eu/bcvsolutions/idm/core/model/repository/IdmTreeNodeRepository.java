@@ -34,32 +34,15 @@ import eu.bcvsolutions.idm.core.rest.projection.IdmTreeNodeExcerpt;
 )
 public interface IdmTreeNodeRepository extends AbstractEntityRepository<IdmTreeNode, TreeNodeFilter>, TypeableForestContentRepository<IdmTreeNode, UUID> {
 
-	// Obsolete - IdmTreeNodeService.find now uses Criteria
-	@Deprecated
+	/**
+	 * @deprecated use IdmTreeNodeService (uses criteria api)
+	 */
 	@Override
-	@Query(value = "select e from IdmTreeNode e left join e.forestIndex fi"
-	        + " where"
-			// name and code
-	        + " ("
-	        	+ " ?#{[0].text} is null"
-	        	+ " or lower(e.name) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')}"
-	        	+ " or lower(e.code) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')}"
-        	+ " )"
-        	+ " and (?#{[0].treeTypeId} is null or e.treeType.id = ?#{[0].treeTypeId})"
-         		// on selected tree node recursively - given node is included true
-	        + " and (?#{[0].treeNode} is null or ?#{[0].recursively == true ? 'true' : 'false'} = 'false' " +
-			"or fi.lft BETWEEN ?#{[0].treeNode == null ? null : [0].treeNode.lft + 1} and ?#{[0].treeNode == null ? null : [0].treeNode.rgt - 1})"
-	        	// on selected tree node
-        	+ " and (?#{[0].treeNode} is null or ?#{[0].recursively == false ? 'true' : 'false'} = 'false' or e.parent = ?#{[0].treeNode})"
-	        + " and (?#{[0].defaultTreeType} is null or e.treeType = (select tt from IdmTreeType tt where tt.defaultTreeType = ?#{[0].defaultTreeType}))"
-	        + " and "
-	  	    + " ("
-	  	    	+ " ?#{[0].property} is null "
-	  	    	+ " or (?#{[0].property} = 'name' and e.name = ?#{[0].value})"
-				+ " or (?#{[0].property} = 'code' and e.code = ?#{[0].value})"
-				+ " or (?#{[0].property} = 'externalId' and e.externalId = ?#{[0].value})"
-	        + " )")
-	Page<IdmTreeNode> find(TreeNodeFilter filter, Pageable pageable);
+	@Deprecated
+	@Query(value = "select e from #{#entityName} e")
+	default Page<IdmTreeNode> find(TreeNodeFilter filter, Pageable pageable) {
+		throw new UnsupportedOperationException("Use IdmTreeNodeService (uses criteria api)");
+	}
 
 	/**
 	 * If parent is not given, then roots of given tree type is returned
@@ -88,7 +71,7 @@ public interface IdmTreeNodeRepository extends AbstractEntityRepository<IdmTreeN
 	Page<IdmTreeNode> findRoots(@Param("treeTypeId") UUID treeTypeId, Pageable pageable);
 	
 	/**
-	 * Finds root (indexed tree can have onlz one root)
+	 * Finds root (indexed tree can have only one root)
 	 * 
 	 * @param forestTreeType
 	 * @return

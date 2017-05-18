@@ -146,6 +146,10 @@ class AdvancedTable extends Basic.AbstractContextComponent {
         continue;
       }
       const filterComponent = filterForm.getComponent(property);
+      if (!filterComponent) {
+        // filter is not rendered
+        continue;
+      }
       const field = filterComponent.props.field || property;
       // TODO: implement multi value filters
       /* if (filterComponent.props.multiSelect === true) { // multiselect returns array of selected values

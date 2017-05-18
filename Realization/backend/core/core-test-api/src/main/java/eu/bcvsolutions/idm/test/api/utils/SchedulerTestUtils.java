@@ -12,6 +12,11 @@ import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmProcessedTaskItemDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmScheduledTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulableTaskExecutor;
 
+/**
+ * 
+ * @author Jan Helbich
+ * 
+ */
 public class SchedulerTestUtils {
 
 	public static IdmScheduledTaskDto createIdmScheduledTask(String taskName) {

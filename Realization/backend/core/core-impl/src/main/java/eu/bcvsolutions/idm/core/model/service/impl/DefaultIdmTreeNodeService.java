@@ -199,10 +199,11 @@ public class DefaultIdmTreeNodeService extends AbstractFormableService<IdmTreeNo
 		if (filter.getDefaultTreeType() != null) {
 			Subquery<IdmTreeType> subQuery = query.subquery(IdmTreeType.class);
 			Root<IdmTreeType> subRoot = subQuery.from(IdmTreeType.class);
+			subQuery.select(subRoot);
 			subQuery.where(
 				builder.and(
 					builder.equal(subRoot.get(IdmTreeType_.defaultTreeType), filter.getDefaultTreeType())),
-					builder.equal(root.get(IdmTreeNode_.treeType), subRoot.getModel())
+					builder.equal(root.get(IdmTreeNode_.treeType), subRoot)
 				);
 			predicates.add(builder.exists(subQuery));
 		}

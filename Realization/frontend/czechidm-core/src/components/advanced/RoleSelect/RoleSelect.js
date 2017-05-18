@@ -271,7 +271,7 @@ class RoleSelect extends Basic.AbstractFormComponent {
   }
 
   render() {
-    const { componentStyle,
+    const {
       columns,
       multiSelect,
       readOnly,

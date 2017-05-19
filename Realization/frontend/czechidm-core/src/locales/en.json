@@ -87,10 +87,10 @@
       "message": "Do you want to remove selected record [<strong>{{record}}</strong>]?",
       "message_plural": "Selected records: [<strong>{{records}}</strong>].<br /><br /> Do you want to remove <strong>{{count}}</strong> selected records?",
       "error": "An error occurred while removing [{{record}}].",
-      "success": "Selected record [{{record}}] was successfully deleted",
+      "success": "Selected record [{{record}}] successfully deleted",
       "success_plural": "Selected records [{{records}}] were successfully deleted",
-      "approve": "Record deletion [{{record}}] has to be approved, task was successfully created",
-      "approve_plural": "Records deletion [{{records}}] have to be approved, tasks was successfully created"
+      "approve": "Record deletion [{{record}}] has to be approved, task successfully created",
+      "approve_plural": "Records deletion [{{records}}] have to be approved, tasks successfully created"
     },
     "activate": {
       "action": "Activate",
@@ -99,7 +99,7 @@
       "message" : "Do you really want to activate selected record [<strong>{{record}}</strong>]?",
       "message_plural": "Selected records: [<strong>{{records}}</strong>].<br /><br />Do you really want to activate <strong>{{count}}</strong> selected records?",
       "error": "An error occurred while activating [{{record}}]",
-      "success": "Selected record [{{record}}] was successfully activated",
+      "success": "Selected record [{{record}}] successfully activated",
       "success_plural": "Selected records [{{records}}] were successfully activated"
     },
       "deactivate": {
@@ -113,7 +113,7 @@
       "success_plural": "Selected records [{{records}}] were successfully deactivated"
     },
     "save": {
-      "success": "Record [{{record}}] was successfully saved"
+      "success": "Record [{{record}}] successfully saved"
     }
   },
   "environment": {
@@ -314,7 +314,7 @@
     "PersistentTypeEnum": {
       "CHAR": "Char",
       "TEXT": "Text",
-      "TEXTAREA": "Textové field",
+      "TEXTAREA": "Text field",
       "RICHTEXTAREA": "WYSIWYG editor",
       "INT": "Integer",
       "LONG": "Long",
@@ -418,8 +418,8 @@
     },
     "RecursionTypeEnum": {
       "NO": "Without recursion",
-      "DOWN": "By structure down",
-      "UP": "By structure up"
+      "DOWN": "Down by structure",
+      "UP": "Up by structure"
     }
   },
  "dashboard": {
@@ -638,7 +638,7 @@
         "date": "Password can not be change now, try again: "
       },
       "save": {
-        "success": "Password policy [{{name}}] was successfully saved."
+        "success": "Password policy [{{name}}] successfully saved."
       }
     },
     "configuration": {
@@ -716,7 +716,7 @@
           "message": "Do you really want to approve the selected task?",
           "message_plural": "Do you really want to approve <strong>{{count}}</strong> the selected tasks?",
           "error": "When approving the task {{task}} task error occurred.",
-          "success": "The task was successfully approved",
+          "success": "The task successfully approved",
           "success_plural": "Tasks were successfully approved"
         },
         "disapprove": {
@@ -726,7 +726,7 @@
           "message": "Do you really want to reject the selected task?",
           "message_plural": "Do you really want to reject <strong>{{count}}</strong> the selected tasks?",
           "error": "When rejecting the task {{task}} task error occurred",
-          "success": "Task was successfully approved",
+          "success": "Task successfully approved",
           "success_plural": "Tasks were successfully approved"
         }
       }
@@ -744,7 +744,7 @@
           "createdDate": "Created on",
           "applicantFullName": "Applicant name",
           "applicant": "Requested for",
-          "successComplete": "The task {{name}} was successfully solved.",
+          "successComplete": "Task {{name}} successfully solved.",
           "completeTaskConfirmTitle": "Confirmation of task completion",
           "completeTaskConfirmDetail": "o you really want this task to terminate?",
           "role": {
@@ -762,8 +762,8 @@
           "disapprove": "Reject",
           "approvers": "Approvers of this task",
           "messages": {
-            "approved":"The task was successfully approved",
-            "disapproved": "The task was successfully rejected",
+            "approved":"Task successfully approved",
+            "disapproved": "Task successfully rejected",
             "confirmTaskApproveTitle": "Task approve confirmation",
             "confirmTaskApprove": "Do you really want this task to approve?",
             "confirmTaskDisapprove": "Do you really want this task to reject?",
@@ -893,7 +893,7 @@
             "header": "New element"
           },
           "save": {
-            "success": "Element [{{name}}] was successfully saved"
+            "success": "Element [{{name}}] successfully saved"
           }
         },
         "eav": {
@@ -917,7 +917,7 @@
             "header": "New automatic role"
           },
           "save": {
-            "success": "Automatic role [{{record}}] was successfully saved"
+            "success": "Automatic role [{{record}}] successfully saved"
           }
         }
       },
@@ -927,7 +927,7 @@
         "edit": "detail the type of structure",
         "create": "New type of tree structure",
         "save": {
-          "success": "The type [{{name}}] was successfully saved."
+          "success": "Type [{{name}}] successfully saved."
         },
         "configuration": {
           "button": {
@@ -964,7 +964,7 @@
         "title": "New folder"
       },
       "save": {
-        "success": "The folder [{{name}}] was successfully saved to catalog roles."
+        "success": "Folder [{{name}}] successfully saved to role catalog."
       },
       "parentPick": "Select folder",
       "reloadTree": "Reload tree catalog roles",
@@ -998,7 +998,7 @@
         "title": "Basic information"
       },
       "save": {
-        "success": "Form definition [{{name}}] was successfully saved"
+        "success": "Form definition [{{name}}] successfully saved"
       }
     },
     "formAttributes": {
@@ -1013,7 +1013,7 @@
         "header": "New attribute"
       },
       "save": {
-        "success": "Attribute [{{name}}] was successfully saved"
+        "success": "Attribute [{{name}}] successfully saved"
       },
       "filter": {
         "name": "Name"
@@ -1033,7 +1033,7 @@
         "header": "New script"
       },
       "save": {
-        "success": "The script [{{name}}] was successfully saved."
+        "success": "Script [{{name}}] successfully saved."
       },
       "filter": {
         "text": "Name / Description"
@@ -1047,7 +1047,7 @@
         "header": "Edit authority for script <small>{{name}}</small>"
       },
       "save": {
-        "success": "Authority for script was successfully saved"
+        "success": "Authority for script successfully saved"
       }
     },
     "roles": {
@@ -1072,7 +1072,7 @@
         "showRoleCatalogue": "Select from catalogue"
       },
       "save": {
-        "success": "The role [{{name}}] was successfully saved."
+        "success": "Role [{{name}}] successfully saved."
       },
       "processRoleChange": {
         "roleName": "Role name",
@@ -1133,7 +1133,7 @@
       "conceptHeader": "Requested change of permissions",
       "conceptWithCurrentRoleHeader": "Current assigned roles (includes requested changes)",
       "save": {
-        "success": "Request to change permissions was successfully saved",
+        "success": "Request to change permissions successfully saved",
         "start": "Execute request"
       },
       "button": {
@@ -1164,7 +1164,7 @@
         "header": "More information",
         "title": "More information",
         "save": {
-          "success": "Extended attributes for role [{{name}}] was successfully saved."
+          "success": "Extended attributes for role [{{name}}] successfully saved."
         },
         "error" : {
           "notFound": "Extended attributes definition for role not found."
@@ -1181,7 +1181,7 @@
           "header": "New automatic role"
         },
         "save": {
-          "success": "Automatic role [{{record}}] was successfully saved"
+          "success": "Automatic role [{{record}}] successfully saved"
         },
         "action": {
           "delete": {
@@ -1191,7 +1191,7 @@
             "message": "Do you want to remove selected roles [<strong>{{record}}</strong>]? All assigned roles dependent on removed automatic role will be removed too.",
             "message_plural": "Select records: [<strong>{{records}}</strong>].<br /><br />Do you want to remove <strong>{{count}}</strong> selected records? All assigned roles dependent on removed automatic role will be removed too.",
             "error": "An error occurred while removing [{{record}}].",
-            "success": "Selected record [{{record}}] was successfully deleted",
+            "success": "Selected record [{{record}}] successfully deleted",
             "success_plural": "Selected records [{{records}}] were successfully deleted"
           }
         }
@@ -1207,7 +1207,7 @@
           "header": "New permission"
         },
         "save": {
-          "success": "Permission [{{record}}] was successfully saved"
+          "success": "Permission [{{record}}] successfully saved"
         },
         "evaluator": {
           "default": "Default evaluator will be used. Agenda doesn't support other evaluator types."
@@ -1262,8 +1262,8 @@
         "messages": {
           "deactiveDisabled": "You cannot inactivate yourself.",
           "subordinatesCount": "User <strong>{{username}}</strong>, which is to be deactivate is manager of <strong>{{subordinatesCount}}</strong> users. <br/> Please select a new manager for dispayed users.",
-          "saved": "User {{username}} was successfully saved",
-          "deactivated": "User {{username}} user was successfully deactivated.",
+          "saved": "User {{username}} successfully saved",
+          "deactivated": "User {{username}} user successfully deactivated.",
           "deactivateBreak": {
             "title": "Setting of new manager was interrupted",
             "message": "New manager was successfully set for {{deactivateCounter}} users. Than the operation was interrupted. The operation can continue."
@@ -1290,7 +1290,7 @@
             "break": {
               "title": "Aborting processing - Processed users remain adjust",
               "label": "Abort operation",
-              "proceed": "Aborting operatioi ..."
+              "proceed": "Aborting operation ..."
             }
           }
         },
@@ -1306,7 +1306,7 @@
         "changeRoleProcesses": {
           "header": "Roles pending approval",
           "deleteConfirm": "Do you really want to delete selected request?",
-          "deleteSuccess": "Request was succesfully deleted."
+          "deleteSuccess": "Request succesfully deleted."
         },
         "changePermissionRequests": {
           "header": "Requests for authorization change"
@@ -1316,15 +1316,15 @@
         },
         "create": {
           "header": "Assign new role",
-          "success": "[{{role}}] was successfully assigned to user [{{username}}].",
+          "success": "Role [{{role}}] successfully assigned to user [{{username}}].",
           "accepted": "Role [{{role}}] for user [{{username}}] was successfully submitted to approval. Assignment must be approve first."
         },
         "edit": {
           "header": "{{role}} <small>assignment details</small>",
-          "success": "Role [{{role}}] of user [{{username}}] was successfully edited."
+          "success": "Role [{{role}}] of user [{{username}}] successfully edited."
         },
         "delete": {
-          "success": "Role [{{role}}] of user [{{username}}] was successfully removed."
+          "success": "Role [{{role}}] of user [{{username}}] successfully removed."
         },
         "contracts": {
           "empty": {
@@ -1361,7 +1361,7 @@
         },
         "message": {
           "wrongUser": "Change password to subordinates is not allowed",
-          "success": "Password on accounts [{{accounts}}] for users [{{username}}] was succesfully changed.",
+          "success": "Password on accounts [{{accounts}}] for users [{{username}}] succesfully changed.",
           "isAdmin": "You are logged in as administrator. Original password is not required for password change. Password can be changed on selected systems. Number of changes is not limited."
         },
         "button": {
@@ -1403,9 +1403,9 @@
         "label": "Record details"
       },
       "accounts": {
-        "header": "Accounts on systems na systémech",
+        "header": "Accounts in systems",
         "title": "$t(content.identity.accounts.header)",
-        "empty": "Nenalezeny žádné účty na koncových systémech."
+        "empty": "No accounts found in connected systems "
       },
       "identityContracts": {
         "header": "Contracted positions",
@@ -1414,11 +1414,11 @@
           "empty": "Contracted positions not found."
         },
         "delete": {
-          "success": "Contracted position [{{position}}] for user [{{username}}] was successfully removed."
+          "success": "Contracted position [{{position}}] for user [{{username}}] successfully removed."
         }
       },
       "approve": {
-        "header": "Schvalovatel pro role",
+        "header": "Role approver",
         "title": "$t(content.identity.approve.header)"
       },
       "create": {
@@ -1429,7 +1429,7 @@
           "add": " Create user"
         },
         "message": {
-          "success": "User [{{username}}] was successfully created."
+          "success": "User [{{username}}] successfully created."
         }
       },
       "delegates": {
@@ -1445,7 +1445,7 @@
               "title": "Remove delegation",
               "message": "Do you really want to remove delegation on user <strong>{{delegate}}</strong>?"
             },
-            "success": "Delegation on user [{{delegate}}] was successfully removed."
+            "success": "Delegation on user [{{delegate}}] successfully removed."
           }
         },
         "button": {
@@ -1471,7 +1471,7 @@
         "header": "More information",
         "title": "More information",
         "save": {
-          "success": "Extended attributes for identity [{{name}}] was successfully saved."
+          "success": "Extended attributes for identity [{{name}}] successfully saved."
         },
         "error" : {
           "notFound": "Extended attributes definition for identity not found."
@@ -1492,16 +1492,16 @@
         "edit": {
           "title": "Contracted position detail",
           "header": "{{position}} <small>contracted position detail</small>",
-          "success": "Contracted position [{{position}}] was successfully saved."
+          "success": "Contracted position [{{position}}] successfully saved."
         },
         "create": {
           "title": "New contracted position",
           "header": "New contracted position",
-          "success": "Contracted position [{{position}}] was successfully saved.",
+          "success": "Contracted position [{{position}}] successfully saved.",
           "accepted": "Contracted position [{{position}}] was accepted. Contracted position has to be approved at first."
         },
         "save": {
-          "success": "Contracted position [{{name}}] was successfully saved."
+          "success": "Contracted position [{{name}}] successfully saved."
         }
       },
       "eav": {
@@ -1509,7 +1509,7 @@
         "title": "More information",
         "label": "More information",
         "save": {
-          "success": "Extended attributes for contracted position [{{name}}] was successfully saved."
+          "success": "Extended attributes for contracted position [{{name}}] successfully saved."
         },
         "error" : {
           "notFound": "Extended attributes definition for contracted position not found."
@@ -1621,27 +1621,27 @@
           },
           "trigger-create": {
             "header": "New scheduled run",
-            "success": "Scheduled run was successfully added."
+            "success": "Scheduled run successfully added."
           },
           "task-create": {
             "header": "Create task",
-            "success": "Task [{{record}}] was successfully created."
+            "success": "Task [{{record}}] successfully created."
           },
           "task-edit": {
             "header": "Task details",
-            "success": "Task [{{record}}] was successfully updated.",
+            "success": "Task [{{record}}] successfully updated.",
             "parameters": "Task parameters"
           },
           "task-run": {
-            "success": "Task [{{record}}] was successfully started."
+            "success": "Task [{{record}}] successfully started."
           },
           "task-delete": {
             "header": "Remove task",
             "message": "Do you really want to remove taks [<strong>{{record}}</strong>]?",
-            "success": "Task [{{record}}] was successfully removed."
+            "success": "Task [{{record}}] successfully removed."
           },
           "save": {
-            "success": "Task [{{record}}] was successfully saved ."
+            "success": "Task [{{record}}] successfully saved ."
           }
         }
       },
@@ -1719,10 +1719,10 @@
       "header": "Notification details",
       "title": "Notification details",
       "titleNew": "Notification",
-      "relatedNotifications": "Záznamy při odeslání",
+      "relatedNotifications": "Records from sender",
       "label": {
-        "notSent": "Neodesláno",
-        "sentPartly": "Částečně"
+        "notSent": "Not sent",
+        "sentPartly": "Partially sent"
       },
       "sent": {
         "success": "Odeslání notifikace bylo úspěšné"
@@ -1747,10 +1747,10 @@
     "email": {
       "header": "E-mail details",
       "title": "E-mail details",
-      "relatedNotifications": "Záznamy při odeslání",
+      "relatedNotifications": "Records from sender",
       "label": {
-        "notSent": "Neodesláno",
-        "sentPartly": "Částečně"
+        "notSent": "Not sent",
+        "sentPartly": "Partially sent"
       }
     },
     "websockets": {
@@ -1896,8 +1896,8 @@
   "entity": {
     "id": {
       "label": "Id",
-      "title": "Identifikátor",
-      "help": "Interní identifikátor"
+      "title": "Identificator",
+      "help": "Internal identificator"
     },
     "created": "Created",
 
@@ -2013,7 +2013,7 @@
       "_type": "Automatic role",
       "role": "Role",
       "treeNode": "Tree node",
-      "recursionType": "Reursion type"
+      "recursionType": "Recursion type"
     },
     "AuthorizationPolicy": {
       "_type": "Permission",
@@ -2069,7 +2069,7 @@
       "versionLabel": "Version"
     },
     "ApprovalTask": {
-      "taskId": "Identifikátor",
+      "taskId": "Identificator",
       "taskName": "Task name",
       "createdDate": "Created",
       "closedDate": "Closed",
@@ -2132,8 +2132,8 @@
       }
     },
     "Delegate": {
-      "_type": "Delegace",
-      "id": "Interní id",
+      "_type": "Delegation",
+      "id": "Internal id",
       "identity": "User",
       "delegate": "To user",
       "from": "from",
@@ -2144,7 +2144,7 @@
     "WorkflowTaskInstance": {
       "taskDescription": "Subject",
       "taskCreated": "Created on",
-      "id": "Task ID"
+      "id": "Task Id"
     },
     "WorkflowHistoricProcessInstance": {
       "name": "Process name",
@@ -2153,8 +2153,8 @@
       "startActivityId": "Started by activity",
       "deleteReason": "Reason for deletion",
       "processVariables": "Process variables",
-      "superProcessInstanceId": "Parent process ID",
-      "id": "ID",
+      "superProcessInstanceId": "Parent process id",
+      "id": "Id",
       "applicant": "Applicant"
     },
     "WorkflowHistoricTaskInstance": {
@@ -2163,7 +2163,7 @@
       "endTime": "Ends on",
       "assignee": "Assigned by",
       "deleteReason": "Completed",
-      "id": "ID",
+      "id": "Id",
       "priority": "Priority",
       "createTime": "Created on",
       "completeTaskDecision": "Result",
@@ -2183,7 +2183,7 @@
       "sender": "Sender",
       "recipients": "Recipients",
       "sent": "Sent",
-      "sentLog": "Zpráva při odeslání",
+      "sentLog": "Message from sender",
       "type": "Type",
       "template": "Template"
     },
@@ -2347,12 +2347,12 @@
       "name": "Name",
       "module": "Module",
       "description": "Description",
-      "entityType": "Typ entity",
+      "entityType": "Entity type",
       "eventTypes": "Event types",
       "order": "Order",
       "disabled": "Inactive",
-      "disableable": "Nelze vypnout",
-      "closeable": "Uzavírá zpracování"
+      "disableable": "Cannot be disabled",
+      "closeable": "Closes processing"
     },
     "LongRunningTask": {
       "taskId": "Task ID",
@@ -2370,7 +2370,7 @@
       "duration": "Task duration"
     },
     "ScheduleTask": {
-      "id": "Identifikátor",
+      "id": "Identificator",
       "taskType": "Task type",
       "instanceId": {
         "label": "Instance",
@@ -2530,12 +2530,12 @@
       "message": "Your application permissions have been modified, please log-in again."
     },
     "FORBIDDEN": {
-      "title": "Nedostatečná oprávnění",
-      "message": "Na požadovanou akci nemáte dostatečná oprávnění."
+      "title": "Insufficient permissions",
+      "message": "You dont have insufficient permissions for selected action."
     },
     "PASSWORD_CHANGE_NO_SYSTEM": {
       "title": "Password change failed",
-      "message": "Vyberte alespoň jeden systém, na kterém má býti heslo změněno."
+      "message": "Please, select at least one system, where password will be changed."
     },
     "PASSWORD_CHANGE_CURRENT_FAILED_IDM": {
       "title": "Password change failed",
@@ -2583,7 +2583,7 @@
     },
     "PASSWORD_POLICY_MAX_AGE_LOWER": {
       "title": "Password policy wasn't saved",
-      "message": "Maximální doba pro změnu hesla nesmí být menší než minimální."
+      "message": "Maximum period for password change cannot be shorter than minimum period."
     },
     "PASSWORD_POLICY_DEFAULT_TYPE": {
       "title": "Password policy wasn't saved",
@@ -2595,7 +2595,7 @@
     },
     "PASSWORD_POLICY_BAD_TYPE": {
       "title": "Password policy wasn't saved",
-      "message": "Politika má špatný typ, pro validaci využívejte pouze validační politiky, pro generování pouze politiky pro generování."
+      "message": "Policy has incorrect type. Use validating policies for validation and generating policies for generating."
     },
     "PASSWORD_POLICY_VALIDATION": {
       "title": "Password policy wasn't saved",
@@ -2620,7 +2620,7 @@
       "title": "Bad value"
     },
     "BAD_UUID": {
-      "title": "Unexpected Identificator",
+      "title": "Unexpected identificator",
       "message": "Identificator [{{uuid}}] is not valid. Expecting uuid."
     },
     "ROLE_CATALOG_BAD_PARENT": {

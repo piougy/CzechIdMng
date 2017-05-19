@@ -70,7 +70,7 @@ import eu.bcvsolutions.idm.core.security.service.GrantedAuthoritiesFactory;
  * @author Radek Tomiška
  *
  */
-@RepositoryRestController
+@RepositoryRestController // TODO: @RestController after eav to dto
 @RequestMapping(value = BaseDtoController.BASE_PATH + "/identities")
 public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIdentityDto, IdentityFilter> {
 
@@ -366,8 +366,6 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 	@Override
 	protected IdentityFilter toFilter(MultiValueMap<String, Object> parameters) {
 		IdentityFilter filter = new IdentityFilter(parameters);
-		filter.setId(getParameterConverter().toUuid(parameters, "id"));
-		filter.setText(getParameterConverter().toString(parameters, "text"));
 		filter.setDisabled(getParameterConverter().toBoolean(parameters, "disabled"));
 		filter.setSubordinatesFor(getParameterConverter().toEntityUuid(parameters, IdentityFilter.PARAMETER_SUBORDINATES_FOR, IdmIdentity.class));
 		filter.setSubordinatesByTreeType(getParameterConverter().toEntityUuid(parameters, IdentityFilter.PARAMETER_SUBORDINATES_BY_TREE_TYPE, IdmTreeType.class));

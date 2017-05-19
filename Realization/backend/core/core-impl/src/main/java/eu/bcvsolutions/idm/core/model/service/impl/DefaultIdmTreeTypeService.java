@@ -12,7 +12,7 @@ import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
-import eu.bcvsolutions.idm.core.api.dto.ConfigurationDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmConfigurationDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 import eu.bcvsolutions.idm.core.api.utils.SpinalCase;
@@ -96,7 +96,7 @@ public class DefaultIdmTreeTypeService extends AbstractReadWriteEntityService<Id
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<ConfigurationDto> getConfigurations(IdmTreeType treeType) {
+	public List<IdmConfigurationDto> getConfigurations(IdmTreeType treeType) {
 		Assert.notNull(treeType);
 		//
 		return new ArrayList<>(configurationService.getConfigurations(getConfigurationPrefix(treeType.getCode())).values());

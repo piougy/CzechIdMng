@@ -268,7 +268,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		//
 		assertNull(existsConnectorObject);
 		// password is stored in confidential storage
-		assertNotNull(confidentialStorage.get(operation, sysProvisioningOperationService.createAccountObjectPropertyKey(passwordAttributeMappingKey.getKey(), 0)));
+		assertNotNull(confidentialStorage.get(operation.getId(), operation.getClass(), sysProvisioningOperationService.createAccountObjectPropertyKey(passwordAttributeMappingKey.getKey(), 0)));
 		//
 		system.setDisabled(false);
 		systemService.save(system);
@@ -297,7 +297,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		assertNotNull(attribute);
 		assertEquals(systemEntityUid, attribute.getUidValue());
 		// password is removed in confidential storage
-		assertNull(confidentialStorage.get(operation, sysProvisioningOperationService.createAccountObjectPropertyKey(passwordAttributeMappingKey.getKey(), 0)));
+		assertNull(confidentialStorage.get(operation.getId(), operation.getClass(), sysProvisioningOperationService.createAccountObjectPropertyKey(passwordAttributeMappingKey.getKey(), 0)));
 	}
 	
 	@Test
@@ -343,8 +343,8 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		//
 		assertNull(existsConnectorObject);
 		// passwords are stored in confidential storage
-		assertNotNull(confidentialStorage.get(operation, sysProvisioningOperationService.createAccountObjectPropertyKey( passwordAttributeMappingKey.getKey(), 0)));
-		assertNotNull(confidentialStorage.get(operation, sysProvisioningOperationService.createConnectorObjectPropertyKey(operation.getProvisioningContext().getConnectorObject().getAttributeByName(passwordAttributeMappingKey.getSchemaAttributeName()), 0)));
+		assertNotNull(confidentialStorage.get(operation.getId(), operation.getClass(), sysProvisioningOperationService.createAccountObjectPropertyKey( passwordAttributeMappingKey.getKey(), 0)));
+		assertNotNull(confidentialStorage.get(operation.getId(), operation.getClass(), sysProvisioningOperationService.createConnectorObjectPropertyKey(operation.getProvisioningContext().getConnectorObject().getAttributeByName(passwordAttributeMappingKey.getSchemaAttributeName()), 0)));
 		//
 		system.setReadonly(false);
 		systemService.save(system);
@@ -373,8 +373,8 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		assertNotNull(attribute);
 		assertEquals(systemEntityUid, attribute.getUidValue());
 		// passwords are removed in confidential storage
-		assertNull(confidentialStorage.get(operation, sysProvisioningOperationService.createAccountObjectPropertyKey(passwordAttributeMapping.getSchemaAttribute().getName(), 0)));
-		assertNull(confidentialStorage.get(operation, sysProvisioningOperationService.createConnectorObjectPropertyKey(operation.getProvisioningContext().getConnectorObject().getAttributeByName(passwordAttributeMapping.getSchemaAttribute().getName()), 0)));
+		assertNull(confidentialStorage.get(operation.getId(), operation.getClass(), sysProvisioningOperationService.createAccountObjectPropertyKey(passwordAttributeMapping.getSchemaAttribute().getName(), 0)));
+		assertNull(confidentialStorage.get(operation.getId(), operation.getClass(), sysProvisioningOperationService.createConnectorObjectPropertyKey(operation.getProvisioningContext().getConnectorObject().getAttributeByName(passwordAttributeMapping.getSchemaAttribute().getName()), 0)));
 	}
 	
 	// TODO: batch test - create, update, update, delete - all has to be processed, batch needs to be cleared

@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningContext;
@@ -97,7 +98,7 @@ public class DefaultSysProvisioningOperationService
 		entity = super.save(entity);
 		// save prepared guarded strings into confidential storage 
 		for(Entry<String, Serializable> entry : confidentialValues.entrySet()) {
-			confidentialStorage.save(entity, entry.getKey(), entry.getValue());
+			confidentialStorage.save(entity.getId(), entity.getClass(), entry.getKey(), entry.getValue());
 		}
 		//
 		return entity;
@@ -149,7 +150,13 @@ public class DefaultSysProvisioningOperationService
 			Object idmValue = entry.getValue();
 			// single value
 			if (idmValue instanceof ConfidentialString) {
-				fullAccountObject.put(entry.getKey(), confidentialStorage.getGuardedString(provisioningOperation, ((ConfidentialString)idmValue).getKey()));
+				fullAccountObject.put(
+						entry.getKey(), 
+						confidentialStorage.getGuardedString(
+								provisioningOperation.getId(), 
+								provisioningOperation.getClass(), 
+								((ConfidentialString)idmValue).getKey())
+						);
 				continue;
 			}
 			// array
@@ -160,7 +167,10 @@ public class DefaultSysProvisioningOperationService
 					for(int j = 0; j < idmValues.length; j++) {
 						Object singleValue = idmValues[j];
 						if (singleValue instanceof ConfidentialString) {
-							processedValues.add(confidentialStorage.getGuardedString(provisioningOperation, ((ConfidentialString)singleValue).getKey()));
+							processedValues.add(confidentialStorage.getGuardedString(
+									provisioningOperation.getId(), 
+									provisioningOperation.getClass(), 
+									((ConfidentialString)singleValue).getKey()));
 						}
 					}
 					if (!processedValues.isEmpty()) {
@@ -175,7 +185,10 @@ public class DefaultSysProvisioningOperationService
 				List<GuardedString> processedValues = new ArrayList<>();
 				idmValues.forEach(singleValue -> {
 					if (singleValue instanceof ConfidentialString) {													
-						processedValues.add(confidentialStorage.getGuardedString(provisioningOperation, ((ConfidentialString)singleValue).getKey()));
+						processedValues.add(confidentialStorage.getGuardedString(
+								provisioningOperation.getId(), 
+								provisioningOperation.getClass(), 
+								((ConfidentialString)singleValue).getKey()));
 					}
 				});
 				if (!processedValues.isEmpty()) {
@@ -213,7 +226,12 @@ public class DefaultSysProvisioningOperationService
 				List<Object> values = (List<Object>)attribute.getValues();
 				attributeCopy = new IcAttributeImpl(attribute.getName(), values, true);
 			} else if (attribute instanceof IcPasswordAttribute && attribute.getValue() != null) {
-				attributeCopy = new IcPasswordAttributeImpl(attribute.getName(), confidentialStorage.getGuardedString(provisioningOperation, ((ConfidentialString) attribute.getValue()).getKey()));
+				attributeCopy = new IcPasswordAttributeImpl(
+						attribute.getName(), 
+						confidentialStorage.getGuardedString(
+								provisioningOperation.getId(), 
+								provisioningOperation.getClass(), 
+								((ConfidentialString) attribute.getValue()).getKey()));
 			} else if (attribute instanceof IcPasswordAttribute && attribute.getValue() == null) {
 				attributeCopy = new IcPasswordAttributeImpl(attribute.getName(), (GuardedString) null);
 			} else {
@@ -415,7 +433,7 @@ public class DefaultSysProvisioningOperationService
 				}
 				// single value
 				if (idmValue instanceof ConfidentialString) {
-					confidentialStorage.delete(provisioningOperation, ((ConfidentialString)entry.getValue()).getKey());
+					confidentialStorage.delete(provisioningOperation.getId(), provisioningOperation.getClass(), ((ConfidentialString)entry.getValue()).getKey());
 				}
 				// array
 				else if(idmValue.getClass().isArray()) {
@@ -424,7 +442,10 @@ public class DefaultSysProvisioningOperationService
 						for(int j = 0; j < idmValues.length; j++) {
 							Object singleValue = idmValues[j];
 							if (singleValue instanceof ConfidentialString) {
-								confidentialStorage.delete(provisioningOperation, ((ConfidentialString)singleValue).getKey());
+								confidentialStorage.delete(
+										provisioningOperation.getId(), 
+										provisioningOperation.getClass(), 
+										((ConfidentialString)singleValue).getKey());
 							}
 						}
 					}
@@ -434,7 +455,10 @@ public class DefaultSysProvisioningOperationService
 					Collection<?> idmValues = (Collection<?>) idmValue;
 					idmValues.forEach(singleValue -> {
 						if (singleValue instanceof ConfidentialString) {
-							confidentialStorage.delete(provisioningOperation, ((ConfidentialString)singleValue).getKey());
+							confidentialStorage.delete(
+									provisioningOperation.getId(), 
+									provisioningOperation.getClass(), 
+									((ConfidentialString)singleValue).getKey());
 						}
 					});
 				}		
@@ -446,7 +470,10 @@ public class DefaultSysProvisioningOperationService
 			connectorObject.getAttributes().forEach(attribute -> {
 				attribute.getValues().forEach(attributeValue -> {
 					if (attributeValue instanceof ConfidentialString) {
-						confidentialStorage.delete(provisioningOperation, ((ConfidentialString)attributeValue).getKey());
+						confidentialStorage.delete(
+								provisioningOperation.getId(), 
+								provisioningOperation.getClass(), 
+								((ConfidentialString)attributeValue).getKey());
 					}
 				});	
 			});

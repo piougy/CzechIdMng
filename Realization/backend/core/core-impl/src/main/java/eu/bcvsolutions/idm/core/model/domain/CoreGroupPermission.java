@@ -82,10 +82,11 @@ public enum CoreGroupPermission implements GroupPermission {
 			IdmBasePermission.DELETE),
 	CONFIGURATION( // read configuration is public operation
 			IdmBasePermission.ADMIN, 
+			IdmBasePermission.AUTOCOMPLETE,
+			IdmBasePermission.READ,
 			IdmBasePermission.CREATE,
 			IdmBasePermission.UPDATE, 
-			IdmBasePermission.DELETE), 
-	CONFIGURATIONSECURED(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
+			IdmBasePermission.DELETE),
 	PASSWORDPOLICY(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
 	SCRIPT(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
 	AUDIT(IdmBasePermission.ADMIN, IdmBasePermission.READ),
@@ -127,14 +128,12 @@ public enum CoreGroupPermission implements GroupPermission {
 	public static final String IDENTITYCONTRACT_UPDATE = "IDENTITYCONTRACT" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String IDENTITYCONTRACT_DELETE = "IDENTITYCONTRACT" + BasePermission.SEPARATOR + "DELETE";
 	//
+	public static final String CONFIGURATION_AUTOCOMPLETE = "CONFIGURATION" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
+	public static final String CONFIGURATION_ADMIN = "CONFIGURATION" + BasePermission.SEPARATOR + "ADMIN";
+	public static final String CONFIGURATION_READ = "CONFIGURATION" + BasePermission.SEPARATOR + "READ";
 	public static final String CONFIGURATION_CREATE = "CONFIGURATION" + BasePermission.SEPARATOR + "CREATE";
 	public static final String CONFIGURATION_UPDATE = "CONFIGURATION" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String CONFIGURATION_DELETE = "CONFIGURATION" + BasePermission.SEPARATOR + "DELETE";
-	//
-	public static final String CONFIGURATIONSECURED_READ = "CONFIGURATIONSECURED" + BasePermission.SEPARATOR + "READ";
-	public static final String CONFIGURATIONSECURED_CREATE = "CONFIGURATIONSECURED" + BasePermission.SEPARATOR + "CREATE";
-	public static final String CONFIGURATIONSECURED_UPDATE = "CONFIGURATIONSECURED" + BasePermission.SEPARATOR + "UPDATE";
-	public static final String CONFIGURATIONSECURED_DELETE = "CONFIGURATIONSECURED" + BasePermission.SEPARATOR + "DELETE";
 	//
 	public static final String TREENODE_CREATE = "TREENODE" + BasePermission.SEPARATOR + "CREATE";
 	public static final String TREENODE_UPDATE = "TREENODE" + BasePermission.SEPARATOR + "UPDATE";

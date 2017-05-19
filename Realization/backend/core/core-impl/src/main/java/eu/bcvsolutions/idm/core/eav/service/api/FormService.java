@@ -23,13 +23,13 @@ import eu.bcvsolutions.idm.core.eav.service.impl.AbstractFormValueService;
  * Confidential values are stored in confidential storage.
  * 
  * TODO: EAV entities dto and move to api
- * TODO: FormabeleEntity -> FormableDto ...
+ * TODO: FormableEntity -> FormableDto ...
  * 
- * @see {@link ConfidentialStorage}
- * @see {@link IdmFormDefinition}
- * @see {@link IdmFormAttribute}
- * @see {@link AbstractFormValue}
- * @see {@link FormableEntity}
+ * @see ConfidentialStorage
+ * @see IdmFormDefinition}
+ * @see IdmFormAttribute}
+ * @see AbstractFormValue
+ * @see FormableEntity
  * 
  * @author Radek Tomiška
  *

@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
+import org.springframework.util.ObjectUtils;
 
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
@@ -45,7 +46,7 @@ public abstract class AbstractReadWriteDtoService<DTO extends BaseDto, E extends
 		E persistEntity = null;
 		if (dto.getId() != null) {
 			persistEntity = this.getEntity(dto.getId());
-			if (persistEntity != null && permission != null) {
+			if (persistEntity != null && !ObjectUtils.isEmpty(permission)) {
 				// check access on previous entity - update is needed
 				checkAccess(persistEntity, IdmBasePermission.UPDATE);
 			}

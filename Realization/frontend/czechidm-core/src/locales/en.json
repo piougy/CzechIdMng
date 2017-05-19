@@ -445,7 +445,6 @@
       "APP": "App configuration",
       "AUDIT": "Audit",
       "CONFIGURATION": "Configuration (app)",
-      "CONFIGURATIONSECURED": "Configuration (system)",
       "IDENTITY": "Users",
       "IDENTITYROLE": "Assigned roles",
       "IDENTITYCONTRACT": "Contracted positions",

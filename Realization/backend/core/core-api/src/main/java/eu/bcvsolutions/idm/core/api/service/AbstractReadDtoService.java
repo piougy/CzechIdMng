@@ -317,6 +317,16 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 		});
 		return dtos;
 	}
+	
+	/**
+	 * Converts given DTO to entity
+	 *
+	 * @param dto
+	 * @return
+	 */
+	protected E toEntity(DTO dto) {
+		return toEntity(dto, null);
+	}
 
 	/**
 	 * Converts DTO to entity

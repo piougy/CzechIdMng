@@ -311,7 +311,7 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
  		try {
  			for (IcConfigurationService config: icConfiguration.getIcConfigs().values()) {
 				SysConnectorServer server = entity.getConnectorServer();
-				server.setPassword(this.confidentialStorage.getGuardedString(entity, SysSystemService.REMOTE_SERVER_PASSWORD));
+				server.setPassword(this.confidentialStorage.getGuardedString(entity.getId(), getEntityClass(), SysSystemService.REMOTE_SERVER_PASSWORD));
 				infos.put(config.getFramework(), config.getAvailableRemoteConnectors(server));
 			}
 		} catch (IcInvalidCredentialException e) {
@@ -344,7 +344,7 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 		// for remote connector form definition we need password for remote connector server
 		if (system.isRemote()) {
 			SysConnectorServer connectorServer = system.getConnectorServer();
-			connectorServer.setPassword(this.confidentialStorage.getGuardedString(system, SysSystemService.REMOTE_SERVER_PASSWORD));
+			connectorServer.setPassword(this.confidentialStorage.getGuardedString(system.getId(), getEntityClass(), SysSystemService.REMOTE_SERVER_PASSWORD));
 			system.setConnectorServer(connectorServer);
 		}
 		//

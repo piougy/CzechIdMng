@@ -397,7 +397,7 @@ module.exports = {
           {
             'type': 'HAS_ANY_AUTHORITY',
             'authorities': [
-              'TREENODE_UPDATE', 'CONFIGURATION_UPDATE', 'MODULE_READ',
+              'TREENODE_UPDATE', 'CONFIGURATION_READ', 'MODULE_READ',
               'SCHEDULER_READ', 'EAVFORMDEFINITIONS_READ', 'PASSWORDPOLICY_READ', 'SCRIPT_READ', 'ROLECATALOGUE_UPDATE'
             ]
           }
@@ -409,7 +409,7 @@ module.exports = {
             'icon': 'cog',
             'order': 10,
             'path': '/configurations',
-            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONFIGURATION_UPDATE', 'CONFIGURATIONSECURED_READ'] } ]
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONFIGURATION_READ'] } ]
           },
           {
             'id': 'modules',

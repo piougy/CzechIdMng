@@ -210,6 +210,6 @@ public class DefaultTestHelper implements TestHelper {
 	}
 	
 	private String createName() {
-		return "test" + "-" + System.currentTimeMillis();
+		return "test" + "-" + UUID.randomUUID();
 	}
 }

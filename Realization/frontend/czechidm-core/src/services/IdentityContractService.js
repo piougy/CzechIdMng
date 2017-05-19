@@ -55,6 +55,9 @@ class IdentityContractService extends FormableEntityService {
     if (entity._embedded.workPosition) {
       positionName = this.treeNodeService.getNiceLabel(entity._embedded.workPosition);
     }
+    if (positionName === null) {
+      positionName = 'default'; // TODO: locale or make at least one of position / tree node required!
+    }
     return niceLabel ? `${niceLabel} - ${positionName}` : positionName;
   }
 

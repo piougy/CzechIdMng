@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
-import eu.bcvsolutions.idm.core.api.dto.ConfigurationDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmConfigurationDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
@@ -106,7 +106,7 @@ public class IdmTreeTypeController extends DefaultReadWriteEntityController<IdmT
 	 */
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}/configurations", method = RequestMethod.GET)
-	public List<ConfigurationDto> getConfigurations(@PathVariable String backendId) {
+	public List<IdmConfigurationDto> getConfigurations(@PathVariable String backendId) {
 		IdmTreeType treeType = getEntity(backendId);
 		if (treeType == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));

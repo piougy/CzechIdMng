@@ -165,8 +165,8 @@ public class DefaultIdmTreeNodeService extends AbstractFormableService<IdmTreeNo
 		// fulltext
 		if (!StringUtils.isEmpty(filter.getText())) {
 			predicates.add(builder.or(
-				builder.like(root.get(IdmTreeNode_.code), filter.getText()),
-				builder.like(root.get(IdmTreeNode_.name), filter.getText())
+				builder.like(builder.lower(root.get(IdmTreeNode_.code)), "%" + filter.getText().toLowerCase() + "%"),
+				builder.like(builder.lower(root.get(IdmTreeNode_.name)), "%" + filter.getText().toLowerCase() + "%")
 			));
 		}
 

@@ -1802,6 +1802,10 @@
       "header": "Websocket",
       "title": "Websocket"
     },
+    "sms": {
+      "header": "Sms",
+      "title": "Sms"
+    },
     "websocket": {
       "header": "Detail websocket zprávy",
       "title": "Detail websocket zprávy"
@@ -2266,6 +2270,23 @@
       "type": "$t(entity.Notification.type)"
     },
     "WebsocketLog": {
+      "topic": "$t(entity.Notification.topic)",
+      "created": "$t(entity.Notification.created)",
+      "message": {
+        "subject": "$t(entity.Notification.message.subject)",
+        "message": "$t(entity.Notification.message.message)",
+        "textMessage": "$t(entity.Notification.message.textMessage)",
+        "htmlMessage": "$t(entity.Notification.message.htmlMessage)",
+        "model": "$t(entity.Notification.message.model)",
+        "level": "$t(entity.Notification.message.level)"
+      },
+      "sender": "$t(entity.Notification.sender)",
+      "recipients": "$t(entity.Notification.recipients)",
+      "sent": "$t(entity.Notification.sent)",
+      "sentLog": "$t(entity.Notification.sentLog)",
+      "type": "$t(entity.Notification.type)"
+    },
+    "SmsLog": {
       "topic": "$t(entity.Notification.topic)",
       "created": "$t(entity.Notification.created)",
       "message": {

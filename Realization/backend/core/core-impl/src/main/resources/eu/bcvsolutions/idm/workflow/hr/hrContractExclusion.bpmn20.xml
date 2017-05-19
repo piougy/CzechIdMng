@@ -1,10 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.bcvsolutions.eu/testDeployAndRun">
   <process id="hrContractExclusion" name="HR process - contract exclusion" isExecutable="true">
-    <documentation>Input:
-longRunningTaskId - UUID
-scheduledTaskId - UUID
-dto - IdmIdentityContractDto</documentation>
+    <documentation>HR process - contract exclusion
+Contract's validity is evaluated by two factors:
+        1. current date is between or equal to contract's time validity
+        2. contract is enabled
+
+Both 'Enabled contract' and 'End of contract' processes address only the time validity of the contract.
+However 'Contract exclusion' solves the situation when contract is valid from the time's point of view, but is
+disabled (manually or synchronized from authoritative resource).
+
+The process starts for all identity contracts that are disabled. If the processed contract was the last valid
+contract of the identity, the identity is disabled. No roles are removed neither by the process nor by standard CzechIdM features.
+
+Input:
+    longRunningTaskId - UUID
+    scheduledTaskId - UUID
+    dto - IdmIdentityContractDto</documentation>
     <startEvent id="startevent1" name="Start"></startEvent>
     <endEvent id="endevent" name="End"></endEvent>
     <sequenceFlow id="flow1" sourceRef="startevent1" targetRef="scripttask1"></sequenceFlow>

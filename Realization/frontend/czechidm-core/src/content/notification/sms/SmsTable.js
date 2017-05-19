@@ -9,9 +9,11 @@ import NotificationSentState from '../NotificationSentState';
 import NotificationLevelEnum from '../../../enums/NotificationLevelEnum';
 
 /**
-* Table of audit log for emails
+* Table of audit log for sms
+*
+* @author Peter Sourek
 */
-export class EmailTable extends Basic.AbstractContent {
+export class SmsTable extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
@@ -26,7 +28,7 @@ export class EmailTable extends Basic.AbstractContent {
   }
 
   getContentKey() {
-    return 'content.emails';
+    return 'content.sms';
   }
 
   componentDidMount() {
@@ -53,7 +55,7 @@ export class EmailTable extends Basic.AbstractContent {
     if (event) {
       event.preventDefault();
     }
-    this.context.router.push('/notification/emails/' + entity.id);
+    this.context.router.push('/notification/sms/' + entity.id);
   }
 
   _getStatus(data, rowIndex) {
@@ -63,7 +65,7 @@ export class EmailTable extends Basic.AbstractContent {
   }
 
   render() {
-    const { uiKey, emailManager } = this.props;
+    const { uiKey, manager } = this.props;
     const { filterOpened } = this.state;
 
     return (
@@ -73,7 +75,7 @@ export class EmailTable extends Basic.AbstractContent {
         <Advanced.Table
           ref="table"
           uiKey={uiKey}
-          manager={emailManager}
+          manager={manager}
           rowClass={({rowIndex, data}) => { return Utils.Ui.getRowClass(data[rowIndex]); }}
           filterOpened={filterOpened}
           filter={
@@ -170,11 +172,10 @@ export class EmailTable extends Basic.AbstractContent {
           <Advanced.Column
             property="sent"
             cell={
-              ({ data, rowIndex}) => {
-                this._getStatus(data, rowIndex);
+              ({ rowIndex, data}) => {
+                return this._getStatus(data, rowIndex);
               }
-            }
-            />
+            }/>
           <Advanced.Column property="sentLog" sort face="text" width="20%"/>
         </Advanced.Table>
       </div>
@@ -182,13 +183,13 @@ export class EmailTable extends Basic.AbstractContent {
   }
 }
 
-EmailTable.propTypes = {
+SmsTable.propTypes = {
   uiKey: PropTypes.string.isRequired,
-  emailManager: PropTypes.object.isRequired,
+  manager: PropTypes.object.isRequired,
   filterOpened: PropTypes.bool
 };
 
-EmailTable.defaultProps = {
+SmsTable.defaultProps = {
   filterOpened: false,
   _showLoading: false
 };
@@ -196,8 +197,8 @@ EmailTable.defaultProps = {
 function select(state, component) {
   return {
     _searchParameters: state.data.ui[component.uiKey] ? state.data.ui[component.uiKey].searchParameters : {},
-    _showLoading: component.emailManager.isShowLoading(state, `${component.uiKey}-detail`)
+    _showLoading: component.manager.isShowLoading(state, `${component.uiKey}-detail`)
   };
 }
 
-export default connect(select, null, null, { withRef: true })(EmailTable);
+export default connect(select, null, null, { withRef: true })(SmsTable);

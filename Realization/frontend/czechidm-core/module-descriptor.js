@@ -344,6 +344,19 @@ module.exports = {
             ]
           },
           {
+            'id': 'notification-sms',
+            'labelKey': 'content.sms.title',
+            'order': 200,
+            'path': '/notification/sms',
+            'icon': 'fa:commenting-o',
+            'access': [
+              {
+                'type': 'HAS_ANY_AUTHORITY',
+                'authorities': ['NOTIFICATION_READ']
+              }
+            ]
+          },
+          {
             'id': 'notification-templates',
             'labelKey': 'content.notificationTemplate.title',
             'icon': 'fa:envelope-square',

@@ -447,6 +447,16 @@ module.exports = {
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['NOTIFICATION_READ'] } ]
         },
         {
+          path: 'sms',
+          component: require('./src/content/notification/sms/Sms'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['NOTIFICATION_READ'] } ]
+        },
+        {
+          path: 'sms/:entityId',
+          component: require('./src/content/notification/sms/SmsContent'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['NOTIFICATION_READ'] } ]
+        },
+        {
           path: 'configurations',
           component: require('./src/content/notification/configuration/NotificationConfigurations'),
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['NOTIFICATIONCONFIGURATION_READ'] } ]

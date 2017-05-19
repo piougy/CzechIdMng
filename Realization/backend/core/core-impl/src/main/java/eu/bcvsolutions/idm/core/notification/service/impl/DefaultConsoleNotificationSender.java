@@ -46,10 +46,12 @@ public class DefaultConsoleNotificationSender extends AbstractNotificationSender
 		//
 		LOG.info("Sending notification to console [{}]", notification);
 		IdmConsoleLogDto log = createLog(notification);
-		System.out.println(MessageFormat.format("Sending notification [{0}]", createLogForSend(notification, true)));
+		final String message = MessageFormat.format("Sending notification [{0}]",
+			createLogForSend(notification, true));
+		LOG.info(message);
 		return log;
 	}
-	
+
 	/**
 	 * Persists new notification record from given notification
 	 * 

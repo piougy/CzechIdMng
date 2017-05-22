@@ -1194,7 +1194,7 @@
             "message_plural": "Select records: [<strong>{{records}}</strong>].<br /><br />Do you want to remove <strong>{{count}}</strong> selected records? All assigned roles dependent on removed automatic role will be removed too.",
             "error": "An error occurred while removing [{{record}}].",
             "success": "Selected record [{{record}}] successfully deleted",
-            "success_plural": "Selected records [{{records}}] were successfully deleted"
+            "success_plural": "Selected records [{{records}}] successfully deleted"
           }
         }
       },
@@ -1792,7 +1792,7 @@
         "resourceName": "Resource name",
         "category": "Category",
         "diagramResourceName": "Schmena name",
-        "deploymentId": "Deployment ID",
+        "deploymentId": "Deployment Id",
         "resourceName": "Resource name",
         "id":"Identificator",
         "diagram": "Process preview",
@@ -1840,8 +1840,8 @@
           }
         },
         "task":{
-          "title": "User tasks in  process",
-          "header": "User tasks in  process",
+          "title": "User tasks in process",
+          "header": "User tasks in process",
           "startTime": "$t(entity.WorkflowHistoricTaskInstance.startTime)",
           "endTime": "$t(entity.WorkflowHistoricTaskInstance.endTime)",
           "deleteReason": "$t(entity.WorkflowHistoricTaskInstance.deleteReason)",
@@ -1924,11 +1924,11 @@
       "_type": "Role name",
       "code": {
         "name": "Code",
-        "help": "Folder code is unique within all folder codes in catalogue."
+        "help": "Folder code is unique in catalog."
       },
       "name": {
         "name": "Folder name",
-        "help": "Descriptive attribute for users. Unique within catalog level."
+        "help": "Descriptive attribute for users. Unique in catalog level."
       },
       "url": "URL",
       "urlTitle": "URL title",
@@ -1972,7 +1972,7 @@
       "type": "Type",
       "name": "Name",
       "unmodifiable": {
-        "help": "System definition can't be deleted and can't be edited some of her attributes.",
+        "help": "System definition cannot be deleted. Some of its configurations are not able for edit.",
         "label": "System definition"
        }
     },
@@ -1985,11 +1985,11 @@
       "required": "Required",
       "readonly": "Read-only",
       "confidential": "Confidential",
-      "multiple": "Multi valued",
+      "multiple": "Multivalued",
       "placeholder": "Placeholder",
       "defaultValue": "Default value",
       "unmodifiable": {
-        "help": "System attribute can't be deleted and can't be edited some of his attributes.",
+        "help": "System attribute cannot be deleted. Some of its configurations are not able for edit.",
         "label": "System attribute"
        }
     },

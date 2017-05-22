@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.acc.service;
 
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -68,6 +70,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.eav.entity.AbstractFormValue;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.ic.domain.IcFilterOperationType;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
@@ -91,6 +94,7 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 	private static final String ATTRIBUTE_EMAIL = "email";
 	private static final String ATTRIBUTE_MODIFIED = "modified";
 	private static final String ATTRIBUTE_VALUE_CHANGED = "changed";
+	private static final String EAV_ATTRIBUTE = "EAV_ATTRIBUTE";
 
 	private static final String SYNC_CONFIG_NAME = "syncConfigName";
 
@@ -1049,6 +1053,164 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		// Delete log
 		syncLogService.delete(log);
 	}
+	
+	@Test
+	public void doStartSyncF_Unlinked_doLinkByEavAttribute() {
+		//
+		// call unlink
+		this.doStartSyncB_Linked_doUnLinked();
+		//
+		SysSyncConfig syncConfigCustom = setSyncConfigForEav(SYNC_CONFIG_NAME);
+
+		// Check state before sync
+		IdmIdentityDto identityOne = identityService.getByUsername("x" + IDENTITY_USERNAME_ONE);
+		IdmIdentityDto identityTwo = identityService.getByUsername("x" + IDENTITY_USERNAME_TWO);
+		
+		IdentityAccountFilter identityAccountFilterOne = new IdentityAccountFilter();
+		identityAccountFilterOne.setIdentityId(identityOne.getId());
+		Assert.assertEquals(0, identityAccoutnService.find(identityAccountFilterOne, null).getTotalElements());
+
+		IdentityAccountFilter identityAccountFilterTwo = new IdentityAccountFilter();
+		identityAccountFilterTwo.setIdentityId(identityTwo.getId());
+		Assert.assertEquals(0, identityAccoutnService.find(identityAccountFilterTwo, null).getTotalElements());
+
+		// Start synchronization
+		synchornizationService.setSynchronizationConfigId(syncConfigCustom.getId());
+		synchornizationService.process();
+		//
+		SynchronizationLogFilter logFilter = new SynchronizationLogFilter();
+		logFilter.setSynchronizationConfigId(syncConfigCustom.getId());
+		List<SysSyncLog> logs = syncLogService.find(logFilter, null).getContent();
+		Assert.assertEquals(1, logs.size());
+		SysSyncLog log = logs.get(0);
+		log.getSyncActionLogs();
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+
+		SyncActionLogFilter actionLogFilter = new SyncActionLogFilter();
+		actionLogFilter.setSynchronizationLogId(log.getId());
+		List<SysSyncActionLog> actions = syncActionLogService.find(actionLogFilter, null).getContent();
+		Assert.assertEquals(1, actions.size());
+
+		SysSyncActionLog actionLog = actions.stream().filter(action -> {
+			return SynchronizationActionType.LINK == action.getSyncAction();
+		}).findFirst().get();
+
+		SyncItemLogFilter itemLogFilter = new SyncItemLogFilter();
+		itemLogFilter.setSyncActionLogId(actionLog.getId());
+		List<SysSyncItemLog> items = syncItemLogService.find(itemLogFilter, null).getContent();
+		Assert.assertEquals(2, items.size());
+
+		// Check state after sync
+		Assert.assertEquals(1, identityAccoutnService.find(identityAccountFilterOne, null).getTotalElements());
+		Assert.assertEquals(1, identityAccoutnService.find(identityAccountFilterTwo, null).getTotalElements());
+
+		// Delete log
+		syncLogService.delete(log);
+	}
+	
+	@Test
+	public void doStartSyncF_Unlinked_doLinkByEavAttribute_ChangeValue() {
+		// call unlink
+		this.doStartSyncB_Linked_doUnLinked();
+		//
+		SysSyncConfig syncConfigCustom = setSyncConfigForEav(SYNC_CONFIG_NAME);
+		Assert.assertFalse(syncConfigService.isRunning(syncConfigCustom));
+		//
+		// Check state before sync
+		IdmIdentityDto identityOne = identityService.getByUsername("x" + IDENTITY_USERNAME_ONE);
+		IdmIdentityDto identityTwo = identityService.getByUsername("x" + IDENTITY_USERNAME_TWO);
+		
+		IdentityAccountFilter identityAccountFilterOne = new IdentityAccountFilter();
+		identityAccountFilterOne.setIdentityId(identityOne.getId());
+		Assert.assertEquals(0, identityAccoutnService.find(identityAccountFilterOne, null).getTotalElements());
+
+		IdentityAccountFilter identityAccountFilterTwo = new IdentityAccountFilter();
+		identityAccountFilterTwo.setIdentityId(identityTwo.getId());
+		Assert.assertEquals(0, identityAccoutnService.find(identityAccountFilterTwo, null).getTotalElements());
+		
+		// change eav atttribute for identity two
+		List<Serializable> list = new ArrayList<>();
+		list.add("5");
+		formService.saveValues(identityOne.getId(), IdmIdentity.class, EAV_ATTRIBUTE, list);
+		
+		// Start synchronization
+		synchornizationService.setSynchronizationConfigId(syncConfigCustom.getId());
+		synchornizationService.process();
+		//
+		SynchronizationLogFilter logFilter = new SynchronizationLogFilter();
+		logFilter.setSynchronizationConfigId(syncConfigCustom.getId());
+		List<SysSyncLog> logs = syncLogService.find(logFilter, null).getContent();
+		Assert.assertEquals(1, logs.size());
+		SysSyncLog log = logs.get(0);
+		log.getSyncActionLogs();
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+
+		SyncActionLogFilter actionLogFilter = new SyncActionLogFilter();
+		actionLogFilter.setSynchronizationLogId(log.getId());
+		List<SysSyncActionLog> actions = syncActionLogService.find(actionLogFilter, null).getContent();
+		Assert.assertEquals(2, actions.size()); // LINK and MISSING_ENTITY
+
+		SysSyncActionLog actionLog = actions.stream().filter(action -> {
+			return SynchronizationActionType.MISSING_ENTITY == action.getSyncAction();
+		}).findFirst().get();
+
+		SyncItemLogFilter itemLogFilter = new SyncItemLogFilter();
+		itemLogFilter.setSyncActionLogId(actionLog.getId());
+		List<SysSyncItemLog> items = syncItemLogService.find(itemLogFilter, null).getContent();
+		Assert.assertEquals(1, items.size());
+
+		// Check state after sync
+		Assert.assertEquals(0, identityAccoutnService.find(identityAccountFilterOne, null).getTotalElements());
+		Assert.assertEquals(1, identityAccoutnService.find(identityAccountFilterTwo, null).getTotalElements());
+
+		// Delete log
+		syncLogService.delete(log);
+	}
+	
+	private SysSyncConfig setSyncConfigForEav(String configName) {
+		SynchronizationConfigFilter configFilter = new SynchronizationConfigFilter();
+		configFilter.setName(configName);
+		List<SysSyncConfig> syncConfigs = syncConfigService.find(configFilter, null).getContent();
+
+		Assert.assertEquals(1, syncConfigs.size());
+		SysSyncConfig syncConfigCustom = syncConfigs.get(0);
+		Assert.assertFalse(syncConfigService.isRunning(syncConfigCustom));
+		
+		SysSystem system = syncConfigCustom.getSystemMapping().getSystem();
+		
+		SystemMappingFilter mappingFilter = new SystemMappingFilter();
+		mappingFilter.setEntityType(SystemEntityType.IDENTITY);
+		mappingFilter.setSystemId(system.getId());
+		mappingFilter.setOperationType(SystemOperationType.SYNCHRONIZATION);
+		List<SysSystemMapping> mappings = systemMappingService.find(mappingFilter, null).getContent();
+		Assert.assertEquals(1, mappings.size());
+		SysSystemMapping mapping = mappings.get(0);
+		
+		SystemAttributeMappingFilter attributeMappingFilter = new SystemAttributeMappingFilter();
+		attributeMappingFilter.setSystemMappingId(mapping.getId());
+
+		List<SysSystemAttributeMapping> attributes = schemaAttributeMappingService.find(attributeMappingFilter, null)
+				.getContent();
+		
+		// Set sync config
+		SysSystemAttributeMapping eavAttribute = attributes.stream().filter(attribute -> {
+			return attribute.getName().equals(EAV_ATTRIBUTE);
+		}).findFirst().get();
+		
+		Assert.assertNotNull(eavAttribute);
+		
+		syncConfigCustom.setCorrelationAttribute(eavAttribute);
+		syncConfigCustom.setLinkedAction(SynchronizationLinkedActionType.IGNORE);
+		syncConfigCustom.setUnlinkedAction(SynchronizationUnlinkedActionType.LINK);
+		syncConfigCustom.setMissingEntityAction(SynchronizationMissingEntityActionType.IGNORE);
+		syncConfigCustom.setMissingAccountAction(ReconciliationMissingAccountActionType.IGNORE);
+		syncConfigCustom.setReconciliation(true);
+		syncConfigService.save(syncConfigCustom);
+		
+		return syncConfigCustom;
+	}
 
 	@Transactional
 	public void changeResourceData() {
@@ -1084,6 +1246,7 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		resourceUser.setFirstname(IDENTITY_USERNAME_THREE);
 		resourceUser.setLastname(IDENTITY_USERNAME_THREE);
 		resourceUser.setEmail(IDENTITY_EMAIL_CORRECT);
+		resourceUser.setEavAttribute("3");
 		entityManager.persist(resourceUser);
 	}
 	
@@ -1111,6 +1274,7 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		resourceUserOne.setLastname(IDENTITY_USERNAME_ONE);
 		resourceUserOne.setEmail(IDENTITY_EMAIL_CORRECT);
 		resourceUserOne.setModified(paste);
+		resourceUserOne.setEavAttribute("1");
 		entityManager.persist(resourceUserOne);
 
 		TestResource resourceUserTwo = new TestResource();
@@ -1119,6 +1283,7 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		resourceUserTwo.setLastname(IDENTITY_USERNAME_TWO);
 		resourceUserTwo.setEmail(IDENTITY_EMAIL_CORRECT);
 		resourceUserTwo.setModified(future);
+		resourceUserTwo.setEavAttribute("2");
 		entityManager.persist(resourceUserTwo);
 	}
 
@@ -1222,6 +1387,15 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 				attributeMapping.setSystemMapping(entityHandlingResult);
 				schemaAttributeMappingService.save(attributeMapping);
 
+			}  else if (schemaAttr.getName().equals(EAV_ATTRIBUTE)) {
+				SysSystemAttributeMapping attributeMapping = new SysSystemAttributeMapping();
+				attributeMapping.setExtendedAttribute(true);
+				attributeMapping.setEntityAttribute(false);
+				attributeMapping.setSchemaAttribute(schemaAttr);
+				attributeMapping.setIdmPropertyName(EAV_ATTRIBUTE);
+				attributeMapping.setName(EAV_ATTRIBUTE);
+				attributeMapping.setSystemMapping(entityHandlingResult);
+				schemaAttributeMappingService.save(attributeMapping);
 			}
 		});
 	}

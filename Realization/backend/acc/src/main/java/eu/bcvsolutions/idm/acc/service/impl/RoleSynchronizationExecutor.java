@@ -27,7 +27,6 @@ import eu.bcvsolutions.idm.acc.entity.SysSyncActionLog;
 import eu.bcvsolutions.idm.acc.entity.SysSyncItemLog;
 import eu.bcvsolutions.idm.acc.entity.SysSyncLog;
 import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
-import eu.bcvsolutions.idm.acc.event.processor.RoleSaveProcessor;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccRoleAccountService;
@@ -42,17 +41,21 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.domain.RoleType;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.CorrelationFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
+import eu.bcvsolutions.idm.core.api.repository.BaseEntityRepository;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
+import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.model.dto.filter.RoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.event.RoleEvent;
 import eu.bcvsolutions.idm.core.model.event.RoleEvent.RoleEventType;
+import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
@@ -65,6 +68,7 @@ public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor
 
 	private final IdmRoleService roleService;
 	private final AccRoleAccountService roleAccoutnService;
+	private final IdmRoleRepository roleRepository;
 	public final static String ROLE_TYPE_FIELD = "roleType";
 
 	@Autowired
@@ -77,7 +81,7 @@ public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor
 			AccRoleAccountService roleAccoutnService, SysSyncItemLogService syncItemLogService,
 			IdmIdentityRoleService roleRoleService, EntityEventManager entityEventManager,
 			GroovyScriptService groovyScriptService, WorkflowProcessInstanceService workflowProcessInstanceService,
-			EntityManager entityManager) {
+			EntityManager entityManager, IdmRoleRepository roleRepository) {
 		super(connectorFacade, systemService, attributeHandlingService, synchronizationConfigService,
 				synchronizationLogService, syncActionLogService, accountService, systemEntityService,
 				confidentialStorage, formService, syncItemLogService, entityEventManager, groovyScriptService,
@@ -86,10 +90,11 @@ public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor
 		Assert.notNull(roleService, "Identity service is mandatory!");
 		Assert.notNull(roleAccoutnService, "Identity account service is mandatory!");
 		Assert.notNull(roleRoleService, "Identity role service is mandatory!");
+		Assert.notNull(roleRepository);
 
 		this.roleService = roleService;
 		this.roleAccoutnService = roleAccoutnService;
-
+		this.roleRepository = roleRepository;
 	}
 
 	/**
@@ -285,47 +290,6 @@ public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor
 		return;
 	}
 	
-
-	/**
-	 * Find entity by correlation attribute
-	 * 
-	 * @param attribute
-	 * @param entityType
-	 * @param icAttributes
-	 * @return
-	 */
-	protected AbstractEntity findEntityByCorrelationAttribute(AttributeMapping attribute,
-			List<IcAttribute> icAttributes) {
-		Assert.notNull(attribute);
-		Assert.notNull(icAttributes);
-
-		Object value = getValueByMappedAttribute(attribute, icAttributes);
-		if (value == null) {
-			return null;
-		}
-		if (attribute.isEntityAttribute()) {
-			CorrelationFilter roleFilter = new RoleFilter();
-			roleFilter.setProperty(attribute.getIdmPropertyName());
-			roleFilter.setValue(value.toString());
-			List<IdmRole> identities = roleService.find((RoleFilter) roleFilter, null).getContent();
-			if (CollectionUtils.isEmpty(identities)) {
-				return null;
-			}
-			if (identities.size() > 1) {
-				throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_CORRELATION_TO_MANY_RESULTS,
-						ImmutableMap.of("correlationAttribute", attribute.getName(), "value", value));
-			}
-			if (identities.size() == 1) {
-				return identities.get(0);
-			}
-		} else if (attribute.isExtendedAttribute()) {
-			// TODO: not supported now
-
-			return null;
-		}
-		return null;
-	}
-	
 	@Override
 	protected Object getValueByMappedAttribute(AttributeMapping attribute, List<IcAttribute> icAttributes) {
 		Object transformedValue =  super.getValueByMappedAttribute(attribute, icAttributes);
@@ -371,5 +335,41 @@ public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor
 	@Override
 	protected List<? extends AbstractEntity> findAllEntity() {
 		return roleService.find(null).getContent();
+	}
+
+	@Override
+	protected Class<? extends FormableEntity> getEntityClass() {
+		return IdmRole.class;
+	}
+
+	@Override
+	protected BaseEntityRepository getRepository() {
+		return this.roleRepository;
+	}
+
+	@Override
+	protected CorrelationFilter getEntityFilter() {
+		return new RoleFilter();
+	}
+
+	@Override
+	protected AbstractEntity findEntityByAttribute(String idmAttributeName, String value) {
+		CorrelationFilter filter = getEntityFilter();
+		filter.setProperty(idmAttributeName);
+		filter.setValue(value);
+		
+		List<IdmRole> entities = roleService.find((RoleFilter) filter, null).getContent();
+		
+		if (CollectionUtils.isEmpty(entities)) {
+			return null;
+		}
+		if (entities.size() > 1) {
+			throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_CORRELATION_TO_MANY_RESULTS,
+					ImmutableMap.of("correlationAttribute", idmAttributeName, "value", value));
+		}
+		if (entities.size() == 1) {
+			return entities.get(0);
+		}
+		return null;
 	}
 }

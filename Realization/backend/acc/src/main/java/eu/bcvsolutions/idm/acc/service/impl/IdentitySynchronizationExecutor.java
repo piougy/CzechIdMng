@@ -15,7 +15,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
-import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
 import eu.bcvsolutions.idm.acc.domain.OperationResultType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationActionType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
@@ -43,11 +42,14 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.CorrelationFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdentityFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
+import eu.bcvsolutions.idm.core.api.repository.BaseEntityRepository;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
+import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
+import eu.bcvsolutions.idm.core.model.dto.filter.RoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
@@ -71,6 +73,7 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 	private final IdmIdentityRepository identityRepository;
 	private final AccIdentityAccountService identityAccoutnService;
 	private final IdmIdentityRoleService identityRoleService;
+	private final FormService formService;
 
 	@Autowired
 	public IdentitySynchronizationExecutor(IcConnectorFacade connectorFacade, SysSystemService systemService,
@@ -91,11 +94,13 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 		Assert.notNull(identityService, "Identity service is mandatory!");
 		Assert.notNull(identityAccoutnService, "Identity account service is mandatory!");
 		Assert.notNull(identityRoleService, "Identity role service is mandatory!");
+		Assert.notNull(formService);
 
 		this.identityService = identityService;
 		this.identityAccoutnService = identityAccoutnService;
 		this.identityRoleService = identityRoleService;
 		this.identityRepository = identityRepository;
+		this.formService = formService;
 	}
 
 	/**
@@ -295,46 +300,6 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 		return;
 	}
 
-	/**
-	 * Find entity by correlation attribute
-	 * 
-	 * @param attribute
-	 * @param entityType
-	 * @param icAttributes
-	 * @return
-	 */
-	protected AbstractEntity findEntityByCorrelationAttribute(AttributeMapping attribute,
-			List<IcAttribute> icAttributes) {
-		Assert.notNull(attribute);
-		Assert.notNull(icAttributes);
-
-		Object value = getValueByMappedAttribute(attribute, icAttributes);
-		if (value == null) {
-			return null;
-		}
-		if (attribute.isEntityAttribute()) {
-			CorrelationFilter identityFilter = new IdentityFilter();
-			identityFilter.setProperty(attribute.getIdmPropertyName());
-			identityFilter.setValue(value.toString());
-			List<IdmIdentityDto> identities = identityService.find((IdentityFilter) identityFilter, null).getContent();
-			if (CollectionUtils.isEmpty(identities)) {
-				return null;
-			}
-			if (identities.size() > 1) {
-				throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_CORRELATION_TO_MANY_RESULTS,
-						ImmutableMap.of("correlationAttribute", attribute.getName(), "value", value));
-			}
-			if (identities.size() == 1) {
-				return identityRepository.findOne(identities.get(0).getId());
-			}
-		} else if (attribute.isExtendedAttribute()) {
-			// TODO: not supported now
-
-			return null;
-		}
-		return null;
-	}
-
 	@Override
 	public boolean supports(SystemEntityType delimiter) {
 		return SystemEntityType.IDENTITY == delimiter;
@@ -370,5 +335,40 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 	@Override
 	protected List<? extends AbstractEntity> findAllEntity() {
 		return Lists.newArrayList(identityRepository.findAll());
+	}
+
+	@Override
+	protected Class<? extends FormableEntity> getEntityClass() {
+		return IdmIdentity.class;
+	}
+
+	@Override
+	protected BaseEntityRepository getRepository() {
+		return this.identityRepository;
+	}
+
+	@Override
+	protected CorrelationFilter getEntityFilter() {
+		return new IdentityFilter();
+	}
+
+	@Override
+	protected AbstractEntity findEntityByAttribute(String idmAttributeName, String value) {
+		CorrelationFilter filter = getEntityFilter();
+		filter.setProperty(idmAttributeName);
+		filter.setValue(value);
+		List<IdmIdentityDto> entities = identityService.find((IdentityFilter) filter, null).getContent();
+		
+		if (CollectionUtils.isEmpty(entities)) {
+			return null;
+		}
+		if (entities.size() > 1) {
+			throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_CORRELATION_TO_MANY_RESULTS,
+					ImmutableMap.of("correlationAttribute", idmAttributeName, "value", value));
+		}
+		if (entities.size() == 1) {
+			return identityRepository.findOne(entities.get(0).getId());
+		}
+		return null;
 	}
 }

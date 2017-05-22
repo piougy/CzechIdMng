@@ -187,6 +187,7 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 			Page<Object> page = (Page<Object>) source;
 			return pageToResources(page, domainType);
 		}
+		// TODO: iterable implementation
 		return null;
 	}
 

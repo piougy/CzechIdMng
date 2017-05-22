@@ -140,7 +140,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		// save password from remote connector server to confidential storage
 		if (entity.getConnectorServer().getPassword() != null) {
 			// save for newSystem
-			confidentialStorage.save(newSystem, REMOTE_SERVER_PASSWORD, entity.getConnectorServer().getPassword().asString());
+			confidentialStorage.save(newSystem.getId(), SysSystem.class, REMOTE_SERVER_PASSWORD, entity.getConnectorServer().getPassword().asString());
 			//
 			// set asterix
 			newSystem.getConnectorServer().setPassword(new GuardedString(GuardedString.SECRED_PROXY_STRING));
@@ -153,7 +153,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		SysSystem entity = super.get(id);
 		//
 		// found if entity has filled password
-		Object password = confidentialStorage.get(entity, SysSystemService.REMOTE_SERVER_PASSWORD);
+		Object password = confidentialStorage.get(entity.getId(), SysSystem.class, SysSystemService.REMOTE_SERVER_PASSWORD);
 		if (password != null && entity.getConnectorServer() != null) {
 			entity.getConnectorServer().setPassword(new GuardedString(GuardedString.SECRED_PROXY_STRING));
 		}
@@ -208,7 +208,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		// load connector properties, different between local and remote
 		IcConnectorInstance connectorInstance = system.getConnectorInstance();
 		if(connectorInstance.getConnectorServer() != null){
-			connectorInstance.getConnectorServer().setPassword(confidentialStorage.getGuardedString(system, SysSystemService.REMOTE_SERVER_PASSWORD));
+			connectorInstance.getConnectorServer().setPassword(confidentialStorage.getGuardedString(system.getId(), SysSystem.class, SysSystemService.REMOTE_SERVER_PASSWORD));
 		}
 		connectorConfig = icConfigurationFacade.getConnectorConfiguration(connectorInstance);
 

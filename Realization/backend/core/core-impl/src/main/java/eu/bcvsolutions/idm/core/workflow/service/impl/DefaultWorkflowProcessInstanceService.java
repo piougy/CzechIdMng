@@ -72,6 +72,7 @@ public class DefaultWorkflowProcessInstanceService implements WorkflowProcessIns
 	public ProcessInstance startProcess(String definitionKey, String objectType, String applicant,
 			String objectIdentifier, Map<String, Object> variables) {
 		Assert.hasText(definitionKey, "Definition key cannot be null!");
+		Assert.notNull(securityService.getCurrentId(), "Logged user id cannot be null!");
 
 		IdmIdentityDto applicantIdentity = null;
 		if (applicant != null) {
@@ -82,7 +83,7 @@ public class DefaultWorkflowProcessInstanceService implements WorkflowProcessIns
 				.addVariable(WorkflowProcessInstanceService.OBJECT_TYPE, objectType)
 				.addVariable(WorkflowProcessInstanceService.ACTIVITI_SKIP_EXPRESSION_ENABLED, true) // Allow skip expression on user task
 				.addVariable(WorkflowProcessInstanceService.OBJECT_IDENTIFIER, objectIdentifier)
-				.addVariable(WorkflowProcessInstanceService.IMPLEMENTER_USERNAME, securityService.getUsername())
+				.addVariable(WorkflowProcessInstanceService.IMPLEMENTER_IDENTIFIER, securityService.getCurrentId().toString())
 				.addVariable(WorkflowProcessInstanceService.APPLICANT_USERNAME, applicant)
 				.addVariable(WorkflowProcessInstanceService.APPLICANT_IDENTIFIER,
 						applicantIdentity != null ? applicantIdentity.getId() : null);
@@ -154,7 +155,7 @@ public class DefaultWorkflowProcessInstanceService implements WorkflowProcessIns
 		// Applicant and Implementer is added to involved user after process
 		// (subprocess) started. This modification allow not use OR clause.
 		if(checkRight && !securityService.isAdmin()){
-			query.involvedUser(securityService.getUsername());
+			query.involvedUser(securityService.getCurrentId().toString());
 		}
 
 		query.orderByProcessDefinitionId();

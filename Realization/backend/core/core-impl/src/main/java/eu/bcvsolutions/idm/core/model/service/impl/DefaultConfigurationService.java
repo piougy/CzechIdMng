@@ -8,8 +8,16 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.Cache;
+import org.springframework.cache.Cache.ValueWrapper;
+import org.springframework.cache.CacheManager;
 import org.springframework.core.env.CompositePropertySource;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.EnumerablePropertySource;
@@ -17,15 +25,20 @@ import org.springframework.core.env.PropertySource;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import eu.bcvsolutions.idm.core.api.dto.ConfigurationDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
-import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
+import eu.bcvsolutions.idm.core.api.dto.IdmConfigurationDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
+import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
+import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmConfiguration;
+import eu.bcvsolutions.idm.core.model.entity.IdmConfiguration_;
 import eu.bcvsolutions.idm.core.model.repository.IdmConfigurationRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
+import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
 /**
  * Default implementation finds configuration in database, if configuration for
@@ -33,21 +46,23 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
  * Public (not secured) configuration could be read without authentication. 
  * Confidential properties are saved to confidential storage.
  * 
- * TODO: cache
- * TODO: dto
+ * Cache manager is used directly without annotations - its easier for overloading method and internal cache usage.
  * 
  * @author Radek Tomiška 
  *
  */
 public class DefaultConfigurationService 
-		extends AbstractReadWriteEntityService<IdmConfiguration, QuickFilter> 
+		extends AbstractReadWriteDtoService<IdmConfigurationDto, IdmConfiguration, DataFilter> 
 		implements IdmConfigurationService, ConfigurationService {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultConfigurationService.class);
+	private static final String CACHE_NAME = "idm-configuration";
 
 	private final IdmConfigurationRepository repository;
 	private final ConfidentialStorage confidentialStorage;
 	private final ConfigurableEnvironment env; // TODO: optional
+	@Autowired(required = false)
+	private CacheManager cacheManager;
 	
 	@Autowired
 	public DefaultConfigurationService(
@@ -62,11 +77,30 @@ public class DefaultConfigurationService
 	}
 	
 	@Override
+	public AuthorizableType getAuthorizableType() {
+		return new AuthorizableType(CoreGroupPermission.CONFIGURATION, getEntityClass());
+	}
+	
+	@Override
 	@Transactional(readOnly = true)
-	public IdmConfiguration getByCode(String name) {
-		return repository.findOneByName(name);
+	public IdmConfigurationDto getByCode(String name) {
+		return toDto(repository.findOneByName(name));
 	}
 
+	@Override
+	protected List<Predicate> toPredicates(Root<IdmConfiguration> root, CriteriaQuery<?> query, CriteriaBuilder builder,
+			DataFilter filter) {
+		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
+		//
+		// quick
+		if (StringUtils.isNotEmpty(filter.getText())) {
+			predicates.add(builder.like(builder.lower(root.get(IdmConfiguration_.name)), "%" + filter.getText().toLowerCase() + "%"));
+		}
+		//
+		return predicates;
+	}
+	
+	
 	@Override
 	@Transactional(readOnly = true)
 	public String getValue(String key) {
@@ -78,29 +112,29 @@ public class DefaultConfigurationService
 	public void setValue(String key, String value) {
 		Assert.hasText(key);
 		//
-		saveConfiguration(new ConfigurationDto(key, value));
+		saveConfiguration(new IdmConfigurationDto(key, value));
 	}
 	
 	@Override
 	@Transactional
 	public String deleteValue(String key) {
-		IdmConfiguration entity = repository.get(key);
-		if (entity == null) {
+		IdmConfigurationDto dto = getByCode(key);
+		if (dto == null) {
 			return null;
 		}
-		delete(entity);
-		return entity.getValue();
+		delete(dto);
+		return dto.getValue();
 	}
 	
 	@Override
 	@Transactional
-	public void saveConfiguration(ConfigurationDto configuration) {
+	public void saveConfiguration(IdmConfigurationDto configuration) {
 		Assert.notNull(configuration);
 		Assert.hasText(configuration.getName());
 		// only maps dto to entity
-		IdmConfiguration configurationEntity = getByCode(configuration.getName());
+		IdmConfigurationDto configurationEntity = getByCode(configuration.getName());
 		if (configurationEntity == null) {
-			configurationEntity = new IdmConfiguration(configuration.getName(), configuration.getValue(), configuration.isSecured(), configuration.isConfidential());
+			configurationEntity = new IdmConfigurationDto(configuration.getName(), configuration.getValue(), configuration.isSecured(), configuration.isConfidential());
 		} else {
 			configurationEntity.setValue(configuration.getValue());
 			configurationEntity.setSecured(configuration.isSecured());
@@ -111,7 +145,7 @@ public class DefaultConfigurationService
 	
 	@Override
 	@Transactional
-	public IdmConfiguration save(IdmConfiguration entity) {
+	public IdmConfigurationDto save(IdmConfigurationDto entity, BasePermission... permission) {
 		Assert.notNull(entity);
 		// check confidential option
 		if (shouldBeConfidential(entity.getName())) {
@@ -124,7 +158,7 @@ public class DefaultConfigurationService
 		// save confidential properties to confidential storage
 		String value = entity.getValue();
 		if (entity.isConfidential()) {
-			String previousValue = entity.getId() == null ? null : confidentialStorage.get(entity, CONFIDENTIAL_PROPERTY_VALUE, String.class);
+			String previousValue = entity.getId() == null ? null : confidentialStorage.get(entity.getId(), getEntityClass(), CONFIDENTIAL_PROPERTY_VALUE, String.class);
 			if (StringUtils.isNotEmpty(value) || (value == null && previousValue != null)) {
 				// we need only to know, if value was filled
 				entity.setValue(GuardedString.SECRED_PROXY_STRING);
@@ -132,38 +166,47 @@ public class DefaultConfigurationService
 				entity.setValue(null);
 			}
 		}
-		entity = super.save(entity);
+		entity = super.save(entity, permission);
 		//
 		// save new value to confidential storage - empty string should be given for saving empty value. We are leaving previous value otherwise
 		if (entity.isConfidential() && value != null) {
-			confidentialStorage.save(entity, CONFIDENTIAL_PROPERTY_VALUE, value);
+			confidentialStorage.save(entity.getId(), getEntityClass(), CONFIDENTIAL_PROPERTY_VALUE, value);
 			LOG.debug("Configuration value [{}] is persisted in confidential storage", entity.getName());
 		}
+		evictCache(entity.getCode());
 		return entity;
 	}
 	
 	@Override
 	@Transactional
-	public void delete(IdmConfiguration entity) {
-		Assert.notNull(entity);
+	public void delete(IdmConfigurationDto dto, BasePermission... permission) {
+		Assert.notNull(dto);
+		checkAccess(this.getEntity(dto.getId()), permission);
 		//
-		if (entity.isConfidential()) {
-			confidentialStorage.delete(entity, CONFIDENTIAL_PROPERTY_VALUE);
-			LOG.debug("Configuration value [{}] was removed from confidential storage", entity.getName());
+		if (dto.isConfidential()) {
+			confidentialStorage.delete(dto.getId(), getEntityClass(), CONFIDENTIAL_PROPERTY_VALUE);
+			LOG.debug("Configuration value [{}] was removed from confidential storage", dto.getName());
 		}
-		super.delete(entity);
+		super.delete(dto, permission);
+		evictCache(dto.getCode());
 	}
 	
 	@Override
 	@Transactional(readOnly = true)
 	public String getValue(String key, String defaultValue) {
+		ValueWrapper cachedValue = getCachedValue(key);
+		if (cachedValue != null) {			
+			String value = (String) cachedValue.get();
+			return value != null ? value : defaultValue;
+		}		
+		//
 		LOG.debug("Reading configuration for key [{}] and default[{}]", key, defaultValue);
 		String value = null;
 		// idm configuration has higher priority than property file
-		IdmConfiguration config = repository.get(key);
+		IdmConfigurationDto config = getByCode(key);
 		if (config != null) {
 			if (config.isConfidential()) {
-				value = confidentialStorage.get(config, CONFIDENTIAL_PROPERTY_VALUE, String.class);			
+				value = confidentialStorage.get(config.getId(), getEntityClass(), CONFIDENTIAL_PROPERTY_VALUE, String.class);			
 				LOG.debug("Configuration value for key [{}] was found in confidential storage", config.getName());
 			} else {			
 				value = config.getValue();
@@ -178,6 +221,7 @@ public class DefaultConfigurationService
 			value = defaultValue;
 		}	
 		LOG.debug("Resolved configuration value for key [{}] and default [{}] is [{}].", key, defaultValue, value);
+		setCachedValue(key, value);
 		return value;
 	}
 	
@@ -259,7 +303,7 @@ public class DefaultConfigurationService
 	 */
 	@Override
 	@Transactional(readOnly = true)
-	public List<ConfigurationDto> getAllPublicConfigurations() {
+	public List<IdmConfigurationDto> getAllPublicConfigurations() {
 		Map<String, Object> configurations = new HashMap<>();
 		// defaults from property file
 		Map<String, Object> map = getAllProperties(env);
@@ -273,7 +317,7 @@ public class DefaultConfigurationService
 		repository.findAllBySecuredIsFalse().forEach(idmConfiguration -> {
 			configurations.put(idmConfiguration.getName(), idmConfiguration.getValue());
 		});
-		List<ConfigurationDto> results = new ArrayList<>();
+		List<IdmConfigurationDto> results = new ArrayList<>();
 		configurations.forEach((k, v) -> {
 			results.add(toConfigurationDto(k, v));
 		});
@@ -286,7 +330,7 @@ public class DefaultConfigurationService
 	 * @return
 	 */
 	@Override
-	public List<ConfigurationDto> getAllConfigurationsFromFiles() {
+	public List<IdmConfigurationDto> getAllConfigurationsFromFiles() {
 		Map<String, Object> map = getAllProperties(env);
 		return map.entrySet().stream()
 				.filter(entry -> {
@@ -294,6 +338,10 @@ public class DefaultConfigurationService
 				})
 				.map(entry -> {
 					return toConfigurationDto(entry.getKey(), entry.getValue());
+				})
+				.filter(dto -> {
+					// apply security
+					return getAuthorizationManager().evaluate(toEntity(dto), IdmBasePermission.READ);
 				})
 				.collect(Collectors.toList());
 	}
@@ -304,7 +352,7 @@ public class DefaultConfigurationService
 	 * @return
 	 */
 	@Override
-	public List<ConfigurationDto> getAllConfigurationsFromEnvironment() {
+	public List<IdmConfigurationDto> getAllConfigurationsFromEnvironment() {
 		Map<String, Object> map = getAllProperties(env);
 		return map.entrySet().stream()
 				.filter(entry -> {
@@ -322,9 +370,9 @@ public class DefaultConfigurationService
 		return getValue(ConfigurationService.PROPERTY_APP_INSTANCE_ID, ConfigurationService.DEFAULT_PROPERTY_APP_INSTANCE_ID);
 	}
 	
-	private static ConfigurationDto toConfigurationDto(String key, Object value) {
+	private static IdmConfigurationDto toConfigurationDto(String key, Object value) {
 		String stringValue = value == null ? null : value.toString();
-		ConfigurationDto configuration = new ConfigurationDto(key, stringValue);
+		IdmConfigurationDto configuration = new IdmConfigurationDto(key, stringValue);
 		// password etc. has to be guarded - can be used just in BE
 		if (shouldBeConfidential(configuration.getName())) {
 			LOG.debug("Configuration value for property [{}] is guarded.", configuration.getName());
@@ -389,15 +437,46 @@ public class DefaultConfigurationService
 	private static boolean shouldBeSecured(String key) {
 		return key.startsWith(ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX) || shouldBeConfidential(key);
 	}
+	
+	private void evictCache(String key) {
+		Cache cache = getCache();
+		if (cache == null) {
+			return;
+		}
+		cache.evict(key);
+	}
+	
+	private ValueWrapper getCachedValue(String key) {
+		Cache cache = getCache();
+		if (cache == null) {
+			return null;
+		}
+		return cache.get(key);
+	}
+	
+	private void setCachedValue(String key, String value) {
+		Cache cache = getCache();
+		if (cache == null) {
+			return;
+		}
+		cache.put(key, value);
+	}
+	
+	private Cache getCache() {
+		if (cacheManager == null) {
+			return null;
+		}
+		return cacheManager.getCache(CACHE_NAME);
+	}
 
 	@Override
 	@Transactional(readOnly = true)
-	public Map<String, ConfigurationDto> getConfigurations(String keyPrefix) {
-		Map<String, ConfigurationDto> configs = new HashMap<>();
+	public Map<String, IdmConfigurationDto> getConfigurations(String keyPrefix) {
+		Map<String, IdmConfigurationDto> configs = new HashMap<>();
 		for (IdmConfiguration configuration : repository.findByNameStartingWith(keyPrefix, null)) {
 			configs.put(
 					configuration.getName().replaceFirst(keyPrefix + PROPERTY_SEPARATOR, ""), 
-					new ConfigurationDto(configuration.getName(), configuration.getValue(), configuration.isSecured(), configuration.isConfidential())
+					new IdmConfigurationDto(configuration.getName(), configuration.getValue(), configuration.isSecured(), configuration.isConfidential())
 			);
 		}
 		return configs;

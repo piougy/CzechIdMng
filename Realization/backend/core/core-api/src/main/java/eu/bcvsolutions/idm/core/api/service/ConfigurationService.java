@@ -3,7 +3,7 @@ package eu.bcvsolutions.idm.core.api.service;
 import java.util.List;
 import java.util.Map;
 
-import eu.bcvsolutions.idm.core.api.dto.ConfigurationDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmConfigurationDto;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 
 /**
@@ -64,7 +64,7 @@ public interface ConfigurationService {
 	/**
 	 * Set given configuration value. Creates new, if configuration with given key does not exist. 
 	 */
-	void saveConfiguration(ConfigurationDto configuration);
+	void saveConfiguration(IdmConfigurationDto configuration);
 	
 	/**
 	 * Returns configured value for given key. If no value for given key is configured, then returns given defaultValue.
@@ -138,21 +138,21 @@ public interface ConfigurationService {
 	 * 
 	 * @return
 	 */
-	List<ConfigurationDto> getAllPublicConfigurations();
+	List<IdmConfigurationDto> getAllPublicConfigurations();
 	
 	/**
 	 * Returns all configuration properties from property files
 	 * 
 	 * @return
 	 */
-	List<ConfigurationDto> getAllConfigurationsFromFiles();
+	List<IdmConfigurationDto> getAllConfigurationsFromFiles();
 	
 	/**
 	 * Returns server environment properties
 	 * 
 	 * @return
 	 */
-	List<ConfigurationDto> getAllConfigurationsFromEnvironment();
+	List<IdmConfigurationDto> getAllConfigurationsFromEnvironment();
 	
 	/**
 	 * Returns configured value as {@code GuardedString} for given key.
@@ -184,5 +184,5 @@ public interface ConfigurationService {
 	 * @param keyPrefix
 	 * @return
 	 */
-	Map<String, ConfigurationDto> getConfigurations(String keyPrefix);
+	Map<String, IdmConfigurationDto> getConfigurations(String keyPrefix);
 }

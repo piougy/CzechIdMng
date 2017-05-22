@@ -65,6 +65,20 @@ public class EntityUtilsUnitTest extends AbstractUnitTest {
 		assertTrue(EntityUtils.isValidNowOrInFuture(role));
 	}
 	
+	@Test
+	public void testIsUUID() {
+		String strUUID = UUID.randomUUID().toString();
+		//
+		assertTrue(EntityUtils.isUuid(strUUID));
+	}
+	
+	@Test
+	public void testIsNotUUID() {
+		String strUUID = "thisIsNotDefinitivelyUUID";
+		//
+		assertFalse(EntityUtils.isUuid(strUUID));
+	}	
+		
 	@Test 
 	public void testValidableChanged() {
 		LocalDate now = new LocalDate();

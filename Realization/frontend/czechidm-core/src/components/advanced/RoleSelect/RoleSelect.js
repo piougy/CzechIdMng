@@ -425,8 +425,8 @@ class RoleSelect extends Basic.AbstractFormComponent {
                       );
                     }
                   }/>
-                  <Column property="code" sort face="text" rendered={_.includes(columns, 'code')}/>
-                  <Column property="name" sort face="text" rendered={_.includes(columns, 'name')}/>
+                  <Column property="code" sort={false} face="text" rendered={_.includes(columns, 'code')}/>
+                  <Column property="name" sort={false} face="text" rendered={_.includes(columns, 'name')}/>
                 </Table>
               </Basic.Col>
             </Basic.Row>

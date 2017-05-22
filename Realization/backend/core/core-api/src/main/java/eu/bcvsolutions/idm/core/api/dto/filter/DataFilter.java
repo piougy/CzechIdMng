@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.repository.filter.FilterBuilder;
+import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 
 /**
  * Common filter for registrable filters - contains filter parameters as map. 
@@ -27,6 +28,11 @@ public class DataFilter extends QuickFilter {
 	 * Dto identifier
 	 */
 	public static final String PARAMETER_ID = "id";
+	
+	/**
+	 * "Quick" search parameter
+	 */
+	public static final String PARAMETER_TEXT = "text";
 	
 	/**
 	 * Dto class
@@ -67,11 +73,21 @@ public class DataFilter extends QuickFilter {
 	 */
 	@Override
 	public UUID getId() {
-		return (UUID) data.getFirst(PARAMETER_ID);
+		return EntityUtils.toUuid(data.getFirst(PARAMETER_ID));
 	}
 	
 	@Override
 	public void setId(UUID id) {
 		data.set(PARAMETER_ID, id);
+	}
+	
+	@Override
+	public String getText() {
+		return (String) data.getFirst(PARAMETER_TEXT);
+	}
+	
+	@Override
+	public void setText(String text) {
+		data.set(PARAMETER_TEXT, text);
 	}
 }

@@ -17,6 +17,6 @@ export default class WorkflowProcessDefinitionManager extends EntityManager {
   }
 
   getCollectionType() {
-    return 'resources';
+    return 'workflowProcessDefinitions';
   }
 }

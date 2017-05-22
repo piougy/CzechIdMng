@@ -33,9 +33,9 @@ public interface IdmConfidentialStorageValueRepository extends AbstractEntityRep
 	 * @param key
 	 * @return
 	 */
-	IdmConfidentialStorageValue findOneByOwnerTypeAndOwnerIdAndKey(
-			@Param("ownerType") String ownerType,
+	IdmConfidentialStorageValue findOneByOwnerIdAndOwnerTypeAndKey(
 			@Param("ownerId") UUID ownerId,
+			@Param("ownerType") String ownerType,			
 			@Param("key") String key);
 	
 	/**

@@ -22,8 +22,8 @@ import org.springframework.core.annotation.Order;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.config.domain.EntityToUuidConverter;
+import eu.bcvsolutions.idm.core.config.domain.UiidToUuidConverter;
 import eu.bcvsolutions.idm.core.config.domain.UuidToEntityConverter;
-
 
 /**
  * Configuration for model mapper. Set specific converters ...
@@ -39,21 +39,29 @@ public class ModelMapperConfig {
 	private EntityManager entityManager;
 	@Autowired
 	private ApplicationContext applicationContext;
-	
+
 	@SuppressWarnings("unchecked")
 	@Bean
 	public ModelMapper modelMapper() {
 		ModelMapper modeler = new ModelMapper();
-		// We want use STRICT matching strategy ... others can be ambiguous 
-		modeler.getConfiguration()
-		  .setMatchingStrategy(MatchingStrategies.STRICT);
+		// We want use STRICT matching strategy ... others can be ambiguous
+		modeler.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
 
 		// Convert BaseEntity to UIID (get ID)
 		Converter<? extends BaseEntity, UUID> entityToUiid = new EntityToUuidConverter(modeler);
-		
+
 		// Convert UIID to Entity
 		Converter<UUID, ? extends BaseEntity> uiidToEntity = new UuidToEntityConverter(applicationContext);
 
+		// This converter must be set for only one purpose... workaround fixed
+		// error in ModelMapper.
+		// When is in DTO field (applicant for example) with type UUID (with
+		// conversion to IdmIdentity) and other UUID field (for example
+		// modifierId), but with same value as first field, then mapper will be
+		// set converted value from first field (applicant) to second field (IdmIdentity to UUID) ->
+		// Class cast exception will be throw.
+		Converter<UUID, UUID> uuidToUiid = new UiidToUuidConverter();
+		modeler.createTypeMap(UUID.class, UUID.class).setConverter(uuidToUiid);
 
 		// Condition for property ... if is property list and dto is trimmed,
 		// then will be not used (set null)
@@ -93,7 +101,7 @@ public class ModelMapperConfig {
 			@SuppressWarnings("rawtypes")
 			TypeMap typeMapEntityToUiid = modeler.createTypeMap(entityType.getJavaType(), UUID.class);
 			typeMapEntityToUiid.setConverter(entityToUiid);
-			
+
 			@SuppressWarnings("rawtypes")
 			TypeMap typeMapUiidToEntity = modeler.createTypeMap(UUID.class, entityType.getJavaType());
 			typeMapUiidToEntity.setConverter(uiidToEntity);

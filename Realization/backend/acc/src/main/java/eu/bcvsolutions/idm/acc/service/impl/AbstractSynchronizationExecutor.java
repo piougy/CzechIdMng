@@ -1438,7 +1438,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 						ImmutableMap.of("property", attributeProperty, "class", transformedValue.getClass().getName()));
 			}
 
-			confidentialStorage.saveGuardedString(entity, attribute.getIdmPropertyName(),
+			confidentialStorage.saveGuardedString(entity.getId(), entity.getClass(), attribute.getIdmPropertyName(),
 					(GuardedString) transformedValue);
 
 		});

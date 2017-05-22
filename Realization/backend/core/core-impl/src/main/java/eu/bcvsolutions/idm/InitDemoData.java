@@ -32,7 +32,6 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
-import eu.bcvsolutions.idm.core.model.entity.IdmRoleComposition;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.entity.eav.IdmIdentityFormValue;
@@ -223,9 +222,10 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				//
 				IdmRole role2 = new IdmRole();
 				role2.setName("customRole");
-				List<IdmRoleComposition> subRoles = new ArrayList<>();
-				subRoles.add(new IdmRoleComposition(role2, superAdminRole));
-				role2.setSubRoles(subRoles);
+				// TODO: subroles are disabled for now
+				//List<IdmRoleComposition> subRoles = new ArrayList<>();
+				//subRoles.add(new IdmRoleComposition(role2, superAdminRole));
+				//role2.setSubRoles(subRoles);
 				role2 = this.roleService.save(role2);
 				LOG.info(MessageFormat.format("Role created [id: {0}]", role2.getId()));
 				//

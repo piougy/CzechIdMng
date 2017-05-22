@@ -327,10 +327,11 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 	}
 
 	private void checkAndCompleteOneTask(WorkflowFilterDto taskFilter, String user, String decision) {
+		IdmIdentityDto identity = identityService.getByUsername(user);
 		List<WorkflowTaskInstanceDto> tasks;
 		tasks = (List<WorkflowTaskInstanceDto>) workflowTaskInstanceService.search(taskFilter).getResources();
 		assertEquals(1, tasks.size());
-		assertEquals(user, tasks.get(0).getApplicant());
+		assertEquals(identity.getId().toString(), tasks.get(0).getApplicant());
 		
 		workflowTaskInstanceService.completeTask(tasks.get(0).getId(), decision);
 	}

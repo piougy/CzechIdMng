@@ -1,25 +1,44 @@
 package eu.bcvsolutions.idm.core.api.dto;
 
+import java.util.UUID;
+
+import javax.validation.constraints.NotNull;
+
+import org.springframework.hateoas.core.Relation;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+
+import eu.bcvsolutions.idm.core.api.domain.Codeable;
+
 /**
  * Configuration item
  * 
  * @author Radek Tomiška 
  */
-public class ConfigurationDto {
+@JsonInclude(Include.NON_NULL) // public configurations without auditable
+@Relation(collectionRelation = "configurations")
+public class IdmConfigurationDto extends AbstractDto implements Codeable {
 
+	private static final long serialVersionUID = 1L;
+	@NotNull
 	private String name;
 	private String value;
 	private boolean secured;
 	private boolean confidential;
 
-	public ConfigurationDto() {
+	public IdmConfigurationDto() {
+	}
+	
+	public IdmConfigurationDto(UUID id) {
+		super(id);
 	}
 
-	public ConfigurationDto(String name, String value) {
+	public IdmConfigurationDto(String name, String value) {
 		this(name, value, false, false);
 	}
 	
-	public ConfigurationDto(String name, String value, boolean secured, boolean confidential) {
+	public IdmConfigurationDto(String name, String value, boolean secured, boolean confidential) {
 		this.name = name;
 		this.value = value;
 		this.secured = secured;
@@ -33,6 +52,11 @@ public class ConfigurationDto {
 	 */
 	public String getName() {
 		return name;
+	}
+	
+	@Override
+	public String getCode() {
+		return getName();
 	}
 
 	public void setName(String name) {

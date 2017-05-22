@@ -127,7 +127,7 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 		
 		// save values to confidential storage
 		if (entity.isConfidential()) {
-			confidentialStorage.save(entity, getConfidentialStorageKey(entity.getFormAttribute()), formValue);
+			confidentialStorage.save(entity.getId(), entity.getClass(), getConfidentialStorageKey(entity.getFormAttribute()), formValue);
 			LOG.debug("FormValue [{}] is persisted in confidential storage", entity.getId());
 		}
 		return entity;
@@ -180,7 +180,7 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 		LOG.debug("FormValue [{}] will be removed", value.getId());
 		if (value.isConfidential()) {
 			LOG.debug("FormValue [{}] will be removed from confidential storage", value.getId());
-			confidentialStorage.delete(value, getConfidentialStorageKey(value.getFormAttribute()));
+			confidentialStorage.delete(value.getId(), value.getClass(), getConfidentialStorageKey(value.getFormAttribute()));
 		}
 		getRepository().delete(value);
 	}
@@ -226,7 +226,7 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 		IdmFormAttribute attribute = guardedValue.getFormAttribute();
 		Assert.notNull(attribute);
 		//
-		return confidentialStorage.get(guardedValue, getConfidentialStorageKey(attribute));
+		return confidentialStorage.get(guardedValue.getId(), guardedValue.getClass(), getConfidentialStorageKey(attribute));
 	}
 	
 	/**

@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.core.workflow.service.impl;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 
 import org.activiti.engine.HistoryService;
 import org.activiti.engine.history.HistoricIdentityLink;
@@ -44,7 +45,7 @@ public class DefaultWorkflowHistoricTaskInstanceService implements WorkflowHisto
 		query.includeProcessVariables();
 		
 		if (filter.getId() != null){
-			query.taskId(filter.getId());
+			query.taskId(filter.getId().toString());
 		}
 		if (processInstanceId != null) {
 			query.processInstanceId(processInstanceId);
@@ -60,11 +61,11 @@ public class DefaultWorkflowHistoricTaskInstanceService implements WorkflowHisto
 		if(!securityService.isAdmin()) {
 			// TODO Now we don't have detail for historic task. When we need detail, then we will need create different projection (detail can't be read by applicant)
 			
-			String loggedUsername = securityService.getUsername();
+			String loggedUserId = securityService.getCurrentId().toString();
 			query.or();
-			query.processVariableValueEquals(WorkflowProcessInstanceService.APPLICANT_USERNAME, loggedUsername);
-			query.processVariableValueEquals(WorkflowProcessInstanceService.IMPLEMENTER_USERNAME, loggedUsername);
-			query.taskInvolvedUser(loggedUsername);
+			query.processVariableValueEquals(WorkflowProcessInstanceService.APPLICANT_IDENTIFIER, loggedUserId);
+			query.processVariableValueEquals(WorkflowProcessInstanceService.IMPLEMENTER_IDENTIFIER, loggedUserId);
+			query.taskInvolvedUser(loggedUserId);
 			// TODO admin
 			query.endOr();
 		}
@@ -104,7 +105,7 @@ public class DefaultWorkflowHistoricTaskInstanceService implements WorkflowHisto
 	@Override
 	public WorkflowHistoricTaskInstanceDto get(String historicTaskInstanceId) {
 		WorkflowFilterDto filter = new WorkflowFilterDto();
-		filter.setId(historicTaskInstanceId);
+		filter.setId(UUID.fromString(historicTaskInstanceId));
 		filter.setSortAsc(true);
 		Collection<WorkflowHistoricTaskInstanceDto> resources = this.search(filter).getResources();
 		return !resources.isEmpty() ? resources.iterator().next() : null;

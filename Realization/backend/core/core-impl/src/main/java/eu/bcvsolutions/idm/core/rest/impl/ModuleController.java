@@ -19,11 +19,12 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.ModuleDescriptor;
 import eu.bcvsolutions.idm.core.api.dto.ModuleDescriptorDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
+import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.domain.RequestResourceResolver;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
@@ -34,7 +35,7 @@ import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
  * @author Radek Tomiška
  */
 @RestController
-@RequestMapping(value = BaseEntityController.BASE_PATH + "/modules")
+@RequestMapping(value = BaseController.BASE_PATH + "/modules")
 public class ModuleController {
 
 	private final ModuleService moduleService;

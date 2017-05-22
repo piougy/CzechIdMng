@@ -12,7 +12,7 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import eu.bcvsolutions.idm.InitTestData;
-import eu.bcvsolutions.idm.core.model.entity.IdmConfiguration;
+import eu.bcvsolutions.idm.core.api.dto.IdmConfigurationDto;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
@@ -40,7 +40,7 @@ public class PreserveUuidIntegrationTest extends AbstractIntegrationTest {
 	@Test
 	public void testCreateConfigurationWithUuid() {
 		UUID id = UUID.randomUUID();
-		IdmConfiguration configuration = new IdmConfiguration(id);
+		IdmConfigurationDto configuration = new IdmConfigurationDto(id);
 		configuration.setName("test-property-one");
 		configuration.setValue("one");
 		//
@@ -52,7 +52,7 @@ public class PreserveUuidIntegrationTest extends AbstractIntegrationTest {
 	@Test
 	public void testIsNewWithId() {
 		UUID id = UUID.randomUUID();
-		IdmConfiguration configuration = new IdmConfiguration(id);
+		IdmConfigurationDto configuration = new IdmConfigurationDto(id);
 		configuration.setName("test-property-one");
 		configuration.setValue("one");
 		//
@@ -61,7 +61,7 @@ public class PreserveUuidIntegrationTest extends AbstractIntegrationTest {
 	
 	@Test
 	public void testIsNewWithoutId() {
-		IdmConfiguration configuration = new IdmConfiguration();
+		IdmConfigurationDto configuration = new IdmConfigurationDto();
 		configuration.setName("test-property-one");
 		configuration.setValue("one");
 		//
@@ -70,7 +70,7 @@ public class PreserveUuidIntegrationTest extends AbstractIntegrationTest {
 	
 	@Test
 	public void testIsNotNew() {
-		IdmConfiguration configuration = new IdmConfiguration();
+		IdmConfigurationDto configuration = new IdmConfigurationDto();
 		configuration.setName("test-property-two");
 		configuration.setValue("one");
 		//
@@ -80,7 +80,7 @@ public class PreserveUuidIntegrationTest extends AbstractIntegrationTest {
 		//
 		assertFalse(configurationService.isNew(configuration));
 		//
-		IdmConfiguration clone = new IdmConfiguration(configuration.getId());
+		IdmConfigurationDto clone = new IdmConfigurationDto(configuration.getId());
 		//
 		assertFalse(configurationService.isNew(clone));
 	}

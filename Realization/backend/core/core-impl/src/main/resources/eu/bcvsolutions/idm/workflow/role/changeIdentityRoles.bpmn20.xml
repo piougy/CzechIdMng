@@ -54,7 +54,7 @@ Configuration properties:
         <activiti:in sourceExpression="#{&quot;add&quot;}" target="operationType"></activiti:in>
         <activiti:in sourceExpression="#{conceptRole}" target="conceptRole"></activiti:in>
         <activiti:in sourceExpression="#{entityEvent.content.description}" target="applicantDescription"></activiti:in>
-        <activiti:in source="implementerUsername" target="implementerUsername"></activiti:in>
+        <activiti:in source="implementerIdentifier" target="implementerIdentifier"></activiti:in>
         <activiti:in source="_ACTIVITI_SKIP_EXPRESSION_ENABLED" target="_ACTIVITI_SKIP_EXPRESSION_ENABLED"></activiti:in>
       </extensionElements>
       <multiInstanceLoopCharacteristics isSequential="false" activiti:collection="addedConceptRoles" activiti:elementVariable="conceptRole"></multiInstanceLoopCharacteristics>
@@ -108,7 +108,7 @@ execution.setVariable("changedConceptRoles", changedConceptRoles);</script>
         <activiti:in sourceExpression="#{&quot;change&quot;}" target="operationType"></activiti:in>
         <activiti:in sourceExpression="#{conceptRole}" target="conceptRole"></activiti:in>
         <activiti:in sourceExpression="#{entityEvent.content.description}" target="applicantDescription"></activiti:in>
-        <activiti:in source="implementerUsername" target="implementerUsername"></activiti:in>
+        <activiti:in source="implementerIdentifier" target="implementerIdentifier"></activiti:in>
         <activiti:in source="_ACTIVITI_SKIP_EXPRESSION_ENABLED" target="_ACTIVITI_SKIP_EXPRESSION_ENABLED"></activiti:in>
       </extensionElements>
       <multiInstanceLoopCharacteristics isSequential="false" activiti:collection="changedConceptRoles" activiti:elementVariable="conceptRole"></multiInstanceLoopCharacteristics>
@@ -128,7 +128,7 @@ execution.setVariable("changedConceptRoles", changedConceptRoles);</script>
         <activiti:in sourceExpression="#{&quot;remove&quot;}" target="operationType"></activiti:in>
         <activiti:in sourceExpression="#{conceptRole}" target="conceptRole"></activiti:in>
         <activiti:in sourceExpression="#{entityEvent.content.description}" target="applicantDescription"></activiti:in>
-        <activiti:in source="implementerUsername" target="implementerUsername"></activiti:in>
+        <activiti:in source="implementerIdentifier" target="implementerIdentifier"></activiti:in>
         <activiti:in source="_ACTIVITI_SKIP_EXPRESSION_ENABLED" target="_ACTIVITI_SKIP_EXPRESSION_ENABLED"></activiti:in>
       </extensionElements>
       <multiInstanceLoopCharacteristics isSequential="false" activiti:collection="removedConceptRoles" activiti:elementVariable="conceptRole"></multiInstanceLoopCharacteristics>
@@ -207,8 +207,8 @@ if(!skip){
   }
 
   //Is current logged user = implemeneter user and is betwen helpdesks? If yes, then we can skip task.
-  if(implementerUsername.equals(securityService.getUsername())){
-    skip = identityService.containsUser(helpdesks, implementerUsername);
+  if(implementerIdentifier.equals(securityService.getCurrentId().toString())){
+    skip = identityService.containsUser(helpdesks, implementerIdentifier);
   }else{
     skip = false; 
  }
@@ -274,8 +274,8 @@ if(!skip){
   }
 
   //Is current logged user = implemeneter user and is betwen managers? If yes, then we can skip task.
-  if(implementerUsername.equals(securityService.getUsername())){
-    skip = identityService.containsUser(managers, implementerUsername);
+  if(implementerIdentifier.equals(securityService.getCurrentId().toString())){
+    skip = identityService.containsUser(managers, implementerIdentifier);
   }else{
     skip = false; 
  }
@@ -341,8 +341,8 @@ if(!skip){
     usermanagers.add(identityService.getByUsername("admin"));
   }
   //Is current logged user = implemeneter user and is betwen usermanagers? If yes, then we can skip task.
-  if(implementerUsername.equals(securityService.getUsername())){
-    skip = identityService.containsUser(usermanagers, implementerUsername);
+  if(implementerIdentifier.equals(securityService.getCurrentId().toString())){
+    skip = identityService.containsUser(usermanagers, implementerIdentifier);
   }else{
     skip = false; 
  }
@@ -434,8 +434,8 @@ if(!skip){
   }
 
   //Is current logged user = implemeneter user and is betwen securities? If yes, then we can skip task.
-  if(implementerUsername.equals(securityService.getUsername())){
-    skip = identityService.containsUser(securities, implementerUsername);
+  if(implementerIdentifier.equals(securityService.getCurrentId().toString())){
+    skip = identityService.containsUser(securities, implementerIdentifier);
   }else{
     skip = false; 
  }

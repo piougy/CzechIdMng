@@ -257,7 +257,7 @@ module.exports = {
     {
       path: 'configurations',
       component: require('./src/content/Configurations'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONFIGURATION_CREATE', 'CONFIGURATION_UPDATE', 'CONFIGURATIONSECURED_READ'] } ]
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONFIGURATION_READ'] } ]
     },
     {
       path: 'modules',

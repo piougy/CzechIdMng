@@ -16,6 +16,18 @@ export default class ConfigurationService extends AbstractService {
     return entity.name;
   }
 
+  supportsPatch() {
+    return false;
+  }
+
+  supportsAuthorization() {
+    return true;
+  }
+
+  getGroupPermission() {
+    return 'CONFIGURATION';
+  }
+
   /**
    * Returns default searchParameters for current entity type
    *

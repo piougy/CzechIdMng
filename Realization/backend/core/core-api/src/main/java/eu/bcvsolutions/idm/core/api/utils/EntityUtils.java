@@ -130,6 +130,24 @@ public class EntityUtils {
             throw new ClassCastException(String.format("Identified object [%s] is not an UUID.", identifier));
         }
     }
+	
+	/**
+	 * Check if is string convertible to {@link UUID} 
+	 * @param uuid
+	 * @return true if is given string convertible to {@link UUID}
+	 */
+	public static boolean isUuid(String uuid){
+		if(uuid == null){
+			return false;
+		}
+		try{
+			UUID.fromString(uuid);
+		}catch(IllegalArgumentException ex){
+			// Simple is not UUID
+			return false;
+		}
+		return true;
+	}
 
     public static Field getFirstFieldInClassHierarchy(Class<?> sourceType, String field) throws NoSuchFieldException {
         Field result = getFirstFieldInClassHierarchyInternal(sourceType, field);

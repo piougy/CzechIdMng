@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import eu.bcvsolutions.idm.core.api.dto.ConfigurationDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmConfigurationDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
@@ -49,7 +49,7 @@ public interface IdmTreeTypeService extends ReadWriteEntityService<IdmTreeType, 
 	 * @param treeType
 	 * @return
 	 */
-	List<ConfigurationDto> getConfigurations(IdmTreeType treeType);
+	List<IdmConfigurationDto> getConfigurations(IdmTreeType treeType);
 	
 	/**
 	 * Returns configuration property name for given tree type.

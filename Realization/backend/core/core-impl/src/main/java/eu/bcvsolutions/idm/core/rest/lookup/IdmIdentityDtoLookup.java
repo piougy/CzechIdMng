@@ -28,6 +28,4 @@ public class IdmIdentityDtoLookup extends CodeableDtoLookup<IdmIdentityDto>{
 		}
 		return identityService;
 	}
-	
-
 }

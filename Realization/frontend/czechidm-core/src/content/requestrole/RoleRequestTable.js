@@ -1,7 +1,6 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
-import { Link } from 'react-router';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
@@ -47,7 +46,7 @@ class RoleRequestTable extends Advanced.AbstractTableContent {
       return '';
     }
     return (
-      <CandicateUsersCell rowIndex={0} data={[entity._embedded.wfProcessId]} property={property} maxEntry={5} />
+      <CandicateUsersCell candidates={entity._embedded.wfProcessId[property]} maxEntry={5} />
     );
   }
 
@@ -67,7 +66,7 @@ class RoleRequestTable extends Advanced.AbstractTableContent {
       return '';
     }
     return (
-      <Link to={`/workflow/history/processes/${entity.wfProcessId}`}>{entity.wfProcessId}</Link>
+      <Advanced.WorkflowProcessInfo entityIdentifier={entity.wfProcessId}/>
     );
   }
 

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.Map.Entry;
 
 import org.activiti.engine.FormService;
@@ -72,7 +73,7 @@ public class DefaultWorkflowTaskInstanceService implements WorkflowTaskInstanceS
 			query.processInstanceId(filter.getProcessInstanceId());
 		}
 		if(filter.getId() != null){
-			query.taskId(filter.getId());
+			query.taskId(filter.getId().toString());
 		}
 		if (equalsVariables != null) {
 			for (Entry<String, Object> entry : equalsVariables.entrySet()) {
@@ -110,7 +111,7 @@ public class DefaultWorkflowTaskInstanceService implements WorkflowTaskInstanceS
 	@Override
 	public WorkflowTaskInstanceDto get(String taskId) {
 		WorkflowFilterDto filter = new WorkflowFilterDto();
-		filter.setId(taskId);
+		filter.setId(UUID.fromString(taskId));
 		List<WorkflowTaskInstanceDto> tasks = (List<WorkflowTaskInstanceDto>) search(filter).getResources();
 		
 		return tasks.isEmpty() ? null : tasks.get(0);

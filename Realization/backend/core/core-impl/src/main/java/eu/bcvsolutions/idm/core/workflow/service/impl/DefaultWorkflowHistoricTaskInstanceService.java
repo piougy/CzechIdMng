@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.core.workflow.service.impl;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 
 import org.activiti.engine.HistoryService;
 import org.activiti.engine.history.HistoricIdentityLink;
@@ -44,7 +45,7 @@ public class DefaultWorkflowHistoricTaskInstanceService implements WorkflowHisto
 		query.includeProcessVariables();
 		
 		if (filter.getId() != null){
-			query.taskId(filter.getId());
+			query.taskId(filter.getId().toString());
 		}
 		if (processInstanceId != null) {
 			query.processInstanceId(processInstanceId);
@@ -104,7 +105,7 @@ public class DefaultWorkflowHistoricTaskInstanceService implements WorkflowHisto
 	@Override
 	public WorkflowHistoricTaskInstanceDto get(String historicTaskInstanceId) {
 		WorkflowFilterDto filter = new WorkflowFilterDto();
-		filter.setId(historicTaskInstanceId);
+		filter.setId(UUID.fromString(historicTaskInstanceId));
 		filter.setSortAsc(true);
 		Collection<WorkflowHistoricTaskInstanceDto> resources = this.search(filter).getResources();
 		return !resources.isEmpty() ? resources.iterator().next() : null;

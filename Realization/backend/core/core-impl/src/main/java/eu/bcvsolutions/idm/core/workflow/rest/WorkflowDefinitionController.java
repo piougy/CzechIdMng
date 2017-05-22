@@ -2,17 +2,21 @@ package eu.bcvsolutions.idm.core.workflow.rest;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
-import org.springframework.http.HttpStatus;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.Resource;
+import org.springframework.hateoas.Resources;
+import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -22,12 +26,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
-import eu.bcvsolutions.idm.core.api.rest.domain.ResourceWrapper;
-import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
+import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
+import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.workflow.api.dto.WorkflowDeploymentDto;
 import eu.bcvsolutions.idm.core.workflow.api.service.WorkflowDeploymentService;
-import eu.bcvsolutions.idm.core.workflow.domain.WorkflowDefinitionAssembler;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowProcessDefinitionDto;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessDefinitionService;
@@ -39,8 +41,13 @@ import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessDefinitionServic
  *
  */
 @RestController
-@RequestMapping(value = BaseEntityController.BASE_PATH + "/workflow-definitions")
-public class WorkflowDefinitionController {
+@RequestMapping(value = BaseDtoController.BASE_PATH + "/workflow-definitions")
+public class WorkflowDefinitionController extends AbstractReadWriteDtoController<WorkflowProcessDefinitionDto, WorkflowFilterDto> {
+
+	@Autowired
+	public WorkflowDefinitionController(WorkflowProcessDefinitionService service) {
+		super(service);
+	}
 
 	@Autowired
 	private WorkflowDeploymentService deploymentService;
@@ -58,28 +65,13 @@ public class WorkflowDefinitionController {
 	 * @return
 	 * @throws IOException
 	 */
+	@ResponseBody
 	@RequestMapping(method = RequestMethod.POST)
-	public ResourceWrapper<WorkflowDeploymentDto> create(String name, String fileName, MultipartFile data)
+	public Resource<WorkflowDeploymentDto> create(String name, String fileName, MultipartFile data)
 			throws IOException {
-
-		return new ResourceWrapper<>(deploymentService.create(name, fileName, data.getInputStream()));
-	}
-
-	public ResponseEntity<ResourcesWrapper<ResourceWrapper<WorkflowProcessDefinitionDto>>> search(
-			@RequestBody WorkflowFilterDto filter) {
-		ResourcesWrapper<WorkflowProcessDefinitionDto> result = definitionService.search(filter);
-
-		List<WorkflowProcessDefinitionDto> processes = (List<WorkflowProcessDefinitionDto>) result.getResources();
-		List<ResourceWrapper<WorkflowProcessDefinitionDto>> wrappers = new ArrayList<>();
-
-		for (WorkflowProcessDefinitionDto process : processes) {
-			wrappers.add(new ResourceWrapper<WorkflowProcessDefinitionDto>(process));
-		}
-		ResourcesWrapper<ResourceWrapper<WorkflowProcessDefinitionDto>> resources = new ResourcesWrapper<ResourceWrapper<WorkflowProcessDefinitionDto>>(
-				wrappers);
-		resources.setPage(result.getPage());
-		return new ResponseEntity<ResourcesWrapper<ResourceWrapper<WorkflowProcessDefinitionDto>>>(resources,
-				HttpStatus.OK);
+		WorkflowDeploymentDto deployment = deploymentService.create(name, fileName, data.getInputStream());
+		Link selfLink = ControllerLinkBuilder.linkTo(this.getClass()).slash(deployment.getId()).withSelfRel();
+		return new Resource<WorkflowDeploymentDto>(deployment, selfLink);
 	}
 
 	/**
@@ -87,19 +79,12 @@ public class WorkflowDefinitionController {
 	 * 
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
+	@ResponseBody
 	@RequestMapping(method = RequestMethod.GET)
-	public ResponseEntity<ResourcesWrapper<ResourceWrapper<WorkflowProcessDefinitionDto>>> findAllProcessDefinitions() {
+	public Resources<WorkflowProcessDefinitionDto> findAllProcessDefinitions() {
 		List<WorkflowProcessDefinitionDto> definitions = definitionService.findAllProcessDefinitions();
-		List<ResourceWrapper<WorkflowProcessDefinitionDto>> wrappers = new ArrayList<>();
-		WorkflowDefinitionAssembler assembler = new WorkflowDefinitionAssembler();
-
-		for (WorkflowProcessDefinitionDto definition : definitions) {
-			wrappers.add(assembler.toResource(definition));
-		}
-		ResourcesWrapper<ResourceWrapper<WorkflowProcessDefinitionDto>> resources = new ResourcesWrapper<ResourceWrapper<WorkflowProcessDefinitionDto>>(
-				wrappers, definitions.size());
-		return new ResponseEntity<ResourcesWrapper<ResourceWrapper<WorkflowProcessDefinitionDto>>>(resources,
-				HttpStatus.OK);
+		return (Resources<WorkflowProcessDefinitionDto>) toResources(definitions, getDtoClass());
 	}
 
 	/**
@@ -112,20 +97,14 @@ public class WorkflowDefinitionController {
 	 *            - category
 	 * @return
 	 */
-	@RequestMapping(method = RequestMethod.GET, value = "/search/quick")
-	public ResponseEntity<ResourcesWrapper<ResourceWrapper<WorkflowProcessDefinitionDto>>> searchQuick(
-			@RequestParam(required = false) Integer size, @RequestParam(required = false) Integer page,
-			@RequestParam(required = false) String sort, @RequestParam(required = false) String category) {
-
-		WorkflowFilterDto filter = new WorkflowFilterDto(size != null ? size : defaultPageSize);
-		if (page != null) {
-			filter.setPageNumber(page);
-		}
-		filter.setCategory(category);
-		filter.initSort(sort);
-
-		return this.search(filter);
+	@ResponseBody
+	@RequestMapping(value = "/search/quick", method = RequestMethod.GET)
+	public Resources<?> findQuick(@RequestParam MultiValueMap<String, Object> parameters,
+			@PageableDefault Pageable pageable) {
+		return super.find(parameters, pageable);
 	}
+	
+	
 
 	/**
 	 * Search last version process by key
@@ -133,13 +112,12 @@ public class WorkflowDefinitionController {
 	 * @param definitionKey
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
+	@ResponseBody
 	@RequestMapping(method = RequestMethod.GET, value = "/{definitionKey}")
-	public ResponseEntity<ResourceWrapper<WorkflowProcessDefinitionDto>> get(@PathVariable String definitionKey) {
-		WorkflowProcessDefinitionDto definition = definitionService.get(definitionKey);
-		WorkflowDefinitionAssembler assembler = new WorkflowDefinitionAssembler();
-		ResourceWrapper<WorkflowProcessDefinitionDto> resource = assembler.toResource(definition);
-
-		return new ResponseEntity<ResourceWrapper<WorkflowProcessDefinitionDto>>(resource, HttpStatus.OK);
+	public ResponseEntity<WorkflowProcessDefinitionDto> get(@PathVariable String definitionKey) {
+		String definitionId = definitionService.getProcessDefinitionId(definitionKey);
+		return (ResponseEntity<WorkflowProcessDefinitionDto>) super.get(definitionId);
 	}
 
 	/**
@@ -152,7 +130,7 @@ public class WorkflowDefinitionController {
 	@ResponseBody
 	public ResponseEntity<InputStreamResource> getDiagram(@PathVariable String definitionKey) {
 		// check rights
-		WorkflowProcessDefinitionDto result = definitionService.get(definitionKey);
+		WorkflowProcessDefinitionDto result = definitionService.getByName(definitionKey);
 		if (result == null) {
 			throw new ResultCodeException(CoreResultCode.FORBIDDEN);
 		}

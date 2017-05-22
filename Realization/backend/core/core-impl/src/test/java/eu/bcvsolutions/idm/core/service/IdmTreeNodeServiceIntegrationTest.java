@@ -163,13 +163,15 @@ public class IdmTreeNodeServiceIntegrationTest extends AbstractIntegrationTest {
 		//
 		final TreeNodeFilter fullTextFilter2 = new TreeNodeFilter();
 		fullTextFilter2.setText("NODE");
+		fullTextFilter2.setTreeTypeId(t1Id);
 		Page<IdmTreeNode> res10 = treeNodeService.find(fullTextFilter2, null);
-		assertEquals(7, res10.getTotalElements());
+		assertEquals(5, res10.getTotalElements());
 		//
 		final TreeNodeFilter fullTextFilter3 = new TreeNodeFilter();
 		fullTextFilter3.setText("odE");
+		fullTextFilter3.setTreeTypeId(t1Id);
 		Page<IdmTreeNode> res13 = treeNodeService.find(fullTextFilter3, null);
-		assertEquals(7, res13.getTotalElements());
+		assertEquals(5, res13.getTotalElements());
 		//
 		// Property - value pairs
 		//

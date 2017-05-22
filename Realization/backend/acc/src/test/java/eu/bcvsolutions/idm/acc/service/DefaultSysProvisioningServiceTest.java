@@ -178,7 +178,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 	
 	@Test
 	/**
-	 * Test for change account ID. Important! - because we test against Table connector, is here error in log after we try change PK. 
+	 * Test for change account ID.
 	 */
 	public void doIdentityProvisioningChangeAccountIdentifier() {
 		IdmIdentityDto identity = idmIdentityService.getByUsername(IDENTITY_USERNAME_TWO);
@@ -199,12 +199,15 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		
 		account = accountService.get(account.getId());
 		Assert.assertEquals("x"+IDENTITY_USERNAME_CHANGED, account.getUid());
+		Assert.assertEquals("x"+IDENTITY_USERNAME_CHANGED, account.getRealUid());
+		
 		
 		// Change username back
 		identity.setUsername(IDENTITY_USERNAME_TWO);
 		identity = idmIdentityService.save(identity);
 		account = accountService.get(account.getId());
 		Assert.assertEquals("x"+IDENTITY_USERNAME_TWO, account.getUid());
+		Assert.assertEquals("x"+IDENTITY_USERNAME_TWO, account.getRealUid());
 	}
 
 	@Test

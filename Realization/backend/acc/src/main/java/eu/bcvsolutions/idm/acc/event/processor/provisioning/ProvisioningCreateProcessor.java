@@ -37,7 +37,6 @@ public class ProvisioningCreateProcessor extends AbstractProvisioningProcessor {
 
 	public static final String PROCESSOR_NAME = "provisioning-create-processor";
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(ProvisioningCreateProcessor.class);
-	private final SysSystemEntityService systemEntityService;
 	private final IdmPasswordPolicyService passwordPolicyService;
 	private final SysProvisioningOperationService provisioningOperationService;
 	
@@ -45,17 +44,15 @@ public class ProvisioningCreateProcessor extends AbstractProvisioningProcessor {
 	public ProvisioningCreateProcessor(
 			IcConnectorFacade connectorFacade,
 			SysSystemService systemService,
-			SysSystemEntityService systemEntityService,
 			SysProvisioningOperationService provisioningOperationService,
-			IdmPasswordPolicyService passwordPolicyService) {
-		super(connectorFacade, systemService, provisioningOperationService, 
+			IdmPasswordPolicyService passwordPolicyService,
+			SysSystemEntityService systemEntityService) {
+		super(connectorFacade, systemService, provisioningOperationService, systemEntityService, 
 				ProvisioningEventType.CREATE, ProvisioningEventType.UPDATE);
 		//
-		Assert.notNull(systemEntityService);
 		Assert.notNull(provisioningOperationService);
 		//
 		this.passwordPolicyService = passwordPolicyService;
-		this.systemEntityService = systemEntityService;
 		this.provisioningOperationService = provisioningOperationService;
 	}
 	
@@ -65,7 +62,7 @@ public class ProvisioningCreateProcessor extends AbstractProvisioningProcessor {
 	}
 
 	@Override
-	public void processInternal(SysProvisioningOperation provisioningOperation, IcConnectorConfiguration connectorConfig) {
+	public IcUidAttribute processInternal(SysProvisioningOperation provisioningOperation, IcConnectorConfiguration connectorConfig) {
 		// execute provisioning
 		IcConnectorObject connectorObject = provisioningOperation.getProvisioningContext().getConnectorObject();		
 		// 	
@@ -91,18 +88,9 @@ public class ProvisioningCreateProcessor extends AbstractProvisioningProcessor {
 		IcUidAttribute icUid = connectorFacade.createObject(provisioningOperation.getSystem().getConnectorInstance(), connectorConfig,
 				connectorObject.getObjectClass(), connectorObject.getAttributes());
 		//
-		provisioningOperationService.save(provisioningOperation); // has to be fist - we need to replace guarded strings before systemEntityService.save(systemEntity)
+		provisioningOperationService.save(provisioningOperation); // has to be first - we need to replace guarded strings before systemEntityService.save(systemEntity)
 		//
-		// update system entity, when identifier on target system differs
-		if (icUid != null && icUid.getUidValue() != null) {
-			SysSystemEntity systemEntity = provisioningOperation.getSystemEntity();
-			if(!systemEntity.getUid().equals(icUid.getUidValue()) || systemEntity.isWish()) {
-				systemEntity.setUid(icUid.getUidValue());
-				systemEntity.setWish(false);
-				systemEntity = systemEntityService.save(systemEntity);
-				LOG.debug("New system entity with uid [{}] was updated", systemEntity.getUid());
-			}
-		}
+		return icUid;
 	}
 	
 	@Override

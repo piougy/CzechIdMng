@@ -89,7 +89,6 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 	private static final String IDENTITY_USERNAME_ONE = "syncUserOneTest";
 	private static final String IDENTITY_USERNAME_TWO = "syncUserTwoTest";
 	private static final String IDENTITY_USERNAME_THREE = "syncUserThreeTest";
-	private static final String IDENTITY_USERNAME_FOUR = "syncUserFourTest";
 	private static final String ATTRIBUTE_NAME = "__NAME__";
 	private static final String ATTRIBUTE_EMAIL = "email";
 	private static final String ATTRIBUTE_MODIFIED = "modified";
@@ -1055,7 +1054,105 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 	}
 	
 	@Test
+	public void doStartSyncE_StrategyWriteIfNull_EAV() {
+		SynchronizationConfigFilter configFilter = new SynchronizationConfigFilter();
+		configFilter.setName(SYNC_CONFIG_NAME);
+		List<SysSyncConfig> syncConfigs = syncConfigService.find(configFilter, null).getContent();
+
+		Assert.assertEquals(1, syncConfigs.size());
+		SysSyncConfig syncConfigCustom = syncConfigs.get(0);
+		Assert.assertFalse(syncConfigService.isRunning(syncConfigCustom));
+		
+		// Find email attribute and change strategy on WRITE_IF_NULL
+		SystemMappingFilter mappingFilter = new SystemMappingFilter();
+		mappingFilter.setEntityType(SystemEntityType.IDENTITY);
+		mappingFilter.setSystemId(syncConfigCustom.getSystemMapping().getSystem().getId());
+		mappingFilter.setOperationType(SystemOperationType.SYNCHRONIZATION);
+		List<SysSystemMapping> mappings = systemMappingService.find(mappingFilter, null).getContent();
+		Assert.assertEquals(1, mappings.size());
+		SysSystemMapping mapping = mappings.get(0);
+		SystemAttributeMappingFilter attributeMappingFilter = new SystemAttributeMappingFilter();
+		attributeMappingFilter.setSystemMappingId(mapping.getId());
+
+		List<SysSystemAttributeMapping> attributes = schemaAttributeMappingService.find(attributeMappingFilter, null)
+				.getContent();
+		SysSystemAttributeMapping eavAttribute = attributes.stream().filter(attribute -> {
+			return attribute.getName().equalsIgnoreCase(EAV_ATTRIBUTE);
+		}).findFirst().get();
+		
+		eavAttribute.setStrategyType(AttributeMappingStrategyType.WRITE_IF_NULL);
+		schemaAttributeMappingService.save(eavAttribute);
+		//
+		// Set eav on identity ONE to null
+		IdmIdentityDto one = identityService.getByUsername("x" + IDENTITY_USERNAME_ONE);
+		formService.saveValues(one.getId(), IdmIdentity.class, eavAttribute.getIdmPropertyName(), null);
+		IdmIdentityDto two = identityService.getByUsername("x" + IDENTITY_USERNAME_TWO);
+		formService.saveValues(two.getId(), IdmIdentity.class, eavAttribute.getIdmPropertyName(), ImmutableList.of(ATTRIBUTE_EMAIL));
+		
+		// Prepare resource data
+		this.getBean().deleteAllResourceData();
+		this.getBean().initResourceData();
+		this.getBean().changeResourceData();
+		
+		// Set sync config
+		syncConfigCustom.setLinkedAction(SynchronizationLinkedActionType.UPDATE_ENTITY);
+		syncConfigCustom.setUnlinkedAction(SynchronizationUnlinkedActionType.IGNORE);
+		syncConfigCustom.setMissingEntityAction(SynchronizationMissingEntityActionType.CREATE_ENTITY);
+		syncConfigCustom.setMissingAccountAction(ReconciliationMissingAccountActionType.IGNORE);
+		syncConfigCustom.setReconciliation(true);
+		syncConfigService.save(syncConfigCustom);
+		
+
+		// Start synchronization
+		synchornizationService.setSynchronizationConfigId(syncConfigCustom.getId());
+		synchornizationService.process();
+		//
+		SynchronizationLogFilter logFilter = new SynchronizationLogFilter();
+		logFilter.setSynchronizationConfigId(syncConfigCustom.getId());
+		List<SysSyncLog> logs = syncLogService.find(logFilter, null).getContent();
+		Assert.assertEquals(1, logs.size());
+		SysSyncLog log = logs.get(0);
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+
+		SyncActionLogFilter actionLogFilter = new SyncActionLogFilter();
+		actionLogFilter.setSynchronizationLogId(log.getId());
+		List<SysSyncActionLog> actions = syncActionLogService.find(actionLogFilter, null).getContent();
+		Assert.assertEquals(1, actions.size());
+
+		SysSyncActionLog actionLog = actions.stream().filter(action -> {
+			return SynchronizationActionType.UPDATE_ENTITY == action.getSyncAction();
+		}).findFirst().get();
+
+		SyncItemLogFilter itemLogFilter = new SyncItemLogFilter();
+		itemLogFilter.setSyncActionLogId(actionLog.getId());
+		List<SysSyncItemLog> items = syncItemLogService.find(itemLogFilter, null).getContent();
+		Assert.assertEquals(2, items.size());
+
+		// Check state after sync
+		one = identityService.getByUsername("x" + IDENTITY_USERNAME_ONE);
+		Assert.assertEquals(ATTRIBUTE_VALUE_CHANGED, formService.getValues(one.getId(), IdmIdentity.class, eavAttribute.getIdmPropertyName()).get(0).getStringValue());
+
+		two = identityService.getByUsername("x" + IDENTITY_USERNAME_TWO);
+		Assert.assertEquals(ATTRIBUTE_EMAIL, formService.getValues(two.getId(), IdmIdentity.class, eavAttribute.getIdmPropertyName()).get(0).getStringValue());
+		
+		// Revert strategy
+		eavAttribute.setStrategyType(AttributeMappingStrategyType.SET);
+		schemaAttributeMappingService.save(eavAttribute);
+		// Set EAV value to default
+		formService.saveValues(one.getId(), IdmIdentity.class, eavAttribute.getIdmPropertyName(), ImmutableList.of("1"));
+		formService.saveValues(two.getId(), IdmIdentity.class, eavAttribute.getIdmPropertyName(), ImmutableList.of("2"));
+		// Delete log
+		syncLogService.delete(log);
+	}
+	
+	
+	@Test
 	public void doStartSyncF_Unlinked_doLinkByEavAttribute() {
+				
+		// Prepare resource data
+		this.getBean().deleteAllResourceData();
+		this.getBean().initResourceData();
 		//
 		// call unlink
 		this.doStartSyncB_Linked_doUnLinked();
@@ -1218,9 +1315,11 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		TestResource one = entityManager.find(TestResource.class, "x" + IDENTITY_USERNAME_ONE);
 		one.setFirstname(ATTRIBUTE_VALUE_CHANGED);
 		one.setEmail(IDENTITY_EMAIL_CORRECT_CHANGED);
+		one.setEavAttribute(ATTRIBUTE_VALUE_CHANGED);
 		TestResource two = entityManager.find(TestResource.class, "x" + IDENTITY_USERNAME_TWO);
 		two.setLastname(ATTRIBUTE_VALUE_CHANGED);
 		two.setEmail(IDENTITY_EMAIL_CORRECT_CHANGED);
+		two.setEavAttribute(ATTRIBUTE_VALUE_CHANGED);
 		entityManager.persist(one);
 		entityManager.persist(two);
 	}

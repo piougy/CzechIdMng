@@ -24,7 +24,6 @@ import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 import eu.bcvsolutions.idm.ic.api.IcObjectClass;
 import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
-import eu.bcvsolutions.idm.ic.exception.IcCantConnectException;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 
 /**

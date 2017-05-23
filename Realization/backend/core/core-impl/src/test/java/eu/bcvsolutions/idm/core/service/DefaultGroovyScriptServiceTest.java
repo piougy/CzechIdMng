@@ -57,7 +57,7 @@ public class DefaultGroovyScriptServiceTest extends AbstractVerifiableUnitTest {
 		assertEquals("false", result);
 	}
 
-	@Test(expected = MissingPropertyException.class)
+	@Test(expected = ResultCodeException.class)
 	public void testMissingInputVariableScript() {
 		String script = "if(attributeValue){return String.valueOf(!attributeValue);}else{return \"true\";}";
 		groovyScriptService.validateScript(script);

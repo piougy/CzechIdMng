@@ -43,6 +43,7 @@ public enum CoreResultCode implements ResultCode {
 	PASSWORD_CHANGE_NO_SYSTEM(HttpStatus.BAD_REQUEST, "No system selected."),
 	PASSWORD_CHANGE_CURRENT_FAILED_IDM(HttpStatus.BAD_REQUEST, "Given current password doesn't match to current idm password."),
 	PASSWORD_RESET_FAILED(HttpStatus.BAD_REQUEST, "Password reset failed: %s."),
+	PASSWORD_CHANGE_FAILED(HttpStatus.BAD_REQUEST, "Password change failed: %s."),
 	PASSWORD_RESET_GENERATE_TOKEN(HttpStatus.BAD_REQUEST, "Reset token generate failed: %s."),
 	PASSWORD_CHANGE_ALL_ONLY(HttpStatus.BAD_REQUEST, "Password change is enabled for all systems only. Select all systems (idm, all accounts)"),
 	PASSWORD_CHANGE_DISABLED(HttpStatus.BAD_REQUEST, "Password change is disabled"),

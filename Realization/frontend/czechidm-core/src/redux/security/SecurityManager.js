@@ -84,7 +84,6 @@ export default class SecurityManager {
   remoteLogin(redirect) {
     return (dispatch, getState) => {
       dispatch(this.requestRemoteLogin());
-      dispatch(flashMessagesManager.hideAllMessages());
       //
       authenticateService.remoteLogin()
         .then(json => this._handleUserAuthSuccess(dispatch, getState, redirect, json))

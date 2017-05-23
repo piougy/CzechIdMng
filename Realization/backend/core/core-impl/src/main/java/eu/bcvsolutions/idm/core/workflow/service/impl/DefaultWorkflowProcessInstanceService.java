@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.UUID;
 
 import org.activiti.bpmn.model.BpmnModel;
 import org.activiti.bpmn.model.FlowElement;
@@ -72,18 +73,18 @@ public class DefaultWorkflowProcessInstanceService implements WorkflowProcessIns
 	public ProcessInstance startProcess(String definitionKey, String objectType, String applicant,
 			String objectIdentifier, Map<String, Object> variables) {
 		Assert.hasText(definitionKey, "Definition key cannot be null!");
-		Assert.notNull(securityService.getCurrentId(), "Logged user id cannot be null!");
 
 		IdmIdentityDto applicantIdentity = null;
 		if (applicant != null) {
 			applicantIdentity = identityService.getByUsername(applicant);
 		}
+		UUID implementerId = securityService.getCurrentId();
 		ProcessInstanceBuilder builder = runtimeService.createProcessInstanceBuilder()
 				.processDefinitionKey(definitionKey)//
 				.addVariable(WorkflowProcessInstanceService.OBJECT_TYPE, objectType)
 				.addVariable(WorkflowProcessInstanceService.ACTIVITI_SKIP_EXPRESSION_ENABLED, true) // Allow skip expression on user task
 				.addVariable(WorkflowProcessInstanceService.OBJECT_IDENTIFIER, objectIdentifier)
-				.addVariable(WorkflowProcessInstanceService.IMPLEMENTER_IDENTIFIER, securityService.getCurrentId().toString())
+				.addVariable(WorkflowProcessInstanceService.IMPLEMENTER_IDENTIFIER, implementerId == null ? null : implementerId.toString())
 				.addVariable(WorkflowProcessInstanceService.APPLICANT_USERNAME, applicant)
 				.addVariable(WorkflowProcessInstanceService.APPLICANT_IDENTIFIER,
 						applicantIdentity != null ? applicantIdentity.getId() : null);

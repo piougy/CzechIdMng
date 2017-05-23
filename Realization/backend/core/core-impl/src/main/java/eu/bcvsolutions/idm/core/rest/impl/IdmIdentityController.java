@@ -84,9 +84,9 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 	private final IdmTreeNodeService treeNodeService;
 	private final ForestContentService<IdmTreeNode, IdmForestIndexEntity, UUID> treeNodeIndexService;
 	private final IdmIdentityRepository identityRepository;
+	private final FormService formService;
 	//
 	private final IdmFormDefinitionController formDefinitionController;
-	@Autowired private FormService formService;
 	
 	@Autowired
 	public IdmIdentityController(
@@ -98,7 +98,8 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 			IdmAuditService auditService,
 			ForestContentService<IdmTreeNode, IdmForestIndexEntity, UUID> treeNodeIndexService,
 			IdmTreeNodeService treeNodeService,
-			IdmIdentityRepository identityRepository) {
+			IdmIdentityRepository identityRepository,
+			FormService formService) {
 		super(identityService);
 		//
 		Assert.notNull(formDefinitionController);
@@ -109,6 +110,7 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 		Assert.notNull(treeNodeIndexService);
 		Assert.notNull(treeNodeService);
 		Assert.notNull(identityRepository);
+		Assert.notNull(formService);
 		//
 		this.formDefinitionController = formDefinitionController;
 		this.grantedAuthoritiesFactory = grantedAuthoritiesFactory;
@@ -118,6 +120,7 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 		this.treeNodeIndexService = treeNodeIndexService;
 		this.treeNodeService = treeNodeService;
 		this.identityRepository = identityRepository;
+		this.formService = formService;
 	}
 	
 	@Override
@@ -334,8 +337,8 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_READ + "')")
 	public Resources<?> getFormValues(
 			@PathVariable @NotNull String backendId, 
-			PersistentEntityResourceAssembler assembler,
-			@RequestParam(name = "definitionCode") String definitionCode) {
+			@RequestParam(name = "definitionCode") String definitionCode,
+			PersistentEntityResourceAssembler assembler) {
 		IdmIdentityDto entity = getDto(backendId);
 		if (entity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
@@ -364,9 +367,9 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 	@RequestMapping(value = "/{backendId}/form-values", method = RequestMethod.POST)
 	public Resources<?> saveFormValues(
 			@PathVariable @NotNull String backendId,
+			@RequestParam(name = "definitionCode") String definitionCode,
 			@RequestBody @Valid List<IdmIdentityFormValue> formValues,
-			PersistentEntityResourceAssembler assembler,
-			@RequestParam(name = "definitionCode") String definitionCode) {		
+			PersistentEntityResourceAssembler assembler) {		
 		IdmIdentityDto entity = getDto(backendId);
 		if (entity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));

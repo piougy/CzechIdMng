@@ -59,9 +59,7 @@ public class CandidateToUiidEventListener implements ActivitiEventListener {
 
 	@Override
 	public boolean isFailOnException() {
-		// The logic in the onEvent method of this listener is not critical,
-		// exceptions
-		// can be ignored if logging fails...
-		return false;
+		// We can throw exception
+		return true;
 	}
 }

@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.workflow.domain;
+package eu.bcvsolutions.idm.core.workflow.listener;
 
 import java.util.Map;
 
@@ -45,11 +45,11 @@ public class StartSubprocessEventListener implements ActivitiEventListener {
 			
 			@SuppressWarnings("unchecked") Map<String, Object> variables = eventStarted.getVariables();
 			variables.forEach((k, v) -> {
-				if (WorkflowProcessInstanceService.APPLICANT_USERNAME.equals(k)) {
+				if (WorkflowProcessInstanceService.APPLICANT_IDENTIFIER.equals(k)) {
 					// Set applicant as owner of process
 					runtimeService.addUserIdentityLink(event.getProcessInstanceId(), (String) v, IdentityLinkType.OWNER);
 					log.debug("StartSubprocesEventListener - set process owner [{}]", v);
-				} else if (WorkflowProcessInstanceService.IMPLEMENTER_USERNAME.equals(k)) {
+				} else if (WorkflowProcessInstanceService.IMPLEMENTER_IDENTIFIER.equals(k)) {
 					// Set current logged user (implementer) as starter of
 					// process
 					runtimeService.addUserIdentityLink(event.getProcessInstanceId(), (String) v, IdentityLinkType.STARTER);

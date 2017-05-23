@@ -9,8 +9,10 @@ import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
+import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
@@ -21,6 +23,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 import eu.bcvsolutions.idm.ic.api.IcObjectClass;
+import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 
 /**
@@ -35,22 +38,26 @@ public abstract class AbstractProvisioningProcessor extends AbstractEntityEventP
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(AbstractProvisioningProcessor.class);
 	protected final IcConnectorFacade connectorFacade;
 	protected final SysSystemService systemService;
+	private final SysSystemEntityService systemEntityService;
 	private final SysProvisioningOperationService provisioningOperationService;
 	
 	public AbstractProvisioningProcessor(
 			IcConnectorFacade connectorFacade,
 			SysSystemService systemService,
 			SysProvisioningOperationService provisioningOperationService,
+			SysSystemEntityService systemEntityService,
 			ProvisioningEventType... provisioningOperationType) {
 		super(provisioningOperationType);
 		//
 		Assert.notNull(connectorFacade);
 		Assert.notNull(systemService);
 		Assert.notNull(provisioningOperationService);
+		Assert.notNull(systemEntityService);
 		//
 		this.connectorFacade = connectorFacade;
 		this.systemService = systemService;
 		this.provisioningOperationService = provisioningOperationService;
+		this.systemEntityService = systemEntityService;
 	}
 	
 	/**
@@ -59,7 +66,7 @@ public abstract class AbstractProvisioningProcessor extends AbstractEntityEventP
 	 * @param provisioningOperation
 	 * @param connectorConfig
 	 */
-	protected abstract void processInternal(SysProvisioningOperation provisioningOperation, IcConnectorConfiguration connectorConfig);
+	protected abstract IcUidAttribute processInternal(SysProvisioningOperation provisioningOperation, IcConnectorConfiguration connectorConfig);
 	
 	/**
 	 * Prepare provisioning operation execution
@@ -92,7 +99,18 @@ public abstract class AbstractProvisioningProcessor extends AbstractEntityEventP
 			connectorObject = provisioningOperationService.getFullConnectorObject(provisioningOperation);
 			provisioningOperation.getProvisioningContext().setConnectorObject(connectorObject);
 			//
-			processInternal(provisioningOperation, connectorConfig);
+			IcUidAttribute resultUid = processInternal(provisioningOperation, connectorConfig);
+			// update system entity, when identifier on target system differs
+			if (resultUid != null && resultUid.getUidValue() != null) {
+				SysSystemEntity systemEntity = provisioningOperation.getSystemEntity();
+				if(!systemEntity.getUid().equals(resultUid.getUidValue()) || systemEntity.isWish()) {
+					systemEntity.setUid(resultUid.getUidValue());
+					systemEntity.setWish(false);
+					systemEntity = systemEntityService.save(systemEntity);
+					LOG.info("UID was changed. System entity with uid [{}] was updated", systemEntity.getUid());
+				}
+			}
+			
 			provisioningOperationService.handleSuccessful(provisioningOperation);
 		} catch (Exception ex) {			
 			provisioningOperationService.handleFailed(provisioningOperation, ex);

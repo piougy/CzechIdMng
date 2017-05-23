@@ -124,8 +124,8 @@ if(candidates.isEmpty()){
 }
 
 //Is current logged user = implemeneter user and is betwen candidates? If yes, then we can skip task.
-if(implementerUsername.equals(securityService.getUsername())){
-  skip = identityService.containsUser(candidates, implementerUsername);
+if(implementerIdentifier.equals(securityService.getCurrentId().toString())){
+  skip = identityService.containsUser(candidates, implementerIdentifier);
 }else{
   skip = false; 
 }
@@ -159,8 +159,8 @@ if(candidates.isEmpty()){
 }
 
 //Is current logged user = implemeneter user and is betwen candidates? If yes, then we can skip task.
-if(implementerUsername.equals(securityService.getUsername())){
-  skip = identityService.containsUser(candidates, implementerUsername);
+if(implementerIdentifier.equals(securityService.getCurrentId().toString())){
+  skip = identityService.containsUser(candidates, implementerIdentifier);
 }else{
   skip = false; 
 }
@@ -211,8 +211,8 @@ if(candidates.isEmpty()){
 }
 
 //Is current logged user = implemeneter user and is betwen candidates? If yes, then we can skip task.
-if(implementerUsername.equals(securityService.getUsername())){
-  skip = identityService.containsUser(candidates, implementerUsername);
+if(implementerIdentifier.equals(securityService.getCurrentId().toString())){
+  skip = identityService.containsUser(candidates, implementerIdentifier);
 }else{
   skip = false; 
 }
@@ -249,8 +249,8 @@ if(candidates.isEmpty()){
 }
 
 //Is current logged user = implemeneter user and is betwen candidates? If yes, then we can skip task.
-if(implementerUsername.equals(securityService.getUsername())){
-  skip = identityService.containsUser(candidates, implementerUsername);
+if(implementerIdentifier.equals(securityService.getCurrentId().toString())){
+  skip = identityService.containsUser(candidates, implementerIdentifier);
 }else{
   skip = false; 
 }

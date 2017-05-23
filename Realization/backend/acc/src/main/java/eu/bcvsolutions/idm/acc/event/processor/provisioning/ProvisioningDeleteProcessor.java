@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInstance;
@@ -32,8 +33,9 @@ public class ProvisioningDeleteProcessor extends AbstractProvisioningProcessor {
 	public ProvisioningDeleteProcessor(
 			IcConnectorFacade connectorFacade,
 			SysSystemService systemService,
-			SysProvisioningOperationService provisioningOperationService) {
-		super(connectorFacade, systemService, provisioningOperationService, ProvisioningEventType.DELETE);
+			SysProvisioningOperationService provisioningOperationService,
+			SysSystemEntityService systemEntityService) {
+		super(connectorFacade, systemService, provisioningOperationService, systemEntityService, ProvisioningEventType.DELETE);
 	}
 	
 	@Override
@@ -42,7 +44,7 @@ public class ProvisioningDeleteProcessor extends AbstractProvisioningProcessor {
 	}
 
 	@Override
-	public void processInternal(SysProvisioningOperation provisioningOperation, IcConnectorConfiguration connectorConfig) {;
+	public IcUidAttribute processInternal(SysProvisioningOperation provisioningOperation, IcConnectorConfiguration connectorConfig) {;
 		IcConnectorInstance connectorInstance = provisioningOperation.getSystem().getConnectorInstance();
 		IcUidAttribute uidAttribute = new IcUidAttributeImpl(null, provisioningOperation.getSystemEntityUid(), null);
 		IcObjectClass objectClass = provisioningOperation.getProvisioningContext().getConnectorObject().getObjectClass();
@@ -51,5 +53,6 @@ public class ProvisioningDeleteProcessor extends AbstractProvisioningProcessor {
 		if (connectorObject != null) {
 			connectorFacade.deleteObject(connectorInstance, connectorConfig, objectClass, uidAttribute);
 		}
+		return null;
 	}
 }

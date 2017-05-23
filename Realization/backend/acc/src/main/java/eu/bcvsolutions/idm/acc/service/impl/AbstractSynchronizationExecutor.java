@@ -74,9 +74,11 @@ import eu.bcvsolutions.idm.core.api.domain.Loggable;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.CorrelationFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
+import eu.bcvsolutions.idm.core.api.repository.BaseEntityRepository;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
@@ -85,7 +87,6 @@ import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.scheduler.service.impl.AbstractLongRunningTaskExecutor;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
@@ -1235,9 +1236,69 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 	 * @param icAttributes
 	 * @return
 	 */
-	protected abstract AbstractEntity findEntityByCorrelationAttribute(AttributeMapping attribute, List<IcAttribute> icAttributes);
+	@SuppressWarnings("unchecked")
+	protected AbstractEntity findEntityByCorrelationAttribute(AttributeMapping attribute, List<IcAttribute> icAttributes) {
+		Assert.notNull(attribute);
+		Assert.notNull(icAttributes);
 
-
+		Object value = getValueByMappedAttribute(attribute, icAttributes);
+		if (value == null) {
+			return null;
+		}
+		if (attribute.isEntityAttribute()) {
+			return findEntityByAttribute(attribute.getIdmPropertyName(), value.toString());
+		} else if (attribute.isExtendedAttribute()) {
+			try {
+				Serializable serializableValue = Serializable.class.cast(value);
+				List<? extends AbstractEntity> entities = (List<? extends AbstractEntity>) formService.findOwners(getEntityClass(), attribute.getName(), serializableValue, null).getContent();
+				if (CollectionUtils.isEmpty(entities)) {
+					return null;
+				}
+				if (entities.size() > 1) {
+					throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_CORRELATION_TO_MANY_RESULTS,
+							ImmutableMap.of("correlationAttribute", attribute.getName(), "value", value));
+				}
+				if (entities.size() == 1) {
+					return entities.get(0);
+				}
+			} catch (ClassCastException e) {
+				throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_CORRELATION_BAD_VALUE,
+						ImmutableMap.of("value", value), e);
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * Find entity by idm attribute
+	 * 
+	 * @param idmAttributeName
+	 * @param value
+	 * @return
+	 */
+	protected abstract AbstractEntity findEntityByAttribute(String idmAttributeName, String value);
+	
+	/**
+	 * Return entity class for synchronization.
+	 * 
+	 * @return
+	 */
+	protected abstract Class<? extends FormableEntity> getEntityClass();
+	
+	/**
+	 * Return repository
+	 * 
+	 * @return
+	 */
+	protected abstract BaseEntityRepository getRepository();
+	
+	/**
+	 * Return specific correlation filter
+	 * 
+	 * @return
+	 */
+	protected abstract CorrelationFilter getEntityFilter();
+	
 	/**
 	 * Fill entity with attributes from IC module (by mapped attributes).
 	 * 

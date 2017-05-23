@@ -8,6 +8,7 @@ import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperation;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.notification.service.api.NotificationManager;
@@ -34,8 +35,9 @@ public class ProvisioningUpdateProcessor extends AbstractProvisioningProcessor {
 			IcConnectorFacade connectorFacade,
 			SysSystemService systemService,
 			NotificationManager notificationManager,
-			SysProvisioningOperationService provisioningOperationService) {
-		super(connectorFacade, systemService, provisioningOperationService, 
+			SysProvisioningOperationService provisioningOperationService,
+			SysSystemEntityService systemEntityService) {
+		super(connectorFacade, systemService, provisioningOperationService, systemEntityService,
 				ProvisioningEventType.CREATE, ProvisioningEventType.UPDATE);
 	}
 	
@@ -45,13 +47,15 @@ public class ProvisioningUpdateProcessor extends AbstractProvisioningProcessor {
 	}
 
 	@Override
-	public void processInternal(SysProvisioningOperation provisioningOperation, IcConnectorConfiguration connectorConfig) {
+	public IcUidAttribute processInternal(SysProvisioningOperation provisioningOperation, IcConnectorConfiguration connectorConfig) {
 		IcUidAttribute uidAttribute = new IcUidAttributeImpl(null, provisioningOperation.getSystemEntityUid(), null);
 		IcConnectorObject connectorObject = provisioningOperation.getProvisioningContext().getConnectorObject();
 		if (!connectorObject.getAttributes().isEmpty()) { // TODO: appropriate message - provisioning is not executed - attributes don't change
-			connectorFacade.updateObject(provisioningOperation.getSystem().getConnectorInstance(), connectorConfig,
+			return connectorFacade.updateObject(provisioningOperation.getSystem().getConnectorInstance(), connectorConfig,
 					connectorObject.getObjectClass(), uidAttribute, connectorObject.getAttributes());
+			
 		}
+		return null;
 	}
 	
 	@Override

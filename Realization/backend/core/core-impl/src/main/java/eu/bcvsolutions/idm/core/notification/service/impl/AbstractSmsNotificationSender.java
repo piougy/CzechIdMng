@@ -36,7 +36,7 @@ public abstract class AbstractSmsNotificationSender extends AbstractNotification
         return createLog(notification);
     }
 
-    abstract void sendSms(IdmNotificationDto notification);
+   public abstract void sendSms(IdmNotificationDto notification);
 
     private IdmSmsLogDto createLog(IdmNotificationDto notification) {
         Assert.notNull(notification);

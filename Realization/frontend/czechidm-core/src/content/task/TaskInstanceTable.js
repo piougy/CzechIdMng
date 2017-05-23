@@ -85,7 +85,6 @@ export class TaskInstanceTable extends Basic.AbstractContent {
             sort={false}/>
           <Advanced.ColumnLink property="taskDescription" to="task/:id" sort face="text" rendered={_.includes(columns, 'description')}/>
           <Advanced.Column property="taskCreated" sort face="datetime" rendered={_.includes(columns, 'created')}/>
-          <Advanced.Column property="id" sort face="text" rendered={_.includes(columns, 'id')}/>
         </Advanced.Table>
       </div>
     );

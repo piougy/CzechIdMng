@@ -1,6 +1,11 @@
 package eu.bcvsolutions.idm.core.workflow.model.dto;
 
+import java.io.Serializable;
+
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.springframework.hateoas.core.Relation;
+
+import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 
 /**
  * Dto for workflow process definition
@@ -8,9 +13,11 @@ import org.codehaus.jackson.annotate.JsonIgnoreProperties;
  * @author svandav
  *
  */
+@Relation(collectionRelation = "workflowProcessDefinitions")
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class WorkflowProcessDefinitionDto {
+public class WorkflowProcessDefinitionDto implements BaseDto {
 
+	private static final long serialVersionUID = 1L;
 	private String id;
 	private String key;
 	private String name;
@@ -26,10 +33,6 @@ public class WorkflowProcessDefinitionDto {
 	private String tenantId;
 
 	public WorkflowProcessDefinitionDto() {
-	}
-
-	public String getId() {
-		return id;
 	}
 
 	public void setId(String id) {
@@ -130,5 +133,15 @@ public class WorkflowProcessDefinitionDto {
 
 	public void setTenantId(String tenantId) {
 		this.tenantId = tenantId;
+	}
+
+	@Override
+	public String getId() {
+		return id;
+	}
+
+	@Override
+	public void setId(Serializable id) {
+		this.id = (String) id;
 	}
 }

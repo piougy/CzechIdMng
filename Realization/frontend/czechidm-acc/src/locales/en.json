@@ -127,6 +127,7 @@
         "situationAction": "Action",
         "situationActionWf": "Workflow",
         "customFilterInfo": "Custom filter can be defined by selection of attribute (Filter by attribute) by which we want to find relevant operations (Filtering operations). More complicated creteria can be defined in section below.",
+        "treeInfo": "Synchronization of Tree is always execute as reconciliation.",
         "edit": {
           "header": "Synchronization configuration details "
         },

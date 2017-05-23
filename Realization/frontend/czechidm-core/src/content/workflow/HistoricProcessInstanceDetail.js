@@ -69,6 +69,16 @@ class HistoricProcessInstanceDetail extends Basic.AbstractContent {
     this.setState({showModalDiagram: false});
   }
 
+  _getCandidatesCell({ rowIndex, data, property}) {
+    const entity = data[rowIndex];
+    if (!entity || !entity[property]) {
+      return '';
+    }
+    return (
+      <CandicateUsersCell candidates={entity[property]} maxEntry={MAX_CANDICATES} />
+    );
+  }
+
   render() {
     const {showLoading, diagramUrl, showModalDiagram} = this.state;
     const {_historicProcess} = this.props;
@@ -116,7 +126,7 @@ class HistoricProcessInstanceDetail extends Basic.AbstractContent {
             <Advanced.Column property="assignee" sort={false} face="text"/>
             <Advanced.Column
                 property="candicateUsers"
-                cell={<CandicateUsersCell maxEntry={MAX_CANDICATES} />}/>
+                cell={this._getCandidatesCell}/>
             <Advanced.Column property="createTime" sort face="datetime"/>
             <Advanced.Column property="endTime" sort face="datetime"/>
             <Advanced.Column property="completeTaskDecision" sort={false} face="text"/>

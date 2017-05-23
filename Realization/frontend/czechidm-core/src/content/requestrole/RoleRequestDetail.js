@@ -3,7 +3,6 @@ import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 import moment from 'moment';
-import { Link } from 'react-router';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
@@ -160,7 +159,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
 
   _removeConcept(data, type) {
     const {_request} = this.props;
-    this.setState({showLoading: true});
+    // this.setState({showLoading: true});
 
     let concept = data;
     if (type === ConceptRoleRequestOperationEnum.findKeyBySymbol(ConceptRoleRequestOperationEnum.REMOVE)
@@ -180,11 +179,11 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
         }
       }
       this.refs.table.getWrappedInstance().reload();
-      this.setState({showLoading: false});
+      // this.setState({showLoading: false});
     })
     .catch(error => {
       this.addError(error);
-      this.setState({showLoading: false});
+      // this.setState({showLoading: false});
     });
 
     // this.context.store.dispatch(conceptRoleRequestManager.deleteEntity(concept, `${uiKeyAttributes}-deleteConcept-${_request.applicant}`, (deletedEntity, error) => {
@@ -203,7 +202,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
 
   _updateConcept(data, type) {
     const {_request} = this.props;
-    this.setState({showLoading: true});
+    // this.setState({showLoading: true});
 
     let concept;
     if (type === ConceptRoleRequestOperationEnum.findKeyBySymbol(ConceptRoleRequestOperationEnum.UPDATE)) {
@@ -238,9 +237,9 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
           }
         }
         this.refs.table.getWrappedInstance().reload();
-        this.setState({showLoading: false});
+        // this.setState({showLoading: false});
       } else {
-        this.setState({showLoading: false});
+        // this.setState({showLoading: false});
         this.addError(error);
       }
     }));
@@ -248,7 +247,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
 
   _createConcept(data, type) {
     const {_request} = this.props;
-    this.setState({showLoading: true});
+    // this.setState({showLoading: true});
     const concept = {
       'operation': type,
       'roleRequest': _request.id,
@@ -261,12 +260,12 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
 
     conceptRoleRequestManager.getService().create(concept)
     .then(json => {
-      this.setState({showLoading: false});
+      // this.setState({showLoading: false});
       _request.conceptRoles.push(json);
       this.refs.table.getWrappedInstance().reload();
     })
     .catch(error => {
-      this.setState({showLoading: false});
+      // this.setState({showLoading: false});
       this.addError(error);
     });
 
@@ -327,7 +326,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
       return '';
     }
     return (
-      <Link to={`/workflow/history/processes/${entity.wfProcessId}`}>{entity.wfProcessId}</Link>
+      <Advanced.WorkflowProcessInfo entityIdentifier={entity.wfProcessId}/>
     );
   }
 
@@ -421,7 +420,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
     const forceSearchParameters = new SearchParameters().setFilter('roleRequestId', _request ? _request.id : SearchParameters.BLANK_UUID);
     const isNew = this._getIsNew();
     const request = isNew ? this.state.request : _request;
-    const showLoading = !request || _showLoading;
+    const showLoading = !request || _showLoading || this.state.showLoading;
     const isEditable = request && _.includes(editableInStates, request.state);
 
     const addedIdentityRoles = [];

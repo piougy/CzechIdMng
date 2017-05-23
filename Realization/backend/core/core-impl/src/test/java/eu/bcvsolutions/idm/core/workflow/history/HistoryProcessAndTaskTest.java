@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-import java.io.InputStream;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -21,12 +20,11 @@ import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.AbstractCoreWorkflowIntegrationTest;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.core.security.api.utils.IdmAuthorityUtils;
-import eu.bcvsolutions.idm.core.workflow.api.dto.WorkflowDeploymentDto;
-import eu.bcvsolutions.idm.core.workflow.api.service.WorkflowDeploymentService;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowHistoricProcessInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowHistoricTaskInstanceDto;
@@ -52,13 +50,11 @@ public class HistoryProcessAndTaskTest extends AbstractCoreWorkflowIntegrationTe
 	@Autowired
 	private WorkflowProcessInstanceService processInstanceService;
 	@Autowired
-	private WorkflowDeploymentService processDeploymentService;
-	@Autowired
 	private WorkflowTaskInstanceService taskInstanceService;
 	@Autowired
 	private WorkflowHistoricTaskInstanceService historicTaskService;
 	@Autowired
-	private ModuleService moduleService;
+	private LookupService lookupService;
 
 	@Before
 	public void login() {
@@ -73,11 +69,6 @@ public class HistoryProcessAndTaskTest extends AbstractCoreWorkflowIntegrationTe
 	@Test
 	public void deployAndRunProcess() {
 		//Deploy process
-		InputStream is = this.getClass().getClassLoader()
-				.getResourceAsStream("eu/bcvsolutions/idm/workflow/history/testHistoryProcessAndTask.bpmn20.xml");
-		WorkflowDeploymentDto deploymentDto = processDeploymentService.create(PROCESS_KEY, "test.bpmn20.xml", is);
-		assertNotNull(deploymentDto);
-
 		//Start instance of process
 		ProcessInstance instance = processInstanceService.startProcess(PROCESS_KEY, null, InitTestData.TEST_USER_1, null,
 				null);
@@ -112,13 +103,6 @@ public class HistoryProcessAndTaskTest extends AbstractCoreWorkflowIntegrationTe
 		this.loginAsAdmin(InitTestData.TEST_USER_1);
 		
 		completeTasksAndCheckHistory();
-	}
-
-	private void loginAsNoAdmin(String user) {
-		Collection<GrantedAuthority> authorities = IdmAuthorityUtils.toAuthorities(moduleService.getAvailablePermissions()).stream().filter(authority -> {
-			return !IdmGroupPermission.APP_ADMIN.equals(authority.getAuthority());
-		}).collect(Collectors.toList());
-		SecurityContextHolder.getContext().setAuthentication(new IdmJwtAuthentication(new IdmIdentityDto(user), null, authorities, "test"));
 	}
 
 	
@@ -167,10 +151,11 @@ public class HistoryProcessAndTaskTest extends AbstractCoreWorkflowIntegrationTe
 	 * @param taskId
 	 */
 	private void checkTaskHistory(String taskId, String assignee) {
+		IdmIdentityDto assigneeIdentity = (IdmIdentityDto) lookupService.getDtoLookup(IdmIdentityDto.class).lookup(assignee);
 		WorkflowHistoricTaskInstanceDto taskHistory = historicTaskService.get(taskId);
 		assertNotNull(taskHistory);
 		assertEquals("completed", taskHistory.getDeleteReason());
-		assertEquals(assignee, taskHistory.getAssignee());
+		assertEquals(assigneeIdentity.getId().toString(), taskHistory.getAssignee());
 		assertEquals(taskId, taskHistory.getId());
 	}
 }

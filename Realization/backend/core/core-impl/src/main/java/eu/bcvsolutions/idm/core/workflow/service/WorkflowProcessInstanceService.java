@@ -23,7 +23,7 @@ public interface WorkflowProcessInstanceService {
 	/**
 	 * Implementer is user really start the process (For example implementer is administrator given permission to user)
 	 */
-	public final static String IMPLEMENTER_USERNAME = "implementerUsername";
+	public final static String IMPLEMENTER_IDENTIFIER = "implementerIdentifier";
 	
 	/**
 	 * Start new workflow process. To new process instance will be put variables objectType, objectIdentifier, applicant, implementer

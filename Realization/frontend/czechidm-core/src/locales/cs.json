@@ -1116,7 +1116,9 @@
         "roleName": "Název role",
         "roleValidFrom": "Platnost role od",
         "roleValidTill": "Platnost role do",
-        "currentActivity": "Stav žádosti"
+        "currentActivity": "Stav žádosti",
+        "candicateUsers": "Schvalují",
+        "wfProcessId": "WF"
       },
       "processPermissionChange": {
         "currentActivity": "Stav žádosti",
@@ -2453,7 +2455,7 @@
       "candicateUsers": "Schvalují",
       "currentActivity": "Stav schvalování",
       "originalRequest": "Žádost v okamžiku podání",
-      "wfProcessId": "WF ID"
+      "wfProcessId": "WF"
     },
     "ConceptRoleRequest": {
       "identityContract": "Vztah",
@@ -2461,7 +2463,7 @@
       "role": "Role",
       "validFrom": "Od",
       "validTill": "Do",
-      "wfProcessId": "Id WF procesu",
+      "wfProcessId": "WF",
       "state": "Stav",
       "created": "Vytvořeno",
       "modified": "Upraveno"

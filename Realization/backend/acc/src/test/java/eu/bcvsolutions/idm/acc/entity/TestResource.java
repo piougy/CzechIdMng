@@ -36,6 +36,16 @@ public class TestResource {
 	private String status;
 	@Column(name = "modified", length = DefaultFieldLengths.NAME)
 	private LocalDateTime modified;
+	@Column(name = "eav_attribute", length = DefaultFieldLengths.NAME)
+	private String eavAttribute;
+
+	public String getEavAttribute() {
+		return eavAttribute;
+	}
+
+	public void setEavAttribute(String eavAttribute) {
+		this.eavAttribute = eavAttribute;
+	}
 
 	public String getName() {
 		return name;
@@ -100,6 +110,4 @@ public class TestResource {
 	public void setModified(LocalDateTime modified) {
 		this.modified = modified;
 	}
-	
-	
 }

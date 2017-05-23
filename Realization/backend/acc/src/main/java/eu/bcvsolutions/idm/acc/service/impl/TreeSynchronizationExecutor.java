@@ -49,16 +49,20 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.CorrelationFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.TreeNodeFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
+import eu.bcvsolutions.idm.core.api.repository.BaseEntityRepository;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
+import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.event.TreeNodeEvent;
 import eu.bcvsolutions.idm.core.model.event.TreeNodeEvent.TreeNodeEventType;
+import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
@@ -87,6 +91,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 
 	private final IdmTreeNodeService treeNodeService;
 	private final AccTreeAccountService treeAccoutnService;
+	private final IdmTreeNodeRepository treeNodeRepository;
 
 	@Autowired
 	public TreeSynchronizationExecutor(IcConnectorFacade connectorFacade, SysSystemService systemService,
@@ -97,7 +102,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 			FormService formService, AccTreeAccountService treeAccoutnService, SysSyncItemLogService syncItemLogService,
 			EntityEventManager entityEventManager, GroovyScriptService groovyScriptService,
 			WorkflowProcessInstanceService workflowProcessInstanceService, EntityManager entityManager,
-			IdmTreeNodeService treeNodeService) {
+			IdmTreeNodeService treeNodeService, IdmTreeNodeRepository treeNodeRepository) {
 		super(connectorFacade, systemService, attributeHandlingService, synchronizationConfigService,
 				synchronizationLogService, syncActionLogService, accountService, systemEntityService,
 				confidentialStorage, formService, syncItemLogService, entityEventManager, groovyScriptService,
@@ -105,10 +110,11 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 
 		Assert.notNull(treeNodeService, "Tree node service is mandatory!");
 		Assert.notNull(treeAccoutnService, "Tree account service is mandatory!");
+		Assert.notNull(treeNodeRepository);
 
 		this.treeNodeService = treeNodeService;
 		this.treeAccoutnService = treeAccoutnService;
-
+		this.treeNodeRepository = treeNodeRepository;
 	}
 
 	@Override
@@ -417,50 +423,6 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 		});
 	}
 
-
-	/**
-	 * Find entity by correlation attribute
-	 * 
-	 * @param attribute
-	 * @param icAttributes
-	 * @return
-	 */
-	@Override
-	protected AbstractEntity findEntityByCorrelationAttribute(AttributeMapping attribute,
-			List<IcAttribute> icAttributes) {
-		Assert.notNull(attribute);
-		Assert.notNull(icAttributes);
-
-		Object value = getValueByMappedAttribute(attribute, icAttributes);
-		if (value == null) {
-			return null;
-		}
-		if (attribute.isEntityAttribute()) {
-			TreeNodeFilter correlationFilter = new TreeNodeFilter();
-			correlationFilter.setProperty(attribute.getIdmPropertyName());
-			correlationFilter.setTreeTypeId(findTreeTypeId(attribute));
-			correlationFilter.setValue(value.toString());
-
-			List<IdmTreeNode> treeNodes = treeNodeService.find(correlationFilter, null).getContent();
-			if (CollectionUtils.isEmpty(treeNodes)) {
-				return null;
-			}
-			if (treeNodes.size() > 1) {
-				throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_CORRELATION_TO_MANY_RESULTS,
-						ImmutableMap.of("correlationAttribute", attribute.getName(), "value", value));
-			}
-			if (treeNodes.size() == 1) {
-				return treeNodes.get(0);
-			}
-
-		} else if (attribute.isExtendedAttribute()) {
-			// TODO: not supported now
-
-			return null;
-		}
-		return null;
-	}
-
 	@Override
 	protected Object getValueByMappedAttribute(AttributeMapping attribute, List<IcAttribute> icAttributes) {
 		
@@ -731,5 +693,41 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 	 */
 	private UUID findTreeTypeId(AttributeMapping attribute){
 		return ((SysSystemAttributeMapping)attribute).getSystemMapping().getTreeType().getId();
+	}
+
+	@Override
+	protected Class<? extends FormableEntity> getEntityClass() {
+		return IdmTreeNode.class;
+	}
+
+	@Override
+	protected BaseEntityRepository getRepository() {
+		return this.treeNodeRepository;
+	}
+
+	@Override
+	protected CorrelationFilter getEntityFilter() {
+		return new TreeNodeFilter();
+	}
+
+	@Override
+	protected AbstractEntity findEntityByAttribute(String idmAttributeName, String value) {
+		CorrelationFilter filter = getEntityFilter();
+		filter.setProperty(idmAttributeName);
+		filter.setValue(value);
+		
+		List<IdmTreeNode> entities = treeNodeService.find((TreeNodeFilter) filter, null).getContent();
+		
+		if (CollectionUtils.isEmpty(entities)) {
+			return null;
+		}
+		if (entities.size() > 1) {
+			throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_CORRELATION_TO_MANY_RESULTS,
+					ImmutableMap.of("correlationAttribute", idmAttributeName, "value", value));
+		}
+		if (entities.size() == 1) {
+			return entities.get(0);
+		}
+		return null;
 	}
 }

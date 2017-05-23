@@ -1,13 +1,14 @@
 import React from 'react';
 import _ from 'lodash';
+import * as Advanced from '../../components/advanced';
 
 /**
  * Cells for Candicates
  * maxEntry - max entry in candidates
  */
-const CandicateUsersCell = ({rowIndex, data, property, maxEntry}) => {
-  let candidates = data[rowIndex][property];
+const CandicateUsersCell = ({candidates, maxEntry}) => {
   let isMoreResults = false;
+  let infoCandidates = [];
   if (candidates) {
     isMoreResults = candidates.length > maxEntry;
     candidates = _.uniq(candidates);
@@ -15,13 +16,17 @@ const CandicateUsersCell = ({rowIndex, data, property, maxEntry}) => {
     if (maxEntry !== undefined) {
       candidates = _.slice(candidates, 0, maxEntry);
     }
+    for (const candidate of candidates) {
+      infoCandidates.push(<Advanced.IdentityInfo entityIdentifier={candidate} face="popover" />);
+      infoCandidates.push(', ');
+    }
 
-    candidates = _.join(candidates, ', ');
+    infoCandidates = _.slice(infoCandidates, 0, infoCandidates.length - 1);
   }
 
   return (
     <span>
-      {candidates}
+      {infoCandidates}
       {
         !isMoreResults
         ||

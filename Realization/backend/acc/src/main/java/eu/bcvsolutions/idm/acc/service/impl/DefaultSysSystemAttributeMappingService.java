@@ -348,8 +348,9 @@ public class DefaultSysSystemAttributeMappingService
 	public Object getAttributeValue(String uid, AbstractEntity entity, AttributeMapping attributeHandling) {
 		Object idmValue = null;
 		//
-		if (attributeHandling.isExtendedAttribute()) {
-			List<AbstractFormValue<FormableEntity>> formValues = formService.getValues((FormableEntity) entity, attributeHandling.getIdmPropertyName());
+		if (attributeHandling.isExtendedAttribute() && entity != null && FormableEntity.class.isAssignableFrom(entity.getClass())) {
+			@SuppressWarnings("unchecked")
+			List<? extends AbstractFormValue<? extends FormableEntity>> formValues = formService.getValues(entity.getId(), (Class<? extends FormableEntity>)entity.getClass(), attributeHandling.getIdmPropertyName());
 			if (formValues.isEmpty()) {
 				idmValue = null;
 			} else if(attributeHandling.getSchemaAttribute().isMultivalued()){
@@ -361,7 +362,7 @@ public class DefaultSysSystemAttributeMappingService
 				idmValue = values;
 			} else {
 				// Single value extended attribute
-				AbstractFormValue<FormableEntity> formValue = formValues.get(0);
+				AbstractFormValue<? extends FormableEntity> formValue = formValues.get(0);
 				if (formValue.isConfidential()) {
 					idmValue = formService.getConfidentialPersistentValue(formValue);
 				} else {

@@ -392,13 +392,13 @@ public class DefaultIdmIdentityService
 	 * Contains list of identities some identity with given username.
 	 * If yes, then return true.
 	 * @param identities
-	 * @param username
+	 * @param identifier
 	 * @return
 	 */
 	@Override
-	public boolean containsUser(List<IdmIdentityDto> identities, String username){
+	public boolean containsUser(List<IdmIdentityDto> identities, String identifier){
 		return identities.stream().anyMatch(identity -> {
-			return identity.getUsername().equals(username);
+			return identity.getId().toString().equals(identifier);
 		});
 	}
 	

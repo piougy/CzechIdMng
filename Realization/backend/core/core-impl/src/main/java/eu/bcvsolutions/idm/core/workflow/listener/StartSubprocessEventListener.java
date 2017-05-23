@@ -46,14 +46,16 @@ public class StartSubprocessEventListener implements ActivitiEventListener {
 			@SuppressWarnings("unchecked") Map<String, Object> variables = eventStarted.getVariables();
 			variables.forEach((k, v) -> {
 				if (WorkflowProcessInstanceService.APPLICANT_IDENTIFIER.equals(k)) {
+					String value = v == null ? null : v.toString();
 					// Set applicant as owner of process
-					runtimeService.addUserIdentityLink(event.getProcessInstanceId(), (String) v, IdentityLinkType.OWNER);
-					log.debug("StartSubprocesEventListener - set process owner [{}]", v);
+					runtimeService.addUserIdentityLink(event.getProcessInstanceId(), value, IdentityLinkType.OWNER);
+					log.debug("StartSubprocesEventListener - set process owner [{}]", value);
 				} else if (WorkflowProcessInstanceService.IMPLEMENTER_IDENTIFIER.equals(k)) {
+					String value = v == null ? null : v.toString();
 					// Set current logged user (implementer) as starter of
 					// process
-					runtimeService.addUserIdentityLink(event.getProcessInstanceId(), (String) v, IdentityLinkType.STARTER);
-					log.debug("StartSubprocesEventListener - set process starter [{}]", v);
+					runtimeService.addUserIdentityLink(event.getProcessInstanceId(), value, IdentityLinkType.STARTER);
+					log.debug("StartSubprocesEventListener - set process starter [{}]", value);
 				}
 			});
 
@@ -66,9 +68,7 @@ public class StartSubprocessEventListener implements ActivitiEventListener {
 
 	@Override
 	public boolean isFailOnException() {
-		// The logic in the onEvent method of this listener is not critical,
-		// exceptions
-		// can be ignored if logging fails...
-		return false;
+		// We can throw exception
+		return true;
 	}
 }

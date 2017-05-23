@@ -214,7 +214,7 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 	public String getConfidentialStorageKey(IdmFormAttribute attribute) {
 		Assert.notNull(attribute);
 		//
-		return CONFIDENTIAL_STORAGE_VALUE_PREFIX + ":" + attribute.getName();
+		return CONFIDENTIAL_STORAGE_VALUE_PREFIX + ":" + attribute.getCode();
 	}
 	
 	/**

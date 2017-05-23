@@ -11,7 +11,7 @@ class FormAttributeService extends AbstractService {
     if (!entity) {
       return '';
     }
-    return `${entity.displayName}`;
+    return `${entity.name}`;
   }
 
   /**

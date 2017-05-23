@@ -15,7 +15,12 @@ export default class FormInstance {
     this.attributes = new Immutable.OrderedMap();
     if (formDefinition._embedded && formDefinition._embedded.formAttributes) {
       formDefinition._embedded.formAttributes.forEach(formAttribute => {
-        this.attributes = this.attributes.set(formAttribute.name, formAttribute);
+        this.attributes = this.attributes.set(formAttribute.code, formAttribute);
+      });
+    }
+    if (formDefinition.formAttributes) {
+      formDefinition.formAttributes.forEach(formAttribute => {
+        this.attributes = this.attributes.set(formAttribute.code, formAttribute);
       });
     }
     //
@@ -23,15 +28,15 @@ export default class FormInstance {
     this.values = new Immutable.OrderedMap();
     if (formValues) {
       formValues.forEach(formValue => {
-        const attributeName = formValue._embedded.formAttribute.name;
+        const attributeCode = formValue._embedded.formAttribute.code;
         //
         const clonedFormValue = _.clone(formValue);
         // link to attribute definition
-        clonedFormValue.formAttribute = this.getAttributeLink(clonedFormValue._embedded.formAttribute.name);
-        if (!this.values.has(attributeName)) {
-          this.values = this.values.set(attributeName, new Immutable.List());
+        clonedFormValue.formAttribute = this.getAttributeLink(clonedFormValue._embedded.formAttribute.code);
+        if (!this.values.has(attributeCode)) {
+          this.values = this.values.set(attributeCode, new Immutable.List());
         }
-        this.values = this.values.set(attributeName, this.values.get(attributeName).push(clonedFormValue));
+        this.values = this.values.set(attributeCode, this.values.get(attributeCode).push(clonedFormValue));
       });
     }
   }

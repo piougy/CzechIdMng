@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.eav.service.api;
 
+import java.util.List;
+
 import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
@@ -15,15 +17,30 @@ public interface IdmFormDefinitionService extends ReadWriteEntityService<IdmForm
 	/**
 	 * Default definition name for type (if no name is given)
 	 */
-	static final String DEFAULT_DEFINITION_NAME = "default";
+	static final String DEFAULT_DEFINITION_CODE = "default";
 	
 	/**
-	 * Returns form definition by given type and name (unique).
+	 * Returns form definition by given type and code (unique).
 	 * 
 	 * @param type required
-	 * @param name [optional] if name is {@code null}, then {@value #DEFAULT_DEFINITION_NAME} is used.
+	 * @param code [optional] if code is {@code null}, then main definition for given type is used.
 	 * @return
 	 */
-	IdmFormDefinition get(String type, String name);
+	IdmFormDefinition findOneByTypeAndCode(String type, String code);
 	
+	/**
+	 * Returns main definition for given type (unique).
+	 * 
+	 * @param type required
+	 * @return
+	 */
+	IdmFormDefinition findOneByMain(String type);
+	
+	/**
+	 * Returns all definitions by given type
+	 * 
+	 * @param type required
+	 * @return
+	 */
+	List<IdmFormDefinition> findAllByType(String type);
 }

@@ -287,7 +287,7 @@ class SystemMappingDetail extends Advanced.AbstractTableContent {
               <Advanced.Column property="idmPropertyName" header={this.i18n('acc:entity.SystemAttributeMapping.idmPropertyName.label')} sort/>
               <Advanced.Column property="uid" face="boolean" header={this.i18n('acc:entity.SystemAttributeMapping.uid.label')} sort/>
               <Advanced.Column property="entityAttribute" face="boolean" header={this.i18n('acc:entity.SystemAttributeMapping.entityAttribute')} sort/>
-              <Advanced.Column property="extendedAttribute" face="boolean" header={this.i18n('acc:entity.SystemAttributeMapping.extendedAttribute')} sort/>
+              <Advanced.Column property="extendedAttribute" face="boolean" header={this.i18n('acc:entity.SystemAttributeMapping.extendedAttribute.label')} sort/>
               <Advanced.Column property="transformationFromResource" face="boolean" header={this.i18n('acc:entity.SystemAttributeMapping.transformationFromResource')}/>
               <Advanced.Column property="transformationToResource" face="boolean" header={this.i18n('acc:entity.SystemAttributeMapping.transformationToResource')}/>
             </Advanced.Table>

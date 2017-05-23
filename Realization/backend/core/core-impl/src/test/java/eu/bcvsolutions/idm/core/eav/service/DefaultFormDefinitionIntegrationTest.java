@@ -59,37 +59,37 @@ public class DefaultFormDefinitionIntegrationTest extends AbstractIntegrationTes
 	 * @param name
 	 * @param randomAttributes with random count of attributes
 	 */
-	private ResultHolder createDefinition(String name, boolean randomAttributes, boolean log) {
+	private ResultHolder createDefinition(String code, boolean randomAttributes, boolean log) {
 		ResultHolder result = new ResultHolder();
 		
 		IdmFormDefinition formDefinition = new IdmFormDefinition();
 		formDefinition.setType("test_type");
-		formDefinition.setName(name);
+		formDefinition.setCode(code);
 		if (log) {
-			LOG.info("Before definition save [{}]", name);
+			LOG.info("Before definition save [{}]", code);
 		}
 		long startTime = System.currentTimeMillis();
 		formDefinition = formDefinitionService.save(formDefinition);
 		if (log) {
 			result.createTime = System.currentTimeMillis() - startTime;
-			LOG.info("--- {}ms:  After definition save [{}]", result.createTime, name);
+			LOG.info("--- {}ms:  After definition save [{}]", result.createTime, code);
 		}
 		int attributeCount = r.nextInt(40);
 		if (log) {
-			LOG.info("Before definition [{}] attributes save, attributes count [{}]", name, attributeCount);
+			LOG.info("Before definition [{}] attributes save, attributes count [{}]", code, attributeCount);
 		}
 		startTime = System.currentTimeMillis();
 		for(int i = 0; i < attributeCount; i++) {
 			IdmFormAttribute attributeDefinition = new IdmFormAttribute();
 			attributeDefinition.setFormDefinition(formDefinition);
-			attributeDefinition.setName("name_" + i);
-			attributeDefinition.setDisplayName(attributeDefinition.getName());
+			attributeDefinition.setCode("name_" + i);
+			attributeDefinition.setName(attributeDefinition.getCode());
 			attributeDefinition.setPersistentType(PersistentType.TEXT);			
 			formAttributeRepository.save(attributeDefinition);
 		}
 		if (log) {
 			result.childrenCreateTime = (double) System.currentTimeMillis() - startTime;
-			LOG.info("--- {}ms:  After definition [{}] attributes save, attributes count [{}]", result.childrenCreateTime, name, attributeCount);
+			LOG.info("--- {}ms:  After definition [{}] attributes save, attributes count [{}]", result.childrenCreateTime, code, attributeCount);
 			if(attributeCount > 0) {
 				result.childrenCreateTime = result.childrenCreateTime / attributeCount;
 			}
@@ -97,7 +97,7 @@ public class DefaultFormDefinitionIntegrationTest extends AbstractIntegrationTes
 			int realAttributeCount = formAttributeRepository.findByFormDefinitionOrderBySeq(formDefinition).size();
 			assertEquals(attributeCount, realAttributeCount);
 			result.childrenLoadTime = System.currentTimeMillis() - startTime;
-			LOG.info("--- {}ms:  After definition [{}] attributes load, attributes count [{}]", result.childrenLoadTime, name, realAttributeCount);
+			LOG.info("--- {}ms:  After definition [{}] attributes load, attributes count [{}]", result.childrenLoadTime, code, realAttributeCount);
 		}
 		result.formDefinition = formDefinition;
 		return result;

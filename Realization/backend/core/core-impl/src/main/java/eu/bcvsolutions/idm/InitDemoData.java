@@ -307,8 +307,8 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				// demo eav identity form
 				
 				IdmFormAttribute letter = new IdmFormAttribute();
-				letter.setName("letter");
-				letter.setDisplayName("Favorite letter");
+				letter.setCode("letter");
+				letter.setName("Favorite letter");
 				letter.setPlaceholder("Character");
 				letter.setDescription("Some favorite character");
 				letter.setPersistentType(PersistentType.CHAR);
@@ -316,90 +316,90 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				formService.saveAttribute(IdmIdentity.class, letter);
 				
 				IdmFormAttribute phone = new IdmFormAttribute();
-				phone.setName(FORM_ATTRIBUTE_PHONE);
-				phone.setDisplayName("Phone");
+				phone.setCode(FORM_ATTRIBUTE_PHONE);
+				phone.setName("Phone");
 				phone.setDescription("Additional identitiy's phone");
 				phone.setPersistentType(PersistentType.TEXT);
 				formService.saveAttribute(IdmIdentity.class, phone);
 				
 				IdmFormAttribute description = new IdmFormAttribute();
-				description.setName("description");
-				description.setDisplayName("Description");
+				description.setCode("description");
+				description.setName("Description");
 				description.setDescription("Some longer optional text (2000 characters)");
 				description.setPersistentType(PersistentType.TEXTAREA);
 				formService.saveAttribute(IdmIdentity.class, description);
 				
 				IdmFormAttribute rich = new IdmFormAttribute();
-				rich.setName("rich");
-				rich.setDisplayName("RichText");
+				rich.setCode("rich");
+				rich.setName("RichText");
 				rich.setDescription("Some rich text (2000 characters)");
 				rich.setPersistentType(PersistentType.RICHTEXTAREA);
 				formService.saveAttribute(IdmIdentity.class, rich);
 				
 				IdmFormAttribute sure = new IdmFormAttribute();
-				sure.setName("sure");
-				sure.setDisplayName("Registration");
+				sure.setCode("sure");
+				sure.setName("Registration");
 				sure.setPersistentType(PersistentType.BOOLEAN);
 				sure.setDefaultValue(Boolean.TRUE.toString());
 				formService.saveAttribute(IdmIdentity.class, sure);
 				
 				IdmFormAttribute intNumber = new IdmFormAttribute();
-				intNumber.setName("intNumber");
-				intNumber.setDisplayName("Int number");
+				intNumber.setCode("intNumber");
+				intNumber.setName("Int number");
 				intNumber.setPersistentType(PersistentType.INT);
 				formService.saveAttribute(IdmIdentity.class, intNumber);
 				
 				IdmFormAttribute longNumber = new IdmFormAttribute();
-				longNumber.setName("longNumber");
-				longNumber.setDisplayName("Long number");
+				longNumber.setCode("longNumber");
+				longNumber.setName("Long number");
 				longNumber.setPersistentType(PersistentType.LONG);
 				formService.saveAttribute(IdmIdentity.class, longNumber);
 				
 				IdmFormAttribute doubleNumber = new IdmFormAttribute();
-				doubleNumber.setName("doubleNumber");
-				doubleNumber.setDisplayName("Double number");
+				doubleNumber.setCode("doubleNumber");
+				doubleNumber.setName("Double number");
 				doubleNumber.setPersistentType(PersistentType.DOUBLE);
 				formService.saveAttribute(IdmIdentity.class, doubleNumber);
 				
 				IdmFormAttribute currency = new IdmFormAttribute();
-				currency.setName("currency");
-				currency.setDisplayName("Price");
+				currency.setCode("currency");
+				currency.setName("Price");
 				currency.setPersistentType(PersistentType.CURRENCY);
 				formService.saveAttribute(IdmIdentity.class, currency);
 				
 				IdmFormAttribute date = new IdmFormAttribute();
-				date.setName("date");
-				date.setDisplayName("Date");
+				date.setCode("date");
+				date.setName("Date");
 				date.setPersistentType(PersistentType.DATE);
 				date.setRequired(true);
 				date.setDescription("Important date");
 				formService.saveAttribute(IdmIdentity.class, date);
 				
 				IdmFormAttribute datetime = new IdmFormAttribute();
-				datetime.setName(FORM_ATTRIBUTE_DATETIME);
-				datetime.setDisplayName("Date and time");
+				datetime.setCode(FORM_ATTRIBUTE_DATETIME);
+				datetime.setName("Date and time");
 				datetime.setPersistentType(PersistentType.DATETIME);
 				formService.saveAttribute(IdmIdentity.class, datetime);
 				
 				IdmFormAttribute webPages = new IdmFormAttribute();
-				webPages.setName(FORM_ATTRIBUTE_WWW);
-				webPages.setDisplayName("WWW");
+				webPages.setCode(FORM_ATTRIBUTE_WWW);
+				webPages.setName("WWW");
 				webPages.setDescription("Favorite web pages (every line in new value)");
 				webPages.setPersistentType(PersistentType.TEXT);
 				webPages.setMultiple(true);
 				formService.saveAttribute(IdmIdentity.class, webPages);
 				
 				IdmFormAttribute password = new IdmFormAttribute();
-				password.setName(FORM_ATTRIBUTE_PASSWORD);
-				password.setDisplayName("Custom password");
+				password.setCode(FORM_ATTRIBUTE_PASSWORD);
+				password.setName("Custom password");
 				password.setPersistentType(PersistentType.TEXT);
 				password.setConfidential(true);
 				password.setDescription("Test password");
 				formService.saveAttribute(IdmIdentity.class, password);
 				
 				IdmFormAttribute byteArray = new IdmFormAttribute();
-				byteArray.setName("byteArray");
-				byteArray.setDisplayName("Byte array");
+				byteArray.setCode("byteArray");
+				byteArray.setName("Byte array");
 				byteArray.setPersistentType(PersistentType.BYTEARRAY);
 				byteArray.setConfidential(false);
 				byteArray.setDescription("Test byte array");
@@ -417,8 +417,8 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				//
 				// demo eav role form
 				IdmFormAttribute roleExt = new IdmFormAttribute();
-				roleExt.setName("extAttr");
-				roleExt.setDisplayName("Ext.attr");
+				roleExt.setCode("extAttr");
+				roleExt.setName("Ext.attr");
 				roleExt.setPersistentType(PersistentType.TEXT);
 				roleExt.setConfidential(false);
 				roleExt.setDescription("Role's custom extended attribute");
@@ -428,8 +428,8 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				//
 				// demo eav tree node form
 				IdmFormAttribute treeNodeExt = new IdmFormAttribute();
-				treeNodeExt.setName("extAttr");
-				treeNodeExt.setDisplayName("Ext.attr");
+				treeNodeExt.setCode("extAttr");
+				treeNodeExt.setName("Ext.attr");
 				treeNodeExt.setPersistentType(PersistentType.TEXT);
 				treeNodeExt.setConfidential(false);
 				treeNodeExt.setDescription("Tree node's custom extended attribute");
@@ -439,8 +439,8 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				//
 				// demo eav identity contract's form
 				IdmFormAttribute identityContractExt = new IdmFormAttribute();
-				identityContractExt.setName("extAttr");
-				identityContractExt.setDisplayName("Ext.attr");
+				identityContractExt.setCode("extAttr");
+				identityContractExt.setName("Ext.attr");
 				identityContractExt.setPersistentType(PersistentType.TEXT);
 				identityContractExt.setConfidential(false);
 				identityContractExt.setDescription("Identity contract's custom extended attribute");

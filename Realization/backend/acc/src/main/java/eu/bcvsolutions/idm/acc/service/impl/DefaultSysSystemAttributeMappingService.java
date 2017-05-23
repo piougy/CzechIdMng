@@ -307,8 +307,8 @@ public class DefaultSysSystemAttributeMappingService
 		SysSchemaAttribute schemaAttribute = entity.getSchemaAttribute();
 		IdmFormAttribute attributeDefinition = new IdmFormAttribute();
 		attributeDefinition.setSeq((short) 0);
-		attributeDefinition.setName(entity.getIdmPropertyName());
-		attributeDefinition.setDisplayName(entity.getName());
+		attributeDefinition.setCode(entity.getIdmPropertyName());
+		attributeDefinition.setName(entity.getName());
 		attributeDefinition.setPersistentType(formPropertyManager.getPersistentType(schemaAttribute.getClassType()));
 		attributeDefinition.setRequired(schemaAttribute.isRequired());
 		attributeDefinition.setMultiple(schemaAttribute.isMultivalued());

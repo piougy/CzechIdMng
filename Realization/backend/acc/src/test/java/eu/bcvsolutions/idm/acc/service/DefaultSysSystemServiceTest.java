@@ -238,13 +238,13 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		// create definition one
 		IdmFormDefinition formDefinitionOne = new IdmFormDefinition();
 		formDefinitionOne.setType(SysSystem.class.getCanonicalName());
-		formDefinitionOne.setName("v1");
+		formDefinitionOne.setCode("v1");
 		formDefinitionOne = formDefinitionService.save(formDefinitionOne);
 		
 		IdmFormAttribute attributeDefinitionOne = new IdmFormAttribute();
 		attributeDefinitionOne.setFormDefinition(formDefinitionOne);
-		attributeDefinitionOne.setName("name_" + System.currentTimeMillis());
-		attributeDefinitionOne.setDisplayName(attributeDefinitionOne.getName());
+		attributeDefinitionOne.setCode("name_" + System.currentTimeMillis());
+		attributeDefinitionOne.setName(attributeDefinitionOne.getCode());
 		attributeDefinitionOne.setPersistentType(PersistentType.TEXT);			
 		attributeDefinitionOne = formAttributeDefinitionRepository.save(attributeDefinitionOne);
 		formDefinitionOne = formDefinitionService.get(formDefinitionOne.getId());
@@ -252,13 +252,13 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		// create definition two
 		IdmFormDefinition formDefinitionTwo = new IdmFormDefinition();
 		formDefinitionTwo.setType(SysSystem.class.getCanonicalName());
-		formDefinitionTwo.setName("v2");
+		formDefinitionTwo.setCode("v2");
 		formDefinitionTwo = formDefinitionService.save(formDefinitionTwo);
 		
 		IdmFormAttribute attributeDefinitionTwo = new IdmFormAttribute();
 		attributeDefinitionTwo.setFormDefinition(formDefinitionTwo);
-		attributeDefinitionTwo.setName("name_" + System.currentTimeMillis());
-		attributeDefinitionTwo.setDisplayName(attributeDefinitionTwo.getName());
+		attributeDefinitionTwo.setCode("name_" + System.currentTimeMillis());
+		attributeDefinitionTwo.setName(attributeDefinitionTwo.getCode());
 		attributeDefinitionTwo.setPersistentType(PersistentType.TEXT);			
 		attributeDefinitionTwo = formAttributeDefinitionRepository.save(attributeDefinitionTwo);
 		formDefinitionTwo = formDefinitionService.get(formDefinitionTwo.getId());
@@ -317,7 +317,7 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		IdmFormDefinition savedFormDefinition = systemService.getConnectorFormDefinition(connectorInstance);
 		
 		assertEquals(conf.getConfigurationProperties().getProperties().size(), savedFormDefinition.getFormAttributes().size());
-		assertEquals(conf.getConfigurationProperties().getProperties().get(3).getDisplayName(), savedFormDefinition.getFormAttributes().get(3).getDisplayName());
+		assertEquals(conf.getConfigurationProperties().getProperties().get(3).getDisplayName(), savedFormDefinition.getFormAttributes().get(3).getName());
 	}
 	
 	@Test
@@ -381,7 +381,7 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		// set wrong password
 		IdmFormDefinition savedFormDefinition = systemService.getConnectorFormDefinition(system.getConnectorInstance());
 		List<AbstractFormValue<SysSystem>> values = formService.getValues(system, savedFormDefinition);
-		AbstractFormValue<SysSystem> changeLogColumn = values.stream().filter(value -> {return "password".equals(value.getFormAttribute().getName());}).findFirst().get();
+		AbstractFormValue<SysSystem> changeLogColumn = values.stream().filter(value -> {return "password".equals(value.getFormAttribute().getCode());}).findFirst().get();
 		formService.saveValues(system, changeLogColumn.getFormAttribute(), ImmutableList.of("wrongPassword"));
 		
 		// do test system

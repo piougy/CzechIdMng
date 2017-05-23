@@ -1968,14 +1968,21 @@
     },
     "FormDefinition" : {
       "type": "Type",
+      "code": "Code",
       "name": "Name",
       "unmodifiable": {
-        "help": "System definition can't be deleted and can't be edited some of her attributes.",
-        "label": "System definition"
-       }
+        "label": "System definition",
+        "help": "System definition can't be deleted and can't be edited some of her attributes."
+       },
+       "main": {
+         "label": "Main definition",
+         "help": "Main / default definition"
+       },
+       "description": "Description"
     },
     "FormAttribute" : {
-      "displayName": "Display name",
+      "code": "Code",
+      "name": "Name",
       "seq": "Order",
       "persistentType": "Attribute type",
       "description": "Description",

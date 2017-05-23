@@ -7,6 +7,9 @@ import { SecurityManager } from '../../redux';
 
 /**
 * Table of forms definitions (attributes is show in detail)
+*
+* @author Ondřej Kopr
+* @author Radek Tomiška
 */
 export default class FormTable extends Basic.AbstractContent {
 
@@ -154,7 +157,9 @@ export default class FormTable extends Basic.AbstractContent {
                 ({ rowIndex, data, property }) => {
                   return this._getType(data[rowIndex][property]);
                 }}/>
+              <Advanced.Column property="code" sort/>
             <Advanced.Column property="name" sort/>
+            <Advanced.Column property="main" header={this.i18n('entity.FormDefinition.main.label')} face="bool" sort />
             <Advanced.Column property="unmodifiable" header={this.i18n('entity.FormDefinition.unmodifiable.label')} face="bool" sort />
           </Advanced.Table>
         </div>

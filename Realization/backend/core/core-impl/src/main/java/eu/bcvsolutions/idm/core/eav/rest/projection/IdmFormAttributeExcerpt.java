@@ -16,6 +16,8 @@ import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 @Projection(name = "excerpt", types = IdmFormAttribute.class)
 public interface IdmFormAttributeExcerpt extends AbstractDtoProjection {
 
+	String getCode();
+	
 	String getName();
 
 	IdmFormDefinition getFormDefinition();
@@ -29,8 +31,6 @@ public interface IdmFormAttributeExcerpt extends AbstractDtoProjection {
 	short getSeq();
 
 	boolean isReadonly();
-
-	String getDisplayName();
 	
 	String getDescription();
 	

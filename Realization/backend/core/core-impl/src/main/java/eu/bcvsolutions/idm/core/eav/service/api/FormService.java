@@ -39,7 +39,7 @@ public interface FormService extends ScriptEnabled {
 	/**
 	 * Default definition name for type (if no name is given)
 	 */
-	static final String DEFAULT_DEFINITION_NAME = IdmFormDefinitionService.DEFAULT_DEFINITION_NAME;
+	static final String DEFAULT_DEFINITION_CODE = IdmFormDefinitionService.DEFAULT_DEFINITION_CODE;
 	
 	/**
 	 * Finds default definition by given type
@@ -50,16 +50,24 @@ public interface FormService extends ScriptEnabled {
 	IdmFormDefinition getDefinition(String type);
 	
 	/**
-	 * Finds definition by given type and name (optional) 
+	 * Returns all definitions for given type
 	 * 
 	 * @param type
-	 * @param name [optional] - if no name given, then returns default definition
 	 * @return
 	 */
-	IdmFormDefinition getDefinition(String type, String name);
+	List<IdmFormDefinition> getDefinitions(String type);
 	
 	/**
-	 * Finds default definition by given owner
+	 * Finds definition by given type and code (optional) 
+	 * 
+	 * @param type
+	 * @param name [optional] - if no name given, then returns main definition
+	 * @return
+	 */
+	IdmFormDefinition getDefinition(String type, String code);
+	
+	/**
+	 * Finds main definition by given owner
 	 * 
 	 * @see {@link #getDefaultDefinitionType(Class)}
 	 * @param ownerClass owner type
@@ -68,17 +76,25 @@ public interface FormService extends ScriptEnabled {
 	IdmFormDefinition getDefinition(Class<? extends FormableEntity> ownerClass);
 	
 	/**
-	 * Finds definition by given type and name (optional) 
+	 * Returns all definitions for given type
+	 * 
+	 * @param ownerClass
+	 * @return
+	 */
+	List<IdmFormDefinition> getDefinitions(Class<? extends FormableEntity> ownerClass);
+	
+	/**
+	 * Finds definition by given type and code (optional) 
 	 * 
 	 * @see {@link #getDefaultDefinitionType(Class)}
 	 * @param ownerClass
-	 * @param name [optional] - if no name given, then returns default definition
+	 * @param name [optional] - if no name given, then returns main definition
 	 * @return
 	 */
-	IdmFormDefinition getDefinition(Class<? extends FormableEntity> ownerClass, String name);
+	IdmFormDefinition getDefinition(Class<? extends FormableEntity> ownerClass, String code);
 	
 	/**
-	 * Return default definition name for given owner type.
+	 * Return default definition type for given owner type.
 	 * 
 	 * @param ownerClass owner type
 	 * @return
@@ -86,7 +102,7 @@ public interface FormService extends ScriptEnabled {
 	String getDefaultDefinitionType(Class<? extends FormableEntity> ownerClass);
 	
 	/**
-	 * Returns attribute by given name from default form definition
+	 * Returns attribute by given name from main form definition
 	 * 
 	 * @see {@link #getDefaultDefinitionType(Class)}
 	 * @param ownerClass owner type
@@ -100,14 +116,14 @@ public interface FormService extends ScriptEnabled {
 	 * 
 	 * @see {@link #getDefaultDefinitionType(Class)}
 	 * @param type definition type
-	 * @param name [optional] definition name (default will be created, if no definition name is given)
+	 * @param name [optional] definition name (main with default code will be created, if no definition code is given)
 	 * @param formAttributes
 	 * @return
 	 */
-	IdmFormDefinition createDefinition(String type, String name, List<IdmFormAttribute> formAttributes);
+	IdmFormDefinition createDefinition(String type, String code, List<IdmFormAttribute> formAttributes);
 	
 	/**
-	 * Creates default form definition for given owner type
+	 * Creates main form definition for given owner type
 	 * 
 	 * @see {@link #getDefaultDefinitionType(Class)}
 	 * @param ownerClass owner type
@@ -120,11 +136,11 @@ public interface FormService extends ScriptEnabled {
 	 * Creates form definition
 	 * 
 	 * @param ownerClass owner type
-	 * @param name [optional] definition name (default will be created, if no definition name is given)
+	 * @param name [optional] definition code (main with default code will be created, if no definition code is given)
 	 * @param formAttributes
 	 * @return
 	 */
-	IdmFormDefinition createDefinition(Class<? extends FormableEntity> ownerClass, String name, List<IdmFormAttribute> formAttributes);
+	IdmFormDefinition createDefinition(Class<? extends FormableEntity> ownerClass, String code, List<IdmFormAttribute> formAttributes);
 	
 	/**
 	 * Persists given form attribute.
@@ -135,7 +151,7 @@ public interface FormService extends ScriptEnabled {
 	IdmFormAttribute saveAttribute(IdmFormAttribute attribute);
 	
 	/**
-	 * Persists given form attribute. If attribute does not have form definition specified, then default will be used.
+	 * Persists given form attribute. If attribute does not have form definition specified, then main will be used.
 	 * 
 	 * @see {@link #getDefaultDefinitionType(Class)}
 	 * @param ownerClass owner type
@@ -149,7 +165,7 @@ public interface FormService extends ScriptEnabled {
 	 * 
 	 * @see {@link #getDefaultDefinitionType(Class)}
 	 * @param owner
-	 * @param formDefinition [optional]
+	 * @param formDefinition [optional] if not specified, then main will be used.
 	 * @param values
 	 * @param <O> values owner
 	 * @param <E> values entity
@@ -176,19 +192,19 @@ public interface FormService extends ScriptEnabled {
 	 * 
 	 * @see {@link #getDefaultDefinitionType(Class)}
 	 * @param owner
-	 * @param formDefinition [optional] - default will be used, if no definition name is given
+	 * @param formDefinition [optional] - main will be used, if no definition is given
 	 * @param attributeName
 	 * @param persistentValues
 	 * @return persisted values
 	 * @param <O> values owner
 	 * @param <E> value entity
-	 * @throws IllegalArgumentException if default definition does not exist
+	 * @throws IllegalArgumentException if main definition does not exist
 	 */
 	<O extends FormableEntity, E extends AbstractFormValue<O>> List<E> saveValues(O owner, IdmFormDefinition formDefinition, String attributeName, List<Serializable> persistentValues);
 	<O extends FormableEntity, E extends AbstractFormValue<O>> List<E> saveValues(UUID ownerId, Class<O> ownerType, IdmFormDefinition formDefinition, String attributeName, List<Serializable> persistentValues);
 	
 	/**
-	 * Saves form values to given owner and form attribute - saves attribute values only. Default form definition will be used.
+	 * Saves form values to given owner and form attribute - saves attribute values only. Main form definition will be used.
 	 * 
 	 * @see {@link #getDefaultDefinitionType(Class)}
 	 * @param owner
@@ -197,19 +213,19 @@ public interface FormService extends ScriptEnabled {
 	 * @return persisted values
 	 * @param <O> values owner
 	 * @param <E> value entity
-	 * @throws IllegalArgumentException if default definition does not exist
+	 * @throws IllegalArgumentException if main definition does not exist
 	 */
 	<O extends FormableEntity, E extends AbstractFormValue<O>> List<E> saveValues(O owner, String attributeName, List<Serializable> persistentValues);
 	<O extends FormableEntity, E extends AbstractFormValue<O>> List<E> saveValues(UUID ownerId, Class<O> ownerType, String attributeName, List<Serializable> persistentValues);
 	
 	/**
-	 * Reads form values by given owner. Return values from default form definition.
+	 * Reads form values by given owner. Return values from main form definition.
 	 * 
 	 * @see {@link #getDefaultDefinitionType(Class)}
 	 * @param owner
 	 * @param <O> values owner
 	 * @return
-	 * @throws IllegalArgumentException if default definition does not exist
+	 * @throws IllegalArgumentException if main definition does not exist
 	 */
 	<O extends FormableEntity> List<AbstractFormValue<O>> getValues(O owner);
 	<O extends FormableEntity> List<AbstractFormValue<O>> getValues(UUID ownerId, Class<O> ownerType);
@@ -218,10 +234,10 @@ public interface FormService extends ScriptEnabled {
 	 * Reads form values by given owner and form definition
 	 * 
 	 * @param owner
-	 * @param formDefinition [optional] if form definition is not given, then return attribute values from default definition
+	 * @param formDefinition [optional] if form definition is not given, then return attribute values from main definition
 	 * @param <O> values owner
 	 * @return
-	 * @throws IllegalArgumentException if form definition is not given and default definition does not exist
+	 * @throws IllegalArgumentException if form definition is not given and main definition does not exist
 	 */
 	<O extends FormableEntity> List<AbstractFormValue<O>> getValues(O owner, IdmFormDefinition formDefinition);
 	<O extends FormableEntity> List<AbstractFormValue<O>> getValues(UUID ownerId, Class<O> ownerType, IdmFormDefinition formDefinition);
@@ -231,11 +247,11 @@ public interface FormService extends ScriptEnabled {
 	 * 
 	 * @see {@link #getDefaultDefinitionType(Class)}
 	 * @param owner
-	 * @param formDefinition [optional] if form definition is not given, then return attribute values from default definition
+	 * @param formDefinition [optional] if form definition is not given, then return attribute values from main definition
 	 * @param attributeName
 	 * @param <O> values owner
 	 * @return
-	 * @throws IllegalArgumentException if form definition is not given and default definition does not exist
+	 * @throws IllegalArgumentException if form definition is not given and main definition does not exist
 	 */
 	<O extends FormableEntity> List<AbstractFormValue<O>> getValues(O owner, IdmFormDefinition formDefinition, String attributeName);
 	<O extends FormableEntity> List<AbstractFormValue<O>> getValues(UUID ownerId, Class<O> ownerType, IdmFormDefinition formDefinition, String attributeName);
@@ -253,14 +269,14 @@ public interface FormService extends ScriptEnabled {
 	<O extends FormableEntity> List<AbstractFormValue<O>> getValues(UUID ownerId, Class<O> ownerType, IdmFormAttribute attribute);
 	
 	/**
-	 * Returns attribute values by attributeName from default definition, or empty collection
+	 * Returns attribute values by attributeName from main definition, or empty collection
 	 * 
 	 * @see {@link #getDefaultDefinitionType(Class)}
 	 * @param owner
 	 * @param attributeName
 	 * @param <O> values owner
 	 * @return
-	 * @throws IllegalArgumentException if default definition does not exist
+	 * @throws IllegalArgumentException if main definition does not exist
 	 */
 	<O extends FormableEntity> List<AbstractFormValue<O>> getValues(O owner, String attributeName);
 	<O extends FormableEntity> List<AbstractFormValue<O>> getValues(UUID ownerId, Class<O> ownerType, String attributeName);

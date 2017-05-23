@@ -22,6 +22,7 @@ import org.hibernate.annotations.Type;
 import org.hibernate.envers.Audited;
 import org.hibernate.validator.constraints.NotEmpty;
 
+import eu.bcvsolutions.idm.core.api.domain.Codeable;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.UnmodifiableEntity;
@@ -37,19 +38,13 @@ import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 @Audited
 @Table(name = "idm_form_attribute", indexes = {
 		@Index(name = "idx_idm_f_a_definition_def", columnList = "definition_id"),
-		@Index(name = "ux_idm_f_a_definition_name", columnList = "definition_id, name", unique = true) })
+		@Index(name = "ux_idm_f_a_definition_name", columnList = "definition_id, code", unique = true) })
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class IdmFormAttribute extends AbstractEntity implements UnmodifiableEntity {
+public class IdmFormAttribute extends AbstractEntity implements UnmodifiableEntity, Codeable {
 
 	private static final long serialVersionUID = 6037781154742359100L;
-	//
-	@NotEmpty
-	@Basic(optional = false)
-	@Size(min = 1, max = DefaultFieldLengths.NAME)
-	@Column(name = "name", nullable = false, length = DefaultFieldLengths.NAME)
-	private String name;
-	
+	//	
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "definition_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
@@ -59,8 +54,14 @@ public class IdmFormAttribute extends AbstractEntity implements UnmodifiableEnti
 	@NotEmpty
 	@Basic(optional = false)
 	@Size(min = 1, max = DefaultFieldLengths.NAME)
-	@Column(name = "display_name", nullable = false, length = DefaultFieldLengths.NAME)
-	private String displayName;
+	@Column(name = "code", nullable = false, length = DefaultFieldLengths.NAME)
+	private String code; 
+	
+	@NotEmpty
+	@Basic(optional = false)
+	@Size(min = 1, max = DefaultFieldLengths.NAME)
+	@Column(name = "name", nullable = false, length = DefaultFieldLengths.NAME)
+	private String name;
 	
 	@Size(max = DefaultFieldLengths.DESCRIPTION)
 	@Column(name = "description", nullable = true)
@@ -105,9 +106,21 @@ public class IdmFormAttribute extends AbstractEntity implements UnmodifiableEnti
 
 	public IdmFormAttribute() {
 	}
+	
+	/**
+	 * Code / key - unique in one form defifinition
+	 */
+	@Override
+	public String getCode() {
+		return code;
+	}
+	
+	public void setCode(String code) {
+		this.code = code;
+	}
 
 	/**
-	 * Name / key - unique in one form defifinition
+	 * User friendly name (label)
 	 * 
 	 * @return
 	 */
@@ -194,20 +207,7 @@ public class IdmFormAttribute extends AbstractEntity implements UnmodifiableEnti
 
 	public void setReadonly(boolean readonly) {
 		this.readonly = readonly;
-	}
-
-	/**
-	 * User friendly name (label)
-	 * 
-	 * @return
-	 */
-	public String getDisplayName() {
-		return displayName;
-	}
-
-	public void setDisplayName(String displayName) {
-		this.displayName = displayName;
-	}
+	}	
 
 	/**
 	 * User friendly description (tooltip)

@@ -45,9 +45,9 @@ public class EavCodeSubordinatesFilter
 		extends AbstractFilterBuilder<IdmIdentity, IdentityFilter>
 		implements SubordinatesFilter {
 	
-	public static final String PROPERTY_FORM_DEFINITION = "formDefinition";
-	public static final String PROPERTY_FORM_ATTRIBUTE = "formAttribute";
-	public static final String DEFAULT_FORM_ATTRIBUTE = "parentCode";
+	protected static final String PROPERTY_FORM_DEFINITION = "formDefinition";
+	protected static final String PROPERTY_FORM_ATTRIBUTE = "formAttribute";
+	protected static final String DEFAULT_FORM_ATTRIBUTE_CODE = "parentCode";
 	
 	@Autowired
 	public EavCodeSubordinatesFilter(IdmIdentityRepository repository) {
@@ -100,11 +100,11 @@ public class EavCodeSubordinatesFilter
 		subqueryEav.where(builder.and(
 						builder.equal(subRootEav.get(IdmTreeNodeFormValue_.owner), subRoot.get(IdmIdentityContract_.workPosition)),
 						builder.equal(
-								eavAttr.get(IdmFormAttribute_.formDefinition).get(IdmFormDefinition_.name), 
-								getConfigurationValue(PROPERTY_FORM_DEFINITION, FormService.DEFAULT_DEFINITION_NAME)),
+								eavAttr.get(IdmFormAttribute_.formDefinition).get(IdmFormDefinition_.code), 
+								getConfigurationValue(PROPERTY_FORM_DEFINITION, FormService.DEFAULT_DEFINITION_CODE)),
 						builder.equal(
-								eavAttr.get(IdmFormAttribute_.name), 
-								getConfigurationValue(PROPERTY_FORM_ATTRIBUTE, DEFAULT_FORM_ATTRIBUTE))
+								eavAttr.get(IdmFormAttribute_.code), 
+								getConfigurationValue(PROPERTY_FORM_ATTRIBUTE, DEFAULT_FORM_ATTRIBUTE_CODE))
 						));
 		//
 		Path<IdmTreeNode> wp = subqueryWpRoot.get(IdmIdentityContract_.workPosition);

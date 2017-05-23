@@ -19,7 +19,13 @@ public interface IdmFormDefinitionExcerpt extends AbstractDtoProjection {
 
 	String getType();
 	
+	String getCode();
+	
 	String getName();
+	
+	String getDescription();
+	
+	boolean isMain();
 	
 	List<IdmFormAttribute> getFormAttributes();
 	

@@ -267,7 +267,7 @@ class RoleSystemDetail extends Advanced.AbstractTableContent {
               <Advanced.Column property="idmPropertyName" header={this.i18n('acc:entity.SystemAttributeMapping.idmPropertyName.label')} sort/>
               <Advanced.Column property="uid" face="boolean" header={this.i18n('acc:entity.SystemAttributeMapping.uid.label')} sort/>
               <Advanced.Column property="entityAttribute" face="boolean" header={this.i18n('acc:entity.SystemAttributeMapping.entityAttribute')} sort/>
-              <Advanced.Column property="extendedAttribute" face="boolean" header={this.i18n('acc:entity.SystemAttributeMapping.extendedAttribute')} sort/>
+              <Advanced.Column property="extendedAttribute" face="boolean" header={this.i18n('acc:entity.SystemAttributeMapping.extendedAttribute.label')} sort/>
               <Advanced.Column property="disabledDefaultAttribute" face="boolean" header={this.i18n('acc:entity.RoleSystemAttribute.disabledDefaultAttribute')} sort/>
               <Advanced.Column property="transformScript" face="boolean" header={this.i18n('acc:entity.RoleSystemAttribute.transformScriptTable')}/>
             </Advanced.Table>

@@ -10,6 +10,9 @@ import SearchParameters from '../../domain/SearchParameters';
 const attributeManager = new FormAttributeManager();
 /**
 * Table of forms attributes
+*
+* @author Ondřej Kopr
+* @author Radek Tomiška
 */
 export default class FormAttributeTable extends Basic.AbstractContent {
 
@@ -86,13 +89,10 @@ export default class FormAttributeTable extends Basic.AbstractContent {
           <Basic.Confirm ref="confirm-delete" level="danger"/>
           <Advanced.Table
             ref="table"
-            uiKey={uiKey}
-            showRowSelection={SecurityManager.hasAuthority('EAVFORMATTRIBUTES_DELETE')}
-            manager={attributeManager}
-            forceSearchParameters={
-              new SearchParameters()
-              .setFilter('formDefinitionId', formDefinitionId)
-              .setSort('seq', 'ASC')}
+            uiKey={ uiKey }
+            showRowSelection={ SecurityManager.hasAuthority('EAVFORMATTRIBUTES_DELETE') }
+            manager={ attributeManager }
+            forceSearchParameters={ new SearchParameters().setFilter('formDefinitionId', formDefinitionId) }
             rowClass={({rowIndex, data}) => { return data[rowIndex].disabled ? 'disabled' : ''; }}
             filter={
               <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
@@ -149,7 +149,8 @@ export default class FormAttributeTable extends Basic.AbstractContent {
               }
               sort={false}/>
             <Advanced.Column property="seq" sort width="5%"/>
-            <Advanced.Column property="displayName" sort/>
+            <Advanced.Column property="code" sort/>
+            <Advanced.Column property="name" sort/>
             <Advanced.Column property="persistentType" sort />
             <Advanced.Column property="unmodifiable" header={this.i18n('entity.FormAttribute.unmodifiable.label')} face="bool" sort />
           </Advanced.Table>

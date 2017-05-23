@@ -35,7 +35,7 @@ public interface IdmFormAttributeRepository extends AbstractEntityRepository<Idm
 	 * @param name
 	 * @return
 	 */
-	IdmFormAttribute findOneByFormDefinitionAndName(@Param("formDefinition") IdmFormDefinition formDefinition, @Param("name") String name);
+	IdmFormAttribute findOneByFormDefinitionAndCode(@Param("formDefinition") IdmFormDefinition formDefinition, @Param("code") String code);
 	
 	@Override
 	@Query(value = "select e from #{#entityName} e "
@@ -48,7 +48,7 @@ public interface IdmFormAttributeRepository extends AbstractEntityRepository<Idm
 			+ " and"
 			+ " (?#{[0].definitionName} is null or e.formDefinition.name = ?#{[0].definitionName})"
 			+ " and"
-			+ " (?#{[0].name} is null or lower(e.name) like ?#{[0].name == null ? '%' : '%'.concat([0].name.toLowerCase()).concat('%')})")
+			+ " (?#{[0].code} is null or lower(e.code) like ?#{[0].code == null ? '%' : '%'.concat([0].code.toLowerCase()).concat('%')})")
 	Page<IdmFormAttribute> find(FormAttributeFilter filter, Pageable pageable);
 	
 	/**
@@ -59,7 +59,7 @@ public interface IdmFormAttributeRepository extends AbstractEntityRepository<Idm
 	 * @param name
 	 * @return
 	 */
-	IdmFormAttribute findOneByFormDefinition_typeAndFormDefinition_nameAndName(String definitionType, String definitionName, String name);
+	IdmFormAttribute findOneByFormDefinition_typeAndFormDefinition_codeAndCode(String definitionType, String definitionCode, String code);
 	
 	/**
 	 * Returns all form attributes by given definition ordered by seq

@@ -8,15 +8,16 @@ import RestApiService from './RestApiService';
  * @author Radek Tomiška
  */
 export default class FormableEntityService extends AbstractService {
+
   /**
-   * Returns form definition to given entity
+   * Returns form definitions to given entity
 	 *
    * @param  {string} id entity identifier
    * @return {promise}
    */
-  getFormDefinition(id) {
+  getFormDefinitions(id) {
     return RestApiService
-      .get(this.getApiPath() + `/${encodeURIComponent(id)}/form-definition`)
+      .get(this.getApiPath() + `/${encodeURIComponent(id)}/form-definitions`)
       .then(response => {
         return response.json();
       })
@@ -32,11 +33,12 @@ export default class FormableEntityService extends AbstractService {
    * Returns filled form values
 	 *
    * @param  {string} id entity identifier
+   * @param  {string} form definition code
    * @return {promise}
    */
-  getFormValues(id) {
+  getFormValues(id, definitionCode) {
     return RestApiService
-      .get(this.getApiPath() + `/${encodeURIComponent(id)}/form-values`)
+      .get(this.getApiPath() + `/${encodeURIComponent(id)}/form-values?definitionCode=${encodeURIComponent(definitionCode)}`)
       .then(response => {
         return response.json();
       })
@@ -52,12 +54,13 @@ export default class FormableEntityService extends AbstractService {
    * Saves form values
    *
    * @param  {string} id identity identifier
+   * @param  {string} form definition code
    * @param  {arrayOf(entity)} values filled form values
    * @return {promise}
    */
-  saveFormValues(id, values) {
+  saveFormValues(id, definitionCode, values) {
     return RestApiService
-      .post(this.getApiPath() + `/${encodeURIComponent(id)}/form-values`, values)
+      .post(this.getApiPath() + `/${encodeURIComponent(id)}/form-values?definitionCode=${encodeURIComponent(definitionCode)}`, values)
       .then(response => {
         return response.json();
       })

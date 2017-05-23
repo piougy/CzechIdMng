@@ -224,7 +224,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		for (short seq = 0; seq < connectorConfig.getConfigurationProperties().getProperties().size(); seq++) {
 			IcConfigurationProperty propertyConfig = connectorConfig.getConfigurationProperties().getProperties().get(seq);
 			IdmFormAttribute formAttribute = formDefinition.getMappedAttributeByName(propertyConfig.getName());
-			List<AbstractFormValue<SysSystem>> eavAttributeValues = attributeValues.get(formAttribute.getName());
+			List<AbstractFormValue<SysSystem>> eavAttributeValues = attributeValues.get(formAttribute.getCode());
 			// create property instance from configuration
 			IcConfigurationProperty property = formPropertyManager.toConnectorProperty(propertyConfig, eavAttributeValues);
 			if (property.getValue() != null) {

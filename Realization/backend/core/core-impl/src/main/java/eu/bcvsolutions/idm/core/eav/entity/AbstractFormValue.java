@@ -326,7 +326,7 @@ public abstract class AbstractFormValue<O extends FormableEntity> extends Abstra
 	private ResultCodeException wrongType(Serializable value) {
 		return new ResultCodeException(CoreResultCode.FORM_VALUE_WRONG_TYPE, ImmutableMap.of(
 				"value", Objects.toString(value), 
-				"formAttribute", formAttribute == null ? Objects.toString(formAttribute) : formAttribute.getName(), 
+				"formAttribute", formAttribute == null ? Objects.toString(formAttribute) : formAttribute.getCode(), 
 				"persistentType", persistentType, 
 				"valueType", value == null ?  Objects.toString(null) : value.getClass().getCanonicalName()
 				));

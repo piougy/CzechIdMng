@@ -222,7 +222,8 @@ class RoleSystemAttributeDetail extends Advanced.AbstractTableContent {
                 ref="extendedAttribute"
                 onChange={this._checkboxChanged.bind(this, 'extendedAttribute', 'entityAttribute')}
                 readOnly = {_isDisabled}
-                label={this.i18n('acc:entity.SystemAttributeMapping.extendedAttribute')}/>
+                label={ this.i18n('acc:entity.SystemAttributeMapping.extendedAttribute.label') }
+                helpBlock={ this.i18n('acc:entity.SystemAttributeMapping.extendedAttribute.help', { escape: false }) }/>
               <Basic.Checkbox
                 ref="entityAttribute"
                 onChange={this._checkboxChanged.bind(this, 'entityAttribute', 'extendedAttribute')}

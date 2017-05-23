@@ -64,7 +64,7 @@ public class DefaultIdmFormAttributeService extends AbstractReadWriteEntityServi
 		filter.setFormAttribute(entity);
 		formValueServices.getPlugins().forEach(formValueService -> {
 			if (formValueService.find(filter, new PageRequest(0, 1)).getTotalElements() > 0) {
-				throw new ResultCodeException(CoreResultCode.FORM_ATTRIBUTE_DELETE_FAILED_HAS_VALUES, ImmutableMap.of("formAttribute", entity.getName()));
+				throw new ResultCodeException(CoreResultCode.FORM_ATTRIBUTE_DELETE_FAILED_HAS_VALUES, ImmutableMap.of("formAttribute", entity.getCode()));
 			}
 		});
 		//
@@ -73,8 +73,8 @@ public class DefaultIdmFormAttributeService extends AbstractReadWriteEntityServi
 	
 	@Override
 	@Transactional(readOnly = true)
-	public IdmFormAttribute findAttribute(String definitionType, String definitionName, String attributeName) {
-		return repository.findOneByFormDefinition_typeAndFormDefinition_nameAndName(definitionType, definitionName, attributeName);
+	public IdmFormAttribute findAttribute(String definitionType, String definitionCode, String attributeName) {
+		return repository.findOneByFormDefinition_typeAndFormDefinition_codeAndCode(definitionType, definitionCode, attributeName);
 	}
 
 }

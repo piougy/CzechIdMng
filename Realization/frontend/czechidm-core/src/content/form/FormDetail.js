@@ -11,6 +11,9 @@ const TYPES_UIKEY = 'typesUiKey';
 
 /**
 * Form detail
+*
+* @author Ondřej Kopr
+* @author Radek Tomiška
 */
 class FormDetail extends Basic.AbstractContent {
 
@@ -50,7 +53,7 @@ class FormDetail extends Basic.AbstractContent {
       this.getLogger().debug(`[FormDetail] loading entity detail [id:${entityId}]`);
       this.context.store.dispatch(manager.fetchEntity(entityId, null, () => {
         // set focus into name
-        this.refs.name.focus();
+        this.refs.code.focus();
       }));
     }
   }
@@ -129,16 +132,30 @@ class FormDetail extends Basic.AbstractContent {
               readOnly={!entity || entity.unmodifiable}
               options={types}/>
             <Basic.TextField
-              ref="name"
-              label={this.i18n('entity.FormDefinition.name')}
+              ref="code"
+              label={this.i18n('entity.FormDefinition.code')}
               readOnly={!entity || entity.unmodifiable}
               max={255}
               required/>
+            <Basic.TextField
+              ref="name"
+              label={this.i18n('entity.FormDefinition.name')}
+              max={255}
+              required/>
+            <Basic.Checkbox
+              ref="main"
+              label={this.i18n('entity.FormDefinition.main.label')}
+              helpBlock={this.i18n('entity.FormDefinition.main.help')}/>
             <Basic.Checkbox
               ref="unmodifiable"
               readOnly
               label={this.i18n('entity.FormDefinition.unmodifiable.label')}
               helpBlock={this.i18n('entity.FormDefinition.unmodifiable.help')}/>
+            <Basic.TextArea
+              ref="description"
+              label={this.i18n('entity.FormDefinition.description')}
+              rows={4}
+              max={1000}/>
           </Basic.AbstractForm>
           </Basic.PanelBody>
           <Basic.PanelFooter showLoading={showLoading} >

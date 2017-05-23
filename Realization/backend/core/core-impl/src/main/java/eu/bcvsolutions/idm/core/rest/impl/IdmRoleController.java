@@ -1,15 +1,14 @@
 package eu.bcvsolutions.idm.core.rest.impl;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.envers.exception.RevisionDoesNotExistException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -40,14 +39,15 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteEntityController;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
+import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.core.eav.rest.impl.IdmFormDefinitionController;
+import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.dto.filter.RoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmAudit;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
-import eu.bcvsolutions.idm.core.model.entity.IdmRoleGuarantee;
 import eu.bcvsolutions.idm.core.model.entity.eav.IdmRoleFormValue;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuditService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
@@ -69,6 +69,7 @@ public class IdmRoleController extends AbstractReadWriteEntityController<IdmRole
 	private final IdmFormDefinitionController formDefinitionController;
 	private final IdmAuthorizationPolicyService authorizationPolicyService;
 	private final SecurityService securityService;
+	private final FormService formService;
 	
 	@Autowired
 	public IdmRoleController(
@@ -76,18 +77,21 @@ public class IdmRoleController extends AbstractReadWriteEntityController<IdmRole
 			IdmAuditService auditService,
 			IdmAuthorizationPolicyService authorizationPolicyService,
 			IdmFormDefinitionController formDefinitionController,
-			SecurityService securityService) {
+			SecurityService securityService,
+			FormService formService) {
 		super(entityLookupService);
 		//
 		Assert.notNull(auditService);
 		Assert.notNull(formDefinitionController);
 		Assert.notNull(authorizationPolicyService);
 		Assert.notNull(securityService);
+		Assert.notNull(formService);
 		//
 		this.auditService = auditService;
 		this.formDefinitionController = formDefinitionController;
 		this.authorizationPolicyService = authorizationPolicyService;
 		this.securityService = securityService;
+		this.formService = formService;
 	}
 	
 	@Override
@@ -206,10 +210,10 @@ public class IdmRoleController extends AbstractReadWriteEntityController<IdmRole
 	 * @return
 	 */
 	@ResponseBody
-	@RequestMapping(value = "/{backendId}/form-definition", method = RequestMethod.GET)
+	@RequestMapping(value = "/{backendId}/form-definitions", method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_READ + "')")
-	public ResponseEntity<?> getFormDefinition(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler) {
-		return formDefinitionController.getDefinition(IdmRole.class, assembler);
+	public ResponseEntity<?> getFormDefinitions(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler) {
+		return formDefinitionController.getDefinitions(IdmRole.class, assembler);
 	}
 	
 	/**
@@ -222,14 +226,22 @@ public class IdmRoleController extends AbstractReadWriteEntityController<IdmRole
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}/form-values", method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_READ + "')")
-	public Resources<?> getFormValues(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler) {
+	public Resources<?> getFormValues(
+			@PathVariable @NotNull String backendId, 
+			@RequestParam(name = "definitionCode") String definitionCode,
+			PersistentEntityResourceAssembler assembler) {
 		IdmRole entity = getEntity(backendId);
 		if (entity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
 		checkAccess(entity, IdmBasePermission.READ);
 		//
-		return formDefinitionController.getFormValues(entity, null, assembler);
+		IdmFormDefinition formDefinition = null; // default
+		if (StringUtils.isNotEmpty(definitionCode)) {
+			formDefinition = formService.getDefinition(IdmRole.class, definitionCode);
+		}
+		//
+		return formDefinitionController.getFormValues(entity, formDefinition, assembler);
 	}
 	
 	/**
@@ -245,6 +257,7 @@ public class IdmRoleController extends AbstractReadWriteEntityController<IdmRole
 	@RequestMapping(value = "/{backendId}/form-values", method = RequestMethod.POST)
 	public Resources<?> saveFormValues(
 			@PathVariable @NotNull String backendId,
+			@RequestParam(name = "definitionCode") String definitionCode,
 			@RequestBody @Valid List<IdmRoleFormValue> formValues,
 			PersistentEntityResourceAssembler assembler) {		
 		IdmRole entity = getEntity(backendId);
@@ -253,7 +266,12 @@ public class IdmRoleController extends AbstractReadWriteEntityController<IdmRole
 		}
 		checkAccess(entity, IdmBasePermission.UPDATE);
 		//
-		return formDefinitionController.saveFormValues(entity, null, formValues, assembler);
+		IdmFormDefinition formDefinition = null; // default
+		if (StringUtils.isNotEmpty(definitionCode)) {
+			formDefinition = formService.getDefinition(IdmRole.class, definitionCode);
+		}
+		//
+		return formDefinitionController.saveFormValues(entity, formDefinition, formValues, assembler);
 	}
 	
 	@ResponseBody

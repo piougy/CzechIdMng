@@ -91,15 +91,15 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 		//
 		// create definition one		
 		IdmFormAttribute attributeDefinitionOne = new IdmFormAttribute();
-		attributeDefinitionOne.setName("name_" + System.currentTimeMillis());
-		attributeDefinitionOne.setDisplayName(attributeDefinitionOne.getName());
+		attributeDefinitionOne.setCode("name_" + System.currentTimeMillis());
+		attributeDefinitionOne.setName(attributeDefinitionOne.getCode());
 		attributeDefinitionOne.setPersistentType(PersistentType.TEXT);
 		IdmFormDefinition formDefinitionOne = formService.createDefinition(IdmIdentity.class.getCanonicalName(), "t_v1", Lists.newArrayList(attributeDefinitionOne));
 		//
 		// create definition two		
 		IdmFormAttribute attributeDefinitionTwo = new IdmFormAttribute();
-		attributeDefinitionTwo.setName("name_" + System.currentTimeMillis());
-		attributeDefinitionTwo.setDisplayName(attributeDefinitionTwo.getName());
+		attributeDefinitionTwo.setCode("name_" + System.currentTimeMillis());
+		attributeDefinitionTwo.setName(attributeDefinitionTwo.getCode());
 		attributeDefinitionTwo.setPersistentType(PersistentType.TEXT);		
 		IdmFormDefinition formDefinitionTwo = formService.createDefinition(IdmIdentity.class.getCanonicalName(), "t_v2", Lists.newArrayList(attributeDefinitionTwo));
 		//		
@@ -150,8 +150,8 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 		// create definition with multi parameter	
 		IdmFormAttribute multiAttribite = new IdmFormAttribute();
 		String multiAttributeName = "name_" + System.currentTimeMillis();
-		multiAttribite.setName(multiAttributeName);
-		multiAttribite.setDisplayName(multiAttribite.getName());
+		multiAttribite.setCode(multiAttributeName);
+		multiAttribite.setName(multiAttribite.getCode());
 		multiAttribite.setPersistentType(PersistentType.TEXT);
 		multiAttribite.setMultiple(true);
 		IdmFormDefinition formDefinitionOne = formService.createDefinition(IdmIdentity.class.getCanonicalName(), "t_v3", Lists.newArrayList(multiAttribite));
@@ -199,7 +199,8 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 		IdmFormDefinition formDefinition = formService.getDefinition(IdmIdentity.class);
 		
 		assertNotNull(formDefinition);
-		assertEquals(IdmFormDefinitionService.DEFAULT_DEFINITION_NAME, formDefinition.getName());
+		assertEquals(IdmFormDefinitionService.DEFAULT_DEFINITION_CODE, formDefinition.getCode());
+		assertEquals(IdmFormDefinitionService.DEFAULT_DEFINITION_CODE, formDefinition.getName());
 		assertEquals(PersistentType.TEXT, formDefinition.getMappedAttributeByName(InitDemoData.FORM_ATTRIBUTE_PHONE).getPersistentType());
 	}
 	
@@ -387,7 +388,7 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 		assertEquals(1, owners.getTotalElements());
 		assertEquals(owner.getId(), owners.getContent().get(0).getId());
 		//
-		owners = formService.findOwners(owner.getClass(), attribute.getName(), FORM_VALUE_TWO, null);
+		owners = formService.findOwners(owner.getClass(), attribute.getCode(), FORM_VALUE_TWO, null);
 		assertEquals(2, owners.getTotalElements());
 		//
 		owners = formService.findOwners(owner.getClass(), attribute, FORM_VALUE_FOUR, null);
@@ -415,7 +416,7 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 		assertEquals(1, owners.getTotalElements());
 		assertEquals(owner.getId(), owners.getContent().get(0).getId());
 		//
-		owners = formService.findOwners(IdmIdentity.class, attribute.getName(), FORM_VALUE_TWO, null);
+		owners = formService.findOwners(IdmIdentity.class, attribute.getCode(), FORM_VALUE_TWO, null);
 		assertEquals(1, owners.getTotalElements());
 		//
 		owners = formService.findOwners(IdmIdentity.class, attribute, FORM_VALUE_FOUR, null);
@@ -439,7 +440,7 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 		assertEquals(1, owners.getTotalElements());
 		assertEquals(owner.getId(), owners.getContent().get(0).getId());
 		//
-		owners = formService.findOwners(owner.getClass(), attribute.getName(), null, null);
+		owners = formService.findOwners(owner.getClass(), attribute.getCode(), null, null);
 		assertEquals(0, owners.getTotalElements());
 	}
 	
@@ -489,13 +490,13 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 	public void testSaveAttribute() {
 		IdmFormAttribute attribute = new IdmFormAttribute();
 		String attributeName = "name_" + System.currentTimeMillis();
-		attribute.setName(attributeName);
-		attribute.setDisplayName(attribute.getName());
+		attribute.setCode(attributeName);
+		attribute.setName(attribute.getCode());
 		attribute.setPersistentType(PersistentType.TEXT);
 		//
 		formService.saveAttribute(IdmIdentity.class, attribute);
 		//
-		IdmFormAttribute savedAttr = formService.getAttribute(IdmIdentity.class, attribute.getName());
+		IdmFormAttribute savedAttr = formService.getAttribute(IdmIdentity.class, attribute.getCode());
 		//
 		assertNotNull(savedAttr);
 		assertEquals(PersistentType.TEXT, savedAttr.getPersistentType());
@@ -503,7 +504,7 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 		//
 		formService.deleteAttribute(attribute);
 		//
-		savedAttr = formService.getAttribute(IdmIdentity.class, attribute.getName());
+		savedAttr = formService.getAttribute(IdmIdentity.class, attribute.getCode());
 		//
 		assertNull(savedAttr);
 	}

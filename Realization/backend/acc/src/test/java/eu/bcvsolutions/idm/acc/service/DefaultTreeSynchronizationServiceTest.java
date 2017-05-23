@@ -598,7 +598,7 @@ public class DefaultTreeSynchronizationServiceTest extends AbstractIntegrationTe
 		// key to EAV
 		IdmFormDefinition savedFormDefinition = systemService.getConnectorFormDefinition(system.getConnectorInstance());
 		List<AbstractFormValue<SysSystem>> values = formService.getValues(system, savedFormDefinition);
-		AbstractFormValue<SysSystem> changeLogColumn = values.stream().filter(value -> {return "keyColumn".equals(value.getFormAttribute().getName());}).findFirst().get();
+		AbstractFormValue<SysSystem> changeLogColumn = values.stream().filter(value -> {return "keyColumn".equals(value.getFormAttribute().getCode());}).findFirst().get();
 		formService.saveValues(system, changeLogColumn.getFormAttribute(), ImmutableList.of("ID"));
 		// generate schema for system
 		List<SysSchemaObjectClass> objectClasses = systemService.generateSchema(system);

@@ -20,9 +20,12 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.envers.Audited;
+import org.hibernate.validator.constraints.NotEmpty;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+
+import eu.bcvsolutions.idm.core.api.domain.Codeable;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.UnmodifiableEntity;
@@ -34,10 +37,10 @@ import eu.bcvsolutions.idm.core.api.entity.UnmodifiableEntity;
  *
  */
 @Entity
-@Table(name = "idm_form_definition", indexes = { @Index(name = "ux_idm_form_definition_tn", columnList = "definition_type,name", unique = true) })
+@Table(name = "idm_form_definition", indexes = { @Index(name = "ux_idm_form_definition_tn", columnList = "definition_type,code", unique = true) })
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class IdmFormDefinition extends AbstractEntity implements UnmodifiableEntity {
+public class IdmFormDefinition extends AbstractEntity implements UnmodifiableEntity, Codeable {
 
 	private static final long serialVersionUID = 8267096009610364911L;
 	
@@ -48,12 +51,27 @@ public class IdmFormDefinition extends AbstractEntity implements UnmodifiableEnt
 	@Column(name = "definition_type", nullable = false, length = DefaultFieldLengths.NAME)
 	private String type; // for entity / object type
 	
-	@NotNull
 	@Audited
-	@Basic(optional = false)
-	@Size(min = 1, max = DefaultFieldLengths.NAME)
-	@Column(name = "name", nullable = false, length = DefaultFieldLengths.NAME)
-	private String name; // unique name for entity / object type
+	@NotEmpty
+	@Size(min = 0, max = DefaultFieldLengths.NAME)
+	@Column(name = "code", length = DefaultFieldLengths.NAME, nullable = false)
+	private String code;
+	
+	@Audited
+	@NotEmpty
+	@Size(min = 0, max = DefaultFieldLengths.NAME)
+	@Column(name = "name", length = DefaultFieldLengths.NAME, nullable = false)
+	private String name;
+	
+	@Audited
+	@NotNull
+	@Column(name = "main", nullable = false)
+	private boolean main;
+	
+	@Audited
+	@Size(max = DefaultFieldLengths.DESCRIPTION)
+	@Column(name = "description", length = DefaultFieldLengths.DESCRIPTION)
+	private String description;
 	
 	@Audited
 	@OrderBy("seq")
@@ -132,7 +150,7 @@ public class IdmFormDefinition extends AbstractEntity implements UnmodifiableEnt
 			mappedKeys = Maps.newHashMap();
 			for (IdmFormAttribute attribute : getFormAttributes()) {
 				mappedAttributes.put(attribute.getId(), attribute);
-				mappedKeys.put(attribute.getName(), attribute.getId());
+				mappedKeys.put(attribute.getCode(), attribute.getId());
 			}
 		}
 		return mappedAttributes;
@@ -181,5 +199,30 @@ public class IdmFormDefinition extends AbstractEntity implements UnmodifiableEnt
 	@Override
 	public void setUnmodifiable(boolean unmodifiable) {
 		this.unmodifiable = unmodifiable;
+	}
+
+	@Override
+	public String getCode() {
+		return code;
+	}
+
+	public void setCode(String code) {
+		this.code = code;
+	}
+
+	public boolean isMain() {
+		return main;
+	}
+
+	public void setMain(boolean main) {
+		this.main = main;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
 	}
 }

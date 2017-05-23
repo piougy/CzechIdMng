@@ -532,7 +532,10 @@
       "idmPropertyEnum": "Položky entity",
       "schemaAttribute": "Atribut ve schéma",
       "systemMapping": "Název mapování",
-      "extendedAttribute": "Rozšířený atribut",
+      "extendedAttribute": {
+        "label": "Rozšířený atribut",
+        "help": "Pouze <strong>hlavní definice</strong> formuláře pro rozšířené atributy je podporovaná."
+      },
       "confidentialAttribute": "Tajný atribut",
       "entityAttribute": "Atribut entity",
       "strategyType": "Strategie",

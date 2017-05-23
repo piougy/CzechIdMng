@@ -232,8 +232,9 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
               <Basic.Checkbox
                 ref="extendedAttribute"
                 onChange={this._checkboxChanged.bind(this, 'extendedAttribute', 'entityAttribute')}
-                label={this.i18n('acc:entity.SystemAttributeMapping.extendedAttribute')}
-                readOnly = {_isDisabled}/>
+                label={this.i18n('acc:entity.SystemAttributeMapping.extendedAttribute.label')}
+                readOnly = {_isDisabled}
+                helpBlock={ this.i18n('acc:entity.SystemAttributeMapping.extendedAttribute.help', { escape: false }) }/>
               <Basic.Checkbox
                 ref="confidentialAttribute"
                 label={this.i18n('acc:entity.SystemAttributeMapping.confidentialAttribute')}

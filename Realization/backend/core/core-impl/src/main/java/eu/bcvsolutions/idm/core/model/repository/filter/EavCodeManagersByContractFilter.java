@@ -40,10 +40,6 @@ public class EavCodeManagersByContractFilter
 		extends AbstractFilterBuilder<IdmIdentity, IdentityFilter> 
 		implements ManagersByContractFilter {
 	
-	public static final String PROPERTY_FORM_DEFINITION = "formDefinition";
-	public static final String PROPERTY_FORM_ATTRIBUTE = "formAttribute";
-	public static final String DEFAULT_FORM_ATTRIBUTE = "parentCode";
-	
 	@Autowired
 	public EavCodeManagersByContractFilter(IdmIdentityRepository repository) {
 		super(repository);
@@ -52,8 +48,8 @@ public class EavCodeManagersByContractFilter
 	@Override
 	public List<String> getPropertyNames() {
 		List<String> props = super.getPropertyNames();
-		props.add(PROPERTY_FORM_DEFINITION);
-		props.add(PROPERTY_FORM_ATTRIBUTE);
+		props.add(EavCodeSubordinatesFilter.PROPERTY_FORM_DEFINITION);
+		props.add(EavCodeSubordinatesFilter.PROPERTY_FORM_ATTRIBUTE);
 		return props;
 	}
 
@@ -80,11 +76,11 @@ public class EavCodeManagersByContractFilter
 						builder.equal(subqueryWpRoot.get(IdmIdentityContract_.id), filter.getManagersByContract()),
 						builder.equal(subRootEav.get(IdmTreeNodeFormValue_.owner), subqueryWpRoot.get(IdmIdentityContract_.workPosition)),
 						builder.equal(
-								eavAttr.get(IdmFormAttribute_.formDefinition).get(IdmFormDefinition_.name), 
-								getConfigurationValue(PROPERTY_FORM_DEFINITION, FormService.DEFAULT_DEFINITION_NAME)),
+								eavAttr.get(IdmFormAttribute_.formDefinition).get(IdmFormDefinition_.code), 
+								getConfigurationValue(EavCodeSubordinatesFilter.PROPERTY_FORM_DEFINITION, FormService.DEFAULT_DEFINITION_CODE)),
 						builder.equal(
-								eavAttr.get(IdmFormAttribute_.name), 
-								getConfigurationValue(PROPERTY_FORM_ATTRIBUTE, DEFAULT_FORM_ATTRIBUTE))
+								eavAttr.get(IdmFormAttribute_.code), 
+								getConfigurationValue(EavCodeSubordinatesFilter.PROPERTY_FORM_ATTRIBUTE, EavCodeSubordinatesFilter.DEFAULT_FORM_ATTRIBUTE_CODE))
 						));
 		subqueryWp.where(builder.exists(subqueryEav));
 		//

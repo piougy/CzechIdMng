@@ -46,10 +46,6 @@ public class EavCodeManagersFilter
 		extends AbstractFilterBuilder<IdmIdentity, IdentityFilter> 
 		implements ManagersFilter {
 	
-	public static final String PROPERTY_FORM_DEFINITION = "formDefinition";
-	public static final String PROPERTY_FORM_ATTRIBUTE = "formAttribute";
-	public static final String DEFAULT_FORM_ATTRIBUTE = "parentCode";
-	
 	@Autowired
 	public EavCodeManagersFilter(IdmIdentityRepository repository) {
 		super(repository);
@@ -58,8 +54,8 @@ public class EavCodeManagersFilter
 	@Override
 	public List<String> getPropertyNames() {
 		List<String> props = super.getPropertyNames();
-		props.add(PROPERTY_FORM_DEFINITION);
-		props.add(PROPERTY_FORM_ATTRIBUTE);
+		props.add(EavCodeSubordinatesFilter.PROPERTY_FORM_DEFINITION);
+		props.add(EavCodeSubordinatesFilter.PROPERTY_FORM_ATTRIBUTE);
 		return props;
 	}
 
@@ -108,11 +104,11 @@ public class EavCodeManagersFilter
 							? builder.conjunction() 
 							: builder.equal(wp.get(IdmTreeNode_.treeType).get(IdmTreeType_.id), filter.getManagersByTreeType()),
 						builder.equal(
-								eavAttr.get(IdmFormAttribute_.formDefinition).get(IdmFormDefinition_.name), 
-								getConfigurationValue(PROPERTY_FORM_DEFINITION, FormService.DEFAULT_DEFINITION_NAME)),
+								eavAttr.get(IdmFormAttribute_.formDefinition).get(IdmFormDefinition_.code), 
+								getConfigurationValue(EavCodeSubordinatesFilter.PROPERTY_FORM_DEFINITION, FormService.DEFAULT_DEFINITION_CODE)),
 						builder.equal(
-								eavAttr.get(IdmFormAttribute_.name), 
-								getConfigurationValue(PROPERTY_FORM_ATTRIBUTE, DEFAULT_FORM_ATTRIBUTE))
+								eavAttr.get(IdmFormAttribute_.code), 
+								getConfigurationValue(EavCodeSubordinatesFilter.PROPERTY_FORM_ATTRIBUTE, EavCodeSubordinatesFilter.DEFAULT_FORM_ATTRIBUTE_CODE))
 						));
 		subqueryWp.where(builder.exists(subqueryEav));
 		//

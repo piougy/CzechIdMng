@@ -42,7 +42,7 @@ public class IdmFormAttributeController extends DefaultReadWriteEntityController
 	public void deleteEntity(IdmFormAttribute entity) {
 		// attribute flagged as system attribute can't be deleted from controller
 		if (entity.isUnmodifiable()) {
-			throw new ResultCodeException(CoreResultCode.FORM_ATTRIBUTE_DELETE_FAILED_SYSTEM_ATTRIBUTE, ImmutableMap.of("name", entity.getName()));
+			throw new ResultCodeException(CoreResultCode.FORM_ATTRIBUTE_DELETE_FAILED_SYSTEM_ATTRIBUTE, ImmutableMap.of("code", entity.getCode()));
 		}
 		super.deleteEntity(entity);
 	}
@@ -56,7 +56,7 @@ public class IdmFormAttributeController extends DefaultReadWriteEntityController
 		IdmFormAttribute oldEntity = getEntity(entity.getId());
 		if (oldEntity != null) {
 			// check explicit attributes that can't be changed
-			if (!oldEntity.getName().equals(entity.getName())) {
+			if (!oldEntity.getCode().equals(entity.getCode())) {
 				throw new ResultCodeException(CoreResultCode.UNMODIFIABLE_ATTRIBUTE_CHANGE, ImmutableMap.of("name", "name", "class", entity.getClass().getSimpleName()));
 			}
 			if (oldEntity.getPersistentType() != entity.getPersistentType()) {

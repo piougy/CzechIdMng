@@ -17,7 +17,7 @@ public class FormAttributeFilter implements BaseFilter {
 	private UUID formDefinitionId;
 	private String definitionType;
 	private String definitionName;
-	private String name;
+	private String code;
 
 	public IdmFormDefinition getFormDefinition() {
 		return formDefinition;
@@ -27,12 +27,12 @@ public class FormAttributeFilter implements BaseFilter {
 		this.formDefinition = formDefinition;
 	}
 
-	public String getName() {
-		return name;
+	public void setCode(String code) {
+		this.code = code;
 	}
-
-	public void setName(String name) {
-		this.name = name;
+	
+	public String getCode() {
+		return code;
 	}
 
 	public String getDefinitionType() {

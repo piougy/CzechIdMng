@@ -43,8 +43,8 @@ public abstract class AbstractFormPropertyConverter implements FormPropertyConve
 		Assert.notNull(propertyConfiguration);
 		//
 		IdmFormAttribute attribute = new IdmFormAttribute();
-		attribute.setName(propertyConfiguration.getName());
-		attribute.setDisplayName(propertyConfiguration.getDisplayName());
+		attribute.setCode(propertyConfiguration.getName());
+		attribute.setName(propertyConfiguration.getDisplayName());
 		attribute.setDescription(propertyConfiguration.getHelpMessage());
 		attribute.setPersistentType(getFormPropertyType());
 		attribute.setConfidential(propertyConfiguration.isConfidential());

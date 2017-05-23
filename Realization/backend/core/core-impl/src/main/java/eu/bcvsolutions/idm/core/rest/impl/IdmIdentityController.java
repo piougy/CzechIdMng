@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.envers.exception.RevisionDoesNotExistException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -45,7 +46,9 @@ import eu.bcvsolutions.idm.core.api.dto.filter.IdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
+import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.core.eav.rest.impl.IdmFormDefinitionController;
+import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.dto.WorkPositionDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmAudit;
@@ -81,6 +84,7 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 	private final IdmTreeNodeService treeNodeService;
 	private final ForestContentService<IdmTreeNode, IdmForestIndexEntity, UUID> treeNodeIndexService;
 	private final IdmIdentityRepository identityRepository;
+	private final FormService formService;
 	//
 	private final IdmFormDefinitionController formDefinitionController;
 	
@@ -94,7 +98,8 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 			IdmAuditService auditService,
 			ForestContentService<IdmTreeNode, IdmForestIndexEntity, UUID> treeNodeIndexService,
 			IdmTreeNodeService treeNodeService,
-			IdmIdentityRepository identityRepository) {
+			IdmIdentityRepository identityRepository,
+			FormService formService) {
 		super(identityService);
 		//
 		Assert.notNull(formDefinitionController);
@@ -105,6 +110,7 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 		Assert.notNull(treeNodeIndexService);
 		Assert.notNull(treeNodeService);
 		Assert.notNull(identityRepository);
+		Assert.notNull(formService);
 		//
 		this.formDefinitionController = formDefinitionController;
 		this.grantedAuthoritiesFactory = grantedAuthoritiesFactory;
@@ -114,6 +120,7 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 		this.treeNodeIndexService = treeNodeIndexService;
 		this.treeNodeService = treeNodeService;
 		this.identityRepository = identityRepository;
+		this.formService = formService;
 	}
 	
 	@Override
@@ -313,9 +320,9 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 	 * @return
 	 */
 	@ResponseBody
-	@RequestMapping(value = "/{backendId}/form-definition", method = RequestMethod.GET)
-	public ResponseEntity<?> getFormDefinition(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler) {
-		return formDefinitionController.getDefinition(IdmIdentity.class, assembler);
+	@RequestMapping(value = "/{backendId}/form-definitions", method = RequestMethod.GET)
+	public ResponseEntity<?> getFormDefinitions(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler) {
+		return formDefinitionController.getDefinitions(IdmIdentity.class, assembler);
 	}
 	
 	/**
@@ -328,7 +335,10 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}/form-values", method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_READ + "')")
-	public Resources<?> getFormValues(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler) {
+	public Resources<?> getFormValues(
+			@PathVariable @NotNull String backendId, 
+			@RequestParam(name = "definitionCode") String definitionCode,
+			PersistentEntityResourceAssembler assembler) {
 		IdmIdentityDto entity = getDto(backendId);
 		if (entity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
@@ -336,7 +346,12 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 		//
 		checkAccess(entity, IdmBasePermission.READ);
 		//
-		return formDefinitionController.getFormValues(identityRepository.findOne(entity.getId()), null, assembler);
+		IdmFormDefinition formDefinition = null; // default
+		if (StringUtils.isNotEmpty(definitionCode)) {
+			formDefinition = formService.getDefinition(IdmIdentity.class, definitionCode);
+		}
+		//
+		return formDefinitionController.getFormValues(identityRepository.findOne(entity.getId()), formDefinition, assembler);
 	}
 	
 	/**
@@ -352,6 +367,7 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 	@RequestMapping(value = "/{backendId}/form-values", method = RequestMethod.POST)
 	public Resources<?> saveFormValues(
 			@PathVariable @NotNull String backendId,
+			@RequestParam(name = "definitionCode") String definitionCode,
 			@RequestBody @Valid List<IdmIdentityFormValue> formValues,
 			PersistentEntityResourceAssembler assembler) {		
 		IdmIdentityDto entity = getDto(backendId);
@@ -360,7 +376,12 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 		}
 		checkAccess(entity, IdmBasePermission.UPDATE);
 		//
-		return formDefinitionController.saveFormValues(identityRepository.findOne(entity.getId()), null, formValues, assembler);
+		IdmFormDefinition formDefinition = null; // default
+		if (StringUtils.isNotEmpty(definitionCode)) {
+			formDefinition = formService.getDefinition(IdmIdentity.class, definitionCode);
+		}
+		//
+		return formDefinitionController.saveFormValues(identityRepository.findOne(entity.getId()), formDefinition, formValues, assembler);
 	}	
 	
 	@Override

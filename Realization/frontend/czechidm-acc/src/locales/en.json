@@ -526,7 +526,10 @@
       "idmPropertyEnum": "Entity field",
       "schemaAttribute": "Attribute in schema",
       "systemMapping": "Mapping name",
-      "extendedAttribute": "Extended attr.",
+      "extendedAttribute": {
+        "label": "Extended attr.",
+        "help": "<strong>Main form definition</strong> is supported only."
+      },
       "confidentialAttribute": "Confidential attr.",
       "entityAttribute": "Entity attr.",
       "strategyType": "Strategy",

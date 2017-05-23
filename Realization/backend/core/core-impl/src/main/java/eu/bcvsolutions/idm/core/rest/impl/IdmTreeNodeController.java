@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.envers.exception.RevisionDoesNotExistException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -31,6 +32,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.filter.TreeNodeFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
@@ -38,6 +40,7 @@ import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.core.eav.rest.impl.IdmFormDefinitionController;
+import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmAudit;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
@@ -61,7 +64,8 @@ public class IdmTreeNodeController extends DefaultReadWriteEntityController<IdmT
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdmTreeNodeController.class);
 	private final IdmTreeNodeService treeNodeService;
 	private final IdmTreeTypeService treeTypeService;
-	private final IdmAuditService auditService; 
+	private final IdmAuditService auditService;
+	private final FormService formService;
 	//
 	private final IdmFormDefinitionController formDefinitionController;
 	//
@@ -74,18 +78,21 @@ public class IdmTreeNodeController extends DefaultReadWriteEntityController<IdmT
 			IdmTreeNodeService treeNodeService,
 			IdmTreeTypeService treeTypeService,
 			IdmAuditService auditService,
-			IdmFormDefinitionController formDefinitionController) {
+			IdmFormDefinitionController formDefinitionController,
+			FormService formService) {
 		super(entityLookupService, treeNodeService);
 		//
 		Assert.notNull(treeNodeService);
 		Assert.notNull(treeTypeService);
 		Assert.notNull(auditService);
 		Assert.notNull(formDefinitionController);
+		Assert.notNull(formService);
 		//
 		this.treeNodeService = treeNodeService;
 		this.treeTypeService = treeTypeService;
 		this.auditService = auditService;
 		this.formDefinitionController = formDefinitionController;
+		this.formService = formService;
 	}
 	
 	@Override
@@ -179,17 +186,9 @@ public class IdmTreeNodeController extends DefaultReadWriteEntityController<IdmT
 	 * @return
 	 */
 	@ResponseBody
-	@RequestMapping(value = "/{backendId}/form-definition", method = RequestMethod.GET)
-	public ResponseEntity<?> getFormDefinition(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler) {
-		IdmTreeNode entity = getEntity(backendId);
-		if (entity == null) {
-			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
-		}
-		IdmFormDefinition formDefinition = getFormDefinition(entity);
-		if (formDefinition == null) {
-			return formDefinitionController.getDefinition(IdmTreeNode.class, assembler);
-		}
-		return formDefinitionController.get(formDefinition.getId().toString(), assembler);
+	@RequestMapping(value = "/{backendId}/form-definitions", method = RequestMethod.GET)
+	public ResponseEntity<?> getFormDefinitions(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler) {
+		return formDefinitionController.getDefinitions(IdmTreeNode.class, assembler);
 	}
 	
 	/**
@@ -201,12 +200,21 @@ public class IdmTreeNodeController extends DefaultReadWriteEntityController<IdmT
 	 */
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}/form-values", method = RequestMethod.GET)
-	public Resources<?> getFormValues(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler) {
+	public Resources<?> getFormValues(
+			@PathVariable @NotNull String backendId, 
+			@RequestParam(name = "definitionCode") String definitionCode,
+			PersistentEntityResourceAssembler assembler) {
 		IdmTreeNode entity = getEntity(backendId);
 		if (entity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
-		return formDefinitionController.getFormValues(entity, getFormDefinition(entity), assembler);
+		//
+		IdmFormDefinition formDefinition = null; // default
+		if (StringUtils.isNotEmpty(definitionCode)) {
+			formDefinition = formService.getDefinition(IdmTreeNode.class, definitionCode);
+		}
+		//
+		return formDefinitionController.getFormValues(entity, formDefinition, assembler);
 	}
 	
 	/**
@@ -222,24 +230,19 @@ public class IdmTreeNodeController extends DefaultReadWriteEntityController<IdmT
 	@RequestMapping(value = "/{backendId}/form-values", method = RequestMethod.POST)
 	public Resources<?> saveFormValues(
 			@PathVariable @NotNull String backendId,
+			@RequestParam(name = "definitionCode") String definitionCode,
 			@RequestBody @Valid List<IdmTreeNodeFormValue> formValues,
 			PersistentEntityResourceAssembler assembler) {		
 		IdmTreeNode entity = getEntity(backendId);
 		if (entity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
-		return formDefinitionController.saveFormValues(entity, getFormDefinition(entity), formValues, assembler);
-	}
-	
-	/**
-	 * Returns form definition for given tree node.
-	 * 
-	 * @param treeNode
-	 * @return
-	 */
-	private IdmFormDefinition getFormDefinition(IdmTreeNode treeNode) {
-		// TODO: could return different definition by different form definition type  
-		return null; // default for now
+		//
+		IdmFormDefinition formDefinition = null; // default
+		if (StringUtils.isNotEmpty(definitionCode)) {
+			formDefinition = formService.getDefinition(IdmTreeNode.class, definitionCode);
+		}
+		return formDefinitionController.saveFormValues(entity, formDefinition, formValues, assembler);
 	}
 	
 	@Override

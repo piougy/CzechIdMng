@@ -73,13 +73,22 @@ public class DefaultFormService implements FormService {
 	@Override
 	@Transactional(readOnly = true)
 	public IdmFormDefinition getDefinition(String type) {
-		return this.getDefinition(type, null);		
+		return this.getDefinition(type, null);
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<IdmFormDefinition> getDefinitions(String type) {
+		return formDefinitionService.findAllByType(type);
 	}
 
 	@Override
 	@Transactional(readOnly = true)
-	public IdmFormDefinition getDefinition(String type, String name) {
-		return formDefinitionService.get(type, name);		
+	public IdmFormDefinition getDefinition(String type, String code) {
+		if (StringUtils.isEmpty(code)) {
+			formDefinitionService.findOneByMain(type);
+		}
+		return formDefinitionService.findOneByTypeAndCode(type, code);	
 	}
 
 	@Override
@@ -90,13 +99,16 @@ public class DefaultFormService implements FormService {
 	
 	@Override
 	@Transactional(readOnly = true)
-	public IdmFormDefinition getDefinition(Class<? extends FormableEntity> ownerClass, String name) {
+	public List<IdmFormDefinition> getDefinitions(Class<? extends FormableEntity> ownerClass) {
+		return getDefinitions(getDefaultDefinitionType(ownerClass));	
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public IdmFormDefinition getDefinition(Class<? extends FormableEntity> ownerClass, String code) {
 		Assert.notNull(ownerClass, "Owner class is required!");
 		//
-		if (StringUtils.isEmpty(name)) {
-			name = IdmFormDefinitionService.DEFAULT_DEFINITION_NAME;
-		}
-		return formDefinitionService.get(getDefaultDefinitionType(ownerClass), name);
+		return getDefinition(getDefaultDefinitionType(ownerClass), code);
 	}
 	
 	/**
@@ -125,22 +137,25 @@ public class DefaultFormService implements FormService {
 	
 	@Override
 	@Transactional(readOnly = true)
-	public IdmFormAttribute getAttribute(Class<? extends FormableEntity> ownerClass, String attributeName) {
+	public IdmFormAttribute getAttribute(Class<? extends FormableEntity> ownerClass, String attributeCode) {
 		Assert.notNull(ownerClass, "Owner class is required!");
-		Assert.hasLength(attributeName, "Form attribute definition name is required!");
+		Assert.hasLength(attributeCode, "Form attribute code is required!");
 		//
-		return formAttributeService.findAttribute(getDefaultDefinitionType(ownerClass), IdmFormDefinitionService.DEFAULT_DEFINITION_NAME, attributeName);
+		IdmFormDefinition mainDefinition = getDefinition(ownerClass);
+		Assert.notNull(mainDefinition, "Main definition is required!");
+		//
+		return formAttributeService.findAttribute(getDefaultDefinitionType(ownerClass), mainDefinition.getCode(), attributeCode);
 	}
 	
 	@Override
 	@Transactional
-	public IdmFormDefinition createDefinition(String type, String name, List<IdmFormAttribute> formAttributes) {
+	public IdmFormDefinition createDefinition(String type, String code, List<IdmFormAttribute> formAttributes) {
 		Assert.hasLength(type);
 		//
 		// create definition
 		IdmFormDefinition formDefinition = new  IdmFormDefinition();
 		formDefinition.setType(type);	
-		formDefinition.setName(name);
+		formDefinition.setCode(code);
 		formDefinition = formDefinitionService.save(formDefinition);
 		//
 		// and their attributes
@@ -181,7 +196,7 @@ public class DefaultFormService implements FormService {
 	public IdmFormAttribute saveAttribute(IdmFormAttribute attribute) {
 		Assert.notNull(attribute);
 		IdmFormDefinition definition = attribute.getFormDefinition();
-		Assert.notNull(definition, String.format("Form definition for attribute [%s] is required!", attribute.getName()));
+		Assert.notNull(definition, String.format("Form definition for attribute [%s] is required!", attribute.getCode()));
 		//
 		IdmFormAttribute ret = formAttributeService.save(attribute);
 		definition.addFormAttribute(ret);
@@ -237,12 +252,12 @@ public class DefaultFormService implements FormService {
 				if (value.isConfidential() || !value.isEquals(previousValue)) {
 					// update value
 					results.add(formValueService.save(value));
-					LOG.trace("FormValue [{}:{}] for owner [{}] was updated", attribute.getName(), value.getId(), owner);
+					LOG.trace("FormValue [{}:{}] for owner [{}] was updated", attribute.getCode(), value.getId(), owner);
 				}
 			} else {
 				// create new value
 				results.add(formValueService.save(value));
-				LOG.trace("FormValue [{}:{}] for owner [{}] was created", attribute.getName(), value.getId(), owner);
+				LOG.trace("FormValue [{}:{}] for owner [{}] was created", attribute.getCode(), value.getId(), owner);
 			}
 		}
 		//
@@ -255,7 +270,7 @@ public class DefaultFormService implements FormService {
 			})
 			.forEach(value -> {
 				formValueService.deleteValue(value);
-				LOG.trace("FormValue [{}:{}] for owner [{}] was deleted", value.getFormAttribute().getName(), value.getId(), owner);
+				LOG.trace("FormValue [{}:{}] for owner [{}] was deleted", value.getFormAttribute().getCode(), value.getId(), owner);
 			});
 		//
 		// publish event - eav was saved
@@ -305,7 +320,7 @@ public class DefaultFormService implements FormService {
 		}
 		if (!attribute.isMultiple() && persistentValues.size() > 1) {
 			throw new IllegalArgumentException(MessageFormat.format("Form attribute [{0}:{1}] does not support multivalue, sent [{2}] values.", 
-					attribute.getFormDefinition().getName(), attribute.getName(), persistentValues.size()));
+					attribute.getFormDefinition().getCode(), attribute.getCode(), persistentValues.size()));
 		}
 		// drop
 		FormValueService<O, E> formValueService = getFormValueService(owner);
@@ -464,7 +479,7 @@ public class DefaultFormService implements FormService {
 		//
 		Map<String, List<E>> results = new HashMap<>();
 		for(E value : values) {
-			String key = value.getFormAttribute().getName();
+			String key = value.getFormAttribute().getCode();
 			if (!results.containsKey(key)) {
 				results.put(key, new ArrayList<>());
 			}
@@ -486,7 +501,7 @@ public class DefaultFormService implements FormService {
 		//
 		Map<String, List<Serializable>> results = new HashMap<>();
 		for(AbstractFormValue<?> value : values) {
-			String key = value.getFormAttribute().getName();
+			String key = value.getFormAttribute().getCode();
 			if (!results.containsKey(key)) {
 				results.put(key, new ArrayList<>());
 			}
@@ -525,7 +540,7 @@ public class DefaultFormService implements FormService {
 	public Serializable toSinglePersistentValue(final List<AbstractFormValue<FormableEntity>> values) {
 		Assert.notNull(values);
 		if (values.size() > 1) {
-			throw new IllegalArgumentException(MessageFormat.format("Attribute [{}] has mutliple values [{}]", values.get(0).getFormAttribute().getName(), values.size()));
+			throw new IllegalArgumentException(MessageFormat.format("Attribute [{}] has mutliple values [{}]", values.get(0).getFormAttribute().getCode(), values.size()));
 		}
 		return values.get(0).getValue();
 	}
@@ -538,7 +553,7 @@ public class DefaultFormService implements FormService {
 		//
 		FormValueService<FormableEntity, ?> formValueService = getFormValueService(owner);
 		String key = formValueService.getConfidentialStorageKey(attribute);
-		LOG.debug("Confidential storage key for attribute [{}] is [{}].", attribute.getName(), key);
+		LOG.debug("Confidential storage key for attribute [{}] is [{}].", attribute.getCode(), key);
 		return key;
 	}
 	
@@ -558,7 +573,7 @@ public class DefaultFormService implements FormService {
 		Assert.notNull(ownerClass, "Owner class is required!");
 		Assert.notNull(attribute, "Form attribute is required!");
 		if (attribute.isConfidential()) {
-			throw new UnsupportedOperationException(MessageFormat.format("Find owners by confidential attributes [{0}] are not supported.", attribute.getName()));
+			throw new UnsupportedOperationException(MessageFormat.format("Find owners by confidential attributes [{0}] are not supported.", attribute.getCode()));
 		}
 		//
 		FormValueService<O, ?> formValueService = (FormValueService<O, ?>)formValueServices.getPluginFor(ownerClass);

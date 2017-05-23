@@ -16,10 +16,10 @@ public interface IdmFormAttributeService extends ReadWriteEntityService<IdmFormA
 	 * Finds one attribute from given definition by given attribute name
 	 * 
 	 * @param definitionType
-	 * @param definitionName
-	 * @param attributeName
+	 * @param definitionCode
+	 * @param attributeCode
 	 * @return
 	 */
-	IdmFormAttribute findAttribute(String definitionType, String definitionName, String attributeName);
+	IdmFormAttribute findAttribute(String definitionType, String definitionCode, String attributeCode);
 
 }

@@ -11,6 +11,9 @@ import PersistentTypeEnum from '../../enums/PersistentTypeEnum';
 /**
  * Form attribute manager for saving attributes
  * @type {FormAttributeManager}
+ *
+ * @author Ondřej Kopr
+ * @author Radek Tomiška
  */
 const attributeManager = new FormAttributeManager();
 
@@ -49,7 +52,7 @@ class FormAttributeDetail extends Basic.AbstractContent {
     } else {
       this.getLogger().debug(`[FormAttributeDetail] loading entity detail [id:${entityId}]`);
       this.context.store.dispatch(attributeManager.fetchEntity(entityId, null, () => {
-        this.refs.displayName.focus();
+        this.refs.code.focus();
       }));
     }
   }
@@ -161,7 +164,7 @@ class FormAttributeDetail extends Basic.AbstractContent {
               ?
               this.i18n('create.header')
               :
-              <span>{entity.displayName} <small>{this.i18n('edit.header')}</small></span>
+              <span>{entity.name} <small>{this.i18n('edit.header')}</small></span>
             }
           </Basic.PageHeader>
         }
@@ -173,16 +176,16 @@ class FormAttributeDetail extends Basic.AbstractContent {
                 <Basic.Row>
                   <div className="col-lg-4">
                     <Basic.TextField
-                      ref="name"
-                      label={this.i18n('entity.FormAttribute.name')}
+                      ref="code"
+                      label={this.i18n('entity.FormAttribute.code')}
                       readOnly={this._isUnmodifiable()}
                       required
                       max={255}/>
                   </div>
                   <div className="col-lg-8">
                     <Basic.TextField
-                      ref="displayName"
-                      label={this.i18n('entity.FormAttribute.displayName')}
+                      ref="name"
+                      label={this.i18n('entity.FormAttribute.name')}
                       max={255}
                       required/>
                   </div>

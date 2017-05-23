@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
@@ -34,7 +35,9 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
+import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.core.eav.rest.impl.IdmFormDefinitionController;
+import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
@@ -57,20 +60,24 @@ public class IdmIdentityContractController extends AbstractReadWriteDtoControlle
 	
 	private final IdmFormDefinitionController formDefinitionController;
 	private final IdmIdentityContractRepository identityContractRepository;
+	private final FormService formService;
 	
 	@Autowired
 	public IdmIdentityContractController(
 			LookupService entityLookupService, 
 			IdmIdentityContractService identityContractService,
 			IdmFormDefinitionController formDefinitionController,
-			IdmIdentityContractRepository identityContractRepository) {
+			IdmIdentityContractRepository identityContractRepository,
+			FormService formService) {
 		super(identityContractService);
 		//
 		Assert.notNull(formDefinitionController);
 		Assert.notNull(identityContractRepository);
+		Assert.notNull(formService);
 		//
 		this.formDefinitionController = formDefinitionController;
 		this.identityContractRepository = identityContractRepository;
+		this.formService = formService;
 	}
 	
 	@Override
@@ -156,9 +163,9 @@ public class IdmIdentityContractController extends AbstractReadWriteDtoControlle
 	 * @return
 	 */
 	@ResponseBody
-	@RequestMapping(value = "/{backendId}/form-definition", method = RequestMethod.GET)
-	public ResponseEntity<?> getFormDefinition(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler) {
-		return formDefinitionController.getDefinition(IdmIdentityContract.class, assembler);
+	@RequestMapping(value = "/{backendId}/form-definitions", method = RequestMethod.GET)
+	public ResponseEntity<?> getFormDefinitions(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler) {
+		return formDefinitionController.getDefinitions(IdmIdentityContract.class, assembler);
 	}
 	
 	/**
@@ -171,7 +178,10 @@ public class IdmIdentityContractController extends AbstractReadWriteDtoControlle
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}/form-values", method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITYCONTRACT_READ + "')")
-	public Resources<?> getFormValues(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler) {
+	public Resources<?> getFormValues(
+			@PathVariable @NotNull String backendId, 
+			@RequestParam(name = "definitionCode") String definitionCode,
+			PersistentEntityResourceAssembler assembler) {
 		IdmIdentityContractDto dto = getDto(backendId);
 		if (dto == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
@@ -179,7 +189,12 @@ public class IdmIdentityContractController extends AbstractReadWriteDtoControlle
 		//
 		checkAccess(dto, IdmBasePermission.READ);
 		//
-		return formDefinitionController.getFormValues(identityContractRepository.findOne(dto.getId()), null, assembler);
+		IdmFormDefinition formDefinition = null; // default
+		if (StringUtils.isNotEmpty(definitionCode)) {
+			formDefinition = formService.getDefinition(IdmIdentityContract.class, definitionCode);
+		}
+		//
+		return formDefinitionController.getFormValues(identityContractRepository.findOne(dto.getId()), formDefinition, assembler);
 	}
 	
 	/**
@@ -195,6 +210,7 @@ public class IdmIdentityContractController extends AbstractReadWriteDtoControlle
 	@RequestMapping(value = "/{backendId}/form-values", method = RequestMethod.POST)
 	public Resources<?> saveFormValues(
 			@PathVariable @NotNull String backendId,
+			@RequestParam(name = "definitionCode") String definitionCode,
 			@RequestBody @Valid List<IdmIdentityContractFormValue> formValues,
 			PersistentEntityResourceAssembler assembler) {		
 		IdmIdentityContractDto dto = getDto(backendId);
@@ -203,6 +219,11 @@ public class IdmIdentityContractController extends AbstractReadWriteDtoControlle
 		}
 		// 
 		checkAccess(dto, IdmBasePermission.UPDATE);
+		//
+		IdmFormDefinition formDefinition = null; // default
+		if (StringUtils.isNotEmpty(definitionCode)) {
+			formDefinition = formService.getDefinition(IdmIdentityContract.class, definitionCode);
+		}
 		//
 		return formDefinitionController.saveFormValues(identityContractRepository.findOne(dto.getId()), null, formValues, assembler);
 	}

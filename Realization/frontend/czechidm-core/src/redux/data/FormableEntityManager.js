@@ -1,3 +1,5 @@
+import Immutable from 'immutable';
+//
 import EntityManager from './EntityManager';
 import FormInstance from '../../domain/FormInstance';
 
@@ -9,35 +11,45 @@ import FormInstance from '../../domain/FormInstance';
 export default class FormableEntityManager extends EntityManager {
 
   /**
-   * Load form instance (definition + values) by given entity
+   * Load form instances (definitions + values) by given entity
    *
    * @param  {string} id entity identifier
    * @param {string} uiKey
    * @param {func} cb callback
    * @returns {action}
    */
-  fetchFormInstance(id, uiKey, cb = null) {
+  fetchFormInstances(id, uiKey, cb = null) {
     return (dispatch) => {
       dispatch(this.dataManager.requestData(uiKey));
-
-      const formDefinitionPromise = this.getService().getFormDefinition(id);
-      const formValuesPromise = this.getService().getFormValues(id);
-
-      Promise.all([formDefinitionPromise, formValuesPromise])
-        .then((jsons) => {
-          const formDefinition = jsons[0];
-          const formValues = jsons[1]._embedded.formValues;
-
-          const formInstance = new FormInstance(formDefinition, formValues);
-
-          dispatch(this.dataManager.receiveData(uiKey, formInstance));
-          if (cb) {
-            cb(formInstance);
-          }
-        })
-        .catch(error => {
-          // TODO: data uiKey
-          dispatch(this.receiveError(null, uiKey, error, cb));
+      //
+      this.getService().getFormDefinitions(id)
+        .then(json => {
+          let formInstances = new Immutable.Map();
+          const formValuesPromises = json._embedded.formDefinitions.map(formDefinition => {
+            formInstances = formInstances.set(formDefinition.code, new FormInstance(formDefinition, []));
+            return this.getService().getFormValues(id, formDefinition.code);
+          });
+          Promise.all(formValuesPromises)
+            .then((jsons) => {
+              jsons.forEach(jsonA => {
+                if (jsonA._embedded.formValues) {
+                  const formValues = jsonA._embedded.formValues;
+                  if (formValues.length > 0) {
+                    const formDefinition = formInstances.get(formValues[0]._embedded.formAttribute.formDefinition.code).getDefinition();
+                    formInstances = formInstances.set(formDefinition.code, new FormInstance(formDefinition, formValues));
+                  }
+                }
+              });
+              //
+              dispatch(this.dataManager.receiveData(uiKey, formInstances));
+              if (cb) {
+                cb(formInstances);
+              }
+            })
+            .catch(error => {
+              // TODO: data uiKey
+              dispatch(this.receiveError(null, uiKey, error, cb));
+            });
         });
     };
   }
@@ -46,17 +58,18 @@ export default class FormableEntityManager extends EntityManager {
    * Saves form values
    *
    * @param  {string} id entity identifier
+   * @param  {string} form definition code
    * @param  {arrayOf(entity)} values filled form values
    * @param {string} uiKey
    * @param {func} cb callback
    * @returns {action}
    */
-  saveFormValues(id, values, uiKey, cb = null) {
+  saveFormValues(id, definitionCode, values, uiKey, cb = null) {
     return (dispatch) => {
       dispatch(this.dataManager.requestData(uiKey));
-      this.getService().saveFormValues(id, values)
+      this.getService().saveFormValues(id, definitionCode, values)
       .then(() => {
-        dispatch(this.fetchFormInstance(id, uiKey, cb));
+        dispatch(this.fetchFormInstances(id, uiKey, cb));
       })
       .catch(error => {
         dispatch(this.receiveError(null, uiKey, error, cb));

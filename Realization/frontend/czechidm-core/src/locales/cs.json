@@ -2008,14 +2008,21 @@
     },
     "FormDefinition" : {
       "type": "Typ",
+      "code": "Kód",
       "name": "Jméno",
       "unmodifiable": {
-        "help": "Systémová definice nemůže být smazána a nelze upravovat některé její atributy.",
-        "label": "Systémová definice"
-       }
+        "label": "Systémová definice",
+        "help": "Systémová definice nemůže být smazána a nelze upravovat některé její atributy."
+      },
+      "main": {
+        "label": "Hlavní definice",
+        "help": "Hlavní / výchozí definice"
+      },
+      "description": "Popis"
     },
     "FormAttribute" : {
-      "displayName": "Jméno položky",
+      "code": "Kód",
+      "name": "Jméno položky",
       "seq": "Pořadí",
       "persistentType": "Typ atributu",
       "description": "Popis",

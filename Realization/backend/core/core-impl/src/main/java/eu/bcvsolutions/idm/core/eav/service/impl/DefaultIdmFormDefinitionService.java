@@ -1,6 +1,9 @@
 package eu.bcvsolutions.idm.core.eav.service.impl;
 
+import java.util.List;
+
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -36,19 +39,40 @@ public class DefaultIdmFormDefinitionService extends AbstractReadWriteEntityServ
 	}
 	
 	/**
-	 * Fill default definition name, if no name is given
+	 * Fill default definition code and name, if no code / name is given
 	 */
 	@Override
+	@Transactional
 	public IdmFormDefinition save(IdmFormDefinition entity) {
+		if (StringUtils.isEmpty(entity.getCode())) {
+			entity.setMain(true);
+			entity.setCode(DEFAULT_DEFINITION_CODE);
+		}
 		if (StringUtils.isEmpty(entity.getName())) {
-			entity.setName(DEFAULT_DEFINITION_NAME);
+			entity.setName(entity.getCode());
+		}
+		if (entity.isMain()) {
+			this.formDefinitionRepository.clearMain(entity.getType(), entity.getId(), new DateTime());
 		}
 		return super.save(entity);
 	}
 	
 	@Override
-	public IdmFormDefinition get(String type, String name) {
-		return formDefinitionRepository.findOneByTypeAndName(type, name != null ? name : DEFAULT_DEFINITION_NAME);
+	@Transactional(readOnly = true)
+	public IdmFormDefinition findOneByTypeAndCode(String type, String code) {
+		return formDefinitionRepository.findOneByTypeAndCode(type, code != null ? code : DEFAULT_DEFINITION_CODE);
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public IdmFormDefinition findOneByMain(String type) {
+		return formDefinitionRepository.findOneByTypeAndMainIsTrue(type);
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<IdmFormDefinition> findAllByType(String type) {
+		return formDefinitionRepository.findAllByType(type);
 	}
 
 	@Override

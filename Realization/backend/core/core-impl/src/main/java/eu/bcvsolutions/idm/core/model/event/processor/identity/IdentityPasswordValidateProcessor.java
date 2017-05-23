@@ -5,8 +5,6 @@ import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
-import com.google.common.collect.ImmutableMap;
-
 import eu.bcvsolutions.idm.core.api.config.domain.IdentityConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.PasswordChangeType;
@@ -18,9 +16,7 @@ import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
-import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordPolicyService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordService;
 import eu.bcvsolutions.idm.core.security.api.authentication.AuthenticationManager;
@@ -37,37 +33,33 @@ import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 @Description("Validates identity's password, when password is changed.")
 public class IdentityPasswordValidateProcessor extends CoreEventProcessor<IdmIdentityDto> {
 
-	private static final String PROPERTY_REQUIRE_OLD_PASSWORD = "idm.pub.core.identity.passwordChange.requireOldPassword";
-	// private static final String PROPERTY_PASSWORD_CHANGE_TYPE = "idm.pub.core.identity.passwordChange"; // TODO: secure BE
 	public static final String PROCESSOR_NAME = "identity-password-validate-processor";
 	private final SecurityService securityService;
 	private final IdmPasswordService passwordService;
 	private final IdmPasswordPolicyService passwordPolicyService;
-	private final IdmConfigurationService configuration;
 	private final AuthenticationManager authenticationManager;
-	private final ConfigurationService configurationService;
+	private final IdentityConfiguration identityConfiguration;
 
 	@Autowired
-	public IdentityPasswordValidateProcessor(SecurityService securityService,
-			IdmPasswordService passwordService, IdmPasswordPolicyService passwordPolicyService,
-			IdmConfigurationService configuration,
+	public IdentityPasswordValidateProcessor(
+			SecurityService securityService,
+			IdmPasswordService passwordService, 
+			IdmPasswordPolicyService passwordPolicyService,
 			AuthenticationManager authenticationManager,
-			ConfigurationService configurationService) {
+			IdentityConfiguration identityConfiguration) {
 		super(IdentityEventType.PASSWORD);
 		//
 		Assert.notNull(securityService);
 		Assert.notNull(passwordPolicyService);
 		Assert.notNull(passwordService);
-		Assert.notNull(configuration);
 		Assert.notNull(authenticationManager);
-		Assert.notNull(configurationService);
+		Assert.notNull(identityConfiguration);
 		//
 		this.securityService = securityService;
 		this.passwordService = passwordService;
 		this.passwordPolicyService = passwordPolicyService;
-		this.configuration = configuration;
 		this.authenticationManager = authenticationManager;
-		this.configurationService = configurationService;
+		this.identityConfiguration = identityConfiguration;
 	}
 
 	@Override
@@ -83,25 +75,21 @@ public class IdentityPasswordValidateProcessor extends CoreEventProcessor<IdmIde
 		Assert.notNull(passwordChangeDto);
 		//
 		if (!securityService.isAdmin()) {
-			// check if isn't disable password change
-			String passwordChangeProperty = this.configurationService.getValue(IdentityConfiguration.PROPERTY_IDENTITY_CHANGE_PASSWORD);
-			if (passwordChangeProperty.equals(PasswordChangeType.DISABLED.toString())) {
-				throw new ResultCodeException(CoreResultCode.PASSWORD_CHANGE_FAILED, ImmutableMap.of("note", "Password change is disabled"));
-			} else if (passwordChangeProperty.equals(PasswordChangeType.ALL_ONLY.toString())) {
+			PasswordChangeType passwordChangeType = identityConfiguration.getPasswordChangeType();
+			if (passwordChangeType == PasswordChangeType.DISABLED) {
+				// check if isn't disable password change
+				throw new ResultCodeException(CoreResultCode.PASSWORD_CHANGE_DISABLED);
+			} else if (passwordChangeType == PasswordChangeType.ALL_ONLY && !passwordChangeDto.isIdm()) {
 				// for all only must change also password for czechidm
-				if (!passwordChangeDto.isIdm()) {
-					throw new ResultCodeException(CoreResultCode.PASSWORD_CHANGE_FAILED, ImmutableMap.of("note", "Password is allowed change only for all accounts."));
-				}
+				throw new ResultCodeException(CoreResultCode.PASSWORD_CHANGE_ALL_ONLY);
 			}
 			//
 			// check old password
 			if (passwordChangeDto.getOldPassword() == null) {
 				throw new ResultCodeException(CoreResultCode.PASSWORD_CHANGE_CURRENT_FAILED_IDM);
-			}
-			// get configuration
-			boolean oldPasswordRequired = configuration.getBooleanValue(PROPERTY_REQUIRE_OLD_PASSWORD, true);			
+			}			
 			//
-			if (oldPasswordRequired) {
+			if (identityConfiguration.isRequireOldPassword()) {
 				// authentication trough chain 
 				boolean successChainAuthentication = authenticationManager.validate(identity.getUsername(), passwordChangeDto.getOldPassword());
 				if (!successChainAuthentication) {

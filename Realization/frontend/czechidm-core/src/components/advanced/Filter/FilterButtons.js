@@ -2,7 +2,11 @@ import React, { PropTypes } from 'react';
 //
 import * as Basic from '../../basic';
 
-
+/**
+ * Filter buttons (use, clear) mainly for advanced table
+ *
+ * @author Radek Tomiška
+ */
 export default class FilterButtons extends Basic.AbstractContextComponent {
 
   constructor(props, context) {

@@ -11,6 +11,12 @@ import ConfigurationManager from '../data/ConfigurationManager';
 import { Actions, Properties } from './constants';
 
 /**
+ * Config / layout actions
+ *
+ * @author Radek Tomiška
+ */
+
+/**
  * Select navigation items
  *
  * @param  {array} selectedNavigationItems Array of selected navigation item. Can contains null values for select specified navigation level

@@ -12,8 +12,6 @@ import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
-import com.google.common.collect.ImmutableMap;
-
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
@@ -35,7 +33,6 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.core.model.event.processor.identity.IdentityPasswordProcessor;
-import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordPolicyService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordService;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
@@ -60,31 +57,31 @@ public class IdentityPasswordValidateProcessor extends AbstractEntityEventProces
 	private final AccIdentityAccountService identityAccountService;
 	private final AccIdentityAccountRepository identityAccountRepository; 
 	private final IdmPasswordService passwordService;
-	private final IdmConfigurationService configurationService;
 	private final SecurityService securityService;
+	private final IdentityConfiguration identityConfiguration;
 	
 	@Autowired
 	public IdentityPasswordValidateProcessor(IdmPasswordPolicyService passwordPolicyService,
 			AccIdentityAccountService identityAccountService,
 			AccIdentityAccountRepository identityAccountRepository,
 			IdmPasswordService passwordService,
-			IdmConfigurationService configurationService,
-			SecurityService securityService) {
+			SecurityService securityService,
+			IdentityConfiguration identityConfiguration) {
 		super(IdentityEventType.PASSWORD);
 		//
 		Assert.notNull(identityAccountService);
 		Assert.notNull(identityAccountRepository);
 		Assert.notNull(passwordPolicyService);
 		Assert.notNull(passwordService);
-		Assert.notNull(configurationService);
 		Assert.notNull(securityService);
+		Assert.notNull(identityConfiguration);
 		//
 		this.passwordPolicyService = passwordPolicyService;
 		this.identityAccountService = identityAccountService;
 		this.passwordService = passwordService;
 		this.identityAccountRepository = identityAccountRepository;
-		this.configurationService = configurationService;
 		this.securityService = securityService;
+		this.identityConfiguration = identityConfiguration;
 	}
 	
 	@Override
@@ -111,8 +108,8 @@ public class IdentityPasswordValidateProcessor extends AbstractEntityEventProces
 		//
 		if (!securityService.isAdmin()) {
 			// check accounts and property all_only
-			String passwordChangeProperty = this.configurationService.getValue(IdentityConfiguration.PROPERTY_IDENTITY_CHANGE_PASSWORD);
-			if (passwordChangeProperty.equals(PasswordChangeType.ALL_ONLY.toString())) {
+			PasswordChangeType passwordChangeType = identityConfiguration.getPasswordChangeType();
+			if (passwordChangeType == PasswordChangeType.ALL_ONLY) {
 				List<String> identityAccountsIds = identityAccounts.stream()
 						.filter(identityAccount -> {
 							return identityAccount.isOwnership();
@@ -121,7 +118,7 @@ public class IdentityPasswordValidateProcessor extends AbstractEntityEventProces
 				//
 				boolean containsAll = !Collections.disjoint(identityAccountsIds, passwordChangeDto.getAccounts());
 				if (!containsAll) {
-					throw new ResultCodeException(CoreResultCode.PASSWORD_CHANGE_FAILED, ImmutableMap.of("note", "Password is allowed change only for all accounts."));
+					throw new ResultCodeException(CoreResultCode.PASSWORD_CHANGE_ALL_ONLY);
 				}
 			}
 		}

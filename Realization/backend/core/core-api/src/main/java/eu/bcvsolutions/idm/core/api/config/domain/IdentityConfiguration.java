@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.core.api.config.domain;
 import java.util.ArrayList;
 import java.util.List;
 
+import eu.bcvsolutions.idm.core.api.domain.PasswordChangeType;
 import eu.bcvsolutions.idm.core.api.service.Configurable;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 
@@ -16,21 +17,33 @@ public interface IdentityConfiguration extends Configurable {
 	/**
 	 * Supports identity delete operation
 	 */
-	public static final String PROPERTY_IDENTITY_DELETE = 
+	static final String PROPERTY_IDENTITY_DELETE = 
 			ConfigurationService.IDM_PUBLIC_PROPERTY_PREFIX + "core.identity.delete";
+	static final boolean DEFAULT_IDENTITY_DELETE = true;
 	
 	/**
-	 * Default type password change for custom users
+	 * Password change type for custom users
+	 * 
+	 * @see PasswordChangeType
 	 */
-	public static final String PROPERTY_IDENTITY_CHANGE_PASSWORD = 
+	static final String PROPERTY_IDENTITY_CHANGE_PASSWORD = 
 			ConfigurationService.IDM_PUBLIC_PROPERTY_PREFIX + "core.identity.passwordChange";
+	static final PasswordChangeType DEFAULT_IDENTITY_CHANGE_PASSWORD = PasswordChangeType.DISABLED;
+	
+	/**
+	 * Requires previous password, when password is changed
+	 */
+	static final String PROPERTY_REQUIRE_OLD_PASSWORD = 
+			ConfigurationService.IDM_PUBLIC_PROPERTY_PREFIX + "core.identity.passwordChange.requireOldPassword";
+	static final boolean DEFAULT_REQUIRE_OLD_PASSWORD = true;
 	
 	/**
 	 * Creates default identity's contract, when new identity is created
 	 */
-	public static final String PROPERTY_IDENTITY_CREATE_DEFAULT_CONTRACT = 
+	static final String PROPERTY_IDENTITY_CREATE_DEFAULT_CONTRACT = 
 			ConfigurationService.IDM_PUBLIC_PROPERTY_PREFIX + "core.identity.create.defaultContract.enabled";
-	public static final boolean DEFAULT_IDENTITY_CREATE_DEFAULT_CONTRACT = true;
+	static final boolean DEFAULT_IDENTITY_CREATE_DEFAULT_CONTRACT = true;
+	
 	
 	@Override
 	default String getConfigurableType() {
@@ -62,4 +75,19 @@ public interface IdentityConfiguration extends Configurable {
 	 * @return
 	 */
 	boolean isCreateDefaultContractEnabled();
+	
+	/**
+	 * Returns configured password change type
+	 * 
+	 * @return
+	 */
+	PasswordChangeType getPasswordChangeType();
+	
+	/**
+	 * Requires previous password, when password is changed
+	 * 
+	 * @return
+	 */
+	boolean isRequireOldPassword();
+	
 }

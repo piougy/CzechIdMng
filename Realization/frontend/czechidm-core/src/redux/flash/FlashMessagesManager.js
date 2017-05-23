@@ -32,6 +32,11 @@ const _DEFAULT_MESSAGE = {
   date: new Date()
 };
 
+/**
+ * Flash messages
+ *
+ * @author Radek Tomiška
+ */
 export default class FlashMessagesManager {
 
   constructor() {

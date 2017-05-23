@@ -2577,6 +2577,14 @@
       "title": "Password change wasn't completed",
       "message": "{{0}}"
     },
+    "PASSWORD_CHANGE_DISABLED": {
+      "title": "Password change wasn't completed",
+      "title": "Password change is disabled."
+    },
+    "PASSWORD_CHANGE_ALL_ONLY": {
+      "title": "Password change wasn't completed",
+      "title": "Password change is possible for all accounts together only."
+    },
     "PASSWORD_DOES_NOT_MEET_POLICY": {
       "title": "New password doesn't meet password policy",
       "message": "{{0}}"

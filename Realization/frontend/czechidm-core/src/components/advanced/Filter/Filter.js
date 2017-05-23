@@ -9,10 +9,11 @@ import FilterEnumSelectBox from './FilterEnumSelectBox';
 import FilterSelectBox from './FilterSelectBox';
 import FilterDateTimePicker from './FilterDateTimePicker';
 
-// TODO: Move to better place and use in child components
-const DEFAUT_RELATION = 'LIKE';
-const DEFAUT_ENUM_RELATION = 'EQ';
-
+/**
+ * Filter mainly for advanced table
+ *
+ * @author Radek Tomiška
+ */
 export default class Filter extends Basic.AbstractContextComponent {
 
   useFilter(event) {
@@ -49,8 +50,6 @@ Filter.defaultProps = {
   ...Basic.AbstractContextComponent.defaultProps,
 };
 
-Filter.DEFAUT_RELATION = DEFAUT_RELATION;
-Filter.DEFAUT_ENUM_RELATION = DEFAUT_ENUM_RELATION;
 Filter.ToogleButton = ToogleFilterButton;
 Filter.FilterButtons = FilterButtons;
 Filter.TextField = FilterTextField;

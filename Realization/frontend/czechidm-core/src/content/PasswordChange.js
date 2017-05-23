@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import * as Basic from '../components/basic';
 import * as Advanced from '../components/advanced';
 import * as Utils from '../utils';
-import { SecurityManager, IdentityManager } from '../redux';
+import { SecurityManager, IdentityManager, ConfigurationManager } from '../redux';
 import help from './PasswordChange_cs.md';
 import ValidationMessage from './identity/ValidationMessage';
 
@@ -138,13 +138,20 @@ class PasswordChange extends Basic.AbstractContent {
 
   render() {
     const { showLoading, validationError } = this.state;
-
+    const { passwordChangeType } = this.props;
+    //
     return (
       <div>
         <Helmet title={this.i18n('title')} />
         <div className="row">
           <div className="col-sm-offset-4 col-sm-4">
-            <form onSubmit={this.passwordChange.bind(this)}>
+            <Basic.Alert
+              level="warning"
+              icon="exclamation-sign"
+              text={ this.i18n('content.identity.passwordChange.changeType.DISABLED') }
+              rendered={ passwordChangeType === IdentityManager.PASSWORD_DISABLED }/>
+
+            <form onSubmit={this.passwordChange.bind(this)} className={ passwordChangeType === IdentityManager.PASSWORD_DISABLED ? 'hidden' : ''}>
               <Basic.Panel showLoading={showLoading}>
                 <Basic.PanelHeader text={this.i18n('header')} help={help}/>
 
@@ -196,7 +203,8 @@ PasswordChange.defaultProps = {
 
 function select(state) {
   return {
-    userContext: state.security.userContext
+    userContext: state.security.userContext,
+    passwordChangeType: ConfigurationManager.getPublicValue(state, 'idm.pub.core.identity.passwordChange'),
   };
 }
 

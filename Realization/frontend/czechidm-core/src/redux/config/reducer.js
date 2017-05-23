@@ -16,6 +16,11 @@ const INITIAL_STATE = new Immutable.Map({
   appUnavailable: false
 });
 
+/**
+ * Config / layout storage
+ *
+ * @author Radek Tomiška
+ */
 export function config(state = INITIAL_STATE, action) {
   switch (action.type) {
     case Actions.SELECT_NAVIGATION_ITEMS: {

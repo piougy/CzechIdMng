@@ -1,9 +1,12 @@
-
-
 import React, { PropTypes } from 'react';
 import AbstractContextComponent from '../../basic/AbstractContextComponent/AbstractContextComponent';
 import * as Basic from '../../basic/index.js';
 
+/**
+ * Button for closable filter mainly for advanced table
+ *
+ * @author Radek Tomiška
+ */
 export default class ToogleFilterButton extends AbstractContextComponent {
 
   constructor(props, context) {

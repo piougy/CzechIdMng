@@ -297,7 +297,7 @@ export class Navigation extends Basic.AbstractContent {
                     <span
                       key={`locale-${lng}`}
                       className={lgnClassName}
-                      onClick={() => { this.context.store.dispatch(i18nChange(lng, () => { this.reloadRoute(); } )); }}>
+                      onClick={() => { this.context.store.dispatch(i18nChange(lng, () => { window.location.reload(); } )); }}>
                     </span>
                   );
                 })

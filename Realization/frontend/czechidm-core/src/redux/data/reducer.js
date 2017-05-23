@@ -70,6 +70,11 @@ const INITIAL_STATE = {
   data: new Immutable.Map({})
 };
 
+/**
+ * Data storage - store all loaded entities from BE
+ *
+ * @author Radek Tomiška
+ */
 export function data(state = INITIAL_STATE, action) {
   const uiKey = action.uiKey;
   switch (action.type) {

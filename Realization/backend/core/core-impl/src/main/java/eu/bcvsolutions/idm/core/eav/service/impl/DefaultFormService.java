@@ -123,7 +123,7 @@ public class DefaultFormService implements FormService {
 		if (formDefinition == null) {
 			// values from default form definition
 			formDefinition = getDefinition(ownerClass);
-			Assert.notNull(formDefinition, MessageFormat.format("Default form definition for ownerClass [{0}] not found and is required, fix appliaction configuration!", ownerClass));
+			Assert.notNull(formDefinition, MessageFormat.format("Default form definition for ownerClass [{0}] not found and is required, fix application configuration!", ownerClass));
 		}
 		return formDefinition;
 	}
@@ -281,7 +281,13 @@ public class DefaultFormService implements FormService {
 		//
 		// publish event - eav was saved
 		// TODO: this whole method could be moved to processor (=> could be overriden in some module)
-		entityEventManager.process(new CoreEvent<O>(CoreEventType.EAV_SAVE, owner)); 
+		if(lookupService.getDtoLookup(owner.getClass()) == null) {
+			// TODO: remove this branch after all agends will be rewritten to dto usage
+			entityEventManager.process(new CoreEvent<O>(CoreEventType.EAV_SAVE, owner));
+		} else {
+			// dto
+			entityEventManager.process(new CoreEvent<>(CoreEventType.EAV_SAVE, lookupService.lookupDto(owner.getClass(), owner.getId()))); 
+		}
 		return results;
 	}
 	

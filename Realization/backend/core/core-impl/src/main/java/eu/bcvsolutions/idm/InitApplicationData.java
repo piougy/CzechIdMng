@@ -94,6 +94,20 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 		// TODO: could be moved to flyway install dump
 		try {
 			//
+			// prepare default form definitions
+			if (formService.getDefinition(IdmIdentity.class) == null) {
+				formService.createDefinition(IdmIdentity.class, new ArrayList<>());
+			}
+			if (formService.getDefinition(IdmRole.class) == null) {
+				formService.createDefinition(IdmRole.class, new ArrayList<>());
+			}
+			if (formService.getDefinition(IdmTreeNode.class) == null) {
+				formService.createDefinition(IdmTreeNode.class, new ArrayList<>());
+			}
+			if (formService.getDefinition(IdmIdentityContract.class) == null) {
+				formService.createDefinition(IdmIdentityContract.class, new ArrayList<>());
+			}
+			//
 			// create super admin role
 			IdmRole existsSuperAdminRole = this.roleService.getByName(ADMIN_ROLE);
 			if (existsSuperAdminRole == null && this.roleService.find(new PageRequest(0, 1)).getTotalElements() == 0) {
@@ -160,20 +174,6 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 			}
 			// Cancels all previously ran tasks
 			longRunningTaskManager.init();
-			//
-			// prepare default form definitions
-			if (formService.getDefinition(IdmIdentity.class) == null) {
-				formService.createDefinition(IdmIdentity.class, new ArrayList<>());
-			}
-			if (formService.getDefinition(IdmRole.class) == null) {
-				formService.createDefinition(IdmRole.class, new ArrayList<>());
-			}
-			if (formService.getDefinition(IdmTreeNode.class) == null) {
-				formService.createDefinition(IdmTreeNode.class, new ArrayList<>());
-			}
-			if (formService.getDefinition(IdmIdentityContract.class) == null) {
-				formService.createDefinition(IdmIdentityContract.class, new ArrayList<>());
-			}
 		} finally {
 			SecurityContextHolder.clearContext();
 		}

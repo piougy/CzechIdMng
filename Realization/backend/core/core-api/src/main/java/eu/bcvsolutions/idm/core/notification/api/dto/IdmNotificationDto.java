@@ -1,16 +1,16 @@
 package eu.bcvsolutions.idm.core.notification.api.dto;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+import org.joda.time.DateTime;
+import org.springframework.hateoas.core.Relation;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
-import org.joda.time.DateTime;
-import org.springframework.hateoas.core.Relation;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 
 /**
  * Generic log message dto
@@ -23,7 +23,10 @@ public class IdmNotificationDto extends AbstractDto implements BaseNotification 
     private static final long serialVersionUID = -4130705393914057255L;
 
     private String topic;
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private DateTime sent;
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private String sentLog;
 
     //TODO: can we use UUID with UuidToEntityConverter and embedded here?

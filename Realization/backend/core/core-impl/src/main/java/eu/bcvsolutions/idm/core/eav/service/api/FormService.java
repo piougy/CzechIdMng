@@ -112,6 +112,14 @@ public interface FormService extends ScriptEnabled {
 	IdmFormAttribute getAttribute(Class<? extends FormableEntity> ownerClass, String attributeName);
 	
 	/**
+	 * Saves given form definition
+	 * 
+	 * @param formDefinition
+	 * @return
+	 */
+	IdmFormDefinition saveDefinition(IdmFormDefinition formDefinition);
+	
+	/**
 	 * Creates form definition
 	 * 
 	 * @see {@link #getDefaultDefinitionType(Class)}

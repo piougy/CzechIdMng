@@ -20,6 +20,7 @@ import org.springframework.util.Assert;
 
 import com.google.common.base.Strings;
 
+import eu.bcvsolutions.idm.core.api.config.domain.RoleConfiguration;
 import eu.bcvsolutions.idm.core.api.repository.filter.FilterManager;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
@@ -28,7 +29,6 @@ import eu.bcvsolutions.idm.core.eav.service.impl.AbstractFormableService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.dto.filter.RoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmForestIndexEntity_;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogueRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogueRole_;
@@ -59,6 +59,7 @@ public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, Role
 	private final EntityEventManager entityEventManager;
 	private final ConfigurationService configurationService;
 	private final FilterManager filterManager;
+	private final RoleConfiguration roleConfiguration;
 	
 	@Autowired
 	public DefaultIdmRoleService(
@@ -66,7 +67,8 @@ public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, Role
 			EntityEventManager entityEventManager,
 			FormService formService,
 			ConfigurationService configurationService,
-			FilterManager filterManager) {
+			FilterManager filterManager,
+			RoleConfiguration roleConfiguration) {
 		super(repository, formService);
 		//
 		Assert.notNull(entityEventManager);
@@ -77,6 +79,7 @@ public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, Role
 		this.entityEventManager = entityEventManager;
 		this.configurationService = configurationService;
 		this.filterManager = filterManager;
+		this.roleConfiguration = roleConfiguration;
 	}
 	
 	@Override
@@ -266,18 +269,33 @@ public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, Role
 	@Override
 	@Transactional(readOnly = true)
 	public IdmRole getDefaultRole() {
-		String roleName = configurationService.getValue(PROPERTY_DEFAULT_ROLE);
-		if (StringUtils.isEmpty(roleName)) {
-			LOG.debug("Default role is not configured. Change configuration [{}].", PROPERTY_DEFAULT_ROLE);
+		UUID roleId = roleConfiguration.getDefaultRoleId();
+		if (roleId == null) {
+			LOG.debug("Default role is not configured. Change configuration [{}].", RoleConfiguration.PROPERTY_DEFAULT_ROLE);
 			return null;
 		}
-		IdmRole defaultRole = getByName(configurationService.getValue(PROPERTY_DEFAULT_ROLE));
+		IdmRole defaultRole = get(roleId);
 		if (defaultRole == null) {
-			LOG.warn("Default role [{}] not found. Change configuration [{}].", roleName, PROPERTY_DEFAULT_ROLE);
+			LOG.warn("Default role [{}] not found. Change configuration [{}].", roleId, RoleConfiguration.PROPERTY_DEFAULT_ROLE);
 		}
 		return defaultRole;
 	}
 
+	@Override
+	@Transactional(readOnly = true)
+	public IdmRole getAdminRole() {
+		UUID roleId = roleConfiguration.getAdminRoleId();
+		if (roleId == null) {
+			LOG.debug("Admin role is not configured. Change configuration [{}].", RoleConfiguration.PROPERTY_ADMIN_ROLE);
+			return null;
+		}
+		IdmRole adminRole = get(roleId);
+		if (adminRole == null) {
+			LOG.warn("Admin role [{}] not found. Change configuration [{}].", roleId, RoleConfiguration.PROPERTY_ADMIN_ROLE);
+		}
+		return adminRole;
+	}
+	
 	@Override
 	public List<IdmRole> getSubroles(UUID roleId) {
 		Assert.notNull(roleId);

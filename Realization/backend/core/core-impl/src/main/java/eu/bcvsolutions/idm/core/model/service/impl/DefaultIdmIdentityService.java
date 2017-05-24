@@ -22,6 +22,7 @@ import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
 
+import eu.bcvsolutions.idm.core.api.config.domain.RoleConfiguration;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdentityFilter;
@@ -50,14 +51,16 @@ import eu.bcvsolutions.idm.core.model.event.processor.identity.IdentityPasswordP
 import eu.bcvsolutions.idm.core.model.event.processor.identity.IdentitySaveProcessor;
 import eu.bcvsolutions.idm.core.model.repository.IdmAuthorityChangeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
-import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
 /**
  * Operations with IdmIdentity
  * - supports {@link IdentityEvent}
+ * 
+ * TODO: role dto
  * 
  * @author Radek Tomiška
  *
@@ -70,29 +73,33 @@ public class DefaultIdmIdentityService
 
 	private final FormService formService;
 	private final IdmIdentityRepository repository;
-	private final IdmRoleRepository roleRepository;
+	private final IdmRoleService roleService;
 	private final IdmAuthorityChangeRepository authChangeRepository;
 	private final EntityEventManager entityEventManager;
+	private final RoleConfiguration roleConfiguration; 
 	
 	@Autowired
 	public DefaultIdmIdentityService(
 			IdmIdentityRepository repository,
 			FormService formService,
-			IdmRoleRepository roleRepository,
+			IdmRoleService roleService,
 			EntityEventManager entityEventManager,
-			IdmAuthorityChangeRepository authChangeRepository) {
+			IdmAuthorityChangeRepository authChangeRepository,
+			RoleConfiguration roleConfiguration) {
 		super(repository);
 		//
 		Assert.notNull(formService);
-		Assert.notNull(roleRepository);
+		Assert.notNull(roleService);
 		Assert.notNull(entityEventManager);
 		Assert.notNull(authChangeRepository);
+		Assert.notNull(roleConfiguration);
 		//
 		this.formService = formService;
 		this.repository = repository;
-		this.roleRepository = roleRepository;
+		this.roleService = roleService;
 		this.authChangeRepository = authChangeRepository;
 		this.entityEventManager = entityEventManager;
+		this.roleConfiguration = roleConfiguration;
 	}
 	
 	@Override
@@ -311,7 +318,7 @@ public class DefaultIdmIdentityService
 	@Override
 	@Transactional(readOnly = true)
 	public List<IdmIdentityDto> findAllByRoleName(String roleName) {
-		IdmRole role = roleRepository.findOneByName(roleName);
+		IdmRole role = roleService.getByCode(roleName);
 		if(role == null){
 			return new ArrayList<>();
 		}
@@ -373,13 +380,13 @@ public class DefaultIdmIdentityService
 			return results;
 		}
 		// return all identities with admin role
-		return this.findAllByRole(this.getAdminRole().getId());
+		return this.findAllByRole(roleConfiguration.getAdminRoleId());
 	}
 	
 	@Override
 	@Transactional(readOnly = true)
 	public List<IdmIdentityDto> findAllGuaranteesByRoleId(UUID roleId) {
-		IdmRole role = roleRepository.findOne(roleId);
+		IdmRole role = roleService.get(roleId);
 		Assert.notNull(role, "Role is required. Role by name [" + roleId + "] not found.");
 		return role.getGuarantees()
 				.stream()
@@ -416,15 +423,6 @@ public class DefaultIdmIdentityService
 				.stream()
 				.map(IdmIdentityDto::getUsername)
 				.collect(Collectors.joining(","));
-	}
-	
-	/**
-	 * TODO: move to configuration service
-	 * 
-	 * @return
-	 */
-	private IdmRole getAdminRole() {
-		return this.roleRepository.findOneByName(IdmRoleRepository.ADMIN_ROLE);
 	}
 
 	/**

@@ -97,7 +97,7 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 		// eav
 		IdmFormDefinition formDefinition = formService.getDefinition(IdmIdentity.class);
 		AbstractFormValue value1 = new IdmIdentityFormValue(
-				formDefinition.getMappedAttributeByName(InitDemoData.FORM_ATTRIBUTE_PASSWORD));
+				formDefinition.getMappedAttributeByCode(InitDemoData.FORM_ATTRIBUTE_PASSWORD));
 		value1.setValue("one");
 		formService.saveValues(identityRepository.findOne(identity.getId()), formDefinition, Lists.newArrayList(value1));
 		// role guarantee

@@ -149,6 +149,12 @@ public class DefaultFormService implements FormService {
 	
 	@Override
 	@Transactional
+	public IdmFormDefinition saveDefinition(IdmFormDefinition formDefinition) {
+		return formDefinitionService.save(formDefinition);
+	}
+	
+	@Override
+	@Transactional
 	public IdmFormDefinition createDefinition(String type, String code, List<IdmFormAttribute> formAttributes) {
 		Assert.hasLength(type);
 		//
@@ -289,13 +295,13 @@ public class DefaultFormService implements FormService {
 	@Override
 	@Transactional
 	public <O extends FormableEntity, E extends AbstractFormValue<O>> List<E> saveValues(
-			O owner, IdmFormDefinition formDefinition, String attributeName, List<Serializable> persistentValues) {
+			O owner, IdmFormDefinition formDefinition, String attributeCode, List<Serializable> persistentValues) {
 		Assert.notNull(owner, "Form values owner is required!");
 		Assert.notNull(owner.getId(), "Owner id is required!");
-		Assert.hasLength(attributeName, "Form attribute definition name is required!");
+		Assert.hasLength(attributeCode, "Form attribute code is required!");
 		formDefinition = checkDefaultDefinition(owner.getClass(), formDefinition);
 		//
-		return saveValues(owner, formDefinition.getMappedAttributeByName(attributeName), persistentValues);
+		return saveValues(owner, formDefinition.getMappedAttributeByCode(attributeCode), persistentValues);
 	}
 	
 	@Override
@@ -397,13 +403,13 @@ public class DefaultFormService implements FormService {
 	
 	@Override
 	@Transactional(readOnly = true)
-	public <O extends FormableEntity> List<AbstractFormValue<O>> getValues(O owner, IdmFormDefinition formDefinition, String attributeName) {
+	public <O extends FormableEntity> List<AbstractFormValue<O>> getValues(O owner, IdmFormDefinition formDefinition, String attributeCode) {
 		Assert.notNull(owner, "Form values owner is required!");
 		Assert.notNull(owner.getId(), "Owner id is required!");
-		Assert.hasLength(attributeName, "Attribute name is required");
+		Assert.hasLength(attributeCode, "Attribute code is required");
 		formDefinition = checkDefaultDefinition(owner.getClass(), formDefinition);
 		//
-		return getValues(owner, formDefinition.getMappedAttributeByName(attributeName));
+		return getValues(owner, formDefinition.getMappedAttributeByCode(attributeCode));
 	}
 	
 	@Override

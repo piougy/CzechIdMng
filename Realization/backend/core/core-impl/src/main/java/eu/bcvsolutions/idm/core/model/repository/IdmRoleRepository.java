@@ -31,8 +31,6 @@ import eu.bcvsolutions.idm.core.rest.projection.IdmRoleExcerpt;
 		exported = false)
 public interface IdmRoleRepository extends AbstractEntityRepository<IdmRole, RoleFilter> {
 	
-	public static final String ADMIN_ROLE = "superAdminRole"; // TODO: move to configurationService
-	
 	/**
 	 * @deprecated use IdmRoleService (uses criteria api)
 	 */

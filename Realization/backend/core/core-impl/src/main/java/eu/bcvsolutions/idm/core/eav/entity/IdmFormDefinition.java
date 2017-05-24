@@ -181,14 +181,26 @@ public class IdmFormDefinition extends AbstractEntity implements UnmodifiableEnt
 	/**
 	 * Returns attribute definition by name
 	 *
-	 * @param attributeName
+	 * @param attributeCode
+	 * @return
+	 * @deprecated use {@link #getMappedAttributeByCode(String)}
+	 */
+	@Deprecated
+	public IdmFormAttribute getMappedAttributeByName(String attributeCode) {
+		return getMappedAttributeByCode(attributeCode);
+	}
+	
+	/**
+	 * Returns attribute definition by code
+	 *
+	 * @param attributeCode
 	 * @return
 	 */
-	public IdmFormAttribute getMappedAttributeByName(String attributeName) {
-		if (!getMappedNames().containsKey(attributeName)) {
+	public IdmFormAttribute getMappedAttributeByCode(String attributeCode) {
+		if (!getMappedNames().containsKey(attributeCode)) {
 			return null;
 		}
-		return getMappedAttributes().get(getMappedNames().get(attributeName));
+		return getMappedAttributes().get(getMappedNames().get(attributeCode));
 	}
 
 	@Override

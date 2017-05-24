@@ -15,6 +15,7 @@ import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
 import eu.bcvsolutions.idm.core.security.domain.GroovySandboxFilter;
@@ -63,8 +64,10 @@ public class DefaultGroovyScriptService implements GroovyScriptService {
 			}
 
 			return shell.evaluate(script);
-		} catch (SecurityException ex) {
+		} catch (SecurityException | IdmSecurityException ex) {
 			throw new IdmSecurityException(CoreResultCode.GROOVY_SCRIPT_SECURITY_VALIDATION, ImmutableMap.of("message", ex.getLocalizedMessage()), ex);
+		} catch (Exception e) {
+			throw new ResultCodeException(CoreResultCode.GROOVY_SCRIPT_EXCEPTION, ImmutableMap.of("message", e.getLocalizedMessage()), e);
 		} finally {
 			// if this script is called from another script, remove only allowed classes from them
 			// otherwise unregister all filter.

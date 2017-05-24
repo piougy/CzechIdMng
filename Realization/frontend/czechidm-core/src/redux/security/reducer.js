@@ -20,6 +20,11 @@ const INITIAL_STATE = {
   }
 };
 
+/**
+ * Security context storage
+ *
+ * @author Radek Tomiška
+ */
 export function security(state = INITIAL_STATE, action) {
   switch (action.type) {
     case REQUEST_LOGIN: {

@@ -5,12 +5,12 @@ import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordValidationDto;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordPolicyService;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
@@ -23,7 +23,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
  */
 @Component
 @Description("Validates identity's password before identity is created.")
-public class IdentityCreatePasswordValidateProcessor extends CoreEventProcessor<IdmIdentity>{
+public class IdentityCreatePasswordValidateProcessor extends CoreEventProcessor<IdmIdentityDto >{
 	
 	public static final String PROCESSOR_NAME = "identity-create-validate-password-processor";
 	private final IdmPasswordPolicyService passwordPolicyService;
@@ -44,9 +44,9 @@ public class IdentityCreatePasswordValidateProcessor extends CoreEventProcessor<
 	}
 	
 	@Override
-	public EventResult<IdmIdentity> process(EntityEvent<IdmIdentity> event) {
+	public EventResult<IdmIdentityDto> process(EntityEvent<IdmIdentityDto> event) {
 		GuardedString password = event.getContent().getPassword();
-		IdmIdentity identity = event.getContent();
+		IdmIdentityDto identity = event.getContent();
 		
 		// when create identity password can be null
 		if (password != null) {

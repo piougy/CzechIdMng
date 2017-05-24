@@ -201,7 +201,7 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 		assertNotNull(formDefinition);
 		assertEquals(IdmFormDefinitionService.DEFAULT_DEFINITION_CODE, formDefinition.getCode());
 		assertEquals(IdmFormDefinitionService.DEFAULT_DEFINITION_CODE, formDefinition.getName());
-		assertEquals(PersistentType.TEXT, formDefinition.getMappedAttributeByName(InitDemoData.FORM_ATTRIBUTE_PHONE).getPersistentType());
+		assertEquals(PersistentType.TEXT, formDefinition.getMappedAttributeByCode(InitDemoData.FORM_ATTRIBUTE_PHONE).getPersistentType());
 	}
 	
 	@Test(expected = IllegalArgumentException.class)
@@ -224,7 +224,7 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 		FormableEntity owner = createTestOwner("test4");
 		IdmFormDefinition formDefinition = formService.getDefinition(IdmIdentity.class);
 		// save value into default owner and default form definition
-		AbstractFormValue value1 = new IdmIdentityFormValue(formDefinition.getMappedAttributeByName(InitDemoData.FORM_ATTRIBUTE_PHONE));
+		AbstractFormValue value1 = new IdmIdentityFormValue(formDefinition.getMappedAttributeByCode(InitDemoData.FORM_ATTRIBUTE_PHONE));
 		value1.setValue(FORM_VALUE_ONE);		
 		
 		formService.saveValues(owner, formDefinition, Lists.newArrayList(value1));
@@ -242,9 +242,9 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 		FormableEntity owner = createTestOwner("test5");
 		IdmFormDefinition formDefinition = formService.getDefinition(IdmIdentity.class);
 		// save value into default owner and default form definition
-		AbstractFormValue value1 = new IdmIdentityFormValue(formDefinition.getMappedAttributeByName(InitDemoData.FORM_ATTRIBUTE_WWW));
+		AbstractFormValue value1 = new IdmIdentityFormValue(formDefinition.getMappedAttributeByCode(InitDemoData.FORM_ATTRIBUTE_WWW));
 		value1.setValue(FORM_VALUE_ONE);
-		AbstractFormValue value2 = new IdmIdentityFormValue(formDefinition.getMappedAttributeByName(InitDemoData.FORM_ATTRIBUTE_WWW));
+		AbstractFormValue value2 = new IdmIdentityFormValue(formDefinition.getMappedAttributeByCode(InitDemoData.FORM_ATTRIBUTE_WWW));
 		value2.setValue(FORM_VALUE_TWO);
 		
 		formService.saveValues(owner, formDefinition, Lists.newArrayList(value1, value2));
@@ -262,7 +262,7 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 		FormableEntity owner = createTestOwner("test6");
 		IdmFormDefinition formDefinition = formService.getDefinition(IdmIdentity.class);
 		// save password
-		AbstractFormValue value1 = new IdmIdentityFormValue(formDefinition.getMappedAttributeByName(InitDemoData.FORM_ATTRIBUTE_PASSWORD));
+		AbstractFormValue value1 = new IdmIdentityFormValue(formDefinition.getMappedAttributeByCode(InitDemoData.FORM_ATTRIBUTE_PASSWORD));
 		value1.setValue(FORM_VALUE_ONE);
 		
 		formService.saveValues(owner, formDefinition, Lists.newArrayList(value1));
@@ -281,7 +281,7 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 		IdmFormDefinition formDefinition = formService.getDefinition(IdmIdentity.class);
 		
 		// save password
-		AbstractFormValue value1 = new IdmIdentityFormValue(formDefinition.getMappedAttributeByName(InitDemoData.FORM_ATTRIBUTE_PASSWORD));
+		AbstractFormValue value1 = new IdmIdentityFormValue(formDefinition.getMappedAttributeByCode(InitDemoData.FORM_ATTRIBUTE_PASSWORD));
 		value1.setValue(FORM_VALUE_ONE);
 		
 		formService.saveValues(owner, formDefinition, Lists.newArrayList(value1));
@@ -298,7 +298,7 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 	public void testSaveSingleAttributeValues() {
 		FormableEntity owner = createTestOwner("test8");
 		IdmFormDefinition formDefinition = formService.getDefinition(IdmIdentity.class);
-		IdmFormAttribute attribute = formDefinition.getMappedAttributeByName(InitDemoData.FORM_ATTRIBUTE_PHONE);
+		IdmFormAttribute attribute = formDefinition.getMappedAttributeByCode(InitDemoData.FORM_ATTRIBUTE_PHONE);
 		// save value
 		List<AbstractFormValue<FormableEntity>> attributeValues = formService.saveValues(owner, attribute, Lists.newArrayList(FORM_VALUE_ONE));
 		
@@ -317,7 +317,7 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 	public void testSaveMultipleAttributeValuesToSingleAttribute() {
 		FormableEntity owner = createTestOwner("test9");
 		IdmFormDefinition formDefinition = formService.getDefinition(IdmIdentity.class);
-		IdmFormAttribute attribute = formDefinition.getMappedAttributeByName(InitDemoData.FORM_ATTRIBUTE_PHONE);
+		IdmFormAttribute attribute = formDefinition.getMappedAttributeByCode(InitDemoData.FORM_ATTRIBUTE_PHONE);
 		// save value
 		formService.saveValues(owner, attribute, Lists.newArrayList(FORM_VALUE_ONE, FORM_VALUE_TWO));
 		//
@@ -328,8 +328,8 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 	public void testDeleteSingleAttributeValues() {
 		FormableEntity owner = createTestOwner("test10");
 		IdmFormDefinition formDefinition = formService.getDefinition(IdmIdentity.class);
-		IdmFormAttribute attribute = formDefinition.getMappedAttributeByName(InitDemoData.FORM_ATTRIBUTE_PHONE);
-		IdmFormAttribute attributeWWW = formDefinition.getMappedAttributeByName(InitDemoData.FORM_ATTRIBUTE_WWW);
+		IdmFormAttribute attribute = formDefinition.getMappedAttributeByCode(InitDemoData.FORM_ATTRIBUTE_PHONE);
+		IdmFormAttribute attributeWWW = formDefinition.getMappedAttributeByCode(InitDemoData.FORM_ATTRIBUTE_WWW);
 		// save value
 		formService.saveValues(owner, attribute, Lists.newArrayList(FORM_VALUE_ONE));
 		formService.saveValues(owner, attributeWWW, Lists.newArrayList(FORM_VALUE_ONE, FORM_VALUE_TWO));
@@ -377,7 +377,7 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 		FormableEntity ownerTwo = createTestOwner("test13");
 		FormableEntity ownerThree = createTestOwner("test14");
 		IdmFormDefinition formDefinition = formService.getDefinition(owner.getClass());
-		IdmFormAttribute attribute = formDefinition.getMappedAttributeByName(InitDemoData.FORM_ATTRIBUTE_WWW);
+		IdmFormAttribute attribute = formDefinition.getMappedAttributeByCode(InitDemoData.FORM_ATTRIBUTE_WWW);
 		// save values
 		formService.saveValues(owner, attribute, Lists.newArrayList(FORM_VALUE_ONE, FORM_VALUE_TWO));
 		formService.saveValues(ownerTwo, attribute, Lists.newArrayList(FORM_VALUE_THREE, FORM_VALUE_TWO));
@@ -405,7 +405,7 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 		IdmIdentityDto ownerTwo = helper.createIdentity();
 		IdmIdentityDto ownerThree = helper.createIdentity();
 		IdmFormDefinition formDefinition = formService.getDefinition(IdmIdentity.class);
-		IdmFormAttribute attribute = formDefinition.getMappedAttributeByName(InitDemoData.FORM_ATTRIBUTE_PHONE);
+		IdmFormAttribute attribute = formDefinition.getMappedAttributeByCode(InitDemoData.FORM_ATTRIBUTE_PHONE);
 		// save values
 		formService.saveValues(owner.getId(), IdmIdentity.class, attribute, Lists.newArrayList(FORM_VALUE_ONE));
 		formService.saveValues(ownerTwo.getId(), IdmIdentity.class, attribute, Lists.newArrayList(FORM_VALUE_TWO));
@@ -450,7 +450,7 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 		FormableEntity ownerTwo = createTestOwner("test16");
 		
 		IdmFormDefinition formDefinition = formService.getDefinition(owner.getClass());
-		IdmFormAttribute attribute = formDefinition.getMappedAttributeByName(InitDemoData.FORM_ATTRIBUTE_DATETIME);
+		IdmFormAttribute attribute = formDefinition.getMappedAttributeByCode(InitDemoData.FORM_ATTRIBUTE_DATETIME);
 		// save values
 		DateTime now = new DateTime();
 		DateTime tomorrow =  now.plusDays(1);
@@ -545,7 +545,7 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 	public void testSaveValuesByOwnerId() {
 		FormableEntity owner = createTestOwner("test8");
 		IdmFormDefinition formDefinition = formService.getDefinition(IdmIdentity.class);
-		IdmFormAttribute attribute = formDefinition.getMappedAttributeByName(InitDemoData.FORM_ATTRIBUTE_PHONE);
+		IdmFormAttribute attribute = formDefinition.getMappedAttributeByCode(InitDemoData.FORM_ATTRIBUTE_PHONE);
 		// save value
 		List<AbstractFormValue> attributeValues = formService.saveValues(
 				(UUID) owner.getId(), owner.getClass(), attribute, Lists.newArrayList(FORM_VALUE_ONE));

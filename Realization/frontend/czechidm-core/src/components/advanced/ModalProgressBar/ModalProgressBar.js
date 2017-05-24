@@ -3,6 +3,11 @@ import React, { PropTypes } from 'react';
 import * as Basic from '../../basic';
 import ProgressBar from '../ProgressBar/ProgressBar';
 
+/**
+ * Progressbar in modal window
+ *
+ * @author Radek Tomiška
+ */
 export default class ModalProgressBar extends Basic.AbstractContextComponent {
 
   render() {

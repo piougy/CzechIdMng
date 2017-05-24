@@ -22,7 +22,7 @@ import org.springframework.core.annotation.Order;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.config.domain.EntityToUuidConverter;
-import eu.bcvsolutions.idm.core.config.domain.UiidToUuidConverter;
+import eu.bcvsolutions.idm.core.config.domain.UuidToUuidConverter;
 import eu.bcvsolutions.idm.core.config.domain.UuidToEntityConverter;
 
 /**
@@ -60,7 +60,7 @@ public class ModelMapperConfig {
 		// modifierId), but with same value as first field, then mapper will be
 		// set converted value from first field (applicant) to second field (IdmIdentity to UUID) ->
 		// Class cast exception will be throw.
-		Converter<UUID, UUID> uuidToUiid = new UiidToUuidConverter();
+		Converter<UUID, UUID> uuidToUiid = new UuidToUuidConverter();
 		modeler.createTypeMap(UUID.class, UUID.class).setConverter(uuidToUiid);
 
 		// Condition for property ... if is property list and dto is trimmed,

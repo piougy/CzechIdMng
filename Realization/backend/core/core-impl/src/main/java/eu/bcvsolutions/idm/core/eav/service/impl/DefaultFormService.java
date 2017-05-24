@@ -123,7 +123,7 @@ public class DefaultFormService implements FormService {
 		if (formDefinition == null) {
 			// values from default form definition
 			formDefinition = getDefinition(ownerClass);
-			Assert.notNull(formDefinition, MessageFormat.format("Default form definition for ownerClass [{0}] not found and is required, fix appliaction configuration!", ownerClass));
+			Assert.notNull(formDefinition, MessageFormat.format("Default form definition for ownerClass [{0}] not found and is required, fix application configuration!", ownerClass));
 		}
 		return formDefinition;
 	}
@@ -145,6 +145,12 @@ public class DefaultFormService implements FormService {
 		Assert.notNull(mainDefinition, "Main definition is required!");
 		//
 		return formAttributeService.findAttribute(getDefaultDefinitionType(ownerClass), mainDefinition.getCode(), attributeCode);
+	}
+	
+	@Override
+	@Transactional
+	public IdmFormDefinition saveDefinition(IdmFormDefinition formDefinition) {
+		return formDefinitionService.save(formDefinition);
 	}
 	
 	@Override
@@ -275,7 +281,13 @@ public class DefaultFormService implements FormService {
 		//
 		// publish event - eav was saved
 		// TODO: this whole method could be moved to processor (=> could be overriden in some module)
-		entityEventManager.process(new CoreEvent<O>(CoreEventType.EAV_SAVE, owner)); 
+		if(lookupService.getDtoLookup(owner.getClass()) == null) {
+			// TODO: remove this branch after all agends will be rewritten to dto usage
+			entityEventManager.process(new CoreEvent<O>(CoreEventType.EAV_SAVE, owner));
+		} else {
+			// dto
+			entityEventManager.process(new CoreEvent<>(CoreEventType.EAV_SAVE, lookupService.lookupDto(owner.getClass(), owner.getId()))); 
+		}
 		return results;
 	}
 	
@@ -289,13 +301,13 @@ public class DefaultFormService implements FormService {
 	@Override
 	@Transactional
 	public <O extends FormableEntity, E extends AbstractFormValue<O>> List<E> saveValues(
-			O owner, IdmFormDefinition formDefinition, String attributeName, List<Serializable> persistentValues) {
+			O owner, IdmFormDefinition formDefinition, String attributeCode, List<Serializable> persistentValues) {
 		Assert.notNull(owner, "Form values owner is required!");
 		Assert.notNull(owner.getId(), "Owner id is required!");
-		Assert.hasLength(attributeName, "Form attribute definition name is required!");
+		Assert.hasLength(attributeCode, "Form attribute code is required!");
 		formDefinition = checkDefaultDefinition(owner.getClass(), formDefinition);
 		//
-		return saveValues(owner, formDefinition.getMappedAttributeByName(attributeName), persistentValues);
+		return saveValues(owner, formDefinition.getMappedAttributeByCode(attributeCode), persistentValues);
 	}
 	
 	@Override
@@ -397,13 +409,13 @@ public class DefaultFormService implements FormService {
 	
 	@Override
 	@Transactional(readOnly = true)
-	public <O extends FormableEntity> List<AbstractFormValue<O>> getValues(O owner, IdmFormDefinition formDefinition, String attributeName) {
+	public <O extends FormableEntity> List<AbstractFormValue<O>> getValues(O owner, IdmFormDefinition formDefinition, String attributeCode) {
 		Assert.notNull(owner, "Form values owner is required!");
 		Assert.notNull(owner.getId(), "Owner id is required!");
-		Assert.hasLength(attributeName, "Attribute name is required");
+		Assert.hasLength(attributeCode, "Attribute code is required");
 		formDefinition = checkDefaultDefinition(owner.getClass(), formDefinition);
 		//
-		return getValues(owner, formDefinition.getMappedAttributeByName(attributeName));
+		return getValues(owner, formDefinition.getMappedAttributeByCode(attributeCode));
 	}
 	
 	@Override

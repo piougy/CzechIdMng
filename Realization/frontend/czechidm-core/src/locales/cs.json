@@ -2612,6 +2612,14 @@
       "title": "Změna hesla nepoběhla",
       "message": "{{0}}"
     },
+    "PASSWORD_CHANGE_DISABLED": {
+      "title": "Změna hesla nepoběhla",
+      "message": "Změna hesla není povolena"
+    },
+    "PASSWORD_CHANGE_ALL_ONLY": {
+      "title": "Změna hesla nepoběhla",
+      "message": "Změna hesla je možná pouze pro všechny účty najednou."
+    },
     "PASSWORD_DOES_NOT_MEET_POLICY": {
       "title": "Nové heslo nevyhovuje politikám hesel",
       "message": "{{0}}"

@@ -227,9 +227,16 @@ public class DefaultIdmIdentityContractService
 	public Page<IdmIdentityContractDto> findExpiredContracts(LocalDate expiration, Pageable pageable) {
 		return toDtoPage(repository.findExpiredContracts(expiration, pageable));
 	}
+	
+	
+	@Override
+	@Deprecated
+	public IdmIdentityContractDto prepareDefaultContract(UUID identityId) {
+		return prepareMainContract(identityId);
+	}
 
 	@Override
-	public IdmIdentityContractDto prepareDefaultContract(UUID identityId) {
+	public IdmIdentityContractDto prepareMainContract(UUID identityId) {
 		Assert.notNull(identityId);
 		//
 		// set identity

@@ -93,7 +93,7 @@ class EavContent extends Basic.AbstractContent {
           <form className="abstract-form" onSubmit={ this.save.bind(this, _formInstance.getDefinition().code) }>
             <Basic.Panel className={
                 classnames({
-                  'last': ++index === _formInstances.size
+                  last: ++index === _formInstances.size
                 })
               }>
 
@@ -109,7 +109,7 @@ class EavContent extends Basic.AbstractContent {
                   readOnly={ !showSaveButton }/>
               </Basic.PanelBody>
 
-              <Basic.PanelFooter rendered={ showSaveButton }>
+              <Basic.PanelFooter rendered={ showSaveButton && _formInstance.getAttributes().size > 0 }>
                 <Basic.Button
                   type="submit"
                   level="success"

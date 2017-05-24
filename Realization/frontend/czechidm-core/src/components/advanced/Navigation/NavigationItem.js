@@ -6,6 +6,8 @@ import * as Basic from '../../basic';
 
 /**
  * Single navigation item
+ *
+ * @author Radek Tomiška
  */
 export default class NavigationItem extends Basic.AbstractContextComponent {
 

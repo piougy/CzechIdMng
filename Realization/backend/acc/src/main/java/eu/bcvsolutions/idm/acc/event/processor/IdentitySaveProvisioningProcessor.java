@@ -9,38 +9,43 @@ import org.springframework.util.Assert;
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.event.ProvisioningEvent;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
+import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 
 /**
- * Executes provisioing after identity entity is saved
+ * Run provisioning after identity was saved.
  * 
  * @author Radek Tomiška
- * @deprecated Will be removed after EAV will be refactored to dto
+ *
  */
-@Deprecated
-@Component("accIdentityEntitySaveProcessor")
+@Component("accIdentitySaveProcessor")
 @Enabled(AccModuleDescriptor.MODULE_ID)
-@Description("Executes provisioing after identity entity is saved (deprecated).")
-public class IdentityEntitySaveProcessor extends AbstractEntityEventProcessor<IdmIdentity> {
+@Description("Executes provisioing after identity is saved.")
+public class IdentitySaveProvisioningProcessor extends AbstractEntityEventProcessor<IdmIdentityDto> {
 
 	public static final String PROCESSOR_NAME = "identity-save-processor";
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdentityEntitySaveProcessor.class);
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdentitySaveProvisioningProcessor.class);
 	private ProvisioningService provisioningService;
+	private final IdmIdentityRepository identityRepository;
 	private final ApplicationContext applicationContext;
 	
 	@Autowired
-	public IdentityEntitySaveProcessor(ApplicationContext applicationContext) {
-		super(CoreEventType.EAV_SAVE);
+	public IdentitySaveProvisioningProcessor(ApplicationContext applicationContext, IdmIdentityRepository identityRepository) {
+		super(IdentityEventType.CREATE, IdentityEventType.UPDATE, CoreEventType.EAV_SAVE);
 		//
 		Assert.notNull(applicationContext);
+		Assert.notNull(identityRepository);
 		//
 		this.applicationContext = applicationContext;
+		this.identityRepository = identityRepository;
 	}
 	
 	@Override
@@ -49,8 +54,8 @@ public class IdentityEntitySaveProcessor extends AbstractEntityEventProcessor<Id
 	}
 
 	@Override
-	public EventResult<IdmIdentity> process(EntityEvent<IdmIdentity> event) {
-		doProvisioning(event.getContent());
+	public EventResult<IdmIdentityDto> process(EntityEvent<IdmIdentityDto> event) {
+		doProvisioning(identityRepository.findOne(event.getContent().getId()));
 		return new DefaultEventResult<>(event, this);
 	}
 	

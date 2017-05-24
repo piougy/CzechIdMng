@@ -4,15 +4,12 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.GenericTypeResolver;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.Lists;
+
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
-import eu.bcvsolutions.idm.core.model.entity.IdmConfiguration;
-import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationLogDto;
@@ -42,11 +39,6 @@ public abstract class AbstractNotificationSender<N extends IdmNotificationDto> i
 	@Autowired
 	private IdmNotificationTemplateService notificationTemplateService;
 	
-	@Autowired(required = false)
-	@Deprecated // will be removed after recipient refactoring
-	private IdmIdentityService identityService;
-	
-	@SuppressWarnings("unchecked")
 	public AbstractNotificationSender() {
 	}
 	
@@ -84,7 +76,6 @@ public abstract class AbstractNotificationSender<N extends IdmNotificationDto> i
 	@Transactional
 	public N send(String topic, IdmMessageDto message) {
 		Assert.notNull(securityService, "Security service is required for this operation");
-		Assert.notNull(identityService, "Identity service is required for this operation");
 		//
 		IdmIdentityDto currentIdentityDto = securityService.getAuthentication().getCurrentIdentity();	
 		if (currentIdentityDto == null || currentIdentityDto.getId() == null) {

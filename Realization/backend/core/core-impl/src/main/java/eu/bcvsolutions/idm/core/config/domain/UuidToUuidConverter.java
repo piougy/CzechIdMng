@@ -13,8 +13,7 @@ import org.modelmapper.spi.MappingContext;
  * @author svandav
  *
  */
-public class UiidToUuidConverter implements Converter<UUID, UUID> {
-
+public class UuidToUuidConverter implements Converter<UUID, UUID> {
 
 	@Override
 	public UUID convert(MappingContext<UUID, UUID> context) {

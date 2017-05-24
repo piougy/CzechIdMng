@@ -56,13 +56,24 @@ public interface IdmIdentityContractService extends
 	Page<IdmIdentityContractDto> findExpiredContracts(LocalDate expiration, Pageable pageable);
 	
 	/**
-	 * Constructs default contract for given identity by configuration.
+	 * Constructs main contract for given identity by configuration.
+	 * 
+	 * @see {@link IdmTreeTypeService#getDefaultTreeType()}
+	 * @param identityId
+	 * @return
+	 * @deprecated see {@link #prepareMainContract(UUID)}
+	 */
+	@Deprecated
+	IdmIdentityContractDto prepareDefaultContract(UUID identityId);	
+	
+	/**
+	 * Constructs main contract for given identity by configuration.
 	 * 
 	 * @see {@link IdmTreeTypeService#getDefaultTreeType()}
 	 * @param identityId
 	 * @return
 	 */
-	IdmIdentityContractDto prepareDefaultContract(UUID identityId);	
+	IdmIdentityContractDto prepareMainContract(UUID identityId);
 	
 	/**
 	 * Returns given identity's prime contract.

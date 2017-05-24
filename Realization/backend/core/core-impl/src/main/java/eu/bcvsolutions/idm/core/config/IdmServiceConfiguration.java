@@ -15,6 +15,7 @@ import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.plugin.core.PluginRegistry;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 
+import eu.bcvsolutions.idm.core.api.config.domain.RoleConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.ModuleDescriptor;
 import eu.bcvsolutions.idm.core.api.repository.filter.FilterBuilder;
 import eu.bcvsolutions.idm.core.api.repository.filter.FilterManager;
@@ -24,6 +25,7 @@ import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
+import eu.bcvsolutions.idm.core.config.domain.DefaultRoleConfiguration;
 import eu.bcvsolutions.idm.core.eav.repository.IdmFormAttributeRepository;
 import eu.bcvsolutions.idm.core.eav.repository.IdmFormDefinitionRepository;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
@@ -291,6 +293,17 @@ public class IdmServiceConfiguration {
 	}
 	
 	/**
+	 * Configuration for role agenda
+	 * 
+	 * @return
+	 */
+	@Bean
+	@ConditionalOnMissingBean(RoleConfiguration.class)
+	public RoleConfiguration roleConfiguration() {
+		return new DefaultRoleConfiguration(lookupService());
+	}
+	
+	/**
 	 * Role service
 	 * 
 	 * @return
@@ -298,7 +311,7 @@ public class IdmServiceConfiguration {
 	@Bean
 	@ConditionalOnMissingBean(IdmRoleService.class)
 	public IdmRoleService roleService() {
-		return new DefaultIdmRoleService(roleRepository, entityEventManager(), formService(), configurationService(), filterManager());
+		return new DefaultIdmRoleService(roleRepository, entityEventManager(), formService(), configurationService(), filterManager(), roleConfiguration());
 	}
 	
 	/**
@@ -347,9 +360,12 @@ public class IdmServiceConfiguration {
 	@ConditionalOnMissingBean(IdmIdentityService.class)
 	public IdmIdentityService identityService() {
 		return new DefaultIdmIdentityService(
-				identityRepository, formService(),
-				roleRepository, entityEventManager(),
-				authChangeRepository);
+				identityRepository, 
+				formService(),
+				roleService(), 
+				entityEventManager(),
+				authChangeRepository,
+				roleConfiguration());
 	}
 	
 	/**

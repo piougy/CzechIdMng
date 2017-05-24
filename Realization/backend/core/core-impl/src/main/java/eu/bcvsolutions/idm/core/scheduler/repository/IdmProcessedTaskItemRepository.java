@@ -25,6 +25,7 @@ public interface IdmProcessedTaskItemRepository
 
 	@Override
 	@Deprecated
+	@Query(value = "select e from #{#entityName} e")
 	default Page<IdmProcessedTaskItem> find(IdmProcessedTaskItemFilter filter, Pageable pageable) {
 		throw new UnsupportedOperationException("Use IdmProcessedTaskItemService (uses criteria api)");
 	}

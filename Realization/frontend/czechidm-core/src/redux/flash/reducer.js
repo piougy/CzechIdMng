@@ -8,6 +8,11 @@ const INITIAL_STATE = {
   messages: new Immutable.OrderedMap({})
 };
 
+/**
+ * Messages storage
+ *
+ * @author Radek Tomiška
+ */
 export function messages(state = INITIAL_STATE, action) {
   switch (action.type) {
     case ADD_MESSAGE: {

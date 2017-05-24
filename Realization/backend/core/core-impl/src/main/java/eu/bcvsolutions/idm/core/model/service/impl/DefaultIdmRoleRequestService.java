@@ -34,11 +34,9 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.ConceptRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.RoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.exception.RoleRequestException;
-import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
@@ -47,6 +45,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRoleRequest;
 import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent;
 import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent.RoleRequestEventType;
 import eu.bcvsolutions.idm.core.model.event.processor.role.RoleRequestApprovalProcessor;
+import eu.bcvsolutions.idm.core.model.repository.IdmRoleRequestRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
@@ -69,6 +68,7 @@ public class DefaultIdmRoleRequestService
 		implements IdmRoleRequestService {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmRoleRequestService.class);
+	private final IdmRoleRequestRepository repository;
 	private final IdmConceptRoleRequestService conceptRoleRequestService;
 	private final IdmIdentityRoleService identityRoleService;
 	private final IdmIdentityService identityService;
@@ -80,7 +80,8 @@ public class DefaultIdmRoleRequestService
 	private IdmRoleRequestService roleRequestService;
 
 	@Autowired
-	public DefaultIdmRoleRequestService(AbstractEntityRepository<IdmRoleRequest, RoleRequestFilter> repository,
+	public DefaultIdmRoleRequestService(
+			IdmRoleRequestRepository repository,
 			IdmConceptRoleRequestService conceptRoleRequestService,
 			IdmIdentityRoleService identityRoleService,
 			IdmIdentityService identityService,
@@ -90,7 +91,7 @@ public class DefaultIdmRoleRequestService
 			WorkflowProcessInstanceService workflowProcessInstanceService,
 			EntityEventManager entityEventManager) {
 		super(repository);
-
+		//
 		Assert.notNull(conceptRoleRequestService, "Concept role request service is required!");
 		Assert.notNull(identityRoleService, "Identity role service is required!");
 		Assert.notNull(identityService, "Identity service is required!");
@@ -99,7 +100,8 @@ public class DefaultIdmRoleRequestService
 		Assert.notNull(applicationContext, "Application context is required!");
 		Assert.notNull(workflowProcessInstanceService, "Workflow process instance service is required!");
 		Assert.notNull(entityEventManager, "Entity event manager is required!");
-
+		//
+		this.repository = repository;
 		this.conceptRoleRequestService = conceptRoleRequestService;
 		this.identityRoleService = identityRoleService;
 		this.identityService = identityService;
@@ -359,9 +361,7 @@ public class DefaultIdmRoleRequestService
 		IdmRoleRequestDto requestDto = super.toDto(entity, dto);
 		// Set concepts to request DTO
 		if (requestDto != null) {
-			ConceptRoleRequestFilter conceptFilter = new ConceptRoleRequestFilter();
-			conceptFilter.setRoleRequestId(requestDto.getId());
-			requestDto.setConceptRoles(conceptRoleRequestService.find(conceptFilter, null).getContent());
+			requestDto.setConceptRoles(conceptRoleRequestService.findAllByRoleRequest(requestDto.getId()));
 		}
 		
 		if(requestDto != null && requestDto.getWfProcessId() != null){
@@ -535,13 +535,8 @@ public class DefaultIdmRoleRequestService
 	private IdmRoleRequestDto validateOnDuplicity(IdmRoleRequestDto request) {
 		List<IdmRoleRequestDto> potentialDuplicatedRequests = new ArrayList<>();
 
-		RoleRequestFilter requestFilter = new RoleRequestFilter();
-		requestFilter.setApplicantId(request.getApplicant());
-		requestFilter.setState(RoleRequestState.IN_PROGRESS);
-		potentialDuplicatedRequests.addAll(this.find(requestFilter, null).getContent());
-
-		requestFilter.setState(RoleRequestState.APPROVED);
-		potentialDuplicatedRequests.addAll(this.find(requestFilter, null).getContent());
+		potentialDuplicatedRequests.addAll(toDtos(repository.findAllByApplicant_IdAndState(request.getApplicant(), RoleRequestState.IN_PROGRESS), false));
+		potentialDuplicatedRequests.addAll(toDtos(repository.findAllByApplicant_IdAndState(request.getApplicant(), RoleRequestState.APPROVED), false));
 
 		Optional<IdmRoleRequestDto> duplicatedRequestOptional = potentialDuplicatedRequests.stream()
 				.filter(requestDuplicate -> {

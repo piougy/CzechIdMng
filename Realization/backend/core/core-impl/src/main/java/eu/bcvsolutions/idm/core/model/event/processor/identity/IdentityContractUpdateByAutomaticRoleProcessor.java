@@ -71,6 +71,10 @@ public class IdentityContractUpdateByAutomaticRoleProcessor extends CoreEventPro
 		// we can't save immediately, request will be saved in method 'checkSavedRequest'
 		//
 		IdmIdentityContract previous = repository.getPersistedIdentityContract(contract.getId());
+		if (previous == null) {
+			// TODO: how to recount roles in on transaction?
+			previous = repository.findOne(contract.getId());
+		}
 		UUID previousPosition = previous.getWorkPosition() == null ? null : previous.getWorkPosition().getId();
 		UUID newPosition = contract.getWorkPosition();
 		//

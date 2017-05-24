@@ -2,6 +2,8 @@ package eu.bcvsolutions.idm.core.model.service.impl;
 
 import java.text.MessageFormat;
 import java.util.Collection;
+import java.util.List;
+import java.util.UUID;
 
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,13 +12,14 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import com.google.common.base.Strings;
+
 import eu.bcvsolutions.idm.core.api.domain.Loggable;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.ConceptRoleRequestFilter;
-import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.model.entity.IdmConceptRoleRequest;
+import eu.bcvsolutions.idm.core.model.repository.IdmConceptRoleRequestRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
@@ -34,18 +37,19 @@ public class DefaultIdmConceptRoleRequestService
 		extends AbstractReadWriteDtoService<IdmConceptRoleRequestDto, IdmConceptRoleRequest, ConceptRoleRequestFilter>
 		implements IdmConceptRoleRequestService {
 
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory
-			.getLogger(DefaultIdmConceptRoleRequestService.class);
-
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmConceptRoleRequestService.class);
+	private final IdmConceptRoleRequestRepository repository;
 	private final WorkflowProcessInstanceService workflowProcessInstanceService;
 
 	@Autowired
 	public DefaultIdmConceptRoleRequestService(
-			AbstractEntityRepository<IdmConceptRoleRequest, ConceptRoleRequestFilter> repository, WorkflowProcessInstanceService workflowProcessInstanceService) {
+			IdmConceptRoleRequestRepository repository, 
+			WorkflowProcessInstanceService workflowProcessInstanceService) {
 		super(repository);
-
+		//
 		Assert.notNull(workflowProcessInstanceService, "Workflow process instance service is required!");
-		
+		//
+		this.repository = repository;
 		this.workflowProcessInstanceService = workflowProcessInstanceService;
 	}
 	
@@ -107,6 +111,12 @@ public class DefaultIdmConceptRoleRequestService
 		}
 			
 		super.delete(dto);
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<IdmConceptRoleRequestDto> findAllByRoleRequest(UUID roleRequestId) {
+		return toDtos(repository.findAllByRoleRequest_Id(roleRequestId), false);
 	}
 
 	@Override

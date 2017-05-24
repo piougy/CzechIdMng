@@ -21,12 +21,9 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
-import eu.bcvsolutions.idm.core.rest.impl.PasswordChangeController;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
@@ -45,12 +42,9 @@ public class RoleTransitiveEvaluatorsIntegrationTest extends AbstractIntegration
 
 	@Autowired private TestHelper helper;
 	@Autowired private IdmIdentityService identityService;
-	@Autowired private IdmIdentityRoleService identityRoleService;
 	@Autowired private IdmRoleService roleService;
 	@Autowired private IdmRoleTreeNodeService roleTreeNodeService;
-	@Autowired private IdmIdentityContractService identityContractService;
 	@Autowired private LoginService loginService;
-	@Autowired private PasswordChangeController passwordChangeController;
 	@Autowired private IdmAuthorizationPolicyService authorizationPolicyService;
 	@Autowired private ConfigurationService configurationService;
 	

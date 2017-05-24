@@ -160,7 +160,7 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 		List<IdmIdentityContractDto> contracts = identityContractService.findAllByIdentity(identity.getId());
 		assertEquals(1, contracts.size());
 		//
-		IdmIdentityContractDto defaultContract = identityContractService.prepareDefaultContract(identity.getId());
+		IdmIdentityContractDto defaultContract = identityContractService.prepareMainContract(identity.getId());
 		assertEquals(defaultContract.getIdentity(), contracts.get(0).getIdentity());
 		assertEquals(defaultContract.getPosition(), contracts.get(0).getPosition());
 		assertEquals(defaultContract.getWorkPosition(), contracts.get(0).getWorkPosition());

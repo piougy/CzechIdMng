@@ -1,8 +1,12 @@
 package eu.bcvsolutions.idm.core.model.repository;
 
+import java.util.List;
+import java.util.UUID;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import eu.bcvsolutions.idm.core.api.dto.filter.ConceptRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
@@ -36,5 +40,13 @@ public interface IdmConceptRoleRequestRepository extends AbstractEntityRepositor
 	        " and" +
 	        " (?#{[0].state} is null or e.state = ?#{[0].state})")
 	Page<IdmConceptRoleRequest> find(ConceptRoleRequestFilter filter, Pageable pageable);
+	
+	/**
+	 * Finds all concepts for this request
+	 * 
+	 * @param roleRequestId
+	 * @return
+	 */
+	List<IdmConceptRoleRequest> findAllByRoleRequest_Id(@Param("roleRequestId") UUID roleRequestId);
 
 }

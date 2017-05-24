@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.acc.event.processor;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
+import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.event.ProvisioningEvent;
@@ -21,6 +22,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
  * 
  * @author Radek Tomiška
  */
+@Component
 @Enabled(AccModuleDescriptor.MODULE_ID)
 @Description("Executes provisioing after identity contract is saved or deleted.")
 public class IdentityContractProvisioningProcessor extends AbstractEntityEventProcessor<IdmIdentityContractDto> {

@@ -185,7 +185,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				role1 = this.roleService.save(role1);
 				// self policy
 				IdmAuthorizationPolicyDto selfPolicy = new IdmAuthorizationPolicyDto();
-				selfPolicy.setPermissions(IdmBasePermission.READ, IdentityBasePermission.PASSWORDCHANGE);
+				selfPolicy.setPermissions(IdmBasePermission.AUTOCOMPLETE, IdmBasePermission.READ, IdentityBasePermission.PASSWORDCHANGE);
 				selfPolicy.setRole(role1.getId());
 				selfPolicy.setGroupPermission(CoreGroupPermission.IDENTITY.getName());
 				selfPolicy.setAuthorizableType(IdmIdentity.class.getCanonicalName());
@@ -215,6 +215,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				authorizationPolicyService.save(contractGuaranteePolicy);
 				// only autocomplete roles that can be requested
 				IdmAuthorizationPolicyDto applyForPolicy = new IdmAuthorizationPolicyDto();
+				applyForPolicy.setPermissions(IdmBasePermission.AUTOCOMPLETE);
 				applyForPolicy.setRole(role1.getId());
 				applyForPolicy.setGroupPermission(CoreGroupPermission.ROLE.getName());
 				applyForPolicy.setAuthorizableType(IdmRole.class.getCanonicalName());

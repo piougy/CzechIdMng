@@ -19,8 +19,8 @@ export default class Notifications extends Basic.AbstractContent {
     return 'content.notifications';
   }
 
-  componentDidMount() {
-    this.selectNavigationItem('notification-notifications');
+  getNavigationKey() {
+    return 'notification-notifications';
   }
 
   render() {

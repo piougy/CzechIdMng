@@ -24,9 +24,7 @@ import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
-import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleRequestService;
@@ -36,6 +34,7 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
  * Automatic roles recount while identity contract is saved, updated or deleted / disabled.
  * 
  * @author Radek Tomiška
+ * @author Ondřej Kopr
  *
  */
 @Component
@@ -44,7 +43,6 @@ public class IdentityContractUpdateByAutomaticRoleProcessor extends CoreEventPro
 	
 	public static final String PROCESSOR_NAME = "identity-contract-update-by-automatic-role-processor";
 	//
-	@Autowired private IdmIdentityContractRepository repository;
 	@Autowired private IdmRoleTreeNodeService roleTreeNodeService;
 	@Autowired private IdmIdentityRoleService identityRoleService;
 	@Autowired private IdmRoleRequestService roleRequestService;
@@ -67,15 +65,10 @@ public class IdentityContractUpdateByAutomaticRoleProcessor extends CoreEventPro
 		IdmRoleRequestDto roleRequest = new IdmRoleRequestDto();
 		roleRequest.setApplicant(contract.getIdentity());
 		roleRequest.setRequestedByType(RoleRequestedByType.AUTOMATICALLY);
-		roleRequest.setExecuteImmediately(true);
-		// we can't save immediately, request will be saved in method 'checkSavedRequest'
+		roleRequest.setExecuteImmediately(true); // we can't save immediately, request will be saved in method 'checkSavedRequest'
 		//
-		IdmIdentityContract previous = repository.getPersistedIdentityContract(contract.getId());
-		if (previous == null) {
-			// TODO: how to recount roles in on transaction?
-			previous = repository.findOne(contract.getId());
-		}
-		UUID previousPosition = previous.getWorkPosition() == null ? null : previous.getWorkPosition().getId();
+		IdmIdentityContractDto previous = event.getOriginalSource();
+		UUID previousPosition = previous.getWorkPosition();
 		UUID newPosition = contract.getWorkPosition();
 		//
 		// check if new and old work position are same
@@ -208,13 +201,15 @@ public class IdentityContractUpdateByAutomaticRoleProcessor extends CoreEventPro
 	 * @param assignedRoles
 	 */
 	private void changeValidable(IdmIdentityContractDto contract, List<IdmIdentityRoleDto> assignedRoles, IdmRoleRequestDto roleRequest) {
-		assignedRoles.stream()
-		.filter(identityRole -> {
-			// automatic roles only
-			return identityRole.getRoleTreeNode() != null;
-		}).forEach(identityRole -> {
-			createConcept(roleRequest, identityRole.getId(), contract, identityRole.getRole(), identityRole.getRoleTreeNode(), ConceptRoleRequestOperation.UPDATE);
-		});
+		assignedRoles
+			.stream()
+			.filter(identityRole -> {
+				// automatic roles only
+				return identityRole.getRoleTreeNode() != null;
+			})
+			.forEach(identityRole -> {
+				createConcept(roleRequest, identityRole.getId(), contract, identityRole.getRole(), identityRole.getRoleTreeNode(), ConceptRoleRequestOperation.UPDATE);
+			});
 	}
 	
 	/**

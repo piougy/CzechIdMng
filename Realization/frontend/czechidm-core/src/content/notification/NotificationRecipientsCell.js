@@ -10,6 +10,9 @@ const recipientManager = new NotificationRecipientManager();
 
 /**
  * Renders cell with notification recipient content
+ *
+ * @author Peter Šourek
+ * @author Radek Tomiška
  */
 class NotificationRecipientsCell extends Basic.AbstractContent {
 
@@ -29,7 +32,7 @@ class NotificationRecipientsCell extends Basic.AbstractContent {
 
     if (_showLoading) {
       return (
-        <Basic.Loading showLoading = {_showLoading} />
+        <Basic.Icon value="refresh" showLoading />
       );
     }
 
@@ -38,15 +41,15 @@ class NotificationRecipientsCell extends Basic.AbstractContent {
     }
 
     return (
-    <span>
-      {
+      <span>
+        {
           _recipients.map(recipient => {
             return (
-            <NotificationRecipient recipient={recipient} identityOnly={identityOnly} />
-          );
+              <NotificationRecipient recipient={recipient} identityOnly={identityOnly} />
+            );
           })
-      }
-    </span>
+        }
+      </span>
   );
   }
 }
@@ -69,4 +72,4 @@ function select(state, component) {
   return result;
 }
 
-export default connect(select, null, null, { withRef: true })(NotificationRecipientsCell);
+export default connect(select)(NotificationRecipientsCell);

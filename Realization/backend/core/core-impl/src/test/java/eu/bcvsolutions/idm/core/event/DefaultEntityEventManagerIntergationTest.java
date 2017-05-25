@@ -14,7 +14,9 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEventPublisher;
 
 import eu.bcvsolutions.idm.InitTestData;
+import eu.bcvsolutions.idm.core.TestHelper;
 import eu.bcvsolutions.idm.core.api.dto.EntityEventProcessorDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.EntityEventProcessorFilter;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
@@ -22,6 +24,9 @@ import eu.bcvsolutions.idm.core.api.event.DefaultEventContext;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventContext;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
+import eu.bcvsolutions.idm.core.model.event.IdentityEvent;
+import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultEntityEventManager;
 import eu.bcvsolutions.idm.core.security.api.service.EnabledEvaluator;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
@@ -34,10 +39,12 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  */
 public class DefaultEntityEventManagerIntergationTest extends AbstractIntegrationTest {
 
+	@Autowired private TestHelper helper;
 	@Autowired private ApplicationContext context;
 	@Autowired private ApplicationEventPublisher publisher;
 	@Autowired private EnabledEvaluator enabledEvaluator;
 	@Autowired private LookupService lookupService;
+	@Autowired private IdmIdentityService identityService;
 	//
 	private DefaultEntityEventManager entityEventManager; 
 	
@@ -127,5 +134,24 @@ public class DefaultEntityEventManagerIntergationTest extends AbstractIntegratio
 		assertEquals(2, context.getResults().size());
 		assertEquals(4, context.getProcessedOrder().intValue());
 		assertEquals("4", context.getLastResult().getEvent().getContent().getText());
+	}
+	
+	@Test 
+	public void testOriginalSource() {
+		IdmIdentityDto createdIdentity = helper.createIdentity();
+		// process change
+		IdmIdentityDto updateIdentity = identityService.get(createdIdentity.getId());
+		updateIdentity.setFirstName("newFirst");
+		updateIdentity.setLastName("newLast");
+		EventContext<IdmIdentityDto> context = entityEventManager.process(new IdentityEvent(IdentityEventType.UPDATE, updateIdentity));
+		IdmIdentityDto originalIdentity = context.getLastResult().getEvent().getOriginalSource();
+		IdmIdentityDto savedIdentity = context.getLastResult().getEvent().getContent();
+		// check
+		assertEquals(createdIdentity.getUsername(), originalIdentity.getUsername());
+		assertEquals(createdIdentity.getFirstName(), originalIdentity.getFirstName());
+		assertEquals(createdIdentity.getLastName(), originalIdentity.getLastName());
+		assertEquals(updateIdentity.getUsername(), savedIdentity.getUsername());
+		assertEquals(updateIdentity.getFirstName(), savedIdentity.getFirstName());
+		assertEquals(updateIdentity.getLastName(), savedIdentity.getLastName());
 	}
 }

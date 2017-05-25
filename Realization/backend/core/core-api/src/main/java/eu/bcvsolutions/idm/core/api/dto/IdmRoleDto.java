@@ -19,6 +19,7 @@ public class IdmRoleDto extends AbstractDto implements Disableable {
 
     private String name;
     private boolean disabled;
+    private boolean canBeRequested;
     private Long version;
     private RoleType roleType;
     private int priority = 0;
@@ -108,4 +109,12 @@ public class IdmRoleDto extends AbstractDto implements Disableable {
     public void setApproveRemove(boolean approveRemove) {
         this.approveRemove = approveRemove;
     }
+    
+    public boolean isCanBeRequested() {
+		return canBeRequested;
+	}
+    
+    public void setCanBeRequested(boolean canBeRequested) {
+		this.canBeRequested = canBeRequested;
+	}
 }

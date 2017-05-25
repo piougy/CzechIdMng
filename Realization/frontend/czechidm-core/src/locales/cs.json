@@ -2050,6 +2050,7 @@
       "subRoles": "Podřazené role",
       "authorities": "Oprávnění",
       "approveRemove": "Schvalovat odebírání rolí",
+      "canBeRequested": "O roli lze žádat",
       "description": "Popis",
       "guarantees": "Garanti role",
       "roleCatalogue": {

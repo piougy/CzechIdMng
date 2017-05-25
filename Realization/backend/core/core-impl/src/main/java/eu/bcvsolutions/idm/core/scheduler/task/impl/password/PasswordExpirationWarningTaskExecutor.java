@@ -56,10 +56,10 @@ public class PasswordExpirationWarningTaskExecutor extends AbstractSchedulableSt
 		super.init(properties);
 		//
 		daysBefore = getParameterConverter().toLong(properties, PARAMETER_DAYS_BEFORE);
-		if (daysBefore == null) {
+		if (daysBefore == null) { // TODO: default or exception? and check values less than zero 
 			daysBefore = DEFAULT_DAYS_BEFORE;
 		}
-		expiration = new LocalDate().plusDays(daysBefore.intValue());
+		expiration = new LocalDate().plusDays(daysBefore.intValue() - 1); // valid till filter <=
 		LOG.debug("Send warning to identities with password expiration less than [{}]", expiration);
 	}
 

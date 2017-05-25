@@ -368,7 +368,7 @@ public class DefaultConfigurationService
 	@Override
 	@Transactional(readOnly = true)
 	public String getInstanceId() {
-		return getValue(ConfigurationService.PROPERTY_APP_INSTANCE_ID, ConfigurationService.DEFAULT_PROPERTY_APP_INSTANCE_ID);
+		return getValue(PROPERTY_APP_INSTANCE_ID, DEFAULT_APP_INSTANCE_ID);
 	}
 	
 	@Override
@@ -402,6 +402,18 @@ public class DefaultConfigurationService
 			return resultUrl;
 		}
 		return String.format("%s/#/%s", resultUrl, path.startsWith("/") ? path.replaceFirst("/", "") : path);
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public String getDateFormat() {
+		return getValue(PROPERTY_APP_DATE_FORMAT, DEFAULT_APP_DATE_FORMAT);
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public String getDateTimeFormat() {
+		return getValue(PROPERTY_APP_DATETIME_FORMAT, DEFAULT_APP_DATETIME_FORMAT);
 	}
 	
 	private static IdmConfigurationDto toConfigurationDto(String key, Object value) {

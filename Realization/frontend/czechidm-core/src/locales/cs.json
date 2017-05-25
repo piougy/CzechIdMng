@@ -2840,6 +2840,14 @@
     "UNMODIFIABLE_ATTRIBUTE_CHANGE": {
       "title": "Atribut {{name}} nelze změnit",
       "message": "Atribut {{name}} v entitě {{class}} nelze změnit."
+    },
+    "PASSWORD_EXPIRATION_TASK_DAYS_BEFORE": {
+      "title": "Úloha je chybně nakonfigurovaná",
+      "message": "Atribut 'days before' je povinný, zadejte celé číslo vetší než nula, zadáno [{{daysBefore}}]."
+    },
+    "PASSWORD_EXPIRED": {
+      "title": "Platnost hesla vypršela",
+      "message": "Zadané heslo již není možné použít pro přístup do aplikace."
     }
   },
   "validationError": {

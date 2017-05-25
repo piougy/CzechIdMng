@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.service;
+package eu.bcvsolutions.idm.core.config;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -17,17 +17,21 @@ import eu.bcvsolutions.idm.core.model.repository.IdmConfigurationRepository;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultConfigurationService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
+/**
+ * Application configuration tests
+ * 
+ * @author Radek Tomiška
+ *
+ */
 public class DefaultConfigurationServiceIntegrationTest extends AbstractIntegrationTest {
 	
 	private static final String TEST_PROPERTY_KEY = "test.property";
 	private static final String TEST_PROPERTY_DB_KEY = "test.db.property";
 	public static final String TEST_GUARDED_PROPERTY_KEY = "idm.sec.core.password.test";
 	private static final String TEST_GUARDED_PROPERTY_VALUE = "secret_password";
-
-	@Autowired
-	private ApplicationContext context;
-	@Autowired
-	private IdmConfigurationRepository configurationRepository;
+	//
+	@Autowired private ApplicationContext context;
+	@Autowired private IdmConfigurationRepository configurationRepository;
 	//
 	private ConfigurationService configurationService;
 	
@@ -89,5 +93,19 @@ public class DefaultConfigurationServiceIntegrationTest extends AbstractIntegrat
 	public void testReadConfidentialPropertyFromDB() {
 		configurationService.saveConfiguration(new IdmConfigurationDto(TEST_GUARDED_PROPERTY_KEY, "secured_change"));
 		assertEquals("secured_change", configurationService.getValue(TEST_GUARDED_PROPERTY_KEY));
+	}
+	
+	@Test
+	public void testGlobalDateFormatChange() {
+		final String format = "dd.MM";
+		configurationService.setValue(ConfigurationService.PROPERTY_APP_DATE_FORMAT, format);
+		assertEquals(format, configurationService.getDateFormat());
+		configurationService.setValue(ConfigurationService.PROPERTY_APP_DATE_FORMAT, ConfigurationService.DEFAULT_APP_DATE_FORMAT);
+		assertEquals(ConfigurationService.DEFAULT_APP_DATE_FORMAT, configurationService.getDateFormat());
+	}
+	
+	@Test
+	public void testDefaultDateTimeFormat() {
+		assertEquals(ConfigurationService.DEFAULT_APP_DATETIME_FORMAT, configurationService.getDateTimeFormat());
 	}
 }

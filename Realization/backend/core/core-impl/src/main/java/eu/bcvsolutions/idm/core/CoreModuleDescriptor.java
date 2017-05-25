@@ -31,7 +31,8 @@ public class CoreModuleDescriptor extends AbstractModuleDescriptor {
 	public static final String TOPIC_RETURN_REQUEST_IDENTITY_ROLES = String.format("%s:returnRequestIdentityRole", MODULE_ID);
 	public static final String TOPIC_WF_TASK_CREATED = String.format("%s:wfTaskCreated", MODULE_ID);
 	public static final String TOPIC_WF_TASK_ASSIGNED = String.format("%s:wfTaskAssigned", MODULE_ID);
-	public static final String TOPIC_PASSWORD_EXPIRATION = String.format("%s:passwordExpiration", MODULE_ID);
+	public static final String TOPIC_PASSWORD_EXPIRATION_WARNING = String.format("%s:passwordExpirationWarning", MODULE_ID);
+	public static final String TOPIC_PASSWORD_EXPIRED = String.format("%s:passwordExpired", MODULE_ID);
 	
 	@Autowired
 	private IdmNotificationTemplateService templateService;
@@ -60,6 +61,8 @@ public class CoreModuleDescriptor extends AbstractModuleDescriptor {
 	
 	@Override
 	public List<NotificationConfigurationDto> getDefaultNotificationConfigurations() {
+		// TODO: this doesn't make good sense now - should be moved to xml at all?
+		//
 		List<NotificationConfigurationDto> configs = new ArrayList<>();
 		//
 		configs.add(new NotificationConfigurationDto(TOPIC_CHANGE_IDENTITY_ROLES, null, IdmEmailLog.NOTIFICATION_TYPE,
@@ -77,8 +80,11 @@ public class CoreModuleDescriptor extends AbstractModuleDescriptor {
 		configs.add(new NotificationConfigurationDto(TOPIC_WF_TASK_CREATED, null, IdmEmailLog.NOTIFICATION_TYPE,
 				"This message contains information about new assigned task to user.", templateService.getTemplateByCode("wfTaskNotificationMessage").getId()));
 		//
-		configs.add(new NotificationConfigurationDto(TOPIC_PASSWORD_EXPIRATION, null, IdmEmailLog.NOTIFICATION_TYPE,
-				"Password expiration warning.", templateService.getTemplateByCode("passwordExpiration").getId()));
+		configs.add(new NotificationConfigurationDto(TOPIC_PASSWORD_EXPIRATION_WARNING, null, IdmEmailLog.NOTIFICATION_TYPE,
+				"Password expiration warning.", templateService.getTemplateByCode("passwordExpirationWarning").getId()));
+		//
+		configs.add(new NotificationConfigurationDto(TOPIC_PASSWORD_EXPIRED, null, IdmEmailLog.NOTIFICATION_TYPE,
+				"Password expired.", templateService.getTemplateByCode("passwordExpired").getId()));
 		//
 		return configs;
 	}

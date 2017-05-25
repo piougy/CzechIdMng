@@ -2805,6 +2805,14 @@
     "UNMODIFIABLE_ATTRIBUTE_CHANGE": {
       "title": "Attribute {{name}} can't change",
       "message": "Attribute {{name}} in entity {{class}} can't change."
+    },
+    "PASSWORD_EXPIRATION_TASK_DAYS_BEFORE": {
+      "title": "Task has invalid configuration",
+      "message": "Attribute 'days before' is required and has to be number greater than zero, given [{{daysBefore}}]."
+    },
+    "PASSWORD_EXPIRED": {
+      "title": "Password expired",
+      "message": "Password couldn't be used for login."
     }
   },
   "validationError": {

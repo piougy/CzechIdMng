@@ -35,6 +35,7 @@ import eu.bcvsolutions.idm.core.scheduler.service.api.IdmProcessedTaskItemServic
  * references to already processed items. 
  * 
  * @author Jan Helbich
+ * @author Radek Tomiška
  *
  * @param <DTO> process DTO type, 
  */
@@ -50,13 +51,8 @@ public abstract class AbstractSchedulableStatefulExecutor<DTO extends AbstractDt
 
 	@Override
 	public Boolean process() {
-		try {
-			this.counter = 0L;
-			executeProcess();
-		} catch (Exception e) {
-			LOG.error("An error occurred in task.", e);
-			return Boolean.FALSE;
-		}
+		this.counter = 0L;
+		executeProcess();
 		return Boolean.TRUE;
 	}
 

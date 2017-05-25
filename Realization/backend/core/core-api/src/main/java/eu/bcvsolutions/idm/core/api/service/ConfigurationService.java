@@ -27,7 +27,15 @@ public interface ConfigurationService {
 	//
 	// instance id - backend server identifier
 	static final String PROPERTY_APP_INSTANCE_ID = IDM_PUBLIC_PROPERTY_PREFIX + "app.instanceId";
-	static final String DEFAULT_PROPERTY_APP_INSTANCE_ID = "main";
+	static final String DEFAULT_APP_INSTANCE_ID = "main";
+	//
+	// date format
+	static final String PROPERTY_APP_DATE_FORMAT = IDM_PUBLIC_PROPERTY_PREFIX + "app.format.date";
+	static final String DEFAULT_APP_DATE_FORMAT = "dd.MM.yyyy";
+	//
+	// datetime format
+	static final String PROPERTY_APP_DATETIME_FORMAT = IDM_PUBLIC_PROPERTY_PREFIX + "app.format.datetime";
+	static final String DEFAULT_APP_DATETIME_FORMAT = "dd.MM.yyyy HH:mm";
 	//
 	// common properties
 	static final String PROPERTY_ORDER = "order";
@@ -194,4 +202,18 @@ public interface ConfigurationService {
 	 * @return
 	 */
 	String getFrontendUrl(String path);
+	
+	/**
+	 * Returns global date format on BE. Used in notification templates, logs, etc.
+	 * 
+	 * @return
+	 */
+	String getDateFormat();
+	
+	/**
+	 * Returns global datetime format on BE. Used in notification templates, logs, etc.
+	 * 
+	 * @return
+	 */
+	String getDateTimeFormat();
 }

@@ -181,7 +181,7 @@ public class DefaultSchedulerManager implements SchedulerManager {
 				throw ex;
 			} catch (Exception ex) {
 				throw new ResultCodeException(CoreResultCode.LONG_RUNNING_TASK_INIT_FAILED, 
-						ImmutableMap.of("taskId", taskId, "taskType", task.getTaskType(), "instanceId", task.getInstanceId()), ex);
+						ImmutableMap.of("taskId", taskId, "taskType", task.getTaskType().getSimpleName(), "instanceId", task.getInstanceId()), ex);
 			}
 			// create job detail - job definition
 			JobDetail jobDetail = JobBuilder.newJob()

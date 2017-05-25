@@ -22,6 +22,7 @@ import eu.bcvsolutions.idm.core.model.event.processor.identity.IdentityNotificat
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationLogDto;
 import eu.bcvsolutions.idm.core.notification.dto.filter.NotificationFilter;
+import eu.bcvsolutions.idm.core.notification.service.api.IdmEmailLogService;
 import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationLogService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
@@ -32,7 +33,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * @author Svanda
  *
  */
-public class IdentityNotifacationProcessorTest extends AbstractIntegrationTest {
+public class IdentityNotificationProcessorTest extends AbstractIntegrationTest {
 	private static final String PROCESSOR_KEY = "idm.sec.core.processor." + IdentityNotificationProcessor.PROCESSOR_NAME
 			+ ".";
 
@@ -40,6 +41,8 @@ public class IdentityNotifacationProcessorTest extends AbstractIntegrationTest {
 	private ConfigurationService configurationService;
 	@Autowired
 	private IdmNotificationLogService notificationLogService;
+	@Autowired
+	private IdmEmailLogService emailLogService;
 	@Autowired
 	private IdmIdentityService identityService;
 	@Autowired
@@ -76,6 +79,7 @@ public class IdentityNotifacationProcessorTest extends AbstractIntegrationTest {
 		//
 
 		notifications.forEach(notification -> {
+			emailLogService.deleteById(notification.getId());
 			notificationLogService.delete(notification);
 		});
 
@@ -115,6 +119,7 @@ public class IdentityNotifacationProcessorTest extends AbstractIntegrationTest {
 		}).collect(Collectors.toList());
 	
 		notifications.forEach(notification -> {
+			emailLogService.deleteById(notification.getId());
 			notificationLogService.delete(notification);
 		});
 		
@@ -153,6 +158,7 @@ public class IdentityNotifacationProcessorTest extends AbstractIntegrationTest {
 			return notification.getTopic().equals(CoreModuleDescriptor.TOPIC_IDENTITY_MONITORED_CHANGED_FIELDS);
 		}).collect(Collectors.toList());
 		notifications.forEach(notification -> {
+			emailLogService.deleteById(notification.getId());
 			notificationLogService.delete(notification);
 		});
 
@@ -188,6 +194,7 @@ public class IdentityNotifacationProcessorTest extends AbstractIntegrationTest {
 			return notification.getTopic().equals(CoreModuleDescriptor.TOPIC_IDENTITY_MONITORED_CHANGED_FIELDS);
 		}).collect(Collectors.toList());
 		notifications.forEach(notification -> {
+			emailLogService.deleteById(notification.getId());
 			notificationLogService.delete(notification);
 		});
 		

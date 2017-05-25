@@ -35,7 +35,7 @@ import eu.bcvsolutions.idm.core.scheduler.service.impl.AbstractSchedulableStatef
  */
 @Service
 @DisallowConcurrentExecution
-@Description("Sends warning after password expired.")
+@Description("Sends warning notification after password expired.")
 public class PasswordExpiredTaskExecutor extends AbstractSchedulableStatefulExecutor<IdmPasswordDto> {
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(PasswordExpiredTaskExecutor.class);

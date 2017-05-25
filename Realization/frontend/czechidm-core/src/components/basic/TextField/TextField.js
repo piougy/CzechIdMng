@@ -47,7 +47,7 @@ class TextField extends AbstractFormComponent {
   }
 
   getRequiredValidationSchema() {
-    return Joi.string().required();
+    return Joi.string().disallow(null).required();
   }
 
   /**

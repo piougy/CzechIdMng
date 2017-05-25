@@ -104,7 +104,7 @@ class IdentityDetail extends Basic.AbstractContent {
           <Basic.Panel className="no-border last">
             <Basic.PanelHeader text={this.i18n('header')}/>
             <Basic.AbstractForm ref="form" readOnly={ !identityManager.canSave(identity, _permissions) || readOnly } showLoading={showLoadingIdentityTrimmed || showLoading}>
-              <Basic.TextField ref="username" readOnly label={this.i18n('content.identity.profile.username')} required min={3} max={255}/>
+              <Basic.TextField ref="username" label={this.i18n('content.identity.profile.username')} required min={3} max={255}/>
               <Basic.TextField ref="firstName" label={this.i18n('content.identity.profile.firstName')} max={255} />
               <Basic.TextField ref="lastName" label={this.i18n('content.identity.profile.lastName')} required max={255} />
 
@@ -123,7 +123,7 @@ class IdentityDetail extends Basic.AbstractContent {
                     ref="email"
                     label={this.i18n('content.identity.profile.email.label')}
                     placeholder={this.i18n('email.placeholder')}
-                    validation={Joi.string().email()}/>
+                    validation={Joi.string().allow(null).email()}/>
                 </div>
                 <div className="col-lg-6">
                   <Basic.TextField

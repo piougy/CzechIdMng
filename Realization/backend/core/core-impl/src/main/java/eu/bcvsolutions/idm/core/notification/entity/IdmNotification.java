@@ -58,16 +58,13 @@ public abstract class IdmNotification extends AbstractEntity implements BaseNoti
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmIdentity identitySender;
-	
-	@JsonManagedReference
+
 	@OneToMany(mappedBy = "notification", cascade = CascadeType.ALL) // orphan removal is not necessary - notification can be added only
 	private List<IdmNotificationRecipient> recipients;
-	
-	@JsonProperty(access = Access.READ_ONLY)
+
 	@Column(name = "sent")
 	private DateTime sent;
-	
-	@JsonProperty(access = Access.READ_ONLY)
+
 	@Size(max = DefaultFieldLengths.LOG)
 	@Column(name = "SENT_LOG", length = DefaultFieldLengths.LOG)
 	private String sentLog;

@@ -10,6 +10,9 @@ import org.springframework.stereotype.Component;
 /**
  * Helper class which is able to autowire a specified class. It holds a static
  * reference to the {@link org .springframework.context.ApplicationContext}.
+ * 
+ * @author Ondřej Kopr
+ * @author Radek Tomiška
  */
 @Component
 public final class AutowireHelper implements ApplicationContextAware {
@@ -24,21 +27,34 @@ public final class AutowireHelper implements ApplicationContextAware {
 	 * Tries to autowire the specified instance of the class if one of the
 	 * specified beans which need to be autowired are null.
 	 *
-     * @param classToAutowire        the instance of the class which holds @Autowire annotations
+     * @param objectToAutowire        the instance of the class which holds @Autowire annotations
      * @param beansToAutowireInClass the beans which have the @Autowire annotation in the specified
 	 *            {#classToAutowire}
 	 */
-	public static void autowire(Object classToAutowire, Object... beansToAutowireInClass) {
+	public static void autowire(Object objectToAutowire, Object... beansToAutowireInClass) {
+		autowireBean(objectToAutowire, beansToAutowireInClass);
+	}
+	
+	/**
+	 * Tries to autowire the specified instance of the class if one of the
+	 * specified beans which need to be autowired are null.
+	 *
+     * @param objectToAutowire the instance of the class which holds @Autowire annotations
+     * @param beansToAutowireInClass the beans which have the @Autowire annotation in the specified {#classToAutowire}
+	 * @return autowired object
+	 */
+	public static <T> T autowireBean(T objectToAutowire, Object... beansToAutowireInClass) {
 		if(beansToAutowireInClass == null || beansToAutowireInClass.length == 0) {
-			applicationContext.getAutowireCapableBeanFactory().autowireBean(classToAutowire);
-			return;
+			applicationContext.getAutowireCapableBeanFactory().autowireBean(objectToAutowire);
+			return objectToAutowire;
 		}
 		for (Object bean : beansToAutowireInClass) {
 			if (bean == null && applicationContext != null) {
-				applicationContext.getAutowireCapableBeanFactory().autowireBean(classToAutowire);
-				return;
+				applicationContext.getAutowireCapableBeanFactory().autowireBean(objectToAutowire);
+				return objectToAutowire;
 			}
 		}
+		return objectToAutowire;
 	}
 	
 	/**

@@ -44,7 +44,7 @@ import eu.bcvsolutions.idm.core.scheduler.service.impl.AbstractSchedulableStatef
 public class PasswordExpirationWarningTaskExecutor extends AbstractSchedulableStatefulExecutor<IdmPasswordDto> {
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(PasswordExpirationWarningTaskExecutor.class);
-	private static final String PARAMETER_DAYS_BEFORE = "days before";
+	protected static final String PARAMETER_DAYS_BEFORE = "days before";
 	//
 	@Autowired private IdmPasswordService passwordService;
 	@Autowired private NotificationManager notificationManager;

@@ -97,8 +97,8 @@ public class AbstractSchedulableStatefulExecutorIntegrationTest extends Abstract
 		assertEquals(longRunningTask.getScheduledTask(), scheduledTask.getId());
 		assertEquals(itemsToProcess.size(), queueItems.getTotalElements());
 		assertEquals(itemsToProcess.size(), logItems.getTotalElements());
-		assertEquals(new Long(itemsToProcess.size()), executor.getCount());
-		assertEquals(new Long(itemsToProcess.size()), executor.getCounter());
+		assertEquals(Long.valueOf(itemsToProcess.size()), executor.getCount());
+		assertEquals(Long.valueOf(itemsToProcess.size()), executor.getCounter());
 		SchedulerTestUtils.checkLogItems(longRunningTask, IdmIdentityDto.class, logItems);
 		SchedulerTestUtils.checkQueueItems(scheduledTask, IdmIdentityDto.class, queueItems);
 		//
@@ -115,8 +115,8 @@ public class AbstractSchedulableStatefulExecutorIntegrationTest extends Abstract
 		assertTrue(result);
 		assertEquals(itemsToProcess.size(), queueItems.getTotalElements());
 		assertEquals(0, logItems.getTotalElements());
-		assertEquals(new Long(0), executor.getCount());
-		assertEquals(new Long(0), executor.getCounter());
+		assertEquals(Long.valueOf(0), executor.getCount());
+		assertEquals(Long.valueOf(0), executor.getCounter());
 		SchedulerTestUtils.checkQueueItems(scheduledTask, IdmIdentityDto.class, queueItems);
 		//
 		// third run
@@ -131,8 +131,8 @@ public class AbstractSchedulableStatefulExecutorIntegrationTest extends Abstract
 		assertTrue(result);
 		assertEquals(0, queueItems.getTotalElements());
 		assertEquals(0, logItems.getTotalElements());
-		assertEquals(new Long(0), executor.getCount());
-		assertEquals(new Long(0), executor.getCounter());
+		assertEquals(Long.valueOf(0), executor.getCount());
+		assertEquals(Long.valueOf(0), executor.getCounter());
 	}
 
 	public static class TestIdenityIntegrationExecutor extends AbstractSchedulableStatefulExecutor<IdmIdentityDto> {

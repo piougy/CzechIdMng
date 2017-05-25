@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.core.api.domain.AbstractModuleDescriptor;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
+import eu.bcvsolutions.idm.core.model.event.processor.identity.IdentityNotificationProcessor;
 import eu.bcvsolutions.idm.core.notification.api.dto.NotificationConfigurationDto;
 import eu.bcvsolutions.idm.core.notification.domain.NotificationGroupPermission;
 import eu.bcvsolutions.idm.core.notification.entity.IdmEmailLog;
@@ -31,6 +32,7 @@ public class CoreModuleDescriptor extends AbstractModuleDescriptor {
 	public static final String RETURN_REQUEST_IDENTITY_ROLES = String.format("%s:returnRequestIdentityRole", MODULE_ID);
 	public static final String WF_TASK_CREATED = String.format("%s:wfTaskCreated", MODULE_ID);
 	public static final String WF_TASK_ASSIGNED = String.format("%s:wfTaskAssigned", MODULE_ID);
+	public static final String TOPIC_IDENTITY_MONITORED_CHANGED_FIELDS = String.format("%s:%s", MODULE_ID, IdentityNotificationProcessor.TOPIC);
 	
 	@Autowired
 	private IdmNotificationTemplateService templateService;
@@ -75,6 +77,9 @@ public class CoreModuleDescriptor extends AbstractModuleDescriptor {
 		//
 		configs.add(new NotificationConfigurationDto(WF_TASK_CREATED, null, IdmEmailLog.NOTIFICATION_TYPE,
 				"This message contains information about new assigned task to user.", templateService.getTemplateByCode("wfTaskNotificationMessage").getId()));
+		//
+		configs.add(new NotificationConfigurationDto(TOPIC_IDENTITY_MONITORED_CHANGED_FIELDS, null, IdmEmailLog.NOTIFICATION_TYPE,
+				"This message contains information about changed fields on Identity.", templateService.getTemplateByCode(IdentityNotificationProcessor.EMAIL_TEMPLATE).getId()));
 		//
 		return configs;
 	}

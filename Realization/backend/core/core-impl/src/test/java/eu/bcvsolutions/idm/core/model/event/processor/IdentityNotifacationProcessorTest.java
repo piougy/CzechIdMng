@@ -75,7 +75,9 @@ public class IdentityNotifacationProcessorTest extends AbstractIntegrationTest {
 		}).collect(Collectors.toList());
 		//
 
-		assertEquals(0, notifications.size());
+		notifications.forEach(notification -> {
+			notificationLogService.delete(notification);
+		});
 
 		identity.setFirstName("changed" + UUID.randomUUID());
 		identity.setLastName("changed" + UUID.randomUUID());
@@ -111,9 +113,11 @@ public class IdentityNotifacationProcessorTest extends AbstractIntegrationTest {
 		List<IdmNotificationLogDto> notifications = notificationLogService.find(filter, null).getContent().stream().filter(notification -> {
 			return notification.getTopic().equals(CoreModuleDescriptor.TOPIC_IDENTITY_MONITORED_CHANGED_FIELDS);
 		}).collect(Collectors.toList());
-		//
-
-		assertEquals(0, notifications.size());
+	
+		notifications.forEach(notification -> {
+			notificationLogService.delete(notification);
+		});
+		
 		String changedValue = "changed" + UUID.randomUUID();
 
 		// We change not monitored fields
@@ -148,9 +152,10 @@ public class IdentityNotifacationProcessorTest extends AbstractIntegrationTest {
 		List<IdmNotificationLogDto> notifications = notificationLogService.find(filter, null).getContent().stream().filter(notification -> {
 			return notification.getTopic().equals(CoreModuleDescriptor.TOPIC_IDENTITY_MONITORED_CHANGED_FIELDS);
 		}).collect(Collectors.toList());
-		//
+		notifications.forEach(notification -> {
+			notificationLogService.delete(notification);
+		});
 
-		assertEquals(0, notifications.size());
 		String changedValue = "changed" + UUID.randomUUID();
 
 		identity.setFirstName(changedValue);
@@ -182,9 +187,10 @@ public class IdentityNotifacationProcessorTest extends AbstractIntegrationTest {
 		List<IdmNotificationLogDto> notifications = notificationLogService.find(filter, null).getContent().stream().filter(notification -> {
 			return notification.getTopic().equals(CoreModuleDescriptor.TOPIC_IDENTITY_MONITORED_CHANGED_FIELDS);
 		}).collect(Collectors.toList());
-		//
-
-		assertEquals(0, notifications.size());
+		notifications.forEach(notification -> {
+			notificationLogService.delete(notification);
+		});
+		
 		String changedValue = "changed" + UUID.randomUUID();
 
 		identity.setFirstName(changedValue);

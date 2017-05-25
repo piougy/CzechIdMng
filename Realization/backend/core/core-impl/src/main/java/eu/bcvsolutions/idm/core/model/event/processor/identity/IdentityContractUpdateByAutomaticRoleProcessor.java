@@ -34,6 +34,7 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
  * Automatic roles recount while identity contract is saved, updated or deleted / disabled.
  * 
  * @author Radek Tomiška
+ * @author Ondřej Kopr
  *
  */
 @Component
@@ -200,13 +201,15 @@ public class IdentityContractUpdateByAutomaticRoleProcessor extends CoreEventPro
 	 * @param assignedRoles
 	 */
 	private void changeValidable(IdmIdentityContractDto contract, List<IdmIdentityRoleDto> assignedRoles, IdmRoleRequestDto roleRequest) {
-		assignedRoles.stream()
-		.filter(identityRole -> {
-			// automatic roles only
-			return identityRole.getRoleTreeNode() != null;
-		}).forEach(identityRole -> {
-			createConcept(roleRequest, identityRole.getId(), contract, identityRole.getRole(), identityRole.getRoleTreeNode(), ConceptRoleRequestOperation.UPDATE);
-		});
+		assignedRoles
+			.stream()
+			.filter(identityRole -> {
+				// automatic roles only
+				return identityRole.getRoleTreeNode() != null;
+			})
+			.forEach(identityRole -> {
+				createConcept(roleRequest, identityRole.getId(), contract, identityRole.getRole(), identityRole.getRoleTreeNode(), ConceptRoleRequestOperation.UPDATE);
+			});
 	}
 	
 	/**

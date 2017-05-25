@@ -287,6 +287,20 @@ module.exports = {
                 'authorities': ['AUDIT_READ']
               }
             ]
+          },
+          {
+            'id': 'audit-notification',
+            'labelKey': 'navigation.menu.notifications.label',
+            'titleKey': 'navigation.menu.notifications.title',
+            'icon': 'fa:envelope',
+            'order': 1910,
+            'path': '/notification/notifications',
+            'access': [
+              {
+                'type': 'DENY_ALL', // TODO: fix issue with mets menu - collapsing different submenu is broken
+                'authorities': ['NOTIFICATION_READ']
+              }
+            ],
           }
         ]
       },

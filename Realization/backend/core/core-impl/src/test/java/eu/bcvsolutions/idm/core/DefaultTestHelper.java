@@ -25,6 +25,7 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeTypeService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.evaluator.BasePermissionEvaluator;
 import eu.bcvsolutions.idm.core.security.evaluator.UuidEvaluator;
 
@@ -67,6 +68,7 @@ public class DefaultTestHelper implements TestHelper {
 		identity.setUsername(name == null ? createName() : name);
 		identity.setFirstName("Test");
 		identity.setLastName("Identity");
+		identity.setPassword(new GuardedString("password"));
 		identity = identityService.save(identity);
 		return identity;
 	}

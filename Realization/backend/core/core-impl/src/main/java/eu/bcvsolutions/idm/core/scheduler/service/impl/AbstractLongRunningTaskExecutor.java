@@ -59,7 +59,8 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements LongRunningT
 	
 	@Override
 	public void init(Map<String, Object> properties) {
-		// load properties from job
+		count = null;
+		counter = null;
 	}
 	
 	protected boolean start() {

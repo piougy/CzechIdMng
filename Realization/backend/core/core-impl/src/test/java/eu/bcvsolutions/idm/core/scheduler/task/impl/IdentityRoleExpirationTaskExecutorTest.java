@@ -24,6 +24,11 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.test.api.AbstractVerifiableUnitTest;
 
+/**
+ * 
+ * @author Jan Helbich
+ *
+ */
 public class IdentityRoleExpirationTaskExecutorTest extends AbstractVerifiableUnitTest {
 	
 	@Spy

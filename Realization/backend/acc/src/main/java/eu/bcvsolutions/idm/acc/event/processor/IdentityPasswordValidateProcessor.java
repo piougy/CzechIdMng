@@ -23,6 +23,7 @@ import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyType;
 import eu.bcvsolutions.idm.core.api.domain.PasswordChangeType;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmPasswordDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordValidationDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
@@ -149,7 +150,8 @@ public class IdentityPasswordValidateProcessor extends AbstractEntityEventProces
 		// validate TODO: validate for admin?
 		IdmPasswordValidationDto passwordValidationDto = new IdmPasswordValidationDto();
 		// get old password for validation - til, from and password history
-		passwordValidationDto.setOldPassword(this.passwordService.get(identity) == null ? null : this.passwordService.get(identity).getId());
+		IdmPasswordDto oldPassword = this.passwordService.findOneByIdentity(identity.getId());
+		passwordValidationDto.setOldPassword(oldPassword == null ? null : oldPassword.getId());
 		passwordValidationDto.setIdentity(identity == null ? null : identity.getId());
 		passwordValidationDto.setPassword(passwordChangeDto.getNewPassword());
 		this.passwordPolicyService.validate(passwordValidationDto, passwordPolicyList);

@@ -11,12 +11,15 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.Lists;
+
+import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.EntityEventProcessorDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.EntityEventProcessorFilter;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.EventContext;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.security.api.service.EnabledEvaluator;
 
@@ -32,32 +35,48 @@ public class DefaultEntityEventManager implements EntityEventManager {
 	private final ApplicationContext context;
 	private final ApplicationEventPublisher publisher;
 	private final EnabledEvaluator enabledEvaluator;
+	private final LookupService lookupService;
 	
 	public DefaultEntityEventManager(
 			ApplicationContext context, 
 			ApplicationEventPublisher publisher,
-			EnabledEvaluator enabledEvaluator) {
+			EnabledEvaluator enabledEvaluator,
+			LookupService lookupService) {
 		Assert.notNull(context, "Spring context is required");
 		Assert.notNull(publisher, "Event publisher is required");
 		Assert.notNull(enabledEvaluator, "Enabled evaluator is required");
+		Assert.notNull(lookupService, "LookupService is required");
 		//
 		this.context = context;
 		this.publisher = publisher;
 		this.enabledEvaluator = enabledEvaluator;
+		this.lookupService = lookupService;
 	}
 	
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
+	@SuppressWarnings("unchecked")
 	public <E extends Serializable> EventContext<E> process(EntityEvent<E> event) {
 		Assert.notNull(event);
 		//
 		Serializable content = event.getContent();
 		//
 		LOG.debug("Publishing event [{}] [{}]", content.getClass().getSimpleName(), event.getType());
+		//
 		// continue suspended event
 		event.getContext().setSuspended(false);
+		//
+		// read previous (original) dto source - usable in "check modification" processors
+		if (event.getOriginalSource() == null && (content instanceof AbstractDto)) { // original source could be set externally
+			AbstractDto contentDto = (AbstractDto) content;
+			// works only for dto modification
+			if (contentDto.getId() != null && lookupService.getDtoLookup(contentDto.getClass()) != null) {
+				event.setOriginalSource((E) lookupService.lookupDto(contentDto.getClass(), contentDto.getId()));
+			}
+		}
+		//
 		//
 		this.publisher.publishEvent(event); 
 		return event.getContext();

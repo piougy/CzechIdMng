@@ -43,6 +43,7 @@ import eu.bcvsolutions.idm.core.model.repository.IdmContractGuaranteeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
+import eu.bcvsolutions.idm.core.model.repository.IdmPasswordRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleGuaranteeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleTreeNodeRepository;
@@ -56,6 +57,7 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmContractGuaranteeService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleGuaranteeService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
@@ -68,6 +70,7 @@ import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmContractGuaranteeSe
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmIdentityService;
+import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmPasswordService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmRoleGuaranteeService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmRoleService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmRoleTreeNodeService;
@@ -130,6 +133,7 @@ public class IdmServiceConfiguration {
 	@Autowired private IdmProcessedTaskItemRepository processedTaskRepository;
 	@Autowired private IdmScheduledTaskRepository scheduledTaskRepository;
 	@Autowired private IdmRoleGuaranteeRepository roleGuaranteeRepository;
+	@Autowired private IdmPasswordRepository idmPasswordRepository;
 	//
 	// Auto registered beans (plugins)
 	@Autowired private PluginRegistry<ModuleDescriptor, String> moduleDescriptorRegistry;
@@ -205,6 +209,17 @@ public class IdmServiceConfiguration {
 	}
 	
 	/**
+	 * Entity <=> Dto lookup service
+	 * 
+	 * @return
+	 */
+	@Bean
+	@ConditionalOnMissingBean(LookupService.class)
+	public LookupService lookupService() {
+		return new DefaultLookupService(context, entityManager, entityLookups, dtoLookups);
+	}
+	
+	/**
 	 * Event manager for entity event publishing.
 	 * 
 	 * @return
@@ -212,7 +227,7 @@ public class IdmServiceConfiguration {
 	@Bean
 	@ConditionalOnMissingBean(EntityEventManager.class)
 	public EntityEventManager entityEventManager() {
-		return new DefaultEntityEventManager(context, publisher, enabledEvaluator());
+		return new DefaultEntityEventManager(context, publisher, enabledEvaluator(), lookupService());
 	}
 	
 	/**
@@ -246,17 +261,6 @@ public class IdmServiceConfiguration {
 	@ConditionalOnMissingBean(AuthorizationManager.class)
 	public AuthorizationManager authorizationManager() {
 		return new DefaultAuthorizationManager(context, authorizationPolicyService(), securityService(), moduleService());
-	}
-	
-	/**
-	 * Entity <=> Dto lookup service
-	 * 
-	 * @return
-	 */
-	@Bean
-	@ConditionalOnMissingBean(LookupService.class)
-	public LookupService lookupService() {
-		return new DefaultLookupService(context, entityManager, entityLookups, dtoLookups);
 	}
 	
 	/**
@@ -366,6 +370,17 @@ public class IdmServiceConfiguration {
 				entityEventManager(),
 				authChangeRepository,
 				roleConfiguration());
+	}
+	
+	/**
+	 * Saves and crypts identity's password
+	 * 
+	 * @return
+	 */
+	@Bean
+	@ConditionalOnMissingBean(IdmPasswordService.class)
+	public IdmPasswordService passwordService() {
+		return new DefaultIdmPasswordService(idmPasswordRepository);
 	}
 	
 	/**

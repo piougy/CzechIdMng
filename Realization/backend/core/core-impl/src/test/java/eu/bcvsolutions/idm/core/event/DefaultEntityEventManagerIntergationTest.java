@@ -21,6 +21,7 @@ import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventContext;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventContext;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultEntityEventManager;
 import eu.bcvsolutions.idm.core.security.api.service.EnabledEvaluator;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
@@ -33,19 +34,17 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  */
 public class DefaultEntityEventManagerIntergationTest extends AbstractIntegrationTest {
 
-	@Autowired
-	private ApplicationContext context;
-	@Autowired
-	private ApplicationEventPublisher publisher;
-	@Autowired
-	private EnabledEvaluator enabledEvaluator;
+	@Autowired private ApplicationContext context;
+	@Autowired private ApplicationEventPublisher publisher;
+	@Autowired private EnabledEvaluator enabledEvaluator;
+	@Autowired private LookupService lookupService;
 	//
 	private DefaultEntityEventManager entityEventManager; 
 	
 	@Before
 	public void init() {
 		loginAsAdmin(InitTestData.TEST_USER_1);
-		entityEventManager = new DefaultEntityEventManager(context, publisher, enabledEvaluator);
+		entityEventManager = new DefaultEntityEventManager(context, publisher, enabledEvaluator, lookupService);
 	}
 	
 	@After 

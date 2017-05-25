@@ -9,10 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
-import eu.bcvsolutions.idm.core.model.entity.IdmConfiguration;
-import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationDto;
-import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationConfiguration;
 import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationConfigurationService;
 import eu.bcvsolutions.idm.core.notification.service.api.NotificationSender;
 
@@ -20,6 +17,7 @@ import eu.bcvsolutions.idm.core.notification.service.api.NotificationSender;
  * Sending notifications over Camel
  * 
  * @author Radek Tomiška
+ * @author Peter Šourek
  *
  */
 @Component
@@ -29,9 +27,6 @@ public class NotificationRouteBuilder extends RouteBuilder {
 	private IdmNotificationConfigurationService notificationConfigurationService;
 	@Autowired
 	private ApplicationContext context;
-	@Autowired
-	private IdmConfigurationService configurationService;
-
 	
 	@Override
     public void configure() throws Exception {		
@@ -48,7 +43,6 @@ public class NotificationRouteBuilder extends RouteBuilder {
 	 * @param notification
 	 * @return
 	 */
-	@SuppressWarnings("rawtypes")
 	public List<String> routes(IdmNotificationDto notification) {
 		List<String> routes = notificationConfigurationService.getSenders(notification)
 				.stream()

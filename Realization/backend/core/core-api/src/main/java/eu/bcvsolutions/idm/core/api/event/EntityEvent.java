@@ -25,7 +25,7 @@ public interface EntityEvent<E extends Serializable> extends ResolvableTypeProvi
 	EventType getType();
 
 	/**
-	 * Original event content =~ source entity. Could not be null. Events with empty content could not be processed.
+	 * Starting event content =~ source entity. Could not be null. Events with empty content could not be processed.
 	 *  
 	 * @return
 	 */
@@ -44,6 +44,20 @@ public interface EntityEvent<E extends Serializable> extends ResolvableTypeProvi
 	 * @param content
 	 */
 	void setContent(E content);
+	
+	/**
+	 * Persisted event content before event starts. Usable in "check modifications" processors.
+	 * 
+	 * @return
+	 */
+	E getOriginalSource();
+	
+	/**
+	 * Persisted event content before event starts. Usable in "check modifications" processors.
+	 * 
+	 * @param originalSource
+	 */
+	void setOriginalSource(E originalSource);
 	
 	/**
 	 * Event properties (metadata)

@@ -9,6 +9,11 @@ import eu.bcvsolutions.idm.core.notification.dto.filter.NotificationFilter;
 import eu.bcvsolutions.idm.core.notification.entity.IdmSmsLog;
 import eu.bcvsolutions.idm.core.notification.service.api.IdmSmsLogService;
 
+/**
+ * 
+ * @author Peter Šourek
+ *
+ */
 @Service
 public class DefaultIdmSmsLogService extends AbstractNotificationLogService<IdmSmsLogDto, IdmSmsLog, NotificationFilter> implements IdmSmsLogService {
 

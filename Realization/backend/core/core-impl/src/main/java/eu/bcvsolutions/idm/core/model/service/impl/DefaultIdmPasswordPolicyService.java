@@ -23,6 +23,7 @@ import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyGenerateType;
 import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyIdentityAttributes;
 import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyType;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmPasswordDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordValidationDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.PasswordPolicyFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
@@ -30,7 +31,6 @@ import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.utils.PasswordGenerator;
-import eu.bcvsolutions.idm.core.model.entity.IdmPassword;
 import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
 import eu.bcvsolutions.idm.core.model.event.PasswordPolicyEvent;
 import eu.bcvsolutions.idm.core.model.event.PasswordPolicyEvent.PasswordPolicyEvenType;
@@ -157,7 +157,7 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 			return;
 		}
 		
-		IdmPassword oldPassword = passwordValidationDto.getOldPassword() != null ? passwordService.get(passwordValidationDto.getOldPassword()) : null;
+		IdmPasswordDto oldPassword = passwordValidationDto.getOldPassword() != null ? passwordService.get(passwordValidationDto.getOldPassword()) : null;
 		String password = passwordValidationDto.getPassword().asString();
 		
 		DateTime now = new DateTime();

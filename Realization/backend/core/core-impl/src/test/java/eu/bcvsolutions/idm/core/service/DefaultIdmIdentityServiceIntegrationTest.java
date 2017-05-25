@@ -122,7 +122,7 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 		identityRolefilter.setIdentityId(identity.getId());
 
 		assertNotNull(identityService.getByUsername(username));
-		assertNotNull(passwordService.get(identity));
+		assertNotNull(passwordService.findOneByIdentity(identity.getId()));
 		assertEquals(1, formService.getValues(identityRepository.findOne(identity.getId())).size());
 		assertEquals(username, roleGuaranteeRepository.findAllByRole(role).get(0).getGuarantee().getUsername());
 		assertEquals(1, identityRoleService.find(identityRolefilter, null).getTotalElements());
@@ -136,7 +136,7 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 		identityService.delete(identity);
 
 		assertNull(identityService.getByUsername(username));
-		assertNull(passwordService.get(identity));
+		assertNull(passwordService.findOneByIdentity(identity.getId()));
 		assertEquals(0, roleGuaranteeRepository.findAllByRole(role).size());
 		assertEquals(0, identityRoleService.find(identityRolefilter, null).getTotalElements());
 		assertEquals(0, identityContractService.findAllByIdentity(identity.getId()).size());

@@ -67,12 +67,12 @@ public class SendNotificationFromTask extends AbstractCoreWorkflowIntegrationTes
 		//
 		assertEquals(2, notifications.size());
 		// two notifications - created + assigned, we didnt know order
-		if (notifications.get(0).getTopic().equals(CoreModuleDescriptor.WF_TASK_ASSIGNED)) {
-			assertEquals(CoreModuleDescriptor.WF_TASK_ASSIGNED, notifications.get(0).getTopic());
-			assertEquals(CoreModuleDescriptor.WF_TASK_CREATED, notifications.get(1).getTopic());
+		if (notifications.get(0).getTopic().equals(CoreModuleDescriptor.TOPIC_WF_TASK_ASSIGNED)) {
+			assertEquals(CoreModuleDescriptor.TOPIC_WF_TASK_ASSIGNED, notifications.get(0).getTopic());
+			assertEquals(CoreModuleDescriptor.TOPIC_WF_TASK_CREATED, notifications.get(1).getTopic());
 		} else {
-			assertEquals(CoreModuleDescriptor.WF_TASK_CREATED, notifications.get(0).getTopic());
-			assertEquals(CoreModuleDescriptor.WF_TASK_ASSIGNED, notifications.get(1).getTopic());
+			assertEquals(CoreModuleDescriptor.TOPIC_WF_TASK_CREATED, notifications.get(0).getTopic());
+			assertEquals(CoreModuleDescriptor.TOPIC_WF_TASK_ASSIGNED, notifications.get(1).getTopic());
 		}
 	}
 	

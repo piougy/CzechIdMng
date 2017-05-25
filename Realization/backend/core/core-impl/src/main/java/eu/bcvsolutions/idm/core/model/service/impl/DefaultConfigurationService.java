@@ -30,6 +30,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
+import eu.bcvsolutions.idm.core.config.domain.DynamicCorsConfiguration;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmConfiguration;
 import eu.bcvsolutions.idm.core.model.entity.IdmConfiguration_;
@@ -57,7 +58,7 @@ public class DefaultConfigurationService
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultConfigurationService.class);
 	private static final String CACHE_NAME = "idm-configuration";
-
+	//
 	private final IdmConfigurationRepository repository;
 	private final ConfidentialStorage confidentialStorage;
 	private final ConfigurableEnvironment env; // TODO: optional
@@ -370,6 +371,39 @@ public class DefaultConfigurationService
 		return getValue(ConfigurationService.PROPERTY_APP_INSTANCE_ID, ConfigurationService.DEFAULT_PROPERTY_APP_INSTANCE_ID);
 	}
 	
+	@Override
+	@Transactional(readOnly = true)
+	public Map<String, IdmConfigurationDto> getConfigurations(String keyPrefix) {
+		Map<String, IdmConfigurationDto> configs = new HashMap<>();
+		for (IdmConfiguration configuration : repository.findByNameStartingWith(keyPrefix, null)) {
+			configs.put(
+					configuration.getName().replaceFirst(keyPrefix + PROPERTY_SEPARATOR, ""), 
+					new IdmConfigurationDto(configuration.getName(), configuration.getValue(), configuration.isSecured(), configuration.isConfidential())
+			);
+		}
+		return configs;
+	}
+	
+	/**
+	 * TODO: Read allowed origins property now, use new property app.url ...
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public String getFrontendUrl(String path) {
+		// get url of application
+		String allowedOrigins = getValue(DynamicCorsConfiguration.PROPERTY_ALLOWED_ORIGIN);
+		if (StringUtils.isBlank(allowedOrigins) || allowedOrigins.equals("*")) {
+			return null;
+		}
+		//
+		List<String> urls = Arrays.asList(allowedOrigins.replaceAll("\\s*", "").split(DynamicCorsConfiguration.PROPERTY_ALLOWED_ORIGIN_SEPARATOR));
+		String resultUrl = urls.get(0);
+		if (StringUtils.isEmpty(path)) {
+			return resultUrl;
+		}
+		return String.format("%s/#/%s", resultUrl, path.startsWith("/") ? path.replaceFirst("/", "") : path);
+	}
+	
 	private static IdmConfigurationDto toConfigurationDto(String key, Object value) {
 		String stringValue = value == null ? null : value.toString();
 		IdmConfigurationDto configuration = new IdmConfigurationDto(key, stringValue);
@@ -467,18 +501,5 @@ public class DefaultConfigurationService
 			return null;
 		}
 		return cacheManager.getCache(CACHE_NAME);
-	}
-
-	@Override
-	@Transactional(readOnly = true)
-	public Map<String, IdmConfigurationDto> getConfigurations(String keyPrefix) {
-		Map<String, IdmConfigurationDto> configs = new HashMap<>();
-		for (IdmConfiguration configuration : repository.findByNameStartingWith(keyPrefix, null)) {
-			configs.put(
-					configuration.getName().replaceFirst(keyPrefix + PROPERTY_SEPARATOR, ""), 
-					new IdmConfigurationDto(configuration.getName(), configuration.getValue(), configuration.isSecured(), configuration.isConfidential())
-			);
-		}
-		return configs;
 	}
 }

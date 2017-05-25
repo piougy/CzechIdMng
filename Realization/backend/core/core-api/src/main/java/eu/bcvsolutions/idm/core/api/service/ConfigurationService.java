@@ -25,6 +25,7 @@ public interface ConfigurationService {
 	static final String IDM_PUBLIC_PROPERTY_PREFIX = IDM_PROPERTY_PREFIX + "pub" + PROPERTY_SEPARATOR;
 	static final String IDM_PRIVATE_PROPERTY_PREFIX = IDM_PROPERTY_PREFIX + "sec" + PROPERTY_SEPARATOR;
 	//
+	// instance id - backend server identifier
 	static final String PROPERTY_APP_INSTANCE_ID = IDM_PUBLIC_PROPERTY_PREFIX + "app.instanceId";
 	static final String DEFAULT_PROPERTY_APP_INSTANCE_ID = "main";
 	//
@@ -185,4 +186,12 @@ public interface ConfigurationService {
 	 * @return
 	 */
 	Map<String, IdmConfigurationDto> getConfigurations(String keyPrefix);
+	
+	/**
+	 * Returns url to frontend (by configuration)
+	 * 
+	 * @param path
+	 * @return
+	 */
+	String getFrontendUrl(String path);
 }

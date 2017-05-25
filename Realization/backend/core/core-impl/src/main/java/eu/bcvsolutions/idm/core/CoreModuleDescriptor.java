@@ -26,11 +26,12 @@ import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
 public class CoreModuleDescriptor extends AbstractModuleDescriptor {
 
 	public static final String MODULE_ID = "core";
-	public static final String CHANGE_IDENTITY_ROLES = String.format("%s:changeIdentityRole", MODULE_ID);
-	public static final String DISAPPROVE_IDENTITY_ROLES = String.format("%s:disapproveIdentityRole", MODULE_ID);
-	public static final String RETURN_REQUEST_IDENTITY_ROLES = String.format("%s:returnRequestIdentityRole", MODULE_ID);
-	public static final String WF_TASK_CREATED = String.format("%s:wfTaskCreated", MODULE_ID);
-	public static final String WF_TASK_ASSIGNED = String.format("%s:wfTaskAssigned", MODULE_ID);
+	public static final String TOPIC_CHANGE_IDENTITY_ROLES = String.format("%s:changeIdentityRole", MODULE_ID);
+	public static final String TOPIC_DISAPPROVE_IDENTITY_ROLES = String.format("%s:disapproveIdentityRole", MODULE_ID);
+	public static final String TOPIC_RETURN_REQUEST_IDENTITY_ROLES = String.format("%s:returnRequestIdentityRole", MODULE_ID);
+	public static final String TOPIC_WF_TASK_CREATED = String.format("%s:wfTaskCreated", MODULE_ID);
+	public static final String TOPIC_WF_TASK_ASSIGNED = String.format("%s:wfTaskAssigned", MODULE_ID);
+	public static final String TOPIC_PASSWORD_EXPIRATION = String.format("%s:passwordExpiration", MODULE_ID);
 	
 	@Autowired
 	private IdmNotificationTemplateService templateService;
@@ -61,20 +62,23 @@ public class CoreModuleDescriptor extends AbstractModuleDescriptor {
 	public List<NotificationConfigurationDto> getDefaultNotificationConfigurations() {
 		List<NotificationConfigurationDto> configs = new ArrayList<>();
 		//
-		configs.add(new NotificationConfigurationDto(CHANGE_IDENTITY_ROLES, null, IdmEmailLog.NOTIFICATION_TYPE,
+		configs.add(new NotificationConfigurationDto(TOPIC_CHANGE_IDENTITY_ROLES, null, IdmEmailLog.NOTIFICATION_TYPE,
 				"This message contains information about result WF (change identity roles).", templateService.getTemplateByCode("changeIdentityRole").getId()));
 		//
-		configs.add(new NotificationConfigurationDto(DISAPPROVE_IDENTITY_ROLES, null, IdmEmailLog.NOTIFICATION_TYPE,
+		configs.add(new NotificationConfigurationDto(TOPIC_DISAPPROVE_IDENTITY_ROLES, null, IdmEmailLog.NOTIFICATION_TYPE,
 				"This message contains information about disapprove role request.", templateService.getTemplateByCode("disapproveIdentityRole").getId()));
 		//
-		configs.add(new NotificationConfigurationDto(RETURN_REQUEST_IDENTITY_ROLES, null, IdmEmailLog.NOTIFICATION_TYPE,
+		configs.add(new NotificationConfigurationDto(TOPIC_RETURN_REQUEST_IDENTITY_ROLES, null, IdmEmailLog.NOTIFICATION_TYPE,
 				"This message contains information about return role request.", templateService.getTemplateByCode("returnRequestIdentityRole").getId()));
 		//
-		configs.add(new NotificationConfigurationDto(WF_TASK_ASSIGNED, null, IdmEmailLog.NOTIFICATION_TYPE,
+		configs.add(new NotificationConfigurationDto(TOPIC_WF_TASK_ASSIGNED, null, IdmEmailLog.NOTIFICATION_TYPE,
 				"This message contains information about new assigned task to user.", templateService.getTemplateByCode("wfTaskNotificationMessage").getId()));
 		//
-		configs.add(new NotificationConfigurationDto(WF_TASK_CREATED, null, IdmEmailLog.NOTIFICATION_TYPE,
+		configs.add(new NotificationConfigurationDto(TOPIC_WF_TASK_CREATED, null, IdmEmailLog.NOTIFICATION_TYPE,
 				"This message contains information about new assigned task to user.", templateService.getTemplateByCode("wfTaskNotificationMessage").getId()));
+		//
+		configs.add(new NotificationConfigurationDto(TOPIC_PASSWORD_EXPIRATION, null, IdmEmailLog.NOTIFICATION_TYPE,
+				"Password expiration warning.", templateService.getTemplateByCode("passwordExpiration").getId()));
 		//
 		return configs;
 	}

@@ -1,16 +1,15 @@
 package eu.bcvsolutions.idm.core.notification.repository;
 
-import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
-import eu.bcvsolutions.idm.core.notification.dto.filter.NotificationFilter;
-import eu.bcvsolutions.idm.core.notification.entity.IdmEmailLog;
-import eu.bcvsolutions.idm.core.notification.entity.IdmSmsLog;
+import java.util.UUID;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
-import java.util.UUID;
+import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
+import eu.bcvsolutions.idm.core.notification.dto.filter.NotificationFilter;
+import eu.bcvsolutions.idm.core.notification.entity.IdmSmsLog;
 
 /**
  * Repository for sent emails

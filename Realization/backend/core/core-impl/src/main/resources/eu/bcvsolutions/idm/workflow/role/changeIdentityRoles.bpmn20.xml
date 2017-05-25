@@ -532,7 +532,7 @@ def applicantUsername = execution.getVariable("applicantUsername");
 
 // send notification
 notificationManager.send(
-	CoreModuleDescriptor.CHANGE_IDENTITY_ROLES,
+	CoreModuleDescriptor.TOPIC_CHANGE_IDENTITY_ROLES,
           new IdmMessageDto.Builder()
 		.setLevel(NotificationLevel.SUCCESS)
 		.addParameter("addedRoles", addedRoles)
@@ -576,7 +576,7 @@ if (managerDescription == null || managerDescription.isEmpty()) {
 
 // send notification
 notificationManager.send(
-	CoreModuleDescriptor.DISAPPROVE_IDENTITY_ROLES,
+	CoreModuleDescriptor.TOPIC_DISAPPROVE_IDENTITY_ROLES,
 	new IdmMessageDto.Builder()
 		.setLevel(NotificationLevel.SUCCESS)
 		.addParameter("managerDescription", managerDescription)
@@ -619,7 +619,7 @@ if (managerDescription == null || managerDescription.isEmpty()) {
 
 // send notification
 notificationManager.send(
-	CoreModuleDescriptor.RETURN_REQUEST_IDENTITY_ROLES,
+	CoreModuleDescriptor.TOPIC_RETURN_REQUEST_IDENTITY_ROLES,
 	new IdmMessageDto.Builder()
 		.setLevel(NotificationLevel.SUCCESS)
 		.addParameter("managerDescription", managerDescription)
@@ -661,7 +661,7 @@ if (managerDescription == null || managerDescription.isEmpty()) {
 
 // send notification
 notificationManager.send(
-	CoreModuleDescriptor.RETURN_REQUEST_IDENTITY_ROLES,
+	CoreModuleDescriptor.TOPIC_RETURN_REQUEST_IDENTITY_ROLES,
 	new IdmMessageDto.Builder()
 		.setLevel(NotificationLevel.SUCCESS)
 		.addParameter("managerDescription", managerDescription)
@@ -703,7 +703,7 @@ if (managerDescription == null || managerDescription.isEmpty()) {
 
 // send notification
 notificationManager.send(
-	CoreModuleDescriptor.RETURN_REQUEST_IDENTITY_ROLES,
+	CoreModuleDescriptor.TOPIC_RETURN_REQUEST_IDENTITY_ROLES,
 	new IdmMessageDto.Builder()
 		.setLevel(NotificationLevel.SUCCESS)
 		.addParameter("managerDescription", managerDescription)

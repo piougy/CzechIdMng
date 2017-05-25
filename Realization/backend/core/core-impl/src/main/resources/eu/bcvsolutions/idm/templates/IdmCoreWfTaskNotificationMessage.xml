@@ -1,7 +1,7 @@
 <?xml version = "1.0" encoding = "UTF-8" standalone = "yes"?>
 <!-- 
 Notification with new assigned or created task, this message will be sent to newly assigned identity.
-For event TASK_CREATED and TASK_ASSIGNED is used same template, bud different topic.
+For event TASK_CREATED and TASK_ASSIGNED is used same template, but different topic.
 
 parameters:
 	-	identity

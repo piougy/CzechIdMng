@@ -22,6 +22,7 @@ public abstract class AbstractEntityEvent<E extends Serializable> extends Applic
 
 	private static final long serialVersionUID = 2309175762418747517L;
 	private E content; // mutable content - is changed during processing
+	private E originalSource; // persisted content - before event starts
 	private final EventType type;
 	private final Map<String, Serializable> properties = new LinkedHashMap<>();
 	@JsonIgnore
@@ -69,7 +70,17 @@ public abstract class AbstractEntityEvent<E extends Serializable> extends Applic
 		Assert.notNull(content, "Content is required!");
 		//
 		this.content = content;
-	}	
+	}
+	
+	@Override
+	public E getOriginalSource() {
+		return originalSource;
+	}
+	
+	@Override
+	public void setOriginalSource(E originalSource) {
+		this.originalSource = originalSource;
+	}
 	
 	@Override
 	public Map<String, Serializable> getProperties() {

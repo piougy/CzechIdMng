@@ -1,93 +1,93 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
+import java.util.UUID;
+
 import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCrypt;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmPasswordDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.PasswordFilter;
-import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
+import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.model.entity.IdmPassword;
-import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmPasswordRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordService;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 
 /**
- * 
+ * Service for working with password.
+ * Now is password connect only to entity IdmIdentity.
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
+ * @author Radek Tomiška
  * 
  */
-
-@Service
-public class DefaultIdmPasswordService extends AbstractReadWriteEntityService<IdmPassword, PasswordFilter> implements IdmPasswordService {
+public class DefaultIdmPasswordService 
+		extends AbstractReadWriteDtoService<IdmPasswordDto, IdmPassword, PasswordFilter> 
+		implements IdmPasswordService {
 	
-	private final IdmPasswordRepository identityPasswordRepository;
-	private final IdmIdentityRepository identityRepository;
+	private final IdmPasswordRepository repository;
 	
 	@Autowired
-	public DefaultIdmPasswordService(
-			IdmPasswordRepository identityPasswordRepository,
-			IdmIdentityRepository identityRepository) {
-		super(identityPasswordRepository);
+	public DefaultIdmPasswordService(IdmPasswordRepository repository) {
+		super(repository);
 		//
-		Assert.notNull(identityRepository);
-		//
-		this.identityPasswordRepository = identityPasswordRepository;
-		this.identityRepository = identityRepository;
+		this.repository = repository;
 	}
 
 	@Override
 	@Transactional
-	public IdmPassword save(IdmIdentityDto identity, PasswordChangeDto passwordDto) {
+	public IdmPasswordDto save(IdmIdentityDto identity, PasswordChangeDto passwordChangeDto) {
 		Assert.notNull(identity);
-		Assert.notNull(passwordDto);
-		Assert.notNull(passwordDto.getNewPassword());
-		GuardedString password = passwordDto.getNewPassword();
+		Assert.notNull(passwordChangeDto);
+		Assert.notNull(passwordChangeDto.getNewPassword());
+		GuardedString password = passwordChangeDto.getNewPassword();
 		//
-		IdmPassword passwordEntity = getPasswordByIdentity(identity);
+		IdmPasswordDto passwordDto = getPasswordByIdentity(identity.getId());
 		//
-		if (passwordEntity == null) {
+		if (passwordDto == null) {
 			// identity has no password yet
-			passwordEntity = new IdmPassword();
-			passwordEntity.setIdentity(identityRepository.findOne(identity.getId()));
+			passwordDto = new IdmPasswordDto();
+			passwordDto.setIdentity(identity.getId());
 		}
 		//
-		if (passwordDto.getMaxPasswordAge() != null) {
-			passwordEntity.setValidTill(passwordDto.getMaxPasswordAge().toLocalDate());
+		if (passwordChangeDto.getMaxPasswordAge() != null) {
+			passwordDto.setValidTill(passwordChangeDto.getMaxPasswordAge().toLocalDate());
 		}
 		// set valid from now
-		passwordEntity.setValidFrom(new LocalDate());
+		passwordDto.setValidFrom(new LocalDate());
 		//
-		passwordEntity.setPassword(this.generateHash(password, getSalt(identity)));
+		passwordDto.setPassword(this.generateHash(password, getSalt(identity)));
 		//
 		// set must change password to false
-		passwordEntity.setMustChange(false);
+		passwordDto.setMustChange(false);
 		//
-		return identityPasswordRepository.save(passwordEntity);
+		return save(passwordDto);
 	}
 
 	@Override
 	@Transactional
 	public void delete(IdmIdentityDto identity) {
-		IdmPassword passwordEntity = getPasswordByIdentity(identity);
-		if (passwordEntity != null) {
-			this.identityPasswordRepository.delete(passwordEntity);
+		Assert.notNull(identity);
+		//
+		IdmPasswordDto passwordDto = getPasswordByIdentity(identity.getId());
+		if (passwordDto != null) {
+			this.delete(passwordDto);
 		}
 	}
 	
 	@Override
-	public IdmPassword get(IdmIdentityDto identity) {
+	@Transactional(readOnly = true)
+	public IdmPasswordDto findOneByIdentity(UUID identity) {
 		return this.getPasswordByIdentity(identity);
 	}
 	
 	@Override
-	public boolean checkPassword(GuardedString passwordToCheck, IdmPassword password) {
+	public boolean checkPassword(GuardedString passwordToCheck, IdmPasswordDto password) {
 		return BCrypt.checkpw(passwordToCheck.asString(), password.getPassword());
 	}
 
@@ -107,9 +107,9 @@ public class DefaultIdmPasswordService extends AbstractReadWriteEntityService<Id
 	 * @param identity
 	 * @return Object IdmIdentityPassword when password for identity was founded otherwise null.
 	 */
-	private IdmPassword getPasswordByIdentity(IdmIdentityDto identity) {
-		Assert.notNull(identity);
+	private IdmPasswordDto getPasswordByIdentity(UUID identityId) {
+		Assert.notNull(identityId);
 		//
-		return this.identityPasswordRepository.findOneByIdentity_Id(identity.getId());
+		return toDto(this.repository.findOneByIdentity_Id(identityId));
 	}
 }

@@ -12,10 +12,10 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmPasswordDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
-import eu.bcvsolutions.idm.core.model.entity.IdmPassword;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordService;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
@@ -160,7 +160,7 @@ public class DefaultLoginService implements LoginService {
 			throw new IdmAuthenticationException(MessageFormat.format("Check identity can login: The identity [{0}] is disabled.", identity.getUsername() ));
 		}
 		// GuardedString isn't necessary password is in hash
-		IdmPassword idmPassword = passwordService.get(identity);
+		IdmPasswordDto idmPassword = passwordService.findOneByIdentity(identity.getId());
 		if (idmPassword == null) {
 			LOG.warn("Identity [{}] does not have pasword in idm", identity.getUsername());
 			return false;

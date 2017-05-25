@@ -55,7 +55,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
-@Service
+@Service("notificationTemplateService")
 public class DefaultIdmNotificationTemplateService
 		extends AbstractReadWriteDtoService<IdmNotificationTemplateDto, IdmNotificationTemplate, NotificationTemplateFilter>
 		implements IdmNotificationTemplateService {

@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
+import eu.bcvsolutions.idm.core.config.domain.DynamicCorsConfiguration;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
 import eu.bcvsolutions.idm.core.notification.service.api.NotificationManager;
@@ -139,10 +140,10 @@ public class TaskSendNotificationEventListener implements ActivitiEventListener{
 	 * @return
 	 */
 	private String getUrlToTask(TaskEntity taskEntity) {
-		 String origins = configurationService.getValue("idm.pub.security.allowed-origins");
+		 String origins = configurationService.getValue(DynamicCorsConfiguration.PROPERTY_ALLOWED_ORIGIN);
 		 //
 		 if (origins != null && !origins.isEmpty()) {
-			 String origin = origins.trim().split(",")[0];
+			 String origin = origins.trim().split(DynamicCorsConfiguration.PROPERTY_ALLOWED_ORIGIN_SEPARATOR)[0];
 			 return origin + "/#/task/" + taskEntity.getId();
 		 }
 		 return null;

@@ -179,7 +179,7 @@ public class EntityUtils {
 	 * @throws IllegalArgumentException
 	 * @throws InvocationTargetException
 	 */
-	public static Object getEntityValue(AbstractEntity entity, String propertyName) throws 
+	public static Object getEntityValue(Object entity, String propertyName) throws 
 	IntrospectionException, IllegalAccessException, IllegalArgumentException, InvocationTargetException
 			 {
 		Optional<PropertyDescriptor> propertyDescriptionOptional = Arrays
@@ -208,7 +208,7 @@ public class EntityUtils {
 	 * @throws IllegalArgumentException
 	 * @throws InvocationTargetException
 	 */
-	public static Object setEntityValue(AbstractEntity entity, String propertyName, Object value)
+	public static Object setEntityValue(Object entity, String propertyName, Object value)
 			throws IntrospectionException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		Optional<PropertyDescriptor> propertyDescriptionOptional = Arrays
 				.asList(Introspector.getBeanInfo(entity.getClass()).getPropertyDescriptors()).stream()

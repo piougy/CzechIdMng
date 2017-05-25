@@ -92,7 +92,7 @@ class AbstractFormComponent extends AbstractContextComponent {
     if (required === true) {
       validation = this.getRequiredValidationSchema();
       if (this.props.validation) {
-        validation = validation.concat(this.props.validation);
+        validation = this.props.validation.concat(validation);
       }
     } else {
       // this is default value for not required value

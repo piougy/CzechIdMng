@@ -369,7 +369,8 @@ public class IdmServiceConfiguration {
 				roleService(), 
 				entityEventManager(),
 				authChangeRepository,
-				roleConfiguration());
+				roleConfiguration(),
+				configurationService());
 	}
 	
 	/**

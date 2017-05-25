@@ -746,7 +746,7 @@
   "enums" : {
     "SystemEntityTypeEnum": {
       "IDENTITY": "Identity",
-      "ROLE": "Group",
+      "ROLE": "Role",
       "TREE": "Tree"
     },
     "SystemOperationTypeEnum": {

@@ -134,12 +134,4 @@ public interface IdmIdentityService extends
 	@Beta
 	void updateAuthorityChange(List<UUID> identities, DateTime changeTime);
 
-	/**
-	 * Get URL for identity profile
-	 * @param identity
-	 * @return
-	 */
-	@Beta
-	String getUrlOnProfile(IdmIdentityDto identity);
-
 }

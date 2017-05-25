@@ -9,6 +9,7 @@ import eu.bcvsolutions.idm.core.api.config.domain.IdentityConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.PasswordChangeType;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmPasswordDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordValidationDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
@@ -102,7 +103,8 @@ public class IdentityPasswordValidateProcessor extends CoreEventProcessor<IdmIde
 			// validate password
 			IdmPasswordValidationDto passwordValidationDto = new IdmPasswordValidationDto();
 			// set old password for validation - valid till, from and history check
-			passwordValidationDto.setOldPassword(this.passwordService.get(identity) == null ? null : this.passwordService.get(identity).getId());
+			IdmPasswordDto oldPassword = this.passwordService.findOneByIdentity(identity.getId());
+			passwordValidationDto.setOldPassword(oldPassword == null ? null : oldPassword.getId());
 			passwordValidationDto.setPassword(passwordChangeDto.getNewPassword());
 			passwordValidationDto.setIdentity(identity == null ? null : identity.getId());
 			this.passwordPolicyService.validate(passwordValidationDto);

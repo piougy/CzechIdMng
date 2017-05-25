@@ -1,17 +1,34 @@
 package eu.bcvsolutions.idm.core.api.dto;
 
+import java.util.UUID;
+
+import javax.validation.constraints.NotNull;
+
 import org.joda.time.LocalDate;
 
-public class IdmPasswordDto {
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
-    private String password;
+import eu.bcvsolutions.idm.core.api.domain.Embedded;
+import eu.bcvsolutions.idm.core.api.entity.ValidableEntity;
 
-    private IdmIdentityDto identity;
+/**
+ * Password dto
+ * 
+ * @author Ondrej Kopr <kopr@xyxy.cz>
+ * @author Radek Tomiška
+ *
+ */
+public class IdmPasswordDto extends AbstractDto implements ValidableEntity  {
 
+	private static final long serialVersionUID = 1L;
+	@JsonProperty(access = Access.WRITE_ONLY)
+	private String password;
+	@NotNull
+	@Embedded(dtoClass = IdmIdentityDto.class)
+    private UUID identity;
     private LocalDate validTill;
-
     private LocalDate validFrom;
-
     private boolean mustChange = false;
 
 
@@ -23,14 +40,15 @@ public class IdmPasswordDto {
         this.password = password;
     }
 
-    public IdmIdentityDto getIdentity() {
+    public UUID getIdentity() {
         return identity;
     }
 
-    public void setIdentity(IdmIdentityDto identity) {
+    public void setIdentity(UUID identity) {
         this.identity = identity;
     }
 
+    @Override
     public LocalDate getValidTill() {
         return validTill;
     }
@@ -39,6 +57,7 @@ public class IdmPasswordDto {
         this.validTill = validTill;
     }
 
+    @Override
     public LocalDate getValidFrom() {
         return validFrom;
     }

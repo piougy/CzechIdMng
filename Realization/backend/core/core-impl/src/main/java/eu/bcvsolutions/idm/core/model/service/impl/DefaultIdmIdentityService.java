@@ -466,15 +466,4 @@ public class DefaultIdmIdentityService
 			authChangeRepository.save(ac);
 		}
 	}
-	
-	@Override
-	public String getUrlOnProfile(IdmIdentityDto identity) {
-		 String origins = configurationService.getValue(DynamicCorsConfiguration.PROPERTY_ALLOWED_ORIGIN);
-		 //
-		 if (origins != null && !origins.isEmpty()) {
-			 String origin = origins.trim().split(DynamicCorsConfiguration.PROPERTY_ALLOWED_ORIGIN_SEPARATOR)[0];
-			 return String.format("%s/#/identity/%s/profile",origin, identity.getId());
-		 }
-		 return null;
-	}
 }

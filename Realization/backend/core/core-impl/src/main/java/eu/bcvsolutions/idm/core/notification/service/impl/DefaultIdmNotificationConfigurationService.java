@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.filter.EmptyFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
@@ -28,7 +29,6 @@ import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationConfiguration
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationLog;
 import eu.bcvsolutions.idm.core.notification.repository.IdmNotificationConfigurationRepository;
 import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationConfigurationService;
-import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationTemplateService;
 import eu.bcvsolutions.idm.core.notification.service.api.NotificationSender;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 
@@ -46,24 +46,20 @@ public class DefaultIdmNotificationConfigurationService
 	private final IdmNotificationConfigurationRepository repository;
 	private final PluginRegistry<NotificationSender<?>, String> notificationSenders;
 	private final ModuleService moduleService;
-	private final IdmNotificationTemplateService notificationTemplateService;
 	
 	@Autowired
 	public DefaultIdmNotificationConfigurationService(
 			IdmNotificationConfigurationRepository repository,
 			List<? extends NotificationSender<?>> notificationSenders,
-			ModuleService moduleService,
-			IdmNotificationTemplateService notificationTemplateService) {
+			ModuleService moduleService) {
 		super(repository);		
 		//
 		Assert.notEmpty(notificationSenders);
 		Assert.notNull(moduleService);
-		Assert.notNull(notificationTemplateService);
 		//
 		this.repository = repository;
 		this.notificationSenders = OrderAwarePluginRegistry.create(notificationSenders);
 		this.moduleService = moduleService;
-		this.notificationTemplateService = notificationTemplateService;
 	}
 	
 	@Override

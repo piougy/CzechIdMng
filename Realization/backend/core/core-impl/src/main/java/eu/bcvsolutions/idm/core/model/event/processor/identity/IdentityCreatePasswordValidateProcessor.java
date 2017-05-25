@@ -23,7 +23,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
  */
 @Component
 @Description("Validates identity's password before identity is created.")
-public class IdentityCreatePasswordValidateProcessor extends CoreEventProcessor<IdmIdentityDto >{
+public class IdentityCreatePasswordValidateProcessor extends CoreEventProcessor<IdmIdentityDto> {
 	
 	public static final String PROCESSOR_NAME = "identity-create-validate-password-processor";
 	private final IdmPasswordPolicyService passwordPolicyService;

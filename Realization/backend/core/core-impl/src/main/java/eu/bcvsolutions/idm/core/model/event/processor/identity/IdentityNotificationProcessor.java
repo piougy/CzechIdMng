@@ -21,6 +21,7 @@ import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
@@ -56,16 +57,22 @@ public class IdentityNotificationProcessor extends CoreEventProcessor<IdmIdentit
 
 	private final IdmIdentityService service;
 	private final NotificationManager notificationManager;
+	private final ConfigurationService configurationService;
 
 	@Autowired
-	public IdentityNotificationProcessor(IdmIdentityService service, NotificationManager notificationManager, IdmNotificationTemplateService templateService) {
+	public IdentityNotificationProcessor(IdmIdentityService service, 
+		NotificationManager notificationManager,
+		IdmNotificationTemplateService templateService,
+		ConfigurationService configurationService) {
 		super(IdentityEventType.UPDATE);
 		//
 		Assert.notNull(service);
 		Assert.notNull(notificationManager);
+		Assert.notNull(configurationService);
 		//
 		this.service = service;
 		this.notificationManager = notificationManager;
+		this.configurationService = configurationService;
 	}
 
 	@Override
@@ -89,7 +96,7 @@ public class IdentityNotificationProcessor extends CoreEventProcessor<IdmIdentit
 			return new DefaultEventResult<>(event, this);
 		}
 		IdmIdentityDto newIdentity = event.getContent();
-		IdmIdentityDto identity = service.get(newIdentity.getId());
+		IdmIdentityDto identity = event.getOriginalSource();
 		List<ChangedField> changedFields = new ArrayList<>();
 		
 		// Check monitored fields on some changes
@@ -119,7 +126,7 @@ public class IdentityNotificationProcessor extends CoreEventProcessor<IdmIdentit
 			IdmMessageDto message = new IdmMessageDto.Builder(NotificationLevel.WARNING)
 			.addParameter("identity", identity)
 			.addParameter("changedFields", changedFields)
-			.addParameter("url", service.getUrlOnProfile(identity))
+			.addParameter("url", configurationService.getFrontendUrl(String.format("identity/%s/profile", identity.getId())))
 			.build();
 			notificationManager.send(String.format("core:%s", TOPIC), message, recipients);
 			
@@ -137,8 +144,8 @@ public class IdentityNotificationProcessor extends CoreEventProcessor<IdmIdentit
 	}
 	
     @Override
-    public int getOrder() {
-    	return super.getOrder()-1;
+    public int getOrder() { // We want send notification on end
+    	return Integer.MAX_VALUE - 100;
     }
     
     @Override

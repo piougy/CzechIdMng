@@ -102,7 +102,7 @@ public interface IdmIdentityContractRepository extends AbstractEntityRepository<
 	void clearMain(@Param("identityId") UUID identityId, @Param("updatedEntityId") UUID updatedEntityId, @Param("modified") DateTime modified);
 	
 	/**
-	 * Return persisted identity contract
+	 * Returns persisted identity contract
 	 * 
 	 * @param identityContract
 	 * @return

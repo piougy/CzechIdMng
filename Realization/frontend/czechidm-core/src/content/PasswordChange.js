@@ -23,7 +23,13 @@ class PasswordChange extends Basic.AbstractContent {
 
   componentDidMount() {
     this.selectNavigationItem('password-change');
-    this.refs.form.setData({});
+    const data = {};
+    const { query } = this.props.location;
+    //
+    if (query) {
+      data.username = query.username;
+    }
+    this.refs.form.setData(data);
     this.refs.username.focus();
   }
 

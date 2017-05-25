@@ -21,10 +21,9 @@ import eu.bcvsolutions.idm.core.api.entity.UnmodifiableEntity;
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
-
 @Entity
 @Table(name = "idm_notification_template", indexes = { 
-		@Index(name = "ux_idm_notification_template_name", columnList = "name", unique = true),
+		@Index(name = "ux_idm_notification_template_name", columnList = "name", unique = true), // TODO: is not required to be unique
 		@Index(name = "ux_idm_notification_template_code", columnList = "code", unique = true)})
 public class IdmNotificationTemplate extends AbstractEntity implements Codeable, UnmodifiableEntity {
 

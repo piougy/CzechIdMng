@@ -76,10 +76,10 @@ public class TaskSendNotificationEventListener implements ActivitiEventListener{
 				// if not exist assigne send message to all candidates
 				if (taskEntity.getAssignee() == null) {
 					for (IdentityLink candidate : taskEntity.getCandidates()) {
-						sendNotification(CoreModuleDescriptor.WF_TASK_ASSIGNED, taskEntity, candidate.getUserId());
+						sendNotification(CoreModuleDescriptor.TOPIC_WF_TASK_ASSIGNED, taskEntity, candidate.getUserId());
 					}
 				} else {
-					sendNotification(CoreModuleDescriptor.WF_TASK_ASSIGNED, taskEntity, taskEntity.getAssignee());
+					sendNotification(CoreModuleDescriptor.TOPIC_WF_TASK_ASSIGNED, taskEntity, taskEntity.getAssignee());
 				}
 			} else {
 				LOG.info("TaskSendNotificationEventListener - can't get TaskEntity from event [{}] ", event.getExecutionId());
@@ -110,10 +110,10 @@ public class TaskSendNotificationEventListener implements ActivitiEventListener{
 				// if not exist assigne send message to all candidates
 				if (taskEntity.getAssignee() == null) {
 					for (IdentityLink candidate : taskEntity.getCandidates()) {
-						sendNotification(CoreModuleDescriptor.WF_TASK_CREATED, taskEntity, candidate.getUserId());
+						sendNotification(CoreModuleDescriptor.TOPIC_WF_TASK_CREATED, taskEntity, candidate.getUserId());
 					}
 				} else {
-					sendNotification(CoreModuleDescriptor.WF_TASK_CREATED, taskEntity, taskEntity.getAssignee());
+					sendNotification(CoreModuleDescriptor.TOPIC_WF_TASK_CREATED, taskEntity, taskEntity.getAssignee());
 				}
 			} else {
 				LOG.info("TaskSendNotificationEventListener - can't get TaskEntity from event [{}] ", event.getExecutionId());

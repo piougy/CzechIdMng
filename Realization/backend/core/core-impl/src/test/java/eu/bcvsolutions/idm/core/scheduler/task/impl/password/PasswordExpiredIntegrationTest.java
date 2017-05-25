@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.UUID;
 
 import org.joda.time.LocalDate;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +47,11 @@ public class PasswordExpiredIntegrationTest extends AbstractIntegrationTest {
 	@Before
 	public void init() {
 		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+	}
+	
+	@After
+	public void logout() {
+		super.logout();
 	}
 
 	@Test

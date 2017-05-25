@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.junit.After;
 import org.junit.Before;
@@ -69,17 +70,23 @@ public class IdentityNotifacationProcessorTest extends AbstractIntegrationTest {
 		// Test before notify
 		NotificationFilter filter = new NotificationFilter();
 		filter.setRecipient(recipients.get(0).getUsername());
-		List<IdmNotificationLogDto> notifications = notificationLogService.find(filter, null).getContent();
+		List<IdmNotificationLogDto> notifications = notificationLogService.find(filter, null).getContent().stream().filter(notification -> {
+			return notification.getTopic().equals(CoreModuleDescriptor.TOPIC_IDENTITY_MONITORED_CHANGED_FIELDS);
+		}).collect(Collectors.toList());
 		//
 
-		assertEquals(0, notifications.size());
+		notifications.forEach(notification -> {
+			notificationLogService.delete(notification);
+		});
 
 		identity.setFirstName("changed" + UUID.randomUUID());
 		identity.setLastName("changed" + UUID.randomUUID());
 		identityService.save(identity);
 
 		// Test after notify
-		notifications = notificationLogService.find(filter, null).getContent();
+		notifications = notificationLogService.find(filter, null).getContent().stream().filter(notification -> {
+			return notification.getTopic().equals(CoreModuleDescriptor.TOPIC_IDENTITY_MONITORED_CHANGED_FIELDS);
+		}).collect(Collectors.toList());
 
 		assertEquals(1, notifications.size());
 		assertEquals(CoreModuleDescriptor.TOPIC_IDENTITY_MONITORED_CHANGED_FIELDS, notifications.get(0).getTopic());
@@ -103,10 +110,14 @@ public class IdentityNotifacationProcessorTest extends AbstractIntegrationTest {
 		// Test before notify
 		NotificationFilter filter = new NotificationFilter();
 		filter.setRecipient(recipients.get(0).getUsername());
-		List<IdmNotificationLogDto> notifications = notificationLogService.find(filter, null).getContent();
-		//
-
-		assertEquals(0, notifications.size());
+		List<IdmNotificationLogDto> notifications = notificationLogService.find(filter, null).getContent().stream().filter(notification -> {
+			return notification.getTopic().equals(CoreModuleDescriptor.TOPIC_IDENTITY_MONITORED_CHANGED_FIELDS);
+		}).collect(Collectors.toList());
+	
+		notifications.forEach(notification -> {
+			notificationLogService.delete(notification);
+		});
+		
 		String changedValue = "changed" + UUID.randomUUID();
 
 		// We change not monitored fields
@@ -115,7 +126,9 @@ public class IdentityNotifacationProcessorTest extends AbstractIntegrationTest {
 		identityService.save(identity);
 
 		// Test after notify
-		notifications = notificationLogService.find(filter, null).getContent();
+		notifications = notificationLogService.find(filter, null).getContent().stream().filter(notification -> {
+			return notification.getTopic().equals(CoreModuleDescriptor.TOPIC_IDENTITY_MONITORED_CHANGED_FIELDS);
+		}).collect(Collectors.toList());
 
 		// No notification should be sent
 		assertEquals(0, notifications.size());
@@ -136,17 +149,22 @@ public class IdentityNotifacationProcessorTest extends AbstractIntegrationTest {
 		// Test before notify
 		NotificationFilter filter = new NotificationFilter();
 		filter.setRecipient(recipients.get(0).getUsername());
-		List<IdmNotificationLogDto> notifications = notificationLogService.find(filter, null).getContent();
-		//
+		List<IdmNotificationLogDto> notifications = notificationLogService.find(filter, null).getContent().stream().filter(notification -> {
+			return notification.getTopic().equals(CoreModuleDescriptor.TOPIC_IDENTITY_MONITORED_CHANGED_FIELDS);
+		}).collect(Collectors.toList());
+		notifications.forEach(notification -> {
+			notificationLogService.delete(notification);
+		});
 
-		assertEquals(0, notifications.size());
 		String changedValue = "changed" + UUID.randomUUID();
 
 		identity.setFirstName(changedValue);
 		identityService.save(identity);
 
 		// Test after notify ... must be 0 ... processor is disabled
-		notifications = notificationLogService.find(filter, null).getContent();
+		notifications = notificationLogService.find(filter, null).getContent().stream().filter(notification -> {
+			return notification.getTopic().equals(CoreModuleDescriptor.TOPIC_IDENTITY_MONITORED_CHANGED_FIELDS);
+		}).collect(Collectors.toList());
 		//
 		assertEquals(0, notifications.size());
 	}
@@ -166,17 +184,22 @@ public class IdentityNotifacationProcessorTest extends AbstractIntegrationTest {
 		// Test before notify
 		NotificationFilter filter = new NotificationFilter();
 		filter.setRecipient(recipients.get(0).getUsername());
-		List<IdmNotificationLogDto> notifications = notificationLogService.find(filter, null).getContent();
-		//
-
-		assertEquals(0, notifications.size());
+		List<IdmNotificationLogDto> notifications = notificationLogService.find(filter, null).getContent().stream().filter(notification -> {
+			return notification.getTopic().equals(CoreModuleDescriptor.TOPIC_IDENTITY_MONITORED_CHANGED_FIELDS);
+		}).collect(Collectors.toList());
+		notifications.forEach(notification -> {
+			notificationLogService.delete(notification);
+		});
+		
 		String changedValue = "changed" + UUID.randomUUID();
 
 		identity.setFirstName(changedValue);
 		identityService.save(identity);
 
 		// Test after notify ... must be 0 ... processor is disabled
-		notifications = notificationLogService.find(filter, null).getContent();
+		notifications = notificationLogService.find(filter, null).getContent().stream().filter(notification -> {
+			return notification.getTopic().equals(CoreModuleDescriptor.TOPIC_IDENTITY_MONITORED_CHANGED_FIELDS);
+		}).collect(Collectors.toList());
 		//
 		assertEquals(0, notifications.size());
 	}

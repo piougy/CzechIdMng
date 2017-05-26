@@ -6,6 +6,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.PasswordFilter;
+import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 
@@ -18,7 +19,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
  */
 
 public interface IdmPasswordService 
-		extends ReadWriteDtoService<IdmPasswordDto, PasswordFilter> {
+		extends ReadWriteDtoService<IdmPasswordDto, PasswordFilter>, ScriptEnabled {
 	
 	/**
 	 * Save password to identity. This method not validate password.

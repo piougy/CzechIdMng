@@ -20,6 +20,8 @@ import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 /**
  * Executes provisioing after identity contract is saved or deleted
  * 
+ * TODO: execute provisioning for subordinates - depends on configuration property 
+ * 
  * @author Radek Tomiška
  */
 @Component

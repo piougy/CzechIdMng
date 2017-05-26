@@ -117,9 +117,12 @@ public class IdentityPasswordValidateProcessor extends AbstractEntityEventProces
 						})
 				.map(AccIdentityAccountDto::getId).map(UUID::toString).collect(Collectors.toList());
 				//
-				boolean containsAll = !Collections.disjoint(identityAccountsIds, passwordChangeDto.getAccounts());
-				if (!containsAll) {
-					throw new ResultCodeException(CoreResultCode.PASSWORD_CHANGE_ALL_ONLY);
+				// disjoint get true for empty list
+				if (!identityAccountsIds.isEmpty() && !passwordChangeDto.getAccounts().isEmpty()) {
+					boolean containsAll = !Collections.disjoint(identityAccountsIds, passwordChangeDto.getAccounts());
+					if (!containsAll) {
+						throw new ResultCodeException(CoreResultCode.PASSWORD_CHANGE_ALL_ONLY);
+					}
 				}
 			}
 		}

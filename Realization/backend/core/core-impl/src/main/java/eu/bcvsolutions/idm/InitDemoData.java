@@ -200,7 +200,6 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				// read identity contracts by identity
 				IdmAuthorizationPolicyDto identityContractPolicy = new IdmAuthorizationPolicyDto();
 				identityContractPolicy.setRole(role1.getId());
-				identityContractPolicy.setPermissions(IdmBasePermission.AUTOCOMPLETE);
 				identityContractPolicy.setGroupPermission(CoreGroupPermission.IDENTITYCONTRACT.getName());
 				identityContractPolicy.setAuthorizableType(IdmIdentityContract.class.getCanonicalName());
 				identityContractPolicy.setEvaluator(IdentityContractByIdentityEvaluator.class);

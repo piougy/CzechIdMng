@@ -204,8 +204,6 @@ export class Navigation extends Basic.AbstractContent {
       return null;
     }
 
-    remove flayway
-
     if (level === 100) { // collapse menu prepare
       items.push(
         <li key="navigation-collapse">

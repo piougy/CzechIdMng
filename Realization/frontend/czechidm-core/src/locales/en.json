@@ -1054,6 +1054,9 @@
       "menu-title": "Roles",
       "header": "Roles administration",
       "title": "Roles administration",
+      "button": {
+        "allRoles": "All roles"
+      },
       "edit": {
         "title": "Role details",
         "header": "{{name}} details"

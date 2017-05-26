@@ -161,6 +161,9 @@ class RoleTable extends Advanced.AbstractTableContent {
               <div className="clearfix"></div>
             </div>
             <div style={{ paddingLeft: 15, paddingRight: 15, paddingTop: 15 }}>
+              <Basic.Button level="link" className="btn-xs" onClick={ this.cancelFilter.bind(this) }>
+                { this.i18n('button.allRoles') }
+              </Basic.Button>
               <Advanced.Tree
                 ref="roleCatalogueTree"
                 rootNodes={ rootNodes }

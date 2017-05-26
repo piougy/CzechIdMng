@@ -1092,6 +1092,9 @@
       "menu-title": "Role",
       "header": "Správa rolí",
       "title": "Správa rolí",
+      "button": {
+        "allRoles": "Všechny role"
+      },
       "edit": {
         "title": "Detail role",
         "header": "{{name}} detail role"

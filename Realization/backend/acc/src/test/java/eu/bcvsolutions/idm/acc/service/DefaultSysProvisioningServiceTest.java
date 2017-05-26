@@ -50,6 +50,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyGenerateType;
 import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyType;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
@@ -61,6 +62,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.eav.IdmIdentityFormValue;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordPolicyService;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
@@ -96,6 +98,9 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 
 	@Autowired
 	private IdmIdentityService idmIdentityService;
+	
+	@Autowired
+	private IdmIdentityContractService identityContractService;
 	
 	@Autowired
 	private IdmIdentityRepository identityRepository;
@@ -172,6 +177,33 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 
 		provisioningService.doProvisioning(identityRepository.findOne(identity.getId()));
 		TestResource changedAccount = entityManager.find(TestResource.class, accountService.get(accountIdentityOne.getAccount()).getUid());
+		Assert.assertNotNull(changedAccount);
+		Assert.assertEquals(identity.getFirstName(), changedAccount.getFirstname());
+	}
+	
+	@Test
+	public void doIdentityProvisioningChangeIdentityContract() {
+		// change identity internally
+		IdmIdentityDto identity = idmIdentityService.getByUsername(IDENTITY_USERNAME);
+		identity.setFirstName("first-name-change");
+		identity = idmIdentityService.saveInternal(identity);
+		
+		IdentityAccountFilter filter = new IdentityAccountFilter();
+		filter.setIdentityId(identity.getId());
+		
+		IdmIdentityContractDto contract = identityContractService.getPrimeContract(identity.getId());
+		contract.setDescription("update");
+		identityContractService.save(contract);
+		
+		AccIdentityAccountDto accountIdentityOne = identityAccoutnService.find(filter, null).getContent().get(0);
+		TestResource changedAccount = entityManager.find(TestResource.class, accountService.get(accountIdentityOne.getAccount()).getUid());
+		Assert.assertNotNull(changedAccount);
+		Assert.assertEquals(identity.getFirstName(), changedAccount.getFirstname());
+		
+		identity.setFirstName(IDENTITY_CHANGED_FIRST_NAME);
+		identity = idmIdentityService.save(identity);
+
+		changedAccount = entityManager.find(TestResource.class, accountService.get(accountIdentityOne.getAccount()).getUid());
 		Assert.assertNotNull(changedAccount);
 		Assert.assertEquals(identity.getFirstName(), changedAccount.getFirstname());
 	}

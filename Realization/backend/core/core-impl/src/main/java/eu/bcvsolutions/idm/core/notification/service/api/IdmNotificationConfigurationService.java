@@ -36,6 +36,7 @@ public interface IdmNotificationConfigurationService extends ReadWriteDtoService
 	/**
 	 * Method return {@link IdmNotificationConfiguration} by topic, level, notification type.
 	 * All parameters must exits. 
+	 * 
 	 * @param topic
 	 * @param level
 	 * @return

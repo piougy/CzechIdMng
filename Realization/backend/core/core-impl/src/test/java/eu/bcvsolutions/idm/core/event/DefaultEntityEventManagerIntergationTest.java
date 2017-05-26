@@ -32,7 +32,7 @@ import eu.bcvsolutions.idm.core.security.api.service.EnabledEvaluator;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
- * entity events integration tests
+ * Entity events integration tests
  * 
  * @author Radek Tomiška
  *
@@ -143,7 +143,8 @@ public class DefaultEntityEventManagerIntergationTest extends AbstractIntegratio
 		IdmIdentityDto updateIdentity = identityService.get(createdIdentity.getId());
 		updateIdentity.setFirstName("newFirst");
 		updateIdentity.setLastName("newLast");
-		EventContext<IdmIdentityDto> context = entityEventManager.process(new IdentityEvent(IdentityEventType.UPDATE, updateIdentity));
+		EntityEvent<IdmIdentityDto> event = new IdentityEvent(IdentityEventType.UPDATE, updateIdentity);
+		EventContext<IdmIdentityDto> context = entityEventManager.process(event);
 		IdmIdentityDto originalIdentity = context.getLastResult().getEvent().getOriginalSource();
 		IdmIdentityDto savedIdentity = context.getLastResult().getEvent().getContent();
 		// check

@@ -25,10 +25,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionCallback;
 
 import eu.bcvsolutions.idm.core.TestHelper;
+import eu.bcvsolutions.idm.core.api.dto.IdmAuditDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.AuditFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
-import eu.bcvsolutions.idm.core.model.entity.IdmAudit;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuditService;
@@ -67,7 +67,7 @@ public class DefaultAuditServiceTest extends AbstractIntegrationTest {
 	public void roleAuditTestCreateModify() {
 		IdmRole role = saveInTransaction(constructRole("audit_test_role"), roleService);
 
-		List<IdmAudit> result = auditService.findRevisions(IdmRole.class, role.getId());
+		List<IdmAuditDto> result = auditService.findRevisions(IdmRole.class, role.getId());
 
 		assertEquals(1, result.size());
 
@@ -79,13 +79,13 @@ public class DefaultAuditServiceTest extends AbstractIntegrationTest {
 
 		assertEquals(2, result.size());
 
-		IdmAudit audit = result.get(result.size() - 1);
+		IdmAuditDto audit = result.get(result.size() - 1);
 		// now is disabled changed attributes TODO: fix envers transaction
 		// assertEquals(true, audit.getChangedAttributes().contains("name"));
 		// assertEquals(true, audit.getChangedAttributes().contains("description"));
 		assertEquals(RevisionType.MOD.toString(), audit.getModification());
 
-		IdmAudit audit2 = result.get(result.size() - result.size());
+		IdmAuditDto audit2 = result.get(result.size() - result.size());
 		assertEquals(RevisionType.ADD.toString(), audit2.getModification());
 
 		assertEquals(true, audit2.getTimestamp() < audit.getTimestamp());
@@ -99,10 +99,10 @@ public class DefaultAuditServiceTest extends AbstractIntegrationTest {
 
 		assertEquals(null, roleRevision);
 
-		List<IdmAudit> result = auditService.find(null).getContent();
+		List<IdmAuditDto> result = auditService.find(null).getContent();
 		// test only first and second
 		try {
-			IdmAudit idmAudit = result.get(0);
+			IdmAuditDto idmAudit = result.get(0);
 			BaseEntity object = (BaseEntity) auditService.findRevision(Class.forName(idmAudit.getType()),
 					idmAudit.getEntityId(), (Long) idmAudit.getId());
 			if (object != null) {
@@ -151,21 +151,21 @@ public class DefaultAuditServiceTest extends AbstractIntegrationTest {
 		identity.setLastName("Doe");
 		identity = saveInTransaction(identity, identityService);
 
-		List<IdmAudit> result = auditService.findRevisions(IdmIdentity.class, identity.getId());
+		List<IdmAuditDto> result = auditService.findRevisions(IdmIdentity.class, identity.getId());
 		assertEquals(3, result.size());
 
 		getTransactionTemplate().execute(new TransactionCallback<Object>() {
 			public Object doInTransaction(TransactionStatus transactionStatus) {
-				IdmAudit idmAudit = result.get(0);
-				IdmIdentity version1 = auditService.getVersion(IdmIdentity.class, idmAudit.getEntityId(),
+				IdmAuditDto idmAudit = result.get(0);
+				IdmIdentity version1 = auditService.findVersion(IdmIdentity.class, idmAudit.getEntityId(),
 						Long.parseLong(idmAudit.getId().toString()));
 
 				idmAudit = result.get(1);
-				IdmIdentity version2 = auditService.getVersion(IdmIdentity.class, idmAudit.getEntityId(),
+				IdmIdentity version2 = auditService.findVersion(IdmIdentity.class, idmAudit.getEntityId(),
 						Long.parseLong(idmAudit.getId().toString()));
 
 				idmAudit = result.get(2);
-				IdmIdentity version3 = auditService.getVersion(IdmIdentity.class, idmAudit.getEntityId(),
+				IdmIdentity version3 = auditService.findVersion(IdmIdentity.class, idmAudit.getEntityId(),
 						Long.parseLong(idmAudit.getId().toString()));
 
 				// sample test to default value
@@ -230,10 +230,10 @@ public class DefaultAuditServiceTest extends AbstractIntegrationTest {
 		IdmRole role = roleService.save(constructRole("aud_test_role"));		
 		helper.createIdentityRole(identity, role);
 		//
-		List<IdmAudit> result = auditService.findRevisions(IdmIdentity.class, identity.getId());
+		List<IdmAuditDto> result = auditService.findRevisions(IdmIdentity.class, identity.getId());
 		assertEquals(1, result.size()); // only one remove audited list
 
-		IdmAudit audit = result.get(result.size() - 1);
+		IdmAuditDto audit = result.get(result.size() - 1);
 		assertEquals(RevisionType.ADD.toString(), audit.getModification());
 		// TODO: list aren't audited
 		// assertEquals(true, audit.getChangedAttributes().contains("roles"));
@@ -251,9 +251,9 @@ public class DefaultAuditServiceTest extends AbstractIntegrationTest {
 
 		Pageable pageable = new PageRequest(0, 10);
 
-		List<IdmAudit> result = auditService.find(filter, pageable).getContent();
+		List<IdmAuditDto> result = auditService.find(filter, pageable).getContent();
 
-		for (IdmAudit idmAudit : result) {
+		for (IdmAuditDto idmAudit : result) {
 			assertEquals("admin", idmAudit.getModifier());
 			assertEquals(IdmRole.class.getName(), idmAudit.getType());
 		}

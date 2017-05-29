@@ -1,21 +1,25 @@
 package eu.bcvsolutions.idm.core.api.dto;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+
+import org.springframework.hateoas.core.Relation;
 
 /**
  * Default DTO for audit detail.
  * All default values for IdmAudit + Map with revision values
  *
  * @author Ondrej Kopr <kopr@xyxy.cz>
- *         <p>
- *         TODO: AbstractDto has UUID, IdmAudit has Long?
  */
-public class IdmAuditDto {
+@Relation(collectionRelation = "audits")
+public class IdmAuditDto implements BaseDto {
 
-    private Long id;
+	private static final long serialVersionUID = 6910043282740335765L;
+
+	private Long id;
 
     private UUID entityId;
 
@@ -30,6 +34,10 @@ public class IdmAuditDto {
     private UUID modifierId;
 
     private String modifier;
+    
+    private String originalModifier;
+	
+	private UUID originalModifierId;
 
     public UUID getModifierId() {
         return modifierId;
@@ -102,8 +110,9 @@ public class IdmAuditDto {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    @Override
+    public void setId(Serializable id) {
+        this.id = Long.valueOf(id.toString());
     }
 
     public String getModifier() {
@@ -113,4 +122,21 @@ public class IdmAuditDto {
     public void setModifier(String modifier) {
         this.modifier = modifier;
     }
+
+	public String getOriginalModifier() {
+		return originalModifier;
+	}
+
+	public void setOriginalModifier(String originalModifier) {
+		this.originalModifier = originalModifier;
+	}
+
+	public UUID getOriginalModifierId() {
+		return originalModifierId;
+	}
+
+	public void setOriginalModifierId(UUID originalModifierId) {
+		this.originalModifierId = originalModifierId;
+	}
+    
 }

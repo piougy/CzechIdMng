@@ -196,7 +196,6 @@ public class ConnIdIcConvertUtil {
 		}
 		((APIConfigurationImpl) defaultConnIdConf).setConnectorPoolingSupported(icConf.isConnectorPoolingSupported());
 		defaultConnIdConf.setProducerBufferSize(icConf.getProducerBufferSize());
-
 		IcConfigurationProperties properties = icConf.getConfigurationProperties();
 		ConfigurationProperties connIdProperties = defaultConnIdConf.getConfigurationProperties();
 		if (properties != null && properties.getProperties() != null) {
@@ -210,6 +209,7 @@ public class ConnIdIcConvertUtil {
 				icConf.getConnectorPoolConfiguration());
 		((APIConfigurationImpl) defaultConnIdConf).setConnectorPoolConfiguration(connectorPoolConfiguration);
 		
+		defaultConnIdConf.getResultsHandlerConfiguration().setFilteredResultsHandlerInValidationMode(true);
 		return defaultConnIdConf;
 	}
 

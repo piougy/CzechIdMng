@@ -35,6 +35,7 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.RoleType;
+import eu.bcvsolutions.idm.core.api.dto.IdmAuditDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteEntityController;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
@@ -44,7 +45,6 @@ import eu.bcvsolutions.idm.core.eav.rest.impl.IdmFormDefinitionController;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.dto.filter.RoleFilter;
-import eu.bcvsolutions.idm.core.model.entity.IdmAudit;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
@@ -198,7 +198,7 @@ public class IdmRoleController extends AbstractReadWriteEntityController<IdmRole
 		}
 		checkAccess(originalEntity, IdmBasePermission.READ);
 		//
-		Page<IdmAudit> results = this.auditService.getRevisionsForEntity(IdmRole.class.getSimpleName(), UUID.fromString(roleId), pageable);
+		Page<IdmAuditDto> results = this.auditService.findRevisionsForEntity(IdmRole.class.getSimpleName(), UUID.fromString(roleId), pageable);
 		return toResources(results, assembler, IdmRole.class, null);
 	}
 	

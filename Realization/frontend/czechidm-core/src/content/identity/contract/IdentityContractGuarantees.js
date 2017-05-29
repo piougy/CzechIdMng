@@ -68,7 +68,7 @@ class IdentityContractGuarantees extends Advanced.AbstractTableContent {
   }
 
   render() {
-    const { entityId } = this.props.params;
+    const { entityId, identityId } = this.props.params;
     const { _showLoading, _permissions } = this.props;
     const { detail } = this.state;
     const forceSearchParameters = new SearchParameters().setFilter('identityContractId', entityId);
@@ -183,7 +183,7 @@ class IdentityContractGuarantees extends Advanced.AbstractTableContent {
               ref="managers"
               uiKey={ uiKeyManagers }
               identityManager={ identityManager }
-              forceSearchParameters={ new SearchParameters().setFilter('managersByContract', entityId) }
+              forceSearchParameters={ new SearchParameters().setFilter('managersFor', identityId).setFilter('managersByContract', entityId).setFilter('includeGuarantees', false) }
               showAddButton={ false }
               showDetailButton={ false }
               showFilter={ false }

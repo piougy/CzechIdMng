@@ -30,6 +30,7 @@ import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 /**
  * Managers criteria builder:
  * - by guarantee and tree structure - finds parent tree node standardly by tree structure
+ * - manager from tree structure - only direct managers are supported now
  * 
  * @author Radek Tomiška
  *
@@ -55,7 +56,7 @@ public class DefaultManagersFilter
 		subquery.select(subRoot);
 		//
 		List<Predicate> subPredicates = new ArrayList<>();
-		if (filter.getManagersByTreeType() == null) {
+		if (filter.getManagersByTreeType() == null && filter.isIncludeGuarantees()) {
 			// manager as guarantee
 			Subquery<IdmIdentityContract> subqueryGuarantee = query.subquery(IdmIdentityContract.class);
 			Root<IdmContractGuarantee> subRootGuarantee = subqueryGuarantee.from(IdmContractGuarantee.class);
@@ -65,7 +66,10 @@ public class DefaultManagersFilter
 			subqueryGuarantee.where(
 	              builder.and(
 	            		  builder.equal(pathIc.get(IdmIdentityContract_.identity).get(IdmIdentity_.id), filter.getManagersFor()),
-	            		  builder.equal(subRootGuarantee.get(IdmContractGuarantee_.guarantee), root)
+	            		  builder.equal(subRootGuarantee.get(IdmContractGuarantee_.guarantee), root),
+	            		  filter.getManagersByContract() != null // concrete contract id only
+	            		  	? builder.equal(pathIc.get(IdmIdentityContract_.id), filter.getManagersByContract())
+	            		  	: builder.conjunction()
 	              		));
 			subPredicates.add(builder.exists(subqueryGuarantee));
 		}		
@@ -76,7 +80,10 @@ public class DefaultManagersFilter
 		Predicate identityPredicate = builder.and(
 				builder.equal(
 						subqueryWpRoot.get(IdmIdentityContract_.identity).get(IdmIdentity_.id), 
-						filter.getManagersFor())
+						filter.getManagersFor()),
+				filter.getManagersByContract() != null // concrete contract id only
+	    			? builder.equal(subqueryWpRoot.get(IdmIdentityContract_.id), filter.getManagersByContract())
+	    			: builder.conjunction()
 				);
 		if (filter.getManagersByTreeType() == null) {
 			subqueryWp.where(identityPredicate);	

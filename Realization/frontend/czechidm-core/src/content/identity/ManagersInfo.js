@@ -23,12 +23,12 @@ class ManagersInfo extends Basic.AbstractContextComponent {
   }
 
   componentDidMount() {
-    const { identityContractId } = this.props;
+    const { managersFor, identityContractId } = this.props;
     if (identityContractId) {
       // load managers by Tree
       const uiKeyId = `${uiKey}-${identityContractId}`;
       if (!Utils.Ui.isShowLoading(this.context.store.getState(), uiKeyId)) {
-        const searchParameters = new SearchParameters().setFilter('managersByContract', identityContractId).setFilter('includeGuarantees', true);
+        const searchParameters = new SearchParameters().setFilter('managersFor', managersFor).setFilter('managersByContract', identityContractId).setFilter('includeGuarantees', true);
         this.context.store.dispatch(this.identityManager.fetchEntities(searchParameters, uiKeyId));
       }
     }
@@ -80,6 +80,7 @@ class ManagersInfo extends Basic.AbstractContextComponent {
 
 ManagersInfo.propTypes = {
   identityContractId: PropTypes.string.required,
+  managersFor: PropTypes.string.required,
   _showLoading: PropTypes.bool,
   _managers: PropTypes.arrayOf(PropTypes.object)
 };

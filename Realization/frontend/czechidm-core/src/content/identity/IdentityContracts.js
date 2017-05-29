@@ -144,7 +144,7 @@ export default class IdentityContracts extends Advanced.AbstractTableContent {
               cell={
                 ({ rowIndex, data }) => {
                   return (
-                    <ManagersInfo identityContractId={data[rowIndex].id}/>
+                    <ManagersInfo managersFor={entityId} identityContractId={data[rowIndex].id}/>
                   );
                 }
               }

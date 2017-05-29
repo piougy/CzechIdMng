@@ -39,11 +39,11 @@ import eu.bcvsolutions.idm.core.notification.service.api.NotificationManager;
  */
 @Component
 @Description("Check if defined fields on identity was changed. If yes, then send notification. (Extended attributes is not supported now)")
-public class IdentityNotificationProcessor extends CoreEventProcessor<IdmIdentityDto> {
+public class IdentityMonitoredFieldsProcessor extends CoreEventProcessor<IdmIdentityDto> {
 
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdentityNotificationProcessor.class);
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdentityMonitoredFieldsProcessor.class);
 
-	public static final String PROCESSOR_NAME = "identity-notification-processor";
+	public static final String PROCESSOR_NAME = "identity-monitored-fields-processor";
 	/**
 	 * Monitored fields on change
 	 */
@@ -60,7 +60,7 @@ public class IdentityNotificationProcessor extends CoreEventProcessor<IdmIdentit
 	private final ConfigurationService configurationService;
 
 	@Autowired
-	public IdentityNotificationProcessor(IdmIdentityService service, 
+	public IdentityMonitoredFieldsProcessor(IdmIdentityService service, 
 		NotificationManager notificationManager,
 		IdmNotificationTemplateService templateService,
 		ConfigurationService configurationService) {
@@ -124,6 +124,7 @@ public class IdentityNotificationProcessor extends CoreEventProcessor<IdmIdentit
 
 		if(!changedFields.isEmpty()){
 			IdmMessageDto message = new IdmMessageDto.Builder(NotificationLevel.WARNING)
+		    .addParameter("fullName", service.getNiceLabel(identity))
 			.addParameter("identity", identity)
 			.addParameter("changedFields", changedFields)
 			.addParameter("url", configurationService.getFrontendUrl(String.format("identity/%s/profile", identity.getId())))

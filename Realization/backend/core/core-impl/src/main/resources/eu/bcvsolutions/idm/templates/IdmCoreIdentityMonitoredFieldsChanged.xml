@@ -8,9 +8,9 @@ parameters:
  -->
 
 <template>
-	<name>Notification send when identity monitored fields was changed</name>
+	<name>Notification sent when identity monitored fields were changed (core)</name>
 	<code>identityMonitoredFieldsChanged</code>
-	<subject>CzechIdMng v7 - Na účtu '$identity.Username' byly změněny monitorované položky!</subject>
+	<subject>CzechIdMng - Na účtu pro '$fullName ($identity.Username)' byly změněny monitorované položky!</subject>
 	<bodyHtml>
 <![CDATA[
 <html>
@@ -29,7 +29,7 @@ Položka: <b>$field.Name</b>
 <br />
 Na detail účtu můžete přejít zde: <a href='$url'>$identity.Username</a><br />
 <br />
-S pozdravem BCV Solutions s.r.o.
+S pozdravem CzechIdM.
 <br />
 <br />
 -------------------------------------------------------------------------------------<br />
@@ -47,7 +47,7 @@ Property: <b>$field.Name</b>
 <br />
 Link on account detail is here: <a href='$url'>$identity.Username</a><br />
 <br />
-Regards BCV Solutions Ltd.
+Regards CzechIdM.
 </body>
 </html>
 ]]>

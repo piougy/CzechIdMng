@@ -251,14 +251,13 @@ public class ConnIdIcConnectorService implements IcConnectorService {
 
 			@Override
 			public void handleResult(SearchResult result) {
-				String cookie = result.getPagedResultsCookie();
-				int remainingResult = result.getRemainingPagedResults();
-				log.info("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!searchResult is NOTTTT NULL (handleResult)!!!!!!!!!!!!!!!!!!!!!!!!!! cookie: " + result.getPagedResultsCookie() + "  --- remaining: "+result.getRemainingPagedResults());
-				
-				//this.handleResult(new SearchResult(cookie, remainingResult));
+				// VS TODO: For all my tests was search result Null and this method (handle result) was not called!
+				log.debug("SearchResul was returned (pagination): cookie: " + result.getPagedResultsCookie() + "  --- remaining paged results: "+result.getRemainingPagedResults());
 			}
 		};
 		Filter filterConnId = ConnIdIcConvertUtil.convertIcFilter(filter);
+		
+		// For pagination - TODO
 		Map<String, Object> searchOpt = new HashMap<String, Object>();
 	    searchOpt.put(OperationOptions.OP_PAGE_SIZE, 100);
 	    searchOpt.put(OperationOptions.OP_PAGED_RESULTS_OFFSET, 1);
@@ -270,8 +269,9 @@ public class ConnIdIcConnectorService implements IcConnectorService {
 	private void pageSearch(ConnectorFacade conn, ObjectClass objectClass, Filter filter,
             ResultsHandler handler, OperationOptions options){
 		SearchResult searchResutl = conn.search(objectClass, filter, handler, options);
+		// For all my tests was search result Null.
 		if(searchResutl != null){
-			log.info("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!searchResult is NOTTTT NULL!!!!!!!!!!!!!!!!!!!!!!!!!! cookie: " + options.getPagedResultsCookie() + "  --- offset: "+options.getPagedResultsOffset());
+			log.debug("SearchResul was returned (pagination): cookie: " + options.getPagedResultsCookie() + "  --- offset: "+options.getPagedResultsOffset());
 			String cookie = searchResutl.getPagedResultsCookie();
 			int remainingResult = searchResutl.getRemainingPagedResults();
 			if(remainingResult > 0 && cookie != null){
@@ -279,8 +279,6 @@ public class ConnIdIcConnectorService implements IcConnectorService {
 				options.getOptions().put(OperationOptions.OP_PAGED_RESULTS_OFFSET, options.getPagedResultsOffset()+1);
 				this.pageSearch(conn, objectClass, filter, handler, options);
 			}
-		}else{
-			log.info("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!searchResult is NULL!!!!!!!!!!!!!!!!!!!!!!!!!!");
 		}
 	}
 

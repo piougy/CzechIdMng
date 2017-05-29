@@ -35,6 +35,10 @@ export class IdentityTable extends Advanced.AbstractTableContent {
     return this.props.identityManager;
   }
 
+  getUiKey() {
+    return this.props.uiKey;
+  }
+
   setTreeNodeId(treeNodeId, cb) {
     this.refs.treeNodeId.setValue(treeNodeId, cb);
   }

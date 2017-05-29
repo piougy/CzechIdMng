@@ -188,7 +188,12 @@ class AdvancedTable extends Basic.AbstractContextComponent {
       if (!filterValues[property]) {
         continue;
       }
-      filterForm.getComponent(property).setValue(null);
+      const filterComponent = filterForm.getComponent(property);
+      if (!filterComponent) {
+        // filter is not rendered
+        continue;
+      }
+      filterComponent.setValue(null);
     }
     // prevent sort and pagination
     let userSearchParameters = _searchParameters.setFilters(manager.getDefaultSearchParameters().getFilters());

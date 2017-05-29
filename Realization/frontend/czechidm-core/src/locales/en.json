@@ -989,7 +989,7 @@
         "header": "New form definition"
       },
       "filter": {
-        "text": "Name"
+        "text": "Code or name"
       },
       "attributes": {
         "title": "Form Attributes"
@@ -1016,7 +1016,7 @@
         "success": "Attribute [{{name}}] successfully saved"
       },
       "filter": {
-        "name": "Name"
+        "code": "Code"
       }
     },
     "scripts": {

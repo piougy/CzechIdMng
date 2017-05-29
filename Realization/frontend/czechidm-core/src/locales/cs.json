@@ -1027,7 +1027,7 @@
         "header": "Nová definice formuláře"
       },
       "filter": {
-        "text": "Název"
+        "text": "Kód či název"
       },
       "attributes": {
         "title": "Attributy formuláře"
@@ -1054,7 +1054,7 @@
         "success": "Atribut [{{name}}] byl úspěšně uložen"
       },
       "filter": {
-        "name": "Název položky"
+        "code": "Kód položky"
       }
     },
     "scripts": {

@@ -1092,6 +1092,9 @@
       "menu-title": "Role",
       "header": "Správa rolí",
       "title": "Správa rolí",
+      "button": {
+        "allRoles": "Všechny role"
+      },
       "edit": {
         "title": "Detail role",
         "header": "{{name}} detail role"
@@ -2050,6 +2053,7 @@
       "subRoles": "Podřazené role",
       "authorities": "Oprávnění",
       "approveRemove": "Schvalovat odebírání rolí",
+      "canBeRequested": "O roli lze žádat",
       "description": "Popis",
       "guarantees": "Garanti role",
       "roleCatalogue": {

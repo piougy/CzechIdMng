@@ -31,9 +31,9 @@ import org.springframework.web.servlet.HandlerMapping;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.rest.AbstractReadEntityController;
+import eu.bcvsolutions.idm.core.api.rest.AbstractReadDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
-import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
+import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 
 /**
  * Root api controller (documentation purpose only) - exposes root endpoints -
@@ -41,14 +41,14 @@ import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
  * 
  * TODO: parameter data types 
  * TODO: other searches than quick \
- * TODO: readme and example documentation endpoints (maybe static without reflection)
+ * TODO: readme and example documentation endpoints (maybe static without reflection) ... or swagger
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
  * @author Radek Tomiška
  *
  */
 @RestController
-@RequestMapping(value = BaseEntityController.BASE_PATH)
+@RequestMapping(value = BaseController.BASE_PATH)
 public class RootController implements BaseController {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(RootController.class);
@@ -67,26 +67,27 @@ public class RootController implements BaseController {
 	 * List of all root endpoints
 	 *
 	 * TODO: authentication endpoint
+	 * TODO: status endpoint
 	 */
+	@SuppressWarnings("rawtypes")
 	@RequestMapping(method = RequestMethod.GET)
 	public ResponseEntity<?> rootApi() {
-		@SuppressWarnings("rawtypes")
-		Map<String, AbstractReadEntityController> controllers = context
-				.getBeansOfType(AbstractReadEntityController.class);
+		Map<String, AbstractReadDtoController> controllers = context
+				.getBeansOfType(AbstractReadDtoController.class);
 
 		LOG.debug("Found [{}] read entity controllers", controllers.size());
 
 		ResourceSupport links = new ResourceSupport();
-		for (AbstractReadEntityController<?, ?> controllerProxy : controllers.values()) {
+		for (AbstractReadDtoController<?, ?> controllerProxy : controllers.values()) {
 			Class<?> controller = AopProxyUtils.ultimateTargetClass(controllerProxy);
 			String[] annotations = controller.getAnnotation(RequestMapping.class).value();
 
 			if (annotations.length > 0) {
 				String[] completeName = annotations[0].split("/");
-				String resourceName = annotations[0].replace(BaseEntityController.BASE_PATH, "");
+				String resourceName = annotations[0].replace(BaseDtoController.BASE_PATH, "");
 				Link selfLink = linkTo(BaseController.class).withSelfRel();
 				// construct link to endpoint quick search doc
-				links.add(new Link(new UriTemplate(selfLink.getHref() + BaseEntityController.BASE_PATH + resourceName,
+				links.add(new Link(new UriTemplate(selfLink.getHref() + BaseDtoController.BASE_PATH + resourceName,
 						TemplateVariables.NONE), completeName[completeName.length - 1]));
 			}
 		}
@@ -105,24 +106,24 @@ public class RootController implements BaseController {
 	@RequestMapping(path = "/doc", method = RequestMethod.GET)
 	public ResponseEntity<?> allQuickSearchDocumentations() {
 		@SuppressWarnings("rawtypes")
-		Map<String, AbstractReadEntityController> controllers = context
-				.getBeansOfType(AbstractReadEntityController.class);
+		Map<String, AbstractReadDtoController> controllers = context
+				.getBeansOfType(AbstractReadDtoController.class);
 
 		LOG.debug("Found [{}] read entity controllers", controllers.size());
 
 		ResourceSupport links = new ResourceSupport();
-		for (AbstractReadEntityController<?, ?> controllerProxy : controllers.values()) {
+		for (AbstractReadDtoController<?, ?> controllerProxy : controllers.values()) {
 			Class<?> controller = AopProxyUtils.ultimateTargetClass(controllerProxy);
 			String[] annotations = controller.getAnnotation(RequestMapping.class).value();
 
 			if (annotations.length > 0) {
 				String[] completeName = annotations[0].split("/");
-				String resourceName = annotations[0].replace(BaseEntityController.BASE_PATH, "");
+				String resourceName = annotations[0].replace(BaseDtoController.BASE_PATH, "");
 				Link selfLink = linkTo(BaseController.class).withSelfRel();
 				// construct link to endpoint quick search doc
 				links.add(
 						new Link(
-								new UriTemplate(selfLink.getHref() + BaseEntityController.BASE_PATH + "/doc"
+								new UriTemplate(selfLink.getHref() + BaseDtoController.BASE_PATH + "/doc"
 										+ resourceName + "/search", TemplateVariables.NONE),
 								completeName[completeName.length - 1]));
 			}
@@ -138,19 +139,21 @@ public class RootController implements BaseController {
 	/**
 	 * Returns quick search documentation
 	 * 
+	 * TODO: use registred filter builder 
+	 * 
 	 * @param request
 	 * @return
 	 */
 	@RequestMapping(value = "/doc/{" + RESOURCE_NAME + "}/search", method = RequestMethod.GET)
 	public ResponseEntity<?> quickSeachDocumentation(HttpServletRequest request) {
 		@SuppressWarnings("rawtypes")
-		Map<String, AbstractReadEntityController> controllers = context
-				.getBeansOfType(AbstractReadEntityController.class);
+		Map<String, AbstractReadDtoController> controllers = context
+				.getBeansOfType(AbstractReadDtoController.class);
 
 		String resourceName = ((Map<?, ?>) request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE))
 				.get(RESOURCE_NAME).toString();
 
-		for (AbstractReadEntityController<?, ?> controllerProxy : controllers.values()) {
+		for (AbstractReadDtoController<?, ?> controllerProxy : controllers.values()) {
 			Class<?> controller = AopProxyUtils.ultimateTargetClass(controllerProxy);
 			String[] annotations = controller.getAnnotation(RequestMapping.class).value();
 

@@ -53,14 +53,10 @@ public class DefaultEntityEventManager implements EntityEventManager {
 		this.lookupService = lookupService;
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	@SuppressWarnings("unchecked")
 	public <E extends Serializable> EventContext<E> process(EntityEvent<E> event) {
 		Assert.notNull(event);
-		//
 		Serializable content = event.getContent();
 		//
 		LOG.debug("Publishing event [{}] [{}]", content.getClass().getSimpleName(), event.getType());
@@ -77,8 +73,9 @@ public class DefaultEntityEventManager implements EntityEventManager {
 			}
 		}
 		//
-		//
 		this.publisher.publishEvent(event); 
+		LOG.debug("Publishing event [{}] [{}] is completed", content.getClass().getSimpleName(), event.getType());
+		//
 		return event.getContext();
 	}
 

@@ -29,10 +29,8 @@ import eu.bcvsolutions.idm.core.security.evaluator.AbstractAuthorizationEvaluato
 @Description("Permissions to subordinates.")
 public class SubordinatesEvaluator extends AbstractAuthorizationEvaluator<IdmIdentity> {
 	
-	@Autowired
-	private SecurityService securityService;
-	@Autowired
-	private FilterManager filterManager;
+	@Autowired private SecurityService securityService;
+	@Autowired private FilterManager filterManager;
 
 	@Override
 	public Predicate getPredicate(Root<IdmIdentity> root, CriteriaQuery<?> query, CriteriaBuilder builder, AuthorizationPolicy policy, BasePermission... permission) {

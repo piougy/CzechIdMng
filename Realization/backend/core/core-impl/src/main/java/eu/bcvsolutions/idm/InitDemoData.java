@@ -48,11 +48,11 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.IdentityBasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
-import eu.bcvsolutions.idm.core.security.evaluator.BasePermissionEvaluator;
 import eu.bcvsolutions.idm.core.security.evaluator.identity.ContractGuaranteeByIdentityContractEvaluator;
 import eu.bcvsolutions.idm.core.security.evaluator.identity.IdentityContractByIdentityEvaluator;
 import eu.bcvsolutions.idm.core.security.evaluator.identity.IdentityRoleByIdentityEvaluator;
 import eu.bcvsolutions.idm.core.security.evaluator.identity.SelfIdentityEvaluator;
+import eu.bcvsolutions.idm.core.security.evaluator.role.RoleCanBeRequestedEvaluator;
 
 /**
  * Initialize demo data for application
@@ -182,15 +182,9 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				IdmRole role1 = new IdmRole();
 				role1.setName(DEFAULT_ROLE_NAME);
 				role1 = this.roleService.save(role1);
-				IdmAuthorizationPolicyDto policy = new IdmAuthorizationPolicyDto();
-				// add autocomplete data access
-				policy.setPermissions(IdmBasePermission.AUTOCOMPLETE);
-				policy.setRole(role1.getId());
-				policy.setEvaluator(BasePermissionEvaluator.class);
-				authorizationPolicyService.save(policy);
 				// self policy
 				IdmAuthorizationPolicyDto selfPolicy = new IdmAuthorizationPolicyDto();
-				selfPolicy.setPermissions(IdmBasePermission.READ, IdentityBasePermission.PASSWORDCHANGE);
+				selfPolicy.setPermissions(IdmBasePermission.AUTOCOMPLETE, IdmBasePermission.READ, IdentityBasePermission.PASSWORDCHANGE);
 				selfPolicy.setRole(role1.getId());
 				selfPolicy.setGroupPermission(CoreGroupPermission.IDENTITY.getName());
 				selfPolicy.setAuthorizableType(IdmIdentity.class.getCanonicalName());
@@ -217,6 +211,14 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				contractGuaranteePolicy.setAuthorizableType(IdmContractGuarantee.class.getCanonicalName());
 				contractGuaranteePolicy.setEvaluator(ContractGuaranteeByIdentityContractEvaluator.class);
 				authorizationPolicyService.save(contractGuaranteePolicy);
+				// only autocomplete roles that can be requested
+				IdmAuthorizationPolicyDto applyForPolicy = new IdmAuthorizationPolicyDto();
+				applyForPolicy.setPermissions(IdmBasePermission.AUTOCOMPLETE);
+				applyForPolicy.setRole(role1.getId());
+				applyForPolicy.setGroupPermission(CoreGroupPermission.ROLE.getName());
+				applyForPolicy.setAuthorizableType(IdmRole.class.getCanonicalName());
+				applyForPolicy.setEvaluator(RoleCanBeRequestedEvaluator.class);
+				authorizationPolicyService.save(applyForPolicy);
 				//
 				LOG.info(MessageFormat.format("Role created [id: {0}]", role1.getId()));
 				//

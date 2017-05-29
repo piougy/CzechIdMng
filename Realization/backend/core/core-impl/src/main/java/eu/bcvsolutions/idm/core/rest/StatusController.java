@@ -4,7 +4,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
+import eu.bcvsolutions.idm.core.api.rest.BaseController;
 
 /**
  * "Naive" status
@@ -13,7 +13,7 @@ import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
  *
  */
 @RestController
-@RequestMapping(value = BaseEntityController.BASE_PATH)
+@RequestMapping(value = BaseController.BASE_PATH)
 public class StatusController {
 
 	public static final String OK_STATUS_PLAIN = "OK";

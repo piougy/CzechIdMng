@@ -11,7 +11,6 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
-import org.activiti.engine.impl.persistence.entity.TaskEntity;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,9 +27,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdentityFilter;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
-import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
-import eu.bcvsolutions.idm.core.config.domain.DynamicCorsConfiguration;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmAuthorityChange;
@@ -80,7 +77,6 @@ public class DefaultIdmIdentityService
 	private final IdmAuthorityChangeRepository authChangeRepository;
 	private final EntityEventManager entityEventManager;
 	private final RoleConfiguration roleConfiguration;
-	private final ConfigurationService configurationService;
 	
 	@Autowired
 	public DefaultIdmIdentityService(
@@ -89,8 +85,7 @@ public class DefaultIdmIdentityService
 			IdmRoleService roleService,
 			EntityEventManager entityEventManager,
 			IdmAuthorityChangeRepository authChangeRepository,
-			RoleConfiguration roleConfiguration,
-			ConfigurationService configurationService) {
+			RoleConfiguration roleConfiguration	) {
 		super(repository);
 		//
 		Assert.notNull(formService);
@@ -98,7 +93,6 @@ public class DefaultIdmIdentityService
 		Assert.notNull(entityEventManager);
 		Assert.notNull(authChangeRepository);
 		Assert.notNull(roleConfiguration);
-		Assert.notNull(configurationService);
 		//
 		this.formService = formService;
 		this.repository = repository;
@@ -106,7 +100,6 @@ public class DefaultIdmIdentityService
 		this.authChangeRepository = authChangeRepository;
 		this.entityEventManager = entityEventManager;
 		this.roleConfiguration = roleConfiguration;
-		this.configurationService = configurationService;
 	}
 	
 	@Override

@@ -1,8 +1,10 @@
 package eu.bcvsolutions.idm.ic.connid.service.impl;
 
 import java.text.MessageFormat;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.identityconnectors.framework.api.APIConfiguration;
@@ -13,12 +15,15 @@ import org.identityconnectors.framework.common.exceptions.InvalidCredentialExcep
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.ObjectClass;
+import org.identityconnectors.framework.common.objects.OperationOptions;
 import org.identityconnectors.framework.common.objects.ResultsHandler;
+import org.identityconnectors.framework.common.objects.SearchResult;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.identityconnectors.framework.common.objects.SyncResultsHandler;
 import org.identityconnectors.framework.common.objects.SyncToken;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.identityconnectors.framework.common.objects.filter.Filter;
+import org.identityconnectors.framework.spi.SearchResultsHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
@@ -229,7 +234,6 @@ public class ConnIdIcConnectorService implements IcConnectorService {
 		Assert.notNull(handler);
 		
 		log.debug("Start search for connector {} and objectClass {} and filter {} - ConnId", connectorInstance.getConnectorKey().toString(), objectClass.getDisplayName(), filter);
-		
 		ConnectorFacade conn = getConnectorFacade(connectorInstance, connectorConfiguration);
 
 		ObjectClass objectClassConnId = ConnIdIcConvertUtil.convertIcObjectClass(objectClass);
@@ -237,17 +241,47 @@ public class ConnIdIcConnectorService implements IcConnectorService {
 			objectClassConnId = ObjectClass.ACCOUNT;
 		}
 		
-		ResultsHandler handlerConnId = new ResultsHandler() {
+		final SearchResultsHandler handlerConnId = new SearchResultsHandler() {
 			
 			@Override
 			public boolean handle(ConnectorObject connectorObject) {
 				
 				return handler.handle(ConnIdIcConvertUtil.convertConnIdConnectorObject(connectorObject));
 			}
+
+			@Override
+			public void handleResult(SearchResult result) {
+				String cookie = result.getPagedResultsCookie();
+				int remainingResult = result.getRemainingPagedResults();
+				log.info("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!searchResult is NOTTTT NULL (handleResult)!!!!!!!!!!!!!!!!!!!!!!!!!! cookie: " + result.getPagedResultsCookie() + "  --- remaining: "+result.getRemainingPagedResults());
+				
+				//this.handleResult(new SearchResult(cookie, remainingResult));
+			}
 		};
 		Filter filterConnId = ConnIdIcConvertUtil.convertIcFilter(filter);
+		Map<String, Object> searchOpt = new HashMap<String, Object>();
+	    searchOpt.put(OperationOptions.OP_PAGE_SIZE, 100);
+	    searchOpt.put(OperationOptions.OP_PAGED_RESULTS_OFFSET, 1);
+	    OperationOptions searchOptions = new OperationOptions(searchOpt);
+	    	
+		this.pageSearch(conn, objectClassConnId, filterConnId, handlerConnId, searchOptions);
+	}
 	
-		conn.search(objectClassConnId, filterConnId, handlerConnId, null);
+	private void pageSearch(ConnectorFacade conn, ObjectClass objectClass, Filter filter,
+            ResultsHandler handler, OperationOptions options){
+		SearchResult searchResutl = conn.search(objectClass, filter, handler, options);
+		if(searchResutl != null){
+			log.info("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!searchResult is NOTTTT NULL!!!!!!!!!!!!!!!!!!!!!!!!!! cookie: " + options.getPagedResultsCookie() + "  --- offset: "+options.getPagedResultsOffset());
+			String cookie = searchResutl.getPagedResultsCookie();
+			int remainingResult = searchResutl.getRemainingPagedResults();
+			if(remainingResult > 0 && cookie != null){
+				options.getOptions().put(OperationOptions.OP_PAGED_RESULTS_COOKIE, cookie);
+				options.getOptions().put(OperationOptions.OP_PAGED_RESULTS_OFFSET, options.getPagedResultsOffset()+1);
+				this.pageSearch(conn, objectClass, filter, handler, options);
+			}
+		}else{
+			log.info("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!searchResult is NULL!!!!!!!!!!!!!!!!!!!!!!!!!!");
+		}
 	}
 
 	private ConnectorFacade getConnectorFacade(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration) {
@@ -261,7 +295,6 @@ public class ConnIdIcConnectorService implements IcConnectorService {
 		// Use the ConnectorFacadeFactory's newInstance() method to get a new
 		// connector.
 		ConnectorFacade conn = ConnectorFacadeFactory.getManagedInstance().newInstance(config);
-
 		// Make sure we have set up the Configuration properly
 		conn.validate();
 		return conn;

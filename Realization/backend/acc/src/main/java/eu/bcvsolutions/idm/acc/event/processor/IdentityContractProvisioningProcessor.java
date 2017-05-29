@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
@@ -63,20 +64,22 @@ public class IdentityContractProvisioningProcessor extends AbstractEntityEventPr
 		// execute provisioning for all subordinates by given contract
 		if (isIncludeSubordinates()) {
 			Set<UUID> originalSubordinates = (Set<UUID>) event.getProperties().get(PROPERTY_PREVIOUS_SUBORDINATES);
-			findAllSubordinates(identity.getId())
-				.forEach(subordinate -> {
-					if (originalSubordinates.contains(subordinate.getId())) {
-						originalSubordinates.remove(subordinate.getId());
-					} else {
-						LOG.debug("Call provisioning for identity's [{}] newly assigned subordinate [{}]", identity.getUsername(), subordinate.getUsername());
-						provisioningService.doProvisioning(subordinate);
-					}
+			if (CollectionUtils.isNotEmpty(originalSubordinates)) {
+				findAllSubordinates(identity.getId())
+					.forEach(subordinate -> {
+						if (originalSubordinates.contains(subordinate.getId())) {
+							originalSubordinates.remove(subordinate.getId());
+						} else {
+							LOG.debug("Call provisioning for identity's [{}] newly assigned subordinate [{}]", identity.getUsername(), subordinate.getUsername());
+							provisioningService.doProvisioning(subordinate);
+						}
+					});
+				originalSubordinates.forEach(originalSubordinateId -> {
+					IdmIdentity originalSubordinate = (IdmIdentity) lookupService.lookupEntity(IdmIdentity.class, originalSubordinateId);
+					LOG.debug("Call provisioning for identity's [{}] previous subordinate [{}]", identity.getUsername(), originalSubordinate.getUsername());
+					provisioningService.doProvisioning(originalSubordinate);
 				});
-			originalSubordinates.forEach(originalSubordinateId -> {
-				IdmIdentity originalSubordinate = (IdmIdentity) lookupService.lookupEntity(IdmIdentity.class, originalSubordinateId);
-				LOG.debug("Call provisioning for identity's [{}] previous subordinate [{}]", identity.getUsername(), originalSubordinate.getUsername());
-				provisioningService.doProvisioning(originalSubordinate);
-			});
+			}
 		}	
 		return new DefaultEventResult<>(event, this);
 	}

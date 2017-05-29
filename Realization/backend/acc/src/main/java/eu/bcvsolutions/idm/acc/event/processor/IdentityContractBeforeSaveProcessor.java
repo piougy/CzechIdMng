@@ -4,6 +4,8 @@ import java.util.HashSet;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 
@@ -15,7 +17,6 @@ import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
-import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 
@@ -33,12 +34,11 @@ public class IdentityContractBeforeSaveProcessor extends AbstractEntityEventProc
 	public static final String PROCESSOR_NAME = "identity-contract-before-save-processor";
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdentityContractBeforeSaveProcessor.class);
 	//
+	@Autowired private ApplicationContext context;
 	private IdentityContractProvisioningProcessor provisioningProcessor;
 	
 	public IdentityContractBeforeSaveProcessor() {
 		super(CoreEventType.CREATE, CoreEventType.UPDATE, CoreEventType.DELETE, CoreEventType.EAV_SAVE);
-		//
-		provisioningProcessor = AutowireHelper.autowireBean(new IdentityContractProvisioningProcessor());
 	}
 	
 	@Override
@@ -48,9 +48,9 @@ public class IdentityContractBeforeSaveProcessor extends AbstractEntityEventProc
 
 	@Override
 	public EventResult<IdmIdentityContractDto> process(EntityEvent<IdmIdentityContractDto> event) {
-		if (provisioningProcessor.isIncludeSubordinates()) {
+		if (getProvisioningProcessor().isIncludeSubordinates()) {
 			// set original subordinates as Set<UUID>
-			HashSet<UUID> originalSubordinates = provisioningProcessor
+			HashSet<UUID> originalSubordinates = getProvisioningProcessor()
 					.findAllSubordinates(event.getContent().getIdentity())
 					.stream()
 					.map(IdmIdentity::getId)
@@ -64,5 +64,12 @@ public class IdentityContractBeforeSaveProcessor extends AbstractEntityEventProc
 	@Override
 	public int getOrder() {
 		return -ProvisioningEvent.DEFAULT_PROVISIONING_ORDER;
+	}
+	
+	private IdentityContractProvisioningProcessor getProvisioningProcessor() {
+		if (provisioningProcessor == null) {
+			provisioningProcessor = context.getAutowireCapableBeanFactory().createBean(IdentityContractProvisioningProcessor.class);
+		}
+		return provisioningProcessor;
 	}
 }

@@ -2,7 +2,6 @@ package eu.bcvsolutions.idm.core.api.dto.filter;
 
 import java.util.UUID;
 
-import org.springframework.util.Assert;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
@@ -41,11 +40,13 @@ public class DataFilter extends QuickFilter {
 	@JsonIgnore
 	protected final MultiValueMap<String, Object> data;
 	
+	public DataFilter(Class<? extends BaseDto> dtoClass) {
+		this(dtoClass, null);
+	}
+	
 	public DataFilter(Class<? extends BaseDto> dtoClass, MultiValueMap<String, Object> data) {
-		Assert.notNull(data, "Filtering properties are required!");
-		//
 		this.dtoClass = dtoClass;
-		this.data = data;
+		this.data = data != null ? data : new LinkedMultiValueMap<>();
 	}
 	
 	/**

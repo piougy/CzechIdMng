@@ -106,6 +106,7 @@ public class EavCodeManagersFilter
 								),
 						builder.equal(subqueryWpRoot.get(IdmIdentityContract_.identity).get(IdmIdentity_.id), filter.getManagersFor()),
 						builder.equal(subRootEav.get(IdmTreeNodeFormValue_.owner), wp),
+						// by tree type structure
 						filter.getManagersByTreeType() == null 
 							? builder.conjunction() 
 							: builder.equal(wp.get(IdmTreeNode_.treeType).get(IdmTreeType_.id), filter.getManagersByTreeType()),

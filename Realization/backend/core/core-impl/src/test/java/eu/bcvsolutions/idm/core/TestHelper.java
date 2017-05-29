@@ -2,6 +2,8 @@ package eu.bcvsolutions.idm.core;
 
 import java.util.UUID;
 
+import org.joda.time.LocalDate;
+
 import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
@@ -165,6 +167,26 @@ public interface TestHelper {
 	 * @return
 	 */
 	IdmIdentityContractDto createIdentityContact(IdmIdentityDto identity);
+	
+	/**
+	 * Creates identity contract on given position
+	 * 
+	 * @param identity
+	 * @param position
+	 * @return
+	 */
+	IdmIdentityContractDto createIdentityContact(IdmIdentityDto identity, IdmTreeNode position);
+	
+	/**
+	 * Creates identity contract on given position
+	 * 
+	 * @param identity
+	 * @param position
+	 * @param validFrom
+	 * @param validTill
+	 * @return
+	 */
+	IdmIdentityContractDto createIdentityContact(IdmIdentityDto identity, IdmTreeNode position, LocalDate validFrom, LocalDate validTill);
 	
 	/**
 	 * Deletes identity's contract

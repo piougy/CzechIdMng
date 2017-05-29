@@ -80,6 +80,7 @@ public interface IdmIdentityService extends
 
 	/**
 	 * Method finds all identity's managers by identity contract (guarantee or by assigned tree structure).
+	 * If no manager is found, then identities wit admin role (by configuration) is returned.
 	 * 
 	 * @param forIdentity
 	 * @param byTreeType If optional tree type is given, then only managers defined with this type is returned

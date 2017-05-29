@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core;
 
 import java.util.UUID;
 
+import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
@@ -104,7 +105,7 @@ public class DefaultTestHelper implements TestHelper {
 	
 	@Override
 	public IdmTreeNode createTreeNode(IdmTreeType treeType, IdmTreeNode parent) {
-		return createTreeNode(treeTypeService.getDefaultTreeType(), null, parent);
+		return createTreeNode(treeType, null, parent);
 	}
 	
 	@Override
@@ -195,9 +196,22 @@ public class DefaultTestHelper implements TestHelper {
 
 	@Override
 	public IdmIdentityContractDto createIdentityContact(IdmIdentityDto identity) {
+		return createIdentityContact(identity, null);
+	}
+	
+	@Override
+	public IdmIdentityContractDto createIdentityContact(IdmIdentityDto identity, IdmTreeNode position) {
+		return createIdentityContact(identity, position, null, null);
+	}
+	
+	@Override
+	public IdmIdentityContractDto createIdentityContact(IdmIdentityDto identity, IdmTreeNode position, LocalDate validFrom, LocalDate validTill) {
 		IdmIdentityContractDto contract = new IdmIdentityContractDto();
 		contract.setIdentity(identity.getId());
 		contract.setPosition(createName());
+		contract.setWorkPosition(position == null ? null : position.getId());
+		contract.setValidFrom(validFrom);
+		contract.setValidTill(validTill);
 		return identityContractService.save(contract);
 	}
 	

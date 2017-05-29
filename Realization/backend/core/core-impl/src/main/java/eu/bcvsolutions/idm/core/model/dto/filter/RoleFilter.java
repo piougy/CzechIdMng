@@ -17,7 +17,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
  * @author Radek Tomiška
  *
  */
-public class RoleFilter extends DataFilter  implements CorrelationFilter {
+public class RoleFilter extends DataFilter implements CorrelationFilter {
 
 	private RoleType roleType;
 	private IdmRoleCatalogue roleCatalogue;

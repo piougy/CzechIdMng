@@ -1989,17 +1989,28 @@
        }
     },
     "FormAttribute" : {
-      "code": "Code",
-      "name": "Name",
-      "seq": "Order",
+      "code": {
+        "label": "Code",
+        "help": "Attribute key."
+      },
+      "name": {
+        "label": "Name",
+        "help": "Will be shown on form detail."
+      },
+      "seq": {
+        "label": "Order",
+        "help": "Attribute order on form detail."
+      },
       "persistentType": "Attribute type",
       "description": "Description",
-      "name": "Name",
       "required": "Required",
       "readonly": "Read-only",
       "confidential": "Confidential",
       "multiple": "Multivalued",
-      "placeholder": "Placeholder",
+      "placeholder": {
+        "label": "Placeholder",
+        "help": "Will be shown in empty attribute input as help text."
+      },
       "defaultValue": "Default value",
       "unmodifiable": {
         "help": "System attribute cannot be deleted. Some of its configurations are not able for edit.",

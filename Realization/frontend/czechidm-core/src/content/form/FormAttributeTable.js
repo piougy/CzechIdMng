@@ -130,9 +130,9 @@ class FormAttributeTable extends Advanced.AbstractTableContent {
             }
             sort={false}
             _searchParameters={ this.getSearchParameters() }/>
-          <Advanced.Column property="seq" sort width="5%"/>
-          <Advanced.Column property="code" sort/>
-          <Advanced.Column property="name" sort/>
+          <Advanced.Column property="seq" header={ this.i18n('entity.FormAttribute.seq.label') } sort width="5%"/>
+          <Advanced.Column property="code" header={ this.i18n('entity.FormAttribute.code.label') } sort/>
+          <Advanced.Column property="name" header={ this.i18n('entity.FormAttribute.name.label') } sort/>
           <Advanced.Column property="persistentType" sort />
           <Advanced.Column property="unmodifiable" header={this.i18n('entity.FormAttribute.unmodifiable.label')} face="bool" sort />
         </Advanced.Table>

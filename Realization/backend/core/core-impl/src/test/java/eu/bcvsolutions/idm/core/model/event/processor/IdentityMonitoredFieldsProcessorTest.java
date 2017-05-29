@@ -18,13 +18,12 @@ import eu.bcvsolutions.idm.core.TestHelper;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
-import eu.bcvsolutions.idm.core.model.event.processor.identity.IdentityNotificationProcessor;
+import eu.bcvsolutions.idm.core.model.event.processor.identity.IdentityMonitoredFieldsProcessor;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationLogDto;
 import eu.bcvsolutions.idm.core.notification.dto.filter.NotificationFilter;
 import eu.bcvsolutions.idm.core.notification.repository.IdmEmailLogRepository;
 import eu.bcvsolutions.idm.core.notification.repository.IdmNotificationLogRepository;
-import eu.bcvsolutions.idm.core.notification.service.api.IdmEmailLogService;
 import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationLogService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
@@ -35,8 +34,8 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * @author Svanda
  *
  */
-public class IdentityNotificationProcessorTest extends AbstractIntegrationTest {
-	private static final String PROCESSOR_KEY = "idm.sec.core.processor." + IdentityNotificationProcessor.PROCESSOR_NAME
+public class IdentityMonitoredFieldsProcessorTest extends AbstractIntegrationTest {
+	private static final String PROCESSOR_KEY = "idm.sec.core.processor." + IdentityMonitoredFieldsProcessor.PROCESSOR_NAME
 			+ ".";
 
 	@Autowired
@@ -68,9 +67,9 @@ public class IdentityNotificationProcessorTest extends AbstractIntegrationTest {
 	@Test
 	public void sendNotificationTest() {
 		configurationService.setValue(PROCESSOR_KEY + "enabled", Boolean.TRUE.toString());
-		configurationService.setValue(PROCESSOR_KEY + IdentityNotificationProcessor.PROPERTY_MONITORED_FIELDS,
+		configurationService.setValue(PROCESSOR_KEY + IdentityMonitoredFieldsProcessor.PROPERTY_MONITORED_FIELDS,
 				"firstName");
-		configurationService.setValue(PROCESSOR_KEY + IdentityNotificationProcessor.PROPERTY_RECIPIENTS_ROLE,
+		configurationService.setValue(PROCESSOR_KEY + IdentityMonitoredFieldsProcessor.PROPERTY_RECIPIENTS_ROLE,
 				"superAdminRole");
 		//
 		IdmIdentityDto identity = helper.createIdentity();
@@ -100,9 +99,9 @@ public class IdentityNotificationProcessorTest extends AbstractIntegrationTest {
 	@Test
 	public void changeNotMonitoredFieldTest() {
 		configurationService.setValue(PROCESSOR_KEY + "enabled", Boolean.TRUE.toString());
-		configurationService.setValue(PROCESSOR_KEY + IdentityNotificationProcessor.PROPERTY_MONITORED_FIELDS,
+		configurationService.setValue(PROCESSOR_KEY + IdentityMonitoredFieldsProcessor.PROPERTY_MONITORED_FIELDS,
 				"firstName");
-		configurationService.setValue(PROCESSOR_KEY + IdentityNotificationProcessor.PROPERTY_RECIPIENTS_ROLE,
+		configurationService.setValue(PROCESSOR_KEY + IdentityMonitoredFieldsProcessor.PROPERTY_RECIPIENTS_ROLE,
 				"superAdminRole");
 		//
 		IdmIdentityDto identity = helper.createIdentity();
@@ -132,9 +131,9 @@ public class IdentityNotificationProcessorTest extends AbstractIntegrationTest {
 	@Test
 	public void sendNotificationDisabledTest() {
 		configurationService.setValue(PROCESSOR_KEY + "enabled", Boolean.FALSE.toString());
-		configurationService.setValue(PROCESSOR_KEY + IdentityNotificationProcessor.PROPERTY_MONITORED_FIELDS,
+		configurationService.setValue(PROCESSOR_KEY + IdentityMonitoredFieldsProcessor.PROPERTY_MONITORED_FIELDS,
 				"firstName");
-		configurationService.setValue(PROCESSOR_KEY + IdentityNotificationProcessor.PROPERTY_RECIPIENTS_ROLE,
+		configurationService.setValue(PROCESSOR_KEY + IdentityMonitoredFieldsProcessor.PROPERTY_RECIPIENTS_ROLE,
 				"superAdminRole");
 		//
 		IdmIdentityDto identity = helper.createIdentity();
@@ -161,9 +160,9 @@ public class IdentityNotificationProcessorTest extends AbstractIntegrationTest {
 	@Test(expected = ResultCodeException.class)
 	public void sendNotificationErrorTest() {
 		configurationService.setValue(PROCESSOR_KEY + "enabled", Boolean.TRUE.toString());
-		configurationService.setValue(PROCESSOR_KEY + IdentityNotificationProcessor.PROPERTY_MONITORED_FIELDS,
+		configurationService.setValue(PROCESSOR_KEY + IdentityMonitoredFieldsProcessor.PROPERTY_MONITORED_FIELDS,
 				"firstName, WRONGFIELD");
-		configurationService.setValue(PROCESSOR_KEY + IdentityNotificationProcessor.PROPERTY_RECIPIENTS_ROLE,
+		configurationService.setValue(PROCESSOR_KEY + IdentityMonitoredFieldsProcessor.PROPERTY_RECIPIENTS_ROLE,
 				"superAdminRole");
 		//
 		IdmIdentityDto identity = helper.createIdentity();

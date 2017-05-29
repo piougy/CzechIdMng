@@ -70,8 +70,7 @@ public class DefaultTestHelper implements TestHelper {
 		identity.setFirstName("Test");
 		identity.setLastName("Identity");
 		identity.setPassword(new GuardedString("password"));
-		identity = identityService.save(identity);
-		return identity;
+		return identityService.save(identity);
 	}
 	
 	@Override

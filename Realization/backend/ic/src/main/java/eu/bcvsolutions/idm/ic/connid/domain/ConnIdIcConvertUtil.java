@@ -209,6 +209,7 @@ public class ConnIdIcConvertUtil {
 				icConf.getConnectorPoolConfiguration());
 		((APIConfigurationImpl) defaultConnIdConf).setConnectorPoolConfiguration(connectorPoolConfiguration);
 		
+		// This option must be enabled for pagination purpose
 		defaultConnIdConf.getResultsHandlerConfiguration().setFilteredResultsHandlerInValidationMode(true);
 		return defaultConnIdConf;
 	}

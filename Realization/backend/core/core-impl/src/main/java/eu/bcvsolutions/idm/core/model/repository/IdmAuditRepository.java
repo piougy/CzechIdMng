@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.model.repository;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
@@ -23,7 +24,7 @@ public interface IdmAuditRepository extends AbstractEntityRepository<IdmAudit, A
 	@Override
 	@Query(value = "SELECT e "
 				+ "FROM "
-					+ "IdmAudit e "
+					+ "#{#entityName} e "
 				+ "WHERE "
 					+ "("
 						+ " ?#{[0].id == null ? 'null' : ''} = 'null' or e.id = ?#{[0].id} "
@@ -73,10 +74,19 @@ public interface IdmAuditRepository extends AbstractEntityRepository<IdmAudit, A
 					+ ")" )
 	Page<IdmAudit> find(AuditFilter filter, Pageable pageable);
 	
+	@Query(value = "SELECT e "
+			+ "FROM "
+				+ "#{#entityName} e "
+			+ "WHERE "
+				+ "("
+					+ "e.id in (:ids) "
+				+ ")")
+	Page<IdmAudit> findByIds(@Param(value = "ids") List<Long> ids, Pageable pageable);
+	
 	// Query get previous version, from entity id and id current revision
 	@Query(value = "SELECT e "
 			+ "FROM "
-				+ "IdmAudit e "
+				+ "#{#entityName} e "
 			+ "WHERE "
 				+ "("
 					+ "e.entityId = :entityId "

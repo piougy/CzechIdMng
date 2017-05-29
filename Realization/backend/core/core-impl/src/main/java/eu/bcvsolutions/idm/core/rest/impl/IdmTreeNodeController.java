@@ -34,6 +34,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.dto.IdmAuditDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.TreeNodeFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
@@ -42,7 +43,6 @@ import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.core.eav.rest.impl.IdmFormDefinitionController;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
-import eu.bcvsolutions.idm.core.model.entity.IdmAudit;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.entity.eav.IdmTreeNodeFormValue;
@@ -152,7 +152,7 @@ public class IdmTreeNodeController extends DefaultReadWriteEntityController<IdmT
 		if (treeNode == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("treeNode", treeNodeId));
 		}
-		Page<IdmAudit> results = this.auditService.getRevisionsForEntity(IdmTreeNode.class.getSimpleName(), UUID.fromString(treeNodeId), pageable);
+		Page<IdmAuditDto> results = this.auditService.findRevisionsForEntity(IdmTreeNode.class.getSimpleName(), UUID.fromString(treeNodeId), pageable);
 		return toResources(results, assembler, IdmTreeNode.class, null);
 	}
 	

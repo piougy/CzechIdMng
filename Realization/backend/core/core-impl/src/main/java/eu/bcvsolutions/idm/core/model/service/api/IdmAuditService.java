@@ -7,9 +7,11 @@ import java.util.UUID;
 import org.hibernate.envers.exception.RevisionDoesNotExistException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.util.MultiValueMap;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmAuditDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.AuditFilter;
+import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.model.entity.IdmAudit;
 
@@ -181,11 +183,5 @@ public interface IdmAuditService extends ReadWriteDtoService<IdmAuditDto, AuditF
 	 */
 	IdmAuditDto findPreviousRevision(Long revisionId);
 	
-	/**
-	 * Method select revision by in clausule from repository
-	 * 
-	 * @param ids
-	 * @return
-	 */
-	Page<IdmAuditDto> findRevisionByIds(List<Long> ids, Pageable pageable);
+	Page<IdmAuditDto> findEntityWithRelation(Class<? extends AbstractEntity> clazz, MultiValueMap<String, Object> parameters, Pageable pageable);
 }

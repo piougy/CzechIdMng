@@ -401,6 +401,11 @@ module.exports = {
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUDIT_READ'] } ]
         },
         {
+          path: 'identities',
+          component: require('./src/content/audit/identity/AuditIdentityContent'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUDIT_READ'] } ]
+        },
+        {
           path: 'entities/:entityId/diff/:revID',
           component: require('./src/content/audit/AuditDetail'),
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUDIT_READ'] } ]

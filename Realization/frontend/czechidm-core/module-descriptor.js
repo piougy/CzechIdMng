@@ -289,6 +289,19 @@ module.exports = {
             ]
           },
           {
+            'id': 'audit-identities',
+            'labelKey': 'content.audit.title-identities',
+            'order': 42,
+            'path': '/audit/identities',
+            'icon': 'eye-close',
+            'access': [
+              {
+                'type': 'HAS_ANY_AUTHORITY',
+                'authorities': ['AUDIT_READ']
+              }
+            ]
+          },
+          {
             'id': 'audit-notification',
             'labelKey': 'navigation.menu.notifications.label',
             'titleKey': 'navigation.menu.notifications.title',

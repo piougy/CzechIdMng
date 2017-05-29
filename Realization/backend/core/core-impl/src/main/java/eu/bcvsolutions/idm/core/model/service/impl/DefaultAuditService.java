@@ -35,20 +35,26 @@ import org.hibernate.proxy.HibernateProxy;
 import org.hibernate.proxy.LazyInitializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.plugin.core.OrderAwarePluginRegistry;
+import org.springframework.plugin.core.PluginRegistry;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
+import org.springframework.util.MultiValueMap;
 
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmAuditDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.AuditFilter;
+import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
+import eu.bcvsolutions.idm.core.audit.entity.service.AbstractAuditEntityService;
 import eu.bcvsolutions.idm.core.model.entity.IdmAudit;
 import eu.bcvsolutions.idm.core.model.repository.IdmAuditRepository;
 import eu.bcvsolutions.idm.core.model.repository.listener.IdmAuditListener;
@@ -69,15 +75,23 @@ public class DefaultAuditService extends AbstractReadWriteDtoService<IdmAuditDto
 	@PersistenceContext
 	private EntityManager entityManager;
 	
-	@Autowired
-	private IdmAuditRepository auditRepository;
+	private final IdmAuditRepository auditRepository;
 	
 	@LazyCollection(LazyCollectionOption.TRUE)
 	private List<String> allAuditedEntititesNames;
 	
+	private final PluginRegistry<AbstractAuditEntityService, Class<? extends AbstractEntity>> pluginExecutors; 
+	
 	@Autowired
-	public DefaultAuditService(IdmAuditRepository auditRepository) {
+	public DefaultAuditService(IdmAuditRepository auditRepository,
+			List<AbstractAuditEntityService> evaluators) {
 		super(auditRepository);
+		//
+		Assert.notNull(auditRepository);
+		Assert.notNull(evaluators);
+		//
+		this.auditRepository = auditRepository;
+		this.pluginExecutors = OrderAwarePluginRegistry.create(evaluators);
 	}
 	
 	@Override
@@ -508,7 +522,12 @@ public class DefaultAuditService extends AbstractReadWriteDtoService<IdmAuditDto
 	}
 
 	@Override
-	public Page<IdmAuditDto> findRevisionByIds(List<Long> ids, Pageable pageable) {
-		return this.toDtoPage(auditRepository.findByIds(ids, pageable));
+	public Page<IdmAuditDto> findEntityWithRelation(Class<? extends AbstractEntity> clazz, MultiValueMap<String, Object> parameters, Pageable pageable) {
+		AbstractAuditEntityService service = pluginExecutors.getPluginFor(clazz);
+		List<IdmAuditDto> auditsDto = this.toDtos(service.findRevisionBy(service.getFilter(parameters)), true);
+		//
+		int start = pageable.getOffset();
+		int end = (start + pageable.getPageSize()) > auditsDto.size() ? auditsDto.size() : (start + pageable.getPageSize());
+		return new PageImpl<IdmAuditDto>(auditsDto.subList(start, end), pageable, auditsDto.size());
 	}
 }

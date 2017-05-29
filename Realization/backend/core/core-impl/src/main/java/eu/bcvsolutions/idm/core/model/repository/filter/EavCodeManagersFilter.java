@@ -70,7 +70,7 @@ public class EavCodeManagersFilter
 		subquery.select(subRoot);
 		//
 		List<Predicate> subPredicates = new ArrayList<>();
-		if (filter.getManagersByTreeType() == null) {
+		if (filter.getManagersByTreeType() == null && filter.isIncludeGuarantees()) {
 			// manager as guarantee
 			Subquery<IdmIdentityContract> subqueryGuarantee = query.subquery(IdmIdentityContract.class);
 			Root<IdmContractGuarantee> subRootGuarantee = subqueryGuarantee.from(IdmContractGuarantee.class);
@@ -80,7 +80,10 @@ public class EavCodeManagersFilter
 			subqueryGuarantee.where(
 	              builder.and(
 	            		  builder.equal(pathIc.get(IdmIdentityContract_.identity).get(IdmIdentity_.id), filter.getManagersFor()),
-	            		  builder.equal(subRootGuarantee.get(IdmContractGuarantee_.guarantee), root)
+	            		  builder.equal(subRootGuarantee.get(IdmContractGuarantee_.guarantee), root),
+	            		  filter.getManagersByContract() != null // concrete contract id only
+	            		  	? builder.equal(pathIc.get(IdmIdentityContract_.id), filter.getManagersByContract())
+	            		  	: builder.conjunction()
 	              		));
 			subPredicates.add(builder.exists(subqueryGuarantee));
 		}		
@@ -94,6 +97,9 @@ public class EavCodeManagersFilter
 		Path<IdmFormAttribute> eavAttr = subRootEav.get(IdmTreeNodeFormValue_.formAttribute);	
 		Path<IdmTreeNode> wp = subqueryWpRoot.get(IdmIdentityContract_.workPosition);
 		subqueryEav.where(builder.and(
+						filter.getManagersByContract() != null // concrete contract id only
+			    			? builder.equal(subqueryWpRoot.get(IdmIdentityContract_.id), filter.getManagersByContract())
+			    			: builder.conjunction(),
 						builder.equal(subRoot.get(
 								IdmIdentityContract_.workPosition).get(IdmTreeNode_.code), 
 								subRootEav.get(IdmTreeNodeFormValue_.stringValue)

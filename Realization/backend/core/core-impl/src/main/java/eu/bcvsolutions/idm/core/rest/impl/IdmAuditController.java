@@ -24,17 +24,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmAuditDiffDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmAuditDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.AuditFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.rest.AbstractReadEntityController;
-import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
+import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
+import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
-import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
-import eu.bcvsolutions.idm.core.model.entity.IdmAudit;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuditService;
 
 /**
@@ -46,8 +45,13 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmAuditService;
  */
 
 @RepositoryRestController
-@RequestMapping(value = BaseEntityController.BASE_PATH + "/audits")
-public class IdmAuditController extends AbstractReadEntityController<IdmAudit, AuditFilter> {
+@RequestMapping(value = BaseDtoController.BASE_PATH + "/audits")
+public class IdmAuditController extends AbstractReadWriteDtoController<IdmAuditDto, AuditFilter> {
+
+	@Autowired
+	public IdmAuditController(IdmAuditService auditService) {
+		super(auditService);
+	}
 
 	@Autowired
 	private IdmAuditService auditService;
@@ -56,18 +60,12 @@ public class IdmAuditController extends AbstractReadEntityController<IdmAudit, A
 	@Autowired
 	ModelMapper mapper;
 	
-	@Autowired
-	public IdmAuditController(LookupService entityLookupService) {
-		super(entityLookupService);
-	}
-	
 	@ResponseBody
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.AUDIT_READ + "')")
 	@RequestMapping(value= "/search/quick", method = RequestMethod.GET)
 	public Resources<?> findQuick(@RequestParam MultiValueMap<String, Object> parameters, 
-			@PageableDefault Pageable pageable, 			
-			PersistentEntityResourceAssembler assembler) {
-		return this.find(parameters, pageable, assembler);
+			@PageableDefault Pageable pageable) {
+		return this.find(parameters, pageable);
 	}
 	
 	@ResponseBody
@@ -85,15 +83,15 @@ public class IdmAuditController extends AbstractReadEntityController<IdmAudit, A
 	@RequestMapping(method = RequestMethod.GET, value = "/{backendId}")
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.AUDIT_READ + "')")
 	@Override
-	public ResponseEntity<?> get(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler) {
-		IdmAudit audit = auditService.get(backendId);
+	public ResponseEntity<?> get(@PathVariable @NotNull String backendId) {
+		IdmAuditDto audit = auditService.get(backendId);
 		
 		// Map with all values
 		Map<String, Object> revisionValues = new HashMap<>();
 		
 		Object revision = null;
 		try {
-			revision = auditService.getVersion(Class.forName(audit.getType()), audit.getEntityId(), Long.valueOf(audit.getId().toString()));
+			revision = auditService.findVersion(Class.forName(audit.getType()), audit.getEntityId(), Long.valueOf(audit.getId().toString()));
 		} catch (NumberFormatException | ClassNotFoundException e) {
 			throw new ResultCodeException(CoreResultCode.BAD_VALUE, ImmutableMap.of("audit", audit), e);
 		}
@@ -114,13 +112,13 @@ public class IdmAuditController extends AbstractReadEntityController<IdmAudit, A
 	@RequestMapping(method = RequestMethod.GET, value = "/{revId}/diff/previous")
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.AUDIT_READ + "')")
 	public ResponseEntity<?> previousVersion(@PathVariable @NotNull String revId, PersistentEntityResourceAssembler assembler) {
-		IdmAudit currentAudit = auditService.get(revId);
-		IdmAudit previousAudit;
+		IdmAuditDto currentAudit = auditService.get(revId);
+		IdmAuditDto previousAudit;
 		ResponseEntity<IdmAuditDto> resource = null;
 		
 		try {
 			IdmAuditDto dto = null;
-			previousAudit = auditService.getPreviousRevision(Long.valueOf(currentAudit.getId().toString()));
+			previousAudit = auditService.findPreviousRevision(Long.valueOf(currentAudit.getId().toString()));
 			
 			// previous version dost'n exist
 			if (previousAudit != null) {
@@ -128,7 +126,7 @@ public class IdmAuditController extends AbstractReadEntityController<IdmAudit, A
 				mapper.map(previousAudit, dto);
 				dto.setRevisionValues(
 						auditService.getValuesFromVersion(
-								auditService.getPreviousVersion(
+								auditService.findPreviousVersion(
 										Class.forName(previousAudit.getType()),
 										previousAudit.getEntityId(),
 										Long.valueOf(previousAudit.getId().toString()))));

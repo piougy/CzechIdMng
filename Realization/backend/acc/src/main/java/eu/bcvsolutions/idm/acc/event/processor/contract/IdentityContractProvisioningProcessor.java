@@ -1,10 +1,9 @@
-package eu.bcvsolutions.idm.acc.event.processor;
+package eu.bcvsolutions.idm.acc.event.processor.contract;
 
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
@@ -64,16 +63,16 @@ public class IdentityContractProvisioningProcessor extends AbstractEntityEventPr
 		// execute provisioning for all subordinates by given contract
 		if (isIncludeSubordinates()) {
 			Set<UUID> originalSubordinates = (Set<UUID>) event.getProperties().get(PROPERTY_PREVIOUS_SUBORDINATES);
-			if (CollectionUtils.isNotEmpty(originalSubordinates)) {
-				findAllSubordinates(identity.getId())
-					.forEach(subordinate -> {
-						if (originalSubordinates.contains(subordinate.getId())) {
-							originalSubordinates.remove(subordinate.getId());
-						} else {
-							LOG.debug("Call provisioning for identity's [{}] newly assigned subordinate [{}]", identity.getUsername(), subordinate.getUsername());
-							provisioningService.doProvisioning(subordinate);
-						}
-					});
+			findAllSubordinates(identity.getId())
+				.forEach(subordinate -> {
+					if (originalSubordinates != null && originalSubordinates.contains(subordinate.getId())) {
+						originalSubordinates.remove(subordinate.getId());
+					} else {
+						LOG.debug("Call provisioning for identity's [{}] newly assigned subordinate [{}]", identity.getUsername(), subordinate.getUsername());
+						provisioningService.doProvisioning(subordinate);
+					}
+				});
+			if (originalSubordinates != null) {
 				originalSubordinates.forEach(originalSubordinateId -> {
 					IdmIdentity originalSubordinate = (IdmIdentity) lookupService.lookupEntity(IdmIdentity.class, originalSubordinateId);
 					LOG.debug("Call provisioning for identity's [{}] previous subordinate [{}]", identity.getUsername(), originalSubordinate.getUsername());

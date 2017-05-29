@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.acc.event.processor;
+package eu.bcvsolutions.idm.acc.event.processor.contract;
 
 import java.util.HashSet;
 import java.util.UUID;
@@ -57,7 +57,7 @@ public class IdentityContractBeforeSaveProcessor extends AbstractEntityEventProc
 					.collect(Collectors.toCollection(HashSet::new));
 			event.getProperties().put(IdentityContractProvisioningProcessor.PROPERTY_PREVIOUS_SUBORDINATES, originalSubordinates);
 			LOG.debug("Previous subordinates found [{}]", originalSubordinates.size());
-		}		
+		}
 		return new DefaultEventResult<>(event, this);
 	}
 

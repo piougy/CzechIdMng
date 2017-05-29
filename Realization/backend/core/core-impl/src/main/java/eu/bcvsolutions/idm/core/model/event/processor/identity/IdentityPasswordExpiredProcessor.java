@@ -18,7 +18,6 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordService;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
 import eu.bcvsolutions.idm.core.notification.service.api.NotificationManager;
-import eu.bcvsolutions.idm.core.scheduler.task.impl.password.PasswordExpiredTaskExecutor;
 
 /**
  * Sends warning notification after password expired.
@@ -30,7 +29,7 @@ import eu.bcvsolutions.idm.core.scheduler.task.impl.password.PasswordExpiredTask
 @Description("Sends warning notification after password expired..")
 public class IdentityPasswordExpiredProcessor extends CoreEventProcessor<IdmIdentityDto> {
 
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(PasswordExpiredTaskExecutor.class);
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdentityPasswordExpiredProcessor.class);
 	public static final String PROCESSOR_NAME = "identity-password-expired-processor";
 	//
 	@Autowired private IdmPasswordService passwordService;

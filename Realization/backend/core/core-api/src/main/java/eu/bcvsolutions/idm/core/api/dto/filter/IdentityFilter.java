@@ -60,9 +60,9 @@ public class IdentityFilter extends DataFilter implements CorrelationFilter {
 	 */
 	private UUID treeType;
 	/**
-	 * managersByContractId with contract guarantees
+	 * managers with contract guarantees included
 	 */
-	private boolean includeGuarantees;
+	private boolean includeGuarantees = true;
 	/**
 	 * Enabled, disable or empty filter for disabled identities
 	 */

@@ -10,7 +10,7 @@ parameters:
 <template>
 	<name>Notification sent when identity monitored fields were changed (core)</name>
 	<code>identityMonitoredFieldsChanged</code>
-	<subject>CzechIdMng - Na účtu pro '$fullName ($identity.Username)' byly změněny monitorované položky!</subject>
+	<subject>CzechIdM - Na účtu pro '$fullName ($identity.Username)' byly změněny monitorované položky!</subject>
 	<bodyHtml>
 <![CDATA[
 <html>

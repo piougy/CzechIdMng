@@ -12,14 +12,14 @@ parameters:
 <template>
 	<name>Send newly created or assigned task</name>
 	<code>wfTaskNotificationMessage</code>
-	<subject>CzechIdMng v7 - $subject</subject>
+	<subject>CzechIdM - $subject</subject>
 	<bodyHtml>
 <![CDATA[
 <html>
 <body>
 Dobrý den,<br />
 <br />
-Pro váš účet <b>$identity</b> na systému CzechIdMng Vám byl přiřazen nový úkol na schválení.<br />
+Pro váš účet <b>$identity</b> na systému CzechIdM Vám byl přiřazen nový úkol na schválení.<br />
 Na detail úkolu můžete přejít zde: <a href='$url'>$url</a><br />
 <br />
 <br />
@@ -29,7 +29,7 @@ S pozdravem BCV Solutions s.r.o.
 -------------------------------------------------------------------------------------<br />
 Hello,<br />
 <br />
-For your account <b>$identity</b> on CzechIdMng system has been assigned a new approval task.<br />
+For your account <b>$identity</b> on CzechIdM system has been assigned a new approval task.<br />
 You can go to the task detail here: <a href='$url'>$url</a><br />
 <br />
 <br />

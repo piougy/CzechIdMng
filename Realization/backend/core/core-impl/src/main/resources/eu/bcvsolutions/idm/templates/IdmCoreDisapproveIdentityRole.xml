@@ -11,7 +11,7 @@ parameters:
 <template>
 	<name>Send result WF - Disapprove identity roles</name>
 	<code>disapproveIdentityRole</code>
-	<subject>CzechIdMng v7 - Změna oprávnění byla zamítnuta</subject>
+	<subject>CzechIdM - Změna oprávnění byla zamítnuta</subject>
 	<bodyHtml>
 <![CDATA[
 <html>

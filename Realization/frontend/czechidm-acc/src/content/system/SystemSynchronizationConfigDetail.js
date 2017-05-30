@@ -445,7 +445,7 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
                     dropup>
                     <Basic.MenuItem
                       eventKey="1"
-                      rendered={ (enabled === null || enabled) && synchronizationConfig && synchronizationConfig.enabled && Managers.SecurityManager.hasAuthority('SYNCHRONIZATION_CREATE') }
+                      rendered={ (enabled === null || enabled === true) && synchronizationConfig && synchronizationConfig.enabled && Managers.SecurityManager.hasAuthority('SYNCHRONIZATION_CREATE') }
                       onClick={this.save.bind(this, true, false)}>
                       {this.i18n('button.saveAndStartSynchronization')}
                     </Basic.MenuItem>
@@ -518,7 +518,7 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
                     dropup>
                     <Basic.MenuItem
                       eventKey="1"
-                      rendered={Managers.SecurityManager.hasAuthority('SYNCHRONIZATION_UPDATE')}
+                      rendered={ (enabled === null || enabled === true) && synchronizationConfig && synchronizationConfig.enabled && Managers.SecurityManager.hasAuthority('SYNCHRONIZATION_CREATE') }
                       onClick={this.save.bind(this, true, false)}>
                       {this.i18n('button.saveAndStartSynchronization')}
                     </Basic.MenuItem>

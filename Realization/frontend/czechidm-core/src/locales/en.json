@@ -2129,7 +2129,7 @@
       "description": "Note",
       "main": {
         "label": "Main position",
-        "help": "Main / prime work position. Its created automatically, when user is created."
+        "help": "Main / prime work position. It's created automatically when the user is created."
       }
     },
     "TreeNode": {

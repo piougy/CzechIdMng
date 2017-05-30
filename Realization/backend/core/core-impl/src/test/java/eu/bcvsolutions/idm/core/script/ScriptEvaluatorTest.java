@@ -29,6 +29,7 @@ import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
 import eu.bcvsolutions.idm.core.model.domain.ScriptAuthorityType;
 import eu.bcvsolutions.idm.core.model.dto.IdmScriptAuthorityDto;
 import eu.bcvsolutions.idm.core.model.dto.IdmScriptDto;
+import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmScriptAuthority;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
@@ -194,9 +195,7 @@ public class ScriptEvaluatorTest extends AbstractIntegrationTest {
 		//
 		subScript = scriptService.saveInternal(subScript);
 		//
-		createAuthority(subScript.getId(), ScriptAuthorityType.CLASS_NAME, List.class.getName(), null);
-		//
-		createAuthority(subScript.getId(), ScriptAuthorityType.CLASS_NAME, ArrayList.class.getName(), null);
+		createAuthority(subScript.getId(), ScriptAuthorityType.CLASS_NAME, IdmRole.class.getName(), null);
 		//
 		IdmScriptDto parent = new IdmScriptDto();
 		parent.setCategory(IdmScriptCategory.DEFAULT);
@@ -220,9 +219,7 @@ public class ScriptEvaluatorTest extends AbstractIntegrationTest {
 		//
 		subScript = scriptService.saveInternal(subScript);
 		//
-		createAuthority(subScript.getId(), ScriptAuthorityType.CLASS_NAME, List.class.getName(), null);
-		//
-		createAuthority(subScript.getId(), ScriptAuthorityType.CLASS_NAME, ArrayList.class.getName(), null);
+		createAuthority(subScript.getId(), ScriptAuthorityType.CLASS_NAME, IdmRole.class.getName(), null);
 		//
 		IdmScriptDto parent = new IdmScriptDto();
 		parent.setCategory(IdmScriptCategory.DEFAULT);
@@ -314,16 +311,18 @@ public class ScriptEvaluatorTest extends AbstractIntegrationTest {
 		StringBuilder script = new StringBuilder();
 		script.append("import java.util.List;\n");
 		script.append("import java.util.ArrayList;\n");
-		script.append("List<String> list = new ArrayList<>();\n");
-		script.append("list.add('1');\n");
-		script.append("list.add('2');\n");
-		script.append("list.add('3');\n");
+		script.append("import eu.bcvsolutions.idm.core.model.entity.IdmRole;\n");
+		script.append("List<IdmRole> list = new ArrayList<>();\n");
+		script.append("list.add(new IdmRole());\n");
+		script.append("list.add(new IdmRole());\n");
+		script.append("list.add(new IdmRole());\n");
 		if (returnString != null && returnString) {
 			script.append("return list.toString();\n");
 		} else {
 			script.append("return list;\n");
 		}
 		return script.toString();
+		
 	}
 	
 	/**

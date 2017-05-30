@@ -118,7 +118,7 @@ public class DefaultGroovyScriptServiceTest extends AbstractVerifiableUnitTest {
 
 	@Test(expected = IdmSecurityException.class)
 	public void testSecurityScriptListDeepUnvalid() {
-		String script = "return entity.guarantees;";
+		String script = "return entity.guarantees.get(0);";
 		groovyScriptService.validateScript(script);
 		IdmRole role = new IdmRole();
 		List<IdmRoleGuarantee> guarantees = new ArrayList<>();

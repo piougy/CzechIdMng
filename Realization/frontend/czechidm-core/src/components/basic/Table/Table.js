@@ -255,7 +255,17 @@ class Table extends AbstractComponent {
   }
 
   render() {
-    const { data, noData, rendered, showLoading, hover, className, condensed } = this.props;
+    const {
+      data,
+      noData,
+      rendered,
+      showLoading,
+      hover,
+      className,
+      condensed,
+      header
+    } = this.props;
+    //
     if (!rendered) {
       return null;
     }
@@ -277,7 +287,7 @@ class Table extends AbstractComponent {
     }
 
     const columns = this._resolveColumns();
-    const header = this.renderHeader(columns);
+    const columnsHeaders = this.renderHeader(columns);
     const body = this.renderBody(columns);
     const footer = this.renderFooter();
     const classNamesTable = classNames(
@@ -290,7 +300,18 @@ class Table extends AbstractComponent {
       <div className={classNames(className, 'basic-table')}>
         <Loading showLoading={showLoading}>
           <table className={classNamesTable}>
-            { header }
+            {
+              !header
+              ||
+              <thead>
+                <tr className="basic-table-header">
+                  <th colSpan={ columns.length }>
+                    { header }
+                  </th>
+                </tr>
+              </thead>
+            }
+            { columnsHeaders }
             { body }
             { footer }
           </table>
@@ -306,6 +327,10 @@ Table.propTypes = {
    * input data as array of json objects
    */
   data: PropTypes.array,
+  /**
+   * Table Header
+   */
+  header: PropTypes.oneOfType([PropTypes.string, PropTypes.element]),
   /**
    * Callback that is called when a row is clicked.
    */

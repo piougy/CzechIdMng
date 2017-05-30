@@ -680,6 +680,8 @@
       "save": {
         "success": "Položka konfigurace [{{name}}] byla úspěšně uložena"
       },
+      "configurable": "Konfigurovatelné položky <small>měnitelné, mohou přetěžovat statické položky</small>",
+      "environment": "Statické konfigurační položky prostředí <small>pouze pro čtení</small>",
       "fromFile": "Konfigurace aplikace z konfiguračních souborů <small>application.properties</small>",
       "fromEnvironment": "Konfigurace prostředí <small>backendového serveru</small>",
       "guarded": "Hodnoty položky konfigurace obsahující klíč [<strong>{{guarded}}</strong>] budou automaticky nastaveny tajnými a neveřejnými. Hodnoty začínající prefixem [<strong>idm.sec.</strong>] nemohou býti veřejnými.",

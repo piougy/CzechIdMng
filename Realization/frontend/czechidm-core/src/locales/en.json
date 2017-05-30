@@ -653,6 +653,8 @@
       "save": {
         "success": "Configuration items [{{name}}] successfully saved"
       },
+      "configurable": "Configurable items <small>editable, can override static items</small>",
+      "environment": "Static environment configuration items <small>read only</small>",
       "fromFile": "Application configuration from configuration files <small>application.properties</small>",
       "fromEnvironment": "Environment configuration <small>backend</small>",
       "guarded": "The values of configuration items containing key [<strong>{{guarded}}</strong>] The values of configuration items containing key will automatically set the secret and invisible. Values beginning with the prefix [<strong>idm.sec.</strong>] can not be visible.",

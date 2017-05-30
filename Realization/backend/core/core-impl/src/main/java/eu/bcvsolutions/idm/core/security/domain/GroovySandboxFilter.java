@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.core.security.domain;
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -32,7 +33,7 @@ public class GroovySandboxFilter extends GroovyValueFilter {
 	private static final Set<Class<?>> ALLOWED_TYPES = Sets.newHashSet(
 			String.class, Integer.class, Double.class, Long.class, Date.class, Enum.class, Boolean.class, 
 			BigDecimal.class, UUID.class, Character.class, GuardedString.class, DateTimeFormatter.class,
-			DateTimeFormat.class, DateTime.class, String[].class, LocalDateTime.class);
+			DateTimeFormat.class, DateTime.class, String[].class, LocalDateTime.class, List.class, ArrayList.class);
 
 	private final Set<Class<?>> allowedCustomTypes = new HashSet<>();
 	

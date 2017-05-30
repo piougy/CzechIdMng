@@ -2163,8 +2163,8 @@
       },
       "description": "Popis",
       "main": {
-        "label": "Výchozí",
-        "help": "Primární pracovní pozice. Bude použita například pro zobrazení pozice uživatele."
+        "label": "Hlavní",
+        "help": "Hlavní / primární pracovní pozice. Bude použita například pro zobrazení pozice uživatele. Je zakládána automaticky při vytvoření uživatele."
       }
     },
     "TreeNode": {

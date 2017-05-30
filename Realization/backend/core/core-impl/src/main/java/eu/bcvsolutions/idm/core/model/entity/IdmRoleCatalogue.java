@@ -67,12 +67,6 @@ public class IdmRoleCatalogue extends AbstractEntity implements BaseTreeEntity<I
 	@Column(name = "description", length = DefaultFieldLengths.DESCRIPTION)
 	private String description;
 	
-	// TODO: formule for roles in folder count
-//	@JsonProperty(access = Access.READ_ONLY)
-//	@Column(insertable = false, updatable = false)
-//	@Formula("(select coalesce(count(1),0) from idm_role_catalogue e where e.parent_id = id)")
-//	private int childrenCount;
-	
 	@Audited
 	@Column(name = "url")
 	private String url;

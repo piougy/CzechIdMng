@@ -79,7 +79,7 @@ Or static:
 ...
 ```
 
-### Prepared cell types for column renrering:
+### Prepared cell types for column rendering:
 
 | Cell |  Description  |
 | --- | :--- | :--- |

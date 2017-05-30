@@ -175,6 +175,7 @@ export default class ProvisioningOperationTable extends Basic.AbstractContent {
           width={75}
           header={this.i18n('acc:entity.SystemEntity.entityType')}
           sort
+          sortProperty="systemEntity.entityType"
           face="enum"
           enumClass={SystemEntityTypeEnum}
           rendered={_.includes(columns, 'entityType')} />

@@ -12,6 +12,13 @@ const manager = new IdentityAccountManager();
 const accountManager = new AccountManager();
 const identityManager = new Managers.IdentityManager();
 
+/**
+ * Identity accounts
+ *
+ * TODO: accounts should be shown (not identityAccount)
+ *
+ * @Author Radek Tomiška
+ */
 class IdentityAccountsContent extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
@@ -30,8 +37,8 @@ class IdentityAccountsContent extends Advanced.AbstractTableContent {
     return 'acc:content.identity.accounts';
   }
 
-  componentDidMount() {
-    this.selectSidebarItem('identity-accounts');
+  getNavigationKey() {
+    return 'identity-accounts';
   }
 
   showDetail(entity) {

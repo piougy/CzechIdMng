@@ -1,7 +1,9 @@
 import React from 'react';
+import _ from 'lodash';
 //
-import { Basic } from 'czechidm-core';
+import { Basic, Domain } from 'czechidm-core';
 import ProvisioningOperations from '../provisioning/ProvisioningOperations';
+import ProvisioningOperationTable from '../provisioning/ProvisioningOperationTable';
 
 export default class SystemProvisioningOparationContent extends Basic.AbstractContent {
 
@@ -18,13 +20,20 @@ export default class SystemProvisioningOparationContent extends Basic.AbstractCo
   }
 
   render() {
+    const forceSearchParameters = new Domain.SearchParameters().setFilter('systemId', this.props.params.entityId);
+    let columns = ProvisioningOperationTable.defaultProps.columns;
+    columns = _.difference(columns, ['system']);
+    //
     return (
       <div>
         <Basic.ContentHeader>
-          <span dangerouslySetInnerHTML={{ __html: this.i18n('header') }}/>
+          { this.i18n('header', { escape: false }) }
         </Basic.ContentHeader>
 
-        <ProvisioningOperations uiKey="system-provisioning-operation-table" systemId={this.props.params.entityId}/>
+        <ProvisioningOperations
+          uiKey="system-provisioning-operation-table"
+          forceSearchParameters={ forceSearchParameters }
+          columns={ columns }/>
       </div>
     );
   }

@@ -114,7 +114,7 @@ module.exports = {
         {
           path: 'provisioning',
           component: require('./src/content/system/SystemProvisioningOperations'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ],
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ]
         }
       ]
     },
@@ -130,6 +130,11 @@ module.exports = {
         {
           path: 'accounts',
           component: require('./src/content/identity/IdentityAccounts')
+        },
+        {
+          path: 'provisioning',
+          component: require('./src/content/identity/IdentityProvisioningOperations'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ]
         }
       ]
     },

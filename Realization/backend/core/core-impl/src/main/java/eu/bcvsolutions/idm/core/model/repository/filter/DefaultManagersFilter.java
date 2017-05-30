@@ -77,24 +77,15 @@ public class DefaultManagersFilter
 		Subquery<IdmTreeNode> subqueryWp = query.subquery(IdmTreeNode.class);
 		Root<IdmIdentityContract> subqueryWpRoot = subqueryWp.from(IdmIdentityContract.class);
 		subqueryWp.select(subqueryWpRoot.get(IdmIdentityContract_.workPosition).get(IdmTreeNode_.parent));			
-		Predicate identityPredicate = builder.and(
+		subqueryWp.where(builder.and(
 				builder.equal(
 						subqueryWpRoot.get(IdmIdentityContract_.identity).get(IdmIdentity_.id), 
 						filter.getManagersFor()),
 				filter.getManagersByContract() != null // concrete contract id only
 	    			? builder.equal(subqueryWpRoot.get(IdmIdentityContract_.id), filter.getManagersByContract())
 	    			: builder.conjunction()
-				);
-		if (filter.getManagersByTreeType() == null) {
-			subqueryWp.where(identityPredicate);	
-		} else {
-			subqueryWp.where(builder.and(
-					identityPredicate,
-					builder.equal(
-							subqueryWpRoot.get(IdmIdentityContract_.workPosition).get(IdmTreeNode_.treeType).get(IdmTreeType_.id), 
-							filter.getManagersByTreeType())
-					));	
-		}
+				));
+		//
 		subPredicates.add(
                 builder.and(
                 		// valid contract only
@@ -108,7 +99,15 @@ public class DefaultManagersFilter
     							),
     					//
                 		builder.equal(subRoot.get(IdmIdentityContract_.identity), root), // correlation attr
-                		subRoot.get(IdmIdentityContract_.workPosition).in(subqueryWp)
+                		subRoot.get(IdmIdentityContract_.workPosition).in(subqueryWp),
+                		// by tree type structure
+                		filter.getManagersByTreeType() != null
+                			?
+	                		builder.equal(
+	                				subRoot.get(IdmIdentityContract_.workPosition).get(IdmTreeNode_.treeType).get(IdmTreeType_.id), 
+	    							filter.getManagersByTreeType())
+	                		:
+	                		builder.conjunction()
                 		)
         );		
 		subquery.where(builder.or(subPredicates.toArray(new Predicate[subPredicates.size()])));

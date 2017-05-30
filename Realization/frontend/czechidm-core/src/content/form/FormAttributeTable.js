@@ -1,20 +1,21 @@
 import React, { PropTypes } from 'react';
+import { connect } from 'react-redux';
+import uuid from 'uuid';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
-//
 import { SecurityManager, FormAttributeManager } from '../../redux';
-import uuid from 'uuid';
 import SearchParameters from '../../domain/SearchParameters';
 
 const attributeManager = new FormAttributeManager();
+
 /**
 * Table of forms attributes
 *
 * @author Ondřej Kopr
 * @author Radek Tomiška
 */
-export default class FormAttributeTable extends Basic.AbstractContent {
+class FormAttributeTable extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);
@@ -24,11 +25,16 @@ export default class FormAttributeTable extends Basic.AbstractContent {
     };
   }
 
-  componentDidMount() {
-  }
-
   getContentKey() {
     return 'content.formAttributes';
+  }
+
+  getManager() {
+    return attributeManager;
+  }
+
+  getUiKey() {
+    return this.props.uiKey;
   }
 
   useFilter(event) {
@@ -36,30 +42,6 @@ export default class FormAttributeTable extends Basic.AbstractContent {
       event.preventDefault();
     }
     this.refs.table.getWrappedInstance().useFilterForm(this.refs.filterForm);
-  }
-
-  onDelete(bulkActionValue, selectedRows) {
-    const { uiKey } = this.props;
-    const selectedEntities = attributeManager.getEntitiesByIds(this.context.store.getState(), selectedRows);
-    //
-    // show confirm message for deleting entity or entities
-    this.refs['confirm-' + bulkActionValue].show(
-      this.i18n(`action.${bulkActionValue}.message`, { count: selectedEntities.length, record: attributeManager.getNiceLabel(selectedEntities[0]), records: attributeManager.getNiceLabels(selectedEntities).join(', ') }),
-      this.i18n(`action.${bulkActionValue}.header`, { count: selectedEntities.length, records: attributeManager.getNiceLabels(selectedEntities).join(', ') })
-    ).then(() => {
-      // try delete
-      this.context.store.dispatch(attributeManager.deleteEntities(selectedEntities, uiKey, (entity, error, successEntities) => {
-        if (entity && error) {
-          this.addErrorMessage({ title: this.i18n(`action.delete.error`, { record: attributeManager.getNiceLabel(entity) }) }, error);
-        }
-        if (!error && successEntities) {
-          // refresh data in table
-          this.refs.table.getWrappedInstance().reload();
-        }
-      }));
-    }, () => {
-      //
-    });
   }
 
   cancelFilter(event) {
@@ -84,89 +66,95 @@ export default class FormAttributeTable extends Basic.AbstractContent {
     const { filterOpened } = this.state;
 
     return (
-      <Basic.Row>
-        <div className="col-lg-12">
-          <Basic.Confirm ref="confirm-delete" level="danger"/>
-          <Advanced.Table
-            ref="table"
-            uiKey={ uiKey }
-            showRowSelection={ SecurityManager.hasAuthority('EAVFORMATTRIBUTES_DELETE') }
-            manager={ attributeManager }
-            forceSearchParameters={ new SearchParameters().setFilter('formDefinitionId', formDefinitionId) }
-            rowClass={({rowIndex, data}) => { return data[rowIndex].disabled ? 'disabled' : ''; }}
-            filter={
-              <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
-                <Basic.AbstractForm ref="filterForm">
-                  <Basic.Row>
-                    <div className="col-lg-6">
-                      <Advanced.Filter.TextField
-                        ref="name"
-                        placeholder={this.i18n('filter.name')}/>
-                    </div>
-                    <div className="col-lg-6 text-right">
-                      <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
-                    </div>
-                  </Basic.Row>
-                  <Basic.Row>
-                    <div className="col-lg-6">
+      <div>
+        <Basic.Confirm ref="confirm-delete" level="danger"/>
+        <Advanced.Table
+          ref="table"
+          uiKey={ uiKey }
+          showRowSelection={ SecurityManager.hasAuthority('EAVFORMATTRIBUTES_DELETE') }
+          manager={ attributeManager }
+          forceSearchParameters={ new SearchParameters().setFilter('formDefinitionId', formDefinitionId) }
+          rowClass={({rowIndex, data}) => { return data[rowIndex].disabled ? 'disabled' : ''; }}
+          filter={
+            <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
+              <Basic.AbstractForm ref="filterForm">
+                <Basic.Row>
+                  <div className="col-lg-6">
+                    <Advanced.Filter.TextField
+                      ref="code"
+                      placeholder={this.i18n('filter.code')}/>
+                  </div>
+                  <div className="col-lg-6 text-right">
+                    <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
+                  </div>
+                </Basic.Row>
+                <Basic.Row>
+                  <div className="col-lg-6">
 
-                    </div>
-                  </Basic.Row>
-                </Basic.AbstractForm>
-              </Advanced.Filter>
-            }
-            actions={
-              [
-                { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }
-              ]
-            }
-            buttons={
-              [
-                <Basic.Button
-                  level="success"
-                  key="add_button"
-                  className="btn-xs"
-                  onClick={this.showDetail.bind(this, { })}
-                  rendered={SecurityManager.hasAuthority('EAVFORMATTRIBUTES_CREATE')}>
-                  <Basic.Icon type="fa" icon="plus"/>
-                  {' '}
-                  {this.i18n('button.add')}
-                </Basic.Button>
-              ]
-            }
-            filterOpened={!filterOpened}>
-            <Advanced.Column
-              header=""
-              className="detail-button"
-              cell={
-                ({ rowIndex, data }) => {
-                  return (
-                    <Advanced.DetailButton
-                      title={this.i18n('button.detail')}
-                      onClick={this.showDetail.bind(this, data[rowIndex])}/>
-                  );
-                }
+                  </div>
+                </Basic.Row>
+              </Basic.AbstractForm>
+            </Advanced.Filter>
+          }
+          actions={
+            [
+              { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }
+            ]
+          }
+          buttons={
+            [
+              <Basic.Button
+                level="success"
+                key="add_button"
+                className="btn-xs"
+                onClick={this.showDetail.bind(this, { })}
+                rendered={SecurityManager.hasAuthority('EAVFORMATTRIBUTES_CREATE')}>
+                <Basic.Icon type="fa" icon="plus"/>
+                {' '}
+                {this.i18n('button.add')}
+              </Basic.Button>
+            ]
+          }
+          filterOpened={!filterOpened}>
+          <Advanced.Column
+            header=""
+            className="detail-button"
+            cell={
+              ({ rowIndex, data }) => {
+                return (
+                  <Advanced.DetailButton
+                    title={this.i18n('button.detail')}
+                    onClick={this.showDetail.bind(this, data[rowIndex])}/>
+                );
               }
-              sort={false}/>
-            <Advanced.Column property="seq" sort width="5%"/>
-            <Advanced.Column property="code" sort/>
-            <Advanced.Column property="name" sort/>
-            <Advanced.Column property="persistentType" sort />
-            <Advanced.Column property="unmodifiable" header={this.i18n('entity.FormAttribute.unmodifiable.label')} face="bool" sort />
-          </Advanced.Table>
-        </div>
-      </Basic.Row>
+            }
+            sort={false}
+            _searchParameters={ this.getSearchParameters() }/>
+          <Advanced.Column property="seq" header={ this.i18n('entity.FormAttribute.seq.label') } sort width="5%"/>
+          <Advanced.Column property="code" header={ this.i18n('entity.FormAttribute.code.label') } sort/>
+          <Advanced.Column property="name" header={ this.i18n('entity.FormAttribute.name.label') } sort/>
+          <Advanced.Column property="persistentType" sort />
+          <Advanced.Column property="unmodifiable" header={this.i18n('entity.FormAttribute.unmodifiable.label')} face="bool" sort />
+        </Advanced.Table>
+      </div>
       );
   }
 }
 
 FormAttributeTable.propTypes = {
   filterOpened: PropTypes.bool,
-  uiKey: PropTypes.string,
+  uiKey: PropTypes.string.isRequired,
   formDefinitionId: PropTypes.string.isRequired
 };
 
 FormAttributeTable.defaultProps = {
   filterOpened: true,
-  uiKey: 'form-attributes-table'
 };
+
+function select(state, component) {
+  return {
+    _searchParameters: state.data.ui[component.uiKey] ? state.data.ui[component.uiKey].searchParameters : null
+  };
+}
+
+export default connect(select)(FormAttributeTable);

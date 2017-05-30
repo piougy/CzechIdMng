@@ -1,6 +1,5 @@
 package eu.bcvsolutions.idm.acc.event.processor.contract;
 
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -12,13 +11,9 @@ import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.event.ProvisioningEvent;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.IdentityFilter;
-import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
-import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
-import eu.bcvsolutions.idm.core.api.repository.filter.FilterManager;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
@@ -32,21 +27,13 @@ import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 @Component
 @Enabled(AccModuleDescriptor.MODULE_ID)
 @Description("Executes provisioing after identity contract is saved or deleted.")
-public class IdentityContractProvisioningProcessor extends AbstractEntityEventProcessor<IdmIdentityContractDto> {
+public class IdentityContractProvisioningProcessor extends AbstractIdentityContractProvisioningProcessor {
 
 	public static final String PROCESSOR_NAME = "identity-contract-provisioning-processor";
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdentityContractProvisioningProcessor.class);
-	protected static final String PROPERTY_INCLUDE_SUBORDINATES = "includeSubordinates";
-	protected static final String PROPERTY_PREVIOUS_SUBORDINATES = "idm:previous-subordinates"; // contains Set<UUID>
-	protected static final boolean DEFAULT_INCLUDE_SUBORDINATES = true;
 	//
 	@Autowired private ProvisioningService provisioningService;
-	@Autowired private LookupService lookupService;
-	@Autowired private FilterManager filterManager;
-	
-	public IdentityContractProvisioningProcessor() {
-		super(CoreEventType.CREATE, CoreEventType.UPDATE, CoreEventType.DELETE, CoreEventType.EAV_SAVE);
-	}
+	@Autowired private LookupService lookupService;	
 	
 	@Override
 	public String getName() {
@@ -79,36 +66,8 @@ public class IdentityContractProvisioningProcessor extends AbstractEntityEventPr
 					provisioningService.doProvisioning(originalSubordinate);
 				});
 			}
-		}	
+		}
 		return new DefaultEventResult<>(event, this);
-	}
-	
-	/**
-	 * Execute provisioning for subordinates
-	 * 
-	 * @return
-	 */
-	protected boolean isIncludeSubordinates() {
-		return getConfigurationBooleanValue(PROPERTY_INCLUDE_SUBORDINATES, DEFAULT_INCLUDE_SUBORDINATES);
-	}
-	
-	/**
-	 * Returns all identity's subordinates
-	 * 
-	 * @param identityId
-	 * @return
-	 */
-	protected List<IdmIdentity> findAllSubordinates(UUID identityId) {
-		IdentityFilter filter = new IdentityFilter();
-		filter.setSubordinatesFor(identityId);
-		return filterManager.getBuilder(IdmIdentity.class, IdentityFilter.PARAMETER_SUBORDINATES_FOR).find(filter, null).getContent();
-	}
-	
-	@Override
-	public List<String> getPropertyNames() {
-		List<String> propertyNames =  super.getPropertyNames();
-		propertyNames.add(PROPERTY_INCLUDE_SUBORDINATES);
-		return propertyNames;
 	}
 	
 	@Override

@@ -1027,7 +1027,7 @@
         "header": "Nová definice formuláře"
       },
       "filter": {
-        "text": "Název"
+        "text": "Kód či název"
       },
       "attributes": {
         "title": "Attributy formuláře"
@@ -1054,7 +1054,7 @@
         "success": "Atribut [{{name}}] byl úspěšně uložen"
       },
       "filter": {
-        "name": "Název položky"
+        "code": "Kód položky"
       }
     },
     "scripts": {
@@ -2024,17 +2024,28 @@
       "description": "Popis"
     },
     "FormAttribute" : {
-      "code": "Kód",
-      "name": "Jméno položky",
-      "seq": "Pořadí",
+      "code": {
+        "label": "Kód",
+        "help": "Klíč atributu."
+      },
+      "name": {
+        "label": "Jméno položky",
+        "help": "Bude zobrazen na detailu formuláře."
+      },
+      "seq": {
+        "label": "Pořadí",
+        "help": "Pořadí atributu na detailu formuláře."
+      },
       "persistentType": "Typ atributu",
       "description": "Popis",
-      "name": "Jméno",
       "required": "Povinný",
       "readonly": "Pouze pro čtení",
       "confidential": "Tajné",
       "multiple": "Více hodnotový",
-      "placeholder": "Placeholder",
+      "placeholder": {
+        "label": "Placeholder",
+        "help": "Bude zobrazen jako zašedlá nápověda ve vstupním poli atributu."
+      },
       "defaultValue": "Výchozí hodnota",
       "unmodifiable": {
         "help": "Systémový atribut nemůže být smazán a nelze upravovat některé jeho atributy.",

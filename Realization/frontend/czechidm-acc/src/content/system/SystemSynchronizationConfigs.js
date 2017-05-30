@@ -251,6 +251,7 @@ class SystemSynchronizationConfigs extends Advanced.AbstractTableContent {
                         title={this.i18n('button.start')}
                         titlePlacement="bottom"
                         onClick={this._startSynchronization.bind(this, null, [data[rowIndex].id])}
+                        disabled={ !data[rowIndex].enabled }
                         className="btn-xs">
                         <Basic.Icon type="fa" icon="play"/>
                       </Basic.Button>

@@ -22,7 +22,7 @@ import eu.bcvsolutions.idm.core.model.event.TreeNodeEvent.TreeNodeEventType;
  *
  */
 @Component("accTreeNodeDeleteProcessor")
-@Description("Ensures referential integrity. Could not be disabled.")
+@Description("Ensures referential integrity. Cannot be disabled.")
 public class TreeNodeDeleteProcessor extends AbstractEntityEventProcessor<IdmTreeNode> {
 	
 	public static final String PROCESSOR_NAME = "tree-node-delete-processor";

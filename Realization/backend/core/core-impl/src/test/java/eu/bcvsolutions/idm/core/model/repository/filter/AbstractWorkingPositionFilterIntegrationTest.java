@@ -17,6 +17,7 @@ import eu.bcvsolutions.idm.core.TestHelper;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdentityFilter;
+import eu.bcvsolutions.idm.core.api.repository.filter.FilterBuilder;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
@@ -101,7 +102,7 @@ public abstract class AbstractWorkingPositionFilterIntegrationTest extends Abstr
 		helper.createContractGuarantee(helper.createIdentityContact(subordinateThree).getId(), managerOne.getId());
 	}
 	
-	protected void testManagersBuilder(ManagersFilter builder) {
+	protected void testManagersBuilder(FilterBuilder<IdmIdentity, IdentityFilter> builder) {
 		//
 		// tests
 		// all managers - for subordinate one
@@ -153,7 +154,7 @@ public abstract class AbstractWorkingPositionFilterIntegrationTest extends Abstr
 		assertTrue(contains(managers, guaranteeFour));
 	}
 	
-	protected void testSubordinatesBuilder(SubordinatesFilter builder) {
+	protected void testSubordinatesBuilder(FilterBuilder<IdmIdentity, IdentityFilter> builder) {
 		IdentityFilter filter = new IdentityFilter();
 		filter.setSubordinatesFor(managerOne.getId());
 		List<IdmIdentity> subordinates = builder.find(filter, null).getContent();

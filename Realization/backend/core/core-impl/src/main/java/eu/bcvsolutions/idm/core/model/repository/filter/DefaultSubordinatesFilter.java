@@ -36,8 +36,12 @@ import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
  */
 @Component
 public class DefaultSubordinatesFilter 
-		extends AbstractFilterBuilder<IdmIdentity, IdentityFilter>
-		implements SubordinatesFilter {
+		extends AbstractFilterBuilder<IdmIdentity, IdentityFilter> {
+	
+	@Override
+	public String getName() {
+		return IdentityFilter.PARAMETER_SUBORDINATES_FOR;
+	}
 	
 	@Autowired
 	public DefaultSubordinatesFilter(IdmIdentityRepository repository) {

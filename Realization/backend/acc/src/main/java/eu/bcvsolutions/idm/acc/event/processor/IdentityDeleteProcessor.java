@@ -22,7 +22,7 @@ import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
  *
  */
 @Component("accIdentityDeleteProcessor")
-@Description("Ensures referential integrity. Could not be disabled.")
+@Description("Ensures referential integrity. Cannot be disabled.")
 public class IdentityDeleteProcessor extends AbstractEntityEventProcessor<IdmIdentityDto> {
 	
 	public static final String PROCESSOR_NAME = "identity-delete-processor";

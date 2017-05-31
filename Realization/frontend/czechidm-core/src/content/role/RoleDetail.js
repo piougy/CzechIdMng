@@ -57,7 +57,7 @@ class RoleDetail extends Basic.AbstractContent {
     copyOfEntity.subRoles = !entity.subRoles ? [] : entity.subRoles.map(subRole => { return subRole._embedded.sub; });
     copyOfEntity.superiorRoles = !entity.superiorRoles ? [] : entity.superiorRoles.map(superiorRole => { return superiorRole._embedded.superior; });
     copyOfEntity.guarantees = !entity.guarantees ? [] : entity.guarantees.map(guarantee => { return guarantee.guarantee; });
-    copyOfEntity.roleCatalogues = !entity.roleCatalogues ? [] : entity.roleCatalogues.map(roleCatalogue => { return roleCatalogue._embedded.roleCatalogue; } );
+    copyOfEntity.roleCatalogues = !entity.roleCatalogues ? [] : entity.roleCatalogues.map(roleCatalogue => { return roleCatalogue.roleCatalogue; } );
     copyOfEntity.priorityEnum = RolePriorityEnum.getKeyByPriority(copyOfEntity.priority);
     copyOfEntity.priority = copyOfEntity.priority + ''; // We have to do convert form int to string (cause TextField and validator)
     return copyOfEntity;
@@ -107,9 +107,11 @@ class RoleDetail extends Basic.AbstractContent {
       }
       // transform roleCatalogues to self links
       if (entity.roleCatalogues) {
-        entity.roleCatalogues = entity.roleCatalogues.map(roleCatalogueId => {
+        entity.roleCatalogues = entity.roleCatalogues.map(roleCatalogue => {
           return {
-            roleCatalogue: roleCatalogueManager.getSelfLink(roleCatalogueId)
+            roleCatalogue: {
+              id: roleCatalogue.id
+            }
           };
         });
       }
@@ -209,8 +211,9 @@ class RoleDetail extends Basic.AbstractContent {
                 <Basic.SelectBox
                   multiSelect
                   ref="roleCatalogues"
-                  label={this.i18n('entity.Role.roleCatalogue.name')}
-                  manager={roleCatalogueManager}/>
+                  label={ this.i18n('entity.Role.roleCatalogue.name') }
+                  manager={ roleCatalogueManager }
+                  returnProperty={ false }/>
                 <Basic.SelectBox
                   ref="superiorRoles"
                   label={this.i18n('entity.Role.superiorRoles')}

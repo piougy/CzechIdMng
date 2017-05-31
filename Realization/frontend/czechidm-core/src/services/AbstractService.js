@@ -53,7 +53,7 @@ export default class AbstractService {
    * @return {bool} Returns true, when endpoint suppors uthorization policies evaluation
    */
   supportsAuthorization() {
-    return false;
+    return this.getGroupPermission() !== null;
   }
 
   /**

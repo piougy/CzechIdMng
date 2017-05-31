@@ -38,6 +38,4 @@ public class AvailableServiceDto  {
 	public void setServiceClass(String serviceClass) {
 		this.serviceClass = serviceClass;
 	}
-
-	
 }

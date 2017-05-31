@@ -1,4 +1,5 @@
 import React, { PropTypes } from 'react';
+import { connect } from 'react-redux';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
@@ -12,9 +13,11 @@ const rootRoleCatalogueKey = 'tree-role-catalogue-table-roots';
 
 /**
 * Table of roles catalogues
-* TODO: State alone component
+*
+* @author Ondřej Kopr
+* @author Radek Tomiška
 */
-export default class RoleCatalogueTable extends Basic.AbstractContent {
+class RoleCatalogueTable extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);
@@ -25,6 +28,8 @@ export default class RoleCatalogueTable extends Basic.AbstractContent {
   }
 
   componentDidMount() {
+    super.componentDidMount();
+    //
     const { roleCatalogueManager } = this.props;
     const searchParametersRoots = roleCatalogueManager.getRootSearchParameters();
     this.context.store.dispatch(roleCatalogueManager.fetchEntities(searchParametersRoots, rootRoleCatalogueKey, (loadedRoots) => {
@@ -176,11 +181,11 @@ export default class RoleCatalogueTable extends Basic.AbstractContent {
             filter={
               <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
                 <Basic.AbstractForm ref="filterForm">
-                  <Basic.Row>
+                  <Basic.Row className="last">
                     <div className="col-lg-4">
                       <Advanced.Filter.TextField
                         ref="text"
-                        placeholder={this.i18n('filter.code')}/>
+                        placeholder={this.i18n('filter.text')}/>
                     </div>
                     <div className="col-lg-4">
                       <Advanced.Filter.SelectBox
@@ -190,13 +195,6 @@ export default class RoleCatalogueTable extends Basic.AbstractContent {
                     </div>
                     <div className="col-lg-4 text-right">
                       <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
-                    </div>
-                  </Basic.Row>
-                  <Basic.Row>
-                    <div className="col-lg-4">
-                      <Advanced.Filter.TextField
-                        ref="niceName"
-                        placeholder={this.i18n('filter.niceName')}/>
                     </div>
                   </Basic.Row>
                 </Basic.AbstractForm>
@@ -221,6 +219,7 @@ export default class RoleCatalogueTable extends Basic.AbstractContent {
                 </Basic.Button>
               ]
             }
+            _searchParameters={ this.getSearchParameters() }
             >
 
             <Advanced.Column
@@ -264,3 +263,11 @@ RoleCatalogueTable.propTypes = {
 RoleCatalogueTable.defaultProps = {
   filterOpened: true,
 };
+
+function select(state, component) {
+  return {
+    _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey)
+  };
+}
+
+export default connect(select)(RoleCatalogueTable);

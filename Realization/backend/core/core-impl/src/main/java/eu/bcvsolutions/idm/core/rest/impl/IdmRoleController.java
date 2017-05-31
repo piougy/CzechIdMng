@@ -295,6 +295,12 @@ public class IdmRoleController extends AbstractReadWriteEntityController<IdmRole
 				guarantee.setGuarantee((IdmIdentity) entityLookupService.lookupEntity(IdmIdentity.class, guarantee.getGuarantee().getId()));
 			}
 		});
+		// TODO: remove after dto refactoring or remove catalogue from role at all (create standalone endpoint).
+		entity.getRoleCatalogues().forEach(catalogue -> {
+			if (catalogue.getRoleCatalogue() != null && catalogue.getRoleCatalogue().getId() != null) {
+				catalogue.setRoleCatalogue((IdmRoleCatalogue) entityLookupService.lookupEntity(IdmRoleCatalogue.class, catalogue.getRoleCatalogue().getId()));
+			}
+		});
 		//
 		return super.validateEntity(entity);
 	}

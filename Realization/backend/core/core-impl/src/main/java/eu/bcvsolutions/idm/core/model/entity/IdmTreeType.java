@@ -34,13 +34,13 @@ public class IdmTreeType extends AbstractEntity implements Codeable {
 	
 	@Audited
 	@NotEmpty
-	@Size(min = 0, max = DefaultFieldLengths.NAME)
+	@Size(min = 1, max = DefaultFieldLengths.NAME)
 	@Column(name = "code", length = DefaultFieldLengths.NAME, nullable = false)
 	private String code;
 	
 	@Audited
 	@NotEmpty
-	@Size(min = 0, max = DefaultFieldLengths.NAME)
+	@Size(min = 1, max = DefaultFieldLengths.NAME)
 	@Column(name = "name", length = DefaultFieldLengths.NAME, nullable = false)
 	private String name;
 	

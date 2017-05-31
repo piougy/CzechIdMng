@@ -1,32 +1,24 @@
 package eu.bcvsolutions.idm.core.model.repository;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
+import eu.bcvsolutions.idm.core.api.dto.filter.RoleCatalogueRoleFilter;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
-import eu.bcvsolutions.idm.core.model.dto.filter.RoleCatalogueRoleFilter;
-import eu.bcvsolutions.idm.core.model.entity.IdmRole;
-import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogueRole;
 
 /**
  * Default repository for intersection table between role catalogue and role
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
+ * @author Radek Tomiška
  *
  */
-
-@RepositoryRestResource( //
-		collectionResourceRel = "roleCatalogueRole", // 
-		path = "role-catalogue-role", //
-		itemResourceRel = "roleCatalogueRoles", //
-		exported = false
-		)
 public interface IdmRoleCatalogueRoleRepository extends AbstractEntityRepository<IdmRoleCatalogueRole, RoleCatalogueRoleFilter> {
 	
 	/*
@@ -36,9 +28,7 @@ public interface IdmRoleCatalogueRoleRepository extends AbstractEntityRepository
 	@Override
 	@Query(value = "select e from IdmRoleCatalogueRole e " +
 	        " where" +
-	        " (?#{[0].role} is null or e.role = ?#{[0].role})" + 
-	        " and (?#{[0].roleCatalogue} is null or e.roleCatalogue = ?#{[0].roleCatalogue})" +
-	        " and (?#{[0].roleCatalogueId} is null or e.roleCatalogue.id = ?#{[0].roleCatalogueId})" + 
+	        " (?#{[0].roleCatalogueId} is null or e.roleCatalogue.id = ?#{[0].roleCatalogueId})" + 
 	        " and (?#{[0].roleId} is null or e.role.id = ?#{[0].roleId})" + 
 	        " and (?#{[0].roleCatalogueCode} is null or e.roleCatalogue.code = ?#{[0].roleCatalogueCode})")
 	Page<IdmRoleCatalogueRole> find(RoleCatalogueRoleFilter filter, Pageable pageable);
@@ -49,9 +39,7 @@ public interface IdmRoleCatalogueRoleRepository extends AbstractEntityRepository
 	 * @param role
 	 * @return
 	 */
-	@Query(value = "SELECT e FROM IdmRoleCatalogueRole e WHERE "
-			+ "e.role = :role")
-	List<IdmRoleCatalogueRole> findAllByRole(@Param(value = "role") IdmRole role);
+	List<IdmRoleCatalogueRole> findAllByRole_Id(@Param(value = "roleId") UUID roleId);
 	
 	/**
 	 * Get all roleCatalogueRole for roleCatalogue given in parameter
@@ -59,9 +47,7 @@ public interface IdmRoleCatalogueRoleRepository extends AbstractEntityRepository
 	 * @param roleCatalogue
 	 * @return
 	 */
-	@Query(value = "SELECT e FROM IdmRoleCatalogueRole e WHERE "
-			+ "e.roleCatalogue = :roleCatalogue")
-	List<IdmRoleCatalogueRole> findAllByRoleCatalogue(@Param(value = "roleCatalogue") IdmRoleCatalogue roleCatalogue);
+	List<IdmRoleCatalogueRole> findAllByRoleCatalogue_Id(@Param(value = "roleCatalogueId") UUID roleCatalogueId);
 	
 	/**
 	 * Delete all rows that contain role given in parameter
@@ -69,12 +55,12 @@ public interface IdmRoleCatalogueRoleRepository extends AbstractEntityRepository
 	 * @param role
 	 * @return
 	 */
-	int deleteAllByRole(@Param(value = "role") IdmRole role);
+	int deleteAllByRole_Id(@Param(value = "roleId") UUID roleId);
 	
 	/**
 	 * Delete all rows that contain roleCatalogue given in parameter
 	 * @param roleCatalogue
 	 * @return
 	 */
-	int deleteAllByRoleCatalogue(@Param(value = "roleCatalogue") IdmRoleCatalogue roleCatalogue);
+	int deleteAllByRoleCatalogue_Id(@Param(value = "roleCatalogueId") UUID roleCatalogueId);
 }

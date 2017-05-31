@@ -977,7 +977,8 @@
         "parent": "Folder parent",
         "parentPlaceHolder": "Folder parent",
         "niceName": "Name for users",
-        "code": "Code"
+        "code": "Code",
+        "text": "Code or name"
       }
     },
     "formDefinitions": {

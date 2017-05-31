@@ -1015,7 +1015,8 @@
         "parent": "Nadřazená složka",
         "parentPlaceHolder": "Nadřezená složka",
         "niceName": "Jméno pro uživatele",
-        "code": "Kód"
+        "code": "Kód",
+        "text": "Kód či název"
       }
     },
     "formDefinitions": {

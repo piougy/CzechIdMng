@@ -136,6 +136,8 @@ class SelectBox extends AbstractFormComponent {
   }
 
   getValue() {
+    const { returnProperty } = this.props;
+    //
     if (!this.state.value) {
       if (this.props.multiSelect === true) {
         return [];
@@ -146,9 +148,11 @@ class SelectBox extends AbstractFormComponent {
     if (this.state.value instanceof Array && this.props.multiSelect === true) {
       const copyValues = [];
       for (const item of this.state.value) {
-        const entityId = (this._deletePrivateField(_.merge({}, item))).id;
-        if (entityId) {
-          copyValues.push(entityId);
+        const copyValue = this._deletePrivateField(_.merge({}, item));
+        if (returnProperty) {
+          copyValues.push(copyValue[returnProperty]);
+        } else {
+          copyValues.push(copyValue);
         }
       }
       return copyValues;
@@ -157,8 +161,8 @@ class SelectBox extends AbstractFormComponent {
     const copyValue = _.merge({}, this.state.value);
     this._deletePrivateField(copyValue);
     // result property value - if value is false, then whole object is returned
-    if (this.props.returnProperty) {
-      return copyValue[this.props.returnProperty];
+    if (returnProperty) {
+      return copyValue[returnProperty];
     }
     return copyValue;
   }

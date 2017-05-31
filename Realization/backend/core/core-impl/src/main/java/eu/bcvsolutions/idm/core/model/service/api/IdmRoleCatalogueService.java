@@ -1,35 +1,37 @@
 package eu.bcvsolutions.idm.core.model.service.api;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import eu.bcvsolutions.forest.index.service.api.ForestContentService;
-import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.RoleCatalogueFilter;
 import eu.bcvsolutions.idm.core.api.service.CodeableService;
-import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
-import eu.bcvsolutions.idm.core.model.dto.filter.RoleCatalogueFilter;
-import eu.bcvsolutions.idm.core.model.entity.IdmForestIndexEntity;
+import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
+import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
+import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 
 /**
  * Role could be in one catalogue (simply roles folder)
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
+ * @author Radek Tomiška
  *
  */
 public interface IdmRoleCatalogueService extends 
-		ReadWriteEntityService<IdmRoleCatalogue, RoleCatalogueFilter>, 
-		CodeableService<IdmRoleCatalogue>,
-		ForestContentService<IdmRoleCatalogue, IdmForestIndexEntity, UUID> {
+		ReadWriteDtoService<IdmRoleCatalogueDto, RoleCatalogueFilter>, 
+		CodeableService<IdmRoleCatalogueDto>,
+		AuthorizableService<IdmRoleCatalogueDto> {
 	
 	/**
 	 * Prefix to configuration
 	 */
-	public static final String CONFIGURATION_PREFIX = ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX + "core.roleCatalogue.";
-	public static final String CONFIGURATION_PROPERTY_VALID = "valid";
-	public static final String CONFIGURATION_PROPERTY_REBUILD = "rebuild";	
+	static final String CONFIGURATION_PREFIX = ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX + "core.roleCatalogue.";
+	static final String CONFIGURATION_PROPERTY_VALID = "valid";
+	static final String CONFIGURATION_PROPERTY_REBUILD = "rebuild";	
 	
 	/**
 	 * Rebuild (drop and create) all indexes for role catalogue.
@@ -43,7 +45,15 @@ public interface IdmRoleCatalogueService extends
 	 * 
 	 * @return
 	 */
-	Page<IdmRoleCatalogue> findRoots(Pageable pageable);
+	 Page<IdmRoleCatalogueDto> findRoots(Pageable pageable);
+	 
+	 /**
+	 * Method returns direct children by parent id
+	 * 
+	 * @param parent
+	 * @return Page of children
+	 */
+	Page<IdmRoleCatalogueDto> findChildrenByParent(UUID parentId, Pageable pageable);
 	
 	/**
 	 * Returns configuration property name for role catalogue.
@@ -52,4 +62,12 @@ public interface IdmRoleCatalogueService extends
 	 * @return
 	 */
 	String getConfigurationPropertyName(String propertyName);
+	
+	/**
+	 * Get list of {@link IdmRoleCatalogue} for given role.
+	 * 
+	 * @param role
+	 * @return
+	 */
+	List<IdmRoleCatalogueDto> findAllByRole(UUID role);
 }

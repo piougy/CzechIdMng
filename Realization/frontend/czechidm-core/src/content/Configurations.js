@@ -31,6 +31,8 @@ class Configurations extends Advanced.AbstractTableContent {
   }
 
   componentDidMount() {
+    super.componentDidMount();
+    //
     this.selectNavigationItem('system-configuration');
     this.context.store.dispatch(manager.fetchAllConfigurationsFromFile());
     if (SecurityManager.hasAuthority('CONFIGURATION_ADMIN')) {

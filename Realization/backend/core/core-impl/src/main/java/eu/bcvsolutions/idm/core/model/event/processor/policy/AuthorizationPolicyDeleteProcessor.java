@@ -23,7 +23,7 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
 @Description("Deletes authorization policies.")
 public class AuthorizationPolicyDeleteProcessor extends CoreEventProcessor<IdmAuthorizationPolicyDto> {
 
-	private static final String PROCESSOR_NAME = "authorization-policy-save-processor";
+	private static final String PROCESSOR_NAME = "authorization-policy-delete-processor";
 
 	private final IdmAuthorizationPolicyService service;
 

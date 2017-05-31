@@ -1,5 +1,4 @@
 import React, { PropTypes } from 'react';
-import _ from 'lodash';
 //
 import * as Basic from '../../components/basic';
 import * as Utils from '../../utils';
@@ -9,6 +8,9 @@ import { RoleCatalogueManager, SecurityManager } from '../../redux';
 /**
 * Role catalogue detail.
 * Combined node detail and role detail.
+*
+* @author Odřej Kopr
+* @author Radek Tomiška
 */
 export default class RoleCatalogueDetail extends Basic.AbstractContent {
 
@@ -28,12 +30,7 @@ export default class RoleCatalogueDetail extends Basic.AbstractContent {
     const { entity } = this.props;
     this.selectNavigationItem('role-catalogues');
     if (entity !== undefined) {
-      const loadedEntity = _.merge({ }, entity);
-      // if exist _embedded - edit role catalogue, if not exist create new
-      if (entity._embedded) {
-        loadedEntity.parent = entity._embedded.parent.id;
-      }
-      this.refs.form.setData(loadedEntity);
+      this.refs.form.setData(entity);
       this.refs.code.focus();
     }
   }
@@ -51,19 +48,14 @@ export default class RoleCatalogueDetail extends Basic.AbstractContent {
     this.setState({
       showLoading: true
     }, this.refs.form.processStarted());
-
+    //
     const entity = this.refs.form.getData();
-
-    if (entity.parent) {
-      entity.parent = this.roleCatalogueManager.getSelfLink(entity.parent);
-    }
-
     if (entity.id === undefined) {
       this.context.store.dispatch(this.roleCatalogueManager.createEntity(entity, `${uiKey}-detail`, (createdEntity, error) => {
         this._afterSave(createdEntity, error);
       }));
     } else {
-      this.context.store.dispatch(this.roleCatalogueManager.patchEntity(entity, `${uiKey}-detail`, this._afterSave.bind(this)));
+      this.context.store.dispatch(this.roleCatalogueManager.updateEntity(entity, `${uiKey}-detail`, this._afterSave.bind(this)));
     }
   }
 
@@ -82,9 +74,6 @@ export default class RoleCatalogueDetail extends Basic.AbstractContent {
     this.context.store.dispatch(this.roleCatalogueManager.clearEntities());
     this.addMessage({ message: this.i18n('save.success', { name: entity.name }) });
     this.context.router.replace(`role-catalogues`);
-  }
-
-  closeDetail() {
   }
 
   render() {

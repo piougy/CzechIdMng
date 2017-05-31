@@ -11,30 +11,31 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Lists;
+
 import eu.bcvsolutions.idm.InitTestData;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogueRole;
+import eu.bcvsolutions.idm.core.model.repository.IdmRoleCatalogueRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleCatalogueRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleCatalogueService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
- * Basic role service operations
+ * Basic role catalogue service operations
  * 
+ * @author Ondřej Kopr
  * @author Radek Tomiška
  *
  */
 public class DefaultIdmRoleCatalogueServiceIntegrationTest extends AbstractIntegrationTest {
 
-	@Autowired
-	private IdmRoleService roleService;
-	@Autowired
-	private IdmRoleCatalogueService roleCatalogueService;
-	@Autowired
-	private IdmRoleCatalogueRoleService roleCatalogueRoleService;
+	@Autowired private IdmRoleService roleService;
+	@Autowired private IdmRoleCatalogueRepository roleCatalogueRepository;
+	@Autowired private IdmRoleCatalogueService roleCatalogueService;
 	
 	@Before
 	public void init() {
@@ -49,7 +50,7 @@ public class DefaultIdmRoleCatalogueServiceIntegrationTest extends AbstractInteg
 	@Test
 	public void testReferentialIntegrity() {
 		// catalogue
-		IdmRoleCatalogue roleCatalogue = new IdmRoleCatalogue();
+		IdmRoleCatalogueDto roleCatalogue = new IdmRoleCatalogueDto();
 		String catalogueName = "cat_one_" + System.currentTimeMillis();
 		roleCatalogue.setCode(catalogueName);
 		roleCatalogue.setName(catalogueName);
@@ -61,7 +62,7 @@ public class DefaultIdmRoleCatalogueServiceIntegrationTest extends AbstractInteg
 		//
 		IdmRoleCatalogueRole roleCatalogueRole = new IdmRoleCatalogueRole();
 		roleCatalogueRole.setRole(role);
-		roleCatalogueRole.setRoleCatalogue(roleCatalogue);
+		roleCatalogueRole.setRoleCatalogue(roleCatalogueRepository.findOne(roleCatalogue.getId()));
 		//
 		role.setRoleCatalogues(Lists.newArrayList(roleCatalogueRole));
 		role = roleService.save(role);
@@ -78,13 +79,13 @@ public class DefaultIdmRoleCatalogueServiceIntegrationTest extends AbstractInteg
 		//
 		roleCatalogueService.delete(roleCatalogue);
 		//
-		List<IdmRoleCatalogue> roleCatalogues = roleCatalogueRoleService.getRoleCatalogueByRole(role);
+		List<IdmRoleCatalogueDto> roleCatalogues = roleCatalogueService.findAllByRole(role.getId());
 		assertEquals(0, roleCatalogues.size());
 	}
 	
 	@Test(expected = ResultCodeException.class)
 	public void testDuplicitNamesRoots() {
-		IdmRoleCatalogue roleCatalogue = new IdmRoleCatalogue();
+		IdmRoleCatalogueDto roleCatalogue = new IdmRoleCatalogueDto();
 		String name = "cat_one_" + System.currentTimeMillis();
 		roleCatalogue.setCode(name);
 		roleCatalogue.setName("test");
@@ -92,7 +93,7 @@ public class DefaultIdmRoleCatalogueServiceIntegrationTest extends AbstractInteg
 		this.roleCatalogueService.save(roleCatalogue);
 		//
 		// create second
-		IdmRoleCatalogue roleCatalogue2 = new IdmRoleCatalogue();
+		IdmRoleCatalogueDto roleCatalogue2 = new IdmRoleCatalogueDto();
 		name = "cat_one_" + System.currentTimeMillis();
 		roleCatalogue2.setCode(name);
 		roleCatalogue2.setName("test");
@@ -102,25 +103,25 @@ public class DefaultIdmRoleCatalogueServiceIntegrationTest extends AbstractInteg
 	
 	@Test(expected = ResultCodeException.class)
 	public void testDuplicitNamesChilds() {
-		IdmRoleCatalogue root = new IdmRoleCatalogue();
+		IdmRoleCatalogueDto root = new IdmRoleCatalogueDto();
 		String code = "cat_one_" + System.currentTimeMillis();
 		root.setCode(code);
 		root.setName("test" + System.currentTimeMillis());
-		this.roleCatalogueService.save(root);
+		root = this.roleCatalogueService.save(root);
 		//
-		IdmRoleCatalogue roleCatalogue = new IdmRoleCatalogue();
+		IdmRoleCatalogueDto roleCatalogue = new IdmRoleCatalogueDto();
 		code = "cat_one_" + System.currentTimeMillis();
 		roleCatalogue.setCode(code);
-		roleCatalogue.setParent(root);
+		roleCatalogue.setParent(root.getId());
 		roleCatalogue.setName("test");
 		//
-		this.roleCatalogueService.save(roleCatalogue);
+		roleCatalogue = this.roleCatalogueService.save(roleCatalogue);
 		//
 		// create second
-		IdmRoleCatalogue roleCatalogue2 = new IdmRoleCatalogue();
+		IdmRoleCatalogueDto roleCatalogue2 = new IdmRoleCatalogueDto();
 		code = "cat_one_" + System.currentTimeMillis();
 		roleCatalogue2.setCode(code);
-		roleCatalogue2.setParent(root);
+		roleCatalogue2.setParent(root.getId());
 		roleCatalogue2.setName("test");
 		// throws error
 		this.roleCatalogueService.save(roleCatalogue2);
@@ -130,23 +131,23 @@ public class DefaultIdmRoleCatalogueServiceIntegrationTest extends AbstractInteg
 	public void testNameDiffLevel() {
 		// code must be unique for all nodes,
 		// name must be unique for all children of parent.
-		IdmRoleCatalogue root = new IdmRoleCatalogue();
+		IdmRoleCatalogueDto root = new IdmRoleCatalogueDto();
 		String code = "cat_one_" + System.currentTimeMillis();
 		root.setName("test_01");
 		root.setCode(code);
 		root = this.roleCatalogueService.save(root);
 		//
-		IdmRoleCatalogue child1 = new IdmRoleCatalogue();
+		IdmRoleCatalogueDto child1 = new IdmRoleCatalogueDto();
 		code = "cat_one_" + System.currentTimeMillis();
 		child1.setName("test_02");
-		child1.setParent(root);
+		child1.setParent(root.getId());
 		child1.setCode(code);
 		child1 = this.roleCatalogueService.save(child1);
 		//
-		IdmRoleCatalogue child2 = new IdmRoleCatalogue();
+		IdmRoleCatalogueDto child2 = new IdmRoleCatalogueDto();
 		code = "cat_one_" + System.currentTimeMillis();
 		child2.setName("test_02");
-		child2.setParent(child1);
+		child2.setParent(child1.getId());
 		child2.setCode(code);
 		child2 = this.roleCatalogueService.save(child2);
 		/* excepted
@@ -154,8 +155,8 @@ public class DefaultIdmRoleCatalogueServiceIntegrationTest extends AbstractInteg
 		 * 		- child1
 		 * 				- child2
 		 */
-		assertEquals(1, this.roleCatalogueService.findDirectChildren(root, null).getTotalElements());
-		assertEquals(1, this.roleCatalogueService.findDirectChildren(child1, null).getTotalElements());
-		assertEquals(0, this.roleCatalogueService.findDirectChildren(child2, null).getTotalElements());
+		assertEquals(1, this.roleCatalogueService.findChildrenByParent(root.getId(), null).getTotalElements());
+		assertEquals(1, this.roleCatalogueService.findChildrenByParent(child1.getId(), null).getTotalElements());
+		assertEquals(0, this.roleCatalogueService.findChildrenByParent(child2.getId(), null).getTotalElements());
 	}
 }

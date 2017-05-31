@@ -40,6 +40,7 @@ import eu.bcvsolutions.idm.core.model.event.RoleEvent;
 import eu.bcvsolutions.idm.core.model.event.RoleEvent.RoleEventType;
 import eu.bcvsolutions.idm.core.model.event.processor.role.RoleDeleteProcessor;
 import eu.bcvsolutions.idm.core.model.event.processor.role.RoleSaveProcessor;
+import eu.bcvsolutions.idm.core.model.repository.IdmRoleCatalogueRoleRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
@@ -56,6 +57,7 @@ public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, Role
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmRoleService.class);
 	private final IdmRoleRepository repository;
+	private final IdmRoleCatalogueRoleRepository roleCatalogueRoleRepository;
 	private final EntityEventManager entityEventManager;
 	private final ConfigurationService configurationService;
 	private final FilterManager filterManager;
@@ -64,6 +66,7 @@ public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, Role
 	@Autowired
 	public DefaultIdmRoleService(
 			IdmRoleRepository repository,
+			IdmRoleCatalogueRoleRepository roleCatalogueRoleRepository,
 			EntityEventManager entityEventManager,
 			FormService formService,
 			ConfigurationService configurationService,
@@ -74,12 +77,15 @@ public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, Role
 		Assert.notNull(entityEventManager);
 		Assert.notNull(configurationService);
 		Assert.notNull(filterManager);
+		Assert.notNull(roleConfiguration);
+		Assert.notNull(roleCatalogueRoleRepository);
 		//
 		this.repository = repository;
 		this.entityEventManager = entityEventManager;
 		this.configurationService = configurationService;
 		this.filterManager = filterManager;
 		this.roleConfiguration = roleConfiguration;
+		this.roleCatalogueRoleRepository = roleCatalogueRoleRepository;
 	}
 	
 	@Override
@@ -301,6 +307,16 @@ public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, Role
 		Assert.notNull(roleId);
 		//
 		return repository.getSubroles(roleId);
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<IdmRole> findAllByRoleCatalogue(UUID roleCatalogueId) {
+		List<IdmRole> roles = new ArrayList<>();
+		for (IdmRoleCatalogueRole roleCatalogueRole : roleCatalogueRoleRepository.findAllByRoleCatalogue_Id(roleCatalogueId)) {
+			roles.add(roleCatalogueRole.getRole());
+		}
+		return roles;
 	}
 	
 }

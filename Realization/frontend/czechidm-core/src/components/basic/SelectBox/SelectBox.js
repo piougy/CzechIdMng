@@ -84,7 +84,7 @@ class SelectBox extends AbstractFormComponent {
     const { manager } = this.props;
     const searchParameters = this._createSearchParameters(input, forceSearchParameters);
     const timeInMs = Date.now();
-    // We create uniqu key for this call and save it to component state
+    // We create unique key for this call and save it to component state
     const uiKey = `${manager.getEntityType()}_${(timeInMs)}`;
     this.setState({
       isLoading: true,
@@ -397,7 +397,7 @@ class SelectBox extends AbstractFormComponent {
       return placeholder;
     }
     // default placeholder
-    return this.i18n('label.select', { defaultValue: 'Select ...' });
+    return this.i18n('label.searchSelect', { defaultValue: 'Select or type to search ...' });
   }
 
   /**

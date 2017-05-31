@@ -39,6 +39,7 @@
     "validFrom": "Valid from",
     "validTill": "Valid to",
     "select": "Select ...",
+    "searchSelect": "Select or type to search ...",
     "enabled": "Enabled",
     "disabled": "Disabled",
     "property": "Attribute",

@@ -15,6 +15,8 @@ import org.joda.time.LocalDateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.kohsuke.groovy.sandbox.GroovyValueFilter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
 
@@ -33,7 +35,8 @@ public class GroovySandboxFilter extends GroovyValueFilter {
 	private static final Set<Class<?>> ALLOWED_TYPES = Sets.newHashSet(
 			String.class, Integer.class, Double.class, Long.class, Date.class, Enum.class, Boolean.class, 
 			BigDecimal.class, UUID.class, Character.class, GuardedString.class, DateTimeFormatter.class,
-			DateTimeFormat.class, DateTime.class, String[].class, LocalDateTime.class, List.class, ArrayList.class);
+			DateTimeFormat.class, DateTime.class, String[].class, LocalDateTime.class, List.class, ArrayList.class,
+			LoggerFactory.class, Logger.class, ch.qos.logback.classic.Logger.class);
 
 	private final Set<Class<?>> allowedCustomTypes = new HashSet<>();
 	

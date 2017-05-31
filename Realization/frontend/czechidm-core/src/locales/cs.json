@@ -39,6 +39,7 @@
     "validFrom": "Platnost od",
     "validTill": "Platnost do",
     "select": "Vyberte ...",
+    "searchSelect": "Vyberte nebo začněte psát pro vyhledání ...",
     "enabled": "Aktivní",
     "disabled": "Neaktivní",
     "property": "Attribut",

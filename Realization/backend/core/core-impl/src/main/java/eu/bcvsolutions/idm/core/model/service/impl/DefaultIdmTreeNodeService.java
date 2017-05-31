@@ -12,6 +12,7 @@ import javax.persistence.criteria.Subquery;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
+import com.google.common.collect.ImmutableMap;
+
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.filter.TreeNodeFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
 import eu.bcvsolutions.idm.core.api.repository.filter.FilterManager;
@@ -27,6 +31,7 @@ import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.eav.service.impl.AbstractFormableService;
+import eu.bcvsolutions.idm.core.exception.TreeNodeException;
 import eu.bcvsolutions.idm.core.model.entity.IdmForestIndexEntity_;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode_;
@@ -36,6 +41,7 @@ import eu.bcvsolutions.idm.core.model.event.TreeNodeEvent;
 import eu.bcvsolutions.idm.core.model.event.TreeNodeEvent.TreeNodeEventType;
 import eu.bcvsolutions.idm.core.model.event.processor.TreeNodeDeleteProcessor;
 import eu.bcvsolutions.idm.core.model.event.processor.TreeNodeSaveProcessor;
+import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeTypeService;
@@ -60,6 +66,7 @@ public class DefaultIdmTreeNodeService extends AbstractFormableService<IdmTreeNo
 	private final LongRunningTaskManager longRunningTaskManager;
 	private final EntityEventManager entityEventManager;
 	private final FilterManager filterManager;
+	private final IdmIdentityContractRepository identityContractRepository;
 
 	@Autowired
 	public DefaultIdmTreeNodeService(
@@ -68,7 +75,9 @@ public class DefaultIdmTreeNodeService extends AbstractFormableService<IdmTreeNo
 		ConfigurationService configurationService,
 		LongRunningTaskManager longRunningTaskManager,
 		FormService formService,
-		EntityEventManager entityEventManager, FilterManager filterManager) {
+		EntityEventManager entityEventManager,
+		FilterManager filterManager,
+		IdmIdentityContractRepository identityContractRepository) {
 		super(treeNodeRepository, formService);
 		//
 		Assert.notNull(treeTypeService);
@@ -76,6 +85,7 @@ public class DefaultIdmTreeNodeService extends AbstractFormableService<IdmTreeNo
 		Assert.notNull(longRunningTaskManager);
 		Assert.notNull(entityEventManager);
 		Assert.notNull(filterManager);
+		Assert.notNull(identityContractRepository);
 		//
 		this.repository = treeNodeRepository;
 		this.treeTypeService = treeTypeService;
@@ -83,6 +93,7 @@ public class DefaultIdmTreeNodeService extends AbstractFormableService<IdmTreeNo
 		this.longRunningTaskManager = longRunningTaskManager;
 		this.entityEventManager = entityEventManager;
 		this.filterManager = filterManager;
+		this.identityContractRepository = identityContractRepository;
 	}
 	
 	/**
@@ -112,6 +123,13 @@ public class DefaultIdmTreeNodeService extends AbstractFormableService<IdmTreeNo
 		Assert.notNull(treeNode);
 		Assert.notNull(treeNode.getTreeType());
 		//
+		Page<IdmTreeNode> nodes = repository.findChildren(null, treeNode.getId(), new PageRequest(0, 1));
+		if (nodes.getTotalElements() > 0) {
+			throw new TreeNodeException(CoreResultCode.TREE_NODE_DELETE_FAILED_HAS_CHILDREN,  ImmutableMap.of("treeNode", treeNode.getName()));
+		}		
+		if (this.identityContractRepository.countByWorkPosition(treeNode) > 0) {
+			throw new TreeNodeException(CoreResultCode.TREE_NODE_DELETE_FAILED_HAS_CONTRACTS,  ImmutableMap.of("treeNode", treeNode.getName()));
+		}
 		LOG.debug("Deleteing tree node [{}] - [{}]", treeNode.getTreeType().getCode(), treeNode.getCode());
 		entityEventManager.process(new TreeNodeEvent(TreeNodeEventType.DELETE, treeNode));
 	}

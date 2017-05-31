@@ -753,7 +753,8 @@
     "SystemEntityTypeEnum": {
       "IDENTITY": "Identita",
       "ROLE": "Role",
-      "TREE": "Strom"
+      "TREE": "Strom",
+      "ROLE_CATALOGUE": "Katalog rolí"
     },
     "SystemOperationTypeEnum": {
       "PROVISIONING": "Provisioning",
@@ -847,6 +848,14 @@
       "PARENT": "Rodič (String)",
       "EXTERNAL_ID": "Externí ID (String)",
       "DISABLED": "Zakázaný (boolean)"
+    },
+    "CatalogueAttributeEnum": {
+      "CODE": "Kód (String)",
+      "NAME": "Název (String)",
+      "PARENT": "Rodič (String)",
+      "DESCRIPTION": "Popis (String)",
+      "URL": "URL (String)",
+      "URL_TITLE": "Popis URL (String)"
     },
     "RoleAttributeEnum": {
       "NAME": "Název (String)",

@@ -747,7 +747,8 @@
     "SystemEntityTypeEnum": {
       "IDENTITY": "Identity",
       "ROLE": "Role",
-      "TREE": "Tree"
+      "TREE": "Tree",
+      "ROLE_CATALOGUE": "Role catalogue"
     },
     "SystemOperationTypeEnum": {
       "PROVISIONING": "Provisioning",
@@ -841,6 +842,14 @@
       "PARENT": "Parent (String)",
       "EXTERNAL_ID": "External ID (String)",
       "DISABLED": "Disabled (boolean)"
+    },
+    "CatalogueAttributeEnum": {
+      "CODE": "Code (String)",
+      "NAME": "Name (String)",
+      "PARENT": "Parent (String)",
+      "DESCRIPTION": "Description (String)",
+      "URL": "URL (String)",
+      "URL_TITLE": "URL title (String)"
     },
     "RoleAttributeEnum": {
       "NAME": "Name (String)",

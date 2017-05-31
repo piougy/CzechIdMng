@@ -2,7 +2,6 @@ package eu.bcvsolutions.idm.acc.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -111,10 +110,6 @@ public class RoleCatalogueProvisioningExecutor extends AbstractProvisioningExecu
 		return new ArrayList<>();
 	}
 	
-	@Override
-	protected IdmRoleCatalogue getEntityById(UUID id) {
-		return catalogueService.get(id);
-	}
 
 	@Override
 	protected EntityAccountFilter createEntityAccountFilter() {
@@ -135,7 +130,7 @@ public class RoleCatalogueProvisioningExecutor extends AbstractProvisioningExecu
 	@SuppressWarnings("rawtypes")
 	@Override
 	protected ReadWriteDtoService getEntityService() {
-		return null; // We don't have DTO service for IdmRoleCatalogue now
+		return catalogueService;
 	}
 
 	@Override

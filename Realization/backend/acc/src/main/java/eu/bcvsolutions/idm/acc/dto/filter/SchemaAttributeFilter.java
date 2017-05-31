@@ -2,7 +2,7 @@ package eu.bcvsolutions.idm.acc.dto.filter;
 
 import java.util.UUID;
 
-import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
 
 /**
  * Filter for attributes on target system
@@ -10,7 +10,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
  * @author Svanda
  *
  */
-public class SchemaAttributeFilter implements BaseFilter {
+public class SchemaAttributeFilter extends QuickFilter {
 	
 	private UUID objectClassId;
 	private UUID systemId;

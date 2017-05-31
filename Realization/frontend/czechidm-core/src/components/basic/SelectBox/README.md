@@ -41,7 +41,7 @@ All parameters from AbstractFormComponent are supported. Added parameters:
   service={identityService}
   value = {['admin','testCreate11','testCreate2','testCreate3','testCreate4','testCreate5','testCreate6']}
   searchInFields={['lastName', 'name','email']}
-  placeholder="Vyberte uživatele ..."
+  placeholder="Select identity or start writing to search ..."
   multiSelect={true}
   required/>
 ```

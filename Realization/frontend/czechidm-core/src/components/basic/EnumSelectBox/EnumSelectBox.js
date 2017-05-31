@@ -226,6 +226,14 @@ class EnumSelectBox extends SelectBox {
     this.getOptions(value);
   }
 
+  getPlaceholder(placeholder) {
+    if (placeholder !== null && placeholder !== undefined) {
+      return placeholder;
+    }
+    // default placeholder
+    return this.i18n('label.select', { defaultValue: 'Select ...' });
+  }
+
   getSelectComponent() {
     const { placeholder, multiSelect, fieldLabel, searchable, clearable } = this.props;
     const { value, readOnly, disabled } = this.state;

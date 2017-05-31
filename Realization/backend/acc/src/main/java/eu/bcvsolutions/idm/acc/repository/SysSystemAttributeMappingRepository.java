@@ -37,6 +37,8 @@ public interface SysSystemAttributeMappingRepository extends AbstractEntityRepos
 	@Override
 	@Query(value = "select e from SysSystemAttributeMapping e" +
 			" where"
+			+ " (?#{[0].text} is null or lower(e.name) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')})"
+	        + " and"
 	        + " (?#{[0].systemMappingId} is null or e.systemMapping.id = ?#{[0].systemMappingId})"
 	        + " and"
 	        + " (?#{[0].schemaAttributeId} is null or e.schemaAttribute.id = ?#{[0].schemaAttributeId})"

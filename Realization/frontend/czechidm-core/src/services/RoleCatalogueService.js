@@ -14,6 +14,14 @@ class RoleCatalogueService extends AbstractService {
     return `${roleCatalogue.name} (${roleCatalogue.code})`;
   }
 
+  supportsPatch() {
+    return false;
+  }
+
+  getGroupPermission() {
+    return 'ROLECATALOGUE';
+  }
+
   /**
    * Returns default searchParameters for current entity type
    *

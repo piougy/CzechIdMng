@@ -86,4 +86,12 @@ public interface IdmRoleService
 	 * @return
 	 */
 	List<IdmRole> getSubroles(UUID roleId);
+	
+	/**
+	 * Get list of {@link IdmRole} for role catalogue given in parameter.
+	 * 
+	 * @param roleCatalogue
+	 * @return
+	 */
+	List<IdmRole> findAllByRoleCatalogue(UUID roleCatalogueId);
 }

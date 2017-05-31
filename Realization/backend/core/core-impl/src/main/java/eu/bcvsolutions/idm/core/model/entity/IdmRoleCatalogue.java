@@ -69,10 +69,12 @@ public class IdmRoleCatalogue extends AbstractEntity implements BaseTreeEntity<I
 	
 	@Audited
 	@Column(name = "url")
+	@Size(max = DefaultFieldLengths.NAME)
 	private String url;
 	
 	@Audited
 	@Column(name = "url_title")
+	@Size(max = DefaultFieldLengths.NAME)
 	private String urlTitle;
 	
 	@JsonIgnore

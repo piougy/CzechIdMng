@@ -1,12 +1,11 @@
-package eu.bcvsolutions.idm.core.model.dto;
+package eu.bcvsolutions.idm.core.api.dto;
 
 import java.util.UUID;
 
 import org.springframework.hateoas.core.Relation;
 
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
-import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
-import eu.bcvsolutions.idm.core.model.domain.ScriptAuthorityType;
+import eu.bcvsolutions.idm.core.api.domain.ScriptAuthorityType;
 
 /**
  * DTO for script authority

@@ -1,8 +1,6 @@
-package eu.bcvsolutions.idm.core.model.dto.filter;
+package eu.bcvsolutions.idm.core.api.dto.filter;
 
 import java.util.UUID;
-
-import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 
 /**
  * Filter for  {@link IdmScriptAuthority}

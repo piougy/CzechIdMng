@@ -162,7 +162,13 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 	@RequestMapping(method = RequestMethod.POST)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_CREATE + "') or hasAuthority('" + CoreGroupPermission.IDENTITY_UPDATE + "')")
 	public ResponseEntity<?> post(@Valid @RequestBody IdmIdentityDto dto) {
-		return super.post(dto);
+		String username = dto.getUsername();
+		for (int i=0; i< 10000; i++) {
+			dto.setUsername(username + "-" + i);
+			super.post(dto);
+		}
+		
+		return null;
 	}
 
 	@Override

@@ -11,10 +11,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.domain.IdmScriptCategory;
+import eu.bcvsolutions.idm.core.api.dto.IdmScriptDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.ScriptFilter;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
-import eu.bcvsolutions.idm.core.model.dto.IdmScriptDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmScript;
 import eu.bcvsolutions.idm.core.model.repository.IdmScriptRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmScriptAuthorityService;

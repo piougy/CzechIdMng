@@ -31,10 +31,6 @@ export default class AuthorizationPolicyService extends AbstractService {
     return false;
   }
 
-  supportsAuthorization() {
-    return true;
-  }
-
   getGroupPermission() {
     return 'AUTHORIZATIONPOLICY';
   }

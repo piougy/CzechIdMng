@@ -24,11 +24,11 @@ import org.springframework.plugin.core.PluginRegistry;
 
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.api.domain.IdmScriptCategory;
+import eu.bcvsolutions.idm.core.api.domain.ScriptAuthorityType;
+import eu.bcvsolutions.idm.core.api.dto.IdmScriptAuthorityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmScriptDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
-import eu.bcvsolutions.idm.core.model.domain.ScriptAuthorityType;
-import eu.bcvsolutions.idm.core.model.dto.IdmScriptAuthorityDto;
-import eu.bcvsolutions.idm.core.model.dto.IdmScriptDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmScriptAuthority;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;

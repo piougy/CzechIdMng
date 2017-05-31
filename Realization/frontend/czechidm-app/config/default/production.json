@@ -4,5 +4,7 @@
   "theme": "czechidm-core/themes/default",
   "logger": {
     "level": "WARN"
-  }
+  },
+"recaptchaSiteKey": "TODO",
+"recaptchaEnabled": true
 }

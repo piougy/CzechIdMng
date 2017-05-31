@@ -24,6 +24,7 @@ import WorkflowProcessInfo from './WorkflowProcessInfo/WorkflowProcessInfo';
 import NotificationTemplateInfo from './NotificationTemplateInfo/NotificationTemplateInfo';
 import ScriptArea from './ScriptArea/ScriptArea';
 import RoleSelect from './RoleSelect/RoleSelect';
+import Recaptcha from './Recaptcha/Recaptcha';
 
 const Components = {
   Table,
@@ -53,7 +54,8 @@ const Components = {
   WorkflowProcessInfo,
   NotificationTemplateInfo,
   ScriptArea,
-  RoleSelect
+  RoleSelect,
+  Recaptcha
 };
 
 Components.version = '0.0.1';

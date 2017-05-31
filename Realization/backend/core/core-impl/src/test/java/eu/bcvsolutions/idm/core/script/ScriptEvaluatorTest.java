@@ -301,6 +301,11 @@ public class ScriptEvaluatorTest extends AbstractIntegrationTest {
 		fail();
 	}
 	
+	@Test
+	public void testEvaluateLogScript() {
+		groovyScriptService.evaluate(createLogScript(), null);
+	}
+	
 	/**
 	 * Method create simple script return as string. 
 	 * Parameter returnString is used for return value in script. Return List.toString() or List
@@ -321,6 +326,14 @@ public class ScriptEvaluatorTest extends AbstractIntegrationTest {
 		} else {
 			script.append("return list;\n");
 		}
+		return script.toString();
+		
+	}
+	
+	private String createLogScript() {
+		StringBuilder script = new StringBuilder();
+		script.append("org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(\"script_name\");\n");
+		script.append("LOG.info(\"test\");\n");
 		return script.toString();
 		
 	}

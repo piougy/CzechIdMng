@@ -83,7 +83,7 @@ public class SysSystemMapping extends AbstractEntity {
 	private boolean protectionEnabled = false;
 	
 	@Audited
-	@Min(1)
+	@Min(0)
 	@Column(name = "protection_interval", nullable = true)
 	private int protectionInterval = 0;
 	

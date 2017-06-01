@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.acc.domain;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
+import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 
 /**
@@ -15,7 +16,8 @@ public enum SystemEntityType {
 
 	IDENTITY(IdmIdentity.class),
 	ROLE(IdmRole.class),
-	TREE(IdmTreeNode.class);
+	TREE(IdmTreeNode.class),
+	ROLE_CATALOGUE(IdmRoleCatalogue.class);
 
 	private Class<? extends AbstractEntity> entityType;
 

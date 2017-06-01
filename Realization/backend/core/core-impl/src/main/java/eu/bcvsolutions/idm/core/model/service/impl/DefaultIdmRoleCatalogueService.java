@@ -156,6 +156,10 @@ public class DefaultIdmRoleCatalogueService
 	public void delete(IdmRoleCatalogueDto roleCatalogue, BasePermission... permission) {
 		Assert.notNull(roleCatalogue);
 		checkAccess(this.getEntity(roleCatalogue.getId()), permission);
+		Page<IdmRoleCatalogue> nodes = repository.findChildren(roleCatalogue.getId(), new PageRequest(0, 1));
+		if (nodes.getTotalElements() != 0) {
+			throw new ResultCodeException(CoreResultCode.ROLE_CATALOGUE_DELETE_FAILED_HAS_CHILDREN, ImmutableMap.of("roleCatalogue", roleCatalogue.getCode()));
+		}
 		//
 		LOG.debug("Deleting role catalogue [{}]", roleCatalogue.getCode());
 		entityEventManager.process(new RoleCatalogueEvent(RoleCatalogueEventType.DELETE, roleCatalogue));

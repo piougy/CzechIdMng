@@ -114,7 +114,22 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 	}
 
 	@Override
-	public abstract void doProvisioning(AccAccount account);
+	public void doProvisioning(AccAccount account){
+		Assert.notNull(account);
+
+		EntityAccountFilter filter = createEntityAccountFilter();
+		filter.setAccountId(account.getId());
+		@SuppressWarnings("unchecked")
+		List<? extends EntityAccountDto> entityAccoutnList = getEntityAccountService().find((BaseFilter)filter, null).getContent();
+		if (entityAccoutnList == null) {
+			return;
+		}
+		entityAccoutnList.stream().filter(entityAccount -> {
+			return entityAccount.isOwnership();
+		}).forEach((entityAccount) -> {
+			doProvisioning(account, this.getEntityById(entityAccount.getEntity()));
+		});
+	}
 	
 	@Override
 	public void doProvisioning(ENTITY entity) {
@@ -785,6 +800,11 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 			// We assume that system entity has only one account!
 			return accounts.get(0);
 		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	protected ENTITY getEntityById(UUID id){
+		return (ENTITY) getEntityService().get(id);
 	}
 	
 	protected abstract EntityAccountFilter createEntityAccountFilter();

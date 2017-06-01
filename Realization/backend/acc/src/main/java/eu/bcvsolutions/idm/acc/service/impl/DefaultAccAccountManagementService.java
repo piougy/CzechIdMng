@@ -12,6 +12,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AccountType;
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
@@ -37,6 +38,7 @@ import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
@@ -60,13 +62,15 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 	private final IdmIdentityRoleRepository identityRoleRepository;
 	private final SysRoleSystemAttributeService roleSystemAttributeService;
 	private final SysSystemAttributeMappingService systemAttributeMappingService;
+	private final SysSystemMappingService systemMappingService;
 
 	@Autowired
 	public DefaultAccAccountManagementService(SysRoleSystemService roleSystemService, AccAccountService accountService,
 			AccIdentityAccountService identityAccountService, IdmIdentityRoleRepository identityRoleRepository,
 			SysRoleSystemAttributeService roleSystemAttributeService,
 			AccIdentityAccountRepository identityAccountRepository,
-			SysSystemAttributeMappingService systemAttributeMappingService) {
+			SysSystemAttributeMappingService systemAttributeMappingService,
+			SysSystemMappingService systemMappingService) {
 		super();
 		//
 		Assert.notNull(identityAccountService);
@@ -76,6 +80,7 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 		Assert.notNull(roleSystemAttributeService);
 		Assert.notNull(identityAccountRepository);
 		Assert.notNull(systemAttributeMappingService);
+		Assert.notNull(systemMappingService);
 		//
 		this.roleSystemService = roleSystemService;
 		this.accountService = accountService;
@@ -84,6 +89,7 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 		this.roleSystemAttributeService = roleSystemAttributeService;
 		this.identityAccountRepository = identityAccountRepository;
 		this.systemAttributeMappingService = systemAttributeMappingService;
+		this.systemMappingService = systemMappingService;
 	}
 
 	@Override
@@ -113,6 +119,14 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 		// Is role invalid in this moment
 		resolveIdentityAccountForDelete(identityAccountList, identityRoles, identityAccountsToDelete);
 
+		List<AccAccount> accountsForDelete = identityAccountsToDelete.stream().map(AccIdentityAccount::getAccount).collect(Collectors.toList());
+		accountsForDelete.forEach(account -> {
+			if(systemMappingService.isEnabledProtection(account)){
+				
+			}
+		});
+		
+		
 		// Delete invalid identity accounts
 		provisioningRequired = !identityAccountsToDelete.isEmpty() ? true : provisioningRequired;
 		identityAccountsToDelete.stream().forEach(identityAccount -> {

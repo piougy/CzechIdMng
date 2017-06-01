@@ -16,6 +16,8 @@ import org.hibernate.envers.Audited;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
@@ -76,6 +78,15 @@ public class SysSystemMapping extends AbstractEntity {
 	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmTreeType treeType;
 	
+	@Audited
+	@Column(name = "protection_enabled", nullable = true)
+	private boolean protectionEnabled = false;
+	
+	@Audited
+	@Min(0)
+	@Column(name = "protection_interval", nullable = true)
+	private int protectionInterval = 0;
+	
 	public void setName(String name) {
 		this.name = name;
 	}
@@ -122,5 +133,21 @@ public class SysSystemMapping extends AbstractEntity {
 
 	public void setTreeType(IdmTreeType treeType) {
 		this.treeType = treeType;
+	}
+
+	public boolean isProtectionEnabled() {
+		return protectionEnabled;
+	}
+
+	public void setProtectionEnabled(boolean protectionEnabled) {
+		this.protectionEnabled = protectionEnabled;
+	}
+
+	public int getProtectionInterval() {
+		return protectionInterval;
+	}
+
+	public void setProtectionInterval(int protectionInterval) {
+		this.protectionInterval = protectionInterval;
 	}
 }

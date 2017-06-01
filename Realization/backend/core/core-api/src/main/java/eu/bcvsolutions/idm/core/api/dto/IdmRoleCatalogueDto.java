@@ -12,7 +12,7 @@ import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 
 /**
- * Role catalogue dto
+ * Role catalogue DTO
  * 
  * @author Radek Tomiška
  *
@@ -103,7 +103,7 @@ public class IdmRoleCatalogueDto extends AbstractDto implements Codeable {
 	public void setRgt(long rgt) {
 		this.rgt = rgt;
 	}
-	
+
 	/**
 	 * Children count based on index
 	 * 

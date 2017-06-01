@@ -14,9 +14,9 @@ import eu.bcvsolutions.idm.core.api.entity.OperationResult;
  * 
  * @author Jan Helbich
  */
-@SuppressWarnings("serial")
 public class IdmLongRunningTaskDto extends AbstractDto {
 
+	private static final long serialVersionUID = 1L;
 	private String taskType;
 	private String taskDescription;
 	private Map<String, Object> taskProperties;

@@ -130,5 +130,4 @@ public class DefaultIdmLongRunningTaskService
 		itemService.deleteAllByLongRunningTask(get(dto.getId()));
 		super.deleteInternal(dto);
 	}
-	
 }

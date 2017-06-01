@@ -1,16 +1,20 @@
 package eu.bcvsolutions.idm.core.scheduler.task.impl;
 
 import java.util.List;
-import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Sets;
+
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
 import eu.bcvsolutions.idm.core.scheduler.service.impl.AbstractLongRunningTaskExecutor;
 
@@ -18,6 +22,7 @@ import eu.bcvsolutions.idm.core.scheduler.service.impl.AbstractLongRunningTaskEx
  * Long running task for add newly added automatic role to users.
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
+ * @author Radek Tomiška
  *
  */
 @Service
@@ -25,33 +30,26 @@ import eu.bcvsolutions.idm.core.scheduler.service.impl.AbstractLongRunningTaskEx
 public class AddNewAutomaticRoleTaskExecutor extends AbstractLongRunningTaskExecutor<Boolean> {
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(AddNewAutomaticRoleTaskExecutor.class);
+	@Autowired private IdmIdentityContractService identityContractService;
+	@Autowired private IdmRoleTreeNodeService roleTreeNodeService;
+	@Autowired private IdmRoleService roleService;
+	//
+	private IdmRoleTreeNodeDto roleTreeNode = null;
 	
-	@Autowired
-	private IdmIdentityContractService identityContractService;
-	
-	@Autowired
-	private IdmRoleTreeNodeService roleTreeNodeService;
-	
-	private UUID roleTreeNodeId = null;
-	
-	public UUID getRoleTreeNodeId() {
-		return roleTreeNodeId;
+	public IdmRoleTreeNodeDto getRoleTreeNode() {
+		return roleTreeNode;
 	}
 
-	public void setRoleTreeNodeId(UUID roleTreeNodeId) {
-		this.roleTreeNodeId = roleTreeNodeId;
+	public void setRoleTreeNode(IdmRoleTreeNodeDto roleTreeNode) {
+		this.roleTreeNode = roleTreeNode;
 	}
 
 	@Override
 	public Boolean process() {
-		if (roleTreeNodeId == null) {
-			return Boolean.FALSE;
-		}
-		//
-		IdmRoleTreeNodeDto roleTreeNode = roleTreeNodeService.get(roleTreeNodeId);
 		if (roleTreeNode == null) {
-			return Boolean.FALSE;
+			throw new ResultCodeException(CoreResultCode.AUTOMATIC_ROLE_TASK_EMPTY);
 		}
+		IdmRole role = roleService.get(roleTreeNode.getRole());
 		//
 		// TODO: pageable?
 		List<IdmIdentityContractDto> contracts = identityContractService.findAllByWorkPosition(roleTreeNode.getTreeNode(), roleTreeNode.getRecursionType());
@@ -59,7 +57,7 @@ public class AddNewAutomaticRoleTaskExecutor extends AbstractLongRunningTaskExec
 		counter = 0L;
 		count = Long.valueOf(contracts.size());
 		//
-		LOG.debug("[AddNewAutomaticRoleTaskExecutor] Add new automatic roles. Count: [{}]", count);
+		LOG.debug("Start: Add new role [{}] by automatic role [{}]. Count: [{}]", role.getCode(), roleTreeNode.getId(), count);
 		//
 		boolean canContinue = true;
 		for (IdmIdentityContractDto identityContract : contracts) {
@@ -70,6 +68,7 @@ public class AddNewAutomaticRoleTaskExecutor extends AbstractLongRunningTaskExec
 				break;
 			}
 		}
+		LOG.debug("End: Add new role [{}] by automatic role [{}]. Count: [{}]", role.getCode(), roleTreeNode.getId(), count);
 		return Boolean.TRUE;
 	}
 }

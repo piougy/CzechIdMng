@@ -185,7 +185,8 @@
       "SelectBox" : {
         "noResultsText": "No result",
         "searchPromptText": "Start typing ...",
-        "searchingText": "Searching ..."
+        "searchingText": "Searching ...",
+        "result": "Shown <strong>{{count}}</strong> of <strong>{{total}}</strong> records ..."
       },
       "Table" : {
         "Pagination" : {

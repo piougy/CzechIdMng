@@ -321,7 +321,7 @@ class RoleSelect extends Basic.AbstractFormComponent {
         <Basic.Panel className="no-border last">
           <Basic.Row rendered={showRoleCatalogue}>
             <Basic.Col lg={ 3 } style={{ paddingRight: 0, paddingLeft: 0, marginLeft: 15, marginRight: -15 }}>
-              <div className="basic-toolbar" style={{ padding: '3px 15px 4px 0px', minHeight: 'auto' }}>
+              <div className="basic-toolbar" style={{ padding: '3px 15px 5px 0px', minHeight: 'auto' }}>
                 <div className="pull-left">
                   <h3 style={{ margin: 0 }}>
                     { this.i18n('content.roles.select.chooseFolder') }
@@ -333,7 +333,8 @@ class RoleSelect extends Basic.AbstractFormComponent {
                     title={this.i18n('content.tree.nodes.reloadTree')}
                     titlePlacement="bottom"
                     className="btn-xs"
-                    onClick={this.cleanFilter.bind(this)}>
+                    onClick={this.cleanFilter.bind(this)}
+                    rendered={ false }>
                     <Basic.Icon value="fa:refresh"/>
                   </Basic.Button>
                 </div>
@@ -343,13 +344,22 @@ class RoleSelect extends Basic.AbstractFormComponent {
                 {
                   !showTree
                   ||
-                  <Tree
-                    showLoading={showLoading}
-                    rootNodes={rootNodes}
-                    rootNodesCount={ rootNodesCount }
-                    uiKey="roleCatalogueTree"
-                    headerDecorator={this._roleCatalogueDecorator.bind(this)}
-                    manager={this.roleCatalogueManager}/>
+                  <div>
+                    <Basic.Button
+                        level="link"
+                        className="btn-xs"
+                        onClick={ this.cleanFilter.bind(this) }
+                        disabled={ roleCatalogue === null }>
+                      { this.i18n('content.roles.button.allRoles') }
+                    </Basic.Button>
+                    <Tree
+                      showLoading={showLoading}
+                      rootNodes={rootNodes}
+                      rootNodesCount={ rootNodesCount }
+                      uiKey="roleCatalogueTree"
+                      headerDecorator={this._roleCatalogueDecorator.bind(this)}
+                      manager={this.roleCatalogueManager}/>
+                  </div>
                 }
               </div>
             </Basic.Col>

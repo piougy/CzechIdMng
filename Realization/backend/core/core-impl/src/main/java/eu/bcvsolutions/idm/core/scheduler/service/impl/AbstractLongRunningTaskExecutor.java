@@ -34,10 +34,8 @@ import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskService;
 public abstract class AbstractLongRunningTaskExecutor<V> implements LongRunningTaskExecutor<V> {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(AbstractLongRunningTaskExecutor.class);
-	@Autowired
-	private IdmLongRunningTaskService service;
-	@Autowired
-	private LookupService entityLookupService;
+	@Autowired private IdmLongRunningTaskService service;
+	@Autowired private LookupService entityLookupService;
 	//
 	private ParameterConverter parameterConverter;	
 	private UUID taskId;
@@ -84,7 +82,7 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements LongRunningT
 		task.setRunning(true);
 		task.setResult(new OperationResult.Builder(OperationState.RUNNING).build());
 		//
-		service.saveInternal(task);
+		service.save(task);
 		return true;
 	}
 	
@@ -103,10 +101,18 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements LongRunningT
 		}
 	}
 	
+	/**
+	 * TODO: save result into long running task - blob, text?
+	 * 
+	 * @param result
+	 * @param ex
+	 * @return
+	 */
 	protected V end(V result, Exception ex) {
 		Assert.notNull(taskId);
 		IdmLongRunningTaskDto task = service.get(taskId);
-		Assert.notNull(task, "Long running task has to be prepared before task is started");
+		Assert.notNull(task, "Long running task has to be prepared before task is ended");
+		LOG.debug("Long running task ends [{}] with result [{}].", taskId, result);
 		//
 		setStateProperties(task);
 		//
@@ -125,10 +131,11 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements LongRunningT
 			task.setResult(new OperationResult.Builder(OperationState.EXCEPTION).setModel(resultModel).setCause(ex).build());
 		} else if(OperationState.isRunnable(task.getResultState())) { 
 			// executed standardly
+			LOG.debug("Long running task ended [{}] standardly, previous state [{}], result [{}].", taskId, task.getResultState(), result);
 			task.setResult(new OperationResult.Builder(OperationState.EXECUTED).build());
 		}
 		task.setRunning(false);
-		service.saveInternal(task);
+		service.save(task);
 		//
 		return result;
 	}

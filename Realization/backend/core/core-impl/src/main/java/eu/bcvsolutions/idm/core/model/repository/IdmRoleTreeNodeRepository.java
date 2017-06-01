@@ -35,12 +35,16 @@ public interface IdmRoleTreeNodeRepository extends AbstractEntityRepository<IdmR
 	 * @param treeNode
 	 * @return
 	 */
-	@Query(value = "select e from #{#entityName} e"
+	@Query(value = "select e from #{#entityName} e join e.treeNode n"
 			+ " where"
-			+ " (e.treeNode = ?#{[0]})" // takes all recursion
-			+ " or"
-			+ " (e.recursionType = 'DOWN' and ?#{[0].lft} between e.treeNode.forestIndex.lft and e.treeNode.forestIndex.rgt)"
-			+ " or"
-			+ " (e.recursionType = 'UP' and e.treeNode.forestIndex.lft between ?#{[0].lft} and ?#{[0].rgt})")
+			+ " (n.treeType = ?#{[0].treeType})" // more tree types
+			+ " and"
+			+ " ("
+				+ " (n = ?#{[0]})" // takes all recursion
+				+ " or"
+				+ " (e.recursionType = 'DOWN' and ?#{[0].lft} between n.forestIndex.lft and n.forestIndex.rgt)"
+				+ " or"
+				+ " (e.recursionType = 'UP' and n.forestIndex.lft between ?#{[0].lft} and ?#{[0].rgt})"
+			+ " )")
 	List<IdmRoleTreeNode> findAutomaticRoles(IdmTreeNode treeNode);
 }

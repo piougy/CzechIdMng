@@ -52,7 +52,7 @@ public class RoleTreeNodeDeleteProcessor extends CoreEventProcessor<IdmRoleTreeN
 		//
 		// delete all assigned roles gained by this automatic role by long running task
 		RemoveAutomaticRoleTaskExecutor automaticRoleTask = AutowireHelper.createBean(RemoveAutomaticRoleTaskExecutor.class);
-		automaticRoleTask.setRoleTreeNodeId(roleTreeNode.getId());
+		automaticRoleTask.setRoleTreeNode(roleTreeNode);
 		longRunningTaskManager.executeSync(automaticRoleTask);
 		//
 		return new DefaultEventResult<>(event, this);

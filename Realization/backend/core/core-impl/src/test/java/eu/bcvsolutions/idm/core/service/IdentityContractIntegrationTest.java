@@ -125,11 +125,11 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 	 * @return
 	 */
 	private IdmRoleTreeNodeDto saveAutomaticRole(IdmRoleTreeNodeDto automaticRole, boolean withLongRunningTask) {
-		IdmRoleTreeNodeDto entity = roleTreeNodeService.saveInternal(automaticRole);
+		IdmRoleTreeNodeDto roleTreeNode = roleTreeNodeService.saveInternal(automaticRole);
 		//
 		if (withLongRunningTask) {
 			AddNewAutomaticRoleTaskExecutor task = new AddNewAutomaticRoleTaskExecutor();
-			task.setRoleTreeNodeId(entity.getId());
+			task.setRoleTreeNode(roleTreeNode);
 			//
 			// active wait for save
 			try {
@@ -139,15 +139,15 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 				fail("Unexpected error, while wait for save automatic role: " + e.getLocalizedMessage());
 			}
 			//
-			return roleTreeNodeService.get(entity.getId());
+			return roleTreeNodeService.get(roleTreeNode.getId());
 		}
 		//
-		return roleTreeNodeService.get(entity.getId());
+		return roleTreeNodeService.get(roleTreeNode.getId());
 	}
 	
 	private void deleteAutomaticRole(IdmRoleTreeNodeDto automaticRole) {
 		RemoveAutomaticRoleTaskExecutor task = new RemoveAutomaticRoleTaskExecutor();
-		task.setRoleTreeNodeId(automaticRole.getId());
+		task.setRoleTreeNode(automaticRole);
 		taskManager.executeSync(task);
 	}
 	

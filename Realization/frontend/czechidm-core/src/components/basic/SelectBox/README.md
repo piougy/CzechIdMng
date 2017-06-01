@@ -3,6 +3,13 @@
 Component for search and select item any entity. Extended from AbstractFormComponent.
 Component supported single select and multi select mode.
 
+## Requirements
+
+- Autocomplete endpoint (e.q. ``<server>/api/identities/search/autocomplete``) has to exists - underlying find method has to support find by property "text"
+- first page of records is returned, if input is empty. Page size can be configured by ``pageSize`` property
+- if input is changed, then new search is executed on BE wit "text" property filled - other records can be found.
+- when ``useFirst`` is ``true``, then first record is selected automatically - the first record from the first page.
+
 ## Parameters
 
 All parameters from AbstractFormComponent are supported. Added parameters:
@@ -19,12 +26,14 @@ All parameters from AbstractFormComponent are supported. Added parameters:
 | niceLabel | func   | Function for transform nice label in select box|  |
 | returnProperty | oneOfType([string, bool])  | If object is selected, then this property value will be returned. If value is false, then whole object is returned. | 'id' |
 | useFirst | bool | Use the first searched value on component is inited, if selcted value is empty | false |
+| pageSize | number | Search results page size | SearchParameters.DEFAULT_SIZE |
 
 
 ## Usage
+
 ### Select
 ```html
-<SelectBox ref="selectComponent"
+<Advanced.SelectBox ref="selectComponent"
      label="Select box test"
      manager={identityManager}
      placeholder="Select user ..."
@@ -35,7 +44,7 @@ All parameters from AbstractFormComponent are supported. Added parameters:
 ### Multi select
 
 ```html
-<SelectBox
+<Advanced.SelectBox
   ref="selectBoxMulti"
   label="Select box multi"
   service={identityService}
@@ -44,4 +53,14 @@ All parameters from AbstractFormComponent are supported. Added parameters:
   placeholder="Select identity or start writing to search ..."
   multiSelect={true}
   required/>
+```
+
+### Custom page size
+
+```html
+<Advanced.SelectBox
+  ref="role"
+  placeholder="Select role or type for search ..."
+  manager={ roleManager }
+  pageSize={ SearchParameters.MAX_SIZE }/>
 ```

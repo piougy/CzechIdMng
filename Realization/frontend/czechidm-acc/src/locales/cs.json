@@ -660,7 +660,8 @@
           "MISSING_ENTITY": "Entita neexistuje",
           "UNLINKED": "Vazba neexistuje",
           "MISSING_ACCOUNT": "Účet neexistuje",
-          "IGNORE": "Ignorováno"
+          "IGNORE": "Ignorováno",
+          "UNKNOWN": "Neznámý stav"
         },
         "WARNING": {
           "CREATE_ENTITY": "Vytvořeno entit",
@@ -676,7 +677,8 @@
           "MISSING_ENTITY": "Entita neexistuje",
           "UNLINKED": "Vazba neexistuje",
           "MISSING_ACCOUNT": "Účet neexistuje",
-          "IGNORE": "Ignorováno"
+          "IGNORE": "Ignorováno",
+          "UNKNOWN": "Neznámý stav"
         },
         "WF": {
           "CREATE_ENTITY": "Vytvořeno entit",
@@ -692,7 +694,8 @@
           "MISSING_ENTITY": "Entita neexistuje",
           "UNLINKED": "Vazba neexistuje",
           "MISSING_ACCOUNT": "Účet neexistuje",
-          "IGNORE": "Ignorováno"
+          "IGNORE": "Ignorováno",
+          "UNKNOWN": "Neznámý stav"
         },
         "IGNORE": {
           "CREATE_ENTITY": "Vytvořeno entit",
@@ -708,7 +711,8 @@
           "MISSING_ENTITY": "Entita neexistuje",
           "UNLINKED": "Vazba neexistuje",
           "MISSING_ACCOUNT": "Účet neexistuje",
-          "IGNORE": "Ignorováno"
+          "IGNORE": "Ignorováno",
+          "UNKNOWN": "Neznámý stav"
         },
         "ERROR": {
           "CREATE_ENTITY": "Neúspěšně vytvořeno entit",
@@ -724,7 +728,8 @@
           "MISSING_ENTITY": "Entita neexistuje",
           "UNLINKED": "Vazba neexistuje",
           "MISSING_ACCOUNT": "Účet neexistuje",
-          "IGNORE": "Neúspěšně ignorováno"
+          "IGNORE": "Neúspěšně ignorováno",
+          "UNKNOWN": "Neznámý stav"
         }
       }
     },
@@ -810,7 +815,8 @@
       "MISSING_ENTITY": "Entita neexistuje",
       "UNLINKED": "Vazba neexistuje",
       "MISSING_ACCOUNT": "Účet neexistuje",
-      "IGNORE": "Ignorováno"
+      "IGNORE": "Ignorováno",
+      "UNKNOWN": "Neznámý stav"
     },
     "OperationResultTypeEnum": {
       "SUCCESS": "Úspěšné",

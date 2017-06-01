@@ -48,9 +48,8 @@ public class RoleTreeNodeSaveProcessor extends CoreEventProcessor<IdmRoleTreeNod
 		event.setContent(dto);
 		//
 		// assign role by this added automatic role to all existing identity contracts with long running task
-		// TODO: optional remove by logged user input
 		AddNewAutomaticRoleTaskExecutor automaticRoleTask = AutowireHelper.createBean(AddNewAutomaticRoleTaskExecutor.class);
-		automaticRoleTask.setRoleTreeNodeId(dto.getId());
+		automaticRoleTask.setRoleTreeNode(dto);
 		longRunningTaskManager.execute(automaticRoleTask);
 		return new DefaultEventResult<>(event, this);
 	}

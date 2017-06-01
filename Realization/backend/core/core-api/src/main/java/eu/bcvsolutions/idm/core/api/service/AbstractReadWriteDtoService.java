@@ -115,7 +115,10 @@ public abstract class AbstractReadWriteDtoService<DTO extends BaseDto, E extends
 	public void deleteInternalById(Serializable id) {
 		Assert.notNull(id);
 		//
-		deleteInternal(get(id));
+		DTO dto = get(id);
+		if (dto != null) {
+			deleteInternal(dto);
+		}
 	}
 
 }

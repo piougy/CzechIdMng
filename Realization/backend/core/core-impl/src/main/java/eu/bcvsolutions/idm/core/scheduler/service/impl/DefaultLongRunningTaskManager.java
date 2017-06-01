@@ -10,7 +10,6 @@ import java.util.concurrent.FutureTask;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
@@ -139,25 +138,29 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 	}
 	
 	@Override
-	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	@Transactional
 	public <V> LongRunningFutureTask<V> execute(LongRunningTaskExecutor<V> taskExecutor) {
 		// autowire task properties
 		AutowireHelper.autowire(taskExecutor);
 		// persist LRT
 		persistTask(taskExecutor);
+		// todo: init is not needed, when task is executed manually?
+		// taskExecutor.init(new HashMap<>());
 		// execute
+		LOG.debug("Execute task [{}] asynchronously", taskExecutor.getLongRunningTaskId());
 		FutureTask<V> futureTask = new FutureTask<>(taskExecutor);
 		executor.execute(futureTask);
 		return new LongRunningFutureTask<>(taskExecutor, futureTask);
 	}
 	
 	@Override
-	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	@Transactional
 	public <V> V executeSync(LongRunningTaskExecutor<V> taskExecutor) {
 		// autowire task properties
 		AutowireHelper.autowire(taskExecutor);
 		// persist LRT
 		IdmLongRunningTaskDto task = persistTask(taskExecutor);
+		LOG.debug("Execute task [{}] synchronously", task.getId());
 		// execute
 		try {
 			return taskExecutor.call();
@@ -167,6 +170,8 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 							"taskId", task.getId(), 
 							"taskType", task.getTaskType(),
 							"instanceId", task.getInstanceId()), ex);
+		} finally {
+			LOG.debug("Executing task [{}] synchronously ended", task.getId());
 		}
 	}
 
@@ -188,7 +193,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 		//
 		task.setResult(new OperationResult.Builder(OperationState.CANCELED).build());
 		// running to false will be setted by task himself
-		service.saveInternal(task);
+		service.save(task);
 	}
 	
 	@Override
@@ -236,7 +241,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 				} else {
 					task.setResult(new OperationResult.Builder(OperationState.EXCEPTION).setModel(resultModel).setCause(ex).build());
 				}				
-				service.saveInternal(task);
+				service.save(task);
 				return true;
 			}
 		}

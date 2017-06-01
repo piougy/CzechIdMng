@@ -81,9 +81,11 @@ public class IdentityContractUpdateByAutomaticRoleProcessor extends CoreEventPro
 			Set<UUID> previousAutomaticRoles = assignedRoles.stream()
 					.filter(identityRole -> {
 						return identityRole.getRoleTreeNode() != null;
-					}).map(identityRole -> {
+					})
+					.map(identityRole -> {
 						return identityRole.getRoleTreeNode();
-					}).collect(Collectors.toSet());
+					})
+					.collect(Collectors.toSet());
 			Set<IdmRoleTreeNodeDto> addedAutomaticRoles = new HashSet<>();
 			if (newPosition != null) {
 				addedAutomaticRoles = roleTreeNodeService.getAutomaticRolesByTreeNode(newPosition);

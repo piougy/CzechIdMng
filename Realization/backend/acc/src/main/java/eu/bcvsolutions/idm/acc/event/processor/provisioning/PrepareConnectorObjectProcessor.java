@@ -15,6 +15,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
@@ -472,6 +473,11 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 		}
 		
 		if(idmValue instanceof String && Strings.isNullOrEmpty((String) idmValue)){
+			return true;
+		}
+		
+		if(idmValue instanceof List && (CollectionUtils.isEmpty((List<?>)idmValue) 
+				|| (((List<?>)idmValue).size() == 1 && ((List<?>)idmValue).get(0) == null))){
 			return true;
 		}
 		

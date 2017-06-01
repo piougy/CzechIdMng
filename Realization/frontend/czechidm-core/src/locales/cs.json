@@ -202,7 +202,8 @@
       "SelectBox" : {
         "noResultsText": "Žádný výsledek",
         "searchPromptText": "Pro vyhledávání začněte psát ...",
-        "searchingText": "Vyhledávání..."
+        "searchingText": "Vyhledávání...",
+        "results": "Zobrazeno <strong>{{count}}</strong> z <strong>{{total}}</strong> nalezených záznamů ..."
       },
       "Table" : {
         "Pagination" : {

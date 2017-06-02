@@ -61,9 +61,7 @@ public class DefaultSchedulerManagerIntegrationTest extends AbstractIntegrationT
 	
 	@Before
 	public void init() {		
-		manager = new DefaultSchedulerManager(
-				context,
-				scheduler);
+		manager = context.getAutowireCapableBeanFactory().createBean(DefaultSchedulerManager.class);
 	}
 	
 	@Test

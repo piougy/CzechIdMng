@@ -4,13 +4,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.FutureTask;
 
 import org.joda.time.LocalDate;
 import org.junit.After;
@@ -130,16 +127,7 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 		if (withLongRunningTask) {
 			AddNewAutomaticRoleTaskExecutor task = new AddNewAutomaticRoleTaskExecutor();
 			task.setRoleTreeNode(roleTreeNode);
-			//
-			// active wait for save
-			try {
-				FutureTask<Boolean> futureTask = taskManager.execute(task).getFutureTask();
-				futureTask.get();
-			} catch (InterruptedException | ExecutionException e) {
-				fail("Unexpected error, while wait for save automatic role: " + e.getLocalizedMessage());
-			}
-			//
-			return roleTreeNodeService.get(roleTreeNode.getId());
+			taskManager.executeSync(task);
 		}
 		//
 		return roleTreeNodeService.get(roleTreeNode.getId());

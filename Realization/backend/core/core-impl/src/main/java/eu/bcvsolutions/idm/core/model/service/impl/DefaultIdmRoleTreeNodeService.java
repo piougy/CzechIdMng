@@ -11,6 +11,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
@@ -164,24 +165,32 @@ public class DefaultIdmRoleTreeNodeService
 	}
 
 	@Override
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	public IdmRoleRequestDto prepareAssignAutomaticRoles(IdmIdentityContractDto contract, Set<IdmRoleTreeNodeDto> automaticRoles) {
+		return this.processAutomaticRoles(contract, null, automaticRoles, ConceptRoleRequestOperation.ADD);
+	}
+	
+	@Override
 	@Transactional
-	public IdmRoleRequestDto assignAutomaticRoles(IdmIdentityContractDto contract, Set<IdmRoleTreeNodeDto> automaticRoles, boolean startRequestInternal) {
-		return this.processAutomaticRoles(contract, null, automaticRoles, ConceptRoleRequestOperation.ADD, startRequestInternal);
+	public IdmRoleRequestDto assignAutomaticRoles(IdmIdentityContractDto contract, Set<IdmRoleTreeNodeDto> automaticRoles) {
+		IdmRoleRequestDto roleRequest = this.processAutomaticRoles(contract, null, automaticRoles, ConceptRoleRequestOperation.ADD);
+		if (roleRequest == null) { // automaticRoles is empty
+			return null;
+		}
+		return roleRequestService.startRequestInternal(roleRequest.getId(), false);
 	}
 
 	@Override
-	@Transactional
-	public IdmRoleRequestDto removeAutomaticRoles(IdmIdentityRoleDto identityRole,
-			Set<IdmRoleTreeNodeDto> automaticRoles, boolean startRequestInternal) {
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	public IdmRoleRequestDto prepareRemoveAutomaticRoles(IdmIdentityRoleDto identityRole, Set<IdmRoleTreeNodeDto> automaticRoles) {
 		Assert.notNull(identityRole);
 		//
 		IdmIdentityContractDto dto = identityContractService.get(identityRole.getIdentityContract());
-		return this.processAutomaticRoles(dto, identityRole.getId(), automaticRoles, ConceptRoleRequestOperation.REMOVE, startRequestInternal);
+		return this.processAutomaticRoles(dto, identityRole.getId(), automaticRoles, ConceptRoleRequestOperation.REMOVE);
 	}
 	
 	private IdmRoleRequestDto processAutomaticRoles(IdmIdentityContractDto contract, UUID identityRoleId,
-			Set<IdmRoleTreeNodeDto> automaticRoles, ConceptRoleRequestOperation operation,
-			boolean startRequestInternal) {
+			Set<IdmRoleTreeNodeDto> automaticRoles, ConceptRoleRequestOperation operation) {
 		Assert.notNull(automaticRoles);
 		Assert.notNull(contract);
 		Assert.notNull(operation);
@@ -211,10 +220,6 @@ public class DefaultIdmRoleTreeNodeService
 			//
 			conceptRoleRequestService.save(conceptRoleRequest);
 		};
-		//
-		if (startRequestInternal) {
-			roleRequestService.startRequestInternal(roleRequest.getId(), false);
-		}
 		//
 		return roleRequest;
 	}

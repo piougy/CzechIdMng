@@ -23,6 +23,7 @@ import org.quartz.TriggerBuilder;
 import org.quartz.TriggerKey;
 import org.quartz.impl.matchers.GroupMatcher;
 import org.quartz.utils.Key;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.util.Assert;
 
@@ -60,6 +61,7 @@ public class DefaultSchedulerManager implements SchedulerManager {
 	private final ApplicationContext context;
 	private final Scheduler scheduler;
 	
+	@Autowired
 	public DefaultSchedulerManager(
 			ApplicationContext context,
 			Scheduler scheduler) {

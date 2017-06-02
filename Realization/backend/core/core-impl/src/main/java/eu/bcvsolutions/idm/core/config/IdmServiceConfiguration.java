@@ -350,7 +350,6 @@ public class IdmServiceConfiguration {
 		return new DefaultIdmLongRunningTaskService(longRunningTaskRepository, configurationService(), processedTaskItemService());
 	}
 	
-	
 	/**
 	 * Long running task manager
 	 * 
@@ -359,10 +358,13 @@ public class IdmServiceConfiguration {
 	@Bean
 	@ConditionalOnMissingBean(LongRunningTaskManager.class)
 	public LongRunningTaskManager longRunningTaskManager() {
-		return new DefaultLongRunningTaskManager(longRunningTaskService(), executor, configurationService(), securityService());
+		return new DefaultLongRunningTaskManager(
+				longRunningTaskService(), 
+				executor, 
+				publisher,
+				configurationService(), 
+				securityService());
 	}
-	
-	
 	
 	/**
 	 * Identity service

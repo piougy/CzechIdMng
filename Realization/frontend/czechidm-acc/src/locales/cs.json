@@ -497,7 +497,9 @@
       "operationType": "Typ operace",
       "system": "Napojený systém",
       "objectClass": "Název objektu",
-      "treeType": "Typ stromu"
+      "treeType": "Typ stromu",
+      "protectionEnabled": "Ochrana účtů (před smazáním)",
+      "protectionInterval": "Délka ochraného intervalu (ve dnech)"
     },
     "SchemaAttribute": {
       "name": "Název atributu",

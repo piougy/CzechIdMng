@@ -147,6 +147,22 @@ class SystemMappingDetail extends Advanced.AbstractTableContent {
       }
     }
 
+    let isSelectedIdentity = false;
+    if (_entityType !== undefined) {
+      if (_entityType === SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.IDENTITY)) {
+        isSelectedIdentity = true;
+      }
+    } else {
+      if (mapping && mapping.entityType === SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.IDENTITY)) {
+        isSelectedIdentity = true;
+      }
+    }
+
+    let isSelectedProvisioning = false;
+    if (mapping && mapping.operationType === 'PROVISIONING') {
+      isSelectedProvisioning = true;
+    }
+
     const systemId = this.props.params.entityId;
     const forceSearchParameters = new Domain.SearchParameters().setFilter('systemMappingId', _mapping ? _mapping.id : Domain.SearchParameters.BLANK_UUID);
     const objectClassSearchParameters = new Domain.SearchParameters().setFilter('systemId', systemId ? systemId : Domain.SearchParameters.BLANK_UUID);
@@ -166,6 +182,7 @@ class SystemMappingDetail extends Advanced.AbstractTableContent {
               <Basic.SelectBox
                 ref="system"
                 manager={systemManager}
+                hidden
                 label={this.i18n('acc:entity.SystemMapping.system')}
                 readOnly/>
               <Basic.EnumSelectBox
@@ -194,9 +211,20 @@ class SystemMappingDetail extends Advanced.AbstractTableContent {
               <Basic.SelectBox
                 ref="treeType"
                 label={this.i18n('acc:entity.SystemMapping.treeType')}
-                hidden={!isSelectedTree}
+                hidden={!isSelectedTree }
                 required={isSelectedTree}
                 manager={treeTypeManager}
+              />
+              <Basic.Checkbox
+                ref="protectionEnabled"
+                label={this.i18n('acc:entity.SystemMapping.protectionEnabled')}
+                hidden={!isSelectedIdentity || !isSelectedProvisioning || isNew}
+              />
+              <Basic.TextField
+                style={{maxWidth: '300px'}}
+                ref="protectionInterval"
+                label={this.i18n('acc:entity.SystemMapping.protectionInterval')}
+                hidden={!isSelectedIdentity || !isSelectedProvisioning || isNew}
               />
             </Basic.AbstractForm>
             <Basic.PanelFooter>

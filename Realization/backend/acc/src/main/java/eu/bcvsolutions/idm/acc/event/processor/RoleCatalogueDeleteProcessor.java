@@ -25,7 +25,7 @@ import eu.bcvsolutions.idm.core.model.event.RoleCatalogueEvent.RoleCatalogueEven
 public class RoleCatalogueDeleteProcessor extends CoreEventProcessor<IdmRoleCatalogueDto> {
 
 	private static final String PROCESSOR_NAME = "role-catalogue-delete-processor";
-	@Autowired private AccRoleCatalogueAccountService catalogueAccountService;
+	private final AccRoleCatalogueAccountService catalogueAccountService;
 	
 	@Autowired
 	public RoleCatalogueDeleteProcessor(AccRoleCatalogueAccountService service) {

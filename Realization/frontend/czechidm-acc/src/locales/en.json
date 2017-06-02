@@ -654,7 +654,8 @@
           "MISSING_ENTITY": "Missing entity",
           "UNLINKED": "Not linked",
           "MISSING_ACCOUNT": "Missing account",
-          "IGNORE": "Ignore"
+          "IGNORE": "Ignore",
+          "UNKNOWN": "Unknown state"
         },
         "WARNING": {
           "CREATE_ENTITY": "Created entities",
@@ -670,7 +671,8 @@
           "MISSING_ENTITY": "Missing entity",
           "UNLINKED": "Not linked",
           "MISSING_ACCOUNT": "Missing account",
-          "IGNORE": "Ignored"
+          "IGNORE": "Ignored",
+          "UNKNOWN": "Unknown state"
         },
         "WF": {
           "CREATE_ENTITY": "Created entities",
@@ -686,7 +688,8 @@
           "MISSING_ENTITY": "Missing entity",
           "UNLINKED": "Not linked",
           "MISSING_ACCOUNT": "Missing account",
-          "IGNORE": "Ignored"
+          "IGNORE": "Ignored",
+          "UNKNOWN": "Unknown state"
         },
         "IGNORE": {
           "CREATE_ENTITY": "Created entities",
@@ -702,7 +705,8 @@
           "MISSING_ENTITY": "Missing entity",
           "UNLINKED": "Not linked",
           "MISSING_ACCOUNT": "Missing account",
-          "IGNORE": "Ignored"
+          "IGNORE": "Ignored",
+          "UNKNOWN": "Unknown state"
         },
         "ERROR": {
           "CREATE_ENTITY": "Unsuccessfully created entities",
@@ -718,7 +722,8 @@
           "MISSING_ENTITY": "Missing entity",
           "UNLINKED": "Not linked",
           "MISSING_ACCOUNT": "Missing account",
-          "IGNORE": "Unsuccessfully ignored"
+          "IGNORE": "Unsuccessfully ignored",
+          "UNKNOWN": "Unknown state"
         }
       }
     },
@@ -804,7 +809,8 @@
       "MISSING_ENTITY": "Missing entity",
       "UNLINKED": "Not linked",
       "MISSING_ACCOUNT": "Missing account",
-      "IGNORE": "Ignored"
+      "IGNORE": "Ignored",
+      "UNKNOWN": "Unknown state"
     },
     "OperationResultTypeEnum": {
       "SUCCESS": "Success",

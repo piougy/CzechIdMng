@@ -124,7 +124,7 @@ public class DefaultSysSystemMappingService extends
 	}
 	
 	@Override
-	public int getProtectionInterval(AccAccount account){
+	public Integer getProtectionInterval(AccAccount account){
 		Assert.notNull(account, "Account cannot be null!");
 		Assert.notNull(account.getSystemEntity(), "SystemEntity cannot be null!");
 		

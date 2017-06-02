@@ -34,5 +34,5 @@ public interface SysSystemMappingService extends ReadWriteEntityService<SysSyste
 	 * @param account
 	 * @return
 	 */
-	int getProtectionInterval(AccAccount account);
+	Integer getProtectionInterval(AccAccount account);
 }

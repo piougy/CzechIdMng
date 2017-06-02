@@ -122,6 +122,11 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 		List<AccAccount> accountsForDelete = identityAccountsToDelete.stream().map(AccIdentityAccount::getAccount).collect(Collectors.toList());
 		accountsForDelete.forEach(account -> {
 			if(systemMappingService.isEnabledProtection(account)){
+				List<AccIdentityAccount> identityAccounts = identityAccountsToDelete.stream().filter(identityAccount 
+						-> account.equals(identityAccount.getAccount())).collect(Collectors.toList());
+				if(!CollectionUtils.isEmpty(identityAccounts)){
+					
+				}
 				
 			}
 		});
@@ -210,7 +215,7 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 				}).findFirst().isPresent();
 
 			}).forEach(roleSystem -> {
-				// For this system we have to crate new account
+				// For this system we have to create new account
 				String uid = generateUID(identity, roleSystem);
 				
 				// We try find account for same uid on same system

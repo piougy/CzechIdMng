@@ -10,15 +10,13 @@ import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
 
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
@@ -83,9 +81,8 @@ public class SysSystemMapping extends AbstractEntity {
 	private boolean protectionEnabled = false;
 	
 	@Audited
-	@Min(0)
 	@Column(name = "protection_interval", nullable = true)
-	private int protectionInterval = 0;
+	private Integer protectionInterval;
 	
 	public void setName(String name) {
 		this.name = name;
@@ -143,11 +140,11 @@ public class SysSystemMapping extends AbstractEntity {
 		this.protectionEnabled = protectionEnabled;
 	}
 
-	public int getProtectionInterval() {
+	public Integer getProtectionInterval() {
 		return protectionInterval;
 	}
 
-	public void setProtectionInterval(int protectionInterval) {
+	public void setProtectionInterval(Integer protectionInterval) {
 		this.protectionInterval = protectionInterval;
 	}
 }

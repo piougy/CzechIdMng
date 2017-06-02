@@ -149,4 +149,22 @@ public class AccAccount extends AbstractEntity {
 		}
 		return uid;
 	}
+	
+	/**
+	 * Check if account is in protection. Validate end of protection too.
+	 * 
+	 * @param account
+	 * @return
+	 */
+	public boolean isAccountProtectedAndValidate() {
+		if (this.isInProtection()) {
+			if (this.getEndOfProtection() == null) {
+				return true;
+			}
+			if (this.getEndOfProtection() != null && this.getEndOfProtection().isBeforeNow()) {
+				return true;
+			}
+		}
+		return false;
+	}
 }

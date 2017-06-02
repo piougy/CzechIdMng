@@ -38,6 +38,8 @@ public interface ProvisioningEntityExecutor<ENTITY> extends Plugin<SystemEntityT
 	
 	/**
 	 * Do provisioning for given account and identity
+	 * Emits ProvisioningEventType.START event.
+	 * 
 	 * @param account
 	 * @param identity
 	 * @param system
@@ -112,6 +114,16 @@ public interface ProvisioningEntityExecutor<ENTITY> extends Plugin<SystemEntityT
 	 * @param entityType
 	 */
 	void createAccountsForAllSystems(ENTITY entity);
+
+	/**
+	 * Do provisioning for given account and identity. For internal purpose without emit event.
+	 * 
+	 * @param account
+	 * @param identity
+	 * @param system
+	 * @return
+	 */
+	void doInternalProvisioning(AccAccount account, ENTITY entity);
 
 
 }

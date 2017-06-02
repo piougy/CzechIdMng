@@ -30,6 +30,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
+import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleCatalogueService;
@@ -56,10 +57,12 @@ public class RoleCatalogueProvisioningExecutor extends AbstractProvisioningExecu
 			AccAccountManagementService accountManagementService,
 			SysRoleSystemAttributeService roleSystemAttributeService, SysSystemEntityService systemEntityService,
 			AccAccountService accountService, AccRoleCatalogueAccountService catalogueAccountService,
-			ProvisioningExecutor provisioningExecutor, IdmRoleCatalogueService catalogueService) {
+			ProvisioningExecutor provisioningExecutor, IdmRoleCatalogueService catalogueService,
+			EntityEventManager entityEventManager) {
+		
 		super(systemMappingService, attributeMappingService, connectorFacade, systemService, roleSystemService,
 				accountManagementService, roleSystemAttributeService, systemEntityService, accountService,
-				provisioningExecutor);
+				provisioningExecutor, entityEventManager);
 		
 		Assert.notNull(catalogueAccountService);
 		Assert.notNull(catalogueService);

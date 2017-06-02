@@ -13,6 +13,8 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
  */
 public interface AccIdentityAccountService extends ReadWriteDtoService<AccIdentityAccountDto, IdentityAccountFilter> {
 
+	public static final String DELETE_TARGET_ACCOUNT_KEY = "deleteTargetAccount";
+	
 	/**
 	 * Delete identity account
 	 * @param entity

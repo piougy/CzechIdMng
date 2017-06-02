@@ -60,7 +60,15 @@ public class DefaultProvisioningService implements ProvisioningService{
 	@Override
 	public void doProvisioning(AccAccount account, AbstractEntity entity) {
 		Assert.notNull(account);
-		this.getExecutor(account.getSystemEntity().getEntityType()).doProvisioning(account, entity);
+		Assert.notNull(entity);
+		this.getExecutor(SystemEntityType.getByClass(entity.getClass())).doProvisioning(account, entity);
+	}
+	
+	@Override
+	public void doInternalProvisioning(AccAccount account, AbstractEntity entity) {
+		Assert.notNull(account);
+		Assert.notNull(entity);
+		this.getExecutor(SystemEntityType.getByClass(entity.getClass())).doInternalProvisioning(account, entity);
 	}
 
 

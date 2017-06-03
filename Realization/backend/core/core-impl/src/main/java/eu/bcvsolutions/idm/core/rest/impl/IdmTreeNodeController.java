@@ -162,8 +162,8 @@ public class IdmTreeNodeController extends DefaultReadWriteEntityController<IdmT
 			@RequestParam(value = "treeTypeId", required = false) String treeTypeId,
 			PersistentEntityResourceAssembler assembler,
 			@PageableDefault Pageable pageable) {
-		// TODO: try - catch ... or better findRoots with tree type instance (aditional select, but type save)
-		Page<IdmTreeNode> roots = this.treeNodeService.findRoots(UUID.fromString(treeTypeId), pageable);
+		// TODO: pageable
+		Page<IdmTreeNode> roots = this.treeNodeService.findRoots(UUID.fromString(treeTypeId), null);
 		return toResources(roots, assembler, IdmTreeNode.class, null);
 	}
 	
@@ -173,8 +173,8 @@ public class IdmTreeNodeController extends DefaultReadWriteEntityController<IdmT
 			@RequestParam(value = "parent") @NotNull String parent, 
 			PersistentEntityResourceAssembler assembler,
 			@PageableDefault Pageable pageable) {	
-		// TODO: try - catch ... or better findChildrenByParent with tree node instance (aditional select, but type save)
-		Page<IdmTreeNode> children = this.treeNodeService.findChildrenByParent(UUID.fromString(parent), pageable);
+		// TODO: pageable
+		Page<IdmTreeNode> children = this.treeNodeService.findChildrenByParent(UUID.fromString(parent), null);
 		return toResources(children, assembler, IdmTreeNode.class, null);
 	}
 	

@@ -16,17 +16,19 @@ import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 public interface IdmRoleRequestService extends ReadWriteDtoService<IdmRoleRequestDto,  RoleRequestFilter> {
 
 	/**
-	 * Start approval process for given reqeust
+	 * Start approval process for given request
+	 * 
 	 * @param requestId
+	 * @param checkRight - If is true, then will be check right for immediately execution (if is requires)
 	 */
-	void startRequest(UUID requestId);
+	IdmRoleRequestDto startRequest(UUID requestId, boolean checkRight);
 
 	/**
 	 * Internal start request. Not accessible from REST. 
 	 * @param requestId
 	 * @param checkRight - If is true, then will be check right for immediately execution (if is requires)
 	 */
-	void startRequestInternal(UUID requestId, boolean checkRight);
+	IdmRoleRequestDto startRequestInternal(UUID requestId, boolean checkRight);
 
 	/**
 	 * Add record to request log
@@ -36,7 +38,8 @@ public interface IdmRoleRequestService extends ReadWriteDtoService<IdmRoleReques
 	void addToLog(Loggable logItem, String text);
 
 	/**
-	 * Realization of request (applying the requested changes) 
+	 * Realization of request (applying the requested changes).
+	 * 
 	 * @param requestId
 	 * @return
 	 */
@@ -63,5 +66,5 @@ public interface IdmRoleRequestService extends ReadWriteDtoService<IdmRoleReques
 	 * @param requestId
 	 * @param checkRight - If is true, then will be check right for immediately execution (if is requires)
 	 */
-	void startRequestNewTransactional(UUID requestId, boolean checkRight);
+	IdmRoleRequestDto startRequestNewTransactional(UUID requestId, boolean checkRight);
 }

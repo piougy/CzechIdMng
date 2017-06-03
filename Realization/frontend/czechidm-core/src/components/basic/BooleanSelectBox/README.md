@@ -30,7 +30,7 @@ All parameters form parent component ``EnumSelectBox`` is supported.
   ref="select"
   label="Send notification"
   options={ [
-    { value: 'true', niceLabel: 'To all identitites' },
+    { value: 'true', niceLabel: 'To all identities' },
     { value: 'false', niceLabel: 'To selected identities' }
   ]}
 />

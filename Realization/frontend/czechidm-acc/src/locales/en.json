@@ -798,7 +798,7 @@
       "STARTS_WITH": "Starts with"
     },
     "SynchronizationActionTypeEnum": {
-      "CREATE_ENTITY": "Create new entityity",
+      "CREATE_ENTITY": "Create new entity",
       "UPDATE_ENTITY": "Update entity",
       "DELETE_ENTITY": "Remove entity",
       "LINK_AND_UPDATE_ACCOUNT": "Link and update account",

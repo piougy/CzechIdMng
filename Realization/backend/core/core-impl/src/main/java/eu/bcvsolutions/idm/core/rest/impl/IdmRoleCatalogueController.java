@@ -85,7 +85,8 @@ public class IdmRoleCatalogueController extends DefaultReadWriteDtoController<Id
 	@ResponseBody
 	@RequestMapping(value = "/search/roots", method = RequestMethod.GET)
 	public Resources<?> findRoots(@PageableDefault Pageable pageable) {	
-		Page<IdmRoleCatalogueDto> roots = roleCatalogueService.findRoots(pageable);
+		// TODO: pageable
+		Page<IdmRoleCatalogueDto> roots = roleCatalogueService.findRoots(null);
 		return toResources(roots, IdmRoleCatalogue.class);
 	}
 	
@@ -94,7 +95,8 @@ public class IdmRoleCatalogueController extends DefaultReadWriteDtoController<Id
 	public Resources<?> findChildren(
 			@RequestParam(name = "parent", required = true) @NotNull String parentId,
 			@PageableDefault Pageable pageable) {
-		Page<IdmRoleCatalogueDto> children = roleCatalogueService.findChildrenByParent(UUID.fromString(parentId), pageable);
+		// TODO: pageable
+		Page<IdmRoleCatalogueDto> children = roleCatalogueService.findChildrenByParent(UUID.fromString(parentId), null);
 		return toResources(children, IdmRoleCatalogue.class);
 	}	
 	

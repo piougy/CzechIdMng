@@ -585,7 +585,9 @@
     "accountType": "Account type",
     "system": "System",
     "systemEntity": "Linked entity in system",
-    "uid": "Account identificator"
+    "uid": "Account identificator",
+    "inProtection": "Is protected from delete",
+    "endOfProtection": "Protected until"
   },
     "IdentityAccount": {
       "_type": "Identity account in system",

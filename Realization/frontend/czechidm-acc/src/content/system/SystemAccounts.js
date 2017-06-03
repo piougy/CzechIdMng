@@ -83,6 +83,7 @@ class SystemAccountsContent extends Advanced.AbstractTableContent {
             manager={this.getManager()}
             forceSearchParameters={forceSearchParameters}
             showRowSelection={Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE'])}
+            rowClass={({rowIndex, data}) => { return (data[rowIndex].inProtection) ? 'disabled' : ''; }}
             actions={
               Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE'])
               ?
@@ -148,6 +149,12 @@ class SystemAccountsContent extends Advanced.AbstractTableContent {
               }
               property="uid"
               header={this.i18n('acc:entity.Account.uid')}/>
+            <Advanced.Column property="inProtection"
+              header={this.i18n('acc:entity.Account.inProtection')}
+              face="boolean" />
+            <Advanced.Column property="endOfProtection"
+              header={this.i18n('acc:entity.Account.endOfProtection')}
+              face="datetime" />
             <Advanced.Column property="_embedded.systemEntity.uid" header={this.i18n('acc:entity.Account.systemEntity')} face="text" />
           </Advanced.Table>
         </Basic.Panel>
@@ -186,12 +193,6 @@ class SystemAccountsContent extends Advanced.AbstractTableContent {
                   label={this.i18n('acc:entity.Account.accountType')}
                   required/>
               </Basic.AbstractForm>
-
-              {/*
-              <Basic.ContentHeader>
-                Identity nalinkované na účet
-              </Basic.ContentHeader>
-              TODO: accounts*/}
             </Basic.Modal.Body>
 
             <Basic.Modal.Footer>

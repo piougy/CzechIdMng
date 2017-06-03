@@ -12,7 +12,7 @@ export default class IdentityAccountService extends Services.AbstractService {
     if (!entity) {
       return '';
     }
-    return `${AccountTypeEnum.getNiceLabel(entity.account.accountType)}:${entity.account._embedded.system.name}:${entity.account._embedded.systemEntity ? entity.account._embedded.systemEntity.uid : ''}`;
+    return `${AccountTypeEnum.getNiceLabel(entity._embedded.account.accountType)}:${entity._embedded.account._embedded.system.name}:${entity._embedded.account._embedded.systemEntity ? entity._embedded.account._embedded.systemEntity.uid : ''}`;
   }
 
   getApiPath() {

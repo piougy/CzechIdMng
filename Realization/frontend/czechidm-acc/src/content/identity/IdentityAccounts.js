@@ -94,6 +94,7 @@ class IdentityAccountsContent extends Advanced.AbstractTableContent {
             manager={this.getManager()}
             forceSearchParameters={forceSearchParameters}
             showRowSelection={Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE'])}
+            rowClass={({rowIndex, data}) => { return (data[rowIndex]._embedded.account.inProtection) ? 'disabled' : ''; }}
             actions={
               Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE'])
               ?
@@ -129,7 +130,7 @@ class IdentityAccountsContent extends Advanced.AbstractTableContent {
                   );
                 }
               }/>
-            <Advanced.Column property="_embedded.account.accountType" width="75px" header={this.i18n('acc:entity.Account.accountType')} sort face="enum" enumClass={AccountTypeEnum} />
+            <Advanced.Column rendered={false} property="_embedded.account.accountType" width="75px" header={this.i18n('acc:entity.Account.accountType')} sort face="enum" enumClass={AccountTypeEnum} />
             <Advanced.Column property="_embedded.account.uid" header={this.i18n('acc:entity.Account.uid')} sort face="text" />
             <Advanced.ColumnLink
               to="/system/:_target/detail"
@@ -139,6 +140,12 @@ class IdentityAccountsContent extends Advanced.AbstractTableContent {
               header={this.i18n('acc:entity.System.name')} />
             <Advanced.Column property="_embedded.identityRole._embedded.role.name" header={this.i18n('acc:entity.IdentityAccount.role')} face="text" />
             <Advanced.Column property="ownership" width="75px" header={this.i18n('acc:entity.IdentityAccount.ownership')} sort face="bool" />
+            <Advanced.Column property="_embedded.account.inProtection"
+              header={this.i18n('acc:entity.Account.inProtection')}
+              face="boolean" />
+            <Advanced.Column property="_embedded.account.endOfProtection"
+              header={this.i18n('acc:entity.Account.endOfProtection')}
+              face="datetime" />
           </Advanced.Table>
         </Basic.Panel>
 

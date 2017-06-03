@@ -58,8 +58,6 @@ public class ProvisioningStartProcessor extends AbstractEntityEventProcessor<Acc
 				return new DefaultEventResult<>(event, this);				
 			}
 			LOG.info("Account [{}] is in protection, but cancle attribute is TRUE. Provisioning is not skipped.", account.getUid());
-			provisioningService.doInternalProvisioning(account,
-					(AbstractEntity) event.getProperties().get(ProvisioningService.ENTITY_PROPERTY_NAME));
 		}
 
 		provisioningService.doInternalProvisioning(account,

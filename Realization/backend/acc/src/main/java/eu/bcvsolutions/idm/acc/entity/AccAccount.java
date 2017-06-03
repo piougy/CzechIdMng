@@ -152,12 +152,12 @@ public class AccAccount extends AbstractEntity {
 	 * @param account
 	 * @return
 	 */
-	public boolean isAccountProtectedAndValidate() {
+	public boolean isAccountProtectedAndValid() {
 		if (this.isInProtection()) {
 			if (this.getEndOfProtection() == null) {
 				return true;
 			}
-			if (this.getEndOfProtection() != null && this.getEndOfProtection().isBeforeNow()) {
+			if (this.getEndOfProtection() != null && this.getEndOfProtection().isAfterNow()) {
 				return true;
 			}
 		}

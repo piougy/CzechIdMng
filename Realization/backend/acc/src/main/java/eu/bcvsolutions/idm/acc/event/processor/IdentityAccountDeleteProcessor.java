@@ -80,7 +80,7 @@ public class IdentityAccountDeleteProcessor extends CoreEventProcessor<AccIdenti
 		AccAccount accountEntity = accountService.get(account);
 		Assert.notNull(account, "Account cannot be null!");
 
-		if(accountEntity.isAccountProtectedAndValidate()){
+		if(accountEntity.isAccountProtectedAndValid()){
 			// If is account in protection, then we will not delete identity-account
 			return new DefaultEventResult<>(event, this);
 		}

@@ -76,18 +76,21 @@ public class IdentityAccountSaveProcessor extends CoreEventProcessor<AccIdentity
 		AccAccount accountEntity = accountService.get(account);
 		Assert.notNull(account, "Account cannot be null!");
 
+		// If is account protected and new role for same account is creates, then we
+		// have to deactivate account protection and delete last protected identity-account
 		if(service.isNew(entity) && entity.isOwnership() && accountEntity.isInProtection()){
 			AccIdentityAccountDto protectedIdentityAccount = findProtectedIdentityAccount(account);
 			// First we save new identity-account
-			service.saveInternal(entity);
+			event.setContent(service.saveInternal(entity));
 			// Second we delete protected identity-account
 			service.delete(protectedIdentityAccount);
 			// Next we set account to unprotected state
 			this.deactivateProtection(accountEntity);
 			accountService.save(accountEntity);
+			return new DefaultEventResult<>(event, this);
 		}
 
-		service.saveInternal(entity);
+		event.setContent(service.saveInternal(entity));
 
 		return new DefaultEventResult<>(event, this);
 	}

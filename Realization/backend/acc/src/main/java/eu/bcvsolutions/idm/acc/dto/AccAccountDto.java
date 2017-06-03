@@ -2,6 +2,11 @@ package eu.bcvsolutions.idm.acc.dto;
 
 import java.util.UUID;
 
+import javax.persistence.Column;
+
+import org.hibernate.envers.Audited;
+import org.joda.time.DateTime;
+
 import eu.bcvsolutions.idm.acc.domain.AccountType;
 import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
@@ -22,6 +27,8 @@ public class AccAccountDto extends AbstractDto {
 	@Embedded(dtoClass = SysSystemDto.class)
 	private UUID system;
 	private SysSystemEntity systemEntity;
+	private boolean inProtection;
+	private DateTime endOfProtection;
 
 	public String getUid() {
 		return uid;
@@ -53,6 +60,22 @@ public class AccAccountDto extends AbstractDto {
 
 	public void setSystemEntity(SysSystemEntity systemEntity) {
 		this.systemEntity = systemEntity;
+	}
+
+	public boolean isInProtection() {
+		return inProtection;
+	}
+
+	public void setInProtection(boolean inProtection) {
+		this.inProtection = inProtection;
+	}
+
+	public DateTime getEndOfProtection() {
+		return endOfProtection;
+	}
+
+	public void setEndOfProtection(DateTime endOfProtection) {
+		this.endOfProtection = endOfProtection;
 	}
 
 }

@@ -27,6 +27,7 @@ import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 
 /**
@@ -44,11 +45,12 @@ public class IdentityAccountDeleteProcessor extends CoreEventProcessor<AccIdenti
 	private final SysSystemMappingService systemMappingService;
 	private final EntityEventManager entityEventManager;
 	private final IdmIdentityService identityService;
+	private final IdmIdentityRepository identityRepository;
 
 	@Autowired
 	public IdentityAccountDeleteProcessor(AccIdentityAccountService service, AccAccountService accountService,
 			SysSystemMappingService systemMappingService, EntityEventManager entityEventManager,
-			IdmIdentityService identityService) {
+			IdmIdentityService identityService, IdmIdentityRepository identityRepository) {
 		super(IdentityAccountEventType.DELETE);
 		//
 		Assert.notNull(service);
@@ -56,12 +58,14 @@ public class IdentityAccountDeleteProcessor extends CoreEventProcessor<AccIdenti
 		Assert.notNull(systemMappingService);
 		Assert.notNull(entityEventManager);
 		Assert.notNull(identityService);
+		Assert.notNull(identityRepository);
 		//
 		this.service = service;
 		this.accountService = accountService;
 		this.systemMappingService = systemMappingService;
 		this.entityEventManager = entityEventManager;
 		this.identityService = identityService;
+		this.identityRepository = identityRepository;
 	}
 
 	@Override
@@ -126,7 +130,7 @@ public class IdentityAccountDeleteProcessor extends CoreEventProcessor<AccIdenti
 	 */
 	private void doProvisioningSkipAccountProtection(AccAccount account, UUID entity) {
 		entityEventManager.process(new ProvisioningEvent(ProvisioningEventType.START, account
-				, ImmutableMap.of(ProvisioningService.ENTITY_PROPERTY_NAME, identityService.get(entity)
+				, ImmutableMap.of(ProvisioningService.ENTITY_PROPERTY_NAME, identityRepository.findOne(entity)
 				, ProvisioningService.CANCEL_PROVISIONING_BREAK_IN_PROTECTION, Boolean.TRUE)));
 		
 	}

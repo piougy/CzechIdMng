@@ -58,6 +58,8 @@ public class ProvisioningStartProcessor extends AbstractEntityEventProcessor<Acc
 				return new DefaultEventResult<>(event, this);				
 			}
 			LOG.info("Account [{}] is in protection, but cancle attribute is TRUE. Provisioning is not skipped.", account.getUid());
+			provisioningService.doInternalProvisioning(account,
+					(AbstractEntity) event.getProperties().get(ProvisioningService.ENTITY_PROPERTY_NAME));
 		}
 
 		provisioningService.doInternalProvisioning(account,
@@ -71,7 +73,7 @@ public class ProvisioningStartProcessor extends AbstractEntityEventProcessor<Acc
 	}
 
 	private boolean isCanceledProvisioningProtectionBreak(Map<String, Serializable> properties) {
-		Object breakProvisioning = properties.get(ProvisioningService.SKIP_PROVISIONING);
+		Object breakProvisioning = properties.get(ProvisioningService.CANCEL_PROVISIONING_BREAK_IN_PROTECTION);
 		if (breakProvisioning != null && breakProvisioning instanceof Boolean && (Boolean) breakProvisioning) {
 			return true;
 		}

@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import eu.bcvsolutions.idm.acc.dto.filter.AccountFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
+import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
 
 /**
@@ -13,7 +14,7 @@ import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
  * @author Radek Tomiška
  *
  */
-public interface AccAccountService extends ReadWriteEntityService<AccAccount, AccountFilter> {
+public interface AccAccountService extends ReadWriteEntityService<AccAccount, AccountFilter>, ScriptEnabled {
 
 	/**
 	 * Delete AccAccount
@@ -30,4 +31,12 @@ public interface AccAccountService extends ReadWriteEntityService<AccAccount, Ac
 	 * @return
 	 */
 	List<AccAccount> getAccouts(UUID systemId, UUID identityId);
+
+	/**
+	 * Find account by UID on given system.
+	 * @param uid
+	 * @param systemId
+	 * @return
+	 */
+	AccAccount getAccount(String uid, UUID systemId);
 }

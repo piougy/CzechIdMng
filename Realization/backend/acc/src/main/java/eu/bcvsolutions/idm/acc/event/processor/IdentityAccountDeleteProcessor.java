@@ -1,6 +1,8 @@
 package eu.bcvsolutions.idm.acc.event.processor;
 
+import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.joda.time.DateTime;
@@ -80,18 +82,15 @@ public class IdentityAccountDeleteProcessor extends CoreEventProcessor<AccIdenti
 		AccAccount accountEntity = accountService.get(account);
 		Assert.notNull(account, "Account cannot be null!");
 
-		if(accountEntity.isAccountProtectedAndValid()){
-			// If is account in protection, then we will not delete identity-account
-			return new DefaultEventResult<>(event, this);
-		}
-
 		// We check if exists another (ownership) identity-accounts, if not
 		// then we will delete account
 		List<AccIdentityAccountDto> identityAccounts = findIdentityAccounts(account);
 		boolean moreIdentityAccounts = identityAccounts.stream().filter(identityAccount -> {
 			return identityAccount.isOwnership() && !identityAccount.equals(entity);
 		}).findAny().isPresent();
-
+		
+		boolean deleteTargetAccount = (boolean) event.getProperties().get(AccIdentityAccountService.DELETE_TARGET_ACCOUNT_KEY);
+		
 		// Is account protection activated on system mapping?
 		if (systemMappingService.isEnabledProtection(accountEntity)) {
 			if (!moreIdentityAccounts && entity.isOwnership()) {
@@ -105,7 +104,15 @@ public class IdentityAccountDeleteProcessor extends CoreEventProcessor<AccIdenti
 				doProvisioningSkipAccountProtection(accountEntity, entity.getEntity());
 				
 				// If is account in protection, then we will not delete identity-account
-				return new DefaultEventResult<>(event, this);
+				if(isForceDeleteAttributePresent(event.getProperties())){
+					// But is here exception from this. When is presented attribute FORCE_DELETE_OF_IDENTITY_ACCOUNT_KEY, then
+					// we will do delete of identity-account (it is important for integrity ... for example during delete of whole identity).
+					
+					// Target AccAccount will be not deleted!
+					deleteTargetAccount = false;
+				}else {
+					return new DefaultEventResult<>(event, this);					
+				}
 			}
 		}
 
@@ -116,8 +123,7 @@ public class IdentityAccountDeleteProcessor extends CoreEventProcessor<AccIdenti
 				service.delete(identityAccount);
 			});
 			// Finally we can delete account
-			accountService.delete(accountService.get(account),
-					(boolean) event.getProperties().get(AccIdentityAccountService.DELETE_TARGET_ACCOUNT_KEY));
+			accountService.delete(accountService.get(account), deleteTargetAccount);
 		}
 
 		return new DefaultEventResult<>(event, this);
@@ -153,6 +159,14 @@ public class IdentityAccountDeleteProcessor extends CoreEventProcessor<AccIdenti
 		} else {
 			accountEntity.setEndOfProtection(DateTime.now().plusDays(daysInterval));
 		}
+	}
+	
+	private boolean isForceDeleteAttributePresent(Map<String, Serializable> properties) {
+		Object value = properties.get(AccIdentityAccountService.FORCE_DELETE_OF_IDENTITY_ACCOUNT_KEY);
+		if (value != null && value instanceof Boolean && (Boolean) value) {
+			return true;
+		}
+		return false;
 	}
 
 	@Override

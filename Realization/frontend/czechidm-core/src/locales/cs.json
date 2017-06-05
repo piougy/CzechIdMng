@@ -2881,6 +2881,11 @@
       "max_2" : "Zadejte maximálně {{count}} znaky!",
       "max_5" : "Zadejte maximálně {{count}} znaků!"
     },
+    "number": {
+      "min" : "Minimální hodnota je: {{count}}!",
+      "base" : "Položka musí být číslo!",
+      "max" : "Maximální hodnota je: {{count}}!"
+    },
     "boolean": {
       "base": "$t(validationError.string.base)"
     },

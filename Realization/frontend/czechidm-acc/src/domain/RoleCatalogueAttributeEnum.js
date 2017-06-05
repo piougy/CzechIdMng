@@ -3,10 +3,10 @@ import { Enums } from 'czechidm-core';
 /**
  * Keys of Role Catalogue fields
  */
-export default class CatalogueAttributeEnum extends Enums.AbstractEnum {
+export default class RoleCatalogueAttributeEnum extends Enums.AbstractEnum {
 
   static getNiceLabel(key) {
-    return super.getNiceLabel(`acc:enums.CatalogueAttributeEnum.${key}`);
+    return super.getNiceLabel(`acc:enums.RoleCatalogueAttributeEnum.${key}`);
   }
 
   static findKeyBySymbol(sym) {
@@ -94,9 +94,9 @@ export default class CatalogueAttributeEnum extends Enums.AbstractEnum {
   }
 }
 
-CatalogueAttributeEnum.CODE = Symbol('CODE');
-CatalogueAttributeEnum.NAME = Symbol('NAME');
-CatalogueAttributeEnum.PARENT = Symbol('PARENT');
-CatalogueAttributeEnum.URL = Symbol('URL');
-CatalogueAttributeEnum.URL_TITLE = Symbol('URL_TITLE');
-CatalogueAttributeEnum.DESCRIPTION = Symbol('DESCRIPTION');
+RoleCatalogueAttributeEnum.CODE = Symbol('CODE');
+RoleCatalogueAttributeEnum.NAME = Symbol('NAME');
+RoleCatalogueAttributeEnum.PARENT = Symbol('PARENT');
+RoleCatalogueAttributeEnum.URL = Symbol('URL');
+RoleCatalogueAttributeEnum.URL_TITLE = Symbol('URL_TITLE');
+RoleCatalogueAttributeEnum.DESCRIPTION = Symbol('DESCRIPTION');

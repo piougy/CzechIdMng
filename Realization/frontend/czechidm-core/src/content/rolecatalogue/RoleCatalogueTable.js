@@ -61,9 +61,9 @@ class RoleCatalogueTable extends Advanced.AbstractTableContent {
   showDetail(entity) {
     if (entity.id === undefined) {
       const uuidId = uuid.v1();
-      this.context.router.push(`/rolecatalogue/${uuidId}/?new=1`);
+      this.context.router.push(`/role-catalogue/${uuidId}/?new=1`);
     } else {
-      this.context.router.push('/rolecatalogue/' + entity.id);
+      this.context.router.push('/role-catalogue/' + entity.id);
     }
   }
 
@@ -235,7 +235,7 @@ class RoleCatalogueTable extends Advanced.AbstractTableContent {
                 }
               }
               sort={false}/>
-            <Advanced.ColumnLink to="rolecatalogue/:id"
+            <Advanced.ColumnLink to="role-catalogue/:id"
               header={this.i18n('entity.RoleCatalogue.code.name')}
               property="code" width="15%" sort face="text"/>
             <Advanced.Column property="name" header={this.i18n('entity.RoleCatalogue.name.name')} sort face="text"/>

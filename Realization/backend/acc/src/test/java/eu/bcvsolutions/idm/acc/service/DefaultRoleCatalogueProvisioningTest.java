@@ -54,7 +54,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @Rollback(false)
 @Service
-public class DefaultCatalogueProvisioningTest extends AbstractIntegrationTest {
+public class DefaultRoleCatalogueProvisioningTest extends AbstractIntegrationTest {
 
 	private static final String SYSTEM_NAME = "systemName";
 	private static final String ATTRIBUTE_NAME = "__NAME__";
@@ -334,7 +334,7 @@ public class DefaultCatalogueProvisioningTest extends AbstractIntegrationTest {
 		});
 	}
 
-	private DefaultCatalogueProvisioningTest getBean() {
+	private DefaultRoleCatalogueProvisioningTest getBean() {
 		return applicationContext.getBean(this.getClass());
 	}
 }

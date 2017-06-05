@@ -1,0 +1,4 @@
+<factorypath>
+    <factorypathentry kind="PLUGIN" id="org.eclipse.jst.ws.annotations.core" enabled="true" runInBatchMode="false"/>
+    <factorypathentry kind="EXTJAR" id="/home/tomiska/Projekty/BCV/hibernate-jpamodelgen-4.3.8.Final.jar" enabled="true" runInBatchMode="false"/>
+</factorypath>

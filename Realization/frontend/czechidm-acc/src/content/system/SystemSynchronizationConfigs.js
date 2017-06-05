@@ -56,7 +56,7 @@ class SystemSynchronizationConfigs extends Advanced.AbstractTableContent {
         this.setState({
           showLoading: true
         });
-        this.addMessage({ message: this.i18n('action.startSynchronization.started')});
+        this.addMessage({ level: 'info', message: this.i18n('action.startSynchronization.started')});
         const promise = this.getManager().getService().startSynchronization(id);
         if (this.refs.table) {
           this.refs.table.getWrappedInstance().reload();

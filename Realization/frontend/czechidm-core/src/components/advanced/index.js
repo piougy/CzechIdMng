@@ -19,6 +19,7 @@ import EntityInfo from './EntityInfo/EntityInfo';
 import AbstractEntityInfo from './EntityInfo/AbstractEntityInfo';
 import UuidInfo from './UuidInfo/UuidInfo';
 import RoleInfo from './RoleInfo/RoleInfo';
+import RoleCatalogueInfo from './RoleCatalogueInfo/RoleCatalogueInfo';
 import IdentityContractInfo from './IdentityContractInfo/IdentityContractInfo';
 import WorkflowProcessInfo from './WorkflowProcessInfo/WorkflowProcessInfo';
 import NotificationTemplateInfo from './NotificationTemplateInfo/NotificationTemplateInfo';
@@ -49,6 +50,7 @@ const Components = {
   AbstractEntityInfo,
   UuidInfo,
   RoleInfo,
+  RoleCatalogueInfo,
   IdentityContractInfo,
   WorkflowProcessInfo,
   NotificationTemplateInfo,

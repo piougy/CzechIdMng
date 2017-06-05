@@ -16,7 +16,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
  */
 public interface AccIdentityAccountService extends ReadWriteDtoService<AccIdentityAccountDto, IdentityAccountFilter> {
 
-	public static final String DELETE_TARGET_ACCOUNT_KEY = "deleteTargetAccount";
+	static final String DELETE_TARGET_ACCOUNT_KEY = "deleteTargetAccount";
 	
 	/**
 	 * Delete identity account
@@ -25,7 +25,7 @@ public interface AccIdentityAccountService extends ReadWriteDtoService<AccIdenti
 	 */
 	void delete(AccIdentityAccountDto entity, boolean deleteAccount, BasePermission... permission);
 	
-	public static AccAccountDto getEmbeddedAccount(AccIdentityAccountDto identityAccount){
+	static AccAccountDto getEmbeddedAccount(AccIdentityAccountDto identityAccount){
 		return DtoUtils.getEmbedded(identityAccount, AccIdentityAccount_.account, AccAccountDto.class);
 	}
 }

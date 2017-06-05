@@ -1,6 +1,7 @@
 import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
+import Joi from 'joi';
 //
 import { Basic, Domain, Managers, Utils, Advanced } from 'czechidm-core';
 import { SystemMappingManager, SystemManager, SystemAttributeMappingManager, SchemaObjectClassManager } from '../../redux';
@@ -223,6 +224,7 @@ class SystemMappingDetail extends Advanced.AbstractTableContent {
               <Basic.TextField
                 style={{maxWidth: '300px'}}
                 ref="protectionInterval"
+                validation={Joi.number().allow(null).integer().min(1).max(2147483647)}
                 label={this.i18n('acc:entity.SystemMapping.protectionInterval')}
                 hidden={!isSelectedIdentity || !isSelectedProvisioning || isNew}
               />

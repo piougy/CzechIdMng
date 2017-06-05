@@ -2844,6 +2844,11 @@
       "max" : "Enter the maximum {{count}} character!",
       "max_plural" : "Enter the maximum {{count}} characters!"
     },
+    "number": {
+      "min" : "Min value is: {{count}}!",
+      "base" : "Value must be number!",
+      "max" : "Max value is: {{count}}!"
+    },
     "boolean": {
       "base": "$t(validationError.string.base)"
     },

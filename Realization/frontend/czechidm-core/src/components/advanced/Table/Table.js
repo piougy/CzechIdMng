@@ -263,7 +263,8 @@ class AdvancedTable extends Basic.AbstractContextComponent {
       style,
       showPageSize,
       showToolbar,
-      condensed
+      condensed,
+      header
     } = this.props;
     const {
       filterOpened,
@@ -298,14 +299,14 @@ class AdvancedTable extends Basic.AbstractContextComponent {
         className: `column-face-${column.props.face}`
       };
       // construct basic column from advanced column definition
-      let header = column.props.header;
-      if (!header && column.props.property) {
-        header = this.i18n(`${manager.getModule()}:entity.${manager.getEntityType()}.${column.props.property}`);
+      let columnHeader = column.props.header;
+      if (!columnHeader && column.props.property) {
+        columnHeader = this.i18n(`${manager.getModule()}:entity.${manager.getEntityType()}.${column.props.property}`);
       }
       if (column.props.sort) {
-        header = (
+        columnHeader = (
           <Basic.BasicTable.SortHeaderCell
-            header={header}
+            header={columnHeader}
             sortHandler={this._handleSort.bind(this)}
             sortProperty={column.props.sortProperty || column.props.property}
             searchParameters={_searchParameters}
@@ -361,7 +362,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
           rendered={column.props.rendered}
           className={column.props.className}
           width={column.props.width}
-          header={header}
+          header={ columnHeader }
           cell={cell}/>
       );
     }
@@ -440,6 +441,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
           <div>
             <Basic.BasicTable.Table
               ref="table"
+              header={ header }
               data={_entities}
               showLoading={_showLoading || showLoading}
               onRowClick={onRowClick}
@@ -485,6 +487,10 @@ AdvancedTable.propTypes = {
    * Table identifier - it's used as key in store
    */
   uiKey: PropTypes.string,
+  /**
+   * Table Header
+   */
+  header: PropTypes.oneOfType([PropTypes.string, PropTypes.element]),
   /**
    * EntityManager subclass, which provides data fetching
    */

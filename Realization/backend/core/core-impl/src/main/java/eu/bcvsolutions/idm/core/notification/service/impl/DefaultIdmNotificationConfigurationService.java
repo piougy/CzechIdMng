@@ -19,6 +19,8 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.filter.EmptyFilter;
+import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
+import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
@@ -38,7 +40,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
  * @author Radek Tomiška
  *
  */
-@Service
+@Service("notificationConfigurationService")
 public class DefaultIdmNotificationConfigurationService 
 		extends AbstractReadWriteDtoService<NotificationConfigurationDto, IdmNotificationConfiguration, EmptyFilter>
 		implements IdmNotificationConfigurationService {
@@ -137,6 +139,19 @@ public class DefaultIdmNotificationConfigurationService
 			}
 		});
 		return types;
+	}
+
+	@Override
+	public Class<? extends BaseEntity> toSenderType(String notificationType) {
+		if (StringUtils.isEmpty(notificationType)) {
+			return null;
+		}
+		for(NotificationSender<?> sender : notificationSenders.getPlugins()) {
+			if (sender.getType().equals(notificationType)) {
+				return sender.getNotificationType();
+			}
+		}
+		throw new CoreException(String.format("Notification type [%s] is not supported.", notificationType));
 	}
 
 	@Override

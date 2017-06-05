@@ -136,7 +136,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 			if (ex != null) {
 				LOG.error(resultModel.toString(), ex);
 				task.setResult(new OperationResult.Builder(OperationState.EXCEPTION).setModel(resultModel).setCause(ex).build());
-				service.saveInternal(task);
+				service.save(task);
 			} else {
 				taskList.add(execute(taskExecutor));
 			}			
@@ -280,7 +280,12 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 		// prepare task
 		IdmLongRunningTaskDto task;
 		if (taskExecutor.getLongRunningTaskId() == null) {
-			task = service.saveInNewTransaction(taskExecutor, OperationState.RUNNING);
+			task = new IdmLongRunningTaskDto();
+			task.setTaskType(taskExecutor.getClass().getCanonicalName());
+			task.setTaskDescription(taskExecutor.getDescription());	
+			task.setInstanceId(configurationService.getInstanceId());
+			task.setResult(new OperationResult.Builder(OperationState.RUNNING).build());			
+			task = service.save(task);
 			taskExecutor.setLongRunningTaskId(task.getId());
 		} else {
 			task = service.get(taskExecutor.getLongRunningTaskId());

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmConsoleLogDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationRecipientDto;
@@ -25,18 +26,23 @@ import eu.bcvsolutions.idm.core.notification.service.api.IdmConsoleLogService;
 public class DefaultConsoleNotificationSender extends AbstractNotificationSender<IdmConsoleLogDto> implements ConsoleNotificationSender {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultConsoleNotificationSender.class);
-	private final IdmConsoleLogService emailConsoleService;
+	private final IdmConsoleLogService consoleService;
 	
 	@Autowired
-	public DefaultConsoleNotificationSender(IdmConsoleLogService emailConsoleService) {
-		Assert.notNull(emailConsoleService);
+	public DefaultConsoleNotificationSender(IdmConsoleLogService consoleService) {
+		Assert.notNull(consoleService);
 		//
-		this.emailConsoleService = emailConsoleService;
+		this.consoleService = consoleService;
 	}
 	
 	@Override
 	public String getType() {
 		return IdmConsoleLog.NOTIFICATION_TYPE;
+	}
+	
+	@Override
+	public Class<? extends BaseEntity> getNotificationType() {
+		return consoleService.getEntityClass();
 	}
 
 	@Override
@@ -59,7 +65,7 @@ public class DefaultConsoleNotificationSender extends AbstractNotificationSender
 	 * @return
 	 */
 	private IdmConsoleLogDto createLog(IdmNotificationDto notification) {
-		return emailConsoleService.save(createLogForSend(notification, false));
+		return consoleService.save(createLogForSend(notification, false));
 	}
 	
 	/**

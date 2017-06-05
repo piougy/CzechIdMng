@@ -1,5 +1,6 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
+import uuid from 'uuid';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
@@ -9,12 +10,14 @@ import NotificationStateEnum from '../../enums/NotificationStateEnum';
 import NotificationLevelEnum from '../../enums/NotificationLevelEnum';
 import NotificationRecipientsCell from './NotificationRecipientsCell';
 import NotificationSentState from './NotificationSentState';
-import uuid from 'uuid';
+import SearchParameters from '../../domain/SearchParameters';
 
 /**
-* Table of roles
+* Audit for sent notifications
+*
+* @author Radek Tomiška
 */
-export class NotificationTable extends Basic.AbstractContent {
+export class NotificationTable extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);
@@ -30,12 +33,6 @@ export class NotificationTable extends Basic.AbstractContent {
 
   getContentKey() {
     return 'content.notifications';
-  }
-
-  componentDidMount() {
-  }
-
-  componentDidUpdate() {
   }
 
   useFilter(event) {
@@ -74,6 +71,7 @@ export class NotificationTable extends Basic.AbstractContent {
   render() {
     const { uiKey, notificationManager } = this.props;
     const { filterOpened } = this.state;
+    const forceSearchParameters = new SearchParameters().setFilter('notificationType', 'notification');
 
     return (
       <div>
@@ -154,7 +152,8 @@ export class NotificationTable extends Basic.AbstractContent {
               </Basic.Button>
             ]
           }
-          >
+          forceSearchParameters={ forceSearchParameters }
+          _searchParameters={ this.getSearchParameters() }>
 
           <Advanced.Column
             header=""
@@ -168,6 +167,7 @@ export class NotificationTable extends Basic.AbstractContent {
                 );
               }
             }/>
+          <Advanced.Column property="type" header={this.i18n('entity.Notification.type')} rendered={ false }/>
           <Advanced.Column property="created" sort face="datetime"/>
           <Advanced.Column property="topic" sort face="text"/>
           <Advanced.Column property="message.level" sort face="enum" enumClass={NotificationLevelEnum}/>
@@ -177,15 +177,15 @@ export class NotificationTable extends Basic.AbstractContent {
             cell={
               ({ rowIndex, data }) => {
                 return (
-                  <NotificationRecipientsCell notifId={data[rowIndex].id} identityOnly />
+                  <NotificationRecipientsCell notification={ data[rowIndex] } identityOnly />
                 );
               }
             }/>
           <Advanced.Column
             property="sender"
             cell={
-              ({ rowIndex, data, property }) => {
-                return !data[rowIndex]._embedded ? null : this.identityManager.getNiceLabel(data[rowIndex]._embedded[property]);
+              ({ rowIndex, data }) => {
+                return !data[rowIndex]._embedded ? null : this.identityManager.getNiceLabel(data[rowIndex]._embedded.identitySender);
               }
             }/>
           <Advanced.Column
@@ -215,7 +215,7 @@ NotificationTable.defaultProps = {
 
 function select(state, component) {
   return {
-    _searchParameters: state.data.ui[component.uiKey] ? state.data.ui[component.uiKey].searchParameters : {},
+    _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey),
     _showLoading: component.notificationManager.isShowLoading(state, `${component.uiKey}-detail`)
   };
 }

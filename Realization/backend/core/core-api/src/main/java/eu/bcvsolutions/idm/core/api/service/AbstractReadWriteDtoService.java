@@ -43,15 +43,17 @@ public abstract class AbstractReadWriteDtoService<DTO extends BaseDto, E extends
 	public DTO save(DTO dto, BasePermission... permission) {
 		Assert.notNull(dto);
 		//
-		E persistEntity = null;
-		if (dto.getId() != null) {
-			persistEntity = this.getEntity(dto.getId());
-			if (persistEntity != null && !ObjectUtils.isEmpty(permission)) {
-				// check access on previous entity - update is needed
-				checkAccess(persistEntity, IdmBasePermission.UPDATE);
+		if (!ObjectUtils.isEmpty(permission)) {
+			E persistEntity = null;
+			if (dto.getId() != null) {
+				persistEntity = this.getEntity(dto.getId());
+				if (persistEntity != null) {
+					// check access on previous entity - update is needed
+					checkAccess(persistEntity, IdmBasePermission.UPDATE);
+				}
 			}
+			checkAccess(toEntity(dto, persistEntity), permission); // TODO: remove one checkAccess?
 		}
-		checkAccess(toEntity(dto, persistEntity), permission); // TODO: remove one checkAccess?
 		//
 		return saveInternal(dto);
 	}

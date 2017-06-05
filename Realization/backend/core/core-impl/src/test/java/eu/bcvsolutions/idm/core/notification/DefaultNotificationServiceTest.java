@@ -17,10 +17,12 @@ import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationTemplateDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.NotificationConfigurationDto;
 import eu.bcvsolutions.idm.core.notification.dto.filter.NotificationFilter;
 import eu.bcvsolutions.idm.core.notification.entity.IdmEmailLog;
+import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationLog;
 import eu.bcvsolutions.idm.core.notification.repository.IdmEmailLogRepository;
 import eu.bcvsolutions.idm.core.notification.repository.IdmNotificationLogRepository;
 import eu.bcvsolutions.idm.core.notification.service.api.EmailNotificationSender;
 import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationConfigurationService;
+import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationLogService;
 import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationTemplateService;
 import eu.bcvsolutions.idm.core.notification.service.api.NotificationManager;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
@@ -35,26 +37,15 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 
 	private static final String TOPIC = "idm:test";
 	
-	@Autowired
-	private NotificationManager notificationManager;
-	
-	@Autowired
-	private EmailNotificationSender emailService;
-	
-	@Autowired
-	private IdmNotificationLogRepository idmNotificationRepository;
-	
-	@Autowired
-	private IdmIdentityService identityService;
-	
-	@Autowired
-	private IdmEmailLogRepository emailLogRepository;
-	
-	@Autowired
-	private IdmNotificationTemplateService notificationTemplateService;
-	
-	@Autowired
-	private IdmNotificationConfigurationService notificationConfigurationService;
+	@Autowired private NotificationManager notificationManager;
+	@Autowired private EmailNotificationSender emailService;
+	@Autowired private IdmNotificationLogRepository idmNotificationRepository;
+	@Autowired private IdmNotificationLogService notificationLogService;
+	@Autowired private IdmIdentityService identityService;
+	@Autowired private IdmEmailLogRepository emailLogRepository;
+	@Autowired private IdmNotificationTemplateService notificationTemplateService;
+	@Autowired private IdmNotificationConfigurationService notificationConfigurationService;
+	//
 	NotificationConfigurationDto config = null;
 	
 	@Before
@@ -112,14 +103,15 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 				identity);	
 		
 		NotificationFilter filter = new NotificationFilter();
-		assertEquals(2, idmNotificationRepository.find(filter, null).getTotalElements());
+		filter.setNotificationType(IdmNotificationLog.class);
+		assertEquals(2, notificationLogService.find(filter, null).getTotalElements());
 		
 		filter.setFrom(from);
-		assertEquals(2, idmNotificationRepository.find(filter, null).getTotalElements());
+		assertEquals(2, notificationLogService.find(filter, null).getTotalElements());
 		
 		filter.setFrom(null);
 		filter.setTill(till);
-		assertEquals(0, idmNotificationRepository.find(filter, null).getTotalElements());
+		assertEquals(0, notificationLogService.find(filter, null).getTotalElements());
 	}
 	
 	@Test

@@ -7,6 +7,8 @@ import NotificationTable from './NotificationTable';
 
 /**
  * List of notifications
+ *
+ * @author Radek Tomiška
  */
 export default class Notifications extends Basic.AbstractContent {
 

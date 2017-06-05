@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.scheduler.service.impl;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
 
@@ -16,23 +17,26 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
-import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult_;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
-import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
-import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.dto.filter.LongRunningTaskFilter;
 import eu.bcvsolutions.idm.core.scheduler.entity.IdmLongRunningTask;
 import eu.bcvsolutions.idm.core.scheduler.entity.IdmLongRunningTask_;
 import eu.bcvsolutions.idm.core.scheduler.repository.IdmLongRunningTaskRepository;
 import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskService;
 import eu.bcvsolutions.idm.core.scheduler.service.api.IdmProcessedTaskItemService;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
 /**
  * Persists long running tasks
+ * 
+ * Look out: 
+ * @Transactional(propagation = Propagation.REQUIRES_NEW) is needed. 
+ * LRT has to be persist and read separately from outer transaction => we want to see LRT progress all time. And result with exception.
+ * 
  * 
  * @author Radek Tomiška
  *
@@ -42,21 +46,17 @@ public class DefaultIdmLongRunningTaskService
 	implements IdmLongRunningTaskService {
 	
 	private final IdmLongRunningTaskRepository repository;
-	private final ConfigurationService configurationService;
 	private final IdmProcessedTaskItemService itemService;
 	
 	@Autowired
 	public DefaultIdmLongRunningTaskService(
 			IdmLongRunningTaskRepository repository,
-			ConfigurationService configurationService,
 			IdmProcessedTaskItemService itemService) {
 		super(repository);
 		//
-		Assert.notNull(configurationService);
 		Assert.notNull(itemService);
 		//
 		this.repository = repository;
-		this.configurationService = configurationService;
 		this.itemService = itemService;
 	}
 	
@@ -103,27 +103,25 @@ public class DefaultIdmLongRunningTaskService
 	}
 	
 	@Override
-	@Transactional/* TODO: pesimistic lock exception - why? (propagation = Propagation.REQUIRES_NEW)*/
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public void updateState(UUID id, Long count, Long counter) {
 		repository.updateState(id, count, counter, new DateTime());
 	}
-
+	
 	@Override
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
-	public <V> IdmLongRunningTaskDto saveInNewTransaction(
-			LongRunningTaskExecutor<V> taskExecutor,
-			OperationState operationState) {
-		//
-		IdmLongRunningTaskDto task = new IdmLongRunningTaskDto();
-		task.setTaskType(taskExecutor.getClass().getCanonicalName());
-		task.setTaskDescription(taskExecutor.getDescription());	
-		task.setInstanceId(configurationService.getInstanceId());
-		task.setResult(new OperationResult.Builder(operationState).build());
-		return this.saveInternal(task);
+	public IdmLongRunningTaskDto save(IdmLongRunningTaskDto dto, BasePermission... permission) {
+		return super.save(dto, permission);
 	}
-
-	@Transactional
+	
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
+	public IdmLongRunningTaskDto get(Serializable id, BasePermission... permission) {
+		return super.get(id, permission);
+	}
+	
+	@Override
+	@Transactional
 	public void deleteInternal(IdmLongRunningTaskDto dto) {
 		Assert.notNull(dto);
 		//

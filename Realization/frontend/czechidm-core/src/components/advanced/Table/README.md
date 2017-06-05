@@ -21,6 +21,7 @@ Encapsulates all features from BasicTable component. All BasicTable parameters a
 | showFilter | bool | Shows filter. | true |
 | showPageSize | bool | Shows page size. | true |
 | showToolbar | bool | Shows toolbar. | true |
+| header | oneOfType([string, element]) | Table header |  |
 
 
 # AdvancedColumn Component

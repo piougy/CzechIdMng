@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Set;
 
 import eu.bcvsolutions.idm.core.api.dto.filter.EmptyFilter;
+import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.notification.api.dto.BaseNotification;
@@ -49,6 +50,14 @@ public interface IdmNotificationConfigurationService extends ReadWriteDtoService
 	 * @return
 	 */
 	Set<String> getSupportedNotificationTypes();
+	
+	/**
+	 * Returns notification log type from senders notification type.
+	 * 
+	 * @param notificationType
+	 * @return
+	 */
+	Class<? extends BaseEntity> toSenderType(String notificationType);
 	
 	/**
 	 * Inits default notification configuration from all module descriptors.

@@ -6,6 +6,8 @@ import NotificationStateEnum from '../../enums/NotificationStateEnum';
 
 /**
  * Notification sent state
+ *
+ * @author Radek Tomiška
  */
 export default class NotificationSentState extends Basic.AbstractComponent {
 
@@ -19,6 +21,12 @@ export default class NotificationSentState extends Basic.AbstractComponent {
     if (!rendered || !notification) {
       return null;
     }
+    if (notification.state) {
+      return (
+        <Basic.EnumValue value={ notification.state } enum={ NotificationStateEnum }/>
+      );
+    }
+    //
     const sentCount = !notification.relatedNotifications ? 0 : notification.relatedNotifications.reduce((result, _notification) => { return result + (_notification.sent ? 1 : 0); }, 0);
     return (
       <div {...others}>

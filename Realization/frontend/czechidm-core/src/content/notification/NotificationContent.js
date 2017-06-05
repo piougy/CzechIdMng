@@ -10,6 +10,8 @@ const notificationManager = new NotificationManager();
 
 /**
  * Notification detail content
+ *
+ * @author Radek Tomiška
  */
 class NotificationContent extends Basic.AbstractContent {
 

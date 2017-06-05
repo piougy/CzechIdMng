@@ -50,20 +50,13 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  */
 public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 	
-	@Autowired 
-	protected TestHelper helper;
-	@Autowired
-	private IdmIdentityRoleService identityRoleService;
-	@Autowired
-	private IdmIdentityContractService identityContractService;
-	@Autowired
-	private IdmRoleTreeNodeService roleTreeNodeService;
-	@Autowired
-	private LongRunningTaskManager taskManager;
-	@Autowired
-	private IdmContractGuaranteeService contractGuaranteeService;
-	@Autowired
-	private ConfigurationService configurationService;
+	@Autowired private TestHelper helper;
+	@Autowired private IdmIdentityRoleService identityRoleService;
+	@Autowired private IdmIdentityContractService identityContractService;
+	@Autowired private IdmRoleTreeNodeService roleTreeNodeService;
+	@Autowired private LongRunningTaskManager taskManager;
+	@Autowired private IdmContractGuaranteeService contractGuaranteeService;
+	@Autowired private ConfigurationService configurationService;
 	//
 	private IdmTreeType treeType = null;
 	private IdmTreeNode nodeA = null;

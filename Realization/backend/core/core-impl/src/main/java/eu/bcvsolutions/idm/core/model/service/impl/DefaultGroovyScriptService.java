@@ -94,7 +94,10 @@ public class DefaultGroovyScriptService implements GroovyScriptService {
 			return allowType;
 		}
 		variables.forEach((key, object) -> {
-			Class<?> targetClass = AopUtils.getTargetClass(object);
+			Class<?> targetClass = null;
+			if (object != null) {
+				targetClass = AopUtils.getTargetClass(object);
+			}
 			if (targetClass != null && !allowType.contains(targetClass)) {
 				allowType.add(targetClass);
 			}

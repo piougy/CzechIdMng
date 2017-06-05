@@ -23,7 +23,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
  * @author Svanda
  *
  */
-@Service
+@Service("accTreeAccountService")
 public class DefaultAccTreeAccountService
 		extends AbstractReadWriteDtoService<AccTreeAccountDto, AccTreeAccount, TreeAccountFilter>
 		implements AccTreeAccountService {

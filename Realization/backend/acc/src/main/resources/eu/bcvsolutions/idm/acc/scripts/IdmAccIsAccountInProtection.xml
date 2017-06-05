@@ -1,0 +1,44 @@
+<?xml version = "1.0" encoding = "UTF-8" standalone = "yes"?>
+<!-- 
+!! Only example !! Script import is not supported yet!
+
+Return 'true', if  account for given UID and system ID is in protection state. Else return 'false'.
+
+parameters:
+	-	system
+	-	uid
+ -->
+ 
+<scirpt>
+	<name>Is account for given UID in protection mode?</name>
+	<code>isAccountInProtection</code>
+	<type>groovy</type>
+	<body>
+<![CDATA[
+org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger("isAccountInProtection script");
+
+log.debug("Start 'isAccountInProtection' script.");
+
+// Load account
+def account = accAccountService.getAccount(uid,system.getId());
+
+if(account){
+    // Account was found. Return protection state.
+    return account.isInProtection();
+}
+return false;
+]]>
+	</body>
+	<inputParameter>uid, system</inputParameter>
+	<services>
+		<service>
+			<name>accAccountService</name>
+			<class>eu.bcvsolutions.idm.acc.service.impl.DefaultAccAccountService</class>
+		</service>
+	</services>
+	<allowClasses>
+		<class>eu.bcvsolutions.idm.acc.entity.AccAccount</class>
+	</allowClasses>
+	<systemTemplate>true</systemTemplate>
+	<moduleId>acc</moduleId>
+</script>

@@ -9,25 +9,25 @@ parameters:
 	-	uid
  -->
  
-<scirpt>
+<script>
 	<name>Is account for given UID in protection mode?</name>
 	<code>isAccountInProtection</code>
 	<type>groovy</type>
 	<body>
-<![CDATA[
-org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger("isAccountInProtection script");
-
-log.debug("Start 'isAccountInProtection' script.");
-
-// Load account
-def account = accAccountService.getAccount(uid,system.getId());
-
-if(account){
-    // Account was found. Return protection state.
-    return account.isInProtection();
-}
-return false;
-]]>
+	<![CDATA[
+	org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger("isAccountInProtection script");
+	
+	log.debug("Start 'isAccountInProtection' script.");
+	
+	// Load account
+	def account = accAccountService.getAccount(uid,system.getId());
+	
+	if(account){
+	    // Account was found. Return protection state.
+	    return account.isInProtection();
+	}
+	return false;
+	]]>
 	</body>
 	<inputParameter>uid, system</inputParameter>
 	<services>

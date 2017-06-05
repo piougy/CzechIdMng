@@ -90,15 +90,29 @@ public class DefaultAccIdentityAccountService extends
 	public void delete(AccIdentityAccountDto dto, BasePermission... permission) {
 		this.delete(dto, true, permission);
 	}
+	
 
 	@Override
 	@Transactional
 	public void delete(AccIdentityAccountDto entity, boolean deleteTargetAccount, BasePermission... permission) {
+		this.delete(entity, deleteTargetAccount, false, permission);
+	}
+	
+	@Override
+	@Transactional
+	public void forceDelete(AccIdentityAccountDto dto, BasePermission... permission) {
+		this.delete(dto, true, true,permission);
+	}
+
+	private void delete(AccIdentityAccountDto entity, boolean deleteTargetAccount, boolean forceDelete, BasePermission... permission) {
 		Assert.notNull(entity);
 		checkAccess(this.getEntity(entity.getId()), permission);
 		//
 		LOG.debug("Deleting identity account [{}]", entity);
 		entityEventManager.process(new IdentityAccountEvent(IdentityAccountEventType.DELETE, entity,
-				ImmutableMap.of(AccIdentityAccountService.DELETE_TARGET_ACCOUNT_KEY, deleteTargetAccount)));
+				ImmutableMap.of(AccIdentityAccountService.DELETE_TARGET_ACCOUNT_KEY, deleteTargetAccount,
+						AccIdentityAccountService.FORCE_DELETE_OF_IDENTITY_ACCOUNT_KEY, forceDelete)));
 	}
+	
+	
 }

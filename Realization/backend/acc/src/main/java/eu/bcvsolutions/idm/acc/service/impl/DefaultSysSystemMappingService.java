@@ -136,7 +136,7 @@ public class DefaultSysSystemMappingService extends
 		return this.getProtectionInterval(mappings.get(0));
 	}
 	
-	private int getProtectionInterval(SysSystemMapping systemMapping){
+	private Integer getProtectionInterval(SysSystemMapping systemMapping){
 		Assert.notNull(systemMapping, "Mapping cannot be null!");
 		return systemMapping.getProtectionInterval();
 	}

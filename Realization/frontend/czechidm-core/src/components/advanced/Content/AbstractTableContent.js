@@ -1,4 +1,5 @@
 import * as Basic from '../../basic';
+import * as Utils from '../../../utils';
 
 /**
 * Advance table content with entity CRUD methods id modal
@@ -79,7 +80,7 @@ export default class AbstractTableContent extends Basic.AbstractContent {
       return;
     }
     //
-    if (entity.id === undefined) {
+    if (Utils.Entity.isNew(entity)) {
       this.context.store.dispatch(this.getManager().createEntity(entity, `${this.getUiKey()}-detail`, (createdEntity, error) => {
         this.afterSave(createdEntity, error);
         if (!error && this.refs.table) {

@@ -334,7 +334,7 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 		SystemEntityFilter systemEntityFilter = new SystemEntityFilter();
 		systemEntityFilter.setEntityType(entityType);
 		systemEntityFilter.setSystemId(system.getId());
-		systemEntityFilter.setUidId(uid);
+		systemEntityFilter.setUid(uid);
 		List<SysSystemEntity> systemEntities = systemEntityService.find(systemEntityFilter, null).getContent();
 		SysSystemEntity systemEntity = null;
 		if (systemEntities.size() == 1) {

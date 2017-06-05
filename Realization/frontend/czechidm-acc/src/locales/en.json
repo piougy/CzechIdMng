@@ -51,7 +51,7 @@
           "success": "Entity [{{name}}] in system was successfully saved"
         },
         "filter": {
-          "uid": {
+          "text": {
             "label": "Identificator",
             "placeholder": "$t(acc:entity.SystemEntity.uid)"
           }
@@ -186,7 +186,7 @@
           "success": "Account in system was successfully created"
         },
         "filter": {
-          "uid": {
+          "text": {
             "label": "Identificator",
             "placeholder": "$t(acc:entity.SystemEntity.uid)"
           }

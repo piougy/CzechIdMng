@@ -431,7 +431,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 		if (PARENT_FIELD.equals(attribute.getIdmPropertyName()) && transformedValue != null) {
 			// Find account by UID from parent field
 			AccountFilter accountFilter = new AccountFilter();
-			accountFilter.setUidId(transformedValue.toString());
+			accountFilter.setUid(transformedValue.toString());
 			accountFilter.setSystemId(((SysSystemAttributeMapping)attribute).getSystemMapping().getSystem().getId());
 			transformedValue = null;
 			List<AccAccount> parentAccounts = accountService.find(accountFilter, null).getContent();

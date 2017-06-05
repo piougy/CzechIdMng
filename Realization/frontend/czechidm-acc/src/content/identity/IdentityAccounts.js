@@ -55,9 +55,9 @@ class IdentityAccountsContent extends Advanced.AbstractTableContent {
   save(entity, event) {
     const formEntity = this.refs.form.getData();
     const state = this.context.store.getState();
-    const identity = Utils.Entity.getEntity(state, identityManager.getEntityType(), formEntity.identity);
-    formEntity.identity = identity.id;
-    if (Utils.Entity.isNew(entity)) {
+    if (Utils.Entity.isNew(formEntity)) {
+      const identity = Utils.Entity.getEntity(state, identityManager.getEntityType(), formEntity.identity);
+      formEntity.identity = identity.id;
       formEntity.account = formEntity.account;
     }
     //

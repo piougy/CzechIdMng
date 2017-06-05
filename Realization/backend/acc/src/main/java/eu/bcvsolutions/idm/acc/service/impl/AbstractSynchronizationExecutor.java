@@ -1514,7 +1514,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 			// directly.
 			addToItemLog(logItem, MessageFormat
 					.format("System entity was not found. We will find account for uid ({0}) directly", uid));
-			accountFilter.setUidId(uid);
+			accountFilter.setUid(uid);
 			accountFilter.setSystemEntityId(null);
 			accounts = accountService.find(accountFilter, null).getContent();
 		}
@@ -1539,7 +1539,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 		SystemEntityFilter systemEntityFilter = new SystemEntityFilter();
 		systemEntityFilter.setEntityType(entityType);
 		systemEntityFilter.setSystemId(system.getId());
-		systemEntityFilter.setUidId(uid);
+		systemEntityFilter.setUid(uid);
 		List<SysSystemEntity> systemEntities = systemEntityService.find(systemEntityFilter, null).getContent();
 		SysSystemEntity systemEntity = null;
 		if (systemEntities.size() == 1) {

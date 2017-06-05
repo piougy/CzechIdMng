@@ -51,7 +51,7 @@
           "success": "Entita [{{name}}] na systému byla úspěšně uložen"
         },
         "filter": {
-          "uid": {
+          "text": {
             "label": "Identifikátor",
             "placeholder": "$t(acc:entity.SystemEntity.uid)"
           }
@@ -186,7 +186,7 @@
           "success": "Účet na systému byl úspěšně uložen"
         },
         "filter": {
-          "uid": {
+          "text": {
             "label": "Identifikátor",
             "placeholder": "$t(acc:entity.SystemEntity.uid)"
           }

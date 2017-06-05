@@ -320,7 +320,7 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 		}else{
 			// If account is not in list accounts to create, then we will search in database
 			AccountFilter accountFilter = new AccountFilter();
-			accountFilter.setUidId(uid);
+			accountFilter.setUid(uid);
 			accountFilter.setSystemId(roleSystem.getSystem().getId());
 			List<AccAccount> sameAccounts = accountService.find(accountFilter, null).getContent();
 			if (CollectionUtils.isEmpty(sameAccounts)) {

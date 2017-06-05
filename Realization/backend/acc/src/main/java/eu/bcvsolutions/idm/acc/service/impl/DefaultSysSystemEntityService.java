@@ -64,6 +64,6 @@ public class DefaultSysSystemEntityService extends AbstractReadWriteEntityServic
 
 	@Override
 	public SysSystemEntity getBySystemAndEntityTypeAndUid(SysSystem system, SystemEntityType entityType, String uid) {
-		return repository.findOneBySystemAndEntityTypeAndUid(system, entityType, uid);
+		return repository.findOneBySystem_IdAndEntityTypeAndUid(system.getId(), entityType, uid);
 	}
 }

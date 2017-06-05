@@ -51,7 +51,7 @@
           "success": "Entity [{{name}}] in system was successfully saved"
         },
         "filter": {
-          "uid": {
+          "text": {
             "label": "Identificator",
             "placeholder": "$t(acc:entity.SystemEntity.uid)"
           }
@@ -105,7 +105,7 @@
           "startSynchronization": {
             "message": "<b>Do you really want to start synchronization/reconciliation '{{name}}' manually?</b>",
             "header": "Start synchronization manually",
-            "started": "Synchronization/reconciliation '{{name}}' started and currently running.",
+            "started": "Synchronization/reconciliation '{{name}}' started as long running task, results will be shown on synchronization detail or in long running task agenda.",
             "success": "Synchronization/reconciliation '{{name}}' finished"
           },
           "cancelSynchronization": {
@@ -186,7 +186,7 @@
           "success": "Account in system was successfully created"
         },
         "filter": {
-          "uid": {
+          "text": {
             "label": "Identificator",
             "placeholder": "$t(acc:entity.SystemEntity.uid)"
           }
@@ -851,7 +851,7 @@
       "EXTERNAL_ID": "External ID (String)",
       "DISABLED": "Disabled (boolean)"
     },
-    "CatalogueAttributeEnum": {
+    "RoleCatalogueAttributeEnum": {
       "CODE": "Code (String)",
       "NAME": "Name (String)",
       "PARENT": "Parent (String)",

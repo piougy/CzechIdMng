@@ -188,7 +188,7 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
         this.setState({
           showLoading: false
         });
-        this.addMessage({ message: this.i18n('acc:content.system.systemSynchronizationConfigs.action.startSynchronization.started', { name: json.name }) });
+        this.addMessage({ level: 'info', message: this.i18n('acc:content.system.systemSynchronizationConfigs.action.startSynchronization.started', { name: json.name }) });
         this.context.store.dispatch(synchronizationConfigManager.fetchEntity(id));
       }).catch(ex => {
         this.setState({

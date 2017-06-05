@@ -109,7 +109,7 @@ public class RoleCatalogueProvisioningExecutor extends AbstractProvisioningExecu
 	@Override
 	protected List<SysRoleSystemAttribute> findOverloadingAttributes(String uid, IdmRoleCatalogue entity, SysSystem system,
 			List<? extends EntityAccountDto> idenityAccoutnList, SystemEntityType entityType) {
-		// Overloading attributes is not implemented for TreeNode
+		// Overloading attributes is not implemented for RoleCatalogue
 		return new ArrayList<>();
 	}
 	

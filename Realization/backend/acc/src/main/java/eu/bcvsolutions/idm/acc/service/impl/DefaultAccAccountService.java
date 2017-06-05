@@ -89,7 +89,7 @@ public class DefaultAccAccountService extends AbstractReadWriteEntityService<Acc
 		Assert.notNull(systemId, "System ID cannot be null!");
 		
 		AccountFilter filter = new AccountFilter();
-		filter.setUidId(uid);
+		filter.setUid(uid);
 		filter.setSystemId(systemId);
 		
 		List<AccAccount> accounts = this.find(filter, null).getContent();

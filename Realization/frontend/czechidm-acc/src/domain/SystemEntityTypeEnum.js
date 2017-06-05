@@ -2,7 +2,7 @@ import { Enums } from 'czechidm-core';
 import IdentityAttributeEnum from './IdentityAttributeEnum';
 import TreeAttributeEnum from './TreeAttributeEnum';
 import RoleAttributeEnum from './RoleAttributeEnum';
-import CatalogueAttributeEnum from './CatalogueAttributeEnum';
+import RoleCatalogueAttributeEnum from './RoleCatalogueAttributeEnum';
 
 /**
  * System entity type
@@ -64,7 +64,7 @@ export default class SystemEntityTypeEnum extends Enums.AbstractEnum {
         return RoleAttributeEnum;
       }
       case this.ROLE_CATALOGUE: {
-        return CatalogueAttributeEnum;
+        return RoleCatalogueAttributeEnum;
       }
       default: {
         return null;

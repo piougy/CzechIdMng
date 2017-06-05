@@ -114,6 +114,7 @@ public class SysSystemEntityController extends AbstractReadWriteEntityController
 	@Override
 	protected SystemEntityFilter toFilter(MultiValueMap<String, Object> parameters) {
 		SystemEntityFilter filter = new SystemEntityFilter();
+		filter.setText(getParameterConverter().toString(parameters, "text"));
 		filter.setSystemId(getParameterConverter().toUuid(parameters, "systemId"));
 		filter.setEntityType(getParameterConverter().toEnum(parameters, "entityType", SystemEntityType.class));
 		filter.setUid(getParameterConverter().toString(parameters, "uid"));

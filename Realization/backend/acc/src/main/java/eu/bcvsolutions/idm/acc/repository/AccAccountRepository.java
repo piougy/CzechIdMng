@@ -31,22 +31,22 @@ import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 	)
 public interface AccAccountRepository extends AbstractEntityRepository<AccAccount, AccountFilter> {
 	
-	/*
-	 * (non-Javadoc)
-	 * @see eu.bcvsolutions.idm.core.api.repository.BaseEntityRepository#find(eu.bcvsolutions.idm.core.api.dto.BaseFilter, Pageable)
-	 */
 	@Override
 	@Query(value = "select e from AccAccount e left join e.systemEntity se" +
 	        " where" +
+	        " ("
+	        + " ?#{[0].text} is null "
+	        + " or lower(e.uid) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')}"
+	        + " or lower(se.uid) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')}"
+	        + " )" +
+	        " and" +
 	        " (?#{[0].systemId} is null or e.system.id = ?#{[0].systemId})" +
 	        " and" +
-	        " (?#{[0].uidId} is null or e.uid = ?#{[0].uidId})" +
+	        " (?#{[0].uid} is null or e.uid = ?#{[0].uid})" +
 	        " and" +
 	        " (?#{[0].systemEntityId} is null or se.id = ?#{[0].systemEntityId})" +
 	        " and" +
 	        " (?#{[0].identityId} is null or exists (from AccIdentityAccount ia where ia.account = e and ia.identity.id = ?#{[0].identityId}))" + 
-	        " and" +
-	        " (?#{[0].uid} is null or lower(e.uid) like ?#{[0].uid == null ? '%' : '%'.concat([0].uid.toLowerCase()).concat('%')})" +
 	        " and" +
 	        " (?#{[0].accountType} is null or e.accountType = ?#{[0].accountType})")
 	Page<AccAccount> find(AccountFilter filter, Pageable pageable);

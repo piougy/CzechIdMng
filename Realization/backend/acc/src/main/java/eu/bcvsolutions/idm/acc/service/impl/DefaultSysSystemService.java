@@ -167,7 +167,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		Assert.notNull(system);
 		//
 		// if exists accounts or system entities, then system could not be deleted
-		if (systemEntityRepository.countBySystem(system) > 0) {
+		if (systemEntityRepository.countBySystem_Id(system.getId()) > 0) {
 			throw new ResultCodeException(AccResultCode.SYSTEM_DELETE_FAILED_HAS_ENTITIES, ImmutableMap.of("system", system.getName()));
 		}
 		if (accountRepository.countBySystem(system) > 0) {

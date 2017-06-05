@@ -3,31 +3,22 @@ package eu.bcvsolutions.idm.acc.event.processor;
 import java.util.List;
 import java.util.UUID;
 
-import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
-import com.google.common.collect.ImmutableMap;
-
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.event.IdentityAccountEvent.IdentityAccountEventType;
-import eu.bcvsolutions.idm.acc.event.ProvisioningEvent;
-import eu.bcvsolutions.idm.acc.event.ProvisioningEvent.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
-import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
-import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
-import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 
 /**
  * Save identity account
@@ -41,27 +32,16 @@ public class IdentityAccountSaveProcessor extends CoreEventProcessor<AccIdentity
 	private static final String PROCESSOR_NAME = "identity-account-save-processor";
 	private final AccIdentityAccountService service;
 	private final AccAccountService accountService;
-	private final SysSystemMappingService systemMappingService;
-	private final EntityEventManager entityEventManager;
-	private final IdmIdentityService identityService;
 
 	@Autowired
-	public IdentityAccountSaveProcessor(AccIdentityAccountService service, AccAccountService accountService,
-			SysSystemMappingService systemMappingService, EntityEventManager entityEventManager,
-			IdmIdentityService identityService) {
+	public IdentityAccountSaveProcessor(AccIdentityAccountService service, AccAccountService accountService) {
 		super(IdentityAccountEventType.CREATE, IdentityAccountEventType.UPDATE);
 		//
 		Assert.notNull(service);
 		Assert.notNull(accountService);
-		Assert.notNull(systemMappingService);
-		Assert.notNull(entityEventManager);
-		Assert.notNull(identityService);
 		//
 		this.service = service;
 		this.accountService = accountService;
-		this.systemMappingService = systemMappingService;
-		this.entityEventManager = entityEventManager;
-		this.identityService = identityService;
 	}
 
 	@Override

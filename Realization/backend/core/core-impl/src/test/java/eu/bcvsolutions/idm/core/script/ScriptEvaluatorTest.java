@@ -37,6 +37,7 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmScriptAuthorityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmScriptService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeTypeService;
+import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmTreeTypeService;
 import eu.bcvsolutions.idm.core.script.evaluator.AbstractScriptEvaluator;
 import eu.bcvsolutions.idm.core.security.exception.IdmSecurityException;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
@@ -241,11 +242,11 @@ public class ScriptEvaluatorTest extends AbstractIntegrationTest {
 		//
 		subScript.setScript(createTreeNodeScript(TREE_TYPE_CODE, TREE_TYPE_NAME));
 		//
-		subScript = scriptService.saveInternal(subScript);
+		subScript = scriptService.save(subScript);
 		//
 		createAuthority(subScript.getId(), ScriptAuthorityType.CLASS_NAME, IdmTreeType.class.getName(), null);
 		//
-		createAuthority(subScript.getId(), ScriptAuthorityType.SERVICE, this.treeTypeService.getClass().getName(), "treeTypeService");
+		createAuthority(subScript.getId(), ScriptAuthorityType.SERVICE, DefaultIdmTreeTypeService.class.getCanonicalName(), "treeTypeService");
 		//
 		IdmScriptDto parent = new IdmScriptDto();
 		parent.setCategory(IdmScriptCategory.DEFAULT);
@@ -253,7 +254,7 @@ public class ScriptEvaluatorTest extends AbstractIntegrationTest {
 		parent.setName("script_name_" + System.currentTimeMillis());
 		//
 		parent.setScript(createScriptThatCallAnother(subScript, IdmScriptCategory.DEFAULT, null, true));
-		parent = scriptService.saveInternal(parent);
+		parent = scriptService.save(parent);
 		//
 		Object uuid = groovyScriptService.evaluate(parent.getScript(), createParametersWithEvaluator(IdmScriptCategory.DEFAULT), createExtraAllowedClass());
 		//

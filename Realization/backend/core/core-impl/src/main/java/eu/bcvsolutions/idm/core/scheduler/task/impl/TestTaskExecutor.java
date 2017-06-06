@@ -70,4 +70,11 @@ public class TestTaskExecutor extends AbstractSchedulableStatefulExecutor<IdmIde
 		parameters.add(PARAMETER_COUNT);
 		return parameters;
 	}
+	
+	@Override
+	public Map<String, Object> getProperties() {
+		Map<String, Object> properties = super.getProperties();
+		properties.put(PARAMETER_COUNT, count);
+		return properties;
+	}
 }

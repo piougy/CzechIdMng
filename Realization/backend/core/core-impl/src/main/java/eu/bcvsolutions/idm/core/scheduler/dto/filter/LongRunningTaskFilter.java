@@ -21,6 +21,7 @@ public class LongRunningTaskFilter extends DataFilter {
 	private DateTime from;
 	private DateTime till;
 	private Boolean running;
+	private Boolean stateful;
 	
 	public LongRunningTaskFilter() {
 		this(new LinkedMultiValueMap<>());
@@ -68,5 +69,13 @@ public class LongRunningTaskFilter extends DataFilter {
 	
 	public void setRunning(Boolean running) {
 		this.running = running;
+	}
+	
+	public void setStateful(Boolean stateful) {
+		this.stateful = stateful;
+	}
+	
+	public Boolean getStateful() {
+		return stateful;
 	}
 }

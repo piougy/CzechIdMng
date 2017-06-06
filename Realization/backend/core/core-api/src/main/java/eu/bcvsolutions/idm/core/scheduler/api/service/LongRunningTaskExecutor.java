@@ -11,7 +11,15 @@ import java.util.concurrent.Callable;
  * @author Radek Tomiška
  */
 public interface LongRunningTaskExecutor<V> extends Callable<V> {
+	
+	static final String PARAMETER_INSTANCE_ID = "core:instanceId"; // server instance id
 
+	/**
+	 * Returns task name (task class name by default)
+	 * @return
+	 */
+	String getName();
+	
 	/**
 	 * Module identifier
 	 * 
@@ -44,7 +52,7 @@ public interface LongRunningTaskExecutor<V> extends Callable<V> {
 	
 	/**
 	 * Returns persistent task parameter values. Don't forget to override this method additively.
-	 * init(properies) => getProperties() should return the same values from init method.
+	 * init(properies) => getProperties() should return the at least the same values as init method.
 	 */
 	Map<String, Object> getProperties();
 	
@@ -102,6 +110,13 @@ public interface LongRunningTaskExecutor<V> extends Callable<V> {
 	boolean updateState();
 	
 	/**
+	 * Returns true, when task updates its state when runs => can be canceled, progress can be shown
+	 * 
+	 * @return
+	 */
+	boolean isStateful();
+	
+	/**
 	 * Gets long running task log id
 	 * 
 	 * @return
@@ -114,5 +129,4 @@ public interface LongRunningTaskExecutor<V> extends Callable<V> {
 	 * @param longRunningTask
 	 */
 	void setLongRunningTaskId(UUID taskId);
-	
 }

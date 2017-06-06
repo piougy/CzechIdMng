@@ -8,6 +8,11 @@ import * as Basic from '../../components/basic';
 import { EntityEventProcessorManager, DataManager } from '../../redux';
 import * as Utils from '../../utils';
 
+/**
+ * BE event precessors
+ *
+ * @author Radek Tomiška
+ */
 class EntityEventProcessors extends Basic.AbstractContent {
 
   constructor(props, context) {

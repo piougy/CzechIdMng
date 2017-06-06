@@ -1,10 +1,14 @@
 import React from 'react';
-import { connect } from 'react-redux';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 
-class ModuleRoutes extends Basic.AbstractContent {
+/**
+ * Modules agendas entry point
+ *
+ * @author Radek Tomiška
+ */
+export default class ModuleRoutes extends Basic.AbstractContent {
 
   getContentKey() {
     return 'content.system.modules';
@@ -14,25 +18,13 @@ class ModuleRoutes extends Basic.AbstractContent {
     return (
       <div>
         <Basic.PageHeader>
-          {this.i18n('header')}
+          { this.i18n('header') }
         </Basic.PageHeader>
 
-        <Advanced.TabPanel position="top" parentId="modules" params={this.props.params}>
-          {this.props.children}
+        <Advanced.TabPanel position="top" parentId="modules" params={ this.props.params }>
+          { this.props.children }
         </Advanced.TabPanel>
       </div>
     );
   }
 }
-
-ModuleRoutes.propTypes = {
-};
-ModuleRoutes.defaultProps = {
-};
-
-function select() {
-  return {
-  };
-}
-
-export default connect(select)(ModuleRoutes);

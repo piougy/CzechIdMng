@@ -55,7 +55,6 @@ public class IdmLongRunningTask extends AbstractEntity {
 	@Column(name = "task_counter")
 	private Long counter;
 	
-	@NotNull
 	@Column(name = "running", nullable = false)
 	private boolean running = false;
 	
@@ -81,10 +80,8 @@ public class IdmLongRunningTask extends AbstractEntity {
 	@org.hibernate.annotations.ForeignKey(name = "none")
 	private IdmScheduledTask scheduledTask;
 	
-	// TODO: optimistic lock for secure task canceling etc.
-//	@Version
-//	@JsonIgnore
-//	private Long version; // Optimistic lock
+	@Column(name = "stateful", nullable = false)
+	private boolean stateful;
 
 	public String getTaskType() {
 		return taskType;
@@ -187,4 +184,11 @@ public class IdmLongRunningTask extends AbstractEntity {
 		this.scheduledTask = scheduledTask;
 	}
 
+	public boolean isStateful() {
+		return stateful;
+	}
+	
+	public void setStateful(boolean stateful) {
+		this.stateful = stateful;
+	}
 }

@@ -46,6 +46,11 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements LongRunningT
 	protected Long count = null;
 	protected Long counter = null;
 	
+	@Override
+	public String getName() {
+		return this.getClass().getCanonicalName();
+	}
+	
 	/**
 	 * Default implementation returns module by package conventions.
 	 */
@@ -228,6 +233,11 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements LongRunningT
 			return true;
 		}
 		return task.isRunning() && OperationState.isRunnable(task.getResultState());
+	}
+	
+	@Override
+	public boolean isStateful() {
+		return true;
 	}
 	
 	/**

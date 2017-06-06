@@ -8,6 +8,11 @@ import ComponentLoader from '../../utils/ComponentLoader';
 import { BackendModuleManager, ConfigurationManager } from '../../redux';
 import * as Utils from '../../utils';
 
+/**
+ * FE modules administration
+ *
+ * @author Radek Tomiška
+ */
 class FrontendModules extends Basic.AbstractContent {
 
   constructor(props, context) {

@@ -92,6 +92,9 @@ public class DefaultIdmLongRunningTaskService
 		if (filter.getRunning() != null) {
 			predicates.add(builder.equal(root.get(IdmLongRunningTask_.running), filter.getRunning()));
 		}
+		if (filter.getStateful() != null) {
+			predicates.add(builder.equal(root.get(IdmLongRunningTask_.stateful), filter.getStateful()));
+		}
 		//
 		return predicates;
 	}

@@ -91,7 +91,9 @@
       "success": "Selected record [{{record}}] successfully deleted",
       "success_plural": "Selected records [{{records}}] were successfully deleted",
       "approve": "Record deletion [{{record}}] has to be approved, task successfully created",
-      "approve_plural": "Records deletion [{{records}}] have to be approved, tasks successfully created"
+      "approve_plural": "Records deletion [{{records}}] have to be approved, tasks successfully created",
+      "accepted": "Record deletion [{{record}}] run asynchronously (deletion has to be approved or run as long running task)",
+      "accepted_plural": "Records deletion [{{records}}] run asynchronously (deletion has to be approved or run as long running task)"
     },
     "activate": {
       "action": "Activate",
@@ -2402,7 +2404,10 @@
         "label": "Instance",
         "help": "Task will be executed on server (instance identifier)"
       },
-      "duration": "Task duration"
+      "duration": "Task duration",
+      "taskProperties": {
+        "label": "Parameters"
+      }
     },
     "ScheduleTask": {
       "id": "Identificator",

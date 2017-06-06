@@ -30,24 +30,31 @@ public interface IdmRoleTreeNodeService extends
 	Set<IdmRoleTreeNodeDto> getAutomaticRolesByTreeNode(UUID workPosition);
 	
 	/**
-	 * Assign automatic roles by standard role request.
-	 * Start of process is defined by parameter startRequestInternal.
+	 * Prepare request to assign automatic roles by standard role request.
+	 * Start of process is defined by parameter .
 	 * 
 	 * @param contract
 	 * @param automaticRoles
-	 * @param startRequestInternal
 	 * @return
 	 */
-	IdmRoleRequestDto assignAutomaticRoles(IdmIdentityContractDto contract, Set<IdmRoleTreeNodeDto> automaticRoles, boolean startRequestInternal);
+	IdmRoleRequestDto prepareAssignAutomaticRoles(IdmIdentityContractDto contract, Set<IdmRoleTreeNodeDto> automaticRoles);
 	
 	/**
-	 * Delete automatic roles by standard role request.
-	 * Start of process is defined by parameter startRequestInternal.
+	 * Assign automatic roles by standard role request - with internal start
+	 * Start of process is defined by parameter .
+	 * 
+	 * @param contract
+	 * @param automaticRoles
+	 * @return
+	 */
+	IdmRoleRequestDto assignAutomaticRoles(IdmIdentityContractDto contract, Set<IdmRoleTreeNodeDto> automaticRoles);
+	
+	/**
+	 * Prepare role request for delete automatic roles by standard role request.
 	 * 
 	 * @param identityRole
 	 * @param automaticRoles
-	 * @param startRequestInternal
 	 * @return
 	 */
-	IdmRoleRequestDto removeAutomaticRoles(IdmIdentityRoleDto identityRole, Set<IdmRoleTreeNodeDto> automaticRoles, boolean startRequestInternal);
+	IdmRoleRequestDto prepareRemoveAutomaticRoles(IdmIdentityRoleDto identityRole, Set<IdmRoleTreeNodeDto> automaticRoles);
 }

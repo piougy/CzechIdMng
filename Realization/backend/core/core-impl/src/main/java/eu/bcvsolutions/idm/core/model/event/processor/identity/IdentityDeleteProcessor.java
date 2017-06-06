@@ -9,12 +9,12 @@ import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleValidRequestDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.ContractGuaranteeFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.RoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
-import eu.bcvsolutions.idm.core.model.dto.filter.ContractGuaranteeFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmAuthorityChange;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.core.model.repository.IdmAuthorityChangeRepository;

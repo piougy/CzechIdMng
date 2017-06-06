@@ -23,6 +23,13 @@ import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
 public interface ProvisioningService {
 	
 	public static final String PASSWORD_SCHEMA_PROPERTY_NAME = "__PASSWORD__";
+	public static final String ENTITY_PROPERTY_NAME = "entity";
+	/**
+	 * Property in provisioning start event. If is value TRUE, then will be cancelled provisioning break during account protection.
+	 * In extra cases, we do provisioning with account in protection. For example we need do first provisioning (for move account to archive) 
+	 */
+	public static final String CANCEL_PROVISIONING_BREAK_IN_PROTECTION = "cancel_provisioning_break_in_account_protection";
+	
 	/**
 	 * Property in event. If is value TRUE, then will be provisioning skipped. Skip must be implemented in every processor for now!
 	 */
@@ -44,6 +51,8 @@ public interface ProvisioningService {
 	
 	/**
 	 * Do provisioning for given account and identity
+	 * Emits ProvisioningEventType.START event.
+	 * 
 	 * @param account
 	 * @param identity
 	 * @param system
@@ -118,6 +127,16 @@ public interface ProvisioningService {
 	 * @param entityType
 	 */
 	void createAccountsForAllSystems(AbstractEntity entity);
+	
+	/**
+	 * Do provisioning for given account and identity. For internal purpose without emit event.
+	 * 
+	 * @param account
+	 * @param identity
+	 * @param system
+	 * @return
+	 */
+	void doInternalProvisioning(AccAccount account, AbstractEntity entity);
 
 	
 }

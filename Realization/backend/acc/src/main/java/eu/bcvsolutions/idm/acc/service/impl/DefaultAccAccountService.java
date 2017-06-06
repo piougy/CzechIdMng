@@ -24,7 +24,7 @@ import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
  * @author Radek Tomiška
  *
  */
-@Service
+@Service("accAccountService")
 public class DefaultAccAccountService extends AbstractReadWriteEntityService<AccAccount, AccountFilter>
 		implements AccAccountService {
 	
@@ -81,6 +81,22 @@ public class DefaultAccAccountService extends AbstractReadWriteEntityService<Acc
 	@Override
 	public List<AccAccount> getAccouts(UUID systemId, UUID identityId) {
 		return accountRepository.findAccountBySystemAndIdentity(identityId, systemId);
+	}
+	
+	@Override
+	public AccAccount getAccount(String uid, UUID systemId) {
+		Assert.notNull(uid, "UID cannot be null!");
+		Assert.notNull(systemId, "System ID cannot be null!");
+		
+		AccountFilter filter = new AccountFilter();
+		filter.setUid(uid);
+		filter.setSystemId(systemId);
+		
+		List<AccAccount> accounts = this.find(filter, null).getContent();
+		if(accounts.isEmpty()){
+			return null;
+		}
+		return accounts.get(0);
 	}
 
 }

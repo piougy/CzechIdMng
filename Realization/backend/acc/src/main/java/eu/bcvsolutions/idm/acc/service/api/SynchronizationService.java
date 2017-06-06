@@ -3,11 +3,11 @@ package eu.bcvsolutions.idm.acc.service.api;
 import java.util.List;
 import java.util.UUID;
 
-import eu.bcvsolutions.idm.acc.domain.SynchronizationEventType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationContext;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.entity.SysSyncConfig;
 import eu.bcvsolutions.idm.acc.entity.SysSyncItemLog;
+import eu.bcvsolutions.idm.acc.event.SynchronizationEventType;
 import eu.bcvsolutions.idm.acc.event.processor.synchronization.SynchronizationCancelProcessor;
 import eu.bcvsolutions.idm.acc.event.processor.synchronization.SynchronizationStartProcessor;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskExecutor;
@@ -49,7 +49,7 @@ public interface SynchronizationService extends LongRunningTaskExecutor<SysSyncC
 	SysSyncConfig stopSynchronizationEvent(SysSyncConfig config);
 	
 	/**
-	 * Default implementation of synchronization. By default is call from {@link SynchronizationStartProcessor}
+	 * Default implementation of synchronization. By default is call from {@link ProvisioningStartProcessor}
 	 * as reaction on {@link SynchronizationEventType.START} event.
 	 * @param config
 	 * @return

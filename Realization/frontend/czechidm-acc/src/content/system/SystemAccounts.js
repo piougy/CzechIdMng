@@ -13,6 +13,11 @@ const manager = new AccountManager();
 const systemEntityManager = new SystemEntityManager();
 const systemManager = new SystemManager();
 
+/**
+ * Linked accounts on target system
+ *
+ * @author Radek Tomiška
+ */
 class SystemAccountsContent extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
@@ -31,8 +36,8 @@ class SystemAccountsContent extends Advanced.AbstractTableContent {
     return 'acc:content.system.accounts';
   }
 
-  componentDidMount() {
-    this.selectNavigationItems(['sys-systems', 'system-accounts']);
+  getNavigationKey() {
+    return 'system-accounts';
   }
 
   showDetail(entity) {
@@ -83,6 +88,7 @@ class SystemAccountsContent extends Advanced.AbstractTableContent {
             manager={this.getManager()}
             forceSearchParameters={forceSearchParameters}
             showRowSelection={Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE'])}
+            rowClass={({rowIndex, data}) => { return (data[rowIndex].inProtection) ? 'disabled' : ''; }}
             actions={
               Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE'])
               ?
@@ -116,8 +122,8 @@ class SystemAccountsContent extends Advanced.AbstractTableContent {
                     </div>
                     <div className="col-lg-4">
                       <Advanced.Filter.TextField
-                        ref="uid"
-                        placeholder={this.i18n('filter.uid.placeholder')}/>
+                        ref="text"
+                        placeholder={this.i18n('filter.text.placeholder')}/>
                     </div>
                     <div className="col-lg-4 text-right">
                       <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
@@ -125,7 +131,8 @@ class SystemAccountsContent extends Advanced.AbstractTableContent {
                   </Basic.Row>
                 </Basic.AbstractForm>
               </Advanced.Filter>
-            }>
+            }
+            _searchParameters={ this.getSearchParameters() }>
             <Advanced.Column
               property=""
               header=""
@@ -148,6 +155,14 @@ class SystemAccountsContent extends Advanced.AbstractTableContent {
               }
               property="uid"
               header={this.i18n('acc:entity.Account.uid')}/>
+            <Advanced.Column
+              property="inProtection"
+              header={this.i18n('acc:entity.Account.inProtection')}
+              face="bool" />
+            <Advanced.Column
+              property="endOfProtection"
+              header={this.i18n('acc:entity.Account.endOfProtection')}
+              face="datetime" />
             <Advanced.Column property="_embedded.systemEntity.uid" header={this.i18n('acc:entity.Account.systemEntity')} face="text" />
           </Advanced.Table>
         </Basic.Panel>
@@ -186,12 +201,6 @@ class SystemAccountsContent extends Advanced.AbstractTableContent {
                   label={this.i18n('acc:entity.Account.accountType')}
                   required/>
               </Basic.AbstractForm>
-
-              {/*
-              <Basic.ContentHeader>
-                Identity nalinkované na účet
-              </Basic.ContentHeader>
-              TODO: accounts*/}
             </Basic.Modal.Body>
 
             <Basic.Modal.Footer>
@@ -227,6 +236,7 @@ SystemAccountsContent.defaultProps = {
 function select(state) {
   return {
     _showLoading: Utils.Ui.isShowLoading(state, `${uiKey}-detail`),
+    _searchParameters: Utils.Ui.getSearchParameters(state, uiKey)
   };
 }
 

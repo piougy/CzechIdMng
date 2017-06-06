@@ -99,8 +99,6 @@ public class DefaultIdmIdentityContractService
 		Assert.notNull(entity.getIdentity());
 		checkAccess(toEntity(entity, null), permission);
 		//
-		// we need to read previous value ...
-		//
 		if (isNew(entity)) { // create
 			LOG.debug("Saving new contract for identity [{}]", entity.getIdentity());
 			return entityEventManager.process(new IdentityContractEvent(IdentityContractEventType.CREATE, entity)).getContent();

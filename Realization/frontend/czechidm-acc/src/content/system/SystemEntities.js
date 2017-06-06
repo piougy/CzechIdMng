@@ -11,6 +11,11 @@ const uiKey = 'system-entities-table';
 const manager = new SystemEntityManager();
 const systemManager = new SystemManager();
 
+/**
+ * Entities in target system
+ *
+ * @author Radek TomiškaS
+ */
 class SystemEntitiesContent extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
@@ -29,8 +34,8 @@ class SystemEntitiesContent extends Advanced.AbstractTableContent {
     return 'acc:content.system.entities';
   }
 
-  componentDidMount() {
-    this.selectNavigationItems(['sys-systems', 'system-entities']);
+  getNavigationKey() {
+    return 'system-entities';
   }
 
   showDetail(entity) {
@@ -69,7 +74,7 @@ class SystemEntitiesContent extends Advanced.AbstractTableContent {
         <Basic.Confirm ref="confirm-delete" level="danger"/>
 
         <Basic.ContentHeader style={{ marginBottom: 0 }}>
-          <span dangerouslySetInnerHTML={{ __html: this.i18n('header') }}/>
+          { this.i18n('header', { escape: false }) }
         </Basic.ContentHeader>
 
         <Basic.Panel className="no-border last">
@@ -112,8 +117,8 @@ class SystemEntitiesContent extends Advanced.AbstractTableContent {
                     </div>
                     <div className="col-lg-4">
                       <Advanced.Filter.TextField
-                        ref="uid"
-                        placeholder={this.i18n('filter.uid.placeholder')}/>
+                        ref="text"
+                        placeholder={this.i18n('filter.text.placeholder')}/>
                     </div>
                     <div className="col-lg-4 text-right">
                       <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
@@ -121,7 +126,8 @@ class SystemEntitiesContent extends Advanced.AbstractTableContent {
                   </Basic.Row>
                 </Basic.AbstractForm>
               </Advanced.Filter>
-            }>
+            }
+            _searchParameters={ this.getSearchParameters() }>
             <Advanced.Column
               property=""
               header=""
@@ -221,6 +227,7 @@ function select(state, component) {
   return {
     system: Utils.Entity.getEntity(state, systemManager.getEntityType(), component.params.entityId),
     _showLoading: Utils.Ui.isShowLoading(state, `${uiKey}-detail`),
+    _searchParameters: Utils.Ui.getSearchParameters(state, uiKey)
   };
 }
 

@@ -49,13 +49,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     if (!rendered) {
       return;
     }
-    // we have to se first page
-    // TODO: we have to se first page only if fitlers changes - handle in next
-    let _sp = _searchParameters;
-    if (_sp) {
-      _sp = _sp.setPage(0);
-    }
-    this.fetchEntities(_sp, _props);
+    this.fetchEntities(_searchParameters, _props);
   }
 
   /**
@@ -194,7 +188,12 @@ class AdvancedTable extends Basic.AbstractContextComponent {
       if (!filterValues[property]) {
         continue;
       }
-      filterForm.getComponent(property).setValue(null);
+      const filterComponent = filterForm.getComponent(property);
+      if (!filterComponent) {
+        // filter is not rendered
+        continue;
+      }
+      filterComponent.setValue(null);
     }
     // prevent sort and pagination
     let userSearchParameters = _searchParameters.setFilters(manager.getDefaultSearchParameters().getFilters());

@@ -51,7 +51,7 @@
           "success": "Entita [{{name}}] na systému byla úspěšně uložen"
         },
         "filter": {
-          "uid": {
+          "text": {
             "label": "Identifikátor",
             "placeholder": "$t(acc:entity.SystemEntity.uid)"
           }
@@ -105,7 +105,7 @@
           "startSynchronization": {
             "message": "<b>Opravdu chcete ručně spustit synchronizaci/reconciliaci '{{name}}'?</b>",
             "header": "Ruční spuštění synchronizace",
-            "started": "Synchronizace/reconciliace '{{name}}' byla spuštěna a běží.",
+            "started": "Synchronizace/reconciliace '{{name}}' byla spuštěna jako dlouhotrvající úloha na pozadí. Průběh a výsledek lze sledovat v agendě plánovaných úloh či v logu na detailu synchronizace.",
             "success": "Synchronizace/reconciliace '{{name}}' byla dokončena."
           },
           "cancelSynchronization": {
@@ -186,7 +186,7 @@
           "success": "Účet na systému byl úspěšně uložen"
         },
         "filter": {
-          "uid": {
+          "text": {
             "label": "Identifikátor",
             "placeholder": "$t(acc:entity.SystemEntity.uid)"
           }
@@ -497,7 +497,9 @@
       "operationType": "Typ operace",
       "system": "Napojený systém",
       "objectClass": "Název objektu",
-      "treeType": "Typ stromu"
+      "treeType": "Typ stromu",
+      "protectionEnabled": "Ochrana účtů (před smazáním)",
+      "protectionInterval": "Délka ochraného intervalu (ve dnech)"
     },
     "SchemaAttribute": {
       "name": "Název atributu",
@@ -591,7 +593,9 @@
       "accountType": "Typ účtu",
       "system": "Systém",
       "systemEntity": "Navázané entita na systému",
-      "uid": "Identifikátor účtu"
+      "uid": "Identifikátor účtu",
+      "inProtection": "Je chráněn před smazáním",
+      "endOfProtection": "Chráněn do"
     },
     "IdentityAccount": {
       "_type": "Účet identity na koncovém systému",
@@ -660,7 +664,8 @@
           "MISSING_ENTITY": "Entita neexistuje",
           "UNLINKED": "Vazba neexistuje",
           "MISSING_ACCOUNT": "Účet neexistuje",
-          "IGNORE": "Ignorováno"
+          "IGNORE": "Ignorováno",
+          "UNKNOWN": "Neznámý stav"
         },
         "WARNING": {
           "CREATE_ENTITY": "Vytvořeno entit",
@@ -676,7 +681,8 @@
           "MISSING_ENTITY": "Entita neexistuje",
           "UNLINKED": "Vazba neexistuje",
           "MISSING_ACCOUNT": "Účet neexistuje",
-          "IGNORE": "Ignorováno"
+          "IGNORE": "Ignorováno",
+          "UNKNOWN": "Neznámý stav"
         },
         "WF": {
           "CREATE_ENTITY": "Vytvořeno entit",
@@ -692,7 +698,8 @@
           "MISSING_ENTITY": "Entita neexistuje",
           "UNLINKED": "Vazba neexistuje",
           "MISSING_ACCOUNT": "Účet neexistuje",
-          "IGNORE": "Ignorováno"
+          "IGNORE": "Ignorováno",
+          "UNKNOWN": "Neznámý stav"
         },
         "IGNORE": {
           "CREATE_ENTITY": "Vytvořeno entit",
@@ -708,7 +715,8 @@
           "MISSING_ENTITY": "Entita neexistuje",
           "UNLINKED": "Vazba neexistuje",
           "MISSING_ACCOUNT": "Účet neexistuje",
-          "IGNORE": "Ignorováno"
+          "IGNORE": "Ignorováno",
+          "UNKNOWN": "Neznámý stav"
         },
         "ERROR": {
           "CREATE_ENTITY": "Neúspěšně vytvořeno entit",
@@ -724,7 +732,8 @@
           "MISSING_ENTITY": "Entita neexistuje",
           "UNLINKED": "Vazba neexistuje",
           "MISSING_ACCOUNT": "Účet neexistuje",
-          "IGNORE": "Neúspěšně ignorováno"
+          "IGNORE": "Neúspěšně ignorováno",
+          "UNKNOWN": "Neznámý stav"
         }
       }
     },
@@ -753,7 +762,8 @@
     "SystemEntityTypeEnum": {
       "IDENTITY": "Identita",
       "ROLE": "Role",
-      "TREE": "Strom"
+      "TREE": "Strom",
+      "ROLE_CATALOGUE": "Katalog rolí"
     },
     "SystemOperationTypeEnum": {
       "PROVISIONING": "Provisioning",
@@ -809,7 +819,8 @@
       "MISSING_ENTITY": "Entita neexistuje",
       "UNLINKED": "Vazba neexistuje",
       "MISSING_ACCOUNT": "Účet neexistuje",
-      "IGNORE": "Ignorováno"
+      "IGNORE": "Ignorováno",
+      "UNKNOWN": "Neznámý stav"
     },
     "OperationResultTypeEnum": {
       "SUCCESS": "Úspěšné",
@@ -847,6 +858,14 @@
       "PARENT": "Rodič (String)",
       "EXTERNAL_ID": "Externí ID (String)",
       "DISABLED": "Zakázaný (boolean)"
+    },
+    "RoleCatalogueAttributeEnum": {
+      "CODE": "Kód (String)",
+      "NAME": "Název (String)",
+      "PARENT": "Rodič (String)",
+      "DESCRIPTION": "Popis (String)",
+      "URL": "URL (String)",
+      "URL_TITLE": "Popis URL (String)"
     },
     "RoleAttributeEnum": {
       "NAME": "Název (String)",

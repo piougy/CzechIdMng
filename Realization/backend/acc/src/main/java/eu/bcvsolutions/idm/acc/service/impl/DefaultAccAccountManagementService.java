@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.acc.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,9 +13,11 @@ import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AccountType;
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
+import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.MappingAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccountFilter;
@@ -37,6 +40,7 @@ import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
@@ -60,13 +64,15 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 	private final IdmIdentityRoleRepository identityRoleRepository;
 	private final SysRoleSystemAttributeService roleSystemAttributeService;
 	private final SysSystemAttributeMappingService systemAttributeMappingService;
+	private final SysSystemMappingService systemMappingService;
 
 	@Autowired
 	public DefaultAccAccountManagementService(SysRoleSystemService roleSystemService, AccAccountService accountService,
 			AccIdentityAccountService identityAccountService, IdmIdentityRoleRepository identityRoleRepository,
 			SysRoleSystemAttributeService roleSystemAttributeService,
 			AccIdentityAccountRepository identityAccountRepository,
-			SysSystemAttributeMappingService systemAttributeMappingService) {
+			SysSystemAttributeMappingService systemAttributeMappingService,
+			SysSystemMappingService systemMappingService) {
 		super();
 		//
 		Assert.notNull(identityAccountService);
@@ -76,6 +82,7 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 		Assert.notNull(roleSystemAttributeService);
 		Assert.notNull(identityAccountRepository);
 		Assert.notNull(systemAttributeMappingService);
+		Assert.notNull(systemMappingService);
 		//
 		this.roleSystemService = roleSystemService;
 		this.accountService = accountService;
@@ -84,6 +91,7 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 		this.roleSystemAttributeService = roleSystemAttributeService;
 		this.identityAccountRepository = identityAccountRepository;
 		this.systemAttributeMappingService = systemAttributeMappingService;
+		this.systemMappingService = systemMappingService;
 	}
 
 	@Override
@@ -92,7 +100,7 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 
 		IdentityAccountFilter filter = new IdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
-		List<AccIdentityAccount> identityAccountList = identityAccountRepository.find(filter, null).getContent();
+		List<AccIdentityAccountDto> identityAccountList = identityAccountService.find(filter, null).getContent();
 
 		List<IdmIdentityRole> identityRoles = identityRoleRepository.findAllByIdentityContract_Identity_Id(identity.getId(), null);
 
@@ -103,8 +111,8 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 			return false;
 		}
 
-		List<AccIdentityAccount> identityAccountsToCreate = new ArrayList<>();
-		List<AccIdentityAccount> identityAccountsToDelete = new ArrayList<>();
+		List<AccIdentityAccountDto> identityAccountsToCreate = new ArrayList<>();
+		List<AccIdentityAccountDto> identityAccountsToDelete = new ArrayList<>();
 
 		// Is role valid in this moment
 		resolveIdentityAccountForCreate(identity, identityAccountList, identityRoles, identityAccountsToCreate,
@@ -112,7 +120,7 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 
 		// Is role invalid in this moment
 		resolveIdentityAccountForDelete(identityAccountList, identityRoles, identityAccountsToDelete);
-
+		
 		// Delete invalid identity accounts
 		provisioningRequired = !identityAccountsToDelete.isEmpty() ? true : provisioningRequired;
 		identityAccountsToDelete.stream().forEach(identityAccount -> {
@@ -122,8 +130,7 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 		// Create new identity accounts
 		provisioningRequired = !identityAccountsToCreate.isEmpty() ? true : provisioningRequired;
 		identityAccountsToCreate.stream().forEach(identityAccount -> {
-			identityAccount.setAccount(accountService.save(identityAccount.getAccount()));
-			identityAccountRepository.save(identityAccount); // TODO: use DTO!
+			identityAccountService.save(identityAccount);
 
 		});
 
@@ -136,8 +143,8 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 	 * @param identityRoles
 	 * @param identityAccountsToDelete
 	 */
-	private void resolveIdentityAccountForDelete(List<AccIdentityAccount> identityAccountList,
-			List<IdmIdentityRole> identityRoles, List<AccIdentityAccount> identityAccountsToDelete) {
+	private void resolveIdentityAccountForDelete(List<AccIdentityAccountDto> identityAccountList,
+			List<IdmIdentityRole> identityRoles, List<AccIdentityAccountDto> identityAccountsToDelete) {
 
 		identityRoles.stream().filter(identityRole -> {
 			return !identityRole.isValid();
@@ -160,9 +167,9 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 	 * @param identityAccountsToDelete
 	 * @param resolvedRolesForCreate
 	 */
-	private void resolveIdentityAccountForCreate(IdmIdentity identity, List<AccIdentityAccount> identityAccountList,
-			List<IdmIdentityRole> identityRoles, List<AccIdentityAccount> identityAccountsToCreate,
-			List<AccIdentityAccount> identityAccountsToDelete) {
+	private void resolveIdentityAccountForCreate(IdmIdentity identity, List<AccIdentityAccountDto> identityAccountList,
+			List<IdmIdentityRole> identityRoles, List<AccIdentityAccountDto> identityAccountsToCreate,
+			List<AccIdentityAccountDto> identityAccountsToDelete) {
 		
 		// Is role valid in this moment
 		identityRoles.stream().filter(identityRole -> {
@@ -175,13 +182,14 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 			List<SysRoleSystem> roleSystems = roleSystemService.find(roleSystemFilter, null).getContent();
 
 			roleSystems.stream().filter(roleSystem -> {
-
+				// Filter out identity-accounts for same role-system, account (by UID)
 				return !identityAccountList.stream().filter(identityAccount -> {
-					if (roleSystem.equals(identityAccount.getRoleSystem())) {
+					if (roleSystem.getId().equals(identityAccount.getRoleSystem())) {
 						
 						// Has identity account same uid as account?
 						String uid = generateUID(identity, roleSystem);
-						if (uid.equals(identityAccount.getAccount().getUid())) {
+						AccAccountDto account = AccIdentityAccountService.getEmbeddedAccount(identityAccount);
+						if (uid.equals(account.getUid())) {
 							// Identity account for this role, system and uid is
 							// created
 							return true;
@@ -196,39 +204,13 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 				}).findFirst().isPresent();
 
 			}).forEach(roleSystem -> {
-				// For this system we have to crate new account
-				String uid = generateUID(identity, roleSystem);
-				
-				// We try find account for same uid on same system
-				// First we try search same account in list for create new accounts
-				Optional<AccIdentityAccount> sameAccountOptional = identityAccountsToCreate.stream().filter(ia -> {
-					return ia.getAccount().getUid().equals(uid);
-				}).findFirst();
-				
-				AccAccount account = null;
-				if(sameAccountOptional.isPresent()){
-					account = sameAccountOptional.get().getAccount();
-				}else{
-					// If account is not in list accounts to create, then we will search in database
-					AccountFilter accountFilter = new AccountFilter();
-					accountFilter.setUidId(uid);
-					accountFilter.setSystemId(roleSystem.getSystem().getId());
-					List<AccAccount> sameAccounts = accountService.find(accountFilter, null).getContent();
-					if (CollectionUtils.isEmpty(sameAccounts)) {
-						account = new AccAccount();
-						account.setUid(uid);
-						account.setAccountType(AccountType.PERSONAL);
-						account.setSystem(roleSystem.getSystem());
-					} else {
-						// We use existed account
-						account = sameAccounts.get(0);
-					}
-				}
-				AccIdentityAccount identityAccount = new AccIdentityAccount();
-				identityAccount.setAccount(account);
-				identityAccount.setIdentity(identity);
-				identityAccount.setIdentityRole(identityRole);
-				identityAccount.setRoleSystem(roleSystem);
+				// For this system we have to create new account
+				UUID accountId = createAccountByRoleSystem(identity, roleSystem, identityAccountsToCreate);
+				AccIdentityAccountDto identityAccount = new AccIdentityAccountDto();
+				identityAccount.setAccount(accountId);
+				identityAccount.setIdentity(identity.getId());
+				identityAccount.setIdentityRole(identityRole.getId());
+				identityAccount.setRoleSystem(roleSystem.getId());
 				// TODO: Add flag ownership to SystemRole and set here.
 				identityAccount.setOwnership(true);
 
@@ -236,6 +218,7 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 			});
 		});
 	}
+
 
 	/**
 	 * Return UID for this identity and roleSystem. First will be find and use
@@ -312,4 +295,54 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 			identityAccountService.delete(identityAccount);
 		});
 	}
+	
+	/**
+	 * Create Account by given roleSystem
+	 * @param identity
+	 * @param roleSystem
+	 * @param identityAccountsToCreate
+	 * @return
+	 */
+	private UUID createAccountByRoleSystem(IdmIdentity identity, SysRoleSystem roleSystem,
+			List<AccIdentityAccountDto> identityAccountsToCreate) {
+		String uid = generateUID(identity, roleSystem);
+		
+		// We try find account for same uid on same system
+		// First we try search same account in list for create new accounts
+		Optional<AccIdentityAccountDto> sameAccountOptional = identityAccountsToCreate.stream().filter(ia -> {
+			AccAccount account = accountService.get(ia.getAccount());
+			return account.getUid().equals(uid);
+		}).findFirst();
+		
+		UUID accountId = null;
+		if(sameAccountOptional.isPresent()){
+			accountId = sameAccountOptional.get().getAccount();
+		}else{
+			// If account is not in list accounts to create, then we will search in database
+			AccountFilter accountFilter = new AccountFilter();
+			accountFilter.setUid(uid);
+			accountFilter.setSystemId(roleSystem.getSystem().getId());
+			List<AccAccount> sameAccounts = accountService.find(accountFilter, null).getContent();
+			if (CollectionUtils.isEmpty(sameAccounts)) {
+				// Create and persist new account
+				accountId = createAccount(uid, roleSystem);
+			} else {
+				// We use existed account
+				accountId = sameAccounts.get(0).getId();
+			}
+		}
+		return accountId;
+	}
+	
+	private UUID createAccount(String uid, SysRoleSystem roleSystem) {
+		UUID accountId;
+		AccAccount account = new AccAccount();
+		account.setUid(uid);
+		account.setAccountType(AccountType.PERSONAL);
+		account.setSystem(roleSystem.getSystem());
+		account = accountService.save(account);
+		accountId = account.getId();
+		return accountId;
+	}
+	
 }

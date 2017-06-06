@@ -99,7 +99,7 @@ public class IdmRoleRequestController extends DefaultReadWriteDtoController<IdmR
 //			+ IdmGroupPermission.IDENTITY_WRITE + "')")
 	@RequestMapping(value = "/{backendId}/start", method = RequestMethod.PUT)
 	public ResponseEntity<?> startRequest(@PathVariable @NotNull String backendId) {
-		((IdmRoleRequestService)this.getService()).startRequest(UUID.fromString(backendId));
+		((IdmRoleRequestService)this.getService()).startRequest(UUID.fromString(backendId), true);
 		return this.get(backendId);
 	}
 

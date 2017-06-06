@@ -4,13 +4,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.FutureTask;
 
 import org.joda.time.LocalDate;
 import org.junit.After;
@@ -23,13 +20,13 @@ import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.TestHelper;
 import eu.bcvsolutions.idm.core.api.config.domain.IdentityConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.RecursionType;
+import eu.bcvsolutions.idm.core.api.dto.IdmContractGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.ContractGuaranteeFilter;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
-import eu.bcvsolutions.idm.core.model.dto.IdmContractGuaranteeDto;
-import eu.bcvsolutions.idm.core.model.dto.filter.ContractGuaranteeFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
@@ -125,29 +122,20 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 	 * @return
 	 */
 	private IdmRoleTreeNodeDto saveAutomaticRole(IdmRoleTreeNodeDto automaticRole, boolean withLongRunningTask) {
-		IdmRoleTreeNodeDto entity = roleTreeNodeService.saveInternal(automaticRole);
+		IdmRoleTreeNodeDto roleTreeNode = roleTreeNodeService.saveInternal(automaticRole);
 		//
 		if (withLongRunningTask) {
 			AddNewAutomaticRoleTaskExecutor task = new AddNewAutomaticRoleTaskExecutor();
-			task.setRoleTreeNodeId(entity.getId());
-			//
-			// active wait for save
-			try {
-				FutureTask<Boolean> futureTask = taskManager.execute(task).getFutureTask();
-				futureTask.get();
-			} catch (InterruptedException | ExecutionException e) {
-				fail("Unexpected error, while wait for save automatic role: " + e.getLocalizedMessage());
-			}
-			//
-			return roleTreeNodeService.get(entity.getId());
+			task.setRoleTreeNode(roleTreeNode);
+			taskManager.executeSync(task);
 		}
 		//
-		return roleTreeNodeService.get(entity.getId());
+		return roleTreeNodeService.get(roleTreeNode.getId());
 	}
 	
 	private void deleteAutomaticRole(IdmRoleTreeNodeDto automaticRole) {
 		RemoveAutomaticRoleTaskExecutor task = new RemoveAutomaticRoleTaskExecutor();
-		task.setRoleTreeNodeId(automaticRole.getId());
+		task.setRoleTreeNode(automaticRole);
 		taskManager.executeSync(task);
 	}
 	

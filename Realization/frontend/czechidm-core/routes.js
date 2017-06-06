@@ -182,7 +182,7 @@ module.exports = {
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLECATALOGUE_READ'] } ]
     },
     {
-      path: 'rolecatalogue/:entityId',
+      path: 'role-catalogue/:entityId',
       component: require('./src/content/rolecatalogue/RoleCatalogueContent'),
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLECATALOGUE_READ'] } ],
     },

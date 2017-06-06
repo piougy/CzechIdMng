@@ -11,12 +11,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.forest.index.service.api.ForestIndexService;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.model.entity.IdmForestIndexEntity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
+import eu.bcvsolutions.idm.core.model.repository.IdmRoleCatalogueRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleCatalogueService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultForestIndexService;
 import eu.bcvsolutions.idm.core.scheduler.service.impl.AbstractSchedulableTaskExecutor;
@@ -33,12 +35,10 @@ public class RebuildRoleCatalogueIndexTaskExecutor extends AbstractSchedulableTa
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(RebuildRoleCatalogueIndexTaskExecutor.class);
 	//
-	@Autowired
-	private IdmRoleCatalogueService roleCatalogueService;
-	@Autowired
-	private ForestIndexService<IdmForestIndexEntity, UUID> forestIndexService;
-	@Autowired
-	private ConfigurationService configurationService;
+	@Autowired private IdmRoleCatalogueRepository roleCatalogueRepository;
+	@Autowired private IdmRoleCatalogueService roleCatalogueService;
+	@Autowired private ForestIndexService<IdmForestIndexEntity, UUID> forestIndexService;
+	@Autowired private ConfigurationService configurationService;
 	
 	@Override
 	public Boolean process() {
@@ -61,7 +61,7 @@ public class RebuildRoleCatalogueIndexTaskExecutor extends AbstractSchedulableTa
 		try {
 			configurationService.setValue(roleCatalogueService.getConfigurationPropertyName(IdmRoleCatalogueService.CONFIGURATION_PROPERTY_REBUILD), getLongRunningTaskId().toString());
 			//
-			Page<IdmRoleCatalogue> nodes = roleCatalogueService.find(new PageRequest(0, 100, new Sort("id")));
+			Page<IdmRoleCatalogue> nodes = roleCatalogueRepository.findAll(new PageRequest(0, 100, new Sort("id")));
 			count = nodes.getTotalElements();
 			counter = 0L;
 			boolean canContinue = true;
@@ -79,7 +79,7 @@ public class RebuildRoleCatalogueIndexTaskExecutor extends AbstractSchedulableTa
 				if (!nodes.hasNext()) {
 					break;
 				}
-				nodes = roleCatalogueService.find(nodes.nextPageable());
+				nodes = roleCatalogueRepository.findAll(nodes.nextPageable());
 			}
 			//
 			if (count.equals(counter)) {

@@ -227,7 +227,7 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 				createdAccount);
 
 		AccountFilter accountFilter = new AccountFilter();
-		accountFilter.setUidId("x" + IDENTITY_USERNAME);
+		accountFilter.setUid("x" + IDENTITY_USERNAME);
 		Assert.assertEquals("Account needs to exist befor will be delete", 1,
 				accountService.find(accountFilter, null).getContent().size());
 

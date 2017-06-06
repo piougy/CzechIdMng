@@ -39,6 +39,7 @@
     "validFrom": "Platnost od",
     "validTill": "Platnost do",
     "select": "Vyberte ...",
+    "searchSelect": "Vyberte nebo začněte psát pro vyhledání ...",
     "enabled": "Aktivní",
     "disabled": "Neaktivní",
     "property": "Attribut",
@@ -201,7 +202,8 @@
       "SelectBox" : {
         "noResultsText": "Žádný výsledek",
         "searchPromptText": "Pro vyhledávání začněte psát ...",
-        "searchingText": "Vyhledávání..."
+        "searchingText": "Vyhledávání...",
+        "results": "Zobrazeno <strong>{{count}}</strong> z <strong>{{total}}</strong> nalezených záznamů ..."
       },
       "Table" : {
         "Pagination" : {
@@ -680,6 +682,8 @@
       "save": {
         "success": "Položka konfigurace [{{name}}] byla úspěšně uložena"
       },
+      "configurable": "Konfigurovatelné položky <small>měnitelné, mohou přetěžovat statické položky</small>",
+      "environment": "Statické konfigurační položky prostředí <small>pouze pro čtení</small>",
       "fromFile": "Konfigurace aplikace z konfiguračních souborů <small>application.properties</small>",
       "fromEnvironment": "Konfigurace prostředí <small>backendového serveru</small>",
       "guarded": "Hodnoty položky konfigurace obsahující klíč [<strong>{{guarded}}</strong>] budou automaticky nastaveny tajnými a neveřejnými. Hodnoty začínající prefixem [<strong>idm.sec.</strong>] nemohou býti veřejnými.",
@@ -1013,7 +1017,8 @@
         "parent": "Nadřazená složka",
         "parentPlaceHolder": "Nadřezená složka",
         "niceName": "Jméno pro uživatele",
-        "code": "Kód"
+        "code": "Kód",
+        "text": "Kód či název"
       }
     },
     "formDefinitions": {
@@ -1027,7 +1032,7 @@
         "header": "Nová definice formuláře"
       },
       "filter": {
-        "text": "Název"
+        "text": "Kód či název"
       },
       "attributes": {
         "title": "Attributy formuláře"
@@ -1054,7 +1059,7 @@
         "success": "Atribut [{{name}}] byl úspěšně uložen"
       },
       "filter": {
-        "name": "Název položky"
+        "code": "Kód položky"
       }
     },
     "scripts": {
@@ -2030,17 +2035,28 @@
       "description": "Popis"
     },
     "FormAttribute" : {
-      "code": "Kód",
-      "name": "Jméno položky",
-      "seq": "Pořadí",
+      "code": {
+        "label": "Kód",
+        "help": "Klíč atributu."
+      },
+      "name": {
+        "label": "Jméno položky",
+        "help": "Bude zobrazen na detailu formuláře."
+      },
+      "seq": {
+        "label": "Pořadí",
+        "help": "Pořadí atributu na detailu formuláře."
+      },
       "persistentType": "Typ atributu",
       "description": "Popis",
-      "name": "Jméno",
       "required": "Povinný",
       "readonly": "Pouze pro čtení",
       "confidential": "Tajné",
       "multiple": "Více hodnotový",
-      "placeholder": "Placeholder",
+      "placeholder": {
+        "label": "Placeholder",
+        "help": "Bude zobrazen jako zašedlá nápověda ve vstupním poli atributu."
+      },
       "defaultValue": "Výchozí hodnota",
       "unmodifiable": {
         "help": "Systémový atribut nemůže být smazán a nelze upravovat některé jeho atributy.",
@@ -2156,8 +2172,8 @@
       },
       "description": "Popis",
       "main": {
-        "label": "Výchozí",
-        "help": "Primární pracovní pozice. Bude použita například pro zobrazení pozice uživatele."
+        "label": "Hlavní pozice",
+        "help": "Hlavní / primární pracovní pozice. Bude použita například pro zobrazení pozice uživatele. Je zakládána automaticky při vytvoření uživatele."
       }
     },
     "TreeNode": {
@@ -2870,6 +2886,11 @@
       "max_1" : "Zadejte maximálně {{count}} znak!",
       "max_2" : "Zadejte maximálně {{count}} znaky!",
       "max_5" : "Zadejte maximálně {{count}} znaků!"
+    },
+    "number": {
+      "min" : "Minimální hodnota je: {{count}}!",
+      "base" : "Položka musí být číslo!",
+      "max" : "Maximální hodnota je: {{count}}!"
     },
     "boolean": {
       "base": "$t(validationError.string.base)"

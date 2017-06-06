@@ -42,12 +42,16 @@ import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
  */
 @Component
 public class EavCodeSubordinatesFilter 
-		extends AbstractFilterBuilder<IdmIdentity, IdentityFilter>
-		implements SubordinatesFilter {
+		extends AbstractFilterBuilder<IdmIdentity, IdentityFilter> {
 	
 	protected static final String PROPERTY_FORM_DEFINITION = "formDefinition";
 	protected static final String PROPERTY_FORM_ATTRIBUTE = "formAttribute";
 	protected static final String DEFAULT_FORM_ATTRIBUTE_CODE = "parentCode";
+	
+	@Override
+	public String getName() {
+		return IdentityFilter.PARAMETER_SUBORDINATES_FOR;
+	}
 	
 	@Autowired
 	public EavCodeSubordinatesFilter(IdmIdentityRepository repository) {

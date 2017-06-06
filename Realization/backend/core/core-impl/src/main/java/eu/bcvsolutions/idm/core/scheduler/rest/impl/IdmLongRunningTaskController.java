@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
-import eu.bcvsolutions.idm.core.api.rest.BaseController;
+import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
@@ -30,13 +30,13 @@ import eu.bcvsolutions.idm.core.scheduler.dto.filter.LongRunningTaskFilter;
 import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskService;
 
 /**
- * Default controller for scripts, basic methods.
+ * Default controller long running tasks (LRT)
  * 
- * @author Ondrej Kopr <kopr@xyxy.cz>
+ * @author Radek Tomiška
  *
  */
 @RestController
-@RequestMapping(value = BaseController.BASE_PATH + "/long-running-tasks")
+@RequestMapping(value = BaseDtoController.BASE_PATH + "/long-running-tasks")
 public class IdmLongRunningTaskController
 	extends AbstractReadWriteDtoController<IdmLongRunningTaskDto, LongRunningTaskFilter> {
 	

@@ -15,7 +15,7 @@ const manager = new ConfigurationManager();
  *
  * @author Radek Tomiška
  */
-class Configurations extends Basic.AbstractContent {
+class Configurations extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);
@@ -31,6 +31,8 @@ class Configurations extends Basic.AbstractContent {
   }
 
   componentDidMount() {
+    super.componentDidMount();
+    //
     this.selectNavigationItem('system-configuration');
     this.context.store.dispatch(manager.fetchAllConfigurationsFromFile());
     if (SecurityManager.hasAuthority('CONFIGURATION_ADMIN')) {
@@ -127,27 +129,6 @@ class Configurations extends Basic.AbstractContent {
     this.context.store.dispatch(this.getManager().fetchPublicConfigurations());
   }
 
-  onDelete(bulkActionValue, selectedRows) {
-    const selectedEntities = this.getManager().getEntitiesByIds(this.context.store.getState(), selectedRows);
-    //
-    this.refs['confirm-' + bulkActionValue].show(
-      this.i18n(`action.${bulkActionValue}.message`, { count: selectedEntities.length, record: this.getManager().getNiceLabel(selectedEntities[0]), records: this.getManager().getNiceLabels(selectedEntities).join(', ') }),
-      this.i18n(`action.${bulkActionValue}.header`, { count: selectedEntities.length, records: this.getManager().getNiceLabels(selectedEntities).join(', ') })
-    ).then(() => {
-      this.context.store.dispatch(this.getManager().deleteEntities(selectedEntities, uiKey, (entity, error) => {
-        if (entity && error) {
-          this.addErrorMessage({ title: this.i18n(`action.delete.error`, { record: this.getManager().getNiceLabel(entity) }) }, error);
-        } else {
-          this.refs.table.getWrappedInstance().reload();
-          // reload public configurations
-          this.context.store.dispatch(this.getManager().fetchPublicConfigurations());
-        }
-      }));
-    }, () => {
-      // nothing
-    });
-  }
-
   _changeName(event) {
     // check guarded depents on new entity name
     const confidential = this.refs.confidential.getValue();
@@ -216,6 +197,10 @@ class Configurations extends Basic.AbstractContent {
           {this.i18n('header')}
         </Basic.PageHeader>
 
+        <Basic.ContentHeader>
+          { this.i18n('configurable', { escape: false }) }
+        </Basic.ContentHeader>
+
         <Basic.Panel>
           <Advanced.Table
             ref="table"
@@ -257,7 +242,8 @@ class Configurations extends Basic.AbstractContent {
                   {this.i18n('button.add')}
                 </Basic.Button>
               ]
-            }>
+            }
+            _searchParameters={ this.getSearchParameters()} >
             <Advanced.Column
               property=""
               header=""
@@ -342,13 +328,12 @@ class Configurations extends Basic.AbstractContent {
         </Basic.Modal>
 
         <Basic.ContentHeader>
-          <Basic.Icon value="cog"/>
-          {' '}
-          <span dangerouslySetInnerHTML={{ __html: this.i18n('fromFile') }}/>
+          { this.i18n('environment', { escape: false }) }
         </Basic.ContentHeader>
 
         <Basic.Panel>
           <Basic.Table
+            header={ this.i18n('fromFile', { escape: false }) }
             data={fileConfigurations}
             showLoading={_fileConfigurationsShowLoading}
             noData={this.i18n('component.basic.Table.noData')}>
@@ -370,23 +355,16 @@ class Configurations extends Basic.AbstractContent {
         {
           !SecurityManager.hasAuthority('CONFIGURATION_ADMIN')
           ||
-          <div>
-            <Basic.ContentHeader>
-              <Basic.Icon value="cog"/>
-              {' '}
-              <span dangerouslySetInnerHTML={{ __html: this.i18n('fromEnvironment') }}/>
-            </Basic.ContentHeader>
-
-            <Basic.Panel>
-              <Basic.Table
-                data={environmentConfigurations}
-                showLoading={_environmentConfigurationsShowLoading}
-                noData={this.i18n('component.basic.Table.noData')}>
-                <Basic.Column property="name" header={this.i18n('entity.Configuration.name')} width="150px"/>
-                <Basic.Column property="value" header={this.i18n('entity.Configuration.value')}/>
-              </Basic.Table>
-            </Basic.Panel>
-          </div>
+          <Basic.Panel>
+            <Basic.Table
+              data={ environmentConfigurations }
+              header={ this.i18n('fromEnvironment', { escape: false } ) }
+              showLoading={ _environmentConfigurationsShowLoading }
+              noData={ this.i18n('component.basic.Table.noData') }>
+              <Basic.Column property="name" header={this.i18n('entity.Configuration.name')} width="150px"/>
+              <Basic.Column property="value" header={this.i18n('entity.Configuration.value')}/>
+            </Basic.Table>
+          </Basic.Panel>
         }
       </div>
     );

@@ -18,6 +18,10 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 public class IdentityFilter extends DataFilter implements CorrelationFilter {
 	
 	/**
+	 * Identity by username
+	 */
+	public static final String PARAMETER_USERNAME = "username";
+	/**
 	 * Subordinates for given identity
 	 */
 	public static final String PARAMETER_SUBORDINATES_FOR = "subordinatesFor";
@@ -74,6 +78,14 @@ public class IdentityFilter extends DataFilter implements CorrelationFilter {
 	
 	public IdentityFilter(MultiValueMap<String, Object> data) {
 		super(IdmIdentityDto.class, data);
+	}
+	
+	public String getUsername() {
+		return (String) data.getFirst(PARAMETER_USERNAME);
+	}
+
+	public void setUsername(String username) {
+		data.set(PARAMETER_USERNAME, username);
 	}
 
 	public UUID getSubordinatesFor() {

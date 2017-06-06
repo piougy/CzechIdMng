@@ -36,7 +36,6 @@ import eu.bcvsolutions.idm.acc.domain.OperationResultType;
 import eu.bcvsolutions.idm.acc.domain.ReconciliationMissingAccountActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationContext;
-import eu.bcvsolutions.idm.acc.domain.SynchronizationEventType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationLinkedActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationMissingEntityActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationSituationType;
@@ -58,6 +57,7 @@ import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
 import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
+import eu.bcvsolutions.idm.acc.event.SynchronizationEventType;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SynchronizationEntityExecutor;
@@ -290,7 +290,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 		SysSyncItemLog logItem = context.getLogItem();
 		List<SysSyncActionLog> actionLogs = context.getActionLogs();
 
-		SynchronizationActionType actionType = SynchronizationActionType.IGNORE;
+		SynchronizationActionType actionType = SynchronizationActionType.UNKNOWN;
 		try {
 
 			// Find system entity for uid
@@ -546,14 +546,14 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 				itemLog.getSyncActionLog().setOperationCount(itemLog.getSyncActionLog().getOperationCount() - 1);
 				loggingException(itemLog.getSyncActionLog().getSyncAction(), log, itemLog, actionsLog, uid, ex);
 			} else {
-				loggingException(SynchronizationActionType.IGNORE, log, itemLog, actionsLog, uid, ex);
+				loggingException(SynchronizationActionType.UNKNOWN, log, itemLog, actionsLog, uid, ex);
 			}
 			return true;
 		} finally {
 			synchronizationConfigService.save(config);
 			if (itemLog.getSyncActionLog() == null) {
 				addToItemLog(itemLog, MessageFormat.format("Missing action log for UID {0}!", uid));
-				initSyncActionLog(SynchronizationActionType.IGNORE, OperationResultType.ERROR, itemLog, log,
+				initSyncActionLog(SynchronizationActionType.UNKNOWN, OperationResultType.ERROR, itemLog, log,
 						actionsLog);
 			}
 			// synchronizationLogService.save(log);
@@ -630,7 +630,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 						log.setRunning(false);
 						log.addToLog(MessageFormat.format("Synchronization canceled during resolve UID [{0}]", uid));
 						addToItemLog(itemLog, "Canceled!");
-						initSyncActionLog(SynchronizationActionType.IGNORE, OperationResultType.WARNING, itemLog, log,
+						initSyncActionLog(SynchronizationActionType.UNKNOWN, OperationResultType.WARNING, itemLog, log,
 								actionsLog);
 					}
 
@@ -643,7 +643,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 					synchronizationConfigService.save(config);
 					if (itemLog.getSyncActionLog() == null) {
 						addToItemLog(itemLog, MessageFormat.format("Missing action log for UID {0}!", uid));
-						initSyncActionLog(SynchronizationActionType.IGNORE, OperationResultType.ERROR, itemLog, log,
+						initSyncActionLog(SynchronizationActionType.UNKNOWN, OperationResultType.ERROR, itemLog, log,
 								actionsLog);
 					}
 					// synchronizationLogService.save(log);
@@ -753,7 +753,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 				log.setRunning(false);
 				log.addToLog(MessageFormat.format("Synchronization canceled during resolve UID [{0}]", uid));
 				addToItemLog(itemLog, "Canceled!");
-				initSyncActionLog(SynchronizationActionType.IGNORE, OperationResultType.WARNING, itemLog, log,
+				initSyncActionLog(SynchronizationActionType.UNKNOWN, OperationResultType.WARNING, itemLog, log,
 						actionsLog);
 			}
 
@@ -766,7 +766,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 			synchronizationConfigService.save(config);
 			if (itemLog.getSyncActionLog() == null) {
 				addToItemLog(itemLog, MessageFormat.format("Missing action log for entity {0}!", entity.getId()));
-				initSyncActionLog(SynchronizationActionType.IGNORE, OperationResultType.ERROR, itemLog, log,
+				initSyncActionLog(SynchronizationActionType.UNKNOWN, OperationResultType.ERROR, itemLog, log,
 						actionsLog);
 			}
 			syncActionLogService.saveAll(actionsLog);
@@ -1514,7 +1514,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 			// directly.
 			addToItemLog(logItem, MessageFormat
 					.format("System entity was not found. We will find account for uid ({0}) directly", uid));
-			accountFilter.setUidId(uid);
+			accountFilter.setUid(uid);
 			accountFilter.setSystemEntityId(null);
 			accounts = accountService.find(accountFilter, null).getContent();
 		}
@@ -1539,7 +1539,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 		SystemEntityFilter systemEntityFilter = new SystemEntityFilter();
 		systemEntityFilter.setEntityType(entityType);
 		systemEntityFilter.setSystemId(system.getId());
-		systemEntityFilter.setUidId(uid);
+		systemEntityFilter.setUid(uid);
 		List<SysSystemEntity> systemEntities = systemEntityService.find(systemEntityFilter, null).getContent();
 		SysSystemEntity systemEntity = null;
 		if (systemEntities.size() == 1) {
@@ -1921,7 +1921,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 				log.setRunning(false);
 				log.addToLog(MessageFormat.format("Synchronization canceled during resolve UID [{0}]", uid));
 				addToItemLog(itemLog, "Canceled!");
-				initSyncActionLog(SynchronizationActionType.IGNORE, OperationResultType.WARNING, itemLog, log,
+				initSyncActionLog(SynchronizationActionType.UNKNOWN, OperationResultType.WARNING, itemLog, log,
 						itemContext.getActionLogs());
 			}
 			return result;

@@ -10,13 +10,13 @@ import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import javax.validation.constraints.NotNull;
 
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
@@ -76,6 +76,14 @@ public class SysSystemMapping extends AbstractEntity {
 	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmTreeType treeType;
 	
+	@Audited
+	@Column(name = "protection_enabled", nullable = true)
+	private boolean protectionEnabled = false;
+	
+	@Audited
+	@Column(name = "protection_interval", nullable = true)
+	private Integer protectionInterval;
+	
 	public void setName(String name) {
 		this.name = name;
 	}
@@ -122,5 +130,21 @@ public class SysSystemMapping extends AbstractEntity {
 
 	public void setTreeType(IdmTreeType treeType) {
 		this.treeType = treeType;
+	}
+
+	public boolean isProtectionEnabled() {
+		return protectionEnabled;
+	}
+
+	public void setProtectionEnabled(boolean protectionEnabled) {
+		this.protectionEnabled = protectionEnabled;
+	}
+
+	public Integer getProtectionInterval() {
+		return protectionInterval;
+	}
+
+	public void setProtectionInterval(Integer protectionInterval) {
+		this.protectionInterval = protectionInterval;
 	}
 }

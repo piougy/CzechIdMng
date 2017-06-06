@@ -8,6 +8,7 @@ Table of records, features
 | Parameter | Type | Description | Default  |
 | --- | :--- | :--- | :--- |
 | data | array[json]    | Array of json objects (e.q. response from rest service)   |  |
+| header | oneOfType([string, element]) | Table header |  |
 | showLoading  | bool   | Shows loading overlay | false |
 | onRowClick  | func   | Callback that is called when a row is clicked |  |
 | onRowDoubleClick  | func   | Callback that is called when a row is double clicked. | |
@@ -78,7 +79,7 @@ Or static:
 ...
 ```
 
-### Prepared cell types for column renrering:
+### Prepared cell types for column rendering:
 
 | Cell |  Description  |
 | --- | :--- | :--- |

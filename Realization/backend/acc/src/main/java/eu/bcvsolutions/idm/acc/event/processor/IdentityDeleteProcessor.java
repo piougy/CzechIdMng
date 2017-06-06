@@ -5,7 +5,11 @@ import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
+import eu.bcvsolutions.idm.acc.event.IdentityAccountEvent;
+import eu.bcvsolutions.idm.acc.event.IdentityAccountEvent.IdentityAccountEventType;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
@@ -22,7 +26,7 @@ import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
  *
  */
 @Component("accIdentityDeleteProcessor")
-@Description("Ensures referential integrity. Could not be disabled.")
+@Description("Ensures referential integrity. Cannot be disabled.")
 public class IdentityDeleteProcessor extends AbstractEntityEventProcessor<IdmIdentityDto> {
 	
 	public static final String PROCESSOR_NAME = "identity-delete-processor";
@@ -47,7 +51,7 @@ public class IdentityDeleteProcessor extends AbstractEntityEventProcessor<IdmIde
 		IdentityAccountFilter filter = new IdentityAccountFilter();
 		filter.setIdentityId(event.getContent().getId());
 		identityAccountService.find(filter, null).forEach(identityAccount -> {
-			identityAccountService.delete(identityAccount);
+			identityAccountService.forceDelete(identityAccount);
 		});
 		return new DefaultEventResult<>(event, this);
 	}

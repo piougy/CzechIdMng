@@ -5,7 +5,7 @@ import { Link } from 'react-router';
 import _ from 'lodash';
 import moment from 'moment';
 //
-import { Basic, Advanced, Managers, Domain, Enums } from 'czechidm-core';
+import { Basic, Advanced, Managers, Enums } from 'czechidm-core';
 import { ProvisioningOperationManager, ProvisioningArchiveManager } from '../../redux';
 import ProvisioningOperationTable from './ProvisioningOperationTable';
 import ProvisioningOperationTypeEnum from '../../domain/ProvisioningOperationTypeEnum';
@@ -14,6 +14,11 @@ import SystemEntityTypeEnum from '../../domain/SystemEntityTypeEnum';
 const manager = new ProvisioningOperationManager();
 const archiveManager = new ProvisioningArchiveManager();
 
+/**
+ * Active and archived provisioning operations
+ *
+ * @author Radek Tomiška
+ */
 class ProvisioningOperations extends Basic.AbstractContent {
 
   constructor(props, context) {
@@ -103,7 +108,7 @@ class ProvisioningOperations extends Basic.AbstractContent {
   }
 
   render() {
-    const { systemId } = this.props;
+    const { forceSearchParameters, columns } = this.props;
     const { detail, retryDialog } = this.state;
     // accountObject to table
     const accountData = [];
@@ -137,12 +142,6 @@ class ProvisioningOperations extends Basic.AbstractContent {
           value: attribute.values.join(', ')
         });
       });
-    }
-    let forceSearchParameters = new Domain.SearchParameters();
-    let columns = ProvisioningOperationTable.defaultProps.columns;
-    if (systemId) {
-      forceSearchParameters = forceSearchParameters.setFilter('systemId', systemId);
-      columns = _.difference(columns, ['system']);
     }
     //
     return (
@@ -352,10 +351,11 @@ ProvisioningOperations.propTypes = {
   /**
    * Force searchparameters - system id
    */
-  systemId: PropTypes.string
+  forceSearchParameters: PropTypes.object
 };
 ProvisioningOperations.defaultProps = {
-  systemId: null
+  forceSearchParameters: null,
+  columns: ProvisioningOperationTable.defaultProps.columns
 };
 
 function select() {

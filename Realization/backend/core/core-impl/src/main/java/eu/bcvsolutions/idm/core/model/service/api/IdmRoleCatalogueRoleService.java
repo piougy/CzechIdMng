@@ -1,12 +1,11 @@
 package eu.bcvsolutions.idm.core.model.service.api;
 
 import java.util.List;
+import java.util.UUID;
 
-import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
-import eu.bcvsolutions.idm.core.model.dto.filter.RoleCatalogueRoleFilter;
-import eu.bcvsolutions.idm.core.model.entity.IdmRole;
-import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
-import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogueRole;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.RoleCatalogueRoleFilter;
+import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 
 /**
  * Default servervice for intersection between role catalogue and role
@@ -14,38 +13,21 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogueRole;
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
-public interface IdmRoleCatalogueRoleService extends ReadWriteEntityService<IdmRoleCatalogueRole, RoleCatalogueRoleFilter> {
+public interface IdmRoleCatalogueRoleService extends ReadWriteDtoService<IdmRoleCatalogueRoleDto, RoleCatalogueRoleFilter> {
 	
 	/**
-	 * Get list of {@link IdmRoleCatalogueRole} by role given in parameter.
+	 * Get list of {@link IdmRoleCatalogueRoleDto} by role given in parameter.
 	 * 
 	 * @param role
 	 * @return
 	 */
-	List<IdmRoleCatalogueRole> getRoleCatalogueRoleByRole(IdmRole role);
+	List<IdmRoleCatalogueRoleDto> findAllByRole(UUID roleId);
 	
 	/**
-	 * Get list of {@link IdmRoleCatalogueRole} by role catalogue given in parameter.
+	 * Get list of {@link IdmRoleCatalogueRoleDto} by role catalogue given in parameter.
 	 * 
 	 * @param roleCatalogue
 	 * @return
 	 */
-	List<IdmRoleCatalogueRole> getRoleCatalogueRoleByCatalogue(IdmRoleCatalogue roleCatalogue);
-	
-	/**
-	 * Get list of {@link IdmRole} for role catalogue given in parameter.
-	 * 
-	 * @param roleCatalogue
-	 * @return
-	 */
-	List<IdmRole> getRoleByRoleCatalogue(IdmRoleCatalogue roleCatalogue);
-	
-	/**
-	 * Get list of {@link IdmRoleCatalogue} for role given in parameter.
-	 * 
-	 * @param roleCatalogue
-	 * @return
-	 */
-	List<IdmRoleCatalogue> getRoleCatalogueByRole(IdmRole role);
-	
+	List<IdmRoleCatalogueRoleDto> findAllByRoleCatalogue(UUID roleCatalogueId);	
 }

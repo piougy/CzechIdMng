@@ -17,7 +17,6 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.ReconciliationMissingAccountActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationContext;
-import eu.bcvsolutions.idm.acc.domain.SynchronizationEventType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationLinkedActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationMissingEntityActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationUnlinkedActionType;
@@ -33,6 +32,7 @@ import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
 import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
+import eu.bcvsolutions.idm.acc.event.SynchronizationEventType;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SynchronizationEntityExecutor;
@@ -334,7 +334,7 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 		SystemEntityFilter systemEntityFilter = new SystemEntityFilter();
 		systemEntityFilter.setEntityType(entityType);
 		systemEntityFilter.setSystemId(system.getId());
-		systemEntityFilter.setUidId(uid);
+		systemEntityFilter.setUid(uid);
 		List<SysSystemEntity> systemEntities = systemEntityService.find(systemEntityFilter, null).getContent();
 		SysSystemEntity systemEntity = null;
 		if (systemEntities.size() == 1) {

@@ -21,6 +21,7 @@ public enum SynchronizationActionType {
 	MISSING_ENTITY, // situation (for IGNORE and WF sort)
 	UNLINKED, // situation (for IGNORE and WF sort)
 	MISSING_ACCOUNT, // situation (for IGNORE and WF sort)
-	IGNORE;
+	IGNORE,
+	UNKNOWN;
 
 }

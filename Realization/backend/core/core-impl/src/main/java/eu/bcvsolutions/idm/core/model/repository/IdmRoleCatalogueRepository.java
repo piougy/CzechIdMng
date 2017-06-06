@@ -8,54 +8,42 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.data.rest.core.annotation.Description;
-import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import eu.bcvsolutions.forest.index.repository.BaseForestContentRepository;
+import eu.bcvsolutions.idm.core.api.dto.filter.RoleCatalogueFilter;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
-import eu.bcvsolutions.idm.core.model.dto.filter.RoleCatalogueFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
-import eu.bcvsolutions.idm.core.rest.projection.IdmRoleCatalogueExcerpt;
 
 /**
  * Role catalogue repository
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
+ * @author Radek Tomiška
  *
  */
-@RepositoryRestResource( //
-		collectionResourceRel = "roleCatalogues", // 
-		path = "role-catalogues", //
-		itemResourceRel = "roleCatalogue", //
-		excerptProjection = IdmRoleCatalogueExcerpt.class,
-		exported = false,
-		collectionResourceDescription = @Description("Role catalogues"))
 public interface IdmRoleCatalogueRepository extends 
 		AbstractEntityRepository<IdmRoleCatalogue, RoleCatalogueFilter>, 
 		BaseForestContentRepository<IdmRoleCatalogue, UUID>  {
 	
-	/*
-	 * (non-Javadoc)
-	 * @see eu.bcvsolutions.idm.core.api.repository.BaseEntityRepository#find(eu.bcvsolutions.idm.core.api.dto.BaseFilter, Pageable)
+	/**
+	 * @deprecated Use IdmRoleCatalogueService (uses criteria api)
 	 */
 	@Override
-	@Query(value = "select e from IdmRoleCatalogue e left join e.parent p left join e.forestIndex fi" +
-	        " where" +
-	        " (" +
-				" lower(e.name) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')}" +
-		        " or lower(e.code) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')}" +
-	        " )" +
-	        " and " +
-	        " (?#{[0].code} is null or lower(e.code) like ?#{[0].code == null ? '%' : '%'.concat([0].code.toLowerCase()).concat('%')})" +
-	        " and " +
-	        " (?#{[0].name} is null or lower(e.name) like ?#{[0].name == null ? '%' : '%'.concat([0].name.toLowerCase()).concat('%')})" +
-	        // recursively by index
-	        " and (?#{[0].parent} is null or fi.lft BETWEEN ?#{[0].parent == null ? null : [0].parent.lft + 1} and ?#{[0].parent == null ? null : [0].parent.rgt - 1})")
-	Page<IdmRoleCatalogue> find(RoleCatalogueFilter filter, Pageable pageable);
+	@Query(value = "select e from #{#entityName} e")
+	default Page<IdmRoleCatalogue> find(RoleCatalogueFilter filter, Pageable pageable) {
+		throw new UnsupportedOperationException("Use IdmRoleCatalogueService (uses criteria api)");
+	}
 	
-	IdmRoleCatalogue findOneByName(@Param("name") String name);
+	IdmRoleCatalogue findOneByCode(@Param("code") String code);
 	
-	@Query(value = "select e from IdmRoleCatalogue e" +
+	/**
+	 * Find direct children
+	 * 
+	 * @param parentId
+	 * @param pageable
+	 * @return
+	 */
+	@Query(value = "select e from #{#entityName} e" +
 			" where" +
 			" (:parentId is null and e.parent.id IS NULL) or (e.parent.id = :parentId)")
 	Page<IdmRoleCatalogue> findChildren(@Param(value = "parentId") UUID parentId, Pageable pageable);

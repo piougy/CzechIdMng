@@ -37,8 +37,12 @@ import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
  */
 @Component
 public class DefaultManagersFilter 
-		extends AbstractFilterBuilder<IdmIdentity, IdentityFilter> 
-		implements ManagersFilter {
+		extends AbstractFilterBuilder<IdmIdentity, IdentityFilter> {
+	
+	@Override
+	public String getName() {
+		return IdentityFilter.PARAMETER_MANAGERS_FOR;
+	}
 	
 	@Autowired
 	public DefaultManagersFilter(IdmIdentityRepository repository) {

@@ -114,27 +114,27 @@ public class DefaultIdmRoleRequestService
 
 	@Override
 	@Transactional
-	public void startRequest(UUID requestId) {
+	public IdmRoleRequestDto startRequest(UUID requestId, boolean checkRight) {
 		try {
-			this.getIdmRoleRequestService().startRequestNewTransactional(requestId, true);
+			return this.getIdmRoleRequestService().startRequestNewTransactional(requestId, checkRight);
 		} catch (Exception ex) {
 			LOG.error(ex.getLocalizedMessage(), ex);
 			IdmRoleRequestDto request = get(requestId);
 			this.addToLog(request, Throwables.getStackTraceAsString(ex));
 			request.setState(RoleRequestState.EXCEPTION);
-			save(request);
+			return save(request);
 		}
 	}
 	
 	@Override
 	@Transactional(propagation=Propagation.REQUIRES_NEW)
-	public void startRequestNewTransactional(UUID requestId, boolean checkRight) {
-		this.getIdmRoleRequestService().startRequestInternal(requestId, true);
+	public IdmRoleRequestDto startRequestNewTransactional(UUID requestId, boolean checkRight) {
+		return this.getIdmRoleRequestService().startRequestInternal(requestId, true);
 	}
 	
 	@Override
 	@Transactional
-	public void startRequestInternal(UUID requestId, boolean checkRight) {
+	public IdmRoleRequestDto startRequestInternal(UUID requestId, boolean checkRight) {
 		LOG.debug("Start role request [{}]", requestId);
 		Assert.notNull(requestId, "Role request ID is required!");
 		// Load request ... check right for read
@@ -152,8 +152,7 @@ public class DefaultIdmRoleRequestService
 			request.setState(RoleRequestState.DUPLICATED);
 			request.setDuplicatedToRequest(duplicant.getId());
 			this.addToLog(request, MessageFormat.format("This request [{0}] is duplicated to another change permissions request [{1}]", request.getId(), duplicant.getId()));
-			this.save(request);
-			return;
+			return this.save(request);
 		}
 		
 		// Duplicant is fill, but request is not duplicated (maybe in past)
@@ -194,7 +193,7 @@ public class DefaultIdmRoleRequestService
 		// Throw event
 		Map<String, Serializable> variables = new HashMap<>();
 		variables.put(RoleRequestApprovalProcessor.CHECK_RIGHT_PROPERTY, checkRight);
-		entityEventManager.process(new RoleRequestEvent(RoleRequestEventType.EXCECUTE, savedRequest, variables));
+		return entityEventManager.process(new RoleRequestEvent(RoleRequestEventType.EXCECUTE, savedRequest, variables)).getContent();
 	}
 	
 
@@ -243,8 +242,7 @@ public class DefaultIdmRoleRequestService
 		}
 		
 		return false;
-	}
-	
+	}	
 	
 	@Override
 	@Transactional
@@ -258,7 +256,6 @@ public class DefaultIdmRoleRequestService
 			request.setState(RoleRequestState.EXCEPTION);
 			return save(request);
 		}
-
 	}
 	
 	protected IdmRoleRequestDto executeRequestInternal(UUID requestId) {

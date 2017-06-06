@@ -18,11 +18,13 @@ import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
+import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
@@ -46,6 +48,8 @@ public class CoreReferentialIntegrityIntegrationTest extends AbstractIntegration
 	private AccIdentityAccountService identityAccountService;
 	@Autowired
 	private SysSystemService systemService;	
+	@Autowired
+	private SysSystemEntityService systemEntityService;	
 	@Autowired
 	private AccAccountService accountService;	
 	@Autowired
@@ -75,11 +79,21 @@ public class CoreReferentialIntegrityIntegrationTest extends AbstractIntegration
 		SysSystem system = new SysSystem();
 		system.setName("system_" + System.currentTimeMillis());
 		system = systemService.save(system);
+		
+		SysSystemEntity systemEntity = new SysSystemEntity();
+		systemEntity.setUid("test_uid_" + System.currentTimeMillis());
+		systemEntity.setEntityType(SystemEntityType.IDENTITY);
+		systemEntity.setWish(true);
+		systemEntity.setSystem(system);
+		systemEntity = systemEntityService.save(systemEntity);
+		
 		AccAccount account = new AccAccount();
 		account.setSystem(system);
-		account.setUid("test_uid_" + System.currentTimeMillis());
+		account.setSystemEntity(systemEntity);
+		account.setUid(systemEntity.getUid());
 		account.setAccountType(AccountType.PERSONAL);
 		account = accountService.save(account);
+		
 		AccIdentityAccountDto identityAccount = new AccIdentityAccountDto();  
 		identityAccount.setIdentity(identity.getId());
 		identityAccount.setAccount(account.getId());

@@ -15,6 +15,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
@@ -22,7 +23,6 @@ import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningContext;
-import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.ProvisioningAttributeDto;
@@ -34,6 +34,7 @@ import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
+import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningArchiveService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
@@ -472,6 +473,11 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 		}
 		
 		if(idmValue instanceof String && Strings.isNullOrEmpty((String) idmValue)){
+			return true;
+		}
+		
+		if(idmValue instanceof List && (CollectionUtils.isEmpty((List<?>)idmValue) 
+				|| (((List<?>)idmValue).size() == 1 && ((List<?>)idmValue).get(0) == null))){
 			return true;
 		}
 		

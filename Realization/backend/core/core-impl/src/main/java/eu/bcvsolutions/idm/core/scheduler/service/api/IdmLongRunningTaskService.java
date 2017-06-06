@@ -9,7 +9,6 @@ import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.dto.filter.LongRunningTaskFilter;
-import eu.bcvsolutions.idm.core.scheduler.entity.IdmLongRunningTask;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 
 /**
@@ -21,7 +20,7 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
  */
 public interface IdmLongRunningTaskService extends
 	ReadWriteDtoService<IdmLongRunningTaskDto, LongRunningTaskFilter>,
-	AuthorizableService<IdmLongRunningTask> {
+	AuthorizableService<IdmLongRunningTaskDto> {
 
 	/**
 	 * Returns tasks for given instance id (server) and state

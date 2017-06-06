@@ -1,14 +1,40 @@
 package eu.bcvsolutions.idm.acc.event;
 
+import java.io.Serializable;
+import java.util.Map;
+
+import eu.bcvsolutions.idm.acc.entity.AccAccount;
+import eu.bcvsolutions.idm.core.api.event.CoreEvent;
+import eu.bcvsolutions.idm.core.api.event.EventType;
+
 /**
- * Defines provisioning priority (+after, -before)
+ * Events for provisioning
  * 
- * @author Radek Tomiška
+ * @author Svanda
  *
  */
-public interface ProvisioningEvent {
+public class ProvisioningEvent extends CoreEvent<AccAccount> {
 
-	static final int DEFAULT_PROVISIONING_ORDER = 1000;
+	public static final int DEFAULT_PROVISIONING_ORDER = 1000;
+	public static final int DEFAULT_PASSWORD_VALIDATION_ORDER = -1000;
+
+	private static final long serialVersionUID = 1L;
 	
-	static final int DEFAULT_PASSWORD_VALIDATION_ORDER = -1000;
+	
+	/**
+	 * Supported identity events
+	 *
+	 */
+	public enum ProvisioningEventType implements EventType {
+		START;
+	}
+	
+	public ProvisioningEvent(ProvisioningEventType operation, AccAccount content) {
+		super(operation, content);
+	}
+	
+	public ProvisioningEvent(ProvisioningEventType operation, AccAccount content, Map<String, Serializable> properties) {
+		super(operation, content, properties);
+	}
+
 }

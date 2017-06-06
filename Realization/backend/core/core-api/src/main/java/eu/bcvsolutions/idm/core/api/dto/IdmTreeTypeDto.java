@@ -18,10 +18,10 @@ public class IdmTreeTypeDto extends AbstractDto {
 
     private static final long serialVersionUID = 3883227192651419232L;
     @NotEmpty
-    @Size(min = 0, max = DefaultFieldLengths.NAME)
+    @Size(min = 1, max = DefaultFieldLengths.NAME)
     private String code;
     @NotEmpty
-    @Size(min = 0, max = DefaultFieldLengths.NAME)
+    @Size(min = 1, max = DefaultFieldLengths.NAME)
     private String name;
     private boolean defaultTreeType = false; // true, when this type is defined as default organization structure
     @Embedded(dtoClass = IdmTreeNodeDto.class, enabled = false)

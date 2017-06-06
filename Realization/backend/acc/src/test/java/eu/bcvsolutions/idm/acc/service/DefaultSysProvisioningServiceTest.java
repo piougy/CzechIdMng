@@ -4,6 +4,7 @@ import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import javax.persistence.EntityManager;
 import javax.sql.DataSource;
@@ -53,6 +54,7 @@ import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyType;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdentityFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
@@ -60,11 +62,14 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
+import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.eav.IdmIdentityFormValue;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordPolicyService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmTreeTypeService;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
@@ -135,6 +140,12 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 	// Only for call method createTestSystem
 	@Autowired
 	private DefaultSysAccountManagementServiceTest defaultSysAccountManagementServiceTest;
+	
+	@Autowired
+	private IdmTreeNodeService treeNodeService;
+	
+	@Autowired
+	private IdmTreeTypeService treeTypeService;
 
 	@Before
 	public void init() {
@@ -208,10 +219,65 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		Assert.assertEquals(identity.getFirstName(), changedAccount.getFirstname());
 	}
 	
+	/**
+	 * Call provisioning for subordinates, after managers's contract changes - filled managers could be provisioned
+	 * 
+	 */
 	@Test
+	public void doIdentityProvisioningChangeManagersContract() {
+		IdmIdentityDto managerOne = createIdentity();
+		IdmIdentityDto subordinateOne = createIdentity();		
+		IdmTreeNode managerOnePosition = createTreeNode(null); 
+		IdmIdentityContractDto managersContract = createIdentityContact(managerOne, managerOnePosition);		
+		IdmTreeNode subordinateOnePositionOne = createTreeNode(managerOnePosition);
+		createIdentityContact(subordinateOne, subordinateOnePositionOne);
+		AccIdentityAccountDto subordinateAccount = prepareAccount(subordinateOne);
+		//
+		provisioningService.doProvisioning(identityRepository.findOne(subordinateAccount.getIdentity()));
+		//
+		TestResource account = entityManager.find(TestResource.class, accountService.get(subordinateAccount.getAccount()).getUid());
+		Assert.assertNotNull(account);
+		Assert.assertEquals(subordinateOne.getFirstName(), account.getFirstname());
+		//
+		IdentityFilter filter = new IdentityFilter();
+		filter.setSubordinatesFor(managerOne.getId());
+		List<IdmIdentityDto> subordinates = idmIdentityService.find(filter, null).getContent();
+		Assert.assertEquals(1, subordinates.size());
+		Assert.assertEquals(subordinateOne.getId(), subordinates.get(0).getId());
+		//
+		// change subordinate
+		subordinateOne.setFirstName("first-name-change-one");
+		subordinateOne = idmIdentityService.saveInternal(subordinateOne);
+		//
+		// change managers contract
+		managersContract.setWorkPosition(null);
+		managersContract = identityContractService.save(managersContract);
+		//
+		account = entityManager.find(TestResource.class, accountService.get(subordinateAccount.getAccount()).getUid());
+		Assert.assertNotNull(account);
+		Assert.assertEquals(subordinateOne.getFirstName(), account.getFirstname());
+		subordinates = idmIdentityService.find(filter, null).getContent();
+		Assert.assertEquals(0, subordinates.size());
+		//
+		// change subordinate again
+		subordinateOne.setFirstName("first-name-change-two");
+		subordinateOne = idmIdentityService.saveInternal(subordinateOne);
+		//
+		managersContract.setWorkPosition(managerOnePosition.getId());
+		managersContract = identityContractService.save(managersContract);
+		//
+		account = entityManager.find(TestResource.class, accountService.get(subordinateAccount.getAccount()).getUid());
+		Assert.assertNotNull(account);
+		Assert.assertEquals(subordinateOne.getFirstName(), account.getFirstname());
+		subordinates = idmIdentityService.find(filter, null).getContent();
+		Assert.assertEquals(1, subordinates.size());
+		Assert.assertEquals(subordinateOne.getId(), subordinates.get(0).getId());
+	}
+	
 	/**
 	 * Test for change account ID.
 	 */
+	@Test
 	public void doIdentityProvisioningChangeAccountIdentifier() {
 		IdmIdentityDto identity = idmIdentityService.getByUsername(IDENTITY_USERNAME_TWO);
 		IdentityAccountFilter filter = new IdentityAccountFilter();
@@ -890,10 +956,9 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		IdmIdentityDto identity;
 		AccAccount accountOne;
 		AccIdentityAccountDto accountIdentityOne;
-		SysSystem system;
 
 		// create test system
-		system = defaultSysAccountManagementServiceTest.createTestSystem("test_resource");
+		SysSystem system = defaultSysAccountManagementServiceTest.createTestSystem("test_resource");
 
 		// set default generate password policy for system
 		IdmPasswordPolicy passwordPolicy = new IdmPasswordPolicy();
@@ -906,7 +971,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		passwordPolicy.setMinLowerChar(2);
 		passwordPolicyService.save(passwordPolicy);
 		system.setPasswordPolicyGenerate(passwordPolicy);
-		sysSystemService.save(system);
+		system = sysSystemService.save(system);
 
 		// generate schema for system
 		List<SysSchemaObjectClass> objectClasses = sysSystemService.generateSchema(system);
@@ -1012,5 +1077,72 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 			}
 		});
 	}
+	
+	private AccIdentityAccountDto prepareAccount(IdmIdentityDto identity) {
+		AccAccount accountOne = new AccAccount();
+		accountOne.setSystem(getSystem());
+		accountOne.setUid("x" + identity.getUsername());
+		accountOne.setAccountType(AccountType.PERSONAL);
+		accountOne = accountService.save(accountOne);
+		//
+		AccIdentityAccountDto accountIdentityOne = new AccIdentityAccountDto();
+		accountIdentityOne.setIdentity(identity.getId());
+		accountIdentityOne.setOwnership(true);
+		accountIdentityOne.setAccount(accountOne.getId());
+		//
+		return identityAccoutnService.save(accountIdentityOne);
+	}
+	
+	private SysSystem getSystem() {
+		IdmIdentityDto identity = idmIdentityService.getByUsername(IDENTITY_USERNAME);
+		IdentityAccountFilter filter = new IdentityAccountFilter();
+		filter.setIdentityId(identity.getId());
+		AccIdentityAccountDto accountIdentityOne = identityAccoutnService.find(filter, null).getContent().get(0);
+		return accountService.get(accountIdentityOne.getAccount()).getSystem();
+	}
+	
+	/**
+	 * 
+	 * @return
+	 * @deprecated use testHepler after role + dto refactoring
+	 */
+	@Deprecated
+	private IdmIdentityDto createIdentity() {
+		IdmIdentityDto identity = new IdmIdentityDto();
+		identity.setUsername("test" + "-" + UUID.randomUUID());
+		identity.setFirstName("Test");
+		identity.setLastName("Identity");
+		identity.setPassword(new GuardedString("password"));
+		return idmIdentityService.save(identity);
+	}
+	
+	/**
+	 * 
+	 * @return
+	 * @deprecated use testHepler after role + dto refactoring
+	 */
+	@Deprecated
+	private IdmTreeNode createTreeNode(IdmTreeNode parent) {
+		String name = "test" + "-" + UUID.randomUUID();
+		IdmTreeNode node = new IdmTreeNode();
+		node.setParent(parent);
+		node.setCode(name);
+		node.setName(name);
+		node.setTreeType(treeTypeService.getDefaultTreeType());
+		return treeNodeService.save(node);
+	}
 
+	/**
+	 * 
+	 * @return
+	 * @deprecated use testHepler after role + dto refactoring
+	 */
+	@Deprecated
+	public IdmIdentityContractDto createIdentityContact(IdmIdentityDto identity, IdmTreeNode position) {
+		IdmIdentityContractDto contract = new IdmIdentityContractDto();
+		contract.setIdentity(identity.getId());
+		contract.setPosition("test" + "-" + UUID.randomUUID());
+		contract.setWorkPosition(position == null ? null : position.getId());
+		return identityContractService.save(contract);
+	}
 }

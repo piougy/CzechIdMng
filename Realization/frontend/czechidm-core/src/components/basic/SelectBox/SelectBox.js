@@ -15,6 +15,12 @@ const NICE_LABEL = 'niceLabel';
 const ITEM_FULL_KEY = 'itemFullKey';
 const ITEM_VALUE = 'value';
 
+/**
+ * A Select control - async loads option from BE.
+ *
+ * @author svanda
+ * @author Radek Tomiška
+ */
 class SelectBox extends AbstractFormComponent {
 
   constructor(props) {
@@ -25,6 +31,10 @@ class SelectBox extends AbstractFormComponent {
       options: [],
       error: null
     };
+  }
+
+  getComponentKey() {
+    return 'component.basic.SelectBox';
   }
 
   componentWillReceiveProps(nextProps) {
@@ -65,9 +75,9 @@ class SelectBox extends AbstractFormComponent {
    * Merge hard and user deffined search parameters
    */
   _createSearchParameters(inputText, forceSearchParameters) {
-    const {manager } = this.props;
+    const { manager, pageSize } = this.props;
     // user input
-    let searchParameters = manager.getDefaultSearchParameters().setFilter('text', inputText); // TODO: configurable search properties
+    let searchParameters = manager.getDefaultSearchParameters().setFilter('text', inputText).setSize(pageSize || SearchParameters.DEFAUT_SIZE); // TODO: configurable search properties
     if (manager.supportsAuthorization()) {
       searchParameters = searchParameters.setName(SearchParameters.NAME_AUTOCOMPLETE);
     }
@@ -84,7 +94,7 @@ class SelectBox extends AbstractFormComponent {
     const { manager } = this.props;
     const searchParameters = this._createSearchParameters(input, forceSearchParameters);
     const timeInMs = Date.now();
-    // We create uniqu key for this call and save it to component state
+    // We create unique key for this call and save it to component state
     const uiKey = `${manager.getEntityType()}_${(timeInMs)}`;
     this.setState({
       isLoading: true,
@@ -120,6 +130,13 @@ class SelectBox extends AbstractFormComponent {
               options: result._embedded[manager.getCollectionType()],
               complete: results.length >= result.page.totalElements,
             };
+            if (!data.complete) {
+              data.options.push({
+                [NICE_LABEL]: this.i18n('results', { escape: false, count: searchParameters.getSize(), total: result.page.totalElements}),
+                [ITEM_FULL_KEY]: null,
+                disabled: true // info only
+              });
+            }
           }
           this.setState({
             options: data.options,
@@ -136,6 +153,8 @@ class SelectBox extends AbstractFormComponent {
   }
 
   getValue() {
+    const { returnProperty } = this.props;
+    //
     if (!this.state.value) {
       if (this.props.multiSelect === true) {
         return [];
@@ -146,9 +165,11 @@ class SelectBox extends AbstractFormComponent {
     if (this.state.value instanceof Array && this.props.multiSelect === true) {
       const copyValues = [];
       for (const item of this.state.value) {
-        const entityId = (this._deletePrivateField(_.merge({}, item))).id;
-        if (entityId) {
-          copyValues.push(entityId);
+        const copyValue = this._deletePrivateField(_.merge({}, item));
+        if (returnProperty) {
+          copyValues.push(copyValue[returnProperty]);
+        } else {
+          copyValues.push(copyValue);
         }
       }
       return copyValues;
@@ -157,8 +178,8 @@ class SelectBox extends AbstractFormComponent {
     const copyValue = _.merge({}, this.state.value);
     this._deletePrivateField(copyValue);
     // result property value - if value is false, then whole object is returned
-    if (this.props.returnProperty) {
-      return copyValue[this.props.returnProperty];
+    if (returnProperty) {
+      return copyValue[returnProperty];
     }
     return copyValue;
   }
@@ -393,7 +414,7 @@ class SelectBox extends AbstractFormComponent {
       return placeholder;
     }
     // default placeholder
-    return this.i18n('label.select', { defaultValue: 'Select ...' });
+    return this.i18n('label.searchSelect', { defaultValue: 'Select or type to search ...' });
   }
 
   /**
@@ -469,7 +490,13 @@ SelectBox.propTypes = {
   /**
    * Use the first searched value, if value is empty
    */
-  useFirst: PropTypes.bool
+  useFirst: PropTypes.bool,
+  /**
+   * Search results page size
+   * @see SearchParameters.DEFAUT_SIZE
+   * @see SearchParameters.MAX_SIZE
+   */
+  pageSize: PropTypes.number
 };
 
 SelectBox.defaultProps = {
@@ -479,7 +506,8 @@ SelectBox.defaultProps = {
   returnProperty: 'id',
   searchInFields: [],
   clearable: true,
-  useFirst: false
+  useFirst: false,
+  pageSize: SearchParameters.DEFAUT_SIZE
 };
 
 SelectBox.NICE_LABEL = NICE_LABEL;

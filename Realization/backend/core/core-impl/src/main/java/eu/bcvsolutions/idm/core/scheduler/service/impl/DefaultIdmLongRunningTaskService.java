@@ -103,7 +103,7 @@ public class DefaultIdmLongRunningTaskService
 	}
 	
 	@Override
-	@Transactional
+	@Transactional/* TODO: pesimistic lock exception - why? (propagation = Propagation.REQUIRES_NEW)*/
 	public void updateState(UUID id, Long count, Long counter) {
 		repository.updateState(id, count, counter, new DateTime());
 	}
@@ -130,5 +130,4 @@ public class DefaultIdmLongRunningTaskService
 		itemService.deleteAllByLongRunningTask(get(dto.getId()));
 		super.deleteInternal(dto);
 	}
-	
 }

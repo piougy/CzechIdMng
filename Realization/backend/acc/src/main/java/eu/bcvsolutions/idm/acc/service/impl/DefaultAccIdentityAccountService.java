@@ -1,21 +1,24 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
 import java.io.Serializable;
-import java.util.List;
-import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount;
+import eu.bcvsolutions.idm.acc.event.IdentityAccountEvent;
+import eu.bcvsolutions.idm.acc.event.IdentityAccountEvent.IdentityAccountEventType;
 import eu.bcvsolutions.idm.acc.repository.AccIdentityAccountRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
+import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 
@@ -30,19 +33,27 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 public class DefaultAccIdentityAccountService extends
 		AbstractReadWriteDtoService<AccIdentityAccountDto, AccIdentityAccount, IdentityAccountFilter> implements AccIdentityAccountService {
 
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultAccIdentityAccountService.class);
+	
 	private final AccAccountService accountService;
 	private final IdmIdentityRoleRepository identityRoleRepository;
+	private final EntityEventManager entityEventManager;
 
 	@Autowired
-	public DefaultAccIdentityAccountService(AccIdentityAccountRepository identityAccountRepository,
-			AccAccountService accountService, IdmIdentityRoleRepository identityRoleRepository) {
+	public DefaultAccIdentityAccountService(
+			AccIdentityAccountRepository identityAccountRepository,
+			AccAccountService accountService,
+			IdmIdentityRoleRepository identityRoleRepository,
+			EntityEventManager entityEventManager) {
 		super(identityAccountRepository);
 		//
 		Assert.notNull(accountService);
 		Assert.notNull(identityRoleRepository);
+		Assert.notNull(entityEventManager);
 		//
 		this.accountService = accountService;
 		this.identityRoleRepository = identityRoleRepository;
+		this.entityEventManager = entityEventManager;
 	}
 
 	@Override
@@ -59,39 +70,49 @@ public class DefaultAccIdentityAccountService extends
 		}
 		return ia;
 	}
+	
+	@Override
+	public AccIdentityAccountDto save(AccIdentityAccountDto dto, BasePermission... permission) {
+		Assert.notNull(dto);
+		checkAccess(toEntity(dto, null), permission);
+		//
+		LOG.debug("Saving identity-account [{}]", dto);
+		//
+		if (isNew(dto)) { // create
+			return entityEventManager.process(new IdentityAccountEvent(IdentityAccountEventType.CREATE, dto)).getContent();
+		}
+		return entityEventManager.process(new IdentityAccountEvent(IdentityAccountEventType.UPDATE, dto)).getContent();
+	}
+	
 
 	@Override
 	@Transactional
 	public void delete(AccIdentityAccountDto dto, BasePermission... permission) {
 		this.delete(dto, true, permission);
 	}
+	
 
 	@Override
 	@Transactional
 	public void delete(AccIdentityAccountDto entity, boolean deleteTargetAccount, BasePermission... permission) {
-		Assert.notNull(entity);
-		super.delete(entity, permission);
-
-		UUID account = entity.getAccount();
-		// We check if exists another (ownership) identityAccounts, if not
-		// then
-		// we will delete account
-		IdentityAccountFilter filter = new IdentityAccountFilter();
-		filter.setAccountId(account);
-		filter.setOwnership(Boolean.TRUE);
-
-		List<AccIdentityAccountDto> identityAccounts = this.find(filter, null).getContent();
-		boolean moreIdentityAccounts = identityAccounts.stream().filter(identityAccount -> {
-			return identityAccount.isOwnership() && !identityAccount.equals(entity);
-		}).findAny().isPresent();
-
-		if (!moreIdentityAccounts && entity.isOwnership()) {
-			// We delete all identity accounts first
-			identityAccounts.forEach(identityAccount -> {
-				super.delete(identityAccount);
-			});
-			// Finally we can delete account
-			accountService.delete(accountService.get(account), deleteTargetAccount);
-		}
+		this.delete(entity, deleteTargetAccount, false, permission);
 	}
+	
+	@Override
+	@Transactional
+	public void forceDelete(AccIdentityAccountDto dto, BasePermission... permission) {
+		this.delete(dto, true, true,permission);
+	}
+
+	private void delete(AccIdentityAccountDto entity, boolean deleteTargetAccount, boolean forceDelete, BasePermission... permission) {
+		Assert.notNull(entity);
+		checkAccess(this.getEntity(entity.getId()), permission);
+		//
+		LOG.debug("Deleting identity account [{}]", entity);
+		entityEventManager.process(new IdentityAccountEvent(IdentityAccountEventType.DELETE, entity,
+				ImmutableMap.of(AccIdentityAccountService.DELETE_TARGET_ACCOUNT_KEY, deleteTargetAccount,
+						AccIdentityAccountService.FORCE_DELETE_OF_IDENTITY_ACCOUNT_KEY, forceDelete)));
+	}
+	
+	
 }

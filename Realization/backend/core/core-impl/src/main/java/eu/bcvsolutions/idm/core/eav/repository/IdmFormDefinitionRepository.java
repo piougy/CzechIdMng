@@ -31,6 +31,18 @@ import eu.bcvsolutions.idm.core.eav.rest.projection.IdmFormDefinitionExcerpt;
 public interface IdmFormDefinitionRepository extends AbstractEntityRepository<IdmFormDefinition, QuickFilter> {
 	
 	/**
+	 * Quick search
+	 */
+	@Override
+	@Query(value = "SELECT e FROM #{#entityName} e WHERE"
+			+ " ("
+			+ " ?#{[0].text} is null"
+			+ " or lower(e.name) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')}"
+			+ "	or lower(e.code) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')}"
+			+ " )")
+	Page<IdmFormDefinition> find(QuickFilter filter, Pageable pageable);	
+	
+	/**
 	 * Returns all form definitions by given type
 	 * 
 	 * @param type
@@ -55,18 +67,6 @@ public interface IdmFormDefinitionRepository extends AbstractEntityRepository<Id
 	 * @return
 	 */
 	IdmFormDefinition findOneByTypeAndMainIsTrue(@Param("type") String type);
-	
-	/**
-	 * Quick search
-	 */
-	@Override
-	@Query(value = "SELECT e FROM #{#entityName} e WHERE"
-			+ " ("
-			+ " ?#{[0].text} is null"
-			+ " or lower(e.name) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')}"
-			+ "	or lower(e.code) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')}"
-			+ " )")
-	Page<IdmFormDefinition> find(QuickFilter filter, Pageable pageable);
 	
 	/**
 	 * Clears main definition for given type

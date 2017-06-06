@@ -45,6 +45,13 @@ module.exports = {
       'manager': require('./src/redux').RoleManager
     },
     {
+      'id': 'role-catalogue-info',
+      'type': 'entity-info',
+      'entityType': ['roleCatalogue', 'IdmRoleCatalogue', 'ROLE_CATALOGUE'],
+      'component': require('./src/components/advanced/RoleCatalogueInfo/RoleCatalogueInfo').default,
+      'manager': require('./src/redux').RoleManager
+    },
+    {
       'id': 'tree-node-info',
       'type': 'entity-info',
       'entityType': ['treeNode', 'IdmTreeNode'],

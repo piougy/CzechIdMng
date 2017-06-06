@@ -80,7 +80,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 public class DefaultTreeSynchronizationServiceTest extends AbstractIntegrationTest {
 
 	private static final String SYNC_CONFIG_NAME = "syncConfigName";
-	private static final String SYSTEM_NAME = "systemName";
+	private static final String SYSTEM_NAME = "systemTreeName";
 	private static final String TREE_TYPE_TEST = "TREE_TEST";
 	private static final String NODE_NAME = "name";
 	private static final String ATTRIBUTE_NAME = "__NAME__";

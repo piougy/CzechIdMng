@@ -34,6 +34,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
+import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
@@ -50,7 +51,6 @@ import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 public class TreeProvisioningExecutor extends AbstractProvisioningExecutor<IdmTreeNode> {
  
 	public static final String NAME = "treeProvisioningService";
-	public static final String PASSWORD_SCHEMA_PROPERTY_NAME = "__PASSWORD__";
 	private final AccTreeAccountService treeAccountService;
 	private final IdmTreeNodeService treeNodeService;
 	
@@ -61,10 +61,12 @@ public class TreeProvisioningExecutor extends AbstractProvisioningExecutor<IdmTr
 			AccAccountManagementService accountManagementService,
 			SysRoleSystemAttributeService roleSystemAttributeService, SysSystemEntityService systemEntityService,
 			AccAccountService accountService, AccTreeAccountService treeAccountService,
-			ProvisioningExecutor provisioningExecutor, IdmTreeNodeService treeNodeService) {
+			ProvisioningExecutor provisioningExecutor, IdmTreeNodeService treeNodeService,
+			EntityEventManager entityEventManager) {
+		
 		super(systemMappingService, attributeMappingService, connectorFacade, systemService, roleSystemService,
 				accountManagementService, roleSystemAttributeService, systemEntityService, accountService,
-				provisioningExecutor);
+				provisioningExecutor, entityEventManager);
 		
 		Assert.notNull(treeAccountService);
 		Assert.notNull(treeNodeService);

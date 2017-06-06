@@ -105,6 +105,16 @@ module.exports = {
         'icon': 'fa:external-link'
       },
       {
+        'id': 'identity-provisioning-operations',
+        'parentId': 'identity-profile',
+        'type': 'TAB',
+        'labelKey': 'acc:content.provisioningOperations.label',
+        'titleKey': 'acc:content.provisioningOperations.title',
+        'order': 110,
+        'path': '/identity/:entityId/provisioning',
+        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ]
+      },
+      {
         'id': 'password-policies-systems',
         'parentId': 'password-policies',
         'type': 'TAB',

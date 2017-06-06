@@ -3,7 +3,7 @@ package eu.bcvsolutions.idm.acc.dto.filter;
 import java.util.UUID;
 
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
-import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
 
 /**
  * Filter for entity on target system
@@ -11,14 +11,10 @@ import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
  * @author Radek Tomiška
  *
  */
-public class SystemEntityFilter implements BaseFilter {
+public class SystemEntityFilter extends QuickFilter {
 	
-	private UUID systemId;
-	
-	private String uid;
-	
-	private String uidId;
-	
+	private UUID systemId;	
+	private String uid;	
 	private SystemEntityType entityType; 
 
 	public UUID getSystemId() {
@@ -29,14 +25,6 @@ public class SystemEntityFilter implements BaseFilter {
 		this.systemId = systemId;
 	}
 
-	public String getUid() {
-		return uid;
-	}
-
-	public void setUid(String uid) {
-		this.uid = uid;
-	}
-
 	public SystemEntityType getEntityType() {
 		return entityType;
 	}
@@ -45,12 +33,11 @@ public class SystemEntityFilter implements BaseFilter {
 		this.entityType = entityType;
 	}
 
-	public String getUidId() {
-		return uidId;
+	public String getUid() {
+		return uid;
 	}
 
-	public void setUidId(String uidId) {
-		this.uidId = uidId;
+	public void setUid(String uid) {
+		this.uid = uid;
 	}
-
 }

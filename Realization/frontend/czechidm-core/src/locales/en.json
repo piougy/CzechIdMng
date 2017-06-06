@@ -39,6 +39,7 @@
     "validFrom": "Valid from",
     "validTill": "Valid to",
     "select": "Select ...",
+    "searchSelect": "Select or type to search ...",
     "enabled": "Enabled",
     "disabled": "Disabled",
     "property": "Attribute",
@@ -184,7 +185,8 @@
       "SelectBox" : {
         "noResultsText": "No result",
         "searchPromptText": "Start typing ...",
-        "searchingText": "Searching ..."
+        "searchingText": "Searching ...",
+        "result": "Shown <strong>{{count}}</strong> of <strong>{{total}}</strong> records ..."
       },
       "Table" : {
         "Pagination" : {
@@ -653,6 +655,8 @@
       "save": {
         "success": "Configuration items [{{name}}] successfully saved"
       },
+      "configurable": "Configurable items <small>editable, can override static items</small>",
+      "environment": "Static environment configuration items <small>read only</small>",
       "fromFile": "Application configuration from configuration files <small>application.properties</small>",
       "fromEnvironment": "Environment configuration <small>backend</small>",
       "guarded": "The values of configuration items containing key [<strong>{{guarded}}</strong>] The values of configuration items containing key will automatically set the secret and invisible. Values beginning with the prefix [<strong>idm.sec.</strong>] can not be visible.",
@@ -975,7 +979,8 @@
         "parent": "Folder parent",
         "parentPlaceHolder": "Folder parent",
         "niceName": "Name for users",
-        "code": "Code"
+        "code": "Code",
+        "text": "Code or name"
       }
     },
     "formDefinitions": {
@@ -989,7 +994,7 @@
         "header": "New form definition"
       },
       "filter": {
-        "text": "Name"
+        "text": "Code or name"
       },
       "attributes": {
         "title": "Form Attributes"
@@ -1016,7 +1021,7 @@
         "success": "Attribute [{{name}}] successfully saved"
       },
       "filter": {
-        "name": "Name"
+        "code": "Code"
       }
     },
     "scripts": {
@@ -1989,17 +1994,28 @@
        }
     },
     "FormAttribute" : {
-      "code": "Code",
-      "name": "Name",
-      "seq": "Order",
+      "code": {
+        "label": "Code",
+        "help": "Attribute key."
+      },
+      "name": {
+        "label": "Name",
+        "help": "Will be shown on form detail."
+      },
+      "seq": {
+        "label": "Order",
+        "help": "Attribute order on form detail."
+      },
       "persistentType": "Attribute type",
       "description": "Description",
-      "name": "Name",
       "required": "Required",
       "readonly": "Read-only",
       "confidential": "Confidential",
       "multiple": "Multivalued",
-      "placeholder": "Placeholder",
+      "placeholder": {
+        "label": "Placeholder",
+        "help": "Will be shown in empty attribute input as help text."
+      },
       "defaultValue": "Default value",
       "unmodifiable": {
         "help": "System attribute cannot be deleted. Some of its configurations are not able for edit.",
@@ -2115,8 +2131,8 @@
       },
       "description": "Note",
       "main": {
-        "label": "Default position",
-        "help": "Prime work position."
+        "label": "Main position",
+        "help": "Main / prime work position. It's created automatically when the user is created."
       }
     },
     "TreeNode": {
@@ -2827,6 +2843,11 @@
       "email": "format of e-mail is not valid!",
       "max" : "Enter the maximum {{count}} character!",
       "max_plural" : "Enter the maximum {{count}} characters!"
+    },
+    "number": {
+      "min" : "Min value is: {{count}}!",
+      "base" : "Value must be number!",
+      "max" : "Max value is: {{count}}!"
     },
     "boolean": {
       "base": "$t(validationError.string.base)"

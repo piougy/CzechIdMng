@@ -177,16 +177,18 @@ class FormAttributeDetail extends Basic.AbstractContent {
                   <div className="col-lg-4">
                     <Basic.TextField
                       ref="code"
-                      label={this.i18n('entity.FormAttribute.code')}
-                      readOnly={this._isUnmodifiable()}
+                      label={ this.i18n('entity.FormAttribute.code.label') }
+                      helpBlock={ this.i18n('entity.FormAttribute.code.help') }
+                      readOnly={ this._isUnmodifiable() }
                       required
-                      max={255}/>
+                      max={ 255 }/>
                   </div>
                   <div className="col-lg-8">
                     <Basic.TextField
                       ref="name"
-                      label={this.i18n('entity.FormAttribute.name')}
-                      max={255}
+                      label={ this.i18n('entity.FormAttribute.name.label') }
+                      helpBlock={ this.i18n('entity.FormAttribute.name.help') }
+                      max={ 255 }
                       required/>
                   </div>
                 </Basic.Row>
@@ -204,7 +206,8 @@ class FormAttributeDetail extends Basic.AbstractContent {
                   <div className="col-lg-8">
                     <Basic.TextField
                       ref="placeholder"
-                      label={this.i18n('entity.FormAttribute.placeholder')}
+                      label={this.i18n('entity.FormAttribute.placeholder.label')}
+                      helpBlock={ this.i18n('entity.FormAttribute.placeholder.help') }
                       max={255}/>
                   </div>
                 </Basic.Row>
@@ -212,7 +215,8 @@ class FormAttributeDetail extends Basic.AbstractContent {
                   <div className="col-lg-4">
                     <Basic.TextField
                       ref="seq"
-                      label={this.i18n('entity.FormAttribute.seq')}
+                      label={this.i18n('entity.FormAttribute.seq.label')}
+                      helpBlock={this.i18n('entity.FormAttribute.seq.help')}
                       validation={Joi.number().required().integer().min(0).max(99999)}/>
                   </div>
                   <div className="col-lg-8">

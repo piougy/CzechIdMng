@@ -13,7 +13,7 @@ parameters:
 <template>
 	<name>Send result WF - Change identity roles</name>
 	<code>changeIdentityRole</code>
-	<subject>CzechIdMng v7 - změna opravnění pro účet $identity.Username</subject>
+	<subject>CzechIdM - změna opravnění pro účet $identity.Username</subject>
 	<bodyHtml>
 <![CDATA[
 <html>

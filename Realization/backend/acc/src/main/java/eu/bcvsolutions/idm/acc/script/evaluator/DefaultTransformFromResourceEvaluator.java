@@ -4,7 +4,7 @@ import org.springframework.stereotype.Service;
 
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.core.api.domain.IdmScriptCategory;
-import eu.bcvsolutions.idm.core.model.dto.IdmScriptDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmScriptDto;
 import eu.bcvsolutions.idm.core.script.evaluator.AbstractScriptEvaluator;
 
 /**
@@ -34,7 +34,8 @@ public class DefaultTransformFromResourceEvaluator extends AbstractScriptEvaluat
 		example.append("        .setScriptCode('" + script.getCode() + "')\n");
 		example.append("        .addParameter('" + SCRIPT_EVALUATOR + "', " + SCRIPT_EVALUATOR + ")\n");
 		example.append("        .addParameter('" + SysSystemAttributeMappingService.ATTRIBUTE_VALUE_KEY + "', " + SysSystemAttributeMappingService.ATTRIBUTE_VALUE_KEY + ")\n");
-		example.append("        .addParameter('" + SysSystemAttributeMappingService.ENTITY_KEY + "', " + SysSystemAttributeMappingService.ENTITY_KEY + ")\n");
+		example.append("        .addParameter('" + SysSystemAttributeMappingService.IC_ATTRIBUTES_KEY + "', " + SysSystemAttributeMappingService.IC_ATTRIBUTES_KEY + ")\n");
+		example.append("        .addParameter('" + SysSystemAttributeMappingService.SYSTEM_KEY + "', " + SysSystemAttributeMappingService.SYSTEM_KEY + ")\n");
 		example.append("	.build());\n");
 		return example.toString();
 	}

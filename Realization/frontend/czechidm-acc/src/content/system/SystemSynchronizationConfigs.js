@@ -56,7 +56,7 @@ class SystemSynchronizationConfigs extends Advanced.AbstractTableContent {
         this.setState({
           showLoading: true
         });
-        this.addMessage({ message: this.i18n('action.startSynchronization.started')});
+        this.addMessage({ level: 'info', message: this.i18n('action.startSynchronization.started')});
         const promise = this.getManager().getService().startSynchronization(id);
         if (this.refs.table) {
           this.refs.table.getWrappedInstance().reload();
@@ -251,6 +251,7 @@ class SystemSynchronizationConfigs extends Advanced.AbstractTableContent {
                         title={this.i18n('button.start')}
                         titlePlacement="bottom"
                         onClick={this._startSynchronization.bind(this, null, [data[rowIndex].id])}
+                        disabled={ !data[rowIndex].enabled }
                         className="btn-xs">
                         <Basic.Icon type="fa" icon="play"/>
                       </Basic.Button>

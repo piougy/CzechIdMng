@@ -1,10 +1,15 @@
-package eu.bcvsolutions.idm.core.model.dto;
+package eu.bcvsolutions.idm.core.api.dto;
 
 import org.springframework.hateoas.core.Relation;
 
 import eu.bcvsolutions.idm.core.api.domain.IdmScriptCategory;
-import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 
+/**
+ * DTO for script
+ * 
+ * @author Ondrej Kopr <kopr@xyxy.cz>
+ *
+ */
 @Relation(collectionRelation = "scripts")
 public class IdmScriptDto extends AbstractDto {
 

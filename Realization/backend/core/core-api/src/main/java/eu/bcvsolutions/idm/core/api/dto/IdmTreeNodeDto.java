@@ -23,10 +23,10 @@ public class IdmTreeNodeDto extends AbstractDto implements Disableable, Codeable
 
     private static final long serialVersionUID = 1337282508070610164L;
     @NotEmpty
-    @Size(min = 0, max = DefaultFieldLengths.NAME)
+    @Size(min = 1, max = DefaultFieldLengths.NAME)
     private String code;
     @NotEmpty
-    @Size(min = 0, max = DefaultFieldLengths.NAME)
+    @Size(min = 1, max = DefaultFieldLengths.NAME)
     private String name;
     @Embedded(dtoClass = IdmTreeNodeDto.class)
     private UUID parent;

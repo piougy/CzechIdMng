@@ -30,7 +30,8 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
       systemMappingId: null, // dependant select box
       activeKey: 1,
       forceSearchCorrelationAttribute: new Domain.SearchParameters()
-        .setFilter('mappingId', Domain.SearchParameters.BLANK_UUID) // dependant select box
+        .setFilter('mappingId', Domain.SearchParameters.BLANK_UUID), // dependant select box
+      enabled: null
     };
   }
 
@@ -73,14 +74,18 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
   _initComponent(props) {
     const {configId} = props.params;
     if (this._getIsNew(props)) {
-      this.setState({synchronizationConfig: {
-        system: props.location.query.systemId,
-        linkedAction: SynchronizationLinkedActionTypeEnum.findKeyBySymbol(SynchronizationLinkedActionTypeEnum.UPDATE_ENTITY),
-        unlinkedAction: SynchronizationUnlinkedActionTypeEnum.findKeyBySymbol(SynchronizationUnlinkedActionTypeEnum.LINK_AND_UPDATE_ACCOUNT),
-        missingEntityAction: SynchronizationMissingEntityActionTypeEnum.findKeyBySymbol(SynchronizationMissingEntityActionTypeEnum.CREATE_ENTITY),
-        missingAccountAction: ReconciliationMissingAccountActionTypeEnum.findKeyBySymbol(ReconciliationMissingAccountActionTypeEnum.IGNORE),
-        filterOperation: IcFilterOperationTypeEnum.findKeyBySymbol(IcFilterOperationTypeEnum.GREATER_THAN)
-      }});
+      this.setState({
+        synchronizationConfig: {
+          system: props.location.query.systemId,
+          linkedAction: SynchronizationLinkedActionTypeEnum.findKeyBySymbol(SynchronizationLinkedActionTypeEnum.UPDATE_ENTITY),
+          unlinkedAction: SynchronizationUnlinkedActionTypeEnum.findKeyBySymbol(SynchronizationUnlinkedActionTypeEnum.LINK_AND_UPDATE_ACCOUNT),
+          missingEntityAction: SynchronizationMissingEntityActionTypeEnum.findKeyBySymbol(SynchronizationMissingEntityActionTypeEnum.CREATE_ENTITY),
+          missingAccountAction: ReconciliationMissingAccountActionTypeEnum.findKeyBySymbol(ReconciliationMissingAccountActionTypeEnum.IGNORE),
+          filterOperation: IcFilterOperationTypeEnum.findKeyBySymbol(IcFilterOperationTypeEnum.GREATER_THAN),
+          enabled: false
+        },
+        enabled: false
+      });
     } else {
       this.context.store.dispatch(synchronizationConfigManager.fetchEntity(configId));
     }
@@ -183,7 +188,7 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
         this.setState({
           showLoading: false
         });
-        this.addMessage({ message: this.i18n('acc:content.system.systemSynchronizationConfigs.action.startSynchronization.started', { name: json.name }) });
+        this.addMessage({ level: 'info', message: this.i18n('acc:content.system.systemSynchronizationConfigs.action.startSynchronization.started', { name: json.name }) });
         this.context.store.dispatch(synchronizationConfigManager.fetchEntity(id));
       }).catch(ex => {
         this.setState({
@@ -268,9 +273,15 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
     this.setState({activeKey});
   }
 
+  _onChangeEnabled(event) {
+    this.setState({
+      enabled: event.currentTarget.checked
+    });
+  }
+
   render() {
-    const { _showLoading, _synchronizationConfig} = this.props;
-    const {systemMappingId, showLoading, activeKey, entityType} = this.state;
+    const { _showLoading, _synchronizationConfig } = this.props;
+    const { systemMappingId, showLoading, activeKey, entityType, enabled } = this.state;
     const isNew = this._getIsNew();
     const innerShowLoading = isNew ? showLoading : (_showLoading || showLoading);
     const systemId = this.props.params.entityId;
@@ -308,7 +319,8 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
                 <Basic.AbstractForm ref="form" data={synchronizationConfig} showLoading={innerShowLoading} className="panel-body">
                   <Basic.Checkbox
                     ref="enabled"
-                    label={this.i18n('acc:entity.SynchronizationConfig.enabled')}/>
+                    label={this.i18n('acc:entity.SynchronizationConfig.enabled')}
+                    onChange={ this._onChangeEnabled.bind(this) }/>
                   <Basic.Checkbox
                     ref="reconciliation"
                     readOnly={isSelectedTree}
@@ -433,12 +445,12 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
                     dropup>
                     <Basic.MenuItem
                       eventKey="1"
-                      rendered={Managers.SecurityManager.hasAuthority('SYNCHRONIZATION_CREATE')}
+                      rendered={ (enabled === null || enabled === true) && synchronizationConfig && synchronizationConfig.enabled && Managers.SecurityManager.hasAuthority('SYNCHRONIZATION_CREATE') }
                       onClick={this.save.bind(this, true, false)}>
                       {this.i18n('button.saveAndStartSynchronization')}
                     </Basic.MenuItem>
                     <Basic.MenuItem
-                      eventKey="1"
+                      eventKey="2"
                       onClick={this.save.bind(this, false, true)}>
                       {this.i18n('button.saveAndClose')}
                     </Basic.MenuItem>
@@ -506,7 +518,7 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
                     dropup>
                     <Basic.MenuItem
                       eventKey="1"
-                      rendered={Managers.SecurityManager.hasAuthority('SYNCHRONIZATION_UPDATE')}
+                      rendered={ (enabled === null || enabled === true) && synchronizationConfig && synchronizationConfig.enabled && Managers.SecurityManager.hasAuthority('SYNCHRONIZATION_CREATE') }
                       onClick={this.save.bind(this, true, false)}>
                       {this.i18n('button.saveAndStartSynchronization')}
                     </Basic.MenuItem>

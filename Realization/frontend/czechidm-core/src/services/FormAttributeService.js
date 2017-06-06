@@ -1,6 +1,12 @@
 import AbstractService from './AbstractService';
 import SearchParameters from '../domain/SearchParameters';
 
+/**
+ * Eav form attributes
+ *
+ * @author Ondřej Kopr
+ * @author Radek Tomiška
+ */
 class FormAttributeService extends AbstractService {
 
   getApiPath() {
@@ -20,7 +26,7 @@ class FormAttributeService extends AbstractService {
    * @return {object} searchParameters
    */
   getDefaultSearchParameters() {
-    return super.getDefaultSearchParameters().setName(SearchParameters.NAME_QUICK).clearSort().setSort('created', 'desc');
+    return super.getDefaultSearchParameters().setName(SearchParameters.NAME_QUICK).clearSort().setSort('seq', 'asc').setSort('code', 'asc');
   }
 }
 

@@ -45,13 +45,17 @@ public interface IdmIdentityContractRepository extends AbstractEntityRepository<
 	
 	List<IdmIdentityContract> findAllByIdentity_Id(@Param("identityId") UUID identityId, Sort sort);
 	
-	@Query(value = "select e from #{#entityName} e"
+	@Query(value = "select e from #{#entityName} e join e.workPosition n"
 			+ " where"
-			+ " (e.workPosition = ?#{[0]})" // takes all recursion
-			+ " or"
-			+ " (?#{[1].name()} = 'DOWN' and e.workPosition.forestIndex.lft between ?#{[0].lft} and ?#{[0].rgt})"
-			+ " or"
-			+ " (?#{[1].name()} = 'UP' and ?#{[0].lft} between e.workPosition.forestIndex.lft and e.workPosition.forestIndex.rgt)")
+			+ " (n.treeType = ?#{[0].treeType})" // more tree types
+			+ " and"
+			+ " ("
+				+ " (n = ?#{[0]})" // takes all recursion
+				+ " or"
+				+ " (?#{[1].name()} = 'DOWN' and n.forestIndex.lft between ?#{[0].lft} and ?#{[0].rgt})"
+				+ " or"
+				+ " (?#{[1].name()} = 'UP' and ?#{[0].lft} between n.forestIndex.lft and n.forestIndex.rgt)"
+			+ " )")
 	List<IdmIdentityContract> findAllByWorkPosition(IdmTreeNode workPosition, RecursionType recursionType);
 	
 	@Query(value = "select e from #{#entityName} e"

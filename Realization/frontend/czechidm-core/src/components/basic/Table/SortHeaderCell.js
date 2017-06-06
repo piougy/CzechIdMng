@@ -17,12 +17,12 @@ class SortHeaderCell extends AbstractComponent {
   }
 
   _activeSort() {
-    const { searchParameters, property } = this.props;
+    const { searchParameters, sortProperty, property } = this.props;
     //
     if (!searchParameters) {
       return null;
     }
-    const sort = searchParameters.getSort(property);
+    const sort = searchParameters.getSort(sortProperty || property);
     if (sort === null) {
       return null;
     }

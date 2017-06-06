@@ -11,7 +11,7 @@ parameters:
 <template>
 	<name>Send result WF - Return request</name>
 	<code>returnRequestIdentityRole</code>
-	<subject>CzechIdMng v7 - Vrácení žadateli</subject>
+	<subject>CzechIdM - Vrácení žadateli</subject>
 	<bodyHtml>
 <![CDATA[
 <html>

@@ -13,14 +13,15 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.RelationTargetAuditMode;
 import org.hibernate.validator.constraints.NotEmpty;
+import org.joda.time.DateTime;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import javax.validation.constraints.NotNull;
 
 import eu.bcvsolutions.idm.acc.domain.AccountType;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
@@ -75,6 +76,14 @@ public class AccAccount extends AbstractEntity {
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private List<AccIdentityAccount> identityAccounts;  // only for hibernate mappnig - we dont want lazy lists
+	
+	@Audited
+	@Column(name = "in_protection", nullable = true)
+	private boolean inProtection = false;
+	
+	@Audited
+	@Column(name = "end_of_protection", nullable = true)
+	private DateTime endOfProtection;
 
 	public void setAccountType(AccountType accountType) {
 		this.accountType = accountType;
@@ -108,6 +117,22 @@ public class AccAccount extends AbstractEntity {
 		return uid;
 	}
 	
+	public boolean isInProtection() {
+		return inProtection;
+	}
+
+	public void setInProtection(boolean inProtection) {
+		this.inProtection = inProtection;
+	}
+
+	public DateTime getEndOfProtection() {
+		return endOfProtection;
+	}
+
+	public void setEndOfProtection(DateTime endOfProtection) {
+		this.endOfProtection = endOfProtection;
+	}
+
 	/**
 	 * Return real uid from system entity.
 	 * If system entity do not exist, then return uid from account.
@@ -119,5 +144,23 @@ public class AccAccount extends AbstractEntity {
 			return systemEntity.getUid();
 		}
 		return uid;
+	}
+	
+	/**
+	 * Check if account is in protection. Validate end of protection too.
+	 * 
+	 * @param account
+	 * @return
+	 */
+	public boolean isAccountProtectedAndValid() {
+		if (this.isInProtection()) {
+			if (this.getEndOfProtection() == null) {
+				return true;
+			}
+			if (this.getEndOfProtection() != null && this.getEndOfProtection().isAfterNow()) {
+				return true;
+			}
+		}
+		return false;
 	}
 }

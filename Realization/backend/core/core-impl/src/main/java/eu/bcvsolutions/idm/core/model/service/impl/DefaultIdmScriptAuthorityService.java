@@ -17,13 +17,13 @@ import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.domain.ScriptAuthorityType;
+import eu.bcvsolutions.idm.core.api.dto.IdmScriptAuthorityDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.ScriptAuthorityFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
-import eu.bcvsolutions.idm.core.model.domain.ScriptAuthorityType;
 import eu.bcvsolutions.idm.core.model.dto.AvailableServiceDto;
-import eu.bcvsolutions.idm.core.model.dto.IdmScriptAuthorityDto;
-import eu.bcvsolutions.idm.core.model.dto.filter.ScriptAuthorityFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmScriptAuthority;
 import eu.bcvsolutions.idm.core.model.repository.IdmScriptAuthorityRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmScriptAuthorityService;

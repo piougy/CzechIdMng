@@ -16,6 +16,7 @@ import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.filter.RoleSystemFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemMappingFilter;
+import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
@@ -107,5 +108,41 @@ public class DefaultSysSystemMappingService extends
 		});
 		//
 		super.delete(systemMapping);
+	}
+	
+	@Override
+	public boolean isEnabledProtection(AccAccount account){
+		Assert.notNull(account, "Account cannot be null!");
+		Assert.notNull(account.getSystemEntity(), "SystemEntity cannot be null!");
+		
+		List<SysSystemMapping> mappings = this.findBySystem(account.getSystem(), SystemOperationType.PROVISIONING, account.getSystemEntity().getEntityType());
+		if(mappings.isEmpty()){
+			return false;
+		}
+		// We assume only one mapping for provisioning and entity type.
+		return this.isEnabledProtection(mappings.get(0));
+	}
+	
+	@Override
+	public Integer getProtectionInterval(AccAccount account){
+		Assert.notNull(account, "Account cannot be null!");
+		Assert.notNull(account.getSystemEntity(), "SystemEntity cannot be null!");
+		
+		List<SysSystemMapping> mappings = this.findBySystem(account.getSystem(), SystemOperationType.PROVISIONING, account.getSystemEntity().getEntityType());
+		if(mappings.isEmpty()){
+			return -1;
+		}
+		// We assume only one mapping for provisioning and entity type.
+		return this.getProtectionInterval(mappings.get(0));
+	}
+	
+	private Integer getProtectionInterval(SysSystemMapping systemMapping){
+		Assert.notNull(systemMapping, "Mapping cannot be null!");
+		return systemMapping.getProtectionInterval();
+	}
+
+	private boolean isEnabledProtection(SysSystemMapping systemMapping){
+		Assert.notNull(systemMapping, "Mapping cannot be null!");
+		return systemMapping.isProtectionEnabled();
 	}
 }

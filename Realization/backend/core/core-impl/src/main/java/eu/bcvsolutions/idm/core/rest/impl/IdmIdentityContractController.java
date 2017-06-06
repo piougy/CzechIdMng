@@ -225,7 +225,7 @@ public class IdmIdentityContractController extends AbstractReadWriteDtoControlle
 			formDefinition = formService.getDefinition(IdmIdentityContract.class, definitionCode);
 		}
 		//
-		return formDefinitionController.saveFormValues(identityContractRepository.findOne(dto.getId()), null, formValues, assembler);
+		return formDefinitionController.saveFormValues(identityContractRepository.findOne(dto.getId()), formDefinition, formValues, assembler);
 	}
 	
 	@Override

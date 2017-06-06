@@ -28,6 +28,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.domain.RoleType;
+import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
@@ -54,10 +55,12 @@ public class RoleProvisioningExecutor extends AbstractProvisioningExecutor<IdmRo
 			AccAccountManagementService accountManagementService,
 			SysRoleSystemAttributeService roleSystemAttributeService, SysSystemEntityService systemEntityService,
 			AccAccountService accountService, AccRoleAccountService roleAccountService,
-			ProvisioningExecutor provisioningExecutor, IdmRoleService roleService) {
+			ProvisioningExecutor provisioningExecutor, IdmRoleService roleService,
+			EntityEventManager entityEventManager) {
+		
 		super(systemMappingService, attributeMappingService, connectorFacade, systemService, roleSystemService,
 				accountManagementService, roleSystemAttributeService, systemEntityService, accountService,
-				provisioningExecutor);
+				provisioningExecutor, entityEventManager);
 		
 		Assert.notNull(roleAccountService);
 		Assert.notNull(roleService);

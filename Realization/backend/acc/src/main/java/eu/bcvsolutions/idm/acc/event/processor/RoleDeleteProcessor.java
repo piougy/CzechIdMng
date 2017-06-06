@@ -24,7 +24,7 @@ import eu.bcvsolutions.idm.core.model.event.RoleEvent.RoleEventType;
  *
  */
 @Component("accRoleDeleteProcessor")
-@Description("Ensures referential integrity. Could not be disabled.")
+@Description("Ensures referential integrity. Cannot be disabled.")
 public class RoleDeleteProcessor extends AbstractEntityEventProcessor<IdmRole> {
 	
 	public static final String PROCESSOR_NAME = "role-delete-processor";

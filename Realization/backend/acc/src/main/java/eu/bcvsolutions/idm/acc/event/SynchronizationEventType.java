@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.acc.domain;
+package eu.bcvsolutions.idm.acc.event;
 
 import eu.bcvsolutions.idm.core.api.event.EventType;
 

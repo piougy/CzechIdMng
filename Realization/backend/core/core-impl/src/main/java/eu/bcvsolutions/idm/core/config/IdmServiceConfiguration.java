@@ -44,6 +44,7 @@ import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmPasswordRepository;
+import eu.bcvsolutions.idm.core.model.repository.IdmRoleCatalogueRoleRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleGuaranteeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleTreeNodeRepository;
@@ -118,6 +119,7 @@ public class IdmServiceConfiguration {
 	@Autowired private IdmConfigurationRepository configurationRepository;
 	@Autowired private IdmIdentityRepository identityRepository;
 	@Autowired private IdmRoleRepository roleRepository;
+	@Autowired private IdmRoleCatalogueRoleRepository roleCatalogueRoleRepository;
 	@Autowired private IdmRoleTreeNodeRepository roleTreeNodeRepository;
 	@Autowired private IdmTreeTypeRepository treeTypeRepository;
 	@Autowired private IdmTreeNodeRepository treeNodeRepository;
@@ -315,7 +317,14 @@ public class IdmServiceConfiguration {
 	@Bean
 	@ConditionalOnMissingBean(IdmRoleService.class)
 	public IdmRoleService roleService() {
-		return new DefaultIdmRoleService(roleRepository, entityEventManager(), formService(), configurationService(), filterManager(), roleConfiguration());
+		return new DefaultIdmRoleService(
+				roleRepository, 
+				roleCatalogueRoleRepository,
+				entityEventManager(), 
+				formService(), 
+				configurationService(), 
+				filterManager(), 
+				roleConfiguration());
 	}
 	
 	/**
@@ -341,7 +350,6 @@ public class IdmServiceConfiguration {
 		return new DefaultIdmLongRunningTaskService(longRunningTaskRepository, configurationService(), processedTaskItemService());
 	}
 	
-	
 	/**
 	 * Long running task manager
 	 * 
@@ -350,10 +358,13 @@ public class IdmServiceConfiguration {
 	@Bean
 	@ConditionalOnMissingBean(LongRunningTaskManager.class)
 	public LongRunningTaskManager longRunningTaskManager() {
-		return new DefaultLongRunningTaskManager(longRunningTaskService(), executor, configurationService(), securityService());
+		return new DefaultLongRunningTaskManager(
+				longRunningTaskService(), 
+				executor, 
+				publisher,
+				configurationService(), 
+				securityService());
 	}
-	
-	
 	
 	/**
 	 * Identity service

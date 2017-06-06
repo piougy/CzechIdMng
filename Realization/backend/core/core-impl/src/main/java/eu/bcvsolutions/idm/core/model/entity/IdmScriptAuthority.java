@@ -16,8 +16,8 @@ import javax.validation.constraints.Size;
 import org.hibernate.envers.Audited;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
+import eu.bcvsolutions.idm.core.api.domain.ScriptAuthorityType;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
-import eu.bcvsolutions.idm.core.model.domain.ScriptAuthorityType;
 
 /**
  * Entity that store extra authority (allowed beans) for script

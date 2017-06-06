@@ -31,6 +31,7 @@ Header text is automatically resolved by entity and column property. Advanced co
 | --- | :--- | :--- | :--- |
 | property | string.isRequired | Json property name. Nested properties can be used e.g. `identityManager.name` | |
 | sort | bool | Column supports sorting | false |
+| sortProperty | string | Property for sort can be different than rendering property - mainly for sorting by referenced sub entity | property |
 | width | oneOfType([string,number]) | Pixel or percent width of table. If number is given, then pixels is used. | |
 | face | oneOf(['text','date', 'datetime', 'bool']) | Data type | 'text' |
 

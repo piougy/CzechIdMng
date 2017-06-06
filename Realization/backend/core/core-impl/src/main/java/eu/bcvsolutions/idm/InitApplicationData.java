@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.core.api.domain.RoleType;
 import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
@@ -138,8 +139,16 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 				identityAdmin = this.identityService.save(identityAdmin);
 				LOG.info(MessageFormat.format("Super admin identity created [id: {0}]", identityAdmin.getId()));
 				//
+				// create prime contract
+				IdmIdentityContractDto contract = identityContractService.getPrimeContract(identityAdmin.getId());
+				if (contract == null) {
+					contract = identityContractService.prepareMainContract(identityAdmin.getId());
+					contract = identityContractService.save(contract);
+				}
+				//
+				// assign super admin role
 				IdmIdentityRoleDto identityRole = new IdmIdentityRoleDto();
-				identityRole.setIdentityContract(identityContractService.findAllByIdentity(identityAdmin.getId()).get(0).getId());
+				identityRole.setIdentityContract(contract.getId());
 				identityRole.setRole(existsSuperAdminRole.getId());
 				identityRoleService.save(identityRole);
 			}

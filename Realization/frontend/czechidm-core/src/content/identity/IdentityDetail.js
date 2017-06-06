@@ -8,6 +8,11 @@ import ApiOperationTypeEnum from '../../enums/ApiOperationTypeEnum';
 
 const identityManager = new IdentityManager();
 
+/**
+ * Identity's detail form
+ *
+ * @author Radek Tomiška
+ */
 class IdentityDetail extends Basic.AbstractContent {
 
   constructor(props) {

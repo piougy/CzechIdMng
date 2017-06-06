@@ -5,6 +5,8 @@
   "logger": {
     "level": "INFO"
   },
-"recaptchaSiteKey": "TODO",
-"recaptchaEnabled": true
+  "recaptcha": {
+    "enabled": false,
+    "siteKey": "todo"
+  }
 }

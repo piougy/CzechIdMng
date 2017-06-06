@@ -207,12 +207,12 @@ class TextField extends AbstractFormComponent {
     }
 
     return (
-      <div className={showAsterix ? 'has-feedback' : ''}>
+      <div className={ showAsterix ? 'has-feedback' : '' }>
         {
           !label
           ||
           <label
-            className={labelClassName}>
+            className={ labelClassName }>
             { label }
             { this.renderHelpIcon() }
           </label>

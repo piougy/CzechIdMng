@@ -1,5 +1,6 @@
 import React from 'react';
-import ReCAPTCHA from 'react-google-recaptcha';
+import Recaptcha from 'react-google-recaptcha';
+import classNames from 'classnames';
 //
 import * as Basic from '../../basic';
 import { RecaptchaService } from '../../../services';
@@ -11,35 +12,49 @@ const recaptchaService = new RecaptchaService();
  * Google ReCaptcha compotent. It is a bot protection.
  *
  * @author Filip Mestanek
+ * @author Radek Tomiška
  */
-class Recaptcha extends Basic.AbstractFormComponent {
+export default class AdvancedRecaptcha extends Basic.AbstractFormComponent {
 
   constructor(props) {
     super(props);
+    // load config properties
+    const enabled = ConfigLoader.getConfig('recaptcha.enabled') === true;
+    const siteKey = ConfigLoader.getConfig('recaptcha.siteKey');
     this.state = {
-      captchaValid: false
+      captchaValid: !enabled,
+      rendered: enabled,
+      siteKey
     };
-
-    this.enabled = ConfigLoader.getConfig('recaptchaEnabled');
-    if (this.enabled == null || this.enabled === false) {
-      this.state = {
-        captchaValid: true
-      };
-
-      this.rendered = false;
-      return;
+    //
+    if (siteKey === null && enabled) {
+      this.getLogger().error('[Recaptcha]: The configuration property "recaptchaSiteKey" not defined!');
     }
-
-    this.siteKey = ConfigLoader.getConfig('recaptchaSiteKey');
-    if (this.siteKey == null) alert('The configuration property "recaptchaSiteKey" not defined!');
   }
 
-  validate() {
-    return this.isValid();
+  getComponentKey() {
+    return 'component.advanced.Recaptcha';
   }
 
   isValid() {
     return this.state.captchaValid;
+  }
+
+  validate(showValidationError) {
+    const showValidations = showValidationError != null ? showValidationError : true;
+    if (!this.isValid()) {
+      this.setState({
+        validationResult: {
+          status: 'error',
+          class: 'has-error has-feedback',
+          isValid: false,
+          message: this.i18n('required')
+        },
+        showValidationError: showValidations
+      });
+      return false;
+    }
+    return true;
   }
 
   /**
@@ -49,41 +64,71 @@ class Recaptcha extends Basic.AbstractFormComponent {
    *                        the ReCaptcha validation has expired.
    */
   recaptchaChange(value) {
-    if (value == null) {
-      this.setState({ captchaValid: false });
+    if (value === null) {
+      this.setState({
+        captchaValid: false
+      });
       return;
     }
-
+    //
     recaptchaService.checkResponse(value)
-    .then(result => {
-      this.setState({ captchaValid: result.success });
-    })
-    .catch(error => {
-      this.addError(error);
-    });
+      .then(result => {
+        this.setState({
+          captchaValid: result.success
+        });
+      })
+      .catch(error => {
+        this.addError(error);
+      });
   }
 
   getBody() {
-    if (this.rendered === false) return (<div/>);
-
+    const { labelSpan, label, componentSpan } = this.props;
+    const { rendered, siteKey } = this.state;
+    const className = classNames(
+      labelSpan,
+      componentSpan
+    );
+    const labelClassName = classNames(labelSpan, 'control-label');
+    //
+    if (!rendered || !siteKey) {
+      return null;
+    }
+    //
     return (
-      <div>
-        <ReCAPTCHA
-          ref="recaptcha"
-          sitekey={this.siteKey}
-          onChange={this.recaptchaChange.bind(this)}
-          />
+      <div className={ className }>
+        {
+          !label
+          ||
+          <label
+            className={ labelClassName }>
+            { label }
+            { this.renderHelpIcon() }
+          </label>
+        }
+        <div className={ componentSpan } style={{ whiteSpace: 'nowrap' }}>
+          <Basic.Tooltip ref="popover" placement={ this.getTitlePlacement() } value={ this.getTitle() }>
+            <span>
+              <Recaptcha
+                ref="recaptcha"
+                sitekey={ siteKey }
+                onChange={ this.recaptchaChange.bind(this) }
+                className="advanced-recaptcha"
+                />
+            </span>
+          </Basic.Tooltip>
+          { !label ? this.renderHelpIcon() : null }
+          { this.renderHelpBlock() }
+        </div>
       </div>
     );
   }
 }
 
-Recaptcha.propTypes = {
+AdvancedRecaptcha.propTypes = {
   ...Basic.AbstractFormComponent.propTypes
 };
 
-Recaptcha.defaultProps = {
+AdvancedRecaptcha.defaultProps = {
   ...Basic.AbstractFormComponent.defaultProps
 };
-
-export default Recaptcha;

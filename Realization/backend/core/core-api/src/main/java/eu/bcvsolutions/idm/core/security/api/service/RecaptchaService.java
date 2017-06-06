@@ -11,5 +11,5 @@ import eu.bcvsolutions.idm.core.security.api.dto.RecaptchaResponse;
  */
 public interface RecaptchaService {
 	
-	RecaptchaResponse checkRecaptcha(RecaptchaRequest data);
+	RecaptchaResponse checkRecaptcha(RecaptchaRequest request);
 }

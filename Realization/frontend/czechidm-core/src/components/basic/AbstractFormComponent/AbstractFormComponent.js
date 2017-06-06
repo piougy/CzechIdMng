@@ -262,7 +262,7 @@ class AbstractFormComponent extends AbstractContextComponent {
     //
     let title = null;
     if (validationResult && validationResult.message) {
-      title = `${propertyName}: ${validationResult.message}`;
+      title = `${propertyName ? propertyName + ': ' : ''}${validationResult.message}`;
     } else if (!label) {
       title = propertyName;
     }
@@ -295,8 +295,8 @@ class AbstractFormComponent extends AbstractContextComponent {
       }
     }
     return (
-      <div className={_className + ' ' + validationClass} style={this.props.style}>
-          {this.getBody(feedback)}
+      <div className={ _className + ' ' + validationClass } style={ this.props.style }>
+        { this.getBody(feedback) }
       </div>
     );
   }

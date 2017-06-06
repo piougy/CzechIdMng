@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.security.api.dto;
 
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -8,17 +9,18 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * Response from ReCaptcha validation. See https://developers.google.com/recaptcha/docs/verify.
  * 
  * @author Filip Mestanek
+ * @author Radek Tomiška
  */
 public class RecaptchaResponse {
 
 	@JsonProperty("success")
-	private boolean success;
+	private boolean success;	
 	
 	@JsonProperty("hostname")
 	private String hostname;
 	
 	@JsonProperty("error-codes")
-	private Collection<String> errorCodes;
+	private List<String> errorCodes;
 
 	public boolean isSuccess() {
 		return success;
@@ -36,11 +38,14 @@ public class RecaptchaResponse {
 		this.hostname = hostname;
 	}
 
-	public Collection<String> getErrorCodes() {
+	public List<String> getErrorCodes() {
+		if (errorCodes == null) {
+			errorCodes = new ArrayList<>();
+		}
 		return errorCodes;
 	}
 
-	public void setErrorCodes(Collection<String> errorCodes) {
+	public void setErrorCodes(List<String> errorCodes) {
 		this.errorCodes = errorCodes;
 	}
 }

@@ -268,6 +268,9 @@
             "label": "Name of IdM attribute",
             "placeholder": "Name of attribute in IdM"
           }
+        },
+        "protectionEnabled": {
+          "help": "Enables account protection before deletion. When trying to remove an IDM account, it will be marked as 'Is protected'. Such an account will not be deleted or provisioned. To really delete the IDM account (and thus the account on the end system), it will occur after the expiration of the protection interval. Deleting performs a scheduled task (! Not yet implemented !)."
         }
       },
       "attributeDetail": {
@@ -491,7 +494,9 @@
       "operationType": "Operation type",
       "system": "System",
       "objectClass": "Object name",
-      "treeType": "Tree type"
+      "treeType": "Tree type",
+      "protectionEnabled": "Account protection (before delete)",
+      "protectionInterval": "Length of protection interval (in days)"
     },
     "SchemaAttribute": {
       "name": "Name",

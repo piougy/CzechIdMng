@@ -6,6 +6,8 @@ import Icon from '../Icon/Icon';
 
 /**
  * Simple enum formatter
+ *
+ * @author Radek Tomiška
  */
 class EnumValue extends AbstractComponent {
 

@@ -4,5 +4,9 @@
   "theme": "czechidm-core/themes/default",
   "logger": {
     "level": "WARN"
+  },
+  "recaptcha": {
+    "enabled": false,
+    "siteKey": "todo"
   }
 }

@@ -28,15 +28,12 @@ public class IdmNotificationDto extends AbstractDto implements BaseNotification 
     private DateTime sent;
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private String sentLog;
-
-    //TODO: can we use UUID with UuidToEntityConverter and embedded here?
-    private List<IdmNotificationRecipientDto> recipients;
+    private List<IdmNotificationRecipientDto> recipients; // recipients are sent in one request
     @JsonProperty("parent")
     @Embedded(dtoClass = IdmNotificationLogDto.class)
     private UUID parent;
     @JsonProperty("message")
     private IdmMessageDto message;
-    @JsonProperty("sender")
     @Embedded(dtoClass = IdmIdentityDto.class)
     private UUID identitySender;
 

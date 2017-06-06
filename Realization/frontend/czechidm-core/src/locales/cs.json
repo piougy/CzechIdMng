@@ -284,6 +284,9 @@
         "attributes": {
           "empty": "Definice dalších atributů byla nalezena, ale neobsahuje žádné položky."
         }
+      },
+      "Recaptcha": {
+        "required": "Podvrďte prosím, že nejste robot"
       }
     }
   },
@@ -2874,6 +2877,18 @@
     "PASSWORD_EXPIRED": {
       "title": "Platnost hesla vypršela",
       "message": "Zadané heslo již není možné použít pro přístup do aplikace."
+    },
+    "RECAPTCHA_SECRETKEY_MISSING": {
+      "title": "Konfigurace aplikace",
+      "message": "Konfigurační položka pro ochranu soukromí [{{property}}] není definovaná. Doplňte ji do konfigurace aplikace."
+    },
+    "RECAPTCHA_CHECK_FAILED": {
+      "title": "Kontrola pro ochranu soukromí",
+      "message": "Kontrola pro ochranu soukromí neprošla: [{{errors}}]."
+    },
+    "RECAPTCHA_SERVICE_UNAVAILABLE": {
+      "title": "Kontrola pro ochranu soukromí",
+      "message": "Kontrola pro ochranu soukromí není dostupná."
     }
   },
   "validationError": {

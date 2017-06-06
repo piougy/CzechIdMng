@@ -261,6 +261,9 @@
             "confidential": "{{name}} - confidential is not supported"
           }
         }
+      },
+      "Recaptcha": {
+        "required": "Check 'you are not a robot' please"
       }
     }
   },
@@ -2833,6 +2836,18 @@
     "PASSWORD_EXPIRED": {
       "title": "Password expired",
       "message": "Password couldn't be used for login."
+    },
+    "RECAPTCHA_SECRETKEY_MISSING": {
+      "title": "Application configuration",
+      "message": "Configuration property for recaptcha [{{property}}] is missing. Add please configuration item."
+    },
+    "RECAPTCHA_CHECK_FAILED": {
+      "title": "Recaptcha check",
+      "message": "Recaptcha failed: [{{errors}}]."
+    },
+    "RECAPTCHA_SERVICE_UNAVAILABLE": {
+      "title": "Recaptcha check",
+      "message": "Recaptcha service is unavailable."
     }
   },
   "validationError": {

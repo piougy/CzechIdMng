@@ -8,9 +8,12 @@ import NotificationRecipient from './NotificationRecipient';
 import NotificationRecipientsCell from './NotificationRecipientsCell';
 import NotificationSentState from '../notification/NotificationSentState';
 import NotificationLevelEnum from '../../enums/NotificationLevelEnum';
+import SearchParameters from '../../domain/SearchParameters';
 
 /**
  * Notification detail content
+ *
+ * @author Radek Tomiška
  */
 class NotificationDetail extends Basic.AbstractContent {
 
@@ -33,7 +36,7 @@ class NotificationDetail extends Basic.AbstractContent {
     const { notification, isNew, userContext } = this.props;
     let data;
     if (isNew) {
-      notification.sender = userContext.id;
+      notification.identitySender = userContext.id;
       data = { ...notification };
       this.refs.subject.focus();
     } else {
@@ -77,18 +80,17 @@ class NotificationDetail extends Basic.AbstractContent {
         recipientsData.push({identityRecipient: entityId});
       });
     }
-    const sender = entity.sender;
 
     const saveEntity = {
       topic: entity.topic,
-      identitySender: sender,
+      identitySender: entity.identitySender,
       recipients: recipientsData,
       message: {
         subject: entity.subject,
         textMessage: entity.textMessage,
         htmlMessage: entity.htmlMessage,
         level: entity.level,
-        template: entity.template.id
+        template: entity.template ? entity.template.id : null
       }
     };
 
@@ -138,6 +140,7 @@ class NotificationDetail extends Basic.AbstractContent {
     if (!notification) {
       return null;
     }
+    const forceSearchParameters = new SearchParameters().setFilter('parent', notification.id);
     //
     return (
       <div>
@@ -150,6 +153,13 @@ class NotificationDetail extends Basic.AbstractContent {
           </Basic.LabelWrapper>
 
           <Basic.TextField ref="topic" label={this.i18n('entity.Notification.topic')} readOnly={!isNew} />
+
+          <Basic.SelectBox
+            readOnly={!isNew}
+            onChange={this._pickTemplate.bind(this)}
+            ref="template"
+            label={this.i18n('entity.Notification.template')}
+            manager={this.notificationTemplateManager}/>
 
           <Basic.TextField ref="subject" required label={this.i18n('entity.Notification.message.subject')} readOnly={!isNew} />
 
@@ -173,25 +183,18 @@ class NotificationDetail extends Basic.AbstractContent {
           </Basic.LabelWrapper>
 
           <Basic.SelectBox
-            hidden={!isNew}
-            ref="sender"
-            label={this.i18n('entity.Notification.sender')}
-            manager={this.identityManager}/>
+            hidden={ !isNew }
+            ref="identitySender"
+            label={ this.i18n('entity.Notification.sender') }
+            manager={ this.identityManager }/>
 
-          <Basic.SelectBox
-            readOnly={!isNew}
-            onChange={this._pickTemplate.bind(this)}
-            ref="template"
-            label={this.i18n('entity.Notification.template')}
-            manager={this.notificationTemplateManager}/>
-
-          <Basic.LabelWrapper hidden={isNew || !notification._embedded || !notification._embedded.sender}
+          <Basic.LabelWrapper hidden={isNew || !notification._embedded || !notification._embedded.identitySender}
             label={this.i18n('entity.Notification.sender')}>
             <div style={{ margin: '7px 0' }}>
               {
                 !notification._embedded
                 ||
-                this.identityManager.getNiceLabel(notification._embedded.sender)
+                this.identityManager.getNiceLabel(notification._embedded.identitySender)
               }
             </div>
           </Basic.LabelWrapper>
@@ -236,61 +239,57 @@ class NotificationDetail extends Basic.AbstractContent {
           <Basic.TextArea ref="sentLog" label={this.i18n('entity.Notification.sentLog')} readOnly hidden={isNew || !notification.sentLog} max={2000} />
         </Basic.AbstractForm>
         {
-          notification.relatedNotifications
-          ?
-          <div>
-            <Basic.PanelBody>
-              <Basic.ContentHeader text={this.i18n('relatedNotifications')}/>
-            </Basic.PanelBody>
-            <Basic.Table hidden={isNew}
-              data={notification.relatedNotifications}>
-              <Basic.Column
-                property="type"
-                header={this.i18n('entity.Notification.type')}/>
-              <Basic.Column
-                property="created"
-                header={this.i18n('entity.Notification.created')}
-                cell={<Basic.DateCell format={this.i18n('format.datetime')}/>}
-                rendered={false}/>
-              <Basic.Column
-                property="recipients"
-                header={this.i18n('entity.Notification.recipients')}
-                cell={<NotificationRecipientsCell />}/>
-              <Basic.Column
-                property="sender"
-                header={this.i18n('entity.Notification.sender')}
-                cell={
-                  ({ rowIndex, data, property }) => {
-                    return !data[rowIndex]._embedded ? null : this.identityManager.getNiceLabel(data[rowIndex]._embedded[property]);
-                  }
-                }/>
-              <Basic.Column
-                property="sent"
-                header={this.i18n('entity.Notification.sent')}
-                cell={
-                  ({ rowIndex, data}) => {
-                    return (
-                      <NotificationSentState notification={data[rowIndex]}/>
-                    );
-                  }
-                }/>
-              <Basic.Column
-                property="sentLog"
-                header={this.i18n('entity.Notification.sentLog')}
-                width="20%"/>
-            </Basic.Table>
-          </div>
-          :
-          null
+          notification.type !== 'notification'
+          ||
+          <Advanced.Table
+            header={ this.i18n('relatedNotifications') }
+            hidden={ isNew }
+            manager={ this.notificationManager }
+            forceSearchParameters={ forceSearchParameters }>
+            <Basic.Column
+              property="type"
+              header={this.i18n('entity.Notification.type')}/>
+            <Basic.Column
+              property="created"
+              header={this.i18n('entity.Notification.created')}
+              cell={<Basic.DateCell format={this.i18n('format.datetime')}/>}
+              rendered={false}/>
+            <Basic.Column
+              property="recipients"
+              header={this.i18n('entity.Notification.recipients')}
+              cell={
+                ({ rowIndex, data }) => {
+                  return (
+                    <NotificationRecipientsCell notification={ data[rowIndex] } />
+                  );
+                }
+              }/>
+            <Basic.Column
+              property="sent"
+              header={ this.i18n('entity.Notification.sent') }
+              cell={
+                /* eslint-disable react/no-multi-comp */
+                ({ rowIndex, data}) => {
+                  return (
+                    <NotificationSentState notification={ data[rowIndex] }/>
+                  );
+                }
+              }/>
+            <Basic.Column
+              property="sentLog"
+              header={this.i18n('entity.Notification.sentLog')}
+              width="20%"/>
+          </Advanced.Table>
         }
         <Basic.PanelFooter>
           <Basic.Button type="button" level="link" onClick={this.context.router.goBack} showLoading={showLoading}>{this.i18n('button.back')}</Basic.Button>
-          <Basic.Button hidden={!isNew}
-              onClick={this.save.bind(this)}
-              level="success"
-              showLoadingIcon
-              showLoadingText={this.i18n('button.sending')}>
-              {this.i18n('button.send')}
+          <Basic.Button
+            hidden={!isNew}
+            onClick={this.save.bind(this)}
+            level="success"
+            showLoadingIcon
+            showLoadingText={this.i18n('button.sending')}>
+            { this.i18n('button.send') }
           </Basic.Button>
         </Basic.PanelFooter>
         </div>

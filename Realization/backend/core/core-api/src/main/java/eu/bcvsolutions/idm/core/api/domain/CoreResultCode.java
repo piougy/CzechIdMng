@@ -135,6 +135,10 @@ public enum CoreResultCode implements ResultCode {
 	ROLE_REQUEST_EXECUTED_CANNOT_DELETE(HttpStatus.BAD_REQUEST, "Request [%s] in EXECUTED state cannot be deleted!"),
 	ROLE_REQUEST_AUTOMATICALLY_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "Field 'requested by' in request [%s] cannot be 'AUTOMATICALLY' via REST API!"),
 	//
+	RECAPTCHA_SECRET_KEY_MISSING(HttpStatus.INTERNAL_SERVER_ERROR, "Recaptcha component is wrong configured, property [%s] is missing - configure property value."),
+	RECAPTCHA_CHECK_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Recaptcha check failed, error codes [%s]"),
+	RECAPTCHA_SERVICE_UNAVAILABLE(HttpStatus.INTERNAL_SERVER_ERROR, "Recaptcha service is unavailable: %s"),
+	//
 	// Crypt
 	CRYPT_DEMO_KEY_NOT_FOUND(HttpStatus.BAD_REQUEST, "Demo key: [%s] cannot be found! Please create primary key: [%s] or fix demo key."),
 	CRYPT_INITIALIZATION_PROBLEM(HttpStatus.BAD_REQUEST, "Initialization problem, algorithm [%s]."),

@@ -17,6 +17,7 @@ import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationLogDto;
 import eu.bcvsolutions.idm.core.notification.dto.filter.NotificationFilter;
+import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationLog;
 import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationLogService;
 import eu.bcvsolutions.idm.core.workflow.config.WorkflowConfig;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
@@ -63,6 +64,7 @@ public class SendNotificationFromTask extends AbstractCoreWorkflowIntegrationTes
 		//
 		NotificationFilter filter = new NotificationFilter();
 		filter.setRecipient(identity.getUsername());
+		filter.setNotificationType(IdmNotificationLog.class);
 		List<IdmNotificationLogDto> notifications = notificationLogService.find(filter, null).getContent();
 		//
 		assertEquals(2, notifications.size());

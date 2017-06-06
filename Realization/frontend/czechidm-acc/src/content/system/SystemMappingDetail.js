@@ -219,6 +219,7 @@ class SystemMappingDetail extends Advanced.AbstractTableContent {
               <Basic.Checkbox
                 ref="protectionEnabled"
                 label={this.i18n('acc:entity.SystemMapping.protectionEnabled')}
+                helpBlock={this.i18n('protectionEnabled.help')}
                 hidden={!isSelectedIdentity || !isSelectedProvisioning || isNew}
               />
               <Basic.TextField

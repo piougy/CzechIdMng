@@ -57,7 +57,7 @@ public class ProvisioningStartProcessor extends AbstractEntityEventProcessor<Acc
 				LOG.info("Account [{}] is in protection. Provisioning is skipped.", account.getUid());
 				return new DefaultEventResult<>(event, this);				
 			}
-			LOG.info("Account [{}] is in protection, but cancle attribute is TRUE. Provisioning is not skipped.", account.getUid());
+			LOG.info("Account [{}] is in protection, but cancel attribute is TRUE. Provisioning is not skipped.", account.getUid());
 		}
 
 		provisioningService.doInternalProvisioning(account,

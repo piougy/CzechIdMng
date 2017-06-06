@@ -9,6 +9,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import com.google.common.collect.ImmutableMap;
+
+import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.filter.AccountFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
@@ -16,6 +19,7 @@ import eu.bcvsolutions.idm.acc.repository.AccAccountRepository;
 import eu.bcvsolutions.idm.acc.repository.AccIdentityAccountRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 
 /**
@@ -62,7 +66,11 @@ public class DefaultAccAccountService extends AbstractReadWriteEntityService<Acc
 	@Transactional
 	public void delete(AccAccount account, boolean deleteTargetAccount) {
 		Assert.notNull(account);
-		//
+		// We do not allow delete account in protection
+		if(account.isAccountProtectedAndValid()){
+			throw new ResultCodeException(AccResultCode.ACCOUNT_CANNOT_BE_DELETED_IS_PROTECTED, ImmutableMap.of("uid", account.getUid()));
+		}
+		
 		// delete all identity accounts
 		// we are calling repository instead service to prevent cycle - we only
 		// need clean db in this case

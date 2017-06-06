@@ -351,7 +351,7 @@
     "NotificationStateEnum": {
       "ALL": "Send",
       "PARTLY": "Partly",
-      "NOT": "Unsent"
+      "NOT": "Not sent"
     },
     "AccessTypeEnum": {
       "DENY_ALL": "Access denied to all",

@@ -68,7 +68,7 @@ public abstract class AbstractScriptEvaluator implements Plugin<IdmScriptCategor
 		}
 		//
 		if (!this.supports(script.getCategory())) {
-			throw new ResultCodeException(CoreResultCode.BAD_REQUEST, ImmutableMap.of("scriptCategory", script.getCategory()));
+			throw new ResultCodeException(CoreResultCode.GROOVY_SCRIPT_INVALID_CATEGORY, ImmutableMap.of("scriptCategory", script.getCategory()));
 		}
 		//
 		List<IdmScriptAuthorityDto> scriptAuthorities = getScriptAuthorityForScript(script.getId());

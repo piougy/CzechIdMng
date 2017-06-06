@@ -1914,6 +1914,7 @@
       "header": "Audit",
       "title": "Audit",
       "title-entities": "Audit pro entity",
+      "title-identities": "Audit pro uživatele",
       "modifier": "Akci provedl",
       "date": "Datum změny",
       "empty": "Bez žádných záznamů",
@@ -1948,6 +1949,11 @@
           "label": "Do",
           "placeholder": "Datum do"
         }
+      },
+      "identities": {
+        "username": "Uživatelské jméno",
+        "modifier": "Upravil",
+        "identityId": "Id identity"
       }
     }
   },

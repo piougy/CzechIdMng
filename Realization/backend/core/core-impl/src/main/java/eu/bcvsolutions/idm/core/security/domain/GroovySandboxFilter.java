@@ -5,8 +5,10 @@ import java.sql.Date;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -38,7 +40,8 @@ public class GroovySandboxFilter extends GroovyValueFilter {
 	private static final Set<Class<?>> ALLOWED_TYPES = Sets.newHashSet(
 			String.class, Integer.class, Double.class, Long.class, Date.class, Enum.class, Boolean.class, 
 			BigDecimal.class, UUID.class, Character.class, GuardedString.class, DateTimeFormatter.class,
-			DateTimeFormat.class, DateTime.class, String[].class, LocalDateTime.class, List.class, ArrayList.class,
+			DateTimeFormat.class, DateTime.class, String[].class, LocalDateTime.class,
+			Map.class, HashMap.class, List.class, ArrayList.class,
 			LoggerFactory.class, Logger.class, ch.qos.logback.classic.Logger.class);
 
 	private final LinkedList<List<Class<?>>> allowedCustomTypes = new LinkedList<>();

@@ -16,5 +16,7 @@
   },
   "logger": {
     "level": "DEBUG"
-  }
+  },
+"recaptchaSiteKey": "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI",
+"recaptchaEnabled": true
 }

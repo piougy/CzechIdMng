@@ -65,8 +65,8 @@ public class TestTaskExecutor extends AbstractSchedulableStatefulExecutor<IdmIde
 	}
 	
 	@Override
-	public List<String> getParameterNames() {
-		List<String> parameters = super.getParameterNames();
+	public List<String> getPropertyNames() {
+		List<String> parameters = super.getPropertyNames();
 		parameters.add(PARAMETER_COUNT);
 		return parameters;
 	}

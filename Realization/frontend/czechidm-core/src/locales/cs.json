@@ -1235,7 +1235,7 @@
           "header": "Nová automatická role"
         },
         "save": {
-          "success": "Automatická role [{{record}}] byla úspěšně uložena"
+          "success": "Automatická role [{{record}}] byla úspěšně uložena. Přiřaření role identitám proběhne asynchroně na pozadí. Průběh můžete sledovat v agendě dlouhotrvajících úloh."
         },
         "action": {
           "delete": {

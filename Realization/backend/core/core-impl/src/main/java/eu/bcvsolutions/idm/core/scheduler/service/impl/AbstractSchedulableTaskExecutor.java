@@ -1,7 +1,5 @@
 package eu.bcvsolutions.idm.core.scheduler.service.impl;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 import org.quartz.JobExecutionContext;
@@ -26,15 +24,10 @@ import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
  */
 public abstract class AbstractSchedulableTaskExecutor<V> extends AbstractLongRunningTaskExecutor<V> implements SchedulableTaskExecutor<V> {
 
-	@Autowired
-	protected SecurityService securityService;
-	
-	@Autowired
-	protected IdmLongRunningTaskService longRunningTaskService;
-	
-	@Autowired
-	protected IdmScheduledTaskService scheduledTaskService;
-	
+	@Autowired protected SecurityService securityService;
+	@Autowired protected IdmLongRunningTaskService longRunningTaskService;
+	@Autowired protected IdmScheduledTaskService scheduledTaskService;
+	//
 	private UUID scheduledTaskId;
 	
 	@Override
@@ -47,15 +40,6 @@ public abstract class AbstractSchedulableTaskExecutor<V> extends AbstractLongRun
 		//
 		// add task to queue only - quartz will start take care of the rest
 		createIdmLongRunningTask(context, taskDto);
-	}
-
-	/**
-	 * Returns universal task parameters. Don't forget to override this method additively.
-	 */
-	@Override
-	public List<String> getParameterNames() {
-		// any parameter for now
-		return new ArrayList<>();
 	}
 	
 	@Override

@@ -1194,7 +1194,7 @@
           "header": "New automatic role"
         },
         "save": {
-          "success": "Automatic role [{{record}}] successfully saved"
+          "success": "Automatic role [{{record}}] successfully saved. Assign role to identities run asynchronouslly. You can see progress in long running tasks agenda."
         },
         "action": {
           "delete": {

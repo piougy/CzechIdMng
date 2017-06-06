@@ -1,5 +1,8 @@
 package eu.bcvsolutions.idm.core.scheduler.service.impl;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -27,6 +30,7 @@ import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskService;
  * 
  * TODO: interface only + AOP executor
  * TODO: refactor autowired fields
+ * TODO: Configurable API?
  * 
  * @author Radek Tomiška
  *
@@ -34,7 +38,7 @@ import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskService;
 public abstract class AbstractLongRunningTaskExecutor<V> implements LongRunningTaskExecutor<V> {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(AbstractLongRunningTaskExecutor.class);
-	@Autowired private IdmLongRunningTaskService service;
+	@Autowired protected IdmLongRunningTaskService service;
 	@Autowired private LookupService entityLookupService;
 	//
 	private ParameterConverter parameterConverter;	
@@ -55,23 +59,41 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements LongRunningT
 		return AutowireHelper.getBeanDescription(this.getClass());
 	}
 	
+	
+	@Override
+	@Deprecated
+	public List<String> getParameterNames() {
+		return getPropertyNames();
+	}
+	
+	/**
+	 * Returns universal task parameters. Don't forget to override this method additively.
+	 */
+	@Override
+	public List<String> getPropertyNames() {
+		// any parameter for now
+		return new ArrayList<>();
+	}
+	
 	@Override
 	public void init(Map<String, Object> properties) {
 		count = null;
 		counter = null;
 	}
 	
+	/**
+	 * Returns persistent task parameter values. Don't forget to override this method additively.
+	 */
+	@Override
+	public Map<String, Object> getProperties() {
+		return new HashMap<>();
+	}
+	
 	protected boolean start() {
 		Assert.notNull(taskId);
 		IdmLongRunningTaskDto task = service.get(taskId);
-		Assert.notNull(task, "Long running task has to be prepared before task is started");
 		//
-		if (task.isRunning()) {
-			throw new ResultCodeException(CoreResultCode.LONG_RUNNING_TASK_IS_RUNNING, ImmutableMap.of("taskId", task.getId()));
-		}
-		if (!OperationState.isRunnable(task.getResultState())) {
-			throw new ResultCodeException(CoreResultCode.LONG_RUNNING_TASK_IS_PROCESSED, ImmutableMap.of("taskId", task.getId()));
-		}
+		validate(task);
 		//
 		Thread currentThread = Thread.currentThread();
 		task.setThreadId(currentThread.getId());
@@ -84,6 +106,22 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements LongRunningT
 		//
 		service.save(task);
 		return true;
+	}
+	
+	/**
+	 * Validates task before start e.q. if task already running or to prevent run task concurrently.
+	 * 
+	 * @param task
+	 */
+	protected void validate(IdmLongRunningTaskDto task) {
+		Assert.notNull(task, "Long running task has to be prepared before task is started");
+		//
+		if (task.isRunning()) {
+			throw new ResultCodeException(CoreResultCode.LONG_RUNNING_TASK_IS_RUNNING, ImmutableMap.of("taskId", task.getId()));
+		}
+		if (!OperationState.isRunnable(task.getResultState())) {
+			throw new ResultCodeException(CoreResultCode.LONG_RUNNING_TASK_IS_PROCESSED, ImmutableMap.of("taskId", task.getId()));
+		}
 	}
 	
 	

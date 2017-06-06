@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.scheduler.api.service;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Callable;
@@ -19,11 +20,33 @@ public interface LongRunningTaskExecutor<V> extends Callable<V> {
 	String getModule();
 	
 	/**
+	 * Returns form parameter names for this task
+	 * 
+	 * @return
+	 * @deprecated use List<String> getPropertyNames();
+	 */
+	@Deprecated
+	List<String> getParameterNames();
+	
+	/**
+	 * Returns properties names for this task
+	 * 
+	 * @return
+	 */
+	List<String> getPropertyNames();
+	
+	/**
 	 * Initialize task executor before task is processed
 	 * 
 	 * @param context
 	 */
 	void init(Map<String, Object> properties);
+	
+	/**
+	 * Returns persistent task parameter values. Don't forget to override this method additively.
+	 * init(properies) => getProperties() should return the same values from init method.
+	 */
+	Map<String, Object> getProperties();
 	
 	/**
 	 * Main execution method

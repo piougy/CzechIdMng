@@ -30,7 +30,8 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
-import eu.bcvsolutions.idm.core.scheduler.service.impl.AbstractLongRunningTaskExecutor;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
+import eu.bcvsolutions.idm.core.scheduler.dto.filter.LongRunningTaskFilter;
 
 /**
  * Long running task for remove automatic roles from identities.
@@ -42,7 +43,7 @@ import eu.bcvsolutions.idm.core.scheduler.service.impl.AbstractLongRunningTaskEx
 
 @Service
 @Description("Remove automatic role from IdmRoleTreeNode.")
-public class RemoveAutomaticRoleTaskExecutor extends AbstractLongRunningTaskExecutor<Boolean> {
+public class RemoveAutomaticRoleTaskExecutor extends AbstractAutomaticRoleTaskExecutor {
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(RemoveAutomaticRoleTaskExecutor.class);
 	@Autowired private IdmIdentityRoleService identityRoleService;
@@ -51,11 +52,40 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractLongRunningTaskExec
 	@Autowired private IdmRoleRequestService roleRequestService;
 	@Autowired private IdmRoleService roleService;
 	@Autowired private IdmIdentityContractService identityContractService;
-	//
-	private IdmRoleTreeNodeDto roleTreeNode = null;
+	
+	/**
+	 * Automatic role removal can be start, if previously LRT ended.
+	 */
+	@Override
+	protected void validate(IdmLongRunningTaskDto task) {
+		super.validate(task);
+		//
+		IdmRoleTreeNodeDto roleTreeNode = getRoleTreeNode();
+		LongRunningTaskFilter filter = new LongRunningTaskFilter();
+		filter.setTaskType(this.getClass().getCanonicalName());
+		filter.setRunning(true);
+		service.find(filter, null).forEach(longRunningTask -> {
+			if (longRunningTask.getTaskProperties().get(PARAMETER_ROLE_TREE_NODE).equals(roleTreeNode.getId())) {
+				throw new ResultCodeException(CoreResultCode.AUTOMATIC_ROLE_REMOVE_TASK_RUN_CONCURRENTLY,
+						ImmutableMap.of(
+								"roleTreeNode", roleTreeNode.getId().toString(),
+								"taskId", longRunningTask.getId().toString()));
+			}
+		});
+		filter.setTaskType(AddNewAutomaticRoleTaskExecutor.class.getCanonicalName());
+		service.find(filter, null).forEach(longRunningTask -> {
+			if (longRunningTask.getTaskProperties().get(PARAMETER_ROLE_TREE_NODE).equals(roleTreeNode.getId())) {
+				throw new ResultCodeException(CoreResultCode.AUTOMATIC_ROLE_REMOVE_TASK_ADD_RUNNING,
+						ImmutableMap.of(
+								"roleTreeNode", roleTreeNode.getId().toString(),
+								"taskId", longRunningTask.getId().toString()));
+			}
+		});
+	}
 	
 	@Override
 	public Boolean process() {
+		IdmRoleTreeNodeDto roleTreeNode = getRoleTreeNode();
 		if (roleTreeNode == null) {
 			throw new ResultCodeException(CoreResultCode.AUTOMATIC_ROLE_TASK_EMPTY);
 		}
@@ -94,6 +124,10 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractLongRunningTaskExec
 							"roleTreeNode", roleTreeNode.getId(),
 							"identities", StringUtils.join(failedIdentities, ",")));
 		}
+		if (!canContinue) {
+			// LRT was canceled
+			return Boolean.FALSE;
+		}
 		// Find all concepts and remove relation on role tree
 		ConceptRoleRequestFilter conceptRequestFilter = new ConceptRoleRequestFilter();
 		conceptRequestFilter.setRoleTreeNodeId(roleTreeNode.getId());
@@ -124,9 +158,4 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractLongRunningTaskExec
 		//
 		return Boolean.TRUE;
 	}
-
-	public void setRoleTreeNode(IdmRoleTreeNodeDto roleTreeNode) {
-		this.roleTreeNode = roleTreeNode;
-	}
-
 }

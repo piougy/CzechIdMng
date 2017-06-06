@@ -10,8 +10,10 @@ import NotificationLevelEnum from '../../../enums/NotificationLevelEnum';
 
 /**
 * Table of audit log for emails
+*
+* @author Radek Tomiška
 */
-export class EmailTable extends Basic.AbstractContent {
+export class EmailTable extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);
@@ -27,12 +29,6 @@ export class EmailTable extends Basic.AbstractContent {
 
   getContentKey() {
     return 'content.emails';
-  }
-
-  componentDidMount() {
-  }
-
-  componentDidUpdate() {
   }
 
   useFilter(event) {
@@ -134,7 +130,8 @@ export class EmailTable extends Basic.AbstractContent {
                 </Basic.Row>
               </Basic.AbstractForm>
             </Advanced.Filter>
-          }>
+          }
+          _searchParameters={ this.getSearchParameters() }>
 
           <Advanced.Column
             header=""
@@ -156,22 +153,22 @@ export class EmailTable extends Basic.AbstractContent {
               cell={
                 ({ rowIndex, data }) => {
                   return (
-                    <NotificationRecipientsCell notifId={data[rowIndex].id} identityOnly />
+                    <NotificationRecipientsCell notification={ data[rowIndex] } identityOnly />
                   );
                 }
               }/>
           <Advanced.Column
             property="sender"
             cell={
-              ({ rowIndex, data, property }) => {
-                return !data[rowIndex]._embedded ? null : this.identityManager.getNiceLabel(data[rowIndex]._embedded[property]);
+              ({ rowIndex, data }) => {
+                return !data[rowIndex]._embedded ? null : this.identityManager.getNiceLabel(data[rowIndex]._embedded.identitySender);
               }
             }/>
           <Advanced.Column
             property="sent"
             cell={
               ({ data, rowIndex}) => {
-                this._getStatus(data, rowIndex);
+                return this._getStatus(data, rowIndex);
               }
             }
             />
@@ -195,7 +192,7 @@ EmailTable.defaultProps = {
 
 function select(state, component) {
   return {
-    _searchParameters: state.data.ui[component.uiKey] ? state.data.ui[component.uiKey].searchParameters : {},
+    _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey),
     _showLoading: component.emailManager.isShowLoading(state, `${component.uiKey}-detail`)
   };
 }

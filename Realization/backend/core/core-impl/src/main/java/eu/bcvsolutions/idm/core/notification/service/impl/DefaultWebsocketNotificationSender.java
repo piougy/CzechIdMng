@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.notification.api.dto.FlashMessage;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
@@ -49,6 +50,11 @@ public class DefaultWebsocketNotificationSender extends AbstractNotificationSend
 	@Override
 	public String getType() {
 		return IdmWebsocketLog.NOTIFICATION_TYPE;
+	}
+	
+	@Override
+	public Class<? extends BaseEntity> getNotificationType() {
+		return websocketLogService.getEntityClass();
 	}
 	
 	@Override

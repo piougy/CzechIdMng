@@ -77,7 +77,7 @@ public class ModelMapperConfig {
 
 					if (superContext != null) {
 						if (parentContext != null && parentContext.getDestination() instanceof AbstractDto) {
-							((AbstractDto) parentContext).setTrimmed(true);
+							((AbstractDto) parentContext.getDestination()).setTrimmed(true);
 						}
 						return false;
 					}

@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.plugin.core.Plugin;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.notification.api.dto.BaseNotification;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationDto;
@@ -28,6 +29,13 @@ public interface NotificationSender<N extends BaseNotification> extends Plugin<S
 	 * @return
 	 */
 	String getType();
+	
+	/**
+	 * Returns notification log type (entity class).
+	 * 
+	 * @return
+	 */
+	Class<? extends BaseEntity> getNotificationType();
 
 	/**
 	 * Sends given message to given identity.

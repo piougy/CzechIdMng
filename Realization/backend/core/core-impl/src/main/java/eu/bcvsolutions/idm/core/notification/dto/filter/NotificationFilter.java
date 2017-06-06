@@ -1,9 +1,12 @@
 package eu.bcvsolutions.idm.core.notification.dto.filter;
 
+import java.util.UUID;
+
 import org.joda.time.DateTime;
 
 import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
-import eu.bcvsolutions.idm.core.notification.domain.NotificationState;
+import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
+import eu.bcvsolutions.idm.core.notification.api.domain.NotificationState;
 
 /**
  * Filter for notifications (notification, email ...)
@@ -19,6 +22,8 @@ public class NotificationFilter extends QuickFilter {
 	private DateTime from;
 	private DateTime till;
 	private Boolean sent;
+	private Class<? extends BaseEntity> notificationType;
+	private UUID parent;
 
 	public String getSender() {
 		return sender;
@@ -66,5 +71,21 @@ public class NotificationFilter extends QuickFilter {
 	
 	public void setSent(Boolean sent) {
 		this.sent = sent;
+	}
+	
+	public Class<? extends BaseEntity> getNotificationType() {
+		return notificationType;
+	}
+	
+	public void setNotificationType(Class<? extends BaseEntity> notificationType) {
+		this.notificationType = notificationType;
+	}
+	
+	public void setParent(UUID parent) {
+		this.parent = parent;
+	}
+	
+	public UUID getParent() {
+		return parent;
 	}
 }

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationLogDto;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationLog;
@@ -41,6 +42,11 @@ public class DefaultNotificationManager extends AbstractNotificationSender<IdmNo
 	@Override
 	public String getType() {
 		return IdmNotificationLog.NOTIFICATION_TYPE;
+	}
+	
+	@Override
+	public Class<? extends BaseEntity> getNotificationType() {
+		return notificationLogService.getEntityClass();
 	}
 
 	@Override

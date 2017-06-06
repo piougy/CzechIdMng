@@ -4,6 +4,9 @@ import classNames from 'classnames';
 import AbstractFormComponent from '../AbstractFormComponent/AbstractFormComponent';
 import Label from '../Label/Label';
 
+/**
+ * Renders localized enum label - usable in forms
+ */
 class EnumLabel extends AbstractFormComponent {
 
   constructor(props) {

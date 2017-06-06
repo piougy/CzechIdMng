@@ -13,7 +13,7 @@ import NotificationLevelEnum from '../../../enums/NotificationLevelEnum';
 *
 * @author Peter Sourek
 */
-export class SmsTable extends Basic.AbstractContent {
+export class SmsTable extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);
@@ -29,12 +29,6 @@ export class SmsTable extends Basic.AbstractContent {
 
   getContentKey() {
     return 'content.sms';
-  }
-
-  componentDidMount() {
-  }
-
-  componentDidUpdate() {
   }
 
   useFilter(event) {
@@ -136,7 +130,8 @@ export class SmsTable extends Basic.AbstractContent {
                 </Basic.Row>
               </Basic.AbstractForm>
             </Advanced.Filter>
-          }>
+          }
+          _searchParameters={ this.getSearchParameters() }>
 
           <Advanced.Column
             header=""
@@ -158,15 +153,15 @@ export class SmsTable extends Basic.AbstractContent {
               cell={
                 ({ rowIndex, data }) => {
                   return (
-                    <NotificationRecipientsCell notifId={data[rowIndex].id} identityOnly />
+                    <NotificationRecipientsCell notification={ data[rowIndex] } identityOnly />
                   );
                 }
               }/>
           <Advanced.Column
             property="sender"
             cell={
-              ({ rowIndex, data, property }) => {
-                return !data[rowIndex]._embedded ? null : this.identityManager.getNiceLabel(data[rowIndex]._embedded[property]);
+              ({ rowIndex, data }) => {
+                return !data[rowIndex]._embedded ? null : this.identityManager.getNiceLabel(data[rowIndex]._embedded.identitySender);
               }
             }/>
           <Advanced.Column
@@ -196,7 +191,7 @@ SmsTable.defaultProps = {
 
 function select(state, component) {
   return {
-    _searchParameters: state.data.ui[component.uiKey] ? state.data.ui[component.uiKey].searchParameters : {},
+    _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey),
     _showLoading: component.manager.isShowLoading(state, `${component.uiKey}-detail`)
   };
 }

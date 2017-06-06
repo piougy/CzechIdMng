@@ -7,7 +7,6 @@ import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
-import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.dto.filter.LongRunningTaskFilter;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 
@@ -32,17 +31,6 @@ public interface IdmLongRunningTaskService extends
 	 * @see ConfigurationService
 	 */
 	List<IdmLongRunningTaskDto> findAllByInstance(String instanceId, OperationState state);
-	
-	/**
-	 * Persists long running task in new transaction
-	 * 
-	 * @param taskExecutor
-	 * @param operationState
-	 * @return
-	 */
-	<V> IdmLongRunningTaskDto saveInNewTransaction(
-			LongRunningTaskExecutor<V> taskExecutor,
-			OperationState operationState);
 	
 	/**
 	 * Updates long running task attributes

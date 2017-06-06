@@ -22,56 +22,54 @@ public class IdmNotificationRecipientDto extends AbstractDto {
 	@JsonBackReference
 	@Embedded(dtoClass = IdmNotificationLogDto.class)
 	private UUID notification;
-
-	private String realRecipient;
-
 	@JsonProperty("identityRecipient")
 	@Embedded(dtoClass = IdmIdentityDto.class)
 	private UUID identityRecipient;
+	private String realRecipient;
 
 	public IdmNotificationRecipientDto(UUID identity) {
-	this(null, identity, null);
+		this(null, identity, null);
 	}
 
 	public IdmNotificationRecipientDto(String recipient) {
-	this(null, null, recipient);
+		this(null, null, recipient);
 	}
 
 	public IdmNotificationRecipientDto(UUID notification, UUID identity) {
-	this(notification, identity, null);
+		this(notification, identity, null);
 	}
 
 	public IdmNotificationRecipientDto(UUID notification, String recipient) {
-	this(notification, null, recipient);
+		this(notification, null, recipient);
 	}
 
 	public IdmNotificationRecipientDto(UUID notification, UUID identity, String realRecipient) {
-	this.notification = notification;
-	this.identityRecipient = identity;
-	this.realRecipient = realRecipient;
+		this.notification = notification;
+		this.identityRecipient = identity;
+		this.realRecipient = realRecipient;
 	}
 
 	public IdmNotificationRecipientDto() {
 	}
 
 	public UUID getNotification() {
-	return notification;
+		return notification;
 	}
 
 	public void setNotification(UUID notification) {
-	this.notification = notification;
+		this.notification = notification;
 	}
 
 	public UUID getIdentityRecipient() {
-	return identityRecipient;
+		return identityRecipient;
 	}
 
 	public void setIdentityRecipient(UUID identityRecipient) {
-	this.identityRecipient = identityRecipient;
+		this.identityRecipient = identityRecipient;
 	}
 
 	public String getRealRecipient() {
-	return realRecipient;
+		return realRecipient;
 	}
 
 	public void setRealRecipient(String realRecipient) {

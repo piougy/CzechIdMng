@@ -22,6 +22,7 @@ import eu.bcvsolutions.idm.core.model.event.processor.identity.IdentityMonitored
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationLogDto;
 import eu.bcvsolutions.idm.core.notification.dto.filter.NotificationFilter;
+import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationLog;
 import eu.bcvsolutions.idm.core.notification.repository.IdmEmailLogRepository;
 import eu.bcvsolutions.idm.core.notification.repository.IdmNotificationLogRepository;
 import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationLogService;
@@ -78,6 +79,7 @@ public class IdentityMonitoredFieldsProcessorTest extends AbstractIntegrationTes
 
 		// Test before notify
 		NotificationFilter filter = new NotificationFilter();
+		filter.setNotificationType(IdmNotificationLog.class);
 		filter.setRecipient(recipients.get(0).getUsername());
 
 		identity.setFirstName("changed" + UUID.randomUUID());

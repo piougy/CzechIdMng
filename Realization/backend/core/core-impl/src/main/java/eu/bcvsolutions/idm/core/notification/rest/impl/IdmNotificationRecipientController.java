@@ -24,10 +24,10 @@ import javax.validation.constraints.NotNull;
 
 @RestController
 @RequestMapping(value = BaseDtoController.BASE_PATH + "/notification-recipients")
-public class IdmNotificationLogRecipientController extends AbstractReadDtoController<IdmNotificationRecipientDto, NotificationRecipientFilter> {
+public class IdmNotificationRecipientController extends AbstractReadDtoController<IdmNotificationRecipientDto, NotificationRecipientFilter> {
 
     @Autowired
-    public IdmNotificationLogRecipientController(IdmNotificationRecipientService service) {
+    public IdmNotificationRecipientController(IdmNotificationRecipientService service) {
         super(service);
     }
 

@@ -92,7 +92,7 @@ export class AuditIdentityTable extends Basic.AbstractContent {
               <Advanced.Filter.TextField
                 className="pull-right"
                 ref="username"
-                placeholder={this.i18n('entity.Audit.identities.username')}
+                placeholder={this.i18n('content.audit.identities.username')}
                 returnProperty="username"/>
             </div>
             <div className="col-lg-4">
@@ -206,7 +206,7 @@ AuditIdentityTable.propTypes = {
 };
 
 AuditIdentityTable.defaultProps = {
-  tableUiKey: 'audit-table'
+  tableUiKey: 'audit-table-identities'
 };
 
 function select() {

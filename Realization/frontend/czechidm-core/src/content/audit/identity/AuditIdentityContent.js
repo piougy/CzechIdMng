@@ -1,10 +1,8 @@
 import React from 'react';
-import Helmet from 'react-helmet';
-import { connect } from 'react-redux';
 import * as Basic from '../../../components/basic';
 import AuditIdentityTable from './AuditIdentityTable';
 
-class AuditContent extends Basic.AbstractContent {
+export default class AuditContent extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
@@ -15,23 +13,13 @@ class AuditContent extends Basic.AbstractContent {
   }
 
   componentDidMount() {
-    this.selectNavigationItems(['audit', 'audit-identities']);
+    this.selectNavigationItems(['audit', 'audits', 'audit-identities']);
   }
 
   render() {
     return (
       <div>
-        <Helmet title={this.i18n('title')} />
-
-        <Basic.PageHeader>
-          <Basic.Icon value="eye-close"/>
-          {' '}
-          {this.i18n('header')}
-        </Basic.PageHeader>
-
-        <Basic.Panel>
-          <AuditIdentityTable />
-        </Basic.Panel>
+        <AuditIdentityTable />
       </div>
     );
   }
@@ -42,10 +30,3 @@ AuditContent.propTypes = {
 
 AuditContent.defaultProps = {
 };
-
-function select() {
-  return {
-  };
-}
-
-export default connect(select)(AuditContent);

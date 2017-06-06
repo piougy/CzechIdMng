@@ -26,6 +26,17 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.model.entity.eav.IdmIdentityFormValue;
 import eu.bcvsolutions.idm.core.model.entity.eav.IdmIdentityFormValue_;
 
+/**
+ * Idm audit service for Identity and their relations
+ * TODO:
+ * envers has bug with search deleted entities
+ * https://github.com/spring-projects/spring-data-envers/issues/21
+ * 
+ * 
+ * @author Ondrej Kopr <kopr@xyxy.cz>
+ *
+ */
+
 @Service("auditIdentityService")
 public class IdmAuditIdentityService extends AbstractAuditEntityService {
 
@@ -59,13 +70,17 @@ public class IdmAuditIdentityService extends AbstractAuditEntityService {
 		// in identities can be more UUID, we search for all
 		List<Object[]> identities = findIdentityByAttribute(identityFilter);
 		//
+		// get identity ids
 		List<UUID> identityIds = getEntityIdFromList(identities);
 		//
+		// get contracts
 		List<Object[]> contracts = findRealationByEntityId(IdmIdentityContract.class,
 				IdmIdentityContract_.identity.getName(), identityIds, identityFilter);
 		//
+		// get roles
 		List<Object[]> roles = findRolesForIdentities(getEntityIdFromList(contracts), identityFilter);
 		//
+		// get eav attributes
 		List<Object[]> eavAttributes = findRealationByEntityId(IdmIdentityFormValue.class,
 				IdmIdentityFormValue_.owner.getName(), identityIds, identityFilter);
 		//
@@ -78,6 +93,12 @@ public class IdmAuditIdentityService extends AbstractAuditEntityService {
 		return sortByTimestamp(revisions);
 	}
 
+	/**
+	 * Method sort revisions by timestamp
+	 * 
+	 * @param revisions
+	 * @return
+	 */
 	private List<IdmAudit> sortByTimestamp(List<IdmAudit> revisions) {
 		Collections.sort(revisions, new Comparator<IdmAudit>() {
 			public int compare(IdmAudit o1, IdmAudit o2) {
@@ -87,6 +108,15 @@ public class IdmAuditIdentityService extends AbstractAuditEntityService {
 		return revisions;
 	}
 
+	/**
+	 * Find relation defined by clazz for list ids defined by entityId
+	 * 
+	 * @param clazz
+	 * @param relationAtrributeName
+	 * @param entityId
+	 * @param filter
+	 * @return
+	 */
 	private List<Object[]> findRealationByEntityId(Class clazz, String relationAtrributeName, List<UUID> entityId,
 			AuditIdentityFilter filter) {
 		List<Object[]> result = new ArrayList<>();
@@ -107,6 +137,13 @@ public class IdmAuditIdentityService extends AbstractAuditEntityService {
 		return result;
 	}
 
+	/**
+	 * Return roles defined for contracts.
+	 * 
+	 * @param contracts
+	 * @param filter
+	 * @return
+	 */
 	private List<Object[]> findRolesForIdentities(List<UUID> contracts, AuditIdentityFilter filter) {
 		List<Object[]> result = new ArrayList<>();
 		for (UUID contract : contracts) {
@@ -125,8 +162,22 @@ public class IdmAuditIdentityService extends AbstractAuditEntityService {
 		return result;
 	}
 
+	/**
+	 * Find identity by attribute (username)
+	 * 
+	 * @param filter
+	 * @return
+	 */
 	private List<Object[]> findIdentityByAttribute(AuditIdentityFilter filter) {
 		AuditQuery query = getAuditReader().createQuery().forRevisionsOfEntity(IdmIdentity.class, false, true);
+		query.add(AuditEntity.revisionProperty(IdmAudit_.type.getName()).eq(IdmIdentity.class.getCanonicalName()));
+		//
+		// known bug from envers that traversing a historic entity retrieved with rev_type == DEL doesn't work
+		/*String[] types = new String[3];
+		types[0] = RevisionType.ADD.name();
+		types[1] = RevisionType.DEL.name();
+		types[2] = RevisionType.MOD.name();
+		query.add(AuditEntity.revisionType().eq(RevisionType.DEL));*/
 		//
 		// TODO: search by another attribute
 		if (filter.getUsername() != null) {

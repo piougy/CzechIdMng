@@ -61,7 +61,7 @@ public class IdmAuditListener implements EntityTrackingRevisionListener {
 	}
 
 	private void changeRevisionDto(Class<AbstractEntity> entityClass, String entityName, UUID entityId,
-			IdmAuditDto revisionEntity, RevisionType revisionType) {
+		IdmAuditDto revisionEntity, RevisionType revisionType) {
 		// List<String> changedColumns;
 
 		// name of entity class - full name.
@@ -70,14 +70,14 @@ public class IdmAuditListener implements EntityTrackingRevisionListener {
 		revisionEntity.setModification(revisionType.name());
 		// action executer identity
 		AbstractAuthentication authentication = securityService.getAuthentication();
-		IdmIdentityDto currentIdentity = authentication == null ? null : authentication.getCurrentIdentity();
-		IdmIdentityDto originalIdentity = authentication == null ? null : authentication.getOriginalIdentity();
+		IdmIdentityDto currentModifierIdentity = authentication == null ? null : authentication.getCurrentIdentity();
+		IdmIdentityDto originalModifierIdentity = authentication == null ? null : authentication.getOriginalIdentity();
 		//
 		revisionEntity.setModifier(securityService.getUsername());
-		revisionEntity.setModifierId(currentIdentity == null ? null : currentIdentity.getId());
+		revisionEntity.setModifierId(currentModifierIdentity == null ? null : currentModifierIdentity.getId());
 		// original action executer identity (before switch)
 		revisionEntity.setOriginalModifier(securityService.getOriginalUsername());
-		revisionEntity.setOriginalModifierId(originalIdentity == null ? null : originalIdentity.getId());
+		revisionEntity.setOriginalModifierId(originalModifierIdentity == null ? null : originalModifierIdentity.getId());
 		// entity id
 		revisionEntity.setEntityId((UUID) entityId);
 
@@ -96,7 +96,7 @@ public class IdmAuditListener implements EntityTrackingRevisionListener {
 	}
 	
 	private void changeRevisionEntity(Class<AbstractEntity> entityClass, String entityName, UUID entityId,
-			IdmAudit revisionEntity, RevisionType revisionType) {
+		IdmAudit revisionEntity, RevisionType revisionType) {
 		// name of entity class - full name.
 		revisionEntity.setType(entityName);
 		// revision type - MOD, DEL, ADD

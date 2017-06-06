@@ -265,7 +265,6 @@ module.exports = {
         'titleKey': 'content.audit.title',
         'icon': 'stats',
         'order': 1900,
-        'path': '/workflow/history/processes',
         'items': [
           {
             'id': 'workflow-historic-processes',
@@ -276,8 +275,8 @@ module.exports = {
             'path': '/workflow/history/processes',
           },
           {
-            'id': 'audit-entities',
-            'labelKey': 'content.audit.title-entities',
+            'id': 'audits',
+            'labelKey': 'content.audit.title',
             'order': 40,
             'path': '/audit/entities',
             'icon': 'eye-open',
@@ -286,18 +285,35 @@ module.exports = {
                 'type': 'HAS_ANY_AUTHORITY',
                 'authorities': ['AUDIT_READ']
               }
-            ]
-          },
-          {
-            'id': 'audit-identities',
-            'labelKey': 'content.audit.title-identities',
-            'order': 42,
-            'path': '/audit/identities',
-            'icon': 'eye-close',
-            'access': [
+            ],
+            'items': [
               {
-                'type': 'HAS_ANY_AUTHORITY',
-                'authorities': ['AUDIT_READ']
+                'id': 'audit-identities',
+                'labelKey': 'content.audit.title-identities',
+                'order': 42,
+                'path': '/audit/identities',
+                'icon': '',
+                'type': 'TAB',
+                'access': [
+                  {
+                    'type': 'HAS_ANY_AUTHORITY',
+                    'authorities': ['AUDIT_READ']
+                  }
+                ]
+              },
+              {
+                'id': 'audit-entities',
+                'labelKey': 'content.audit.title-entities',
+                'order': 40,
+                'path': '/audit/entities',
+                'icon': '',
+                'type': 'TAB',
+                'access': [
+                  {
+                    'type': 'HAS_ANY_AUTHORITY',
+                    'authorities': ['AUDIT_READ']
+                  }
+                ]
               }
             ]
           },

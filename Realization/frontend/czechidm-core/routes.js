@@ -392,8 +392,13 @@ module.exports = {
       ]
     },
     {
+      path: 'audit',
+      component: require('./src/content/audit/AuditRoutes'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['PASSWORDPOLICY_READ'] } ]
+    },
+    {
       path: 'audit/',
-      component: 'div',
+      component: require('./src/content/audit/AuditRoutes'),
       childRoutes: [
         {
           path: 'entities',

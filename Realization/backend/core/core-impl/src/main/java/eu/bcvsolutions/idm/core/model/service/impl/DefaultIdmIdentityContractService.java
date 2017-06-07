@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -269,6 +270,10 @@ public class DefaultIdmIdentityContractService
 		if (contracts.isEmpty()) {
 			return null;
 		}
+		
+		Optional<IdmIdentityContract> main = contracts.stream().filter(c -> c.isMain()).findAny();
+		if (main.isPresent()) return toDto(main.get());
+		
 		IdmIdentityContract primeContract = null;
 		IdmTreeType defaultTreeType = treeTypeRepository.findOneByDefaultTreeTypeIsTrue();
 		for (IdmIdentityContract contract : contracts) {

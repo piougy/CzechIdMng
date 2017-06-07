@@ -69,6 +69,7 @@ public abstract class AbstractSchedulableTaskExecutor<V> extends AbstractLongRun
 		longRunningTask.setResult(new OperationResult.Builder(OperationState.CREATED).build());
 		longRunningTask.setInstanceId(context.getMergedJobDataMap().getString(SchedulableTaskExecutor.PARAMETER_INSTANCE_ID));
 		longRunningTask.setScheduledTask(taskDto.getId());
+		longRunningTask.setStateful(isStateful());
 		//
 		return longRunningTaskService.save(longRunningTask);
 	}

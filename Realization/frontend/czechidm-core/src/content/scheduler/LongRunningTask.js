@@ -1,5 +1,6 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
+import _ from 'lodash';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
@@ -99,12 +100,19 @@ class LongRunningTask extends Basic.AbstractContent {
         <Basic.Confirm ref="confirm-cancel" level="warning"/>
         <Basic.Confirm ref="confirm-interrupt" level="danger"/>
 
-        <Basic.PanelHeader text={ header || <span>{_entity.taskType.split('.').pop(-1)} <small>{_entity.taskDescription} ({_entity.instanceId})</small></span> } />
+        <Basic.PanelHeader text={ header || <span>{ Utils.Ui.getSimpleJavaType(_entity.taskType) } <small>{ _entity.taskDescription }</small></span> } />
         <Basic.PanelBody>
+          <div><strong>{ this.i18n('entity.LongRunningTask.taskProperties.label') }</strong></div>
+          {
+            _.keys(_entity.taskProperties).map(propertyName => {
+              return `${ propertyName }: ${ _entity.taskProperties[propertyName] }`;
+            })
+            .join(', ')
+          }
           <Advanced.ProgressBar
             max={_entity.count}
             now={_entity.counter}
-            style={{ marginBottom: 0 }}/>
+            style={{ marginTop: 15, marginBottom: 0 }}/>
         </Basic.PanelBody>
         <Basic.PanelFooter>
           <Basic.Button

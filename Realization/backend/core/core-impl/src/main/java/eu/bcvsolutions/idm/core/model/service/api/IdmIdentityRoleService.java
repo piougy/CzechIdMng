@@ -53,7 +53,9 @@ public interface IdmIdentityRoleService extends
 	/**
 	 * Returns all roles with date lower than given expiration date.
 	 * 
+	 * @param expirationDate
+	 * @param pageable
 	 * @return
 	 */
-	Page<IdmIdentityRoleDto> findExpiredRoles(LocalDate expirationDate, Pageable page);
+	Page<IdmIdentityRoleDto> findExpiredRoles(LocalDate expirationDate, Pageable pageable);
 }

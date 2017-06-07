@@ -3,8 +3,11 @@ package eu.bcvsolutions.idm.acc.service.impl;
 import java.util.List;
 import java.util.UUID;
 
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -21,6 +24,8 @@ import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 /**
  * Accounts on target system
  * 
+ * TODO: dto, event processing - see account delete
+ * 
  * @author Radek Tomiška
  *
  */
@@ -30,20 +35,23 @@ public class DefaultAccAccountService extends AbstractReadWriteEntityService<Acc
 	
 	private final AccAccountRepository accountRepository;
 	private final AccIdentityAccountRepository accIdentityAccountRepository;
-	@Autowired
-	private ApplicationContext applicationContext;
+	private final ApplicationContext applicationContext;
 	private ProvisioningService provisioningService;
 
 	@Autowired
-	public DefaultAccAccountService(AccAccountRepository accountRepository,
-			AccIdentityAccountRepository accIdentityAccountRepository) {
+	public DefaultAccAccountService(
+			AccAccountRepository accountRepository,
+			AccIdentityAccountRepository accIdentityAccountRepository,
+			ApplicationContext applicationContext) {
 		super(accountRepository);
 		//
 		Assert.notNull(accIdentityAccountRepository);
 		Assert.notNull(accountRepository);
+		Assert.notNull(applicationContext);
 		//
 		this.accIdentityAccountRepository = accIdentityAccountRepository;
 		this.accountRepository = accountRepository;
+		this.applicationContext = applicationContext;
 	}
 
 	@Override
@@ -99,4 +107,11 @@ public class DefaultAccAccountService extends AbstractReadWriteEntityService<Acc
 		return accounts.get(0);
 	}
 
+	@Override
+	@Transactional(readOnly = true)
+	public Page<AccAccount> findExpired(DateTime expirationDate, Pageable pageable) {
+		Assert.notNull(expirationDate);
+		//
+		return accountRepository.findByEndOfProtectionLessThanAndInProtectionIsTrue(expirationDate, pageable);
+	}
 }

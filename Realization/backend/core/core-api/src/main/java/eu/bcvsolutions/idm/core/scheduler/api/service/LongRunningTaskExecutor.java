@@ -37,7 +37,7 @@ public interface LongRunningTaskExecutor<V> extends Callable<V> {
 	List<String> getParameterNames();
 	
 	/**
-	 * Returns properties names for this task
+	 * Returns configurable properties names for this task
 	 * 
 	 * @return
 	 */
@@ -52,7 +52,7 @@ public interface LongRunningTaskExecutor<V> extends Callable<V> {
 	
 	/**
 	 * Returns persistent task parameter values. Don't forget to override this method additively.
-	 * init(properies) => getProperties() should return the at least the same values as init method.
+	 * init(properties) => getProperties() should return the at least the same values as init method.
 	 */
 	Map<String, Object> getProperties();
 	

@@ -1,10 +1,12 @@
 package eu.bcvsolutions.idm.core.scheduler.service.impl;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TimeZone;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
@@ -73,23 +75,25 @@ public class DefaultSchedulerManager implements SchedulerManager {
 	}
 	
 	@Override
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public List<Task> getSupportedTasks() {		
-		List<Task> tasks = new ArrayList<>();		
-		Map<String, SchedulableTaskExecutor> beans = context.getBeansOfType(SchedulableTaskExecutor.class);
-		for (Map.Entry<String, SchedulableTaskExecutor> entry : beans.entrySet()) {
-			SchedulableTaskExecutor<?> taskExecutor = entry.getValue();
-			Task task = new Task();
-			task.setId(entry.getKey());
-			task.setModule(taskExecutor.getModule());
-			task.setTaskType((Class<? extends SchedulableTaskExecutor<?>>) taskExecutor.getClass());
-			task.setDescription(AutowireHelper.getBeanDescription(entry.getKey()));
-			for (String parameterName : taskExecutor.getPropertyNames()) {
-				task.getParameters().put(parameterName, null);
-			}
-			tasks.add(task);
-		}
-		return tasks;
+	@SuppressWarnings({ "unchecked" })
+	public List<Task> getSupportedTasks() {				
+		return context.getBeansOfType(SchedulableTaskExecutor.class)
+				.entrySet()
+				.stream()
+				.map(entry -> {
+					SchedulableTaskExecutor<?> taskExecutor = entry.getValue();
+					Task task = new Task();
+					task.setId(entry.getKey());
+					task.setModule(taskExecutor.getModule());
+					task.setTaskType((Class<? extends SchedulableTaskExecutor<?>>) taskExecutor.getClass());
+					task.setDescription(AutowireHelper.getBeanDescription(entry.getKey()));
+					for (String parameterName : taskExecutor.getPropertyNames()) {
+						task.getParameters().put(parameterName, null);
+					}
+					return task;
+				})
+				.sorted(Comparator.comparing(task -> task.getTaskType().getSimpleName(), Comparator.naturalOrder()))
+			    .collect(Collectors.toList());
 	}
 
 	@Override

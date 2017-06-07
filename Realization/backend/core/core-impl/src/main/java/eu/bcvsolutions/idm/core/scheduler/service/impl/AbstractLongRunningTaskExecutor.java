@@ -72,7 +72,7 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements LongRunningT
 	}
 	
 	/**
-	 * Returns universal task parameters. Don't forget to override this method additively.
+	 * Returns configurable task parameters. Don't forget to override this method additively.
 	 */
 	@Override
 	public List<String> getPropertyNames() {
@@ -94,6 +94,12 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements LongRunningT
 		return new HashMap<>();
 	}
 	
+	/**
+	 * Starts given task
+	 * - persists task properties
+	 * 
+	 * @return
+	 */
 	protected boolean start() {
 		Assert.notNull(taskId);
 		IdmLongRunningTaskDto task = service.get(taskId);
@@ -108,6 +114,12 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements LongRunningT
 		//
 		task.setRunning(true);
 		task.setResult(new OperationResult.Builder(OperationState.RUNNING).build());
+		task.setStateful(isStateful());
+		Map<String, Object> taskProperties = task.getTaskProperties();
+		taskProperties.put(LongRunningTaskExecutor.PARAMETER_INSTANCE_ID, task.getInstanceId());
+		taskProperties.putAll(getProperties());
+		task.setTaskProperties(taskProperties);
+		task.setStateful(isStateful());
 		//
 		service.save(task);
 		return true;

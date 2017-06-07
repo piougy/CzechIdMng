@@ -243,6 +243,9 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
         });
       });
     }
+    _supportedTasks.sort((one, two) => {
+      return one.niceLabel > two.niceLabel;
+    });
     const entityParameterNames = [];
     if (detail.entity.parameters) {
       _.keys(detail.entity.parameters).forEach(parameterName => {

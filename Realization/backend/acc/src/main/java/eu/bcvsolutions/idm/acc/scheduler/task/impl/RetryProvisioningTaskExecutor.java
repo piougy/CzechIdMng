@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.acc.scheduler.task.impl;
 
+import java.util.List;
 import java.util.Map;
 
 import org.joda.time.DateTime;
@@ -29,10 +30,9 @@ import eu.bcvsolutions.idm.core.scheduler.service.impl.AbstractSchedulableTaskEx
 public class RetryProvisioningTaskExecutor extends AbstractSchedulableTaskExecutor<Boolean> {
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(RetryProvisioningTaskExecutor.class);
-	@Autowired 
-	private ProvisioningExecutor provisioningExecutor;	
-	@Autowired 
-	private SysProvisioningBatchService provisioningBatchService;
+	private static final String PARAMETER_START = "start";
+	@Autowired private ProvisioningExecutor provisioningExecutor;	
+	@Autowired private SysProvisioningBatchService provisioningBatchService;
 	//
 	private DateTime start;	
 	
@@ -71,5 +71,19 @@ public class RetryProvisioningTaskExecutor extends AbstractSchedulableTaskExecut
 		}
 		LOG.info("Retry provisioning executor ended for all next attmepts old than [{}]", start);
 		return Boolean.TRUE;
+	}
+	
+	@Override
+	public List<String> getPropertyNames() {
+		List<String> parameters = super.getPropertyNames();
+		parameters.add(PARAMETER_START);
+		return parameters;
+	}
+	
+	@Override
+	public Map<String, Object> getProperties() {
+		Map<String, Object> properties = super.getProperties();
+		properties.put(PARAMETER_START, start);
+		return properties;
 	}
 }

@@ -54,7 +54,7 @@ class LongRunningTask extends Basic.AbstractContent {
     ).then(() => {
       const uiKey = manager.resolveUiKey(null, task.id);
       this.context.store.dispatch(manager.cancel(task, uiKey, () => {
-        this.addMessage({ message: this.i18n(`action.task-cancel.success`, { record: manager.getNiceLabel(task) }) });
+        this.addMessage({ level: 'info', message: this.i18n(`action.task-cancel.success`, { record: manager.getNiceLabel(task) }) });
       }));
     }, () => {
       //
@@ -69,7 +69,7 @@ class LongRunningTask extends Basic.AbstractContent {
     ).then(() => {
       const uiKey = manager.resolveUiKey(null, task.id);
       this.context.store.dispatch(manager.interrupt(task, uiKey, () => {
-        this.addMessage({ message: this.i18n(`action.task-interrupt.success`, { record: manager.getNiceLabel(task) }) });
+        this.addMessage({ level: 'info', message: this.i18n(`action.task-interrupt.success`, { record: manager.getNiceLabel(task) }) });
       }));
     }, () => {
       //

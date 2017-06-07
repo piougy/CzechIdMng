@@ -41,4 +41,9 @@ public class ConfigurationFormType extends AbstractComponentFormType {
 		}
 		return (String) modelValue;
 	}
+	
+	@Override
+	public boolean isExportableToRest() {
+		return false;
+	}
 }

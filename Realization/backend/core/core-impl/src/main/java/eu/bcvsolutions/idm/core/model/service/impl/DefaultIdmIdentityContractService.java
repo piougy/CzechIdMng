@@ -1,7 +1,6 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -271,9 +270,6 @@ public class DefaultIdmIdentityContractService
 			return null;
 		}
 		
-		Optional<IdmIdentityContract> main = contracts.stream().filter(c -> c.isMain()).findAny();
-		if (main.isPresent()) return toDto(main.get());
-		
 		IdmIdentityContract primeContract = null;
 		IdmTreeType defaultTreeType = treeTypeRepository.findOneByDefaultTreeTypeIsTrue();
 		for (IdmIdentityContract contract : contracts) {
@@ -285,8 +281,8 @@ public class DefaultIdmIdentityContractService
 				primeContract = contract;
 			}
 			IdmTreeNode workPosition = contract.getWorkPosition();
-			if (workPosition != null && defaultTreeType != null && defaultTreeType.equals(workPosition.getTreeType())) {
-				return toDto(contract);
+			if (workPosition != null && (primeContract.getWorkPosition() == null || workPosition.getTreeType().equals(defaultTreeType))) {
+				primeContract = contract;
 			}
 		}
 		return toDto(primeContract);

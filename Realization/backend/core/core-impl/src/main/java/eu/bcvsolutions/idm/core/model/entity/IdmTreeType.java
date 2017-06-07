@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.model.entity;
 
+import java.util.UUID;
+
 import javax.persistence.Column;
 import javax.persistence.ConstraintMode;
 import javax.persistence.Entity;
@@ -54,6 +56,13 @@ public class IdmTreeType extends AbstractEntity implements Codeable {
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmTreeNode defaultTreeNode; // default tree node - can be used for some automatism
+	
+	public IdmTreeType() {
+	}
+	
+	public IdmTreeType(UUID id) {
+		super(id);
+	}
 	
 	public String getCode() {
 		return code;

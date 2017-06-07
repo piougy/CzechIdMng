@@ -39,24 +39,15 @@ import eu.bcvsolutions.idm.core.security.evaluator.UuidEvaluator;
 @Component
 public class DefaultTestHelper implements TestHelper {
 	
-	@Autowired
-	private IdmTreeNodeService treeNodeService;
-	@Autowired
-	private IdmTreeTypeService treeTypeService;
-	@Autowired
-	private IdmRoleService roleService;
-	@Autowired
-	private IdmIdentityService identityService;
-	@Autowired
-	private IdmIdentityContractService identityContractService;
-	@Autowired
-	private IdmContractGuaranteeService contractGuaranteeService;
-	@Autowired
-	private IdmRoleTreeNodeService roleTreeNodeService;
-	@Autowired
-	private IdmAuthorizationPolicyService authorizationPolicyService;
-	@Autowired
-	private IdmIdentityRoleService identityRoleService;
+	@Autowired private IdmTreeNodeService treeNodeService;
+	@Autowired private IdmTreeTypeService treeTypeService;
+	@Autowired private IdmRoleService roleService;
+	@Autowired private IdmIdentityService identityService;
+	@Autowired private IdmIdentityContractService identityContractService;
+	@Autowired private IdmContractGuaranteeService contractGuaranteeService;
+	@Autowired private IdmRoleTreeNodeService roleTreeNodeService;
+	@Autowired private IdmAuthorizationPolicyService authorizationPolicyService;
+	@Autowired private IdmIdentityRoleService identityRoleService;
 	
 	@Override
 	public IdmIdentityDto createIdentity() {
@@ -137,12 +128,12 @@ public class DefaultTestHelper implements TestHelper {
 	
 	@Override
 	public IdmRole createRole(UUID id, String name) {
-		IdmRole roleC = new IdmRole();
+		IdmRole role = new IdmRole();
 		if (id != null) {
-			roleC.setId(id);
+			role.setId(id);
 		}
-		roleC.setName(name == null ? createName() : name);
-		return roleService.save(roleC);
+		role.setName(name == null ? createName() : name);
+		return roleService.save(role);
 	}
 	
 	@Override

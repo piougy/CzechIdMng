@@ -44,28 +44,22 @@ public class IdentityRoleExpirationTaskExecutor extends AbstractSchedulableTaskE
 		int page = 0;
 		int pageSize = 100;
 		boolean hasNextPage = false;
-		try {
-			do {
-				Page<IdmIdentityRoleDto> roles = getPagedRoles(page, pageSize);
-				hasNextPage = roles.hasContent();
-				if (count == null) {
-					count = roles.getTotalElements();
-				}
-				
-				for (Iterator<IdmIdentityRoleDto> i = roles.iterator(); i.hasNext() && hasNextPage;) {
-					IdmIdentityRoleDto role = i.next();
-					service.delete(role);
-					++counter;
-					hasNextPage &= updateState();
-				}
-				
-				++page;
-			} while (hasNextPage);
-		} catch (Exception e) {
-			LOG.error("An error occurred while removing expired roles.", e);
-			return Boolean.FALSE;
-		}
-		
+		do {
+			Page<IdmIdentityRoleDto> roles = getPagedRoles(page, pageSize);
+			hasNextPage = roles.hasContent();
+			if (count == null) {
+				count = roles.getTotalElements();
+			}
+			
+			for (Iterator<IdmIdentityRoleDto> i = roles.iterator(); i.hasNext() && hasNextPage;) {
+				IdmIdentityRoleDto role = i.next();
+				service.delete(role);
+				++counter;
+				hasNextPage &= updateState();
+			}
+			
+			++page;
+		} while (hasNextPage);		
 		return Boolean.TRUE;
 	}
 

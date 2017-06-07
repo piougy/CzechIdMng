@@ -26,14 +26,18 @@ class RunningTasks extends Basic.AbstractContent {
     return 'content.scheduler.running-tasks';
   }
 
+  getNavigationKey() {
+    return 'scheduler-running-tasks';
+  }
+
   componentDidMount() {
-    this.selectNavigationItems(['system', 'scheduler', 'scheduler-running-tasks']);
+    super.componentDidMount();
     //
     this._fetchRunningTasks();
   }
 
   _fetchRunningTasks() {
-    const forceSearchParameters = new SearchParameters().setFilter('running', true).setSort('created', 'desc');
+    const forceSearchParameters = new SearchParameters().setFilter('running', true).setFilter('stateful', true).setSort('created', 'desc');
     this.context.store.dispatch(manager.fetchEntities(forceSearchParameters, UIKEY));
   }
 
@@ -48,17 +52,17 @@ class RunningTasks extends Basic.AbstractContent {
     //
     return (
       <div style={{ padding: '15px 15px 0' }}>
-        <Helmet title={this.i18n('title')} />
+        <Helmet title={ this.i18n('title') } />
         {
           (!_entities || _entities.length === 0)
           ?
-          <Basic.Alert text={this.i18n('empty')}/>
+          <Basic.Alert text={ this.i18n('empty') }/>
           :
           <div>
             {
               _entities.map(entity => {
                 return (
-                  <LongRunningTask entity={entity} />
+                  <LongRunningTask entity={ entity } />
                 );
               })
             }

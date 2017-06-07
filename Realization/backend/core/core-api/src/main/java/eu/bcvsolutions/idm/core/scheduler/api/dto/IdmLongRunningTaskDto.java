@@ -29,6 +29,7 @@ public class IdmLongRunningTaskDto extends AbstractDto {
 	private OperationResult result;
 	@Embedded(dtoClass = IdmScheduledTaskDto.class)
 	private UUID scheduledTask;
+	private boolean stateful;
 
 	public String getTaskType() {
 		return taskType;
@@ -128,4 +129,11 @@ public class IdmLongRunningTaskDto extends AbstractDto {
 		return result.getState();
 	}
 
+	public boolean isStateful() {
+		return stateful;
+	}
+
+	public void setStateful(boolean stateful) {
+		this.stateful = stateful;
+	}
 }

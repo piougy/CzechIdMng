@@ -7,8 +7,6 @@ import javax.persistence.Query;
 import javax.sql.DataSource;
 
 import org.joda.time.LocalDateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -65,7 +63,6 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole_;
 import eu.bcvsolutions.idm.core.model.entity.eav.IdmRoleFormValue;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
-import eu.bcvsolutions.idm.core.workflow.domain.formtype.CustomFormTypes;
 import eu.bcvsolutions.idm.ic.domain.IcFilterOperationType;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 

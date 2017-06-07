@@ -119,6 +119,8 @@ public enum CoreResultCode implements ResultCode {
 	AUTOMATIC_ROLE_TASK_EMPTY(HttpStatus.BAD_REQUEST, "Automatic role id is required."),
 	AUTOMATIC_ROLE_ASSIGN_TASK_NOT_COMPLETE(HttpStatus.BAD_REQUEST, "Role [%s] by automatic role [%s] was not assigned for identities[%s]. Check role request agenda for reason."),
 	AUTOMATIC_ROLE_REMOVE_TASK_NOT_COMPLETE(HttpStatus.BAD_REQUEST, "Role [%s] by automatic role [%s] was not removed for identities[%s]. Check role request agenda for reason."),
+	AUTOMATIC_ROLE_REMOVE_TASK_RUN_CONCURRENTLY(HttpStatus.BAD_REQUEST, "Automatic role [%s] is removed in concurent task [%s]"),
+	AUTOMATIC_ROLE_REMOVE_TASK_ADD_RUNNING(HttpStatus.BAD_REQUEST, "Automatic role [%s] is added in concurent task [%s], wait for task is complete, after removal."),
 	//
 	// forest index
 	FOREST_INDEX_DISABLED(HttpStatus.BAD_REQUEST, "Forest index is disabled. Enable configuration property [%s]."),

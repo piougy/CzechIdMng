@@ -27,5 +27,13 @@ public abstract class AbstractComponentFormType extends AbstractFormType {
     }
     return null;
   }
+  
+  /**
+   * If true, then will be item added to REST
+   * @return
+   */
+  public boolean isExportableToRest(){
+	  return true;
+  }
 
 }

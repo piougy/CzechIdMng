@@ -25,7 +25,6 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
-import eu.bcvsolutions.idm.core.scheduler.service.impl.AbstractLongRunningTaskExecutor;
 
 /**
  * Long running task for add newly added automatic role to users.
@@ -36,26 +35,17 @@ import eu.bcvsolutions.idm.core.scheduler.service.impl.AbstractLongRunningTaskEx
  */
 @Service
 @Description("Add new automatic role from IdmRoleTreeNode.")
-public class AddNewAutomaticRoleTaskExecutor extends AbstractLongRunningTaskExecutor<Boolean> {
+public class AddNewAutomaticRoleTaskExecutor extends AbstractAutomaticRoleTaskExecutor {
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(AddNewAutomaticRoleTaskExecutor.class);
 	@Autowired private IdmIdentityContractService identityContractService;
 	@Autowired private IdmRoleTreeNodeService roleTreeNodeService;
 	@Autowired private IdmRoleService roleService;
 	@Autowired private IdmRoleRequestService roleRequestService;
-	//
-	private IdmRoleTreeNodeDto roleTreeNode = null;
-	
-	public IdmRoleTreeNodeDto getRoleTreeNode() {
-		return roleTreeNode;
-	}
-
-	public void setRoleTreeNode(IdmRoleTreeNodeDto roleTreeNode) {
-		this.roleTreeNode = roleTreeNode;
-	}
 
 	@Override
 	public Boolean process() {
+		IdmRoleTreeNodeDto roleTreeNode = getRoleTreeNode();
 		if (roleTreeNode == null) {
 			throw new ResultCodeException(CoreResultCode.AUTOMATIC_ROLE_TASK_EMPTY);
 		}

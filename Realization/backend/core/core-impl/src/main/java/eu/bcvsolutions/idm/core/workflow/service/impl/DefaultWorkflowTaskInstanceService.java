@@ -4,13 +4,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.Map.Entry;
+import java.util.UUID;
 
 import org.activiti.engine.FormService;
 import org.activiti.engine.TaskService;
 import org.activiti.engine.form.AbstractFormType;
 import org.activiti.engine.form.FormProperty;
+import org.activiti.engine.form.FormType;
 import org.activiti.engine.form.TaskFormData;
 import org.activiti.engine.task.IdentityLink;
 import org.activiti.engine.task.Task;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
+import eu.bcvsolutions.idm.core.workflow.domain.formtype.AbstractComponentFormType;
 import eu.bcvsolutions.idm.core.workflow.domain.formtype.DecisionFormType;
 import eu.bcvsolutions.idm.core.workflow.model.dto.DecisionFormTypeDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.FormDataDto;
@@ -66,13 +68,13 @@ public class DefaultWorkflowTaskInstanceService implements WorkflowTaskInstanceS
 		if (processDefinitionId != null) {
 			query.processDefinitionId(processDefinitionId);
 		}
-		if(filter.getProcessDefinitionKey() != null){
+		if (filter.getProcessDefinitionKey() != null) {
 			query.processDefinitionKey(filter.getProcessDefinitionKey());
 		}
-		if(filter.getProcessInstanceId() != null){
+		if (filter.getProcessInstanceId() != null) {
 			query.processInstanceId(filter.getProcessInstanceId());
 		}
-		if(filter.getId() != null){
+		if (filter.getId() != null) {
 			query.taskId(filter.getId().toString());
 		}
 		if (equalsVariables != null) {
@@ -113,7 +115,7 @@ public class DefaultWorkflowTaskInstanceService implements WorkflowTaskInstanceS
 		WorkflowFilterDto filter = new WorkflowFilterDto();
 		filter.setId(UUID.fromString(taskId));
 		List<WorkflowTaskInstanceDto> tasks = (List<WorkflowTaskInstanceDto>) search(filter).getResources();
-		
+
 		return tasks.isEmpty() ? null : tasks.get(0);
 	}
 
@@ -121,21 +123,22 @@ public class DefaultWorkflowTaskInstanceService implements WorkflowTaskInstanceS
 	public void completeTask(String taskId, String decision) {
 		completeTask(taskId, decision, null);
 	}
-	
+
 	@Override
 	public void completeTask(String taskId, String decision, Map<String, String> formData) {
 		completeTask(taskId, decision, null, null);
 	}
 
 	@Override
-	public void completeTask(String taskId, String decision, Map<String, String> formData, Map<String, Object> variables) {
+	public void completeTask(String taskId, String decision, Map<String, String> formData,
+			Map<String, Object> variables) {
 		String loggedUser = securityService.getCurrentId().toString();
 		taskService.setAssignee(taskId, loggedUser);
 		taskService.setVariables(taskId, variables);
 		taskService.setVariableLocal(taskId, WorkflowHistoricTaskInstanceService.TASK_COMPLETE_DECISION, decision);
 		Map<String, String> properties = new HashMap<String, String>();
 		properties.put(WorkflowTaskInstanceService.WORKFLOW_DECISION, decision);
-		if(formData != null){
+		if (formData != null) {
 			properties.putAll(formData);
 		}
 		formService.submitTaskFormData(taskId, properties);
@@ -146,7 +149,7 @@ public class DefaultWorkflowTaskInstanceService implements WorkflowTaskInstanceS
 		if (task == null) {
 			return null;
 		}
-		
+
 		WorkflowTaskInstanceDto dto = new WorkflowTaskInstanceDto();
 		dto.setId(task.getId());
 		dto.setCreated(task.getCreateTime());
@@ -158,48 +161,32 @@ public class DefaultWorkflowTaskInstanceService implements WorkflowTaskInstanceS
 
 		Map<String, Object> taksVariables = task.getTaskLocalVariables();
 		Map<String, Object> processVariables = task.getProcessVariables();
-		
+
 		// Add applicant username to task dto (for easier work)
 		if (processVariables != null
 				&& processVariables.containsKey(WorkflowProcessInstanceService.APPLICANT_IDENTIFIER)) {
-			dto.setApplicant((String) processVariables.get(WorkflowProcessInstanceService.APPLICANT_IDENTIFIER).toString());
+			dto.setApplicant(
+					(String) processVariables.get(WorkflowProcessInstanceService.APPLICANT_IDENTIFIER).toString());
 		}
 
 		dto.setVariables(processVariables);
 		convertToDtoVariables(dto, taksVariables);
-		//convertToDtoVariables(dto, processVariables);
 
 		dto.setDefinition(workflowTaskDefinitionService.searchTaskDefinitionById(task.getProcessDefinitionId(),
 				task.getTaskDefinitionKey()));
 
 		TaskFormData taskFormData = formService.getTaskFormData(task.getId());
-		
-		//Add form data (it means form properties and value from WF)
+
+		// Add form data (it means form properties and value from WF)
 		List<FormProperty> formProperties = taskFormData.getFormProperties();
 		if (formProperties != null && !formProperties.isEmpty()) {
 			for (FormProperty property : formProperties) {
-				if (property.getType() instanceof DecisionFormType) {
-					DecisionFormTypeDto decisionDto = (DecisionFormTypeDto) ((DecisionFormType) property.getType())
-							.convertFormValueToModelValue(property.getValue());
-					if (decisionDto != null) {
-						decisionDto.setId(property.getId());
-						dto.getDecisions().add(decisionDto);
-					}
-				} else {
-					if (property.getType() instanceof AbstractFormType) {
-
-						Object values = ((AbstractFormType) property.getType()).getInformation("values");
-						if (values instanceof Map<?, ?>) {
-							dto.getFormData().add(toResource(property, (Map<String, String>) values));
-						} else {
-							dto.getFormData().add(toResource(property, null));
-						}
-					}
-				}
+				resovleFormProperty(property, dto);
 			}
 		}
-		
-		//Serach and add identity links to dto (It means all user (assigned/candidates/group) for this task)
+
+		// Search and add identity links to dto (It means all user
+		// (assigned/candidates/group) for this task)
 		List<IdentityLink> identityLinks = taskService.getIdentityLinksForTask(task.getId());
 		if (identityLinks != null) {
 			List<IdentityLinkDto> identityLinksDtos = new ArrayList<>();
@@ -210,6 +197,37 @@ public class DefaultWorkflowTaskInstanceService implements WorkflowTaskInstanceS
 		}
 
 		return dto;
+	}
+
+	/**
+	 * Convert form property and add to result dto
+	 * @param property
+	 * @param dto
+	 */
+	private void resovleFormProperty(FormProperty property, WorkflowTaskInstanceDto dto) {
+		FormType formType = property.getType();
+		if (formType instanceof DecisionFormType) {
+			DecisionFormTypeDto decisionDto = (DecisionFormTypeDto) ((DecisionFormType) formType)
+					.convertFormValueToModelValue(property.getValue());
+			if (decisionDto != null) {
+				decisionDto.setId(property.getId());
+				dto.getDecisions().add(decisionDto);
+			}
+		} else {
+			if (formType instanceof AbstractFormType) {
+				// To rest will be add only component form type marked as "exportable to rest".
+				if (formType instanceof AbstractComponentFormType
+						&& !((AbstractComponentFormType) formType).isExportableToRest()) {
+					return;
+				}
+				Object values = ((AbstractFormType) formType).getInformation("values");
+				if (values instanceof Map<?, ?>) {
+					dto.getFormData().add(toResource(property, (Map<String, String>) values));
+				} else {
+					dto.getFormData().add(toResource(property, null));
+				}
+			}
+		}
 	}
 
 	private void convertToDtoVariables(WorkflowTaskInstanceDto dto, Map<String, Object> taksVariables) {

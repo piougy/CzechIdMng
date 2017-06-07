@@ -29,6 +29,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmScriptAuthorityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmScriptDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmScriptAuthority;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
@@ -39,6 +40,7 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeTypeService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmTreeTypeService;
 import eu.bcvsolutions.idm.core.script.evaluator.AbstractScriptEvaluator;
+import eu.bcvsolutions.idm.core.script.evaluator.DefaultScriptEvaluator;
 import eu.bcvsolutions.idm.core.security.exception.IdmSecurityException;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
@@ -74,6 +76,9 @@ public class ScriptEvaluatorTest extends AbstractIntegrationTest {
 	
 	@Autowired
 	private IdmTreeTypeService treeTypeService;
+	
+	@Autowired
+	private DefaultScriptEvaluator defaultScriptEvaluator;
 	
 	@Before
 	public void init() {
@@ -276,7 +281,7 @@ public class ScriptEvaluatorTest extends AbstractIntegrationTest {
 		//
 		subScript.setScript(createTreeNodeScript(TREE_TYPE_CODE + "_2", TREE_TYPE_NAME + "_2"));
 		//
-		subScript = scriptService.saveInternal(subScript);
+		subScript = scriptService.save(subScript);
 		//
 		createAuthority(subScript.getId(), ScriptAuthorityType.CLASS_NAME, IdmTreeType.class.getName(), null);
 		//
@@ -299,6 +304,128 @@ public class ScriptEvaluatorTest extends AbstractIntegrationTest {
 		//
 		groovyScriptService.evaluate(parent.getScript(), createParametersWithEvaluator(IdmScriptCategory.DEFAULT), createExtraAllowedClass());
 		//
+		fail();
+	}
+	
+	@Test
+	public void testThreeScriptAuthoritySuccess() {
+		IdmScriptDto third = new IdmScriptDto();
+		third.setCategory(IdmScriptCategory.DEFAULT);
+		third.setCode("third_script_name_" + System.currentTimeMillis());
+		third.setName("third_script_name_" + System.currentTimeMillis());
+		StringBuilder script = new StringBuilder();
+		script.append(createRoleScript());
+		script.append("return null;\n");
+		third.setScript(script.toString());
+		third = scriptService.save(third);
+		createAuthority(third.getId(), ScriptAuthorityType.CLASS_NAME, IdmRole.class.getName(), null);
+		//
+		IdmScriptDto second = new IdmScriptDto();
+		second.setCategory(IdmScriptCategory.DEFAULT);
+		second.setCode("second_script_name_" + System.currentTimeMillis());
+		second.setName("second_script_name_" + System.currentTimeMillis());
+		script = new StringBuilder();
+		script.append(createTreeTypeScript());
+		script.append(createScriptThatCallAnother(third, IdmScriptCategory.DEFAULT, null, false, null));
+		script.append("return null;\n");
+		second.setScript(script.toString());
+		//
+		second = scriptService.save(second);
+		createAuthority(second.getId(), ScriptAuthorityType.CLASS_NAME, IdmTreeType.class.getName(), null);
+		createAuthority(second.getId(), ScriptAuthorityType.CLASS_NAME, IdmTreeNode.class.getName(), null);
+		//
+		//
+		IdmScriptDto first = new IdmScriptDto();
+		first.setCategory(IdmScriptCategory.DEFAULT);
+		first.setCode("first_script_name_" + System.currentTimeMillis());
+		first.setName("first_script_name_" + System.currentTimeMillis());
+		script = new StringBuilder();
+		script.append(createIdenityScript());
+		script.append("\n");
+		script.append(createRoleScript());
+		script.append(createScriptThatCallAnother(second, IdmScriptCategory.DEFAULT, null, false, null));
+		script.append("return null;\n");
+		first.setScript(script.toString());
+		first = scriptService.save(first);
+		createAuthority(first.getId(), ScriptAuthorityType.CLASS_NAME, IdmIdentity.class.getName(), null);
+		createAuthority(first.getId(), ScriptAuthorityType.CLASS_NAME, IdmRole.class.getName(), null);
+		//
+		//
+		defaultScriptEvaluator.evaluate(first.getCode());
+	}
+	
+	@Test(expected = IdmSecurityException.class)
+	public void testThreeScriptAuthorityFailSecond() {
+		IdmScriptDto third = new IdmScriptDto();
+		third.setCategory(IdmScriptCategory.DEFAULT);
+		third.setCode("script_name_" + System.currentTimeMillis());
+		third.setName("script_name_" + System.currentTimeMillis());
+		third.setScript(createTreeNodeScript());
+		third = scriptService.save(third);
+		createAuthority(third.getId(), ScriptAuthorityType.CLASS_NAME, IdmTreeNode.class.getName(), null);
+		//
+		IdmScriptDto second = new IdmScriptDto();
+		second.setCategory(IdmScriptCategory.DEFAULT);
+		second.setCode("script_name_" + System.currentTimeMillis());
+		second.setName("script_name_" + System.currentTimeMillis());
+		StringBuilder script = new StringBuilder(createTreeTypeScript());
+		script.append(createTreeNodeScript());// security exception
+		script.append(createScriptThatCallAnother(third, IdmScriptCategory.DEFAULT, null, false, null));
+		second.setScript(script.toString());
+		second = scriptService.save(second);
+		createAuthority(second.getId(), ScriptAuthorityType.CLASS_NAME, IdmTreeType.class.getName(), null);
+		//
+		//
+		IdmScriptDto first = new IdmScriptDto();
+		first.setCategory(IdmScriptCategory.DEFAULT);
+		first.setCode("script_name_" + System.currentTimeMillis());
+		first.setName("script_name_" + System.currentTimeMillis());
+		script = new StringBuilder(createIdenityScript());
+		script.append(createScriptThatCallAnother(second, IdmScriptCategory.DEFAULT, null, false, null));
+		first.setScript(script.toString());
+		first = scriptService.save(first);
+		createAuthority(first.getId(), ScriptAuthorityType.CLASS_NAME, IdmIdentity.class.getName(), null);
+		//
+		//
+		defaultScriptEvaluator.evaluate(first.getCode());
+		fail();
+	}
+	
+	@Test(expected = IdmSecurityException.class)
+	public void testThreeScriptAuthorityThirdScriptUseAnotherAuth() {
+		IdmScriptDto third = new IdmScriptDto();
+		third.setCategory(IdmScriptCategory.DEFAULT);
+		third.setCode("script_name_" + System.currentTimeMillis());
+		third.setName("script_name_" + System.currentTimeMillis());
+		StringBuilder script = new StringBuilder(createTreeNodeScript());
+		script.append(createIdenityScript()); // fail
+		third.setScript(script.toString());
+		third = scriptService.save(third);
+		createAuthority(third.getId(), ScriptAuthorityType.CLASS_NAME, IdmTreeNode.class.getName(), null);
+		//
+		IdmScriptDto second = new IdmScriptDto();
+		second.setCategory(IdmScriptCategory.DEFAULT);
+		second.setCode("script_name_" + System.currentTimeMillis());
+		second.setName("script_name_" + System.currentTimeMillis());
+		script = new StringBuilder(createTreeTypeScript());
+		script.append(createTreeNodeScript());
+		second.setScript(createScriptThatCallAnother(third, IdmScriptCategory.DEFAULT, null, false, null));
+		second = scriptService.save(second);
+		createAuthority(second.getId(), ScriptAuthorityType.CLASS_NAME, IdmTreeType.class.getName(), null);
+		//
+		//
+		IdmScriptDto first = new IdmScriptDto();
+		first.setCategory(IdmScriptCategory.DEFAULT);
+		first.setCode("script_name_" + System.currentTimeMillis());
+		first.setName("script_name_" + System.currentTimeMillis());
+		script = new StringBuilder(createIdenityScript());
+		script.append(createScriptThatCallAnother(second, IdmScriptCategory.DEFAULT, null, false, null));
+		first.setScript(script.toString());
+		first = scriptService.save(first);
+		createAuthority(first.getId(), ScriptAuthorityType.CLASS_NAME, IdmIdentity.class.getName(), null);
+		//
+		//
+		defaultScriptEvaluator.evaluate(first.getCode());
 		fail();
 	}
 	
@@ -457,5 +584,33 @@ public class ScriptEvaluatorTest extends AbstractIntegrationTest {
 			auth.setService(service);
 		}
 		return scriptAuthorityService.saveInternal(auth);
+	}
+	
+	private String createIdenityScript() {
+		StringBuilder identity = new StringBuilder();
+		identity.append("import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;\n");
+		identity.append("IdmIdentity identity_" + System.currentTimeMillis() + " = new IdmIdentity();\n");
+		return identity.toString();
+	}
+	
+	private String createRoleScript() {
+		StringBuilder role = new StringBuilder();
+		role.append("import eu.bcvsolutions.idm.core.model.entity.IdmRole;\n");
+		role.append("IdmRole role_" + System.currentTimeMillis() + " = new IdmRole();\n");
+		return role.toString();
+	}
+	
+	private String createTreeNodeScript() {
+		StringBuilder treeNode = new StringBuilder();
+		treeNode.append("import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;\n");
+		treeNode.append("IdmTreeNode treeNode_" + System.currentTimeMillis() + " = new IdmTreeNode();\n");
+		return treeNode.toString();
+	}
+	
+	private String createTreeTypeScript() {
+		StringBuilder treeType = new StringBuilder();
+		treeType.append("import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;\n");
+		treeType.append("IdmTreeType treeType_" + System.currentTimeMillis() + " = new IdmTreeType();\n");
+		return treeType.toString();
 	}
 }

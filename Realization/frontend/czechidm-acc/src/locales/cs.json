@@ -210,7 +210,7 @@
         },
         "action": {
           "changeConnector": {
-            "message": "<b>Provede se okamžité uložení systému s novým konektorem.</b> Původní konektor již nebude aktivní a může dojít k nefunkčností systému.<br/><br/><b>Opravdu chcete změnit konektor?</b>",
+            "message": "<b>Bude provedeno okamžité uložení systému s novým konektorem.</b><br/> Původní konektor již nebude aktivní a jeho konfigurace bude ztracena.<br/><br/><b>Opravdu chcete změnit konektor a uložit nastavení?</b>",
             "header": "Změna konektoru"
           }
         }

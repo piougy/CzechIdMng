@@ -49,8 +49,7 @@ public class AccountProtectionExpirationTaskExecutorUnitTest extends AbstractUni
 		accounts.add(new AccAccount());
 		//
 		when(service.findExpired(any(DateTime.class), any(PageRequest.class)))
-			.thenReturn(new PageImpl<AccAccount>(accounts)) // first call
-			.thenReturn(new PageImpl<AccAccount>(new ArrayList<>())); // second call - empty page
+			.thenReturn(new PageImpl<AccAccount>(accounts));
 		//
 		doNothing().when(service).delete(any(AccAccount.class));
 		//
@@ -58,5 +57,6 @@ public class AccountProtectionExpirationTaskExecutorUnitTest extends AbstractUni
 		//
 		Boolean result = executor.process();
 		Assert.assertTrue(result);
+		Assert.assertEquals(Long.valueOf(2), executor.getCount());
 	}
 }

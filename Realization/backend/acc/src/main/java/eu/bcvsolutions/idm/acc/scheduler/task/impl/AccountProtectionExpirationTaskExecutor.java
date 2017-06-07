@@ -35,11 +35,11 @@ public class AccountProtectionExpirationTaskExecutor extends AbstractSchedulable
 	private DateTime expiration;
 	
 	@Override
-	public void init(Map<String, Object> properties) {
-		super.init(properties);
-		//
+	protected boolean start() {
 		expiration = new DateTime();
 		LOG.debug("Start: Remove accounts with expired protection for expiration less than [{}]", expiration);
+		//
+		return super.start();
 	}
 	
 	@Override

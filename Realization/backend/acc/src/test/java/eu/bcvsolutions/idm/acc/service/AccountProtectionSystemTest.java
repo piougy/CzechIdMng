@@ -1,10 +1,8 @@
 package eu.bcvsolutions.idm.acc.service;
 
-import java.util.List;
 import java.util.UUID;
 
 import javax.persistence.EntityManager;
-import javax.persistence.Query;
 import javax.sql.DataSource;
 
 import org.joda.time.DateTime;
@@ -14,39 +12,28 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.data.domain.Page;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import eu.bcvsolutions.idm.InitTestData;
+import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
-import eu.bcvsolutions.idm.acc.dto.filter.SchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
-import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
-import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
-import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
-import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
-import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
-import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
-import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
@@ -55,7 +42,6 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * @author Svanda
  *
  */
-@Service
 public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 
 	private static final String ROLE_ONE = "role_one";
@@ -65,6 +51,8 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 	private static final String EMAIL_ONE = "one.email@one.cz";
 	private static final String EMAIL_TWO = "two.email@two.cz";
 
+	@Autowired 
+	private TestHelper helper;
 	@Autowired
 	private SysSystemService sysSystemService;
 	@Autowired
@@ -74,33 +62,20 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 	@Autowired
 	private SysSystemMappingService systemMappingService;
 	@Autowired
-	private SysSystemAttributeMappingService systemAttributeMappingService;
-	@Autowired
-	private SysSchemaAttributeService schemaAttributeService;
-	@Autowired
 	private EntityManager entityManager;
 	@Autowired
 	private IdmRoleService roleService;
-	@Autowired
-	private SysRoleSystemService roleSystemService;
 	@Autowired
 	private IdmIdentityRoleService identityRoleService;
 	@Autowired
 	private IdmIdentityContractService contractService;
 	@Autowired
-	private ApplicationContext applicationContext;
-
-	@Autowired
-	DataSource dataSource;
-
-	// Only for call method createTestSystem
-	@Autowired
-	private DefaultSysAccountManagementServiceTest defaultSysAccountManagementServiceTest;
+	private DataSource dataSource;
 
 	@Transactional
 	@Before
 	public void init() {
-		loginAsAdmin("admin");
+		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
 		initData();
 	}
 
@@ -123,7 +98,7 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 
 		Assert.assertNotNull(account);
 		Assert.assertFalse(account.isInProtection());
-		TestResource createdAccount = this.getBean().findAccountOnTargetSystem(account.getUid());
+		TestResource createdAccount = helper.findResource(account.getUid());
 		Assert.assertNotNull(createdAccount);
 		Assert.assertEquals(identity.getFirstName(), createdAccount.getFirstname());
 
@@ -159,7 +134,7 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 
 		Assert.assertNotNull(account);
 		Assert.assertFalse(account.isInProtection());
-		TestResource createdAccount = this.getBean().findAccountOnTargetSystem(account.getUid());
+		TestResource createdAccount = helper.findResource(account.getUid());
 		Assert.assertNotNull(createdAccount);
 		Assert.assertEquals(identity.getFirstName(), createdAccount.getFirstname());
 
@@ -170,7 +145,7 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 		Assert.assertNotNull(account);
 		Assert.assertTrue(account.isInProtection());
 		Assert.assertNull(account.getEndOfProtection());
-		createdAccount = this.getBean().findAccountOnTargetSystem(account.getUid());
+		createdAccount = helper.findResource(account.getUid());
 		Assert.assertNotNull(createdAccount);
 		Assert.assertEquals(identity.getFirstName(), createdAccount.getFirstname());
 	}
@@ -201,7 +176,7 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 		Assert.assertNotNull(account);
 		Assert.assertTrue(account.isInProtection());
 		Assert.assertNull(account.getEndOfProtection());
-		TestResource createdAccount = this.getBean().findAccountOnTargetSystem(account.getUid());
+		TestResource createdAccount = helper.findResource(account.getUid());
 		Assert.assertNotNull(createdAccount);
 		Assert.assertEquals(identity.getFirstName(), createdAccount.getFirstname());
 
@@ -211,7 +186,7 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 		// Account must be unprotected
 		Assert.assertNotNull(account);
 		Assert.assertFalse(account.isInProtection());
-		createdAccount = this.getBean().findAccountOnTargetSystem(account.getUid());
+		createdAccount = helper.findResource(account.getUid());
 		Assert.assertNotNull(createdAccount);
 		Assert.assertEquals(identity.getFirstName(), createdAccount.getFirstname());
 	}
@@ -239,7 +214,7 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 
 		Assert.assertNotNull(account);
 		Assert.assertFalse(account.isInProtection());
-		TestResource createdAccount = this.getBean().findAccountOnTargetSystem(account.getUid());
+		TestResource createdAccount = helper.findResource(account.getUid());
 		Assert.assertNotNull(createdAccount);
 		Assert.assertEquals(identity.getFirstName(), createdAccount.getFirstname());
 
@@ -251,7 +226,7 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 		Assert.assertTrue(account.isInProtection());
 		Assert.assertNotNull(account.getEndOfProtection());
 		Assert.assertTrue(account.getEndOfProtection().toLocalDate().isEqual(LocalDate.now().plusDays(intervalInDays)));
-		createdAccount = this.getBean().findAccountOnTargetSystem(account.getUid());
+		createdAccount = helper.findResource(account.getUid());
 		Assert.assertNotNull(createdAccount);
 		Assert.assertEquals(identity.getFirstName(), createdAccount.getFirstname());
 	}
@@ -286,7 +261,7 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 
 		Assert.assertNotNull(account);
 		Assert.assertFalse(account.isInProtection());
-		TestResource createdAccount = this.getBean().findAccountOnTargetSystem(account.getUid());
+		TestResource createdAccount = helper.findResource(account.getUid());
 		Assert.assertNotNull(createdAccount);
 		Assert.assertEquals(changedValue, createdAccount.getFirstname());
 
@@ -298,7 +273,7 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 		Assert.assertTrue(account.isInProtection());
 		Assert.assertNotNull(account.getEndOfProtection());
 		Assert.assertTrue(account.getEndOfProtection().toLocalDate().isEqual(LocalDate.now().plusDays(intervalInDays)));
-		createdAccount = this.getBean().findAccountOnTargetSystem(account.getUid());
+		createdAccount = helper.findResource(account.getUid());
 		Assert.assertNotNull(createdAccount);
 		Assert.assertEquals(identity.getFirstName(), createdAccount.getFirstname());
 
@@ -306,7 +281,7 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 		identity.setFirstName(IDENTITY_USERNAME);
 		idmIdentityService.save(identity);
 
-		createdAccount = this.getBean().findAccountOnTargetSystem(account.getUid());
+		createdAccount = helper.findResource(account.getUid());
 		Assert.assertNotEquals(identity.getFirstName(), createdAccount.getFirstname());
 	}
 	
@@ -335,7 +310,7 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 
 		Assert.assertNotNull(account);
 		Assert.assertFalse(account.isInProtection());
-		TestResource createdAccount = this.getBean().findAccountOnTargetSystem(account.getUid());
+		TestResource createdAccount = helper.findResource(account.getUid());
 		Assert.assertNotNull(createdAccount);
 
 		// Remove role from identity
@@ -345,7 +320,7 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 		Assert.assertNotNull(account);
 		Assert.assertTrue(account.isInProtection());
 		Assert.assertNull(account.getEndOfProtection());
-		createdAccount = this.getBean().findAccountOnTargetSystem(account.getUid());
+		createdAccount = helper.findResource(account.getUid());
 		Assert.assertNotNull(createdAccount);
 		Assert.assertEquals(identity.getFirstName(), createdAccount.getFirstname());
 		
@@ -378,7 +353,7 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 
 		Assert.assertNotNull(account);
 		Assert.assertFalse(account.isInProtection());
-		TestResource createdAccount = this.getBean().findAccountOnTargetSystem(account.getUid());
+		TestResource createdAccount = helper.findResource(account.getUid());
 		Assert.assertNotNull(createdAccount);
 
 		// Remove role from identity
@@ -388,7 +363,7 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 		Assert.assertNotNull(account);
 		Assert.assertTrue(account.isInProtection());
 		Assert.assertNull(account.getEndOfProtection());
-		createdAccount = this.getBean().findAccountOnTargetSystem(account.getUid());
+		createdAccount = helper.findResource(account.getUid());
 		Assert.assertNotNull(createdAccount);
 		Assert.assertEquals(identity.getFirstName(), createdAccount.getFirstname());
 		
@@ -400,7 +375,7 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 		accountService.delete(account);
 		account = accountService.getAccount(IDENTITY_USERNAME, system.getId());
 		Assert.assertNull(account);
-		createdAccount = this.getBean().findAccountOnTargetSystem(IDENTITY_USERNAME);
+		createdAccount = helper.findResource(IDENTITY_USERNAME);
 		Assert.assertNull(createdAccount);
 	}
 
@@ -423,12 +398,10 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 		IdmIdentityDto identity;
 
 		// create test system
-		SysSystem system = defaultSysAccountManagementServiceTest.createTestSystem("test_resource");
+		SysSystem system = helper.createSystem(TestResource.TABLE_NAME, true);
 		system.setName(SYSTEM_NAME);
 		system = sysSystemService.save(system);
 
-		// generate schema for system
-		List<SysSchemaObjectClass> objectClasses = sysSystemService.generateSchema(system);
 
 		// Create test identity for provisioning test
 		identity = new IdmIdentityDto();
@@ -444,83 +417,13 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 		identityTwo.setLastName(IDENTITY_USERNAME_TWO);
 		identityTwo.setEmail(EMAIL_TWO);
 		identityTwo = idmIdentityService.save(identityTwo);
-
-		SysSystemMapping systemMapping = new SysSystemMapping();
-		systemMapping.setName("default_" + System.currentTimeMillis());
-		systemMapping.setEntityType(SystemEntityType.IDENTITY);
-		systemMapping.setOperationType(SystemOperationType.PROVISIONING);
-		systemMapping.setObjectClass(objectClasses.get(0));
-		final SysSystemMapping entityHandlingResult = systemMappingService.save(systemMapping);
-
-		SchemaAttributeFilter schemaAttributeFilter = new SchemaAttributeFilter();
-		schemaAttributeFilter.setSystemId(system.getId());
-
 		/*
 		 * Create role with link on system (default)
 		 */
 		IdmRole roleDefault = new IdmRole();
 		roleDefault.setName(ROLE_ONE);
 		roleService.save(roleDefault);
-		SysRoleSystem roleSystemDefault = new SysRoleSystem();
-		roleSystemDefault.setRole(roleDefault);
-		roleSystemDefault.setSystem(system);
-		roleSystemDefault.setSystemMapping(systemMapping);
-		roleSystemService.save(roleSystemDefault);
-
-		createMapping(entityHandlingResult, schemaAttributeFilter);
-	}
-
-	private void createMapping(final SysSystemMapping entityHandlingResult,
-			SchemaAttributeFilter schemaAttributeFilter) {
-		Page<SysSchemaAttribute> schemaAttributesPage = schemaAttributeService.find(schemaAttributeFilter, null);
-		schemaAttributesPage.forEach(schemaAttr -> {
-			if ("__NAME__".equals(schemaAttr.getName())) {
-				SysSystemAttributeMapping attributeMapping = new SysSystemAttributeMapping();
-				attributeMapping.setUid(true);
-				attributeMapping.setEntityAttribute(true);
-				attributeMapping.setIdmPropertyName(IdmIdentity_.username.getName());
-				attributeMapping.setName(schemaAttr.getName());
-				attributeMapping.setSchemaAttribute(schemaAttr);
-				attributeMapping.setSystemMapping(entityHandlingResult);
-				systemAttributeMappingService.save(attributeMapping);
-
-			} else if ("firstname".equalsIgnoreCase(schemaAttr.getName())) {
-				SysSystemAttributeMapping attributeMapping = new SysSystemAttributeMapping();
-				attributeMapping.setIdmPropertyName(IdmIdentity_.firstName.getName());
-				attributeMapping.setSchemaAttribute(schemaAttr);
-				attributeMapping.setName(schemaAttr.getName());
-				attributeMapping.setSystemMapping(entityHandlingResult);
-				systemAttributeMappingService.save(attributeMapping);
-
-			} else if ("lastname".equalsIgnoreCase(schemaAttr.getName())) {
-				SysSystemAttributeMapping attributeMapping = new SysSystemAttributeMapping();
-				attributeMapping.setIdmPropertyName(IdmIdentity_.lastName.getName());
-				attributeMapping.setName(schemaAttr.getName());
-				attributeMapping.setSchemaAttribute(schemaAttr);
-				attributeMapping.setSystemMapping(entityHandlingResult);
-				systemAttributeMappingService.save(attributeMapping);
-
-			} else if (IcConnectorFacade.PASSWORD_ATTRIBUTE_NAME.equalsIgnoreCase(schemaAttr.getName())) {
-				SysSystemAttributeMapping attributeMapping = new SysSystemAttributeMapping();
-				attributeMapping.setIdmPropertyName("password");
-				attributeMapping.setSchemaAttribute(schemaAttr);
-				attributeMapping.setName(schemaAttr.getName());
-				attributeMapping.setSystemMapping(entityHandlingResult);
-				systemAttributeMappingService.save(attributeMapping);
-
-			} else if ("email".equalsIgnoreCase(schemaAttr.getName())) {
-				SysSystemAttributeMapping attributeMapping = new SysSystemAttributeMapping();
-				attributeMapping.setIdmPropertyName(IdmIdentity_.email.getName());
-				attributeMapping.setName(schemaAttr.getName());
-				attributeMapping.setSchemaAttribute(schemaAttr);
-				attributeMapping.setSystemMapping(entityHandlingResult);
-				systemAttributeMappingService.save(attributeMapping);
-
-			}
-		});
-	}
-
-	private AccountProtectionSystemTest getBean() {
-		return applicationContext.getBean(this.getClass());
+		
+		helper.createRoleSystem(roleDefault, system);
 	}
 }

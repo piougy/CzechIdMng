@@ -151,8 +151,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 		AutowireHelper.autowire(taskExecutor);
 		// persist LRT
 		persistTask(taskExecutor);
-		// todo: init is not needed, when task is executed manually?
-		// taskExecutor.init(new HashMap<>());
+		//
 		LongRunningFutureTask<V> longRunnigFutureTask = new LongRunningFutureTask<>(taskExecutor, new FutureTask<>(taskExecutor));
 		// execute - after original transaction is commited
 		publisher.publishEvent(longRunnigFutureTask);

@@ -190,7 +190,7 @@ class NodeTable extends Advanced.AbstractTableContent {
         <div style={style.title}>
           <Basic.Icon type="fa" icon={icon} style={{ marginRight: '5px' }}/>
           <Basic.Button level="link" title={props.node.name} onClick={this._useFilterByTree.bind(this, props.node.id)} style={{padding: '0px 0px 0px 0px'}}>
-            { Utils.Ui.substringByWord(props.node.name, 25)}
+            { Utils.Ui.substringByWord(props.node.name, 40)}
             {
               !props.node.childrenCount
               ||

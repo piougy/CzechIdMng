@@ -38,10 +38,10 @@ export default class ConfigLoader {
   }
 
   /**
-   * Returns config part by key or null
+   * Returns config part by key or null. Supports nested propertires.
    */
-  static getConfig(key) {
-    return _config[key];
+  static getConfig(key, defaultValue = null) {
+    return _.get(_config, key, defaultValue);
   }
 
   /**

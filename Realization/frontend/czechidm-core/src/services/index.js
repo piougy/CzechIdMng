@@ -38,6 +38,7 @@ import ScriptAuthorityService from './ScriptAuthorityService';
 import ContractGuaranteeService from './ContractGuaranteeService';
 import NotificationRecipientService from './NotificationRecipientService';
 import SmsService from './SmsService';
+import RecaptchaService from './RecaptchaService';
 
 const ServiceRoot = {
   RestApiService,
@@ -79,7 +80,8 @@ const ServiceRoot = {
   ScriptAuthorityService,
   ContractGuaranteeService,
   NotificationRecipientService,
-  SmsService
+  SmsService,
+  RecaptchaService
 };
 
 ServiceRoot.version = '0.0.1';

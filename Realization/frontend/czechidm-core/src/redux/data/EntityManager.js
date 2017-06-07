@@ -491,7 +491,7 @@ export default class EntityManager {
         if (approveEntities.length > 0) {
           dispatch(this.flashMessagesManager.addMessage({
             level: 'info',
-            message: this.i18n(`action.delete.approve`, { count: approveEntities.length, records: this.getNiceLabels(approveEntities).join(', '), record: this.getNiceLabel(approveEntities[0]) })
+            message: this.i18n(`action.delete.accepted`, { count: approveEntities.length, records: this.getNiceLabels(approveEntities).join(', '), record: this.getNiceLabel(approveEntities[0]) })
           }));
         }
         dispatch(this.stopBulkAction());

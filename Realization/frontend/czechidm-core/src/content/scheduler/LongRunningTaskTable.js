@@ -1,8 +1,10 @@
 import React, { PropTypes } from 'react';
 import moment from 'moment';
+import _ from 'lodash';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
+import * as Utils from '../../utils';
 import OperationStateEnum from '../../enums/OperationStateEnum';
 import { LocalizationService } from '../../services';
 import { SecurityManager } from '../../redux';
@@ -156,8 +158,6 @@ export default class LongRunningTaskTable extends Basic.AbstractContent {
             }/>
           <Advanced.Column property="result.state" width={75} header={this.i18n('entity.LongRunningTask.result.state')} sort face="enum" enumClass={OperationStateEnum}/>
           <Advanced.Column property="created" width={150} header={this.i18n('entity.created')} sort face="datetime"/>
-          <Advanced.Column property="instanceId" width={150} header={this.i18n('entity.ScheduleTask.instanceId.label')} sort face="text"/>
-          <Advanced.Column property="taskId" sort rendered={false}/>
           <Advanced.Column
             property="taskType"
             width={150}
@@ -170,6 +170,22 @@ export default class LongRunningTaskTable extends Basic.AbstractContent {
                 return (
                   <span title={propertyValue}>{ propertyValue.split('.').pop(-1) }</span>
                 );
+              }
+            }/>
+          <Advanced.Column
+            property="taskProperties"
+            header={ this.i18n('entity.LongRunningTask.taskProperties.label') }
+            cell={
+              /* eslint-disable react/no-multi-comp */
+              ({ rowIndex, data, property }) => {
+                const entity = data[rowIndex];
+                const propertyValue = entity[property];
+
+                return _.keys(propertyValue).map(propertyName => {
+                  return (
+                    <div>{ propertyName }: { propertyValue[propertyName] }</div>
+                  );
+                });
               }
             }/>
           <Advanced.Column property="taskDescription" sort />
@@ -201,42 +217,60 @@ export default class LongRunningTaskTable extends Basic.AbstractContent {
               <div>
                 <Basic.AbstractForm data={detail.entity} readOnly>
                   <Basic.Row>
-                    <div className="col-lg-6">
+                    <Basic.Col lg={ 6 }>
                       <Basic.LabelWrapper label={this.i18n('entity.created')}>
                         <div style={{ margin: '7px 0' }}>
                           <Advanced.DateValue value={detail.entity.created} showTime/>
                         </div>
                       </Basic.LabelWrapper>
-                    </div>
-                    <div className="col-lg-6">
+                    </Basic.Col>
+                    <Basic.Col lg={ 6 }>
                       <Basic.LabelWrapper label={this.i18n('entity.LongRunningTask.instanceId.label')}>
                         <div style={{ margin: '7px 0' }}>
                           {detail.entity.instanceId}
                           <span className="help-block">{this.i18n('entity.LongRunningTask.instanceId.help')}</span>
                         </div>
                       </Basic.LabelWrapper>
-                    </div>
+                    </Basic.Col>
                   </Basic.Row>
 
-                  <Basic.LabelWrapper label={this.i18n('entity.LongRunningTask.taskType')}>
-                    <div style={{ margin: '7px 0' }}>
-                      {detail.entity.taskType}
-                    </div>
-                  </Basic.LabelWrapper>
+                  <Basic.Row>
+                    <Basic.Col lg={ 6 }>
+                      <Basic.LabelWrapper label={this.i18n('entity.LongRunningTask.taskType')}>
+                        <div style={{ margin: '7px 0' }}>
+                          { Utils.Ui.getSimpleJavaType(detail.entity.taskType) }
+                        </div>
+                      </Basic.LabelWrapper>
+                    </Basic.Col>
+                    <Basic.Col lg={ 6 }>
+                      <Basic.LabelWrapper label={this.i18n('entity.LongRunningTask.taskProperties.label')}>
+                        <div style={{ margin: '7px 0' }}>
+                          {
+                            _.keys(detail.entity.taskProperties).map(propertyName => {
+                              return (
+                                <div>{ propertyName }: { detail.entity.taskProperties[propertyName] }</div>
+                              );
+                            })
+                          }
+                        </div>
+                      </Basic.LabelWrapper>
+                    </Basic.Col>
+                  </Basic.Row>
+
                   <Basic.TextArea
                     label={this.i18n('entity.LongRunningTask.taskDescription')}
                     disabled
                     value={detail.entity.taskDescription}/>
 
                   <Basic.Row>
-                    <div className="col-lg-6">
+                    <Basic.Col lg={ 6 }>
                       <Basic.LabelWrapper label={this.i18n('entity.LongRunningTask.counter')}>
                         <div style={{ margin: '7px 0' }}>
                           { manager.getProcessedCount(detail.entity) }
                         </div>
                       </Basic.LabelWrapper>
-                    </div>
-                    <div className="col-lg-6">
+                    </Basic.Col>
+                    <Basic.Col lg={ 6 }>
                       {
                         !detail.entity.modified
                         ||
@@ -246,7 +280,7 @@ export default class LongRunningTaskTable extends Basic.AbstractContent {
                           </div>
                         </Basic.LabelWrapper>
                       }
-                    </div>
+                    </Basic.Col>
                   </Basic.Row>
 
                 </Basic.AbstractForm>

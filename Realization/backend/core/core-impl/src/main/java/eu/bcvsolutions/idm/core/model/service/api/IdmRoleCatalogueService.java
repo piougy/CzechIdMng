@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.RoleCatalogueFilter;
+import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
 import eu.bcvsolutions.idm.core.api.service.CodeableService;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
@@ -24,7 +25,8 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 public interface IdmRoleCatalogueService extends 
 		ReadWriteDtoService<IdmRoleCatalogueDto, RoleCatalogueFilter>, 
 		CodeableService<IdmRoleCatalogueDto>,
-		AuthorizableService<IdmRoleCatalogueDto> {
+		AuthorizableService<IdmRoleCatalogueDto>,
+		ScriptEnabled {
 	
 	/**
 	 * Prefix to configuration

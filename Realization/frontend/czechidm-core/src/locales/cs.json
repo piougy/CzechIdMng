@@ -95,7 +95,10 @@
       "success_5": "Vybrané záznamy [{{records}}] byly úspěšně smazány",
       "approve_1": "Smazání záznamu [{{record}}] podléhá schválení, schvalovací úkol byl úspěšně založen",
       "approve_2": "Smazání záznamů [{{records}}] podléhá schválení, schvalovací úkoly byly úspěšně založeny",
-      "approve_5": "Smazání záznamů [{{records}}] podléhá schválení, schvalovací úkoly byly úspěšně založeny"
+      "approve_5": "Smazání záznamů [{{records}}] podléhá schválení, schvalovací úkoly byly úspěšně založeny",
+      "accepted_1": "Smazání záznamu [{{record}}] proběhne na pozadí asynchronně (odebrání podléhá schválení či je spuštěno jako dlouhotrvající úloha)",
+      "accepted_2": "Smazání záznamů [{{records}}] proběhne na pozadí asynchronně (odebrání podléhá schválení či je spuštěno jako dlouhotrvající úloha)",
+      "accepted_5": "Smazání záznamů [{{records}}] proběhne na pozadí asynchronně (odebrání podléhá schválení či je spuštěno jako dlouhotrvající úloha)"
     },
     "activate": {
       "action": "Aktivovat",
@@ -284,6 +287,9 @@
         "attributes": {
           "empty": "Definice dalších atributů byla nalezena, ale neobsahuje žádné položky."
         }
+      },
+      "Recaptcha": {
+        "required": "Podvrďte prosím, že nejste robot"
       }
     }
   },
@@ -1232,7 +1238,7 @@
           "header": "Nová automatická role"
         },
         "save": {
-          "success": "Automatická role [{{record}}] byla úspěšně uložena"
+          "success": "Automatická role [{{record}}] byla úspěšně uložena. Přiřazení role identitám proběhne asynchroně na pozadí. Průběh můžete sledovat v agendě dlouhotrvajících úloh."
         },
         "action": {
           "delete": {
@@ -1356,7 +1362,7 @@
         "header": "$t(navigation.menu.roles.label)",
         "title": "$t(navigation.menu.roles.label)",
         "changePermissions": "Změnit oprávnění",
-        "authorities": "Přidělená oprávnění <small>dle přiřazných rolí</small>",
+        "authorities": "Přidělená oprávnění <small>dle přiřazených rolí</small>",
         "changeRoleProcesses": {
           "header": "Role čekající na schválení",
           "deleteConfirm": "Opravdu chcete smazat vybranou žádost o změnu oprávnění?",
@@ -1389,7 +1395,7 @@
       },
       "authorities": {
         "label": "Oprávnění",
-        "header": "Přidělená oprávnění <small>dle přiřazných rolí</small>",
+        "header": "Přidělená oprávnění <small>dle přiřazených rolí</small>",
         "title": "Přidělená oprávnění"
       },
       "passwordChange": {
@@ -1911,6 +1917,7 @@
       "header": "Audit",
       "title": "Audit",
       "title-entities": "Audit pro entity",
+      "title-identities": "Audit pro uživatele",
       "modifier": "Akci provedl",
       "date": "Datum změny",
       "empty": "Bez žádných záznamů",
@@ -1945,6 +1952,11 @@
           "label": "Do",
           "placeholder": "Datum do"
         }
+      },
+      "identities": {
+        "username": "Uživatelské jméno",
+        "modifier": "Upravil",
+        "identityId": "Id identity"
       }
     }
   },
@@ -2434,7 +2446,10 @@
         "label": "Instance",
         "help": "Úloha spuštěna na serveru (identifikátor instance)"
       },
-      "duration": "Trvání úlohy"
+      "duration": "Trvání úlohy",
+      "taskProperties": {
+        "label": "Parametry úlohy"
+      }
     },
     "ScheduleTask": {
       "id": "Identifikátor",
@@ -2868,6 +2883,18 @@
     "PASSWORD_EXPIRED": {
       "title": "Platnost hesla vypršela",
       "message": "Zadané heslo již není možné použít pro přístup do aplikace."
+    },
+    "RECAPTCHA_SECRETKEY_MISSING": {
+      "title": "Konfigurace aplikace",
+      "message": "Konfigurační položka pro ochranu soukromí [{{property}}] není definovaná. Doplňte ji do konfigurace aplikace."
+    },
+    "RECAPTCHA_CHECK_FAILED": {
+      "title": "Kontrola pro ochranu soukromí",
+      "message": "Kontrola pro ochranu soukromí neprošla: [{{errors}}]."
+    },
+    "RECAPTCHA_SERVICE_UNAVAILABLE": {
+      "title": "Kontrola pro ochranu soukromí",
+      "message": "Kontrola pro ochranu soukromí není dostupná."
     }
   },
   "validationError": {

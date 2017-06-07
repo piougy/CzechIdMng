@@ -3,6 +3,10 @@ package eu.bcvsolutions.idm.acc.service.api;
 import java.util.List;
 import java.util.UUID;
 
+import org.joda.time.DateTime;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import eu.bcvsolutions.idm.acc.dto.filter.AccountFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
@@ -39,4 +43,13 @@ public interface AccAccountService extends ReadWriteEntityService<AccAccount, Ac
 	 * @return
 	 */
 	AccAccount getAccount(String uid, UUID systemId);
+	
+	/**
+	 * Returns accounts with expired protection. Account has to be in protection mode.
+	 * 
+	 * @param expirationDate
+	 * @param pageable
+	 * @return
+	 */
+	Page<AccAccount> findExpired(DateTime expirationDate, Pageable pageable);
 }

@@ -25,11 +25,15 @@ import org.springframework.web.bind.annotation.RestController;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.RoleTreeNodeFilter;
+import eu.bcvsolutions.idm.core.api.exception.AcceptedException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
+import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskExecutor;
+import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
+import eu.bcvsolutions.idm.core.scheduler.service.impl.StatelessAsynchronousTask;
 
 /**
  * Automatic role controller
@@ -40,6 +44,8 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
 @RestController
 @RequestMapping(value = BaseDtoController.BASE_PATH + "/role-tree-nodes")
 public class IdmRoleTreeNodeController extends AbstractReadWriteDtoController<IdmRoleTreeNodeDto, RoleTreeNodeFilter> {
+	
+	@Autowired private LongRunningTaskManager taskManager;
 	
 	@Autowired
 	public IdmRoleTreeNodeController(IdmRoleTreeNodeService service) {
@@ -101,7 +107,28 @@ public class IdmRoleTreeNodeController extends AbstractReadWriteDtoController<Id
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.DELETE)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLETREENODE_DELETE + "')")
 	public ResponseEntity<?> delete(@PathVariable @NotNull String backendId) {
-		return super.delete(backendId);
+		LongRunningTaskExecutor<?> asyncTask = new StatelessAsynchronousTask() {
+			
+			@Override
+			public String getName() {
+				return "RemoveAutomaticRoleTask";
+			}
+			
+			@Override
+			public String getDescription() {
+				return String.format("Remove automatic role [%s] asynchronously", backendId);
+			}
+			
+			@Override
+			public Boolean process() {
+				IdmRoleTreeNodeController.super.delete(backendId);
+				return Boolean.TRUE;			
+			}
+		};
+		taskManager.execute(asyncTask);
+		// TODO: improve status handling on FE
+		// return new ResponseEntity<Object>(HttpStatus.ACCEPTED);
+		throw new AcceptedException();
 	}
 	
 	@Override

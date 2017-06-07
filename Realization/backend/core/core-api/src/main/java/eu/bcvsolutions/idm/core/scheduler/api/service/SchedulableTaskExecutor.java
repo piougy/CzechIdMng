@@ -1,6 +1,5 @@
 package eu.bcvsolutions.idm.core.scheduler.api.service;
 
-import java.util.List;
 import java.util.UUID;
 
 import org.quartz.Job;
@@ -12,14 +11,7 @@ import org.quartz.Job;
  */
 public interface SchedulableTaskExecutor<V> extends LongRunningTaskExecutor<V>, Job {
 
-	static final String PARAMETER_INSTANCE_ID = "core:instanceId"; // server instance id
-	
-	/**
-	 * Returns form parameter names for this task
-	 * 
-	 * @return
-	 */
-	List<String> getParameterNames();
+	static final String PARAMETER_INSTANCE_ID = LongRunningTaskExecutor.PARAMETER_INSTANCE_ID; // server instance id
 
 	/**
 	 * Returns entity ID of currently processed scheduled task. 

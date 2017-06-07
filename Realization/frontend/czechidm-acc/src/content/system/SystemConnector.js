@@ -72,6 +72,7 @@ class SystemConnectorContent extends Basic.AbstractContent {
   }
 
   saveConnector(value, event) {
+    const {error} = this.state;
     if (event) {
       event.preventDefault();
     }
@@ -80,58 +81,65 @@ class SystemConnectorContent extends Basic.AbstractContent {
       return;
     }
     //
-    // modal window with confirm
-    this.refs[`confirm-change-connector`].show(
-      this.i18n(`action.changeConnector.message`),
-      this.i18n(`action.changeConnector.header`)
-    ).then(() => {
+    if (error && error.statusEnum === 'CONNECTOR_FORM_DEFINITION_NOT_FOUND') {
+      this._saveConnectorInternal(value.value);
+    } else {
       //
-      const { availableFrameworks, availableRemoteFrameworks, entity } = this.props;
+      // modal window with confirm
+      this.refs[`confirm-change-connector`].show(
+        this.i18n(`action.changeConnector.message`),
+        this.i18n(`action.changeConnector.header`)
+      ).then(() => {
+        //
+        this._saveConnectorInternal(value.value);
+      }, () => {
+        // Rejected
+      });
+    }
+  }
 
-      const data = value.value;
+  _saveConnectorInternal(data) {
+    const { availableFrameworks, availableRemoteFrameworks, entity } = this.props;
 
-      if (data === null) {
-        return;
+    if (data === null) {
+      return;
+    }
+
+    this.setState({
+      showLoading: true,
+      error: null
+    }, () => {
+      let connector = null;
+      if (entity.remote) {
+        connector = availableRemoteFrameworks.get(data.split(':')[0]).get(data);
+      } else {
+        connector = availableFrameworks.get(data.split(':')[0]).get(data);
       }
 
-      this.setState({
-        showLoading: true,
-        error: null
-      }, () => {
-        let connector = null;
-        if (entity.remote) {
-          connector = availableRemoteFrameworks.get(data.split(':')[0]).get(data);
-        } else {
-          connector = availableFrameworks.get(data.split(':')[0]).get(data);
-        }
+      let saveEntity = { };
 
-        let saveEntity = { };
-
-        const connectorServer = {
-          ...entity.connectorServer,
-          password: null
+      const connectorServer = {
+        ...entity.connectorServer,
+        password: null
+      };
+      if (connector !== null) {
+        saveEntity = {
+          ...entity,
+          connectorKey: {
+            framework: connector.connectorKey.framework,
+            connectorName: connector.connectorKey.connectorName,
+            bundleName: connector.connectorKey.bundleName,
+            bundleVersion: connector.connectorKey.bundleVersion
+          },
+          connectorServer
         };
-        if (connector !== null) {
-          saveEntity = {
-            ...entity,
-            connectorKey: {
-              framework: connector.connectorKey.framework,
-              connectorName: connector.connectorKey.connectorName,
-              bundleName: connector.connectorKey.bundleName,
-              bundleVersion: connector.connectorKey.bundleVersion
-            },
-            connectorServer
-          };
-        }
+      }
 
-        // we dont must check is new, on this component will be always old entity
-        this.context.store.dispatch(manager.patchEntity(saveEntity, `${uiKey}-detail`, (patchedEntity, newError) => {
-          this.reloadConnectorConfiguration(patchedEntity.id);
-          this._afterSave(patchedEntity, newError);
-        }));
-      });
-    }, () => {
-      // Rejected
+      // we dont must check is new, on this component will be always old entity
+      this.context.store.dispatch(manager.patchEntity(saveEntity, `${uiKey}-detail`, (patchedEntity, newError) => {
+        this.reloadConnectorConfiguration(patchedEntity.id);
+        this._afterSave(patchedEntity, newError);
+      }));
     });
   }
 

@@ -6,7 +6,11 @@ import * as Basic from '../../components/basic';
 import { BackendModuleManager, DataManager, SecurityManager } from '../../redux';
 import * as Utils from '../../utils';
 
-
+/**
+ * BE modules administration
+ *
+ * @author Radek Tomiška
+ */
 class BackendModules extends Basic.AbstractContent {
 
   constructor(props, context) {

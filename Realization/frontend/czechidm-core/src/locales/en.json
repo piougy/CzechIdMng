@@ -25,10 +25,10 @@
       "update": "Update successfully completed",
       "delete": "Deletion successfully completed"
     },
-   "task": {
+    "task": {
       "detailNotFound":"This task is not supported!"
     },
-   "failed": "Operation failed",
+    "failed": "Operation failed",
     "notImplemented": "This operation is not available yet"
   },
   "label": {
@@ -91,7 +91,9 @@
       "success": "Selected record [{{record}}] successfully deleted",
       "success_plural": "Selected records [{{records}}] were successfully deleted",
       "approve": "Record deletion [{{record}}] has to be approved, task successfully created",
-      "approve_plural": "Records deletion [{{records}}] have to be approved, tasks successfully created"
+      "approve_plural": "Records deletion [{{records}}] have to be approved, tasks successfully created",
+      "accepted": "Record deletion [{{record}}] run asynchronously (deletion has to be approved or run as long running task)",
+      "accepted_plural": "Records deletion [{{records}}] run asynchronously (deletion has to be approved or run as long running task)"
     },
     "activate": {
       "action": "Activate",
@@ -103,7 +105,7 @@
       "success": "Selected record [{{record}}] successfully activated",
       "success_plural": "Selected records [{{records}}] were successfully activated"
     },
-      "deactivate": {
+    "deactivate": {
       "action": "Deactivate",
       "header": "Deactivate record",
       "header_plural": "Deactivate records",
@@ -129,7 +131,7 @@
       "title": "Test environment"
     }
   },
- "navigation" : {
+  "navigation" : {
     "toogle": "Toggle navigation",
     "menu": {
       "home": "Dashboard",
@@ -213,7 +215,7 @@
         }
       }
     },
-   "advanced": {
+    "advanced": {
       "IdentityInfo": {
         "disabledInfo": "User is deactivated",
         "profileLink": "Show full detail"
@@ -261,10 +263,13 @@
             "confidential": "{{name}} - confidential is not supported"
           }
         }
+      },
+      "Recaptcha": {
+        "required": "Check 'you are not a robot' please"
       }
     }
   },
-   "enums" : {
+  "enums" : {
     "ApiOperationTypeEnum" : {
       "CREATE" : "create",
       "UPDATE" : "edit",
@@ -286,10 +291,10 @@
     "RoleAssignTypeEnum": {
       "UNASSIGNED": "not assigned",
       "WAIT_ASSIGN": "not assigned (waiting for assign)",
-      "WAIT_APPROVE": "not assigned (waiting for aproval)",
+      "WAIT_APPROVE": "not assigned (waiting for approval)",
       "ASSIGNED": "Assign",
       "FINITE_ASSIGNMENT": "Assign (with expiration)",
-      "QUARANTINE": "Assign (in quarantene)",
+      "QUARANTINE": "Assign (in quarantine)",
       "WAIT_CHANGE_APPROVE": "Assign (update waiting for approval)",
       "WAIT_REMOVE_APPROVE": "Assign (removing waiting for approval)"
     },
@@ -348,7 +353,7 @@
     "NotificationStateEnum": {
       "ALL": "Send",
       "PARTLY": "Partly",
-      "NOT": "Unsent"
+      "NOT": "Not sent"
     },
     "AccessTypeEnum": {
       "DENY_ALL": "Access denied to all",
@@ -383,13 +388,13 @@
       "WARNING": "WARNING",
       "ERROR": "ERROR"
     },
-   "OperationStateEnum":{
+    "OperationStateEnum":{
       "CREATED": "Created",
       "RUNNING": "Running",
-    	"EXECUTED": "Executed",
-    	"EXCEPTION": "Failed",
-    	"NOT_EXECUTED": "Not executed",
-    	"CANCELED": "Canceled"
+      "EXECUTED": "Executed",
+      "EXCEPTION": "Failed",
+      "NOT_EXECUTED": "Not executed",
+      "CANCELED": "Canceled"
     },
     "TriggerTypeEnum": {
       "SIMPLE": "One-time start",
@@ -424,7 +429,7 @@
       "UP": "Up by structure"
     }
   },
- "dashboard": {
+  "dashboard": {
     "profileDashboard" : {
       "header": "Your basic information",
       "goToProfil": "Go to profile"
@@ -635,8 +640,8 @@
         "minRulesToFulfill": "Fill in at least {{count}} the following rules: ",
         "passwordSimilarUsername": "Password cannot be similar to login: ",
         "passwordSimilarEmail": "Password cannot be similar to email: ",
-        "passwordSimilarFirstName": "Password cannot be similar tofirst name: ",
-        "passwordSimilarLastName": "Password cannot be similar to suername: ",
+        "passwordSimilarFirstName": "Password cannot be similar to first name: ",
+        "passwordSimilarLastName": "Password cannot be similar to surname: ",
         "date": "Password can not be change now, try again: "
       },
       "save": {
@@ -690,7 +695,7 @@
         },
         "approvedBy": {
           "label": "Approver",
-          "placeholder": "Who appoved the task"
+          "placeholder": "Who approved the task"
         },
         "taskState": {
           "label": "State",
@@ -714,7 +719,7 @@
       "assigned": "Assigned tasks",
       "action": {
         "approve": {
-          "action": "Approve tesk",
+          "action": "Approve task",
           "header": "Task to approve",
           "header_plural": "Tasks to approve",
           "message": "Do you really want to approve the selected task?",
@@ -736,78 +741,78 @@
       }
     },
     "task":{
-        "instances": {
-          "header": "Unresolved tasks",
-          "title": "Unresolved tasks"
+      "instances": {
+        "header": "Unresolved tasks",
+        "title": "Unresolved tasks"
+      },
+      "instance": {
+        "header": "Task details",
+        "title": "Task details",
+        "name": "Activity name",
+        "description": "Task name",
+        "createdDate": "Created on",
+        "applicantFullName": "Applicant name",
+        "applicant": "Requested for",
+        "successComplete": "Task {{name}} successfully solved.",
+        "completeTaskConfirmTitle": "Confirmation of task completion",
+        "completeTaskConfirmDetail": "o you really want this task to terminate?",
+        "role": {
+          "currentRoles": "Currently assigned permissions",
+          "conceptIdentityRoles": "Applicant's roles"
+        }
+      },
+      "DefaultTaskDetail": {
+        "applicant": "Requested for",
+        "createdDate": "Created date",
+        "approvers": "Approvers of this task",
+        "note": "$t(entity.ApprovalTask.note)",
+        "taskState": "$t(entity.ApprovalTask.taskState)",
+        "approve": "Accept",
+        "disapprove": "Reject",
+        "approvers": "Approvers of this task",
+        "messages": {
+          "approved":"Task successfully approved",
+          "disapproved": "Task successfully rejected",
+          "confirmTaskApproveTitle": "Task approve confirmation",
+          "confirmTaskApprove": "Do you really want this task to approve?",
+          "confirmTaskDisapprove": "Do you really want this task to reject?",
+          "confirmTaskDisapproveTitle": "Task reject confirmation"
+        }
+      },
+      "RoleApprovalTaskDetail": {
+        "roleName" : "Role name"
+      },
+      "IdentityRoleConceptTable": {
+        "oldValue": "Old value {{oldValue}}",
+        "oldValueNotExist": "Old value was empty",
+        "create": {
+          "header": "Add roles"
         },
-        "instance": {
-          "header": "Task details",
-          "title": "Task details",
-          "name": "Activity name",
-          "description": "Task name",
-          "createdDate": "Created on",
-          "applicantFullName": "Applicant name",
-          "applicant": "Requested for",
-          "successComplete": "Task {{name}} successfully solved.",
-          "completeTaskConfirmTitle": "Confirmation of task completion",
-          "completeTaskConfirmDetail": "o you really want this task to terminate?",
-          "role": {
-            "currentRoles": "Currently assigned permissions",
-            "conceptIdentityRoles": "Applicant's roles"
-          }
+        "edit": {
+          "header": "Edit roles"
         },
-        "DefaultTaskDetail": {
-          "applicant": "Requested for",
-          "createdDate": "Created date",
-          "approvers": "Approvers of this task",
-          "note": "$t(entity.ApprovalTask.note)",
-          "taskState": "$t(entity.ApprovalTask.taskState)",
-          "approve": "Accept",
-          "disapprove": "Reject",
-          "approvers": "Approvers of this task",
-          "messages": {
-            "approved":"Task successfully approved",
-            "disapproved": "Task successfully rejected",
-            "confirmTaskApproveTitle": "Task approve confirmation",
-            "confirmTaskApprove": "Do you really want this task to approve?",
-            "confirmTaskDisapprove": "Do you really want this task to reject?",
-            "confirmTaskDisapproveTitle": "Task reject confirmation"
-          }
+        "selectRoleCatalogue": {
+          "header": "Selection roles from folders of catalog"
         },
-        "RoleApprovalTaskDetail": {
-          "roleName" : "Role name"
-        },
-        "IdentityRoleConceptTable": {
-          "oldValue": "Old value {{oldValue}}",
-          "oldValueNotExist": "Old value was empty",
-          "create": {
-            "header": "Add roles"
+        "action": {
+          "deleteAdded": {
+            "header": "Delete added roles",
+            "message": "Do you really want to delete added roles?"
           },
-          "edit": {
-            "header": "Edit roles"
+          "deleteChanged": {
+            "header": "Delete changed roles",
+            "message": "Do you really want to delete changed roles?"
           },
-          "selectRoleCatalogue": {
-            "header": "Selection roles from folders of catalog"
+          "deleteRemoved": {
+            "header": "Delete removed roles",
+            "message": "Do you really want to delete removed roles?"
           },
-          "action": {
-            "deleteAdded": {
-              "header": "Delete added roles",
-              "message": "Do you really want to delete added roles?"
-            },
-            "deleteChanged": {
-              "header": "Delete changed roles",
-              "message": "Do you really want to delete changed roles?"
-            },
-            "deleteRemoved": {
-              "header": "Delete removed roles",
-              "message": "Do you really want to delete removed roles?"
-            },
-            "delete": {
-              "header": "Delete roles",
-              "message": "Do you really want to delete roles"
-            }
+          "delete": {
+            "header": "Delete roles",
+            "message": "Do you really want to delete roles"
           }
         }
+      }
     },
     "identities": {
       "header": "Users",
@@ -947,7 +952,7 @@
           "index": {
             "valid": "Tree type structure index is valid.",
             "invalid": "Tree type structure index is invalid. Index rebuild is needed. Search on invalid index will not return relevant results.",
-            "rebuild": "Index rebuild is in progress <small>Tree nodes editation is not possible for now</small>"
+            "rebuild": "Index rebuild is in progress <small>Tree nodes editing is not possible for now</small>"
           }
         }
       }
@@ -1105,11 +1110,11 @@
           "header": "Granted permissions <small>(category)</small>",
           "select": {
             "none": "Remove all permissions in category",
-            "all": "Add all permisions on category"
+            "all": "Add all permissions on category"
           },
           "group": {
-            "hide": "Hide settigs of bacic permissions in category",
-            "show": "Show settigs of bacis permissions in category"
+            "hide": "Hide settings of basic permissions in category",
+            "show": "Show settings of basic permissions in category"
           }
         },
         "approval": {
@@ -1122,7 +1127,7 @@
       "delete": {
         "identityAssigned": {
           "title": "Removing role is assign on users",
-          "message": "Role [{{role}}] is assign to users. Befor removing the role you need to take it from users."
+          "message": "Role [{{role}}] is assign to users. Before removing the role you need to take it from users."
         }
       }
     },
@@ -1135,6 +1140,20 @@
       },
       "button": {
         "createRequest": "Create request"
+      },
+      "action": {
+        "startRequest": {
+          "header": "Do you really want execute this request",
+          "message": "Do you really want execute this request and start approval process?",
+          "started": "Request was started",
+          "exception": "Error occurred during submitting request. Request was not submitted!",
+          "duplicated": "Request was not submitted because it is duplicate with another request created on [{{created}}]."
+        }
+      },
+      "filter": {
+        "applicant":{
+          "placeholder": "Search by whole username applicant."
+        }
       }
     },
     "roleRequestDetail": {
@@ -1148,23 +1167,11 @@
       },
       "button": {
         "createRequest":{
-          "label": "Submmit a request",
+          "label": "Submit a request",
           "tooltip": "Start request for change permissions."
         }
-      },
-      "action": {
-        "startRequest": {
-          "header": "Do you really want execute this request",
-          "message": "Do you really want execute this request and start approval process?",
-          "started": "Request was started"
-        }
-      },
-      "filter": {
-        "applicant":{
-          "placeholder": "Search by whole username applicant."
-        }
       }
-    },
+     },
     "role": {
       "identities": {
         "header": "Users with assigned role",
@@ -1191,7 +1198,7 @@
           "header": "New automatic role"
         },
         "save": {
-          "success": "Automatic role [{{record}}] successfully saved"
+          "success": "Automatic role [{{record}}] successfully saved. Assign role to identities run asynchronously. You can see progress in long running tasks agenda."
         },
         "action": {
           "delete": {
@@ -1224,7 +1231,7 @@
         }
       }
     },
-   "identity": {
+    "identity": {
       "sidebar": {
         "profile": "Personal data",
         "password": "Change password",
@@ -1235,7 +1242,7 @@
         "positions": "Contracted positions",
         "approve": "Approver of roles"
       },
-     "profile": {
+      "profile": {
         "header": "Personal data",
         "title": "My profile",
         "userDetail": "User details",
@@ -1253,7 +1260,7 @@
         "description": {
           "label": "$t(entity.Identity.description)",
           "placeholder": "Notes to user"
-          },
+        },
         "active": "Active",
         "button": {
 
@@ -1271,7 +1278,7 @@
         },
         "messages": {
           "deactiveDisabled": "You cannot inactivate yourself.",
-          "subordinatesCount": "User <strong>{{username}}</strong>, which is to be deactivate is manager of <strong>{{subordinatesCount}}</strong> users. <br/> Please select a new manager for dispayed users.",
+          "subordinatesCount": "User <strong>{{username}}</strong>, which is to be deactivate is manager of <strong>{{subordinatesCount}}</strong> users. <br/> Please, select a new manager for displayed users.",
           "saved": "User {{username}} successfully saved",
           "deactivated": "User {{username}} user successfully deactivated.",
           "deactivateBreak": {
@@ -1371,7 +1378,7 @@
         },
         "message": {
           "wrongUser": "Change password to subordinates is not allowed",
-          "success": "Password on accounts [{{accounts}}] for users [{{username}}] succesfully changed.",
+          "success": "Password on accounts [{{accounts}}] for users [{{username}}] successfully changed.",
           "isAdmin": "You are logged in as administrator. Original password is not required for password change. Password can be changed on selected systems. Number of changes is not limited."
         },
         "button": {
@@ -1383,9 +1390,9 @@
         "title": "Password reset",
         "info": "Password will be reset to users above on selected systems",
         "message": {
-          "loadResourcesFailed": "Error during loading accnout on system of user {{username}}",
+          "loadResourcesFailed": "Error during loading account on system of user {{username}}",
           "resetFailed": "Password reset for user {{username}} failed",
-          "resetSuccess": "Password reset for users {{usernames}} was succesful"
+          "resetSuccess": "Password reset for users {{usernames}} was successful"
         },
         "confirm": {
           "title": "Password reset",
@@ -1396,7 +1403,7 @@
           "empty": "User {{username}} doesn't have account on system {{resource}}"
         },
         "users": {
-          "empty": "Plese, select users which you want to reset password."
+          "empty": "Please, select users which you want to reset password."
         },
         "selection": {
           "empty": "Please, select at least one users and system where you want to reset password"
@@ -1443,12 +1450,12 @@
         }
       },
       "delegates": {
-        "header": "Deleate tasks",
+        "header": "Delegate tasks",
         "title": "$t(content.identity.delegates.header)",
         "empty": "No set delegations found.",
         "message": {
           "save": {
-            "success": "Delegation to user [{{delegate}}] was succesful."
+            "success": "Delegation to user [{{delegate}}] was successful."
           },
           "delete": {
             "confirm": {
@@ -1470,7 +1477,7 @@
           }
         },
         "delete": {
-          "header": "Processing removing deleganion"
+          "header": "Processing removing delegation"
         }
       },
       "subordinates": {
@@ -1544,7 +1551,7 @@
         "action": {
           "save": {
             "success_0": "N/A",
-            "success_1": "Pro pracovní pozici byl úspěšně uložen garant [{{record}}]"
+            "success_1": "For contracted position was successfully saved authorizer [{{record}}]"
           }
         }
       }
@@ -1567,7 +1574,7 @@
     },
     "system": {
       "modules": {
-        "header": "Aplication modules and components",
+        "header": "Application modules and components",
         "title": "Modules"
       },
       "fe-modules": {
@@ -1578,7 +1585,7 @@
           "priority": "Priority",
           "type": "Type",
           "order": "Order",
-          "overriden": "Component overriden in module: {{moduleId}}"
+          "overriden": "Component overridden in module: {{moduleId}}"
         },
         "activate": {
           "disabled": "Frontend module depends on backend module [{{backendId}}]. Activate backend module at first."
@@ -1608,7 +1615,7 @@
           "task-cancel": {
             "header": "Cancel running task",
             "message": "Do you really was to cancel task [<strong>{{record}}</strong>]?",
-            "success": "Task [{{record}}] will be canceled as soon is possilbe (after current item is processed)."
+            "success": "Task [{{record}}] will be canceled as soon is possible (after current item is processed)."
           },
           "task-interrupt": {
             "header": "Interrupt running task",
@@ -1621,7 +1628,7 @@
         "header": "Scheduled tasks",
         "title": "Scheduled tasks",
         "button": {
-          "run": "Run manualy"
+          "run": "Run manually"
         },
         "action": {
           "trigger-delete": {
@@ -1668,12 +1675,12 @@
             "placeholder": "Date to"
           },
           "text": {
-            "label": "Klíč / Typ",
-            "placeholder": "Klíč nebo typ úlohy"
+            "label": "Key / Type",
+            "placeholder": "Key or task type"
           },
           "text": {
-            "label": "Typ / Popis",
-            "placeholder": "Typ nebo popis úlohy"
+            "label": "Type / Description",
+            "placeholder": "Type or description of task"
           },
           "operationState": {
             "label": "State",
@@ -1696,7 +1703,7 @@
     "notifications": {
       "header": "Notifications history",
       "label": "Notifications history",
-      "title": "Záznamy odeslaných notifikací",
+      "title": "Records of sent notifications",
       "filter": {
         "dateFrom": {
           "label": "From",
@@ -1735,7 +1742,7 @@
         "sentPartly": "Partially sent"
       },
       "sent": {
-        "success": "Odeslání notifikace bylo úspěšné"
+        "success": "Notifications were successfully sent"
       }
     },
     "notificationTemplate": {
@@ -1786,7 +1793,7 @@
         "header": "New configuration item"
       },
       "save": {
-        "success": "Položka konfigurace [{{name}}] byla úspěšně uložena"
+        "success": "Configuration item [{{name}}] was successfully saved"
       }
     },
     "workflow" : {
@@ -1799,7 +1806,7 @@
         "description": "Description",
         "resourceName": "Resource name",
         "category": "Category",
-        "diagramResourceName": "Schmena name",
+        "diagramResourceName": "Scheme name",
         "deploymentId": "Deployment Id",
         "resourceName": "Resource name",
         "id":"Identificator",
@@ -1911,7 +1918,7 @@
     },
     "created": "Created",
 
-     "Identity": {
+    "Identity": {
       "_type": "User",
       "username": "Login",
       "firstName": "First name",
@@ -1960,12 +1967,12 @@
       "script": {
         "help": "Body of script in groovy.",
         "label": "Script"
-       },
-       "select": {
-         "help": "",
-         "button": "Insert script",
-         "label": "Selection of available scripts"
-       },
+      },
+      "select": {
+        "help": "",
+        "button": "Insert script",
+        "label": "Selection of available scripts"
+      },
       "description": "Script description"
     },
     "ScriptAuthority": {
@@ -1983,15 +1990,15 @@
       "unmodifiable": {
         "label": "System definition",
         "help": "System definition can't be deleted and can't be edited some of her attributes."
-       },
-       "main": {
-         "label": "Main definition",
-         "help": "Main / default definition"
-       },
-       "description": {
+      },
+      "main": {
+        "label": "Main definition",
+        "help": "Main / default definition"
+      },
+      "description": {
         "help": "System definition cannot be deleted. Some of its configurations are not able for edit.",
         "label": "System definition"
-       }
+      }
     },
     "FormAttribute" : {
       "code": {
@@ -2020,7 +2027,7 @@
       "unmodifiable": {
         "help": "System attribute cannot be deleted. Some of its configurations are not able for edit.",
         "label": "System attribute"
-       }
+      }
     },
     "Role": {
       "_type": "Role",
@@ -2051,7 +2058,7 @@
       "_type": "Permission",
       "role": "Role",
       "disabled": "Inactive",
-      "description": "Desription",
+      "description": "Description",
       "seq": "Order",
       "authorizableType": {
         "label": "Entity type",
@@ -2088,7 +2095,7 @@
     },
     "IdentityAccount": {
       "attribute": {
-        "name": "Atributte",
+        "name": "Attribute",
         "value": "Value"
       }
     },
@@ -2127,7 +2134,7 @@
       },
       "disabled": {
         "label": "Inactive",
-        "help": "Inactive work position. Has higher priority than valid dates. Invalid work position is automatically set to inactive and all assigned roles to this positio are removed."
+        "help": "Inactive work position. Has higher priority than valid dates. Invalid work position is automatically set to inactive and all assigned roles to this position are removed."
       },
       "description": "Note",
       "main": {
@@ -2144,7 +2151,7 @@
       "shortName": "Name",
       "parentId": "Superior element",
       "parent": {
-          "name": "Superior element"
+        "name": "Superior element"
       },
       "treeType": {
         "name": "Structure type"
@@ -2232,8 +2239,8 @@
         "help": "System templates is necessary for correct functioning application. System templates can't be removed or change their code."
       },
       "bodyHtml": {
-      "name": "Message body (html)",
-      "help": "For a list of available templates write character '$'"
+        "name": "Message body (html)",
+        "help": "For a list of available templates write character '$'"
       },
       "bodyText": "Message body (text)"
     },
@@ -2315,7 +2322,7 @@
       "key": "Attribute",
       "value": "Value",
       "entityId": "Entity ID",
-      "entity": "Entita (IdM)"
+      "entity": "Entity (IdM)"
     },
     "PasswordPolicy": {
       "type": "Type",
@@ -2345,7 +2352,7 @@
       "minPasswordAge": "Minimum number of days for password validity.",
       "enchancedControl": "Enabled",
       "minRulesToFulfill": "Minimum number of additional rules for policy",
-      "maxHistorySimilar": "Nuber of checked old passwords  zpětně kontrolovaných hesel na shodu",
+      "maxHistorySimilar": "Number of old passwords checked for match",
       "lowerCharBase": "Lowercase letters",
       "upperCharBase": "Uppercase letters",
       "numberBase": "Digits",
@@ -2399,7 +2406,10 @@
         "label": "Instance",
         "help": "Task will be executed on server (instance identifier)"
       },
-      "duration": "Task duration"
+      "duration": "Task duration",
+      "taskProperties": {
+        "label": "Parameters"
+      }
     },
     "ScheduleTask": {
       "id": "Identificator",
@@ -2489,7 +2499,7 @@
         "warning": "Do you want to delete the request?"
       },
       "repairedRequest": {
-        "label" : "Reqeust repaired",
+        "label" : "Request repaired",
         "tooltip": "Request was repaired by comments.",
         "warning": "Do you want return request to approve?"
       }
@@ -2563,7 +2573,7 @@
     },
     "FORBIDDEN": {
       "title": "Insufficient permissions",
-      "message": "You dont have insufficient permissions for selected action."
+      "message": "You do not have insufficient permissions for selected action."
     },
     "PASSWORD_CHANGE_NO_SYSTEM": {
       "title": "Password change failed",
@@ -2619,7 +2629,7 @@
     },
     "PASSWORD_POLICY_ALL_MIN_REQUEST_ARE_HIGHER": {
       "title": "Password policy wasn't saved",
-      "message": "Count of all minumum lenghts is bigger than setted maximum password length."
+      "message": "Count of all minimum lengths is bigger than maximum password length."
     },
     "PASSWORD_POLICY_MAX_AGE_LOWER": {
       "title": "Password policy wasn't saved",
@@ -2772,7 +2782,7 @@
     },
     "FOREST_INDEX_DISABLED": {
       "title": "Index is disabled",
-      "message": "Tree stucture indexing is disabled. Enable configuration property {{property}}."
+      "message": "Tree structure indexing is disabled. Enable configuration property {{property}}."
     },
     "FOREST_INDEX_RUNNING": {
       "title": "Reindex already running",
@@ -2800,7 +2810,7 @@
     },
     "ACCEPTED": {
       "title": "Request added",
-      "message": "Request will be proccesed / approved."
+      "message": "Request will be processed / approved."
     },
     "ROLE_REQUEST_EXECUTED_CANNOT_DELETE": {
       "title": "Request for change permission cannot be deleted",
@@ -2812,7 +2822,7 @@
     },
     "ROLE_REQUEST_NO_EXECUTE_IMMEDIATELY_RIGHT": {
       "title": "You don`t have permission for start request for change permissions without approval.",
-      "message": "You don`t have permission (EXECUTEIMMEDIATELY) for start request for change permissions without approval!"
+      "message": "You don`t have permission (EXECUTE IMMEDIATELY) for start request for change permissions without approval!"
     },
     "CRYPT_DEMO_KEY_NOT_FOUND": {
       "title": "Demo key was not found",
@@ -2833,6 +2843,18 @@
     "PASSWORD_EXPIRED": {
       "title": "Password expired",
       "message": "Password couldn't be used for login."
+    },
+    "RECAPTCHA_SECRETKEY_MISSING": {
+      "title": "Application configuration",
+      "message": "Configuration property for recaptcha [{{property}}] is missing. Add please configuration item."
+    },
+    "RECAPTCHA_CHECK_FAILED": {
+      "title": "Recaptcha check",
+      "message": "Recaptcha failed: [{{errors}}]."
+    },
+    "RECAPTCHA_SERVICE_UNAVAILABLE": {
+      "title": "Recaptcha check",
+      "message": "Recaptcha service is unavailable."
     }
   },
   "validationError": {
@@ -2865,16 +2887,16 @@
       "min_plural" : "Enter at least {{count}} items!"
     },
     "date" : {
-     "unvalid" : "Invalid date!"
+      "unvalid" : "Invalid date!"
     },
     "passwords_not_same": "Passwords must be the same!",
-    "configurationSecured": "You dont have permissions to edit system configuration"
+    "configurationSecured": "You don't have permissions to edit system configuration"
   },
   "security": {
     "access": {
       "denied": "Insufficient permissions",
       "link": {
-        "denied": "You dont have perrmisions to see record details"
+        "denied": "You don't have permissions to see record details"
       }
     }
   }

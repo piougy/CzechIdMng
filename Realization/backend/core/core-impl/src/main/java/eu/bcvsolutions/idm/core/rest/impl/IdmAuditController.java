@@ -29,6 +29,7 @@ import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmAuditDiffDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmAuditDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.AuditFilter;
+import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
@@ -66,6 +67,27 @@ public class IdmAuditController extends AbstractReadWriteDtoController<IdmAuditD
 	public Resources<?> findQuick(@RequestParam MultiValueMap<String, Object> parameters, 
 			@PageableDefault Pageable pageable) {
 		return this.find(parameters, pageable);
+	}
+	
+	@ResponseBody
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.AUDIT_READ + "')")
+	@RequestMapping(value= "/search/entity", method = RequestMethod.GET)
+	public Resources<?> findEntity(@RequestParam MultiValueMap<String, Object> parameters, 
+			@PageableDefault Pageable pageable) {
+		Object entityClass = parameters.getFirst("entity");
+		//
+		if (entityClass == null) {
+			// TODO
+			throw new ResultCodeException(CoreResultCode.BAD_VALUE);
+		}
+		//
+		try {
+			return toResources(auditService.findEntityWithRelation((Class<? extends AbstractEntity>) Class.forName(entityClass.toString()), parameters, pageable), getDtoClass());
+		} catch (ClassNotFoundException e) {
+			// TODO
+			throw new ResultCodeException(CoreResultCode.BAD_VALUE, e);
+		}
+
 	}
 	
 	@ResponseBody

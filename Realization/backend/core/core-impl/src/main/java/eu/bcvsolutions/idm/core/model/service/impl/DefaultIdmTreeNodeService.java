@@ -52,6 +52,8 @@ import eu.bcvsolutions.idm.core.scheduler.task.impl.RebuildTreeNodeIndexTaskExec
  * Tree node service
  * - supports {@link TreeNodeEvent}
  * 
+ * TODO: dto, move logic from TreeNodeProcessor to saveInternal
+ * 
  * @author Radek Tomiška
  *
  */
@@ -245,7 +247,6 @@ public class DefaultIdmTreeNodeService extends AbstractFormableService<IdmTreeNo
 		predicates.addAll(filterManager.toPredicates(root, query, builder, filter));
 		//
 		return builder.and(predicates.toArray(new Predicate[predicates.size()]));
-
 	}
 
 }

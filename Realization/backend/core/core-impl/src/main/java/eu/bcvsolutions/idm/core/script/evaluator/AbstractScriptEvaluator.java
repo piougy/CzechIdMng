@@ -24,6 +24,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmScript;
 import eu.bcvsolutions.idm.core.model.entity.IdmScriptAuthority;
 import eu.bcvsolutions.idm.core.model.repository.IdmScriptRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmScriptAuthorityService;
+import eu.bcvsolutions.idm.core.security.exception.IdmSecurityException;
 
 
 /**
@@ -52,6 +53,12 @@ public abstract class AbstractScriptEvaluator implements Plugin<IdmScriptCategor
 	private ApplicationContext applicationContext;
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(AbstractScriptEvaluator.class);
+
+	public Object evaluate(String scriptCode) {
+		Map<String, Object> parameters = new HashMap<>();
+		parameters.put(AbstractScriptEvaluator.SCRIPT_EVALUATOR, this);
+		return this.evaluate(scriptCode, parameters);
+	}
 	
 	/**
 	 * Evaluated given script with parameters. Check if this we have permission for evaluated this script.
@@ -91,7 +98,15 @@ public abstract class AbstractScriptEvaluator implements Plugin<IdmScriptCategor
 			}
 		}
 		//
-		return groovyScriptService.evaluate(script.getScript(), parameters, extraAllowedClasses);
+		try {
+			return groovyScriptService.evaluate(script.getScript(), parameters, extraAllowedClasses);
+		} catch (SecurityException | IdmSecurityException ex) {
+			LOG.error("[ScriptEvaluator] SecurityException [{}]. Script code: [{}], name: [{}], category: [{}]", ex.getLocalizedMessage(), script.getCode(), script.getName(), script.getCategory().name());
+			throw ex;
+		} catch (Exception e) {
+			LOG.error("[ScriptEvaluator] Exception [{}]. Script code: [{}], name: [{}], category: [{}]", e.getLocalizedMessage(), script.getCode(), script.getName(), script.getCategory().name());
+			throw e;
+		}
 	}
 	
 	/**

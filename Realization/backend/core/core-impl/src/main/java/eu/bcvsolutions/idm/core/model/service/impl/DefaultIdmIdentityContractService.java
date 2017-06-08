@@ -269,6 +269,7 @@ public class DefaultIdmIdentityContractService
 		if (contracts.isEmpty()) {
 			return null;
 		}
+		
 		IdmIdentityContract primeContract = null;
 		IdmTreeType defaultTreeType = treeTypeRepository.findOneByDefaultTreeTypeIsTrue();
 		for (IdmIdentityContract contract : contracts) {
@@ -280,8 +281,8 @@ public class DefaultIdmIdentityContractService
 				primeContract = contract;
 			}
 			IdmTreeNode workPosition = contract.getWorkPosition();
-			if (workPosition != null && defaultTreeType != null && defaultTreeType.equals(workPosition.getTreeType())) {
-				return toDto(contract);
+			if (workPosition != null && (primeContract.getWorkPosition() == null || workPosition.getTreeType().equals(defaultTreeType))) {
+				primeContract = contract;
 			}
 		}
 		return toDto(primeContract);

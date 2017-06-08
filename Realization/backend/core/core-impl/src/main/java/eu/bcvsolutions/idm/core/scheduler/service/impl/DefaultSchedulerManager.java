@@ -87,7 +87,7 @@ public class DefaultSchedulerManager implements SchedulerManager {
 					task.setModule(taskExecutor.getModule());
 					task.setTaskType((Class<? extends SchedulableTaskExecutor<?>>) taskExecutor.getClass());
 					task.setDescription(AutowireHelper.getBeanDescription(entry.getKey()));
-					for (String parameterName : taskExecutor.getPropertyNames()) {
+					for (String parameterName : taskExecutor.getParameterNames()) {
 						task.getParameters().put(parameterName, null);
 					}
 					return task;

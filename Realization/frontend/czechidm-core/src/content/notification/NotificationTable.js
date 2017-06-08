@@ -1,16 +1,19 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import uuid from 'uuid';
+import _ from 'lodash';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
-import { IdentityManager, SecurityManager } from '../../redux';
+import { IdentityManager, SecurityManager, NotificationConfigurationManager, DataManager } from '../../redux';
 import NotificationStateEnum from '../../enums/NotificationStateEnum';
 import NotificationLevelEnum from '../../enums/NotificationLevelEnum';
 import NotificationRecipientsCell from './NotificationRecipientsCell';
 import NotificationSentState from './NotificationSentState';
 import SearchParameters from '../../domain/SearchParameters';
+
+const notificationConfigurationManager = new NotificationConfigurationManager();
 
 /**
 * Audit for sent notifications
@@ -33,6 +36,11 @@ export class NotificationTable extends Advanced.AbstractTableContent {
 
   getContentKey() {
     return 'content.notifications';
+  }
+
+  componentDidMount() {
+    super.componentDidMount();
+    this.context.store.dispatch(notificationConfigurationManager.fetchSupportedNotificationTypes());
   }
 
   useFilter(event) {
@@ -69,10 +77,15 @@ export class NotificationTable extends Advanced.AbstractTableContent {
   }
 
   render() {
-    const { uiKey, notificationManager } = this.props;
+    const { uiKey, notificationManager, supportedNotificationTypes } = this.props;
     const { filterOpened } = this.state;
     const forceSearchParameters = new SearchParameters().setFilter('notificationType', 'notification');
-
+    //
+    let _supportedNotificationTypes = null;
+    if (supportedNotificationTypes) {
+      _supportedNotificationTypes = _.union(supportedNotificationTypes, ['notification']);
+    }
+    //
     return (
       <div>
         <Basic.Confirm ref="confirm-delete" level="danger"/>
@@ -135,7 +148,11 @@ export class NotificationTable extends Advanced.AbstractTableContent {
                       placeholder={this.i18n('filter.sent.placeholder')}
                       enum={NotificationStateEnum}/>
                   </div>
-                  <div className="col-lg-4">
+                  <div className="col-lg-4 hidden">
+                    <Advanced.Filter.EnumSelectBox
+                      ref="notificationType"
+                      placeholder={ this.i18n('entity.NotificationConfiguration.notificationType') }
+                      options={ !_supportedNotificationTypes ? null : _supportedNotificationTypes.map(type => { return { value: type, niceLabel: type }; }) }/>
                   </div>
                   <div className="col-lg-4">
                   </div>
@@ -170,7 +187,7 @@ export class NotificationTable extends Advanced.AbstractTableContent {
           <Advanced.Column property="type" header={this.i18n('entity.Notification.type')} rendered={ false }/>
           <Advanced.Column property="created" sort face="datetime"/>
           <Advanced.Column property="topic" sort face="text"/>
-          <Advanced.Column property="message.level" sort face="enum" enumClass={NotificationLevelEnum}/>
+          <Advanced.Column property="message.level" sort face="enum" enumClass={ NotificationLevelEnum }/>
           <Advanced.Column property="message.subject" sort face="text"/>
           <Advanced.Column
             property="recipients"
@@ -216,7 +233,8 @@ NotificationTable.defaultProps = {
 function select(state, component) {
   return {
     _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey),
-    _showLoading: component.notificationManager.isShowLoading(state, `${component.uiKey}-detail`)
+    _showLoading: component.notificationManager.isShowLoading(state, `${component.uiKey}-detail`),
+    supportedNotificationTypes: DataManager.getData(state, NotificationConfigurationManager.SUPPORTED_NOTIFICATION_TYPES)
   };
 }
 

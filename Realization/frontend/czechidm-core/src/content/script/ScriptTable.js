@@ -111,6 +111,11 @@ export default class ScriptTable extends Basic.AbstractContent {
                 </Basic.Row>
                 <Basic.Row className="last">
                   <div className="col-lg-6">
+                    <Advanced.Filter.TextField
+                      ref="code"
+                      placeholder={this.i18n('entity.Script.code')}/>
+                  </div>
+                  <div className="col-lg-6">
                     <Basic.EnumSelectBox
                       ref="category"
                       placeholder={this.i18n('entity.Script.category')}
@@ -150,6 +155,7 @@ export default class ScriptTable extends Basic.AbstractContent {
               }
             }
             sort={false}/>
+          <Advanced.Column property="code" sort />
           <Advanced.Column property="name" sort />
           <Advanced.Column property="category" sort face="enum" enumClass={ScriptCategoryEnum}/>
           <Advanced.Column property="description" cell={ ({ rowIndex, data }) => {

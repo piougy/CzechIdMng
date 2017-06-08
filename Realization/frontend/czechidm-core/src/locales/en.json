@@ -2685,8 +2685,12 @@
       "title": "Record is on colision with anoteher unique record"
     },
     "NAME_CONFLICT": {
-      "title": "Conflict with entity name",
-      "message": "Record with this name already exists."
+      "title": "Conflict with name",
+      "message": "Record with given name already exists."
+    },
+    "CODE_CONFLICT": {
+      "title": "Conflict with code",
+      "message": "Record with given code already exists."
     },
     "IDENTITY_NOT_FOUND": {
       "title": "Not found",

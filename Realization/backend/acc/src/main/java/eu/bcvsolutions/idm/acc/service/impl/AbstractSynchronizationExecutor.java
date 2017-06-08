@@ -1552,8 +1552,8 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 
 	/**
 	 * Start workflow process by wfDefinitionKey. Create input variables and put
-	 * them to process. If is log variable present after process started, then
-	 * will be log add to synchronization log.
+	 * them to the process. If log variable is present after the process started, then
+	 * add the log to the synchronization log.
 	 * 
 	 * @param wfDefinitionKey
 	 * @param uid
@@ -1580,7 +1580,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 		SysSyncConfig config = context.getConfig();
 		
 		addToItemLog(logItem,
-				MessageFormat.format("Workflow for {0} situation was found. We will start him.", situation));
+				MessageFormat.format("Workflow for {0} situation was found. We will start it.", situation));
 
 		Map<String, Object> variables = new HashMap<>();
 		variables.put(SynchronizationService.WF_VARIABLE_KEY_UID, uid);

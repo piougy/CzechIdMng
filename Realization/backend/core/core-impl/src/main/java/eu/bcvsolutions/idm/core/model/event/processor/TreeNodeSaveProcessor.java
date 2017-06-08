@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.model.event.processor;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.forest.index.service.api.ForestContentService;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
@@ -94,13 +96,24 @@ public class TreeNodeSaveProcessor extends CoreEventProcessor<IdmTreeNode> {
 		return new DefaultEventResult<>(event, this);
 	}
 	
-	private void validate(IdmTreeNode node, boolean isNew) {		
-		if (this.baseTreeService.validateTreeNodeParents(node)){
+	private void validate(IdmTreeNode node, boolean isNew) {	
+		if (this.baseTreeService.validateTreeNodeParents(node)) {
 			throw new TreeNodeException(CoreResultCode.TREE_NODE_BAD_PARENT,  "TreeNode ["+node.getName() +"] have bad parent.");
 		}
 		
 		if (checkCorrectType(node, isNew)) {
 			throw new TreeNodeException(CoreResultCode.TREE_NODE_BAD_TYPE,  "TreeNode ["+node.getName() +"] have bad type.");
+		}
+		IdmTreeNode parent = node.getParent();
+		List<IdmTreeNode> nodes = null;
+		if (parent != null) { // get same level
+			nodes = repository.findDirectChildren(parent, null).getContent();
+		} else { // get roots
+			nodes = repository.findRoots(node.getTreeType().getId(), null).getContent();
+		}
+		//
+		if (this.baseTreeService.validateUniqueName(nodes, node)) {
+			throw new ResultCodeException(CoreResultCode.TREE_NODE_BAD_NICE_NAME, ImmutableMap.of("name", node.getName()));
 		}
 	}
 	

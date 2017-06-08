@@ -291,10 +291,10 @@ class AdvancedTree extends Basic.AbstractContextComponent {
         const style = headerProps.style;
         const icon = headerProps.node.isLeaf ? 'file-text' : 'folder';
         return (
-          <div style={style.base}>
-            <div style={style.title}>
+          <div style={ style.base }>
+            <div style={ style.title }>
               <Basic.Icon type="fa" value={icon} style={{ marginRight: '5px' }}/>
-              {this._getLabel(headerProps.node)}
+              { this._getLabel(headerProps.node) }
             </div>
           </div>
         );
@@ -304,7 +304,6 @@ class AdvancedTree extends Basic.AbstractContextComponent {
 
   render() {
     const { data } = this.state;
-
     const { style, showLoading, rendered } = this.props;
     // I have problem with definition Container decorator. I override only Header, Loading and Toggle decorators in default "decorators"
     const customDecorators = this._getDecorators();
@@ -317,11 +316,13 @@ class AdvancedTree extends Basic.AbstractContextComponent {
       );
     }
     return (
-      <Treebeard
-        data={data}
-        onToggle={this._onToggle.bind(this)}
-        style={ style || defaultStyle }
-        decorators={{ ...decorators, Header: customDecorators.Header, Loading: customDecorators.Loading}}/>
+      <div style={{ overflowX: 'auto' }}>
+        <Treebeard
+          data={data}
+          onToggle={this._onToggle.bind(this)}
+          style={ style || defaultStyle }
+          decorators={{ ...decorators, Header: customDecorators.Header, Loading: customDecorators.Loading}}/>
+      </div>
     );
   }
 }

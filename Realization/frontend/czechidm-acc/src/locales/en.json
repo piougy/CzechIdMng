@@ -210,8 +210,8 @@
         },
         "action": {
           "changeConnector": {
-            "message": "<b>Immediate change of connector for system.</b> Original connector will no longer be active. This may cause malfunctions in the system.<br/><br/><b>Do you really want to change connector and save system?</b>",
-            "header": "Change connector"
+            "message": "<b>Immediate save of system with new connector.</b><br/> Current connector will no longer be active and its configuration will be lost.<br/><br/><b>Do you really want to change connector and save system?</b>",
+            "header": "Change of connector"
           }
         }
       },

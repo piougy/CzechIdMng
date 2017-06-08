@@ -44,8 +44,10 @@ public class DefaultGroovyScriptService implements GroovyScriptService {
 		Assert.notNull(script);
 
 		Binding binding = new Binding(variables);
-		GroovyShell shell = new GroovyShell(binding,
-				new CompilerConfiguration().addCompilationCustomizers(new SandboxTransformer()));
+		CompilerConfiguration compilerConfiguration = new CompilerConfiguration();
+		compilerConfiguration.setVerbose(true);
+		compilerConfiguration.addCompilationCustomizers(new SandboxTransformer());
+		GroovyShell shell = new GroovyShell(binding, compilerConfiguration);
 		List<Class<?>> allowedVariableClass = resolveCustomAllowTypes(variables);
 		if(extraAllowedClasses != null){
 			allowedVariableClass.addAll(extraAllowedClasses);
@@ -65,7 +67,7 @@ public class DefaultGroovyScriptService implements GroovyScriptService {
 
 			return shell.evaluate(script);
 		} catch (SecurityException | IdmSecurityException ex) {
-			LOG.error("[DefaultGroovyScriptService] SecurityException [{}], Script: [{}]", ex.getLocalizedMessage(), script);
+			LOG.error("[DefaultGroovyScriptService] SecurityException [{}]", ex.getLocalizedMessage());
 			throw new IdmSecurityException(CoreResultCode.GROOVY_SCRIPT_SECURITY_VALIDATION, ImmutableMap.of("message", ex.getLocalizedMessage()), ex);
 		} catch (Exception e) {
 			LOG.error("[DefaultGroovyScriptService] Exception [{}], Script: [{}]", e.getLocalizedMessage(), script);

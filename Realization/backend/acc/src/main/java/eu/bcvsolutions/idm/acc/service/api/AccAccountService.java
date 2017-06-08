@@ -34,7 +34,7 @@ public interface AccAccountService extends ReadWriteEntityService<AccAccount, Ac
 	 * @param identityId
 	 * @return
 	 */
-	List<AccAccount> getAccouts(UUID systemId, UUID identityId);
+	List<AccAccount> getAccounts(UUID systemId, UUID identityId);
 
 	/**
 	 * Find account by UID on given system.

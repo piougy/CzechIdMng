@@ -186,11 +186,15 @@ class NodeTable extends Advanced.AbstractTableContent {
     const style = props.style;
     const icon = props.node.isLeaf ? 'group' : 'building';
     return (
-      <div style={style.base}>
+      <div style={ style.base }>
         <div style={style.title}>
           <Basic.Icon type="fa" icon={icon} style={{ marginRight: '5px' }}/>
-          <Basic.Button level="link" title={props.node.name} onClick={this._useFilterByTree.bind(this, props.node.id)} style={{padding: '0px 0px 0px 0px'}}>
-            { Utils.Ui.substringByWord(props.node.name, 25)}
+          <Basic.Button
+            level="link"
+            title={props.node.name}
+            onClick={this._useFilterByTree.bind(this, props.node.id)}
+            style={{padding: '0px 0px 0px 0px'}}>
+            { props.node.name }
             {
               !props.node.childrenCount
               ||
@@ -229,7 +233,7 @@ class NodeTable extends Advanced.AbstractTableContent {
 
         <Basic.Panel>
           <Basic.Row>
-            <div className="col-lg-3" style={{ paddingRight: 0, paddingLeft: 0, marginLeft: 15, marginRight: -15 }}>
+            <Basic.Col lg={ 3 } style={{ paddingRight: 0, paddingLeft: 0, marginLeft: 15, marginRight: -15 }}>
               <div className="basic-toolbar">
                 <div className="pull-left">
                   <h3 style={{ margin: 0 }}>
@@ -282,8 +286,8 @@ class NodeTable extends Advanced.AbstractTableContent {
                     />
                 }
               </div>
-            </div>
-            <div className="col-lg-9">
+            </Basic.Col>
+            <Basic.Col lg={ 9 }>
               <Basic.Confirm ref="confirm-delete" level="danger"/>
 
               <Basic.Tabs activeKey={activeTab} onSelect={this._onChangeSelectTabs.bind(this)} className="tab-embedded" style={{ marginBottom: 0 }}>
@@ -384,7 +388,7 @@ class NodeTable extends Advanced.AbstractTableContent {
                   </Advanced.Table>
                 </Basic.Tab>
               </Basic.Tabs>
-            </div>
+            </Basic.Col>
           </Basic.Row>
         </Basic.Panel>
       </div>

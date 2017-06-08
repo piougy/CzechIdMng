@@ -79,6 +79,11 @@ public final class GuardedString {
 		clear();
 	}
 
+	/**
+	 * Returns plain string value
+	 * 
+	 * @return
+	 */
 	public String asString() {
 		return new String(value, CHARSET);
 	}

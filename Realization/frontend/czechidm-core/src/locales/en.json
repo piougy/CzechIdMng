@@ -899,6 +899,7 @@
             "header": "{{name}} element details"
           },
           "create": {
+            "title": "New element",
             "header": "New element"
           },
           "save": {

@@ -133,7 +133,7 @@ class SelectBox extends AbstractFormComponent {
             if (!data.complete) {
               data.options.push({
                 [NICE_LABEL]: this.i18n('results', { escape: false, count: searchParameters.getSize(), total: result.page.totalElements}),
-                [ITEM_FULL_KEY]: null,
+                [ITEM_FULL_KEY]: input,
                 disabled: true // info only
               });
             }

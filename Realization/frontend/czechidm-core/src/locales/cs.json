@@ -938,6 +938,7 @@
             "header": "{{name}} detail prvku"
           },
           "create": {
+            "title": "Nový prvek",
             "header": "Nový prvek"
           },
           "save": {

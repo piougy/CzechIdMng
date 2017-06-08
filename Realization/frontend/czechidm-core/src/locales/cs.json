@@ -2772,6 +2772,10 @@
       "title": "Nadřazený prvek nelze přiřadit",
       "message": "Neplatný nadřazený prvek. Vyberte prosím jiný."
     },
+    "TREE_NODE_BAD_NICE_NAME" : {
+      "title": "Duplicitní jméno pro uživatele",
+      "message": "Na této úrovni se již nachází prvek s tímto jménem pro uživatele: [{{name}}]."
+    },
     "GROOVY_SCRIPT_VALIDATION": {
       "title": "Groovy skript obsahuje kompilační chyby",
       "message": ""

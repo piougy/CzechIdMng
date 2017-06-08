@@ -45,7 +45,7 @@ public interface IdmTreeNodeRepository extends AbstractEntityRepository<IdmTreeN
 	}
 
 	/**
-	 * If parent is not given, then roots of given tree type is returned
+	 * If parent is not given, then roots of given tree type is returned. Returns direct children only.
 	 * 
 	 * @param treeTypeId
 	 * @param parentId

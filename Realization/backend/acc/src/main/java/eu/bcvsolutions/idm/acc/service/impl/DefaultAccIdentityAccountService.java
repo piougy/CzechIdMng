@@ -29,7 +29,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
  * @author Svanda
  *
  */
-@Service
+@Service("accIdentityAccountService")
 public class DefaultAccIdentityAccountService extends
 		AbstractReadWriteDtoService<AccIdentityAccountDto, AccIdentityAccount, IdentityAccountFilter> implements AccIdentityAccountService {
 

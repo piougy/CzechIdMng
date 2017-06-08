@@ -3,6 +3,8 @@ package eu.bcvsolutions.idm.core.exception;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.persistence.PersistenceException;
+
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -115,8 +117,11 @@ public class ExceptionControllerAdvice {
 		//
 		if (ex.getCause() != null && ex.getCause() instanceof ConstraintViolationException){
 			ConstraintViolationException constraintEx = (ConstraintViolationException) ex.getCause();
+			// TODO: registrable contstrain error codes
 			if (constraintEx.getConstraintName().contains("name")) {
-				errorModel = new DefaultErrorModel(CoreResultCode.NAME_CONFLICT);
+				errorModel = new DefaultErrorModel(CoreResultCode.NAME_CONFLICT, ImmutableMap.of("name", constraintEx.getConstraintName()));
+			} else if (constraintEx.getConstraintName().contains("code")) {
+				errorModel = new DefaultErrorModel(CoreResultCode.CODE_CONFLICT, ImmutableMap.of("name", constraintEx.getConstraintName()));
 			} else {
 				errorModel = new DefaultErrorModel(CoreResultCode.CONFLICT, ImmutableMap.of("name", constraintEx.getConstraintName()));
 			}
@@ -126,6 +131,27 @@ public class ExceptionControllerAdvice {
 		log.error("[" + errorModel.getId() + "] ", ex);
 		return new ResponseEntity<>(new ResultModels(errorModel), new HttpHeaders(), errorModel.getStatus());
     }
+	
+	@ExceptionHandler(PersistenceException.class)
+	ResponseEntity<ResultModels> handle(PersistenceException ex) {
+		ErrorModel errorModel = null;
+		//
+		if (ex.getCause() != null && ex.getCause() instanceof ConstraintViolationException){
+			ConstraintViolationException constraintEx = (ConstraintViolationException) ex.getCause();
+			// TODO: registrable contstrain error codes
+			if (constraintEx.getConstraintName().contains("name")) {
+				errorModel = new DefaultErrorModel(CoreResultCode.NAME_CONFLICT, ImmutableMap.of("name", constraintEx.getConstraintName()));
+			} else if (constraintEx.getConstraintName().contains("code")) {
+				errorModel = new DefaultErrorModel(CoreResultCode.CODE_CONFLICT, ImmutableMap.of("name", constraintEx.getConstraintName()));
+			} else {
+				errorModel = new DefaultErrorModel(CoreResultCode.CONFLICT, ImmutableMap.of("name", constraintEx.getConstraintName()));
+			}
+		} else {
+			errorModel = new DefaultErrorModel(CoreResultCode.CONFLICT, ex.getMessage());
+		}
+		log.error("[" + errorModel.getId() + "] ", ex);
+		return new ResponseEntity<>(new ResultModels(errorModel), new HttpHeaders(), errorModel.getStatus());
+	}
 	
 	@ExceptionHandler(AccessDeniedException.class)
 	ResponseEntity<ResultModels> handle(AccessDeniedException ex) {	

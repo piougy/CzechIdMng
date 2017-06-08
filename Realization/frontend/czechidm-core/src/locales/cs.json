@@ -2725,8 +2725,12 @@
       "title": "Záznam koliduje s jiným unikátním záznamem"
     },
     "NAME_CONFLICT": {
-      "title": "Konflikt se jménem entity",
-      "message": "Záznam s tímto jménem již existuje."
+      "title": "Konfliktní název",
+      "message": "Záznam s tímto názvem již existuje."
+    },
+    "CODE_CONFLICT": {
+      "title": "Konfliktní kód",
+      "message": "Záznam s tímto kódem již existuje."
     },
     "IDENTITY_NOT_FOUND": {
       "title": "Nenalezeno",

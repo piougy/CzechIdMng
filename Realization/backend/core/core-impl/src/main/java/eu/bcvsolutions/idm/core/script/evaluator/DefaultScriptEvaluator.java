@@ -16,8 +16,8 @@ import eu.bcvsolutions.idm.core.api.dto.IdmScriptDto;
 public class DefaultScriptEvaluator extends AbstractScriptEvaluator {
 
 	@Override
-	public boolean supports(IdmScriptCategory arg0) {
-		return arg0 == IdmScriptCategory.DEFAULT;
+	public boolean supports(IdmScriptCategory catagory) {
+		return catagory == IdmScriptCategory.DEFAULT;
 	}
 
 	@Override

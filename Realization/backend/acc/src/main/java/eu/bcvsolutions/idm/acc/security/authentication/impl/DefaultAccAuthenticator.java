@@ -154,7 +154,7 @@ public class DefaultAccAuthenticator extends AbstractAuthenticator implements Au
 		}
 		//
 		// find if identity has account on system
-		List<AccAccount> accounts = accountService.getAccouts(system.getId(), identity.getId());
+		List<AccAccount> accounts = accountService.getAccounts(system.getId(), identity.getId());
 		if (accounts.isEmpty()) {
 			// user hasn't account on system, continue
 			return null;

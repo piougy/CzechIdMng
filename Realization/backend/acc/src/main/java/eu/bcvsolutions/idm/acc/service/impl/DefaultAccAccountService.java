@@ -95,7 +95,7 @@ public class DefaultAccAccountService extends AbstractReadWriteEntityService<Acc
 	}
 
 	@Override
-	public List<AccAccount> getAccouts(UUID systemId, UUID identityId) {
+	public List<AccAccount> getAccounts(UUID systemId, UUID identityId) {
 		return accountRepository.findAccountBySystemAndIdentity(identityId, systemId);
 	}
 	

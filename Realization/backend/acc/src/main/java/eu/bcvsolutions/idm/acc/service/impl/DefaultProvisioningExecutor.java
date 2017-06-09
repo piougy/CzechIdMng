@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.acc.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionalEventListener;
 import org.springframework.util.Assert;
 
@@ -61,52 +62,12 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 	}
 
 	@Override
+	@Transactional
 	public SysProvisioningOperation execute(SysProvisioningOperation provisioningOperation) {
 		//
 		// execute - after original transaction is commited
 		entityEventManager.publishEvent(provisioningOperation);
-		
 		return provisioningOperation;
-		
-//		Assert.notNull(provisioningOperation);
-//		Assert.notNull(provisioningOperation.getSystem());
-//		Assert.notNull(provisioningOperation.getProvisioningContext());
-//		//	
-//		if (provisioningOperationService.isNew(provisioningOperation)) {
-//			// save new operation to provisioning log / queue
-//			SysProvisioningBatch batch = batchService.findBatch(provisioningOperation);
-//			SysProvisioningRequest request = new SysProvisioningRequest(provisioningOperation);
-//			if (batch == null) {
-//				batch = batchService.save(new SysProvisioningBatch());
-//				request.setResult(new OperationResult.Builder(OperationState.CREATED).build());
-//			} else {
-//				// put to queue
-//				// TODO: maybe putting into queue has to run after disable and readonly system
-//				ResultModel resultModel = new DefaultResultModel(AccResultCode.PROVISIONING_IS_IN_QUEUE, 
-//						ImmutableMap.of(
-//								"name", provisioningOperation.getSystemEntityUid(), 
-//								"system", provisioningOperation.getSystem().getName(),
-//								"operationType", provisioningOperation.getOperationType(),
-//								"objectClass", provisioningOperation.getProvisioningContext().getConnectorObject().getObjectClass()));
-//				LOG.debug(resultModel.toString());				
-//				request.setResult(new OperationResult.Builder(OperationState.NOT_EXECUTED).setModel(resultModel).build());
-//			}
-//			request.setBatch(batch);
-//			provisioningOperation.setRequest(request);
-//			//
-//			provisioningOperation = provisioningOperationService.save(provisioningOperation);
-//			if (OperationState.NOT_EXECUTED == request.getResult().getState()) {
-//				notificationManager.send(
-//						AccModuleDescriptor.TOPIC_PROVISIONING,
-//						new IdmMessageDto.Builder()
-//						.setModel(request.getResult().getModel())
-//						.build());
-//				return provisioningOperation;
-//			}
-//		}
-//		CoreEvent<SysProvisioningOperation> event = new CoreEvent<SysProvisioningOperation>(provisioningOperation.getOperationType(), provisioningOperation);
-//		EventContext<SysProvisioningOperation> context = entityEventManager.process(event);		
-//		return context.getContent();
 	}
 	
 	/**
@@ -115,7 +76,8 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 	 * @param provisioningOperation
 	 * @return
 	 */
-	@TransactionalEventListener(fallbackExecution = true)
+	@Override
+	@TransactionalEventListener
 	public SysProvisioningOperation executeInternal(SysProvisioningOperation provisioningOperation) {
 		Assert.notNull(provisioningOperation);
 		Assert.notNull(provisioningOperation.getSystem());
@@ -159,6 +121,7 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 	}
 	
 	@Override
+	@Transactional
 	public SysProvisioningOperation cancel(SysProvisioningOperation provisioningOperation) {
 		// Cancel single request
 		CoreEvent<SysProvisioningOperation> event = new CoreEvent<SysProvisioningOperation>(ProvisioningEventType.CANCEL, provisioningOperation);
@@ -167,6 +130,7 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 	}
 
 	@Override
+	@Transactional
 	public void execute(SysProvisioningBatch batch) {
 		Assert.notNull(batch);
 		batch = batchService.get(batch.getId());
@@ -181,6 +145,7 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 	}
 
 	@Override
+	@Transactional
 	public void cancel(SysProvisioningBatch batch) {
 		Assert.notNull(batch);
 		//

@@ -59,6 +59,9 @@
 			<id>release</id>
 			<modules>
 				<module>../gui</module>
+				<module>../example</module>
+				<module>../ic</module>
+				<module>../acc</module>
 			</modules>
 			<build>
 				<plugins>

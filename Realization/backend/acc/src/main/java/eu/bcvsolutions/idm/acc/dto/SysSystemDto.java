@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import eu.bcvsolutions.idm.core.api.domain.Codeable;
 import eu.bcvsolutions.idm.core.api.domain.Disableable;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
-import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 
 /**
  * Target system setting - is used for accont management and provisioning DTO
@@ -13,7 +12,7 @@ import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
  * @author Svanda
  *
  */
-public class SysSystemDto extends AbstractDto implements Codeable, FormableEntity, Disableable {
+public class SysSystemDto extends AbstractDto implements Codeable, Disableable {
 
 	private static final long serialVersionUID = 1L;
 

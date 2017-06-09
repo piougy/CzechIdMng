@@ -25,7 +25,7 @@ import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
  * @author Radek Tomiška
  *
  */
-@Service
+@Service("sysSystemEntityService")
 public class DefaultSysSystemEntityService extends AbstractReadWriteEntityService<SysSystemEntity, SystemEntityFilter> implements SysSystemEntityService {
 
 	private final SysSystemEntityRepository repository;

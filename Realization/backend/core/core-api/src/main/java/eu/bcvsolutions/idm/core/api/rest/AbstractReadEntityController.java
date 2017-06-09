@@ -4,17 +4,14 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 
 import javax.validation.constraints.NotNull;
 
-import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.rest.core.support.EntityLookup;
 import org.springframework.data.rest.webmvc.ControllerUtils;
 import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
 import org.springframework.data.web.PageableDefault;
@@ -24,7 +21,6 @@ import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.ResourceSupport;
 import org.springframework.hateoas.Resources;
 import org.springframework.hateoas.core.EmbeddedWrappers;
-import org.springframework.hateoas.mvc.ResourceAssemblerSupport;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.Assert;
@@ -33,6 +29,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
@@ -40,48 +37,56 @@ import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourceWrapper;
-import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
+import eu.bcvsolutions.idm.core.api.rest.lookup.EntityLookup;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.service.ReadEntityService;
+import eu.bcvsolutions.idm.core.api.utils.FilterConverter;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
+import eu.bcvsolutions.idm.core.security.api.service.AuthorizableEntityService;
+import eu.bcvsolutions.idm.core.security.api.service.AuthorizationManager;
 
 /**
  * Read operations (get, find)
  * 
- * @author Radek Tomiška
- *
  * @param <E>
+ * @author Radek Tomiška
+ * @deprecated use {@link AbstractReadDtoController}
  */
+@Deprecated
 public abstract class AbstractReadEntityController<E extends BaseEntity, F extends BaseFilter> implements BaseEntityController<E> {
 	
-	private static final EmbeddedWrappers WRAPPERS = new EmbeddedWrappers(false);
+	private static final EmbeddedWrappers WRAPPERS = new EmbeddedWrappers(false);	
+	protected final LookupService entityLookupService;	
+	private final ReadEntityService<E, F> entityService;
+	private FilterConverter filterConverter;
 	
 	@Autowired
 	private PagedResourcesAssembler<Object> pagedResourcesAssembler; // TODO: autowired in api package - move higher
 	
-	protected final EntityLookupService entityLookupService;
+	@Autowired(required = false)
+	@Qualifier("objectMapper")
+	private ObjectMapper mapper;
 	
-	private final ReadEntityService<E, F> entityService;
+	@Autowired
+	private AuthorizationManager authorizationManager;
 	
 	@SuppressWarnings("unchecked")
-	public AbstractReadEntityController(EntityLookupService entityLookupService) {
+	public AbstractReadEntityController(LookupService entityLookupService) {
+		Assert.notNull(entityLookupService);
+		//
 		this.entityLookupService = entityLookupService;
 		//
 		Class<E> entityClass = (Class<E>)GenericTypeResolver.resolveTypeArgument(getClass(), BaseEntityController.class);
 		this.entityService = (ReadEntityService<E, F>)entityLookupService.getEntityService(entityClass);
 	}
 	
-	public AbstractReadEntityController(EntityLookupService entityLookupService, ReadEntityService<E, F> entityService) {
+	public AbstractReadEntityController(LookupService entityLookupService, ReadEntityService<E, F> entityService) {
+		Assert.notNull(entityLookupService);
+		Assert.notNull(entityService);
+		//
 		this.entityLookupService = entityLookupService;
 		this.entityService = entityService;
-	}
-	
-	/**
-	 * Returns assembler to dto
-	 * 
-	 * @return
-	 */
-	@SuppressWarnings("rawtypes")
-	protected ResourceAssemblerSupport<Object, ResourceWrapper> getAssembler() {
-		return null;
 	}
 	
 	/**
@@ -89,8 +94,9 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 	 * 
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	protected EntityLookup<E> getEntityLookup() {
-		return entityLookupService.getEntityLookup(getEntityClass());
+		return (EntityLookup<E>) entityLookupService.getEntityLookup(getEntityClass());
 	}
 
 	/**
@@ -122,7 +128,9 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 		E entity = getEntity(backendId);
 		if (entity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
-		}		
+		}
+		checkAccess(entity, IdmBasePermission.READ);
+		//
 		return new ResponseEntity<>(toResource(entity, assembler), HttpStatus.OK);
 	}
 	
@@ -133,11 +141,11 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public E getEntity(String backendId) {
+	public E getEntity(Serializable backendId) {
 		if(getEntityLookup() == null) {
 			return getEntityService().get(backendId);
-		}		
-		return (E) getEntityLookup().lookupEntity(backendId);
+		}	
+		return (E) getEntityLookup().lookup(backendId);
 	}
 	
 	/**
@@ -150,24 +158,39 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 		if (getEntityLookup() == null) {
 			return entity.getId();
 		}
-		return getEntityLookup().getResourceIdentifier(entity);
+		return getEntityLookup().getIdentifier(entity);
 	}
 	
 	/**
 	 * Quick search - parameters will be transformed to filter object
 	 * 
-	 * @see #toFilter(MultiValueMap)
-	 * 
 	 * @param parameters
 	 * @param pageable
 	 * @param assembler
 	 * @return
+     * @see #toFilter(MultiValueMap)
 	 */
 	public Resources<?> find(
 			@RequestParam MultiValueMap<String, Object> parameters,
 			@PageableDefault Pageable pageable, 
 			PersistentEntityResourceAssembler assembler) {
-		return toResources(findEntities(toFilter(parameters), pageable), assembler, getEntityClass(), null);
+		return toResources(findSecuredEntities(toFilter(parameters), pageable, IdmBasePermission.READ), assembler, getEntityClass(), null);
+	}
+	
+	/**
+	 * Quick search for autocomplete (read data to select box etc.) - parameters will be transformed to filter object
+	 * 
+	 * @param parameters
+	 * @param pageable
+	 * @param assembler
+	 * @return
+     * @see #toFilter(MultiValueMap)
+	 */
+	public Resources<?> autocomplete(
+			@RequestParam MultiValueMap<String, Object> parameters,
+			@PageableDefault Pageable pageable, 
+			PersistentEntityResourceAssembler assembler) {
+		return toResources(findSecuredEntities(toFilter(parameters), pageable, IdmBasePermission.AUTOCOMPLETE), assembler, getEntityClass(), null);
 	}
 	
 	/**
@@ -178,9 +201,25 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 	 * @return
 	 */
 	public Page<E> findEntities(F filter, Pageable pageable) {
-		// TODO: read event
 		return getEntityService().find(filter, pageable);
-	}	
+	}
+	
+	/**
+	 * Finds secured entities, is entity service supports authorization policies
+	 * 
+	 * @param filter
+	 * @param pageable
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public Page<E> findSecuredEntities(F filter, Pageable pageable, BasePermission permission) {
+		ReadEntityService<E, F> service = getEntityService();
+		if (service instanceof AuthorizableEntityService) {
+			return ((AuthorizableEntityService<E, F>) service).findSecured(filter, pageable, permission);
+		}
+		return findEntities(filter, pageable);
+	}
+	
 	
 	/**
 	 * Converts entity to dto (using controller defined assembler or default)
@@ -190,9 +229,8 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 	 * @return
 	 */
 	protected ResourceSupport toResource(E entity, PersistentEntityResourceAssembler assembler) {
-		ResourceAssemblerSupport<Object, ?> configuredAssembler = getAssembler();
-		if(configuredAssembler != null) {
-			return configuredAssembler.toResource(entity);
+		if (assembler == null) {
+			return new ResourceWrapper<>(entity);
 		}
 		return assembler.toFullResource(entity);
 	}
@@ -200,14 +238,14 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	protected Resources<?> toResources(Iterable<?> source, PersistentEntityResourceAssembler assembler,
 			Class<?> domainType, Link baseLink) {
-
+		if (source == null) {
+			return new Resources(ControllerUtils.EMPTY_RESOURCE_LIST);
+		}
 		if (source instanceof Page) {
 			Page<Object> page = (Page<Object>) source;
 			return entitiesToResources(page, assembler, domainType, baseLink);
-		} else if (source instanceof Iterable) {
-			return entitiesToResources((Iterable<Object>) source, assembler, domainType);
 		} else {
-			return new Resources(ControllerUtils.EMPTY_RESOURCE_LIST);
+			return entitiesToResources((Iterable<Object>) source, assembler, domainType);
 		}
 	}
 	
@@ -218,8 +256,13 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 			return pagedResourcesAssembler.toEmptyResource(page, domainType, baseLink);
 		}
 
-		return baseLink == null ? pagedResourcesAssembler.toResource(page, assembler)
-				: pagedResourcesAssembler.toResource(page, assembler, baseLink);
+		if (baseLink == null) {
+			if (assembler == null) {
+				return pagedResourcesAssembler.toResource(page);
+			}
+			return pagedResourcesAssembler.toResource(page, assembler);
+		}
+		return pagedResourcesAssembler.toResource(page, assembler, baseLink);
 	}
 	
 	protected Resources<?> entitiesToResources(Iterable<Object> entities, PersistentEntityResourceAssembler assembler,
@@ -246,140 +289,36 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 	
 	/**
 	 * Transforms request parameters to {@link BaseFilter}.
+	 * 
 	 * @param parameters
 	 * @return
 	 */
 	protected F toFilter(MultiValueMap<String, Object> parameters) {
-		return null;
-	}
-	
-	protected String convertStringParameter(MultiValueMap<String, Object> parameters, String parameterName) {
-		Assert.notNull(parameters);
-	    Assert.notNull(parameterName);
-	    //
-		return (String)parameters.toSingleValueMap().get(parameterName);
-	}
-	
-	protected Boolean convertBooleanParameter(MultiValueMap<String, Object> parameters, String parameterName) {
-		String valueAsString = convertStringParameter(parameters, parameterName);
-		if (StringUtils.isNotEmpty(valueAsString)) {
-			return Boolean.valueOf(valueAsString);
-		}
-		return null;
+		return getParameterConverter().toFilter(parameters, getEntityService().getFilterClass());
 	}
 	
 	/**
-	 * Converts parameter to {@code Long} from given parameters.
+	 * Return parameter converter helper
 	 * 
-	 * @param parameters
-	 * @param parameterName
 	 * @return
 	 */
-	protected Long convertLongParameter(MultiValueMap<String, Object> parameters, String parameterName) {
-		String valueAsString = convertStringParameter(parameters, parameterName);
-		if(StringUtils.isNotEmpty(valueAsString)) {
-			try {
-				return Long.valueOf(valueAsString);
-			} catch (NumberFormatException ex) {
-				throw new ResultCodeException(CoreResultCode.BAD_VALUE, ImmutableMap.of(parameterName, valueAsString), ex);
-			}		
+	protected FilterConverter getParameterConverter() {
+		if (filterConverter == null) {
+			filterConverter = new FilterConverter(entityLookupService, mapper);
 		}
-		return null;
+		return filterConverter;
+	}
+	
+	protected void checkAccess(E entity, BasePermission permission) {
+		getEntityService().checkAccess(entity, permission);
 	}
 	
 	/**
-	 * Converts parameter to {@code UUID} from given parameters.
+	 * Returns authorization manager
 	 * 
-	 * @param parameters
-	 * @param parameterName
 	 * @return
 	 */
-	protected UUID convertUuidParameter(MultiValueMap<String, Object> parameters, String parameterName) {
-		String valueAsString = convertStringParameter(parameters, parameterName);
-		if(StringUtils.isNotEmpty(valueAsString)) {
-			try {
-				return UUID.fromString(valueAsString);
-			} catch (IllegalArgumentException ex) {
-				throw new ResultCodeException(CoreResultCode.BAD_VALUE, ImmutableMap.of(parameterName, valueAsString), ex);
-			}		
-		}
-		return null;
-	}
-	
-	/**
-	 * Converts parameter to given {@code enumClass} from given parameters.
-	 * 
-	 * @param parameters
-	 * @param parameterName
-	 * @param enumClass
-	 * @return
-	 */
-	protected <T extends Enum<T>> T convertEnumParameter(MultiValueMap<String, Object> parameters, String parameterName, Class<T> enumClass) {
-		Assert.notNull(enumClass);
-	    //
-	    String valueAsString = convertStringParameter(parameters, parameterName);
-	    if(StringUtils.isEmpty(valueAsString)) {
-	    	return null;
-	    }
-        try {
-            return Enum.valueOf(enumClass, valueAsString.trim().toUpperCase());
-        } catch(IllegalArgumentException ex) {
-        	throw new ResultCodeException(CoreResultCode.BAD_VALUE, ImmutableMap.of(parameterName, valueAsString), ex);
-        }
-	}
-	
-	/**
-	 * Converts parameter to given {@code entityClass} from given parameters.
-	 * 
-	 * @param parameters
-	 * @param parameterName
-	 * @param entityClass
-	 * @return
-	 */
-	protected <T extends BaseEntity> T convertEntityParameter(MultiValueMap<String, Object> parameters, String parameterName, Class<T> entityClass) {
-		 String valueAsString = convertStringParameter(parameters, parameterName);
-	    if(StringUtils.isEmpty(valueAsString)) {
-	    	return null;
-	    }
-		T entity = entityLookupService.lookup(entityClass, valueAsString);
-		if (entity == null) {
-			throw new ResultCodeException(CoreResultCode.BAD_VALUE, "Entity type [%s] with identifier [%s] does not found", ImmutableMap.of("entityClass", entityClass.getSimpleName(), parameterName, valueAsString));
-		}
-		return entity;
-	}
-	
-	/**
-	 * Converts parameter to given {@code entityClass} from given parameters.
-	 * 
-	 * @param parameterValue
-	 * @param parameterName
-	 * @param entityClass
-	 * @return
-	 */
-	protected <T extends BaseEntity> T convertEntityParameter(String parameterValue, Class<T> entityClass) {
-	    if(StringUtils.isEmpty(parameterValue)) {
-	    	return null;
-	    }
-		T entity = entityLookupService.lookup(entityClass, parameterValue);
-		if (entity == null) {
-			throw new ResultCodeException(CoreResultCode.BAD_VALUE, "Entity type [%s] with identifier [%s] does not found", ImmutableMap.of("entityClass", entityClass.getSimpleName(), "identifier", parameterValue));
-		}
-		return entity;
-	}
-	
-	/**
-	 * Converts parameter {@code DateTime} from given parameters.
-	 * 
-	 * @param parameters
-	 * @param parameterName
-	 * @return
-	 */
-	protected DateTime convertDateTimeParameter(MultiValueMap<String, Object> parameters, String parameterName) {
-		String valueAsString = convertStringParameter(parameters, parameterName);
-		if (valueAsString == null || valueAsString.isEmpty()) {
-			return null;
-		} else {
-			return new DateTime(valueAsString);
-		}
+	protected AuthorizationManager getAuthorizationManager() {
+		return authorizationManager;
 	}
 }

@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.bcvsolutions.eu/testDeployAndRun">
+  <process id="hrEndContract" name="HR process - end of contract" isExecutable="true">
+    <documentation>HR process - end of contract
+The process starts for every identity contract, which is newly not valid at the moment (meaning it was valid in the last
+run of the task, but now it's not). If the processed contract was the last valid contract of the identity, the identity is disabled.
+
+Additionally all manually added roles, which were assigned to the ended contract, are removed by the process.
+Automatic roles (inherited from the organization structure) are removed automatically by an internal
+feature of CzechIdM.
+
+Input:
+    longRunningTaskId - UUID
+    scheduledTaskId - UUID
+    dto - IdmIdentityContractDto
+    </documentation>
+    <startEvent id="startevent1" name="Start"></startEvent>
+    <endEvent id="endevent" name="End"></endEvent>
+    <sequenceFlow id="flow1" sourceRef="startevent1" targetRef="scripttask1"></sequenceFlow>
+    <scriptTask id="scripttask1" name="process exclusions script" scriptFormat="groovy" activiti:autoStoreVariables="false">
+      <script>//
+// process start
+// services:
+// IdmIdentityService 				= identityService
+// IdmIdentityContractService  		= identityContractService
+// IdmProcessedTaskItemDtoService 	= processedTaskItemService
+// IdmScheduledTaskDtoService 		= scheduledTaskService
+// IdmLongRunningTaskDtoService 	= longRunningTaskService
+// IdmIdentityRoleService 			= idmIdentityRoleService
+//
+//
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import eu.bcvsolutions.idm.core.api.entity.OperationResult;
+import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulableStatefulExecutor;
+
+Logger LOG = LoggerFactory.getLogger("hrEndContract|PID:" + execution.getProcessInstanceId())
+
+LOG.info("long running tID: [{}], scheduled tID: [{}], dto: [{}]", longRunningTaskId, scheduledTaskId, dto)
+
+if (longRunningTaskId == null || scheduledTaskId == null || dto == null) {
+	throw new IllegalArgumentException("Missing input parameters!");
+}
+
+if (dto.isValid()) {
+	throw new IllegalArgumentException("Contract must not be valid!")
+}
+
+def result = null
+try {
+	def contracts = identityContractService.findAllByIdentity(dto.getIdentity())
+	def hasValidContracts = false
+	for (c in contracts) {
+		if (!c.isDisabled() &amp;&amp; c.isValid()) {
+			hasValidContracts = true
+			break
+		}
+	}
+	//
+	if (!hasValidContracts) {
+		// disable identity
+		def identity = identityService.get(dto.getIdentity())
+		if (!identity.isDisabled()) {
+			identity.setDisabled(true)
+			identityService.saveInternal(identity)
+		}
+	}
+	//
+	// remove manually added roles
+	def contractRoles = idmIdentityRoleService.findAllByContract(dto.getId())
+	for (role in contractRoles) {
+		if (!role.isAutomaticRole()) {
+			idmIdentityRoleService.delete(role)
+		}
+	}
+	//
+	result = new OperationResult.Builder(OperationState.EXECUTED).build()
+} catch (Exception e) {
+	LOG.error("An error occurred.", e)
+	result = new OperationResult.Builder(OperationState.EXCEPTION).setCause(e).build()
+}
+
+LOG.info("result state: [{}]", result.getState())
+
+// set operation result for next activities
+execution.setVariable("success", OperationState.isSuccessful(result.getState()))
+execution.setVariable(SchedulableStatefulExecutor.OPERATION_RESULT_VAR, result)
+//
+// process end
+</script>
+    </scriptTask>
+    <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow3" sourceRef="scripttask1" targetRef="exclusivegateway1"></sequenceFlow>
+    <sequenceFlow id="flow4" name="[FAILURE]" sourceRef="exclusivegateway1" targetRef="scripttask2">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${success == false}]]></conditionExpression>
+    </sequenceFlow>
+    <scriptTask id="scripttask2" name="handle failure script" scriptFormat="groovy" activiti:autoStoreVariables="false">
+      <script>println "FAILURE!"</script>
+    </scriptTask>
+    <sequenceFlow id="flow5" name="[SUCCESS]" sourceRef="exclusivegateway1" targetRef="scripttask3">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${success == true}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow6" sourceRef="scripttask2" targetRef="endevent"></sequenceFlow>
+    <sequenceFlow id="flow7" sourceRef="scripttask3" targetRef="endevent"></sequenceFlow>
+    <scriptTask id="scripttask3" name="handle success script" scriptFormat="groovy" activiti:autoStoreVariables="false">
+      <script>println "SUCCESS!"</script>
+    </scriptTask>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_hrEndContract">
+    <bpmndi:BPMNPlane bpmnElement="hrEndContract" id="BPMNPlane_hrEndContract">
+      <bpmndi:BPMNShape bpmnElement="startevent1" id="BPMNShape_startevent1">
+        <omgdc:Bounds height="35.0" width="35.0" x="150.0" y="113.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent" id="BPMNShape_endevent">
+        <omgdc:Bounds height="35.0" width="35.0" x="950.0" y="113.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="scripttask1" id="BPMNShape_scripttask1">
+        <omgdc:Bounds height="79.0" width="131.0" x="330.0" y="91.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway1" id="BPMNShape_exclusivegateway1">
+        <omgdc:Bounds height="40.0" width="40.0" x="540.0" y="110.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="scripttask2" id="BPMNShape_scripttask2">
+        <omgdc:Bounds height="55.0" width="105.0" x="740.0" y="37.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="scripttask3" id="BPMNShape_scripttask3">
+        <omgdc:Bounds height="55.0" width="105.0" x="740.0" y="160.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="flow1" id="BPMNEdge_flow1">
+        <omgdi:waypoint x="185.0" y="130.0"></omgdi:waypoint>
+        <omgdi:waypoint x="330.0" y="130.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow3" id="BPMNEdge_flow3">
+        <omgdi:waypoint x="461.0" y="130.0"></omgdi:waypoint>
+        <omgdi:waypoint x="540.0" y="130.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow4" id="BPMNEdge_flow4">
+        <omgdi:waypoint x="560.0" y="110.0"></omgdi:waypoint>
+        <omgdi:waypoint x="792.0" y="92.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="12.0" width="51.0" x="590.0" y="70.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow5" id="BPMNEdge_flow5">
+        <omgdi:waypoint x="580.0" y="130.0"></omgdi:waypoint>
+        <omgdi:waypoint x="792.0" y="160.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="12.0" width="58.0" x="610.0" y="155.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow6" id="BPMNEdge_flow6">
+        <omgdi:waypoint x="792.0" y="92.0"></omgdi:waypoint>
+        <omgdi:waypoint x="967.0" y="113.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow7" id="BPMNEdge_flow7">
+        <omgdi:waypoint x="792.0" y="160.0"></omgdi:waypoint>
+        <omgdi:waypoint x="967.0" y="148.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

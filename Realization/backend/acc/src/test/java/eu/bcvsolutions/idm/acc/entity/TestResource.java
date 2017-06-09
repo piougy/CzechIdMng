@@ -5,6 +5,8 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import org.joda.time.LocalDateTime;
+
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 
 /**
@@ -14,8 +16,10 @@ import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
  *
  */
 @Entity
-@Table(name = "test_resource")
+@Table(name = TestResource.TABLE_NAME)
 public class TestResource {
+	
+	public static final String TABLE_NAME = "test_resource";
 
 	@Id
 	@Column(name = "name", length = DefaultFieldLengths.NAME)
@@ -32,6 +36,18 @@ public class TestResource {
 	private String descrip;
 	@Column(name = "status", length = DefaultFieldLengths.NAME)
 	private String status;
+	@Column(name = "modified", length = DefaultFieldLengths.NAME)
+	private LocalDateTime modified;
+	@Column(name = "eav_attribute", length = DefaultFieldLengths.NAME)
+	private String eavAttribute;
+
+	public String getEavAttribute() {
+		return eavAttribute;
+	}
+
+	public void setEavAttribute(String eavAttribute) {
+		this.eavAttribute = eavAttribute;
+	}
 
 	public String getName() {
 		return name;
@@ -87,5 +103,13 @@ public class TestResource {
 
 	public void setStatus(String status) {
 		this.status = status;
+	}
+
+	public LocalDateTime getModified() {
+		return modified;
+	}
+
+	public void setModified(LocalDateTime modified) {
+		this.modified = modified;
 	}
 }

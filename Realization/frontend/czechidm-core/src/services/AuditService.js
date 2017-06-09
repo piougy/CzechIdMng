@@ -1,5 +1,8 @@
 import AbstractService from './AbstractService';
 import SearchParameters from '../domain/SearchParameters';
+import RestApiService from './RestApiService';
+import * as Utils from '../utils';
+import moment from 'moment';
 
 class AuditService extends AbstractService {
 
@@ -12,7 +15,8 @@ class AuditService extends AbstractService {
   }
 
   /**
-   * Get nice labal for audit entity. Audit entity hasn't name. Nicelabel is type of audited entity.
+   * Get nice labal for audit entity. Audit entity hasn't name.
+   * Nicelabel is id and revision date of entity.
    *
    * @param {[type]} entity [description]
    */
@@ -20,7 +24,7 @@ class AuditService extends AbstractService {
     if (!entity) {
       return '';
     }
-    return `${entity.type}`;
+    return entity.id + ' (' + moment(entity.revisionDate).format('d. M. Y  H:mm:ss') + ')';
   }
 
   /**
@@ -35,11 +39,48 @@ class AuditService extends AbstractService {
   getAuditedEntitiesSearchParameters() {
     return super.getDefaultSearchParameters().setName(AuditService.ENTITIES_SEARCH);
   }
+
+  /**
+   * Difference between two revision
+   */
+  getDiffBetweenVersion(firstRevId, secondRevId) {
+    return RestApiService.get(this.getApiPath() + `/${firstRevId}/diff/${secondRevId}`)
+    .then(response => {
+      return response.json();
+    })
+    .then(json => {
+      if (Utils.Response.hasError(json)) {
+        throw Utils.Response.getFirstError(json);
+      }
+      return json;
+    });
+  }
+
+  /**
+   * Previous version of revision
+   */
+  getPreviousVersion(revId) {
+    return RestApiService.get(this.getApiPath() + `/${revId}/diff/previous`)
+    .then(response => {
+      return response.json();
+    })
+    .then(json => {
+      if (Utils.Response.hasError(json)) {
+        throw Utils.Response.getFirstError(json);
+      }
+      return json;
+    });
+  }
 }
 
 /**
  * Search all audited entities
  */
 AuditService.ENTITIES_SEARCH = 'entities';
+
+/**
+ * Search difference between two version
+ */
+AuditService.DIFF_SEARCH = 'diff';
 
 export default AuditService;

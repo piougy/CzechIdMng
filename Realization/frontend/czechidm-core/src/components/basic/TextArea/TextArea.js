@@ -44,7 +44,7 @@ class TextArea extends AbstractFormComponent {
   }
 
   getBody(feedback) {
-    const { labelSpan, label, componentSpan, placeholder, style, required, helpBlock } = this.props;
+    const { labelSpan, label, componentSpan, placeholder, style, required } = this.props;
     //
     const className = classNames('form-control');
     const labelClassName = classNames(labelSpan, 'control-label');
@@ -52,8 +52,7 @@ class TextArea extends AbstractFormComponent {
     if (required && !feedback) {
       showAsterix = true;
     }
-    const title = this.getValidationResult() != null ? this.getValidationResult().message : null;
-
+    //
     return (
       <div className={ showAsterix ? 'has-feedback' : ''}>
         {
@@ -62,11 +61,12 @@ class TextArea extends AbstractFormComponent {
           <label
             className={labelClassName}>
             {label}
+            { this.renderHelpIcon() }
           </label>
         }
 
         <div className={componentSpan}>
-          <Tooltip ref="popover" placement="right" value={title}>
+          <Tooltip ref="popover" placement={ this.getTitlePlacement() } value={ this.getTitle() }>
             <span>
               <textarea
                 ref="input"
@@ -88,11 +88,8 @@ class TextArea extends AbstractFormComponent {
               }
             </span>
           </Tooltip>
-          {
-            !helpBlock
-            ||
-            <span className="help-block" style={{ whiteSpace: 'normal' }}>{helpBlock}</span>
-          }
+          { !label ? this.renderHelpIcon() : null }
+          { this.renderHelpBlock() }
         </div>
       </div>
     );

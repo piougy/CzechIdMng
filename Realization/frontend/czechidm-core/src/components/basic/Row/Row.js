@@ -5,6 +5,8 @@ import AbstractComponent from '../AbstractComponent/AbstractComponent';
 
 /**
  * Bootstrap row
+ *
+ * @author Radek Tomiška
  */
 class Row extends AbstractComponent {
 

@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.model.entity;
 
+import java.util.UUID;
+
 import javax.persistence.Column;
 import javax.persistence.ConstraintMode;
 import javax.persistence.Entity;
@@ -12,27 +14,38 @@ import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import org.hibernate.annotations.Formula;
 import org.hibernate.envers.Audited;
 import org.hibernate.validator.constraints.NotEmpty;
+import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
+import eu.bcvsolutions.forest.index.domain.ForestContent;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
+import eu.bcvsolutions.idm.core.api.domain.Disableable;
+import eu.bcvsolutions.idm.core.api.domain.Codeable;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.BaseTreeEntity;
+import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 
+/**
+ * Tree nodes
+ * 
+ * @author Ondřej Kopr
+ */
 @Entity
 @Table(name = "idm_tree_node", indexes = { 
 		@Index(name = "ux_tree_node_code", columnList = "tree_type_id,code", unique = true),
 		@Index(name = "idx_idm_tree_node_parent", columnList = "parent_id"),
 		@Index(name = "idx_idm_tree_node_type", columnList = "tree_type_id")
 })
-public class IdmTreeNode extends AbstractEntity implements BaseTreeEntity<IdmTreeNode> {
+public class IdmTreeNode extends AbstractEntity 
+		implements BaseTreeEntity<IdmTreeNode>, ForestContent<IdmTreeNode, 
+			IdmForestIndexEntity, UUID>, FormableEntity, Disableable, Codeable {
 
 	private static final long serialVersionUID = -3099001738101202320L;
+	public static final String TREE_TYPE_PREFIX = "tree-type-";
 
 	@Audited
 	@NotEmpty
@@ -46,16 +59,12 @@ public class IdmTreeNode extends AbstractEntity implements BaseTreeEntity<IdmTre
 	@Column(name = "name", length = DefaultFieldLengths.NAME, nullable = false)
 	private String name;
 
-	@Audited
-	@NotNull
-	@Column(name = "disabled", nullable = false)
-	private boolean disabled = false;
-
 	@Version
 	@JsonIgnore
 	private Long version; // Optimistic lock - will be used with ETag
 
 	@Audited
+	@JsonProperty("parent") // required - BaseTreeEntity vs ForestContent setter are in conflict
 	@ManyToOne(optional = true)
 	@JoinColumn(name = "parent_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
@@ -69,11 +78,23 @@ public class IdmTreeNode extends AbstractEntity implements BaseTreeEntity<IdmTre
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmTreeType treeType;
-
-	@JsonProperty(access = Access.READ_ONLY)
-	@Column(insertable = false, updatable = false)
-	@Formula("(select coalesce(count(1),0) from idm_tree_node e where e.parent_id = id)")
-	private int childrenCount;
+	
+	@JsonIgnore
+	@ManyToOne(optional = true)
+	@JoinColumn(name = "id", referencedColumnName = "content_id", updatable = false, insertable = false, foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
+	@org.hibernate.annotations.ForeignKey( name = "none" )
+	private IdmForestIndexEntity forestIndex;
+	
+	@Audited
+	@NotNull
+	@Column(name = "disabled", nullable = false)
+	private boolean disabled;
+	
+	@Audited
+	@Size(max = DefaultFieldLengths.NAME)
+	@Column(name = "external_id", length = DefaultFieldLengths.NAME)
+	private String externalId;
 
 	public String getName() {
 		return name;
@@ -81,14 +102,6 @@ public class IdmTreeNode extends AbstractEntity implements BaseTreeEntity<IdmTre
 
 	public void setName(String name) {
 		this.name = name;
-	}
-
-	public boolean isDisabled() {
-		return disabled;
-	}
-
-	public void setDisabled(boolean disabled) {
-		this.disabled = disabled;
 	}
 	
 	@Override
@@ -117,11 +130,95 @@ public class IdmTreeNode extends AbstractEntity implements BaseTreeEntity<IdmTre
 		return code;
 	}
 
-	public void setChildrenCount(int childrenCount) {
-		this.childrenCount = childrenCount;
+	/**
+	 * Children count based on index
+	 * 
+	 * @return
+	 */
+	public Integer getChildrenCount() {
+		if (forestIndex == null) {
+			return null;
+		}
+		return forestIndex.getChildrenCount();
+	}
+	
+	@JsonIgnore
+	public long getLft() {
+		if (forestIndex == null || forestIndex.getLft() == null) {
+			// we don't need check null pointers in all queries
+			return 0L;
+		}
+		return forestIndex.getLft();
+	}
+	
+	@JsonIgnore
+	public long getRgt() {
+		if (forestIndex == null || forestIndex.getRgt() == null) {
+			// we don't need check null pointers in all queries
+			return 0L;
+		}
+		return forestIndex.getRgt();
 	}
 
-	public int getChildrenCount() {
-		return childrenCount;
+	@Override
+	public IdmForestIndexEntity getForestIndex() {
+		return forestIndex;
+	}
+
+	@Override
+	public void setForestIndex(IdmForestIndexEntity forestIndex) {
+		this.forestIndex = forestIndex;
+	}
+
+	/**
+	 * Returns tree type code with static {@value #TREE_TYPE_PREFIX} prefix.
+	 * 
+	 */
+	@Override
+	@JsonIgnore
+	public String getForestTreeType() {
+		return toForestTreeType(treeType);
+	}
+	
+	@Override
+	public boolean isDisabled() {
+		return disabled;
+	}
+
+	@Override
+	public void setDisabled(boolean disabled) {
+		this.disabled = disabled;
+	}
+	
+	public String getExternalId() {
+		return externalId;
+	}
+
+	public void setExternalId(String externalId) {
+		this.externalId = externalId;
+	}
+
+	/**
+	 * Return tree type code from forest tree type
+	 * 
+	 * @param forestTreeType
+	 * @return
+	 */
+	public static UUID toTreeTypeId(String forestTreeType) {
+		Assert.hasLength(forestTreeType);
+		//
+		return UUID.fromString(forestTreeType.replaceFirst(TREE_TYPE_PREFIX, ""));
+	}
+	
+	/**
+	 * Returns forest tree type from tree type code
+	 * 
+	 * @param treeType
+	 * @return
+	 */
+	public static String toForestTreeType(IdmTreeType treeType) {
+		Assert.notNull(treeType);
+		//
+		return String.format("%s%s", TREE_TYPE_PREFIX, treeType.getId());
 	}
 }

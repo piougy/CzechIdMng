@@ -4,6 +4,9 @@ import Joi from 'joi';
 //
 import AbstractFormComponent from '../AbstractFormComponent/AbstractFormComponent';
 import Tooltip from '../Tooltip/Tooltip';
+import Button from '../Button/Button';
+import Icon from '../Icon/Icon';
+import Modal from '../Modal/Modal';
 
 
 class ScriptArea extends AbstractFormComponent {
@@ -20,7 +23,12 @@ class ScriptArea extends AbstractFormComponent {
    * Focus input field
    */
   focus() {
-    this.refs.input.focus();
+    const { showModalEditor } = this.state;
+    if (showModalEditor) {
+      this.refs.inputModal.editor.focus();
+    } else {
+      this.refs.input.editor.focus();
+    }
   }
 
   onChange(newValue) {
@@ -35,8 +43,64 @@ class ScriptArea extends AbstractFormComponent {
     }
   }
 
-  getBody(feedback) {
-    const { labelSpan, label, componentSpan, required, mode, helpBlock } = this.props;
+  _closeModalEditor() {
+    this.setState({showModalEditor: false});
+  }
+
+  _showModalEditor() {
+    this.setState({showModalEditor: true}, ()=>{
+      // this.refs.inputModal.focus();
+    });
+  }
+
+  _getAceEditor(AceEditor, mode, className, height, modal = false) {
+    return (
+      <AceEditor
+      ref={modal ? 'inputModal' : 'input'}
+      mode={mode}
+      width={null}
+      height={modal ? '40em' : height}
+      className={className}
+      title={this.getValidationResult() != null ? this.getValidationResult().message : ''}
+      readOnly={this.state.readOnly}
+      enableBasicAutocompletion
+      enableLiveAutocompletion
+      theme="github"
+      onChange={this.onChange}
+      value={this.state.value || ''}
+      tabSize={4}
+      fontSize={14}
+      spellcheck
+      showGutter
+      editorProps={{$blockScrolling: true}}
+    />);
+  }
+
+  _getMaximalizationButton(showMaximalizationBtn) {
+    return (
+      <Button
+        type="button"
+        className="btn-xs"
+        level="success"
+        rendered={showMaximalizationBtn}
+        onClick={this._showModalEditor.bind(this)}>
+        <Icon icon="fullscreen"/>
+      </Button>
+    );
+  }
+
+  getOptionsButton() {
+    const { showMaximalizationBtn } = this.props;
+    return (
+      <div className="pull-right script-area-btn-max">
+        { this._getMaximalizationButton(showMaximalizationBtn) }
+      </div>
+    );
+  }
+
+  _getComponent(feedback) {
+    const { labelSpan, label, componentSpan, required, mode, height } = this.props;
+    const {showModalEditor} = this.state;
     //
     const className = classNames('form-control');
     const labelClassName = classNames(labelSpan, 'control-label');
@@ -49,8 +113,9 @@ class ScriptArea extends AbstractFormComponent {
     let AceEditor;
     AceEditor = require('react-ace').default;
     require('brace/mode/groovy');
+    require('brace/mode/json');
     require('brace/theme/github');
-    const title = this.getValidationResult() != null ? this.getValidationResult().message : null;
+    const AceEditorInstance = this._getAceEditor(AceEditor, mode, className, height, showModalEditor);
     return (
       <div className={ showAsterix ? 'has-feedback' : ''}>
         {
@@ -59,31 +124,15 @@ class ScriptArea extends AbstractFormComponent {
           <label
             className={labelClassName}>
             {label}
+            { this.renderHelpIcon() }
           </label>
         }
 
         <div className={componentSpan}>
-          <Tooltip ref="popover" placement="right" value={title}>
+          <Tooltip ref="popover" placement={ this.getTitlePlacement() } value={ this.getTitle() }>
             <span>
-              <AceEditor
-                ref="input"
-                mode={mode}
-                width={null}
-                height="10em"
-                className={className}
-                title={this.getValidationResult() != null ? this.getValidationResult().message : ''}
-                readOnly={this.state.readOnly}
-                enableBasicAutocompletion
-                enableLiveAutocompletion
-                theme="github"
-                onChange={this.onChange}
-                value={this.state.value || ''}
-                tabSize={4}
-                fontSize={14}
-                spellcheck
-                showGutter
-                editorProps={{$blockScrolling: true}}
-              />
+              { this.getOptionsButton() }
+              {!showModalEditor ? AceEditorInstance : null }
               {
                 feedback
                 ||
@@ -91,16 +140,29 @@ class ScriptArea extends AbstractFormComponent {
                 ||
                 <span className="form-control-feedback" style={{color: 'red', zIndex: 0}}>*</span>
               }
+            <Modal
+               show={showModalEditor}
+               dialogClassName="modal-large"
+               onHide={this._closeModalEditor.bind(this)}>
+              <Modal.Header text={label}/>
+              <Modal.Body style={{overflow: 'scroll'}}>
+                {AceEditorInstance}
+              </Modal.Body>
+              <Modal.Footer>
+                <Button level="link" onClick={this._closeModalEditor.bind(this)}>{this.i18n('button.close')}</Button>
+              </Modal.Footer>
+            </Modal>
             </span>
           </Tooltip>
-          {
-            !helpBlock
-            ||
-            <span className="help-block" style={{ whiteSpace: 'normal' }}>{helpBlock}</span>
-          }
+          { !label ? this.renderHelpIcon() : null }
+          { this.renderHelpBlock() }
         </div>
       </div>
     );
+  }
+
+  getBody(feedback) {
+    return this._getComponent(feedback);
   }
 }
 
@@ -108,11 +170,14 @@ ScriptArea.propTypes = {
   ...AbstractFormComponent.propTypes,
   helpBlock: PropTypes.string,
   mode: PropTypes.string,
+  height: PropTypes.string
 };
 
 ScriptArea.defaultProps = {
   ...AbstractFormComponent.defaultProps,
   mode: 'groovy',
+  height: '10em',
+  showMaximalizationBtn: true
 };
 
 export default ScriptArea;

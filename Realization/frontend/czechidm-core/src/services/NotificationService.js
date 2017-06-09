@@ -14,6 +14,10 @@ export default class NotificationService extends AbstractService {
     return notification.message.subject;
   }
 
+  supportsPatch() {
+    return false;
+  }
+
   /**
    * Returns default searchParameters for current entity type
    *

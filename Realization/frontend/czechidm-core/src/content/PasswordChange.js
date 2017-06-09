@@ -5,8 +5,9 @@ import { connect } from 'react-redux';
 import * as Basic from '../components/basic';
 import * as Advanced from '../components/advanced';
 import * as Utils from '../utils';
-import { SecurityManager, IdentityManager } from '../redux';
+import { SecurityManager, IdentityManager, ConfigurationManager } from '../redux';
 import help from './PasswordChange_cs.md';
+import ValidationMessage from './identity/ValidationMessage';
 
 const identityManager = new IdentityManager();
 const securityManager = new SecurityManager();
@@ -22,7 +23,13 @@ class PasswordChange extends Basic.AbstractContent {
 
   componentDidMount() {
     this.selectNavigationItem('password-change');
-    this.refs.form.setData({});
+    const data = {};
+    const { query } = this.props.location;
+    //
+    if (query) {
+      data.username = query.username;
+    }
+    this.refs.form.setData(data);
     this.refs.username.focus();
   }
 
@@ -61,9 +68,8 @@ class PasswordChange extends Basic.AbstractContent {
     const password = this.refs.passwords.getValue();
 
     identityManager.getService().passwordChange(username, {
-      identity: username,
-      oldPassword: btoa(oldPassword),  // base64
-      newPassword: btoa(password),  // base64
+      oldPassword,
+      newPassword: password,
       all: true, // change in idm and in all accounts
       resources: []
     }, false)
@@ -83,11 +89,18 @@ class PasswordChange extends Basic.AbstractContent {
     .then(json => {
       if (Utils.Response.hasError(json)) {
         this._initPasswordFields(password);
-        throw Utils.Response.getFirstError(json);
+        const error = Utils.Response.getFirstError(json);
+        this.setState({
+          validationError: error
+        });
+        throw error;
       }
       return json;
     })
     .then(() => {
+      this.setState({
+        validationError: null
+      });
       this.login(username, password);
       this.addMessage({ title: this.i18n('message.passwordChange.success.title'), message: this.i18n('message.passwordChange.success.message') });
     })
@@ -101,6 +114,7 @@ class PasswordChange extends Basic.AbstractContent {
       } else {
         this.addError(error);
       }
+      this.refs.passwords.setValue(password);
     });
   }
 
@@ -129,18 +143,25 @@ class PasswordChange extends Basic.AbstractContent {
   }
 
   render() {
-    const { showLoading } = this.state;
-
+    const { showLoading, validationError } = this.state;
+    const { passwordChangeType } = this.props;
+    //
     return (
       <div>
         <Helmet title={this.i18n('title')} />
         <div className="row">
           <div className="col-sm-offset-4 col-sm-4">
-            <form onSubmit={this.passwordChange.bind(this)}>
+            <Basic.Alert
+              level="warning"
+              icon="exclamation-sign"
+              text={ this.i18n('content.identity.passwordChange.changeType.DISABLED') }
+              rendered={ passwordChangeType === IdentityManager.PASSWORD_DISABLED }/>
+
+            <form onSubmit={this.passwordChange.bind(this)} className={ passwordChangeType === IdentityManager.PASSWORD_DISABLED ? 'hidden' : ''}>
               <Basic.Panel showLoading={showLoading}>
                 <Basic.PanelHeader text={this.i18n('header')} help={help}/>
 
-                <Basic.AbstractForm ref="form" className="form-horizontal panel-body">
+                <Basic.AbstractForm ref="form" className="panel-body">
 
                   <Basic.Alert text={this.i18n('message.passwordChange.info')} className="no-margin"/>
 
@@ -148,24 +169,20 @@ class PasswordChange extends Basic.AbstractContent {
                     ref="username"
                     label={this.i18n('entity.Identity.username')}
                     placeholder={this.i18n('entity.Identity.username')}
-                    required
-                    labelSpan="col-md-4"
-                    componentSpan="col-md-8"/>
+                    required/>
                   <Basic.TextField
                     type={'password'}
                     ref="passwordOld"
                     label={this.i18n('passwordOld')}
                     placeholder={this.i18n('passwordOld')}
-                    required
-                    labelSpan="col-md-4"
-                    componentSpan="col-md-8"/>
+                    required/>
                   <Advanced.PasswordField
                     className="form-control"
-                    ref="passwords"
-                    labelSpan="col-md-4"
-                    componentSpan="col-md-8"/>
+                    ref="passwords"/>
                 </Basic.AbstractForm>
-
+                <Basic.Panel className="no-border last">
+                  <ValidationMessage error={validationError} />
+                </Basic.Panel>
                 <Basic.PanelFooter>
                   <Basic.Button level="link" onClick={this.cancel.bind(this)}>
                     {this.i18n('button.cancel')}
@@ -192,7 +209,8 @@ PasswordChange.defaultProps = {
 
 function select(state) {
   return {
-    userContext: state.security.userContext
+    userContext: state.security.userContext,
+    passwordChangeType: ConfigurationManager.getPublicValue(state, 'idm.pub.core.identity.passwordChange'),
   };
 }
 

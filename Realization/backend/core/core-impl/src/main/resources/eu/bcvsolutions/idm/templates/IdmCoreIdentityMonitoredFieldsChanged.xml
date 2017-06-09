@@ -1,0 +1,59 @@
+<?xml version = "1.0" encoding = "UTF-8" standalone = "yes"?>
+<!-- 
+Notification send when identity monitored fields was changed.
+
+parameters:
+	-	identity
+	-	changedFields
+ -->
+
+<template>
+	<name>Notification sent when identity monitored fields were changed (core)</name>
+	<code>identityMonitoredFieldsChanged</code>
+	<subject>CzechIdM - Na účtu pro '$fullName ($identity.Username)' byly změněny monitorované položky!</subject>
+	<bodyHtml>
+<![CDATA[
+<html>
+<body>
+<h3>Dobrý den,<br />
+<br />
+Na účtu <b>$identity.Username</b> byly změněny monitorované položky:<br /></h3>
+<br />
+#if( !$changedFields.isEmpty() )
+#foreach( $field in $changedFields )
+Položka: <b>$field.Name</b>
+<li>Původní hodnota: <b>$field.OldValue</b></li>
+<li>Nová hodnota: <b>$field.NewValue</b></li>
+#end
+#end
+<br />
+Na detail účtu můžete přejít zde: <a href='$url'>$identity.Username</a><br />
+<br />
+S pozdravem CzechIdM.
+<br />
+<br />
+-------------------------------------------------------------------------------------<br />
+<h3>Hello,<br />
+<br />
+On account <b>$identity.Username</b> was changed monitored properties:<br /></h3>
+<br />
+#if( !$changedFields.isEmpty() )
+#foreach( $field in $changedFields )
+Property: <b>$field.Name</b>
+<li>Original value: <b>$field.OldValue</b></li>
+<li>New value: <b>$field.NewValue</b></li>
+#end
+#end
+<br />
+Link on account detail is here: <a href='$url'>$identity.Username</a><br />
+<br />
+Regards CzechIdM.
+</body>
+</html>
+]]>
+	</bodyHtml>
+	<bodyText></bodyText>
+	<parameter>identity, changedFields, url</parameter>
+	<systemTemplate>true</systemTemplate>
+	<moduleId>core</moduleId>
+</template>

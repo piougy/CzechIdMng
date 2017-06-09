@@ -1,6 +1,6 @@
 # AdvancedTable Component
 
-Encapsulates all features from BasicTable component.
+Encapsulates all features from BasicTable component. All BasicTable parameters are supported. Added parameters:
 
 | Parameter | Type | Description | Default  |
 | --- | :--- | :--- | :--- |
@@ -16,7 +16,12 @@ Encapsulates all features from BasicTable component.
 | filterOpened | bool | If filter is opened by default | false |
 | filterCollapsible | bool | If filter can be collapsed |  |
 | actions | arrayOf(object) | Bulk actions e.g. { value: 'activate', niceLabel: this.i18n('content.identities.action.activate.action'), action: this.onActivate.bind(this) } |  |
-| buttons | arrayOf(element) | Buttons are shown on the right of toogle filter button | ||
+| buttons | arrayOf(element) | Buttons are shown on the right of toogle filter button | |
+| showId | bool | Shows column with id. Default is id shown in Development stage. | true on development, false otherwise |
+| showFilter | bool | Shows filter. | true |
+| showPageSize | bool | Shows page size. | true |
+| showToolbar | bool | Shows toolbar. | true |
+| header | oneOfType([string, element]) | Table header |  |
 
 
 # AdvancedColumn Component
@@ -27,7 +32,8 @@ Header text is automatically resolved by entity and column property. Advanced co
 | --- | :--- | :--- | :--- |
 | property | string.isRequired | Json property name. Nested properties can be used e.g. `identityManager.name` | |
 | sort | bool | Column supports sorting | false |
-| width | string | Pixel or percent width of table. | |
+| sortProperty | string | Property for sort can be different than rendering property - mainly for sorting by referenced sub entity | property |
+| width | oneOfType([string,number]) | Pixel or percent width of table. If number is given, then pixels is used. | |
 | face | oneOf(['text','date', 'datetime', 'bool']) | Data type | 'text' |
 
 # AdvancedColumnLink Component
@@ -105,23 +111,21 @@ class Team extends Basic.AbstractContent {
             rowClass={({rowIndex, data}) => { return data[rowIndex]['disabled'] ? 'disabled' : ''}}
             filter={
               <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
-                <Basic.AbstractForm ref="filterForm" className="form-horizontal">
+                <Basic.AbstractForm ref="filterForm">
                   <Basic.Row>
                     <div className="col-lg-4">
                       <Advanced.Filter.TextField
                         ref="filterCreatedAtFrom"
                         field="createdAt"
                         relation="GE"
-                        placeholder={this.i18n('filter.createdAtFrom.placeholder')}
-                        label={this.i18n('filter.createdAtFrom.label')}/>
+                        placeholder={this.i18n('filter.createdAtFrom.placeholder')}/>
                     </div>
                     <div className="col-lg-4">
                       <Advanced.Filter.TextField
                         ref="filterCreatedAtTill"
                         field="createdAt"
                         relation="LE"
-                        placeholder={this.i18n('filter.createdAtTill.placeholder')}
-                        label={this.i18n('filter.createdAtTill.label')}/>
+                        placeholder={this.i18n('filter.createdAtTill.placeholder')}/>
                     </div>
                     <div className="col-lg-4 text-right">
                       <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>

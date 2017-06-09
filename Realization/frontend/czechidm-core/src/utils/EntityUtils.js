@@ -2,6 +2,8 @@ import moment from 'moment';
 
 /**
  * Helper methods for entities
+ *
+ * @author Radek Tomiška
  */
 export default class EntityUtils {
 
@@ -101,13 +103,12 @@ export default class EntityUtils {
       return false;
     }
     // entity does not support validable
-    if (entity.validFrom === undefined && entity.validTill === undefined) {
+    if ((entity.validFrom === undefined || entity.validFrom === null)
+        && (entity.validTill === undefined || entity.validTill === null)) {
       return true;
     }
-    if ((entity.validFrom !== null && moment().isBefore(entity.validFrom)) || (entity.validTill !== null && moment().isAfter(entity.validTill))) {
-      return false;
-    }
-    return true;
+    return ((entity.validFrom === null || moment().startOf('day').isSameOrAfter(moment(entity.validFrom).startOf('day')))
+        && (entity.validTill === null || moment().startOf('day').isSameOrBefore(moment(entity.validTill).startOf('day'))));
   }
 
   /**
@@ -117,6 +118,8 @@ export default class EntityUtils {
    * @return {Boolean}
    */
   static isNew(entity) {
-    return !entity || !entity._links || !entity._links.self;
+    // TODO: new dtos doesn't contain self link
+    // return !entity || !entity._links || !entity._links.self;
+    return !entity || !entity.id;
   }
 }

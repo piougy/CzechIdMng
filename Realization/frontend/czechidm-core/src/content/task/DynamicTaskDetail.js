@@ -20,13 +20,6 @@ class DynamicTaskDetail extends Basic.AbstractContent {
     this.state = {showLoading: props.showLoading, readOnly: true};
   }
 
-  componentDidMount() {
-    const { task} = this.props;
-    this.refs.form.setData(task);
-    const formDataValues = this._toFormDataValues(task.formData);
-    this.refs.formData.setData(formDataValues);
-  }
-
   getContentKey() {
     return 'content.task.instance';
   }
@@ -53,21 +46,15 @@ class DynamicTaskDetail extends Basic.AbstractContent {
     if (!this.refs.form.isFormValid()) {
       return;
     }
-    if (!this.refs.formData.isFormValid()) {
+    if (this.refs.formData && !this.refs.formData.isFormValid()) {
       return;
     }
-    this.setState({
-      showLoading: true
-    });
     if (decision.showWarning) {
       this.refs.confirm.show(this.i18n(decision.warningMessage ? decision.warningMessage : 'completeTaskConfirmDetail'), this.i18n('completeTaskConfirmTitle'))
       .then(() => {
         this._completeTask(decision);
       }, () => {
         // Rejected
-        this.setState({
-          showLoading: false
-        });
       });
     } else {
       this._completeTask(decision);
@@ -75,11 +62,18 @@ class DynamicTaskDetail extends Basic.AbstractContent {
   }
 
   _completeTask(decision) {
-    const formDataValues = this.refs.formData.getData();
+    const formDataValues = this.refs.formData ? this.refs.formData.getData() : {};
     const task = this.refs.form.getData();
     const formData = {'decision': decision.id, 'formData': this._toFormData(formDataValues, task.formData)};
+    // this.setState({
+    //   showLoading: true
+    // });
     const { taskManager, uiKey } = this.props;
     this.context.store.dispatch(taskManager.completeTask(task, formData, `${uiKey}`, this._afterComplete.bind(this)));
+  }
+
+  _getLocalization(property, formData) {
+    return this.i18n(formData[property] ? formData[property] : `wf.formData.${formData.id}.${property}`);
   }
 
   _afterComplete(task, error) {
@@ -110,13 +104,14 @@ class DynamicTaskDetail extends Basic.AbstractContent {
               ref={formData.id}
               readOnly={!formData.writable}
               required={formData.required}
-              tooltip={formData.tooltip}
-              placeholder={formData.placeholder}
-              label={this.i18n(formData.name)}/>
+              tooltip={this._getLocalization('tooltip', formData)}
+              placeholder={this._getLocalization('placeholder', formData)}
+              label={this._getLocalization('name', formData)}/>
           );
           break;
         }
-        case 'date': {
+        case 'date':
+        case 'localDate': {
           formDataComponents.push(
             <Basic.DateTimePicker
               key={formData.id}
@@ -124,9 +119,9 @@ class DynamicTaskDetail extends Basic.AbstractContent {
               mode="date"
               readOnly={!formData.writable}
               required={formData.required}
-              tooltip={formData.tooltip}
-              placeholder={formData.placeholder}
-              label={this.i18n(formData.name)}/>
+              tooltip={this._getLocalization('tooltip', formData)}
+              placeholder={this._getLocalization('placeholder', formData)}
+              label={this._getLocalization('name', formData)}/>
           );
           break;
         }
@@ -137,9 +132,9 @@ class DynamicTaskDetail extends Basic.AbstractContent {
               ref={formData.id}
               readOnly={!formData.writable}
               required={formData.required}
-              tooltip={formData.tooltip}
-              placeholder={formData.placeholder}
-              label={this.i18n(formData.name)}/>
+              tooltip={this._getLocalization('tooltip', formData)}
+              placeholder={this._getLocalization('placeholder', formData)}
+              label={this._getLocalization('name', formData)}/>
           );
           break;
         }
@@ -150,9 +145,9 @@ class DynamicTaskDetail extends Basic.AbstractContent {
               ref={formData.id}
               readOnly={!formData.writable}
               required={formData.required}
-              tooltip={formData.tooltip}
-              placeholder={formData.placeholder}
-              label={this.i18n(formData.name)}/>
+              tooltip={this._getLocalization('tooltip', formData)}
+              placeholder={this._getLocalization('placeholder', formData)}
+              label={this._getLocalization('name', formData)}/>
           );
           break;
         }
@@ -163,9 +158,9 @@ class DynamicTaskDetail extends Basic.AbstractContent {
               ref={formData.id}
               readOnly={!formData.writable}
               required={formData.required}
-              tooltip={formData.tooltip}
-              placeholder={formData.placeholder}
-              label={this.i18n(formData.name)}/>
+              tooltip={this._getLocalization('tooltip', formData)}
+              placeholder={this._getLocalization('placeholder', formData)}
+              label={this._getLocalization('name', formData)}/>
           );
         }
       }
@@ -177,7 +172,7 @@ class DynamicTaskDetail extends Basic.AbstractContent {
     const {task, taskManager} = this.props;
     const { showLoading} = this.state;
     const showLoadingInternal = task ? showLoading : true;
-
+    const formDataValues = this._toFormDataValues(task.formData);
     return (
       <div>
         <Helmet title={this.i18n('title')} />
@@ -188,14 +183,14 @@ class DynamicTaskDetail extends Basic.AbstractContent {
         <Basic.Panel showLoading = {showLoadingInternal}>
           <Basic.PanelHeader text={<span>{taskManager.getNiceLabel(task)} <small>this.i18n('taskDetail')</small></span>} className="hidden">
           </Basic.PanelHeader>
-          <Basic.AbstractForm ref="form" className="form-horizontal">
+          <Basic.AbstractForm className="panel-body" ref="form" data={task}>
             <Basic.TextField ref="taskDescription" readOnly label={this.i18n('description')}/>
-            <Basic.LabelWrapper readOnly ref="applicant" label={this.i18n('applicant')} componentSpan="col-sm-5">
+            <Basic.LabelWrapper rendered={task.applicant} readOnly ref="applicant" label={this.i18n('applicant')}>
               <Advanced.IdentityInfo username={task.applicant} showLoading={!task} className="no-margin"/>
             </Basic.LabelWrapper>
             <Basic.DateTimePicker ref="taskCreated" readOnly label={this.i18n('createdDate')}/>
           </Basic.AbstractForm>
-          <Basic.AbstractForm ref="formData" className="form-horizontal">
+          <Basic.AbstractForm ref="formData" data={formDataValues} className="panel-body">
             {this._getFormDataComponents(task)}
           </Basic.AbstractForm>
           <Basic.PanelFooter>

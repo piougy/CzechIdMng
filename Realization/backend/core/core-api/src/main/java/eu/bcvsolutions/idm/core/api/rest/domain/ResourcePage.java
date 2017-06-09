@@ -1,5 +1,9 @@
 package eu.bcvsolutions.idm.core.api.rest.domain;
 
+/**
+ * @deprecated use Spring Pageable instead
+ */
+@Deprecated
 public class ResourcePage {
 	private long size;
 	private long totalElements;

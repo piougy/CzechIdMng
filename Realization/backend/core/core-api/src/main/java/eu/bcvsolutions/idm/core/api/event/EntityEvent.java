@@ -5,18 +5,17 @@ import java.util.Map;
 
 import org.springframework.core.ResolvableTypeProvider;
 
+import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 
 /**
  * Event state holder (content + metadata)
  * 
- * TODO: Split event and context!
- * 
+ * @param <E> {@link BaseEntity}, {@link BaseDto} or any other {@link Serializable} content type
  * @author Radek Tomiška
- *
- * @param <E> {@link BaseEntity} type
  */
-public interface EntityEvent<E extends BaseEntity> extends ResolvableTypeProvider {
+public interface EntityEvent<E extends Serializable> extends ResolvableTypeProvider, Serializable {
+	public static final String EVENT_PROPERTY = "entityEvent";
 
 	/**
 	 * Operation type
@@ -24,6 +23,13 @@ public interface EntityEvent<E extends BaseEntity> extends ResolvableTypeProvide
 	 * @return
 	 */
 	EventType getType();
+
+	/**
+	 * Starting event content =~ source entity. Could not be null. Events with empty content could not be processed.
+	 *  
+	 * @return
+	 */
+	E getSource();
 	
 	/**
 	 * Event content - entity. Could not be null. Events with empty content could not be processed.
@@ -31,6 +37,27 @@ public interface EntityEvent<E extends BaseEntity> extends ResolvableTypeProvide
 	 * @return
 	 */
 	E getContent();
+	
+	/**
+	 *  Event content - entity. Could not be null. Events with empty content could not be processed.
+	 *  
+	 * @param content
+	 */
+	void setContent(E content);
+	
+	/**
+	 * Persisted event content before event starts. Usable in "check modifications" processors.
+	 * 
+	 * @return
+	 */
+	E getOriginalSource();
+	
+	/**
+	 * Persisted event content before event starts. Usable in "check modifications" processors.
+	 * 
+	 * @param originalSource
+	 */
+	void setOriginalSource(E originalSource);
 	
 	/**
 	 * Event properties (metadata)
@@ -52,4 +79,20 @@ public interface EntityEvent<E extends BaseEntity> extends ResolvableTypeProvide
 	 * @return
 	 */
 	boolean isClosed();
+	
+	/**
+	 * Event is suspended = no other events will be processed, while event is suspended. 
+	 * Suspended event could be republished again - when will continue when event was suspended - all processors 
+	 * with greater order than getProcessedOrder will be called.
+	 * 
+	 * @return
+	 */
+	boolean isSuspended();
+	
+	/**
+	 * Returns last processed order or {@code null}, if any processor was called (event is starting).
+	 * 
+	 * @return
+	 */
+	Integer getProcessedOrder();
 }

@@ -15,11 +15,12 @@ import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
  * Abstract implementation for generic CRUD operations on a repository for a
  * specific type.
  * 
- * @author Radek Tomiška
- *
  * @param <E> {@link BaseEntity} type
  * @param <F> {@link BaseFilter} type
+ * @author Radek Tomiška
+ * @deprecated use {@link AbstractReadWriteDtoService}
  */
+@Deprecated
 public abstract class AbstractReadWriteEntityService<E extends BaseEntity, F extends BaseFilter>
 		extends AbstractReadEntityService<E, F> implements ReadWriteEntityService<E, F> {
 	
@@ -65,8 +66,7 @@ public abstract class AbstractReadWriteEntityService<E extends BaseEntity, F ext
 	 * Deletes a given entity.
 	 * 
 	 * @param entity
-	 * @throws IllegalArgumentException
-	 *             in case the given entity is {@literal null}.
+     * @throws IllegalArgumentException in case the given entity is {@literal null}.
 	 */
 	@Override
 	@Transactional
@@ -80,8 +80,7 @@ public abstract class AbstractReadWriteEntityService<E extends BaseEntity, F ext
 	 * Deletes a given entity.
 	 * 
 	 * @param entity
-	 * @throws IllegalArgumentException
-	 *             in case the given entity is {@literal null}.
+     * @throws IllegalArgumentException in case the given entity is {@literal null}.
 	 */
 	@Override
 	@Transactional

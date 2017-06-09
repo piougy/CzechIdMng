@@ -12,7 +12,14 @@ const manager = new IdentityAccountManager();
 const accountManager = new AccountManager();
 const identityManager = new Managers.IdentityManager();
 
-class IdentityAccountsContent extends Basic.AbstractTableContent {
+/**
+ * Identity accounts
+ *
+ * TODO: accounts should be shown (not identityAccount)
+ *
+ * @Author Radek Tomiška
+ */
+class IdentityAccountsContent extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);
@@ -30,8 +37,8 @@ class IdentityAccountsContent extends Basic.AbstractTableContent {
     return 'acc:content.identity.accounts';
   }
 
-  componentDidMount() {
-    this.selectSidebarItem('identity-accounts');
+  getNavigationKey() {
+    return 'identity-accounts';
   }
 
   showDetail(entity) {
@@ -47,11 +54,11 @@ class IdentityAccountsContent extends Basic.AbstractTableContent {
 
   save(entity, event) {
     const formEntity = this.refs.form.getData();
-    formEntity.identity = identityManager.getSelfLink(formEntity.identity);
-    if (Utils.Entity.isNew(entity)) {
-      formEntity.account = {
-        id: formEntity.account
-      };
+    const state = this.context.store.getState();
+    if (Utils.Entity.isNew(formEntity)) {
+      const identity = Utils.Entity.getEntity(state, identityManager.getEntityType(), formEntity.identity);
+      formEntity.identity = identity.id;
+      formEntity.account = formEntity.account;
     }
     //
     super.save(formEntity, event);
@@ -86,9 +93,10 @@ class IdentityAccountsContent extends Basic.AbstractTableContent {
             uiKey={uiKey}
             manager={this.getManager()}
             forceSearchParameters={forceSearchParameters}
-            showRowSelection={Managers.SecurityManager.hasAnyAuthority(['SYSTEM_WRITE'])}
+            showRowSelection={Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE'])}
+            rowClass={({rowIndex, data}) => { return (data[rowIndex]._embedded.account.inProtection) ? 'disabled' : ''; }}
             actions={
-              Managers.SecurityManager.hasAnyAuthority(['SYSTEM_WRITE'])
+              Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE'])
               ?
               [{ value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }]
               :
@@ -101,7 +109,7 @@ class IdentityAccountsContent extends Basic.AbstractTableContent {
                   key="add_button"
                   className="btn-xs"
                   onClick={this.showDetail.bind(this, { type: AccountTypeEnum.findKeyBySymbol(AccountTypeEnum.PERSONAL) })}
-                  rendered={Managers.SecurityManager.hasAnyAuthority(['ROLE_WRITE'])}>
+                  rendered={Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE'])}>
                   <Basic.Icon type="fa" icon="plus"/>
                   {' '}
                   {this.i18n('button.add')}
@@ -117,20 +125,27 @@ class IdentityAccountsContent extends Basic.AbstractTableContent {
                   return (
                     <Advanced.DetailButton
                       title={this.i18n('button.detail')}
+                      rendered={Managers.SecurityManager.hasAnyAuthority(['SYSTEM_READ'])}
                       onClick={this.showDetail.bind(this, data[rowIndex])}/>
                   );
                 }
               }/>
-            <Advanced.Column property="account.accountType" width="75px" header={this.i18n('acc:entity.Account.accountType')} sort face="enum" enumClass={AccountTypeEnum} />
-            <Advanced.Column property="account.uid" header={this.i18n('acc:entity.Account.uid')} sort face="text" />
+            <Advanced.Column rendered={false} property="_embedded.account.accountType" width="75px" header={this.i18n('acc:entity.Account.accountType')} sort face="enum" enumClass={AccountTypeEnum} />
+            <Advanced.Column property="_embedded.account.uid" header={this.i18n('acc:entity.Account.uid')} sort face="text" />
             <Advanced.ColumnLink
               to="/system/:_target/detail"
-              target="account._embedded.system.id"
+              target="_embedded.account._embedded.system.id"
               access={{ 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ']}}
-              property="account._embedded.system.name"
+              property="_embedded.account._embedded.system.name"
               header={this.i18n('acc:entity.System.name')} />
-            <Advanced.Column property="identityRole._embedded.role.name" header={this.i18n('acc:entity.IdentityAccount.role')} face="text" />
+            <Advanced.Column property="_embedded.identityRole._embedded.role.name" header={this.i18n('acc:entity.IdentityAccount.role')} face="text" />
             <Advanced.Column property="ownership" width="75px" header={this.i18n('acc:entity.IdentityAccount.ownership')} sort face="bool" />
+            <Advanced.Column property="_embedded.account.inProtection"
+              header={this.i18n('acc:entity.Account.inProtection')}
+              face="boolean" />
+            <Advanced.Column property="_embedded.account.endOfProtection"
+              header={this.i18n('acc:entity.Account.endOfProtection')}
+              face="datetime" />
           </Advanced.Table>
         </Basic.Panel>
 
@@ -145,7 +160,7 @@ class IdentityAccountsContent extends Basic.AbstractTableContent {
             <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('create.header')} rendered={Utils.Entity.isNew(detail.entity)}/>
             <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('edit.header', { name: detail.entity.name })} rendered={!Utils.Entity.isNew(detail.entity)}/>
             <Basic.Modal.Body>
-              <Basic.AbstractForm ref="form" showLoading={_showLoading} className="form-horizontal">
+              <Basic.AbstractForm ref="form" showLoading={_showLoading}>
                 <Basic.SelectBox
                   ref="account"
                   manager={accountManager}

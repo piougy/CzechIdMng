@@ -1,40 +1,53 @@
 package eu.bcvsolutions.idm.core.api.rest.lookup;
 
 import java.io.Serializable;
+import java.util.UUID;
 
-import org.springframework.data.rest.core.support.EntityLookupSupport;
+import javax.persistence.EntityManager;
 
+import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
-import eu.bcvsolutions.idm.core.api.service.ReadEntityService;
 
 /**
- * Default entity lookup by {@code Long} entityId
+ * Default entity lookup by {@code UUID} entityId
  * 
- * @author Radek Tomiška
- *
  * @param <E>
+ * @author Radek Tomiška
  */
-public class DefaultEntityLookup<E extends BaseEntity> extends EntityLookupSupport<E> {
+public class DefaultEntityLookup<E extends BaseEntity> implements EntityLookup<E> {
 
-	private final ReadEntityService<E, ?> service;
+	private final EntityManager entityManager;
+	private final Class<E> entityClass;
 
-	public DefaultEntityLookup(ReadEntityService<E, ?> service) {
-		this.service = service;
+	public DefaultEntityLookup(EntityManager entityManager, Class<E> entityClass) {
+		this.entityManager = entityManager;
+		this.entityClass = entityClass;
 	}
 
 	@Override
-	public Serializable getResourceIdentifier(E entity) {
+	public Serializable getIdentifier(E entity) {
 		return entity.getId();
 	}
 
 	@Override
-	public Object lookupEntity(Serializable id) {
-		return service.get(id);
+	public E lookup(Serializable id) {
+		if (AbstractEntity.class.isAssignableFrom(entityClass) && (id instanceof String)) {
+			// workflow / rest usage with string uuid variant
+			// EL does not recognize two methods with the same name and
+			// different argument type
+			try {
+				return entityManager.find(entityClass, UUID.fromString((String) id));
+			} catch (IllegalArgumentException ex) {
+				// simply not found
+				return null;
+			}
+		}
+		return entityManager.find(entityClass, id);
 	}
 	
 	@Override
 	public boolean supports(Class<?> delimiter) {
-		return service.getEntityClass().isAssignableFrom(delimiter);
+		return BaseEntity.class.isAssignableFrom(delimiter);
 	}
 
 }

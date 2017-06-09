@@ -31,11 +31,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
+import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowHistoricProcessInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowHistoricProcessInstanceService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessDefinitionService;
-import eu.bcvsolutions.idm.security.api.service.SecurityService;
 
 /**
  * Default implementation of workflow process historic service
@@ -79,8 +79,10 @@ public class DefaultWorkflowHistoricProcessInstanceService implements WorkflowHi
 
 		HistoricProcessInstanceQuery query = historyService.createHistoricProcessInstanceQuery();
 
+		boolean trimmed = true;
 		if (processInstanceId != null) {
 			// Process variables will be included only for get by instance ID
+			trimmed = false;
 			query.includeProcessVariables();
 			query.processInstanceId(processInstanceId);
 		}
@@ -103,11 +105,14 @@ public class DefaultWorkflowHistoricProcessInstanceService implements WorkflowHi
 				query.variableValueEquals(entry.getKey(), entry.getValue());
 			}
 		}
+		
 		// check security ... only involved user or applicant can work with
-		// historic process instance
-		// Applicant and Implementer is added to involved user after process
-		// (subprocess) started. This modification allow not use OR clause.
-		query.involvedUser(securityService.getUsername());
+		// historic process instance ... admin can see all historic processes every time
+		if(!securityService.isAdmin()) {
+			// Applicant and Implementer is added to involved user after process
+			// (subprocess) started. This modification allow not use OR clause.
+			query.involvedUser(securityService.getCurrentId().toString());
+		}
 
 		if (WorkflowHistoricProcessInstanceService.SORT_BY_START_TIME.equals(filter.getSortByFields())) {
 			query.orderByProcessInstanceStartTime();
@@ -129,7 +134,7 @@ public class DefaultWorkflowHistoricProcessInstanceService implements WorkflowHi
 
 		if (processInstances != null) {
 			for (HistoricProcessInstance instance : processInstances) {
-				dtos.add(toResource(instance));
+				dtos.add(toResource(instance, trimmed));
 			}
 		}
 		double totalPageDouble = ((double) count / filter.getPageSize());
@@ -139,9 +144,8 @@ public class DefaultWorkflowHistoricProcessInstanceService implements WorkflowHi
 			totalPage = (long) (totlaPageFlorred + 1);
 		}
 
-		ResourcesWrapper<WorkflowHistoricProcessInstanceDto> result = new ResourcesWrapper<>(dtos, count, totalPage,
+		return new ResourcesWrapper<>(dtos, count, totalPage,
 				filter.getPageNumber(), filter.getPageSize());
-		return result;
 	}
 
 	@Override
@@ -183,9 +187,7 @@ public class DefaultWorkflowHistoricProcessInstanceService implements WorkflowHi
 
 			ProcessDiagramGenerator diagramGenerator = new DefaultProcessDiagramGenerator();
 
-			InputStream resource = diagramGenerator.generateDiagram(bpmnModel, "png", historicActivityInstanceList,
-					highLightedFlows);
-			return resource;
+			return diagramGenerator.generateDiagram(bpmnModel, "png", historicActivityInstanceList, highLightedFlows);
 
 		} else {
 			throw new ActivitiException(
@@ -305,7 +307,7 @@ public class DefaultWorkflowHistoricProcessInstanceService implements WorkflowHi
 		}
 	}
 
-	private WorkflowHistoricProcessInstanceDto toResource(HistoricProcessInstance instance) {
+	private WorkflowHistoricProcessInstanceDto toResource(HistoricProcessInstance instance, boolean trimmed) {
 		if (instance == null) {
 			return null;
 		}
@@ -327,10 +329,11 @@ public class DefaultWorkflowHistoricProcessInstanceService implements WorkflowHi
 			instanceName = variableInstance != null ? (String) variableInstance.getValue() : null;
 		}
 		if (instanceName == null || instanceName.isEmpty()) {
-			instanceName = definitionService.getById(instance.getProcessDefinitionId()).getName();
+			instanceName = definitionService.get(instance.getProcessDefinitionId()).getName();
 		}
 
 		WorkflowHistoricProcessInstanceDto dto = new WorkflowHistoricProcessInstanceDto();
+		dto.setTrimmed(trimmed);
 		dto.setId(instance.getId());
 		dto.setName(instanceName);
 		dto.setProcessDefinitionId(instance.getProcessDefinitionId());

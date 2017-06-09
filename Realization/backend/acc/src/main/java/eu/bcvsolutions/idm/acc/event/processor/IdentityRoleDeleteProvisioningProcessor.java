@@ -1,20 +1,23 @@
 package eu.bcvsolutions.idm.acc.event.processor;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.event.ProvisioningEvent;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountManagementService;
-import eu.bcvsolutions.idm.acc.service.api.SysProvisioningService;
+import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.event.IdentityRoleEvent.IdentityRoleEventType;
-import eu.bcvsolutions.idm.security.api.domain.Enabled;
+import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
+import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 
 /**
  * Identity role account management before delete
@@ -24,31 +27,45 @@ import eu.bcvsolutions.idm.security.api.domain.Enabled;
  */
 @Component
 @Enabled(AccModuleDescriptor.MODULE_ID)
-public class IdentityRoleDeleteProvisioningProcessor extends AbstractEntityEventProcessor<IdmIdentityRole> {
+@Description("Executes account management and provisioing before identity role is deleted.")
+public class IdentityRoleDeleteProvisioningProcessor extends AbstractEntityEventProcessor<IdmIdentityRoleDto> {
 
+	public static final String PROCESSOR_NAME = "identity-role-delete-provisioning-processor";
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdentityRoleDeleteProvisioningProcessor.class);
 	private final AccAccountManagementService accountManagementService;
-	private final SysProvisioningService provisioningService;
+	private final ProvisioningService provisioningService;
+	private final IdmIdentityContractRepository identityContractRepository;
+
 
 	@Autowired
 	public IdentityRoleDeleteProvisioningProcessor(
 			AccAccountManagementService accountManagementService,
-			SysProvisioningService provisioningService) {
+			ProvisioningService provisioningService,
+			IdmIdentityContractRepository identityContractRepository) {
 		super(IdentityRoleEventType.DELETE);
 		//
 		Assert.notNull(accountManagementService);
 		Assert.notNull(provisioningService);
+		Assert.notNull(identityContractRepository);
 		//
 		this.accountManagementService = accountManagementService;
 		this.provisioningService = provisioningService;
+		this.identityContractRepository = identityContractRepository;
+	}
+	
+	@Override
+	public String getName() {
+		return PROCESSOR_NAME;
 	}
 
 	@Override
-	public EventResult<IdmIdentityRole> process(EntityEvent<IdmIdentityRole> event) {
-		accountManagementService.deleteIdentityAccount(event.getContent());
+	public EventResult<IdmIdentityRoleDto> process(EntityEvent<IdmIdentityRoleDto> event) {
+		IdmIdentityRoleDto identityRole = event.getContent();
+		accountManagementService.deleteIdentityAccount(identityRole);
 		//
-		LOG.debug("Call provisioning for idnetity [{}]", event.getContent().getIdentity().getUsername());
-		provisioningService.doProvisioning(event.getContent().getIdentity());
+		IdmIdentityContract identityContract = identityContractRepository.findOne(identityRole.getIdentityContract());
+		LOG.debug("Call provisioning for identity [{}]", identityContract.getIdentity().getUsername());
+		provisioningService.doProvisioning(identityContract.getIdentity());
 		return new DefaultEventResult<>(event, this);
 	}
 	

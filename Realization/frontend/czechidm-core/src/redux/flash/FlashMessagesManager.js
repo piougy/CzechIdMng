@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import { routeActions } from 'react-router-redux';
+// import moment from 'moment';
 // api
 import { LocalizationService, AuthenticateService } from '../../services';
 // import SecurityManager from '../Security/SecurityManager';
@@ -17,6 +18,25 @@ export const REMOVE_ALL_MESSAGES = 'REMOVE_ALL_MESSAGES';
 //
 export const DEFAULT_SERVER_UNAVAILABLE_TIMEOUT = 3000;
 
+const _DEFAULT_MESSAGE = {
+  id: null, // internal id
+  key: null, // key for unique checking
+  title: null,
+  message: null,
+  level: 'success', // React.PropTypes.oneOf(['success', 'info', 'warning', 'error']),
+  position: 'tr', // React.PropTypes.oneOf(['tr', 'tc']),
+  autoDismiss: 5,
+  dismissible: true,
+  action: null,
+  hidden: false,
+  date: new Date()
+};
+
+/**
+ * Flash messages
+ *
+ * @author Radek Tomiška
+ */
 export default class FlashMessagesManager {
 
   constructor() {
@@ -47,49 +67,148 @@ export default class FlashMessagesManager {
     return this.addErrorMessage({}, error, context);
   }
 
+  /**
+  * Transforms options to message and adds default props
+  */
+  createMessage(options) {
+    if (!options) {
+      return null;
+    }
+    let message = options;
+    if (message == null) {
+      message = LocalizationService.i18n('message.success.common', { defaultValue: 'The operation was successfully completed' });
+    }
+    if (typeof message === 'string') {
+      message = _.merge({}, _DEFAULT_MESSAGE, { message });
+    }
+    // errors are shown centered by default
+    if (message.level && (message.level === 'error' /* || message.level === 'warning' */) && !message.position) {
+      message.position = 'tc';
+    }
+    // add default
+    message = _.merge({}, _DEFAULT_MESSAGE, message);
+    if (!message.title && !message.message) {
+      message.message = LocalizationService.i18n('message.success.common', { defaultValue: 'The operation was successfully completed' });
+    }
+    if (message.title && typeof message.title === 'object') {
+      message.title = JSON.stringify(message.title);
+    }
+    if (message.message && typeof message.message === 'object') {
+      message.message = JSON.stringify(message.message);
+    }
+    return message;
+  }
+
+  /**
+   * Converts result model to flash message
+   *
+   * @param  {ResultModel} resultModel
+   * @return {FlashMessage}
+   */
+  convertFromResultModel(resultModel) {
+    if (!resultModel) {
+      return null;
+    }
+    // automatic localization
+    const messageTitle = LocalizationService.i18n(resultModel.module + ':error.' + resultModel.statusEnum + '.title', this._prepareParams(resultModel.parameters, `${resultModel.statusEnum} (${resultModel.statusCode}:${resultModel.id})`));
+    let defaultMessage = resultModel.message;
+    if (!_.isEmpty(resultModel.parameters)) {
+      defaultMessage += ' (';
+      let first = true;
+      for (const parameterKey in resultModel.parameters) {
+        if (!first) {
+          defaultMessage += ', ';
+        } else {
+          first = false;
+        }
+        defaultMessage += `${parameterKey}:${resultModel.parameters[parameterKey]}`;
+      }
+      defaultMessage += ')';
+    }
+    const messageText = LocalizationService.i18n(resultModel.module + ':error.' + resultModel.statusEnum + '.message', this._prepareParams(resultModel.parameters, defaultMessage));
+    //
+    const levelStatusCode = parseInt(resultModel.statusCode, 10);
+    let level; // 4xx - warning message, 5xx - error message
+    if (levelStatusCode >= 500) {
+      level = 'error';
+    } else if (levelStatusCode >= 200 && levelStatusCode < 300) {
+      level = 'success';
+    } else {
+      level = 'warning';
+      // TODO: info level
+    }
+    //
+    return this.createMessage({
+      key: resultModel.statusEnum,
+      level,
+      title: messageTitle,
+      message: messageText,
+    });
+  }
+
+  convertFromError(error) {
+    if (this.isServerUnavailableError(error)) {
+      return {
+        key: 'error-app-load',
+        level: 'error',
+        title: LocalizationService.i18n('content.error.503.description'),
+        message: LocalizationService.i18n('content.error.503.note'),
+        dismissible: true/* ,
+        action: {
+          label: 'Odeslat na podporu',
+          callback: () => {
+            alert('Comming soon.')
+          }
+        }*/
+      };
+    }
+    //
+    let errorMessage;
+    if (error.statusEnum) { // our error message
+      errorMessage = this.convertFromResultModel(error);
+    } else { // system error - only contain message
+      errorMessage = {
+        level: error.level || 'error',
+        title: error.title,
+        message: error.message
+      };
+    }
+    return errorMessage;
+  }
+
+  /**
+   * Converts message from BE message
+   *
+   * @param  {IdmMessage} notificationMessage
+   * @return {FlashMessage}
+   */
+  convertFromWebsocketMessage(notificationMessage) {
+    if (!notificationMessage.model) {
+      return notificationMessage;
+    }
+    //
+    const message = this.convertFromResultModel(notificationMessage.model);
+    if (notificationMessage.position) {
+      message.position = notificationMessage.position;
+    }
+    if (notificationMessage.level) {
+      message.level = notificationMessage.level;
+    }
+    return message;
+  }
+
   addErrorMessage(message, error) {
     return (dispatch, getState) => {
       if (DEBUG) {
         getState().logger.error(message, error);
       }
-      let errorMessage;
-      if (error.statusEnum) { // our error message
-        // automatic localization
-        const messageTitle = LocalizationService.i18n(error.module + ':error.' + error.statusEnum + '.title', this._prepareParams(error.parameters, `${error.statusEnum} (${error.statusCode}:${error.id})`));
-        let defaultMessage = error.message;
-        if (!_.isEmpty(error.parameters)) {
-          defaultMessage += ' (';
-          let first = true;
-          for (const parameterKey in error.parameters) {
-            if (!first) {
-              defaultMessage += ', ';
-            } else {
-              first = false;
-            }
-            defaultMessage += `${parameterKey}:${error.parameters[parameterKey]}`;
-          }
-          defaultMessage += ')';
-        }
-        const messageText = LocalizationService.i18n(error.module + ':error.' + error.statusEnum + '.message', this._prepareParams(error.parameters, defaultMessage));
-        //
-        errorMessage = _.merge({}, {
-          key: error.statusEnum,
-          level: (parseInt(error.statusCode, 10) < 500 ? 'warning' : 'error'), // 4xx - warning message, 5xx - error message
-          title: messageTitle,
-          message: messageText,
-        }, message);
-      } else { // system error - only contain message
-        errorMessage = _.merge({}, {
-          level: 'error',
-          message: error.message
-        }, message);
-      }
+      const errorMessage = _.merge({}, this.convertFromError(error), message);
       // error redirect handler
       if (this.isServerUnavailableError(error)) {
         // timeout to prevent showing message on ajax call interuption
         setTimeout(
           () => {
-            dispatch(this.addUnavailableMessage());
+            dispatch(this.addMessage(errorMessage));
             dispatch(this._clearConfiguations());
           }
           , this.getServerUnavailableTimeout());
@@ -106,24 +225,6 @@ export default class FlashMessagesManager {
       } else {
         dispatch(this.addMessage(errorMessage));
       }
-    };
-  }
-
-  addUnavailableMessage() {
-    return dispatch => {
-      dispatch(this.addMessage({
-        key: 'error-app-load',
-        level: 'error',
-        title: LocalizationService.i18n('content.error.503.description'),
-        message: LocalizationService.i18n('content.error.503.note'),
-        dismissible: false/* ,
-        action: {
-          label: 'Odeslat na podporu',
-          callback: () => {
-            alert('Comming soon.')
-          }
-        }*/
-      }));
     };
   }
 
@@ -150,7 +251,10 @@ export default class FlashMessagesManager {
     if (!error.statusEnum) {
       return false;
     }
-    if (error.statusEnum === 'XSRF' || error.statusEnum === 'LOG_IN' || error.statusEnum === 'AUTH_EXPIRED') {
+    if (error.statusEnum === 'XSRF'
+        || error.statusEnum === 'LOG_IN'
+        || error.statusEnum === 'AUTH_EXPIRED'
+        || error.statusEnum === 'AUTHORITIES_CHANGED') {
       return true;
     }
     return false;
@@ -173,7 +277,9 @@ export default class FlashMessagesManager {
    * Returns true, if BE is not available
    */
   isServerUnavailableError(error) {
-    if (error.message && (error.message.indexOf('NetworkError') > -1 || error.message.indexOf('Failed to fetch') > -1 || (error.statusCode && (error.statusCode === '400' || error.statusCode === '503')))) {
+    if (error
+        && error.message
+        && (error.message.indexOf('NetworkError') > -1 || error.message.indexOf('Failed to fetch') > -1 || (error.statusCode && (error.statusCode === '400' || error.statusCode === '503')))) {
       return true;
     }
     return false;
@@ -182,6 +288,20 @@ export default class FlashMessagesManager {
   _prepareParams(params, defaultMessage) {
     let results = {};
     if (params) {
+      // iterate over all params do necessary converts
+      // TODO converter for date
+      // for (const key in params) {
+      //   if (params.hasOwnProperty(key)) {
+      //     console.log(params[key], 111);
+      //     if (!isNaN(Number(params[key]))) {
+      //       // nothing, just number
+      //     } else if (params[key] instanceof Date && !isNaN(new Date(params[key])) && params) {
+      //       // convert to date
+      //       const date = moment(new Date(params[key]));
+      //       params[key] = date.format(LocalizationService.i18n('format.date'));
+      //     }
+      //   }
+      // }
       results = _.merge({}, params);
     }
     if (defaultMessage) {
@@ -213,6 +333,12 @@ export default class FlashMessagesManager {
   removeAllMessages() {
     return {
       type: REMOVE_ALL_MESSAGES
+    };
+  }
+
+  redirect() {
+    return dispatch => {
+      dispatch(routeActions.push(`/error/403`));
     };
   }
 

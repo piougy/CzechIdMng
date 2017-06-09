@@ -11,7 +11,12 @@ const uiKey = 'system-entities-table';
 const manager = new SystemEntityManager();
 const systemManager = new SystemManager();
 
-class SystemEntitiesContent extends Basic.AbstractTableContent {
+/**
+ * Entities in target system
+ *
+ * @author Radek TomiškaS
+ */
+class SystemEntitiesContent extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);
@@ -29,8 +34,8 @@ class SystemEntitiesContent extends Basic.AbstractTableContent {
     return 'acc:content.system.entities';
   }
 
-  componentDidMount() {
-    this.selectNavigationItems(['sys-systems', 'system-entities']);
+  getNavigationKey() {
+    return 'system-entities';
   }
 
   showDetail(entity) {
@@ -69,18 +74,18 @@ class SystemEntitiesContent extends Basic.AbstractTableContent {
         <Basic.Confirm ref="confirm-delete" level="danger"/>
 
         <Basic.ContentHeader style={{ marginBottom: 0 }}>
-          <span dangerouslySetInnerHTML={{ __html: this.i18n('header') }}/>
+          { this.i18n('header', { escape: false }) }
         </Basic.ContentHeader>
 
         <Basic.Panel className="no-border last">
           <Advanced.Table
             ref="table"
             uiKey={uiKey}
-              manager={this.getManager()}
-              forceSearchParameters={forceSearchParameters}
-            showRowSelection={Managers.SecurityManager.hasAnyAuthority(['SYSTEM_WRITE'])}
+            manager={this.getManager()}
+            forceSearchParameters={forceSearchParameters}
+            showRowSelection={Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE'])}
             actions={
-              Managers.SecurityManager.hasAnyAuthority(['SYSTEM_WRITE'])
+              Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE'])
               ?
               [{ value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }]
               :
@@ -93,7 +98,7 @@ class SystemEntitiesContent extends Basic.AbstractTableContent {
                   key="add_button"
                   className="btn-xs"
                   onClick={this.showDetail.bind(this, { entityType: SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.IDENTITY) })}
-                  rendered={Managers.SecurityManager.hasAnyAuthority(['ROLE_WRITE'])}>
+                  rendered={Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE'])}>
                   <Basic.Icon type="fa" icon="plus"/>
                   {' '}
                   {this.i18n('button.add')}
@@ -102,20 +107,18 @@ class SystemEntitiesContent extends Basic.AbstractTableContent {
             }
             filter={
               <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
-                <Basic.AbstractForm ref="filterForm" className="form-horizontal">
+                <Basic.AbstractForm ref="filterForm">
                   <Basic.Row className="last">
                     <div className="col-lg-4">
                       <Advanced.Filter.EnumSelectBox
                         ref="entityType"
-                        label={this.i18n('acc:entity.SystemEntity.entityType')}
                         placeholder={this.i18n('acc:entity.SystemEntity.entityType')}
                         enum={SystemEntityTypeEnum}/>
                     </div>
                     <div className="col-lg-4">
                       <Advanced.Filter.TextField
-                        ref="uid"
-                        label={this.i18n('filter.uid.label')}
-                        placeholder={this.i18n('filter.uid.placeholder')}/>
+                        ref="text"
+                        placeholder={this.i18n('filter.text.placeholder')}/>
                     </div>
                     <div className="col-lg-4 text-right">
                       <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
@@ -123,7 +126,8 @@ class SystemEntitiesContent extends Basic.AbstractTableContent {
                   </Basic.Row>
                 </Basic.AbstractForm>
               </Advanced.Filter>
-            }>
+            }
+            _searchParameters={ this.getSearchParameters() }>
             <Advanced.Column
               property=""
               header=""
@@ -161,7 +165,7 @@ class SystemEntitiesContent extends Basic.AbstractTableContent {
             <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('create.header')} rendered={detail.entity.id === undefined}/>
             <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('edit.header', { name: detail.entity.name })} rendered={detail.entity.id !== undefined}/>
             <Basic.Modal.Body>
-              <Basic.AbstractForm ref="form" showLoading={_showLoading} className="form-horizontal">
+              <Basic.AbstractForm ref="form" showLoading={_showLoading}>
                 <Basic.SelectBox
                   ref="system"
                   manager={systemManager}
@@ -223,6 +227,7 @@ function select(state, component) {
   return {
     system: Utils.Entity.getEntity(state, systemManager.getEntityType(), component.params.entityId),
     _showLoading: Utils.Ui.isShowLoading(state, `${uiKey}-detail`),
+    _searchParameters: Utils.Ui.getSearchParameters(state, uiKey)
   };
 }
 

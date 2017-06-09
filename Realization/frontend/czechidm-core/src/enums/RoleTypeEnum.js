@@ -4,6 +4,8 @@ import AbstractEnum from '../enums/AbstractEnum';
 
 /**
  * OperationType for adit operation etc.
+ *
+ * @author Radek Tomiška
  */
 export default class RoleTypeEnum extends AbstractEnum {
 

@@ -13,6 +13,7 @@ All parameters from AbstractComponent are supported. Added parameters:
 | title  | oneOfType([string, node])  | Alert strong title content | if empty, then isn't rendered |
 | text  | oneOfType([string, node])   | Alert text | |
 | onClose  | func   | Close function - if it's set, then close icon is shown and this method is called on icon click | | |
+| buttons | arrayOf(node) | Alert action buttons | [] |
 
 ## Usage
 

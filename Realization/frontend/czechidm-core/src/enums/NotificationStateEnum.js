@@ -1,5 +1,3 @@
-
-
 import AbstractEnum from '../enums/AbstractEnum';
 
 /**

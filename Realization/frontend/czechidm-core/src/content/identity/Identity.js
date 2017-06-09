@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import * as Basic from '../../components/basic';
 import { IdentityManager } from '../../redux';
 import * as Advanced from '../../components/advanced';
+import OrganizationPosition from './OrganizationPosition';
 
 const identityManager = new IdentityManager();
 
@@ -19,6 +20,12 @@ class IdentityContent extends Basic.AbstractContent {
 
   componentDidUpdate() {
     this._selectNavigationItem();
+    // TODO: move to componentWillReceiveNextProps
+    const { entityId } = this.props.params;
+    //
+    this.context.store.dispatch(identityManager.fetchEntityIfNeeded(entityId, null, (entity, error) => {
+      this.handleError(error);
+    }));
   }
 
   _selectNavigationItem() {
@@ -33,6 +40,7 @@ class IdentityContent extends Basic.AbstractContent {
 
   render() {
     const { identity } = this.props;
+    const { entityId } = this.props.params;
 
     return (
       <div>
@@ -42,13 +50,11 @@ class IdentityContent extends Basic.AbstractContent {
           {identityManager.getNiceLabel(identity)} <small> {this.i18n('content.identity.profile.userDetail')}</small>
         </Basic.PageHeader>
 
-        <Basic.Panel>
-          <div className="tab-vertical clearfix">
-            <Advanced.TabPanel parentId="identity-profile" params={this.props.params}>
-              {this.props.children}
-            </Advanced.TabPanel>
-          </div>
-        </Basic.Panel>
+        <OrganizationPosition identity={entityId}/>
+
+        <Advanced.TabPanel position="left" parentId="identity-profile" params={this.props.params} style={{ display: 'none'}}>
+          {this.props.children}
+        </Advanced.TabPanel>
       </div>
     );
   }
@@ -67,7 +73,7 @@ IdentityContent.defaultProps = {
 
 function select(state, component) {
   const { entityId } = component.params;
-  const selectedNavigationItems = state.layout.get('selectedNavigationItems');
+  const selectedNavigationItems = state.config.get('selectedNavigationItems');
   const selectedSidebarItem = (selectedNavigationItems.length > 1) ? selectedNavigationItems[1] : null;
   return {
     identity: identityManager.getEntity(state, entityId),

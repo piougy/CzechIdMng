@@ -5,9 +5,9 @@ import _ from 'lodash';
 //
 import * as Basic from '../../components/basic';
 import * as Utils from '../../utils';
-import { DataManager } from '../../redux';
+import { DataManager, RoleManager } from '../../redux';
 
-const AVAILABLE_AUTHORITIES_UIKEY = 'available-authorities';
+const roleManager = new RoleManager();
 
 /**
 * Panel of identities
@@ -15,9 +15,7 @@ const AVAILABLE_AUTHORITIES_UIKEY = 'available-authorities';
 export class AuthoritiesPanel extends Basic.AbstractContextComponent {
 
   componentDidMount() {
-    const { roleManager } = this.props;
-    //
-    this.context.store.dispatch(roleManager.fetchAvailableAuthorities(AVAILABLE_AUTHORITIES_UIKEY));
+    this.context.store.dispatch(roleManager.fetchAvailableAuthorities());
   }
 
   constructor(props, context) {
@@ -59,12 +57,6 @@ export class AuthoritiesPanel extends Basic.AbstractContextComponent {
     return filledAuthorities;
   }
 
-  onPermissionSelect(authorityGroup, permission, event) {
-    this.setState({
-      filledAuthorities: this.state.filledAuthorities.setIn([authorityGroup, permission], event.currentTarget.checked)
-    });
-  }
-
   onAuthorityGroupToogle(authorityGroup, event) {
     if (event) {
       event.preventDefault();
@@ -85,39 +77,6 @@ export class AuthoritiesPanel extends Basic.AbstractContextComponent {
     return filledAuthorities.get(authorityGroup).reduce((result, selected) => { return result || selected; }, false);
   }
 
-  onBulkAuthorityGroupSelect(authorityGroup) {
-    let { filledAuthorities } = this.state;
-    const isSomeSelected = this.isSomeAuthorityGroupSelected(authorityGroup);
-    filledAuthorities.get(authorityGroup).forEach((selected, permission) => {
-      filledAuthorities = filledAuthorities.setIn([authorityGroup, permission], !isSomeSelected);
-    });
-    this.setState({
-      filledAuthorities
-    });
-  }
-
-  /**
-   * Returns selected authorities as IdmRoleAuthority object ({ target, action})
-   *
-   * @return {array[object]}
-   */
-  getSelectedAuthorities() {
-    const { filledAuthorities } = this.state;
-    //
-    const selectedAuthorities = [];
-    filledAuthorities.forEach((permissions, authorityGroupName) => {
-      permissions.forEach((selected, permission) => {
-        if (selected) {
-          selectedAuthorities.push({
-            target: authorityGroupName,
-            action: permission
-          });
-        }
-      });
-    });
-    return selectedAuthorities;
-  }
-
   /**
    * Resolve authority group localization by authority module
    * TODO: redesign authoritiy panel to structure: MODULE -> GROUP -> BASE
@@ -131,11 +90,11 @@ export class AuthoritiesPanel extends Basic.AbstractContextComponent {
     const authorityGroup = availableAuthorities.find(a => {
       return a.name === authorityGroupName;
     });
-    return this.i18n(`${authorityGroup.module}:permission.group.${authorityGroup.name}`, { defaultValue: authorityGroupName});
+    return this.i18n(`${authorityGroup.module ? authorityGroup.module : 'core'}:permission.group.${authorityGroup.name}`, { defaultValue: authorityGroupName});
   }
 
   render() {
-    const { _showLoading, showLoading, disabled, rendered } = this.props;
+    const { _showLoading, showLoading, rendered } = this.props;
     const { openedAuthorities, filledAuthorities } = this.state;
     //
     if (!rendered) {
@@ -159,20 +118,14 @@ export class AuthoritiesPanel extends Basic.AbstractContextComponent {
                 <Basic.Panel style={{ marginBottom: 2 }}>
                   <Basic.PanelHeader style={{ padding: '0 10px 0 0' }}>
                     <div className="pull-left">
-                      <Basic.Button
-                        level="link"
-                        onClick={ this.onBulkAuthorityGroupSelect.bind(this, authorityGroupName) }
-                        style={{ color: '#333', textDecoration: 'none' }}
-                        title={ this.isSomeAuthorityGroupSelected(authorityGroupName) ? this.i18n('content.roles.setting.authority.select.none') : this.i18n('content.roles.setting.authority.select.all') }
-                        titlePlacement="left"
-                        titleDelayShow={1000}
-                        disabled={disabled}>
+                      <div style={{ padding: '8px 15px', cursor: 'pointer' }} onClick={this.onAuthorityGroupToogle.bind(this, authorityGroupName)}>
+                        {/* TODO: create basic checkbox component */}
                         <Basic.Icon value="fa:check-square-o" rendered={ this.isAllAuthorityGroupSelected(authorityGroupName) }/>
                         <Basic.Icon value="fa:minus-square-o" rendered={ this.isSomeAuthorityGroupSelected(authorityGroupName) && !this.isAllAuthorityGroupSelected(authorityGroupName) }/>
                         <Basic.Icon value="fa:square-o" rendered={ !this.isSomeAuthorityGroupSelected(authorityGroupName) }/>
                         {' '}
                         { this._authorityGroupI18n(authorityGroupName)}
-                      </Basic.Button>
+                      </div>
                     </div>
                     <div className="pull-right">
                       <Basic.Button
@@ -192,16 +145,12 @@ export class AuthoritiesPanel extends Basic.AbstractContextComponent {
                       {
                         permissions.map((selected, permission) => {
                           return (
-                            <div className="checkbox">
-                              <label>
-                                <input
-                                  type="checkbox"
-                                  onChange={this.onPermissionSelect.bind(this, authorityGroupName, permission)}
-                                  style={{ marginBottom: 0 }}
-                                  checked={selected}
-                                  disabled={disabled}/>
-                                { this.i18n('permission.base.' + permission)}
-                              </label>
+                            <div style={{ padding: '8px 0px'}}>
+                              {/* TODO: create basic checkbox component */}
+                              <Basic.Icon value="fa:check-square-o" rendered={ selected }/>
+                              <Basic.Icon value="fa:square-o" rendered={ !selected }/>
+                              {' '}
+                              { this.i18n('permission.base.' + permission)}
                             </div>
                           );
                         })
@@ -221,22 +170,19 @@ export class AuthoritiesPanel extends Basic.AbstractContextComponent {
 AuthoritiesPanel.propTypes = {
   ...Basic.AbstractContextComponent.propTypes,
   authorities: PropTypes.arrayOf(PropTypes.object),
-  availableAuthorities: PropTypes.arrayOf(PropTypes.object),
-  roleManager: PropTypes.object.isRequired,
-  disabled: PropTypes.bool
+  availableAuthorities: PropTypes.arrayOf(PropTypes.object)
 };
 
 AuthoritiesPanel.defaultProps = {
   ...Basic.AbstractContextComponent.defaultProps,
   authorities: [],
-  availableAuthorities: [],
-  disabled: false
+  availableAuthorities: []
 };
 
 function select(state) {
   return {
-    availableAuthorities: DataManager.getData(state, AVAILABLE_AUTHORITIES_UIKEY),
-    _showLoading: Utils.Ui.isShowLoading(state, AVAILABLE_AUTHORITIES_UIKEY)
+    availableAuthorities: DataManager.getData(state, RoleManager.UI_KEY_AVAILABLE_AUTHORITIES),
+    _showLoading: Utils.Ui.isShowLoading(state, RoleManager.UI_KEY_AVAILABLE_AUTHORITIES_UIKEY)
   };
 }
 

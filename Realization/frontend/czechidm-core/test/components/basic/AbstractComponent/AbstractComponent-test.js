@@ -14,6 +14,11 @@ const componentLibraries = [Basic, Advanced];
 
 const componentLibrariesBasic = [Basic];
 
+/**
+ * Component common properties test
+ *
+ * @author Radek Tomiška
+ */
 describe('Basic AbstractComponent', function abstractComponent() {
   it('- supportsRendered', function test() {
     expect(Basic.AbstractComponent.supportsRendered(Basic.AbstractComponent)).to.be.true();
@@ -60,9 +65,9 @@ describe('Basic AbstractComponent', function abstractComponent() {
             const ComponentType = componentLibrary[component];
             const shallowRenderer = TestUtils.createRenderer();
             // fill some commons properties to ensure more component types wil be rendered
-            shallowRenderer.render(<ComponentType title="Title" icon="user" show value="empty" text="Text" label="label" showLoading={false}/>);
+            shallowRenderer.render(<ComponentType title="Title" icon="user" value="empty" text="Text" label="label" showLoading={false}/>);
             const renderedComponent = shallowRenderer.getRenderOutput();
-            shallowRenderer.render(<ComponentType title="Title" icon="user" show value="empty" text="Text" label="label" showLoading/>);
+            shallowRenderer.render(<ComponentType title="Title" icon="user" value="empty" text="Text" label="label" showLoading/>);
             const renderedComponentWithShowLoading = shallowRenderer.getRenderOutput();
             /*
             if(component === 'Label') {
@@ -90,7 +95,7 @@ describe('Basic AbstractComponent', function abstractComponent() {
         // for now we must skip test for SelectBox and ScriptArea
         // SelectBox want use this.context.store and
         // ScriptArea has 'global leak detected' with react-ace
-        if (component.endsWith('SelectBox') || component.endsWith('ScriptArea')) {
+        if (component.endsWith('SelectBox') || component.endsWith('ScriptArea') || component.endsWith('RichTextArea')) {
           continue;
         }
         const ComponentType = componentLibrary[component];
@@ -116,20 +121,26 @@ describe('Basic AbstractComponent', function abstractComponent() {
         if (component.endsWith('AbstractFormComponent')) {
           continue;
         }
-        // for now we must skip test for SelectBox, ScriptArea and EnumLabel
-        // SelectBox want use this.context.store and
+        // for now we must skip test for SelectBox, ScriptArea, RichTextArea, EnumLabel
+        // SelectBox want manager
         // ScriptArea has 'global leak detected' with react-ace
         // EnumLabel hasn't use for required
         // RichTextArea try to create state with EditorState, this can't be tested now.
-        if (component.endsWith('SelectBox') || component.endsWith('ScriptArea') || component.endsWith('EnumLabel') ||
-              component.endsWith('DateTimePicker') || component.endsWith('Checkbox') || component.endsWith('RichTextArea')) {
+        // ValidationMessage dont work with required
+        if (component.endsWith('ScriptArea') || component.endsWith('EnumLabel')
+              || component.endsWith('RichTextArea') || component.endsWith('SelectBox')
+              || component.endsWith('ValidationMessage')) {
           continue;
         }
         const ComponentType = componentLibrary[component];
         if (ComponentType.propTypes && ComponentType.propTypes.required) {
           it('- ' + component, function testComponent() {
             const node = document.createElement('div');
-            const comp = ReactDOM.render(<ComponentType title="Title" icon="user" show value="empty" text="Text" label="label" required />, node);
+            const comp = ReactDOM.render(<ComponentType
+                                  title="Title" icon="user"
+                                  label="label" enum={RoleTypeEnum}
+                                  dateFormat="DD.MM.YYYY" mode="date"
+                                  required />, node);
 
             // state must be set to true
             expect(comp.props.required).to.be.equal(true);
@@ -142,12 +153,26 @@ describe('Basic AbstractComponent', function abstractComponent() {
             comp.setValue('');
             expect(comp.isValid()).to.be.equal(false);
 
-            // test with string
-            comp.setValue('test');
+            if (component.endsWith('DateTimePicker')) {
+              // test with string
+              comp.setValue('11.11. 2000');
+            } else if (component.endsWith('EnumSelecBox')) {
+              comp.setValue('SYSTEM');
+            } else if (component.endsWith('Checkbox')) {
+              comp.setValue(true);
+            } else {
+              // test with string
+              comp.setValue('test');
+            }
             expect(comp.isValid()).to.be.equal(true);
 
             // now test with required set to false
-            ReactDOM.render(<ComponentType title="Title" icon="user" show value="empty" text="Text" label="label" enum={RoleTypeEnum} required={false} />, node);
+            ReactDOM.render(<ComponentType
+                                  title="Title" icon="user"
+                                  label="label" enum={RoleTypeEnum}
+                                  dateFormat="DD.MM.YYYY" mode="date"
+                                  required={false} />, node);
+
             // required must be set to false
             expect(comp.props.required).to.be.equal(false);
 
@@ -162,8 +187,17 @@ describe('Basic AbstractComponent', function abstractComponent() {
             comp.setValue('');
             expect(comp.isValid()).to.be.equal(true);
 
-            // test with string
-            comp.setValue('test');
+            if (component.endsWith('DateTimePicker')) {
+              // test with string
+              comp.setValue('11.11. 2000');
+            } else if (component.endsWith('EnumSelecBox')) {
+              comp.setValue('SYSTEM');
+            } else if (component.endsWith('Checkbox')) {
+              comp.setValue(true);
+            } else {
+              // test with string
+              comp.setValue('test');
+            }
             expect(comp.isValid()).to.be.equal(true);
           });
         }

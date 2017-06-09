@@ -1,7 +1,9 @@
 package eu.bcvsolutions.idm.core.workflow.domain;
 
+import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
+import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
+
 import org.springframework.hateoas.Link;
-import static org.springframework.hateoas.mvc.ControllerLinkBuilder.*;
 import org.springframework.hateoas.mvc.ResourceAssemblerSupport;
 
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourceWrapper;

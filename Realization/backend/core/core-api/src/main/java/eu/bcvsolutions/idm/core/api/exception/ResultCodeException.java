@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.api.exception;
 
 import java.util.Map;
+import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 
@@ -12,7 +13,6 @@ import eu.bcvsolutions.idm.core.api.dto.ResultModels;
  * Every error has it's unique id under which you can find it in log.
  * 
  * @author Radek Tomiška 
- *
  */
 public class ResultCodeException extends CoreException {
 	
@@ -75,7 +75,7 @@ public class ResultCodeException extends CoreException {
 		return this.getError().getErrors().get(0).getStatus();
 	}
 		
-	public String getId() {
+	public UUID getId() {
 		return this.getError().getErrors().get(0).getId();
 	}
 	
@@ -84,7 +84,7 @@ public class ResultCodeException extends CoreException {
 		return super.getMessage();
 	}
 	
-	public String getErrorID() {
+	public UUID getErrorId() {
 		return getId();
 	}	
 	

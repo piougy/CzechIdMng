@@ -1,4 +1,5 @@
 import EntityManager from './EntityManager';
+import FormableEntityManager from './FormableEntityManager';
 import DataManager from './DataManager';
 import IdentityManager from './IdentityManager';
 import TreeNodeManager from './TreeNodeManager';
@@ -17,9 +18,28 @@ import EmailManager from './EmailManager';
 import BackendModuleManager from './BackendModuleManager';
 import RoleCatalogueManager from './RoleCatalogueManager';
 import AuditManager from './AuditManager';
+import ScriptManager from './ScriptManager';
+import NotificationConfigurationManager from './NotificationConfigurationManager';
+import WebsocketManager from './WebsocketManager';
+import PasswordPolicyManager from './PasswordPolicyManager';
+import EntityEventProcessorManager from './EntityEventProcessorManager';
+import LongRunningTaskManager from './LongRunningTaskManager';
+import SchedulerManager from './SchedulerManager';
+import NotificationTemplateManager from './NotificationTemplateManager';
+import RoleRequestManager from './RoleRequestManager';
+import ConceptRoleRequestManager from './ConceptRoleRequestManager';
+import RoleTreeNodeManager from './RoleTreeNodeManager';
+import FormDefinitionManager from './FormDefinitionManager';
+import FormAttributeManager from './FormAttributeManager';
+import AuthorizationPolicyManager from './AuthorizationPolicyManager';
+import ScriptAuthorityManager from './ScriptAuthorityManager';
+import ContractGuaranteeManager from './ContractGuaranteeManager';
+import NotificationRecipientManager from './NotificationRecipientManager';
+import SmsManager from './SmsManager';
 
 const ManagerRoot = {
   EntityManager,
+  FormableEntityManager,
   DataManager,
   IdentityManager,
   TreeNodeManager,
@@ -37,7 +57,25 @@ const ManagerRoot = {
   EmailManager,
   BackendModuleManager,
   RoleCatalogueManager,
-  AuditManager
+  AuditManager,
+  ScriptManager,
+  NotificationConfigurationManager,
+  WebsocketManager,
+  PasswordPolicyManager,
+  EntityEventProcessorManager,
+  LongRunningTaskManager,
+  SchedulerManager,
+  NotificationTemplateManager,
+  RoleRequestManager,
+  ConceptRoleRequestManager,
+  RoleTreeNodeManager,
+  FormDefinitionManager,
+  FormAttributeManager,
+  AuthorizationPolicyManager,
+  ScriptAuthorityManager,
+  ContractGuaranteeManager,
+  NotificationRecipientManager,
+  SmsManager
 };
 
 ManagerRoot.version = '0.0.1';

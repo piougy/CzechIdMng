@@ -6,7 +6,6 @@ import org.activiti.engine.form.AbstractFormType;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.workflow.model.dto.DecisionFormTypeDto;
 

@@ -1,8 +1,7 @@
 import React from 'react';
-import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
-import * as Basic from '../../components//basic';
-import AuditTable from '../audit/AuditTable';
+import * as Basic from '../../components/basic';
+import AuditTable from './AuditTable';
 
 class AuditContent extends Basic.AbstractContent {
 
@@ -15,23 +14,13 @@ class AuditContent extends Basic.AbstractContent {
   }
 
   componentDidMount() {
-    this.selectSidebarItem('audit-entities');
+    this.selectNavigationItems(['audit', 'audits', 'audit-entities']);
   }
 
   render() {
     return (
       <div>
-        <Helmet title={this.i18n('title')} />
-
-        <Basic.PageHeader>
-          <Basic.Icon value="eye-open"/>
-          {' '}
-          {this.i18n('header')}
-        </Basic.PageHeader>
-
-        <Basic.Panel>
-          <AuditTable />
-        </Basic.Panel>
+        <AuditTable />
       </div>
     );
   }

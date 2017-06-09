@@ -17,11 +17,13 @@ import {
   RECEIVE_ERROR,
   START_BULK_ACTION,
   PROCESS_BULK_ACTION,
-  STOP_BULK_ACTION
+  STOP_BULK_ACTION,
+  RECEIVE_PERMISSIONS
 } from './EntityManager';
 
 import {
   REQUEST_DATA,
+  STOP_REQUEST,
   RECEIVE_DATA,
   CLEAR_DATA
 } from './DataManager';
@@ -68,6 +70,11 @@ const INITIAL_STATE = {
   data: new Immutable.Map({})
 };
 
+/**
+ * Data storage - store all loaded entities from BE
+ *
+ * @author Radek Tomiška
+ */
 export function data(state = INITIAL_STATE, action) {
   const uiKey = action.uiKey;
   switch (action.type) {
@@ -98,7 +105,7 @@ export function data(state = INITIAL_STATE, action) {
           // check modified date ... only newer
           if (entities.has(entity.id)) {
             // check trimmed and modified date
-            if (moment(entity.modified).isAfter(entities.get(entity.id).modified)) {
+            if (!entities.get(entity.id).modified || moment(entity.modified).isAfter(entities.get(entity.id).modified)) {
               entities = entities.set(entity.id, entity);
             }
           } else {
@@ -140,14 +147,29 @@ export function data(state = INITIAL_STATE, action) {
         ui: merge({}, state.ui, ui)
       });
     }
+    case STOP_REQUEST: {
+      const ui = merge({}, state.ui, {
+        [uiKey]: merge({}, state.ui[uiKey], {
+          showLoading: false,
+          id: action.id,
+          error: action.error
+        })
+      });
+      return merge({}, state, {
+        ui: merge({}, state.ui, ui)
+      });
+    }
     case RECEIVE_ENTITY: {
       const entityType = action.entityType;
       let entities = state.entity[entityType] || new Immutable.Map({});
       let trimmed = state.trimmed[entityType] || new Immutable.Map({});
       const isTrimmed = action.entity._trimmed === true;
       if (isTrimmed) {
+        // trimmed
         trimmed = trimmed.set(action.id, action.entity);
       } else {
+        // set both - trimmed entity should have the same structure
+        trimmed = trimmed.set(action.id, action.entity);
         entities = entities.set(action.id, action.entity);
       }
       // TODO: trimmed items ...
@@ -175,6 +197,16 @@ export function data(state = INITIAL_STATE, action) {
         trimmed: merge({}, state.trimmed, {
           [entityType]: trimmed
         }),
+        ui: merge({}, state.ui, ui)
+      });
+    }
+    case RECEIVE_PERMISSIONS: {
+      const ui = merge({}, state.ui, {
+        [uiKey]: merge({}, state.ui[uiKey], {
+          permissions: action.permissions
+        })
+      });
+      return merge({}, state, {
         ui: merge({}, state.ui, ui)
       });
     }
@@ -247,17 +279,7 @@ export function data(state = INITIAL_STATE, action) {
     }
     case LOGOUT: {
       // clear whole state - except configurations
-      // TODO: save configuration to different storage
-      let newState;
-      if (state.data.has('public-configurations')) {
-        const config = state.data.get('public-configurations');
-        newState = merge({}, INITIAL_STATE, {
-          data: INITIAL_STATE.data.set('public-configurations', config)
-        });
-      } else {
-        newState = INITIAL_STATE;
-      }
-      return merge({}, newState);
+      return merge({}, INITIAL_STATE);
     }
     case RECEIVE_DATA: {
       const ui = merge({}, state.ui, {

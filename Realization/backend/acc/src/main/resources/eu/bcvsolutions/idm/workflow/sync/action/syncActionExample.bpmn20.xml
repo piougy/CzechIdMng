@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="eu.bcvsolutions.sync.action">
+  <process id="syncActionExampl" name="Synchronization - action on situation - example" isExecutable="true">
+    <documentation>Workflow demonstrates capabilities of customization, during synchronization.
+
+Input variables:
+- uid (String),
+- entityType (enum SystemEntityType),
++ icAttributes (List of IcAttribute),
+- syncConfigId (UUID for SysSyncConfig),
+- actionType (String)
+- situation(String),
++ accountId(UUID),
++ entityId(UUID)</documentation>
+    <startEvent id="startevent1" name="Start"></startEvent>
+    <endEvent id="endevent" name="End" activiti:async="false"></endEvent>
+    <serviceTask id="servicetaskRealization" name="Realization (missing entity)" activiti:expression="#{defaultSynchronizationService.resolveMissingEntitySituation(uid, entityType, icAttributes, syncConfigId, actionType).getLog()}" activiti:resultVariableName="logItem"></serviceTask>
+    <sequenceFlow id="flow36" sourceRef="servicetaskRealization" targetRef="endevent"></sequenceFlow>
+    <sequenceFlow id="flow37" sourceRef="startevent1" targetRef="servicetask1"></sequenceFlow>
+    <userTask id="usertask1" name="Approve realization by Admin" activiti:candidateUsers="admin">
+      <documentation>Approve resolve ${actionType} for UID ${uid}</documentation>
+      <extensionElements>
+        <activiti:formProperty id="disapprove" type="decision"></activiti:formProperty>
+        <activiti:formProperty id="approve" type="decision"></activiti:formProperty>
+        <activiti:formProperty id="description" name="Poznámka" type="textArea"></activiti:formProperty>
+        <activiti:formProperty id="attributes" name="Atributy ze systému" type="textArea" variable="icAttributes" writable="false"></activiti:formProperty>
+      </extensionElements>
+    </userTask>
+    <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow39" sourceRef="exclusivegateway1" targetRef="exclusivegateway3">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${decision.equals("approve")}]]></conditionExpression>
+    </sequenceFlow>
+    <endEvent id="endevent1" name="End"></endEvent>
+    <sequenceFlow id="flow40" sourceRef="exclusivegateway1" targetRef="endevent1">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${decision.equals("disapprove")}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow41" sourceRef="usertask1" targetRef="exclusivegateway1"></sequenceFlow>
+    <serviceTask id="servicetask1" name="Generate process name" activiti:expression="Approve resolve ${actionType} for UID ${uid}" activiti:resultVariableName="processInstanceName"></serviceTask>
+    <sequenceFlow id="flow42" sourceRef="servicetask1" targetRef="servicetask5"></sequenceFlow>
+    <exclusiveGateway id="exclusivegateway2" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow43" sourceRef="exclusivegateway2" targetRef="usertask1">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${uid.startsWith("test")}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow44" sourceRef="exclusivegateway2" targetRef="exclusivegateway3">
+      <documentation>If uid start on "test".</documentation>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${!uid.startsWith("test")}]]></conditionExpression>
+    </sequenceFlow>
+    <exclusiveGateway id="exclusivegateway3" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow45" sourceRef="exclusivegateway3" targetRef="servicetaskRealization">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${situation.equals("MISSING_ENTITY")}]]></conditionExpression>
+    </sequenceFlow>
+    <serviceTask id="servicetask2" name="Realization (linked)" activiti:expression="#{defaultSynchronizationService.resolveLinkedSituation(uid, entityType, icAttributes, accountId, syncConfigId, actionType).getLog()}" activiti:resultVariableName="logItem"></serviceTask>
+    <sequenceFlow id="flow46" sourceRef="exclusivegateway3" targetRef="servicetask2">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${situation.equals("LINKED")}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow47" sourceRef="servicetask2" targetRef="endevent"></sequenceFlow>
+    <dataObject id="approve" name="approve" itemSubjectRef="xsd:string">
+      <extensionElements>
+        <activiti:value>{"label": "Schválit","showWarning":false,"warningMessage":"Opravdu chcete úkol schválit?","level":"success","tooltip":"Schválit úkol a předat na administrátora"}</activiti:value>
+      </extensionElements>
+    </dataObject>
+    <dataObject id="disapprove" name="disapprove" itemSubjectRef="xsd:string">
+      <extensionElements>
+        <activiti:value>{"label": "Zamítnout","showWarning":true,"warningMessage":"Opravdu chcete žádost zamítnout?","level":"danger","tooltip":"Zamítnout úkolu"}</activiti:value>
+      </extensionElements>
+    </dataObject>
+    <dataObject id="backToApplicant" name="backToApplicant" itemSubjectRef="xsd:string">
+      <extensionElements>
+        <activiti:value>{"label": "Vrátit žadateli","showWarning":true,"warningMessage":"Opravdu chcete žádost vrátit žadateli k přepracování?","level":"warning","tooltip":"Vrátit žádost žadateli k přepracování"}</activiti:value>
+      </extensionElements>
+    </dataObject>
+    <dataObject id="createRequest" name="createRequest" itemSubjectRef="xsd:string">
+      <extensionElements>
+        <activiti:value>{"label": "Vytvořit žádost","showWarning":false,"warningMessage":"Opravdu chcete žádost podat ke schválení?","level":"success","tooltip":"Vytvořit žádsot a předat ke schválení"}</activiti:value>
+      </extensionElements>
+    </dataObject>
+    <dataObject id="cancelRequest" name="cancelRequest" itemSubjectRef="xsd:string">
+      <extensionElements>
+        <activiti:value>{"label": "Smazat žádost","showWarning":true,"warningMessage":"Opravdu chcete tuto žádost o změnu oprávnění smazat?","level":"danger","tooltip":"Smazat žádost o změnu oprávnění"}</activiti:value>
+      </extensionElements>
+    </dataObject>
+    <dataObject id="repairedRequest" name="repairedRequest" itemSubjectRef="xsd:string">
+      <extensionElements>
+        <activiti:value>{"label": "Žádost opravena","showWarning":false,"warningMessage":"Opravdu chcete opravenou žádost podat ke schválení?","level":"success","tooltip":"Opravenou žádost a předat ke schválení"}</activiti:value>
+      </extensionElements>
+    </dataObject>
+    <dataObject id="decision" name="decision" itemSubjectRef="xsd:string">
+      <extensionElements>
+        <activiti:value>"aa"</activiti:value>
+      </extensionElements>
+    </dataObject>
+    <serviceTask id="servicetask3" name="Realization (unlinked)" activiti:expression="#{defaultSynchronizationService.resolveUnlinkedSituation(uid, entityType, entityId, syncConfigId, actionType).getLog()}" activiti:resultVariableName="logItem"></serviceTask>
+    <sequenceFlow id="flow48" sourceRef="exclusivegateway3" targetRef="servicetask3">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${situation.equals("UNLINKED")}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow49" sourceRef="servicetask3" targetRef="endevent"></sequenceFlow>
+    <serviceTask id="servicetask4" name="Realization (missing account)" activiti:expression="#{defaultSynchronizationService.resolveMissingAccountSituation(uid, entityType, accountId, syncConfigId, actionType).getLog()}" activiti:resultVariableName="logItem"></serviceTask>
+    <sequenceFlow id="flow50" sourceRef="exclusivegateway3" targetRef="servicetask4">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${situation.equals("MISSING_ACCOUNT")}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow51" sourceRef="servicetask4" targetRef="endevent"></sequenceFlow>
+    <serviceTask id="servicetask5" name="Resolve applicant" activiti:expression="${situation.equals(&quot;MISSING_ENTITY&quot;) ? null : applicantUsername}" activiti:resultVariableName="applicantUsername"></serviceTask>
+    <sequenceFlow id="flow52" sourceRef="servicetask5" targetRef="exclusivegateway2"></sequenceFlow>
+    <textAnnotation id="textannotation1">
+      <text>If uid not started on "test", then will be realizated immediately.</text>
+    </textAnnotation>
+    <association id="association1" sourceRef="textannotation1" targetRef="usertask1"></association>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_syncActionExampl">
+    <bpmndi:BPMNPlane bpmnElement="syncActionExampl" id="BPMNPlane_syncActionExampl">
+      <bpmndi:BPMNShape bpmnElement="startevent1" id="BPMNShape_startevent1">
+        <omgdc:Bounds height="35.0" width="35.0" x="18.0" y="116.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent" id="BPMNShape_endevent">
+        <omgdc:Bounds height="35.0" width="35.0" x="1210.0" y="258.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="servicetaskRealization" id="BPMNShape_servicetaskRealization">
+        <omgdc:Bounds height="87.0" width="141.0" x="960.0" y="90.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="usertask1" id="BPMNShape_usertask1">
+        <omgdc:Bounds height="77.0" width="161.0" x="460.0" y="95.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway1" id="BPMNShape_exclusivegateway1">
+        <omgdc:Bounds height="40.0" width="40.0" x="693.0" y="113.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent1" id="BPMNShape_endevent1">
+        <omgdc:Bounds height="35.0" width="35.0" x="696.0" y="200.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="servicetask1" id="BPMNShape_servicetask1">
+        <omgdc:Bounds height="87.0" width="141.0" x="91.0" y="90.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway2" id="BPMNShape_exclusivegateway2">
+        <omgdc:Bounds height="40.0" width="40.0" x="400.0" y="113.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway3" id="BPMNShape_exclusivegateway3">
+        <omgdc:Bounds height="40.0" width="40.0" x="860.0" y="113.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="servicetask2" id="BPMNShape_servicetask2">
+        <omgdc:Bounds height="87.0" width="141.0" x="960.0" y="210.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="servicetask3" id="BPMNShape_servicetask3">
+        <omgdc:Bounds height="87.0" width="141.0" x="960.0" y="320.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="servicetask4" id="BPMNShape_servicetask4">
+        <omgdc:Bounds height="87.0" width="141.0" x="960.0" y="430.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="servicetask5" id="BPMNShape_servicetask5">
+        <omgdc:Bounds height="87.0" width="105.0" x="260.0" y="90.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="textannotation1" id="BPMNShape_textannotation1">
+        <omgdc:Bounds height="50.0" width="328.0" x="453.0" y="20.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="flow36" id="BPMNEdge_flow36">
+        <omgdi:waypoint x="1030.0" y="177.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1227.0" y="258.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow37" id="BPMNEdge_flow37">
+        <omgdi:waypoint x="53.0" y="133.0"></omgdi:waypoint>
+        <omgdi:waypoint x="91.0" y="133.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow39" id="BPMNEdge_flow39">
+        <omgdi:waypoint x="733.0" y="133.0"></omgdi:waypoint>
+        <omgdi:waypoint x="860.0" y="133.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow40" id="BPMNEdge_flow40">
+        <omgdi:waypoint x="713.0" y="153.0"></omgdi:waypoint>
+        <omgdi:waypoint x="713.0" y="200.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow41" id="BPMNEdge_flow41">
+        <omgdi:waypoint x="621.0" y="133.0"></omgdi:waypoint>
+        <omgdi:waypoint x="693.0" y="133.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow42" id="BPMNEdge_flow42">
+        <omgdi:waypoint x="232.0" y="133.0"></omgdi:waypoint>
+        <omgdi:waypoint x="260.0" y="133.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow43" id="BPMNEdge_flow43">
+        <omgdi:waypoint x="440.0" y="133.0"></omgdi:waypoint>
+        <omgdi:waypoint x="460.0" y="133.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow44" id="BPMNEdge_flow44">
+        <omgdi:waypoint x="420.0" y="113.0"></omgdi:waypoint>
+        <omgdi:waypoint x="420.0" y="58.0"></omgdi:waypoint>
+        <omgdi:waypoint x="822.0" y="58.0"></omgdi:waypoint>
+        <omgdi:waypoint x="880.0" y="113.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow45" id="BPMNEdge_flow45">
+        <omgdi:waypoint x="900.0" y="133.0"></omgdi:waypoint>
+        <omgdi:waypoint x="960.0" y="133.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow46" id="BPMNEdge_flow46">
+        <omgdi:waypoint x="880.0" y="153.0"></omgdi:waypoint>
+        <omgdi:waypoint x="880.0" y="253.0"></omgdi:waypoint>
+        <omgdi:waypoint x="960.0" y="253.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow47" id="BPMNEdge_flow47">
+        <omgdi:waypoint x="1101.0" y="253.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1210.0" y="275.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow48" id="BPMNEdge_flow48">
+        <omgdi:waypoint x="880.0" y="153.0"></omgdi:waypoint>
+        <omgdi:waypoint x="880.0" y="363.0"></omgdi:waypoint>
+        <omgdi:waypoint x="960.0" y="363.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow49" id="BPMNEdge_flow49">
+        <omgdi:waypoint x="1030.0" y="320.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1227.0" y="293.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow50" id="BPMNEdge_flow50">
+        <omgdi:waypoint x="880.0" y="153.0"></omgdi:waypoint>
+        <omgdi:waypoint x="880.0" y="473.0"></omgdi:waypoint>
+        <omgdi:waypoint x="960.0" y="473.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow51" id="BPMNEdge_flow51">
+        <omgdi:waypoint x="1030.0" y="430.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1227.0" y="293.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow52" id="BPMNEdge_flow52">
+        <omgdi:waypoint x="365.0" y="133.0"></omgdi:waypoint>
+        <omgdi:waypoint x="400.0" y="133.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="association1" id="BPMNEdge_association1">
+        <omgdi:waypoint x="617.0" y="70.0"></omgdi:waypoint>
+        <omgdi:waypoint x="540.0" y="95.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

@@ -1,7 +1,11 @@
 import { Enums } from 'czechidm-core';
+import IdentityAttributeEnum from './IdentityAttributeEnum';
+import TreeAttributeEnum from './TreeAttributeEnum';
+import RoleAttributeEnum from './RoleAttributeEnum';
+import RoleCatalogueAttributeEnum from './RoleCatalogueAttributeEnum';
 
 /**
- * OperationType for adit operation etc.
+ * System entity type
  */
 export default class SystemEntityTypeEnum extends Enums.AbstractEnum {
 
@@ -28,7 +32,13 @@ export default class SystemEntityTypeEnum extends Enums.AbstractEnum {
       case this.IDENTITY: {
         return 'success';
       }
-      case this.GROUP: {
+      case this.TREE: {
+        return 'primary';
+      }
+      case this.ROLE: {
+        return 'primary';
+      }
+      case this.ROLE_CATALOGUE: {
         return 'primary';
       }
       default: {
@@ -36,7 +46,34 @@ export default class SystemEntityTypeEnum extends Enums.AbstractEnum {
       }
     }
   }
+  static getEntityEnum(key) {
+    if (!key) {
+      return null;
+    }
+
+    const sym = super.findSymbolByKey(this, key);
+
+    switch (sym) {
+      case this.IDENTITY: {
+        return IdentityAttributeEnum;
+      }
+      case this.TREE: {
+        return TreeAttributeEnum;
+      }
+      case this.ROLE: {
+        return RoleAttributeEnum;
+      }
+      case this.ROLE_CATALOGUE: {
+        return RoleCatalogueAttributeEnum;
+      }
+      default: {
+        return null;
+      }
+    }
+  }
 }
 
 SystemEntityTypeEnum.IDENTITY = Symbol('IDENTITY');
-// SystemEntityTypeEnum.GROUP = Symbol('GROUP');
+SystemEntityTypeEnum.TREE = Symbol('TREE');
+SystemEntityTypeEnum.ROLE = Symbol('ROLE');
+SystemEntityTypeEnum.ROLE_CATALOGUE = Symbol('ROLE_CATALOGUE');

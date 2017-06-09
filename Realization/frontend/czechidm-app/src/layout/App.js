@@ -5,12 +5,9 @@ import classNames from 'classnames';
 
 //
 import Footer from './Footer';
-import { Basic, Advanced, Managers, LayoutActions } from 'czechidm-core';
+import { Basic, Advanced, Managers } from 'czechidm-core';
 //
-// this parts are genetater dynamicaly to dist - after build wil be packed by browserify to sources
-import config from '../../dist/config.json';
-import { moduleDescriptors } from '../../dist/modules/moduleAssembler';
-import { componentDescriptors } from '../../dist/modules/componentAssembler';
+
 import ConfigLoader from 'czechidm-core/src/utils/ConfigLoader';
 
 /**
@@ -32,8 +29,6 @@ export class App extends Basic.AbstractContent {
   * Look out: This method is aplication entry point
   */
   componentDidMount() {
-    this.hideAllMessages(); // move to init app
-    this.context.store.dispatch(LayoutActions.appInit(config, moduleDescriptors, componentDescriptors));
   }
 
   /**
@@ -67,6 +62,8 @@ export class App extends Basic.AbstractContent {
       if (currentRoute.module && !ConfigLoader.isEnabledModule(currentRoute.module)) {
         this.context.router.replace('/unavailable');
       }
+      this._handleRemoteAuth();
+      this._handleTokenRefresh();
     }
   }
 
@@ -91,6 +88,26 @@ export class App extends Basic.AbstractContent {
     }));
   }
 
+  _handleRemoteAuth() {
+    const { userContext } = this.props;
+    // handle expiration
+    if (userContext && userContext.isTryRemoteLogin) {
+      this.context.store.dispatch(this.securityManager.remoteLogin());
+    }
+  }
+
+  _handleTokenRefresh() {
+    const { userContext } = this.props;
+    // handle token expiration extension
+    if (userContext) {
+      this.context.store.dispatch(this.securityManager.checkRefreshedToken());
+    }
+  }
+
+  _getPublicPaths() {
+    return ['/login', '/password/reset', '/password/change'];
+  }
+
   render() {
     const { location, userContext, bulk, appReady, navigationCollapsed } = this.props;
     const titleTemplate = '%s | ' + this.i18n('app.name');
@@ -111,15 +128,13 @@ export class App extends Basic.AbstractContent {
             <Helmet title={this.i18n('navigation.menu.home')} titleTemplate={titleTemplate}/>
             <Advanced.Navigation/>
             <div id="content-container" className={classnames}>
-              {
-                userContext.isExpired
-                ||
-                this.props.children
-              }
-
+              {/* children is hidden only - prevent to lost form data, when token is expired */}
+              <div style={ userContext.isExpired ? { display: 'none'} : {} }>
+                { this.props.children }
+              </div>
               {
                 /* TODO: move to redux and hide it, when is needed */
-                !userContext.isExpired && location.pathname !== '/login' && location.pathname !== '/password/reset' && location.pathname !== '/password/change'
+                !userContext.isExpired && this._getPublicPaths().indexOf(location.pathname) < 0
                 ?
                 <Footer />
                 :
@@ -192,6 +207,7 @@ App.propTypes = {
    */
   bulk: PropTypes.object,
   appReady: PropTypes.bool,
+  i18nReady: PropTypes.string,
   navigationCollapsed: PropTypes.bool
 };
 
@@ -199,6 +215,7 @@ App.defaultProps = {
   userContext: null,
   bulk: { action: {} },
   appReady: false,
+  i18nReady: null,
   navigationCollapsed: false
 };
 
@@ -211,8 +228,9 @@ function select(state) {
   return {
     userContext: state.security.userContext,
     bulk: state.data.bulk,
-    appReady: state.layout.get('appReady'),
-    navigationCollapsed: state.layout.get('navigationCollapsed')
+    appReady: state.config.get('appReady'),
+    i18nReady: state.config.get('i18nReady'),
+    navigationCollapsed: state.config.get('navigationCollapsed')
   };
 }
 

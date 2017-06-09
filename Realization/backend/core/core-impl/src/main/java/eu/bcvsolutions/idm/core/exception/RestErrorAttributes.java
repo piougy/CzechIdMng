@@ -6,7 +6,6 @@ import org.springframework.boot.autoconfigure.web.DefaultErrorAttributes;
 import org.springframework.web.context.request.RequestAttributes;
 
 import com.google.common.collect.ImmutableMap;
-
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.exception.DefaultErrorModel;
 import eu.bcvsolutions.idm.core.api.exception.ErrorModel;
@@ -26,7 +25,7 @@ public class RestErrorAttributes extends DefaultErrorAttributes {
         Map<String, Object> errorAttributes = super.getErrorAttributes(requestAttributes, includeStackTrace);
         ErrorModel errorModel = null;
         if (errorAttributes.containsKey("status")) {
-        	int status = (int)errorAttributes.get("status");
+        	int status = (int) errorAttributes.get("status");
             switch(status) {
             	case 401: {
             		errorModel = new DefaultErrorModel(CoreResultCode.LOG_IN, ImmutableMap.of("path", errorAttributes.get("path")));
@@ -45,13 +44,16 @@ public class RestErrorAttributes extends DefaultErrorAttributes {
             		errorModel = new DefaultErrorModel(CoreResultCode.METHOD_NOT_ALLOWED, ImmutableMap.of("path", errorAttributes.get("path"), "message", errorAttributes.get("message")));
             		break;
             	}
+            	default: {
+            		errorModel = null;
+            	}
             }     
         }	            
         if (errorModel == null) {
         	log.error("Error not resolved - errorAttributes needs extension for error attrs [{}]", errorAttributes);
         	return errorAttributes;
         }
-        // we need timestamp
+        // we need timestamp etc.
         // errorAttributes.clear();
         errorAttributes.put("error", errorModel);
 		log.warn(errorModel.toString());

@@ -1,11 +1,16 @@
 import React, { PropTypes } from 'react';
+//
 import * as Basic from '../../components/basic';
+import * as Utils from '../../utils';
 import { RoleCatalogueManager, SecurityManager } from '../../redux';
-import _ from 'lodash';
+
 
 /**
 * Role catalogue detail.
 * Combined node detail and role detail.
+*
+* @author Odřej Kopr
+* @author Radek Tomiška
 */
 export default class RoleCatalogueDetail extends Basic.AbstractContent {
 
@@ -25,13 +30,8 @@ export default class RoleCatalogueDetail extends Basic.AbstractContent {
     const { entity } = this.props;
     this.selectNavigationItem('role-catalogues');
     if (entity !== undefined) {
-      const loadedEntity = _.merge({ }, entity);
-      // if exist _embedded - edit role catalogue, if not exist create new
-      if (entity._embedded) {
-        loadedEntity.parent = entity._embedded.parent.id;
-      }
-      this.refs.form.setData(loadedEntity);
-      this.refs.name.focus();
+      this.refs.form.setData(entity);
+      this.refs.code.focus();
     }
   }
 
@@ -48,19 +48,14 @@ export default class RoleCatalogueDetail extends Basic.AbstractContent {
     this.setState({
       showLoading: true
     }, this.refs.form.processStarted());
-
+    //
     const entity = this.refs.form.getData();
-
-    if (entity.parent) {
-      entity.parent = this.roleCatalogueManager.getSelfLink(entity.parent);
-    }
-
     if (entity.id === undefined) {
       this.context.store.dispatch(this.roleCatalogueManager.createEntity(entity, `${uiKey}-detail`, (createdEntity, error) => {
         this._afterSave(createdEntity, error);
       }));
     } else {
-      this.context.store.dispatch(this.roleCatalogueManager.patchEntity(entity, `${uiKey}-detail`, this._afterSave.bind(this)));
+      this.context.store.dispatch(this.roleCatalogueManager.updateEntity(entity, `${uiKey}-detail`, this._afterSave.bind(this)));
     }
   }
 
@@ -81,32 +76,62 @@ export default class RoleCatalogueDetail extends Basic.AbstractContent {
     this.context.router.replace(`role-catalogues`);
   }
 
-  closeDetail() {
-  }
-
   render() {
-    const { uiKey } = this.props;
+    const { uiKey, entity } = this.props;
     const { showLoading } = this.state;
 
     return (
       <div>
         <form onSubmit={this.save.bind(this)}>
-          <Basic.AbstractForm showLoading={showLoading} ref="form" uiKey={uiKey} className="form-horizontal" readOnly={!SecurityManager.hasAuthority('ROLE_WRITE')} >
-            <Basic.TextField
-              ref="name"
-              label={this.i18n('entity.RoleCatalogue.name')}
-              required
-              min={0}
-              max={255}/>
-            <Basic.SelectBox
-              ref="parent"
-              label={this.i18n('entity.RoleCatalogue.parent.name')}
-              manager={this.roleCatalogueManager}/>
-            <Basic.TextArea
-              ref="description"
-              label={this.i18n('entity.RoleCatalogue.description')}
-              max={255}/>
-          </Basic.AbstractForm>
+          <Basic.PanelBody>
+            <Basic.AbstractForm
+              showLoading={showLoading}
+              ref="form"
+              uiKey={uiKey} r
+              eadOnly={!SecurityManager.hasAuthority(Utils.Entity.isNew(entity) ? 'ROLECATALOGUE_CREATE' : 'ROLECATALOGUE_UPDATE')}
+              style={{ padding: 0 }} >
+              <Basic.Row>
+                <div className="col-lg-2">
+                  <Basic.TextField
+                    ref="code"
+                    label={this.i18n('entity.RoleCatalogue.code.name')}
+                    helpBlock={this.i18n('entity.RoleCatalogue.code.help')}
+                    required
+                    min={0}
+                    max={255}/>
+                </div>
+                <div className="col-lg-10">
+                  <Basic.TextField
+                    ref="name"
+                    label={this.i18n('entity.RoleCatalogue.name.name')}
+                    helpBlock={this.i18n('entity.RoleCatalogue.name.help')}
+                    required
+                    min={0}
+                    max={255}/>
+                </div>
+              </Basic.Row>
+              <Basic.Row>
+                <div className="col-lg-4">
+                  <Basic.TextField
+                    ref="urlTitle"
+                    label={this.i18n('entity.RoleCatalogue.urlTitle')}/>
+                </div>
+                <div className="col-lg-8">
+                  <Basic.TextField
+                    ref="url"
+                    label={this.i18n('entity.RoleCatalogue.url')}/>
+                </div>
+              </Basic.Row>
+              <Basic.SelectBox
+                ref="parent"
+                label={this.i18n('entity.RoleCatalogue.parent.name')}
+                manager={this.roleCatalogueManager}/>
+              <Basic.TextArea
+                ref="description"
+                label={this.i18n('entity.RoleCatalogue.description')}
+                max={255}/>
+            </Basic.AbstractForm>
+          </Basic.PanelBody>
 
           <Basic.PanelFooter showLoading={showLoading}>
             <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>{this.i18n('button.back')}</Basic.Button>
@@ -115,7 +140,7 @@ export default class RoleCatalogueDetail extends Basic.AbstractContent {
               level="success"
               showLoadingIcon
               showLoadingText={this.i18n('button.saving')}
-              rendered={SecurityManager.hasAuthority('ROLE_WRITE')}>
+              rendered={SecurityManager.hasAuthority(Utils.Entity.isNew(entity) ? 'ROLECATALOGUE_CREATE' : 'ROLECATALOGUE_UPDATE')}>
               {this.i18n('button.save')}
             </Basic.Button>
           </Basic.PanelFooter>

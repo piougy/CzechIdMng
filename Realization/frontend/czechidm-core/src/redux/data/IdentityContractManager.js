@@ -1,19 +1,20 @@
+import FormableEntityManager from './FormableEntityManager';
+import { IdentityContractService } from '../../services';
 
-
-import EntityManager from './EntityManager';
-import { IdentityContractService, IdentityService } from '../../services';
-
-const service = new IdentityContractService();
-const identityService = new IdentityService();
-
-export default class IdentityContractManager extends EntityManager {
+/**
+ * Identity contracts
+ *
+ * @author Radek Tomiška
+ */
+export default class IdentityContractManager extends FormableEntityManager {
 
   constructor() {
     super();
+    this.service = new IdentityContractService();
   }
 
   getService() {
-    return service;
+    return this.service;
   }
 
   getEntityType() {
@@ -24,18 +25,14 @@ export default class IdentityContractManager extends EntityManager {
     return 'identityContracts';
   }
 
-  // TODO: use force filters and search instread? Security on identityContracts endpoint?
-  fetchContracts(username, uiKey = null, cb = null) {
-    uiKey = this.resolveUiKey(uiKey);
-    return (dispatch) => {
-      dispatch(this.requestEntities(null, uiKey));
-      identityService.getContracts(username)
-      .then(json => {
-        dispatch(this.receiveEntities(null, json, uiKey, cb));
-      })
-      .catch(error => {
-        dispatch(this.receiveError({}, uiKey, error, cb));
-      });
-    };
+  /**
+   * Extended nice label
+   *
+   * @param  {entity} entity
+   * @param  {boolean} showIdentity identity will be rendered.
+   * @return {string}
+   */
+  getNiceLabel(entity, showIdentity = true) {
+    return this.getService().getNiceLabel(entity, showIdentity);
   }
 }

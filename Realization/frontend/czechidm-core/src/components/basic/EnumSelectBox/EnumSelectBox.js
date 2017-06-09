@@ -9,25 +9,26 @@ class EnumSelectBox extends SelectBox {
 
   constructor(props) {
     super(props);
-    this.useSymbol = true;
+    this.useSymbol = props.useSymbol;
   }
 
+
+  // Did mount only call initComponent method
   componentDidMount() {
     super.componentDidMount();
-    // nothing - just override parent behaviour
-  }
-
-  _initComponent() {
-    // initialize value
   }
 
   setValue(value) {
-    super.setValue(this.normalizeValue(value));
+    if (this.props.useObject) {
+      const option = this.getOptions().find(o => { return o.value === value; });
+      super.setValue(option ? option : this.normalizeValue(value));
+    } else {
+      super.setValue(this.normalizeValue(value));
+    }
   }
 
-  getOptions(input, callback) {
+  getOptions() {
     if (this.props.enum) {
-      let data = null;
       const enumeration = this.props.enum;
       const results = [];
       if (enumeration) {
@@ -37,31 +38,19 @@ class EnumSelectBox extends SelectBox {
             results.push(item);
           }
         }
-        data = {
-          options: results,
-          complete: true,
-        };
+        return results;
       }
-      callback(null, data);
     }
     if (this.props.options) {
       const options = this.props.options;
       const results = [];
-      let data = null;
-      if (options) {
-        for (const item in options) {
-          if (!options.hasOwnProperty(item)) {
-            continue;
-          }
-          results.push(this.itemRenderer(options[item]));
+      for (const item in options) {
+        if (!options.hasOwnProperty(item)) {
+          continue;
         }
-
-        data = {
-          options: results,
-          complete: true
-        };
+        results.push(this.itemRenderer(options[item]));
       }
-      callback(null, data);
+      return results;
     }
   }
 
@@ -85,7 +74,11 @@ class EnumSelectBox extends SelectBox {
         }
       }
       const itemFullKey = niceLabel;
-      _.merge(item, {[SelectBox.NICE_LABEL]: niceLabel, [SelectBox.ITEM_FULL_KEY]: itemFullKey, value: key });
+      _.merge(item, {
+        [SelectBox.NICE_LABEL]: niceLabel,
+        [SelectBox.ITEM_FULL_KEY]: itemFullKey,
+        value: key
+      });
     }
     return item;
   }
@@ -122,6 +115,9 @@ class EnumSelectBox extends SelectBox {
       for (const item in options) {
         if (options[item].value === rawValue) {
           return options[item].niceLabel;
+        }
+        if (options[item] === rawValue) {
+          return options[item];
         }
       }
     }
@@ -181,31 +177,36 @@ class EnumSelectBox extends SelectBox {
     if (value instanceof Array && this.props.multiSelect === true) {
       const copyValue = [];
       for (const item of value) {
-        copyValue.push(this._convertValue((this._deletePrivateField(_.merge({}, item))).value));
+        copyValue.push(this._convertValue(_.merge({}, item)));
       }
       return copyValue;
     }
     // value is not array
-    const copyValue = _.merge({}, value);
-    this._deletePrivateField(copyValue);
-    return this._convertValue(copyValue.value);
+    return this._convertValue(_.merge({}, value));
   }
 
   /**
-   * Converts value to / from symbol - is dependent on input - when input is string - results is string. Enum property has to be setted.
+   * Converts value to / from symbol or object. Is dependent on input and props:
+   * - when input is string - results is string. Enum property has to be setted.
+   * - when useObject is true, then returns whole object
    *
    * @param  {[type]} value selected value
    * @return {string|symbol}
    */
-  _convertValue(value) {
-    if (!value) {
+  _convertValue(item) {
+    if (!item) {
       // nothing to convert
-      return value;
+      return item;
+    }
+    if (this.props.useObject) {
+      // or useObject - keeping value intouched
+      return item;
     }
     if (!this.props.enum) {
       // Enum property has to be setted - when option props is given, then nothing can be done.
-      return value;
+      return item.value;
     }
+    const value = item.value;
     //
     let convertedValue = value;
     if (this.useSymbol) {
@@ -221,29 +222,45 @@ class EnumSelectBox extends SelectBox {
     return convertedValue;
   }
 
+  onInputChange(value) {
+    this.getOptions(value);
+  }
+
+  getPlaceholder(placeholder) {
+    if (placeholder !== null && placeholder !== undefined) {
+      return placeholder;
+    }
+    // default placeholder
+    return this.i18n('label.select', { defaultValue: 'Select ...' });
+  }
+
   getSelectComponent() {
-    const { placeholder, multiSelect, fieldLabel, searchable } = this.props;
+    const { placeholder, multiSelect, fieldLabel, searchable, clearable } = this.props;
     const { value, readOnly, disabled } = this.state;
     //
     return (
-      <Select.Async
-        ref="selectComponent"
-        title={"title"}
-        value={value}
-        onChange={this.onChange}
-        disabled={readOnly || disabled}
-        ignoreCase
-        ignoreAccents={false}
-        multi={multiSelect}
-        onValueClick={this.gotoContributor}
-        valueKey={SelectBox.ITEM_VALUE}
-        labelKey={fieldLabel}
-        noResultsText={this.i18n('component.basic.SelectBox.noResultsText')}
-        placeholder={this.getPlaceholder(placeholder)}
-        searchingText={this.i18n('component.basic.SelectBox.searchingText')}
-        searchPromptText={this.i18n('component.basic.SelectBox.searchPromptText')}
-        loadOptions={this.getOptions}
-        searchable={searchable}/>
+      <span>
+        <Select
+          ref="selectComponent"
+          title={"title"}
+          value={value}
+          onChange={this.onChange}
+          disabled={readOnly || disabled}
+          ignoreCase
+          clearable={clearable}
+          ignoreAccents={false}
+          multi={multiSelect}
+          onValueClick={this.gotoContributor}
+          valueKey={SelectBox.ITEM_VALUE}
+          labelKey={fieldLabel}
+          noResultsText={this.i18n('component.basic.SelectBox.noResultsText')}
+          placeholder={this.getPlaceholder(placeholder)}
+          searchingText={this.i18n('component.basic.SelectBox.searchingText')}
+          searchPromptText={this.i18n('component.basic.SelectBox.searchPromptText')}
+          onInputChange={this.onInputChange.bind(this)}
+          options={this.getOptions()}
+          searchable={searchable}/>
+      </span>
     );
   }
 }
@@ -259,12 +276,18 @@ EnumSelectBox.propTypes = {
     PropTypes.arrayOf(PropTypes.symbol),
     PropTypes.symbol
   ]),
-  searchable: PropTypes.bool
+  searchable: PropTypes.bool,
+  useSymbol: PropTypes.bool,
+  useObject: PropTypes.bool,
+  clearable: PropTypes.bool
 };
 
 EnumSelectBox.defaultProps = {
   ...SelectBox.defaultProps,
-  searchable: false
+  searchable: false,
+  useSymbol: true,
+  useObject: false,
+  clearable: true
 };
 
 export default EnumSelectBox;

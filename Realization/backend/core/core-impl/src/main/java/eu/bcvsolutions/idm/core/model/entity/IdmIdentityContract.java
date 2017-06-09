@@ -1,6 +1,6 @@
 package eu.bcvsolutions.idm.core.model.entity;
 
-import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 import javax.persistence.Column;
@@ -10,18 +10,22 @@ import javax.persistence.ForeignKey;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.RelationTargetAuditMode;
+import org.joda.time.LocalDate;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
+import eu.bcvsolutions.idm.core.api.domain.Disableable;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.ValidableEntity;
+import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 
 /**
  * Identity contract - working position
@@ -30,10 +34,9 @@ import eu.bcvsolutions.idm.core.api.entity.ValidableEntity;
  */
 @Entity
 @Table(name = "idm_identity_contract", indexes = {
-		@Index(name = "idx_idm_identity_contract_gnt", columnList = "guarantee_id"),
 		@Index(name = "idx_idm_identity_contract_idnt", columnList = "identity_id"),
-		@Index(name = "idx_idm_identity_contract_wp", columnList = "working_position_id")})
-public class IdmIdentityContract extends AbstractEntity implements ValidableEntity {
+		@Index(name = "idx_idm_identity_contract_wp", columnList = "work_position_id")})
+public class IdmIdentityContract extends AbstractEntity implements ValidableEntity, FormableEntity, Disableable {
 
 	private static final long serialVersionUID = 328041550861866181L;
 
@@ -46,27 +49,18 @@ public class IdmIdentityContract extends AbstractEntity implements ValidableEnti
 	
 	@Audited
 	@Column(name = "valid_from")
-	@Temporal(TemporalType.DATE)
-	private Date validFrom;
+	private LocalDate validFrom;
 	
 	@Audited
 	@Column(name = "valid_till")
-	@Temporal(TemporalType.DATE)
-	private Date validTill;
+	private LocalDate validTill;
 	
 	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
 	@ManyToOne(optional = true)
-	@JoinColumn(name = "guarantee_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@JoinColumn(name = "work_position_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )
-	private IdmIdentity guarantee;
-	
-	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
-	@ManyToOne(optional = true)
-	@JoinColumn(name = "working_position_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey( name = "none" )
-	private IdmTreeNode workingPosition;
+	private IdmTreeNode workPosition;
 	
 	@Audited
 	@Size(max = DefaultFieldLengths.NAME)
@@ -78,6 +72,33 @@ public class IdmIdentityContract extends AbstractEntity implements ValidableEnti
 	@Column(name = "externe", nullable = false)
 	private boolean externe;
 	
+	@Audited
+	@NotNull
+	@Column(name = "main", nullable = false)
+	private boolean main = true;
+	
+	@Audited
+	@Size(max = DefaultFieldLengths.DESCRIPTION)
+	@Column(name = "description", length = DefaultFieldLengths.DESCRIPTION)
+	private String description;
+	
+	@Audited
+	@NotNull
+	@Column(name = "disabled", nullable = false)
+	private boolean disabled;
+	
+	@JsonIgnore
+	@OneToMany(mappedBy = "identityContract")
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
+	@org.hibernate.annotations.ForeignKey( name = "none" )
+	private List<IdmIdentityRole> roles; // only for hibernate mappnig - we dont want lazy lists (many roles)
+	
+	@JsonIgnore
+	@OneToMany(mappedBy = "identityContract")
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
+	@org.hibernate.annotations.ForeignKey( name = "none" )
+	private List<IdmContractGuarantee> guarantees; // only for hibernate mappnig - we dont want lazy lists (many roles)
+	
 	public IdmIdentityContract() {
 	}
 	
@@ -85,19 +106,19 @@ public class IdmIdentityContract extends AbstractEntity implements ValidableEnti
 		super(id);
 	}
 
-	public Date getValidFrom() {
+	public LocalDate getValidFrom() {
 		return validFrom;
 	}
 
-	public void setValidFrom(Date validFrom) {
+	public void setValidFrom(LocalDate validFrom) {
 		this.validFrom = validFrom;
 	}
 
-	public Date getValidTill() {
+	public LocalDate getValidTill() {
 		return validTill;
 	}
 
-	public void setValidTill(Date validTo) {
+	public void setValidTill(LocalDate validTo) {
 		this.validTill = validTo;
 	}
 
@@ -109,25 +130,12 @@ public class IdmIdentityContract extends AbstractEntity implements ValidableEnti
 		this.identity = identity;
 	}
 
-	public IdmTreeNode getWorkingPosition() {
-		return workingPosition;
+	public IdmTreeNode getWorkPosition() {
+		return workPosition;
 	}
 
-	public void setWorkingPosition(IdmTreeNode workingPosition) {
-		this.workingPosition = workingPosition;
-	}
-
-	/**
-	 * Manually defined  manager (if no tree structure is defined etc.)
-	 * 
-	 * @return
-	 */
-	public IdmIdentity getGuarantee() {
-		return guarantee;
-	}
-
-	public void setGuarantee(IdmIdentity guarantee) {
-		this.guarantee = guarantee;
+	public void setWorkPosition(IdmTreeNode workPosition) {
+		this.workPosition = workPosition;
 	}
 	
 	/**
@@ -154,5 +162,41 @@ public class IdmIdentityContract extends AbstractEntity implements ValidableEnti
 	
 	public void setExterne(boolean externe) {
 		this.externe = externe;
+	}
+	
+	/**
+	 * main ~= default identity contract
+	 * 
+	 * @return
+	 */
+	public boolean isMain() {
+		return main;
+	}
+	
+	public void setMain(boolean main) {
+		this.main = main;
+	}
+	
+	/**
+	 * Custom description
+	 * 
+	 * @return
+	 */
+	public String getDescription() {
+		return description;
+	}
+	
+	public void setDescription(String description) {
+		this.description = description;
+	}
+	
+	@Override
+	public boolean isDisabled() {
+		return disabled;
+	}
+
+	@Override
+	public void setDisabled(boolean disabled) {
+		this.disabled = disabled;
 	}
 }

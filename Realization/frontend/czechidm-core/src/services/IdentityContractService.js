@@ -1,32 +1,77 @@
-import moment from 'moment';
-//
-import AbstractService from './AbstractService';
+import FormableEntityService from './FormableEntityService';
 import TreeNodeService from './TreeNodeService';
+import IdentityService from './IdentityService';
+import SearchParameters from '../domain/SearchParameters';
+import * as Utils from '../utils';
 
-class IdentityContractService extends AbstractService {
+/**
+ * Identity contracts - relation to tree structure
+ *
+ * @author Radek Tomiška
+ */
+class IdentityContractService extends FormableEntityService {
 
   constructor() {
     super();
     this.treeNodeService = new TreeNodeService();
+    this.identityService = new IdentityService();
   }
 
   getApiPath() {
     return '/identity-contracts';
   }
 
-  getNiceLabel(entity) {
+  supportsPatch() {
+    return false;
+  }
+
+  supportsAuthorization() {
+    return true;
+  }
+
+  getGroupPermission() {
+    return 'IDENTITYCONTRACT';
+  }
+
+  /**
+   * Extended nice label
+   *
+   * @param  {entity} entity
+   * @param  {boolean} showIdentity identity will be rendered.
+   * @return {string}
+   */
+  getNiceLabel(entity, showIdentity = true) {
     if (!entity) {
       return '';
     }
-    return entity._embedded && entity._embedded.workingPosition ? this.treeNodeService.getNiceLabel(entity._embedded.workingPosition) : entity.position;
+    if (!entity._embedded) {
+      return entity.position;
+    }
+    let niceLabel = null;
+    if (showIdentity && entity._embedded.identity) {
+      niceLabel = this.identityService.getNiceLabel(entity._embedded.identity);
+    }
+    let positionName = entity.position;
+    if (entity._embedded.workPosition) {
+      positionName = this.treeNodeService.getNiceLabel(entity._embedded.workPosition);
+    }
+    if (positionName === null) {
+      positionName = 'default'; // TODO: locale or make at least one of position / tree node required!
+    }
+    return niceLabel ? `${niceLabel} - ${positionName}` : positionName;
+  }
+
+  /**
+   * Returns default searchParameters for current entity type
+   *
+   * @return {object} searchParameters
+   */
+  getDefaultSearchParameters() {
+    return super.getDefaultSearchParameters().setName(SearchParameters.NAME_QUICK).clearSort().setSort('validFrom', 'asc');
   }
 
   isValid(identityContract) {
-    // TODO: use entityUtils
-    if (!identityContract || moment().isBefore(identityContract.validFrom) || moment().isAfter(identityContract.validTill)) {
-      return false;
-    }
-    return true;
+    return Utils.Entity.isValid(identityContract);
   }
 }
 

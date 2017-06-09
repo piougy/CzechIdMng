@@ -3,10 +3,8 @@ package eu.bcvsolutions.idm.acc.service.impl;
 import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,118 +16,149 @@ import org.springframework.util.Assert;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
-import eu.bcvsolutions.idm.acc.dto.RoleSystemFilter;
-import eu.bcvsolutions.idm.acc.dto.SchemaAttributeFilter;
-import eu.bcvsolutions.idm.acc.dto.SchemaObjectClassFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SchemaAttributeFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SchemaObjectClassFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SynchronizationConfigFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSystemFilter;
 import eu.bcvsolutions.idm.acc.entity.SysConnectorKey;
+import eu.bcvsolutions.idm.acc.entity.SysConnectorServer;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemFormValue;
+import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.acc.repository.AccAccountRepository;
+import eu.bcvsolutions.idm.acc.repository.SysProvisioningArchiveRepository;
 import eu.bcvsolutions.idm.acc.repository.SysSystemEntityRepository;
 import eu.bcvsolutions.idm.acc.repository.SysSystemRepository;
-import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
+import eu.bcvsolutions.idm.acc.service.api.FormPropertyManager;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
-import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityHandlingService;
+import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
-import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.eav.domain.PersistentType;
-import eu.bcvsolutions.idm.eav.entity.AbstractFormValue;
-import eu.bcvsolutions.idm.eav.entity.IdmFormAttribute;
-import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;
-import eu.bcvsolutions.idm.eav.service.api.FormService;
-import eu.bcvsolutions.idm.eav.service.impl.AbstractFormableService;
-import eu.bcvsolutions.idm.icf.api.IcfAttributeInfo;
-import eu.bcvsolutions.idm.icf.api.IcfConfigurationProperties;
-import eu.bcvsolutions.idm.icf.api.IcfConfigurationProperty;
-import eu.bcvsolutions.idm.icf.api.IcfConnectorConfiguration;
-import eu.bcvsolutions.idm.icf.api.IcfConnectorKey;
-import eu.bcvsolutions.idm.icf.api.IcfObjectClassInfo;
-import eu.bcvsolutions.idm.icf.api.IcfSchema;
-import eu.bcvsolutions.idm.icf.impl.IcfConfigurationPropertiesImpl;
-import eu.bcvsolutions.idm.icf.impl.IcfConfigurationPropertyImpl;
-import eu.bcvsolutions.idm.icf.impl.IcfConnectorConfigurationImpl;
-import eu.bcvsolutions.idm.icf.impl.IcfConnectorKeyImpl;
-import eu.bcvsolutions.idm.icf.service.api.IcfConfigurationFacade;
-import eu.bcvsolutions.idm.security.api.domain.GuardedString;
+import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
+import eu.bcvsolutions.idm.core.eav.entity.AbstractFormValue;
+import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute;
+import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
+import eu.bcvsolutions.idm.core.eav.service.api.FormService;
+import eu.bcvsolutions.idm.core.eav.service.impl.AbstractFormableService;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
+import eu.bcvsolutions.idm.ic.api.IcAttributeInfo;
+import eu.bcvsolutions.idm.ic.api.IcConfigurationProperties;
+import eu.bcvsolutions.idm.ic.api.IcConfigurationProperty;
+import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
+import eu.bcvsolutions.idm.ic.api.IcConnectorInstance;
+import eu.bcvsolutions.idm.ic.api.IcConnectorKey;
+import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
+import eu.bcvsolutions.idm.ic.api.IcObjectClass;
+import eu.bcvsolutions.idm.ic.api.IcObjectClassInfo;
+import eu.bcvsolutions.idm.ic.api.IcSchema;
+import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
+import eu.bcvsolutions.idm.ic.impl.IcConfigurationPropertiesImpl;
+import eu.bcvsolutions.idm.ic.impl.IcConnectorConfigurationImpl;
+import eu.bcvsolutions.idm.ic.impl.IcConnectorKeyImpl;
+import eu.bcvsolutions.idm.ic.impl.IcObjectClassImpl;
+import eu.bcvsolutions.idm.ic.service.api.IcConfigurationFacade;
+import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 
 /**
- * Deafult target system configuration service
+ * Default target system configuration service
  * 
  * @author Radek Tomiška
  *
  */
 @Service
-public class DefaultSysSystemService extends AbstractFormableService<SysSystem, QuickFilter>
+public class DefaultSysSystemService extends AbstractFormableService<SysSystem, SysSystemFilter>
 		implements SysSystemService {
-
+	
 	private final SysSystemRepository systemRepository;
-	private final IcfConfigurationFacade icfConfigurationFacade;
+	private final IcConfigurationFacade icConfigurationFacade;
 	private final SysSchemaObjectClassService objectClassService;
 	private final SysSchemaAttributeService attributeService;
-	private final SysRoleSystemService roleSystemService;
 	private final SysSystemEntityRepository systemEntityRepository;
 	private final AccAccountRepository accountRepository;
-	private final SysSystemEntityHandlingService systemEntityHandlingService;
-	/**
-	 * Connector property type vs. eav type mapping
-	 */
-	private static final Map<String, ConnectorPropertyMapping> supportedConnectorPropertyMapping;
-
-	static {
-		// TODO: converter registration?
-		supportedConnectorPropertyMapping = new HashMap<>();
-		supportedConnectorPropertyMapping.put("java.lang.Boolean",
-				new ConnectorPropertyMapping(PersistentType.BOOLEAN, false));
-		supportedConnectorPropertyMapping.put("boolean", new ConnectorPropertyMapping(PersistentType.BOOLEAN, false));
-		supportedConnectorPropertyMapping.put("org.identityconnectors.common.security.GuardedString",
-				new ConnectorPropertyMapping(PersistentType.TEXT, false));
-		supportedConnectorPropertyMapping.put(GuardedString.class.getName(),
-				new ConnectorPropertyMapping(PersistentType.TEXT, false));
-		supportedConnectorPropertyMapping.put("char", new ConnectorPropertyMapping(PersistentType.CHAR, false));
-		supportedConnectorPropertyMapping.put("java.lang.String",
-				new ConnectorPropertyMapping(PersistentType.TEXT, false));
-		supportedConnectorPropertyMapping.put("[Ljava.lang.String;",
-				new ConnectorPropertyMapping(PersistentType.TEXT, true));
-		supportedConnectorPropertyMapping.put("int", new ConnectorPropertyMapping(PersistentType.INT, false));
-		supportedConnectorPropertyMapping.put("long", new ConnectorPropertyMapping(PersistentType.LONG, false));
-		// TODO: correct data type ...
-		supportedConnectorPropertyMapping.put("org.identityconnectors.common.security.GuardedByteArray",
-				new ConnectorPropertyMapping(PersistentType.TEXT, false)); // TODO byte[] persistent type
-	}
+	private final SysSyncConfigService synchronizationConfigService;
+	private final FormPropertyManager formPropertyManager;
+	private final SysProvisioningArchiveRepository provisioningArchiveRepository;
+	private final ConfidentialStorage confidentialStorage;
+	private final IcConnectorFacade connectorFacade;
 
 	@Autowired
 	public DefaultSysSystemService(
 			SysSystemRepository systemRepository,
 			FormService formService,
-			IcfConfigurationFacade icfConfigurationFacade, 
+			IcConfigurationFacade icConfigurationFacade, 
 			SysSchemaObjectClassService objectClassService,
 			SysSchemaAttributeService attributeService,
-			SysRoleSystemService roleSystemService,
 			SysSystemEntityRepository systemEntityRepository,
 			AccAccountRepository accountRepository,
-			SysSystemEntityHandlingService systemEntityHandlingService) {
+			SysSyncConfigService synchronizationConfigService,
+			FormPropertyManager formPropertyManager,
+			SysProvisioningArchiveRepository provisioningArchiveRepository,
+			ConfidentialStorage confidentialStorage,
+			IcConnectorFacade connectorFacade) {
 		super(systemRepository, formService);
 		//
-		Assert.notNull(icfConfigurationFacade);
+		Assert.notNull(icConfigurationFacade);
 		Assert.notNull(objectClassService);
 		Assert.notNull(attributeService);
-		Assert.notNull(roleSystemService);
 		Assert.notNull(systemEntityRepository);
 		Assert.notNull(accountRepository);
-		Assert.notNull(systemEntityHandlingService);
+		Assert.notNull(synchronizationConfigService);
+		Assert.notNull(formPropertyManager);
+		Assert.notNull(provisioningArchiveRepository);
+		Assert.notNull(confidentialStorage);
+		Assert.notNull(connectorFacade);
 		//
 		this.systemRepository = systemRepository;
-		this.icfConfigurationFacade = icfConfigurationFacade;
+		this.icConfigurationFacade = icConfigurationFacade;
 		this.objectClassService = objectClassService;
 		this.attributeService = attributeService;
-		this.roleSystemService = roleSystemService;
 		this.systemEntityRepository = systemEntityRepository;
 		this.accountRepository = accountRepository;
-		this.systemEntityHandlingService = systemEntityHandlingService;
+		this.synchronizationConfigService = synchronizationConfigService;
+		this.formPropertyManager = formPropertyManager;
+		this.provisioningArchiveRepository = provisioningArchiveRepository;
+		this.confidentialStorage = confidentialStorage;
+		this.connectorFacade = connectorFacade;
+	}
+	
+	@Override
+	public SysSystem save(SysSystem entity) {
+		// create default connector server
+		if (entity.getConnectorServer() == null) {
+			entity.setConnectorServer(new SysConnectorServer());
+		}
+		if (entity.getConnectorKey() == null) {
+			entity.setConnectorKey(new SysConnectorKey());
+		}
+		//
+		SysSystem newSystem = super.save(entity);
+		//
+		// after save entity save password to confidential storage
+		// save password from remote connector server to confidential storage
+		if (entity.getConnectorServer().getPassword() != null) {
+			// save for newSystem
+			confidentialStorage.save(newSystem.getId(), SysSystem.class, REMOTE_SERVER_PASSWORD, entity.getConnectorServer().getPassword().asString());
+			//
+			// set asterix
+			newSystem.getConnectorServer().setPassword(new GuardedString(GuardedString.SECRED_PROXY_STRING));
+		}
+		return newSystem;
+	}
+	
+	@Override
+	public SysSystem get(Serializable id) {
+		SysSystem entity = super.get(id);
+		//
+		// found if entity has filled password
+		Object password = confidentialStorage.get(entity.getId(), SysSystem.class, SysSystemService.REMOTE_SERVER_PASSWORD);
+		if (password != null && entity.getConnectorServer() != null) {
+			entity.getConnectorServer().setPassword(new GuardedString(GuardedString.SECRED_PROXY_STRING));
+		}
+		//
+		return entity;
 	}
 
 	@Override
@@ -138,111 +167,120 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		Assert.notNull(system);
 		//
 		// if exists accounts or system entities, then system could not be deleted
-		if (systemEntityRepository.countBySystem(system) > 0) {
+		if (systemEntityRepository.countBySystem_Id(system.getId()) > 0) {
 			throw new ResultCodeException(AccResultCode.SYSTEM_DELETE_FAILED_HAS_ENTITIES, ImmutableMap.of("system", system.getName()));
 		}
 		if (accountRepository.countBySystem(system) > 0) {
 			throw new ResultCodeException(AccResultCode.SYSTEM_DELETE_FAILED_HAS_ACCOUNTS, ImmutableMap.of("system", system.getName()));
 		}
-		// delete all mappings
-		systemEntityHandlingService.findBySystem(system, null, null).forEach(systemEntityHandling -> {
-			systemEntityHandlingService.delete(systemEntityHandling);
-		});
 		SchemaObjectClassFilter filter = new SchemaObjectClassFilter();
 		filter.setSystemId(system.getId());	
 		objectClassService.find(filter, null).forEach(schemaObjectClass -> {
 			objectClassService.delete(schemaObjectClass);
 		});
-		// delete mapped roles
-		RoleSystemFilter roleSystemFilter = new RoleSystemFilter();
-		roleSystemFilter.setSystemId(system.getId());
-		roleSystemService.find(roleSystemFilter, null).forEach(roleSystem -> {
-			roleSystemService.delete(roleSystem);
+		// delete synchronization configs
+		SynchronizationConfigFilter synchronizationConfigFilter = new SynchronizationConfigFilter();
+		synchronizationConfigFilter.setSystemId(system.getId());
+		synchronizationConfigService.find(synchronizationConfigFilter, null).forEach(config -> {
+			synchronizationConfigService.delete(config);
 		});
+		// delete archived provisioning operations
+		provisioningArchiveRepository.deleteBySystem(system);
 		//
 		super.delete(system);
 	}
 
 	@Override
 	@Transactional(readOnly = true)
-	public SysSystem getByName(String name) {
+	public SysSystem getByCode(String name) {
 		return systemRepository.findOneByName(name);
 	}
 
 	@Override
 	@Transactional
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public IcfConnectorConfiguration getConnectorConfiguration(SysSystem system) {
+	public IcConnectorConfiguration getConnectorConfiguration(SysSystem system) {
 		Assert.notNull(system);
 		
 		if(system.getConnectorKey() == null){
 			return null;
 		}
+		IcConnectorConfiguration connectorConfig = null;
+		// load connector properties, different between local and remote
+		IcConnectorInstance connectorInstance = system.getConnectorInstance();
+		if(connectorInstance.getConnectorServer() != null){
+			connectorInstance.getConnectorServer().setPassword(confidentialStorage.getGuardedString(system.getId(), SysSystem.class, SysSystemService.REMOTE_SERVER_PASSWORD));
+		}
+		connectorConfig = icConfigurationFacade.getConnectorConfiguration(connectorInstance);
+
 		// load filled form values
-		IdmFormDefinition formDefinition = getConnectorFormDefinition(system.getConnectorKey());
+		IdmFormDefinition formDefinition = getConnectorFormDefinition(system.getConnectorInstance());
 		List<AbstractFormValue<SysSystem>> formValues = getFormService().getValues(system, formDefinition);
 		Map<String, List<AbstractFormValue<SysSystem>>> attributeValues = getFormService().toValueMap(formValues);
 		// fill connector configuration from form values
-		IcfConnectorConfigurationImpl icfConf = new IcfConnectorConfigurationImpl();
-		IcfConfigurationProperties properties = new IcfConfigurationPropertiesImpl();
-		icfConf.setConfigurationProperties(properties);
-		for (Entry<String, List<AbstractFormValue<SysSystem>>> attribute : attributeValues.entrySet()) {
-			String attributeName = attribute.getKey();
-			IdmFormAttribute formAttribute = formDefinition.getMappedAttributeByName(attributeName);
-			IcfConfigurationPropertyImpl property = new IcfConfigurationPropertyImpl();
-			property.setName(attributeName);
-			// convert form attribute values to connector properties
-			Object value = null;
-			if (!attribute.getValue().isEmpty()) {
-				if (formAttribute.isMultiple()) {
-					List valueList = formAttribute.getEmptyList();
-					for (AbstractFormValue<SysSystem> formValue : attribute.getValue()) {
-						valueList.add(toPropertyValue(formValue));
-					}
-					if (!valueList.isEmpty()) {
-						if (PersistentType.TEXT == formAttribute.getPersistentType()) {
-							value = valueList.toArray(new String[]{});
-						} else {
-							value = valueList.toArray();
-						}
-					}
-				} else {
-					// single value
-					value = toPropertyValue(attribute.getValue().get(0));
-				}
-			}
-			if (value != null) {
+		IcConnectorConfigurationImpl icConf = new IcConnectorConfigurationImpl();
+		IcConfigurationProperties properties = new IcConfigurationPropertiesImpl();
+		icConf.setConfigurationProperties(properties);
+		//
+		for (short seq = 0; seq < connectorConfig.getConfigurationProperties().getProperties().size(); seq++) {
+			IcConfigurationProperty propertyConfig = connectorConfig.getConfigurationProperties().getProperties().get(seq);
+			IdmFormAttribute formAttribute = formDefinition.getMappedAttributeByName(propertyConfig.getName());
+			List<AbstractFormValue<SysSystem>> eavAttributeValues = attributeValues.get(formAttribute.getCode());
+			// create property instance from configuration
+			IcConfigurationProperty property = formPropertyManager.toConnectorProperty(propertyConfig, eavAttributeValues);
+			if (property.getValue() != null) {
 				// only filled values to configuration
-				property.setValue(value);
 				properties.getProperties().add(property);
 			}
 		}
-		return icfConf;
+		return icConf;
 	}
-
+	
 	@Override
 	@Transactional
-	public void generateSchema(SysSystem system) {
+	public void checkSystem(SysSystem system) {
 		Assert.notNull(system);
 
 		// Find connector identification persisted in system
-		IcfConnectorKey connectorKey = system.getConnectorKey();
+		IcConnectorKey connectorKey = system.getConnectorKey();
 		if (connectorKey == null) {
 			throw new ResultCodeException(AccResultCode.CONNECTOR_KEY_FOR_SYSTEM_NOT_FOUND,
 					ImmutableMap.of("system", system.getName()));
 		}
 
 		// Find connector configuration persisted in system
-		IcfConnectorConfiguration connectorConfig = getConnectorConfiguration(system);
+		IcConnectorConfiguration connectorConfig = getConnectorConfiguration(system);
 		if (connectorConfig == null) {
 			throw new ResultCodeException(AccResultCode.CONNECTOR_CONFIGURATION_FOR_SYSTEM_NOT_FOUND,
 					ImmutableMap.of("system", system.getName()));
 		}
 
-		// Call ICF module and find schema for given connector key and
+		// Call IC module 
+		icConfigurationFacade.test(system.getConnectorInstance(), connectorConfig);
+	}
+
+	@Override
+	@Transactional
+	public List<SysSchemaObjectClass> generateSchema(SysSystem system) {
+		Assert.notNull(system);
+
+		// Find connector identification persisted in system
+		IcConnectorKey connectorKey = system.getConnectorKey();
+		if (connectorKey == null) {
+			throw new ResultCodeException(AccResultCode.CONNECTOR_KEY_FOR_SYSTEM_NOT_FOUND,
+					ImmutableMap.of("system", system.getName()));
+		}
+
+		// Find connector configuration persisted in system
+		IcConnectorConfiguration connectorConfig = getConnectorConfiguration(system);
+		if (connectorConfig == null) {
+			throw new ResultCodeException(AccResultCode.CONNECTOR_CONFIGURATION_FOR_SYSTEM_NOT_FOUND,
+					ImmutableMap.of("system", system.getName()));
+		}
+
+		// Call IC module and find schema for given connector key and
 		// configuration
-		IcfSchema icfSchema = icfConfigurationFacade.getSchema(connectorKey, connectorConfig);
-		if (icfSchema == null) {
+		IcSchema icSchema = icConfigurationFacade.getSchema(system.getConnectorInstance(), connectorConfig);
+		if (icSchema == null) {
 			throw new ResultCodeException(AccResultCode.CONNECTOR_SCHEMA_FOR_SYSTEM_NOT_FOUND,
 					ImmutableMap.of("system", system.getName()));
 		}
@@ -254,12 +292,12 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		Page<SysSchemaObjectClass> page = objectClassService.find(objectClassFilter, null);
 		sysObjectClassesInSystem = page.getContent();
 
-		// Convert ICF schema to ACC entities
+		// Convert IC schema to ACC entities
 		List<SysSchemaObjectClass> sysObjectClasses = new ArrayList<SysSchemaObjectClass>();
 		List<SysSchemaAttribute> sysAttributes = new ArrayList<SysSchemaAttribute>();
-		for (IcfObjectClassInfo objectClass : icfSchema.getDeclaredObjectClasses()) {
+		for (IcObjectClassInfo objectClass : icSchema.getDeclaredObjectClasses()) {
 			
-			// We can create only ICF schemas, it means only schemas created for __ACCOUNT__ and __GROUP__
+			// We can create only IC schemas, it means only schemas created for __ACCOUNT__ and __GROUP__
 			if(!(objectClass.getType().startsWith("__") && objectClass.getType().endsWith("__"))){
 				continue;
 			}
@@ -278,9 +316,9 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 					sysObjectClass = objectClassSame.get();
 				}
 			}
-			// Convert ICF object class to ACC (if is null, then will be created
+			// Convert IC object class to ACC (if is null, then will be created
 			// new instance)
-			sysObjectClass = convertIcfObjectClassInfo(objectClass, sysObjectClass);
+			sysObjectClass = convertIcObjectClassInfo(objectClass, sysObjectClass);
 			sysObjectClass.setSystem(system);
 			sysObjectClasses.add(sysObjectClass);
 
@@ -294,8 +332,8 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 				Page<SysSchemaAttribute> attributesInSystemPage = attributeService.find(attFilter, null);
 				attributesInSystem = attributesInSystemPage.getContent();
 			}
-			for (IcfAttributeInfo attribute : objectClass.getAttributeInfos()) {
-				// If will be ICF and ACC attribute same (same name), then we
+			for (IcAttributeInfo attribute : objectClass.getAttributeInfos()) {
+				// If will be IC and ACC attribute same (same name), then we
 				// will do only refresh object values from resource
 				SysSchemaAttribute sysAttribute = null;
 				if (attributesInSystem != null) {
@@ -306,7 +344,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 						sysAttribute = sysAttributeOptional.get();
 					}
 				}
-				sysAttribute = convertIcfAttributeInfo(attribute, sysAttribute);
+				sysAttribute = convertIcAttributeInfo(attribute, sysAttribute);
 				sysAttribute.setObjectClass(sysObjectClass);
 				sysAttributes.add(sysAttribute);
 			}
@@ -315,9 +353,10 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		// Persist generated schema to system
 		objectClassService.saveAll(sysObjectClasses);
 		attributeService.saveAll(sysAttributes);
+		return sysObjectClasses;
 	}
 
-	private SysSchemaObjectClass convertIcfObjectClassInfo(IcfObjectClassInfo objectClass,
+	private SysSchemaObjectClass convertIcObjectClassInfo(IcObjectClassInfo objectClass,
 			SysSchemaObjectClass sysObjectClass) {
 		if (objectClass == null) {
 			return null;
@@ -331,7 +370,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		return sysObjectClass;
 	}
 
-	private SysSchemaAttribute convertIcfAttributeInfo(IcfAttributeInfo attributeInfo,
+	private SysSchemaAttribute convertIcAttributeInfo(IcAttributeInfo attributeInfo,
 			SysSchemaAttribute sysAttribute) {
 		if (attributeInfo == null) {
 			return null;
@@ -353,156 +392,56 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 
 	@Override
 	@Transactional
-	public IdmFormDefinition getConnectorFormDefinition(IcfConnectorKey connectorKey) {
-		Assert.notNull(connectorKey);
+	public IdmFormDefinition getConnectorFormDefinition(IcConnectorInstance connectorInstance) {
+		Assert.notNull(connectorInstance);
+		Assert.notNull(connectorInstance.getConnectorKey());
 		//
-		// if form definition for given key already exists
-		IdmFormDefinition formDefinition = getFormService().getDefinition(connectorKey.getConnectorName(),
-				connectorKey.getFullName());
+		IdmFormDefinition formDefinition = getFormService().getDefinition(SysSystem.class.getName(),
+					connectorInstance.getConnectorKey().getFullName());
+		//
 		if (formDefinition == null) {
 			// we creates new form definition
-			formDefinition = createConnectorFormDefinition(connectorKey);
+			formDefinition = createConnectorFormDefinition(connectorInstance);
+			formDefinition.setUnmodifiable(true);
 		}
 		return formDefinition;
 	}
 
 	/**
-	 * Create form definition to given connectorKey by connector properties
+	 * Create form definition to given connectorInstance by connector properties
 	 * 
 	 * @param connectorKey
 	 * @return
 	 */
-	private synchronized IdmFormDefinition createConnectorFormDefinition(IcfConnectorKey connectorKey) {
-		IcfConnectorConfiguration conf = icfConfigurationFacade.getConnectorConfiguration(connectorKey);
+	private synchronized IdmFormDefinition createConnectorFormDefinition(IcConnectorInstance connectorInstance) {
+		IcConnectorConfiguration conf = icConfigurationFacade.getConnectorConfiguration(connectorInstance);
 		if (conf == null) {
 			throw new IllegalStateException(MessageFormat.format("Connector with key [{0}] was not found on classpath.",
-					connectorKey.getFullName()));
+					connectorInstance.getConnectorKey().getFullName()));
 		}
 		//
 		List<IdmFormAttribute> formAttributes = new ArrayList<>();
 		for (short seq = 0; seq < conf.getConfigurationProperties().getProperties().size(); seq++) {
-			IcfConfigurationProperty property = conf.getConfigurationProperties().getProperties().get(seq);
-			IdmFormAttribute attribute = toAttribute(property);
+			IcConfigurationProperty property = conf.getConfigurationProperties().getProperties().get(seq);
+			IdmFormAttribute attribute = formPropertyManager.toFormAttribute(property);
 			attribute.setSeq(seq);
 			formAttributes.add(attribute);
 		}
-		return getFormService().createDefinition(connectorKey.getConnectorName(), connectorKey.getFullName(),
-				formAttributes);
+		return getFormService().createDefinition(SysSystem.class.getName(),
+					connectorInstance.getConnectorKey().getFullName(), formAttributes);
 	}
-
-	/**
-	 * Returns eav form attribute from given connector property
-	 * 
-	 * @param property
-	 * @return
-	 */
-	private IdmFormAttribute toAttribute(IcfConfigurationProperty property) {
-		IdmFormAttribute attribute = new IdmFormAttribute();
-		attribute.setName(property.getName());
-		attribute.setDisplayName(property.getDisplayName());
-		attribute.setDescription(property.getHelpMessage());
-		attribute.setPersistentType(convertPropertyType(property.getType()));
-		attribute.setConfidential(property.isConfidential());
-		attribute.setRequired(property.isRequired());
-		attribute.setMultiple(isMultipleProperty(property.getType()));
-		attribute.setDefaultValue(convertDefaultValue(property));
-		return attribute;
-	}
-
-	/**
-	 * Converts default value by property data type. If property supports
-	 * multiple values, then return multi lines string
-	 * 
-	 * @param property
-	 * @return
-	 */
-	private String convertDefaultValue(IcfConfigurationProperty property) {
-		if (property.getValue() == null) {
-			return null;
-		}
-		StringBuilder result = new StringBuilder();
-		if (!isMultipleProperty(property.getType())) {
-			result.append(property.getValue());
-		} else {
-			// arrays only - see supportedConnectorPropertyMapping
-			Object[] values = (Object[]) property.getValue();
-			for (Object singleValue : values) {
-				if (result.length() > 0) {
-					result.append(System.getProperty("line.separator"));
-				}
-				result.append(singleValue);
-			}
-		}
-		return result.toString();
-	}
-
-	/**
-	 * Returns connector property value from given eav value
-	 * 
-	 * @param formValue
-	 * @return
-	 */
-	private Object toPropertyValue(AbstractFormValue<SysSystem> formValue) {
-		if (formValue == null) {
-			return null;
-		}
-		if (formValue.isConfidential()) {
-			// persistent value from confidential storage
-			Serializable value = getFormService().getConfidentialPersistentValue(formValue);
-			if (value == null) {
-				return null;
-			}
-			return new org.identityconnectors.common.security.GuardedString(
-					value.toString().toCharArray());
-		}
-		return formValue.getValue();
-	}
-
-	/**
-	 * Returns true, if connector property supports multiple values
-	 * 
-	 * @param type
-	 * @return
-	 */
-	private boolean isMultipleProperty(String connectorPropertyType) {
-		if (!supportedConnectorPropertyMapping.containsKey(connectorPropertyType)) {
-			throw new UnsupportedOperationException(
-					MessageFormat.format("Unsupported connector property data type [{0}]", connectorPropertyType));
-		}
-		return supportedConnectorPropertyMapping.get(connectorPropertyType).multiple;
-	}
-
-	/**
-	 * Returns persistent type for given connector property type
-	 * 
-	 * TODO: Move to convert utils
-	 * 
-	 * @param type
-	 * @return
-	 */
-	public static PersistentType convertPropertyType(String connectorPropertyType) {
-		if (!supportedConnectorPropertyMapping.containsKey(connectorPropertyType)) {
-			throw new UnsupportedOperationException(
-					MessageFormat.format("Unsupported connector property data type [{0}]", connectorPropertyType));
-		}
-		return supportedConnectorPropertyMapping.get(connectorPropertyType).persistentType;
-	}
-
-	/**
-	 * Connector property type vs. eav type mapping
-	 * 
-	 * @author Radek Tomiška
-	 *
-	 */
-	private static class ConnectorPropertyMapping {
-
-		PersistentType persistentType;
-		boolean multiple;
-
-		public ConnectorPropertyMapping(PersistentType persistentType, boolean multiple) {
-			this.persistentType = persistentType;
-			this.multiple = multiple;
-		}
+	
+	@Override
+	@Transactional
+	public IcConnectorObject readObject(SysSystem system, SysSystemMapping systemMapping, IcUidAttribute uidAttribute) {
+		IcObjectClass objectClass = new IcObjectClassImpl(systemMapping.getObjectClass().getObjectClassName());
+		IcConnectorObject existsConnectorObject = connectorFacade.readObject(
+				system.getConnectorInstance(), 
+				this.getConnectorConfiguration(system), 
+				objectClass, 
+				uidAttribute);
+		//
+		return existsConnectorObject;
 	}
 
 	@Deprecated
@@ -514,7 +453,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		system.setConnectorKey(new SysConnectorKey(getTestConnectorKey()));
 		save(system);
 
-		IdmFormDefinition savedFormDefinition = getConnectorFormDefinition(system.getConnectorKey());
+		IdmFormDefinition savedFormDefinition = getConnectorFormDefinition(system.getConnectorInstance());
 
 		List<SysSystemFormValue> values = new ArrayList<>();
 		SysSystemFormValue host = new SysSystemFormValue(savedFormDefinition.getMappedAttributeByName("host"));
@@ -583,8 +522,8 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 	 * @return
 	 */
 	@Deprecated
-	public IcfConnectorKey getTestConnectorKey() {
-		IcfConnectorKeyImpl key = new IcfConnectorKeyImpl();
+	public IcConnectorKey getTestConnectorKey() {
+		IcConnectorKeyImpl key = new IcConnectorKeyImpl();
 		key.setFramework("connId");
 		key.setConnectorName("net.tirasa.connid.bundles.db.table.DatabaseTableConnector");
 		key.setBundleName("net.tirasa.connid.bundles.db.table");

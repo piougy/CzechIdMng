@@ -6,8 +6,14 @@ import AccountService from './AccountService';
 import IdentityAccountService from './IdentityAccountService';
 import SchemaObjectClassService from './SchemaObjectClassService';
 import SchemaAttributeService from './SchemaAttributeService';
-import SchemaAttributeHandlingService from './SchemaAttributeHandlingService';
-import SystemEntityHandlingService from './SystemEntityHandlingService';
+import SystemAttributeMappingService from './SystemAttributeMappingService';
+import SystemMappingService from './SystemMappingService';
+import SynchronizationConfigService from './SynchronizationConfigService';
+import SynchronizationLogService from './SynchronizationLogService';
+import ProvisioningOperationService from './ProvisioningOperationService';
+import ProvisioningArchiveService from './ProvisioningArchiveService';
+import SyncActionLogService from './SyncActionLogService';
+import SyncItemLogService from './SyncItemLogService';
 
 const ServiceRoot = {
   SystemService,
@@ -17,9 +23,15 @@ const ServiceRoot = {
   IdentityAccountService,
   SchemaObjectClassService,
   SchemaAttributeService,
-  SchemaAttributeHandlingService,
-  SystemEntityHandlingService,
-  RoleSystemAttributeService
+  SystemAttributeMappingService,
+  SystemMappingService,
+  RoleSystemAttributeService,
+  SynchronizationConfigService,
+  SynchronizationLogService,
+  ProvisioningOperationService,
+  ProvisioningArchiveService,
+  SyncActionLogService,
+  SyncItemLogService
 };
 
 ServiceRoot.version = '0.1.0';

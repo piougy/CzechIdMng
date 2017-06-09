@@ -7,26 +7,31 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.net.URLEncoder;
+
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import com.google.common.collect.Lists;
+
 import eu.bcvsolutions.idm.InitTestData;
-import eu.bcvsolutions.idm.core.api.dto.IdentityDto;
-import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
-import eu.bcvsolutions.idm.security.api.domain.IdmJwtAuthentication;
-import eu.bcvsolutions.idm.security.api.service.SecurityService;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.rest.BaseController;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
+import eu.bcvsolutions.idm.core.security.api.utils.IdmAuthorityUtils;
 import eu.bcvsolutions.idm.test.api.AbstractRestTest;
 
 public class IdmIdentityControllerRestTest extends AbstractRestTest {
 	
-	@Autowired
-	private SecurityService securityService;
+	@Autowired private IdmIdentityService identityService;
 	
 	private Authentication getAuthentication() {
-		return new IdmJwtAuthentication(new IdentityDto("[SYSTEM]"), null, securityService.getAllAvailableAuthorities());
+		return new IdmJwtAuthentication(identityService.getByUsername(InitTestData.TEST_ADMIN_USERNAME), null, Lists.newArrayList(IdmAuthorityUtils.getAdminAuthority()), "test");
 	}
 	
 	@After
@@ -36,7 +41,7 @@ public class IdmIdentityControllerRestTest extends AbstractRestTest {
 	
 	@Test
     public void userNotFound() throws Exception {
-        mockMvc.perform(get(BaseEntityController.BASE_PATH + "/identities/n_a_user")
+		getMockMvc().perform(get(BaseController.BASE_PATH + "/identities/n_a_user")
         		.with(authentication(getAuthentication()))
                 .contentType(InitTestData.HAL_CONTENT_TYPE))
                 .andExpect(status().isNotFound());
@@ -44,11 +49,28 @@ public class IdmIdentityControllerRestTest extends AbstractRestTest {
 	
 	@Test
     public void userFoundByUsername() throws Exception {
-        mockMvc.perform(get(BaseEntityController.BASE_PATH + "/identities/" + InitTestData.TEST_ADMIN_USERNAME)
+		getMockMvc().perform(get(BaseController.BASE_PATH + "/identities/" + InitTestData.TEST_ADMIN_USERNAME)
         		.with(authentication(getAuthentication()))
                 .contentType(InitTestData.HAL_CONTENT_TYPE))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(InitTestData.HAL_CONTENT_TYPE))
                 .andExpect(jsonPath("$.username", equalTo(InitTestData.TEST_ADMIN_USERNAME)));
+    }
+	
+	@Test
+	@Ignore // TODO: url decode does not works in test ... why? 
+    public void testUsernameWithSpecialCharacters() throws Exception {
+		IdmIdentityDto identity = new IdmIdentityDto();
+		identity.setUsername("hh.hh#./sd");
+		identity.setFirstName("test");
+		identity.setLastName("test");
+		identity = identityService.save(identity);
+		//
+		getMockMvc().perform(get(BaseController.BASE_PATH + "/identities/" + URLEncoder.encode(identity.getUsername(), "UTF-8"))
+        		.with(authentication(getAuthentication()))
+                .contentType(InitTestData.HAL_CONTENT_TYPE))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(InitTestData.HAL_CONTENT_TYPE))
+                .andExpect(jsonPath("$.username", equalTo(identity.getUsername())));
     }
 }

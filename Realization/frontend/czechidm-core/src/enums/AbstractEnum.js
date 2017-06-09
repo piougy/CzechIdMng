@@ -23,6 +23,13 @@ export default class AbstractEnum {
   }
 
   /**
+   * Returns icon
+   */
+  static getIcon() {
+    return null;
+  }
+
+  /**
    * finds key to given symbol
    */
   static findKeyBySymbol(enumeration, sym) {

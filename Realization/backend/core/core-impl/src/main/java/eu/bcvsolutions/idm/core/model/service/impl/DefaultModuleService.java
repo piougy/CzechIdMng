@@ -5,17 +5,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.plugin.core.Plugin;
 import org.springframework.plugin.core.PluginRegistry;
-import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.domain.ModuleDescriptor;
+import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.exception.ModuleNotDisableableException;
-import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
-import eu.bcvsolutions.idm.security.api.domain.GroupPermission;
+import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
 
 /**
  * Default implementation for {@link ModuleDescriptor} administrative.
@@ -26,17 +24,15 @@ import eu.bcvsolutions.idm.security.api.domain.GroupPermission;
  * @see Plugin
  * @see PluginRegistry
  */
-@Service
 public class DefaultModuleService implements ModuleService {
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultModuleService.class);
 	
 	private final PluginRegistry<ModuleDescriptor, String> moduleDescriptorRegistry;
-	private final IdmConfigurationService configurationService;
+	private final ConfigurationService configurationService;
 
-	@Autowired
 	public DefaultModuleService(PluginRegistry<ModuleDescriptor, String> moduleDescriptorRegistry,
-			IdmConfigurationService configurationService) {
+			ConfigurationService configurationService) {
 		Assert.notNull(moduleDescriptorRegistry, "Module registry is required!");
 		Assert.notNull(configurationService, "ConfigurationService is required!");
 
@@ -62,9 +58,7 @@ public class DefaultModuleService implements ModuleService {
 		return Collections.unmodifiableList( //
 				getInstalledModules() //
 				.stream() //
-				.filter(moduleDescriptor -> { //
-					return isEnabled(moduleDescriptor);
-				}) //
+				.filter(moduleDescriptor -> isEnabled(moduleDescriptor)) //
 				.collect(Collectors.toList()));
 	}
 
@@ -83,7 +77,7 @@ public class DefaultModuleService implements ModuleService {
 			return true;
 		}
 		return configurationService.getBooleanValue(
-				getModuleConfigurationProperty(moduleDescriptor.getId(), PROPERTY_ENABLED), false);
+				getModuleConfigurationProperty(moduleDescriptor.getId(), ConfigurationService.PROPERTY_ENABLED), false);
 	}
 
 	@Override
@@ -110,20 +104,21 @@ public class DefaultModuleService implements ModuleService {
 			// TODO: license check if module is enabling
 		}		
 		configurationService.setBooleanValue(
-				getModuleConfigurationProperty(moduleId, PROPERTY_ENABLED), enabled);
+				getModuleConfigurationProperty(moduleId, ConfigurationService.PROPERTY_ENABLED), enabled);
 	}
 	
 	@Override
 	public List<GroupPermission> getAvailablePermissions() {
-		List<GroupPermission> perrmissions = new ArrayList<>();
+		List<GroupPermission> permissions = new ArrayList<>();
 		getEnabledModules().forEach(moduleDescriptor -> {
-			perrmissions.addAll(moduleDescriptor.getPermissions());
+			permissions.addAll(moduleDescriptor.getPermissions());
 		});
-		return Collections.unmodifiableList(perrmissions);
+		LOG.debug("Loaded available groupPermissions [size:{}]", permissions.size());
+		return Collections.unmodifiableList(permissions);
 	}
 
 	/**
-	 * Returns module property by {@link IdmConfiguratioService} conventions.
+	 * Returns module property by {@link eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService} conventions.
 	 * 
 	 * @param moduleId
 	 * @param property
@@ -131,8 +126,8 @@ public class DefaultModuleService implements ModuleService {
 	 */
 	@Override
 	public String getModuleConfigurationProperty(String moduleId, String property) {
-		return IdmConfigurationService.IDM_PUBLIC_PROPERTY_PREFIX //
-				+ moduleId + IdmConfigurationService.PROPERTY_SEPARATOR + property;
+		return ConfigurationService.IDM_PUBLIC_PROPERTY_PREFIX //
+				+ moduleId + ConfigurationService.PROPERTY_SEPARATOR + property;
 	}
 
 }

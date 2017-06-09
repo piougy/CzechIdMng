@@ -4,8 +4,10 @@ import invariant from 'invariant';
 import _ from 'lodash';
 //
 import * as Basic from '../../basic';
+import * as Utils from '../../../utils';
 import Filter from '../Filter/Filter';
 import SearchParameters from '../../../domain/SearchParameters';
+import UuidInfo from '../UuidInfo/UuidInfo';
 
 /**
  * Table component with header and columns.
@@ -47,13 +49,16 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     if (!rendered) {
       return;
     }
-    // we have to se first page
-    // TODO: we have to se first page only if fitlers changes - handle in next
-    let _sp = _searchParameters;
-    if (_sp) {
-      _sp = _sp.setPage(0);
-    }
-    this.fetchEntities(_sp, _props);
+    this.fetchEntities(_searchParameters, _props);
+  }
+
+  /**
+   * Clears row selection
+   */
+  clearSelectedRows() {
+    this.setState({
+      selectedRows: []
+    });
   }
 
   /**
@@ -77,7 +82,6 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     this.context.store.dispatch(manager.fetchEntities(searchParameters, uiKey, (json, error) => {
       if (error) {
         this.addErrorMessage({
-          level: 'error',
           key: 'error-' + manager.getEntityType() + '-load'
         }, error);
       // remove selection for unpresent records
@@ -136,6 +140,10 @@ class AdvancedTable extends Basic.AbstractContextComponent {
         continue;
       }
       const filterComponent = filterForm.getComponent(property);
+      if (!filterComponent) {
+        // filter is not rendered
+        continue;
+      }
       const field = filterComponent.props.field || property;
       // TODO: implement multi value filters
       /* if (filterComponent.props.multiSelect === true) { // multiselect returns array of selected values
@@ -180,7 +188,12 @@ class AdvancedTable extends Basic.AbstractContextComponent {
       if (!filterValues[property]) {
         continue;
       }
-      filterForm.getComponent(property).setValue(null);
+      const filterComponent = filterForm.getComponent(property);
+      if (!filterComponent) {
+        // filter is not rendered
+        continue;
+      }
+      filterComponent.setValue(null);
     }
     // prevent sort and pagination
     let userSearchParameters = _searchParameters.setFilters(manager.getDefaultSearchParameters().getFilters());
@@ -218,6 +231,14 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     return this.i18n('noData', { defaultValue: 'No record found' });
   }
 
+  _showId() {
+    const { showId } = this.props;
+    //
+    if (showId === null || showId === undefined) {
+      return this.isDevelopment();
+    }
+  }
+
   render() {
     const {
       _entities,
@@ -233,12 +254,17 @@ class AdvancedTable extends Basic.AbstractContextComponent {
       rowClass,
       rendered,
       filter,
+      showFilter,
       filterCollapsible,
       filterViewportOffsetTop,
       actions,
       buttons,
       noData,
-      style
+      style,
+      showPageSize,
+      showToolbar,
+      condensed,
+      header
     } = this.props;
     const {
       filterOpened,
@@ -273,14 +299,14 @@ class AdvancedTable extends Basic.AbstractContextComponent {
         className: `column-face-${column.props.face}`
       };
       // construct basic column from advanced column definition
-      let header = column.props.header;
-      if (!header && column.props.property) {
-        header = this.i18n(`${manager.getModule()}:entity.${manager.getEntityType()}.${column.props.property}`);
+      let columnHeader = column.props.header;
+      if (!columnHeader && column.props.property) {
+        columnHeader = this.i18n(`${manager.getModule()}:entity.${manager.getEntityType()}.${column.props.property}`);
       }
       if (column.props.sort) {
-        header = (
+        columnHeader = (
           <Basic.BasicTable.SortHeaderCell
-            header={header}
+            header={columnHeader}
             sortHandler={this._handleSort.bind(this)}
             sortProperty={column.props.sortProperty || column.props.property}
             searchParameters={_searchParameters}
@@ -336,17 +362,23 @@ class AdvancedTable extends Basic.AbstractContextComponent {
           rendered={column.props.rendered}
           className={column.props.className}
           width={column.props.width}
-          header={header}
+          header={ columnHeader }
           cell={cell}/>
       );
+    }
+    //
+    let _rowClass = rowClass;
+    if (!_rowClass) {
+      // automatic rowClass by entity's "disabled" attribute
+      _rowClass = ({rowIndex, data}) => { return Utils.Ui.getDisabledRowClass(data[rowIndex]); };
     }
 
     return (
       <div className="advanced-table" style={style}>
         {
-          !filter && (actions === null || actions.length === 0 || !showRowSelection)
+          !filter && (actions === null || actions.length === 0 || !showRowSelection) && (buttons === null || buttons.length === 0)
           ||
-          <Basic.Toolbar container={this} viewportOffsetTop={filterViewportOffsetTop}>
+          <Basic.Toolbar container={this} viewportOffsetTop={filterViewportOffsetTop} rendered={showToolbar}>
             <div className="advanced-table-heading">
               <div className="pull-left">
                 <Basic.EnumSelectBox
@@ -362,12 +394,26 @@ class AdvancedTable extends Basic.AbstractContextComponent {
               </div>
               <div className="pull-right">
                 { buttons }
-                {' '}
-                <Filter.ToogleButton filterOpen={ (open)=> this.setState({ filterOpened: open }) } filterOpened={filterOpened} rendered={filter !== undefined && filterCollapsible} />
+
+                <Filter.ToogleButton
+                  filterOpen={ (open)=> this.setState({ filterOpened: open }) }
+                  filterOpened={ filterOpened }
+                  rendered={ showFilter && filter !== undefined && filterCollapsible }
+                  style={{ marginLeft: 3 }}/>
+
+                <Basic.Button
+                  className="btn-xs"
+                  title={ this.i18n('button.refresh') }
+                  titlePlacement="bottom"
+                  showLoading={ _showLoading }
+                  onClick={ this.fetchEntities.bind(this, _searchParameters, this.props) }
+                  style={{ marginLeft: 3 }}>
+                  <Basic.Icon value="fa:refresh" showLoading={ _showLoading }/>
+                </Basic.Button>
               </div>
               <div className="clearfix"></div>
             </div>
-            <Basic.Collapse in={filterOpened}>
+            <Basic.Collapse in={filterOpened} rendered={ showFilter }>
               <div>
                 { filter }
               </div>
@@ -384,7 +430,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
               { this.i18n('error.load') }
             </div>
             <div style={{ textAlign: 'center' }}>
-              <Basic.Button onClick={this.reload.bind(this)}>
+              <Basic.Button onClick={this.reload.bind(this, this.props)}>
                 <Basic.Icon value="fa:refresh"/>
                 {' '}
                 { this.i18n('button.refresh') }
@@ -395,6 +441,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
           <div>
             <Basic.BasicTable.Table
               ref="table"
+              header={ header }
               data={_entities}
               showLoading={_showLoading || showLoading}
               onRowClick={onRowClick}
@@ -402,12 +449,29 @@ class AdvancedTable extends Basic.AbstractContextComponent {
               showRowSelection={showRowSelection}
               selectedRows={selectedRows}
               onRowSelect={this._onRowSelect.bind(this)}
-              rowClass={rowClass}
+              rowClass={_rowClass}
+              condensed={condensed}
               noData={this.getNoData(noData)}>
+
               {renderedColumns}
+
+              <Basic.Column
+                header={ this.i18n('entity.id.label') }
+                property="id"
+                rendered={ this._showId() }
+                className="text-center"
+                width={ 100 }
+                cell={
+                  ({rowIndex, data, property}) => {
+                    return (
+                      <UuidInfo value={data[rowIndex][property]}/>
+                    );
+                  }
+                }/>
             </Basic.BasicTable.Table>
             <Basic.BasicTable.Pagination
               ref="pagination"
+              showPageSize={showPageSize}
               paginationHandler={pagination ? this._handlePagination.bind(this) : null}
               total={ pagination ? _total : _entities.length } {...range} />
           </div>
@@ -423,6 +487,10 @@ AdvancedTable.propTypes = {
    * Table identifier - it's used as key in store
    */
   uiKey: PropTypes.string,
+  /**
+   * Table Header
+   */
+  header: PropTypes.oneOfType([PropTypes.string, PropTypes.element]),
   /**
    * EntityManager subclass, which provides data fetching
    */
@@ -454,7 +522,11 @@ AdvancedTable.propTypes = {
   /**
    * Enable row selection - checkbox in first cell
    */
-  showRowSelection: PropTypes.bool,
+  showRowSelection: PropTypes.oneOfType([PropTypes.bool, PropTypes.func]),
+  /**
+   * Shows column with id. Default is id shown in Development stage.
+   */
+  showId: PropTypes.bool,
   /**
    * selected row indexes as immutable set
    */
@@ -471,6 +543,10 @@ AdvancedTable.propTypes = {
    * @type {Filter}
    */
   filter: PropTypes.element,
+  /**
+   * Show filter
+   */
+  showFilter: PropTypes.bool,
   /**
    * If filter is opened by default
    */
@@ -508,7 +584,12 @@ AdvancedTable.propTypes = {
   _showLoading: PropTypes.bool,
   _entities: PropTypes.arrayOf(React.PropTypes.object),
   _total: PropTypes.number,
-  _searchParameters: PropTypes.object
+  /**
+   * Persisted / used search parameters in redux
+   */
+  _searchParameters: PropTypes.object,
+  showPageSize: PropTypes.bool,
+  showToolbar: PropTypes.bool
 };
 AdvancedTable.defaultProps = {
   ...Basic.AbstractContextComponent.defaultProps,
@@ -519,9 +600,14 @@ AdvancedTable.defaultProps = {
   _error: null,
   pagination: true,
   showRowSelection: false,
+  showFilter: true,
+  showId: null,
   selectedRows: [],
   filterCollapsible: true,
-  actions: []
+  actions: [],
+  buttons: [],
+  showPageSize: true,
+  showToolbar: true
 };
 
 function select(state, component) {

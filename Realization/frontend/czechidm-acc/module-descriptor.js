@@ -15,6 +15,7 @@ module.exports = {
         'id': 'sys-systems',
         'type': 'DYNAMIC',
         'labelKey': 'acc:content.systems.title',
+        'titleKey': 'acc:content.systems.title',
         'order': 1100,
         'priority': 0,
         'path': '/systems',
@@ -56,22 +57,40 @@ module.exports = {
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
           },
           {
-            'id': 'system-object-classes',
+            'id': 'schema-object-classes',
             'type': 'TAB',
             'icon': 'fa:object-group',
-            'labelKey': 'acc:content.system.systemObjectClasses.title',
+            'labelKey': 'acc:content.system.schemaObjectClasses.title',
             'order': 40,
             'path': '/system/:entityId/object-classes',
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
           },
           {
-            'id': 'system-entities-handling',
+            'id': 'system-mappings',
             'type': 'TAB',
             'icon': 'list-alt',
-            'labelKey': 'acc:content.system.systemEntitiesHandling.title',
+            'labelKey': 'acc:content.system.mappings.title',
             'order': 50,
-            'path': '/system/:entityId/entities-handling',
+            'path': '/system/:entityId/mappings',
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
+          },
+          {
+            'id': 'system-synchronization-configs',
+            'type': 'TAB',
+            'icon': 'transfer',
+            'labelKey': 'acc:content.system.systemSynchronizationConfigs.title',
+            'order': 60,
+            'path': '/system/:entityId/synchronization-configs',
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
+          },
+          {
+            'id': 'system-provisioning-operations',
+            'type': 'TAB',
+            'labelKey': 'acc:content.provisioningOperations.label',
+            'titleKey': 'acc:content.provisioningOperations.title',
+            'order': 70,
+            'path': '/system/:entityId/provisioning',
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ]
           }
         ]
       },
@@ -86,15 +105,49 @@ module.exports = {
         'icon': 'fa:external-link'
       },
       {
+        'id': 'identity-provisioning-operations',
+        'parentId': 'identity-profile',
+        'type': 'TAB',
+        'labelKey': 'acc:content.provisioningOperations.label',
+        'titleKey': 'acc:content.provisioningOperations.title',
+        'order': 110,
+        'path': '/identity/:entityId/provisioning',
+        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ]
+      },
+      {
+        'id': 'password-policies-systems',
+        'parentId': 'password-policies',
+        'type': 'TAB',
+        'labelKey': 'acc:content.passwordPolicy.system.tab',
+        'order': 100,
+        'priority': 0,
+        'path': '/password-policies/:entityId/systems',
+        'icon': ''
+      },
+      {
         'id': 'role-systems',
         'type': 'TAB',
         'parentId': 'roles',
         'labelKey': 'acc:content.role.systems.title',
         'titleKey': 'acc:content.role.systems.title',
-        'order': 50,
+        'order': 500,
         'path': '/role/:entityId/systems',
         'icon': 'link',
         'access': [ { 'type': 'HAS_ALL_AUTHORITIES', 'authorities': ['ROLE_READ', 'SYSTEM_READ'] } ]
+      },
+      {
+        'id': 'provisioning-operations',
+        'parentId': 'audit',
+        'labelKey': 'acc:content.provisioningOperations.label',
+        'titleKey': 'acc:content.provisioningOperations.title',
+        'order': 100,
+        'path': '/provisioning',
+        'access': [
+          {
+            'type': 'HAS_ANY_AUTHORITY',
+            'authorities': ['APP_ADMIN']
+          }
+        ]
       }
     ]
   }

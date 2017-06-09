@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.acc.repository;
 
+import java.util.UUID;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
@@ -7,8 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
-import eu.bcvsolutions.idm.acc.dto.SystemEntityFilter;
-import eu.bcvsolutions.idm.acc.entity.SysSystem;
+import eu.bcvsolutions.idm.acc.dto.filter.SystemEntityFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
 import eu.bcvsolutions.idm.acc.rest.projection.SysSystemEntityExcerpt;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
@@ -28,21 +29,19 @@ import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 	)
 public interface SysSystemEntityRepository extends AbstractEntityRepository<SysSystemEntity, SystemEntityFilter> {
 	
-	/*
-	 * (non-Javadoc)
-	 * @see eu.bcvsolutions.idm.core.api.repository.BaseEntityRepository#find(eu.bcvsolutions.idm.core.api.dto.BaseFilter, Pageable)
-	 */
 	@Override
 	@Query(value = "select e from SysSystemEntity e" +
 	        " where" +
+	        " (lower(e.uid) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')})" +
+	        " and" + 
 	        " (?#{[0].systemId} is null or e.system.id = ?#{[0].systemId})" +
 	        " and" +
-	        " (lower(e.uid) like ?#{[0].uid == null ? '%' : '%'.concat([0].uid.toLowerCase()).concat('%')})" +
+	        " (?#{[0].uid} is null or e.uid = ?#{[0].uid})"+
 	        " and" + 
 	        " (?#{[0].entityType} is null or e.entityType = ?#{[0].entityType})")
 	Page<SysSystemEntity> find(SystemEntityFilter filter, Pageable pageable);
 	
-	SysSystem findOneByUidAndEntityType(@Param("uid") String uid, @Param("entityType") SystemEntityType entityType);
+	SysSystemEntity findOneBySystem_IdAndEntityTypeAndUid(@Param("systemId") UUID systemId, @Param("entityType") SystemEntityType entityType, @Param("uid") String uid);
 	
-	Long countBySystem(@Param("system") SysSystem system);	
+	Long countBySystem_Id(@Param("systemId") UUID systemId);	
 }

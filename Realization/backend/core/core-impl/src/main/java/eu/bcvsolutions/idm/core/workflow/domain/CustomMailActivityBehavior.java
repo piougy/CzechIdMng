@@ -11,33 +11,35 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
-import eu.bcvsolutions.idm.notification.entity.IdmEmailLog;
-import eu.bcvsolutions.idm.notification.entity.IdmMessage;
-import eu.bcvsolutions.idm.notification.entity.IdmNotificationRecipient;
-import eu.bcvsolutions.idm.notification.service.api.EmailService;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmEmailLogDto;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationDto;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationRecipientDto;
+import eu.bcvsolutions.idm.core.notification.service.api.EmailNotificationSender;
 
 /**
  * Custom Mail implementation
  * 
- * @author svanda, tomiska
+ * @author svanda
+ * @author Radek Tomiška
  */
 public class CustomMailActivityBehavior extends MailActivityBehavior {
 
 	private static final long serialVersionUID = 1L;
 	private static final transient Logger log = LoggerFactory.getLogger(CustomMailActivityBehavior.class);
 
-	private EmailService emailService;
-	private IdmIdentityService identityService;
+	private transient EmailNotificationSender emailService;
+	private transient IdmIdentityService identityService;
 
 	/**
-	 * Sending emails through {@link EmailService}
+	 * Sending emails through {@link EmailNotificationSender}
 	 */
 	@Override
 	public void execute(ActivityExecution execution) {
 		log.trace("Sending email from workflow execution [{}]", execution.getId());
-		IdmEmailLog emailLog = new IdmEmailLog();
+		IdmEmailLogDto emailLog = new IdmEmailLogDto();
 		// recipients
 		String[] tos = splitAndTrim(getStringFromField(to, execution));
 		if (!ObjectUtils.isEmpty(tos)) {
@@ -49,35 +51,38 @@ public class CustomMailActivityBehavior extends MailActivityBehavior {
 					.collect(Collectors.toList()));
 		}
 		// sender
-		emailLog.setSender(getIdentity(getStringFromField(from, execution)));
+		emailLog.setIdentitySender(getIdentity(getStringFromField(from, execution)).getId());
 		// message
-		emailLog.setMessage(new IdmMessage(getStringFromField(subject, execution), getStringFromField(text, execution),
-				getStringFromField(html, execution)));
+		emailLog.setMessage(new IdmMessageDto.Builder()
+				.setSubject(getStringFromField(subject, execution))
+				.setTextMessage(getStringFromField(text, execution))
+				.setHtmlMessage(getStringFromField(html, execution))
+				.build());
 
-		boolean result = emailService.send(emailLog);
-		log.trace("Email from workflow execution [{}] was sent with result [{}]", execution.getId(), result);
+		IdmNotificationDto result = emailService.send(emailLog);
+		log.trace("Email from workflow execution [{}] was sent with result [{}]", execution.getId(), result == null ? false : true);
 		
 		leave(execution);
 	}
 
-	private IdmNotificationRecipient prepareRecipient(String identityOrAddress) {
+	private IdmNotificationRecipientDto prepareRecipient(String identityOrAddress) {
 		Assert.hasText(identityOrAddress);
 		//
-		IdmIdentity identity = getIdentity(identityOrAddress);
+		IdmIdentityDto identity = getIdentity(identityOrAddress);
 		if (identity != null) {
-			return new IdmNotificationRecipient(identity);
+			return new IdmNotificationRecipientDto(identity.getId());
 		}
-		return new IdmNotificationRecipient(identityOrAddress);
+		return new IdmNotificationRecipientDto(identityOrAddress);
 	}
 
-	private IdmIdentity getIdentity(String identity) {
+	private IdmIdentityDto getIdentity(String identity) {
 		if (StringUtils.isEmpty(identity)) {
 			return null;
 		}
 		return identityService.getByUsername(identity);
 	}
 
-	public void setEmailService(EmailService emailService) {
+	public void setEmailService(EmailNotificationSender emailService) {
 		this.emailService = emailService;
 	}
 

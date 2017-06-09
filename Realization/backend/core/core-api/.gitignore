@@ -3,5 +3,8 @@
 /test-output/
 /.classpath
 /.project
+/.factorypath
 /.settings/
 /bin/
+/.apt_generated/
+/**target/

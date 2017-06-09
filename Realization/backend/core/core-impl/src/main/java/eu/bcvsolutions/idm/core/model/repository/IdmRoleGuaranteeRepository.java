@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.model.repository;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -10,7 +11,6 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import eu.bcvsolutions.idm.core.api.dto.filter.EmptyFilter;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleGuarantee;
 
@@ -45,7 +45,7 @@ public interface IdmRoleGuaranteeRepository extends AbstractEntityRepository<Idm
 	 * @param guarantee
 	 * @return
 	 */
-	int deleteByGuarantee(@Param("guarantee") IdmIdentity guarantee);
+	int deleteByGuarantee_Id(@Param("guarantee") UUID guarantee);
 	
 	/**
 	 * Removes guarantee by given role

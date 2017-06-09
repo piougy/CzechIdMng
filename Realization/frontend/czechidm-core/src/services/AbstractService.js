@@ -6,6 +6,8 @@ import * as Utils from '../utils';
 
 /**
  * Contains basic CRUD + search operation
+ *
+ * @author Radek Tomiška
  */
 export default class AbstractService {
 
@@ -35,6 +37,35 @@ export default class AbstractService {
   }
 
   /**
+   * Returns true, if `patch`  method is supported
+   *
+   * Added for enddpoints with dto - dto's doesn't support `patch` method for now
+   *
+   * @return {bool} Returns true, if `patch`  method is supported
+   */
+  supportsPatch() {
+    return true;
+  }
+
+  /**
+   * Added for enddpoints with authorization policies evaluation
+   *
+   * @return {bool} Returns true, when endpoint suppors uthorization policies evaluation
+   */
+  supportsAuthorization() {
+    return this.getGroupPermission() !== null;
+  }
+
+  /**
+   * Returns group permission for given manager / agenda
+   *
+   * @return {string} GroupPermission name
+   */
+  getGroupPermission() {
+    return null;
+  }
+
+  /**
    * Returns resource by given id
    *
    * @param  {string|number} id resource identifier
@@ -42,14 +73,8 @@ export default class AbstractService {
    */
   getById(id) {
     return RestApiService
-      .get(this.getApiPath() + `/${id}`)
+      .get(this.getApiPath() + `/${encodeURIComponent(id)}`)
       .then(response => {
-        if (response.status === 403) {
-          throw new Error(403);
-        }
-        if (response.status === 404) {
-          throw new Error(404);
-        }
         return response.json();
       })
       .then(json => {
@@ -76,6 +101,9 @@ export default class AbstractService {
         if (Utils.Response.hasError(jsonResponse)) {
           throw Utils.Response.getFirstError(jsonResponse);
         }
+        if (Utils.Response.hasInfo(jsonResponse)) {
+          throw Utils.Response.getFirstInfo(jsonResponse);
+        }
         return jsonResponse;
       });
   }
@@ -90,16 +118,19 @@ export default class AbstractService {
         if (Utils.Response.hasError(json)) {
           throw Utils.Response.getFirstError(json);
         }
+        if (Utils.Response.hasInfo(json)) {
+          throw Utils.Response.getFirstInfo(json);
+        }
         return json;
       });
   }
 
   deleteById(id) {
     return RestApiService
-      .delete(this.getApiPath() + `/${id}`)
+      .delete(this.getApiPath() + `/${encodeURIComponent(id)}`)
       .then(response => {
-        if (response.status === 204) {
-          return {};
+        if (response.status === 204) { // no content - ok
+          return null;
         }
         return response.json();
       })
@@ -107,13 +138,16 @@ export default class AbstractService {
         if (Utils.Response.hasError(json)) {
           throw Utils.Response.getFirstError(json);
         }
+        if (Utils.Response.hasInfo(json)) {
+          throw Utils.Response.getFirstInfo(json);
+        }
         return json;
       });
   }
 
   updateById(id, json) {
     return RestApiService
-      .put(this.getApiPath() + `/${id}`, json)
+      .put(this.getApiPath() + `/${encodeURIComponent(id)}`, json)
       .then(response => {
         return response.json();
       })
@@ -121,13 +155,16 @@ export default class AbstractService {
         if (Utils.Response.hasError(jsonResponse)) {
           throw Utils.Response.getFirstError(jsonResponse);
         }
+        if (Utils.Response.hasInfo(jsonResponse)) {
+          throw Utils.Response.getFirstInfo(jsonResponse);
+        }
         return jsonResponse;
       });
   }
 
   patchById(id, json) {
     return RestApiService
-      .patch(this.getApiPath() + `/${id}`, json)
+      .patch(this.getApiPath() + `/${encodeURIComponent(id)}`, json)
       .then(response => {
         return response.json();
       })
@@ -220,7 +257,7 @@ export default class AbstractService {
    */
   getRevisions(entityId) {
     return RestApiService
-    .get(this.getApiPath() + `/${entityId}/revisions`)
+    .get(this.getApiPath() + `/${encodeURIComponent(entityId)}/revisions`)
     .then(response => {
       return response.json();
     })
@@ -241,7 +278,21 @@ export default class AbstractService {
    */
   getRevision(entityId, revId) {
     return RestApiService
-    .get(this.getApiPath() + `/${entityId}/revisions/${revId}`)
+    .get(this.getApiPath() + `/${encodeURIComponent(entityId)}/revisions/${encodeURIComponent(revId)}`)
+    .then(response => {
+      return response.json();
+    })
+    .then(json => {
+      if (Utils.Response.hasError(json)) {
+        throw Utils.Response.getFirstError(json);
+      }
+      return json;
+    });
+  }
+
+  getPermissions(id) {
+    return RestApiService
+    .get(this.getApiPath() + `/${encodeURIComponent(id)}/permissions`)
     .then(response => {
       return response.json();
     })

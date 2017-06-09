@@ -1,0 +1,127 @@
+<?xml version = "1.0" encoding = "UTF-8" standalone = "yes"?>
+<!-- 
+Notification with result WF that change identity roles
+
+parameters:
+	-	addedRoles
+	-	changedRoles
+	-	removedRoles
+	-	identity
+	-	from
+ -->
+
+<template>
+	<name>Send result WF - Change identity roles</name>
+	<code>changeIdentityRole</code>
+	<subject>CzechIdM - změna opravnění pro účet $identity.Username</subject>
+	<bodyHtml>
+<![CDATA[
+<html>
+<body>
+<!-- Macros for Apache velocity -->
+#macro( printState $state $loc )
+#if($loc == "cs")
+#if( $state == "CONCEPT" )
+Koncept
+#elseif( $state == "EXECUTED" )
+Provedeno
+#elseif( $state == "CANCELED" )
+Zrušeno
+#elseif($state == "DISAPPROVED" )
+Zamítnuto
+#elseif($state == "APPROVED")
+Schváleno
+#elseif($state == "IN_PROGRESS")
+Zpracovává se
+#elseif($state == "EXCEPTION")
+Chyba
+#elseif($state == "DUPLICATED")
+Duplicitní
+#else
+#end
+#else
+#if( $state == "CONCEPT" )
+Concept
+#elseif( $state == "EXECUTED" )
+Executed
+#elseif( $state == "CANCELED" )
+Canceled
+#elseif($state == "DISAPPROVED" )
+Disapproved
+#elseif($state == "APPROVED")
+Approved
+#elseif($state == "IN_PROGRESS")
+In progress
+#elseif($state == "EXCEPTION")
+Exception
+#elseif($state == "DUPLICATED")
+Duplicated
+#else
+#end
+#end
+#end
+
+#macro( printRole $headline $color $roles $loc )
+#if( !$roles.isEmpty() )
+<h3>$headline</h3>
+#foreach( $role in $roles )
+<li bgcolor='$color' >$role.Embedded["role"].Name - #printState( $role.State $loc )</li>
+#end
+#end
+#end
+Dobrý den,<br />
+<br />
+Vaše žádnost ze dne $from byla vyřízena.<br />
+<br />
+Pro váš účet <b>$identity.Username</b> na systému CzechIdM v7 byla provedena následující změna oprávnění:<br />
+<br />
+<br />
+#set( $loc = "cs" )
+#set( $color = "green" )
+#set( $headline = "Přidělené role" )
+#printRole( $headline $color $addedRoles $loc )
+<br />
+#set( $color = "yellow" )
+#set( $headline = "Změněné role" )
+#printRole( $headline $color $changedRoles $loc )
+<br />
+#set( $color = "red" )
+#set( $headline = "Odebrané role" )
+#printRole( $headline $color $removedRoles $loc )
+<br />
+<br />
+S pozdravem BCV Solutions s.r.o.
+<br />
+<br />
+-------------------------------------------------------------------------------------<br />
+Hello,<br />
+<br />
+Your request dated $from was executed.<br />
+<br />
+For your account <b>$identity.Username</b> on system CzechIdM v7 was made following a change permissions:<br />
+<br />
+<br />
+#set( $loc = "en" )
+#set( $color = "green" )
+#set( $headline = "Assigned roles" )
+#printRole( $headline $color $addedRoles $loc )
+<br />
+#set( $color = "yellow" )
+#set( $headline = "Updated roles" )
+#printRole( $headline $color $changedRoles $loc )
+<br />
+#set( $color = "red" )
+#set( $headline = "Removed roles" )
+#printRole( $headline $color $removedRoles $loc )
+<br />
+<br />
+Regards BCV Solutions Ltd.
+</body>
+</html>
+]]>
+	</bodyHtml>
+	<bodyText></bodyText>
+	<parameter>addedRoles, changedRoles, removedRoles, identity, from</parameter>
+	<systemTemplate>true</systemTemplate>
+	<moduleId>core</moduleId>
+</template>

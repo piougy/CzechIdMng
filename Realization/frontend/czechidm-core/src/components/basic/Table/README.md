@@ -8,12 +8,15 @@ Table of records, features
 | Parameter | Type | Description | Default  |
 | --- | :--- | :--- | :--- |
 | data | array[json]    | Array of json objects (e.q. response from rest service)   |  |
+| header | oneOfType([string, element]) | Table header |  |
 | showLoading  | bool   | Shows loading overlay | false |
 | onRowClick  | func   | Callback that is called when a row is clicked |  |
 | onRowDoubleClick  | func   | Callback that is called when a row is double clicked. | |
 | rowClass | oneOfType([string,func]) | ccs class added for row ||
 | hover | bool | Activate table hover (highligth selected row) | true | |
 | noData | oneOfType([string, element]) | No data found | Nenalezeny žádné záznamy |
+| showRowSelection | bool | Enable row selection - checkbox in first cell | false |
+| condensed | bool | Enable condensed table class, make tables more compact by cutting cell padding in half. | false |
 
 # Column Component
 
@@ -22,7 +25,7 @@ Table of records, features
 | property | string | Json property name. Nested properties can be used e.g. `identityManager.name` | |
 | header | string, node or function | Header cell value | by property |
 | cell | string, node or function | Body cell value |   |
-| width | string | Column width in pixel or percent |   | |
+| width | oneOfType([string,number]) | Pixel or percent width of table. If number is given, then pixels is used. | |
 
 # Pagination Component
 
@@ -76,7 +79,7 @@ Or static:
 ...
 ```
 
-### Prepared cell types for column renrering:
+### Prepared cell types for column rendering:
 
 | Cell |  Description  |
 | --- | :--- | :--- |

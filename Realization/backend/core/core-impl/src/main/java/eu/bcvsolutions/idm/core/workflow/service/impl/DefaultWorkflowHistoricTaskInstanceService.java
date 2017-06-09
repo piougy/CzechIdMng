@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.core.workflow.service.impl;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 
 import org.activiti.engine.HistoryService;
 import org.activiti.engine.history.HistoricIdentityLink;
@@ -13,11 +14,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
+import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowHistoricTaskInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowHistoricTaskInstanceService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
-import eu.bcvsolutions.idm.security.api.service.SecurityService;
 
 /**
  * Default implementation of workflow process historic service
@@ -44,7 +45,7 @@ public class DefaultWorkflowHistoricTaskInstanceService implements WorkflowHisto
 		query.includeProcessVariables();
 		
 		if (filter.getId() != null){
-			query.taskId(filter.getId());
+			query.taskId(filter.getId().toString());
 		}
 		if (processInstanceId != null) {
 			query.processInstanceId(processInstanceId);
@@ -56,16 +57,18 @@ public class DefaultWorkflowHistoricTaskInstanceService implements WorkflowHisto
 			query.processDefinitionKey(filter.getProcessDefinitionKey());
 		}
 		// check security ... only assigneed user to task or process applicant or implementer can work with
-		// historic task instance
-		// TODO Now we don't have detail for historic task. When we need detail, then we will need create different projection (detail can't be read by applicant)
-		String loggedUsername = securityService.getUsername();
-		query.or();
-		query.processVariableValueEquals(WorkflowProcessInstanceService.APPLICANT_USERNAME, loggedUsername);
-		query.processVariableValueEquals(WorkflowProcessInstanceService.IMPLEMENTER_USERNAME, loggedUsername);
-		query.taskInvolvedUser(loggedUsername);
-		// TODO admin
-		query.endOr();
-
+		// historic task instance ... admin can see all historic tasks every time
+		if(!securityService.isAdmin()) {
+			// TODO Now we don't have detail for historic task. When we need detail, then we will need create different projection (detail can't be read by applicant)
+			
+			String loggedUserId = securityService.getCurrentId().toString();
+			query.or();
+			query.processVariableValueEquals(WorkflowProcessInstanceService.APPLICANT_IDENTIFIER, loggedUserId);
+			query.processVariableValueEquals(WorkflowProcessInstanceService.IMPLEMENTER_IDENTIFIER, loggedUserId);
+			query.taskInvolvedUser(loggedUserId);
+			// TODO admin
+			query.endOr();
+		}
 		if (WorkflowHistoricTaskInstanceService.SORT_BY_CREATE_TIME.equals(filter.getSortByFields())) {
 			query.orderByTaskCreateTime();
 		} else if (WorkflowHistoricTaskInstanceService.SORT_BY_END_TIME.equals(filter.getSortByFields())) {
@@ -96,18 +99,25 @@ public class DefaultWorkflowHistoricTaskInstanceService implements WorkflowHisto
 			totalPage = (long) (totlaPageFlorred + 1);
 		}
 
-		ResourcesWrapper<WorkflowHistoricTaskInstanceDto> result = new ResourcesWrapper<>(dtos, count, totalPage,
-				filter.getPageNumber(), filter.getPageSize());
-		return result;
+		return new ResourcesWrapper<>(dtos, count, totalPage, filter.getPageNumber(), filter.getPageSize());
 	}
 
 	@Override
 	public WorkflowHistoricTaskInstanceDto get(String historicTaskInstanceId) {
 		WorkflowFilterDto filter = new WorkflowFilterDto();
-		filter.setId(historicTaskInstanceId);
+		filter.setId(UUID.fromString(historicTaskInstanceId));
 		filter.setSortAsc(true);
 		Collection<WorkflowHistoricTaskInstanceDto> resources = this.search(filter).getResources();
 		return !resources.isEmpty() ? resources.iterator().next() : null;
+	}
+	
+	@Override
+	public WorkflowHistoricTaskInstanceDto getTaskByProcessId(String processId) {
+		WorkflowFilterDto filter = new WorkflowFilterDto();
+		filter.setProcessInstanceId(processId);
+		filter.setSortDesc(true);
+		List<WorkflowHistoricTaskInstanceDto> resources = (List<WorkflowHistoricTaskInstanceDto>) this.search(filter).getResources();
+		return !resources.isEmpty() ? resources.get(resources.size()-1) : null;
 	}
 
 	private WorkflowHistoricTaskInstanceDto toResource(HistoricTaskInstance instance) {
@@ -116,10 +126,13 @@ public class DefaultWorkflowHistoricTaskInstanceService implements WorkflowHisto
 		}
 
 		WorkflowHistoricTaskInstanceDto dto = new WorkflowHistoricTaskInstanceDto();
-// Not working ... variables are not local but global in process scope ... may be logged level?
-//		if(instance.getTaskLocalVariables() != null && instance.getTaskLocalVariables().containsKey(WorkflowHistoricTaskInstanceService.TASK_COMPLETE_DECISION)){
-//			dto.setCompleteTaskDecision((String) instance.getTaskLocalVariables().get(WorkflowHistoricTaskInstanceService.TASK_COMPLETE_DECISION));
-//		}		
+		// Not working ... variables are not local but global in process scope
+		// ... may be logged level?
+		// if(instance.getTaskLocalVariables() != null &&
+		// instance.getTaskLocalVariables().containsKey(WorkflowHistoricTaskInstanceService.TASK_COMPLETE_DECISION)){
+		// dto.setCompleteTaskDecision((String)
+		// instance.getTaskLocalVariables().get(WorkflowHistoricTaskInstanceService.TASK_COMPLETE_DECISION));
+		// }	
 		dto.setId(instance.getId());
 		dto.setName(instance.getName());
 		dto.setProcessDefinitionId(instance.getProcessDefinitionId());
@@ -137,7 +150,7 @@ public class DefaultWorkflowHistoricTaskInstanceService implements WorkflowHisto
 		if (identityLinks != null && !identityLinks.isEmpty()) {
 			List<String> candicateUsers = new ArrayList<>();
 			for	(HistoricIdentityLink identity : identityLinks) {
-				if (identity.getType().equals(IdentityLinkType.CANDIDATE)) {
+				if (IdentityLinkType.CANDIDATE.equals(identity.getType())) {
 					candicateUsers.add(identity.getUserId());
 				}
 			}

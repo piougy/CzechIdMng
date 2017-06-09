@@ -77,10 +77,10 @@ public class IdmConfidentialStorageValue extends AbstractEntity {
 	}
 
 	public byte[] getValue() {
-		return value;
+		return value == null ? null : value.clone();
 	}
 
 	public void setValue(byte[] value) {
-		this.value = value;
+		this.value = value == null ? null : value.clone();
 	}
 }

@@ -2,19 +2,14 @@ package eu.bcvsolutions.idm.core.model.entity;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
-import java.util.UUID;
-
-import javax.persistence.ConstraintMode;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.ForeignKey;
 import javax.persistence.Index;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Version;
@@ -29,10 +24,12 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
+import eu.bcvsolutions.idm.core.api.domain.Codeable;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
-import eu.bcvsolutions.idm.core.api.domain.IdentifiableByName;
+import eu.bcvsolutions.idm.core.api.domain.Disableable;
+import eu.bcvsolutions.idm.core.api.domain.RoleType;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
-import eu.bcvsolutions.idm.core.model.domain.IdmRoleType;
+import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 
 /**
  * Role
@@ -42,9 +39,8 @@ import eu.bcvsolutions.idm.core.model.domain.IdmRoleType;
  */
 @Entity
 @Table(name = "idm_role", indexes = { 
-		@Index(name = "ux_idm_role_name", columnList = "name", unique = true),
-		@Index(name = "idx_idm_role_catalogue", columnList = "role_catalogue_id")})
-public class IdmRole extends AbstractEntity implements IdentifiableByName {
+		@Index(name = "ux_idm_role_name", columnList = "name", unique = true)})
+public class IdmRole extends AbstractEntity implements Codeable, FormableEntity, Disableable {
 	
 	private static final long serialVersionUID = -3099001738101202320L;
 
@@ -54,11 +50,6 @@ public class IdmRole extends AbstractEntity implements IdentifiableByName {
 	@Column(name = "name", length = DefaultFieldLengths.NAME, nullable = false)
 	private String name;
 	
-	@Audited
-	@NotNull
-	@Column(name = "disabled", nullable = false)
-	private boolean disabled = false;
-	
 	@Version
 	@JsonIgnore
 	private Long version; // Optimistic lock - will be used with ETag
@@ -67,42 +58,56 @@ public class IdmRole extends AbstractEntity implements IdentifiableByName {
 	@NotNull
 	@Enumerated(EnumType.STRING)
 	@Column(name = "role_type", nullable = false)
-	private IdmRoleType roleType = IdmRoleType.TECHNICAL;
+	private RoleType roleType = RoleType.TECHNICAL;
+	
+	@Audited
+	@NotNull
+	@Column(name = "priority", nullable = false)
+	private int priority = 0;
 
 	@Audited
-	@Column(name = "approve_add_workflow", length = DefaultFieldLengths.NAME)
-	private String approveAddWorkflow;
+	@NotNull
+	@Column(name = "approve_remove", nullable = false)
+	private boolean approveRemove = false;
 	
 	@Audited
-	@Column(name = "approve_remove_workflow", length = DefaultFieldLengths.NAME)
-	private String approveRemoveWorkflow;
-	
-	@Audited
-	@Column(name = "description")
+	@Size(max = DefaultFieldLengths.DESCRIPTION)
+	@Column(name = "description", length = DefaultFieldLengths.DESCRIPTION)
 	private String description;
 	
 	@JsonManagedReference
-	@OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<IdmRoleAuthority> authorities;
-	
-	@JsonManagedReference
 	@OneToMany(mappedBy = "superior", cascade = CascadeType.ALL, orphanRemoval = true)
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
+	@org.hibernate.annotations.ForeignKey( name = "none" )	
 	private List<IdmRoleComposition> subRoles;
 	
 	@JsonProperty(access = Access.READ_ONLY)
 	@OneToMany(mappedBy = "sub")
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
+	@org.hibernate.annotations.ForeignKey( name = "none" )	
 	private List<IdmRoleComposition> superiorRoles;
 	
 	@JsonManagedReference
 	@OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
+	@org.hibernate.annotations.ForeignKey( name = "none" )	
 	private List<IdmRoleGuarantee> guarantees;
 	
-	@Audited
-	@ManyToOne(optional = true)
-	@JoinColumn(name = "role_catalogue_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@JsonManagedReference
+	@OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey( name = "none" )
-	private IdmRoleCatalogue roleCatalogue;
+	@org.hibernate.annotations.ForeignKey( name = "none" )	
+	private List<IdmRoleCatalogueRole> roleCatalogues;
+	
+	@Audited
+	@NotNull
+	@Column(name = "disabled", nullable = false)
+	private boolean disabled;
+
+	@Audited
+	@NotNull
+	@Column(name = "can_be_requested", nullable = false)
+	private boolean canBeRequested;
 
 	public IdmRole() {
 	}
@@ -110,55 +115,45 @@ public class IdmRole extends AbstractEntity implements IdentifiableByName {
 	public IdmRole(UUID id) {
 		super(id);
 	}
-	
-	public IdmRoleCatalogue getRoleCatalogue() {
-		return roleCatalogue;
+
+	public List<IdmRoleCatalogueRole> getRoleCatalogues() {
+		if (roleCatalogues == null) {
+			roleCatalogues = new ArrayList<>();
+		}
+		return roleCatalogues;
 	}
 
-	public void setRoleCatalogue(IdmRoleCatalogue roleCatalogue) {
-		this.roleCatalogue = roleCatalogue;
+	public void setRoleCatalogues(List<IdmRoleCatalogueRole> roleCatalogues) {
+		if (this.roleCatalogues == null) {
+	        this.roleCatalogues = roleCatalogues;
+	    } else {
+	        this.roleCatalogues.clear();
+	        if(roleCatalogues != null){
+	        	this.roleCatalogues.addAll(roleCatalogues);
+	        }
+	    }
 	}
 
-	@Override
 	public String getName() {
 		return name;
+	}
+	
+	@Override
+	@JsonIgnore
+	public String getCode() {
+		return getName();
 	}
 
 	public void setName(String name) {
 		this.name = name;
 	}
-
-	public boolean isDisabled() {
-		return disabled;
-	}
-
-	public void setDisabled(boolean disabled) {
-		this.disabled = disabled;
-	}
 	
-	public void setRoleType(IdmRoleType roleType) {
+	public void setRoleType(RoleType roleType) {
 		this.roleType = roleType;
 	}
 	
-	public IdmRoleType getRoleType() {
+	public RoleType getRoleType() {
 		return roleType;
-	}
-	
-	public List<IdmRoleAuthority> getAuthorities() {
-		if (authorities == null) {
-			authorities = new ArrayList<>();
-		}
-		return authorities;
-	}
-
-	public void setAuthorities(List<IdmRoleAuthority> authorities) {
-		// workaround - orphan removal needs to preserve original list reference
-		if (this.authorities == null) {
-	        this.authorities = authorities;
-	    } else {
-	        this.authorities.clear();
-	        this.authorities.addAll(authorities);
-	    }
 	}
 	
 	public List<IdmRoleComposition> getSubRoles() {
@@ -174,7 +169,9 @@ public class IdmRole extends AbstractEntity implements IdentifiableByName {
 	        this.subRoles = subRoles;
 	    } else {
 	        this.subRoles.clear();
-	        this.subRoles.addAll(subRoles);
+	        if(subRoles != null){
+	        	this.subRoles.addAll(subRoles);
+	        }
 	    }
 	}
 	
@@ -191,7 +188,9 @@ public class IdmRole extends AbstractEntity implements IdentifiableByName {
 	        this.guarantees = guarantees;
 	    } else {
 	        this.guarantees.clear();
-	        this.guarantees.addAll(guarantees);
+	        if(guarantees != null){
+	        	this.guarantees.addAll(guarantees);
+	        }
 	    }
 	}
 
@@ -205,22 +204,6 @@ public class IdmRole extends AbstractEntity implements IdentifiableByName {
 	public void setSuperiorRoles(List<IdmRoleComposition> superiorRoles) {
 		this.superiorRoles = superiorRoles;
 	}
-
-	public String getApproveAddWorkflow() {
-		return approveAddWorkflow;
-	}
-
-	public void setApproveAddWorkflow(String approveAddWorkflow) {
-		this.approveAddWorkflow = approveAddWorkflow;
-	}
-
-	public String getApproveRemoveWorkflow() {
-		return approveRemoveWorkflow;
-	}
-
-	public void setApproveRemoveWorkflow(String approveRemoveWorkflow) {
-		this.approveRemoveWorkflow = approveRemoveWorkflow;
-	}
 	
 	public void setDescription(String description) {
 		this.description = description;
@@ -228,5 +211,39 @@ public class IdmRole extends AbstractEntity implements IdentifiableByName {
 	
 	public String getDescription() {
 		return description;
+	}
+
+	public int getPriority() {
+		return priority;
+	}
+
+	public void setPriority(int priority) {
+		this.priority = priority;
+	}
+	
+	@Override
+	public boolean isDisabled() {
+		return disabled;
+	}
+
+	@Override
+	public void setDisabled(boolean disabled) {
+		this.disabled = disabled;
+	}
+
+	public boolean isApproveRemove() {
+		return approveRemove;
+	}
+
+	public void setApproveRemove(boolean approveRemove) {
+		this.approveRemove = approveRemove;
+	}
+
+	public boolean isCanBeRequested() {
+		return canBeRequested;
+	}
+
+	public void setCanBeRequested(boolean canBeRequested) {
+		this.canBeRequested = canBeRequested;
 	}
 }

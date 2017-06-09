@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>eu.bcvsolutions.idm</groupId>
 	<artifactId>idm-parent</artifactId>
-	<version>7.0.0</version>
+	<version>7.3.0-rc.1</version>
 	<packaging>pom</packaging>
 
 	<name>CzechIdM Parent</name>
@@ -61,7 +60,15 @@
 		<surefire.version>2.18.1</surefire.version>
 		<camel.version>2.17.2</camel.version>
 		<additionalparam>-Xdoclint:none</additionalparam>
+		<maven.javadoc.failOnError>false</maven.javadoc.failOnError>
 	</properties>
+	
+	<repositories>
+		<repository>
+		    <id>nexus</id>
+		    <url>https://nexus.bcvsolutions.eu/repository/maven-releases/</url>
+		</repository>
+	</repositories>
 
 	<dependencyManagement>
 		<dependencies>
@@ -80,7 +87,12 @@
 		<dependency>
 			<groupId>org.activiti</groupId>
 			<artifactId>activiti-spring-boot-starter-basic</artifactId>
-			<version>5.19.0</version>
+			<version>5.22.0</version>
+		</dependency>
+		<dependency> <!-- UUID generator for activiti -->
+		    <groupId>com.fasterxml.uuid</groupId>
+		    <artifactId>java-uuid-generator</artifactId>
+		    <version>3.1.3</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -99,6 +111,10 @@
 			<artifactId>hibernate-envers</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-jpamodelgen</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-rest</artifactId>
 			<exclusions>
@@ -108,8 +124,9 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		
-		<!-- we are using entity lookups, which is not in version provided by dependency management -->
+
+		<!-- we are using entity lookups, which is not in version provided by dependency 
+			management -->
 		<dependency>
 			<groupId>org.springframework.data</groupId>
 			<artifactId>spring-data-rest-webmvc</artifactId>
@@ -166,6 +183,10 @@
 			<artifactId>spring-boot-starter-websocket</artifactId>
 		</dependency>
 		<dependency>
+		    <groupId>org.springframework.security</groupId>
+		    <artifactId>spring-security-messaging</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.apache.camel</groupId>
 			<artifactId>camel-spring-boot-starter</artifactId>
 			<version>${camel.version}</version>
@@ -189,9 +210,9 @@
 			<artifactId>groovy-all</artifactId>
 		</dependency>
 		<dependency>
-		    <groupId>org.kohsuke</groupId>
-		    <artifactId>groovy-sandbox</artifactId>
-		    <version>1.11</version>
+			<groupId>org.kohsuke</groupId>
+			<artifactId>groovy-sandbox</artifactId>
+			<version>1.11</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.security.oauth</groupId>
@@ -213,12 +234,34 @@
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
 		</dependency>
-		
+
+		<!-- Using joda time in entities and json -->
+		<!-- Envers 4.x has issue with java.time -->
+		<dependency>
+			<groupId>joda-time</groupId>
+			<artifactId>joda-time</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.jadira.usertype</groupId>
+			<artifactId>usertype.core</artifactId>
+			<version>3.1.0.CR1</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.datatype</groupId>
+			<artifactId>jackson-datatype-joda</artifactId>
+		</dependency>
+
 		<!-- We are using migration strategy and configuration from 4.x -->
 		<dependency>
 			<groupId>org.flywaydb</groupId>
 			<artifactId>flyway-core</artifactId>
 			<version>4.0</version>
+		</dependency>
+		
+		<!-- Quartz scheduler -->
+		<dependency>
+			<groupId>org.quartz-scheduler</groupId>
+			<artifactId>quartz</artifactId>
 		</dependency>
 
 		<dependency>
@@ -226,10 +269,21 @@
 			<artifactId>spring-boot-starter-tomcat</artifactId>
 			<scope>provided</scope>
 		</dependency>
-		<!--ICF dependency -->
+		<!-- Mapper for DTO and Entity -->
+		<dependency>
+		    <groupId>org.modelmapper</groupId>
+		    <artifactId>modelmapper</artifactId>
+		    <version>0.7.4</version>
+		</dependency>
+		<!--IC dependency -->
 		<dependency>
 			<groupId>net.tirasa.connid</groupId>
 			<artifactId>connector-framework</artifactId>
+			<version>1.4.2.0</version>
+		</dependency>
+		<dependency>
+			<groupId>net.tirasa.connid</groupId>
+			<artifactId>connector-framework-internal</artifactId>
 			<version>1.4.2.0</version>
 		</dependency>
 		<dependency>
@@ -238,20 +292,43 @@
 			<version>2.2.4</version>
 		</dependency>
 		<dependency>
-		  	<groupId>net.tirasa.connid.bundles</groupId>
-		  	<artifactId>net.tirasa.connid.bundles.ldap</artifactId>
-		  	<version>1.5.1</version>
+			<groupId>net.tirasa.connid.bundles</groupId>
+			<artifactId>net.tirasa.connid.bundles.ldap</artifactId>
+			<version>1.5.1</version>
 		</dependency>
 		<dependency>
 			<groupId>net.tirasa.connid.bundles</groupId>
-		  	<artifactId>net.tirasa.connid.bundles.csvdir</artifactId>
-		  	<version>0.8.5</version>
+			<artifactId>net.tirasa.connid.bundles.csvdir</artifactId>
+			<version>0.8.5</version>
 		</dependency>
-		<dependency>		
+		<dependency>
+			<groupId>net.tirasa.connid.bundles.db</groupId>
+			<artifactId>net.tirasa.connid.bundles.db.scriptedsql</artifactId>
+			<version>2.2.4</version>
+		</dependency>
+		<dependency>
 			<groupId>org.reflections</groupId>
 			<artifactId>reflections</artifactId>
 			<version>0.9.9-RC1</version>
 		</dependency>
+		
+		<!-- tree indexes -->
+		<dependency>
+			<groupId>eu.bcvsolutions.forest.index</groupId>
+			<artifactId>forest-index</artifactId>
+			<version>0.1.1</version>
+		</dependency>
+		
+		<dependency>
+		    <groupId>org.apache.velocity</groupId>
+		    <artifactId>velocity-tools</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+		</dependency>
+
 	</dependencies>
 
 	<build>
@@ -263,11 +340,51 @@
 				<configuration>
 					<source>1.8</source>
 					<target>1.8</target>
+					<compilerArgument>-proc:none</compilerArgument>
 					<encoding>${project.build.sourceEncoding}</encoding>
 					<useIncrementalCompilation>false</useIncrementalCompilation>
 				</configuration>
 			</plugin>
 			
+			<plugin>
+				<groupId>org.bsc.maven</groupId>
+				<artifactId>maven-processor-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>process</id>
+						<goals>
+							<goal>process</goal>
+						</goals>
+						<phase>generate-sources</phase>
+						<configuration>
+							<!-- source output directory -->
+							<outputDirectory>target/metamodel</outputDirectory>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<version>1.3</version>
+				<executions>
+					<execution>
+						<id>add-source</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>add-source</goal>
+						</goals>
+
+						<configuration>
+							<sources>
+								<source>target/metamodel</source>
+							</sources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
 			<!-- execute junit tests -->
 			<plugin>
 				<artifactId>maven-surefire-plugin</artifactId>
@@ -284,7 +401,7 @@
 					<threadCount>1</threadCount>
 				</configuration>
 			</plugin>
-			
+
 			<plugin>
 				<artifactId>maven-deploy-plugin</artifactId>
 				<version>2.8.1</version>
@@ -301,13 +418,13 @@
 					<deployAtEnd>false</deployAtEnd>
 				</configuration>
 			</plugin>
-			
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-pmd-plugin</artifactId>
 				<version>3.6</version>
 			</plugin>
-			
+
 			<plugin>
 				<groupId>com.atlassian.maven.plugins</groupId>
 				<artifactId>maven-jgitflow-plugin</artifactId>
@@ -346,7 +463,7 @@
 				</dependency>
 			</dependencies>
 		</profile>
-		
+
 		<profile>
 			<id>dev</id>
 			<properties>
@@ -359,7 +476,7 @@
 				</dependency>
 			</dependencies>
 		</profile>
-		
+
 		<profile>
 			<id>dev-mysql</id>
 			<properties>
@@ -372,13 +489,14 @@
 				</dependency>
 			</dependencies>
 		</profile>
-		
+
 		<profile>
 			<id>separatedApp</id>
 			<properties>
 				<spring.profiles.active>separatedApp</spring.profiles.active>
 			</properties>
-			<!-- DistrubitonManagment resolves deploying on remote servers/repositories - used by goal 'deploy' -->
+			<!-- DistrubitonManagment resolves deploying on remote servers/repositories 
+				- used by goal 'deploy' -->
 			<distributionManagement>
 				<snapshotRepository>
 					<id>nexus</id>
@@ -393,7 +511,7 @@
 				</dependency>
 			</dependencies>
 		</profile>
-		
+
 		<profile>
 			<id>release</id>
 			<properties>
@@ -405,7 +523,8 @@
 					<artifactId>h2</artifactId>
 				</dependency>
 			</dependencies>
-			<!-- DistrubitonManagment resolves deploying on remote servers/repositories - used by goal 'deploy' -->
+			<!-- DistrubitonManagment resolves deploying on remote servers/repositories 
+				- used by goal 'deploy' -->
 			<distributionManagement>
 				<repository>
 					<id>nexus</id>
@@ -415,7 +534,7 @@
 			</distributionManagement>
 		</profile>
 	</profiles>
-	
+
 	<!-- used for reporting pmd results in jenkins -->
 	<reporting>
 		<plugins>

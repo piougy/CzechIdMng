@@ -1,16 +1,17 @@
 package eu.bcvsolutions.idm.core.model.repository;
 
 import java.util.List;
+import java.util.UUID;
 
+import org.joda.time.LocalDate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
+import eu.bcvsolutions.idm.core.api.dto.filter.IdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
-import eu.bcvsolutions.idm.core.model.dto.filter.IdentityRoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
@@ -20,43 +21,42 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRole;
  * 
  * @author Radek Tomiška
  */
-@RepositoryRestResource(//
-		collectionResourceRel = "identityRoles", //
-		path = "identity-roles", //
-		itemResourceRel = "identityRole",
-		exported = false//
-	)
 public interface IdmIdentityRoleRepository extends AbstractEntityRepository<IdmIdentityRole, IdentityRoleFilter> {
 	
-	/*
-	 * (non-Javadoc)
-	 * @see eu.bcvsolutions.idm.core.api.repository.BaseEntityRepository#find(eu.bcvsolutions.idm.core.api.dto.BaseFilter, Pageable)
+	/**
+	 * @deprecated use IdmIdentityRoleService (uses criteria api)
 	 */
 	@Override
-	@Query(value = "select e from IdmIdentityRole e" +
-	        " where " +
-	        " (?#{[0].identityId} is null or e.identity.id = ?#{[0].identityId})" +
-	        " and" +
-	        "(?#{[0].text} is null or lower(e.identity.username) like ?#{[0].text == null ? '%' : '%'.concat([0].toLowerCase()).concat('%')})")
-	Page<IdmIdentityRole> find(IdentityRoleFilter filter, Pageable pageable);
+	@Deprecated
+	@Query(value = "select e from #{#entityName} e")
+	default Page<IdmIdentityRole> find(IdentityRoleFilter filter, Pageable pageable) {
+		throw new UnsupportedOperationException("Use IdmIdentityRoleService (uses criteria api)");
+	}
 	
-	Page<IdmIdentityRole> findByIdentity(@Param("identity") IdmIdentity identity, Pageable pageable);
+	Page<IdmIdentityRole> findByIdentityContract_Identity(@Param("identity") IdmIdentity identity, Pageable pageable);
 	
-	List<IdmIdentityRole> findAllByIdentity(@Param("identity") IdmIdentity identity, Sort sort);
+	List<IdmIdentityRole> findAllByIdentityContract_Id(@Param("identityContractId") UUID identityContractId, Sort sort);
+	
+	List<IdmIdentityRole> findAllByIdentityContract_Identity_Id(@Param("identityId") UUID identityId, Sort sort);
 
-	Page<IdmIdentityRole> findByIdentityUsername(@Param("username") String username, Pageable pageable);
+	Page<IdmIdentityRole> findByIdentityContract_Identity_Username(@Param("username") String username, Pageable pageable);
 	
 	Long countByRole(@Param("role") IdmRole role);
 	
 	Page<IdmIdentityRole> findByRole(@Param("role") IdmRole role, Pageable pageable);
 	
-	List<IdmIdentityRole> findAllByIdentityAndRole(@Param("identity") IdmIdentity identity, @Param("role") IdmRole role);
-	
 	/**
-	 * Removes all roles of given identity
+	 * Returns assigned roles by given automatic role.
 	 * 
-	 * @param identity
+	 * @param roleTreeNodeId
+	 * @param pageable
 	 * @return
 	 */
-	int deleteByIdentity(@Param("identity") IdmIdentity identity);
+	Page<IdmIdentityRole> findByRoleTreeNode_Id(@Param("roleTreeNodeId") UUID roleTreeNodeId, Pageable pageable);
+	
+	List<IdmIdentityRole> findAllByIdentityContract_IdentityAndRole(@Param("identity") IdmIdentity identity, @Param("role") IdmRole role);
+
+	@Query(value = "select e from #{#entityName} e"
+			+ " where e.validTill is not null and e.validTill < :expirationDate")
+	Page<IdmIdentityRole> findExpiredRoles(@Param("expirationDate") LocalDate expirationDate, Pageable page);
 }

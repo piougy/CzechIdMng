@@ -9,11 +9,17 @@ import Tooltip from '../Tooltip/Tooltip';
  * TODO: Improvent:
  * - add icon
  * - add button size (className is abused now)
+ *
+ * @author Radek Tomiška
  */
 class Button extends AbstractComponent {
 
   constructor(props) {
     super(props);
+  }
+
+  focus() {
+    this.refs.button.focus();
   }
 
   render() {
@@ -53,40 +59,43 @@ class Button extends AbstractComponent {
     //
     return (
       <Tooltip placement={titlePlacement} value={title} delayShow={titleDelayShow}>
-        <button
-          type={type ? type : 'button'}
-          disabled={disabled || showLoading}
-          className={classNames}
-          style={style}
-          onClick={onClick}>
-          {
-            showLoading
-            ?
-            <span>
-              {
-                showLoadingIcon
-                ?
-                <Icon type="fa" icon="refresh" showLoading/>
-                :
-                null
-              }
-              {
-                showLoadingIcon && _showLoadingText
-                ?
-                '\u00a0'
-                :
-                null
-              }
-              {_showLoadingText}
-            </span>
-            :
-            <span>
-              { text }
-              { children }
-            </span>
-          }
-        </button>
-      </Tooltip>
+        <span>
+          <button
+            ref="button"
+            type={type ? type : 'button'}
+            disabled={disabled || showLoading}
+            className={classNames}
+            style={style}
+            onClick={onClick}>
+            {
+              showLoading
+              ?
+              <span>
+                {
+                  showLoadingIcon
+                  ?
+                  <Icon type="fa" icon="refresh" showLoading/>
+                  :
+                  null
+                }
+                {
+                  showLoadingIcon && _showLoadingText
+                  ?
+                  '\u00a0'
+                  :
+                  null
+                }
+                {_showLoadingText}
+              </span>
+              :
+              <span>
+                { text }
+                { children }
+              </span>
+            }
+          </button>
+        </span>
+     </Tooltip>
     );
   }
 }

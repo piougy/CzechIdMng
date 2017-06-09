@@ -1,0 +1,84 @@
+package eu.bcvsolutions.idm.core.model.event.processor.identity;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Description;
+import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
+
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
+import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
+import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
+import eu.bcvsolutions.idm.core.api.event.EntityEvent;
+import eu.bcvsolutions.idm.core.api.event.EventResult;
+import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
+import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordService;
+
+/**
+ * Save identity's password
+ * 
+ * @author Radek Tomiška
+ * @author Ondrej Kopr <kopr@xyxy.cz>
+ *
+ */
+@Component
+@Description("Persist identity's password.")
+public class IdentityPasswordProcessor extends CoreEventProcessor<IdmIdentityDto> {
+
+	public static final String PROCESSOR_NAME = "identity-password-processor";
+	public static final String PROPERTY_PASSWORD_CHANGE_DTO = "idm:password-change-dto"; 
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdentityPasswordProcessor.class);
+	private final IdmPasswordService passwordService;
+	
+	@Autowired
+	public IdentityPasswordProcessor(IdmPasswordService passwordService) {
+		super(IdentityEventType.PASSWORD);
+		//
+		Assert.notNull(passwordService);
+		//
+		this.passwordService = passwordService;
+	}
+	
+	@Override
+	public String getName() {
+		return PROCESSOR_NAME;
+	}
+
+	@Override
+	public EventResult<IdmIdentityDto> process(EntityEvent<IdmIdentityDto> event) {
+		IdmIdentityDto identity = event.getContent();
+		PasswordChangeDto passwordChangeDto = (PasswordChangeDto) event.getProperties().get(PROPERTY_PASSWORD_CHANGE_DTO);
+		Assert.notNull(passwordChangeDto);
+		//		
+		if (passwordChangeDto.isAll() || passwordChangeDto.isIdm()) { // change identity's password			
+			savePassword(identity, passwordChangeDto);
+		}
+		return new DefaultEventResult<>(event, this);
+	}
+	
+	/**
+	 * Saves identity's password
+	 * 
+	 * @param identity
+	 * @param newPassword
+	 */
+	protected void savePassword(IdmIdentityDto identity, PasswordChangeDto passwordDto) {
+		LOG.debug("Saving password for identity [{}].", identity.getUsername());
+		this.passwordService.save(identity, passwordDto);
+	}
+	
+	/**
+	 * Delete identity's password from confidential storage
+	 * 
+	 * @param identity
+	 */
+	protected void deletePassword(IdmIdentityDto identity) {
+		LOG.debug("Deleting password for identity [{}]. ", identity.getUsername());
+		this.passwordService.delete(identity);
+	}
+	
+	@Override
+	public int getOrder() {
+		return super.getOrder() + 100;
+	}
+}

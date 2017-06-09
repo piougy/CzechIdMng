@@ -1,6 +1,11 @@
 import _ from 'lodash';
+//
+import Stomp from 'stompjs';
+import SockJS from 'sockjs-client';
+//
 import { AuthenticateService, LocalizationService } from '../../services';
 import FlashMessagesManager from '../flash/FlashMessagesManager';
+import ConfigLoader from '../../utils/ConfigLoader';
 
 /**
  * action types
@@ -9,23 +14,53 @@ export const REQUEST_LOGIN = 'REQUEST_LOGIN';
 export const RECEIVE_LOGIN = 'RECEIVE_LOGIN';
 export const RECEIVE_LOGIN_EXPIRED = 'RECEIVE_LOGIN_EXPIRED';
 export const RECEIVE_LOGIN_ERROR = 'RECEIVE_LOGIN_ERROR';
+export const REQUEST_REMOTE_LOGIN = 'REQUEST_REMOTE_LOGIN';
+export const RECEIVE_REMOTE_LOGIN_ERROR = 'RECEIVE_REMOTE_LOGIN_ERROR';
 export const LOGOUT = 'LOGOUT';
 //
 const TOKEN_COOKIE_NAME = 'XSRF-TOKEN';
+const PERMISSION_SEPARATOR = '_';
+const ADMIN_PERMISSION = 'ADMIN';
+const ADMIN_AUTHORITY = `APP${PERMISSION_SEPARATOR}${ADMIN_PERMISSION}`;
 
 const authenticateService = new AuthenticateService();
+const flashMessagesManager = new FlashMessagesManager();
+let stompClient = null;
 
 /**
- * Encapsulate user context / authentication and authorization (commig soon)
+ * Encapsulate user context / authentication and authorization
+ *
+ * @author Radek Tomiška
  */
 export default class SecurityManager {
 
   constructor() {
-    this.flashMessagesManager = new FlashMessagesManager();
+  }
+
+  /**
+   * If authentication token's expiration time has been extended or modified,
+   * it is stored in AuthenticateService#lastToken. The method checks if
+   * new exteded token is available and in case it is, the new token
+   * is set into userContext.
+   */
+  checkRefreshedToken() {
+    return (dispatch, getState) => {
+      const userContext = getState().security.userContext;
+      const lt = AuthenticateService.getLastToken();
+      if (lt && userContext.tokenCIDMST && userContext.tokenCIDMST !== lt) {
+        userContext.tokenCIDMST = lt;
+        userContext.authorities = AuthenticateService.getTokenAuthorities(lt);
+        dispatch({
+          type: RECEIVE_LOGIN,
+          userContext
+        });
+      }
+    };
   }
 
   /**
    * Login user
+   *
    * @param  {string} username
    * @param  {string} password
    * @param  {function} redirect
@@ -34,35 +69,46 @@ export default class SecurityManager {
   login(username, password, redirect) {
     return (dispatch, getState) => {
       dispatch(this.requestLogin());
-      dispatch(this.flashMessagesManager.hideAllMessages());
+      dispatch(flashMessagesManager.hideAllMessages());
       //
       authenticateService.login(username, password)
-      .then(json => {
-        getState().logger.debug('logged user', json);
-        //
-        // resolve authorities from auth
-        const authorities = json.authentication.authorities.map(authority => { return authority.authority; });
-        getState().logger.debug('logged user authorities', authorities);
-        //
-        // construct logged user context
-        const userContext = {
-          username: json.username,
-          isAuthenticated: true,
-          tokenCIDMST: json.token,
-          tokenCSRF: authenticateService.getCookie(TOKEN_COOKIE_NAME),
-          authorities
-        };
-        //
-        // remove all messages (only logout could be fond in messages after logout)
-        dispatch(this.flashMessagesManager.removeAllMessages());
-        //
-        // send userContext to state
-        dispatch(this.receiveLogin(userContext, redirect));
-      })
-      .catch(error => {
-        dispatch(this.receiveLoginError(error, redirect));
-      });
+        .then(json => this._handleUserAuthSuccess(dispatch, getState, redirect, json))
+        .catch(error => dispatch(this.receiveLoginError(error, redirect)));
     };
+  }
+
+  /**
+   * Tries to authenticate by remote authority token.
+   * In case of successful authentication sets the tokenCIDMST into userContext.
+   */
+  remoteLogin(redirect) {
+    return (dispatch, getState) => {
+      dispatch(this.requestRemoteLogin());
+      //
+      authenticateService.remoteLogin()
+        .then(json => this._handleUserAuthSuccess(dispatch, getState, redirect, json))
+        .catch(error => dispatch(this.receiveRemoteLoginError(error, redirect)));
+    };
+  }
+
+  _handleUserAuthSuccess(dispatch, getState, redirect, json) {
+    const decoded = AuthenticateService.decodeToken(json.token);
+    const authorities = AuthenticateService.getAuthorities(decoded);
+    const userName = decoded.currentUsername;
+    // construct logged user context
+    const userContext = {
+      isAuthenticated: true,
+      username: userName,
+      tokenCIDMST: json.token,
+      tokenCSRF: authenticateService.getCookie(TOKEN_COOKIE_NAME),
+      authorities
+    };
+    //
+    // remove all messages (only logout could be fond in messages after logout)
+    dispatch(flashMessagesManager.removeAllMessages());
+    //
+    // send userContext to state
+    dispatch(this.receiveLogin(userContext, redirect));
   }
 
   /*
@@ -74,8 +120,16 @@ export default class SecurityManager {
     };
   }
 
+  requestRemoteLogin() {
+    return {
+      type: REQUEST_REMOTE_LOGIN
+    };
+  }
+
   receiveLogin(userContext, redirect) {
-    return (dispatch) => {
+    return dispatch => {
+      // login to websocket
+      dispatch(SecurityManager.connectStompClient(userContext));
       // getState().logger.debug('received login', userContext);
       // redirect after login, if needed
       if (redirect) {
@@ -93,7 +147,7 @@ export default class SecurityManager {
       authenticateService.logout();
       // add error message
       if (error) {
-        dispatch(this.flashMessagesManager.addErrorMessage({ position: 'tc' }, error));
+        dispatch(flashMessagesManager.addErrorMessage({ position: 'tc' }, error));
       }
       // redirect after login, if needed
       if (redirect) {
@@ -101,6 +155,18 @@ export default class SecurityManager {
       }
       dispatch({
         type: RECEIVE_LOGIN_ERROR
+      });
+    };
+  }
+
+  receiveRemoteLoginError(error) {
+    return (dispatch, getState) => {
+      // add error message
+      if (error) {
+        getState().logger.warn('Remote login error occurred:', error);
+      }
+      dispatch({
+        type: RECEIVE_REMOTE_LOGIN_ERROR
       });
     };
   }
@@ -114,8 +180,8 @@ export default class SecurityManager {
   logout(redirect) {
     return dispatch => {
       authenticateService.logout();
-      dispatch(this.flashMessagesManager.removeAllMessages());
-      dispatch(this.flashMessagesManager.addMessage({
+      dispatch(flashMessagesManager.removeAllMessages());
+      dispatch(flashMessagesManager.addMessage({
         key: 'logout',
         message: LocalizationService.i18n('content.logout.message.logout'),
         level: 'info',
@@ -139,8 +205,12 @@ export default class SecurityManager {
   }
 
   receiveLogout() {
-    return {
-      type: LOGOUT
+    return dispatch => {
+      // logout from web sockets
+      dispatch(SecurityManager.disconectStompClient());
+      dispatch({
+        type: LOGOUT
+      });
     };
   }
 
@@ -178,7 +248,10 @@ export default class SecurityManager {
     if (!userContext) {
       userContext = AuthenticateService.getUserContext();
     }
-    return this.hasAuthority('APP_ADMIN', userContext);
+    if (!this.isAuthenticated(userContext) || !userContext.authorities) {
+      return false;
+    }
+    return _.includes(userContext.authorities, ADMIN_AUTHORITY);
   }
 
   /**
@@ -207,7 +280,9 @@ export default class SecurityManager {
     if (!this.isAuthenticated(userContext) || !userContext.authorities || !authority) {
       return false;
     }
-    return _.includes(userContext.authorities, authority);
+    return this.isAdmin(userContext) // admin
+      || _.includes(userContext.authorities, `${authority.split(PERMISSION_SEPARATOR)[0]}${PERMISSION_SEPARATOR}${ADMIN_PERMISSION}`) // group admin
+      || _.includes(userContext.authorities, authority); // single authority
   }
 
   /**
@@ -224,7 +299,12 @@ export default class SecurityManager {
     if (!this.isAuthenticated(userContext) || !userContext.authorities || !authorities) {
       return false;
     }
-    return _.intersection(userContext.authorities, authorities).length > 0;
+    if (this.isAdmin(userContext)) {
+      return true;
+    }
+    return authorities.some(authority => {
+      return this.hasAuthority(authority, userContext);
+    });
   }
 
   /**
@@ -241,7 +321,12 @@ export default class SecurityManager {
     if (!this.isAuthenticated(userContext) || !userContext.authorities || !authorities) {
       return false;
     }
-    return _.difference(authorities, userContext.authorities).length === 0;
+    if (this.isAdmin(userContext)) {
+      return true;
+    }
+    return authorities.every(authority => {
+      return this.hasAuthority(authority, userContext);
+    });
   }
 
   /**
@@ -251,7 +336,7 @@ export default class SecurityManager {
     if (!accessItems) {
       return false;
     }
-    if (!Array.isArray(accessItems)) {
+    if (!_.isArray(accessItems)) {
       accessItems = [accessItems];
     }
 
@@ -303,7 +388,7 @@ export default class SecurityManager {
     if (accessItems.length === 0) {
       return false;
     }
-    if (!Array.isArray(accessItems)) {
+    if (!_.isArray(accessItems)) {
       accessItems = [accessItems];
     }
     return accessItems.some(accessItem => {
@@ -327,4 +412,54 @@ export default class SecurityManager {
       });
     }
   }
+
+  /**
+   * Connect websocket client to receiving flashmessages from BE
+   *
+   * @param  {UserContext} userContext
+   */
+  static connectStompClient(userContext = null) {
+    return (dispatch, getState) => {
+      dispatch(this.disconectStompClient());
+      if (!userContext) {
+        userContext = AuthenticateService.getUserContext();
+      }
+      // logged user only
+      if (userContext && userContext.username) {
+        stompClient = Stomp.over(new SockJS(`${ConfigLoader.getServerUrl()}/websocket-info`));
+        const headers = {
+          login: userContext.username,
+          CIDMST: userContext.tokenCIDMST
+        };
+        stompClient.connect(headers, () => {
+          getState().logger.debug(`stomp client for messages - identity [${userContext.username}] is logged.`);
+          stompClient.subscribe(`/user/${userContext.username}/queue/messages`, (stompMessage) => {
+            const rawMessage = JSON.parse(stompMessage.body);
+            dispatch(flashMessagesManager.addMessage(flashMessagesManager.convertFromWebsocketMessage(rawMessage)));
+          }, headers);
+        }, () => {
+          // try reconnect
+          // setTimeout(SecurityManager.connectStompClient, 10000);
+        });
+      }
+    };
+  }
+
+  /**
+   * Disconnect websocket client to receiving flashmessages from BE
+   *
+   * @return {[type]} [description]
+   */
+  static disconectStompClient() {
+    return (dispatch, getState) => {
+      if (stompClient) {
+        stompClient.disconnect(() => {
+          getState().logger.debug(`stomp client for messages - websocket successfully closed.`);
+        });
+      }
+    };
+  }
 }
+
+SecurityManager.ADMIN_PERMISSION = ADMIN_PERMISSION;
+SecurityManager.ADMIN_AUTHORITY = ADMIN_AUTHORITY;

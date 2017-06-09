@@ -18,6 +18,11 @@ marked.setOptions({
   smartypants: false
 });
 
+/**
+ * Help icon opens modal window with user documentation.
+ *
+ * @author Radek Tomiška
+ */
 export default class HelpIcon extends AbstractContextComponent {
 
   constructor(props, context) {

@@ -4,140 +4,178 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
+
+import org.apache.commons.lang.StringUtils;
+import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdentityRoleFilter;
+import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
+import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
-import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleDto;
-import eu.bcvsolutions.idm.core.model.dto.filter.IdentityRoleFilter;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
-import eu.bcvsolutions.idm.core.model.entity.IdmRole;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole_;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
+import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogueRole;
+import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogueRole_;
+import eu.bcvsolutions.idm.core.model.entity.IdmRole_;
 import eu.bcvsolutions.idm.core.model.event.IdentityRoleEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityRoleEvent.IdentityRoleEventType;
-import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
+import eu.bcvsolutions.idm.core.model.event.processor.identity.IdentityRoleDeleteProcessor;
+import eu.bcvsolutions.idm.core.model.event.processor.identity.IdentityRoleSaveProcessor;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
-import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
+import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
 /**
  * Operations with identity roles - usable in wf
  * 
  * @author svanda
+ * @author Radek Tomiška
  *
  */
-@Service
-public class DefaultIdmIdentityRoleService extends AbstractReadWriteEntityService<IdmIdentityRole, IdentityRoleFilter>
+public class DefaultIdmIdentityRoleService 
+		extends AbstractReadWriteDtoService<IdmIdentityRoleDto, IdmIdentityRole, IdentityRoleFilter>
 		implements IdmIdentityRoleService {
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmIdentityRoleService.class);
 
-	private final IdmIdentityRoleRepository identityRoleRepository;
-	private final IdmRoleRepository roleRepository;
-	private final IdmIdentityRepository identityRepository;
-	private final EntityEventManager entityEventProcessorService;
+	private final IdmIdentityRoleRepository repository;
+	private final EntityEventManager entityEventManager;
 
 	@Autowired
 	public DefaultIdmIdentityRoleService(
-			IdmIdentityRoleRepository identityRoleRepository,
-			IdmRoleRepository roleRepository,
-			IdmIdentityRepository identityRepository,
-			EntityEventManager entityEventProcessorService) {
-		super(identityRoleRepository);
+			IdmIdentityRoleRepository repository,
+			EntityEventManager entityEventManager) {
+		super(repository);
 		//
-		Assert.notNull(roleRepository);
-		Assert.notNull(identityRepository);
-		Assert.notNull(entityEventProcessorService);
+		Assert.notNull(entityEventManager);
 		//
-		this.identityRoleRepository = identityRoleRepository;
-		this.roleRepository = roleRepository;
-		this.identityRepository = identityRepository;
-		this.entityEventProcessorService = entityEventProcessorService;
+		this.repository = repository;
+		this.entityEventManager = entityEventManager;
 	}
 	
 	@Override
-	@Transactional
-	public IdmIdentityRole save(IdmIdentityRole entity) {
-		Assert.notNull(entity);
-		Assert.notNull(entity.getRole());
-		Assert.notNull(entity.getIdentity());
-		//
-		LOG.debug("Saving role [{}] for identity [{}]", entity.getRole().getName(), entity.getIdentity().getUsername());
-		return entityEventProcessorService.process(new IdentityRoleEvent(IdentityRoleEventType.SAVE, entity)).getContent();
+	public AuthorizableType getAuthorizableType() {
+		return new AuthorizableType(CoreGroupPermission.IDENTITYROLE, getEntityClass());
 	}
-
+	
+	/**
+	 * Publish {@link IdentityRoleEvent} only.
+	 * 
+	 * @see {@link IdentityRoleSaveProcessor}
+	 */
 	@Override
 	@Transactional
-	public void delete(IdmIdentityRole entity) {
+	public IdmIdentityRoleDto save(IdmIdentityRoleDto dto, BasePermission... permission) {
+		Assert.notNull(dto);
+		Assert.notNull(dto.getRole());
+		Assert.notNull(dto.getIdentityContract());
+		//
+		LOG.debug("Saving role [{}] for identity contract [{}]", dto.getRole(), dto.getIdentityContract());
+		return entityEventManager.process(
+				new IdentityRoleEvent(isNew(dto) ? IdentityRoleEventType.CREATE : IdentityRoleEventType.UPDATE, dto)).getContent();
+	}
+
+	/**
+	 * Publish {@link IdentityRoleEvent} only.
+	 * 
+	 * @see {@link IdentityRoleDeleteProcessor}
+	 */
+	@Override
+	@Transactional
+	public void delete(IdmIdentityRoleDto entity, BasePermission... permission) {
 		Assert.notNull(entity);
 		Assert.notNull(entity.getRole());
-		Assert.notNull(entity.getIdentity());
+		Assert.notNull(entity.getIdentityContract());
 		//
-		LOG.debug("Deleting role [{}] for identity [{}]", entity.getRole().getName(), entity.getIdentity().getUsername());
-		entityEventProcessorService.process(new IdentityRoleEvent(IdentityRoleEventType.DELETE, entity));
+		LOG.debug("Deleting role [{}] for identity contract [{}]", entity.getRole(), entity.getIdentityContract());
+		entityEventManager.process(new IdentityRoleEvent(IdentityRoleEventType.DELETE, entity));
+	}
+	
+	@Override
+	protected List<Predicate> toPredicates(Root<IdmIdentityRole> root, CriteriaQuery<?> query, CriteriaBuilder builder, IdentityRoleFilter filter) {
+		List<Predicate> predicates = new ArrayList<>();
+		// id
+		if (filter.getId() != null) {
+			predicates.add(builder.equal(root.get(AbstractEntity_.id), filter.getId()));
+		}
+		// quick - by identity's username
+		if (StringUtils.isNotEmpty(filter.getText())) {
+			predicates.add(builder.like(
+					builder.lower(root.get(IdmIdentityRole_.identityContract).get(IdmIdentityContract_.identity).get(IdmIdentity_.username)),
+					"%" + filter.getText().toLowerCase() + "%")
+					);
+		}
+		if (filter.getIdentityId() != null) {
+			predicates.add(builder.equal(
+					root.get(IdmIdentityRole_.identityContract).get(IdmIdentityContract_.identity).get(IdmIdentity_.id), 
+					filter.getIdentityId())
+					);
+		}
+		if (filter.getRoleCatalogueId() != null) {
+			Subquery<IdmRoleCatalogueRole> roleCatalogueRoleSubquery = query.subquery(IdmRoleCatalogueRole.class);
+			Root<IdmRoleCatalogueRole> subRootRoleCatalogueRole = roleCatalogueRoleSubquery.from(IdmRoleCatalogueRole.class);
+			roleCatalogueRoleSubquery.select(subRootRoleCatalogueRole);
+			
+			roleCatalogueRoleSubquery.where(
+                    builder.and(
+                    		builder.equal(subRootRoleCatalogueRole.get(IdmRoleCatalogueRole_.role), root.get(IdmIdentityRole_.role)),
+                    		builder.equal(subRootRoleCatalogueRole.get(IdmRoleCatalogueRole_.roleCatalogue).get(AbstractEntity_.id), filter.getRoleCatalogueId())
+                    		));
+			predicates.add(builder.exists(roleCatalogueRoleSubquery));
+		}
+		return predicates;
 	}
 	
 	@Override
 	@Transactional(readOnly = true)
-	public List<IdmIdentityRole> getRoles(IdmIdentity identity) {
-		return identityRoleRepository.findAllByIdentity(identity, new Sort("role.name"));
+	public List<IdmIdentityRoleDto> findAllByIdentity(UUID identityId) {
+		return toDtos(repository.findAllByIdentityContract_Identity_Id(identityId, getDefaultSort()), false);
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<IdmIdentityRoleDto> findAllByContract(UUID identityContractId) {
+		Assert.notNull(identityContractId);
+		//
+		return toDtos(repository.findAllByIdentityContract_Id(identityContractId, getDefaultSort()), false);
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public Page<IdmIdentityRoleDto> findByAutomaticRole(UUID roleTreeNodeId, Pageable pageable) {
+		return toDtoPage(repository.findByRoleTreeNode_Id(roleTreeNodeId, pageable));
 	}
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<IdmIdentityRole> getByIds(List<String> ids) {
-		if (ids == null) {
-			return null;
-		}
-		List<IdmIdentityRole> idmRoles = new ArrayList<>();
-		for (String id : ids) {
-			idmRoles.add(get(id));
-		}
-		return idmRoles;
-	}
-
-	@Override
-	@Transactional
-	public IdmIdentityRole updateByDto(String id, IdmIdentityRoleDto dto) {
-		Assert.notNull(id);
-		Assert.notNull(dto);
-
-		IdmIdentityRole identityRole = identityRoleRepository.findOne(UUID.fromString(id));
-		return this.save(toEntity(dto, identityRole));
-	}
-
-	@Override
-	@Transactional
-	public IdmIdentityRole addByDto(IdmIdentityRoleDto dto) {
-		Assert.notNull(dto);
+	public Page<IdmIdentityRoleDto> findExpiredRoles(LocalDate expirationDate, Pageable page) {
+		Assert.notNull(expirationDate);
 		//
-		IdmIdentityRole identityRole = new IdmIdentityRole();
-		return this.save(toEntity(dto, identityRole));
+		return toDtoPage(repository.findExpiredRoles(expirationDate, page));
 	}
 
-	private IdmIdentityRole toEntity(IdmIdentityRoleDto identityRoleDto, IdmIdentityRole identityRole) {
-		if (identityRoleDto == null || identityRole == null) {
-			return null;
-		}
-		IdmRole role = null;
-		IdmIdentity identity = null;
-		if (identityRoleDto.getRole() != null) {
-			role = roleRepository.findOne(identityRoleDto.getRole());
-		}
-		if (identityRoleDto.getIdentity() != null) {
-			identity = identityRepository.findOne(identityRoleDto.getIdentity());
-		}
-
-		identityRole.setRole(role);
-		identityRole.setIdentity(identity);
-		identityRole.setValidFrom(identityRoleDto.getValidFrom());
-		identityRole.setValidTill(identityRoleDto.getValidTill());
-		identityRole.setOriginalCreator(identityRoleDto.getOriginalCreator());
-		identityRole.setOriginalModifier(identityRoleDto.getOriginalModifier());
-		return identityRole;
+	/**
+	 * Default sort by role's name
+	 * 
+	 * @return
+	 */
+	private Sort getDefaultSort() {
+		return new Sort(IdmIdentityRole_.role.getName() + "." + IdmRole_.name.getName());
 	}
 }

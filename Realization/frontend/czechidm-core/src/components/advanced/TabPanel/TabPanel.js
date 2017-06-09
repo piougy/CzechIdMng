@@ -1,14 +1,17 @@
 import React, { PropTypes } from 'react';
-import ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 //
 import TabPanelItem from './TabPanelItem';
-import { getNavigationItems, resolveNavigationParameters } from '../../../redux/layout/layoutActions';
+import { getNavigationItems, resolveNavigationParameters } from '../../../redux/config/actions';
 import * as Basic from '../../basic';
+
+const ITEM_HEIGTH = 45; // item heigth for dynamic content resize
 
 /**
  * Sidebar renders tabs by given navigation parent (parentId)
+ *
+ * @author Radek Tomiška
  */
 class TabPanel extends Basic.AbstractContextComponent {
 
@@ -16,37 +19,22 @@ class TabPanel extends Basic.AbstractContextComponent {
     super(props, context);
   }
 
-  componentDidMount() {
-    // window.addEventListener('resize', this.handleResize);
-    this.handleResize();
-  }
-
-  componentDidUpdate() {
-    this.handleResize();
-  }
-
-  componentWillUnmount() {
-    // window.removeEventListener('resize', this.handleResize);
-  }
-
-  handleResize() {
-    if (typeof $ !== undefined) {
-      const tabPanelSidebar = $(ReactDOM.findDOMNode(this.refs.tabPanelSidebar));
-      const tabPanelContent = $(ReactDOM.findDOMNode(this.refs.tabPanelContent));
-      tabPanelSidebar.css({
-        height: tabPanelContent.height()
-      });
-    }
-  }
-
   getNavigationItems() {
     const { navigation, userContext, parentId, selectedNavigationItems } = this.props;
-    const { revID, entityId } = this.props.params;
-
-    const params = { revID, entityId };
+    const { params } = this.props;
+    //
     return getNavigationItems(navigation, parentId, null, userContext, params).map(item => {
+      // reslve label
       const labelParams = resolveNavigationParameters(userContext, params);
       labelParams.defaultValue = item.label;
+      let label = item.label;
+      if (item.labelKey) {
+        label = (<span>{this.i18n(item.labelKey, labelParams)}</span>);
+      } else if (item.titleKey) {
+        // label from title
+        label = (<span>{this.i18n(item.titleKey, { defaultValue: item.title })}</span>);
+      }
+      //
       switch (item.type) {
         case 'TAB':
         case 'DYNAMIC': {
@@ -59,13 +47,7 @@ class TabPanel extends Basic.AbstractContextComponent {
               iconColor={item.iconColor}
               title={this.i18n(item.titleKey, { defaultValue: item.title })}
               active={_.includes(selectedNavigationItems, item.id)}>
-              {
-                (item.labelKey || item.label)
-                ?
-                <span>{this.i18n(item.labelKey, labelParams)}</span>
-                :
-                <span>{this.i18n(item.titleKey, { defaultValue: item.title })}</span>
-              }
+              { label }
             </TabPanelItem>
           );
         }
@@ -77,17 +59,36 @@ class TabPanel extends Basic.AbstractContextComponent {
   }
 
   render() {
+    const { position } = this.props;
     const navigationItems = this.getNavigationItems();
-
-    return (
-      <div ref="tabPanel" className="tab-panel clearfix">
-        <ul ref="tabPanelSidebar" className="tab-panel-sidebar nav nav-pills nav-stacked">
-          {navigationItems}
-        </ul>
-        <div ref="tabPanelContent" className="tab-panel-content tab-content">
-          {this.props.children}
+    //
+    if (position === 'top') {
+      return (
+        <div className="tab-horizontal">
+          <ul className="nav nav-tabs">
+            { navigationItems }
+          </ul>
+          <div className="tab-content">
+            <div className="tab-pane active">
+              { this.props.children }
+            </div>
+          </div>
         </div>
-      </div>
+      );
+    }
+    //
+    // left
+    return (
+      <Basic.Panel className="clearfix">
+        <div ref="tabPanel" className="tab-panel tab-vertical clearfix">
+          <ul ref="tabPanelSidebar" className="tab-panel-sidebar nav nav-pills nav-stacked">
+            { navigationItems }
+          </ul>
+          <div ref="tabPanelContent" className="tab-panel-content tab-content" style={{ minHeight: navigationItems.length * ITEM_HEIGTH }}>
+            { this.props.children }
+          </div>
+        </div>
+      </Basic.Panel>
     );
   }
 }
@@ -98,17 +99,26 @@ TabPanel.propTypes = {
   /**
    * which navigation parent wil be rendered - sub menus to render
    */
-  parentId: PropTypes.string
+  parentId: PropTypes.string,
+  /**
+   * Tabs position
+   *
+   * @param  {[type]} ['left' [description]
+   * @param  {[type]} 'top']  [description]
+   * @return {[type]}         [description]
+   */
+  position: PropTypes.oneOf(['left', 'top'])
 };
 TabPanel.defaultProps = {
   navigation: null,
-  userContext: null
+  userContext: null,
+  position: 'left'
 };
 
 function select(state) {
-  const selectedNavigationItems = state.layout.get('selectedNavigationItems');
+  const selectedNavigationItems = state.config.get('selectedNavigationItems');
   return {
-    navigation: state.layout.get('navigation'),
+    navigation: state.config.get('navigation'),
     selectedNavigationItems,
     userContext: state.security.userContext
   };

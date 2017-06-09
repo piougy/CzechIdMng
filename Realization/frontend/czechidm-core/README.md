@@ -1,66 +1,41 @@
-# Component descriptor
+# Routes
 
-  Component descriptor has same purpose as XML Bean definition in Spring.
-  It is place for definition relation between component key and real component's location in project (require).
-  Independent loading component by key, without need to define require on component is main purpose.
+Each module could have his own routes definition => expose new or override other module `url`. Each module routes have to start with `module route`:
 
-  This is especially useful for modularity. Component can be defined in other module than core, but we need use components with same type in one location in core module (for example Dashboard).
-
-
-| Parameter | Description                                                                                 |
-|-----------|---------------------------------------------------------------------------------------------|
-| id        | Component identifier (key). With this key will be component loaded. It must be unique.      |
-| component | Define require on real location component                                                   |
-| type      | Type of component. Using for get all components with same type (for example all dashboards) |
-| span      | Span layout. Used in dashboard                                                              |
-| order     | Define order of component between other components                                          |
-
-
-## Usage
-
-#### Definition of component descriptor for one module:
 ```javascript
-{
-  'id': 'core',
-  'name': 'Core',
-  'description': 'Components for Core module',
-  'components': [
-    {
-      'id': 'dynamicRoleTaskDetail',
-      'component': require('./content/task/identityRole/DynamicTaskRoleDetail')
-    },
-    {
-      'id': 'assignedTaskDashboard',
-      'type': 'dashboard',
-      'span': '6',
-      'order': '2',
-      'component': require('./content/dashboards/AssignedTaskDashboard')
-    },
-    {
-      'id': 'profileDashboard',
-      'type': 'dashboard',
-      'span': '5',
-      'order': '3',
-      'component': require('./content/dashboards/ProfileDashboard')
-    }
-  ]
+module.exports = {
+  module: 'core',
+  childRoutes: []
 };
 ```
 
-#### Get component by key (id)
+Child routes are standard react router routes with some added parameters:
 
-```javascript
-import ComponentService from 'core/services/ComponentService';
-DetailComponent = componentService.getComponent('someComponentKey');
-```
+| Parameter | Type | Description | Default  |
+| --- | :--- | :--- | :--- |
+| module | string | Module id | |
+| component | component | Content component (generalize AbstractContent component), which will be rendered, when this route will be used. | |
+| priority | number | Is used for overiding route in some module. Route with the same path and highest priority will be used. | 0 |
+| order | number | Routes order - wildcard routes should have the highest order => the first route, which matches entered url wins. | 0 |
+| access | arrayOf(access) | Access - security. See next section. | [{ type: 'IS_AUTHENTICATED' }] |
+| React component | arrayOf(route) | Child routes | | |
 
-#### Get components by specific type
 
-```javascript
-import ComponentService from 'core/services/ComponentService';
-let dashboards = [];
-dashboards = this.componentService.getComponentDefinitions('dashboard');
-```
+## Access property
+
+Access property is used in `SecurityManager.hasAccess` for evaluating, what can logged identity see or not. Access property contains array of access items.
+
+Access item properties:
+
+| Type | Description | Example  |
+| --- | :--- | :--- |
+| DENY_ALL | Never visible | { 'type': 'DENY_ALL' } |
+| PERMIT_ALL | Visible always | { 'type': 'PERMIT_ALL' } |
+| NOT_AUTHENTICATED | Visible, when identity is not logged in | { 'type': 'NOT_AUTHENTICATED' } |
+| IS_AUTHENTICATED | Visible, when identity is not logged in | { 'type': 'IS_AUTHENTICATED' } |
+| HAS_ANY_AUTHORITY | Visible, when logged identity has at least on of given authorities |  { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONFIGURATION_WRITE', 'CONFIGURATIONSECURED_READ'] } |
+| HAS_ALL_AUTHORITIES | Visible, when logged identity has all of given authorities | { 'type': 'HAS_ALL_AUTHORITIES', 'authorities': ['CONFIGURATION_WRITE', 'CONFIGURATIONSECURED_READ'] } |
+
 
 # Module descriptor
 
@@ -88,10 +63,10 @@ Single navigation item parameters:
 | order | number | Item order in merged navigation | 0 |
 | priority | number | Is used for overiding item in some module. Item with the same id and highest priority will be shown. | 0 |
 | path | string | Path for react router is used, when navigation item is active (onClick). | |
-| access | arrayOf(object) | See next section. | [{ type: 'IS_AUTHENTICATED' }] |
+| access | arrayOf(object) | See previous section. | [{ type: 'IS_AUTHENTICATED' }] |
 | items | string | sub navigation items. Only two levels are supported now.  | ||
 
-### Usage
+## Usage
 
 ```javascript
 ...
@@ -171,16 +146,68 @@ Single navigation item parameters:
 }
 ```
 
-## Access property
+# Component descriptor
 
-Access property is used in `SecurityManager.hasAccess` for evaluating, what can logged identity see or not. Access property contains array of access items.
+  Component descriptor has same purpose as XML Bean definition in Spring.
+  It is place for definition relation between component key and real component's location in project (require).
+  Independent loading component by key, without need to define require on component is main purpose.
 
-Access item properties:
+  This is especially useful for modularity. Component can be defined in other module than core, but we need use components with same type in one location in core module (for example Dashboard).
 
-| Type | Description | Example  |
+
+| Parameter | Description                                                                                 | Default |
 | --- | :--- | :--- |
-| DENY_ALL | Never visible | { 'type': 'DENY_ALL' } |
-| PERMIT_ALL | Visible always | { 'type': 'PERMIT_ALL' } |
-| NOT_AUTHENTICATED | Visible, when identity is not logged in | { 'type': 'NOT_AUTHENTICATED' } |
-| IS_AUTHENTICATED | Visible, when identity is not logged in | { 'type': 'IS_AUTHENTICATED' } |
-| HAS_ANY_AUTHORITY | Visible, when logged identity has at least on of given authorities |  { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONFIGURATION_WRITE', 'CONFIGURATIONSECURED_READ'] } |
+| id        | Component identifier (key). With this key will be component loaded. It must be unique.      | |
+| component | Define require on real location component                                                   | |
+| type      | Type of component. Using for get all components with same type (for example all dashboards) | |
+| priority  | Defines component priority - component with the same id and greater priority will be used.  | 0 |
+| span      | Span layout. Used in dashboard                                                              | |
+| order     | Define order of component between other components                                          | 0 |
+
+
+## Usage
+
+### Definition of component descriptor for one module:
+```javascript
+{
+  'id': 'core',
+  'name': 'Core',
+  'description': 'Components for Core module',
+  'components': [
+    {
+      'id': 'dynamicRoleTaskDetail',
+      'component': require('./content/task/identityRole/DynamicTaskRoleDetail')
+    },
+    {
+      'id': 'assignedTaskDashboard',
+      'type': 'dashboard',
+      'span': '6',
+      'order': '2',
+      'priority': '10',
+      'component': require('./content/dashboards/AssignedTaskDashboard')
+    },
+    {
+      'id': 'profileDashboard',
+      'type': 'dashboard',
+      'span': '5',
+      'order': '3',
+      'component': require('./content/dashboards/ProfileDashboard')
+    }
+  ]
+};
+```
+
+### Get component by key (id)
+
+```javascript
+import ComponentService from 'core/services/ComponentService';
+DetailComponent = componentService.getComponent('someComponentKey');
+```
+
+### Get components by specific type
+
+```javascript
+import ComponentService from 'core/services/ComponentService';
+let dashboards = [];
+dashboards = this.componentService.getComponentDefinitions('dashboard');
+```

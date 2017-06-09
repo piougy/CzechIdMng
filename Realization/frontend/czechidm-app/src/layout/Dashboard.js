@@ -1,13 +1,15 @@
-
-
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 //
-import {Basic, ComponentService} from 'czechidm-core';
+import { Basic, ComponentService } from 'czechidm-core';
 
 const DEFAULT_SPAN = 6;
-const DASHBOARD_COMPONENT_TYPE = 'dashboard';
 
+/**
+ * "Naive" dashdoard - loads all registered component with dashboard type and renders them in columns
+ *
+ * @author Radek Tomiška
+ */
 class Dashboard extends Basic.AbstractContent {
 
   constructor(props, context) {
@@ -25,23 +27,25 @@ class Dashboard extends Basic.AbstractContent {
     const { userContext } = this.props;
     //
     const dashboards = [];
+    const rowKeys = [];
     let rowDashboards = [];
     let spanCounter = 0;
-    this.componentService.getComponentDefinitions(DASHBOARD_COMPONENT_TYPE).forEach(component=> {
+    this.componentService.getComponentDefinitions(ComponentService.DASHBOARD_COMPONENT_TYPE).forEach(component=> {
       const DashboardComponent = component.component;
       const _span = component.span ? component.span : DEFAULT_SPAN;
       const spanDecorator = (
-        <div className={`col-lg-${_span}`}>
-          <DashboardComponent key={`${DASHBOARD_COMPONENT_TYPE}-${component.id}`} entityId={userContext.username}/>
+        <div key={`${ComponentService.DASHBOARD_COMPONENT_TYPE}-${component.id}`} className={`col-lg-${_span}`}>
+          <DashboardComponent entityId={userContext.username}/>
         </div>
       );
 
+      rowKeys.push(component.id);
       rowDashboards.push(spanDecorator);
       spanCounter = spanCounter + _span;
       if (spanCounter > 12) {
         spanCounter = 0;
         dashboards.push(
-          <Basic.Row>
+          <Basic.Row key={`${ComponentService.DASHBOARD_COMPONENT_TYPE}-row-${rowKeys.join('-')}`}>
             {rowDashboards}
           </Basic.Row>
         );

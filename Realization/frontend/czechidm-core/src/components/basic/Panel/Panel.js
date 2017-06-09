@@ -6,6 +6,11 @@ import Icon from '../Icon/Icon';
 import HelpIcon from '../HelpIcon/HelpIcon';
 import Loading from '../Loading/Loading';
 
+/**
+ * Basic panel decorator
+ *
+ * @author Radek Tomiška
+ */
 export class Panel extends AbstractComponent {
 
   constructor(props) {
@@ -13,7 +18,7 @@ export class Panel extends AbstractComponent {
   }
 
   render() {
-    const { className, rendered, showLoading, level, ...other } = this.props;
+    const { className, rendered, showLoading, level, style } = this.props;
     if (!rendered) {
       return null;
     }
@@ -23,7 +28,7 @@ export class Panel extends AbstractComponent {
       className
     );
     return (
-      <div className={classNames} {...other}>
+      <div className={classNames} style={style}>
         <Loading showLoading={showLoading}>
           {this.props.children}
         </Loading>
@@ -51,7 +56,7 @@ export class PanelHeader extends AbstractComponent {
   }
 
   render() {
-    const { className, rendered, showLoading, text, help, children, ...others } = this.props;
+    const { className, rendered, showLoading, text, help, children, style } = this.props;
     if (!rendered) {
       return null;
     }
@@ -61,7 +66,7 @@ export class PanelHeader extends AbstractComponent {
     );
 
     return (
-      <div className={classNames} {...others}>
+      <div className={classNames} style={style}>
         <div className={help ? 'pull-left' : null}>
           <Icon type="fa" icon="refresh" showLoading rendered={ showLoading }/>
           {
@@ -112,7 +117,7 @@ export class PanelBody extends AbstractComponent {
   }
 
   render() {
-    const { className, rendered, ...others } = this.props;
+    const { className, rendered, showLoading, style } = this.props;
     if (!rendered) {
       return null;
     }
@@ -122,8 +127,8 @@ export class PanelBody extends AbstractComponent {
     );
 
     return (
-      <div className={classNames} {...others}>
-        <Loading showLoading={this.props.showLoading}>
+      <div className={classNames} style={style}>
+        <Loading showLoading={showLoading}>
           {this.props.children}
         </Loading>
       </div>
@@ -146,7 +151,7 @@ export class PanelFooter extends AbstractComponent {
   }
 
   render() {
-    const { rendered, className, ...other } = this.props;
+    const { rendered, className, showLoading, style } = this.props;
     if (!rendered) {
       return null;
     }
@@ -156,8 +161,8 @@ export class PanelFooter extends AbstractComponent {
     );
 
     return (
-      <div className={classNames}>
-        <Loading className="simple" showLoading={this.props.showLoading} showAnimation={false}>
+      <div className={classNames} style={style}>
+        <Loading className="simple" showLoading={showLoading} showAnimation={false}>
           {this.props.children}
         </Loading>
       </div>

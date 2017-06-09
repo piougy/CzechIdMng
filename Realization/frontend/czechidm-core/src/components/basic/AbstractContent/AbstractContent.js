@@ -3,12 +3,15 @@ import Helmet from 'react-helmet';
 //
 import AbstractContextComponent from '../AbstractContextComponent/AbstractContextComponent';
 import PageHeader from '../PageHeader/PageHeader';
+import ContentHeader from '../ContentHeader/ContentHeader';
 import Icon from '../Icon/Icon';
-import { selectNavigationItems, selectNavigationItem, getNavigationItem } from '../../../redux/layout/layoutActions';
+import { selectNavigationItems, selectNavigationItem, getNavigationItem } from '../../../redux/config/actions';
 
 /**
 * Basic content = page representation
 * Requires store and router context
+*
+* @author Radek Tomiška
 */
 export default class AbstractContent extends AbstractContextComponent {
 
@@ -53,7 +56,7 @@ export default class AbstractContent extends AbstractContextComponent {
     if (!navigationId) {
       return null;
     }
-    return this.context.store.dispatch(getNavigationItem(this.context.store.getState().layout, navigationId));
+    return this.context.store.dispatch(getNavigationItem(this.context.store.getState().config, navigationId));
   }
 
   /**
@@ -96,19 +99,73 @@ export default class AbstractContent extends AbstractContextComponent {
   /**
    * Default Page header with page title based on navigation item
    *
+   * @param {object} props PageHeader properties e.g. style, className
    * @return {element} react element
    */
-  renderPageHeader() {
+  renderPageHeader(props) {
     const navigationItem = this.getNavigationItem() || {};
     //
     return (
-      <PageHeader>
+      <PageHeader {...props}>
         <Helmet title={this.i18n('title')} />
         <Icon value={navigationItem.icon}/>
         {' '}
-        {this.i18n('header')}
+        <span dangerouslySetInnerHTML={{__html: this.i18n('header')}}/>
       </PageHeader>
     );
+  }
+
+  /**
+   * Default content header with title based on navigation item
+   *
+   * @param {object} props ContentHeader properties e.g. style, className
+   * @return {element} react element
+   */
+  renderContentHeader(props) {
+    const navigationItem = this.getNavigationItem() || {};
+    //
+    return (
+      <ContentHeader {...props}>
+        <Helmet title={this.i18n('title')} />
+        <Icon value={navigationItem.icon}/>
+        {' '}
+        <span dangerouslySetInnerHTML={{__html: this.i18n('header')}}/>
+      </ContentHeader>
+    );
+  }
+
+  /**
+   * Reloads current route
+   */
+  reloadRoute() {
+    this.context.router.replace(this.context.store.getState().routing.location.pathname);
+  }
+
+  /**
+   * Makes redirect to error pages or show given error.
+   *
+   * @param  {error} error from BE
+   */
+  handleError(error) {
+    if (!error) {
+      return;
+    }
+    //
+    const message = {};
+    if (error.statusCode === 403) {
+      this.context.router.push('/error/403');
+      message.hidden = true;
+    } else if (error.statusCode === 404) {
+      if (error.parameters && error.parameters.entity) {
+        this.context.router.push(`/error/404?id=${error.parameters.entity}`);
+        message.hidden = true;
+      } else {
+        this.context.router.push(`/error/404`);
+        message.hidden = true;
+      }
+    }
+    //
+    this.addErrorMessage(message, error);
   }
 }
 

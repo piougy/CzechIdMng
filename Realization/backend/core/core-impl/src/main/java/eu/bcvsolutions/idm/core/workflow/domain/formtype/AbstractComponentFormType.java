@@ -22,10 +22,18 @@ public abstract class AbstractComponentFormType extends AbstractFormType {
 
   @Override
   public Object getInformation(String key) {
-    if (key.equals("values")) {
+    if ("values".equals(key)) {
       return values;
     }
     return null;
+  }
+  
+  /**
+   * If true, then will be item added to REST
+   * @return
+   */
+  public boolean isExportableToRest(){
+	  return true;
   }
 
 }

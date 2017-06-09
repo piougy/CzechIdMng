@@ -5,9 +5,14 @@ import { connect } from 'react-redux';
 import * as Basic from '../../components/basic';
 import ConfigLoader from '../../utils/ConfigLoader';
 import ComponentLoader from '../../utils/ComponentLoader';
-import { BackendModuleManager } from '../../redux';
+import { BackendModuleManager, ConfigurationManager } from '../../redux';
 import * as Utils from '../../utils';
 
+/**
+ * FE modules administration
+ *
+ * @author Radek Tomiška
+ */
 class FrontendModules extends Basic.AbstractContent {
 
   constructor(props, context) {
@@ -25,7 +30,7 @@ class FrontendModules extends Basic.AbstractContent {
   }
 
   componentDidMount() {
-    this.selectNavigationItem('fe-modules');
+    this.selectNavigationItems(['system', 'modules', 'fe-modules']);
     this.context.store.dispatch(this.backendModuleManager.fetchInstalledModules());
   }
 
@@ -39,7 +44,8 @@ class FrontendModules extends Basic.AbstractContent {
     ).then(() => {
       this.context.store.dispatch(this.backendModuleManager.setEnabled(entity.id, enable, (patchedEntity, error) => {
         if (!error) {
-          // this.addMessage({ message: this.i18n(`action.${enable ? '' : 'de'}activate.success`, { count: 1, record: patchedEntity.name }) });
+          this.addMessage({ message: this.i18n(`action.${enable ? '' : 'de'}activate.success`, { count: 1, record: patchedEntity.id }) });
+          // reload is needed - react routes has to be reloaded
           window.location.reload();
         } else {
           this.addError(error);
@@ -58,12 +64,10 @@ class FrontendModules extends Basic.AbstractContent {
     const { _showLoading } = this.state;
     //
     return (
-      <div>
+      <div className="tab-pane-panel-body">
         <Helmet title={this.i18n('title')} />
         <Basic.Confirm ref="confirm-deactivate" level="warning"/>
         <Basic.Confirm ref="confirm-activate" level="success"/>
-
-        <Basic.PageHeader text={this.i18n('header')}/>
 
         {
           showLoading || _showLoading
@@ -75,6 +79,7 @@ class FrontendModules extends Basic.AbstractContent {
               return one.id > two.id;
             }).map(moduleDescriptor => {
               const componentDescriptor = ComponentLoader.getComponentDescriptor(moduleDescriptor.id);
+              const enableable = !moduleDescriptor.backendId || moduleDescriptor.backendId === moduleDescriptor.id || ConfigurationManager.isModuleEnabled(this.context.store.getState(), moduleDescriptor.backendId);
               //
               return (
                 <Basic.Panel>
@@ -104,8 +109,9 @@ class FrontendModules extends Basic.AbstractContent {
                           level="success"
                           onClick={this.onEnable.bind(this, moduleDescriptor, true)}
                           className="btn-xs"
-                          title={this.i18n('button.activate')}
-                          titlePlacement="bottom">
+                          title={ enableable ? this.i18n('button.activate') : this.i18n('activate.disabled', { backendId: moduleDescriptor.backendId })}
+                          titlePlacement="bottom"
+                          disabled={!enableable}>
                           {this.i18n('button.activate')}
                         </Basic.Button>
                       }

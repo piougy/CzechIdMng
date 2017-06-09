@@ -16,6 +16,18 @@ export default class ConfigurationService extends AbstractService {
     return entity.name;
   }
 
+  supportsPatch() {
+    return false;
+  }
+
+  supportsAuthorization() {
+    return true;
+  }
+
+  getGroupPermission() {
+    return 'CONFIGURATION';
+  }
+
   /**
    * Returns default searchParameters for current entity type
    *
@@ -51,7 +63,7 @@ export default class ConfigurationService extends AbstractService {
    */
   getAllConfigurationsFromFile() {
     return RestApiService
-    .get(this.getApiPath() + '/file')
+    .get(this.getApiPath() + '/all/file')
     .then(response => {
       return response.json();
     })
@@ -70,7 +82,7 @@ export default class ConfigurationService extends AbstractService {
    */
   getAllConfigurationsFromEnvironment() {
     return RestApiService
-    .get(this.getApiPath() + '/environment')
+    .get(this.getApiPath() + '/all/environment')
     .then(response => {
       return response.json();
     })

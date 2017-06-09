@@ -51,7 +51,7 @@ class HistoricProcessInstanceDetail extends Basic.AbstractContent {
    */
   _initComponent(props) {
     const { historicProcessInstanceId } = props.params;
-    this.context.store.dispatch(workflowHistoricProcessInstanceManager.fetchEntityIfNeeded(historicProcessInstanceId));
+    this.context.store.dispatch(workflowHistoricProcessInstanceManager.fetchEntity(historicProcessInstanceId));
     this.selectNavigationItem('workflow-historic-processes');
     workflowHistoricProcessInstanceManager.getService().downloadDiagram(historicProcessInstanceId, this.reciveDiagram.bind(this));
   }
@@ -67,6 +67,16 @@ class HistoricProcessInstanceDetail extends Basic.AbstractContent {
 
   _closeModalDiagram() {
     this.setState({showModalDiagram: false});
+  }
+
+  _getCandidatesCell({ rowIndex, data, property}) {
+    const entity = data[rowIndex];
+    if (!entity || !entity[property]) {
+      return '';
+    }
+    return (
+      <CandicateUsersCell candidates={entity[property]} maxEntry={MAX_CANDICATES} />
+    );
   }
 
   render() {
@@ -87,13 +97,14 @@ class HistoricProcessInstanceDetail extends Basic.AbstractContent {
         </Basic.PageHeader>
 
         <Basic.Panel showLoading={showLoadingInternal}>
-          <Basic.AbstractForm ref="form" data={_historicProcess} readOnly className="form-horizontal">
+          <Basic.AbstractForm ref="form" data={_historicProcess} readOnly style={{ padding: '15px 15px 0 15px' }}>
             <Basic.TextField ref="name" label={this.i18n('name')}/>
             <Basic.TextField ref="id" label={this.i18n('id')}/>
             <Basic.TextField ref="superProcessInstanceId" label={this.i18n('superProcessInstanceId')}/>
             <Basic.DateTimePicker ref="startTime" label={this.i18n('startTime')}/>
             <Basic.DateTimePicker ref="endTime" label={this.i18n('endTime')}/>
             <Basic.TextArea ref="deleteReason" label={this.i18n('deleteReason')}/>
+            <Basic.ScriptArea ref="_processVariablesJson" mode="json" readOnly rows={6} label={this.i18n('processVariables')}/>
           </Basic.AbstractForm>
           <Basic.PanelFooter>
             <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>
@@ -115,7 +126,7 @@ class HistoricProcessInstanceDetail extends Basic.AbstractContent {
             <Advanced.Column property="assignee" sort={false} face="text"/>
             <Advanced.Column
                 property="candicateUsers"
-                cell={<CandicateUsersCell maxEntry={MAX_CANDICATES} />}/>
+                cell={this._getCandidatesCell}/>
             <Advanced.Column property="createTime" sort face="datetime"/>
             <Advanced.Column property="endTime" sort face="datetime"/>
             <Advanced.Column property="completeTaskDecision" sort={false} face="text"/>
@@ -169,7 +180,10 @@ HistoricProcessInstanceDetail.defaultProps = {
 
 function select(state, component) {
   const { historicProcessInstanceId } = component.params;
-  const historicProcess = workflowHistoricProcessInstanceManager.getEntity(state, historicProcessInstanceId);
+  const historicProcess = workflowHistoricProcessInstanceManager.getEntity(state, historicProcessInstanceId, false);
+  if (historicProcess && !historicProcess.trimmed) {
+    historicProcess._processVariablesJson = JSON.stringify(historicProcess.processVariables, null, 4);
+  }
   return {
     _historicProcess: historicProcess
   };

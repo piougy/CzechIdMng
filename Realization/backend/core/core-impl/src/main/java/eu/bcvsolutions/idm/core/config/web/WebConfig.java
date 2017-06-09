@@ -10,63 +10,68 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.Ordered;
-import org.springframework.data.repository.query.spi.EvaluationContextExtension;
-import org.springframework.data.repository.query.spi.EvaluationContextExtensionSupport;
 import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
 import org.springframework.data.rest.core.event.ValidatingRepositoryEventListener;
 import org.springframework.data.rest.core.mapping.RepositoryDetectionStrategy;
 import org.springframework.data.rest.webmvc.config.RepositoryRestMvcConfiguration;
 import org.springframework.data.rest.webmvc.json.DomainObjectReader;
 import org.springframework.data.rest.webmvc.mapping.Associations;
-import org.springframework.security.access.expression.SecurityExpressionRoot;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.Validator;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
+import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
+import org.springframework.web.util.UrlPathHelper;
 
-import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.joda.JodaModule;
+import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.api.rest.domain.NotExportedAssociations;
 import eu.bcvsolutions.idm.core.api.rest.domain.RequestResourceResolver;
 import eu.bcvsolutions.idm.core.config.domain.DynamicCorsConfiguration;
 import eu.bcvsolutions.idm.core.config.flyway.FlywayConfigCore;
 import eu.bcvsolutions.idm.core.exception.RestErrorAttributes;
+import eu.bcvsolutions.idm.core.security.service.impl.JwtAuthenticationMapper;
 
 /**
  * Web configurations - we are reusing spring data rest web configuration
  * 
- * @author Radek Tomiška 
+ * TODO: its not only web configuration ...
+ * 
+ * @author Radek Tomiška
  *
  */
 @Configuration
 @AutoConfigureAfter({ FlywayConfigCore.class })
 public class WebConfig extends RepositoryRestMvcConfiguration {
-	
+
 	@PersistenceContext
 	private EntityManager entityManager;
 
 	@Bean
-    public FilterRegistrationBean corsFilter() {
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        CorsConfiguration config = corsConfiguration();
-        // TODO: depends on FlywayConfigCore 
-        // log.info("Starting with configurted allowed origins [{}]. Allowed origins could be changed through application setting.", config.getAllowedOrigins());
-        config.setAllowCredentials(Boolean.TRUE);
-        config.addAllowedHeader("*");
-        config.addAllowedMethod("GET");
-        config.addAllowedMethod("PUT");
-        config.addAllowedMethod("OPTIONS");
-        config.addAllowedMethod("POST");
-        config.addAllowedMethod("DELETE");
-        config.addAllowedMethod("PATCH");
-        source.registerCorsConfiguration(BaseEntityController.BASE_PATH + "/**", config);
-        FilterRegistrationBean bean = new FilterRegistrationBean(new CorsFilter(source));
+	public FilterRegistrationBean corsFilter() {
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		CorsConfiguration config = corsConfiguration();
+		// TODO: depends on FlywayConfigCore
+		// log.info("Starting with configurted allowed origins [{}]. Allowed
+		// origins could be changed through application setting.",
+		// config.getAllowedOrigins());
+		config.setAllowCredentials(Boolean.TRUE);
+		config.addAllowedHeader("*");
+		config.addAllowedMethod("GET");
+		config.addAllowedMethod("PUT");
+		config.addAllowedMethod("OPTIONS");
+		config.addAllowedMethod("POST");
+		config.addAllowedMethod("DELETE");
+		config.addAllowedMethod("PATCH");
+		source.registerCorsConfiguration(BaseDtoController.BASE_PATH + "/**", config);
+		config.addExposedHeader(JwtAuthenticationMapper.AUTHENTICATION_TOKEN_NAME);
+		FilterRegistrationBean bean = new FilterRegistrationBean(new CorsFilter(source));
 		bean.setOrder(Ordered.HIGHEST_PRECEDENCE);
 		return bean;
-    }
-	
+	}
+
 	/**
 	 * Cors configuration
 	 * 
@@ -76,7 +81,30 @@ public class WebConfig extends RepositoryRestMvcConfiguration {
 	public CorsConfiguration corsConfiguration() {
 		return new DynamicCorsConfiguration();
 	}
-	
+
+	/**
+	 * Whether to use suffix pattern match (".*") when matching patterns to
+	 * requests. If enabled a method mapped to "/users" also matches to
+	 * "/users.*".
+	 * <p>
+	 * By default this is set to {@code true}.
+	 * 
+	 * @see #registeredSuffixPatternMatch
+	 */
+	@Override
+	public void configurePathMatch(PathMatchConfigurer configurer) {
+		// enable encoded slash in path parameters
+		UrlPathHelper urlPathHelper = new UrlPathHelper();
+		urlPathHelper.setUrlDecode(false);
+		configurer.setUrlPathHelper(urlPathHelper);
+		//
+		// disable extension suffixes
+		configurer.setUseSuffixPatternMatch(Boolean.FALSE);
+		//
+		// this will be useful in future ...
+		// configurer.setUseRegisteredSuffixPatternMatch(true);
+	}
+
 	/**
 	 * Common json error response attributes
 	 * 
@@ -84,12 +112,13 @@ public class WebConfig extends RepositoryRestMvcConfiguration {
 	 */
 	@Bean
 	public ErrorAttributes errorAttributes() {
-	    return new RestErrorAttributes();
+		return new RestErrorAttributes();
 	}
-	
+
 	@Bean
 	public RequestResourceResolver requestResourceResolver() {
-		return new RequestResourceResolver(defaultMessageConverters(), new DomainObjectReader(persistentEntities(), associationLinks()));
+		return new RequestResourceResolver(defaultMessageConverters(),
+				new DomainObjectReader(persistentEntities(), associationLinks()));
 	}
 
 	/**
@@ -100,6 +129,16 @@ public class WebConfig extends RepositoryRestMvcConfiguration {
 	@Primary
 	Validator validator() {
 		return new LocalValidatorFactoryBean();
+	}
+
+	/**
+	 * Adds joda time json module
+	 */
+	@Bean
+	public ObjectMapper objectMapper() {
+		ObjectMapper mapper = super.objectMapper();
+		mapper.registerModule(new JodaModule());
+		return mapper;
 	}
 
 	/*
@@ -117,7 +156,7 @@ public class WebConfig extends RepositoryRestMvcConfiguration {
 			config.exposeIdsFor(entityType.getJavaType());
 		});
 		// conventional base api endpoint. TODO: define version here?
-		config.setBasePath(BaseEntityController.BASE_PATH);
+		config.setBasePath(BaseDtoController.BASE_PATH);
 		// it will be usefull for some clients (e.g. for putting new / updated
 		// resource to client storage - redux etc.)
 		config.setReturnBodyForPutAndPost(Boolean.TRUE);
@@ -136,28 +175,6 @@ public class WebConfig extends RepositoryRestMvcConfiguration {
 		validatingListener.addValidator("beforeSave", validator);
 	}
 
-	/**
-	 * Support hasAuthority etc. in search queries
-	 * 
-	 * @return
-	 */
-	@Bean
-	public EvaluationContextExtension securityExtension() {
-		return new EvaluationContextExtensionSupport() {
-			@Override
-			public String getExtensionId() {
-				return "security";
-			}
-
-			@Override
-			public SecurityExpressionRoot getRootObject() {
-				Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-				return new SecurityExpressionRoot(authentication) {
-				};
-			}
-		};
-	}
-	
 	/**
 	 * We want to assemble embedded object to not exported repositories too.
 	 */

@@ -1,38 +1,61 @@
 package eu.bcvsolutions.idm.core.model.service.api;
 
 import java.util.List;
+import java.util.UUID;
 
-import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
-import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleDto;
-import eu.bcvsolutions.idm.core.model.dto.filter.IdentityRoleFilter;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
+import org.joda.time.LocalDate;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdentityRoleFilter;
+import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
+import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
+import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 
 /**
- * Operations with identity roles - usable in wf
+ * Operations with identity roles
  * 
  * @author svanda
+ * @author Radek Tomiška
  *
  */
-public interface IdmIdentityRoleService extends ReadWriteEntityService<IdmIdentityRole, IdentityRoleFilter> {
+public interface IdmIdentityRoleService extends
+	ReadWriteDtoService<IdmIdentityRoleDto, IdentityRoleFilter>,
+	AuthorizableService<IdmIdentityRoleDto>,
+	ScriptEnabled {
 	
 	/**
 	 * Returns all identity's roles
 	 * 
-	 * @param identity
+	 * @param identityId
 	 * @return
 	 */
-	List<IdmIdentityRole> getRoles(IdmIdentity identity);
+	List<IdmIdentityRoleDto> findAllByIdentity(UUID identityId);
 	
 	/**
-	 * Returns identity roles by their ids (uuid in string).
+	 * Returns all roles related to given {@link IdmIdentityContractDto}
 	 * 
-	 * @param ids
+	 * @param identityContractId
 	 * @return
 	 */
-	List<IdmIdentityRole> getByIds(List<String> ids);
-
-	IdmIdentityRole updateByDto(String id, IdmIdentityRoleDto dto);
-
-	IdmIdentityRole addByDto(IdmIdentityRoleDto dto);
+	List<IdmIdentityRoleDto> findAllByContract(UUID identityContractId);
+	
+	/**
+	 * Returns assigned roles by given automatic role.
+	 * 
+	 * @param roleTreeNodeId	
+	 * @return
+	 */
+	Page<IdmIdentityRoleDto> findByAutomaticRole(UUID roleTreeNodeId, Pageable pageable);
+	
+	/**
+	 * Returns all roles with date lower than given expiration date.
+	 * 
+	 * @param expirationDate
+	 * @param pageable
+	 * @return
+	 */
+	Page<IdmIdentityRoleDto> findExpiredRoles(LocalDate expirationDate, Pageable pageable);
 }

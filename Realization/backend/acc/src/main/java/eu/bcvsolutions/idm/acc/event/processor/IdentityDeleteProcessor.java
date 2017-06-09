@@ -1,17 +1,22 @@
 package eu.bcvsolutions.idm.acc.event.processor;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
-import eu.bcvsolutions.idm.acc.dto.IdentityAccountFilter;
+import com.google.common.collect.ImmutableMap;
+
+import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
+import eu.bcvsolutions.idm.acc.event.IdentityAccountEvent;
+import eu.bcvsolutions.idm.acc.event.IdentityAccountEvent.IdentityAccountEventType;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 
 /**
@@ -21,8 +26,10 @@ import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
  *
  */
 @Component("accIdentityDeleteProcessor")
-public class IdentityDeleteProcessor extends AbstractEntityEventProcessor<IdmIdentity> {
+@Description("Ensures referential integrity. Cannot be disabled.")
+public class IdentityDeleteProcessor extends AbstractEntityEventProcessor<IdmIdentityDto> {
 	
+	public static final String PROCESSOR_NAME = "identity-delete-processor";
 	private final AccIdentityAccountService identityAccountService;
 	
 	@Autowired
@@ -33,13 +40,18 @@ public class IdentityDeleteProcessor extends AbstractEntityEventProcessor<IdmIde
 		//
 		this.identityAccountService = identityAccountService;
 	}
+	
+	@Override
+	public String getName() {
+		return PROCESSOR_NAME;
+	}
 
 	@Override
-	public EventResult<IdmIdentity> process(EntityEvent<IdmIdentity> event) {
+	public EventResult<IdmIdentityDto> process(EntityEvent<IdmIdentityDto> event) {
 		IdentityAccountFilter filter = new IdentityAccountFilter();
 		filter.setIdentityId(event.getContent().getId());
 		identityAccountService.find(filter, null).forEach(identityAccount -> {
-			identityAccountService.delete(identityAccount);
+			identityAccountService.forceDelete(identityAccount);
 		});
 		return new DefaultEventResult<>(event, this);
 	}
@@ -48,5 +60,10 @@ public class IdentityDeleteProcessor extends AbstractEntityEventProcessor<IdmIde
 	public int getOrder() {
 		// right now before identity delete
 		return CoreEvent.DEFAULT_ORDER - 1;
+	}
+	
+	@Override
+	public boolean isDisableable() {
+		return false;
 	}
 }

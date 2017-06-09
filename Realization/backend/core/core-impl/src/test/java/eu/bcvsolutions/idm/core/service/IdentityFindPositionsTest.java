@@ -14,12 +14,15 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
+import eu.bcvsolutions.idm.core.api.dto.IdmContractGuaranteeDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
-import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
+import eu.bcvsolutions.idm.core.model.service.api.IdmContractGuaranteeService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeTypeService;
@@ -35,19 +38,17 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 public class IdentityFindPositionsTest extends AbstractIntegrationTest{
 
 	@Autowired
-	private IdmIdentityRepository identityRepository;
-	
+	private IdmIdentityRepository identityRepository;	
 	@Autowired
-	private IdmIdentityService identityService;
-	
+	private IdmIdentityService identityService;	
 	@Autowired
-	private IdmTreeNodeService treeNodeService;
-	
+	private IdmTreeNodeService treeNodeService;	
 	@Autowired
-	private IdmTreeTypeService treeTypeService;
-	
+	private IdmTreeTypeService treeTypeService;	
 	@Autowired
-	private IdmIdentityContractRepository identityContractRepository;
+	private IdmIdentityContractService identityContractService;	
+	@Autowired
+	private IdmContractGuaranteeService contractGuaranteeService;
 	
 	@PersistenceContext
 	private EntityManager entityManager;
@@ -64,10 +65,9 @@ public class IdentityFindPositionsTest extends AbstractIntegrationTest{
 	
 	@Test
 	public void findUser() {
-		IdmIdentity identity = createAndSaveIdentity("test_identity");
-		identity = identityRepository.save(identity);
+		IdmIdentityDto identity = createAndSaveIdentity("test_identity");
 		
-		IdmIdentity foundIdentity = this.identityService.get(identity.getId());
+		IdmIdentityDto foundIdentity = this.identityService.get(identity.getId());
 		
 		assertEquals(identity, foundIdentity);
 	}
@@ -75,32 +75,27 @@ public class IdentityFindPositionsTest extends AbstractIntegrationTest{
 	@Test
 	@Transactional
 	public void findGuarantee() {
-		IdmIdentity user = createAndSaveIdentity("test_find_managers_user");
+		IdmIdentityDto user = createAndSaveIdentity("test_find_managers_user");
 		
-		IdmIdentity quarantee1 = createAndSaveIdentity("test_find_managers_manager");
+		IdmIdentityDto quarantee1 = createAndSaveIdentity("test_find_managers_manager");
 		
-		IdmIdentity quarantee2 = createAndSaveIdentity("test_find_managers_manager2");
+		IdmIdentityDto quarantee2 = createAndSaveIdentity("test_find_managers_manager2");
 		
 		createIdentityContract(user, quarantee1, null);
 		
 		createIdentityContract(user, quarantee2, null);
 		
-		List<IdmIdentity> result = identityService.findAllManagers(user, null);
+		List<IdmIdentityDto> result = identityService.findAllManagers(user.getId(), null);
 		
 		assertEquals(2, result.size());
-
-		String resutlString = identityService.findAllManagersAsString(user.getId());
-		
-		assertEquals(true, resutlString.contains(quarantee1.getUsername()));
-		assertEquals(true, resutlString.contains(quarantee2.getUsername()));
 	}
 	
 	@Test
 	public void findManagers() {
-		IdmIdentity user = createAndSaveIdentity("test_position_01");
-		IdmIdentity user2 = createAndSaveIdentity("test_position_02");
-		IdmIdentity user3 = createAndSaveIdentity("test_position_03");
-		IdmIdentity user4 = createAndSaveIdentity("test_position_04");
+		IdmIdentityDto user = createAndSaveIdentity("test_position_01");
+		IdmIdentityDto user2 = createAndSaveIdentity("test_position_02");
+		IdmIdentityDto user3 = createAndSaveIdentity("test_position_03");
+		IdmIdentityDto user4 = createAndSaveIdentity("test_position_04");
 		
 		IdmTreeType treeTypeFirst = new IdmTreeType();
 		treeTypeFirst.setCode("TEST_TYPE_CODE_FIRST");
@@ -148,23 +143,23 @@ public class IdentityFindPositionsTest extends AbstractIntegrationTest{
 		createIdentityContract(user4, null, nodeTwo);
 		// createIdentityContract(user, manager3, null);
 		
-		List<IdmIdentity> managersList = identityService.findAllManagers(user3, treeTypeFirst);
+		List<IdmIdentityDto> managersList = identityService.findAllManagers(user3.getId(), treeTypeFirst.getId());
 		assertEquals(1, managersList.size());
 		
-		IdmIdentity manager = managersList.get(0);
+		IdmIdentityDto manager = managersList.get(0);
 		assertEquals(user.getId(), manager.getId());
 		
-		managersList = identityService.findAllManagers(user4, treeTypeFirst);
+		managersList = identityService.findAllManagers(user4.getId(), treeTypeFirst.getId());
 		assertEquals(2, managersList.size());
 		
-		managersList = identityService.findAllManagers(user, treeTypeFirst);
+		managersList = identityService.findAllManagers(user.getId(), treeTypeFirst.getId());
 		assertEquals(1, managersList.size());
 		
 		createIdentityContract(user, null, nodeTwo);
-		managersList = identityService.findAllManagers(user, treeTypeFirst);
+		managersList = identityService.findAllManagers(user.getId(), treeTypeFirst.getId());
 		assertEquals(2, managersList.size());
 		
-		List<IdmIdentity> managersListSec = identityService.findAllManagers(user, treeTypeSecond);
+		List<IdmIdentityDto> managersListSec = identityService.findAllManagers(user.getId(), treeTypeSecond.getId());
 		
 		// user with superAdminRole
 		assertEquals(1, managersListSec.size());
@@ -172,13 +167,13 @@ public class IdentityFindPositionsTest extends AbstractIntegrationTest{
 	
 	@Test
 	public void managerNotFound() {
-		IdmIdentity user = createAndSaveIdentity("test_2");
+		IdmIdentityDto user = createAndSaveIdentity("test_2");
 		
-		List<IdmIdentity> result = identityService.findAllManagers(user, null);
+		List<IdmIdentityDto> result = identityService.findAllManagers(user.getId(), null);
 		
 		assertEquals(1, result.size());
 		
-		IdmIdentity admin = result.get(0);
+		IdmIdentityDto admin = result.get(0);
 		
 		assertNotNull(admin);
 	}
@@ -190,23 +185,28 @@ public class IdentityFindPositionsTest extends AbstractIntegrationTest{
 		}
 	}
 	
-	private IdmIdentityContract createIdentityContract(IdmIdentity user, IdmIdentity quarantee, IdmTreeNode node) {
-		IdmIdentityContract position = new IdmIdentityContract();
-		position.setIdentity(user);
-		position.setGuarantee(quarantee);
-		position.setWorkingPosition(node);
+	private IdmIdentityContractDto createIdentityContract(IdmIdentityDto user, IdmIdentityDto guarantee, IdmTreeNode node) {
+		IdmIdentityContractDto position = new IdmIdentityContractDto();
+		position.setIdentity(user.getId());
+		position.setWorkPosition(node == null ? null : node.getId());
 		
-		return identityContractRepository.save(position);
+		position = identityContractService.save(position);
+		
+		if (guarantee != null) {
+			contractGuaranteeService.save(new IdmContractGuaranteeDto(position.getId(), guarantee.getId()));
+		}
+		
+		return position;
 	}
 	
-	private IdmIdentity createAndSaveIdentity(String userName) {
-		IdmIdentity user = constructTestIdentity();
+	private IdmIdentityDto createAndSaveIdentity(String userName) {
+		IdmIdentityDto user = constructTestIdentity();
 		user.setUsername(userName);
-		return identityRepository.save(user);
+		return identityService.save(user);
 	}
 	
-	private IdmIdentity constructTestIdentity() {
-		IdmIdentity identity = new IdmIdentity();
+	private IdmIdentityDto constructTestIdentity() {
+		IdmIdentityDto identity = new IdmIdentityDto();
 		identity.setUsername("service_test_user");
 		identity.setLastName("Service");
 		return identity;

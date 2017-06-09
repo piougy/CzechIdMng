@@ -3,7 +3,10 @@ package eu.bcvsolutions.idm.core.exception;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.persistence.PersistenceException;
+
 import org.apache.commons.lang.StringUtils;
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.rest.core.RepositoryConstraintViolationException;
 import org.springframework.http.HttpHeaders;
@@ -15,19 +18,23 @@ import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
+import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
-
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.ResultModels;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.exception.DefaultErrorModel;
 import eu.bcvsolutions.idm.core.api.exception.ErrorModel;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.security.exception.IdmAuthenticationException;
+import eu.bcvsolutions.idm.core.security.exception.IdmAuthenticationException;
 
+/**
+ * Handles application exceptions and translate them to result codes
+ * 
+ * @author Radek Tomiška
+ *
+ */
 @ControllerAdvice
 public class ExceptionControllerAdvice {
 
@@ -93,12 +100,58 @@ public class ExceptionControllerAdvice {
         return new ResponseEntity<>(new ResultModels(errorModels), new HttpHeaders(), HttpStatus.BAD_REQUEST);
     }
 	
+	@ExceptionHandler(javax.validation.ConstraintViolationException.class)
+	ResponseEntity<ResultModels> handle(javax.validation.ConstraintViolationException ex) {		
+		List<ErrorModel> errorModels = ex.getConstraintViolations().stream()
+			.map(constraintViolation -> new FieldErrorModel(constraintViolation))
+			.peek(errorModel -> log.warn("[" + errorModel.getId() + "] ", ex))
+			.collect(Collectors.toList());
+		// TODO: global errors
+		// TODO: better errorModel logging - move source exception to errorModel?
+        return new ResponseEntity<>(new ResultModels(errorModels), new HttpHeaders(), HttpStatus.BAD_REQUEST);
+    }
+	
 	@ExceptionHandler(DataIntegrityViolationException.class)
-	ResponseEntity<ResultModels> handle(DataIntegrityViolationException ex) {		
-		ErrorModel errorModel = new DefaultErrorModel(CoreResultCode.CONFLICT, ex.getMessage());
+	ResponseEntity<ResultModels> handle(DataIntegrityViolationException ex) {
+		ErrorModel errorModel = null;
+		//
+		if (ex.getCause() != null && ex.getCause() instanceof ConstraintViolationException){
+			ConstraintViolationException constraintEx = (ConstraintViolationException) ex.getCause();
+			// TODO: registrable contstrain error codes
+			if (constraintEx.getConstraintName().contains("name")) {
+				errorModel = new DefaultErrorModel(CoreResultCode.NAME_CONFLICT, ImmutableMap.of("name", constraintEx.getConstraintName()));
+			} else if (constraintEx.getConstraintName().contains("code")) {
+				errorModel = new DefaultErrorModel(CoreResultCode.CODE_CONFLICT, ImmutableMap.of("name", constraintEx.getConstraintName()));
+			} else {
+				errorModel = new DefaultErrorModel(CoreResultCode.CONFLICT, ImmutableMap.of("name", constraintEx.getConstraintName()));
+			}
+		} else {
+			errorModel = new DefaultErrorModel(CoreResultCode.CONFLICT, ex.getMostSpecificCause().getMessage());
+		}
 		log.error("[" + errorModel.getId() + "] ", ex);
 		return new ResponseEntity<>(new ResultModels(errorModel), new HttpHeaders(), errorModel.getStatus());
     }
+	
+	@ExceptionHandler(PersistenceException.class)
+	ResponseEntity<ResultModels> handle(PersistenceException ex) {
+		ErrorModel errorModel = null;
+		//
+		if (ex.getCause() != null && ex.getCause() instanceof ConstraintViolationException){
+			ConstraintViolationException constraintEx = (ConstraintViolationException) ex.getCause();
+			// TODO: registrable contstrain error codes
+			if (constraintEx.getConstraintName().contains("name")) {
+				errorModel = new DefaultErrorModel(CoreResultCode.NAME_CONFLICT, ImmutableMap.of("name", constraintEx.getConstraintName()));
+			} else if (constraintEx.getConstraintName().contains("code")) {
+				errorModel = new DefaultErrorModel(CoreResultCode.CODE_CONFLICT, ImmutableMap.of("name", constraintEx.getConstraintName()));
+			} else {
+				errorModel = new DefaultErrorModel(CoreResultCode.CONFLICT, ImmutableMap.of("name", constraintEx.getConstraintName()));
+			}
+		} else {
+			errorModel = new DefaultErrorModel(CoreResultCode.CONFLICT, ex.getMessage());
+		}
+		log.error("[" + errorModel.getId() + "] ", ex);
+		return new ResponseEntity<>(new ResultModels(errorModel), new HttpHeaders(), errorModel.getStatus());
+	}
 	
 	@ExceptionHandler(AccessDeniedException.class)
 	ResponseEntity<ResultModels> handle(AccessDeniedException ex) {	
@@ -114,12 +167,17 @@ public class ExceptionControllerAdvice {
         return new ResponseEntity<>(new ResultModels(errorModel), new HttpHeaders(), errorModel.getStatus());
     }
 	
-	@ResponseBody
 	@ExceptionHandler(Exception.class)
-	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-	ResultModels handle(Exception ex) {
-		ErrorModel errorModel = new DefaultErrorModel(CoreResultCode.INTERNAL_SERVER_ERROR, ex.getMessage());
-		log.error("[" + errorModel.getId() + "] ", ex);
-        return new ResultModels(errorModel);
+	ResponseEntity<ResultModels> handle(Exception ex) {
+		Throwable cause = Throwables.getRootCause(ex);
+		// If is cause ResultCodeExce	ption, then we will log catched exception and throw only ResultCodeException (for better show on frontend)
+		if (cause instanceof ResultCodeException){
+			log.error(ex.getLocalizedMessage(), ex);
+			return handle((ResultCodeException)cause);
+		} else {
+			ErrorModel errorModel = new DefaultErrorModel(CoreResultCode.INTERNAL_SERVER_ERROR, ex.getMessage());
+			log.error("[" + errorModel.getId() + "] ", ex);
+			return new ResponseEntity<>(new ResultModels(errorModel), new HttpHeaders(), errorModel.getStatus());
+		}
     }
 }

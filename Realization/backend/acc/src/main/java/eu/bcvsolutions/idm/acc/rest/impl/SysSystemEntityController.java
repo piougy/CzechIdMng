@@ -22,14 +22,14 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
-import eu.bcvsolutions.idm.acc.dto.SystemEntityFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SystemEntityFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteEntityController;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
-import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
-import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
-import eu.bcvsolutions.idm.security.api.domain.Enabled;;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
+import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
+import eu.bcvsolutions.idm.core.security.api.domain.Enabled;;
 
 /**
  * Entities on target system
@@ -44,14 +44,14 @@ public class SysSystemEntityController extends AbstractReadWriteEntityController
 
 	
 	@Autowired
-	public SysSystemEntityController(EntityLookupService entityLookupService, SysSystemEntityService systemEntityService) {
+	public SysSystemEntityController(LookupService entityLookupService, SysSystemEntityService systemEntityService) {
 		super(entityLookupService, systemEntityService);
 	}
 	
 	@Override
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.GET)
-	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_READ + "') or hasAuthority('" + IdmGroupPermission.ROLE_READ + "')")
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_READ + "') or hasAuthority('" + CoreGroupPermission.ROLE_READ + "')")
 	public Resources<?> find(@RequestParam MultiValueMap<String, Object> parameters, 
 			@PageableDefault Pageable pageable, 			
 			PersistentEntityResourceAssembler assembler) {
@@ -59,7 +59,7 @@ public class SysSystemEntityController extends AbstractReadWriteEntityController
 	}
 	
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_READ + "') or hasAuthority('" + IdmGroupPermission.ROLE_READ + "')")
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_READ + "') or hasAuthority('" + CoreGroupPermission.ROLE_READ + "')")
 	@RequestMapping(value= "/search/quick", method = RequestMethod.GET)
 	public Resources<?> findQuick(@RequestParam MultiValueMap<String, Object> parameters, 
 			@PageableDefault Pageable pageable, 			
@@ -69,7 +69,7 @@ public class SysSystemEntityController extends AbstractReadWriteEntityController
 	
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_READ + "') or hasAuthority('" + IdmGroupPermission.ROLE_READ + "')")
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_READ + "') or hasAuthority('" + CoreGroupPermission.ROLE_READ + "')")
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.GET)
 	public ResponseEntity<?> get(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler) {
 		return super.get(backendId, assembler);
@@ -77,26 +77,26 @@ public class SysSystemEntityController extends AbstractReadWriteEntityController
 	
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_UPDATE + "')")
 	@RequestMapping(method = RequestMethod.POST)
-	public ResponseEntity<?> create(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
-		return super.create(nativeRequest, assembler);
+	public ResponseEntity<?> post(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
+		return super.post(nativeRequest, assembler);
 	}
 	
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_UPDATE + "')")
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.PUT)
-	public ResponseEntity<?> update(
+	public ResponseEntity<?> put(
 			@PathVariable @NotNull String backendId,
 			HttpServletRequest nativeRequest,
 			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
-		return super.update(backendId, nativeRequest, assembler);
+		return super.put(backendId, nativeRequest, assembler);
 	}
 	
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_UPDATE + "')")
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.PATCH)
 	public ResponseEntity<?> patch(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler) 
 			throws HttpMessageNotReadableException {
@@ -114,9 +114,10 @@ public class SysSystemEntityController extends AbstractReadWriteEntityController
 	@Override
 	protected SystemEntityFilter toFilter(MultiValueMap<String, Object> parameters) {
 		SystemEntityFilter filter = new SystemEntityFilter();
-		filter.setSystemId(convertUuidParameter(parameters, "systemId"));
-		filter.setEntityType(convertEnumParameter(parameters, "entityType", SystemEntityType.class));
-		filter.setUid(convertStringParameter(parameters, "uid"));
+		filter.setText(getParameterConverter().toString(parameters, "text"));
+		filter.setSystemId(getParameterConverter().toUuid(parameters, "systemId"));
+		filter.setEntityType(getParameterConverter().toEnum(parameters, "entityType", SystemEntityType.class));
+		filter.setUid(getParameterConverter().toString(parameters, "uid"));
 		return filter;
 	}
 }

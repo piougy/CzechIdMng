@@ -82,8 +82,8 @@ class PasswordField extends Basic.AbstractFormComponent {
           labelSpan={labelSpan}
           componentSpan={componentSpan}
           style={{ marginBottom: 0 }}/>
-        <div className="form-group" style={{ margin: '0 -13px' }}>
-          { /* TODO: labelSpan vs offset - see public password change in small resolution - will be fixed with form-horizontal removal in the future */
+        <div className="form-group" style={{ margin: 0 }}>
+          {
             !labelSpan
             ||
             <span className={labelSpan}></span>

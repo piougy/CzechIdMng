@@ -3,18 +3,21 @@ package eu.bcvsolutions.idm.acc.entity;
 import javax.persistence.Column;
 import javax.persistence.ConstraintMode;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.ForeignKey;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
 
+import org.hibernate.annotations.Type;
 import org.hibernate.envers.Audited;
 
-import com.sun.istack.NotNull;
+import javax.validation.constraints.NotNull;
 
+import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 
@@ -55,10 +58,10 @@ public class SysRoleSystemAttribute extends AbstractEntity {
 	@Audited
 	@NotNull
 	@ManyToOne(optional = false)
-	@JoinColumn(name = "schema_attr_handling_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@JoinColumn(name = "system_attr_mapping_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )
-	private SysSchemaAttributeHandling schemaAttributeHandling;
+	private SysSystemAttributeMapping systemAttributeMapping;
 
 	@Audited
 	@Column(name = "extended_attribute", nullable = false)
@@ -81,9 +84,24 @@ public class SysRoleSystemAttribute extends AbstractEntity {
 	private boolean uid = false;
 
 	@Audited
-	@Lob
+	@Type(type = "org.hibernate.type.StringClobType") // TODO: test on oracle/ mysql
 	@Column(name = "transform_script")
 	private String transformScript;
+	
+	@Audited
+	@NotNull
+	@Enumerated(EnumType.STRING)
+	@Column(name = "strategy_type", nullable = false)
+	private AttributeMappingStrategyType strategyType = AttributeMappingStrategyType.SET;
+	
+	@Audited
+	@Column(name = "send_always", nullable = false)
+	private boolean sendAlways = false;
+	
+	@Audited
+	@Column(name = "send_only_if_not_null", nullable = false)
+	private boolean sendOnlyIfNotNull = false;
+
 
 	public String getName() {
 		return name;
@@ -109,12 +127,12 @@ public class SysRoleSystemAttribute extends AbstractEntity {
 		this.roleSystem = roleSystem;
 	}
 
-	public SysSchemaAttributeHandling getSchemaAttributeHandling() {
-		return schemaAttributeHandling;
+	public SysSystemAttributeMapping getSystemAttributeMapping() {
+		return systemAttributeMapping;
 	}
 
-	public void setSchemaAttributeHandling(SysSchemaAttributeHandling schemaAttributeHandling) {
-		this.schemaAttributeHandling = schemaAttributeHandling;
+	public void setSystemAttributeMapping(SysSystemAttributeMapping systemAttributeMapping) {
+		this.systemAttributeMapping = systemAttributeMapping;
 	}
 
 	public boolean isExtendedAttribute() {
@@ -163,6 +181,30 @@ public class SysRoleSystemAttribute extends AbstractEntity {
 
 	public void setDisabledDefaultAttribute(boolean disabledDefaultAttribute) {
 		this.disabledDefaultAttribute = disabledDefaultAttribute;
+	}
+
+	public AttributeMappingStrategyType getStrategyType() {
+		return strategyType;
+	}
+
+	public void setStrategyType(AttributeMappingStrategyType strategyType) {
+		this.strategyType = strategyType;
+	}
+	
+	public boolean isSendAlways() {
+		return sendAlways;
+	}
+
+	public void setSendAlways(boolean sendAlways) {
+		this.sendAlways = sendAlways;
+	}
+	
+	public boolean isSendOnlyIfNotNull() {
+		return sendOnlyIfNotNull;
+	}
+
+	public void setSendOnlyIfNotNull(boolean sendOnlyIfNotNull) {
+		this.sendOnlyIfNotNull = sendOnlyIfNotNull;
 	}
 	
 }

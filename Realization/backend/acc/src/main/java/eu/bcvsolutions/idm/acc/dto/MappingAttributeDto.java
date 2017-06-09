@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.acc.dto;
 
-import eu.bcvsolutions.idm.acc.domain.MappingAttribute;
+import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
+import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
 
 /**
@@ -8,9 +9,9 @@ import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
  * @author svandav
  *
  */
-public class MappingAttributeDto  implements MappingAttribute {
+public class MappingAttributeDto  implements AttributeMapping {
 
-
+	private static final long serialVersionUID = 3813047739818544156L;
 	private String name;
 	private String idmPropertyName;
 	private SysSchemaAttribute schemaAttribute;
@@ -21,6 +22,9 @@ public class MappingAttributeDto  implements MappingAttribute {
 	private boolean disabledAttribute = false;
 	private String transformFromResourceScript;
 	private String transformToResourceScript;
+	private AttributeMappingStrategyType strategyType;
+	private boolean sendAlways = false;
+	private boolean sendOnlyIfNotNull = false;
 
 	@Override
 	public String getIdmPropertyName() {
@@ -121,4 +125,35 @@ public class MappingAttributeDto  implements MappingAttribute {
 	public void setDisabledAttribute(boolean disabledAttribute) {
 		this.disabledAttribute = disabledAttribute;
 	}
+
+	@Override
+	public AttributeMappingStrategyType getStrategyType() {
+		return strategyType;
+	}
+
+	@Override
+	public void setStrategyType(AttributeMappingStrategyType strategyType) {
+		this.strategyType = strategyType;
+	}
+	
+	@Override
+	public boolean isSendAlways() {
+		return sendAlways;
+	}
+
+	@Override
+	public void setSendAlways(boolean sendAlways) {
+		this.sendAlways = sendAlways;
+	}
+
+	@Override
+	public boolean isSendOnlyIfNotNull() {
+		return sendOnlyIfNotNull;
+	}
+
+	@Override
+	public void setSendOnlyIfNotNull(boolean sendOnlyIfNotNull) {
+		this.sendOnlyIfNotNull = sendOnlyIfNotNull;
+	}
+	
 }

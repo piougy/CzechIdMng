@@ -6,7 +6,9 @@ import java.util.Map;
 
 import org.codehaus.groovy.control.CompilationFailedException;
 import org.codehaus.groovy.control.CompilerConfiguration;
+import org.kohsuke.groovy.sandbox.GroovyInterceptor;
 import org.kohsuke.groovy.sandbox.SandboxTransformer;
+import org.springframework.aop.support.AopUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
@@ -15,8 +17,8 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
-import eu.bcvsolutions.idm.security.domain.GroovySandboxFilter;
-import eu.bcvsolutions.idm.security.exception.IdmSecurityException;
+import eu.bcvsolutions.idm.core.security.domain.GroovySandboxFilter;
+import eu.bcvsolutions.idm.core.security.exception.IdmSecurityException;
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
 
@@ -29,24 +31,55 @@ import groovy.lang.GroovyShell;
 @Service
 public class DefaultGroovyScriptService implements GroovyScriptService {
 
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory
+			.getLogger(DefaultGroovyScriptService.class);
+	
 	@Override
 	public Object evaluate(String script, Map<String, Object> variables) {
+		return evaluate(script, variables, null);
+	}
+	
+	@Override
+	public Object evaluate(String script, Map<String, Object> variables, List<Class<?>> extraAllowedClasses) {
 		Assert.notNull(script);
 
 		Binding binding = new Binding(variables);
-		GroovyShell shell = new GroovyShell(binding,
-				new CompilerConfiguration().addCompilationCustomizers(new SandboxTransformer()));
+		CompilerConfiguration compilerConfiguration = new CompilerConfiguration();
+		compilerConfiguration.setVerbose(true);
+		compilerConfiguration.addCompilationCustomizers(new SandboxTransformer());
+		GroovyShell shell = new GroovyShell(binding, compilerConfiguration);
 		List<Class<?>> allowedVariableClass = resolveCustomAllowTypes(variables);
-
-		GroovySandboxFilter sandboxFilter = new GroovySandboxFilter(allowedVariableClass);
+		if(extraAllowedClasses != null){
+			allowedVariableClass.addAll(extraAllowedClasses);
+		}
+		GroovySandboxFilter sandboxFilter = null;
+		//
 		try {
-			sandboxFilter.register();
+			// if groovy filter exist add extraAllowedClasses, into this filter, otherwise create new
+			if (!GroovyInterceptor.getApplicableInterceptors().isEmpty()) {
+				// exists only one goovy filter
+				sandboxFilter = (GroovySandboxFilter) GroovyInterceptor.getApplicableInterceptors().get(0);
+				sandboxFilter.addCustomTypes(allowedVariableClass);
+			} else {
+				sandboxFilter = new GroovySandboxFilter(allowedVariableClass);
+				sandboxFilter.register();
+			}
 
 			return shell.evaluate(script);
-		} catch (SecurityException ex) {
-			throw new IdmSecurityException(CoreResultCode.GROVY_SCRIPT_SECURITY_VALIDATION, ImmutableMap.of("message", ex.getLocalizedMessage()), ex);
+		} catch (SecurityException | IdmSecurityException ex) {
+			LOG.error("[DefaultGroovyScriptService] SecurityException [{}]", ex.getLocalizedMessage());
+			throw new IdmSecurityException(CoreResultCode.GROOVY_SCRIPT_SECURITY_VALIDATION, ImmutableMap.of("message", ex.getLocalizedMessage()), ex);
+		} catch (Exception e) {
+			LOG.error("[DefaultGroovyScriptService] Exception [{}]", e.getLocalizedMessage());
+			throw new ResultCodeException(CoreResultCode.GROOVY_SCRIPT_EXCEPTION, ImmutableMap.of("message", e.getLocalizedMessage()), e);
 		} finally {
-			sandboxFilter.unregister();
+			// if this script is called from another script, remove only allowed classes from them
+			// otherwise unregister all filter.
+			if (sandboxFilter.isCustomTypesLast()) {
+				sandboxFilter.unregister();
+			} else {
+				sandboxFilter.removeLastCustomTypes();
+			}
 		}
 	}
 
@@ -63,14 +96,18 @@ public class DefaultGroovyScriptService implements GroovyScriptService {
 			return allowType;
 		}
 		variables.forEach((key, object) -> {
-			if (object != null && !allowType.contains(object.getClass())) {
-				allowType.add(object.getClass());
+			Class<?> targetClass = null;
+			if (object != null) {
+				targetClass = AopUtils.getTargetClass(object);
+			}
+			if (targetClass != null && !allowType.contains(targetClass)) {
+				allowType.add(targetClass);
 			}
 			// We have to add types for all list items
 			if (object instanceof List) {
 				((List<?>) object).stream().forEach(item -> {
-					if (item != null && !allowType.contains(item.getClass())) {
-						allowType.add(item.getClass());
+					if (item != null && !allowType.contains(AopUtils.getTargetClass(item))) {
+						allowType.add(AopUtils.getTargetClass(item));
 					}
 				});
 			}
@@ -85,7 +122,7 @@ public class DefaultGroovyScriptService implements GroovyScriptService {
 			GroovyShell shell = new GroovyShell();
 			return shell.parse(script);
 		} catch (CompilationFailedException ex) {
-			throw new ResultCodeException(CoreResultCode.GROVY_SCRIPT_VALIDATION, ex);
+			throw new ResultCodeException(CoreResultCode.GROOVY_SCRIPT_VALIDATION, ex);
 		}
 	}
 

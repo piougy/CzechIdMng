@@ -2,18 +2,22 @@ import React, { PropTypes } from 'react';
 import { Link } from 'react-router';
 import { connect } from 'react-redux';
 import classnames from 'classnames';
+// import MetisMenu from 'react-metismenu';
 //
 import * as Basic from '../../basic';
-import {ConfigurationManager} from '../../../redux/data';
-import {SecurityManager} from '../../../redux';
-import { getNavigationItems, resolveNavigationParameters, collapseNavigation } from '../../../redux/layout/layoutActions';
+import { LocalizationService } from '../../../services';
+import { ConfigurationManager } from '../../../redux/data';
+import { SecurityManager } from '../../../redux';
+import { getNavigationItems, resolveNavigationParameters, collapseNavigation, i18nChange } from '../../../redux/config/actions';
 import NavigationItem from './NavigationItem';
 import NavigationSeparator from './NavigationSeparator';
 
 /**
  * Top navigation
+ *
+ * @author Radek Tomiška
  */
-export class Navigation extends Basic.AbstractContextComponent {
+export class Navigation extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
@@ -104,7 +108,7 @@ export class Navigation extends Basic.AbstractContextComponent {
       );
     }
     return (
-      <span className="visible-xs-inline"> {this.i18n(item.titleKey, { defaultValue: item.title })}</span>
+      <span className="visible-xs-inline"> { this.i18n(item.titleKey, { defaultValue: item.title }) }</span>
     );
   }
 
@@ -130,7 +134,12 @@ export class Navigation extends Basic.AbstractContextComponent {
         return null;
       }
       case 'SEPARATOR': {
-        return <NavigationSeparator text={this._resolveNavigationItemText(item, userContext)} />;
+        return (
+          <NavigationSeparator
+            id={`nav-item-${item.id}`}
+            key={`nav-item-${item.id}`}
+            text={this._resolveNavigationItemText(item, userContext)} />
+        );
       }
       default: {
         this.getLogger().warn('[Advanced.Navigation] ' + item.type + ' type not implemeted for item id [' + item.id + ']');
@@ -165,19 +174,21 @@ export class Navigation extends Basic.AbstractContextComponent {
       if (children && !navigationCollapsed) {
         items.push(
           <li key={`nav-item-${levelItem.id}`} className={isActive ? 'has-children active' : 'has-children'}>
-            <a href="#">
-              <Basic.Icon icon={levelItem.icon} color={levelItem.iconColor}/>
-              {
-                navigationCollapsed
-                ?
-                null
-                :
-                <span>
-                  { this._resolveNavigationItemText(levelItem, userContext) }
-                  <span className="fa arrow"></span>
-                </span>
-              }
-            </a>
+            <Basic.Tooltip id={`${levelItem.id}-tooltip`} placement="right" value={ this.i18n(levelItem.titleKey, { defaultValue: levelItem.title }) }>
+              <a href="#">
+                <Basic.Icon icon={levelItem.icon} color={levelItem.iconColor}/>
+                {
+                  navigationCollapsed
+                  ?
+                  null
+                  :
+                  <span>
+                    { this._resolveNavigationItemText(levelItem, userContext) }
+                    <span className="fa arrow"></span>
+                  </span>
+                }
+              </a>
+            </Basic.Tooltip>
             { children }
           </li>
         );
@@ -195,7 +206,7 @@ export class Navigation extends Basic.AbstractContextComponent {
 
     if (level === 100) { // collapse menu prepare
       items.push(
-        <li>
+        <li key="navigation-collapse">
           <a href="#" onClick={this.toogleNavigationCollapse.bind(this, navigationCollapsed)}>
             <Basic.Icon value={`arrow-${navigationCollapsed ? 'right' : 'left'}`}/>
               {
@@ -243,7 +254,7 @@ export class Navigation extends Basic.AbstractContextComponent {
   }
 
   render() {
-    const { environment, userContext, navigationCollapsed, rendered } = this.props;
+    const { environment, userContext, navigationCollapsed, rendered, i18nReady } = this.props;
     //
     if (!rendered) {
       return false;
@@ -258,12 +269,42 @@ export class Navigation extends Basic.AbstractContextComponent {
         {'hidden': environment === 'production'}
       );
       environmentLabel = (
-        <p className="navbar-text hidden-xs" title={this.i18n('environment.' + environment + '.title', { defaultValue: environment })}>
+        <div className="navbar-text hidden-xs" title={this.i18n('environment.' + environment + '.title', { defaultValue: environment })}>
           <span className={environmentClassName}>
             <span className="hidden-sm">{this.i18n('environment.' + environment + '.label', { defaultValue: environment })}</span>
             <span className="visible-sm-inline">{this.i18n('environment.' + environment + '.short', { defaultValue: environment })}</span>
           </span>
-        </p>
+        </div>
+      );
+    }
+
+    const supportedLanguages = LocalizationService.getSupportedLanguages();
+    let flags = null;
+    if (supportedLanguages && supportedLanguages.length > 1) {
+      flags = (
+        <div className="navbar-text hidden-xs">
+          <div className="flags-container">
+            <div className="flags">
+              {
+                supportedLanguages.map((lng, i) => {
+                  const lgnClassName = classnames(
+                    'flag',
+                    lng,
+                    { 'active': i18nReady === lng },
+                    { 'last': i === supportedLanguages.length - 1 }
+                  );
+                  return (
+                    <span
+                      key={`locale-${lng}`}
+                      className={lgnClassName}
+                      onClick={() => { this.context.store.dispatch(i18nChange(lng, () => { window.location.reload(); } )); }}>
+                    </span>
+                  );
+                })
+              }
+            </div>
+          </div>
+        </div>
       );
     }
 
@@ -302,21 +343,42 @@ export class Navigation extends Basic.AbstractContextComponent {
                 :
                 null
               }
-              <ul className="nav navbar-nav navbar-right">
-                {environmentLabel}
-                {
-                  userContext.isExpired
-                  ||
-                  systemItems
-                }
-              </ul>
+              <div className="navbar-right">
+                { environmentLabel }
+                { flags }
+                <ul className="nav navbar-nav">
+                  {
+                    userContext.isExpired
+                    ||
+                    systemItems
+                  }
+                </ul>
+              </div>
             </div>
             {
               !userContext.isExpired && SecurityManager.isAuthenticated(userContext)
               ?
               <div className={sidebarClassName} role="navigation">
                 <div className="sidebar-nav navbar-collapse">
-                  {sidebarItems}
+                  {/* <MetisMenu content={[
+                    {
+                      icon: 'icon-class-name',
+                      label: 'Label of Item',
+                      to: '#a-link',
+                    },
+                    {
+                      icon: 'icon-class-name',
+                      label: 'Second Item',
+                      content: [
+                        {
+                          icon: 'icon-class-name',
+                          label: 'Sub Menu of Second Item',
+                          to: '#another-link',
+                        },
+                      ],
+                    }
+                  ]}/>*/}
+                  { sidebarItems }
                 </div>
               </div>
               :
@@ -335,7 +397,8 @@ Navigation.propTypes = {
   navigationCollapsed: PropTypes.bool,
   selectedNavigationItems: PropTypes.array,
   environment: PropTypes.string,
-  userContext: PropTypes.object
+  userContext: PropTypes.object,
+  i18nReady: PropTypes.string
 };
 
 Navigation.defaultProps = {
@@ -344,7 +407,8 @@ Navigation.defaultProps = {
   navigationCollapsed: false,
   selectedNavigationItems: null,
   environment: null,
-  userContext: null
+  userContext: null,
+  i18nReady: null
 };
 
 Navigation.contextTypes = {
@@ -353,16 +417,13 @@ Navigation.contextTypes = {
 };
 
 function select(state) {
-  let environment = ConfigurationManager.getPublicValue(state, 'idm.pub.app.stage');
-  if (environment) {
-    environment = environment.toLowerCase();
-  }
   return {
-    navigation: state.layout.get('navigation'),
-    navigationCollapsed: state.layout.get('navigationCollapsed'),
-    selectedNavigationItems: state.layout.get('selectedNavigationItems'),
-    environment,
-    userContext: state.security.userContext
+    navigation: state.config.get('navigation'),
+    navigationCollapsed: state.config.get('navigationCollapsed'),
+    selectedNavigationItems: state.config.get('selectedNavigationItems'),
+    environment: ConfigurationManager.getEnvironmentStage(state),
+    userContext: state.security.userContext,
+    i18nReady: state.config.get('i18nReady')
   };
 }
 

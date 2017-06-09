@@ -25,6 +25,7 @@ class SystemContent extends Basic.AbstractContent {
     const { entityId } = this.props.params;
 
     this.context.store.dispatch(manager.fetchAvailableFrameworks());
+    this.context.store.dispatch(manager.fetchAvailableRemoteConnector(entityId));
     if (this._isNew()) {
       this.context.store.dispatch(manager.receiveEntity(entityId, { }));
     } else {
@@ -69,7 +70,8 @@ function select(state, component) {
   return {
     entity: manager.getEntity(state, entityId),
     showLoading: manager.isShowLoading(state, null, entityId),
-    availableFrameworks: Managers.DataManager.getData(state, SystemManager.AVAILABLE_CONNECTORS)
+    availableFrameworks: Managers.DataManager.getData(state, SystemManager.AVAILABLE_CONNECTORS),
+    availableRemoteFrameworks: Managers.DataManager.getData(state, SystemManager.AVAILABLE_REMOTE_CONNECTORS)
   };
 }
 

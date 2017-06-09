@@ -1,29 +1,28 @@
 package eu.bcvsolutions.idm.core.api.dto;
 
-import java.util.UUID;
+import java.io.Serializable;
 
-import org.springframework.hateoas.Identifiable;
+import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 
 /**
  * Any dto has identifier
  * 
  * @author Radek Tomiška 
- *
  */
-public interface BaseDto extends Identifiable<UUID> {
+public interface BaseDto extends Identifiable, Serializable {
 	
 	/**
 	 * Returns indentifier
 	 *
 	 * @return
 	 */
-	UUID getId();
+	Serializable getId();
 
 	/**
 	 * Set indentifier
 	 *
 	 * @param id
 	 */
-	void setId(UUID id);
+	void setId(Serializable id);
 
 }

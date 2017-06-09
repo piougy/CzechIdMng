@@ -1,5 +1,6 @@
 import RestApiService from './RestApiService';
 import AbstractService from './AbstractService';
+import FormableEntityService from './FormableEntityService';
 import AuthenticateService from './AuthenticateService';
 import IdentityService from './IdentityService';
 import WorkflowProcessDefinitionService from './WorkflowProcessDefinitionService';
@@ -19,10 +20,30 @@ import EmailService from './EmailService';
 import BackendModuleService from './BackendModuleService';
 import RoleCatalogueService from './RoleCatalogueService';
 import AuditService from './AuditService';
+import ScriptService from './ScriptService';
+import NotificationConfigurationService from './NotificationConfigurationService';
+import WebsocketService from './WebsocketService';
+import PasswordPolicyService from './PasswordPolicyService';
+import EntityEventProcessorService from './EntityEventProcessorService';
+import LongRunningTaskService from './LongRunningTaskService';
+import SchedulerService from './SchedulerService';
+import NotificationTemplateService from './NotificationTemplateService';
+import RoleRequestService from './RoleRequestService';
+import ConceptRoleRequestService from './ConceptRoleRequestService';
+import RoleTreeNodeService from './RoleTreeNodeService';
+import FormDefinitionService from './FormDefinitionService';
+import FormAttributeService from './FormAttributeService';
+import AuthorizationPolicyService from './AuthorizationPolicyService';
+import ScriptAuthorityService from './ScriptAuthorityService';
+import ContractGuaranteeService from './ContractGuaranteeService';
+import NotificationRecipientService from './NotificationRecipientService';
+import SmsService from './SmsService';
+import RecaptchaService from './RecaptchaService';
 
 const ServiceRoot = {
   RestApiService,
   AbstractService,
+  FormableEntityService,
   AuthenticateService,
   IdentityService,
   WorkflowProcessDefinitionService,
@@ -41,7 +62,26 @@ const ServiceRoot = {
   EmailService,
   BackendModuleService,
   RoleCatalogueService,
-  AuditService
+  AuditService,
+  ScriptService,
+  NotificationConfigurationService,
+  WebsocketService,
+  PasswordPolicyService,
+  EntityEventProcessorService,
+  LongRunningTaskService,
+  SchedulerService,
+  NotificationTemplateService,
+  RoleRequestService,
+  ConceptRoleRequestService,
+  RoleTreeNodeService,
+  FormDefinitionService,
+  FormAttributeService,
+  AuthorizationPolicyService,
+  ScriptAuthorityService,
+  ContractGuaranteeService,
+  NotificationRecipientService,
+  SmsService,
+  RecaptchaService
 };
 
 ServiceRoot.version = '0.0.1';

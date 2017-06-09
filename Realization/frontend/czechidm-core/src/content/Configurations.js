@@ -8,8 +8,14 @@ import { ConfigurationManager, DataManager, SecurityManager } from '../redux';
 import * as Utils from '../utils';
 
 const uiKey = 'configuration_table';
+const manager = new ConfigurationManager();
 
-class Configurations extends Basic.AbstractContent {
+/**
+ * Application configurations
+ *
+ * @author Radek Tomiška
+ */
+class Configurations extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);
@@ -22,19 +28,24 @@ class Configurations extends Basic.AbstractContent {
       isGuarded: false,
       isSecured: false
     };
-    this.configurationManager = new ConfigurationManager();
   }
 
   componentDidMount() {
+    super.componentDidMount();
+    //
     this.selectNavigationItem('system-configuration');
-    this.context.store.dispatch(this.configurationManager.fetchAllConfigurationsFromFile());
-    if (SecurityManager.hasAuthority('CONFIGURATIONSECURED_READ')) {
-      this.context.store.dispatch(this.configurationManager.fetchAllConfigurationsFromEnvironment());
+    this.context.store.dispatch(manager.fetchAllConfigurationsFromFile());
+    if (SecurityManager.hasAuthority('CONFIGURATION_ADMIN')) {
+      this.context.store.dispatch(manager.fetchAllConfigurationsFromEnvironment());
     }
   }
 
   getManager() {
-    return this.configurationManager;
+    return manager;
+  }
+
+  getUiKey() {
+    return uiKey;
   }
 
   getContentKey() {
@@ -57,7 +68,11 @@ class Configurations extends Basic.AbstractContent {
 
   showDetail(entity) {
     const isGuarded = this._getGuarded(entity.confidential, entity.name);
-    const isSecured = isGuarded || this.configurationManager.shouldBeSecured(entity.name);
+    const isSecured = isGuarded || manager.shouldBeSecured(entity.name);
+    //
+    if (!Utils.Entity.isNew(entity)) {
+      this.context.store.dispatch(this.getManager().fetchPermissions(entity.id, `${this.getUiKey()}-detail`));
+    }
     //
     this.setState({
       detail: {
@@ -114,50 +129,25 @@ class Configurations extends Basic.AbstractContent {
     this.context.store.dispatch(this.getManager().fetchPublicConfigurations());
   }
 
-  onDelete(bulkActionValue, selectedRows) {
-    const selectedEntities = this.getManager().getEntitiesByIds(this.context.store.getState(), selectedRows);
-    //
-    this.refs['confirm-' + bulkActionValue].show(
-      this.i18n(`action.${bulkActionValue}.message`, { count: selectedEntities.length, record: this.getManager().getNiceLabel(selectedEntities[0]), records: this.getManager().getNiceLabels(selectedEntities).join(', ') }),
-      this.i18n(`action.${bulkActionValue}.header`, { count: selectedEntities.length, records: this.getManager().getNiceLabels(selectedEntities).join(', ') })
-    ).then(() => {
-      this.context.store.dispatch(this.getManager().deleteEntities(selectedEntities, uiKey, (entity, error) => {
-        if (entity && error) {
-          this.addErrorMessage({ title: this.i18n(`action.delete.error`, { record: this.getManager().getNiceLabel(entity) }) }, error);
-        } else {
-          this.refs.table.getWrappedInstance().reload();
-          // reload public configurations
-          this.context.store.dispatch(this.getManager().fetchPublicConfigurations());
-        }
-      }));
-    }, () => {
-      // nothing
-    });
-  }
-
   _changeName(event) {
     // check guarded depents on new entity name
     const confidential = this.refs.confidential.getValue();
     const name = event.currentTarget.value;
     //
-    if (SecurityManager.hasAuthority('CONFIGURATIONSECURED_WRITE')) {
-      this._setForceProperties(confidential, name);
-    }
+    this._setForceProperties(confidential, name);
   }
 
   _changeConfidential(event) {
     const confidential = event.currentTarget.checked;
     const name = this.refs.name.getValue();
     //
-    if (SecurityManager.hasAuthority('CONFIGURATIONSECURED_WRITE')) {
-      this._setForceProperties(confidential, name);
-    }
+    this._setForceProperties(confidential, name);
   }
 
   _setForceProperties(confidential, entityName) {
     const prevGuarded = this.state.isGuarded;
     const isGuarded = this._getGuarded(confidential, entityName);
-    const isSecured = isGuarded || this.configurationManager.shouldBeSecured(entityName);
+    const isSecured = isGuarded || manager.shouldBeSecured(entityName);
     this.setState({
       isGuarded,
       isSecured
@@ -175,7 +165,7 @@ class Configurations extends Basic.AbstractContent {
   }
 
   _getGuarded(confidential, entityName) {
-    if (this.configurationManager.shouldBeGuarded(entityName)) {
+    if (manager.shouldBeGuarded(entityName)) {
       return 'by_name'; // has higher priority
     }
 
@@ -185,27 +175,14 @@ class Configurations extends Basic.AbstractContent {
     return false;
   }
 
-  _validateName() {
-    if (!SecurityManager.hasAuthority('CONFIGURATIONSECURED_WRITE')) {
-      const entityName = this.refs.name.getValue();
-      //
-      if (this.configurationManager.shouldBeGuarded(entityName)) {
-        return {error: { key: 'configurationSecured' }};
-      }
-      if (this.configurationManager.shouldBeSecured(entityName)) {
-        return {error: { key: 'configurationSecured' }};
-      }
-    }
-    return true;
-  }
-
   render() {
     const {
       _showLoading,
       fileConfigurations,
       _fileConfigurationsShowLoading,
       environmentConfigurations,
-      _environmentConfigurationsShowLoading
+      _environmentConfigurationsShowLoading,
+      _permissions
     } = this.props;
     const { filterOpened, detail, isGuarded, isSecured } = this.state;
 
@@ -220,21 +197,24 @@ class Configurations extends Basic.AbstractContent {
           {this.i18n('header')}
         </Basic.PageHeader>
 
+        <Basic.ContentHeader>
+          { this.i18n('configurable', { escape: false }) }
+        </Basic.ContentHeader>
+
         <Basic.Panel>
           <Advanced.Table
             ref="table"
-            uiKey={uiKey}
-            manager={this.getManager()}
-            showRowSelection={SecurityManager.hasAnyAuthority(['CONFIGURATION_DELETE', 'CONFIGURATIONSECURED_DELETE'])}
+            uiKey={ uiKey }
+            manager={ this.getManager()}
+            showRowSelection={ manager.canDelete() }
             filter={
               <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
-                <Basic.AbstractForm ref="filterForm" className="form-horizontal">
+                <Basic.AbstractForm ref="filterForm">
                   <Basic.Row className="last">
                     <div className="col-lg-4">
                       <Advanced.Filter.TextField
                         ref="text"
-                        placeholder={this.i18n('entity.Configuration.name')}
-                        label={this.i18n('entity.Configuration.name')}/>
+                        placeholder={this.i18n('entity.Configuration.name')}/>
                     </div>
                     <div className="col-lg-4">
                     </div>
@@ -245,13 +225,9 @@ class Configurations extends Basic.AbstractContent {
                 </Basic.AbstractForm>
               </Advanced.Filter>
             }
-            filterOpened={filterOpened}
+            filterOpened={ filterOpened }
             actions={
-              SecurityManager.hasAnyAuthority(['CONFIGURATION_DELETE', 'CONFIGURATIONSECURED_DELETE'])
-              ?
               [{ value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }]
-              :
-              null
             }
             buttons={
               [
@@ -260,13 +236,14 @@ class Configurations extends Basic.AbstractContent {
                   key="add_button"
                   className="btn-xs"
                   onClick={this.showDetail.bind(this, { public: true })}
-                  rendered={SecurityManager.hasAnyAuthority(['CONFIGURATION_WRITE', 'CONFIGURATIONSECURED_WRITE'])}>
+                  rendered={ manager.canSave() }>
                   <Basic.Icon type="fa" icon="plus"/>
                   {' '}
                   {this.i18n('button.add')}
                 </Basic.Button>
               ]
-            }>
+            }
+            _searchParameters={ this.getSearchParameters()} >
             <Advanced.Column
               property=""
               header=""
@@ -298,12 +275,15 @@ class Configurations extends Basic.AbstractContent {
             <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('create.header')} rendered={detail.entity.id === undefined}/>
             <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('edit.header', { name: detail.entity.name })} rendered={detail.entity.id !== undefined}/>
             <Basic.Modal.Body>
-              <Basic.AbstractForm ref="form" data={ detail.entity } showLoading={_showLoading} className="form-horizontal">
+              <Basic.AbstractForm
+                ref="form"
+                data={ detail.entity }
+                showLoading={ _showLoading }
+                readOnly={ !manager.canSave(detail.entity, _permissions) }>
                 <Basic.TextField
                   ref="name"
                   label={this.i18n('entity.Configuration.name')}
                   onChange={this._changeName.bind(this)}
-                  validate={this._validateName.bind(this)}
                   required
                   helpBlock={<span dangerouslySetInnerHTML={{ __html: this.i18n('guarded', { guarded: ConfigurationManager.GUARDED_PROPERTY_NAMES.join(', ') }) }}/>}/>
                 <Basic.TextField
@@ -316,14 +296,13 @@ class Configurations extends Basic.AbstractContent {
                   label={this.i18n('entity.Configuration.confidential')}
                   helpBlock={this.i18n('confidential.help')}
                   onChange={this._changeConfidential.bind(this)}
-                  readOnly={isGuarded === 'by_name' || !SecurityManager.hasAuthority('CONFIGURATIONSECURED_WRITE')}>
+                  readOnly={isGuarded === 'by_name'}>
                 </Basic.Checkbox>
                 <Basic.Checkbox
                   ref="public"
                   label={this.i18n('entity.Configuration.public')}
-                  readOnly={ isSecured || !SecurityManager.hasAuthority('CONFIGURATIONSECURED_WRITE') }
+                  readOnly={ isSecured }
                   helpBlock={this.i18n('secured.help')}>
-                  <Basic.Alert level="info" text={this.i18n('secured.notAllowed')} style={{ marginTop: 7 }} rendered={!SecurityManager.hasAuthority('CONFIGURATIONSECURED_WRITE')}/>
                 </Basic.Checkbox>
               </Basic.AbstractForm>
             </Basic.Modal.Body>
@@ -331,16 +310,17 @@ class Configurations extends Basic.AbstractContent {
             <Basic.Modal.Footer>
               <Basic.Button
                 level="link"
-                onClick={this.closeDetail.bind(this)}
-                showLoading={_showLoading}>
+                onClick={ this.closeDetail.bind(this) }
+                showLoading={ _showLoading }>
                 {this.i18n('button.close')}
               </Basic.Button>
               <Basic.Button
                 type="submit"
                 level="success"
-                showLoading={_showLoading}
+                showLoading={ _showLoading }
                 showLoadingIcon
-                showLoadingText={this.i18n('button.saving')}>
+                showLoadingText={ this.i18n('button.saving') }
+                rendered={ manager.canSave(detail.entity, _permissions) }>
                 {this.i18n('button.save')}
               </Basic.Button>
             </Basic.Modal.Footer>
@@ -348,13 +328,12 @@ class Configurations extends Basic.AbstractContent {
         </Basic.Modal>
 
         <Basic.ContentHeader>
-          <Basic.Icon value="cog"/>
-          {' '}
-          <span dangerouslySetInnerHTML={{ __html: this.i18n('fromFile') }}/>
+          { this.i18n('environment', { escape: false }) }
         </Basic.ContentHeader>
 
         <Basic.Panel>
           <Basic.Table
+            header={ this.i18n('fromFile', { escape: false }) }
             data={fileConfigurations}
             showLoading={_fileConfigurationsShowLoading}
             noData={this.i18n('component.basic.Table.noData')}>
@@ -374,25 +353,18 @@ class Configurations extends Basic.AbstractContent {
         </Basic.Panel>
 
         {
-          !SecurityManager.hasAuthority('CONFIGURATIONSECURED_READ')
+          !SecurityManager.hasAuthority('CONFIGURATION_ADMIN')
           ||
-          <div>
-            <Basic.ContentHeader>
-              <Basic.Icon value="cog"/>
-              {' '}
-              <span dangerouslySetInnerHTML={{ __html: this.i18n('fromEnvironment') }}/>
-            </Basic.ContentHeader>
-
-            <Basic.Panel>
-              <Basic.Table
-                data={environmentConfigurations}
-                showLoading={_environmentConfigurationsShowLoading}
-                noData={this.i18n('component.basic.Table.noData')}>
-                <Basic.Column property="name" header={this.i18n('entity.Configuration.name')} width="150px"/>
-                <Basic.Column property="value" header={this.i18n('entity.Configuration.value')}/>
-              </Basic.Table>
-            </Basic.Panel>
-          </div>
+          <Basic.Panel>
+            <Basic.Table
+              data={ environmentConfigurations }
+              header={ this.i18n('fromEnvironment', { escape: false } ) }
+              showLoading={ _environmentConfigurationsShowLoading }
+              noData={ this.i18n('component.basic.Table.noData') }>
+              <Basic.Column property="name" header={this.i18n('entity.Configuration.name')} width="150px"/>
+              <Basic.Column property="value" header={this.i18n('entity.Configuration.value')}/>
+            </Basic.Table>
+          </Basic.Panel>
         }
       </div>
     );
@@ -401,14 +373,16 @@ class Configurations extends Basic.AbstractContent {
 
 Configurations.propTypes = {
   fileConfigurations: PropTypes.arrayOf(PropTypes.object),
-  environmentConfigurations: PropTypes.arrayOf(PropTypes.object)
+  environmentConfigurations: PropTypes.arrayOf(PropTypes.object),
+  _permissions: PropTypes.arrayOf(PropTypes.string)
 };
 
 Configurations.defaultProps = {
   fileConfigurations: [],
   _showLoading: false,
   _fileConfigurationsShowLoading: false,
-  _environmentConfigurationsShowLoading: false
+  _environmentConfigurationsShowLoading: false,
+  _permissions: null
 };
 
 function select(state) {
@@ -418,7 +392,8 @@ function select(state) {
     fileConfigurations: DataManager.getData(state, ConfigurationManager.FILE_CONFIGURATIONS),
     _fileConfigurationsShowLoading: Utils.Ui.isShowLoading(state, ConfigurationManager.FILE_CONFIGURATIONS),
     environmentConfigurations: DataManager.getData(state, ConfigurationManager.ENVIRONMENT_CONFIGURATIONS),
-    _environmentConfigurationsShowLoading: Utils.Ui.isShowLoading(state, ConfigurationManager.ENVIRONMENT_CONFIGURATIONS)
+    _environmentConfigurationsShowLoading: Utils.Ui.isShowLoading(state, ConfigurationManager.ENVIRONMENT_CONFIGURATIONS),
+    _permissions: Utils.Permission.getPermissions(state, `${uiKey}-detail`)
   };
 }
 

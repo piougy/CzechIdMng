@@ -22,12 +22,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.acc.domain.AccountType;
-import eu.bcvsolutions.idm.acc.dto.AccountFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.AccountFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
-import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.rest.impl.DefaultReadWriteEntityController;
-import eu.bcvsolutions.idm.security.api.domain.Enabled;;
+import eu.bcvsolutions.idm.core.security.api.domain.Enabled;;
 
 /**
  * Accounts on target system
@@ -41,7 +41,7 @@ import eu.bcvsolutions.idm.security.api.domain.Enabled;;
 public class AccAccountController extends DefaultReadWriteEntityController<AccAccount, AccountFilter> {
 	
 	@Autowired
-	public AccAccountController(EntityLookupService entityLookupService) {
+	public AccAccountController(LookupService entityLookupService) {
 		super(entityLookupService);
 	}
 	
@@ -74,26 +74,26 @@ public class AccAccountController extends DefaultReadWriteEntityController<AccAc
 	
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + AccGroupPermission.ACCOUNT_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.ACCOUNT_CREATE + "') or hasAuthority('" + AccGroupPermission.ACCOUNT_UPDATE + "')")
 	@RequestMapping(method = RequestMethod.POST)
-	public ResponseEntity<?> create(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
-		return super.create(nativeRequest, assembler);
+	public ResponseEntity<?> post(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
+		return super.post(nativeRequest, assembler);
 	}
 	
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + AccGroupPermission.ACCOUNT_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.ACCOUNT_UPDATE + "')")
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.PUT)
-	public ResponseEntity<?> update(
+	public ResponseEntity<?> put(
 			@PathVariable @NotNull String backendId,
 			HttpServletRequest nativeRequest,
 			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
-		return super.update(backendId, nativeRequest, assembler);
+		return super.put(backendId, nativeRequest, assembler);
 	}
 	
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + AccGroupPermission.ACCOUNT_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.ACCOUNT_UPDATE + "')")
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.PATCH)
 	public ResponseEntity<?> patch(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler) 
 			throws HttpMessageNotReadableException {
@@ -111,12 +111,12 @@ public class AccAccountController extends DefaultReadWriteEntityController<AccAc
 	@Override
 	protected AccountFilter toFilter(MultiValueMap<String, Object> parameters) {
 		AccountFilter filter = new AccountFilter();
-		filter.setSystemId(convertUuidParameter(parameters, "systemId"));
-		filter.setSystemEntityId(convertUuidParameter(parameters, "systemEntityId"));
-		filter.setIdentityId(convertUuidParameter(parameters, "identityId"));
-		filter.setUid(convertStringParameter(parameters, "uid"));
-		filter.setUidId(convertStringParameter(parameters, "uidId"));
-		filter.setAccountType(convertEnumParameter(parameters, "accountType", AccountType.class));
+		filter.setText(getParameterConverter().toString(parameters, "text"));
+		filter.setSystemId(getParameterConverter().toUuid(parameters, "systemId"));
+		filter.setSystemEntityId(getParameterConverter().toUuid(parameters, "systemEntityId"));
+		filter.setIdentityId(getParameterConverter().toUuid(parameters, "identityId"));
+		filter.setUid(getParameterConverter().toString(parameters, "uid"));
+		filter.setAccountType(getParameterConverter().toEnum(parameters, "accountType", AccountType.class));
 		return filter;
 	}
 }

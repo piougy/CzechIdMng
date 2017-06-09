@@ -34,6 +34,8 @@
         "save": {
           "success": "Systém [{{name}}] byl úspěšně uložen"
         },
+        "loadRemoteConnectors": "Nahrát konektory ze vzdáleného serveru",
+        "remoteConnectorServer": "Vzdálený konektor server",
         "basic": "Základní informace"
       },
       "entities": {
@@ -49,13 +51,13 @@
           "success": "Entita [{{name}}] na systému byla úspěšně uložen"
         },
         "filter": {
-          "uid": {
+          "text": {
             "label": "Identifikátor",
             "placeholder": "$t(acc:entity.SystemEntity.uid)"
           }
         }
       },
-      "systemObjectClasses": {
+      "schemaObjectClasses": {
         "header": "Schéma systému",
         "title": "Schéma systému",
         "schemaObjectClassesHeader": "Typy objektů <small>na koncovém systému</small>",
@@ -85,19 +87,91 @@
           }
         }
       },
-      "systemEntitiesHandling": {
-        "header": "Mapování atributů<small> skupiny atributů pro typ entity a operaci</small>",
-        "title": "Mapování atributů",
+      "systemSynchronizationConfigs": {
+        "header": "Synchronizace<small> konfigurace</small>",
+        "title": "Synchronizace",
+        "startSynchronization": "Spustit synchronizaci",
         "edit": {
-          "header": "Detail mapování entit a operací"
+          "header": "Detail konfigurace synchronizace"
         },
         "create": {
-          "success": "Mapování pro typ entity [{{name}}] bylo úspěšně vytvořeno",
-          "header": "Nové mapování pro entitu a operaci"
+          "success": "Konfigurace synchronizace [{{name}}] byla úspěšně vytvořena",
+          "header": "Nová konfigurace synchronizace"
         },
         "save": {
-          "success": "Mapování pro typ entity [{{name}}] bylo úspěšně uloženo"
+          "success": "Konfigurace synchronizace [{{name}}] byla úspěšně uložena"
+        },
+        "action": {
+          "startSynchronization": {
+            "message": "<b>Opravdu chcete ručně spustit synchronizaci/reconciliaci '{{name}}'?</b>",
+            "header": "Ruční spuštění synchronizace",
+            "started": "Synchronizace/reconciliace '{{name}}' byla spuštěna jako dlouhotrvající úloha na pozadí. Průběh a výsledek lze sledovat v agendě plánovaných úloh či v logu na detailu synchronizace.",
+            "success": "Synchronizace/reconciliace '{{name}}' byla dokončena."
+          },
+          "cancelSynchronization": {
+            "message": "<b>Opravdu chcete zastavit synchronizaci/reconciliaci '{{name}}'?</b>",
+            "header": "Ruční zastavení synchronizace",
+            "canceled": "Synchronizace/reconciliace '{{name}}' byla zastavena."
+          }
+        },
+        "button": {
+            "start": "Spustit synchronizaci/reconciliaci",
+            "cancel": "Zastavit synchronizaci/reconciliaci"
         }
+      },
+      "systemSynchronizationConfigDetail": {
+        "header": "Detail synchronizace",
+        "title": "Detail synchronizace",
+        "synchronizationLogsHeader": "Logy synchronizace",
+        "situationActionsAndWf": "Níže je možné definovat, jak se synchronizace bude chovat v konkrétních situacích a jakou akci provede. Chování synchronizace v dané situaci, je možné ovlivnit výběrem workflow. Toto workflow bude spuštěné pro provedení standardní akce (pro každý příslušný element). Workflow musí zajistit uložení změn.",
+        "situationAction": "Akce",
+        "situationActionWf": "Workflow",
+        "customFilterInfo": "Vlastní filtr je možné definovat jednoduše zvolením atributu (Filtrovat dle atributu) podle kterého chceme hledat a příslušné operace (Filtrovací operace). Složitější kritérium je možné definovat ve skriptu níže.",
+        "treeInfo": "Synchronizace stromu je vždy spouštěna jako reconciliace.",
+        "edit": {
+          "header": "Detail konfigurace synchronizace"
+        },
+        "create": {
+          "success": "Konfigurace synchronizace [{{name}}] byla úspěšně vytvořena",
+          "header": "Nová konfigurace synchronizace"
+        },
+        "save": {
+          "success": "Konfigurace synchronizace [{{name}}] byla úspěšně uložena"
+        },
+        "button": {
+          "saveAndStartSynchronization": "Uložit a spustit synchronizaci"
+        },
+        "tabs": {
+          "basicConfiguration": {
+            "label": "Základní konfigurace"
+          },
+          "filterConfiguration": {
+            "label": "Filtr"
+          },
+          "logs": {
+            "label": "Logy"
+          }
+        }
+      },
+      "systemSynchronizationLogDetail": {
+        "header": "Detail logu synchronizace",
+        "title": "Detail logu synchronizace",
+        "syncActionLogsHeader": "Logy akcí synchronizace"
+      },
+      "systemSyncActionLogDetail": {
+        "header": "Detail logu akce",
+        "title": "Detail logu akce",
+        "syncItemLogsHeader": "Logy položek synchronizace",
+        "filter": {
+          "displayName": {
+            "label": "Název",
+            "placeholder": "Najde logy, které obsahují hodnotu v názvu."
+          }
+        }
+      },
+      "SystemSyncItemLogDetail": {
+        "header": "Detail logu položky",
+        "title": "Detail logu položky"
       },
       "accounts": {
         "header": "Účty na koncovém systému <small>uložené v idm</small>",
@@ -112,7 +186,7 @@
           "success": "Účet na systému byl úspěšně uložen"
         },
         "filter": {
-          "uid": {
+          "text": {
             "label": "Identifikátor",
             "placeholder": "$t(acc:entity.SystemEntity.uid)"
           }
@@ -122,10 +196,23 @@
         "header": "Nastavení konektoru",
         "title": "Konfigurace",
         "button": {
-          "showBasicInfo": "Přejít na základní údaje"
+          "showBasicInfo": "Přejít na základní údaje",
+          "checkSystem": "Test konektoru",
+          "checkSystemTooltip": "Provede uložení aktuálního nastavení a zavolání testu na konektoru.",
+          "loadConnectorDefinition": "Nahrání definice konektoru"
         },
         "save": {
           "success": "Konfigurace konektoru pro systém [{{name}}] byla úspěšně uložena."
+        },
+        "checkSystem": {
+          "success": "Test konektoru proběhl v pořádku.",
+          "error": "Test konektoru neproběhl v pořádku!"
+        },
+        "action": {
+          "changeConnector": {
+            "message": "<b>Bude provedeno okamžité uložení systému s novým konektorem.</b><br/> Původní konektor již nebude aktivní a jeho konfigurace bude ztracena.<br/><br/><b>Opravdu chcete změnit konektor a uložit nastavení?</b>",
+            "header": "Změna konektoru"
+          }
         }
       },
       "objectClassDetail": {
@@ -148,10 +235,24 @@
           }
         }
       },
-      "entityHandlingDetail": {
-        "title" :"Skupina atributů",
-        "systemEntityHandlingHeader": "Skupina atributů <small>pro IdM entitu a typ operace</small>",
-        "schemaAttributesHandlingHeader": "Namapované atributy",
+      "mappings": {
+        "header": "Mapování atributů<small> skupiny atributů pro typ entity a operaci</small>",
+        "title": "Mapování atributů",
+        "edit": {
+          "header": "Detail mapování entit a operací"
+        },
+        "create": {
+          "success": "Mapování pro typ entity [{{name}}] bylo úspěšně vytvořeno",
+          "header": "Nové mapování pro entitu a operaci"
+        },
+        "save": {
+          "success": "Mapování pro typ entity [{{name}}] bylo úspěšně uloženo"
+        }
+      },
+      "mappingDetail": {
+        "title" :"Mapování atributů",
+        "header": "Mapování atributů <small>pro IdM entitu a typ operace</small>",
+        "systemAttributesMappingHeader": "Namapované atributy",
         "edit": {
           "header": "Detail typu IdM entity a operace"
         },
@@ -167,11 +268,15 @@
             "label": "Název IdM atributu",
             "placeholder": "Název atributu v IdM"
           }
+        },
+        "protectionEnabled": {
+          "help": "Aktivuje ochranu účtů před smazáním. Při pokusu o odstranění IDM účtu, dojde k jeho označení 'Je chráněn'. Takový účet nebude smazán, ani na něm nebude prováděn nadále provisioning. K reálnému smazání IDM účtu (a tím i účtu na koncovém systému), dojde po vyexpirování ochraného intervalu. Mazání provádí naplánovaná úloha."
         }
       },
       "attributeDetail": {
         "title" : "Atribut ve schématu",
         "header" : "Detail atributu systému",
+        "returnedByDefaultTooltip": "Při vyhledání účtu, je atribut součástí výsledku. Toto neplatí například pro atribut hesla, který standardně není ve výsledku obsažen (vracen).",
         "save": {
           "success": "Atribut [{{name}}] systému byl úspěšně uložen"
         },
@@ -180,10 +285,11 @@
           "header": "Nový atribut systému"
         }
       },
-      "attributeHandlingDetail": {
+      "attributeMappingDetail": {
         "title" : "Atribut v IdM",
         "header" : "Detail mapování atributu ",
         "alertNoRepository": "Atribut není mapován na žádné IdM úložiště (entitu ani rozšířený atribut). Výstupem bude konstanta, z 'Transformace do systému'",
+        "infoPasswordMapping": "V případě že atribut __PASSWORD__ je roven hodnotě NULL bude automaticky vygenerován z politiky hesel pro tento systém.",
         "save": {
           "success": "Atribut [{{name}}] IdM byl úspěšně uložen"
         },
@@ -211,7 +317,7 @@
         "header": "Napojený systém",
         "title": "Napojený systém",
         "roleSystemAttributesHeader": "Atributy mapované v rámci této role",
-        "systemEntityHandling": {
+        "systemMapping": {
           "systemPlaceholder": "Nejprve vyberte system ..."
         },
         "create": {
@@ -252,6 +358,81 @@
           }
         }
       }
+    },
+    "provisioningOperations": {
+      "label": "Provisioning",
+      "title" : "Provisioning - log operací",
+      "header" : "Provisioning <small>log operací</small>",
+      "action": {
+        "retry": {
+          "action": "Opakovat operaci",
+          "button": {
+            "selected": "Opakovat pouze vybrané",
+            "batch": "Opakovat celou dávku"
+          },
+          "header_1": "Opakovat operaci pro provisioning",
+          "header_2": "Opakovat operace pro provisioning",
+          "header_5": "$t(acc:content.provisioningOperations.action.retry.header_2)",
+          "message_1": "Opakovat pouze vybranou operaci <strong>{{name}}</strong>. Bude spuštěna pouze vybraná operace bez ohledu na ostatní záznamy pro danou entitu na systému ve frontě. Nemusí být zachována posloupnost operací (některé mohou být vynechány).",
+          "message_2": "Opakovat pouze <strong>{{count}}</strong> vybrané operace. Budou spuštěny pouze vybrané operace bez ohledu na ostatní záznamy pro dané entity na systému ve frontě. Nemusí být zachována posloupnost operací (některé mohou být vynechány).",
+          "message_5": "Opakovat pouze <strong>{{count}}</strong> vybraných operací. Budou spuštěny pouze vybrané operace bez ohledu na ostatní záznamy pro dané entity na systému ve frontě. Nemusí být zachována posloupnost operací (některé mohou být vynechány).",
+          "batchMessage_1": "Opakovat všechny operace pro vybranou entitu <strong>{{name}}</strong> umístěné ve frontě dávkově. Budou spuštěny všechny operace pro danou entitu na koncovém systému v čase, jakém byly zaznamenány do fronty. Bude zachována posloupnost operací a tím i výsledný stav entity na koncovém systému.",
+          "batchMessage_2": "Opakovat všechny operace pro entity dle <strong>{{count}}</strong> vybraných operací umístěných ve frontě dávkově. Budou spuštěny všechny operace pro dané entity na koncovém systému v čase, jakém byly zaznamenány do fronty. Bude zachována posloupnost operací a tím i výsledný stav entit na koncovém systému.",
+          "batchMessage_5": "Opakovat všechny operace pro entity dle <strong>{{count}}</strong> vybraných operací umístěných ve frontě dávkově. Budou spuštěny všechny operace pro dané entity na koncovém systému v čase, jakém byly zaznamenány do fronty. Bude zachována posloupnost operací a tím i výsledný stav entit na koncovém systému.",
+          "error": "Při opakování operace {{name}} nastala chyba",
+          "success": "Operace pro provisioning byly znovu spuštěny."
+        },
+        "cancel": {
+          "action": "Zrušit operaci",
+          "button": {
+            "selected": "Zrušit pouze vybrané",
+            "batch": "Zrušit celou dávku"
+          },
+          "header_1": "Zrušit operaci pro provisioning",
+          "header_2": "Zrušit operace pro provisioning",
+          "header_5": "$t(acc:content.provisioningOperations.action.cancel.header_2)",
+          "message_1": "Nebo chcete zrušit pouze vybranou operaci <strong>{{name}}</strong>?",
+          "message_2": "Nebo chcete zrušit pouze <strong>{{count}}</strong> vybrané operace?",
+          "message_5": "Nebo chcete zrušit pouze <strong>{{count}}</strong> vybraných operací?",
+          "batchMessage_1": "Chcete zrušit všechny operace pro vybranou entitu <strong>{{name}}</strong> umístěné ve frontě dávkově?",
+          "batchMessage_2": "Chcete zrušit všechny operace pro entity dle <strong>{{count}}</strong> vybraných operací umístěných ve frontě dávkově?",
+          "batchMessage_5": "Chcete zrušit všechny operace pro entity dle <strong>{{count}}</strong> vybraných operací umístěných ve frontě dávkově?",
+          "error": "Při rušení operace {{name}} nastala chyba",
+          "success": "Operace pro provisioning byly zrušeny."
+        }
+      },
+      "tabs": {
+        "active": {
+          "label": "Aktivní operace"
+        },
+        "archive": {
+          "label": "Archiv"
+        }
+      },
+      "detail": {
+        "header": "Detail operace",
+        "result": "Výsledek",
+        "accountObject": "Idm atributy",
+        "connectorObject": "Atributy pro provisioning",
+        "resultCode": "Kód",
+        "nextAttempt": "<strong>Pokus:</strong> {{currentAttempt}} / {{maxAttempts}}, Další pokus bude spuštěn <strong>{{nextAttempt}}</strong>"
+      },
+      "filter": {
+        "dateFrom": {
+          "label": "Od",
+          "placeholder": "Datum od"
+        },
+        "dateTill": {
+          "label": "Do",
+          "placeholder": "Datum do"
+        }
+      }
+    },
+    "passwordPolicy": {
+      "system": {
+        "tab": "Navázané systémy",
+        "title": "Navázané systémy na tuto politiku"
+      }
     }
   },
   "entity": {
@@ -261,6 +442,16 @@
       "disabled": "Neaktivní",
       "description": "Popis",
       "virtual": "Virtuální",
+      "passwordPolicyValidate": "Politika hesel pro validaci",
+      "passwordPolicyGenerate": "Politika hesel pro generování",
+      "readonly": {
+        "label": "Readonly",
+        "help": "Aktivní operace provisioningu (vytvoření, úprava, smazání) nebudou na systému spuštěny."
+      },
+      "queue": {
+        "label": "Podporuje frontu",
+        "help": "Aktivní operace provisioningu (vytvoření, úprava, smazání) budou probíhat přes frontu."
+      },
       "connectorKey": {
         "_type": "Konektor",
         "framework": "Framework",
@@ -268,14 +459,27 @@
         "bundleName": "Bundle konektoru",
         "bundleVersion": "Verze konektoru"
       },
+      "remoteConnector": {
+        "label": "Použít vzdálený konektor server",
+        "help": "Po zaškrknutí neboudou použity lokální konektory a zobrazí se nabídka s informacemi o vzdáleném konektor serveru."
+      },
       "connectorHost": "Server s konektory"
+    },
+    "ConnectorServer": {
+      "name": "Jméno",
+      "chooseConnectorServer": "Výběr vzdáleného serveru",
+      "host": "Adresa",
+      "port": "Port",
+      "password": "Heslo",
+      "timeout": "Timeout",
+      "useSsl": "SSL"
     },
     "RoleSystem": {
       "_type": "Role přiřazuje účet na systému",
       "type": "Typ přiřazení",
       "role": "Role",
       "system": "Systém",
-      "systemEntityHandling": "Typ entity"
+      "systemMapping": "Název mapování"
     },
     "SystemEntity": {
       "_type": "Entita na systému",
@@ -289,10 +493,16 @@
       "objectClassName": "Název objektu",
       "system": "Napojený systém"
     },
-    "SystemEntityHandling": {
+    "SystemMapping": {
+      "_type": "Mapování atributů na systému",
+      "name": "Název mapování",
       "entityType": "Typ IdM entity",
       "operationType": "Typ operace",
-      "system": "Napojený systém"
+      "system": "Napojený systém",
+      "objectClass": "Název objektu",
+      "treeType": "Typ stromu",
+      "protectionEnabled": "Ochrana účtů (před smazáním)",
+      "protectionInterval": "Délka ochranného intervalu (ve dnech)"
     },
     "SchemaAttribute": {
       "name": "Název atributu",
@@ -307,7 +517,7 @@
       "system": "Napojený systém",
       "multivalued": "Obsahuje více hodnot"
     },
-    "SchemaAttributeHandling": {
+    "SystemAttributeMapping": {
       "name": {
         "label": "Název",
         "help": "Uživatelsky definovaný identifikátor tohoto atributu."
@@ -316,24 +526,49 @@
         "label": "IdM klíč",
         "help": "Název atributu u entity, název rozšířeného attributu či klíč do šifrovaného úložiště."
       },
+      "transformToResourceScriptSelectBox": {
+        "label": "Dostupné skripty pro transformaci do systému",
+        "help": "Po výběru skriptu se vloží kód pro zavolání daného skriptu, včetně ukázkových parametrů."
+      },
+      "transformFromResourceScriptSelectBox": {
+        "label": "Dostupné skripty pro transformaci ze systému",
+        "help": "Po výběru skriptu se vloží kód pro zavolání daného skriptu, včetně ukázkových parametrů."
+      },
+      "idmPropertyEnum": "Položky entity",
       "schemaAttribute": "Atribut ve schéma",
-      "systemEntityHandling": "Podskupina",
-      "extendedAttribute": "Rozšířený atribut",
+      "systemMapping": "Název mapování",
+      "extendedAttribute": {
+        "label": "Rozšířený atribut",
+        "help": "Pouze <strong>hlavní definice</strong> formuláře pro rozšířené atributy je podporovaná."
+      },
       "confidentialAttribute": "Tajný atribut",
       "entityAttribute": "Atribut entity",
+      "strategyType": "Strategie",
       "transformationFromResource": "Transfor. ze systému",
       "transformationToResource": "Transfor. do systému",
       "transformFromResourceScript": {
         "label": "Transformace ze systému",
-        "help": "Umožňuje transformovat hodnotu z koncového systému do podoby vohodné pro IdM. Vstupním parametrem tohoto Groovy skriptu, je hodnota atributu 'attributeValue' a list atributů objektu na koncovém systému 'icfAttributes'."
+        "help": "Umožňuje transformovat hodnotu z koncového systému do podoby vohodné pro IdM. Vstupním parametrem tohoto Groovy skriptu, je hodnota atributu 'attributeValue' a list atributů objektu na koncovém systému 'icAttributes'."
+      },
+      "authenticationAttribute": {
+        "label": "Autentizační atribut",
+        "help": "Atribut kterým bude provedena autentizace proti koncovému systému."
       },
       "transformToResourceScript": {
         "label": "Transformace do systému",
-        "help": "Umožňuje transformovat hodnotu z IdM do podoby vohodné pro koncový systém. Vstupním parametrem tohoto Groovy skriptu, je hodnota atributu 'attributeValue' a IdM entita 'entity'."
+        "help": "Umožňuje transformovat hodnotu z IdM do podoby vohodné pro koncový systém. Vstupním parametrem tohoto Groovy skriptu, je hodnota atributu 'attributeValue', IdM entita 'entity' a identifikátor účtu 'uid'. Pokud bude výstupní hodnota prázdná, pak se automaticky použije dostupný identifikátor účtu (uid)."
       },
       "uid": {
         "label": "Je identifikátorem",
         "tooltip": "Určuje, zdali je atribut primárním idetifikátorem objektu."
+      },
+      "sendOnlyIfNotNull": {
+        "label": "Pošli pouze pokud existuje IdM hodnota",
+        "tooltip": "Hodnota tohoto atributu (kterou vypočítá IdM) bude na koncový systém odeslána, pouze pokud bude nabývát nějaké hodnoty."
+      },
+      "sendAlways": {
+        "label": "Pošli vždy",
+        "tooltip": "Hodnota tohto atributu, bude na koncový systém poslána vždy a to i když nebyla změněna."
       },
       "disabledAttribute": {
         "label": "Je deaktivován",
@@ -345,14 +580,15 @@
         "label": "Název",
         "help": "Uživatelsky definovaný název tohoto rolí přetíženého mapovaného atributu systému."
       },
-      "schemaAttributeHandling": "Atribut v systému",
+      "systemAttributeMapping": "Atribut v systému",
       "roleSystem": "Patří k roli a systému",
+      "strategyType": "Strategie",
       "disabledDefaultAttribute": "Vynechat",
       "disabledDefaultAttributeTooltip": "Pokud je zatrhnuto, tak nebude tento atribut propagován do koncového systému (a to i když k tomuto atributu existuje výchozí mapování).",
       "transformScriptTable": "Transformace",
       "transformScript": {
         "label": "Transformace do systému",
-        "help": "Umožňuje transformovat hodnotu z IdM do podoby vohodné pro koncový systém. Vstupním parametrem tohoto Groovy skriptu, je hodnota atributu 'attributeValue' a IdM entita 'entity'."
+        "help": "Umožňuje transformovat hodnotu z IdM do podoby vohodné pro koncový systém. Vstupním parametrem tohoto Groovy skriptu, je hodnota atributu 'attributeValue' a IdM entita 'entity' a identifikátor účtu 'uid'. Pokud bude výstupní hodnota prázdná, pak se automaticky použije dostupný identifikátor účtu (uid)."
       }
     },
     "Account": {
@@ -360,33 +596,294 @@
       "accountType": "Typ účtu",
       "system": "Systém",
       "systemEntity": "Navázané entita na systému",
-      "uid": "Identifikátor účtu"
+      "uid": "Identifikátor účtu",
+      "inProtection": "Je chráněn před smazáním",
+      "endOfProtection": "Chráněn do"
     },
     "IdentityAccount": {
       "_type": "Účet identity na koncovém systému",
       "ownership": "Vlastní účet",
       "role": "Přiřazen dle role"
+    },
+    "SynchronizationConfig": {
+      "enabled": "Povolena",
+      "name": "Název",
+      "description": "Popis",
+      "runOnServer": "Spustit na serveru",
+      "running": "Běží",
+      "customFilter" :{
+        "label": "Použít vlastní filtr",
+        "help": "Pokud je zaškrtnuto, tak se bude synchronizace řídit filtrem definovaným níže. Pokud není zaškrtnuto, tak se využije synchronizační mechanizmus konektoru."
+      },
+      "filterAttribute" :{
+        "label": "Filtrovat dle atributu",
+        "help": "Tento atribut (spolu s typem filtrovací operace) bude použit jako výchozí filtrovací kritérium pro synchronizaci. Další kritéria je motné definovat ve filtrovacím skriptu."
+      },
+      "tokenAttribute" :{
+        "label": "Token je v tomto atributu",
+        "help": "Určuje, kde se v synchronizovaném objektu nachází token."
+      },
+      "token": "Token",
+      "timestamp": "Časová značka",
+      "filterOperation": "Filtrovací operace",
+      "customFilterScript": {
+        "label": "Vlastní filtr",
+        "help": "V tomto Groovy skriptu můžete definovat vlastní filtr, dle kterého bude provedeno vyhledání účtů na koncovém systému a následná synchronizace."
+      },
+      "rootsFilterScript": {
+        "label": "Definice kořene/ů stromu",
+        "help": "V tomto Groovy skriptu můžete definovat jak se pozná kořen stromu. Vstupem je 'account' (IcObject). Výstupem musí být Boolean ('true', pokud je prvek kořen). Pokud není skript vyplněn, je za root považován každý prvek, který nemá rodiče."
+      },
+      "reconciliation": {
+        "label": "Reconciliace",
+        "help": "Pokud je zaškrtnuto, bude provedena plná reconciliace (namísto synchronizace). To znamená, že bude provedena synchronizace pro všechny účty (nastavení filtru nebude bráno v potaz) a dále vyhledání chybějících účtů (proti všem příslušným entitám v IdM)."
+      },
+      "correlationAttribute": "Korelační atribut",
+      "systemMapping": "Sada mapovaných atributů",
+      "linkedAction": "Vazba existuje",
+      "unlinkedAction": "Vazba neexistuje",
+      "missingEntityAction": "Entita neexistuje",
+      "missingAccountAction": "Účet neexistuje"
+    },
+    "SynchronizationLog": {
+      "running": "Spuštěna",
+      "started": "Zahájena",
+      "ended": "Ukončena",
+      "token": "Token",
+      "results": "Výsledky",
+      "containsError": "Obsahuje chyby",
+      "actions": {
+        "SUCCESS": {
+          "CREATE_ENTITY": "Vytvořeno entit",
+          "UPDATE_ENTITY": "Aktualizováno entit",
+          "DELETE_ENTITY": "Smazáno entit",
+          "LINK_AND_UPDATE_ACCOUNT": "Vytvořeno a upraveno účtů",
+          "UNLINK_AND_REMOVE_ROLE": "Odstraněno vazeb a navázaných rolí",
+          "LINK": "Vytvořeno vazeb",
+          "UNLINK": "Odstraněno vazeb",
+          "CREATE_ACCOUNT": "Vytvořeno účtů",
+          "UPDATE_ACCOUNT": "Aktualizováno účtů",
+          "LINKED": "Vazba existuje",
+          "MISSING_ENTITY": "Entita neexistuje",
+          "UNLINKED": "Vazba neexistuje",
+          "MISSING_ACCOUNT": "Účet neexistuje",
+          "IGNORE": "Ignorováno",
+          "UNKNOWN": "Neznámý stav"
+        },
+        "WARNING": {
+          "CREATE_ENTITY": "Vytvořeno entit",
+          "UPDATE_ENTITY": "Aktualizováno entit",
+          "DELETE_ENTITY": "Smazáno entit",
+          "LINK_AND_UPDATE_ACCOUNT": "Vytvořeno a upraveno účtů",
+          "UNLINK_AND_REMOVE_ROLE": "Odstraněno vazeb a navázaných rolí",
+          "LINK": "Vytvořeno vazeb",
+          "UNLINK": "Odstraněno vazeb",
+          "CREATE_ACCOUNT": "Vytvořeno účtů",
+          "UPDATE_ACCOUNT": "Aktualizováno účtů",
+          "LINKED": "Vazba existuje",
+          "MISSING_ENTITY": "Entita neexistuje",
+          "UNLINKED": "Vazba neexistuje",
+          "MISSING_ACCOUNT": "Účet neexistuje",
+          "IGNORE": "Ignorováno",
+          "UNKNOWN": "Neznámý stav"
+        },
+        "WF": {
+          "CREATE_ENTITY": "Vytvořeno entit",
+          "UPDATE_ENTITY": "Aktualizováno entit",
+          "DELETE_ENTITY": "Smazáno entit",
+          "LINK_AND_UPDATE_ACCOUNT": "Vytvořeno a upraveno účtů",
+          "UNLINK_AND_REMOVE_ROLE": "Odstraněno vazeb a navázaných rolí",
+          "LINK": "Vytvořeno vazeb",
+          "UNLINK": "Odstraněno vazeb",
+          "CREATE_ACCOUNT": "Vytvořeno účtů",
+          "UPDATE_ACCOUNT": "Aktualizováno účtů",
+          "LINKED": "Vazba existuje",
+          "MISSING_ENTITY": "Entita neexistuje",
+          "UNLINKED": "Vazba neexistuje",
+          "MISSING_ACCOUNT": "Účet neexistuje",
+          "IGNORE": "Ignorováno",
+          "UNKNOWN": "Neznámý stav"
+        },
+        "IGNORE": {
+          "CREATE_ENTITY": "Vytvořeno entit",
+          "UPDATE_ENTITY": "Aktualizováno entit",
+          "DELETE_ENTITY": "Smazáno entit",
+          "LINK_AND_UPDATE_ACCOUNT": "Vytvořeno a upraveno účtů",
+          "UNLINK_AND_REMOVE_ROLE": "Odstraněno vazeb a navázaných rolí",
+          "LINK": "Vytvořeno vazeb",
+          "UNLINK": "Odstraněno vazeb",
+          "CREATE_ACCOUNT": "Vytvořeno účtů",
+          "UPDATE_ACCOUNT": "Aktualizováno účtů",
+          "LINKED": "Vazba existuje",
+          "MISSING_ENTITY": "Entita neexistuje",
+          "UNLINKED": "Vazba neexistuje",
+          "MISSING_ACCOUNT": "Účet neexistuje",
+          "IGNORE": "Ignorováno",
+          "UNKNOWN": "Neznámý stav"
+        },
+        "ERROR": {
+          "CREATE_ENTITY": "Neúspěšně vytvořeno entit",
+          "UPDATE_ENTITY": "Neúspěšně aktualizováno entit",
+          "DELETE_ENTITY": "Neúspěšně smazáno entit",
+          "LINK_AND_UPDATE_ACCOUNT": "Neúspěšně vytvořeno a aktualizováno účtů",
+          "LINK": "Neúspěšně vytvořeno vazeb",
+          "UNLINK": "Neúspěšně odstraněno vazeb",
+          "UNLINK_AND_REMOVE_ROLE": "Neúspěšně odstraněno vazeb a navázaných rolí",
+          "CREATE_ACCOUNT": "Neúspěšně vytvořeno účtů",
+          "UPDATE_ACCOUNT": "Neúspěšně aktualizováno účtů",  "LINKED": "Vazba existuje",
+          "LINKED": "Vazba existuje",
+          "MISSING_ENTITY": "Entita neexistuje",
+          "UNLINKED": "Vazba neexistuje",
+          "MISSING_ACCOUNT": "Účet neexistuje",
+          "IGNORE": "Neúspěšně ignorováno",
+          "UNKNOWN": "Neznámý stav"
+        }
+      }
+    },
+    "SyncActionLog": {
+      "syncAction": "Akce",
+      "operationResult": "Výsledek",
+      "operationCount": "Počet operací"
+    },
+    "SyncItemLog": {
+      "identification": "Identifikátor",
+      "displayName": "Název",
+      "message": "Zpráva",
+      "type": "Typ",
+      "log": "Log"
+    },
+    "ProvisioningOperation": {
+      "_type": "Provisioning - operace",
+      "creator": "Vytvořil",
+      "operationType": "Typ operace",
+      "entityIdentifier": "Identifikátor entity (IdM)",
+      "resultState": "Výsledek",
+      "entity": "Entita (IdM)"
     }
   },
   "enums" : {
     "SystemEntityTypeEnum": {
       "IDENTITY": "Identita",
-      "GROUP": "Skupina"
+      "ROLE": "Role",
+      "TREE": "Strom",
+      "ROLE_CATALOGUE": "Katalog rolí"
     },
     "SystemOperationTypeEnum": {
       "PROVISIONING": "Provisioning",
       "RECONCILIACE": "Reconciliace",
-      "SYNCHRONISATION": "Synchronizace"
+      "SYNCHRONIZATION": "Synchronizace"
     },
     "AccountTypeEnum": {
       "PERSONAL": "Osobní",
       "TECHNICAL": "Systémový"
+    },
+    "ReconciliationMissingAccountActionTypeEnum": {
+      "CREATE_ACCOUNT": "Vytvořit účet",
+      "UNLINK": "Odstranit vazbu",
+      "UNLINK_AND_REMOVE_ROLE": "Odstranit vazbu a navázané role",
+      "DELETE_ENTITY": "Smazat entitu",
+      "IGNORE": "Ignorovat"
+    },
+    "SynchronizationLinkedActionTypeEnum": {
+      "UPDATE_ENTITY": "Aktualizovat entitu",
+      "UNLINK": "Odstranit vazbu",
+      "UNLINK_AND_REMOVE_ROLE": "Odstranit vazbu a navázané role",
+      "UPDATE_ACCOUNT": "Aktualizovat účet",
+      "IGNORE": "Ignorovat"
+    },
+    "SynchronizationMissingEntityActionTypeEnum": {
+      "CREATE_ENTITY": "Vytvořit entitu",
+      "IGNORE": "Ignorovat"
+    },
+    "SynchronizationUnlinkedActionTypeEnum": {
+      "LINK": "Vytvořit vazbu",
+      "LINK_AND_UPDATE_ACCOUNT": "Vytvořit vazbu a aktualizovat účet",
+      "IGNORE": "Ignorovat"
+    },
+    "IcFilterOperationTypeEnum": {
+      "EQUAL_TO": "Ekvivalentní",
+      "CONTAINS": "Obsahuje",
+      "GREATER_THAN": "Je větší než",
+      "LESS_THAN": "Je menší než",
+      "ENDS_WITH": "Končí na",
+      "STARTS_WITH": "Začíná na"
+    },
+    "SynchronizationActionTypeEnum": {
+      "CREATE_ENTITY": "Vytvoření nové entity",
+      "UPDATE_ENTITY": "Aktualizace entity",
+      "DELETE_ENTITY": "Smazání entity",
+      "LINK_AND_UPDATE_ACCOUNT": "Vytvoření vazby a aktualizování účtu",
+      "UNLINK_AND_REMOVE_ROLE": "Odstranění vazby a navázané role",
+      "LINK": "Vytvoření vazby",
+      "UNLINK": "Odstranění vazby",
+      "CREATE_ACCOUNT": "Vytvoření účtu",
+      "UPDATE_ACCOUNT": "Aktualizace účtu",
+      "LINKED": "Vazba existuje",
+      "MISSING_ENTITY": "Entita neexistuje",
+      "UNLINKED": "Vazba neexistuje",
+      "MISSING_ACCOUNT": "Účet neexistuje",
+      "IGNORE": "Ignorováno",
+      "UNKNOWN": "Neznámý stav"
+    },
+    "OperationResultTypeEnum": {
+      "SUCCESS": "Úspěšné",
+      "ERROR": "Neúspěšné",
+      "WF": "Spuštěno workflow",
+      "IGNORE": "Ignorováno",
+      "WARNING": "Varování"
+    },
+    "AttributeMappingStrategyTypeEnum": {
+      "SET": "Nastavit hodnotu, tak jak je",
+      "MERGE": "Sloučit (pouze provisioning)",
+      "AUTHORITATIVE_MERGE": "Autoritativní sloučení (pouze provisioning)",
+      "CREATE": "Nastavit pouze při vytvoření",
+      "WRITE_IF_NULL": "Nastavit pouze pokud je cílová hodnota prázdná"
+    },
+    "ProvisioningOperationTypeEnum": {
+      "CREATE": "Vytvoření",
+      "UPDATE": "Úprava",
+      "DELETE": "Smazání"
+    },
+    "IdentityAttributeEnum": {
+      "USERNAME": "Uživatelské jméno (String)",
+      "DISABLED": "Zakázaný (boolean)",
+      "FIRSTNAME": "Jméno (String)",
+      "LASTNAME": "Příjmení (String)",
+      "TITLE_BEFORE": "Titul před (String)",
+      "TITLE_AFTER": "Titul za (String)",
+      "DESCRIPTION": "Poznámka (String)",
+      "PHONE": "Telefon (String)",
+      "EMAIL": "Email (String)"
+    },
+    "TreeAttributeEnum": {
+      "CODE": "Kód (String)",
+      "NAME": "Název (String)",
+      "PARENT": "Rodič (String)",
+      "EXTERNAL_ID": "Externí ID (String)",
+      "DISABLED": "Zakázaný (boolean)"
+    },
+    "RoleCatalogueAttributeEnum": {
+      "CODE": "Kód (String)",
+      "NAME": "Název (String)",
+      "PARENT": "Rodič (String)",
+      "DESCRIPTION": "Popis (String)",
+      "URL": "URL (String)",
+      "URL_TITLE": "Popis URL (String)"
+    },
+    "RoleAttributeEnum": {
+      "NAME": "Název (String)",
+      "ROLE_TYPE": "Typ role (String - RoleType)",
+      "APPROVE_REMOVE": "Schvalovat odebrání (Boolean)",
+      "PRIORITY": "Priorita (Integer)",
+      "DESCRIPTION": "Popis (String)",
+      "DISABLED": "Zakázaný (boolean)"
     }
   },
   "permission": {
     "group": {
       "ACCOUNT": "Účty na koncových systémech",
-      "SYSTEM": "Napojené systémy"
+      "SYSTEM": "Napojené systémy",
+      "SYNCHRONIZATION": "Synchronizace"
     }
   },
   "error": {
@@ -401,6 +898,174 @@
     "PROVISIONING_ROLE_ATTRIBUTE_MORE_UID": {
       "title": "Již existuje jiný unikátní identifikátor",
       "message": "Pro roli: {{role}} a system {{system}} byl již nalezen unikátní identifikátor."
+    },
+    "PROVISIONING_SYSTEM_DISABLED": {
+      "title": "Provisioning účtu [{{name}}] neproběhl",
+      "message": "Provisioning účtu [{{name}}] na systém [{{system}}] nebyl proveden. Systém je nakonfigurován jako neaktivní."
+    },
+    "PROVISIONING_SYSTEM_READONLY": {
+      "title": "Provisioning účtu [{{name}}] neproběhl",
+      "message": "Provisioning účtu [{{name}}] na systém [{{system}}] nebyl proveden. Systém je v readonly režimu."
+    },
+    "PROVISIONING_PREPARE_ACCOUNT_ATTRIBUTES_FAILED": {
+      "title": "Provisioning účtu [{{name}}] neproběhl",
+      "message": "Provisioning účtu [{{name}}] na systém [{{system}}] selhal."
+    },
+    "PROVISIONING_FAILED": {
+      "title": "Provisioning účtu [{{name}}] neproběhl",
+      "message": "Provisioning účtu [{{name}}] na systém [{{system}}] selhal."
+    },
+    "PROVISIONING_SUCCEED": {
+      "title": "Proběhl provisioning účtu [{{name}}]",
+      "message": "Provisioning účtu [{{name}}] na systém [{{system}}] úspěšně proběhl."
+    },
+    "PROVISIONING_IS_IN_QUEUE": {
+      "title": "Provisioning účtu [{{name}}] byl zařazen do fronty",
+      "message": "Ve frontě jsou pro stejný účet nezpracované požadavky na provisioning, proto byl nový poždavek na provisioning účtu [{{name}}] na systém [{{system}}] zařazen do fronty."
+    },
+    "PROVISIONING_IDM_FIELD_NOT_FOUND": {
+      "title": "Položka pro provisioning nenalezena",
+      "message": "IDM položka [{{field}}] pro entitu [{{entity}}] nebyla nalezena!"
+    },
+    "PROVISIONING_PASSWORD_FIELD_NOT_FOUND": {
+      "title": "Mapovací atribut hesla nenalezen",
+      "message": "Mapovací atributu pro heslo (___PASSWORD__) nebyl pro entitu [{{uid}}] nalezen!"
+    },
+    "PROVISIONING_SCHEMA_ATTRIBUTE_IS_NOT_UPDATEABLE": {
+      "title": "Provisioning - atribut není upravitelný",
+      "message": "Atribut schéma [{{attribute}}] pro entitu [{{entity}}] není 'updateable'!"
+    },
+    "PROVISIONING_RESOURCE_ATTRIBUTE_NOT_FOUND": {
+      "title": "Provisioning - atribut nebyl nalzen na koncovém systému",
+      "message": "Atribut [{{attribute}}] pro entitu [{{entity}}] nebyl na koncovém systému nalezen!"
+    },
+    "PROVISIONING_PASSWORD_WRONG_TYPE": {
+      "title": "Provisioning - atribut hesla musí být GuardedString",
+      "message": "Atribut hesla musí být GuardedString!"
+    },
+    "PROVISIONING_ATTRIBUTE_VALUE_WRONG_TYPE": {
+      "title": "Provisioning - hodnota atributu není správného typu",
+      "message": "Schéma atributu [{{attribute}}] definuje typ [{{schemaAttributeType}}]. Hodnota je ovšem typu [{{valueType}}]!"
+    },
+    "PROVISIONING_ATTRIBUTE_TYPE_NOT_FOUND": {
+      "title": "Provisioning - hodnotu atributu nebylo možné načíst",
+      "message": "Schéma atributu [{{attribute}}] definuje typ [{{schemaAttributeType}}]. Tento typ ovšem nebylo možné načíst!"
+    },
+    "PROVISIONING_ATTRIBUTE_UID_IS_NOT_STRING": {
+      "title": "Provisioning - hodnota UID atributu není String",
+      "message": "Hodnota UID atributu musí být String, ale je typu [{{uid}}]!"
+    },
+    "PROVISIONING_ATTRIBUTE_UID_NOT_FOUND": {
+      "title": "Provisioning - Nebyl nalezen žádný atribut označený jako identifikátor",
+      "message": "Atribut (označený jako identifikátor) nebyl nalezen na systému [{{system}}]. Atribut identifikující entitu, je pro provisioning povinný!"
+    },
+    "PROVISIONING_DUPLICATE_ROLE_MAPPING": {
+      "title": "Provisioning - Více definic atributu pro stejný UID a stejnou roli",
+      "message": "Bylo nalezeno více definic atributů pro stejný UID a stejnou roli  [{{role}}], systém  [{{system}}] a typ entity  [{{entityType}}]!"
+    },
+    "PROVISIONING_DIFFERENT_UIDS_FROM_CONNECTOR": {
+      "title": "Provisioning - UID atribut nebyl nalezen",
+      "message": "Konektor vrátil více různých UIDů (pro různé object classes)!"
+    },
+    "PROVISIONING_MERGE_ATTRIBUTE_IS_NOT_MULTIVALUE": {
+      "title": "Provisioning - MERGE atribut není více hodnotový",
+      "message": "Objekt [{{object}}]. Pro MERGE strategii musí být atribut [{{attribute}}] vícehodnotový!"
+    },
+    "PROVISIONING_ATTRIBUTE_STRATEGY_CONFLICT": {
+      "title": "Provisioning - Strategie atributu jsou konfliktní",
+      "message": "Strategie [{{strategyParent}}] a [{{strategyConflict}}] jsou pro atribut [{{attribute}}] konfliktní!"
+    },
+    "SYNCHRONIZATION_IS_NOT_ENABLED": {
+      "title": "Synchronizace není povolená",
+      "message": "Synchronizace [{{name}}] není povolená!"
+    },
+    "SYNCHRONIZATION_SYSTEM_IS_NOT_ENABLED": {
+      "title": "System není povolen",
+      "message": "Synchronizace [{{name}}] nemůže být spuštěna, protože system [{{system}}] není povolený!"
+    },
+    "CONFIDENTIAL_VALUE_IS_NOT_GUARDED_STRING": {
+      "title": "Tajný atributu není GuardedString",
+      "message": "Tajný atributu [{{property}}] není GuardedString, ale je typu [{{class}}]!"
+    },
+    "SYNCHRONIZATION_CORRELATION_TO_MANY_RESULTS": {
+      "title": "Synchronizace - bylo nalezeno příliš monoho entit dle korelačního atributu",
+      "message": "Bylo nalezeno příliš mnoho entit dle korelačního atributu [{{correlationAttribute}}] pro hodnotu [{{value}}]!"
+    },
+    "SYNCHRONIZATION_TOKEN_ATTRIBUTE_NOT_FOUND": {
+      "title": "Synchronizace - pro synchronizaci dle vlastního atributu je Token atribut povinný!",
+      "message": "Pro synchronizaci dle vlastního atributu je Token atribut povinný!"
+    },
+    "SYNCHRONIZATION_IS_RUNNING": {
+      "title": "Synchronizace je již spuštěná",
+      "message": "Synchronizace [{{name}}] je již spuštěná."
+    },
+    "SYNCHRONIZATION_NOT_FOUND": {
+      "title": "Synchronizace neexistuje",
+      "message": "Synchronizace [{{id}}] nebyla nalezena."
+    },
+    "SYNCHRONIZATION_IS_NOT_RUNNING": {
+      "title": "Synchronizace není spuštěná",
+      "message": "Synchronizace [{{name}}] není spuštěná."
+    },
+    "SYNCHRONIZATION_TO_MANY_SYSTEM_ENTITY": {
+      "title": "Synchronizace - nalezeno více jak jeden záznam 'System entity'",
+      "message": "Bylo nalezeno více jak jeden záznam 'System entity' pro stejný UID [{{uid}}]!"
+    },
+    "SYNCHRONIZATION_FILTER_VALUE_WRONG_TYPE": {
+      "title": "Synchronizace - filtr pro synchronizaci musí být typu 'IcFilter'",
+      "message": "Filtr pro synchronizaci musí být typu 'IcFilter', hodnota je ovšem typu [{{type}}]!"
+    },
+    "SYNCHRONIZATION_ERROR_DURING_SYNC_ITEM": {
+      "title": "Synchronizace - během synchronizace nastala chyba",
+      "message": "Během synchronizace položky s UID [{{uid}}], nastala neočekávaná chyba!"
+    },
+    "SYNCHRONIZATION_TO_MANY_ACC_ACCOUNT": {
+      "title": "Synchronizace - nalezeno více jak jeden záznam 'AccAccount'",
+      "message": "Bylo nalezeno více jak jeden záznam 'AccAccount' pro stejný UID [{{uid}}]!"
+    },
+    "SYSTEM_MAPPING_DELETE_FAILED_USED_IN_SYNC": {
+      "title": "Mapování systému [{{mapping}}] nemůže být smazáno",
+      "message": "Mapování systému [{{mapping}}] nemůže být smazáno. Je použito v synchronizaci na stejném systému!"
+    },
+    "ATTRIBUTE_MAPPING_DELETE_FAILED_USED_IN_SYNC": {
+      "title": "Atribut [{{attribute}}] nemůže být smazán",
+      "message": "Atribut [{{attribute}}] nemůže být smazán. Je použit v synchronizaci na stejném systému!"
+    },
+    "SYSTEM_DELETE_FAILED_HAS_ENTITIES": {
+      "title": "Systém nemůže být smazán",
+      "message": "Systém [{{system}}] nemůže být smazán. Na systému jsou evidovány entity."
+    },
+    "SYSTEM_DELETE_FAILED_HAS_ACCOUNTS": {
+      "title": "Systém nemůže být smazán",
+      "message": "Systém [{{system}}] nemůže být smazán. Na systému jsou evidovány účty."
+    },
+    "SYSTEM_ENTITY_DELETE_FAILED_HAS_OPERATIONS": {
+      "title": "Entita na systému nemůže být smazána",
+      "message": "Entita [{{uid}}] na systému [{{system}}] nemůže být smazána. Pro entitu existují aktivní operace na provisioning."
+    },
+    "REMOTE_SERVER_INVALID_CREDENTIAL": {
+      "title": "Špatné heslo ke vzdálenému konektoru",
+      "message": "Nesprávné heslo ke vzádlenému konektor serveru [{{server}}]"
+    },
+    "REMOTE_SERVER_NOT_FOUND": {
+      "title": "Server nenalezen",
+      "message": "Server [{{server}}] nebyl nalezen."
+    },
+    "REMOTE_SERVER_CANT_CONNECT": {
+      "title": "Nemohu se připojit ke vzdálenému serveru",
+      "message": "Nemohu se připojit ke vzdálenému server [{{server}}]"
+    },
+    "REMOTE_SERVER_UNEXPECTED_ERROR": {
+      "title": "Neočekávaná chyba",
+      "message": "Při připojování k serveru [{{server}}] se stala neočekáváná chyba"
+    },
+    "CONNECTOR_FORM_DEFINITION_NOT_FOUND": {
+      "title": "Definice formuláře nebyly nalezeny",
+      "message": "Definice formuláře pro systém nebyly nalezeny, zvolte prosím konektor."
+    },
+    "ACCOUNT_CANNOT_BE_DELETED_IS_PROTECTED": {
+      "title": "Účet [{{uid}}] nemůže být smazán!",
+      "message": "Účet [{{uid}}] nemůže být smazán! Je chráněn před smazáním!"
     }
   }
 }

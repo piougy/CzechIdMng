@@ -10,7 +10,7 @@ All parameters from AbstractFormComponent are supported.
 
 ```html
 <Basic.LabelWrapper readOnly ref="applicant" label={this.i18n('applicant')} componentSpan="col-sm-5">
-  <Advanced.IdentityInfo identity={applicant} showLoading={!applicant} className="no-margin"/>
+  <Advanced.IdentityInfo entity={applicant} showLoading={!applicant} className="no-margin"/>
 </Basic.LabelWrapper>
  />
 ```

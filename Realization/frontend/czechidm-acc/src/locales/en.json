@@ -1,6 +1,6 @@
 {
   "module": {
-    "name": "Správa účtů",
+    "name": "Account management",
     "author": "BCV solutions s.r.o."
   },
   "navigation" : {
@@ -14,7 +14,7 @@
     "dashboard": {
     },
     "systems": {
-      "header": "Napojené systémy",
+      "header": "Systems",
       "title": "$t(acc:content.systems.header)"
     },
     "schema": {
@@ -22,174 +22,280 @@
     },
     "system": {
       "detail" : {
-        "header": "Napojený systém",
+        "header": "Connected system",
         "title": "$t(acc:content.system.detail.header)",
         "edit": {
-          "title": "Detail systému",
-          "header": "{{name}} <small>detail napojeného systému</small>"
+          "title": "System details",
+          "header": "{{name}} <small>System details</small>"
         },
         "create": {
-          "header": "Nový napojený systém"
+          "header": "New system"
         },
         "save": {
-          "success": "Systém [{{name}}] byl úspěšně uložen"
+          "success": "System [{{name}}] was successfully saved"
         },
-        "basic": "Základní informace"
+        "loadRemoteConnectors": "Load connector from remote server",
+        "remoteConnectorServer": "Remote connector server",
+        "basic": "Basic information"
       },
       "entities": {
-        "header": "Entity na koncovém systému <small>uložené v idm</small>",
-        "title": "Entity na systému",
+        "header": "Entities in system <small>managed in IdM</small>",
+        "title": "Entities",
         "edit": {
-          "header": "Detail entity na koncovém systému"
+          "header": "Entity details in system"
         },
         "create": {
-          "header": "Nová entita na koncovém systému"
+          "header": "New entity in system"
         },
         "save": {
-          "success": "Entita [{{name}}] na systému byla úspěšně uložen"
+          "success": "Entity [{{name}}] in system was successfully saved"
         },
         "filter": {
-          "uid": {
-            "label": "Identifikátor",
+          "text": {
+            "label": "Identificator",
             "placeholder": "$t(acc:entity.SystemEntity.uid)"
           }
         }
       },
-      "systemObjectClasses": {
-        "header": "Schéma systému",
-        "title": "Schéma systému",
-        "schemaObjectClassesHeader": "Typy objektů <small>na koncovém systému</small>",
-        "generateSchemaBtn": "Generovat schema",
-        "generateSchemaBtnTooltip": "Vygeneruje a uloží schéma do tohoto systému. Schéma se získá z napojeného konektoru, dle aktuální konfigurace. Pokud bude nalezen objekt či atribut se stejným názvem, bude provedeno nahrazení (přegenerování dle stavu na koncovém systému). Ostatní objekty a atributy budou zachovány v nezměněné podobě.",
+      "schemaObjectClasses": {
+        "header": "System scheme",
+        "title": "Scheme",
+        "schemaObjectClassesHeader": "Object types in system",
+        "generateSchemaBtn": "Generate scheme",
+        "generateSchemaBtnTooltip": "Generates and saves system scheme. Scheme is obtained from connector used by current configuration. When generating scheme, if object or attribute with the same name is found, it will be replaced by the current value in system. Other objects and attributes will remain unchanged.",
         "edit": {
-          "header": "Detail typu objektu na koncovém systému"
+          "header": "Object type details in system"
         },
         "create": {
-          "success": "Typ objektu [{{name}}] systému byl úspěšně vytvořen",
-          "header": "Nový typ objektu na koncovém systému"
+          "success": "Object type [{{name}}] in system was ",
+          "header": "New type of object in system"
         },
         "save": {
-          "success": "Typ objektu [{{name}}] na systému byl úspěšně uložen"
+          "success": "Object type [{{name}}] in system was successfully saved"
         },
         "filter": {
           "objectClassName": {
-            "label": "Název objektu",
-            "placeholder": "Název objektu na koncovém systému"
+            "label": "Object name",
+            "placeholder": "Object name in system"
           }
         },
         "action": {
           "generateSchema": {
-            "message": "<b>Vygeneruje a uloží schéma do tohoto systému.</b> Schéma se získá z napojeného konektoru, dle aktuální konfigurace.<br/>Pokud bude nalezen objekt či atribut se stejným názvem, bude provedeno nahrazení (přegenerování dle stavu na koncovém systému). Ostatní objekty a atributy budou zachovány v nezměněné podobě. <br/><br/><b>Opravdu chcete zahájit generování/obnovu schématu?</b>",
-            "header": "Generování schématu",
-            "success": "Generování schématu pro systém '{{name}}' proběhlo v pořádku."
+            "message": "<b>Generate and save scheme in this system.</b> Scheme will be obtained from connector based on current configuration.<br/>If there will be object or attribute with the same name, it will be replaced (regenerated by state on end system). Other objects and attributes will remain unchanged. <br/><br/><b>Do you really want to start schema generating / recovery?</b>",
+            "header": "Generate scheme",
+            "success": "Generation of scheme for system '{{name}}' successful."
           }
         }
       },
-      "systemEntitiesHandling": {
-        "header": "Mapování atributů<small> skupiny atributů pro typ entity a operaci</small>",
-        "title": "Mapování atributů",
+      "systemSynchronizationConfigs": {
+        "header": "Synchronization<small> configuration</small>",
+        "title": "Synchronization",
+        "startSynchronization": "Start synchronization",
         "edit": {
-          "header": "Detail mapování entit a operací"
+          "header": "Synchronization configuration details"
         },
         "create": {
-          "success": "Mapování pro typ entity [{{name}}] bylo úspěšně vytvořeno",
-          "header": "Nové mapování pro entitu a operaci"
+          "success": "Configuration  of synchronization [{{name}}] successfully created",
+          "header": "New configuration of synchronization"
         },
         "save": {
-          "success": "Mapování pro typ entity [{{name}}] bylo úspěšně uloženo"
+          "success": "Configuration of synchronization [{{name}}] successfully saved"
+        },
+        "action": {
+          "startSynchronization": {
+            "message": "<b>Do you really want to start synchronization/reconciliation '{{name}}' manually?</b>",
+            "header": "Start synchronization manually",
+            "started": "Synchronization/reconciliation '{{name}}' started as long running task, results will be shown on synchronization detail or in long running task agenda.",
+            "success": "Synchronization/reconciliation '{{name}}' finished"
+          },
+          "cancelSynchronization": {
+            "message": "<b>Do you really want to stop synchronization/reconcilation '{{name}}'?</b>",
+            "header": "Cancel synchronization manuallly",
+            "canceled": "Synchronization/reconciliation '{{name}}' canceled."
+          }
+        },
+        "button": {
+            "start": "Start synchronization/reconciliation",
+            "cancel": "Cancel synchronization/reconciliation"
         }
       },
-      "accounts": {
-        "header": "Účty na koncovém systému <small>uložené v idm</small>",
-        "title": "Účty na systému",
+      "systemSynchronizationConfigDetail": {
+        "header": "Synchronization details",
+        "title": "Synchronization details",
+        "synchronizationLogsHeader": "Synchronization logs",
+        "situationActionsAndWf": "In section below, it is possible to define how synchronization will react in given situations. Synchronization behavior is affected by selected workflow. Workflow is started after execution of standard action for each element. Workflow must ensure changes are saved.",
+        "situationAction": "Action",
+        "situationActionWf": "Workflow",
+        "customFilterInfo": "Custom filter can be defined by selection of attribute (Filter by attribute) by which we want to find relevant operations (Filtering operations). More complicated creteria can be defined in section below.",
+        "treeInfo": "Synchronization of Tree is always execute as reconciliation.",
         "edit": {
-          "header": "Detail účtu na koncovém systému"
+          "header": "Synchronization configuration details "
         },
         "create": {
-          "header": "Nový účet na koncovém systému"
+          "success": "Configuration of  synchronization [{{name}}] was successfully created",
+          "header": "New configuration of synchronization "
         },
         "save": {
-          "success": "Účet na systému byl úspěšně uložen"
+          "success": "Configuration of synchronizataion [{{name}}] was successfully saved"
+        },
+        "button": {
+          "saveAndStartSynchronization": "Save and run configuration"
+        },
+        "tabs": {
+          "basicConfiguration": {
+            "label": "Settings"
+          },
+          "filterConfiguration": {
+            "label": "Filter"
+          },
+          "logs": {
+            "label": "Logs"
+          }
+        }
+      },
+      "systemSynchronizationLogDetail": {
+        "header": "Synchronization log details",
+        "title": "Synchronization log details",
+        "syncActionLogsHeader": "Synchronization actions logs"
+      },
+      "systemSyncActionLogDetail": {
+        "header": "Action log details",
+        "title": "Action log details",
+        "syncItemLogsHeader": "Synchronization items logs",
+        "filter": {
+          "displayName": {
+            "label": "Name",
+            "placeholder": "Finds logs containing value in name."
+          }
+        }
+      },
+      "SystemSyncItemLogDetail": {
+        "header": "Item log details",
+        "title": "Item log details"
+      },
+      "accounts": {
+        "header": "Accounts in system <small>managed in IdM</small>",
+        "title": "Accounts",
+        "edit": {
+          "header": "Account details in system"
+        },
+        "create": {
+          "header": "New account on end system"
+        },
+        "save": {
+          "success": "Account in system was successfully created"
         },
         "filter": {
-          "uid": {
-            "label": "Identifikátor",
+          "text": {
+            "label": "Identificator",
             "placeholder": "$t(acc:entity.SystemEntity.uid)"
           }
         }
       },
       "connector": {
-        "header": "Nastavení konektoru",
-        "title": "Konfigurace",
+        "header": "Connector configuration",
+        "title": "Configuration",
         "button": {
-          "showBasicInfo": "Přejít na základní údaje"
+          "showBasicInfo": "Show basic information",
+          "checkSystem": "Test connector",
+          "checkSystemTooltip": "Saves current settings and requires test on connector.",
+          "loadConnectorDefinition": "Load definition of connector"
         },
         "save": {
-          "success": "Konfigurace konektoru pro systém [{{name}}] byla úspěšně uložena."
+          "success": "Connector configuration for system [{{name}}] successfully saved."
+        },
+        "checkSystem": {
+          "success": "Connector test successful.",
+          "error": "Connector test failed"
+        },
+        "action": {
+          "changeConnector": {
+            "message": "<b>Immediate save of system with new connector.</b><br/> Current connector will no longer be active and its configuration will be lost.<br/><br/><b>Do you really want to change connector and save system?</b>",
+            "header": "Change of connector"
+          }
         }
       },
       "objectClassDetail": {
-        "title": "Objekt na koncovém systému",
-        "objectClassHeader": "Objekt na koncovém systému",
-        "schemaAttributesHeader": "Atributy schématu",
+        "title": "Object in system",
+        "objectClassHeader": "Object in system",
+        "schemaAttributesHeader": "Scheme attributes",
         "edit": {
-          "header": "Detail typu objektu na koncovém systému"
+          "header": "Object type details in system"
         },
         "create": {
-          "header": "Nový typ objektu na koncovém systému"
+          "header": "New object type in system"
         },
         "save": {
-          "success": "Typ objektu [{{name}}] na systému byl úspěšně uložen"
+          "success": "Object type [{{name}}] in system successfully saved"
         },
         "filter": {
           "name": {
-            "label": "Název atributu",
-            "placeholder": "Název atributu ve schématu"
+            "label": "Attribute name",
+            "placeholder": "Attribute name in scheme"
           }
         }
       },
-      "entityHandlingDetail": {
-        "title" :"Skupina atributů",
-        "systemEntityHandlingHeader": "Skupina atributů <small>pro IdM entitu a typ operace</small>",
-        "schemaAttributesHandlingHeader": "Namapované atributy",
+      "mappings": {
+        "header": "Attributes mapping<small> attribute groups for operation and entity type</small>",
+        "title": "Mapping",
         "edit": {
-          "header": "Detail typu IdM entity a operace"
+          "header": "Mapping details of entities and operations"
         },
         "create": {
-          "header": "Nový typ IdM entity a operace",
-          "success": "Typ IdM entity [{{entityType}}] pro operaci [{{operationType}}] byl úspěšně vytvořen"
+          "success": "Mapping for entity type [{{name}}] successfully created",
+          "header": "New mapping for entity and operation"
         },
         "save": {
-          "success": "Typ IdM entity [{{entityType}}] pro operaci [{{operationType}}] byl úspěšně uložen"
+          "success": "Mapping for entity type [{{name}}] succesfully saved"
+        }
+      },
+      "mappingDetail": {
+        "title" :"Mapping of attributes",
+        "header": "Mapping of attributes <small>for IdM entity and operation type</small>",
+        "systemAttributesMappingHeader": "Mapped attributes",
+        "edit": {
+          "header": "Details of IdM entity type and operation"
+        },
+        "create": {
+          "header": "New type of IdM entity and operation",
+          "success": "IdM entity type [{{entityType}}] for operation [{{operationType}}] succesfully created"
+        },
+        "save": {
+          "success": "IdM entity type [{{entityType}}] for operation [{{operationType}}] succesfully saved"
         },
         "filter": {
           "idmPropertyName": {
-            "label": "Název IdM atributu",
-            "placeholder": "Název atributu v IdM"
+            "label": "Name of IdM attribute",
+            "placeholder": "Name of attribute in IdM"
           }
+        },
+        "protectionEnabled": {
+          "help": "Enables account protection before deletion. When trying to remove an IDM account, it will be marked as 'Is protected'. Such an account will not be deleted or provisioned. To really delete the IDM account (and thus the account on the end system), it will occur after the expiration of the protection interval. Deleting performs a scheduled task."
         }
       },
       "attributeDetail": {
-        "title" : "Atribut ve schématu",
-        "header" : "Detail atributu systému",
+        "title" : "Attribute in schema",
+        "header" : "Attribute details",
+        "returnedByDefaultTooltip": "Attribute contained in result of account search. This is not applied, for example, to password attribute, which is not returned in result by default",
         "save": {
-          "success": "Atribut [{{name}}] systému byl úspěšně uložen"
+          "success": "Attribute [{{name}}] successfully saved"
         },
         "create": {
-          "success": "Atribut [{{name}}] systému byl úspěšně vytvořen",
-          "header": "Nový atribut systému"
+          "success": "Attribute [{{name}}] successfully created",
+          "header": "New system attribute"
         }
       },
-      "attributeHandlingDetail": {
-        "title" : "Atribut v IdM",
-        "header" : "Detail mapování atributu ",
-        "alertNoRepository": "Atribut není mapován na žádné IdM úložiště (entitu ani rozšířený atribut). Výstupem bude konstanta, z 'Transformace do systému'",
+      "attributeMappingDetail": {
+        "title" : "Attribute in IdM",
+        "header" : "Attribute mapping details",
+        "alertNoRepository": "Attribute is not mapped to any entity in CzechIdM or extended attribute. Output will be a constant from 'Transformation to system'",
+        "infoPasswordMapping": "If attribute __PASSWORD__ is equal to value NULL, it will be automatically generated from password policy for system.",
         "save": {
-          "success": "Atribut [{{name}}] IdM byl úspěšně uložen"
+          "success": "Attribute [{{name}}] of IdM successfully saved"
         },
         "create": {
-          "success": "Atribut [{{name}}] IdM byl úspěšně vytvořen",
-          "header": "Nový atribut IdM"
+          "success": "IdM attribute [{{name}}] successfully created",
+          "header": "New IdM attribute"
         }
       }
     },
@@ -198,209 +304,762 @@
         "header": "$t(acc:content.systems.header) <small>$t(acc:entity.RoleSystem._type)</small>",
         "title": "$t(acc:content.systems.header)",
         "edit": {
-          "header": "Detail napojeného systému pro roli"
+          "header": "System details for role"
         },
         "create": {
-          "header": "Nový napojený systém pro roli"
+          "header": "New system for role"
         },
         "save": {
-          "success": "Systém [{{system}}] pro roli {{role}} byl úspěšně uložen"
+          "success": "System [{{system}}] for role {{role}} successfully saved"
         }
       },
       "roleSystemDetail": {
-        "header": "Napojený systém",
-        "title": "Napojený systém",
-        "roleSystemAttributesHeader": "Atributy mapované v rámci této role",
-        "systemEntityHandling": {
-          "systemPlaceholder": "Nejprve vyberte system ..."
+        "header": "Connected system",
+        "title": "Connected system",
+        "roleSystemAttributesHeader": "Attributes mapped within role",
+        "systemMapping": {
+          "systemPlaceholder": "Select system first ..."
         },
         "create": {
-          "success": "Napojení systému bylo úspěšně vytvořeno"
+          "success": "Connection of system successfully created"
         },
         "save": {
-          "success": "Napojení systému bylo úspěšně upraveno"
+          "success": "Connection of system successfully edited"
         }
       },
       "roleSystemAttributeDetail": {
-        "header": "Mapování atributu systému",
-        "title": "Mapování atributu systému",
+        "header": "Mapping of system attribute",
+        "title": "Mapping of system attribute",
         "create": {
-          "success": "Atribut [{{name}}] pro roli byl úspěšně vytvořen"
+          "success": "Attribute [{{name}}] for role successfully created"
         },
         "save": {
-          "success": "Atribut [{{name}}] pro roli byl úspěšně upraven"
+          "success": "Attribute [{{name}}] for role successfully edited"
         }
       }
     },
     "identity": {
       "accounts": {
-        "header": "Účty na koncovém systému",
-        "title": "Účty na systému",
+        "header": "Accounts in system",
+        "title": "Accounts",
         "edit": {
-          "header": "Detail účtu na koncovém systému"
+          "header": "Account details in system"
         },
         "create": {
-          "header": "Nový účet na koncovém systému"
+          "header": "New account in system"
         },
         "save": {
-          "success": "Účet na systému byl úspěšně uložen"
+          "success": "Account in system successfully saved"
         },
         "filter": {
           "uid": {
-            "label": "Identifikátor",
+            "label": "Identificator",
             "placeholder": "$t(acc:entity.SystemEntity.uid)"
           }
         }
       }
-    }
-  },
-  "entity": {
-    "System": {
-      "_type": "Koncový systém",
-      "name": "Název systému",
-      "disabled": "Neaktivní",
-      "description": "Popis",
-      "virtual": "Virtuální",
-      "connectorKey": {
-        "_type": "Konektor",
-        "framework": "Framework",
-        "connectorName": "Typ konektoru",
-        "bundleName": "Bundle konektoru",
-        "bundleVersion": "Verze konektoru"
+    },
+    "provisioningOperations": {
+      "label": "Provisioning",
+      "title" : "Provisioning - operations log",
+      "header" : "Provisioning <small> operations log</small>",
+      "action": {
+        "retry": {
+          "action": "Retry operation",
+          "button": {
+            "selected": "Retry selected",
+            "batch": "Retry full batch"
+          },
+          "header": "Retry operation",
+          "header_plural": "Retry operations",
+          "message": "Retry only selected operation <strong>{{name}}</strong>. Only selected operation will be executed regardless of other records in queue. Sequence of operations may not be followed.",
+          "message_plural": "Retry only <strong>{{count}}</strong> selected operations. Only selected operation will be executed regardless of other records in queue. Sequence of operations may not be followed.",
+          "batchMessage": "Retry all operations for selected entity <strong>{{name}}</strong> in queue. All operations for selected entity will be sent to system. Sequence sorted as per time of entering queue. Final state of entity in system will be retained",
+          "batchMessage_plural": "Retry all operations for selected entity by <strong>{{count}}</strong> selected operations in queue. All operations for selected entities will be sent to system. Sequence sorted as per time of entering queue. Final state of entities in system will be retained",
+          "error": "Error while retrying operation {{name}}",
+          "success": "Retrying operations of provisinong were started."
+        },
+        "cancel": {
+          "action": "Cancel operation",
+          "button": {
+            "selected": "Cancel only selected",
+            "batch": "Cancel full batch"
+          },
+          "header": "Cancel provisioning operation",
+          "header_plural": "Cancel provisioning operations",
+          "message": "Or do you want to cancel just selected operation <strong>{{name}}</strong>?",
+          "message_plural": "Or do you want to cancel just <strong>{{count}}</strong> selected operations?",
+          "batchMessage": "Do you want to cancel all operations for entity <strong>{{name}}</strong> in queue?",
+          "batchMessage_plural": "Do you want to cancel all operations for entity <strong>{{count}}</strong> in queue?",
+          "error": "Error while canceling operation {{name}} ",
+          "success": "Operations for provisioning were canceled."
+        }
       },
-      "connectorHost": "Server s konektory"
+      "tabs": {
+        "active": {
+          "label": "Active operations"
+        },
+        "archive": {
+          "label": "Archive"
+        }
+      },
+      "detail": {
+        "header": "Operation details",
+        "result": "Result",
+        "accountObject": "Attributes in IdM",
+        "connectorObject": "Attributes for provisioning",
+        "resultCode": "Code",
+        "nextAttempt": "<strong>Attempt:</strong> {{currentAttempt}} / {{maxAttempts}}, Next attempt will start <strong>{{nextAttempt}}</strong>"
+      },
+      "filter": {
+        "dateFrom": {
+          "label": "From",
+          "placeholder": "Date from"
+        },
+        "dateTill": {
+          "label": "To",
+          "placeholder": "Date to"
+        }
+      }
+    },
+    "passwordPolicy": {
+    "system": {
+      "tab": "Systems",
+      "title": "Systems utilizing this policy"
+    }
+  }
+},
+"entity": {
+  "System": {
+    "_type": "System",
+    "name": "System name",
+    "disabled": "Inactive",
+    "description": "Description",
+    "virtual": "Virtual",
+    "passwordPolicyValidate": "Password policy for validation",
+    "passwordPolicyGenerate": "Password policy for generating",
+    "readonly": {
+      "label": "Read-only",
+      "help": "Active provisioning operations create, update and delete, will not be executed."
+    },
+      "queue": {
+        "label": "Supports queue",
+        "help": "Active provisioning operations create, update and delete, will run through the queue."
+      },
+      "connectorKey": {
+        "_type": "Connector",
+        "framework": "Framework",
+        "connectorName": "Connector type",
+        "bundleName": "Connector bundle",
+        "bundleVersion": "Connector version"
+      },
+      "remoteConnector": {
+        "label": "Use remote connector server",
+        "help": "After check, local connectors will not be used."
+      },
+      "connectorHost": "Server with connectors"
+    },
+    "ConnectorServer": {
+      "name": "Name",
+      "chooseConnectorServer": "Choose remote connector server",
+      "host": "Host",
+      "port": "Port",
+      "password": "Password",
+      "timeout": "Timeout",
+      "useSsl": "SSL"
     },
     "RoleSystem": {
-      "_type": "Role přiřazuje účet na systému",
-      "type": "Typ přiřazení",
+      "_type": "Role assigns account in system",
+      "type": "Assign type",
       "role": "Role",
-      "system": "Systém",
-      "systemEntityHandling": "Typ entity"
+      "system": "System",
+      "systemMapping": "Mapping"
     },
     "SystemEntity": {
-      "_type": "Entita na systému",
-      "entityType": "Typ entity",
-      "uid": "Identifikátor na systému",
-      "system": "Napojený systém"
+      "_type": "Entity in system",
+      "entityType": "Entity type",
+      "uid": "Identificator in system",
+      "system": "Connected system"
     },
     "SchemaObjectClass": {
-      "auxiliary": "Pomocný object",
-      "container": "Je kontejnerem",
-      "objectClassName": "Název objektu",
-      "system": "Napojený systém"
+      "auxiliary": "Auxiliary",
+      "container": "Container",
+      "objectClassName": "Object name",
+      "system": "System name"
     },
-    "SystemEntityHandling": {
-      "entityType": "Typ IdM entity",
-      "operationType": "Typ operace",
-      "system": "Napojený systém"
+    "SystemMapping": {
+      "_type": "Mapping attributes in system",
+      "name": "Mapping name",
+      "entityType": "Entity type",
+      "operationType": "Operation type",
+      "system": "System",
+      "objectClass": "Object name",
+      "treeType": "Tree type",
+      "protectionEnabled": "Account protection (before delete)",
+      "protectionInterval": "Length of protection interval (in days)"
     },
     "SchemaAttribute": {
-      "name": "Název atributu",
-      "objectClass": "Atribut náleží objektu",
-      "classType": "Datový typ",
-      "required": "Je povinný",
-      "readable": "Je možné ho číst",
-      "createable": "Je možné ho vytvořit",
-      "updateable": "Je možné ho upravit",
-      "returned_by_default": "Standardně je vracen",
-      "nativeName": "Nativní název",
-      "system": "Napojený systém",
-      "multivalued": "Obsahuje více hodnot"
+      "name": "Name",
+      "objectClass": "Attribute belongs to object",
+      "classType": "Data type",
+      "required": "Required",
+      "readable": "able to read",
+      "createable": "able to create",
+      "updateable": "able to edit",
+      "returned_by_default": "Returned by default",
+      "nativeName": "Native name",
+      "system": "Connected system",
+      "multivalued": "Multivalued"
     },
-    "SchemaAttributeHandling": {
+    "SystemAttributeMapping": {
       "name": {
-        "label": "Název",
-        "help": "Uživatelsky definovaný identifikátor tohoto atributu."
+        "label": "Name",
+        "help": "User-defined name of the attribute"
       },
       "idmPropertyName": {
-        "label": "IdM klíč",
-        "help": "Název atributu u entity, název rozšířeného attributu či klíč do šifrovaného úložiště."
+        "label": "IdM key",
+        "help": "Name of entity attr., name of extended attr., or key to confidential storage."
       },
-      "schemaAttribute": "Atribut ve schéma",
-      "systemEntityHandling": "Podskupina",
-      "extendedAttribute": "Rozšířený atribut",
-      "confidentialAttribute": "Tajný atribut",
-      "entityAttribute": "Atribut entity",
-      "transformationFromResource": "Transfor. ze systému",
-      "transformationToResource": "Transfor. do systému",
+      "transformToResourceScriptSelectBox": {
+        "label": "Available scripts for transformation from resource",
+        "help": "After script selection, will be automatically insert code which calls selected script including sample paramteres."
+      },
+      "transformFromResourceScriptSelectBox": {
+        "label": "Available scripts to transformation to resource",
+        "help": "After script selection, will be automatically insert code which calls selected script including sample paramteres."
+      },
+      "idmPropertyEnum": "Entity field",
+      "schemaAttribute": "Attribute in schema",
+      "systemMapping": "Mapping name",
+      "extendedAttribute": {
+        "label": "Extended attr.",
+        "help": "<strong>Main form definition</strong> is supported only."
+      },
+      "confidentialAttribute": "Confidential attr.",
+      "entityAttribute": "Entity attr.",
+      "strategyType": "Strategy",
+      "transformationFromResource": "Transform from system",
+      "transformationToResource": "Transform to system",
       "transformFromResourceScript": {
-        "label": "Transformace ze systému",
-        "help": "Umožňuje transformovat hodnotu z koncového systému do podoby vohodné pro IdM. Vstupním parametrem tohoto Groovy skriptu, je hodnota atributu 'attributeValue' a list atributů objektu na koncovém systému 'icfAttributes'."
+        "label": "Transformation from system",
+        "help": "Allows value to be transformed from system into a form suitable for CzechIdM. Input parameters of this Groovy script are value of the attribute 'attributeValue' and list 'icAttributes' of object attributes in system."
+      },
+      "authenticationAttribute": {
+        "label": "Authentication attr.",
+        "help": "Attribute used for authentication on connected system."
       },
       "transformToResourceScript": {
-        "label": "Transformace do systému",
-        "help": "Umožňuje transformovat hodnotu z IdM do podoby vohodné pro koncový systém. Vstupním parametrem tohoto Groovy skriptu, je hodnota atributu 'attributeValue' a IdM entita 'entity'."
+        "label": "Transformation to system",
+        "help": "Allows value to be transformed from CzechIdM into a form suitable for connected system. Input parameters of this Groovy script are value of attribute 'attributeValue', IdM entity 'entity' and account identificator 'uid'. If output value is empty, system automatically uses available account identificator (uid)."
       },
       "uid": {
-        "label": "Je identifikátorem",
-        "tooltip": "Určuje, zdali je atribut primárním idetifikátorem objektu."
+        "label": "Identificator",
+          "tooltip": "Attribute is unique identificator of object."
+      },
+      "sendOnlyIfNotNull": {
+        "label": "Send IdM value only if its not null",
+        "tooltip": "Value for this attribute (computed by CzechIdM), will be sent on target system only if value is not null."
+      },
+      "sendAlways": {
+        "label": "Send always",
+        "tooltip": "Value for this attribute will be always send on target system. Even if is not changed."
       },
       "disabledAttribute": {
-        "label": "Je deaktivován",
-        "tooltip": "Pokud je atribut deaktivován nebude se ve výchozím stavu využívat pro provisioning. Deaktivovaný atribut je ovšem možné přetížit a aktivovat v rámci konkrétní role."
+        "label": "Disabled",
+        "tooltip": "Disabled attribute will not be used in provisioning in default state. It can still be overload and activated in roles."
       }
     },
     "RoleSystemAttribute": {
       "name": {
-        "label": "Název",
-        "help": "Uživatelsky definovaný název tohoto rolí přetíženého mapovaného atributu systému."
+        "label": "Name",
+        "help": "User-defined name of this system attribute, overloaded by the role."
       },
-      "schemaAttributeHandling": "Atribut v systému",
-      "roleSystem": "Patří k roli a systému",
-      "disabledDefaultAttribute": "Vynechat",
-      "disabledDefaultAttributeTooltip": "Pokud je zatrhnuto, tak nebude tento atribut propagován do koncového systému (a to i když k tomuto atributu existuje výchozí mapování).",
-      "transformScriptTable": "Transformace",
+      "systemAttributeMapping": "Attribute in system",
+      "roleSystem": "Belongs to role and system",
+      "strategyType": "Strategy",
+      "disabledDefaultAttribute": "Disable",
+      "disabledDefaultAttributeTooltip": "If checked, attribute will never be send to system. Even if the attribute has default mapping.",
+      "transformScriptTable": "Transformation",
       "transformScript": {
-        "label": "Transformace do systému",
-        "help": "Umožňuje transformovat hodnotu z IdM do podoby vohodné pro koncový systém. Vstupním parametrem tohoto Groovy skriptu, je hodnota atributu 'attributeValue' a IdM entita 'entity'."
+        "label": "Transformation to system",
+        "help": "Allows to transform value from CzechIdM to state intended for connected system. Input parameters of this Groovy script are attribute value 'attributeValue', IdM entity 'entity' and account identificator 'uid'. If script output value is null, than returning value is available account identificator (uid)."
       }
     },
-    "Account": {
-      "_type": "Účet na koncovém systému",
-      "accountType": "Typ účtu",
-      "system": "Systém",
-      "systemEntity": "Navázané entita na systému",
-      "uid": "Identifikátor účtu"
-    },
+   "Account": {
+    "_type": "Account in system",
+    "accountType": "Account type",
+    "system": "System",
+    "systemEntity": "Linked entity in system",
+    "uid": "Account identificator",
+    "inProtection": "Is protected from delete",
+    "endOfProtection": "Protected until"
+  },
     "IdentityAccount": {
-      "_type": "Účet identity na koncovém systému",
-      "ownership": "Vlastní účet",
-      "role": "Přiřazen dle role"
+      "_type": "Identity account in system",
+      "ownership": "Owns account",
+      "role": "Assigned by role"
+    },
+    "SynchronizationConfig": {
+      "enabled": "Allowed",
+      "name": "Name",
+      "description": "Description",
+      "runOnServer": "Run on server",
+      "running": "Running",
+      "customFilter" :{
+        "label": "Use custom filter",
+        "help": "Synchronization will be managed by custom filter defined below. When not selected, synchronization is managed by connector mechanisms."
+      },
+      "filterAttribute" :{
+        "label": "Filter by attribute",
+        "help": "This attribute (with type of filter operation) will be used was default filter criterium for synchronization. Other criteria can be define in filter script."
+      },
+      "tokenAttribute" :{
+        "label": "Token attribute",
+        "help": "Specifies token of synchroning attribute."
+      },
+      "token": "Token",
+      "timestamp": "Timestamp",
+      "filterOperation": "Filter operaton",
+      "customFilterScript": {
+        "label": "Custom filter",
+        "help": "This Groovy script sets own search filter for accoutns in system to be synchronized."
+      },
+      "rootsFilterScript": {
+        "label": "Definition of tree roots",
+        "help": "This Groovy script sets definition of tree root. Script input is 'account' (IcObject). Output must be Boolean ('true' for root). Without script implementation, every element without parent is consider as root."
+      },
+      "reconciliation": {
+        "label": "Reconciliation",
+        "help": "Executes full reconciliation instead of synchronization. Synchronization will be executed for all accounts without filter. Search for missing accounts will be executed for all entites in CzechIdM."
+      },
+      "correlationAttribute": "Collation attribute",
+      "systemMapping": "Set of mapped attributes",
+      "linkedAction": "Linked",
+      "unlinkedAction": "Not linked",
+      "missingEntityAction": "Missing entity",
+      "missingAccountAction": "Missing account"
+    },
+    "SynchronizationLog": {
+      "running": "Running",
+      "started": "Started",
+      "ended": "Finished",
+      "token": "Token",
+      "results": "Results",
+      "containsError": "Contains errors",
+      "actions": {
+        "SUCCESS": {
+          "CREATE_ENTITY": "Created entities",
+          "UPDATE_ENTITY": "Updated entities",
+          "DELETE_ENTITY": "Deleted entities",
+          "LINK_AND_UPDATE_ACCOUNT": "Created and updated acceouts",
+          "UNLINK_AND_REMOVE_ROLE": "Deleted links with role",
+          "LINK": "Created links",
+          "UNLINK": "Deleted links",
+          "CREATE_ACCOUNT": "Created accounts",
+          "UPDATE_ACCOUNT": "Updated accounts",
+          "LINKED": "Linked",
+          "MISSING_ENTITY": "Missing entity",
+          "UNLINKED": "Not linked",
+          "MISSING_ACCOUNT": "Missing account",
+          "IGNORE": "Ignore",
+          "UNKNOWN": "Unknown state"
+        },
+        "WARNING": {
+          "CREATE_ENTITY": "Created entities",
+          "UPDATE_ENTITY": "Updated entities",
+          "DELETE_ENTITY": "Deleted entities",
+          "LINK_AND_UPDATE_ACCOUNT": "Created and updated accounts",
+          "UNLINK_AND_REMOVE_ROLE": "Deleted links with roles",
+          "LINK": "Created linlks",
+          "UNLINK": "Deleted links",
+          "CREATE_ACCOUNT": "Created accounts",
+          "UPDATE_ACCOUNT": "Updated accounts",
+          "LINKED": "Linked accounts",
+          "MISSING_ENTITY": "Missing entity",
+          "UNLINKED": "Not linked",
+          "MISSING_ACCOUNT": "Missing account",
+          "IGNORE": "Ignored",
+          "UNKNOWN": "Unknown state"
+        },
+        "WF": {
+          "CREATE_ENTITY": "Created entities",
+          "UPDATE_ENTITY": "Updated entities",
+          "DELETE_ENTITY": "Deleted entites",
+          "LINK_AND_UPDATE_ACCOUNT": "Created and updated accounts",
+          "UNLINK_AND_REMOVE_ROLE": "Deleted links with roles",
+          "LINK": "Created links",
+          "UNLINK": "Deleted links",
+          "CREATE_ACCOUNT": "Created accounts",
+          "UPDATE_ACCOUNT": "Updated accounts",
+          "LINKED": "Linked",
+          "MISSING_ENTITY": "Missing entity",
+          "UNLINKED": "Not linked",
+          "MISSING_ACCOUNT": "Missing account",
+          "IGNORE": "Ignored",
+          "UNKNOWN": "Unknown state"
+        },
+        "IGNORE": {
+          "CREATE_ENTITY": "Created entities",
+          "UPDATE_ENTITY": "Updated entities",
+          "DELETE_ENTITY": "Deleted entities",
+          "LINK_AND_UPDATE_ACCOUNT": "Cread and updated accounts",
+          "UNLINK_AND_REMOVE_ROLE": "Deleted links with roles",
+          "LINK": "Created links",
+          "UNLINK": "Deleted links",
+          "CREATE_ACCOUNT": "Created accounts",
+          "UPDATE_ACCOUNT": "Updated accounts",
+          "LINKED": "Linked",
+          "MISSING_ENTITY": "Missing entity",
+          "UNLINKED": "Not linked",
+          "MISSING_ACCOUNT": "Missing account",
+          "IGNORE": "Ignored",
+          "UNKNOWN": "Unknown state"
+        },
+        "ERROR": {
+          "CREATE_ENTITY": "Unsuccessfully created entities",
+          "UPDATE_ENTITY": "Unsuccessfully updated entities",
+          "DELETE_ENTITY": "Unsuccessfully Deleted entities",
+          "LINK_AND_UPDATE_ACCOUNT": "Unsuccessfully created and updated accounts",
+          "LINK": "Unsuccessfully created links",
+          "UNLINK": "Unsuccessfully removed links",
+          "UNLINK_AND_REMOVE_ROLE": "Unsuccessfully deleted links with role",
+          "CREATE_ACCOUNT": "Unsuccessfully created accounts",
+          "UPDATE_ACCOUNT": "Unsuccessfully updated accounts",
+          "LINKED": "Linked",
+          "MISSING_ENTITY": "Missing entity",
+          "UNLINKED": "Not linked",
+          "MISSING_ACCOUNT": "Missing account",
+          "IGNORE": "Unsuccessfully ignored",
+          "UNKNOWN": "Unknown state"
+        }
+      }
+    },
+    "SyncActionLog": {
+      "syncAction": "Action",
+      "operationResult": "Result",
+      "operationCount": "Number of operations"
+    },
+    "SyncItemLog": {
+      "identification": "Identificator",
+      "displayName": "Name",
+      "message": "Message",
+      "type": "Type",
+      "log": "Log"
+    },
+    "ProvisioningOperation": {
+      "_type": "Provisioning - operation",
+      "creator": "Creator",
+      "operationType": "Operation",
+      "entityIdentifier": "Entity identificator (IdM)",
+      "resultState": "Result",
+      "entity": "IdM entity"
     }
   },
   "enums" : {
     "SystemEntityTypeEnum": {
-      "IDENTITY": "Identita",
-      "GROUP": "Skupina"
+      "IDENTITY": "Identity",
+      "ROLE": "Role",
+      "TREE": "Tree",
+      "ROLE_CATALOGUE": "Role catalogue"
     },
     "SystemOperationTypeEnum": {
       "PROVISIONING": "Provisioning",
-      "RECONCILIACE": "Reconciliace",
-      "SYNCHRONISATION": "Synchronizace"
+      "RECONCILIACE": "Reconciliation",
+      "SYNCHRONIZATION": "Synchronization"
     },
     "AccountTypeEnum": {
-      "PERSONAL": "Osobní",
-      "TECHNICAL": "Systémový"
+      "PERSONAL": "Personal",
+      "TECHNICAL": "Technical"
+    },
+    "ReconciliationMissingAccountActionTypeEnum": {
+      "CREATE_ACCOUNT": "Create account",
+      "UNLINK": "Remove link",
+      "UNLINK_AND_REMOVE_ROLE": "Remove link and appropriate roles",
+      "DELETE_ENTITY": "Delete entity",
+      "IGNORE": "Ignore"
+    },
+    "SynchronizationLinkedActionTypeEnum": {
+      "UPDATE_ENTITY": "Update entity",
+      "UNLINK": "Remove link",
+      "UNLINK_AND_REMOVE_ROLE": "Remove link and appropriate roles",
+      "UPDATE_ACCOUNT": "Update account",
+      "IGNORE": "Ignore"
+    },
+    "SynchronizationMissingEntityActionTypeEnum": {
+      "CREATE_ENTITY": "Create entity",
+      "IGNORE": "Ignore"
+    },
+    "SynchronizationUnlinkedActionTypeEnum": {
+      "LINK": "Create link",
+      "LINK_AND_UPDATE_ACCOUNT": "Create link and update account",
+      "IGNORE": "Ignore"
+    },
+    "IcFilterOperationTypeEnum": {
+      "EQUAL_TO": "Equals",
+      "CONTAINS": "Contains",
+      "GREATER_THAN": "Greater than",
+      "LESS_THAN": "Less than",
+      "ENDS_WITH": "Ends with",
+      "STARTS_WITH": "Starts with"
+    },
+    "SynchronizationActionTypeEnum": {
+      "CREATE_ENTITY": "Create new entity",
+      "UPDATE_ENTITY": "Update entity",
+      "DELETE_ENTITY": "Remove entity",
+      "LINK_AND_UPDATE_ACCOUNT": "Link and update account",
+      "UNLINK_AND_REMOVE_ROLE": "Remove link and appropriate roles",
+      "LINK": "Create link",
+      "UNLINK": "Unlink",
+      "CREATE_ACCOUNT": "Create account",
+      "UPDATE_ACCOUNT": "Update account",
+      "LINKED": "Linked",
+      "MISSING_ENTITY": "Missing entity",
+      "UNLINKED": "Not linked",
+      "MISSING_ACCOUNT": "Missing account",
+      "IGNORE": "Ignored",
+      "UNKNOWN": "Unknown state"
+    },
+    "OperationResultTypeEnum": {
+      "SUCCESS": "Success",
+      "ERROR": "Failed",
+      "WF": "Workflow finished",
+      "IGNORE": "Ignored",
+      "WARNING": "Warning"
+    },
+    "AttributeMappingStrategyTypeEnum": {
+      "SET": "Set value as it is",
+      "MERGE": "Merge (only provisioning)",
+      "AUTHORITATIVE_MERGE": "Authoritative merge (only provisioning)",
+      "CREATE": "Write only on create",
+      "WRITE_IF_NULL": "Write only if target value is null"
+    },
+    "ProvisioningOperationTypeEnum": {
+      "CREATE": "Create",
+      "UPDATE": "Update",
+      "DELETE": "Delete"
+    },
+    "IdentityAttributeEnum": {
+      "USERNAME": "User name (String)",
+      "DISABLED": "Disabled (boolean)",
+      "FIRSTNAME": "First name (String)",
+      "LASTNAME": "Surname (String)",
+      "TITLE_BEFORE": "Title before (String)",
+      "TITLE_AFTER": "Title after (String)",
+      "DESCRIPTION": "Description (String)",
+      "PHONE": "Phone (String)",
+      "EMAIL": "Email (String)"
+    },
+    "TreeAttributeEnum": {
+      "CODE": "Code (String)",
+      "NAME": "Name (String)",
+      "PARENT": "Parent (String)",
+      "EXTERNAL_ID": "External ID (String)",
+      "DISABLED": "Disabled (boolean)"
+    },
+    "RoleCatalogueAttributeEnum": {
+      "CODE": "Code (String)",
+      "NAME": "Name (String)",
+      "PARENT": "Parent (String)",
+      "DESCRIPTION": "Description (String)",
+      "URL": "URL (String)",
+      "URL_TITLE": "URL title (String)"
+    },
+    "RoleAttributeEnum": {
+      "NAME": "Name (String)",
+      "ROLE_TYPE": "Type of role (String - RoleType)",
+      "APPROVE_REMOVE": "Approve remove (Boolean)",
+      "PRIORITY": "Priority (Integer)",
+      "DESCRIPTION": "Description (String)",
+      "DISABLED": "Disabled (boolean)"
     }
   },
   "permission": {
     "group": {
-      "ACCOUNT": "Účty na koncových systémech",
-      "SYSTEM": "Napojené systémy"
+      "ACCOUNT": "Accounts in systems",
+      "SYSTEM": "Connected systems",
+      "SYNCHRONIZATION": "Synchronization"
     }
   },
   "error": {
     "CONNECTOR_CONFIGURATION_FOR_SYSTEM_NOT_FOUND": {
-      "title": "Nenalezen konektor pro systém",
-      "message": "Konektor pro systém [{{system}}] není definovaný. Vyplňte prosím definici konektoru v základních údajích systému."
+      "title": "Connector was not selected",
+      "message": "Connector for system [{{system}}] is not defined. Please, select connector definiton in system settings."
     },
     "PROVISIONING_ATTRIBUTE_MORE_UID": {
-      "title": "Již existuje jiný unikátní identifikátor",
-      "message": "Pro system: {{system}} byl již nalezen unikátní identifikátor."
+      "title": " Unique identificator already exists",
+      "message": "System {{system}} has already set unique identificator."
     },
     "PROVISIONING_ROLE_ATTRIBUTE_MORE_UID": {
-      "title": "Již existuje jiný unikátní identifikátor",
-      "message": "Pro roli: {{role}} a system {{system}} byl již nalezen unikátní identifikátor."
+      "title": "Unique identificator already exists",
+      "message": "Role {{role}} and system {{system}} have already set unique identificator."
+    },
+    "PROVISIONING_SYSTEM_DISABLED": {
+      "title": "Provisioning of account [{{name}}] wasn't executed",
+      "message": "Provisioning of account [{{name}}] in system [{{system}}] wasn't executed. System is configured as inactive."
+    },
+    "PROVISIONING_SYSTEM_READONLY": {
+      "title": "Provisioning of account [{{name}}] not executed",
+      "message": "Provisioning of account [{{name}}] in system [{{system}}] wasn't executed. System is in read-only mode."
+    },
+    "PROVISIONING_PREPARE_ACCOUNT_ATTRIBUTES_FAILED": {
+      "title": "Provisioning of account [{{name}}] wasn't executed",
+      "message": "Provisioning of account [{{name}}] in system [{{system}}] failed."
+    },
+    "PROVISIONING_FAILED": {
+      "title": "Provisioning of account [{{name}}] wasn't executed",
+      "message": "Provisioning of account [{{name}}] in system [{{system}}] failed."
+    },
+    "PROVISIONING_SUCCEED": {
+      "title": "Provisioning of account [{{name}}] executed",
+      "message": "Provisioning of account [{{name}}] in system [{{system}}] successfully finished."
+    },
+    "PROVISIONING_IS_IN_QUEUE": {
+      "title": "Provisioning task for account [{{name}}] stored to queue",
+      "message": "Account has some unfinished provisioning tasks in queue. New provisioning task for account [{{name}}] in system [{{system}}] was stored to queue."
+    },
+    "PROVISIONING_IDM_FIELD_NOT_FOUND": {
+      "title": "Item for provisioning not found",
+      "message": "IdM item [{{field}}] for entity [{{entity}}] was not found!"
+    },
+    "PROVISIONING_PASSWORD_FIELD_NOT_FOUND": {
+      "title": "Password mapping attribute not found",
+      "message": "Mapping attribute for password (___PASSWORD__) for entity [{{entity}}] was not found!"
+    },
+    "PROVISIONING_SCHEMA_ATTRIBUTE_IS_NOT_UPDATEABLE": {
+      "title": "Provisioning - attribute is not able for update",
+      "message": "Attribute [{{attribute}}] for entity [{{entity}}] is not 'able for update'!"
+    },
+    "PROVISIONING_RESOURCE_ATTRIBUTE_NOT_FOUND": {
+      "title": "Provisioning - attribute was not found on connected system",
+      "message": "Attribute [{{attribute}}] for entity [{{entity}}] was not found on connected system!"
+    },
+    "PROVISIONING_PASSWORD_WRONG_TYPE": {
+      "title": "Provisioning - password must be GuardedString",
+      "message": "Password attribute must be type of GuardedString!"
+    },
+    "PROVISIONING_ATTRIBUTE_VALUE_WRONG_TYPE": {
+      "title": "Provisioning - attribute value is not in correct type",
+      "message": "Scheman of attribute [{{attribute}}] defines type of [{{schemaAttributeType}}]. But value type is [{{valueType}}]!"
+    },
+    "PROVISIONING_ATTRIBUTE_TYPE_NOT_FOUND": {
+      "title": "Provisioning - attribute value was not found",
+      "message": "Attribute schema [{{attribute}}] defines type [{{schemaAttributeType}}]. This type cannot be retrieved!"
+    },
+    "PROVISIONING_ATTRIBUTE_UID_IS_NOT_STRING": {
+      "title": "Provisioning - UID value is not String",
+      "message": "Value of UID attribute must be type of String, but given type is [{{uid}}]!"
+    },
+    "PROVISIONING_ATTRIBUTE_UID_NOT_FOUND": {
+      "title": "Provisioning - UID attribute was not found",
+      "message": "UID attribute was not found in system [{{system}}]. UID attribute is necessary for provisioning!"
+    },
+    "PROVISIONING_DUPLICATE_ROLE_MAPPING": {
+      "title": "Provisioning - More attribute definitions for the same UID and role",
+      "message": "There was found more definitions of attributes for the same UID and same role [{{role}}], in system [{{system}}] and entity type [{{entityType}}]!"
+    },
+    "PROVISIONING_DIFFERENT_UIDS_FROM_CONNECTOR": {
+      "title": "Provisioning - UID attribute not found",
+      "message": "Connector returned more different UIDs, for different object classes!"
+    },
+    "PROVISIONING_MERGE_ATTRIBUTE_IS_NOT_MULTIVALUE": {
+      "title": "Provisioning - MERGE is not multivalued",
+      "message": "Object [{{object}}]. For MERGE strategy must be attribute [{{attribute}}] multivalued!"
+    },
+    "PROVISIONING_ATTRIBUTE_STRATEGY_CONFLICT": {
+      "title": "Provisioning - Attribute strategy conflict",
+      "message": "Strategies [{{strategyParent}}] and [{{strategyConflict}}] are confilcted for attribute [{{attribute}}]!"
+    },
+    "SYNCHRONIZATION_IS_NOT_ENABLED": {
+      "title": "Synchronization is not allowed",
+      "message": "Synchronization [{{name}}] is not allowed!"
+    },
+    "SYNCHRONIZATION_SYSTEM_IS_NOT_ENABLED": {
+      "title": "System is disabled",
+      "message": "Synchronization [{{name}}] cannot be started, becouse system [{{system}}] is disabled!"
+    },
+    "CONFIDENTIAL_VALUE_IS_NOT_GUARDED_STRING": {
+      "title": "Confidential attribute is not GuardedString",
+      "message": "Confidential attribute [{{property}}] is not type of GuardedString, but it's [{{class}}]!"
+    },
+    "SYNCHRONIZATION_CORRELATION_TO_MANY_RESULTS": {
+      "title": "Synchronization - too many entities was found for correlation attribute",
+      "message": "Too many entities was found for correlation attribite [{{correlationAttribute}}] for value [{{value}}]!"
+    },
+    "SYNCHRONIZATION_TOKEN_ATTRIBUTE_NOT_FOUND": {
+      "title": "Synchronization - for synchronization by custom attribute is compulsory attribute Token!",
+      "message": "for synchronization by custom attribute is compulsory attribute Token!"
+    },
+    "SYNCHRONIZATION_IS_RUNNING": {
+      "title": "Synchronization already running",
+      "message": "Synchronization [{{name}}] already running."
+    },
+    "SYNCHRONIZATION_NOT_FOUND": {
+      "title": "Synchronization not found",
+      "message": "Synchronization [{{id}}] was not found."
+    },
+    "SYNCHRONIZATION_IS_NOT_RUNNING": {
+      "title": "Synchronization not running",
+      "message": "Synchronizace [{{name}}] is not running."
+    },
+    "SYNCHRONIZATION_TO_MANY_SYSTEM_ENTITY": {
+      "title": "Synchronization - more than one record of 'System entity' was found",
+      "message": "More than one record of 'System entity was found for UID [{{uid}}]!"
+    },
+    "SYNCHRONIZATION_FILTER_VALUE_WRONG_TYPE": {
+      "title": "Synchronization - filter for synchronization must be type of 'IcFilter'",
+      "message": "Filter for synchronization must be type of 'IcFilter', but the value type is [{{type}}]!"
+    },
+    "SYNCHRONIZATION_ERROR_DURING_SYNC_ITEM": {
+      "title": "Synchronization - error during synchronization",
+      "message": "Durring synchronization of UID [{{uid}}], unexpected error has occurred!"
+    },
+    "SYNCHRONIZATION_TO_MANY_ACC_ACCOUNT": {
+      "title": "Synchronization - more than one records of 'AccAccount' found",
+      "message": "Found more that one records of 'AccAccount' for the same UID [{{uid}}]!"
+    },
+    "SYSTEM_MAPPING_DELETE_FAILED_USED_IN_SYNC": {
+      "title": "System mapping [{{mapping}}] cannot be removed",
+      "message": "System mapping [{{mapping}}] cannot be removed. It's used for synchronization of the same system!"
+    },
+    "ATTRIBUTE_MAPPING_DELETE_FAILED_USED_IN_SYNC": {
+      "title": "Attribute [{{attribute}}] cannot be removed",
+      "message": "Atribut [{{attribute}}] cannot be removed. It's used for synchronization of the same system!"
+    },
+    "SYSTEM_DELETE_FAILED_HAS_ENTITIES": {
+      "title": "System cannot be removed",
+      "message": "System [{{system}}] cannot be removed. There are managed entities in system."
+    },
+    "SYSTEM_DELETE_FAILED_HAS_ACCOUNTS": {
+      "title": "System cannot be removed",
+      "message": "System [{{system}}] cannot be removed. There are managed accounts in system."
+    },
+    "SYSTEM_ENTITY_DELETE_FAILED_HAS_OPERATIONS": {
+      "title": "Entity in system cannot be removed",
+      "message": "Entity [{{uid}}] in system [{{system}}] cannot be removed. Active provisioning operations exist for the entity."
+    },
+    "REMOTE_SERVER_INVALID_CREDENTIAL": {
+      "title": "Bad password for remote connector server",
+      "message": "Bad password for remote connector server [{{server}}]"
+    },
+    "REMOTE_SERVER_NOT_FOUND": {
+      "title": "Server not found",
+      "message": "Server [{{server}}] not found."
+    },
+    "REMOTE_SERVER_CANT_CONNECT": {
+      "title": "Can't connect to remote connector server",
+      "message": "Can't connect to remote connector server [{{server}}]"
+    },
+    "REMOTE_SERVER_UNEXPECTED_ERROR": {
+      "title": "Unexpected error",
+      "message": "Unexpected error while connect to server [{{server}}]"
+    },
+    "CONNECTOR_FORM_DEFINITION_NOT_FOUND": {
+      "title": "Form definition for connector not found",
+      "message": "Form definition for system not found, please choose connector first."
+    },
+    "ACCOUNT_CANNOT_BE_DELETED_IS_PROTECTED": {
+      "title": "Account [{{uid}}] cannot be deleted!",
+      "message": "Account [{{uid}}] cannot be deleted! Is protected!"
     }
   }
 }

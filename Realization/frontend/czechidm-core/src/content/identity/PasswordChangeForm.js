@@ -9,11 +9,15 @@ import * as Basic from '../../components/basic';
 import * as Utils from '../../utils';
 import { IdentityService } from '../../services';
 import { SecurityManager, IdentityManager, ConfigurationManager } from '../../redux';
+import ValidationMessage from './ValidationMessage';
 
 const RESOURCE_IDM = '0:CzechIdM';
 
+const PASSWORD_DOES_NOT_MEET_POLICY = 'PASSWORD_DOES_NOT_MEET_POLICY';
+
 const identityService = new IdentityService();
 const securityManager = new SecurityManager();
+const identityManager = new IdentityManager();
 
 class PasswordChangeForm extends Basic.AbstractContent {
 
@@ -31,13 +35,18 @@ class PasswordChangeForm extends Basic.AbstractContent {
   }
 
   /**
-   * TODO: move to manager
+   * Return true when currently logged user can change password
    *
-   * @return {[type]} [description]
    */
   _canPasswordChange() {
-    const { userContext, entityId, passwordChangeType } = this.props;
-    return IdentityManager.canChangePassword(userContext, entityId, passwordChangeType);
+    const { passwordChangeType, _permissions, userContext } = this.props;
+    //
+    // Check if current logged user is admin
+    if (SecurityManager.isAdmin(userContext)) {
+      return true;
+    }
+    //
+    return identityManager.canChangePassword(passwordChangeType, _permissions);
   }
 
   _initForm() {
@@ -84,9 +93,8 @@ class PasswordChangeForm extends Basic.AbstractContent {
     }, this.refs.form.processStarted());
     //
     const requestData = {
-      identity: entityId,
-      oldPassword: btoa(formData.oldPassword),  // base64
-      newPassword: btoa(formData.newPassword),  // base64
+      oldPassword: formData.oldPassword,
+      newPassword: formData.newPassword,
       accounts: []
     };
     formData.accounts.map(resourceValue => {
@@ -109,7 +117,13 @@ class PasswordChangeForm extends Basic.AbstractContent {
     })
     .then(json => {
       if (Utils.Response.hasError(json)) {
-        throw Utils.Response.getFirstError(json);
+        const error = Utils.Response.getFirstError(json);
+
+        this.setState({
+          validationError: error
+        });
+
+        throw error;
       }
       return json;
     })
@@ -131,46 +145,70 @@ class PasswordChangeForm extends Basic.AbstractContent {
       this.addMessage({
         message: this.i18n('message.success', { accounts, username: entityId })
       });
+      this.setState({
+        validationError: null
+      });
       // new token has to be set to security to prevent user logout
       this.context.store.dispatch(securityManager.reloadToken());
       //
       this.refs.form.processEnded();
 
       // TODO: do we want reset password input after change?
-      this.refs.form.setData({
+      /* this.refs.form.setData({
         accounts: formData.accounts,
         oldPassword: null,
         newPassword: null,
         newPasswordAgain: null
-      });
+      }); */
     })
     .catch(error => {
-      this.addError(error);
+      if (error.statusEnum === PASSWORD_DOES_NOT_MEET_POLICY) {
+        this.addErrorMessage({hidden: true}, error);
+      } else {
+        this.addError(error);
+      }
+
+      this.refs.form.setData({
+        accounts: formData.accounts,
+        oldPassword: formData.oldPassword
+      });
+      this.refs.passwords.setValue(formData.newPassword);
     });
   }
 
   render() {
-    const { passwordChangeType, requireOldPassword, userContext, accountOptions } = this.props;
-    const { preload } = this.state;
+    const { passwordChangeType, userContext, accountOptions, requireOldPasswordConfig, entityId } = this.props;
+    const { preload, validationError } = this.state;
     const allOnlyWarningClassNames = classnames(
       'form-group',
       { 'hidden': passwordChangeType !== IdentityManager.PASSWORD_ALL_ONLY || SecurityManager.isAdmin(userContext) }
     );
-    // TODO: All accounts in enumSelectBox, selectBox isn't ideal component for this.
+    //
+    // if current user is admin, old password is never required
+    let oldPasswordRequired = (entityId === userContext.username) && !SecurityManager.isAdmin(userContext);
+    if (oldPasswordRequired) {
+      oldPasswordRequired = requireOldPasswordConfig;
+    }
+    //
     return (
       <div>
         <Helmet title={this.i18n('title')} />
         <form onSubmit={this.save.bind(this)}>
           <Basic.Row>
-            <Basic.Panel className="col-lg-7 no-border last">
+            <Basic.Panel className="col-lg-7 no-border">
               <Basic.PanelHeader text={this.i18n('header')}/>
 
               <Basic.Loading className="static" showLoading={preload && this._canPasswordChange()}/>
               <Basic.Alert
                 level="warning"
                 icon="exclamation-sign"
-                text={this.i18n('changeType.DISABLED')}
-                rendered={!this._canPasswordChange() && passwordChangeType === IdentityManager.PASSWORD_DISABLED}/>
+                text={ this.i18n('changeType.DISABLED') }
+                rendered={ passwordChangeType === IdentityManager.PASSWORD_DISABLED && !SecurityManager.isAdmin(userContext)}/>
+              <Basic.Alert
+                level="warning"
+                icon="exclamation-sign"
+                text={ this.i18n('permission.failed') }
+                rendered={ !this._canPasswordChange() && passwordChangeType !== IdentityManager.PASSWORD_DISABLED }/>
               {
                 (!this._canPasswordChange() || preload)
                 ||
@@ -178,11 +216,13 @@ class PasswordChangeForm extends Basic.AbstractContent {
                   <Basic.Alert
                     icon="info-sign"
                     text={this.i18n('message.isAdmin')}
-                    rendered={SecurityManager.isAdmin(userContext)}
+                    rendered={ SecurityManager.isAdmin(userContext) }
                     style={{ margin: '15px 0 0 0'}}/>
 
-                  <Basic.AbstractForm ref="form" className="form-horizontal">
-                    <Basic.TextField type="password" ref="oldPassword" label={this.i18n('password.old')} hidden={!requireOldPassword || SecurityManager.isAdmin(userContext)} required={requireOldPassword && !SecurityManager.isAdmin(userContext)}/>
+                  <Basic.AbstractForm ref="form">
+                    <Basic.TextField type="password" ref="oldPassword" label={this.i18n('password.old')}
+                      hidden={!oldPasswordRequired}
+                      required={oldPasswordRequired}/>
 
                     <Advanced.PasswordField className="form-control" ref="passwords" />
 
@@ -195,11 +235,9 @@ class PasswordChangeForm extends Basic.AbstractContent {
                       required
                       disabled={passwordChangeType === IdentityManager.PASSWORD_ALL_ONLY && !SecurityManager.isAdmin(userContext)}/>
 
-                      <div className={allOnlyWarningClassNames}>
-                        <div className="col-sm-offset-3 col-sm-8">
-                          <Basic.Alert key="changeAllOnly" icon="exclamation-sign" text={this.i18n('changeType.ALL_ONLY')} className="last no-margin"/>
-                        </div>
-                      </div>
+                    <div className={allOnlyWarningClassNames}>
+                      <Basic.Alert key="changeAllOnly" icon="exclamation-sign" text={this.i18n('changeType.ALL_ONLY')} className="last no-margin"/>
+                    </div>
                   </Basic.AbstractForm>
                   <Basic.PanelFooter>
                     <Basic.Button
@@ -211,6 +249,9 @@ class PasswordChangeForm extends Basic.AbstractContent {
                 </div>
               }
             </Basic.Panel>
+            <div className="col-lg-5 no-border last">
+              <ValidationMessage error={validationError} />
+            </div>
           </Basic.Row>
         </form>
       </div>
@@ -230,9 +271,11 @@ PasswordChangeForm.defaultProps = {
   userContext: null
 };
 
-function select(state) {
+function select(state, component) {
   return {
-    passwordChangeType: ConfigurationManager.getPublicValue(state, 'idm.pub.core.identity.passwordChange')
+    passwordChangeType: ConfigurationManager.getPublicValue(state, 'idm.pub.core.identity.passwordChange'),
+    requireOldPasswordConfig: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.core.identity.passwordChange.requireOldPassword'),
+    _permissions: identityManager.getPermissions(state, null, component.entityId)
   };
 }
 

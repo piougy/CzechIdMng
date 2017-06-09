@@ -1,9 +1,12 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
+//
 import * as Basic from '../../../components/basic';
+import * as Utils from '../../../utils';
 import { TreeTypeManager } from '../../../redux';
 import TypeDetail from './TypeDetail';
+import TypeConfiguration from './TypeConfiguration';
 
 const treeTypeManager = new TreeTypeManager();
 
@@ -20,10 +23,12 @@ class TypeContent extends Basic.AbstractContent {
     return 'content.tree.types';
   }
 
-  componentDidMount() {
-    this.selectNavigationItem('tree-types');
-    const { entityId } = this.props.params;
+  getNavigationKey() {
+    return 'tree-types';
+  }
 
+  componentDidMount() {
+    const { entityId } = this.props.params;
     if (this._getIsNew()) {
       this.context.store.dispatch(treeTypeManager.receiveEntity(entityId, { }));
     } else {
@@ -57,6 +62,12 @@ class TypeContent extends Basic.AbstractContent {
               <span>{entity.name} <small>{this.i18n('edit')}</small></span>
             }
           </Basic.PageHeader>
+        }
+
+        {
+          (!entity || Utils.Entity.isNew(entity))
+          ||
+          <TypeConfiguration treeTypeId={entity.id}/>
         }
 
         <Basic.Panel>

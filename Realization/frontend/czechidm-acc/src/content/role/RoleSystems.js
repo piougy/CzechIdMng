@@ -1,18 +1,20 @@
 import React, { PropTypes } from 'react';
+import { Link } from 'react-router';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 //
 import { Basic, Advanced, Domain, Managers, Utils } from 'czechidm-core';
-import { RoleSystemManager} from '../../redux';
+import { RoleSystemManager, SystemMappingManager } from '../../redux';
 import SystemEntityTypeEnum from '../../domain/SystemEntityTypeEnum';
 import uuid from 'uuid';
 
 const uiKey = 'role-systems-table';
 const manager = new RoleSystemManager();
 const roleManager = new Managers.RoleManager();
+const systemMappingManager = new SystemMappingManager();
 
 
-class RoleSystems extends Basic.AbstractTableContent {
+class RoleSystems extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);
@@ -63,9 +65,9 @@ class RoleSystems extends Basic.AbstractTableContent {
             uiKey={uiKey}
             manager={this.getManager()}
             forceSearchParameters={forceSearchParameters}
-            showRowSelection={Managers.SecurityManager.hasAnyAuthority(['ROLE_WRITE'])}
+            showRowSelection={Managers.SecurityManager.hasAnyAuthority(['ROLE_UPDATE'])}
             actions={
-              Managers.SecurityManager.hasAnyAuthority(['ROLE_WRITE'])
+              Managers.SecurityManager.hasAnyAuthority(['ROLE_UPDATE'])
               ?
               [{ value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }]
               :
@@ -73,7 +75,7 @@ class RoleSystems extends Basic.AbstractTableContent {
             }
             buttons={
               [
-                <Basic.Button level="success" key="add_button" className="btn-xs" onClick={this.showDetail.bind(this, null, true)} rendered={Managers.SecurityManager.hasAnyAuthority(['ROLE_WRITE'])}>
+                <Basic.Button level="success" key="add_button" className="btn-xs" onClick={this.showDetail.bind(this, null, true)} rendered={Managers.SecurityManager.hasAnyAuthority(['ROLE_UPDATE'])}>
                   <Basic.Icon type="fa" icon="plus"/>
                   {' '}
                   {this.i18n('button.add')}
@@ -93,7 +95,11 @@ class RoleSystems extends Basic.AbstractTableContent {
                   );
                 }
               }/>
-            <Advanced.Column property="systemEntityHandling.entityType" header={this.i18n('acc:entity.RoleSystem.systemEntityHandling')} sort face="enum" enumClass={SystemEntityTypeEnum} />
+            <Advanced.Column
+              property="systemMapping.entityType"
+              header={this.i18n('acc:entity.SystemEntity.entityType')}
+              sort face="enum"
+              enumClass={SystemEntityTypeEnum} />
             <Advanced.ColumnLink
               to="/system/:_target/detail"
               target="system.id"
@@ -101,6 +107,18 @@ class RoleSystems extends Basic.AbstractTableContent {
               property="system.name"
               header={this.i18n('acc:entity.RoleSystem.system')}
               sort/>
+            <Advanced.Column
+              property="systemMapping"
+              header={this.i18n('acc:entity.RoleSystem.systemMapping')}
+              cell={
+                ({ rowIndex, data, property }) => {
+                  const roleSystem = data[rowIndex];
+                  const systemMapping = roleSystem[property];
+                  return (
+                    <Link to={`/system/${roleSystem.system.id}/mappings/${systemMapping.id}/detail`} >{systemMappingManager.getNiceLabel(systemMapping)}</Link>
+                  );
+                }
+              }/>
           </Advanced.Table>
         </Basic.Panel>
       </div>

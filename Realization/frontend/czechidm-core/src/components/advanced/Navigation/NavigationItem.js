@@ -6,6 +6,8 @@ import * as Basic from '../../basic';
 
 /**
  * Single navigation item
+ *
+ * @author Radek Tomiška
  */
 export default class NavigationItem extends Basic.AbstractContextComponent {
 
@@ -34,7 +36,7 @@ export default class NavigationItem extends Basic.AbstractContextComponent {
 
     return (
       <li className={itemClassNames}>
-        <Basic.Tooltip id={`${id}-tooltip`} placement={titlePlacement} value={title} delayShow={200}>
+        <Basic.Tooltip id={`${id}-tooltip`} placement={titlePlacement} value={title}>
           {
             <Link to={to} className={linkClassNames}>
               <Basic.Icon icon={_icon} color={iconColor} showLoading={showLoading}/>
@@ -54,11 +56,16 @@ NavigationItem.propTypes = {
   title: PropTypes.string,
   icon: PropTypes.string,
   active: PropTypes.bool,
-  text: PropTypes.string
+  text: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.node,
+    PropTypes.arrayOf(PropTypes.object)
+  ])
 };
 
 NavigationItem.defaultProps = {
   ...Basic.AbstractComponent.defaultProps,
   active: false,
-  icon: null
+  icon: null,
+  text: null
 };

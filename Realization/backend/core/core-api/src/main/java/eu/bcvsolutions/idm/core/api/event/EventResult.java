@@ -1,15 +1,17 @@
 package eu.bcvsolutions.idm.core.api.event;
 
+import java.io.Serializable;
+
+import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 
 /**
  * Entity event processor result
  * 
+ * @param <E> {@link BaseEntity}, {@link BaseDto} or any other {@link Identifiable} content type
  * @author Radek Tomiška
- *
- * @param <E> {@link BaseEntity} type
  */
-public interface EventResult<E extends BaseEntity> {
+public interface EventResult<E extends Serializable> extends Serializable {
 	
 	/**
 	 * Processed event
@@ -31,4 +33,19 @@ public interface EventResult<E extends BaseEntity> {
 	 * @return
 	 */
 	boolean isClosed();
+	
+	/**
+	 * Event is suspended = no other events will be processed, while event is suspended. 
+	 * Suspended event could be republished again - when will continue when event was suspended.
+	 * 
+	 * @return
+	 */
+	boolean isSuspended();
+	
+	/**
+	 * Returns last processed order
+	 * 
+	 * @return
+	 */
+	int getProcessedOrder();
 }

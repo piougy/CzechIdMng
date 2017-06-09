@@ -10,7 +10,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  * Database constraint - error codes mapping
  * 
  * @author Radek Tomiška
- *
  */
 public enum ConstraintResultCode implements ResultCode {
 	
@@ -31,6 +30,7 @@ public enum ConstraintResultCode implements ResultCode {
 	
 	/**
 	 * We dont want expose implementation details - ignore in json and xml
+     *
 	 * @return
 	 */
 	@XmlTransient

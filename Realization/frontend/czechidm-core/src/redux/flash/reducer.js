@@ -1,5 +1,3 @@
-
-
 import merge from 'object-assign';
 import Immutable from 'immutable';
 import { ADD_MESSAGE, HIDE_MESSAGE, HIDE_ALL_MESSAGES, REMOVE_MESSAGE, REMOVE_ALL_MESSAGES } from './FlashMessagesManager';
@@ -10,6 +8,11 @@ const INITIAL_STATE = {
   messages: new Immutable.OrderedMap({})
 };
 
+/**
+ * Messages storage
+ *
+ * @author Radek Tomiška
+ */
 export function messages(state = INITIAL_STATE, action) {
   switch (action.type) {
     case ADD_MESSAGE: {

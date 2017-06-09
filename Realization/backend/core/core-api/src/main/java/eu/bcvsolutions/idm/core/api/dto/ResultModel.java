@@ -1,31 +1,32 @@
 package eu.bcvsolutions.idm.core.api.dto;
 
-import java.util.Date;
+import java.io.Serializable;
 import java.util.Map;
+import java.util.UUID;
 
+import org.joda.time.DateTime;
 import org.springframework.http.HttpStatus;
 
 /**
  * Universal operation result response
  * 
  * @author Radek Tomiška 
- *
  */
-public interface ResultModel {
+public interface ResultModel extends Serializable {
 
 	/**
 	 * Unique model id
 	 * 
 	 * @return
 	 */
-	String getId();
+	UUID getId();
 	
 	/**
 	 * This model creation date
 	 * 
 	 * @return
 	 */
-	Date getCreation();
+	DateTime getCreation();
 
 	/**
 	 * Internal message

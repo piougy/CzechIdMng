@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
@@ -13,22 +14,22 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
-import eu.bcvsolutions.idm.core.api.dto.IdentityDto;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
+import eu.bcvsolutions.idm.core.api.dto.IdmContractGuaranteeDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleComposition;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
-import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmContractGuaranteeService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeTypeService;
-import eu.bcvsolutions.idm.security.api.domain.GuardedString;
-import eu.bcvsolutions.idm.security.api.domain.IdmJwtAuthentication;
-import eu.bcvsolutions.idm.security.api.service.SecurityService;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
+import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 
 /**
  * Initialize demo data for application
@@ -53,30 +54,25 @@ public class InitTestData implements ApplicationListener<ContextRefreshedEvent> 
 	public static final String TEST_ADMIN_ROLE = InitApplicationData.ADMIN_ROLE;
 	public static final String TEST_USER_ROLE = "testUserRole";
 	public static final String TEST_CUSTOM_ROLE = "testCustomRole";
-
-	@Autowired
-	private InitApplicationData initApplicationData;
 	
+	@Autowired
+	private InitDemoData initDemoData;	
 	@Autowired
 	private IdmIdentityService identityService;
-
 	@Autowired
 	private IdmRoleService roleService;
-
 	@Autowired
-	private IdmTreeNodeService treeNodeService;
-	
+	private IdmTreeNodeService treeNodeService;	
 	@Autowired
 	private IdmTreeTypeService treeTypeService;
-
 	@Autowired
 	private IdmIdentityContractService identityContractService;
-
 	@Autowired
-	private SecurityService securityService;
-	
+	private IdmContractGuaranteeService contractGuaranteeService;
 	@Autowired
-	private IdmConfigurationService configurationService;
+	private SecurityService securityService;	
+	@Autowired
+	private ConfigurationService configurationService;
 
 	@Override
 	public void onApplicationEvent(ContextRefreshedEvent event) {
@@ -84,15 +80,14 @@ public class InitTestData implements ApplicationListener<ContextRefreshedEvent> 
 	}
 	
 	protected void init() {
-		// we need to be ensured admin and and admin role exists.
-		initApplicationData.init();
+		// we are reusing demo data in tests as well
+		initDemoData.init();
 		//
-		// TODO: runAs
-		securityService.setAuthentication(
-				new IdmJwtAuthentication(new IdentityDto("[SYSTEM]"), null, securityService.getAllAvailableAuthorities()));
+		securityService.setSystemAuthentication();
+		//
 		try {
 			IdmRole superAdminRole = this.roleService.getByName(InitApplicationData.ADMIN_ROLE);
-			IdmTreeNode rootOrganization = treeNodeService.findRoots(null, new PageRequest(0, 1)).getContent().get(0);
+			IdmTreeNode rootOrganization = treeNodeService.findRoots((UUID) null, new PageRequest(0, 1)).getContent().get(0);
 			//
 			if (!configurationService.getBooleanValue(PARAMETER_TEST_DATA_CREATED, false)) {
 				log.info("Creating test data ...");		
@@ -108,12 +103,10 @@ public class InitTestData implements ApplicationListener<ContextRefreshedEvent> 
 				subRoles.add(new IdmRoleComposition(role2, superAdminRole));
 				role2.setSubRoles(subRoles);
 				role2 = this.roleService.save(role2);
-				role2.setApproveAddWorkflow("approveRoleByUserTomiska");
 				log.info(MessageFormat.format("Test role created [id: {0}]", role2.getId()));
 				//
-				// TODO: split test and demo data - use flyway?
 				// Users for JUnit testing
-				IdmIdentity testUser1 = new IdmIdentity();
+				IdmIdentityDto testUser1 = new IdmIdentityDto();
 				testUser1.setUsername(TEST_USER_1);
 				testUser1.setPassword(new GuardedString("heslo"));
 				testUser1.setFirstName("Test");
@@ -122,7 +115,7 @@ public class InitTestData implements ApplicationListener<ContextRefreshedEvent> 
 				testUser1 = this.identityService.save(testUser1);
 				log.info(MessageFormat.format("Identity created [id: {0}]", testUser1.getId()));				
 
-				IdmIdentity testUser2 = new IdmIdentity();
+				IdmIdentityDto testUser2 = new IdmIdentityDto();
 				testUser2.setUsername(TEST_USER_2);
 				testUser2.setPassword(new GuardedString("heslo"));
 				testUser2.setFirstName("Test");
@@ -145,11 +138,14 @@ public class InitTestData implements ApplicationListener<ContextRefreshedEvent> 
 				organization.setTreeType(type);
 				this.treeNodeService.save(organization);
 				
-				IdmIdentityContract identityWorkingPosition2 = new IdmIdentityContract();
-				identityWorkingPosition2.setIdentity(testUser1);
-				identityWorkingPosition2.setGuarantee(testUser2);
-				identityWorkingPosition2.setWorkingPosition(organization);
-				identityContractService.save(identityWorkingPosition2);
+				IdmIdentityContractDto identityWorkPosition2 = new IdmIdentityContractDto();
+				identityWorkPosition2.setIdentity(testUser1.getId());
+				identityWorkPosition2.setWorkPosition(organization.getId());
+				identityWorkPosition2 = identityContractService.save(identityWorkPosition2);
+				IdmContractGuaranteeDto contractGuarantee = new IdmContractGuaranteeDto();
+				contractGuarantee.setIdentityContract(identityWorkPosition2.getId());
+				contractGuarantee.setGuarantee(testUser2.getId());
+				contractGuaranteeService.save(contractGuarantee);
 				//
 				log.info("Test data was created.");
 				//

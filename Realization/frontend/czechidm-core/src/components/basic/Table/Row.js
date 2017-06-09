@@ -40,8 +40,18 @@ class Row extends AbstractComponent {
     return 'Vybrat záznamy';
   }
 
+  _showRowSelection({ rowIndex, data, showRowSelection }) {
+    if (typeof showRowSelection === 'function') {
+      return showRowSelection({
+        rowIndex,
+        data
+      });
+    }
+    return showRowSelection;
+  }
+
   render() {
-    const { rowIndex, columns, selected, rowClass } = this.props;
+    const { rowIndex, columns, selected, rowClass, onRowSelect, data } = this.props;
     const cells = new Array(columns.length);
     for (let i = 0, j = columns.length; i < j; i++) {
       const columnProps = columns[i].props;
@@ -51,7 +61,7 @@ class Row extends AbstractComponent {
           rowIndex={rowIndex}
           cell={columnProps.cell}
           property={columnProps.property}
-          data={this.props.data}
+          data={data}
           showLoading={this.props.showLoading}
           width={columnProps.width}
           className={columnProps.className}
@@ -64,7 +74,7 @@ class Row extends AbstractComponent {
     } else if (typeof rowClass === 'function') {
       _rowClass = rowClass({
         rowIndex,
-        data: this.props.data
+        data
       });
     } else {
       _rowClass = rowClass;
@@ -76,14 +86,15 @@ class Row extends AbstractComponent {
         onDoubleClick={this.props.onDoubleClick ? this._onDoubleClick.bind(this) : null}
         className={_rowClass}>
         {
-          !this.props.onRowSelect
+          !onRowSelect
           ||
           <td width="16px" className="bulk-selection">
             <input
               type="checkbox"
               checked={selected}
               onChange={this._onSelect.bind(this)}
-              title={this._getTitle(this.props)}/>
+              title={this._getTitle(this.props)}
+              disabled={!this._showRowSelection(this.props)}/>
           </td>
         }
         {cells}
@@ -112,6 +123,10 @@ Row.propTypes = {
    * Callback that is called when a row is double clicked.
    */
   onDoubleClick: PropTypes.func,
+  /**
+   * Enable row selection - checkbox in first cell
+   */
+  showRowSelection: PropTypes.oneOfType([PropTypes.bool, PropTypes.func]),
   /**
    * Row selection
    */

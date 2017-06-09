@@ -17,19 +17,22 @@ public interface WorkflowProcessInstanceService {
 	public final static String OBJECT_IDENTIFIER = "objectIdentifier";
 	public final static String APPLICANT_USERNAME = "applicantUsername";
 	public final static String APPLICANT_IDENTIFIER = "applicantIdentifier";
+	public final static String ACTIVITI_SKIP_EXPRESSION_ENABLED = "_ACTIVITI_SKIP_EXPRESSION_ENABLED";
+	public final static String PROCESS_INSTANCE_ID = "processInstanceId"; // we need processInstanceId have accessible in subprocess (set in wf start listener)
+	
 	/**
 	 * Implementer is user really start the process (For example implementer is administrator given permission to user)
 	 */
-	public final static String IMPLEMENTER_USERNAME = "implementerUsername";
+	public final static String IMPLEMENTER_IDENTIFIER = "implementerIdentifier";
 	
 	/**
 	 * Start new workflow process. To new process instance will be put variables objectType, objectIdentifier, applicant, implementer
 	 * and add two involved users (applicant and implementer).
 	 * 
 	 * @param definitionKey
-	 * @param objectType
-	 * @param applicant
-	 * @param objectIdentifier
+	 * @param objectType - Mostly type of applicant 
+	 * @param applicant  - User readable applicant name
+	 * @param objectIdentifier - Mostly identifier of applicant
 	 * @param variables
 	 * @return
 	 */
@@ -50,6 +53,15 @@ public interface WorkflowProcessInstanceService {
 	 * @return
 	 */
 	WorkflowProcessInstanceDto delete(String processInstanceId, String deleteReason);
+
+	/**
+	 * Search process instance by ID process instance
+	 * @param processInstanceId
+	 * @return
+	 */
+	WorkflowProcessInstanceDto get(String processInstanceId);
+
+	ResourcesWrapper<WorkflowProcessInstanceDto> searchInternal(WorkflowFilterDto filter, boolean checkRight);
 
 
 }

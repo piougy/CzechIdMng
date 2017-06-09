@@ -6,23 +6,24 @@ import java.util.Map;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 
+import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 
 /**
  * Core event - defines order only for now
- * 
+ * <p>
  * Its better to use {@link Ordered} interface instead {@link Order} annotation - does not work with aspects. 
  * 
+ * @param <E> {@link BaseEntity}, {@link BaseDto} or any other {@link Serializable} content type
  * @author Radek Tomiška
- *
  */
-public class CoreEvent<E extends BaseEntity> extends AbstractEntityEvent<E> {
+public class CoreEvent<E extends Serializable> extends AbstractEntityEvent<E> {
 
 	private static final long serialVersionUID = 8862117134483307569L;
 	public static final int DEFAULT_ORDER = 0;
 	
 	public enum CoreEventType implements EventType {
-		SAVE, DELETE, EAV_SAVE // TODO: split SAVE to UPDATE / CREATE?
+		CREATE, UPDATE, DELETE, EAV_SAVE
 	}
 	
 	public CoreEvent(EventType type, E content) {
@@ -31,5 +32,9 @@ public class CoreEvent<E extends BaseEntity> extends AbstractEntityEvent<E> {
 	
 	public CoreEvent(EventType type, E content, Map<String, Serializable> properties) {
 		super(type, content, properties);
+	}
+	
+	public CoreEvent(EventType type, E content, Map<String, Serializable> properties, EventContext<E> context) {
+		super(type, content, properties, context);
 	}
 }

@@ -4,10 +4,12 @@ import java.util.Collection;
 
 /**
  * Wrap object only for add embedded attribute over list of resources
- * @author svandav
  *
  * @param <T>
+ * @author svandav
+ * @deprecated use Resource or Resources from spring instead
  */
+@Deprecated
 public class EmbeddedsWrapper<T> {
 
 	private final Collection<T> resources;

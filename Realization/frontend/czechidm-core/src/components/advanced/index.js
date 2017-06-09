@@ -10,7 +10,22 @@ import Tree from './Tree/Tree';
 import DetailButton from './Table/DetailButton';
 import ModalProgressBar from './ModalProgressBar/ModalProgressBar';
 import EavForm from './Form/EavForm';
+import EavContent from './Form/EavContent';
 import PasswordField from './PasswordField/PasswordField';
+import ProgressBar from './ProgressBar/ProgressBar';
+import RichTextArea from './RichTextArea/RichTextArea';
+import AbstractTableContent from './Content/AbstractTableContent';
+import EntityInfo from './EntityInfo/EntityInfo';
+import AbstractEntityInfo from './EntityInfo/AbstractEntityInfo';
+import UuidInfo from './UuidInfo/UuidInfo';
+import RoleInfo from './RoleInfo/RoleInfo';
+import RoleCatalogueInfo from './RoleCatalogueInfo/RoleCatalogueInfo';
+import IdentityContractInfo from './IdentityContractInfo/IdentityContractInfo';
+import WorkflowProcessInfo from './WorkflowProcessInfo/WorkflowProcessInfo';
+import NotificationTemplateInfo from './NotificationTemplateInfo/NotificationTemplateInfo';
+import ScriptArea from './ScriptArea/ScriptArea';
+import RoleSelect from './RoleSelect/RoleSelect';
+import Recaptcha from './Recaptcha/Recaptcha';
 
 const Components = {
   Table,
@@ -23,11 +38,26 @@ const Components = {
   _ToogleButton: Filter.ToogleButton,
   _FilterButtons: Filter.FilterButtons,
   DateValue,
+  ProgressBar,
   ModalProgressBar,
   Tree,
   DetailButton,
   EavForm,
-  PasswordField
+  EavContent,
+  PasswordField,
+  RichTextArea,
+  AbstractTableContent,
+  EntityInfo,
+  AbstractEntityInfo,
+  UuidInfo,
+  RoleInfo,
+  RoleCatalogueInfo,
+  IdentityContractInfo,
+  WorkflowProcessInfo,
+  NotificationTemplateInfo,
+  ScriptArea,
+  RoleSelect,
+  Recaptcha
 };
 
 Components.version = '0.0.1';

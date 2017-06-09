@@ -9,6 +9,8 @@ export const TYPE_FONT_AWESOME = 'fa'; // https://fortawesome.github.io/Font-Awe
 
 /**
  * Icon
+ *
+ * @author Radek Tomiška
  */
 class Icon extends AbstractComponent {
 

@@ -31,7 +31,7 @@ export default class SystemOperationTypeEnum extends Enums.AbstractEnum {
       case this.RECONCILIACE: {
         return 'primary';
       }
-      case this.SYNCHRONISATION: {
+      case this.SYNCHRONIZATION: {
         return 'warning';
       }
       default: {
@@ -43,4 +43,4 @@ export default class SystemOperationTypeEnum extends Enums.AbstractEnum {
 
 SystemOperationTypeEnum.PROVISIONING = Symbol('PROVISIONING');
 // SystemOperationTypeEnum.RECONCILIACE = Symbol('RECONCILIACE');
-SystemOperationTypeEnum.SYNCHRONISATION = Symbol('SYNCHRONISATION');
+SystemOperationTypeEnum.SYNCHRONIZATION = Symbol('SYNCHRONIZATION');

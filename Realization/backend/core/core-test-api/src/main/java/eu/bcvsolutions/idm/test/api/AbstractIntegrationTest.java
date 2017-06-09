@@ -16,12 +16,12 @@ import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import eu.bcvsolutions.idm.IdmApplication;
-import eu.bcvsolutions.idm.core.api.dto.IdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
+import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
-import eu.bcvsolutions.idm.security.api.domain.IdmJwtAuthentication;
-import eu.bcvsolutions.idm.security.api.service.SecurityService;
+import eu.bcvsolutions.idm.test.api.utils.AuthenticationTestUtils;
 
 /**
  * Test rest services will be based on spring integration tests with MockMvc / hamcrest and junit test framework
@@ -41,9 +41,6 @@ import eu.bcvsolutions.idm.security.api.service.SecurityService;
 public abstract class AbstractIntegrationTest {
 	
 	@Autowired
-	private SecurityService securityService;
-	
-	@Autowired
 	private PlatformTransactionManager platformTransactionManager;
 	private TransactionTemplate template;
 	
@@ -52,7 +49,7 @@ public abstract class AbstractIntegrationTest {
 	 * @param username
 	 */
 	public void loginAsAdmin(String username) {
-		SecurityContextHolder.getContext().setAuthentication(new IdmJwtAuthentication(new IdentityDto(username), null, securityService.getAllAvailableAuthorities()));
+		SecurityContextHolder.getContext().setAuthentication(AuthenticationTestUtils.getSystemAuthentication(username));
 	}
 	
 	/**
@@ -84,6 +81,14 @@ public abstract class AbstractIntegrationTest {
 	 * @return
 	 */
 	protected <T extends BaseEntity> T saveInTransaction(final T object, final ReadWriteEntityService<T, ?> service) {
+		return getTransactionTemplate().execute(new TransactionCallback<T>() {
+			public T doInTransaction(TransactionStatus transactionStatus) {
+				return service.save(object);
+			}
+		});
+	}
+	
+	protected <T extends BaseDto> T saveInTransaction(final T object, final ReadWriteDtoService<T, ?> service) {
 		return getTransactionTemplate().execute(new TransactionCallback<T>() {
 			public T doInTransaction(TransactionStatus transactionStatus) {
 				return service.save(object);

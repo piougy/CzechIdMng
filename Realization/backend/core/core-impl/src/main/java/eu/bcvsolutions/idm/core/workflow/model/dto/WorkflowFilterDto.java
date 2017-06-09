@@ -5,7 +5,9 @@ import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-public class WorkflowFilterDto {
+import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
+
+public class WorkflowFilterDto extends QuickFilter {
 	
 	public static final String ORDER_ASC = "asc";
 	public static final String ORDER_DESC = "desc";
@@ -22,7 +24,6 @@ public class WorkflowFilterDto {
 	private String processInstanceId;
 	private String superProcessInstanceId;
 	private String name;
-	private String id;
 	private String category;
 
 	public WorkflowFilterDto(int defaultPageSize) {
@@ -115,14 +116,6 @@ public class WorkflowFilterDto {
 		this.name = name;
 	}
 
-	public String getId() {
-		return id;
-	}
-
-	public void setId(String id) {
-		this.id = id;
-	}
-
 	public String getSuperProcessInstanceId() {
 		return superProcessInstanceId;
 	}
@@ -151,10 +144,10 @@ public class WorkflowFilterDto {
 		if(sorts != null && sorts.length > 1){
 			this.setSortByFields(sorts[0]);
 			String order = sorts[sorts.length-1];
-			if(order.equals(WorkflowFilterDto.ORDER_ASC)){
+			if(WorkflowFilterDto.ORDER_ASC.equals(order)){
 				this.setSortAsc(true);
 			}
-			if(order.equals(WorkflowFilterDto.ORDER_DESC)){
+			if(WorkflowFilterDto.ORDER_DESC.equals(order)){
 				this.setSortDesc(true);
 			}
 		}

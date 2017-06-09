@@ -100,13 +100,12 @@ export class TypeTable extends Basic.AbstractContent {
             rowClass={({rowIndex, data}) => { return data[rowIndex].disabled ? 'disabled' : ''; }}
             filter={
               <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
-                <Basic.AbstractForm ref="filterForm" className="form-horizontal">
+                <Basic.AbstractForm ref="filterForm">
                   <Basic.Row className="last">
                     <div className="col-lg-6">
                       <Advanced.Filter.TextField
                         ref="text"
-                        placeholder={this.i18n('entity.TreeType.code') + ' / ' + this.i18n('entity.TreeType.name')}
-                        label={this.i18n('entity.TreeType.code') + ' / ' + this.i18n('entity.TreeType.name')}/>
+                        placeholder={this.i18n('entity.TreeType.code') + ' / ' + this.i18n('entity.TreeType.name')}/>
                     </div>
                     <div className="col-lg-6 text-right">
                       <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
@@ -123,7 +122,7 @@ export class TypeTable extends Basic.AbstractContent {
             }
             buttons={
               [
-                <Basic.Button level="success" key="add_button" className="btn-xs" onClick={this.showDetail.bind(this, {})} rendered={SecurityManager.hasAuthority('TREETYPE_WRITE')}>
+                <Basic.Button level="success" key="add_button" className="btn-xs" onClick={this.showDetail.bind(this, {})} rendered={SecurityManager.hasAuthority('TREETYPE_CREATE')}>
                   <Basic.Icon type="fa" icon="plus"/>
                   {' '}
                   {this.i18n('button.add')}
@@ -143,8 +142,10 @@ export class TypeTable extends Basic.AbstractContent {
                 }
               }
               sort={false}/>
-            <Advanced.Column property="code" sort width="125px"/>
+            <Advanced.Column property="code" sort width={125}/>
             <Advanced.Column property="name" sort/>
+            <Advanced.Column property="defaultTreeType" header={this.i18n('entity.TreeType.defaultTreeType.label')} sort width={100} face="bool"/>
+            <Advanced.Column property="defaultTreeNode.name" header={this.i18n('entity.TreeType.defaultTreeNode.label')} width={200}/>
           </Advanced.Table>
         </div>
       </Basic.Row>

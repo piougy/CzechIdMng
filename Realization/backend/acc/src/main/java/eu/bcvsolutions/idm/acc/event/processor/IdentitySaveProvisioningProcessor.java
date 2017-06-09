@@ -2,19 +2,23 @@ package eu.bcvsolutions.idm.acc.event.processor;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.event.ProvisioningEvent;
-import eu.bcvsolutions.idm.acc.service.api.SysProvisioningService;
+import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.security.api.domain.Enabled;
+import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
+import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
+import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 
 /**
  * Run provisioning after identity was saved.
@@ -22,31 +26,41 @@ import eu.bcvsolutions.idm.security.api.domain.Enabled;
  * @author Radek Tomiška
  *
  */
-@Component
+@Component("accIdentitySaveProcessor")
 @Enabled(AccModuleDescriptor.MODULE_ID)
-public class IdentitySaveProvisioningProcessor extends AbstractEntityEventProcessor<IdmIdentity> {
+@Description("Executes provisioing after identity is saved.")
+public class IdentitySaveProvisioningProcessor extends AbstractEntityEventProcessor<IdmIdentityDto> {
 
+	public static final String PROCESSOR_NAME = "identity-save-processor";
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdentitySaveProvisioningProcessor.class);
-	private SysProvisioningService provisioningService;
+	private ProvisioningService provisioningService;
+	private final IdmIdentityRepository identityRepository;
 	private final ApplicationContext applicationContext;
 	
 	@Autowired
-	public IdentitySaveProvisioningProcessor(ApplicationContext applicationContext) {
-		super(CoreEventType.SAVE, CoreEventType.EAV_SAVE);
+	public IdentitySaveProvisioningProcessor(ApplicationContext applicationContext, IdmIdentityRepository identityRepository) {
+		super(IdentityEventType.CREATE, IdentityEventType.UPDATE, CoreEventType.EAV_SAVE);
 		//
 		Assert.notNull(applicationContext);
+		Assert.notNull(identityRepository);
 		//
 		this.applicationContext = applicationContext;
+		this.identityRepository = identityRepository;
+	}
+	
+	@Override
+	public String getName() {
+		return PROCESSOR_NAME;
 	}
 
 	@Override
-	public EventResult<IdmIdentity> process(EntityEvent<IdmIdentity> event) {
-		doProvisioning(event.getContent());
+	public EventResult<IdmIdentityDto> process(EntityEvent<IdmIdentityDto> event) {
+		doProvisioning(identityRepository.findOne(event.getContent().getId()));
 		return new DefaultEventResult<>(event, this);
 	}
 	
 	private void doProvisioning(IdmIdentity identity) {
-		LOG.debug("Call provisioning for idnetity [{}]", identity.getUsername());
+		LOG.debug("Call provisioning for identity [{}]", identity.getUsername());
 		getProvisioningService().doProvisioning(identity);
 	}
 	
@@ -60,9 +74,9 @@ public class IdentitySaveProvisioningProcessor extends AbstractEntityEventProces
 	 * 
 	 * @return
 	 */
-	private SysProvisioningService getProvisioningService() {
+	private ProvisioningService getProvisioningService() {
 		if (provisioningService == null) {
-			provisioningService = applicationContext.getBean(SysProvisioningService.class);
+			provisioningService = applicationContext.getBean(ProvisioningService.class);
 		}
 		return provisioningService;
 	}

@@ -11,7 +11,42 @@
 
 .tab-horizontal {
   .nav.nav-tabs {
-    // nothing now
+  }
+
+  .nav-tabs > li {
+    margin-top: 3px;
+  }
+
+  .nav-tabs > li.active {
+    margin-top: 0px;
+  }
+
+  .nav-tabs > li > a {
+    border-top-style: solid;
+    border-top-width: 0px;
+    border-top-color: transparent;
+    color: @idm-nav-color;
+    border-radius: 0;
+    padding: 7px 15px 10px 15px;
+    outline: 0;
+
+    &:hover, &:active, &:focus {
+      outline: 0;
+    }
+
+    .glyphicon {
+      margin-right: 3px;
+    }
+
+    .fa {
+      margin-right: 3px;
+    }
+  }
+
+  .nav-tabs > li.active > a {
+    color: @panel-default-text;
+    border-top-width: 3px;
+    border-top-color: @idm-base-color;
   }
 
   .tab-pane {
@@ -20,6 +55,40 @@
     border-right: @idm-border-color 1px solid;
     border-bottom: @idm-border-color 1px solid;
     border-radius: 0 0 4px 4px;
+
+    > .basic-table > .alert,
+    > div > .basic-table > .alert,
+    > .advanced-table > div > .basic-table > .alert,
+    > div > .advanced-table > div > .basic-table > .alert,
+    > div > div > .advanced-table > div > .basic-table > .alert {
+      margin: 15px;
+    }
+
+    .tab-pane-panel-body {
+      padding: 15px;
+    }
+
+    .tab-pane-table-body {
+      padding: 0px;
+
+      >.content-header {
+        h2 {
+          margin: 0 15px;
+        }
+      }
+    }
+
+    .tab-pane-text-body {
+      padding: 0px 15px;
+    }
+  }
+
+  &.tab-embedded {
+
+    .nav.nav-tabs {
+      padding-top: 5px;
+      padding-left: 15px;
+    }
   }
 }
 
@@ -30,7 +99,7 @@
   .nav.nav-pills {
     padding: 15px 0;
     //border-right: @idm-border-color 1px solid;
-    min-height: 420px;
+    // min-height: 520px;
 
     .li {
       margin-left: 15px;
@@ -43,6 +112,11 @@
     border-left-color: transparent;
     color: @idm-nav-color;
     padding: 9px 10px;
+    outline: 0;
+
+    &:hover, &:active, &:focus {
+      outline: 0;
+    }
 
     .glyphicon {
       top: 0px;
@@ -73,7 +147,7 @@
   }
 
   .tab-content {
-    min-height: 350px; // TODO: make this dynamic by tabs count
+    // min-height: 400px; // TODO: make this dynamic by tabs count
     background-color: @panel-bg;
   }
 }
@@ -81,18 +155,35 @@
 .panel {
   .tab-horizontal {
 
+    margin-bottom: 15px;
+
     .nav.nav-tabs {
-      padding-top: 15px;
+      // padding-top: 15px;
       background-color: @idm-form-bg;
     }
 
     .tab-pane {
       background-color: transparent;
-      border: none;
+
+      &.no-border {
+        border: none;
+        margin-bottom: 0;
+      }
+
+      .panel {
+        &.no-border {
+          margin-bottom: 0;
+
+          .panel-footer {
+            padding-left: 15px;
+            padding-right: 15px;
+          }
+        }
+      }
     }
 
     .nav.nav-tabs {
-      padding-left: 15px;
+      // padding-left: 15px;
     }
   }
 }

@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteEntityController;
-import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
 
 /**
@@ -28,20 +28,19 @@ import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
  * @author Radek Tomiška
  *
  * @param <E> controlled {@link BaseEntity} type.
+ * @deprecated use {@link DefaultReadWriteDtoController}
  */
+@Deprecated
 public abstract class DefaultReadWriteEntityController<E extends BaseEntity, F extends BaseFilter> extends AbstractReadWriteEntityController<E, F> {
 	
-	public DefaultReadWriteEntityController(EntityLookupService entityLookupService) {
+	public DefaultReadWriteEntityController(LookupService entityLookupService) {
 		super(entityLookupService);
 	}
 	
-	public DefaultReadWriteEntityController(EntityLookupService entityLookupService, ReadWriteEntityService<E, F> entityService) {
+	public DefaultReadWriteEntityController(LookupService entityLookupService, ReadWriteEntityService<E, F> entityService) {
 		super(entityLookupService, entityService);
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.GET)
@@ -56,7 +55,7 @@ public abstract class DefaultReadWriteEntityController<E extends BaseEntity, F e
 	 * 
 	 * @param parameters
 	 * @param pageable
-	 * @param assembler
+	 * @param assembler	
 	 * @return
 	 */
 	@ResponseBody
@@ -67,9 +66,14 @@ public abstract class DefaultReadWriteEntityController<E extends BaseEntity, F e
 		return super.find(parameters, pageable, assembler);
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
+	@ResponseBody
+	@RequestMapping(value= "/search/autocomplete", method = RequestMethod.GET)
+	public Resources<?> autocomplete(@RequestParam MultiValueMap<String, Object> parameters, 
+			@PageableDefault Pageable pageable, 			
+			PersistentEntityResourceAssembler assembler) {
+		return super.autocomplete(parameters, pageable, assembler);
+	}
+	
 	@Override
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.GET)
@@ -77,32 +81,23 @@ public abstract class DefaultReadWriteEntityController<E extends BaseEntity, F e
 		return super.get(backendId, assembler);
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.POST)
-	public ResponseEntity<?> create(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
-		return super.create(nativeRequest, assembler);
+	public ResponseEntity<?> post(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
+		return super.post(nativeRequest, assembler);
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.PUT)
-	public ResponseEntity<?> update(
+	public ResponseEntity<?> put(
 			@PathVariable @NotNull String backendId,
 			HttpServletRequest nativeRequest,
 			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
-		return super.update(backendId, nativeRequest, assembler);
+		return super.put(backendId, nativeRequest, assembler);
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.PATCH)
@@ -111,9 +106,6 @@ public abstract class DefaultReadWriteEntityController<E extends BaseEntity, F e
 		return super.patch(backendId, nativeRequest, assembler);
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.DELETE)

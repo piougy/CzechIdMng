@@ -82,5 +82,6 @@ BasicTooltip.propTypes = {
 BasicTooltip.defaultProps = {
   ...AbstractComponent.defaultProps,
   placement: 'bottom',
-  trigger: ['hover', 'focus']
+  trigger: ['hover', 'focus'],
+  delayShow: 1000
 };

@@ -4,6 +4,8 @@ import Immutable from 'immutable';
 /**
  * Immutable search representation - filter, sort, pageable.
  * Every modify operation returns new cloned SearchParameters with new values
+ *
+ * @author Radek Tomiška
  */
 export default class SearchParameters {
 
@@ -159,6 +161,11 @@ export default class SearchParameters {
     return newState;
   }
 
+  /**
+   * Sets filters - immutable map is needed
+   *
+   * @param {Immutable.Map} filters
+   */
   setFilters(filters) {
     const newState = this._clone();
     if (!filters) {
@@ -200,6 +207,12 @@ export default class SearchParameters {
     return newState;
   }
 
+  /**
+   * Converts from json
+   *
+   * @param  {object} json
+   * @return {SearchParameters}
+   */
   static fromJS(json) {
     if (!json) {
       return new SearchParameters();
@@ -208,6 +221,11 @@ export default class SearchParameters {
     throw new Error('unsupported operation');
   }
 
+  /**
+   * Converts to json
+   *
+   * @return {object}
+   */
   toJs() {
     // TODO: convert to json
     throw new Error('unsupported operation');
@@ -275,10 +293,20 @@ export default class SearchParameters {
  */
 SearchParameters.NAME_QUICK = 'quick';
 /**
+ * Search name for autocomplete (select box etc.)
+ * @type {String}
+ */
+SearchParameters.NAME_AUTOCOMPLETE = 'autocomplete';
+/**
  * Default page size
  * @type {Number}
  */
 SearchParameters.DEFAUT_SIZE = 10;
+/**
+ * Maximum page size
+ * @type {Number}
+ */
+SearchParameters.MAX_SIZE = 500;
 /**
  * Blank UUID. Can be use for sitiuations when we don't have ID for some entity, but we need use some "default" value.
  * @type {String}

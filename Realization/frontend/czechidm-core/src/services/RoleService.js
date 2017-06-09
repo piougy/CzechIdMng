@@ -1,11 +1,14 @@
-
-
-import AbstractService from './AbstractService';
+import FormableEntityService from './FormableEntityService';
 import RestApiService from './RestApiService';
 import SearchParameters from '../domain/SearchParameters';
 import * as Utils from '../utils';
 
-class RoleService extends AbstractService {
+/**
+ * Role's endpoint
+ *
+ * @author Radek Tomiška
+ */
+export default class RoleService extends FormableEntityService {
 
   getApiPath() {
     return '/roles';
@@ -16,6 +19,14 @@ class RoleService extends AbstractService {
       return '';
     }
     return role.name;
+  }
+
+  supportsAuthorization() {
+    return true;
+  }
+
+  getGroupPermission() {
+    return 'ROLE';
   }
 
   /**
@@ -41,5 +52,3 @@ class RoleService extends AbstractService {
     });
   }
 }
-
-export default RoleService;

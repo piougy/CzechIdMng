@@ -3,9 +3,14 @@ import _ from 'lodash';
 import Joi from 'joi';
 //
 import * as Basic from '../../basic';
+import RichTextArea from '../RichTextArea/RichTextArea';
 
 /**
  * Content of eav form by given form instance (= form definition + form values)
+ *
+ * TODO: component for persistent type registration (remove 'switch' clausule)
+ *
+ * @author Radek Tomiška
  */
 export default class EavForm extends Basic.AbstractContextComponent {
 
@@ -27,7 +32,7 @@ export default class EavForm extends Basic.AbstractContextComponent {
     const { formInstance } = this.props;
     let isAllValid = true;
     formInstance.getAttributes().forEach(attribute => {
-      const formComponent = this.refs[attribute.name];
+      const formComponent = this.refs[attribute.code];
       if (!formComponent) {
         // unsupported persistentType
         return true;
@@ -68,7 +73,7 @@ export default class EavForm extends Basic.AbstractContextComponent {
     const filledFormValues = [];
     //
     formInstance.getAttributes().forEach(attribute => {
-      const formComponent = this.refs[attribute.name];
+      const formComponent = this.refs[attribute.code];
       if (!formComponent) {
         // unsupported persistentType
         return true;
@@ -80,7 +85,7 @@ export default class EavForm extends Basic.AbstractContextComponent {
       }
       //
       if (attribute.multiple) {
-        const formValues = formInstance.getValues(attribute.name) || [];
+        const formValues = formInstance.getValues(attribute.code) || [];
         // split multilines text = multi values
         if (componentValue) {
           const textValues = componentValue.split('\n');
@@ -94,7 +99,7 @@ export default class EavForm extends Basic.AbstractContextComponent {
         }
       } else {
         // single value
-        filledFormValues.push(this._fillFormValue(formInstance, attribute, formInstance.getSingleValue(attribute.name), componentValue));
+        filledFormValues.push(this._fillFormValue(formInstance, attribute, formInstance.getSingleValue(attribute.code), componentValue));
       }
     });
     return filledFormValues;
@@ -112,7 +117,7 @@ export default class EavForm extends Basic.AbstractContextComponent {
   _fillFormValue(formInstance, attribute, formValue, rawValue, seq = 0) {
     if (formValue === null) {
       formValue = {
-        formAttribute: formInstance.getAttributeLink(attribute.name)
+        formAttribute: formInstance.getAttributeLink(attribute.code)
       };
     }
     formValue.seq = seq;
@@ -142,6 +147,10 @@ export default class EavForm extends Basic.AbstractContextComponent {
       case 'DATE':
       case 'DATETIME': {
         formValue.dateValue = rawValue;
+        break;
+      }
+      case 'BYTEARRAY': {
+        formValue.byteValue = rawValue;
         break;
       }
       default: {
@@ -207,6 +216,9 @@ export default class EavForm extends Basic.AbstractContextComponent {
       case 'DATETIME': {
         return formValue.dateValue;
       }
+      case 'BYTEARRAY': {
+        return formValue.byteValue;
+      }
       default: {
         this.getLogger().warn(`[EavForm]: Persistent type [${attribute.persistentType}] is not supported and not be filled and send to BE!`);
       }
@@ -238,6 +250,7 @@ export default class EavForm extends Basic.AbstractContextComponent {
         return validation;
       }
       case 'RICHTEXTAREA': {
+        // required is on form component directly
         return null;
       }
       case 'INT': {
@@ -263,6 +276,11 @@ export default class EavForm extends Basic.AbstractContextComponent {
         return validation;
       }
       case 'BOOLEAN': {
+        // required is on form component directly
+        return null;
+      }
+      case 'BYTEARRAY': {
+        // required is on form component directly
         return null;
       }
       default: {
@@ -273,7 +291,7 @@ export default class EavForm extends Basic.AbstractContextComponent {
 
 
   render() {
-    const { formInstance, rendered, showLoading } = this.props;
+    const { formInstance, rendered, showLoading, readOnly } = this.props;
     //
     if (!rendered || !formInstance) {
       return null;
@@ -284,12 +302,17 @@ export default class EavForm extends Basic.AbstractContextComponent {
         <Basic.Loading isStatic showLoading/>
       );
     }
+    if (formInstance.getAttributes().size === 0) {
+      return (
+        <Basic.Alert level="info" text={ this.i18n('attributes.empty') } className="no-margin"/>
+      );
+    }
 
     return (
       <span>
         {
           formInstance.getAttributes().map(attribute => {
-            const formValues = formInstance.getValues(attribute.name);
+            const formValues = formInstance.getValues(attribute.code);
             //
             if (attribute.multiple) {
               // unsupported variant
@@ -297,35 +320,37 @@ export default class EavForm extends Basic.AbstractContextComponent {
                 || attribute.persistentType === 'BOOLEAN'
                 || attribute.persistentType === 'DATE'
                 || attribute.persistentType === 'DATETIME'
-                || attribute.persistentType === 'RICHTEXTAREA') {
+                || attribute.persistentType === 'RICHTEXTAREA'
+                || attribute.persistentType === 'BYTEARRAY') {
                 return (
-                  <Basic.LabelWrapper label={attribute.displayName} >
+                  <Basic.LabelWrapper label={attribute.code} >
                     <Basic.Alert level="warning" className="no-margin">
                       <div>{ this.i18n('multiple.unsupported.title', { name: attribute.persistentType }) }</div>
                       <div>{ this.i18n('multiple.unsupported.formDefinition.title') }:</div>
                       <div style={{ wordWrap: 'break-word' }}>{ this.i18n('multiple.unsupported.formDefinition.type') }: {formInstance.getDefinition().type}</div>
-                      <div style={{ wordWrap: 'break-word' }}>{ this.i18n('multiple.unsupported.formDefinition.name') }: {formInstance.getDefinition().name}</div>
+                      <div style={{ wordWrap: 'break-word' }}>{ this.i18n('multiple.unsupported.formDefinition.code') }: {formInstance.getDefinition().code}</div>
                     </Basic.Alert>
                   </Basic.LabelWrapper>
                 );
               }
               // multi values are presented as multi lines string
-              // TODO: use SelectBox component instead
+              // TODO: use SelectBox component instead?
               return (
                 <Basic.TextArea
-                  ref={attribute.name}
+                  ref={attribute.code}
                   type={attribute.confidential ? 'password' : 'text'}
                   required={attribute.required}
                   label={
                     <span>
-                      { attribute.displayName }
+                      { attribute.name }
                       {' '}
                       <Basic.Tooltip placement="bottom" value={ this.i18n('multiple.title') }>{<small>({this.i18n('multiple.label')})</small>}</Basic.Tooltip>
                     </span>
                   }
                   value={this._toInputValue(attribute, formValues)}
                   helpBlock={attribute.description ? attribute.description : this.i18n('multiple.title')}
-                  readOnly={attribute.readonly}/>
+                  readOnly={readOnly || attribute.readonly}
+                  placeholder={attribute.placeholder}/>
               );
             }
             //
@@ -335,15 +360,17 @@ export default class EavForm extends Basic.AbstractContextComponent {
               || attribute.persistentType === 'INT'
               || attribute.persistentType === 'LONG'
               || attribute.persistentType === 'DOUBLE'
-              || attribute.persistentType === 'CURRENCY') {
+              || attribute.persistentType === 'CURRENCY'
+              || (attribute.confidential && (attribute.persistentType === 'TEXTAREA' || attribute.persistentType === 'BYTEARRAY'))) { // TODO: confidential TEXTAREA and BYTEARRAY is represented as textfield now - implement confidential to Basic.TextArea
               return (
                 <Basic.TextField
-                  ref={attribute.name}
+                  ref={attribute.code}
                   type={attribute.confidential ? 'password' : 'text'}
-                  label={attribute.displayName}
+                  label={attribute.name}
+                  placeholder={attribute.placeholder}
                   value={this._toInputValue(attribute, formValues)}
                   helpBlock={attribute.description}
-                  readOnly={attribute.readonly}
+                  readOnly={readOnly || attribute.readonly}
                   validation={this._getInputValidation(attribute)}
                   required={attribute.required}
                   confidential={attribute.confidential}/>
@@ -351,7 +378,7 @@ export default class EavForm extends Basic.AbstractContextComponent {
             } else if (attribute.confidential) {
               // other persistent type does not support confidential for now
               return (
-                <Basic.LabelWrapper label={attribute.displayName}>
+                <Basic.LabelWrapper label={attribute.name}>
                   <Basic.Alert level="warning" text={ this.i18n('persistentType.unsupported.confidential', { name: attribute.persistentType}) } className="no-margin"/>
                 </Basic.LabelWrapper>
               );
@@ -361,24 +388,26 @@ export default class EavForm extends Basic.AbstractContextComponent {
               || attribute.persistentType === 'DATETIME') {
               return (
                 <Basic.DateTimePicker
-                  ref={attribute.name}
+                  ref={attribute.code}
                   mode={attribute.persistentType.toLowerCase()}
                   required={attribute.required}
-                  label={attribute.displayName}
+                  label={attribute.name}
+                  placeholder={attribute.placeholder}
                   value={this._toInputValue(attribute, formValues)}
                   helpBlock={attribute.description}
-                  readOnly={attribute.readonly}/>
+                  readOnly={readOnly || attribute.readonly}/>
               );
             }
             // textarea field
-            if (attribute.persistentType === 'TEXTAREA') {
+            if (attribute.persistentType === 'TEXTAREA' || attribute.persistentType === 'BYTEARRAY') {
               return (
                 <Basic.TextArea
-                  ref={attribute.name}
-                  label={attribute.displayName}
+                  ref={attribute.code}
+                  label={attribute.name}
                   value={this._toInputValue(attribute, formValues)}
+                  placeholder={attribute.placeholder}
                   helpBlock={attribute.description}
-                  readOnly={attribute.readonly}
+                  readOnly={readOnly || attribute.readonly}
                   validation={this._getInputValidation(attribute)}
                   required={attribute.required}/>
               );
@@ -386,29 +415,30 @@ export default class EavForm extends Basic.AbstractContextComponent {
             // richtextarea
             if (attribute.persistentType === 'RICHTEXTAREA') {
               return (
-                <Basic.RichTextArea
-                  ref={attribute.name}
-                  label={attribute.displayName}
+                <RichTextArea
+                  ref={attribute.code}
+                  label={attribute.name}
                   value={this._toInputValue(attribute, formValues)}
                   helpBlock={attribute.description}
-                  readOnly={attribute.readonly}
-                  required={attribute.required}/>
+                  readOnly={readOnly || attribute.readonly}
+                  required={attribute.required}
+                  placeholder={attribute.placeholder}/>
               );
             }
             // boolean field - boolean can not be multiple
             if (attribute.persistentType === 'BOOLEAN') {
               return (
                 <Basic.Checkbox
-                  ref={attribute.name}
-                  label={attribute.displayName}
+                  ref={attribute.code}
+                  label={attribute.name}
                   value={formValues ? this._toInputValue(attribute, formValues) : (attribute.defaultValue === 'true')}
                   helpBlock={attribute.description}
-                  readOnly={attribute.readonly}
+                  readOnly={readOnly || attribute.readonly}
                   required={attribute.required}/>
               );
             }
             return (
-              <Basic.LabelWrapper label={attribute.displayName}>
+              <Basic.LabelWrapper label={attribute.name}>
                 <Basic.Alert level="warning" text={ this.i18n('persistentType.unsupported.title', { name: attribute.persistentType}) } className="no-margin"/>
               </Basic.LabelWrapper>
             );
@@ -424,9 +454,11 @@ EavForm.propTypes = {
   /**
    * FormInstance (definition + values)
    */
-  formInstance: PropTypes.object
+  formInstance: PropTypes.object,
+  readOnly: PropTypes.bool
 };
 EavForm.defaultProps = {
   ...Basic.AbstractContextComponent.defaultProps,
-  formInstance: null
+  formInstance: null,
+  readOnly: false
 };

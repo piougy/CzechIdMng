@@ -1,9 +1,38 @@
+import _ from 'lodash';
 import i18next from 'i18next';
 import XHR from 'i18next-xhr-backend';
 import LanguageDetector from 'i18next-browser-languagedetector';
 import Cache from 'i18next-localstorage-cache';
+require('moment/locale/cs');
 
 let i18nextInstance = null;
+// TODO: move to configuration
+const SUPPORTED_LANGUAGES = ['cs', 'en'];
+
+// original lookup - window.location.search.substring(1) - does not work
+const customQueryStringDetector = {
+
+  name: 'customQueryStringDetector',
+
+  lookup(options) {
+    let found = void 0;
+
+    if (typeof window !== 'undefined') {
+      let tmp = [];
+      const location = (window.location + '').split('\?');
+      const query = location.length === 1 ? location[0] : location[1];
+      query
+        .split('&')
+        .forEach(item => {
+          tmp = item.split('=');
+          if (tmp[0] === options.lookupQuerystring) {
+            found = decodeURIComponent(tmp[1]);
+          }
+        });
+    }
+    return found;
+  }
+};
 
 /**
 * Provides localization context
@@ -15,13 +44,17 @@ export default class LocalizationService {
   * i18n inicialization
   */
   static init(configLoader, cb) {
+    // add custom language detector
+    const languageDetector = new LanguageDetector();
+    languageDetector.addDetector(customQueryStringDetector);
+    //
     // init localization
     i18nextInstance = i18next
       .use(XHR)
+      .use(languageDetector)
       .use(Cache)
-      .use(LanguageDetector)
       .init({
-        whitelist: ['cs', 'en'],
+        whitelist: _.clone(SUPPORTED_LANGUAGES),
         nonExplicitWhitelist: true,
         lowerCaseLng: true,
         fallbackLng: 'cs',
@@ -29,7 +62,7 @@ export default class LocalizationService {
 
         detection: {
           // order and from where user language should be detected
-          order: ['querystring', 'cookie', 'localStorage', 'navigator', 'htmlTag'],
+          order: ['customQueryStringDetector', 'querystring', 'cookie', 'localStorage', 'navigator', 'htmlTag'],
           //
           // keys or params to lookup language from
           lookupQuerystring: 'lng',
@@ -117,6 +150,18 @@ export default class LocalizationService {
       return undefined;
     }
     return i18nextInstance.language;
+  }
+
+  static changeLanguage(lng, cb) {
+    i18nextInstance.changeLanguage(lng, (error) => {
+      if (cb) {
+        cb(error);
+      }
+    });
+  }
+
+  static getSupportedLanguages() {
+    return SUPPORTED_LANGUAGES;
   }
 }
 

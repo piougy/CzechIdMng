@@ -122,15 +122,50 @@ class SystemService extends Services.AbstractService {
       });
   }
 
+  checkSystem(id) {
+    return Services.RestApiService.get(this.getApiPath() + `/${id}/check`, null).then(response => {
+      if (response.status === 403) {
+        throw new Error(403);
+      }
+      if (response.status === 404) {
+        throw new Error(404);
+      }
+      return response.json();
+    })
+    .then(json => {
+      if (Utils.Response.hasError(json)) {
+        throw Utils.Response.getFirstError(json);
+      }
+      return json;
+    });
+  }
+
   /**
    * Returns all available connectors
    *
    * @return {promise}
    */
   getAvailableConnectors() {
-    // TODO: remote connectors, filter etc.
+    // TODO: filter etc.
     return Services.RestApiService
-      .get(Services.RestApiService.getUrl(`/connectors/search/local`))
+      .get(Services.RestApiService.getUrl(this.getApiPath() + `/search/local`))
+      .then(response => {
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
+  }
+
+  /**
+   * Returns available remote connector for system id, connector server is part of sy
+   */
+  getAvailableRemoteConnectors(systemId) {
+    return Services.RestApiService
+      .get(Services.RestApiService.getUrl(this.getApiPath() + `/${systemId}/search/remote`))
       .then(response => {
         return response.json();
       })

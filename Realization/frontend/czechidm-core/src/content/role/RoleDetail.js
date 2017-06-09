@@ -2,18 +2,24 @@ import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import _ from 'lodash';
 import { connect } from 'react-redux';
+import uuid from 'uuid';
+//
+import * as Basic from '../../components/basic';
 import * as Utils from '../../utils';
 import RoleTypeEnum from '../../enums/RoleTypeEnum';
-import authorityHelp from './AuthoritiesPanel_cs.md';
-import AuthoritiesPanel from './AuthoritiesPanel';
-import * as Basic from '../../components/basic';
-import { RoleManager, WorkflowProcessDefinitionManager, SecurityManager, IdentityManager, RoleCatalogueManager } from '../../redux';
+import RolePriorityEnum from '../../enums/RolePriorityEnum';
+import { RoleManager, IdentityManager, RoleCatalogueManager } from '../../redux';
 
-const workflowProcessDefinitionManager = new WorkflowProcessDefinitionManager();
 const roleManager = new RoleManager();
 const identityManger = new IdentityManager();
 const roleCatalogueManager = new RoleCatalogueManager();
 
+/**
+ * Role detail
+ *
+ * @author Ondřej Kopr
+ * @author Radek Tomiška
+ */
 class RoleDetail extends Basic.AbstractContent {
 
   constructor(props) {
@@ -29,8 +35,9 @@ class RoleDetail extends Basic.AbstractContent {
 
   componentDidMount() {
     const { entity } = this.props;
-
     if (Utils.Entity.isNew(entity)) {
+      entity.priorityEnum = RolePriorityEnum.NONE;
+      entity.priority = RolePriorityEnum.getPriority(RolePriorityEnum.NONE) + '';
       this._setSelectedEntity(entity);
     } else {
       this._setSelectedEntity(this._prepareEntity(entity));
@@ -49,10 +56,10 @@ class RoleDetail extends Basic.AbstractContent {
     // we dont need to load entities again - we have them in embedded objects
     copyOfEntity.subRoles = !entity.subRoles ? [] : entity.subRoles.map(subRole => { return subRole._embedded.sub; });
     copyOfEntity.superiorRoles = !entity.superiorRoles ? [] : entity.superiorRoles.map(superiorRole => { return superiorRole._embedded.superior; });
-    copyOfEntity.guarantees = !entity.guarantees ? [] : entity.guarantees.map(guarantee => { return guarantee._embedded.guarantee; });
-    if (copyOfEntity._embedded !== undefined && copyOfEntity._embedded.roleCatalogue !== undefined) {
-      copyOfEntity.roleCatalogue = copyOfEntity._embedded.roleCatalogue.id;
-    }
+    copyOfEntity.guarantees = !entity.guarantees ? [] : entity.guarantees.map(guarantee => { return guarantee.guarantee; });
+    copyOfEntity.roleCatalogues = !entity.roleCatalogues ? [] : entity.roleCatalogues.map(roleCatalogue => { return roleCatalogue.roleCatalogue; } );
+    copyOfEntity.priorityEnum = RolePriorityEnum.getKeyByPriority(copyOfEntity.priority);
+    copyOfEntity.priority = copyOfEntity.priority + ''; // We have to do convert form int to string (cause TextField and validator)
     return copyOfEntity;
   }
 
@@ -76,8 +83,11 @@ class RoleDetail extends Basic.AbstractContent {
       _showLoading: true
     }, () => {
       const entity = this.refs.form.getData();
+      this.refs.form.processStarted();
       // append selected authorities
-      entity.authorities = this.refs.authorities.getWrappedInstance().getSelectedAuthorities();
+      if (this.refs.authorities) {
+        entity.authorities = this.refs.authorities.getWrappedInstance().getSelectedAuthorities();
+      }
       // append subroles
       if (entity.subRoles) {
         entity.subRoles = entity.subRoles.map(subRoleId => {
@@ -89,13 +99,21 @@ class RoleDetail extends Basic.AbstractContent {
       if (entity.guarantees) {
         entity.guarantees = entity.guarantees.map(guaranteeId => {
           return {
-            guarantee: identityManger.getSelfLink(guaranteeId)
+            guarantee: {
+              id: guaranteeId
+            }
           };
         });
       }
-      // transform object roleCatalogue to self link
-      if (entity.roleCatalogue) {
-        entity.roleCatalogue = roleCatalogueManager.getSelfLink(entity.roleCatalogue);
+      // transform roleCatalogues to self links
+      if (entity.roleCatalogues) {
+        entity.roleCatalogues = entity.roleCatalogues.map(roleCatalogue => {
+          return {
+            roleCatalogue: {
+              id: roleCatalogue.id
+            }
+          };
+        });
       }
       // delete superior roles - we dont want to save them (they are ignored on BE anyway)
       delete entity.superiorRoles;
@@ -114,112 +132,120 @@ class RoleDetail extends Basic.AbstractContent {
   }
 
   _afterSave(entity, error, afterAction = 'CLOSE') {
-    if (error) {
+    this.setState({
+      _showLoading: false
+    }, () => {
       this.refs.form.processEnded();
-      this.addError(error);
-      return;
-    }
-    this.addMessage({ message: this.i18n('save.success', { name: entity.name }) });
-    if (afterAction === 'CLOSE') {
-      this.context.router.replace(`roles`);
+      if (error) {
+        this.addError(error);
+        return;
+      }
+      //
+      this.addMessage({ message: this.i18n('save.success', { name: entity.name }) });
+      if (afterAction === 'CLOSE') {
+        this.context.router.replace(`roles`);
+      } else if (afterAction === 'NEW') {
+        const uuidId = uuid.v1();
+        const newEntity = {
+          roleType: RoleTypeEnum.findKeyBySymbol(RoleTypeEnum.TECHNICAL),
+          priority: RolePriorityEnum.getPriority(RolePriorityEnum.NONE) + '',
+          priorityEnum: RolePriorityEnum.findKeyBySymbol(RolePriorityEnum.NONE)
+        };
+        this.context.store.dispatch(roleManager.receiveEntity(uuidId, newEntity));
+        this.context.router.replace(`/role/${uuidId}/new?new=1`);
+        this._setSelectedEntity(newEntity);
+      } else {
+        this.context.router.replace(`role/${entity.id}/detail`);
+      }
+    });
+  }
+
+  _onChangePriorityEnum(item) {
+    if (item) {
+      const priority = RolePriorityEnum.getPriority(item.value);
+      this.refs.priority.setValue(priority + '');
     } else {
-      this.context.router.replace(`role/${entity.id}/detail`);
+      this.refs.priority.setValue(null);
     }
   }
 
   render() {
-    const { entity, showLoading } = this.props;
+    const { entity, showLoading, _permissions } = this.props;
     const { _showLoading } = this.state;
     return (
       <div>
         <Helmet title={Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('edit.title')} />
 
-        <form onSubmit={this.save.bind(this)}>
+        <form onSubmit={this.save.bind(this, 'CONTINUE')}>
           <Basic.Panel className={Utils.Entity.isNew(entity) ? '' : 'no-border last'}>
             <Basic.PanelHeader text={Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('tabs.basic')} />
 
             <Basic.PanelBody style={Utils.Entity.isNew(entity) ? { paddingTop: 0, paddingBottom: 0 } : { padding: 0 }}>
-              <Basic.AbstractForm ref="form" showLoading={ _showLoading || showLoading } readOnly={!SecurityManager.hasAuthority('ROLE_WRITE')}>
-                <Basic.Row>
-                  <div className="col-lg-8">
-                    <h3 style={{ margin: '0 0 10px 0', padding: 0, borderBottom: '1px solid #ddd' }}>{this.i18n('setting.basic.header')}</h3>
-                    <div className="form-horizontal">
-                      <Basic.TextField
-                        ref="name"
-                        label={this.i18n('entity.Role.name')}
-                        required
-                        min={0}
-                        max={255}/>
-                      <Basic.EnumSelectBox
-                        ref="roleType"
-                        label={this.i18n('entity.Role.roleType')}
-                        enum={RoleTypeEnum}
-                        required
-                        readOnly={!Utils.Entity.isNew(entity)}/>
-                      <Basic.SelectBox
-                        ref="roleCatalogue"
-                        label={this.i18n('entity.Role.roleCatalogue.name')}
-                        manager={roleCatalogueManager}/>
-                      <Basic.SelectBox
-                        ref="superiorRoles"
-                        label={this.i18n('entity.Role.superiorRoles')}
-                        manager={roleManager}
-                        multiSelect
-                        readOnly
-                        placeholder=""/>
-                      <Basic.SelectBox
-                        ref="subRoles"
-                        label={this.i18n('entity.Role.subRoles')}
-                        manager={roleManager}
-                        multiSelect/>
-                      <Basic.SelectBox
-                        ref="guarantees"
-                        label={this.i18n('entity.Role.guarantees')}
-                        multiSelect
-                        manager={identityManger}/>
-                      <Basic.TextArea
-                        ref="description"
-                        label={this.i18n('entity.Role.description')}
-                        max={255}/>
-                      <Basic.Checkbox
-                        ref="disabled"
-                        label={this.i18n('entity.Role.disabled')}/>
-                    </div>
-
-                    <h3 style={{ margin: '20px 0 10px 0', padding: 0, borderBottom: '1px solid #ddd' }}>
-                      { this.i18n('setting.approval.header') }
-                    </h3>
-                    <Basic.SelectBox
-                      labelSpan=""
-                      componentSpan=""
-                      ref="approveAddWorkflow"
-                      label={this.i18n('entity.Role.approveAddWorkflow')}
-                      forceSearchParameters={ workflowProcessDefinitionManager.getDefaultSearchParameters().setFilter('category', 'eu.bcvsolutions.role.approve.add') }
-                      multiSelect={false}
-                      manager={workflowProcessDefinitionManager}/>
-                    <Basic.SelectBox
-                      labelSpan=""
-                      componentSpan=""
-                      ref="approveRemoveWorkflow"
-                      label={this.i18n('entity.Role.approveRemoveWorkflow')}
-                      forceSearchParameters={ workflowProcessDefinitionManager.getDefaultSearchParameters().setFilter('category', 'eu.bcvsolutions.role.approve.remove') }
-                      multiSelect={false}
-                      manager={workflowProcessDefinitionManager}/>
-                  </div>
-
-                  <div className="col-lg-4">
-                    <h3 style={{ margin: '0 0 10px 0', padding: 0, borderBottom: '1px solid #ddd' }}>
-                      <span dangerouslySetInnerHTML={{ __html: this.i18n('setting.authority.header') }} className="pull-left"/>
-                      <Basic.HelpIcon content={authorityHelp} className="pull-right"/>
-                      <div className="clearfix"/>
-                    </h3>
-                    <AuthoritiesPanel
-                      ref="authorities"
-                      roleManager={roleManager}
-                      authorities={entity.authorities}
-                      disabled={!SecurityManager.hasAuthority('ROLE_WRITE')}/>
-                  </div>
-                </Basic.Row>
+              <Basic.AbstractForm
+                ref="form"
+                showLoading={ _showLoading || showLoading }
+                readOnly={ !roleManager.canSave(entity, _permissions) }>
+                <Basic.TextField
+                  ref="name"
+                  label={this.i18n('entity.Role.name')}
+                  required
+                  min={0}
+                  max={255}/>
+                <Basic.EnumSelectBox
+                  ref="roleType"
+                  label={ this.i18n('entity.Role.roleType') }
+                  enum={ RoleTypeEnum }
+                  required
+                  readOnly={ !Utils.Entity.isNew(entity) }
+                  rendered={ false }/>
+                <Basic.EnumSelectBox
+                  ref="priorityEnum"
+                  label={this.i18n('entity.Role.priorityEnum')}
+                  enum={RolePriorityEnum}
+                  onChange={this._onChangePriorityEnum.bind(this)}/>
+                <Basic.TextField
+                  ref="priority"
+                  label={this.i18n('entity.Role.priority')}
+                  readOnly
+                  required/>
+                <Basic.SelectBox
+                  multiSelect
+                  ref="roleCatalogues"
+                  label={ this.i18n('entity.Role.roleCatalogue.name') }
+                  manager={ roleCatalogueManager }
+                  returnProperty={ false }/>
+                <Basic.SelectBox
+                  ref="superiorRoles"
+                  label={this.i18n('entity.Role.superiorRoles')}
+                  manager={roleManager}
+                  multiSelect
+                  readOnly
+                  placeholder=""
+                  rendered={ false }/> {/* TODO: redesign subroles agenda */}
+                <Basic.SelectBox
+                  ref="subRoles"
+                  label={this.i18n('entity.Role.subRoles')}
+                  manager={roleManager}
+                  multiSelect
+                  rendered={ false }/> {/* TODO: redesign subroles agenda */}
+                <Basic.SelectBox
+                  ref="guarantees"
+                  label={this.i18n('entity.Role.guarantees')}
+                  multiSelect
+                  manager={identityManger}/>
+                <Basic.Checkbox
+                  ref="approveRemove"
+                  label={this.i18n('entity.Role.approveRemove')}/>
+                <Basic.Checkbox
+                  ref="canBeRequested"
+                  label={this.i18n('entity.Role.canBeRequested')}/>
+                <Basic.TextArea
+                  ref="description"
+                  label={this.i18n('entity.Role.description')}
+                  max={2000}/>
+                <Basic.Checkbox
+                  ref="disabled"
+                  label={this.i18n('entity.Role.disabled')}/>
               </Basic.AbstractForm>
             </Basic.PanelBody>
 
@@ -228,15 +254,16 @@ class RoleDetail extends Basic.AbstractContent {
 
               <Basic.SplitButton
                 level="success"
-                title={this.i18n('button.saveAndContinue')}
-                onClick={this.save.bind(this, 'CONTINUE')}
-                showLoading={_showLoading}
+                title={ this.i18n('button.saveAndContinue') }
+                onClick={ this.save.bind(this, 'CONTINUE') }
+                showLoading={ _showLoading }
                 showLoadingIcon
-                showLoadingText={this.i18n('button.saving')}
-                rendered={SecurityManager.hasAuthority('ROLE_WRITE')}
+                showLoadingText={ this.i18n('button.saving') }
+                rendered={ roleManager.canSave(entity, _permissions) }
                 pullRight
                 dropup>
                 <Basic.MenuItem eventKey="1" onClick={this.save.bind(this, 'CLOSE')}>{this.i18n('button.saveAndClose')}</Basic.MenuItem>
+                <Basic.MenuItem eventKey="2" onClick={this.save.bind(this, 'NEW')}>{this.i18n('button.createNew')}</Basic.MenuItem>
               </Basic.SplitButton>
             </Basic.PanelFooter>
           </Basic.Panel>
@@ -248,12 +275,22 @@ class RoleDetail extends Basic.AbstractContent {
   }
 }
 
-
 RoleDetail.propTypes = {
   entity: PropTypes.object,
-  showLoading: PropTypes.bool
+  showLoading: PropTypes.bool,
+  _permissions: PropTypes.arrayOf(PropTypes.string)
 };
 RoleDetail.defaultProps = {
+  _permissions: null
 };
 
-export default connect()(RoleDetail);
+function select(state, component) {
+  if (!component.entity) {
+    return {};
+  }
+  return {
+    _permissions: roleManager.getPermissions(state, null, component.entity.id)
+  };
+}
+
+export default connect(select)(RoleDetail);

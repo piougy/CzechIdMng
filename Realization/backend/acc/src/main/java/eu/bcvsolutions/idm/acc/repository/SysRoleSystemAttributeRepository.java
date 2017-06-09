@@ -6,10 +6,10 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
-import eu.bcvsolutions.idm.acc.dto.RoleSystemAttributeFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.RoleSystemAttributeFilter;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute;
-import eu.bcvsolutions.idm.acc.entity.SysSchemaAttributeHandling;
+import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
 import eu.bcvsolutions.idm.acc.rest.projection.SysRoleSystemAttributeExcerpt;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 
@@ -48,10 +48,10 @@ public interface SysRoleSystemAttributeRepository
 	int deleteByRoleSystem(@Param("roleSystem") SysRoleSystem roleSystem);
 	
 	/**
-	 * Delete attributes of given schemaAttributeHandling
+	 * Delete attributes of given systemAttributeMapping
 	 * 
-	 * @param schemaAttributeHandling
+	 * @param systemAttributeMapping
 	 * @return
 	 */
-	int deleteBySchemaAttributeHandling(@Param("schemaAttributeHandling") SysSchemaAttributeHandling schemaAttributeHandling);
+	int deleteBySystemAttributeMapping(@Param("systemAttributeMapping") SysSystemAttributeMapping systemAttributeMapping);
 }

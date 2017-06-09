@@ -3,13 +3,13 @@ package eu.bcvsolutions.idm.core.api.domain;
 import java.util.Collections;
 import java.util.List;
 
-import eu.bcvsolutions.idm.security.api.domain.GroupPermission;
+import eu.bcvsolutions.idm.core.notification.api.dto.NotificationConfigurationDto;
+import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
 
 /**
  * Add default methods implementaton for {@link ModuleDescriptor}.
  * 
  * @author Radek Tomiška
- *
  */
 public abstract class AbstractModuleDescriptor implements ModuleDescriptor {
 
@@ -51,7 +51,7 @@ public abstract class AbstractModuleDescriptor implements ModuleDescriptor {
 	}
 
 	/**
-	 * Return empty permissions
+	 * Returns empty permissions
 	 */
 	@Override
 	public List<GroupPermission> getPermissions() {
@@ -61,6 +61,13 @@ public abstract class AbstractModuleDescriptor implements ModuleDescriptor {
 	@Override
 	public boolean isDisableable() {
 		return true;
+	}
+	
+	/**
+	 * Returns empty notifications list
+	 */
+	public List<NotificationConfigurationDto> getDefaultNotificationConfigurations() {
+		return Collections.emptyList();
 	}
 	
 }

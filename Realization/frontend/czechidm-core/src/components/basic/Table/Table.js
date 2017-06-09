@@ -16,6 +16,8 @@ const CELL = 'cell';
 
 /**
  * Table component with header and columns.
+ *
+ * @author Radek Tomiška
  */
 class Table extends AbstractComponent {
 
@@ -122,6 +124,16 @@ class Table extends AbstractComponent {
     return newColumns;
   }
 
+  _showRowSelection({ rowIndex, data, showRowSelection }) {
+    if (typeof showRowSelection === 'function') {
+      return showRowSelection({
+        rowIndex,
+        data
+      });
+    }
+    return showRowSelection;
+  }
+
   selectRow(rowIndex, selected) {
     let newSelectedRows;
     if (rowIndex !== undefined && rowIndex !== null && rowIndex > -1) {
@@ -130,17 +142,29 @@ class Table extends AbstractComponent {
     } else { // de/select all
       newSelectedRows = this.state.selectedRows;
       const { data } = this.props;
+      //
       for (let i = 0; i < data.length; i++) {
-        if (selected) {
-          newSelectedRows = newSelectedRows.add(this.getIdentifier(i));
-        } else {
-          newSelectedRows = newSelectedRows.remove(this.getIdentifier(i));
+        if (this._showRowSelection({ ...this.props, rowIndex: i })) {
+          if (selected) {
+            newSelectedRows = newSelectedRows.add(this.getIdentifier(i));
+          } else {
+            newSelectedRows = newSelectedRows.remove(this.getIdentifier(i));
+          }
         }
       }
     }
     this.setState({
       selectedRows: newSelectedRows
     }, this._onRowSelect(rowIndex, selected, newSelectedRows.toArray()));
+  }
+
+  /**
+   * Clears row selection
+   */
+  clearSelectedRows() {
+    this.setState({
+      selectedRows: this.state.selectedRows.clear()
+    });
   }
 
   _onRowSelect(rowIndex, selected, selection) {
@@ -185,6 +209,7 @@ class Table extends AbstractComponent {
           columns={headerColumns}
           rowIndex={-1}
           showLoading={showLoading}
+          showRowSelection={showRowSelection}
           onRowSelect={showRowSelection ? this.selectRow.bind(this) : null}
           selected={this._isAllRowsSelected()}/>
       </thead>
@@ -216,6 +241,7 @@ class Table extends AbstractComponent {
          data={this.props.data}
          columns={columns}
          rowIndex={rowIndex}
+         showRowSelection={showRowSelection}
          onRowSelect={showRowSelection ? this.selectRow.bind(this) : null}
          selected={this.state.selectedRows.has(this.getIdentifier(rowIndex))}
          onClick={onRowClick}
@@ -229,7 +255,17 @@ class Table extends AbstractComponent {
   }
 
   render() {
-    const { data, noData, rendered, showLoading, hover, className } = this.props;
+    const {
+      data,
+      noData,
+      rendered,
+      showLoading,
+      hover,
+      className,
+      condensed,
+      header
+    } = this.props;
+    //
     if (!rendered) {
       return null;
     }
@@ -251,20 +287,31 @@ class Table extends AbstractComponent {
     }
 
     const columns = this._resolveColumns();
-    const header = this.renderHeader(columns);
+    const columnsHeaders = this.renderHeader(columns);
     const body = this.renderBody(columns);
     const footer = this.renderFooter();
     const classNamesTable = classNames(
-      className,
       { 'table': true },
-      { 'table-hover': hover}
+      { 'table-hover': hover},
+      { 'table-condensed': condensed }
     );
-
+    //
     return (
-      <div className="basic-table">
+      <div className={classNames(className, 'basic-table')}>
         <Loading showLoading={showLoading}>
           <table className={classNamesTable}>
-            { header }
+            {
+              !header
+              ||
+              <thead>
+                <tr className="basic-table-header">
+                  <th colSpan={ columns.length }>
+                    { header }
+                  </th>
+                </tr>
+              </thead>
+            }
+            { columnsHeaders }
             { body }
             { footer }
           </table>
@@ -280,6 +327,10 @@ Table.propTypes = {
    * input data as array of json objects
    */
   data: PropTypes.array,
+  /**
+   * Table Header
+   */
+  header: PropTypes.oneOfType([PropTypes.string, PropTypes.element]),
   /**
    * Callback that is called when a row is clicked.
    */
@@ -299,7 +350,7 @@ Table.propTypes = {
   /**
    * Enable row selection - checkbox in first cell
    */
-  showRowSelection: PropTypes.bool,
+  showRowSelection: PropTypes.oneOfType([PropTypes.bool, PropTypes.func]),
   /**
    * css added to row
    */
@@ -309,10 +360,12 @@ Table.propTypes = {
   ]),
   /**
    * If table data is empty, then this text will be shown
-   *
-   * @type {string}
    */
-  noData: PropTypes.oneOfType([PropTypes.string, PropTypes.element])
+  noData: PropTypes.oneOfType([PropTypes.string, PropTypes.element]),
+  /**
+   * Enable condensed table class, make tables more compact by cutting cell padding in half.
+   */
+  condensed: PropTypes.bool
 };
 Table.defaultProps = {
   ...AbstractComponent.defaultProps,
@@ -320,7 +373,8 @@ Table.defaultProps = {
   selectedRows: [],
   showRowSelection: false,
   noData: 'No record found',
-  hover: true
+  hover: true,
+  condensed: false
 };
 
 export default Table;

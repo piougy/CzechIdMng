@@ -1,6 +1,5 @@
 package eu.bcvsolutions.idm.core.model.entity;
 
-import java.util.Date;
 import java.util.UUID;
 
 import javax.persistence.Column;
@@ -11,50 +10,68 @@ import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.envers.Audited;
-import org.hibernate.envers.RelationTargetAuditMode;
+import org.joda.time.LocalDate;
+import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.ValidableEntity;
+import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 
+/**
+ * Assigned identity role
+ * - roles are related to identity's contract
+ * 
+ * @author Radek Tomiška
+ *
+ */
 @Entity
 @Table(name = "idm_identity_role", indexes = {
-		@Index(name = "idx_idm_identity_role_identity", columnList = "identity_id"),
-		@Index(name = "idx_idm_identity_role_role", columnList = "role_id")
+		@Index(name = "idx_idm_identity_role_ident_c", columnList = "identity_contract_id"),
+		@Index(name = "idx_idm_identity_role_role", columnList = "role_id"),
+		@Index(name = "idx_idm_identity_role_aut_r", columnList = "role_tree_node_id")
 })
 public class IdmIdentityRole extends AbstractEntity implements ValidableEntity {
 
 	private static final long serialVersionUID = 9208706652291035265L;
-
-	@NotNull
+	
 	@Audited
+	@NotNull
 	@ManyToOne(optional = false)
-	@JoinColumn(name = "identity_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@JoinColumn(name = "identity_contract_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )
-	private IdmIdentity identity;
+	private IdmIdentityContract identityContract;
 	
 	@NotNull
-	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
+	@Audited
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "role_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmRole role;
 	
+	@NotNull
+	@Audited
+	@Column(name = "automatic_role", nullable = false)
+	private boolean automaticRole = false;
+	
+	@Audited
+	@ManyToOne
+	@JoinColumn(name = "role_tree_node_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
+	@org.hibernate.annotations.ForeignKey( name = "none" )
+	private IdmRoleTreeNode roleTreeNode; // Assigned role depends on automatic role
+	
 	@Audited
 	@Column(name = "valid_from")
-	@Temporal(TemporalType.DATE)
-	private Date validFrom;
+	private LocalDate validFrom;
 	
 	@Audited
 	@Column(name = "valid_till")
-	@Temporal(TemporalType.DATE)
-	private Date validTill;
+	private LocalDate validTill;
 
 	public IdmIdentityRole() {
 	}
@@ -62,29 +79,29 @@ public class IdmIdentityRole extends AbstractEntity implements ValidableEntity {
 	public IdmIdentityRole(UUID id) {
 		super(id);
 	}
+	
+	public IdmIdentityRole(IdmIdentityContract identityContract) {
+		Assert.notNull(identityContract);
+		//
+		this.identityContract = identityContract;
+		this.validFrom = identityContract.getValidFrom();
+		this.validTill = identityContract.getValidTill();
+ 	}
 
-	public Date getValidFrom() {
+	public LocalDate getValidFrom() {
 		return validFrom;
 	}
 
-	public void setValidFrom(Date validFrom) {
+	public void setValidFrom(LocalDate validFrom) {
 		this.validFrom = validFrom;
 	}
 
-	public Date getValidTill() {
+	public LocalDate getValidTill() {
 		return validTill;
 	}
 
-	public void setValidTill(Date validTo) {
+	public void setValidTill(LocalDate validTo) {
 		this.validTill = validTo;
-	}
-
-	public IdmIdentity getIdentity() {
-		return identity;
-	}
-
-	public void setIdentity(IdmIdentity identity) {
-		this.identity = identity;
 	}
 
 	public IdmRole getRole() {
@@ -93,5 +110,42 @@ public class IdmIdentityRole extends AbstractEntity implements ValidableEntity {
 
 	public void setRole(IdmRole role) {
 		this.role = role;
+	}
+	
+	public IdmIdentityContract getIdentityContract() {
+		return identityContract;
+	}
+	
+	public void setIdentityContract(IdmIdentityContract identityContract) {
+		this.identityContract = identityContract;
+	}
+	
+	/**
+	 * Assigned role depends on automatic role
+	 * 
+	 * @return
+	 */
+	public IdmRoleTreeNode getRoleTreeNode() {
+		return roleTreeNode;
+	}
+	
+	public void setRoleTreeNode(IdmRoleTreeNode roleTreeNode) {
+		this.roleTreeNode = roleTreeNode;
+	}
+
+	public boolean isAutomaticRole() {
+		return automaticRole;
+	}
+
+	public void setAutomaticRole(boolean automaticRole) {
+		this.automaticRole = automaticRole;
+	}
+	
+	/**
+	 * Check if this entity is valid from now
+	 * @return
+	 */
+	public boolean isValid() {
+		return EntityUtils.isValid(this);
 	}
 }

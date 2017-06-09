@@ -5,6 +5,7 @@ import Joi from 'joi';
 //
 import AbstractContextComponent from '../AbstractContextComponent/AbstractContextComponent';
 import Icon from '../Icon/Icon';
+import HelpIcon from '../HelpIcon/HelpIcon';
 
 class AbstractFormComponent extends AbstractContextComponent {
 
@@ -91,7 +92,7 @@ class AbstractFormComponent extends AbstractContextComponent {
     if (required === true) {
       validation = this.getRequiredValidationSchema();
       if (this.props.validation) {
-        validation = validation.concat(this.props.validation);
+        validation = this.props.validation.concat(validation);
       }
     } else {
       // this is default value for not required value
@@ -138,57 +139,75 @@ class AbstractFormComponent extends AbstractContextComponent {
     return this.i18n('validationError.' + type, params);
   }
 
-  validate(showValidationError) {
+  validate(showValidationError, cb) {
+    const{value, validation} = this.state;
     const showValidations = showValidationError != null ? showValidationError : true;
-    if (this.state.validation) {
-      let result = this.state.validation.validate(this.state.value);
-      // custom validate
-      if (this.props.validate) {
-        result = this.props.validate(this.state.value, result);
-      }
-      if (result.error) {
-        let key;
-        const params = {};
-        if (result.error.key) {
-          key = result.error.key;
-        } else {
-          const detail = result.error.details[0];
-          key = detail.type;
-          const limit = detail.context.limit;
-          if (limit) {
-            merge(params, {count: limit});
-          }
-          const valids = detail.context.valids;
-          if (valids) {
-            merge(params, {valids});
-          }
-        }
-        const message = this._localizationValidation(key, params);
-        this.setState({validationResult:
-           {status: 'error',
-            class: 'has-error has-feedback',
-            isValid: false,
-            message},
-          showValidationError: showValidations}); // show validation error on UI
-        return false;
-      }
-      this.setState({validationResult:
-          {status: null,
-             class: '',
-             isValid: true,
-             message: null,
-             showValidationError: true},
-          showValidationError: showValidations}); // show validation error on UI
+    if (!validation) {
       return true;
     }
+    let result = validation.validate(value);
+    // custom validate
+    if (this.props.validate) {
+      result = this.props.validate(value, result);
+    }
+    if (result.error) {
+      let key;
+      const params = {};
+      if (result.error.key) {
+        key = result.error.key;
+      } else {
+        const detail = result.error.details[0];
+        key = detail.type;
+        const limit = detail.context.limit;
+        if (limit) {
+          merge(params, {count: limit});
+        }
+        const valids = detail.context.valids;
+        if (valids) {
+          merge(params, {valids});
+        }
+      }
+      const message = this._localizationValidation(key, params);
+      this.setState({
+        validationResult: {
+          status: 'error',
+          class: 'has-error has-feedback',
+          isValid: false,
+          message
+        },
+        showValidationError: showValidations
+      }, () => {
+        if (cb) {
+          cb(result);
+        }
+      }); // show validation error on UI
+      return false;
+    }
+    this.setState({
+      validationResult: {
+        status: null,
+        class: '',
+        isValid: true,
+        message: null,
+        showValidationError: true
+      },
+      showValidationError: showValidations
+    }, () => {
+      if (cb) {
+        cb(result);
+      }
+    }); // show validation error on UI
+    return true;
   }
 
   getValue() {
     return this.state.value;
   }
 
-  setValue(value) {
-    this.setState({value}, this.validate.bind(this, false));
+  setValue(value, cb) {
+    this.setState({
+      value
+    }, this.validate.bind(this, false, cb));
   }
 
   getBody() {
@@ -197,6 +216,61 @@ class AbstractFormComponent extends AbstractContextComponent {
 
   getValidationResult() {
     return this.state.validationResult;
+  }
+
+  /**
+   * Help icon in label
+   */
+  renderHelpIcon() {
+    return (
+      <HelpIcon content={this.props.help} style={{ marginLeft: '3px' }}/>
+    );
+  }
+
+  /**
+   * Help block under input
+   */
+  renderHelpBlock() {
+    const { helpBlock } = this.props;
+    //
+    if (!helpBlock) {
+      return null;
+    }
+    return (
+      <span className="help-block" style={{ whiteSpace: 'normal' }}>{helpBlock}</span>
+    );
+  }
+
+  /**
+   * Returns title placement for validations tooltips etc.
+   *
+   * @return {string} tittle position
+   */
+  getTitlePlacement() {
+    return 'top';
+  }
+
+  /**
+   *  Returns title - could be shown in tooltips (validations etc)
+   *
+   * @return {string}
+   */
+  getTitle() {
+    const { label, placeholder, tooltip } = this.props;
+    const propertyName = label || placeholder;
+    const validationResult = this.getValidationResult();
+    //
+    let title = null;
+    if (validationResult && validationResult.message) {
+      title = `${propertyName ? propertyName + ': ' : ''}${validationResult.message}`;
+    } else if (!label) {
+      title = propertyName;
+    }
+    if (tooltip) {
+      title = !title ? tooltip : `${title} (${tooltip})`;
+    }
+    //
+    return title;
   }
 
   render() {
@@ -221,8 +295,8 @@ class AbstractFormComponent extends AbstractContextComponent {
       }
     }
     return (
-      <div className={_className + ' ' + validationClass} style={this.props.style}>
-          {this.getBody(feedback)}
+      <div className={ _className + ' ' + validationClass } style={ this.props.style }>
+        { this.getBody(feedback) }
       </div>
     );
   }
@@ -247,8 +321,8 @@ AbstractFormComponent.propTypes = {
 };
 
 AbstractFormComponent.defaultProps = {
-  labelSpan: 'col-sm-3',
-  componentSpan: 'col-sm-8',
+  labelSpan: null,
+  componentSpan: null,
   required: false,
   hidden: false,
   readOnly: false,

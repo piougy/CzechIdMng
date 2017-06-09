@@ -9,8 +9,14 @@ class Loading extends AbstractComponent {
     super(props, context);
   }
 
+  _showLoading() {
+    const { showLoading, show } = this.props;
+    //
+    return showLoading || show;
+  }
+
   _resize() {
-    const { showLoading } = this.props;
+    const showLoading = this._showLoading();
     if (!showLoading) {
       return;
     }
@@ -23,10 +29,10 @@ class Loading extends AbstractComponent {
       }
       // TODO: offset, scroll
       loading.css({
-        top: panel.position().top + 1, // TODO: check, if panel contains top header and calculate with header height (now 50 hardcoded)
-        left: panel.position().left + 1,
-        width: panel.width() - 1,
-        height: panel.height() - 1
+        top: panel.position().top, // TODO: check, if panel contains top header and calculate with header height (now 50 hardcoded)
+        left: panel.position().left,
+        width: panel.width(),
+        height: panel.height()
       });
     }
   }
@@ -42,10 +48,11 @@ class Loading extends AbstractComponent {
   }
 
   render() {
-    const { rendered, className, showLoading, showAnimation, isStatic, loadingTitle, ...others } = this.props;
+    const { rendered, className, showAnimation, isStatic, loadingTitle, style } = this.props;
     if (!rendered) {
       return null;
     }
+    const showLoading = this._showLoading();
     const loaderClassNames = classNames(
       className,
       'loading',
@@ -53,7 +60,7 @@ class Loading extends AbstractComponent {
       { 'static': isStatic }
     );
     return (
-      <div ref="container" className="loader-container" {...others}>
+      <div ref="container" className="loader-container" style={style}>
         {
           showLoading
           ?
@@ -83,6 +90,10 @@ class Loading extends AbstractComponent {
 Loading.propTypes = {
   ...AbstractComponent.propTypes,
   /**
+   * Shows loading overlay (showLoadin alias)
+   */
+  show: PropTypes.bool,
+  /**
    * when loading is visible, then show animation too
    */
   showAnimation: PropTypes.bool,
@@ -97,6 +108,7 @@ Loading.propTypes = {
 };
 Loading.defaultProps = {
   ...AbstractComponent.defaultProps,
+  show: false,
   showAnimation: true,
   isStatic: false,
   loadingTitle: 'Zpracovávám ...' // TODO: localization or undefined ?

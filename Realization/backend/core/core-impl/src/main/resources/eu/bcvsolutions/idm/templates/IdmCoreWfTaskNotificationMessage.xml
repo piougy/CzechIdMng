@@ -1,0 +1,45 @@
+<?xml version = "1.0" encoding = "UTF-8" standalone = "yes"?>
+<!-- 
+Notification with new assigned or created task, this message will be sent to newly assigned identity.
+For event TASK_CREATED and TASK_ASSIGNED is used same template, but different topic.
+
+parameters:
+	-	identity
+	-	url
+	-	subject
+ -->
+
+<template>
+	<name>Send newly created or assigned task</name>
+	<code>wfTaskNotificationMessage</code>
+	<subject>CzechIdM - $subject</subject>
+	<bodyHtml>
+<![CDATA[
+<html>
+<body>
+Dobrý den,<br />
+<br />
+Pro váš účet <b>$identity</b> na systému CzechIdM Vám byl přiřazen nový úkol na schválení.<br />
+Na detail úkolu můžete přejít zde: <a href='$url'>$url</a><br />
+<br />
+<br />
+S pozdravem BCV Solutions s.r.o.
+<br />
+<br />
+-------------------------------------------------------------------------------------<br />
+Hello,<br />
+<br />
+For your account <b>$identity</b> on CzechIdM system has been assigned a new approval task.<br />
+You can go to the task detail here: <a href='$url'>$url</a><br />
+<br />
+<br />
+Regards BCV Solutions Ltd.
+</body>
+</html>
+]]>
+	</bodyHtml>
+	<bodyText></bodyText>
+	<parameter>identity, url, subject</parameter>
+	<systemTemplate>true</systemTemplate>
+	<moduleId>core</moduleId>
+</template>

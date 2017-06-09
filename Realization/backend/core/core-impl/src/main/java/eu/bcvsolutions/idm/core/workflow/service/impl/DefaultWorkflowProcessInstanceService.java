@@ -1,11 +1,13 @@
 package eu.bcvsolutions.idm.core.workflow.service.impl;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.UUID;
 
 import org.activiti.bpmn.model.BpmnModel;
 import org.activiti.bpmn.model.FlowElement;
@@ -23,20 +25,21 @@ import org.activiti.engine.task.IdentityLinkType;
 import org.activiti.engine.task.Task;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
+import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowProcessInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowHistoricProcessInstanceService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
-import eu.bcvsolutions.idm.security.api.service.SecurityService;
 
 /**
  * Default implementation of workflow process instance service
@@ -66,20 +69,22 @@ public class DefaultWorkflowProcessInstanceService implements WorkflowProcessIns
 	private TaskService taskService;
 
 	@Override
+	@Transactional
 	public ProcessInstance startProcess(String definitionKey, String objectType, String applicant,
 			String objectIdentifier, Map<String, Object> variables) {
 		Assert.hasText(definitionKey, "Definition key cannot be null!");
 
-		IdmIdentity applicantIdentity = null;
+		IdmIdentityDto applicantIdentity = null;
 		if (applicant != null) {
 			applicantIdentity = identityService.getByUsername(applicant);
 		}
-
+		UUID implementerId = securityService.getCurrentId();
 		ProcessInstanceBuilder builder = runtimeService.createProcessInstanceBuilder()
 				.processDefinitionKey(definitionKey)//
 				.addVariable(WorkflowProcessInstanceService.OBJECT_TYPE, objectType)
+				.addVariable(WorkflowProcessInstanceService.ACTIVITI_SKIP_EXPRESSION_ENABLED, true) // Allow skip expression on user task
 				.addVariable(WorkflowProcessInstanceService.OBJECT_IDENTIFIER, objectIdentifier)
-				.addVariable(WorkflowProcessInstanceService.IMPLEMENTER_USERNAME, securityService.getUsername())
+				.addVariable(WorkflowProcessInstanceService.IMPLEMENTER_IDENTIFIER, implementerId == null ? null : implementerId.toString())
 				.addVariable(WorkflowProcessInstanceService.APPLICANT_USERNAME, applicant)
 				.addVariable(WorkflowProcessInstanceService.APPLICANT_IDENTIFIER,
 						applicantIdentity != null ? applicantIdentity.getId() : null);
@@ -90,15 +95,22 @@ public class DefaultWorkflowProcessInstanceService implements WorkflowProcessIns
 		}
 
 		ProcessInstance instance = builder.start();
-		// Set applicant as owner of process
-		runtimeService.addUserIdentityLink(instance.getId(), applicant, IdentityLinkType.OWNER);
-		// Set current logged user (implementer) as starter of process
-		runtimeService.addUserIdentityLink(instance.getId(), securityService.getUsername(), IdentityLinkType.STARTER);
+		if(!instance.isEnded()){
+			// Set applicant as owner of process
+			runtimeService.addUserIdentityLink(instance.getId(), applicant, IdentityLinkType.OWNER);
+			// Set current logged user (implementer) as starter of process
+			runtimeService.addUserIdentityLink(instance.getId(), securityService.getUsername(), IdentityLinkType.STARTER);
+		}
 		return instance;
 	}
 
 	@Override
 	public ResourcesWrapper<WorkflowProcessInstanceDto> search(WorkflowFilterDto filter) {
+		return searchInternal(filter, true);
+	}
+	
+	@Override
+	public ResourcesWrapper<WorkflowProcessInstanceDto> searchInternal(WorkflowFilterDto filter, boolean checkRight) {
 		String processDefinitionId = filter.getProcessDefinitionId();
 
 		Map<String, Object> equalsVariables = filter.getEqualsVariables();
@@ -113,6 +125,9 @@ public class DefaultWorkflowProcessInstanceService implements WorkflowProcessIns
 		}
 		if (filter.getProcessDefinitionKey() != null) {
 			query.processDefinitionKey(filter.getProcessDefinitionKey());
+		}
+		if (filter.getProcessInstanceId() != null) {
+			query.processInstanceId(filter.getProcessInstanceId());
 		}
 		if (filter.getCategory() != null) {
 			// Find definitions with this category (use double sided like)
@@ -140,7 +155,9 @@ public class DefaultWorkflowProcessInstanceService implements WorkflowProcessIns
 		// historic process instance
 		// Applicant and Implementer is added to involved user after process
 		// (subprocess) started. This modification allow not use OR clause.
-		query.involvedUser(securityService.getUsername());
+		if(checkRight && !securityService.isAdmin()){
+			query.involvedUser(securityService.getCurrentId().toString());
+		}
 
 		query.orderByProcessDefinitionId();
 		query.desc();
@@ -161,9 +178,17 @@ public class DefaultWorkflowProcessInstanceService implements WorkflowProcessIns
 			totalPage = (long) (totlaPageFlorred + 1);
 		}
 
-		ResourcesWrapper<WorkflowProcessInstanceDto> result = new ResourcesWrapper<>(dtos, count, totalPage,
+		return new ResourcesWrapper<>(dtos, count, totalPage,
 				filter.getPageNumber(), filter.getPageSize());
-		return result;
+	}
+	
+	@Override
+	public WorkflowProcessInstanceDto get(String processInstanceId) {
+		WorkflowFilterDto filter = new WorkflowFilterDto();
+		filter.setProcessInstanceId(processInstanceId);
+		filter.setSortAsc(true);
+		Collection<WorkflowProcessInstanceDto> resources = this.search(filter).getResources();
+		return !resources.isEmpty() ? resources.iterator().next() : null;
 	}
 
 	@Override
@@ -174,25 +199,24 @@ public class DefaultWorkflowProcessInstanceService implements WorkflowProcessIns
 		if (deleteReason == null) {
 			deleteReason = "Deleted by " + securityService.getUsername();
 		}
-		ProcessInstanceQuery query = runtimeService.createProcessInstanceQuery();
-		query.processInstanceId(processInstanceId);
-		// check security ... only applicant or implementer can delete process
-		// instance
-		query.or();
-		query.variableValueEquals(WorkflowProcessInstanceService.APPLICANT_USERNAME,
-				securityService.getOriginalUsername());
-		query.variableValueEquals(WorkflowProcessInstanceService.IMPLEMENTER_USERNAME,
-				securityService.getOriginalUsername());
-		query.endOr();
-		ProcessInstance processInstance = query.singleResult();
-		if (processInstance == null) {
+		
+		WorkflowFilterDto filter = new WorkflowFilterDto();
+		filter.setProcessInstanceId(processInstanceId);
+		
+		Collection<WorkflowProcessInstanceDto> resources = this.searchInternal(filter, false).getResources();
+		WorkflowProcessInstanceDto processInstanceToDelete = null;
+		if(!resources.isEmpty()){
+			processInstanceToDelete = resources.iterator().next();
+		}
+
+		if (processInstanceToDelete == null) {
 			throw new ResultCodeException(CoreResultCode.FORBIDDEN,
 					"You do not have permission for delete process instance with ID: %s !",
 					ImmutableMap.of("processInstanceId", processInstanceId));
 		}
-		runtimeService.deleteProcessInstance(processInstance.getId(), deleteReason);
+		runtimeService.deleteProcessInstance(processInstanceToDelete.getProcessInstanceId(), deleteReason);
 
-		return toResource(processInstance);
+		return processInstanceToDelete;
 	}
 
 	private WorkflowProcessInstanceDto toResource(ProcessInstance instance) {
@@ -240,7 +264,7 @@ public class DefaultWorkflowProcessInstanceService implements WorkflowProcessIns
 			if (identityLinks != null && !identityLinks.isEmpty()) {
 				List<String> candicateUsers = new ArrayList<>();
 				for	(HistoricIdentityLink identity : identityLinks) {
-					if (identity.getType().equals(IdentityLinkType.CANDIDATE)) {
+					if (IdentityLinkType.CANDIDATE.equals(identity.getType())) {
 						candicateUsers.add(identity.getUserId());
 					}
 				}

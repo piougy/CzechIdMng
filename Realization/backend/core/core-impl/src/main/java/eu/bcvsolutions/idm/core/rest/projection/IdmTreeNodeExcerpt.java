@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.rest.projection;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.core.config.Projection;
 
 import eu.bcvsolutions.idm.core.api.rest.projection.AbstractDtoProjection;
@@ -25,5 +26,8 @@ public interface IdmTreeNodeExcerpt extends AbstractDtoProjection {
 	
 	IdmTreeType getTreeType();
 	
-	int getChildrenCount();
+	Integer getChildrenCount();
+	
+	@Value("#{target.equals(target.treeType.defaultTreeNode)}")
+	boolean isDefaultTreeNode();
 }

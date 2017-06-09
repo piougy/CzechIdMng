@@ -3,12 +3,11 @@ import _ from 'lodash';
 import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
 import Joi from 'joi';
-import Immutable from 'immutable';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
-import { AuthenticateService } from '../../services';
 import { IdentityManager } from '../../redux';
+import ValidationMessage from './ValidationMessage';
 
 const identityManager = new IdentityManager();
 
@@ -69,7 +68,7 @@ class Profile extends Basic.AbstractContent {
     }, this.refs.form.processStarted());
 
     const result = _.merge({}, formData, {
-      password: btoa(formData.password) // base64
+      password: formData.password
     });
     delete result.passwordAgain;
     delete result.generatePassword;
@@ -77,7 +76,8 @@ class Profile extends Basic.AbstractContent {
     identityManager.getService().create(result)
     .then(json => {
       this.setState({
-        showLoading: false
+        showLoading: false,
+        validationError: null
       }, () => {
         this.refs.form.processEnded();
         this.addMessage({
@@ -94,15 +94,21 @@ class Profile extends Basic.AbstractContent {
             break;
           }
           default : {
-            this.context.router.push(`identities`);
+            // this.context.router.push(`identities`); // TODO: has goBack?
+            this.context.router.goBack();
           }
         }
       });
     }).catch(error => {
       this.setState({
-        showLoading: false
+        showLoading: false,
+        validationError: error
       }, () => {
         this.refs.form.processEnded();
+        this.setState({
+          password: formData.password,
+          passwordAgain: formData.password
+        });
         this.transformData(null);
         this.addError(error);
       });
@@ -143,18 +149,17 @@ class Profile extends Basic.AbstractContent {
     if (!generate) {
       return;
     }
-    /*
     // generate
     this.setState({
       generatePasswordShowLoading: true
-    })
+    });
     identityManager.getService().generatePassword()
     .then(response => {
       return response.json();
     })
     .then(json => {
       if (!json.error) {
-        this.setNewPassword(json.password);
+        this.setNewPassword(json);
         this.setState({
           generatePasswordShowLoading: false,
           generatePassword: true
@@ -173,19 +178,16 @@ class Profile extends Basic.AbstractContent {
         generatePasswordShowLoading: false,
         generatePassword: false
       });
-    });*/
-    // TODO: rest service for password generate
-    this.setNewPassword(AuthenticateService.generatePassword());
-  }
-
-  canEditMap() {
-    let canEditMap = new Immutable.Map();
-    canEditMap = canEditMap.set('isSaveEnabled', true);
-    return canEditMap;
+    });
   }
 
   render() {
-    const { detail, showLoading, generatePassword, generatePasswordShowLoading, password, passwordAgain } = this.state;
+    const { detail,
+      showLoading,
+      generatePassword,
+      generatePasswordShowLoading,
+      passwordAgain, password,
+      validationError } = this.state;
 
     return (
       <Basic.Row>
@@ -195,47 +197,68 @@ class Profile extends Basic.AbstractContent {
             <Basic.Panel>
               <Basic.PanelHeader text={this.i18n('content.identity.create.header')}/>
 
-              <Basic.PanelBody style={{ paddingTop: 0, paddingBottom: 0 }}>
-                <Basic.AbstractForm ref="form" data={detail.entity} className="form-horizontal">
-                  <div className="col-lg-7">
-                    <Basic.TextField ref="username" label={this.i18n('content.identity.profile.username')} required min={3} max={30}/>
-                    <Basic.TextField ref="lastName" label={this.i18n('content.identity.profile.lastName')} required max={255}/>
-                    <Basic.TextField ref="firstName" label={this.i18n('content.identity.profile.firstName')} max={255}/>
-                    <Basic.TextField ref="titleBefore" label={this.i18n('entity.Identity.titleBefore')} max={100}/>
-                    <Basic.TextField ref="titleAfter" label={this.i18n('entity.Identity.titleAfter')} max={100}/>
-                    <Basic.TextField ref="email"
-                      label={this.i18n('content.identity.profile.email.label')}
-                      placeholder={this.i18n('content.identity.profile.email.placeholder')}
-                      validation={Joi.string().email()}/>
-                    <Basic.Checkbox ref="disabled" label={this.i18n('entity.Identity.disabled')}/>
-                    <Basic.TextArea ref="description"
-                      label={this.i18n('content.identity.profile.description.label')}
-                      placeholder={this.i18n('content.identity.profile.description.placeholder')}
-                      rows={4}
-                      max={255}/>
-                  </div>
-                  <div className="col-lg-5">
-                    <Basic.Checkbox ref="generatePassword" value={generatePassword} label={this.i18n('content.identity.create.button.generate')} onChange={this.generatePassword.bind(this)}/>
 
-                    <Advanced.PasswordField
-                      className="form-control"
-                      ref="passwords"
-                      type={generatePassword || generatePasswordShowLoading ? 'text' : 'password'}
-                      required={!generatePassword}
-                      readOnly={generatePassword}
-                      newPassword={password}
-                      newPasswordAgain={passwordAgain}/>
+              <Basic.AbstractForm ref="form" data={detail.entity}>
+                <div className="col-lg-7">
+                  <Basic.TextField ref="username" label={this.i18n('content.identity.profile.username')} required min={3} max={255}/>
+                  <Basic.TextField ref="firstName" label={this.i18n('content.identity.profile.firstName')} max={255}/>
+                  <Basic.TextField ref="lastName" label={this.i18n('content.identity.profile.lastName')} required max={255}/>
+                  <Basic.Row>
+                    <div className="col-lg-6">
+                      <Basic.TextField ref="titleBefore" label={this.i18n('entity.Identity.titleBefore')} max={100} />
+                    </div>
+                    <div className="col-lg-6">
+                      <Basic.TextField ref="titleAfter" label={this.i18n('entity.Identity.titleAfter')} max={100}/>
+                    </div>
+                  </Basic.Row>
 
-                  </div>
-                </Basic.AbstractForm>
-              </Basic.PanelBody>
+                  <Basic.Row>
+                    <div className="col-lg-6">
+                      <Basic.TextField
+                        ref="email"
+                        label={this.i18n('content.identity.profile.email.label')}
+                        placeholder={this.i18n('content.identity.profile.email.placeholder')}
+                        validation={Joi.string().email()}/>
+                    </div>
+                    <div className="col-lg-6">
+                      <Basic.TextField
+                        ref="phone"
+                        label={this.i18n('content.identity.profile.phone.label')}
+                        placeholder={this.i18n('content.identity.profile.phone.placeholder')}
+                        max={30} />
+                    </div>
+                  </Basic.Row>
+                  <Basic.Checkbox ref="disabled" label={this.i18n('entity.Identity.disabled')}/>
+                  <Basic.TextArea ref="description"
+                    label={this.i18n('content.identity.profile.description.label')}
+                    placeholder={this.i18n('content.identity.profile.description.placeholder')}
+                    rows={4}
+                    max={255}/>
+                </div>
+                <div className="col-lg-5">
+                  <Basic.Checkbox ref="generatePassword" value={generatePassword} label={this.i18n('content.identity.create.button.generate')} onChange={this.generatePassword.bind(this)}/>
+
+                  <Advanced.PasswordField
+                    className="form-control"
+                    ref="passwords"
+                    type={generatePassword || generatePasswordShowLoading ? 'text' : 'password'}
+                    required={!generatePassword}
+                    readOnly={generatePassword}
+                    newPassword={password}
+                    newPasswordAgain={passwordAgain}/>
+                </div>
+                <Basic.Panel className="col-lg-5 no-border">
+                  <ValidationMessage error={validationError} />
+                </Basic.Panel>
+              </Basic.AbstractForm>
+
 
               <Basic.PanelFooter>
                 <Basic.Button type="button" level="link" onClick={this.context.router.goBack} showLoading={showLoading}>{this.i18n('button.back')}</Basic.Button>
 
                 <Basic.SplitButton level="success" title={this.i18n('button.create')} onClick={this.save.bind(this, 'CLOSE')} showLoading={showLoading} pullRight dropup>
                   <Basic.MenuItem eventKey="1" onClick={this.save.bind(this, 'EDIT')}>{this.i18n('button.createContinue')}</Basic.MenuItem>
-                  <Basic.MenuItem eventKey="1" onClick={this.save.bind(this, 'NEW')}>{this.i18n('button.createNew')}</Basic.MenuItem>
+                  <Basic.MenuItem eventKey="2" onClick={this.save.bind(this, 'NEW')}>{this.i18n('button.createNew')}</Basic.MenuItem>
                 </Basic.SplitButton>
 
               </Basic.PanelFooter>

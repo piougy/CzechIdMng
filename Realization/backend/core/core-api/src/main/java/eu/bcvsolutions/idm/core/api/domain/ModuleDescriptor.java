@@ -4,13 +4,13 @@ import java.util.List;
 
 import org.springframework.plugin.core.Plugin;
 
-import eu.bcvsolutions.idm.security.api.domain.GroupPermission;
+import eu.bcvsolutions.idm.core.notification.api.dto.NotificationConfigurationDto;
+import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
 
 /**
  * One module will contain one module descriptor
  * 
  * @author Radek Tomiška
- *
  */
 public interface ModuleDescriptor extends Plugin<String> {
 	
@@ -62,5 +62,12 @@ public interface ModuleDescriptor extends Plugin<String> {
 	 * @return
 	 */
 	boolean isDisableable();
+	
+	/**
+	 * Returns default module notification configuration
+	 * 
+	 * @return
+	 */
+	List<NotificationConfigurationDto> getDefaultNotificationConfigurations();
 
 }

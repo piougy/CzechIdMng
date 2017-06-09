@@ -1,6 +1,6 @@
 import Immutable from 'immutable';
 import _ from 'lodash';
-
+//
 let _config = null;
 let _moduleDescriptors = new Immutable.Map();
 
@@ -26,7 +26,9 @@ const MODULE_DESCRIPTOR_DEFAULTS = {
 };
 
 /**
-* Loads configuration
+* Loads frontend configuration
+*
+* @author Radek Tomiška
 */
 export default class ConfigLoader {
 
@@ -36,10 +38,10 @@ export default class ConfigLoader {
   }
 
   /**
-   * Returns config part by key or null
+   * Returns config part by key or null. Supports nested propertires.
    */
-  static getConfig(key) {
-    return _config[key];
+  static getConfig(key, defaultValue = null) {
+    return _.get(_config, key, defaultValue);
   }
 
   /**
@@ -125,7 +127,7 @@ export default class ConfigLoader {
 
 
   static _getConfigModuleDescriptor(moduleId) {
-    if (_config.overrideModuleDescriptor) {
+    if (_config && _config.overrideModuleDescriptor) {
       return _config.overrideModuleDescriptor[moduleId];
     }
     return {};

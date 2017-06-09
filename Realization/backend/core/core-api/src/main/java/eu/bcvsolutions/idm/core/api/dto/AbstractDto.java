@@ -1,13 +1,20 @@
 package eu.bcvsolutions.idm.core.api.dto;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.validation.constraints.Size;
 
+import org.joda.time.DateTime;
 import org.springframework.util.Assert;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import eu.bcvsolutions.idm.core.api.domain.Auditable;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 
@@ -15,15 +22,16 @@ import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
  * Common dto
  * 
  * @author Radek Tomiška 
- *
  */
-public abstract class AbstractDto implements Serializable, BaseDto, Auditable {
+@JsonIgnoreProperties(ignoreUnknown = true)
+public abstract class AbstractDto implements BaseDto, Auditable {
 	
 	private static final long serialVersionUID = 7512463222974374742L;
 	//
+	@JsonDeserialize(as = UUID.class)
 	private UUID id;
-	private Date created;
-	private Date modified;
+	private DateTime created;
+	private DateTime modified;
 	@Size(max = DefaultFieldLengths.NAME)
 	private String creator;
 	private UUID creatorId;
@@ -36,6 +44,14 @@ public abstract class AbstractDto implements Serializable, BaseDto, Auditable {
 	@Size(max = DefaultFieldLengths.NAME)
 	private String originalModifier;
 	private UUID originalModifierId;
+	@JsonProperty(value = "_trimmed", access=Access.READ_ONLY)
+	private boolean trimmed = false;
+	@JsonProperty(value = "_embedded", access=Access.READ_ONLY)
+	private Map<String, BaseDto> embedded;
+	@JsonIgnore
+	private UUID transactionId;
+	@JsonIgnore
+	private UUID realmId;
 
 	public AbstractDto() {
 	}
@@ -58,6 +74,7 @@ public abstract class AbstractDto implements Serializable, BaseDto, Auditable {
 		this.originalCreatorId = auditable.getOriginalCreatorId();
 		this.originalModifier = auditable.getOriginalModifier();
 		this.originalModifierId = auditable.getOriginalModifierId();
+		this.transactionId = auditable.getTransactionId();
 	}
 
 	@Override
@@ -66,27 +83,30 @@ public abstract class AbstractDto implements Serializable, BaseDto, Auditable {
 	}
 
 	@Override
-	public void setId(UUID	 id) {
-		this.id = id;
+	public void setId(Serializable id) {
+		if (id != null) {
+			Assert.isInstanceOf(UUID.class, id, "AbstractDto supports only UUID identifier. For different identifier generalize BaseEntity.");
+		}
+		this.id = (UUID) id;
 	}
 
 	@Override
-	public Date getCreated() {
+	public DateTime getCreated() {
 		return created;
 	}
 
 	@Override
-	public void setCreated(Date created) {
+	public void setCreated(DateTime created) {
 		this.created = created;
 	}
 	
 	@Override
-	public Date getModified() {
+	public DateTime getModified() {
 		return modified;
 	}
 
 	@Override
-	public void setModified(Date modified) {
+	public void setModified(DateTime modified) {
 		this.modified = modified;
 	}
 
@@ -170,6 +190,45 @@ public abstract class AbstractDto implements Serializable, BaseDto, Auditable {
 		this.originalModifierId = originalModifierId;
 	}
 	
+	public boolean isTrimmed() {
+		return trimmed;
+	}
+
+	public void setTrimmed(boolean trimmed) {
+		this.trimmed = trimmed;
+	}	
+
+	public Map<String, BaseDto> getEmbedded() {
+		if(embedded == null){
+			embedded = new HashMap<>();
+		}
+		return embedded;
+	}
+
+	public void setEmbedded(Map<String, BaseDto> emmbedded) {
+		this.embedded = emmbedded;
+	}
+
+	@Override
+	public UUID getTransactionId() {
+		return transactionId;
+	}
+	
+	@Override
+	public void setTransactionId(UUID transactionId) {
+		this.transactionId = transactionId;	
+	}
+	
+	@Override
+	public UUID getRealmId() {
+		return realmId;
+	}
+	
+	@Override
+	public void setRealmId(UUID realmId) {
+		this.realmId = realmId;
+	}
+
 	@Override
 	public String toString() {
 		return getClass().getCanonicalName() + "[ id=" + getId() + " ]";
@@ -193,5 +252,4 @@ public abstract class AbstractDto implements Serializable, BaseDto, Auditable {
 				|| (this.getId() != null && !this.getId().equals(other.getId()))
 				|| (this.getId() == null && other.getId() == null && this != other));
 	}
-
 }

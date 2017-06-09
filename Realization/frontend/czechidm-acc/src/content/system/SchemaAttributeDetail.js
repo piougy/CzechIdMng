@@ -2,14 +2,14 @@ import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 //
-import { Basic, Utils} from 'czechidm-core';
+import { Basic, Advanced, Utils} from 'czechidm-core';
 import { SchemaObjectClassManager, SchemaAttributeManager } from '../../redux';
 
 const uiKey = 'schema-attribute';
 const manager = new SchemaAttributeManager();
 const schemaObjectClassManager = new SchemaObjectClassManager();
 
-class SchemaAttributeDetail extends Basic.AbstractTableContent {
+class SchemaAttributeDetail extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);
@@ -50,7 +50,7 @@ class SchemaAttributeDetail extends Basic.AbstractTableContent {
     } else {
       this.context.store.dispatch(this.getManager().fetchEntity(attributeId));
     }
-    this.selectNavigationItems(['sys-systems', 'system-object-classes']);
+    this.selectNavigationItems(['sys-systems', 'schema-object-classes']);
   }
 
   _getIsNew(nextProps) {
@@ -73,7 +73,7 @@ class SchemaAttributeDetail extends Basic.AbstractTableContent {
         this.addMessage({ message: this.i18n('save.success', { name: entity.name }) });
       }
       const systemId = this.props.params.entityId;
-      this.context.router.replace(`system/${systemId}/schema-object-classes/${entity._embedded.objectClass.id}/detail`, {attributeId: entity.id});
+      this.context.router.replace(`system/${systemId}/object-classes/${entity._embedded.objectClass.id}/detail`, {attributeId: entity.id});
     } else {
       this.addError(error);
     }
@@ -96,7 +96,7 @@ class SchemaAttributeDetail extends Basic.AbstractTableContent {
         </Basic.ContentHeader>
         <form onSubmit={this.save.bind(this)}>
           <Basic.Panel className="no-border last">
-            <Basic.AbstractForm ref="form" data={attribute} showLoading={_showLoading} className="form-horizontal">
+            <Basic.AbstractForm ref="form" data={attribute} showLoading={_showLoading}>
               <Basic.SelectBox
                 ref="objectClass"
                 manager={schemaObjectClassManager}
@@ -114,7 +114,7 @@ class SchemaAttributeDetail extends Basic.AbstractTableContent {
                 required
                 max={255}/>
               <Basic.TextField
-                ref="nativeName"
+                ref="nativeName" hidden
                 label={this.i18n('acc:entity.SchemaAttribute.nativeName')}
                 max={255}/>
               <Basic.Checkbox
@@ -134,6 +134,7 @@ class SchemaAttributeDetail extends Basic.AbstractTableContent {
                 label={this.i18n('acc:entity.SchemaAttribute.updateable')}/>
               <Basic.Checkbox
                 ref="returnedByDefault"
+                tooltip={this.i18n('returnedByDefaultTooltip')}
                 label={this.i18n('acc:entity.SchemaAttribute.returned_by_default')}/>
             </Basic.AbstractForm>
             <Basic.PanelFooter>

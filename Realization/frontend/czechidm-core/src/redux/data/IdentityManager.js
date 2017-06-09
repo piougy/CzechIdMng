@@ -1,14 +1,15 @@
-import Immutable from 'immutable';
-import EntityManager from './EntityManager';
+import FormableEntityManager from './FormableEntityManager';
 import SecurityManager from '../security/SecurityManager';
 import { IdentityService } from '../../services';
 import DataManager from './DataManager';
-import FormInstance from '../../domain/FormInstance';
+import * as Utils from '../../utils';
 
 /**
- * Manager for identity fetching
+ * Manager for identities fetching
+ *
+ * @author Radek Tomiška
  */
-export default class IdentityManager extends EntityManager {
+export default class IdentityManager extends FormableEntityManager {
 
   constructor() {
     super();
@@ -28,24 +29,17 @@ export default class IdentityManager extends EntityManager {
     return 'identities';
   }
 
-  getFullName(identity) {
-    return this.getService().getFullName(identity);
+  /**
+   * Return resource identifier on FE (see BE - IdentifiableByName)
+   *
+   * @return {string} secondary identifier (unique property)
+   */
+  getIdentifierAlias() {
+    return 'username';
   }
 
-  /**
-   * Who can edit identity - just for ui, rest is secured as well
-   *
-   * @return {Immutable.Map<string, boolean>} UI elements, which is editable <key, boolean>
-   */
-  canEditMap(userContext) {
-    let canEditMap = new Immutable.Map();
-    canEditMap = canEditMap.set('isSaveEnabled', false);
-    //
-    // super admin or user's garant can edit user profile
-    if (SecurityManager.isAdmin(userContext)) {
-      canEditMap = canEditMap.set('isSaveEnabled', true);
-    }
-    return canEditMap;
+  getFullName(identity) {
+    return this.getService().getFullName(identity);
   }
 
   /**
@@ -88,10 +82,12 @@ export default class IdentityManager extends EntityManager {
         // catch is before then - we want execute nex then clausule
       })
       .then(() => {
-        dispatch(this.flashMessagesManager.addMessage({
-          level: successUsernames.length === usernames.length ? 'success' : 'info',
-          message: this.i18n(`content.identities.action.${bulkActionName}.success`, { usernames: successUsernames.join(', ') })
-        }));
+        if (successUsernames.lengt > 0) {
+          dispatch(this.flashMessagesManager.addMessage({
+            level: successUsernames.length === usernames.length ? 'success' : 'info',
+            message: this.i18n(`content.identities.action.${bulkActionName}.success`, { usernames: successUsernames.join(', ') })
+          }));
+        }
         dispatch(this.stopBulkAction());
       });
     };
@@ -118,63 +114,42 @@ export default class IdentityManager extends EntityManager {
   }
 
   /**
-   * Load form instance (definition + values) by given identity
+   * Get given identity's main position in organization
    *
-   * @param  {string} id identity identifier
-   * @param {string} uiKey
-   * @param {func} cb callback
-   * @returns {action}
+   * @param  {string} username
+   * @param  {string} uiKey
+   * @return {array[object]}
    */
-  fetchFormInstance(id, uiKey, cb = null) {
+  fetchWorkPosition(username, uiKey) {
     return (dispatch) => {
       dispatch(this.dataManager.requestData(uiKey));
-
-      const formDefinitionPromise = this.getService().getFormDefinition(id);
-      const formValuesPromise = this.getService().getFormValues(id);
-
-      Promise.all([formDefinitionPromise, formValuesPromise])
-        .then((jsons) => {
-          const formDefinition = jsons[0];
-          const formValues = jsons[1]._embedded.idmIdentityFormValues;
-
-          const formInstance = new FormInstance(formDefinition, formValues);
-
-          dispatch(this.dataManager.receiveData(uiKey, formInstance));
-          if (cb) {
-            cb(formInstance);
-          }
+      this.getService().getWorkPosition(username)
+        .then(json => {
+          dispatch(this.dataManager.receiveData(uiKey, json));
         })
         .catch(error => {
-          // TODO: data uiKey
-          dispatch(this.receiveError(null, uiKey, error, cb));
+          dispatch(this.receiveError(null, uiKey, error));
         });
     };
   }
 
   /**
-   * Saves form values
+   * Return true when currently logged user can change password
    *
-   * @param  {string} id identity identifier
-   * @param  {arrayOf(entity)} values filled form values
-   * @param {string} uiKey
-   * @param {func} cb callback
-   * @returns {action}
+   * @param  {string} passwordChangeType see consts bottom
+   * @param  {arrayOf(string)} permissions logged identity's base permissions on selected identity
+   * @return {bool}
    */
-  saveFormValues(id, values, uiKey, cb = null) {
-    return (dispatch) => {
-      dispatch(this.dataManager.requestData(uiKey));
-      this.getService().saveFormValues(id, values)
-      .then(() => {
-        dispatch(this.fetchFormInstance(id, uiKey, cb));
-      })
-      .catch(error => {
-        dispatch(this.receiveError(null, uiKey, error, cb));
-      });
-    };
-  }
-
-  static canChangePassword(userContext, entityId, passwordChangeType) {
-    return (passwordChangeType && passwordChangeType !== IdentityManager.PASSWORD_DISABLED && entityId === userContext.username) || SecurityManager.isAdmin(userContext);
+  canChangePassword(passwordChangeType, permissions) {
+    if (!passwordChangeType || passwordChangeType === IdentityManager.PASSWORD_DISABLED) {
+      // password cannot be changed by environment configuration
+      return false;
+    }
+    if (SecurityManager.isAdmin()) {
+      // admin
+      return true;
+    }
+    return Utils.Permission.hasPermission(permissions, 'PASSWORDCHANGE');
   }
 }
 

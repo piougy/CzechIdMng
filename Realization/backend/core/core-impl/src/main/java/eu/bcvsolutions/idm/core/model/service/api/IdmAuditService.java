@@ -1,24 +1,33 @@
 package eu.bcvsolutions.idm.core.model.service.api;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.hibernate.envers.exception.RevisionDoesNotExistException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.util.MultiValueMap;
 
-import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
-import eu.bcvsolutions.idm.core.model.dto.filter.AuditFilter;
+import eu.bcvsolutions.idm.core.api.dto.IdmAuditDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.AuditFilter;
+import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
+import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.model.entity.IdmAudit;
 
 /**
  * Interface for Audit service
  * 
+ * Methods with word:
+ * 
+ * - revision - return object type of {@link IdmAudit}
+ * - version - return object from audit tables
+ * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
  * 
  */
 
-public interface IdmAuditService extends ReadWriteEntityService<IdmAudit, AuditFilter> {
+public interface IdmAuditService extends ReadWriteDtoService<IdmAuditDto, AuditFilter> {
 	
 	/**
 	 * Method find one revision by class type of entity, id revision and id identity.
@@ -40,16 +49,24 @@ public interface IdmAuditService extends ReadWriteEntityService<IdmAudit, AuditF
 	 * @param entityId
 	 * @return
 	 */
-	<T> List<IdmAudit> findRevisions(Class<T> classType, UUID entityId);
+	<T> List<IdmAuditDto> findRevisions(Class<T> classType, UUID entityId);
 	
 	/**
-	 * Return previous version of entity. Return Entity object not {@link IdmAudit}.
+	 * Return previous version of entity. Return Entity object not {@link IdmAuditDto}.
 	 * 
 	 * @param entity
 	 * @param currentRevId
 	 * @return
 	 */
-	<T> T getPreviousVersion(T entity, Long currentRevId);
+	<T> T findPreviousVersion(T entity, Long currentRevId);
+	
+	/**
+	 * Method find revision by id get class and return previous version of this entity
+	 * 
+	 * @param currentRevId
+	 * @return
+	 */
+	Object findPreviousVersion(Long currentRevId);
 	
 	/**
 	 * TODO:
@@ -59,16 +76,28 @@ public interface IdmAuditService extends ReadWriteEntityService<IdmAudit, AuditF
 	 * @param currentRevId
 	 * @return
 	 */
-	<T> T getPreviousVersion(Class<T> entityClass, UUID entityId, Long currentRevId);
+	<T> T findPreviousVersion(Class<T> entityClass, UUID entityId, Long currentRevId);
 	
 	/**
-	 * Return last version number id.
+	 * Method return version of entity for currentRevId
+	 * 
+	 * @param entityClass
+	 * @param entityId
+	 * @param currentRevId
+	 * @return
+	 */
+	<T> T findVersion(Class<T> entityClass, UUID entityId, Long currentRevId);
+	
+	/**
+	 * Return last revision number id.
+	 * NOTE: this method works with commited transaction, not commited entity will be not found!!
+	 * Otherwise use getCurrentRevision from envers with persist parameter to found entity in transaction
 	 * 
 	 * @param entityClass
 	 * @param entityId
 	 * @return
 	 */
-	<T> Number getLastVersionNumber(Class<T> entityClass, UUID entityId);
+	<T> Number findLastRevisionNumber(Class<T> entityClass, UUID entityId);
 	
 	/**
 	 * Return names of changed columns with annotation @Audited. Diff is realized by previous revision and actual entity.
@@ -99,5 +128,60 @@ public interface IdmAuditService extends ReadWriteEntityService<IdmAudit, AuditF
 	 * @param pageable
 	 * @return
 	 */
-	Page<IdmAudit> getRevisionsForEntity(String clazz, UUID entityId, Pageable pageable);
+	Page<IdmAuditDto> findRevisionsForEntity(String clazz, UUID entityId, Pageable pageable);
+	
+	/**
+	 * Method get two revision and compare their values. The difference is first from second. 
+	 * If @param secondRevision is null, difference will be from a previous revision.
+	 * 
+	 * @param clazz
+	 * @param firstRev
+	 * @return map with only changed values
+	 */
+	Map<String, Object> getDiffBetweenVersion(String clazz, Long firstRevId, Long secondRevId);
+	
+	/**
+	 * Method get two revision and compare their values. Method call {@link getDiffBetweenRevision}
+	 * with @param clazz null. The difference is first from second. 
+	 * If @param secondRevision is null, difference will be from a previous revision.
+	 * 
+	 * @param clazz
+	 * @param firstRev
+	 * @return map with only changed values
+	 */
+	Map<String, Object> getDiffBetweenVersion(Long firstRevId, Long secondRevId);
+	
+	/**
+	 * Method return all values from @param revisionObject.
+	 * 
+	 * @param revisionObject
+	 * @param auditedClass
+	 * @return map key is name of attribute.
+	 */
+	Map<String, Object> getValuesFromVersion(Object revisionObject, List<String> auditedClass);
+	
+	/**
+	 * Method return all values from @param revisionObject.
+	 * 
+	 * @param revisionObject
+	 * @return map key is name of attribute.
+	 */
+	Map<String, Object> getValuesFromVersion(Object revisionObject);
+	
+	/**
+	 * Method return previous revision for entity with current revision
+	 * 
+	 * @param revision
+	 * @return
+	 */
+	IdmAuditDto findPreviousRevision(IdmAuditDto revision);
+	
+	/**
+	 * Method user {@link getPreviousRevision} and {@link get} for geting current revision
+	 * @param revisionId
+	 * @return
+	 */
+	IdmAuditDto findPreviousRevision(Long revisionId);
+	
+	Page<IdmAuditDto> findEntityWithRelation(Class<? extends AbstractEntity> clazz, MultiValueMap<String, Object> parameters, Pageable pageable);
 }

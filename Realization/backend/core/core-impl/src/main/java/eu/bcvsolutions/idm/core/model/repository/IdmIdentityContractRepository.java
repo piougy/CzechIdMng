@@ -1,16 +1,22 @@
 package eu.bcvsolutions.idm.core.model.repository;
 
 import java.util.List;
+import java.util.UUID;
 
+import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.data.rest.core.annotation.RepositoryRestResource;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
-import eu.bcvsolutions.idm.core.api.dto.filter.EmptyFilter;
+import eu.bcvsolutions.idm.core.api.domain.RecursionType;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdentityContractFilter;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
@@ -23,27 +29,51 @@ import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
  * @author Radek Tomiška
  *
  */
-@RepositoryRestResource(//
-		collectionResourceRel = "identityContracts", //
-		path = "identity-contracts", //
-		itemResourceRel = "identityContract", //
-		exported = false
-)
-public interface IdmIdentityContractRepository extends AbstractEntityRepository<IdmIdentityContract, EmptyFilter> {
+public interface IdmIdentityContractRepository extends AbstractEntityRepository<IdmIdentityContract, IdentityContractFilter> {
 
-	/*
-	 * (non-Javadoc)
-	 * @see eu.bcvsolutions.idm.core.api.repository.BaseEntityRepository#find(eu.bcvsolutions.idm.core.api.dto.BaseFilter, Pageable)
+	/**
+	 * @deprecated Use IdmIdentityContractService (uses criteria api)
 	 */
 	@Override
+	@Deprecated
 	@Query(value = "select e from #{#entityName} e")
-	Page<IdmIdentityContract> find(EmptyFilter filter, Pageable pageable);
+	default Page<IdmIdentityContract> find(IdentityContractFilter filter, Pageable pageable) {
+		throw new UnsupportedOperationException("Use IdmIdentityContractService (uses criteria api)");
+	}
 	
 	List<IdmIdentityContract> findAllByIdentity(@Param("identity") IdmIdentity identity, Sort sort);
 	
-	Long countByWorkingPosition(@Param("treeNode") IdmTreeNode treeNode);
+	List<IdmIdentityContract> findAllByIdentity_Id(@Param("identityId") UUID identityId, Sort sort);
 	
-	Long countByWorkingPosition_TreeType(@Param("treeType") IdmTreeType treeType);
+	@Query(value = "select e from #{#entityName} e join e.workPosition n"
+			+ " where"
+			+ " (n.treeType = ?#{[0].treeType})" // more tree types
+			+ " and"
+			+ " ("
+				+ " (n = ?#{[0]})" // takes all recursion
+				+ " or"
+				+ " (?#{[1].name()} = 'DOWN' and n.forestIndex.lft between ?#{[0].lft} and ?#{[0].rgt})"
+				+ " or"
+				+ " (?#{[1].name()} = 'UP' and ?#{[0].lft} between n.forestIndex.lft and n.forestIndex.rgt)"
+			+ " )")
+	List<IdmIdentityContract> findAllByWorkPosition(IdmTreeNode workPosition, RecursionType recursionType);
+	
+	@Query(value = "select e from #{#entityName} e"
+			+ " where"
+			+ " (e.disabled = false)"
+			+ " and"
+			+ " (:identityId is null or e.identity.id = :identityId)"
+			+ " and"
+			+ "  (:onlyExterne is null or e.externe = :onlyExterne)"
+			+ " and"
+			+ " ( e.validTill is null or (?#{[0] == null ? 'null' : ''} = 'null' or e.validTill >= :date ))"
+			+ " and"
+			+ " ( e.validFrom is null or (?#{[0] == null ? 'null' : ''} = 'null' or e.validFrom <= :date ))")
+	List<IdmIdentityContract> findAllValidContracts(@Param("identityId") UUID identityId, @Param("date") LocalDate date, @Param("onlyExterne") Boolean onlyExterne);
+	
+	Long countByWorkPosition(@Param("treeNode") IdmTreeNode treeNode);
+	
+	Long countByWorkPosition_TreeType(@Param("treeType") IdmTreeType treeType);
 
 	/**
 	 * Removes all contracts of given identity
@@ -54,14 +84,34 @@ public interface IdmIdentityContractRepository extends AbstractEntityRepository<
 	int deleteByIdentity(@Param("identity") IdmIdentity identity);
 	
 	/**
-	 * Clears guarantee from all contracts, where identity is guarantee (=identity disclaims guarantee).
+	 * Returns expired contracts. Its useful to find enabled contracts only.
 	 * 
-	 * @param identity
+	 * @param expiration date to compare
+	 * @param disabled find disabled contracts or not
+	 * @param pageable
 	 * @return
 	 */
-	@Modifying
-	@Query("update #{#entityName} e set e.guarantee = null where e.guarantee = :identity")
-	int clearGuarantee(@Param("identity") IdmIdentity identity);
+	@Query(value = "select e from #{#entityName} e" +
+			" where"
+	        + " (validTill is not null and validTill < :expiration)")
+	Page<IdmIdentityContract> findExpiredContracts(@Param("expiration") LocalDate expiration, Pageable pageable);
 	
-
+	/**
+	 * Clears default tree type for all tree types instead given updatedEntityId
+	 * 
+	 * @param updatedEntityId
+	 */
+	@Modifying
+	@Query("update #{#entityName} e set e.main = false, e.modified = :modified where e.identity.id = :identityId and (:updatedEntityId is null or e.id != :updatedEntityId)")
+	void clearMain(@Param("identityId") UUID identityId, @Param("updatedEntityId") UUID updatedEntityId, @Param("modified") DateTime modified);
+	
+	/**
+	 * Returns persisted identity contract
+	 * 
+	 * @param identityContract
+	 * @return
+	 */
+	@Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.REPEATABLE_READ)
+	@Query("select e from #{#entityName} e where e.id = :identityContractId")
+	IdmIdentityContract getPersistedIdentityContract(@Param("identityContractId") UUID identityContractId);
 }

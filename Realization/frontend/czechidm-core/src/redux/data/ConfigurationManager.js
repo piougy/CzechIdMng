@@ -4,6 +4,7 @@ import Immutable from 'immutable';
 import EntityManager from './EntityManager';
 import { ConfigurationService } from '../../services';
 import DataManager from './DataManager';
+import { Actions, Properties } from '../config/constants';
 
 export default class ConfigurationManager extends EntityManager {
 
@@ -36,7 +37,12 @@ export default class ConfigurationManager extends EntityManager {
           json.forEach(item => {
             publicConfigurations = publicConfigurations.set(item.name, item);
           });
-          dispatch(this.dataManager.receiveData(uiKey, publicConfigurations));
+          // receive public configurations
+          dispatch({
+            type: Actions.CONFIGURATION_RECEIVED,
+            data: publicConfigurations
+          });
+          dispatch(this.dataManager.stopRequest(uiKey));
           if (cb) {
             cb(publicConfigurations);
           }
@@ -117,7 +123,7 @@ export default class ConfigurationManager extends EntityManager {
    * Returns setting value
    */
   static getPublicValue(state, key) {
-    const publicConfigurations = DataManager.getData(state, ConfigurationManager.PUBLIC_CONFIGURATIONS);
+    const publicConfigurations = state.config.get(Properties.PROPERTIES);
     if (!publicConfigurations) {
       return null;
     }
@@ -148,9 +154,23 @@ export default class ConfigurationManager extends EntityManager {
     }
     return isModuleEnabled === 'true';
   }
+
+  /**
+   * Returns environment stage [development, production, test]
+   *
+   * @param  {redux state} state
+   * @return {string} stage [development, production, test]
+   */
+  static getEnvironmentStage(state) {
+    const environment = ConfigurationManager.getPublicValue(state, 'idm.pub.app.stage');
+    if (environment) {
+      return environment.toLowerCase();
+    }
+    return null;
+  }
 }
 
-ConfigurationManager.PUBLIC_CONFIGURATIONS = 'public-configurations';
-ConfigurationManager.FILE_CONFIGURATIONS = 'file-configurations';
-ConfigurationManager.ENVIRONMENT_CONFIGURATIONS = 'environment-configurations';
-ConfigurationManager.GUARDED_PROPERTY_NAMES = ['password', 'token'];
+ConfigurationManager.PUBLIC_CONFIGURATIONS = 'public-configurations'; // ui key only
+ConfigurationManager.ENVIRONMENT_CONFIGURATIONS = 'environment-configurations'; // ui key to data redux
+ConfigurationManager.FILE_CONFIGURATIONS = 'file-configurations'; // ui key to data redux
+ConfigurationManager.GUARDED_PROPERTY_NAMES = ['password', 'token']; // automatically guarded property names

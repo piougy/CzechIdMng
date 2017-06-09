@@ -1,26 +1,41 @@
+//
+// Aplication entry point
+//
+
 // global babel polyfill - IE Symbol support, Object.assign etc.
 import 'babel-polyfill';
 import React from 'react';
 import ReactDOM from 'react-dom';
+import Helmet from 'react-helmet';
 // https://github.com/rackt/react-router/blob/master/upgrade-guides/v2.0.0.md#changes-to-thiscontext
 // TODO: serving static resources requires different approach - https://github.com/rackt/react-router/blob/master/docs/guides/basics/Histories.md#createbrowserhistory
 import { Router, hashHistory } from 'react-router';
 import { Provider } from 'react-redux';
 import merge from 'object-assign';
 import Immutable from 'immutable';
+import _ from 'lodash';
 import { combineReducers, compose, createStore, applyMiddleware } from 'redux';
 import thunkMiddleware from 'redux-thunk';
 import promiseMiddleware from 'redux-promise';
 import Promise from 'es6-promise';
 import log4js from 'log4js';
 //
-import persistState, {mergePersistedState} from 'redux-localstorage';
+import persistState, { mergePersistedState } from 'redux-localstorage';
 import filter from 'redux-localstorage-filter';
 //
 import { syncHistory, routeReducer } from 'react-router-redux';
 //
+import { Reducers, Managers, Basic, ConfigActions } from 'czechidm-core';
+import ConfigLoader from 'czechidm-core/src/utils/ConfigLoader';
+//
+// this parts are genetater dynamicaly to dist - after build wil be packed by browserify to sources
 import config from '../dist/config.json';
-import { Reducers, Managers } from 'czechidm-core';
+import { moduleDescriptors } from '../dist/modules/moduleAssembler';
+import { componentDescriptors } from '../dist/modules/componentAssembler';
+//
+// application routes root
+import App from './layout/App';
+//
 //
 // global promise init
 Promise.polyfill();
@@ -87,7 +102,7 @@ function adapter(storage) {
 }
 
 const reducersApp = combineReducers({
-  layout: Reducers.layout,
+  config: Reducers.config,
   messages: Reducers.messages,
   data: Reducers.data,
   security: Reducers.security,
@@ -153,55 +168,177 @@ const store = createStoreWithMiddleware(reducer);
 // Required for replaying actions from devtools to work
 reduxRouterMiddleware.listenForReplays(store);
 //
-// application routes root
-import App from './layout/App';
-const routes = {
-  component: 'div',
-  childRoutes: [
-    {
-      path: '/',
-      getComponent: (location, cb) => {
-        cb(null, App );
-      },
-      indexRoute: {
-        component: require('./layout/Dashboard'),
-        onEnter: Managers.SecurityManager.checkAccess,
-        access: [{ type: 'IS_AUTHENTICATED' }]
-      },
-      childRoutes: [
-        require('../dist/modules/routeAssembler')
-      ]
-    }
-  ]
-};
 
-// fills default onEnter on all routes
-function fillCheckAccess(route, moduleId) {
-  if (!route.onEnter) {
-    route.onEnter = Managers.SecurityManager.checkAccess;
+/**
+ * Returns unique route id by path (or component if path is not defined)
+ *
+ * @param  {string} parentRouteId
+ * @param  {route} route
+ * @return {string}
+ */
+function getRouteId(parentRouteId, route) {
+  let id = '';
+  if (parentRouteId) {
+    id += parentRouteId;
   }
-  if (!route.access) {
-    route.access = [{ type: 'IS_AUTHENTICATED' }];
-  }
-  // fill module to route from parent route
-  if (route.module === undefined) {
-    route.module = moduleId;
+  if (route.path) {
+    id += route.path;
   } else {
+    id += route.component;
+  }
+  return id;
+}
+
+/**
+ * Transform route tree to flat map.
+ * Adds route dafeul values.
+ * Removes routes from disabled module.
+ *
+ * @param  {immutable} routesMap result routes
+ * @param  {string} moduleId module identifier
+ * @param  {string} parentRouteId parent route identifier (we need them for unique route id)
+ * @param  {route} route processing route
+ * @return {immutable} result routes
+ */
+function fillRouteMap(routesMap, moduleId, parentRouteId, route) {
+  const routeId = getRouteId(parentRouteId, route);
+  // fill module to route from parent route
+  if (route.module !== undefined) {
     moduleId = route.module;
   }
-  if (route.childRoutes) {
+  // module is disabled - skip whole subtree
+  if (moduleId && !ConfigLoader.isEnabledModule(moduleId)) {
+    return routesMap;
+  }
+  // cloned route with filled default values
+  const clonedRoute = {
+    id: routeId,
+    parentId: parentRouteId,
+    module: route.module || moduleId,
+    access: route.access || [{ type: 'IS_AUTHENTICATED' }],
+    onEnter: route.onEnter || Managers.SecurityManager.checkAccess,
+    component: route.component,
+    path: route.path,
+    priority: route.priority || 0,
+    order: route.order || 0
+  };
+  // add route to flat map by priority and order
+  if (!routesMap.has(routeId)
+      || routesMap.get(routeId).priority < clonedRoute.priority // higher priority
+      || (routesMap.get(routeId).priority === clonedRoute.priority && routesMap.get(routeId).order > clonedRoute.order)) { // lower order
+    routesMap = routesMap.set(routeId, clonedRoute);
+  }
+  // children of route with less priority are forgotten
+  if (route.childRoutes && (routesMap.get(routeId).priority <= clonedRoute.priority)) {
     route.childRoutes.forEach(childRoute => {
-      fillCheckAccess(childRoute, moduleId);
+      routesMap = fillRouteMap(routesMap, moduleId, routeId, childRoute);
+    });
+  }
+  return routesMap;
+}
+
+/**
+ * Rebuild tree from flat map and original route tree.
+ *
+ * @param  {immutable} routesMap flat routes map (see fillRouteMap)
+ * @param  {route} targetRoute cloned route
+ * @param  {string} parentRouteId parent route identifier (we need them for unique route id)
+ * @param  {route} route original route (wee need to rebuild tree in the same structure)
+ */
+function fillRouteTree(routesMap, targetRoute, parentRouteId, route) {
+  const routeId = getRouteId(parentRouteId, route);
+  //
+  if (routesMap.has(routeId)) {
+    _.merge(targetRoute, routesMap.get(routeId));
+  } else {
+    // route was not found - is disabled etc.
+    return;
+  }
+  if (route.childRoutes) {
+    targetRoute.childRoutes = [];
+    route.childRoutes.forEach(childRoute => {
+      const targetChildRoute = {};
+      targetRoute.childRoutes.push(targetChildRoute);
+      fillRouteTree(routesMap, targetChildRoute, routeId, childRoute);
+    });
+    // sort routes by order
+    route.childRoutes = route.childRoutes.sort((one, two) => {
+      return one.order - two.order;
     });
   }
 }
-fillCheckAccess(routes, null);
-//
-// app entry point
-ReactDOM.render(
-  <Provider store={store}>
-    <Router history={hashHistory} routes={routes}/>
-  </Provider>
-  ,
-  document.getElementById('content')
-);
+
+store.dispatch(ConfigActions.appInit(config, moduleDescriptors, componentDescriptors, (error) => {
+  if (!error) {
+    const routeAssembler = require('../dist/modules/routeAssembler');
+    //
+    // prepare routes in flat map
+    let routeMap = new Immutable.OrderedMap();
+    routeAssembler.childRoutes.forEach(moduleRoute => { // wee need to skip "decorator" routes
+      if (moduleRoute.childRoutes) {
+        moduleRoute.childRoutes.forEach(route => {
+          routeMap = fillRouteMap(routeMap, moduleRoute.module, null, route);
+        });
+      }
+    });
+    //
+    // rebuild target routes
+    let resultRoutes = [];
+    routeAssembler.childRoutes.forEach(moduleRoute => { // wee need to skip "decorator" routes
+      if (moduleRoute.childRoutes) {
+        moduleRoute.childRoutes.forEach(route => {
+          const resultRoute = {};
+          resultRoutes.push(resultRoute);
+          fillRouteTree(routeMap, resultRoute, null, route);
+        });
+      }
+    });
+    // sort routes by order
+    //
+    resultRoutes = resultRoutes.filter(i => {
+      return i.id !== null && i.id !== undefined;
+    }).sort((one, two) => {
+      return one.order - two.order;
+    });
+    //
+    const routes = {
+      childRoutes: [
+        {
+          path: '/',
+          getComponent: (location, cb) => {
+            cb(null, App );
+          },
+          indexRoute: {
+            component: require('./layout/Dashboard'),
+            onEnter: Managers.SecurityManager.checkAccess,
+            access: [{ type: 'IS_AUTHENTICATED' }]
+          },
+          childRoutes: resultRoutes
+        }
+      ]
+    };
+    // init websocket for user messages (after F5 etc.)
+    store.dispatch(Managers.SecurityManager.connectStompClient());
+    //
+    // app entry point
+    ReactDOM.render(
+      <Provider store={store}>
+        <Router history={hashHistory} routes={routes}/>
+      </Provider>
+      ,
+      document.getElementById('content')
+    );
+  } else {
+    const flashManager = new Managers.FlashMessagesManager();
+    ReactDOM.render(
+      <div style={{ margin: 15 }}>
+        <Helmet title="503" />
+        <Basic.FlashMessage
+          icon="exclamation-sign"
+          message={flashManager.convertFromError(error)}/>
+      </div>
+      ,
+      document.getElementById('content')
+    );
+  }
+}));

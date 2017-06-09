@@ -14,15 +14,18 @@ import org.activiti.engine.impl.form.LongFormType;
 import org.activiti.engine.impl.form.StringFormType;
 
 public class CustomFormTypes extends FormTypes {
+	
+	protected static final String DATE_FORMAT_PATTERN = "yyyy-MM-dd"; // TODO: application scope configuration
 
 	public CustomFormTypes() {
 		// register Activiti's default form types
 		addFormType(new StringFormType());
 		addFormType(new LongFormType());
-		addFormType(new DateFormType("yyyy-MM-dd"));
+		addFormType(new DateFormType(DATE_FORMAT_PATTERN));
 		addFormType(new BooleanFormType());
 		addFormType(new DoubleFormType());
 		addFormType(new DecisionFormType());
+		addFormType(new ConfigurationFormType());
 	}
 
 	@Override
@@ -40,6 +43,12 @@ public class CustomFormTypes extends FormTypes {
 			}
 			case CheckboxFormType.TYPE_NAME: {
 				return new CheckboxFormType(values);
+			}
+			case LocalDateFormType.TYPE_NAME: {
+				return new LocalDateFormType(values);
+			}
+			case ConfigurationFormType.TYPE_NAME: {
+				return new ConfigurationFormType(values);
 			}
 			default: {
 				// delegate construction of all other types

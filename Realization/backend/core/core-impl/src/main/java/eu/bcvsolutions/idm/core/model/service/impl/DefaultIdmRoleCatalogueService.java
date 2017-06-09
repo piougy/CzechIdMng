@@ -1,9 +1,20 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
+
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -11,83 +22,262 @@ import org.springframework.util.Assert;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.RoleCatalogueFilter;
+import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
+import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
+import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.exception.TreeNodeException;
-import eu.bcvsolutions.idm.core.model.dto.filter.RoleCatalogueFilter;
+import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
+import eu.bcvsolutions.idm.core.model.entity.IdmForestIndexEntity_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
+import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogueRole;
+import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue_;
+import eu.bcvsolutions.idm.core.model.event.RoleCatalogueEvent;
+import eu.bcvsolutions.idm.core.model.event.RoleCatalogueEvent.RoleCatalogueEventType;
+import eu.bcvsolutions.idm.core.model.event.processor.role.RoleCatalogueDeleteProcessor;
+import eu.bcvsolutions.idm.core.model.event.processor.role.RoleCatalogueSaveProcessor;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleCatalogueRepository;
-import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
+import eu.bcvsolutions.idm.core.model.repository.IdmRoleCatalogueRoleRepository;
+import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmRoleCatalogueForestContentService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleCatalogueService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmTreeTypeService;
+import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
+import eu.bcvsolutions.idm.core.scheduler.task.impl.RebuildRoleCatalogueIndexTaskExecutor;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
+import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
 /**
  * Implementation of @IdmRoleCatalogueService
  * 
+ * TODO: forest index - refactor to dto usage
+ * TODO: baseTreeService - refactor to dto usage
+ * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
+ * @author Radek Tomiška
  *
  */
-
-@Service
-public class DefaultIdmRoleCatalogueService extends AbstractReadWriteEntityService<IdmRoleCatalogue, RoleCatalogueFilter>  implements IdmRoleCatalogueService {
+@Service("roleCatalogueService")
+public class DefaultIdmRoleCatalogueService 
+		extends AbstractReadWriteDtoService<IdmRoleCatalogueDto, IdmRoleCatalogue, RoleCatalogueFilter> 
+		implements IdmRoleCatalogueService {
 	
-	private final IdmRoleCatalogueRepository roleCatalogueRepository;
-	private final IdmRoleRepository roleRepository;
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmIdentityContractService.class);
+	private final IdmRoleCatalogueRepository repository;
+	private final IdmRoleCatalogueRoleRepository roleCatalogueRoleRepository;
 	private final DefaultBaseTreeService<IdmRoleCatalogue> baseTreeService;
+	private final IdmRoleCatalogueForestContentService forestContentService;
+	private final IdmConfigurationService configurationService;
+	private final LongRunningTaskManager longRunningTaskManager;
+	private final EntityEventManager entityEventManager;
 	
 	@Autowired
 	public DefaultIdmRoleCatalogueService(
-			IdmRoleCatalogueRepository roleCatalogueRepository,
-			IdmRoleRepository roleRepository,
-			DefaultBaseTreeService<IdmRoleCatalogue> baseTreeService) {
-		super(roleCatalogueRepository);
+			IdmRoleCatalogueRepository repository,
+			DefaultBaseTreeService<IdmRoleCatalogue> baseTreeService,
+			IdmRoleCatalogueRoleRepository roleCatalogueRoleRepository,
+			IdmRoleCatalogueForestContentService forestContentService,
+			IdmConfigurationService configurationService,
+			LongRunningTaskManager longRunningTaskManager,
+			EntityEventManager entityEventManager) {
+		super(repository);
 		//
-		Assert.notNull(roleRepository);
 		Assert.notNull(baseTreeService);
+		Assert.notNull(roleCatalogueRoleRepository);
+		Assert.notNull(forestContentService);
+		Assert.notNull(configurationService);
+		Assert.notNull(longRunningTaskManager);
+		Assert.notNull(entityEventManager);
 		//
-		this.roleCatalogueRepository = roleCatalogueRepository;
-		this.roleRepository = roleRepository;
+		this.repository = repository;
 		this.baseTreeService = baseTreeService;
+		this.roleCatalogueRoleRepository = roleCatalogueRoleRepository;
+		this.forestContentService = forestContentService;
+		this.configurationService = configurationService;
+		this.longRunningTaskManager = longRunningTaskManager;
+		this.entityEventManager = entityEventManager;
+	}
+	
+	@Override
+	public AuthorizableType getAuthorizableType() {
+		return new AuthorizableType(CoreGroupPermission.ROLECATALOGUE, getEntityClass());
 	}
 	
 	@Override
 	@Transactional(readOnly = true)
-	public IdmRoleCatalogue getByName(String name) {
-		return roleCatalogueRepository.findOneByName(name);
+	public IdmRoleCatalogueDto getByCode(String code) {
+		return toDto(repository.findOneByCode(code));
 	}
 	
+	/**
+	 * Publish {@link RoleCatalogueEvent} only.
+	 * 
+	 * @see {@link RoleCatalogueSaveProcessor}
+	 */
 	@Override
-	public IdmRoleCatalogue save(IdmRoleCatalogue entity) {
-		// test role catalogue to parent and children
-		if (this.baseTreeService.validateTreeNodeParents(entity)) {
-			throw new TreeNodeException(CoreResultCode.ROLE_CATALOGUE_BAD_PARENT,  "Role catalog ["+entity.getName() +"] have bad parent.");
+	@Transactional
+	public IdmRoleCatalogueDto save(IdmRoleCatalogueDto roleCatalogue, BasePermission... permission) {
+		Assert.notNull(roleCatalogue);
+		checkAccess(toEntity(roleCatalogue, null), permission);
+		if (isNew(roleCatalogue)) { // create
+			LOG.debug("Saving new role catalogue [{}]", roleCatalogue.getCode());
+			return entityEventManager.process(new RoleCatalogueEvent(RoleCatalogueEventType.CREATE, roleCatalogue)).getContent();
 		}
-		return super.save(entity);
+		LOG.debug("Saving role catalogue [{}]", roleCatalogue.getCode());
+		return entityEventManager.process(new RoleCatalogueEvent(RoleCatalogueEventType.UPDATE, roleCatalogue)).getContent();
 	}
 	
 	@Override
 	@Transactional
-	public void delete(IdmRoleCatalogue roleCatalogue) {
+	public IdmRoleCatalogueDto saveInternal(IdmRoleCatalogueDto roleCatalogue) {
+		if (isNew(roleCatalogue)) {
+			this.validate(toEntity(roleCatalogue));
+			// create new
+			roleCatalogue = super.saveInternal(roleCatalogue);
+			forestContentService.createIndex(toEntity(roleCatalogue));
+			return roleCatalogue;
+		}
+		this.validate(toEntity(roleCatalogue, repository.findOne(roleCatalogue.getId())));
+		// update - we need to reindex first
+		forestContentService.updateIndex(toEntity(roleCatalogue, repository.findOne(roleCatalogue.getId())));
+		return super.saveInternal(roleCatalogue);
+	}
+	
+	/**
+	 * Publish {@link RoleCatalogueEvent} only.
+	 * 
+	 * @see {@link RoleCatalogueDeleteProcessor}
+	 */
+	@Override
+	@Transactional
+	public void delete(IdmRoleCatalogueDto roleCatalogue, BasePermission... permission) {
+		Assert.notNull(roleCatalogue);
+		checkAccess(this.getEntity(roleCatalogue.getId()), permission);
+		Page<IdmRoleCatalogue> nodes = repository.findChildren(roleCatalogue.getId(), new PageRequest(0, 1));
+		if (nodes.getTotalElements() != 0) {
+			throw new ResultCodeException(CoreResultCode.ROLE_CATALOGUE_DELETE_FAILED_HAS_CHILDREN, ImmutableMap.of("roleCatalogue", roleCatalogue.getCode()));
+		}
+		//
+		LOG.debug("Deleting role catalogue [{}]", roleCatalogue.getCode());
+		entityEventManager.process(new RoleCatalogueEvent(RoleCatalogueEventType.DELETE, roleCatalogue));
+	}
+	
+	@Override
+	@Transactional
+	public void deleteInternal(IdmRoleCatalogueDto roleCatalogue) {
+		Page<IdmRoleCatalogue> nodes = repository.findChildren(roleCatalogue.getId(), new PageRequest(0, 1));
+		if (nodes.getTotalElements() != 0) {
+			throw new ResultCodeException(CoreResultCode.ROLE_CATALOGUE_DELETE_FAILED_HAS_CHILDREN, ImmutableMap.of("roleCatalogue", roleCatalogue.getCode()));
+		}
+		// remove row from intersection table
+		roleCatalogueRoleRepository.deleteAllByRoleCatalogue_Id(roleCatalogue.getId());
+		//
+		forestContentService.deleteIndex(toEntity(roleCatalogue));
+		super.deleteInternal(roleCatalogue);
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public Page<IdmRoleCatalogueDto> findRoots(Pageable pageable) {
+		return toDtoPage(repository.findRoots(pageable));
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public Page<IdmRoleCatalogueDto> findChildrenByParent(UUID parentId, Pageable pageable) {
+		return toDtoPage(repository.findChildren(parentId, pageable));
+	}
+	
+	@Override
+	public UUID rebuildIndexes() {
+		RebuildRoleCatalogueIndexTaskExecutor rebuildTask = AutowireHelper.createBean(RebuildRoleCatalogueIndexTaskExecutor.class);
+		UUID longRunningTaskId = longRunningTaskManager.execute(rebuildTask).getExecutor().getLongRunningTaskId();
+		// wee need long running task related to index rebuild immediately
+		configurationService.setValue(getConfigurationPropertyName(IdmTreeTypeService.CONFIGURATION_PROPERTY_REBUILD), longRunningTaskId.toString());
+		return longRunningTaskId;
+	}
+	
+	@Override
+	public String getConfigurationPropertyName(String propertyName) {
+		Assert.notNull(propertyName);
+		//
+		return String.format("%s%s", CONFIGURATION_PREFIX, propertyName);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<IdmRoleCatalogueDto> findAllByRole(UUID roleId) {
+		List<IdmRoleCatalogue> roleCatalogues = new ArrayList<>();
+		for (IdmRoleCatalogueRole roleCatalogueRole : roleCatalogueRoleRepository.findAllByRole_Id(roleId)) {
+			roleCatalogues.add(roleCatalogueRole.getRoleCatalogue());
+		}
+		return toDtos(roleCatalogues, true);
+	}
+	
+	@Override
+	protected List<Predicate> toPredicates(Root<IdmRoleCatalogue> root, CriteriaQuery<?> query, CriteriaBuilder builder,
+			RoleCatalogueFilter filter) {
+		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
+		// quick
+		if (StringUtils.isNotEmpty(filter.getText())) {
+			predicates.add(
+					builder.or(
+							builder.like(builder.lower(root.get(IdmRoleCatalogue_.name)), "%" + filter.getText().toLowerCase() + "%"),
+							builder.like(builder.lower(root.get(IdmRoleCatalogue_.code)), "%" + filter.getText().toLowerCase() + "%")
+							)
+					);
+		}
+		if (filter.getCode() != null) {
+			predicates.add(builder.equal(root.get(IdmRoleCatalogue_.code), filter.getCode()));
+		}
+		if (filter.getName() != null) {
+			predicates.add(builder.equal(root.get(IdmRoleCatalogue_.name), filter.getName()));
+		}
+		if (filter.getParent() != null) {
+			// recursively by default
+			Subquery<IdmRoleCatalogue> subquery = query.subquery(IdmRoleCatalogue.class);
+			Root<IdmRoleCatalogue> subRoot = subquery.from(IdmRoleCatalogue.class);
+			subquery.select(subRoot);
+			subquery.where(builder.and(
+				builder.equal(subRoot.get(AbstractEntity_.id), filter.getParent()),
+				// This is here because of the structure of forest index. We need to select only subtree and not the element itself.
+				// In order to do that, we must shrink the boundaries of query so it is true only for subtree of given node.
+				// Remember that between clause looks like this a >= x <= b, where a and b are boundaries, in our case lft+1 and rgt-1.
+				builder.between(root.get(IdmRoleCatalogue_.forestIndex).get(IdmForestIndexEntity_.lft),
+					builder.sum(subRoot.get(IdmRoleCatalogue_.forestIndex).get(IdmForestIndexEntity_.lft), 1L),
+					builder.diff(subRoot.get(IdmRoleCatalogue_.forestIndex).get(IdmForestIndexEntity_.rgt), 1L))));
+			predicates.add(builder.exists(subquery));
+		}
+		return predicates;
+	}
+	
+	/**
+	 * Method validate roleCatalogue before save (create/update).
+	 * 
+	 * @param roleCatalogue
+	 */
+	private void validate(IdmRoleCatalogue roleCatalogue) {
 		Assert.notNull(roleCatalogue);
 		//
-		if (!findChildrenByParent(roleCatalogue.getId()).isEmpty()) {
-			throw new ResultCodeException(CoreResultCode.ROLE_CATALOGUE_DELETE_FAILED_HAS_CHILDREN, ImmutableMap.of("roleCatalogue", roleCatalogue.getName()));
+		// test role catalogue to parent and children
+		if (this.baseTreeService.validateTreeNodeParents(roleCatalogue)) {
+			throw new TreeNodeException(CoreResultCode.ROLE_CATALOGUE_BAD_PARENT,  "Role catalog [" + roleCatalogue.getName() + "] have bad parent.");
 		}
-		// selected role catalogues - set to null
-		roleRepository.clearCatalogue(roleCatalogue);
 		//
-		super.delete(roleCatalogue);
-	}
-	
-	@Override
-	@Transactional(readOnly = true)
-	public List<IdmRoleCatalogue> findRoots() {
-		return this.roleCatalogueRepository.findChildren(null);
-	}
-	
-	@Override
-	@Transactional(readOnly = true)
-	public List<IdmRoleCatalogue> findChildrenByParent(UUID parent) {
-		return this.roleCatalogueRepository.findChildren(parent);
+		IdmRoleCatalogue parent = roleCatalogue.getParent();
+		List<IdmRoleCatalogue> roleCatalogues = null;
+		if (parent != null) { // get same level
+			roleCatalogues = repository.findDirectChildren(parent, null).getContent();
+		} else { // get roots
+			roleCatalogues = repository.findRoots(null).getContent();
+		}
+		//
+		if (this.baseTreeService.validateUniqueName(roleCatalogues, roleCatalogue)) {
+			throw new ResultCodeException(CoreResultCode.ROLE_CATALOGUE_BAD_NICE_NAME, ImmutableMap.of("name", roleCatalogue.getName()));
+		}
 	}
 	
 }

@@ -65,7 +65,7 @@ class Definition extends Basic.AbstractContent {
         </Basic.PageHeader>
 
         <Basic.Panel showLoading={showLoading}>
-          <Basic.AbstractForm ref="form" readOnly className="form-horizontal">
+          <Basic.AbstractForm ref="form" readOnly style={{ padding: '15px 15px 0 15px' }}>
             <Basic.TextField ref="key" label={this.i18n('key')}/>
             <Basic.TextField ref="name" label={this.i18n('name')}/>
             <Basic.TextField ref="resourceName" label={this.i18n('resourceName')}/>
@@ -74,7 +74,7 @@ class Definition extends Basic.AbstractContent {
             <Basic.TextField ref="version" label={this.i18n('version')}/>
             <Basic.TextField ref="id" label={this.i18n('id')}/>
             <Basic.TextField ref="deploymentId" label={this.i18n('deploymentId')}/>
-            <Basic.TextArea ref="description" label={this.i18n('description')}/>
+            <Basic.TextArea ref="description" rows={6} label={this.i18n('description')}/>
           </Basic.AbstractForm>
           <Basic.PanelFooter>
             <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>

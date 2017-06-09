@@ -1,61 +1,76 @@
 package eu.bcvsolutions.idm.core.api.event;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 
 /**
  * Default event context state holder (event results + metadata)
  * 
+ * @param <E> {@link BaseEntity}, {@link BaseDto} or any other {@link Serializable} content type
  * @author Radek Tomiška
- *
- * @param <E> {@link BaseEntity} type
  */
-public class DefaultEventContext<E extends BaseEntity> implements EventContext<E> {
+public class DefaultEventContext<E extends Serializable> implements EventContext<E> {
 
+	private static final long serialVersionUID = -6436267397424397636L;
 	private final List<EventResult<E>> processed = new ArrayList<>();
+	private boolean suspended;
+	private Integer processedOrder;
 	
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public List<EventResult<E>> getResults() {
 		return Collections.unmodifiableList(processed);
 	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public void addResult(EventResult<E> eventResult) {
 		processed.add(eventResult);
+		suspended = eventResult.isSuspended();
+		processedOrder = eventResult.getProcessedOrder();
 	}
 	
-	/**
-	 * Returns last event content, or null, if no event was processed.
-	 * 
-	 * @return
-	 */
 	@Override
 	public E getContent() {
 		if(processed.isEmpty()) {
 			return null;
 		}
-		return processed.get(processed.size() - 1).getEvent().getContent();
+		return getLastResult().getEvent().getContent();
 	}
 	
-	/**
-	 * Event is closed = no other events will be processed (break event chain)
-	 * 
-	 * @return
-	 */
+	@Override
+	public EventResult<E> getLastResult(){
+		return processed.get(processed.size() - 1);
+	}
+	
 	@Override
 	public boolean isClosed() {
 		if(processed.isEmpty()) {
 			return false;
 		}
-		return processed.get(processed.size() - 1).isClosed();
+		return getLastResult().isClosed();
+	}
+	
+	@Override
+	public boolean isSuspended() {
+		return suspended;
+	}
+	
+	@Override
+	public void setSuspended(boolean suspended) {
+		this.suspended = suspended;
+	}
+	
+	@Override
+	public Integer getProcessedOrder() {
+		return processedOrder;
+	}
+	
+	@Override
+	public void setProcessedOrder(Integer processedOrder) {
+		this.processedOrder = processedOrder;
 	}
 }

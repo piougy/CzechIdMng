@@ -30,14 +30,18 @@ class Profile extends Basic.AbstractContent {
   componentDidMount() {
     const { entityId } = this.props.params;
     this.selectNavigationItems(['identity-profile', 'profile-personal']);
-    this.context.store.dispatch(identityManager.fetchEntity(entityId));
+    this.context.store.dispatch(identityManager.fetchEntity(entityId, null, (entity, error) => {
+      this.handleError(error);
+    }));
   }
 
   render() {
     const { identity } = this.props;
     const { entityId } = this.props.params;
     return (
-      <IdentityDetail identity={identity} entityId={entityId} />
+      <div className="tab-pane-text-body">
+        <IdentityDetail identity={identity} entityId={entityId} />
+      </div>
     );
   }
 }

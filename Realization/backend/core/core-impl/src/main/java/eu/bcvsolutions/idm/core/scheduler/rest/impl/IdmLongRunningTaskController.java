@@ -1,0 +1,139 @@
+package eu.bcvsolutions.idm.core.scheduler.rest.impl;
+
+import java.util.UUID;
+
+import javax.validation.constraints.NotNull;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.hateoas.Resources;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.util.Assert;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
+
+import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
+import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
+import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
+import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
+import eu.bcvsolutions.idm.core.scheduler.dto.filter.LongRunningTaskFilter;
+import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskService;
+
+/**
+ * Default controller long running tasks (LRT)
+ * 
+ * @author Radek Tomiška
+ *
+ */
+@RestController
+@RequestMapping(value = BaseDtoController.BASE_PATH + "/long-running-tasks")
+public class IdmLongRunningTaskController
+	extends AbstractReadWriteDtoController<IdmLongRunningTaskDto, LongRunningTaskFilter> {
+	
+	private final LongRunningTaskManager longRunningTaskManager;
+	
+	@Autowired
+	public IdmLongRunningTaskController(
+			LookupService entityLookupService,
+			IdmLongRunningTaskService service,
+			LongRunningTaskManager longRunningTaskManager) {
+		super(service);
+		//
+		Assert.notNull(longRunningTaskManager);
+		//
+		this.longRunningTaskManager = longRunningTaskManager;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@ResponseBody
+	@RequestMapping(method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCHEDULER_READ + "')")
+	public Resources<?> find(@RequestParam MultiValueMap<String, Object> parameters, 
+			@PageableDefault Pageable pageable) {
+		return super.find(parameters, pageable);
+	}
+	
+	/**
+	 * All endpoints will support find quick method.
+	 * 
+	 * @param parameters
+	 * @param pageable
+	 * @param assembler
+	 * @return
+	 */
+	@ResponseBody
+	@RequestMapping(value= "/search/quick", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCHEDULER_READ + "')")
+	public Resources<?> findQuick(@RequestParam MultiValueMap<String, Object> parameters, 
+			@PageableDefault Pageable pageable) {
+		return super.find(parameters, pageable);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@ResponseBody
+	@RequestMapping(value = "/{backendId}", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCHEDULER_READ + "')")
+	public ResponseEntity<?> get(@PathVariable @NotNull String backendId) {
+		return super.get(backendId);
+	}
+	
+	/**
+	 * Cancels running job
+	 *
+	 * @param taskName name of task
+	 * @param triggerName name of trigger
+	 */
+	@ResponseBody
+	@RequestMapping(method = RequestMethod.PUT, value = "/{backendId}/cancel")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCHEDULER_UPDATE + "')")
+	public ResponseEntity<?> cancel(@PathVariable UUID backendId) {
+		longRunningTaskManager.cancel(backendId);
+		//
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
+	
+	/**
+	 * Kills running job
+	 *
+	 * @param taskName name of task
+	 * @param triggerName name of trigger
+	 */
+	@ResponseBody
+	@RequestMapping(method = RequestMethod.PUT, value = "/{backendId}/interrupt")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCHEDULER_UPDATE + "')")
+	public ResponseEntity<?> interrupt(@PathVariable UUID backendId) {
+		longRunningTaskManager.interrupt(backendId);
+		//
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
+	
+	/**
+	 * Executes prepared task from long running task queue
+	 * 
+	 * @return
+	 */
+	@ResponseBody
+	@RequestMapping(method = RequestMethod.POST, value = "/action/process-created")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCHEDULER_EXECUTE + "')")
+	public ResponseEntity<?> processCreated() {
+		longRunningTaskManager.processCreated();
+		//
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
+}

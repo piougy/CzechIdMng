@@ -1,6 +1,6 @@
 # Popover component
 
-Popover component built on top of Tip. Extended from AbstractComponent.
+Wrapped react bootstrap popover. Extended from AbstractComponent.
 
 ## Parameters
 
@@ -18,7 +18,7 @@ All parameters from AbstractComponent are supported. Added parameters:
 ## Usage
 
 ```html
-<Popover
+<Basic.Popover
   level="warning"
   title="Warning you are deleting entities!"
   value={
@@ -27,7 +27,7 @@ All parameters from AbstractComponent are supported. Added parameters:
     </span>
   }>
   {
-    <Button level="link">YES</Button>
+    <Basic.Button level="link">YES</Basic.Button>
   }
-</Popover>
+</Basic.Popover>
 ```

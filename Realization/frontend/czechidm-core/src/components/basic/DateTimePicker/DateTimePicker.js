@@ -8,6 +8,7 @@ import Datetime from 'react-datetime';
 import LocalizationService from '../../../services/LocalizationService';
 import Button from '../Button/Button';
 import Icon from '../Icon/Icon';
+import Tooltip from '../Tooltip/Tooltip';
 
 const INVALID_DATE = 'Invalid date';
 
@@ -172,8 +173,7 @@ class DateTimePicker extends AbstractFormComponent {
       style,
       locale,
       dateFormat,
-      timeFormat,
-      helpBlock
+      timeFormat
     } = this.props;
 
     const { readOnly, disabled, value } = this.state;
@@ -194,38 +194,39 @@ class DateTimePicker extends AbstractFormComponent {
           <label
             className={labelClassName}>
             {label}
+            { this.renderHelpIcon() }
           </label>
         }
         <div className={componentSpan}>
-          {
-            (disabled || readOnly)
-            ?
-            <div className="basic-date-time-picker">
-              <input type="text" value={value && value._isAMomentObject ? this._format(value) : value} readOnly className="form-control" style={style}/>
-            </div>
-            :
+          <Tooltip ref="popover" placement={ this.getTitlePlacement() } value={ this.getTitle() }>
             <div className="btn-group input-group basic-date-time-picker">
-              <Datetime
-                ref="input"
-                onChange={this.onChange}
-                disabled={disabled}
-                readOnly={readOnly}
-                style={style}
-                closeOnSelect
-                locale={_locale === 'cs' ? 'cs' : 'en'}
-                dateFormat={mode === 'time' ? false : _dateFormat}
-                timeFormat={mode === 'date' ? false : _timeFormat}
-                inputProps={{
-                  title: (this.getValidationResult() != null ? this.getValidationResult().message : ''),
-                  placeholder,
-                  style: {
-                    zIndex: 0
-                  }
-                }}/>
+              {
+                (disabled || readOnly)
+                ?
+                <input type="text" value={value && value._isAMomentObject ? this._format(value) : value} readOnly className="form-control" style={style}/>
+                :
+                <Datetime
+                  ref="input"
+                  onChange={this.onChange}
+                  disabled={disabled}
+                  readOnly={readOnly}
+                  style={style}
+                  closeOnSelect
+                  locale={_locale === 'cs' ? 'cs' : 'en'}
+                  dateFormat={mode === 'time' ? false : _dateFormat}
+                  timeFormat={mode === 'date' ? false : _timeFormat}
+                  inputProps={{
+                    title: (this.getValidationResult() != null ? this.getValidationResult().message : ''),
+                    placeholder,
+                    style: {
+                      zIndex: 0
+                    }
+                  }}/>
+              }
               <Button type="button"
                 level="default"
                 className="btn-sm"
-                disabled={disabled}
+                disabled={disabled || readOnly}
                 style={{marginTop: '0px', height: '34px', borderLeftWidth: '0px'}}
                 onClick={this._openDialog.bind(this)}>
                 <Icon type="fa" icon="calendar"/>
@@ -233,19 +234,20 @@ class DateTimePicker extends AbstractFormComponent {
               <Button type="button"
                 level="default"
                 className="btn-sm"
-                disabled={disabled}
+                disabled={disabled || readOnly}
                 style={{marginTop: '0px', height: '34px'}}
                 onClick={this._clear.bind(this)}>
                 <Icon type="fa" icon="remove"/>
               </Button>
-              { feedback != null ? <span className="glyphicon glyphicon-warning-sign form-control-feedback" style={{ right: -30, zIndex: 0 }}/> : '' }
+              {
+                !feedback
+                ||
+                <Icon icon="warning-sign" className="form-control-feedback" style={{ right: -30, top: 0, zIndex: 0 }}/>
+              }
             </div>
-          }
-          {
-            !helpBlock
-            ||
-            <span className="help-block" style={{ whiteSpace: 'normal' }}>{helpBlock}</span>
-          }
+          </Tooltip>
+          { !label ? this.renderHelpIcon() : null }
+          { this.renderHelpBlock() }
         </div>
       </div>
     );
@@ -262,8 +264,7 @@ DateTimePicker.propTypes = {
 
 const { componentSpan, ...otherDefaultProps} = AbstractFormComponent.defaultProps; // componentSpan override
 DateTimePicker.defaultProps = {
-  ...otherDefaultProps,
-  componentSpan: 'col-sm-5'
+  ...otherDefaultProps
 };
 
 export default DateTimePicker;

@@ -6,8 +6,14 @@ import AccountManager from './AccountManager';
 import IdentityAccountManager from './IdentityAccountManager';
 import SchemaObjectClassManager from './SchemaObjectClassManager';
 import SchemaAttributeManager from './SchemaAttributeManager';
-import SchemaAttributeHandlingManager from './SchemaAttributeHandlingManager';
-import SystemEntityHandlingManager from './SystemEntityHandlingManager';
+import SystemAttributeMappingManager from './SystemAttributeMappingManager';
+import SystemMappingManager from './SystemMappingManager';
+import SynchronizationLogManager from './SynchronizationLogManager';
+import SynchronizationConfigManager from './SynchronizationConfigManager';
+import ProvisioningOperationManager from './ProvisioningOperationManager';
+import ProvisioningArchiveManager from './ProvisioningArchiveManager';
+import SyncActionLogManager from './SyncActionLogManager';
+import SyncItemLogManager from './SyncItemLogManager';
 
 const ManagerRoot = {
   SystemManager,
@@ -17,9 +23,15 @@ const ManagerRoot = {
   IdentityAccountManager,
   SchemaObjectClassManager,
   SchemaAttributeManager,
-  SchemaAttributeHandlingManager,
-  SystemEntityHandlingManager,
-  RoleSystemAttributeManager
+  SystemAttributeMappingManager,
+  SystemMappingManager,
+  RoleSystemAttributeManager,
+  SynchronizationLogManager,
+  SynchronizationConfigManager,
+  ProvisioningOperationManager,
+  ProvisioningArchiveManager,
+  SyncActionLogManager,
+  SyncItemLogManager
 };
 
 ManagerRoot.version = '0.0.1';

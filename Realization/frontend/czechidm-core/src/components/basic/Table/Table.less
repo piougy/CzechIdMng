@@ -7,12 +7,27 @@
 .basic-table {
   max-width: 100%;
   overflow-x: auto;
+
+  &.vertical-scroll {
+    overflow-y: auto;
+    max-height: 500px;
+  }
 }
 
 .basic-table .table > thead > tr > td, .basic-table .table > thead > tr > th {
   vertical-align: bottom;
   border-bottom: 1px solid lighten(@idm-base-color, 15%);
   font-weight: bolder;
+}
+
+.basic-table .table > thead > tr.basic-table-header > th {
+  font-size: 16px;
+  line-height: 22px;
+  font-weight: normal;
+
+  small {
+    color: @idm-small-color;
+  }
 }
 
 .basic-table .table {
@@ -68,7 +83,10 @@
       }
     }
 
-    td .column-face-bool, td.column-face-bool {
+    td .column-face-bool,
+    td.column-face-bool,
+    td .column-face-boolean,
+    td.column-face-boolaen {
       text-align: center;
     }
   }

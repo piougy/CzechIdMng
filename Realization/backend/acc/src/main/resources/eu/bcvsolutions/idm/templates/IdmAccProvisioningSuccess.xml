@@ -1,0 +1,21 @@
+<?xml version = "1.0" encoding = "UTF-8" standalone = "yes"?>
+<!-- 
+Default notification template with info about provisioning success.
+
+parameters:
+	-	name
+	-	system
+	-	operationType
+	-	objectClass
+ -->
+ 
+<template>
+	<name>Provisioning on system was successful</name>
+	<code>provisioningSuccess</code>
+	<subject>Proběhl provisioning účtu $name</subject>
+	<bodyHtml>Provisioning účtu $name na systém $system úspěšně proběhl.</bodyHtml>
+	<bodyText>Provisioning uctu $name na system $system uspesne probehl.</bodyText>
+	<parameter>name, system, operationType, objectClass</parameter>
+	<systemTemplate>true</systemTemplate>
+	<moduleId>acc</moduleId>
+</template>

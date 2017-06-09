@@ -4,6 +4,8 @@ import * as Basic from '../../basic';
 
 /**
  * Simple date formatter with default format from localization
+ *
+ * @author Radek Tomiška
  */
 class DateValue extends Basic.AbstractContextComponent {
 
@@ -34,6 +36,9 @@ class DateValue extends Basic.AbstractContextComponent {
 
 DateValue.propTypes = {
   ...Basic.DateValue.propTypes,
+  /**
+   * Show date and time
+   */
   showTime: PropTypes.bool
 };
 

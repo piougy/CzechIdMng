@@ -4,6 +4,8 @@ import java.io.Serializable;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.NoRepositoryBean;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,14 +18,14 @@ import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 /**
  * Common repository for base entities
  * 
- * @author Radek Tomiška
- *
  * @param <E> entity type
  * @param <ID> entity identifier type
  * @param <F> basic filter
+ * @author Radek Tomiška
  */
 @NoRepositoryBean
-public interface BaseEntityRepository<E extends BaseEntity, ID extends Serializable, F extends BaseFilter> extends PagingAndSortingRepository<E, ID> {
+public interface BaseEntityRepository<E extends BaseEntity, ID extends Serializable, F extends BaseFilter> 
+		extends PagingAndSortingRepository<E, ID>, JpaSpecificationExecutor<E> {
 
 	/**
 	 * Find all is not supposed to be used on big recourd counts
@@ -33,7 +35,7 @@ public interface BaseEntityRepository<E extends BaseEntity, ID extends Serializa
 	Iterable<E> findAll();
 
 	/**
-	 * Quick filter
+	 * Quick filter - is need to be overridden in all sub interfaces.
 	 * 
 	 * @see {@link QuickFilter}
 	 * @see {@link EmptyFilter}
@@ -41,7 +43,10 @@ public interface BaseEntityRepository<E extends BaseEntity, ID extends Serializa
 	 * @param filter
 	 * @param pageable
 	 * @return
+	 * @deprecated use criteria api
 	 */
+	@Deprecated
+	@Query(value = "select e from #{#entityName} e")
 	Page<E> find(F filter, Pageable pageable);
 }
 

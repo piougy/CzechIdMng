@@ -9,6 +9,7 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.cors.CorsConfiguration;
 
+import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
 
 /**
@@ -19,11 +20,11 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
  */
 public class DynamicCorsConfiguration extends CorsConfiguration {
 	
-	public static final String PROPERTY_ALLOWED_ORIGIN = "idm.pub.core.security.allowed-origins";
+	public static final String PROPERTY_ALLOWED_ORIGIN = "idm.pub.security.allowed-origins";
 	public static final String PROPERTY_ALLOWED_ORIGIN_SEPARATOR = ",";
 	
 	@Autowired
-	private IdmConfigurationService configurationService;
+	private ConfigurationService configurationService;
 	
 	/**
 	 * Check the origin of the request against the configured allowed origins. 
@@ -38,14 +39,14 @@ public class DynamicCorsConfiguration extends CorsConfiguration {
 		if (!StringUtils.hasText(requestOrigin)) {
 			return null;
 		}
-		List<String> allowedOrigins= getAllowedOrigins();
+		List<String> allowedOrigins = getAllowedOrigins();
 		
 		if (ObjectUtils.isEmpty(allowedOrigins)) {
 			return null;
 		}
 
 		if (allowedOrigins.contains(ALL)) {
-			if (this.getAllowCredentials() != Boolean.TRUE) {
+			if (!Boolean.TRUE.equals(this.getAllowCredentials())) {
 				return ALL;
 			}
 			else {
@@ -73,5 +74,5 @@ public class DynamicCorsConfiguration extends CorsConfiguration {
 		// we want to replace white spaces and split by separator
 		return Arrays.asList(allowedOrigins.replaceAll("\\s*", "").split(PROPERTY_ALLOWED_ORIGIN_SEPARATOR));
 	}
-	
+
 }

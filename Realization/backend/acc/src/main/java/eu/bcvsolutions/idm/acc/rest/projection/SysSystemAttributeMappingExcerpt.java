@@ -1,0 +1,41 @@
+package eu.bcvsolutions.idm.acc.rest.projection;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.rest.core.config.Projection;
+
+import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
+import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
+import eu.bcvsolutions.idm.core.api.rest.projection.AbstractDtoProjection;
+
+/**
+ * System role attribute mapping excerpt
+ * 
+ * 
+ * @author Svanda
+ *
+ */
+@Projection(name = "excerpt", types = SysSystemAttributeMapping.class)
+public interface SysSystemAttributeMappingExcerpt extends AbstractDtoProjection {
+
+	String getName();
+
+	String getIdmPropertyName();
+
+	SysSchemaAttribute getSchemaAttribute();
+
+	boolean isExtendedAttribute();
+
+	boolean isUid();
+
+	@Value("#{target.transformFromResourceScript != null && !target.transformFromResourceScript.isEmpty()}")
+	boolean isTransformationFromResource();
+
+	@Value("#{target.transformToResourceScript != null && !target.transformToResourceScript.isEmpty()}")
+	boolean isTransformationToResource();
+
+	public boolean isConfidentialAttribute();
+	
+	public boolean isDisabledAttribute();
+
+	public boolean isEntityAttribute();
+}

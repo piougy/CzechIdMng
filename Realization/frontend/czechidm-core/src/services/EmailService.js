@@ -4,7 +4,7 @@ import SearchParameters from '../domain/SearchParameters';
 export default class EmailService extends AbstractService {
 
   getApiPath() {
-    return '/emails';
+    return '/notification-emails';
   }
 
   getNiceLabel(email) {

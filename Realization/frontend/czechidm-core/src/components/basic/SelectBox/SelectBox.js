@@ -6,13 +6,21 @@ import _ from 'lodash';
 //
 import Icon from '../Icon/Icon';
 import Tooltip from '../Tooltip/Tooltip';
+import FlashMessage from '../FlashMessages/FlashMessage';
 import AbstractFormComponent from '../AbstractFormComponent/AbstractFormComponent';
 import EntityManager from '../../../redux/data/EntityManager';
+import SearchParameters from '../../../domain/SearchParameters';
 
 const NICE_LABEL = 'niceLabel';
 const ITEM_FULL_KEY = 'itemFullKey';
 const ITEM_VALUE = 'value';
 
+/**
+ * A Select control - async loads option from BE.
+ *
+ * @author svanda
+ * @author Radek Tomiška
+ */
 class SelectBox extends AbstractFormComponent {
 
   constructor(props) {
@@ -20,14 +28,19 @@ class SelectBox extends AbstractFormComponent {
     this.getOptions = this.getOptions.bind(this);
     this.state = {
       ...this.state,
-      options: []
+      options: [],
+      error: null
     };
+  }
+
+  getComponentKey() {
+    return 'component.basic.SelectBox';
   }
 
   componentWillReceiveProps(nextProps) {
     super.componentWillReceiveProps(nextProps);
     const { forceSearchParameters} = nextProps;
-    if (forceSearchParameters && forceSearchParameters !== this.props.forceSearchParameters) {
+    if (!SearchParameters.is(forceSearchParameters, this.props.forceSearchParameters)) {
       this._initComponent(nextProps);
     }
   }
@@ -44,8 +57,11 @@ class SelectBox extends AbstractFormComponent {
    */
   _initComponent(props) {
     // initialize value
-    // We have to propagat actual forceSearchParameters (maybe from this.props, maybe from nextProps)
-    this.getOptions('', props.forceSearchParameters);
+    // We have to propagate actual forceSearchParameters (maybe from this.props, maybe from nextProps)
+    const { useFirst, forceSearchParameters } = props;
+    if (useFirst) {
+      this.getOptions('', forceSearchParameters, true);
+    }
   }
 
   getRequiredValidationSchema() {
@@ -59,9 +75,12 @@ class SelectBox extends AbstractFormComponent {
    * Merge hard and user deffined search parameters
    */
   _createSearchParameters(inputText, forceSearchParameters) {
-    const {manager } = this.props;
+    const { manager, pageSize } = this.props;
     // user input
-    const searchParameters = manager.getDefaultSearchParameters().setFilter('text', inputText); // TODO: configurable search properties
+    let searchParameters = manager.getDefaultSearchParameters().setFilter('text', inputText).setSize(pageSize || SearchParameters.DEFAUT_SIZE); // TODO: configurable search properties
+    if (manager.supportsAuthorization()) {
+      searchParameters = searchParameters.setName(SearchParameters.NAME_AUTOCOMPLETE);
+    }
     // hard filters
     let _forceSearchParameters = null;
     if (forceSearchParameters) {
@@ -71,14 +90,28 @@ class SelectBox extends AbstractFormComponent {
     return manager.mergeSearchParameters(searchParameters, _forceSearchParameters);
   }
 
-  getOptions(input, forceSearchParameters) {
+  getOptions(input, forceSearchParameters, useFirst = false) {
     const { manager } = this.props;
     const searchParameters = this._createSearchParameters(input, forceSearchParameters);
+    const timeInMs = Date.now();
+    // We create unique key for this call and save it to component state
+    const uiKey = `${manager.getEntityType()}_${(timeInMs)}`;
     this.setState({
-      isLoading: true
+      isLoading: true,
+      uiKeyCurrent: uiKey
     }, () => {
-      this.context.store.dispatch(manager.fetchEntities(searchParameters, null, (json, error) => {
+      this.context.store.dispatch(manager.fetchEntities(searchParameters, uiKey, (json, error, resultUiKey) => {
         if (!error) {
+          // We confirm if is uiKey in result same as uiKey saved in component state
+          // If is key different, then is result older and we don`t want him.
+          if (resultUiKey !== this.state.uiKeyCurrent) {
+            this.getLogger().debug(`[SelectBox]: Recieved data is too old, we will throw out data! [${resultUiKey}|${this.state.uiKeyCurrent}]`);
+            this.setState({
+              isLoading: false
+            });
+            return;
+          }
+
           const result = json;
           let data = null;
           const results = result._embedded[manager.getCollectionType()];
@@ -88,20 +121,31 @@ class SelectBox extends AbstractFormComponent {
                 continue;
               }
               this.itemRenderer(results[item], input);
+              // use the first value
+              if (this.state.value === null && useFirst) {
+                this.onChange(results[item]);
+              }
             }
             data = {
               options: result._embedded[manager.getCollectionType()],
               complete: results.length >= result.page.totalElements,
             };
+            if (!data.complete) {
+              data.options.push({
+                [NICE_LABEL]: this.i18n('results', { escape: false, count: searchParameters.getSize(), total: result.page.totalElements}),
+                [ITEM_FULL_KEY]: input,
+                disabled: true // info only
+              });
+            }
           }
           this.setState({
             options: data.options,
             isLoading: false
           });
         } else {
-          this.addError(error);
           this.setState({
-            isLoading: false
+            isLoading: false,
+            error
           });
         }
       }));
@@ -109,6 +153,8 @@ class SelectBox extends AbstractFormComponent {
   }
 
   getValue() {
+    const { returnProperty } = this.props;
+    //
     if (!this.state.value) {
       if (this.props.multiSelect === true) {
         return [];
@@ -119,9 +165,11 @@ class SelectBox extends AbstractFormComponent {
     if (this.state.value instanceof Array && this.props.multiSelect === true) {
       const copyValues = [];
       for (const item of this.state.value) {
-        const entityId = (this._deletePrivateField(_.merge({}, item))).id;
-        if (entityId) {
-          copyValues.push(entityId);
+        const copyValue = this._deletePrivateField(_.merge({}, item));
+        if (returnProperty) {
+          copyValues.push(copyValue[returnProperty]);
+        } else {
+          copyValues.push(copyValue);
         }
       }
       return copyValues;
@@ -129,8 +177,11 @@ class SelectBox extends AbstractFormComponent {
     // value is not array
     const copyValue = _.merge({}, this.state.value);
     this._deletePrivateField(copyValue);
-    // result property value
-    return copyValue[this.props.returnProperty];
+    // result property value - if value is false, then whole object is returned
+    if (returnProperty) {
+      return copyValue[returnProperty];
+    }
+    return copyValue;
   }
 
   _deletePrivateField(item) {
@@ -155,29 +206,26 @@ class SelectBox extends AbstractFormComponent {
     const { manager } = this.props;
     //
     if (value) {
-      // start loading
-      this.setState({
-        isLoading: true
-      }, () => {
-        // value is array ... multiselect
-        if (value instanceof Array && this.props.multiSelect === true) {
-          if (_.isEmpty(value)) {
-            this.setState({
-              isLoading: false
-            });
-          } else {
-            let isError = false;
-            const renderedValues = [];
-            //
-            for (const item of _.clone(value)) {
-              if (item instanceof Object && !item.itemFullKey) {
-                // value is object but doesn't have itemFullKey attribute
-                this.itemRenderer(item, '');
-              } else if (manager && ((typeof item === 'string') || (typeof item === 'number'))) {
-                // value is string, we try load entity by id
-                if (!manager.isShowLoading(this.context.store.getState(), null, item)) {
+      // value is array ... multiselect
+      if (value instanceof Array && this.props.multiSelect === true) {
+        if (_.isEmpty(value)) {
+          // nothing
+        } else {
+          let isError = false;
+          const renderedValues = [];
+          //
+          for (const item of _.clone(value)) {
+            if (item instanceof Object && !item.itemFullKey) {
+              // value is object but doesn't have itemFullKey attribute
+              this.itemRenderer(item, '');
+            } else if (manager && ((typeof item === 'string') || (typeof item === 'number'))) {
+              // value is string, we try load entity by id
+              if (!manager.isShowLoading(this.context.store.getState(), null, item)) {
+                this.setState({
+                  isLoading: true
                   /* eslint-disable no-loop-func */
-                  this.context.store.dispatch(manager.fetchEntityIfNeeded(item, null, (json, error) => {
+                }, () => {
+                  this.context.store.dispatch(manager.autocompleteEntityIfNeeded(item, null, (json, error) => {
                     if (!error) {
                       this.itemRenderer(json, '');
                       // add item to array
@@ -196,39 +244,43 @@ class SelectBox extends AbstractFormComponent {
                         }
                       }
                     } else {
-                      this.addError(error);
                       isError = true;
                       renderedValues.push(item);
+                      this.setState({
+                        error
+                      });
                     }
                   }));
-                }
+                });
               }
             }
-            this.setState({
-              isLoading: false
-            });
           }
-        } else if (value instanceof Object && !value.itemFullKey) {
-          // value is object but doesn't have itemFullKey attribute
-          this.itemRenderer(value, '');
-          this.setState({isLoading: false});
-        } else if (typeof value === 'string' || typeof value === 'number') {
-          // value is string, we try load entity by id
-          if (!manager.isShowLoading(this.context.store.getState(), null, value)) {
-            this.context.store.dispatch(manager.fetchEntityIfNeeded(value, null, (json, error) => {
+        }
+      } else if (value instanceof Object && !value.itemFullKey) {
+        // value is object but doesn't have itemFullKey attribute
+        this.itemRenderer(value, '');
+        this.setState({isLoading: false});
+      } else if (typeof value === 'string' || typeof value === 'number') {
+        // value is string, we try load entity by id
+        if (manager && !manager.isShowLoading(this.context.store.getState(), null, value)) {
+          this.setState({
+            isLoading: false
+          }, () => {
+            this.context.store.dispatch(manager.autocompleteEntityIfNeeded(value, null, (json, error) => {
               if (!error) {
                 this.itemRenderer(json, '');
                 this.setState({ value: json, isLoading: false }, this.validate);
               } else {
-                this.addError(error);
-                this.setState({value: null, isLoading: false});
+                this.setState({
+                  value: null,
+                  isLoading: false,
+                  error
+                });
               }
             }));
-          }
-        } else {
-          this.setState({isLoading: false});
+          });
         }
-      });
+      }
     }
     return value;
   }
@@ -262,11 +314,20 @@ class SelectBox extends AbstractFormComponent {
   }
 
   itemRenderer(item, input) {
-    const niceLabel = this.props.manager.getNiceLabel(item);
+    const { niceLabel } = this.props;
+
+    let _niceLabel;
+    if (niceLabel) {
+      _niceLabel = niceLabel(item);
+    } else {
+      _niceLabel = this.props.manager.getNiceLabel(item);
+    }
+
     const inputLower = input.toLowerCase();
-    let itemFullKey = niceLabel;
+
+    let itemFullKey = _niceLabel;
     if (inputLower) {
-      if (!niceLabel.toLowerCase().indexOf(inputLower) >= 0) {
+      if (!_niceLabel.toLowerCase().indexOf(inputLower) >= 0) {
         for (const field of this.props.searchInFields) {
           if (item[field].toLowerCase().indexOf(inputLower) >= 0) {
             itemFullKey = itemFullKey + ' (' + item[field] + ')';
@@ -275,7 +336,8 @@ class SelectBox extends AbstractFormComponent {
         }
       }
     }
-    _.merge(item, {[NICE_LABEL]: niceLabel, [ITEM_FULL_KEY]: itemFullKey});
+
+    _.merge(item, {[NICE_LABEL]: _niceLabel, [ITEM_FULL_KEY]: itemFullKey});
   }
 
   onInputChange(value) {
@@ -284,13 +346,20 @@ class SelectBox extends AbstractFormComponent {
 
   getBody(feedback) {
     const { labelSpan, label, componentSpan, required } = this.props;
+    const { value, disabled, isLoading, error } = this.state;
+    //
     const labelClassName = classNames(labelSpan, 'control-label');
-    const title = this.getValidationResult() != null ? this.getValidationResult().message : null;
+    //
     let showAsterix = false;
-    if (required && !this.state.value) {
+    if (required && !value) {
       showAsterix = true;
     }
-
+    if (error) {
+      return (
+        <FlashMessage message={ this.flashMessagesManager.convertFromError(error) }/>
+      );
+    }
+    //
     return (
       <div className={showAsterix ? 'has-feedback' : ''}>
         {
@@ -299,17 +368,19 @@ class SelectBox extends AbstractFormComponent {
           <label
             className={labelClassName}>
             {label}
+            { this.renderHelpIcon() }
           </label>
         }
         <div className={componentSpan}>
           {
-            (this.state.disabled === true && this.props.multiSelect !== true)
+            (disabled === true && this.props.multiSelect !== true)
             ?
-            <div ref="selectComponent" className="form-text">{this.state.value ? this.state.value[this.props.fieldLabel] : null}
-              <Icon type="fa" icon="refresh" className="icon-loading" rendered={this.state.isLoading === true} showLoading/>
+            <div ref="selectComponent" className="form-text">
+              { value ? value[this.props.fieldLabel] : null }
+              <Icon type="fa" icon="refresh" className="icon-loading" rendered={ isLoading === true } showLoading/>
             </div>
             :
-            <Tooltip ref="popover" placement="right" value={title}>
+            <Tooltip ref="popover" placement={ this.getTitlePlacement() } value={ this.getTitle() }>
               <span>
                 {this.getSelectComponent()}
                 {
@@ -331,6 +402,8 @@ class SelectBox extends AbstractFormComponent {
             </Tooltip>
           }
           {this.props.children}
+          { !label ? this.renderHelpIcon() : null }
+          { this.renderHelpBlock() }
         </div>
       </div>
     );
@@ -341,33 +414,42 @@ class SelectBox extends AbstractFormComponent {
       return placeholder;
     }
     // default placeholder
-    return this.i18n('label.select', { defaultValue: 'Select ...' });
+    return this.i18n('label.searchSelect', { defaultValue: 'Select or type to search ...' });
+  }
+
+  /**
+   * Load first page on input is opened
+   */
+  onOpen() {
+    // loads default first page.
+    this.getOptions('', this.props.forceSearchParameters);
   }
 
   getSelectComponent() {
-    const { placeholder, fieldLabel, multiSelect, clearable } = this.props;
+    const { placeholder, fieldLabel, multiSelect, clearable} = this.props;
     const { isLoading, options, readOnly, disabled, value } = this.state;
     //
     return (
-      <Select
-        ref="selectComponent"
-        isLoading={isLoading}
-        value={value}
-        onChange={this.onChange}
-        disabled={readOnly || disabled}
-        ignoreCase
-        ignoreAccents={false}
-        multi={multiSelect}
-        onValueClick={this.gotoContributor}
-        valueKey={ITEM_FULL_KEY}
-        labelKey={fieldLabel}
-        noResultsText={this.i18n('component.basic.SelectBox.noResultsText')}
-        placeholder={this.getPlaceholder(placeholder)}
-        searchingText={this.i18n('component.basic.SelectBox.searchingText')}
-        searchPromptText={this.i18n('component.basic.SelectBox.searchPromptText')}
-        clearable={clearable}
-        onInputChange={this.onInputChange.bind(this)}
-        options={options}/>
+        <Select
+          ref="selectComponent"
+          isLoading={isLoading}
+          value={value}
+          onChange={this.onChange}
+          disabled={readOnly || disabled}
+          ignoreCase
+          ignoreAccents={false}
+          multi={multiSelect}
+          onValueClick={this.gotoContributor}
+          valueKey={ITEM_FULL_KEY}
+          labelKey={fieldLabel}
+          noResultsText={this.i18n('component.basic.SelectBox.noResultsText')}
+          placeholder={this.getPlaceholder(placeholder)}
+          searchingText={this.i18n('component.basic.SelectBox.searchingText')}
+          searchPromptText={this.i18n('component.basic.SelectBox.searchPromptText')}
+          clearable={clearable}
+          onInputChange={this.onInputChange.bind(this)}
+          options={options}
+          onOpen={ this.onOpen.bind(this) }/>
     );
   }
 }
@@ -391,13 +473,30 @@ SelectBox.propTypes = {
    */
   forceSearchParameters: PropTypes.object,
   /**
-  * If object is selected, then this property value will be returned
+  * If object is selected, then this property value will be returned. If value is false, then whole object is returned.
   */
-  returnProperty: PropTypes.string,
+  returnProperty: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.bool
+  ]),
   /**
    * Selected options can be cleared
    */
-  clearable: PropTypes.bool
+  clearable: PropTypes.bool,
+  /**
+   * Function with transform label in select box
+   */
+  niceLabel: PropTypes.func,
+  /**
+   * Use the first searched value, if value is empty
+   */
+  useFirst: PropTypes.bool,
+  /**
+   * Search results page size
+   * @see SearchParameters.DEFAUT_SIZE
+   * @see SearchParameters.MAX_SIZE
+   */
+  pageSize: PropTypes.number
 };
 
 SelectBox.defaultProps = {
@@ -406,7 +505,9 @@ SelectBox.defaultProps = {
   multiSelect: false,
   returnProperty: 'id',
   searchInFields: [],
-  clearable: true
+  clearable: true,
+  useFirst: false,
+  pageSize: SearchParameters.DEFAUT_SIZE
 };
 
 SelectBox.NICE_LABEL = NICE_LABEL;

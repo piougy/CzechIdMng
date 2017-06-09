@@ -21,13 +21,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
-import eu.bcvsolutions.idm.acc.dto.SchemaAttributeFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteEntityController;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
-import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
-import eu.bcvsolutions.idm.security.api.domain.Enabled;;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
+import eu.bcvsolutions.idm.core.security.api.domain.Enabled;;
 
 /**
  * Schema attribute rest
@@ -40,7 +40,7 @@ import eu.bcvsolutions.idm.security.api.domain.Enabled;;
 public class SysSchemaAttributeController extends AbstractReadWriteEntityController<SysSchemaAttribute, SchemaAttributeFilter> {
 
 	@Autowired
-	public SysSchemaAttributeController(EntityLookupService entityLookupService, SysSchemaAttributeService service) {
+	public SysSchemaAttributeController(LookupService entityLookupService, SysSchemaAttributeService service) {
 		super(entityLookupService, service);
 	}
 
@@ -71,25 +71,25 @@ public class SysSchemaAttributeController extends AbstractReadWriteEntityControl
 
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_CREATE + "') or hasAuthority('" + AccGroupPermission.SYSTEM_UPDATE + "')")
 	@RequestMapping(method = RequestMethod.POST)
-	public ResponseEntity<?> create(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler)
+	public ResponseEntity<?> post(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler)
 			throws HttpMessageNotReadableException {
-		return super.create(nativeRequest, assembler);
+		return super.post(nativeRequest, assembler);
 	}
 
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_UPDATE + "')")
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.PUT)
-	public ResponseEntity<?> update(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest,
+	public ResponseEntity<?> put(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest,
 			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
-		return super.update(backendId, nativeRequest, assembler);
+		return super.put(backendId, nativeRequest, assembler);
 	}
 
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_UPDATE + "')")
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.PATCH)
 	public ResponseEntity<?> patch(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest,
 			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
@@ -107,9 +107,10 @@ public class SysSchemaAttributeController extends AbstractReadWriteEntityControl
 	@Override
 	protected SchemaAttributeFilter toFilter(MultiValueMap<String, Object> parameters) {
 		SchemaAttributeFilter filter = new SchemaAttributeFilter();
-		filter.setObjectClassId(convertUuidParameter(parameters, "objectClassId"));
-		filter.setSystemId(convertUuidParameter(parameters, "systemId"));
-		filter.setName(convertStringParameter(parameters, "text"));
+		filter.setObjectClassId(getParameterConverter().toUuid(parameters, "objectClassId"));
+		filter.setSystemId(getParameterConverter().toUuid(parameters, "systemId"));
+		filter.setName(getParameterConverter().toString(parameters, "name"));
+		filter.setText(getParameterConverter().toString(parameters, "text"));
 		return filter;
 	}
 }

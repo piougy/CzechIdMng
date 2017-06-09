@@ -1,5 +1,4 @@
 import React, { PropTypes } from 'react';
-import _ from 'lodash';
 import Joi from 'joi';
 import { connect } from 'react-redux';
 //
@@ -9,6 +8,11 @@ import ApiOperationTypeEnum from '../../enums/ApiOperationTypeEnum';
 
 const identityManager = new IdentityManager();
 
+/**
+ * Identity's detail form
+ *
+ * @author Radek Tomiška
+ */
 class IdentityDetail extends Basic.AbstractContent {
 
   constructor(props) {
@@ -65,19 +69,28 @@ class IdentityDetail extends Basic.AbstractContent {
     this.setState({
       showLoading: true,
       setDataToForm: false // Form will not be set new data (we are waiting to saved data)
+    }, () => {
+      this.context.store.dispatch(identityManager.updateEntity(json, null, (updatedEntity, error) => {
+        this._afterSave(updatedEntity, error);
+      }));
     });
-    const { entityId } = this.props;
-    const result = _.merge({}, json);
+  }
 
-    identityManager.getService().patchById(entityId, result)
-    .then(() => {
-      this.context.store.dispatch(identityManager.fetchEntity(entityId));
-      this.addMessage({ level: 'success', key: 'form-success', message: this.i18n('messages.saved', { username: entityId }) });
-    }).catch(ex => {
-      this.transformData(null, ex, ApiOperationTypeEnum.UPDATE);
-      this.setState({
-        showLoading: false
-      });
+  _afterSave(entity, error) {
+    this.setState({
+      showLoading: false
+    }, () => {
+      if (error) {
+        this.addError(error);
+        return;
+      }
+      this.addMessage({ level: 'success', key: 'form-success', message: this.i18n('messages.saved', { username: entity.username }) });
+      //
+      // when username was changed, then new url is replaced
+      const { identity } = this.props;
+      if (identity.username !== entity.username) {
+        this.context.router.replace(`/identity/${entity.username}/profile`);
+      }
     });
   }
 
@@ -86,38 +99,52 @@ class IdentityDetail extends Basic.AbstractContent {
   }
 
   render() {
-    const { userContext, identity, entityId, readOnly } = this.props;
+    const { userContext, identity, entityId, readOnly, _permissions } = this.props;
     const { showLoading, showLoadingIdentityTrimmed } = this.state;
-    const canEditMap = identityManager.canEditMap(userContext, identity);
-    const deactiveDisabled = !userContext || entityId === userContext.username || !canEditMap.get('isSaveEnabled');
+    const deactiveDisabled = !userContext || entityId === userContext.username || !identityManager.canSave(identity, _permissions);
+    //
     return (
       <div>
         <form onSubmit={this.onSave.bind(this)}>
-          <Basic.Panel className="no-border last" showLoading={showLoadingIdentityTrimmed || showLoading}>
+          <Basic.Panel className="no-border last">
             <Basic.PanelHeader text={this.i18n('header')}/>
-            <Basic.AbstractForm ref="form" className="form-horizontal" readOnly={!canEditMap.get('isSaveEnabled') || readOnly}>
-              <Basic.TextField ref="username" readOnly label={this.i18n('content.identity.profile.username')} required min={3} max={255}/>
-              <Basic.TextField ref="lastName" label={this.i18n('content.identity.profile.lastName')} required max={255} />
+            <Basic.AbstractForm ref="form" readOnly={ !identityManager.canSave(identity, _permissions) || readOnly } showLoading={showLoadingIdentityTrimmed || showLoading}>
+              <Basic.TextField ref="username" label={this.i18n('content.identity.profile.username')} required min={3} max={255}/>
               <Basic.TextField ref="firstName" label={this.i18n('content.identity.profile.firstName')} max={255} />
-              <Basic.TextField ref="titleBefore" label={this.i18n('entity.Identity.titleBefore')} max={100} />
-              <Basic.TextField ref="titleAfter" label={this.i18n('entity.Identity.titleAfter')} max={100}/>
-              <Basic.TextField
-                ref="email"
-                label={this.i18n('content.identity.profile.email.label')}
-                placeholder={this.i18n('email.placeholder')}
-                hidden={false}
-                validation={Joi.string().email()}/>
-              <Basic.TextField
-                ref="phone"
-                label={this.i18n('content.identity.profile.phone.label')}
-                placeholder={this.i18n('phone.placeholder')}
-                max={30} />
+              <Basic.TextField ref="lastName" label={this.i18n('content.identity.profile.lastName')} required max={255} />
+
+              <Basic.Row>
+                <div className="col-lg-6">
+                  <Basic.TextField ref="titleBefore" label={this.i18n('entity.Identity.titleBefore')} max={100} />
+                </div>
+                <div className="col-lg-6">
+                  <Basic.TextField ref="titleAfter" label={this.i18n('entity.Identity.titleAfter')} max={100}/>
+                </div>
+              </Basic.Row>
+
+              <Basic.Row>
+                <div className="col-lg-6">
+                  <Basic.TextField
+                    ref="email"
+                    label={this.i18n('content.identity.profile.email.label')}
+                    placeholder={this.i18n('email.placeholder')}
+                    validation={Joi.string().allow(null).email()}/>
+                </div>
+                <div className="col-lg-6">
+                  <Basic.TextField
+                    ref="phone"
+                    label={this.i18n('content.identity.profile.phone.label')}
+                    placeholder={this.i18n('phone.placeholder')}
+                    max={30} />
+                </div>
+              </Basic.Row>
+
               <Basic.TextArea
                 ref="description"
                 label={this.i18n('content.identity.profile.description.label')}
                 placeholder={this.i18n('description.placeholder')}
                 rows={4}
-                max={255}/>
+                max={1000}/>
               <Basic.Checkbox
                 ref="disabled"
                 label={this.i18n('entity.Identity.disabled')}
@@ -128,7 +155,16 @@ class IdentityDetail extends Basic.AbstractContent {
 
             <Basic.PanelFooter>
               <Basic.Button type="button" level="link" onClick={this.context.router.goBack} showLoading={showLoading}>{this.i18n('button.back')}</Basic.Button>
-              <Basic.Button type="submit" level="success" showLoading={showLoading} rendered={canEditMap.get('isSaveEnabled')} hidden={readOnly}>{this.i18n('button.save')}</Basic.Button>
+              <Basic.Button
+                type="submit"
+                level="success"
+                showLoading={ showLoading }
+                showLoadingIcon
+                showLoadingText={ this.i18n('button.saving') }
+                rendered={ identityManager.canSave(identity, _permissions) }
+                hidden={ readOnly }>
+                { this.i18n('button.save') }
+              </Basic.Button>
             </Basic.PanelFooter>
           </Basic.Panel>
         </form>
@@ -137,20 +173,23 @@ class IdentityDetail extends Basic.AbstractContent {
   }
 }
 
-
 IdentityDetail.propTypes = {
   identity: PropTypes.object,
   entityId: PropTypes.string.isRequired,
   readOnly: PropTypes.bool,
-  userContext: PropTypes.object
+  userContext: PropTypes.object,
+  _permissions: PropTypes.arrayOf(PropTypes.string)
 };
 IdentityDetail.defaultProps = {
-  userContext: null
+  userContext: null,
+  _permissions: null,
+  readOnly: false
 };
 
-function select(state) {
+function select(state, component) {
   return {
-    userContext: state.security.userContext
+    userContext: state.security.userContext,
+    _permissions: identityManager.getPermissions(state, null, component.entityId)
   };
 }
 export default connect(select)(IdentityDetail);

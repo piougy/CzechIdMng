@@ -12,7 +12,7 @@ const schemaAttributeManager = new SchemaAttributeManager();
 const systemManager = new SystemManager();
 const schemaObjectClassManager = new SchemaObjectClassManager();
 
-class SchemaObjectClassDetail extends Basic.AbstractTableContent {
+class SchemaObjectClassDetail extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);
@@ -64,7 +64,7 @@ class SchemaObjectClassDetail extends Basic.AbstractTableContent {
     } else {
       this.context.store.dispatch(schemaObjectClassManager.fetchEntity(objectClassId));
     }
-    this.selectNavigationItems(['sys-systems', 'system-object-classes']);
+    this.selectNavigationItems(['sys-systems', 'schema-object-classes']);
   }
 
   /**
@@ -84,9 +84,6 @@ class SchemaObjectClassDetail extends Basic.AbstractTableContent {
     if (formEntity.id === undefined) {
       this.context.store.dispatch(schemaObjectClassManager.createEntity(formEntity, `${uiKey}-detail`, (createdEntity, error) => {
         this.afterSave(createdEntity, error);
-        if (!error) {
-          this.refs.table.getWrappedInstance().reload();
-        }
       }));
     } else {
       this.context.store.dispatch(schemaObjectClassManager.patchEntity(formEntity, `${uiKey}-detail`, this.afterSave.bind(this)));
@@ -96,12 +93,10 @@ class SchemaObjectClassDetail extends Basic.AbstractTableContent {
   afterSave(entity, error) {
     if (!error) {
       const systemId = this.props.params.entityId;
+      this.addMessage({ message: this.i18n('save.success', { name: entity.objectClassName }) });
       if (this._getIsNew()) {
-        this.addMessage({ message: this.i18n('create.success', { name: entity.objectClassName }) });
-      } else {
-        this.addMessage({ message: this.i18n('save.success', { name: entity.objectClassName }) });
+        this.context.router.replace(`/system/${systemId}/object-classes/${entity.id}/detail`, {objectClassId: entity.id});
       }
-      this.context.router.replace(`/system/${systemId}/schema-object-classes/${entity.id}/detail`, {objectClassId: entity.id});
     } else {
       this.addError(error);
     }
@@ -133,7 +128,7 @@ class SchemaObjectClassDetail extends Basic.AbstractTableContent {
             <span dangerouslySetInnerHTML={{ __html: this.i18n('objectClassHeader') }}/>
           </Basic.ContentHeader>
           <Basic.Panel className="no-border">
-            <Basic.AbstractForm ref="form" data={schemaObjectClass} showLoading={_showLoading} className="form-horizontal">
+            <Basic.AbstractForm ref="form" data={schemaObjectClass} showLoading={_showLoading}>
               <Basic.SelectBox
                 ref="system"
                 manager={systemManager}
@@ -145,10 +140,10 @@ class SchemaObjectClassDetail extends Basic.AbstractTableContent {
                 label={this.i18n('acc:entity.SchemaObjectClass.objectClassName')}
                 required
                 max={255}/>
-              <Basic.Checkbox
+              <Basic.Checkbox hidden
                 ref="container"
                 label={this.i18n('acc:entity.SchemaObjectClass.container')}/>
-              <Basic.Checkbox
+              <Basic.Checkbox hidden
                 ref="auxiliary"
                 label={this.i18n('acc:entity.SchemaObjectClass.auxiliary')}/>
             </Basic.AbstractForm>
@@ -179,9 +174,9 @@ class SchemaObjectClassDetail extends Basic.AbstractTableContent {
             uiKey={uiKeyAttributes}
             manager={schemaAttributeManager}
             forceSearchParameters={forceSearchParameters}
-            showRowSelection={Managers.SecurityManager.hasAnyAuthority(['SYSTEM_WRITE'])}
+            showRowSelection={Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE'])}
             actions={
-              Managers.SecurityManager.hasAnyAuthority(['SYSTEM_WRITE'])
+              Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE'])
               ?
               [{ value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }]
               :
@@ -194,7 +189,7 @@ class SchemaObjectClassDetail extends Basic.AbstractTableContent {
                   key="add_button"
                   className="btn-xs"
                   onClick={this.showDetail.bind(this, { }, true)}
-                  rendered={Managers.SecurityManager.hasAnyAuthority(['ROLE_WRITE'])}>
+                  rendered={Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE'])}>
                   <Basic.Icon type="fa" icon="plus"/>
                   {' '}
                   {this.i18n('button.add')}
@@ -203,12 +198,11 @@ class SchemaObjectClassDetail extends Basic.AbstractTableContent {
             }
             filter={
               <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
-                <Basic.AbstractForm ref="filterForm" className="form-horizontal">
+                <Basic.AbstractForm ref="filterForm">
                   <Basic.Row className="last">
                     <div className="col-lg-6">
                       <Advanced.Filter.TextField
                         ref="text"
-                        label={this.i18n('filter.name.label')}
                         placeholder={this.i18n('filter.name.placeholder')}/>
                     </div>
                     <div className="col-lg-2"/>

@@ -80,19 +80,16 @@ export class HistoricProcessInstanceTable extends Basic.AbstractContent {
 
   _filter() {
     return (<Advanced.Filter onSubmit={this._useFilter.bind(this)}>
-      <Basic.AbstractForm ref="filterForm" className="form-horizontal">
+      <Basic.AbstractForm ref="filterForm">
         <Basic.Row className="last">
           <div className="col-lg-4">
             <Advanced.Filter.TextField
               ref="name"
-              placeholder={this.i18n('name')}
-              value=""
-              label={this.i18n('name')}/>
+              placeholder={this.i18n('name')}/>
           </div>
           <div className="col-lg-5">
             <Advanced.Filter.SelectBox
               ref="processDefinition"
-              label={this.i18n('filter.processDefinition.label')}
               placeholder={this.i18n('filter.processDefinition.placeholder')}
               multiSelect={false}
               manager={workflowProcessDefinitionManager}/>
@@ -131,6 +128,7 @@ export class HistoricProcessInstanceTable extends Basic.AbstractContent {
           forceSearchParameters={forceSearchParameters}
           manager={workflowHistoricProcessInstanceManager}
           showRowSelection={false}
+          showId
           filter={this._filter()}
           filterOpened={filterOpened}>
 
@@ -149,17 +147,11 @@ export class HistoricProcessInstanceTable extends Basic.AbstractContent {
             }
             sort={false}/>
           <Advanced.ColumnLink property="name" to="workflow/history/processes/:id" sort={false} face="text" rendered={_.includes(columns, 'name')}/>
-            <Advanced.Column
-              property="processVariables.applicantUsername"
-              header={this.i18n('entity.WorkflowHistoricProcessInstance.applicant')}
-              sort={false}
-              face="text"/>
           <Advanced.Column property="startTime" sort face="datetime" rendered={_.includes(columns, 'startTime')}/>
           <Advanced.Column property="endTime" sort face="datetime" rendered={_.includes(columns, 'endTime')}/>
           <Advanced.Column property="startActivityId" sort={false} face="text" rendered={_.includes(columns, 'startActivityId')}/>
           <Advanced.Column property="deleteReason" sort={false} face="text" rendered={_.includes(columns, 'deleteReason')}/>
           <Advanced.Column property="superProcessInstanceId" sort={false} face="text" rendered={_.includes(columns, 'superProcessInstanceId')}/>
-          <Advanced.Column property="id" sort={false} face="text" rendered={_.includes(columns, 'id')}/>
         </Advanced.Table>
       </div>
     );

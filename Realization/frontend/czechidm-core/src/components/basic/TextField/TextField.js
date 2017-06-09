@@ -3,10 +3,11 @@ import classNames from 'classnames';
 import Joi from 'joi';
 //
 import AbstractFormComponent from '../AbstractFormComponent/AbstractFormComponent';
-import HelpIcon from '../HelpIcon/HelpIcon';
 import Tooltip from '../Tooltip/Tooltip';
 import Icon from '../Icon/Icon';
 import Button from '../Button/Button';
+
+const CONFIDENTIAL_VALUE = '*****';
 
 class TextField extends AbstractFormComponent {
 
@@ -46,7 +47,7 @@ class TextField extends AbstractFormComponent {
   }
 
   getRequiredValidationSchema() {
-    return Joi.string().required();
+    return Joi.string().disallow(null).required();
   }
 
   /**
@@ -58,10 +59,26 @@ class TextField extends AbstractFormComponent {
 
   onChange(event) {
     super.onChange(event);
-    this.refs.popover.show();
+    if (this.refs.popover) {
+      this.refs.popover.show();
+    }
     this.setState( {
       confidentialState: {
         showInput: true
+      }
+    });
+  }
+
+  /**
+   * Show / hide confidential. Call after save form.
+   *
+   * @param  {bool} showInput
+   */
+  openConfidential(showInput) {
+    this.setState({
+      value: CONFIDENTIAL_VALUE,
+      confidentialState: {
+        showInput
       }
     });
   }
@@ -128,7 +145,7 @@ class TextField extends AbstractFormComponent {
   }
 
   getBody(feedback) {
-    const { type, labelSpan, label, componentSpan, placeholder, style, required, help, helpBlock } = this.props;
+    const { type, labelSpan, label, componentSpan, placeholder, style, required } = this.props;
     const { value, disabled, readOnly } = this.state;
     //
     const className = classNames(
@@ -140,15 +157,13 @@ class TextField extends AbstractFormComponent {
     if (required && !feedback && !this._showConfidentialWrapper()) {
       showAsterix = true;
     }
-    const validationResult = this.getValidationResult();
-    const title = validationResult != null ? validationResult.message : null;
     //
     // value and readonly properties depends on confidential wrapper
     let _value = value || '';
     let _readOnly = readOnly;
     if (this._showConfidentialWrapper()) {
       if (value) {
-        _value = '*****'; // asterix will be shown, when value is filled
+        _value = CONFIDENTIAL_VALUE; // asterix will be shown, when value is filled
       } else {
         _value = '';
       }
@@ -173,7 +188,7 @@ class TextField extends AbstractFormComponent {
     let confidentialWrapper = component;
     if (this._showConfidentialWrapper()) {
       confidentialWrapper = (
-        <Tooltip ref="popover" placement="bottom" value={this.i18n('confidential.edit')}>
+        <Tooltip ref="popover" placement={ this.getTitlePlacement() } value={this.i18n('confidential.edit')}>
           <div className="input-group">
             { component }
             <span className="input-group-btn">
@@ -192,17 +207,18 @@ class TextField extends AbstractFormComponent {
     }
 
     return (
-      <div className={showAsterix ? 'has-feedback' : ''}>
+      <div className={ showAsterix ? 'has-feedback' : '' }>
         {
           !label
           ||
           <label
-            className={labelClassName}>
-            {label}
+            className={ labelClassName }>
+            { label }
+            { this.renderHelpIcon() }
           </label>
         }
         <div className={componentSpan} style={{ whiteSpace: 'nowrap' }}>
-          <Tooltip ref="popover" placement="right" value={title}>
+          <Tooltip ref="popover" placement={ this.getTitlePlacement() } value={ this.getTitle() }>
             <span>
               {confidentialWrapper}
               {
@@ -212,12 +228,8 @@ class TextField extends AbstractFormComponent {
               }
             </span>
           </Tooltip>
-          <HelpIcon content={help} style={{ marginLeft: '3px' }}/>
-          {
-            !helpBlock
-            ||
-            <span className="help-block" style={{ whiteSpace: 'normal' }}>{helpBlock}</span>
-          }
+          { !label ? this.renderHelpIcon() : null }
+          { this.renderHelpBlock() }
         </div>
       </div>
     );

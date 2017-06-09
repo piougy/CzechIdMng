@@ -1,13 +1,13 @@
 package eu.bcvsolutions.idm.core.api.domain;
 
-import java.util.Date;
 import java.util.UUID;
+
+import org.joda.time.DateTime;
 
 /**
  * Base audit information
  * 
  * @author Radek Tomiška 
- *
  */
 public interface Auditable {
 	
@@ -21,9 +21,11 @@ public interface Auditable {
 	final String PROPERTY_MODIFIER_ID = "modifierId";
 	final String PROPERTY_ORIGINAL_MODIFIER = "originalModifier";
 	final String PROPERTY_ORIGINAL_MODIFIER_ID = "originalModifierId";
+	final String PROPERTY_TRANSACTION_ID = "transactionId";
 	
 	/**
 	 * Entity identifier
+     *
 	 * @return
 	 */
 	UUID getId();
@@ -61,38 +63,38 @@ public interface Auditable {
 	 * 
 	 * @return
 	 */
-	Date getCreated();
+	DateTime getCreated();
 
 	/**
 	 * Created date
 	 * 
 	 * @param created
 	 */
-	void setCreated(Date created);
+	void setCreated(DateTime created);
 
 	/**
-	 * Original last entity modifier (logged as modifier)
+	 * Original last entity modifier (logged identity before authentication was switched)
 	 * 
 	 * @return
 	 */
 	String getOriginalModifier();
 	
 	/**
-	 * Original last entity modifier (logged as modifier)
+	 * Original last entity modifier (logged identity before authentication was switched)
 	 * 
 	 * @param modifier
 	 */
 	void setOriginalModifier(String modifier);
 	
 	/**
-	 * Last entity modifier
+	 * Last entity modifier. When entity is not modified returns {@code null}.
 	 * 
 	 * @return
 	 */
 	String getModifier();
 	
 	/**
-	 * Last entity modifier
+	 * Last entity modifier.
 	 * 
 	 * @param modifier
 	 */
@@ -103,14 +105,14 @@ public interface Auditable {
 	 * 
 	 * @return
 	 */
-	Date getModified();
+	DateTime getModified();
 
 	/**
 	 * Last entity modified date
 	 * 
 	 * @param modified
 	 */
-	void setModified(Date modified);
+	void setModified(DateTime modified);
 	
 	/**
 	 * Entity author identifier
@@ -127,44 +129,72 @@ public interface Auditable {
 	void setCreatorId(UUID creatorId);
 
 	/**
-	 * Original Entity author identifier (logged as creator)
+	 * Original Entity author identifier (logged identity before authentication was switched).
 	 * 
 	 * @return
 	 */
 	UUID getOriginalCreatorId();
 
 	/**
-	 * Original Entity author identifier (logged as creator)
+	 * Original Entity author identifier (logged identity before authentication was switched).
 	 * 
 	 * @param originalCreatorId
 	 */
 	void setOriginalCreatorId(UUID originalCreatorId);
 
 	/**
-	 * Last entity modifier identifier
+	 * Last entity modifier identifier. When entity is not modified returns {@code null}.
 	 * 
 	 * @param modified
 	 */
 	UUID getModifierId();
 
 	/**
-	 * Last entity modifier identifier
+	 * Last entity modifier identifier.
 	 * 
 	 * @param modifierId
 	 */
 	void setModifierId(UUID modifierId);
 
 	/**
-	 * Original last entity modifier identifier (logged as modifier)
+	 * Original last entity modifier identifier (logged identity before authentication was switched). When entity is not modified returns {@code null}.
 	 * 
 	 * @return
 	 */
 	UUID getOriginalModifierId();
 
 	/**
-	 * Original last entity modifier identifier (logged as modifier)
+	 * Original last entity modifier identifier (logged identity before authentication was switched).
 	 * 
 	 * @param originalModifierId
 	 */
 	void setOriginalModifierId(UUID originalModifierId);
+	
+	/**
+	 * Returns batch transaction id (entity was created or modified in given transaction).
+	 * 
+	 * @return
+	 */
+	UUID getTransactionId();
+
+	/**
+	 * Sets batch transaction id (entity was created or modified in given transaction).
+	 * 
+	 * @param originalModifierId
+	 */
+	void setTransactionId(UUID transactionId);	
+	
+	/**
+	 * Returns entity's realm (tenant) identifier
+	 * 
+	 * @return
+	 */
+	UUID getRealmId();
+	
+	/**
+	 * Sets entity's realm (tenant) identifier
+	 * 
+	 * @param realmId
+	 */
+	void setRealmId(UUID realmId);
 }

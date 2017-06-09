@@ -1,9 +1,9 @@
-import routeActions from 'react-router-redux';
-//
 import { LocalizationService } from '../../services';
 import FlashMessagesManager from '../flash/FlashMessagesManager';
 import DataManager from './DataManager';
+import SecurityManager from '../security/SecurityManager';
 import * as Utils from '../../utils';
+import SearchParameters from '../../domain/SearchParameters';
 
 /**
  * action types
@@ -19,9 +19,13 @@ export const CLEAR_ENTITIES = 'CLEAR_ENTITIES';
 export const START_BULK_ACTION = 'START_BULK_ACTION';
 export const PROCESS_BULK_ACTION = 'PROCESS_BULK_ACTION';
 export const STOP_BULK_ACTION = 'STOP_BULK_ACTION';
+export const RECEIVE_PERMISSIONS = 'RECEIVE_PERMISSIONS';
+export const EMPTY = 'VOID_ACTION'; // dispatch cannot return null
 
 /**
  * Encapsulate redux action for entity type
+ *
+ * @author Radek Tomiška
  */
 export default class EntityManager {
 
@@ -59,6 +63,44 @@ export default class EntityManager {
    */
   getCollectionType() {
     return 'entites';
+  }
+
+  /**
+   * Returns true, if `patch`  method is supported
+   *
+   * Added for enddpoints with dto - dto's doesn't support `patch` method for now
+   *
+   * @return {bool} Returns true, if `patch`  method is supported
+   */
+  supportsPatch() {
+    return this.getService().supportsPatch();
+  }
+
+  /**
+   * Added for enddpoints with authorization policies evaluation
+   *
+   * @return {bool} Returns true, when endpoint suppors uthorization policies evaluation
+   */
+  supportsAuthorization() {
+    return this.getService().supportsAuthorization();
+  }
+
+  /**
+   * Returns group permission for given manager / agenda
+   *
+   * @return {string} GroupPermission name
+   */
+  getGroupPermission() {
+    return this.getService().getGroupPermission();
+  }
+
+  /**
+   * Return resource identifier on FE (see BE - IdentifiableByName)
+   *
+   * @return {string} secondary identifier (unique property)
+   */
+  getIdentifierAlias() {
+    return null;
   }
 
   /**
@@ -166,7 +208,9 @@ export default class EntityManager {
   fetchEntities(searchParameters = null, uiKey = null, cb = null) {
     return (dispatch, getState) => {
       if (getState().security.userContext.isExpired) {
-        return;
+        return dispatch({
+          type: EMPTY
+        });
       }
       searchParameters = this.getSearchParameters(searchParameters);
       uiKey = this.resolveUiKey(uiKey);
@@ -209,7 +253,7 @@ export default class EntityManager {
         uiKey
       });
       if (cb) {
-        cb(json, null);
+        cb(json, null, uiKey);
       }
     };
   }
@@ -225,25 +269,52 @@ export default class EntityManager {
   fetchEntity(id, uiKey = null, cb = null) {
     return (dispatch, getState) => {
       if (getState().security.userContext.isExpired) {
-        return;
+        return dispatch({
+          type: EMPTY
+        });
       }
       //
       uiKey = this.resolveUiKey(uiKey, id);
       dispatch(this.requestEntity(id, uiKey));
       this.getService().getById(id)
       .then(json => {
-        dispatch(this.receiveEntity(id, json, uiKey, cb));
+        dispatch(this.fetchPermissions(id, uiKey, () => {
+          dispatch(this.receiveEntity(id, json, uiKey, cb));
+        }));
       })
       .catch(error => {
-        // 404, 403 simple redirect,
-        // TODO: overlay to preserve url?
-        // TODO: sub error class
-        if (error.message === '403') {
-          dispatch(routeActions.push('/error/403'));
-        } else if (error.message === '404') {
-          dispatch(routeActions.push(`/error/404?id=${id}`));
-        } else {
-          dispatch(this.receiveError(id, uiKey, error, cb));
+        dispatch(this.receiveError(id, uiKey, error, cb));
+      });
+    };
+  }
+
+  fetchPermissions(id, uiKey = null, cb = null) {
+    if (!this.getService().supportsAuthorization()) {
+      if (cb) {
+        cb();
+      }
+      return {
+        type: EMPTY
+      };
+    }
+    //
+    return (dispatch, getState) => {
+      if (getState().security.userContext.isExpired) {
+        return;
+      }
+      //
+      uiKey = this.resolveUiKey(uiKey, id);
+      this.getService().getPermissions(id)
+      .then(permissions => {
+        dispatch({
+          type: RECEIVE_PERMISSIONS,
+          id,
+          entityType: this.getEntityType(),
+          permissions,
+          uiKey
+        });
+        if (cb) {
+          cb();
         }
       });
     };
@@ -259,7 +330,9 @@ export default class EntityManager {
    */
   updateEntity(entity, uiKey = null, cb = null) {
     if (!entity) {
-      return null;
+      return {
+        type: EMPTY
+      };
     }
     uiKey = this.resolveUiKey(uiKey, entity.id);
     return (dispatch) => {
@@ -284,7 +357,9 @@ export default class EntityManager {
    */
   patchEntity(entity, uiKey = null, cb = null) {
     if (!entity) {
-      return null;
+      return {
+        type: EMPTY
+      };
     }
     uiKey = this.resolveUiKey(uiKey, entity.id);
     return (dispatch) => {
@@ -309,7 +384,9 @@ export default class EntityManager {
    */
   createEntity(entity, uiKey = null, cb = null) {
     if (!entity) {
-      return null;
+      return {
+        type: EMPTY
+      };
     }
     uiKey = this.resolveUiKey(uiKey, '[new]');
     return (dispatch) => {
@@ -334,7 +411,9 @@ export default class EntityManager {
    */
   deleteEntity(entity, uiKey = null, cb = null) {
     if (!entity) {
-      return null;
+      return {
+        type: EMPTY
+      };
     }
     uiKey = this.resolveUiKey(uiKey, entity.id);
     return (dispatch) => {
@@ -369,6 +448,7 @@ export default class EntityManager {
         )
       );
       const successEntities = [];
+      const approveEntities = [];
       let currentEntity = null; // currentEntity in loop
       entities.reduce((sequence, entity) => {
         return sequence.then(() => {
@@ -378,17 +458,22 @@ export default class EntityManager {
         }).then(() => {
           dispatch(this.updateBulkAction());
           successEntities.push(entity);
-          // new entity to redux store
+          // remove entity to redux store
           dispatch(this.deletedEntity(entity.id, entity, uiKey));
         }).catch(error => {
-          if (currentEntity.id === entity.id) { // we want show message for entity, when loop stops
-            if (!cb) { // if no callback given, we need show error
-              dispatch(this.flashMessagesManager.addErrorMessage({ title: this.i18n(`action.delete.error`, { record: this.getNiceLabel(entity) }) }, error));
-            } else { // otherwise caller has to show eror etc. himself
-              cb(entity, error, null);
+          if (error && error.statusCode === 202) {
+            dispatch(this.updateBulkAction());
+            approveEntities.push(entity);
+          } else {
+            if (currentEntity.id === entity.id) { // we want show message for entity, when loop stops
+              if (!cb) { // if no callback given, we need show error
+                dispatch(this.flashMessagesManager.addErrorMessage({ title: this.i18n(`action.delete.error`, { record: this.getNiceLabel(entity) }) }, error));
+              } else { // otherwise caller has to show eror etc. himself
+                cb(entity, error, null);
+              }
             }
+            throw error;
           }
-          throw error;
         });
       }, Promise.resolve())
       .catch((error) => {
@@ -399,8 +484,14 @@ export default class EntityManager {
       .then((error) => {
         if (successEntities.length > 0) {
           dispatch(this.flashMessagesManager.addMessage({
-            level: successEntities.length === entities.length ? 'success' : 'info',
+            level: 'success',
             message: this.i18n(`action.delete.success`, { count: successEntities.length, records: this.getNiceLabels(successEntities).join(', '), record: this.getNiceLabel(successEntities[0]) })
+          }));
+        }
+        if (approveEntities.length > 0) {
+          dispatch(this.flashMessagesManager.addMessage({
+            level: 'info',
+            message: this.i18n(`action.delete.accepted`, { count: approveEntities.length, records: this.getNiceLabels(approveEntities).join(', '), record: this.getNiceLabel(approveEntities[0]) })
           }));
         }
         dispatch(this.stopBulkAction());
@@ -440,7 +531,9 @@ export default class EntityManager {
    */
   receiveEntity(id, entity, uiKey = null, cb = null) {
     if (!id && !entity) { // nothing was recieved
-      return null;
+      return {
+        type: EMPTY
+      };
     }
     //
     if (!id) {
@@ -450,12 +543,25 @@ export default class EntityManager {
     if (cb) {
       cb(entity, null);
     }
-    return {
-      type: RECEIVE_ENTITY,
-      id,
-      entityType: this.getEntityType(),
-      entity,
-      uiKey
+    return (dispatch) => {
+      dispatch({
+        type: RECEIVE_ENTITY,
+        id,
+        entityType: this.getEntityType(),
+        entity,
+        uiKey
+      });
+      // push entity to store with secondary identifier
+      const idAlias = !this.getIdentifierAlias() ? null : entity[this.getIdentifierAlias()];
+      if (idAlias) {
+        dispatch({
+          type: RECEIVE_ENTITY,
+          id: idAlias,
+          entityType: this.getEntityType(),
+          entity,
+          uiKey
+        });
+      }
     };
   }
 
@@ -469,7 +575,9 @@ export default class EntityManager {
    */
   deletedEntity(id, entity, uiKey = null, cb = null) {
     if (!id) { // nothing was recieved
-      return null;
+      return {
+        type: EMPTY
+      };
     }
     uiKey = this.resolveUiKey(uiKey, id);
     if (cb) {
@@ -499,7 +607,6 @@ export default class EntityManager {
         cb(null, error);
       } else {
         dispatch(this.flashMessagesManager.addErrorMessage({
-          level: 'error',
           key: 'error-' + this.getEntityType()
         }, error));
       }
@@ -593,10 +700,22 @@ export default class EntityManager {
    *
    * @param  {state} state - application state
    * @param  {string} uiKey - ui key for loading indicator etc.
+   * @param  {string} id - entity identifier
    * @return {boolean} - true, when loading for given uiKey proceed
    */
   isShowLoading(state, uiKey = null, id = null) {
     return Utils.Ui.isShowLoading(state, this.resolveUiKey(uiKey, id));
+  }
+
+  /**
+   * Returns error asigned to given uiKey or null, if no error is found
+   *
+   * @param  {state} state - application state
+   * @param  {string} uiKey - ui key for loading indicator etc.
+   * @return {objest} - error
+   */
+  getError(state, uiKey = null, id = null) {
+    return Utils.Ui.getError(state, this.resolveUiKey(uiKey, id));
   }
 
   /**
@@ -607,10 +726,16 @@ export default class EntityManager {
    * @param  {string} uiKey - ui key for loading indicator etc.
    * @return {boolean} - true, when entity is not contained in state and loading does not processing
    */
-  fetchEntityIsNeeded(state, id, uiKey = null) {
+  fetchEntityIsNeeded(state, id, uiKey = null, cb = null) {
     uiKey = this.resolveUiKey(uiKey. id);
     // entity is saved in state
     if (this.getEntity(state, id)) {
+      return false;
+    }
+    if (this.getError(state, uiKey, id)) {
+      return false;
+    }
+    if (!cb && this.isShowLoading(state, uiKey, id)) { // if callback is given, then loadinig is needed - callback is called after loading
       return false;
     }
     return true;
@@ -620,14 +745,45 @@ export default class EntityManager {
    * Loads requested entity by given id, if entity is not in application state and entity loading does not processing
    *
    * @param  {store}  store - application store
-   * @param  {string|number} id - entity identofoer
+   * @param  {string|number} id - entity identifier
    * @param  {string} uiKey - ui key for loading indicator etc.
    */
   fetchEntityIfNeeded(id, uiKey = null, cb = null) {
     uiKey = this.resolveUiKey(uiKey, id);
     return (dispatch, getState) => {
-      if (this.fetchEntityIsNeeded(getState(), id, uiKey)) {
+      if (this.fetchEntityIsNeeded(getState(), id, uiKey, cb)) {
         dispatch(this.fetchEntity(id, uiKey, cb));
+      } else if (cb) {
+        cb(this.getEntity(getState(), id), null);
+      }
+    };
+  }
+
+  /**
+   * Autocomplete requested entity by given id from BE, if entity is not in application state and entity loading does not processing
+   *
+   * @param  {store}  store - application store
+   * @param  {string|number} id - entity identifier
+   * @param  {string} uiKey - ui key for loading indicator etc.
+   */
+  autocompleteEntityIfNeeded(id, uiKey = null, cb = null) {
+    uiKey = this.resolveUiKey(uiKey, id);
+    return (dispatch, getState) => {
+      if (this.fetchEntityIsNeeded(getState(), id, uiKey, cb)) {
+        if (this.supportsAuthorization()) {
+          // autocomplete search by id
+          const searchParameters = this.getDefaultSearchParameters().setName(SearchParameters.NAME_AUTOCOMPLETE).setFilter('id', id);
+          dispatch(this.fetchEntities(searchParameters, uiKey, (json, error) => {
+            if (!error) {
+              const data = json._embedded[this.getCollectionType()] || [];
+              dispatch(this.receiveEntity(id, data.length > 0 ? data[0] : null, uiKey, cb));
+            } else {
+              dispatch(this.receiveError(id, uiKey, error, cb));
+            }
+          }));
+        } else {
+          dispatch(this.fetchEntity(id, uiKey, cb));
+        }
       } else if (cb) {
         cb(this.getEntity(getState(), id), null);
       }
@@ -724,5 +880,53 @@ export default class EntityManager {
           dispatch(this.receiveError(null, uiKey, error));
         });
     };
+  }
+
+  /**
+   * What logged user can do with ui key and underlying entity.
+   *
+   * @param  {state} state - application state
+   * @param  {string} uiKey - ui key for loading indicator etc.
+   * @param  {string} id - entity identifier
+   * @return {arrayOf(authority)} what logged user can do with ui key and underlying entity
+   */
+  getPermissions(state, uiKey = null, id = null) {
+    return Utils.Permission.getPermissions(state, this.resolveUiKey(uiKey, id));
+  }
+
+  /**
+   * Authorization evaluator helper - evaluates save permission on given entity
+   *
+   * If entity is null - CREATE is evaluated
+   *
+   * @param  {object} entity
+   * @param  {arrayOf(string)} permissions
+   * @return {bool}
+   */
+  canSave(entity = null, permissions = null) {
+    if (!this.getGroupPermission()) {
+      return false;
+    }
+    if (Utils.Entity.isNew(entity)) {
+      return SecurityManager.hasAuthority(`${this.getGroupPermission()}_CREATE`);
+    }
+    return (!this.supportsAuthorization() || Utils.Permission.hasPermission(permissions, 'UPDATE')) && SecurityManager.hasAuthority(`${this.getGroupPermission()}_UPDATE`);
+  }
+
+  /**
+   * Authorization evaluator helper - evaluates delete permission on given entity
+   *
+   * @param  {object} entity
+   * @param  {arrayOf(string)} permissions
+   * @return {bool}
+   */
+  canDelete(entity = null, permissions = null) {
+    if (!this.getGroupPermission()) {
+      return false;
+    }
+    if (!this.supportsAuthorization() || !entity) {
+      return SecurityManager.hasAuthority(`${this.getGroupPermission()}_DELETE`);
+    }
+    return Utils.Permission.hasPermission(permissions, 'DELETE') && SecurityManager.hasAuthority(`${this.getGroupPermission()}_DELETE`);
   }
 }

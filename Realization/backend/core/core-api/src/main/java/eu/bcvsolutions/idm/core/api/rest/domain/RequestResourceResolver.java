@@ -24,7 +24,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * Read raw http request and makes json - entity transformation.
- * 
+ * <p>
  * Idea by spring data rest
  */
 public class RequestResourceResolver {
@@ -70,14 +70,10 @@ public class RequestResourceResolver {
 	 * the given {@link RootResourceInformation}, potentially applying the
 	 * content to an object of the given id.
 	 * 
-	 * @param information
-	 *            must not be {@literal null}.
-	 * @param request
-	 *            must not be {@literal null}.
-	 * @param converter
-	 *            must not be {@literal null}.
-	 * @param id
-	 *            must not be {@literal null}.
+     * @param information must not be {@literal null}.
+     * @param request     must not be {@literal null}.
+     * @param converter   must not be {@literal null}.
+     * @param id          must not be {@literal null}.
 	 * @return
 	 */
 	private Object read(Class<?> domainType, IncomingRequest request,
@@ -91,9 +87,8 @@ public class RequestResourceResolver {
 			}
 
 			ObjectMapper mapper = ((MappingJackson2HttpMessageConverter) converter).getObjectMapper();
-			Object result = readPatch(request, mapper, objectToUpdate);
-
-			return result;
+			
+			return readPatch(request, mapper, objectToUpdate);
 
 			// JSON + PUT request
 		} else if (converter instanceof MappingJackson2HttpMessageConverter) {

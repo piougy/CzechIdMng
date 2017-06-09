@@ -1,16 +1,20 @@
 package eu.bcvsolutions.idm.core.model.repository;
 
+import java.util.List;
+import java.util.UUID;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.model.dto.filter.RoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
-import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
 import eu.bcvsolutions.idm.core.rest.projection.IdmRoleExcerpt;
 
 /**
@@ -27,29 +31,23 @@ import eu.bcvsolutions.idm.core.rest.projection.IdmRoleExcerpt;
 		exported = false)
 public interface IdmRoleRepository extends AbstractEntityRepository<IdmRole, RoleFilter> {
 	
-	public static final String ADMIN_ROLE = "superAdminRole"; // TODO: move to configurationService
-	
-	/*
-	 * (non-Javadoc)
-	 * @see eu.bcvsolutions.idm.core.api.repository.BaseEntityRepository#find(eu.bcvsolutions.idm.core.api.dto.BaseFilter, Pageable)
+	/**
+	 * @deprecated use IdmRoleService (uses criteria api)
 	 */
 	@Override
-	@Query(value = "select e from IdmRole e" +
-	        " where" +
-	        " (?#{[0].text} is null or lower(e.name) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')})" +
-	        " and (?#{[0].roleType} is null or e.roleType = ?#{[0].roleType})" +
-	        " and (?#{[0].roleCatalogue} is null or e.roleCatalogue = ?#{[0].roleCatalogue})")
-	Page<IdmRole> find(RoleFilter filter, Pageable pageable);
+	@Deprecated
+	@Query(value = "select e from #{#entityName} e")
+	default Page<IdmRole> find(RoleFilter filter, Pageable pageable) {
+		throw new UnsupportedOperationException("Use IdmRoleService (uses criteria api)");
+	}
 	
 	IdmRole findOneByName(@Param("name") String name);
 	
-	/**
-	 * Clears role catalogue
-	 * 
-	 * @param roleCatalogue
-	 * @return
-	 */
-	@Modifying
-	@Query("update #{#entityName} e set e.roleCatalogue = null where e.roleCatalogue = :roleCatalogue")
-	int clearCatalogue(@Param("roleCatalogue") IdmRoleCatalogue roleCatalogue);
+	@Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.REPEATABLE_READ)
+	@Query(value = "select e from #{#entityName} e where e = :role")
+	IdmRole getPersistedRole(@Param("role") IdmRole role);
+
+	@Query("select s.sub from #{#entityName} e join e.subRoles s where e.id = :roleId")
+	List<IdmRole> getSubroles(@Param("roleId") UUID roleId);
+	
 }

@@ -1,7 +1,6 @@
 import AbstractComponent from './AbstractComponent/AbstractComponent';
 import AbstractContextComponent from './AbstractContextComponent/AbstractContextComponent';
 import AbstractContent from './AbstractContent/AbstractContent';
-import AbstractTableContent from './AbstractContent/AbstractTableContent';
 import AbstractForm from './AbstractForm/AbstractForm';
 import AbstractFormComponent from './AbstractFormComponent/AbstractFormComponent';
 import BasicForm from './BasicForm/BasicForm';
@@ -11,6 +10,7 @@ import EnumSelectBox from './EnumSelectBox/EnumSelectBox';
 import BooleanSelectBox from './BooleanSelectBox/BooleanSelectBox';
 import TextArea from './TextArea/TextArea';
 import TextField from './TextField/TextField';
+import FlashMessage from './FlashMessages/FlashMessage';
 import FlashMessages from './FlashMessages/FlashMessages';
 import HelpIcon from './HelpIcon/HelpIcon';
 import Icon from './Icon/Icon';
@@ -28,26 +28,27 @@ import Modal from './Modal/Modal';
 import ProgressBar from './ProgressBar/ProgressBar';
 import Confirm from './Confirm/Confirm';
 import Row from './Row/Row';
+import Col from './Row/Column';
 import Well from './Well/Well';
 import Tabs from './Tabs/Tabs';
 import PageHeader from './PageHeader/PageHeader';
 import ContentHeader from './ContentHeader/ContentHeader';
 import LabelWrapper from './LabelWrapper/LabelWrapper';
 import DateValue from './DateValue/DateValue';
+import EnumValue from './EnumValue/EnumValue';
 import EnumLabel from './EnumLabel/EnumLabel';
 import Collapse from './Collapse/Collapse';
 import Tooltip from './Tooltip/Tooltip';
 import Dropzone from './Dropzone/Dropzone';
 import Popover from './Popover/Popover';
 import ScriptArea from './ScriptArea/ScriptArea';
-import RichTextArea from './RichTextArea/RichTextArea';
 import PasswordStrength from './PasswordStrength/PasswordStrength';
+import Link from './Link/Link';
 
 const Components = {
   AbstractComponent,
   AbstractContextComponent,
   AbstractContent,
-  AbstractTableContent,
   AbstractForm,
   AbstractFormComponent,
   BasicForm,
@@ -58,6 +59,7 @@ const Components = {
   TextArea,
   TextField,
   DateTimePicker,
+  FlashMessage,
   FlashMessages,
   HelpIcon,
   Icon,
@@ -87,6 +89,7 @@ const Components = {
   ProgressBar,
   Confirm,
   Row,
+  Col,
   Well,
   Tabs,
   Tab: Tabs.Tab,
@@ -94,14 +97,15 @@ const Components = {
   ContentHeader,
   LabelWrapper,
   DateValue,
+  EnumValue,
   EnumLabel,
   Collapse,
   Tooltip,
   Dropzone,
   Popover,
   ScriptArea,
-  RichTextArea,
-  PasswordStrength
+  PasswordStrength,
+  Link
 };
 
 Components.version = '0.0.1';

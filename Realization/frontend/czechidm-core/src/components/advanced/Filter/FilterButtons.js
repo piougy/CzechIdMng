@@ -2,7 +2,11 @@ import React, { PropTypes } from 'react';
 //
 import * as Basic from '../../basic';
 
-
+/**
+ * Filter buttons (use, clear) mainly for advanced table
+ *
+ * @author Radek Tomiška
+ */
 export default class FilterButtons extends Basic.AbstractContextComponent {
 
   constructor(props, context) {
@@ -20,14 +24,14 @@ export default class FilterButtons extends Basic.AbstractContextComponent {
   }
 
   render() {
-    const { rendered, showLoading, ...others } = this.props;
+    const { rendered, showLoading, style, className } = this.props;
     if (!rendered || showLoading) {
       return null;
     }
     //
     return (
-      <span>
-        <Basic.Button level="link" onClick={this._cancelFilter.bind(this)}>
+      <span style={ style } className={ className }>
+        <Basic.Button onClick={this._cancelFilter.bind(this)} style={{ marginRight: 5 }}>
           {this.i18n('button.filter.cancel')}
         </Basic.Button>
         <Basic.Button level="primary" type="submit">

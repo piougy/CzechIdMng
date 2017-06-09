@@ -1,5 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
+//
 import * as Basic from '../../components/basic';
 import { RoleManager } from '../../redux';
 import RoleDetail from './RoleDetail';
@@ -7,6 +8,11 @@ import RoleTypeEnum from '../../enums/RoleTypeEnum';
 
 const roleManager = new RoleManager();
 
+/**
+ * Role content with role form - first tab on role detail
+ *
+ * @author Radek Tomiška
+ */
 class Content extends Basic.AbstractContent {
 
   constructor(props) {
@@ -23,7 +29,9 @@ class Content extends Basic.AbstractContent {
     if (this._isNew()) {
       this.context.store.dispatch(roleManager.receiveEntity(entityId, { roleType: RoleTypeEnum.findKeyBySymbol(RoleTypeEnum.TECHNICAL) }));
     } else {
-      this.context.store.dispatch(roleManager.fetchEntity(entityId));
+      this.context.store.dispatch(roleManager.fetchEntity(entityId, null, (entity, error) => {
+        this.handleError(error);
+      }));
     }
   }
 
@@ -43,7 +51,7 @@ class Content extends Basic.AbstractContent {
           {
             !role
             ||
-            <RoleDetail entity={role} showLoading={showLoading} />
+            <RoleDetail entity={role} showLoading={showLoading}/>
           }
         </div>
       </Basic.Row>

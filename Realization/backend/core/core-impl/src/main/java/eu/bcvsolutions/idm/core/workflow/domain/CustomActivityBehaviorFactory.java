@@ -10,7 +10,7 @@ import org.activiti.engine.impl.bpmn.parser.factory.DefaultActivityBehaviorFacto
 import org.springframework.beans.factory.annotation.Autowired;
 
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
-import eu.bcvsolutions.idm.notification.service.api.EmailService;
+import eu.bcvsolutions.idm.core.notification.service.api.EmailNotificationSender;
 
 /**
  * 
@@ -20,15 +20,17 @@ import eu.bcvsolutions.idm.notification.service.api.EmailService;
 public class CustomActivityBehaviorFactory extends DefaultActivityBehaviorFactory {
 	
 	@Autowired
-	private EmailService emailService;
+	private EmailNotificationSender emailService;
 	
 	@Autowired
 	private IdmIdentityService identityService;
 
+
 	@Override
 	protected MailActivityBehavior createMailActivityBehavior(String taskId, List<FieldExtension> fields) {
 		List<FieldDeclaration> fieldDeclarations = createFieldDeclarations(fields);
-		CustomMailActivityBehavior customMailActivityBehavior = (CustomMailActivityBehavior) ClassDelegate.defaultInstantiateDelegate(CustomMailActivityBehavior.class, fieldDeclarations);
+		CustomMailActivityBehavior customMailActivityBehavior = (CustomMailActivityBehavior) 
+				ClassDelegate.defaultInstantiateDelegate(CustomMailActivityBehavior.class, fieldDeclarations);
 		customMailActivityBehavior.setEmailService(emailService);
 		customMailActivityBehavior.setIdentityService(identityService);
 		return customMailActivityBehavior;

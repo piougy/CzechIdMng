@@ -111,7 +111,7 @@ class DemoContent extends Basic.AbstractContent {
 
             <Basic.Panel>
               <Basic.PanelHeader text="Selectbox" help="/to"/>
-              <div className="form-horizontal">
+              <div>
                 <div className="panel-body">
                   <Basic.PanelBody>
                     <Basic.SelectBox

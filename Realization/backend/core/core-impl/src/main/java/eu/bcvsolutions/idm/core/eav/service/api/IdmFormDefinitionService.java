@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.core.eav.service.api;
 import java.util.List;
 
 import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
+import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 
@@ -12,7 +13,7 @@ import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
  * @author Radek Tomiška
  *
  */
-public interface IdmFormDefinitionService extends ReadWriteEntityService<IdmFormDefinition, QuickFilter> {
+public interface IdmFormDefinitionService extends ReadWriteEntityService<IdmFormDefinition, QuickFilter>, ScriptEnabled {
 
 	/**
 	 * Default definition name for type (if no name is given)

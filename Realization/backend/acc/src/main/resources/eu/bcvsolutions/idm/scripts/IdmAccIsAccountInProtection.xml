@@ -2,7 +2,9 @@
 <!-- 
 !! Only example !! Script import is not supported yet!
 
-Return 'true', if  account for given UID and system ID is in protection state. Else return 'false'.
+Return 'true', if  account for given UID (AccAccount UID) and system ID is in protection state. Else return 'false'.
+Beware that in transformation rules SysSystemEntity UID is given as the input, therefore if account and system
+UID are not equal, this script will not return desired result.
 
 parameters:
 	-	system

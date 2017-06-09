@@ -90,13 +90,14 @@ public class GroovySandboxFilter extends GroovyValueFilter {
 		if (ALLOWED_TYPES.contains(targetClass) || getCustomTypes().contains(targetClass)) {
 			return o;
 		}
+		// TODO: check if this is necessary? 
 		if (o instanceof Class && ALLOWED_TYPES.contains(o) || getCustomTypes().contains(o)) {
 			return o;
 		}
 		if (o instanceof Script || o instanceof Closure) {
 			return o; // access to properties of compiled groovy script
 		}
-		throw new SecurityException(MessageFormat.format("Script wants to use unauthorized class: [{0}] ", o));
+		throw new SecurityException(MessageFormat.format("Script wants to use unauthorized class: [{0}] ", targetClass));
 	}
 
 }

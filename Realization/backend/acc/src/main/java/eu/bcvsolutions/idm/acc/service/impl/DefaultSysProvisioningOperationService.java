@@ -10,6 +10,7 @@ import java.util.Map.Entry;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
@@ -37,6 +38,7 @@ import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
 import eu.bcvsolutions.idm.core.notification.service.api.NotificationManager;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.ConfidentialString;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
@@ -90,7 +92,13 @@ public class DefaultSysProvisioningOperationService
 	}
 	
 	@Override
-	@Transactional
+	@Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
+	public SysProvisioningOperation get(Serializable id, BasePermission... permission) {
+		return super.get(id, permission);
+	}
+	
+	@Override
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public SysProvisioningOperation save(SysProvisioningOperation entity) {
 		// replace guarded strings to confidential strings (save to persist)
 		Map<String, Serializable> confidentialValues = replaceGuardedStrings(entity.getProvisioningContext());
@@ -105,7 +113,7 @@ public class DefaultSysProvisioningOperationService
 	}
 
 	@Override
-	@Transactional
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public void delete(SysProvisioningOperation provisioningOperation) {
 		Assert.notNull(provisioningOperation);
 		//
@@ -245,7 +253,7 @@ public class DefaultSysProvisioningOperationService
 	}
 	
 	@Override
-	@Transactional
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public void handleFailed(SysProvisioningOperation operation, Exception ex) {
 		ResultModel resultModel = new DefaultResultModel(AccResultCode.PROVISIONING_FAILED, 
 				ImmutableMap.of(
@@ -277,7 +285,7 @@ public class DefaultSysProvisioningOperationService
 	}
 	
 	@Override
-	@Transactional
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public void handleSuccessful(SysProvisioningOperation operation) {
 		ResultModel resultModel = new DefaultResultModel(
 				AccResultCode.PROVISIONING_SUCCEED, 

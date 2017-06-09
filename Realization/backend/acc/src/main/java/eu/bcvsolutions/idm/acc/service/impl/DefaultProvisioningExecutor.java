@@ -2,15 +2,17 @@ package eu.bcvsolutions.idm.acc.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.event.TransactionalEventListener;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
+import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningBatch;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningRequest;
-import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningOperationRepository;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningExecutor;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBatchService;
@@ -60,6 +62,61 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 
 	@Override
 	public SysProvisioningOperation execute(SysProvisioningOperation provisioningOperation) {
+		//
+		// execute - after original transaction is commited
+		entityEventManager.publishEvent(provisioningOperation);
+		
+		return provisioningOperation;
+		
+//		Assert.notNull(provisioningOperation);
+//		Assert.notNull(provisioningOperation.getSystem());
+//		Assert.notNull(provisioningOperation.getProvisioningContext());
+//		//	
+//		if (provisioningOperationService.isNew(provisioningOperation)) {
+//			// save new operation to provisioning log / queue
+//			SysProvisioningBatch batch = batchService.findBatch(provisioningOperation);
+//			SysProvisioningRequest request = new SysProvisioningRequest(provisioningOperation);
+//			if (batch == null) {
+//				batch = batchService.save(new SysProvisioningBatch());
+//				request.setResult(new OperationResult.Builder(OperationState.CREATED).build());
+//			} else {
+//				// put to queue
+//				// TODO: maybe putting into queue has to run after disable and readonly system
+//				ResultModel resultModel = new DefaultResultModel(AccResultCode.PROVISIONING_IS_IN_QUEUE, 
+//						ImmutableMap.of(
+//								"name", provisioningOperation.getSystemEntityUid(), 
+//								"system", provisioningOperation.getSystem().getName(),
+//								"operationType", provisioningOperation.getOperationType(),
+//								"objectClass", provisioningOperation.getProvisioningContext().getConnectorObject().getObjectClass()));
+//				LOG.debug(resultModel.toString());				
+//				request.setResult(new OperationResult.Builder(OperationState.NOT_EXECUTED).setModel(resultModel).build());
+//			}
+//			request.setBatch(batch);
+//			provisioningOperation.setRequest(request);
+//			//
+//			provisioningOperation = provisioningOperationService.save(provisioningOperation);
+//			if (OperationState.NOT_EXECUTED == request.getResult().getState()) {
+//				notificationManager.send(
+//						AccModuleDescriptor.TOPIC_PROVISIONING,
+//						new IdmMessageDto.Builder()
+//						.setModel(request.getResult().getModel())
+//						.build());
+//				return provisioningOperation;
+//			}
+//		}
+//		CoreEvent<SysProvisioningOperation> event = new CoreEvent<SysProvisioningOperation>(provisioningOperation.getOperationType(), provisioningOperation);
+//		EventContext<SysProvisioningOperation> context = entityEventManager.process(event);		
+//		return context.getContent();
+	}
+	
+	/**
+	 * We need to wait to transaction commit, when provisioning is executed - all accounts have to be prepared.
+	 * 
+	 * @param provisioningOperation
+	 * @return
+	 */
+	@TransactionalEventListener(fallbackExecution = true)
+	public SysProvisioningOperation executeInternal(SysProvisioningOperation provisioningOperation) {
 		Assert.notNull(provisioningOperation);
 		Assert.notNull(provisioningOperation.getSystem());
 		Assert.notNull(provisioningOperation.getProvisioningContext());
@@ -115,7 +172,7 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 		batch = batchService.get(batch.getId());
 		//
 		for (SysProvisioningRequest request : batch.getRequestsByTimeline()) {
-			SysProvisioningOperation operation = execute(request.getOperation());
+			SysProvisioningOperation operation = execute(request.getOperation()); // not run in transaction
 			if (operation.getRequest() != null && OperationState.EXECUTED != operation.getResultState()) {
 				return;
 			}

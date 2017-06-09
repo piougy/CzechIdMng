@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningBatch;
@@ -42,7 +43,7 @@ public class DefaultSysProvisioningBatchService
 	}
 	
 	@Override
-	@Transactional(readOnly = true)
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
 	public SysProvisioningBatch get(Serializable id) {
 		SysProvisioningBatch batch = super.get(id);
 		// TODO: remove batch requests list
@@ -53,7 +54,7 @@ public class DefaultSysProvisioningBatchService
 	}
 	
 	@Override
-	@Transactional(readOnly = true)
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
 	public SysProvisioningBatch findBatch(SysProvisioningOperation operation) {
 		SysProvisioningBatch batch = repository.findBatch(operation);
 		// TODO: remove batch requests list
@@ -61,6 +62,12 @@ public class DefaultSysProvisioningBatchService
 			batch.getRequests().size();
 		}
 		return batch;
+	}
+	
+	@Override
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	public SysProvisioningBatch save(SysProvisioningBatch entity) {
+		return super.save(entity);
 	}
 	
 	/**

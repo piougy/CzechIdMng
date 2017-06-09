@@ -73,7 +73,7 @@ public class DefaultEntityEventManager implements EntityEventManager {
 			}
 		}
 		//
-		this.publisher.publishEvent(event); 
+		publisher.publishEvent(event); 
 		LOG.debug("Publishing event [{}] [{}] is completed", content.getClass().getSimpleName(), event.getType());
 		//
 		return event.getContext();
@@ -111,4 +111,9 @@ public class DefaultEntityEventManager implements EntityEventManager {
 		LOG.debug("Returning [{}] registered entity event processors", dtos.size());
 		return dtos;
 	}	
+	
+	@Override
+	public void publishEvent(Object event) {
+		publisher.publishEvent(event);
+	}
 }

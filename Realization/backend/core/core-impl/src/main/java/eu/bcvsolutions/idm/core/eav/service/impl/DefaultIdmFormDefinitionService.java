@@ -9,7 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
-import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 import eu.bcvsolutions.idm.core.eav.dto.filter.FormAttributeFilter;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
@@ -23,8 +22,7 @@ import eu.bcvsolutions.idm.core.eav.service.api.IdmFormDefinitionService;
  * @author Radek Tomiška
  *
  */
-public class DefaultIdmFormDefinitionService extends AbstractReadWriteEntityService<IdmFormDefinition, QuickFilter>
-		implements IdmFormDefinitionService, ScriptEnabled {
+public class DefaultIdmFormDefinitionService extends AbstractReadWriteEntityService<IdmFormDefinition, QuickFilter> implements IdmFormDefinitionService {
 
 	private final IdmFormDefinitionRepository formDefinitionRepository;
 	private final IdmFormAttributeService formAttributeService;

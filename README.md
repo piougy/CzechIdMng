@@ -1,4 +1,4 @@
-# CzechIdM 7.0
+# CzechIdM 7
 
 The seventh version of [CzechIdM](http://www.czechidm.com/) will be based on technologies:
 * Backend (java):

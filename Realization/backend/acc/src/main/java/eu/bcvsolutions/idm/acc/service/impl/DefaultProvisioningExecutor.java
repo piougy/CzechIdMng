@@ -27,6 +27,7 @@ import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.EventContext;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
 import eu.bcvsolutions.idm.core.notification.service.api.NotificationManager;
 
@@ -112,7 +113,7 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 			if (OperationState.NOT_EXECUTED == request.getResult().getState()) {
 				notificationManager.send(
 						AccModuleDescriptor.TOPIC_PROVISIONING,
-						new IdmMessageDto.Builder()
+						new IdmMessageDto.Builder(NotificationLevel.INFO)
 						.setModel(request.getResult().getModel())
 						.build());
 				return provisioningOperation;
@@ -133,7 +134,6 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 	}
 
 	@Override
-	@Transactional
 	public void execute(SysProvisioningBatch batch) {
 		Assert.notNull(batch);
 		batch = batchService.get(batch.getId());

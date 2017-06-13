@@ -8,7 +8,7 @@ We use Redmine issues to track bugs. Please ensure your description is clear and
 
 ### Coding Style, convention
 
-* https://google.github.io/styleguide/javaguide.html
+* https://google.github.io/styleguide/javaguide.html 
 * 2 tabs for indentation
 * use `{}` brackets
 * Don't use abbreviations for fields, variables etc.

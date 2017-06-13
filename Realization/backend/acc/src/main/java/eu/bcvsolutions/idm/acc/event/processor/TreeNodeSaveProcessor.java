@@ -26,7 +26,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
  */
 @Component("accTreeNodeSaveProcessor")
 @Enabled(AccModuleDescriptor.MODULE_ID)
-@Description("Executes provisioing after tree node is saved.")
+@Description("Executes provisioning after tree node is saved.")
 public class TreeNodeSaveProcessor extends AbstractEntityEventProcessor<IdmTreeNode> {
 
 	public static final String PROCESSOR_NAME = "tree-node-save-processor";

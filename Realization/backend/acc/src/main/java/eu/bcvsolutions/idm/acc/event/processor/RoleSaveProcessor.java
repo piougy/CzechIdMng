@@ -26,7 +26,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
  */
 @Component("accRoleSaveProcessor")
 @Enabled(AccModuleDescriptor.MODULE_ID)
-@Description("Executes provisioing after role is saved.")
+@Description("Executes provisioning after role is saved.")
 public class RoleSaveProcessor extends AbstractEntityEventProcessor<IdmRole> {
 
 	public static final String PROCESSOR_NAME = "role-save-processor";

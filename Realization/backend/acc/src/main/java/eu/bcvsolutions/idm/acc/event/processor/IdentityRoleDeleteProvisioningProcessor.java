@@ -27,7 +27,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
  */
 @Component
 @Enabled(AccModuleDescriptor.MODULE_ID)
-@Description("Executes account management and provisioing before identity role is deleted.")
+@Description("Executes account management and provisioning before identity role is deleted.")
 public class IdentityRoleDeleteProvisioningProcessor extends AbstractEntityEventProcessor<IdmIdentityRoleDto> {
 
 	public static final String PROCESSOR_NAME = "identity-role-delete-provisioning-processor";

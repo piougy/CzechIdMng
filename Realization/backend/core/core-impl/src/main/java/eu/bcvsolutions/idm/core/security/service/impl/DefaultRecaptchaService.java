@@ -9,7 +9,6 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import com.google.common.collect.ImmutableMap;
-
 import eu.bcvsolutions.idm.core.api.config.domain.RecaptchaConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
@@ -26,14 +25,15 @@ import eu.bcvsolutions.idm.core.security.api.service.RecaptchaService;
 @Service("recaptchaService")
 public class DefaultRecaptchaService implements RecaptchaService {
 
-	protected final RestTemplate restTemplate = new RestTemplate();
+	protected final RestTemplate restTemplate;
 	protected final RecaptchaConfiguration recaptchaConfiguration;
-	
+
 	@Autowired
-	public DefaultRecaptchaService(RecaptchaConfiguration recaptchaConfiguration) {
+	public DefaultRecaptchaService(RecaptchaConfiguration recaptchaConfiguration, RestTemplate template) {
 		this.recaptchaConfiguration = recaptchaConfiguration;
+		this.restTemplate = template;
 	}
-	
+
 	@Override
 	public RecaptchaResponse checkRecaptcha(RecaptchaRequest req) {
 		// If i tried to send is as an Entity, google API didn't understand the message

@@ -139,7 +139,7 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 		batch = batchService.get(batch.getId());
 		//
 		for (SysProvisioningRequest request : batch.getRequestsByTimeline()) {
-			SysProvisioningOperation operation = execute(request.getOperation()); // not run in transaction
+			SysProvisioningOperation operation = executeInternal(request.getOperation()); // not run in transaction
 			if (operation.getRequest() != null && OperationState.EXECUTED != operation.getResultState()) {
 				return;
 			}

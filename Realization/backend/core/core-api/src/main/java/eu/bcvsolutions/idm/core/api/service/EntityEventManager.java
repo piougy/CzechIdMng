@@ -36,4 +36,11 @@ public interface EntityEventManager {
 	 * @return
 	 */
 	List<EntityEventProcessorDto> find(EntityEventProcessorFilter filter);
+	
+	/**
+	 * Publish common event to all listeners
+	 * 
+	 * @param event
+	 */
+	void publishEvent(Object event);
 }

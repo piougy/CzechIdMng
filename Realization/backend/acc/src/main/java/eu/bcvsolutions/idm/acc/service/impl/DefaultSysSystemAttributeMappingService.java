@@ -11,7 +11,6 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.plugin.core.OrderAwarePluginRegistry;
 import org.springframework.plugin.core.PluginRegistry;
 import org.springframework.stereotype.Service;
@@ -106,13 +105,18 @@ public class DefaultSysSystemAttributeMappingService
 		this.pluginExecutors = OrderAwarePluginRegistry.create(evaluators);
 	}
 
+	@Override
+	@Transactional(readOnly = true)
 	public List<SysSystemAttributeMapping> findBySystemMapping(SysSystemMapping systemMapping) {
 		Assert.notNull(systemMapping);
 		//
-		SystemAttributeMappingFilter filter = new SystemAttributeMappingFilter();
-		filter.setSystemMappingId(systemMapping.getId());
-		Page<SysSystemAttributeMapping> page = repository.find(filter, null);
-		return page.getContent();
+		return repository.findAllBySystemMapping_Id(systemMapping.getId());
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public SysSystemAttributeMapping findBySystemMappingAndName(UUID systemMappingId, String name) {
+		return repository.findBySystemMapping_IdAndName(systemMappingId, name);
 	}
 
 	@Override

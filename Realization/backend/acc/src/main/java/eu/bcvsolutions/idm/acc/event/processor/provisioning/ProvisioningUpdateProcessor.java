@@ -4,9 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 
+import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperation;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
-import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
@@ -50,7 +50,8 @@ public class ProvisioningUpdateProcessor extends AbstractProvisioningProcessor {
 	public IcUidAttribute processInternal(SysProvisioningOperation provisioningOperation, IcConnectorConfiguration connectorConfig) {
 		IcUidAttribute uidAttribute = new IcUidAttributeImpl(null, provisioningOperation.getSystemEntityUid(), null);
 		IcConnectorObject connectorObject = provisioningOperation.getProvisioningContext().getConnectorObject();
-		if (!connectorObject.getAttributes().isEmpty()) { // TODO: appropriate message - provisioning is not executed - attributes don't change
+		if (!connectorObject.getAttributes().isEmpty()) { 
+			// TODO: appropriate message - provisioning is not executed - attributes don't change
 			return connectorFacade.updateObject(provisioningOperation.getSystem().getConnectorInstance(), connectorConfig,
 					connectorObject.getObjectClass(), uidAttribute, connectorObject.getAttributes());
 			

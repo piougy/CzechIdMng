@@ -361,7 +361,7 @@ public class IdmServiceConfiguration {
 		return new DefaultLongRunningTaskManager(
 				longRunningTaskService(), 
 				executor, 
-				publisher,
+				entityEventManager(),
 				configurationService(), 
 				securityService());
 	}

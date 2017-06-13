@@ -15,6 +15,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.InitTestData;
+import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.domain.AccountType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
@@ -33,6 +34,7 @@ import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
 import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
 import eu.bcvsolutions.idm.acc.entity.SysSystemFormValue;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
+import eu.bcvsolutions.idm.acc.entity.TestResource;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
@@ -72,6 +74,8 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 	private static final String SYSTEM_NAME_TWO = "test_system_two_" + System.currentTimeMillis();
 	
 	@Autowired
+	private TestHelper helper;
+	@Autowired
 	private SysSystemService systemService;	
 	@Autowired
 	private IdmFormDefinitionService formDefinitionService;	
@@ -99,9 +103,6 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 	private AccAccountService accountService;
 	@Autowired
 	private SysSystemEntityService systemEntityService;
-	// Only for call method createTestSystem
-	@Autowired
-	private DefaultSysAccountManagementServiceTest defaultSysAccountManagementServiceTest;
 	
 	@Before
 	public void login() {
@@ -369,7 +370,7 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 	@Test
 	public void checkSystemValid() {
 		// create test system
-		SysSystem system =  defaultSysAccountManagementServiceTest.createTestSystem("test_resource");
+		SysSystem system = helper.createSystem(TestResource.TABLE_NAME);
 		// do test system
 		systemService.checkSystem(system);
 	}
@@ -377,7 +378,7 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 	@Test(expected = RuntimeException.class)
 	public void checkSystemUnValid() {
 		// create test system
-		SysSystem system =  defaultSysAccountManagementServiceTest.createTestSystem("test_resource");
+		SysSystem system =  helper.createSystem(TestResource.TABLE_NAME);
 		// set wrong password
 		IdmFormDefinition savedFormDefinition = systemService.getConnectorFormDefinition(system.getConnectorInstance());
 		List<AbstractFormValue<SysSystem>> values = formService.getValues(system, savedFormDefinition);

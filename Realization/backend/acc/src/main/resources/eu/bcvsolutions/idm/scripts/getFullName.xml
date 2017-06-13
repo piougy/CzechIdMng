@@ -1,0 +1,45 @@
+<?xml version = "1.0" encoding = "UTF-8" standalone = "yes"?>
+<!--
+/**
+ *
+ * @author Petr Michal
+ *
+ * Script returns name of user in form:
+ * first name + surname
+ * Example: John Green
+ *
+ */
+-->
+<script>
+	<name>Get full name</name>
+	<code>getFullName</code>
+	<type>groovy</type>
+	<body>
+		<![CDATA[
+
+		StringBuilder name = new StringBuilder()
+		String firsName = entity.getFirstName()
+		String surname = entity.getLastName()
+		
+		if (firsName) {
+		    name.append(firsName)
+		}
+		
+		if (surname) {
+		    name.append(" " + surname)
+		}
+		
+		name.toString()
+
+  		]]>
+	</body>
+	<inputParameter>attributeValue</inputParameter>
+	<services>
+    	<!-- not needed -->
+  	</services>
+	<allowClasses>
+	  <class>java.lang.StringBuilder</class>
+	</allowClasses>
+	<systemTemplate>true</systemTemplate>
+	<moduleId>acc</moduleId>
+</script>

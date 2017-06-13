@@ -1,0 +1,35 @@
+<?xml version = "1.0" encoding = "UTF-8" standalone = "yes"?>
+<!--
+/**
+ *
+ * @author Petr Michal
+ *
+ * Returns Boolean if value of given string if its "true" or "false".
+ * Otherwise returns null.
+ *
+ */
+-->
+<script>
+	<name>Get Boolean from String</name>
+	<code>getBooleanFromString</code>
+	<type>groovy</type>
+	<body>
+		<![CDATA[
+
+		if ("false".equals(attributeValue) || "true".equals(attributeValue)) {
+		    return Boolean.valueOf(attributeValue)
+		}
+		return null
+
+  		]]>
+	</body>
+	<inputParameter>attributeValue</inputParameter>
+	<services>
+    	<!-- not needed -->
+  	</services>
+	<allowClasses>
+	   <!-- not needed -->
+	</allowClasses>
+	<systemTemplate>true</systemTemplate>
+	<moduleId>acc</moduleId>
+</script>

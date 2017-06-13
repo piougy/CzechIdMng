@@ -170,7 +170,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 					provisioningOperation.getSystemEntityUid(),
 					objectClass.getType());
 			return new DefaultEventResult<>(event, this);
-		} catch (Exception ex) {	
+		} catch (Exception ex) {
 			ResultModel resultModel;
 			if (ex instanceof ResultCodeException) {
 				resultModel = ((ResultCodeException) ex).getError().getError();

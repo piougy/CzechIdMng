@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.acc.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionalEventListener;
 import org.springframework.util.Assert;
@@ -14,6 +15,7 @@ import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningBatch;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningRequest;
+import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningOperationRepository;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningExecutor;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBatchService;
@@ -78,6 +80,7 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 	 */
 	@Override
 	@TransactionalEventListener
+	@Transactional(noRollbackFor = ProvisioningException.class, propagation = Propagation.REQUIRES_NEW)
 	public SysProvisioningOperation executeInternal(SysProvisioningOperation provisioningOperation) {
 		Assert.notNull(provisioningOperation);
 		Assert.notNull(provisioningOperation.getSystem());

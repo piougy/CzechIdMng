@@ -10,7 +10,6 @@ import java.util.Map.Entry;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
@@ -92,13 +91,13 @@ public class DefaultSysProvisioningOperationService
 	}
 	
 	@Override
-	@Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
+	@Transactional(readOnly = true)
 	public SysProvisioningOperation get(Serializable id, BasePermission... permission) {
 		return super.get(id, permission);
 	}
 	
 	@Override
-	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	@Transactional
 	public SysProvisioningOperation save(SysProvisioningOperation entity) {
 		// replace guarded strings to confidential strings (save to persist)
 		Map<String, Serializable> confidentialValues = replaceGuardedStrings(entity.getProvisioningContext());
@@ -113,7 +112,7 @@ public class DefaultSysProvisioningOperationService
 	}
 
 	@Override
-	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	@Transactional
 	public void delete(SysProvisioningOperation provisioningOperation) {
 		Assert.notNull(provisioningOperation);
 		//
@@ -253,7 +252,7 @@ public class DefaultSysProvisioningOperationService
 	}
 	
 	@Override
-	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	@Transactional
 	public void handleFailed(SysProvisioningOperation operation, Exception ex) {
 		ResultModel resultModel = new DefaultResultModel(AccResultCode.PROVISIONING_FAILED, 
 				ImmutableMap.of(
@@ -285,7 +284,7 @@ public class DefaultSysProvisioningOperationService
 	}
 	
 	@Override
-	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	@Transactional
 	public void handleSuccessful(SysProvisioningOperation operation) {
 		ResultModel resultModel = new DefaultResultModel(
 				AccResultCode.PROVISIONING_SUCCEED, 

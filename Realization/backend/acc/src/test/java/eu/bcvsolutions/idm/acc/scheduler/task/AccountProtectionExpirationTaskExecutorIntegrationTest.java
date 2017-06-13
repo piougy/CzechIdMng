@@ -53,7 +53,7 @@ public class AccountProtectionExpirationTaskExecutorIntegrationTest extends Abst
 	public void testRemoveExpiredAccount() {
 		IdmIdentityDto identity = helper.createIdentity();
 		IdmRole role = helper.createRole();
-		SysSystem system = helper.createSystem(TestResource.TABLE_NAME, true);
+		SysSystem system = helper.createTestResourceSystem(true);
 		SysSystemMapping mapping = helper.getDefaultMapping(system);
 		mapping.setProtectionInterval(1);
 		mapping.setProtectionEnabled(true);

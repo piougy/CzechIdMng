@@ -32,7 +32,7 @@ public interface ProvisioningExecutor {
 	 * @return
 	 */
 	@Beta
-	@TransactionalEventListener(fallbackExecution = true)
+	@TransactionalEventListener
 	SysProvisioningOperation executeInternal(SysProvisioningOperation provisioningOperation);
 	
 	/**

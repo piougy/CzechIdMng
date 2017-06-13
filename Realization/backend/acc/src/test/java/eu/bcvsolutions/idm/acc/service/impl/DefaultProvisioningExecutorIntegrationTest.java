@@ -6,7 +6,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.junit.After;
@@ -14,30 +13,25 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.data.domain.Page;
 
+import eu.bcvsolutions.idm.InitTestData;
+import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningContext;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
-import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.ProvisioningAttributeDto;
-import eu.bcvsolutions.idm.acc.dto.filter.SchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
-import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
-import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
 import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
-import eu.bcvsolutions.idm.acc.service.DefaultSysAccountManagementServiceTest;
+import eu.bcvsolutions.idm.acc.entity.TestResource;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningExecutor;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
-import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
-import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
@@ -56,23 +50,19 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * - disabled system provisioning
  * - readonly system provisioning
  * 
- * TODO: use testHelper
- * 
  * @author Radek Tomiška
  *
  */
 public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrationTest {
 	
 	@Autowired
+	private TestHelper helper;
+	@Autowired
 	private ApplicationContext context;
 	@Autowired
 	private SysSystemService systemService;
 	@Autowired
 	private SysSystemEntityService systemEntityService;
-	@Autowired
-	private SysSystemMappingService mappingService;
-	@Autowired
-	private SysSchemaAttributeService schemaAttributeService;
 	@Autowired
 	private SysSystemAttributeMappingService attributeMappingService;
 	@Autowired
@@ -89,13 +79,9 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 	private SysSystemAttributeMapping lastNameAttributeMapping = null;
 	private SysSystemAttributeMapping passwordAttributeMapping = null;
 	
-	// Only for call method createTestSystem
-	@Autowired
-	private DefaultSysAccountManagementServiceTest defaultSysAccountManagementServiceTest;
-	
 	@Before
 	public void init() {	
-		loginAsAdmin("admin");
+		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
 		sysProvisioningOperationService = context.getAutowireCapableBeanFactory().createBean(DefaultSysProvisioningOperationService.class);
 		provisioningExecutor = context.getAutowireCapableBeanFactory().createBean(DefaultProvisioningExecutor.class);
 	}
@@ -107,59 +93,13 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 	
 	private void initSystem() {
 		// prepare test system
-		system = defaultSysAccountManagementServiceTest.createTestSystem("test_resource");
-		// generate schema
-		List<SysSchemaObjectClass> objectClasses = systemService.generateSchema(system);
-		// create test mapping
-		systemMapping = new SysSystemMapping();
-		systemMapping.setName("default_" + System.currentTimeMillis());
-		systemMapping.setEntityType(SystemEntityType.IDENTITY);
-		systemMapping.setOperationType(SystemOperationType.PROVISIONING);
-		systemMapping.setObjectClass(objectClasses.get(0));
-		mappingService.save(systemMapping);
-		
-		SchemaAttributeFilter schemaAttributeFilter = new SchemaAttributeFilter();
-		schemaAttributeFilter.setSystemId(system.getId());
-		Page<SysSchemaAttribute> schemaAttributesPage = schemaAttributeService.find(schemaAttributeFilter, null);
-		for(SysSchemaAttribute schemaAttr : schemaAttributesPage) {
-			if ("__NAME__".equals(schemaAttr.getName())) {
-				nameAttributeMapping = new SysSystemAttributeMapping();
-				nameAttributeMapping.setUid(true);
-				nameAttributeMapping.setEntityAttribute(false);
-				nameAttributeMapping.setName(schemaAttr.getName());
-				nameAttributeMapping.setSchemaAttribute(schemaAttr);
-				nameAttributeMapping.setSystemMapping(systemMapping);
-				nameAttributeMapping = attributeMappingService.save(nameAttributeMapping);
-
-			} else if ("firstname".equalsIgnoreCase(schemaAttr.getName())) {
-				firstNameAttributeMapping = new SysSystemAttributeMapping();
-				firstNameAttributeMapping.setIdmPropertyName("firstName");
-				firstNameAttributeMapping.setSchemaAttribute(schemaAttr);
-				firstNameAttributeMapping.setName(schemaAttr.getName());
-				firstNameAttributeMapping.setSystemMapping(systemMapping);
-				firstNameAttributeMapping = attributeMappingService.save(firstNameAttributeMapping);
-
-			} else if ("lastname".equalsIgnoreCase(schemaAttr.getName())) {
-				lastNameAttributeMapping = new SysSystemAttributeMapping();
-				lastNameAttributeMapping.setIdmPropertyName("lastName");
-				lastNameAttributeMapping.setName(schemaAttr.getName());
-				lastNameAttributeMapping.setSchemaAttribute(schemaAttr);
-				lastNameAttributeMapping.setSystemMapping(systemMapping);
-				lastNameAttributeMapping = attributeMappingService.save(lastNameAttributeMapping);
-
-			} else if (IcConnectorFacade.PASSWORD_ATTRIBUTE_NAME.equalsIgnoreCase(schemaAttr.getName())) {
-				passwordAttributeMapping = new SysSystemAttributeMapping();
-				passwordAttributeMapping.setIdmPropertyName("password");
-				passwordAttributeMapping.setSchemaAttribute(schemaAttr);
-				passwordAttributeMapping.setName(schemaAttr.getName());
-				passwordAttributeMapping.setSystemMapping(systemMapping);
-				passwordAttributeMapping = attributeMappingService.save(passwordAttributeMapping);
-			}
-		}
-		assertNotNull(nameAttributeMapping);
-		assertNotNull(firstNameAttributeMapping);
-		assertNotNull(lastNameAttributeMapping);
-		assertNotNull(passwordAttributeMapping);
+		system = helper.createTestResourceSystem(true);
+		systemMapping = helper.getDefaultMapping(system);
+		//
+		nameAttributeMapping = attributeMappingService.findBySystemMappingAndName(systemMapping.getId(), TestHelper.ATTRIBUTE_MAPPING_NAME);
+		firstNameAttributeMapping = attributeMappingService.findBySystemMappingAndName(systemMapping.getId(), TestHelper.ATTRIBUTE_MAPPING_FIRSTNAME);
+		lastNameAttributeMapping = attributeMappingService.findBySystemMappingAndName(systemMapping.getId(), TestHelper.ATTRIBUTE_MAPPING_LASTNAME);
+		passwordAttributeMapping = attributeMappingService.findBySystemMappingAndName(systemMapping.getId(), TestHelper.ATTRIBUTE_MAPPING_PASSWORD);
 	}
 	
 	private Map<ProvisioningAttributeDto, Object> createAccountObject(SysSystemEntity systemEntity) {

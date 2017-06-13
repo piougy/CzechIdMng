@@ -57,7 +57,7 @@ public class DefaultSysSystemEntityService extends AbstractReadWriteEntityServic
 		}
 		//
 		// clear accounts - only link, can be rebuild
-		accountRepository.clearSystemEntity(systemEntity);
+		accountRepository.clearSystemEntity(systemEntity.getId());
 		//
 		super.delete(systemEntity);
 	}

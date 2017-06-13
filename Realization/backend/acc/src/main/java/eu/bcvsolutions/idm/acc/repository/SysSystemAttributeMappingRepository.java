@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.acc.repository;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
@@ -66,4 +67,21 @@ public interface SysSystemAttributeMappingRepository extends AbstractEntityRepos
 			+ "AND "
 			+ "e.systemMapping.objectClass.system.id = :systemId ")
 	SysSystemAttributeMapping findUidAttribute(@Param("systemId") UUID systemId, @Param("operationType") SystemOperationType operationType);
+	
+	/**
+	 * Single mapped attribute in given mapping by given name
+	 * 
+	 * @param systemMappingId
+	 * @param name
+	 * @return
+	 */
+	SysSystemAttributeMapping findBySystemMapping_IdAndName(@Param("systemMappingId") UUID systemMappingId, @Param("name") String name);
+	
+	/**
+	 * All mapped attributes in given mapping
+	 * 
+	 * @param systemMappingId
+	 * @return
+	 */
+	List<SysSystemAttributeMapping> findAllBySystemMapping_Id(@Param("systemMappingId") UUID systemMappingId);
 }

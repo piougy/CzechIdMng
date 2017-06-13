@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.ImmutableList;
 
+import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.filter.SchemaAttributeFilter;
@@ -57,9 +58,10 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 public class DefaultRoleCatalogueProvisioningTest extends AbstractIntegrationTest {
 
 	private static final String SYSTEM_NAME = "systemName";
-	private static final String ATTRIBUTE_NAME = "__NAME__";
 	private static final String CHANGED = "changed";
 
+	@Autowired
+	private TestHelper helper;
 	@Autowired
 	private SysSystemService systemService;
 	@Autowired
@@ -76,13 +78,7 @@ public class DefaultRoleCatalogueProvisioningTest extends AbstractIntegrationTes
 	private IdmRoleCatalogueService treeNodeService;
 	@Autowired
 	private FormService formService;
-
-	@Autowired
-	DataSource dataSource;
-
-	// Only for call method createTestSystem
-	@Autowired
-	private DefaultSysAccountManagementServiceTest defaultSysAccountManagementServiceTest;
+	//
 	private SysSystem system;
 
 	@Before
@@ -146,7 +142,6 @@ public class DefaultRoleCatalogueProvisioningTest extends AbstractIntegrationTes
 	}
 	
 	@Test
-	@Transactional
 	public void provisioningC_CreateAccounts_correct() {
 		
 		RoleCatalogueFilter filter = new RoleCatalogueFilter();
@@ -248,7 +243,7 @@ public class DefaultRoleCatalogueProvisioningTest extends AbstractIntegrationTes
 	private void initData() {
 
 		// create test system
-		system = defaultSysAccountManagementServiceTest.createTestSystem("test_tree_resource");
+		system = helper.createSystem("test_tree_resource");
 		system.setName(SYSTEM_NAME);
 		system = systemService.save(system);
 		// key to EAV
@@ -292,7 +287,7 @@ public class DefaultRoleCatalogueProvisioningTest extends AbstractIntegrationTes
 
 		Page<SysSchemaAttribute> schemaAttributesPage = schemaAttributeService.find(schemaAttributeFilter, null);
 		schemaAttributesPage.forEach(schemaAttr -> {
-			if (ATTRIBUTE_NAME.equals(schemaAttr.getName())) {
+			if (TestHelper.ATTRIBUTE_MAPPING_NAME.equals(schemaAttr.getName())) {
 				SysSystemAttributeMapping attributeHandlingName = new SysSystemAttributeMapping();
 				attributeHandlingName.setUid(true);
 				attributeHandlingName.setEntityAttribute(false);

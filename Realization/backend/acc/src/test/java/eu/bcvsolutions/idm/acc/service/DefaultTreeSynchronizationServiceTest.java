@@ -4,7 +4,6 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
-import javax.sql.DataSource;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -21,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.ImmutableList;
 
+import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.domain.ReconciliationMissingAccountActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationLinkedActionType;
@@ -86,7 +86,8 @@ public class DefaultTreeSynchronizationServiceTest extends AbstractIntegrationTe
 	private static final String ATTRIBUTE_NAME = "__NAME__";
 	private static final String CHANGED = "changed";
 	
-
+	@Autowired
+	private TestHelper helper;
 	@Autowired
 	private ApplicationContext context;
 	@Autowired
@@ -116,12 +117,6 @@ public class DefaultTreeSynchronizationServiceTest extends AbstractIntegrationTe
 	@Autowired
 	private FormService formService;
 
-	@Autowired
-	DataSource dataSource;
-
-	// Only for call method createTestSystem
-	@Autowired
-	private DefaultSysAccountManagementServiceTest defaultSysAccountManagementServiceTest;
 	private SysSystem system;
 	private SynchronizationService synchornizationService;
 
@@ -138,9 +133,7 @@ public class DefaultTreeSynchronizationServiceTest extends AbstractIntegrationTe
 
 	@Test
 	@Transactional
-	public void doCreateSyncConfig() {
-		
-				
+	public void doCreateSyncConfig() {		
 		initData();
 
 		SystemMappingFilter mappingFilter = new SystemMappingFilter();
@@ -462,7 +455,6 @@ public class DefaultTreeSynchronizationServiceTest extends AbstractIntegrationTe
 	}
 	
 	@Test
-	@Transactional
 	public void provisioningC_CreateAccounts_correct() {
 		
 		TreeNodeFilter filter = new TreeNodeFilter();
@@ -592,7 +584,7 @@ public class DefaultTreeSynchronizationServiceTest extends AbstractIntegrationTe
 	private void initData() {
 
 		// create test system
-		system = defaultSysAccountManagementServiceTest.createTestSystem("test_tree_resource");
+		system = helper.createSystem("test_tree_resource");
 		system.setName(SYSTEM_NAME);
 		system = systemService.save(system);
 		// key to EAV

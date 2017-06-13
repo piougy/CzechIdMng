@@ -6,7 +6,6 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
-import javax.sql.DataSource;
 
 import org.joda.time.LocalDateTime;
 import org.junit.After;
@@ -24,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.ImmutableList;
 
+import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.domain.AccountType;
 import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType;
 import eu.bcvsolutions.idm.acc.domain.OperationResultType;
@@ -102,6 +102,9 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 	private static final String IDENTITY_EMAIL_CORRECT_CHANGED = "email@changed.cz";
 
 	@Autowired
+	private TestHelper helper;
+	
+	@Autowired
 	private ApplicationContext context;
 	
 	@Autowired
@@ -146,12 +149,6 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 	@Autowired
 	private FormService formService;
 
-	@Autowired
-	DataSource dataSource;
-
-	// Only for call method createTestSystem
-	@Autowired
-	private DefaultSysAccountManagementServiceTest defaultSysAccountManagementServiceTest;
 	private SysSystem system;
 	private SynchronizationService synchornizationService;
 
@@ -1396,7 +1393,7 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 	private void initData() {
 
 		// create test system
-		system = defaultSysAccountManagementServiceTest.createTestSystem("test_resource");
+		system = helper.createSystem("test_resource");
 
 		// generate schema for system
 		List<SysSchemaObjectClass> objectClasses = systemService.generateSchema(system);

@@ -10,7 +10,9 @@ parameters:
 	-	from
  -->
 
-<template>
+<template
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+		xsi:noNamespaceSchemaLocation="IdmNotificationTemplate.xsd">>
 	<name>Send result WF - Change identity roles</name>
 	<code>changeIdentityRole</code>
 	<subject>CzechIdM - změna opravnění pro účet $identity.Username</subject>

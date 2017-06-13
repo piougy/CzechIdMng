@@ -8,7 +8,9 @@ parameters:
 	-	from
  -->
 
-<template>
+<template
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+		xsi:noNamespaceSchemaLocation="IdmNotificationTemplate.xsd">
 	<name>Send result WF - Disapprove identity roles</name>
 	<code>disapproveIdentityRole</code>
 	<subject>CzechIdM - Změna oprávnění byla zamítnuta</subject>

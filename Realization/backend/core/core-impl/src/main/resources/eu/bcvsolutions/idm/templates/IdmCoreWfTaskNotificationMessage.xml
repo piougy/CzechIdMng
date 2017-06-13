@@ -9,7 +9,9 @@ parameters:
 	-	subject
  -->
 
-<template>
+<template
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+		xsi:noNamespaceSchemaLocation="IdmNotificationTemplate.xsd">>
 	<name>Send newly created or assigned task</name>
 	<code>wfTaskNotificationMessage</code>
 	<subject>CzechIdM - $subject</subject>

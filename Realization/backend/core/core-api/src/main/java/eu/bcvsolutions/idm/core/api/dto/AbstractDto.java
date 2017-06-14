@@ -17,6 +17,7 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import eu.bcvsolutions.idm.core.api.domain.Auditable;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * Common dto
@@ -29,28 +30,43 @@ public abstract class AbstractDto implements BaseDto, Auditable {
 	private static final long serialVersionUID = 7512463222974374742L;
 	//
 	@JsonDeserialize(as = UUID.class)
+	@ApiModelProperty(required = true, notes = "Unique uuid identifier. Used as identifier in rest endpoints")
 	private UUID id;
+	@ApiModelProperty(readOnly = true)
 	private DateTime created;
+	@ApiModelProperty(readOnly = true)
 	private DateTime modified;
 	@Size(max = DefaultFieldLengths.NAME)
+	@ApiModelProperty(readOnly = true)
 	private String creator;
+	@ApiModelProperty(readOnly = true)
 	private UUID creatorId;
 	@Size(max = DefaultFieldLengths.NAME)
+	@ApiModelProperty(readOnly = true)
 	private String modifier;
+	@ApiModelProperty(readOnly = true)
 	private UUID modifierId;
 	@Size(max = DefaultFieldLengths.NAME)
+	@ApiModelProperty(readOnly = true)
 	private String originalCreator;
+	@ApiModelProperty(readOnly = true)
 	private UUID originalCreatorId;
 	@Size(max = DefaultFieldLengths.NAME)
+	@ApiModelProperty(readOnly = true)
 	private String originalModifier;
+	@ApiModelProperty(readOnly = true)
 	private UUID originalModifierId;
 	@JsonProperty(value = "_trimmed", access=Access.READ_ONLY)
+	@ApiModelProperty(readOnly = true)
 	private boolean trimmed = false;
 	@JsonProperty(value = "_embedded", access=Access.READ_ONLY)
+	@ApiModelProperty(readOnly = true)
 	private Map<String, BaseDto> embedded;
 	@JsonIgnore
+	@ApiModelProperty(readOnly = true)
 	private UUID transactionId;
 	@JsonIgnore
+	@ApiModelProperty(readOnly = true)
 	private UUID realmId;
 
 	public AbstractDto() {

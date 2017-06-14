@@ -59,6 +59,8 @@
 		<spring.profiles.active>default</spring.profiles.active>
 		<surefire.version>2.18.1</surefire.version>
 		<camel.version>2.17.2</camel.version>
+		<swagger.version>2.7.0</swagger.version>
+		<guava.version>18.0</guava.version>
 		<additionalparam>-Xdoclint:none</additionalparam>
 		<maven.javadoc.failOnError>false</maven.javadoc.failOnError>
 	</properties>
@@ -328,7 +330,30 @@
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>
 		</dependency>
-
+		
+		<!-- Rest api documentation -->
+		<dependency>
+		    <groupId>com.google.guava</groupId>
+		    <artifactId>guava</artifactId>
+		    <version>${guava.version}</version>
+		</dependency>
+		<dependency>
+		    <groupId>io.springfox</groupId>
+		    <artifactId>springfox-swagger2</artifactId>
+		    <version>${swagger.version}</version>
+		    <scope>compile</scope>
+		</dependency>
+		<dependency>
+		    <groupId>io.springfox</groupId>
+		    <artifactId>springfox-swagger-ui</artifactId>
+		    <version>${swagger.version}</version>
+		    <scope>compile</scope>
+		</dependency>
+		<dependency>
+		    <groupId>io.springfox</groupId>
+		    <artifactId>springfox-bean-validators</artifactId>
+		    <version>${swagger.version}</version>
+		</dependency>
 	</dependencies>
 
 	<build>

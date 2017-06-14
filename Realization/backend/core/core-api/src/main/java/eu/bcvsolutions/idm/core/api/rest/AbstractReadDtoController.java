@@ -36,6 +36,9 @@ import eu.bcvsolutions.idm.core.api.service.ReadDtoService;
 import eu.bcvsolutions.idm.core.api.utils.FilterConverter;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import springfox.documentation.annotations.ApiIgnore;
 
 /**
  * Read operations (get, find, autocomplete)
@@ -120,8 +123,21 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 	 * @return
      * @see #toFilter(MultiValueMap)
 	 */
-	public Resources<?> find(@RequestParam MultiValueMap<String, Object> parameters,
-			@PageableDefault Pageable pageable) {
+	@ApiImplicitParams({
+		@ApiImplicitParam(name = "parameters", allowMultiple = true, dataType = "string", paramType = "query",
+				value = "Search criteria parameters. Parameters could be registered by module. Example id=25c5b9e8-b15d-4f95-b715-c7edf6f4aee6"),
+        @ApiImplicitParam(name = "page", dataType = "string", paramType = "query",
+                value = "Results page you want to retrieve (0..N)"),
+        @ApiImplicitParam(name = "size", dataType = "string", paramType = "query",
+                value = "Number of records per page."),
+        @ApiImplicitParam(name = "sort", allowMultiple = true, dataType = "string", paramType = "query",
+                value = "Sorting criteria in the format: property(,asc|desc). " +
+                        "Default sort order is ascending. " +
+                        "Multiple sort criteria are supported.")
+	})
+	public Resources<?> find(
+			@ApiIgnore @RequestParam(required = false) MultiValueMap<String, Object> parameters,
+			@ApiIgnore @PageableDefault Pageable pageable) {
 		return toResources(find(toFilter(parameters), pageable, IdmBasePermission.READ), getDtoClass());
 	}
 	

@@ -21,6 +21,7 @@ import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -66,6 +67,12 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.service.GrantedAuthoritiesFactory;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import springfox.documentation.annotations.ApiIgnore;
 
 /**
  * Rest methods for IdmIdentity resource
@@ -73,6 +80,7 @@ import eu.bcvsolutions.idm.core.security.service.GrantedAuthoritiesFactory;
  * @author Radek Tomiška
  *
  */
+@Api(value="Identities", description="Operations with identities")
 @RepositoryRestController // TODO: @RestController after eav to dto
 @RequestMapping(value = BaseDtoController.BASE_PATH + "/identities")
 public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIdentityDto, IdentityFilter> {
@@ -125,9 +133,11 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 	
 	@Override
 	@ResponseBody
-	@RequestMapping(method = RequestMethod.GET)
+	@RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_READ + "')")
-	public Resources<?> find(@RequestParam MultiValueMap<String, Object> parameters,
+	@ApiOperation(value = "Search identities (/search/quick alias)")
+	public Resources<?> find(
+			@RequestParam(required = false) MultiValueMap<String, Object> parameters, 
 			@PageableDefault Pageable pageable) {
 		return super.find(parameters, pageable);
 	}
@@ -135,7 +145,7 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 	@ResponseBody
 	@RequestMapping(value = "/search/quick", method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_READ + "')")
-	public Resources<?> findQuick(@RequestParam MultiValueMap<String, Object> parameters,
+	public Resources<?> findQuick( @RequestParam MultiValueMap<String, Object> parameters, 
 			@PageableDefault Pageable pageable) {
 		return super.find(parameters, pageable);
 	}
@@ -153,6 +163,7 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_READ + "')")
+	@ApiOperation(value = "Identity detail", response = IdmIdentityDto.class)
 	public ResponseEntity<?> get(@PathVariable @NotNull String backendId) {
 		return super.get(backendId);
 	}
@@ -171,15 +182,6 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_UPDATE + "')")
 	public ResponseEntity<?> put(@PathVariable @NotNull String backendId, @Valid @RequestBody IdmIdentityDto dto) {
 		return super.put(backendId, dto);
-	}
-
-	@Override
-	@ResponseBody
-	@RequestMapping(value = "/{backendId}", method = RequestMethod.PATCH)
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_UPDATE + "')")
-	public ResponseEntity<?> patch(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest)
-			throws HttpMessageNotReadableException {
-		return super.patch(backendId, nativeRequest);
 	}
 
 	@Override

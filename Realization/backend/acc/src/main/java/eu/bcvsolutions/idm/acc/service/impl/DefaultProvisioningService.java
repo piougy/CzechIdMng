@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.plugin.core.OrderAwarePluginRegistry;
 import org.springframework.plugin.core.PluginRegistry;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
@@ -29,10 +30,9 @@ import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
  *
  */
 @Service
-public class DefaultProvisioningService implements ProvisioningService{
+public class DefaultProvisioningService implements ProvisioningService {
 
 	private final PluginRegistry<ProvisioningEntityExecutor<?>, SystemEntityType> pluginExecutors; 
-
 
 	@Autowired
 	public DefaultProvisioningService(List<ProvisioningEntityExecutor<?>>  executors) {
@@ -47,15 +47,11 @@ public class DefaultProvisioningService implements ProvisioningService{
 		this.getExecutor(SystemEntityType.getByClass(entity.getClass())).doProvisioning(entity);		
 	}
 
-
-
 	@Override
 	public void doProvisioning(AccAccount account) {
 		Assert.notNull(account);
 		this.getExecutor(account.getSystemEntity().getEntityType()).doProvisioning(account);
 	}
-
-
 
 	@Override
 	public void doProvisioning(AccAccount account, AbstractEntity entity) {
@@ -71,23 +67,18 @@ public class DefaultProvisioningService implements ProvisioningService{
 		this.getExecutor(SystemEntityType.getByClass(entity.getClass())).doInternalProvisioning(account, entity);
 	}
 
-
-
 	@Override
 	public void doDeleteProvisioning(AccAccount account, SystemEntityType entityType) {
 		Assert.notNull(account);
 		this.getExecutor(entityType).doDeleteProvisioning(account);
 	}
 
-
-
 	@Override
 	public void changePassword(AbstractEntity entity, PasswordChangeDto passwordChange) {
 		Assert.notNull(entity);
+		//
 		this.getExecutor(SystemEntityType.getByClass(entity.getClass())).changePassword(entity, passwordChange);
 	}
-
-
 
 	@Override
 	public void doProvisioningForAttribute(SysSystemEntity systemEntity, AttributeMapping mappedAttribute, Object value,
@@ -96,16 +87,12 @@ public class DefaultProvisioningService implements ProvisioningService{
 		this.getExecutor(SystemEntityType.getByClass(entity.getClass())).doProvisioningForAttribute(systemEntity, mappedAttribute, value, operationType, entity);
 	}
 
-
-
 	@Override
 	public IcUidAttribute authenticate(String username, GuardedString password, SysSystem system,
 			SystemEntityType entityType) {
 		Assert.notNull(entityType);
 		return this.getExecutor(entityType).authenticate(username, password, system, entityType);
 	}
-
-
 
 	@Override
 	public List<AttributeMapping> resolveMappedAttributes(String uid, AccAccount account, AbstractEntity entity,
@@ -114,16 +101,12 @@ public class DefaultProvisioningService implements ProvisioningService{
 		return this.getExecutor(entityType).resolveMappedAttributes(uid, account, entity, system, entityType);
 	}
 
-
-
 	@Override
 	public List<AttributeMapping> compileAttributes(List<? extends AttributeMapping> defaultAttributes,
 			List<SysRoleSystemAttribute> overloadingAttributes, SystemEntityType entityType) {
 		Assert.notNull(entityType);
 		return this.getExecutor(entityType).compileAttributes(defaultAttributes, overloadingAttributes, entityType);
 	}
-
-
 
 	@Override
 	public void createAccountsForAllSystems(AbstractEntity entity) {

@@ -28,7 +28,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
  */
 @Component("accIdentitySaveProcessor")
 @Enabled(AccModuleDescriptor.MODULE_ID)
-@Description("Executes provisioing after identity is saved.")
+@Description("Executes provisioning after identity is saved.")
 public class IdentitySaveProvisioningProcessor extends AbstractEntityEventProcessor<IdmIdentityDto> {
 
 	public static final String PROCESSOR_NAME = "identity-save-processor";

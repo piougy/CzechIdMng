@@ -219,7 +219,7 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 	public void changePassword(ENTITY entity, PasswordChangeDto passwordChange) {
 		Assert.notNull(entity);
 		Assert.notNull(passwordChange);
-
+		//
 		EntityAccountFilter filter = this.createEntityAccountFilter();
 		filter.setEntityId(entity.getId());
 		@SuppressWarnings("unchecked")

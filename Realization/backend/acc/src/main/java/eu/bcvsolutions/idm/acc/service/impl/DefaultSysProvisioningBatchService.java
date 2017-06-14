@@ -63,6 +63,12 @@ public class DefaultSysProvisioningBatchService
 		return batch;
 	}
 	
+	@Override
+	@Transactional
+	public SysProvisioningBatch save(SysProvisioningBatch entity) {
+		return super.save(entity);
+	}
+	
 	/**
 	 * Calculates when the request should be invoked
 	 * 

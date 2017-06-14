@@ -26,7 +26,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
  */
 @Component
 @Enabled(AccModuleDescriptor.MODULE_ID)
-@Description("Executes provisioing after identity contract is saved or deleted.")
+@Description("Executes provisioning after identity contract is saved or deleted.")
 public class IdentityContractProvisioningProcessor extends AbstractIdentityContractProvisioningProcessor {
 
 	public static final String PROCESSOR_NAME = "identity-contract-provisioning-processor";

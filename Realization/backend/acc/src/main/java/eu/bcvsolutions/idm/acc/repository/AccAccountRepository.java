@@ -14,7 +14,6 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import eu.bcvsolutions.idm.acc.dto.filter.AccountFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 
 /**
@@ -63,8 +62,8 @@ public interface AccAccountRepository extends AbstractEntityRepository<AccAccoun
 	 * @return
 	 */
 	@Modifying
-	@Query("update #{#entityName} e set e.systemEntity = null where e.systemEntity = :systemEntity")
-	int clearSystemEntity(@Param("systemEntity") SysSystemEntity systemEntity);
+	@Query("update #{#entityName} e set e.systemEntity = null where e.systemEntity.id = :systemEntityId")
+	int clearSystemEntity(@Param("systemEntityId") UUID systemEntityId);
 	
 	/**
 	 * Find all {@link AccAccount} by identity id and system id.

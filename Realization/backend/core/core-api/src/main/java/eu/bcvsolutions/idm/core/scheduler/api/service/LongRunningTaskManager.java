@@ -5,6 +5,8 @@ import java.util.UUID;
 
 import org.springframework.transaction.event.TransactionalEventListener;
 
+import com.google.common.annotations.Beta;
+
 import eu.bcvsolutions.idm.core.scheduler.api.dto.LongRunningFutureTask;
 
 /**
@@ -34,6 +36,7 @@ public interface LongRunningTaskManager {
 	 * 
 	 * @param futureTask
 	 */
+	@Beta
 	@TransactionalEventListener
 	<V> void executeInternal(LongRunningFutureTask<V> futureTask);
 	

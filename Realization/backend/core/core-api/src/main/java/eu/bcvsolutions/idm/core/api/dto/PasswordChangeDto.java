@@ -15,6 +15,7 @@ import java.util.List;
  * Dto for password change
  *
  * @author Radek Tomiška
+ * @author Ondřej Kopr
  */
 public class PasswordChangeDto implements Serializable {
 

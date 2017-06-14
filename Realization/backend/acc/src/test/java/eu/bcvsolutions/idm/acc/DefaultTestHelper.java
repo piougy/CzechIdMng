@@ -1,9 +1,11 @@
 package eu.bcvsolutions.idm.acc;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 import javax.persistence.EntityManager;
+import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -14,14 +16,15 @@ import org.springframework.transaction.annotation.Transactional;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.filter.SchemaAttributeFilter;
+import eu.bcvsolutions.idm.acc.entity.SysConnectorKey;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
+import eu.bcvsolutions.idm.acc.entity.SysSystemFormValue;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
-import eu.bcvsolutions.idm.acc.service.DefaultSysAccountManagementServiceTest;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
@@ -31,6 +34,8 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
+import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
+import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
@@ -38,7 +43,6 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
-import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 
 /**
  * Acc / Provisioning test helper
@@ -52,13 +56,14 @@ public class DefaultTestHelper implements TestHelper {
 	@Autowired private IdmIdentityService identityService;
 	@Autowired private IdmIdentityContractService identityContractService;
 	@Autowired private IdmIdentityRoleService identityRoleService;
-	@Autowired private DefaultSysAccountManagementServiceTest accountManagementServiceTest;
 	@Autowired private SysSystemService systemService;
 	@Autowired private SysSystemMappingService systemMappingService;
 	@Autowired private SysSystemAttributeMappingService systemAttributeMappingService;
 	@Autowired private SysSchemaAttributeService schemaAttributeService;
 	@Autowired private EntityManager entityManager;
 	@Autowired private SysRoleSystemService roleSystemService;
+	@Autowired private FormService formService;
+	@Autowired private DataSource dataSource;
 
 	@Override
 	public IdmIdentityDto createIdentity() {
@@ -89,18 +94,94 @@ public class DefaultTestHelper implements TestHelper {
 		return identityRoleService.save(identityRole);
 	}
 	
+	/**
+	 * Create test system connected to same database (using configuration from
+	 * dataSource)
+	 * 
+	 * @return
+	 */
 	@Override
-	public SysSystem createSystem(String tableName, boolean withMapping) {
+	public SysSystem createSystem(String tableName) {
+		// create owner
+		org.apache.tomcat.jdbc.pool.DataSource tomcatDataSource = ((org.apache.tomcat.jdbc.pool.DataSource) dataSource);
+		SysSystem system = new SysSystem();
+		system.setName("testResource_" + System.currentTimeMillis());
+
+		system.setConnectorKey(new SysConnectorKey(systemService.getTestConnectorKey()));
+		systemService.save(system);
+
+		IdmFormDefinition savedFormDefinition = systemService.getConnectorFormDefinition(system.getConnectorInstance());
+
+		List<SysSystemFormValue> values = new ArrayList<>();
+
+		SysSystemFormValue jdbcUrlTemplate = new SysSystemFormValue(
+				savedFormDefinition.getMappedAttributeByName("jdbcUrlTemplate"));
+		jdbcUrlTemplate.setValue(tomcatDataSource.getUrl());
+		values.add(jdbcUrlTemplate);
+		SysSystemFormValue jdbcDriver = new SysSystemFormValue(
+				savedFormDefinition.getMappedAttributeByName("jdbcDriver"));
+		jdbcDriver.setValue(tomcatDataSource.getDriverClassName());
+		values.add(jdbcDriver);
+
+		SysSystemFormValue user = new SysSystemFormValue(savedFormDefinition.getMappedAttributeByName("user"));
+		user.setValue(tomcatDataSource.getUsername());
+		values.add(user);
+		SysSystemFormValue password = new SysSystemFormValue(savedFormDefinition.getMappedAttributeByName("password"));
+		password.setValue(tomcatDataSource.getPoolProperties().getPassword());
+		values.add(password);
+		SysSystemFormValue table = new SysSystemFormValue(savedFormDefinition.getMappedAttributeByName("table"));
+		table.setValue(tableName);
+		values.add(table);
+		SysSystemFormValue keyColumn = new SysSystemFormValue(
+				savedFormDefinition.getMappedAttributeByName("keyColumn"));
+		keyColumn.setValue("name");
+		values.add(keyColumn);
+		SysSystemFormValue passwordColumn = new SysSystemFormValue(
+				savedFormDefinition.getMappedAttributeByName("passwordColumn"));
+		passwordColumn.setValue("password");
+		values.add(passwordColumn);
+		SysSystemFormValue allNative = new SysSystemFormValue(
+				savedFormDefinition.getMappedAttributeByName("allNative"));
+		allNative.setValue(true);
+		values.add(allNative);
+		SysSystemFormValue rethrowAllSQLExceptions = new SysSystemFormValue(
+				savedFormDefinition.getMappedAttributeByName("rethrowAllSQLExceptions"));
+		rethrowAllSQLExceptions.setValue(true);
+		values.add(rethrowAllSQLExceptions);
+		SysSystemFormValue statusColumn = new SysSystemFormValue(
+				savedFormDefinition.getMappedAttributeByName("statusColumn"));
+		statusColumn.setValue("status");
+		values.add(statusColumn);
+		SysSystemFormValue disabledStatusValue = new SysSystemFormValue(
+				savedFormDefinition.getMappedAttributeByName("disabledStatusValue"));
+		disabledStatusValue.setValue("disabled");
+		values.add(disabledStatusValue);
+		SysSystemFormValue enabledStatusValue = new SysSystemFormValue(
+				savedFormDefinition.getMappedAttributeByName("enabledStatusValue"));
+		enabledStatusValue.setValue("enabled");
+		values.add(enabledStatusValue);
+		SysSystemFormValue changeLogColumnValue = new SysSystemFormValue(
+				savedFormDefinition.getMappedAttributeByName("changeLogColumn"));
+		changeLogColumnValue.setValue(null);
+		values.add(changeLogColumnValue);
+
+		formService.saveValues(system, savedFormDefinition, values);
+
+		return system;
+	}
+	
+	@Override
+	public SysSystem createTestResourceSystem(boolean withMapping) {
 		// create test system
-		SysSystem system = accountManagementServiceTest.createTestSystem("test_resource");
+		SysSystem system = createSystem(TestResource.TABLE_NAME);
+		//
+		if (!withMapping) {
+			return system;
+		}		
 		//
 		// generate schema for system
 		List<SysSchemaObjectClass> objectClasses = systemService.generateSchema(system);
-		
-		if (!withMapping) {
-			return system;
-		}
-		
+		//
 		SysSystemMapping systemMapping = new SysSystemMapping();
 		systemMapping.setName("default_" + System.currentTimeMillis());
 		systemMapping.setEntityType(SystemEntityType.IDENTITY);
@@ -113,7 +194,7 @@ public class DefaultTestHelper implements TestHelper {
 		
 		Page<SysSchemaAttribute> schemaAttributesPage = schemaAttributeService.find(schemaAttributeFilter, null);
 		for(SysSchemaAttribute schemaAttr : schemaAttributesPage) {
-			if ("__NAME__".equals(schemaAttr.getName())) {
+			if (ATTRIBUTE_MAPPING_NAME.equals(schemaAttr.getName())) {
 				SysSystemAttributeMapping attributeMapping = new SysSystemAttributeMapping();
 				attributeMapping.setUid(true);
 				attributeMapping.setEntityAttribute(true);
@@ -122,39 +203,45 @@ public class DefaultTestHelper implements TestHelper {
 				attributeMapping.setSchemaAttribute(schemaAttr);
 				attributeMapping.setSystemMapping(systemMapping);
 				systemAttributeMappingService.save(attributeMapping);
-
-			} else if ("firstname".equalsIgnoreCase(schemaAttr.getName())) {
+			} else if (ATTRIBUTE_MAPPING_ENABLE.equals(schemaAttr.getName())) {
 				SysSystemAttributeMapping attributeMapping = new SysSystemAttributeMapping();
-				attributeMapping.setIdmPropertyName(IdmIdentity_.firstName.getName());
-				attributeMapping.setSchemaAttribute(schemaAttr);
-				attributeMapping.setName(schemaAttr.getName());
-				attributeMapping.setSystemMapping(systemMapping);
-				systemAttributeMappingService.save(attributeMapping);
-
-			} else if ("lastname".equalsIgnoreCase(schemaAttr.getName())) {
-				SysSystemAttributeMapping attributeMapping = new SysSystemAttributeMapping();
-				attributeMapping.setIdmPropertyName(IdmIdentity_.lastName.getName());
+				attributeMapping.setUid(false);
+				attributeMapping.setEntityAttribute(true);
+				attributeMapping.setIdmPropertyName("disabled");
+				attributeMapping.setTransformToResourceScript("return String.valueOf(!attributeValue);");
+				attributeMapping.setTransformFromResourceScript("return !attributeValue;");
 				attributeMapping.setName(schemaAttr.getName());
 				attributeMapping.setSchemaAttribute(schemaAttr);
 				attributeMapping.setSystemMapping(systemMapping);
 				systemAttributeMappingService.save(attributeMapping);
-
-			} else if (IcConnectorFacade.PASSWORD_ATTRIBUTE_NAME.equalsIgnoreCase(schemaAttr.getName())) {
+			} else if (ATTRIBUTE_MAPPING_PASSWORD.equalsIgnoreCase(schemaAttr.getName())) {
 				SysSystemAttributeMapping attributeMapping = new SysSystemAttributeMapping();
 				attributeMapping.setIdmPropertyName("password");
 				attributeMapping.setSchemaAttribute(schemaAttr);
 				attributeMapping.setName(schemaAttr.getName());
 				attributeMapping.setSystemMapping(systemMapping);
 				systemAttributeMappingService.save(attributeMapping);
-
-			} else if ("email".equalsIgnoreCase(schemaAttr.getName())) {
+			} else if (ATTRIBUTE_MAPPING_FIRSTNAME.equalsIgnoreCase(schemaAttr.getName())) {
+				SysSystemAttributeMapping attributeMapping = new SysSystemAttributeMapping();
+				attributeMapping.setIdmPropertyName(IdmIdentity_.firstName.getName());
+				attributeMapping.setSchemaAttribute(schemaAttr);
+				attributeMapping.setName(schemaAttr.getName());
+				attributeMapping.setSystemMapping(systemMapping);
+				systemAttributeMappingService.save(attributeMapping);
+			} else if (ATTRIBUTE_MAPPING_LASTNAME.equalsIgnoreCase(schemaAttr.getName())) {
+				SysSystemAttributeMapping attributeMapping = new SysSystemAttributeMapping();
+				attributeMapping.setIdmPropertyName(IdmIdentity_.lastName.getName());
+				attributeMapping.setName(schemaAttr.getName());
+				attributeMapping.setSchemaAttribute(schemaAttr);
+				attributeMapping.setSystemMapping(systemMapping);
+				systemAttributeMappingService.save(attributeMapping);
+			} else if (ATTRIBUTE_MAPPING_EMAIL.equalsIgnoreCase(schemaAttr.getName())) {
 				SysSystemAttributeMapping attributeMapping = new SysSystemAttributeMapping();
 				attributeMapping.setIdmPropertyName(IdmIdentity_.email.getName());
 				attributeMapping.setName(schemaAttr.getName());
 				attributeMapping.setSchemaAttribute(schemaAttr);
 				attributeMapping.setSystemMapping(systemMapping);
 				systemAttributeMappingService.save(attributeMapping);
-
 			}
 		}		
 		return system;

@@ -14,6 +14,7 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 
+import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
@@ -25,7 +26,7 @@ import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
-import eu.bcvsolutions.idm.acc.service.DefaultSysAccountManagementServiceTest;
+import eu.bcvsolutions.idm.acc.entity.TestResource;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
@@ -60,6 +61,9 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 public class IdentityRoleValidRequestSchedulerTest extends AbstractIntegrationTest {
 	
 	@Autowired
+	private TestHelper helper;
+	
+	@Autowired
 	private IdmIdentityService identityService;
 	
 	@Autowired
@@ -76,9 +80,6 @@ public class IdentityRoleValidRequestSchedulerTest extends AbstractIntegrationTe
 	
 	@Autowired
 	private IdmIdentityRoleService idmIdentityRoleSerivce;
-	
-	@Autowired
-	private DefaultSysAccountManagementServiceTest defaultSysAccountManagementServiceTest;
 	
 	@Autowired
 	private SysSystemService systemService;
@@ -350,7 +351,7 @@ public class IdentityRoleValidRequestSchedulerTest extends AbstractIntegrationTe
 		SysSystemAttributeMapping lastNameAttributeMapping = null;
 		SysSystemAttributeMapping passwordAttributeMapping = null;
 		// prepare test system
-		system = defaultSysAccountManagementServiceTest.createTestSystem("test_resource");
+		system = helper.createSystem(TestResource.TABLE_NAME);
 		// generate schema
 		List<SysSchemaObjectClass> objectClasses = systemService.generateSchema(system);
 		// create test mapping

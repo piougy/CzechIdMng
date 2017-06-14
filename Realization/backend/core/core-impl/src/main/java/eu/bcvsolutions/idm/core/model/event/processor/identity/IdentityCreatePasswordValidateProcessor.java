@@ -63,6 +63,6 @@ public class IdentityCreatePasswordValidateProcessor extends CoreEventProcessor<
 	@Override
 	public int getOrder() {
 		// before identity is saved
-		return -10;
+		return -1000;
 	}
 }

@@ -6,8 +6,6 @@ import static org.junit.Assert.assertNotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.sql.DataSource;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
@@ -16,6 +14,7 @@ import org.junit.runners.MethodSorters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 
+import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
@@ -28,8 +27,8 @@ import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
+import eu.bcvsolutions.idm.acc.entity.TestResource;
 import eu.bcvsolutions.idm.acc.security.authentication.impl.DefaultAccAuthenticator;
-import eu.bcvsolutions.idm.acc.service.DefaultSysAccountManagementServiceTest;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
@@ -70,10 +69,10 @@ public class DefaultAccAuthenticatorTest extends AbstractIntegrationTest {
 	private static final String ROLE_NAME = "role";
 	
 	@Autowired
-	private SysSystemService sysSystemService;
+	private TestHelper helper;
 	
 	@Autowired
-	DataSource dataSource;
+	private SysSystemService sysSystemService;
 	
 	@Autowired
 	private SysSystemMappingService systemEntityHandlingService;
@@ -99,7 +98,6 @@ public class DefaultAccAuthenticatorTest extends AbstractIntegrationTest {
 	@Autowired
 	private AuthenticationManager authenticationManager;
 
-	
 	@Autowired
 	private IdmIdentityContractService identityContractService;
 
@@ -116,11 +114,7 @@ public class DefaultAccAuthenticatorTest extends AbstractIntegrationTest {
 	private ConfigurationService configurationService;
 	
 	@Autowired
-	private AccIdentityAccountService identityAccoutnService;
-	
-	@Autowired
-	private DefaultSysAccountManagementServiceTest defaultSysAccountManagementServiceTest;
-
+	private AccIdentityAccountService identityAccountService;
 	
 	@Before
 	public void login() {
@@ -145,13 +139,10 @@ public class DefaultAccAuthenticatorTest extends AbstractIntegrationTest {
 		// This evokes IdentityRole SAVE event. On this event will be start
 		// account management and provisioning
 		identityRoleService.save(irdto);
-		
-		// do provisioning
-		provisioningService.doProvisioning(identityRepository.findOne(identity.getId()));
-		
+		//		
 		IdentityAccountFilter filter = new IdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
-		List<AccIdentityAccountDto> accounts = identityAccoutnService.find(filter, null).getContent();
+		List<AccIdentityAccountDto> accounts = identityAccountService.find(filter, null).getContent();
 		
 		assertEquals(1, accounts.size());
 		
@@ -180,8 +171,8 @@ public class DefaultAccAuthenticatorTest extends AbstractIntegrationTest {
 		IdmIdentityDto identity = identityService.getByUsername(USERNAME);
 		
 		IdentityAccountFilter filter = new IdentityAccountFilter();
-		filter.setIdentityId(identity.getId());
-		List<AccIdentityAccountDto> identityAccounts = identityAccoutnService.find(filter, null).getContent();
+		filter.setIdentityId(identity.getId());	
+		List<AccIdentityAccountDto> identityAccounts = identityAccountService.find(filter, null).getContent();
 		
 		// get account distinct for identityAccounts
 		List<String> accountIds = new ArrayList<>();
@@ -201,8 +192,8 @@ public class DefaultAccAuthenticatorTest extends AbstractIntegrationTest {
 		irdto.setRole(role2.getId());
 
 		identityRoleService.save(irdto);
-		
-		identityAccounts = identityAccoutnService.find(filter, null).getContent();
+
+		identityAccounts = identityAccountService.find(filter, null).getContent();
 		
 		// get account distinct for identityAccounts
 		accountIds = new ArrayList<>();
@@ -375,7 +366,7 @@ public class DefaultAccAuthenticatorTest extends AbstractIntegrationTest {
 	}
 	
 	private SysSystem createTestSystem() {
-		SysSystem system = defaultSysAccountManagementServiceTest.createTestSystem("test_resource");
+		SysSystem system = helper.createSystem(TestResource.TABLE_NAME);
 		system = sysSystemService.save(system);
 		
 		// set system id to application property

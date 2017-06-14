@@ -121,15 +121,13 @@ public class AccAccountController extends DefaultReadWriteEntityController<AccAc
 		// for first check identityId, this attribute has bigger priority than identity parameter
 		UUID identityId = getParameterConverter().toUuid(parameters, "identityId");
 		if (identityId == null) {
-			IdmIdentity identity = getParameterConverter().toEntity(parameters, "identity", IdmIdentity.class);
-			if (identity != null) {
-				identityId = identity.getId();
-			}
+			identityId = getParameterConverter().toEntityUuid(parameters, "identity", IdmIdentity.class);
 		}
 		filter.setIdentityId(identityId);
 		//
 		filter.setUid(getParameterConverter().toString(parameters, "uid"));
 		filter.setAccountType(getParameterConverter().toEnum(parameters, "accountType", AccountType.class));
+		filter.setOwnership(getParameterConverter().toBoolean(parameters, "ownership"));
 		return filter;
 	}
 }

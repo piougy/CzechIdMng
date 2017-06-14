@@ -181,9 +181,18 @@ public class DefaultAccAuthenticatorTest extends AbstractIntegrationTest {
 		
 		IdentityAccountFilter filter = new IdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
-		List<AccIdentityAccountDto> accounts = identityAccoutnService.find(filter, null).getContent();
+		List<AccIdentityAccountDto> identityAccounts = identityAccoutnService.find(filter, null).getContent();
 		
-		assertEquals(1, accounts.size());
+		// get account distinct for identityAccounts
+		List<String> accountIds = new ArrayList<>();
+		for (AccIdentityAccountDto identityAccount : identityAccounts) {
+			if (!accountIds.contains(identityAccount.getAccount().toString())) {
+				accountIds.add(identityAccount.getAccount().toString());
+			}
+		}
+		
+		assertEquals(1, accountIds.size());
+		assertEquals(1, identityAccounts.size());
 		
 		IdmRole role2 = roleService.getByName(ROLE_NAME + "2");
 		
@@ -193,12 +202,22 @@ public class DefaultAccAuthenticatorTest extends AbstractIntegrationTest {
 
 		identityRoleService.save(irdto);
 		
-		accounts = identityAccoutnService.find(filter, null).getContent();
-		assertEquals(2, accounts.size());
+		identityAccounts = identityAccoutnService.find(filter, null).getContent();
+		
+		// get account distinct for identityAccounts
+		accountIds = new ArrayList<>();
+		for (AccIdentityAccountDto identityAccount : identityAccounts) {
+			if (!accountIds.contains(identityAccount.getAccount().toString())) {
+				accountIds.add(identityAccount.getAccount().toString());
+			}
+		}
+		
+		assertEquals(2, accountIds.size());
+		assertEquals(2, identityAccounts.size());
 		
 		PasswordChangeDto passwordChangeDto = new PasswordChangeDto();
 		List<String> accs = new ArrayList<>();
-		accs.add(accounts.get(0).getId().toString());
+		accs.add(accountIds.get(0));
 		passwordChangeDto.setAccounts(accs);
 		passwordChangeDto.setAll(false);
 		passwordChangeDto.setNewPassword(new GuardedString("1234"));
@@ -207,7 +226,7 @@ public class DefaultAccAuthenticatorTest extends AbstractIntegrationTest {
 		
 		passwordChangeDto = new PasswordChangeDto();
 		accs = new ArrayList<>();
-		accs.add(accounts.get(1).getId().toString());
+		accs.add(accountIds.get(1));
 		passwordChangeDto.setAccounts(accs);
 		passwordChangeDto.setAll(false);
 		passwordChangeDto.setNewPassword(new GuardedString("4321"));

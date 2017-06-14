@@ -47,7 +47,9 @@ public interface AccAccountRepository extends AbstractEntityRepository<AccAccoun
 	        " and" +
 	        " (?#{[0].systemEntityId} is null or se.id = ?#{[0].systemEntityId})" +
 	        " and" +
-	        " (?#{[0].identityId} is null or exists (from AccIdentityAccount ia where ia.account = e and ia.identity.id = ?#{[0].identityId}))" + 
+	        " (?#{[0].identityId} is null or exists (from AccIdentityAccount ia where ia.account = e and ia.identity.id = ?#{[0].identityId}))" +
+	        " and" +
+	        " (?#{[0].ownership} is null or exists (from AccIdentityAccount iac where iac.account = e and iac.ownership = ?#{[0].ownership}))" + 
 	        " and" +
 	        " (?#{[0].accountType} is null or e.accountType = ?#{[0].accountType})")
 	Page<AccAccount> find(AccountFilter filter, Pageable pageable);

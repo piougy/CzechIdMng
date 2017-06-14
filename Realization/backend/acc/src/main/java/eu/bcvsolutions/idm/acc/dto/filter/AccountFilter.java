@@ -18,6 +18,7 @@ public class AccountFilter extends QuickFilter {
 	private UUID identityId;	
 	private String uid;
 	private AccountType accountType;
+	private Boolean ownership;
 	
 	public UUID getSystemEntityId() {
 		return systemEntityId;
@@ -57,6 +58,14 @@ public class AccountFilter extends QuickFilter {
 
 	public void setUid(String uid) {
 		this.uid = uid;
+	}
+
+	public Boolean getOwnership() {
+		return ownership;
+	}
+
+	public void setOwnership(Boolean ownership) {
+		this.ownership = ownership;
 	}
 	
 }

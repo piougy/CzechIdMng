@@ -276,7 +276,7 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 
 		// Create new password two
 		PasswordChangeDto passwordChange = new PasswordChangeDto();
-		passwordChange.setAccounts(ImmutableList.of(identityAccounts.get(0).getId().toString()));
+		passwordChange.setAccounts(ImmutableList.of(identityAccounts.get(0).getAccount().toString()));
 		passwordChange.setNewPassword(new GuardedString(IDENTITY_PASSWORD_TWO));
 		passwordChange.setIdm(true);
 		// Do change of password for selected accounts

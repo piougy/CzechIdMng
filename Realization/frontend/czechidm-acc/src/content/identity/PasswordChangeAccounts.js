@@ -2,13 +2,13 @@ import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 //
 import { Basic } from 'czechidm-core';
-import { IdentityAccountManager } from '../../redux';
+import { AccountManager } from '../../redux';
 import PasswordChangeForm from 'czechidm-core/src/content/identity/PasswordChangeForm';
 //
 
 const RESOURCE_IDM = '0:CzechIdM';
 
-const identityAccountManager = new IdentityAccountManager();
+const accountManager = new AccountManager();
 
 /**
  * In this component include password change and send props with account options
@@ -21,13 +21,12 @@ class PasswordChangeAccounts extends Basic.AbstractContent {
 
   componentDidMount() {
     const { entityId } = this.props.params;
-
-    const defaultSearchParameters = identityAccountManager.getDefaultSearchParameters()
+    const defaultSearchParameters = accountManager.getDefaultSearchParameters()
                                       .setFilter('ownership', true)
                                       .setFilter('identity', entityId);
 
     this.selectSidebarItem('profile-password');
-    this.context.store.dispatch(identityAccountManager.fetchEntities(defaultSearchParameters, `${entityId}-accounts`));
+    this.context.store.dispatch(accountManager.fetchEntities(defaultSearchParameters, `${entityId}-accounts`));
   }
 
   _getOptions() {
@@ -43,9 +42,12 @@ class PasswordChangeAccounts extends Basic.AbstractContent {
     ];
 
     accounts.forEach(acc => {
+      console.log(123, acc);
+      const niceLabel = acc.uid + ' (' + acc._embedded.system.name + ')';
       options.push({
         value: acc.id,
-        niceLabel: identityAccountManager.getNiceLabelWithSystem(acc._embedded.account._embedded.system.name, acc._embedded.identity.username) });
+        niceLabel
+      });
     });
 
     return options;
@@ -89,8 +91,8 @@ function select(state, component) {
 
   return {
     userContext: state.security.userContext,
-    accounts: identityAccountManager.getEntities(state, `${entityId}-accounts`),
-    showLoading: identityAccountManager.isShowLoading(state, `${entityId}-accounts`)
+    accounts: accountManager.getEntities(state, `${entityId}-accounts`),
+    showLoading: accountManager.isShowLoading(state, `${entityId}-accounts`)
   };
 }
 export default connect(select)(PasswordChangeAccounts);

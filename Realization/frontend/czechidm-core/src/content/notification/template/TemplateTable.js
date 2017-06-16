@@ -48,6 +48,28 @@ export class TemplateTable extends Basic.AbstractContent {
     this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
   }
 
+  onRedeployOrBackup(bulkActionValue, selectedRows) {
+    const { manager, uiKey } = this.props;
+    const selectedEntities = manager.getEntitiesByIds(this.context.store.getState(), selectedRows);
+    // show confirm message for notification operation redeploy/backup
+    this.refs['confirm-' + bulkActionValue].show(
+      this.i18n(`action.${bulkActionValue}.message`, { count: selectedEntities.length, record: manager.getNiceLabel(selectedEntities[0]), records: manager.getNiceLabels(selectedEntities).join(', ') }),
+      this.i18n(`action.${bulkActionValue}.header`, { count: selectedEntities.length, records: manager.getNiceLabels(selectedEntities).join(', ') })
+    ).then(() => {
+      this.context.store.dispatch(manager.notificationBulkOperationForEntities(selectedEntities, bulkActionValue, uiKey, (entity, error, successEntities) => {
+        if (entity && error) {
+          this.addErrorMessage({ title: this.i18n(`action.${bulkActionValue}.error`, { record: manager.getNiceLabel(entity) }) }, error);
+        }
+        if (!error && successEntities) {
+          // refresh data in table
+          this.refs.table.getWrappedInstance().reload();
+        }
+      }));
+    }, () => {
+      // nothing
+    });
+  }
+
   onDelete(bulkActionValue, selectedRows) {
     const { uiKey, manager } = this.props;
     const selectedEntities = manager.getEntitiesByIds(this.context.store.getState(), selectedRows);
@@ -95,6 +117,8 @@ export class TemplateTable extends Basic.AbstractContent {
       <Basic.Row>
         <div className="col-lg-12">
           <Basic.Confirm ref="confirm-delete" level="danger"/>
+          <Basic.Confirm ref="confirm-backup" level="danger"/>
+          <Basic.Confirm ref="confirm-redeploy" level="danger"/>
           <Advanced.Table
             ref="table"
             uiKey={uiKey}
@@ -120,7 +144,9 @@ export class TemplateTable extends Basic.AbstractContent {
             filterOpened={!filterOpened}
             actions={
               [
-                { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }
+                { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false },
+                { value: 'redeploy', niceLabel: this.i18n('action.redeploy.action'), action: this.onRedeployOrBackup.bind(this), disabled: false },
+                { value: 'backup', niceLabel: this.i18n('action.backup.action'), action: this.onRedeployOrBackup.bind(this), disabled: false }
               ]
             }
             buttons={

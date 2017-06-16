@@ -2,6 +2,8 @@ package eu.bcvsolutions.idm.core.model.jaxb;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationTemplate;
 
@@ -12,7 +14,8 @@ import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationTemplate;
  *
  */
 
-@XmlRootElement(name = "template")
+@XmlRootElement(name = "template") // root element
+@XmlType(propOrder = { "code", "name", "subject", "bodyHtml", "bodyText", "parameter", "systemTemplate", "moduleId" }) // order
 public class IdmNotificationTemplateType {
 
 	private String code;
@@ -24,7 +27,7 @@ public class IdmNotificationTemplateType {
 	private boolean systemTemplate;
 	private String moduleId;
 
-	@XmlElement
+	@XmlElement(required = true, type = String.class)
 	public String getCode() {
 		return code;
 	}
@@ -33,7 +36,7 @@ public class IdmNotificationTemplateType {
 		this.code = code;
 	}
 
-	@XmlElement
+	@XmlElement(type = String.class)
 	public String getName() {
 		return name;
 	}
@@ -42,7 +45,7 @@ public class IdmNotificationTemplateType {
 		this.name = name;
 	}
 
-	@XmlElement
+	@XmlElement(type = String.class)
 	public String getSubject() {
 		return subject;
 	}
@@ -51,7 +54,8 @@ public class IdmNotificationTemplateType {
 		this.subject = subject;
 	}
 
-	@XmlElement
+	@XmlElement(type = String.class)
+	@XmlJavaTypeAdapter(CDATAAdapter.class)
 	public String getBodyHtml() {
 		return bodyHtml;
 	}
@@ -60,7 +64,7 @@ public class IdmNotificationTemplateType {
 		this.bodyHtml = bodyHtml;
 	}
 
-	@XmlElement
+	@XmlElement(type = String.class)
 	public String getBodyText() {
 		return bodyText;
 	}
@@ -69,7 +73,7 @@ public class IdmNotificationTemplateType {
 		this.bodyText = bodyText;
 	}
 
-	@XmlElement
+	@XmlElement(type = String.class)
 	public String getParameter() {
 		return parameter;
 	}
@@ -78,7 +82,7 @@ public class IdmNotificationTemplateType {
 		this.parameter = parameter;
 	}
 
-	@XmlElement
+	@XmlElement(type = Boolean.class)
 	public boolean isSystemTemplate() {
 		return systemTemplate;
 	}
@@ -86,8 +90,8 @@ public class IdmNotificationTemplateType {
 	public void setSystemTemplate(boolean systemTemplate) {
 		this.systemTemplate = systemTemplate;
 	}
-	
-	@XmlElement
+
+	@XmlElement(type = String.class)
 	public String getModuleId() {
 		return moduleId;
 	}

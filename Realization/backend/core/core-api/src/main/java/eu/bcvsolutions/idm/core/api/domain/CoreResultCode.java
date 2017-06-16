@@ -134,6 +134,9 @@ public enum CoreResultCode implements ResultCode {
 	NOTIFICATION_TEMPLATE_ERROR_XML_SCHEMA(HttpStatus.BAD_REQUEST, "Failed load template [%s], error in xml schema."),
 	NOTIFICATION_TEMPLATE_DEPLOY_ERROR(HttpStatus.BAD_REQUEST, "Failed load template from path [%s]."),
 	NOTIFICATION_TEMPLATE_JAXB_INIT_ERROR(HttpStatus.BAD_REQUEST, "Failed init JAXB instance."),
+	NOTIFICATION_TEMPLATE_MORE_CODE_FOUND(HttpStatus.CONFLICT, "More templates in resource found for code: [%s]."),
+	NOTIFICATION_TEMPLATE_XML_FILE_NOT_FOUND(HttpStatus.NOT_FOUND, "XML file for template code: [%s] not found."),
+	NOTIFICATION_TEMPLATE_BACKUP_FAIL(HttpStatus.BAD_REQUEST, "Backup for template code: [%s] failed. Error message: [%s]."),
 	//
 	// Role request
 	ROLE_REQUEST_NO_EXECUTE_IMMEDIATELY_RIGHT(HttpStatus.FORBIDDEN, "You do not have right for immidiately execute role request [%s]!"),

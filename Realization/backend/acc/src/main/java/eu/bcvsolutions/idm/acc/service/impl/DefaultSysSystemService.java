@@ -6,9 +6,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
+import javax.persistence.EntityManager;
+
+import org.apache.http.util.Asserts;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.security.oauth2.client.http.StringSplitUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -38,6 +43,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
+import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.eav.entity.AbstractFormValue;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
@@ -83,6 +89,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 	private final SysProvisioningArchiveRepository provisioningArchiveRepository;
 	private final ConfidentialStorage confidentialStorage;
 	private final IcConnectorFacade connectorFacade;
+	private final EntityManager entityManager;
 
 	@Autowired
 	public DefaultSysSystemService(
@@ -97,7 +104,8 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 			FormPropertyManager formPropertyManager,
 			SysProvisioningArchiveRepository provisioningArchiveRepository,
 			ConfidentialStorage confidentialStorage,
-			IcConnectorFacade connectorFacade) {
+			IcConnectorFacade connectorFacade,
+			EntityManager entityManager) {
 		super(systemRepository, formService);
 		//
 		Assert.notNull(icConfigurationFacade);
@@ -110,6 +118,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		Assert.notNull(provisioningArchiveRepository);
 		Assert.notNull(confidentialStorage);
 		Assert.notNull(connectorFacade);
+		Assert.notNull(entityManager);
 		//
 		this.systemRepository = systemRepository;
 		this.icConfigurationFacade = icConfigurationFacade;
@@ -122,6 +131,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		this.provisioningArchiveRepository = provisioningArchiveRepository;
 		this.confidentialStorage = confidentialStorage;
 		this.connectorFacade = connectorFacade;
+		this.entityManager = entityManager;
 	}
 	
 	@Override
@@ -443,6 +453,53 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		//
 		return existsConnectorObject;
 	}
+	
+	
+	@Override
+	public SysSystem duplicate(UUID id) {
+		SysSystem originalSystem = this.get(id);
+		Asserts.notNull(originalSystem, "System must be found!");
+		// Clone and save system
+		SysSystem clone = this.clone(id);
+		String name = clone.getName();
+		name = this.duplicateName(name, 2);
+		
+		clone.setName(name);
+		clone = this.save(clone);
+		//originalSystem.get
+		
+		
+		return clone;
+	}
+	
+
+	@Override
+	public SysSystem clone(UUID id) {
+		SysSystem originalSystem = this.get(id);
+		Asserts.notNull(originalSystem, "System must be found!");
+		
+		// We do detach this entity (and set id to null)
+		entityManager.detach(originalSystem);
+		originalSystem.setId(null);
+		EntityUtils.clearAuditFields(originalSystem);
+		return originalSystem;
+	}
+	
+	/**
+	 * Create new system name for duplicate
+	 * @param name
+	 * @param i postfix
+	 * @return
+	 */
+	private String duplicateName(String name, int i) {
+		SysSystemFilter filter = new SysSystemFilter();
+		filter.setText(MessageFormat.format("{0}{1}",name, i));
+		if(!this.find(filter,null).hasContent()){
+			return filter.getText();
+		}
+		return duplicateName(name, i+1);
+		
+	}
 
 	@Deprecated
 	@Transactional
@@ -530,4 +587,5 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		key.setBundleVersion("2.2.4");
 		return key;
 	}
+
 }

@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.acc.service.api;
 
 import java.util.List;
+import java.util.UUID;
 
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
@@ -74,5 +75,19 @@ public interface SysSystemService extends ReadWriteEntityService<SysSystem, SysS
 	 * @return
 	 */
 	IcConnectorObject readObject(SysSystem system, SysSystemMapping systemMapping, IcUidAttribute uidAttribute);
+
+	/**
+	 * Duplicate (create new) system with all configurations
+	 * @param id
+	 * @return 
+	 */
+	SysSystem duplicate(UUID id);
+
+	/**
+	 * Clone system without connected entities (does not create a new system)
+	 * @param id
+	 * @return
+	 */
+	SysSystem clone(UUID id);
 
 }

@@ -158,10 +158,11 @@ public enum CoreResultCode implements ResultCode {
 	// 5xx	
 	INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "%s"),
 	NOT_IMPLEMENTED(HttpStatus.INTERNAL_SERVER_ERROR, "Not implemented: %s"),
-	WF_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Error occured during workflow execution: %s");
+	WF_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Error occured during workflow execution: %s"),
+	//
+	// backup
+	BACKUP_FOLDER_NOT_FOUND(HttpStatus.BAD_REQUEST, "Folder for backup dont exists in application properties, please specify this property: [%s]"),;
 	
-
-
 	private final HttpStatus status;
 	private final String message;
 	

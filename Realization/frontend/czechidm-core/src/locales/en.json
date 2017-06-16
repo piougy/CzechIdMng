@@ -116,16 +116,16 @@
       "success_plural": "Selected records [{{records}}] were successfully deactivated"
     },
     "redeploy": {
-      "action": "Refresh (redeploy)",
-      "header": "Refresh record",
-      "header_plural": "Refresh records",
-      "message": "Do you want to refresh selected record [<strong>{{record}}</strong>]? This action is not possible to undo.",
-      "message_plural": "Selected records: [<strong>{{records}}</strong>].<br /><br />Do you want to refresh <strong>{{count}}</strong> selected records? This action is not possible to undo.",
-      "error": "An error occurred while refresh [{{record}}]",
+      "action": "Recover from disk (redeploy)",
+      "header": "Recover record from disk",
+      "header_plural": "Recover records from disk",
+      "message": "Do you want to recover selected record [<strong>{{record}}</strong>] from disk? This action is not possible to undo.",
+      "message_plural": "Selected records: [<strong>{{records}}</strong>].<br /><br />Do you want to recofer <strong>{{count}}</strong> selected records from disk? This action is not possible to undo.",
+      "error": "An error occurred while recover [{{record}}]",
       "success": "N/A",
-      "success_plural": "Vybraný záznam [{{record}}] byl úspěšně obnoven",
-      "failed": "Selected record [{{records}}] se nepodařilo zálohovat",
-      "failed_plural": "Selected records [{{records}}] se nepodařilo zálohovat"
+      "success_plural": "Selected record [{{record}}] were successfully recovered",
+      "failed": "Selected record [{{records}}] failed recover, XML file dont exist on disk.",
+      "failed_plural": "Selected records [{{records}}] failed recover, XML file dont exist on disk."
     },
     "backup": {
       "action": "Backup",
@@ -2884,6 +2884,10 @@
     "RECAPTCHA_SERVICE_UNAVAILABLE": {
       "title": "Recaptcha check",
       "message": "Recaptcha service is unavailable."
+    },
+    "BACKUP_FOLDER_NOT_FOUND": {
+      "title": "Folder for backup dont exists",
+      "message": "Please specify this property: [{{property}}] in configuration properties."
     }
   },
   "validationError": {

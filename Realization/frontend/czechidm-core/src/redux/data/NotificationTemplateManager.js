@@ -39,8 +39,6 @@ export default class NotificationTemplateManager extends EntityManager {
         }).then((json) => {
           if (json && json.statusCode === 404 && json.statusEnum === 'NOTIFICATION_TEMPLATE_XML_FILE_NOT_FOUND') {
             failedEntities.push(entity);
-          } else if (json && json.statusCode === 404 && json.statusEnum === 'NOTIFICATION_TEMPLATE_BACKUP_FAIL') {
-            failedEntities.push(entity);
           } else {
             successEntities.push(entity);
             dispatch(this.receiveEntity(entity.id, json, uiKey));
@@ -49,6 +47,9 @@ export default class NotificationTemplateManager extends EntityManager {
         });
       }, Promise.resolve())
       .catch((error) => {
+        if (error && error.statusEnum === 'BACKUP_FOLDER_NOT_FOUND') {
+          dispatch(this.flashMessagesManager.addError(error));
+        }
         return error;
       })
       .then((error) => {
@@ -60,7 +61,7 @@ export default class NotificationTemplateManager extends EntityManager {
         }
         if (failedEntities.length > 0) {
           dispatch(this.flashMessagesManager.addMessage({
-            level: 'warning',
+            level: 'info',
             message: this.i18n(`action.${operation}.failed`, { count: failedEntities.length, records: this.getNiceLabels(failedEntities).join(', '), record: this.getNiceLabel(failedEntities[0]) })
           }));
         }

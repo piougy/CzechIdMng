@@ -133,7 +133,7 @@
       "success_5": "Vybrané záznamy [{{records}}] byly úspěšně deaktivovány"
     },
     "redeploy": {
-      "action": "Obnovit (redeploy)",
+      "action": "Obnovit z disku (redeploy)",
       "header_0": "N/A",
       "header_1": "Obnovit záznam",
       "header_2": "Obnovit záznamy",
@@ -147,10 +147,10 @@
       "success_1": "Vybraný záznam [{{record}}] byl úspěšně obnoven",
       "success_2": "Vybrané záznamy [{{records}}] byly úspěšně obnovené",
       "success_5": "Vybrané záznamy [{{records}}] byly úspěšně obnovené",
-      "failed_0": "Vybraný záznam [{{record}}] se nepodařilo obnovit",
-      "failed_1": "Vybraný záznam [{{records}}] se nepodařilo obnovit",
-      "failed_2": "Vybrané záznamy [{{records}}] se nepodařilo obnovit",
-      "failed_5": "Vybrané záznamy [{{records}}] se nepodařilo obnovit"
+      "failed_0": "Vybraný záznam [{{record}}] se nepodařilo obnovit, soubor se nenachází na disku.",
+      "failed_1": "Vybraný záznam [{{records}}] se nepodařilo obnovit, soubor se nenachází na disku.",
+      "failed_2": "Vybrané záznamy [{{records}}] se nepodařilo obnovit, soubor se nenachází na disku.",
+      "failed_5": "Vybrané záznamy [{{records}}] se nepodařilo obnovit, soubor se nenachází na disku."
     },
     "backup": {
       "action": "Zálohovat",
@@ -2944,6 +2944,10 @@
     "RECAPTCHA_SERVICE_UNAVAILABLE": {
       "title": "Kontrola pro ochranu soukromí",
       "message": "Kontrola pro ochranu soukromí není dostupná."
+    },
+    "BACKUP_FOLDER_NOT_FOUND": {
+      "title": "Složka pro zálohování neexistuje",
+      "message": "Prosím specifikujte složku pomocí konfigurační proměnné: [{{property}}]."
     }
   },
   "validationError": {

@@ -68,8 +68,11 @@ public class DefaultIdmNotificationTemplateService extends
 	private static final String ENCODING_HANDLER = "com.sun.xml.bind.characterEscapeHandler";
 	private static final String TEMPLATE_FILE_SUFIX = "idm.pub.core.notification.template.fileSuffix";
 
-	public static final String TEMPLATE_DEFAULT_EXPORT_FOLDER_PREFIX = "/idm_templates_backup/";
-	public static final String TEMPLATE_EXPORT_FILE_SUFIX = ".xml";
+	// TODO: find better place for this constants
+	public static final String BACKUP_FOLDER_CONFIG = "idm.sec.core.backups.default.folder.path";
+
+	private static final String TEMPLATE_DEFAULT_BACKUP_FOLDER = "templates/";
+	private static final String TEMPLATE_EXPORT_FILE_SUFIX = ".xml";
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory
 			.getLogger(DefaultIdmNotificationTemplateService.class);
@@ -286,7 +289,7 @@ public class DefaultIdmNotificationTemplateService extends
 	@Override
 	public void backupDto(IdmNotificationTemplateDto dto, String directory) {
 		if (directory == null) {
-			directory = getDefaultDirectoryForBackup();
+			directory = getDirectoryForBackup();
 		}
 		//
 		JAXBContext jaxbContext = null;
@@ -314,7 +317,8 @@ public class DefaultIdmNotificationTemplateService extends
 		} catch (JAXBException e) {
 			LOG.error("[DefaultIdmNotificationTemplateService] Backup for template: {} failed, error message: {}",
 					dto.getCode(), e.getLocalizedMessage());
-			throw new ResultCodeException(CoreResultCode.NOTIFICATION_TEMPLATE_BACKUP_FAIL, ImmutableMap.of("code", dto.getCode(), "error", e.getLocalizedMessage()), e);
+			throw new ResultCodeException(CoreResultCode.NOTIFICATION_TEMPLATE_BACKUP_FAIL,
+					ImmutableMap.of("code", dto.getCode(), "error", e.getLocalizedMessage()), e);
 		}
 	}
 
@@ -354,10 +358,12 @@ public class DefaultIdmNotificationTemplateService extends
 				.filter(type -> type.getCode().equals(dto.getCode())).collect(Collectors.toList());
 		//
 		if (foundType.isEmpty()) {
-			throw new ResultCodeException(CoreResultCode.NOTIFICATION_TEMPLATE_XML_FILE_NOT_FOUND, ImmutableMap.of("code", dto.getCode()));
+			throw new ResultCodeException(CoreResultCode.NOTIFICATION_TEMPLATE_XML_FILE_NOT_FOUND,
+					ImmutableMap.of("code", dto.getCode()));
 		} else if (foundType.size() > 1) {
 			// more than one code found throw error
-			throw new ResultCodeException(CoreResultCode.NOTIFICATION_TEMPLATE_MORE_CODE_FOUND, ImmutableMap.of("code", dto.getCode()));
+			throw new ResultCodeException(CoreResultCode.NOTIFICATION_TEMPLATE_MORE_CODE_FOUND,
+					ImmutableMap.of("code", dto.getCode()));
 		}
 		//
 		return deployNewAndBackupOld(dto, foundType.get(0));
@@ -427,14 +433,25 @@ public class DefaultIdmNotificationTemplateService extends
 	}
 
 	/**
-	 * Return default folder for backups.
+	 * Return folder for backups. If isn't folder defined in configuration
+	 * properties use default folder from system property java.io.tmpdir.
 	 * 
 	 * @return
 	 */
-	private String getDefaultDirectoryForBackup() {
+	private String getDirectoryForBackup() {
+		String backupPath = configurationService.getValue(BACKUP_FOLDER_CONFIG);
+		if (backupPath == null) {
+			// if backup path null throw error, backup folder must be set
+			throw new ResultCodeException(CoreResultCode.BACKUP_FOLDER_NOT_FOUND,
+					ImmutableMap.of("property", BACKUP_FOLDER_CONFIG));
+		}
+		// apend template default backup folder
+		backupPath = backupPath + "/" + TEMPLATE_DEFAULT_BACKUP_FOLDER;
+		// add date folder
 		DateTime date = new DateTime();
-		return System.getProperty("java.io.tmpdir") + TEMPLATE_DEFAULT_EXPORT_FOLDER_PREFIX + date.getMonthOfYear()
-				+ "_" + date.getDayOfMonth() + "_" + date.getYear() + "/";
+		String completePath = backupPath + date.getYear() + "_" + date.getMonthOfYear() + "_" + date.getDayOfMonth()
+				+ "/";
+		return completePath;
 	}
 
 	private String getBackupFileName(String directory, IdmNotificationTemplateDto template) {

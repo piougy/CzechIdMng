@@ -42,7 +42,6 @@ class PasswordChangeAccounts extends Basic.AbstractContent {
     ];
 
     accounts.forEach(acc => {
-      console.log(123, acc);
       const niceLabel = acc.uid + ' (' + acc._embedded.system.name + ')';
       options.push({
         value: acc.id,

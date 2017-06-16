@@ -64,7 +64,7 @@ export default class TemplateDetail extends Basic.AbstractContent {
   /**
   * Default save method that catch save event from form.
   */
-  save(event) {
+  save(operation, event) {
     const { uiKey } = this.props;
 
     if (event) {

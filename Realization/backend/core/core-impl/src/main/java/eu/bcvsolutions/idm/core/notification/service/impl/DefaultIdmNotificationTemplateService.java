@@ -292,14 +292,7 @@ public class DefaultIdmNotificationTemplateService extends
 			directory = getDirectoryForBackup();
 		}
 		//
-		JAXBContext jaxbContext = null;
-		Marshaller jaxbMarshaller = null;
-		try {
-			jaxbContext = JAXBContext.newInstance(IdmNotificationTemplateType.class);
-			jaxbMarshaller = jaxbContext.createMarshaller();
-		} catch (JAXBException e) {
-			throw new ResultCodeException(CoreResultCode.NOTIFICATION_TEMPLATE_JAXB_INIT_ERROR, e);
-		}
+		Marshaller jaxbMarshaller = initJaxbMarshaller();
 		//
 		File backupFolder = new File(directory);
 		if (!backupFolder.exists()) {
@@ -310,9 +303,6 @@ public class DefaultIdmNotificationTemplateService extends
 		//
 		File file = new File(getBackupFileName(directory, dto));
 		try {
-			jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-			jaxbMarshaller.setProperty(Marshaller.JAXB_ENCODING, StandardCharsets.UTF_8.name());
-			jaxbMarshaller.setProperty(ENCODING_HANDLER, new JaxbCharacterEscapeEncoder());
 			jaxbMarshaller.marshal(type, file);
 		} catch (JAXBException e) {
 			LOG.error("[DefaultIdmNotificationTemplateService] Backup for template: {} failed, error message: {}",
@@ -367,6 +357,24 @@ public class DefaultIdmNotificationTemplateService extends
 		}
 		//
 		return deployNewAndBackupOld(dto, foundType.get(0));
+	}
+	
+	/**
+	 * Create instance of JaxbMarshaller and set required properties to him.
+	 * @return
+	 */
+	private Marshaller initJaxbMarshaller() {
+		Marshaller jaxbMarshaller = null;
+		try {
+			JAXBContext jaxbContext = JAXBContext.newInstance(IdmNotificationTemplateType.class);
+			jaxbMarshaller = jaxbContext.createMarshaller();
+			jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+			jaxbMarshaller.setProperty(Marshaller.JAXB_ENCODING, StandardCharsets.UTF_8.name());
+			jaxbMarshaller.setProperty(ENCODING_HANDLER, new JaxbCharacterEscapeEncoder());
+		} catch (JAXBException e) {
+			throw new ResultCodeException(CoreResultCode.NOTIFICATION_TEMPLATE_JAXB_INIT_ERROR, e);
+		}
+		return jaxbMarshaller;
 	}
 
 	/**

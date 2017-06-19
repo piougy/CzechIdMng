@@ -13,7 +13,6 @@ import javax.persistence.EntityManager;
 import org.apache.http.util.Asserts;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.security.oauth2.client.http.StringSplitUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -25,6 +24,7 @@ import eu.bcvsolutions.idm.acc.dto.filter.SchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SchemaObjectClassFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SynchronizationConfigFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SystemMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.SysConnectorKey;
 import eu.bcvsolutions.idm.acc.entity.SysConnectorServer;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
@@ -40,6 +40,8 @@ import eu.bcvsolutions.idm.acc.service.api.FormPropertyManager;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemFormValueService;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
@@ -90,7 +92,9 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 	private final ConfidentialStorage confidentialStorage;
 	private final IcConnectorFacade connectorFacade;
 	private final EntityManager entityManager;
-
+	private final SysSystemFormValueService systemFormValueService;
+	private final SysSystemMappingService systemMappingService;
+	
 	@Autowired
 	public DefaultSysSystemService(
 			SysSystemRepository systemRepository,
@@ -105,7 +109,9 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 			SysProvisioningArchiveRepository provisioningArchiveRepository,
 			ConfidentialStorage confidentialStorage,
 			IcConnectorFacade connectorFacade,
-			EntityManager entityManager) {
+			EntityManager entityManager,
+			SysSystemFormValueService systemFormValueService,
+			SysSystemMappingService systemMappingService) {
 		super(systemRepository, formService);
 		//
 		Assert.notNull(icConfigurationFacade);
@@ -119,6 +125,8 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		Assert.notNull(confidentialStorage);
 		Assert.notNull(connectorFacade);
 		Assert.notNull(entityManager);
+		Assert.notNull(systemFormValueService);
+		Assert.notNull(systemMappingService);
 		//
 		this.systemRepository = systemRepository;
 		this.icConfigurationFacade = icConfigurationFacade;
@@ -132,6 +140,8 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		this.confidentialStorage = confidentialStorage;
 		this.connectorFacade = connectorFacade;
 		this.entityManager = entityManager;
+		this.systemFormValueService = systemFormValueService;
+		this.systemMappingService = systemMappingService;
 	}
 	
 	@Override
@@ -459,19 +469,49 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 	public SysSystem duplicate(UUID id) {
 		SysSystem originalSystem = this.get(id);
 		Asserts.notNull(originalSystem, "System must be found!");
+
 		// Clone and save system
 		SysSystem clone = this.clone(id);
-		String name = clone.getName();
-		name = this.duplicateName(name, 2);
-		
+		String name = MessageFormat.format("{0}{1}", "copyOf_", clone.getName());
+		name = this.duplicateName(name, 0);
+
 		clone.setName(name);
-		clone = this.save(clone);
-		//originalSystem.get
+		// Set as inactive system
+		clone.setDisabled(true);
+		SysSystem system = this.save(clone);
+
+		// Clone connector configuration values in EAV
+		IdmFormDefinition formDefinition = getConnectorFormDefinition(originalSystem.getConnectorInstance());
+		List<AbstractFormValue<SysSystem>> originalFormValues = this.getFormService().getValues(id, SysSystem.class,
+				formDefinition);
+		originalFormValues.stream().forEach(value -> {
+			SysSystemFormValue clonedValue = systemFormValueService.clone(value.getId());
+			clonedValue.setOwner(system);
+			systemFormValueService.save(clonedValue);
+		});
+
+		// Clone schema
+		SchemaObjectClassFilter objectClassFilter = new SchemaObjectClassFilter();
+		objectClassFilter.setSystemId(id);
+		objectClassService.find(objectClassFilter, null).getContent().stream().forEach(schema -> {
+			UUID originalSchemaId = schema.getId();
+			SysSchemaObjectClass duplicatedSchema = objectClassService.duplicate(originalSchemaId, system);
+			
+			// Clone mapped attributes
+			SystemMappingFilter systemMappingFilter = new SystemMappingFilter();
+			systemMappingFilter.setSystemId(id);
+			systemMappingService.find(systemMappingFilter, null).getContent().stream().filter(mapping -> {
+				// Find mapping for this schema
+				return mapping.getObjectClass().getId().equals(originalSchemaId);
+			}).forEach(mapping -> {
+				systemMappingService.duplicate(mapping.getId(), duplicatedSchema);
+				
+			});			
+		});
 		
-		
-		return clone;
+
+		return system;
 	}
-	
 
 	@Override
 	public SysSystem clone(UUID id) {
@@ -493,12 +533,16 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 	 */
 	private String duplicateName(String name, int i) {
 		SysSystemFilter filter = new SysSystemFilter();
-		filter.setText(MessageFormat.format("{0}{1}",name, i));
-		if(!this.find(filter,null).hasContent()){
+		if (i > 0) {
+			filter.setText(MessageFormat.format("{0}{1}", name, i));
+		}else{
+			filter.setText(name);
+		}
+		if (!this.find(filter, null).hasContent()) {
 			return filter.getText();
 		}
 		return duplicateName(name, i+1);
-		
+
 	}
 
 	@Deprecated

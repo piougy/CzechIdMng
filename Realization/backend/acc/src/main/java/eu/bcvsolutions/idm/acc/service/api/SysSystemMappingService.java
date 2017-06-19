@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.acc.service.api;
 
 import java.util.List;
+import java.util.UUID;
 
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
@@ -9,6 +10,7 @@ import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
+import eu.bcvsolutions.idm.core.api.service.CloneableService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
 
 /**
@@ -16,7 +18,7 @@ import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
  * @author svandav
  *
  */
-public interface SysSystemMappingService extends ReadWriteEntityService<SysSystemMapping, SystemMappingFilter> {
+public interface SysSystemMappingService extends ReadWriteEntityService<SysSystemMapping, SystemMappingFilter>, CloneableService<SysSystemMapping> {
 
 	public List<SysSystemMapping> findBySystem(SysSystem system, SystemOperationType operation, SystemEntityType entityType);
 	
@@ -35,4 +37,13 @@ public interface SysSystemMappingService extends ReadWriteEntityService<SysSyste
 	 * @return
 	 */
 	Integer getProtectionInterval(AccAccount account);
+
+
+	/**
+	 * Duplicate (create/persist new) mapping with all attributes
+	 * @param id
+	 * @param schema
+	 * @return
+	 */
+	public SysSystemMapping duplicate(UUID id, SysSchemaObjectClass schema);
 }

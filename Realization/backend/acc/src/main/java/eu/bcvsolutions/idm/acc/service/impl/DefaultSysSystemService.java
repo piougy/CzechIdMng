@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.acc.service.impl;
 import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -24,12 +25,15 @@ import eu.bcvsolutions.idm.acc.dto.filter.SchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SchemaObjectClassFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SynchronizationConfigFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.SysConnectorKey;
 import eu.bcvsolutions.idm.acc.entity.SysConnectorServer;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
+import eu.bcvsolutions.idm.acc.entity.SysSyncConfig;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
+import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
 import eu.bcvsolutions.idm.acc.entity.SysSystemFormValue;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.acc.repository.AccAccountRepository;
@@ -40,6 +44,7 @@ import eu.bcvsolutions.idm.acc.service.api.FormPropertyManager;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemFormValueService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
@@ -79,7 +84,7 @@ import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 @Service
 public class DefaultSysSystemService extends AbstractFormableService<SysSystem, SysSystemFilter>
 		implements SysSystemService {
-	
+
 	private final SysSystemRepository systemRepository;
 	private final IcConfigurationFacade icConfigurationFacade;
 	private final SysSchemaObjectClassService objectClassService;
@@ -94,24 +99,17 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 	private final EntityManager entityManager;
 	private final SysSystemFormValueService systemFormValueService;
 	private final SysSystemMappingService systemMappingService;
-	
+	private final SysSystemAttributeMappingService systemAttributeMappingService;
+
 	@Autowired
-	public DefaultSysSystemService(
-			SysSystemRepository systemRepository,
-			FormService formService,
-			IcConfigurationFacade icConfigurationFacade, 
-			SysSchemaObjectClassService objectClassService,
-			SysSchemaAttributeService attributeService,
-			SysSystemEntityRepository systemEntityRepository,
-			AccAccountRepository accountRepository,
-			SysSyncConfigService synchronizationConfigService,
-			FormPropertyManager formPropertyManager,
-			SysProvisioningArchiveRepository provisioningArchiveRepository,
-			ConfidentialStorage confidentialStorage,
-			IcConnectorFacade connectorFacade,
-			EntityManager entityManager,
-			SysSystemFormValueService systemFormValueService,
-			SysSystemMappingService systemMappingService) {
+	public DefaultSysSystemService(SysSystemRepository systemRepository, FormService formService,
+			IcConfigurationFacade icConfigurationFacade, SysSchemaObjectClassService objectClassService,
+			SysSchemaAttributeService attributeService, SysSystemEntityRepository systemEntityRepository,
+			AccAccountRepository accountRepository, SysSyncConfigService synchronizationConfigService,
+			FormPropertyManager formPropertyManager, SysProvisioningArchiveRepository provisioningArchiveRepository,
+			ConfidentialStorage confidentialStorage, IcConnectorFacade connectorFacade, EntityManager entityManager,
+			SysSystemFormValueService systemFormValueService, SysSystemMappingService systemMappingService,
+			SysSystemAttributeMappingService systemAttributeMappingService) {
 		super(systemRepository, formService);
 		//
 		Assert.notNull(icConfigurationFacade);
@@ -127,6 +125,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		Assert.notNull(entityManager);
 		Assert.notNull(systemFormValueService);
 		Assert.notNull(systemMappingService);
+		Assert.notNull(systemAttributeMappingService);
 		//
 		this.systemRepository = systemRepository;
 		this.icConfigurationFacade = icConfigurationFacade;
@@ -142,8 +141,9 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		this.entityManager = entityManager;
 		this.systemFormValueService = systemFormValueService;
 		this.systemMappingService = systemMappingService;
+		this.systemAttributeMappingService = systemAttributeMappingService;
 	}
-	
+
 	@Override
 	public SysSystem save(SysSystem entity) {
 		// create default connector server
@@ -160,20 +160,22 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		// save password from remote connector server to confidential storage
 		if (entity.getConnectorServer().getPassword() != null) {
 			// save for newSystem
-			confidentialStorage.save(newSystem.getId(), SysSystem.class, REMOTE_SERVER_PASSWORD, entity.getConnectorServer().getPassword().asString());
+			confidentialStorage.save(newSystem.getId(), SysSystem.class, REMOTE_SERVER_PASSWORD,
+					entity.getConnectorServer().getPassword().asString());
 			//
 			// set asterix
 			newSystem.getConnectorServer().setPassword(new GuardedString(GuardedString.SECRED_PROXY_STRING));
 		}
 		return newSystem;
 	}
-	
+
 	@Override
 	public SysSystem get(Serializable id) {
 		SysSystem entity = super.get(id);
 		//
 		// found if entity has filled password
-		Object password = confidentialStorage.get(entity.getId(), SysSystem.class, SysSystemService.REMOTE_SERVER_PASSWORD);
+		Object password = confidentialStorage.get(entity.getId(), SysSystem.class,
+				SysSystemService.REMOTE_SERVER_PASSWORD);
 		if (password != null && entity.getConnectorServer() != null) {
 			entity.getConnectorServer().setPassword(new GuardedString(GuardedString.SECRED_PROXY_STRING));
 		}
@@ -186,15 +188,18 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 	public void delete(SysSystem system) {
 		Assert.notNull(system);
 		//
-		// if exists accounts or system entities, then system could not be deleted
+		// if exists accounts or system entities, then system could not be
+		// deleted
 		if (systemEntityRepository.countBySystem_Id(system.getId()) > 0) {
-			throw new ResultCodeException(AccResultCode.SYSTEM_DELETE_FAILED_HAS_ENTITIES, ImmutableMap.of("system", system.getName()));
+			throw new ResultCodeException(AccResultCode.SYSTEM_DELETE_FAILED_HAS_ENTITIES,
+					ImmutableMap.of("system", system.getName()));
 		}
 		if (accountRepository.countBySystem(system) > 0) {
-			throw new ResultCodeException(AccResultCode.SYSTEM_DELETE_FAILED_HAS_ACCOUNTS, ImmutableMap.of("system", system.getName()));
+			throw new ResultCodeException(AccResultCode.SYSTEM_DELETE_FAILED_HAS_ACCOUNTS,
+					ImmutableMap.of("system", system.getName()));
 		}
 		SchemaObjectClassFilter filter = new SchemaObjectClassFilter();
-		filter.setSystemId(system.getId());	
+		filter.setSystemId(system.getId());
 		objectClassService.find(filter, null).forEach(schemaObjectClass -> {
 			objectClassService.delete(schemaObjectClass);
 		});
@@ -220,15 +225,16 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 	@Transactional
 	public IcConnectorConfiguration getConnectorConfiguration(SysSystem system) {
 		Assert.notNull(system);
-		
-		if(system.getConnectorKey() == null){
+
+		if (system.getConnectorKey() == null) {
 			return null;
 		}
 		IcConnectorConfiguration connectorConfig = null;
 		// load connector properties, different between local and remote
 		IcConnectorInstance connectorInstance = system.getConnectorInstance();
-		if(connectorInstance.getConnectorServer() != null){
-			connectorInstance.getConnectorServer().setPassword(confidentialStorage.getGuardedString(system.getId(), SysSystem.class, SysSystemService.REMOTE_SERVER_PASSWORD));
+		if (connectorInstance.getConnectorServer() != null) {
+			connectorInstance.getConnectorServer().setPassword(confidentialStorage.getGuardedString(system.getId(),
+					SysSystem.class, SysSystemService.REMOTE_SERVER_PASSWORD));
 		}
 		connectorConfig = icConfigurationFacade.getConnectorConfiguration(connectorInstance);
 
@@ -242,11 +248,13 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		icConf.setConfigurationProperties(properties);
 		//
 		for (short seq = 0; seq < connectorConfig.getConfigurationProperties().getProperties().size(); seq++) {
-			IcConfigurationProperty propertyConfig = connectorConfig.getConfigurationProperties().getProperties().get(seq);
+			IcConfigurationProperty propertyConfig = connectorConfig.getConfigurationProperties().getProperties()
+					.get(seq);
 			IdmFormAttribute formAttribute = formDefinition.getMappedAttributeByName(propertyConfig.getName());
 			List<AbstractFormValue<SysSystem>> eavAttributeValues = attributeValues.get(formAttribute.getCode());
 			// create property instance from configuration
-			IcConfigurationProperty property = formPropertyManager.toConnectorProperty(propertyConfig, eavAttributeValues);
+			IcConfigurationProperty property = formPropertyManager.toConnectorProperty(propertyConfig,
+					eavAttributeValues);
 			if (property.getValue() != null) {
 				// only filled values to configuration
 				properties.getProperties().add(property);
@@ -254,7 +262,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		}
 		return icConf;
 	}
-	
+
 	@Override
 	@Transactional
 	public void checkSystem(SysSystem system) {
@@ -274,7 +282,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 					ImmutableMap.of("system", system.getName()));
 		}
 
-		// Call IC module 
+		// Call IC module
 		icConfigurationFacade.test(system.getConnectorInstance(), connectorConfig);
 	}
 
@@ -316,9 +324,10 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		List<SysSchemaObjectClass> sysObjectClasses = new ArrayList<SysSchemaObjectClass>();
 		List<SysSchemaAttribute> sysAttributes = new ArrayList<SysSchemaAttribute>();
 		for (IcObjectClassInfo objectClass : icSchema.getDeclaredObjectClasses()) {
-			
-			// We can create only IC schemas, it means only schemas created for __ACCOUNT__ and __GROUP__
-			if(!(objectClass.getType().startsWith("__") && objectClass.getType().endsWith("__"))){
+
+			// We can create only IC schemas, it means only schemas created for
+			// __ACCOUNT__ and __GROUP__
+			if (!(objectClass.getType().startsWith("__") && objectClass.getType().endsWith("__"))) {
 				continue;
 			}
 			SysSchemaObjectClass sysObjectClass = null;
@@ -390,8 +399,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		return sysObjectClass;
 	}
 
-	private SysSchemaAttribute convertIcAttributeInfo(IcAttributeInfo attributeInfo,
-			SysSchemaAttribute sysAttribute) {
+	private SysSchemaAttribute convertIcAttributeInfo(IcAttributeInfo attributeInfo, SysSchemaAttribute sysAttribute) {
 		if (attributeInfo == null) {
 			return null;
 		}
@@ -417,7 +425,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		Assert.notNull(connectorInstance.getConnectorKey());
 		//
 		IdmFormDefinition formDefinition = getFormService().getDefinition(SysSystem.class.getName(),
-					connectorInstance.getConnectorKey().getFullName());
+				connectorInstance.getConnectorKey().getFullName());
 		//
 		if (formDefinition == null) {
 			// we creates new form definition
@@ -448,31 +456,28 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 			formAttributes.add(attribute);
 		}
 		return getFormService().createDefinition(SysSystem.class.getName(),
-					connectorInstance.getConnectorKey().getFullName(), formAttributes);
+				connectorInstance.getConnectorKey().getFullName(), formAttributes);
 	}
-	
+
 	@Override
 	@Transactional
 	public IcConnectorObject readObject(SysSystem system, SysSystemMapping systemMapping, IcUidAttribute uidAttribute) {
 		IcObjectClass objectClass = new IcObjectClassImpl(systemMapping.getObjectClass().getObjectClassName());
-		IcConnectorObject existsConnectorObject = connectorFacade.readObject(
-				system.getConnectorInstance(), 
-				this.getConnectorConfiguration(system), 
-				objectClass, 
-				uidAttribute);
+		IcConnectorObject existsConnectorObject = connectorFacade.readObject(system.getConnectorInstance(),
+				this.getConnectorConfiguration(system), objectClass, uidAttribute);
 		//
 		return existsConnectorObject;
 	}
-	
-	
+
 	@Override
+	@Transactional
 	public SysSystem duplicate(UUID id) {
 		SysSystem originalSystem = this.get(id);
 		Asserts.notNull(originalSystem, "System must be found!");
 
 		// Clone and save system
 		SysSystem clone = this.clone(id);
-		String name = MessageFormat.format("{0}{1}", "copyOf_", clone.getName());
+		String name = MessageFormat.format("{0}{1}", "copy-of-", clone.getName());
 		name = this.duplicateName(name, 0);
 
 		clone.setName(name);
@@ -480,35 +485,50 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		clone.setDisabled(true);
 		SysSystem system = this.save(clone);
 
-		// Clone connector configuration values in EAV
+		// Cache old and new IDs
+		Map<UUID, UUID> schemaAttributesCache = new HashMap<UUID, UUID>();
+		Map<UUID, UUID> mappedAttributesCache = new HashMap<UUID, UUID>();
+
+		// Duplicate connector configuration values in EAV
 		IdmFormDefinition formDefinition = getConnectorFormDefinition(originalSystem.getConnectorInstance());
 		List<AbstractFormValue<SysSystem>> originalFormValues = this.getFormService().getValues(id, SysSystem.class,
 				formDefinition);
 		originalFormValues.stream().forEach(value -> {
-			SysSystemFormValue clonedValue = systemFormValueService.clone(value.getId());
-			clonedValue.setOwner(system);
-			systemFormValueService.save(clonedValue);
+			systemFormValueService.duplicate(value.getId(), system);
 		});
 
-		// Clone schema
+		// Duplicate schema
 		SchemaObjectClassFilter objectClassFilter = new SchemaObjectClassFilter();
 		objectClassFilter.setSystemId(id);
 		objectClassService.find(objectClassFilter, null).getContent().stream().forEach(schema -> {
 			UUID originalSchemaId = schema.getId();
-			SysSchemaObjectClass duplicatedSchema = objectClassService.duplicate(originalSchemaId, system);
-			
-			// Clone mapped attributes
+			SysSchemaObjectClass duplicatedSchema = this.duplicateSchema(originalSchemaId, system,
+					schemaAttributesCache);
+
+			// Duplicate mapped attributes
 			SystemMappingFilter systemMappingFilter = new SystemMappingFilter();
 			systemMappingFilter.setSystemId(id);
 			systemMappingService.find(systemMappingFilter, null).getContent().stream().filter(mapping -> {
+				
 				// Find mapping for this schema
 				return mapping.getObjectClass().getId().equals(originalSchemaId);
 			}).forEach(mapping -> {
-				systemMappingService.duplicate(mapping.getId(), duplicatedSchema);
-				
-			});			
+				final UUID originalMappingId = mapping.getId();
+				SysSystemMapping duplicatedMapping = this.duplicateMapping(originalMappingId, duplicatedSchema,
+						schemaAttributesCache, mappedAttributesCache);
+
+				// Duplicate sync configs
+				List<SysSyncConfig> syncConfigs = findSyncConfigs(id);
+				syncConfigs.stream().filter(syncConfig -> {
+					
+					// Find configuration of sync for this mapping
+					return syncConfig.getSystemMapping().getId().equals(originalMappingId);
+				}).forEach(syncConfig -> {
+					UUID syncConfigId = syncConfig.getId();
+					duplicateSyncConf(syncConfigId, duplicatedMapping, mappedAttributesCache);
+				});
+			});
 		});
-		
 
 		return system;
 	}
@@ -517,31 +537,145 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 	public SysSystem clone(UUID id) {
 		SysSystem originalSystem = this.get(id);
 		Asserts.notNull(originalSystem, "System must be found!");
-		
+
 		// We do detach this entity (and set id to null)
 		entityManager.detach(originalSystem);
 		originalSystem.setId(null);
 		EntityUtils.clearAuditFields(originalSystem);
 		return originalSystem;
 	}
+
+	/**
+	 * Duplication of schema attributes. Is not in attribute schema service, because we need use IDs cache (Old vs New IDs)
+	 * @param id
+	 * @param system
+	 * @param schemaAttributesIds
+	 * @return
+	 */
+	private SysSchemaObjectClass duplicateSchema(UUID id, SysSystem system, Map<UUID, UUID> schemaAttributesIds) {
+		Assert.notNull(id, "Id of duplication schema, must be filled!");
+		Assert.notNull(system, "Parent system must be filled!");
+		SysSchemaObjectClass clonedSchema = objectClassService.clone(id);
+		clonedSchema.setSystem(system);
+		SysSchemaObjectClass schema = objectClassService.save(clonedSchema);
+
+		SchemaAttributeFilter schemaAttributesFilter = new SchemaAttributeFilter();
+		schemaAttributesFilter.setObjectClassId(id);
+		attributeService.find(schemaAttributesFilter, null).forEach(schemaAttribute -> {
+			UUID originalSchemaAttributId = schemaAttribute.getId();
+			SysSchemaAttribute clonedAttribut = attributeService.clone(originalSchemaAttributId);
+			clonedAttribut.setObjectClass(schema);
+			clonedAttribut = attributeService.save(clonedAttribut);
+			// Put original and new id to cache
+			schemaAttributesIds.put(originalSchemaAttributId, clonedAttribut.getId());
+		});
+
+		return schema;
+	}
+
+	/**
+	 * Duplication of mapping attributes. Is not in attribute mapping service, because we need use IDs cache (Old vs New IDs)
+	 * @param id
+	 * @param schema
+	 * @param schemaAttributesIds
+	 * @param mappedAttributesIds
+	 * @return
+	 */
+	private SysSystemMapping duplicateMapping(UUID id, SysSchemaObjectClass schema, Map<UUID, UUID> schemaAttributesIds,
+			Map<UUID, UUID> mappedAttributesIds) {
+		Assert.notNull(id, "Id of duplication mapping, must be filled!");
+		Assert.notNull(schema, "Parent schema must be filled!");
+		SysSystemMapping clonedMapping = systemMappingService.clone(id);
+		clonedMapping.setObjectClass(schema);
+		SysSystemMapping mapping = this.systemMappingService.save(clonedMapping);
+
+		// Clone mapped attributes
+		SystemAttributeMappingFilter attributesFilter = new SystemAttributeMappingFilter();
+		attributesFilter.setSystemMappingId(id);
+		systemAttributeMappingService.find(attributesFilter, null).forEach(attribute -> {
+			UUID originalAttributeId = attribute.getId();
+			SysSystemAttributeMapping clonedAttribute = systemAttributeMappingService.clone(originalAttributeId);
+			// Find cloned schema attribute in cache (by original Id)
+			SysSchemaAttribute clonedSchemaAttribute = attributeService
+					.get(schemaAttributesIds.get(clonedAttribute.getSchemaAttribute().getId()));
+
+			clonedAttribute.setSystemMapping(mapping);
+			clonedAttribute.setSchemaAttribute(clonedSchemaAttribute);
+			clonedAttribute = systemAttributeMappingService.save(clonedAttribute);
+			// Put original and new id to cache
+			mappedAttributesIds.put(originalAttributeId, clonedAttribute.getId());
+		});
+
+		return mapping;
+	}
 	
 	/**
+	 * Duplication of sync configuration. Is not in sync service, because we need use IDs cache (Old vs New IDs)
+	 * @param syncConfigId
+	 * @param duplicatedMapping
+	 * @param mappedAttributesCache
+	 */
+	private void duplicateSyncConf(UUID syncConfigId, SysSystemMapping duplicatedMapping,
+			Map<UUID, UUID> mappedAttributesCache) {
+		SysSyncConfig clonedSyncConfig = synchronizationConfigService.clone(syncConfigId);
+		clonedSyncConfig.setSystemMapping(duplicatedMapping);
+		clonedSyncConfig.setFilterAttribute(this.getNewAttributeByOld(clonedSyncConfig.getFilterAttribute(), mappedAttributesCache));
+		clonedSyncConfig.setCorrelationAttribute(this.getNewAttributeByOld(clonedSyncConfig.getCorrelationAttribute(), mappedAttributesCache));
+		clonedSyncConfig.setTokenAttribute(this.getNewAttributeByOld(clonedSyncConfig.getTokenAttribute(), mappedAttributesCache));
+		// Disabled cloned sync
+		clonedSyncConfig.setEnabled(false);
+		synchronizationConfigService.save(clonedSyncConfig);
+	}
+	
+	/**
+	 * Find new mapped attribute by old mapped attribute (uses cache ids)
+	 * @param oldAttribute
+	 * @param mappedAttributesCache
+	 * @return
+	 */
+	private SysSystemAttributeMapping getNewAttributeByOld(SysSystemAttributeMapping oldAttribute, Map<UUID, UUID> mappedAttributesCache) {
+		if(oldAttribute == null){
+			return null;
+		}
+		UUID newAttributeId = mappedAttributesCache.get(oldAttribute.getId());
+		return systemAttributeMappingService.get(newAttributeId);
+	}
+
+	/**
+	 * Find sync configs for given system ID and do detach.
+	 * @param id
+	 * @return
+	 */
+	private List<SysSyncConfig> findSyncConfigs(UUID id) {
+		SynchronizationConfigFilter syncConfigFilter = new SynchronizationConfigFilter();
+		syncConfigFilter.setSystemId(id);
+		List<SysSyncConfig> syncConfigs = synchronizationConfigService.find(syncConfigFilter, null).getContent();
+		syncConfigs.forEach(syncConfig -> {
+			// I have to do detach for all sync configurations
+			entityManager.detach(syncConfig);
+		});
+		return syncConfigs;
+	}
+
+	/**
 	 * Create new system name for duplicate
+	 * 
 	 * @param name
-	 * @param i postfix
+	 * @param i
+	 * 
 	 * @return
 	 */
 	private String duplicateName(String name, int i) {
 		SysSystemFilter filter = new SysSystemFilter();
 		if (i > 0) {
 			filter.setText(MessageFormat.format("{0}{1}", name, i));
-		}else{
+		} else {
 			filter.setText(name);
 		}
 		if (!this.find(filter, null).hasContent()) {
 			return filter.getText();
 		}
-		return duplicateName(name, i+1);
+		return duplicateName(name, i + 1);
 
 	}
 

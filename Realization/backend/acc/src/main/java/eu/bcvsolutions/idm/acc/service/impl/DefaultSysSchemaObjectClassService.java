@@ -4,7 +4,6 @@ import java.util.UUID;
 
 import javax.persistence.EntityManager;
 
-import org.apache.http.util.Asserts;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,9 +11,7 @@ import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.acc.dto.filter.SchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SchemaObjectClassFilter;
-import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
-import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.repository.SysSchemaObjectClassRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
@@ -82,24 +79,5 @@ public class DefaultSysSchemaObjectClassService extends AbstractReadWriteEntityS
 		original.setId(null);
 		EntityUtils.clearAuditFields(original);
 		return original;
-	}
-
-	@Override
-	public SysSchemaObjectClass duplicate(UUID id, SysSystem system) {
-		Assert.notNull(id, "Id of duplication schema, must be filled!");
-		Assert.notNull(system, "Parent system must be filled!");
-		SysSchemaObjectClass clonedSchema = this.clone(id);
-		clonedSchema.setSystem(system);
-		SysSchemaObjectClass schema = this.save(clonedSchema);
-		
-		SchemaAttributeFilter schemaAttributesFilter = new SchemaAttributeFilter();
-		schemaAttributesFilter.setObjectClassId(id);
-		sysSchemaAttributeService.find(schemaAttributesFilter, null).forEach(schemaAttribute -> {
-			SysSchemaAttribute clonedAttribut = sysSchemaAttributeService.clone(schemaAttribute.getId());
-			clonedAttribut.setObjectClass(schema);
-			clonedAttribut = sysSchemaAttributeService.save(clonedAttribut);
-		});	
-		
-		return schema;
 	}
 }

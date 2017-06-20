@@ -17,6 +17,7 @@ import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.filter.RoleSystemFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SchemaObjectClassFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
@@ -156,27 +157,7 @@ public class DefaultSysSystemMappingService extends
 		EntityUtils.clearAuditFields(original);
 		return original;
 	}
-	
-	@Override
-	public SysSystemMapping duplicate(UUID id, SysSchemaObjectClass schema) {
-		Assert.notNull(id, "Id of duplication mapping, must be filled!");
-		Assert.notNull(schema, "Parent schema must be filled!");
-		SysSystemMapping clonedMapping = this.clone(id);
-		clonedMapping.setObjectClass(schema);
-		SysSystemMapping mapping = this.save(clonedMapping);
-		
-		// Clone mapped attributes
-		SystemAttributeMappingFilter attributesFilter = new SystemAttributeMappingFilter();
-		attributesFilter.setSystemMappingId(id);
-		systemAttributeMappingService.find(attributesFilter, null).forEach(attribute -> {
-			SysSystemAttributeMapping clonedAttribut = systemAttributeMappingService.clone(attribute.getId());
-			clonedAttribut.setSystemMapping(mapping);
-			clonedAttribut = systemAttributeMappingService.save(clonedAttribut);
-		});	
-		
-		return mapping;
-	}
-	
+
 	private Integer getProtectionInterval(SysSystemMapping systemMapping){
 		Assert.notNull(systemMapping, "Mapping cannot be null!");
 		return systemMapping.getProtectionInterval();

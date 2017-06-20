@@ -1,7 +1,6 @@
 package eu.bcvsolutions.idm.acc.service.api;
 
 import java.util.List;
-import java.util.UUID;
 
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
@@ -37,13 +36,4 @@ public interface SysSystemMappingService extends ReadWriteEntityService<SysSyste
 	 * @return
 	 */
 	Integer getProtectionInterval(AccAccount account);
-
-
-	/**
-	 * Duplicate (create/persist new) mapping with all attributes
-	 * @param id
-	 * @param schema
-	 * @return
-	 */
-	public SysSystemMapping duplicate(UUID id, SysSchemaObjectClass schema);
 }

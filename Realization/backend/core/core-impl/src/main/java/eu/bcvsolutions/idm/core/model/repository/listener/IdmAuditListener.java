@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.model.repository.listener;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.UUID;
 
 import javax.persistence.EntityManager;
@@ -11,6 +12,8 @@ import org.hibernate.envers.RevisionType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
+import eu.bcvsolutions.idm.core.api.domain.AuditSearchable;
+import eu.bcvsolutions.idm.core.api.domain.Codeable;
 import eu.bcvsolutions.idm.core.api.dto.IdmAuditDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
@@ -22,6 +25,7 @@ import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 
 /**
  * Creates records to global idm audit (searching through all entities, etc.)
+ * TODO: refactor methods changeRevisionDto and changeRevision
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
@@ -78,21 +82,31 @@ public class IdmAuditListener implements EntityTrackingRevisionListener {
 		// original action executer identity (before switch)
 		revisionEntity.setOriginalModifier(securityService.getOriginalUsername());
 		revisionEntity.setOriginalModifierId(originalModifierIdentity == null ? null : originalModifierIdentity.getId());
-		// entity id
-		revisionEntity.setEntityId((UUID) entityId);
-
-		// if revision type is MOD - modification, get and set changed columns
-		// Problem with two changes for one entity in one transaction
-		// envers not found entity snapshot for previous version - this version
-		// is not committed
-		// try to fix this problem with getting this entity from session?
-		// if (revisionType == RevisionType.MOD) {
-		// AbstractEntity currentEntity = (AbstractEntity)
-		// entityManger.find(entityClass, entityId);
-		// changedColumns = auditService.getNameChangedColumns(entityClass,
-		// entityId, null, currentEntity);
-		// revisionEntity.addChanged(changedColumns);
-		// }
+		//
+		// get entity in new transaction if revision type is delete
+		AbstractEntity currentEntity = null;
+		if (revisionType == RevisionType.DEL) {
+			currentEntity = auditService.getActualRemovedEntity(entityClass, entityId);
+		} else {
+			currentEntity = (AbstractEntity) entityManger.find(entityClass, entityId);
+		}
+		//
+		if (currentEntity instanceof AuditSearchable) {
+			AuditSearchable searchableEntity = ((AuditSearchable) currentEntity);
+			revisionEntity.setOwnerCode(searchableEntity.getOwnerCode());
+			revisionEntity.setOwnerId(searchableEntity.getOwnerId());
+			revisionEntity.setOwnerType(searchableEntity.getOwnerType());
+			revisionEntity.setSubOwnerCode(searchableEntity.getSubOwnerCode());
+			revisionEntity.setSubOwnerId(searchableEntity.getSubOwnerId());
+			revisionEntity.setSubOwnerType(searchableEntity.getSubOwnerType());
+		} else if (currentEntity instanceof Codeable) {
+			revisionEntity.setOwnerCode(((Codeable) currentEntity).getCode());
+		}
+		//
+		if (revisionType == RevisionType.MOD) {
+			 List<String> changedColumns = auditService.getNameChangedColumns(entityClass, entityId, null, currentEntity);
+			 revisionEntity.addChanged(changedColumns);
+		}
 	}
 	
 	private void changeRevisionEntity(Class<AbstractEntity> entityClass, String entityName, UUID entityId,
@@ -113,6 +127,24 @@ public class IdmAuditListener implements EntityTrackingRevisionListener {
 		revisionEntity.setOriginalModifierId(originalIdentity == null ? null : originalIdentity.getId());
 		// entity id
 		revisionEntity.setEntityId((UUID) entityId);
+		//
+		AbstractEntity currentEntity = (AbstractEntity) entityManger.find(entityClass, entityId);
+		if (currentEntity instanceof AuditSearchable) {
+			AuditSearchable searchableEntity = ((AuditSearchable) currentEntity);
+			revisionEntity.setOwnerCode(searchableEntity.getOwnerCode());
+			revisionEntity.setOwnerId(searchableEntity.getOwnerId());
+			revisionEntity.setOwnerType(searchableEntity.getOwnerType());
+			revisionEntity.setSubOwnerCode(searchableEntity.getSubOwnerCode());
+			revisionEntity.setSubOwnerId(searchableEntity.getSubOwnerId());
+			revisionEntity.setSubOwnerType(searchableEntity.getSubOwnerType());
+		} else if (currentEntity instanceof Codeable) {
+			revisionEntity.setOwnerCode(((Codeable) currentEntity).getCode());
+		}
+		//
+		if (revisionType == RevisionType.MOD) {
+			 List<String> changedColumns = auditService.getNameChangedColumns(entityClass, entityId, null, currentEntity);
+			 revisionEntity.addChanged(changedColumns);
+		}
 	}
 
 	/**
@@ -122,5 +154,4 @@ public class IdmAuditListener implements EntityTrackingRevisionListener {
 	private void autowireServices() {
 		AutowireHelper.autowire(this, this.auditService, this.entityManger, this.securityService);
 	}
-
 }

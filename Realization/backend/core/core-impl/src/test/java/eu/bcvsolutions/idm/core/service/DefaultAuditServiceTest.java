@@ -23,6 +23,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+
+import com.google.common.collect.ImmutableList;
 
 import eu.bcvsolutions.idm.core.TestHelper;
 import eu.bcvsolutions.idm.core.api.dto.IdmAuditDto;
@@ -81,8 +85,8 @@ public class DefaultAuditServiceTest extends AbstractIntegrationTest {
 
 		IdmAuditDto audit = result.get(result.size() - 1);
 		// now is disabled changed attributes TODO: fix envers transaction
-		// assertEquals(true, audit.getChangedAttributes().contains("name"));
-		// assertEquals(true, audit.getChangedAttributes().contains("description"));
+		assertEquals(true, audit.getChangedAttributes().contains("name"));
+		assertEquals(true, audit.getChangedAttributes().contains("description"));
 		assertEquals(RevisionType.MOD.toString(), audit.getModification());
 
 		IdmAuditDto audit2 = result.get(result.size() - result.size());
@@ -257,6 +261,88 @@ public class DefaultAuditServiceTest extends AbstractIntegrationTest {
 			assertEquals("admin", idmAudit.getModifier());
 			assertEquals(IdmRole.class.getName(), idmAudit.getType());
 		}
+	}
+	
+	@Test
+	public void createAndEditOneTransaction() {
+		String username = "test_user_" + System.currentTimeMillis();
+		IdmIdentityDto newIdentity = getTransactionTemplate().execute(new TransactionCallback<IdmIdentityDto>() {
+			public IdmIdentityDto doInTransaction(TransactionStatus transactionStatus) {
+				IdmIdentityDto identity = new IdmIdentityDto();
+				identity.setUsername(username);
+				identity.setFirstName(username);
+				identity.setLastName(username);
+				identity = identityService.save(identity);
+				//
+				identity.setEmail("example@example.tld");
+				identity.setLastName(username + "edit");
+				
+				return identityService.save(identity);
+			}
+		});
+		assertEquals(newIdentity.getUsername(), username);
+		MultiValueMap<String, Object> parameters = new LinkedMultiValueMap<>();
+		parameters.put("username", ImmutableList.of(username));
+		List<IdmAuditDto> audits = auditService.findEntityWithRelation(IdmIdentity.class, parameters, null).getContent();
+		assertEquals(2, audits.size());
+		//
+		// TODO: for now isn't possible fill attribute changed columns for one transaction
+		assertEquals(null, audits.get(0).getChangedAttributes());
+		assertEquals(null, audits.get(1).getChangedAttributes());
+	}
+	
+	@Test
+	public void editAndEditOneTrasaction() {
+		String username = "test_user_" + System.currentTimeMillis();
+		IdmIdentityDto identity = new IdmIdentityDto();
+		identity.setUsername(username);
+		identity.setFirstName(username);
+		identity.setLastName(username);
+		identityService.save(identity);
+		
+		IdmIdentityDto newIdentity = getTransactionTemplate().execute(new TransactionCallback<IdmIdentityDto>() {
+			public IdmIdentityDto doInTransaction(TransactionStatus transactionStatus) {
+				IdmIdentityDto identity = identityService.getByCode(username);
+				identity.setFirstName(username + "--edit");
+				identityService.save(identity);
+				//
+				identity.setEmail("example@example.tld");
+				identity.setLastName(username + "edit");
+				
+				return identityService.save(identity);
+			}
+		});
+		assertEquals(newIdentity.getUsername(), username);
+		MultiValueMap<String, Object> parameters = new LinkedMultiValueMap<>();
+		parameters.put("username", ImmutableList.of(username));
+		List<IdmAuditDto> audits = auditService.findEntityWithRelation(IdmIdentity.class, parameters, null).getContent();
+		assertEquals(3, audits.size());
+	}
+	
+	@Test
+	public void editAndDeleteOneTrasaction() {
+		String username = "test_user_" + System.currentTimeMillis();
+		IdmIdentityDto identity = new IdmIdentityDto();
+		identity.setUsername(username);
+		identity.setFirstName(username);
+		identity.setLastName(username);
+		identityService.save(identity);
+		
+		IdmIdentityDto newIdentity = getTransactionTemplate().execute(new TransactionCallback<IdmIdentityDto>() {
+			public IdmIdentityDto doInTransaction(TransactionStatus transactionStatus) {
+				IdmIdentityDto identity = identityService.getByCode(username);
+				identity.setFirstName(username + "--edit");
+				identity = identityService.save(identity);
+				//
+				identityService.delete(identity);
+				return null;
+			}
+		});
+		assertEquals(newIdentity, null);
+		MultiValueMap<String, Object> parameters = new LinkedMultiValueMap<>();
+		parameters.put("username", ImmutableList.of(username));
+		List<IdmAuditDto> audits = auditService.findEntityWithRelation(IdmIdentity.class, parameters, null).getContent();
+		assertEquals(3, audits.size());
 	}
 
 	private IdmRole constructRole(String name) {

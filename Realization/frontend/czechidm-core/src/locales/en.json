@@ -2347,7 +2347,13 @@
       "key": "Attribute",
       "value": "Value",
       "entityId": "Entity ID",
-      "entity": "Entity (IdM)"
+      "entity": "Entity (IdM)",
+      "ownerId": "Owner id",
+      "ownerType": "Owner type",
+      "ownerCode": "Owner code",
+      "subOwnerId": "Sub owner id",
+      "subOwnerType": "Sub owner type",
+      "subOwnerCode": "Sub owner code"
     },
     "PasswordPolicy": {
       "type": "Type",

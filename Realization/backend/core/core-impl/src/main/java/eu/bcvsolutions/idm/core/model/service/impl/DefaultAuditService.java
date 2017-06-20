@@ -35,13 +35,14 @@ import org.hibernate.proxy.HibernateProxy;
 import org.hibernate.proxy.LazyInitializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.plugin.core.OrderAwarePluginRegistry;
 import org.springframework.plugin.core.PluginRegistry;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 
@@ -131,9 +132,8 @@ public class DefaultAuditService extends AbstractReadWriteDtoService<IdmAuditDto
 
 	    if (previousRevision != null) {
 	        return this.find(entityClass, entityId, Long.valueOf(previousRevision.getId().toString()));
-	    } else {
-	    	return this.find(entityClass, entityId, currentRevisionId);
 	    }
+	    return null;
 	}
 	
 	@Override
@@ -168,13 +168,18 @@ public class DefaultAuditService extends AbstractReadWriteDtoService<IdmAuditDto
 		T previousEntity = null;
 		
 		if (currentRevId == null) {
-			// this.getLastRevisionNumber(entityClass, entityId).longValue();
-			currentRevId = Long.valueOf((this.getAuditReader().getCurrentRevision(IdmAudit.class, true)).getId().toString());
+			IdmAudit currentRevision = this.getAuditReader().getCurrentRevision(IdmAudit.class, true);
+			// current revision doesn't exist return empty list
+			if (currentRevision == null) {
+				return Collections.emptyList();
+			}
+			currentRevId = Long.valueOf(currentRevision.getId().toString());
 		}
 		previousEntity = this.findPreviousVersion(entityClass, entityId, currentRevId);
 		
+		// previous revision doesn't exist return empty list
 		if (previousEntity == null) {
-			return changedColumns;
+			return Collections.emptyList();
 		}
 		
 		Field[] fields = entityClass.getDeclaredFields();
@@ -524,10 +529,12 @@ public class DefaultAuditService extends AbstractReadWriteDtoService<IdmAuditDto
 	@Override
 	public Page<IdmAuditDto> findEntityWithRelation(Class<? extends AbstractEntity> clazz, MultiValueMap<String, Object> parameters, Pageable pageable) {
 		AbstractAuditEntityService service = pluginExecutors.getPluginFor(clazz);
-		List<IdmAuditDto> auditsDto = this.toDtos(service.findRevisionBy(service.getFilter(parameters)), true);
-		//
-		int start = pageable.getOffset();
-		int end = (start + pageable.getPageSize()) > auditsDto.size() ? auditsDto.size() : (start + pageable.getPageSize());
-		return new PageImpl<IdmAuditDto>(auditsDto.subList(start, end), pageable, auditsDto.size());
+		return this.toDtoPage(service.findRevisionBy(service.getFilter(parameters), pageable));
+	}
+
+	@Override
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	public AbstractEntity getActualRemovedEntity(Class<AbstractEntity> entityClass, Object primaryKey) {
+		return (AbstractEntity) entityManager.find(entityClass, primaryKey);
 	}
 }

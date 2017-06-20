@@ -10,12 +10,16 @@ import javax.persistence.PersistenceContext;
 
 import org.hibernate.envers.AuditReader;
 import org.hibernate.envers.AuditReaderFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.plugin.core.Plugin;
 import org.springframework.util.MultiValueMap;
 
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.audite.dto.filter.AuditEntityFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmAudit;
+import eu.bcvsolutions.idm.core.model.repository.IdmAuditRepository;
 
 /**
  * Abstract service for entities that is audited. From implementation will be
@@ -31,17 +35,13 @@ public abstract class AbstractAuditEntityService implements Plugin<Class<? exten
 
 	@PersistenceContext
 	private EntityManager entityManager;
+	
+	@Autowired
+	private IdmAuditRepository auditRepository;
 
 	protected static final int ENTITY = 0;
 	protected static final int REVISION_DATA = 1;
 	protected static final int REVISION_TYPE = 2;
-
-	/**
-	 * Return relation
-	 * 
-	 * @return
-	 */
-	public abstract List<Class<?>> getRelationship();
 
 	/**
 	 * Return audit reader from entity manager
@@ -58,7 +58,7 @@ public abstract class AbstractAuditEntityService implements Plugin<Class<? exten
 	 * @param filter
 	 * @return
 	 */
-	public abstract List<IdmAudit> findRevisionBy(AuditEntityFilter filter);
+	public abstract Page<IdmAudit> findRevisionBy(AuditEntityFilter filter, Pageable pageable);
 
 	/**
 	 * Return only entity id from list of revisions get by audit reader
@@ -130,4 +130,12 @@ public abstract class AbstractAuditEntityService implements Plugin<Class<? exten
 	 * @return
 	 */
 	public abstract AuditEntityFilter getFilter(MultiValueMap<String, Object> parameters);
+	
+	/**
+	 * Return audit repository see {@link IdmAuditRepository}.
+	 * @return
+	 */
+	protected IdmAuditRepository getAuditRepository() {
+		return this.auditRepository;
+	}
 }

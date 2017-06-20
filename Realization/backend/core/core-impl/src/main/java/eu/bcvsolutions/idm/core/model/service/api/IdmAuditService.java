@@ -69,7 +69,8 @@ public interface IdmAuditService extends ReadWriteDtoService<IdmAuditDto, AuditF
 	Object findPreviousVersion(Long currentRevId);
 	
 	/**
-	 * TODO:
+	 * Return previous version of entity.
+	 * If previous version of entity not exist return null;
 	 * 
 	 * @param entityClass
 	 * @param entityId
@@ -184,4 +185,6 @@ public interface IdmAuditService extends ReadWriteDtoService<IdmAuditDto, AuditF
 	IdmAuditDto findPreviousRevision(Long revisionId);
 	
 	Page<IdmAuditDto> findEntityWithRelation(Class<? extends AbstractEntity> clazz, MultiValueMap<String, Object> parameters, Pageable pageable);
+	
+	AbstractEntity getActualRemovedEntity(Class<AbstractEntity> entityClass, Object primaryKey);
 }

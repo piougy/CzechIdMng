@@ -17,7 +17,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 /**
  * Core module swagger configuration
- * 
+ *
  * @author Radek Tomiška
  *
  */
@@ -25,35 +25,16 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @EnableSwagger2
 @ConditionalOnProperty(prefix = "springfox.documentation.swagger", name = "enabled", matchIfMissing = true)
 public class AccSwaggerConfig extends AbstractSwaggerConfig {
-	
+
 	@Autowired private AccModuleDescriptor moduleDescriptor;
-	
+
 	@Override
 	protected ModuleDescriptor getModuleDescriptor() {
 		return moduleDescriptor;
 	}
-	
+
 	@Bean
 	public Docket accApi() {
 		return api("eu.bcvsolutions.idm.acc");
 	}
-
-	/**
-	 * TODO: property file usage or by module
-	 * 
-	 * @return
-	 */
-	@Override
-	protected ApiInfo metaData() {
-        ApiInfo apiInfo = new ApiInfo(
-                "CzechIdM Acc RESTfull API",
-                "CzechIdM RESTfull API for Acc module.",
-                getModuleDescriptor().getVersion(),
-                "Terms of service",
-                new Contact("BCV solutions s.r.o.", "https://github.com/bcvsolutions/CzechIdMng", "info@bcvsolutions.eu"),
-               "MIT",
-                "https://github.com/bcvsolutions/CzechIdMng/blob/develop/LICENSE",
-                Lists.newArrayList());
-        return apiInfo;
-    }
 }

@@ -25,23 +25,23 @@ import springfox.documentation.spring.web.plugins.Docket;
 /**
  * Modular swagger simple configuration
  * - expose all api endpoints in given basePackage
- * 
+ *
  * @see #api(String)
  * @author Radek Tomiška
  *
  */
 public abstract class AbstractSwaggerConfig implements SwaggerConfig {
-	
+
 	/**
 	 * Module for this swagger configuration
-	 * 
+	 *
 	 * @return
 	 */
 	protected abstract ModuleDescriptor getModuleDescriptor();
-	
+
 	/**
 	 * Docket initialization by module conventions.
-	 * 
+	 *
 	 * @see ModuleDescriptor
 	 * @param basePackage
 	 * @return
@@ -60,7 +60,7 @@ public abstract class AbstractSwaggerConfig implements SwaggerConfig {
 				.groupName(getModuleDescriptor().getId())
 				.select()
 					.apis(Predicates.and(
-							RequestHandlerSelectors.withClassAnnotation(Api.class), 
+							RequestHandlerSelectors.withClassAnnotation(Api.class),
 							Predicates.or(
 									RequestHandlerSelectors.basePackage(basePackage),
 									RequestHandlerSelectors.basePackage("eu.bcvsolutions.idm.core.security") // security endpoint will be in all docs
@@ -69,24 +69,24 @@ public abstract class AbstractSwaggerConfig implements SwaggerConfig {
 				.build()
 				.apiInfo(metaData());
 	}
-	
+
 	/**
 	 * CIDMST token authentication
-	 * 
+	 *
 	 * @return
 	 */
 	protected ApiKey apiKey() {
 		return new ApiKey(AUTHENTICATION_CIDMST, AUTHENTICATION_CIDMST_TOKEN, "header");
-	}	
-	
+	}
+
 	/**
 	 * TODO: license to properties (maven license plugin or simple pom props?)
-	 * 
+	 *
 	 * @return
 	 */
 	protected ApiInfo metaData() {
         ApiInfo apiInfo = new ApiInfo(
-                getModuleDescriptor().getName() + "- RESTfull API",
+                getModuleDescriptor().getName() + " - RESTfull API",
                 getModuleDescriptor().getDescription(),
                 getModuleDescriptor().getVersion(),
                 "Terms of service",

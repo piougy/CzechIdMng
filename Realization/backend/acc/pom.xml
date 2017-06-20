@@ -6,7 +6,6 @@
 		<groupId>eu.bcvsolutions.idm</groupId>
 		<artifactId>idm-parent</artifactId>
 		<version>7.3.0-rc.2-SNAPSHOT</version>
-		<relativePath>../parent/pom.xml</relativePath>
 	</parent>
 
 	<artifactId>idm-acc</artifactId>
@@ -54,5 +53,108 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
+	
+	<profiles>
+		<profile>
+			<id>release</id>
+			<build>
+				<plugins>
+					<!-- First, use the swagger2markup plugin to generate asciidoc -->
+					<plugin>
+						<groupId>io.github.swagger2markup</groupId>
+						<artifactId>swagger2markup-maven-plugin</artifactId>
+						<version>${swagger2markup.version}</version>
+						
+						<configuration>
+							<swaggerInput>${swagger.input}</swaggerInput>
+							<outputDir>${generated.asciidoc.directory}</outputDir>
+							<config>
+								<swagger2markup.markupLanguage>ASCIIDOC</swagger2markup.markupLanguage>
+								<swagger2markup.outputLanguage>EN</swagger2markup.outputLanguage>
+								<swagger2markup.pathsGroupedBy>TAGS</swagger2markup.pathsGroupedBy>
+								<swagger2markup.generatedExamplesEnabled>false</swagger2markup.generatedExamplesEnabled>
+
+								<swagger2markup.extensions.dynamicOverview.contentPath>${asciidoctor.input.extensions.directory}/overview</swagger2markup.extensions.dynamicOverview.contentPath>
+		                        <swagger2markup.extensions.dynamicDefinitions.contentPath>${asciidoctor.input.extensions.directory}/definitions</swagger2markup.extensions.dynamicDefinitions.contentPath>
+		                        <swagger2markup.extensions.dynamicPaths.contentPath>${asciidoctor.input.extensions.directory}/paths</swagger2markup.extensions.dynamicPaths.contentPath>
+		                        <swagger2markup.extensions.dynamicSecurity.contentPath>${asciidoctor.input.extensions.directory}/security/</swagger2markup.extensions.dynamicSecurity.contentPath>
+		
+		                        <swagger2markup.extensions.springRestDocs.snippetBaseUri>${swagger.snippetOutput.dir}</swagger2markup.extensions.springRestDocs.snippetBaseUri>
+		                        <swagger2markup.extensions.springRestDocs.defaultSnippets>true</swagger2markup.extensions.springRestDocs.defaultSnippets>
+							</config>
+						</configuration>
+						<executions>
+							<execution>
+								<phase>test</phase>
+								<goals>
+									<goal>convertSwagger2markup</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+
+					<!-- 
+						Run the generated asciidoc through Asciidoctor to generate other 
+						documentation types, such as PDFs or HTML5 
+					-->
+					<plugin>
+						<groupId>org.asciidoctor</groupId>
+						<artifactId>asciidoctor-maven-plugin</artifactId>
+						<version>1.5.3</version>						
+						<!-- Configure generic document generation settings -->
+						<configuration>
+							<sourceDirectory>${asciidoctor.input.directory}</sourceDirectory>
+							<sourceDocumentName>index.adoc</sourceDocumentName>
+							<attributes>
+								<doctype>book</doctype>
+								<toc>left</toc>
+								<toclevels>2</toclevels> <!-- Resources by tag names in menu only -->
+								<numbered></numbered>
+								<hardbreaks></hardbreaks>
+								<sectlinks></sectlinks>
+								<sectanchors></sectanchors>
+								<generated>${generated.asciidoc.directory}</generated>
+							</attributes>
+						</configuration>
+						<!-- 
+							Since each execution can only handle one backend, run separate 
+							executions for each desired output type 
+						-->
+						<executions>
+							<execution>
+								<id>output-html</id>
+								<phase>test</phase>
+								<goals>
+									<goal>process-asciidoc</goal>
+								</goals>
+								<configuration>
+									<backend>html5</backend>
+									<outputDirectory>${asciidoctor.html.output.directory}</outputDirectory>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+				
+				<!-- propagate maven properties to integration tests for swagger export -->
+				<testResources>
+					<testResource>
+						<filtering>false</filtering>
+						<directory>src/test/resources</directory>
+						<excludes>
+							<exclude>application-test.properties</exclude>
+						</excludes>
+					</testResource>
+					<testResource>
+						<filtering>true</filtering>
+						<directory>src/test/resources</directory>
+						<includes>
+							<include>application-test.properties</include>
+						</includes>
+					</testResource>
+				</testResources>
+			</build>
+		</profile>
+	</profiles>
 
 </project>

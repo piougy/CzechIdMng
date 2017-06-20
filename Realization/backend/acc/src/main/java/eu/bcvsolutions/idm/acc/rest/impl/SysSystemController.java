@@ -55,7 +55,8 @@ import eu.bcvsolutions.idm.ic.exception.IcInvalidCredentialException;
 import eu.bcvsolutions.idm.ic.exception.IcRemoteServerException;
 import eu.bcvsolutions.idm.ic.exception.IcServerNotFoundException;
 import eu.bcvsolutions.idm.ic.service.api.IcConfigurationFacade;
-import eu.bcvsolutions.idm.ic.service.api.IcConfigurationService;;
+import eu.bcvsolutions.idm.ic.service.api.IcConfigurationService;
+import io.swagger.annotations.Api;;
 
 /**
  * Target system setting controller
@@ -66,6 +67,7 @@ import eu.bcvsolutions.idm.ic.service.api.IcConfigurationService;;
 @RepositoryRestController
 @Enabled(AccModuleDescriptor.MODULE_ID)
 @RequestMapping(value = BaseEntityController.BASE_PATH + "/systems")
+@Api(value = "Systems", description = "Operations with target systems", tags = { "Systems" })
 public class SysSystemController extends AbstractReadWriteEntityController<SysSystem, SysSystemFilter> {
 
 	private final SysSystemService systemService;
@@ -99,7 +101,8 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 	@RequestMapping(method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_READ + "') or hasAuthority('"
 			+ CoreGroupPermission.ROLE_READ + "')")
-	public Resources<?> find(@RequestParam MultiValueMap<String, Object> parameters, @PageableDefault Pageable pageable,
+	public Resources<?> find(
+			@RequestParam(required = false) MultiValueMap<String, Object> parameters, @PageableDefault Pageable pageable,
 			PersistentEntityResourceAssembler assembler) {
 		return super.find(parameters, pageable, assembler);
 	}
@@ -108,7 +111,8 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_READ + "') or hasAuthority('"
 			+ CoreGroupPermission.ROLE_READ + "')")
 	@RequestMapping(value = "/search/quick", method = RequestMethod.GET)
-	public Resources<?> findQuick(@RequestParam MultiValueMap<String, Object> parameters,
+	public Resources<?> findQuick(
+			@RequestParam(required = false) MultiValueMap<String, Object> parameters,
 			@PageableDefault Pageable pageable, PersistentEntityResourceAssembler assembler) {
 		return super.find(parameters, pageable, assembler);
 	}
@@ -118,7 +122,9 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_READ + "') or hasAuthority('"
 			+ CoreGroupPermission.ROLE_READ + "')")
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.GET)
-	public ResponseEntity<?> get(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler) {
+	public ResponseEntity<?> get(
+			@PathVariable @NotNull String backendId, 
+			PersistentEntityResourceAssembler assembler) {
 		return super.get(backendId, assembler);
 	}
 

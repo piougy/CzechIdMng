@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.test.api;
 
 import org.junit.After;
+import org.junit.Ignore;
 
 /**
  * Unit test will use mockito and junit test framework. Verifies mock interactions after each test automatically.
@@ -8,6 +9,7 @@ import org.junit.After;
  * @author Radek Tomiška 
  *
  */
+@Ignore
 public abstract class AbstractVerifiableUnitTest extends AbstractUnitTest {
 
 	/**

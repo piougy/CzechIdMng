@@ -39,7 +39,7 @@ mvn clean install
 or
 
 ```
-mvn clean install -PfullApp
+mvn clean install -Prelease
 ```
 which build whole application - backend and frontend in one `idm.war` file (require gulp installation - see [frontend installation guide](../frontend/README.txt)).
 Deploy `idm.war` package is the same as above.
@@ -71,4 +71,4 @@ This setup has to be done for modules **core-api**, **core-impl** and other opti
 
 Default profile is using h2 database. It is not nessesary a configuration for first start.
 
-* TODO: other jdbc bc, profiles, db and other props
+* TODO: other profiles, db and other props

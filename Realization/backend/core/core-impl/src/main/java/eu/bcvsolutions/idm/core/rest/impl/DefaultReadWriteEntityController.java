@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.rest.impl;
 
+import java.util.Set;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 
@@ -58,6 +60,7 @@ public abstract class DefaultReadWriteEntityController<E extends BaseEntity, F e
 	 * @param assembler	
 	 * @return
 	 */
+	@Override
 	@ResponseBody
 	@RequestMapping(value= "/search/quick", method = RequestMethod.GET)
 	public Resources<?> findQuick(@RequestParam MultiValueMap<String, Object> parameters, 
@@ -111,5 +114,12 @@ public abstract class DefaultReadWriteEntityController<E extends BaseEntity, F e
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.DELETE)
 	public ResponseEntity<?> delete(@PathVariable @NotNull String backendId) {
 		return super.delete(backendId);
+	}
+	
+	@Override
+	@ResponseBody
+	@RequestMapping(value = "/{backendId}/permissions", method = RequestMethod.GET)
+	public Set<String> getPermissions(@PathVariable @NotNull String backendId) {
+		return super.getPermissions(backendId);
 	}
 }

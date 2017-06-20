@@ -10,6 +10,7 @@ import org.activiti.engine.impl.cfg.ProcessEngineConfigurationImpl;
 import org.activiti.engine.test.ActivitiRule;
 import org.activiti.spring.SpringProcessEngineConfiguration;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
@@ -33,6 +34,7 @@ import eu.bcvsolutions.idm.test.api.utils.AuthenticationTestUtils;
  * @author svandav
  *
  */
+@Ignore
 public abstract class AbstractWorkflowIntegrationTest extends AbstractIntegrationTest {
 
 	@Autowired

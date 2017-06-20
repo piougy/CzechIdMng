@@ -18,6 +18,8 @@ import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.Disableable;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedStringDeserializer;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * Dto for identity
@@ -26,17 +28,17 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedStringDeserializer;
  *
  */
 @Relation(collectionRelation = "identities")
+@ApiModel(description = "Identity domain object")
 public class IdmIdentityDto extends AbstractDto implements Disableable {
 
 	private static final long serialVersionUID = 1L;
 	@NotEmpty
 	@Size(min = 1, max = DefaultFieldLengths.NAME)
-	private String username;
-	
+	@ApiModelProperty(required = true, notes = "Unique identity username. Could be used as identifier in rest endpoints")
+	private String username;	
 	@JsonProperty(access = Access.WRITE_ONLY)
 	@JsonDeserialize(using = GuardedStringDeserializer.class)
-	private transient GuardedString password;
-	
+	private transient GuardedString password;	
 	@Size(max = DefaultFieldLengths.NAME)
 	private String firstName;
 	@NotEmpty
@@ -44,8 +46,10 @@ public class IdmIdentityDto extends AbstractDto implements Disableable {
 	private String lastName;
 	@Email
 	@Size(max = DefaultFieldLengths.EMAIL_ADDRESS)
+	@ApiModelProperty(notes = "Email", dataType = "email")
 	private String email;
 	@Size(max = 30)
+	@ApiModelProperty(notes = "Phone")
 	private String phone;
 	@Size(max = 100)
 	private String titleBefore;

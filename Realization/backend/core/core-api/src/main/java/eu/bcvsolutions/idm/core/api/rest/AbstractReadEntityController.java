@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import javax.validation.constraints.NotNull;
 
@@ -26,12 +27,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 
+import eu.bcvsolutions.idm.core.api.config.domain.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
@@ -45,6 +50,10 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizableEntityService;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizationManager;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.Authorization;
 
 /**
  * Read operations (get, find)
@@ -124,6 +133,10 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 	 * @param assembler
 	 * @return
 	 */
+	@ApiOperation(value = "Read record", authorizations = { 
+			@Authorization(SwaggerConfig.AUTHENTICATION_BASIC),
+			@Authorization(SwaggerConfig.AUTHENTICATION_CIDMST)
+			})
 	public ResponseEntity<?> get(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler) {
 		E entity = getEntity(backendId);
 		if (entity == null) {
@@ -170,11 +183,59 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 	 * @return
      * @see #toFilter(MultiValueMap)
 	 */
+	@ApiOperation(value = "Search records (/search/quick alias)", authorizations = { 
+			@Authorization(SwaggerConfig.AUTHENTICATION_BASIC),
+			@Authorization(SwaggerConfig.AUTHENTICATION_CIDMST)
+			})
+	@ApiImplicitParams({
+		@ApiImplicitParam(name = "parameters", allowMultiple = true, dataType = "string", paramType = "query",
+				value = "Search criteria parameters. Parameters could be registered by module. Example id=25c5b9e8-b15d-4f95-b715-c7edf6f4aee6"),
+        @ApiImplicitParam(name = "page", dataType = "string", paramType = "query",
+                value = "Results page you want to retrieve (0..N)"),
+        @ApiImplicitParam(name = "size", dataType = "string", paramType = "query",
+                value = "Number of records per page."),
+        @ApiImplicitParam(name = "sort", allowMultiple = true, dataType = "string", paramType = "query",
+                value = "Sorting criteria in the format: property(,asc|desc). " +
+                        "Default sort order is ascending. " +
+                        "Multiple sort criteria are supported.")
+	})
 	public Resources<?> find(
-			@RequestParam MultiValueMap<String, Object> parameters,
+			@RequestParam(required = false) MultiValueMap<String, Object> parameters,
 			@PageableDefault Pageable pageable, 
 			PersistentEntityResourceAssembler assembler) {
 		return toResources(findSecuredEntities(toFilter(parameters), pageable, IdmBasePermission.READ), assembler, getEntityClass(), null);
+	}
+	
+	/**
+	 * All endpoints will support find quick method.
+	 * 
+	 * @param parameters
+	 * @param pageable
+	 * @param assembler	
+	 * @return
+	 *  @see #toFilter(MultiValueMap)
+	 */
+	@ApiOperation(value = "Search records", authorizations = { 
+			@Authorization(SwaggerConfig.AUTHENTICATION_BASIC),
+			@Authorization(SwaggerConfig.AUTHENTICATION_CIDMST)
+			})
+	@ApiImplicitParams({
+		@ApiImplicitParam(name = "parameters", allowMultiple = true, dataType = "string", paramType = "query",
+				value = "Search criteria parameters. Parameters could be registered by module. Example id=25c5b9e8-b15d-4f95-b715-c7edf6f4aee6"),
+        @ApiImplicitParam(name = "page", dataType = "string", paramType = "query",
+                value = "Results page you want to retrieve (0..N)"),
+        @ApiImplicitParam(name = "size", dataType = "string", paramType = "query",
+                value = "Number of records per page."),
+        @ApiImplicitParam(name = "sort", allowMultiple = true, dataType = "string", paramType = "query",
+                value = "Sorting criteria in the format: property(,asc|desc). " +
+                        "Default sort order is ascending. " +
+                        "Multiple sort criteria are supported.")
+	})
+	public Resources<?> findQuick(
+			@RequestParam(required = false) MultiValueMap<String, Object> parameters, 
+			@PageableDefault Pageable pageable, 			
+			PersistentEntityResourceAssembler assembler) {
+		return find(parameters, pageable, assembler);
 	}
 	
 	/**
@@ -186,8 +247,24 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 	 * @return
      * @see #toFilter(MultiValueMap)
 	 */
+	@ApiOperation(value = "Autocomplete records (selectbox usage)", authorizations = { 
+			@Authorization(SwaggerConfig.AUTHENTICATION_BASIC),
+			@Authorization(SwaggerConfig.AUTHENTICATION_CIDMST)
+			})
+	@ApiImplicitParams({
+		@ApiImplicitParam(name = "parameters", allowMultiple = true, dataType = "string", paramType = "query",
+				value = "Search criteria parameters. Parameters could be registered by module. Example id=25c5b9e8-b15d-4f95-b715-c7edf6f4aee6"),
+        @ApiImplicitParam(name = "page", dataType = "string", paramType = "query",
+                value = "Results page you want to retrieve (0..N)"),
+        @ApiImplicitParam(name = "size", dataType = "string", paramType = "query",
+                value = "Number of records per page."),
+        @ApiImplicitParam(name = "sort", allowMultiple = true, dataType = "string", paramType = "query",
+                value = "Sorting criteria in the format: property(,asc|desc). " +
+                        "Default sort order is ascending. " +
+                        "Multiple sort criteria are supported.")
+	})
 	public Resources<?> autocomplete(
-			@RequestParam MultiValueMap<String, Object> parameters,
+			@RequestParam(required = false) MultiValueMap<String, Object> parameters,
 			@PageableDefault Pageable pageable, 
 			PersistentEntityResourceAssembler assembler) {
 		return toResources(findSecuredEntities(toFilter(parameters), pageable, IdmBasePermission.AUTOCOMPLETE), assembler, getEntityClass(), null);
@@ -220,6 +297,18 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 		return findEntities(filter, pageable);
 	}
 	
+	
+	@ApiOperation(value = "What logged identity can do with given record", authorizations = { 
+			@Authorization(SwaggerConfig.AUTHENTICATION_BASIC),
+			@Authorization(SwaggerConfig.AUTHENTICATION_CIDMST)
+			})
+	public Set<String> getPermissions(@PathVariable @NotNull String backendId) {
+		E entity = getEntity(backendId);
+		if (entity == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+		}
+		return getAuthorizationManager().getPermissions(entity);
+	}	
 	
 	/**
 	 * Converts entity to dto (using controller defined assembler or default)

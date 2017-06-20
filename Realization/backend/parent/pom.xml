@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>eu.bcvsolutions.idm</groupId>
@@ -52,23 +53,64 @@
 
 	<properties>
 		<endorsed.dir>${project.build.directory}/endorsed</endorsed.dir>
+		<additionalparam>-Xdoclint:none</additionalparam>
+		<maven.javadoc.failOnError>false</maven.javadoc.failOnError>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>1.8</java.version>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
+		
 		<spring.profiles.active>default</spring.profiles.active>
-		<surefire.version>2.18.1</surefire.version>
+		
+		<surefire.version>2.20</surefire.version>
 		<camel.version>2.17.2</camel.version>
-		<additionalparam>-Xdoclint:none</additionalparam>
-		<maven.javadoc.failOnError>false</maven.javadoc.failOnError>
+		<swagger.version>2.7.0</swagger.version>
+		<swagger2markup.version>1.3.1</swagger2markup.version>
+		<guava.version>18.0</guava.version> <!-- swagger need at least 18 -->	
+		
+		<!-- 
+			properties are used ind test and release profile,
+			test: swagger.json input is generated
+			release: swagger2markup and asciidoctor plugins require them
+		 -->
+		<asciidoctor.input.directory>${project.basedir}/src/docs/asciidoc</asciidoctor.input.directory>
+		<asciidoctor.input.extensions.directory>${asciidoctor.input.directory}/extensions</asciidoctor.input.extensions.directory>
+		<swagger.output.dir>${project.build.directory}/swagger</swagger.output.dir>
+		<swagger.output.filename>swagger.json</swagger.output.filename>
+		<swagger.input>${swagger.output.dir}/${swagger.output.filename}</swagger.input>
+		<swagger.snippetOutput.dir>${project.build.directory}/asciidoc/snippets</swagger.snippetOutput.dir>
+		<generated.asciidoc.directory>${project.build.directory}/asciidoc/generated</generated.asciidoc.directory>
+		<asciidoctor.html.output.directory>${project.build.directory}/asciidoc/html</asciidoctor.html.output.directory>
+		<asciidoctor.pdf.output.directory>${project.build.directory}/asciidoc/pdf</asciidoctor.pdf.output.directory>
 	</properties>
-	
+
 	<repositories>
 		<repository>
-		    <id>nexus</id>
-		    <url>https://nexus.bcvsolutions.eu/repository/maven-releases/</url>
+			<id>nexus</id>
+			<url>https://nexus.bcvsolutions.eu/repository/maven-releases/</url>
+		</repository>
+		<repository>
+			<id>jcenter-releases</id>
+			<name>jcenter</name>
+			<url>http://jcenter.bintray.com</url>
 		</repository>
 	</repositories>
+
+	<pluginRepositories>
+		<pluginRepository>
+			<id>jcenter-snapshots</id>
+			<name>jcenter</name>
+			<url>http://oss.jfrog.org/artifactory/oss-snapshot-local/</url>
+		</pluginRepository>
+		<pluginRepository>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+			<id>jcenter-releases</id>
+			<name>jcenter</name>
+			<url>http://jcenter.bintray.com</url>
+		</pluginRepository>
+	</pluginRepositories>
 
 	<dependencyManagement>
 		<dependencies>
@@ -90,9 +132,9 @@
 			<version>5.22.0</version>
 		</dependency>
 		<dependency> <!-- UUID generator for activiti -->
-		    <groupId>com.fasterxml.uuid</groupId>
-		    <artifactId>java-uuid-generator</artifactId>
-		    <version>3.1.3</version>
+			<groupId>com.fasterxml.uuid</groupId>
+			<artifactId>java-uuid-generator</artifactId>
+			<version>3.1.3</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -117,12 +159,6 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-rest</artifactId>
-			<exclusions>
-				<exclusion>
-					<groupId>org.springframework.data</groupId>
-					<artifactId>spring-data-rest-webmvc</artifactId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 
 		<!-- we are using entity lookups, which is not in version provided by dependency 
@@ -183,8 +219,8 @@
 			<artifactId>spring-boot-starter-websocket</artifactId>
 		</dependency>
 		<dependency>
-		    <groupId>org.springframework.security</groupId>
-		    <artifactId>spring-security-messaging</artifactId>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-messaging</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.camel</groupId>
@@ -225,6 +261,7 @@
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
+			<version>${guava.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-lang</groupId>
@@ -257,7 +294,7 @@
 			<artifactId>flyway-core</artifactId>
 			<version>4.0</version>
 		</dependency>
-		
+
 		<!-- Quartz scheduler -->
 		<dependency>
 			<groupId>org.quartz-scheduler</groupId>
@@ -271,9 +308,9 @@
 		</dependency>
 		<!-- Mapper for DTO and Entity -->
 		<dependency>
-		    <groupId>org.modelmapper</groupId>
-		    <artifactId>modelmapper</artifactId>
-		    <version>0.7.4</version>
+			<groupId>org.modelmapper</groupId>
+			<artifactId>modelmapper</artifactId>
+			<version>0.7.4</version>
 		</dependency>
 		<!--IC dependency -->
 		<dependency>
@@ -311,22 +348,46 @@
 			<artifactId>reflections</artifactId>
 			<version>0.9.9-RC1</version>
 		</dependency>
-		
+
 		<!-- tree indexes -->
 		<dependency>
 			<groupId>eu.bcvsolutions.forest.index</groupId>
 			<artifactId>forest-index</artifactId>
 			<version>0.1.1</version>
 		</dependency>
-		
+
 		<dependency>
-		    <groupId>org.apache.velocity</groupId>
-		    <artifactId>velocity-tools</artifactId>
+			<groupId>org.apache.velocity</groupId>
+			<artifactId>velocity-tools</artifactId>
 		</dependency>
 
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>
+		</dependency>
+
+		<!-- Rest api documentation -->
+		<dependency>
+			<groupId>io.springfox</groupId>
+			<artifactId>springfox-swagger2</artifactId>
+			<version>${swagger.version}</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.springfox</groupId>
+			<artifactId>springfox-swagger-ui</artifactId>
+			<version>${swagger.version}</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.springfox</groupId>
+			<artifactId>springfox-bean-validators</artifactId>
+			<version>${swagger.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.github.swagger2markup</groupId>
+			<artifactId>swagger2markup</artifactId>
+			<version>${swagger2markup.version}</version>
 		</dependency>
 
 	</dependencies>
@@ -345,7 +406,7 @@
 					<useIncrementalCompilation>false</useIncrementalCompilation>
 				</configuration>
 			</plugin>
-			
+
 			<plugin>
 				<groupId>org.bsc.maven</groupId>
 				<artifactId>maven-processor-plugin</artifactId>
@@ -387,6 +448,7 @@
 
 			<!-- execute junit tests -->
 			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>${surefire.version}</version>
 				<dependencies>
@@ -445,6 +507,26 @@
 				</configuration>
 			</plugin>
 		</plugins>
+		
+		<resources>
+			<resource>
+				<filtering>false</filtering>
+				<directory>src/main/resources</directory>
+				<excludes>
+					<exclude>application.properties</exclude>
+					<exclude>module-*.properties</exclude>
+				</excludes>
+			</resource>
+			<resource>
+				<filtering>true</filtering>
+				<directory>src/main/resources</directory>
+				<includes>
+					<include>application.properties</include>
+					<include>module-*.properties</include>
+				</includes>
+			</resource>
+		</resources>
+		
 	</build>
 	<!-- All profiles -->
 	<profiles>

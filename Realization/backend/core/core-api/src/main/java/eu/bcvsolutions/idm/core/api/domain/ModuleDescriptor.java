@@ -50,6 +50,20 @@ public interface ModuleDescriptor extends Plugin<String> {
 	String getVendor();
 	
 	/**
+	 * Module vendor's url
+	 * 
+	 * @return
+	 */
+	String getVendorUrl();
+	
+	/**
+	 * Module vendor's url
+	 * 
+	 * @return
+	 */
+	String getVendorEmail();
+	
+	/**
 	 * Module permissions
 	 * 
 	 * @return

@@ -82,6 +82,8 @@ public class IdmAuditListener implements EntityTrackingRevisionListener {
 		// original action executer identity (before switch)
 		revisionEntity.setOriginalModifier(securityService.getOriginalUsername());
 		revisionEntity.setOriginalModifierId(originalModifierIdentity == null ? null : originalModifierIdentity.getId());
+		// entity id
+		revisionEntity.setEntityId((UUID) entityId);
 		//
 		// get entity in new transaction if revision type is delete
 		AbstractEntity currentEntity = null;

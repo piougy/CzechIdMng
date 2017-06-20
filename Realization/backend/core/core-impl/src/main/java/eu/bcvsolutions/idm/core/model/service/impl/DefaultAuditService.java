@@ -283,17 +283,15 @@ public class DefaultAuditService extends AbstractReadWriteDtoService<IdmAuditDto
 	 */
 	@Override
 	public IdmAuditDto get(Serializable id, BasePermission... permission) {
+		// TODO: add permission, now can't be use find, because Authentication object is null when call from IdmAuditLisener
 		Assert.notNull(id, "Id is required");
-		AuditFilter filter = new AuditFilter();
-		filter.setId(Long.valueOf(id.toString()));
-		List<IdmAuditDto> audits = this.find(filter, null).getContent();
-		
-		// number founds audits must be exactly 1
-		if (audits.isEmpty() || audits.size() != 1) {
+		IdmAudit audit = this.auditRepository.findOneById(Long.valueOf(id.toString()));
+
+		if (audit == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("audit", id));
 		}
 		// return only one element
-		return audits.get(0);
+		return this.toDto(audit);
 	}
 	
 	@Override

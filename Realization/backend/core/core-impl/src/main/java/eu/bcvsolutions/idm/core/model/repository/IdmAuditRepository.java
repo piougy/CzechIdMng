@@ -132,4 +132,13 @@ public interface IdmAuditRepository extends AbstractEntityRepository<IdmAudit, A
 			+ "AND "
 				+ ":ownerCode IS null or lower(e.ownerCode) like CONCAT('%', lower(:ownerCode), '%') " )
 	List<String> findDistinctOwnerIdByOwnerTypeAndOwnerCode(@Param(value = "ownerType") String ownerType, @Param(value = "ownerCode") String ownerCode);
+	
+	/**
+	 * Find one {@link IdmAudit} by ID. There can't be used normal method findOne.
+	 * {@link IdmAudit} has long identifier not UUID.
+	 * 
+	 * @param id
+	 * @return
+	 */
+	IdmAudit findOneById(@Param(value = "id") Long id);
 }

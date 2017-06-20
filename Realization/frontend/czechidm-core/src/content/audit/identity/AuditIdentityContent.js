@@ -1,6 +1,7 @@
 import React from 'react';
 import * as Basic from '../../../components/basic';
 import AuditIdentityTable from './AuditIdentityTable';
+import Helmet from 'react-helmet';
 
 export default class AuditContent extends Basic.AbstractContent {
 
@@ -9,7 +10,7 @@ export default class AuditContent extends Basic.AbstractContent {
   }
 
   getContentKey() {
-    return 'content.audit.identities';
+    return 'content.audit';
   }
 
   componentDidMount() {
@@ -19,6 +20,7 @@ export default class AuditContent extends Basic.AbstractContent {
   render() {
     return (
       <div>
+        <Helmet title={this.i18n('title-identities')} />
         <AuditIdentityTable />
       </div>
     );

@@ -30,7 +30,7 @@ public abstract class AbstractDto implements BaseDto, Auditable {
 	private static final long serialVersionUID = 7512463222974374742L;
 	//
 	@JsonDeserialize(as = UUID.class)
-	@ApiModelProperty(required = true, notes = "Unique uuid identifier. Used as identifier in rest endpoints")
+	@ApiModelProperty(required = true, notes = "Unique uuid identifier. Used as identifier in rest endpoints", dataType = "uuid")
 	private UUID id;
 	@ApiModelProperty(readOnly = true)
 	private DateTime created;
@@ -56,10 +56,10 @@ public abstract class AbstractDto implements BaseDto, Auditable {
 	private String originalModifier;
 	@ApiModelProperty(readOnly = true)
 	private UUID originalModifierId;
-	@JsonProperty(value = "_trimmed", access=Access.READ_ONLY)
+	@JsonProperty(value = "_trimmed", access = Access.READ_ONLY)
 	@ApiModelProperty(readOnly = true)
 	private boolean trimmed = false;
-	@JsonProperty(value = "_embedded", access=Access.READ_ONLY)
+	@JsonProperty(value = "_embedded", access = Access.READ_ONLY)
 	@ApiModelProperty(readOnly = true)
 	private Map<String, BaseDto> embedded;
 	@JsonIgnore

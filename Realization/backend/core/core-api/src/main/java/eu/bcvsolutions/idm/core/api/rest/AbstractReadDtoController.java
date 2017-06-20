@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 
+import eu.bcvsolutions.idm.core.api.config.domain.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
@@ -38,7 +39,8 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
-import springfox.documentation.annotations.ApiIgnore;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.Authorization;
 
 /**
  * Read operations (get, find, autocomplete)
@@ -91,6 +93,10 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 	 * @param backendId
 	 * @return
 	 */
+	@ApiOperation(value = "Read record", authorizations = { 
+			@Authorization(SwaggerConfig.AUTHENTICATION_BASIC),
+			@Authorization(SwaggerConfig.AUTHENTICATION_CIDMST)
+			})
 	public ResponseEntity<?> get(@PathVariable @NotNull String backendId) {
 		DTO dto = getDto(backendId);
 		if (dto == null) {
@@ -123,6 +129,10 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 	 * @return
      * @see #toFilter(MultiValueMap)
 	 */
+	@ApiOperation(value = "Search records (/search/quick alias)", authorizations = { 
+			@Authorization(SwaggerConfig.AUTHENTICATION_BASIC),
+			@Authorization(SwaggerConfig.AUTHENTICATION_CIDMST)
+			})
 	@ApiImplicitParams({
 		@ApiImplicitParam(name = "parameters", allowMultiple = true, dataType = "string", paramType = "query",
 				value = "Search criteria parameters. Parameters could be registered by module. Example id=25c5b9e8-b15d-4f95-b715-c7edf6f4aee6"),
@@ -136,9 +146,39 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
                         "Multiple sort criteria are supported.")
 	})
 	public Resources<?> find(
-			@ApiIgnore @RequestParam(required = false) MultiValueMap<String, Object> parameters,
-			@ApiIgnore @PageableDefault Pageable pageable) {
+			@RequestParam(required = false) MultiValueMap<String, Object> parameters,
+			@PageableDefault Pageable pageable) {
 		return toResources(find(toFilter(parameters), pageable, IdmBasePermission.READ), getDtoClass());
+	}
+	
+	/**
+	 * All endpoints will support find quick method.
+	 * 
+	 * @param parameters
+	 * @param pageable
+	 * @return
+	 * @see #toFilter(MultiValueMap)
+	 */
+	@ApiOperation(value = "Search records", authorizations = { 
+			@Authorization(SwaggerConfig.AUTHENTICATION_BASIC),
+			@Authorization(SwaggerConfig.AUTHENTICATION_CIDMST)
+			})
+	@ApiImplicitParams({
+		@ApiImplicitParam(name = "parameters", allowMultiple = true, dataType = "string", paramType = "query",
+				value = "Search criteria parameters. Parameters could be registered by module. Example id=25c5b9e8-b15d-4f95-b715-c7edf6f4aee6"),
+        @ApiImplicitParam(name = "page", dataType = "string", paramType = "query",
+                value = "Results page you want to retrieve (0..N)"),
+        @ApiImplicitParam(name = "size", dataType = "string", paramType = "query",
+                value = "Number of records per page."),
+        @ApiImplicitParam(name = "sort", allowMultiple = true, dataType = "string", paramType = "query",
+                value = "Sorting criteria in the format: property(,asc|desc). " +
+                        "Default sort order is ascending. " +
+                        "Multiple sort criteria are supported.")
+	})
+	public Resources<?> findQuick(
+			@RequestParam(required = false) MultiValueMap<String, Object> parameters,
+			@PageableDefault Pageable pageable) {
+		return find(parameters, pageable);
 	}
 	
 	/**
@@ -150,8 +190,24 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 	 * @return
      * @see #toFilter(MultiValueMap)
 	 */
+	@ApiOperation(value = "Autocomplete records (selectbox usage)", authorizations = { 
+			@Authorization(SwaggerConfig.AUTHENTICATION_BASIC),
+			@Authorization(SwaggerConfig.AUTHENTICATION_CIDMST)
+			})
+	@ApiImplicitParams({
+		@ApiImplicitParam(name = "parameters", allowMultiple = true, dataType = "string", paramType = "query",
+				value = "Search criteria parameters. Parameters could be registered by module. Example id=25c5b9e8-b15d-4f95-b715-c7edf6f4aee6"),
+        @ApiImplicitParam(name = "page", dataType = "string", paramType = "query",
+                value = "Results page you want to retrieve (0..N)"),
+        @ApiImplicitParam(name = "size", dataType = "string", paramType = "query",
+                value = "Number of records per page."),
+        @ApiImplicitParam(name = "sort", allowMultiple = true, dataType = "string", paramType = "query",
+                value = "Sorting criteria in the format: property(,asc|desc). " +
+                        "Default sort order is ascending. " +
+                        "Multiple sort criteria are supported.")
+	})
 	public Resources<?> autocomplete(
-			@RequestParam MultiValueMap<String, Object> parameters,
+			@RequestParam(required = false) MultiValueMap<String, Object> parameters,
 			@PageableDefault Pageable pageable) {
 		return toResources(find(toFilter(parameters), pageable, IdmBasePermission.AUTOCOMPLETE), getDtoClass());
 	}
@@ -174,7 +230,11 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 	 * @param backendId
 	 * @return
 	 */
-	public Set<String> getPermissions(String backendId) {
+	@ApiOperation(value = "What logged identity can do with given record", authorizations = { 
+			@Authorization(SwaggerConfig.AUTHENTICATION_BASIC),
+			@Authorization(SwaggerConfig.AUTHENTICATION_CIDMST)
+			})
+	public Set<String> getPermissions(@PathVariable @NotNull String backendId) {
 		DTO dto = getDto(backendId);
 		if (dto == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));

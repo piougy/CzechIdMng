@@ -187,7 +187,7 @@ public class DefaultIdmNotificationTemplateService extends
 		// http://velocity.apache.org/tools/devel/generic.html#tools
 		velocityContext.put("display", new DisplayTool());
 		velocityContext.put("date", new DateTool());
-		// TODO: get from DataSource?
+		//
 		velocityEngine.evaluate(velocityContext, bodyHtml, template.getCode(), html);
 		velocityEngine.evaluate(velocityContext, bodyText, template.getCode(), text);
 		velocityEngine.evaluate(velocityContext, subject, template.getCode(), subjectString);

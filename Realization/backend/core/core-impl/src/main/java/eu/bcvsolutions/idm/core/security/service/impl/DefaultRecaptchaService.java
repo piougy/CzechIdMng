@@ -25,8 +25,8 @@ import eu.bcvsolutions.idm.core.security.api.service.RecaptchaService;
 @Service("recaptchaService")
 public class DefaultRecaptchaService implements RecaptchaService {
 
-	protected final RestTemplate restTemplate;
-	protected final RecaptchaConfiguration recaptchaConfiguration;
+	private final RestTemplate restTemplate;
+	private final RecaptchaConfiguration recaptchaConfiguration;
 
 	@Autowired
 	public DefaultRecaptchaService(RecaptchaConfiguration recaptchaConfiguration, RestTemplate template) {

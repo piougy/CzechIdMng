@@ -49,7 +49,7 @@ public class DefaultRecaptchaRestTest extends AbstractRestTest {
 	private static final String TEST_REMOTE_IP = "192.168.1.200";
 	private static final String TEST_RESPONSE = "SOME RESPONSE";
 	private static final String TEST_SECRET_KEY = "SOME_KEY";
-	private static final String TEST_HOSTNAME = "TestHost";
+	// private static final String TEST_HOSTNAME = "TestHost";
 
 	@Autowired
 	private IdmIdentityService identityService;

@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.config.domain;
+package eu.bcvsolutions.idm.core.config;
 
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;

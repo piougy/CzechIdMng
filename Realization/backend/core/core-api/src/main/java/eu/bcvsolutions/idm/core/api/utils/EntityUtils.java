@@ -15,9 +15,11 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.util.Asserts;
 import org.joda.time.LocalDate;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.ValidableEntity;
 
 /**
@@ -223,5 +225,20 @@ public class EntityUtils {
 			value = String.valueOf(value);
 		}
 		return propertyDescriptor.getWriteMethod().invoke(entity, value);
+	}
+
+	public static void clearAuditFields(AbstractEntity entity) {
+		Asserts.notNull(entity, "Entity must be not null!");
+		
+		entity.setCreated(null);
+		entity.setCreator(null);
+		entity.setCreatorId(null);
+		entity.setModified(null);
+		entity.setModifier(null);
+		entity.setModifierId(null);
+		entity.setOriginalCreator(null);
+		entity.setOriginalCreatorId(null);
+		entity.setOriginalModifier(null);
+		entity.setOriginalModifierId(null);
 	}
 }

@@ -49,11 +49,31 @@ export class SystemTable extends Basic.AbstractContent {
     const { manager, uiKey } = this.props;
     const selectedEntities = manager.getEntitiesByIds(this.context.store.getState(), selectedRows);
     //
-    this.refs['confirm-' + bulkActionValue].show(
+    this.refs.confirm.show(
       this.i18n(`action.${bulkActionValue}.message`, { count: selectedEntities.length, record: manager.getNiceLabel(selectedEntities[0]), records: manager.getNiceLabels(selectedEntities).join(', ') }),
       this.i18n(`action.${bulkActionValue}.header`, { count: selectedEntities.length, records: manager.getNiceLabels(selectedEntities).join(', ') })
     ).then(() => {
       this.context.store.dispatch(manager.deleteEntities(selectedEntities, uiKey, (entity, error) => {
+        if (entity && error) {
+          this.addErrorMessage({ title: this.i18n(`action.delete.error`, { record: manager.getNiceLabel(entity) }) }, error);
+        } else {
+          this.refs.table.getWrappedInstance().reload();
+        }
+      }));
+    }, () => {
+      // nothing
+    });
+  }
+
+  onDuplicate(bulkActionValue, selectedRows) {
+    const { manager, uiKey } = this.props;
+    const selectedEntities = manager.getEntitiesByIds(this.context.store.getState(), selectedRows);
+    //
+    this.refs.confirm.show(
+      this.i18n(`action.${bulkActionValue}.message`, { count: selectedEntities.length, record: manager.getNiceLabel(selectedEntities[0]), records: manager.getNiceLabels(selectedEntities).join(', ') }),
+      this.i18n(`action.${bulkActionValue}.header`, { count: selectedEntities.length, records: manager.getNiceLabels(selectedEntities).join(', ') })
+    ).then(() => {
+      this.context.store.dispatch(manager.duplicateEntities(selectedEntities, uiKey, (entity, error) => {
         if (entity && error) {
           this.addErrorMessage({ title: this.i18n(`action.delete.error`, { record: manager.getNiceLabel(entity) }) }, error);
         } else {
@@ -71,7 +91,7 @@ export class SystemTable extends Basic.AbstractContent {
 
     return (
       <div>
-        <Basic.Confirm ref="confirm-delete" level="danger"/>
+        <Basic.Confirm ref="confirm" level="danger"/>
 
         <Advanced.Table
           ref="table"
@@ -101,7 +121,8 @@ export class SystemTable extends Basic.AbstractContent {
           }
           actions={
             [
-              { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }
+              { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false },
+              { value: 'duplicate', niceLabel: this.i18n('action.duplicate.action'), action: this.onDuplicate.bind(this), disabled: false }
             ]
           }
           buttons={

@@ -1,11 +1,13 @@
 package eu.bcvsolutions.idm.acc.service.api;
 
 import java.util.List;
+import java.util.UUID;
 
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
+import eu.bcvsolutions.idm.core.api.service.CloneableService;
 import eu.bcvsolutions.idm.core.api.service.CodeableService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
@@ -21,7 +23,7 @@ import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
  * @author Radek Tomiška
  *
  */
-public interface SysSystemService extends ReadWriteEntityService<SysSystem, SysSystemFilter>, CodeableService<SysSystem> {
+public interface SysSystemService extends ReadWriteEntityService<SysSystem, SysSystemFilter>, CodeableService<SysSystem>, CloneableService<SysSystem> {
 	
 	public static final String REMOTE_SERVER_PASSWORD = "remoteServerPassword";
 	
@@ -74,5 +76,12 @@ public interface SysSystemService extends ReadWriteEntityService<SysSystem, SysS
 	 * @return
 	 */
 	IcConnectorObject readObject(SysSystem system, SysSystemMapping systemMapping, IcUidAttribute uidAttribute);
+
+	/**
+	 * Duplicate (create/persist new) system with all configurations
+	 * @param id
+	 * @return 
+	 */
+	SysSystem duplicate(UUID id);
 
 }

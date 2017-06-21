@@ -10,9 +10,9 @@ parameters:
 
 <template
 		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-		xsi:noNamespaceSchemaLocation="IdmNotificationTemplate.xsd">>
-	<name>Send result WF - Return request</name>
+		xsi:noNamespaceSchemaLocation="IdmNotificationTemplate.xsd">
 	<code>returnRequestIdentityRole</code>
+	<name>Send result WF - Return request</name>
 	<subject>CzechIdM - Vrácení žadateli</subject>
 	<bodyHtml>
 <![CDATA[

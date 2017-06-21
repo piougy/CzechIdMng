@@ -139,6 +139,18 @@
       "failed": "Selected record [{{records}}] were not successfully backup",
       "failed_plural": "Selected records [{{records}}] were not successfully backup"
     },
+    "duplicate": {
+      "action": "Duplicate",
+      "header": "Duplicate record",
+      "header_plural": "Duplicate records",
+      "message": "Do you want to duplicate selected record [<strong>{{record}}</strong>]?",
+      "message_plural": "Selected records: [<strong>{{records}}</strong>].<br /><br /> Do you want to duplicate <strong>{{count}}</strong> selected records?",
+      "error": "An error occurred while duplicating [{{record}}].",
+      "success": "Selected record [{{record}}] successfully duplicated",
+      "success_plural": "Selected records [{{records}}] were successfully duplicated",
+      "failed": "Selected record [{{records}}] were not successfully duplicated",
+      "failed_plural": "Selected records [{{records}}] were not successfully duplicated"
+    },
     "save": {
       "success": "Record [{{record}}] successfully saved"
     }

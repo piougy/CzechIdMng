@@ -198,16 +198,18 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 			throw new ResultCodeException(AccResultCode.SYSTEM_DELETE_FAILED_HAS_ACCOUNTS,
 					ImmutableMap.of("system", system.getName()));
 		}
-		SchemaObjectClassFilter filter = new SchemaObjectClassFilter();
-		filter.setSystemId(system.getId());
-		objectClassService.find(filter, null).forEach(schemaObjectClass -> {
-			objectClassService.delete(schemaObjectClass);
-		});
 		// delete synchronization configs
 		SynchronizationConfigFilter synchronizationConfigFilter = new SynchronizationConfigFilter();
 		synchronizationConfigFilter.setSystemId(system.getId());
 		synchronizationConfigService.find(synchronizationConfigFilter, null).forEach(config -> {
 			synchronizationConfigService.delete(config);
+		});
+		
+		// delete schema
+		SchemaObjectClassFilter filter = new SchemaObjectClassFilter();
+		filter.setSystemId(system.getId());
+		objectClassService.find(filter, null).forEach(schemaObjectClass -> {
+			objectClassService.delete(schemaObjectClass);
 		});
 		// delete archived provisioning operations
 		provisioningArchiveRepository.deleteBySystem(system);
@@ -477,7 +479,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 
 		// Clone and save system
 		SysSystem clone = this.clone(id);
-		String name = MessageFormat.format("{0}{1}", "copy-of-", clone.getName());
+		String name = MessageFormat.format("{0}{1}", "Copy-of-", clone.getName());
 		name = this.duplicateName(name, 0);
 
 		clone.setName(name);

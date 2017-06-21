@@ -3,7 +3,7 @@ import _ from 'lodash';
 //
 import { Basic, Domain } from 'czechidm-core';
 import ProvisioningOperations from '../provisioning/ProvisioningOperations';
-import ProvisioningOperationTable from '../provisioning/ProvisioningOperationTable';
+import { ProvisioningOperationTable } from '../provisioning/ProvisioningOperationTable';
 
 export default class SystemProvisioningOparationContent extends Basic.AbstractContent {
 

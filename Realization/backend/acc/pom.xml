@@ -135,24 +135,6 @@
 						</executions>
 					</plugin>
 				</plugins>
-				
-				<!-- propagate maven properties to integration tests for swagger export -->
-				<testResources>
-					<testResource>
-						<filtering>false</filtering>
-						<directory>src/test/resources</directory>
-						<excludes>
-							<exclude>application-test.properties</exclude>
-						</excludes>
-					</testResource>
-					<testResource>
-						<filtering>true</filtering>
-						<directory>src/test/resources</directory>
-						<includes>
-							<include>application-test.properties</include>
-						</includes>
-					</testResource>
-				</testResources>
 			</build>
 		</profile>
 	</profiles>

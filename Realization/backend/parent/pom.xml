@@ -81,7 +81,6 @@
 		<swagger.snippetOutput.dir>${project.build.directory}/asciidoc/snippets</swagger.snippetOutput.dir>
 		<generated.asciidoc.directory>${project.build.directory}/asciidoc/generated</generated.asciidoc.directory>
 		<asciidoctor.html.output.directory>${project.build.directory}/asciidoc/html</asciidoctor.html.output.directory>
-		<asciidoctor.pdf.output.directory>${project.build.directory}/asciidoc/pdf</asciidoctor.pdf.output.directory>
 	</properties>
 
 	<repositories>
@@ -90,9 +89,8 @@
 			<url>https://nexus.bcvsolutions.eu/repository/maven-releases/</url>
 		</repository>
 		<repository>
-			<id>jcenter-releases</id>
-			<name>jcenter</name>
-			<url>http://jcenter.bintray.com</url>
+			<id>nexus-public</id>
+			<url>https://nexus.bcvsolutions.eu/repository/maven-public/</url>
 		</repository>
 	</repositories>
 
@@ -526,6 +524,26 @@
 				</includes>
 			</resource>
 		</resources>
+		
+		<!-- propagate maven properties to integration tests for swagger export -->
+		<testResources>
+			<testResource>
+				<filtering>false</filtering>
+				<directory>src/test/resources</directory>
+				<excludes>
+					<exclude>application-test.properties</exclude>
+					<exclude>module-*.properties</exclude>
+				</excludes>
+			</testResource>
+			<testResource>
+				<filtering>true</filtering>
+				<directory>src/test/resources</directory>
+				<includes>
+					<include>application-test.properties</include>
+					<include>module-*.properties</include>
+				</includes>
+			</testResource>
+		</testResources>
 		
 	</build>
 	<!-- All profiles -->

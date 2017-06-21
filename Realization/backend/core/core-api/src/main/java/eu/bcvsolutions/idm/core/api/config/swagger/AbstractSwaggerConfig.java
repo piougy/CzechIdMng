@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.api.config.domain;
+package eu.bcvsolutions.idm.core.api.config.swagger;
 
 import java.util.Arrays;
 

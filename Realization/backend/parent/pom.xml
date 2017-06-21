@@ -93,6 +93,11 @@
 			<id>nexus-public</id>
 			<url>https://nexus.bcvsolutions.eu/repository/maven-public/</url>
 		</repository>
+		<repository>
+			<id>jcenter-releases</id>
+			<name>jcenter</name>
+			<url>http://jcenter.bintray.com</url>
+		</repository>
 	</repositories>
 
 	<pluginRepositories>

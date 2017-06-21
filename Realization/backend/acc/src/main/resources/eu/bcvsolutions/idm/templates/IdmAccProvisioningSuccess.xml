@@ -9,9 +9,11 @@ parameters:
 	-	objectClass
  -->
  
-<template>
-	<name>Provisioning on system was successful</name>
+<template
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+		xsi:noNamespaceSchemaLocation="IdmNotificationTemplate.xsd">
 	<code>provisioningSuccess</code>
+	<name>Provisioning on system was successful</name>
 	<subject>Proběhl provisioning účtu $name</subject>
 	<bodyHtml>Provisioning účtu $name na systém $system úspěšně proběhl.</bodyHtml>
 	<bodyText>Provisioning uctu $name na system $system uspesne probehl.</bodyText>

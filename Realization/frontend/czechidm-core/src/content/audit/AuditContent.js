@@ -22,7 +22,7 @@ class AuditContent extends Basic.AbstractContent {
     return (
       <div>
         <Helmet title={this.i18n('title')} />
-        <AuditTable />
+        <AuditTable uiKey="audit-table"/>
       </div>
     );
   }

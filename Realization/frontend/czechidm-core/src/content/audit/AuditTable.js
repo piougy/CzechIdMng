@@ -13,8 +13,7 @@ const auditManager = new AuditManager();
 /**
 * Table of Audit for entities
 */
-
-export class AuditTable extends Basic.AbstractContent {
+export class AuditTable extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);
@@ -24,6 +23,9 @@ export class AuditTable extends Basic.AbstractContent {
   }
 
   componentDidMount() {
+    super.componentDidMount();
+    //
+    // TODO: use redux and load it just one time
     this.context.store.dispatch(auditManager.fetchEntities(auditManager.getAuditedEntitiesNames(), null, (entities) => {
       if (entities !== null) {
         const auditedEntities = entities._embedded.resources.map(item => { return {value: item, niceLabel: item }; });
@@ -119,7 +121,7 @@ export class AuditTable extends Basic.AbstractContent {
                   ref="type"
                   searchable
                   placeholder={this.i18n('entity.Audit.type')}
-                  options={auditedEntities}/>
+                  options={ auditedEntities }/>
               </div>
             }
             {
@@ -179,37 +181,33 @@ export class AuditTable extends Basic.AbstractContent {
   }
 
   render() {
-    const { columns, tableUiKey } = this.props;
+    const { columns, uiKey } = this.props;
     const { showLoading, auditedEntities } = this.state;
     return (
       <div>
         <Advanced.Table
           ref="table"
-          uiKey={tableUiKey}
+          uiKey={uiKey}
+          filterOpened
           manager={auditManager}
           forceSearchParameters={this._getForceSearchParameters()}
           rowClass={({rowIndex, data}) => { return Utils.Ui.getRowClass(data[rowIndex]); }}
           showId
-          filter={
-            !auditedEntities
-            ||
-            this._getAdvancedFilter(auditedEntities, showLoading, columns)
-          }>
-          {
-            <Advanced.Column
-              header=""
-              className="detail-button"
-              cell={
-                ({ rowIndex, data }) => {
-                  return (
-                    <Advanced.DetailButton
-                      title={this.i18n('button.detail')}
-                      onClick={this.showDetail.bind(this, data[rowIndex].id)}/>
-                  );
-                }
+          filter={ this._getAdvancedFilter(auditedEntities, showLoading, columns) }
+          _searchParameters={ this.getSearchParameters() }>
+          <Advanced.Column
+            header=""
+            className="detail-button"
+            cell={
+              ({ rowIndex, data }) => {
+                return (
+                  <Advanced.DetailButton
+                    title={this.i18n('button.detail')}
+                    onClick={this.showDetail.bind(this, data[rowIndex].id)}/>
+                );
               }
-              sort={false}/>
-          }
+            }
+            sort={false}/>
           <Advanced.Column
             property="type"
             rendered={_.includes(columns, 'type')}
@@ -222,7 +220,7 @@ export class AuditTable extends Basic.AbstractContent {
                   </span>
                 );
               }}
-          />
+            />
           <Advanced.Column
             property="entityId"
             header={ this.i18n('entity.Audit.entity') }
@@ -247,8 +245,7 @@ export class AuditTable extends Basic.AbstractContent {
             cell={
               ({ rowIndex, data, property }) => {
                 return <Basic.Label level={AuditModificationEnum.getLevel(data[rowIndex][property])} text={AuditModificationEnum.getNiceLabel(data[rowIndex][property])}/>;
-              }}
-          />
+              }}/>
           <Advanced.Column property="modifier" sort face="text" rendered={_.includes(columns, 'modifier')}/>
           <Advanced.Column property="timestamp" header={this.i18n('entity.Audit.revisionDate')} sort face="datetime" rendered={_.includes(columns, 'revisionDate')}/>
           <Advanced.Column hidden
@@ -260,15 +257,15 @@ export class AuditTable extends Basic.AbstractContent {
               }
             }
           />
-        <Advanced.Column hidden
-            property="modifiedEntityNames" sort
-            rendered={_.includes(columns, 'modifiedEntityNames')}
-            cell={
-              ({ rowIndex, data, property }) => {
-                return this._getTypeArray(data[rowIndex][property]);
+          <Advanced.Column hidden
+              property="modifiedEntityNames" sort
+              rendered={_.includes(columns, 'modifiedEntityNames')}
+              cell={
+                ({ rowIndex, data, property }) => {
+                  return this._getTypeArray(data[rowIndex][property]);
+                }
               }
-            }
-          />
+            />
         </Advanced.Table>
       </div>
     );
@@ -276,6 +273,8 @@ export class AuditTable extends Basic.AbstractContent {
 }
 
 AuditTable.propTypes = {
+  // table uiKey
+  uiKey: PropTypes.string.isRequired,
   // columns for display, check default props.
   columns: PropTypes.arrayOf(PropTypes.string),
   // simple name of entity class, if this paramater isn't defined show all revisions
@@ -284,18 +283,16 @@ AuditTable.propTypes = {
   entityId: PropTypes.number,
   // flag for detail
   isDetail: PropTypes.boolean,
-  // table uiKe
-  tableUiKey: PropTypes.string
 };
 
 AuditTable.defaultProps = {
   columns: ['id', 'type', 'modification', 'modifier', 'revisionDate', 'entityId', 'changedAttributes'],
-  isDetail: false,
-  tableUiKey: 'audit-table'
+  isDetail: false
 };
 
-function select() {
+function select(state, component) {
   return {
+    _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey)
   };
 }
 

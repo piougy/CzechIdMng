@@ -21,7 +21,7 @@ export default class AuditContent extends Basic.AbstractContent {
     return (
       <div>
         <Helmet title={this.i18n('title-identities')} />
-        <AuditIdentityTable />
+        <AuditIdentityTable uiKey="audit-table-identities" />
       </div>
     );
   }

@@ -2,9 +2,11 @@ package eu.bcvsolutions.idm.acc.service.impl;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.persistence.EntityManager;
@@ -18,6 +20,7 @@ import org.springframework.util.StringUtils;
 
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Sets;
 
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
@@ -511,7 +514,6 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 	 * Execute sync for tree and given accounts.
 	 * @param context
 	 * @param accountsMap
-	 * @param accountsUseInTreeList
 	 */
 	private void processTreeSync(SynchronizationContext context,
 			Map<String, IcConnectorObject> accountsMap) {
@@ -538,34 +540,34 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 					ImmutableMap.of("name", CODE_FIELD));
 		}
 		// Find all roots
-		List<String> roots = findRoots(parentAttribute, accountsMap, config);
+		Collection<String> roots = findRoots(parentAttribute, accountsMap, config);
 
 		if (roots.isEmpty()) {
 			log.addToLog("No roots to synchronization found!");
 		} else {
 			log.addToLog(MessageFormat.format("We found [{0}] roots: [{1}]", roots.size(), roots));
 		}
-		
 
-		roots.forEach(root -> {
+
+		for (String root : roots) {
 			accountsUseInTreeList.add(root);
 			IcConnectorObject parentIcObject = accountsMap.get(root);
-			
+
 			SynchronizationContext itemContext = SynchronizationContext.cloneContext(context);
 			itemContext.addUid(root)
-			.addAccount(null)
-			.addIcObject(parentIcObject)
-			.addTokenAttribute(tokenAttribute);
-			
+					.addAccount(null)
+					.addIcObject(parentIcObject)
+					.addTokenAttribute(tokenAttribute);
+
 			boolean result = handleIcObject(itemContext);
 			if (!result) {
-				return;
+				continue;
 			}
 			Object uidValueParent = this.getValueByMappedAttribute(uidAttribute, parentIcObject.getAttributes());
 
 			processChildren(parentAttribute, uidValueParent, uidAttribute, accountsMap, accountsUseInTreeList,
-					itemContext);
-		});
+					itemContext, roots);
+		}
 
 		if (config.isReconciliation()) {
 			// We do reconciliation (find missing account)
@@ -615,9 +617,9 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 	 * @param config
 	 * @return
 	 */
-	private List<String> findRoots(SysSystemAttributeMapping parentAttribute,
-			Map<String, IcConnectorObject> accountsMap, SysSyncConfig config) {
-		List<String> roots = new ArrayList<>();
+	private Collection<String> findRoots(SysSystemAttributeMapping parentAttribute,
+										 Map<String, IcConnectorObject> accountsMap, SysSyncConfig config) {
+		Set<String> roots = Sets.newHashSet();
 		accountsMap.forEach((uid, account) -> {
 			if (StringUtils.hasLength(config.getRootsFilterScript())) {
 				Map<String, Object> variables = new HashMap<>();
@@ -650,19 +652,22 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 
 	/**
 	 * Process recursively tree children
-	 * 
+	 *
 	 * @param parentAttribute
 	 * @param uidValueParent
 	 * @param uidAttribute
-	 * @param tokenAttribute
 	 * @param accountsMap
-	 * @param wrapper
+	 * @param accountsUseInTreeList
+	 * @param context
 	 */
 	private void processChildren(SysSystemAttributeMapping parentAttribute, Object uidValueParent,
 			SysSystemAttributeMapping uidAttribute, Map<String, IcConnectorObject> accountsMap,
-			List<String> accountsUseInTreeList, SynchronizationContext context) {
+			List<String> accountsUseInTreeList, SynchronizationContext context, Collection<String> roots) {
 
 		accountsMap.forEach((uid, account) -> {
+			if (roots.contains(uid)) {
+				return;
+			}
 			Object parentValue = super.getValueByMappedAttribute(parentAttribute, account.getAttributes());
 			if (parentValue != null && parentValue.equals(uidValueParent)) {
 				// Account is use in tree
@@ -680,7 +685,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 				}
 				Object uidValueParentChilde = super.getValueByMappedAttribute(uidAttribute, account.getAttributes());
 				processChildren(parentAttribute, uidValueParentChilde, uidAttribute, accountsMap, accountsUseInTreeList,
-						itemContext);
+						itemContext, roots);
 
 			}
 		});

@@ -6,6 +6,7 @@ import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
@@ -191,13 +192,13 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 		assertEquals(TEST_TEMPLATE, testTemplate.getCode());
 		//
 		// redeploy
-		IdmNotificationTemplateDto testTemplateNew = notificationTemplateService.redeployDto(testTemplate);
+		IdmNotificationTemplateDto testTemplateNew = notificationTemplateService.redeploy(testTemplate);
 		//
 		// after redeploy must be id same
 		assertEquals(testTemplateNew.getId(), testTemplate.getId());
 		configurationService.setValue(DefaultIdmNotificationTemplateService.BACKUP_FOLDER_CONFIG, null);
 	}
-	
+
 	@Test
 	public void redeployWithoutBackupFolder() {
 		String backupPath = configurationService.getValue(DefaultIdmNotificationTemplateService.BACKUP_FOLDER_CONFIG);
@@ -215,7 +216,7 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 		assertEquals(TEST_TEMPLATE, testTemplate.getCode());
 		//
 		try {
-			notificationTemplateService.redeployDto(testTemplate);
+			notificationTemplateService.redeploy(testTemplate);
 			fail();
 		} catch (Exception e) {
 			assertTrue(e instanceof ResultCodeException);
@@ -224,7 +225,7 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 					CoreResultCode.BACKUP_FOLDER_NOT_FOUND.name());
 		}
 	}
-	
+
 	@Test
 	public void redeployWithBackupFolder() {
 		String backupFolder = "/tmp/idm_test_backup/";
@@ -250,11 +251,13 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 		assertEquals(TEST_TEMPLATE, testTemplate.getCode());
 		//
 		try {
-			IdmNotificationTemplateDto newDto = notificationTemplateService.redeployDto(testTemplate);
+			IdmNotificationTemplateDto newDto = notificationTemplateService.redeploy(testTemplate);
 			assertEquals(testTemplate.getCode(), newDto.getCode());
 			//
 			DateTime date = new DateTime();
-			directory = new File(backupFolder + "templates/" + date.getYear() + "_" + date.getMonthOfYear() + "_" + date.getDayOfMonth() + "/");
+			DecimalFormat decimalFormat = new DecimalFormat("00");
+			directory = new File(backupFolder + "templates/" + date.getYear()
+					+ decimalFormat.format(date.getMonthOfYear()) + decimalFormat.format(date.getDayOfMonth()) + "/");
 			File[] files = directory.listFiles();
 			assertEquals(1, files.length);
 			File backup = files[0];
@@ -292,13 +295,15 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 		IdmNotificationTemplateDto testTemplate = testTemplates.get(0);
 		assertEquals(TEST_TEMPLATE, testTemplate.getCode());
 		//
-		IdmNotificationTemplateDto testTemplateNew = notificationTemplateService.redeployDto(testTemplate);
+		IdmNotificationTemplateDto testTemplateNew = notificationTemplateService.redeploy(testTemplate);
 		//
 		assertEquals(testTemplateNew.getId(), testTemplate.getId());
 		//
 		// after redeploy check directory
 		DateTime date = new DateTime();
-		directory = new File(backupFolder + "templates/" + date.getYear() + "_" + date.getMonthOfYear() + "_" + date.getDayOfMonth() + "/");
+		DecimalFormat decimalFormat = new DecimalFormat("00");
+		directory = new File(backupFolder + "templates/" + date.getYear()
+				+ decimalFormat.format(date.getMonthOfYear()) + decimalFormat.format(date.getDayOfMonth()) + "/");
 		assertTrue(directory.exists());
 		assertTrue(directory.isDirectory());
 		//
@@ -309,7 +314,7 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 		assertTrue(backup.getName().contains("admin"));
 		assertTrue(backup.getName().contains(testTemplateNew.getCode()));
 	}
-	
+
 	@Test
 	public void redeployNewTemplate() {
 		IdmNotificationTemplateDto template = new IdmNotificationTemplateDto();
@@ -322,7 +327,7 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 		//
 		// check exception
 		try {
-			notificationTemplateService.redeployDto(template);
+			notificationTemplateService.redeploy(template);
 			fail();
 		} catch (Exception e) {
 			assertTrue(e instanceof ResultCodeException);

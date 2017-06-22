@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -91,6 +92,8 @@ public class DefaultIdmNotificationTemplateService extends
 
 	private final SecurityService securityService;
 
+	private JAXBContext jaxbContext = null;
+
 	@Autowired
 	public DefaultIdmNotificationTemplateService(IdmNotificationTemplateRepository repository,
 			ConfigurationService configurationService, ApplicationContext applicationContext,
@@ -115,6 +118,14 @@ public class DefaultIdmNotificationTemplateService extends
 		this.applicationContext = applicationContext;
 		this.notificationConfigurationRepository = notificationConfigurationRepository;
 		this.securityService = securityService;
+		//
+		// init jaxbContext
+		try {
+			jaxbContext = JAXBContext.newInstance(IdmNotificationTemplateType.class);
+		} catch (JAXBException e) {
+			// TODO throw error, or just log and continue?
+			throw new ResultCodeException(CoreResultCode.NOTIFICATION_TEMPLATE_JAXB_INIT_ERROR, e);
+		}
 	}
 
 	@Override
@@ -219,16 +230,13 @@ public class DefaultIdmNotificationTemplateService extends
 
 	@Override
 	@Transactional
-	public void initSystemTemplates() {
+	public void init() {
 		//
 		Resource[] resources = getNotificationTemplateResource();
-		//
-		JAXBContext jaxbContext = null;
 		Unmarshaller jaxbUnmarshaller = null;
 		//
 		try {
 			//
-			jaxbContext = JAXBContext.newInstance(IdmNotificationTemplateType.class);
 			jaxbUnmarshaller = jaxbContext.createUnmarshaller();
 		} catch (JAXBException e) {
 			throw new ResultCodeException(CoreResultCode.NOTIFICATION_TEMPLATE_JAXB_INIT_ERROR, e);
@@ -287,7 +295,7 @@ public class DefaultIdmNotificationTemplateService extends
 	}
 
 	@Override
-	public void backupDto(IdmNotificationTemplateDto dto, String directory) {
+	public void backup(IdmNotificationTemplateDto dto, String directory) {
 		if (directory == null) {
 			directory = getDirectoryForBackup();
 		}
@@ -313,13 +321,10 @@ public class DefaultIdmNotificationTemplateService extends
 	}
 
 	@Override
-	public IdmNotificationTemplateDto redeployDto(IdmNotificationTemplateDto dto) {
-		JAXBContext jaxbContext = null;
+	public IdmNotificationTemplateDto redeploy(IdmNotificationTemplateDto dto) {
 		Unmarshaller jaxbUnmarshaller = null;
 		//
 		try {
-			//
-			jaxbContext = JAXBContext.newInstance(IdmNotificationTemplateType.class);
 			jaxbUnmarshaller = jaxbContext.createUnmarshaller();
 		} catch (JAXBException e) {
 			throw new ResultCodeException(CoreResultCode.NOTIFICATION_TEMPLATE_JAXB_INIT_ERROR, e);
@@ -358,15 +363,15 @@ public class DefaultIdmNotificationTemplateService extends
 		//
 		return deployNewAndBackupOld(dto, foundType.get(0));
 	}
-	
+
 	/**
 	 * Create instance of JaxbMarshaller and set required properties to him.
+	 * 
 	 * @return
 	 */
 	private Marshaller initJaxbMarshaller() {
 		Marshaller jaxbMarshaller = null;
 		try {
-			JAXBContext jaxbContext = JAXBContext.newInstance(IdmNotificationTemplateType.class);
 			jaxbMarshaller = jaxbContext.createMarshaller();
 			jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 			jaxbMarshaller.setProperty(Marshaller.JAXB_ENCODING, StandardCharsets.UTF_8.name());
@@ -457,8 +462,9 @@ public class DefaultIdmNotificationTemplateService extends
 		backupPath = backupPath + "/" + TEMPLATE_DEFAULT_BACKUP_FOLDER;
 		// add date folder
 		DateTime date = new DateTime();
-		String completePath = backupPath + date.getYear() + "_" + date.getMonthOfYear() + "_" + date.getDayOfMonth()
-				+ "/";
+		DecimalFormat decimalFormat = new DecimalFormat("00");
+		String completePath = backupPath + date.getYear() + decimalFormat.format(date.getMonthOfYear())
+				+ decimalFormat.format(date.getDayOfMonth()) + "/";
 		return completePath;
 	}
 
@@ -497,7 +503,7 @@ public class DefaultIdmNotificationTemplateService extends
 	private IdmNotificationTemplateDto deployNewAndBackupOld(IdmNotificationTemplateDto oldTemplate,
 			IdmNotificationTemplateType newTemplate) {
 		// backup
-		this.backupDto(oldTemplate, null);
+		this.backup(oldTemplate, null);
 		// transform new
 		oldTemplate = typeToDto(newTemplate, oldTemplate);
 		return this.save(oldTemplate);

@@ -87,10 +87,13 @@
 			<id>nexus</id>
 			<url>https://nexus.bcvsolutions.eu/repository/maven-releases/</url>
 		</repository>
-		<!--repository>
+		<repository>
 			<id>nexus-public</id>
 			<url>https://nexus.bcvsolutions.eu/repository/maven-public/</url>
-		</repository-->
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
 	</repositories>
 
 	<pluginRepositories>

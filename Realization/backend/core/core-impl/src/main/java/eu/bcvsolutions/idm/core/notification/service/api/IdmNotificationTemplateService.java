@@ -69,7 +69,7 @@ public interface IdmNotificationTemplateService
 	 * templates will be saved as systems.
 	 * 
 	 */
-	void initSystemTemplates();
+	void init();
 
 	/**
 	 * Method find template for topic and level with help by notification
@@ -89,7 +89,7 @@ public interface IdmNotificationTemplateService
 	 * @param dtos
 	 * @param directory
 	 */
-	void backupDto(IdmNotificationTemplateDto dto, String directory);
+	void backup(IdmNotificationTemplateDto dto, String directory);
 
 	/**
 	 * Redeploy {@link IdmNotificationTemplateDto}. Redeployed will be only
@@ -101,5 +101,5 @@ public interface IdmNotificationTemplateService
 	 * 
 	 * @param dto
 	 */
-	IdmNotificationTemplateDto redeployDto(IdmNotificationTemplateDto dto);
+	IdmNotificationTemplateDto redeploy(IdmNotificationTemplateDto dto);
 }

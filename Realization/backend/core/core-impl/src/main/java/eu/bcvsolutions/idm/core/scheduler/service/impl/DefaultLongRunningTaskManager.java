@@ -91,6 +91,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 	}
 	
 	@Override
+	@Transactional
 	@Scheduled(fixedDelayString = "${scheduler.task.queue.process:60000}")
 	public void scheduleProcessCreated() {
 		processCreated();

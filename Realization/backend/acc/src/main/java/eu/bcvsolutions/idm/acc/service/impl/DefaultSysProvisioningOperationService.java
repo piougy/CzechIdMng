@@ -37,6 +37,7 @@ import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
 import eu.bcvsolutions.idm.core.notification.service.api.NotificationManager;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.ConfidentialString;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
@@ -87,6 +88,12 @@ public class DefaultSysProvisioningOperationService
 		this.batchService = batchService;
 		this.notificationManager = notificationManager;
 		this.confidentialStorage = confidentialStorage;
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public SysProvisioningOperation get(Serializable id, BasePermission... permission) {
+		return super.get(id, permission);
 	}
 	
 	@Override

@@ -1,14 +1,16 @@
 import React, { PropTypes } from 'react';
+import { connect } from 'react-redux';
 import _ from 'lodash';
+import classnames from 'classnames';
 //
-import { Basic, Advanced, Enums } from 'czechidm-core';
+import { Basic, Advanced, Enums, Utils } from 'czechidm-core';
 import SystemEntityTypeEnum from '../../domain/SystemEntityTypeEnum';
 import ProvisioningOperationTypeEnum from '../../domain/ProvisioningOperationTypeEnum';
 import { SystemManager } from '../../redux';
 
 const systemManager = new SystemManager();
 
-export default class ProvisioningOperationTable extends Basic.AbstractContent {
+export class ProvisioningOperationTable extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);
@@ -77,7 +79,7 @@ export default class ProvisioningOperationTable extends Basic.AbstractContent {
                 </div>
               </Basic.Row>
 
-              <Basic.Row>
+              <Basic.Row className={ classnames({ last: !_.includes(columns, 'entityIdentifier') })}>
                 <div className="col-lg-4">
                   <Advanced.Filter.EnumSelectBox
                     ref="resultState"
@@ -103,7 +105,7 @@ export default class ProvisioningOperationTable extends Basic.AbstractContent {
                 </div>
               </Basic.Row>
 
-              <Basic.Row className="last">
+              <Basic.Row className="last" rendered={ _.includes(columns, 'entityIdentifier') }>
                 <div className="col-lg-4">
                   <Advanced.Filter.EnumSelectBox
                     ref="entityType"
@@ -123,7 +125,8 @@ export default class ProvisioningOperationTable extends Basic.AbstractContent {
               </Basic.Row>
             </Basic.AbstractForm>
           </Advanced.Filter>
-        }>
+        }
+        _searchParameters={ this.getSearchParameters() }>
         {
           !showDetail
           ||
@@ -241,3 +244,11 @@ ProvisioningOperationTable.defaultProps = {
   forceSearchParameters: null,
   columns: ['resultState', 'created', 'operationType', 'entityType', 'entityIdentifier', 'system', 'systemEntityUid']
 };
+
+function select(state, component) {
+  return {
+    _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey)
+  };
+}
+
+export default connect(select, null, null, { withRef: true })(ProvisioningOperationTable);

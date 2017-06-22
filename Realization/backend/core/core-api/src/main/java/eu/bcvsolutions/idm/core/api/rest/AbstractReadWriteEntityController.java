@@ -8,7 +8,6 @@ import javax.validation.ConstraintViolationException;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
-import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
@@ -16,12 +15,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.util.Assert;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.common.collect.ImmutableMap;
+
+import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
@@ -30,6 +27,8 @@ import eu.bcvsolutions.idm.core.api.rest.domain.RequestResourceResolver;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.Authorization;
 
 /**
  * CRUD operations
@@ -61,6 +60,10 @@ public abstract class AbstractReadWriteEntityController<E extends BaseEntity, F 
 	 * @return
 	 * @throws HttpMessageNotReadableException
 	 */
+	@ApiOperation(value = "Create / update record", authorizations = { 
+			@Authorization(SwaggerConfig.AUTHENTICATION_BASIC),
+			@Authorization(SwaggerConfig.AUTHENTICATION_CIDMST)
+			})
 	public ResponseEntity<?> post(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {		
 		E entity = (E) requestResourceResolver.resolve(nativeRequest, getEntityClass(), null);
 		//
@@ -94,6 +97,10 @@ public abstract class AbstractReadWriteEntityController<E extends BaseEntity, F 
 	 * @return
 	 * @throws HttpMessageNotReadableException
 	 */
+	@ApiOperation(value = "Update record", authorizations = { 
+			@Authorization(SwaggerConfig.AUTHENTICATION_BASIC),
+			@Authorization(SwaggerConfig.AUTHENTICATION_CIDMST)
+			})
 	public ResponseEntity<?> put(
 			String backendId,
 			HttpServletRequest nativeRequest, 
@@ -129,6 +136,10 @@ public abstract class AbstractReadWriteEntityController<E extends BaseEntity, F 
 	 * @return
 	 * @throws HttpMessageNotReadableException
 	 */
+	@ApiOperation(value = "Update record (patch - support send changed fields only)", authorizations = { 
+			@Authorization(SwaggerConfig.AUTHENTICATION_BASIC),
+			@Authorization(SwaggerConfig.AUTHENTICATION_CIDMST)
+			})
 	public ResponseEntity<?> patch(
 			String backendId,
 			HttpServletRequest nativeRequest, 
@@ -178,6 +189,10 @@ public abstract class AbstractReadWriteEntityController<E extends BaseEntity, F 
 	 * @param backendId
 	 * @return
 	 */
+	@ApiOperation(value = "Delete record", authorizations = { 
+			@Authorization(SwaggerConfig.AUTHENTICATION_BASIC),
+			@Authorization(SwaggerConfig.AUTHENTICATION_CIDMST)
+			})
 	public ResponseEntity<?> delete(String backendId) {
 		E entity = getEntity(backendId);
 		if (entity == null) {
@@ -207,15 +222,5 @@ public abstract class AbstractReadWriteEntityController<E extends BaseEntity, F 
 	@Override
 	protected ReadWriteEntityService<E, F> getEntityService() {
 		return (ReadWriteEntityService<E, F>) super.getEntityService();
-	}
-	
-	@ResponseBody
-	@RequestMapping(value = "/{backendId}/permissions", method = RequestMethod.GET)
-	public Set<String> permissions(@PathVariable @NotNull String backendId) {
-		E entity = getEntity(backendId);
-		if (entity == null) {
-			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
-		}
-		return getAuthorizationManager().getPermissions(entity);
 	}
 }

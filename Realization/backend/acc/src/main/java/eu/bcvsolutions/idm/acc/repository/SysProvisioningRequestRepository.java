@@ -34,7 +34,7 @@ public interface SysProvisioningRequestRepository extends AbstractEntityReposito
 	Page<SysProvisioningRequest> find(EmptyFilter filter, Pageable pageable);
 	
 	/**
-	 * Deletes given operation request (ono to one).
+	 * Deletes given operation request (one to one).
 	 * 
 	 * @param operation
 	 * @return

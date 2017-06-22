@@ -7,8 +7,13 @@ import eu.bcvsolutions.idm.core.notification.api.dto.NotificationConfigurationDt
 import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
 
 /**
- * Add default methods implementaton for {@link ModuleDescriptor}.
+ * Add default methods implementation for {@link ModuleDescriptor}.
+ * No additional configuration in needed. 
+ * Read information directly from pom file.
+ * cannot be used in integration tests (manifest for pom file is generated after tests are done) - use {@link PropertyModuleDescriptor}.
  * 
+ * @see PropertyModuleDescriptor
+ * @see ModuleDescriptor
  * @author Radek Tomiška
  */
 public abstract class AbstractModuleDescriptor implements ModuleDescriptor {
@@ -40,6 +45,26 @@ public abstract class AbstractModuleDescriptor implements ModuleDescriptor {
 	@Override
 	public String getVendor() {
 		return getClass().getPackage().getImplementationVendor();
+	}
+	
+	/**
+	 * Returns null by default
+	 * 
+	 * @see PropertyModuleDescriptor
+	 */
+	@Override
+	public String getVendorUrl() {
+		return null;
+	}
+	
+	/**
+	 * Returns null by default
+	 * 
+	 * @see PropertyModuleDescriptor
+	 */
+	@Override
+	public String getVendorEmail() {
+		return null;
 	}
 	
 	/**

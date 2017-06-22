@@ -33,6 +33,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.common.collect.ImmutableMap;
 
+import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.RoleType;
 import eu.bcvsolutions.idm.core.api.dto.IdmAuditDto;
@@ -53,6 +54,9 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmAuditService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.Authorization;
 
 /**
  * Endpoint for roles
@@ -62,7 +66,8 @@ import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
  *
  */
 @RepositoryRestController
-@RequestMapping(value = BaseEntityController.BASE_PATH + "/roles")
+@RequestMapping(value = BaseEntityController.BASE_PATH + "/roles", produces = "application/hal+json")
+@Api(value = "Roles", tags = "Roles", description = "Operations with roles")
 public class IdmRoleController extends AbstractReadWriteEntityController<IdmRole, RoleFilter> {
 	
 	private final IdmAuditService auditService;
@@ -98,7 +103,8 @@ public class IdmRoleController extends AbstractReadWriteEntityController<IdmRole
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_READ + "')")
-	public Resources<?> find(@RequestParam MultiValueMap<String, Object> parameters, 
+	public Resources<?> find(
+			@RequestParam(required = false) MultiValueMap<String, Object> parameters, 
 			@PageableDefault Pageable pageable, 			
 			PersistentEntityResourceAssembler assembler) {
 		return super.find(parameters, pageable, assembler);
@@ -107,16 +113,18 @@ public class IdmRoleController extends AbstractReadWriteEntityController<IdmRole
 	@ResponseBody
 	@RequestMapping(value= "/search/quick", method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_READ + "')")
-	public Resources<?> findQuick(@RequestParam MultiValueMap<String, Object> parameters, 
+	public Resources<?> findQuick(
+			@RequestParam(required = false) MultiValueMap<String, Object> parameters, 
 			@PageableDefault Pageable pageable, 			
 			PersistentEntityResourceAssembler assembler) {
-		return super.find(parameters, pageable, assembler);
+		return super.findQuick(parameters, pageable, assembler);
 	}
 	
 	@ResponseBody
 	@RequestMapping(value= "/search/autocomplete", method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_AUTOCOMPLETE + "')")
-	public Resources<?> autocomplete(@RequestParam MultiValueMap<String, Object> parameters, 
+	public Resources<?> autocomplete(
+			@RequestParam(required = false) MultiValueMap<String, Object> parameters, 
 			@PageableDefault Pageable pageable, 			
 			PersistentEntityResourceAssembler assembler) {
 		return super.autocomplete(parameters, pageable, assembler);
@@ -126,6 +134,10 @@ public class IdmRoleController extends AbstractReadWriteEntityController<IdmRole
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_READ + "')")
+	@ApiOperation(value = "Role detail", nickname = "getRole", response = IdmRole.class, tags={ "Roles" }, authorizations = { 
+			@Authorization(SwaggerConfig.AUTHENTICATION_BASIC),
+			@Authorization(SwaggerConfig.AUTHENTICATION_CIDMST)
+			})
 	public ResponseEntity<?> get(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler) {
 		return super.get(backendId, assembler);
 	}
@@ -164,6 +176,14 @@ public class IdmRoleController extends AbstractReadWriteEntityController<IdmRole
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_DELETE + "')")
 	public ResponseEntity<?> delete(@PathVariable @NotNull String backendId) {
 		return super.delete(backendId);
+	}
+	
+	@Override
+	@ResponseBody
+	@RequestMapping(value = "/{backendId}/permissions", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_READ + "')")
+	public Set<String> getPermissions(@PathVariable @NotNull String backendId) {
+		return super.getPermissions(backendId);
 	}
 
 	@ResponseBody

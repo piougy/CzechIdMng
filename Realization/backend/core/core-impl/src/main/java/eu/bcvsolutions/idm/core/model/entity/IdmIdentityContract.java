@@ -21,6 +21,7 @@ import org.joda.time.LocalDate;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import eu.bcvsolutions.idm.core.api.domain.AuditSearchable;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.Disableable;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
@@ -36,7 +37,7 @@ import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 @Table(name = "idm_identity_contract", indexes = {
 		@Index(name = "idx_idm_identity_contract_idnt", columnList = "identity_id"),
 		@Index(name = "idx_idm_identity_contract_wp", columnList = "work_position_id")})
-public class IdmIdentityContract extends AbstractEntity implements ValidableEntity, FormableEntity, Disableable {
+public class IdmIdentityContract extends AbstractEntity implements ValidableEntity, FormableEntity, Disableable, AuditSearchable {
 
 	private static final long serialVersionUID = 328041550861866181L;
 
@@ -198,5 +199,41 @@ public class IdmIdentityContract extends AbstractEntity implements ValidableEnti
 	@Override
 	public void setDisabled(boolean disabled) {
 		this.disabled = disabled;
+	}
+
+	@Override
+	public String getOwnerId() {
+		return this.getIdentity().getId().toString();
+	}
+
+	@Override
+	public String getOwnerCode() {
+		return this.getIdentity().getCode();
+	}
+
+	@Override
+	public String getOwnerType() {
+		return IdmIdentity.class.getName();
+	}
+
+	@Override
+	public String getSubOwnerId() {
+		if (this.getWorkPosition() == null) {
+			return null;
+		}
+		return this.getWorkPosition().getId().toString();
+	}
+
+	@Override
+	public String getSubOwnerCode() {
+		if (this.getWorkPosition() == null) {
+			return null;
+		}
+		return this.getWorkPosition().getCode();
+	}
+
+	@Override
+	public String getSubOwnerType() {
+		return IdmTreeNode.class.getName();
 	}
 }

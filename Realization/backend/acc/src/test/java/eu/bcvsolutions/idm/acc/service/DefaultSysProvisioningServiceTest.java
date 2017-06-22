@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.UUID;
 
 import javax.persistence.EntityManager;
-import javax.sql.DataSource;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -20,6 +19,7 @@ import org.springframework.data.domain.Page;
 
 import com.google.common.collect.ImmutableList;
 
+import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.domain.AccountType;
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
 import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType;
@@ -96,6 +96,9 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 	private static final String EMAIL_TWO = "two.email@two.cz";
 
 	@Autowired
+	private TestHelper helper;
+	
+	@Autowired
 	private SysSystemService sysSystemService;
 
 	@Autowired
@@ -133,13 +136,6 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 
 	@Autowired
 	private IdmPasswordPolicyService passwordPolicyService;
-
-	@Autowired
-	DataSource dataSource;
-
-	// Only for call method createTestSystem
-	@Autowired
-	private DefaultSysAccountManagementServiceTest defaultSysAccountManagementServiceTest;
 	
 	@Autowired
 	private IdmTreeNodeService treeNodeService;
@@ -377,7 +373,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 
 		// Create new password one
 		PasswordChangeDto passwordChange = new PasswordChangeDto();
-		passwordChange.setAccounts(ImmutableList.of(accountIdentityOne.getId().toString()));
+		passwordChange.setAccounts(ImmutableList.of(accountIdentityOne.getAccount().toString()));
 		passwordChange.setNewPassword(new GuardedString(IDENTITY_PASSWORD_ONE));
 		passwordChange.setIdm(true);
 		// Do change of password for selected accounts
@@ -958,7 +954,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		AccIdentityAccountDto accountIdentityOne;
 
 		// create test system
-		SysSystem system = defaultSysAccountManagementServiceTest.createTestSystem("test_resource");
+		SysSystem system = helper.createSystem("test_resource");
 
 		// set default generate password policy for system
 		IdmPasswordPolicy passwordPolicy = new IdmPasswordPolicy();

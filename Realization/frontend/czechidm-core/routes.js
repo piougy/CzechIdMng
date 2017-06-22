@@ -397,6 +397,16 @@ module.exports = {
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['PASSWORDPOLICY_READ'] } ]
     },
     {
+      path: 'audit/entities/:entityId/diff/:revID',
+      component: require('./src/content/audit/AuditDetail'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUDIT_READ'] } ]
+    },
+    {
+      path: 'audit/entities/:entityId/diff',
+      component: require('./src/content/audit/AuditDetail'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUDIT_READ'] } ]
+    },
+    {
       path: 'audit/',
       component: require('./src/content/audit/AuditRoutes'),
       childRoutes: [
@@ -408,16 +418,6 @@ module.exports = {
         {
           path: 'identities',
           component: require('./src/content/audit/identity/AuditIdentityContent'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUDIT_READ'] } ]
-        },
-        {
-          path: 'entities/:entityId/diff/:revID',
-          component: require('./src/content/audit/AuditDetail'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUDIT_READ'] } ]
-        },
-        {
-          path: 'entities/:entityId/diff',
-          component: require('./src/content/audit/AuditDetail'),
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUDIT_READ'] } ]
         }
       ]

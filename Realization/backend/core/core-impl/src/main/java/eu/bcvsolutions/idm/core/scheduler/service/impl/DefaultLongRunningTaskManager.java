@@ -9,10 +9,8 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.FutureTask;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.event.TransactionalEventListener;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
@@ -24,6 +22,7 @@ import eu.bcvsolutions.idm.core.api.dto.ResultModel;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
+import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.LongRunningFutureTask;
@@ -47,24 +46,24 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 	private final Executor executor;
 	private final ConfigurationService configurationService;
 	private final SecurityService securityService;
-	private final ApplicationEventPublisher publisher;
+	private final EntityEventManager entityEventManager;
 	
 	@Autowired
 	public DefaultLongRunningTaskManager(
 			IdmLongRunningTaskService service,
 			Executor executor,
-			ApplicationEventPublisher publisher,
+			EntityEventManager entityEventManager,
 			ConfigurationService configurationService,
 			SecurityService securityService) {
 		Assert.notNull(service);
 		Assert.notNull(executor);
-		Assert.notNull(publisher);
+		Assert.notNull(entityEventManager);
 		Assert.notNull(configurationService);
 		Assert.notNull(securityService);
 		//
 		this.service = service;
 		this.executor = executor;
-		this.publisher = publisher;
+		this.entityEventManager = entityEventManager;
 		this.configurationService = configurationService;
 		this.securityService = securityService;
 	}
@@ -92,6 +91,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 	}
 	
 	@Override
+	@Transactional
 	@Scheduled(fixedDelayString = "${scheduler.task.queue.process:60000}")
 	public void scheduleProcessCreated() {
 		processCreated();
@@ -154,16 +154,15 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 		//
 		LongRunningFutureTask<V> longRunnigFutureTask = new LongRunningFutureTask<>(taskExecutor, new FutureTask<>(taskExecutor));
 		// execute - after original transaction is commited
-		publisher.publishEvent(longRunnigFutureTask);
+		entityEventManager.publishEvent(longRunnigFutureTask);
 		//
 		return longRunnigFutureTask;
 	}
 	
 	/**
-	 * We need to wait to transaction commit, when asynchronous task is executed - data is prepared in previous transaction mainly
+	 * We need to wait to transaction commit, when asynchronous task is executed - data is prepared in previous transaction mainly.
 	 */
 	@Override
-	@TransactionalEventListener
 	public <V> void executeInternal(LongRunningFutureTask<V> futureTask) {
 		Assert.notNull(futureTask);
 		Assert.notNull(futureTask.getExecutor());

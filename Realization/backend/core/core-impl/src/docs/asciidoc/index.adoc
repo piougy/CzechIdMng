@@ -1,0 +1,5 @@
+include::{generated}/overview.adoc[]
+include::getting-started.adoc[]
+include::{generated}/security.adoc[]
+include::{generated}/paths.adoc[]
+include::{generated}/definitions.adoc[]

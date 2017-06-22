@@ -4,7 +4,6 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
-import javax.sql.DataSource;
 
 import org.joda.time.LocalDateTime;
 import org.junit.After;
@@ -22,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.ImmutableList;
 
+import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.domain.ReconciliationMissingAccountActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationLinkedActionType;
@@ -85,7 +85,8 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 	private static final String ROLE_NAME_TEN = "roleName10";
 	private static final String DATE_TABLE_CONNECTOR_FORMAT = "yyyy-MM-dd HH:mm:ss";
 	
-
+	@Autowired
+	private TestHelper helper;
 	@Autowired
 	private ApplicationContext context;
 	@Autowired
@@ -113,12 +114,6 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 	@Autowired
 	private FormService formService;
 
-	@Autowired
-	DataSource dataSource;
-
-	// Only for call method createTestSystem
-	@Autowired
-	private DefaultSysAccountManagementServiceTest defaultSysAccountManagementServiceTest;
 	private SysSystem system;
 	private SynchronizationService synchornizationService;
 
@@ -581,7 +576,7 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 	private void initData() {
 
 		// create test system
-		system = defaultSysAccountManagementServiceTest.createTestSystem("test_role_resource");
+		system = helper.createSystem("test_role_resource");
 		system.setName(SYSTEM_NAME);
 		system = systemService.save(system);
 

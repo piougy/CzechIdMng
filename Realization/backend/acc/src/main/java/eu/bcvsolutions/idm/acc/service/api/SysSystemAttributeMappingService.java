@@ -12,6 +12,7 @@ import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
+import eu.bcvsolutions.idm.core.api.service.CloneableService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 
@@ -21,7 +22,7 @@ import eu.bcvsolutions.idm.ic.api.IcAttribute;
  * @author svandav
  *
  */
-public interface SysSystemAttributeMappingService extends ReadWriteEntityService<SysSystemAttributeMapping, SystemAttributeMappingFilter> {
+public interface SysSystemAttributeMappingService extends ReadWriteEntityService<SysSystemAttributeMapping, SystemAttributeMappingFilter>, CloneableService<SysSystemAttributeMapping> {
 	
 	public static final String ATTRIBUTE_VALUE_KEY = "attributeValue";
 	public static final String SYSTEM_KEY = "system";
@@ -29,7 +30,22 @@ public interface SysSystemAttributeMappingService extends ReadWriteEntityService
 	public static final String ENTITY_KEY = "entity";
 	public static final String ACCOUNT_UID = "uid";
 	
-	public List<SysSystemAttributeMapping> findBySystemMapping(SysSystemMapping systemMapping);
+	/**
+	 * All mapped attributes in given mapping
+	 * 
+	 * @param systemMapping
+	 * @return
+	 */
+	List<SysSystemAttributeMapping> findBySystemMapping(SysSystemMapping systemMapping);
+	
+	/**
+	 * Single mapped attribute in given mapping by given name
+	 * 
+	 * @param systemMappingId
+	 * @param name
+	 * @return
+	 */
+	SysSystemAttributeMapping findBySystemMappingAndName(UUID systemMappingId, String name);
 	
 	/**
 	 * Do transformation given value to value for target system (resource)
@@ -38,7 +54,7 @@ public interface SysSystemAttributeMappingService extends ReadWriteEntityService
 	 * @param attributeMapping
 	 * @return transformed value
 	 */
-	public Object transformValueToResource(String uid, Object value, AttributeMapping attributeMapping, AbstractEntity entity);
+	Object transformValueToResource(String uid, Object value, AttributeMapping attributeMapping, AbstractEntity entity);
 	
 	/**
 	 * Do transformation given value to value for IDM system
@@ -49,7 +65,7 @@ public interface SysSystemAttributeMappingService extends ReadWriteEntityService
 	 * @param icAttributes 
 	 * @return transformed value
 	 */
-	public Object transformValueFromResource(Object value, AttributeMapping attributeMapping,  List<IcAttribute> icAttributes );
+	Object transformValueFromResource(Object value, AttributeMapping attributeMapping,  List<IcAttribute> icAttributes );
 
 	Object transformValueToResource(String uid, Object value, String script, AbstractEntity entity, SysSystem system);
 

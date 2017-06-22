@@ -64,7 +64,7 @@ export default class TemplateDetail extends Basic.AbstractContent {
   /**
   * Default save method that catch save event from form.
   */
-  save(event) {
+  save(operation, event) {
     const { uiKey } = this.props;
 
     if (event) {
@@ -116,6 +116,24 @@ export default class TemplateDetail extends Basic.AbstractContent {
     this.context.router.replace('notification/templates/');
   }
 
+  onRedeployOrBackup(actionValue, event) {
+    const { uiKey, entity } = this.props;
+    if (event) {
+      event.preventDefault();
+    }
+    const entities = [];
+    entities.push(entity);
+    this.refs['confirm-' + actionValue].show(
+      this.i18n(`action.${actionValue}.message`, { count: 1, record: manager.getNiceLabel(entity), records: manager.getNiceLabel(entity) }),
+      this.i18n(`action.${actionValue}.header`, { count: 1, records: manager.getNiceLabel(entity) })
+    ).then(() => {
+      // TODO: same method as bulk operation? Or create new for one?
+      this.context.store.dispatch(manager.notificationBulkOperationForEntities(entities, actionValue, uiKey));
+    }, () => {
+      // nothing
+    });
+  }
+
   getParameters() {
     const { entity } = this.props;
     let components = {};
@@ -143,6 +161,8 @@ export default class TemplateDetail extends Basic.AbstractContent {
     const { showLoading } = this.state;
     return (
       <div>
+        <Basic.Confirm ref="confirm-backup" level="danger"/>
+        <Basic.Confirm ref="confirm-redeploy" level="danger"/>
         <form onSubmit={this.save.bind(this)}>
           <Basic.AbstractForm
             data={entity}
@@ -191,15 +211,23 @@ export default class TemplateDetail extends Basic.AbstractContent {
 
           <Basic.PanelFooter showLoading={showLoading} >
             <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>{this.i18n('button.back')}</Basic.Button>
-            <Basic.Button
-              type="submit"
+
+            <Basic.SplitButton
               level="success"
+              title={this.i18n('button.save') }
+              onClick={ this.save.bind(this, 'CONTINUE') }
               showLoadingIcon
               showLoadingText={this.i18n('button.saving')}
-              rendered={SecurityManager.hasAuthority(Utils.Entity.isNew(entity) ? 'NOTIFICATIONTEMPLATE_CREATE' : 'NOTIFICATIONTEMPLATE_UPDATE')}>
-              {this.i18n('button.save')}
-            </Basic.Button>
+              rendered={SecurityManager.hasAuthority(Utils.Entity.isNew(entity) ? 'NOTIFICATIONTEMPLATE_CREATE' : 'NOTIFICATIONTEMPLATE_UPDATE')}
+              pullRight
+              dropup>
+              <Basic.MenuItem eventKey="1" onClick={this.onRedeployOrBackup.bind(this, 'redeploy')}>{this.i18n('action.redeploy.action')}</Basic.MenuItem>
+              <Basic.MenuItem eventKey="2" onClick={this.onRedeployOrBackup.bind(this, 'backup')}>{this.i18n('action.backup.action')}</Basic.MenuItem>
+            </Basic.SplitButton>
+
           </Basic.PanelFooter>
+          {/* onEnter action - is needed because SplitButton is used instead standard submit button */}
+          <input type="submit" className="hidden"/>
         </form>
       </div>
     );

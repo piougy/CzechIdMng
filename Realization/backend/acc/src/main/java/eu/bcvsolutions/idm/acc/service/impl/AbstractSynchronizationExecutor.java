@@ -1250,7 +1250,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 		} else if (attribute.isExtendedAttribute()) {
 			try {
 				Serializable serializableValue = Serializable.class.cast(value);
-				List<? extends AbstractEntity> entities = (List<? extends AbstractEntity>) formService.findOwners(getEntityClass(), attribute.getName(), serializableValue, null).getContent();
+				List<? extends AbstractEntity> entities = (List<? extends AbstractEntity>) formService.findOwners(getEntityClass(), attribute.getIdmPropertyName(), serializableValue, null).getContent();
 				if (CollectionUtils.isEmpty(entities)) {
 					return null;
 				}

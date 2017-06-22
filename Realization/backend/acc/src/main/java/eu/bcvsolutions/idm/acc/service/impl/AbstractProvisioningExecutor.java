@@ -219,7 +219,7 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 	public void changePassword(ENTITY entity, PasswordChangeDto passwordChange) {
 		Assert.notNull(entity);
 		Assert.notNull(passwordChange);
-
+		//
 		EntityAccountFilter filter = this.createEntityAccountFilter();
 		filter.setEntityId(entity.getId());
 		@SuppressWarnings("unchecked")
@@ -229,17 +229,18 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 		}
 		
 		// Distinct by accounts
-		List<AccAccount> accounts = new ArrayList<>();
+		List<UUID> accounts = new ArrayList<>();
 		entityAccountList.stream().filter(entityAccount -> {
 			return entityAccount.isOwnership() && (passwordChange.isAll()
-					|| passwordChange.getAccounts().contains(entityAccount.getId().toString()));
+					|| passwordChange.getAccounts().contains(entityAccount.getAccount().toString()));
 		}).forEach(entityAccount -> {
 			if (!accounts.contains(entityAccount.getAccount())) {
-				accounts.add(accountService.get(entityAccount.getAccount()));
+				accounts.add(entityAccount.getAccount());
 			}
 		});
 
-		accounts.forEach(account -> {
+		accounts.forEach(accountId -> {
+			AccAccount account = accountService.get(accountId);
 			// find uid from system entity or from account
 			String uid = account.getUid();
 			SysSystem system = account.getSystem();

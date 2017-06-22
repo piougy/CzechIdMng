@@ -270,7 +270,7 @@
           }
         },
         "protectionEnabled": {
-          "help": "Aktivuje ochranu účtů před smazáním. Při pokusu o odstranění IDM účtu, dojde k jeho označení 'Je chráněn'. Takový účet nebude smazán, ani na něm nebude prováděn nadále provisioning. K reálnému smazání IDM účtu (a tím i účtu na koncovém systému), dojde po vyexpirování ochraného intervalu. Mazání provádí naplánovaná úloha."
+          "help": "Aktivuje ochranu účtů před smazáním. Při pokusu o odstranění IDM účtu (poslední vazby přidělující tento účet), dojde k jeho označení 'Je chráněn'. Takový účet nebude smazán, ani na něm nebude prováděn nadále provisioning. K reálnému smazání IDM účtu (a tím i účtu na koncovém systému), dojde po vyexpirování ochraného intervalu. Mazání provádí naplánovaná úloha."
         }
       },
       "attributeDetail": {

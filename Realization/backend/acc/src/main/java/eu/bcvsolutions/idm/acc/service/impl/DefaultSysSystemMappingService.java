@@ -1,6 +1,9 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
 import java.util.List;
+import java.util.UUID;
+
+import javax.persistence.EntityManager;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -14,11 +17,13 @@ import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.filter.RoleSystemFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SchemaObjectClassFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
+import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.acc.repository.SysSyncConfigRepository;
 import eu.bcvsolutions.idm.acc.repository.SysSystemMappingRepository;
@@ -27,6 +32,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
+import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 
 /**
  * Default system entity handling
@@ -42,23 +48,27 @@ public class DefaultSysSystemMappingService extends
 	private final SysSystemAttributeMappingService systemAttributeMappingService;
 	private final SysSyncConfigRepository syncConfigRepository;
 	private final SysRoleSystemService roleSystemService;
+	private final EntityManager entityManager;
 
 	@Autowired
 	public DefaultSysSystemMappingService(
 			SysSystemMappingRepository repository,
 			SysSystemAttributeMappingService systemAttributeMappingService,
 			SysSyncConfigRepository syncConfigRepository,
-			SysRoleSystemService roleSystemService) {
+			SysRoleSystemService roleSystemService,
+			EntityManager entityManager) {
 		super(repository);
 		//
 		Assert.notNull(systemAttributeMappingService);
 		Assert.notNull(syncConfigRepository);
 		Assert.notNull(roleSystemService);
+		Assert.notNull(entityManager);
 		//
 		this.repository = repository;
 		this.systemAttributeMappingService = systemAttributeMappingService;
 		this.syncConfigRepository = syncConfigRepository;
 		this.roleSystemService = roleSystemService;
+		this.entityManager = entityManager;
 	}
 	
 	@Override
@@ -136,6 +146,18 @@ public class DefaultSysSystemMappingService extends
 		return this.getProtectionInterval(mappings.get(0));
 	}
 	
+	@Override
+	public SysSystemMapping clone(UUID id) {
+		SysSystemMapping original = this.get(id);
+		Assert.notNull(original, "Schema attribute must be found!");
+		
+		// We do detach this entity (and set id to null)
+		entityManager.detach(original);
+		original.setId(null);
+		EntityUtils.clearAuditFields(original);
+		return original;
+	}
+
 	private Integer getProtectionInterval(SysSystemMapping systemMapping){
 		Assert.notNull(systemMapping, "Mapping cannot be null!");
 		return systemMapping.getProtectionInterval();

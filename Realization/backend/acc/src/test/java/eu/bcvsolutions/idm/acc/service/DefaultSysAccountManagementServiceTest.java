@@ -1,10 +1,6 @@
 package eu.bcvsolutions.idm.acc.service;
 
-import java.util.ArrayList;
 import java.util.List;
-
-import javax.persistence.EntityManager;
-import javax.sql.DataSource;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -13,52 +9,39 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.ImmutableList;
 
+import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
-import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.SchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemEntityFilter;
-import eu.bcvsolutions.idm.acc.entity.SysConnectorKey;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute;
-import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
-import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
-import eu.bcvsolutions.idm.acc.entity.SysSystemFormValue;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
-import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
-import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
-import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdentityRoleFilter;
-import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
-import eu.bcvsolutions.idm.core.eav.service.api.FormService;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
-import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
@@ -84,25 +67,22 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 	private static final String IDENTITY_PASSWORD_THREE = "password_three";
 
 	@Autowired
-	private SysSystemService sysSystemService;
+	private TestHelper helper;
 
 	@Autowired
-	private FormService formService;
-
-	@Autowired
-	private IdmIdentityService idmIdentityService;
+	private IdmIdentityService identityService;
 	
 	@Autowired
 	private IdmIdentityContractService identityContractService;
 
 	@Autowired
-	private IdmIdentityRoleService idmIdentityRoleService;
+	private IdmIdentityRoleService identityRoleService;
 
 	@Autowired
 	private SysSystemEntityService systemEntityService;
 
 	@Autowired
-	private IdmRoleService idmRoleService;
+	private IdmRoleService roleService;
 
 	@Autowired
 	private AccIdentityAccountService identityAccountService;
@@ -111,25 +91,13 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 	private AccAccountService accountService;
 
 	@Autowired
-	private SysSystemMappingService systemEntityHandlingService;
-
-	@Autowired
 	private SysSystemAttributeMappingService schemaAttributeHandlingService;
-
-	@Autowired
-	private SysSchemaAttributeService schemaAttributeService;
 
 	@Autowired
 	private SysRoleSystemService roleSystemService;
 
 	@Autowired
 	private SysRoleSystemAttributeService roleSystemAttributeService;
-
-	@Autowired
-	private EntityManager entityManager;
-
-	@Autowired
-	DataSource dataSource;
 
 	@Before
 	public void init() {
@@ -145,18 +113,18 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 	public void defaultAccountAdd() {
 		initData();
 
-		IdmIdentityDto identity = idmIdentityService.getByUsername(IDENTITY_USERNAME);
-		IdmRole roleDefault = idmRoleService.getByName(ROLE_DEFAULT);
+		IdmIdentityDto identity = identityService.getByUsername(IDENTITY_USERNAME);
+		IdmRole roleDefault = roleService.getByName(ROLE_DEFAULT);
 
 		Assert.assertNull("No account for this identity can be found, before account management start!",
-				entityManager.find(TestResource.class, "x" + IDENTITY_USERNAME));
+				helper.findResource("x" + IDENTITY_USERNAME));
 
 		IdmIdentityRoleDto irdto = new IdmIdentityRoleDto();
 		irdto.setIdentityContract(identityContractService.findAllByIdentity(identity.getId()).get(0).getId());
 		irdto.setRole(roleDefault.getId());
 		// This evokes IdentityRole SAVE event. On this event will be start
 		// account management and provisioning
-		IdmIdentityRoleDto irCreated = idmIdentityRoleService.save(irdto);
+		IdmIdentityRoleDto irCreated = identityRoleService.save(irdto);
 
 		IdentityAccountFilter iaccFilter = new IdentityAccountFilter();
 		iaccFilter.setIdentityId(identity.getId());
@@ -167,21 +135,21 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 				identityAccount.getAccount());
 		Assert.assertEquals(accountService.get(identityAccount.getAccount()).getUid(), "x" + IDENTITY_USERNAME);
 
-		TestResource createdAccount = entityManager.find(TestResource.class, "x" + IDENTITY_USERNAME);
+		TestResource createdAccount = helper.findResource("x" + IDENTITY_USERNAME);
 		Assert.assertNotNull("Idenitity have to exists on target system (after account management)", createdAccount);
 		Assert.assertEquals(identity.getFirstName(), createdAccount.getFirstname());
 	}
 
 	@Test
 	public void defaultAccountChange() {
-		IdmIdentityDto identity = idmIdentityService.getByUsername(IDENTITY_USERNAME);
+		IdmIdentityDto identity = identityService.getByUsername(IDENTITY_USERNAME);
 		identity.setFirstName(IDENTITY_CHANGED_FIRST_NAME);
 
 		// This evokes Identity SAVE event. On this event will be start account
 		// management and provisioning
-		idmIdentityService.save(identity);
+		identityService.save(identity);
 
-		TestResource createdAccount = entityManager.find(TestResource.class, "x" + IDENTITY_USERNAME);
+		TestResource createdAccount = helper.findResource("x" + IDENTITY_USERNAME);
 		Assert.assertNotNull("Idenitity have to exists on target system (after account management)", createdAccount);
 		Assert.assertEquals("Account on target system, must have changed first name!", IDENTITY_CHANGED_FIRST_NAME,
 				createdAccount.getFirstname());
@@ -190,10 +158,10 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 	
 	@Test
 	public void defaultAccountDisable() {
-		IdmIdentityDto identity = idmIdentityService.getByUsername(IDENTITY_USERNAME);
+		IdmIdentityDto identity = identityService.getByUsername(IDENTITY_USERNAME);
 		Assert.assertEquals("Identity must be enabled!", Boolean.FALSE,
 				identity.isDisabled());
-		TestResource resourceAccount = entityManager.find(TestResource.class, "x" + IDENTITY_USERNAME);
+		TestResource resourceAccount = helper.findResource("x" + IDENTITY_USERNAME);
 		Assert.assertNotNull("Idenitity have to exists on target system (after account management)", resourceAccount);
 		Assert.assertEquals("Account on target system, must be enabled", "enabled",
 				resourceAccount.getStatus());
@@ -202,9 +170,9 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 		
 		// This evokes Identity SAVE event. On this event will be start account
 		// management and provisioning
-		idmIdentityService.save(identity);
+		identityService.save(identity);
 		
-		resourceAccount = entityManager.find(TestResource.class, "x" + IDENTITY_USERNAME);
+		resourceAccount = helper.findResource("x" + IDENTITY_USERNAME);
 		Assert.assertNotNull("Idenitity have to exists on target system (after account management)", resourceAccount);
 		Assert.assertEquals("Account on target system, must be disabled!", "disabled",
 				resourceAccount.getStatus());
@@ -222,7 +190,7 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 	@Test
 	public void defaultAccountRemove() {
 
-		TestResource createdAccount = entityManager.find(TestResource.class, "x" + IDENTITY_USERNAME);
+		TestResource createdAccount = helper.findResource("x" + IDENTITY_USERNAME);
 		Assert.assertNotNull("Idenitity have to exists on target system (before account will be delete)",
 				createdAccount);
 
@@ -231,14 +199,14 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 		Assert.assertEquals("Account needs to exist befor will be delete", 1,
 				accountService.find(accountFilter, null).getContent().size());
 
-		IdmIdentityDto identity = idmIdentityService.getByUsername(IDENTITY_USERNAME);
+		IdmIdentityDto identity = identityService.getByUsername(IDENTITY_USERNAME);
 		IdentityRoleFilter irfilter = new IdentityRoleFilter();
 		irfilter.setIdentityId(identity.getId());
-		IdmIdentityRoleDto identityRoleToDelete = idmIdentityRoleService.find(irfilter, null).getContent().get(0);
+		IdmIdentityRoleDto identityRoleToDelete = identityRoleService.find(irfilter, null).getContent().get(0);
 
 		// This evokes IdentityRole DELETE event. On this event will be start
 		// account management and provisioning
-		idmIdentityRoleService.deleteById(identityRoleToDelete.getId());
+		identityRoleService.deleteById(identityRoleToDelete.getId());
 
 		Assert.assertEquals("Account must not be after was deleted", 0,
 				accountService.find(accountFilter, null).getContent().size());
@@ -248,12 +216,12 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 		Assert.assertEquals("Idenitity account have to not exists after account was deleted!", 0,
 				identityAccountService.find(iaccFilter, null).getContent().size());
 
-		createdAccount = entityManager.find(TestResource.class, "x" + IDENTITY_USERNAME);
+		createdAccount = helper.findResource("x" + IDENTITY_USERNAME);
 		Assert.assertNull("Idenitity have to no exists on target system (after account was deleted)", createdAccount);
 
 		// Reset value
 		identity.setFirstName(IDENTITY_USERNAME);
-		idmIdentityService.save(identity);
+		identityService.save(identity);
 	}
 
 	@Test
@@ -267,59 +235,59 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 	
 	@Test
 	public void overloadedAttributeChangePassword() {
-		IdmIdentityDto identity = idmIdentityService.getByUsername(IDENTITY_USERNAME);
+		IdmIdentityDto identity = identityService.getByUsername(IDENTITY_USERNAME);
 		IdentityAccountFilter filter = new IdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
 		List<AccIdentityAccountDto> identityAccounts = identityAccountService.find(filter, null).getContent();
 	
-		TestResource resourceAccount = entityManager.find(TestResource.class, "x" + IDENTITY_USERNAME);
+		TestResource resourceAccount = helper.findResource("x" + IDENTITY_USERNAME);
 
 		// Create new password two
 		PasswordChangeDto passwordChange = new PasswordChangeDto();
-		passwordChange.setAccounts(ImmutableList.of(identityAccounts.get(0).getId().toString()));
+		passwordChange.setAccounts(ImmutableList.of(identityAccounts.get(0).getAccount().toString()));
 		passwordChange.setNewPassword(new GuardedString(IDENTITY_PASSWORD_TWO));
 		passwordChange.setIdm(true);
 		// Do change of password for selected accounts
-		idmIdentityService.passwordChange(identity, passwordChange);
+		identityService.passwordChange(identity, passwordChange);
 
 		// Check correct password two
-		resourceAccount = entityManager.find(TestResource.class, "x" + IDENTITY_USERNAME);
+		resourceAccount = helper.findResource("x" + IDENTITY_USERNAME);
 		Assert.assertEquals("Check same password on target system", IDENTITY_PASSWORD_TWO, resourceAccount.getPassword());
 
 		// Add overloaded password attribute
-		IdmRole rolePassword = idmRoleService.getByName(ROLE_OVERLOADING_PASSWORD);
+		IdmRole rolePassword = roleService.getByName(ROLE_OVERLOADING_PASSWORD);
 
 		IdmIdentityRoleDto irdto = new IdmIdentityRoleDto();
 		irdto.setIdentityContract(identityContractService.findAllByIdentity(identity.getId()).get(0).getId());
 		irdto.setRole(rolePassword.getId());
 		// This evokes IdentityRole SAVE event. On this event will be start
 		// account management and provisioning
-		idmIdentityRoleService.save(irdto);
+		identityRoleService.save(irdto);
 		
 		
 		// Do change of password for selected accounts
 		passwordChange.setNewPassword(new GuardedString(IDENTITY_PASSWORD_THREE));
-		idmIdentityService.passwordChange(identity, passwordChange);
+		identityService.passwordChange(identity, passwordChange);
 		// Check correct overloaded password two
-		resourceAccount = entityManager.find(TestResource.class, "x" + IDENTITY_USERNAME);
+		resourceAccount = helper.findResource("x" + IDENTITY_USERNAME);
 		Assert.assertEquals("Check overloaded password (added x) on target system", "x"+IDENTITY_PASSWORD_THREE, resourceAccount.getPassword());
 	}
 
 
 	@Test
 	public void overloadedAttributeAdd_A_LastNameRole() {
-		IdmIdentityDto identity = idmIdentityService.getByUsername(IDENTITY_USERNAME);
-		IdmRole roleLastName = idmRoleService.getByName(ROLE_OVERLOADING_LAST_NAME);
+		IdmIdentityDto identity = identityService.getByUsername(IDENTITY_USERNAME);
+		IdmRole roleLastName = roleService.getByName(ROLE_OVERLOADING_LAST_NAME);
 
 		Assert.assertNull("No account for this identity can be found, before account management start!",
-				entityManager.find(TestResource.class, "x" + IDENTITY_USERNAME));
+				helper.findResource("x" + IDENTITY_USERNAME));
 
 		IdmIdentityRoleDto irdto = new IdmIdentityRoleDto();
 		irdto.setIdentityContract(identityContractService.findAllByIdentity(identity.getId()).get(0).getId());
 		irdto.setRole(roleLastName.getId());
 		// This evokes IdentityRole SAVE event. On this event will be start
 		// account management and provisioning
-		IdmIdentityRoleDto irCreated = idmIdentityRoleService.save(irdto);
+		IdmIdentityRoleDto irCreated = identityRoleService.save(irdto);
 
 		IdentityAccountFilter iaccFilter = new IdentityAccountFilter();
 		iaccFilter.setIdentityId(identity.getId());
@@ -330,7 +298,7 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 				identityAccount.getAccount());
 		Assert.assertEquals(accountService.get(identityAccount.getAccount()).getUid(), "x" + IDENTITY_USERNAME);
 
-		TestResource createdAccount = entityManager.find(TestResource.class, "x" + IDENTITY_USERNAME);
+		TestResource createdAccount = helper.findResource("x" + IDENTITY_USERNAME);
 		Assert.assertNotNull("Idenitity have to exists on target system (after account management)", createdAccount);
 		Assert.assertEquals(
 				"Last name on target system must be equals with email on identity (we use overloded attribute)",
@@ -339,18 +307,18 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 
 	@Test
 	public void overloadedAttributeAdd_B_DisableFirstNameRole() {
-		IdmIdentityDto identity = idmIdentityService.getByUsername(IDENTITY_USERNAME);
-		IdmRole roleLastName = idmRoleService.getByName(ROLE_OVERLOADING_FIRST_NAME);
+		IdmIdentityDto identity = identityService.getByUsername(IDENTITY_USERNAME);
+		IdmRole roleLastName = roleService.getByName(ROLE_OVERLOADING_FIRST_NAME);
 
 		Assert.assertNotNull("Account for this identity have to be found!",
-				entityManager.find(TestResource.class, "x" + IDENTITY_USERNAME));
+				helper.findResource("x" + IDENTITY_USERNAME));
 
 		IdmIdentityRoleDto irdto = new IdmIdentityRoleDto();
 		irdto.setIdentityContract(identityContractService.findAllByIdentity(identity.getId()).get(0).getId());
 		irdto.setRole(roleLastName.getId());
 		// This evokes IdentityRole SAVE event. On this event will be start
 		// account management and provisioning
-		idmIdentityRoleService.save(irdto);
+		identityRoleService.save(irdto);
 
 		IdentityAccountFilter iaccFilter = new IdentityAccountFilter();
 		iaccFilter.setIdentityId(identity.getId());
@@ -359,7 +327,7 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 		Assert.assertEquals("Idenitity accounts have to exists (two items) after account management was started!", 2,
 				identityAccountService.find(iaccFilter, null).getContent().size());
 
-		TestResource createdAccount = entityManager.find(TestResource.class, "x" + IDENTITY_USERNAME);
+		TestResource createdAccount = helper.findResource("x" + IDENTITY_USERNAME);
 		Assert.assertNotNull("Idenitity have to exists on target system (after account management)", createdAccount);
 		Assert.assertEquals("First name on target system must be equals with first name on identity",
 				identity.getFirstName(), createdAccount.getFirstname());
@@ -368,9 +336,9 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 		identity.setEmail(IDENTITY_EMAIL_CHANGED);
 		// This evokes Identity SAVE event. On this event will be start
 		// account management and provisioning
-		idmIdentityService.save(identity);
+		identityService.save(identity);
 
-		createdAccount = entityManager.find(TestResource.class, "x" + IDENTITY_USERNAME);
+		createdAccount = helper.findResource("x" + IDENTITY_USERNAME);
 		// Because first name attribute was disabled, we now expect change only
 		// on email attribute
 		Assert.assertEquals(
@@ -383,18 +351,18 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 
 	@Test
 	public void overloadedAttributeAdd_C_AccountYrole() {
-		IdmIdentityDto identity = idmIdentityService.getByUsername(IDENTITY_USERNAME);
-		IdmRole role = idmRoleService.getByName(ROLE_OVERLOADING_Y_ACCOUNT);
+		IdmIdentityDto identity = identityService.getByUsername(IDENTITY_USERNAME);
+		IdmRole role = roleService.getByName(ROLE_OVERLOADING_Y_ACCOUNT);
 
 		Assert.assertNotNull("Account for this identity have to be found!",
-				entityManager.find(TestResource.class, "x" + IDENTITY_USERNAME));
+				helper.findResource("x" + IDENTITY_USERNAME));
 
 		IdmIdentityRoleDto irdto = new IdmIdentityRoleDto();
 		irdto.setIdentityContract(identityContractService.findAllByIdentity(identity.getId()).get(0).getId());
 		irdto.setRole(role.getId());
 		// This evokes IdentityRole SAVE event. On this event will be start
 		// account management and provisioning
-		idmIdentityRoleService.save(irdto);
+		identityRoleService.save(irdto);
 
 		IdentityAccountFilter iaccFilter = new IdentityAccountFilter();
 		iaccFilter.setIdentityId(identity.getId());
@@ -404,7 +372,7 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 		Assert.assertEquals("Idenitity accounts have to exists (three items) after account management was started!", 3,
 				identityAccountService.find(iaccFilter, null).getContent().size());
 
-		TestResource createdAccount = entityManager.find(TestResource.class, "y" + IDENTITY_USERNAME);
+		TestResource createdAccount = helper.findResource("y" + IDENTITY_USERNAME);
 		Assert.assertNotNull("Idenitity have to exists on target system (after account management)", createdAccount);
 		Assert.assertEquals("First name on target system must be equals with first name on identity",
 				identity.getFirstName(), createdAccount.getFirstname());
@@ -415,10 +383,10 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 	@Transactional
 	@Test
 	public void overloadedAttributeRemoveAllRoles() {
-		IdmIdentityDto identity = idmIdentityService.getByUsername(IDENTITY_USERNAME);
+		IdmIdentityDto identity = identityService.getByUsername(IDENTITY_USERNAME);
 
 		Assert.assertNotNull("Account for this identity have to be found!",
-				entityManager.find(TestResource.class, "x" + IDENTITY_USERNAME));
+				helper.findResource("x" + IDENTITY_USERNAME));
 
 		IdentityAccountFilter iaccFilter = new IdentityAccountFilter();
 		iaccFilter.setIdentityId(identity.getId());
@@ -431,175 +399,46 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 
 		IdentityRoleFilter irfilter = new IdentityRoleFilter();
 		irfilter.setIdentityId(identity.getId());
-		idmIdentityRoleService.find(irfilter, null).getContent().forEach(identityRole -> {
-			idmIdentityRoleService.delete(identityRole);
+		identityRoleService.find(irfilter, null).getContent().forEach(identityRole -> {
+			identityRoleService.delete(identityRole);
 		});
 
 		Assert.assertEquals("Idenitity accounts have to not exist after accounts deleted!", 0,
 				identityAccountService.find(iaccFilter, null).getContent().size());
 	}
 
-	/**
-	 * Create test system connected to same database (using configuration from
-	 * dataSource)
-	 * 
-	 * @return
-	 */
-	@SuppressWarnings("deprecation")
-	public SysSystem createTestSystem(String tableName) {
-		// create owner
-		org.apache.tomcat.jdbc.pool.DataSource tomcatDataSource = ((org.apache.tomcat.jdbc.pool.DataSource) dataSource);
-		SysSystem system = new SysSystem();
-		system.setName("testResource_" + System.currentTimeMillis());
-
-		system.setConnectorKey(new SysConnectorKey(sysSystemService.getTestConnectorKey()));
-		sysSystemService.save(system);
-
-		IdmFormDefinition savedFormDefinition = sysSystemService.getConnectorFormDefinition(system.getConnectorInstance());
-
-		List<SysSystemFormValue> values = new ArrayList<>();
-
-		SysSystemFormValue jdbcUrlTemplate = new SysSystemFormValue(
-				savedFormDefinition.getMappedAttributeByName("jdbcUrlTemplate"));
-		jdbcUrlTemplate.setValue(tomcatDataSource.getUrl());
-		values.add(jdbcUrlTemplate);
-		SysSystemFormValue jdbcDriver = new SysSystemFormValue(
-				savedFormDefinition.getMappedAttributeByName("jdbcDriver"));
-		jdbcDriver.setValue(tomcatDataSource.getDriverClassName());
-		values.add(jdbcDriver);
-
-		SysSystemFormValue user = new SysSystemFormValue(savedFormDefinition.getMappedAttributeByName("user"));
-		user.setValue(tomcatDataSource.getUsername());
-		values.add(user);
-		SysSystemFormValue password = new SysSystemFormValue(savedFormDefinition.getMappedAttributeByName("password"));
-		password.setValue(tomcatDataSource.getPoolProperties().getPassword());
-		values.add(password);
-		SysSystemFormValue table = new SysSystemFormValue(savedFormDefinition.getMappedAttributeByName("table"));
-		table.setValue(tableName);
-		values.add(table);
-		SysSystemFormValue keyColumn = new SysSystemFormValue(
-				savedFormDefinition.getMappedAttributeByName("keyColumn"));
-		keyColumn.setValue("name");
-		values.add(keyColumn);
-		SysSystemFormValue passwordColumn = new SysSystemFormValue(
-				savedFormDefinition.getMappedAttributeByName("passwordColumn"));
-		passwordColumn.setValue("password");
-		values.add(passwordColumn);
-		SysSystemFormValue allNative = new SysSystemFormValue(
-				savedFormDefinition.getMappedAttributeByName("allNative"));
-		allNative.setValue(true);
-		values.add(allNative);
-		SysSystemFormValue rethrowAllSQLExceptions = new SysSystemFormValue(
-				savedFormDefinition.getMappedAttributeByName("rethrowAllSQLExceptions"));
-		rethrowAllSQLExceptions.setValue(true);
-		values.add(rethrowAllSQLExceptions);
-		SysSystemFormValue statusColumn = new SysSystemFormValue(
-				savedFormDefinition.getMappedAttributeByName("statusColumn"));
-		statusColumn.setValue("status");
-		values.add(statusColumn);
-		SysSystemFormValue disabledStatusValue = new SysSystemFormValue(
-				savedFormDefinition.getMappedAttributeByName("disabledStatusValue"));
-		disabledStatusValue.setValue("disabled");
-		values.add(disabledStatusValue);
-		SysSystemFormValue enabledStatusValue = new SysSystemFormValue(
-				savedFormDefinition.getMappedAttributeByName("enabledStatusValue"));
-		enabledStatusValue.setValue("enabled");
-		values.add(enabledStatusValue);
-		SysSystemFormValue changeLogColumnValue = new SysSystemFormValue(
-				savedFormDefinition.getMappedAttributeByName("changeLogColumn"));
-		changeLogColumnValue.setValue(null);
-		values.add(changeLogColumnValue);
-
-		formService.saveValues(system, savedFormDefinition, values);
-
-		return system;
-	}
-
 	private void initData() {
-		IdmIdentityDto identity;
-
 		// create test system
-		
-		SysSystem system = createTestSystem("test_resource");
-
-		// generate schema for system
-		 List<SysSchemaObjectClass> objectClasses = sysSystemService.generateSchema(system);
-
+		SysSystem system = helper.createTestResourceSystem(true);
+		//
 		// Create test identity for provisioning test
-		identity = new IdmIdentityDto();
+		IdmIdentityDto identity = new IdmIdentityDto();
 		identity.setUsername(IDENTITY_USERNAME);
 		identity.setFirstName(IDENTITY_USERNAME);
 		identity.setLastName(IDENTITY_USERNAME);
 		identity.setEmail(IDENTITY_EMAIL);
-		identity = idmIdentityService.save(identity);
+		identity = identityService.save(identity);
 
 		// Create mapped attributes to schema
-		SysSystemMapping systemMapping = new SysSystemMapping();
-		systemMapping.setName("default_" + System.currentTimeMillis());
-		systemMapping.setEntityType(SystemEntityType.IDENTITY);
-		systemMapping.setOperationType(SystemOperationType.PROVISIONING);
-		systemMapping.setObjectClass(objectClasses.get(0));
-		final SysSystemMapping entityHandlingResult = systemEntityHandlingService.save(systemMapping);
-
-		SchemaAttributeFilter schemaAttributeFilter = new SchemaAttributeFilter();
-		schemaAttributeFilter.setSystemId(system.getId());
-		SysSystemAttributeMapping attributeHandlingLastName = new SysSystemAttributeMapping();
-		SysSystemAttributeMapping attributeHandlingPassword = new SysSystemAttributeMapping();
-		SysSystemAttributeMapping attributeHandlingFirstName = new SysSystemAttributeMapping();
-		SysSystemAttributeMapping attributeHandlingUserName = new SysSystemAttributeMapping();
-		SysSystemAttributeMapping attributeHandlingEnable = new SysSystemAttributeMapping();
-
-		Page<SysSchemaAttribute> schemaAttributesPage = schemaAttributeService.find(schemaAttributeFilter, null);
-		schemaAttributesPage.forEach(schemaAttr -> {
-			if ("__NAME__".equals(schemaAttr.getName())) {
-				attributeHandlingUserName.setUid(true);
-				attributeHandlingUserName.setEntityAttribute(false);
-				attributeHandlingUserName.setTransformToResourceScript("return \"" + "x" + IDENTITY_USERNAME + "\";");
-				attributeHandlingUserName.setName(schemaAttr.getName());
-				attributeHandlingUserName.setSchemaAttribute(schemaAttr);
-				attributeHandlingUserName.setSystemMapping(entityHandlingResult);
-				schemaAttributeHandlingService.save(attributeHandlingUserName);
-			} else if ("__ENABLE__".equals(schemaAttr.getName())) {
-				attributeHandlingEnable.setUid(false);
-				attributeHandlingEnable.setEntityAttribute(true);
-				attributeHandlingEnable.setIdmPropertyName("disabled");
-				attributeHandlingEnable.setTransformToResourceScript("return String.valueOf(!attributeValue);");
-				attributeHandlingEnable.setTransformFromResourceScript("return !attributeValue;");
-				attributeHandlingEnable.setName(schemaAttr.getName());
-				attributeHandlingEnable.setSchemaAttribute(schemaAttr);
-				attributeHandlingEnable.setSystemMapping(entityHandlingResult);
-				schemaAttributeHandlingService.save(attributeHandlingEnable);
-
-			} else if ("firstname".equalsIgnoreCase(schemaAttr.getName())) {
-				attributeHandlingFirstName.setIdmPropertyName("firstName");
-				attributeHandlingFirstName.setSchemaAttribute(schemaAttr);
-				attributeHandlingFirstName.setName(schemaAttr.getName());
-				attributeHandlingFirstName.setSystemMapping(entityHandlingResult);
-				schemaAttributeHandlingService.save(attributeHandlingFirstName);
-
-			} else if ("lastname".equalsIgnoreCase(schemaAttr.getName())) {
-				attributeHandlingLastName.setIdmPropertyName("lastName");
-				attributeHandlingLastName.setName(schemaAttr.getName());
-				attributeHandlingLastName.setSchemaAttribute(schemaAttr);
-				attributeHandlingLastName.setSystemMapping(entityHandlingResult);
-				schemaAttributeHandlingService.save(attributeHandlingLastName);
-
-			} else if (IcConnectorFacade.PASSWORD_ATTRIBUTE_NAME.equalsIgnoreCase(schemaAttr.getName())) {
-				attributeHandlingPassword.setIdmPropertyName("password");
-				attributeHandlingPassword.setSchemaAttribute(schemaAttr);
-				attributeHandlingPassword.setName(schemaAttr.getName());
-				attributeHandlingPassword.setSystemMapping(entityHandlingResult);
-				schemaAttributeHandlingService.save(attributeHandlingPassword);
-
-			}
-		});
-
+		SysSystemMapping systemMapping = helper.getDefaultMapping(system);
+		SysSystemAttributeMapping attributeHandlingLastName = schemaAttributeHandlingService
+				.findBySystemMappingAndName(systemMapping.getId(), TestHelper.ATTRIBUTE_MAPPING_LASTNAME);
+		SysSystemAttributeMapping attributeHandlingPassword = schemaAttributeHandlingService
+				.findBySystemMappingAndName(systemMapping.getId(), TestHelper.ATTRIBUTE_MAPPING_PASSWORD);
+		SysSystemAttributeMapping attributeHandlingFirstName = schemaAttributeHandlingService
+				.findBySystemMappingAndName(systemMapping.getId(), TestHelper.ATTRIBUTE_MAPPING_FIRSTNAME);
+		SysSystemAttributeMapping attributeHandlingUserName = schemaAttributeHandlingService
+				.findBySystemMappingAndName(systemMapping.getId(), TestHelper.ATTRIBUTE_MAPPING_NAME);
+		// username is transformed
+		attributeHandlingUserName.setTransformToResourceScript("return \"" + "x" + IDENTITY_USERNAME + "\";");
+		attributeHandlingUserName = schemaAttributeHandlingService.save(attributeHandlingUserName);
+		
 		/*
 		 * Create role with link on system (default)
 		 */
 		IdmRole roleDefault = new IdmRole();
 		roleDefault.setName(ROLE_DEFAULT);
-		idmRoleService.save(roleDefault);
+		roleService.save(roleDefault);
 		SysRoleSystem roleSystemDefault = new SysRoleSystem();
 		roleSystemDefault.setRole(roleDefault);
 		roleSystemDefault.setSystem(system);
@@ -611,7 +450,7 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 		 */
 		IdmRole roleOverloadingLastName = new IdmRole();
 		roleOverloadingLastName.setName(ROLE_OVERLOADING_LAST_NAME);
-		idmRoleService.save(roleOverloadingLastName);
+		roleService.save(roleOverloadingLastName);
 		SysRoleSystem roleSystemLastName = new SysRoleSystem();
 		roleSystemLastName.setRole(roleOverloadingLastName);
 		roleSystemLastName.setSystem(system);
@@ -632,7 +471,7 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 		 */
 		IdmRole roleOverloadingPassword = new IdmRole();
 		roleOverloadingPassword.setName(ROLE_OVERLOADING_PASSWORD);
-		idmRoleService.save(roleOverloadingPassword);
+		roleService.save(roleOverloadingPassword);
 		SysRoleSystem roleSystemPassword = new SysRoleSystem();
 		roleSystemPassword.setRole(roleOverloadingPassword);
 		roleSystemPassword.setSystem(system);
@@ -656,7 +495,7 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 		 */
 		IdmRole roleOverloadingFirstName = new IdmRole();
 		roleOverloadingFirstName.setName(ROLE_OVERLOADING_FIRST_NAME);
-		idmRoleService.save(roleOverloadingFirstName);
+		roleService.save(roleOverloadingFirstName);
 		SysRoleSystem roleSystemFirstName = new SysRoleSystem();
 		roleSystemFirstName.setRole(roleOverloadingFirstName);
 		roleSystemFirstName.setSystem(system);
@@ -677,7 +516,7 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 		 */
 		IdmRole roleOverloadingName = new IdmRole();
 		roleOverloadingName.setName(ROLE_OVERLOADING_Y_ACCOUNT);
-		idmRoleService.save(roleOverloadingName);
+		roleService.save(roleOverloadingName);
 		SysRoleSystem roleSystemName = new SysRoleSystem();
 		roleSystemName.setRole(roleOverloadingName);
 		roleSystemName.setSystem(system);
@@ -694,7 +533,6 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 		attributeName.setRoleSystem(roleSystemName);
 		attributeName.setSystemAttributeMapping(attributeHandlingUserName);
 		roleSystemAttributeService.save(attributeName);
-
 	}
 
 }

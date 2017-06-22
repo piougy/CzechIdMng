@@ -49,10 +49,10 @@ public class IdmMessageDto extends AbstractDto {
         model = other.getModel();
         template = other.getTemplate();
         parameters = other.getParameters() == null ? new HashMap<>() : new HashMap<>(other.getParameters());
-
     }
 
     private IdmMessageDto(Builder builder) {
+    	// TODO: bug: make model as default - overridable by normal builder props, if they are set. e.g. i am not able to set different level than in model
         if (builder.model != null) {
             initWithModel(builder);
         } else {

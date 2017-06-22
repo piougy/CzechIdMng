@@ -5,9 +5,11 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
-import eu.bcvsolutions.idm.core.api.domain.AbstractModuleDescriptor;
+import eu.bcvsolutions.idm.core.api.domain.PropertyModuleDescriptor;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.event.processor.identity.IdentityMonitoredFieldsProcessor;
 import eu.bcvsolutions.idm.core.notification.api.dto.NotificationConfigurationDto;
@@ -20,11 +22,15 @@ import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
 /**
  * Core module descriptor - required module
  * 
+ * TODO: refactor to configuration
+ * 
  * @author Radek Tomiška
  *
  */
 @Component
-public class CoreModuleDescriptor extends AbstractModuleDescriptor {
+@PropertySource("classpath:module-" + CoreModuleDescriptor.MODULE_ID + ".properties")
+@ConfigurationProperties(prefix = "module." + CoreModuleDescriptor.MODULE_ID + ".build", ignoreUnknownFields = true, ignoreInvalidFields = true)
+public class CoreModuleDescriptor extends PropertyModuleDescriptor {
 
 	public static final String MODULE_ID = "core";
 	public static final String TOPIC_CHANGE_IDENTITY_ROLES = String.format("%s:changeIdentityRole", MODULE_ID);
@@ -35,7 +41,7 @@ public class CoreModuleDescriptor extends AbstractModuleDescriptor {
 	public static final String TOPIC_PASSWORD_EXPIRATION_WARNING = String.format("%s:passwordExpirationWarning", MODULE_ID);
 	public static final String TOPIC_PASSWORD_EXPIRED = String.format("%s:passwordExpired", MODULE_ID);
 	public static final String TOPIC_IDENTITY_MONITORED_CHANGED_FIELDS = String.format("%s:%s", MODULE_ID, IdentityMonitoredFieldsProcessor.TOPIC);
-
+	
 	@Autowired
 	private IdmNotificationTemplateService templateService;
 	

@@ -7,7 +7,7 @@ import moment from 'moment';
 //
 import { Basic, Advanced, Managers, Enums } from 'czechidm-core';
 import { ProvisioningOperationManager, ProvisioningArchiveManager } from '../../redux';
-import ProvisioningOperationTable from './ProvisioningOperationTable';
+import ProvisioningOperationTableComponent, { ProvisioningOperationTable } from './ProvisioningOperationTable';
 import ProvisioningOperationTypeEnum from '../../domain/ProvisioningOperationTypeEnum';
 import SystemEntityTypeEnum from '../../domain/SystemEntityTypeEnum';
 //
@@ -64,9 +64,9 @@ class ProvisioningOperations extends Basic.AbstractContent {
     this.closeRetryDialog();
     this.context.store.dispatch(manager.retry(retryDialog.ids, retryDialog.bulkActionValue, batch, () => {
       // clear selected rows and reload
-      this.refs.table.clearSelectedRows();
-      this.refs.table.reload();
-      this.refs.archiveTable.reload();
+      this.refs.table.getWrappedInstance().clearSelectedRows();
+      this.refs.table.getWrappedInstance().reload();
+      this.refs.archiveTable.getWrappedInstance().reload();
     }));
   }
 
@@ -108,7 +108,7 @@ class ProvisioningOperations extends Basic.AbstractContent {
   }
 
   render() {
-    const { forceSearchParameters, columns } = this.props;
+    const { forceSearchParameters, columns, uiKey } = this.props;
     const { detail, retryDialog } = this.state;
     // accountObject to table
     const accountData = [];
@@ -150,9 +150,9 @@ class ProvisioningOperations extends Basic.AbstractContent {
 
         <Basic.Tabs>
           <Basic.Tab eventKey={1} title={this.i18n('tabs.active.label')}>
-            <ProvisioningOperationTable
+            <ProvisioningOperationTableComponent
               ref="table"
-              uiKey="provisioning-operations-table"
+              uiKey={ uiKey }
               manager={manager}
               showDetail={this.showDetail.bind(this)}
               showRowSelection={Managers.SecurityManager.hasAnyAuthority(['APP_ADMIN'])}
@@ -167,13 +167,13 @@ class ProvisioningOperations extends Basic.AbstractContent {
           </Basic.Tab>
 
           <Basic.Tab eventKey={2} title={this.i18n('tabs.archive.label')}>
-            <ProvisioningOperationTable
+            <ProvisioningOperationTableComponent
               ref="archiveTable"
-              uiKey="provisioning-archive-table"
-              manager={archiveManager}
-              showDetail={this.showDetail.bind(this)}
-              forceSearchParameters={forceSearchParameters}
-              columns={columns}/>
+              uiKey={ `archive-${uiKey}` }
+              manager={ archiveManager }
+              showDetail={ this.showDetail.bind(this) }
+              forceSearchParameters={ forceSearchParameters }
+              columns={ columns }/>
           </Basic.Tab>
         </Basic.Tabs>
 
@@ -348,6 +348,7 @@ class ProvisioningOperations extends Basic.AbstractContent {
 }
 
 ProvisioningOperations.propTypes = {
+  uiKey: PropTypes.string.isRequired,
   /**
    * Force searchparameters - system id
    */

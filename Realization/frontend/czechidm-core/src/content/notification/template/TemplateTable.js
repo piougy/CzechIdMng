@@ -5,11 +5,15 @@ import uuid from 'uuid';
 import { SecurityManager } from '../../../redux';
 import * as Basic from '../../../components/basic';
 import * as Advanced from '../../../components/advanced';
+import * as Utils from '../../../utils';
 
 /**
  * Table with definitions of password policies
+ *
+ * @author Ondřej Kopr
+ * @author Radek Tomiška
  */
-export class TemplateTable extends Basic.AbstractContent {
+export class TemplateTable extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);
@@ -20,17 +24,6 @@ export class TemplateTable extends Basic.AbstractContent {
 
   getContentKey() {
     return 'content.notificationTemplate';
-  }
-
-  componentDidMount() {
-    this.selectNavigationItems(['notification', 'notification-templatess']);
-    const { manager, uiKey } = this.props;
-    const searchParameters = manager.getService().getDefaultSearchParameters();
-    this.context.store.dispatch(manager.fetchEntities(searchParameters, uiKey));
-  }
-
-  componentWillUnmount() {
-    this.cancelFilter();
   }
 
   useFilter(event) {
@@ -46,6 +39,28 @@ export class TemplateTable extends Basic.AbstractContent {
       event.preventDefault();
     }
     this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
+  }
+
+  onRedeployOrBackup(bulkActionValue, selectedRows) {
+    const { manager, uiKey } = this.props;
+    const selectedEntities = manager.getEntitiesByIds(this.context.store.getState(), selectedRows);
+    // show confirm message for notification operation redeploy/backup
+    this.refs['confirm-' + bulkActionValue].show(
+      this.i18n(`action.${bulkActionValue}.message`, { count: selectedEntities.length, record: manager.getNiceLabel(selectedEntities[0]), records: manager.getNiceLabels(selectedEntities).join(', ') }),
+      this.i18n(`action.${bulkActionValue}.header`, { count: selectedEntities.length, records: manager.getNiceLabels(selectedEntities).join(', ') })
+    ).then(() => {
+      this.context.store.dispatch(manager.notificationBulkOperationForEntities(selectedEntities, bulkActionValue, uiKey, (entity, error, successEntities) => {
+        if (entity && error) {
+          this.addErrorMessage({ title: this.i18n(`action.${bulkActionValue}.error`, { record: manager.getNiceLabel(entity) }) }, error);
+        }
+        if (!error && successEntities) {
+          // refresh data in table
+          this.refs.table.getWrappedInstance().reload();
+        }
+      }));
+    }, () => {
+      // nothing
+    });
   }
 
   onDelete(bulkActionValue, selectedRows) {
@@ -95,6 +110,8 @@ export class TemplateTable extends Basic.AbstractContent {
       <Basic.Row>
         <div className="col-lg-12">
           <Basic.Confirm ref="confirm-delete" level="danger"/>
+          <Basic.Confirm ref="confirm-backup" level="danger"/>
+          <Basic.Confirm ref="confirm-redeploy" level="danger"/>
           <Advanced.Table
             ref="table"
             uiKey={uiKey}
@@ -120,7 +137,9 @@ export class TemplateTable extends Basic.AbstractContent {
             filterOpened={!filterOpened}
             actions={
               [
-                { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }
+                { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false },
+                { value: 'redeploy', niceLabel: this.i18n('action.redeploy.action'), action: this.onRedeployOrBackup.bind(this), disabled: false },
+                { value: 'backup', niceLabel: this.i18n('action.backup.action'), action: this.onRedeployOrBackup.bind(this), disabled: false }
               ]
             }
             buttons={
@@ -133,7 +152,8 @@ export class TemplateTable extends Basic.AbstractContent {
                   {this.i18n('button.add')}
                 </Basic.Button>
               ]
-            }>
+            }
+            _searchParameters={ this.getSearchParameters() }>
             <Advanced.Column
               header=""
               className="detail-button"
@@ -179,4 +199,10 @@ TemplateTable.defaultProps = {
   _showLoading: false
 };
 
-export default connect()(TemplateTable);
+function select(state, component) {
+  return {
+    _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey)
+  };
+}
+
+export default connect(select)(TemplateTable);

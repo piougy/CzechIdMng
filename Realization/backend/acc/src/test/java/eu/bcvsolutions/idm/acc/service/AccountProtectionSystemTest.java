@@ -1,9 +1,6 @@
 package eu.bcvsolutions.idm.acc.service;
 
-import java.util.UUID;
-
 import javax.persistence.EntityManager;
-import javax.sql.DataSource;
 
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
@@ -12,8 +9,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.acc.TestHelper;
@@ -44,12 +39,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  */
 public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 
-	private static final String ROLE_ONE = "role_one";
-	private static final String IDENTITY_USERNAME = "protectionUserOne";
-	private static final String IDENTITY_USERNAME_TWO = "protectionUserTwo";
-	private static final String SYSTEM_NAME = "protectedSystem";
-	private static final String EMAIL_ONE = "one.email@one.cz";
-	private static final String EMAIL_TWO = "two.email@two.cz";
+	private static String ROLE_ONE;
 
 	@Autowired 
 	private TestHelper helper;
@@ -69,32 +59,25 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 	private IdmIdentityRoleService identityRoleService;
 	@Autowired
 	private IdmIdentityContractService contractService;
-	@Autowired
-	private DataSource dataSource;
 
-	@Transactional
 	@Before
 	public void init() {
 		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
-		initData();
 	}
 
 	@After
 	public void logout() {
-		//resetData();
 		super.logout();
 	}
 
-	@Transactional
 	@Test
 	public void accountWithoutProtectionTest() {
 
-		IdmIdentityDto identity = idmIdentityService.getByUsername(IDENTITY_USERNAME);
-		IdmRole roleOne = roleService.getByName(ROLE_ONE);
-		SysSystem system = sysSystemService.getByCode(SYSTEM_NAME);
-		IdmIdentityRoleDto identityRole = assignRole(identity, roleOne);
+		IdmIdentityDto identity = helper.createIdentity();
+		SysSystem system = initSystem();
+		IdmIdentityRoleDto identityRole = helper.createIdentityRole(identity, roleService.getByCode(ROLE_ONE));
 
-		AccAccount account = accountService.getAccount(IDENTITY_USERNAME, system.getId());
+		AccAccount account = accountService.getAccount(identity.getUsername(), system.getId());
 
 		Assert.assertNotNull(account);
 		Assert.assertFalse(account.isInProtection());
@@ -105,21 +88,18 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 		// Remove role from identity
 		identityRoleService.deleteById(identityRole.getId());
 
-		account = accountService.getAccount(IDENTITY_USERNAME, system.getId());
+		account = accountService.getAccount(identity.getUsername(), system.getId());
 
 		Assert.assertNull(account);
-		createdAccount = entityManager.find(TestResource.class, IDENTITY_USERNAME);
+		createdAccount = entityManager.find(TestResource.class, identity.getUsername());
 		Assert.assertNull(createdAccount);
-
 	}
 
-	@Transactional
 	@Test
 	public void accountWithProtectionTest() {
-
-		IdmIdentityDto identity = idmIdentityService.getByUsername(IDENTITY_USERNAME);
-		IdmRole roleOne = roleService.getByName(ROLE_ONE);
-		SysSystem system = sysSystemService.getByCode(SYSTEM_NAME);
+		IdmIdentityDto identity = helper.createIdentity();
+		SysSystem system = initSystem();
+		IdmRole roleOne = roleService.getByCode(ROLE_ONE);
 
 		// Set system to protected mode
 		SysSystemMapping mapping = systemMappingService
@@ -128,9 +108,9 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 		mapping.setProtectionInterval(null);
 		systemMappingService.save(mapping);
 
-		IdmIdentityRoleDto identityRole = assignRole(identity, roleOne);
+		IdmIdentityRoleDto identityRole = helper.createIdentityRole(identity, roleOne);
 
-		AccAccount account = accountService.getAccount(IDENTITY_USERNAME, system.getId());
+		AccAccount account = accountService.getAccount(identity.getUsername(), system.getId());
 
 		Assert.assertNotNull(account);
 		Assert.assertFalse(account.isInProtection());
@@ -141,7 +121,7 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 		// Remove role from identity
 		identityRoleService.deleteById(identityRole.getId());
 
-		account = accountService.getAccount(IDENTITY_USERNAME, system.getId());
+		account = accountService.getAccount(identity.getUsername(), system.getId());
 		Assert.assertNotNull(account);
 		Assert.assertTrue(account.isInProtection());
 		Assert.assertNull(account.getEndOfProtection());
@@ -150,29 +130,27 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 		Assert.assertEquals(identity.getFirstName(), createdAccount.getFirstname());
 	}
 
-	@Transactional
 	@Test
 	public void accountWithProtectionRetryTest() {
 
-		IdmIdentityDto identity = idmIdentityService.getByUsername(IDENTITY_USERNAME);
-		IdmRole roleOne = roleService.getByName(ROLE_ONE);
-		SysSystem system = sysSystemService.getByCode(SYSTEM_NAME);
+		IdmIdentityDto identity = helper.createIdentity();
+		SysSystem system = initSystem();
+		IdmRole roleOne = roleService.getByCode(ROLE_ONE);
 
 		// Set system to protected mode
-		SysSystemMapping mapping = systemMappingService
-				.findBySystem(system, SystemOperationType.PROVISIONING, SystemEntityType.IDENTITY).get(0);
-		mapping.setProtectionEnabled(Boolean.TRUE);
+		SysSystemMapping mapping = helper.getDefaultMapping(system);
 		mapping.setProtectionInterval(null);
+		mapping.setProtectionEnabled(true);
 		systemMappingService.save(mapping);
 
-		IdmIdentityRoleDto identityRole = assignRole(identity, roleOne);
+		IdmIdentityRoleDto identityRole = helper.createIdentityRole(identity, roleOne);
 
-		AccAccount account = accountService.getAccount(IDENTITY_USERNAME, system.getId());
+		AccAccount account = accountService.getAccount(identity.getUsername(), system.getId());
 
 		// Remove role from identity
 		identityRoleService.deleteById(identityRole.getId());
 
-		account = accountService.getAccount(IDENTITY_USERNAME, system.getId());
+		account = accountService.getAccount(identity.getUsername(), system.getId());
 		Assert.assertNotNull(account);
 		Assert.assertTrue(account.isInProtection());
 		Assert.assertNull(account.getEndOfProtection());
@@ -181,9 +159,10 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 		Assert.assertEquals(identity.getFirstName(), createdAccount.getFirstname());
 
 		// We again assign same role
-		identityRole = assignRole(identity, roleOne);
+		identityRole = helper.createIdentityRole(identity, roleOne);
 
 		// Account must be unprotected
+		account = accountService.getAccount(identity.getUsername(), system.getId());
 		Assert.assertNotNull(account);
 		Assert.assertFalse(account.isInProtection());
 		createdAccount = helper.findResource(account.getUid());
@@ -191,13 +170,12 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 		Assert.assertEquals(identity.getFirstName(), createdAccount.getFirstname());
 	}
 
-	@Transactional
 	@Test
 	public void accountWithProtectionAndIntervalTest() {
 
-		IdmIdentityDto identity = idmIdentityService.getByUsername(IDENTITY_USERNAME);
-		IdmRole roleOne = roleService.getByName(ROLE_ONE);
-		SysSystem system = sysSystemService.getByCode(SYSTEM_NAME);
+		IdmIdentityDto identity = helper.createIdentity();
+		SysSystem system = initSystem();
+		IdmRole roleOne = roleService.getByCode(ROLE_ONE);
 
 		int intervalInDays = 10;
 
@@ -208,9 +186,9 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 		mapping.setProtectionInterval(intervalInDays);
 		systemMappingService.save(mapping);
 
-		IdmIdentityRoleDto identityRole = assignRole(identity, roleOne);
+		IdmIdentityRoleDto identityRole = helper.createIdentityRole(identity, roleOne);
 
-		AccAccount account = accountService.getAccount(IDENTITY_USERNAME, system.getId());
+		AccAccount account = accountService.getAccount(identity.getUsername(), system.getId());
 
 		Assert.assertNotNull(account);
 		Assert.assertFalse(account.isInProtection());
@@ -221,7 +199,7 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 		// Remove role from identity
 		identityRoleService.deleteById(identityRole.getId());
 
-		account = accountService.getAccount(IDENTITY_USERNAME, system.getId());
+		account = accountService.getAccount(identity.getUsername(), system.getId());
 		Assert.assertNotNull(account);
 		Assert.assertTrue(account.isInProtection());
 		Assert.assertNotNull(account.getEndOfProtection());
@@ -234,13 +212,12 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 	/**
 	 * When is account in protection mode, then cannot be provisioned.
 	 */
-	@Transactional
 	@Test
 	public void protectedAccountNoProvisioningTest() {
 
-		IdmIdentityDto identity = idmIdentityService.getByUsername(IDENTITY_USERNAME);
-		IdmRole roleOne = roleService.getByName(ROLE_ONE);
-		SysSystem system = sysSystemService.getByCode(SYSTEM_NAME);
+		IdmIdentityDto identity = helper.createIdentity();
+		SysSystem system = initSystem();
+		IdmRole roleOne = roleService.getByCode(ROLE_ONE);
 
 		int intervalInDays = 10;
 
@@ -255,9 +232,9 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 		identity.setFirstName(changedValue);
 		idmIdentityService.save(identity);
 
-		IdmIdentityRoleDto identityRole = assignRole(identity, roleOne);
+		IdmIdentityRoleDto identityRole = helper.createIdentityRole(identity, roleOne);
 
-		AccAccount account = accountService.getAccount(IDENTITY_USERNAME, system.getId());
+		AccAccount account = accountService.getAccount(identity.getUsername(), system.getId());
 
 		Assert.assertNotNull(account);
 		Assert.assertFalse(account.isInProtection());
@@ -268,7 +245,7 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 		// Remove role from identity
 		identityRoleService.deleteById(identityRole.getId());
 
-		account = accountService.getAccount(IDENTITY_USERNAME, system.getId());
+		account = accountService.getAccount(identity.getUsername(), system.getId());
 		Assert.assertNotNull(account);
 		Assert.assertTrue(account.isInProtection());
 		Assert.assertNotNull(account.getEndOfProtection());
@@ -278,7 +255,7 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 		Assert.assertEquals(identity.getFirstName(), createdAccount.getFirstname());
 
 		// Change first name and emit provisioning (provisioning must be break)
-		identity.setFirstName(IDENTITY_USERNAME);
+		identity.setFirstName(identity.getUsername());
 		idmIdentityService.save(identity);
 
 		createdAccount = helper.findResource(account.getUid());
@@ -288,13 +265,12 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 	/**
 	 * When is account in protection mode, then cannot be deleted.
 	 */
-	@Transactional
 	@Test(expected=ResultCodeException.class)
 	public void protectedAccountDeleteTest() {
 
-		IdmIdentityDto identity = idmIdentityService.getByUsername(IDENTITY_USERNAME);
-		IdmRole roleOne = roleService.getByName(ROLE_ONE);
-		SysSystem system = sysSystemService.getByCode(SYSTEM_NAME);
+		IdmIdentityDto identity = helper.createIdentity();
+		SysSystem system = initSystem();
+		IdmRole roleOne = roleService.getByCode(ROLE_ONE);
 
 		// Set system to protected mode
 		SysSystemMapping mapping = systemMappingService
@@ -304,9 +280,9 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 		systemMappingService.save(mapping);
 		
 
-		IdmIdentityRoleDto identityRole = assignRole(identity, roleOne);
+		IdmIdentityRoleDto identityRole = helper.createIdentityRole(identity, roleOne);
 
-		AccAccount account = accountService.getAccount(IDENTITY_USERNAME, system.getId());
+		AccAccount account = accountService.getAccount(identity.getUsername(), system.getId());
 
 		Assert.assertNotNull(account);
 		Assert.assertFalse(account.isInProtection());
@@ -316,7 +292,7 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 		// Remove role from identity
 		identityRoleService.deleteById(identityRole.getId());
 
-		account = accountService.getAccount(IDENTITY_USERNAME, system.getId());
+		account = accountService.getAccount(identity.getUsername(), system.getId());
 		Assert.assertNotNull(account);
 		Assert.assertTrue(account.isInProtection());
 		Assert.assertNull(account.getEndOfProtection());
@@ -331,13 +307,12 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 	/**
 	 * When is account in protection mode (but expired), then can be deleted.
 	 */
-	@Transactional
 	@Test()
 	public void protectedAccountExpiredDeleteTest() {
 
-		IdmIdentityDto identity = idmIdentityService.getByUsername(IDENTITY_USERNAME);
-		IdmRole roleOne = roleService.getByName(ROLE_ONE);
-		SysSystem system = sysSystemService.getByCode(SYSTEM_NAME);
+		IdmIdentityDto identity = helper.createIdentity();
+		SysSystem system = initSystem();
+		IdmRole roleOne = roleService.getByCode(ROLE_ONE);
 
 		// Set system to protected mode
 		SysSystemMapping mapping = systemMappingService
@@ -347,9 +322,9 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 		systemMappingService.save(mapping);
 		
 
-		IdmIdentityRoleDto identityRole = assignRole(identity, roleOne);
+		IdmIdentityRoleDto identityRole = helper.createIdentityRole(identity, roleOne);
 
-		AccAccount account = accountService.getAccount(IDENTITY_USERNAME, system.getId());
+		AccAccount account = accountService.getAccount(identity.getUsername(), system.getId());
 
 		Assert.assertNotNull(account);
 		Assert.assertFalse(account.isInProtection());
@@ -359,7 +334,7 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 		// Remove role from identity
 		identityRoleService.deleteById(identityRole.getId());
 
-		account = accountService.getAccount(IDENTITY_USERNAME, system.getId());
+		account = accountService.getAccount(identity.getUsername(), system.getId());
 		Assert.assertNotNull(account);
 		Assert.assertTrue(account.isInProtection());
 		Assert.assertNull(account.getEndOfProtection());
@@ -373,57 +348,21 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 		
 		// Delete AccAccount directly
 		accountService.delete(account);
-		account = accountService.getAccount(IDENTITY_USERNAME, system.getId());
+		account = accountService.getAccount(identity.getUsername(), system.getId());
 		Assert.assertNull(account);
-		createdAccount = helper.findResource(IDENTITY_USERNAME);
+		createdAccount = helper.findResource(identity.getUsername());
 		Assert.assertNull(createdAccount);
 	}
 
-	@Transactional(propagation = Propagation.REQUIRES_NEW)
-	public TestResource findAccountOnTargetSystem(String uid) {
-		return entityManager.find(TestResource.class, uid);
-	}
-
-	private IdmIdentityRoleDto assignRole(IdmIdentityDto identity, IdmRole roleOne) {
-		UUID contractId = contractService.getPrimeContract(identity.getId()).getId();
-		IdmIdentityRoleDto identityRole = new IdmIdentityRoleDto();
-		identityRole.setIdentityContract(contractId);
-		identityRole.setRole(roleOne.getId());
-		identityRole = identityRoleService.save(identityRole);
-		return identityRole;
-	}
-
-	private void initData() {
-	
-		IdmIdentityDto identity;
-
+	private SysSystem initSystem() {
 		// create test system
-		SysSystem system = helper.createSystem(TestResource.TABLE_NAME, true);
-		system.setName(SYSTEM_NAME);
-		system = sysSystemService.save(system);
-
-
-		// Create test identity for provisioning test
-		identity = new IdmIdentityDto();
-		identity.setUsername(IDENTITY_USERNAME);
-		identity.setFirstName(IDENTITY_USERNAME);
-		identity.setLastName(IDENTITY_USERNAME);
-		identity.setEmail(EMAIL_ONE);
-		identity = idmIdentityService.save(identity);
-
-		IdmIdentityDto identityTwo = new IdmIdentityDto();
-		identityTwo.setUsername(IDENTITY_USERNAME_TWO);
-		identityTwo.setFirstName(IDENTITY_USERNAME_TWO);
-		identityTwo.setLastName(IDENTITY_USERNAME_TWO);
-		identityTwo.setEmail(EMAIL_TWO);
-		identityTwo = idmIdentityService.save(identityTwo);
-		/*
-		 * Create role with link on system (default)
-		 */
-		IdmRole roleDefault = new IdmRole();
-		roleDefault.setName(ROLE_ONE);
-		roleService.save(roleDefault);
-		
-		helper.createRoleSystem(roleDefault, system);
+		SysSystem system = helper.createTestResourceSystem(true);
+		// Create role with link on system (default)
+		IdmRole role = helper.createRole();
+		ROLE_ONE = role.getCode();
+		// assign role to system
+		helper.createRoleSystem(role, system);
+		//
+		return system;
 	}
 }

@@ -115,6 +115,42 @@
       "success": "Selected record [{{record}}] were successfully deactivated",
       "success_plural": "Selected records [{{records}}] were successfully deactivated"
     },
+    "redeploy": {
+      "action": "Recover from disk (redeploy)",
+      "header": "Recover record from disk",
+      "header_plural": "Recover records from disk",
+      "message": "Do you want to recover selected record [<strong>{{record}}</strong>] from disk? This action is not possible to undo.",
+      "message_plural": "Selected records: [<strong>{{records}}</strong>].<br /><br />Do you want to recofer <strong>{{count}}</strong> selected records from disk? This action is not possible to undo.",
+      "error": "An error occurred while recover [{{record}}]",
+      "success": "N/A",
+      "success_plural": "Selected record [{{record}}] were successfully recovered",
+      "failed": "Selected record [{{records}}] failed recover, XML file dont exist on disk.",
+      "failed_plural": "Selected records [{{records}}] failed recover, XML file dont exist on disk."
+    },
+    "backup": {
+      "action": "Backup",
+      "header": "Backup record",
+      "header_plural": "Backup records",
+      "message": "Do you want to backup  [<strong>{{record}}</strong>]?",
+      "message_plural": "Selected records: [<strong>{{records}}</strong>].<br /><br />Do you want to backup <strong>{{count}}</strong> selected records?",
+      "error": "An error occurred while backup selected record: [{{record}}",
+      "success": "Selected record [{{record}}] were successfully backup",
+      "success_plural": "Selected records [{{records}}] were successfully backup",
+      "failed": "Selected record [{{records}}] were not successfully backup",
+      "failed_plural": "Selected records [{{records}}] were not successfully backup"
+    },
+    "duplicate": {
+      "action": "Duplicate",
+      "header": "Duplicate record",
+      "header_plural": "Duplicate records",
+      "message": "Do you want to duplicate selected record [<strong>{{record}}</strong>]?",
+      "message_plural": "Selected records: [<strong>{{records}}</strong>].<br /><br /> Do you want to duplicate <strong>{{count}}</strong> selected records?",
+      "error": "An error occurred while duplicating [{{record}}].",
+      "success": "Selected record [{{record}}] successfully duplicated",
+      "success_plural": "Selected records [{{records}}] were successfully duplicated",
+      "failed": "Selected record [{{records}}] were not successfully duplicated",
+      "failed_plural": "Selected records [{{records}}] were not successfully duplicated"
+    },
     "save": {
       "success": "Record [{{record}}] successfully saved"
     }
@@ -2323,7 +2359,13 @@
       "key": "Attribute",
       "value": "Value",
       "entityId": "Entity ID",
-      "entity": "Entity (IdM)"
+      "entity": "Entity (IdM)",
+      "ownerId": "Owner id",
+      "ownerType": "Owner type",
+      "ownerCode": "Owner code",
+      "subOwnerId": "Sub owner id",
+      "subOwnerType": "Sub owner type",
+      "subOwnerCode": "Sub owner code"
     },
     "PasswordPolicy": {
       "type": "Type",
@@ -2860,6 +2902,10 @@
     "RECAPTCHA_SERVICE_UNAVAILABLE": {
       "title": "Recaptcha check",
       "message": "Recaptcha service is unavailable."
+    },
+    "BACKUP_FOLDER_NOT_FOUND": {
+      "title": "Folder for backup dont exists",
+      "message": "Please specify this property: [{{property}}] in configuration properties."
     }
   },
   "validationError": {

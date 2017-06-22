@@ -4,7 +4,7 @@
 
 	<groupId>eu.bcvsolutions.idm</groupId>
 	<artifactId>idm-aggregator</artifactId>
-	<version>7.3.0-rc.1</version>
+	<version>7.3.0-rc.2</version>
 	<packaging>pom</packaging>
 
 	<name>CzechIdM aggregator</name>
@@ -41,16 +41,6 @@
 			<id>separatedApp</id>
 			<modules>
 				<module>../gui</module>
-			</modules>
-		</profile>
-
-		<!-- Result of build with this profile is single war file containing backend and frontend with all modules -->
-		<profile>
-			<id>fullApp</id>
-			<modules>
-				<module>../example</module>
-				<module>../ic</module>
-				<module>../acc</module>
 			</modules>
 		</profile>
 

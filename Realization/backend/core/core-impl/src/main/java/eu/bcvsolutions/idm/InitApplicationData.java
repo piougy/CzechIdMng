@@ -172,7 +172,7 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 				}
 			}
 			// save only missing templates, current templates is not redeploys
-			notificationTemplateService.initSystemTemplates();
+			notificationTemplateService.init();
 			//
 			// init notification configuration, initialization topic need exists system templates!
 			notificationConfigurationService.initDefaultTopics();

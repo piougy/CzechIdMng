@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.acc.rest.impl;
 
+import java.util.UUID;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 
@@ -26,6 +28,7 @@ import eu.bcvsolutions.idm.acc.dto.filter.AccountFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.rest.impl.DefaultReadWriteEntityController;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;;
 
@@ -114,9 +117,17 @@ public class AccAccountController extends DefaultReadWriteEntityController<AccAc
 		filter.setText(getParameterConverter().toString(parameters, "text"));
 		filter.setSystemId(getParameterConverter().toUuid(parameters, "systemId"));
 		filter.setSystemEntityId(getParameterConverter().toUuid(parameters, "systemEntityId"));
-		filter.setIdentityId(getParameterConverter().toUuid(parameters, "identityId"));
+		//
+		// for first check identityId, this attribute has bigger priority than identity parameter
+		UUID identityId = getParameterConverter().toUuid(parameters, "identityId");
+		if (identityId == null) {
+			identityId = getParameterConverter().toEntityUuid(parameters, "identity", IdmIdentity.class);
+		}
+		filter.setIdentityId(identityId);
+		//
 		filter.setUid(getParameterConverter().toString(parameters, "uid"));
 		filter.setAccountType(getParameterConverter().toEnum(parameters, "accountType", AccountType.class));
+		filter.setOwnership(getParameterConverter().toBoolean(parameters, "ownership"));
 		return filter;
 	}
 }

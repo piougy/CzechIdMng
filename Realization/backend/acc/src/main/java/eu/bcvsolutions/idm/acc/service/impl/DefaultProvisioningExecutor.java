@@ -2,15 +2,20 @@ package eu.bcvsolutions.idm.acc.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.event.TransactionalEventListener;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
+import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningBatch;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningRequest;
-import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
+import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningOperationRepository;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningExecutor;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBatchService;
@@ -22,6 +27,7 @@ import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.EventContext;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
 import eu.bcvsolutions.idm.core.notification.service.api.NotificationManager;
 
@@ -59,7 +65,24 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 	}
 
 	@Override
+	@Transactional
 	public SysProvisioningOperation execute(SysProvisioningOperation provisioningOperation) {
+		//
+		// execute - after original transaction is commited
+		entityEventManager.publishEvent(provisioningOperation);
+		return provisioningOperation;
+	}
+	
+	/**
+	 * We need to wait to transaction commit, when provisioning is executed - all accounts have to be prepared.
+	 * 
+	 * @param provisioningOperation
+	 * @return
+	 */
+	@Override
+	@TransactionalEventListener
+	@Transactional(noRollbackFor = ProvisioningException.class, propagation = Propagation.REQUIRES_NEW)
+	public SysProvisioningOperation executeInternal(SysProvisioningOperation provisioningOperation) {
 		Assert.notNull(provisioningOperation);
 		Assert.notNull(provisioningOperation.getSystem());
 		Assert.notNull(provisioningOperation.getProvisioningContext());
@@ -90,7 +113,7 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 			if (OperationState.NOT_EXECUTED == request.getResult().getState()) {
 				notificationManager.send(
 						AccModuleDescriptor.TOPIC_PROVISIONING,
-						new IdmMessageDto.Builder()
+						new IdmMessageDto.Builder(NotificationLevel.INFO)
 						.setModel(request.getResult().getModel())
 						.build());
 				return provisioningOperation;
@@ -102,6 +125,7 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 	}
 	
 	@Override
+	@Transactional
 	public SysProvisioningOperation cancel(SysProvisioningOperation provisioningOperation) {
 		// Cancel single request
 		CoreEvent<SysProvisioningOperation> event = new CoreEvent<SysProvisioningOperation>(ProvisioningEventType.CANCEL, provisioningOperation);
@@ -115,7 +139,7 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 		batch = batchService.get(batch.getId());
 		//
 		for (SysProvisioningRequest request : batch.getRequestsByTimeline()) {
-			SysProvisioningOperation operation = execute(request.getOperation());
+			SysProvisioningOperation operation = executeInternal(request.getOperation()); // not run in transaction
 			if (operation.getRequest() != null && OperationState.EXECUTED != operation.getResultState()) {
 				return;
 			}
@@ -124,6 +148,7 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 	}
 
 	@Override
+	@Transactional
 	public void cancel(SysProvisioningBatch batch) {
 		Assert.notNull(batch);
 		//

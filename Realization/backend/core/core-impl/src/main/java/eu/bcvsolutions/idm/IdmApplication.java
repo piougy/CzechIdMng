@@ -11,11 +11,13 @@ import org.springframework.plugin.core.config.EnablePluginRegistries;
 
 import eu.bcvsolutions.idm.core.api.config.flyway.IdmFlywayAutoConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.ModuleDescriptor;
+import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 @SpringBootApplication
 @EnableAutoConfiguration(exclude = { FlywayAutoConfiguration.class })
-@EnablePluginRegistries({ ModuleDescriptor.class })
 @EnableCaching
+@EnableSwagger2
+@EnablePluginRegistries({ ModuleDescriptor.class })
 public class IdmApplication extends SpringBootServletInitializer {
 	
 	@Override

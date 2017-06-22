@@ -3,45 +3,40 @@ package eu.bcvsolutions.idm.core.security.api.dto;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
-import eu.bcvsolutions.idm.core.security.api.domain.GuardedStringDeserializer;
+import io.swagger.annotations.ApiModelProperty;
 
-public class LoginDto {
-
-	private String username;
-	@JsonProperty(access = Access.WRITE_ONLY)
-	@JsonDeserialize(using = GuardedStringDeserializer.class)
-	private GuardedString password;
+/**
+ * Identity authentication
+ * 
+ * @author Svanda
+ * @author Radek Tomiška
+ *
+ */
+public class LoginDto extends LoginRequestDto {
+	
+	@JsonProperty(access = Access.READ_ONLY)
+	@ApiModelProperty(readOnly = true, notes = "Logged identity's authentication token.")
 	private String token;
+	@JsonProperty(access = Access.READ_ONLY)
+	@ApiModelProperty(readOnly = true, notes = "Logged identity's authentication with granted authorities.")
 	private IdmJwtAuthenticationDto authentication;
 	@JsonIgnore
 	private boolean skipMustChange = false;
-	// identifier which module authenticate user
-	private String authenticationModule;
+	@JsonProperty(access = Access.READ_ONLY)
+	@ApiModelProperty(readOnly = true, notes = "Which module authenticated identity.")
+	private String authenticationModule; // identifier - which module authenticated identity
 	
 	public LoginDto() {
 	}
 	
 	public LoginDto(String username, GuardedString password) {
-		this.username = username;
-		this.password = password;
+		super(username, password);
 	}
-
-	public String getUsername() {
-		return username;
-	}
-
-	public GuardedString getPassword() {
-		return password;
-	}
-
-	public void setPassword(GuardedString password) {
-		this.password = password;
-	}
-
-	public void setUsername(String username) {
-		this.username = username;
+	
+	public LoginDto(LoginRequestDto loginRequest) {
+		this(loginRequest.getUsername(), loginRequest.getPassword());
 	}
 
 	public String getToken() {

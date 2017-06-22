@@ -7,9 +7,12 @@ import { Basic, Advanced, Utils, Managers, Domain } from 'czechidm-core';
 import uuid from 'uuid';
 
 /**
-* Table of target sysstems
+* Table of target systems
+*
+* @author Radek Tomiška
+*
 */
-export class SystemTable extends Basic.AbstractContent {
+export class SystemTable extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);
@@ -20,6 +23,12 @@ export class SystemTable extends Basic.AbstractContent {
 
   getContentKey() {
     return 'acc:content.systems';
+  }
+
+  getManager() {
+    const { manager } = this.props;
+    //
+    return manager;
   }
 
   useFilter(event) {
@@ -45,15 +54,15 @@ export class SystemTable extends Basic.AbstractContent {
     }
   }
 
-  onDelete(bulkActionValue, selectedRows) {
+  onDuplicate(bulkActionValue, selectedRows) {
     const { manager, uiKey } = this.props;
     const selectedEntities = manager.getEntitiesByIds(this.context.store.getState(), selectedRows);
     //
-    this.refs['confirm-' + bulkActionValue].show(
+    this.refs['confirm-duplicate'].show(
       this.i18n(`action.${bulkActionValue}.message`, { count: selectedEntities.length, record: manager.getNiceLabel(selectedEntities[0]), records: manager.getNiceLabels(selectedEntities).join(', ') }),
       this.i18n(`action.${bulkActionValue}.header`, { count: selectedEntities.length, records: manager.getNiceLabels(selectedEntities).join(', ') })
     ).then(() => {
-      this.context.store.dispatch(manager.deleteEntities(selectedEntities, uiKey, (entity, error) => {
+      this.context.store.dispatch(manager.duplicateEntities(selectedEntities, uiKey, (entity, error) => {
         if (entity && error) {
           this.addErrorMessage({ title: this.i18n(`action.delete.error`, { record: manager.getNiceLabel(entity) }) }, error);
         } else {
@@ -71,6 +80,7 @@ export class SystemTable extends Basic.AbstractContent {
 
     return (
       <div>
+        <Basic.Confirm ref="confirm-duplicate" level="danger"/>
         <Basic.Confirm ref="confirm-delete" level="danger"/>
 
         <Advanced.Table
@@ -101,7 +111,8 @@ export class SystemTable extends Basic.AbstractContent {
           }
           actions={
             [
-              { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }
+              { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false },
+              { value: 'duplicate', niceLabel: this.i18n('action.duplicate.action'), action: this.onDuplicate.bind(this), disabled: false }
             ]
           }
           buttons={
@@ -118,6 +129,7 @@ export class SystemTable extends Basic.AbstractContent {
               </Basic.Button>
             ]
           }
+          _searchParameters={ this.getSearchParameters() }
           >
 
           <Advanced.Column
@@ -165,7 +177,7 @@ SystemTable.defaultProps = {
 
 function select(state, component) {
   return {
-    _searchParameters: state.data.ui[component.uiKey] ? state.data.ui[component.uiKey].searchParameters : {},
+    _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey),
     _showLoading: component.manager.isShowLoading(state, `${component.uiKey}-detail`)
   };
 }

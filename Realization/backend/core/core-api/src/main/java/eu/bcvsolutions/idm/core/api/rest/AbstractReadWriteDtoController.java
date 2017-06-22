@@ -9,12 +9,15 @@ import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
 
+import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.Authorization;
 
 /**
  * CRUD operations for DTO
@@ -37,12 +40,16 @@ public abstract class AbstractReadWriteDtoController<DTO extends BaseDto, F exte
 	 * @param dto
 	 * @return
 	 */
+	@ApiOperation(value = "Create / update record", authorizations = { 
+			@Authorization(SwaggerConfig.AUTHENTICATION_BASIC),
+			@Authorization(SwaggerConfig.AUTHENTICATION_CIDMST)
+			})
 	public ResponseEntity<?> post(DTO dto) {
 		return new ResponseEntity<>(toResource(postDto(dto)), HttpStatus.CREATED);
 	}
 
 	/**
-	 * Creates given DTO
+	 * Creates / updates given DTO
 	 * 
 	 * @param dto
 	 * @return
@@ -53,12 +60,16 @@ public abstract class AbstractReadWriteDtoController<DTO extends BaseDto, F exte
 	}
 
 	/**
-	 * Put DTO by given backendId and convert to response
+	 * Update DTO by given backendId and convert to response
 	 * 
 	 * @param backendId
 	 * @param dto
 	 * @return
 	 */
+	@ApiOperation(value = "Update record", authorizations = { 
+			@Authorization(SwaggerConfig.AUTHENTICATION_BASIC),
+			@Authorization(SwaggerConfig.AUTHENTICATION_CIDMST)
+			})
 	public ResponseEntity<?> put(String backendId, DTO dto) {
 		DTO updateDto = getDto(backendId);
 		if (updateDto == null) {
@@ -98,6 +109,10 @@ public abstract class AbstractReadWriteDtoController<DTO extends BaseDto, F exte
 	 * @param backendId
 	 * @return
 	 */
+	@ApiOperation(value = "Delete record", authorizations = { 
+			@Authorization(SwaggerConfig.AUTHENTICATION_BASIC),
+			@Authorization(SwaggerConfig.AUTHENTICATION_CIDMST)
+			})
 	public ResponseEntity<?> delete(String backendId) {
 		DTO dto = getDto(backendId);
 		if (dto == null) {

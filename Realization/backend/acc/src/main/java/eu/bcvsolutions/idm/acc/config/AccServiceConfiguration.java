@@ -1,14 +1,17 @@
 package eu.bcvsolutions.idm.acc.config;
 
+import javax.persistence.EntityManager;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemFormValue;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemFormValueService;
+import eu.bcvsolutions.idm.acc.service.impl.DefaultSysSystemFormValueService;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.eav.repository.AbstractFormValueRepository;
-import eu.bcvsolutions.idm.core.eav.service.impl.AbstractFormValueService;
 
 /**
  * Module services configuration
@@ -28,9 +31,9 @@ public class AccServiceConfiguration {
 	 * @return
 	 */
 	@Bean
-	public AbstractFormValueService<SysSystem, SysSystemFormValue> systemFormValueService(
+	public SysSystemFormValueService systemFormValueService(
 			AbstractFormValueRepository<SysSystem, SysSystemFormValue> repository, 
-			ConfidentialStorage confidentialStorage) {
-		return new AbstractFormValueService<SysSystem, SysSystemFormValue>(repository, confidentialStorage) {};
+			ConfidentialStorage confidentialStorage, EntityManager entityManager) {
+		return new DefaultSysSystemFormValueService(repository, confidentialStorage, entityManager) {};
 	}
 }

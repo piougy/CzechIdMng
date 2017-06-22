@@ -40,7 +40,8 @@ public abstract class DefaultReadWriteDtoController<DTO extends BaseDto, F exten
 	@Override
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.GET)
-	public Resources<?> find(@RequestParam MultiValueMap<String, Object> parameters,
+	public Resources<?> find(
+			@RequestParam(required = false) MultiValueMap<String, Object> parameters,
 			@PageableDefault Pageable pageable) {
 		return super.find(parameters, pageable);
 	}
@@ -53,18 +54,19 @@ public abstract class DefaultReadWriteDtoController<DTO extends BaseDto, F exten
 	 * @param assembler
 	 * @return
 	 */
+	@Override
 	@ResponseBody
 	@RequestMapping(value = "/search/quick", method = RequestMethod.GET)
 	public Resources<?> findQuick(
-			@RequestParam MultiValueMap<String, Object> parameters,
+			@RequestParam(required = false) MultiValueMap<String, Object> parameters,
 			@PageableDefault Pageable pageable) {
-		return super.find(parameters, pageable);
+		return super.findQuick(parameters, pageable);
 	}
 	
 	@ResponseBody
 	@RequestMapping(value = "/search/autocomplete", method = RequestMethod.GET)
 	public Resources<?> autocomplete(
-			@RequestParam MultiValueMap<String, Object> parameters,
+			@RequestParam(required = false) MultiValueMap<String, Object> parameters,
 			@PageableDefault Pageable pageable) {
 		return super.autocomplete(parameters, pageable);
 	}

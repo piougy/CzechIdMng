@@ -57,7 +57,7 @@ public class IdentityContractCreateByAutomaticRoleProcessor extends CoreEventPro
 	 */
 	@Override
 	public int getOrder() {
-		return super.getOrder() + 1;
+		return super.getOrder() + 100;
 	}
 
 }

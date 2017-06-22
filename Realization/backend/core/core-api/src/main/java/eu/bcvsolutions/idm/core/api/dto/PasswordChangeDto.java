@@ -15,6 +15,7 @@ import java.util.List;
  * Dto for password change
  *
  * @author Radek Tomiška
+ * @author Ondřej Kopr
  */
 public class PasswordChangeDto implements Serializable {
 
@@ -26,7 +27,7 @@ public class PasswordChangeDto implements Serializable {
     private GuardedString newPassword;
     private boolean idm = false; // change in idm
     private boolean all = false; // all - idm and all accounts - has higher priority
-    private List<String> accounts; // selected accounts
+    private List<String> accounts; // selected AccAccounts uuids
     @JsonIgnore
     private DateTime maxPasswordAge = null; // max password age for new password, get by password policy
 

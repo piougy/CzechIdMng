@@ -7,9 +7,11 @@ parameters:
 	-	changedFields
  -->
 
-<template>
-	<name>Notification sent when identity monitored fields were changed (core)</name>
+<template
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+		xsi:noNamespaceSchemaLocation="IdmNotificationTemplate.xsd">
 	<code>identityMonitoredFieldsChanged</code>
+	<name>Notification sent when identity monitored fields were changed (core)</name>
 	<subject>CzechIdM - Na účtu pro '$fullName ($identity.Username)' byly změněny monitorované položky!</subject>
 	<bodyHtml>
 <![CDATA[

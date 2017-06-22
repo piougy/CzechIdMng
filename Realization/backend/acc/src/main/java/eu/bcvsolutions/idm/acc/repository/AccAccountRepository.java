@@ -14,7 +14,6 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import eu.bcvsolutions.idm.acc.dto.filter.AccountFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 
 /**
@@ -47,7 +46,13 @@ public interface AccAccountRepository extends AbstractEntityRepository<AccAccoun
 	        " and" +
 	        " (?#{[0].systemEntityId} is null or se.id = ?#{[0].systemEntityId})" +
 	        " and" +
-	        " (?#{[0].identityId} is null or exists (from AccIdentityAccount ia where ia.account = e and ia.identity.id = ?#{[0].identityId}))" + 
+	        " ((?#{[0].identityId} is null and ?#{[0].ownership} is null) or exists"
+	        	+ " ("
+	        	+ 	" from AccIdentityAccount ia where ia.account = e "
+	        		+ "	and (?#{[0].identityId} is null or ia.identity.id = ?#{[0].identityId})"
+	        		+ " and (?#{[0].ownership} is null or ia.ownership = ?#{[0].ownership})"
+	        	+ " )" +
+        	" )" +
 	        " and" +
 	        " (?#{[0].accountType} is null or e.accountType = ?#{[0].accountType})")
 	Page<AccAccount> find(AccountFilter filter, Pageable pageable);
@@ -61,8 +66,8 @@ public interface AccAccountRepository extends AbstractEntityRepository<AccAccoun
 	 * @return
 	 */
 	@Modifying
-	@Query("update #{#entityName} e set e.systemEntity = null where e.systemEntity = :systemEntity")
-	int clearSystemEntity(@Param("systemEntity") SysSystemEntity systemEntity);
+	@Query("update #{#entityName} e set e.systemEntity = null where e.systemEntity.id = :systemEntityId")
+	int clearSystemEntity(@Param("systemEntityId") UUID systemEntityId);
 	
 	/**
 	 * Find all {@link AccAccount} by identity id and system id.

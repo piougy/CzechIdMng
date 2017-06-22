@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>eu.bcvsolutions.idm</groupId>
 	<artifactId>idm-parent</artifactId>
-	<version>7.3.0-rc.2-SNAPSHOT</version>
+	<version>7.3.0-rc.3-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>CzechIdM Parent</name>
@@ -59,16 +58,16 @@
 		<java.version>1.8</java.version>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
-		
+
 		<spring.profiles.active>default</spring.profiles.active>
-		
+
 		<surefire.version>2.20</surefire.version>
 		<camel.version>2.17.2</camel.version>
 		<swagger.version>2.7.0</swagger.version>
 		<swagger2markup.version>1.3.1</swagger2markup.version>
-		<guava.version>18.0</guava.version> <!-- swagger need at least 18 -->	
-		
-		<!-- 
+		<guava.version>18.0</guava.version> <!-- swagger need at least 18 -->
+
+		<!--
 			properties are used ind test and release profile,
 			test: swagger.json input is generated
 			release: swagger2markup and asciidoctor plugins require them
@@ -91,6 +90,9 @@
 		<repository>
 			<id>nexus-public</id>
 			<url>https://nexus.bcvsolutions.eu/repository/maven-public/</url>
+			<snapshots>
+	      <enabled>false</enabled>
+	    </snapshots>
 		</repository>
 	</repositories>
 
@@ -159,7 +161,7 @@
 			<artifactId>spring-boot-starter-data-rest</artifactId>
 		</dependency>
 
-		<!-- we are using entity lookups, which is not in version provided by dependency 
+		<!-- we are using entity lookups, which is not in version provided by dependency
 			management -->
 		<dependency>
 			<groupId>org.springframework.data</groupId>
@@ -505,7 +507,7 @@
 				</configuration>
 			</plugin>
 		</plugins>
-		
+
 		<resources>
 			<resource>
 				<filtering>false</filtering>
@@ -524,7 +526,7 @@
 				</includes>
 			</resource>
 		</resources>
-		
+
 		<!-- propagate maven properties to integration tests for swagger export -->
 		<testResources>
 			<testResource>
@@ -544,7 +546,7 @@
 				</includes>
 			</testResource>
 		</testResources>
-		
+
 	</build>
 	<!-- All profiles -->
 	<profiles>
@@ -595,7 +597,7 @@
 			<properties>
 				<spring.profiles.active>separatedApp</spring.profiles.active>
 			</properties>
-			<!-- DistrubitonManagment resolves deploying on remote servers/repositories 
+			<!-- DistrubitonManagment resolves deploying on remote servers/repositories
 				- used by goal 'deploy' -->
 			<distributionManagement>
 				<snapshotRepository>
@@ -623,7 +625,7 @@
 					<artifactId>h2</artifactId>
 				</dependency>
 			</dependencies>
-			<!-- DistrubitonManagment resolves deploying on remote servers/repositories 
+			<!-- DistrubitonManagment resolves deploying on remote servers/repositories
 				- used by goal 'deploy' -->
 			<distributionManagement>
 				<repository>

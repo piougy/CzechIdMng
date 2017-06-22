@@ -532,12 +532,14 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 		SysSystemAttributeMapping parentAttribute = getAttributeByIdmProperty(PARENT_FIELD, mappedAttributes);
 		SysSystemAttributeMapping codeAttribute = getAttributeByIdmProperty(CODE_FIELD, mappedAttributes);
 		if (parentAttribute == null) {
-			throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_ATTRIBUTE_NOT_FOUND,
-					ImmutableMap.of("name", PARENT_FIELD));
+//			throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_ATTRIBUTE_NOT_FOUND,
+//					ImmutableMap.of("name", PARENT_FIELD));
+			LOG.warn("Parent attribute is not specified! Organization tree will not be recomputed.");
 		}
 		if (codeAttribute == null) {
-			throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_ATTRIBUTE_NOT_FOUND,
-					ImmutableMap.of("name", CODE_FIELD));
+//			throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_ATTRIBUTE_NOT_FOUND,
+//					ImmutableMap.of("name", CODE_FIELD));
+			LOG.warn("Code attribute is not specified!");
 		}
 		// Find all roots
 		Collection<String> roots = findRoots(parentAttribute, accountsMap, config);
@@ -548,25 +550,31 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 			log.addToLog(MessageFormat.format("We found [{0}] roots: [{1}]", roots.size(), roots));
 		}
 
-
+		if (parentAttribute == null) {
+			// just alias all accounts as roots and process
+			roots.addAll(accountsMap.keySet());
+		}
 		for (String root : roots) {
 			accountsUseInTreeList.add(root);
-			IcConnectorObject parentIcObject = accountsMap.get(root);
+			IcConnectorObject account = accountsMap.get(root);
 
 			SynchronizationContext itemContext = SynchronizationContext.cloneContext(context);
-			itemContext.addUid(root)
+			itemContext
+					.addUid(root)
 					.addAccount(null)
-					.addIcObject(parentIcObject)
+					.addIcObject(account)
 					.addTokenAttribute(tokenAttribute);
 
 			boolean result = handleIcObject(itemContext);
 			if (!result) {
 				continue;
 			}
-			Object uidValueParent = this.getValueByMappedAttribute(uidAttribute, parentIcObject.getAttributes());
 
-			processChildren(parentAttribute, uidValueParent, uidAttribute, accountsMap, accountsUseInTreeList,
-					itemContext, roots);
+			if (parentAttribute != null) {
+				Object uidValueParent = this.getValueByMappedAttribute(uidAttribute, account.getAttributes());
+				processChildren(parentAttribute, uidValueParent, uidAttribute, accountsMap, accountsUseInTreeList,
+						itemContext, roots);
+			}
 		}
 
 		if (config.isReconciliation()) {
@@ -620,6 +628,9 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 	private Collection<String> findRoots(SysSystemAttributeMapping parentAttribute,
 										 Map<String, IcConnectorObject> accountsMap, SysSyncConfig config) {
 		Set<String> roots = Sets.newHashSet();
+		if (parentAttribute == null) {
+			return roots;
+		}
 		accountsMap.forEach((uid, account) -> {
 			if (StringUtils.hasLength(config.getRootsFilterScript())) {
 				Map<String, Object> variables = new HashMap<>();

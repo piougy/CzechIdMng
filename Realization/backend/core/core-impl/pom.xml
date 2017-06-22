@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>eu.bcvsolutions.idm</groupId>
 		<artifactId>idm-core</artifactId>
-		<version>7.3.0-rc.2-SNAPSHOT</version>
+		<version>7.3.0-rc.3-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>idm-core-impl</artifactId>
@@ -103,10 +103,10 @@
 								<doctype>book</doctype>
 								<toc>left</toc>
 								<toclevels>2</toclevels> <!-- Resources by tag names in menu only -->
-								<numbered></numbered>
-								<hardbreaks></hardbreaks>
-								<sectlinks></sectlinks>
-								<sectanchors></sectanchors>
+								<numbered />
+								<hardbreaks />
+								<sectlinks />
+								<sectanchors />
 								<generated>${generated.asciidoc.directory}</generated>
 							</attributes>
 						</configuration>

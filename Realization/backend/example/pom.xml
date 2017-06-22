@@ -102,10 +102,10 @@
 								<doctype>book</doctype>
 								<toc>left</toc>
 								<toclevels>2</toclevels> <!-- Resources by tag names in menu only -->
-								<numbered></numbered>
-								<hardbreaks></hardbreaks>
-								<sectlinks></sectlinks>
-								<sectanchors></sectanchors>
+								<numbered />
+								<hardbreaks />
+								<sectlinks />
+								<sectanchors />
 								<generated>${generated.asciidoc.directory}</generated>
 							</attributes>
 						</configuration>

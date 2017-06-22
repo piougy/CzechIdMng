@@ -47,7 +47,7 @@ class Audit extends Basic.AbstractContent {
             ||
             <AuditTable
               entityId={identity.id}
-              tableUiKey="identity-audit-table"
+              uiKey="identity-audit-table"
               entityClass="IdmIdentity"
               clickTarget={this.showDetail}
               columns={['id', 'modification', 'modifier', 'revisionDate', 'changedAttributes']}/>

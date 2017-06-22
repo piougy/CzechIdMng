@@ -131,11 +131,10 @@ export class AuditIdentityTable extends Basic.AbstractContent {
   }
 
   _getNiceLabelForOwner(ownerType, ownerCode) {
-    const type = this._getType(ownerType);
-    if (type) {
-      return type + ': ' + ownerCode;
+    if (ownerCode && ownerCode !== null && ownerCode !== 'null') {
+      return ownerCode;
     }
-    return ownerCode;
+    return '';
   }
 
   render() {

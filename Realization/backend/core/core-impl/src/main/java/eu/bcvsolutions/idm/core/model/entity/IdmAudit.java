@@ -48,7 +48,13 @@ import eu.bcvsolutions.idm.core.model.repository.listener.IdmAuditListener;
 		@Index(name = "idx_idm_audit_original_modifier", columnList = "original_modifier"),
 		@Index(name = "idx_idm_audit_modifier", columnList = "modifier"),
 		@Index(name = "idx_idm_audit_entity_id", columnList = "entity_id"),
-		@Index(name = "idx_idm_audit_changed_attributes", columnList = "changed_attributes") })
+		@Index(name = "idx_idm_audit_changed_attributes", columnList = "changed_attributes"),
+		@Index(name = "idx_idm_audit_owner_id", columnList = "owner_id"),
+		@Index(name = "idx_idm_audit_owner_code", columnList = "owner_code"),
+		@Index(name = "idx_idm_audit_owner_type", columnList = "owner_type"),
+		@Index(name = "idx_idm_audit_sub_owner_id", columnList = "sub_owner_id"),
+		@Index(name = "idx_idm_audit_sub_owner_code", columnList = "sub_owner_code"),
+		@Index(name = "idx_idm_audit_sub_owner_type", columnList = "sub_owner_type")})
 public class IdmAudit implements BaseEntity {
 
 	private static final long serialVersionUID = -2762812245969363775L;

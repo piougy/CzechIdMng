@@ -130,7 +130,12 @@ public class IdmAuditListener implements EntityTrackingRevisionListener {
 		// entity id
 		revisionEntity.setEntityId((UUID) entityId);
 		//
-		AbstractEntity currentEntity = (AbstractEntity) entityManger.find(entityClass, entityId);
+		AbstractEntity currentEntity = null;
+		if (revisionType == RevisionType.DEL) {
+			currentEntity = auditService.getActualRemovedEntity(entityClass, entityId);
+		} else {
+			currentEntity = (AbstractEntity) entityManger.find(entityClass, entityId);
+		}
 		if (currentEntity instanceof AuditSearchable) {
 			AuditSearchable searchableEntity = ((AuditSearchable) currentEntity);
 			revisionEntity.setOwnerCode(searchableEntity.getOwnerCode());

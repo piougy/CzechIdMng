@@ -333,6 +333,7 @@ public class DefaultAuditServiceTest extends AbstractIntegrationTest {
 				IdmIdentityDto identity = identityService.getByCode(username);
 				identity.setFirstName(username + "--edit");
 				identity = identityService.save(identity);
+				// hibernate send this as one query 
 				//
 				identityService.delete(identity);
 				return null;
@@ -342,7 +343,8 @@ public class DefaultAuditServiceTest extends AbstractIntegrationTest {
 		MultiValueMap<String, Object> parameters = new LinkedMultiValueMap<>();
 		parameters.put("username", ImmutableList.of(username));
 		List<IdmAuditDto> audits = auditService.findEntityWithRelation(IdmIdentity.class, parameters, null).getContent();
-		assertEquals(3, audits.size());
+		// add idenity + contract -- delete identity + contract	
+		assertEquals(4, audits.size());
 	}
 
 	private IdmRole constructRole(String name) {

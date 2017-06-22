@@ -163,7 +163,7 @@ export function data(state = INITIAL_STATE, action) {
       const entityType = action.entityType;
       let entities = state.entity[entityType] || new Immutable.Map({});
       let trimmed = state.trimmed[entityType] || new Immutable.Map({});
-      const isTrimmed = action.entity._trimmed === true;
+      const isTrimmed = action.entity && action.entity._trimmed === true;
       if (isTrimmed) {
         // trimmed
         trimmed = trimmed.set(action.id, action.entity);

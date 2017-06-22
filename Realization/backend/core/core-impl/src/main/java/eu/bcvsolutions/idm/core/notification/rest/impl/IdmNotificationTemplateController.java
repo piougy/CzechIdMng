@@ -91,24 +91,24 @@ public class IdmNotificationTemplateController extends DefaultReadWriteDtoContro
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}/redeploy", method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + NotificationGroupPermission.NOTIFICATIONTEMPLATE_READ + "')")
-	public ResponseEntity<?> redeployEntity(@PathVariable @NotNull String backendId) {
+	public ResponseEntity<?> redeploy(@PathVariable @NotNull String backendId) {
 		IdmNotificationTemplateDto template = notificationTemplateService.get(backendId);
 		if (template == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, backendId);
 		}
-		template = notificationTemplateService.redeployDto(template);
+		template = notificationTemplateService.redeploy(template);
 		return new ResponseEntity<>(toResource(template), HttpStatus.OK);
 	}
 	
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}/backup", method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + NotificationGroupPermission.NOTIFICATIONTEMPLATE_READ + "')")
-	public ResponseEntity<?> backupEntity(@PathVariable @NotNull String backendId) {
+	public ResponseEntity<?> backup(@PathVariable @NotNull String backendId) {
 		IdmNotificationTemplateDto template = notificationTemplateService.get(backendId);
 		if (template == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, backendId);
 		}
-		notificationTemplateService.backupDto(template, null);
+		notificationTemplateService.backup(template);
 		return new ResponseEntity<>(toResource(template), HttpStatus.OK);
 	}
 	

@@ -29,4 +29,12 @@ public interface IdmScriptAuthorityService extends ReadWriteDtoService<IdmScript
 	 * @return
 	 */
 	List<AvailableServiceDto> findServices(String serviceName);
+	
+	/**
+	 * Check if service is allowed for use in script;
+	 * 
+	 * @param dto
+	 * @return
+	 */
+	boolean isServiceReachable(String serviceName, String className);
 }

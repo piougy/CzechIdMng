@@ -14,6 +14,7 @@ parameters:
 <script>
 	<name>Is account for given UID in protection mode?</name>
 	<code>isAccountInProtection</code>
+	<category>TRANSFORM_TO</category>
 	<type>groovy</type>
 	<body>
 	<![CDATA[
@@ -31,16 +32,16 @@ parameters:
 	return false;
 	]]>
 	</body>
-	<inputParameter>uid, system</inputParameter>
+	<parameters>uid, system</parameters>
 	<services>
 		<service>
 			<name>accAccountService</name>
-			<class>eu.bcvsolutions.idm.acc.service.impl.DefaultAccAccountService</class>
+			<className>eu.bcvsolutions.idm.acc.service.impl.DefaultAccAccountService</className>
 		</service>
 	</services>
 	<allowClasses>
-		<class>eu.bcvsolutions.idm.acc.entity.AccAccount</class>
+		<allowClass>
+			<className>eu.bcvsolutions.idm.acc.entity.AccAccount</className>
+		</allowClass>
 	</allowClasses>
-	<systemTemplate>true</systemTemplate>
-	<moduleId>acc</moduleId>
 </script>

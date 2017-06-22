@@ -65,15 +65,7 @@ public class DefaultIdmScriptAuthorityService extends AbstractReadWriteDtoServic
 			}
 		} else {
 			// check service name with available services
-			boolean isNotAvailableService = this.findServices(null).stream()
-				.filter(
-						service -> (
-								service.getServiceName().equals(dto.getService()) &&
-								service.getServiceClass().equals(dto.getClassName())
-								)
-						).collect(Collectors.toList()).isEmpty();
-			//
-			if (isNotAvailableService) {
+			if (!isServiceReachable(dto.getService(), dto.getClassName())) {
 				throw new ResultCodeException(
 						CoreResultCode.GROOVY_SCRIPT_NOT_ACCESSIBLE_SERVICE,
 						ImmutableMap.of("service", dto.getService()));
@@ -125,6 +117,18 @@ public class DefaultIdmScriptAuthorityService extends AbstractReadWriteDtoServic
 	 */
 	private String getServiceClassName(Object value) {
 		return AopUtils.getTargetClass(value).getName();
+	}
+
+	@Override
+	public boolean isServiceReachable(String serviceName, String className) {
+		//
+		return !this.findServices(null).stream()
+				.filter(
+						service -> (
+								service.getServiceName().equals(serviceName) &&
+								service.getServiceClass().equals(className)
+								)
+						).collect(Collectors.toList()).isEmpty();
 	}
 
 }

@@ -26,6 +26,7 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmScriptService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeTypeService;
 import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationConfigurationService;
@@ -83,6 +84,8 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 	private FormService formService;	
 	@Autowired
 	private IdmAuthorizationPolicyService authorizationPolicyService;
+	@Autowired
+	private IdmScriptService scriptService;
 
 	@Override
 	public void onApplicationEvent(ContextRefreshedEvent event) {
@@ -171,8 +174,11 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 					organizationRoot = this.treeNodeService.save(organizationRoot);
 				}
 			}
-			// save only missing templates, current templates is not redeploys
-			notificationTemplateService.initSystemTemplates();
+			// initial missing templates, current templates isn't redeploys
+			notificationTemplateService.init();
+			//
+			// initial missing scripts, current scrit isn't redploy
+			scriptService.init();
 			//
 			// init notification configuration, initialization topic need exists system templates!
 			notificationConfigurationService.initDefaultTopics();

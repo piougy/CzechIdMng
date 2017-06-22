@@ -30,6 +30,7 @@ import org.hibernate.envers.RevisionTimestamp;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
+import eu.bcvsolutions.idm.core.api.dto.IdmAuditDto;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.model.repository.listener.IdmAuditListener;
 
@@ -52,6 +53,8 @@ public class IdmAudit implements BaseEntity {
 
 	private static final long serialVersionUID = -2762812245969363775L;
 
+	// use CHANGED_COLUMNS_DELIMITER from IdmAuditDto
+	@Deprecated
 	public static final String DELIMITER = ",";
 	
 	@Id
@@ -99,6 +102,24 @@ public class IdmAudit implements BaseEntity {
 	@Column(name = "realm_id")
 	@JsonIgnore // TODO: remove after implementation
 	private UUID realmId;
+	
+	@Column(name = "owner_id")
+	private String ownerId;
+	
+	@Column(name = "owner_code")
+	private String ownerCode;
+	
+	@Column(name = "owner_type")
+	private String ownerType;
+	
+	@Column(name = "sub_owner_id")
+	private String subOwnerId;
+	
+	@Column(name = "sub_owner_code")
+	private String subOwnerCode;
+	
+	@Column(name = "sub_owner_type")
+	private String subOwnerType;
 	
 	@Override
 	public Serializable getId() {
@@ -182,17 +203,20 @@ public class IdmAudit implements BaseEntity {
 		this.modification = modification;
 	}
 	
-	public void addChanged(String changedColumns) {
-		// TODO: use StringBuilder?
+	public void addChanged(String changedColumn) {
 		if (this.changedAttributes == null || this.changedAttributes.isEmpty()) {
-			this.changedAttributes = changedColumns;
+			this.changedAttributes = changedColumn;
 		} else {
-			this.changedAttributes += DELIMITER + " " + changedColumns;
+			StringBuilder stringBuilder = new StringBuilder(this.changedAttributes);
+			stringBuilder.append(IdmAuditDto.CHANGED_COLUMNS_DELIMITER);
+			stringBuilder.append(" ");
+			stringBuilder.append(changedColumn);
+			this.changedAttributes = stringBuilder.toString();
 		}
 	}
 	
 	public void addChanged(List<String> changedColumns) {
-		this.addChanged(String.join(DELIMITER, changedColumns));
+		this.addChanged(String.join(IdmAuditDto.CHANGED_COLUMNS_DELIMITER, changedColumns));
 	}
 
 	public long getTimestamp() {
@@ -252,5 +276,53 @@ public class IdmAudit implements BaseEntity {
 				+ "id = " + serialVersionUID
 				+ ", revisionDate = " + DateFormat.getDateTimeInstance().format( getRevisionDate() )
 				+ ", modifiedEntityNames = " + modifiedEntityNames + ")";
+	}
+
+	public String getOwnerId() {
+		return ownerId;
+	}
+
+	public void setOwnerId(String ownerId) {
+		this.ownerId = ownerId;
+	}
+
+	public String getOwnerCode() {
+		return ownerCode;
+	}
+
+	public void setOwnerCode(String ownerCode) {
+		this.ownerCode = ownerCode;
+	}
+
+	public String getOwnerType() {
+		return ownerType;
+	}
+
+	public void setOwnerType(String ownerType) {
+		this.ownerType = ownerType;
+	}
+
+	public String getSubOwnerId() {
+		return subOwnerId;
+	}
+
+	public void setSubOwnerId(String subOwnerId) {
+		this.subOwnerId = subOwnerId;
+	}
+
+	public String getSubOwnerCode() {
+		return subOwnerCode;
+	}
+
+	public void setSubOwnerCode(String subOwnerCode) {
+		this.subOwnerCode = subOwnerCode;
+	}
+
+	public String getSubOwnerType() {
+		return subOwnerType;
+	}
+
+	public void setSubOwnerType(String subOwnerType) {
+		this.subOwnerType = subOwnerType;
 	}
 }

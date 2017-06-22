@@ -1,5 +1,6 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
+import _ from 'lodash';
 //
 import * as Utils from '../../../utils';
 import * as Basic from '../../../components/basic';
@@ -62,8 +63,11 @@ export class AuditIdentityTable extends Basic.AbstractContent {
   * Used for get niceLabel for type entity.
   */
   _getType(name) {
-    const type = name.split('.');
-    return type[type.length - 1];
+    if (name) {
+      const type = name.split('.');
+      return type[type.length - 1];
+    }
+    return null;
   }
 
   _getAdvancedFilter(auditedEntities, showLoading) {
@@ -126,6 +130,14 @@ export class AuditIdentityTable extends Basic.AbstractContent {
     return auditManager.getDefaultSearchParameters().setName('entity').setFilter('entity', 'eu.bcvsolutions.idm.core.model.entity.IdmIdentity');
   }
 
+  _getNiceLabelForOwner(ownerType, ownerCode) {
+    const type = this._getType(ownerType);
+    if (type) {
+      return type + ': ' + ownerCode;
+    }
+    return ownerCode;
+  }
+
   render() {
     const { tableUiKey } = this.props;
     const { showLoading, auditedEntities } = this.state;
@@ -184,6 +196,18 @@ export class AuditIdentityTable extends Basic.AbstractContent {
                 );
               }
             }/>
+          <Advanced.Column property="ownerCode" face="text"
+            cell={
+              ({ rowIndex, data }) => {
+                return this._getNiceLabelForOwner(data[rowIndex].ownerType, data[rowIndex].ownerCode);
+              }}
+          />
+          <Advanced.Column property="subOwnerCode" face="text"
+            cell={
+              ({ rowIndex, data }) => {
+                return this._getNiceLabelForOwner(data[rowIndex].subOwnerType, data[rowIndex].subOwnerCode);
+              }}
+          />
           <Advanced.Column
             property="modification"
             width={ 100 }
@@ -195,6 +219,14 @@ export class AuditIdentityTable extends Basic.AbstractContent {
               />
           <Advanced.Column property="modifier" sort face="text"/>
           <Advanced.Column property="timestamp" header={this.i18n('entity.Audit.revisionDate')} sort face="datetime"/>
+          <Advanced.Column hidden
+            property="changedAttributes"
+            cell={
+              ({ rowIndex, data, property }) => {
+                return _.replace(data[rowIndex][property], ',', ', ');
+              }
+            }
+          />
         </Advanced.Table>
       </div>
     );

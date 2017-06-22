@@ -2,6 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import * as Basic from '../../components/basic';
 import AuditTable from './AuditTable';
+import Helmet from 'react-helmet';
 
 class AuditContent extends Basic.AbstractContent {
 
@@ -20,6 +21,7 @@ class AuditContent extends Basic.AbstractContent {
   render() {
     return (
       <div>
+        <Helmet title={this.i18n('title')} />
         <AuditTable />
       </div>
     );

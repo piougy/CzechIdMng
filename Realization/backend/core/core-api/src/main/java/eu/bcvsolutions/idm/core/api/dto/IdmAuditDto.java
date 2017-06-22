@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.core.api.dto;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -18,6 +19,8 @@ import org.springframework.hateoas.core.Relation;
 public class IdmAuditDto implements BaseDto {
 
 	private static final long serialVersionUID = 6910043282740335765L;
+	
+	public static String CHANGED_COLUMNS_DELIMITER = ",";
 
 	private Long id;
 
@@ -38,6 +41,18 @@ public class IdmAuditDto implements BaseDto {
     private String originalModifier;
 	
 	private UUID originalModifierId;
+	
+	private String ownerId;
+	
+	private String ownerCode;
+	
+	private String ownerType;
+	
+	private String subOwnerId;
+	
+	private String subOwnerCode;
+	
+	private String subOwnerType;
 
     public UUID getModifierId() {
         return modifierId;
@@ -138,5 +153,68 @@ public class IdmAuditDto implements BaseDto {
 	public void setOriginalModifierId(UUID originalModifierId) {
 		this.originalModifierId = originalModifierId;
 	}
-    
+
+	public String getOwnerId() {
+		return ownerId;
+	}
+
+	public void setOwnerId(String ownerId) {
+		this.ownerId = ownerId;
+	}
+
+	public String getOwnerCode() {
+		return ownerCode;
+	}
+
+	public void setOwnerCode(String ownerCode) {
+		this.ownerCode = ownerCode;
+	}
+
+	public String getOwnerType() {
+		return ownerType;
+	}
+
+	public void setOwnerType(String ownerType) {
+		this.ownerType = ownerType;
+	}
+
+	public String getSubOwnerId() {
+		return subOwnerId;
+	}
+
+	public void setSubOwnerId(String subOwnerId) {
+		this.subOwnerId = subOwnerId;
+	}
+
+	public String getSubOwnerCode() {
+		return subOwnerCode;
+	}
+
+	public void setSubOwnerCode(String subOwnerCode) {
+		this.subOwnerCode = subOwnerCode;
+	}
+
+	public String getSubOwnerType() {
+		return subOwnerType;
+	}
+
+	public void setSubOwnerType(String subOwnerType) {
+		this.subOwnerType = subOwnerType;
+	}
+	
+	public void addChanged(String changedColumn) {
+		if (this.changedAttributes == null || this.changedAttributes.isEmpty()) {
+			this.changedAttributes = changedColumn;
+		} else {
+			StringBuilder stringBuilder = new StringBuilder(this.changedAttributes);
+			stringBuilder.append(CHANGED_COLUMNS_DELIMITER);
+			stringBuilder.append(" ");
+			stringBuilder.append(changedColumn);
+			this.changedAttributes = stringBuilder.toString();
+		}
+	}
+	
+	public void addChanged(List<String> changedColumns) {
+		this.addChanged(String.join(IdmAuditDto.CHANGED_COLUMNS_DELIMITER, changedColumns));
+	}
 }

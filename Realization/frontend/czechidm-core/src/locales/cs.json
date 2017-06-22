@@ -2417,7 +2417,13 @@
       "key": "Atribut",
       "value": "Hodnota",
       "entityId": "Id entity",
-      "entity": "Entita (IdM)"
+      "entity": "Entita (IdM)",
+      "ownerId": "Id vlastníka",
+      "ownerType": "Typ vlastníka",
+      "ownerCode": "Kód vlastníka",
+      "subOwnerId": "Id sub vlastníka",
+      "subOwnerType": "Typ sub vlastníka",
+      "subOwnerCode": "Kód sub vlastníka"
     },
     "PasswordPolicy": {
       "type": "Typ",

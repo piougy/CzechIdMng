@@ -289,7 +289,7 @@ AuditTable.propTypes = {
 };
 
 AuditTable.defaultProps = {
-  columns: ['id', 'type', 'modification', 'modifier', 'revisionDate', 'entityId'],
+  columns: ['id', 'type', 'modification', 'modifier', 'revisionDate', 'entityId', 'changedAttributes'],
   isDetail: false,
   tableUiKey: 'audit-table'
 };

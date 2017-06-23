@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.example.config.flyway;
+package eu.bcvsolutions.idm.acc.config.flyway;
 
 import org.flywaydb.core.Flyway;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
@@ -18,7 +18,7 @@ import eu.bcvsolutions.idm.core.api.config.flyway.AbstractFlywayConfiguration;
 import eu.bcvsolutions.idm.core.api.config.flyway.IdmFlywayAutoConfiguration;
 
 /**
- * DB migration for example module
+ * DB migration for module acc
  * 
  * @author Radek Tomiška
  *
@@ -28,19 +28,19 @@ import eu.bcvsolutions.idm.core.api.config.flyway.IdmFlywayAutoConfiguration;
 @ConditionalOnProperty(prefix = "flyway", name = "enabled", matchIfMissing = false)
 @AutoConfigureAfter(IdmFlywayAutoConfiguration.IdmFlywayConfiguration.class)
 @EnableConfigurationProperties(FlywayProperties.class)
-@PropertySource("classpath:/flyway-example.properties")
-public class FlywayConfigExample extends AbstractFlywayConfiguration {
+@PropertySource("classpath:/flyway-acc.properties")
+public class AccFlywayConfig extends AbstractFlywayConfiguration {
 	
-	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(FlywayConfigExample.class);
+	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(AccFlywayConfig.class);
 
 	@Bean
 	@DependsOn("flywayCore")
-	@ConditionalOnMissingBean(name = "flywayModuleExample")
-	@ConditionalOnExpression("${flyway.enabled:true} && '${flyway.example.locations}'!=''")
-	@ConfigurationProperties(prefix = "flyway.example")
-	public Flyway flywayModuleExample() {
+	@ConditionalOnMissingBean(name = "flywayAcc")
+	@ConditionalOnExpression("${flyway.enabled:true} && '${flyway.acc.locations}'!=''")
+	@ConfigurationProperties(prefix = "flyway.acc")
+	public Flyway flywayAcc() {
 		Flyway flyway = super.createFlyway();		
-		log.info("Starting flyway migration for example module [{}]: ", flyway.getTable());
+		log.info("Starting flyway migration for module acc [{}]: ", flyway.getTable());
 		return flyway;
 	}
 }

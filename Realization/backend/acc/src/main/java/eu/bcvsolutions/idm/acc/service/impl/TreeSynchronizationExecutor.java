@@ -666,7 +666,9 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 			Object parentValue = super.getValueByMappedAttribute(parentAttribute, account.getAttributes());
 			if (parentValue != null && parentValue.equals(uidValueParent)) {
 				// Account is use in tree
-				accountsUseInTreeList.add(uid);
+				if(!accountsUseInTreeList.contains(uid)){
+					accountsUseInTreeList.add(uid);
+				}
 				// Do provisioning for this account
 				SynchronizationContext itemContext = SynchronizationContext.cloneContext(context);
 				itemContext

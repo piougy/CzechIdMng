@@ -1,6 +1,6 @@
 {
   "name": "czechidm-app",
-  "version": "7.3.0-rc.3",
+  "version": "7.3.0-rc.4-snapshot",
   "description": "Main application module for czechidm.",
   "main": "index.html",
   "repository": {

@@ -4,6 +4,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -525,20 +526,16 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 		SysSyncLog log = context.getLog();
 		List<SysSyncActionLog> actionsLog = context.getActionLogs();
 		AttributeMapping tokenAttribute = context.getTokenAttribute();
-		List<String> accountsUseInTreeList = new ArrayList<>();
+		Set<String> accountsUseInTreeList = new HashSet<>();
 		
 		// Find UID/PARENT/CODE attribute
 		SysSystemAttributeMapping uidAttribute = systemAttributeMappingService.getUidAttribute(mappedAttributes, system);
 		SysSystemAttributeMapping parentAttribute = getAttributeByIdmProperty(PARENT_FIELD, mappedAttributes);
 		SysSystemAttributeMapping codeAttribute = getAttributeByIdmProperty(CODE_FIELD, mappedAttributes);
 		if (parentAttribute == null) {
-//			throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_ATTRIBUTE_NOT_FOUND,
-//					ImmutableMap.of("name", PARENT_FIELD));
 			LOG.warn("Parent attribute is not specified! Organization tree will not be recomputed.");
 		}
 		if (codeAttribute == null) {
-//			throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_ATTRIBUTE_NOT_FOUND,
-//					ImmutableMap.of("name", CODE_FIELD));
 			LOG.warn("Code attribute is not specified!");
 		}
 		// Find all roots
@@ -567,7 +564,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 
 			boolean result = handleIcObject(itemContext);
 			if (!result) {
-				continue;
+				return;
 			}
 
 			if (parentAttribute != null) {
@@ -673,7 +670,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 	 */
 	private void processChildren(SysSystemAttributeMapping parentAttribute, Object uidValueParent,
 			SysSystemAttributeMapping uidAttribute, Map<String, IcConnectorObject> accountsMap,
-			List<String> accountsUseInTreeList, SynchronizationContext context, Collection<String> roots) {
+			Set<String> accountsUseInTreeList, SynchronizationContext context, Collection<String> roots) {
 
 		accountsMap.forEach((uid, account) -> {
 			if (roots.contains(uid)) {
@@ -682,9 +679,8 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 			Object parentValue = super.getValueByMappedAttribute(parentAttribute, account.getAttributes());
 			if (parentValue != null && parentValue.equals(uidValueParent)) {
 				// Account is use in tree
-				if(!accountsUseInTreeList.contains(uid)){
-					accountsUseInTreeList.add(uid);
-				}
+				accountsUseInTreeList.add(uid);
+
 				// Do provisioning for this account
 				SynchronizationContext itemContext = SynchronizationContext.cloneContext(context);
 				itemContext

@@ -1,10 +1,12 @@
 package eu.bcvsolutions.idm.core.model.repository;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import eu.bcvsolutions.idm.core.api.dto.filter.RoleTreeNodeFilter;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
@@ -47,4 +49,20 @@ public interface IdmRoleTreeNodeRepository extends AbstractEntityRepository<IdmR
 				+ " (e.recursionType = 'UP' and n.forestIndex.lft between ?#{[0].lft} and ?#{[0].rgt})"
 			+ " )")
 	List<IdmRoleTreeNode> findAutomaticRoles(IdmTreeNode treeNode);
+	
+	/**
+	 * Count of automatic roles assigned to given role
+	 * 
+	 * @param roleId
+	 * @return
+	 */
+	Long countByRole_Id(@Param("roleId") UUID roleId);
+	
+	/**
+	 * Count of automatic roles assigned to given tree node
+	 * 
+	 * @param treeNodeId
+	 * @return
+	 */
+	Long countByTreeNode_Id(@Param("treeNodeId") UUID treeNodeId);
 }

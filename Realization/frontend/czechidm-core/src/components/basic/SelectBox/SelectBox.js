@@ -203,7 +203,7 @@ class SelectBox extends AbstractFormComponent {
   }
 
   normalizeValue(value) {
-    const { manager } = this.props;
+    const { manager, label } = this.props;
     //
     if (value) {
       // value is array ... multiselect
@@ -268,8 +268,20 @@ class SelectBox extends AbstractFormComponent {
           }, () => {
             this.context.store.dispatch(manager.autocompleteEntityIfNeeded(value, null, (json, error) => {
               if (!error) {
-                this.itemRenderer(json, '');
-                this.setState({ value: json, isLoading: false }, this.validate);
+                if (!json) {
+                  this.setState({
+                    value: null,
+                    isLoading: false,
+                    error: {
+                      title: label,
+                      level: 'warning',
+                      message: this.i18n('security.record.notFound')
+                    }
+                  });
+                } else {
+                  this.itemRenderer(json, '');
+                  this.setState({ value: json, isLoading: false }, this.validate);
+                }
               } else {
                 this.setState({
                   value: null,

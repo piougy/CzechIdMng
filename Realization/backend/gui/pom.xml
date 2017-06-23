@@ -4,7 +4,7 @@
 
 	<groupId>eu.bcvsolutions.idm</groupId>
 	<artifactId>idm-gui</artifactId>
-	<version>7.3.0-rc.3-SNAPSHOT</version>
+	<version>7.3.0-rc.3</version>
 	<packaging>war</packaging>
 	
 	<name>CzechIdM GUI</name>

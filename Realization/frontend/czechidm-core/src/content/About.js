@@ -20,9 +20,9 @@ export default class About extends Basic.AbstractContent {
                 </div>
                 <div className="about-text">
                   {/* TODO: load properties from public configuration */}
-                  <big>{this.i18n('app.version.frontend')}: Citrine.rc2</big>
+                  <big>{this.i18n('app.version.frontend')}: Citrine.rc3</big>
                   <br />
-                  <big>{this.i18n('app.version.releaseDate')}: <Advanced.DateValue value="2017-06-22"/></big>
+                  <big>{this.i18n('app.version.releaseDate')}: <Advanced.DateValue value="2017-06-23"/></big>
                   <br />
                   <a href={this.i18n('app.author.homePage')} target="_blank">{this.i18n('app.author.name')}</a>
                   <br />

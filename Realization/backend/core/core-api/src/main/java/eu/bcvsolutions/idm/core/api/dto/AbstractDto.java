@@ -30,7 +30,7 @@ public abstract class AbstractDto implements BaseDto, Auditable {
 	private static final long serialVersionUID = 7512463222974374742L;
 	//
 	@JsonDeserialize(as = UUID.class)
-	@ApiModelProperty(required = true, notes = "Unique uuid identifier. Used as identifier in rest endpoints", dataType = "uuid")
+	@ApiModelProperty(required = true, notes = "Unique uuid identifier. Used as identifier in rest endpoints", dataType = "java.util.UUID")
 	private UUID id;
 	@ApiModelProperty(readOnly = true)
 	private DateTime created;

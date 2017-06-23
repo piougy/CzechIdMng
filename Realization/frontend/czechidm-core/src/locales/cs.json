@@ -2968,6 +2968,14 @@
     "BACKUP_FOLDER_NOT_FOUND": {
       "title": "Složka pro zálohování neexistuje",
       "message": "Prosím specifikujte složku pomocí konfigurační proměnné: [{{property}}]."
+    },
+    "ROLE_DELETE_FAILED_HAS_TREE_NODE": {
+      "title": "Role nelze odebrat",
+      "message": "Role [{{role}}] obsahuje konfiguraci automatické role, jejíž odebrání musí býti schváleno. Odeberte automatickou roli, poté bude možné roli odebrat."
+    },
+    "TREE_NODE_DELETE_FAILED_HAS_ROLE": {
+      "title": "Prvek stromové struktury nelze odebrat",
+      "message": "Prvek [{{treeNode}}] obsahuje konfiguraci automatické role, jejíž odebrání musí býti schváleno. Odeberte automatickou roli, poté bude možné prvek odebrat."
     }
   },
   "validationError": {
@@ -3014,6 +3022,9 @@
       "link": {
         "denied": "Pro zobrazení detailu záznamu nemáte oprávnění"
       }
+    },
+    "record": {
+      "notFound" : "Záznam nebyl nalezen nebo nemáte dostatečné oprávnění pro zobrazení záznamu."
     }
   }
 }

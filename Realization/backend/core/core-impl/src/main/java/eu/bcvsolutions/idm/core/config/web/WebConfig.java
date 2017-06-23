@@ -30,7 +30,7 @@ import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.api.rest.domain.NotExportedAssociations;
 import eu.bcvsolutions.idm.core.api.rest.domain.RequestResourceResolver;
 import eu.bcvsolutions.idm.core.config.domain.DynamicCorsConfiguration;
-import eu.bcvsolutions.idm.core.config.flyway.FlywayConfigCore;
+import eu.bcvsolutions.idm.core.config.flyway.CoreFlywayConfig;
 import eu.bcvsolutions.idm.core.exception.RestErrorAttributes;
 import eu.bcvsolutions.idm.core.security.service.impl.JwtAuthenticationMapper;
 
@@ -43,7 +43,7 @@ import eu.bcvsolutions.idm.core.security.service.impl.JwtAuthenticationMapper;
  *
  */
 @Configuration
-@AutoConfigureAfter({ FlywayConfigCore.class })
+@AutoConfigureAfter({ CoreFlywayConfig.class })
 public class WebConfig extends RepositoryRestMvcConfiguration {
 
 	@PersistenceContext

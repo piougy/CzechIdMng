@@ -492,13 +492,16 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		Map<UUID, UUID> mappedAttributesCache = new HashMap<UUID, UUID>();
 
 		// Duplicate connector configuration values in EAV
-		IdmFormDefinition formDefinition = getConnectorFormDefinition(originalSystem.getConnectorInstance());
-		List<AbstractFormValue<SysSystem>> originalFormValues = this.getFormService().getValues(id, SysSystem.class,
-				formDefinition);
-		originalFormValues.stream().forEach(value -> {
-			systemFormValueService.duplicate(value.getId(), system);
-		});
-
+		IcConnectorInstance connectorInstance = originalSystem.getConnectorInstance();
+		if(connectorInstance != null && connectorInstance.getConnectorKey() != null && connectorInstance.getConnectorKey().getFramework() != null){
+			IdmFormDefinition formDefinition = getConnectorFormDefinition(originalSystem.getConnectorInstance());
+			List<AbstractFormValue<SysSystem>> originalFormValues = this.getFormService().getValues(id, SysSystem.class,
+					formDefinition);
+			originalFormValues.stream().forEach(value -> {
+				systemFormValueService.duplicate(value.getId(), system);
+			});
+		}
+		
 		// Duplicate schema
 		SchemaObjectClassFilter objectClassFilter = new SchemaObjectClassFilter();
 		objectClassFilter.setSystemId(id);

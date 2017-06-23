@@ -2906,6 +2906,14 @@
     "BACKUP_FOLDER_NOT_FOUND": {
       "title": "Folder for backup dont exists",
       "message": "Please specify this property: [{{property}}] in configuration properties."
+    },
+    "ROLE_DELETE_FAILED_HAS_TREE_NODE": {
+      "title": "Role cannot be deleted",
+      "message": "Role [{{role}}] has assigned automatic role, which cannot be deleted without approving. Remove automatic role at first."
+    },
+    "TREE_NODE_DELETE_FAILED_HAS_ROLE": {
+      "title": "Tree node cannot be deleted",
+      "message": "Node [{{treeNode}}] has assigned automatic role, which cannot be deleted without approving. Remove automatic role at first."
     }
   },
   "validationError": {
@@ -2949,6 +2957,9 @@
       "link": {
         "denied": "You don't have permissions to see record details"
       }
+    },
+    "record": {
+      "notFound" : "Record not found or insufficient permissions to read selected record."
     }
   }
 }

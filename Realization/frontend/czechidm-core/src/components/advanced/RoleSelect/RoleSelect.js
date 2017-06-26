@@ -84,6 +84,12 @@ class RoleSelect extends Basic.AbstractFormComponent {
   }
 
   validate() {
+    const {
+      readOnly
+    } = this.props;
+    if (readOnly) {
+      return true;
+    }
     return this.refs.role.validate();
   }
 

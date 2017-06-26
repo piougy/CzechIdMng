@@ -45,9 +45,9 @@ Input variables:
         <activiti:formProperty id="approve" type="decision"></activiti:formProperty>
         <activiti:formProperty id="roleName" type="textField" expression="${roleService.get(conceptRole.role).name}" writable="false"></activiti:formProperty>
         <activiti:formProperty id="applicantDescription" type="textArea" writable="false"></activiti:formProperty>
-        <activiti:formProperty id="validFromDateOld" type="localDate" expression="${idmIdentityRoleService.get(conceptRole.identityRole).validFrom}" writable="false"></activiti:formProperty>
+        <activiti:formProperty id="validFromDateOld" type="localDate" expression="${idmIdentityRoleService.get(conceptRole.identityRole,null).validFrom}" writable="false"></activiti:formProperty>
         <activiti:formProperty id="validFromDateNew" type="localDate" expression="${conceptRole.validFrom}"></activiti:formProperty>
-        <activiti:formProperty id="validTillDateOld" type="localDate" expression="${idmIdentityRoleService.get(conceptRole.identityRole).validTill}" writable="false"></activiti:formProperty>
+        <activiti:formProperty id="validTillDateOld" type="localDate" expression="${idmIdentityRoleService.get(conceptRole.identityRole,null).validTill}" writable="false"></activiti:formProperty>
         <activiti:formProperty id="validTillDateNew" type="localDate" expression="${conceptRole.validTill}">
           <activiti:value id="tooltip" name="Platnost přiřazení role"></activiti:value>
         </activiti:formProperty>
@@ -67,7 +67,7 @@ Input variables:
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[#{decision.equals("approve")}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="flow31" name="Identity role not exist" sourceRef="exclusivegateway5" targetRef="scripttask7">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[#{idmIdentityRoleService.get(conceptRole.identityRole) == null}]]></conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[#{idmIdentityRoleService.get(conceptRole.identityRole,null) == null}]]></conditionExpression>
     </sequenceFlow>
     <endEvent id="endevent5" name="End - Identity role with given ID not found" activiti:async="false">
       <documentation>Identity role with given ID not found</documentation>
@@ -96,7 +96,7 @@ conceptDto.setValidTill(conceptRole.validTill);
 conceptRoleRequestService.save(conceptDto);</script>
     </scriptTask>
     <sequenceFlow id="flow35" sourceRef="exclusivegateway5" targetRef="scripttask5">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[#{idmIdentityRoleService.get(conceptRole.identityRole) != null}]]></conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[#{idmIdentityRoleService.get(conceptRole.identityRole,null) != null}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="flow36" sourceRef="scripttask5" targetRef="endevent2"></sequenceFlow>
     <scriptTask id="scripttask6" name="Set DISAPPROVED state to concept" scriptFormat="groovy" activiti:autoStoreVariables="false">

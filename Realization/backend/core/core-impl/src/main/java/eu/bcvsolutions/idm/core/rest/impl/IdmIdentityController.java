@@ -76,7 +76,7 @@ import io.swagger.annotations.Authorization;
  *
  */
 @RepositoryRestController // TODO: @RestController after eav to dto
-@RequestMapping(value = BaseController.BASE_PATH + "/identities", produces = BaseController.APPLICATION_HAL_JSON_VALUE)
+@RequestMapping(value = BaseController.BASE_PATH + "/identities") //produces= BaseController.APPLICATION_HAL_JSON_VALUE - I have to remove this (username cannot have "@.com" in user name)
 @Api(value = "Identities", description = "Operations with identities", tags = { "Identities" })
 public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIdentityDto, IdentityFilter> {
 

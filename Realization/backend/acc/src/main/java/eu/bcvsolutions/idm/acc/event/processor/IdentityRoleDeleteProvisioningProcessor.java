@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.acc.event.processor;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
@@ -21,7 +23,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 
 /**
  * Identity role account management before delete
- * 
+ *
  * @author Radek Tomiška
  *
  */
@@ -31,11 +33,10 @@ import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 public class IdentityRoleDeleteProvisioningProcessor extends AbstractEntityEventProcessor<IdmIdentityRoleDto> {
 
 	public static final String PROCESSOR_NAME = "identity-role-delete-provisioning-processor";
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdentityRoleDeleteProvisioningProcessor.class);
+	private static final Logger LOG = LoggerFactory.getLogger(IdentityRoleDeleteProvisioningProcessor.class);
 	private final AccAccountManagementService accountManagementService;
 	private final ProvisioningService provisioningService;
 	private final IdmIdentityContractRepository identityContractRepository;
-
 
 	@Autowired
 	public IdentityRoleDeleteProvisioningProcessor(
@@ -52,7 +53,7 @@ public class IdentityRoleDeleteProvisioningProcessor extends AbstractEntityEvent
 		this.provisioningService = provisioningService;
 		this.identityContractRepository = identityContractRepository;
 	}
-	
+
 	@Override
 	public String getName() {
 		return PROCESSOR_NAME;
@@ -68,7 +69,7 @@ public class IdentityRoleDeleteProvisioningProcessor extends AbstractEntityEvent
 		provisioningService.doProvisioning(identityContract.getIdentity());
 		return new DefaultEventResult<>(event, this);
 	}
-	
+
 	@Override
 	public int getOrder() {
 		return -ProvisioningEvent.DEFAULT_PROVISIONING_ORDER;

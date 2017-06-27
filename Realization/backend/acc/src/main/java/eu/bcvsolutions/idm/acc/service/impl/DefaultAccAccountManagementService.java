@@ -26,7 +26,6 @@ import eu.bcvsolutions.idm.acc.dto.filter.RoleSystemAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.RoleSystemFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
-import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
@@ -123,16 +122,11 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 		
 		// Delete invalid identity accounts
 		provisioningRequired = !identityAccountsToDelete.isEmpty() ? true : provisioningRequired;
-		identityAccountsToDelete.stream().forEach(identityAccount -> {
-			identityAccountService.deleteById(identityAccount.getId());
-		});
+		identityAccountsToDelete.forEach(identityAccount -> identityAccountService.deleteById(identityAccount.getId()));
 
 		// Create new identity accounts
 		provisioningRequired = !identityAccountsToCreate.isEmpty() ? true : provisioningRequired;
-		identityAccountsToCreate.stream().forEach(identityAccount -> {
-			identityAccountService.save(identityAccount);
-
-		});
+		identityAccountsToCreate.forEach(identityAccount -> identityAccountService.save(identityAccount));
 
 		return provisioningRequired;
 	}

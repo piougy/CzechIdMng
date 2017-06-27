@@ -9,6 +9,12 @@ import defaultStyle from './styles';
 import DataManager from '../../../redux/data/DataManager';
 
 /**
+ * TODO: set better constant, or check this in BE
+ * @type {Number}
+ */
+const MAX_NODES_IN_ROW = 100000;
+
+/**
 * Advanced tree component
 */
 class AdvancedTree extends Basic.AbstractContextComponent {
@@ -137,7 +143,7 @@ class AdvancedTree extends Basic.AbstractContextComponent {
 
     this.setState({ cursors }, () => {
       if (!loaded) {
-        const filter = this.getManager().getService().getTreeSearchParameters().setFilter(propertyParent, node[propertyId]);
+        const filter = this.getManager().getService().getTreeSearchParameters().setFilter(propertyParent, node[propertyId]).setSort('name', true).setSize(MAX_NODES_IN_ROW);
         this.context.store.dispatch(this.getManager().fetchEntities(filter, uiKey, (json, error) => {
           if (!error) {
             const data = json._embedded[this.getManager().getCollectionType()] || [];

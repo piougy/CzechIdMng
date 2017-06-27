@@ -574,7 +574,8 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 	}
 	
 	/**
-	 * Check if is value from IDM and value from System equals. If is attribute multivalued, then is IDM value transformed to List.
+	 * Check if is value from IDM and value from System equals. 
+	 * If is attribute multivalued, then is IDM value transformed to List.
 	 * @param idmValue
 	 * @param icValueTransformed
 	 * @param schemaAttribute
@@ -584,7 +585,6 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 		if(schemaAttribute.isMultivalued() && idmValue != null && !(idmValue instanceof List)){
 			List<Object> values = new ArrayList<>();
 			values.add(idmValue);
-			LOG.info("TEST isAttributeValueEquals: idmValue: "+idmValue+" icValue: "+icValueTransformed);
 			return Objects.equals(values, icValueTransformed);
 		} 
 		

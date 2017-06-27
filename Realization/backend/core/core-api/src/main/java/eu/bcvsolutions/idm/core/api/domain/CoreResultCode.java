@@ -10,7 +10,7 @@ public enum CoreResultCode implements ResultCode {
 	//
 	// 2xx
 	OK(HttpStatus.OK, "ok"),
-	ACCEPTED(HttpStatus.ACCEPTED, "Request is accepted and will be processed asynchronously"),
+	ACCEPTED(HttpStatus.ACCEPTED, "	"),
 	//
 	// 4xx
 	// commons

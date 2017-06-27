@@ -137,12 +137,13 @@ class AdvancedTree extends Basic.AbstractContextComponent {
 
     this.setState({ cursors }, () => {
       if (!loaded) {
-        const filter = this.getManager().getService().getTreeSearchParameters().setFilter(propertyParent, node[propertyId]);
+        const filter = this.getManager().getService().getTreeSearchParameters().setFilter(propertyParent, node[propertyId]).setSort('name', true);
         this.context.store.dispatch(this.getManager().fetchEntities(filter, uiKey, (json, error) => {
+          console.log(111, json);
           if (!error) {
             const data = json._embedded[this.getManager().getCollectionType()] || [];
             // ids from childen - whole entity could be found in entities state, we dont want duplicates
-            const newTreeState = treeState.set(node[propertyId], data.map(item => { return item[propertyId]; }));
+            const newTreeState = treeState.set(node[propertyId], data.map(item => { console.log(item); return item[propertyId]; }));
             this.context.store.dispatch(this.dataManager.receiveData(uiKey, newTreeState));
           } else {
             this.addErrorMessage({

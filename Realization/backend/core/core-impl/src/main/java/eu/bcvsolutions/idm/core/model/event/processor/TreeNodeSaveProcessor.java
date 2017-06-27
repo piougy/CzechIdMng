@@ -1,6 +1,5 @@
 package eu.bcvsolutions.idm.core.model.event.processor;
 
-import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -103,17 +102,6 @@ public class TreeNodeSaveProcessor extends CoreEventProcessor<IdmTreeNode> {
 		
 		if (checkCorrectType(node, isNew)) {
 			throw new TreeNodeException(CoreResultCode.TREE_NODE_BAD_TYPE,  "TreeNode ["+node.getName() +"] have bad type.");
-		}
-		IdmTreeNode parent = node.getParent();
-		List<IdmTreeNode> nodes = null;
-		if (parent != null) { // get same level
-			nodes = repository.findDirectChildren(parent, null).getContent();
-		} else { // get roots
-			nodes = repository.findRoots(node.getTreeType().getId(), null).getContent();
-		}
-		//
-		if (this.baseTreeService.validateUniqueName(nodes, node)) {
-			throw new ResultCodeException(CoreResultCode.TREE_NODE_BAD_NICE_NAME, ImmutableMap.of("name", node.getName()));
 		}
 	}
 	

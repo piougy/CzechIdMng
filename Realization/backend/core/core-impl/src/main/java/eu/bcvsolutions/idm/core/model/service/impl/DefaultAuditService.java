@@ -18,6 +18,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import javax.persistence.EntityManager;
+import javax.persistence.EntityNotFoundException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.metamodel.EntityType;
 
@@ -72,6 +73,8 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
  */
 @Service
 public class DefaultAuditService extends AbstractReadWriteDtoService<IdmAuditDto, IdmAudit, AuditFilter> implements IdmAuditService {
+	
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultAuditService.class);
 	
 	@PersistenceContext
 	private EntityManager entityManager;
@@ -211,6 +214,9 @@ public class DefaultAuditService extends AbstractReadWriteDtoService<IdmAuditDto
 					throw new IllegalArgumentException(
 							MessageFormat.format("For entity class [{0}] with id [{1}] and revision id [{2}], name of changed columns cannot be found.",
 									entityClass, entityId, currentRevId), ex);
+				} catch (EntityNotFoundException e) {
+					LOG.info("Audit service entity not found. Method [getNameChangedColumns]", e);
+					break;
 				}
 			}
 		}

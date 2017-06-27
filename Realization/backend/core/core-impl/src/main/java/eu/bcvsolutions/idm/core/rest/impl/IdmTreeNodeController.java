@@ -163,7 +163,7 @@ public class IdmTreeNodeController extends DefaultReadWriteEntityController<IdmT
 			PersistentEntityResourceAssembler assembler,
 			@PageableDefault Pageable pageable) {
 		// TODO: pageable
-		Page<IdmTreeNode> roots = this.treeNodeService.findRoots(UUID.fromString(treeTypeId), null);
+		Page<IdmTreeNode> roots = this.treeNodeService.findRoots(UUID.fromString(treeTypeId), pageable);
 		return toResources(roots, assembler, IdmTreeNode.class, null);
 	}
 	

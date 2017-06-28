@@ -47,6 +47,8 @@ if (role.isApproveRemove()) {
   if(guarantees.empty || guarantees.contains(applicantUsername)) {
     skipApproving = true;
   }
+} else {
+  skipApproving = true;
 }
 
 execution.setVariable("guarantees", guarantees);

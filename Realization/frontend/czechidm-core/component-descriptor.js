@@ -83,6 +83,11 @@ module.exports = {
       'id': 'identity-detail',
       'priority': 0,
       'component': require('./src/content/identity/IdentityDetail')
+    },
+    {
+      'id': 'identity-create',
+      'priority': 0,
+      'component': require('./src/content/identity/Create')
     }
   ]
 };

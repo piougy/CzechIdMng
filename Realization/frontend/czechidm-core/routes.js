@@ -23,7 +23,7 @@ module.exports = {
     },
     {
       path: 'identity/new',
-      component: require('./src/content/identity/Create'),
+      component: require('./src/content/identity/IdentityCreate'),
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_CREATE' ] } ]
     },
     {

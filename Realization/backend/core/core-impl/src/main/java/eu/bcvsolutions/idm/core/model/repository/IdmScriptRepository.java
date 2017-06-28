@@ -37,7 +37,12 @@ public interface IdmScriptRepository extends AbstractEntityRepository<IdmScript,
 	        + " ("
 	        	+ " ?#{[0].category} is null"
 	        	+ " or e.category = ?#{[0].category}" 
-	        + " )")
+	        + " ) "
+	        + "AND "
+	        + "( "
+	        	+ " ?#{[0].code} is null"
+	        	+ " or e.code = ?#{[0].code}"
+	        + ") ")
 	Page<IdmScript> find(ScriptFilter filter, Pageable pageable);
 	
 	IdmScript findOneByName(@Param("name") String name);

@@ -136,7 +136,6 @@ class IdentityContractDetail extends Basic.AbstractContent {
   render() {
     const { uiKey, entity, showLoading, params, _permissions } = this.props;
     const { _showLoading, forceSearchParameters, treeTypeId } = this.state;
-
     return (
       <div>
         <Helmet title={Utils.Entity.isNew(entity) ? this.i18n('create.title') : this.i18n('edit.title')} />
@@ -160,7 +159,7 @@ class IdentityContractDetail extends Basic.AbstractContent {
                   label={this.i18n('entity.IdentityContract.position')}/>
 
                 <Basic.SelectBox
-                  ref="treeTypeId"
+                  ref="treeTypeId" useFirst={Utils.Entity.isNew(entity)}
                   manager={this.treeTypeManager}
                   label={this.i18n('entity.IdentityContract.treeType')}
                   onChange={this.onChangeTreeType.bind(this)}/>

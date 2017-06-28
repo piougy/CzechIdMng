@@ -102,13 +102,4 @@ public class IdmScriptController extends DefaultReadWriteDtoController<IdmScript
 	public ResponseEntity<?> put(@PathVariable @NotNull String backendId, @RequestBody @NotNull IdmScriptDto dto) {
 		return super.put(backendId, dto);
 	}
-
-	@Override
-	protected ScriptFilter toFilter(MultiValueMap<String, Object> parameters) {
-		ScriptFilter filter = new ScriptFilter();
-		filter.setText(getParameterConverter().toString(parameters, "text"));
-		filter.setCategory(getParameterConverter().toEnum(parameters, "category", IdmScriptCategory.class));
-		filter.setDescription(getParameterConverter().toString(parameters, "description"));
-		return filter;
-	}
 }

@@ -18,6 +18,7 @@ import AbstractEnum from './src/enums/AbstractEnum';
 import OperationStateEnum from './src/enums/OperationStateEnum';
 import PasswordPolicyTypeEnum from './src/enums/PasswordPolicyTypeEnum';
 import ScriptCategoryEnum from './src/enums/ScriptCategoryEnum';
+import ApiOperationTypeEnum from './src/enums/ApiOperationTypeEnum';
 
 const ModuleRoot = {
   Basic,
@@ -41,7 +42,8 @@ const ModuleRoot = {
     AbstractEnum,
     OperationStateEnum,
     PasswordPolicyTypeEnum,
-    ScriptCategoryEnum
+    ScriptCategoryEnum,
+    ApiOperationTypeEnum
   }
 };
 ModuleRoot.version = '0.0.1';

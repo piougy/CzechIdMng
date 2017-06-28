@@ -23,8 +23,23 @@ export default class ScriptCategoryEnum extends AbstractEnum {
     if (!key) {
       return null;
     }
-    // TODO? Add some label like in role type?
-    return 'default';
+    //
+    const sym = super.findSymbolByKey(this, key);
+    //
+    switch (sym) {
+      case this.TRANSFORM_FROM: {
+        return 'info';
+      }
+      case this.TRANSFORM_TO: {
+        return 'success';
+      }
+      case this.SYSTEM: {
+        return 'warning';
+      }
+      default: {
+        return 'default';
+      }
+    }
   }
 }
 

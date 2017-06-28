@@ -16,6 +16,8 @@ public class ScriptFilter extends QuickFilter {
     private String description;
 
     private IdmScriptCategory category;
+    
+    private String code;
 
     public String getDescription() {
         return description;
@@ -32,4 +34,12 @@ public class ScriptFilter extends QuickFilter {
     public void setCategory(IdmScriptCategory category) {
         this.category = category;
     }
+
+	public String getCode() {
+		return code;
+	}
+
+	public void setCode(String code) {
+		this.code = code;
+	}
 }

@@ -286,6 +286,7 @@ class NodeTable extends Advanced.AbstractTableContent {
                     ref="organizationTree"
                     rootNodes={ rootNodes }
                     rootNodesCount={ rootNodesCount }
+                    propertyName="name"
                     headerDecorator={this._orgTreeHeaderDecorator.bind(this)}
                     uiKey="orgTree"
                     manager={treeNodeManager}

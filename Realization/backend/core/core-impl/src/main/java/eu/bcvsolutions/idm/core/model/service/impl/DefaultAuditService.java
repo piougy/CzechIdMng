@@ -215,6 +215,7 @@ public class DefaultAuditService extends AbstractReadWriteDtoService<IdmAuditDto
 							MessageFormat.format("For entity class [{0}] with id [{1}] and revision id [{2}], name of changed columns cannot be found.",
 									entityClass, entityId, currentRevId), ex);
 				} catch (EntityNotFoundException e) {
+					// TODO: Try to found better solution for get entity that was not found
 					LOG.info("Audit service entity not found. Method [getNameChangedColumns]", e);
 					break;
 				}

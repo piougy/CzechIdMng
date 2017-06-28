@@ -41,6 +41,15 @@ class Profile extends Basic.AbstractContent {
     const { identity } = this.props;
     const { entityId } = this.props.params;
     const IdentityDetail = this.componentService.getComponent('identity-detail');
+    // TODO: some problem with add new props with component that was received by component service
+    // props not resend
+    if (!identity || identity === null || identity === undefined) {
+      return (
+        <div className="tab-pane-text-body">
+          <Basic.Loading isStatic show/>
+        </div>
+      );
+    }
     //
     return (
       <div className="tab-pane-text-body">

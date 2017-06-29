@@ -19,13 +19,13 @@ import eu.bcvsolutions.idm.core.model.event.IdentityRoleEvent.IdentityRoleEventT
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 
 /**
- * Identity role account management before delete
+ * Identity-role delete integrity processor
  *
  * @author Radek Tomiška
  */
 @Component
 @Enabled(AccModuleDescriptor.MODULE_ID)
-@Description("Executes account management before identity role is deleted.")
+@Description("Executes delete of identity-account before identity-role is deleted.")
 public class IdentityRoleDeleteAccountProcessor extends AbstractEntityEventProcessor<IdmIdentityRoleDto> {
 
 	public static final String PROCESSOR_NAME = "identity-role-delete-account-processor";
@@ -50,6 +50,7 @@ public class IdentityRoleDeleteAccountProcessor extends AbstractEntityEventProce
 	public EventResult<IdmIdentityRoleDto> process(EntityEvent<IdmIdentityRoleDto> event) {
 		IdmIdentityRoleDto identityRole = event.getContent();
 		accountManagementService.deleteIdentityAccount(identityRole);
+		
 		return new DefaultEventResult<>(event, this);
 	}
 

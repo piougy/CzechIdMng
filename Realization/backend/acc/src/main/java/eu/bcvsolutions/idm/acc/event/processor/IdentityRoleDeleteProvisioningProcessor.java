@@ -55,10 +55,14 @@ public class IdentityRoleDeleteProvisioningProcessor extends AbstractEntityEvent
 
 	@Override
 	public EventResult<IdmIdentityRoleDto> process(EntityEvent<IdmIdentityRoleDto> event) {
+		
 		IdmIdentityRoleDto identityRole = event.getContent();
 		IdmIdentityContract identityContract = identityContractRepository.findOne(identityRole.getIdentityContract());
+		
 		LOG.debug("Call provisioning for identity [{}]", identityContract.getIdentity().getUsername());
+		
 		provisioningService.doProvisioning(identityContract.getIdentity());
+		
 		return new DefaultEventResult<>(event, this);
 	}
 

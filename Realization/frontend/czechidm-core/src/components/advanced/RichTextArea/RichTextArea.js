@@ -36,7 +36,7 @@ class RichTextArea extends Basic.AbstractFormComponent {
     let validation = super.getValidationDefinition(min ? true : required);
 
     if (min && max) {
-      validation = validation.concat(Joi.string().min(min).max(max).disallow(null).disallow(''));
+      validation = validation.concat(Joi.string().min(min).max(max).disallow(''));
     } else if (min) {
       validation = validation.concat(Joi.string().min(min));
     } else if (max) {

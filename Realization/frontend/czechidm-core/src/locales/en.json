@@ -2077,7 +2077,7 @@
       "superiorRoles": "Superior roles",
       "subRoles": "Subordinate roles",
       "authorities": "Authorizations",
-      "approveRemove": "Approve remove role",
+      "approveRemove": "Role removal approval",
       "canBeRequested": "Can be requested",
       "description": "Description",
       "guarantees": "Role authorizers",

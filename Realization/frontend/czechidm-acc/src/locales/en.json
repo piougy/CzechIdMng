@@ -607,7 +607,7 @@
       "running": "Running",
       "customFilter" :{
         "label": "Use custom filter",
-        "help": "Synchronization will be managed by custom filter defined below. When not selected, synchronization is managed by connector mechanisms."
+        "help": "Synchronization will be managed by custom filter defined below. When not selected, synchronization is managed by connector mechanisms. The filter is NOT used during reconciliation."
       },
       "filterAttribute" :{
         "label": "Filter by attribute",

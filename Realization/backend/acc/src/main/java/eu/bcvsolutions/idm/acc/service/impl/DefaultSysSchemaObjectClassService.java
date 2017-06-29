@@ -1,5 +1,9 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
+import java.util.UUID;
+
+import javax.persistence.EntityManager;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,6 +17,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
+import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 
 /**
  * Default schema object class service
@@ -26,19 +31,23 @@ public class DefaultSysSchemaObjectClassService extends AbstractReadWriteEntityS
 
 	private final SysSchemaAttributeService sysSchemaAttributeService;
 	private final SysSystemMappingService systemMappingService;
+	private final EntityManager entityManager;
 	
 	@Autowired
 	public DefaultSysSchemaObjectClassService(
 			SysSchemaObjectClassRepository repository,
 			SysSchemaAttributeService sysSchemaAttributeService,
-			SysSystemMappingService systemMappingService) {
+			SysSystemMappingService systemMappingService,
+			EntityManager entityManager) {
 		super(repository);
 		//
 		Assert.notNull(sysSchemaAttributeService, "Schema attribute service is required!");
 		Assert.notNull(systemMappingService);
+		Assert.notNull(entityManager);
 		//
 		this.sysSchemaAttributeService = sysSchemaAttributeService;
 		this.systemMappingService = systemMappingService;
+		this.entityManager = entityManager;
 	}
 	
 	@Override
@@ -58,5 +67,17 @@ public class DefaultSysSchemaObjectClassService extends AbstractReadWriteEntityS
 		});
 		//
 		super.delete(schemaObjectClass);
+	}
+
+	@Override
+	public SysSchemaObjectClass clone(UUID id) {
+		SysSchemaObjectClass original = this.get(id);
+		Assert.notNull(original, "Schema must be found!");
+		
+		// We do detach this entity (and set id to null)
+		entityManager.detach(original);
+		original.setId(null);
+		EntityUtils.clearAuditFields(original);
+		return original;
 	}
 }

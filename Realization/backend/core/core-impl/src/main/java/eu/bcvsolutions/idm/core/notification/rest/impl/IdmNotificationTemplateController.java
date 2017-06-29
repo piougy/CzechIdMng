@@ -90,7 +90,7 @@ public class IdmNotificationTemplateController extends DefaultReadWriteDtoContro
 	
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}/redeploy", method = RequestMethod.GET)
-	@PreAuthorize("hasAuthority('" + NotificationGroupPermission.NOTIFICATIONTEMPLATE_READ + "')")
+	@PreAuthorize("hasAuthority('" + NotificationGroupPermission.NOTIFICATIONTEMPLATE_UPDATE + "')")
 	public ResponseEntity<?> redeploy(@PathVariable @NotNull String backendId) {
 		IdmNotificationTemplateDto template = notificationTemplateService.get(backendId);
 		if (template == null) {

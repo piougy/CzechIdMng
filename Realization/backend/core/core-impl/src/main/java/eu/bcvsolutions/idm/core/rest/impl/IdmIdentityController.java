@@ -35,7 +35,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.forest.index.service.api.ForestContentService;
-import eu.bcvsolutions.idm.core.api.config.domain.SwaggerConfig;
+import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmAuditDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
@@ -76,7 +76,7 @@ import io.swagger.annotations.Authorization;
  *
  */
 @RepositoryRestController // TODO: @RestController after eav to dto
-@RequestMapping(value = BaseController.BASE_PATH + "/identities", produces = BaseController.APPLICATION_HAL_JSON_VALUE)
+@RequestMapping(value = BaseController.BASE_PATH + "/identities") //produces= BaseController.APPLICATION_HAL_JSON_VALUE - I have to remove this (username cannot have "@.com" in user name)
 @Api(value = "Identities", description = "Operations with identities", tags = { "Identities" })
 public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIdentityDto, IdentityFilter> {
 

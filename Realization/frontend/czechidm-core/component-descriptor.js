@@ -78,6 +78,16 @@ module.exports = {
       'entityType': ['identityContract', 'IdmIdentityContract'],
       'component': require('./src/components/advanced/IdentityContractInfo/IdentityContractInfo').default,
       'manager': require('./src/redux').IdentityContractManager
+    },
+    {
+      'id': 'identity-detail',
+      'priority': 0,
+      'component': require('./src/content/identity/IdentityDetail')
+    },
+    {
+      'id': 'identity-create',
+      'priority': 0,
+      'component': require('./src/content/identity/Create')
     }
   ]
 };

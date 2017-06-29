@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
-import eu.bcvsolutions.idm.core.api.domain.IdmScriptCategory;
 import eu.bcvsolutions.idm.core.api.dto.IdmScriptDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.ScriptFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
@@ -132,14 +131,5 @@ public class IdmScriptController extends DefaultReadWriteDtoController<IdmScript
 		}
 		service.backup(script);
 		return new ResponseEntity<>(toResource(script), HttpStatus.OK);
-	}
-
-	@Override
-	protected ScriptFilter toFilter(MultiValueMap<String, Object> parameters) {
-		ScriptFilter filter = new ScriptFilter();
-		filter.setText(getParameterConverter().toString(parameters, "text"));
-		filter.setCategory(getParameterConverter().toEnum(parameters, "category", IdmScriptCategory.class));
-		filter.setDescription(getParameterConverter().toString(parameters, "description"));
-		return filter;
 	}
 }

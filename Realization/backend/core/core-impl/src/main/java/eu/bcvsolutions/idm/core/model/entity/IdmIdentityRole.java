@@ -16,6 +16,7 @@ import org.hibernate.envers.Audited;
 import org.joda.time.LocalDate;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.core.api.domain.AuditSearchable;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.ValidableEntity;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
@@ -33,7 +34,7 @@ import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 		@Index(name = "idx_idm_identity_role_role", columnList = "role_id"),
 		@Index(name = "idx_idm_identity_role_aut_r", columnList = "role_tree_node_id")
 })
-public class IdmIdentityRole extends AbstractEntity implements ValidableEntity {
+public class IdmIdentityRole extends AbstractEntity implements ValidableEntity, AuditSearchable {
 
 	private static final long serialVersionUID = 9208706652291035265L;
 	
@@ -147,5 +148,35 @@ public class IdmIdentityRole extends AbstractEntity implements ValidableEntity {
 	 */
 	public boolean isValid() {
 		return EntityUtils.isValid(this);
+	}
+
+	@Override
+	public String getOwnerId() {
+		return this.getIdentityContract().getIdentity().getId().toString();
+	}
+
+	@Override
+	public String getOwnerCode() {
+		return this.getIdentityContract().getIdentity().getCode();
+	}
+
+	@Override
+	public String getOwnerType() {
+		return IdmIdentity.class.getName();
+	}
+
+	@Override
+	public String getSubOwnerId() {
+		return this.getRole().getId().toString();
+	}
+
+	@Override
+	public String getSubOwnerCode() {
+		return this.getRole().getCode();
+	}
+
+	@Override
+	public String getSubOwnerType() {
+		return IdmRole.class.getName();
 	}
 }

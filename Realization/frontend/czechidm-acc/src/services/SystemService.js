@@ -41,6 +41,24 @@ class SystemService extends Services.AbstractService {
     });
   }
 
+  duplicate(id) {
+    return Services.RestApiService.post(this.getApiPath() + `/${id}/duplicate`, null).then(response => {
+      if (response.status === 403) {
+        throw new Error(403);
+      }
+      if (response.status === 404) {
+        throw new Error(404);
+      }
+      return response.json();
+    })
+    .then(json => {
+      if (Utils.Response.hasError(json)) {
+        throw Utils.Response.getFirstError(json);
+      }
+      return json;
+    });
+  }
+
   /**
    * Returns connector form definition to given system
 	 * or throws exception with code {@code CONNECTOR_CONFIGURATION_FOR_SYSTEM_NOT_FOUND}, when system is wrong configured

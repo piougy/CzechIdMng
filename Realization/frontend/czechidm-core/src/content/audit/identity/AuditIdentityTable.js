@@ -1,5 +1,6 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
+import _ from 'lodash';
 //
 import * as Utils from '../../../utils';
 import * as Basic from '../../../components/basic';
@@ -12,29 +13,10 @@ const auditManager = new AuditManager();
 /**
 * Table of Audit for identities
 */
-export class AuditIdentityTable extends Basic.AbstractContent {
+export class AuditIdentityTable extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);
-    this.state = {
-      showLoading: true
-    };
-  }
-
-  componentDidMount() {
-    this.context.store.dispatch(auditManager.fetchEntities(auditManager.getAuditedEntitiesNames(), null, (entities) => {
-      if (entities !== null) {
-        const auditedEntities = entities._embedded.resources.map(item => { return {value: item, niceLabel: item }; });
-        this.setState({
-          auditedEntities,
-          showLoading: false
-        });
-      } else {
-        this.setState({
-          showLoading: false
-        });
-      }
-    }));
   }
 
   getContentKey() {
@@ -62,14 +44,17 @@ export class AuditIdentityTable extends Basic.AbstractContent {
   * Used for get niceLabel for type entity.
   */
   _getType(name) {
-    const type = name.split('.');
-    return type[type.length - 1];
+    if (name) {
+      const type = name.split('.');
+      return type[type.length - 1];
+    }
+    return null;
   }
 
-  _getAdvancedFilter(auditedEntities, showLoading) {
+  _getAdvancedFilter() {
     return (
       <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
-        <Basic.AbstractForm ref="filterForm" showLoading={showLoading}>
+        <Basic.AbstractForm ref="filterForm">
           <Basic.Row>
             <div className="col-lg-4">
               <Advanced.Filter.DateTimePicker
@@ -126,24 +111,28 @@ export class AuditIdentityTable extends Basic.AbstractContent {
     return auditManager.getDefaultSearchParameters().setName('entity').setFilter('entity', 'eu.bcvsolutions.idm.core.model.entity.IdmIdentity');
   }
 
+  _getNiceLabelForOwner(ownerType, ownerCode) {
+    if (ownerCode && ownerCode !== null && ownerCode !== 'null') {
+      return ownerCode;
+    }
+    return '';
+  }
+
   render() {
-    const { tableUiKey } = this.props;
-    const { showLoading, auditedEntities } = this.state;
+    const { uiKey } = this.props;
+    //
     return (
       <div>
         <Advanced.Table
           ref="table"
           filterOpened
-          uiKey={tableUiKey}
+          uiKey={ uiKey }
           manager={auditManager}
           forceSearchParameters={this._getForceSearchParameters()}
           rowClass={({rowIndex, data}) => { return Utils.Ui.getRowClass(data[rowIndex]); }}
           showId
-          filter={
-            !auditedEntities
-            ||
-            this._getAdvancedFilter(auditedEntities, showLoading)
-          }>
+          filter={ this._getAdvancedFilter() }
+          _searchParameters={ this.getSearchParameters() }>
           <Advanced.Column
             header=""
             className="detail-button"
@@ -184,6 +173,18 @@ export class AuditIdentityTable extends Basic.AbstractContent {
                 );
               }
             }/>
+          <Advanced.Column property="ownerCode" face="text"
+            cell={
+              ({ rowIndex, data }) => {
+                return this._getNiceLabelForOwner(data[rowIndex].ownerType, data[rowIndex].ownerCode);
+              }}
+          />
+          <Advanced.Column property="subOwnerCode" face="text"
+            cell={
+              ({ rowIndex, data }) => {
+                return this._getNiceLabelForOwner(data[rowIndex].subOwnerType, data[rowIndex].subOwnerCode);
+              }}
+          />
           <Advanced.Column
             property="modification"
             width={ 100 }
@@ -195,6 +196,14 @@ export class AuditIdentityTable extends Basic.AbstractContent {
               />
           <Advanced.Column property="modifier" sort face="text"/>
           <Advanced.Column property="timestamp" header={this.i18n('entity.Audit.revisionDate')} sort face="datetime"/>
+          <Advanced.Column hidden
+            property="changedAttributes"
+            cell={
+              ({ rowIndex, data, property }) => {
+                return _.replace(data[rowIndex][property], ',', ', ');
+              }
+            }
+          />
         </Advanced.Table>
       </div>
     );
@@ -202,15 +211,15 @@ export class AuditIdentityTable extends Basic.AbstractContent {
 }
 
 AuditIdentityTable.propTypes = {
-  tableUiKey: PropTypes.string
+  uiKey: PropTypes.string.isRequired
 };
 
 AuditIdentityTable.defaultProps = {
-  tableUiKey: 'audit-table-identities'
 };
 
-function select() {
+function select(state, component) {
   return {
+    _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey)
   };
 }
 

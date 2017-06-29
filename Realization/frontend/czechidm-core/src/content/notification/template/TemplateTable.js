@@ -5,11 +5,15 @@ import uuid from 'uuid';
 import { SecurityManager } from '../../../redux';
 import * as Basic from '../../../components/basic';
 import * as Advanced from '../../../components/advanced';
+import * as Utils from '../../../utils';
 
 /**
  * Table with definitions of password policies
+ *
+ * @author Ondřej Kopr
+ * @author Radek Tomiška
  */
-export class TemplateTable extends Basic.AbstractContent {
+export class TemplateTable extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);
@@ -20,17 +24,6 @@ export class TemplateTable extends Basic.AbstractContent {
 
   getContentKey() {
     return 'content.notificationTemplate';
-  }
-
-  componentDidMount() {
-    this.selectNavigationItems(['notification', 'notification-templatess']);
-    const { manager, uiKey } = this.props;
-    const searchParameters = manager.getService().getDefaultSearchParameters();
-    this.context.store.dispatch(manager.fetchEntities(searchParameters, uiKey));
-  }
-
-  componentWillUnmount() {
-    this.cancelFilter();
   }
 
   useFilter(event) {
@@ -159,7 +152,8 @@ export class TemplateTable extends Basic.AbstractContent {
                   {this.i18n('button.add')}
                 </Basic.Button>
               ]
-            }>
+            }
+            _searchParameters={ this.getSearchParameters() }>
             <Advanced.Column
               header=""
               className="detail-button"
@@ -205,4 +199,10 @@ TemplateTable.defaultProps = {
   _showLoading: false
 };
 
-export default connect()(TemplateTable);
+function select(state, component) {
+  return {
+    _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey)
+  };
+}
+
+export default connect(select)(TemplateTable);

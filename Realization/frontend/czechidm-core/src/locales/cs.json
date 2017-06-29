@@ -172,6 +172,20 @@
       "failed_2": "Vybrané záznamy [{{records}}] se nepodařilo zálohovat",
       "failed_5": "Vybrané záznamy [{{records}}] se nepodařilo zálohovat"
     },
+    "duplicate": {
+      "action": "Duplikovat",
+      "header_1": "Duplikování záznamu",
+      "header_2": "Duplikování záznamů",
+      "header_5": "$t(action.duplicate.header_2)",
+      "message_1": "Opravdu chcete duplikovat vybraný záznam [<strong>{{record}}</strong>]?",
+      "message_2": "Vybrány záznamy: [<strong>{{records}}</strong>].<br /><br />Opravdu chcete duplikovat <strong>{{count}}</strong> vybrané záznamy?",
+      "message_5": "Vybrány záznamy: [<strong>{{records}}</strong>].<br /><br />Opravdu chcete duplikovat <strong>{{count}}</strong> vybraných záznamů?",
+      "error": "Při duplikování záznamu [{{record}}] nastala chyba",
+      "success": "Vybrané záznamy [{{records}}] byly úspěšně duplikovány",
+      "success_1": "Vybraný záznam [{{record}}] byl úspěšně duplikován",
+      "success_2": "Vybrané záznamy [{{records}}] byly úspěšně duplikovány",
+      "success_5": "Vybrané záznamy [{{records}}] byly úspěšně duplikovány"
+    },
     "save": {
       "success_0": "N/A",
       "success_1": "Záznam [{{record}}] byl úspěšně uložen"
@@ -2403,7 +2417,13 @@
       "key": "Atribut",
       "value": "Hodnota",
       "entityId": "Id entity",
-      "entity": "Entita (IdM)"
+      "entity": "Entita (IdM)",
+      "ownerId": "Id vlastníka",
+      "ownerType": "Typ vlastníka",
+      "ownerCode": "Kód vlastníka",
+      "subOwnerId": "Id sub vlastníka",
+      "subOwnerType": "Typ sub vlastníka",
+      "subOwnerCode": "Kód sub vlastníka"
     },
     "PasswordPolicy": {
       "type": "Typ",
@@ -2948,6 +2968,14 @@
     "BACKUP_FOLDER_NOT_FOUND": {
       "title": "Složka pro zálohování neexistuje",
       "message": "Prosím specifikujte složku pomocí konfigurační proměnné: [{{property}}]."
+    },
+    "ROLE_DELETE_FAILED_HAS_TREE_NODE": {
+      "title": "Role nelze odebrat",
+      "message": "Role [{{role}}] obsahuje konfiguraci automatické role, jejíž odebrání musí býti schváleno. Odeberte automatickou roli, poté bude možné roli odebrat."
+    },
+    "TREE_NODE_DELETE_FAILED_HAS_ROLE": {
+      "title": "Prvek stromové struktury nelze odebrat",
+      "message": "Prvek [{{treeNode}}] obsahuje konfiguraci automatické role, jejíž odebrání musí býti schváleno. Odeberte automatickou roli, poté bude možné prvek odebrat."
     }
   },
   "validationError": {
@@ -2994,6 +3022,9 @@
       "link": {
         "denied": "Pro zobrazení detailu záznamu nemáte oprávnění"
       }
+    },
+    "record": {
+      "notFound" : "Záznam nebyl nalezen nebo nemáte dostatečné oprávnění pro zobrazení záznamu."
     }
   }
 }

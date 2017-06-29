@@ -6,10 +6,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
-import eu.bcvsolutions.idm.core.api.config.domain.AbstractSwaggerConfig;
+import eu.bcvsolutions.idm.core.api.config.swagger.AbstractSwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.ModuleDescriptor;
 import springfox.documentation.spring.web.plugins.Docket;
-import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 /**
  * Core module swagger configuration
@@ -18,7 +17,6 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
  *
  */
 @Configuration
-@EnableSwagger2
 @ConditionalOnProperty(prefix = "springfox.documentation.swagger", name = "enabled", matchIfMissing = true)
 public class CoreSwaggerConfig extends AbstractSwaggerConfig {
 	

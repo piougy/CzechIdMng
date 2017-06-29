@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
@@ -18,6 +19,7 @@ import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
+import eu.bcvsolutions.idm.core.api.exception.AcceptedException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.event.RoleEvent.RoleEventType;
@@ -79,7 +81,7 @@ public class RoleDeleteProcessor extends CoreEventProcessor<IdmRole> {
 	@Override
 	public EventResult<IdmRole> process(EntityEvent<IdmRole> event) {
 		IdmRole role = event.getContent();
-		
+		//
 		// role assigned to identity could not be deleted
 		if(identityRoleRepository.countByRole(role) > 0) {
 			throw new ResultCodeException(CoreResultCode.ROLE_DELETE_FAILED_IDENTITY_ASSIGNED, ImmutableMap.of("role", role.getName()));
@@ -88,7 +90,15 @@ public class RoleDeleteProcessor extends CoreEventProcessor<IdmRole> {
 		RoleTreeNodeFilter filter = new RoleTreeNodeFilter();
 		filter.setRoleId(role.getId());
 		roleTreeNodeService.find(filter, null).forEach(roleTreeNode -> {
-			roleTreeNodeService.delete(roleTreeNode);
+			try {
+				roleTreeNodeService.delete(roleTreeNode);
+			} catch (AcceptedException ex) {
+				throw new ResultCodeException(CoreResultCode.ROLE_DELETE_FAILED_HAS_TREE_NODE, 
+						ImmutableMap.of(
+								"role", role.getName(),
+								"roleTreeNode", roleTreeNode.getId()
+								));
+			}
 		});
 		// Find all concepts and remove relation on role
 		ConceptRoleRequestFilter conceptRequestFilter = new ConceptRoleRequestFilter();

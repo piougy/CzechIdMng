@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>eu.bcvsolutions.idm</groupId>
 		<artifactId>idm-parent</artifactId>
-		<version>7.3.0-rc.2-SNAPSHOT</version>
+		<version>7.3.0-rc.4-SNAPSHOT</version>
 		<relativePath>../parent/pom.xml</relativePath>
 	</parent>
 
@@ -35,6 +35,7 @@
 							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
 						</manifest>
 						<manifestEntries>
+							<Implementation-Build>${buildNumber}</Implementation-Build>
 							<Specification-Title>${project.description}</Specification-Title>
 						</manifestEntries>
 					</archive>

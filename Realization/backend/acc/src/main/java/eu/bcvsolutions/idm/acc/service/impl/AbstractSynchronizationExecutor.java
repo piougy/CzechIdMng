@@ -6,9 +6,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.persistence.EntityManager;
@@ -205,7 +207,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 		log.addToLog(MessageFormat.format("Synchronization was started in {0}.", log.getStarted()));
 
 		// List of all accounts keys (used in reconciliation)
-		List<String> systemAccountsList = new ArrayList<>();
+		Set<String> systemAccountsList = new HashSet<>();
 
 		// TODO: Export is not fully implemented (FE, configuration and Groovy part missing)
 		boolean export = false;
@@ -300,7 +302,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 			if (account == null) {
 				account = findAccount(uid, entityType, systemEntity, system, logItem);
 				if (systemEntity == null) {
-					addToItemLog(logItem, "SystemEntity for this uid not exist. We will create him.");
+					addToItemLog(logItem, "SystemEntity for this uid doesn't exist. We will create it.");
 					systemEntity = createSystemEntity(uid, entityType, system);
 				}
 
@@ -317,7 +319,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 				List<IcAttribute> icAttributes = icObject.getAttributes();
 
 				if (account == null) {
-					// Account not exist in IDM
+					// Account doesn't exist in IDM
 					actionType = resolveAccountNotExistSituation(context, systemEntity, icAttributes);
 
 				} else {
@@ -372,7 +374,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 	}
 
 	/**
-	 * Resolve "Account not exist in IDM" situation. Result can be UNLINKED or UNMATCHED situations.
+	 * Resolve "Account doesn't exist in IDM" situation. Result can be UNLINKED or UNMATCHED situations.
 	 * @param context
 	 * @param systemEntity
 	 * @param icAttributes
@@ -384,7 +386,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 		SysSyncConfig config = context.getConfig();
 		SysSyncItemLog logItem = context.getLogItem();
 		
-		addToItemLog(logItem, "Account not exist in IDM");
+		addToItemLog(logItem, "Account doesn't exist in IDM");
 		SynchronizationActionType actionType;
 		AbstractEntity entity = findEntityByCorrelationAttribute(config.getCorrelationAttribute(),
 				icAttributes);
@@ -575,7 +577,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 	 * @param log
 	 * @param actionsLog
 	 */
-	protected void startReconciliation(SystemEntityType entityType, List<String> allAccountsList, SysSyncConfig config,
+	protected void startReconciliation(SystemEntityType entityType, Set<String> allAccountsList, SysSyncConfig config,
 			SysSystem system, SysSyncLog log, List<SysSyncActionLog> actionsLog) {
 		AccountFilter accountFilter = new AccountFilter();
 		accountFilter.setSystemId(system.getId());
@@ -1754,7 +1756,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 		// Identity account Created
 		addToItemLog(logItem,
 				MessageFormat.format(
-						"Entity account relation  with id ({0}), between account ({1}) and identity ({2}) was created",
+						"Entity account relation  with id ({0}), between account ({1}) and entity ({2}) was created",
 						entityAccount.getId(), uid, entityIdentification));
 		logItem.setDisplayName(entityIdentification);
 		logItem.setType(entityAccount.getClass().getSimpleName());
@@ -1839,9 +1841,9 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 	private class DefaultResultHandler implements IcResultsHandler{
 		
 		private SynchronizationContext context;
-		private List<String> systemAccountsList;
+		private Set<String> systemAccountsList;
 		
-		public DefaultResultHandler(final SynchronizationContext context, final List<String> systemAccountsList) {
+		public DefaultResultHandler(final SynchronizationContext context, final Set<String> systemAccountsList) {
 			this.context = context;
 			this.systemAccountsList = systemAccountsList;
 		}
@@ -1873,9 +1875,9 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 	private class DefalutSyncResultHandler implements IcSyncResultsHandler{
 		
 		private SynchronizationContext context;
-		private List<String> systemAccountsList;
+		private Set<String> systemAccountsList;
 		
-		public DefalutSyncResultHandler(final SynchronizationContext context, final List<String> systemAccountsList) {
+		public DefalutSyncResultHandler(final SynchronizationContext context, final Set<String> systemAccountsList) {
 			this.context = context;
 			this.systemAccountsList = systemAccountsList;
 		}

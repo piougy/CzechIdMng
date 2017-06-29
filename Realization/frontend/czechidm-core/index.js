@@ -13,11 +13,14 @@ import ComponentService from './src/services/ComponentService';
 //
 import SearchParameters from './src/domain/SearchParameters';
 import FormInstance from './src/domain/FormInstance';
-
+//
 import AbstractEnum from './src/enums/AbstractEnum';
 import OperationStateEnum from './src/enums/OperationStateEnum';
 import PasswordPolicyTypeEnum from './src/enums/PasswordPolicyTypeEnum';
 import ScriptCategoryEnum from './src/enums/ScriptCategoryEnum';
+import ApiOperationTypeEnum from './src/enums/ApiOperationTypeEnum';
+//
+import ValidationMessage from './src/content/identity/ValidationMessage';
 
 const ModuleRoot = {
   Basic,
@@ -41,7 +44,11 @@ const ModuleRoot = {
     AbstractEnum,
     OperationStateEnum,
     PasswordPolicyTypeEnum,
-    ScriptCategoryEnum
+    ScriptCategoryEnum,
+    ApiOperationTypeEnum
+  },
+  Content: {
+    ValidationMessage
   }
 };
 ModuleRoot.version = '0.0.1';

@@ -7,6 +7,7 @@ import static org.junit.Assert.assertNull;
 import java.util.List;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -94,9 +95,9 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 	@Autowired
 	private SysRoleSystemService roleSystemService;
 	@Autowired
-	private SysSystemMappingService systemEntityHandlingService;
+	private SysSystemMappingService systemMappingService;
 	@Autowired
-	private SysSystemAttributeMappingService schemaAttributeHandlingService;
+	private SysSystemAttributeMappingService systemAttributeMappingService;
 	@Autowired
 	private SysRoleSystemAttributeService roleSystemAttributeService;
 	@Autowired
@@ -141,7 +142,7 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		systemMapping.setObjectClass(objectClass);
 		systemMapping.setOperationType(SystemOperationType.PROVISIONING);
 		systemMapping.setEntityType(SystemEntityType.IDENTITY);
-		systemMapping = systemEntityHandlingService.save(systemMapping);
+		systemMapping = systemMappingService.save(systemMapping);
 		SystemMappingFilter entityHandlingFilter = new SystemMappingFilter();
 		entityHandlingFilter.setSystemId(system.getId());
 		// schema attribute handling
@@ -150,7 +151,7 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		schemaAttributeHandling.setSystemMapping(systemMapping);
 		schemaAttributeHandling.setName("name");
 		schemaAttributeHandling.setIdmPropertyName("name");
-		schemaAttributeHandlingService.save(schemaAttributeHandling);
+		systemAttributeMappingService.save(schemaAttributeHandling);
 		SystemAttributeMappingFilter schemaAttributeHandlingFilter = new SystemAttributeMappingFilter(); 
 		schemaAttributeHandlingFilter.setSystemId(system.getId());		
 		// role system
@@ -176,8 +177,8 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		assertEquals(systemName, systemService.getByCode(systemName).getName());
 		assertEquals(1, schemaObjectClassService.find(objectClassFilter, null).getTotalElements());
 		assertEquals(1, schemaAttributeService.find(schemaAttributeFilter, null).getTotalElements());
-		assertEquals(1, systemEntityHandlingService.find(entityHandlingFilter, null).getTotalElements());
-		assertEquals(1, schemaAttributeHandlingService.find(schemaAttributeHandlingFilter, null).getTotalElements());
+		assertEquals(1, systemMappingService.find(entityHandlingFilter, null).getTotalElements());
+		assertEquals(1, systemAttributeMappingService.find(schemaAttributeHandlingFilter, null).getTotalElements());
 		assertEquals(1, roleSystemService.find(roleSystemFilter, null).getTotalElements());
 		assertNotNull(roleSystemAttributeService.get(roleSystemAttribute.getId()));
 		
@@ -186,8 +187,8 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		assertNull(systemService.getByCode(systemName));
 		assertEquals(0, schemaObjectClassService.find(objectClassFilter, null).getTotalElements());
 		assertEquals(0, schemaAttributeService.find(schemaAttributeFilter, null).getTotalElements());
-		assertEquals(0, systemEntityHandlingService.find(entityHandlingFilter, null).getTotalElements());
-		assertEquals(0, schemaAttributeHandlingService.find(schemaAttributeHandlingFilter, null).getTotalElements());
+		assertEquals(0, systemMappingService.find(entityHandlingFilter, null).getTotalElements());
+		assertEquals(0, systemAttributeMappingService.find(schemaAttributeHandlingFilter, null).getTotalElements());
 		assertEquals(0, roleSystemService.find(roleSystemFilter, null).getTotalElements());
 		assertNull(roleSystemAttributeService.get(roleSystemAttribute.getId()));
 	}
@@ -387,6 +388,35 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		
 		// do test system
 		systemService.checkSystem(system);
+	}
+	
+	@Test
+	public void duplicateSystem(){
+		// create test system
+		SysSystem system = helper.createTestResourceSystem(true);
+		SchemaAttributeFilter schemaAttributeFilter = new SchemaAttributeFilter();
+		schemaAttributeFilter.setSystemId(system.getId());
+		// Number of schema attributes on original system
+		int numberOfSchemaAttributesOrig = schemaAttributeService.find(schemaAttributeFilter, null).getContent().size();
+		SysSystemMapping mappingOrig = helper.getDefaultMapping(system);
+		// Number of mapping attributes on original system
+		int numberOfMappingAttributesOrig = systemAttributeMappingService.findBySystemMapping(mappingOrig).size();
+		
+		SysSystem duplicatedSystem = systemService.duplicate(system.getId());
+		// check duplicate
+		systemService.checkSystem(duplicatedSystem);
+		
+		Assert.assertNotEquals(system.getId(), duplicatedSystem.getId());
+		
+		schemaAttributeFilter.setSystemId(duplicatedSystem.getId());
+		// Number of schema attributes on duplicated system
+		int numberOfSchemaAttributes = schemaAttributeService.find(schemaAttributeFilter, null).getContent().size();
+		Assert.assertEquals(numberOfSchemaAttributesOrig, numberOfSchemaAttributes);
+		
+		SysSystemMapping mapping = helper.getDefaultMapping(duplicatedSystem);
+		// Number of mapping attributes on duplicated system
+		int numberOfMappingAttributes = systemAttributeMappingService.findBySystemMapping(mapping).size();
+		Assert.assertEquals(numberOfMappingAttributesOrig, numberOfMappingAttributes);
 	}
 
 }

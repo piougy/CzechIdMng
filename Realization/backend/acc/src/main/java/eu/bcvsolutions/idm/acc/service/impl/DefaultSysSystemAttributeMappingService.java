@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import javax.persistence.EntityManager;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.plugin.core.OrderAwarePluginRegistry;
 import org.springframework.plugin.core.PluginRegistry;
@@ -74,6 +76,8 @@ public class DefaultSysSystemAttributeMappingService
 	private final FormPropertyManager formPropertyManager;
 	private final SysSyncConfigRepository syncConfigRepository;
 	private final PluginRegistry<AbstractScriptEvaluator, IdmScriptCategory> pluginExecutors; 
+	private final EntityManager entityManager;
+	
 	@Autowired
 	public DefaultSysSystemAttributeMappingService(
 			SysSystemAttributeMappingRepository repository,
@@ -83,7 +87,8 @@ public class DefaultSysSystemAttributeMappingService
 			FormPropertyManager formPropertyManager,
 			SysSyncConfigRepository syncConfigRepository,
 			List<AbstractScriptEvaluator> evaluators,
-			ConfidentialStorage confidentialStorage) {
+			ConfidentialStorage confidentialStorage,
+			EntityManager entityManager) {
 		super(repository);
 		//
 		Assert.notNull(groovyScriptService);
@@ -93,6 +98,7 @@ public class DefaultSysSystemAttributeMappingService
 		Assert.notNull(syncConfigRepository);
 		Assert.notNull(evaluators);
 		Assert.notNull(confidentialStorage);
+		Assert.notNull(entityManager);
 		//
 		this.formService = formService;
 		this.repository = repository;
@@ -101,6 +107,7 @@ public class DefaultSysSystemAttributeMappingService
 		this.formPropertyManager = formPropertyManager;
 		this.syncConfigRepository = syncConfigRepository;
 		this.confidentialStorage = confidentialStorage;
+		this.entityManager = entityManager;
 		//
 		this.pluginExecutors = OrderAwarePluginRegistry.create(evaluators);
 	}
@@ -299,6 +306,18 @@ public class DefaultSysSystemAttributeMappingService
 			}
 		}
 		return icAttributeForUpdate;
+	}
+	
+	@Override
+	public SysSystemAttributeMapping clone(UUID id) {
+		SysSystemAttributeMapping original = this.get(id);
+		Assert.notNull(original, "Schema attribute must be found!");
+		
+		// We do detach this entity (and set id to null)
+		entityManager.detach(original);
+		original.setId(null);
+		EntityUtils.clearAuditFields(original);
+		return original;
 	}
 
 	/**

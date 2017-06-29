@@ -1,28 +1,37 @@
-import React from 'react';
+import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
+import { connect } from 'react-redux';
+//
 import * as Advanced from '../components/advanced';
 import * as Basic from '../components/basic';
+import { ConfigurationManager } from '../redux';
 
-export default class About extends Basic.AbstractContent {
+/**
+ * Simple about content
+ *
+ * @author Ondřej Kopr
+ * @author Radek Tomiška
+ */
+class About extends Basic.AbstractContent {
 
   render() {
-    // TODO: dynamic about info
+    const { version } = this.props;
+    //
     return (
       <div>
         <Helmet title={this.i18n('content.about.title')} />
 
         <Basic.Row>
-          <div className="col-lg-4 col-lg-offset-4">
+          <Basic.Col lg={ 4 } className="col-lg-offset-4">
             <Basic.Panel>
               <Basic.PanelHeader text={this.i18n('content.about.header')}/>
               <Basic.PanelBody className="text-center">
                 <div className="about-logo">
                 </div>
                 <div className="about-text">
-                  {/* TODO: load properties from public configuration */}
-                  <big>{this.i18n('app.version.frontend')}: Citrin - snapshot</big>
+                  <big>{this.i18n('app.version.frontend')}: { version }</big>
                   <br />
-                  <big>{this.i18n('app.version.releaseDate')}: <Advanced.DateValue value="2017-01-03"/></big>
+                  <big>{this.i18n('app.version.releaseDate')}: <Advanced.DateValue value="2017-06-23"/></big>
                   <br />
                   <a href={this.i18n('app.author.homePage')} target="_blank">{this.i18n('app.author.name')}</a>
                   <br />
@@ -36,10 +45,22 @@ export default class About extends Basic.AbstractContent {
                 </div>
               </Basic.PanelBody>
             </Basic.Panel>
-          </div>
+          </Basic.Col>
         </Basic.Row>
-
       </div>
     );
   }
 }
+
+About.propTypes = {
+  version: PropTypes.string
+};
+
+function select(state) {
+  return {
+    version: ConfigurationManager.getPublicValue(state, 'idm.pub.core.build.version')
+    // TODO: timestamp - eclipse don't replace pom properties ...
+  };
+}
+
+export default connect(select)(About);

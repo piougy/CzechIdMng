@@ -613,7 +613,7 @@
       "running": "Běží",
       "customFilter" :{
         "label": "Použít vlastní filtr",
-        "help": "Pokud je zaškrtnuto, tak se bude synchronizace řídit filtrem definovaným níže. Pokud není zaškrtnuto, tak se využije synchronizační mechanizmus konektoru."
+        "help": "Pokud je zaškrtnuto, tak se bude synchronizace řídit filtrem definovaným níže. Pokud není zaškrtnuto, tak se využije synchronizační mechanizmus konektoru. NENÍ použito pro rekoncilaci."
       },
       "filterAttribute" :{
         "label": "Filtrovat dle atributu",

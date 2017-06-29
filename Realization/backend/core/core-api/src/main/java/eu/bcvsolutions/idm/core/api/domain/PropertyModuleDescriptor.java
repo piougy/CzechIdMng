@@ -17,7 +17,10 @@ public abstract class PropertyModuleDescriptor extends AbstractModuleDescriptor 
 	private String vendor;
 	private String vendorUrl;
 	private String vendorEmail;
+	private String buildNumber;
+	private String buildTimestamp;
 
+	@Override
 	public String getVersion() {
 		return version;
 	}
@@ -26,6 +29,7 @@ public abstract class PropertyModuleDescriptor extends AbstractModuleDescriptor 
 		this.version = version;
 	}
 
+	@Override
 	public String getName() {
 		return name;
 	}
@@ -34,6 +38,7 @@ public abstract class PropertyModuleDescriptor extends AbstractModuleDescriptor 
 		this.name = name;
 	}
 
+	@Override
 	public String getDescription() {
 		return description;
 	}
@@ -41,7 +46,8 @@ public abstract class PropertyModuleDescriptor extends AbstractModuleDescriptor 
 	public void setDescription(String description) {
 		this.description = description;
 	}
-
+	
+	@Override
 	public String getVendor() {
 		return vendor;
 	}
@@ -50,6 +56,7 @@ public abstract class PropertyModuleDescriptor extends AbstractModuleDescriptor 
 		this.vendor = vendor;
 	}
 
+	@Override
 	public String getVendorUrl() {
 		return vendorUrl;
 	}
@@ -58,11 +65,28 @@ public abstract class PropertyModuleDescriptor extends AbstractModuleDescriptor 
 		this.vendorUrl = vendorUrl;
 	}
 
+	@Override
 	public String getVendorEmail() {
 		return vendorEmail;
 	}
 
 	public void setVendorEmail(String vendorEmail) {
 		this.vendorEmail = vendorEmail;
+	}
+	
+	public String getBuildNumber() {
+		return buildNumber;
+	}
+
+	public void setBuildNumber(String buildNumber) {
+		this.buildNumber = buildNumber;
+	}
+
+	public String getBuildTimestamp() {
+		return buildTimestamp;
+	}
+
+	public void setBuildTimestamp(String buildTimestamp) {
+		this.buildTimestamp = buildTimestamp;
 	}
 }

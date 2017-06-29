@@ -10,6 +10,7 @@ import javax.persistence.Table;
 
 import org.hibernate.envers.Audited;
 
+import eu.bcvsolutions.idm.core.api.domain.AuditSearchable;
 import eu.bcvsolutions.idm.core.eav.entity.AbstractFormValue;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
@@ -25,7 +26,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 		@Index(name = "idx_idm_identity_form_a", columnList = "owner_id"),
 		@Index(name = "idx_idm_identity_form_a_def", columnList = "attribute_id"),
 		@Index(name = "idx_idm_identity_form_a_str", columnList = "string_value") })
-public class IdmIdentityFormValue extends AbstractFormValue<IdmIdentity> {
+public class IdmIdentityFormValue extends AbstractFormValue<IdmIdentity> implements AuditSearchable {
 
 	private static final long serialVersionUID = -6873566385389649927L;
 	
@@ -50,6 +51,36 @@ public class IdmIdentityFormValue extends AbstractFormValue<IdmIdentity> {
 	
 	public void setOwner(IdmIdentity owner) {
 		this.owner = owner;
+	}
+
+	@Override
+	public String getOwnerId() {
+		return this.getOwner().getId().toString();
+	}
+
+	@Override
+	public String getOwnerCode() {
+		return this.getOwner().getCode();
+	}
+
+	@Override
+	public String getOwnerType() {
+		return IdmIdentity.class.getName();
+	}
+
+	@Override
+	public String getSubOwnerId() {
+		return this.getFormAttribute().getId().toString();
+	}
+
+	@Override
+	public String getSubOwnerCode() {
+		return this.getFormAttribute().getCode();
+	}
+
+	@Override
+	public String getSubOwnerType() {
+		return IdmFormAttribute.class.getName();
 	}
 
 }

@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>eu.bcvsolutions.idm</groupId>
 		<artifactId>idm-core</artifactId>
-		<version>7.3.0-rc.2-SNAPSHOT</version>
+		<version>7.3.0-rc.4-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>idm-core-test-api</artifactId>
@@ -25,6 +25,7 @@
 							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
 						</manifest>
 						<manifestEntries>
+							<Implementation-Build>${buildNumber}</Implementation-Build>
 							<Specification-Title>${project.description}</Specification-Title>
 						</manifestEntries>
 					</archive>

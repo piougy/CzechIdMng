@@ -25,6 +25,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import eu.bcvsolutions.idm.core.api.domain.Codeable;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.Disableable;
+import eu.bcvsolutions.idm.core.api.domain.AuditSearchable;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
@@ -39,7 +40,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedStringDeserializer;
 @Entity
 @Table(name = "idm_identity", indexes = {
 		@Index(name = "ux_idm_identity_username", columnList = "username", unique = true) })
-public class IdmIdentity extends AbstractEntity implements Codeable, FormableEntity, Disableable {
+public class IdmIdentity extends AbstractEntity implements Codeable, FormableEntity, Disableable, AuditSearchable {
 
 	private static final long serialVersionUID = -3387957881104260630L;
 	//
@@ -200,5 +201,34 @@ public class IdmIdentity extends AbstractEntity implements Codeable, FormableEnt
 	public void setDisabled(boolean disabled) {
 		this.disabled = disabled;
 	}
-	
+
+	@Override
+	public String getOwnerId() {
+		return this.getId().toString();
+	}
+
+	@Override
+	public String getOwnerCode() {
+		return this.getCode();
+	}
+
+	@Override
+	public String getOwnerType() {
+		return IdmIdentity.class.getName();
+	}
+
+	@Override
+	public String getSubOwnerId() {
+		return null;
+	}
+
+	@Override
+	public String getSubOwnerCode() {
+		return null;
+	}
+
+	@Override
+	public String getSubOwnerType() {
+		return null;
+	}
 }

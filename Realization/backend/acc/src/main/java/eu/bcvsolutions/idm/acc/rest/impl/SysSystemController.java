@@ -174,6 +174,18 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 		systemService.generateSchema(system);
 		return new ResponseEntity<>(toResource(system, assembler), HttpStatus.OK);
 	}
+	
+	@ResponseBody
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_UPDATE + "')")
+	@RequestMapping(value = "/{backendId}/duplicate", method = RequestMethod.POST)
+	public ResponseEntity<?> duplicate(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler) {
+		SysSystem system = getEntity(backendId);
+		if (system == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+		}
+		SysSystem duplicate = systemService.duplicate(system.getId());
+		return new ResponseEntity<>(toResource(duplicate, assembler), HttpStatus.OK);
+	}
 
 	@Override
 	protected SysSystemFilter toFilter(MultiValueMap<String, Object> parameters) {

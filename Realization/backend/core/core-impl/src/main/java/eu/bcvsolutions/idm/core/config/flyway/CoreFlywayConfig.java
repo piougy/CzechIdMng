@@ -30,9 +30,9 @@ import eu.bcvsolutions.idm.core.api.config.flyway.IdmFlywayPostProcessor;
 @AutoConfigureAfter(IdmFlywayAutoConfiguration.IdmFlywayConfiguration.class)
 @EnableConfigurationProperties(FlywayProperties.class)
 @PropertySource("classpath:/flyway-core.properties")
-public class FlywayConfigCore extends AbstractFlywayConfiguration {
+public class CoreFlywayConfig extends AbstractFlywayConfiguration {
 	
-	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(FlywayConfigCore.class);
+	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(CoreFlywayConfig.class);
 	public static final String NAME = "flywayCore";
 	
 	@Bean

@@ -64,6 +64,20 @@ public interface ModuleDescriptor extends Plugin<String> {
 	String getVendorEmail();
 	
 	/**
+	 * Revision from scm
+	 * 
+	 * @return
+	 */
+	String getBuildNumber();
+
+	/**
+	 * Build timestamp
+	 * 
+	 * @return
+	 */
+	String getBuildTimestamp();
+	
+	/**
 	 * Module permissions
 	 * 
 	 * @return

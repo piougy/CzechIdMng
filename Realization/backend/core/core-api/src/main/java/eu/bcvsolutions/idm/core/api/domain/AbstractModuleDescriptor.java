@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.core.api.domain;
 import java.util.Collections;
 import java.util.List;
 
+import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.notification.api.dto.NotificationConfigurationDto;
 import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
 
@@ -10,10 +11,12 @@ import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
  * Add default methods implementation for {@link ModuleDescriptor}.
  * No additional configuration in needed. 
  * Read information directly from pom file.
- * cannot be used in integration tests (manifest for pom file is generated after tests are done) - use {@link PropertyModuleDescriptor}.
+ * Cannot be used in integration tests (manifest for pom file is generated after tests are done) - use {@link PropertyModuleDescriptor}.
  * 
  * @see PropertyModuleDescriptor
  * @see ModuleDescriptor
+ * @see ModuleService
+ * 
  * @author Radek Tomiška
  */
 public abstract class AbstractModuleDescriptor implements ModuleDescriptor {
@@ -48,7 +51,7 @@ public abstract class AbstractModuleDescriptor implements ModuleDescriptor {
 	}
 	
 	/**
-	 * Returns null by default
+	 * Returns null by default. Use {@link PropertyModuleDescriptor}.
 	 * 
 	 * @see PropertyModuleDescriptor
 	 */
@@ -58,12 +61,32 @@ public abstract class AbstractModuleDescriptor implements ModuleDescriptor {
 	}
 	
 	/**
-	 * Returns null by default
+	 * Returns null by default. Use {@link PropertyModuleDescriptor}.
 	 * 
 	 * @see PropertyModuleDescriptor
 	 */
 	@Override
 	public String getVendorEmail() {
+		return null;
+	}
+	
+	/**
+	 * Returns null by default. Use {@link PropertyModuleDescriptor}.
+	 * 
+	 * @see PropertyModuleDescriptor
+	 */
+	@Override
+	public String getBuildNumber() {
+		return null;
+	}
+	
+	/**
+	 * Returns null by default. Use {@link PropertyModuleDescriptor}.
+	 * 
+	 * @see PropertyModuleDescriptor
+	 */
+	@Override
+	public String getBuildTimestamp() {
 		return null;
 	}
 	

@@ -174,11 +174,11 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 					organizationRoot = this.treeNodeService.save(organizationRoot);
 				}
 			}
-			// initial missing templates, current templates isn't redeploys
-			notificationTemplateService.init();
 			//
-			// initial missing scripts, current scrit isn't redploy
+			// initial missing scripts, current scripts isn't redploy
 			scriptService.init();
+			// save only missing templates, current templates is not redeploys
+			notificationTemplateService.init();
 			//
 			// init notification configuration, initialization topic need exists system templates!
 			notificationConfigurationService.initDefaultTopics();

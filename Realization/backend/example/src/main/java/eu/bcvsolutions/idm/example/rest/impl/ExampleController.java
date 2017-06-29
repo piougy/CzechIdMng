@@ -23,7 +23,7 @@ import io.swagger.annotations.Authorization;
  *
  */
 @RestController
-@RequestMapping(value = BaseController.BASE_PATH + "/examples", produces = BaseController.APPLICATION_HAL_JSON_VALUE)
+@RequestMapping(value = BaseController.BASE_PATH + "/examples")
 @Api(value = "Examples", description = "Example operations", tags = { "Examples" })
 public class ExampleController {
 

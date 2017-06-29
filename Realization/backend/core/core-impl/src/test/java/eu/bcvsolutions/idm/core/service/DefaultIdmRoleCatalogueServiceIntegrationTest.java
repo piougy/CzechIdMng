@@ -82,50 +82,51 @@ public class DefaultIdmRoleCatalogueServiceIntegrationTest extends AbstractInteg
 		List<IdmRoleCatalogueDto> roleCatalogues = roleCatalogueService.findAllByRole(role.getId());
 		assertEquals(0, roleCatalogues.size());
 	}
-	
-	@Test(expected = ResultCodeException.class)
-	public void testDuplicitNamesRoots() {
-		IdmRoleCatalogueDto roleCatalogue = new IdmRoleCatalogueDto();
-		String name = "cat_one_" + System.currentTimeMillis();
-		roleCatalogue.setCode(name);
-		roleCatalogue.setName("test");
-		//
-		this.roleCatalogueService.save(roleCatalogue);
-		//
-		// create second
-		IdmRoleCatalogueDto roleCatalogue2 = new IdmRoleCatalogueDto();
-		name = "cat_one_" + System.currentTimeMillis();
-		roleCatalogue2.setCode(name);
-		roleCatalogue2.setName("test");
-		// throws error
-		this.roleCatalogueService.save(roleCatalogue2);
-	}
-	
-	@Test(expected = ResultCodeException.class)
-	public void testDuplicitNamesChilds() {
-		IdmRoleCatalogueDto root = new IdmRoleCatalogueDto();
-		String code = "cat_one_" + System.currentTimeMillis();
-		root.setCode(code);
-		root.setName("test" + System.currentTimeMillis());
-		root = this.roleCatalogueService.save(root);
-		//
-		IdmRoleCatalogueDto roleCatalogue = new IdmRoleCatalogueDto();
-		code = "cat_one_" + System.currentTimeMillis();
-		roleCatalogue.setCode(code);
-		roleCatalogue.setParent(root.getId());
-		roleCatalogue.setName("test");
-		//
-		roleCatalogue = this.roleCatalogueService.save(roleCatalogue);
-		//
-		// create second
-		IdmRoleCatalogueDto roleCatalogue2 = new IdmRoleCatalogueDto();
-		code = "cat_one_" + System.currentTimeMillis();
-		roleCatalogue2.setCode(code);
-		roleCatalogue2.setParent(root.getId());
-		roleCatalogue2.setName("test");
-		// throws error
-		this.roleCatalogueService.save(roleCatalogue2);
-	}
+
+// VS: I turned off this validation ... because in implementation is same name (different code) normal situation 
+//	@Test(expected = ResultCodeException.class)
+//	public void testDuplicitNamesRoots() {
+//		IdmRoleCatalogueDto roleCatalogue = new IdmRoleCatalogueDto();
+//		String name = "cat_one_" + System.currentTimeMillis();
+//		roleCatalogue.setCode(name);
+//		roleCatalogue.setName("test");
+//		//
+//		this.roleCatalogueService.save(roleCatalogue);
+//		//
+//		// create second
+//		IdmRoleCatalogueDto roleCatalogue2 = new IdmRoleCatalogueDto();
+//		name = "cat_one_" + System.currentTimeMillis();
+//		roleCatalogue2.setCode(name);
+//		roleCatalogue2.setName("test");
+//		// throws error
+//		this.roleCatalogueService.save(roleCatalogue2);
+//	}
+//	
+//	@Test(expected = ResultCodeException.class)
+//	public void testDuplicitNamesChilds() {
+//		IdmRoleCatalogueDto root = new IdmRoleCatalogueDto();
+//		String code = "cat_one_" + System.currentTimeMillis();
+//		root.setCode(code);
+//		root.setName("test" + System.currentTimeMillis());
+//		root = this.roleCatalogueService.save(root);
+//		//
+//		IdmRoleCatalogueDto roleCatalogue = new IdmRoleCatalogueDto();
+//		code = "cat_one_" + System.currentTimeMillis();
+//		roleCatalogue.setCode(code);
+//		roleCatalogue.setParent(root.getId());
+//		roleCatalogue.setName("test");
+//		//
+//		roleCatalogue = this.roleCatalogueService.save(roleCatalogue);
+//		//
+//		// create second
+//		IdmRoleCatalogueDto roleCatalogue2 = new IdmRoleCatalogueDto();
+//		code = "cat_one_" + System.currentTimeMillis();
+//		roleCatalogue2.setCode(code);
+//		roleCatalogue2.setParent(root.getId());
+//		roleCatalogue2.setName("test");
+//		// throws error
+//		this.roleCatalogueService.save(roleCatalogue2);
+//	}
 	
 	@Test
 	public void testNameDiffLevel() {

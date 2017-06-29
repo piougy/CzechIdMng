@@ -1,0 +1,33 @@
+<?xml version = "1.0" encoding = "UTF-8" standalone = "yes"?>
+<!--
+/**
+ *
+ * @author Petr Michal
+ *
+ * Returns trimmed value if given attribute is type of String.
+ * Return attributeValue for other types.
+ *
+ */
+-->
+<script>
+	<name>Get trimmed String</name>
+	<code>getTrimmedString</code>
+	<type>groovy</type>
+	<body>
+		<![CDATA[
+
+		if (attributeValue) return attributeValue
+		attributeValue instanceof String ? attributeValue.trim() : attributeValue
+
+  		]]>
+	</body>
+	<inputParameter>attributeValue</inputParameter>
+	<services>
+    	<!-- not needed -->
+  	</services>
+	<allowClasses>
+	   <!-- not needed -->
+	</allowClasses>
+	<systemTemplate>true</systemTemplate>
+	<moduleId>acc</moduleId>
+</script>

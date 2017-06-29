@@ -1,0 +1,31 @@
+<?xml version = "1.0" encoding = "UTF-8" standalone = "yes"?>
+<!--
+/**
+ *
+ * @author Petr Michal
+ *
+ * Returns opposite value of given Boolean
+ *
+ */
+-->
+<script>
+	<name>Get opposite Boolean</name>
+	<code>getOppositeBoolean</code>
+	<type>groovy</type>
+	<body>
+		<![CDATA[
+
+			attributeValue == null ?: !attributeValue
+
+  		]]>
+	</body>
+	<inputParameter>attributeValue</inputParameter>
+	<services>
+    	<!-- not needed -->
+  	</services>
+	<allowClasses>
+	   <!-- not needed -->
+	</allowClasses>
+	<systemTemplate>true</systemTemplate>
+	<moduleId>acc</moduleId>
+</script>

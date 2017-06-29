@@ -1,0 +1,51 @@
+<?xml version = "1.0" encoding = "UTF-8" standalone = "yes"?>
+<!--
+/**
+ * @author Petr Michal
+ *
+ * Script returns name of user in form:
+ * titles before + first name + surname +, + tiles after
+ *
+ * Example: Dr. John Green, Ph.D.
+ */
+-->
+<script>
+	<name>Get full name with titles</name>
+	<code>getFullNameWithTitles</code>
+	<type>groovy</type>
+	<body>
+		<![CDATA[
+
+		StringBuilder name = new StringBuilder()
+		String titleAfter = entity.getTitleAfter()
+		String titleBefore = entity.getTitleBefore()
+		String surname = entity.getLastName()
+		
+		if (titleBefore) {
+		    name.append(titleBefore + " ")
+		}
+		
+		name.append(entity.getFirstName())
+		
+		if (surname) {
+		    name.append(" " + surname)
+		}
+		
+		if (titleAfter) {
+		    name.append(", " + titleAfter)
+		}
+		
+		name.toString()
+
+  		]]>
+	</body>
+	<inputParameter>attributeValue</inputParameter>
+	<services>
+    	<!-- not needed -->
+  	</services>
+	<allowClasses>
+	  <class>java.lang.StringBuilder</class>
+	</allowClasses>
+	<systemTemplate>true</systemTemplate>
+	<moduleId>acc</moduleId>
+</script>

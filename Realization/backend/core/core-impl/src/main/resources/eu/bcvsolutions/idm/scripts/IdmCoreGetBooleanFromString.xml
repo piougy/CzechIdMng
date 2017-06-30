@@ -9,27 +9,26 @@
  *
  */
 -->
-<script>
-	<name>Get Boolean from String</name>
+<script
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+		xsi:noNamespaceSchemaLocation="IdmScript.xsd">
 	<code>getBooleanFromString</code>
-	<type>groovy</type>
+	<name>Get Boolean from String</name>
 	<body>
 		<![CDATA[
-
-		if ("false".equals(attributeValue) || "true".equals(attributeValue)) {
-		    return Boolean.valueOf(attributeValue)
-		}
-		return null
-
+if ("false".equals(attributeValue) || "true".equals(attributeValue)) {
+    return Boolean.valueOf(attributeValue)
+}
+return null
   		]]>
 	</body>
-	<inputParameter>attributeValue</inputParameter>
+	<type>groovy</type>
+	<category>DEFAULT</category>
+	<parameters>attributeValue</parameters>
 	<services>
     	<!-- not needed -->
   	</services>
 	<allowClasses>
 	   <!-- not needed -->
 	</allowClasses>
-	<systemTemplate>true</systemTemplate>
-	<moduleId>acc</moduleId>
 </script>

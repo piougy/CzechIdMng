@@ -10,38 +10,38 @@
  *
  */
 -->
-<script>
-	<name>Get full name with login</name>
+<script xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="IdmScript.xsd">
 	<code>getFullNameWithLogin</code>
-	<type>groovy</type>
+	<name>Get full name with login</name>
 	<body>
 		<![CDATA[
+StringBuilder name = new StringBuilder()
+String firsName = entity.getFirstName()
+String surname = entity.getLastName()
 
-		StringBuilder name = new StringBuilder()
-		String firsName = entity.getFirstName()
-		String surname = entity.getLastName()
-		
-		if (firsName) {
-		    name.append(firsName)
-		}
-		
-		if (surname) {
-		    name.append(" " + surname)
-		}
-		
-		name.append(" (" + entity.getUsername() + ")")
-		
-		name.toString()
+if (firsName) {
+    name.append(firsName)
+}
 
+if (surname) {
+    name.append(" " + surname)
+}
+
+name.append(" (" + entity.getUsername() + ")")
+
+name.toString()
   		]]>
 	</body>
-	<inputParameter>attributeValue</inputParameter>
+	<type>groovy</type>
+	<category>DEFAULT</category>
+	<parameters>attributeValue</parameters>
 	<services>
-    	<!-- not needed -->
-  	</services>
+		<!-- not needed -->
+	</services>
 	<allowClasses>
-	  <class>java.lang.StringBuilder</class>
+		<allowClass>
+			<className>java.lang.StringBuilder</className>
+		</allowClass>
 	</allowClasses>
-	<systemTemplate>true</systemTemplate>
-	<moduleId>acc</moduleId>
 </script>

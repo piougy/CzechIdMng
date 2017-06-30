@@ -1,6 +1,5 @@
 <?xml version = "1.0" encoding = "UTF-8" standalone = "yes"?>
 <!-- 
-!! Only example !! Script import is not supported yet!
 
 Return 'true', if  account for given UID (AccAccount UID) and system ID is in protection state. Else return 'false'.
 Beware that in transformation rules SysSystemEntity UID is given as the input, therefore if account and system
@@ -11,27 +10,28 @@ parameters:
 	-	uid
  -->
  
-<script>
-	<name>Is account for given UID in protection mode?</name>
+<script xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="IdmScript.xsd">
 	<code>isAccountInProtection</code>
-	<category>TRANSFORM_TO</category>
-	<type>groovy</type>
+	<name>Is account for given UID in protection mode?</name>
 	<body>
 	<![CDATA[
-	org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger("isAccountInProtection script");
-	
-	log.debug("Start 'isAccountInProtection' script.");
-	
-	// Load account
-	def account = accAccountService.getAccount(uid,system.getId());
-	
-	if(account){
-	    // Account was found. Return protection state.
-	    return account.isInProtection();
-	}
-	return false;
+org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger("isAccountInProtection script");
+
+log.debug("Start 'isAccountInProtection' script.");
+
+// Load account
+def account = accAccountService.getAccount(uid,system.getId());
+
+if(account){
+    // Account was found. Return protection state.
+    return account.isInProtection();
+}
+return false;
 	]]>
 	</body>
+	<type>groovy</type>
+	<category>TRANSFORM_TO</category>
 	<parameters>uid, system</parameters>
 	<services>
 		<service>

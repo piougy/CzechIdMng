@@ -1,31 +1,27 @@
 <?xml version = "1.0" encoding = "UTF-8" standalone = "yes"?>
-<!--
-/**
- *
- * @author Petr Michal
- *
- * Returns opposite value of given Boolean
- *
- */
--->
-<script>
-	<name>Get opposite Boolean</name>
+<!-- 
+/** 
+  * 
+  * @author Petr Michal 
+  * 
+  * Returns opposite value of given Boolean 
+  **/ -->
+<script xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="IdmScript.xsd">
 	<code>getOppositeBoolean</code>
-	<type>groovy</type>
+	<name>Get opposite Boolean</name>
 	<body>
 		<![CDATA[
-
-			attributeValue == null ?: !attributeValue
-
+attributeValue == null ?: !attributeValue
   		]]>
 	</body>
-	<inputParameter>attributeValue</inputParameter>
+	<type>groovy</type>
+	<category>DEFAULT</category>
+	<parameters>attributeValue</parameters>
 	<services>
-    	<!-- not needed -->
-  	</services>
+		<!-- not needed -->
+	</services>
 	<allowClasses>
-	   <!-- not needed -->
+		<!-- not needed -->
 	</allowClasses>
-	<systemTemplate>true</systemTemplate>
-	<moduleId>acc</moduleId>
 </script>

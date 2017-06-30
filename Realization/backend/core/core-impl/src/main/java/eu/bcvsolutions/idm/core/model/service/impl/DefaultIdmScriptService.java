@@ -115,7 +115,10 @@ public class DefaultIdmScriptService extends AbstractReadWriteDtoService<IdmScri
 		IdmScriptDto dto = super.get(id, permission);
 		//
 		if (dto != null && !dto.isTrimmed()) {
-			dto.setTemplate(pluginExecutors.getPluginFor(dto.getCategory()).generateTemplate(dto));
+			AbstractScriptEvaluator evaluator = pluginExecutors.getPluginFor(dto.getCategory());
+			if (evaluator != null) {
+				dto.setTemplate(evaluator.generateTemplate(dto));
+			}
 		}
 		//
 		return dto;
@@ -310,7 +313,7 @@ public class DefaultIdmScriptService extends AbstractReadWriteDtoService<IdmScri
 	 */
 	private List<IdmScriptAuthorityDto> authorityTypeToDto(IdmScriptType type, IdmScriptDto scriptDto) {
 		List<IdmScriptAuthorityDto> authorities = new ArrayList<>();
-		if (type.getAllowClasses() != null) {
+		if (type.getAllowClasses() != null && type.getAllowClasses().getAllowClasses() != null) {
 			for (IdmScriptAllowClassType allowClass : type.getAllowClasses().getAllowClasses()) {
 				try {
 					Class.forName(allowClass.getClassName());
@@ -328,7 +331,7 @@ public class DefaultIdmScriptService extends AbstractReadWriteDtoService<IdmScri
 			}
 		}
 		//
-		if (type.getServices() != null) {
+		if (type.getServices() != null && type.getServices().getServices() != null) {
 			for (IdmScriptServiceType service : type.getServices().getServices()) {
 				if (scriptAuthorityService.isServiceReachable(service.getName(), service.getClassName())) {
 					IdmScriptAuthorityDto authDto = new IdmScriptAuthorityDto();
@@ -421,12 +424,17 @@ public class DefaultIdmScriptService extends AbstractReadWriteDtoService<IdmScri
 					IdmScriptServiceType service = new IdmScriptServiceType();
 					service.setName(auth.getClassName());
 					service.setName(auth.getService());
+					services.add(service);
 				}
 			}
-			type.setServices(new IdmScriptServicesType());
-			type.setAllowClasses(new IdmScriptAllowClassesType());
-			type.getAllowClasses().setAllowClasses(classes);
-			type.getServices().setServices(services);
+			if (!classes.isEmpty()) {
+				type.setAllowClasses(new IdmScriptAllowClassesType());
+				type.getAllowClasses().setAllowClasses(classes);
+			}
+			if (!services.isEmpty()) {
+				type.setServices(new IdmScriptServicesType());
+				type.getServices().setServices(services);
+			}
 		}
 		return type;
 	}

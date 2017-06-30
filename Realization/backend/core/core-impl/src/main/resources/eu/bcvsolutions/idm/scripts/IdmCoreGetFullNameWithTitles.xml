@@ -9,43 +9,43 @@
  * Example: Dr. John Green, Ph.D.
  */
 -->
-<script>
-	<name>Get full name with titles</name>
+<script xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="IdmScript.xsd">
 	<code>getFullNameWithTitles</code>
-	<type>groovy</type>
+	<name>Get full name with titles</name>
 	<body>
 		<![CDATA[
+StringBuilder name = new StringBuilder()
+String titleAfter = entity.getTitleAfter()
+String titleBefore = entity.getTitleBefore()
+String surname = entity.getLastName()
 
-		StringBuilder name = new StringBuilder()
-		String titleAfter = entity.getTitleAfter()
-		String titleBefore = entity.getTitleBefore()
-		String surname = entity.getLastName()
-		
-		if (titleBefore) {
-		    name.append(titleBefore + " ")
-		}
-		
-		name.append(entity.getFirstName())
-		
-		if (surname) {
-		    name.append(" " + surname)
-		}
-		
-		if (titleAfter) {
-		    name.append(", " + titleAfter)
-		}
-		
-		name.toString()
+if (titleBefore) {
+    name.append(titleBefore + " ")
+}
 
+name.append(entity.getFirstName())
+
+if (surname) {
+    name.append(" " + surname)
+}
+
+if (titleAfter) {
+    name.append(", " + titleAfter)
+}
+
+name.toString()
   		]]>
 	</body>
-	<inputParameter>attributeValue</inputParameter>
+	<type>groovy</type>
+	<category>DEFAULT</category>
+	<parameters>attributeValue</parameters>
 	<services>
-    	<!-- not needed -->
-  	</services>
+		<!-- not needed -->
+	</services>
 	<allowClasses>
-	  <class>java.lang.StringBuilder</class>
+		<allowClass>
+			<className>java.lang.StringBuilder</className>
+		</allowClass>
 	</allowClasses>
-	<systemTemplate>true</systemTemplate>
-	<moduleId>acc</moduleId>
 </script>

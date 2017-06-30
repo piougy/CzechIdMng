@@ -17,6 +17,7 @@ public class AuditIdentityFilter implements AuditEntityFilter{
 	private DateTime from;
 	private UUID id;
 	private String modifier;
+	private String changedAttributes;
 	
 	public String getUsername() {
 		return username;
@@ -47,5 +48,11 @@ public class AuditIdentityFilter implements AuditEntityFilter{
 	}
 	public void setModifier(String modifier) {
 		this.modifier = modifier;
+	}
+	public String getChangedAttributes() {
+		return changedAttributes;
+	}
+	public void setChangedAttributes(String changedAttributes) {
+		this.changedAttributes = changedAttributes;
 	}
 }

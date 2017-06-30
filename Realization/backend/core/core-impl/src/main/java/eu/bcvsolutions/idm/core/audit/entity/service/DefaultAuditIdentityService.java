@@ -54,6 +54,7 @@ public class DefaultAuditIdentityService extends AbstractAuditEntityService {
 		auditFilter.setFrom(identityFilter.getFrom());
 		auditFilter.setTill(identityFilter.getTill());
 		auditFilter.setOwnerType(IdmIdentity.class.getName());
+		auditFilter.setChangedAttributes(identityFilter.getChangedAttributes());
 		//
 		if (!identitiesIds.isEmpty()) {
 			auditFilter.setOwnerIds(identitiesIds);
@@ -72,12 +73,14 @@ public class DefaultAuditIdentityService extends AbstractAuditEntityService {
 		Object from = parameters.getFirst("from");
 		Object till = parameters.getFirst("till");
 		Object modifier = parameters.getFirst("modifier");
+		Object changedAttributes = parameters.getFirst("changedAttributes");
 		//
 		filter.setId(id != null ? UUID.fromString(id.toString()) : null);
 		filter.setUsername(username != null ? username.toString() : null);
 		filter.setFrom(from != null ? new DateTime(from) : null);
 		filter.setTill(till != null ? new DateTime(till) : null);
 		filter.setModifier(modifier != null ? modifier.toString() : null);
+		filter.setChangedAttributes(changedAttributes != null ? changedAttributes.toString() : null);
 		//
 		return filter;
 	}

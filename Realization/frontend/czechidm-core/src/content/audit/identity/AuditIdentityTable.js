@@ -93,6 +93,13 @@ export class AuditIdentityTable extends Advanced.AbstractTableContent {
                 placeholder={this.i18n('content.audit.identities.identityId')}/>
             </div>
           </Basic.Row>
+          <Basic.Row className="last">
+            <div className="col-lg-4">
+              <Advanced.Filter.TextField
+                ref="changedAttributes"
+                placeholder={this.i18n('entity.Audit.changedAttributes')}/>
+            </div>
+          </Basic.Row>
         </Basic.AbstractForm>
       </Advanced.Filter>
     );

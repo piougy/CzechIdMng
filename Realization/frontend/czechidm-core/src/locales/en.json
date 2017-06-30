@@ -1648,6 +1648,7 @@
           "cancel": "End task",
           "interrupt": "Interrupt task"
         },
+        "refresh": "Refresh running tasks",
         "action": {
           "task-cancel": {
             "header": "Cancel running task",

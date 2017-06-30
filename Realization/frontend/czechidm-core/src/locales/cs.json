@@ -1710,6 +1710,7 @@
           "cancel": "Ukončit úlohu",
           "interrupt": "Zničit úlohu"
         },
+        "refresh": "Obnovit běžící úlohy",
         "action": {
           "task-cancel": {
             "header": "Ukončit spuštěnou úlohu",

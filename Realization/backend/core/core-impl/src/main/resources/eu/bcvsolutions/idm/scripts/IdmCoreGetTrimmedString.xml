@@ -13,8 +13,10 @@
 	<name>Get trimmed String</name>
 	<body>
 		<![CDATA[
-if (attributeValue) return attributeValue
-attributeValue instanceof String ? attributeValue.trim() : attributeValue
+if (attributeValue != null && attributeValue instanceof String) {
+	return attributeValue.trim();
+}
+return attributeValue;
   		]]>
 	</body>
 	<type>groovy</type>

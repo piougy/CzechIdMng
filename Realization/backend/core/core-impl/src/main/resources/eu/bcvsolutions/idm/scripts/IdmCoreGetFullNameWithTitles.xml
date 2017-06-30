@@ -15,26 +15,29 @@
 	<name>Get full name with titles</name>
 	<body>
 		<![CDATA[
-StringBuilder name = new StringBuilder()
-String titleAfter = entity.getTitleAfter()
-String titleBefore = entity.getTitleBefore()
-String surname = entity.getLastName()
+StringBuilder name = new StringBuilder();
+String titleAfter = entity.getTitleAfter();
+String titleBefore = entity.getTitleBefore();
+String surname = entity.getLastName();
 
 if (titleBefore) {
-    name.append(titleBefore + " ")
+    name.append(titleBefore);
+	name.append(' ');
 }
 
-name.append(entity.getFirstName())
+name.append(entity.getFirstName());
 
 if (surname) {
-    name.append(" " + surname)
+	name.append(' ');
+    name.append(surname);
 }
 
 if (titleAfter) {
-    name.append(", " + titleAfter)
+	name.append(", ");
+    name.append(titleAfter);
 }
 
-name.toString()
+return name.toString();
   		]]>
 	</body>
 	<type>groovy</type>

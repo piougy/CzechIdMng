@@ -16,19 +16,20 @@
 	<name>Get full name</name>
 	<body>
 		<![CDATA[
-StringBuilder name = new StringBuilder()
-String firsName = entity.getFirstName()
-String surname = entity.getLastName()
+StringBuilder name = new StringBuilder();
+String firsName = entity.getFirstName();
+String surname = entity.getLastName();
 
 if (firsName) {
-    name.append(firsName)
+    name.append(firsName);
 }
 
 if (surname) {
-    name.append(" " + surname)
+	name.append(' ');
+    name.append(surname);
 }
 
-name.toString()
+name.toString();
   		]]>
 	</body>
 	<type>groovy</type>

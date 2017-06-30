@@ -12,7 +12,10 @@
 	<name>Get opposite Boolean</name>
 	<body>
 		<![CDATA[
-attributeValue == null ?: !attributeValue
+if (attributeValue != null && attributeValue instanceof Boolean) {
+	return !attributeValue;
+}
+return null;
   		]]>
 	</body>
 	<type>groovy</type>

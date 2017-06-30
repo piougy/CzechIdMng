@@ -17,9 +17,9 @@
 	<body>
 		<![CDATA[
 if ("false".equals(attributeValue) || "true".equals(attributeValue)) {
-    return Boolean.valueOf(attributeValue)
+    return Boolean.valueOf(attributeValue);
 }
-return null
+return null;
   		]]>
 	</body>
 	<type>groovy</type>

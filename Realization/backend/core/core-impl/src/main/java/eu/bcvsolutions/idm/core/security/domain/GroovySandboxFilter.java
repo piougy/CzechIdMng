@@ -47,18 +47,18 @@ public class GroovySandboxFilter extends GroovyValueFilter {
 			Map.class, HashMap.class, List.class, ArrayList.class, Set.class, HashSet.class,
 			LoggerFactory.class, Logger.class, ch.qos.logback.classic.Logger.class, GString.class, GStringImpl.class);
 
-	private final LinkedList<List<Class<?>>> allowedCustomTypes = new LinkedList<>();
+	private final LinkedList<Set<Class<?>>> allowedCustomTypes = new LinkedList<>();
 	
 	public GroovySandboxFilter() {
 	}
 
-	public GroovySandboxFilter(List<Class<?>> allowedTypes) {
+	public GroovySandboxFilter(Set<Class<?>> allowedTypes) {
 		if(allowedTypes != null) {
 			allowedCustomTypes.add(allowedTypes);
 		}
 	}
 	
-	public void addCustomTypes(List<Class<?>> allowedTypes) {
+	public void addCustomTypes(Set<Class<?>> allowedTypes) {
 		if(allowedTypes != null) {
 			allowedCustomTypes.add(allowedTypes);
 		}

@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.model.jaxb;
+package eu.bcvsolutions.idm.core.api.jaxb;
 
 import java.io.IOException;
 import java.io.Writer;

@@ -1,0 +1,46 @@
+<?xml version = "1.0" encoding = "UTF-8" standalone = "yes"?>
+<!--
+/**
+ *
+ * @author Petr Michal
+ *
+ * Script returns name of user in form:
+ * first name + surname
+ * Example: John Green
+ *
+ */
+-->
+<script xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="IdmScript.xsd">
+	<code>getFullName</code>
+	<name>Get full name</name>
+	<body>
+		<![CDATA[
+StringBuilder name = new StringBuilder();
+String firsName = entity.getFirstName();
+String surname = entity.getLastName();
+
+if (firsName) {
+    name.append(firsName);
+}
+
+if (surname) {
+	name.append(' ');
+    name.append(surname);
+}
+
+name.toString();
+  		]]>
+	</body>
+	<type>groovy</type>
+	<category>DEFAULT</category>
+	<parameters>attributeValue</parameters>
+	<services>
+		<!-- not needed -->
+	</services>
+	<allowClasses>
+		<allowClass>
+			<className>java.lang.StringBuilder</className>
+		</allowClass>
+	</allowClasses>
+</script>

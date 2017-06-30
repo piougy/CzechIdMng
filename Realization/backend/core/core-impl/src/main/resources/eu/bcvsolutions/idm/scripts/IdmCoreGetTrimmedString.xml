@@ -1,0 +1,31 @@
+<?xml version = "1.0" encoding = "UTF-8" standalone = "yes"?>
+<!-- 
+/** 
+  * 
+  * @author Petr Michal 
+  * 
+  * Returns trimmed value if given attribute is type of String. 
+  * Return attributeValue for other types. 
+  **/ -->
+<script xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="IdmScript.xsd">
+	<code>getTrimmedString</code>
+	<name>Get trimmed String</name>
+	<body>
+		<![CDATA[
+if (attributeValue != null && attributeValue instanceof String) {
+	return attributeValue.trim();
+}
+return attributeValue;
+  		]]>
+	</body>
+	<type>groovy</type>
+	<category>DEFAULT</category>
+	<parameters>attributeValue</parameters>
+	<services>
+		<!-- not needed -->
+	</services>
+	<allowClasses>
+		<!-- not needed -->
+	</allowClasses>
+</script>

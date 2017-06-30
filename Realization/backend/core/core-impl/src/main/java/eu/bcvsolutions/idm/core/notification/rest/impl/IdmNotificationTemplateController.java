@@ -108,7 +108,7 @@ public class IdmNotificationTemplateController extends DefaultReadWriteDtoContro
 		if (template == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, backendId);
 		}
-		notificationTemplateService.backup(template, null);
+		notificationTemplateService.backup(template);
 		return new ResponseEntity<>(toResource(template), HttpStatus.OK);
 	}
 	

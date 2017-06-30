@@ -1,0 +1,34 @@
+<?xml version = "1.0" encoding = "UTF-8" standalone = "yes"?>
+<!--
+	Test script 1, for testing backup, deploy, redeploy.
+-->
+<script>
+	<code>testScript1</code>
+	<name>Test script 1</name>
+	<body>
+		<![CDATA[
+String s;
+  		]]>
+	</body>
+	<type>groovy</type>
+	<category>DEFAULT</category>
+	<parameters>test1</parameters>
+	<allowClasses>
+        <allowClass>
+            <className>eu.bcvsolutions.idm.core.model.entity.IdmTreeNode</className>
+        </allowClass>
+        <allowClass>
+            <className>eu.bcvsolutions.idm.core.model.entity.IdmIdentity</className>
+        </allowClass>
+    </allowClasses>
+    <services>
+        <service>
+            <className>eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmTreeNodeService</className>
+            <name>treeNodeService</name>
+        </service>
+        <service>
+            <className>eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmIdentityService</className>
+            <name>identityService</name>
+        </service>
+    </services>
+</script>

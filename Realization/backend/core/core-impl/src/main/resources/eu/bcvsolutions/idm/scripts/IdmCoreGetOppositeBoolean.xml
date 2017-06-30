@@ -1,0 +1,30 @@
+<?xml version = "1.0" encoding = "UTF-8" standalone = "yes"?>
+<!-- 
+/** 
+  * 
+  * @author Petr Michal 
+  * 
+  * Returns opposite value of given Boolean 
+  **/ -->
+<script xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="IdmScript.xsd">
+	<code>getOppositeBoolean</code>
+	<name>Get opposite Boolean</name>
+	<body>
+		<![CDATA[
+if (attributeValue != null && attributeValue instanceof Boolean) {
+	return !attributeValue;
+}
+return null;
+  		]]>
+	</body>
+	<type>groovy</type>
+	<category>DEFAULT</category>
+	<parameters>attributeValue</parameters>
+	<services>
+		<!-- not needed -->
+	</services>
+	<allowClasses>
+		<!-- not needed -->
+	</allowClasses>
+</script>

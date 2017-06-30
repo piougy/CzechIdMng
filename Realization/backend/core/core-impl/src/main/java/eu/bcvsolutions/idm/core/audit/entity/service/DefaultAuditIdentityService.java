@@ -19,19 +19,16 @@ import eu.bcvsolutions.idm.core.model.entity.IdmAudit;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 
 /**
- * Idm audit service for Identity and their relations TODO: envers has bug with
- * search deleted entities
- * https://github.com/spring-projects/spring-data-envers/issues/21
- * 
+ * Default audit service for Identity and their relations
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
 
 @Service("auditIdentityService")
-public class IdmAuditIdentityService extends AbstractAuditEntityService {
+public class DefaultAuditIdentityService extends AbstractAuditEntityService {
 
-	public IdmAuditIdentityService() {
+	public DefaultAuditIdentityService() {
 	}
 
 	@Override

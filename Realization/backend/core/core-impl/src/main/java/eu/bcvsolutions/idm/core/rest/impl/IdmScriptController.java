@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.Resources;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -19,9 +20,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import eu.bcvsolutions.idm.core.api.domain.IdmScriptCategory;
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmScriptDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.ScriptFilter;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.service.api.IdmScriptService;
@@ -36,9 +38,13 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmScriptService;
 @RequestMapping(value = BaseDtoController.BASE_PATH + "/scripts")
 public class IdmScriptController extends DefaultReadWriteDtoController<IdmScriptDto, ScriptFilter> {
 	
+	private final IdmScriptService service;
+	
 	@Autowired
 	public IdmScriptController(IdmScriptService service) {
 		super(service);
+		//
+		this.service = service;
 	}
 	
 	@Override
@@ -101,5 +107,29 @@ public class IdmScriptController extends DefaultReadWriteDtoController<IdmScript
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCRIPT_UPDATE + "')")
 	public ResponseEntity<?> put(@PathVariable @NotNull String backendId, @RequestBody @NotNull IdmScriptDto dto) {
 		return super.put(backendId, dto);
+	}
+	
+	@ResponseBody
+	@RequestMapping(value = "/{backendId}/redeploy", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCRIPT_READ + "')")
+	public ResponseEntity<?> redeploy(@PathVariable @NotNull String backendId) {
+		IdmScriptDto script = service.get(backendId);
+		if (script == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, backendId);
+		}
+		script = service.redeploy(script);
+		return new ResponseEntity<>(toResource(script), HttpStatus.OK);
+	}
+	
+	@ResponseBody
+	@RequestMapping(value = "/{backendId}/backup", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCRIPT_READ + "')")
+	public ResponseEntity<?> backup(@PathVariable @NotNull String backendId) {
+		IdmScriptDto script = service.get(backendId);
+		if (script == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, backendId);
+		}
+		service.backup(script);
+		return new ResponseEntity<>(toResource(script), HttpStatus.OK);
 	}
 }

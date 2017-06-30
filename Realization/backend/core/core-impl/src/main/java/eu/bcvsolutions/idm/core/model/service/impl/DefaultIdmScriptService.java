@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -64,7 +65,7 @@ public class DefaultIdmScriptService extends AbstractReadWriteDtoService<IdmScri
 	private static final String SCRIPT_FILE_SUFIX = "idm.pub.core.script.fileSuffix";
 	private static final String SCRIPT_DEFAULT_BACKUP_FOLDER = "scripts/";
 	private static final String SCRIPT_DEFAULT_TYPE = "groovy";
-	
+
 	private final GroovyScriptService groovyScriptService;
 	private final IdmScriptAuthorityService scriptAuthorityService;
 	private final IdmScriptRepository repository;
@@ -72,7 +73,7 @@ public class DefaultIdmScriptService extends AbstractReadWriteDtoService<IdmScri
 	private final ApplicationContext applicationContext;
 	private final ConfigurationService configurationService;
 	private final SecurityService securityService;
-	
+
 	private JAXBContext jaxbContext = null;
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmScriptService.class);
@@ -168,8 +169,7 @@ public class DefaultIdmScriptService extends AbstractReadWriteDtoService<IdmScri
 				//
 				// if script exist don't save again
 				IdmScriptDto script = this.getScriptByCode(scriptType.getCode());
-				LOG.info(
-						"[DefaultIdmScriptService] Load script with code {}, Exists script in system: {}",
+				LOG.info("[DefaultIdmScriptService] Load script with code {}, Exists script in system: {}",
 						scriptType.getCode(), script != null);
 				//
 				if (script == null) {
@@ -180,12 +180,10 @@ public class DefaultIdmScriptService extends AbstractReadWriteDtoService<IdmScri
 					this.scriptAuthorityService.saveAll(authorityTypeToDto(scriptType, script));
 				}
 			} catch (JAXBException e1) {
-				LOG.error(
-						"[DefaultIdmScriptService] Script validation failed, file name: {}, error message: {}",
+				LOG.error("[DefaultIdmScriptService] Script validation failed, file name: {}, error message: {}",
 						resource.getFilename(), e1.getLocalizedMessage());
 			} catch (IOException e) {
-				LOG.error(
-						"[DefaultIdmScriptService] Failed get input stream from, file name: {}, error message: {}",
+				LOG.error("[DefaultIdmScriptService] Failed get input stream from, file name: {}, error message: {}",
 						resource.getFilename(), e.getLocalizedMessage());
 			}
 		}
@@ -210,8 +208,8 @@ public class DefaultIdmScriptService extends AbstractReadWriteDtoService<IdmScri
 		try {
 			jaxbMarshaller.marshal(type, file);
 		} catch (JAXBException e) {
-			LOG.error("[DefaultIdmScriptService] Backup for script: {} failed, error message: {}",
-					dto.getCode(), e.getLocalizedMessage());
+			LOG.error("[DefaultIdmScriptService] Backup for script: {} failed, error message: {}", dto.getCode(),
+					e.getLocalizedMessage());
 			throw new ResultCodeException(CoreResultCode.BACKUP_FAIL,
 					ImmutableMap.of("code", dto.getCode(), "error", e.getLocalizedMessage()), e);
 		}
@@ -231,23 +229,20 @@ public class DefaultIdmScriptService extends AbstractReadWriteDtoService<IdmScri
 		List<IdmScriptType> types = new ArrayList<>();
 		for (Resource resource : resources) {
 			try {
-				IdmScriptType scriptType = (IdmScriptType) jaxbUnmarshaller
-						.unmarshal(resource.getInputStream());
+				IdmScriptType scriptType = (IdmScriptType) jaxbUnmarshaller.unmarshal(resource.getInputStream());
 				//
 				types.add(scriptType);
 			} catch (JAXBException e1) {
-				LOG.error(
-						"[DefaultIdmScriptService] Script validation failed, file name: {}, error message: {}",
+				LOG.error("[DefaultIdmScriptService] Script validation failed, file name: {}, error message: {}",
 						resource.getFilename(), e1.getLocalizedMessage());
 			} catch (IOException e) {
-				LOG.error(
-						"[DefaultIdmScriptService] Failed get input stream from, file name: {}, error message: {}",
+				LOG.error("[DefaultIdmScriptService] Failed get input stream from, file name: {}, error message: {}",
 						resource.getFilename(), e.getLocalizedMessage());
 			}
 		}
 		//
-		List<IdmScriptType> foundType = types.stream()
-				.filter(type -> type.getCode().equals(dto.getCode())).collect(Collectors.toList());
+		List<IdmScriptType> foundType = types.stream().filter(type -> type.getCode().equals(dto.getCode()))
+				.collect(Collectors.toList());
 		//
 		if (foundType.isEmpty()) {
 			throw new ResultCodeException(CoreResultCode.SCRIPT_XML_FILE_NOT_FOUND,
@@ -351,7 +346,7 @@ public class DefaultIdmScriptService extends AbstractReadWriteDtoService<IdmScri
 		//
 		return authorities;
 	}
-	
+
 	/**
 	 * Return folder for backups. If isn't folder defined in configuration
 	 * properties use default folder from system property java.io.tmpdir.
@@ -369,11 +364,12 @@ public class DefaultIdmScriptService extends AbstractReadWriteDtoService<IdmScri
 		backupPath = backupPath + "/" + SCRIPT_DEFAULT_BACKUP_FOLDER;
 		// add date folder
 		DateTime date = new DateTime();
-		String completePath = backupPath + date.getYear() + "_" + date.getMonthOfYear() + "_" + date.getDayOfMonth()
-				+ "/";
+		DecimalFormat decimalFormat = new DecimalFormat("00");
+		String completePath = backupPath + date.getYear() + decimalFormat.format(date.getMonthOfYear())
+				+ decimalFormat.format(date.getDayOfMonth()) + "/";
 		return completePath;
 	}
-	
+
 	/**
 	 * Create instance of JaxbMarshaller and set required properties to him.
 	 * 
@@ -391,7 +387,7 @@ public class DefaultIdmScriptService extends AbstractReadWriteDtoService<IdmScri
 		}
 		return jaxbMarshaller;
 	}
-	
+
 	/**
 	 * Transform dto to type.
 	 * 
@@ -412,7 +408,7 @@ public class DefaultIdmScriptService extends AbstractReadWriteDtoService<IdmScri
 		type.setCategory(dto.getCategory());
 		type.setType(SCRIPT_DEFAULT_TYPE);
 		//
-		if (authorities != null && !authorities.isEmpty()) {			
+		if (authorities != null && !authorities.isEmpty()) {
 			List<IdmScriptAllowClassType> classes = new ArrayList<>();
 			List<IdmScriptServiceType> services = new ArrayList<>();
 			for (IdmScriptAuthorityDto auth : authorities) {
@@ -422,7 +418,7 @@ public class DefaultIdmScriptService extends AbstractReadWriteDtoService<IdmScri
 					classes.add(classType);
 				} else {
 					IdmScriptServiceType service = new IdmScriptServiceType();
-					service.setName(auth.getClassName());
+					service.setClassName(auth.getClassName());
 					service.setName(auth.getService());
 					services.add(service);
 				}
@@ -438,7 +434,7 @@ public class DefaultIdmScriptService extends AbstractReadWriteDtoService<IdmScri
 		}
 		return type;
 	}
-	
+
 	/**
 	 * Method return path for file. That will be save into backup directory.
 	 * 
@@ -450,7 +446,7 @@ public class DefaultIdmScriptService extends AbstractReadWriteDtoService<IdmScri
 		return directory + script.getCode() + "_" + securityService.getCurrentUsername() + "_"
 				+ System.currentTimeMillis() + EXPORT_FILE_SUFIX;
 	}
-	
+
 	/**
 	 * Method replace all attribute from dto with type attributes, old dto will
 	 * be backup to system folder. Also save authorities.
@@ -459,8 +455,7 @@ public class DefaultIdmScriptService extends AbstractReadWriteDtoService<IdmScri
 	 * @param newScript
 	 * @return
 	 */
-	private IdmScriptDto deployNewAndBackupOld(IdmScriptDto oldScript,
-			IdmScriptType newScript) {
+	private IdmScriptDto deployNewAndBackupOld(IdmScriptDto oldScript, IdmScriptType newScript) {
 		// backup
 		this.backup(oldScript);
 		// transform new

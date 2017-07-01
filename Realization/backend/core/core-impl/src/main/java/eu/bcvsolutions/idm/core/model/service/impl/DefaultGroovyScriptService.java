@@ -1,11 +1,10 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.codehaus.groovy.control.CompilationFailedException;
 import org.codehaus.groovy.control.CompilerConfiguration;
@@ -70,9 +69,12 @@ public class DefaultGroovyScriptService implements GroovyScriptService {
 			
 			// Get script and fill it with variables
 			Script scriptObj = scriptCache.getScript(script);
-			scriptObj.setBinding(binding);
 			
-			return scriptObj.run();
+			// Scripts aren't thread safe
+			synchronized(scriptObj) {
+				scriptObj.setBinding(binding);
+				return scriptObj.run();
+			}
 			
 		} catch (SecurityException | IdmSecurityException ex) {
 			LOG.error("[DefaultGroovyScriptService] SecurityException [{}]", ex.getLocalizedMessage());
@@ -144,7 +146,7 @@ public class DefaultGroovyScriptService implements GroovyScriptService {
 		/**
 		 * Key is source, value is built script
 		 */
-		private Map<String, Script> scripts = new HashMap<>();
+		private Map<String, Script> scripts = new ConcurrentHashMap<>();
 		
 		/**
 		 * Returns compiled script for this source.

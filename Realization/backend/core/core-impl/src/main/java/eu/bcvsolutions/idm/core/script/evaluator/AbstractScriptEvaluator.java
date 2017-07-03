@@ -90,7 +90,7 @@ public abstract class AbstractScriptEvaluator implements Plugin<IdmScriptCategor
 				try {
 					extraAllowedClasses.add(Class.forName(scriptAuthority.getClassName()));
 				} catch (ClassNotFoundException e) {
-					LOG.error("[AbstractScriptEvaluator] - " + e.getLocalizedMessage());
+					LOG.error(e.getLocalizedMessage());
 					throw new ResultCodeException(CoreResultCode.BAD_VALUE, ImmutableMap.of("class", scriptAuthority.getClassName()), e);
 				}
 			} else {
@@ -101,10 +101,10 @@ public abstract class AbstractScriptEvaluator implements Plugin<IdmScriptCategor
 		try {
 			return groovyScriptService.evaluate(script.getScript(), parameters, extraAllowedClasses);
 		} catch (SecurityException | IdmSecurityException ex) {
-			LOG.error("[ScriptEvaluator] SecurityException [{}]. Script code: [{}], name: [{}], category: [{}]", ex.getLocalizedMessage(), script.getCode(), script.getName(), script.getCategory().name());
+			LOG.error("SecurityException [{}]. Script code: [{}], name: [{}], category: [{}]", ex.getLocalizedMessage(), script.getCode(), script.getName(), script.getCategory().name());
 			throw ex;
 		} catch (Exception e) {
-			LOG.error("[ScriptEvaluator] Exception [{}]. Script code: [{}], name: [{}], category: [{}]", e.getLocalizedMessage(), script.getCode(), script.getName(), script.getCategory().name());
+			LOG.error("Exception [{}]. Script code: [{}], name: [{}], category: [{}]", e.getLocalizedMessage(), script.getCode(), script.getName(), script.getCategory().name());
 			throw e;
 		}
 	}

@@ -305,7 +305,7 @@ public class DefaultIdmNotificationTemplateService extends
 		try {
 			jaxbMarshaller.marshal(type, file);
 		} catch (JAXBException e) {
-			LOG.error("[DefaultIdmNotificationTemplateService] Backup for template: {} failed, error message: {}",
+			LOG.error("Backup for template: {} failed, error message: {}",
 					dto.getCode(), e.getLocalizedMessage());
 			throw new ResultCodeException(CoreResultCode.BACKUP_FAIL,
 					ImmutableMap.of("code", dto.getCode(), "error", e.getLocalizedMessage()), e);

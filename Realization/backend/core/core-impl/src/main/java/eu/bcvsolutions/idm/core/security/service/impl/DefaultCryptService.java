@@ -78,7 +78,7 @@ public class DefaultCryptService implements CryptService {
 			}
 			decryptValue = cipher.doFinal(value);
 		} catch (InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
-			LOG.error("[DefaultCryptService] Decrypt problem! Password will not be decrypthed! Error: {}", e.getLocalizedMessage());
+			LOG.error("Decrypt problem! Password will not be decrypthed! Error: {}", e.getLocalizedMessage());
 			throw new ResultCodeException(CoreResultCode.CRYPT_INITIALIZATION_PROBLEM, ImmutableMap.of("algorithm", ALGORITHM), e);
 		}
 		return decryptValue;
@@ -95,7 +95,7 @@ public class DefaultCryptService implements CryptService {
 			}
 			encryptValue = cipher.doFinal(value);
 		} catch (InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
-			LOG.error("[DefaultCryptService] Encrypt problem! Password will not be encrypted! Error: {}", e);
+			LOG.error("Encrypt problem! Password will not be encrypted! Error: {}", e);
 			throw new ResultCodeException(CoreResultCode.CRYPT_INITIALIZATION_PROBLEM, ImmutableMap.of("algorithm", ALGORITHM), e);
 		}
 		
@@ -160,7 +160,7 @@ public class DefaultCryptService implements CryptService {
 			cipher = Cipher.getInstance(ALGORITHM + "/" + ALGORITHM_MODE + "/" + ALGORITHM_PADDING);
 			cipher.init(encryptMode, key, new IvParameterSpec(IV));
 		} catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidAlgorithmParameterException | UnsupportedEncodingException e) {
-			LOG.error("[DefaultCryptService] Cipher can't be initialized!");
+			LOG.error("Cipher can't be initialized!");
 			throw new ResultCodeException(CoreResultCode.CRYPT_INITIALIZATION_PROBLEM, ImmutableMap.of("algorithm", ALGORITHM), e);
 		}
 		return cipher;

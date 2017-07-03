@@ -1140,7 +1140,7 @@
         "success": "Skript [{{name}}] bylo úspěšně uložen"
       },
       "filter": {
-        "text": "Název / Popis"
+        "text": "Kód /Název / Popis"
       }
     },
     "scriptAuthorities": {

@@ -44,7 +44,7 @@ import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationTemplateDto;
 import eu.bcvsolutions.idm.core.notification.dto.filter.NotificationTemplateFilter;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationConfiguration;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationTemplate;
-import eu.bcvsolutions.idm.core.notification.model.jaxb.IdmNotificationTemplateType;
+import eu.bcvsolutions.idm.core.notification.jaxb.IdmNotificationTemplateType;
 import eu.bcvsolutions.idm.core.notification.repository.IdmNotificationConfigurationRepository;
 import eu.bcvsolutions.idm.core.notification.repository.IdmNotificationTemplateRepository;
 import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationTemplateService;

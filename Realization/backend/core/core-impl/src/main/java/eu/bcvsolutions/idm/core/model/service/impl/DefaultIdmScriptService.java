@@ -314,7 +314,7 @@ public class DefaultIdmScriptService extends AbstractReadWriteDtoService<IdmScri
 					Class.forName(allowClass.getClassName());
 				} catch (ClassNotFoundException e) {
 					LOG.error(
-							"[DefaultIdmScriptService] Class [{}] isn't reachable, for script [{}] skip add this authority",
+							"Class [{}] isn't reachable, for script [{}] skip add this authority",
 							allowClass.getClassName(), type.getCode(), e);
 					continue;
 				}
@@ -337,7 +337,7 @@ public class DefaultIdmScriptService extends AbstractReadWriteDtoService<IdmScri
 					authorities.add(authDto);
 				} else {
 					LOG.error(
-							"[DefaultIdmScriptService] Service [{}] [{}] isn't reachable, for script [{}] skip add this authority",
+							"Service [{}] [{}] isn't reachable, for script [{}] skip add this authority",
 							service.getName(), service.getClassName(), type.getCode());
 					continue;
 				}

@@ -73,8 +73,8 @@ public class DefaultIdmTreeTypeService extends AbstractReadWriteEntityService<Id
 	@Transactional
 	public void delete(IdmTreeType treeType) {
 		Assert.notNull(treeType);
-		
-		LOG.debug("Deleteing tree type [{}]", treeType.getCode());
+		//
+		LOG.debug("Deleting tree type [{}]", treeType.getCode());
 		entityEventManager.process(new TreeTypeEvent(TreeTypeEventType.DELETE, treeType));
 	}
 

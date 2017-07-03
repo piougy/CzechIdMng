@@ -66,7 +66,7 @@ import io.swagger.annotations.Authorization;
  *
  */
 @RepositoryRestController
-@RequestMapping(value = BaseEntityController.BASE_PATH + "/roles", produces = "application/hal+json")
+@RequestMapping(value = BaseEntityController.BASE_PATH + "/roles")
 @Api(value = "Roles", tags = "Roles", description = "Operations with roles")
 public class IdmRoleController extends AbstractReadWriteEntityController<IdmRole, RoleFilter> {
 	

@@ -595,6 +595,8 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 				filter.getRoles().add(getParameterConverter().toEntityUuid((String) role, IdmRole.class));
 			}
 		}
+		filter.setFirstName(getParameterConverter().toString(parameters, "firstName"));
+		filter.setLastName(getParameterConverter().toString(parameters, "lastName"));
 		return filter;
 	}
 }

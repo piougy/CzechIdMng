@@ -1,8 +1,10 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.codehaus.groovy.control.CompilationFailedException;
 import org.codehaus.groovy.control.CompilerConfiguration;
@@ -21,6 +23,7 @@ import eu.bcvsolutions.idm.core.security.domain.GroovySandboxFilter;
 import eu.bcvsolutions.idm.core.security.exception.IdmSecurityException;
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
+import groovy.lang.Script;
 
 /**
  * Service for evaluate groovy scripts
@@ -31,6 +34,8 @@ import groovy.lang.GroovyShell;
 @Service
 public class DefaultGroovyScriptService implements GroovyScriptService {
 
+	protected ScriptCache scriptCache = new ScriptCache();
+	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory
 			.getLogger(DefaultGroovyScriptService.class);
 	
@@ -42,13 +47,10 @@ public class DefaultGroovyScriptService implements GroovyScriptService {
 	@Override
 	public Object evaluate(String script, Map<String, Object> variables, List<Class<?>> extraAllowedClasses) {
 		Assert.notNull(script);
-
+		
 		Binding binding = new Binding(variables);
-		CompilerConfiguration compilerConfiguration = new CompilerConfiguration();
-		compilerConfiguration.setVerbose(true);
-		compilerConfiguration.addCompilationCustomizers(new SandboxTransformer());
-		GroovyShell shell = new GroovyShell(binding, compilerConfiguration);
-		List<Class<?>> allowedVariableClass = resolveCustomAllowTypes(variables);
+		
+		Set<Class<?>> allowedVariableClass = resolveCustomAllowTypes(variables);
 		if(extraAllowedClasses != null){
 			allowedVariableClass.addAll(extraAllowedClasses);
 		}
@@ -64,8 +66,16 @@ public class DefaultGroovyScriptService implements GroovyScriptService {
 				sandboxFilter = new GroovySandboxFilter(allowedVariableClass);
 				sandboxFilter.register();
 			}
-
-			return shell.evaluate(script);
+			
+			// Get script and fill it with variables
+			Script scriptObj = scriptCache.getScript(script);
+			
+			// Scripts aren't thread safe
+			synchronized(scriptObj) {
+				scriptObj.setBinding(binding);
+				return scriptObj.run();
+			}
+			
 		} catch (SecurityException | IdmSecurityException ex) {
 			LOG.error("SecurityException [{}]", ex.getLocalizedMessage());
 			throw new IdmSecurityException(CoreResultCode.GROOVY_SCRIPT_SECURITY_VALIDATION, ImmutableMap.of("message", ex.getLocalizedMessage()), ex);
@@ -90,8 +100,8 @@ public class DefaultGroovyScriptService implements GroovyScriptService {
 	 * @param variables
 	 * @return
 	 */
-	private List<Class<?>> resolveCustomAllowTypes(Map<String, Object> variables) {
-		List<Class<?>> allowType = new ArrayList<>();
+	private Set<Class<?>> resolveCustomAllowTypes(Map<String, Object> variables) {
+		Set<Class<?>> allowType = new HashSet<>();
 		if (variables == null) {
 			return allowType;
 		}
@@ -126,4 +136,41 @@ public class DefaultGroovyScriptService implements GroovyScriptService {
 		}
 	}
 
+	/**
+	 * Caches scripts. If the source already exists, returns already built script. 
+	 * 
+	 * @author Filip Mestanek
+	 */
+	private class ScriptCache {
+		
+		/**
+		 * Key is hash code of script body, value is built script
+		 */
+		private Map<String, Script> scripts = new ConcurrentHashMap<>();
+		
+		/**
+		 * Returns compiled script for this source.
+		 */
+		private Script getScript(String source) {
+			Script script = scripts.get(source);
+			
+			if (script == null) {
+				script = buildScript(source);
+				scripts.put(source, script);
+			}
+			
+			return script;
+		}
+		
+		private Script buildScript(String source) {
+			CompilerConfiguration compilerConfiguration = new CompilerConfiguration();
+			compilerConfiguration.setVerbose(false);
+			compilerConfiguration.setDebug(false);
+			compilerConfiguration.addCompilationCustomizers(new SandboxTransformer());
+			//
+			GroovyShell shell = new GroovyShell(compilerConfiguration);
+			return shell.parse(source);
+		}
+	}
+	
 }

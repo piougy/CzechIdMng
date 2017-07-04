@@ -160,19 +160,19 @@ public class DefaultGroovyScriptService implements GroovyScriptService {
 	private class ScriptCache {
 		
 		/**
-		 * Key is source, value is built script
+		 * Key is hash code of script body, value is built script
 		 */
-		private Map<String, Script> scripts = new ConcurrentHashMap<>();
+		private Map<Integer, Script> scripts = new ConcurrentHashMap<>();
 		
 		/**
 		 * Returns compiled script for this source.
 		 */
 		private Script getScript(String source) {
-			Script script = scripts.get(source);
+			Script script = scripts.get(source.hashCode());
 			
 			if (script == null) {
 				script = buildScript(source);
-				scripts.put(source, script);
+				scripts.put(source.hashCode(), script);
 			}
 			
 			return script;

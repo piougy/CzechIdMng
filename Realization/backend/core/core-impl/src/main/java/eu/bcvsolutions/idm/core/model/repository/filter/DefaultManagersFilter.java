@@ -90,31 +90,34 @@ public class DefaultManagersFilter
 	    			: builder.conjunction()
 				));
 		//
+		Path<IdmTreeNode> wp = subRoot.get(IdmIdentityContract_.workPosition);
 		subPredicates.add(
                 builder.and(
-                		// valid contract only
-    					builder.or(
-    							builder.isNull(subRoot.get(IdmIdentityContract_.validFrom)),
-    							builder.lessThanOrEqualTo(subRoot.get(IdmIdentityContract_.validFrom), new LocalDate())
-    							),
-    					builder.or(
-    							builder.isNull(subRoot.get(IdmIdentityContract_.validTill)),
-    							builder.greaterThanOrEqualTo(subRoot.get(IdmIdentityContract_.validTill), new LocalDate())
-    							),
-    					//
-                		builder.equal(subRoot.get(IdmIdentityContract_.identity), root), // correlation attr
-                		subRoot.get(IdmIdentityContract_.workPosition).in(subqueryWp),
+                		wp.in(subqueryWp),
                 		// by tree type structure
                 		filter.getManagersByTreeType() != null
                 			?
-	                		builder.equal(
-	                				subRoot.get(IdmIdentityContract_.workPosition).get(IdmTreeNode_.treeType).get(IdmTreeType_.id), 
-	    							filter.getManagersByTreeType())
-	                		:
-	                		builder.conjunction()
+                    		builder.equal(
+                    				wp.get(IdmTreeNode_.treeType).get(IdmTreeType_.id), 
+        							filter.getManagersByTreeType())
+                    		:
+                    		builder.conjunction()
                 		)
         );		
-		subquery.where(builder.or(subPredicates.toArray(new Predicate[subPredicates.size()])));
+		subquery.where(builder.and(
+        		// valid contract only
+				builder.or(
+						builder.isNull(subRoot.get(IdmIdentityContract_.validFrom)),
+						builder.lessThanOrEqualTo(subRoot.get(IdmIdentityContract_.validFrom), new LocalDate())
+						),
+				builder.or(
+						builder.isNull(subRoot.get(IdmIdentityContract_.validTill)),
+						builder.greaterThanOrEqualTo(subRoot.get(IdmIdentityContract_.validTill), new LocalDate())
+						),
+				//
+        		builder.equal(subRoot.get(IdmIdentityContract_.identity), root), // correlation attr
+        		builder.or(subPredicates.toArray(new Predicate[subPredicates.size()]))
+        		));
 		//
 		return builder.exists(subquery);
 	}

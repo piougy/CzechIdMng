@@ -44,7 +44,7 @@ import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationTemplateDto;
 import eu.bcvsolutions.idm.core.notification.dto.filter.NotificationTemplateFilter;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationConfiguration;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationTemplate;
-import eu.bcvsolutions.idm.core.notification.model.jaxb.IdmNotificationTemplateType;
+import eu.bcvsolutions.idm.core.notification.jaxb.IdmNotificationTemplateType;
 import eu.bcvsolutions.idm.core.notification.repository.IdmNotificationConfigurationRepository;
 import eu.bcvsolutions.idm.core.notification.repository.IdmNotificationTemplateRepository;
 import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationTemplateService;
@@ -305,7 +305,7 @@ public class DefaultIdmNotificationTemplateService extends
 		try {
 			jaxbMarshaller.marshal(type, file);
 		} catch (JAXBException e) {
-			LOG.error("[DefaultIdmNotificationTemplateService] Backup for template: {} failed, error message: {}",
+			LOG.error("Backup for template: {} failed, error message: {}",
 					dto.getCode(), e.getLocalizedMessage());
 			throw new ResultCodeException(CoreResultCode.BACKUP_FAIL,
 					ImmutableMap.of("code", dto.getCode(), "error", e.getLocalizedMessage()), e);

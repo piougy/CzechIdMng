@@ -1,17 +1,21 @@
 import React, { PropTypes } from 'react';
 import uuid from 'uuid';
+import { connect } from 'react-redux';
 //
-import { SecurityManager } from '../../redux';
-import ScriptCategoryEnum from '../../enums/ScriptCategoryEnum';
+import * as Utils from '../../utils';
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
+import { SecurityManager } from '../../redux';
+import ScriptCategoryEnum from '../../enums/ScriptCategoryEnum';
 
 const MAX_DESCRIPTION_LENGTH = 60;
 
 /**
  * Table with definitions of scripts
+ *
+ * @author Ondřej Kopr
  */
-export default class ScriptTable extends Basic.AbstractContent {
+export class ScriptTable extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);
@@ -60,30 +64,6 @@ export default class ScriptTable extends Basic.AbstractContent {
       }));
     }, () => {
       // nothing
-    });
-  }
-
-  onDelete(bulkActionValue, selectedRows) {
-    const { uiKey, scriptManager } = this.props;
-    const selectedEntities = scriptManager.getEntitiesByIds(this.context.store.getState(), selectedRows);
-    //
-    // show confirm message for deleting entity or entities
-    this.refs['confirm-' + bulkActionValue].show(
-      this.i18n(`action.${bulkActionValue}.message`, { count: selectedEntities.length, record: scriptManager.getNiceLabel(selectedEntities[0]), records: scriptManager.getNiceLabels(selectedEntities).join(', ') }),
-      this.i18n(`action.${bulkActionValue}.header`, { count: selectedEntities.length, records: scriptManager.getNiceLabels(selectedEntities).join(', ') })
-    ).then(() => {
-      // try delete
-      this.context.store.dispatch(scriptManager.deleteEntities(selectedEntities, uiKey, (entity, error, successEntities) => {
-        if (entity && error) {
-          this.addErrorMessage({ title: this.i18n(`action.delete.error`, { record: scriptManager.getNiceLabel(entity) }) }, error);
-        }
-        if (!error && successEntities) {
-          // refresh data in table
-          this.refs.table.getWrappedInstance().reload();
-        }
-      }));
-    }, () => {
-      //
     });
   }
 
@@ -167,7 +147,9 @@ export default class ScriptTable extends Basic.AbstractContent {
                 {this.i18n('button.add')}
               </Basic.Button>
             ]
-          }>
+          }
+          _searchParameters={ this.getSearchParameters() }
+          >
           <Advanced.Column
             header=""
             className="detail-button"
@@ -204,3 +186,11 @@ ScriptTable.propTypes = {
 
 ScriptTable.defaultProps = {
 };
+
+function select(state, component) {
+  return {
+    _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey)
+  };
+}
+
+export default connect(select)(ScriptTable);

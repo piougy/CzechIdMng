@@ -83,10 +83,10 @@ public class DefaultGroovyScriptService implements GroovyScriptService {
 			}
 			
 		} catch (SecurityException | IdmSecurityException ex) {
-			LOG.error("[DefaultGroovyScriptService] SecurityException [{}]", ex.getLocalizedMessage());
+			LOG.error("SecurityException [{}]", ex.getLocalizedMessage());
 			throw new IdmSecurityException(CoreResultCode.GROOVY_SCRIPT_SECURITY_VALIDATION, ImmutableMap.of("message", ex.getLocalizedMessage()), ex);
 		} catch (Exception e) {
-			LOG.error("[DefaultGroovyScriptService] Exception [{}]", e.getLocalizedMessage());
+			LOG.error("Exception [{}]", e.getLocalizedMessage());
 			throw new ResultCodeException(CoreResultCode.GROOVY_SCRIPT_EXCEPTION, ImmutableMap.of("message", e.getLocalizedMessage()), e);
 		} finally {
 			// if this script is called from another script, remove only allowed classes from them

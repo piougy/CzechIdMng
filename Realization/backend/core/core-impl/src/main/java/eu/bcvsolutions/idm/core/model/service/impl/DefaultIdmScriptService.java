@@ -180,10 +180,10 @@ public class DefaultIdmScriptService extends AbstractReadWriteDtoService<IdmScri
 					this.scriptAuthorityService.saveAll(authorityTypeToDto(scriptType, script));
 				}
 			} catch (JAXBException e1) {
-				LOG.error("[DefaultIdmScriptService] Script validation failed, file name: {}, error message: {}",
+				LOG.error("Script validation failed, file name: {}, error message: {}",
 						resource.getFilename(), e1.getLocalizedMessage());
 			} catch (IOException e) {
-				LOG.error("[DefaultIdmScriptService] Failed get input stream from, file name: {}, error message: {}",
+				LOG.error("Failed get input stream from, file name: {}, error message: {}",
 						resource.getFilename(), e.getLocalizedMessage());
 			}
 		}
@@ -208,7 +208,7 @@ public class DefaultIdmScriptService extends AbstractReadWriteDtoService<IdmScri
 		try {
 			jaxbMarshaller.marshal(type, file);
 		} catch (JAXBException e) {
-			LOG.error("[DefaultIdmScriptService] Backup for script: {} failed, error message: {}", dto.getCode(),
+			LOG.error("Backup for script: {} failed, error message: {}", dto.getCode(),
 					e.getLocalizedMessage());
 			throw new ResultCodeException(CoreResultCode.BACKUP_FAIL,
 					ImmutableMap.of("code", dto.getCode(), "error", e.getLocalizedMessage()), e);
@@ -233,10 +233,10 @@ public class DefaultIdmScriptService extends AbstractReadWriteDtoService<IdmScri
 				//
 				types.add(scriptType);
 			} catch (JAXBException e1) {
-				LOG.error("[DefaultIdmScriptService] Script validation failed, file name: {}, error message: {}",
+				LOG.error("Script validation failed, file name: {}, error message: {}",
 						resource.getFilename(), e1.getLocalizedMessage());
 			} catch (IOException e) {
-				LOG.error("[DefaultIdmScriptService] Failed get input stream from, file name: {}, error message: {}",
+				LOG.error("Failed get input stream from, file name: {}, error message: {}",
 						resource.getFilename(), e.getLocalizedMessage());
 			}
 		}
@@ -314,7 +314,7 @@ public class DefaultIdmScriptService extends AbstractReadWriteDtoService<IdmScri
 					Class.forName(allowClass.getClassName());
 				} catch (ClassNotFoundException e) {
 					LOG.error(
-							"[DefaultIdmScriptService] Class [{}] isn't reachable, for script [{}] skip add this authority",
+							"Class [{}] isn't reachable, for script [{}] skip add this authority",
 							allowClass.getClassName(), type.getCode(), e);
 					continue;
 				}
@@ -337,7 +337,7 @@ public class DefaultIdmScriptService extends AbstractReadWriteDtoService<IdmScri
 					authorities.add(authDto);
 				} else {
 					LOG.error(
-							"[DefaultIdmScriptService] Service [{}] [{}] isn't reachable, for script [{}] skip add this authority",
+							"Service [{}] [{}] isn't reachable, for script [{}] skip add this authority",
 							service.getName(), service.getClassName(), type.getCode());
 					continue;
 				}

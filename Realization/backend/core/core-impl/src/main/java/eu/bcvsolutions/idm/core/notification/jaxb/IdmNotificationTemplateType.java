@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.notification.model.jaxb;
+package eu.bcvsolutions.idm.core.notification.jaxb;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;

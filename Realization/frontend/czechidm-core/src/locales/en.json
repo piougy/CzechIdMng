@@ -1083,7 +1083,7 @@
         "success": "Script [{{name}}] successfully saved."
       },
       "filter": {
-        "text": "Name / Description"
+        "text": "Code / Name / Description"
       }
     },
     "scriptAuthorities": {

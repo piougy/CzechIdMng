@@ -36,14 +36,8 @@ public class DefaultGroovyScriptService implements GroovyScriptService {
 
 	protected ScriptCache scriptCache = new ScriptCache();
 	
-	private GroovyShell shell = null;
-	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory
 			.getLogger(DefaultGroovyScriptService.class);
-	
-	public DefaultGroovyScriptService() {
-		prepareShell();
-	}
 	
 	@Override
 	public Object evaluate(String script, Map<String, Object> variables) {
@@ -135,21 +129,11 @@ public class DefaultGroovyScriptService implements GroovyScriptService {
 	public Object validateScript(String script) throws ResultCodeException {
 		Assert.notNull(script);
 		try {
+			GroovyShell shell = new GroovyShell();
 			return shell.parse(script);
 		} catch (CompilationFailedException ex) {
 			throw new ResultCodeException(CoreResultCode.GROOVY_SCRIPT_VALIDATION, ex);
 		}
-	}
-	
-	/**
-	 * Method prepare groovy shell by default compoler configuration.
-	 */
-	private void prepareShell() {
-		CompilerConfiguration compilerConfiguration = new CompilerConfiguration();
-		compilerConfiguration.setVerbose(false);
-		compilerConfiguration.setDebug(false);
-		compilerConfiguration.addCompilationCustomizers(new SandboxTransformer());
-		this.shell = new GroovyShell(compilerConfiguration);
 	}
 
 	/**
@@ -162,23 +146,29 @@ public class DefaultGroovyScriptService implements GroovyScriptService {
 		/**
 		 * Key is hash code of script body, value is built script
 		 */
-		private Map<Integer, Script> scripts = new ConcurrentHashMap<>();
+		private Map<String, Script> scripts = new ConcurrentHashMap<>();
 		
 		/**
 		 * Returns compiled script for this source.
 		 */
 		private Script getScript(String source) {
-			Script script = scripts.get(source.hashCode());
+			Script script = scripts.get(source);
 			
 			if (script == null) {
 				script = buildScript(source);
-				scripts.put(source.hashCode(), script);
+				scripts.put(source, script);
 			}
 			
 			return script;
 		}
 		
 		private Script buildScript(String source) {
+			CompilerConfiguration compilerConfiguration = new CompilerConfiguration();
+			compilerConfiguration.setVerbose(false);
+			compilerConfiguration.setDebug(false);
+			compilerConfiguration.addCompilationCustomizers(new SandboxTransformer());
+			//
+			GroovyShell shell = new GroovyShell(compilerConfiguration);
 			return shell.parse(source);
 		}
 	}

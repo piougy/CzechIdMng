@@ -80,7 +80,7 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 	 * @param provisioningOperation
 	 * @return
 	 */
-	@Async
+	// @Async
 	@Override
 	@TransactionalEventListener
 	@Transactional(noRollbackFor = ProvisioningException.class, propagation = Propagation.REQUIRES_NEW)

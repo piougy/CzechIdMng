@@ -34,6 +34,8 @@ import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 /**
  * Role
  * 
+ * TODO: add role's code
+ * 
  * @author Radek Tomiška
  *
  */

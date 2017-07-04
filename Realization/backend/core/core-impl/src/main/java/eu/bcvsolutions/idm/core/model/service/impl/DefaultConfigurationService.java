@@ -47,7 +47,9 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
  * Public (not secured) configuration could be read without authentication. 
  * Confidential properties are saved to confidential storage.
  * 
- * Cache manager is used directly without annotations - its easier for overloading method and internal cache usage.
+ * Cache manager is used directly without annotations - its easier for overloaded methods and internal cache usage.
+ * 
+ * TODO: Create cache manager with FE agenda
  * 
  * @author Radek Tomiška 
  *

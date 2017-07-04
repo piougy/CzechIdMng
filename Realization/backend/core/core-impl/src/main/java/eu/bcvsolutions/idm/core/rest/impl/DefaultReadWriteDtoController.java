@@ -23,6 +23,7 @@ import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
+import io.swagger.annotations.ApiParam;
 
 /**
  * Default CRUD controller for given {@link BaseDto}.
@@ -74,28 +75,39 @@ public abstract class DefaultReadWriteDtoController<DTO extends BaseDto, F exten
 	@Override
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.GET)
-	public ResponseEntity<?> get(@PathVariable @NotNull String backendId) {
+	public ResponseEntity<?> get(
+			@ApiParam(value = "Record's uuid identifier or unique code, if record supports Codeable interface.", required = true)
+			@PathVariable @NotNull String backendId) {
 		return super.get(backendId);
 	}
 
 	@Override
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.POST)
-	public ResponseEntity<?> post(@Valid @RequestBody DTO dto) {
+	public ResponseEntity<?> post(
+			@ApiParam(value = "Record (dto).", required = true)
+			@Valid @RequestBody DTO dto) {
 		return super.post(dto);
 	}
 
 	@Override
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.PUT)
-	public ResponseEntity<?> put(@PathVariable @NotNull String backendId, @Valid @RequestBody DTO dto) {
+	public ResponseEntity<?> put(
+			@ApiParam(value = "Record's uuid identifier or unique code, if record supports Codeable interface.", required = true)
+			@PathVariable @NotNull String backendId, 
+			@ApiParam(value = "Record (dto).", required = true)
+			@Valid @RequestBody DTO dto) {
 		return super.put(backendId, dto);
 	}
 
 	@Override
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.PATCH)
-	public ResponseEntity<?> patch(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest)
+	public ResponseEntity<?> patch(
+			@ApiParam(value = "Record's uuid identifier or unique code, if record supports Codeable interface.", required = true)
+			@PathVariable @NotNull String backendId,
+			HttpServletRequest nativeRequest)
 			throws HttpMessageNotReadableException {
 		return super.patch(backendId, nativeRequest);
 	}
@@ -103,14 +115,18 @@ public abstract class DefaultReadWriteDtoController<DTO extends BaseDto, F exten
 	@Override
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.DELETE)
-	public ResponseEntity<?> delete(@PathVariable @NotNull String backendId) {
+	public ResponseEntity<?> delete(
+			@ApiParam(value = "Record's uuid identifier or unique code, if record supports Codeable interface.", required = true)
+			@PathVariable @NotNull String backendId) {
 		return super.delete(backendId);
 	}
 	
 	@Override
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}/permissions", method = RequestMethod.GET)
-	public Set<String> getPermissions(@PathVariable @NotNull String backendId) {
+	public Set<String> getPermissions(
+			@ApiParam(value = "Record's uuid identifier or unique code, if record supports Codeable interface.", required = true)
+			@PathVariable @NotNull String backendId) {
 		return super.getPermissions(backendId);
 	}
 }

@@ -5,6 +5,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
@@ -150,6 +152,30 @@ public class IdmFormDefinitionController extends DefaultReadWriteEntityControlle
 		//
 		if (formDefinition != null) {
 			return formDefinition;
+		}
+		formDefinition = formService.getDefinition(ownerClass);
+		if (formDefinition == null) {			
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("formDefinition", ownerClass));
+		}
+		return formDefinition;
+	}
+	
+	/**
+	 * Gets form definition for given owner type.
+	 * 
+	 * @param ownerClass owner type
+	 * @param definitionCode [optional] definition code, default definition will be returned, if no code is given
+	 * @return
+	 */
+	public IdmFormDefinition getDefinition(Class<? extends FormableEntity> ownerClass, String definitionCode) {
+		IdmFormDefinition formDefinition = null; // default will be used
+		if (StringUtils.isNotEmpty(definitionCode)) {
+			formDefinition = formService.getDefinition(ownerClass, definitionCode);
+			if (formDefinition == null) {
+				throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of(
+						"formDefinition", ownerClass.getSimpleName(),
+						"code", definitionCode));
+			}
 		}
 		formDefinition = formService.getDefinition(ownerClass);
 		if (formDefinition == null) {			

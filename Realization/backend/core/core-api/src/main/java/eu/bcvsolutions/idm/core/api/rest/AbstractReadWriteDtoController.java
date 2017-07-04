@@ -17,6 +17,7 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
 
 /**
@@ -44,7 +45,7 @@ public abstract class AbstractReadWriteDtoController<DTO extends BaseDto, F exte
 			@Authorization(SwaggerConfig.AUTHENTICATION_BASIC),
 			@Authorization(SwaggerConfig.AUTHENTICATION_CIDMST)
 			})
-	public ResponseEntity<?> post(DTO dto) {
+	public ResponseEntity<?> post(@ApiParam(value = "Record (dto).", required = true) DTO dto) {
 		return new ResponseEntity<>(toResource(postDto(dto)), HttpStatus.CREATED);
 	}
 
@@ -70,7 +71,10 @@ public abstract class AbstractReadWriteDtoController<DTO extends BaseDto, F exte
 			@Authorization(SwaggerConfig.AUTHENTICATION_BASIC),
 			@Authorization(SwaggerConfig.AUTHENTICATION_CIDMST)
 			})
-	public ResponseEntity<?> put(String backendId, DTO dto) {
+	public ResponseEntity<?> put(
+			@ApiParam(value = "Record's uuid identifier or unique code, if record supports <pre>Codeable</pre> interface.", required = true) 
+			String backendId,
+			@ApiParam(value = "Record (dto).", required = true) DTO dto) {
 		DTO updateDto = getDto(backendId);
 		if (updateDto == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
@@ -113,7 +117,9 @@ public abstract class AbstractReadWriteDtoController<DTO extends BaseDto, F exte
 			@Authorization(SwaggerConfig.AUTHENTICATION_BASIC),
 			@Authorization(SwaggerConfig.AUTHENTICATION_CIDMST)
 			})
-	public ResponseEntity<?> delete(String backendId) {
+	public ResponseEntity<?> delete(
+			@ApiParam(value = "Record's uuid identifier or unique code, if record supports <pre>Codeable</pre> interface.", required = true)
+			String backendId) {
 		DTO dto = getDto(backendId);
 		if (dto == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));

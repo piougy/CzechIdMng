@@ -8,7 +8,6 @@ import java.util.UUID;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
-import org.apache.commons.lang3.StringUtils;
 import org.hibernate.envers.exception.RevisionDoesNotExistException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -67,7 +66,9 @@ import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.service.GrantedAuthoritiesFactory;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
+import io.swagger.annotations.AuthorizationScope;
 
 /**
  * Rest methods for IdmIdentity resource
@@ -75,11 +76,13 @@ import io.swagger.annotations.Authorization;
  * @author Radek Tomiška
  *
  */
-@RepositoryRestController // TODO: @RestController after eav to dto
+@RepositoryRestController // TODO: @RestController after eav to dto - after PersistentEntityResourceAssembler will be removed from method parameter
 @RequestMapping(value = BaseController.BASE_PATH + "/identities") //produces= BaseController.APPLICATION_HAL_JSON_VALUE - I have to remove this (username cannot have "@.com" in user name)
-@Api(value = "Identities", description = "Operations with identities", tags = { "Identities" })
+@Api(value = IdmIdentityController.TAG, description = "Operations with identities", tags = { IdmIdentityController.TAG })
 public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIdentityDto, IdentityFilter> {
 
+	protected static final String TAG = "Identities";
+	//
 	private final GrantedAuthoritiesFactory grantedAuthoritiesFactory;
 	private final IdmIdentityContractService identityContractService;
 	private final IdmIdentityRoleService identityRoleService;
@@ -87,7 +90,6 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 	private final IdmTreeNodeService treeNodeService;
 	private final ForestContentService<IdmTreeNode, IdmForestIndexEntity, UUID> treeNodeIndexService;
 	private final IdmIdentityRepository identityRepository;
-	private final FormService formService;
 	//
 	private final IdmFormDefinitionController formDefinitionController;
 	
@@ -101,8 +103,7 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 			IdmAuditService auditService,
 			ForestContentService<IdmTreeNode, IdmForestIndexEntity, UUID> treeNodeIndexService,
 			IdmTreeNodeService treeNodeService,
-			IdmIdentityRepository identityRepository,
-			FormService formService) {
+			IdmIdentityRepository identityRepository) {
 		super(identityService);
 		//
 		Assert.notNull(formDefinitionController);
@@ -113,7 +114,6 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 		Assert.notNull(treeNodeIndexService);
 		Assert.notNull(treeNodeService);
 		Assert.notNull(identityRepository);
-		Assert.notNull(formService);
 		//
 		this.formDefinitionController = formDefinitionController;
 		this.grantedAuthoritiesFactory = grantedAuthoritiesFactory;
@@ -123,16 +123,17 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 		this.treeNodeIndexService = treeNodeIndexService;
 		this.treeNodeService = treeNodeService;
 		this.identityRepository = identityRepository;
-		this.formService = formService;
 	}
 	
 	@Override
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_READ + "')")
-	@ApiOperation(value = "Search identities (/search/quick alias)", nickname = "searchIdentities", tags={ "Identities" }, authorizations = {
-			@Authorization(SwaggerConfig.AUTHENTICATION_BASIC),
-			@Authorization(SwaggerConfig.AUTHENTICATION_CIDMST)
+	@ApiOperation(value = "Search identities (/search/quick alias)", nickname = "searchIdentities", tags={ IdmIdentityController.TAG }, authorizations = {
+			@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+					@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_READ, description = "") }),
+			@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+					@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_READ, description = "") })
 			})
 	public Resources<?> find(
 			@RequestParam(required = false) MultiValueMap<String, Object> parameters, 
@@ -144,9 +145,11 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 	@ResponseBody
 	@RequestMapping(value = "/search/quick", method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_READ + "')")
-	@ApiOperation(value = "Search identities", nickname = "searchQuickIdentities", tags={ "Identities" }, authorizations = {
-			@Authorization(SwaggerConfig.AUTHENTICATION_BASIC),
-			@Authorization(SwaggerConfig.AUTHENTICATION_CIDMST)
+	@ApiOperation(value = "Search identities", nickname = "searchQuickIdentities", tags={ IdmIdentityController.TAG }, authorizations = {
+			@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+					@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_READ, description = "") }),
+			@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+					@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_READ, description = "") })
 			})
 	public Resources<?> findQuick(
 			@RequestParam(required = false) MultiValueMap<String, Object> parameters, 
@@ -158,9 +161,11 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 	@ResponseBody
 	@RequestMapping(value = "/search/autocomplete", method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_AUTOCOMPLETE + "')")
-	@ApiOperation(value = "Autocomplete identities (selectbox usage)", nickname = "autocompleteIdentities", tags={ "Identities" }, authorizations = { 
-			@Authorization(SwaggerConfig.AUTHENTICATION_BASIC),
-			@Authorization(SwaggerConfig.AUTHENTICATION_CIDMST)
+	@ApiOperation(value = "Autocomplete identities (selectbox usage)", nickname = "autocompleteIdentities", tags={ IdmIdentityController.TAG }, authorizations = { 
+			@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+					@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_AUTOCOMPLETE, description = "") }),
+			@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+					@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_AUTOCOMPLETE, description = "") })
 			})
 	public Resources<?> autocomplete(
 			@RequestParam(required = false) MultiValueMap<String, Object> parameters, 
@@ -172,11 +177,15 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_READ + "')")
-	@ApiOperation(value = "Identity detail", nickname = "getIdentity", response = IdmIdentityDto.class, tags={ "Identities" }, authorizations = { 
-			@Authorization(SwaggerConfig.AUTHENTICATION_BASIC),
-			@Authorization(SwaggerConfig.AUTHENTICATION_CIDMST)
+	@ApiOperation(value = "Identity detail", nickname = "getIdentity", response = IdmIdentityDto.class, tags={ IdmIdentityController.TAG }, authorizations = { 
+			@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+					@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_READ, description = "") }),
+			@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+					@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_READ, description = "") })
 			})
-	public ResponseEntity<?> get(@PathVariable @NotNull String backendId) {
+	public ResponseEntity<?> get(
+			@ApiParam(value = "Identity's uuid identifier or username.", required = true)
+			@PathVariable @NotNull String backendId) {
 		return super.get(backendId);
 	}
 
@@ -184,9 +193,13 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.POST)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_CREATE + "') or hasAuthority('" + CoreGroupPermission.IDENTITY_UPDATE + "')")
-	@ApiOperation(value = "Create / update identity", nickname = "postIdentity", response = IdmIdentityDto.class, tags={ "Identities" }, authorizations = { 
-			@Authorization(SwaggerConfig.AUTHENTICATION_BASIC),
-			@Authorization(SwaggerConfig.AUTHENTICATION_CIDMST)
+	@ApiOperation(value = "Create / update identity", nickname = "postIdentity", response = IdmIdentityDto.class, tags={ IdmIdentityController.TAG }, authorizations = { 
+			@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+					@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_CREATE, description = ""),
+					@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_UPDATE, description = "")}),
+			@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+					@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_CREATE, description = ""),
+					@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_UPDATE, description = "")})
 			})
 	public ResponseEntity<?> post(@Valid @RequestBody IdmIdentityDto dto) {
 		return super.post(dto);
@@ -196,11 +209,16 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.PUT)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_UPDATE + "')")
-	@ApiOperation(value = "Update identity", nickname = "putIdentity", response = IdmIdentityDto.class, tags={ "Identities" }, authorizations = { 
-			@Authorization(SwaggerConfig.AUTHENTICATION_BASIC),
-			@Authorization(SwaggerConfig.AUTHENTICATION_CIDMST)
+	@ApiOperation(value = "Update identity", nickname = "putIdentity", response = IdmIdentityDto.class, tags={ IdmIdentityController.TAG }, authorizations = { 
+			@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+					@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_UPDATE, description = "") }),
+			@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+					@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_UPDATE, description = "") })
 			})
-	public ResponseEntity<?> put(@PathVariable @NotNull String backendId, @Valid @RequestBody IdmIdentityDto dto) {
+	public ResponseEntity<?> put(
+			@ApiParam(value = "Identity's uuid identifier or username.", required = true)
+			@PathVariable @NotNull String backendId, 
+			@Valid @RequestBody IdmIdentityDto dto) {
 		return super.put(backendId, dto);
 	}
 
@@ -208,11 +226,15 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.DELETE)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_DELETE + "')")
-	@ApiOperation(value = "Delete identity", nickname = "deleteIdentity", tags={ "Identities" }, authorizations = { 
-			@Authorization(SwaggerConfig.AUTHENTICATION_BASIC),
-			@Authorization(SwaggerConfig.AUTHENTICATION_CIDMST)
+	@ApiOperation(value = "Delete identity", nickname = "deleteIdentity", tags={ IdmIdentityController.TAG }, authorizations = { 
+			@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+					@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_DELETE, description = "") }),
+			@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+					@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_DELETE, description = "") })
 			})
-	public ResponseEntity<?> delete(@PathVariable @NotNull String backendId) {
+	public ResponseEntity<?> delete(
+			@ApiParam(value = "Identity's uuid identifier or username.", required = true)
+			@PathVariable @NotNull String backendId) {
 		return super.delete(backendId);
 	}
 	
@@ -220,31 +242,39 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}/permissions", method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_READ + "')")
-	@ApiOperation(value = "What logged identity can do with given record", nickname = "getPermissionsOnIdentity", tags={ "Identities" }, authorizations = { 
-			@Authorization(SwaggerConfig.AUTHENTICATION_BASIC),
-			@Authorization(SwaggerConfig.AUTHENTICATION_CIDMST)
+	@ApiOperation(value = "What logged identity can do with given record", nickname = "getPermissionsOnIdentity", tags={ IdmIdentityController.TAG }, authorizations = { 
+			@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+					@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_READ, description = "") }),
+			@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+					@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_READ, description = "") })
 			})
-	public Set<String> getPermissions(@PathVariable @NotNull String backendId) {
+	public Set<String> getPermissions(
+			@ApiParam(value = "Identity's uuid identifier or username.", required = true)
+			@PathVariable @NotNull String backendId) {
 		return super.getPermissions(backendId);
 	}
 
 	/**
 	 * Returns given identity's granted authorities
 	 * 
-	 * @param identityId
+	 * @param backendId
 	 * @return list of granted authorities
 	 */
 	@ResponseBody
-	@RequestMapping(value = "/{identityId}/authorities", method = RequestMethod.GET)
+	@RequestMapping(value = "/{backendId}/authorities", method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_READ + "')")
-	@ApiOperation(value = "Identity granted authorities", nickname = "getIdentityAuthorities", tags={ "Identities" }, authorizations = { 
-			@Authorization(SwaggerConfig.AUTHENTICATION_BASIC),
-			@Authorization(SwaggerConfig.AUTHENTICATION_CIDMST)
+	@ApiOperation(value = "Identity granted authorities", nickname = "getIdentityAuthorities", tags={ IdmIdentityController.TAG }, authorizations = { 
+			@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+					@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_READ, description = "") }),
+			@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+					@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_READ, description = "") })
 			})
-	public List<? extends GrantedAuthority> getGrantedAuthotrities(@PathVariable String identityId) {
-		IdmIdentityDto identity = getDto(identityId);
+	public List<? extends GrantedAuthority> getGrantedAuthotrities(
+			@ApiParam(value = "Identity's uuid identifier or username.", required = true)
+			@PathVariable String backendId) {
+		IdmIdentityDto identity = getDto(backendId);
 		if (identity == null) {
-			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", identityId));
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
 		checkAccess(identity, IdmBasePermission.READ);
 		//
@@ -252,16 +282,21 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 	}
 	
 	@ResponseBody
-	@RequestMapping(value = "/{identityId}/roles", method = RequestMethod.GET)
+	@RequestMapping(value = "/{backendId}/roles", method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_READ + "')")
-	@ApiOperation(value = "Assigned roles to identity", nickname = "getIdentityRoles", tags={ "Identities" }, authorizations = { 
-			@Authorization(SwaggerConfig.AUTHENTICATION_BASIC),
-			@Authorization(SwaggerConfig.AUTHENTICATION_CIDMST)
+	@ApiOperation(value = "Assigned roles to identity", nickname = "getIdentityRoles", tags={ IdmIdentityController.TAG }, authorizations = { 
+			@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+					@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_READ, description = "") }),
+			@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+					@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_READ, description = "") })
 			})
-	public Resources<?> roles(@PathVariable String identityId, PersistentEntityResourceAssembler assembler) {	
-		IdmIdentityDto identity = getDto(identityId);
+	public Resources<?> roles(
+			@ApiParam(value = "Identity's uuid identifier or username.", required = true)
+			@PathVariable String backendId, 
+			PersistentEntityResourceAssembler assembler) {	
+		IdmIdentityDto identity = getDto(backendId);
 		if (identity == null) {
-			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", identityId));
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
 		//
 		checkAccess(identity, IdmBasePermission.READ);
@@ -276,21 +311,26 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 	/**
 	 * Get given identity's prime position in organization.
 	 * 
-	 * @param identityId
+	 * @param backendId
 	 * @param assembler
 	 * @return Positions from root to closest parent
 	 */
 	@ResponseBody
-	@RequestMapping(value = "/{identityId}/work-position", method = RequestMethod.GET)
+	@RequestMapping(value = "/{backendId}/work-position", method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_READ + "')")
-	@ApiOperation(value = "Identity prime position in organization.", nickname = "getIdentityPosition", tags={ "Identities" }, authorizations = { 
-			@Authorization(SwaggerConfig.AUTHENTICATION_BASIC),
-			@Authorization(SwaggerConfig.AUTHENTICATION_CIDMST)
+	@ApiOperation(value = "Identity prime position in organization.", nickname = "getIdentityPosition", tags={ IdmIdentityController.TAG }, authorizations = { 
+			@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+					@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_READ, description = "") }),
+			@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+					@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_READ, description = "") })
 			})
-	public ResponseEntity<?> organizationPosition(@PathVariable String identityId, PersistentEntityResourceAssembler assembler) {
-		IdmIdentityDto identity = getDto(identityId);
+	public ResponseEntity<?> organizationPosition(
+			@ApiParam(value = "Identity's uuid identifier or username.", required = true)
+			@PathVariable String backendId, 
+			PersistentEntityResourceAssembler assembler) {
+		IdmIdentityDto identity = getDto(backendId);
 		if (identity == null) {
-			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", identityId));
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
 		//
 		checkAccess(identity, IdmBasePermission.READ);
@@ -317,18 +357,22 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 	}
 	
 	@ResponseBody
-	@RequestMapping(value = "/{identityId}/revisions/{revId}", method = RequestMethod.GET)
+	@RequestMapping(value = "/{backendId}/revisions/{revId}", method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_READ + "')")
-	@ApiOperation(value = "Identity audit - read revision detail", nickname = "getIdentityRevision", tags={ "Identities" }, authorizations = { 
-			@Authorization(SwaggerConfig.AUTHENTICATION_BASIC),
-			@Authorization(SwaggerConfig.AUTHENTICATION_CIDMST)
+	@ApiOperation(value = "Identity audit - read revision detail", nickname = "getIdentityRevision", tags={ IdmIdentityController.TAG }, authorizations = { 
+			@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+					@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_READ, description = "") }),
+			@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+					@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_READ, description = "") })
 			})
 	public ResponseEntity<?> findRevision(
-			@PathVariable("identityId") String identityId, 
+			@ApiParam(value = "Identity's uuid identifier or username.", required = true)
+			@PathVariable("backendId") String backendId, 
+			@ApiParam(value = "Revision identifier.", required = true)
 			@PathVariable("revId") Long revId) {
-		IdmIdentityDto originalEntity = getDto(identityId);
+		IdmIdentityDto originalEntity = getDto(backendId);
 		if (originalEntity == null) {
-			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", identityId));
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
 		checkAccess(originalEntity, IdmBasePermission.READ);
 		//
@@ -344,17 +388,22 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 	}
 	
 	@ResponseBody
-	@RequestMapping(value = "/{identityId}/revisions", method = RequestMethod.GET)
+	@RequestMapping(value = "/{backendId}/revisions", method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_READ + "')")
-	@ApiOperation(value = "Identity audit - read all revisions", nickname = "getIdentityRevisions", tags={ "Identities" }, authorizations = { 
-			@Authorization(SwaggerConfig.AUTHENTICATION_BASIC),
-			@Authorization(SwaggerConfig.AUTHENTICATION_CIDMST)
+	@ApiOperation(value = "Identity audit - read all revisions", nickname = "getIdentityRevisions", tags={ IdmIdentityController.TAG }, authorizations = { 
+			@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+					@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_READ, description = "") }),
+			@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+					@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_READ, description = "") })
 			})
-	public Resources<?> findRevisions(@PathVariable("identityId") String identityId, Pageable pageable,
+	public Resources<?> findRevisions(
+			@ApiParam(value = "Identity's uuid identifier or username.", required = true)
+			@PathVariable("backendId") String backendId, 
+			Pageable pageable,
 			PersistentEntityResourceAssembler assembler) {
-		IdmIdentityDto originalEntity = getDto(identityId);
+		IdmIdentityDto originalEntity = getDto(backendId);
 		if (originalEntity == null) {
-			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("identity", identityId));
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("identity", backendId));
 		}
 		//
 		checkAccess(originalEntity, IdmBasePermission.READ);
@@ -372,11 +421,17 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 	 */
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}/form-definitions", method = RequestMethod.GET)
-	@ApiOperation(value = "Identity extended attributes form definitions", nickname = "getIdentityFormDefinitions", tags={ "Identities" }, authorizations = { 
-			@Authorization(SwaggerConfig.AUTHENTICATION_BASIC),
-			@Authorization(SwaggerConfig.AUTHENTICATION_CIDMST)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_READ + "')")
+	@ApiOperation(value = "Identity extended attributes form definitions", nickname = "getIdentityFormDefinitions", tags={ IdmIdentityController.TAG }, authorizations = { 
+			@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+					@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_READ, description = "") }),
+			@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+					@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_READ, description = "") })
 			})
-	public ResponseEntity<?> getFormDefinitions(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler) {
+	public ResponseEntity<?> getFormDefinitions(
+			@ApiParam(value = "Identity's uuid identifier or username.", required = true)
+			@PathVariable @NotNull String backendId, 
+			PersistentEntityResourceAssembler assembler) {
 		return formDefinitionController.getDefinitions(IdmIdentity.class, assembler);
 	}
 	
@@ -390,13 +445,17 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}/form-values", method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_READ + "')")
-	@ApiOperation(value = "Identity form definition - read values", nickname = "getIdentityFormValues", tags={ "Identities" }, authorizations = { 
-			@Authorization(SwaggerConfig.AUTHENTICATION_BASIC),
-			@Authorization(SwaggerConfig.AUTHENTICATION_CIDMST)
+	@ApiOperation(value = "Identity form definition - read values", nickname = "getIdentityFormValues", tags={ IdmIdentityController.TAG }, authorizations = { 
+			@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+					@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_READ, description = "") }),
+			@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+					@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_READ, description = "") })
 			})
 	public Resources<?> getFormValues(
+			@ApiParam(value = "Identity's uuid identifier or username.", required = true)
 			@PathVariable @NotNull String backendId, 
-			@RequestParam(name = "definitionCode") String definitionCode,
+			@ApiParam(value = "Code of form definition (default will be used if no code is given).", required = false, defaultValue = FormService.DEFAULT_DEFINITION_CODE)
+			@RequestParam(name = "definitionCode", required = false) String definitionCode,
 			PersistentEntityResourceAssembler assembler) {
 		IdmIdentityDto entity = getDto(backendId);
 		if (entity == null) {
@@ -405,10 +464,7 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 		//
 		checkAccess(entity, IdmBasePermission.READ);
 		//
-		IdmFormDefinition formDefinition = null; // default
-		if (StringUtils.isNotEmpty(definitionCode)) {
-			formDefinition = formService.getDefinition(IdmIdentity.class, definitionCode);
-		}
+		IdmFormDefinition formDefinition = formDefinitionController.getDefinition(IdmIdentity.class, definitionCode);
 		//
 		return formDefinitionController.getFormValues(identityRepository.findOne(entity.getId()), formDefinition, assembler);
 	}
@@ -424,13 +480,18 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 	@ResponseBody
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_UPDATE + "')")
 	@RequestMapping(value = "/{backendId}/form-values", method = RequestMethod.POST)
-	@ApiOperation(value = "Identity form definition - save values", nickname = "postIdentityFormValues", tags={ "Identities" }, authorizations = { 
-			@Authorization(SwaggerConfig.AUTHENTICATION_BASIC),
-			@Authorization(SwaggerConfig.AUTHENTICATION_CIDMST)
+	@ApiOperation(value = "Identity form definition - save values", nickname = "postIdentityFormValues", tags={ IdmIdentityController.TAG }, authorizations = { 
+			@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+					@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_UPDATE, description = "") }),
+			@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+					@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_UPDATE, description = "") })
 			})
 	public Resources<?> saveFormValues(
+			@ApiParam(value = "Identity's uuid identifier or username.", required = true)
 			@PathVariable @NotNull String backendId,
-			@RequestParam(name = "definitionCode") String definitionCode,
+			@ApiParam(value = "Code of form definition (default will be used if no code is given).", required = false, defaultValue = FormService.DEFAULT_DEFINITION_CODE)
+			@RequestParam(name = "definitionCode", required = false) String definitionCode,
+			@ApiParam(value = "Filled form data.", required = true)
 			@RequestBody @Valid List<IdmIdentityFormValue> formValues,
 			PersistentEntityResourceAssembler assembler) {		
 		IdmIdentityDto entity = getDto(backendId);
@@ -439,13 +500,10 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 		}
 		checkAccess(entity, IdmBasePermission.UPDATE);
 		//
-		IdmFormDefinition formDefinition = null; // default
-		if (StringUtils.isNotEmpty(definitionCode)) {
-			formDefinition = formService.getDefinition(IdmIdentity.class, definitionCode);
-		}
+		IdmFormDefinition formDefinition = formDefinitionController.getDefinition(IdmIdentity.class, definitionCode);
 		//
 		return formDefinitionController.saveFormValues(identityRepository.findOne(entity.getId()), formDefinition, formValues, assembler);
-	}	
+	}
 	
 	@Override
 	protected IdentityFilter toFilter(MultiValueMap<String, Object> parameters) {

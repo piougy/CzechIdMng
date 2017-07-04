@@ -40,6 +40,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
 
 /**
@@ -97,7 +98,9 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 			@Authorization(SwaggerConfig.AUTHENTICATION_BASIC),
 			@Authorization(SwaggerConfig.AUTHENTICATION_CIDMST)
 			})
-	public ResponseEntity<?> get(@PathVariable @NotNull String backendId) {
+	public ResponseEntity<?> get(
+			@ApiParam(value = "Record's uuid identifier or unique code, if record supports Codeable interface.", required = true)
+			@PathVariable @NotNull String backendId) {
 		DTO dto = getDto(backendId);
 		if (dto == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
@@ -234,7 +237,9 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 			@Authorization(SwaggerConfig.AUTHENTICATION_BASIC),
 			@Authorization(SwaggerConfig.AUTHENTICATION_CIDMST)
 			})
-	public Set<String> getPermissions(@PathVariable @NotNull String backendId) {
+	public Set<String> getPermissions(
+			@ApiParam(value = "Record's uuid identifier or unique code, if record supports Codeable interface.", required = true)
+			@PathVariable @NotNull String backendId) {
 		DTO dto = getDto(backendId);
 		if (dto == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));

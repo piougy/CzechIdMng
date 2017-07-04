@@ -29,6 +29,12 @@ public class CoreSwaggerConfig extends AbstractSwaggerConfig {
 	
 	@Bean
 	public Docket coreApi() {
-		return api("eu.bcvsolutions.idm.core");
+		return api(
+				"eu.bcvsolutions.idm.core.rest", 
+				"eu.bcvsolutions.idm.core.security",
+				"eu.bcvsolutions.idm.core.scheduler",
+				"eu.bcvsolutions.idm.core.eav",
+				"eu.bcvsolutions.idm.core.notification",
+				"eu.bcvsolutions.idm.core.workflow");
 	}
 }

@@ -23,6 +23,7 @@ import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteEntityController;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
+import io.swagger.annotations.ApiParam;
 
 /**
  * Default CRUD controller for given {@link BaseEntity}.
@@ -80,7 +81,10 @@ public abstract class DefaultReadWriteEntityController<E extends BaseEntity, F e
 	@Override
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.GET)
-	public ResponseEntity<?> get(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler) {
+	public ResponseEntity<?> get(
+			@ApiParam(value = "Record's uuid identifier or unique code, if record supports Codeable interface.", required = true)
+			@PathVariable @NotNull String backendId,
+			PersistentEntityResourceAssembler assembler) {
 		return super.get(backendId, assembler);
 	}
 	
@@ -95,6 +99,7 @@ public abstract class DefaultReadWriteEntityController<E extends BaseEntity, F e
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.PUT)
 	public ResponseEntity<?> put(
+			@ApiParam(value = "Record's uuid identifier or unique code, if record supports Codeable interface.", required = true)
 			@PathVariable @NotNull String backendId,
 			HttpServletRequest nativeRequest,
 			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
@@ -104,7 +109,11 @@ public abstract class DefaultReadWriteEntityController<E extends BaseEntity, F e
 	@Override
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.PATCH)
-	public ResponseEntity<?> patch(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler) 
+	public ResponseEntity<?> patch(
+			@ApiParam(value = "Record's uuid identifier or unique code, if record supports Codeable interface.", required = true)
+			@PathVariable @NotNull String backendId, 
+			HttpServletRequest nativeRequest, 
+			PersistentEntityResourceAssembler assembler) 
 			throws HttpMessageNotReadableException {
 		return super.patch(backendId, nativeRequest, assembler);
 	}
@@ -112,14 +121,18 @@ public abstract class DefaultReadWriteEntityController<E extends BaseEntity, F e
 	@Override
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.DELETE)
-	public ResponseEntity<?> delete(@PathVariable @NotNull String backendId) {
+	public ResponseEntity<?> delete(
+			@ApiParam(value = "Record's uuid identifier or unique code, if record supports Codeable interface.", required = true)
+			@PathVariable @NotNull String backendId) {
 		return super.delete(backendId);
 	}
 	
 	@Override
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}/permissions", method = RequestMethod.GET)
-	public Set<String> getPermissions(@PathVariable @NotNull String backendId) {
+	public Set<String> getPermissions(
+			@ApiParam(value = "Record's uuid identifier or unique code, if record supports Codeable interface.", required = true)
+			@PathVariable @NotNull String backendId) {
 		return super.getPermissions(backendId);
 	}
 }

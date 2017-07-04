@@ -27,10 +27,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -53,6 +50,7 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizationManager;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
 
 /**
@@ -137,7 +135,10 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 			@Authorization(SwaggerConfig.AUTHENTICATION_BASIC),
 			@Authorization(SwaggerConfig.AUTHENTICATION_CIDMST)
 			})
-	public ResponseEntity<?> get(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler) {
+	public ResponseEntity<?> get(
+			@ApiParam(value = "Record's uuid identifier or unique code, if record supports Codeable interface.", required = true)
+			@PathVariable @NotNull String backendId,
+			PersistentEntityResourceAssembler assembler) {
 		E entity = getEntity(backendId);
 		if (entity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
@@ -302,7 +303,9 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 			@Authorization(SwaggerConfig.AUTHENTICATION_BASIC),
 			@Authorization(SwaggerConfig.AUTHENTICATION_CIDMST)
 			})
-	public Set<String> getPermissions(@PathVariable @NotNull String backendId) {
+	public Set<String> getPermissions(
+			@ApiParam(value = "Record's uuid identifier or unique code, if record supports Codeable interface.", required = true)
+			@PathVariable @NotNull String backendId) {
 		E entity = getEntity(backendId);
 		if (entity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));

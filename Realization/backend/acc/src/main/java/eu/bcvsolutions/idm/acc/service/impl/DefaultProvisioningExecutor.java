@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -79,6 +80,7 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 	 * @param provisioningOperation
 	 * @return
 	 */
+	@Async
 	@Override
 	@TransactionalEventListener
 	@Transactional(noRollbackFor = ProvisioningException.class, propagation = Propagation.REQUIRES_NEW)

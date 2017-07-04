@@ -28,6 +28,7 @@ import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
 
 /**
@@ -102,6 +103,7 @@ public abstract class AbstractReadWriteEntityController<E extends BaseEntity, F 
 			@Authorization(SwaggerConfig.AUTHENTICATION_CIDMST)
 			})
 	public ResponseEntity<?> put(
+			@ApiParam(value = "Record's uuid identifier or unique code, if record supports Codeable interface.", required = true)
 			String backendId,
 			HttpServletRequest nativeRequest, 
 			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
@@ -141,6 +143,7 @@ public abstract class AbstractReadWriteEntityController<E extends BaseEntity, F 
 			@Authorization(SwaggerConfig.AUTHENTICATION_CIDMST)
 			})
 	public ResponseEntity<?> patch(
+			@ApiParam(value = "Record's uuid identifier or unique code, if record supports Codeable interface.", required = true)
 			String backendId,
 			HttpServletRequest nativeRequest, 
 			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
@@ -193,7 +196,9 @@ public abstract class AbstractReadWriteEntityController<E extends BaseEntity, F 
 			@Authorization(SwaggerConfig.AUTHENTICATION_BASIC),
 			@Authorization(SwaggerConfig.AUTHENTICATION_CIDMST)
 			})
-	public ResponseEntity<?> delete(String backendId) {
+	public ResponseEntity<?> delete(
+			@ApiParam(value = "Record's uuid identifier or unique code, if record supports Codeable interface.", required = true)
+			String backendId) {
 		E entity = getEntity(backendId);
 		if (entity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));

@@ -22,9 +22,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.common.collect.ImmutableMap;
 
+import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
@@ -34,19 +36,31 @@ import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.rest.impl.DefaultReadWriteEntityController;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.Authorization;
+import io.swagger.annotations.AuthorizationScope;
 
 /**
  * EAV Form definitions
  * 
  * TODO: Split form definition and form instance controller
+ * TODO: secure read operations?
  * 
  * @author Radek Tomiška
  *
  */
 @RepositoryRestController
 @RequestMapping(value = BaseEntityController.BASE_PATH + "/form-definitions")
+@Api(
+		value = IdmFormDefinitionController.TAG, 
+		description = "Operations with form definitions (eav)", 
+		tags = { IdmFormDefinitionController.TAG }, 
+		produces = BaseController.APPLICATION_HAL_JSON_VALUE)
 public class IdmFormDefinitionController extends DefaultReadWriteEntityController<IdmFormDefinition, QuickFilter>  {
 
+	protected static final String TAG = "Form definitions";
 	private final FormService formService;
 	
 	@Autowired
@@ -61,6 +75,19 @@ public class IdmFormDefinitionController extends DefaultReadWriteEntityControlle
 	@Override
 	@ResponseBody
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.EAV_FORM_DEFINITIONS_CREATE + "') or hasAuthority('" + CoreGroupPermission.EAV_FORM_DEFINITIONS_UPDATE + "')")
+	@ApiOperation(
+			value = "Create / update form definition", 
+			nickname = "postFormDefinition", 
+			response = IdmFormDefinition.class, 
+			tags = { IdmFormDefinitionController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.EAV_FORM_DEFINITIONS_CREATE, description = ""),
+						@AuthorizationScope(scope = CoreGroupPermission.EAV_FORM_DEFINITIONS_UPDATE, description = "")}),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.EAV_FORM_DEFINITIONS_CREATE, description = ""),
+						@AuthorizationScope(scope = CoreGroupPermission.EAV_FORM_DEFINITIONS_UPDATE, description = "")})
+				})
 	public ResponseEntity<?> post(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler)
 			throws HttpMessageNotReadableException {
 		return super.post(nativeRequest, assembler);
@@ -69,7 +96,21 @@ public class IdmFormDefinitionController extends DefaultReadWriteEntityControlle
 	@Override
 	@ResponseBody
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.EAV_FORM_DEFINITIONS_UPDATE + "')")
-	public ResponseEntity<?> put(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest,
+	@ApiOperation(
+			value = "Update form definition",
+			nickname = "putFormDefinition", 
+			response = IdmFormDefinition.class, 
+			tags = { IdmFormDefinitionController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.EAV_FORM_DEFINITIONS_UPDATE, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.EAV_FORM_DEFINITIONS_UPDATE, description = "") })
+				})
+	public ResponseEntity<?> put(
+			@ApiParam(value = "Form definition's uuid identifier or code.", required = true)
+			@PathVariable @NotNull String backendId, 
+			HttpServletRequest nativeRequest,
 			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
 		return super.put(backendId, nativeRequest, assembler);
 	}
@@ -77,7 +118,21 @@ public class IdmFormDefinitionController extends DefaultReadWriteEntityControlle
 	@Override
 	@ResponseBody
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.EAV_FORM_DEFINITIONS_UPDATE + "')")
-	public ResponseEntity<?> patch(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest,
+	@ApiOperation(
+			value = "Patch form definition", 
+			nickname = "patchFormDefinition", 
+			response = IdmFormDefinition.class, 
+			tags = { IdmFormDefinitionController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.EAV_FORM_DEFINITIONS_UPDATE, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.EAV_FORM_DEFINITIONS_UPDATE, description = "") })
+				})
+	public ResponseEntity<?> patch(
+			@ApiParam(value = "Form definition's uuid identifier or code.", required = true)
+			@PathVariable @NotNull String backendId, 
+			HttpServletRequest nativeRequest,
 			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
 		return super.patch(backendId, nativeRequest, assembler);
 	}
@@ -85,8 +140,33 @@ public class IdmFormDefinitionController extends DefaultReadWriteEntityControlle
 	@Override
 	@ResponseBody
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.EAV_FORM_DEFINITIONS_DELETE + "')")
-	public ResponseEntity<?> delete(@PathVariable @NotNull String backendId) {
+	@ApiOperation(
+			value = "Delete form definition", 
+			nickname = "deleteFormDefinition", 
+			tags = { IdmFormDefinitionController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.EAV_FORM_DEFINITIONS_DELETE, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.EAV_FORM_DEFINITIONS_DELETE, description = "") })
+				})
+	public ResponseEntity<?> delete(
+			@ApiParam(value = "Form definition's uuid identifier or code.", required = true)
+			@PathVariable @NotNull String backendId) {
 		return super.delete(backendId);
+	}
+	
+	@ResponseBody
+	@RequestMapping(value = "/search/types", method = RequestMethod.GET)
+	@ApiOperation(
+			value = "Form definition owner types", 
+			nickname = "getFormDefinitionOwnerTypes", 
+			tags = { IdmFormDefinitionController.TAG },
+			notes = "Returns all supported form definition owner types (FormableEntity descendants).")
+	public ResponseEntity<ResourcesWrapper<String>> getOwnerTypes() {
+		List<String> types = formService.getOwnerTypes();
+		ResourcesWrapper<String> resource = new ResourcesWrapper<>(types);
+		return new ResponseEntity<ResourcesWrapper<String>>(resource, HttpStatus.OK);
 	}
 	
 	@Override
@@ -196,14 +276,6 @@ public class IdmFormDefinitionController extends DefaultReadWriteEntityControlle
 		Assert.notNull(owner); 
 		//
 		return toResources(formService.getValues(owner, getDefinition(owner.getClass(), formDefinition)), assembler, owner.getClass(), null);
-	}
-	
-	@ResponseBody
-	@RequestMapping(value = "/search/types", method = RequestMethod.GET)
-	public ResponseEntity<ResourcesWrapper<String>>  getFormDefinition() {
-		List<String> types = formService.getOwnerTypes();
-		ResourcesWrapper<String> resource = new ResourcesWrapper<>(types);
-		return new ResponseEntity<ResourcesWrapper<String>>(resource, HttpStatus.OK);
 	}
 	
 	/**

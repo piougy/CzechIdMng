@@ -78,7 +78,11 @@ import io.swagger.annotations.AuthorizationScope;
  */
 @RepositoryRestController // TODO: @RestController after eav to dto - after PersistentEntityResourceAssembler will be removed from method parameter
 @RequestMapping(value = BaseController.BASE_PATH + "/identities") //produces= BaseController.APPLICATION_HAL_JSON_VALUE - I have to remove this (username cannot have "@.com" in user name)
-@Api(value = IdmIdentityController.TAG, description = "Operations with identities", tags = { IdmIdentityController.TAG })
+@Api(
+		value = IdmIdentityController.TAG, 
+		description = "Operations with identities", 
+		tags = { IdmIdentityController.TAG }, 
+		produces = BaseController.APPLICATION_HAL_JSON_VALUE)
 public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIdentityDto, IdentityFilter> {
 
 	protected static final String TAG = "Identities";
@@ -132,7 +136,7 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 	@ApiOperation(
 			value = "Search identities (/search/quick alias)", 
 			nickname = "searchIdentities", 
-			tags={ IdmIdentityController.TAG }, 
+			tags = { IdmIdentityController.TAG }, 
 			authorizations = {
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
 						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_READ, description = "") }),
@@ -152,7 +156,7 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 	@ApiOperation(
 			value = "Search identities", 
 			nickname = "searchQuickIdentities", 
-			tags={ IdmIdentityController.TAG }, 
+			tags = { IdmIdentityController.TAG }, 
 			authorizations = {
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
 						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_READ, description = "") }),
@@ -172,7 +176,7 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 	@ApiOperation(
 			value = "Autocomplete identities (selectbox usage)", 
 			nickname = "autocompleteIdentities", 
-			tags={ IdmIdentityController.TAG }, 
+			tags = { IdmIdentityController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
 						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_AUTOCOMPLETE, description = "") }),
@@ -193,7 +197,7 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 			value = "Identity detail", 
 			nickname = "getIdentity", 
 			response = IdmIdentityDto.class, 
-			tags={ IdmIdentityController.TAG }, 
+			tags = { IdmIdentityController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
 						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_READ, description = "") }),
@@ -214,7 +218,7 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 			value = "Create / update identity", 
 			nickname = "postIdentity", 
 			response = IdmIdentityDto.class, 
-			tags={ IdmIdentityController.TAG }, 
+			tags = { IdmIdentityController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
 						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_CREATE, description = ""),
@@ -235,7 +239,7 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 			value = "Update identity", 
 			nickname = "putIdentity", 
 			response = IdmIdentityDto.class, 
-			tags={ IdmIdentityController.TAG }, 
+			tags = { IdmIdentityController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
 						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_UPDATE, description = "") }),
@@ -256,7 +260,7 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 	@ApiOperation(
 			value = "Delete identity", 
 			nickname = "deleteIdentity", 
-			tags={ IdmIdentityController.TAG }, 
+			tags = { IdmIdentityController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
 						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_DELETE, description = "") }),
@@ -276,7 +280,7 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 	@ApiOperation(
 			value = "What logged identity can do with given record", 
 			nickname = "getPermissionsOnIdentity", 
-			tags={ IdmIdentityController.TAG }, 
+			tags = { IdmIdentityController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
 						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_READ, description = "") }),
@@ -301,7 +305,7 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 	@ApiOperation(
 			value = "Identity granted authorities", 
 			nickname = "getIdentityAuthorities", 
-			tags={ IdmIdentityController.TAG }, 
+			tags = { IdmIdentityController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
 						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_READ, description = "") }),
@@ -326,7 +330,7 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 	@ApiOperation(
 			value = "Assigned roles to identity", 
 			nickname = "getIdentityRoles", 
-			tags={ IdmIdentityController.TAG }, 
+			tags = { IdmIdentityController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
 						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_READ, description = "") }),
@@ -364,7 +368,7 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 	@ApiOperation(
 			value = "Identity prime position in organization.", 
 			nickname = "getIdentityPosition", 
-			tags={ IdmIdentityController.TAG }, 
+			tags = { IdmIdentityController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
 						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_READ, description = "") }),
@@ -409,7 +413,7 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 	@ApiOperation(
 			value = "Identity audit - read revision detail", 
 			nickname = "getIdentityRevision", 
-			tags={ IdmIdentityController.TAG }, 
+			tags = { IdmIdentityController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
 						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_READ, description = "") }),
@@ -444,7 +448,7 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 	@ApiOperation(
 			value = "Identity audit - read all revisions", 
 			nickname = "getIdentityRevisions", 
-			tags={ IdmIdentityController.TAG }, 
+			tags = { IdmIdentityController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
 						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_READ, description = "") }),
@@ -480,7 +484,7 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 	@ApiOperation(
 			value = "Identity extended attributes form definitions", 
 			nickname = "getIdentityFormDefinitions", 
-			tags={ IdmIdentityController.TAG }, 
+			tags = { IdmIdentityController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
 						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_READ, description = "") }),
@@ -507,7 +511,7 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 	@ApiOperation(
 			value = "Identity form definition - read values", 
 			nickname = "getIdentityFormValues", 
-			tags={ IdmIdentityController.TAG }, 
+			tags = { IdmIdentityController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
 						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_READ, description = "") }),
@@ -546,7 +550,7 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 	@ApiOperation(
 			value = "Identity form definition - save values", 
 			nickname = "postIdentityFormValues", 
-			tags={ IdmIdentityController.TAG }, 
+			tags = { IdmIdentityController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
 						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_UPDATE, description = "") }),

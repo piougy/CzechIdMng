@@ -2,7 +2,6 @@ import React, { PropTypes } from 'react';
 import { Link } from 'react-router';
 import { connect } from 'react-redux';
 import classnames from 'classnames';
-// import MetisMenu from 'react-metismenu';
 //
 import * as Basic from '../../basic';
 import { LocalizationService } from '../../../services';
@@ -360,24 +359,6 @@ export class Navigation extends Basic.AbstractContent {
               ?
               <div className={sidebarClassName} role="navigation">
                 <div className="sidebar-nav navbar-collapse">
-                  {/* <MetisMenu content={[
-                    {
-                      icon: 'icon-class-name',
-                      label: 'Label of Item',
-                      to: '#a-link',
-                    },
-                    {
-                      icon: 'icon-class-name',
-                      label: 'Second Item',
-                      content: [
-                        {
-                          icon: 'icon-class-name',
-                          label: 'Sub Menu of Second Item',
-                          to: '#another-link',
-                        },
-                      ],
-                    }
-                  ]}/>*/}
                   { sidebarItems }
                 </div>
               </div>

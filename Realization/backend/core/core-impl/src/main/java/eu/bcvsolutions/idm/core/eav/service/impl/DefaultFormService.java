@@ -251,7 +251,7 @@ public class DefaultFormService implements FormService {
 			//
 			E previousValue = value.getId() == null ? null :previousValues.get(value.getId());
 			if (previousValue != null) {
-				// saved values will nod be removed
+				// saved values will not be removed
 				previousValues.remove(value.getId());
 				// the same value should not be updated 
 				// confidential value is always updated - only new values are sent from client

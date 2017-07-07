@@ -59,7 +59,7 @@ class ManagersInfo extends Basic.AbstractContextComponent {
             }
             return (
               <span>
-                <Link to={`/identity/${identity.username}/profile`} style={{ marginRight: 7 }}>
+                <Link to={`/identity/${encodeURIComponent(identity.username)}/profile`} style={{ marginRight: 7 }}>
                   {this.identityManager.getFullName(identity)}
                   {' '}
                   <small>({identity.username})</small>

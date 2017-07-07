@@ -1,9 +1,9 @@
 package eu.bcvsolutions.idm.core.model.service.api;
 
-import eu.bcvsolutions.idm.core.api.domain.Recoverable;
 import eu.bcvsolutions.idm.core.api.dto.IdmScriptDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.ScriptFilter;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
+import eu.bcvsolutions.idm.core.api.service.Recoverable;
 
 /**
  * Default service for script

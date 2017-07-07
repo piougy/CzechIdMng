@@ -2,8 +2,8 @@ package eu.bcvsolutions.idm.core.notification.service.api;
 
 import java.util.List;
 
-import eu.bcvsolutions.idm.core.api.domain.Recoverable;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
+import eu.bcvsolutions.idm.core.api.service.Recoverable;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationTemplateDto;

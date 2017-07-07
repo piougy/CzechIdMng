@@ -2,7 +2,6 @@ package eu.bcvsolutions.idm.core.rest.impl;
 
 import java.util.Set;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
@@ -10,7 +9,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -101,16 +99,17 @@ public abstract class DefaultReadWriteDtoController<DTO extends BaseDto, F exten
 		return super.put(backendId, dto);
 	}
 
-	@Override
-	@ResponseBody
-	@RequestMapping(value = "/{backendId}", method = RequestMethod.PATCH)
-	public ResponseEntity<?> patch(
-			@ApiParam(value = "Record's uuid identifier or unique code, if record supports Codeable interface.", required = true)
-			@PathVariable @NotNull String backendId,
-			HttpServletRequest nativeRequest)
-			throws HttpMessageNotReadableException {
-		return super.patch(backendId, nativeRequest);
-	}
+	// TODO: Patch method is not supported for now, we don't expose it on api
+//	@Override
+//	@ResponseBody
+//	@RequestMapping(value = "/{backendId}", method = RequestMethod.PATCH)
+//	public ResponseEntity<?> patch(
+//			@ApiParam(value = "Record's uuid identifier or unique code, if record supports Codeable interface.", required = true)
+//			@PathVariable @NotNull String backendId,
+//			HttpServletRequest nativeRequest)
+//			throws HttpMessageNotReadableException {
+//		return super.patch(backendId, nativeRequest);
+//	}
 
 	@Override
 	@ResponseBody

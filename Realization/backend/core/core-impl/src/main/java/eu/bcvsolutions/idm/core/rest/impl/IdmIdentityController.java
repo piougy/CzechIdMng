@@ -19,6 +19,7 @@ import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.GrantedAuthority;
@@ -82,7 +83,8 @@ import io.swagger.annotations.AuthorizationScope;
 		value = IdmIdentityController.TAG, 
 		description = "Operations with identities", 
 		tags = { IdmIdentityController.TAG }, 
-		produces = BaseController.APPLICATION_HAL_JSON_VALUE)
+		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
+		consumes = MediaType.APPLICATION_JSON_VALUE)
 public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIdentityDto, IdentityFilter> {
 
 	protected static final String TAG = "Identities";

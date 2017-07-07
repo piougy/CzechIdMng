@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.api.domain;
+package eu.bcvsolutions.idm.core.api.service;
 
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 

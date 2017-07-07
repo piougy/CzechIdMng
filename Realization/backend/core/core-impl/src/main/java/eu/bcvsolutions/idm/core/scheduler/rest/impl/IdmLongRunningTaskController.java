@@ -75,7 +75,8 @@ public class IdmLongRunningTaskController
 			@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
 					@AuthorizationScope(scope = CoreGroupPermission.SCHEDULER_READ, description = "") })
 			})
-	public Resources<?> find(@RequestParam MultiValueMap<String, Object> parameters, 
+	public Resources<?> find(
+			@RequestParam(required = false) MultiValueMap<String, Object> parameters, 
 			@PageableDefault Pageable pageable) {
 		return super.find(parameters, pageable);
 	}
@@ -97,7 +98,8 @@ public class IdmLongRunningTaskController
 			@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
 					@AuthorizationScope(scope = CoreGroupPermission.SCHEDULER_READ, description = "") })
 			})
-	public Resources<?> findQuick(@RequestParam MultiValueMap<String, Object> parameters, 
+	public Resources<?> findQuick(
+			@RequestParam(required = false) MultiValueMap<String, Object> parameters, 
 			@PageableDefault Pageable pageable) {
 		return super.find(parameters, pageable);
 	}

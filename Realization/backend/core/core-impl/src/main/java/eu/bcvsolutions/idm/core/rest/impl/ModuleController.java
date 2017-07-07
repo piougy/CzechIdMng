@@ -9,6 +9,7 @@ import javax.validation.constraints.NotNull;
 import org.apache.commons.beanutils.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.google.common.collect.ImmutableMap;
 
+import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.ModuleDescriptor;
 import eu.bcvsolutions.idm.core.api.dto.ModuleDescriptorDto;
@@ -28,6 +30,11 @@ import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.domain.RequestResourceResolver;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.Authorization;
+import io.swagger.annotations.AuthorizationScope;
 
 /**
  * Module controler can enable / disable module etc.
@@ -36,8 +43,15 @@ import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
  */
 @RestController
 @RequestMapping(value = BaseController.BASE_PATH + "/modules")
+@Api(
+		value = ModuleController.TAG, 
+		description = "Application modules configuration", 
+		tags = { ModuleController.TAG }, 
+		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
+		consumes = MediaType.APPLICATION_JSON_VALUE)
 public class ModuleController {
 
+	protected static final String TAG = "Modules";
 	private final ModuleService moduleService;
 	private final RequestResourceResolver requestResourceResolver;
 
@@ -58,6 +72,16 @@ public class ModuleController {
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.MODULE_READ + "')")
+	@ApiOperation(
+			value = "Get all installed modules", 
+			nickname = "getInstalledModules", 
+			tags = { ModuleController.TAG }, 
+			authorizations = {
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.MODULE_READ, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.MODULE_READ, description = "") })
+				})
 	public List<ModuleDescriptorDto> getInstalledModules() {
 		return moduleService.getInstalledModules() //
 				.stream() //
@@ -76,7 +100,19 @@ public class ModuleController {
 	@ResponseBody
 	@RequestMapping(value = "/{moduleId}", method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.MODULE_READ + "')")
-	public ModuleDescriptorDto get(@PathVariable @NotNull String moduleId) {
+	@ApiOperation(
+			value = "Module detail", 
+			nickname = "getModule", 
+			tags = { ModuleController.TAG }, 
+			authorizations = {
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.MODULE_READ, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.MODULE_READ, description = "") })
+				})
+	public ModuleDescriptorDto get(
+			@ApiParam(value = "Module's identifier.", required = true)
+			@PathVariable @NotNull String moduleId) {
 		ModuleDescriptor moduleDescriptor = moduleService.getModule(moduleId);
 		if (moduleDescriptor == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", moduleId));
@@ -95,12 +131,26 @@ public class ModuleController {
 	@ResponseBody
 	@RequestMapping(value = "/{moduleId}", method = RequestMethod.PUT)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.MODULE_UPDATE + "')")
-	public ModuleDescriptorDto put(@PathVariable @NotNull String moduleId, HttpServletRequest nativeRequest) {	
+	@ApiOperation(
+			value = "Update module properties", 
+			nickname = "putModule",
+			tags = { ModuleController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.MODULE_UPDATE, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.MODULE_UPDATE, description = "") })
+				},
+			notes = "Supports enable / disable only")
+	public ModuleDescriptorDto put(
+			@ApiParam(value = "Module's identifier.", required = true)
+			@PathVariable @NotNull String moduleId, 
+			HttpServletRequest nativeRequest) {	
 		ModuleDescriptor updatedModuleDescriptor = moduleService.getModule(moduleId);
 		if (updatedModuleDescriptor == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", moduleId));
 		}
-		ModuleDescriptorDto md = (ModuleDescriptorDto)requestResourceResolver.resolve(nativeRequest, ModuleDescriptorDto.class, null);
+		ModuleDescriptorDto md = (ModuleDescriptorDto) requestResourceResolver.resolve(nativeRequest, ModuleDescriptorDto.class, null);
 		moduleService.setEnabled(moduleId, !md.isDisabled());	
 		return get(moduleId);	
 	}
@@ -115,13 +165,26 @@ public class ModuleController {
 	@ResponseBody
 	@RequestMapping(value = "/{moduleId}", method = RequestMethod.PATCH)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.MODULE_UPDATE + "')")
-	public ModuleDescriptorDto patch(@PathVariable @NotNull String moduleId, HttpServletRequest nativeRequest) {	
+	@ApiOperation(
+			value = "Update module properties", 
+			nickname = "patchModule",
+			tags = { ModuleController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.MODULE_UPDATE, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.MODULE_UPDATE, description = "") })
+				},
+			notes = "Supports enable / disable only")
+	public ModuleDescriptorDto patch(
+			@ApiParam(value = "Module's identifier.", required = true)
+			@PathVariable @NotNull String moduleId, 
+			HttpServletRequest nativeRequest) {	
 		ModuleDescriptor updatedModuleDescriptor = moduleService.getModule(moduleId);
 		if (updatedModuleDescriptor == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", moduleId));
 		}
 		ModuleDescriptorDto md = (ModuleDescriptorDto)requestResourceResolver.resolve(nativeRequest, ModuleDescriptorDto.class, toResource(updatedModuleDescriptor));
-		
 		moduleService.setEnabled(moduleId, !md.isDisabled());	
 		return get(moduleId);	
 	}
@@ -132,9 +195,21 @@ public class ModuleController {
 	 * @param moduleId
 	 */
 	@ResponseStatus(code = HttpStatus.NO_CONTENT)
-	@RequestMapping(value = "/{moduleId}/enable", method = RequestMethod.PATCH)
+	@RequestMapping(value = "/{moduleId}/enable", method = { RequestMethod.PATCH, RequestMethod.PUT })
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.MODULE_UPDATE + "')")
-	public void enable(@PathVariable @NotNull String moduleId) {		
+	@ApiOperation(
+			value = "Enable module", 
+			nickname = "enableModule",
+			tags = { ModuleController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.MODULE_UPDATE, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.MODULE_UPDATE, description = "") })
+				})
+	public void enable(
+			@ApiParam(value = "Module's identifier.", required = true)
+			@PathVariable @NotNull String moduleId) {		
 		moduleService.setEnabled(moduleId, true);
 	}
 	
@@ -144,14 +219,26 @@ public class ModuleController {
 	 * @param moduleId
 	 */
 	@ResponseStatus(code = HttpStatus.NO_CONTENT)
-	@RequestMapping(value = "/{moduleId}/disable", method = RequestMethod.PATCH)
+	@RequestMapping(value = "/{moduleId}/disable", method = { RequestMethod.PATCH, RequestMethod.PUT })
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.MODULE_UPDATE + "')")
-	public void disable(@PathVariable @NotNull String moduleId) {		
+	@ApiOperation(
+			value = "Disable module", 
+			nickname = "disableModule",
+			tags = { ModuleController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.MODULE_UPDATE, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.MODULE_UPDATE, description = "") })
+				})
+	public void disable(
+			@ApiParam(value = "Module's identifier.", required = true)
+			@PathVariable @NotNull String moduleId) {		
 		moduleService.setEnabled(moduleId, false);
 	}
 	
 	/**
-	 * TODO: move to assembler + resource support + self link
+	 * TODO: move to assembler / mapper + resource support + self link
 	 * 
 	 * @param moduleDescriptor
 	 * @return

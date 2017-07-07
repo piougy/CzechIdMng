@@ -28,5 +28,5 @@ public interface CodeableService<I extends Identifiable> {
 	 * @param code
 	 * @return
 	 */
-	I getByCode(String name);
+	I getByCode(String code);
 }

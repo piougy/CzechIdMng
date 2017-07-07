@@ -121,6 +121,12 @@ public class DefaultIdmNotificationTemplateService extends
 			throw new ResultCodeException(CoreResultCode.XML_JAXB_INIT_ERROR, e);
 		}
 	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public IdmNotificationTemplateDto getByCode(String code) {
+		return toDto(repository.findOneByCode(code));
+	}
 
 	@Override
 	@Transactional
@@ -507,5 +513,5 @@ public class DefaultIdmNotificationTemplateService extends
 		// transform new
 		oldTemplate = typeToDto(newTemplate, oldTemplate);
 		return this.save(oldTemplate);
-	}
+	}	
 }

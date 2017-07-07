@@ -55,7 +55,7 @@ import io.swagger.annotations.AuthorizationScope;
 		consumes = MediaType.APPLICATION_JSON_VALUE)
 public class IdmNotificationConfigurationController extends AbstractReadWriteDtoController<NotificationConfigurationDto, EmptyFilter> {
 
-	protected static final String TAG = "Notification configuration items";
+	protected static final String TAG = "Notification configuration";
 	private final IdmNotificationConfigurationService configurationService;
 	
 	@Autowired

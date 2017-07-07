@@ -115,7 +115,7 @@ public class IdmNotificationTemplateController extends DefaultReadWriteDtoContro
 						@AuthorizationScope(scope = NotificationGroupPermission.NOTIFICATIONTEMPLATE_READ, description = "") })
 				})
 	public ResponseEntity<?> get(
-			@ApiParam(value = "Template's uuid identifier.", required = true)
+			@ApiParam(value = "Template's uuid identifier or code.", required = true)
 			@PathVariable @NotNull String backendId) {
 		return super.get(backendId);
 	}
@@ -156,7 +156,7 @@ public class IdmNotificationTemplateController extends DefaultReadWriteDtoContro
 						@AuthorizationScope(scope = NotificationGroupPermission.NOTIFICATIONTEMPLATE_UPDATE, description = "") })
 				})
 	public ResponseEntity<?> put(
-			@ApiParam(value = "Template's uuid identifier.", required = true)
+			@ApiParam(value = "Template's uuid identifier or code.", required = true)
 			@PathVariable @NotNull String backendId,
 			@Valid @RequestBody @NotNull IdmNotificationTemplateDto dto) {
 		return super.put(backendId, dto);
@@ -176,7 +176,7 @@ public class IdmNotificationTemplateController extends DefaultReadWriteDtoContro
 						@AuthorizationScope(scope = NotificationGroupPermission.NOTIFICATIONTEMPLATE_DELETE, description = "") })
 				})
 	public ResponseEntity<?> delete(
-			@ApiParam(value = "Template's uuid identifier.", required = true)
+			@ApiParam(value = "Template's uuid identifier or code.", required = true)
 			@PathVariable @NotNull String backendId) {
 		return super.delete(backendId);
 	}
@@ -198,7 +198,7 @@ public class IdmNotificationTemplateController extends DefaultReadWriteDtoContro
 			notes = "Redeploy template. Redeployed will be only templates, that has pattern in resource."
 					+ " Before save newly loaded DO will be backup the old template into backup directory.")
 	public ResponseEntity<?> redeploy(
-			@ApiParam(value = "Template's uuid identifier.", required = true)
+			@ApiParam(value = "Template's uuid identifier or code.", required = true)
 			@PathVariable @NotNull String backendId) {
 		IdmNotificationTemplateDto template = notificationTemplateService.get(backendId);
 		if (template == null) {
@@ -224,7 +224,7 @@ public class IdmNotificationTemplateController extends DefaultReadWriteDtoContro
 				},
 			notes = "Backup template to directory given in application properties.")
 	public ResponseEntity<?> backup(
-			@ApiParam(value = "Template's uuid identifier.", required = true)
+			@ApiParam(value = "Template's uuid identifier or code.", required = true)
 			@PathVariable @NotNull String backendId) {
 		IdmNotificationTemplateDto template = notificationTemplateService.get(backendId);
 		if (template == null) {

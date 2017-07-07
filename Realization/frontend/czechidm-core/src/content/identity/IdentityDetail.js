@@ -89,7 +89,7 @@ class IdentityDetail extends Basic.AbstractContent {
       // when username was changed, then new url is replaced
       const { identity } = this.props;
       if (identity.username !== entity.username) {
-        this.context.router.replace(`/identity/${entity.username}/profile`);
+        this.context.router.replace(`/identity/${encodeURIComponent(entity.username)}/profile`);
       }
     });
   }

@@ -62,7 +62,7 @@ export class IdentityTable extends Advanced.AbstractTableContent {
       const uuidId = uuid.v1();
       this.context.router.push(`/identity/new?id=${uuidId}`);
     } else {
-      this.context.router.push(`/identity/${entity.username}/profile`);
+      this.context.router.push(`/identity/${encodeURIComponent(entity.username)}/profile`);
     }
   }
 

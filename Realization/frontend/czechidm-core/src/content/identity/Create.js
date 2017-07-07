@@ -85,7 +85,7 @@ class Profile extends Basic.AbstractContent {
         });
         switch (editContinue) {
           case 'EDIT': {
-            this.context.router.replace(`identity/${json.username}/profile`);
+            this.context.router.replace(`identity/${encodeURIComponent(json.username)}/profile`);
             break;
           }
           case 'NEW': {

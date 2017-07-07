@@ -46,6 +46,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.IdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
+import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.core.eav.rest.impl.IdmFormDefinitionController;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
@@ -78,7 +79,7 @@ import io.swagger.annotations.AuthorizationScope;
  *
  */
 @RepositoryRestController // TODO: @RestController after eav to dto - after PersistentEntityResourceAssembler will be removed from method parameter
-@RequestMapping(value = BaseController.BASE_PATH + "/identities") //produces= BaseController.APPLICATION_HAL_JSON_VALUE - I have to remove this (username cannot have "@.com" in user name)
+@RequestMapping(value = BaseDtoController.BASE_PATH + "/identities") //produces= BaseController.APPLICATION_HAL_JSON_VALUE - I have to remove this (username cannot have "@.com" in user name)
 @Api(
 		value = IdmIdentityController.TAG, 
 		description = "Operations with identities", 
@@ -146,7 +147,7 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_READ, description = "") })
 				})
 	public Resources<?> find(
-			@RequestParam(required = false) MultiValueMap<String, Object> parameters, 
+			@RequestParam(required = false) MultiValueMap<String, Object> parameters,
 			@PageableDefault Pageable pageable) {
 		return super.find(parameters, pageable);
 	}
@@ -166,7 +167,7 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_READ, description = "") })
 				})
 	public Resources<?> findQuick(
-			@RequestParam(required = false) MultiValueMap<String, Object> parameters, 
+			@RequestParam(required = false) MultiValueMap<String, Object> parameters,
 			@PageableDefault Pageable pageable) {
 		return super.findQuick(parameters, pageable);
 	}

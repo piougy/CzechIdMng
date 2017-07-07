@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.audite.dto.filter;
+package eu.bcvsolutions.idm.core.audit.dto.filter;
 
 import eu.bcvsolutions.idm.core.audit.entity.service.AbstractAuditEntityService;
 

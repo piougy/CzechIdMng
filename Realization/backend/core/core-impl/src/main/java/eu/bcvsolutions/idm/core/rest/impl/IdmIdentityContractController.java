@@ -6,7 +6,6 @@ import java.util.Set;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
@@ -73,24 +72,20 @@ public class IdmIdentityContractController extends AbstractReadWriteDtoControlle
 	protected static final String TAG = "Contracts";
 	private final IdmFormDefinitionController formDefinitionController;
 	private final IdmIdentityContractRepository identityContractRepository;
-	private final FormService formService;
 	
 	@Autowired
 	public IdmIdentityContractController(
 			LookupService entityLookupService, 
 			IdmIdentityContractService identityContractService,
 			IdmFormDefinitionController formDefinitionController,
-			IdmIdentityContractRepository identityContractRepository,
-			FormService formService) {
+			IdmIdentityContractRepository identityContractRepository) {
 		super(identityContractService);
 		//
 		Assert.notNull(formDefinitionController);
 		Assert.notNull(identityContractRepository);
-		Assert.notNull(formService);
 		//
 		this.formDefinitionController = formDefinitionController;
 		this.identityContractRepository = identityContractRepository;
-		this.formService = formService;
 	}
 	
 	@Override
@@ -316,10 +311,7 @@ public class IdmIdentityContractController extends AbstractReadWriteDtoControlle
 		//
 		checkAccess(dto, IdmBasePermission.READ);
 		//
-		IdmFormDefinition formDefinition = null; // default
-		if (StringUtils.isNotEmpty(definitionCode)) {
-			formDefinition = formService.getDefinition(IdmIdentityContract.class, definitionCode);
-		}
+		IdmFormDefinition formDefinition = formDefinitionController.getDefinition(IdmIdentityContract.class, definitionCode);
 		//
 		return formDefinitionController.getFormValues(identityContractRepository.findOne(dto.getId()), formDefinition, assembler);
 	}
@@ -360,10 +352,7 @@ public class IdmIdentityContractController extends AbstractReadWriteDtoControlle
 		// 
 		checkAccess(dto, IdmBasePermission.UPDATE);
 		//
-		IdmFormDefinition formDefinition = null; // default
-		if (StringUtils.isNotEmpty(definitionCode)) {
-			formDefinition = formService.getDefinition(IdmIdentityContract.class, definitionCode);
-		}
+		IdmFormDefinition formDefinition = formDefinitionController.getDefinition(IdmIdentityContract.class, definitionCode);
 		//
 		return formDefinitionController.saveFormValues(identityContractRepository.findOne(dto.getId()), formDefinition, formValues, assembler);
 	}

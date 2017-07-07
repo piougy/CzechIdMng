@@ -17,6 +17,7 @@ import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -38,6 +39,7 @@ import eu.bcvsolutions.idm.core.api.domain.RoleType;
 import eu.bcvsolutions.idm.core.api.dto.IdmAuditDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteEntityController;
+import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
@@ -68,7 +70,12 @@ import io.swagger.annotations.AuthorizationScope;
  */
 @RepositoryRestController
 @RequestMapping(value = BaseEntityController.BASE_PATH + "/roles")
-@Api(value = IdmRoleController.TAG, tags = IdmRoleController.TAG, description = "Operations with roles")
+@Api(
+		value = IdmRoleController.TAG, 
+		tags = IdmRoleController.TAG, 
+		description = "Operations with roles",
+		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
+		consumes = MediaType.APPLICATION_JSON_VALUE)
 public class IdmRoleController extends AbstractReadWriteEntityController<IdmRole, RoleFilter> {
 	
 	protected static final String TAG = "Roles";

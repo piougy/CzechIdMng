@@ -81,9 +81,9 @@ import io.swagger.annotations.AuthorizationScope;
 @RepositoryRestController // TODO: @RestController after eav to dto - after PersistentEntityResourceAssembler will be removed from method parameter
 @RequestMapping(value = BaseDtoController.BASE_PATH + "/identities") //produces= BaseController.APPLICATION_HAL_JSON_VALUE - I have to remove this (username cannot have "@.com" in user name)
 @Api(
-		value = IdmIdentityController.TAG, 
-		description = "Operations with identities", 
+		value = IdmIdentityController.TAG,  
 		tags = { IdmIdentityController.TAG }, 
+		description = "Operations with identities",
 		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
 		consumes = MediaType.APPLICATION_JSON_VALUE)
 public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIdentityDto, IdentityFilter> {

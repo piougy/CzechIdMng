@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmConfigurationDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
+import eu.bcvsolutions.idm.core.api.service.CodeableService;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
@@ -19,7 +20,9 @@ import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
  */
 
 @Service
-public interface IdmTreeTypeService extends ReadWriteEntityService<IdmTreeType, QuickFilter> {
+public interface IdmTreeTypeService extends 
+		ReadWriteEntityService<IdmTreeType, QuickFilter>,
+		CodeableService<IdmTreeType> {
 
 	/**
 	 * Prefix to configuration
@@ -34,6 +37,7 @@ public interface IdmTreeTypeService extends ReadWriteEntityService<IdmTreeType, 
 	 * @param code
 	 * @return
 	 */
+	@Override
 	IdmTreeType getByCode(String code);
 	
 	/**

@@ -5,7 +5,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
@@ -20,13 +19,12 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
  * @author Radek Tomiška
  *
  */
-@RepositoryRestResource(//
-		path = "identity-accounts", //
-		collectionResourceRel = "identityAccounts", //
-		itemResourceRel = "identityAccount", //
-		// excerptProjection=AccIdentityAccountExcerpt.class,
-		exported = false // we are using repository metadata, but we want expose rest endpoint manually
-	)
+//@RepositoryRestResource(//
+//		path = "identity-accounts", //
+//		collectionResourceRel = "identityAccounts", //
+//		itemResourceRel = "identityAccount", //
+//		exported = false // we are using repository metadata, but we want expose rest endpoint manually
+//	)
 public interface AccIdentityAccountRepository extends AbstractEntityRepository<AccIdentityAccount, IdentityAccountFilter> {
 	
 	/*

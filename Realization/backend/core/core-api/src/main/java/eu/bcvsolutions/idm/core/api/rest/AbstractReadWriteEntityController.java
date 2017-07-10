@@ -27,6 +27,8 @@ import eu.bcvsolutions.idm.core.api.rest.domain.RequestResourceResolver;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
@@ -65,6 +67,12 @@ public abstract class AbstractReadWriteEntityController<E extends BaseEntity, F 
 			@Authorization(SwaggerConfig.AUTHENTICATION_BASIC),
 			@Authorization(SwaggerConfig.AUTHENTICATION_CIDMST)
 			})
+	@ApiImplicitParams({
+		@ApiImplicitParam(
+				name = "record", 
+				paramType = "body",
+				value = "Record data - see \"get\" method model.")
+	})
 	public ResponseEntity<?> post(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {		
 		E entity = (E) requestResourceResolver.resolve(nativeRequest, getEntityClass(), null);
 		//
@@ -102,6 +110,12 @@ public abstract class AbstractReadWriteEntityController<E extends BaseEntity, F 
 			@Authorization(SwaggerConfig.AUTHENTICATION_BASIC),
 			@Authorization(SwaggerConfig.AUTHENTICATION_CIDMST)
 			})
+	@ApiImplicitParams({
+		@ApiImplicitParam(
+				name = "record", 
+				paramType = "body",
+				value = "Record data - see \"get\" method model.")
+	})
 	public ResponseEntity<?> put(
 			@ApiParam(value = "Record's uuid identifier or unique code, if record supports Codeable interface.", required = true)
 			String backendId,
@@ -138,10 +152,16 @@ public abstract class AbstractReadWriteEntityController<E extends BaseEntity, F 
 	 * @return
 	 * @throws HttpMessageNotReadableException
 	 */
-	@ApiOperation(value = "Update record (patch - support send changed fields only)", authorizations = { 
+	@ApiOperation(value = "Update record (patch - supports send changed fields only)", authorizations = { 
 			@Authorization(SwaggerConfig.AUTHENTICATION_BASIC),
 			@Authorization(SwaggerConfig.AUTHENTICATION_CIDMST)
 			})
+	@ApiImplicitParams({
+		@ApiImplicitParam(
+				name = "record", 
+				paramType = "body",
+				value = "Record data - see \"get\" method model.")
+	})
 	public ResponseEntity<?> patch(
 			@ApiParam(value = "Record's uuid identifier or unique code, if record supports Codeable interface.", required = true)
 			String backendId,

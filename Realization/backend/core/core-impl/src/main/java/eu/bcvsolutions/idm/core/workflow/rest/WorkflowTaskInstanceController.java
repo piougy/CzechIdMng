@@ -29,6 +29,8 @@ import eu.bcvsolutions.idm.core.workflow.service.WorkflowTaskInstanceService;
 /**
  * Rest controller for workflow instance tasks
  * 
+ * TODO: secure endpoints
+ * 
  * @author svandav
  *
  */

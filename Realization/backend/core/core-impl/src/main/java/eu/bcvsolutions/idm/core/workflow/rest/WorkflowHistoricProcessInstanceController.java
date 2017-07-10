@@ -31,6 +31,8 @@ import eu.bcvsolutions.idm.core.workflow.service.WorkflowHistoricProcessInstance
 /**
  * Rest controller for workflow historic instance processes
  * 
+ * TODO: secure endpoints
+ * 
  * @author svandav
  *
  */

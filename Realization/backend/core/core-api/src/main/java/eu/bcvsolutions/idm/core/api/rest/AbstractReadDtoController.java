@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.api.rest;
 
 import java.io.Serializable;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 import javax.validation.constraints.NotNull;
@@ -9,6 +10,8 @@ import javax.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.PagedResourcesAssembler;
@@ -26,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
@@ -264,12 +268,15 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 		if (source == null) {
 			return new Resources(Collections.emptyList());
 		}
+		Page<Object> page;
 		if (source instanceof Page) {
-			Page<Object> page = (Page<Object>) source;
-			return pageToResources(page, domainType);
+			page = (Page<Object>) source;
+		} else {
+			// Iterable to Page
+			List records = Lists.newArrayList(source);
+			page = new PageImpl(records, new PageRequest(0, records.size()), records.size());
 		}
-		// TODO: iterable implementation
-		return null;
+		return pageToResources(page, domainType);
 	}
 
 	protected Resources<?> pageToResources(Page<Object> page, Class<?> domainType) {

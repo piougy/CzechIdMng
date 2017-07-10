@@ -1,18 +1,24 @@
 package eu.bcvsolutions.idm.core.api.config.swagger;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections.map.MultiValueMap;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.Assert;
 
+import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.domain.ModuleDescriptor;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import io.swagger.annotations.Api;
+import springfox.documentation.RequestHandler;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.service.ApiInfo;
@@ -43,10 +49,10 @@ public abstract class AbstractSwaggerConfig implements SwaggerConfig {
 	 * Docket initialization by module conventions.
 	 *
 	 * @see ModuleDescriptor
-	 * @param basePackage
+	 * @param basePackage Expose endpoints from given base basePackages
 	 * @return
 	 */
-	protected Docket api(String basePackage) {
+	protected Docket api(String... basePackages) {
 		return new Docket(DocumentationType.SWAGGER_2)
 				// common
 				.forCodeGeneration(true)
@@ -59,15 +65,40 @@ public abstract class AbstractSwaggerConfig implements SwaggerConfig {
 				// module
 				.groupName(getModuleDescriptor().getId())
 				.select()
-					.apis(Predicates.and(
-							RequestHandlerSelectors.withClassAnnotation(Api.class),
-							Predicates.or(
-									RequestHandlerSelectors.basePackage(basePackage),
-									RequestHandlerSelectors.basePackage("eu.bcvsolutions.idm.core.security") // security endpoint will be in all docs
-									)))
-					.paths(PathSelectors.ant(BaseController.BASE_PATH + "/**"))
+					.apis(getApis(basePackages))
+					.paths(getPaths())
 				.build()
 				.apiInfo(metaData());
+	}
+	
+	/**
+	 * Expose endpoints from given base packages. Security endpoint will be in all docs.
+	 * 
+	 * @param basePackages
+	 * @return
+	 */
+	protected Predicate<RequestHandler> getApis(String... basePackages) {
+		Assert.notEmpty(basePackages);
+		//
+		List<Predicate<RequestHandler>> predicates = new ArrayList<>();
+		// endpoints from packages
+		predicates.add(Predicates.or(Arrays.asList(basePackages)
+				.stream()
+				.map(RequestHandlerSelectors::basePackage)
+				.collect(Collectors.toList())));
+		// and with annotations
+		predicates.add(RequestHandlerSelectors.withClassAnnotation(Api.class));
+		//
+		return Predicates.and(predicates);
+	}
+	
+	/**
+	 * Expose endpoints with given path only.
+	 * 
+	 * @return
+	 */
+	protected Predicate<String> getPaths() {
+		return PathSelectors.ant(BaseController.BASE_PATH + "/**");
 	}
 
 	/**

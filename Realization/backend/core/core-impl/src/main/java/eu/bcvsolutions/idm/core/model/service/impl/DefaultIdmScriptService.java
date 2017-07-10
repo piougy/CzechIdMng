@@ -147,8 +147,14 @@ public class DefaultIdmScriptService extends AbstractReadWriteDtoService<IdmScri
 	}
 
 	@Override
+	@Deprecated
 	public IdmScriptDto getScriptByCode(String code) {
 		return this.toDto(repository.findOneByCode(code));
+	}
+	
+	@Override
+	public IdmScriptDto getByCode(String code) {
+		return getScriptByCode(code);
 	}
 
 	@Override

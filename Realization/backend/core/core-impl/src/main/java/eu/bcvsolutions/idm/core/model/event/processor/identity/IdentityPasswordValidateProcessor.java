@@ -106,7 +106,7 @@ public class IdentityPasswordValidateProcessor extends CoreEventProcessor<IdmIde
 			IdmPasswordDto oldPassword = this.passwordService.findOneByIdentity(identity.getId());
 			passwordValidationDto.setOldPassword(oldPassword == null ? null : oldPassword.getId());
 			passwordValidationDto.setPassword(passwordChangeDto.getNewPassword());
-			passwordValidationDto.setIdentity(identity == null ? null : identity.getId());
+			passwordValidationDto.setIdentity(identity.getId());
 			this.passwordPolicyService.validate(passwordValidationDto);
 		}
 		return new DefaultEventResult<>(event, this);

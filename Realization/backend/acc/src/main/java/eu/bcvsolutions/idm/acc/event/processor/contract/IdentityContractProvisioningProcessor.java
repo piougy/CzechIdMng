@@ -48,6 +48,7 @@ public class IdentityContractProvisioningProcessor extends AbstractIdentityContr
 		provisioningService.doProvisioning(identity);
 		//
 		// execute provisioning for all subordinates by given contract
+		// TODO: LRT
 		if (isIncludeSubordinates()) {
 			Set<UUID> originalSubordinates = (Set<UUID>) event.getProperties().get(PROPERTY_PREVIOUS_SUBORDINATES);
 			findAllSubordinates(identity.getId())

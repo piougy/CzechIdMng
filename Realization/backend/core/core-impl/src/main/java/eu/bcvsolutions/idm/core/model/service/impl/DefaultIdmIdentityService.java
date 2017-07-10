@@ -176,6 +176,14 @@ public class DefaultIdmIdentityService
 					builder.like(builder.lower(root.get(IdmIdentity_.description)), "%" + filter.getText().toLowerCase() + "%")					
 					));
 		}
+		// Identity first name
+		if (StringUtils.isNotEmpty(filter.getFirstName())) {
+			predicates.add(builder.equal(root.get(IdmIdentity_.firstName), filter.getFirstName()));
+		}
+		// Identity lastName
+		if (StringUtils.isNotEmpty(filter.getLastName())) {
+			predicates.add(builder.equal(root.get(IdmIdentity_.lastName), filter.getLastName()));
+		}
 		// identity with any of given role (OR)
 		List<UUID> roles = filter.getRoles();
 		if (!roles.isEmpty()) {

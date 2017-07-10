@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -14,23 +15,37 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
+import eu.bcvsolutions.idm.core.api.rest.BaseController;
+import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourceWrapper;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowHistoricTaskInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowHistoricTaskInstanceService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 
 /**
  * Rest controller for workflow historic instance tasks
+ * 
+ * TODO: secure endpoints
  * 
  * @author svandav
  *
  */
 @RestController
-@RequestMapping(value = BaseEntityController.BASE_PATH + "/workflow-history-tasks")
+@RequestMapping(value = BaseDtoController.BASE_PATH + "/workflow-history-tasks")
+@Api(
+		value = WorkflowHistoricTaskInstanceController.TAG,  
+		tags = { WorkflowHistoricTaskInstanceController.TAG }, 
+		description = "Read WF audit",
+		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
+		consumes = MediaType.APPLICATION_JSON_VALUE)
 public class WorkflowHistoricTaskInstanceController {
 
+	protected static final String TAG = "Workflow - task instances history";
+	//
 	@Autowired
 	private WorkflowHistoricTaskInstanceService workflowHistoricTaskInstanceService;
 	@Value("${spring.data.rest.defaultPageSize}")
@@ -41,6 +56,10 @@ public class WorkflowHistoricTaskInstanceController {
 	 * 
 	 */
 	@RequestMapping(method = RequestMethod.POST, value = "/search")
+	@ApiOperation(
+			value = "Search historic task instances (/search/quick alias)", 
+			nickname = "searchHistoricTaskInstances", 
+			tags = { WorkflowHistoricTaskInstanceController.TAG })
 	public ResponseEntity<ResourcesWrapper<ResourceWrapper<WorkflowHistoricTaskInstanceDto>>> search(
 			@RequestBody WorkflowFilterDto filter) {
 		ResourcesWrapper<WorkflowHistoricTaskInstanceDto> result = workflowHistoricTaskInstanceService.search(filter);
@@ -68,9 +87,15 @@ public class WorkflowHistoricTaskInstanceController {
 	 * @return
 	 */
 	@RequestMapping(method = RequestMethod.GET, value = "/search/quick")
+	@ApiOperation(
+			value = "Search historic task instances", 
+			nickname = "searchQuickHistoricTaskInstances", 
+			tags = { WorkflowHistoricTaskInstanceController.TAG })
 	public ResponseEntity<ResourcesWrapper<ResourceWrapper<WorkflowHistoricTaskInstanceDto>>> searchQuick(
-			@RequestParam(required = false) Integer size, @RequestParam(required = false) Integer page,
-			@RequestParam(required = false) String sort, @RequestParam String processInstanceId) {
+			@RequestParam(required = false) Integer size, 
+			@RequestParam(required = false) Integer page,
+			@RequestParam(required = false) String sort, 
+			@RequestParam String processInstanceId) {
 
 		WorkflowFilterDto filter = new WorkflowFilterDto(size != null ? size : defaultPageSize);
 		if (page != null) {
@@ -88,11 +113,17 @@ public class WorkflowHistoricTaskInstanceController {
 	 * @param historicTaskInstanceId
 	 * @return
 	 */
-	@RequestMapping(method = RequestMethod.GET, value = "/{historicTaskInstanceId}")
+	@RequestMapping(method = RequestMethod.GET, value = "/{backendId}")
+	@ApiOperation(
+			value = "Historic task instance detail", 
+			nickname = "getHistoricTaskInstance", 
+			response = WorkflowHistoricTaskInstanceDto.class, 
+			tags = { WorkflowHistoricTaskInstanceController.TAG })
 	public ResponseEntity<ResourceWrapper<WorkflowHistoricTaskInstanceDto>> get(
-			@PathVariable String historicTaskInstanceId) {
+			@ApiParam(value = "Historic task instance id.", required = true)
+			@PathVariable String backendId) {
 		ResourceWrapper<WorkflowHistoricTaskInstanceDto> resource = new ResourceWrapper<WorkflowHistoricTaskInstanceDto>(
-				workflowHistoricTaskInstanceService.get(historicTaskInstanceId));
+				workflowHistoricTaskInstanceService.get(backendId));
 		return new ResponseEntity<ResourceWrapper<WorkflowHistoricTaskInstanceDto>>(resource, HttpStatus.OK);
 	}
 

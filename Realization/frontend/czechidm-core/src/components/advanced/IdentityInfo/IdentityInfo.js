@@ -111,7 +111,7 @@ export class IdentityInfo extends AbstractEntityInfo {
                 !this.showLink()
                 ||
                 <div>
-                  <Link to={`/identity/${this.getEntityId()}/profile`}>
+                  <Link to={`/identity/${encodeURIComponent(this.getEntityId())}/profile`}>
                     <Basic.Icon value="fa:angle-double-right"/>
                     {' '}
                     {this.i18n('component.advanced.IdentityInfo.profileLink')}
@@ -168,7 +168,7 @@ export class IdentityInfo extends AbstractEntityInfo {
           );
         }
         return (
-          <Link to={`/identity/${this.getEntityId()}/profile`}>{identityManager.getNiceLabel(_identity)}</Link>
+          <Link to={`/identity/${encodeURIComponent(this.getEntityId())}/profile`}>{identityManager.getNiceLabel(_identity)}</Link>
         );
       }
       case 'popover': {

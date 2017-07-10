@@ -10,7 +10,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
 
 /**
  * Authorizable group to type mapping - assign permission group to type.
- * Unique - group could have only once type. TODO: this could be extended - remove equals method etc.
+ * Unique - group could have only one type. TODO: this could be extended - remove equals method etc.
  * 
  * @author Radek Tomiška
  */

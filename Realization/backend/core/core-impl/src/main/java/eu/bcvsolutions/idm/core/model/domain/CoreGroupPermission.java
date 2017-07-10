@@ -87,10 +87,26 @@ public enum CoreGroupPermission implements GroupPermission {
 			IdmBasePermission.CREATE,
 			IdmBasePermission.UPDATE, 
 			IdmBasePermission.DELETE),
-	PASSWORDPOLICY(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
-	SCRIPT(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
-	AUDIT(IdmBasePermission.ADMIN, IdmBasePermission.READ),
-	MODULE(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE),
+	PASSWORDPOLICY(
+			IdmBasePermission.ADMIN, 
+			IdmBasePermission.READ, 
+			IdmBasePermission.CREATE, 
+			IdmBasePermission.UPDATE, 
+			IdmBasePermission.DELETE),
+	SCRIPT(
+			IdmBasePermission.ADMIN, 
+			IdmBasePermission.READ, 
+			IdmBasePermission.CREATE, 
+			IdmBasePermission.UPDATE, 
+			IdmBasePermission.DELETE),
+	AUDIT(
+			IdmBasePermission.ADMIN, 
+			IdmBasePermission.READ),
+	MODULE(
+			IdmBasePermission.ADMIN, 
+			IdmBasePermission.READ, 
+			IdmBasePermission.CREATE, 
+			IdmBasePermission.UPDATE),
 	SCHEDULER(IdmBasePermission.ADMIN, 
 			IdmBasePermission.EXECUTE, 
 			IdmBasePermission.READ,
@@ -104,9 +120,30 @@ public enum CoreGroupPermission implements GroupPermission {
 			IdmBasePermission.UPDATE, 
 			IdmBasePermission.DELETE, 
 			IdmBasePermission.EXECUTE),
-	EAVFORMDEFINITIONS(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
-	EAVFORMATTRIBUTES(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
-	CONTRACTGUARANTEE(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE);
+	EAVFORMDEFINITIONS(
+			IdmBasePermission.ADMIN, 
+			IdmBasePermission.READ, 
+			IdmBasePermission.CREATE, 
+			IdmBasePermission.UPDATE, 
+			IdmBasePermission.DELETE),
+	EAVFORMATTRIBUTES(
+			IdmBasePermission.ADMIN, 
+			IdmBasePermission.READ, 
+			IdmBasePermission.CREATE, 
+			IdmBasePermission.UPDATE, 
+			IdmBasePermission.DELETE),
+	CONTRACTGUARANTEE(
+			IdmBasePermission.ADMIN, 
+			IdmBasePermission.READ, 
+			IdmBasePermission.CREATE, 
+			IdmBasePermission.UPDATE, 
+			IdmBasePermission.DELETE),
+	WORKFLOWDEFINITION(
+			IdmBasePermission.ADMIN, 
+			IdmBasePermission.READ, 
+			IdmBasePermission.CREATE, 
+			IdmBasePermission.UPDATE,
+			IdmBasePermission.DELETE);
 	
 	// String constants could be used in pre / post authotize SpEl expressions
 	
@@ -197,6 +234,11 @@ public enum CoreGroupPermission implements GroupPermission {
 	public static final String EAV_FORM_ATTRIBUTES_CREATE = "EAVFORMATTRIBUTES" + BasePermission.SEPARATOR + "CREATE";
 	public static final String EAV_FORM_ATTRIBUTES_UPDATE = "EAVFORMATTRIBUTES" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String EAV_FORM_ATTRIBUTES_DELETE = "EAVFORMATTRIBUTES" + BasePermission.SEPARATOR + "DELETE";
+	//
+	public static final String WORKFLOW_DEFINITION_READ = "WORKFLOWDEFINITION" + BasePermission.SEPARATOR + "READ";
+	public static final String WORKFLOW_DEFINITION_CREATE = "WORKFLOWDEFINITION" + BasePermission.SEPARATOR + "CREATE";
+	public static final String WORKFLOW_DEFINITION_UPDATE = "WORKFLOWDEFINITION" + BasePermission.SEPARATOR + "UPDATE";
+	public static final String WORKFLOW_DEFINITION_DELETE = "WORKFLOWDEFINITION" + BasePermission.SEPARATOR + "DELETE";
 	
 	private final List<BasePermission> permissions;
 

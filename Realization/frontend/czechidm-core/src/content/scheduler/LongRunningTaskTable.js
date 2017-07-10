@@ -1,4 +1,5 @@
 import React, { PropTypes } from 'react';
+import { connect } from 'react-redux';
 import moment from 'moment';
 import _ from 'lodash';
 //
@@ -14,7 +15,7 @@ import { SecurityManager } from '../../redux';
  *
  * @author Radek Tomiška
  */
-export default class LongRunningTaskTable extends Basic.AbstractContent {
+class LongRunningTaskTable extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);
@@ -141,7 +142,8 @@ export default class LongRunningTaskTable extends Basic.AbstractContent {
                 { this.i18n('action.processCreated.button') }
               </Basic.Button>
             ]
-          }>
+          }
+          _searchParameters={ this.getSearchParameters() }>
 
           <Advanced.Column
             property=""
@@ -333,3 +335,11 @@ LongRunningTaskTable.propTypes = {
 
 LongRunningTaskTable.defaultProps = {
 };
+
+function select(state, component) {
+  return {
+    _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey)
+  };
+}
+
+export default connect(select)(LongRunningTaskTable);

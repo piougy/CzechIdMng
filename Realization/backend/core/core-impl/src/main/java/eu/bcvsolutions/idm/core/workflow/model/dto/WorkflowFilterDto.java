@@ -12,6 +12,7 @@ public class WorkflowFilterDto extends QuickFilter {
 	public static final String ORDER_ASC = "asc";
 	public static final String ORDER_DESC = "desc";
 	
+	// TODO: use Pageable
 	private int pageNumber = 0;
 	private int pageSize = 10;
 	private boolean sortAsc = false;

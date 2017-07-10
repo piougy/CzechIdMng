@@ -37,7 +37,7 @@ import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulableStatefulExecutor;
 
-Logger LOG = LoggerFactory.getLogger("hrContractExclusion|PID:" + execution.getProcessInstanceId())
+Logger LOG = LoggerFactory.getLogger("hrContractExclusion")
 
 LOG.info("long running tID: [{}], scheduled tID: [{}], dto: [{}]", longRunningTaskId, scheduledTaskId, dto)
 

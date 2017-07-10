@@ -16,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,7 +36,6 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
-import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuditService;
 import io.swagger.annotations.Api;
@@ -47,10 +47,9 @@ import io.swagger.annotations.Authorization;
 import io.swagger.annotations.AuthorizationScope;
 
 /**
+ * IdM audit endpoint 
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
- * 
- * TODO: Use only DTO
  */
 @RepositoryRestController
 @RequestMapping(value = BaseDtoController.BASE_PATH + "/audits")
@@ -63,18 +62,19 @@ import io.swagger.annotations.AuthorizationScope;
 public class IdmAuditController extends AbstractReadWriteDtoController<IdmAuditDto, AuditFilter> {
 
 	protected static final String TAG = "Audit";
+	//
+	private final IdmAuditService auditService;
+	private final ModelMapper mapper;
 	
 	@Autowired
-	public IdmAuditController(IdmAuditService auditService) {
+	public IdmAuditController(IdmAuditService auditService, ModelMapper mapper) {
 		super(auditService);
+		//
+		Assert.notNull(mapper);
+		//
+		this.auditService = auditService;
+		this.mapper = mapper;
 	}
-
-	@Autowired
-	private IdmAuditService auditService;
-	
-	//TODO: change to use dtos properly via service
-	@Autowired
-	ModelMapper mapper;
 	
 	@ResponseBody
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.AUDIT_READ + "')")
@@ -95,6 +95,7 @@ public class IdmAuditController extends AbstractReadWriteDtoController<IdmAuditD
 		return this.find(parameters, pageable);
 	}
 	
+	@SuppressWarnings("unchecked")
 	@ResponseBody
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.AUDIT_READ + "')")
 	@RequestMapping(value= "/search/entity", method = RequestMethod.GET)
@@ -147,12 +148,10 @@ public class IdmAuditController extends AbstractReadWriteDtoController<IdmAuditD
 				},
 			notes = "Method return list of class simple name for which is audited."
 					+ " Must at least one attribute withannotation {@value Audited}")
-	public ResponseEntity<ResourcesWrapper<String>> findAuditedEntity(@PageableDefault Pageable pageable) {
-		// TODO: pageable is necessary? 
+	public ResponseEntity<?> findAuditedEntity() {
 		// TODO: helpful more info about entities, links? repository?
 		List<String> entities = auditService.getAllAuditedEntitiesNames();
-		ResourcesWrapper<String> resource = new ResourcesWrapper<>(entities);
-		return new ResponseEntity<ResourcesWrapper<String>>(resource, HttpStatus.OK);
+		return new ResponseEntity<>(toResources(entities, null), HttpStatus.OK);
 	}
 	
 	@ResponseBody

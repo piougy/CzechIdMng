@@ -25,6 +25,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
@@ -222,7 +224,7 @@ public class WorkflowDefinitionController extends AbstractReadWriteDtoController
 		// check rights
 		WorkflowProcessDefinitionDto result = definitionService.getByName(backendId);
 		if (result == null) {
-			throw new ResultCodeException(CoreResultCode.FORBIDDEN);
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
 		InputStream is = definitionService.getDiagramByKey(backendId);
 		try {

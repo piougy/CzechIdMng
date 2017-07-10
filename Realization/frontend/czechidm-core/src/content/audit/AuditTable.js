@@ -30,7 +30,7 @@ export class AuditTable extends Advanced.AbstractTableContent {
     // TODO: use redux and load it just one time
     this.context.store.dispatch(auditManager.fetchEntities(auditManager.getAuditedEntitiesNames(), null, (entities) => {
       if (entities !== null) {
-        const auditedEntities = entities._embedded.resources.map(item => { return {value: item, niceLabel: item }; });
+        const auditedEntities = entities._embedded.strings.map(item => { return {value: item.content, niceLabel: item.content }; });
         this.setState({
           auditedEntities,
           showLoading: false

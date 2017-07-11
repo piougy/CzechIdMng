@@ -117,7 +117,7 @@ class IdentityContractDetail extends Basic.AbstractContent {
         this.context.router.goBack();
       } else {
         const { identityId } = this.props.params;
-        this.context.router.replace(`identity/${identityId}/identity-contract/${entity.id}/detail`);
+        this.context.router.replace(`identity/${encodeURIComponent(identityId)}/identity-contract/${entity.id}/detail`);
       }
     });
   }

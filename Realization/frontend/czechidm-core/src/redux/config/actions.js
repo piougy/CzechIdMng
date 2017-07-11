@@ -208,9 +208,9 @@ export function resolveNavigationParameters(userContext = null, params = null) {
   }
   if (userContext) {
     //
-    parameterValues = parameterValues.set('loggedUsername', encodeURIComponent(userContext.username) || 'guest');
+    parameterValues = parameterValues.set('loggedUsername', userContext.username || 'guest');
     if (!parameterValues.has('entityId')) {
-      parameterValues = parameterValues.set('entityId', encodeURIComponent(userContext.username) || 'guest');
+      parameterValues = parameterValues.set('entityId', userContext.username || 'guest');
     }
   }
   return parameterValues.toJS();

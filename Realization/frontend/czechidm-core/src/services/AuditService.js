@@ -24,7 +24,7 @@ class AuditService extends AbstractService {
     if (!entity) {
       return '';
     }
-    return entity.id + ' (' + moment(entity.revisionDate).format('D. M. Y  H:mm:ss') + ')';
+    return entity.id + ' (' + moment(entity.revisionDate).format('DD.MM.YYYY HH:mm:ss') + ')';
   }
 
   /**

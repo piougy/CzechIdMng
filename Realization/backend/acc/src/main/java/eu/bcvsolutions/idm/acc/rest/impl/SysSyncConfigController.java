@@ -10,6 +10,7 @@ import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,13 +28,20 @@ import eu.bcvsolutions.idm.acc.dto.filter.SynchronizationConfigFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSyncConfig;
 import eu.bcvsolutions.idm.acc.service.api.SynchronizationService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
+import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteEntityController;
+import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
-import eu.bcvsolutions.idm.core.security.api.domain.Enabled;;
+import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.Authorization;
+import io.swagger.annotations.AuthorizationScope;;
 
 /**
- * System synchronization config rest
+ * System synchronization configurations
  * 
  * @author svandav
  *
@@ -41,9 +49,17 @@ import eu.bcvsolutions.idm.core.security.api.domain.Enabled;;
 @RepositoryRestController
 @Enabled(AccModuleDescriptor.MODULE_ID)
 @RequestMapping(value = BaseEntityController.BASE_PATH + "/system-synchronization-configs")
+@Api(
+		value = SysSyncConfigController.TAG, 
+		tags = SysSyncConfigController.TAG, 
+		description = "Synchronization setting",
+		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
+		consumes = MediaType.APPLICATION_JSON_VALUE)
 public class SysSyncConfigController
 		extends AbstractReadWriteEntityController<SysSyncConfig, SynchronizationConfigFilter> {
 
+	protected static final String TAG = "Synchronization - configurations";
+	//
 	private final SynchronizationService synchronizationService;
 	
 	@Autowired
@@ -59,7 +75,19 @@ public class SysSyncConfigController
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_READ + "')")
-	public Resources<?> find(@RequestParam MultiValueMap<String, Object> parameters, @PageableDefault Pageable pageable,
+	@ApiOperation(
+			value = "Search synchronization configs (/search/quick alias)", 
+			nickname = "searchSyncConfigs",
+			tags = { SysSyncConfigController.TAG }, 
+			authorizations = {
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_READ, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_READ, description = "") })
+				})
+	public Resources<?> find(
+			@RequestParam(required = false) MultiValueMap<String, Object> parameters,
+			@PageableDefault Pageable pageable,
 			PersistentEntityResourceAssembler assembler) {
 		return super.find(parameters, pageable, assembler);
 	}
@@ -67,8 +95,20 @@ public class SysSyncConfigController
 	@ResponseBody
 	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_READ + "')")
 	@RequestMapping(value = "/search/quick", method = RequestMethod.GET)
-	public Resources<?> findQuick(@RequestParam MultiValueMap<String, Object> parameters,
-			@PageableDefault Pageable pageable, PersistentEntityResourceAssembler assembler) {
+	@ApiOperation(
+			value = "Search synchronization configs", 
+			nickname = "searchQuickSyncConfigs",
+			tags = { SysSyncConfigController.TAG }, 
+			authorizations = {
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_READ, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_READ, description = "") })
+				})
+	public Resources<?> findQuick(
+			@RequestParam(required = false) MultiValueMap<String, Object> parameters,
+			@PageableDefault Pageable pageable,
+			PersistentEntityResourceAssembler assembler) {
 		return super.find(parameters, pageable, assembler);
 	}
 
@@ -76,7 +116,21 @@ public class SysSyncConfigController
 	@ResponseBody
 	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_READ + "')")
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.GET)
-	public ResponseEntity<?> get(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler) {
+	@ApiOperation(
+			value = "Synchronization config detail", 
+			nickname = "getSyncConfig", 
+			response = SysSyncConfig.class, 
+			tags = { SysSyncConfigController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_READ, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_READ, description = "") })
+				})
+	public ResponseEntity<?> get(
+			@ApiParam(value = "Config's uuid identifier.", required = true)
+			@PathVariable @NotNull String backendId,
+			PersistentEntityResourceAssembler assembler) {
 		return super.get(backendId, assembler);
 	}
 
@@ -84,6 +138,17 @@ public class SysSyncConfigController
 	@ResponseBody
 	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_UPDATE + "')")
 	@RequestMapping(method = RequestMethod.POST)
+	@ApiOperation(
+			value = "Create / update synchronization config", 
+			nickname = "postSyncConfig", 
+			response = SysSyncConfig.class, 
+			tags = { SysSyncConfigController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_UPDATE, description = "")}),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_UPDATE, description = "")})
+				})
 	public ResponseEntity<?> post(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler)
 			throws HttpMessageNotReadableException {
 		return super.post(nativeRequest, assembler);
@@ -93,7 +158,21 @@ public class SysSyncConfigController
 	@ResponseBody
 	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_UPDATE + "')")
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.PUT)
-	public ResponseEntity<?> put(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest,
+	@ApiOperation(
+			value = "Update synchronization config", 
+			nickname = "putSyncConfig", 
+			response = SysSyncConfig.class, 
+			tags = { SysSyncConfigController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_UPDATE, description = "")}),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_UPDATE, description = "")})
+				})
+	public ResponseEntity<?> put(
+			@ApiParam(value = "Config's uuid identifier.", required = true)
+			@PathVariable @NotNull String backendId,
+			HttpServletRequest nativeRequest,
 			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
 		return super.put(backendId, nativeRequest, assembler);
 	}
@@ -102,7 +181,21 @@ public class SysSyncConfigController
 	@ResponseBody
 	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_UPDATE + "')")
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.PATCH)
-	public ResponseEntity<?> patch(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest,
+	@ApiOperation(
+			value = "Update synchronization config", 
+			nickname = "patchSyncConfig", 
+			response = SysSyncConfig.class, 
+			tags = { SysSyncConfigController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_UPDATE, description = "")}),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_UPDATE, description = "")})
+				})
+	public ResponseEntity<?> patch(
+			@ApiParam(value = "Config's uuid identifier.", required = true)
+			@PathVariable @NotNull String backendId,
+			HttpServletRequest nativeRequest,
 			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
 		return super.patch(backendId, nativeRequest, assembler);
 	}
@@ -111,50 +204,102 @@ public class SysSyncConfigController
 	@ResponseBody
 	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_DELETE + "')")
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.DELETE)
-	public ResponseEntity<?> delete(@PathVariable @NotNull String backendId) {
+	@ApiOperation(
+			value = "Delete synchronization config", 
+			nickname = "deleteSyncConfig", 
+			tags = { SysSyncConfigController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_DELETE, description = "")}),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_DELETE, description = "")})
+				})
+	public ResponseEntity<?> delete(
+			@ApiParam(value = "Config's uuid identifier.", required = true)
+			@PathVariable @NotNull String backendId) {
 		return super.delete(backendId);
 	}
 	
 	/**
 	 * Start synchronization
+	 * 
 	 * @param backendId
-	 * @return
-	 * @throws HttpMessageNotReadableException
+	 * @returnon
 	 */
 	@ResponseBody
 	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYNCHRONIZATION_CREATE + "')")
 	@RequestMapping(value = "/{backendId}/start", method = RequestMethod.POST)
-	public ResponseEntity<?> startSynchronization(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler)
-			throws HttpMessageNotReadableException {
+	@ApiOperation(
+			value = "Start synchronization", 
+			nickname = "startSynchronization", 
+			response = SysSyncConfig.class, 
+			tags = { SysSyncConfigController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = AccGroupPermission.SYNCHRONIZATION_CREATE, description = "")}),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = AccGroupPermission.SYNCHRONIZATION_CREATE, description = "")})
+				},
+			notes = "Start synchronization by given config.")
+	public ResponseEntity<?> startSynchronization(
+			@ApiParam(value = "Config's uuid identifier.", required = true)
+			@PathVariable @NotNull String backendId, 
+			PersistentEntityResourceAssembler assembler)  {
 		return new ResponseEntity<>(toResource(this.synchronizationService.startSynchronizationEvent(this.getEntityService().get(backendId)), assembler), HttpStatus.OK);
 	}
 	
 	/**
 	 * Cancel synchronization
+	 * 
 	 * @param backendId
-	 * @return
-	 * @throws HttpMessageNotReadableException
+	 * @returnion
 	 */
 	@ResponseBody
 	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYNCHRONIZATION_UPDATE + "')")
 	@RequestMapping(value = "/{backendId}/cancel", method = RequestMethod.POST)
-	public ResponseEntity<?> cancelSynchronization(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler)
-			throws HttpMessageNotReadableException {
+	@ApiOperation(
+			value = "Cancel synchronization", 
+			nickname = "cancelSynchronization", 
+			response = SysSyncConfig.class, 
+			tags = { SysSyncConfigController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = AccGroupPermission.SYNCHRONIZATION_UPDATE, description = "")}),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = AccGroupPermission.SYNCHRONIZATION_UPDATE, description = "")})
+				},
+			notes = "Cancel synchronization by given config.")
+	public ResponseEntity<?> cancelSynchronization(
+			@ApiParam(value = "Config's uuid identifier.", required = true)
+			@PathVariable @NotNull String backendId,
+			PersistentEntityResourceAssembler assembler) {
 		return new ResponseEntity<>(toResource(this.synchronizationService.stopSynchronizationEvent(this.getEntityService().get(backendId)), assembler), HttpStatus.OK);
 	}
 	
 	/**
 	 * Is synchronization running
+	 * 
 	 * @param backendId
 	 * @return
-	 * @throws HttpMessageNotReadableException
 	 */
 	@ResponseBody
 	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_READ + "')")
-	@RequestMapping(value = "/{backendId}/isRunning", method = RequestMethod.POST)
-	public ResponseEntity<?> isRunningSynchronization(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler)
-			throws HttpMessageNotReadableException {
-		
+	@RequestMapping(value = "/{backendId}/is-running", method = RequestMethod.POST)
+	@ApiOperation(
+			value = "Synchronization is running", 
+			nickname = "isRunningSynchronization",
+			tags = { SysSyncConfigController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_READ, description = "")}),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_READ, description = "")})
+				},
+			notes = "Cancel synchronization by given config.")
+	public ResponseEntity<?> isRunningSynchronization(
+			@ApiParam(value = "Config's uuid identifier.", required = true)
+			@PathVariable @NotNull String backendId,
+			PersistentEntityResourceAssembler assembler) {		
 		boolean running = ((SysSyncConfigService)this.getEntityService()).isRunning(this.getEntityService().get(backendId));
 		return new ResponseEntity<>(running, HttpStatus.OK);
 	}

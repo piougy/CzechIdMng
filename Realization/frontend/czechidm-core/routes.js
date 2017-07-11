@@ -23,8 +23,9 @@ module.exports = {
     },
     {
       path: 'identity/new',
-      component: require('./src/content/identity/IdentityCreate'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_CREATE' ] } ]
+      component: require('./src/content/identity/Create'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_CREATE' ] } ],
+      priority: 0
     },
     {
       path: 'identity/:entityId/',
@@ -34,7 +35,8 @@ module.exports = {
         {
           path: 'profile',
           component: require('./src/content/identity/IdentityProfile'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_READ' ] } ]
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_READ' ] } ],
+          priority: 0
         },
         {
           path: 'password',

@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 //
 import * as Basic from '../../components/basic';
 import { IdentityManager } from '../../redux';
-import ComponentService from '../../services/ComponentService';
+import IdentityDetail from './IdentityDetail';
 
 const identityManager = new IdentityManager();
 
@@ -15,8 +15,6 @@ class Profile extends Basic.AbstractContent {
       showLoading: false,
       showLoadingIdentityTrimmed: false,
     };
-    //
-    this.componentService = new ComponentService();
   }
 
   getContentKey() {
@@ -40,10 +38,9 @@ class Profile extends Basic.AbstractContent {
   render() {
     const { identity } = this.props;
     const { entityId } = this.props.params;
-    const IdentityDetail = this.componentService.getComponent('identity-detail');
     return (
       <div className="tab-pane-text-body">
-        <IdentityDetail identity={identity} entityId={entityId} params={this.props.params} />
+        <IdentityDetail identity={identity} entityId={entityId} />
       </div>
     );
   }

@@ -68,7 +68,8 @@ class AuditDetailInfo extends Basic.AbstractContent {
           ref="revisionDate"
           readOnly
           label={this.i18n('revision.revisionDate')}
-          format="d. M. Y  H:mm:ss"/>
+          dateFormat="DD. MM. YYYY"
+          timeFormat="HH:mm:ss"/>
       </Basic.AbstractForm>
     );
   }

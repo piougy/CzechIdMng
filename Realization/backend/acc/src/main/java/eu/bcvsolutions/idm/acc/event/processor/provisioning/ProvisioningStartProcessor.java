@@ -50,8 +50,8 @@ public class ProvisioningStartProcessor extends AbstractEntityEventProcessor<Acc
 	public EventResult<AccAccount> process(EntityEvent<AccAccount> event) {
 		AccAccount account = event.getContent();
 		Assert.notNull(account);
-		LOG.info("Provisioning event start, for account id: [{}], account uid: [{}], system id: [{}]",
-				account.getId(), account.getUid(), account.getSystem().getId());
+		LOG.info("Provisioning event start, for account id: [{}], account uid: [{}], real uid [{}] , system id: [{}]",
+				account.getId(), account.getUid(), account.getRealUid(), account.getSystem().getId());
 
 		if (account.isInProtection()) {
 			if(!isCanceledProvisioningProtectionBreak(event.getProperties())){

@@ -90,7 +90,7 @@ module.exports = {
             'titleKey': 'acc:content.provisioningOperations.title',
             'order': 70,
             'path': '/system/:entityId/provisioning',
-            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ]
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_ADMIN'] } ]
           }
         ]
       },
@@ -112,7 +112,7 @@ module.exports = {
         'titleKey': 'acc:content.provisioningOperations.title',
         'order': 110,
         'path': '/identity/:entityId/provisioning',
-        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ]
+        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_ADMIN'] } ]
       },
       {
         'id': 'password-policies-systems',
@@ -145,7 +145,7 @@ module.exports = {
         'access': [
           {
             'type': 'HAS_ANY_AUTHORITY',
-            'authorities': ['APP_ADMIN']
+            'authorities': ['SYSTEM_ADMIN']
           }
         ]
       }

@@ -9,6 +9,7 @@ import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.Assert;
@@ -22,23 +23,44 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
+import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningBatch;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningExecutor;
+import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.filter.EmptyFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadEntityController;
+import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
-import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.Authorization;
+import io.swagger.annotations.AuthorizationScope;
 
+/**
+ * Active provisioning operations - batch by system entity.
+ * 
+ * @author Radek Tomiška
+ *
+ */
 @RepositoryRestController
 @Enabled(AccModuleDescriptor.MODULE_ID)
 @RequestMapping(value = BaseEntityController.BASE_PATH + "/provisioning-batches")
+@Api(
+		value = SysProvisioningBatchController.TAG, 
+		tags = SysProvisioningBatchController.TAG, 
+		description = "Active provisioning operations in queue - grouped by system entity.",
+		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
+		consumes = MediaType.APPLICATION_JSON_VALUE)
 public class SysProvisioningBatchController
 		extends AbstractReadEntityController<SysProvisioningBatch, EmptyFilter> {
 
+	protected static final String TAG = "Provisioning - batch";
+	//
 	private final ProvisioningExecutor provisioningExecutor;
 
 	@Autowired
@@ -54,32 +76,84 @@ public class SysProvisioningBatchController
 	@Override
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.GET)
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.APP_ADMIN + "')")
-	public Resources<?> find(@RequestParam MultiValueMap<String, Object> parameters, @PageableDefault Pageable pageable,
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_ADMIN + "')")
+	@ApiOperation(
+			value = "Search provisioning batches (/search/quick alias)", 
+			nickname = "searchProvisioningBatches",
+			tags = { SysProvisioningBatchController.TAG }, 
+			authorizations = {
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_ADMIN, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_ADMIN, description = "") })
+				})
+	public Resources<?> find(
+			@RequestParam(required = false) MultiValueMap<String, Object> parameters,
+			@PageableDefault Pageable pageable,
 			PersistentEntityResourceAssembler assembler) {
 		return super.find(parameters, pageable, assembler);
 	}
 
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.APP_ADMIN + "')")
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_ADMIN + "')")
 	@RequestMapping(value = "/search/quick", method = RequestMethod.GET)
-	public Resources<?> findQuick(@RequestParam MultiValueMap<String, Object> parameters,
-			@PageableDefault Pageable pageable, PersistentEntityResourceAssembler assembler) {
+	@ApiOperation(
+			value = "Search provisioning batches ", 
+			nickname = "searchQuickProvisioningBatches",
+			tags = { SysProvisioningBatchController.TAG }, 
+			authorizations = {
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_ADMIN, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_ADMIN, description = "") })
+				})
+	public Resources<?> findQuick(
+			@RequestParam(required = false) MultiValueMap<String, Object> parameters,
+			@PageableDefault Pageable pageable,
+			PersistentEntityResourceAssembler assembler) {
 		return super.find(parameters, pageable, assembler);
 	}
 
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.APP_ADMIN + "')")
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_ADMIN + "')")
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.GET)
-	public ResponseEntity<?> get(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler) {
+	@ApiOperation(
+			value = "Provisioning batch detail", 
+			nickname = "getProvisioningBatch", 
+			response = SysProvisioningBatch.class, 
+			tags = { SysProvisioningBatchController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_ADMIN, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_ADMIN, description = "") })
+				})
+	public ResponseEntity<?> get(
+			@ApiParam(value = "Provisioning batch's uuid identifier.", required = true)
+			@PathVariable @NotNull String backendId,
+			PersistentEntityResourceAssembler assembler) {
 		return super.get(backendId, assembler);
 	}
 
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.APP_ADMIN + "')")
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_ADMIN + "')")
 	@RequestMapping(value = "/{backendId}/retry", method = RequestMethod.PUT)
-	public ResponseEntity<?> retry(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler) {
+	@ApiOperation(
+			value = "Retry provisioning batch", 
+			nickname = "retryProvisioningBatch",
+			tags = { SysProvisioningBatchController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_ADMIN, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_ADMIN, description = "") })
+				},
+			notes = "Retry all provisioning operations in given batch - retry all active operations in queue grouped by system entity ordered by incomming date.")
+	public ResponseEntity<?> retry(
+			@ApiParam(value = "Provisioning batch's uuid identifier.", required = true)
+			@PathVariable @NotNull String backendId,
+			PersistentEntityResourceAssembler assembler) {
 		SysProvisioningBatch batch = getEntity(backendId);
 		if (batch == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
@@ -89,9 +163,23 @@ public class SysProvisioningBatchController
 	}
 
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.APP_ADMIN + "')")
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_ADMIN + "')")
 	@RequestMapping(value = "/{backendId}/cancel", method = RequestMethod.PUT)
-	public ResponseEntity<Void> cancel(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler) {
+	@ApiOperation(
+			value = "Cance provisioning batch", 
+			nickname = "cancelProvisioningBatch",
+			tags = { SysProvisioningBatchController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_ADMIN, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_ADMIN, description = "") })
+				},
+			notes = "Cancel all provisioning operations in given batch - cancel all active operations in queue grouped by system entity.")
+	public ResponseEntity<Void> cancel(
+			@ApiParam(value = "Provisioning batch's uuid identifier.", required = true)
+			@PathVariable @NotNull String backendId,
+			PersistentEntityResourceAssembler assembler) {
 		SysProvisioningBatch batch = getEntity(backendId);
 		if (batch == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));

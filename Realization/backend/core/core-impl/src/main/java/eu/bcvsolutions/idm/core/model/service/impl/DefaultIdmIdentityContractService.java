@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
@@ -10,6 +12,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -255,7 +258,7 @@ public class DefaultIdmIdentityContractService
 	/**
 	 * Returns given identity's prime contract, by contract's priority:
 	 * - 1. main
-	 * - 2. valid - TODO - implement
+	 * - 2. valid (validable and not disabled) - TODO - implemented
 	 * - 3. with working position with default tree type
 	 * - 4. with working position with any tree type
 	 * - 5. other
@@ -273,28 +276,57 @@ public class DefaultIdmIdentityContractService
 		if (contracts.isEmpty()) {
 			return null;
 		}
-		
-		IdmIdentityContract primeContract = null;
-		IdmTreeType defaultTreeType = treeTypeRepository.findOneByDefaultTreeTypeIsTrue();
-		for (IdmIdentityContract contract : contracts) {
-			// find main contract or contract with working position (default tree type has higher priority)
-			if (contract.isMain()) {
-				return toDto(contract);
-			}
-			if (primeContract == null) {
-				primeContract = contract;
-			}
-			IdmTreeNode workPosition = contract.getWorkPosition();
-			if (workPosition != null && (primeContract.getWorkPosition() == null || workPosition.getTreeType().equals(defaultTreeType))) {
-				primeContract = contract;
-			}
-		}
-		return toDto(primeContract);
+		Collections.sort(contracts, new PrimeIdentityContractComparator(treeTypeRepository.findOneByDefaultTreeTypeIsTrue()));
+		//
+		return toDto(contracts.get(contracts.size() - 1));
 	}
 
 	@Override
 	public List<IdmIdentityContractDto> findAllValidForDate(UUID identityId, LocalDate date, Boolean onlyExterne) {
 		return toDtos(this.repository.findAllValidContracts(identityId, date, onlyExterne), false);
+	}
+	
+	/**
+	 * Returns by contract's priority:
+	 * - 1. main
+	 * - 2. valid (validable and not disabled) - TODO - implemented
+	 * - 3. with working position with default tree type
+	 * - 4. with working position with any tree type
+	 * - 5. other with lowest valid from
+	 * 
+	 * @author Radek Tomiška
+	 *
+	 */
+	private class PrimeIdentityContractComparator implements Comparator<IdmIdentityContract> {
+
+		private final IdmTreeType defaultTreeType;
+		
+		public PrimeIdentityContractComparator(IdmTreeType defaultTreeType) {
+			this.defaultTreeType = defaultTreeType;
+		}
+		
+		@Override
+		public int compare(IdmIdentityContract o1, IdmIdentityContract o2) {
+			CompareToBuilder builder = new CompareToBuilder();
+			// main
+			builder.append(o1.isMain(), o2.isMain());
+			// valid 
+			builder.append(!o1.isDisabled(), !o2.isDisabled());
+			// not disabled
+			builder.append(o1.isValid(), o2.isValid());
+			// with default tree position
+			if (defaultTreeType != null) {
+				builder.append(o1.getWorkPosition() != null && o1.getWorkPosition().getTreeType().equals(defaultTreeType), 
+						o2.getWorkPosition() != null && o2.getWorkPosition().getTreeType().equals(defaultTreeType));
+			}			
+			// with any tree position
+			builder.append(o1.getWorkPosition() != null, o2.getWorkPosition() != null);
+			// by valid from
+			builder.append(o1.getValidFrom(), o2.getValidFrom());
+			//
+			return builder.toComparison();
+		}
+		
 	}
 }
 

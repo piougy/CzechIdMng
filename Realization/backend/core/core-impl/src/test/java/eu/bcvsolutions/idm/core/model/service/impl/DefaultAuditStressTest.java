@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.service;
+package eu.bcvsolutions.idm.core.model.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;

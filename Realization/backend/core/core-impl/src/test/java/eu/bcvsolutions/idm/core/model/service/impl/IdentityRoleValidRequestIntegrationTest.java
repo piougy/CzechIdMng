@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.service;
+package eu.bcvsolutions.idm.core.model.service.impl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;

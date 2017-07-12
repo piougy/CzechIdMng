@@ -341,7 +341,7 @@ public class DefaultFormService implements FormService {
 		List<E> values = formValueService.getValues(owner, attribute);
 		
 		// size isn't same drop and create
-		if (values.isEmpty() || values.size() != persistentValues.size()) {
+		if (values.size() != persistentValues.size()) {
 			deleteValues(owner, attribute);
 			// create
 			List<E> results = new ArrayList<>();

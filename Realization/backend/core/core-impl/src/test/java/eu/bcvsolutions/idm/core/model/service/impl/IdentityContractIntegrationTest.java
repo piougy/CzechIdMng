@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.service;
+package eu.bcvsolutions.idm.core.model.service.impl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -40,7 +40,7 @@ import eu.bcvsolutions.idm.core.scheduler.task.impl.RemoveAutomaticRoleTaskExecu
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
- * Test with identity contracts:
+ * Integration tests with identity contracts:
  * - work with assigned roles, when contract is changed (disable, etc.)
  * - automatic role is defined, changed
  * - expiration

@@ -159,7 +159,7 @@ public class IdentityPasswordValidateProcessor extends AbstractEntityEventProces
 		// get old password for validation - til, from and password history
 		IdmPasswordDto oldPassword = this.passwordService.findOneByIdentity(identity.getId());
 		passwordValidationDto.setOldPassword(oldPassword == null ? null : oldPassword.getId());
-		passwordValidationDto.setIdentity(identity == null ? null : identity.getId());
+		passwordValidationDto.setIdentity(identity);
 		passwordValidationDto.setPassword(passwordChangeDto.getNewPassword());
 		this.passwordPolicyService.validate(passwordValidationDto, passwordPolicyList);
 		//

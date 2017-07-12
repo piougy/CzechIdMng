@@ -18,14 +18,12 @@ import java.util.UUID;
 public class IdmPasswordValidationDto implements Serializable {
 
     private static final long serialVersionUID = 5422443380932424940L;
-
+    //
     @NotNull
     @JsonDeserialize(using = GuardedStringDeserializer.class)
     private GuardedString password;
-
     private UUID oldPassword;
-
-    private UUID identity;
+    private IdmIdentityDto identity;
 
     @JsonIgnore
     private boolean valid;
@@ -50,11 +48,11 @@ public class IdmPasswordValidationDto implements Serializable {
         this.valid = valid;
     }
 
-    public UUID getIdentity() {
+    public IdmIdentityDto getIdentity() {
         return identity;
     }
 
-    public void setIdentity(UUID identity) {
+    public void setIdentity(IdmIdentityDto identity) {
         this.identity = identity;
     }
 

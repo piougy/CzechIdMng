@@ -265,7 +265,7 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 			// check to similar identity attributes, enhanced control
 			if (passwordPolicy.isEnchancedControl()) {
 				String[] attributes = passwordPolicy.getIdentityAttributeCheck().split(", ");
-				IdmIdentityDto identity = identityService.get(passwordValidationDto.getIdentity());
+				IdmIdentityDto identity = passwordValidationDto.getIdentity();
 				for (int index = 0; index < attributes.length; index++) {
 					if (attributes[index].equals(IdmPasswordPolicyIdentityAttributes.EMAIL.name())) {
 						if (identity.getEmail()!= null && identity.getEmail().toLowerCase().matches("(?i).*" + password.toLowerCase() + ".*")) {

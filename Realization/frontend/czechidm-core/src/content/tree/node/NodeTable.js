@@ -16,6 +16,12 @@ const treeTypeManager = new TreeTypeManager();
 const identityManager = new IdentityManager();
 
 /**
+ * TODO: Add better constant for max roots count
+ * @type {Number}
+ */
+const MAX_ROOTS_COUNT = 100000;
+
+/**
 * Table of tree nodes
 */
 class NodeTable extends Advanced.AbstractTableContent {
@@ -46,7 +52,7 @@ class NodeTable extends Advanced.AbstractTableContent {
     const { treeNodeManager } = this.props;
     const { type } = this.state;
 
-    const searchParametersRoots = treeNodeManager.getService().getRootSearchParameters().setFilter('treeTypeId', type.id);
+    const searchParametersRoots = treeNodeManager.getService().getRootSearchParameters().setFilter('treeTypeId', type.id).setSort('name', true).setSize(MAX_ROOTS_COUNT);
     this.context.store.dispatch(treeNodeManager.fetchEntities(searchParametersRoots, rootNodesKey, (loadedRoots) => {
       // get redux state for get total roots count
       const uiState = Utils.Ui.getUiState(this.context.store.getState(), rootNodesKey);
@@ -280,6 +286,7 @@ class NodeTable extends Advanced.AbstractTableContent {
                     ref="organizationTree"
                     rootNodes={ rootNodes }
                     rootNodesCount={ rootNodesCount }
+                    propertyName="name"
                     headerDecorator={this._orgTreeHeaderDecorator.bind(this)}
                     uiKey="orgTree"
                     manager={treeNodeManager}

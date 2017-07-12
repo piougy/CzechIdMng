@@ -565,12 +565,30 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 
 		Object icValueTransformed = transformValueFromResource(transformValueFromResourceScript, schemaAttribute, icAttribute,
 				icAttributes, system);
-		if (sendAlways || (!Objects.equals(idmValue, icValueTransformed))) {
+		if (sendAlways || (!isAttributeValueEquals(idmValue, icValueTransformed, schemaAttribute))) {
 			// values is not equals
 			// Or this attribute must be send every time (event if was not changed)
 			return attributeMappingService.createIcAttribute(schemaAttribute, idmValue);
 		}
 		return null;
+	}
+	
+	/**
+	 * Check if is value from IDM and value from System equals. 
+	 * If is attribute multivalued, then is IDM value transformed to List.
+	 * @param idmValue
+	 * @param icValueTransformed
+	 * @param schemaAttribute
+	 * @return
+	 */
+	private boolean isAttributeValueEquals(Object idmValue, Object icValueTransformed, SysSchemaAttribute schemaAttribute){
+		if(schemaAttribute.isMultivalued() && idmValue != null && !(idmValue instanceof List)){
+			List<Object> values = new ArrayList<>();
+			values.add(idmValue);
+			return Objects.equals(values, icValueTransformed);
+		} 
+		
+		return Objects.equals(idmValue, icValueTransformed);
 	}
 
 	private Object transformValueFromResource(String transformValueFromResourceScript,

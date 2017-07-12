@@ -39,12 +39,24 @@ public class EntityUtils {
 	 * @return
 	 */
 	public static boolean isValid(ValidableEntity entity) {
+		return isValid(entity, new LocalDate());
+	}
+	
+	/**
+	 * Returns if entity is valid for given date.
+	 * 
+	 * @param entity
+	 * @param targetDate
+	 * @return
+	 */
+	public static boolean isValid(ValidableEntity entity, LocalDate targetDate) {
+		Assert.notNull(targetDate);
+		//
 		if (entity == null) {
 			return false;
-		}		
-		LocalDate now = new LocalDate();		
-		return (entity.getValidFrom() == null || entity.getValidFrom().compareTo(now) <= 0)
-				&& (entity.getValidTill() == null || entity.getValidTill().compareTo(now) >= 0);
+		}				
+		return (entity.getValidFrom() == null || entity.getValidFrom().compareTo(targetDate) <= 0)
+				&& (entity.getValidTill() == null || entity.getValidTill().compareTo(targetDate) >= 0);
 	}
 	
 	/**

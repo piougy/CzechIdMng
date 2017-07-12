@@ -79,6 +79,7 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 	 * @param provisioningOperation
 	 * @return
 	 */
+	// @Async TODO: turns on asynchronous provisioning - tests are broken
 	@Override
 	@TransactionalEventListener
 	@Transactional(noRollbackFor = ProvisioningException.class, propagation = Propagation.REQUIRES_NEW)

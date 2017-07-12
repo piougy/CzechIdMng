@@ -35,16 +35,16 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.jaxb.JaxbCharacterEscapeEncoder;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
-import eu.bcvsolutions.idm.core.model.jaxb.IdmNotificationTemplateType;
-import eu.bcvsolutions.idm.core.model.jaxb.JaxbCharacterEscapeEncoder;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationTemplateDto;
 import eu.bcvsolutions.idm.core.notification.dto.filter.NotificationTemplateFilter;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationConfiguration;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationTemplate;
+import eu.bcvsolutions.idm.core.notification.jaxb.IdmNotificationTemplateType;
 import eu.bcvsolutions.idm.core.notification.repository.IdmNotificationConfigurationRepository;
 import eu.bcvsolutions.idm.core.notification.repository.IdmNotificationTemplateRepository;
 import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationTemplateService;
@@ -66,14 +66,8 @@ public class DefaultIdmNotificationTemplateService extends
 		implements IdmNotificationTemplateService {
 
 	private static final String TEMPLATE_FOLDER = "idm.pub.core.notification.template.folder";
-	private static final String ENCODING_HANDLER = "com.sun.xml.bind.characterEscapeHandler";
 	private static final String TEMPLATE_FILE_SUFIX = "idm.pub.core.notification.template.fileSuffix";
-
-	// TODO: find better place for this constants
-	public static final String BACKUP_FOLDER_CONFIG = "idm.sec.core.backups.default.folder.path";
-
 	private static final String TEMPLATE_DEFAULT_BACKUP_FOLDER = "templates/";
-	private static final String TEMPLATE_EXPORT_FILE_SUFIX = ".xml";
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory
 			.getLogger(DefaultIdmNotificationTemplateService.class);
@@ -124,8 +118,14 @@ public class DefaultIdmNotificationTemplateService extends
 			jaxbContext = JAXBContext.newInstance(IdmNotificationTemplateType.class);
 		} catch (JAXBException e) {
 			// TODO throw error, or just log and continue?
-			throw new ResultCodeException(CoreResultCode.NOTIFICATION_TEMPLATE_JAXB_INIT_ERROR, e);
+			throw new ResultCodeException(CoreResultCode.XML_JAXB_INIT_ERROR, e);
 		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public IdmNotificationTemplateDto getByCode(String code) {
+		return toDto(repository.findOneByCode(code));
 	}
 
 	@Override
@@ -239,7 +239,7 @@ public class DefaultIdmNotificationTemplateService extends
 			//
 			jaxbUnmarshaller = jaxbContext.createUnmarshaller();
 		} catch (JAXBException e) {
-			throw new ResultCodeException(CoreResultCode.NOTIFICATION_TEMPLATE_JAXB_INIT_ERROR, e);
+			throw new ResultCodeException(CoreResultCode.XML_JAXB_INIT_ERROR, e);
 		}
 		//
 		List<IdmNotificationTemplateDto> entities = new ArrayList<>();
@@ -295,10 +295,8 @@ public class DefaultIdmNotificationTemplateService extends
 	}
 
 	@Override
-	public void backup(IdmNotificationTemplateDto dto, String directory) {
-		if (directory == null) {
-			directory = getDirectoryForBackup();
-		}
+	public void backup(IdmNotificationTemplateDto dto) {
+		String directory = getDirectoryForBackup();
 		//
 		Marshaller jaxbMarshaller = initJaxbMarshaller();
 		//
@@ -313,9 +311,9 @@ public class DefaultIdmNotificationTemplateService extends
 		try {
 			jaxbMarshaller.marshal(type, file);
 		} catch (JAXBException e) {
-			LOG.error("[DefaultIdmNotificationTemplateService] Backup for template: {} failed, error message: {}",
+			LOG.error("Backup for template: {} failed, error message: {}",
 					dto.getCode(), e.getLocalizedMessage());
-			throw new ResultCodeException(CoreResultCode.NOTIFICATION_TEMPLATE_BACKUP_FAIL,
+			throw new ResultCodeException(CoreResultCode.BACKUP_FAIL,
 					ImmutableMap.of("code", dto.getCode(), "error", e.getLocalizedMessage()), e);
 		}
 	}
@@ -327,7 +325,7 @@ public class DefaultIdmNotificationTemplateService extends
 		try {
 			jaxbUnmarshaller = jaxbContext.createUnmarshaller();
 		} catch (JAXBException e) {
-			throw new ResultCodeException(CoreResultCode.NOTIFICATION_TEMPLATE_JAXB_INIT_ERROR, e);
+			throw new ResultCodeException(CoreResultCode.XML_JAXB_INIT_ERROR, e);
 		}
 		//
 		Resource[] resources = getNotificationTemplateResource();
@@ -377,7 +375,7 @@ public class DefaultIdmNotificationTemplateService extends
 			jaxbMarshaller.setProperty(Marshaller.JAXB_ENCODING, StandardCharsets.UTF_8.name());
 			jaxbMarshaller.setProperty(ENCODING_HANDLER, new JaxbCharacterEscapeEncoder());
 		} catch (JAXBException e) {
-			throw new ResultCodeException(CoreResultCode.NOTIFICATION_TEMPLATE_JAXB_INIT_ERROR, e);
+			throw new ResultCodeException(CoreResultCode.XML_JAXB_INIT_ERROR, e);
 		}
 		return jaxbMarshaller;
 	}
@@ -468,9 +466,16 @@ public class DefaultIdmNotificationTemplateService extends
 		return completePath;
 	}
 
+	/**
+	 * Method return path for file. That will be save into backup directory.
+	 * 
+	 * @param directory
+	 * @param template
+	 * @return
+	 */
 	private String getBackupFileName(String directory, IdmNotificationTemplateDto template) {
 		return directory + template.getCode() + "_" + securityService.getCurrentUsername() + "_"
-				+ System.currentTimeMillis() + TEMPLATE_EXPORT_FILE_SUFIX;
+				+ System.currentTimeMillis() + EXPORT_FILE_SUFIX;
 	}
 
 	/**
@@ -485,7 +490,7 @@ public class DefaultIdmNotificationTemplateService extends
 			resources = applicationContext.getResources(configurationService.getValue(TEMPLATE_FOLDER)
 					+ configurationService.getValue(TEMPLATE_FILE_SUFIX));
 		} catch (IOException e) {
-			throw new ResultCodeException(CoreResultCode.NOTIFICATION_TEMPLATE_DEPLOY_ERROR,
+			throw new ResultCodeException(CoreResultCode.DEPLOY_ERROR,
 					ImmutableMap.of("path", configurationService.getValue(TEMPLATE_FOLDER)
 							+ configurationService.getValue(TEMPLATE_FILE_SUFIX)));
 		}
@@ -494,7 +499,7 @@ public class DefaultIdmNotificationTemplateService extends
 
 	/**
 	 * Method replace all attribute from dto with type attributes, old dto will
-	 * be backup to system temporary folder.
+	 * be backup to system folder.
 	 * 
 	 * @param oldTemplate
 	 * @param newTemplate
@@ -503,9 +508,10 @@ public class DefaultIdmNotificationTemplateService extends
 	private IdmNotificationTemplateDto deployNewAndBackupOld(IdmNotificationTemplateDto oldTemplate,
 			IdmNotificationTemplateType newTemplate) {
 		// backup
-		this.backup(oldTemplate, null);
+		this.backup(oldTemplate);
+
 		// transform new
 		oldTemplate = typeToDto(newTemplate, oldTemplate);
 		return this.save(oldTemplate);
-	}
+	}	
 }

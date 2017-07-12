@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.joda.time.LocalDate;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -25,7 +26,8 @@ import eu.bcvsolutions.idm.core.model.repository.IdmTreeTypeRepository;
 import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
 
 /**
- * Identity contract tests
+ * Identity contract unit tests:
+ * - 
  * 
  * @author Radek Tomiška
  */
@@ -65,15 +67,16 @@ public class DefaultIdmIdentityContractServiceUnitTest extends AbstractUnitTest 
 	@Test
 	public void testPrimeContractWithWorkingPosition() {
 		List<IdmIdentityContract> contracts = new ArrayList<>();
-		IdmIdentityContract otherContract = new IdmIdentityContract(UUID.randomUUID());
-		otherContract.setMain(false);
 		IdmIdentityContract contractWithPosition = new IdmIdentityContract(UUID.randomUUID());
 		contractWithPosition.setMain(false);
 		IdmTreeNode workPosition = new IdmTreeNode();
 		workPosition.setTreeType(new IdmTreeType());
 		contractWithPosition.setWorkPosition(workPosition);
-		contracts.add(otherContract);
+		//
+		IdmIdentityContract otherContract = new IdmIdentityContract(UUID.randomUUID());
+		otherContract.setMain(false);
 		contracts.add(contractWithPosition);
+		contracts.add(otherContract);
 		//
 		when(repository.findAllByIdentity_Id(any(UUID.class), any())).thenReturn(contracts);		
 		when(treeTypeRepository.findOneByDefaultTreeTypeIsTrue()).thenReturn(null);
@@ -84,12 +87,6 @@ public class DefaultIdmIdentityContractServiceUnitTest extends AbstractUnitTest 
 	@Test
 	public void testPrimeContractWithDefaultTreeType() {
 		List<IdmIdentityContract> contracts = new ArrayList<>();
-		IdmIdentityContract otherContract = new IdmIdentityContract(UUID.randomUUID());
-		otherContract.setMain(false);
-		IdmTreeNode workPosition = new IdmTreeNode();
-		workPosition.setTreeType(new IdmTreeType(UUID.randomUUID()));
-		otherContract.setWorkPosition(workPosition);
-		//
 		IdmIdentityContract contractWithDefaultPosition = new IdmIdentityContract(UUID.randomUUID());
 		contractWithDefaultPosition.setMain(false);
 		IdmTreeNode defaultWorkPosition = new IdmTreeNode();
@@ -97,12 +94,107 @@ public class DefaultIdmIdentityContractServiceUnitTest extends AbstractUnitTest 
 		defaultWorkPosition.setTreeType(defaultTreeType);
 		contractWithDefaultPosition.setWorkPosition(defaultWorkPosition);
 		//
-		contracts.add(otherContract);
+		IdmIdentityContract otherContract = new IdmIdentityContract(UUID.randomUUID());
+		otherContract.setMain(false);
+		IdmTreeNode workPosition = new IdmTreeNode();
+		workPosition.setTreeType(new IdmTreeType(UUID.randomUUID()));
+		otherContract.setWorkPosition(workPosition);
+		//
 		contracts.add(contractWithDefaultPosition);
+		contracts.add(otherContract);
 		//
 		when(repository.findAllByIdentity_Id(any(UUID.class), any())).thenReturn(contracts);		
 		when(treeTypeRepository.findOneByDefaultTreeTypeIsTrue()).thenReturn(defaultTreeType);
 		//
 		Assert.assertEquals(contractWithDefaultPosition.getId(), service.getPrimeContract(UUID.randomUUID()).getId());
+	}
+	
+	@Test
+	public void testSimpleValidPrimeContract() {
+		List<IdmIdentityContract> contracts = new ArrayList<>();
+		IdmIdentityContract invalidContract = new IdmIdentityContract(UUID.randomUUID());
+		invalidContract.setMain(true);
+		invalidContract.setValidFrom(new LocalDate().plusDays(1));
+		IdmIdentityContract mainContract = new IdmIdentityContract(UUID.randomUUID());
+		mainContract.setMain(true);
+		contracts.add(invalidContract);
+		contracts.add(mainContract);
+		//
+		when(repository.findAllByIdentity_Id(any(UUID.class), any())).thenReturn(contracts);		
+		when(treeTypeRepository.findOneByDefaultTreeTypeIsTrue()).thenReturn(null);
+		//
+		Assert.assertEquals(mainContract.getId(), service.getPrimeContract(UUID.randomUUID()).getId());
+	}
+	
+	@Test
+	public void testSimpleDisabledPrimeContract() {
+		List<IdmIdentityContract> contracts = new ArrayList<>();
+		IdmIdentityContract invalidContract = new IdmIdentityContract(UUID.randomUUID());
+		invalidContract.setMain(true);
+		invalidContract.setDisabled(true);
+		IdmIdentityContract mainContract = new IdmIdentityContract(UUID.randomUUID());
+		mainContract.setMain(true);
+		contracts.add(invalidContract);
+		contracts.add(mainContract);
+		//
+		when(repository.findAllByIdentity_Id(any(UUID.class), any())).thenReturn(contracts);		
+		when(treeTypeRepository.findOneByDefaultTreeTypeIsTrue()).thenReturn(null);
+		//
+		Assert.assertEquals(mainContract.getId(), service.getPrimeContract(UUID.randomUUID()).getId());
+	}
+	
+	/**
+	 * Invalid main contract has still higher priority
+	 */
+	@Test
+	public void testDisabledMainContract() {
+		List<IdmIdentityContract> contracts = new ArrayList<>();
+		IdmIdentityContract invalidContract = new IdmIdentityContract(UUID.randomUUID());
+		invalidContract.setMain(true);
+		invalidContract.setDisabled(true);
+		IdmIdentityContract otherContract = new IdmIdentityContract(UUID.randomUUID());
+		otherContract.setMain(false);
+		contracts.add(otherContract);
+		contracts.add(invalidContract);
+		//
+		when(repository.findAllByIdentity_Id(any(UUID.class), any())).thenReturn(contracts);		
+		when(treeTypeRepository.findOneByDefaultTreeTypeIsTrue()).thenReturn(null);
+		//
+		Assert.assertEquals(invalidContract.getId(), service.getPrimeContract(UUID.randomUUID()).getId());
+	}
+	
+	@Test
+	public void testOtherMainContractByFilledValidFrom() {
+		List<IdmIdentityContract> contracts = new ArrayList<>();
+		IdmIdentityContract oneContract = new IdmIdentityContract(UUID.randomUUID());
+		oneContract.setValidFrom(new LocalDate());
+		oneContract.setMain(false);
+		IdmIdentityContract twoContract = new IdmIdentityContract(UUID.randomUUID());
+		twoContract.setMain(false);
+		contracts.add(twoContract);
+		contracts.add(oneContract);
+		//
+		when(repository.findAllByIdentity_Id(any(UUID.class), any())).thenReturn(contracts);		
+		when(treeTypeRepository.findOneByDefaultTreeTypeIsTrue()).thenReturn(null);
+		//
+		Assert.assertEquals(oneContract.getId(), service.getPrimeContract(UUID.randomUUID()).getId());
+	}
+	
+	@Test
+	public void testOtherMainContractByValidFrom() {
+		List<IdmIdentityContract> contracts = new ArrayList<>();
+		IdmIdentityContract oneContract = new IdmIdentityContract(UUID.randomUUID());
+		oneContract.setValidFrom(new LocalDate());
+		oneContract.setMain(false);
+		IdmIdentityContract twoContract = new IdmIdentityContract(UUID.randomUUID());
+		twoContract.setMain(false);
+		twoContract.setValidFrom(new LocalDate().plusDays(1));
+		contracts.add(twoContract);
+		contracts.add(oneContract);
+		//
+		when(repository.findAllByIdentity_Id(any(UUID.class), any())).thenReturn(contracts);		
+		when(treeTypeRepository.findOneByDefaultTreeTypeIsTrue()).thenReturn(null);
+		//
+		Assert.assertEquals(oneContract.getId(), service.getPrimeContract(UUID.randomUUID()).getId());
 	}
 }

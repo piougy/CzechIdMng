@@ -34,7 +34,7 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 		@Index(name = "ux_script_code", columnList = "code", unique = true),
 		@Index(name = "ux_script_category", columnList = "category") 
 		})
-public class IdmScript extends AbstractEntity implements Codeable{
+public class IdmScript extends AbstractEntity implements Codeable {
 
 	private static final long serialVersionUID = -3827618803196757060L;
 

@@ -25,6 +25,7 @@ public interface IdmScriptRepository extends AbstractEntityRepository<IdmScript,
 	        " where"
 	        + " ("
 		        + " ?#{[0].text} is null"
+		        + " or (lower(e.code) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')})"
 		        + " or (lower(e.name) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')})"
 		        + " or (lower(e.description) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')})"
 	        + " ) "
@@ -37,7 +38,12 @@ public interface IdmScriptRepository extends AbstractEntityRepository<IdmScript,
 	        + " ("
 	        	+ " ?#{[0].category} is null"
 	        	+ " or e.category = ?#{[0].category}" 
-	        + " )")
+	        + " ) "
+	        + "AND "
+	        + "( "
+	        	+ " ?#{[0].code} is null"
+	        	+ " or e.code = ?#{[0].code}"
+	        + ") ")
 	Page<IdmScript> find(ScriptFilter filter, Pageable pageable);
 	
 	IdmScript findOneByName(@Param("name") String name);

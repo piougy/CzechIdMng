@@ -12,6 +12,8 @@ const auditManager = new AuditManager();
 
 /**
 * Table of Audit for entities
+*
+* @author Ondřej Kopr
 */
 export class AuditTable extends Advanced.AbstractTableContent {
 
@@ -28,7 +30,7 @@ export class AuditTable extends Advanced.AbstractTableContent {
     // TODO: use redux and load it just one time
     this.context.store.dispatch(auditManager.fetchEntities(auditManager.getAuditedEntitiesNames(), null, (entities) => {
       if (entities !== null) {
-        const auditedEntities = entities._embedded.resources.map(item => { return {value: item, niceLabel: item }; });
+        const auditedEntities = entities._embedded.strings.map(item => { return {value: item.content, niceLabel: item.content }; });
         this.setState({
           auditedEntities,
           showLoading: false
@@ -88,75 +90,56 @@ export class AuditTable extends Advanced.AbstractTableContent {
       <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
         <Basic.AbstractForm ref="filterForm" showLoading={showLoading}>
           <Basic.Row>
-            {
-              !_.includes(columns, 'revisionDate')
-              ||
-              <div className="col-lg-4">
-                <Advanced.Filter.DateTimePicker
-                  mode="date"
-                  ref="from"
-                  placeholder={this.i18n('filter.dateFrom.placeholder')}/>
-              </div>
-            }
-            {
-              !_.includes(columns, 'revisionDate')
-              ||
-              <div className="col-lg-4">
-                <Advanced.Filter.DateTimePicker
-                  mode="date"
-                  ref="till"
-                  placeholder={this.i18n('filter.dateTill.placeholder')}/>
-              </div>
-            }
+            <Basic.Col lg={ 4 } rendered={ _.includes(columns, 'revisionDate') }>
+              <Advanced.Filter.DateTimePicker
+                mode="date"
+                ref="from"
+                placeholder={this.i18n('filter.dateFrom.placeholder')}/>
+            </Basic.Col>
+            <Basic.Col lg={ 4 } rendered={ _.includes(columns, 'revisionDate') }>
+              <Advanced.Filter.DateTimePicker
+                mode="date"
+                ref="till"
+                placeholder={this.i18n('filter.dateTill.placeholder')}/>
+            </Basic.Col>
             <div className="col-lg-4 text-right">
               <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
             </div>
           </Basic.Row>
-          <Basic.Row className={!_.includes(columns, 'entityId') ? 'last' : ''}>
-            {
-              !_.includes(columns, 'type')
-              ||
-              <div className="col-lg-4">
-                <Advanced.Filter.EnumSelectBox
-                  ref="type"
-                  searchable
-                  placeholder={this.i18n('entity.Audit.type')}
-                  options={ auditedEntities }/>
-              </div>
-            }
-            {
-              !_.includes(columns, 'modification')
-              ||
-              <div className="col-lg-4">
-                <Advanced.Filter.EnumSelectBox
-                  ref="modification"
-                  placeholder={this.i18n('entity.Audit.modification')}
-                  enum={AuditModificationEnum}/>
-              </div>
-            }
-            {
-              !_.includes(columns, 'modifier')
-              ||
-              <div className="col-lg-4">
-                <Advanced.Filter.TextField
-                  className="pull-right"
-                  ref="modifier"
-                  placeholder={this.i18n('entity.Audit.modifier')}
-                  returnProperty="username"/>
-              </div>
-            }
+          <Basic.Row>
+            <Basic.Col lg={ 4 } rendered={ _.includes(columns, 'type') }>
+              <Advanced.Filter.EnumSelectBox
+                ref="type"
+                searchable
+                placeholder={this.i18n('entity.Audit.type')}
+                options={ auditedEntities }/>
+            </Basic.Col>
+            <Basic.Col lg={ 4 } rendered={ _.includes(columns, 'modification') }>
+              <Advanced.Filter.EnumSelectBox
+                ref="modification"
+                placeholder={this.i18n('entity.Audit.modification')}
+                enum={AuditModificationEnum}/>
+            </Basic.Col>
+            <Basic.Col lg={ 4 } rendered={ _.includes(columns, 'modifier') }>
+              <Advanced.Filter.TextField
+                className="pull-right"
+                ref="modifier"
+                placeholder={this.i18n('entity.Audit.modifier')}
+                returnProperty="username"/>
+            </Basic.Col>
           </Basic.Row>
-          {
-            !_.includes(columns, 'entityId')
-            ||
-            <Basic.Row className="last">
-              <div className="col-lg-4">
-                <Advanced.Filter.TextField
-                  ref="entityId"
-                  placeholder={this.i18n('entity.Audit.entityId')}/>
-              </div>
-            </Basic.Row>
-          }
+          <Basic.Row className="last">
+            <Basic.Col lg={ 4 } rendered={ _.includes(columns, 'entityId') }>
+              <Advanced.Filter.TextField
+                ref="entityId"
+                placeholder={this.i18n('entity.Audit.entityId')}/>
+            </Basic.Col>
+            <Basic.Col lg={ 4 } rendered={ _.includes(columns, 'changedAttributes') }>
+              <Advanced.Filter.TextField
+                ref="changedAttributes"
+                placeholder={this.i18n('entity.Audit.changedAttributes')}/>
+            </Basic.Col>
+          </Basic.Row>
         </Basic.AbstractForm>
       </Advanced.Filter>
     );

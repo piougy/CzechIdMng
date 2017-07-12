@@ -9,13 +9,14 @@ import javax.validation.constraints.NotNull;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.common.collect.ImmutableMap;
 
+import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmAuditDiffDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmAuditDto;
@@ -32,48 +34,99 @@ import eu.bcvsolutions.idm.core.api.dto.filter.AuditFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
+import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
-import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuditService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.Authorization;
+import io.swagger.annotations.AuthorizationScope;
 
 /**
+ * IdM audit endpoint 
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
- * 
- * TODO: Use only DTO
- *
  */
-
 @RepositoryRestController
 @RequestMapping(value = BaseDtoController.BASE_PATH + "/audits")
+@Api(
+		value = IdmAuditController.TAG, 
+		description = "Read / search audit log", 
+		tags = { IdmAuditController.TAG }, 
+		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
+		consumes = MediaType.APPLICATION_JSON_VALUE)
 public class IdmAuditController extends AbstractReadWriteDtoController<IdmAuditDto, AuditFilter> {
 
-	@Autowired
-	public IdmAuditController(IdmAuditService auditService) {
-		super(auditService);
-	}
-
-	@Autowired
-	private IdmAuditService auditService;
+	protected static final String TAG = "Audit";
+	//
+	private final IdmAuditService auditService;
+	private final ModelMapper mapper;
 	
-	//TODO: change to use dtos properly via service
 	@Autowired
-	ModelMapper mapper;
+	public IdmAuditController(IdmAuditService auditService, ModelMapper mapper) {
+		super(auditService);
+		//
+		Assert.notNull(mapper);
+		//
+		this.auditService = auditService;
+		this.mapper = mapper;
+	}
 	
 	@ResponseBody
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.AUDIT_READ + "')")
 	@RequestMapping(value= "/search/quick", method = RequestMethod.GET)
-	public Resources<?> findQuick(@RequestParam MultiValueMap<String, Object> parameters, 
+	@ApiOperation(
+			value = "Search audit logs", 
+			nickname = "searchQuickAudits", 
+			tags = { IdmAuditController.TAG }, 
+			authorizations = {
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.AUDIT_READ, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.AUDIT_READ, description = "") })
+				})
+	public Resources<?> findQuick(
+			@RequestParam(required = false) MultiValueMap<String, Object> parameters, 
 			@PageableDefault Pageable pageable) {
 		return this.find(parameters, pageable);
 	}
 	
+	@SuppressWarnings("unchecked")
 	@ResponseBody
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.AUDIT_READ + "')")
 	@RequestMapping(value= "/search/entity", method = RequestMethod.GET)
-	public Resources<?> findEntity(@RequestParam MultiValueMap<String, Object> parameters, 
+	@ApiOperation(
+			value = "Search audit logs related to entity", 
+			nickname = "searchEntity", 
+			tags = { IdmAuditController.TAG }, 
+			authorizations = {
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.AUDIT_READ, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.AUDIT_READ, description = "") })
+				})
+	@ApiImplicitParams({
+		@ApiImplicitParam(name = "entity", allowMultiple = false, dataType = "string", paramType = "query",
+				value = "Entity class - find related audit log to this class"),
+		@ApiImplicitParam(name = "parameters", allowMultiple = true, dataType = "string", paramType = "query",
+				value = "Search criteria parameters. Parameters could be registered by module. Example id=25c5b9e8-b15d-4f95-b715-c7edf6f4aee6"),
+        @ApiImplicitParam(name = "page", dataType = "string", paramType = "query",
+                value = "Results page you want to retrieve (0..N)"),
+        @ApiImplicitParam(name = "size", dataType = "string", paramType = "query",
+                value = "Number of records per page."),
+        @ApiImplicitParam(name = "sort", allowMultiple = true, dataType = "string", paramType = "query",
+                value = "Sorting criteria in the format: property(,asc|desc). " +
+                        "Default sort order is ascending. " +
+                        "Multiple sort criteria are supported.")
+	})
+	public Resources<?> findEntity(
+			@RequestParam(required = false) MultiValueMap<String, Object> parameters, 
 			@PageableDefault Pageable pageable) {
+		// TODO: use @RequestParam String entityClass instead ...
 		Object entityClass = parameters.getFirst("entity");
 		//
 		if (entityClass == null) {
@@ -93,19 +146,42 @@ public class IdmAuditController extends AbstractReadWriteDtoController<IdmAuditD
 	@ResponseBody
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.AUDIT_READ + "')")
 	@RequestMapping(value= "/search/entities", method = RequestMethod.GET)
-	public ResponseEntity<ResourcesWrapper<String>> findAuditedEntity(@PageableDefault Pageable pageable, PersistentEntityResourceAssembler assembler) {
-		// TODO: pageable is necessary? 
+	@ApiOperation(
+			value = "Search audited entity classes", 
+			nickname = "findAllAuditedEntities", 
+			tags = { IdmAuditController.TAG }, 
+			authorizations = {
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.AUDIT_READ, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.AUDIT_READ, description = "") })
+				},
+			notes = "Method return list of class simple name for which is audited."
+					+ " Must at least one attribute withannotation {@value Audited}")
+	public ResponseEntity<?> findAuditedEntity() {
 		// TODO: helpful more info about entities, links? repository?
 		List<String> entities = auditService.getAllAuditedEntitiesNames();
-		ResourcesWrapper<String> resource = new ResourcesWrapper<>(entities);
-		return new ResponseEntity<ResourcesWrapper<String>>(resource, HttpStatus.OK);
+		return new ResponseEntity<>(toResources(entities, null), HttpStatus.OK);
 	}
 	
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.GET, value = "/{backendId}")
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.AUDIT_READ + "')")
 	@Override
-	public ResponseEntity<?> get(@PathVariable @NotNull String backendId) {
+	@ApiOperation(
+			value = "Audit log detail", 
+			nickname = "getAuditLog", 
+			response = IdmAuditDto.class, 
+			tags = { IdmAuditController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.AUDIT_READ, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.AUDIT_READ, description = "") })
+				})
+	public ResponseEntity<?> get(
+			@ApiParam(value = "Audit log's identifier.", required = true)
+			@PathVariable @NotNull String backendId) {
 		IdmAuditDto audit = auditService.get(backendId);
 		
 		// Map with all values
@@ -133,7 +209,21 @@ public class IdmAuditController extends AbstractReadWriteDtoController<IdmAuditD
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.GET, value = "/{revId}/diff/previous")
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.AUDIT_READ + "')")
-	public ResponseEntity<?> previousVersion(@PathVariable @NotNull String revId, PersistentEntityResourceAssembler assembler) {
+	@ApiOperation(
+			value = "Audit log detail", 
+			nickname = "getAuditLogPreviousVersion", 
+			response = IdmAuditDto.class, 
+			tags = { IdmAuditController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.AUDIT_READ, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.AUDIT_READ, description = "") })
+				},
+			notes = "Returns previous version for given audit log")
+	public ResponseEntity<?> previousVersion(
+			@ApiParam(value = "Audit log's identifier.", required = true)
+			@PathVariable @NotNull String revId) {
 		IdmAuditDto currentAudit = auditService.get(revId);
 		IdmAuditDto previousAudit;
 		ResponseEntity<IdmAuditDto> resource = null;
@@ -167,7 +257,23 @@ public class IdmAuditController extends AbstractReadWriteDtoController<IdmAuditD
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.GET, value = "/{firstRevId}/diff/{secondRevId}")
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.AUDIT_READ + "')")
-	public ResponseEntity<?> diff(@PathVariable @NotNull String firstRevId, @PathVariable String secondRevId, PersistentEntityResourceAssembler assembler) {
+	@ApiOperation(
+			value = "Audit log diff", 
+			nickname = "getAuditLogDiff", 
+			response = IdmAuditDiffDto.class, 
+			tags = { IdmAuditController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.AUDIT_READ, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.AUDIT_READ, description = "") })
+				},
+			notes = "Returns diff between given audit logs versions")
+	public ResponseEntity<?> diff(
+			@ApiParam(value = "Audit log's identifier.", required = true)
+			@PathVariable @NotNull String firstRevId, 
+			@ApiParam(value = "Audit log's identifier.", required = true)
+			@PathVariable String secondRevId) {
 		IdmAuditDiffDto dto = new IdmAuditDiffDto();
 		dto.setDiffValues(auditService.getDiffBetweenVersion(Long.valueOf(firstRevId), Long.valueOf(secondRevId)));
 		dto.setIdFirstRevision(Long.valueOf(firstRevId));

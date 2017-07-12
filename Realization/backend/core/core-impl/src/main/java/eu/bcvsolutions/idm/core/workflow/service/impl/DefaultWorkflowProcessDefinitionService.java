@@ -82,7 +82,7 @@ public class DefaultWorkflowProcessDefinitionService extends AbstractBaseDtoServ
 		
 		query.latestVersion();
 		
-		if (filter.getCategory() != null && !StringUtils.isEmpty(filter.getCategory())){
+		if (filter != null && filter.getCategory() != null && !StringUtils.isEmpty(filter.getCategory())){
 			query.processDefinitionCategoryLike(filter.getCategory() + '%');
 		}
 		
@@ -90,7 +90,7 @@ public class DefaultWorkflowProcessDefinitionService extends AbstractBaseDtoServ
 		//query.orderByProcessDefinitionId();
 		//query.asc();
 
-		if (pageable != null) {
+		if (pageable != null && pageable.getSort() != null) {
 			pageable.getSort().forEach(order -> {
 				if (SORT_BY_KEY.equals(order.getProperty())) {
 					// Sort by key

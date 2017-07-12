@@ -9,6 +9,7 @@ import javax.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,24 +20,39 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestedByType;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.RoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.exception.RoleRequestException;
+import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleRequestService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 
 /**
  * Role request endpoint
+ * 
+ * TODO: secure endpoint (+ generalize AbstractReadWriteDtoController)
+ * 
  * @author svandav
  *
  */
 @RepositoryRestController
 @RequestMapping(value = BaseDtoController.BASE_PATH + "/role-requests")
+@Api(
+		value = IdmRoleRequestController.TAG, 
+		description = "Operations with role requests", 
+		tags = { IdmRoleRequestController.TAG }, 
+		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
+		consumes = MediaType.APPLICATION_JSON_VALUE)
 public class IdmRoleRequestController extends DefaultReadWriteDtoController<IdmRoleRequestDto, RoleRequestFilter>{
 
+	protected static final String TAG = "Role Request - requests";
 	
 	@Autowired
 	public IdmRoleRequestController(
@@ -46,7 +62,14 @@ public class IdmRoleRequestController extends DefaultReadWriteDtoController<IdmR
 	
 	@Override
 	@ResponseBody
-	public ResponseEntity<?> get(@PathVariable @NotNull String backendId) {
+	@ApiOperation(
+			value = "Role request detail", 
+			nickname = "getRoleRequest", 
+			response = IdmRoleRequestDto.class, 
+			tags = { IdmRoleRequestController.TAG })
+	public ResponseEntity<?> get(
+			@ApiParam(value = "Role request's uuid identifier.", required = true)
+			@PathVariable @NotNull String backendId) {
 		return super.get(backendId);
 	}
 
@@ -54,6 +77,11 @@ public class IdmRoleRequestController extends DefaultReadWriteDtoController<IdmR
 	@ResponseBody
 //	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_REQUEST_WRITE + "') or hasAuthority('"
 //			+ IdmGroupPermission.IDENTITY_WRITE + "')")
+	@ApiOperation(
+			value = "Create / update role request", 
+			nickname = "postRoleRequest", 
+			response = IdmRoleRequestDto.class, 
+			tags = { IdmRoleRequestController.TAG })
 	public ResponseEntity<?> post(@RequestBody @NotNull IdmRoleRequestDto dto) {
 		if (RoleRequestedByType.AUTOMATICALLY == dto.getRequestedByType()) {
 			throw new RoleRequestException(CoreResultCode.ROLE_REQUEST_AUTOMATICALLY_NOT_ALLOWED,
@@ -66,7 +94,15 @@ public class IdmRoleRequestController extends DefaultReadWriteDtoController<IdmR
 	@ResponseBody
 //	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_REQUEST_WRITE + "') or hasAuthority('"
 //			+ IdmGroupPermission.IDENTITY_WRITE + "')")
-	public ResponseEntity<?> put(@PathVariable @NotNull String backendId, @RequestBody @NotNull IdmRoleRequestDto dto) {
+	@ApiOperation(
+			value = "Update role request", 
+			nickname = "putRoleRequest", 
+			response = IdmRoleRequestDto.class, 
+			tags = { IdmRoleRequestController.TAG })
+	public ResponseEntity<?> put(
+			@ApiParam(value = "Role request's uuid identifier.", required = true)
+			@PathVariable @NotNull String backendId, 
+			@RequestBody @NotNull IdmRoleRequestDto dto) {
 		return super.put(backendId, dto);
 	}
 
@@ -75,7 +111,13 @@ public class IdmRoleRequestController extends DefaultReadWriteDtoController<IdmR
 	@ResponseBody
 //	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_REQUEST_DELETE + "') or hasAuthority('"
 //			+ IdmGroupPermission.IDENTITY_DELETE + "')")
-	public ResponseEntity<?> delete(@PathVariable @NotNull String backendId) {
+	@ApiOperation(
+			value = "Delete role request", 
+			nickname = "deleteRoleRequest",
+			tags = { IdmRoleRequestController.TAG })
+	public ResponseEntity<?> delete(
+			@ApiParam(value = "Role request's uuid identifier.", required = true)
+			@PathVariable @NotNull String backendId) {
 		IdmRoleRequestService service = ((IdmRoleRequestService)this.getService());
 		IdmRoleRequestDto dto = service.get(backendId);
 		// Request in Executed state can not be delete or change
@@ -98,12 +140,18 @@ public class IdmRoleRequestController extends DefaultReadWriteDtoController<IdmR
 //	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_REQUEST_WRITE + "') or hasAuthority('"
 //			+ IdmGroupPermission.IDENTITY_WRITE + "')")
 	@RequestMapping(value = "/{backendId}/start", method = RequestMethod.PUT)
-	public ResponseEntity<?> startRequest(@PathVariable @NotNull String backendId) {
+	@ApiOperation(
+			value = "Start role request", 
+			nickname = "startRoleRequest", 
+			response = IdmRoleRequestDto.class, 
+			tags = { IdmRoleRequestController.TAG })
+	public ResponseEntity<?> startRequest(
+			@ApiParam(value = "Role request's uuid identifier.", required = true)
+			@PathVariable @NotNull String backendId) {
 		((IdmRoleRequestService)this.getService()).startRequest(UUID.fromString(backendId), true);
 		return this.get(backendId);
 	}
 
-	
 	@Override
 	protected RoleRequestFilter toFilter(MultiValueMap<String, Object> parameters) {
 		RoleRequestFilter filter = new RoleRequestFilter();
@@ -115,6 +163,7 @@ public class IdmRoleRequestController extends DefaultReadWriteDtoController<IdmR
 			try {
 				// Applicant can be UUID (Username vs UUID identification
 				// schizma)
+				// TODO: replace with parameterConverter#toEntityUuid ....
 				filter.setApplicantId(UUID.fromString(filter.getApplicant()));
 				filter.setApplicant(null);
 			} catch (IllegalArgumentException ex) {

@@ -6,6 +6,7 @@ import * as Basic from '../../components/basic';
 /**
  * Audit detail with info about class IdmAudit
  *
+ * @author Ondřej Kopr
  */
 class AuditDetailInfo extends Basic.AbstractContent {
 
@@ -68,7 +69,7 @@ class AuditDetailInfo extends Basic.AbstractContent {
           ref="revisionDate"
           readOnly
           label={this.i18n('revision.revisionDate')}
-          format="d. M. Y  H:mm:ss"/>
+          timeFormat={ this.i18n('format.times') }/>
       </Basic.AbstractForm>
     );
   }

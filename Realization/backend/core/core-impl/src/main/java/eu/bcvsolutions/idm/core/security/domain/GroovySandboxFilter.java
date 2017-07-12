@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import org.codehaus.groovy.runtime.GStringImpl;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -26,6 +27,7 @@ import com.google.common.collect.Sets;
 
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import groovy.lang.Closure;
+import groovy.lang.GString;
 import groovy.lang.Script;
 
 /**
@@ -43,20 +45,20 @@ public class GroovySandboxFilter extends GroovyValueFilter {
 			BigDecimal.class, UUID.class, Character.class, GuardedString.class, DateTimeFormatter.class,
 			DateTimeFormat.class, DateTime.class, String[].class, LocalDateTime.class,
 			Map.class, HashMap.class, List.class, ArrayList.class, Set.class, HashSet.class,
-			LoggerFactory.class, Logger.class, ch.qos.logback.classic.Logger.class);
+			LoggerFactory.class, Logger.class, ch.qos.logback.classic.Logger.class, GString.class, GStringImpl.class);
 
-	private final LinkedList<List<Class<?>>> allowedCustomTypes = new LinkedList<>();
+	private final LinkedList<Set<Class<?>>> allowedCustomTypes = new LinkedList<>();
 	
 	public GroovySandboxFilter() {
 	}
 
-	public GroovySandboxFilter(List<Class<?>> allowedTypes) {
+	public GroovySandboxFilter(Set<Class<?>> allowedTypes) {
 		if(allowedTypes != null) {
 			allowedCustomTypes.add(allowedTypes);
 		}
 	}
 	
-	public void addCustomTypes(List<Class<?>> allowedTypes) {
+	public void addCustomTypes(Set<Class<?>> allowedTypes) {
 		if(allowedTypes != null) {
 			allowedCustomTypes.add(allowedTypes);
 		}

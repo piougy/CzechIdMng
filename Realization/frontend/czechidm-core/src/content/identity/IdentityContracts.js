@@ -48,9 +48,9 @@ export default class IdentityContracts extends Advanced.AbstractTableContent {
     const { entityId } = this.props.params;
     if (entity.id === undefined) {
       const uuidId = uuid.v1();
-      this.context.router.push(`/identity/${entityId}/identity-contract/${uuidId}/new?new=1`);
+      this.context.router.push(`/identity/${encodeURIComponent(entityId)}/identity-contract/${uuidId}/new?new=1`);
     } else {
-      this.context.router.push(`/identity/${entityId}/identity-contract/${entity.id}/detail`);
+      this.context.router.push(`/identity/${encodeURIComponent(entityId)}/identity-contract/${entity.id}/detail`);
     }
   }
 

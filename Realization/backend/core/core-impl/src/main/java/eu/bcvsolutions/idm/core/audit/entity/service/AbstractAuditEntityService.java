@@ -17,7 +17,7 @@ import org.springframework.plugin.core.Plugin;
 import org.springframework.util.MultiValueMap;
 
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
-import eu.bcvsolutions.idm.core.audite.dto.filter.AuditEntityFilter;
+import eu.bcvsolutions.idm.core.audit.dto.filter.AuditEntityFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmAudit;
 import eu.bcvsolutions.idm.core.model.repository.IdmAuditRepository;
 

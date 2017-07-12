@@ -4,7 +4,7 @@
 
 	<groupId>eu.bcvsolutions.idm</groupId>
 	<artifactId>idm-parent</artifactId>
-	<version>7.3.0-rc.3</version>
+	<version>7.3.0-rc.4</version>
 	<packaging>pom</packaging>
 
 	<name>CzechIdM Parent</name>
@@ -12,7 +12,7 @@
 
 	<organization>
 		<name>BCV solutions s.r.o.</name>
-		<url>http://www.bcvsolutions.cz</url>
+		<url>http://www.bcvsolutions.eu</url>
 	</organization>
 
 	<developers>
@@ -50,6 +50,11 @@
 		</developer>
 	</developers>
 
+	<scm>
+		<connection>scm:git:https://github.com/bcvsolutions/CzechIdMng.git</connection>
+		<developerConnection>scm:git:https://github.com/bcvsolutions/CzechIdMng.git</developerConnection>
+	</scm>
+
 	<properties>
 		<endorsed.dir>${project.build.directory}/endorsed</endorsed.dir>
 		<additionalparam>-Xdoclint:none</additionalparam>
@@ -79,7 +84,10 @@
 		<swagger.input>${swagger.output.dir}/${swagger.output.filename}</swagger.input>
 		<swagger.snippetOutput.dir>${project.build.directory}/asciidoc/snippets</swagger.snippetOutput.dir>
 		<generated.asciidoc.directory>${project.build.directory}/asciidoc/generated</generated.asciidoc.directory>
-		<asciidoctor.html.output.directory>${project.build.directory}/asciidoc/html</asciidoctor.html.output.directory>
+		<!-- static documentation will be available as webjars -->
+		<!-- e.g. http://localhost:8080/idm/webjars/core/7.3.0-rc.4-SNAPSHOT/doc/index.html -->
+		<asciidoctor.html.output.directory.prefix>${project.build.directory}/classes/META-INF/resources/webjars</asciidoctor.html.output.directory.prefix>
+		<asciidoctor.html.output.directory>${asciidoctor.html.output.directory.prefix}/${project.artifactId}/${project.version}/doc</asciidoctor.html.output.directory>
 	</properties>
 
 	<repositories>
@@ -504,6 +512,26 @@
 						<masterBranchName>master</masterBranchName>
 						<developBranchName>develop</developBranchName>
 					</flowInitContext>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>buildnumber-maven-plugin</artifactId>
+				<version>1.4</version>
+				<executions>
+					<execution>
+						<phase>validate</phase>
+						<goals>
+							<goal>create</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<!-- Defensive setting - it works even local changes is not commited -->
+					<doCheck>false</doCheck>
+					<doUpdate>false</doUpdate>
+					<shortRevisionLength>7</shortRevisionLength>
 				</configuration>
 			</plugin>
 		</plugins>

@@ -22,6 +22,7 @@ public enum AccGroupPermission implements GroupPermission {
 	
 	// String constants could be used in pre / post authotize SpEl expressions
 	
+	public static final String SYSTEM_ADMIN = "SYSTEM" + BasePermission.SEPARATOR + "ADMIN";
 	public static final String SYSTEM_READ = "SYSTEM" + BasePermission.SEPARATOR + "READ";
 	public static final String SYSTEM_CREATE = "SYSTEM" + BasePermission.SEPARATOR + "CREATE";
 	public static final String SYSTEM_UPDATE = "SYSTEM" + BasePermission.SEPARATOR + "UPDATE";

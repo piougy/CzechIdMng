@@ -3,12 +3,10 @@ package eu.bcvsolutions.idm.core.model.repository;
 import java.util.List;
 import java.util.UUID;
 
-import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Isolation;
@@ -95,15 +93,6 @@ public interface IdmIdentityContractRepository extends AbstractEntityRepository<
 			" where"
 	        + " (validTill is not null and validTill < :expiration)")
 	Page<IdmIdentityContract> findExpiredContracts(@Param("expiration") LocalDate expiration, Pageable pageable);
-	
-	/**
-	 * Clears default tree type for all tree types instead given updatedEntityId
-	 * 
-	 * @param updatedEntityId
-	 */
-	@Modifying
-	@Query("update #{#entityName} e set e.main = false, e.modified = :modified where e.identity.id = :identityId and (:updatedEntityId is null or e.id != :updatedEntityId)")
-	void clearMain(@Param("identityId") UUID identityId, @Param("updatedEntityId") UUID updatedEntityId, @Param("modified") DateTime modified);
 	
 	/**
 	 * Returns persisted identity contract

@@ -239,7 +239,13 @@ class RoleCatalogueTable extends Advanced.AbstractTableContent {
               header={this.i18n('entity.RoleCatalogue.code.name')}
               property="code" width="15%" sort face="text"/>
             <Advanced.Column property="name" header={this.i18n('entity.RoleCatalogue.name.name')} sort face="text"/>
-            <Advanced.Column property="parent.name" sort/>
+            <Advanced.Column property="parent.name" cell={
+                ({rowIndex, data}) => {
+                  // get parent name from _embedded
+                  const parentName = (data[rowIndex]._embedded && data[rowIndex]._embedded.parent) ? data[rowIndex]._embedded.parent.name : null;
+                  return parentName;
+                }
+              }/>
             <Advanced.Column header={this.i18n('entity.RoleCatalogue.url')}
               cell={
                 ({ rowIndex, data }) => {

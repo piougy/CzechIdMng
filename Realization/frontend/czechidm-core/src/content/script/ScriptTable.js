@@ -1,17 +1,21 @@
 import React, { PropTypes } from 'react';
 import uuid from 'uuid';
+import { connect } from 'react-redux';
 //
-import { SecurityManager } from '../../redux';
-import ScriptCategoryEnum from '../../enums/ScriptCategoryEnum';
+import * as Utils from '../../utils';
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
+import { SecurityManager } from '../../redux';
+import ScriptCategoryEnum from '../../enums/ScriptCategoryEnum';
 
 const MAX_DESCRIPTION_LENGTH = 60;
 
 /**
  * Table with definitions of scripts
+ *
+ * @author Ondřej Kopr
  */
-export default class ScriptTable extends Basic.AbstractContent {
+export class ScriptTable extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);
@@ -41,19 +45,17 @@ export default class ScriptTable extends Basic.AbstractContent {
     this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
   }
 
-  onDelete(bulkActionValue, selectedRows) {
-    const { uiKey, scriptManager } = this.props;
+  onRedeployOrBackup(bulkActionValue, selectedRows) {
+    const { scriptManager, uiKey } = this.props;
     const selectedEntities = scriptManager.getEntitiesByIds(this.context.store.getState(), selectedRows);
-    //
-    // show confirm message for deleting entity or entities
+    // show confirm message for script operation redeploy/backup
     this.refs['confirm-' + bulkActionValue].show(
       this.i18n(`action.${bulkActionValue}.message`, { count: selectedEntities.length, record: scriptManager.getNiceLabel(selectedEntities[0]), records: scriptManager.getNiceLabels(selectedEntities).join(', ') }),
       this.i18n(`action.${bulkActionValue}.header`, { count: selectedEntities.length, records: scriptManager.getNiceLabels(selectedEntities).join(', ') })
     ).then(() => {
-      // try delete
-      this.context.store.dispatch(scriptManager.deleteEntities(selectedEntities, uiKey, (entity, error, successEntities) => {
+      this.context.store.dispatch(scriptManager.scriptBulkOperationForEntities(selectedEntities, bulkActionValue, uiKey, (entity, error, successEntities) => {
         if (entity && error) {
-          this.addErrorMessage({ title: this.i18n(`action.delete.error`, { record: scriptManager.getNiceLabel(entity) }) }, error);
+          this.addErrorMessage({ title: this.i18n(`action.${bulkActionValue}.error`, { record: scriptManager.getNiceLabel(entity) }) }, error);
         }
         if (!error && successEntities) {
           // refresh data in table
@@ -61,7 +63,7 @@ export default class ScriptTable extends Basic.AbstractContent {
         }
       }));
     }, () => {
-      //
+      // nothing
     });
   }
 
@@ -90,6 +92,8 @@ export default class ScriptTable extends Basic.AbstractContent {
     return (
       <div>
         <Basic.Confirm ref="confirm-delete" level="danger"/>
+        <Basic.Confirm ref="confirm-backup" level="danger"/>
+        <Basic.Confirm ref="confirm-redeploy" level="danger"/>
         <Advanced.Table
           ref="table"
           uiKey={uiKey}
@@ -128,7 +132,9 @@ export default class ScriptTable extends Basic.AbstractContent {
           filterOpened={!filterOpened}
           actions={
             [
-              { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }
+              { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false },
+              { value: 'redeploy', niceLabel: this.i18n('action.redeploy.action'), action: this.onRedeployOrBackup.bind(this), disabled: false },
+              { value: 'backup', niceLabel: this.i18n('action.backup.action'), action: this.onRedeployOrBackup.bind(this), disabled: false }
             ]
           }
           buttons={
@@ -141,7 +147,9 @@ export default class ScriptTable extends Basic.AbstractContent {
                 {this.i18n('button.add')}
               </Basic.Button>
             ]
-          }>
+          }
+          _searchParameters={ this.getSearchParameters() }
+          >
           <Advanced.Column
             header=""
             className="detail-button"
@@ -159,7 +167,7 @@ export default class ScriptTable extends Basic.AbstractContent {
           <Advanced.Column property="name" sort />
           <Advanced.Column property="category" sort face="enum" enumClass={ScriptCategoryEnum}/>
           <Advanced.Column property="description" cell={ ({ rowIndex, data }) => {
-            if (data[rowIndex]) {
+            if (data[rowIndex] && data[rowIndex].description !== null) {
               const description = data[rowIndex].description.replace(/<(?:.|\n)*?>/gm, '').substr(0, MAX_DESCRIPTION_LENGTH);
               return description.substr(0, Math.min(description.length, description.lastIndexOf(' ')));
             }
@@ -178,3 +186,11 @@ ScriptTable.propTypes = {
 
 ScriptTable.defaultProps = {
 };
+
+function select(state, component) {
+  return {
+    _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey)
+  };
+}
+
+export default connect(select)(ScriptTable);

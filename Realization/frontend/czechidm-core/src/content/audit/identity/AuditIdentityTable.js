@@ -7,6 +7,7 @@ import * as Basic from '../../../components/basic';
 import * as Advanced from '../../../components/advanced';
 import { AuditManager } from '../../../redux';
 import AuditModificationEnum from '../../../enums/AuditModificationEnum';
+import SearchParameters from '../../../domain/SearchParameters';
 
 const auditManager = new AuditManager();
 
@@ -93,6 +94,13 @@ export class AuditIdentityTable extends Advanced.AbstractTableContent {
                 placeholder={this.i18n('content.audit.identities.identityId')}/>
             </div>
           </Basic.Row>
+          <Basic.Row className="last">
+            <div className="col-lg-4">
+              <Advanced.Filter.TextField
+                ref="changedAttributes"
+                placeholder={this.i18n('entity.Audit.changedAttributes')}/>
+            </div>
+          </Basic.Row>
         </Basic.AbstractForm>
       </Advanced.Filter>
     );
@@ -108,7 +116,7 @@ export class AuditIdentityTable extends Advanced.AbstractTableContent {
   }
 
   _getForceSearchParameters() {
-    return auditManager.getDefaultSearchParameters().setName('entity').setFilter('entity', 'eu.bcvsolutions.idm.core.model.entity.IdmIdentity');
+    return new SearchParameters('entity').setFilter('entity', 'eu.bcvsolutions.idm.core.model.entity.IdmIdentity');
   }
 
   _getNiceLabelForOwner(ownerType, ownerCode) {

@@ -2,7 +2,9 @@ package eu.bcvsolutions.idm.core.notification.service.api;
 
 import java.util.List;
 
+import eu.bcvsolutions.idm.core.api.service.CodeableService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
+import eu.bcvsolutions.idm.core.api.service.Recoverable;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationTemplateDto;
@@ -19,8 +21,10 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
  *
  */
 
-public interface IdmNotificationTemplateService
-		extends ReadWriteDtoService<IdmNotificationTemplateDto, NotificationTemplateFilter> {
+public interface IdmNotificationTemplateService extends 
+ReadWriteDtoService<IdmNotificationTemplateDto, NotificationTemplateFilter>,
+		Recoverable<IdmNotificationTemplateDto>,
+		CodeableService<IdmNotificationTemplateDto> {
 
 	static final String PARAMETER_DELIMITIER = ",";
 
@@ -64,14 +68,6 @@ public interface IdmNotificationTemplateService
 	List<IdmNotificationTemplateDto> findAllSystemTemplates();
 
 	/**
-	 * Method load system templates from resources by all classpath defined by
-	 * application property, save all new templates into database, all found
-	 * templates will be saved as systems.
-	 * 
-	 */
-	void init();
-
-	/**
 	 * Method find template for topic and level with help by notification
 	 * cofiguration.
 	 * 
@@ -80,26 +76,4 @@ public interface IdmNotificationTemplateService
 	 * @return
 	 */
 	IdmNotificationTemplateDto resolveTemplate(String topic, NotificationLevel level);
-
-	/**
-	 * Backup {@link IdmNotificationTemplateDto} to directory given in
-	 * parameters, if directory isn't defined (null value) it will be used
-	 * operation system temporary directory. Return void or throw errors.
-	 * 
-	 * @param dtos
-	 * @param directory
-	 */
-	void backup(IdmNotificationTemplateDto dto, String directory);
-
-	/**
-	 * Redeploy {@link IdmNotificationTemplateDto}. Redeployed will be only
-	 * {@link IdmNotificationTemplateDto}, that has template in resource,
-	 * another templates will be skipped (and not returned). Before save newly
-	 * loaded notification will be backup the old template into default
-	 * temporary directory. Return newly deployed DTO for DTO given in
-	 * parameter. Or null if redeploy was failed.
-	 * 
-	 * @param dto
-	 */
-	IdmNotificationTemplateDto redeploy(IdmNotificationTemplateDto dto);
 }

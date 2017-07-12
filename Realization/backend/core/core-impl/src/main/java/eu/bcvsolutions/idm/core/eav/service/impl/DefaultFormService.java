@@ -251,7 +251,7 @@ public class DefaultFormService implements FormService {
 			//
 			E previousValue = value.getId() == null ? null :previousValues.get(value.getId());
 			if (previousValue != null) {
-				// saved values will nod be removed
+				// saved values will not be removed
 				previousValues.remove(value.getId());
 				// the same value should not be updated 
 				// confidential value is always updated - only new values are sent from client
@@ -334,20 +334,41 @@ public class DefaultFormService implements FormService {
 			throw new IllegalArgumentException(MessageFormat.format("Form attribute [{0}:{1}] does not support multivalue, sent [{2}] values.", 
 					attribute.getFormDefinition().getCode(), attribute.getCode(), persistentValues.size()));
 		}
-		// drop
+
 		FormValueService<O, E> formValueService = getFormValueService(owner);
-		deleteValues(owner, attribute); // TODO: iterate through values and use some equals method on Serializable value?
-		// and create
-		List<E> results = new ArrayList<>();
-		for (short seq = 0; seq < persistentValues.size(); seq++) {
-			E value = formValueService.newValue();
-			value.setOwnerAndAttribute(owner, attribute);
+		
+		// get old values
+		List<E> values = formValueService.getValues(owner, attribute);
+		
+		// size isn't same drop and create
+		if (values.size() != persistentValues.size()) {
+			deleteValues(owner, attribute);
+			// create
+			List<E> results = new ArrayList<>();
+			for (short seq = 0; seq < persistentValues.size(); seq++) {
+				E value = formValueService.newValue();
+				value.setOwnerAndAttribute(owner, attribute);
+				//
+				value.setValue(persistentValues.get(seq));
+				value.setSeq(seq);
+				results.add(formValueService.save(value));
+			};
 			//
-			value.setValue(persistentValues.get(seq));
-			value.setSeq(seq);
-			results.add(formValueService.save(value));
-		};
-		//
+			return results;
+		}
+		
+		// compare values
+		List<E> results = new ArrayList<>();
+		for (E value : values) {
+			E newValue = formValueService.newValue();
+			newValue.setOwnerAndAttribute(owner, attribute);
+			newValue.setValue(persistentValues.get(value.getSeq()));
+			
+			if (!value.isEquals(newValue)) {
+				value.setValue(persistentValues.get(value.getSeq()));
+				results.add(formValueService.save(value));
+			}
+		}
 		return results;
 	}
 	

@@ -155,7 +155,7 @@ class ProvisioningOperations extends Basic.AbstractContent {
               uiKey={ uiKey }
               manager={manager}
               showDetail={this.showDetail.bind(this)}
-              showRowSelection={Managers.SecurityManager.hasAnyAuthority(['APP_ADMIN'])}
+              showRowSelection={Managers.SecurityManager.hasAnyAuthority(['SYSTEM_ADMIN'])}
               forceSearchParameters={forceSearchParameters}
               columns={columns}
               actions={

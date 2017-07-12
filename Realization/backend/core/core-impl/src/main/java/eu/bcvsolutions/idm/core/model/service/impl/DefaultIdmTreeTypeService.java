@@ -3,22 +3,22 @@ package eu.bcvsolutions.idm.core.model.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import com.google.common.collect.ImmutableMap;
-import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmConfigurationDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
+import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.utils.SpinalCase;
-import eu.bcvsolutions.idm.core.exception.TreeTypeException;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
+import eu.bcvsolutions.idm.core.model.event.TreeTypeEvent;
+import eu.bcvsolutions.idm.core.model.event.TreeTypeEvent.TreeTypeEventType;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeTypeRepository;
@@ -28,27 +28,33 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmTreeTypeService;
 @Service("treeTypeService")
 public class DefaultIdmTreeTypeService extends AbstractReadWriteEntityService<IdmTreeType, QuickFilter> implements IdmTreeTypeService {
 
+	private static final Logger LOG = LoggerFactory.getLogger(DefaultIdmTreeTypeService.class);
+	
 	private final IdmTreeTypeRepository repository;
 	private final IdmTreeNodeRepository treeNodeRepository;
 	private final IdmIdentityContractRepository identityContractRepository;
 	private final IdmConfigurationService configurationService;
+	private final EntityEventManager entityEventManager;
 	
 	@Autowired
 	public DefaultIdmTreeTypeService(
 			IdmTreeTypeRepository treeTypeRepository,
 			IdmTreeNodeRepository treeNodeRepository,
 			IdmIdentityContractRepository identityContractRepository,
-			IdmConfigurationService configurationService) {
+			IdmConfigurationService configurationService,
+			EntityEventManager entityEventManager) {
 		super(treeTypeRepository);
 		//
 		Assert.notNull(treeNodeRepository);
 		Assert.notNull(identityContractRepository);
 		Assert.notNull(configurationService);
+		Assert.notNull(entityEventManager);
 		//
 		this.repository = treeTypeRepository;
 		this.treeNodeRepository = treeNodeRepository;
 		this.identityContractRepository = identityContractRepository;
 		this.configurationService = configurationService;
+		this.entityEventManager = entityEventManager;
 	}
 	
 	@Override
@@ -67,16 +73,9 @@ public class DefaultIdmTreeTypeService extends AbstractReadWriteEntityService<Id
 	@Transactional
 	public void delete(IdmTreeType treeType) {
 		Assert.notNull(treeType);
-		//	
-		Page<IdmTreeNode> nodes = treeNodeRepository.findChildren(treeType.getId(), null, new PageRequest(0, 1));
-		if (nodes.getTotalElements() > 0) {
-			throw new TreeTypeException(CoreResultCode.TREE_TYPE_DELETE_FAILED_HAS_CHILDREN,  ImmutableMap.of("treeType", treeType.getName()));
-		}		
-		if (identityContractRepository.countByWorkPosition_TreeType(treeType) > 0) {
-			throw new TreeTypeException(CoreResultCode.TREE_TYPE_DELETE_FAILED_HAS_CONTRACTS,  ImmutableMap.of("treeType", treeType.getName()));
-		}		
 		//
-		super.delete(treeType);
+		LOG.debug("Deleting tree type [{}]", treeType.getCode());
+		entityEventManager.process(new TreeTypeEvent(TreeTypeEventType.DELETE, treeType));
 	}
 
 	/**

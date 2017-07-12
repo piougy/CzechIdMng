@@ -15,7 +15,6 @@ import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
-
 public interface IdmPasswordPolicyService extends ReadWriteEntityService<IdmPasswordPolicy, PasswordPolicyFilter> {
 	
 	/**

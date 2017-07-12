@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
@@ -17,7 +16,6 @@ import org.springframework.hateoas.Resources;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.MultiValueMap;
@@ -30,13 +28,20 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.dto.IdmConfigurationDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
+import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.Authorization;
+import io.swagger.annotations.AuthorizationScope;
 
 /**
  * Configuration controller - add custom methods to configuration repository
@@ -46,8 +51,15 @@ import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
  */
 @RestController
 @RequestMapping(value = BaseDtoController.BASE_PATH + "/configurations")
+@Api(
+		value = IdmConfigurationController.TAG, 
+		description = "Application configuration", 
+		tags = { IdmConfigurationController.TAG }, 
+		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
+		consumes = MediaType.APPLICATION_JSON_VALUE)
 public class IdmConfigurationController extends AbstractReadWriteDtoController<IdmConfigurationDto, DataFilter> {
 	
+	protected static final String TAG = "Configuration";
 	private final IdmConfigurationService configurationService;
 	
 	@Autowired
@@ -61,7 +73,18 @@ public class IdmConfigurationController extends AbstractReadWriteDtoController<I
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.CONFIGURATION_READ + "')")
-	public Resources<?> find(@RequestParam MultiValueMap<String, Object> parameters,
+	@ApiOperation(
+			value = "Search configuration items (/search/quick alias)", 
+			nickname = "searchConfigurations", 
+			tags = { IdmConfigurationController.TAG }, 
+			authorizations = {
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.CONFIGURATION_READ, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.CONFIGURATION_READ, description = "") })
+				})
+	public Resources<?> find(
+			@RequestParam(required = false) MultiValueMap<String, Object> parameters,
 			@PageableDefault Pageable pageable) {
 		return super.find(parameters, pageable);
 	}
@@ -69,7 +92,18 @@ public class IdmConfigurationController extends AbstractReadWriteDtoController<I
 	@ResponseBody
 	@RequestMapping(value = "/search/quick", method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.CONFIGURATION_READ + "')")
-	public Resources<?> findQuick(@RequestParam MultiValueMap<String, Object> parameters,
+	@ApiOperation(
+			value = "Search configuration items", 
+			nickname = "searchQuickConfigurations", 
+			tags = { IdmConfigurationController.TAG }, 
+			authorizations = {
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.CONFIGURATION_READ, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.CONFIGURATION_READ, description = "") })
+				})
+	public Resources<?> findQuick(
+			@RequestParam(required = false) MultiValueMap<String, Object> parameters,
 			@PageableDefault Pageable pageable) {
 		return super.find(parameters, pageable);
 	}
@@ -78,14 +112,41 @@ public class IdmConfigurationController extends AbstractReadWriteDtoController<I
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.CONFIGURATION_READ + "')")
-	public ResponseEntity<?> get(@PathVariable @NotNull String backendId) {
+	@ApiOperation(
+			value = "Configuration item detail", 
+			nickname = "getConfiguration", 
+			response = IdmConfigurationDto.class, 
+			tags = { IdmConfigurationController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.CONFIGURATION_READ, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.CONFIGURATION_READ, description = "") })
+				})
+	public ResponseEntity<?> get(
+			@ApiParam(value = "Item's uuid identifier or name (=> code).", required = true)
+			@PathVariable @NotNull String backendId) {
 		return super.get(backendId);
 	}
 
 	@Override
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.POST)
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.CONFIGURATION_CREATE + "') or hasAuthority('" + CoreGroupPermission.CONFIGURATION_UPDATE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.CONFIGURATION_CREATE + "')"
+			+ " or hasAuthority('" + CoreGroupPermission.CONFIGURATION_UPDATE + "')")
+	@ApiOperation(
+			value = "Create / update configuration item", 
+			nickname = "postConfiguration", 
+			response = IdmConfigurationDto.class, 
+			tags = { IdmConfigurationController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.CONFIGURATION_CREATE, description = ""),
+						@AuthorizationScope(scope = CoreGroupPermission.CONFIGURATION_UPDATE, description = "")}),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.CONFIGURATION_CREATE, description = ""),
+						@AuthorizationScope(scope = CoreGroupPermission.CONFIGURATION_UPDATE, description = "")})
+				})
 	public ResponseEntity<?> post(@Valid @RequestBody IdmConfigurationDto dto) {
 		return super.post(dto);
 	}
@@ -94,24 +155,41 @@ public class IdmConfigurationController extends AbstractReadWriteDtoController<I
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.PUT)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.CONFIGURATION_UPDATE + "')")
-	public ResponseEntity<?> put(@PathVariable @NotNull String backendId, @Valid @RequestBody IdmConfigurationDto dto) {
+	@ApiOperation(
+			value = "Update configuration item", 
+			nickname = "putConfiguration", 
+			response = IdmConfigurationDto.class, 
+			tags = { IdmConfigurationController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.CONFIGURATION_UPDATE, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.CONFIGURATION_UPDATE, description = "") })
+				})
+	public ResponseEntity<?> put(
+			@ApiParam(value = "Item's uuid identifier or name (=> code).", required = true)
+			@PathVariable @NotNull String backendId, 
+			@Valid @RequestBody IdmConfigurationDto dto) {
 		return super.put(backendId, dto);
-	}
-
-	@Override
-	@ResponseBody
-	@RequestMapping(value = "/{backendId}", method = RequestMethod.PATCH)
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.CONFIGURATION_UPDATE + "')")
-	public ResponseEntity<?> patch(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest)
-			throws HttpMessageNotReadableException {
-		return super.patch(backendId, nativeRequest);
 	}
 
 	@Override
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.DELETE)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.CONFIGURATION_DELETE + "')")
-	public ResponseEntity<?> delete(@PathVariable @NotNull String backendId) {
+	@ApiOperation(
+			value = "Delete configuration item", 
+			nickname = "deleteConfiguration", 
+			tags = { IdmConfigurationController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.CONFIGURATION_DELETE, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.CONFIGURATION_DELETE, description = "") })
+				})
+	public ResponseEntity<?> delete(
+			@ApiParam(value = "Item's uuid identifier or name (=> code).", required = true)
+			@PathVariable @NotNull String backendId) {
 		return super.delete(backendId);
 	}
 	
@@ -119,7 +197,19 @@ public class IdmConfigurationController extends AbstractReadWriteDtoController<I
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}/permissions", method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.CONFIGURATION_READ + "')")
-	public Set<String> getPermissions(@PathVariable @NotNull String backendId) {
+	@ApiOperation(
+			value = "What logged identity can do with given record", 
+			nickname = "getPermissionsOnConfiguration", 
+			tags = { IdmIdentityController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.CONFIGURATION_READ, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.CONFIGURATION_READ, description = "") })
+				})
+	public Set<String> getPermissions(
+			@ApiParam(value = "Item's uuid identifier or name (=> code).", required = true)
+			@PathVariable @NotNull String backendId) {
 		return super.getPermissions(backendId);
 	}
 	
@@ -131,6 +221,17 @@ public class IdmConfigurationController extends AbstractReadWriteDtoController<I
 	@ResponseBody
 	@PostFilter("hasAuthority('" + CoreGroupPermission.CONFIGURATION_READ + "')")
 	@RequestMapping(path = "/all/file", method = RequestMethod.GET)
+	@ApiOperation(
+			value = "Get all configuration items from files", 
+			nickname = "getAllConfigurationsFromFiles", 
+			tags = { IdmConfigurationController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.CONFIGURATION_READ, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.CONFIGURATION_READ, description = "") })
+				},
+			notes = "E.g. from application.properties, module-*.properties etc.")
 	public List<IdmConfigurationDto> getAllConfigurationsFromFiles() {
 		// TODO: resource wrapper + assembler
 		return configurationService.getAllConfigurationsFromFiles();
@@ -144,6 +245,17 @@ public class IdmConfigurationController extends AbstractReadWriteDtoController<I
 	@ResponseBody
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.CONFIGURATION_ADMIN + "')")
 	@RequestMapping(path = "/all/environment", method = RequestMethod.GET)
+	@ApiOperation(
+			value = "Get all configuration items from environment", 
+			nickname = "getAllConfigurationsFromEnvironment", 
+			tags = { IdmConfigurationController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.CONFIGURATION_ADMIN, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.CONFIGURATION_ADMIN, description = "") })
+				},
+			notes = "Server environment properties.")
 	public List<IdmConfigurationDto> getAllConfigurationsFromEnvironment() {
 		// TODO: resource wrapper + assembler + hateoas links
 		return configurationService.getAllConfigurationsFromEnvironment();
@@ -159,6 +271,18 @@ public class IdmConfigurationController extends AbstractReadWriteDtoController<I
 	@ResponseStatus(code = HttpStatus.ACCEPTED)
 	@PreAuthorize("hasAuthority('" + IdmGroupPermission.APP_ADMIN + "')")
 	@RequestMapping(value = "/bulk/save", method = RequestMethod.PUT, consumes = MediaType.TEXT_PLAIN_VALUE)
+	@ApiOperation(
+			value = "Save configuration items in bulk", 
+			nickname = "saveConfigurationBulk", 
+			tags = { IdmConfigurationController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.CONFIGURATION_ADMIN, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.CONFIGURATION_ADMIN, description = "") })
+				},
+			notes = "Save configuration properties pasted from configration file (e.q. from application.properties)."
+					+ " Simple text/plain .properties format is accepted.")
 	public void saveProperties(@RequestBody String configuration) throws IOException {
 		Properties p = new Properties();
 	    p.load(new StringReader(configuration));

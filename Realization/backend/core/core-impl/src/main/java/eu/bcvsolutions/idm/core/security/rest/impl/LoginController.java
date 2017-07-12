@@ -19,6 +19,7 @@ import eu.bcvsolutions.idm.core.security.api.dto.LoginRequestDto;
 import eu.bcvsolutions.idm.core.security.service.LoginService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 
 /**
  * Identity authentication
@@ -28,10 +29,11 @@ import io.swagger.annotations.ApiOperation;
  *
  */
 @RestController
-@RequestMapping(value = BaseController.BASE_PATH + "/authentication", produces = "application/hal+json")
-@Api(value = "Authentication", description = "Authentication endpoint", tags = { "Authentication" })
+@RequestMapping(value = BaseController.BASE_PATH + "/authentication")
+@Api(value = LoginController.TAG, description = "Authentication endpoint", tags = { LoginController.TAG })
 public class LoginController {
 	
+	protected static final String TAG = "Authentication";
 	public static final String REMOTE_AUTH_PATH = "/remote-auth";
 	//
 	@Autowired private AuthenticationManager authenticationManager;
@@ -42,9 +44,11 @@ public class LoginController {
 			value = "Login an get the CIDMST token", 
 			notes= "Login an get the CIDMST token",
 			response = LoginDto.class,
-			tags = { "Authentication" } )
+			tags = { LoginController.TAG } )
 	@RequestMapping(method = RequestMethod.POST)
-	public Resource<LoginDto> login(@Valid @RequestBody(required = true) LoginRequestDto loginDto) {
+	public Resource<LoginDto> login(
+			@ApiParam(value = "Identity credentials.", required = true)
+			@Valid @RequestBody(required = true) LoginRequestDto loginDto) {
 		if(loginDto == null || loginDto.getUsername() == null || loginDto.getPassword() == null){
 			throw new ResultCodeException(CoreResultCode.AUTH_FAILED, "Username and password must be filled");
 		}
@@ -55,7 +59,7 @@ public class LoginController {
 			value = "Login with remote token", 
 			notes= "Login with remote token an get the CIDMST token",
 			response = LoginDto.class,
-			tags = { "Authentication" })
+			tags = { LoginController.TAG })
 	@RequestMapping(path = REMOTE_AUTH_PATH, method = RequestMethod.GET)
 	public Resource<LoginDto> loginWithRemoteToken() {
 		return new Resource<LoginDto>(loginService.loginAuthenticatedUser());

@@ -302,7 +302,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 			if (account == null) {
 				account = findAccount(uid, entityType, systemEntity, system, logItem);
 				if (systemEntity == null) {
-					addToItemLog(logItem, "SystemEntity for this uid not exist. We will create him.");
+					addToItemLog(logItem, "SystemEntity for this uid doesn't exist. We will create it.");
 					systemEntity = createSystemEntity(uid, entityType, system);
 				}
 
@@ -319,7 +319,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 				List<IcAttribute> icAttributes = icObject.getAttributes();
 
 				if (account == null) {
-					// Account not exist in IDM
+					// Account doesn't exist in IDM
 					actionType = resolveAccountNotExistSituation(context, systemEntity, icAttributes);
 
 				} else {
@@ -374,7 +374,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 	}
 
 	/**
-	 * Resolve "Account not exist in IDM" situation. Result can be UNLINKED or UNMATCHED situations.
+	 * Resolve "Account doesn't exist in IDM" situation. Result can be UNLINKED or UNMATCHED situations.
 	 * @param context
 	 * @param systemEntity
 	 * @param icAttributes
@@ -386,7 +386,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 		SysSyncConfig config = context.getConfig();
 		SysSyncItemLog logItem = context.getLogItem();
 		
-		addToItemLog(logItem, "Account not exist in IDM");
+		addToItemLog(logItem, "Account doesn't exist in IDM");
 		SynchronizationActionType actionType;
 		AbstractEntity entity = findEntityByCorrelationAttribute(config.getCorrelationAttribute(),
 				icAttributes);
@@ -1756,7 +1756,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 		// Identity account Created
 		addToItemLog(logItem,
 				MessageFormat.format(
-						"Entity account relation  with id ({0}), between account ({1}) and identity ({2}) was created",
+						"Entity account relation  with id ({0}), between account ({1}) and entity ({2}) was created",
 						entityAccount.getId(), uid, entityIdentification));
 		logItem.setDisplayName(entityIdentification);
 		logItem.setType(entityAccount.getClass().getSimpleName());

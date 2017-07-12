@@ -55,7 +55,7 @@ export default class SynchronizationConfigService extends Services.AbstractServi
   }
 
   isSynchronizationRunning(id) {
-    return Services.RestApiService.post(this.getApiPath() + `/${id}/isRunning`, null).then(response => {
+    return Services.RestApiService.post(this.getApiPath() + `/${id}/is-running`, null).then(response => {
       if (response.status === 403) {
         throw new Error(403);
       }

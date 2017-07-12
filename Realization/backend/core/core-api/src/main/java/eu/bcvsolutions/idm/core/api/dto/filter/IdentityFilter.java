@@ -71,6 +71,14 @@ public class IdentityFilter extends DataFilter implements CorrelationFilter {
 	 * Enabled, disable or empty filter for disabled identities
 	 */
 	private Boolean disabled;
+	/**
+	 * Identity first name - exact match
+	 */
+	private String firstName;
+	/**
+	 * Identity last name - exact match
+	 */
+	private String lastName;
 	
 	public IdentityFilter() {
 		this(new LinkedMultiValueMap<>());
@@ -197,5 +205,21 @@ public class IdentityFilter extends DataFilter implements CorrelationFilter {
 
 	public void setDisabled(Boolean disabled) {
 		this.disabled = disabled;
+	}
+
+	public String getFirstName() {
+		return firstName;
+	}
+
+	public void setFirstName(String firstName) {
+		this.firstName = firstName;
+	}
+
+	public String getLastName() {
+		return lastName;
+	}
+
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
 	}
 }

@@ -1,0 +1,54 @@
+<?xml version = "1.0" encoding = "UTF-8" standalone = "yes"?>
+<!--
+/**
+ * @author Petr Michal
+ *
+ * Script returns name of user in form:
+ * titles before + first name + surname +, + tiles after
+ *
+ * Example: Dr. John Green, Ph.D.
+ */
+-->
+<script xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="IdmScript.xsd">
+	<code>getFullNameWithTitles</code>
+	<name>Get full name with titles</name>
+	<body>
+		<![CDATA[
+StringBuilder name = new StringBuilder();
+String titleAfter = entity.getTitleAfter();
+String titleBefore = entity.getTitleBefore();
+String surname = entity.getLastName();
+
+if (titleBefore) {
+    name.append(titleBefore);
+	name.append(' ');
+}
+
+name.append(entity.getFirstName());
+
+if (surname) {
+	name.append(' ');
+    name.append(surname);
+}
+
+if (titleAfter) {
+	name.append(", ");
+    name.append(titleAfter);
+}
+
+return name.toString();
+  		]]>
+	</body>
+	<type>groovy</type>
+	<category>DEFAULT</category>
+	<parameters>attributeValue</parameters>
+	<services>
+		<!-- not needed -->
+	</services>
+	<allowClasses>
+		<allowClass>
+			<className>java.lang.StringBuilder</className>
+		</allowClass>
+	</allowClasses>
+</script>

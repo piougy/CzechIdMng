@@ -1,8 +1,10 @@
 import AbstractService from './AbstractService';
 import SearchParameters from '../domain/SearchParameters';
 import RestApiService from './RestApiService';
-import * as Utils from '../utils';
 import moment from 'moment';
+//
+import { i18n } from '../services/LocalizationService';
+import * as Utils from '../utils';
 
 class AuditService extends AbstractService {
 
@@ -24,7 +26,7 @@ class AuditService extends AbstractService {
     if (!entity) {
       return '';
     }
-    return entity.id + ' (' + moment(entity.revisionDate).format('d. M. Y  H:mm:ss') + ')';
+    return entity.id + ' (' + moment(entity.revisionDate).format(i18n('format.datetime')) + ')';
   }
 
   /**

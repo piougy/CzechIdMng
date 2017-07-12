@@ -9,6 +9,12 @@ import defaultStyle from './styles';
 import DataManager from '../../../redux/data/DataManager';
 
 /**
+ * TODO: set better constant, or check this in BE
+ * @type {Number}
+ */
+const MAX_NODES_IN_ROW = 100000;
+
+/**
 * Advanced tree component
 */
 class AdvancedTree extends Basic.AbstractContextComponent {
@@ -137,7 +143,7 @@ class AdvancedTree extends Basic.AbstractContextComponent {
 
     this.setState({ cursors }, () => {
       if (!loaded) {
-        const filter = this.getManager().getService().getTreeSearchParameters().setFilter(propertyParent, node[propertyId]);
+        const filter = this.getManager().getService().getTreeSearchParameters().setFilter(propertyParent, node[propertyId]).setSort('name', true).setSize(MAX_NODES_IN_ROW);
         this.context.store.dispatch(this.getManager().fetchEntities(filter, uiKey, (json, error) => {
           if (!error) {
             const data = json._embedded[this.getManager().getCollectionType()] || [];
@@ -180,7 +186,7 @@ class AdvancedTree extends Basic.AbstractContextComponent {
           if (!nodeEntity) {
             // nodeEntity could be deleted
           } else {
-            node.children.push(nodeEntity);
+            node.children.push(this.trimNode(nodeEntity));
           }
         });
         for (const child of node.children) {
@@ -196,6 +202,31 @@ class AdvancedTree extends Basic.AbstractContextComponent {
       return true;
     }
     return false;
+  }
+
+  /**
+   * Trim nod and set nice label (for optimalization size of tree state)
+   */
+  trimNode(node) {
+    const { propertyId, propertyChildrenCount, propertyParent, propertyName } = this.props;
+    if (!node) {
+      return null;
+    }
+
+    const nodeLabel = this.getManager().getNiceLabel(node);
+    const trimmedNode = {};
+    trimmedNode._nodeNiceLable = nodeLabel;
+    trimmedNode[propertyId] = node[propertyId];
+    trimmedNode[propertyParent] = node[propertyParent];
+    trimmedNode[propertyChildrenCount] = node[propertyChildrenCount];
+    trimmedNode[propertyName] = node[propertyName];
+    trimmedNode.children = node.children;
+    trimmedNode.loading = node.loading;
+    trimmedNode.toggled = node.toggled;
+    trimmedNode.isLeaf = node.isLeaf;
+    trimmedNode.isMoreLink = node.isMoreLink;
+
+    return trimmedNode;
   }
 
   /**
@@ -237,6 +268,7 @@ class AdvancedTree extends Basic.AbstractContextComponent {
     return true;
   }
 
+
   _getLabel(node) {
     const { propertyName, propertyChildrenCount } = this.props;
     if (propertyName && !node.isMoreLink) {
@@ -249,7 +281,7 @@ class AdvancedTree extends Basic.AbstractContextComponent {
           ?
           node.name
           :
-          this.getManager().getNiceLabel(node)
+          node._nodeNiceLable
         }
         {
           !node[propertyChildrenCount]
@@ -384,6 +416,7 @@ AdvancedTree.defaultProps = {
   propertyId: 'id',
   propertyChildrenCount: 'childrenCount',
   propertyParent: 'parent',
+  propertyName: 'name',
   rootNodesCount: null
 };
 

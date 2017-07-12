@@ -52,7 +52,7 @@ public class IdentityCreatePasswordValidateProcessor extends CoreEventProcessor<
 		if (password != null) {
 			IdmPasswordValidationDto passwordValidationDto = new IdmPasswordValidationDto();
 			passwordValidationDto.setPassword(password);
-			passwordValidationDto.setIdentity(identity.getId());
+			passwordValidationDto.setIdentity(identity);
 			// validate create new password by default password policy
 			this.passwordPolicyService.validate(passwordValidationDto);
 		}

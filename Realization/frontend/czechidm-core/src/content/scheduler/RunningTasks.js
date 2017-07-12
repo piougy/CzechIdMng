@@ -44,27 +44,42 @@ class RunningTasks extends Basic.AbstractContent {
   render() {
     const { _entities, _showLoading } = this.props;
     //
-    if (_showLoading) {
-      return (
-        <Basic.Loading show isStatic />
-      );
-    }
-    //
     return (
-      <div style={{ padding: '15px 15px 0' }}>
+      <div>
         <Helmet title={ this.i18n('title') } />
+        <Basic.Toolbar>
+          <div className="pull-right">
+            <Basic.Button
+              className="btn-xs"
+              title={ this.i18n('refresh') }
+              onClick={this._fetchRunningTasks.bind(this)}
+              titlePlacement="bottom"
+              showLoading={ _showLoading }
+              style={{ marginLeft: 3 }}>
+              <Basic.Icon value="fa:refresh" showLoading={ _showLoading }/>
+            </Basic.Button>
+          </div>
+        </Basic.Toolbar>
         {
-          (!_entities || _entities.length === 0)
+          _showLoading
           ?
-          <Basic.Alert text={ this.i18n('empty') }/>
+          <Basic.Loading show isStatic />
           :
-          <div>
+          <div style={{ padding: '15px 15px 0' }}>
             {
-              _entities.map(entity => {
-                return (
-                  <LongRunningTask entity={ entity } />
-                );
-              })
+              (!_entities || _entities.length === 0)
+              ?
+              <Basic.Alert text={ this.i18n('empty') }/>
+              :
+              <div>
+                {
+                  _entities.map(entity => {
+                    return (
+                      <LongRunningTask entity={ entity } />
+                    );
+                  })
+                }
+              </div>
             }
           </div>
         }

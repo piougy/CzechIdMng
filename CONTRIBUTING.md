@@ -8,7 +8,7 @@ We use Redmine issues to track bugs. Please ensure your description is clear and
 
 ### Coding Style, convention
 
-* https://google.github.io/styleguide/javaguide.html 
+* https://google.github.io/styleguide/javaguide.html
 * 2 tabs for indentation
 * use `{}` brackets
 * Don't use abbreviations for fields, variables etc.
@@ -25,6 +25,8 @@ We use Redmine issues to track bugs. Please ensure your description is clear and
     * `Configurable` for configurations
     * `Codeable` for entities with code and name - see database naming [convention](https://proj.bcvsolutions.eu/ngidm/doku.php?id=navrh:identifikatory#konvence_navrhu_databaze)
     * ...
+* Java
+  * Class - fields first, then constructors, then public methods, then private methods
 
 ### IDE
 * [Eclipse](https://proj.bcvsolutions.eu/ngidm/doku.php?id=en:development:ide:eclipse)
@@ -56,6 +58,7 @@ We use Redmine issues to track bugs. Please ensure your description is clear and
 * `render` method has to be on the end of react component
 * Character `_` at the start of attribute or method => private attribute or method
 * use less variables
+* use `encodeURIComponent` to encode parameters used directly in urls e.g. ``this.context.router.push(`identity/${encodeURIComponent(entity.username)}/profile`)``
 
 ### IDE
 

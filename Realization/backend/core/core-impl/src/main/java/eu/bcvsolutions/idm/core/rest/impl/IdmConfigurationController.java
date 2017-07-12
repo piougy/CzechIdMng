@@ -83,7 +83,8 @@ public class IdmConfigurationController extends AbstractReadWriteDtoController<I
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
 						@AuthorizationScope(scope = CoreGroupPermission.CONFIGURATION_READ, description = "") })
 				})
-	public Resources<?> find(@RequestParam MultiValueMap<String, Object> parameters,
+	public Resources<?> find(
+			@RequestParam(required = false) MultiValueMap<String, Object> parameters,
 			@PageableDefault Pageable pageable) {
 		return super.find(parameters, pageable);
 	}
@@ -101,7 +102,8 @@ public class IdmConfigurationController extends AbstractReadWriteDtoController<I
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
 						@AuthorizationScope(scope = CoreGroupPermission.CONFIGURATION_READ, description = "") })
 				})
-	public Resources<?> findQuick(@RequestParam MultiValueMap<String, Object> parameters,
+	public Resources<?> findQuick(
+			@RequestParam(required = false) MultiValueMap<String, Object> parameters,
 			@PageableDefault Pageable pageable) {
 		return super.find(parameters, pageable);
 	}

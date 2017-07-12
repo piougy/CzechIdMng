@@ -111,7 +111,17 @@ public class IdmAuditController extends AbstractReadWriteDtoController<IdmAuditD
 				})
 	@ApiImplicitParams({
 		@ApiImplicitParam(name = "entity", allowMultiple = false, dataType = "string", paramType = "query",
-				value = "Entity class - find related audit log to this class")
+				value = "Entity class - find related audit log to this class"),
+		@ApiImplicitParam(name = "parameters", allowMultiple = true, dataType = "string", paramType = "query",
+				value = "Search criteria parameters. Parameters could be registered by module. Example id=25c5b9e8-b15d-4f95-b715-c7edf6f4aee6"),
+        @ApiImplicitParam(name = "page", dataType = "string", paramType = "query",
+                value = "Results page you want to retrieve (0..N)"),
+        @ApiImplicitParam(name = "size", dataType = "string", paramType = "query",
+                value = "Number of records per page."),
+        @ApiImplicitParam(name = "sort", allowMultiple = true, dataType = "string", paramType = "query",
+                value = "Sorting criteria in the format: property(,asc|desc). " +
+                        "Default sort order is ascending. " +
+                        "Multiple sort criteria are supported.")
 	})
 	public Resources<?> findEntity(
 			@RequestParam(required = false) MultiValueMap<String, Object> parameters, 

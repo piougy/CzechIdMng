@@ -58,7 +58,7 @@
 
 	<profiles>
 		<profile>
-			<id>doc</id>
+			<id>release</id>
 			<build>
 				<plugins>
 					<!-- First, use the swagger2markup plugin to generate asciidoc -->
@@ -77,12 +77,12 @@
 								<swagger2markup.generatedExamplesEnabled>false</swagger2markup.generatedExamplesEnabled>
 
 								<swagger2markup.extensions.dynamicOverview.contentPath>${asciidoctor.input.extensions.directory}/overview</swagger2markup.extensions.dynamicOverview.contentPath>
-		                        <swagger2markup.extensions.dynamicDefinitions.contentPath>${asciidoctor.input.extensions.directory}/definitions</swagger2markup.extensions.dynamicDefinitions.contentPath>
-		                        <swagger2markup.extensions.dynamicPaths.contentPath>${asciidoctor.input.extensions.directory}/paths</swagger2markup.extensions.dynamicPaths.contentPath>
-		                        <swagger2markup.extensions.dynamicSecurity.contentPath>${asciidoctor.input.extensions.directory}/security/</swagger2markup.extensions.dynamicSecurity.contentPath>
+								<swagger2markup.extensions.dynamicDefinitions.contentPath>${asciidoctor.input.extensions.directory}/definitions</swagger2markup.extensions.dynamicDefinitions.contentPath>
+								<swagger2markup.extensions.dynamicPaths.contentPath>${asciidoctor.input.extensions.directory}/paths</swagger2markup.extensions.dynamicPaths.contentPath>
+								<swagger2markup.extensions.dynamicSecurity.contentPath>${asciidoctor.input.extensions.directory}/security/</swagger2markup.extensions.dynamicSecurity.contentPath>
 
-		                        <swagger2markup.extensions.springRestDocs.snippetBaseUri>${swagger.snippetOutput.dir}</swagger2markup.extensions.springRestDocs.snippetBaseUri>
-		                        <swagger2markup.extensions.springRestDocs.defaultSnippets>true</swagger2markup.extensions.springRestDocs.defaultSnippets>
+								<swagger2markup.extensions.springRestDocs.snippetBaseUri>${swagger.snippetOutput.dir}</swagger2markup.extensions.springRestDocs.snippetBaseUri>
+								<swagger2markup.extensions.springRestDocs.defaultSnippets>true</swagger2markup.extensions.springRestDocs.defaultSnippets>
 							</config>
 						</configuration>
 						<executions>
@@ -131,7 +131,7 @@
 								</goals>
 								<configuration>
 									<backend>html5</backend>
-									<outputDirectory>${asciidoctor.html.output.directory}</outputDirectory>
+									<outputDirectory>${asciidoctor.html.output.directory.prefix}/acc/${project.version}/doc</outputDirectory>
 								</configuration>
 							</execution>
 						</executions>

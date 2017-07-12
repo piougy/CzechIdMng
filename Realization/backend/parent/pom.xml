@@ -84,7 +84,10 @@
 		<swagger.input>${swagger.output.dir}/${swagger.output.filename}</swagger.input>
 		<swagger.snippetOutput.dir>${project.build.directory}/asciidoc/snippets</swagger.snippetOutput.dir>
 		<generated.asciidoc.directory>${project.build.directory}/asciidoc/generated</generated.asciidoc.directory>
-		<asciidoctor.html.output.directory>${project.build.directory}/asciidoc/html</asciidoctor.html.output.directory>
+		<!-- static documentation will be available as webjars -->
+		<!-- e.g. http://localhost:8080/idm/webjars/core/7.3.0-rc.4-SNAPSHOT/doc/index.html -->
+		<asciidoctor.html.output.directory.prefix>${project.build.directory}/classes/META-INF/resources/webjars</asciidoctor.html.output.directory.prefix>
+		<asciidoctor.html.output.directory>${asciidoctor.html.output.directory.prefix}/${project.artifactId}/${project.version}/doc</asciidoctor.html.output.directory>
 	</properties>
 
 	<repositories>
@@ -530,7 +533,7 @@
 					<doUpdate>false</doUpdate>
 					<shortRevisionLength>7</shortRevisionLength>
 				</configuration>
-			</plugin>			
+			</plugin>
 		</plugins>
 
 		<resources>

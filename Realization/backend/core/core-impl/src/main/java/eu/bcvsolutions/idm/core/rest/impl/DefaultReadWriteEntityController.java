@@ -47,7 +47,8 @@ public abstract class DefaultReadWriteEntityController<E extends BaseEntity, F e
 	@Override
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.GET)
-	public Resources<?> find(@RequestParam MultiValueMap<String, Object> parameters, 
+	public Resources<?> find(
+			@RequestParam(required = false) MultiValueMap<String, Object> parameters, 
 			@PageableDefault Pageable pageable, 			
 			PersistentEntityResourceAssembler assembler) {
 		return super.find(parameters, pageable, assembler);
@@ -64,7 +65,8 @@ public abstract class DefaultReadWriteEntityController<E extends BaseEntity, F e
 	@Override
 	@ResponseBody
 	@RequestMapping(value= "/search/quick", method = RequestMethod.GET)
-	public Resources<?> findQuick(@RequestParam MultiValueMap<String, Object> parameters, 
+	public Resources<?> findQuick(
+			@RequestParam(required = false) MultiValueMap<String, Object> parameters, 
 			@PageableDefault Pageable pageable, 			
 			PersistentEntityResourceAssembler assembler) {
 		return super.find(parameters, pageable, assembler);
@@ -72,7 +74,8 @@ public abstract class DefaultReadWriteEntityController<E extends BaseEntity, F e
 	
 	@ResponseBody
 	@RequestMapping(value= "/search/autocomplete", method = RequestMethod.GET)
-	public Resources<?> autocomplete(@RequestParam MultiValueMap<String, Object> parameters, 
+	public Resources<?> autocomplete(
+			@RequestParam(required = false) MultiValueMap<String, Object> parameters, 
 			@PageableDefault Pageable pageable, 			
 			PersistentEntityResourceAssembler assembler) {
 		return super.autocomplete(parameters, pageable, assembler);

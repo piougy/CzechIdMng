@@ -318,7 +318,7 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 		// First we try search same account in list for create new accounts
 		Optional<AccIdentityAccountDto> sameAccountOptional = identityAccountsToCreate.stream().filter(ia -> {
 			AccAccount account = accountService.get(ia.getAccount());
-			return account.getUid().equals(uid);
+			return account.getUid().equals(uid) && roleSystem.getId().equals(ia.getRoleSystem());
 		}).findFirst();
 		
 		UUID accountId = null;

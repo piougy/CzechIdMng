@@ -289,7 +289,7 @@ public class DefaultIdmIdentityContractService
 	/**
 	 * Returns by contract's priority:
 	 * - 1. main
-	 * - 2. valid (validable and not disabled) - TODO - implemented
+	 * - 2. valid (validable and not disabled)
 	 * - 3. with working position with default tree type
 	 * - 4. with working position with any tree type
 	 * - 5. other with lowest valid from

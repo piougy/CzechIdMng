@@ -185,42 +185,47 @@ public class DefaultAuditService extends AbstractReadWriteDtoService<IdmAuditDto
 			return Collections.emptyList();
 		}
 		
-		Field[] fields = entityClass.getDeclaredFields();
-		
-		for (Field field : fields) {
-			if (field.getAnnotation(Audited.class) != null) {
-				Object previousValue;
-				Object currentValue;
-				try {
-					PropertyDescriptor propertyDescriptor = PropertyUtils.getPropertyDescriptor(currentEntity, field.getName());
-					Assert.notNull(propertyDescriptor, MessageFormat.format("DefaultAuditService: read method for audited field {0}, can't be null.", field.getName()));
-					//
-					Method readMethod = propertyDescriptor.getReadMethod();
-					// check if exists readMethod
-					Assert.notNull(readMethod, MessageFormat.format("DefaultAuditService: read method for audited field {0}, can't be null.", field.getName()));
-					
-					previousValue = readMethod.invoke(previousEntity);
-					currentValue = readMethod.invoke(currentEntity);
-					
-					if (previousValue == null && currentValue == null) {
-						continue;
+		Class<?> clazz = entityClass;
+		while (!(clazz.getName().equals(AbstractEntity.class.getName()))) {
+			Field[] fields = clazz.getDeclaredFields();
+			
+			for (Field field : fields) {
+				if (field.getAnnotation(Audited.class) != null) {
+					Object previousValue;
+					Object currentValue;
+					try {
+						PropertyDescriptor propertyDescriptor = PropertyUtils.getPropertyDescriptor(currentEntity, field.getName());
+						Assert.notNull(propertyDescriptor, MessageFormat.format("DefaultAuditService: read method for audited field {0}, can't be null.", field.getName()));
+						//
+						Method readMethod = propertyDescriptor.getReadMethod();
+						// check if exists readMethod
+						Assert.notNull(readMethod, MessageFormat.format("DefaultAuditService: read method for audited field {0}, can't be null.", field.getName()));
+						
+						previousValue = readMethod.invoke(previousEntity);
+						currentValue = readMethod.invoke(currentEntity);
+						
+						if (previousValue == null && currentValue == null) {
+							continue;
+						}
+						
+						if (previousValue == null || !previousValue.equals(currentValue)) {
+							changedColumns.add(field.getName());
+						}
+					} catch (IllegalArgumentException | IllegalAccessException | 
+							NoSuchMethodException | InvocationTargetException ex) {
+						throw new IllegalArgumentException(
+								MessageFormat.format("For entity class [{0}] with id [{1}] and revision id [{2}], name of changed columns cannot be found.",
+										clazz, entityId, currentRevId), ex);
+					} catch (EntityNotFoundException e) {
+						// TODO: Try to found better solution for get entity that was not found
+						LOG.info("Audit service entity not found. Method [getNameChangedColumns]", e);
+						break;
 					}
-					
-					if (previousValue == null || !previousValue.equals(currentValue)) {
-						changedColumns.add(field.getName());
-					}
-				} catch (IllegalArgumentException | IllegalAccessException | 
-						NoSuchMethodException | InvocationTargetException ex) {
-					throw new IllegalArgumentException(
-							MessageFormat.format("For entity class [{0}] with id [{1}] and revision id [{2}], name of changed columns cannot be found.",
-									entityClass, entityId, currentRevId), ex);
-				} catch (EntityNotFoundException e) {
-					// TODO: Try to found better solution for get entity that was not found
-					LOG.info("Audit service entity not found. Method [getNameChangedColumns]", e);
-					break;
 				}
 			}
+			clazz = clazz.getSuperclass();
 		}
+
 		return changedColumns;
 	}
 

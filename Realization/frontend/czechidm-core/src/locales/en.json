@@ -495,7 +495,7 @@
       "MODULE": "Modules",
       "NOTIFICATION": "Notifications",
       "ROLE": "Roles",
-      "ROLECATALOGUE": "Role catalogue",
+      "ROLECATALOGUE": "Role catalog",
       "ROLETREENODE": "Automatic roles",
       "TREENODE": "Tree nodes",
       "TREETYPE": "Structure types",
@@ -700,13 +700,13 @@
       "environment": "Static environment configuration items <small>read only</small>",
       "fromFile": "Application configuration from configuration files <small>application.properties</small>",
       "fromEnvironment": "Environment configuration <small>backend</small>",
-      "guarded": "The values of configuration items containing key [<strong>{{guarded}}</strong>] The values of configuration items containing key will automatically set the secret and invisible. Values beginning with the prefix [<strong>idm.sec.</strong>] can not be visible.",
+      "guarded": "If item key contais values: [<strong>{{guarded}}</strong>] the item is automatically confidentital and non-public. Items with key beginning with [<strong>idm.sec.</strong>] can not be public.",
       "confidential": {
-        "help": "The setting will be stored in an encrypted vault"
+        "help": "Item is stored in encrypted repository"
       },
       "secured": {
         "notAllowed": "You do not have permission to edit the system configuration",
-        "help": "Public settings can be loaded without logging in. Secret settings can also be public."
+        "help": "Public items are accessible without logging. Confidential items can be public."
       }
     },
     "tasks-summary": {
@@ -872,8 +872,8 @@
           "placeholder": "Assigned role"
         },
         "disabled": {
-          "label": "Disabled",
-          "placeholder": "Disabled"
+          "label": "Inactive",
+          "placeholder": "Inactive"
         }
       },
       "action": {
@@ -1106,7 +1106,7 @@
       },
       "edit": {
         "title": "Role details",
-        "header": "{{name}} details"
+        "header": "{{name}} Role details"
       },
       "filter": {
         "text": {
@@ -1119,7 +1119,7 @@
       },
       "select": {
         "chooseFolder": "Choose folder",
-        "showRoleCatalogue": "Select from catalogue"
+        "showRoleCatalogue": "Select from catalog"
       },
       "save": {
         "success": "Role [{{name}}] successfully saved."
@@ -1910,26 +1910,27 @@
     "audit": {
       "header": "Audit",
       "title": "Audit",
-      "title-entities": "Entity history",
+      "title-entities": "Entities",
+      "title-identities": "Users",
       "modifier": "Action executor",
       "date": "Date of change",
       "empty": "Without records",
       "pickRevision": "Select revision",
       "detail": "Revision details",
-      "id": "ID",
+      "id": "Id",
       "noPreviousRevision": "No previous revision",
       "profile": {
         "userDetail": "{{revision}}. revize, {{name}}, {{date}}"
       },
       "revision": {
-        "id": "Revision ID",
+        "id": "Revision Id",
         "modifier": "Modified by",
         "type": "Entity type",
         "modification": "Modification type",
         "revisionDate": "Date of revision",
         "deleted": "Entity was deleted",
         "created": "Entity was created",
-        "entityId": "Entity ID",
+        "entityId": "Entity Id",
         "modificationType": {
           "ADD": "Added",
           "MOD": "Modified",
@@ -1942,9 +1943,14 @@
           "placeholder": "Date from"
         },
         "dateTill": {
-          "label": "To",
-          "placeholder": "Date to"
+          "label": "Do",
+          "placeholder": "Datum do"
         }
+      },
+      "identities": {
+        "username": "Login",
+        "modifier": "Modifier",
+        "identityId": "Identity Id"
       }
     }
   },
@@ -1974,7 +1980,7 @@
       "titleAfter": "Titles after"
     },
     "RoleCatalogue": {
-      "_type": "Role name",
+      "_type": "Catalog folder",
       "code": {
         "name": "Code",
         "help": "Folder code is unique in catalog."
@@ -1987,7 +1993,7 @@
       "urlTitle": "URL title",
       "description": "description",
       "parent": {
-        "name": "Parent folder in catalogue"
+        "name": "Parent folder in catalog"
       },
       "filter": {
         "name": "Code",
@@ -2063,7 +2069,7 @@
       },
       "defaultValue": "Default value",
       "unmodifiable": {
-        "help": "System attribute cannot be deleted. Some of its configurations are not able for edit.",
+        "help": "System attribute cannot be deleted. Some of its configurations are not editable.",
         "label": "System attribute"
       }
     },
@@ -2082,8 +2088,8 @@
       "canBeRequested": "Can be requested",
       "description": "Description",
       "guarantees": "Role authorizers",
-      "roleCatalog": {
-        "name": "Catalog"
+      "roleCatalogue": {
+        "name": "Folder in catalog"
       }
     },
     "RoleTreeNode": {
@@ -2157,7 +2163,7 @@
     },
     "IdentityContract": {
       "_type": "Positions",
-      "id": "Internal position ID",
+      "id": "Internal position id",
       "treeType": "Structure type",
       "workPosition": "Position",
       "position": "Work position",
@@ -2167,7 +2173,7 @@
       "guarantee": "Authorizer",
       "externe": "External contractor",
       "managers": {
-        "label": "Authorizer",
+        "label": "Authorizers",
         "title": "Authorizer and all managers for position in structure"
       },
       "disabled": {
@@ -2434,7 +2440,7 @@
       "eventTypes": "Event types",
       "order": "Order",
       "disabled": "Inactive",
-      "disableable": "Cannot be disabled",
+      "disableable": "Cannot be inactivated",
       "closeable": "Closes processing"
     },
     "LongRunningTask": {
@@ -2483,7 +2489,7 @@
     "RoleRequest": {
       "applicant": "Applicant",
       "state": "State",
-      "executeImmediately": "Execute without approval",
+      "executeImmediately": "Without approval",
       "log": "Log",
       "description": {
         "label" : "Description",
@@ -2492,7 +2498,7 @@
       "created": "Created",
       "modified": "Modified",
       "candicateUsers": "Approvers",
-      "currentActivity": "State of approval",
+      "currentActivity": "Approval state",
       "originalRequest": "Original request",
       "wfProcessId": "WF identificator"
     },
@@ -2829,8 +2835,8 @@
       "message": "Task [{{taskType}}] has invalid configuration."
     },
     "FOREST_INDEX_DISABLED": {
-      "title": "Index is disabled",
-      "message": "Tree structure indexing is disabled. Enable configuration property {{property}}."
+      "title": "Index is inactive",
+      "message": "Tree structure indexing is inactive. Enable configuration property {{property}}."
     },
     "FOREST_INDEX_RUNNING": {
       "title": "Reindex already running",

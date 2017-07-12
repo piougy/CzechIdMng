@@ -253,10 +253,12 @@ public class DefaultIdmIdentityContractService
 	}
 	
 	/**
-	 * Returns given identity's prime contract.
-	 * If no main contract is defined, then returns the first contract with working position defined (default tree type has higher priority).
-	 * 
-	 * TODO: return valid contracts with higher priority
+	 * Returns given identity's prime contract, by contract's priority:
+	 * - 1. main
+	 * - 2. valid - TODO - implement
+	 * - 3. with working position with default tree type
+	 * - 4. with working position with any tree type
+	 * - 5. other
 	 * 
 	 * @param identityId
 	 * @return

@@ -223,7 +223,7 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 		//
 		// prepare identity and contract
 		IdmIdentityDto identity = helper.createIdentity();
-		IdmIdentityContractDto contract = new IdmIdentityContractDto();
+		IdmIdentityContractDto contract = identityContractService.getPrimeContract(identity.getId());
 		contract.setIdentity(identity.getId());
 		contract.setValidFrom(new LocalDate().minusDays(1));
 		contract.setValidTill(new LocalDate().plusMonths(1));

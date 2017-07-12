@@ -186,7 +186,8 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 						if (uid.equals(account.getUid())) {
 							// Identity account for this role, system and uid is
 							// created
-							return true;
+							// TODO: find the better place for this check - se next same todo bellow
+							// return true;
 						}else{
 							// We found identityAccount for same identity and roleSystem, but this identityAccount
 							// is link to Account with different UID. It's probably means definition of UID (transformation)\
@@ -200,15 +201,27 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 			}).forEach(roleSystem -> {
 				// For this system we have to create new account
 				UUID accountId = createAccountByRoleSystem(identity, roleSystem, identityAccountsToCreate);
-				AccIdentityAccountDto identityAccount = new AccIdentityAccountDto();
-				identityAccount.setAccount(accountId);
-				identityAccount.setIdentity(identity.getId());
-				identityAccount.setIdentityRole(identityRole.getId());
-				identityAccount.setRoleSystem(roleSystem.getId());
-				// TODO: Add flag ownership to SystemRole and set here.
-				identityAccount.setOwnership(true);
+				// prevent to create the same identity account - method is called multi times
+				// TODO: find the better place for this check
+				if(identityAccountList
+						.stream()
+						.filter(identityAccount -> {
+							return identityAccount.getAccount().equals(accountId) 
+									&& identityRole.getId().equals(identityAccount.getIdentityRole())
+									&& roleSystem.getId().equals(identityAccount.getRoleSystem());
+						})
+						.count() == 0) {
+					AccIdentityAccountDto identityAccount = new AccIdentityAccountDto();
+					identityAccount.setAccount(accountId);
+					identityAccount.setIdentity(identity.getId());
+					identityAccount.setIdentityRole(identityRole.getId());
+					identityAccount.setRoleSystem(roleSystem.getId());
+					// TODO: Add flag ownership to SystemRole and set here.
+					identityAccount.setOwnership(true);
 
-				identityAccountsToCreate.add(identityAccount);
+					identityAccountsToCreate.add(identityAccount);
+				}				
+				
 			});
 		});
 	}

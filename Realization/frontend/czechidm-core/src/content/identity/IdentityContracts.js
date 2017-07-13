@@ -25,7 +25,9 @@ export default class IdentityContracts extends Advanced.AbstractTableContent {
   }
 
   getUiKey() {
-    return uiKey;
+    const { entityId } = this.props.params;
+    //
+    return `${uiKey}-${entityId}`;
   }
 
   getManager() {
@@ -66,7 +68,7 @@ export default class IdentityContracts extends Advanced.AbstractTableContent {
         <Basic.Panel className="no-border">
           <Advanced.Table
             ref="table"
-            uiKey={uiKey}
+            uiKey={ this.getUiKey() }
             manager={ this.identityContractManager }
             forceSearchParameters={ new SearchParameters().setFilter('identity', entityId) }
             rowClass={({rowIndex, data}) => { return Utils.Ui.getRowClass(data[rowIndex]); }}

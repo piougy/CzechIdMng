@@ -115,7 +115,7 @@ class BackendModules extends Basic.AbstractContent {
                 if (moduleDescriptor.documentationAvailable) {
                   links.push(
                     <Basic.Link
-                      href={ `${ConfigLoader.getServerUrl().replace('/v1', '')}?group=core` }
+                      href={ `${ConfigLoader.getServerUrl().replace('/v1', '')}?group=${moduleDescriptor.id}` }
                       text="Api"
                       style={{ marginRight: 5 }}/>
                   );

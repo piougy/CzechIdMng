@@ -1,0 +1,70 @@
+== API reference
+
+The API for CzechIdM is based on the REST principles. To use the API, you must be authenticated to CzechIdM.
+
+=== Allowed HTTP requests ===
+
+  * `GET` - Obtain an object or a list of objects
+  * `POST` - Creates an object
+  * `PUT` - Updates the object - overwrites the whole object
+  * `DELETE` - Delete an object
+
+==== GET ====
+
+  * `GET /api/v1/identities/` - Gets a list of all identities
+  * `GET /api/v1/identities/john_doe` - acquires the "john_doe" identity entity
+
+==== POST ====
+
+  * `POST /api/v1/identities/` - Creates a new identity
+  * `POST /api/v1/identities/john_doe` - returns` 405`
+
+==== PUT ====
+
+  * `PUT /api/v1/identities/john_doe` - identity change john_doe, if there is no error returned` 404`
+
+==== DELETE ====
+
+  * `DELETE /api/v1/identities/john_doe` - deleting identity john_doe, if there is no error returned` 404`
+
+=== Used URL in API ===
+
+
+API uses three basic URL levels
+
+  * `/api/v1/identities/john_doe`
+    * entity detail with convention `/api/v1/identities/${backendId}` - where `${backendId}` is entity uuid identifier or unique code, if entity supports `Codeable` interface.
+  * `/api/v1/identities/john_doe/accounts/1`
+    * sub entity detail
+  * `/api/v1/identities/john_doe/accounts/1/attribute/homeDirectory`
+
+=== API Return Data Format ===
+
+
+The default data format returned by the application interface is JSON. The change can be done in the HTTP request header.
+
+  * `Accept: application / json`
+
+Supported formats:
+
+  * `JSON` - default format
+
+Date format (iso-8601):
+
+  * `yyyy-MM-dd` - date
+  * `yyyy-MM-dd'T'HH: mm: ss.SSS'Z'`- date including time
+
+
+=== Common server responses ===
+
+  * `200` OK - The request was processed correctly.
+  * `201` Created - The request was processed correctly and the object was created.
+  * `202` Accepted - The request has been accepted correctly but has not yet been processed.
+  * `204` OK - The request was processed correctly and the operation returns no response (eg delete operation)
+  * `400` Bad Request - The request is not correct or all parameters are not entered.
+  * `401` Unauthorized - Authentication error or user not authorized to perform this operation.
+  * `403` Forbidden - Access denied.
+  * `404` Not Found - Not Found.
+  * `400` (405) 'Method Not Allowed - The requested method is not supported for the selected object type. This code is currently not supported. In this case, code 400 is returned with Method Not Allowed.
+  * `409` Object already exists - The created object already exists. This value returns the server if someone attempts to create an object of the same type with an existing `name`.
+  * `500` Internal server error - Internal server error

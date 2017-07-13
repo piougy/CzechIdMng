@@ -97,5 +97,13 @@ public interface ModuleDescriptor extends Plugin<String> {
 	 * @return
 	 */
 	List<NotificationConfigurationDto> getDefaultNotificationConfigurations();
+	
+	/**
+	 * Returns true, when html documentation is available as webjar directly in module .jar package
+	 * Url is constructed by convention /webjars/<module>/<version>/doc/index.html.	
+	 * 
+	 * @return
+	 */
+	boolean isDocumentationAvailable();
 
 }

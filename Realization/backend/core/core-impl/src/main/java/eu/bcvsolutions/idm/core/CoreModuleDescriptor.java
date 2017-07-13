@@ -99,4 +99,9 @@ public class CoreModuleDescriptor extends PropertyModuleDescriptor {
 		//
 		return configs;
 	}
+	
+	@Override
+	public boolean isDocumentationAvailable() {
+		return true;
+	}
 }

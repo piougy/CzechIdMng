@@ -209,4 +209,19 @@ export default class UiUtils {
     }
     return null;
   }
+  /**
+  * Do substring on given data by max length. Substring is not on char byt on word.
+- * Last word will be whole.
+- * @param  {String} data
+  * @param  {Number} maxLength
+  * @return {String}
+  */
+  static substringByWord(data, maxLength) {
+    if (data) {
+      data = data + ' ';
+      const result = data.replace(/<(?:.|\n)*?>/gm, '').substr(0, maxLength);
+      return result.substr(0, Math.min(result.length, result.lastIndexOf(' ')));
+    }
+    return null;
+  }
 }

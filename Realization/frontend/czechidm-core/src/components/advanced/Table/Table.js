@@ -237,6 +237,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     if (showId === null || showId === undefined) {
       return this.isDevelopment();
     }
+    return showId;
   }
 
   render() {

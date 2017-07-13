@@ -85,10 +85,12 @@ public class DefaultGroovyScriptService implements GroovyScriptService {
 		} finally {
 			// if this script is called from another script, remove only allowed classes from them
 			// otherwise unregister all filter.
-			if (sandboxFilter.isCustomTypesLast()) {
-				sandboxFilter.unregister();
-			} else {
-				sandboxFilter.removeLastCustomTypes();
+			if (sandboxFilter != null) {
+				if (sandboxFilter.isCustomTypesLast()) {
+					sandboxFilter.unregister();
+				} else {
+					sandboxFilter.removeLastCustomTypes();
+				}
 			}
 		}
 	}

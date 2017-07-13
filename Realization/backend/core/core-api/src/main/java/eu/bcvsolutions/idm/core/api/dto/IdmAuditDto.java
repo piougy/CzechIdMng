@@ -20,7 +20,7 @@ public class IdmAuditDto implements BaseDto {
 
 	private static final long serialVersionUID = 6910043282740335765L;
 	
-	public static String CHANGED_COLUMNS_DELIMITER = ",";
+	public static final String CHANGED_COLUMNS_DELIMITER = ",";
 
 	private Long id;
 
@@ -208,7 +208,7 @@ public class IdmAuditDto implements BaseDto {
 		} else {
 			StringBuilder stringBuilder = new StringBuilder(this.changedAttributes);
 			stringBuilder.append(CHANGED_COLUMNS_DELIMITER);
-			stringBuilder.append(" ");
+			stringBuilder.append(' ');
 			stringBuilder.append(changedColumn);
 			this.changedAttributes = stringBuilder.toString();
 		}

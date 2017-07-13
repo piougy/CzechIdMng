@@ -215,7 +215,7 @@ public class IdmAudit implements BaseEntity {
 		} else {
 			StringBuilder stringBuilder = new StringBuilder(this.changedAttributes);
 			stringBuilder.append(IdmAuditDto.CHANGED_COLUMNS_DELIMITER);
-			stringBuilder.append(" ");
+			stringBuilder.append(' ');
 			stringBuilder.append(changedColumn);
 			this.changedAttributes = stringBuilder.toString();
 		}

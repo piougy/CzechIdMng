@@ -492,7 +492,7 @@ public class DefaultIdmNotificationTemplateService extends
 		} catch (IOException e) {
 			throw new ResultCodeException(CoreResultCode.DEPLOY_ERROR,
 					ImmutableMap.of("path", configurationService.getValue(TEMPLATE_FOLDER)
-							+ configurationService.getValue(TEMPLATE_FILE_SUFIX)));
+							+ configurationService.getValue(TEMPLATE_FILE_SUFIX)), e);
 		}
 		return resources;
 	}

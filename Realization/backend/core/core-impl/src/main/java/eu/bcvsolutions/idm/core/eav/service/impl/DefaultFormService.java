@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.eav.service.impl;
+	package eu.bcvsolutions.idm.core.eav.service.impl;
 
 import java.io.Serializable;
 import java.text.MessageFormat;
@@ -362,10 +362,11 @@ public class DefaultFormService implements FormService {
 		for (E value : values) {
 			E newValue = formValueService.newValue();
 			newValue.setOwnerAndAttribute(owner, attribute);
-			newValue.setValue(persistentValues.get(value.getSeq()));
+			Serializable serializableValue = persistentValues.get(value.getSeq());
+			newValue.setValue(serializableValue);
 			
 			if (!value.isEquals(newValue)) {
-				value.setValue(persistentValues.get(value.getSeq()));
+				value.setValue(serializableValue);
 				results.add(formValueService.save(value));
 			}
 		}

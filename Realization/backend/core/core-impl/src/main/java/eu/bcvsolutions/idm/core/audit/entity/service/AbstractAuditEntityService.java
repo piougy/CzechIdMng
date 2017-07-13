@@ -69,8 +69,9 @@ public abstract class AbstractAuditEntityService implements Plugin<Class<? exten
 	protected List<UUID> getEntityIdFromList(List<Object[]> entities) {
 		List<UUID> ids = new ArrayList<>();
 		for (Object[] entity : entities) {
-			if (!ids.contains(getUUID(((AbstractEntity) entity[ENTITY]).getId()))) {
-				ids.add(getUUID(((AbstractEntity) entity[ENTITY]).getId()));
+			UUID entityId = getUUID(((AbstractEntity) entity[ENTITY]).getId());
+			if (!ids.contains(entityId)) {
+				ids.add(entityId);
 			}
 		}
 		return ids;

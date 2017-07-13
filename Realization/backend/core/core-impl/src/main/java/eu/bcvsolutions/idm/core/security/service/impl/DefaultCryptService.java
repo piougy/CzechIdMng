@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -29,6 +30,8 @@ import eu.bcvsolutions.idm.core.security.api.service.CryptService;
  * Default implementation of {@link CryptService}
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
+ * 
+ * TODO: add primary key to FS path not resource!
  *
  */
 public class DefaultCryptService implements CryptService {
@@ -57,14 +60,14 @@ public class DefaultCryptService implements CryptService {
 	
 	@Override
 	public String encryptString(String value) {
-		byte[] encryptValue = this.encrypt(value.getBytes());
+		byte[] encryptValue = this.encrypt(value.getBytes(StandardCharsets.UTF_8));
 		return Base64.encodeBase64String(encryptValue);
 	}
 
 	@Override
 	public String decryptString(String value) {
 		byte[] serializableValue = this.decrypt(Base64.decodeBase64(value));
-		return new String(serializableValue);
+		return new String(serializableValue, StandardCharsets.UTF_8);
 	}
 	
 	@Override

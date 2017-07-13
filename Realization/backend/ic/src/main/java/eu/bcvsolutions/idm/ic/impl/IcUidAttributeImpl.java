@@ -79,13 +79,13 @@ public class IcUidAttributeImpl extends IcAttributeImpl implements IcUidAttribut
 	@Override
 	public String getUidValue() {
 		if (this.multiValue || (this.values != null && this.values.size() > 1)) {
-			throw new IllegalArgumentException("Must be a single value.");
+			throw new IllegalArgumentException("Attribute [" + name + "] must be a single value.");
 		}
 		if (this.values == null || this.values.isEmpty()) {
 			return null;
 		}
 		if (!(this.values.get(0) instanceof String)) {
-			throw new IllegalArgumentException("Must be a String value.");
+			throw new IllegalArgumentException("Attribute [" + name + "] must be a String value.");
 		}
 		return (String) this.values.get(0);
 

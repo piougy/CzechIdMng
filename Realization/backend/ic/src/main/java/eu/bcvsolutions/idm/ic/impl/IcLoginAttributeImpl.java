@@ -60,7 +60,7 @@ public class IcLoginAttributeImpl extends IcAttributeImpl implements IcLoginAttr
 	@Override
 	public String getLoginValue() {
 		if (this.multiValue || (this.values != null && this.values.size() > 1)) {
-			throw new IllegalArgumentException("Must be a single value.");
+			throw new IllegalArgumentException("Attribute [" + name + "] must be a single value.");
 		}
 		if (this.values == null || this.values.isEmpty()) {
 			return null;

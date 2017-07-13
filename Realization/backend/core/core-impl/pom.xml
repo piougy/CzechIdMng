@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>eu.bcvsolutions.idm</groupId>
 		<artifactId>idm-core</artifactId>
-		<version>7.3.0-rc.5-SNAPSHOT</version>
+		<version>7.3.0-rc.5</version>
 	</parent>
 
 	<artifactId>idm-core-impl</artifactId>

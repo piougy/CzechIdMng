@@ -2,7 +2,7 @@ import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 //
-import * as Advanced from '../components/advanced';
+// import * as Advanced from '../components/advanced';
 import * as Basic from '../components/basic';
 import { ConfigurationManager } from '../redux';
 
@@ -16,6 +16,8 @@ class About extends Basic.AbstractContent {
 
   render() {
     const { version } = this.props;
+    // <big>{this.i18n('app.version.releaseDate')}: <Advanced.DateValue value={ buildTimestamp } title={ buildNumber }/></big>
+    // <br />
     //
     return (
       <div>
@@ -30,8 +32,6 @@ class About extends Basic.AbstractContent {
                 </div>
                 <div className="about-text">
                   <big>{this.i18n('app.version.frontend')}: { version }</big>
-                  <br />
-                  <big>{this.i18n('app.version.releaseDate')}: <Advanced.DateValue value="2017-06-23"/></big>
                   <br />
                   <a href={this.i18n('app.author.homePage')} target="_blank">{this.i18n('app.author.name')}</a>
                   <br />
@@ -58,7 +58,9 @@ About.propTypes = {
 
 function select(state) {
   return {
-    version: ConfigurationManager.getPublicValue(state, 'idm.pub.core.build.version')
+    version: ConfigurationManager.getPublicValue(state, 'idm.pub.core.build.version'),
+    buildNumber: ConfigurationManager.getPublicValue(state, 'idm.pub.core.build.buildNumber'),
+    buildTimestamp: ConfigurationManager.getPublicValue(state, 'idm.pub.core.build.buildTimestamp')
     // TODO: timestamp - eclipse don't replace pom properties ...
   };
 }

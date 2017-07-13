@@ -15,6 +15,10 @@ public class ModuleDescriptorDto implements Identifiable<String> {
 	private String vendor;
 	private String version;
 	private String description;
+	private String vendorUrl;
+	private String vendorEmail;
+	private String buildNumber;
+	private String buildTimestamp;
 	private boolean disableable;
 	private boolean disabled;
 
@@ -75,4 +79,35 @@ public class ModuleDescriptorDto implements Identifiable<String> {
 		this.version = version;
 	}
 
+	public String getVendorUrl() {
+		return vendorUrl;
+	}
+
+	public void setVendorUrl(String vendorUrl) {
+		this.vendorUrl = vendorUrl;
+	}
+
+	public String getVendorEmail() {
+		return vendorEmail;
+	}
+
+	public void setVendorEmail(String vendorEmail) {
+		this.vendorEmail = vendorEmail;
+	}
+
+	public String getBuildNumber() {
+		return buildNumber;
+	}
+
+	public void setBuildNumber(String buildNumber) {
+		this.buildNumber = buildNumber;
+	}
+
+	public String getBuildTimestamp() {
+		return buildTimestamp;
+	}
+
+	public void setBuildTimestamp(String buildTimestamp) {
+		this.buildTimestamp = buildTimestamp;
+	}
 }

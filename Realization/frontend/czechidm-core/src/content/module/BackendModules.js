@@ -3,8 +3,10 @@ import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 //
 import * as Basic from '../../components/basic';
+import * as Advanced from '../../components/advanced';
 import { BackendModuleManager, DataManager, SecurityManager } from '../../redux';
 import * as Utils from '../../utils';
+import ConfigLoader from '../../utils/ConfigLoader';
 
 /**
  * BE modules administration
@@ -78,7 +80,31 @@ class BackendModules extends Basic.AbstractContent {
           <Basic.Column property="name" header={this.i18n('entity.Module.name')}/>
           <Basic.Column property="vendor" header={this.i18n('entity.Module.vendor')}/>
           <Basic.Column property="version" header={this.i18n('entity.Module.version')}/>
+            <Basic.Column
+              property="build"
+              header={this.i18n('entity.Module.build')}
+              cell={
+                ({rowIndex, data}) => {
+                  const moduleDescriptor = data[rowIndex];
+                  return (
+                    <span>
+                      { moduleDescriptor.buildNumber }
+                      <br />
+                      <Advanced.DateValue value={ moduleDescriptor.buildTimestamp }/>
+                    </span>);
+                }
+              }/>
           <Basic.Column property="description" header={this.i18n('entity.Module.description')}/>
+          <Basic.Column
+            property="documentation"
+            header={this.i18n('entity.Module.documentation')}
+            cell={
+              /* eslint-disable react/no-multi-comp */
+              ({rowIndex, data}) => {
+                const moduleDescriptor = data[rowIndex];
+                return <Basic.Link href={ `${ConfigLoader.getServerUrl().replace('/api/v1', '')}/webjars/${moduleDescriptor.id}/${moduleDescriptor.version}/doc/index.html` } text="Html"/>;
+              }
+            }/>
           <Basic.Column
             property="disabled"
             header={<Basic.Cell className="column-face-bool">{this.i18n('entity.Module.disabled')}</Basic.Cell>}

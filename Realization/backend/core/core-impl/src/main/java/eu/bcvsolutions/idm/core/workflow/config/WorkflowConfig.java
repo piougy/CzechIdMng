@@ -123,21 +123,22 @@ public class WorkflowConfig {
 	 * @param processEngineConfiguration
 	 */
 	private void addActivitiEventListeners(ProcessEngineConfigurationImpl processEngineConfiguration) {
+		List<ActivitiEventListener> candidateUiidList = Stream.of(candidateToUiidEventListener)
+				.collect(Collectors.toList());
+		List<ActivitiEventListener> taskSendNotificationList = Stream
+				.of(taskSendNotificationEventListener, candidateToUiidEventListener).collect(Collectors.toList());
+		//
 		Map<String, List<ActivitiEventListener>> typedListeners = new HashMap<>();
 		typedListeners.put(ActivitiEventType.PROCESS_STARTED.name(),
 				Stream.of(startSubprocesEventListener).collect(Collectors.toList()));
-		typedListeners.put(ActivitiEventType.TASK_ASSIGNED.name(), 
-				Stream.of(taskSendNotificationEventListener, candidateToUiidEventListener).collect(Collectors.toList()));
-		typedListeners.put(ActivitiEventType.TASK_CREATED.name(), 
-				Stream.of(taskSendNotificationEventListener, candidateToUiidEventListener).collect(Collectors.toList()));
-		typedListeners.put(ActivitiEventType.TASK_COMPLETED.name(), 
-				Stream.of(taskSendNotificationEventListener, candidateToUiidEventListener).collect(Collectors.toList()));
-		typedListeners.put(ActivitiEventType.ENTITY_CREATED.name(), 
-				Stream.of(candidateToUiidEventListener).collect(Collectors.toList()));
-		typedListeners.put(ActivitiEventType.ENTITY_INITIALIZED.name(), 
-				Stream.of(candidateToUiidEventListener).collect(Collectors.toList()));
-		
-		
+		//
+		typedListeners.put(ActivitiEventType.TASK_ASSIGNED.name(), taskSendNotificationList);
+		typedListeners.put(ActivitiEventType.TASK_CREATED.name(), taskSendNotificationList);
+		typedListeners.put(ActivitiEventType.TASK_COMPLETED.name(), taskSendNotificationList);
+		//
+		typedListeners.put(ActivitiEventType.ENTITY_CREATED.name(), candidateUiidList);
+		typedListeners.put(ActivitiEventType.ENTITY_INITIALIZED.name(), candidateUiidList);
+		//
 		processEngineConfiguration.setTypedEventListeners(typedListeners);
 	}
 

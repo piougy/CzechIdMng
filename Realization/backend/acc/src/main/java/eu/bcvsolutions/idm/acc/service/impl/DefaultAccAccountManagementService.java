@@ -106,7 +106,7 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 		boolean provisioningRequired = false;
 
 		if (CollectionUtils.isEmpty(identityRoles) && CollectionUtils.isEmpty(identityAccountList)) {
-			// None roles and accounts ... we don't have any to do
+			// No roles and accounts ... we don't have anything to do
 			return false;
 		}
 

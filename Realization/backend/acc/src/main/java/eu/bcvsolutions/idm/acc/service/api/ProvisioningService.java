@@ -36,11 +36,11 @@ public interface ProvisioningService {
 	public static final String SKIP_PROVISIONING = "skip_provisioning";
 
 	/**
-	 * Do provisioning for given identity on all connected systems
+	 * Do provisioning for given entity on all connected systems
 	 * 
-	 * @param identity
+	 * @param entity
 	 */
-	void doProvisioning(AbstractEntity identity);
+	void doProvisioning(AbstractEntity entity);
 	
 	/**
 	 * Do provisioning for given account on connected system
@@ -50,15 +50,14 @@ public interface ProvisioningService {
 	void doProvisioning(AccAccount account);
 	
 	/**
-	 * Do provisioning for given account and identity
+	 * Do provisioning for given account and entity
 	 * Emits ProvisioningEventType.START event.
 	 * 
 	 * @param account
-	 * @param identity
-	 * @param system
+	 * @param entity
 	 * @return
 	 */
-	void doProvisioning(AccAccount account, AbstractEntity identity);
+	void doProvisioning(AccAccount account, AbstractEntity entity);
 
 	/**
 	 * Do delete provisioning for given account on connected system

@@ -180,7 +180,7 @@ public class TaskSendNotificationEventListener implements ActivitiEventListener{
 	private boolean isSendDisabledByTask(TaskEntity taskEntity) {
 		List<FormProperty> properties = getFormProperties(taskEntity.getId());
 		if(properties == null){
-			return Boolean.FALSE;
+			return false;
 		}
 		// get only properties that has id or name equals to SEND_NOTIFICATION_FROM_WF
 		properties = properties.stream()
@@ -198,11 +198,11 @@ public class TaskSendNotificationEventListener implements ActivitiEventListener{
 			for (FormProperty property : properties) {
 				if (property.getValue().equals(Boolean.FALSE.toString())) {
 					LOG.debug("TaskSendNotificationEventListener - Send notification is disabled by task [{}]", taskEntity.getName());
-					return Boolean.TRUE;
+					return true;
 				}
 			}
 		}
-		return Boolean.FALSE;
+		return false;
 	}
 	
 	/**

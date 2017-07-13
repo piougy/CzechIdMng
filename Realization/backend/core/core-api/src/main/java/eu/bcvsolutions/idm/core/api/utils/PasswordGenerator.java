@@ -295,7 +295,7 @@ public class PasswordGenerator {
         
         StringBuilder result = new StringBuilder(string.length());
         
-        while(list.size() != 0){
+        while(!list.isEmpty()){
             result.append(list.remove(getRandomNumber(0, list.size() - 1)));
         }
         

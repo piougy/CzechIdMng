@@ -73,7 +73,6 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 	private final IdmIdentityRepository identityRepository;
 	private final AccIdentityAccountService identityAccoutnService;
 	private final IdmIdentityRoleService identityRoleService;
-	private final FormService formService;
 
 	@Autowired
 	public IdentitySynchronizationExecutor(IcConnectorFacade connectorFacade, SysSystemService systemService,
@@ -100,7 +99,6 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 		this.identityAccoutnService = identityAccoutnService;
 		this.identityRoleService = identityRoleService;
 		this.identityRepository = identityRepository;
-		this.formService = formService;
 	}
 
 	/**
@@ -181,7 +179,6 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 	 * @param icAttributes
 	 * @param account
 	 */
-	@SuppressWarnings("unchecked")
 	@Override
 	protected void doCreateEntity(SystemEntityType entityType, List<SysSystemAttributeMapping> mappedAttributes,
 			SysSyncItemLog logItem, String uid, List<IcAttribute> icAttributes, AccAccount account) {

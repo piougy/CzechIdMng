@@ -186,7 +186,7 @@ public class DefaultAuditService extends AbstractReadWriteDtoService<IdmAuditDto
 		}
 		
 		Class<?> clazz = entityClass;
-		while (!(clazz.getName().equals(AbstractEntity.class.getName()))) {
+		while (!(clazz.equals(AbstractEntity.class))) {
 			Field[] fields = clazz.getDeclaredFields();
 			
 			for (Field field : fields) {

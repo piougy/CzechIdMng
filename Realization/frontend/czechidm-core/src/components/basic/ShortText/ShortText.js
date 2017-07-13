@@ -2,35 +2,38 @@ import React, { PropTypes } from 'react';
 
 import UiUtils from '../../../utils/UiUtils';
 import AbstractComponent from '../AbstractComponent/AbstractComponent';
+import Tooltip from '../Tooltip/Tooltip';
 
 /**
 * Simple component to make text shorter
+* @author Marek Klement
  */
-class HideLongText extends AbstractComponent {
+class ShortText extends AbstractComponent {
 
   constructor(props) {
     super(props);
   }
 
   render() {
-    const { text, maxLen, cutPointEnd, cutChar, className } = this.props;
+    const { text, maxLength, cutPointEnd, cutChar, className, rendered } = this.props;
+    if (!rendered) return null;
     let shortText = '';
-    if (text.length > maxLen) {
+    if (text.length > maxLength) {
       if (cutPointEnd) {
-        shortText = UiUtils.substringBegin(text, maxLen, cutChar);
+        shortText = UiUtils.substringBegin(text, maxLength, cutChar);
         shortText = shortText + '...';
       } else {
-        shortText = UiUtils.substringEnd(text, maxLen, cutChar);
+        shortText = UiUtils.substringEnd(text, maxLength, cutChar);
         shortText = '...' + shortText;
       }
     } else {
       shortText = text;
     }
-    return <span className={className}>{shortText}</span>;
+    return <Tooltip value={text}><span className={className}>{shortText}</span></Tooltip>;
   }
 }
 
-HideLongText.propTypes = {
+ShortText.propTypes = {
   /**
    * String to be shorten
    */
@@ -38,7 +41,7 @@ HideLongText.propTypes = {
   /**
    * Number of lenght for string to be shorten to
    */
-  maxLen: PropTypes.number,
+  maxLength: PropTypes.number,
   /**
    * Character acording which you cut
    */
@@ -49,11 +52,11 @@ HideLongText.propTypes = {
   cutPointEnd: PropTypes.bool
 };
 
-HideLongText.defaultProps = {
+ShortText.defaultProps = {
   /**
-   * default shorten value of maxLen
+   * default shorten value of maxLength
    */
-  maxLen: 20,
+  maxLength: 20,
   /**
    * default character for cutting
    */
@@ -64,4 +67,4 @@ HideLongText.defaultProps = {
   cutPointEnd: true
 };
 
-export default HideLongText;
+export default ShortText;

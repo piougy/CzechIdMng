@@ -44,7 +44,7 @@ import Popover from './Popover/Popover';
 import ScriptArea from './ScriptArea/ScriptArea';
 import PasswordStrength from './PasswordStrength/PasswordStrength';
 import Link from './Link/Link';
-import HideLongText from './HideLongText/HideLongText';
+import ShortText from './ShortText/ShortText';
 
 const Components = {
   AbstractComponent,
@@ -107,7 +107,7 @@ const Components = {
   ScriptArea,
   PasswordStrength,
   Link,
-  HideLongText
+  ShortText
 };
 
 Components.version = '0.0.1';

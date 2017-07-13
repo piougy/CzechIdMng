@@ -217,11 +217,6 @@ export default class UiUtils {
   * @return {String}
   */
   static substringByWord(data, maxLength) {
-    if (data) {
-      data = data + ' ';
-      const result = data.replace(/<(?:.|\n)*?>/gm, '').substr(0, maxLength);
-      return result.substr(0, Math.min(result.length, result.lastIndexOf(' ')));
-    }
-    return null;
+    return this.substringBegin(data, maxLength, ' ');
   }
 }

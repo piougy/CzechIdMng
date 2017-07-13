@@ -114,6 +114,7 @@ public abstract class AbstractModuleDescriptor implements ModuleDescriptor {
 	/**
 	 * Returns empty notifications list
 	 */
+	@Override
 	public List<NotificationConfigurationDto> getDefaultNotificationConfigurations() {
 		return Collections.emptyList();
 	}

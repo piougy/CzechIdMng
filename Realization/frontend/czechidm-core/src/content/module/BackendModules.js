@@ -110,7 +110,24 @@ class BackendModules extends Basic.AbstractContent {
               /* eslint-disable react/no-multi-comp */
               ({rowIndex, data}) => {
                 const moduleDescriptor = data[rowIndex];
-                return <Basic.Link href={ `${ConfigLoader.getServerUrl().replace('/api/v1', '')}/webjars/${moduleDescriptor.id}/${moduleDescriptor.version}/doc/index.html` } text="Html"/>;
+                const links = [];
+                //
+                if (moduleDescriptor.documentationAvailable) {
+                  links.push(
+                    <Basic.Link
+                      href={ `${ConfigLoader.getServerUrl().replace('/v1', '')}?group=core` }
+                      text="Api"
+                      style={{ marginRight: 5 }}/>
+                  );
+                  links.push(
+                    <Basic.Link
+                      href={ `${ConfigLoader.getServerUrl().replace('/api/v1', '')}/webjars/${moduleDescriptor.id}/${moduleDescriptor.version}/doc/index.html` }
+                      text="Html"
+                      style={{ marginRight: 5 }}/>
+                  );
+                }
+                // javadoc
+                return links;
               }
             }/>
           <Basic.Column

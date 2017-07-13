@@ -2481,7 +2481,11 @@
       "vendor": "Poskytovatel",
       "version": "Verze",
       "description": "Popis",
-      "disabled": "Neaktivní"
+      "disabled": "Neaktivní",
+      "documentation": "Dokumentace",
+      "build": "Build",
+      "buildNumber": "Revize",
+      "buildTimestamp": "Datum sestavení"
     },
     "EntityEventProcessor": {
       "id": "Id",

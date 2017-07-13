@@ -13,7 +13,7 @@ class DateValue extends AbstractComponent {
   }
 
   render() {
-    const { rendered, value, format, ...others } = this.props;
+    const { rendered, value, format, title } = this.props;
     if (!rendered || !value) {
       return null;
     }
@@ -26,7 +26,7 @@ class DateValue extends AbstractComponent {
     }
 
     return (
-      <span className="basic-date-value">
+      <span className="basic-date-value" title={ title }>
         {_formattedValue}
       </span>
     );

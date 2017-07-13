@@ -2429,7 +2429,11 @@
       "vendor": "Provider",
       "version": "Version",
       "description": "Description",
-      "disabled": "Inactive"
+      "disabled": "Inactive",
+      "documentation": "Dokumentation",
+      "build": "Build",
+      "buildNumber": "Revision",
+      "buildTimestamp": "Build date"
     },
     "EntityEventProcessor": {
       "id": "ID",

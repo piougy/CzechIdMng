@@ -18,7 +18,6 @@ import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
-
 @Service
 public interface IdmTreeTypeService extends 
 		ReadWriteEntityService<IdmTreeType, QuickFilter>,

@@ -97,12 +97,13 @@ public class DefaultLookupService implements LookupService {
 		Object service = getService(identifiableType);
 		if (service == null) {
 			LOG.debug("ReadDtoService for identifiable type [{}] is not found", identifiableType);
+			return null;
 		}
 		//
 		if (service instanceof ReadDtoService) {
 			return (ReadDtoService<?, ?>) service;
 		}
-		LOG.debug("Service for identifiable type [{}] is not ReadDtoService, type [{}] ", identifiableType, service.getClass().getCanonicalName());
+		LOG.debug("Service for identifiable type [{}] is not ReadDtoService, current type [{}] ", identifiableType, service.getClass().getCanonicalName());
 		return null;
 	}
 	

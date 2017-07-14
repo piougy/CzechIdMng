@@ -65,11 +65,14 @@ public class DefaultIdmNotificationConfigurationService
 	}
 	
 	@Override
+	@Transactional
 	public NotificationConfigurationDto save(NotificationConfigurationDto dto, BasePermission... permission) {
+		Assert.notNull(dto);
+		//
 		// create wild card, check if exist any another
 		if (dto.getLevel() == null) {
 			IdmNotificationConfiguration wildcard = repository.findNotificationByTopicLevel(dto.getTopic(), null);
-			if (wildcard != null && !wildcard.equals(dto)) {
+			if (wildcard != null && !wildcard.getId().equals(dto.getId())) {
 				throw new ResultCodeException(CoreResultCode.NOTIFICATION_TOPIC_AND_LEVEL_EXISTS, ImmutableMap.of("topic", dto.getTopic()));
 			}
 		}

@@ -20,6 +20,7 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.validation.constraints.Size;
 
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.hibernate.envers.ModifiedEntityNames;
@@ -210,19 +211,21 @@ public class IdmAudit implements BaseEntity {
 	}
 	
 	public void addChanged(String changedColumn) {
-		if (this.changedAttributes == null || this.changedAttributes.isEmpty()) {
-			this.changedAttributes = changedColumn;
+		if (StringUtils.isEmpty(changedAttributes)) {
+			changedAttributes = changedColumn;
 		} else {
-			StringBuilder stringBuilder = new StringBuilder(this.changedAttributes);
-			stringBuilder.append(IdmAuditDto.CHANGED_COLUMNS_DELIMITER);
-			stringBuilder.append(' ');
-			stringBuilder.append(changedColumn);
-			this.changedAttributes = stringBuilder.toString();
+			changedAttributes = String.format("%s%s%s", changedAttributes, IdmAuditDto.CHANGED_COLUMNS_DELIMITER, changedColumn);
 		}
 	}
 	
 	public void addChanged(List<String> changedColumns) {
-		this.addChanged(String.join(IdmAuditDto.CHANGED_COLUMNS_DELIMITER, changedColumns));
+		if (changedColumns == null) {
+			// nothing to add
+			return;
+		}
+		changedColumns.forEach(changedColumn -> {
+			addChanged(changedColumn);
+		});
 	}
 
 	public long getTimestamp() {

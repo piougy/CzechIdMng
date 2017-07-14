@@ -449,22 +449,17 @@ public class DefaultIdmIdentityService
 		}
 		// handle identities without IdmAuthorityChange entity relation (auth. change is null)
 		List<IdmIdentity> withoutAuthChangeRel = repository.findAllWithoutAuthorityChange(identities);
-		if (!withoutAuthChangeRel.isEmpty()) {
-			identities.removeAll(withoutAuthChangeRel);
-			createAuthorityChange(withoutAuthChangeRel, changeTime);
-		}
-		// run update query on the rest of identities
-		if (!identities.isEmpty()) {
-			repository.setIdmAuthorityChangeForIdentity(identities, changeTime);
-		}
-	}
-
-	private void createAuthorityChange(List<IdmIdentity> withoutAuthChangeRel, DateTime changeTime) {
-		for (IdmIdentity identity : withoutAuthChangeRel) {
+		withoutAuthChangeRel.forEach(identity -> {
 			IdmAuthorityChange ac = new IdmAuthorityChange();
 			ac.setAuthChangeTimestamp(changeTime);
 			ac.setIdentity(identity);
 			authChangeRepository.save(ac);
+			//
+			identities.remove(identity.getId());
+		});
+		// run update query on the rest of identities
+		if (!identities.isEmpty()) {
+			repository.setIdmAuthorityChangeForIdentity(identities, changeTime);
 		}
 	}
 }

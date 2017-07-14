@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -66,8 +65,6 @@ public class WorkflowDefinitionController extends AbstractReadWriteDtoController
 	//
 	private final WorkflowDeploymentService deploymentService;
 	private final WorkflowProcessDefinitionService definitionService;
-	@Value("${spring.data.rest.defaultPageSize}")
-	private int defaultPageSize;
 	
 	@Autowired
 	public WorkflowDefinitionController(WorkflowProcessDefinitionService service, WorkflowDeploymentService deploymentService) {

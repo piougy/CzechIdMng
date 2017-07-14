@@ -27,12 +27,12 @@ public interface RecaptchaConfiguration extends Configurable {
 	
 	@Override
 	default String getModule() {
-		return "secirity";
+		return "security";
 	}
 	
 	@Override
 	default List<String> getPropertyNames() {
-		List<String> properties = new ArrayList<>(); // we are not using superclass properties - enable and order does not make a sence here
+		List<String> properties = new ArrayList<>(); // we are not using superclass properties - enable and order does not make sense here
 		properties.add(getPropertyName(PROPERTY_URL));
 		properties.add(getPropertyName(PROPERTY_SECRET_KEY));
 		return properties;

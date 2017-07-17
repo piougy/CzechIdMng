@@ -6,6 +6,7 @@ import Tooltip from '../Tooltip/Tooltip';
 
 /**
 * Simple component to make text shorter
+*
 * @author Marek Klement
  */
 class ShortText extends AbstractComponent {
@@ -29,7 +30,13 @@ class ShortText extends AbstractComponent {
     } else {
       shortText = text;
     }
-    return <Tooltip value={text}><span className={className}>{shortText}</span></Tooltip>;
+    return (
+      <Tooltip value={ text }>
+        <span className={ className }>
+          { shortText }
+        </span>
+      </Tooltip>
+    );
   }
 }
 
@@ -53,6 +60,7 @@ ShortText.propTypes = {
 };
 
 ShortText.defaultProps = {
+  ...AbstractComponent.defaultProps,
   /**
    * default shorten value of maxLength
    */

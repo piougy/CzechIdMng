@@ -295,7 +295,7 @@ public class SysSyncConfigController
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
 						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_READ, description = "")})
 				},
-			notes = "Cancel synchronization by given config.")
+			notes = "If sync by given config's identifier is running.")
 	public ResponseEntity<?> isRunningSynchronization(
 			@ApiParam(value = "Config's uuid identifier.", required = true)
 			@PathVariable @NotNull String backendId,

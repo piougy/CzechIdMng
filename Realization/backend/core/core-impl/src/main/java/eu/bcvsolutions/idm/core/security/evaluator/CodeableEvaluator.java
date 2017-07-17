@@ -35,7 +35,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 @Description("Share entity by their identifier - uuid or code.")
 public class CodeableEvaluator extends AbstractAuthorizationEvaluator<Identifiable> {
 	
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(UuidEvaluator.class);
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(CodeableEvaluator.class);
 	public static final String PARAMETER_IDENTIFIER = "identifier";
 	@Autowired private LookupService lookupService;
 	
@@ -115,7 +115,7 @@ public class CodeableEvaluator extends AbstractAuthorizationEvaluator<Identifiab
 			return null;
 		}
 		if (entity == null) {
-			LOG.debug("Entity for type [{}] and code does not found - skipping", policy.getAuthorizableType(), identifier);
+			LOG.debug("Entity for type [{}] and code [{}] does not found - skipping", policy.getAuthorizableType(), identifier);
 			return null;
 		}
 		return entity;

@@ -143,7 +143,7 @@ public class DefaultGroovyScriptService implements GroovyScriptService {
 	 * 
 	 * @author Filip Mestanek
 	 */
-	private class ScriptCache {
+	private static class ScriptCache {
 		
 		/**
 		 * Key is hash code of script body, value is built script

@@ -18,8 +18,8 @@ import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
  */
 
 @Component
-public class CandidateToUiidEventListener implements ActivitiEventListener {
-	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(CandidateToUiidEventListener.class);
+public class CandidateToUuidEventListener implements ActivitiEventListener {
+	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(CandidateToUuidEventListener.class);
 
 	@Autowired
 	private LookupService lookupService;

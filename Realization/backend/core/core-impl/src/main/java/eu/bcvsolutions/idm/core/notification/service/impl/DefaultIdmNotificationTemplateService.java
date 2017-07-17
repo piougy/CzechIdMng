@@ -371,7 +371,7 @@ public class DefaultIdmNotificationTemplateService extends
 		Marshaller jaxbMarshaller = null;
 		try {
 			jaxbMarshaller = jaxbContext.createMarshaller();
-			jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+			jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
 			jaxbMarshaller.setProperty(Marshaller.JAXB_ENCODING, StandardCharsets.UTF_8.name());
 			jaxbMarshaller.setProperty(ENCODING_HANDLER, new JaxbCharacterEscapeEncoder());
 		} catch (JAXBException e) {

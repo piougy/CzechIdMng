@@ -23,7 +23,7 @@ import org.springframework.context.annotation.Configuration;
 import eu.bcvsolutions.idm.core.notification.service.api.EmailNotificationSender;
 import eu.bcvsolutions.idm.core.workflow.domain.CustomActivityBehaviorFactory;
 import eu.bcvsolutions.idm.core.workflow.domain.formtype.CustomFormTypes;
-import eu.bcvsolutions.idm.core.workflow.listener.CandidateToUiidEventListener;
+import eu.bcvsolutions.idm.core.workflow.listener.CandidateToUuidEventListener;
 import eu.bcvsolutions.idm.core.workflow.listener.StartSubprocessEventListener;
 import eu.bcvsolutions.idm.core.workflow.listener.TaskSendNotificationEventListener;
 
@@ -56,7 +56,7 @@ public class WorkflowConfig {
 	@Autowired
 	private TaskSendNotificationEventListener taskSendNotificationEventListener;
 	@Autowired
-	private CandidateToUiidEventListener candidateToUiidEventListener;
+	private CandidateToUuidEventListener candidateToUiidEventListener;
 	
 	// Only local variable (no autowired bean)
 	private ProcessEngineConfigurationImpl processEngineConfiguration;

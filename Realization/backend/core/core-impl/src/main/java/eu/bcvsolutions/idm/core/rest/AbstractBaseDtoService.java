@@ -29,8 +29,8 @@ public class AbstractBaseDtoService<DTO extends BaseDto, F extends BaseFilter> i
 	@SuppressWarnings("unchecked")
 	public AbstractBaseDtoService() {
 		Class<?>[] genericTypes = GenericTypeResolver.resolveTypeArguments(getClass(), AbstractBaseDtoService.class);
-		filterClass = (Class<F>) genericTypes[1];
 		dtoClass = (Class<DTO>) genericTypes[0];
+		filterClass = (Class<F>) genericTypes[1];
 	}
 	
 	@Override

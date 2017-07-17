@@ -35,7 +35,6 @@ import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
 import eu.bcvsolutions.idm.core.model.event.PasswordPolicyEvent;
 import eu.bcvsolutions.idm.core.model.event.PasswordPolicyEvent.PasswordPolicyEvenType;
 import eu.bcvsolutions.idm.core.model.repository.IdmPasswordPolicyRepository;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordPolicyService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordService;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
@@ -47,7 +46,7 @@ import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
-@Service
+@Service("passwordPolicyService")
 public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityService<IdmPasswordPolicy, PasswordPolicyFilter> implements IdmPasswordPolicyService {
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmPasswordPolicyService.class);
@@ -74,28 +73,24 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 	private final SecurityService securityService;
 	private final EntityEventManager entityEventProcessorService;
 	private final IdmPasswordService passwordService;
-	private final IdmIdentityService identityService;
 	
 	@Autowired
 	public DefaultIdmPasswordPolicyService(
 			AbstractEntityRepository<IdmPasswordPolicy, PasswordPolicyFilter> repository,
 			IdmPasswordPolicyRepository passwordPolicyRepository,
 			EntityEventManager entityEventProcessorService,
-			SecurityService securityService, IdmPasswordService passwordService, IdmIdentityService identityService) {
+			SecurityService securityService, IdmPasswordService passwordService) {
 		super(repository);
 		//
 		Assert.notNull(entityEventProcessorService);
 		Assert.notNull(passwordPolicyRepository);
 		Assert.notNull(securityService);
 		Assert.notNull(passwordService);
-		Assert.notNull(identityService);
 		//
 		this.entityEventProcessorService = entityEventProcessorService;
 		this.passwordPolicyRepository = passwordPolicyRepository;
 		this.securityService = securityService;
 		this.passwordService = passwordService;
-		this.identityService = identityService;
-
 	}
 	
 	@Override

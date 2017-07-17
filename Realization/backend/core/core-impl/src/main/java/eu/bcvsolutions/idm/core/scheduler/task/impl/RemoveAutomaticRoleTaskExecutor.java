@@ -63,7 +63,7 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractAutomaticRoleTaskEx
 		IdmRoleTreeNodeDto roleTreeNode = getRoleTreeNode();
 		LongRunningTaskFilter filter = new LongRunningTaskFilter();
 		filter.setTaskType(this.getClass().getCanonicalName());
-		filter.setRunning(true);
+		filter.setRunning(Boolean.TRUE);
 		service.find(filter, null).forEach(longRunningTask -> {
 			if (longRunningTask.getTaskProperties().get(PARAMETER_ROLE_TREE_NODE).equals(roleTreeNode.getId())) {
 				throw new ResultCodeException(CoreResultCode.AUTOMATIC_ROLE_REMOVE_TASK_RUN_CONCURRENTLY,

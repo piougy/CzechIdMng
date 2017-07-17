@@ -5,6 +5,14 @@ import eu.bcvsolutions.idm.core.api.dto.filter.LoggingEventFilter;
 import eu.bcvsolutions.idm.core.api.service.ReadDtoService;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 
-public interface IdmLoggingEventService extends ReadDtoService<IdmLoggingEventDto, LoggingEventFilter>, AuthorizableService<IdmLoggingEventDto> {
+/**
+ * Service for logging events
+ * 
+ * @author Ondrej Kopr <kopr@xyxy.cz>
+ *
+ */
+
+public interface IdmLoggingEventService
+		extends ReadDtoService<IdmLoggingEventDto, LoggingEventFilter>, AuthorizableService<IdmLoggingEventDto> {
 
 }

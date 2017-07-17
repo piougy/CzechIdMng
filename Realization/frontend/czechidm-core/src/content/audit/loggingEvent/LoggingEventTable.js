@@ -71,7 +71,60 @@ export class EventTable extends Advanced.AbstractTableContent {
     return (
       <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
         <Basic.AbstractForm ref="filterForm">
-
+          <Basic.Row>
+            <Basic.Col lg={ 4 }>
+              <Advanced.Filter.DateTimePicker
+                mode="datetime"
+                ref="from"
+                placeholder={this.i18n('filter.dateFrom.placeholder')}/>
+            </Basic.Col>
+            <Basic.Col lg={ 4 }>
+              <Advanced.Filter.DateTimePicker
+                mode="datetime"
+                ref="till"
+                placeholder={this.i18n('filter.dateTill.placeholder')}/>
+            </Basic.Col>
+            <div className="col-lg-4 text-right">
+              <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
+            </div>
+          </Basic.Row>
+          <Basic.Row>
+            <Basic.Col lg={ 4 }>
+              <Advanced.Filter.EnumSelectBox
+                ref="levelString"
+                searchable
+                placeholder={this.i18n('entity.LoggingEvent.levelString')}
+                enum={LogTypeEnum}/>
+            </Basic.Col>
+            <Basic.Col lg={ 4 }>
+              <Advanced.Filter.TextField
+                ref="text"
+                placeholder={this.i18n('entity.LoggingEvent.text')}/>
+            </Basic.Col>
+            <Basic.Col lg={ 4 }>
+              <Advanced.Filter.TextField
+                className="pull-right"
+                ref="callerFilename"
+                placeholder={this.i18n('entity.LoggingEvent.callerFilename')}/>
+            </Basic.Col>
+          </Basic.Row>
+          <Basic.Row className="last">
+            <Basic.Col lg={ 4 }>
+              <Advanced.Filter.TextField
+                ref="callerLine"
+                placeholder={this.i18n('entity.LoggingEvent.callerLine')}/>
+            </Basic.Col>
+            <Basic.Col lg={ 4 }>
+              <Advanced.Filter.TextField
+                ref="callerMethod"
+                placeholder={this.i18n('entity.LoggingEvent.callerMethod')}/>
+            </Basic.Col>
+            <Basic.Col lg={ 4 }>
+              <Advanced.Filter.TextField
+                ref="loggerName"
+                placeholder={this.i18n('entity.LoggingEvent.loggerName')}/>
+            </Basic.Col>
+          </Basic.Row>
         </Basic.AbstractForm>
       </Advanced.Filter>
     );
@@ -83,7 +136,7 @@ export class EventTable extends Advanced.AbstractTableContent {
    * @param entityId id of revision
    */
   showDetail(entityId) {
-    this.context.router.push(`/audit/events/${entityId}`);
+    this.context.router.push(`/audit/logging-event/${entityId}`);
   }
 
   render() {
@@ -106,12 +159,12 @@ export class EventTable extends Advanced.AbstractTableContent {
                 return (
                   <Advanced.DetailButton
                     title={this.i18n('button.detail')}
-                    onClick={this.showDetail.bind(this, data[rowIndex].eventId)}/>
+                    onClick={this.showDetail.bind(this, data[rowIndex].id)}/>
                 );
               }
             }
             sort={false}/>
-          <Advanced.ColumnLink to="audit/events/:id" property="id" sort face="text" />
+          <Advanced.ColumnLink to="/audit/logging-event/:id" property="id" sort face="text" />
           <Advanced.Column sort
             property="callerClass"
             cell={

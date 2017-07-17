@@ -836,7 +836,7 @@
       "SET": "Nastavit hodnotu, tak jak je",
       "MERGE": "Sloučit (pouze provisioning)",
       "AUTHORITATIVE_MERGE": "Autoritativní sloučení (pouze provisioning)",
-      "CREATE": "Nastavit pouze při vytvoření",
+      "CREATE": "Nastavit pouze při vytvoření entity",
       "WRITE_IF_NULL": "Nastavit pouze pokud je cílová hodnota prázdná"
     },
     "ProvisioningOperationTypeEnum": {

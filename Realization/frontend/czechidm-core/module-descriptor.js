@@ -496,6 +496,7 @@ module.exports = {
             'order': 55,
             'path': '/scheduler/running-tasks',
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCHEDULER_READ'] } ],
+            'icon': 'fa:calendar-times-o',
             'items': [
               {
                 'id': 'scheduler-running-tasks',

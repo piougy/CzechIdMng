@@ -18,8 +18,8 @@ import org.springframework.util.MultiValueMap;
 
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.audit.dto.filter.AuditEntityFilter;
-import eu.bcvsolutions.idm.core.model.entity.IdmAudit;
-import eu.bcvsolutions.idm.core.model.repository.IdmAuditRepository;
+import eu.bcvsolutions.idm.core.audit.model.entity.IdmAudit;
+import eu.bcvsolutions.idm.core.audit.repository.IdmAuditRepository;
 
 /**
  * Abstract service for entities that is audited. From implementation will be

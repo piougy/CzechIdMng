@@ -399,6 +399,13 @@
       "HAS_ANY_AUTHORITY": "At least one of the privileges",
       "HAS_ALL_AUTHORITIES": "Assigned all the permissions"
     },
+    "LogTypeEnum":  {
+      "INFO": "INFO",
+      "DEBUG": "DEBUG",
+      "TRACE": "TRACE",
+      "WARN": "WARN",
+      "ERROR": "ERROR"
+    },
     "AuditModificationEnum": {
       "ADD": "create",
       "MOD": "update",
@@ -1912,6 +1919,7 @@
       "title": "Audit",
       "title-entities": "Entities",
       "title-identities": "Users",
+      "title-logging-events": "Logging events",
       "modifier": "Action executor",
       "date": "Date of change",
       "empty": "Without records",
@@ -1943,8 +1951,8 @@
           "placeholder": "Date from"
         },
         "dateTill": {
-          "label": "Do",
-          "placeholder": "Datum do"
+          "label": "Till",
+          "placeholder": "Date till"
         }
       },
       "identities": {
@@ -2373,6 +2381,22 @@
       "subOwnerId": "Sub owner id",
       "subOwnerType": "Sub owner type",
       "subOwnerCode": "Sub owner code"
+    },
+    "LoggingEvent": {
+      "id": "ID",
+      "timestmp": "Date",
+      "formattedMessage": "Formatted message",
+      "loggerName": "Name of logger",
+      "levelString": "Type",
+      "threadName": "Thread",
+      "arg0": "Argument 0",
+      "arg1": "Argument 1",
+      "arg2": "Argument 2",
+      "arg3": "Argument 3",
+      "callerFilename": "From file",
+      "callerClass": "From class",
+      "callerMethod": "From method",
+      "callerLine": "Line"
     },
     "PasswordPolicy": {
       "type": "Type",

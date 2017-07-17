@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.model.service.api;
+package eu.bcvsolutions.idm.core.audit.service.api;
 
 import java.util.List;
 import java.util.Map;
@@ -13,7 +13,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmAuditDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.AuditFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
-import eu.bcvsolutions.idm.core.model.entity.IdmAudit;
+import eu.bcvsolutions.idm.core.audit.model.entity.IdmAudit;
 
 /**
  * Interface for Audit service

@@ -441,6 +441,13 @@
       "HAS_ANY_AUTHORITY": "Alesnoň jedno z oprávnění",
       "HAS_ALL_AUTHORITIES": "Přiřazena všechna z oprávnění"
     },
+    "LogTypeEnum":  {
+      "INFO": "INFO",
+      "DEBUG": "DEBUG",
+      "TRACE": "TRACE",
+      "WARN": "WARN",
+      "ERROR": "ERROR"
+    },
     "AuditModificationEnum": {
       "ADD": "vytvoření",
       "MOD": "modifikace",
@@ -1974,6 +1981,7 @@
       "title": "Audit",
       "title-entities": "Audit pro entity",
       "title-identities": "Audit pro uživatele",
+      "title-logging-events": "Logované události",
       "modifier": "Akci provedl",
       "date": "Datum změny",
       "empty": "Bez žádných záznamů",
@@ -2425,6 +2433,22 @@
       "subOwnerId": "Id sub vlastníka",
       "subOwnerType": "Typ sub vlastníka",
       "subOwnerCode": "Kód sub vlastníka"
+    },
+    "LoggingEvent": {
+      "id": "ID",
+      "timestmp": "Datum",
+      "formattedMessage": "Formátovaná zpráva",
+      "loggerName": "Název loggeru",
+      "levelString": "Typ",
+      "threadName": "Vlákno",
+      "arg0": "Argument 0",
+      "arg1": "Argument 1",
+      "arg2": "Argument 2",
+      "arg3": "Argument 3",
+      "callerFilename": "Ze souboru",
+      "callerClass": "Ze třídy",
+      "callerMethod": "Z metody",
+      "callerLine": "Řádek"
     },
     "PasswordPolicy": {
       "type": "Typ",

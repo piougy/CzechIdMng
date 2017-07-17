@@ -314,6 +314,20 @@ module.exports = {
                     'authorities': ['AUDIT_READ']
                   }
                 ]
+              },
+              {
+                'id': 'audit-logging-events',
+                'labelKey': 'content.audit.title-logging-events',
+                'order': 60,
+                'path': '/audit/logging-events',
+                'icon': '',
+                'type': 'TAB',
+                'access': [
+                  {
+                    'type': 'HAS_ANY_AUTHORITY',
+                    'authorities': ['AUDIT_READ']
+                  }
+                ]
               }
             ]
           },

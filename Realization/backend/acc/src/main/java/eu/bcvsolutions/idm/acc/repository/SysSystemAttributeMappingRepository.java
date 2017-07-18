@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
@@ -84,4 +85,14 @@ public interface SysSystemAttributeMappingRepository extends AbstractEntityRepos
 	 * @return
 	 */
 	List<SysSystemAttributeMapping> findAllBySystemMapping_Id(@Param("systemMappingId") UUID systemMappingId);
+	
+	/**
+	 * Remove the primary attribute tag (isUid) for all attributes in that system-mapping except the given updatedEntityId
+	 * 
+	 * @param updatedEntityId
+	 * @param systemMappingId
+	 */
+	@Modifying
+	@Query("update #{#entityName} e set e.uid = false where e.systemMapping.id = :systemMappingId and (:updatedEntityId is null or e.id != :updatedEntityId)")
+	void clearIsUidAttribute(@Param("systemMappingId") UUID systemMappingId, @Param("updatedEntityId") UUID updatedEntityId);
 }

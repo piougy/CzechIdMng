@@ -969,7 +969,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 			return;
 		case UPDATE_ENTITY:
 			// Linked action is UPDATE_ENTITY
-			doUpdateEntity(account, entityType, uid, context.getIcObject().getAttributes(), mappedAttributes, log, logItem, actionLogs);
+			doUpdateEntity(context);
 			initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.SUCCESS, logItem, log,
 					actionLogs);
 			return;
@@ -997,6 +997,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 		SysSyncItemLog logItem = context.getLogItem();
 		List<SysSyncActionLog> actionLogs = context.getActionLogs();
 		List<SysSystemAttributeMapping> mappedAttributes = context.getMappedAttributes();
+		List<IcAttribute> icAttributes = context.getIcObject().getAttributes();
 		
 		addToItemLog(logItem, "Account and entity doesn't exist (missing entity).");
 
@@ -1008,6 +1009,11 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 					actionLogs);
 			return;
 		case CREATE_ENTITY:
+			
+			// Generate UID value from mapped attribute marked as UID (Unique ID).
+			// UID mapped attribute must exist and returned value must be not null and must be String
+			String attributeUid = systemAttributeMappingService.getUidValueFromResource(icAttributes, mappedAttributes, system);
+			
 			// Create idm account
 			AccAccount account = doCreateIdmAccount(uid, system);
 			// Find and set SystemEntity (must exist)
@@ -1015,7 +1021,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 			accountService.save(account);
 
 			// Create new entity
-			doCreateEntity(entityType, mappedAttributes, logItem, uid, context.getIcObject().getAttributes(), account);
+			doCreateEntity(entityType, mappedAttributes, logItem, uid, icAttributes, account);
 			initSyncActionLog(SynchronizationActionType.CREATE_ENTITY, OperationResultType.SUCCESS, logItem, log,
 					actionLogs);
 			return;
@@ -1170,9 +1176,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 	 * @param logItem
 	 * @param actionLogs
 	 */
-	protected abstract void doUpdateEntity(AccAccount account, SystemEntityType entityType, String uid,
-			List<IcAttribute> icAttributes, List<SysSystemAttributeMapping> mappedAttributes, SysSyncLog log,
-			SysSyncItemLog logItem, List<SysSyncActionLog> actionLogs);
+	protected abstract void doUpdateEntity(SynchronizationContext context);
 
 	/**
 	 * Add message to logItem. Add timestamp.
@@ -1478,21 +1482,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 	}
 
 	protected Object getValueByMappedAttribute(AttributeMapping attribute, List<IcAttribute> icAttributes) {
-		Object icValue = null;
-		Optional<IcAttribute> optionalIcAttribute = icAttributes.stream().filter(icAttribute -> {
-			return attribute.getSchemaAttribute().getName().equals(icAttribute.getName());
-		}).findFirst();
-		if (optionalIcAttribute.isPresent()) {
-			IcAttribute icAttribute = optionalIcAttribute.get();
-			if (icAttribute.isMultiValue()) {
-				icValue = icAttribute.getValues();
-			} else {
-				icValue = icAttribute.getValue();
-			}
-		}
-
-		Object transformedValue = systemAttributeMappingService.transformValueFromResource(icValue, attribute, icAttributes);
-		return transformedValue;
+		return systemAttributeMappingService.getValueByMappedAttribute(attribute, icAttributes);
 	}
 
 	private AccAccount findAccount(String uid, SystemEntityType entityType, SysSystemEntity systemEntity,

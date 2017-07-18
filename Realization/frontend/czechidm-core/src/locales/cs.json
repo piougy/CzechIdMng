@@ -2450,6 +2450,10 @@
       "callerMethod": "Z metody",
       "callerLine": "Řádek"
     },
+    "LoggingEventException": {
+      "id": "Řádek",
+      "traceLine": "Záznam"
+    },
     "PasswordPolicy": {
       "type": "Typ",
       "name": "Jméno",

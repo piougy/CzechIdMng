@@ -2398,6 +2398,10 @@
       "callerMethod": "From method",
       "callerLine": "Line"
     },
+    "LoggingEventException": {
+      "id": "Row",
+      "traceLine": "Record"
+    },
     "PasswordPolicy": {
       "type": "Type",
       "name": "Name",

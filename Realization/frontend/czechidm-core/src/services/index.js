@@ -40,6 +40,7 @@ import NotificationRecipientService from './NotificationRecipientService';
 import SmsService from './SmsService';
 import RecaptchaService from './RecaptchaService';
 import LoggingEventService from './LoggingEventService';
+import LoggingEventExceptionService from './LoggingEventExceptionService';
 
 const ServiceRoot = {
   RestApiService,
@@ -83,7 +84,8 @@ const ServiceRoot = {
   NotificationRecipientService,
   SmsService,
   RecaptchaService,
-  LoggingEventService
+  LoggingEventService,
+  LoggingEventExceptionService
 };
 
 ServiceRoot.version = '0.0.1';

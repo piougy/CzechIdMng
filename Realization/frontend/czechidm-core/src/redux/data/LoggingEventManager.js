@@ -1,4 +1,4 @@
-import FormableEntityManager from './FormableEntityManager';
+import EntityManager from './EntityManager';
 import { LoggingEventService } from '../../services';
 
 /**
@@ -6,7 +6,7 @@ import { LoggingEventService } from '../../services';
  *
  * @author Ondřej Kopr
  */
-export default class LoggingEventManager extends FormableEntityManager {
+export default class LoggingEventManager extends EntityManager {
 
   constructor() {
     super();

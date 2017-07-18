@@ -1,12 +1,11 @@
 import React, { PropTypes } from 'react';
-import _ from 'lodash';
 import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
 //
 import * as Basic from '../../../components/basic';
-import * as Utils from '../../../utils';
 import { LoggingEventManager } from '../../../redux';
 import LogTypeEnum from '../../../enums/LogTypeEnum';
+import LoggingEventExceptionDetail from './LoggingEventExceptionDetail';
 
 /**
 * Basic detail for template detail,
@@ -128,13 +127,13 @@ class LoggingEventDetail extends Basic.AbstractContent {
               </div>
             </Basic.Row>
             <Basic.TextArea ref="formattedMessage"
-              label={this.i18n('entity.LoggingEvent.loggerName')}/>
+              label={this.i18n('entity.LoggingEvent.formattedMessage')}/>
           </Basic.AbstractForm>
 
           {
-            entity && entity.levelString === LogTypeEnum.ERROR
+            !entity
             ||
-            ' sd '
+            <LoggingEventExceptionDetail eventId={entity.id} />
           }
 
           <Basic.PanelFooter showLoading={showLoading} >

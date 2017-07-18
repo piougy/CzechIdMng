@@ -1,14 +1,14 @@
 import AbstractService from './AbstractService';
 import SearchParameters from '../domain/SearchParameters';
 
-class LoggignEventService extends AbstractService {
+class LoggignEventExceptionService extends AbstractService {
 
   constructor() {
     super();
   }
 
   getApiPath() {
-    return '/logging-events';
+    return '/logging-event-exceptions';
   }
 
   getNiceLabel(entity) {
@@ -16,7 +16,7 @@ class LoggignEventService extends AbstractService {
       return '';
     }
     // TODO: add better nice label
-    return `${entity.eventId}`;
+    return `${entity.i}`;
   }
 
   /**
@@ -25,8 +25,8 @@ class LoggignEventService extends AbstractService {
    * @return {object} searchParameters
    */
   getDefaultSearchParameters() {
-    return super.getDefaultSearchParameters().setName(SearchParameters.NAME_QUICK).clearSort().setSort('eventId', 'DESC');
+    return super.getDefaultSearchParameters().setName(SearchParameters.NAME_QUICK).clearSort().setSort('id', 'ASC');
   }
 }
 
-export default LoggignEventService;
+export default LoggignEventExceptionService;

@@ -40,7 +40,8 @@ export default class EntityUtils {
    * @return {object} - entity
    */
   static _getEntity(state, entityType, id, trimmed = false) {
-    if (!state || !entityType || !id) {
+    const isId = id === '0' || id === 0 || id;
+    if (!state || !entityType || !isId) {
       return null;
     }
     const store = trimmed ? state.data.trimmed : state.data.entity;

@@ -35,14 +35,14 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
  *
  */
 @Service
-public class DefaultLoggingEventService
+public class DefaultIdmLoggingEventService
 		extends AbstractReadDtoService<IdmLoggingEventDto, IdmLoggingEvent, LoggingEventFilter>
 		implements IdmLoggingEventService {
 
 	private final IdmLoggingEventRepository repository;
 
 	@Autowired
-	public DefaultLoggingEventService(IdmLoggingEventRepository repository) {
+	public DefaultIdmLoggingEventService(IdmLoggingEventRepository repository) {
 		super(repository);
 		//
 		Assert.notNull(repository);
@@ -56,11 +56,6 @@ public class DefaultLoggingEventService
 		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
 		//
 		if (StringUtils.isNotEmpty(filter.getText())) {
-
-		}
-		//
-		// caller class
-		if (StringUtils.isNotEmpty(filter.getCallerClass())) {
 			predicates.add(builder.or(
 					builder.like(builder.lower(root.get(IdmLoggingEvent_.formattedMessage)),
 							"%" + filter.getText().toLowerCase() + "%"),
@@ -72,6 +67,12 @@ public class DefaultLoggingEventService
 							"%" + filter.getText().toLowerCase() + "%"),
 					builder.like(builder.lower(root.get(IdmLoggingEvent_.loggerName)),
 							"%" + filter.getText().toLowerCase() + "%")));
+		}
+		//
+		// caller class
+		if (StringUtils.isNotEmpty(filter.getCallerClass())) {
+			predicates.add(
+					builder.like(root.get(IdmLoggingEvent_.callerClass), "%" + filter.getCallerClass() + "%"));
 		}
 		//
 		// caller class

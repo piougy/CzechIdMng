@@ -261,7 +261,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 	protected void doCreateEntity(SystemEntityType entityType, List<SysSystemAttributeMapping> mappedAttributes,
 			SysSyncItemLog logItem, String uid, List<IcAttribute> icAttributes, AccAccount account) {
 		// We will create new TreeNode
-		addToItemLog(logItem, "Missing entity action is CREATE_ENTITY, we will do create new entity.");
+		addToItemLog(logItem, "Missing entity action is CREATE_ENTITY, we will create a new entity.");
 		IdmTreeNode treeNode = new IdmTreeNode();
 		// Fill entity by mapped attribute
 		treeNode = (IdmTreeNode) fillEntity(mappedAttributes, uid, icAttributes, treeNode, true);

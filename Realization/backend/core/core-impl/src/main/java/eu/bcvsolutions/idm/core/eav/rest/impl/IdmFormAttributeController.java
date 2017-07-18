@@ -35,6 +35,7 @@ import io.swagger.annotations.AuthorizationScope;
  * EAV Form definitions
  * 
  * TODO: secure read operations?
+ * TODO: add get method + model
  * 
  * @author Radek Tomiška
  *

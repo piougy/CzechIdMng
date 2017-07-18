@@ -115,7 +115,7 @@ public class CodeableEvaluator extends AbstractAuthorizationEvaluator<Identifiab
 			return null;
 		}
 		if (entity == null) {
-			LOG.debug("Entity for type [{}] and code [{}] does not found - skipping", policy.getAuthorizableType(), identifier);
+			LOG.debug("Entity for type [{}] and code [{}] wasn't found - skipping", policy.getAuthorizableType(), identifier);
 			return null;
 		}
 		return entity;

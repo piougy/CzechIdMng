@@ -830,7 +830,7 @@
       "SET": "Set value as it is",
       "MERGE": "Merge (only provisioning)",
       "AUTHORITATIVE_MERGE": "Authoritative merge (only provisioning)",
-      "CREATE": "Write only on create",
+      "CREATE": "Write only on create of the entity",
       "WRITE_IF_NULL": "Write only if target value is null"
     },
     "ProvisioningOperationTypeEnum": {

@@ -998,7 +998,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 		List<SysSyncActionLog> actionLogs = context.getActionLogs();
 		List<SysSystemAttributeMapping> mappedAttributes = context.getMappedAttributes();
 		
-		addToItemLog(logItem, "Account not exist and entity too (missing entity).");
+		addToItemLog(logItem, "Account and entity doesn't exist (missing entity).");
 
 		switch (actionType) {
 		case IGNORE:
@@ -1037,7 +1037,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 		List<SysSyncActionLog> actionLogs = context.getActionLogs();
 		SysSystemEntity systemEntity = context.getSystemEntity();
 		
-		addToItemLog(logItem, "Account not exist but, entity by correlation was found (entity unlinked).");
+		addToItemLog(logItem, "Account doesn't exist, but an entity was found by correlation (entity unlinked).");
 		addToItemLog(logItem, MessageFormat.format("Unlinked action is {0}", action));
 		AbstractEntity entity = findEntityById(entityId, entityType);
 
@@ -1076,7 +1076,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 		AccAccount account = context.getAccount();
 		
 		addToItemLog(logItem,
-				"Account on target system not exist but, account in IdM was found (missing account situation).");
+				"Account doesn't exist on target system, but account in IdM was found (missing account).");
 		addToItemLog(logItem, MessageFormat.format("Missing account action is {0}", action));
 		switch (action) {
 		case IGNORE:

@@ -300,11 +300,18 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 	 * @param actionLogs
 	 */
 	@Override
-	protected void doUpdateEntity(AccAccount account, SystemEntityType entityType, String uid,
-			List<IcAttribute> icAttributes, List<SysSystemAttributeMapping> mappedAttributes, SysSyncLog log,
-			SysSyncItemLog logItem, List<SysSyncActionLog> actionLogs) {
+	protected void doUpdateEntity(SynchronizationContext context) {
+		
+		String uid = context.getUid();
+		SysSyncLog log = context.getLog(); 
+		SysSyncItemLog logItem = context.getLogItem();
+		List<SysSyncActionLog> actionLogs = context.getActionLogs();
+		List<SysSystemAttributeMapping> mappedAttributes = context.getMappedAttributes();
+		AccAccount account = context.getAccount();
+		List<IcAttribute> icAttributes = context.getIcObject().getAttributes();
 		UUID entityId = getEntityByAccount(account.getId());
 		IdmTreeNode treeNode = null;
+		
 		if (entityId != null) {
 			treeNode = treeNodeService.get(entityId);
 		}

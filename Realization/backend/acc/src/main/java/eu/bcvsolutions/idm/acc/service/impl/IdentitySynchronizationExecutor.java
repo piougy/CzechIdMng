@@ -17,6 +17,7 @@ import com.google.common.collect.Lists;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.OperationResultType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationActionType;
+import eu.bcvsolutions.idm.acc.domain.SynchronizationContext;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.EntityAccountDto;
@@ -49,7 +50,6 @@ import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
-import eu.bcvsolutions.idm.core.model.dto.filter.RoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
@@ -220,9 +220,16 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 	 * @param logItem
 	 * @param actionLogs
 	 */
-	protected void doUpdateEntity(AccAccount account, SystemEntityType entityType, String uid,
-			List<IcAttribute> icAttributes, List<SysSystemAttributeMapping> mappedAttributes, SysSyncLog log,
-			SysSyncItemLog logItem, List<SysSyncActionLog> actionLogs) {
+	protected void doUpdateEntity(SynchronizationContext context) {
+		
+		String uid = context.getUid();
+		SysSyncLog log = context.getLog(); 
+		SysSyncItemLog logItem = context.getLogItem();
+		List<SysSyncActionLog> actionLogs = context.getActionLogs();
+		List<SysSystemAttributeMapping> mappedAttributes = context.getMappedAttributes();
+		AccAccount account = context.getAccount();
+		List<IcAttribute> icAttributes = context.getIcObject().getAttributes();
+		
 		UUID entityId = getEntityByAccount(account.getId());
 		IdmIdentity identity = null;
 		if (entityId != null) {

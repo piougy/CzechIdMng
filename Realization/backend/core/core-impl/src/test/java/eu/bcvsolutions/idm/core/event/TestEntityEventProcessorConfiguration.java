@@ -4,6 +4,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
+import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EntityEventProcessor;
@@ -19,23 +20,33 @@ import eu.bcvsolutions.idm.core.api.event.EventResult;
 public class TestEntityEventProcessorConfiguration {
 	
 	@Bean
-	public EntityEventProcessor<?> testEntityEventprocessorOne() {
+	public EntityEventProcessor<?> testEntityEventProcessorOne() {
 		return new TestProcessor(1);
 	}
 	
 	@Bean
-	public EntityEventProcessor<?> testEntityEventprocessorTwo() {
+	public EntityEventProcessor<?> testEntityEventProcessorTwo() {
 		return new TestProcessor(2);
 	}
 	
 	@Bean
-	public EntityEventProcessor<?> testEntityEventprocessorThree() {
+	public EntityEventProcessor<?> testEntityEventProcessorThree() {
 		return new TestProcessor(3);
 	}
 	
 	@Bean
-	public EntityEventProcessor<?> testEntityEventprocessorFour() {
+	public EntityEventProcessor<?> testEntityEventProcessorFour() {
 		return new TestProcessor(4);
+	}
+	
+	@Bean
+	public EntityEventProcessor<?> testTwoEntityEventProcessorOne() {
+		return new TestProcessorTwo(2);
+	}
+	
+	@Bean
+	public EntityEventProcessor<?> testTwoEntityEventProcessorTwo() {
+		return new TestProcessorTwo(2);
 	}
 	
 	private class TestProcessor extends AbstractEntityEventProcessor<TestContent> {
@@ -56,6 +67,28 @@ public class TestEntityEventProcessorConfiguration {
 			if (order.equals(event.getContent().getSuspend())) {
 				result.setSuspended(true);
 			}
+			return result.build();
+		}
+
+		@Override
+		public int getOrder() {
+			return order;
+		}
+	}
+	
+	private class TestProcessorTwo extends AbstractEntityEventProcessor<TestContentTwo> {
+		
+		private Integer order;
+		
+		public TestProcessorTwo(Integer order) {
+			super(CoreEventType.EAV_SAVE);
+			this.order = order;
+		}
+		
+		@Override
+		public EventResult<TestContentTwo> process(EntityEvent<TestContentTwo> event) {
+			event.getContent().setText(order.toString());			
+			DefaultEventResult.Builder<TestContentTwo> result = new DefaultEventResult.Builder<>(event, this);
 			return result.build();
 		}
 

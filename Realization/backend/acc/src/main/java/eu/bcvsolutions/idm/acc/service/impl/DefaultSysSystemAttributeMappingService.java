@@ -188,19 +188,12 @@ public class DefaultSysSystemAttributeMappingService
 	@Transactional
 	public SysSystemAttributeMapping save(SysSystemAttributeMapping entity) {
 		// Check if exist some else attribute which is defined like unique identifier
-		if (entity.isUid()) {			
-			SystemAttributeMappingFilter filter = new SystemAttributeMappingFilter();
-			filter.setSystemMappingId(entity.getSystemMapping().getId());
-			filter.setIsUid(Boolean.TRUE);
-			List<SysSystemAttributeMapping> list = this.find(filter, null).getContent();
-			
-			if (list.size() > 0 && !list.get(0).getId().equals(entity.getId())) {
-				throw new ProvisioningException(AccResultCode.PROVISIONING_ATTRIBUTE_MORE_UID, ImmutableMap.of("system", entity.getSystemMapping().getSystem().getName()));
-			}
+		// If exists, then we will set they to uid = false. Only currently saving attribute will be unique identifier
+		if (entity.isUid() && entity.getSystemMapping() != null) {			
+			this.repository.clearIsUidAttribute(entity.getSystemMapping().getId(), entity.getId());
 		}
 		
 		// We will do script validation (on compilation errors), before save
-		// attribute handling
 
 		if (entity.getTransformFromResourceScript() != null) {
 			groovyScriptService.validateScript(entity.getTransformFromResourceScript());

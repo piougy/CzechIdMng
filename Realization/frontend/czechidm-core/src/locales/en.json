@@ -2810,6 +2810,10 @@
       "title": "Revisions aren't comparable",
       "message": "Revisions must be the same type and from the same entity."
     },
+    "AUDIT_ENTITY_CLASS_NOT_FOUND": {
+      "title": "Class not found",
+      "message": "Class [{{class}}] not found."
+    },
     "BAD_FILTER": {
       "title": "Filter isn't valid",
       "message": "Please check filled values."

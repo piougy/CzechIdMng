@@ -951,7 +951,7 @@
     },
     "PROVISIONING_ATTRIBUTE_UID_NOT_FOUND": {
       "title": "Provisioning - UID attribute was not found",
-      "message": "UID attribute was not found in system [{{system}}]. UID attribute is necessary for provisioning!"
+      "message": "UID attribute was not found in system [{{system}}]. UID attribute is necessary for provisioning (or sync)!"
     },
     "PROVISIONING_DUPLICATE_ROLE_MAPPING": {
       "title": "Provisioning - More attribute definitions for the same UID and role",

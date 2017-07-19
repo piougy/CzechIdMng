@@ -2866,6 +2866,10 @@
       "title": "Revize nelze porovnat",
       "message": "Revize musí být stejného typu a od stejné entity."
     },
+    "AUDIT_ENTITY_CLASS_NOT_FOUND": {
+      "title": "Třída nenalezena",
+      "message": "Třída [{{class}}] nebyla nalezena."
+    },
     "BAD_FILTER": {
       "title": "Filter není validní",
       "message": "Zkontrolujte vyplněné hodnoty filtru."

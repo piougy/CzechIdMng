@@ -1930,6 +1930,10 @@
       "profile": {
         "userDetail": "{{revision}}. revize, {{name}}, {{date}}"
       },
+      "logging-event": {
+        "header": "Logging event",
+        "exceptions": "Error message"
+      },
       "revision": {
         "id": "Revision Id",
         "modifier": "Modified by",
@@ -2396,7 +2400,8 @@
       "callerFilename": "From file",
       "callerClass": "From class",
       "callerMethod": "From method",
-      "callerLine": "Line"
+      "callerLine": "Line",
+      "text": "Logging event content"
     },
     "LoggingEventException": {
       "id": "Row",

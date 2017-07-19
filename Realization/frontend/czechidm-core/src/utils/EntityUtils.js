@@ -40,7 +40,7 @@ export default class EntityUtils {
    * @return {object} - entity
    */
   static _getEntity(state, entityType, id, trimmed = false) {
-    const isId = id === '0' || id === 0 || id;
+    const isId = id === '0' || id === 0 || id || id !== 'undefined';
     if (!state || !entityType || !isId) {
       return null;
     }

@@ -95,8 +95,8 @@ public class DefaultIdmLoggingEventService
 			predicates.add(builder.like(root.get(IdmLoggingEvent_.loggerName), "%" + filter.getLoggerName() + "%"));
 		}
 		//
-		if (filter.getEventId() != null) {
-			predicates.add(builder.equal(root.get(IdmLoggingEvent_.eventId), filter.getEventId()));
+		if (filter.getId() != null) {
+			predicates.add(builder.equal(root.get(IdmLoggingEvent_.id), filter.getId()));
 		}
 		//
 		if (filter.getLevelString() != null) {
@@ -117,7 +117,7 @@ public class DefaultIdmLoggingEventService
 	public IdmLoggingEventDto get(Serializable id, BasePermission... permission) {
 		Assert.notNull(id, "Id is required");
 		//
-		IdmLoggingEvent entity = this.repository.findOneByEventId(Long.valueOf(id.toString()));
+		IdmLoggingEvent entity = this.repository.findOneById(Long.valueOf(id.toString()));
 		//
 		if (entity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", id));

@@ -11,7 +11,14 @@ import LogTypeEnum from '../../../enums/LogTypeEnum';
 const manager = new LoggingEventManager();
 
 /**
-* Table of logging events
+* Table of logging events.
+* Filter for tables has only these form fields:
+* - levelString
+* - from
+* - to
+* - text
+*
+* text combine most of loggingEvent attributes
 *
 * @author Ondřej Kopr
 */
@@ -23,10 +30,6 @@ export class EventTable extends Advanced.AbstractTableContent {
 
   componentDidMount() {
     super.componentDidMount();
-  }
-
-  getContentKey() {
-    return 'content.audit.event';
   }
 
   useFilter(event) {
@@ -76,13 +79,13 @@ export class EventTable extends Advanced.AbstractTableContent {
               <Advanced.Filter.DateTimePicker
                 mode="datetime"
                 ref="from"
-                placeholder={this.i18n('filter.dateFrom.placeholder')}/>
+                placeholder={this.i18n('content.audit.filter.dateFrom.placeholder')}/>
             </Basic.Col>
             <Basic.Col lg={ 4 }>
               <Advanced.Filter.DateTimePicker
                 mode="datetime"
                 ref="till"
-                placeholder={this.i18n('filter.dateTill.placeholder')}/>
+                placeholder={this.i18n('content.audit.filter.dateTill.placeholder')}/>
             </Basic.Col>
             <div className="col-lg-4 text-right">
               <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
@@ -103,12 +106,11 @@ export class EventTable extends Advanced.AbstractTableContent {
             </Basic.Col>
             <Basic.Col lg={ 4 }>
               <Advanced.Filter.TextField
-                className="pull-right"
-                ref="callerFilename"
-                placeholder={this.i18n('entity.LoggingEvent.callerFilename')}/>
+                ref="loggerName" hidden
+                placeholder={this.i18n('entity.LoggingEvent.loggerName')}/>
             </Basic.Col>
           </Basic.Row>
-          <Basic.Row className="last">
+          <Basic.Row className="last" hidden>
             <Basic.Col lg={ 4 }>
               <Advanced.Filter.TextField
                 ref="callerLine"
@@ -121,8 +123,9 @@ export class EventTable extends Advanced.AbstractTableContent {
             </Basic.Col>
             <Basic.Col lg={ 4 }>
               <Advanced.Filter.TextField
-                ref="loggerName"
-                placeholder={this.i18n('entity.LoggingEvent.loggerName')}/>
+                className="pull-right"
+                ref="callerFilename"
+                placeholder={this.i18n('entity.LoggingEvent.callerFilename')}/>
             </Basic.Col>
           </Basic.Row>
         </Basic.AbstractForm>

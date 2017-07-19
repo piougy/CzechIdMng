@@ -16,7 +16,7 @@ class LoggignEventService extends AbstractService {
       return '';
     }
     // TODO: add better nice label
-    return `${entity.eventId}`;
+    return `${entity.id}`;
   }
 
   /**
@@ -25,7 +25,7 @@ class LoggignEventService extends AbstractService {
    * @return {object} searchParameters
    */
   getDefaultSearchParameters() {
-    return super.getDefaultSearchParameters().setName(SearchParameters.NAME_QUICK).clearSort().setSort('eventId', 'DESC');
+    return super.getDefaultSearchParameters().setName(SearchParameters.NAME_QUICK).clearSort().setSort('id', 'DESC');
   }
 }
 

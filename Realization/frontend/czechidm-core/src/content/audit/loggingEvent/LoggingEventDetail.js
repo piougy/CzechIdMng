@@ -24,7 +24,7 @@ class LoggingEventDetail extends Basic.AbstractContent {
   }
 
   getContentKey() {
-    return 'content.audit.event';
+    return 'content.audit.logging-event';
   }
 
   componentDidMount() {
@@ -128,13 +128,22 @@ class LoggingEventDetail extends Basic.AbstractContent {
             </Basic.Row>
             <Basic.TextArea ref="formattedMessage"
               label={this.i18n('entity.LoggingEvent.formattedMessage')}/>
-          </Basic.AbstractForm>
 
-          {
-            !entity
-            ||
-            <LoggingEventExceptionDetail eventId={entity.id} />
-          }
+            {
+              !entity || LogTypeEnum.findSymbolByKey(entity.levelString) !== LogTypeEnum.ERROR
+              ||
+              <div>
+                <Basic.ContentHeader>
+                  <Basic.Icon value="warning-sign"/>
+                  {' '}
+                  <span dangerouslySetInnerHTML={{ __html: this.i18n('exceptions') }}/>
+                </Basic.ContentHeader>
+                <Basic.Panel >
+                  <LoggingEventExceptionDetail eventId={entity.id} />
+                </Basic.Panel>
+              </div>
+            }
+          </Basic.AbstractForm>
 
           <Basic.PanelFooter showLoading={showLoading} >
             <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>{this.i18n('button.back')}</Basic.Button>

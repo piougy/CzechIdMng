@@ -22,8 +22,8 @@ public interface IdmLoggingEventExceptionService
 	/**
 	 * Method find all {@link IdmLoggingEventExceptionDto} by event id.
 	 * 
-	 * @param eventId
+	 * @param id
 	 * @return
 	 */
-	Page<IdmLoggingEventExceptionDto> findAllByEvent(Long eventId, Pageable pageable);
+	Page<IdmLoggingEventExceptionDto> findAllByEvent(Long id, Pageable pageable);
 }

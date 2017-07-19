@@ -23,68 +23,67 @@ import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
  */
 
 @Entity
-@Table(name = "logging_event", indexes = { 
-		})
+@Table(name = "logging_event", indexes = {})
 public class IdmLoggingEvent implements BaseEntity {
 
 	private static final long serialVersionUID = 5803765065103354200L;
 
 	@Id
 	@Column(name = "event_id", nullable = true)
-	private Long eventId;
+	private Long id;
 
 	@Column(name = "timestmp", nullable = false)
 	private Long timestmp;
-	
+
 	@Column(name = "formatted_message", nullable = false)
 	@Type(type = "org.hibernate.type.StringClobType")
 	private String formattedMessage;
-	
+
 	@Column(name = "logger_name", length = DefaultFieldLengths.NAME, nullable = false)
 	private String loggerName;
-	
+
 	@Enumerated(EnumType.STRING)
 	@Column(name = "level_string", nullable = false)
 	private LogType levelString;
-	
+
 	@Column(name = "thread_name", length = DefaultFieldLengths.NAME)
 	private String threadName;
-	
+
 	@Column(name = "reference_flag")
 	private Integer referenceFlag;
-	
+
 	@Column(name = "arg0")
 	private String arg0;
-	
+
 	@Column(name = "arg1")
 	private String arg1;
-	
+
 	@Column(name = "arg2")
 	private String arg2;
-	
+
 	@Column(name = "arg3")
 	private String arg3;
-	
+
 	@Column(name = "caller_filename", length = DefaultFieldLengths.NAME, nullable = false)
 	private String callerFilename;
-	
+
 	@Column(name = "caller_class", length = DefaultFieldLengths.NAME, nullable = false)
 	private String callerClass;
-	
+
 	@Column(name = "caller_method", length = DefaultFieldLengths.NAME, nullable = false)
 	private String callerMethod;
-	
+
 	@Column(name = "caller_line", length = DefaultFieldLengths.NAME, nullable = false)
 	private String callerLine;
 
 	@Override
 	public Serializable getId() {
-		return this.eventId;
+		return this.id;
 	}
 
 	@Override
 	public void setId(Serializable id) {
-		this.eventId = (Long) id;
+		this.id = (Long) id;
 	}
 
 	public Long getTimestmp() {
@@ -197,5 +196,5 @@ public class IdmLoggingEvent implements BaseEntity {
 
 	public void setCallerLine(String callerLine) {
 		this.callerLine = callerLine;
-	}	
+	}
 }

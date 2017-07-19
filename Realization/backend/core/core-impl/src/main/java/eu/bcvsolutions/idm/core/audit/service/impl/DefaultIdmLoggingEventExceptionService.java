@@ -32,14 +32,14 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
  */
 
 @Service
-public class DefaultIdmLoggingEventException extends
+public class DefaultIdmLoggingEventExceptionService extends
 		AbstractReadDtoService<IdmLoggingEventExceptionDto, IdmLoggingEventException, LoggingEventExceptionFilter>
 		implements IdmLoggingEventExceptionService {
 
 	private final IdmLoggingEventExceptionRepository repository;
 	
 	@Autowired
-	public DefaultIdmLoggingEventException(IdmLoggingEventExceptionRepository repository) {
+	public DefaultIdmLoggingEventExceptionService(IdmLoggingEventExceptionRepository repository) {
 		super(repository);
 		//
 		Assert.notNull(repository);
@@ -66,7 +66,21 @@ public class DefaultIdmLoggingEventException extends
 	}
 
 	@Override
-	public Page<IdmLoggingEventExceptionDto> findAllByEvent(Long eventId, Pageable pageable) {
-		return toDtoPage(repository.findAllByEventId(eventId, pageable));
+	public Page<IdmLoggingEventExceptionDto> findAllByEvent(Long event, Pageable pageable) {
+		return toDtoPage(repository.findAllByEvent(event, pageable));
+	}
+	
+	@Override
+	protected IdmLoggingEventExceptionDto toDto(IdmLoggingEventException entity, IdmLoggingEventExceptionDto dto) {
+		if (entity == null) {
+			return null;
+		}
+		if (dto == null) {
+			dto = new IdmLoggingEventExceptionDto();
+		}
+		dto.setEvent((Long) entity.getEvent().getId());
+		dto.setTraceLine(entity.getTraceLine());
+		dto.setId(entity.getId());
+		return dto;
 	}
 }

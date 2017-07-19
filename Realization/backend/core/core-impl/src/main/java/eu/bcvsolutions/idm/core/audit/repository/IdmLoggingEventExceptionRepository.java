@@ -23,10 +23,10 @@ public interface IdmLoggingEventExceptionRepository extends AbstractEntityReposi
 	
 	/**
 	 * Method find all exception for event id
-	 * @param eventId
+	 * @param event
 	 * @param pageable
 	 * @return
 	 */
-	Page<IdmLoggingEventException> findAllByEventId(@Param(value = "eventId") Long eventId, Pageable pageable);
+	Page<IdmLoggingEventException> findAllByEvent(@Param(value = "event") Long event, Pageable pageable);
 	
 }

@@ -1992,6 +1992,10 @@
       "profile": {
         "userDetail": "{{revision}}. revize, {{name}}, {{date}}"
       },
+      "logging-event": {
+        "header": "Logovaná událost",
+        "exceptions": "Chybové hlášení"
+      },
       "revision": {
         "id": "ID revize",
         "modifier": "Změnu provedl",
@@ -2448,7 +2452,8 @@
       "callerFilename": "Ze souboru",
       "callerClass": "Ze třídy",
       "callerMethod": "Z metody",
-      "callerLine": "Řádek"
+      "callerLine": "Řádek",
+      "text": "Obsah hlášení"
     },
     "LoggingEventException": {
       "id": "Řádek",

@@ -18,7 +18,7 @@ public class IdmLoggingEventDto implements BaseDto {
 	
 	private static final long serialVersionUID = 6857347948825028141L;
 
-	private Long eventId;
+	private Long id;
 
 	private Long timestmp;
 	
@@ -50,12 +50,12 @@ public class IdmLoggingEventDto implements BaseDto {
 
 	@Override
 	public Serializable getId() {
-		return eventId;
+		return id;
 	}
 
 	@Override
 	public void setId(Serializable id) {
-		this.eventId = (Long) id;
+		this.id = (Long) id;
 	}
 
 	public Long getTimestmp() {

@@ -30,8 +30,8 @@ public interface IdmLoggingEventRepository extends AbstractEntityRepository<IdmL
 	
 	/**
 	 * Method find one {@link IdmLoggingEvent} by unique id - event id.
-	 * @param eventId
+	 * @param id
 	 * @return
 	 */
-	IdmLoggingEvent findOneByEventId(@Param(value = "eventId") Long eventId);
+	IdmLoggingEvent findOneById(@Param(value = "id") Long id);
 }

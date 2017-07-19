@@ -11,9 +11,10 @@ import eu.bcvsolutions.idm.core.api.domain.LogType;
  *
  */
 
-public class LoggingEventFilter extends QuickFilter {
+public class LoggingEventFilter implements BaseFilter {
 
-	private Long eventId;
+	private Long id;
+	private String text;
 	private DateTime from;
 	private DateTime till;
 	private String loggerName;
@@ -23,12 +24,12 @@ public class LoggingEventFilter extends QuickFilter {
 	private String callerMethod;
 	private String callerLine;
 
-	public Long getEventId() {
-		return eventId;
+	public Long getId() {
+		return id;
 	}
 
-	public void setEventId(Long eventId) {
-		this.eventId = eventId;
+	public void setId(Long id) {
+		this.id = id;
 	}
 
 	public DateTime getFrom() {
@@ -93,5 +94,13 @@ public class LoggingEventFilter extends QuickFilter {
 
 	public void setCallerLine(String callerLine) {
 		this.callerLine = callerLine;
+	}
+
+	public String getText() {
+		return text;
+	}
+
+	public void setText(String text) {
+		this.text = text;
 	}
 }

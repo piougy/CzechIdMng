@@ -1931,6 +1931,7 @@
         "userDetail": "{{revision}}. revize, {{name}}, {{date}}"
       },
       "logging-event": {
+        "title": "Loggign events",
         "header": "Logging event",
         "exceptions": "Error message"
       },

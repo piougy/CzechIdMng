@@ -28,7 +28,7 @@ export default class LoggingEventExceptionDetail extends Basic.AbstractContent {
   }
 
   getContentKey() {
-    return 'content.audit.event';
+    return 'content.audit.logging-event';
   }
 
 

@@ -1993,6 +1993,7 @@
         "userDetail": "{{revision}}. revize, {{name}}, {{date}}"
       },
       "logging-event": {
+        "title": "Logované události",
         "header": "Logovaná událost",
         "exceptions": "Chybové hlášení"
       },

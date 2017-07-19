@@ -11,7 +11,7 @@ class EventContent extends Basic.AbstractContent {
   }
 
   getContentKey() {
-    return 'content.audit.event';
+    return 'content.audit.logging-event';
   }
 
   componentDidMount() {

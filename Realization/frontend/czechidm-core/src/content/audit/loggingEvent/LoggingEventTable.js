@@ -8,6 +8,8 @@ import * as Advanced from '../../../components/advanced';
 import { LoggingEventManager } from '../../../redux';
 import LogTypeEnum from '../../../enums/LogTypeEnum';
 
+const MAX_LENGTH_MESSAGE = 100;
+
 const manager = new LoggingEventManager();
 
 /**
@@ -185,6 +187,12 @@ export class EventTable extends Advanced.AbstractTableContent {
             sort face="enum" enumClass={LogTypeEnum}/>
           <Advanced.Column property="timestmp"
             sort face="datetime"/>
+          <Advanced.Column sort
+            property="formattedMessage" cell={
+              ({ rowIndex, data }) => {
+                return <Basic.ShortText text={data[rowIndex].formattedMessage} maxLength={ MAX_LENGTH_MESSAGE }/>;
+              }
+            }/>
         </Advanced.Table>
       </div>
     );

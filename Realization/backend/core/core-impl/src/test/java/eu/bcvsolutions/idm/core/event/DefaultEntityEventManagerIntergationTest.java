@@ -117,6 +117,7 @@ public class DefaultEntityEventManagerIntergationTest extends AbstractIntegratio
 		assertEquals(3, context.getProcessedOrder().intValue());
 		assertEquals("3", context.getLastResult().getEvent().getContent().getText());
 		//
+		event.getContent().setSuspend(null);
 		context = entityEventManager.process(event);
 		//
 		assertEquals(4, context.getResults().size());
@@ -154,5 +155,14 @@ public class DefaultEntityEventManagerIntergationTest extends AbstractIntegratio
 		assertEquals(updateIdentity.getUsername(), savedIdentity.getUsername());
 		assertEquals(updateIdentity.getFirstName(), savedIdentity.getFirstName());
 		assertEquals(updateIdentity.getLastName(), savedIdentity.getLastName());
+	}
+	
+	@Test 
+	public void testProcessorSameOrder() {
+		EntityEvent<TestContentTwo> event = new CoreEvent<>(CoreEventType.EAV_SAVE, new TestContentTwo());
+		EventContext<TestContentTwo> context = entityEventManager.process(event);
+		//
+		assertEquals(2, context.getResults().size());
+		assertEquals(2, context.getProcessedOrder().intValue());
 	}
 }

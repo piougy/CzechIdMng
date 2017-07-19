@@ -60,7 +60,7 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractAutomaticRoleTaskEx
 	protected void validate(IdmLongRunningTaskDto task) {
 		super.validate(task);
 		//
-		IdmRoleTreeNodeDto roleTreeNode = getRoleTreeNode();
+		IdmRoleTreeNodeDto roleTreeNode = roleTreeNodeService.get(getRoleTreeNode());
 		LongRunningTaskFilter filter = new LongRunningTaskFilter();
 		filter.setTaskType(this.getClass().getCanonicalName());
 		filter.setRunning(Boolean.TRUE);
@@ -85,7 +85,7 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractAutomaticRoleTaskEx
 	
 	@Override
 	public Boolean process() {
-		IdmRoleTreeNodeDto roleTreeNode = getRoleTreeNode();
+		IdmRoleTreeNodeDto roleTreeNode = roleTreeNodeService.get(getRoleTreeNode());
 		if (roleTreeNode == null) {
 			throw new ResultCodeException(CoreResultCode.AUTOMATIC_ROLE_TASK_EMPTY);
 		}

@@ -26,6 +26,8 @@ import eu.bcvsolutions.idm.core.api.config.domain.RoleConfiguration;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdentityFilter;
+import eu.bcvsolutions.idm.core.api.event.EntityEvent;
+import eu.bcvsolutions.idm.core.api.event.EventContext;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
@@ -134,9 +136,18 @@ public class DefaultIdmIdentityService
 		LOG.debug("Saving identity [{}]", identity.getUsername());
 		//
 		if (isNew(identity)) { // create
-			return entityEventManager.process(new IdentityEvent(IdentityEventType.CREATE, identity)).getContent();
+			return this.publish(new IdentityEvent(IdentityEventType.CREATE, identity), permission).getContent();
 		}
-		return entityEventManager.process(new IdentityEvent(IdentityEventType.UPDATE, identity)).getContent();
+		return this.publish(new IdentityEvent(IdentityEventType.UPDATE, identity), permission).getContent();
+	}
+	
+	@Override
+	public EventContext<IdmIdentityDto> publish(EntityEvent<IdmIdentityDto> event,  BasePermission... permission){
+		Assert.notNull(event, "Event must be not null!");
+		Assert.notNull(event.getContent(), "Content (entity) in event must be not null!");
+		
+		checkAccess(toEntity(event.getContent(), null), permission);
+		return entityEventManager.process(event);
 	}
 	
 	/**

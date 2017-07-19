@@ -38,7 +38,7 @@ public interface TestHelper {
 	/**
 	 * Creates test identity with given username
 	 * 
-	 * @param name
+	 * @param username
 	 * @return
 	 */
 	IdmIdentityDto createIdentity(String username);
@@ -51,10 +51,10 @@ public interface TestHelper {
 	/**
 	 * Creates test RoleCatalogue with given name
 	 *
-	 * @param name
+	 * @param code
 	 * @return
 	 */
-	IdmRoleCatalogueDto createRoleCatalogue(String name);
+	IdmRoleCatalogueDto createRoleCatalogue(String code);
 	/**
 	 * Deletes identity
 	 * 

@@ -80,10 +80,10 @@ public class DefaultTestHelper implements TestHelper {
 	}
 
 	@Override
-	public IdmRoleCatalogueDto createRoleCatalogue(String name){
+	public IdmRoleCatalogueDto createRoleCatalogue(String code){
 		IdmRoleCatalogueDto roleCatalogue = new IdmRoleCatalogueDto();
-		roleCatalogue.setName(name == null ? createName() : name);
-		roleCatalogue.setCode(createName());
+		roleCatalogue.setName(createName());
+		roleCatalogue.setCode(code == null ? createName() : code);
 		return idmRoleCatalogueService.save(roleCatalogue);
 	}
 	

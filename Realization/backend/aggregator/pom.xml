@@ -56,6 +56,25 @@
 			<build>
 				<plugins>
 					<plugin>
+						<artifactId>maven-assembly-plugin</artifactId>
+						<version>3.0.0</version>
+						<configuration>
+							<descriptors>
+		            <descriptor>src/assembly/doc.xml</descriptor>
+		          </descriptors>
+							<finalName>doc-${project.version}</finalName>
+						</configuration>
+						<executions>
+							<execution>
+								<phase>package</phase>
+								<goals>
+									<goal>single</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+
+					<plugin>
 						<groupId>com.atlassian.maven.plugins</groupId>
 						<artifactId>maven-jgitflow-plugin</artifactId>
 						<version>1.0-m4.3</version>

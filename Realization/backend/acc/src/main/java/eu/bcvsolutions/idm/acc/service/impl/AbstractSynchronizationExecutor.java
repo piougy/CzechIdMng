@@ -1015,7 +1015,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 			String attributeUid = systemAttributeMappingService.getUidValueFromResource(icAttributes, mappedAttributes, system);
 			
 			// Create idm account
-			AccAccount account = doCreateIdmAccount(uid, system);
+			AccAccount account = doCreateIdmAccount(attributeUid, system);
 			// Find and set SystemEntity (must exist)
 			account.setSystemEntity(this.findSystemEntity(uid, system, entityType));
 			accountService.save(account);
@@ -1034,14 +1034,11 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 	@Override
 	public void resolveUnlinkedSituation(SynchronizationUnlinkedActionType action, SynchronizationContext context) {
 		
-		String uid = context.getUid();
 		UUID entityId = context.getEntityId();
 		SystemEntityType entityType = context.getEntityType();
-		SysSystem system = context.getSystem();
 		SysSyncLog log = context.getLog(); 
 		SysSyncItemLog logItem = context.getLogItem();
 		List<SysSyncActionLog> actionLogs = context.getActionLogs();
-		SysSystemEntity systemEntity = context.getSystemEntity();
 		
 		addToItemLog(logItem, "Account doesn't exist, but an entity was found by correlation (entity unlinked).");
 		addToItemLog(logItem, MessageFormat.format("Unlinked action is {0}", action));
@@ -1054,12 +1051,12 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 			return;
 		case LINK:
 			// Create idm account
-			doCreateLink(uid, false, entity, systemEntity, entityType, system, logItem);
+			doCreateLink(entity, false, context);
 			initSyncActionLog(SynchronizationActionType.LINK, OperationResultType.SUCCESS, logItem, log, actionLogs);
 			return;
 		case LINK_AND_UPDATE_ACCOUNT:
 			// Create idm account
-			doCreateLink(uid, true, entity, systemEntity, entityType, system, logItem);
+			doCreateLink(entity, true, context);
 			initSyncActionLog(SynchronizationActionType.LINK_AND_UPDATE_ACCOUNT, OperationResultType.SUCCESS, logItem,
 					log, actionLogs);
 			return;
@@ -1718,9 +1715,20 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 	 * @param logItem
 	 */
 	@SuppressWarnings("unchecked")
-	protected void doCreateLink(String uid, boolean callProvisioning, AbstractEntity entity,
-			SysSystemEntity systemEntity, SystemEntityType entityType, SysSystem system, SysSyncItemLog logItem) {
-		AccAccount account = doCreateIdmAccount(uid, system);
+	protected void doCreateLink(AbstractEntity entity,  boolean callProvisioning, SynchronizationContext context) {
+		String uid = context.getUid();
+		SystemEntityType entityType = context.getEntityType();
+		SysSystem system = context.getSystem();
+		SysSyncItemLog logItem = context.getLogItem();
+		SysSystemEntity systemEntity = context.getSystemEntity();
+		List<IcAttribute> icAttributes = context.getIcObject().getAttributes();
+		List<SysSystemAttributeMapping> mappedAttributes = context.getMappedAttributes();
+		
+		// Generate UID value from mapped attribute marked as UID (Unique ID).
+		// UID mapped attribute must exist and returned value must be not null and must be String
+		String attributeUid = systemAttributeMappingService.getUidValueFromResource(icAttributes, mappedAttributes, system);
+		
+		AccAccount account = doCreateIdmAccount(attributeUid, system);
 		if (systemEntity != null) {
 			// If SystemEntity for this account already exist, then we linked
 			// him to new account

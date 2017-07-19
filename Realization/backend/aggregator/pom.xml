@@ -48,7 +48,7 @@
 			<!-- Profile is used for releasing product. Usage is described in documentation -->
 			<id>release</id>
 			<modules>
-				<module>../gui</module>
+				<!-- module gui is released separately - is not needed for our deploy process after release anymore -->
 				<module>../example</module>
 				<module>../ic</module>
 				<module>../acc</module>
@@ -83,6 +83,7 @@
 							<skip>true</skip>
 						</configuration>
 					</plugin>
+
 				</plugins>
 			</build>
 		</profile>

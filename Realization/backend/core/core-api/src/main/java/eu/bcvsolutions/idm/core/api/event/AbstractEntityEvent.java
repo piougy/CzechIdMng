@@ -112,4 +112,10 @@ public abstract class AbstractEntityEvent<E extends Serializable> extends Applic
     public ResolvableType getResolvableType() {
         return ResolvableType.forClassWithGenerics(getClass().getSuperclass(), ResolvableType.forInstance(getContent()));
     }
+	
+	@Override
+	public String toString() {
+		// content cannot be null
+		return String.format("%s [type: %s, content: %s, properties: %s]", getClass().getSimpleName(), type, content, properties);
+	}
 }

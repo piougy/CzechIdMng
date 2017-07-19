@@ -59,7 +59,7 @@ public class DefaultEntityEventManager implements EntityEventManager {
 		Assert.notNull(event);
 		Serializable content = event.getContent();
 		//
-		LOG.debug("Publishing event [{}] [{}]", content.getClass().getSimpleName(), event.getType());
+		LOG.info("Publishing event [{}]", event);
 		//
 		// continue suspended event
 		event.getContext().setSuspended(false);
@@ -74,7 +74,7 @@ public class DefaultEntityEventManager implements EntityEventManager {
 		}
 		//
 		publisher.publishEvent(event); 
-		LOG.debug("Publishing event [{}] [{}] is completed", content.getClass().getSimpleName(), event.getType());
+		LOG.info("Event [{}] is completed", event);
 		//
 		return event.getContext();
 	}

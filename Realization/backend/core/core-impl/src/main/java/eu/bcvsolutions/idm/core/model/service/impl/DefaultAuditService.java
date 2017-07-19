@@ -253,7 +253,7 @@ public class DefaultAuditService extends AbstractReadWriteDtoService<IdmAuditDto
 			}
 			// get entities methods and search annotation Audited in fields.
 			if (getAuditedField(entityType.getJavaType().getDeclaredFields())) {
-				result.add(entityType.getJavaType().getSimpleName());
+				result.add(entityType.getJavaType().getCanonicalName());
 				continue;
 			}
 			//
@@ -267,7 +267,7 @@ public class DefaultAuditService extends AbstractReadWriteDtoService<IdmAuditDto
 			}
 			// entity can be annotated for all class
 			if (getAuditedAnnotation(annotations)) {
-				result.add(entityType.getJavaType().getSimpleName());
+				result.add(entityType.getJavaType().getCanonicalName());
 				continue;
 			}
 		}

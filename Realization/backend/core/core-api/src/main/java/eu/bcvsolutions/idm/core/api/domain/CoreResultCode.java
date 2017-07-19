@@ -88,6 +88,7 @@ public enum CoreResultCode implements ResultCode {
 	FORM_DEFINITION_DELETE_FAILED_SYSTEM_DEFINITION(HttpStatus.CONFLICT, "Form definition [%s] cannot be deleted - this definition is flaged as system definition."),
 	// audit
 	AUDIT_REVISION_NOT_SAME(HttpStatus.BAD_REQUEST, "Audit revision are not same."),
+	AUDIT_ENTITY_CLASS_NOT_FOUND(HttpStatus.NOT_FOUND, "Entity class [%s] not found."),
 	//
 	PASSWORD_POLICY_DEFAULT_TYPE(HttpStatus.CONFLICT, "Default password policy is exist. Name [%s]"),
 	PASSWORD_POLICY_DEFAULT_TYPE_NOT_EXIST(HttpStatus.NOT_FOUND, "Default password policy is not exist."),

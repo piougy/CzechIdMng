@@ -957,7 +957,7 @@
     },
     "PROVISIONING_ATTRIBUTE_UID_NOT_FOUND": {
       "title": "Provisioning - Nebyl nalezen žádný atribut označený jako identifikátor",
-      "message": "Atribut (označený jako identifikátor) nebyl nalezen na systému [{{system}}]. Atribut identifikující entitu, je pro provisioning povinný!"
+      "message": "Atribut (označený jako identifikátor) nebyl nalezen na systému [{{system}}]. Atribut identifikující entitu, je pro provisioning (nebo synchronizaci) povinný!"
     },
     "PROVISIONING_DUPLICATE_ROLE_MAPPING": {
       "title": "Provisioning - Více definic atributu pro stejný UID a stejnou roli",

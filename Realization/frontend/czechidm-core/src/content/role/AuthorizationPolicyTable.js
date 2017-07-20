@@ -419,7 +419,7 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
                       label={ this.i18n('entity.AuthorizationPolicy.basePermissions.label') }
                       palceholder={ this.i18n('entity.AuthorizationPolicy.basePermissions.placeholder') }
                       helpBlock={ this.i18n('entity.AuthorizationPolicy.basePermissions.help') }
-                      readOnly={ evaluatorType ? !evaluatorType.supportsPermissions : false }
+                      readOnly={ (evaluatorType && evaluatorType.supportsPermissions !== undefined) ? !evaluatorType.supportsPermissions : false }
                       multiSelect/>
                     <Basic.TextField
                       ref="seq"

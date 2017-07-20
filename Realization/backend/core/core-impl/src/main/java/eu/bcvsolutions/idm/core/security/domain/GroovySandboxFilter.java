@@ -26,6 +26,7 @@ import org.springframework.aop.support.AopUtils;
 import com.google.common.collect.Sets;
 
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
+import eu.bcvsolutions.idm.core.security.exception.IdmSecurityException;
 import groovy.lang.Closure;
 import groovy.lang.GString;
 import groovy.lang.Script;
@@ -81,11 +82,11 @@ public class GroovySandboxFilter extends GroovyValueFilter {
 		if (o == null) {
 			return o;
 		}
-		Object targetClass = null;
+		Class<?> targetClass = null;
 		if (AopUtils.isAopProxy(o)) {
 			targetClass = AopUtils.getTargetClass(o);
 		} else if (o instanceof Class<?>) {
-			targetClass = o;
+			targetClass = (Class<?>) o;
 		} else {
 			targetClass = o.getClass();
 		}
@@ -98,6 +99,11 @@ public class GroovySandboxFilter extends GroovyValueFilter {
 		}
 		if (o instanceof Script || o instanceof Closure) {
 			return o; // access to properties of compiled groovy script
+		}
+		// check for exceptions
+		if (Throwable.class.isAssignableFrom(targetClass) && !IdmSecurityException.class.isAssignableFrom(targetClass)
+				&& !SecurityException.class.isAssignableFrom(targetClass)) {
+			return o; // access for all exception
 		}
 		throw new SecurityException(MessageFormat.format("Script wants to use unauthorized class: [{0}] ", targetClass));
 	}

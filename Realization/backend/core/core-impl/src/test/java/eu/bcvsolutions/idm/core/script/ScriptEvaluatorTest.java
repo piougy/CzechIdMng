@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
@@ -13,6 +14,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
 
+import org.hibernate.envers.internal.tools.Triple;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -434,6 +436,268 @@ public class ScriptEvaluatorTest extends AbstractIntegrationTest {
 		groovyScriptService.evaluate(createLogScript(), null);
 	}
 	
+	@Test
+	public void testScriptExceptionWithCatch() {
+		String testString = "TEST-" + System.currentTimeMillis();
+		//
+		Triple<IdmScriptDto, IdmScriptDto, IdmScriptDto> scripts = createThreeScripts();
+		IdmScriptDto script1 = scripts.getFirst();
+		IdmScriptDto script2 = scripts.getSecond();
+		IdmScriptDto script3 = scripts.getThird();
+		//
+		StringBuilder script1Body = new StringBuilder();
+		script1Body.append("try {\n");
+		script1Body.append(this.createScriptThatCallAnother(script2, IdmScriptCategory.DEFAULT, null, false));
+		script1Body.append("} catch (Throwable e) {\n");
+		script1Body.append("return \"" + testString + "\";\n");
+		script1Body.append("}\n");
+		script1Body.append("return null;\n");
+		//
+		script1.setScript(script1Body.toString());
+		script2.setScript(this.createScriptThatCallAnother(script3, IdmScriptCategory.DEFAULT, null, false));
+		script3.setScript("throw new Exception(\""+ testString +"\")");
+		//
+		script1 = this.scriptService.save(script1);
+		script2 = this.scriptService.save(script2);
+		script3 = this.scriptService.save(script3);
+		try {
+			Object result = defaultScriptEvaluator.evaluate(script1.getCode());
+			assertNotNull(result);
+			assertEquals(testString, result);
+		} catch (Throwable e) {
+			fail();
+		}
+	}
+	
+	@Test
+	public void testScriptThrowableWithCatch() {
+		String testString = "TEST-" + System.currentTimeMillis();
+		//
+		Triple<IdmScriptDto, IdmScriptDto, IdmScriptDto> scripts = createThreeScripts();
+		IdmScriptDto script1 = scripts.getFirst();
+		IdmScriptDto script2 = scripts.getSecond();
+		IdmScriptDto script3 = scripts.getThird();
+		//
+		StringBuilder script1Body = new StringBuilder();
+		script1Body.append("try {\n");
+		script1Body.append(this.createScriptThatCallAnother(script2, IdmScriptCategory.DEFAULT, null, false));
+		script1Body.append("} catch (Throwable e) {\n");
+		script1Body.append("return \"" + testString + "\";\n");
+		script1Body.append("}\n");
+		script1Body.append("return null;\n");
+		//
+		script1.setScript(script1Body.toString());
+		script2.setScript(this.createScriptThatCallAnother(script3, IdmScriptCategory.DEFAULT, null, false));
+		script3.setScript("throw new Throwable(\""+ testString +"\")");
+		//
+		script1 = this.scriptService.save(script1);
+		script2 = this.scriptService.save(script2);
+		script3 = this.scriptService.save(script3);
+		try {
+			Object result = defaultScriptEvaluator.evaluate(script1.getCode());
+			assertNotNull(result);
+			assertEquals(testString, result);
+		} catch (Throwable e) {
+			fail();
+		}
+	}
+	
+	@Test
+	public void testScriptRuntimeExceptionWithCatch() {
+		String testString = "TEST-" + System.currentTimeMillis();
+		//
+		Triple<IdmScriptDto, IdmScriptDto, IdmScriptDto> scripts = createThreeScripts();
+		IdmScriptDto script1 = scripts.getFirst();
+		IdmScriptDto script2 = scripts.getSecond();
+		IdmScriptDto script3 = scripts.getThird();
+		//
+		StringBuilder script1Body = new StringBuilder();
+		script1Body.append("try {\n");
+		script1Body.append(this.createScriptThatCallAnother(script2, IdmScriptCategory.DEFAULT, null, false));
+		script1Body.append("} catch (Throwable e) {\n");
+		script1Body.append("return \"" + testString + "\";\n");
+		script1Body.append("}\n");
+		script1Body.append("return null;\n");
+		//
+		script1.setScript(script1Body.toString());
+		script2.setScript(this.createScriptThatCallAnother(script3, IdmScriptCategory.DEFAULT, null, false));
+		script3.setScript("throw new RuntimeException(\""+ testString +"\")");
+		//
+		script1 = this.scriptService.save(script1);
+		script2 = this.scriptService.save(script2);
+		script3 = this.scriptService.save(script3);
+		try {
+			Object result = defaultScriptEvaluator.evaluate(script1.getCode());
+			assertNotNull(result);
+			assertEquals(testString, result);
+		} catch (Throwable e) {
+			fail();
+		}
+	}
+	
+	@Test(expected = IdmSecurityException.class)
+	public void testScriptSecurityExceptionWithCatchSecurityException() {
+		String testString = "TEST-" + System.currentTimeMillis();
+		//
+		Triple<IdmScriptDto, IdmScriptDto, IdmScriptDto> scripts = createThreeScripts();
+		IdmScriptDto script1 = scripts.getFirst();
+		IdmScriptDto script2 = scripts.getSecond();
+		IdmScriptDto script3 = scripts.getThird();
+		//
+		StringBuilder script1Body = new StringBuilder();
+		script1Body.append("try {\n");
+		script1Body.append(this.createScriptThatCallAnother(script2, IdmScriptCategory.DEFAULT, null, false));
+		script1Body.append("} catch (SecurityException e) {\n");
+		script1Body.append("return \"" + testString + "\";\n");
+		script1Body.append("}\n");
+		script1Body.append("return null;\n");
+		//
+		script1.setScript(script1Body.toString());
+		script2.setScript(this.createScriptThatCallAnother(script3, IdmScriptCategory.DEFAULT, null, false));
+		script3.setScript("throw new SecurityException(\""+ testString +"\")");
+		//
+		script1 = this.scriptService.save(script1);
+		script2 = this.scriptService.save(script2);
+		script3 = this.scriptService.save(script3);
+		// must throw exception
+		defaultScriptEvaluator.evaluate(script1.getCode());
+		fail();
+	}
+	
+	@Test
+	public void testScriptSecurityExceptionWithCatch() {
+		String testString = "TEST-" + System.currentTimeMillis();
+		//
+		Triple<IdmScriptDto, IdmScriptDto, IdmScriptDto> scripts = createThreeScripts();
+		IdmScriptDto script1 = scripts.getFirst();
+		IdmScriptDto script2 = scripts.getSecond();
+		IdmScriptDto script3 = scripts.getThird();
+		//
+		StringBuilder script1Body = new StringBuilder();
+		script1Body.append("try {\n");
+		script1Body.append(this.createScriptThatCallAnother(script2, IdmScriptCategory.DEFAULT, null, false));
+		script1Body.append("} catch (Throwable e) {\n");
+		script1Body.append("return \"" + testString + "\";\n");
+		script1Body.append("}\n");
+		script1Body.append("return null;\n");
+		//
+		script1.setScript(script1Body.toString());
+		script2.setScript(this.createScriptThatCallAnother(script3, IdmScriptCategory.DEFAULT, null, false));
+		script3.setScript("throw new SecurityException(\""+ testString +"\")");
+		//
+		script1 = this.scriptService.save(script1);
+		script2 = this.scriptService.save(script2);
+		script3 = this.scriptService.save(script3);
+		//
+		try {
+			// try catch SecurityException but propage this exception as throwable, this is possible
+			Object result = defaultScriptEvaluator.evaluate(script1.getCode());
+			assertNotNull(result);
+			assertEquals(testString, result);
+		} catch (Throwable e) {
+			fail();
+		}
+	}
+	
+	@Test
+	public void testScriptExceptionWithoutCatch() {
+		String testString = "TEST-" + System.currentTimeMillis();
+		//
+		Triple<IdmScriptDto, IdmScriptDto, IdmScriptDto> scripts = createThreeScripts();
+		IdmScriptDto script1 = scripts.getFirst();
+		IdmScriptDto script2 = scripts.getSecond();
+		IdmScriptDto script3 = scripts.getThird();
+		//
+		script1.setScript(this.createScriptThatCallAnother(script2, IdmScriptCategory.DEFAULT, null, false));
+		script2.setScript(this.createScriptThatCallAnother(script3, IdmScriptCategory.DEFAULT, null, false));
+		script3.setScript("throw new Exception(\""+ testString +"\")");
+		//
+		script1 = this.scriptService.save(script1);
+		script2 = this.scriptService.save(script2);
+		script3 = this.scriptService.save(script3);
+		try {
+			// must throw exception
+			defaultScriptEvaluator.evaluate(script1.getCode());
+			fail();
+		} catch (Throwable e) {
+			assertTrue(e instanceof ResultCodeException);
+			assertTrue(e.getMessage().contains(testString));
+		}
+	}
+	
+	@Test
+	public void testScriptThrowableWithoutCatch() {
+		String testString = "TEST-" + System.currentTimeMillis();
+		//
+		Triple<IdmScriptDto, IdmScriptDto, IdmScriptDto> scripts = createThreeScripts();
+		IdmScriptDto script1 = scripts.getFirst();
+		IdmScriptDto script2 = scripts.getSecond();
+		IdmScriptDto script3 = scripts.getThird();
+		//
+		script1.setScript(this.createScriptThatCallAnother(script2, IdmScriptCategory.DEFAULT, null, false));
+		script2.setScript(this.createScriptThatCallAnother(script3, IdmScriptCategory.DEFAULT, null, false));
+		script3.setScript("throw new Throwable(\""+ testString +"\")");
+		//
+		script1 = this.scriptService.save(script1);
+		script2 = this.scriptService.save(script2);
+		script3 = this.scriptService.save(script3);
+		try {
+			// must throw exception
+			defaultScriptEvaluator.evaluate(script1.getCode());
+			fail();
+		} catch (Throwable e) {
+			assertTrue(e instanceof Throwable);
+			assertTrue(e.getMessage().contains(testString));
+		}
+	}
+	
+	@Test
+	public void testScriptRuntimeExceptionWithoutCatch() {
+		String testString = "TEST-" + System.currentTimeMillis();
+		//
+		Triple<IdmScriptDto, IdmScriptDto, IdmScriptDto> scripts = createThreeScripts();
+		IdmScriptDto script1 = scripts.getFirst();
+		IdmScriptDto script2 = scripts.getSecond();
+		IdmScriptDto script3 = scripts.getThird();
+		//
+		script1.setScript(this.createScriptThatCallAnother(script2, IdmScriptCategory.DEFAULT, null, false));
+		script2.setScript(this.createScriptThatCallAnother(script3, IdmScriptCategory.DEFAULT, null, false));
+		script3.setScript("throw new RuntimeException(\""+ testString +"\")");
+		//
+		script1 = this.scriptService.save(script1);
+		script2 = this.scriptService.save(script2);
+		script3 = this.scriptService.save(script3);
+		try {
+			// must throw exception
+			defaultScriptEvaluator.evaluate(script1.getCode());
+			fail();
+		} catch (Throwable e) {
+			assertTrue(e instanceof RuntimeException);
+			assertTrue(e.getMessage().contains(testString));
+		}
+	}
+	
+	@Test(expected = IdmSecurityException.class)
+	public void testScriptSecurityExceptionWithoutCatch() {
+		String testString = "TEST-" + System.currentTimeMillis();
+		//
+		Triple<IdmScriptDto, IdmScriptDto, IdmScriptDto> scripts = createThreeScripts();
+		IdmScriptDto script1 = scripts.getFirst();
+		IdmScriptDto script2 = scripts.getSecond();
+		IdmScriptDto script3 = scripts.getThird();
+		//
+		script1.setScript(this.createScriptThatCallAnother(script2, IdmScriptCategory.DEFAULT, null, false));
+		script2.setScript(this.createScriptThatCallAnother(script3, IdmScriptCategory.DEFAULT, null, false));
+		script3.setScript("throw new SecurityException(\""+ testString +"\")");
+		//
+		script1 = this.scriptService.save(script1);
+		script2 = this.scriptService.save(script2);
+		script3 = this.scriptService.save(script3);
+		// must throw exception
+		defaultScriptEvaluator.evaluate(script1.getCode());
+		fail();
+	}
+	
 	/**
 	 * Method create simple script return as string. 
 	 * Parameter returnString is used for return value in script. Return List.toString() or List
@@ -456,6 +720,36 @@ public class ScriptEvaluatorTest extends AbstractIntegrationTest {
 		}
 		return script.toString();
 		
+	}
+	
+	/**
+	 * Method create three unique script with same code and name. Script body isn't filled.
+	 * 
+	 * @return
+	 */
+	private Triple<IdmScriptDto, IdmScriptDto, IdmScriptDto> createThreeScripts() {
+		String codeName1 = "script_name_" + System.currentTimeMillis();
+		IdmScriptDto script1 = new IdmScriptDto();
+		script1.setCategory(IdmScriptCategory.DEFAULT);
+		script1.setCode(codeName1);
+		script1.setName(codeName1);
+		script1 = this.scriptService.save(script1);
+		//
+		String codeName2 = "script_name_" + System.currentTimeMillis();
+		IdmScriptDto script2 = new IdmScriptDto();
+		script2.setCategory(IdmScriptCategory.DEFAULT);
+		script2.setCode(codeName2);
+		script2.setName(codeName2);
+		script2 = this.scriptService.save(script2);
+		//
+		String codeName3 = "script_name_" + System.currentTimeMillis();
+		IdmScriptDto script3 = new IdmScriptDto();
+		script3.setCategory(IdmScriptCategory.DEFAULT);
+		script3.setCode(codeName3);
+		script3.setName(codeName3);
+		script3 = this.scriptService.save(script3);
+		//
+		return new Triple<IdmScriptDto, IdmScriptDto, IdmScriptDto>(script1, script2, script3);
 	}
 	
 	private String createLogScript() {

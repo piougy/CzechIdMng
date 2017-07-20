@@ -12,7 +12,6 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
-import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeTypeService;
@@ -42,14 +41,16 @@ public interface TestHelper {
 	 * @return
 	 */
 	IdmIdentityDto createIdentity(String username);
+	
 	/**
-	 * Creates test RoleCatalogue with random name
+	 * Creates test RoleCatalogue with random code and name
 	 *
 	 * @return
 	 */
 	IdmRoleCatalogueDto createRoleCatalogue();
+	
 	/**
-	 * Creates test RoleCatalogue with given name
+	 * Creates test RoleCatalogue with given code = name
 	 *
 	 * @param code
 	 * @return
@@ -71,10 +72,10 @@ public interface TestHelper {
 	/**
 	 * Creates tree type with given name = code
 	 * 
-	 * @param name
+	 * @param code
 	 * @return
 	 */
-	IdmTreeType createTreeType(String name);
+	IdmTreeType createTreeType(String code);
 
 	/**
 	 * Creates tree node with random name and code
@@ -91,8 +92,8 @@ public interface TestHelper {
 	 * @param parent
 	 * @return
 	 */
-	IdmTreeNode createTreeNode(String name, IdmTreeNode parent);
-	IdmTreeNode createTreeNode(IdmTreeType treeType, String name, IdmTreeNode parent);	
+	IdmTreeNode createTreeNode(String code, IdmTreeNode parent);
+	IdmTreeNode createTreeNode(IdmTreeType treeType, String code, IdmTreeNode parent);	
 	IdmTreeNode createTreeNode(IdmTreeType treeType, IdmTreeNode parent);
 
 	void deleteTreeNode(UUID id);

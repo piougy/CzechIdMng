@@ -14,10 +14,8 @@ import org.springframework.data.domain.Page;
 
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.TestHelper;
-import eu.bcvsolutions.idm.core.api.dto.IdmContractGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
-import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdentityFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
@@ -38,12 +36,12 @@ public class IdentityFilterTest extends AbstractIntegrationTest{
 	@Autowired private TestHelper testHelper;
 
 	@Before
-	public void logIn(){
+	public void login(){
 		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
 	}
 
 	@After
-	public void logOut(){
+	public void logout(){
 		super.logout();
 	}
 
@@ -90,7 +88,7 @@ public class IdentityFilterTest extends AbstractIntegrationTest{
 		filter.setDisabled(false);
 		Page<IdmIdentityDto> result = idmIdentityService.find(filter, null);
 		person.setDisabled(true);
-		IdmIdentityDto person_2 = idmIdentityService.save(person);
+		idmIdentityService.save(person);
 		filter.setDisabled(false);
 		Page<IdmIdentityDto> result2 = idmIdentityService.find(filter, null);
 		int changed = (int) (result.getTotalElements() - result2.getTotalElements());
@@ -134,7 +132,7 @@ public class IdentityFilterTest extends AbstractIntegrationTest{
 		IdmTreeNode node = testHelper.createTreeNode(type,"ThisIsTestNode008",null);
 		IdmIdentityContractDto contract = testHelper.createIdentityContact(person,node);
 		IdmRole somerole = testHelper.createRole();
-		IdmIdentityRoleDto role = testHelper.createIdentityRole(contract,somerole);
+		testHelper.createIdentityRole(contract,somerole);
 		UUID roleId = somerole.getId();
 		IdentityFilter filter = new IdentityFilter();
 		filter.setRoles(Collections.singletonList(roleId));
@@ -151,8 +149,8 @@ public class IdentityFilterTest extends AbstractIntegrationTest{
 		IdmTreeType type1 = testHelper.createTreeType("ThisIsTestType001");
 		IdmTreeNode node2 = testHelper.createTreeNode(type1,"Somename002",null);
 		IdmTreeNode node1 = testHelper.createTreeNode(type1,"ThisIsTestNode001",node2);
-		IdmIdentityContractDto manager_contract = testHelper.createIdentityContact(manager,node2);
-		IdmIdentityContractDto contract = testHelper.createIdentityContact(person,node1);
+		testHelper.createIdentityContact(manager,node2);
+		testHelper.createIdentityContact(person,node1);
 		//contract.setGuarantee(manager_id);
 		//IdmIdentityContractDto contract2 = idmIdentityContractService.save(contract);
 		IdentityFilter filter = new IdentityFilter();
@@ -169,12 +167,12 @@ public class IdentityFilterTest extends AbstractIntegrationTest{
 		IdmIdentityDto person = getIdmIdentity("ThisIsTestName009","ThisIsTestName009","ThisIsTestName009@gemail.eu", "000000009", false);
 		IdmIdentityDto manager = getIdmIdentity("ThisIsTestName010","ThisIsTestName010","ThisIsTestName010@gemail.eu", "000000010", false);
 		UUID person_id = person.getId();
-		UUID manager_id = manager.getId();
+		manager.getId();
 		IdmTreeType type1 = testHelper.createTreeType("ThisIsTestType004");
 		IdmTreeNode node2 = testHelper.createTreeNode(type1,"Somename001",null);
 		IdmTreeNode node1 = testHelper.createTreeNode(type1,"ThisIsTestNode004",node2);
-		IdmIdentityContractDto manager_contract = testHelper.createIdentityContact(manager,node2);
-		IdmIdentityContractDto contract = testHelper.createIdentityContact(person,node1);
+		testHelper.createIdentityContact(manager,node2);
+		testHelper.createIdentityContact(person,node1);
 		//contract.setGuarantee(manager_id);
 		//IdmIdentityContractDto contract2 = idmIdentityContractService.save(contract);
 		IdentityFilter filter = new IdentityFilter();
@@ -196,8 +194,8 @@ public class IdentityFilterTest extends AbstractIntegrationTest{
 		IdmTreeNode node1 = testHelper.createTreeNode(type1,"ThisIsTestNode0004",null);
 		IdmTreeNode node2 = testHelper.createTreeNode(type1,"NextThisIsTestNode0004",node1);
 		IdmIdentityContractDto contract = testHelper.createIdentityContact(person,node2);
-		IdmContractGuaranteeDto conntract_guarantee = testHelper.createContractGuarantee(contract.getId(),manager2.getId());
-		IdmIdentityContractDto manager_contract = testHelper.createIdentityContact(manager,node1);
+		testHelper.createContractGuarantee(contract.getId(),manager2.getId());
+		testHelper.createIdentityContact(manager,node1);
 		IdentityFilter filter = new IdentityFilter();
 		filter.setManagersFor(person.getId());
 		filter.setIncludeGuarantees(true);
@@ -233,10 +231,10 @@ public class IdentityFilterTest extends AbstractIntegrationTest{
 		 */
 		IdmTreeNode node2 = testHelper.createTreeNode(type2,"ThisIsTestNode008",null);
 		// contracts
-		IdmIdentityContractDto con1 = testHelper.createIdentityContact(person1,node1);
-		IdmIdentityContractDto con2 = testHelper.createIdentityContact(person2,node11);
-		IdmIdentityContractDto con3 = testHelper.createIdentityContact(person3,node12);
-		IdmIdentityContractDto con4 = testHelper.createIdentityContact(person4,node2);
+		testHelper.createIdentityContact(person1,node1);
+		testHelper.createIdentityContact(person2,node11);
+		testHelper.createIdentityContact(person3,node12);
+		testHelper.createIdentityContact(person4,node2);
 		// node1 UUID
 		UUID node1id = node1.getId();
 		// test
@@ -257,7 +255,7 @@ public class IdentityFilterTest extends AbstractIntegrationTest{
 		IdmTreeType type = testHelper.createTreeType("ThisIsTestType002");
 		IdmTreeNode node = testHelper.createTreeNode(type,"ThisIsTestNode002",null);
 		UUID typeUuid = type.getId();
-		IdmIdentityContractDto contract = testHelper.createIdentityContact(person,node);
+		testHelper.createIdentityContact(person,node);
 		IdentityFilter filter = new IdentityFilter();
 		filter.setTreeType(typeUuid);
 		Page<IdmIdentityDto> result = idmIdentityService.find(filter, null);
@@ -270,7 +268,7 @@ public class IdentityFilterTest extends AbstractIntegrationTest{
 		IdmTreeType type = testHelper.createTreeType("ThisIsTestType003");
 		IdmTreeNode node = testHelper.createTreeNode(type,"ThisIsTestNode003",null);
 		UUID nodeUuid = node.getId();
-		IdmIdentityContractDto contract = testHelper.createIdentityContact(person,node);
+		testHelper.createIdentityContact(person,node);
 		IdentityFilter filter = new IdentityFilter();
 		filter.setTreeNode(nodeUuid);
 		filter.setRecursively(false);
@@ -289,9 +287,9 @@ public class IdentityFilterTest extends AbstractIntegrationTest{
 	@Test
 	public void testMoreToFindInFilter(){
 		IdmIdentityDto person1 = getIdmIdentity("tn00","tn00","tn01@a.eu", "000000001", false);
-		IdmIdentityDto person2 = getIdmIdentity("tn00","tn00","tn01@a.eu", "000000001", false);
-		IdmIdentityDto person3 = getIdmIdentity("tn00","tn00","tn01@a.eu", "000000001", false);
-		IdmIdentityDto person4 = getIdmIdentity("tn001","tn00","tn01@a.eu", "000000001", false);
+		getIdmIdentity("tn00","tn00","tn01@a.eu", "000000001", false);
+		getIdmIdentity("tn00","tn00","tn01@a.eu", "000000001", false);
+		getIdmIdentity("tn001","tn00","tn01@a.eu", "000000001", false);
 
 		IdentityFilter filter = new IdentityFilter();
 		filter.setFirstName(person1.getFirstName());
@@ -304,7 +302,7 @@ public class IdentityFilterTest extends AbstractIntegrationTest{
 		IdmIdentityDto person1 = getIdmIdentity("tn01","tn01","tn02@a.eu", "000010001", false);
 		IdmIdentityDto person2 = getIdmIdentity("tn01","tn01","tn02@a.eu", "000010001", false);
 		IdmIdentityDto person3 = getIdmIdentity("tn01","tn01","tn02@a.eu", "000010001", false);
-		IdmIdentityDto person4 = getIdmIdentity("tn0001","tn01","tn02@a.eu", "000010001", false);
+		getIdmIdentity("tn0001","tn01","tn02@a.eu", "000010001", false);
 		IdentityFilter filter = new IdentityFilter();
 		filter.setFirstName(person1.getFirstName());
 		filter.setLastName(person2.getLastName());
@@ -320,13 +318,13 @@ public class IdentityFilterTest extends AbstractIntegrationTest{
 	@Test
 	public void testSameButDifferentTreeTypeFilter(){
 		IdmIdentityDto person1 = getIdmIdentity("thistn01","thistn01","thistn02@a.eu", "000010001", false);
-		IdmIdentityDto person2 = getIdmIdentity("thistn01","thistn01","thistn02@a.eu", "000010001", false);
+		getIdmIdentity("thistn01","thistn01","thistn02@a.eu", "000010001", false);
 		IdmTreeType type1 = testHelper.createTreeType("typeName001");
 		IdmTreeType type2 = testHelper.createTreeType("typeName002");
 		IdmTreeNode node1 = testHelper.createTreeNode(type1,"nodeName001",null);
-		IdmTreeNode node2 = testHelper.createTreeNode(type2,"nodeName002",null);
-		IdmIdentityContractDto contract1 = testHelper.createIdentityContact(person1,node1);
-		IdmIdentityContractDto contract2 = testHelper.createIdentityContact(person1,node1);
+		testHelper.createTreeNode(type2,"nodeName002",null);
+		testHelper.createIdentityContact(person1,node1);
+		testHelper.createIdentityContact(person1,node1);
 		IdentityFilter filter = new IdentityFilter();
 		filter.setFirstName(person1.getFirstName());
 		Page<IdmIdentityDto> result = idmIdentityService.find(filter,null);

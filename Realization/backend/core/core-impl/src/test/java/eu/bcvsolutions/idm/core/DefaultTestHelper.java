@@ -15,7 +15,6 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
-import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
@@ -23,7 +22,6 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmContractGuaranteeService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleCatalogueRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleCatalogueService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
@@ -82,8 +80,9 @@ public class DefaultTestHelper implements TestHelper {
 	@Override
 	public IdmRoleCatalogueDto createRoleCatalogue(String code){
 		IdmRoleCatalogueDto roleCatalogue = new IdmRoleCatalogueDto();
-		roleCatalogue.setName(createName());
-		roleCatalogue.setCode(code == null ? createName() : code);
+		code = code == null ? createName() : code;
+		roleCatalogue.setName(code);
+		roleCatalogue.setCode(code);
 		return idmRoleCatalogueService.save(roleCatalogue);
 	}
 	

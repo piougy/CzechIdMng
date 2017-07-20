@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
@@ -49,13 +50,13 @@ public class AddNewAutomaticRoleTaskExecutor extends AbstractAutomaticRoleTaskEx
 
 	@Override
 	public void init(Map<String, Object> properties) {
-		this.setRoleTreeNode(getParameterConverter().toUuid(properties, PARAMETER_ROLE_TREE_NODE));
+		this.setRoleTreeNodeId(getParameterConverter().toUuid(properties, PARAMETER_ROLE_TREE_NODE));
 		super.init(properties);
 	}
 
 	@Override
 	public Boolean process() {
-		IdmRoleTreeNodeDto roleTreeNode = roleTreeNodeService.get(getRoleTreeNode());
+		IdmRoleTreeNodeDto roleTreeNode = roleTreeNodeService.get(getRoleTreeNodeId());
 		if (roleTreeNode == null) {
 			throw new ResultCodeException(CoreResultCode.AUTOMATIC_ROLE_TASK_EMPTY);
 		}
@@ -77,7 +78,7 @@ public class AddNewAutomaticRoleTaskExecutor extends AbstractAutomaticRoleTaskEx
 			// skip already assigned automatic roles
 			boolean alreadyAssigned = false;
 			for (IdmIdentityRoleDto roleByContract : allByContract) {
-				if (roleByContract.getRole().equals(roleTreeNode.getRole()) && roleByContract.isAutomaticRole()) {
+				if (ObjectUtils.equals(roleByContract.getRoleTreeNode(), roleTreeNode.getId())) {
 					alreadyAssigned = true;
 					break;
 				}

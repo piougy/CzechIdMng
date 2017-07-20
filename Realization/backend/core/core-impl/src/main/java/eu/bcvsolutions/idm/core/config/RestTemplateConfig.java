@@ -50,19 +50,24 @@ public class RestTemplateConfig {
      */
     public Proxy getHttpProxy() {
     	String proxyConfig = configuration.getValue(PROXY_KEY, null);
-		if (StringUtils.hasText(proxyConfig)) {
-			LOG.debug("Configuring proxy {}", proxyConfig);
-			
-			String[] split = proxyConfig.split(":");
-			if (split.length != 2) throw new ResultCodeException(CoreResultCode.WRONG_PROXY_CONFIG);
-			
-			String host = split[0];
-			int port = Integer.parseInt(split[1]);
-		
-			return new Proxy(Type.HTTP, new InetSocketAddress(host, port));
+    	if (!StringUtils.hasText(proxyConfig)) return null;
+    	
+		LOG.debug("Configuring proxy {}", proxyConfig);
+
+		String[] split = proxyConfig.split(":");
+		if (split.length != 2) {
+			throw new ResultCodeException(CoreResultCode.WRONG_PROXY_CONFIG);
 		}
-		
-		return null;
+
+		String host = split[0];
+		int port;
+		try {
+			port = Integer.parseInt(split[1]);
+		} catch (NumberFormatException ex) {
+			throw new ResultCodeException(CoreResultCode.WRONG_PROXY_CONFIG);
+		}
+
+		return new Proxy(Type.HTTP, new InetSocketAddress(host, port));
     }
 
     @Bean

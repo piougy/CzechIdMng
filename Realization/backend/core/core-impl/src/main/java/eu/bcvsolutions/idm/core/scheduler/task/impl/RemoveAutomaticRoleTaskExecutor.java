@@ -40,7 +40,6 @@ import eu.bcvsolutions.idm.core.scheduler.dto.filter.LongRunningTaskFilter;
  * @author Radek Tomiška
  *
  */
-
 @Service
 @Description("Remove automatic role from IdmRoleTreeNode.")
 public class RemoveAutomaticRoleTaskExecutor extends AbstractAutomaticRoleTaskExecutor {

@@ -130,7 +130,7 @@ public class IdmAuditController extends AbstractReadWriteDtoController<IdmAuditD
 			@PageableDefault Pageable pageable) {
 		//
 		if (entityClass == null) {
-			throw new ResultCodeException(CoreResultCode.AUDIT_ENTITY_CLASS_NOT_FOUND, ImmutableMap.of("class", null));
+			throw new ResultCodeException(CoreResultCode.AUDIT_ENTITY_CLASS_IS_NOT_FILLED);
 		}
 		//
 		try {

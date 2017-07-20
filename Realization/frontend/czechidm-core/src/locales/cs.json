@@ -2870,6 +2870,10 @@
       "title": "Třída nenalezena",
       "message": "Třída [{{class}}] nebyla nalezena."
     },
+    "AUDIT_ENTITY_CLASS_IS_NOT_FILLED": {
+      "title": "Třída nebyla vyplněna",
+      "message": "Třída pro vyhledávání nebyla vyplněna."
+    },
     "BAD_FILTER": {
       "title": "Filter není validní",
       "message": "Zkontrolujte vyplněné hodnoty filtru."

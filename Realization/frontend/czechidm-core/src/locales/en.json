@@ -2814,6 +2814,10 @@
       "title": "Class not found",
       "message": "Class [{{class}}] not found."
     },
+    "AUDIT_ENTITY_CLASS_IS_NOT_FILLED": {
+      "title": "Class not filled",
+      "message": "Class for searching not filled."
+    },
     "BAD_FILTER": {
       "title": "Filter isn't valid",
       "message": "Please check filled values."

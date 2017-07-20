@@ -311,10 +311,10 @@ public class DefaultIdmNotificationTemplateService extends
 		try {
 			jaxbMarshaller.marshal(type, file);
 		} catch (JAXBException e) {
-			LOG.error("Backup for template: {} failed, error message: {}",
-					dto.getCode(), e.getLocalizedMessage());
+			LOG.error("Backup for template: {} failed",
+					dto.getCode());
 			throw new ResultCodeException(CoreResultCode.BACKUP_FAIL,
-					ImmutableMap.of("code", dto.getCode(), "error", e.getLocalizedMessage()), e);
+					ImmutableMap.of("code", dto.getCode()), e);
 		}
 	}
 

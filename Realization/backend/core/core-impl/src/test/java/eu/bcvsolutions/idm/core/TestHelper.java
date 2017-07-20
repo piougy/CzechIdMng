@@ -9,8 +9,10 @@ import eu.bcvsolutions.idm.core.api.dto.IdmContractGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
+import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeTypeService;
@@ -36,11 +38,23 @@ public interface TestHelper {
 	/**
 	 * Creates test identity with given username
 	 * 
-	 * @param name
+	 * @param username
 	 * @return
 	 */
 	IdmIdentityDto createIdentity(String username);
-	
+	/**
+	 * Creates test RoleCatalogue with random name
+	 *
+	 * @return
+	 */
+	IdmRoleCatalogueDto createRoleCatalogue();
+	/**
+	 * Creates test RoleCatalogue with given name
+	 *
+	 * @param code
+	 * @return
+	 */
+	IdmRoleCatalogueDto createRoleCatalogue(String code);
 	/**
 	 * Deletes identity
 	 * 

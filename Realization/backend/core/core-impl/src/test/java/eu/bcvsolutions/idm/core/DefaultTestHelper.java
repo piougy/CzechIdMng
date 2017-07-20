@@ -12,8 +12,10 @@ import eu.bcvsolutions.idm.core.api.dto.IdmContractGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
+import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
@@ -21,6 +23,8 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmContractGuaranteeService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmRoleCatalogueRoleService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmRoleCatalogueService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
@@ -48,6 +52,7 @@ public class DefaultTestHelper implements TestHelper {
 	@Autowired private IdmRoleTreeNodeService roleTreeNodeService;
 	@Autowired private IdmAuthorizationPolicyService authorizationPolicyService;
 	@Autowired private IdmIdentityRoleService identityRoleService;
+	@Autowired private IdmRoleCatalogueService idmRoleCatalogueService;
 	
 	@Override
 	public IdmIdentityDto createIdentity() {
@@ -67,6 +72,19 @@ public class DefaultTestHelper implements TestHelper {
 	@Override
 	public void deleteIdentity(UUID id) {
 		identityService.deleteById(id);
+	}
+
+	@Override
+	public IdmRoleCatalogueDto createRoleCatalogue(){
+		return createRoleCatalogue(null);
+	}
+
+	@Override
+	public IdmRoleCatalogueDto createRoleCatalogue(String code){
+		IdmRoleCatalogueDto roleCatalogue = new IdmRoleCatalogueDto();
+		roleCatalogue.setName(createName());
+		roleCatalogue.setCode(code == null ? createName() : code);
+		return idmRoleCatalogueService.save(roleCatalogue);
 	}
 	
 	@Override

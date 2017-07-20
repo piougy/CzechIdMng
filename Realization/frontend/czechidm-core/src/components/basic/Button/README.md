@@ -12,9 +12,17 @@ All parameters from AbstractComponent are supported. Added parameters:
 | hidden  | bool | adds css hidden | false |
 | showLoadingIcon  | bool | When showLoading is true, then showLoadingIcon is shown | false |
 | showLoadingText  | string | When showLoading is true, this text will be shown. If is not defined, then children will be shown | children |
+| icon  | string | Button's left icon |  ||
 
 ## Usage
 
 ```html
 <Basic.Button level="success" onClick={() => { alert('clicked') }} showLoading={false}>Click me</Basic.Button>
+```
+
+
+```html
+<Basic.Button level="error" icon="fa:bolt">
+  Cancel
+</Basic.Button>
 ```

@@ -25,7 +25,7 @@ class Identities extends Basic.AbstractContent {
   render() {
     return (
       <div>
-        {this.renderPageHeader()}
+        { this.renderPageHeader() }
 
         <Basic.Panel>
           <IdentityTable

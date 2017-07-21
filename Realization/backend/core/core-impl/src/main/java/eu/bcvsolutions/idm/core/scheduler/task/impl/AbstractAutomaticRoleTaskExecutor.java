@@ -16,20 +16,20 @@ public abstract class AbstractAutomaticRoleTaskExecutor extends AbstractSchedula
 	
 	protected static final String PARAMETER_ROLE_TREE_NODE = "roleTreeNode";
 	//
-	private UUID roleTreeNode = null;
+	private UUID roleTreeNodeId = null;
 	
-	public void setRoleTreeNode(UUID roleTreeNode) {
-		this.roleTreeNode = roleTreeNode;
+	public void setRoleTreeNodeId(UUID roleTreeNodeId) {
+		this.roleTreeNodeId = roleTreeNodeId;
 	}
 	
-	protected UUID getRoleTreeNode() {
-		return roleTreeNode;
+	protected UUID getRoleTreeNodeId() {
+		return roleTreeNodeId;
 	}
 	
 	@Override
 	public Map<String, Object> getProperties() {
 		Map<String, Object> properties =  super.getProperties();
-		properties.put(PARAMETER_ROLE_TREE_NODE, roleTreeNode == null ? null : roleTreeNode);
+		properties.put(PARAMETER_ROLE_TREE_NODE, roleTreeNodeId == null ? null : roleTreeNodeId);
 		return properties;
 	}
 	

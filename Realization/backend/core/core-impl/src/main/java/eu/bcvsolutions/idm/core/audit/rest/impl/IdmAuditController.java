@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.rest.impl;
+package eu.bcvsolutions.idm.core.audit.rest.impl;
 
 import java.util.HashMap;
 import java.util.List;
@@ -36,8 +36,8 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
+import eu.bcvsolutions.idm.core.audit.service.api.IdmAuditService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
-import eu.bcvsolutions.idm.core.model.service.api.IdmAuditService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -130,7 +130,7 @@ public class IdmAuditController extends AbstractReadWriteDtoController<IdmAuditD
 			@PageableDefault Pageable pageable) {
 		//
 		if (entityClass == null) {
-			throw new ResultCodeException(CoreResultCode.AUDIT_ENTITY_CLASS_NOT_FOUND, ImmutableMap.of("class", null));
+			throw new ResultCodeException(CoreResultCode.AUDIT_ENTITY_CLASS_IS_NOT_FILLED);
 		}
 		//
 		try {

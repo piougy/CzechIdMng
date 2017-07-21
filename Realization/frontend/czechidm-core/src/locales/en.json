@@ -64,7 +64,7 @@
     "detail": "Detail",
     "edit": "Edit",
     "filter": {
-      "toogle": " Filter ",
+      "toogle": "Filter",
       "use": "Filter",
       "cancel": "Cancel filter"
     },
@@ -275,7 +275,11 @@
         "button": {
           "refresh": "Reload records"
         },
-        "noData": "$t(component.basic.Table.noData)"
+        "noData": "$t(component.basic.Table.noData)",
+        "filter": {
+          "notEmpty": "Filtr is set",
+          "emtpy": "Filtr is not set"
+        }
       },
       "Tree": {
         "loading": "Loading ..."
@@ -398,6 +402,13 @@
       "IS_AUTHENTICATED": "Login required",
       "HAS_ANY_AUTHORITY": "At least one of the privileges",
       "HAS_ALL_AUTHORITIES": "Assigned all the permissions"
+    },
+    "LogTypeEnum":  {
+      "INFO": "INFO",
+      "DEBUG": "DEBUG",
+      "TRACE": "TRACE",
+      "WARN": "WARN",
+      "ERROR": "ERROR"
     },
     "AuditModificationEnum": {
       "ADD": "create",
@@ -1480,7 +1491,7 @@
         "title": "New user",
         "button": {
           "generate": "Generate password",
-          "add": " Create user"
+          "add": "Create user"
         },
         "message": {
           "success": "User [{{username}}] successfully created."
@@ -1922,6 +1933,14 @@
       "profile": {
         "userDetail": "{{revision}}. revize, {{name}}, {{date}}"
       },
+      "logging-event": {
+        "title": "Logging events",
+        "label": "Logging events",
+        "header": "Logging events",
+        "header-detail": "Logging event",
+        "detail": "detail",
+        "exceptions": "Error message"
+      },
       "revision": {
         "id": "Revision Id",
         "modifier": "Modified by",
@@ -1943,8 +1962,8 @@
           "placeholder": "Date from"
         },
         "dateTill": {
-          "label": "Do",
-          "placeholder": "Datum do"
+          "label": "Till",
+          "placeholder": "Date till"
         }
       },
       "identities": {
@@ -2373,6 +2392,27 @@
       "subOwnerId": "Sub owner id",
       "subOwnerType": "Sub owner type",
       "subOwnerCode": "Sub owner code"
+    },
+    "LoggingEvent": {
+      "id": "ID",
+      "timestmp": "Date",
+      "formattedMessage": "Formatted message",
+      "loggerName": "Name of logger",
+      "levelString": "Type",
+      "threadName": "Thread",
+      "arg0": "Argument 0",
+      "arg1": "Argument 1",
+      "arg2": "Argument 2",
+      "arg3": "Argument 3",
+      "callerFilename": "From file",
+      "callerClass": "From class",
+      "callerMethod": "From method",
+      "callerLine": "Line",
+      "text": "Logging event content"
+    },
+    "LoggingEventException": {
+      "id": "Row",
+      "traceLine": "Record"
     },
     "PasswordPolicy": {
       "type": "Type",
@@ -2813,6 +2853,10 @@
     "AUDIT_ENTITY_CLASS_NOT_FOUND": {
       "title": "Class not found",
       "message": "Class [{{class}}] not found."
+    },
+    "AUDIT_ENTITY_CLASS_IS_NOT_FILLED": {
+      "title": "Class not filled",
+      "message": "Class for searching not filled."
     },
     "BAD_FILTER": {
       "title": "Filter isn't valid",

@@ -400,7 +400,8 @@ class AdvancedTable extends Basic.AbstractContextComponent {
                   filterOpen={ (open)=> this.setState({ filterOpened: open }) }
                   filterOpened={ filterOpened }
                   rendered={ showFilter && filter !== undefined && filterCollapsible }
-                  style={{ marginLeft: 3 }}/>
+                  style={{ marginLeft: 3 }}
+                  searchParameters={ _searchParameters }/>
 
                 <Basic.Button
                   className="btn-xs"

@@ -102,7 +102,7 @@ public abstract class AbstractNotificationSender<N extends IdmNotificationDto> i
 			});
 		// try to find template
 		if (message.getTemplate() == null) {
-			message.setTemplate(notificationTemplateService.resolveTemplate(notification.getTopic(), message.getLevel()));
+			message.setTemplate(notificationTemplateService.resolveTemplate(notification.getTopic(), message.getLevel(), notification.getType()));
 		}
 		notification.setMessage(this.notificationTemplateService.buildMessage(message, false));
 		final IdmMessageDto notificationMessage = notification.getMessage(); // set build message back to message

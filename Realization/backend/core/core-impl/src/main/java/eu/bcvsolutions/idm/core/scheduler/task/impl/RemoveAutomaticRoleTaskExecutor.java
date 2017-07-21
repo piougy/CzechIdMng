@@ -40,7 +40,6 @@ import eu.bcvsolutions.idm.core.scheduler.dto.filter.LongRunningTaskFilter;
  * @author Radek Tomiška
  *
  */
-
 @Service
 @Description("Remove automatic role from IdmRoleTreeNode.")
 public class RemoveAutomaticRoleTaskExecutor extends AbstractAutomaticRoleTaskExecutor {
@@ -60,7 +59,7 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractAutomaticRoleTaskEx
 	protected void validate(IdmLongRunningTaskDto task) {
 		super.validate(task);
 		//
-		IdmRoleTreeNodeDto roleTreeNode = roleTreeNodeService.get(getRoleTreeNode());
+		IdmRoleTreeNodeDto roleTreeNode = roleTreeNodeService.get(getRoleTreeNodeId());
 		LongRunningTaskFilter filter = new LongRunningTaskFilter();
 		filter.setTaskType(this.getClass().getCanonicalName());
 		filter.setRunning(Boolean.TRUE);
@@ -85,7 +84,7 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractAutomaticRoleTaskEx
 	
 	@Override
 	public Boolean process() {
-		IdmRoleTreeNodeDto roleTreeNode = roleTreeNodeService.get(getRoleTreeNode());
+		IdmRoleTreeNodeDto roleTreeNode = roleTreeNodeService.get(getRoleTreeNodeId());
 		if (roleTreeNode == null) {
 			throw new ResultCodeException(CoreResultCode.AUTOMATIC_ROLE_TASK_EMPTY);
 		}

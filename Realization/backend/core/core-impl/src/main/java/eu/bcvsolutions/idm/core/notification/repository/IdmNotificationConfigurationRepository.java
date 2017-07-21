@@ -29,11 +29,14 @@ public interface IdmNotificationConfigurationRepository extends AbstractEntityRe
 	@Query(value = "select distinct(e.notificationType) from IdmNotificationConfiguration e where e.topic = :topic and (e.level is null or e.level = :level)")
 	List<String> findTypes(@Param("topic") String topic, @Param("level") NotificationLevel level);
 	
+	IdmNotificationConfiguration findByTopicAndLevelAndNotificationType(@Param("topic") String topic,
+			@Param("level") NotificationLevel level, @Param("notificationType") String notificationType);
+	
 	@Query(value = "SELECT e FROM IdmNotificationConfiguration e WHERE "
-			+ "(:topic is null or e.topic = :topic) "
+			+ "e.topic = :topic "
 			+ "AND  "
-			+ "(:level is null or e.level = :level) ")
-	IdmNotificationConfiguration findNotificationByTopicLevel(@Param("topic") String topic, @Param("level") NotificationLevel level);
+			+ "e.level = null) ")
+	IdmNotificationConfiguration findWildcardForTopic(@Param("topic") String topic);
 	
 	Long countByTopic(@Param("topic") String topic);
 }

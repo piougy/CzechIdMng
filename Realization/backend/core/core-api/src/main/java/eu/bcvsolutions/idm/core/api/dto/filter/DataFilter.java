@@ -24,9 +24,14 @@ import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 public class DataFilter extends QuickFilter {
 
 	/**
-	 * Dto identifier
+	 * Dto uuid identifier
 	 */
 	public static final String PARAMETER_ID = "id";
+	
+	/**
+	 * Codeable identifier - uuid or code
+	 */
+	public static final String PARAMETER_CODEABLE_IDENTIFIER = "codeable";
 	
 	/**
 	 * "Quick" search parameter
@@ -90,5 +95,13 @@ public class DataFilter extends QuickFilter {
 	@Override
 	public void setText(String text) {
 		data.set(PARAMETER_TEXT, text);
+	}
+	
+	public String getCodeableIdentifier() {
+		return (String) data.getFirst(PARAMETER_CODEABLE_IDENTIFIER);
+	}
+	
+	public void setCodeableIdentifier(String text) {
+		data.set(PARAMETER_CODEABLE_IDENTIFIER, text);
 	}
 }

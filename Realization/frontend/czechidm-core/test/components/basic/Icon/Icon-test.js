@@ -6,6 +6,11 @@ chai.use(dirtyChai);
 //
 import * as Basic from '../../../../src/components/basic';
 
+/**
+ * Basic.Icon tests
+ *
+ * @author Radek Tomiška
+ */
 describe('Basic Icon', function iconTest() {
   it('- without icon defined is not rendered', function test() {
     const shallowRenderer = TestUtils.createRenderer();

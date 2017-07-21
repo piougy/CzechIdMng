@@ -464,22 +464,33 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 		Object transformedValue = super.getValueByMappedAttribute(attribute, icAttributes);
 		
 		if (PARENT_FIELD.equals(attribute.getIdmPropertyName()) && transformedValue != null) {
+			String parentUid = transformedValue.toString();
+			UUID systemId = ((SysSystemAttributeMapping)attribute).getSystemMapping().getSystem().getId();
 			// Find account by UID from parent field
 			AccountFilter accountFilter = new AccountFilter();
-			accountFilter.setUid(transformedValue.toString());
-			accountFilter.setSystemId(((SysSystemAttributeMapping)attribute).getSystemMapping().getSystem().getId());
+			accountFilter.setUid(parentUid);
+			accountFilter.setSystemId(systemId);
 			transformedValue = null;
 			List<AccAccount> parentAccounts = accountService.find(accountFilter, null).getContent();
 			if (!parentAccounts.isEmpty()) {
+				UUID parentAccount = parentAccounts.get(0).getId();
 				// Find relation between tree and account
 				TreeAccountFilter treeAccountFilter = new TreeAccountFilter();
-				treeAccountFilter.setAccountId(parentAccounts.get(0).getId());
+				treeAccountFilter.setAccountId(parentAccount);
 				List<AccTreeAccountDto> treeAccounts = treeAccoutnService.find(treeAccountFilter, null).getContent();
 				if(!treeAccounts.isEmpty()){
 					// Find parent tree node by ID
 					// TODO: resolve more treeAccounts situations
 					transformedValue = treeNodeService.get(treeAccounts.get(0).getTreeNode());
+				} else {
+					LOG.warn(
+							"For parent UID: [{}] on system ID [{}] and acc account: [{}], was not found tree accounts! Return null value in parent!!",
+							parentUid, systemId, parentAccount);
 				}
+			} else {
+				LOG.warn(
+						"For parent UID: [{}] on system ID [{}], was not found parents account! Return null value in parent!!",
+						parentUid, systemId);
 			}
 		}
 		return transformedValue;

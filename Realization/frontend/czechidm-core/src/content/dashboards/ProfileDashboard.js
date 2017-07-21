@@ -2,11 +2,12 @@ import React from 'react';
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 
+/**
+ * Identity info with link to profile
+ *
+ * @author Radek Tomiška
+ */
 export default class ProfileDashboard extends Basic.AbstractContent {
-
-  _goToProfil() {
-    this.context.router.push('/identity/' + this.props.entityId + '/profile');
-  }
 
   getContentKey() {
     return 'dashboard.profileDashboard';

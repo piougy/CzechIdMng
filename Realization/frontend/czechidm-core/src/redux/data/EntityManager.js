@@ -95,7 +95,7 @@ export default class EntityManager {
   }
 
   /**
-   * Return resource identifier on FE (see BE - IdentifiableByName)
+   * Return resource identifier on FE (see BE - Codeable)
    *
    * @return {string} secondary identifier (unique property)
    */
@@ -834,16 +834,31 @@ export default class EntityManager {
       if (this.fetchEntityIsNeeded(getState(), id, uiKey, cb)) {
         if (this.supportsAuthorization()) {
           // autocomplete search by id
-          const searchParameters = this.getDefaultSearchParameters().setName(SearchParameters.NAME_AUTOCOMPLETE).setFilter('id', id);
+          let searchParameters = this.getDefaultSearchParameters().setName(SearchParameters.NAME_AUTOCOMPLETE);
+          if (!this.getIdentifierAlias()) {
+            searchParameters = searchParameters.setFilter(SearchParameters.FILTER_PROPERTY_ID, id);
+          } else {
+            // code or id alias
+            searchParameters = searchParameters.setFilter(SearchParameters.FILTER_PROPERTY_CODEABLE_IDENTIFIER, id);
+          }
           dispatch(this.fetchEntities(searchParameters, uiKey, (json, error) => {
             if (!error) {
               const data = json._embedded[this.getCollectionType()] || [];
-              dispatch(this.receiveEntity(id, data.length > 0 ? data[0] : null, uiKey, cb));
+              const entity = data.length > 0 ? data[0] : null;
+              if (entity) {
+                dispatch(this.fetchPermissions(id, uiKey, () => {
+                  dispatch(this.receiveEntity(id, entity, uiKey, cb));
+                }));
+              } else {
+                // entity not found
+                dispatch(this.receiveEntity(id, null, uiKey, cb));
+              }
             } else {
               dispatch(this.receiveError(id, uiKey, error, cb));
             }
           }));
         } else {
+          // autocomplete method cannot be implemented
           dispatch(this.fetchEntity(id, uiKey, cb));
         }
       } else if (cb) {
@@ -954,6 +969,23 @@ export default class EntityManager {
    */
   getPermissions(state, uiKey = null, id = null) {
     return Utils.Permission.getPermissions(state, this.resolveUiKey(uiKey, id));
+  }
+
+  /**
+   * Authorization evaluator helper - evaluates read permission on given entity
+   *
+   * @param  {object} entity
+   * @param  {arrayOf(string)} permissions
+   * @return {bool}
+   */
+  canRead(entity = null, permissions = null) {
+    if (!this.getGroupPermission()) {
+      return false;
+    }
+    if (!this.supportsAuthorization() || !entity) {
+      return SecurityManager.hasAuthority(`${this.getGroupPermission()}_READ`);
+    }
+    return Utils.Permission.hasPermission(permissions, 'READ') && SecurityManager.hasAuthority(`${this.getGroupPermission()}_READ`);
   }
 
   /**

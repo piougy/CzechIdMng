@@ -28,19 +28,34 @@ export default class ToogleFilterButton extends AbstractContextComponent {
   }
 
   render() {
-    const { rendered, showLoading, ...others } = this.props;
+    const { rendered, showLoading, searchParameters, ...others } = this.props;
     const { filterOpened } = this.state;
     if (!rendered) {
       return null;
     }
+    let level = 'default';
+    let tooltip = this.i18n('component.advanced.Table.filter.empty');
+    if (searchParameters && searchParameters.filters.size > 0) {
+      level = 'info';
+      tooltip = this.i18n('component.advanced.Table.filter.notEmpty');
+    }
     //
     return (
-      <Basic.Button className="btn-xs" onClick={this._filterOpen.bind(this, !filterOpened)} {...others}>
-        <Basic.Icon icon="filter" showLoading={showLoading}/>
-        {this.i18n('button.filter.toogle')}
-        {' '}
-        <Basic.Icon icon={!filterOpened ? 'triangle-bottom' : 'triangle-top'} style={{ fontSize: '0.85em'}}/>
-      </Basic.Button>
+      <Basic.Tooltip value={tooltip}>
+        <span>
+          <Basic.Button
+            className="btn-xs"
+            level={level}
+            onClick={this._filterOpen.bind(this, !filterOpened)}
+            showLoading={showLoading}
+            icon="filter"
+            {...others}>
+            { this.i18n('button.filter.toogle') }
+            {' '}
+            <Basic.Icon icon={!filterOpened ? 'triangle-bottom' : 'triangle-top'} style={{ fontSize: '0.85em'}}/>
+          </Basic.Button>
+        </span>
+      </Basic.Tooltip>
     );
   }
 }
@@ -56,7 +71,13 @@ ToogleFilterButton.propTypes = {
    * Filter is opened
    * @type {bool}
    */
-  filterOpened: PropTypes.bool
+  filterOpened: PropTypes.bool,
+  /**
+   * Used search parameters in redux
+   *
+   * @type {SearchParameters}
+   */
+  searchParameters: PropTypes.object
 };
 ToogleFilterButton.defaultProps = {
   ...Basic.AbstractContextComponent.defaultProps

@@ -279,13 +279,13 @@ public class DefaultIdmNotificationTemplateService extends
 	}
 
 	@Override
-	public IdmNotificationTemplateDto resolveTemplate(String topic, NotificationLevel level) {
+	public IdmNotificationTemplateDto resolveTemplate(String topic, NotificationLevel level, String notificationType) {
 		IdmNotificationConfiguration configuration = notificationConfigurationRepository
-				.findNotificationByTopicLevel(topic, level);
+				.findByTopicAndLevelAndNotificationType(topic, level, notificationType);
 
 		// if configurations is empty try to wildcard with null level
 		if (configuration == null) {
-			configuration = notificationConfigurationRepository.findNotificationByTopicLevel(topic, null);
+			configuration = notificationConfigurationRepository.findWildcardForTopic(topic);
 		}
 		if (configuration == null) {
 			return null;
@@ -311,10 +311,10 @@ public class DefaultIdmNotificationTemplateService extends
 		try {
 			jaxbMarshaller.marshal(type, file);
 		} catch (JAXBException e) {
-			LOG.error("Backup for template: {} failed, error message: {}",
-					dto.getCode(), e.getLocalizedMessage());
+			LOG.error("Backup for template: {} failed",
+					dto.getCode());
 			throw new ResultCodeException(CoreResultCode.BACKUP_FAIL,
-					ImmutableMap.of("code", dto.getCode(), "error", e.getLocalizedMessage()), e);
+					ImmutableMap.of("code", dto.getCode()), e);
 		}
 	}
 

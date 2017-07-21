@@ -64,7 +64,7 @@
     "detail": "Detail",
     "edit": "Upravit",
     "filter": {
-      "toogle": " Filtr ",
+      "toogle": "Filtr ",
       "use": "Filtrovat",
       "cancel": "Zrušit filtr"
     },
@@ -314,7 +314,11 @@
         "button": {
           "refresh": "Znovu načíst záznamy"
         },
-        "noData": "$t(component.basic.Table.noData)"
+        "noData": "$t(component.basic.Table.noData)",
+        "filter": {
+          "notEmpty": "Filtr je vyplněný",
+          "empty": "Filtr není vyplněný"
+        }
       },
       "Tree": {
         "loading": "Načítání ..."
@@ -440,6 +444,13 @@
       "IS_AUTHENTICATED": "Je třeba přihlášení",
       "HAS_ANY_AUTHORITY": "Alesnoň jedno z oprávnění",
       "HAS_ALL_AUTHORITIES": "Přiřazena všechna z oprávnění"
+    },
+    "LogTypeEnum":  {
+      "INFO": "INFO",
+      "DEBUG": "DEBUG",
+      "TRACE": "TRACE",
+      "WARN": "WARN",
+      "ERROR": "ERROR"
     },
     "AuditModificationEnum": {
       "ADD": "vytvoření",
@@ -1542,7 +1553,7 @@
         "title": "Nový uživatel",
         "button": {
           "generate": "Generovat heslo",
-          "add": " Přidat uživatele"
+          "add": "Přidat uživatele"
         },
         "message": {
           "success": "Uživatel [{{username}}] byl úspěšně vytvořen."
@@ -1983,6 +1994,14 @@
       "noPreviousRevision": "Neexistují žádné předchozí revize",
       "profile": {
         "userDetail": "{{revision}}. revize, {{name}}, {{date}}"
+      },
+      "logging-event": {
+        "title": "Logované události",
+        "label": "Logované události",
+        "header": "Logované události",
+        "header-detail": "Logovaná událost",
+        "detail": "detail",
+        "exceptions": "Chybové hlášení"
       },
       "revision": {
         "id": "ID revize",
@@ -2425,6 +2444,27 @@
       "subOwnerId": "Id sub vlastníka",
       "subOwnerType": "Typ sub vlastníka",
       "subOwnerCode": "Kód sub vlastníka"
+    },
+    "LoggingEvent": {
+      "id": "ID",
+      "timestmp": "Datum",
+      "formattedMessage": "Formátovaná zpráva",
+      "loggerName": "Název loggeru",
+      "levelString": "Typ",
+      "threadName": "Vlákno",
+      "arg0": "Argument 0",
+      "arg1": "Argument 1",
+      "arg2": "Argument 2",
+      "arg3": "Argument 3",
+      "callerFilename": "Ze souboru",
+      "callerClass": "Ze třídy",
+      "callerMethod": "Z metody",
+      "callerLine": "Řádek",
+      "text": "Obsah hlášení"
+    },
+    "LoggingEventException": {
+      "id": "Řádek",
+      "traceLine": "Záznam"
     },
     "PasswordPolicy": {
       "type": "Typ",
@@ -2869,6 +2909,10 @@
     "AUDIT_ENTITY_CLASS_NOT_FOUND": {
       "title": "Třída nenalezena",
       "message": "Třída [{{class}}] nebyla nalezena."
+    },
+    "AUDIT_ENTITY_CLASS_IS_NOT_FILLED": {
+      "title": "Třída nebyla vyplněna",
+      "message": "Třída pro vyhledávání nebyla vyplněna."
     },
     "BAD_FILTER": {
       "title": "Filter není validní",

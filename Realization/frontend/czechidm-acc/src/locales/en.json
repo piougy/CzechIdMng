@@ -377,7 +377,7 @@
           "batchMessage": "Retry all operations for selected entity <strong>{{name}}</strong> in queue. All operations for selected entity will be sent to system. Sequence sorted as per time of entering queue. Final state of entity in system will be retained",
           "batchMessage_plural": "Retry all operations for selected entity by <strong>{{count}}</strong> selected operations in queue. All operations for selected entities will be sent to system. Sequence sorted as per time of entering queue. Final state of entities in system will be retained",
           "error": "Error while retrying operation {{name}}",
-          "success": "Retrying operations of provisinong were started."
+          "success": "Retrying of provisioning operations has been started."
         },
         "cancel": {
           "action": "Cancel operation",

@@ -285,8 +285,6 @@ class AdvancedTable extends Basic.AbstractContextComponent {
         size: _searchParameters.getSize()
       };
     }
-    let filterSet = false;
-    if (_searchParameters.filters.size > 0) filterSet = true;
     const renderedColumns = [];
     for (let i = 0; i < columns.length; i++) {
       const column = columns[i];
@@ -403,7 +401,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
                   filterOpened={ filterOpened }
                   rendered={ showFilter && filter !== undefined && filterCollapsible }
                   style={{ marginLeft: 3 }}
-                  isFilterSet={ filterSet }/>
+                  searchParameters={ _searchParameters }/>
 
                 <Basic.Button
                   className="btn-xs"

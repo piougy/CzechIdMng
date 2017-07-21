@@ -28,21 +28,21 @@ export default class ToogleFilterButton extends AbstractContextComponent {
   }
 
   render() {
-    const { rendered, showLoading, isFilterSet, ...others } = this.props;
+    const { rendered, showLoading, searchParameters, ...others } = this.props;
     const { filterOpened } = this.state;
     if (!rendered) {
       return null;
     }
-    let style;
-    let text = 'Filtr je vypnutý';
-    if (isFilterSet) {
-      style = 'warning';
-      text = 'Filtr je zapnutý';
+    let level;
+    let tooltip = this.i18n('component.advanced.Table.filter.filter_off');
+    if (searchParameters.filters.size > 0) {
+      level = 'info';
+      tooltip = this.i18n('component.advanced.Table.filter.filter_on');
     }
     //
     return (
-        <Basic.Tooltip value={text}><span>
-          <Basic.Button className="btn-xs" level={style} onClick={this._filterOpen.bind(this, !filterOpened)} {...others}>
+        <Basic.Tooltip value={tooltip}><span>
+          <Basic.Button className="btn-xs" level={level} onClick={this._filterOpen.bind(this, !filterOpened)} {...others}>
             <Basic.Icon icon="filter" showLoading={showLoading}/>
                 {this.i18n('button.filter.toogle')}
                 {' '}

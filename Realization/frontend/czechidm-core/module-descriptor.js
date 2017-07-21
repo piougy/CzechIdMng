@@ -318,6 +318,21 @@ module.exports = {
             ]
           },
           {
+            'id': 'audit-logging-events',
+            'labelKey': 'content.audit.logging-event.label',
+            'titleKey': 'content.audit.logging-event.title',
+            'icon': 'fa:history',
+            'iconColor': '#eb9316',
+            'order': 60,
+            'path': '/audit/logging-events',
+            'access': [
+              {
+                'type': 'HAS_ANY_AUTHORITY',
+                'authorities': ['AUDIT_READ']
+              }
+            ]
+          },
+          {
             'id': 'audit-notification',
             'labelKey': 'navigation.menu.notifications.label',
             'titleKey': 'navigation.menu.notifications.title',

@@ -193,7 +193,7 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	}
 
 	protected Page<E> findEntities(F filter, Pageable pageable, BasePermission... permission) {
-		// TODO: remove this if after all dtro services will be rewritten - remove getRepository().find(filter, pageable)
+		// TODO: remove this if after all dto services will be rewritten - remove getRepository().find(filter, pageable)
 		if (!(this instanceof AuthorizableService)) {
 			if (filter == null) {
 				return getRepository().findAll(pageable);

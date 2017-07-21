@@ -39,6 +39,8 @@ import ContractGuaranteeService from './ContractGuaranteeService';
 import NotificationRecipientService from './NotificationRecipientService';
 import SmsService from './SmsService';
 import RecaptchaService from './RecaptchaService';
+import LoggingEventService from './LoggingEventService';
+import LoggingEventExceptionService from './LoggingEventExceptionService';
 
 const ServiceRoot = {
   RestApiService,
@@ -81,7 +83,9 @@ const ServiceRoot = {
   ContractGuaranteeService,
   NotificationRecipientService,
   SmsService,
-  RecaptchaService
+  RecaptchaService,
+  LoggingEventService,
+  LoggingEventExceptionService
 };
 
 ServiceRoot.version = '0.0.1';

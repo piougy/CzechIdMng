@@ -35,7 +35,7 @@ export default class ToogleFilterButton extends AbstractContextComponent {
     }
     let level = 'default';
     let tooltip = this.i18n('component.advanced.Table.filter.empty');
-    if (searchParameters.filters.size > 0) {
+    if (searchParameters && searchParameters.filters.size > 0) {
       level = 'info';
       tooltip = this.i18n('component.advanced.Table.filter.notEmpty');
     }

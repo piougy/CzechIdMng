@@ -44,6 +44,7 @@ import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccTreeAccountService;
+import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.SynchronizationEntityExecutor;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncActionLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
@@ -56,6 +57,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.CorrelationFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.TreeNodeFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
+import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.repository.BaseEntityRepository;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
@@ -64,6 +66,7 @@ import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
+import eu.bcvsolutions.idm.core.model.event.RoleEvent.RoleEventType;
 import eu.bcvsolutions.idm.core.model.event.TreeNodeEvent;
 import eu.bcvsolutions.idm.core.model.event.TreeNodeEvent.TreeNodeEventType;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
@@ -226,7 +229,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 			return;
 		}
 		// Call provisioning for this entity
-		doUpdateAccountByEntity(treeNode, entityType, logItem);
+		callProvisioningForEntity(treeNode, entityType, logItem);
 	}
 
 	/**
@@ -237,7 +240,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 	 * @param logItem
 	 */
 	@Override
-	protected void doUpdateAccountByEntity(AbstractEntity entity, SystemEntityType entityType, SysSyncItemLog logItem) {
+	protected void callProvisioningForEntity(AbstractEntity entity, SystemEntityType entityType, SysSyncItemLog logItem) {
 		IdmTreeNode treeNode = (IdmTreeNode) entity;
 		addToItemLog(logItem,
 				MessageFormat.format(
@@ -245,6 +248,21 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 						treeNode.getId(), treeNode.getName()));
 		entityEventManager.process(new TreeNodeEvent(TreeNodeEventType.UPDATE, treeNode)).getContent();
 	}
+	
+	/**
+	 * Save entity
+	 * @param entity
+	 * @param skipProvisioning
+	 * @return
+	 */
+	@Override
+	protected AbstractEntity saveEntity(AbstractEntity entity, boolean skipProvisioning) {
+		IdmTreeNode node = (IdmTreeNode) entity;
+		EntityEvent<IdmTreeNode> event = new TreeNodeEvent(treeNodeService.isNew(node) ? TreeNodeEventType.CREATE : TreeNodeEventType.UPDATE, node, ImmutableMap.of(ProvisioningService.SKIP_PROVISIONING, skipProvisioning));
+		
+		return treeNodeService.publish(event).getContent();
+	}
+
 
 	/**
 	 * Create and persist new entity by data from IC attributes
@@ -267,7 +285,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 		treeNode = (IdmTreeNode) fillEntity(mappedAttributes, uid, icAttributes, treeNode, true);
 		treeNode.setTreeType(this.getSystemMapping(mappedAttributes).getTreeType());
 		// Create new Entity
-		treeNodeService.save(treeNode);
+		this.saveEntity(treeNode, true);
 		// Update extended attribute (entity must be persisted first)
 		updateExtendedAttributes(mappedAttributes, uid, icAttributes, treeNode, true);
 		// Update confidential attribute (entity must be persisted first)
@@ -279,6 +297,9 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 		entityAccount.setEntity(treeNode.getId());
 		entityAccount.setOwnership(true);
 		this.getEntityAccountService().save(entityAccount);
+
+		// Call provisioning for entity
+		this.callProvisioningForEntity(treeNode, entityType, logItem);
 
 		// Entity Created
 		addToItemLog(logItem, MessageFormat.format("Tree node with id {0} was created", treeNode.getId()));
@@ -318,7 +339,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 		if (treeNode != null) {
 			// Update entity
 			treeNode = (IdmTreeNode) fillEntity(mappedAttributes, uid, icAttributes, treeNode, false);
-			treeNodeService.save(treeNode);
+			this.saveEntity(treeNode, true);
 			// Update extended attribute (entity must be persisted first)
 			updateExtendedAttributes(mappedAttributes, uid, icAttributes, treeNode, false);
 			// Update confidential attribute (entity must be persisted first)
@@ -329,6 +350,9 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 			if (logItem != null) {
 				logItem.setDisplayName(treeNode.getName());
 			}
+			
+			// Call provisioning for entity
+			this.callProvisioningForEntity(treeNode, context.getEntityType(), logItem);
 
 			return;
 		} else {

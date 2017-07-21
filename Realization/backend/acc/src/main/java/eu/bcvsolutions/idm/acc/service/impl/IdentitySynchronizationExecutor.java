@@ -31,6 +31,7 @@ import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
+import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.SynchronizationEntityExecutor;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncActionLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
@@ -43,6 +44,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.CorrelationFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdentityFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
+import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.repository.BaseEntityRepository;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
@@ -53,6 +55,7 @@ import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
+import eu.bcvsolutions.idm.core.model.event.RoleEvent.RoleEventType;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
@@ -150,7 +153,7 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 			return;
 		}
 		// Call provisioning for this entity
-		doUpdateAccountByEntity(identity, entityType, logItem);
+		callProvisioningForEntity(identity, entityType, logItem);
 	}
 
 	/**
@@ -160,13 +163,34 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 	 * @param entityType
 	 * @param logItem
 	 */
-	protected void doUpdateAccountByEntity(AbstractEntity entity, SystemEntityType entityType, SysSyncItemLog logItem) {
+	@Override
+	protected void callProvisioningForEntity(AbstractEntity entity, SystemEntityType entityType, SysSyncItemLog logItem) {
 		IdmIdentity identity = (IdmIdentity) entity;
 		addToItemLog(logItem,
 				MessageFormat.format(
 						"Call provisioning (process IdentityEventType.SAVE) for identity ({0}) with username ({1}).",
 						identity.getId(), identity.getUsername()));
-		entityEventManager.process(new IdentityEvent(IdentityEventType.UPDATE, identityService.get(identity.getId()))).getContent();
+		identityService.publish(new IdentityEvent(IdentityEventType.UPDATE, identityService.get(identity.getId())));
+	}
+	
+	/**
+	 * Save entity
+	 * @param entity
+	 * @param skipProvisioning
+	 * @return
+	 */
+	@Override
+	protected AbstractEntity saveEntity(AbstractEntity entity, boolean skipProvisioning) {
+		IdmIdentity identity = (IdmIdentity) entity;
+		// Create DTO mock ... only for check if is identity new
+		IdmIdentityDto dummyDTO = new IdmIdentityDto(identity.getId());
+		boolean isNew = identityService.isNew(dummyDTO);
+		
+		// Content will be set in service (we need do transform entity to DTO). 
+		// Here we set only dummy dto (null content is not allowed)
+		EntityEvent<IdmIdentityDto> event = new IdentityEvent(isNew ? IdentityEventType.CREATE : IdentityEventType.UPDATE, dummyDTO, ImmutableMap.of(ProvisioningService.SKIP_PROVISIONING, skipProvisioning));
+		
+		return identityService.publishIdentity(identity, event);
 	}
 
 	/**
@@ -188,7 +212,7 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 		// Fill Identity by mapped attribute
 		identity = (IdmIdentity) fillEntity(mappedAttributes, uid, icAttributes, identity, true);
 		// Create new Identity
-		identity = identityService.saveIdentity(identity);
+		identity = (IdmIdentity) this.saveEntity(identity, true);
 		// Update extended attribute (entity must be persisted first)
 		updateExtendedAttributes(mappedAttributes, uid, icAttributes, identity, true);
 		// Update confidential attribute (entity must be persisted first)
@@ -200,6 +224,9 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 		identityAccount.setIdentity(identity.getId());
 		identityAccount.setOwnership(true);
 		identityAccoutnService.save(identityAccount);
+		
+		// Call provisioning for entity
+		this.callProvisioningForEntity(identity, entityType, logItem);
 
 		// Identity Created
 		addToItemLog(logItem, MessageFormat.format("Identity with id {0} was created", identity.getId()));
@@ -229,6 +256,7 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 		List<SysSystemAttributeMapping> mappedAttributes = context.getMappedAttributes();
 		AccAccount account = context.getAccount();
 		List<IcAttribute> icAttributes = context.getIcObject().getAttributes();
+		SystemEntityType entityType = context.getEntityType();
 		
 		UUID entityId = getEntityByAccount(account.getId());
 		IdmIdentity identity = null;
@@ -238,7 +266,7 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 		if (identity != null) {
 			// Update identity
 			identity = (IdmIdentity) fillEntity(mappedAttributes, uid, icAttributes, identity, false);
-			identity = identityService.saveIdentity(identity);
+			identity = (IdmIdentity) this.saveEntity(identity, true);
 			// Update extended attribute (entity must be persisted first)
 			updateExtendedAttributes(mappedAttributes, uid, icAttributes, identity, false);
 			// Update confidential attribute (entity must be persisted
@@ -250,6 +278,9 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 			if (logItem != null) {
 				logItem.setDisplayName(identity.getUsername());
 			}
+			
+			// Call provisioning for entity
+			this.callProvisioningForEntity(identity, entityType, logItem);
 
 			return;
 		} else {
@@ -375,4 +406,5 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 		}
 		return null;
 	}
+	
 }

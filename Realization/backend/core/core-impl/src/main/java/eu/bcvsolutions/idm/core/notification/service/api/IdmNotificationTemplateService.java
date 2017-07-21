@@ -73,7 +73,8 @@ ReadWriteDtoService<IdmNotificationTemplateDto, NotificationTemplateFilter>,
 	 * 
 	 * @param topic
 	 * @param level
+	 * @param notificationType
 	 * @return
 	 */
-	IdmNotificationTemplateDto resolveTemplate(String topic, NotificationLevel level);
+	IdmNotificationTemplateDto resolveTemplate(String topic, NotificationLevel level, String notificationType);
 }

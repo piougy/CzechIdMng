@@ -7,7 +7,7 @@ import org.springframework.data.repository.query.Param;
 
 import eu.bcvsolutions.idm.core.api.dto.filter.LoggingEventFilter;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
-import eu.bcvsolutions.idm.core.audit.model.entity.IdmLoggingEvent;
+import eu.bcvsolutions.idm.core.audit.entity.IdmLoggingEvent;
 
 /**
  * Repository for logging event

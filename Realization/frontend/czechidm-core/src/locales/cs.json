@@ -1981,7 +1981,6 @@
       "title": "Audit",
       "title-entities": "Audit pro entity",
       "title-identities": "Audit pro uživatele",
-      "title-logging-events": "Logované události",
       "modifier": "Akci provedl",
       "date": "Datum změny",
       "empty": "Bez žádných záznamů",
@@ -1994,7 +1993,10 @@
       },
       "logging-event": {
         "title": "Logované události",
-        "header": "Logovaná událost",
+        "label": "Logované události",
+        "header": "Logované události",
+        "header-detail": "Logovaná událost",
+        "detail": "detail",
         "exceptions": "Chybové hlášení"
       },
       "revision": {

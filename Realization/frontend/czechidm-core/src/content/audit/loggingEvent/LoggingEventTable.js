@@ -24,7 +24,7 @@ const manager = new LoggingEventManager();
 *
 * @author Ondřej Kopr
 */
-export class EventTable extends Advanced.AbstractTableContent {
+class LoggingEventTable extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);
@@ -154,8 +154,7 @@ export class EventTable extends Advanced.AbstractTableContent {
           filterOpened
           manager={manager} showId={false}
           rowClass={({rowIndex, data}) => { return Utils.Ui.getRowClass(data[rowIndex]); }}
-          filter={ this._getAdvancedFilter() }
-          _searchParameters={ this.getSearchParameters() }>
+          filter={ this._getAdvancedFilter() }>
           <Advanced.Column
             header=""
             className="detail-button"
@@ -199,12 +198,12 @@ export class EventTable extends Advanced.AbstractTableContent {
   }
 }
 
-EventTable.propTypes = {
+LoggingEventTable.propTypes = {
   // table uiKey
   uiKey: PropTypes.string.isRequired,
 };
 
-EventTable.defaultProps = {
+LoggingEventTable.defaultProps = {
   isDetail: false
 };
 
@@ -214,4 +213,4 @@ function select(state, component) {
   };
 }
 
-export default connect(select)(EventTable);
+export default connect(select)(LoggingEventTable);

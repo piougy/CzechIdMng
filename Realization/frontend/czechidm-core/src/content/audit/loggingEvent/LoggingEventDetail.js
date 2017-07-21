@@ -9,7 +9,9 @@ import LoggingEventExceptionDetail from './LoggingEventExceptionDetail';
 
 /**
 * Basic detail for template detail,
-* this detail is also used for create entity
+* this detail is also used for create entity.
+*
+* @author Ondřej Kopr
 */
 
 const manager = new LoggingEventManager();
@@ -45,7 +47,7 @@ class LoggingEventDetail extends Basic.AbstractContent {
         <Basic.PageHeader>
           <Basic.Icon value="eye-open"/>
           {' '}
-          {this.i18n('header')}
+          {this.i18n('header-detail')}
           {' '}
           <small>{this.i18n('detail')}</small>
         </Basic.PageHeader>
@@ -129,20 +131,22 @@ class LoggingEventDetail extends Basic.AbstractContent {
             <Basic.TextArea ref="formattedMessage"
               label={this.i18n('entity.LoggingEvent.formattedMessage')}/>
 
-            {
-              !entity || LogTypeEnum.findSymbolByKey(entity.levelString) !== LogTypeEnum.ERROR
-              ||
-              <div>
-                <Basic.ContentHeader>
-                  <Basic.Icon value="warning-sign"/>
-                  {' '}
-                  <span dangerouslySetInnerHTML={{ __html: this.i18n('exceptions') }}/>
-                </Basic.ContentHeader>
-                <Basic.Panel >
+            <div>
+              <Basic.ContentHeader>
+                <Basic.Icon value="warning-sign"/>
+                {' '}
+                <span dangerouslySetInnerHTML={{ __html: this.i18n('exceptions') }}/>
+              </Basic.ContentHeader>
+              <Basic.Panel >
+                {
+                  entity
+                  ?
                   <LoggingEventExceptionDetail eventId={entity.id} />
-                </Basic.Panel>
-              </div>
-            }
+                  :
+                  <Basic.Loading />
+                }
+              </Basic.Panel>
+            </div>
           </Basic.AbstractForm>
 
           <Basic.PanelFooter showLoading={showLoading} >

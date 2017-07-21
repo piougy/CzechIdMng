@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.audit.model.entity;
+package eu.bcvsolutions.idm.core.audit.entity;
 
 import java.io.Serializable;
 import java.text.DateFormat;

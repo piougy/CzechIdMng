@@ -2,9 +2,14 @@ import React from 'react';
 import { connect } from 'react-redux';
 import * as Basic from '../../../components/basic';
 import LoggingEventTable from './LoggingEventTable';
-import Helmet from 'react-helmet';
 
-class EventContent extends Basic.AbstractContent {
+/**
+ * Content for logging event, contains logging event tables.
+ *
+ * @author Ondřej Kopr
+ */
+
+class LoggingEventContent extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
@@ -14,24 +19,27 @@ class EventContent extends Basic.AbstractContent {
     return 'content.audit.logging-event';
   }
 
-  componentDidMount() {
-    this.selectNavigationItems(['audit', 'audits', 'audit-logging-events']);
+  getNavigationKey() {
+    return 'audit-logging-events';
   }
 
   render() {
     return (
       <div>
-        <Helmet title={this.i18n('title')} />
-        <LoggingEventTable uiKey="audit-event-table"/>
+        {this.renderPageHeader()}
+
+        <Basic.Panel>
+          <LoggingEventTable uiKey="audit-event-table"/>
+        </Basic.Panel>
       </div>
     );
   }
 }
 
-EventContent.propTypes = {
+LoggingEventContent.propTypes = {
 };
 
-EventContent.defaultProps = {
+LoggingEventContent.defaultProps = {
 };
 
 function select() {
@@ -39,4 +47,4 @@ function select() {
   };
 }
 
-export default connect(select)(EventContent);
+export default connect(select)(LoggingEventContent);

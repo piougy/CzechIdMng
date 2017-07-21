@@ -11,7 +11,7 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import eu.bcvsolutions.idm.core.api.dto.filter.AuditFilter;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
-import eu.bcvsolutions.idm.core.audit.model.entity.IdmAudit;
+import eu.bcvsolutions.idm.core.audit.entity.IdmAudit;
 
 @RepositoryRestResource(//
 		collectionResourceRel = "audits", //

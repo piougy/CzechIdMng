@@ -1,6 +1,12 @@
 import AbstractService from './AbstractService';
 import SearchParameters from '../domain/SearchParameters';
 
+/**
+ * Service for loggging event exception
+ *
+ * @author Ondřej Kopr
+ */
+
 class LoggignEventExceptionService extends AbstractService {
 
   constructor() {
@@ -16,7 +22,7 @@ class LoggignEventExceptionService extends AbstractService {
       return '';
     }
     // TODO: add better nice label
-    return `${entity.i}`;
+    return `${entity.id}`;
   }
 
   /**
@@ -25,7 +31,7 @@ class LoggignEventExceptionService extends AbstractService {
    * @return {object} searchParameters
    */
   getDefaultSearchParameters() {
-    return super.getDefaultSearchParameters().setName(SearchParameters.NAME_QUICK).clearSort().setSort('id', 'ASC');
+    return super.getDefaultSearchParameters().setName(SearchParameters.NAME_QUICK).clearSort().setSort('id', 'ASC').setSize(100);
   }
 }
 

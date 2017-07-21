@@ -7,7 +7,7 @@ import org.springframework.data.repository.query.Param;
 
 import eu.bcvsolutions.idm.core.api.dto.filter.LoggingEventExceptionFilter;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
-import eu.bcvsolutions.idm.core.audit.model.entity.IdmLoggingEventException;
+import eu.bcvsolutions.idm.core.audit.entity.IdmLoggingEventException;
 
 public interface IdmLoggingEventExceptionRepository extends AbstractEntityRepository<IdmLoggingEventException, LoggingEventExceptionFilter> {
 

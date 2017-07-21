@@ -1919,7 +1919,6 @@
       "title": "Audit",
       "title-entities": "Entities",
       "title-identities": "Users",
-      "title-logging-events": "Logging events",
       "modifier": "Action executor",
       "date": "Date of change",
       "empty": "Without records",
@@ -1931,8 +1930,11 @@
         "userDetail": "{{revision}}. revize, {{name}}, {{date}}"
       },
       "logging-event": {
-        "title": "Loggign events",
-        "header": "Logging event",
+        "title": "Logging events",
+        "label": "Logging events",
+        "header": "Logging events",
+        "header-detail": "Logging event",
+        "detail": "detail",
         "exceptions": "Error message"
       },
       "revision": {

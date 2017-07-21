@@ -35,6 +35,7 @@ public class CoreSwaggerConfig extends AbstractSwaggerConfig {
 				"eu.bcvsolutions.idm.core.scheduler",
 				"eu.bcvsolutions.idm.core.eav",
 				"eu.bcvsolutions.idm.core.notification",
-				"eu.bcvsolutions.idm.core.workflow");
+				"eu.bcvsolutions.idm.core.workflow",
+				"eu.bcvsolutions.idm.core.audit");
 	}
 }

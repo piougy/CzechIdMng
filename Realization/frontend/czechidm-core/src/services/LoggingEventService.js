@@ -1,6 +1,12 @@
 import AbstractService from './AbstractService';
 import SearchParameters from '../domain/SearchParameters';
 
+/**
+ * Service for logging event exception
+ *
+ * @author Ondřej Kopr
+ */
+
 class LoggignEventService extends AbstractService {
 
   constructor() {

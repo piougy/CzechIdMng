@@ -23,7 +23,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.LoggingEventFilter;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
-import eu.bcvsolutions.idm.core.audit.model.entity.IdmLoggingEvent;
+import eu.bcvsolutions.idm.core.audit.entity.IdmLoggingEvent;
 import eu.bcvsolutions.idm.core.audit.service.api.IdmLoggingEventService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import io.swagger.annotations.Api;

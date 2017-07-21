@@ -941,8 +941,21 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 		SysSyncItemLog logItem = context.getLogItem();
 		List<SysSyncActionLog> actionLogs = context.getActionLogs();
 		AccAccount account = context.getAccount();
+		List<SysSystemAttributeMapping> mappedAttributes = context.getMappedAttributes();
+		List<IcAttribute> icAttributes = context.getIcObject().getAttributes();
+		SysSystem system = context.getSystem();
 
 		addToItemLog(logItem, MessageFormat.format("IdM Account ({0}) exist in IDM (LINKED)", account.getUid()));
+		
+		// Generate UID value from mapped attribute marked as UID (Unique ID).
+		// UID mapped attribute must exist and returned value must be not null and must be String
+		String attributeUid = systemAttributeMappingService.getUidValueFromResource(icAttributes, mappedAttributes, system);
+		if(account != null && !account.getUid().equals(attributeUid)){
+			addToItemLog(logItem, MessageFormat.format("IdM Account UID ({0}) is different ({1}). We will update him.", account.getUid(), attributeUid));
+			account.setUid(attributeUid);
+			accountService.save(account);
+		}
+		
 		addToItemLog(logItem, MessageFormat.format("Linked action is {0}", action));
 		
 		switch (action) {
@@ -1126,7 +1139,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 	 * @param entityType
 	 * @param logItem
 	 */
-	protected abstract void doUpdateAccountByEntity(AbstractEntity entity, SystemEntityType entityType,
+	protected abstract void callProvisioningForEntity(AbstractEntity entity, SystemEntityType entityType,
 			SysSyncItemLog logItem);
 
 	/**
@@ -1759,7 +1772,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 
 		if (callProvisioning) {
 			// Call provisioning for this identity
-			doUpdateAccountByEntity(entity, entityType, logItem);
+			callProvisioningForEntity(entity, entityType, logItem);
 		}
 	}
 	
@@ -1925,6 +1938,8 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 
 		}
 	}
+
+	protected abstract AbstractEntity saveEntity(AbstractEntity entity, boolean skipProvisioning);
 	
 
 }

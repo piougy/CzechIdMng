@@ -64,7 +64,7 @@
     "detail": "Detail",
     "edit": "Upravit",
     "filter": {
-      "toogle": " Filtr ",
+      "toogle": "Filtr ",
       "use": "Filtrovat",
       "cancel": "Zrušit filtr"
     },
@@ -316,8 +316,8 @@
         },
         "noData": "$t(component.basic.Table.noData)",
         "filter": {
-          "filter_on": "Filtr je zapnutý",
-          "filter_off": "Filtr je vypnutý"
+          "notEmpty": "Filtr je vyplněný",
+          "empty": "Filtr není vyplněný"
         }
       },
       "Tree": {
@@ -1553,7 +1553,7 @@
         "title": "Nový uživatel",
         "button": {
           "generate": "Generovat heslo",
-          "add": " Přidat uživatele"
+          "add": "Přidat uživatele"
         },
         "message": {
           "success": "Uživatel [{{username}}] byl úspěšně vytvořen."

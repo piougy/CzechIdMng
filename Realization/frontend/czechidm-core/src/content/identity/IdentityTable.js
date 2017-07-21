@@ -223,8 +223,8 @@ export class IdentityTable extends Advanced.AbstractTableContent {
                 type="submit"
                 className="btn-xs"
                 onClick={this.showDetail.bind(this, {})}
-                rendered={showAddButton && SecurityManager.hasAuthority('IDENTITY_CREATE')}>
-                <Basic.Icon type="fa" icon="user-plus"/>
+                rendered={showAddButton && SecurityManager.hasAuthority('IDENTITY_CREATE')}
+                icon="fa:user-plus">
                 {this.i18n('content.identity.create.button.add')}
               </Basic.Button>
             ]

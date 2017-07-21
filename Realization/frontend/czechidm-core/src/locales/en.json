@@ -64,7 +64,7 @@
     "detail": "Detail",
     "edit": "Edit",
     "filter": {
-      "toogle": " Filter ",
+      "toogle": "Filter",
       "use": "Filter",
       "cancel": "Cancel filter"
     },
@@ -277,8 +277,8 @@
         },
         "noData": "$t(component.basic.Table.noData)",
         "filter": {
-          "filter_on": "Filtr is set",
-          "filter_off": "Filtr is not set"
+          "notEmpty": "Filtr is set",
+          "emtpy": "Filtr is not set"
         }
       },
       "Tree": {
@@ -1491,7 +1491,7 @@
         "title": "New user",
         "button": {
           "generate": "Generate password",
-          "add": " Create user"
+          "add": "Create user"
         },
         "message": {
           "success": "User [{{username}}] successfully created."

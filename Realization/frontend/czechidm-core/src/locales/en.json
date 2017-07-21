@@ -275,7 +275,11 @@
         "button": {
           "refresh": "Reload records"
         },
-        "noData": "$t(component.basic.Table.noData)"
+        "noData": "$t(component.basic.Table.noData)",
+        "filter": {
+          "filter_on": "Filtr is set",
+          "filter_off": "Filtr is not set"
+        }
       },
       "Tree": {
         "loading": "Loading ..."

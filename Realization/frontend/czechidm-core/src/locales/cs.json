@@ -314,7 +314,11 @@
         "button": {
           "refresh": "Znovu načíst záznamy"
         },
-        "noData": "$t(component.basic.Table.noData)"
+        "noData": "$t(component.basic.Table.noData)",
+        "filter": {
+          "filter_on": "Filtr je zapnutý",
+          "filter_off": "Filtr je vypnutý"
+        }
       },
       "Tree": {
         "loading": "Načítání ..."

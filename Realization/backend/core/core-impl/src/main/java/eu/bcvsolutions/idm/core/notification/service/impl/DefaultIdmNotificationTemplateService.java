@@ -279,13 +279,13 @@ public class DefaultIdmNotificationTemplateService extends
 	}
 
 	@Override
-	public IdmNotificationTemplateDto resolveTemplate(String topic, NotificationLevel level) {
+	public IdmNotificationTemplateDto resolveTemplate(String topic, NotificationLevel level, String notificationType) {
 		IdmNotificationConfiguration configuration = notificationConfigurationRepository
-				.findNotificationByTopicLevel(topic, level);
+				.findByTopicAndLevelAndNotificationType(topic, level, notificationType);
 
 		// if configurations is empty try to wildcard with null level
 		if (configuration == null) {
-			configuration = notificationConfigurationRepository.findNotificationByTopicLevel(topic, null);
+			configuration = notificationConfigurationRepository.findWildcardForTopic(topic);
 		}
 		if (configuration == null) {
 			return null;

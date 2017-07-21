@@ -10,7 +10,7 @@ We use Redmine issues to track bugs. Please ensure your description is clear and
 
 * https://google.github.io/styleguide/javaguide.html
 * 2 tabs for indentation
-* use `{}` brackets
+* Use `{}` brackets
 * Don't use abbreviations for fields, variables etc.
 * Don't use camelCase in package names
 * Database
@@ -44,6 +44,7 @@ We use Redmine issues to track bugs. Please ensure your description is clear and
   * Immutable
   * ...
 * Use semicolons;
+* Use `{}` brackets
 * Commas last,
 * 2 spaces for indentation
 * Prefer `'` over `"`

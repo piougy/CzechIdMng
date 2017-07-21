@@ -9,12 +9,12 @@ We use Redmine issues to track bugs. Please ensure your description is clear and
 ### Coding Style, convention
 
 * https://google.github.io/styleguide/javaguide.html
-* 2 tabs for indentation
+* 1 tab for indentation
 * Use `{}` brackets
 * Don't use abbreviations for fields, variables etc.
 * Don't use camelCase in package names
 * Database
- * [Convention](https://proj.bcvsolutions.eu/ngidm/doku.php?id=navrh:identifikatory#konvence_navrhu_databaze)
+ * [Convention](https://wiki.czechidm.com/7.3/dev/conventions/database-conventions)
   * `Entity` / `Dto` has to contain jsr303 validations
 * Rest
   * Rest endpoints naming with snake-case in plural, e.g. `<server>/wf-identities`, `<server>/tasks`
@@ -23,14 +23,14 @@ We use Redmine issues to track bugs. Please ensure your description is clear and
   * use `@Transaction` annotation for service methods
   * use interfaces
     * `Configurable` for configurations
-    * `Codeable` for entities with code and name - see database naming [convention](https://proj.bcvsolutions.eu/ngidm/doku.php?id=navrh:identifikatory#konvence_navrhu_databaze)
+    * `Codeable` for entities with code and name - see database naming [convention](https://wiki.czechidm.com/7.3/dev/conventions/database-conventions)
     * ...
 * Java
   * Class - fields first, then constructors, then public methods, then private methods
 
 ### IDE
-* [Eclipse](https://proj.bcvsolutions.eu/ngidm/doku.php?id=en:development:ide:eclipse)
-* [Idea](https://proj.bcvsolutions.eu/ngidm/doku.php?id=en:development:ide:idea)
+* [Eclipse](https://wiki.czechidm.com/7.3/dev/quickstart/ide/eclipse)
+* [Idea](https://wiki.czechidm.com/7.3/dev/quickstart/ide/idea)
 
 ## Frontend
 
@@ -63,25 +63,7 @@ We use Redmine issues to track bugs. Please ensure your description is clear and
 
 ### IDE
 
-We are using [Atom IDE](https://atom.io/) for development with plugins installed:
-* linter
-* linter-eslint
-* react
-* linter-bootlint
-* atom-bootstrap-3
-* git-diff-details
-* git-diff-popup
-* git-plus
-* git-status
-* line-diff-details
-* last-cursor-position
-* docblockr
-
-Tips for Atom:
-* **Ctrl+Shift+P** Search any function of Atom.
-* **Ctrl+R** Search method in current file.
-* **Auto indent** Formatting of selected code (jsx).
-
+* [Atom](https://wiki.czechidm.com/7.3/dev/quickstart/ide/atom)
 
 
 ## Our Development Process

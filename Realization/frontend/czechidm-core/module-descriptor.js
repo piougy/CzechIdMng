@@ -460,6 +460,7 @@ module.exports = {
             'order': 50,
             'path': '/modules/be-modules',
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['MODULE_READ'] } ],
+            'icon': 'fa:puzzle-piece',
             'items': [
               {
                 'id': 'fe-modules',

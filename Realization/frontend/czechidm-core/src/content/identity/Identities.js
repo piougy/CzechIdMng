@@ -6,6 +6,8 @@ import IdentityTable from './IdentityTable';
 
 /**
  * List of identities
+ *
+ * @author Radek Tomiška
  */
 class Identities extends Basic.AbstractContent {
 

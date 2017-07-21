@@ -5,6 +5,11 @@ import { RoleManager } from '../../redux';
 import SearchParameters from '../../domain/SearchParameters';
 import RoleTable from '../role/RoleTable';
 
+/**
+ * Identity is guarantee for roles
+ *
+ * @author Radek Tomiška
+ */
 export default class IdentityGarantedRoles extends Basic.AbstractContent {
 
   constructor(props, context) {

@@ -9,6 +9,11 @@ chai.use(dirtyChai);
 import * as Basic from '../../../../src/components/basic';
 import TableRow from '../../../../src/components/basic/Table/Row';
 
+/**
+ * Basic.Table tests
+ *
+ * @author Radek Tomiška
+ */
 describe('Basic Table', function basicTableTestSuite() {
   /**
    * Clean DOM afrer each test

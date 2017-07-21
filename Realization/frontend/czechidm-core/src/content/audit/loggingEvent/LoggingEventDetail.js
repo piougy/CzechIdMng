@@ -20,26 +20,26 @@ class LoggingEventDetail extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
-    this.state = {
-      showLoading: false
-    };
   }
 
   getContentKey() {
     return 'content.audit.logging-event';
   }
 
+  getNavigationKey() {
+    return 'audit-logging-events';
+  }
+
   componentDidMount() {
-    const { entityId } = this.props.params;
-    //
     super.componentDidMount();
-    this.selectNavigationItems(['audit', 'audits']);
-    this.context.store.dispatch(manager.fetchEntity(entityId, 'UI_KEY_' + entityId));
+    //
+    const { entityId } = this.props.params;
+    this.context.store.dispatch(manager.fetchEntity(entityId));
   }
 
   render() {
-    const { uiKey, entity } = this.props;
-    const { showLoading } = this.state;
+    const { uiKey, entity, showLoading } = this.props;
+    //
     return (
       <Basic.Row>
         <Helmet title={this.i18n('title')} />
@@ -57,7 +57,8 @@ class LoggingEventDetail extends Basic.AbstractContent {
             data={entity} readOnly
             ref="form"
             uiKey={uiKey}
-            style={{ padding: '15px 15px 0 15px' }}>
+            style={{ padding: '15px 15px 0 15px' }}
+            showLoading={ showLoading }>
             <Basic.Row>
               <div className="col-lg-3">
                 <Basic.TextField
@@ -109,7 +110,8 @@ class LoggingEventDetail extends Basic.AbstractContent {
             <Basic.Row>
               <div className="col-lg-3">
                 <Basic.TextField
-                  ref="arg0" hidden={entity && entity.arg0 === null}
+                  ref="arg0"
+                  hidden={entity && entity.arg0 === null}
                   label={this.i18n('entity.LoggingEvent.arg0')}/>
               </div>
               <div className="col-lg-3">
@@ -128,28 +130,27 @@ class LoggingEventDetail extends Basic.AbstractContent {
                   label={this.i18n('entity.LoggingEvent.arg3')}/>
               </div>
             </Basic.Row>
-            <Basic.TextArea ref="formattedMessage"
+
+            <Basic.TextArea
+              ref="formattedMessage"
               label={this.i18n('entity.LoggingEvent.formattedMessage')}/>
 
-            <div>
-              <Basic.ContentHeader>
-                <Basic.Icon value="warning-sign"/>
-                {' '}
-                <span dangerouslySetInnerHTML={{ __html: this.i18n('exceptions') }}/>
-              </Basic.ContentHeader>
-              <Basic.Panel >
-                {
-                  entity
-                  ?
-                  <LoggingEventExceptionDetail eventId={entity.id} />
-                  :
-                  <Basic.Loading />
-                }
-              </Basic.Panel>
-            </div>
+            <Basic.ContentHeader style={{ marginBottom: 0 }} className="marginable">
+              <Basic.Icon value="warning-sign"/>
+              {' '}
+              { this.i18n('exceptions', { escape: false }) }
+            </Basic.ContentHeader>
           </Basic.AbstractForm>
 
-          <Basic.PanelFooter showLoading={showLoading} >
+          {
+            entity
+            ?
+            <LoggingEventExceptionDetail eventId={entity.id} />
+            :
+            <Basic.Loading show />
+          }
+
+          <Basic.PanelFooter>
             <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>{this.i18n('button.back')}</Basic.Button>
           </Basic.PanelFooter>
         </Basic.Panel>
@@ -169,7 +170,8 @@ function select(state, component) {
   const { entityId } = component.params;
 
   return {
-    entity: manager.getEntity(state, entityId)
+    entity: manager.getEntity(state, entityId),
+    showLoading: manager.isShowLoading(state, null, entityId)
   };
 }
 

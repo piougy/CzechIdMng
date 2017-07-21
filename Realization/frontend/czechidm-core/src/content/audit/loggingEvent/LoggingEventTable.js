@@ -51,22 +51,13 @@ class LoggingEventTable extends Advanced.AbstractTableContent {
   }
 
   /**
-  * Method get last string of split string by dot.
-  * Used for get niceLabel for type entity.
-  */
-  _getType(name) {
-    const type = name.split('.');
-    return type[type.length - 1];
-  }
-
-  /**
   * Method get last string of arrays split string by dot.
   * Used method _getType
   */
   _getTypeArray(arrayOfName) {
     for (const index in arrayOfName) {
       if (arrayOfName.hasOwnProperty(index)) {
-        arrayOfName[index] = this._getType(arrayOfName[index]);
+        arrayOfName[index] = Utils.Ui.getSimpleJavaType(arrayOfName[index]);
       }
     }
     return _.join(arrayOfName, ', ');
@@ -173,9 +164,10 @@ class LoggingEventTable extends Advanced.AbstractTableContent {
             property="callerClass"
             cell={
               ({ rowIndex, data, property }) => {
+                const value = data[rowIndex][property];
                 return (
-                  <span title={data[rowIndex][property]}>
-                    { this._getType(data[rowIndex][property]) }
+                  <span title={ value }>
+                    { Utils.Ui.getSimpleJavaType(value) }
                   </span>
                 );
               }}

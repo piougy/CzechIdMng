@@ -45,7 +45,7 @@
     "babel/object-shorthand": 1,
     "react/jsx-boolean-value": 1,
     "react/jsx-no-duplicate-props": 2,
-    "react/no-multi-comp": 1,
+    "react/no-multi-comp": 0,
     "react/sort-comp": 0,
     "react/no-did-mount-set-state": 1,
     "react/no-did-update-set-state": 1,

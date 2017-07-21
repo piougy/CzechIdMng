@@ -20,41 +20,34 @@ export default class LoggingEventExceptionDetail extends Basic.AbstractContent {
     super(props, context);
   }
 
-  componentDidMount() {
-    //
-    super.componentDidMount();
-  }
-
   getContentKey() {
     return 'content.audit.logging-event';
   }
-
 
   render() {
     const { eventId } = this.props;
 
     return (
-      <div>
-        <Advanced.Table
-          ref="table" style={{ whiteSpace: 'pre' }}
-          filterOpened
-          manager={manager} showId={false}
-          forceSearchParameters={manager.getDefaultSearchParameters().setFilter('event', eventId)}
-          rowClass={({ rowIndex, data }) => {
-            if (data[rowIndex].traceLine.indexOf(EU_BCVSOLUTIONS_PREFIX) + 1) {
-              return 'warning';
+      <Advanced.Table
+        ref="table"
+        filterOpened
+        manager={manager} showId={false}
+        forceSearchParameters={manager.getDefaultSearchParameters().setFilter('event', eventId)}
+        rowClass={({ rowIndex, data }) => {
+          if (data[rowIndex].traceLine.indexOf(EU_BCVSOLUTIONS_PREFIX) + 1) {
+            return 'warning';
+          }
+        }}>
+        <Advanced.Column property="id" width={ 50 } />
+        <Advanced.Column
+          property="traceLine"
+          className="pre"
+          cell={
+            ({ rowIndex, data }) => {
+              return data[rowIndex].traceLine;
             }
-          }}>
-          <Advanced.Column property="id" width="5%" />
-          <Advanced.Column property="traceLine"
-            cell={
-              ({ rowIndex, data }) => {
-                return data[rowIndex].traceLine;
-              }
-            }/>
-
-        </Advanced.Table>
-      </div>
+          }/>
+      </Advanced.Table>
     );
   }
 }

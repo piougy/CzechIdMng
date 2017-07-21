@@ -505,8 +505,7 @@ public class IdmRoleController extends AbstractReadWriteEntityController<IdmRole
 	
 	@Override
 	protected RoleFilter toFilter(MultiValueMap<String, Object> parameters) {
-		RoleFilter filter = new RoleFilter();
-		filter.setId(getParameterConverter().toUuid(parameters, "id"));
+		RoleFilter filter = new RoleFilter(parameters);
 		filter.setText(getParameterConverter().toString(parameters, "text"));
 		filter.setRoleType(getParameterConverter().toEnum(parameters, "roleType", RoleType.class));
 		filter.setRoleCatalogue(getParameterConverter().toEntity(parameters, "roleCatalogue", IdmRoleCatalogue.class));

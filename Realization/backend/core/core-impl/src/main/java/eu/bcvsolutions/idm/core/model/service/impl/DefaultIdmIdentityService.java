@@ -122,6 +122,17 @@ public class DefaultIdmIdentityService
 		return toEntity(save(toDto(identity)), null);
 	}
 	
+
+	@Override
+	@Transactional
+	@Deprecated
+	public IdmIdentity publishIdentity(IdmIdentity identity, EntityEvent<IdmIdentityDto> event,  BasePermission... permission) {
+		Assert.notNull(event, "Event must be not null!");
+		Assert.notNull(identity);
+		event.setContent(toDto(identity));
+		return toEntity(this.publish(event, permission).getContent());
+	}
+	
 	/**
 	 * Publish {@link IdentityEvent} only.
 	 * 
@@ -131,7 +142,6 @@ public class DefaultIdmIdentityService
 	@Transactional
 	public IdmIdentityDto save(IdmIdentityDto identity, BasePermission... permission) {
 		Assert.notNull(identity);
-		checkAccess(toEntity(identity, null), permission);
 		//
 		LOG.debug("Saving identity [{}]", identity.getUsername());
 		//

@@ -1,7 +1,8 @@
 package eu.bcvsolutions.idm.core.api.service;
 
 
-import eu.bcvsolutions.idm.core.api.dto.BaseDto;
+import java.io.Serializable;
+
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventContext;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
@@ -14,7 +15,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
  * @param <DTO>
  */
 
-public interface EventableService<DTO extends BaseDto> {
+public interface EventableService<DTO extends Serializable> {
 
 	/**
 	 * Publish event. Event must have not null content (instance of DTO).

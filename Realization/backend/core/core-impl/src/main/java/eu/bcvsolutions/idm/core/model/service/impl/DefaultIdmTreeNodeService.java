@@ -25,6 +25,8 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.filter.TreeNodeFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
+import eu.bcvsolutions.idm.core.api.event.EntityEvent;
+import eu.bcvsolutions.idm.core.api.event.EventContext;
 import eu.bcvsolutions.idm.core.api.repository.filter.FilterManager;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
@@ -47,6 +49,7 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeTypeService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.RebuildTreeNodeIndexTaskExecutor;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 
 /**
  * Tree node service
@@ -111,8 +114,9 @@ public class DefaultIdmTreeNodeService extends AbstractFormableService<IdmTreeNo
 		//
 		LOG.debug("Saving tree node [{}] - [{}]", treeNode.getTreeType().getCode(), treeNode.getCode());
 		//
-		return entityEventManager.process(new TreeNodeEvent(isNew(treeNode) ? TreeNodeEventType.CREATE : TreeNodeEventType.UPDATE, treeNode)).getContent();
+		return this.publish(new TreeNodeEvent(isNew(treeNode) ? TreeNodeEventType.CREATE : TreeNodeEventType.UPDATE, treeNode)).getContent();
 	}
+	
 	
 	/**
 	 * Publish {@link TreeNodeEvent} only.
@@ -133,7 +137,15 @@ public class DefaultIdmTreeNodeService extends AbstractFormableService<IdmTreeNo
 			throw new TreeNodeException(CoreResultCode.TREE_NODE_DELETE_FAILED_HAS_CONTRACTS,  ImmutableMap.of("treeNode", treeNode.getName()));
 		}
 		LOG.debug("Deleting tree node [{}] - [{}]", treeNode.getTreeType().getCode(), treeNode.getCode());
-		entityEventManager.process(new TreeNodeEvent(TreeNodeEventType.DELETE, treeNode));
+		this.publish(new TreeNodeEvent(TreeNodeEventType.DELETE, treeNode));
+	}
+
+	@Override
+	public EventContext<IdmTreeNode> publish(EntityEvent<IdmTreeNode> event, BasePermission... permission) {
+		Assert.notNull(event, "Event must be not null!");
+		Assert.notNull(event.getContent(), "Content (entity) in event must be not null!");
+		
+		return entityEventManager.process(event);
 	}
 	
 	@Override

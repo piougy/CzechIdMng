@@ -101,8 +101,7 @@ public class GroovySandboxFilter extends GroovyValueFilter {
 			return o; // access to properties of compiled groovy script
 		}
 		// check for exceptions
-		if (Throwable.class.isAssignableFrom(targetClass) && !IdmSecurityException.class.isAssignableFrom(targetClass)
-				&& !SecurityException.class.isAssignableFrom(targetClass)) {
+		if (Throwable.class.isAssignableFrom(targetClass)) {
 			return o; // access for all exception
 		}
 		throw new SecurityException(MessageFormat.format("Script wants to use unauthorized class: [{0}] ", targetClass));

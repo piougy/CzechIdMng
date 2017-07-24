@@ -289,6 +289,10 @@
       }
     },
     "advanced": {
+      "IdentityContractInfo": {
+        "disabledInfo": "Smlouva je deaktivována",
+        "profileLink": "Přejít na profil"
+      },
       "IdentityInfo": {
         "disabledInfo": "Uživatel je deaktivový",
         "profileLink": "Přejít na profil"

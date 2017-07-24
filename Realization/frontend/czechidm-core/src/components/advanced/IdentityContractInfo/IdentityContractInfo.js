@@ -4,11 +4,13 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router';
 //
 import * as Basic from '../../basic';
-import { IdentityContractManager, SecurityManager } from '../../../redux/';
+import { IdentityContractManager, SecurityManager, IdentityManager, TreeTypeManager} from '../../../redux/';
 import UuidInfo from '../UuidInfo/UuidInfo';
 import AbstractEntityInfo from '../EntityInfo/AbstractEntityInfo';
 
 const manager = new IdentityContractManager();
+const identityManager = new IdentityManager();
+const treeTypeManager = new TreeTypeManager();
 
 
 /**
@@ -37,8 +39,67 @@ export class IdentityContractInfo extends AbstractEntityInfo {
     return true;
   }
 
+  getEntityId() {
+    const { entityIdentifier, entity } = this.props;
+    // id has higher priority
+    if (entityIdentifier) {
+      return entityIdentifier;
+    }
+    if (entity) {
+      return entity.id;
+    }
+    return null;
+  }
+
+  getEntity() {
+    const { entity, _entity } = this.props;
+    //
+    if (entity) { // entity is given by props
+      return entity;
+    }
+    return _entity; // loaded by redux
+  }
+
+  _renderFull() {
+    const { className, style, entityIdentifier } = this.props;
+    const _entity = this.getEntity();
+    //
+    const panelClassNames = classnames(
+      'identity-info',
+      { 'panel-success': _entity && !_entity.disabled },
+      { 'panel-warning': _entity && _entity.disabled },
+      className
+    );
+    //
+    return (
+      <Basic.Panel className={panelClassNames} style={style}>
+        <Basic.PanelHeader>
+          <Basic.Row>
+            <div className="col-lg-12">
+            <div><strong>{manager.getNiceLabel(_entity)}</strong></div>
+            <div>{treeTypeManager.getNiceLabel(_entity._embedded.workPosition._embedded.treeType)}</div>
+            <div>{identityManager.getNiceLabel(_entity._embedded.identity)}</div>
+              <div><i>{_entity.disabled ? this.i18n('component.advanced.IdentityContractInfo.disabledInfo') : null}</i></div>
+              {
+                !this.showLink()
+                ||
+                <div>
+                  <Link to={`/identity/${_entity._embedded.identity.username}/identity-contract/${entityIdentifier}/detail`}>
+                    <Basic.Icon value="fa:angle-double-right"/>
+                    {' '}
+                    {this.i18n('component.advanced.IdentityContractInfo.profileLink')}
+                  </Link>
+                </div>
+              }
+            </div>
+          </Basic.Row>
+        </Basic.PanelHeader>
+      </Basic.Panel>
+    );
+  }
+
   render() {
-    const { rendered, showLoading, className, entity, entityIdentifier, _showLoading, style, showIdentity } = this.props;
+    const { rendered, showLoading, className, entity, entityIdentifier, _showLoading, style, showIdentity, face } = this.props;
     //
     if (!rendered) {
       return null;
@@ -66,7 +127,7 @@ export class IdentityContractInfo extends AbstractEntityInfo {
       if (!entityIdentifier) {
         return null;
       }
-      return (<UuidInfo className={ classNames } value={ entityIdentifier } style={style}/>);
+      return (<UuidInfo className={ classNames } value={ entityIdentifier } Identitystyle={style}/>);
     }
     //
     if (!this.showLink()) {
@@ -74,9 +135,38 @@ export class IdentityContractInfo extends AbstractEntityInfo {
         <span className={ classNames }>{ manager.getNiceLabel(_entity, showIdentity) }</span>
       );
     }
-    return (
-      <Link className={ classNames } to={`/identity/${username}/identity-contract/${entityIdentifier}/detail`}>{manager.getNiceLabel(_entity, showIdentity)}</Link>
-    );
+    switch (face) {
+      case 'text':
+      case 'link': {
+        if (!this.showLink() || face === 'text') {
+          return (
+            <span className={className} style={style}>{ manager.getNiceLabel(_entity) }</span>
+          );
+        }
+        return (
+          <Link className={ classNames } to={`/identity/${username}/identity-contract/${entityIdentifier}/detail`}>{manager.getNiceLabel(_entity.identity, showIdentity)}</Link>
+        );
+      }
+      case 'popover': {
+        return (
+          <Basic.Popover
+            trigger="click"
+            value={this._renderFull()}
+            className="identity-info-popover">
+            {
+              <span
+                className={ classNames }
+                style={ style }>
+                <a href="#" onClick={ (e) => e.preventDefault() }>{ manager.getNiceLabel( _entity ) }</a>
+              </span>
+            }
+          </Basic.Popover>
+        );
+      }
+      default: {
+        return this._renderFull();
+      }
+    }
   }
 }
 
@@ -98,14 +188,18 @@ IdentityContractInfo.propTypes = {
    * Internal entity loaded by given identifier
    */
   _entity: PropTypes.object,
-  _showLoading: PropTypes.bool
+  _showLoading: PropTypes.bool,
+  /**
+   * Show how to open this link
+   */
+  face: PropTypes.string
 };
 IdentityContractInfo.defaultProps = {
   ...AbstractEntityInfo.defaultProps,
   entity: null,
   face: 'link',
   _showLoading: true,
-  showIdentity: true
+  showIdentity: true,
 };
 
 function select(state, component) {

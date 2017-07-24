@@ -252,6 +252,10 @@
       }
     },
     "advanced": {
+      "IdentityContractInfo": {
+        "disabledInfo": "Contract is deactivated",
+        "profileLink": "Show full detail"
+      },
       "IdentityInfo": {
         "disabledInfo": "User is deactivated",
         "profileLink": "Show full detail"

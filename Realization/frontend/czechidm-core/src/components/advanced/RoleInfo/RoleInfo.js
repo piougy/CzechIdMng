@@ -1,5 +1,5 @@
 import React, { PropTypes } from 'react';
-import classnames from 'classnames';
+import classNames from 'classnames';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
 //
@@ -35,11 +35,56 @@ export class RoleInfo extends AbstractEntityInfo {
     return true;
   }
 
+  _renderFull() {
+    const { className, entity, style } = this.props;
+    //
+    let _entity = this.props._entity;
+    if (entity) { // entity prop has higher priority
+      _entity = entity;
+    }
+    //
+    const panelClassNames = classNames(
+      'abstract-entity-info',
+      { 'panel-success': _entity && !_entity.disabled },
+      { 'panel-warning': _entity && _entity.disabled },
+      className
+    );
+
+    //
+    return (
+      <Basic.Panel className={panelClassNames} style={style}>
+        <Basic.PanelHeader>
+          <Basic.Row>
+            <div className="col-lg-12">
+              <div><strong>{manager.getNiceLabel(_entity)}</strong></div>
+              <div>{_entity.roleType.toLowerCase()}</div>
+              <div>{_entity.subRoles}</div>
+              <div>{_entity.supRoles}</div>
+              <div><i>{_entity.disabled ? this.i18n('component.advanced.RoleInfo.disabledInfo') : null}</i></div>
+              {
+              !this.showLink()
+                ||
+                <div>
+                  <Link to={`/role/${encodeURIComponent(this.getEntityId())}/detail`}>
+                    <Basic.Icon value="fa:angle-double-right"/>
+                    {' '}
+                    {this.i18n('component.advanced.RoleInfo.profileLink')}
+                  </Link>
+                </div>
+              }
+            </div>
+          </Basic.Row>
+        </Basic.PanelHeader>
+      </Basic.Panel>
+    );
+  }
+
+
   /**
    * TODO: implement different face
    */
   render() {
-    const { rendered, showLoading, className, entity, entityIdentifier, _showLoading, style } = this.props;
+    const { rendered, showLoading, className, entity, face, entityIdentifier, _showLoading, style } = this.props;
     //
     if (!rendered) {
       return null;
@@ -49,15 +94,68 @@ export class RoleInfo extends AbstractEntityInfo {
       _entity = entity;
     }
     //
-    const classNames = classnames(
-      'role-info',
-      className
-    );
+    if (showLoading || (_showLoading && this.getEntityId() && !_entity)) {
+      switch (face) {
+        case 'text':
+        case 'link':
+        case 'popover': {
+          return (
+            <Basic.Icon value="refresh" showLoading className={className} style={style}/>
+          );
+        }
+        default: {
+          return (
+            <Basic.Well showLoading className={`abstract-entity-info ${className}`} style={style}/>
+          );
+        }
+      }
+    }
+    if (!_entity) {
+      if (!this.getEntityId()) {
+        return null;
+      }
+      return (<UuidInfo className={className} value={ this.getEntityId() } style={style} />);
+    }
+    //
     if (showLoading || (_showLoading && entityIdentifier && !_entity)) {
       return (
         <Basic.Icon className={ classNames } value="refresh" showLoading style={style}/>
       );
     }
+
+    switch (face) {
+      case 'text':
+      case 'link': {
+        if (!this.showLink() || face === 'text') {
+          return (
+            <span className={className} style={style}>{ manager.getNiceLabel(_entity) }</span>
+          );
+        }
+        return (
+          <Link to={`/role/${encodeURIComponent(this.getEntityId())}/detail`}>{manager.getNiceLabel(_entity)}</Link>
+        );
+      }
+      case 'popover': {
+        return (
+          <Basic.Popover
+            trigger="click"
+            value={this._renderFull()}
+            className="abstract-entity-info-popover">
+            {
+              <span
+                className={ classNames }
+                style={ style }>
+                <a href="#" onClick={ (e) => e.preventDefault() }>{ manager.getNiceLabel(_entity) }</a>
+              </span>
+            }
+          </Basic.Popover>
+        );
+      }
+      default: {
+        return this._renderFull();
+      }
+    }
+
     if (!_entity) {
       if (!entityIdentifier) {
         return null;

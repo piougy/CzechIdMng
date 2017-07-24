@@ -88,7 +88,7 @@ export class IdentityInfo extends AbstractEntityInfo {
     const _identity = this.getEntity();
     //
     const panelClassNames = classNames(
-      'identity-info',
+      'abstract-entity-info',
       { 'panel-success': _identity && !_identity.disabled },
       { 'panel-warning': _identity && _identity.disabled },
       className
@@ -152,7 +152,7 @@ export class IdentityInfo extends AbstractEntityInfo {
         }
         default: {
           return (
-            <Basic.Well showLoading className={`identity-info ${className}`} style={style}/>
+            <Basic.Well showLoading className={`abstract-entity-info ${className}`} style={style}/>
           );
         }
       }
@@ -181,7 +181,7 @@ export class IdentityInfo extends AbstractEntityInfo {
           <Basic.Popover
             trigger="click"
             value={this._renderFull()}
-            className="identity-info-popover">
+            className="abstract-entity-info-popover">
             {
               <span
                 className={ classNames }

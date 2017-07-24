@@ -290,8 +290,17 @@
     },
     "advanced": {
       "IdentityInfo": {
-        "disabledInfo": "Uživatel je deaktivový",
-        "profileLink": "Přejít na profil"
+        "disabledInfo": "Uživatel není aktivní",
+        "profileLink": "Přejít na detail uživatele"
+      },
+      "RoleInfo": {
+        "disabledInfo": "Role není aktivní",
+        "profileLink": "Přejít na detail role"
+      },
+      "SystemInfo": {
+        "disabledInfo": "Systém není aktivní",
+        "profileLink": "Přejít na detail systému",
+        "readonly": "Pouze pro čtení"
       },
       "Filter": {
         "option": {

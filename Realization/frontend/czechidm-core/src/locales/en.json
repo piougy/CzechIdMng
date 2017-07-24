@@ -253,8 +253,17 @@
     },
     "advanced": {
       "IdentityInfo": {
-        "disabledInfo": "User is deactivated",
-        "profileLink": "Show full detail"
+        "disabledInfo": "User is inactive",
+        "profileLink": "Go to user details"
+      },
+      "RoleInfo": {
+        "disabledInfo": "Role is inactive",
+        "profileLink": "Go to role details"
+      },
+      "SystemInfo": {
+        "disabledInfo": "System is inactive",
+        "profileLink": "Go to system details",
+        "readonly": "Read-only"
       },
       "Filter": {
         "option": {

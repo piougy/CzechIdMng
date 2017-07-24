@@ -7,7 +7,7 @@ Encapsulates all features for filter. Filter works nice together with advanced t
 | Component | Description |
 | --- | :--- | :--- | :--- |
 | FilterButtons | Renders buttons for use and clear filter |
-| ToogleFilterButton | Renders button for filter collapsing |
+| FilterToogleButton | Renders button for filter collapsing |
 | FilterTextField | Text input. Default operator LIKE |
 | FilterEnumSelectBox | Enumeration select. Supports multiselect. Default operator EQ (multi values are appended with OR clausule) |
 | FilterBooleanSelectBox | Boolean select |

@@ -62,7 +62,7 @@
 							<descriptors>
 		            <descriptor>src/assembly/doc.xml</descriptor>
 		          </descriptors>
-							<finalName>doc-${project.version}</finalName>
+							<finalName>${project.version}</finalName>
 						</configuration>
 						<executions>
 							<execution>

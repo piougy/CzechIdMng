@@ -17,6 +17,7 @@ import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
 import eu.bcvsolutions.idm.acc.domain.OperationResultType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationActionType;
+import eu.bcvsolutions.idm.acc.domain.SynchronizationContext;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.AccRoleAccountDto;
 import eu.bcvsolutions.idm.acc.dto.EntityAccountDto;
@@ -44,6 +45,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.CorrelationFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
+import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.repository.BaseEntityRepository;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
@@ -52,8 +54,11 @@ import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.model.dto.filter.RoleFilter;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
+import eu.bcvsolutions.idm.core.model.event.IdentityEvent;
 import eu.bcvsolutions.idm.core.model.event.RoleEvent;
+import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.core.model.event.RoleEvent.RoleEventType;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
@@ -146,7 +151,7 @@ public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor
 			return;
 		}
 		// Call provisioning for this entity
-		doUpdateAccountByEntity(entity, entityType, logItem);
+		callProvisioningForEntity(entity, entityType, logItem);
 	}
 
 	/**
@@ -156,7 +161,7 @@ public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor
 	 * @param entityType
 	 * @param logItem
 	 */
-	protected void doUpdateAccountByEntity(AbstractEntity entity, SystemEntityType entityType, SysSyncItemLog logItem) {
+	protected void callProvisioningForEntity(AbstractEntity entity, SystemEntityType entityType, SysSyncItemLog logItem) {
 		IdmRole role = (IdmRole) entity;
 		addToItemLog(logItem,
 				MessageFormat.format(
@@ -184,10 +189,7 @@ public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor
 		role = (IdmRole) fillEntity(mappedAttributes, uid, icAttributes, role, true);
 		
 		// Create new Role
-		// Workaround! We have to break provisioning in this phase.
-		RoleEvent event = new RoleEvent(RoleEventType.CREATE, role);
-		event.getProperties().put(ProvisioningService.SKIP_PROVISIONING, Boolean.TRUE);
-		role = entityEventManager.process(event).getContent();
+		this.saveEntity(role, true);
 		
 		// Update extended attribute (entity must be persisted first)
 		updateExtendedAttributes(mappedAttributes, uid, icAttributes, role, true);
@@ -206,6 +208,9 @@ public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor
 		if (logItem != null) {
 			logItem.setDisplayName(this.getDisplayNameForEntity(role));
 		}
+		
+		// Call provisioning for entity
+	    this.callProvisioningForEntity(role, entityType, logItem);
 	}
 
 	/**
@@ -220,9 +225,15 @@ public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor
 	 * @param logItem
 	 * @param actionLogs
 	 */
-	protected void doUpdateEntity(AccAccount account, SystemEntityType entityType, String uid,
-			List<IcAttribute> icAttributes, List<SysSystemAttributeMapping> mappedAttributes, SysSyncLog log,
-			SysSyncItemLog logItem, List<SysSyncActionLog> actionLogs) {
+	protected void doUpdateEntity(SynchronizationContext context) {
+		
+		String uid = context.getUid();
+		SysSyncLog log = context.getLog(); 
+		SysSyncItemLog logItem = context.getLogItem();
+		List<SysSyncActionLog> actionLogs = context.getActionLogs();
+		List<SysSystemAttributeMapping> mappedAttributes = context.getMappedAttributes();
+		AccAccount account = context.getAccount();
+		List<IcAttribute> icAttributes = context.getIcObject().getAttributes();
 		UUID entityId = getEntityByAccount(account.getId());
 		IdmRole role = null;
 		if (entityId != null) {
@@ -231,7 +242,7 @@ public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor
 		if (role != null) {
 			// Update role
 			role = (IdmRole) fillEntity(mappedAttributes, uid, icAttributes, role, false);
-			roleService.save(role);
+			this.saveEntity(role, true);
 			// Update extended attribute (entity must be persisted first)
 			updateExtendedAttributes(mappedAttributes, uid, icAttributes, role, false);
 			// Update confidential attribute (entity must be persisted
@@ -243,6 +254,9 @@ public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor
 			if (logItem != null) {
 				logItem.setDisplayName(this.getDisplayNameForEntity(role));
 			}
+			
+			// Call provisioning for entity
+		    this.callProvisioningForEntity(role, context.getEntityType(), logItem);
 
 			return;
 		} else {
@@ -298,6 +312,20 @@ public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor
 			transformedValue = RoleType.valueOf((String) transformedValue);
 		}
 		return transformedValue;
+	}
+	
+	/**
+	 * Save entity
+	 * @param entity
+	 * @param skipProvisioning
+	 * @return
+	 */
+	@Override
+	protected AbstractEntity saveEntity(AbstractEntity entity, boolean skipProvisioning) {
+		IdmRole role = (IdmRole) entity;
+		EntityEvent<IdmRole> event = new RoleEvent(roleService.isNew(role) ? RoleEventType.CREATE : RoleEventType.UPDATE, role, ImmutableMap.of(ProvisioningService.SKIP_PROVISIONING, skipProvisioning));
+		
+		return roleService.publish(event).getContent();
 	}
 
 	@Override

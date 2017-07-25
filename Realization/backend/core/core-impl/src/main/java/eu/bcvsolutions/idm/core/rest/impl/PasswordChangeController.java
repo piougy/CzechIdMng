@@ -102,7 +102,7 @@ public class PasswordChangeController {
 				loginService.login(loginDto);
 			}
 		} catch(IdmAuthenticationException ex) {
-			throw new ResultCodeException(CoreResultCode.PASSWORD_CHANGE_CURRENT_FAILED_IDM);
+			throw new ResultCodeException(CoreResultCode.PASSWORD_CHANGE_CURRENT_FAILED_IDM, ex);
 		}
 		//
 		identityService.checkAccess(identity, IdentityBasePermission.PASSWORDCHANGE);

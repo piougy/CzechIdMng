@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -188,19 +189,12 @@ public class DefaultSysSystemAttributeMappingService
 	@Transactional
 	public SysSystemAttributeMapping save(SysSystemAttributeMapping entity) {
 		// Check if exist some else attribute which is defined like unique identifier
-		if (entity.isUid()) {			
-			SystemAttributeMappingFilter filter = new SystemAttributeMappingFilter();
-			filter.setSystemMappingId(entity.getSystemMapping().getId());
-			filter.setIsUid(Boolean.TRUE);
-			List<SysSystemAttributeMapping> list = this.find(filter, null).getContent();
-			
-			if (list.size() > 0 && !list.get(0).getId().equals(entity.getId())) {
-				throw new ProvisioningException(AccResultCode.PROVISIONING_ATTRIBUTE_MORE_UID, ImmutableMap.of("system", entity.getSystemMapping().getSystem().getName()));
-			}
+		// If exists, then we will set they to uid = false. Only currently saving attribute will be unique identifier
+		if (entity.isUid() && entity.getSystemMapping() != null) {			
+			this.repository.clearIsUidAttribute(entity.getSystemMapping().getId(), entity.getId());
 		}
 		
 		// We will do script validation (on compilation errors), before save
-		// attribute handling
 
 		if (entity.getTransformFromResourceScript() != null) {
 			groovyScriptService.validateScript(entity.getTransformFromResourceScript());
@@ -432,20 +426,54 @@ public class DefaultSysSystemAttributeMappingService
 	
 	@Override
 	public SysSystemAttributeMapping getUidAttribute(List<SysSystemAttributeMapping> mappedAttributes, SysSystem system) {
-		List<SysSystemAttributeMapping> schemaHandlingAttributesUid = mappedAttributes.stream()
+		List<SysSystemAttributeMapping> systemAttributeMappingUid = mappedAttributes.stream()
 				.filter(attribute -> {
 					return !attribute.isDisabledAttribute() && attribute.isUid();
 				}).collect(Collectors.toList());
 
-		if (schemaHandlingAttributesUid.size() > 1) {
+		if (systemAttributeMappingUid.size() > 1) {
 			throw new ProvisioningException(AccResultCode.PROVISIONING_ATTRIBUTE_MORE_UID,
 					ImmutableMap.of("system", system.getName()));
 		}
-		if (schemaHandlingAttributesUid.isEmpty()) {
+		if (systemAttributeMappingUid.isEmpty()) {
 			throw new ProvisioningException(AccResultCode.PROVISIONING_ATTRIBUTE_UID_NOT_FOUND,
 					ImmutableMap.of("system", system.getName()));
 		}
-		return schemaHandlingAttributesUid.get(0);
+		return systemAttributeMappingUid.get(0);
+	}
+	
+	@Override
+	public Object getValueByMappedAttribute(AttributeMapping attribute, List<IcAttribute> icAttributes) {
+		Object icValue = null;
+		Optional<IcAttribute> optionalIcAttribute = icAttributes.stream().filter(icAttribute -> {
+			return attribute.getSchemaAttribute().getName().equals(icAttribute.getName());
+		}).findFirst();
+		if (optionalIcAttribute.isPresent()) {
+			IcAttribute icAttribute = optionalIcAttribute.get();
+			if (icAttribute.isMultiValue()) {
+				icValue = icAttribute.getValues();
+			} else {
+				icValue = icAttribute.getValue();
+			}
+		}
+
+		Object transformedValue = this.transformValueFromResource(icValue, attribute, icAttributes);
+		return transformedValue;
 	}
 
+	@Override
+	public String getUidValueFromResource(List<IcAttribute> icAttributes, List<SysSystemAttributeMapping> mappedAttributes, SysSystem system){
+		SysSystemAttributeMapping uidAttribute = this.getUidAttribute(mappedAttributes, system);
+		Object uid = this.getValueByMappedAttribute(uidAttribute, icAttributes);
+		
+		if(uid == null) {
+			throw new ProvisioningException(AccResultCode.PROVISIONING_GENERATED_UID_IS_NULL,
+					ImmutableMap.of("system", uidAttribute.getSystemMapping().getSystem().getName()));
+		}
+		if (!(uid instanceof String)) {
+			throw new ProvisioningException(AccResultCode.PROVISIONING_ATTRIBUTE_UID_IS_NOT_STRING,
+					ImmutableMap.of("uid", uid));
+		}
+		return (String)uid;
+	}
 }

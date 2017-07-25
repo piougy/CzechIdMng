@@ -65,13 +65,14 @@ public class DefaultIdmNotificationConfigurationService
 	}
 	
 	@Override
+	@Transactional
 	public NotificationConfigurationDto save(NotificationConfigurationDto dto, BasePermission... permission) {
-		// create wild card, check if exist any another
-		if (dto.getLevel() == null) {
-			IdmNotificationConfiguration wildcard = repository.findNotificationByTopicLevel(dto.getTopic(), null);
-			if (wildcard != null && !wildcard.equals(dto)) {
-				throw new ResultCodeException(CoreResultCode.NOTIFICATION_TOPIC_AND_LEVEL_EXISTS, ImmutableMap.of("topic", dto.getTopic()));
-			}
+		Assert.notNull(dto);
+		//
+		// check duplicity
+		IdmNotificationConfiguration duplicitEntity = repository.findByTopicAndLevelAndNotificationType(dto.getTopic(), dto.getLevel(), dto.getNotificationType());
+		if (duplicitEntity != null && !duplicitEntity.getId().equals(dto.getId())) {
+			throw new ResultCodeException(CoreResultCode.NOTIFICATION_TOPIC_AND_LEVEL_EXISTS, ImmutableMap.of("topic", dto.getTopic()));
 		}
 		return super.save(dto);
 	}
@@ -155,9 +156,8 @@ public class DefaultIdmNotificationConfigurationService
 	}
 
 	@Override
-	public NotificationConfigurationDto getConfigurationByTopicLevelNotification(String topic, NotificationLevel level) {
-		final IdmNotificationConfiguration entity = this.repository.findNotificationByTopicLevel(topic, level);
-		return toDto(entity);
+	public NotificationConfigurationDto getConfigurationByTopicLevelNotificationType(String topic, NotificationLevel level, String notificationType) {
+		return toDto(this.repository.findByTopicAndLevelAndNotificationType(topic, level, notificationType));
 	}
 
 }

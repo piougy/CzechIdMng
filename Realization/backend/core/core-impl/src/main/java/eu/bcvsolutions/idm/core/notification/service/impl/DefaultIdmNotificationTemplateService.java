@@ -279,13 +279,13 @@ public class DefaultIdmNotificationTemplateService extends
 	}
 
 	@Override
-	public IdmNotificationTemplateDto resolveTemplate(String topic, NotificationLevel level) {
+	public IdmNotificationTemplateDto resolveTemplate(String topic, NotificationLevel level, String notificationType) {
 		IdmNotificationConfiguration configuration = notificationConfigurationRepository
-				.findNotificationByTopicLevel(topic, level);
+				.findByTopicAndLevelAndNotificationType(topic, level, notificationType);
 
 		// if configurations is empty try to wildcard with null level
 		if (configuration == null) {
-			configuration = notificationConfigurationRepository.findNotificationByTopicLevel(topic, null);
+			configuration = notificationConfigurationRepository.findWildcardForTopic(topic);
 		}
 		if (configuration == null) {
 			return null;
@@ -311,10 +311,10 @@ public class DefaultIdmNotificationTemplateService extends
 		try {
 			jaxbMarshaller.marshal(type, file);
 		} catch (JAXBException e) {
-			LOG.error("Backup for template: {} failed, error message: {}",
-					dto.getCode(), e.getLocalizedMessage());
+			LOG.error("Backup for template: {} failed",
+					dto.getCode());
 			throw new ResultCodeException(CoreResultCode.BACKUP_FAIL,
-					ImmutableMap.of("code", dto.getCode(), "error", e.getLocalizedMessage()), e);
+					ImmutableMap.of("code", dto.getCode()), e);
 		}
 	}
 
@@ -371,7 +371,7 @@ public class DefaultIdmNotificationTemplateService extends
 		Marshaller jaxbMarshaller = null;
 		try {
 			jaxbMarshaller = jaxbContext.createMarshaller();
-			jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+			jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
 			jaxbMarshaller.setProperty(Marshaller.JAXB_ENCODING, StandardCharsets.UTF_8.name());
 			jaxbMarshaller.setProperty(ENCODING_HANDLER, new JaxbCharacterEscapeEncoder());
 		} catch (JAXBException e) {
@@ -492,7 +492,7 @@ public class DefaultIdmNotificationTemplateService extends
 		} catch (IOException e) {
 			throw new ResultCodeException(CoreResultCode.DEPLOY_ERROR,
 					ImmutableMap.of("path", configurationService.getValue(TEMPLATE_FOLDER)
-							+ configurationService.getValue(TEMPLATE_FILE_SUFIX)));
+							+ configurationService.getValue(TEMPLATE_FILE_SUFIX)), e);
 		}
 		return resources;
 	}

@@ -78,17 +78,25 @@ public class DefaultGroovyScriptService implements GroovyScriptService {
 			
 		} catch (SecurityException | IdmSecurityException ex) {
 			LOG.error("SecurityException [{}]", ex.getLocalizedMessage());
+			if (ex instanceof IdmSecurityException) {
+				throw ex;
+			}
 			throw new IdmSecurityException(CoreResultCode.GROOVY_SCRIPT_SECURITY_VALIDATION, ImmutableMap.of("message", ex.getLocalizedMessage()), ex);
 		} catch (Exception e) {
 			LOG.error("Exception [{}]", e.getLocalizedMessage());
+			if (e instanceof ResultCodeException) {
+				throw e;
+			}
 			throw new ResultCodeException(CoreResultCode.GROOVY_SCRIPT_EXCEPTION, ImmutableMap.of("message", e.getLocalizedMessage()), e);
 		} finally {
 			// if this script is called from another script, remove only allowed classes from them
 			// otherwise unregister all filter.
-			if (sandboxFilter.isCustomTypesLast()) {
-				sandboxFilter.unregister();
-			} else {
-				sandboxFilter.removeLastCustomTypes();
+			if (sandboxFilter != null) {
+				if (sandboxFilter.isCustomTypesLast()) {
+					sandboxFilter.unregister();
+				} else {
+					sandboxFilter.removeLastCustomTypes();
+				}
 			}
 		}
 	}
@@ -141,7 +149,7 @@ public class DefaultGroovyScriptService implements GroovyScriptService {
 	 * 
 	 * @author Filip Mestanek
 	 */
-	private class ScriptCache {
+	private static class ScriptCache {
 		
 		/**
 		 * Key is hash code of script body, value is built script

@@ -535,8 +535,9 @@ class Roles extends Basic.AbstractContent {
                     required/>
                   <Basic.LabelWrapper
                     label={this.i18n('entity.IdentityRole.roleTreeNode.label')}
-                    helpBlock={this.i18n('entity.IdentityRole.roleTreeNode.help')}>
-                    { roleTreeNodeManager.getNiceLabel(detail.entity.roleTreeNode) }
+                    helpBlock={this.i18n('entity.IdentityRole.roleTreeNode.help')}
+                    rendered={ detail.entity.roleTreeNode }>
+                    { detail.entity.roleTreeNode ? roleTreeNodeManager.getNiceLabel(detail.entity._embedded.roleTreeNode) : null }
                   </Basic.LabelWrapper>
                   <Basic.Row>
                     <div className="col-md-6">

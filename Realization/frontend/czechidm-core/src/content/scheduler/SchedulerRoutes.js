@@ -17,7 +17,7 @@ export default class SchedulerRoutes extends Basic.AbstractContent {
   render() {
     return (
       <div>
-        {this.renderPageHeader()}
+        { this.renderPageHeader({ icon: 'fa:calendar-times-o'}) }
 
         <Advanced.TabPanel position="top" parentId="scheduler" params={this.props.params}>
           {this.props.children}

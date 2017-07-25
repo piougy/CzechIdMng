@@ -318,6 +318,21 @@ module.exports = {
             ]
           },
           {
+            'id': 'audit-logging-events',
+            'labelKey': 'content.audit.logging-event.label',
+            'titleKey': 'content.audit.logging-event.title',
+            'icon': 'fa:history',
+            'iconColor': '#eb9316',
+            'order': 60,
+            'path': '/audit/logging-events',
+            'access': [
+              {
+                'type': 'HAS_ANY_AUTHORITY',
+                'authorities': ['AUDIT_READ']
+              }
+            ]
+          },
+          {
             'id': 'audit-notification',
             'labelKey': 'navigation.menu.notifications.label',
             'titleKey': 'navigation.menu.notifications.title',
@@ -460,6 +475,7 @@ module.exports = {
             'order': 50,
             'path': '/modules/be-modules',
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['MODULE_READ'] } ],
+            'icon': 'fa:puzzle-piece',
             'items': [
               {
                 'id': 'fe-modules',
@@ -496,6 +512,7 @@ module.exports = {
             'order': 55,
             'path': '/scheduler/running-tasks',
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCHEDULER_READ'] } ],
+            'icon': 'fa:calendar-times-o',
             'items': [
               {
                 'id': 'scheduler-running-tasks',

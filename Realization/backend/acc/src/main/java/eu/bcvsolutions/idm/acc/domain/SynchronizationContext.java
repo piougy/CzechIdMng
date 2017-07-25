@@ -66,6 +66,7 @@ public class SynchronizationContext implements Serializable {
 	private AttributeMapping tokenAttribute;
 	private IcConnectorConfiguration connectorConfig;
 	private SysSystemEntity systemEntity;
+	private SynchronizationActionType actionType;
 
 	public String getUid() {
 		return uid;
@@ -211,6 +212,15 @@ public class SynchronizationContext implements Serializable {
 		return systemEntity;
 	}
 	
+	public SynchronizationActionType getActionType() {
+		return actionType;
+	}
+
+	public SynchronizationContext addActionType(SynchronizationActionType actionType) {
+		this.actionType = actionType;
+		return this;
+	}
+
 	public static SynchronizationContext cloneContext(SynchronizationContext context){
 		SynchronizationContext newContext = new SynchronizationContext();
 		newContext.addAccount(context.getAccount())
@@ -228,7 +238,8 @@ public class SynchronizationContext implements Serializable {
 		.addTokenAttribute(context.getTokenAttribute())
 		.addType(context.getType())
 		.addSystemEntity(context.getSystemEntity())
-		.addUid(context.getUid());
+		.addUid(context.getUid())
+		.addActionType(context.getActionType());
 		
 		return newContext;
 	}

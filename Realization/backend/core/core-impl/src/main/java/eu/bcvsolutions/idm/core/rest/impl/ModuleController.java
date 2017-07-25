@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 
-import org.apache.commons.beanutils.BeanUtils;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -54,14 +54,17 @@ public class ModuleController {
 	protected static final String TAG = "Modules";
 	private final ModuleService moduleService;
 	private final RequestResourceResolver requestResourceResolver;
+	private final ModelMapper mapper;
 
 	@Autowired
-	public ModuleController(ModuleService moduleService, RequestResourceResolver requestResourceResolver) {
+	public ModuleController(ModuleService moduleService, RequestResourceResolver requestResourceResolver, ModelMapper mapper) {
 		Assert.notNull(moduleService, "ModuleService is required");
 		Assert.notNull(requestResourceResolver, "PersistentEntityResolver is required");
+		Assert.notNull(mapper);
 		//
 		this.moduleService = moduleService;
 		this.requestResourceResolver = requestResourceResolver;
+		this.mapper = mapper;
 	}
 
 	/**
@@ -238,20 +241,13 @@ public class ModuleController {
 	}
 	
 	/**
-	 * TODO: move to assembler / mapper + resource support + self link
+	 * TODO: resource support + self link
 	 * 
 	 * @param moduleDescriptor
 	 * @return
 	 */
 	protected ModuleDescriptorDto toResource(ModuleDescriptor moduleDescriptor) {
-		ModuleDescriptorDto dto = new ModuleDescriptorDto();
-
-		try {
-			BeanUtils.copyProperties(dto, moduleDescriptor);
-		} catch (Exception ex) {
-			throw new ResultCodeException(CoreResultCode.INTERNAL_SERVER_ERROR, ex);
-		}
-
+		ModuleDescriptorDto dto = mapper.map(moduleDescriptor,  ModuleDescriptorDto.class);
 		dto.setDisabled(!moduleService.isEnabled(moduleDescriptor));
 
 		return dto;

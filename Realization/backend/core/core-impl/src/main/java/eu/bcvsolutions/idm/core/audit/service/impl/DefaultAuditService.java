@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.model.service.impl;
+package eu.bcvsolutions.idm.core.audit.service.impl;
 
 import java.beans.PropertyDescriptor;
 import java.io.Serializable;
@@ -56,11 +56,11 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
+import eu.bcvsolutions.idm.core.audit.entity.IdmAudit;
 import eu.bcvsolutions.idm.core.audit.entity.service.AbstractAuditEntityService;
-import eu.bcvsolutions.idm.core.model.entity.IdmAudit;
-import eu.bcvsolutions.idm.core.model.repository.IdmAuditRepository;
+import eu.bcvsolutions.idm.core.audit.repository.IdmAuditRepository;
+import eu.bcvsolutions.idm.core.audit.service.api.IdmAuditService;
 import eu.bcvsolutions.idm.core.model.repository.listener.IdmAuditListener;
-import eu.bcvsolutions.idm.core.model.service.api.IdmAuditService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 
 /**
@@ -186,7 +186,7 @@ public class DefaultAuditService extends AbstractReadWriteDtoService<IdmAuditDto
 		}
 		
 		Class<?> clazz = entityClass;
-		while (!(clazz.getName().equals(AbstractEntity.class.getName()))) {
+		while (!(clazz.equals(AbstractEntity.class))) {
 			Field[] fields = clazz.getDeclaredFields();
 			
 			for (Field field : fields) {
@@ -253,7 +253,7 @@ public class DefaultAuditService extends AbstractReadWriteDtoService<IdmAuditDto
 			}
 			// get entities methods and search annotation Audited in fields.
 			if (getAuditedField(entityType.getJavaType().getDeclaredFields())) {
-				result.add(entityType.getJavaType().getSimpleName());
+				result.add(entityType.getJavaType().getCanonicalName());
 				continue;
 			}
 			//
@@ -267,7 +267,7 @@ public class DefaultAuditService extends AbstractReadWriteDtoService<IdmAuditDto
 			}
 			// entity can be annotated for all class
 			if (getAuditedAnnotation(annotations)) {
-				result.add(entityType.getJavaType().getSimpleName());
+				result.add(entityType.getJavaType().getCanonicalName());
 				continue;
 			}
 		}

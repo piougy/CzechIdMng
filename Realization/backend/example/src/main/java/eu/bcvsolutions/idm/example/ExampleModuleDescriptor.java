@@ -23,4 +23,9 @@ public class ExampleModuleDescriptor extends PropertyModuleDescriptor {
 	public String getId() {
 		return MODULE_ID;
 	}
+	
+	@Override
+	public boolean isDocumentationAvailable() {
+		return true;
+	}
 }

@@ -232,8 +232,8 @@ public class EntityUtils {
 			throw new IllegalAccessException("Field " + propertyName + " not found!");
 		}
 		PropertyDescriptor propertyDescriptor = propertyDescriptionOptional.get();
-		String parameterClass = propertyDescriptor.getWriteMethod().getParameterTypes()[0].getName();
-		if(value != null && String.class.getName().equals(parameterClass) && !(value instanceof String)){
+		Class<?> parameterClass = propertyDescriptor.getWriteMethod().getParameterTypes()[0];
+		if (value != null && String.class.equals(parameterClass) && !(value instanceof String)) {
 			value = String.valueOf(value);
 		}
 		return propertyDescriptor.getWriteMethod().invoke(entity, value);

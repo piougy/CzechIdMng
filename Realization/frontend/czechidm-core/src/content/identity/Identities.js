@@ -6,6 +6,8 @@ import IdentityTable from './IdentityTable';
 
 /**
  * List of identities
+ *
+ * @author Radek Tomiška
  */
 class Identities extends Basic.AbstractContent {
 
@@ -25,7 +27,7 @@ class Identities extends Basic.AbstractContent {
   render() {
     return (
       <div>
-        {this.renderPageHeader()}
+        { this.renderPageHeader() }
 
         <Basic.Panel>
           <IdentityTable

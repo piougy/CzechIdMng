@@ -277,7 +277,7 @@ public class DefaultIdmIdentityContractService
 			return null;
 		}
 		Collections.sort(contracts, new PrimeIdentityContractComparator(treeTypeRepository.findOneByDefaultTreeTypeIsTrue()));
-		//
+		// return contract with the highest priority
 		return toDto(contracts.get(contracts.size() - 1));
 	}
 
@@ -287,7 +287,7 @@ public class DefaultIdmIdentityContractService
 	}
 	
 	/**
-	 * Returns by contract's priority:
+	 * Returns contracts sorted by priority:
 	 * - 1. main
 	 * - 2. valid (validable and not disabled)
 	 * - 3. with working position with default tree type
@@ -297,7 +297,7 @@ public class DefaultIdmIdentityContractService
 	 * @author Radek Tomiška
 	 *
 	 */
-	private class PrimeIdentityContractComparator implements Comparator<IdmIdentityContract> {
+	private static class PrimeIdentityContractComparator implements Comparator<IdmIdentityContract> {
 
 		private final IdmTreeType defaultTreeType;
 		

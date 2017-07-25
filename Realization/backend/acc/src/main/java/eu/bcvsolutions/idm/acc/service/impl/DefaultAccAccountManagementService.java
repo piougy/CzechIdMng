@@ -106,7 +106,7 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 		boolean provisioningRequired = false;
 
 		if (CollectionUtils.isEmpty(identityRoles) && CollectionUtils.isEmpty(identityAccountList)) {
-			// None roles and accounts ... we don't have any to do
+			// No roles and accounts ... we don't have anything to do
 			return false;
 		}
 
@@ -183,12 +183,7 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 						// Has identity account same uid as account?
 						String uid = generateUID(identity, roleSystem);
 						AccAccountDto account = AccIdentityAccountService.getEmbeddedAccount(identityAccount);
-						if (uid.equals(account.getUid())) {
-							// Identity account for this role, system and uid is
-							// created
-							// TODO: find the better place for this check - se next same todo bellow
-							// return true;
-						}else{
+						if (!uid.equals(account.getUid())) {
 							// We found identityAccount for same identity and roleSystem, but this identityAccount
 							// is link to Account with different UID. It's probably means definition of UID (transformation)\
 							// on roleSystem was changed. We have to delete this identityAccount. 

@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.rest.impl;
+package eu.bcvsolutions.idm.core.audit.rest.impl;
 
 import java.util.HashMap;
 import java.util.List;
@@ -36,8 +36,8 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
+import eu.bcvsolutions.idm.core.audit.service.api.IdmAuditService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
-import eu.bcvsolutions.idm.core.model.service.api.IdmAuditService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -51,6 +51,7 @@ import io.swagger.annotations.AuthorizationScope;
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
  */
+
 @RepositoryRestController
 @RequestMapping(value = BaseDtoController.BASE_PATH + "/audits")
 @Api(
@@ -124,21 +125,18 @@ public class IdmAuditController extends AbstractReadWriteDtoController<IdmAuditD
                         "Multiple sort criteria are supported.")
 	})
 	public Resources<?> findEntity(
+			@RequestParam(required = false) String entityClass,
 			@RequestParam(required = false) MultiValueMap<String, Object> parameters, 
 			@PageableDefault Pageable pageable) {
-		// TODO: use @RequestParam String entityClass instead ...
-		Object entityClass = parameters.getFirst("entity");
 		//
 		if (entityClass == null) {
-			// TODO
-			throw new ResultCodeException(CoreResultCode.BAD_VALUE);
+			throw new ResultCodeException(CoreResultCode.AUDIT_ENTITY_CLASS_IS_NOT_FILLED);
 		}
 		//
 		try {
 			return toResources(auditService.findEntityWithRelation((Class<? extends AbstractEntity>) Class.forName(entityClass.toString()), parameters, pageable), getDtoClass());
 		} catch (ClassNotFoundException e) {
-			// TODO
-			throw new ResultCodeException(CoreResultCode.BAD_VALUE, e);
+			throw new ResultCodeException(CoreResultCode.AUDIT_ENTITY_CLASS_NOT_FOUND, ImmutableMap.of("class", entityClass), e);
 		}
 
 	}
@@ -159,7 +157,6 @@ public class IdmAuditController extends AbstractReadWriteDtoController<IdmAuditD
 			notes = "Method return list of class simple name for which is audited."
 					+ " Must at least one attribute withannotation {@value Audited}")
 	public ResponseEntity<?> findAuditedEntity() {
-		// TODO: helpful more info about entities, links? repository?
 		List<String> entities = auditService.getAllAuditedEntitiesNames();
 		return new ResponseEntity<>(toResources(entities, null), HttpStatus.OK);
 	}

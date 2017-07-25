@@ -120,7 +120,8 @@ class LongRunningTask extends Basic.AbstractContent {
             level="danger"
             style={{ marginRight: 5 }}
             rendered={_entity.instanceId === instanceId && SecurityManager.hasAnyAuthority(['SCHEDULER_UPDATE'])}
-            disabled={_showLoading}>
+            disabled={_showLoading}
+            icon="fa:bolt">
             {this.i18n('button.interrupt')}
           </Basic.Button>
           <Basic.Button

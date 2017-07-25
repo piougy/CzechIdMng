@@ -237,6 +237,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     if (showId === null || showId === undefined) {
       return this.isDevelopment();
     }
+    return showId;
   }
 
   render() {
@@ -264,7 +265,8 @@ class AdvancedTable extends Basic.AbstractContextComponent {
       showPageSize,
       showToolbar,
       condensed,
-      header
+      header,
+      forceSearchParameters
     } = this.props;
     const {
       filterOpened,
@@ -399,7 +401,9 @@ class AdvancedTable extends Basic.AbstractContextComponent {
                   filterOpen={ (open)=> this.setState({ filterOpened: open }) }
                   filterOpened={ filterOpened }
                   rendered={ showFilter && filter !== undefined && filterCollapsible }
-                  style={{ marginLeft: 3 }}/>
+                  style={{ marginLeft: 3 }}
+                  searchParameters={ _searchParameters }
+                  forceSearchParameters={ forceSearchParameters }/>
 
                 <Basic.Button
                   className="btn-xs"

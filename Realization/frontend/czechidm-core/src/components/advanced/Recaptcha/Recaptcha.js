@@ -28,7 +28,7 @@ export default class AdvancedRecaptcha extends Basic.AbstractFormComponent {
     };
     //
     if (siteKey === null && enabled) {
-      this.getLogger().error('[Recaptcha]: The configuration property "recaptchaSiteKey" not defined!');
+      this.getLogger().error('[Recaptcha]: The configuration property "recaptcha.siteKey" not defined!');
     }
   }
 

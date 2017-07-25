@@ -23,7 +23,7 @@ import eu.bcvsolutions.idm.core.api.repository.filter.BaseFilterBuilder;
 @Component
 public class UuidFilter<E extends AbstractEntity> extends BaseFilterBuilder<E, DataFilter> {
 
-	public static final String PROPERTY_NAME = "id";
+	public static final String PROPERTY_NAME = DataFilter.PARAMETER_ID;
 	
 	@Override
 	public String getName() {
@@ -40,6 +40,6 @@ public class UuidFilter<E extends AbstractEntity> extends BaseFilterBuilder<E, D
 
 	@Override
 	public Page<E> find(DataFilter filter, Pageable pageable) {
-		throw new UnsupportedOperationException("Find by uuid only is not supported, use LooukupService instead.");
+		throw new UnsupportedOperationException("Find by uuid only is not supported, use LookupService instead.");
 	}
 }

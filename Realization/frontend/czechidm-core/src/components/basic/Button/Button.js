@@ -7,7 +7,6 @@ import Tooltip from '../Tooltip/Tooltip';
 
 /**
  * TODO: Improvent:
- * - add icon
  * - add button size (className is abused now)
  *
  * @author Radek Tomiška
@@ -39,7 +38,8 @@ class Button extends AbstractComponent {
       titlePlacement,
       titleDelayShow,
       style,
-      onClick
+      onClick,
+      icon
     } = this.props;
     //
     if (!rendered) {
@@ -89,6 +89,7 @@ class Button extends AbstractComponent {
               </span>
               :
               <span>
+                <Icon value={ icon } className="icon-left"/>
                 { text }
                 { children }
               </span>
@@ -121,7 +122,11 @@ Button.propTypes = {
   /**
    * Title show delay
    */
-  titleDelayShow: PropTypes.number
+  titleDelayShow: PropTypes.number,
+  /**
+   * Button icon
+   */
+  icon: PropTypes.string
 };
 Button.defaultProps = {
   ...AbstractComponent.defaultProps,
@@ -130,7 +135,8 @@ Button.defaultProps = {
   hidden: false,
   showLoadingIcon: false,
   showLoadingText: null,
-  titlePlacement: 'right'
+  titlePlacement: 'right',
+  icon: null
 };
 
 export default Button;

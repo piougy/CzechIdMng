@@ -86,11 +86,19 @@ class BackendModules extends Basic.AbstractContent {
               cell={
                 ({rowIndex, data}) => {
                   const moduleDescriptor = data[rowIndex];
+                  if (moduleDescriptor.buildNumber === '@buildNumber@') {
+                    // buildNumber doesn't be filled on development stage
+                    // TODO: build with eclipse skips some maven plugins (e.g. buildNumber)
+                    return null;
+                  }
                   return (
                     <span>
-                      { moduleDescriptor.buildNumber }
+                      <span title={ this.i18n('entity.Module.buildNumber') }>{ moduleDescriptor.buildNumber }</span>
                       <br />
-                      <Advanced.DateValue value={ moduleDescriptor.buildTimestamp }/>
+                      <Advanced.DateValue
+                        value={ parseInt(moduleDescriptor.buildTimestamp, 10) }
+                        title={ this.i18n('entity.Module.buildTimestamp') }
+                        showTime/>
                     </span>);
                 }
               }/>
@@ -102,7 +110,24 @@ class BackendModules extends Basic.AbstractContent {
               /* eslint-disable react/no-multi-comp */
               ({rowIndex, data}) => {
                 const moduleDescriptor = data[rowIndex];
-                return <Basic.Link href={ `${ConfigLoader.getServerUrl().replace('/api/v1', '')}/webjars/${moduleDescriptor.id}/${moduleDescriptor.version}/doc/index.html` } text="Html"/>;
+                const links = [];
+                //
+                if (moduleDescriptor.documentationAvailable) {
+                  links.push(
+                    <Basic.Link
+                      href={ `${ConfigLoader.getServerUrl().replace('/v1', '')}?group=${moduleDescriptor.id}` }
+                      text="Api"
+                      style={{ marginRight: 5 }}/>
+                  );
+                  links.push(
+                    <Basic.Link
+                      href={ `${ConfigLoader.getServerUrl().replace('/api/v1', '')}/webjars/${moduleDescriptor.id}/${moduleDescriptor.version}/doc/index.html` }
+                      text="Html"
+                      style={{ marginRight: 5 }}/>
+                  );
+                }
+                // javadoc
+                return links;
               }
             }/>
           <Basic.Column

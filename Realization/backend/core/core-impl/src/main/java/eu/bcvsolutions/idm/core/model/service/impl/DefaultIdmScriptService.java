@@ -274,7 +274,7 @@ public class DefaultIdmScriptService extends AbstractReadWriteDtoService<IdmScri
 					configurationService.getValue(SCRIPT_FOLDER) + configurationService.getValue(SCRIPT_FILE_SUFIX));
 		} catch (IOException e) {
 			throw new ResultCodeException(CoreResultCode.DEPLOY_ERROR, ImmutableMap.of("path",
-					configurationService.getValue(SCRIPT_FOLDER) + configurationService.getValue(SCRIPT_FILE_SUFIX)));
+					configurationService.getValue(SCRIPT_FOLDER) + configurationService.getValue(SCRIPT_FILE_SUFIX)), e);
 		}
 		return resources;
 	}
@@ -385,7 +385,7 @@ public class DefaultIdmScriptService extends AbstractReadWriteDtoService<IdmScri
 		Marshaller jaxbMarshaller = null;
 		try {
 			jaxbMarshaller = jaxbContext.createMarshaller();
-			jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+			jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
 			jaxbMarshaller.setProperty(Marshaller.JAXB_ENCODING, StandardCharsets.UTF_8.name());
 			jaxbMarshaller.setProperty(ENCODING_HANDLER, new JaxbCharacterEscapeEncoder());
 		} catch (JAXBException e) {

@@ -102,13 +102,13 @@ export default class AbstractContent extends AbstractContextComponent {
    * @param {object} props PageHeader properties e.g. style, className
    * @return {element} react element
    */
-  renderPageHeader(props) {
+  renderPageHeader(props = {}) {
     const navigationItem = this.getNavigationItem() || {};
     //
     return (
       <PageHeader {...props}>
         <Helmet title={this.i18n('title')} />
-        <Icon value={navigationItem.icon}/>
+        <Icon value={props.icon || navigationItem.icon}/>
         {' '}
         <span dangerouslySetInnerHTML={{__html: this.i18n('header')}}/>
       </PageHeader>

@@ -11,6 +11,11 @@ import ValidationMessage from './ValidationMessage';
 
 const identityManager = new IdentityManager();
 
+/**
+ * Create identity form
+ *
+ * @author Radek Tomiška
+ */
 class Profile extends Basic.AbstractContent {
 
   constructor(props) {

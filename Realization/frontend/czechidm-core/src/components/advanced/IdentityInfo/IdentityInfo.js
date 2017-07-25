@@ -5,7 +5,7 @@ import { Link } from 'react-router';
 //
 import * as Basic from '../../basic';
 import * as Utils from '../../../utils';
-import { IdentityManager, SecurityManager } from '../../../redux/';
+import { IdentityManager } from '../../../redux/';
 import UuidInfo from '../UuidInfo/UuidInfo';
 import AbstractEntityInfo from '../EntityInfo/AbstractEntityInfo';
 
@@ -36,10 +36,14 @@ export class IdentityInfo extends AbstractEntityInfo {
     const { entity, _identity } = this.props;
     if (this.getEntityId() && !entity && !_identity) {
       const uiKey = identityManager.resolveUiKey(null, this.getEntityId());
-      const error = Utils.Ui.getError(this.context.store.getState(), uiKey);
+      const error = Utils.Ui.getError(this.context.store.getState(), uiKey) || this.state.error;
       if (!Utils.Ui.isShowLoading(this.context.store.getState(), uiKey)
           && (!error || error.statusCode === 401)) { // show loading check has to be here - new state is needed
-        this.context.store.dispatch(identityManager.fetchEntityIfNeeded(this.getEntityId(), null, () => {}));
+        this.context.store.dispatch(identityManager.autocompleteEntityIfNeeded(this.getEntityId(), uiKey, (e, ex) => {
+          this.setState({
+            error: ex
+          });
+        }));
       }
     }
   }
@@ -59,13 +63,22 @@ export class IdentityInfo extends AbstractEntityInfo {
     return null;
   }
 
+  getEntity() {
+    const { entity, _identity } = this.props;
+    //
+    if (entity) { // entity is given by props
+      return entity;
+    }
+    return _identity; // loaded by redux
+  }
+
   showLink() {
-    const { showLink } = this.props;
+    const { showLink, _permissions } = this.props;
     if (!showLink) {
       return false;
     }
     // todo: authorization policies
-    if (!SecurityManager.hasAccess({ 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_READ']})) {
+    if (!identityManager.canRead(this.getEntity(), _permissions)) {
       return false;
     }
     return true;
@@ -75,12 +88,8 @@ export class IdentityInfo extends AbstractEntityInfo {
    * Renders full info card
    */
   _renderFull() {
-    const { className, entity, style } = this.props;
-    //
-    let _identity = this.props._identity;
-    if (entity) { // identity prop has higher priority
-      _identity = entity;
-    }
+    const { className, style } = this.props;
+    const _identity = this.getEntity();
     //
     const panelClassNames = classNames(
       'identity-info',
@@ -219,13 +228,17 @@ IdentityInfo.defaultProps = {
   entity: null,
   face: 'full',
   _showLoading: true,
+  _permissions: PropTypes.arrayOf(PropTypes.string)
 };
 
 function select(state, component) {
+  const identifier = component.entityIdentifier || component.username;
+  //
   return {
-    _identity: identityManager.getEntity(state, component.entityIdentifier || component.username),
-    _showLoading: identityManager.isShowLoading(state, null, component.entityIdentifier || component.username),
-    userContext: state.security.userContext // is needed for refresh after login
+    _identity: identityManager.getEntity(state, identifier),
+    _showLoading: identityManager.isShowLoading(state, null, identifier),
+    userContext: state.security.userContext, // is needed for refresh after login
+    _permissions: identityManager.getPermissions(state, null, identifier)
   };
 }
 export default connect(select)(IdentityInfo);

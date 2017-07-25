@@ -23,7 +23,7 @@ import org.springframework.context.annotation.Configuration;
 import eu.bcvsolutions.idm.core.notification.service.api.EmailNotificationSender;
 import eu.bcvsolutions.idm.core.workflow.domain.CustomActivityBehaviorFactory;
 import eu.bcvsolutions.idm.core.workflow.domain.formtype.CustomFormTypes;
-import eu.bcvsolutions.idm.core.workflow.listener.CandidateToUiidEventListener;
+import eu.bcvsolutions.idm.core.workflow.listener.CandidateToUuidEventListener;
 import eu.bcvsolutions.idm.core.workflow.listener.StartSubprocessEventListener;
 import eu.bcvsolutions.idm.core.workflow.listener.TaskSendNotificationEventListener;
 
@@ -56,7 +56,7 @@ public class WorkflowConfig {
 	@Autowired
 	private TaskSendNotificationEventListener taskSendNotificationEventListener;
 	@Autowired
-	private CandidateToUiidEventListener candidateToUiidEventListener;
+	private CandidateToUuidEventListener candidateToUiidEventListener;
 	
 	// Only local variable (no autowired bean)
 	private ProcessEngineConfigurationImpl processEngineConfiguration;
@@ -123,21 +123,22 @@ public class WorkflowConfig {
 	 * @param processEngineConfiguration
 	 */
 	private void addActivitiEventListeners(ProcessEngineConfigurationImpl processEngineConfiguration) {
+		List<ActivitiEventListener> candidateUiidList = Stream.of(candidateToUiidEventListener)
+				.collect(Collectors.toList());
+		List<ActivitiEventListener> taskSendNotificationList = Stream
+				.of(taskSendNotificationEventListener, candidateToUiidEventListener).collect(Collectors.toList());
+		//
 		Map<String, List<ActivitiEventListener>> typedListeners = new HashMap<>();
 		typedListeners.put(ActivitiEventType.PROCESS_STARTED.name(),
 				Stream.of(startSubprocesEventListener).collect(Collectors.toList()));
-		typedListeners.put(ActivitiEventType.TASK_ASSIGNED.name(), 
-				Stream.of(taskSendNotificationEventListener, candidateToUiidEventListener).collect(Collectors.toList()));
-		typedListeners.put(ActivitiEventType.TASK_CREATED.name(), 
-				Stream.of(taskSendNotificationEventListener, candidateToUiidEventListener).collect(Collectors.toList()));
-		typedListeners.put(ActivitiEventType.TASK_COMPLETED.name(), 
-				Stream.of(taskSendNotificationEventListener, candidateToUiidEventListener).collect(Collectors.toList()));
-		typedListeners.put(ActivitiEventType.ENTITY_CREATED.name(), 
-				Stream.of(candidateToUiidEventListener).collect(Collectors.toList()));
-		typedListeners.put(ActivitiEventType.ENTITY_INITIALIZED.name(), 
-				Stream.of(candidateToUiidEventListener).collect(Collectors.toList()));
-		
-		
+		//
+		typedListeners.put(ActivitiEventType.TASK_ASSIGNED.name(), taskSendNotificationList);
+		typedListeners.put(ActivitiEventType.TASK_CREATED.name(), taskSendNotificationList);
+		typedListeners.put(ActivitiEventType.TASK_COMPLETED.name(), taskSendNotificationList);
+		//
+		typedListeners.put(ActivitiEventType.ENTITY_CREATED.name(), candidateUiidList);
+		typedListeners.put(ActivitiEventType.ENTITY_INITIALIZED.name(), candidateUiidList);
+		//
 		processEngineConfiguration.setTypedEventListeners(typedListeners);
 	}
 

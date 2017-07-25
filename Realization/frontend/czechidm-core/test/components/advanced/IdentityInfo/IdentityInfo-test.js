@@ -3,10 +3,14 @@ import TestUtils from 'react-addons-test-utils';
 import chai, { expect } from 'chai';
 import dirtyChai from 'dirty-chai';
 chai.use(dirtyChai);
-
 //
 import { IdentityInfo } from '../../../../src/components/advanced/IdentityInfo/IdentityInfo';
 
+/**
+ * Advanced.IdentityInfo tests
+ *
+ * @author Radek Tomiška
+ */
 describe('Advanced IdentityInfo', function identityInfo() {
   it('[not rendered] - component should not be rendered', function test() {
     const shallowRenderer = TestUtils.createRenderer();

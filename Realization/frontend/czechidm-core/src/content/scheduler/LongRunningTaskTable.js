@@ -61,6 +61,16 @@ class LongRunningTaskTable extends Advanced.AbstractTableContent {
     });
   }
 
+  onRun(bulkActionValue, tasks) {
+    let i;
+    const { manager } = this.props;
+    for ( i = 0; i < tasks.length; i++ ) {
+      this.context.store.dispatch(manager.oneProcessCreated('task-queue-process-created', () => {
+        this.addMessage({ level: 'success', message: this.i18n('action.processCreated.success')});
+      }, tasks[i]));
+    }
+  }
+
   /**
    * Close modal detail
    */
@@ -82,15 +92,15 @@ class LongRunningTaskTable extends Advanced.AbstractTableContent {
   }
 
   render() {
-    const { uiKey, manager } = this.props;
+    const { uiKey, manager, showRowSelection } = this.props;
     const { filterOpened, detail } = this.state;
-
     return (
       <div>
         <Advanced.Table
           ref="table"
           uiKey={uiKey}
           manager={manager}
+          showRowSelection={showRowSelection}
           filter={
             <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
               <Basic.AbstractForm ref="filterForm">
@@ -128,6 +138,11 @@ class LongRunningTaskTable extends Advanced.AbstractTableContent {
             </Advanced.Filter>
           }
           filterOpened={filterOpened}
+          actions={
+            [
+              { value: 'delete', niceLabel: this.i18n('action.processCreated.selectedButton'), action: this.onRun.bind(this), disabled: false }
+            ]
+          }
           buttons={
             [
               <Basic.Button
@@ -330,10 +345,12 @@ class LongRunningTaskTable extends Advanced.AbstractTableContent {
 
 LongRunningTaskTable.propTypes = {
   uiKey: PropTypes.string.isRequired,
-  manager: PropTypes.object.isRequired
+  manager: PropTypes.object.isRequired,
+  showRowSelection: PropTypes.boolean
 };
 
 LongRunningTaskTable.defaultProps = {
+  showRowSelection: true
 };
 
 function select(state, component) {

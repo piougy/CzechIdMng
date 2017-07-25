@@ -70,7 +70,9 @@ public interface LongRunningTaskManager {
 	 * @return Returns currently executed tasks
 	 */
 	List<LongRunningFutureTask<?>> processCreated();
-	
+
+
+	List<LongRunningFutureTask<?>> oneProcessCreated(UUID id);
 	/**
 	 * Schedule {@link #processCreated()} only
 	 */

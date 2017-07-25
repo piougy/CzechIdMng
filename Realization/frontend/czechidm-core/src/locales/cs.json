@@ -1805,8 +1805,9 @@
         },
         "action": {
           "processCreated": {
-            "button": "Spustit vytvořené úlohy",
-            "success": "Vytvořené úlohy budou spuštěny."
+            "button": "Spustit všechny vytvořené úlohy",
+            "success": "Vytvořené úlohy budou spuštěny.",
+            "selectedButton": "Spustit vybrané úlohy"
           }
         }
       }

@@ -103,4 +103,23 @@ export default class LongRunningTaskService extends AbstractService {
       return json;
     });
   }
+
+  oneProcessCreated(task) {
+    console.log('Hieeeeeeeeeeeeeeeeerlol');
+    console.log(task);
+    return RestApiService
+    .put(this.getApiPath() + `/${task}/process`)
+    .then(response => {
+      if (response.status === 204) {
+        return {};
+      }
+      return response.json();
+    })
+    .then(json => {
+      if (Utils.Response.hasError(json)) {
+        throw Utils.Response.getFirstError(json);
+      }
+      return json;
+    });
+  }
 }

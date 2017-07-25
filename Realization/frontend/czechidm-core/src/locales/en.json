@@ -1743,8 +1743,9 @@
         },
         "action": {
           "processCreated": {
-            "button": "Run created tasks",
-            "success": "Created task will be executed."
+            "button": "Run all created tasks",
+            "success": "Created task will be executed.",
+            "selectedButton": "Run selected tasks"
           }
         }
       }

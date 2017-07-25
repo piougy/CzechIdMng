@@ -1,7 +1,7 @@
 import React, { PropTypes } from 'react';
 //
 import * as Basic from '../../basic';
-import ToogleFilterButton from './ToogleFilterButton';
+import FilterToogleButton from './FilterToogleButton';
 import FilterButtons from './FilterButtons';
 import FilterTextField from './FilterTextField';
 import FilterBooleanSelectBox from './FilterBooleanSelectBox';
@@ -50,7 +50,7 @@ Filter.defaultProps = {
   ...Basic.AbstractContextComponent.defaultProps,
 };
 
-Filter.ToogleButton = ToogleFilterButton;
+Filter.ToogleButton = FilterToogleButton;
 Filter.FilterButtons = FilterButtons;
 Filter.TextField = FilterTextField;
 Filter.BooleanSelectBox = FilterBooleanSelectBox;

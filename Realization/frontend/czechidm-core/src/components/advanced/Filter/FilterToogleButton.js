@@ -1,13 +1,14 @@
 import React, { PropTypes } from 'react';
+//
 import AbstractContextComponent from '../../basic/AbstractContextComponent/AbstractContextComponent';
-import * as Basic from '../../basic/index.js';
+import * as Basic from '../../basic';
 
 /**
  * Button for closable filter mainly for advanced table
  *
  * @author Radek Tomiška
  */
-export default class ToogleFilterButton extends AbstractContextComponent {
+export default class FilterToogleButton extends AbstractContextComponent {
 
   constructor(props, context) {
     super(props, context);
@@ -27,6 +28,27 @@ export default class ToogleFilterButton extends AbstractContextComponent {
     });
   }
 
+  /**
+   * Returns true, if some search parameters filter is filled excluding force search parameters.
+   *
+   * TODO: can be improved to ignore null filter values
+   *
+   * @return {Boolean}
+   */
+  _isFilterEmpty() {
+    const { searchParameters, forceSearchParameters } = this.props;
+    if (!searchParameters) {
+      // search paramters are empty
+      return false;
+    }
+    if (!forceSearchParameters || forceSearchParameters.getFilters().size === 0) {
+      return searchParameters.getFilters().size === 0;
+    }
+    return searchParameters.getFilters().reduce((result, filter, key) => {
+      return result && forceSearchParameters.getFilters().has(key);
+    }, true);
+  }
+
   render() {
     const { rendered, showLoading, searchParameters, ...others } = this.props;
     const { filterOpened } = this.state;
@@ -35,7 +57,7 @@ export default class ToogleFilterButton extends AbstractContextComponent {
     }
     let level = 'default';
     let tooltip = this.i18n('component.advanced.Table.filter.empty');
-    if (searchParameters && searchParameters.filters.size > 0) {
+    if (!this._isFilterEmpty()) {
       level = 'info';
       tooltip = this.i18n('component.advanced.Table.filter.notEmpty');
     }
@@ -60,7 +82,7 @@ export default class ToogleFilterButton extends AbstractContextComponent {
   }
 }
 
-ToogleFilterButton.propTypes = {
+FilterToogleButton.propTypes = {
   ...Basic.AbstractContextComponent.propTypes,
   /**
    * Callback, when filter is opened
@@ -77,8 +99,14 @@ ToogleFilterButton.propTypes = {
    *
    * @type {SearchParameters}
    */
-  searchParameters: PropTypes.object
+  searchParameters: PropTypes.object,
+  /**
+   * "Hard filters"
+   *
+   * @type {SearchParameters}
+   */
+  forceSearchParameters: PropTypes.object,
 };
-ToogleFilterButton.defaultProps = {
+FilterToogleButton.defaultProps = {
   ...Basic.AbstractContextComponent.defaultProps
 };

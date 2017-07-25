@@ -265,7 +265,8 @@ class AdvancedTable extends Basic.AbstractContextComponent {
       showPageSize,
       showToolbar,
       condensed,
-      header
+      header,
+      forceSearchParameters
     } = this.props;
     const {
       filterOpened,
@@ -401,7 +402,8 @@ class AdvancedTable extends Basic.AbstractContextComponent {
                   filterOpened={ filterOpened }
                   rendered={ showFilter && filter !== undefined && filterCollapsible }
                   style={{ marginLeft: 3 }}
-                  searchParameters={ _searchParameters }/>
+                  searchParameters={ _searchParameters }
+                  forceSearchParameters={ forceSearchParameters }/>
 
                 <Basic.Button
                   className="btn-xs"

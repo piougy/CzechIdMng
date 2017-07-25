@@ -78,6 +78,8 @@ public enum AccResultCode implements ResultCode {
 	SYNCHRONIZATION_IDM_FIELD_NOT_SET(HttpStatus.NOT_FOUND, "IDM field %s for entity %s cannot be set!"),
 	SYNCHRONIZATION_IDM_FIELD_NOT_GET(HttpStatus.NOT_FOUND, "IDM field %s for entity %s cannot be get!"),
 	SYNCHRONIZATION_TREE_ROOT_FILTER_VALUE_WRONG_TYPE(HttpStatus.BAD_REQUEST, "Synchronization root filter result must be instance of Boolean, but value is type %s!"), 
+	SYNCHRONIZATION_TREE_PARENT_TREE_ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "For parent UID: [%s] on system ID [%s] and acc account: [{}] was not found tree accounts!"),
+	SYNCHRONIZATION_TREE_PARENT_ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "For parent UID: [%s] on system ID [%s] was not found accounts!"),
 	SYNCHRONIZATION_ATTRIBUTE_NOT_FOUND(HttpStatus.NOT_FOUND, "IDM attribute %s not found!"),
 	//
 	// authentication against system

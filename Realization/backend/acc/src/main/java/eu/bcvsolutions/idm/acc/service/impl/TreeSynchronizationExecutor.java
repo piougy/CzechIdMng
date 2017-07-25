@@ -486,11 +486,16 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 					LOG.warn(
 							"For parent UID: [{}] on system ID [{}] and acc account: [{}], was not found tree accounts! Return null value in parent!!",
 							parentUid, systemId, parentAccount);
+					throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_TREE_PARENT_TREE_ACCOUNT_NOT_FOUND,
+							ImmutableMap.of("parentUid", parentUid, "systemId", systemId, "parentAccount",
+									parentAccount));
 				}
 			} else {
 				LOG.warn(
 						"For parent UID: [{}] on system ID [{}], was not found parents account! Return null value in parent!!",
 						parentUid, systemId);
+				throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_TREE_PARENT_ACCOUNT_NOT_FOUND,
+						ImmutableMap.of("parentUid", parentUid, "systemId", systemId));
 			}
 		}
 		return transformedValue;

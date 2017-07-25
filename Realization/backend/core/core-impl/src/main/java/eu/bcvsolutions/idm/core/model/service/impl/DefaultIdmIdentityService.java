@@ -122,7 +122,6 @@ public class DefaultIdmIdentityService
 		return toEntity(save(toDto(identity)), null);
 	}
 	
-
 	@Override
 	@Transactional
 	@Deprecated

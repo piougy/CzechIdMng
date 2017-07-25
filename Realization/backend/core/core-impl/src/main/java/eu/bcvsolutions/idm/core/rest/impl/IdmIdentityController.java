@@ -216,7 +216,8 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 	@Override
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.POST)
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_CREATE + "') or hasAuthority('" + CoreGroupPermission.IDENTITY_UPDATE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_CREATE + "')"
+			+ " or hasAuthority('" + CoreGroupPermission.IDENTITY_UPDATE + "')")
 	@ApiOperation(
 			value = "Create / update identity", 
 			nickname = "postIdentity", 

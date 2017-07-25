@@ -39,7 +39,7 @@ public class IdentityRoleExpirationTaskExecutor extends AbstractSchedulableTaskE
 		this.expiration = new LocalDate();
 		this.counter = 0L;
 		
-		LOG.debug("Expired roles removal task started with limit date [{}].", expiration);
+		LOG.info("Expired roles removal task started with limit date [{}].", expiration);
 
 		int page = 0;
 		int pageSize = 100;
@@ -53,13 +53,19 @@ public class IdentityRoleExpirationTaskExecutor extends AbstractSchedulableTaskE
 			
 			for (Iterator<IdmIdentityRoleDto> i = roles.iterator(); i.hasNext() && hasNextPage;) {
 				IdmIdentityRoleDto role = i.next();
+				
+				LOG.debug("Remove role: [{}] from contract id: [{}].", role.getRole(), role.getIdentityContract());
+				
 				service.delete(role);
 				++counter;
 				hasNextPage &= updateState();
 			}
 			
 			++page;
-		} while (hasNextPage);		
+		} while (hasNextPage);
+		
+		LOG.info("Expired roles removal task ended. Removed roles: [{}].", counter);
+		
 		return Boolean.TRUE;
 	}
 

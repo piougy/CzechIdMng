@@ -279,16 +279,19 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 	@Override
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}/permissions", method = RequestMethod.GET)
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_READ + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_READ + "')"
+			+ " or hasAuthority('" + CoreGroupPermission.IDENTITY_AUTOCOMPLETE + "')")
 	@ApiOperation(
 			value = "What logged identity can do with given record", 
 			nickname = "getPermissionsOnIdentity", 
 			tags = { IdmIdentityController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_READ, description = "") }),
+						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_READ, description = ""),
+						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_AUTOCOMPLETE, description = "")}),
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_READ, description = "") })
+						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_READ, description = ""),
+						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_AUTOCOMPLETE, description = "")})
 				})
 	public Set<String> getPermissions(
 			@ApiParam(value = "Identity's uuid identifier or username.", required = true)

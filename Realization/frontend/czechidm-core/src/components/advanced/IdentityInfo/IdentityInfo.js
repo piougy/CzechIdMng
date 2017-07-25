@@ -36,10 +36,14 @@ export class IdentityInfo extends AbstractEntityInfo {
     const { entity, _identity } = this.props;
     if (this.getEntityId() && !entity && !_identity) {
       const uiKey = identityManager.resolveUiKey(null, this.getEntityId());
-      const error = Utils.Ui.getError(this.context.store.getState(), uiKey);
+      const error = Utils.Ui.getError(this.context.store.getState(), uiKey) || this.state.error;
       if (!Utils.Ui.isShowLoading(this.context.store.getState(), uiKey)
           && (!error || error.statusCode === 401)) { // show loading check has to be here - new state is needed
-        this.context.store.dispatch(identityManager.autocompleteEntityIfNeeded(this.getEntityId(), null, () => {}));
+        this.context.store.dispatch(identityManager.autocompleteEntityIfNeeded(this.getEntityId(), uiKey, (e, ex) => {
+          this.setState({
+            error: ex
+          });
+        }));
       }
     }
   }

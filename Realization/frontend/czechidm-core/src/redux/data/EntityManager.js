@@ -283,7 +283,7 @@ export default class EntityManager {
         }));
       })
       .catch(error => {
-        dispatch(this.receiveError(id, uiKey, error, cb));
+        dispatch(this.receiveError({ id }, uiKey, error, cb));
       });
     };
   }
@@ -851,10 +851,10 @@ export default class EntityManager {
                 }));
               } else {
                 // entity not found
-                dispatch(this.receiveEntity(id, null, uiKey, cb));
+                dispatch(this.receiveError({ id }, uiKey, { statusCode: 404, statusEnum: 'NOT_FOUND', parameters: { entity: id } }, cb));
               }
             } else {
-              dispatch(this.receiveError(id, uiKey, error, cb));
+              dispatch(this.receiveError({ id }, uiKey, error, cb));
             }
           }));
         } else {

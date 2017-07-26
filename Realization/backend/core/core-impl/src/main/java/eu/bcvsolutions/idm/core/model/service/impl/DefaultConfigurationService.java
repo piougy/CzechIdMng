@@ -203,27 +203,30 @@ public class DefaultConfigurationService
 			return value != null ? value : defaultValue;
 		}		
 		//
-		LOG.debug("Reading configuration for key [{}] and default[{}]", key, defaultValue);
+		LOG.debug("Reading configuration for key [{}]", key);
 		String value = null;
+		boolean confidential = true;
 		// idm configuration has higher priority than property file
 		IdmConfigurationDto config = getByCode(key);
 		if (config != null) {
 			if (config.isConfidential()) {
-				value = confidentialStorage.get(config.getId(), getEntityClass(), CONFIDENTIAL_PROPERTY_VALUE, String.class);			
+				value = confidentialStorage.get(config.getId(), getEntityClass(), CONFIDENTIAL_PROPERTY_VALUE, String.class);
 				LOG.debug("Configuration value for key [{}] was found in confidential storage", config.getName());
 			} else {			
 				value = config.getValue();
-				LOG.debug("Configuration value [{}] for key [{}] was found in database.", key, value);
+				confidential = false;
+				LOG.trace("Configuration value for key [{}] was found in database.", key);
 			}			
 		} else {
 			// try to find value in property configuration
 			value = env.getProperty(key);
+			confidential = shouldBeConfidential(key);
 		}
 		// fill default value
 		if (value == null) {
 			value = defaultValue;
 		}	
-		LOG.debug("Resolved configuration value for key [{}] and default [{}] is [{}].", key, defaultValue, value);
+		LOG.debug("Resolved configuration value for key [{}] is [{}].", key, confidential ? GuardedString.SECRED_PROXY_STRING : value);
 		setCachedValue(key, value);
 		return value;
 	}

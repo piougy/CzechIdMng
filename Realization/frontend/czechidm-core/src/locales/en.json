@@ -277,8 +277,8 @@
         },
         "noData": "$t(component.basic.Table.noData)",
         "filter": {
-          "notEmpty": "Filtr is set",
-          "emtpy": "Filtr is not set"
+          "notEmpty": "Filter is set",
+          "empty": "Filter is not set"
         }
       },
       "Tree": {

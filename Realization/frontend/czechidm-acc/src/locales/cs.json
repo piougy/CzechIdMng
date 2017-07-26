@@ -595,7 +595,7 @@
       "_type": "Účet na koncovém systému",
       "accountType": "Typ účtu",
       "system": "Systém",
-      "systemEntity": "Navázané entita na systému",
+      "systemEntity": "Navázaná entita na systému",
       "uid": "Identifikátor účtu",
       "inProtection": "Je chráněn před smazáním",
       "endOfProtection": "Chráněn do"

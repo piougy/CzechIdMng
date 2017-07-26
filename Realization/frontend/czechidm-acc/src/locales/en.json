@@ -109,8 +109,8 @@
             "success": "Synchronization/reconciliation '{{name}}' finished"
           },
           "cancelSynchronization": {
-            "message": "<b>Do you really want to stop synchronization/reconcilation '{{name}}'?</b>",
-            "header": "Cancel synchronization manuallly",
+            "message": "<b>Do you really want to stop synchronization/reconciliation '{{name}}'?</b>",
+            "header": "Cancel synchronization manually",
             "canceled": "Synchronization/reconciliation '{{name}}' canceled."
           }
         },
@@ -136,7 +136,7 @@
           "header": "New configuration of synchronization "
         },
         "save": {
-          "success": "Configuration of synchronizataion [{{name}}] was successfully saved"
+          "success": "Configuration of synchronization [{{name}}] was successfully saved"
         },
         "button": {
           "saveAndStartSynchronization": "Save and run configuration"
@@ -246,7 +246,7 @@
           "header": "New mapping for entity and operation"
         },
         "save": {
-          "success": "Mapping for entity type [{{name}}] succesfully saved"
+          "success": "Mapping for entity type [{{name}}] successfully saved"
         }
       },
       "mappingDetail": {
@@ -258,10 +258,10 @@
         },
         "create": {
           "header": "New type of IdM entity and operation",
-          "success": "IdM entity type [{{entityType}}] for operation [{{operationType}}] succesfully created"
+          "success": "IdM entity type [{{entityType}}] for operation [{{operationType}}] successfully created"
         },
         "save": {
-          "success": "IdM entity type [{{entityType}}] for operation [{{operationType}}] succesfully saved"
+          "success": "IdM entity type [{{entityType}}] for operation [{{operationType}}] successfully saved"
         },
         "filter": {
           "idmPropertyName": {
@@ -615,14 +615,14 @@
       },
       "tokenAttribute" :{
         "label": "Token attribute",
-        "help": "Specifies token of synchroning attribute."
+        "help": "Specifies token of synchronising attribute."
       },
       "token": "Token",
       "timestamp": "Timestamp",
-      "filterOperation": "Filter operaton",
+      "filterOperation": "Filter operation",
       "customFilterScript": {
         "label": "Custom filter",
-        "help": "This Groovy script sets own search filter for accoutns in system to be synchronized."
+        "help": "This Groovy script sets own search filter for accounts in system to be synchronized."
       },
       "rootsFilterScript": {
         "label": "Definition of tree roots",
@@ -630,7 +630,7 @@
       },
       "reconciliation": {
         "label": "Reconciliation",
-        "help": "Executes full reconciliation instead of synchronization. Synchronization will be executed for all accounts without filter. Search for missing accounts will be executed for all entites in CzechIdM."
+        "help": "Executes full reconciliation instead of synchronization. Synchronization will be executed for all accounts without filter. Search for missing accounts will be executed for all entities in CzechIdM."
       },
       "correlationAttribute": "Collation attribute",
       "systemMapping": "Set of mapped attributes",
@@ -651,7 +651,7 @@
           "CREATE_ENTITY": "Created entities",
           "UPDATE_ENTITY": "Updated entities",
           "DELETE_ENTITY": "Deleted entities",
-          "LINK_AND_UPDATE_ACCOUNT": "Created and updated acceouts",
+          "LINK_AND_UPDATE_ACCOUNT": "Created and updated accounts",
           "UNLINK_AND_REMOVE_ROLE": "Deleted links with role",
           "LINK": "Created links",
           "UNLINK": "Deleted links",
@@ -684,7 +684,7 @@
         "WF": {
           "CREATE_ENTITY": "Created entities",
           "UPDATE_ENTITY": "Updated entities",
-          "DELETE_ENTITY": "Deleted entites",
+          "DELETE_ENTITY": "Deleted entities",
           "LINK_AND_UPDATE_ACCOUNT": "Created and updated accounts",
           "UNLINK_AND_REMOVE_ROLE": "Deleted links with roles",
           "LINK": "Created links",
@@ -702,7 +702,7 @@
           "CREATE_ENTITY": "Created entities",
           "UPDATE_ENTITY": "Updated entities",
           "DELETE_ENTITY": "Deleted entities",
-          "LINK_AND_UPDATE_ACCOUNT": "Cread and updated accounts",
+          "LINK_AND_UPDATE_ACCOUNT": "Created and updated accounts",
           "UNLINK_AND_REMOVE_ROLE": "Deleted links with roles",
           "LINK": "Created links",
           "UNLINK": "Deleted links",
@@ -883,7 +883,7 @@
   "error": {
     "CONNECTOR_CONFIGURATION_FOR_SYSTEM_NOT_FOUND": {
       "title": "Connector was not selected",
-      "message": "Connector for system [{{system}}] is not defined. Please, select connector definiton in system settings."
+      "message": "Connector for system [{{system}}] is not defined. Please, select connector definition in system settings."
     },
     "PROVISIONING_ATTRIBUTE_MORE_UID": {
       "title": " Unique identificator already exists",
@@ -939,7 +939,7 @@
     },
     "PROVISIONING_ATTRIBUTE_VALUE_WRONG_TYPE": {
       "title": "Provisioning - attribute value is not in correct type",
-      "message": "Scheman of attribute [{{attribute}}] defines type of [{{schemaAttributeType}}]. But value type is [{{valueType}}]!"
+      "message": "Schema of attribute [{{attribute}}] defines type of [{{schemaAttributeType}}]. But value type is [{{valueType}}]!"
     },
     "PROVISIONING_ATTRIBUTE_TYPE_NOT_FOUND": {
       "title": "Provisioning - attribute value was not found",
@@ -983,7 +983,7 @@
     },
     "SYNCHRONIZATION_CORRELATION_TO_MANY_RESULTS": {
       "title": "Synchronization - too many entities was found for correlation attribute",
-      "message": "Too many entities was found for correlation attribite [{{correlationAttribute}}] for value [{{value}}]!"
+      "message": "Too many entities was found for correlation attribute [{{correlationAttribute}}] for value [{{value}}]!"
     },
     "SYNCHRONIZATION_TOKEN_ATTRIBUTE_NOT_FOUND": {
       "title": "Synchronization - for synchronization by custom attribute is compulsory attribute Token!",
@@ -999,7 +999,7 @@
     },
     "SYNCHRONIZATION_IS_NOT_RUNNING": {
       "title": "Synchronization not running",
-      "message": "Synchronizace [{{name}}] is not running."
+      "message": "Synchronization [{{name}}] is not running."
     },
     "SYNCHRONIZATION_TO_MANY_SYSTEM_ENTITY": {
       "title": "Synchronization - more than one record of 'System entity' was found",
@@ -1011,7 +1011,7 @@
     },
     "SYNCHRONIZATION_ERROR_DURING_SYNC_ITEM": {
       "title": "Synchronization - error during synchronization",
-      "message": "Durring synchronization of UID [{{uid}}], unexpected error has occurred!"
+      "message": "During synchronization of UID [{{uid}}], unexpected error has occurred!"
     },
     "SYNCHRONIZATION_TO_MANY_ACC_ACCOUNT": {
       "title": "Synchronization - more than one records of 'AccAccount' found",
@@ -1023,7 +1023,7 @@
     },
     "ATTRIBUTE_MAPPING_DELETE_FAILED_USED_IN_SYNC": {
       "title": "Attribute [{{attribute}}] cannot be removed",
-      "message": "Atribut [{{attribute}}] cannot be removed. It's used for synchronization of the same system!"
+      "message": "Attribute [{{attribute}}] cannot be removed. It's used for synchronization of the same system!"
     },
     "SYSTEM_DELETE_FAILED_HAS_ENTITIES": {
       "title": "System cannot be removed",

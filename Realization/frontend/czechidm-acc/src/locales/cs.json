@@ -928,7 +928,7 @@
       "message": "IDM položka [{{field}}] pro entitu [{{entity}}] nebyla nalezena!"
     },
     "PROVISIONING_PASSWORD_FIELD_NOT_FOUND": {
-      "title": "Mapovací atribut hesla nenalezen",
+      "title": "System [{{system}}] nepodporuje změnu hesla",
       "message": "Mapovací atributu pro heslo (___PASSWORD__) nebyl pro entitu [{{uid}}] nalezen!"
     },
     "PROVISIONING_SCHEMA_ATTRIBUTE_IS_NOT_UPDATEABLE": {

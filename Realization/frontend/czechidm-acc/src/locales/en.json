@@ -922,7 +922,7 @@
       "message": "IdM item [{{field}}] for entity [{{entity}}] was not found!"
     },
     "PROVISIONING_PASSWORD_FIELD_NOT_FOUND": {
-      "title": "Password mapping attribute not found",
+      "title": "System [{{system}}] not support change password",
       "message": "Mapping attribute for password (___PASSWORD__) for entity [{{entity}}] was not found!"
     },
     "PROVISIONING_SCHEMA_ATTRIBUTE_IS_NOT_UPDATEABLE": {

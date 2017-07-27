@@ -1,19 +1,21 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-
+import java.util.List;
 import java.util.UUID;
 
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 
 import eu.bcvsolutions.idm.InitTestData;
+import eu.bcvsolutions.idm.core.TestHelper;
 import eu.bcvsolutions.idm.core.api.dto.filter.TreeNodeFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
+import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeForestContentService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeTypeService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
@@ -21,14 +23,27 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 /**
  * Tree nodes - filters etc.
  * 
- * TODO: TestHelper could be used
+ * TODO: TestHelper should be used
  * 
  * @author Peter Šourek
+ * @author Radek Tomiška
  */
 public class IdmTreeNodeServiceIntegrationTest extends AbstractIntegrationTest {
 	
+	@Autowired private TestHelper testHelper;
 	@Autowired private IdmTreeTypeService treeTypeService;
 	@Autowired private IdmTreeNodeService treeNodeService;
+	@Autowired private IdmTreeNodeForestContentService treeNodeForestContentService;
+	
+	@Before
+	public void init() {
+		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+	}
+
+	@After
+	public void logout() {
+		super.logout();
+	}
 	
 	@Test
 	public void testCreateNode() {
@@ -41,7 +56,7 @@ public class IdmTreeNodeServiceIntegrationTest extends AbstractIntegrationTest {
 			ex = e;
 		}
 		
-		assertNotNull(ex);
+		Assert.assertNotNull(ex);
 
 		IdmTreeType type = getIdmTreeType("TEST_TYPE_A", "TEST_TYPE_A");
 		treeTypeService.save(type);
@@ -54,7 +69,7 @@ public class IdmTreeNodeServiceIntegrationTest extends AbstractIntegrationTest {
 			ex = e;
 		}
 		
-		assertNull(ex);
+		Assert.assertNull(ex);
 	}
 
 	@Test
@@ -104,12 +119,12 @@ public class IdmTreeNodeServiceIntegrationTest extends AbstractIntegrationTest {
 		final TreeNodeFilter t1Flter = new TreeNodeFilter();
 		t1Flter.setTreeTypeId(t1Id);
 		Page<IdmTreeNode> res1 = treeNodeService.find(t1Flter, null);
-		assertEquals(6, res1.getTotalElements());
+		Assert.assertEquals(6, res1.getTotalElements());
 		//
 		final TreeNodeFilter t2Flter = new TreeNodeFilter();
 		t2Flter.setTreeTypeId(t2Id);
 		Page<IdmTreeNode> res2 = treeNodeService.find(t2Flter, null);
-		assertEquals(3, res2.getTotalElements());
+		Assert.assertEquals(3, res2.getTotalElements());
 		//
 		// Subtrees
 		//
@@ -118,60 +133,60 @@ public class IdmTreeNodeServiceIntegrationTest extends AbstractIntegrationTest {
 		subTreeFilter1.setTreeTypeId(t1Id);
 		subTreeFilter1.setRecursively(true);
 		Page<IdmTreeNode> res3 = treeNodeService.find(subTreeFilter1, null);
-		assertEquals(3, res3.getTotalElements());
+		Assert.assertEquals(3, res3.getTotalElements());
 		//
 		final TreeNodeFilter subTreeFilter2 = new TreeNodeFilter();
 		subTreeFilter2.setTreeNode(n1Uuid);
 		subTreeFilter2.setRecursively(false);
 		Page<IdmTreeNode> res4 = treeNodeService.find(subTreeFilter2, null);
-		assertEquals(2, res4.getTotalElements());
+		Assert.assertEquals(2, res4.getTotalElements());
 		//
 		final TreeNodeFilter subTreeFilter3 = new TreeNodeFilter();
 		subTreeFilter3.setTreeNode(r2Uuid);
 		subTreeFilter3.setRecursively(false);
 		Page<IdmTreeNode> res5 = treeNodeService.find(subTreeFilter3, null);
-		assertEquals(1, res5.getTotalElements());
+		Assert.assertEquals(1, res5.getTotalElements());
 		//
 		final TreeNodeFilter subTreeFilter4 = new TreeNodeFilter();
 		subTreeFilter4.setTreeNode(r2Uuid);
 		subTreeFilter4.setTreeTypeId(t2Id);
 		subTreeFilter4.setRecursively(true);
 		Page<IdmTreeNode> res6 = treeNodeService.find(subTreeFilter4, null);
-		assertEquals(2, res6.getTotalElements());
+		Assert.assertEquals(2, res6.getTotalElements());
 		//
 		final TreeNodeFilter subTreeFilter5 = new TreeNodeFilter();
 		subTreeFilter5.setTreeNode(n12Uuid);
 		subTreeFilter5.setTreeTypeId(t2Id);
 		subTreeFilter5.setRecursively(true);
 		Page<IdmTreeNode> res7 = treeNodeService.find(subTreeFilter5, null);
-		assertEquals(0, res7.getTotalElements());
+		Assert.assertEquals(0, res7.getTotalElements());
 		//
 		final TreeNodeFilter subTreeFilter6 = new TreeNodeFilter();
 		subTreeFilter6.setTreeNode(n12Uuid);
 		subTreeFilter6.setTreeTypeId(t2Id);
 		subTreeFilter6.setRecursively(false);
 		Page<IdmTreeNode> res8 = treeNodeService.find(subTreeFilter6, null);
-		assertEquals(0, res8.getTotalElements());
+		Assert.assertEquals(0, res8.getTotalElements());
 		//
 		// Fulltext
 		//
 		final TreeNodeFilter fullTextFilter1 = new TreeNodeFilter();
 		fullTextFilter1.setText("NODE5");
 		Page<IdmTreeNode> res9 = treeNodeService.find(fullTextFilter1, null);
-		assertEquals(1, res9.getTotalElements());
-		assertEquals(n5Uuid, res9.getContent().get(0).getId());
+		Assert.assertEquals(1, res9.getTotalElements());
+		Assert.assertEquals(n5Uuid, res9.getContent().get(0).getId());
 		//
 		final TreeNodeFilter fullTextFilter2 = new TreeNodeFilter();
 		fullTextFilter2.setText("NODE");
 		fullTextFilter2.setTreeTypeId(t1Id);
 		Page<IdmTreeNode> res10 = treeNodeService.find(fullTextFilter2, null);
-		assertEquals(5, res10.getTotalElements());
+		Assert.assertEquals(5, res10.getTotalElements());
 		//
 		final TreeNodeFilter fullTextFilter3 = new TreeNodeFilter();
 		fullTextFilter3.setText("odE");
 		fullTextFilter3.setTreeTypeId(t1Id);
 		Page<IdmTreeNode> res13 = treeNodeService.find(fullTextFilter3, null);
-		assertEquals(5, res13.getTotalElements());
+		Assert.assertEquals(5, res13.getTotalElements());
 		//
 		// Property - value pairs
 		//
@@ -179,16 +194,51 @@ public class IdmTreeNodeServiceIntegrationTest extends AbstractIntegrationTest {
 		dynPropFilter1.setProperty("name");
 		dynPropFilter1.setValue("ROOT1");
 		Page<IdmTreeNode> res11 = treeNodeService.find(dynPropFilter1, null);
-		assertEquals(1, res11.getTotalElements());
-		assertEquals(r1Uuid, res11.getContent().get(0).getId());
+		Assert.assertEquals(1, res11.getTotalElements());
+		Assert.assertEquals(r1Uuid, res11.getContent().get(0).getId());
 		//
 		final TreeNodeFilter dynPropFilter2 = new TreeNodeFilter();
 		dynPropFilter2.setProperty("code");
 		dynPropFilter2.setValue("ROOT2");
 		Page<IdmTreeNode> res12 = treeNodeService.find(dynPropFilter2, null);
-		assertEquals(1, res12.getTotalElements());
-		assertEquals(r2Uuid, res12.getContent().get(0).getId());
+		Assert.assertEquals(1, res12.getTotalElements());
+		Assert.assertEquals(r2Uuid, res12.getContent().get(0).getId());
 
+	}
+	
+	@Test
+	public void testForestIndexAfterBulkMove() {
+		int rootCount = 5;
+		// prepare new tree type
+		IdmTreeType treeType = testHelper.createTreeType();
+		// create root nodes
+		for (int i = 0; i < rootCount; i++) {
+			testHelper.createTreeNode(treeType, null);
+		}
+		// move nodes to the first node
+		TreeNodeFilter filter = new TreeNodeFilter();
+		filter.setTreeTypeId(treeType.getId());
+		TreeNodeFilter filter2 = new TreeNodeFilter();
+		List<IdmTreeNode> nodes = treeNodeService.find(filter, null).getContent();
+		IdmTreeNode root = nodes.get(0);
+		for (int i = 0; i < nodes.size(); i++) {
+			filter2.setProperty("name");
+			filter2.setValue(root.getName());
+			root = treeNodeService.find(filter2, null).iterator().next();
+			
+			IdmTreeNode node = treeNodeService.get(nodes.get(i).getId());
+			if (node.equals(root)) {
+				continue;
+			}
+			node.setParent(root);
+			treeNodeService.save(node);
+		}		
+		// check
+		root = treeNodeService.get(root.getId());
+		Assert.assertEquals(1L, treeNodeService.findRoots(treeType.getId(), null).getTotalElements());
+		Assert.assertEquals(rootCount - 1, treeNodeService.findChildrenByParent(root.getId(), null).getTotalElements());
+		Assert.assertEquals(rootCount - 1, treeNodeForestContentService.findDirectChildren(root, null).getTotalElements());
+		Assert.assertEquals(rootCount - 1, treeNodeForestContentService.findAllChildren(root, null).getTotalElements());
 	}
 
 	private IdmTreeNode getIdmTreeNode(IdmTreeType type, IdmTreeNode parent, String code, String name) {

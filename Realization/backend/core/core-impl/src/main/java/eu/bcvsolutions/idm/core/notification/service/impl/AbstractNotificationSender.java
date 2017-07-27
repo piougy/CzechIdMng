@@ -18,6 +18,7 @@ import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationTemplateDto;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotification;
 import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationTemplateService;
 import eu.bcvsolutions.idm.core.notification.service.api.NotificationSender;
+import eu.bcvsolutions.idm.core.security.api.domain.AbstractAuthentication;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 
@@ -77,7 +78,8 @@ public abstract class AbstractNotificationSender<N extends IdmNotificationDto> i
 	public N send(String topic, IdmMessageDto message) {
 		Assert.notNull(securityService, "Security service is required for this operation");
 		//
-		IdmIdentityDto currentIdentityDto = securityService.getAuthentication().getCurrentIdentity();	
+		AbstractAuthentication auth = securityService.getAuthentication();
+		IdmIdentityDto currentIdentityDto = auth == null ? null : auth.getCurrentIdentity();
 		if (currentIdentityDto == null || currentIdentityDto.getId() == null) {
 			// system, guest, etc.
 			return null;

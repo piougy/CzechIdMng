@@ -5,7 +5,13 @@ import classnames from 'classnames';
 //
 import AbstractComponent from '../AbstractComponent/AbstractComponent';
 import Icon from '../Icon/Icon';
+import Tooltip from '../Tooltip/Tooltip';
 
+/**
+ * Overlay with popover
+ *
+ * @author Radek Tomiška
+ */
 export default class BasicPopover extends AbstractComponent {
 
   constructor(props) {
@@ -102,7 +108,7 @@ BasicPopover.propTypes = {
   /**
    * Specify which action or actions trigger popover visibility
    */
-  trigger: PropTypes.oneOf(['click', 'hover', 'focus']),
+  trigger: PropTypes.arrayOf(PropTypes.oneOf(['click', 'hover', 'focus'])),
   /**
    * A millisecond delay amount before showing the Popover once triggered.
    */
@@ -113,5 +119,6 @@ BasicPopover.defaultProps = {
   ...AbstractComponent.defaultProps,
   level: 'default',
   placement: 'bottom',
-  trigger: ['hover', 'focus']
+  trigger: ['hover', 'focus', 'click'],
+  delayShow: Tooltip.defaultProps.delayShow
 };

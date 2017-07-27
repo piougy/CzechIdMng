@@ -21,7 +21,8 @@ class PasswordChangeAccounts extends Basic.AbstractContent {
 
   componentDidMount() {
     const { entityId } = this.props.params;
-    const defaultSearchParameters = accountManager.getDefaultSearchParameters().setName(Domain.SearchParameters.NAME_AUTOCOMPLETE)
+    const defaultSearchParameters = accountManager.getDefaultSearchParameters()
+                                      .setName(Domain.SearchParameters.NAME_AUTOCOMPLETE)
                                       .setFilter('ownership', true)
                                       .setFilter('supportChangePassword', true)
                                       .setFilter('identity', entityId);

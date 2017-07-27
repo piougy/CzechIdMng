@@ -975,7 +975,7 @@
     },
     "SYNCHRONIZATION_SYSTEM_IS_NOT_ENABLED": {
       "title": "System is disabled",
-      "message": "Synchronization [{{name}}] cannot be started, becouse system [{{system}}] is disabled!"
+      "message": "Synchronization [{{name}}] cannot be started, because system [{{system}}] is disabled!"
     },
     "CONFIDENTIAL_VALUE_IS_NOT_GUARDED_STRING": {
       "title": "Confidential attribute is not GuardedString",

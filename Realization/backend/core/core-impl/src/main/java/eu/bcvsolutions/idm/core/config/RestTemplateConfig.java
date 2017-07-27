@@ -50,7 +50,9 @@ public class RestTemplateConfig {
      */
     public Proxy getHttpProxy() {
     	String proxyConfig = configuration.getValue(PROXY_KEY, null);
-    	if (!StringUtils.hasText(proxyConfig)) return null;
+    	if (!StringUtils.hasText(proxyConfig)) {
+    		return null;
+    	}
     	
 		LOG.debug("Configuring proxy {}", proxyConfig);
 
@@ -75,7 +77,9 @@ public class RestTemplateConfig {
 		SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
 
 		Proxy proxy = getHttpProxy();
-		if (proxy != null) requestFactory.setProxy(proxy);
+		if (proxy != null) {
+			requestFactory.setProxy(proxy);
+		}
 
 		return requestFactory;
     }

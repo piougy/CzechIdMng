@@ -225,7 +225,7 @@ public class IdmTreeNodeServiceIntegrationTest extends AbstractIntegrationTest {
 			filter2.setProperty("name");
 			filter2.setValue(root.getName());
 			root = treeNodeService.find(filter2, null).iterator().next();
-			
+			// TODO: remove refresh tree node afrer fix #547
 			IdmTreeNode node = treeNodeService.get(nodes.get(i).getId());
 			if (node.equals(root)) {
 				continue;

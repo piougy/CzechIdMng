@@ -81,6 +81,7 @@ public class PasswordChangeController {
 	@ApiOperation(
 			value = "Change identity's password", 
 			nickname = "passwordChange",
+			response = PasswordChangeDto.class,
 			tags = { PasswordChangeController.TAG })
 	public ResponseEntity<PasswordChangeDto> passwordChange(
 			@ApiParam(value = "Identity's uuid identifier or username.", required = true)

@@ -82,7 +82,7 @@ public class PasswordChangeController {
 			value = "Change identity's password", 
 			nickname = "passwordChange",
 			tags = { PasswordChangeController.TAG })
-	public ResponseEntity<Void> passwordChange(
+	public ResponseEntity<PasswordChangeDto> passwordChange(
 			@ApiParam(value = "Identity's uuid identifier or username.", required = true)
 			@PathVariable String backendId,
 			@RequestBody @Valid PasswordChangeDto passwordChangeDto) {
@@ -108,6 +108,6 @@ public class PasswordChangeController {
 		identityService.checkAccess(identity, IdentityBasePermission.PASSWORDCHANGE);
 		//
 		identityService.passwordChange(identity, passwordChangeDto);
-		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		return new ResponseEntity<>(passwordChangeDto, HttpStatus.OK);
 	}
 }

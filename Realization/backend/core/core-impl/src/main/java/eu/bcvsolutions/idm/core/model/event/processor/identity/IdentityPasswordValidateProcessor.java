@@ -80,7 +80,7 @@ public class IdentityPasswordValidateProcessor extends CoreEventProcessor<IdmIde
 			if (passwordChangeType == PasswordChangeType.DISABLED) {
 				// check if isn't disable password change
 				throw new ResultCodeException(CoreResultCode.PASSWORD_CHANGE_DISABLED);
-			} else if (passwordChangeType == PasswordChangeType.ALL_ONLY && !passwordChangeDto.isIdm()) {
+			} else if (passwordChangeType == PasswordChangeType.ALL_ONLY && !passwordChangeDto.isAll()) {
 				// for all only must change also password for czechidm
 				throw new ResultCodeException(CoreResultCode.PASSWORD_CHANGE_ALL_ONLY);
 			}

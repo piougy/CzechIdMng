@@ -508,7 +508,7 @@
       "DUPLICATED": "Duplicitní"
     },
     "ConceptRoleRequestStateEnum": {
-      "ADD": "Přidaní",
+      "ADD": "Přidání",
       "UPDATE": "Úprava",
       "REMOVE": "Odstranění"
     },

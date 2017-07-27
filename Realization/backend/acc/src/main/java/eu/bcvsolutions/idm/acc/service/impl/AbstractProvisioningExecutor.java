@@ -276,7 +276,7 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 		});
 
 		// Clear accounts in DTO ... we will set only success changed
-		passwordChange.getAccounts().clear();
+		passwordChange.setAccounts(null);
 		
 		accounts.forEach(accountId -> {
 			AccAccount account = accountService.get(accountId);
@@ -307,6 +307,7 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 			// Change password on target system
 			doProvisioningForAttribute(systemEntity, mappedAttribute, passwordChange.getNewPassword(),
 					ProvisioningOperationType.UPDATE, entity);
+			// Add success changed password account
 			passwordChange.getAccounts().add(account.getId().toString());
 		});
 		passwordChange.setNewPassword(null);

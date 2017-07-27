@@ -35,7 +35,7 @@
     "id": "Id",
     "action": "Actions",
     "otherAttributes": "Other attributes",
-    "selectAll": "Select / deselect all",
+    "selectAll": "Select / unselect all",
     "validFrom": "Valid from",
     "validTill": "Valid to",
     "select": "Select ...",
@@ -124,8 +124,8 @@
       "error": "An error occurred while recover [{{record}}]",
       "success": "N/A",
       "success_plural": "Selected record [{{record}}] were successfully recovered",
-      "failed": "Selected record [{{records}}] failed recover, XML file dont exist on disk.",
-      "failed_plural": "Selected records [{{records}}] failed recover, XML file dont exist on disk."
+      "failed": "Selected record [{{records}}] failed recover, XML file don't exist on disk.",
+      "failed_plural": "Selected records [{{records}}] failed recover, XML file don't exist on disk."
     },
     "backup": {
       "action": "Backup",
@@ -536,7 +536,7 @@
         "record": "Record ID <strong>{{id}}</strong> does not exist."
       },
       "500": {
-        "title": "Oups, this is embarasing"
+        "title": "Oups, this is embarrassing"
       },
       "503": {
         "title": "503",
@@ -711,7 +711,7 @@
       "environment": "Static environment configuration items <small>read only</small>",
       "fromFile": "Application configuration from configuration files <small>application.properties</small>",
       "fromEnvironment": "Environment configuration <small>backend</small>",
-      "guarded": "If item key contais values: [<strong>{{guarded}}</strong>] the item is automatically confidentital and non-public. Items with key beginning with [<strong>idm.sec.</strong>] can not be public.",
+      "guarded": "If item key contains values: [<strong>{{guarded}}</strong>] the item is automatically confidential and non-public. Items with key beginning with [<strong>idm.sec.</strong>] can not be public.",
       "confidential": {
         "help": "Item is stored in encrypted repository"
       },
@@ -1371,7 +1371,7 @@
         "changeRoleProcesses": {
           "header": "Roles pending approval",
           "deleteConfirm": "Do you really want to delete selected request?",
-          "deleteSuccess": "Request succesfully deleted."
+          "deleteSuccess": "Request successfully deleted."
         },
         "changePermissionRequests": {
           "header": "Requests for authorization change"
@@ -1703,7 +1703,7 @@
           },
           "task-delete": {
             "header": "Remove task",
-            "message": "Do you really want to remove taks [<strong>{{record}}</strong>]?",
+            "message": "Do you really want to remove tasks [<strong>{{record}}</strong>]?",
             "success": "Task [{{record}}] successfully removed."
           },
           "save": {
@@ -1931,7 +1931,7 @@
       "id": "Id",
       "noPreviousRevision": "No previous revision",
       "profile": {
-        "userDetail": "{{revision}}. revize, {{name}}, {{date}}"
+        "userDetail": "{{revision}}. revision, {{name}}, {{date}}"
       },
       "logging-event": {
         "title": "Logging events",
@@ -2470,7 +2470,7 @@
       "version": "Version",
       "description": "Description",
       "disabled": "Inactive",
-      "documentation": "Dokumentation",
+      "documentation": "Documentation",
       "build": "Build",
       "buildNumber": "Revision",
       "buildTimestamp": "Build date"
@@ -2776,7 +2776,7 @@
       "message": "Role with this name already exists"
     },
     "CONFLICT": {
-      "title": "Record is on colision with anoteher unique record"
+      "title": "Record is on collision with another unique record"
     },
     "NAME_CONFLICT": {
       "title": "Conflict with name",
@@ -2963,7 +2963,7 @@
       "message": "Recaptcha service is unavailable."
     },
     "BACKUP_FOLDER_NOT_FOUND": {
-      "title": "Folder for backup dont exists",
+      "title": "Folder for backup don't exists",
       "message": "Please specify this property: [{{property}}] in configuration properties."
     },
     "ROLE_DELETE_FAILED_HAS_TREE_NODE": {

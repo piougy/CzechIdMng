@@ -13,6 +13,8 @@ const auditManager = new AuditManager();
 
 /**
 * Table of Audit for identities
+*
+* @author Ondřej Kopr
 */
 export class AuditIdentityTable extends Advanced.AbstractTableContent {
 

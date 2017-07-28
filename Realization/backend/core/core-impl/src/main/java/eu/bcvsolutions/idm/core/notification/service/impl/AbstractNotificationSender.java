@@ -77,10 +77,14 @@ public abstract class AbstractNotificationSender<N extends IdmNotificationDto> i
 	@Transactional
 	public N send(String topic, IdmMessageDto message) {
 		Assert.notNull(securityService, "Security service is required for this operation");
+		Assert.notNull(topic, "Message topic can not be null.");
+		Assert.notNull(message, "Message can not be null.");
 		//
 		AbstractAuthentication auth = securityService.getAuthentication();
 		IdmIdentityDto currentIdentityDto = auth == null ? null : auth.getCurrentIdentity();
 		if (currentIdentityDto == null || currentIdentityDto.getId() == null) {
+			 LOG.warn("No identity is currently signed, swallowing the message: [{}], parameters: [{}].",
+					 message.getTextMessage(), message.getParameters());
 			// system, guest, etc.
 			return null;
 		}

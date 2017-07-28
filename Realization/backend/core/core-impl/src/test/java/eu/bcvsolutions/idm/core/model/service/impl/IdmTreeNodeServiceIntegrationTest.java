@@ -9,6 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.TestHelper;
@@ -218,15 +219,10 @@ public class IdmTreeNodeServiceIntegrationTest extends AbstractIntegrationTest {
 		// move nodes to the first node
 		TreeNodeFilter filter = new TreeNodeFilter();
 		filter.setTreeTypeId(treeType.getId());
-		TreeNodeFilter filter2 = new TreeNodeFilter();
 		List<IdmTreeNode> nodes = treeNodeService.find(filter, null).getContent();
 		IdmTreeNode root = nodes.get(0);
 		for (int i = 0; i < nodes.size(); i++) {
-			filter2.setProperty("name");
-			filter2.setValue(root.getName());
-			root = treeNodeService.find(filter2, null).iterator().next();
-			// TODO: remove refresh tree node afrer fix #547
-			IdmTreeNode node = treeNodeService.get(nodes.get(i).getId());
+			IdmTreeNode node = nodes.get(i);
 			if (node.equals(root)) {
 				continue;
 			}
@@ -234,11 +230,10 @@ public class IdmTreeNodeServiceIntegrationTest extends AbstractIntegrationTest {
 			treeNodeService.save(node);
 		}		
 		// check
-		root = treeNodeService.get(root.getId());
 		Assert.assertEquals(1L, treeNodeService.findRoots(treeType.getId(), null).getTotalElements());
 		Assert.assertEquals(rootCount - 1, treeNodeService.findChildrenByParent(root.getId(), null).getTotalElements());
-		Assert.assertEquals(rootCount - 1, treeNodeForestContentService.findDirectChildren(root, null).getTotalElements());
-		Assert.assertEquals(rootCount - 1, treeNodeForestContentService.findAllChildren(root, null).getTotalElements());
+		Assert.assertEquals(rootCount - 1, treeNodeForestContentService.findDirectChildren(root.getId(), null).getTotalElements());
+		Assert.assertEquals(rootCount - 1, treeNodeForestContentService.findAllChildren(root.getId(), null).getTotalElements());
 	}
 
 	private IdmTreeNode getIdmTreeNode(IdmTreeType type, IdmTreeNode parent, String code, String name) {

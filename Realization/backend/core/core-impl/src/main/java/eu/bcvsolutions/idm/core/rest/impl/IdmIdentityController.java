@@ -401,7 +401,7 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 			List<IdmTreeNode> positions = new ArrayList<>();
 			// TODO: tree node service to dtos
 			IdmTreeNode contractPosition = treeNodeService.get(primeContract.getWorkPosition());
-			positions = treeNodeIndexService.findAllParents(contractPosition, new Sort(Direction.ASC, "forestIndex.lft"));
+			positions = treeNodeIndexService.findAllParents(contractPosition.getId(), new Sort(Direction.ASC, "forestIndex.lft"));
 			positions.add(contractPosition);
 			positions.forEach(treeNode -> {
 				// TODO: use DTOs!

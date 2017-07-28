@@ -11,7 +11,6 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
@@ -27,7 +26,6 @@ import eu.bcvsolutions.idm.core.api.dto.IdmPasswordDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordValidationDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.PasswordPolicyFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.utils.PasswordGenerator;
@@ -46,7 +44,6 @@ import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
-@Service("passwordPolicyService")
 public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityService<IdmPasswordPolicy, PasswordPolicyFilter> implements IdmPasswordPolicyService {
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmPasswordPolicyService.class);
@@ -69,26 +66,26 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 	private static final String PASSWORD_SIMILAR_LASTNAME = "passwordSimilarLastName";
 	
 	private PasswordGenerator passwordGenerator;
-	private final IdmPasswordPolicyRepository passwordPolicyRepository;
+	private final IdmPasswordPolicyRepository repository;
 	private final SecurityService securityService;
 	private final EntityEventManager entityEventProcessorService;
 	private final IdmPasswordService passwordService;
 	
 	@Autowired
 	public DefaultIdmPasswordPolicyService(
-			AbstractEntityRepository<IdmPasswordPolicy, PasswordPolicyFilter> repository,
-			IdmPasswordPolicyRepository passwordPolicyRepository,
+			IdmPasswordPolicyRepository repository,
 			EntityEventManager entityEventProcessorService,
-			SecurityService securityService, IdmPasswordService passwordService) {
+			SecurityService securityService,
+			IdmPasswordService passwordService) {
 		super(repository);
 		//
 		Assert.notNull(entityEventProcessorService);
-		Assert.notNull(passwordPolicyRepository);
+		Assert.notNull(repository);
 		Assert.notNull(securityService);
 		Assert.notNull(passwordService);
 		//
 		this.entityEventProcessorService = entityEventProcessorService;
-		this.passwordPolicyRepository = passwordPolicyRepository;
+		this.repository = repository;
 		this.securityService = securityService;
 		this.passwordService = passwordService;
 	}
@@ -303,7 +300,7 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 
 	@Override
 	public IdmPasswordPolicy getDefaultPasswordPolicy(IdmPasswordPolicyType type) {
-		IdmPasswordPolicy defaultPolicy = passwordPolicyRepository.findOneDefaultType(type);
+		IdmPasswordPolicy defaultPolicy = repository.findOneDefaultType(type);
 		return defaultPolicy;
 	}
 
@@ -393,6 +390,6 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 
 	@Override
 	public IdmPasswordPolicy findOneByName(String name) {
-		return this.passwordPolicyRepository.findOneByName(name);
+		return this.repository.findOneByName(name);
 	}
 }

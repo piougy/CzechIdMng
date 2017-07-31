@@ -39,7 +39,7 @@
         "basic": "Základní informace"
       },
       "entities": {
-        "header": "Entity na koncovém systému <small>uložené v idm</small>",
+        "header": "Entity na koncovém systému <small>uložené v IdM</small>",
         "title": "Entity na systému",
         "edit": {
           "header": "Detail entity na koncovém systému"
@@ -103,20 +103,20 @@
         },
         "action": {
           "startSynchronization": {
-            "message": "<b>Opravdu chcete ručně spustit synchronizaci/reconciliaci '{{name}}'?</b>",
+            "message": "<b>Opravdu chcete ručně spustit synchronizaci/rekonciliaci '{{name}}'?</b>",
             "header": "Ruční spuštění synchronizace",
             "started": "Synchronizace/rekonciliace '{{name}}' byla spuštěna jako dlouhotrvající úloha na pozadí. Průběh a výsledek lze sledovat v agendě plánovaných úloh či v logu na detailu synchronizace.",
             "success": "Synchronizace/rekonciliace '{{name}}' byla dokončena."
           },
           "cancelSynchronization": {
-            "message": "<b>Opravdu chcete zastavit synchronizaci/reconciliaci '{{name}}'?</b>",
+            "message": "<b>Opravdu chcete zastavit synchronizaci/rekonciliaci '{{name}}'?</b>",
             "header": "Ruční zastavení synchronizace",
             "canceled": "Synchronizace/rekonciliace '{{name}}' byla zastavena."
           }
         },
         "button": {
-            "start": "Spustit synchronizaci/reconciliaci",
-            "cancel": "Zastavit synchronizaci/reconciliaci"
+            "start": "Spustit synchronizaci/rekonciliaci",
+            "cancel": "Zastavit synchronizaci/rekonciliaci"
         }
       },
       "systemSynchronizationConfigDetail": {
@@ -174,7 +174,7 @@
         "title": "Detail logu položky"
       },
       "accounts": {
-        "header": "Účty na koncovém systému <small>uložené v idm</small>",
+        "header": "Účty na koncovém systému <small>uložené v IdM</small>",
         "title": "Účty na systému",
         "edit": {
           "header": "Detail účtu na koncovém systému"
@@ -412,7 +412,7 @@
       "detail": {
         "header": "Detail operace",
         "result": "Výsledek",
-        "accountObject": "Idm atributy",
+        "accountObject": "IdM atributy",
         "connectorObject": "Atributy pro provisioning",
         "resultCode": "Kód",
         "nextAttempt": "<strong>Pokus:</strong> {{currentAttempt}} / {{maxAttempts}}, Další pokus bude spuštěn <strong>{{nextAttempt}}</strong>"
@@ -613,7 +613,7 @@
       "running": "Běží",
       "customFilter" :{
         "label": "Použít vlastní filtr",
-        "help": "Pokud je zaškrtnuto, tak se bude synchronizace řídit filtrem definovaným níže. Pokud není zaškrtnuto, tak se využije synchronizační mechanizmus konektoru. NENÍ použito pro rekoncilaci."
+        "help": "Pokud je zaškrtnuto, tak se bude synchronizace řídit filtrem definovaným níže. Pokud není zaškrtnuto, tak se využije synchronizační mechanizmus konektoru. NENÍ použito pro rekonciliaci."
       },
       "filterAttribute" :{
         "label": "Filtrovat dle atributu",
@@ -905,7 +905,7 @@
     },
     "PROVISIONING_SYSTEM_READONLY": {
       "title": "Provisioning účtu [{{name}}] neproběhl",
-      "message": "Provisioning účtu [{{name}}] na systém [{{system}}] nebyl proveden. Systém je v readonly režimu."
+      "message": "Provisioning účtu [{{name}}] na systém [{{system}}] nebyl proveden. Systém je v režimu pouze pro čtení."
     },
     "PROVISIONING_PREPARE_ACCOUNT_ATTRIBUTES_FAILED": {
       "title": "Provisioning účtu [{{name}}] neproběhl",
@@ -921,7 +921,7 @@
     },
     "PROVISIONING_IS_IN_QUEUE": {
       "title": "Provisioning účtu [{{name}}] byl zařazen do fronty",
-      "message": "Ve frontě jsou pro stejný účet nezpracované požadavky na provisioning, proto byl nový poždavek na provisioning účtu [{{name}}] na systém [{{system}}] zařazen do fronty."
+      "message": "Ve frontě jsou pro stejný účet nezpracované požadavky na provisioning, proto byl nový požadavek na provisioning účtu [{{name}}] na systém [{{system}}] zařazen do fronty."
     },
     "PROVISIONING_IDM_FIELD_NOT_FOUND": {
       "title": "Položka pro provisioning nenalezena",
@@ -932,7 +932,7 @@
       "message": "Mapovací atributu pro heslo (___PASSWORD__) nebyl pro entitu [{{uid}}] nalezen!"
     },
     "PROVISIONING_SCHEMA_ATTRIBUTE_IS_NOT_UPDATEABLE": {
-      "title": "Provisioning - atribut je neupravitelný",
+      "title": "Provisioning - atribut nelze upravit",
       "message": "Atribut schéma [{{attribute}}] pro entitu [{{entity}}] není 'updateable'!"
     },
     "PROVISIONING_RESOURCE_ATTRIBUTE_NOT_FOUND": {

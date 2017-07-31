@@ -306,7 +306,7 @@
           "selection_1": "Operace s vybraným záznamem:",
           "selection_2": "Operace s vybranými záznamy ({{count}}):",
           "selection_5": "Operace s vybranými záznamy ({{count}}):",
-          "notImplemented": "Omlouváme se, tato operace nebyla prozatím naimplementována."
+          "notImplemented": "Omlouváme se, tato operace nebyla prozatím implementována."
         },
         "error": {
           "load": "Při načítání záznamů do tabulky nastala chyba"
@@ -1304,7 +1304,7 @@
           "header": "Nová automatická role"
         },
         "save": {
-          "success": "Automatická role [{{record}}] byla úspěšně uložena. Přiřazení role identitám proběhne asynchroně na pozadí. Průběh můžete sledovat v agendě dlouhotrvajících úloh."
+          "success": "Automatická role [{{record}}] byla úspěšně uložena. Přiřazení role identitám proběhne asynchronně na pozadí. Průběh můžete sledovat v agendě dlouhotrvajících úloh."
         },
         "action": {
           "delete": {
@@ -1312,7 +1312,7 @@
             "header_1": "Odebrání automatické role",
             "header_2": "Odebrání automatických rolí",
             "header_5": "$t(action.delete.header_2)",
-            "message_1": "Opravdu chcete odebrat automatickou roli [<strong>{{record}}</strong>]? Všem uživatelům, kterí získali roli prostřednictvím této automatické role, bude přiřazené role odebrána.",
+            "message_1": "Opravdu chcete odebrat automatickou roli [<strong>{{record}}</strong>]? Všem uživatelům, kteří získali roli prostřednictvím této automatické role, bude přiřazená role odebrána.",
             "message_2": "Vybrány záznamy: [<strong>{{records}}</strong>].<br /><br />Opravdu chcete odebrat <strong>{{count}}</strong> automatické role? Všem uživatelům, kteří získali role prostřednictvím těchto automatický rolí, budou přiřazené role odebrány.",
             "message_5": "Vybrány záznamy: [<strong>{{records}}</strong>].<br /><br />Opravdu chcete odebrat <strong>{{count}}</strong> automatických rolí? Všem uživatelům, kteří získali role prostřednictvím těchto automatický rolí, budou přiřazené role odebrány.",
             "error": "Při odebírání záznamu [{{record}}] nastala chyba",
@@ -1647,7 +1647,7 @@
         "title": "Vedoucí",
         "label": "Vedoucí",
         "guarantees": {
-          "direct": "Nastavení garanti <small>napřímo na tento vztah</small>",
+          "direct": "Nastavení garanti <small>přímo pro tento vztah</small>",
           "byTree": "Vedoucí <small>dle stromových struktur</small>"
         },
         "edit": {
@@ -1698,7 +1698,7 @@
           "overriden": "Komponenta přetížena v modulu: {{moduleId}}"
         },
         "activate": {
-          "disabled": "Frontendový modul závisí na backendovém modulu [{{backendId}}]. Aktivujte nejprve jej."
+          "disabled": "Frontendový modul závisí na backendovém modulu [{{backendId}}]. Aktivujte nejprve backendový modul."
         }
       },
       "be-modules": {
@@ -1744,7 +1744,7 @@
         "action": {
           "trigger-delete": {
             "header": "Odebrat plánované spuštění",
-            "message": "Opravdu chcete odebrat plánované spuštení [<strong>{{record}}</strong>]?",
+            "message": "Opravdu chcete odebrat plánované spuštění [<strong>{{record}}</strong>]?",
             "success": "Plánované spuštění [{{record}}] bylo úspěšně odebráno."
           },
           "trigger-create": {
@@ -1886,8 +1886,8 @@
       "title": "Websocket"
     },
     "sms": {
-      "header": "Sms",
-      "title": "Sms"
+      "header": "SMS",
+      "title": "SMS"
     },
     "websocket": {
       "header": "Detail websocket zprávy",
@@ -2505,7 +2505,7 @@
         "maxPasswordAge": "Maximální počet dnů platnosti hesla.",
         "minPasswordAge": "Minimální počet dnů platnost hesla, po tuto dobu není možné heslo změnit.",
         "enchancedControl": "Rozšířená kontrola hesla zkvalitňuje základní validaci hesla a to o kontrolu podobnosti na minulé hesla a kontrolu podobnosti s uživatelskými atributy. Také je možnost nastavit povinná pouze některá pravidla.",
-        "rules": "Pravidla označená jako nepovinná budou kontrolovány v závislosti na minimálním početu pravidel pro splnění politiky. Aby heslo prošlo validací politiky, musí projít minimálním počtem z nepovinných pravidel.",
+        "rules": "Pravidla označená jako nepovinná budou kontrolovány v závislosti na minimálním počtu pravidel pro splnění politiky. Aby heslo prošlo validací politiky, musí projít minimálním počtem z nepovinných pravidel.",
         "minRulesToFulfill": "Minimální počet pravidel pro splnění politiky, pokud heslo splní minimální počet je označeno jako validní.",
         "maxHistorySimilar": "Počet zpětně kontrolovaných hesel na podobnost.",
         "prohibitedCharacters": "Zakázané znaky budou kontrolovány při validaci a při generování hesla budou zcela vypuštěny. Vkládejte bez mezer jednotlivé znaky přímo za sebou, například: 1LliIo0!",
@@ -2847,7 +2847,7 @@
       "message": "Záznam [{{entity}}] nebyl nalezen"
     },
     "MODULE_NOT_DISABLEABLE": {
-      "title": "Modul [{{module}}] není možné disablovat",
+      "title": "Modul [{{module}}] není možné deaktivovat",
       "message": "Funkce modulu jsou pro aplikaci nepostradatelné."
     },
     "MODULE_DISABLED": {

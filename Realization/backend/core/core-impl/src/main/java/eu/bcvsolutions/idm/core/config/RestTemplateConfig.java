@@ -12,8 +12,10 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -23,6 +25,7 @@ import org.springframework.web.client.RestTemplate;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
+import eu.bcvsolutions.idm.core.config.flyway.CoreFlywayConfig;
 
 /**
  * Configuration beans required for rest communication with ReCaptcha services.
@@ -30,13 +33,13 @@ import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
  * @author Filip Mestanek
  */
 @Configuration
+@DependsOn(CoreFlywayConfig.NAME)
 public class RestTemplateConfig {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(RestTemplateConfig.class);
 	private static final String PROXY_KEY = IDM_PRIVATE_PROPERTY_PREFIX + "core" + PROPERTY_SEPARATOR + "http" + PROPERTY_SEPARATOR + "proxy";
 	
 	@Autowired private ConfigurationService configuration;
-	
 	
     @Bean
     public RestTemplate restTemplate(ClientHttpRequestFactory httpRequestFactory) {
@@ -49,6 +52,9 @@ public class RestTemplateConfig {
      * Returns proxy to use for http requests. If no proxy is set, returns null.
      */
     public Proxy getHttpProxy() {
+    	// TODO: proxy is initialized on application start - configuration can be changed by server restart only, possible solutions:
+    	// - change configuration key - without idm. prefix and edit doc
+    	// - try to construct proxy dynamically (request scope)
     	String proxyConfig = configuration.getValue(PROXY_KEY, null);
     	if (!StringUtils.hasText(proxyConfig)) {
     		return null;

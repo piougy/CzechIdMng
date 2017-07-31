@@ -65,9 +65,9 @@ class DynamicTaskDetail extends Basic.AbstractContent {
     const formDataValues = this.refs.formData ? this.refs.formData.getData() : {};
     const task = this.refs.form.getData();
     const formData = {'decision': decision.id, 'formData': this._toFormData(formDataValues, task.formData)};
-    // this.setState({
-    //   showLoading: true
-    // });
+    this.setState({
+      showLoading: true
+    });
     const { taskManager, uiKey } = this.props;
     this.context.store.dispatch(taskManager.completeTask(task, formData, `${uiKey}`, this._afterComplete.bind(this)));
   }

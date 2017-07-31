@@ -115,7 +115,7 @@ public abstract class AbstractNotificationSender<N extends IdmNotificationDto> i
 		//
 		// check if exist text for message, TODO: send only with subject?
 		if (notificationMessage.getHtmlMessage() == null && notificationMessage.getSubject() == null && notificationMessage.getTextMessage() == null && notificationMessage.getModel() == null) {
-			LOG.error("Notification has empty template and message. Message will not be send! [topic:{}]", topic);
+			LOG.error("Notification has empty template and message. Message will not be sent! [topic:{}]", topic);
 			return null;
 		}
 		//

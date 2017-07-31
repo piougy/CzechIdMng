@@ -70,7 +70,7 @@ public abstract class AbstractEntityEventProcessor<E extends Serializable>
 		Assert.notNull(entityEvent);
 		Assert.notNull(entityEvent.getContent(), "Entity event does not contain content, content is required!");
 		//
-		return entityEvent.getContent().getClass().isAssignableFrom(entityClass)
+		return entityClass.isAssignableFrom(entityEvent.getContent().getClass())
 				&& (types.isEmpty() || types.contains(entityEvent.getType().name()));
 	}
 	

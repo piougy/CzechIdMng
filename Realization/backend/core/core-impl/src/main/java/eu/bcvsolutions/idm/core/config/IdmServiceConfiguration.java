@@ -135,7 +135,7 @@ public class IdmServiceConfiguration {
 	@Autowired private IdmProcessedTaskItemRepository processedTaskRepository;
 	@Autowired private IdmScheduledTaskRepository scheduledTaskRepository;
 	@Autowired private IdmRoleGuaranteeRepository roleGuaranteeRepository;
-	@Autowired private IdmPasswordRepository idmPasswordRepository;
+	@Autowired private IdmPasswordRepository passwordRepository;
 	//
 	// Auto registered beans (plugins)
 	@Autowired private PluginRegistry<ModuleDescriptor, String> moduleDescriptorRegistry;
@@ -391,7 +391,7 @@ public class IdmServiceConfiguration {
 	@Bean
 	@ConditionalOnMissingBean(IdmPasswordService.class)
 	public IdmPasswordService passwordService() {
-		return new DefaultIdmPasswordService(idmPasswordRepository);
+		return new DefaultIdmPasswordService(passwordRepository);
 	}
 	
 	/**

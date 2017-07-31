@@ -29,6 +29,6 @@ public class ExampleSwaggerConfig extends AbstractSwaggerConfig {
 
 	@Bean
 	public Docket exampleApi() {
-		return api("eu.bcvsolutions.idm.example");
+		return api("eu.bcvsolutions.idm.example.rest");
 	}
 }

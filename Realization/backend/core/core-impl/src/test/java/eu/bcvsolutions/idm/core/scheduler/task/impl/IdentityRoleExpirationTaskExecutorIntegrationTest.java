@@ -11,14 +11,12 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import eu.bcvsolutions.idm.InitTestData;
+import eu.bcvsolutions.idm.core.TestHelper;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
@@ -28,14 +26,9 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  */
 public class IdentityRoleExpirationTaskExecutorIntegrationTest extends AbstractIntegrationTest {
 	
-	final String roleName = "expirationRoleTest";
-	final String identityName = "expirationUserTest";
-	
-	@Autowired IdentityRoleExpirationTaskExecutor expirationExecutor;
-	@Autowired IdmRoleService roleService;
-	@Autowired IdmIdentityService identityService;
-	@Autowired IdmIdentityContractService contractService;
-	@Autowired IdmIdentityRoleService identityRoleService;
+	@Autowired private TestHelper testHelper;
+	@Autowired private IdentityRoleExpirationTaskExecutor expirationExecutor;
+	@Autowired private IdmIdentityRoleService identityRoleService;
 	
 	private IdmIdentityDto identity;
 	
@@ -71,21 +64,13 @@ public class IdentityRoleExpirationTaskExecutorIntegrationTest extends AbstractI
 	
 	private void prepareData() {
 		// Role
-		IdmRole role = new IdmRole();
-		role.setName(roleName);
-		role = roleService.save(role);
+		IdmRole role = testHelper.createRole();
 		
 		// Identity
-		identity = new IdmIdentityDto();
-		identity.setUsername(identityName);
-		identity.setLastName(identityName);
-		identity.setFirstName(identityName);
-		identity = identityService.save(identity);
+		identity = testHelper.createIdentity();
 		
 		// Identity contract
-		IdmIdentityContractDto contract = new IdmIdentityContractDto();
-		contract.setIdentity(identity.getId());
-		contract = contractService.save(contract);
+		IdmIdentityContractDto contract = testHelper.createIdentityContact(identity);
 		
 		// Role on contract
 		IdmIdentityRoleDto identityRole = new IdmIdentityRoleDto();

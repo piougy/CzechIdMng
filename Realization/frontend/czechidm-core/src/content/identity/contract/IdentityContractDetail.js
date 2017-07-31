@@ -55,10 +55,11 @@ class IdentityContractDetail extends Basic.AbstractContent {
     });
     //
     this.setState({
+      entityFormData,
       treeTypeId,
       forceSearchParameters: this.state.forceSearchParameters.setFilter('treeTypeId', treeTypeId || SearchParameters.BLANK_UUID)
     }, () => {
-      this.refs.form.setData(entityFormData);
+      // this.refs.form.setData(entityFormData);
       if (this.refs.treeTypeId) {
         this.refs.treeTypeId.focus();
       }
@@ -128,6 +129,7 @@ class IdentityContractDetail extends Basic.AbstractContent {
       treeTypeId,
       forceSearchParameters: this.state.forceSearchParameters.setFilter('treeTypeId', treeTypeId || SearchParameters.BLANK_UUID)
     }, () => {
+      this.refs.workPosition.setValue(null);
       // focus automatically - maybe will be usefull?
       // this.refs.workPosition.focus();
     });
@@ -135,7 +137,8 @@ class IdentityContractDetail extends Basic.AbstractContent {
 
   render() {
     const { uiKey, entity, showLoading, params, _permissions } = this.props;
-    const { _showLoading, forceSearchParameters, treeTypeId } = this.state;
+    const { _showLoading, forceSearchParameters, treeTypeId, entityFormData } = this.state;
+
     return (
       <div>
         <Helmet title={Utils.Entity.isNew(entity) ? this.i18n('create.title') : this.i18n('edit.title')} />
@@ -147,6 +150,7 @@ class IdentityContractDetail extends Basic.AbstractContent {
             <Basic.PanelBody style={Utils.Entity.isNew(entity) ? { paddingTop: 0, paddingBottom: 0 } : { padding: 0 }}>
               <Basic.AbstractForm
                 ref="form"
+                data={entityFormData}
                 showLoading={ _showLoading || showLoading }
                 uiKey={uiKey}
                 readOnly={ !identityContractManager.canSave(entity, _permissions) }>

@@ -1,8 +1,16 @@
-# Contributing to czechidm
+# Contributing to CzechIdM
 We want to make contributing to this project as easy and transparent as possible.
 
 ## Issues
-We use Redmine issues to track bugs. Please ensure your description is clear and has sufficient instructions to be able to reproduce the issue.
+We use [Redmine](https://redmine.czechidm.com) to track bugs and enhancements.
+
+### Bugs
+
+If you believe you have found a bug, please take a moment to search the existing issues. If no one else has reported the problem, please open a new ticket that describes the problem in detail and has sufficient instructions to be able to reproduce the issue. Ideally, includes a test that reproduces it.
+
+### Enhancements
+
+If you’d like an enhancement to be made to CzechIdM, pull requests are most welcome. The source code is on GitHub. You may want to search the existing issues and pull requests to see if the enhancement is already being worked on. You may also want to open a new issue to discuss a possible enhancement before work on it begins.
 
 ## Backend
 
@@ -70,13 +78,13 @@ We use Redmine issues to track bugs. Please ensure your description is clear and
 
 1. Clone or Fork the repo and create your branch from `CzechIdMng`.
 
-2. If you've added code that should be tested, add tests to test folder.
+2. If you've added code that should be tested, add tests.
 
 3. Ensure the test suite passes.
 
 4. Make sure your code lints.
 
-5. Do not commit anything to the `dist` folder.
+5. Do not commit anything to the `dist` or `target` folder.
 
 ## License
 

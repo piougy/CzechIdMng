@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.model.event.processor;
 
 import java.util.Collection;
+import java.util.UUID;
 
 import org.joda.time.DateTime;
 import org.junit.Assert;
@@ -16,6 +17,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmAuthorityChange;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.security.api.domain.DefaultGrantedAuthority;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
 
 /**
  * Tests authorities change for role removal.
@@ -29,7 +31,6 @@ public class IdentityRoleDeleteAuthoritiesProcessorTest extends AbstractIdentity
 	 * Removing a role which grants authorities must raise
 	 * the authorities modification event on identity.
 	 */
-	@Transactional
 	@Test
 	public void testRoleRemovedAuthorityRemoved() {
 		IdmRole role = getTestRole();
@@ -59,7 +60,6 @@ public class IdentityRoleDeleteAuthoritiesProcessorTest extends AbstractIdentity
 	 * User has to roles with same authorities - removing just one role
 	 * shall not change the authorities modification flag.
 	 */
-	@Transactional
 	@Test
 	public void testRoleRemovedAuthorityStays() {
 		// two roles with same authorities
@@ -83,7 +83,38 @@ public class IdentityRoleDeleteAuthoritiesProcessorTest extends AbstractIdentity
 		Assert.assertEquals(ir.getId(), identityRoleService.findAllByIdentity(i.getId()).get(0).getId());
 		Assert.assertEquals(1, authoritiesFactory.getGrantedAuthoritiesForIdentity(i.getId()).size());
 	}
-	
+
+	/**
+	 * User has to roles with same authorities - removing just one role
+	 * shall not change the authorities modification flag.
+	 */
+	@Test
+	public void testRoleRemovedSuperAuthorityStays() {
+		// role with APP_ADMIN authority
+		IdmRole r = new IdmRole();
+		r.setName(UUID.randomUUID().toString());
+		r = saveInTransaction(r, roleService);
+		getTestPolicy(r, IdmBasePermission.ADMIN, IdmGroupPermission.APP);
+
+		IdmRole role2 = getTestRole();
+		IdmIdentityDto i = getTestUser();
+		IdmIdentityContractDto c = getTestContract(i);
+		IdmIdentityRoleDto ir = getTestIdentityRole(r, c);
+		IdmIdentityRoleDto ir2 = getTestIdentityRole(role2, c);
+
+		removeModifiedTimestamp(i);
+		Assert.assertNull(getAuthorityChange(i));
+		Assert.assertEquals(2, identityRoleService.findAllByIdentity(i.getId()).size());
+
+		identityRoleService.delete(ir2);
+
+		Assert.assertNull(getAuthorityChange(i));
+		Assert.assertEquals(1, identityRoleService.findAllByIdentity(i.getId()).size());
+		Assert.assertEquals(ir.getId(), identityRoleService.findAllByIdentity(i.getId()).get(0).getId());
+		Assert.assertEquals(1, authoritiesFactory.getGrantedAuthoritiesForIdentity(i.getId()).size());
+	}
+
+
 	private void removeModifiedTimestamp(IdmIdentityDto i) {
 		// addition of roles also modifies authorities -> set to null for the sake of testing
 		IdmAuthorityChange ac = getAuthorityChange(i);

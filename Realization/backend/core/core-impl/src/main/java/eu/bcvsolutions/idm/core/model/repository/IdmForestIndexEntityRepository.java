@@ -1,6 +1,6 @@
 package eu.bcvsolutions.idm.core.model.repository;
 
-import org.springframework.data.rest.core.annotation.RepositoryRestResource;
+import java.util.UUID;
 
 import eu.bcvsolutions.forest.index.repository.ForestIndexRepository;
 import eu.bcvsolutions.idm.core.model.entity.IdmForestIndexEntity;
@@ -10,9 +10,6 @@ import eu.bcvsolutions.idm.core.model.entity.IdmForestIndexEntity;
  *
  * @author Radek Tomiška
  */
-@RepositoryRestResource(
-		exported = false
-)
-public interface IdmForestIndexEntityRepository extends ForestIndexRepository<IdmForestIndexEntity> {
+public interface IdmForestIndexEntityRepository extends ForestIndexRepository<IdmForestIndexEntity, UUID> {
 	
 }

@@ -19,6 +19,10 @@ const identityService = new IdentityService();
 const securityManager = new SecurityManager();
 const identityManager = new IdentityManager();
 
+/**
+ *
+ * @author Ondřej Kopr
+ */
 class PasswordChangeForm extends Basic.AbstractContent {
 
   constructor(props, context) {

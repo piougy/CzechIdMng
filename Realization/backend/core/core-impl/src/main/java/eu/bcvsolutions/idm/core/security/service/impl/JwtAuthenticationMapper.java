@@ -178,8 +178,7 @@ public class JwtAuthenticationMapper {
 		return grantedAuthorities;
 	}
 	
-	public IdmJwtAuthenticationDto getClaims(Jwt jwt) 
-			throws JsonParseException, JsonMappingException, IOException {
+	public IdmJwtAuthenticationDto getClaims(Jwt jwt) throws IOException {
 		return mapper.readValue(jwt.getClaims(), IdmJwtAuthenticationDto.class);
 	}
 	

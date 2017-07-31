@@ -1,9 +1,5 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
 import java.util.UUID;
 
 import org.joda.time.LocalDate;
@@ -12,17 +8,12 @@ import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import com.google.common.collect.Lists;
-
-import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyType;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.PasswordFilter;
-import eu.bcvsolutions.idm.core.api.dto.filter.PasswordPolicyFilter;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.model.entity.IdmPassword;
-import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
 import eu.bcvsolutions.idm.core.model.repository.IdmPasswordPolicyRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmPasswordRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordService;
@@ -65,14 +56,12 @@ public class DefaultIdmPasswordService
 			// identity has no password yet
 			passwordDto = new IdmPasswordDto();
 			passwordDto.setIdentity(identity.getId());
-			IdmPasswordPolicy policy = findPasswordCreationPolicy();
-			if (policy != null && policy.getMaxPasswordAge() > 0) {
-				passwordDto.setValidTill(LocalDate.now().plusDays(policy.getMaxPasswordAge()));
-			}
 		}
 		//
 		if (passwordChangeDto.getMaxPasswordAge() != null) {
 			passwordDto.setValidTill(passwordChangeDto.getMaxPasswordAge().toLocalDate());
+		} else {
+			passwordDto.setValidTill(null);
 		}
 		// set valid from now
 		passwordDto.setValidFrom(new LocalDate());
@@ -128,52 +117,4 @@ public class DefaultIdmPasswordService
 		//
 		return toDto(this.repository.findOneByIdentity_Id(identityId));
 	}
-
-	/**
-	 * Finds default password policy for password creation. Only password generation policies are taken into account.<br/>
-	 * <p>
-	 * Policies are searched in following order:
-	 * <ol>
-	 * <li>default generation policy</li>
-	 * <li>generation policy</li>
-	 * <li>no policy</li>
-	 * </ol>
-	 * <p>
-	 * In case multiple search results are found, the lexicographically first on is returned by the method.
-	 * are taken into account
-	 *
-	 * @return Password policy for password creation
-	 */
-	private IdmPasswordPolicy findPasswordCreationPolicy() {
-		// default generation policy
-		PasswordPolicyFilter f = new PasswordPolicyFilter();
-		f.setDefaultPolicy(true);
-		f.setType(IdmPasswordPolicyType.GENERATE);
-		final ArrayList<IdmPasswordPolicy> defPolicies = Lists.newArrayList();
-		policyRepository.find(f, null).forEach(p -> defPolicies.add(p));
-		if (!defPolicies.isEmpty()) {
-			return getFirstPolicy(defPolicies);
-		}
-		// generation policy
-		f.setDefaultPolicy(null);
-		final ArrayList<IdmPasswordPolicy> policies = Lists.newArrayList();
-		policyRepository.find(f, null).forEach(p -> policies.add(p));
-		if (!policies.isEmpty()) {
-			return getFirstPolicy(policies);
-		}
-		// nothing
-		return null;
-	}
-
-	/**
-	 * Returns lexicographically first element of the policy collection.
-	 *
-	 * @param policies
-	 * @return
-	 */
-	private IdmPasswordPolicy getFirstPolicy(List<IdmPasswordPolicy> policies) {
-		Collections.sort(policies, Comparator.comparing(IdmPasswordPolicy::getName));
-		return policies.get(0);
-	}
-
 }

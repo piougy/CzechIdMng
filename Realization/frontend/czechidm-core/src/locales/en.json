@@ -689,7 +689,8 @@
         "passwordSimilarEmail": "Password cannot be similar to email: ",
         "passwordSimilarFirstName": "Password cannot be similar to first name: ",
         "passwordSimilarLastName": "Password cannot be similar to surname: ",
-        "date": "Password can not be change now, try again: "
+        "date": "Password can not be change now, try again: ",
+        "advancedControlValidateType": "Enhanced control is available only for validate politics."
       },
       "save": {
         "success": "Password policy [{{name}}] successfully saved."
@@ -2438,8 +2439,8 @@
       "weakPassRequired": "Required weak passwords",
       "weakPass": "Weak passwords",
       "passphraseWords": "Number of words in passphrase",
-      "maxPasswordAge": "Maximum number of days for password validity.",
-      "minPasswordAge": "Minimum number of days for password validity.",
+      "maxPasswordAge": "Maximum password age",
+      "minPasswordAge": "Minimum number of days for password validity",
       "enchancedControl": "Enabled",
       "minRulesToFulfill": "Minimum number of additional rules for policy",
       "maxHistorySimilar": "Number of old passwords checked for match",
@@ -2459,7 +2460,7 @@
         "prohibitedCharacters": "Listed characters are not allowed for generating and validating passwords. Enter characters without spaces, e.g. 1LliIo0!",
         "bases": "Character set allowed for password generation. Forbidden characters are excluded from sets.",
         "identityAttributeCheck": "Password may not contain any listed attributes or variations thereof.",
-        "emptyValues": "To omit any field, leave it empty or set value to 0.",
+        "emptyValues": "To omit any field, leave it empty.",
         "passphraseWords": "Select number of words passphrase contains."
       }
     },

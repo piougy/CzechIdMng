@@ -9,21 +9,21 @@ package eu.bcvsolutions.idm.core.api.domain;
 
 public interface PasswordGenerate {
 
-	public int getMinPasswordLength();
+	public Integer getMinPasswordLength();
 
-	public int getMaxPasswordLength();
+	public Integer getMaxPasswordLength();
 
-	public int getMinUpperChar();
+	public Integer getMinUpperChar();
 
-	public int getMinNumber();
+	public Integer getMinNumber();
 
-	public int getMinSpecialChar();
+	public Integer getMinSpecialChar();
 	
-	public int getMinLowerChar();
+	public Integer getMinLowerChar();
 
 	public String getProhibitedCharacters();
 
-	public int getPassphraseWords();
+	public Integer getPassphraseWords();
 	
 	public String getSpecialCharBase();
 	

@@ -167,7 +167,7 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 			// check if can change password for minimal age for change
 			// if loged user is admin, skip this
 			if (oldPassword != null && !securityService.isAdmin()) {
-				if (oldPassword.getValidFrom().plusDays(passwordPolicy.getMinPasswordAge()).compareTo(now.toLocalDate()) >= 1) {
+				if (passwordPolicy.getMinPasswordAge() != null && oldPassword.getValidFrom().plusDays(passwordPolicy.getMinPasswordAge()).compareTo(now.toLocalDate()) >= 1) {
 					throw new ResultCodeException(CoreResultCode.PASSWORD_CANNOT_CHANGE,
 							ImmutableMap.of(("date"), oldPassword.getValidFrom().plusDays(passwordPolicy.getMinPasswordAge())));
 				}
@@ -175,10 +175,11 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 			
 			// minimum rules to fulfill
 			Map<String, Object> notPassRules = new HashMap<>();
-			int minRulesToFulfill = passwordPolicy.getMinRulesToFulfill();
 			
+			int minRulesToFulfill = passwordPolicy.getMinRulesToFulfill() == null ? 0 : passwordPolicy.getMinRulesToFulfill().intValue();
+	
 			// check to max password length
-			if (passwordPolicy.getMaxPasswordLength() != 0 && password.length() > passwordPolicy.getMaxPasswordLength()) {
+			if (passwordPolicy.getMaxPasswordLength() != null && password.length() > passwordPolicy.getMaxPasswordLength()) {
 				if (!passwordPolicy.isPasswordLengthRequired() && passwordPolicy.isEnchancedControl()) {
 					notPassRules.put(MAX_LENGTH, Math.max(convertToInt(errors.get(MAX_LENGTH)), passwordPolicy.getMaxPasswordLength()));
 				} else if (!(errors.containsKey(MAX_LENGTH) && compareInt(errors.get(MAX_LENGTH), passwordPolicy.getMaxPasswordLength()))) {
@@ -187,7 +188,7 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 				validateNotSuccess = true;
 			}
 			// check to minimal password length
-			if (passwordPolicy.getMinPasswordLength() != 0 && password.length() < passwordPolicy.getMinPasswordLength()) {
+			if (passwordPolicy.getMinPasswordLength() != null && password.length() < passwordPolicy.getMinPasswordLength()) {
 				if (!passwordPolicy.isPasswordLengthRequired() && passwordPolicy.isEnchancedControl()) {
 					notPassRules.put(MIN_LENGTH, Math.max(convertToInt(errors.get(MIN_LENGTH)), passwordPolicy.getMinPasswordLength()));
 				} else if (!(errors.containsKey(MIN_LENGTH) && compareInt(errors.get(MIN_LENGTH), passwordPolicy.getMinPasswordLength()))) {
@@ -205,7 +206,7 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 				validateNotSuccess = true;
 			}
 			// check to minimal numbers
-			if (passwordPolicy.getMinNumber() != 0 && !password.matches("(.*[" + Pattern.quote(passwordPolicy.getNumberBase()) + "].*){" + passwordPolicy.getMinNumber() + ",}")) {
+			if (passwordPolicy.getMinNumber() != null && !password.matches("(.*[" + Pattern.quote(passwordPolicy.getNumberBase()) + "].*){" + passwordPolicy.getMinNumber() + ",}")) {
 				if (!passwordPolicy.isNumberRequired() && passwordPolicy.isEnchancedControl()) {
 					notPassRules.put(MIN_NUMBER, Math.max(convertToInt(errors.get(MIN_NUMBER)), passwordPolicy.getMinNumber()));
 				} else if (!(errors.containsKey(MIN_NUMBER) && compareInt(errors.get(MIN_NUMBER), passwordPolicy.getMinNumber()))) {
@@ -214,7 +215,7 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 				validateNotSuccess = true;
 			}
 			// check to minimal lower characters
-			if (passwordPolicy.getMinLowerChar() != 0 && !password.matches("(.*[" + Pattern.quote(passwordPolicy.getLowerCharBase()) + "].*){" + passwordPolicy.getMinLowerChar() + ",}")) {
+			if (passwordPolicy.getMinLowerChar() != null && !password.matches("(.*[" + Pattern.quote(passwordPolicy.getLowerCharBase()) + "].*){" + passwordPolicy.getMinLowerChar() + ",}")) {
 				if (!passwordPolicy.isLowerCharRequired() && passwordPolicy.isEnchancedControl()) {
 					notPassRules.put(MIN_LOWER_CHAR, Math.max(convertToInt(errors.get(MIN_LOWER_CHAR)), passwordPolicy.getMinLowerChar()));
 				} else if (!(errors.containsKey(MIN_LOWER_CHAR) && compareInt(errors.get(MIN_LOWER_CHAR), passwordPolicy.getMinLowerChar()))) {
@@ -223,7 +224,7 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 				validateNotSuccess = true;
 			}
 			// check to minimal upper character
-			if (passwordPolicy.getMinUpperChar() != 0 && !password.matches("(.*[" + Pattern.quote(passwordPolicy.getUpperCharBase()) + "].*){" + passwordPolicy.getMinUpperChar() + ",}")) {
+			if (passwordPolicy.getMinUpperChar() != null && !password.matches("(.*[" + Pattern.quote(passwordPolicy.getUpperCharBase()) + "].*){" + passwordPolicy.getMinUpperChar() + ",}")) {
 				if (!passwordPolicy.isUpperCharRequired() && passwordPolicy.isEnchancedControl()) {
 					notPassRules.put(MIN_UPPER_CHAR, Math.max(convertToInt(errors.get(MIN_UPPER_CHAR)), passwordPolicy.getMinUpperChar()));
 				} else if (!(errors.containsKey(MIN_UPPER_CHAR) && compareInt(errors.get(MIN_UPPER_CHAR), passwordPolicy.getMinUpperChar()))) {
@@ -231,7 +232,7 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 				}
 			}
 			// check to minimal special character
-			if (passwordPolicy.getMinSpecialChar() != 0 && !password.matches("(.*[" + Pattern.quote(passwordPolicy.getSpecialCharBase()) + "].*){" + passwordPolicy.getMinSpecialChar() + ",}")) {
+			if (passwordPolicy.getMinSpecialChar() != null && !password.matches("(.*[" + Pattern.quote(passwordPolicy.getSpecialCharBase()) + "].*){" + passwordPolicy.getMinSpecialChar() + ",}")) {
 				if (!passwordPolicy.isSpecialCharRequired() && passwordPolicy.isEnchancedControl()) {
 					notPassRules.put(MIN_SPECIAL_CHAR, Math.max(convertToInt(errors.get(MIN_SPECIAL_CHAR)), passwordPolicy.getMinSpecialChar()));
 				} else if (!(errors.containsKey(MIN_SPECIAL_CHAR) && compareInt(errors.get(MIN_SPECIAL_CHAR), passwordPolicy.getMinSpecialChar()))) {

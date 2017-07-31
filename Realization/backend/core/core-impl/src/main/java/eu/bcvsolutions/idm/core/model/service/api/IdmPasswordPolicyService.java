@@ -50,7 +50,9 @@ public interface IdmPasswordPolicyService extends ReadWriteEntityService<IdmPass
 	/**
 	 * Method return default password policy, by given type, @see {@link IdmPasswordPolicyType}
 	 * 
-	 * @return
+	 * @return {@link IdmPasswordPolicy} if was founded for {@link IdmPasswordPolicyType},
+	 * or null if no default policy for given {@link IdmPasswordPolicyType} found.
+	 * 
 	 */
 	IdmPasswordPolicy getDefaultPasswordPolicy(IdmPasswordPolicyType type);
 

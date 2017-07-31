@@ -14,8 +14,8 @@ The seventh version of [CzechIdM](http://www.czechidm.com/) will be based on tec
 
 ## Instalation
 
-* [Frontend](./Realization/frontend)
 * [Backend](./Realization/backend)
+* [Frontend](./Realization/frontend)
 
 ## License
 

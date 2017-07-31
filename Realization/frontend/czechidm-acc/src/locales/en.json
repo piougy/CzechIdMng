@@ -270,7 +270,7 @@
           }
         },
         "protectionEnabled": {
-          "help": "Enables account protection before deletion. When trying to remove an IDM account (last relation assigning this account), it will be marked as 'Is protected'. Such an account will not be deleted or provisioned. To really delete the IDM account (and thus the account on the end system), it will occur after the expiration of the protection interval. Deleting performs a scheduled task."
+          "help": "Enables account protection before deletion. When trying to remove an IdM account (last relation assigning this account), it will be marked as 'Is protected'. Such an account will not be deleted or provisioned. To really delete the IdM account (and thus the account on the end system), it will occur after the expiration of the protection interval. Deleting performs a scheduled task."
         }
       },
       "attributeDetail": {

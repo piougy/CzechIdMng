@@ -2197,7 +2197,7 @@
       },
       "disabled": {
         "label": "Inactive",
-        "help": "Inactive work position. Has higher priority than valid dates. Invalid work position is automatically set to inactive and all assigned roles to this position are removed."
+        "help": "Inactive work position. Roles cannot be assigned to inactive position."
       },
       "description": "Note",
       "main": {

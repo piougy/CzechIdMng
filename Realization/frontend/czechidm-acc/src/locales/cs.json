@@ -270,7 +270,7 @@
           }
         },
         "protectionEnabled": {
-          "help": "Aktivuje ochranu účtů před smazáním. Při pokusu o odstranění IDM účtu (poslední vazby přidělující tento účet), dojde k jeho označení 'Je chráněn'. Takový účet nebude smazán, ani na něm nebude prováděn nadále provisioning. K reálnému smazání IDM účtu (a tím i účtu na koncovém systému), dojde po expiraci ochranného intervalu. Mazání provádí naplánovaná úloha."
+          "help": "Aktivuje ochranu účtů před smazáním. Při pokusu o odstranění IdM účtu (poslední vazby přidělující tento účet), dojde k jeho označení 'Je chráněn'. Takový účet nebude smazán, ani na něm nebude prováděn nadále provisioning. K reálnému smazání IdM účtu (a tím i účtu na koncovém systému), dojde po expiraci ochranného intervalu. Mazání provádí naplánovaná úloha."
         }
       },
       "attributeDetail": {
@@ -925,7 +925,7 @@
     },
     "PROVISIONING_IDM_FIELD_NOT_FOUND": {
       "title": "Položka pro provisioning nenalezena",
-      "message": "IDM položka [{{field}}] pro entitu [{{entity}}] nebyla nalezena!"
+      "message": "IdM položka [{{field}}] pro entitu [{{entity}}] nebyla nalezena!"
     },
     "PROVISIONING_PASSWORD_FIELD_NOT_FOUND": {
       "title": "System [{{system}}] nepodporuje změnu hesla",

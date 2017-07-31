@@ -88,4 +88,4 @@ If you’d like an enhancement to be made to CzechIdM, pull requests are most we
 
 ## License
 
-MIT
+[MIT License](./LICENSE)

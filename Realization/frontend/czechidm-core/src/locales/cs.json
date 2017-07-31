@@ -2249,7 +2249,7 @@
       },
       "disabled": {
         "label": "Neaktivní",
-        "help": "Pozice je neplatná, nelze na ni vázat žádné role. Má větší prioritu nežli platnosti - neplatné pracovní pozice jsou automaticky označovány za neaktivní - jsou rušeny všechny role na ně přiřazené."
+        "help": "Pozice je neplatná, nelze na ni vázat žádné role."
       },
       "description": "Popis",
       "main": {
@@ -2501,7 +2501,7 @@
       "specialCharBase": "Povolené speciální znaky",
       "identityAttributeCheck": "Atributy identity pro kontrolu",
       "help": {
-        "defaultPolicy": "Standardní politika je použita pro validaci hesel proti systému IDM a zároveň validuje všechny hesla na systémech, kde není určena jiná politika.",
+        "defaultPolicy": "Standardní politika je použita pro validaci hesel proti systému IdM a zároveň validuje všechny hesla na systémech, kde není určena jiná politika.",
         "maxPasswordAge": "Maximální počet dnů platnosti hesla.",
         "minPasswordAge": "Minimální počet dnů platnost hesla, po tuto dobu není možné heslo změnit.",
         "enchancedControl": "Rozšířená kontrola hesla zkvalitňuje základní validaci hesla a to o kontrolu podobnosti na minulé hesla a kontrolu podobnosti s uživatelskými atributy. Také je možnost nastavit povinná pouze některá pravidla.",

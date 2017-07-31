@@ -23,6 +23,7 @@ import eu.bcvsolutions.idm.core.model.repository.IdmAuthorityChangeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.security.service.GrantedAuthoritiesFactory;
+import eu.bcvsolutions.idm.core.security.service.impl.IdmAuthorityHierarchy;
 
 /**
  * Event processor to check if authorities were removed from identity.
@@ -40,25 +41,28 @@ public class IdentityRoleDeleteAuthoritiesProcessor extends CoreEventProcessor<I
 	private final IdmIdentityRoleService identityRoleService;
 	private final GrantedAuthoritiesFactory authoritiesFactory;
 	private final IdmIdentityContractRepository contractRepository;
-
+	private final IdmAuthorityHierarchy authorityHierarchy;
 	
 	@Autowired
 	public IdentityRoleDeleteAuthoritiesProcessor(
 			IdmAuthorityChangeRepository repository,
 			IdmIdentityRoleService identityRoleService,
 			GrantedAuthoritiesFactory authoritiesFactory,
-			IdmIdentityContractRepository contractRepository) {
+			IdmIdentityContractRepository contractRepository,
+			IdmAuthorityHierarchy authorityHierarchy) {
 		super(IdentityRoleEventType.DELETE);
 		//
 		Assert.notNull(repository);
 		Assert.notNull(identityRoleService);
 		Assert.notNull(authoritiesFactory);
 		Assert.notNull(contractRepository);
+		Assert.notNull(authorityHierarchy);
 		//
 		this.repository = repository;
 		this.authoritiesFactory = authoritiesFactory;
 		this.identityRoleService = identityRoleService;
 		this.contractRepository = contractRepository;
+		this.authorityHierarchy = authorityHierarchy;
 	}
 
 	@Override
@@ -85,11 +89,12 @@ public class IdentityRoleDeleteAuthoritiesProcessor extends CoreEventProcessor<I
 		roles.remove(identityRole);
 
 		// represents the final authorities set after role removal
-		Collection<GrantedAuthority> withoutDeleted = authoritiesFactory
-				.getGrantedAuthoritiesForValidRoles(identity.getId(), roles);
-		Collection<GrantedAuthority> deletedAuthorities = authoritiesFactory
-				.getGrantedAuthoritiesForValidRoles(identity.getId(), Collections.singletonList(identityRole));
-		
+		Collection<? extends GrantedAuthority> withoutDeleted = authorityHierarchy.getReachableGrantedAuthorities(
+				authoritiesFactory.getGrantedAuthoritiesForValidRoles(identity.getId(), roles));
+		Collection<? extends GrantedAuthority> deletedAuthorities = authorityHierarchy.getReachableGrantedAuthorities(
+				authoritiesFactory.getGrantedAuthoritiesForValidRoles(identity.getId(),
+						Collections.singletonList(identityRole)));
+
 		if (!authoritiesFactory.containsAllAuthorities(withoutDeleted, deletedAuthorities)) {
 			// authorities were changed, update identity flag
 			IdmAuthorityChange ac = repository.findOneByIdentity_Id(identity.getId());

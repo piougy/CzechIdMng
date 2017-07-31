@@ -30,9 +30,10 @@ import io.swagger.annotations.Authorization;
 @RestController
 @Enabled(ExampleModuleDescriptor.MODULE_ID)
 @RequestMapping(value = BaseController.BASE_PATH + "/examples")
-@Api(value = "Examples", description = "Example operations", tags = { "Examples" })
+@Api(value = ExampleController.TAG, description = "Example operations", tags = { "Examples" })
 public class ExampleController {
 	
+	protected static final String TAG = "Examples";
 	@Autowired private ExampleService service;
 
 	@ResponseBody
@@ -41,7 +42,7 @@ public class ExampleController {
 			value = "Ping - Pong operation", 
 			notes= "Returns message with additional informations",
 			nickname = "ping", 
-			tags={ "Examples" }, 
+			tags={ ExampleController.TAG }, 
 			response = Pong.class, 
 			authorizations = {
 				@Authorization(SwaggerConfig.AUTHENTICATION_BASIC),
@@ -60,7 +61,7 @@ public class ExampleController {
 			value = "Read private value", 
 			notes= "Returns configuration property - private value.",
 			nickname = "getPrivateValue", 
-			tags={ "Examples" }, 
+			tags={ ExampleController.TAG }, 
 			authorizations = {
 				@Authorization(SwaggerConfig.AUTHENTICATION_BASIC),
 				@Authorization(SwaggerConfig.AUTHENTICATION_CIDMST)
@@ -76,7 +77,7 @@ public class ExampleController {
 			value = "Send notification", 
 			notes= "Sending given message to currently logged identity (example topic is used).",
 			nickname = "sendNotification", 
-			tags={ "Examples" }, 
+			tags={ ExampleController.TAG }, 
 			authorizations = {
 				@Authorization(SwaggerConfig.AUTHENTICATION_BASIC),
 				@Authorization(SwaggerConfig.AUTHENTICATION_CIDMST)

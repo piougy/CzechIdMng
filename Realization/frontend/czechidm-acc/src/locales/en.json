@@ -52,7 +52,7 @@
         },
         "filter": {
           "text": {
-            "label": "Identificator",
+            "label": "Identifier",
             "placeholder": "$t(acc:entity.SystemEntity.uid)"
           }
         }
@@ -109,8 +109,8 @@
             "success": "Synchronization/reconciliation '{{name}}' finished"
           },
           "cancelSynchronization": {
-            "message": "<b>Do you really want to stop synchronization/reconcilation '{{name}}'?</b>",
-            "header": "Cancel synchronization manuallly",
+            "message": "<b>Do you really want to stop synchronization/reconciliation '{{name}}'?</b>",
+            "header": "Cancel synchronization manually",
             "canceled": "Synchronization/reconciliation '{{name}}' canceled."
           }
         },
@@ -126,7 +126,7 @@
         "situationActionsAndWf": "In section below, it is possible to define how synchronization will react in given situations. Synchronization behavior is affected by selected workflow. Workflow is started after execution of standard action for each element. Workflow must ensure changes are saved.",
         "situationAction": "Action",
         "situationActionWf": "Workflow",
-        "customFilterInfo": "Custom filter can be defined by selection of attribute (Filter by attribute) by which we want to find relevant operations (Filtering operations). More complicated creteria can be defined in section below.",
+        "customFilterInfo": "Custom filter can be defined by selection of attribute (Filter by attribute) by which we want to find relevant operations (Filtering operations). More complicated criteria can be defined in section below.",
         "treeInfo": "Synchronization of Tree is always execute as reconciliation.",
         "edit": {
           "header": "Synchronization configuration details "
@@ -136,7 +136,7 @@
           "header": "New configuration of synchronization "
         },
         "save": {
-          "success": "Configuration of synchronizataion [{{name}}] was successfully saved"
+          "success": "Configuration of synchronization [{{name}}] was successfully saved"
         },
         "button": {
           "saveAndStartSynchronization": "Save and run configuration"
@@ -187,7 +187,7 @@
         },
         "filter": {
           "text": {
-            "label": "Identificator",
+            "label": "Identifier",
             "placeholder": "$t(acc:entity.SystemEntity.uid)"
           }
         }
@@ -246,7 +246,7 @@
           "header": "New mapping for entity and operation"
         },
         "save": {
-          "success": "Mapping for entity type [{{name}}] succesfully saved"
+          "success": "Mapping for entity type [{{name}}] successfully saved"
         }
       },
       "mappingDetail": {
@@ -258,10 +258,10 @@
         },
         "create": {
           "header": "New type of IdM entity and operation",
-          "success": "IdM entity type [{{entityType}}] for operation [{{operationType}}] succesfully created"
+          "success": "IdM entity type [{{entityType}}] for operation [{{operationType}}] successfully created"
         },
         "save": {
-          "success": "IdM entity type [{{entityType}}] for operation [{{operationType}}] succesfully saved"
+          "success": "IdM entity type [{{entityType}}] for operation [{{operationType}}] successfully saved"
         },
         "filter": {
           "idmPropertyName": {
@@ -270,7 +270,7 @@
           }
         },
         "protectionEnabled": {
-          "help": "Enables account protection before deletion. When trying to remove an IDM account (last relation assigning this account), it will be marked as 'Is protected'. Such an account will not be deleted or provisioned. To really delete the IDM account (and thus the account on the end system), it will occur after the expiration of the protection interval. Deleting performs a scheduled task."
+          "help": "Enables account protection before deletion. When trying to remove an IdM account (last relation assigning this account), it will be marked as 'Is protected'. Such an account will not be deleted or provisioned. To really delete the IdM account (and thus the account on the end system), it will occur after the expiration of the protection interval. Deleting performs a scheduled task."
         }
       },
       "attributeDetail": {
@@ -353,7 +353,7 @@
         },
         "filter": {
           "uid": {
-            "label": "Identificator",
+            "label": "Identifier",
             "placeholder": "$t(acc:entity.SystemEntity.uid)"
           }
         }
@@ -478,7 +478,7 @@
     "SystemEntity": {
       "_type": "Entity in system",
       "entityType": "Entity type",
-      "uid": "Identificator in system",
+      "uid": "Identifier in system",
       "system": "Connected system"
     },
     "SchemaObjectClass": {
@@ -522,11 +522,11 @@
       },
       "transformToResourceScriptSelectBox": {
         "label": "Available scripts for transformation from resource",
-        "help": "After script selection, will be automatically insert code which calls selected script including sample paramteres."
+        "help": "After script selection, will be automatically insert code which calls selected script including sample parameters."
       },
       "transformFromResourceScriptSelectBox": {
         "label": "Available scripts to transformation to resource",
-        "help": "After script selection, will be automatically insert code which calls selected script including sample paramteres."
+        "help": "After script selection, will be automatically insert code which calls selected script including sample parameters."
       },
       "idmPropertyEnum": "Entity field",
       "schemaAttribute": "Attribute in schema",
@@ -550,11 +550,11 @@
       },
       "transformToResourceScript": {
         "label": "Transformation to system",
-        "help": "Allows value to be transformed from CzechIdM into a form suitable for connected system. Input parameters of this Groovy script are value of attribute 'attributeValue', IdM entity 'entity' and account identificator 'uid'. If output value is empty, system automatically uses available account identificator (uid)."
+        "help": "Allows value to be transformed from CzechIdM into a form suitable for connected system. Input parameters of this Groovy script are value of attribute 'attributeValue', IdM entity 'entity' and account identifier 'uid'. If output value is empty, system automatically uses available account identifier (uid)."
       },
       "uid": {
-        "label": "Identificator",
-          "tooltip": "Attribute is unique identificator of object."
+        "label": "Identifier",
+          "tooltip": "Attribute is unique identifier of object."
       },
       "sendOnlyIfNotNull": {
         "label": "Send IdM value only if its not null",
@@ -582,7 +582,7 @@
       "transformScriptTable": "Transformation",
       "transformScript": {
         "label": "Transformation to system",
-        "help": "Allows to transform value from CzechIdM to state intended for connected system. Input parameters of this Groovy script are attribute value 'attributeValue', IdM entity 'entity' and account identificator 'uid'. If script output value is null, than returning value is available account identificator (uid)."
+        "help": "Allows to transform value from CzechIdM to state intended for connected system. Input parameters of this Groovy script are attribute value 'attributeValue', IdM entity 'entity' and account identifier 'uid'. If script output value is null, than returning value is available account identifier (uid)."
       }
     },
    "Account": {
@@ -590,7 +590,7 @@
     "accountType": "Account type",
     "system": "System",
     "systemEntity": "Linked entity in system",
-    "uid": "Account identificator",
+    "uid": "Account identifier",
     "inProtection": "Is protected from delete",
     "endOfProtection": "Protected until"
   },
@@ -611,18 +611,18 @@
       },
       "filterAttribute" :{
         "label": "Filter by attribute",
-        "help": "This attribute (with type of filter operation) will be used was default filter criterium for synchronization. Other criteria can be define in filter script."
+        "help": "This attribute (with type of filter operation) will be used as default filter criteria for synchronization. Other criteria can be defined in filter script."
       },
       "tokenAttribute" :{
         "label": "Token attribute",
-        "help": "Specifies token of synchroning attribute."
+        "help": "Specifies token of synchronising attribute."
       },
       "token": "Token",
       "timestamp": "Timestamp",
-      "filterOperation": "Filter operaton",
+      "filterOperation": "Filter operation",
       "customFilterScript": {
         "label": "Custom filter",
-        "help": "This Groovy script sets own search filter for accoutns in system to be synchronized."
+        "help": "This Groovy script sets own search filter for accounts in system to be synchronized."
       },
       "rootsFilterScript": {
         "label": "Definition of tree roots",
@@ -630,7 +630,7 @@
       },
       "reconciliation": {
         "label": "Reconciliation",
-        "help": "Executes full reconciliation instead of synchronization. Synchronization will be executed for all accounts without filter. Search for missing accounts will be executed for all entites in CzechIdM."
+        "help": "Executes full reconciliation instead of synchronization. Synchronization will be executed for all accounts without filter. Search for missing accounts will be executed for all entities in CzechIdM."
       },
       "correlationAttribute": "Collation attribute",
       "systemMapping": "Set of mapped attributes",
@@ -651,7 +651,7 @@
           "CREATE_ENTITY": "Created entities",
           "UPDATE_ENTITY": "Updated entities",
           "DELETE_ENTITY": "Deleted entities",
-          "LINK_AND_UPDATE_ACCOUNT": "Created and updated acceouts",
+          "LINK_AND_UPDATE_ACCOUNT": "Created and updated accounts",
           "UNLINK_AND_REMOVE_ROLE": "Deleted links with role",
           "LINK": "Created links",
           "UNLINK": "Deleted links",
@@ -670,7 +670,7 @@
           "DELETE_ENTITY": "Deleted entities",
           "LINK_AND_UPDATE_ACCOUNT": "Created and updated accounts",
           "UNLINK_AND_REMOVE_ROLE": "Deleted links with roles",
-          "LINK": "Created linlks",
+          "LINK": "Created links",
           "UNLINK": "Deleted links",
           "CREATE_ACCOUNT": "Created accounts",
           "UPDATE_ACCOUNT": "Updated accounts",
@@ -684,7 +684,7 @@
         "WF": {
           "CREATE_ENTITY": "Created entities",
           "UPDATE_ENTITY": "Updated entities",
-          "DELETE_ENTITY": "Deleted entites",
+          "DELETE_ENTITY": "Deleted entities",
           "LINK_AND_UPDATE_ACCOUNT": "Created and updated accounts",
           "UNLINK_AND_REMOVE_ROLE": "Deleted links with roles",
           "LINK": "Created links",
@@ -702,7 +702,7 @@
           "CREATE_ENTITY": "Created entities",
           "UPDATE_ENTITY": "Updated entities",
           "DELETE_ENTITY": "Deleted entities",
-          "LINK_AND_UPDATE_ACCOUNT": "Cread and updated accounts",
+          "LINK_AND_UPDATE_ACCOUNT": "Created and updated accounts",
           "UNLINK_AND_REMOVE_ROLE": "Deleted links with roles",
           "LINK": "Created links",
           "UNLINK": "Deleted links",
@@ -740,7 +740,7 @@
       "operationCount": "Number of operations"
     },
     "SyncItemLog": {
-      "identification": "Identificator",
+      "identification": "Identifier",
       "displayName": "Name",
       "message": "Message",
       "type": "Type",
@@ -750,7 +750,7 @@
       "_type": "Provisioning - operation",
       "creator": "Creator",
       "operationType": "Operation",
-      "entityIdentifier": "Entity identificator (IdM)",
+      "entityIdentifier": "Entity identifier (IdM)",
       "resultState": "Result",
       "entity": "IdM entity"
     }
@@ -883,15 +883,15 @@
   "error": {
     "CONNECTOR_CONFIGURATION_FOR_SYSTEM_NOT_FOUND": {
       "title": "Connector was not selected",
-      "message": "Connector for system [{{system}}] is not defined. Please, select connector definiton in system settings."
+      "message": "Connector for system [{{system}}] is not defined. Please, select connector definition in system settings."
     },
     "PROVISIONING_ATTRIBUTE_MORE_UID": {
-      "title": " Unique identificator already exists",
-      "message": "System {{system}} has already set unique identificator."
+      "title": " Unique identifier already exists",
+      "message": "System {{system}} has already set unique identifier."
     },
     "PROVISIONING_ROLE_ATTRIBUTE_MORE_UID": {
-      "title": "Unique identificator already exists",
-      "message": "Role {{role}} and system {{system}} have already set unique identificator."
+      "title": "Unique identifier already exists",
+      "message": "Role {{role}} and system {{system}} have already set unique identifier."
     },
     "PROVISIONING_SYSTEM_DISABLED": {
       "title": "Provisioning of account [{{name}}] wasn't executed",
@@ -939,7 +939,7 @@
     },
     "PROVISIONING_ATTRIBUTE_VALUE_WRONG_TYPE": {
       "title": "Provisioning - attribute value is not in correct type",
-      "message": "Scheman of attribute [{{attribute}}] defines type of [{{schemaAttributeType}}]. But value type is [{{valueType}}]!"
+      "message": "Schema of attribute [{{attribute}}] defines type of [{{schemaAttributeType}}]. But value type is [{{valueType}}]!"
     },
     "PROVISIONING_ATTRIBUTE_TYPE_NOT_FOUND": {
       "title": "Provisioning - attribute value was not found",
@@ -967,7 +967,7 @@
     },
     "PROVISIONING_ATTRIBUTE_STRATEGY_CONFLICT": {
       "title": "Provisioning - Attribute strategy conflict",
-      "message": "Strategies [{{strategyParent}}] and [{{strategyConflict}}] are confilcted for attribute [{{attribute}}]!"
+      "message": "Strategies [{{strategyParent}}] and [{{strategyConflict}}] are in conflict for attribute [{{attribute}}]!"
     },
     "SYNCHRONIZATION_IS_NOT_ENABLED": {
       "title": "Synchronization is not allowed",
@@ -983,7 +983,7 @@
     },
     "SYNCHRONIZATION_CORRELATION_TO_MANY_RESULTS": {
       "title": "Synchronization - too many entities was found for correlation attribute",
-      "message": "Too many entities was found for correlation attribite [{{correlationAttribute}}] for value [{{value}}]!"
+      "message": "Too many entities was found for correlation attribute [{{correlationAttribute}}] for value [{{value}}]!"
     },
     "SYNCHRONIZATION_TOKEN_ATTRIBUTE_NOT_FOUND": {
       "title": "Synchronization - for synchronization by custom attribute is compulsory attribute Token!",
@@ -999,7 +999,7 @@
     },
     "SYNCHRONIZATION_IS_NOT_RUNNING": {
       "title": "Synchronization not running",
-      "message": "Synchronizace [{{name}}] is not running."
+      "message": "Synchronization [{{name}}] is not running."
     },
     "SYNCHRONIZATION_TO_MANY_SYSTEM_ENTITY": {
       "title": "Synchronization - more than one record of 'System entity' was found",
@@ -1011,7 +1011,7 @@
     },
     "SYNCHRONIZATION_ERROR_DURING_SYNC_ITEM": {
       "title": "Synchronization - error during synchronization",
-      "message": "Durring synchronization of UID [{{uid}}], unexpected error has occurred!"
+      "message": "During synchronization of UID [{{uid}}], unexpected error has occurred!"
     },
     "SYNCHRONIZATION_TO_MANY_ACC_ACCOUNT": {
       "title": "Synchronization - more than one records of 'AccAccount' found",
@@ -1023,7 +1023,7 @@
     },
     "ATTRIBUTE_MAPPING_DELETE_FAILED_USED_IN_SYNC": {
       "title": "Attribute [{{attribute}}] cannot be removed",
-      "message": "Atribut [{{attribute}}] cannot be removed. It's used for synchronization of the same system!"
+      "message": "Attribute [{{attribute}}] cannot be removed. It's used for synchronization of the same system!"
     },
     "SYSTEM_DELETE_FAILED_HAS_ENTITIES": {
       "title": "System cannot be removed",

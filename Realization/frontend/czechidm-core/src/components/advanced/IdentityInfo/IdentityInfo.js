@@ -233,12 +233,13 @@ IdentityInfo.defaultProps = {
 
 function select(state, component) {
   const identifier = component.entityIdentifier || component.username;
+  const identity = identityManager.getEntity(state, identifier);
   //
   return {
-    _identity: identityManager.getEntity(state, identifier),
+    _identity: identity,
     _showLoading: identityManager.isShowLoading(state, null, identifier),
     userContext: state.security.userContext, // is needed for refresh after login
-    _permissions: identityManager.getPermissions(state, null, identifier)
+    _permissions: identityManager.getPermissions(state, null, identity)
   };
 }
 export default connect(select)(IdentityInfo);

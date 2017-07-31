@@ -1,7 +1,10 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -21,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.config.domain.RoleConfiguration;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
@@ -372,7 +376,7 @@ public class DefaultIdmIdentityService
 	/**
 	 * Method find all managers by identity contract and return manager's
 	 * 
-	 * @param identityId
+	 * @param forIdentity
 	 * @return String - usernames separate by commas
 	 */
 	@Override
@@ -468,19 +472,27 @@ public class DefaultIdmIdentityService
 		if (identities.isEmpty()) {
 			return;
 		}
+		List<UUID> identitiesCopy = Lists.newArrayList(identities);
 		// handle identities without IdmAuthorityChange entity relation (auth. change is null)
-		List<IdmIdentity> withoutAuthChangeRel = repository.findAllWithoutAuthorityChange(identities);
-		withoutAuthChangeRel.forEach(identity -> {
+		Map<UUID, IdmIdentity> withoutChangeMap = new HashMap<>();
+		List<IdmIdentity> withoutAuthChangeRel = repository.findAllWithoutAuthorityChange(identitiesCopy);
+		withoutAuthChangeRel.forEach(i -> withoutChangeMap.put(i.getId(), i));
+		if (!withoutAuthChangeRel.isEmpty()) {
+			identitiesCopy.removeAll(withoutChangeMap.keySet());
+			createAuthorityChange(withoutChangeMap.values(), changeTime);
+		}
+		// run update query on the rest of identities
+		if (!identitiesCopy.isEmpty()) {
+			repository.setIdmAuthorityChangeForIdentity(identitiesCopy, changeTime);
+		}
+	}
+
+	private void createAuthorityChange(Collection<IdmIdentity> withoutAuthChange, DateTime changeTime) {
+		for (IdmIdentity identity : withoutAuthChange) {
 			IdmAuthorityChange ac = new IdmAuthorityChange();
 			ac.setAuthChangeTimestamp(changeTime);
 			ac.setIdentity(identity);
 			authChangeRepository.save(ac);
-			//
-			identities.remove(identity.getId());
-		});
-		// run update query on the rest of identities
-		if (!identities.isEmpty()) {
-			repository.setIdmAuthorityChangeForIdentity(identities, changeTime);
 		}
 	}
 }

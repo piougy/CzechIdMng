@@ -1,7 +1,6 @@
 package eu.bcvsolutions.idm.core.config;
 
 import static eu.bcvsolutions.idm.core.api.service.ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX;
-import static eu.bcvsolutions.idm.core.api.service.ConfigurationService.PROPERTY_SEPARATOR;
 
 import java.net.InetSocketAddress;
 import java.net.Proxy;
@@ -12,7 +11,6 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
@@ -37,7 +35,7 @@ import eu.bcvsolutions.idm.core.config.flyway.CoreFlywayConfig;
 public class RestTemplateConfig {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(RestTemplateConfig.class);
-	private static final String PROXY_KEY = IDM_PRIVATE_PROPERTY_PREFIX + "core" + PROPERTY_SEPARATOR + "http" + PROPERTY_SEPARATOR + "proxy";
+	private static final String PROXY_KEY = IDM_PRIVATE_PROPERTY_PREFIX + "core.http.proxy";
 	
 	@Autowired private ConfigurationService configuration;
 	

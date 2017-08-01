@@ -31,7 +31,6 @@ public class DefaultIdmPasswordService
 		implements IdmPasswordService {
 
 	private final IdmPasswordRepository repository;
-	private final IdmPasswordPolicyRepository policyRepository;
 
 	@Autowired
 	public DefaultIdmPasswordService(IdmPasswordRepository repository,
@@ -39,7 +38,6 @@ public class DefaultIdmPasswordService
 		super(repository);
 		//
 		this.repository = repository;
-		this.policyRepository = policyRepository;
 	}
 
 	@Override

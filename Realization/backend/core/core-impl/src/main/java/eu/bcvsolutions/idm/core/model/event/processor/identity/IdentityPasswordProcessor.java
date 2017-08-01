@@ -79,13 +79,11 @@ public class IdentityPasswordProcessor extends CoreEventProcessor<IdmIdentityDto
 					.getDefaultPasswordPolicy(IdmPasswordPolicyType.VALIDATE);
 			if (defaultValidatePolicy != null && defaultValidatePolicy.getMaxPasswordAge() != null) {
 				// put new valid till by default password policy
-				passwordChangeDto
-						.setMaxPasswordAge(DateTime.now().plusDays(defaultValidatePolicy.getMaxPasswordAge()));
+				passwordChangeDto.setMaxPasswordAge(DateTime.now().plusDays(defaultValidatePolicy.getMaxPasswordAge()));
 			} else {
-				// TODO: when not found default password policy throw error?
 				passwordChangeDto.setMaxPasswordAge(null);
-				LOG.debug("Default validate password policy not exists or max password age is not filled. For identity username [{}] will be valid till null.", 
-						identity.getUsername());
+				LOG.warn("Default validate password policy not exists or max password age is not filled."
+						+ " For identity username [{}] will be valid till null.", identity.getUsername());
 			}
 		}
 		this.passwordService.save(identity, passwordChangeDto);

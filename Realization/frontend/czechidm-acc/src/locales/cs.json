@@ -929,7 +929,7 @@
     },
     "PROVISIONING_PASSWORD_FIELD_NOT_FOUND": {
       "title": "System [{{system}}] nepodporuje změnu hesla",
-      "message": "Mapovací atributu pro heslo (___PASSWORD__) nebyl pro entitu [{{uid}}] nalezen!"
+      "message": "Mapovací atribut pro heslo (___PASSWORD__) nebyl pro entitu [{{uid}}] nalezen!"
     },
     "PROVISIONING_SCHEMA_ATTRIBUTE_IS_NOT_UPDATEABLE": {
       "title": "Provisioning - atribut nelze upravit",
@@ -957,7 +957,7 @@
     },
     "PROVISIONING_ATTRIBUTE_UID_NOT_FOUND": {
       "title": "Provisioning - Nebyl nalezen žádný atribut označený jako identifikátor",
-      "message": "Atribut (označený jako identifikátor) nebyl nalezen na systému [{{system}}]. Atribut identifikující entitu, je pro provisioning (nebo synchronizaci) povinný!"
+      "message": "Atribut označený jako identifikátor nebyl nalezen na systému [{{system}}]. Atribut identifikující entitu, je pro provisioning (nebo synchronizaci) povinný!"
     },
     "PROVISIONING_DUPLICATE_ROLE_MAPPING": {
       "title": "Provisioning - Více definic atributu pro stejný UID a stejnou roli",

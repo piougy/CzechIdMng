@@ -13,7 +13,7 @@ import RoleRequestTable from '../requestrole/RoleRequestTable';
 import CandicateUsersCell from '../workflow/CandicateUsersCell';
 
 const uiKey = 'identity-roles';
-const uiKeyContracts = 'identity-contracts';
+const uiKeyContracts = 'role-identity-contracts';
 const uiKeyAuthorities = 'identity-roles';
 const roleManager = new RoleManager();
 const roleTreeNodeManager = new RoleTreeNodeManager();

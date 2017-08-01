@@ -28,7 +28,7 @@ class ManagersInfo extends Basic.AbstractContextComponent {
       // load managers by Tree
       const uiKeyId = `${uiKey}-${identityContractId}`;
       if (!Utils.Ui.isShowLoading(this.context.store.getState(), uiKeyId)) {
-        const searchParameters = new SearchParameters().setFilter('managersFor', managersFor).setFilter('managersByContract', identityContractId).setFilter('includeGuarantees', true);
+        const searchParameters = new SearchParameters().setName(SearchParameters.NAME_AUTOCOMPLETE).setFilter('managersFor', managersFor).setFilter('managersByContract', identityContractId).setFilter('includeGuarantees', true);
         this.context.store.dispatch(this.identityManager.fetchEntities(searchParameters, uiKeyId));
       }
     }

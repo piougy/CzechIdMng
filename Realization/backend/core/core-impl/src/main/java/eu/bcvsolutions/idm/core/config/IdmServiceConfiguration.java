@@ -11,6 +11,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.plugin.core.PluginRegistry;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
@@ -436,9 +437,16 @@ public class IdmServiceConfiguration {
 	 * @return
 	 */
 	@Bean
+	@Primary
 	@ConditionalOnMissingBean(IdmIdentityRoleService.class)
 	public IdmIdentityRoleService identityRoleService() {
 		return new DefaultIdmIdentityRoleService(identityRoleRepository, entityEventManager());
+	}
+	
+	@Deprecated
+	@Bean(name = "idmIdentityRoleService")
+	public IdmIdentityRoleService identityRoleServiceAlias() {
+		return identityRoleService();
 	}
 
 	/**

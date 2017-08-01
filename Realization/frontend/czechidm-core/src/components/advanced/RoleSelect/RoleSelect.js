@@ -377,7 +377,7 @@ class RoleSelect extends Basic.AbstractFormComponent {
                 style={{ borderLeft: '1px solid #ddd' }}
                 forceSearchParameters={
                   this.roleManager.getDefaultSearchParameters()
-                  .setName(SearchParameters.NAME_AUTOCOMPLETE)
+                    .setName(SearchParameters.NAME_AUTOCOMPLETE)
                     .setFilter('roleCatalogue', roleCatalogue)
                 }
                 showToolbar={false}

@@ -851,7 +851,7 @@
           "description": "Název úkolu",
           "createdDate": "Úkol vytvořen",
           "applicantFullName": "Jméno žadatele",
-          "applicant": "Žadatel",
+          "applicant": "Žádost pro",
           "successComplete": "Úkol {{name}} byl úspěšně vyřešen.",
           "completeTaskConfirmTitle": "Potvrzení ukončení úkolu",
           "completeTaskConfirmDetail": "Opravdu chcete tento úkol ukončit?",
@@ -861,7 +861,7 @@
           }
         },
         "DefaultTaskDetail": {
-          "applicant": "Žadatel",
+          "applicant": "Žádost pro",
           "createdDate": "Datum vytvoření žádosti",
           "approvers": "Schvalovatelé tohoto úkolu",
           "note": "$t(entity.ApprovalTask.note)",

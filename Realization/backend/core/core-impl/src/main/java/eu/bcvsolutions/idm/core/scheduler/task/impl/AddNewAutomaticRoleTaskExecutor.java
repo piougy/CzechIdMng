@@ -32,7 +32,7 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
 
 /**
  * Long running task for add newly added automatic role to users. 
- * Can be executed repetitively to assign role to unprocessed identities, after process was stopped or interrupt (e.g. by server restart). 
+ * Can be executed repetitively to assign role to unprocessed identities, after process was stopped or interrupted (e.g. by server restart). 
  *
  * @author Ondrej Kopr <kopr@xyxy.cz>
  * @author Radek Tomiška
@@ -40,7 +40,7 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
  *
  */
 @Service
-@Description("Add new automatic role from IdmRoleTreeNode. Can be executed repetitively to assign role to unprocessed identities, after process was stopped or interrupt (e.g. by server restart).")
+@Description("Add new automatic role from IdmRoleTreeNode. Can be executed repetitively to assign role to unprocessed identities, after process was stopped or interrupted (e.g. by server restart).")
 public class AddNewAutomaticRoleTaskExecutor extends AbstractAutomaticRoleTaskExecutor {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(AddNewAutomaticRoleTaskExecutor.class);

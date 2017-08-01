@@ -70,14 +70,25 @@ public class PasswordPolicySaveProcessor extends CoreEventProcessor<IdmPasswordP
 	 * @return true, if password policy attribute are valid, otherwise throw error
 	 */
 	private boolean validatePasswordPolicyAttributes(IdmPasswordPolicy entity) {
-		if (entity.getMaxPasswordLength() != 0 && entity.getMaxPasswordLength() < entity.getMinPasswordLength()) {
+		// password policy can contains null value
+		int maximumLength = entity.getMaxPasswordLength() == null ? Integer.MAX_VALUE : entity.getMaxPasswordLength().intValue();
+		int minimumLength = entity.getMinPasswordLength() == null ? 0 : entity.getMinPasswordLength().intValue();
+		
+		if (maximumLength != 0 && maximumLength < minimumLength) {
 			throw new ResultCodeException(CoreResultCode.PASSWORD_POLICY_MAX_LENGTH_LOWER);
 		}
-		if (entity.getMaxPasswordLength() != 0 && (entity.getMinLowerChar() + entity.getMinNumber() + entity.getMinSpecialChar() + entity.getMinUpperChar() > 
-				entity.getMaxPasswordLength())) {
+		
+		int minimumLengthAll = entity.getMinLowerChar() == null ? 0 : entity.getMinLowerChar().intValue(); 
+		minimumLengthAll += entity.getMinUpperChar() == null ? 0 : entity.getMinUpperChar().intValue();
+		minimumLengthAll += entity.getMinSpecialChar() == null ? 0 : entity.getMinSpecialChar().intValue();
+		minimumLengthAll += entity.getMinNumber() == null ? 0 : entity.getMinNumber().intValue();
+		if (maximumLength != 0 && (minimumLengthAll > maximumLength)) {
 			throw new ResultCodeException(CoreResultCode.PASSWORD_POLICY_ALL_MIN_REQUEST_ARE_HIGHER);
 		}
-		if (entity.getMaxPasswordAge() != 0 && entity.getMaxPasswordAge() < entity.getMinPasswordAge()) {
+		
+		int maxPasswordAge = entity.getMaxPasswordAge() == null ? 0 : entity.getMaxPasswordAge().intValue();
+		int minPasswordAge = entity.getMinPasswordAge() == null ? 0 : entity.getMinPasswordAge().intValue();
+		if (maxPasswordAge != 0 && maxPasswordAge < minPasswordAge) {
 			throw new ResultCodeException(CoreResultCode.PASSWORD_POLICY_MAX_AGE_LOWER);
 		}
 		// check minRulesToFulfill and rules
@@ -86,7 +97,7 @@ public class PasswordPolicySaveProcessor extends CoreEventProcessor<IdmPasswordP
 			int rules = entity.getNotRequiredRules();
 			//
 			// check with minRulesToFulfill
-			if (entity.getMinRulesToFulfill() > rules) {
+			if (entity.getMinRulesToFulfill() != null && entity.getMinRulesToFulfill().intValue() > rules) {
 				throw new ResultCodeException(CoreResultCode.PASSWORD_POLICY_MAX_RULE, ImmutableMap.of("rules", rules));
 			}
 		}

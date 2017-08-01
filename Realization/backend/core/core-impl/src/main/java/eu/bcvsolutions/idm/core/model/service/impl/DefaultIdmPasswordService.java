@@ -14,6 +14,7 @@ import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.PasswordFilter;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.model.entity.IdmPassword;
+import eu.bcvsolutions.idm.core.model.repository.IdmPasswordPolicyRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmPasswordRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordService;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
@@ -21,19 +22,19 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 /**
  * Service for working with password.
  * Now is password connect only to entity IdmIdentity.
- * 
+ *
  * @author Ondrej Kopr <kopr@xyxy.cz>
  * @author Radek Tomiška
- * 
  */
-public class DefaultIdmPasswordService 
-		extends AbstractReadWriteDtoService<IdmPasswordDto, IdmPassword, PasswordFilter> 
+public class DefaultIdmPasswordService
+		extends AbstractReadWriteDtoService<IdmPasswordDto, IdmPassword, PasswordFilter>
 		implements IdmPasswordService {
-	
+
 	private final IdmPasswordRepository repository;
-	
+
 	@Autowired
-	public DefaultIdmPasswordService(IdmPasswordRepository repository) {
+	public DefaultIdmPasswordService(IdmPasswordRepository repository,
+									 IdmPasswordPolicyRepository policyRepository) {
 		super(repository);
 		//
 		this.repository = repository;
@@ -57,6 +58,8 @@ public class DefaultIdmPasswordService
 		//
 		if (passwordChangeDto.getMaxPasswordAge() != null) {
 			passwordDto.setValidTill(passwordChangeDto.getMaxPasswordAge().toLocalDate());
+		} else {
+			passwordDto.setValidTill(null);
 		}
 		// set valid from now
 		passwordDto.setValidFrom(new LocalDate());
@@ -79,13 +82,13 @@ public class DefaultIdmPasswordService
 			this.delete(passwordDto);
 		}
 	}
-	
+
 	@Override
 	@Transactional(readOnly = true)
 	public IdmPasswordDto findOneByIdentity(UUID identity) {
 		return this.getPasswordByIdentity(identity);
 	}
-	
+
 	@Override
 	public boolean checkPassword(GuardedString passwordToCheck, IdmPasswordDto password) {
 		return BCrypt.checkpw(passwordToCheck.asString(), password.getPassword());
@@ -95,16 +98,16 @@ public class DefaultIdmPasswordService
 	public String generateHash(GuardedString password, String salt) {
 		return BCrypt.hashpw(password.asString(), salt);
 	}
-	
+
 	@Override
 	public String getSalt(IdmIdentityDto identity) {
 		return BCrypt.gensalt(12);
 	}
-	
+
 	/**
 	 * Method get IdmIdentityPassword by identity.
-	 * 
-	 * @param identity
+	 *
+	 * @param identityId
 	 * @return Object IdmIdentityPassword when password for identity was founded otherwise null.
 	 */
 	private IdmPasswordDto getPasswordByIdentity(UUID identityId) {

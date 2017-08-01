@@ -39,7 +39,7 @@
         "basic": "Základní informace"
       },
       "entities": {
-        "header": "Entity na koncovém systému <small>uložené v idm</small>",
+        "header": "Entity na koncovém systému <small>uložené v IdM</small>",
         "title": "Entity na systému",
         "edit": {
           "header": "Detail entity na koncovém systému"
@@ -103,20 +103,20 @@
         },
         "action": {
           "startSynchronization": {
-            "message": "<b>Opravdu chcete ručně spustit synchronizaci/reconciliaci '{{name}}'?</b>",
+            "message": "<b>Opravdu chcete ručně spustit synchronizaci/rekonciliaci '{{name}}'?</b>",
             "header": "Ruční spuštění synchronizace",
-            "started": "Synchronizace/reconciliace '{{name}}' byla spuštěna jako dlouhotrvající úloha na pozadí. Průběh a výsledek lze sledovat v agendě plánovaných úloh či v logu na detailu synchronizace.",
-            "success": "Synchronizace/reconciliace '{{name}}' byla dokončena."
+            "started": "Synchronizace/rekonciliace '{{name}}' byla spuštěna jako dlouhotrvající úloha na pozadí. Průběh a výsledek lze sledovat v agendě plánovaných úloh či v logu na detailu synchronizace.",
+            "success": "Synchronizace/rekonciliace '{{name}}' byla dokončena."
           },
           "cancelSynchronization": {
-            "message": "<b>Opravdu chcete zastavit synchronizaci/reconciliaci '{{name}}'?</b>",
+            "message": "<b>Opravdu chcete zastavit synchronizaci/rekonciliaci '{{name}}'?</b>",
             "header": "Ruční zastavení synchronizace",
-            "canceled": "Synchronizace/reconciliace '{{name}}' byla zastavena."
+            "canceled": "Synchronizace/rekonciliace '{{name}}' byla zastavena."
           }
         },
         "button": {
-            "start": "Spustit synchronizaci/reconciliaci",
-            "cancel": "Zastavit synchronizaci/reconciliaci"
+            "start": "Spustit synchronizaci/rekonciliaci",
+            "cancel": "Zastavit synchronizaci/rekonciliaci"
         }
       },
       "systemSynchronizationConfigDetail": {
@@ -127,7 +127,7 @@
         "situationAction": "Akce",
         "situationActionWf": "Workflow",
         "customFilterInfo": "Vlastní filtr je možné definovat jednoduše zvolením atributu (Filtrovat dle atributu) podle kterého chceme hledat a příslušné operace (Filtrovací operace). Složitější kritérium je možné definovat ve skriptu níže.",
-        "treeInfo": "Synchronizace stromu je vždy spouštěna jako reconciliace.",
+        "treeInfo": "Synchronizace stromu je vždy spouštěna jako rekonciliace.",
         "edit": {
           "header": "Detail konfigurace synchronizace"
         },
@@ -174,7 +174,7 @@
         "title": "Detail logu položky"
       },
       "accounts": {
-        "header": "Účty na koncovém systému <small>uložené v idm</small>",
+        "header": "Účty na koncovém systému <small>uložené v IdM</small>",
         "title": "Účty na systému",
         "edit": {
           "header": "Detail účtu na koncovém systému"
@@ -270,7 +270,7 @@
           }
         },
         "protectionEnabled": {
-          "help": "Aktivuje ochranu účtů před smazáním. Při pokusu o odstranění IDM účtu (poslední vazby přidělující tento účet), dojde k jeho označení 'Je chráněn'. Takový účet nebude smazán, ani na něm nebude prováděn nadále provisioning. K reálnému smazání IDM účtu (a tím i účtu na koncovém systému), dojde po vyexpirování ochraného intervalu. Mazání provádí naplánovaná úloha."
+          "help": "Aktivuje ochranu účtů před smazáním. Při pokusu o odstranění IdM účtu (poslední vazby přidělující tento účet), dojde k jeho označení 'Je chráněn'. Takový účet nebude smazán, ani na něm nebude prováděn nadále provisioning. K reálnému smazání IdM účtu (a tím i účtu na koncovém systému), dojde po expiraci ochranného intervalu. Mazání provádí naplánovaná úloha."
         }
       },
       "attributeDetail": {
@@ -412,7 +412,7 @@
       "detail": {
         "header": "Detail operace",
         "result": "Výsledek",
-        "accountObject": "Idm atributy",
+        "accountObject": "IdM atributy",
         "connectorObject": "Atributy pro provisioning",
         "resultCode": "Kód",
         "nextAttempt": "<strong>Pokus:</strong> {{currentAttempt}} / {{maxAttempts}}, Další pokus bude spuštěn <strong>{{nextAttempt}}</strong>"
@@ -461,7 +461,7 @@
       },
       "remoteConnector": {
         "label": "Použít vzdálený konektor server",
-        "help": "Po zaškrknutí neboudou použity lokální konektory a zobrazí se nabídka s informacemi o vzdáleném konektor serveru."
+        "help": "Po zaškrtnutí nebudou použity lokální konektory a zobrazí se nabídka s informacemi o vzdáleném konektor serveru."
       },
       "connectorHost": "Server s konektory"
     },
@@ -488,7 +488,7 @@
       "system": "Napojený systém"
     },
     "SchemaObjectClass": {
-      "auxiliary": "Pomocný object",
+      "auxiliary": "Pomocný objekt",
       "container": "Je kontejnerem",
       "objectClassName": "Název objektu",
       "system": "Napojený systém"
@@ -524,7 +524,7 @@
       },
       "idmPropertyName": {
         "label": "IdM klíč",
-        "help": "Název atributu u entity, název rozšířeného attributu či klíč do šifrovaného úložiště."
+        "help": "Název atributu u entity, název rozšířeného atributu či klíč do šifrovaného úložiště."
       },
       "transformToResourceScriptSelectBox": {
         "label": "Dostupné skripty pro transformaci do systému",
@@ -548,7 +548,7 @@
       "transformationToResource": "Transfor. do systému",
       "transformFromResourceScript": {
         "label": "Transformace ze systému",
-        "help": "Umožňuje transformovat hodnotu z koncového systému do podoby vohodné pro IdM. Vstupním parametrem tohoto Groovy skriptu, je hodnota atributu 'attributeValue' a list atributů objektu na koncovém systému 'icAttributes'."
+        "help": "Umožňuje transformovat hodnotu z koncového systému do podoby vhodné pro IdM. Vstupním parametrem tohoto Groovy skriptu, je hodnota atributu 'attributeValue' a list atributů objektu na koncovém systému 'icAttributes'."
       },
       "authenticationAttribute": {
         "label": "Autentizační atribut",
@@ -556,19 +556,19 @@
       },
       "transformToResourceScript": {
         "label": "Transformace do systému",
-        "help": "Umožňuje transformovat hodnotu z IdM do podoby vohodné pro koncový systém. Vstupním parametrem tohoto Groovy skriptu, je hodnota atributu 'attributeValue', IdM entita 'entity' a identifikátor účtu 'uid'. Pokud bude výstupní hodnota prázdná, pak se automaticky použije dostupný identifikátor účtu (uid)."
+        "help": "Umožňuje transformovat hodnotu z IdM do podoby vhodné pro koncový systém. Vstupním parametrem tohoto Groovy skriptu, je hodnota atributu 'attributeValue', IdM entita 'entity' a identifikátor účtu 'uid'. Pokud bude výstupní hodnota prázdná, pak se automaticky použije dostupný identifikátor účtu (uid)."
       },
       "uid": {
         "label": "Je identifikátorem",
-        "tooltip": "Určuje, zdali je atribut primárním idetifikátorem objektu."
+        "tooltip": "Určuje, zdali je atribut primárním identifikátorem objektu."
       },
       "sendOnlyIfNotNull": {
         "label": "Pošli pouze pokud existuje IdM hodnota",
-        "tooltip": "Hodnota tohoto atributu (kterou vypočítá IdM) bude na koncový systém odeslána, pouze pokud bude nabývát nějaké hodnoty."
+        "tooltip": "Hodnota tohoto atributu (kterou vypočítá IdM) bude na koncový systém odeslána, pouze pokud bude nabývat nějaké hodnoty."
       },
       "sendAlways": {
         "label": "Pošli vždy",
-        "tooltip": "Hodnota tohto atributu, bude na koncový systém poslána vždy a to i když nebyla změněna."
+        "tooltip": "Hodnota tohoto atributu, bude na koncový systém poslána vždy a to i když nebyla změněna."
       },
       "disabledAttribute": {
         "label": "Je deaktivován",
@@ -584,18 +584,18 @@
       "roleSystem": "Patří k roli a systému",
       "strategyType": "Strategie",
       "disabledDefaultAttribute": "Vynechat",
-      "disabledDefaultAttributeTooltip": "Pokud je zatrhnuto, tak nebude tento atribut propagován do koncového systému (a to i když k tomuto atributu existuje výchozí mapování).",
+      "disabledDefaultAttributeTooltip": "Pokud je zatrženo, tak nebude tento atribut propagován do koncového systému (a to i když k tomuto atributu existuje výchozí mapování).",
       "transformScriptTable": "Transformace",
       "transformScript": {
         "label": "Transformace do systému",
-        "help": "Umožňuje transformovat hodnotu z IdM do podoby vohodné pro koncový systém. Vstupním parametrem tohoto Groovy skriptu, je hodnota atributu 'attributeValue' a IdM entita 'entity' a identifikátor účtu 'uid'. Pokud bude výstupní hodnota prázdná, pak se automaticky použije dostupný identifikátor účtu (uid)."
+        "help": "Umožňuje transformovat hodnotu z IdM do podoby vhodné pro koncový systém. Vstupním parametrem tohoto Groovy skriptu, je hodnota atributu 'attributeValue' a IdM entita 'entity' a identifikátor účtu 'uid'. Pokud bude výstupní hodnota prázdná, pak se automaticky použije dostupný identifikátor účtu (uid)."
       }
     },
     "Account": {
       "_type": "Účet na koncovém systému",
       "accountType": "Typ účtu",
       "system": "Systém",
-      "systemEntity": "Navázané entita na systému",
+      "systemEntity": "Navázaná entita na systému",
       "uid": "Identifikátor účtu",
       "inProtection": "Je chráněn před smazáním",
       "endOfProtection": "Chráněn do"
@@ -613,11 +613,11 @@
       "running": "Běží",
       "customFilter" :{
         "label": "Použít vlastní filtr",
-        "help": "Pokud je zaškrtnuto, tak se bude synchronizace řídit filtrem definovaným níže. Pokud není zaškrtnuto, tak se využije synchronizační mechanizmus konektoru. NENÍ použito pro rekoncilaci."
+        "help": "Pokud je zaškrtnuto, tak se bude synchronizace řídit filtrem definovaným níže. Pokud není zaškrtnuto, tak se využije synchronizační mechanizmus konektoru. NENÍ použito pro rekonciliaci."
       },
       "filterAttribute" :{
         "label": "Filtrovat dle atributu",
-        "help": "Tento atribut (spolu s typem filtrovací operace) bude použit jako výchozí filtrovací kritérium pro synchronizaci. Další kritéria je motné definovat ve filtrovacím skriptu."
+        "help": "Tento atribut (spolu s typem filtrovací operace) bude použit jako výchozí filtrovací kritérium pro synchronizaci. Další kritéria je možné definovat ve filtrovacím skriptu."
       },
       "tokenAttribute" :{
         "label": "Token je v tomto atributu",
@@ -635,8 +635,8 @@
         "help": "V tomto Groovy skriptu můžete definovat jak se pozná kořen stromu. Vstupem je 'account' (IcObject). Výstupem musí být Boolean ('true', pokud je prvek kořen). Pokud není skript vyplněn, je za root považován každý prvek, který nemá rodiče."
       },
       "reconciliation": {
-        "label": "Reconciliace",
-        "help": "Pokud je zaškrtnuto, bude provedena plná reconciliace (namísto synchronizace). To znamená, že bude provedena synchronizace pro všechny účty (nastavení filtru nebude bráno v potaz) a dále vyhledání chybějících účtů (proti všem příslušným entitám v IdM)."
+        "label": "Rekonciliace",
+        "help": "Pokud je zaškrtnuto, bude provedena plná rekonciliace (namísto synchronizace). To znamená, že bude provedena synchronizace pro všechny účty (nastavení filtru nebude bráno v potaz) a dále vyhledání chybějících účtů (proti všem příslušným entitám v IdM)."
       },
       "correlationAttribute": "Korelační atribut",
       "systemMapping": "Sada mapovaných atributů",
@@ -770,7 +770,7 @@
     },
     "SystemOperationTypeEnum": {
       "PROVISIONING": "Provisioning",
-      "RECONCILIACE": "Reconciliace",
+      "RECONCILIACE": "Rekonciliace",
       "SYNCHRONIZATION": "Synchronizace"
     },
     "AccountTypeEnum": {
@@ -893,11 +893,11 @@
     },
     "PROVISIONING_ATTRIBUTE_MORE_UID": {
       "title": "Již existuje jiný unikátní identifikátor",
-      "message": "Pro system: {{system}} byl již nalezen unikátní identifikátor."
+      "message": "Pro systém: {{system}} byl již nalezen unikátní identifikátor."
     },
     "PROVISIONING_ROLE_ATTRIBUTE_MORE_UID": {
       "title": "Již existuje jiný unikátní identifikátor",
-      "message": "Pro roli: {{role}} a system {{system}} byl již nalezen unikátní identifikátor."
+      "message": "Pro roli: {{role}} a systém {{system}} byl již nalezen unikátní identifikátor."
     },
     "PROVISIONING_SYSTEM_DISABLED": {
       "title": "Provisioning účtu [{{name}}] neproběhl",
@@ -905,7 +905,7 @@
     },
     "PROVISIONING_SYSTEM_READONLY": {
       "title": "Provisioning účtu [{{name}}] neproběhl",
-      "message": "Provisioning účtu [{{name}}] na systém [{{system}}] nebyl proveden. Systém je v readonly režimu."
+      "message": "Provisioning účtu [{{name}}] na systém [{{system}}] nebyl proveden. Systém je v režimu pouze pro čtení."
     },
     "PROVISIONING_PREPARE_ACCOUNT_ATTRIBUTES_FAILED": {
       "title": "Provisioning účtu [{{name}}] neproběhl",
@@ -921,22 +921,22 @@
     },
     "PROVISIONING_IS_IN_QUEUE": {
       "title": "Provisioning účtu [{{name}}] byl zařazen do fronty",
-      "message": "Ve frontě jsou pro stejný účet nezpracované požadavky na provisioning, proto byl nový poždavek na provisioning účtu [{{name}}] na systém [{{system}}] zařazen do fronty."
+      "message": "Ve frontě jsou pro stejný účet nezpracované požadavky na provisioning, proto byl nový požadavek na provisioning účtu [{{name}}] na systém [{{system}}] zařazen do fronty."
     },
     "PROVISIONING_IDM_FIELD_NOT_FOUND": {
       "title": "Položka pro provisioning nenalezena",
-      "message": "IDM položka [{{field}}] pro entitu [{{entity}}] nebyla nalezena!"
+      "message": "IdM položka [{{field}}] pro entitu [{{entity}}] nebyla nalezena!"
     },
     "PROVISIONING_PASSWORD_FIELD_NOT_FOUND": {
-      "title": "Mapovací atribut hesla nenalezen",
-      "message": "Mapovací atributu pro heslo (___PASSWORD__) nebyl pro entitu [{{uid}}] nalezen!"
+      "title": "System [{{system}}] nepodporuje změnu hesla",
+      "message": "Mapovací atribut pro heslo (___PASSWORD__) nebyl pro entitu [{{uid}}] nalezen!"
     },
     "PROVISIONING_SCHEMA_ATTRIBUTE_IS_NOT_UPDATEABLE": {
-      "title": "Provisioning - atribut není upravitelný",
+      "title": "Provisioning - atribut nelze upravit",
       "message": "Atribut schéma [{{attribute}}] pro entitu [{{entity}}] není 'updateable'!"
     },
     "PROVISIONING_RESOURCE_ATTRIBUTE_NOT_FOUND": {
-      "title": "Provisioning - atribut nebyl nalzen na koncovém systému",
+      "title": "Provisioning - atribut nebyl nalezen na koncovém systému",
       "message": "Atribut [{{attribute}}] pro entitu [{{entity}}] nebyl na koncovém systému nalezen!"
     },
     "PROVISIONING_PASSWORD_WRONG_TYPE": {
@@ -957,7 +957,7 @@
     },
     "PROVISIONING_ATTRIBUTE_UID_NOT_FOUND": {
       "title": "Provisioning - Nebyl nalezen žádný atribut označený jako identifikátor",
-      "message": "Atribut (označený jako identifikátor) nebyl nalezen na systému [{{system}}]. Atribut identifikující entitu, je pro provisioning (nebo synchronizaci) povinný!"
+      "message": "Atribut označený jako identifikátor nebyl nalezen na systému [{{system}}]. Atribut identifikující entitu, je pro provisioning (nebo synchronizaci) povinný!"
     },
     "PROVISIONING_DUPLICATE_ROLE_MAPPING": {
       "title": "Provisioning - Více definic atributu pro stejný UID a stejnou roli",
@@ -988,7 +988,7 @@
       "message": "Tajný atributu [{{property}}] není GuardedString, ale je typu [{{class}}]!"
     },
     "SYNCHRONIZATION_CORRELATION_TO_MANY_RESULTS": {
-      "title": "Synchronizace - bylo nalezeno příliš monoho entit dle korelačního atributu",
+      "title": "Synchronizace - bylo nalezeno příliš mnoho entit dle korelačního atributu",
       "message": "Bylo nalezeno příliš mnoho entit dle korelačního atributu [{{correlationAttribute}}] pro hodnotu [{{value}}]!"
     },
     "SYNCHRONIZATION_TOKEN_ATTRIBUTE_NOT_FOUND": {
@@ -1045,7 +1045,7 @@
     },
     "REMOTE_SERVER_INVALID_CREDENTIAL": {
       "title": "Špatné heslo ke vzdálenému konektoru",
-      "message": "Nesprávné heslo ke vzádlenému konektor serveru [{{server}}]"
+      "message": "Nesprávné heslo ke vzdálenému konektor serveru [{{server}}]"
     },
     "REMOTE_SERVER_NOT_FOUND": {
       "title": "Server nenalezen",
@@ -1057,7 +1057,7 @@
     },
     "REMOTE_SERVER_UNEXPECTED_ERROR": {
       "title": "Neočekávaná chyba",
-      "message": "Při připojování k serveru [{{server}}] se stala neočekáváná chyba"
+      "message": "Při připojování k serveru [{{server}}] se stala neočekávaná chyba"
     },
     "CONNECTOR_FORM_DEFINITION_NOT_FOUND": {
       "title": "Definice formuláře nebyly nalezeny",

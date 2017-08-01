@@ -1,7 +1,7 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 //
-import { Basic } from 'czechidm-core';
+import { Basic, Domain } from 'czechidm-core';
 import { AccountManager } from '../../redux';
 import PasswordChangeForm from 'czechidm-core/src/content/identity/PasswordChangeForm';
 //
@@ -22,7 +22,9 @@ class PasswordChangeAccounts extends Basic.AbstractContent {
   componentDidMount() {
     const { entityId } = this.props.params;
     const defaultSearchParameters = accountManager.getDefaultSearchParameters()
+                                      .setName(Domain.SearchParameters.NAME_AUTOCOMPLETE)
                                       .setFilter('ownership', true)
+                                      .setFilter('supportChangePassword', true)
                                       .setFilter('identity', entityId);
 
     this.selectSidebarItem('profile-password');

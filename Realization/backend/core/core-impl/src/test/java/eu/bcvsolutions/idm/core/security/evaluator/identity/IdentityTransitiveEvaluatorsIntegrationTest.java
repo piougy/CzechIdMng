@@ -132,6 +132,7 @@ public class IdentityTransitiveEvaluatorsIntegrationTest extends AbstractIntegra
 			//
 			PasswordChangeDto passwordChangeDto = new PasswordChangeDto();
 			passwordChangeDto.setIdm(true);
+			passwordChangeDto.setAll(true);
 			passwordChangeDto.setOldPassword(identity.getPassword());
 			passwordChangeDto.setNewPassword(new GuardedString("heslo2"));
 			passwordChangeController.passwordChange(identity.getId().toString(), passwordChangeDto);

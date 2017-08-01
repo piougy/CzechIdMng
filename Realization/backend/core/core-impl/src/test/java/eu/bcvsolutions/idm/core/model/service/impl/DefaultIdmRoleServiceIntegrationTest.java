@@ -22,8 +22,6 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRoleGuarantee;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleGuaranteeRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
@@ -44,10 +42,6 @@ public class DefaultIdmRoleServiceIntegrationTest extends AbstractIntegrationTes
 	private IdmIdentityService identityService;
 	@Autowired
 	private IdmIdentityRepository identityRepository;
-	@Autowired
-	private IdmIdentityRoleService identityRoleService;
-	@Autowired
-	private IdmIdentityContractService identityContractService;
 	@Autowired
 	private IdmRoleService roleService;
 	@Autowired

@@ -5,6 +5,11 @@ import _ from 'lodash';
 import AbstractComponent from '../AbstractComponent/AbstractComponent';
 import Icon from '../Icon/Icon';
 
+/**
+ * Overlay with tooltip
+ *
+ * @author Radek Tomiška
+ */
 export default class BasicTooltip extends AbstractComponent {
 
   constructor(props) {

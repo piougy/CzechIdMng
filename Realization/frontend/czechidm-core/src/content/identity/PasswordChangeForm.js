@@ -19,6 +19,10 @@ const identityService = new IdentityService();
 const securityManager = new SecurityManager();
 const identityManager = new IdentityManager();
 
+/**
+ *
+ * @author Ondřej Kopr
+ */
 class PasswordChangeForm extends Basic.AbstractContent {
 
   constructor(props, context) {
@@ -78,7 +82,7 @@ class PasswordChangeForm extends Basic.AbstractContent {
     if (!this.refs.form.isFormValid()) {
       return;
     }
-    const { entityId, accountOptions } = this.props;
+    const { entityId, accountOptions, userContext } = this.props;
     const formData = this.refs.form.getData();
 
     // add data from child component to formData
@@ -97,13 +101,18 @@ class PasswordChangeForm extends Basic.AbstractContent {
       newPassword: formData.newPassword,
       accounts: []
     };
-    formData.accounts.map(resourceValue => {
-      if (resourceValue === RESOURCE_IDM) {
-        requestData.idm = true;
-      } else {
-        requestData.accounts.push(resourceValue);
-      }
-    });
+    if (IdentityManager.PASSWORD_ALL_ONLY && !SecurityManager.isAdmin(userContext)) {
+      requestData.all = true;
+      requestData.idm = true;
+    } else {
+      formData.accounts.map(resourceValue => {
+        if (resourceValue === RESOURCE_IDM) {
+          requestData.idm = true;
+        } else {
+          requestData.accounts.push(resourceValue);
+        }
+      });
+    }
 
     identityService.passwordChange(entityId, requestData)
     .then(response => {
@@ -127,15 +136,14 @@ class PasswordChangeForm extends Basic.AbstractContent {
       }
       return json;
     })
-    .then(() => {
-      let accounts = (requestData.idm) ? 'CzechIdM' : '';
-      if (requestData.accounts.length > 0 && accounts) {
+    .then(json => {
+      let accounts = (json.idm) ? 'CzechIdM' : '';
+      if (json.accounts.length > 0 && accounts) {
         accounts += ', ';
       }
-      // accounts += requestData.accounts.join();
 
       const optionsNames = [];
-      requestData.accounts.forEach(obj => {
+      json.accounts.forEach(obj => {
         optionsNames.push(
           accountOptions[_.findKey(accountOptions, ['value', obj])].niceLabel
         );
@@ -181,7 +189,7 @@ class PasswordChangeForm extends Basic.AbstractContent {
     const { preload, validationError } = this.state;
     const allOnlyWarningClassNames = classnames(
       'form-group',
-      { 'hidden': passwordChangeType !== IdentityManager.PASSWORD_ALL_ONLY || SecurityManager.isAdmin(userContext) }
+      { 'hidden': passwordChangeType !== IdentityManager.idm || SecurityManager.isAdmin(userContext) }
     );
     //
     // if current user is admin, old password is never required

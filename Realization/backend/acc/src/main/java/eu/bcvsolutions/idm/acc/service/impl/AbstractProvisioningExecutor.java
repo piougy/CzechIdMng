@@ -245,18 +245,39 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 		if (entityAccountList == null) {
 			return;
 		}
-
+		
 		// Distinct by accounts
 		List<UUID> accounts = new ArrayList<>();
 		entityAccountList.stream().filter(entityAccount -> {
-			return entityAccount.isOwnership() && (passwordChange.isAll()
-					|| passwordChange.getAccounts().contains(entityAccount.getAccount().toString()));
+			if(!entityAccount.isOwnership()){
+				return false;
+			}
+			if(passwordChange.isAll()){
+				// Add all account supports change password
+				if(entityAccount.getAccount() == null){
+					return false;
+				}
+				// Check if system for this account support change password
+				AccountFilter accountFilter =  new AccountFilter();
+				accountFilter.setSupportChangePassword(Boolean.TRUE);
+				accountFilter.setId(entityAccount.getAccount());
+				List<AccAccount> accountsChecked = accountService.find(accountFilter, null).getContent();
+				if(accountsChecked.size() == 1){
+					return true;
+				}
+				return false;
+			}else {
+				return passwordChange.getAccounts().contains(entityAccount.getAccount().toString());
+			}
 		}).forEach(entityAccount -> {
 			if (!accounts.contains(entityAccount.getAccount())) {
 				accounts.add(entityAccount.getAccount());
 			}
 		});
 
+		// Clear accounts in DTO ... we will set only success changed
+		passwordChange.setAccounts(null);
+		
 		accounts.forEach(accountId -> {
 			AccAccount account = accountService.get(accountId);
 			// find uid from system entity or from account
@@ -279,13 +300,18 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 					}).findFirst();
 			if (!attriubuteHandlingOptional.isPresent()) {
 				throw new ProvisioningException(AccResultCode.PROVISIONING_PASSWORD_FIELD_NOT_FOUND,
-						ImmutableMap.of("uid", uid));
+						ImmutableMap.of("uid", uid, "system", system.getName()));
 			}
 			AttributeMapping mappedAttribute = attriubuteHandlingOptional.get();
-
+			
+			// Change password on target system
 			doProvisioningForAttribute(systemEntity, mappedAttribute, passwordChange.getNewPassword(),
 					ProvisioningOperationType.UPDATE, entity);
+			// Add success changed password account
+			passwordChange.getAccounts().add(account.getId().toString());
 		});
+		passwordChange.setNewPassword(null);
+		passwordChange.setOldPassword(null);
 	}
 
 	@Override

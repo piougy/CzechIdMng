@@ -1,7 +1,7 @@
 {
   "name": "czechidm-example",
-  "version": "7.3.0-rc.7",
-  "description": "Example module for CzechIdM 2.0 devstack. This module can be duplicated and rename for create new optional czechidm module.",
+  "version": "7.3.0-rc.8",
+  "description": "Example module for CzechIdM devstack. This module can be duplicated and rename for create new optional CzechIdM module.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -9,7 +9,7 @@
   "keywords": [
     "CzechIdM",
     "example",
-    "IDM"
+    "IdM"
   ],
   "author": "BCV solutions s.r.o",
   "license": "MIT"

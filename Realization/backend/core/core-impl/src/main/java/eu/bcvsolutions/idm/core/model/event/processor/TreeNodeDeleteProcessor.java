@@ -95,7 +95,8 @@ public class TreeNodeDeleteProcessor extends CoreEventProcessor<IdmTreeNode> {
 			}
 		});
 		//
-		repository.delete(saveProcessor.getForestContentService().deleteIndex(treeNode));
+		saveProcessor.getForestContentService().deleteIndex(treeNode.getId());
+		repository.delete(treeNode);
 		//
 		return new DefaultEventResult<>(event, this);
 	}

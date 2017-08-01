@@ -48,7 +48,9 @@ public class PasswordGenerator {
 		Assert.notNull(policy, "Password policy can't be null.");
 		List<String> password = new ArrayList<>();
 		
-		for (int index = 0; index < policy.getPassphraseWords(); index++) {
+		int passphraseLength = policy.getPassphraseWords() == null ? 0 : policy.getPassphraseWords().intValue();
+		
+		for (int index = 0; index < passphraseLength; index++) {
 			
 			StringBuilder number = new StringBuilder();
 			for (int roll = 1; roll < ROLLS; roll++) {
@@ -67,14 +69,21 @@ public class PasswordGenerator {
 	 * @return
 	 */
 	public String generateRandom(PasswordGenerate policy) {
-		Assert.notNull(policy, "Password policy can't be null.");
-		Assert.notNull(policy.getMinPasswordLength(), "Parameter: minLength can't be null!");
-		Assert.notNull(policy.getMaxPasswordLength(), "Parameter: maxLength can't be null!");
-		if (policy.getMaxPasswordLength() < policy.getMinPasswordLength()) {
+		Assert.notNull(policy, "Password policy can't be null.");		
+		// policy may contains null values
+		int maximumLength = policy.getMaxPasswordLength() == null ? Integer.MAX_VALUE : policy.getMaxPasswordLength().intValue();
+		int minimumLength = policy.getMinPasswordLength() == null ? 0 : policy.getMinPasswordLength().intValue();
+		
+		if (maximumLength < minimumLength) {
 			throw new IllegalArgumentException("Parameter: maxLength can't be lower than parameter: minLength");
 		}
 		
-		if (policy.getMaxPasswordLength() < (policy.getMinLowerChar() + policy.getMinUpperChar() + policy.getMinSpecialChar() + policy.getMinNumber())) {
+		int minimumLengthAll = policy.getMinLowerChar() == null ? 0 : policy.getMinLowerChar().intValue(); 
+		minimumLengthAll += policy.getMinUpperChar() == null ? 0 : policy.getMinUpperChar().intValue();
+		minimumLengthAll += policy.getMinSpecialChar() == null ? 0 : policy.getMinSpecialChar().intValue();
+		minimumLengthAll += policy.getMinNumber() == null ? 0 : policy.getMinNumber().intValue();
+		
+		if (maximumLength < minimumLengthAll) {
 			throw new IllegalArgumentException("Parameter: maxLength must be higer or same as sum minimal length of all base.");
 		}
 
@@ -89,29 +98,29 @@ public class PasswordGenerator {
 		String numberBase = policy.getNumberBase();
 		
 		// generate minimal requirements
-		if (policy.getMinLowerChar() != 0) {
+		if (policy.getMinLowerChar() != null && policy.getMinLowerChar() != 0) {
 			String lower = removeProhibited(lowerBase, prohibited);
 			password.append(getRandomChars(lower, policy.getMinLowerChar(), null));
 			base.append(lower);
 		}
-		if (policy.getMinUpperChar() != 0) {
+		if (policy.getMinUpperChar() != null && policy.getMinUpperChar() != 0) {
 			String upper = removeProhibited(upperBase, prohibited);
 			password.append(getRandomChars(upper, policy.getMinUpperChar(), null));
 			base.append(upper);
 		}
-		if (policy.getMinSpecialChar() != 0) {
+		if (policy.getMinSpecialChar() != null && policy.getMinSpecialChar() != 0) {
 			String special = removeProhibited(specialBase, prohibited);
 			password.append(getRandomChars(special, policy.getMinSpecialChar(), prohibited));
 			base.append(special);
 		}
-		if (policy.getMinNumber() != 0) {
+		if (policy.getMinNumber() != null && policy.getMinNumber() != 0) {
 			String number = removeProhibited(numberBase, prohibited);
 			password.append(getRandomChars(number, policy.getMinNumber(), prohibited));
 			base.append(number);
 		}
 		
 		// add final string to password 
-		int missingLength = getRandomNumber(policy.getMinPasswordLength() - password.length(), policy.getMaxPasswordLength() - password.length());
+		int missingLength = getRandomNumber(minimumLength - password.length(), maximumLength - password.length());
 		if (missingLength > 0) {
 			if (base.length() == 0) {
 				base.append(policy.getLowerCharBase());
@@ -188,7 +197,7 @@ public class PasswordGenerator {
 			}
 			
 			@Override
-			public int getPassphraseWords() {
+			public Integer getPassphraseWords() {
 				return 0;
 			}
 			
@@ -198,32 +207,32 @@ public class PasswordGenerator {
 			}
 			
 			@Override
-			public int getMinUpperChar() {
+			public Integer getMinUpperChar() {
 				return getValue(upperMin);
 			}
 			
 			@Override
-			public int getMinSpecialChar() {
+			public Integer getMinSpecialChar() {
 				return getValue(specialMin);
 			}
 			
 			@Override
-			public int getMinPasswordLength() {
+			public Integer getMinPasswordLength() {
 				return getValue(minLength);
 			}
 			
 			@Override
-			public int getMinNumber() {
+			public Integer getMinNumber() {
 				return getValue(numberMin);
 			}
 			
 			@Override
-			public int getMinLowerChar() {
+			public Integer getMinLowerChar() {
 				return getValue(lowerMin);
 			}
 			
 			@Override
-			public int getMaxPasswordLength() {
+			public Integer getMaxPasswordLength() {
 				return getValue(maxLength);
 			}
 			

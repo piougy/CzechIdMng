@@ -13,6 +13,8 @@ const auditManager = new AuditManager();
 
 /**
 * Table of Audit for identities
+*
+* @author Ondřej Kopr
 */
 export class AuditIdentityTable extends Advanced.AbstractTableContent {
 
@@ -116,7 +118,7 @@ export class AuditIdentityTable extends Advanced.AbstractTableContent {
   }
 
   _getForceSearchParameters() {
-    return new SearchParameters('entity').setFilter('entity', 'eu.bcvsolutions.idm.core.model.entity.IdmIdentity');
+    return new SearchParameters('entity').setFilter('entityClass', 'eu.bcvsolutions.idm.core.model.entity.IdmIdentity');
   }
 
   _getNiceLabelForOwner(ownerType, ownerCode) {

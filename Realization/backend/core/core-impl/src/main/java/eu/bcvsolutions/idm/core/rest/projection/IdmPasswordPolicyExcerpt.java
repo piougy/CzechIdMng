@@ -8,7 +8,7 @@ import eu.bcvsolutions.idm.core.api.rest.projection.AbstractDtoProjection;
 import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
 
 /**
- * Excerpt interface for password policy
+ * Excerpt Integererface for password policy
  * 
  * TODO: weak password dictonary is String
  * 
@@ -25,33 +25,33 @@ public interface IdmPasswordPolicyExcerpt extends AbstractDtoProjection {
 	
 	public boolean isPasswordLengthRequired();
 
-	public int getMinPasswordLength();
+	public Integer getMinPasswordLength();
 
-	public int getMaxPasswordLength();
+	public Integer getMaxPasswordLength();
 	
 	public boolean isUpperCharRequired();
 	
-	public int getMinUpperChar();
+	public Integer getMinUpperChar();
 	
 	public boolean isNumberRequired();
 
-	public int getMinNumber();
+	public Integer getMinNumber();
 
 	public boolean isSpecialCharRequired();
 
-	public int getMinSpecialChar();
+	public Integer getMinSpecialChar();
 
 	public boolean isWeakPassRequired();
 	
 	public String getWeakPass();
 	
-	public int getMaxPasswordAge();
+	public Integer getMaxPasswordAge();
 	
-	public int getMinPasswordAge();
+	public Integer getMinPasswordAge();
 
 	public boolean isEnchancedControl();
 	
-	public int getMinRulesToFulfill();
+	public Integer getMinRulesToFulfill();
 	
 	public IdmPasswordPolicyType getType();
 
@@ -61,11 +61,11 @@ public interface IdmPasswordPolicyExcerpt extends AbstractDtoProjection {
 	
 	public IdmPasswordPolicyGenerateType getGenerateType();
 	
-	public int getPassphraseWords();
+	public Integer getPassphraseWords();
 	
-	public int getMinLowerChar();
+	public Integer getMinLowerChar();
 	
 	public boolean isLowerCharRequired();
 	
-	public int getMaxHistorySimilar();
+	public Integer getMaxHistorySimilar();
 }

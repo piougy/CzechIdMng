@@ -24,7 +24,7 @@ public final class GuardedString {
 	/**
 	 * Property name supposed to be guarded
 	 */
-	public static final String[] GUARDED_PROPERTY_NAMES = new String[] {"password", "token"};
+	public static final String[] GUARDED_PROPERTY_NAMES = new String[] {"password", "token", "secret"};
 	/**
 	 * We support utf-8 only
 	 */

@@ -173,4 +173,4 @@ export default class ConfigurationManager extends EntityManager {
 ConfigurationManager.PUBLIC_CONFIGURATIONS = 'public-configurations'; // ui key only
 ConfigurationManager.ENVIRONMENT_CONFIGURATIONS = 'environment-configurations'; // ui key to data redux
 ConfigurationManager.FILE_CONFIGURATIONS = 'file-configurations'; // ui key to data redux
-ConfigurationManager.GUARDED_PROPERTY_NAMES = ['password', 'token']; // automatically guarded property names
+ConfigurationManager.GUARDED_PROPERTY_NAMES = ['password', 'token', 'secret']; // automatically guarded property names

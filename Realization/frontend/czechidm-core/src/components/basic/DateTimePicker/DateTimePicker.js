@@ -61,8 +61,8 @@ class DateTimePicker extends AbstractFormComponent {
 
   setValue(value) {
     const dateTime = this._format(value);
-    if (this.refs.input) {
-      this.refs.input.setState({ inputValue: dateTime || '' }); // we need to set empty string, null does not work
+    if (this.refs.input && !dateTime) {
+      this.refs.input.setState({ inputValue: '' }); // we need to set empty string, null does not work
     }
     this.setState({value: dateTime}, () => { this.validate(false); });
   }
@@ -155,7 +155,7 @@ class DateTimePicker extends AbstractFormComponent {
   }
 
   _clear() {
-    this.refs.input.setState({ inputValue: '' }); // we need to set empty string, null does not work
+    this.refs.input.setState({ inputValue: null }); // we need to set empty string, null does not work
     this.setState({ value: null }, () => { this.validate(); });
   }
   _openDialog() {
@@ -183,9 +183,10 @@ class DateTimePicker extends AbstractFormComponent {
     const _dateFormat = this._getDateFormat(dateFormat);
     const _timeFormat = this._getTimeFormat(timeFormat);
     //
-    // const className = classNames('form-control'); // rt: className is added automatically by Datetime component
     const labelClassName = classNames(labelSpan, 'control-label');
 
+    // VS: I added value attribute to Datetime component. External set value (in setValue method) now set only empty string if value is null.
+    // Without value attribute is in some case (detail of contract) value not show after first render.
     return (
       <div>
         {
@@ -207,6 +208,7 @@ class DateTimePicker extends AbstractFormComponent {
                 :
                 <Datetime
                   ref="input"
+                  value={value}
                   onChange={this.onChange}
                   disabled={disabled}
                   readOnly={readOnly}

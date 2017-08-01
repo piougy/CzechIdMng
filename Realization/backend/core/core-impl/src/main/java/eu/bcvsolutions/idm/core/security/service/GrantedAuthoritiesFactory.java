@@ -48,5 +48,6 @@ public interface GrantedAuthoritiesFactory {
 	 * @param subset
 	 * @return
 	 */
-	boolean containsAllAuthorities(Collection<GrantedAuthority> original, Collection<GrantedAuthority> subset);
+	boolean containsAllAuthorities(Collection<? extends GrantedAuthority> original,
+								   Collection<? extends GrantedAuthority> subset);
 }

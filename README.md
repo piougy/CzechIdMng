@@ -4,7 +4,7 @@ The seventh version of [CzechIdM](http://www.czechidm.com/) will be based on tec
 * Backend (java):
   * jdbc db (primary PostgreSQL)
   * Hibernate ORM
-  * Spring (data, data rest, hateoas, security, integration)
+  * Spring (data, hateoas, security ...)
   * Activiti (workflow)
 
 * Frontend (javascript)
@@ -14,8 +14,8 @@ The seventh version of [CzechIdM](http://www.czechidm.com/) will be based on tec
 
 ## Instalation
 
-* [Frontend](./Realization/frontend)
 * [Backend](./Realization/backend)
+* [Frontend](./Realization/frontend)
 
 ## License
 

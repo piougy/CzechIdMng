@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
@@ -162,19 +161,7 @@ public class IdentityPasswordValidateProcessor extends AbstractEntityEventProces
 		passwordValidationDto.setIdentity(identity);
 		passwordValidationDto.setPassword(passwordChangeDto.getNewPassword());
 		this.passwordPolicyService.validate(passwordValidationDto, passwordPolicyList);
-		//
-		// if change password for idm iterate by all policies and get min
-		// attribute of
-		// max password age and set it into DTO, for save password processor
-		if (passwordChangeDto.isIdm() && !passwordPolicyList.isEmpty()) {
-			Integer maxAgeInt = this.passwordPolicyService.getMaxPasswordAge(passwordPolicyList);
-			if (maxAgeInt != null) {
-				DateTime maxPasswordAge = new DateTime();
-				// set into DTO, in identity password save processor was add
-				// into IdmIdentityPassword
-				passwordChangeDto.setMaxPasswordAge(maxPasswordAge.plusDays(maxAgeInt));
-			}
-		}
+		// maximum password age is solved in {@link IdentityPasswordProcessor}
 		//
 		return new DefaultEventResult<>(event, this);
 	}

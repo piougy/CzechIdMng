@@ -4,9 +4,12 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.List;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.TestHelper;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdentityFilter;
@@ -24,7 +27,17 @@ public class UsernameIdentityFilterBuilderIntegrationTest extends AbstractIntegr
 	
 	@Autowired private TestHelper helper;
 	@Autowired private IdmIdentityRepository repository;
-	
+
+	@Before
+	public void init() {
+		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+	}
+
+	@After
+	public void logout() {
+		super.logout();
+	}
+
 	@Test
 	public void testFindIdentityByUuid() {
 		// prepare data

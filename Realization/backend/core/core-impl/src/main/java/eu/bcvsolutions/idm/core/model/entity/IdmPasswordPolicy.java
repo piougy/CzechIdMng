@@ -60,11 +60,11 @@ public class IdmPasswordPolicy extends AbstractEntity implements Codeable, Passw
 	
 	@Audited
 	@Column(name = "min_password_length")
-	private int minPasswordLength;
+	private Integer minPasswordLength;
 	
 	@Audited
 	@Column(name = "max_password_length")
-	private int maxPasswordLength;
+	private Integer maxPasswordLength;
 
 	@Audited
 	@Column(name = "upper_char_required", nullable = false)
@@ -72,7 +72,7 @@ public class IdmPasswordPolicy extends AbstractEntity implements Codeable, Passw
 	
 	@Audited
 	@Column(name = "min_upper_char")
-	private int minUpperChar;
+	private Integer minUpperChar;
 	
 	@Audited
 	@Column(name = "lower_char_required", nullable = false)
@@ -80,7 +80,7 @@ public class IdmPasswordPolicy extends AbstractEntity implements Codeable, Passw
 
 	@Audited
 	@Column(name = "min_lower_char")
-	private int minLowerChar;
+	private Integer minLowerChar;
 	
 	@Audited
 	@Column(name = "number_required", nullable = false)
@@ -88,7 +88,7 @@ public class IdmPasswordPolicy extends AbstractEntity implements Codeable, Passw
 	
 	@Audited
 	@Column(name = "min_number")
-	private int minNumber;
+	private Integer minNumber;
 	
 	@Audited
 	@Column(name = "special_char_required", nullable = false)
@@ -96,7 +96,7 @@ public class IdmPasswordPolicy extends AbstractEntity implements Codeable, Passw
 	
 	@Audited
 	@Column(name = "min_special_char")
-	private int minSpecialChar;
+	private Integer minSpecialChar;
 	
 	@Audited
 	@Column(name = "weak_pass_required", nullable = false)
@@ -108,11 +108,11 @@ public class IdmPasswordPolicy extends AbstractEntity implements Codeable, Passw
 	
 	@Audited
 	@Column(name = "max_password_age")
-	private int maxPasswordAge;
+	private Integer maxPasswordAge;
 	
 	@Audited
 	@Column(name = "min_password_age")
-	private int minPasswordAge;
+	private Integer minPasswordAge;
 	
 	@Audited
 	@Column(name = "enchanced_control", nullable = false)
@@ -120,7 +120,7 @@ public class IdmPasswordPolicy extends AbstractEntity implements Codeable, Passw
 	
 	@Audited
 	@Column(name = "min_rules_to_fulfill")
-	private int minRulesToFulfill;
+	private Integer minRulesToFulfill;
 	
 	@Audited
 	@Enumerated(EnumType.STRING)
@@ -134,7 +134,7 @@ public class IdmPasswordPolicy extends AbstractEntity implements Codeable, Passw
 	
 	@Audited
 	@Column(name = "passphrase_words")
-	private int passphraseWords;
+	private Integer passphraseWords;
 
 	@Audited
 	@Column(name = "prohibited_characters")
@@ -162,7 +162,7 @@ public class IdmPasswordPolicy extends AbstractEntity implements Codeable, Passw
 	
 	@Audited
 	@Column(name = "max_history_similar")
-	private int maxHistorySimilar;
+	private Integer maxHistorySimilar;
 	
 	@Audited
 	@Column(name = "identity_attribute_check")
@@ -171,13 +171,13 @@ public class IdmPasswordPolicy extends AbstractEntity implements Codeable, Passw
 	@Audited
 	@NotNull
 	@Column(name = "disabled", nullable = false)
-	private boolean disabled;
+	private boolean disabled = false;
 	
-	public int getMaxHistorySimilar() {
+	public Integer getMaxHistorySimilar() {
 		return maxHistorySimilar;
 	}
 
-	public void setMaxHistorySimilar(int maxHistorySimilar) {
+	public void setMaxHistorySimilar(Integer maxHistorySimilar) {
 		this.maxHistorySimilar = maxHistorySimilar;
 	}
 
@@ -193,19 +193,19 @@ public class IdmPasswordPolicy extends AbstractEntity implements Codeable, Passw
 		this.passwordLengthRequired = passwordLengthRequired;
 	}
 
-	public int getMinPasswordLength() {
+	public Integer getMinPasswordLength() {
 		return minPasswordLength;
 	}
 
-	public void setMinPasswordLength(int minPasswordLength) {
+	public void setMinPasswordLength(Integer minPasswordLength) {
 		this.minPasswordLength = minPasswordLength;
 	}
 
-	public int getMaxPasswordLength() {
+	public Integer getMaxPasswordLength() {
 		return maxPasswordLength;
 	}
 
-	public void setMaxPasswordLength(int maxPasswordLength) {
+	public void setMaxPasswordLength(Integer maxPasswordLength) {
 		this.maxPasswordLength = maxPasswordLength;
 	}
 
@@ -217,11 +217,11 @@ public class IdmPasswordPolicy extends AbstractEntity implements Codeable, Passw
 		this.upperCharRequired = upperCharRequired;
 	}
 
-	public int getMinUpperChar() {
+	public Integer getMinUpperChar() {
 		return minUpperChar;
 	}
 
-	public void setMinUpperChar(int minUpperChar) {
+	public void setMinUpperChar(Integer minUpperChar) {
 		this.minUpperChar = minUpperChar;
 	}
 
@@ -233,11 +233,11 @@ public class IdmPasswordPolicy extends AbstractEntity implements Codeable, Passw
 		this.numberRequired = numberRequired;
 	}
 
-	public int getMinNumber() {
+	public Integer getMinNumber() {
 		return minNumber;
 	}
 
-	public void setMinNumber(int minNumber) {
+	public void setMinNumber(Integer minNumber) {
 		this.minNumber = minNumber;
 	}
 
@@ -249,11 +249,11 @@ public class IdmPasswordPolicy extends AbstractEntity implements Codeable, Passw
 		this.specialCharRequired = specialCharRequired;
 	}
 
-	public int getMinSpecialChar() {
+	public Integer getMinSpecialChar() {
 		return minSpecialChar;
 	}
 
-	public void setMinSpecialChar(int minSpecialChar) {
+	public void setMinSpecialChar(Integer minSpecialChar) {
 		this.minSpecialChar = minSpecialChar;
 	}
 
@@ -273,19 +273,19 @@ public class IdmPasswordPolicy extends AbstractEntity implements Codeable, Passw
 		this.weakPass = weakPass;
 	}
 
-	public int getMaxPasswordAge() {
+	public Integer getMaxPasswordAge() {
 		return maxPasswordAge;
 	}
 
-	public void setMaxPasswordAge(int maxPasswordAge) {
+	public void setMaxPasswordAge(Integer maxPasswordAge) {
 		this.maxPasswordAge = maxPasswordAge;
 	}
 
-	public int getMinPasswordAge() {
+	public Integer getMinPasswordAge() {
 		return minPasswordAge;
 	}
 
-	public void setMinPasswordAge(int minPasswordAge) {
+	public void setMinPasswordAge(Integer minPasswordAge) {
 		this.minPasswordAge = minPasswordAge;
 	}
 
@@ -297,11 +297,11 @@ public class IdmPasswordPolicy extends AbstractEntity implements Codeable, Passw
 		this.enchancedControl = enchancedControl;
 	}
 
-	public int getMinRulesToFulfill() {
+	public Integer getMinRulesToFulfill() {
 		return minRulesToFulfill;
 	}
 
-	public void setMinRulesToFulfill(int minRulesToFulfill) {
+	public void setMinRulesToFulfill(Integer minRulesToFulfill) {
 		this.minRulesToFulfill = minRulesToFulfill;
 	}
 
@@ -337,11 +337,11 @@ public class IdmPasswordPolicy extends AbstractEntity implements Codeable, Passw
 		this.prohibitedCharacters = prohibitedCharacters;
 	}
 
-	public int getPassphraseWords() {
+	public Integer getPassphraseWords() {
 		return passphraseWords;
 	}
 
-	public void setPassphraseWords(int passphraseWords) {
+	public void setPassphraseWords(Integer passphraseWords) {
 		this.passphraseWords = passphraseWords;
 	}
 	
@@ -353,11 +353,11 @@ public class IdmPasswordPolicy extends AbstractEntity implements Codeable, Passw
 		this.lowerCharRequired = lowerCharRequired;
 	}
 
-	public int getMinLowerChar() {
+	public Integer getMinLowerChar() {
 		return minLowerChar;
 	}
 
-	public void setMinLowerChar(int minLowerChar) {
+	public void setMinLowerChar(Integer minLowerChar) {
 		this.minLowerChar = minLowerChar;
 	}
 	

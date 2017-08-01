@@ -735,7 +735,8 @@
         "passwordSimilarEmail": "Heslo je příliš podobné emailu: ",
         "passwordSimilarFirstName": "Heslo je příliš podobné jménu: ",
         "passwordSimilarLastName": "Heslo je příliš podobné příjmení: ",
-        "date": "Heslo není možné nyní změnit, zkuste to znovu: "
+        "date": "Heslo není možné nyní změnit, zkuste to znovu: ",
+        "advancedControlValidateType": "Rozšířená kontrola hesel je dostupná pouze pro validační politku."
       },
       "save": {
         "success": "Politika [{{name}}] byla úspěšně uložena."
@@ -2490,7 +2491,7 @@
       "weakPassRequired": "Povinné slabé hesla",
       "weakPass": "Slabé hesla",
       "passphraseWords": "Počet slov pro passphrase",
-      "maxPasswordAge": "Maximální doba pro změnu hesla",
+      "maxPasswordAge": "Maximální stáří hesla",
       "minPasswordAge": "Minimální doba pro změnu hesla",
       "enchancedControl": "Rozšířená kontrola",
       "minRulesToFulfill": "Minimum pravidel pro splnění politiky",
@@ -2511,7 +2512,7 @@
         "prohibitedCharacters": "Zakázané znaky budou kontrolovány při validaci a při generování hesla budou zcela vypuštěny. Vkládejte bez mezer jednotlivé znaky přímo za sebou, například: 1LliIo0!",
         "bases": "Znakové sady pro generování hesel, ze sad jsou odstraněny zakázané znaky.",
         "identityAttributeCheck": "Atributy uživatele, které budou kontrolovány na podobnost s heslem.",
-        "emptyValues": "Pro vynechání jednotlivých validací nechte pole prázdné, případně nastavte na číslici 0.",
+        "emptyValues": "Pro vynechání jednotlivých validací nechte pole prázdné.",
         "passphraseWords": "Počet slov které bude obsahovat nově vygenerované passphrase."
       }
     },

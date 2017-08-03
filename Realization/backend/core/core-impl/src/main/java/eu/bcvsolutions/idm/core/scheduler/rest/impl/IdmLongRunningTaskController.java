@@ -43,7 +43,10 @@ import io.swagger.annotations.AuthorizationScope;
  */
 @RestController
 @RequestMapping(value = BaseDtoController.BASE_PATH + "/long-running-tasks")
-@Api(value = IdmLongRunningTaskController.TAG, description = "Operations with long running tasks (LRT)", tags = { IdmLongRunningTaskController.TAG })
+@Api(
+		value = IdmLongRunningTaskController.TAG, 
+		description = "Operations with long running tasks (LRT)", 
+		tags = { IdmLongRunningTaskController.TAG })
 public class IdmLongRunningTaskController
 	extends AbstractReadWriteDtoController<IdmLongRunningTaskDto, LongRunningTaskFilter> {
 	
@@ -61,10 +64,7 @@ public class IdmLongRunningTaskController
 		//
 		this.longRunningTaskManager = longRunningTaskManager;
 	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.GET)
@@ -209,5 +209,10 @@ public class IdmLongRunningTaskController
 		longRunningTaskManager.processCreated();
 		//
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
+	
+	@Override
+	protected LongRunningTaskFilter toFilter(MultiValueMap<String, Object> parameters) {
+		return getParameterConverter().toFilter(parameters, getService().getFilterClass());
 	}
 }

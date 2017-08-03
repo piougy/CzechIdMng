@@ -210,9 +210,4 @@ public class IdmLongRunningTaskController
 		//
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
-	
-	@Override
-	protected LongRunningTaskFilter toFilter(MultiValueMap<String, Object> parameters) {
-		return getParameterConverter().toFilter(parameters, getService().getFilterClass());
-	}
 }

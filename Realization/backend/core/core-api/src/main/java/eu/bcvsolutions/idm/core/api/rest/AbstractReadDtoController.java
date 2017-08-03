@@ -1,8 +1,6 @@
 package eu.bcvsolutions.idm.core.api.rest;
 
 import java.io.Serializable;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -312,7 +310,7 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 	@SuppressWarnings("unchecked")
 	protected F toFilter(MultiValueMap<String, Object> parameters) {
 		// data filter - constuctor with given parameters
-		if (DataFilter.class.isAssignableFrom(getFilterClass())) {
+		/* if (DataFilter.class.isAssignableFrom(getFilterClass())) {
 			try {
 				Constructor<?> dataFilterConstructor = getFilterClass().getConstructor(MultiValueMap.class);
 				return (F) dataFilterConstructor.newInstance(parameters);
@@ -322,7 +320,7 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 				LOG.warn("Filter class [{}] does not support constructor with raw filter parameters."
 						+ " Base object mapper will be used for filter conversion.", getFilterClass(), ex);
 			}
-		}
+		} */
 		// otherwise - mapper with single values is used		
 		return getParameterConverter().toFilter(parameters, getService().getFilterClass());
 	}

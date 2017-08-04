@@ -480,7 +480,7 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 			@PathVariable @NotNull String backendId,
 			PersistentEntityResourceAssembler assembler) {
 		systemService.checkSystem(super.getEntity(backendId));
-		return new ResponseEntity<>(true, HttpStatus.OK);
+		return new ResponseEntity<>(Boolean.TRUE, HttpStatus.OK);
 	}
 	
 	/**

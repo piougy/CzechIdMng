@@ -575,7 +575,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 	 * @param log
 	 * @param actionsLog
 	 */
-	protected void startReconciliation(SystemEntityType entityType, Set<String> allAccountsList, SysSyncConfig config,
+	protected void startReconciliation(SystemEntityType entityType, Set<String> allAccountsSet, SysSyncConfig config,
 			SysSystem system, SysSyncLog log, List<SysSyncActionLog> actionsLog) {
 		AccountFilter accountFilter = new AccountFilter();
 		accountFilter.setSystemId(system.getId());
@@ -587,7 +587,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 				return;
 			}
 			String uid = account.getRealUid();
-			if (!allAccountsList.contains(uid)) {
+			if (!allAccountsSet.contains(uid)) {
 				SysSyncItemLog itemLog = new SysSyncItemLog();
 				try {
 
@@ -950,7 +950,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 		// Generate UID value from mapped attribute marked as UID (Unique ID).
 		// UID mapped attribute must exist and returned value must be not null and must be String
 		String attributeUid = systemAttributeMappingService.getUidValueFromResource(icAttributes, mappedAttributes, system);
-		if(account != null && !account.getUid().equals(attributeUid)){
+		if(!account.getUid().equals(attributeUid)){
 			addToItemLog(logItem, MessageFormat.format("IdM Account UID ({0}) is different ({1}). We will update him.", account.getUid(), attributeUid));
 			account.setUid(attributeUid);
 			accountService.save(account);
@@ -1472,7 +1472,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 		AttributeMappingStrategyType strategyType = attribute.getStrategyType();
 		switch (strategyType) {
 			case CREATE: {
-				return create ? true : false;
+				return create;
 			}
 			case SET: {
 				return true;
@@ -1494,7 +1494,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 
 	private AccAccount findAccount(String uid, SystemEntityType entityType, SysSystemEntity systemEntity,
 			SysSystem system, SysSyncItemLog logItem) {
-		AccAccount account = null;
+
 		AccountFilter accountFilter = new AccountFilter();
 		accountFilter.setSystemId(system.getId());
 		List<AccAccount> accounts = null;
@@ -1521,9 +1521,9 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 			throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_TO_MANY_ACC_ACCOUNT, uid);
 		}
 		if (!accounts.isEmpty()) {
-			account = accounts.get(0);
+			return accounts.get(0);
 		}
-		return account;
+		return null;
 	}
 
 	private SysSystemEntity createSystemEntity(String uid, SystemEntityType entityType, SysSystem system) {

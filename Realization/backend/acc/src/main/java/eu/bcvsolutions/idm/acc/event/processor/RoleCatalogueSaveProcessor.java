@@ -53,7 +53,7 @@ public class RoleCatalogueSaveProcessor extends CoreEventProcessor<IdmRoleCatalo
 	public EventResult<IdmRoleCatalogueDto> process(EntityEvent<IdmRoleCatalogueDto> event) {
 		Object breakProvisioning = event.getProperties().get(ProvisioningService.SKIP_PROVISIONING);
 		
-		if(breakProvisioning != null && breakProvisioning instanceof Boolean && (Boolean)breakProvisioning){
+		if(breakProvisioning instanceof Boolean && (Boolean)breakProvisioning){
 			return new DefaultEventResult<>(event, this);
 		}
 		

@@ -73,7 +73,7 @@ public class ProvisioningStartProcessor extends AbstractEntityEventProcessor<Acc
 
 	private boolean isCanceledProvisioningProtectionBreak(Map<String, Serializable> properties) {
 		Object breakProvisioning = properties.get(ProvisioningService.CANCEL_PROVISIONING_BREAK_IN_PROTECTION);
-		if (breakProvisioning != null && breakProvisioning instanceof Boolean && (Boolean) breakProvisioning) {
+		if (breakProvisioning instanceof Boolean && (Boolean) breakProvisioning) {
 			return true;
 		}
 		return false;

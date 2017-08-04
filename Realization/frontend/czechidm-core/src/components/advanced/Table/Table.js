@@ -303,7 +303,10 @@ class AdvancedTable extends Basic.AbstractContextComponent {
       // construct basic column from advanced column definition
       let columnHeader = column.props.header;
       if (!columnHeader && column.props.property) {
-        columnHeader = this.i18n(`${manager.getModule()}:entity.${manager.getEntityType()}.${column.props.property}`);
+        columnHeader = this.i18n(
+          `${manager.getModule()}:entity.${manager.getEntityType()}.${column.props.property}.label`, // label has higher priority
+          { defaultValue: this.i18n(`${manager.getModule()}:entity.${manager.getEntityType()}.${column.props.property}`)}
+        );
       }
       if (column.props.sort) {
         columnHeader = (

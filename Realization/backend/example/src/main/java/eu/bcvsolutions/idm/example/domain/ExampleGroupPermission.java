@@ -16,15 +16,22 @@ import eu.bcvsolutions.idm.example.ExampleModuleDescriptor;
  */
 public enum ExampleGroupPermission implements GroupPermission {
 	
-	PRODUCT(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE);
+	EXAMPLEPRODUCT(
+			IdmBasePermission.ADMIN, 
+			IdmBasePermission.AUTOCOMPLETE,
+			IdmBasePermission.READ,
+			IdmBasePermission.CREATE,
+			IdmBasePermission.UPDATE,
+			IdmBasePermission.DELETE);
 	
 	// String constants could be used in pre / post authotize SpEl expressions
 	
-	public static final String PRODUCT_ADMIN = "PRODUCT" + BasePermission.SEPARATOR + "ADMIN";
-	public static final String PRODUCT_READ = "PRODUCT" + BasePermission.SEPARATOR + "READ";
-	public static final String PRODUCT_CREATE = "PRODUCT" + BasePermission.SEPARATOR + "CREATE";
-	public static final String PRODUCT_UPDATE = "PRODUCT" + BasePermission.SEPARATOR + "UPDATE";
-	public static final String PRODUCT_DELETE = "PRODUCT" + BasePermission.SEPARATOR + "DELETE";
+	public static final String EXAMPLE_PRODUCT_ADMIN = "EXAMPLEPRODUCT" + BasePermission.SEPARATOR + "ADMIN";
+	public static final String EXAMPLE_PRODUCT_AUTOCOMPLETE = "EXAMPLEPRODUCT" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
+	public static final String EXAMPLE_PRODUCT_READ = "EXAMPLEPRODUCT" + BasePermission.SEPARATOR + "READ";
+	public static final String EXAMPLE_PRODUCT_CREATE = "EXAMPLEPRODUCT" + BasePermission.SEPARATOR + "CREATE";
+	public static final String EXAMPLE_PRODUCT_UPDATE = "EXAMPLEPRODUCT" + BasePermission.SEPARATOR + "UPDATE";
+	public static final String EXAMPLE_PRODUCT_DELETE = "EXAMPLEPRODUCT" + BasePermission.SEPARATOR + "DELETE";
 	
 	private final List<BasePermission> permissions;
 	

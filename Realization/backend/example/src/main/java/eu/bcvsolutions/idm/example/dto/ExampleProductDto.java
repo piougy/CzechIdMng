@@ -12,14 +12,15 @@ import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.Disableable;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
- * 
+ * Example product
  * 
  * @author Radek Tomiška
  *
  */
-@Relation(collectionRelation = "products")
+@Relation(collectionRelation = "exampleProducts")
 @ApiModel(description = "Example product")
 public class ExampleProductDto extends AbstractDto implements Codeable, Disableable {
 
@@ -27,13 +28,16 @@ public class ExampleProductDto extends AbstractDto implements Codeable, Disablea
 
 	@NotEmpty
 	@Size(min = 0, max = DefaultFieldLengths.NAME)
+	@ApiModelProperty(required = true, notes = "Unique example product's code. Could be used as identifier in rest endpoints.")
 	private String code;
 	@NotEmpty
 	@Size(min = 0, max = DefaultFieldLengths.NAME)
 	private String name;
 	@Size(max = DefaultFieldLengths.DESCRIPTION)
 	private String description;
+	@ApiModelProperty(notes = "Price can be null - product is for free")
 	private BigDecimal price;
+	@ApiModelProperty(notes = "Disabled product is not available for odrering.")
 	private boolean disabled;
 
 	@Override

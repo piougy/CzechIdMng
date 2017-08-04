@@ -2310,7 +2310,7 @@
       "processVariables": "Proměnné procesu",
       "superProcessInstanceId": "ID nadřízeného procesu",
       "id": "ID",
-      "applicant": "Žadatel"
+      "applicant": "Žádost pro"
     },
     "WorkflowHistoricTaskInstance": {
       "name": "Název",
@@ -2584,7 +2584,7 @@
       }
     },
     "RoleRequest": {
-      "applicant": "Žadatel",
+      "applicant": "Žádost pro",
       "state": "Stav",
       "executeImmediately": "Provést bez schválení",
       "log": "Log",

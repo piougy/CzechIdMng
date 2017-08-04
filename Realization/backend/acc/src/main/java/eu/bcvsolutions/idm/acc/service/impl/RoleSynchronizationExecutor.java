@@ -308,7 +308,7 @@ public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor
 	protected Object getValueByMappedAttribute(AttributeMapping attribute, List<IcAttribute> icAttributes) {
 		Object transformedValue =  super.getValueByMappedAttribute(attribute, icAttributes);
 		// Transform role type enumeration from string
-		if (attribute.isEntityAttribute() && attribute.getIdmPropertyName().equals(ROLE_TYPE_FIELD) && transformedValue != null && transformedValue instanceof String) {
+		if (transformedValue instanceof String && attribute.isEntityAttribute() && ROLE_TYPE_FIELD.equals(attribute.getIdmPropertyName())) {
 			transformedValue = RoleType.valueOf((String) transformedValue);
 		}
 		return transformedValue;

@@ -59,13 +59,13 @@ public class IdentityRoleValidRequestProvisioningProcessor extends AbstractEntit
 		IdmIdentityRole identityRole = identityRoleRepository.findOne(identityRoleId);
 		//
 		if (identityRole == null) {
-			LOG.warn("[IdentityRoleValidRequestProvisioningProcessor] Identity role isn't exists for identity role valid request id: [{0}]", event.getContent().getId());
+			LOG.warn("[IdentityRoleValidRequestProvisioningProcessor] Identity role isn't exists for identity role valid request id: [{}]", event.getContent().getId());
 			return new DefaultEventResult<>(event, this);
 		}
 		//
 		IdmIdentityContract identityContract = identityRole.getIdentityContract();
 		if (identityContract != null) {
-			LOG.info("[IdentityRoleValidRequestProvisioningProcessor] Start with provisioning for identity role valid request id : [{0}]", event.getContent().getId());
+			LOG.info("[IdentityRoleValidRequestProvisioningProcessor] Start with provisioning for identity role valid request id : [{}]", event.getContent().getId());
 			//
 			boolean requiredProvisioning = getAccountManagementService().resolveIdentityAccounts(identityContract.getIdentity());
 			if (requiredProvisioning) {
@@ -74,7 +74,7 @@ public class IdentityRoleValidRequestProvisioningProcessor extends AbstractEntit
 			}
 			//
 		} else {
-			LOG.warn("[IdentityRoleValidRequestProvisioningProcessor] Identity contract isn't exists for identity role valid request id: [{0}]", event.getContent().getId());
+			LOG.warn("[IdentityRoleValidRequestProvisioningProcessor] Identity contract isn't exists for identity role valid request id: [{}]", event.getContent().getId());
 		}
 		//
 		return new DefaultEventResult<>(event, this);

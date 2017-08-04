@@ -144,7 +144,7 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 		//
 		EntityAccountFilter filter = createEntityAccountFilter();
 		filter.setEntityId(entity.getId());
-		filter.setOwnership(true);
+		filter.setOwnership(Boolean.TRUE);
 		@SuppressWarnings("unchecked")
 		List<EntityAccountDto> entityAccoutnList = this.getEntityAccountService().find((BaseFilter) filter, null)
 				.getContent();
@@ -319,7 +319,8 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 		SystemEntityType entityType = SystemEntityType.getByClass(entity.getClass());
 		List<SysSystemMapping> systemMappings = findSystemMappingsForEntityType(entity, entityType);
 		systemMappings.forEach(mapping -> {
-			UUID accountId = this.getAccountByEntity(entity.getId(), mapping.getSystem().getId());
+			UUID systemId = mapping.getSystem().getId();
+			UUID accountId = this.getAccountByEntity(entity.getId(), systemId);
 			if (accountId != null) {
 				// We already have account for this system -> next
 				return;
@@ -330,7 +331,7 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 			String uid = attributeMappingService.generateUid(entity, uidAttribute);
 
 			// Create AccAccount and relation between account and entity
-			createEntityAccount(uid, entity.getId(), mapping.getSystem().getId());
+			createEntityAccount(uid, entity.getId(), systemId);
 		});
 	}
 
@@ -678,7 +679,7 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 		}).sorted((att1, att2) -> {
 			// Sort attributes by role priority
 			return Integer.valueOf(att2.getRoleSystem().getRole().getPriority())
-					.compareTo(new Integer(att1.getRoleSystem().getRole().getPriority()));
+					.compareTo(Integer.valueOf(att1.getRoleSystem().getRole().getPriority()));
 		}).collect(Collectors.toList());
 
 		// We have some overloaded attributes
@@ -846,8 +847,7 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 		SystemMappingFilter mappingFilter = new SystemMappingFilter();
 		mappingFilter.setEntityType(entityType);
 		mappingFilter.setOperationType(SystemOperationType.PROVISIONING);
-		List<SysSystemMapping> systemMappings = systemMappingService.find(mappingFilter, null).getContent();
-		return systemMappings;
+		return systemMappingService.find(mappingFilter, null).getContent();
 	}
 
 	@SuppressWarnings("unchecked")

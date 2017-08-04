@@ -35,7 +35,7 @@ public class DefaultExampleProductService
 
 	@Override
 	public AuthorizableType getAuthorizableType() {
-		return new AuthorizableType(ExampleGroupPermission.PRODUCT, getEntityClass());
+		return new AuthorizableType(ExampleGroupPermission.EXAMPLEPRODUCT, getEntityClass());
 	}
 	
 	@Override

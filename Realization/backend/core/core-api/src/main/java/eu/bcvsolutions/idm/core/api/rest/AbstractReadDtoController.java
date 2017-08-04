@@ -59,7 +59,7 @@ import io.swagger.annotations.Authorization;
 public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends BaseFilter>
 		implements BaseDtoController<DTO> {
 
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(AbstractReadDtoController.class);
+	// private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(AbstractReadDtoController.class);
 	private FilterConverter filterConverter;
 	@Autowired
 	private PagedResourcesAssembler<Object> pagedResourcesAssembler;
@@ -307,21 +307,7 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 	 * @param parameters
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
-	protected F toFilter(MultiValueMap<String, Object> parameters) {
-		// data filter - constuctor with given parameters
-		/* if (DataFilter.class.isAssignableFrom(getFilterClass())) {
-			try {
-				Constructor<?> dataFilterConstructor = getFilterClass().getConstructor(MultiValueMap.class);
-				return (F) dataFilterConstructor.newInstance(parameters);
-			} catch (NoSuchMethodException | SecurityException | InstantiationException 
-					| IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-				// mapper will be used as fallback
-				LOG.warn("Filter class [{}] does not support constructor with raw filter parameters."
-						+ " Base object mapper will be used for filter conversion.", getFilterClass(), ex);
-			}
-		} */
-		// otherwise - mapper with single values is used		
+	protected F toFilter(MultiValueMap<String, Object> parameters) {	
 		return getParameterConverter().toFilter(parameters, getService().getFilterClass());
 	}
 

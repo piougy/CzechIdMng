@@ -4,7 +4,32 @@
     "author": "BCV solutions s.r.o."
   },
   "entity": {
-
+    "ExampleProduct": {
+      "_type": "Example produkt",
+      "code": {
+        "label": "Code"
+      },
+      "name": {
+        "label": "Name"
+      },
+      "description": {
+        "label": "Description"
+      },
+      "price": {
+        "label": "Price",
+        "placeholder": "Product's price",
+        "help": "Price can be empty - produkt for free."
+      },
+      "disabled": {
+        "label": "Disabled",
+        "help": "Product is not available."
+      }
+    }
+  },
+  "permission": {
+    "group": {
+      "EXAMPLEPRODUCT": "Ukázkové produkty"
+    }
   },
   "content": {
     "identity":{
@@ -17,11 +42,44 @@
         "text": "Example dashboard, added by czechidm-example module."
       }
     },
+    "examples": {
+      "header": "Examples",
+      "label": "Examples",
+      "title": "Examples"
+    },
     "example": {
       "header": "Example content",
       "label": "Example content",
       "title": "Example content available from navigation, added by czechidm-example module.",
       "text": "New example content."
+    },
+    "example-products": {
+      "header": "Products",
+      "label": "Products",
+      "title": "Products",
+      "info": "Example agenda with basic operations with products.",
+      "filter": {
+        "text": {
+          "placeholder": "Code, name or description"
+        }
+      }
+    },
+    "example-product": {
+      "detail" : {
+        "basic": "Basic information",
+        "header": "Product",
+        "title": "$t(example:content.example-product.detail.header)",
+        "edit": {
+          "title": "Produkt detail",
+          "header": "{{name}} <small>product detail</small>"
+        },
+        "create": {
+          "header": "New product"
+        },
+        "save": {
+          "success": "Product [{{name}}] successfully saved"
+        }
+      }
     }
   }
 }

@@ -1085,11 +1085,11 @@
       "reloadTree": "Obnov strom katalogu rolí",
       "addRoleCatalogue": "Přidat novou složku",
       "filter": {
-        "name": "Jméno",
-        "namePlaceHolder": "Jméno složky",
+        "name": "Název",
+        "namePlaceHolder": "Název složky",
         "parent": "Nadřazená složka",
         "parentPlaceHolder": "Nadřazená složka",
-        "niceName": "Jméno pro uživatele",
+        "niceName": "Název pro uživatele",
         "code": "Kód",
         "text": "Kód či název"
       }
@@ -1866,7 +1866,7 @@
         "success": "Šablona [{{name}}] byla úspěšně uložena."
       },
       "filter": {
-        "text": "Jméno / Předmět / Kód"
+        "text": "Název / Předmět / Kód"
       }
     },
     "emails": {
@@ -2068,7 +2068,7 @@
         "help": "Kód složky je unikátní v rámci všech složek."
       },
       "name": {
-        "name": "Jméno složky",
+        "name": "Název složky",
         "help": "Popisný atribut pro uživatele. Unikátní v rámci úrovně katalogu."
       },
       "url": "Odkaz",
@@ -2105,7 +2105,7 @@
     "FormDefinition" : {
       "type": "Typ",
       "code": "Kód",
-      "name": "Jméno",
+      "name": "Název",
       "unmodifiable": {
         "label": "Systémová definice",
         "help": "Systémová definice nemůže být smazána a nelze upravovat některé její atributy."
@@ -2122,7 +2122,7 @@
         "help": "Klíč atributu."
       },
       "name": {
-        "label": "Jméno položky",
+        "label": "Název položky",
         "help": "Bude zobrazen na detailu formuláře."
       },
       "seq": {
@@ -2343,7 +2343,7 @@
       "template": "Šablona"
     },
     "NotificationTemplate": {
-      "name": "Jméno",
+      "name": "Název",
       "code": "Kód",
       "subject": "Předmět",
       "parameter": {
@@ -2469,7 +2469,7 @@
     },
     "PasswordPolicy": {
       "type": "Typ",
-      "name": "Jméno",
+      "name": "Název",
       "basic": "Základní údaje",
       "bases": "Znaky",
       "generateType": "Typ generování",

@@ -465,10 +465,8 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 	@Transactional
 	public IcConnectorObject readObject(SysSystem system, SysSystemMapping systemMapping, IcUidAttribute uidAttribute) {
 		IcObjectClass objectClass = new IcObjectClassImpl(systemMapping.getObjectClass().getObjectClassName());
-		IcConnectorObject existsConnectorObject = connectorFacade.readObject(system.getConnectorInstance(),
-				this.getConnectorConfiguration(system), objectClass, uidAttribute);
-		//
-		return existsConnectorObject;
+		return connectorFacade.readObject(system.getConnectorInstance(), this.getConnectorConfiguration(system),
+				objectClass, uidAttribute);
 	}
 
 	@Override
@@ -493,8 +491,9 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 
 		// Duplicate connector configuration values in EAV
 		IcConnectorInstance connectorInstance = originalSystem.getConnectorInstance();
+		
 		if(connectorInstance != null && connectorInstance.getConnectorKey() != null && connectorInstance.getConnectorKey().getFramework() != null){
-			IdmFormDefinition formDefinition = getConnectorFormDefinition(originalSystem.getConnectorInstance());
+			IdmFormDefinition formDefinition = getConnectorFormDefinition(connectorInstance);
 			List<AbstractFormValue<SysSystem>> originalFormValues = this.getFormService().getValues(id, SysSystem.class,
 					formDefinition);
 			originalFormValues.stream().forEach(value -> {

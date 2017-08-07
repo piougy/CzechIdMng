@@ -64,6 +64,7 @@ public class DefaultIdmLongRunningTaskServiceTest extends AbstractIntegrationTes
 		manager.executeSync(taskExecutor3);
 		idmLongRunningTaskService.get(taskExecutor3.getLongRunningTaskId());
 		// set filter
+		filter.setTaskType(task1.getTaskType());
 		filter.setStateful(true);
 		Page<IdmLongRunningTaskDto> result = idmLongRunningTaskService.find(filter, null);
 		assertEquals("Wrong StateFul true",2, result.getTotalElements());
@@ -84,6 +85,7 @@ public class DefaultIdmLongRunningTaskServiceTest extends AbstractIntegrationTes
 		task1.setRunning(true);
 		idmLongRunningTaskService.save(task1);
 		// set filter
+		filter.setTaskType(task1.getTaskType());
 		filter.setRunning(task1.isRunning());
 		Page<IdmLongRunningTaskDto> result = idmLongRunningTaskService.find(filter, null);
 		assertEquals("Wrong Running",task1.getId(), result.getContent().get(0).getId());

@@ -51,7 +51,17 @@
       "header": "Ukázková stránka",
       "label": "Ukázková stránka",
       "title": "Ukázková stránka dostupná z hlavního menu, přidaného prostřednictvím czechidm-example modulu.",
-      "text": "Demonstruje způsob, jakým je možné vytvořit novou stránku (content)."
+      "text": "Demonstruje způsob, jakým je možné vytvořit novou stránku (content).",
+      "error": {
+        "header": "Ukázka lokalizace chyb",
+        "parameter": {
+          "label": "Hodnota parametru pro chybu"
+        },
+        "button": {
+          "client": "Chyba na klientovi (validace)",
+          "server": "Chyba na serveru"
+        }
+      }
     },
     "example-products": {
       "header": "Produkty",
@@ -80,6 +90,16 @@
           "success": "Produkt [{{name}}] byl úspěšně uložen"
         }
       }
+    }
+  },
+  "error": {
+    "EXAMPLE_SERVER_ERROR": {
+      "title": "Ukázka chyby serveru",
+      "message": "Ukázka chyby serveru s parametrem [{{parameter}}]."
+    },
+    "EXAMPLE_CLIENT_ERROR": {
+      "title": "Ukázka chyby klienta",
+      "message": "Zadaná hodnota je chybná [{{parameter}}]."
     }
   }
 }

@@ -1,5 +1,8 @@
+import ExampleManager from './ExampleManager';
 import ExampleProductManager from './ExampleProductManager';
+//
 const ManagerRoot = {
+  ExampleManager,
   ExampleProductManager,
 };
 

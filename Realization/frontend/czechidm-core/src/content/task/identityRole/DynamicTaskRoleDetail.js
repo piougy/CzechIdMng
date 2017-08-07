@@ -2,7 +2,6 @@ import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
 //
 import * as Basic from '../../../components/basic';
-import * as Advanced from '../../../components/advanced';
 import DecisionButtons from '../DecisionButtons';
 import DynamicTaskDetail from '../DynamicTaskDetail';
 import RoleRequestDetail from '../../requestrole/RoleRequestDetail';
@@ -58,12 +57,7 @@ class DynamicTaskRoleDetail extends DynamicTaskDetail {
           <Basic.PanelHeader text={<span>{taskManager.getNiceLabel(task)} <small>this.i18n('taskDetail')</small></span>} className="hidden"/>
           <Basic.AbstractForm className="panel-body" ref="form" data={task}>
             <Basic.TextField ref="taskDescription" readOnly label={this.i18n('description')}/>
-            <Basic.LabelWrapper readOnly ref="applicant" label={this.i18n('applicant')}>
-              <Advanced.IdentityInfo username={task.applicant} showLoading={!task} className="no-margin"/>
-            </Basic.LabelWrapper>
-            <Basic.LabelWrapper rendered={task.variables.implementerIdentifier} readOnly ref="implementerIdentifier" label={this.i18n('implementerIdentifier')}>
-              <Advanced.IdentityInfo entityIdentifier ={task.variables.implementerIdentifier} showLoading={!task} className="no-margin"/>
-            </Basic.LabelWrapper>
+            {this._getApplicantAndRequester(task)}
             <Basic.DateTimePicker ref="taskCreated" readOnly label={this.i18n('createdDate')}/>
           </Basic.AbstractForm>
         </Basic.Panel>

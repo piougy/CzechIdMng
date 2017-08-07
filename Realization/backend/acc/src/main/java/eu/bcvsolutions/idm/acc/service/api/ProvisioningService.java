@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.acc.service.api;
 
 import java.util.List;
+import java.util.UUID;
 
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
@@ -63,8 +64,11 @@ public interface ProvisioningService {
 	 * Do delete provisioning for given account on connected system
 	 * 
 	 * @param account
+	 * @param entityType
+	 * @param entityId - Id of entity connected to the account. Can be null, but provisioning archive will not have correct information.
+	 * 
 	 */
-	void doDeleteProvisioning(AccAccount account, SystemEntityType entityType);
+	void doDeleteProvisioning(AccAccount account, SystemEntityType entityType, UUID entityId);
 	
 	/**
 	 * 

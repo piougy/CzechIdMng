@@ -184,7 +184,7 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 		
 		// Definition of UID could change. We load UID value from default system mapping.
 		// If the value has changed, then we update it.
-		String uidValue = getUidValueFromDefaultMapping(entity, system, entityType, uid);
+	//	String uidValue = getUidValueFromDefaultMapping(entity, system, entityType, uid);
 		//account = updateAccountUid(account, uid, uidValue);
 		
 		if (systemEntity == null) {
@@ -210,7 +210,7 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 			operationType = ProvisioningOperationType.UPDATE; 
 		}
 
-		List<AttributeMapping> finalAttributes = resolveMappedAttributes(uidValue, account, entity, system,
+		List<AttributeMapping> finalAttributes = resolveMappedAttributes(account, entity, system,
 				systemEntity.getEntityType());
 		if (CollectionUtils.isEmpty(finalAttributes)) {
 			// nothing to do - mapping is empty
@@ -284,7 +284,7 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 			SysSystemEntity systemEntity = account.getSystemEntity();
 			//
 			// Find mapped attributes (include overloaded attributes)
-			List<AttributeMapping> finalAttributes = resolveMappedAttributes(uid, account, entity, system,
+			List<AttributeMapping> finalAttributes = resolveMappedAttributes(account, entity, system,
 					systemEntity.getEntityType());
 			if (CollectionUtils.isEmpty(finalAttributes)) {
 				return;
@@ -421,7 +421,7 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 			return;
 		}
 		//
-		Map<ProvisioningAttributeDto, Object> accountAttributes = preapareMappedAttributesValues(entity, operationType,
+		Map<ProvisioningAttributeDto, Object> accountAttributes = prepareMappedAttributesValues(entity, operationType,
 				systemEntity, attributes);
 		// public provisioning event
 		IcConnectorObject connectorObject = new IcConnectorObjectImpl(systemEntity.getUid(),
@@ -442,7 +442,7 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 	 * @param attributes
 	 * @return
 	 */
-	protected Map<ProvisioningAttributeDto, Object> preapareMappedAttributesValues(ENTITY entity,
+	protected Map<ProvisioningAttributeDto, Object> prepareMappedAttributesValues(ENTITY entity,
 			ProvisioningOperationType operationType, SysSystemEntity systemEntity,
 			List<? extends AttributeMapping> attributes) {
 		AccAccount account = getAccountSystemEntity(systemEntity.getId());
@@ -596,7 +596,7 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 	 * @return
 	 */
 	@Override
-	public List<AttributeMapping> resolveMappedAttributes(String uid, AccAccount account, ENTITY entity,
+	public List<AttributeMapping> resolveMappedAttributes(AccAccount account, ENTITY entity,
 			SysSystem system, SystemEntityType entityType) {
 		EntityAccountFilter filter = this.createEntityAccountFilter();
 		filter.setEntityId(entity.getId());
@@ -613,7 +613,7 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 		// All identity account with flag ownership on true
 
 		// All role system attributes (overloading) for this uid and same system
-		List<SysRoleSystemAttribute> roleSystemAttributesAll = findOverloadingAttributes(uid, entity, system,
+		List<SysRoleSystemAttribute> roleSystemAttributesAll = findOverloadingAttributes(entity, system,
 				entityAccoutnList, entityType);
 
 		// All default mapped attributes from system
@@ -799,7 +799,7 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 	 * @param entityType
 	 * @return
 	 */
-	protected abstract List<SysRoleSystemAttribute> findOverloadingAttributes(String uid, ENTITY entity,
+	protected abstract List<SysRoleSystemAttribute> findOverloadingAttributes(ENTITY entity,
 			SysSystem system, List<? extends EntityAccountDto> idenityAccoutnList, SystemEntityType entityType);
 
 	private SysSystemMapping getMapping(SysSystem system, SystemEntityType entityType) {

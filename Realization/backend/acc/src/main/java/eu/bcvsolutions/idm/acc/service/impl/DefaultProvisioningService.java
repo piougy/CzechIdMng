@@ -95,10 +95,10 @@ public class DefaultProvisioningService implements ProvisioningService {
 	}
 
 	@Override
-	public List<AttributeMapping> resolveMappedAttributes(String uid, AccAccount account, AbstractEntity entity,
+	public List<AttributeMapping> resolveMappedAttributes(AccAccount account, AbstractEntity entity,
 			SysSystem system, SystemEntityType entityType) {
 		Assert.notNull(entityType);
-		return this.getExecutor(entityType).resolveMappedAttributes(uid, account, entity, system, entityType);
+		return this.getExecutor(entityType).resolveMappedAttributes(account, entity, system, entityType);
 	}
 
 	@Override

@@ -1070,6 +1070,10 @@
     "SYSTEM_MAPPING_TREE_TYPE_DELETE_FAILED": {
       "title": "Typ struktury nelze odebrat",
       "message": "Typ struktury [{{treeType}}] je již použit v mapování u systému [{{system}}]. Před odebráním tohoto typu odstraňte mapování ze systému."
+    },
+    "ROLE_SYSTEM_ALREADY_EXISTS": {
+      "title": "Duplicitní mapování",
+      "message": "Mapování pro stejnou roli [{{role}}] a stejný systém [{{system}}] již existuje!"
     }
   }
 }

@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 
 import eu.bcvsolutions.idm.InitTestData;
-import eu.bcvsolutions.idm.core.TestHelper;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
@@ -50,20 +49,20 @@ public class DefaultIdmLongRunningTaskServiceTest extends AbstractIntegrationTes
 		// set tasks
 		LongRunningTaskExecutor<String> taskExecutor = new TestSimpleLongRunningTaskExecutor(expectedResult);
 		assertNull(taskExecutor.getLongRunningTaskId());
-		String res = manager.executeSync(taskExecutor);
+		manager.executeSync(taskExecutor);
 		IdmLongRunningTaskDto task1 = idmLongRunningTaskService.get(taskExecutor.getLongRunningTaskId());
 		task1.setStateful(false);
 		idmLongRunningTaskService.save(task1);
 		//
 		LongRunningTaskExecutor<String> taskExecutor2 = new TestSimpleLongRunningTaskExecutor(expectedResult);
 		assertNull(taskExecutor2.getLongRunningTaskId());
-		String res2 = manager.executeSync(taskExecutor2);
-		IdmLongRunningTaskDto task2 = idmLongRunningTaskService.get(taskExecutor2.getLongRunningTaskId());
+		manager.executeSync(taskExecutor2);
+		idmLongRunningTaskService.get(taskExecutor2.getLongRunningTaskId());
 		//
 		LongRunningTaskExecutor<String> taskExecutor3 = new TestSimpleLongRunningTaskExecutor(expectedResult);
 		assertNull(taskExecutor3.getLongRunningTaskId());
-		String res3 = manager.executeSync(taskExecutor3);
-		IdmLongRunningTaskDto task3 = idmLongRunningTaskService.get(taskExecutor3.getLongRunningTaskId());
+		manager.executeSync(taskExecutor3);
+		idmLongRunningTaskService.get(taskExecutor3.getLongRunningTaskId());
 		// set filter
 		filter.setStateful(true);
 		Page<IdmLongRunningTaskDto> result = idmLongRunningTaskService.find(filter, null);
@@ -80,7 +79,7 @@ public class DefaultIdmLongRunningTaskServiceTest extends AbstractIntegrationTes
 		// set tasks
 		LongRunningTaskExecutor<String> taskExecutor = new TestSimpleLongRunningTaskExecutor(expectedResult);
 		assertNull(taskExecutor.getLongRunningTaskId());
-		String res = manager.executeSync(taskExecutor);
+		manager.executeSync(taskExecutor);
 		IdmLongRunningTaskDto task1 = idmLongRunningTaskService.get(taskExecutor.getLongRunningTaskId());
 		task1.setRunning(true);
 		idmLongRunningTaskService.save(task1);
@@ -97,7 +96,7 @@ public class DefaultIdmLongRunningTaskServiceTest extends AbstractIntegrationTes
 		// set tasks
 		LongRunningTaskExecutor<String> taskExecutor = new TestSimpleLongRunningTaskExecutor(expectedResult);
 		assertNull(taskExecutor.getLongRunningTaskId());
-		String res = manager.executeSync(taskExecutor);
+		manager.executeSync(taskExecutor);
 		IdmLongRunningTaskDto task1 = idmLongRunningTaskService.get(taskExecutor.getLongRunningTaskId());
 		task1.setTaskType("Type0001");
 		idmLongRunningTaskService.save(task1);
@@ -115,28 +114,28 @@ public class DefaultIdmLongRunningTaskServiceTest extends AbstractIntegrationTes
 		// set tasks
 		LongRunningTaskExecutor<String> taskExecutor = new TestSimpleLongRunningTaskExecutor(expectedResult);
 		assertNull(taskExecutor.getLongRunningTaskId());
-		String res = manager.executeSync(taskExecutor);
+		manager.executeSync(taskExecutor);
 		IdmLongRunningTaskDto task1 = idmLongRunningTaskService.get(taskExecutor.getLongRunningTaskId());
 		task1.setTaskType(type1);
 		idmLongRunningTaskService.save(task1);
 
 		LongRunningTaskExecutor<String> taskExecutor2 = new TestSimpleLongRunningTaskExecutor(expectedResult);
 		assertNull(taskExecutor2.getLongRunningTaskId());
-		String res2 = manager.executeSync(taskExecutor2);
+		manager.executeSync(taskExecutor2);
 		IdmLongRunningTaskDto task2 = idmLongRunningTaskService.get(taskExecutor2.getLongRunningTaskId());
 		task2.setTaskType(type1);
 		idmLongRunningTaskService.save(task2);
 
 		LongRunningTaskExecutor<String> taskExecutor3 = new TestSimpleLongRunningTaskExecutor(expectedResult);
 		assertNull(taskExecutor3.getLongRunningTaskId());
-		String res3 = manager.executeSync(taskExecutor3);
+		manager.executeSync(taskExecutor3);
 		IdmLongRunningTaskDto task3 = idmLongRunningTaskService.get(taskExecutor3.getLongRunningTaskId());
 		task3.setTaskType(type2);
 		idmLongRunningTaskService.save(task3);
 
 		LongRunningTaskExecutor<String> taskExecutor4 = new TestSimpleLongRunningTaskExecutor(expectedResult);
 		assertNull(taskExecutor4.getLongRunningTaskId());
-		String res4 = manager.executeSync(taskExecutor4);
+		manager.executeSync(taskExecutor4);
 		IdmLongRunningTaskDto task4 = idmLongRunningTaskService.get(taskExecutor4.getLongRunningTaskId());
 		task4.setTaskDescription(type1);
 		idmLongRunningTaskService.save(task4);
@@ -155,12 +154,12 @@ public class DefaultIdmLongRunningTaskServiceTest extends AbstractIntegrationTes
 		// set tasks
 		LongRunningTaskExecutor<String> taskExecutor = new TestSimpleLongRunningTaskExecutor(expectedResult);
 		assertNull(taskExecutor.getLongRunningTaskId());
-		String res = manager.executeSync(taskExecutor);
+		manager.executeSync(taskExecutor);
 		IdmLongRunningTaskDto task1 = idmLongRunningTaskService.get(taskExecutor.getLongRunningTaskId());
 
 		LongRunningTaskExecutor<String> taskExecutor2 = new TestSimpleLongRunningTaskExecutor(expectedResult);
 		assertNull(taskExecutor2.getLongRunningTaskId());
-		String res2 = manager.executeSync(taskExecutor2);
+		manager.executeSync(taskExecutor2);
 		IdmLongRunningTaskDto task2 = idmLongRunningTaskService.get(taskExecutor2.getLongRunningTaskId());
 		task2.setCreated(task1.getCreated());
 		idmLongRunningTaskService.save(task2);
@@ -181,7 +180,7 @@ public class DefaultIdmLongRunningTaskServiceTest extends AbstractIntegrationTes
 		// set tasks
 		LongRunningTaskExecutor<String> taskExecutor = new TestSimpleLongRunningTaskExecutor(expectedResult);
 		assertNull(taskExecutor.getLongRunningTaskId());
-		String res = manager.executeSync(taskExecutor);
+		manager.executeSync(taskExecutor);
 		IdmLongRunningTaskDto task1 = idmLongRunningTaskService.get(taskExecutor.getLongRunningTaskId());
 		// set filter
 		filter.setOperationState(task1.getResultState());

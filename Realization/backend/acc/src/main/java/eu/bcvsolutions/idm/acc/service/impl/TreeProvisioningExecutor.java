@@ -127,7 +127,7 @@ public class TreeProvisioningExecutor extends AbstractProvisioningExecutor<IdmTr
 	}
 	
 	@Override
-	protected List<SysRoleSystemAttribute> findOverloadingAttributes(String uid, IdmTreeNode entity, SysSystem system,
+	protected List<SysRoleSystemAttribute> findOverloadingAttributes(IdmTreeNode entity, SysSystem system,
 			List<? extends EntityAccountDto> idenityAccoutnList, SystemEntityType entityType) {
 		// Overloading attributes is not implemented for TreeNode
 		return new ArrayList<>();

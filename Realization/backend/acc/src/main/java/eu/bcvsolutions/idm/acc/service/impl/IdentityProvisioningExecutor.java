@@ -117,21 +117,22 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
 	 * @param entityType
 	 * @return
 	 */
-	public List<AttributeMapping> resolveMappedAttributes(String uid, AccAccount account, IdmIdentity entity, SysSystem system, SystemEntityType entityType) {
+	@Override
+	public List<AttributeMapping> resolveMappedAttributes(AccAccount account, IdmIdentity entity, SysSystem system, SystemEntityType entityType) {
 		IdentityAccountFilter filter = new IdentityAccountFilter();
 		filter.setIdentityId(entity.getId());
 		filter.setSystemId(system.getId());
 		filter.setOwnership(Boolean.TRUE);
 		filter.setAccountId(account.getId());
-		Page<AccIdentityAccount> identityAccounts = identityAccountRepository.find(filter, null);
-		List<AccIdentityAccount> idenityAccoutnList = identityAccounts.getContent();
+
+		// All identity account with flag ownership on true
+		List<AccIdentityAccount> idenityAccoutnList = identityAccountRepository.find(filter, null).getContent();
 		if (idenityAccoutnList == null) {
 			return null;
 		}
-		// All identity account with flag ownership on true
 
 		// All role system attributes (overloading) for this uid and same system
-		List<SysRoleSystemAttribute> roleSystemAttributesAll = findOverloadingAttributesIdentity(uid, entity, system, idenityAccoutnList, entityType);
+		List<SysRoleSystemAttribute> roleSystemAttributesAll = findOverloadingAttributesIdentity(entity, system, idenityAccoutnList, entityType);
 
 		// All default mapped attributes from system
 		List<? extends AttributeMapping> defaultAttributes = findAttributeMappings(system, entityType);
@@ -145,14 +146,13 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
 	 * uid
 	 * 
 	 * @param identityAccount
-	 * @param uid
 	 * @param idenityAccoutnList
 	 * @param operationType
 	 * @param entityType
 	 * @return
 	 */
 	@Deprecated
-	private List<SysRoleSystemAttribute> findOverloadingAttributesIdentity(String uid, IdmIdentity entity, SysSystem system,
+	private List<SysRoleSystemAttribute> findOverloadingAttributesIdentity(IdmIdentity entity, SysSystem system,
 			List<? extends EntityAccount> idenityAccoutnList, SystemEntityType entityType) {
 
 		List<SysRoleSystemAttribute> roleSystemAttributesAll = new ArrayList<>();
@@ -171,22 +171,14 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
 			roleSystemFilter.setSystemId(identityAccountInner.getAccount().getSystem().getId());
 			List<SysRoleSystem> roleSystems = roleSystemService.find(roleSystemFilter, null).getContent();
 
-			List<SysRoleSystem> roleSystemsForSameAccount = roleSystems.stream().filter(roleSystem -> {
-				String roleSystemUID = accountManagementService.generateUID(entity, roleSystem);
-
-				SysSystemMapping systemMapping = roleSystem.getSystemMapping();
-				return (SystemOperationType.PROVISIONING == systemMapping.getOperationType()
-						&& entityType == systemMapping.getEntityType() && roleSystemUID.equals(uid));
-			}).collect(Collectors.toList());
-
-			if (roleSystemsForSameAccount.size() > 1) {
+			if (roleSystems.size() > 1) {
 				throw new ProvisioningException(AccResultCode.PROVISIONING_DUPLICATE_ROLE_MAPPING,
-						ImmutableMap.of("role", roleSystemsForSameAccount.get(0).getRole().getName(), "system",
-								roleSystemsForSameAccount.get(0).getSystem().getName(), "entityType", entityType));
+						ImmutableMap.of("role", roleSystems.get(0).getRole().getName(), "system",
+								roleSystems.get(0).getSystem().getName(), "entityType", entityType));
 			}
-			if (!roleSystemsForSameAccount.isEmpty()) {
+			if (!roleSystems.isEmpty()) {
 				RoleSystemAttributeFilter roleSystemAttributeFilter = new RoleSystemAttributeFilter();
-				roleSystemAttributeFilter.setRoleSystemId(roleSystemsForSameAccount.get(0).getId());
+				roleSystemAttributeFilter.setRoleSystemId(roleSystems.get(0).getId());
 				List<SysRoleSystemAttribute> roleAttributes = roleSystemAttributeService
 						.find(roleSystemAttributeFilter, null).getContent();
 
@@ -204,7 +196,7 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
 	 * Can use after transform identityAccount to DTO
 	 */
 	@Override
-	protected List<SysRoleSystemAttribute> findOverloadingAttributes(String uid, IdmIdentity entity, SysSystem system,
+	protected List<SysRoleSystemAttribute> findOverloadingAttributes(IdmIdentity entity, SysSystem system,
 			List<? extends EntityAccountDto> idenityAccoutnList, SystemEntityType entityType) {
 		return null;
 	}

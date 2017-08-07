@@ -38,7 +38,7 @@ class NotificationDetail extends Basic.AbstractContent {
     if (isNew) {
       notification.identitySender = userContext.id;
       data = { ...notification };
-      this.refs.subject.focus();
+      this.refs.topic.focus();
     } else {
       let template = null;
       if (notification.message.template) {

@@ -210,8 +210,8 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 					predicates.addAll(AbstractReadDtoService.this.toPredicates(root, query, builder, filter));
 				}
 				//
-				// permisions are not evaluated, if no permission was given
-				if (!ObjectUtils.isEmpty(permission)) {
+				// permisions are not evaluated, if no permission was given or authorizable type is null (=> authorization policies are not supported)
+				if (!ObjectUtils.isEmpty(permission) && ((AuthorizableService<?>) AbstractReadDtoService.this).getAuthorizableType().getType() != null) {
 					predicates.add(getAuthorizationManager().getPredicate(root, query, builder, permission));
 				}
 				//
@@ -363,7 +363,10 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 			return null;
 		}
 		//
-		if (!ObjectUtils.isEmpty(permission) && this instanceof AuthorizableService && !getAuthorizationManager().evaluate(entity, permission)) {
+		if (!ObjectUtils.isEmpty(permission) 
+				&& this instanceof AuthorizableService 
+				&& ((AuthorizableService<?>) AbstractReadDtoService.this).getAuthorizableType().getType() != null
+				&& !getAuthorizationManager().evaluate(entity, permission)) {
 			throw new ForbiddenEntityException(entity.getId());
 		}
 		return entity;

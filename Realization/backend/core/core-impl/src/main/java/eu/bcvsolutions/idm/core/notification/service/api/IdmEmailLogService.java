@@ -16,7 +16,8 @@ import eu.bcvsolutions.idm.core.notification.dto.filter.NotificationFilter;
  * @author Radek Tomiška
  *
  */
-public interface IdmEmailLogService extends ReadWriteDtoService<IdmEmailLogDto, NotificationFilter> {
+public interface IdmEmailLogService extends 
+		ReadWriteDtoService<IdmEmailLogDto, NotificationFilter> {
 
 	/**
 	 * Returns recipient's email address

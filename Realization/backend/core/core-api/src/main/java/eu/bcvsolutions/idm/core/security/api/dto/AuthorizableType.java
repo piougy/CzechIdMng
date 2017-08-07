@@ -10,13 +10,13 @@ import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
 
 /**
  * Authorizable group to type mapping - assign permission group to type.
- * Unique - group could have only one type. TODO: this could be extended - remove equals method etc.
  * 
  * @author Radek Tomiška
  */
 public class AuthorizableType implements BaseDto {
 	
 	private static final long serialVersionUID = -866021631923877118L;
+	private static char SEPARATOR_ID = '-';
 	//
 	private GroupPermission group;
 	private Class<? extends Identifiable> type;
@@ -33,14 +33,19 @@ public class AuthorizableType implements BaseDto {
 
 	@Override
 	public Serializable getId() {
-		return group.getName();
+		StringBuilder id = new StringBuilder();
+		id.append(group.getName());
+		// type is optional - group with policies support will have type filled
+		if (type != null) {
+			id.append(SEPARATOR_ID);
+			id.append(type.getCanonicalName());
+		}
+		return id.toString();
 	}
 
 	@Override
 	public void setId(Serializable id) {
-		Assert.notNull(group);
-		//
-		group = (GroupPermission) id;
+		throw new UnsupportedOperationException("setting authorizable type by id is not supported!");
 	}
 	
 	/**

@@ -517,7 +517,8 @@
       "NOTIFICATIONTEMPLATE": "Notifications - templates",
       "PASSWORDPOLICY": "Password policy",
       "ROLEREQUEST": "Role requests",
-      "SCHEDULER": "Scheduler"
+      "SCHEDULER": "Scheduler",
+      "WORKFLOWDEFINITION": "Workflow - definitions"
     }
   },
   "content": {
@@ -2273,7 +2274,7 @@
       "candicateUsers": "Authorizers"
     },
     "Notification": {
-      "topic": "Subject",
+      "topic": "Topic",
       "created": "$t(entity.created)",
       "message": {
         "level": "Level",

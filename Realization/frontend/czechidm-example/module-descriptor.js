@@ -37,6 +37,7 @@ module.exports = {
             'titleKey': 'example:content.example-products.title',
             'order': 20,
             'path': '/example/products',
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['EXAMPLEPRODUCT_READ'] } ],
             'items': [
               {
                 'id': 'example-product-detail',

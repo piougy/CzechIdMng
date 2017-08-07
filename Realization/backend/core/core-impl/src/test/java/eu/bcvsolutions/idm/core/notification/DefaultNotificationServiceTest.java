@@ -33,6 +33,7 @@ import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationLog;
 import eu.bcvsolutions.idm.core.notification.repository.IdmEmailLogRepository;
 import eu.bcvsolutions.idm.core.notification.repository.IdmNotificationLogRepository;
 import eu.bcvsolutions.idm.core.notification.service.api.EmailNotificationSender;
+import eu.bcvsolutions.idm.core.notification.service.api.IdmEmailLogService;
 import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationConfigurationService;
 import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationLogService;
 import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationTemplateService;
@@ -50,31 +51,24 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 
 	private static final String TOPIC = "idm:test";
 	private static final String TEST_TEMPLATE = "testTemplate";
-
-	@Autowired
-	private NotificationManager notificationManager;
-	@Autowired
-	private EmailNotificationSender emailService;
-	@Autowired
-	private IdmNotificationLogRepository idmNotificationRepository;
-	@Autowired
-	private IdmNotificationLogService notificationLogService;
-	@Autowired
-	private IdmIdentityService identityService;
-	@Autowired
-	private IdmEmailLogRepository emailLogRepository;
-	@Autowired
-	private IdmNotificationTemplateService notificationTemplateService;
-	@Autowired
-	private IdmNotificationConfigurationService notificationConfigurationService;
-	@Autowired
-	private ConfigurationService configurationService;
+	//
+	@Autowired private NotificationManager notificationManager;
+	@Autowired private EmailNotificationSender emailService;
+	@Autowired private IdmNotificationLogRepository idmNotificationRepository;
+	@Autowired private IdmNotificationLogService notificationLogService;
+	@Autowired private IdmIdentityService identityService;
+	@Autowired private IdmEmailLogRepository emailLogRepository;
+	@Autowired private IdmEmailLogService emailLogService;
+	@Autowired private IdmNotificationTemplateService notificationTemplateService;
+	@Autowired private IdmNotificationConfigurationService notificationConfigurationService;
+	@Autowired private ConfigurationService configurationService;
 	//
 	NotificationConfigurationDto config = null;
 
 	@Before
 	public void clear() {
 		loginAsAdmin("admin");
+		// TODO: make test stateless!
 		emailLogRepository.deleteAll();
 		idmNotificationRepository.deleteAll();
 		//
@@ -138,9 +132,9 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 		NotificationFilter filter = new NotificationFilter();
 
 		filter.setSender(InitTestData.TEST_USER_2);
-		assertEquals(0, emailLogRepository.find(filter, null).getTotalElements());
+		assertEquals(0, emailLogService.find(filter, null).getTotalElements());
 		filter.setSender(InitTestData.TEST_USER_1);
-		assertEquals(0, emailLogRepository.find(filter, null).getTotalElements());
+		assertEquals(0, emailLogService.find(filter, null).getTotalElements());
 
 		// send some email
 		IdmIdentityDto identity = identityService.getByUsername(InitTestData.TEST_USER_1);
@@ -149,12 +143,12 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 		emailService.send(TOPIC, new IdmMessageDto.Builder().setTemplate(template).build(), identity);
 
 		filter.setSender(null);
-		assertEquals(1, emailLogRepository.find(filter, null).getTotalElements());
+		assertEquals(1, emailLogService.find(filter, null).getTotalElements());
 		filter.setSender(identity2.getUsername());
-		assertEquals(0, emailLogRepository.find(filter, null).getTotalElements());
+		assertEquals(0, emailLogService.find(filter, null).getTotalElements());
 		filter.setSender(null);
 		filter.setRecipient(identity.getUsername());
-		assertEquals(1, emailLogRepository.find(filter, null).getTotalElements());
+		assertEquals(1, emailLogService.find(filter, null).getTotalElements());
 	}
 
 	@Test
@@ -169,11 +163,11 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 		//
 		emailService.send(new IdmMessageDto.Builder().setTemplate(template).build(), identity);
 		filter.setSent(true);
-		assertEquals(0, emailLogRepository.find(filter, null).getTotalElements());
+		assertEquals(0, emailLogService.find(filter, null).getTotalElements());
 
 		emailService.send(new IdmMessageDto.Builder().setTemplate(template).build(), identity);
 		filter.setSent(false);
-		assertEquals(2, emailLogRepository.find(filter, null).getTotalElements());
+		assertEquals(2, emailLogService.find(filter, null).getTotalElements());
 	}
 
 	@Test

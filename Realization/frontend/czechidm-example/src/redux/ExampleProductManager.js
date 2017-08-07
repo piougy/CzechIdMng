@@ -1,6 +1,11 @@
 import { Managers } from 'czechidm-core';
 import { ExampleProductService } from '../services';
 
+/**
+ * Example product manager
+ *
+ * @author Radek Tomiška
+ */
 export default class ExampleProductManager extends Managers.EntityManager {
 
   constructor() {
@@ -16,10 +21,16 @@ export default class ExampleProductManager extends Managers.EntityManager {
     return this.service;
   }
 
+  /**
+   * Controlled entity
+   */
   getEntityType() {
     return 'ExampleProduct';
   }
 
+  /**
+   * Collection name in search / find response
+   */
   getCollectionType() {
     return 'exampleProducts';
   }

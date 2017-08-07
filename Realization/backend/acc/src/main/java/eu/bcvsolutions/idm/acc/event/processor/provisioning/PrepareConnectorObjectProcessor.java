@@ -4,6 +4,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -215,8 +216,9 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 			SysSystemMapping mapping = getMapping(system, provisioningOperation.getEntityType());
 			List<SysSchemaAttribute> schemaAttributes = findSchemaAttributes(system, mapping.getObjectClass());
 			
-			for (ProvisioningAttributeDto provisioningAttribute : fullAccountObject.keySet()) {
+			for (Entry<ProvisioningAttributeDto, Object> entry : fullAccountObject.entrySet()) {
 				
+				ProvisioningAttributeDto provisioningAttribute = entry.getKey();
 				Optional<SysSchemaAttribute> schemaAttributeOptional = schemaAttributes.stream().filter(schemaAttribute -> {
 					return provisioningAttribute.getSchemaAttributeName().equals(schemaAttribute.getName());
 				}).findFirst();
@@ -274,7 +276,6 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 							continue;
 						}
 					}
-					
 				}
 				
 				IcAttribute createdAttribute = createAttribute( 
@@ -313,8 +314,9 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 			
 			SysProvisioningArchive lastSuccessEntity = null;
 			
-			for (ProvisioningAttributeDto provisioningAttribute : fullAccountObject.keySet()) {
+			for ( Entry<ProvisioningAttributeDto, Object> entry : fullAccountObject.entrySet()) {
 				
+				ProvisioningAttributeDto provisioningAttribute = entry.getKey();  
 				Optional<SysSchemaAttribute> schemaAttributeOptional = schemaAttributes.stream().filter(schemaAttribute -> {
 					return provisioningAttribute.getSchemaAttributeName().equals(schemaAttribute.getName());
 				}).findFirst();

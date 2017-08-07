@@ -210,11 +210,13 @@ public class DefaultAccAuthenticator extends AbstractAuthenticator implements Au
 		if (authFailedException != null) {
 			throw authFailedException;
 		}
+		String module = this.getModule();
+		
 		IdmJwtAuthentication authentication = new IdmJwtAuthentication(
 				identity,
 				getAuthExpiration(),
 				grantedAuthoritiesFactory.getGrantedAuthorities(loginDto.getUsername()),
-				this.getModule());
+				module);
 		//
 		authenticationManager.authenticate(authentication);
 		//
@@ -224,7 +226,7 @@ public class DefaultAccAuthenticator extends AbstractAuthenticator implements Au
 		//
 		try {
 			// set authentication module
-			loginDto.setAuthenticationModule(this.getModule());
+			loginDto.setAuthenticationModule(module);
 			loginDto.setAuthentication(authenticationDto);
 			loginDto.setToken(jwtTokenMapper.writeToken(authenticationDto));
 			return loginDto;

@@ -179,15 +179,23 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 		ProvisioningOperationType operationType;
 		SysSystem system = account.getSystem();
 		SysSystemEntity systemEntity = getSystemEntity(account);
+		SystemEntityType entityType = SystemEntityType.getByClass(entity.getClass());
+		String uid = account.getUid();
+		
+		// Definition of UID could change. We load UID value from default system mapping.
+		// If the value has changed, then we update it.
+		String uidValue = getUidValueFromDefaultMapping(entity, system, entityType, uid);
+		//account = updateAccountUid(account, uid, uidValue);
+		
 		if (systemEntity == null) {
 			// prepare system entity - uid could be changed by provisioning, but
 			// we need to link her with account
 			// First we try find system entity with same uid.
 			systemEntity = systemEntityService.getBySystemAndEntityTypeAndUid(system,
-					SystemEntityType.getByClass(entity.getClass()), account.getUid());
+					entityType, account.getUid());
 			if (systemEntity == null) {
 				systemEntity = new SysSystemEntity();
-				systemEntity.setEntityType(SystemEntityType.getByClass(entity.getClass()));
+				systemEntity.setEntityType(entityType);
 				systemEntity.setSystem(system);
 				systemEntity.setUid(account.getUid());
 				systemEntity.setWish(true);
@@ -195,24 +203,14 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 			}
 			account.setSystemEntity(systemEntity);
 			account = accountService.save(account);
-			operationType = ProvisioningOperationType.CREATE; // we wont create
-																// account, but
-																// after target
-																// system call
-																// can be
-																// switched to
-																// UPDATE
+			// we wont create account, but after target system call can be switched to UPDATE
+			operationType = ProvisioningOperationType.CREATE; 
 		} else {
-			operationType = ProvisioningOperationType.UPDATE; // we wont update
-																// account, but
-																// after target
-																// system call
-																// can be
-																// switched to
-																// CREATE
+			// we wont update account, but after target system call can be switched to CREATE
+			operationType = ProvisioningOperationType.UPDATE; 
 		}
 
-		List<AttributeMapping> finalAttributes = resolveMappedAttributes(account.getUid(), account, entity, system,
+		List<AttributeMapping> finalAttributes = resolveMappedAttributes(uidValue, account, entity, system,
 				systemEntity.getEntityType());
 		if (CollectionUtils.isEmpty(finalAttributes)) {
 			// nothing to do - mapping is empty
@@ -343,7 +341,7 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 	 */
 	private SysSystemEntity getSystemEntity(AccAccount account) {
 		//
-		// TODO: we can find sysstem entity on target system, if no one existst
+		// TODO: we can find system entity on target system, if no one exists
 		// etc.
 		//
 		return account.getSystemEntity();
@@ -447,9 +445,10 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 	protected Map<ProvisioningAttributeDto, Object> preapareMappedAttributesValues(ENTITY entity,
 			ProvisioningOperationType operationType, SysSystemEntity systemEntity,
 			List<? extends AttributeMapping> attributes) {
+		AccAccount account = getAccountSystemEntity(systemEntity.getId());
 		String uid = systemEntity.getUid();
 		Map<ProvisioningAttributeDto, Object> accountAttributes = new HashMap<>();
-		
+		 
 		// delete - account attributes is not needed
 		if (ProvisioningOperationType.DELETE == operationType) {
 			return accountAttributes;
@@ -465,15 +464,11 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 				// TODO: now we set UID from SystemEntity, may be UID from
 				// AccAccount will be more correct
 				Object uidValue = getAttributeValue(uid, entity, attribute);
-				// If is value form UID attribute null, then we will use UID
-				// from existed account (AccAccount/SystemEntity)
-				uidValue = uidValue == null ? uid : uidValue;
-				AccAccount account = getAccountSystemEntity(systemEntity.getId());
-				if (account != null && account.getUid() instanceof String && !account.getUid().equals(uidValue)) {
-					// UID value must be string
-					account.setUid((String) uidValue);
-					accountService.save(account);
+				if (!(uidValue instanceof String)) {
+					throw new ProvisioningException(AccResultCode.PROVISIONING_ATTRIBUTE_UID_IS_NOT_STRING,
+							ImmutableMap.of("uid", uidValue));
 				}
+				updateAccountUid(account, uid, (String)uidValue);
 				accountAttributes.put(ProvisioningAttributeDto.createProvisioningAttributeKey(attribute), uidValue);
 			} else {
 				accountAttributes.put(ProvisioningAttributeDto.createProvisioningAttributeKey(attribute),
@@ -934,4 +929,59 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 
 	@SuppressWarnings("rawtypes")
 	protected abstract ReadWriteDtoService getEntityService();
+	
+	/**
+	 * Load account UID from default provisioning attribute mapping on system. If attribute does not exist, then return null.
+	 * @param entity
+	 * @param system
+	 * @param entityType
+	 * @param uid
+	 * @return
+	 */
+	private String getUidValueFromDefaultMapping(ENTITY entity, SysSystem system, SystemEntityType entityType,
+			String uid) {
+		List<? extends AttributeMapping> defaultAttributes = findAttributeMappings(system, entityType);
+		if(defaultAttributes == null){
+			return null;
+		}
+		List<AttributeMapping> systemAttributeMappingUid = defaultAttributes.stream()
+				.filter(attribute -> {
+					return !attribute.isDisabledAttribute() && attribute.isUid();
+				}).collect(Collectors.toList());
+
+		if (systemAttributeMappingUid.size() > 1) {
+			throw new ProvisioningException(AccResultCode.PROVISIONING_ATTRIBUTE_MORE_UID,
+					ImmutableMap.of("system", system.getName()));
+		}
+		if (systemAttributeMappingUid.isEmpty()) {
+			return null;
+		}
+		SysSystemAttributeMapping uidAttribute = (SysSystemAttributeMapping) systemAttributeMappingUid.get(0);
+		Object uidValue = getAttributeValue(uid, entity, uidAttribute);
+		
+		if (!(uidValue instanceof String)) {
+			throw new ProvisioningException(AccResultCode.PROVISIONING_ATTRIBUTE_UID_IS_NOT_STRING,
+					ImmutableMap.of("uid", uidValue));
+		}
+		return (String)uidValue;
+	}
+
+	/**
+	 * Update account UID in IDM
+	 * @param account
+	 * @param uid
+	 * @param uidValue
+	 * @return
+	 */
+	private AccAccount updateAccountUid(AccAccount account, String uid, String uidValue) {
+		// If is value form UID attribute null, then we will use UID
+		// from existed account (AccAccount/SystemEntity)
+		uidValue = uidValue == null ? uid : uidValue;
+		if (account != null && !account.getUid().equals(uidValue)) {
+			// UID value must be string
+			account.setUid(uidValue);
+			account = accountService.save(account);
+		}
+		return account;
+	}
 }

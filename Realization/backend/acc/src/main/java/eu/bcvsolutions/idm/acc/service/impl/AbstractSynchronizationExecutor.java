@@ -945,16 +945,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 		List<IcAttribute> icAttributes = context.getIcObject().getAttributes();
 		SysSystem system = context.getSystem();
 
-		addToItemLog(logItem, MessageFormat.format("IdM Account ({0}) exist in IDM (LINKED)", account.getUid()));
-		
-		// Generate UID value from mapped attribute marked as UID (Unique ID).
-		// UID mapped attribute must exist and returned value must be not null and must be String
-		String attributeUid = systemAttributeMappingService.getUidValueFromResource(icAttributes, mappedAttributes, system);
-		if(!account.getUid().equals(attributeUid)){
-			addToItemLog(logItem, MessageFormat.format("IdM Account UID ({0}) is different ({1}). We will update him.", account.getUid(), attributeUid));
-			account.setUid(attributeUid);
-			accountService.save(account);
-		}
+		addToItemLog(logItem, MessageFormat.format("IdM Account ({0}) exists in IDM (LINKED)", account.getUid()));
 		
 		addToItemLog(logItem, MessageFormat.format("Linked action is {0}", action));
 		
@@ -965,6 +956,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 			return;
 		case UNLINK:
 			// Linked action is UNLINK
+			updateAccountUid(logItem, account, mappedAttributes, icAttributes, system);
 			doUnlink(account, false, log, logItem, actionLogs);
 
 			initSyncActionLog(SynchronizationActionType.UNLINK, OperationResultType.SUCCESS, logItem, log, actionLogs);
@@ -972,6 +964,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 			return;
 		case UNLINK_AND_REMOVE_ROLE:
 			// Linked action is UNLINK_AND_REMOVE_ROLE
+			updateAccountUid(logItem, account, mappedAttributes, icAttributes, system);
 			doUnlink(account, true, log, logItem, actionLogs);
 
 			initSyncActionLog(SynchronizationActionType.UNLINK, OperationResultType.SUCCESS, logItem, log, actionLogs);
@@ -979,12 +972,14 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 			return;
 		case UPDATE_ENTITY:
 			// Linked action is UPDATE_ENTITY
+			updateAccountUid(logItem, account, mappedAttributes, icAttributes, system);
 			doUpdateEntity(context);
 			initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.SUCCESS, logItem, log,
 					actionLogs);
 			return;
 		case UPDATE_ACCOUNT:
 			// Linked action is UPDATE_ACCOUNT
+			updateAccountUid(logItem, account, mappedAttributes, icAttributes, system);
 			doUpdateAccount(account, entityType, log, logItem, actionLogs);
 			initSyncActionLog(SynchronizationActionType.UPDATE_ACCOUNT, OperationResultType.SUCCESS, logItem, log,
 					actionLogs);
@@ -1941,5 +1936,24 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 
 	protected abstract AbstractEntity saveEntity(AbstractEntity entity, boolean skipProvisioning);
 	
+	/**
+	 * Update account UID from system. UID mapped attribute must exist and returned value must be not null and must be String
+	 * @param logItem
+	 * @param account
+	 * @param mappedAttributes
+	 * @param icAttributes
+	 * @param system
+	 */
+	private void updateAccountUid(SysSyncItemLog logItem, AccAccount account,
+			List<SysSystemAttributeMapping> mappedAttributes, List<IcAttribute> icAttributes, SysSystem system) {
+		// Generate UID value from mapped attribute marked as UID (Unique ID).
+		// UID mapped attribute must exist and returned value must be not null and must be String
+		String attributeUid = systemAttributeMappingService.getUidValueFromResource(icAttributes, mappedAttributes, system);
+		if(!account.getUid().equals(attributeUid)){
+			addToItemLog(logItem, MessageFormat.format("IdM Account UID ({0}) is different ({1}). We will update him.", account.getUid(), attributeUid));
+			account.setUid(attributeUid);
+			accountService.save(account);
+		}
+	}
 
 }

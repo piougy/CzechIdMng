@@ -182,22 +182,17 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 		SystemEntityType entityType = SystemEntityType.getByClass(entity.getClass());
 		String uid = account.getUid();
 		
-		// Definition of UID could change. We load UID value from default system mapping.
-		// If the value has changed, then we update it.
-	//	String uidValue = getUidValueFromDefaultMapping(entity, system, entityType, uid);
-		//account = updateAccountUid(account, uid, uidValue);
-		
 		if (systemEntity == null) {
 			// prepare system entity - uid could be changed by provisioning, but
 			// we need to link her with account
 			// First we try find system entity with same uid.
 			systemEntity = systemEntityService.getBySystemAndEntityTypeAndUid(system,
-					entityType, account.getUid());
+					entityType, uid);
 			if (systemEntity == null) {
 				systemEntity = new SysSystemEntity();
 				systemEntity.setEntityType(entityType);
 				systemEntity.setSystem(system);
-				systemEntity.setUid(account.getUid());
+				systemEntity.setUid(uid);
 				systemEntity.setWish(true);
 				systemEntity = systemEntityService.save(systemEntity);
 			}
@@ -930,41 +925,6 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 	@SuppressWarnings("rawtypes")
 	protected abstract ReadWriteDtoService getEntityService();
 	
-	/**
-	 * Load account UID from default provisioning attribute mapping on system. If attribute does not exist, then return null.
-	 * @param entity
-	 * @param system
-	 * @param entityType
-	 * @param uid
-	 * @return
-	 */
-	private String getUidValueFromDefaultMapping(ENTITY entity, SysSystem system, SystemEntityType entityType,
-			String uid) {
-		List<? extends AttributeMapping> defaultAttributes = findAttributeMappings(system, entityType);
-		if(defaultAttributes == null){
-			return null;
-		}
-		List<AttributeMapping> systemAttributeMappingUid = defaultAttributes.stream()
-				.filter(attribute -> {
-					return !attribute.isDisabledAttribute() && attribute.isUid();
-				}).collect(Collectors.toList());
-
-		if (systemAttributeMappingUid.size() > 1) {
-			throw new ProvisioningException(AccResultCode.PROVISIONING_ATTRIBUTE_MORE_UID,
-					ImmutableMap.of("system", system.getName()));
-		}
-		if (systemAttributeMappingUid.isEmpty()) {
-			return null;
-		}
-		SysSystemAttributeMapping uidAttribute = (SysSystemAttributeMapping) systemAttributeMappingUid.get(0);
-		Object uidValue = getAttributeValue(uid, entity, uidAttribute);
-		
-		if (!(uidValue instanceof String)) {
-			throw new ProvisioningException(AccResultCode.PROVISIONING_ATTRIBUTE_UID_IS_NOT_STRING,
-					ImmutableMap.of("uid", uidValue));
-		}
-		return (String)uidValue;
-	}
 
 	/**
 	 * Update account UID in IDM

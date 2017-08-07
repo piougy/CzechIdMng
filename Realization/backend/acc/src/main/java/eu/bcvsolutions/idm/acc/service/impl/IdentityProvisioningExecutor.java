@@ -172,13 +172,15 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
 			List<SysRoleSystem> roleSystems = roleSystemService.find(roleSystemFilter, null).getContent();
 
 			if (roleSystems.size() > 1) {
+				SysRoleSystem roleSystem = roleSystems.get(0);
 				throw new ProvisioningException(AccResultCode.PROVISIONING_DUPLICATE_ROLE_MAPPING,
-						ImmutableMap.of("role", roleSystems.get(0).getRole().getName(), "system",
-								roleSystems.get(0).getSystem().getName(), "entityType", entityType));
+						ImmutableMap.of("role", roleSystem.getRole().getName(), "system",
+								roleSystem.getSystem().getName(), "entityType", entityType));
 			}
 			if (!roleSystems.isEmpty()) {
+				SysRoleSystem roleSystem = roleSystems.get(0);
 				RoleSystemAttributeFilter roleSystemAttributeFilter = new RoleSystemAttributeFilter();
-				roleSystemAttributeFilter.setRoleSystemId(roleSystems.get(0).getId());
+				roleSystemAttributeFilter.setRoleSystemId(roleSystem.getId());
 				List<SysRoleSystemAttribute> roleAttributes = roleSystemAttributeService
 						.find(roleSystemAttributeFilter, null).getContent();
 

@@ -954,8 +954,8 @@
       "message": "UID attribute was not found in system [{{system}}]. UID attribute is necessary for provisioning (or sync)!"
     },
     "PROVISIONING_DUPLICATE_ROLE_MAPPING": {
-      "title": "Provisioning - More attribute definitions for the same UID and role",
-      "message": "There was found more definitions of attributes for the same UID and same role [{{role}}], in system [{{system}}] and entity type [{{entityType}}]!"
+      "title": "Provisioning - More attribute definitions for the same role",
+      "message": "There was found more definitions of attributes for same role [{{role}}], in system [{{system}}] and entity type [{{entityType}}]!"
     },
     "PROVISIONING_DIFFERENT_UIDS_FROM_CONNECTOR": {
       "title": "Provisioning - UID attribute not found",

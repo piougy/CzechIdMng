@@ -51,7 +51,17 @@
       "header": "Example content",
       "label": "Example content",
       "title": "Example content available from navigation, added by czechidm-example module.",
-      "text": "New example content."
+      "text": "New example content.",
+      "error": {
+        "header": "Localization for error codes",
+        "parameter": {
+          "label": "Error parameter value"
+        },
+        "button": {
+          "client": "Client error (validation)",
+          "server": "Server error"
+        }
+      }
     },
     "example-products": {
       "header": "Products",
@@ -80,6 +90,16 @@
           "success": "Product [{{name}}] successfully saved"
         }
       }
+    }
+  },
+  "error": {
+    "EXAMPLE_SERVER_ERROR": {
+      "title": "Example server error",
+      "message": "Example server with parameter [{{parameter}}]."
+    },
+    "EXAMPLE_CLIENT_ERROR": {
+      "title": "Example client error",
+      "message": "Example client error, bad value given [{{parameter}}]."
     }
   }
 }

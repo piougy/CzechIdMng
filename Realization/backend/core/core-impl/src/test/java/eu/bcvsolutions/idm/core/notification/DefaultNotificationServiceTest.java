@@ -418,7 +418,7 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 		List<IdmIdentityDto> identities = Arrays.asList(identity1, identity2, identity3, identity4);
 		IdmNotificationTemplateDto template = createTestTemplate("TestTemplate6", "testSubject6");
 		IdmMessageDto message = new IdmMessageDto.Builder().setTemplate(template).build();
-		notificationManager.send(message,identities);
+		notificationManager.send(message, identities);
 
 		NotificationFilter filter = new NotificationFilter();
 		filter.setState(NotificationState.ALL);

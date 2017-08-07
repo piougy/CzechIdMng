@@ -1941,7 +1941,8 @@
         "header": "Logging events",
         "header-detail": "Logging event",
         "detail": "detail",
-        "exceptions": "Error message"
+        "exceptions": "Error message",
+        "rawSource": "Show copyable content"
       },
       "revision": {
         "id": "Revision Id",

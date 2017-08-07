@@ -15,13 +15,14 @@ import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmLoggingEventExceptionDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.LoggingEventExceptionFilter;
-import eu.bcvsolutions.idm.core.api.service.AbstractReadDtoService;
+import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.audit.entity.IdmLoggingEventException;
 import eu.bcvsolutions.idm.core.audit.entity.IdmLoggingEventException_;
 import eu.bcvsolutions.idm.core.audit.repository.IdmLoggingEventExceptionRepository;
 import eu.bcvsolutions.idm.core.audit.service.api.IdmLoggingEventExceptionService;
 import eu.bcvsolutions.idm.core.audit.service.api.IdmLoggingEventService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
 /**
@@ -33,7 +34,7 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
 @Service
 public class DefaultIdmLoggingEventExceptionService extends
-		AbstractReadDtoService<IdmLoggingEventExceptionDto, IdmLoggingEventException, LoggingEventExceptionFilter>
+		AbstractReadWriteDtoService<IdmLoggingEventExceptionDto, IdmLoggingEventException, LoggingEventExceptionFilter>
 		implements IdmLoggingEventExceptionService {
 
 	private final IdmLoggingEventExceptionRepository repository;
@@ -82,5 +83,12 @@ public class DefaultIdmLoggingEventExceptionService extends
 		dto.setTraceLine(entity.getTraceLine());
 		dto.setId(entity.getId());
 		return dto;
+	}
+
+	@Override
+	public void deleteAll(List<IdmLoggingEventExceptionDto> eventExceptions, BasePermission... permission) {
+		for (IdmLoggingEventExceptionDto exception : eventExceptions) {
+			this.delete(exception, permission);
+		}
 	}
 }

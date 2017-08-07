@@ -7,7 +7,8 @@ module.exports = {
     },
     {
       path: '/example/products',
-      component: require('./src/content/example-product/ExampleProducts')
+      component: require('./src/content/example-product/ExampleProducts'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['EXAMPLEPRODUCT_READ'] } ]
     },
     {
       path: 'example/product/:entityId/',

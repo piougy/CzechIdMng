@@ -16,7 +16,9 @@ import eu.bcvsolutions.idm.core.notification.service.api.IdmConsoleLogService;
  *
  */
 @Service
-public class DefaultIdmConsoleLogService extends AbstractNotificationLogService<IdmConsoleLogDto, IdmConsoleLog, NotificationFilter> implements IdmConsoleLogService {
+public class DefaultIdmConsoleLogService 
+		extends AbstractNotificationLogService<IdmConsoleLogDto, IdmConsoleLog, NotificationFilter> 
+		implements IdmConsoleLogService {
 	
 	@Autowired
 	public DefaultIdmConsoleLogService(IdmConsoleLogRepository repository) {

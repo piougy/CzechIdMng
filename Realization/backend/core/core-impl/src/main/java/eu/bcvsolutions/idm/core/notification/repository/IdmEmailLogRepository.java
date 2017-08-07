@@ -19,55 +19,15 @@ import eu.bcvsolutions.idm.core.notification.entity.IdmEmailLog;
  */
 public interface IdmEmailLogRepository extends AbstractEntityRepository<IdmEmailLog, NotificationFilter> {
 	
+	/**
+	 * @deprecated use IdmEmailLogService (uses criteria api)
+	 */
 	@Override
-	@Query(value = "select e from IdmEmailLog e left join e.identitySender s" +
-	        " where "
-	        + "("
-	        	+ "?#{[0].text} is null "
-	        	+ "or lower(e.message.subject) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')} "
-	        	+ "or lower(e.message.textMessage) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')} "
-	        	+ "or lower(e.message.htmlMessage) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')} "
-        	+ ") "
-        	+ "and "
-        	+ "("
-        		+ "?#{[0].sender} is null "
-        		+ "or lower(s.username) like ?#{[0].sender == null ? '%' : [0].sender.toLowerCase()} "
-        	+ ") "
-        	+ "and "
-        	+ "("
-        		+ "?#{[0].recipient} is null "
-        		+ "or exists ("
-    			+ "from IdmNotificationRecipient nr "
-    			+ "where "
-    				+ "( "
-	    				+ "nr.notification = e "
-	    				+ "and "
-						+ "lower(nr.identityRecipient.username) like ?#{[0].recipient == null ? '%' : [0].recipient.toLowerCase()} "
-						+ "or "
-						+ "lower(nr.realRecipient) like ?#{[0].recipient == null ? '%' : [0].recipient.toLowerCase()} "
-					+ ") "
-				+ ") "
-				+ "or exists("
-				+ "from IdmNotificationRecipient nr "
-				+ "where "
-		    		+ "( "
-						+ "nr.notification = e "
-						+ "and "
-						+ "lower(nr.realRecipient) like ?#{[0].recipient == null ? '%' : [0].recipient.toLowerCase()} "
-					+ ") "
-				+ ")"
-    		+ ") "
-        	+ "and "
-        	+ "("
-        		+ "?#{[0].sent} is null "
-        		+ "or (?#{[0].sent} = false and e.sent is null) "
-        		+ "or (?#{[0].sent} = true and e.sent is not null)"
-        	+ ") "
-        	+ "and "
-        	+ "(?#{[0].from == null ? 'null' : ''} = 'null' or e.created >= ?#{[0].from}) "
-        	+ "and "
-        	+ "(?#{[0].till == null ? 'null' : ''} = 'null' or e.created <= ?#{[0].till})")
-	Page<IdmEmailLog> find(NotificationFilter filter, Pageable pageable);
+	@Deprecated
+	@Query(value = "select e from #{#entityName} e")
+	default Page<IdmEmailLog> find(NotificationFilter filter, Pageable pageable) {
+		throw new UnsupportedOperationException("Use IdmEmailLogService (uses criteria api)");
+	}
 	
 	/**
 	 * Returns email log by given id - for internal purpose.

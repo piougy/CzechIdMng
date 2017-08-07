@@ -15,8 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.AbstractCoreWorkflowIntegrationTest;
 import eu.bcvsolutions.idm.core.notification.dto.filter.NotificationFilter;
-import eu.bcvsolutions.idm.core.notification.repository.IdmEmailLogRepository;
 import eu.bcvsolutions.idm.core.notification.service.api.EmailNotificationSender;
+import eu.bcvsolutions.idm.core.notification.service.api.IdmEmailLogService;
 import eu.bcvsolutions.idm.core.workflow.api.dto.WorkflowDeploymentDto;
 import eu.bcvsolutions.idm.core.workflow.api.service.WorkflowDeploymentService;
 
@@ -31,12 +31,9 @@ public class BasicEmailTest extends AbstractCoreWorkflowIntegrationTest {
 	private static final String PROCESS_KEY = "testEmailer";
 	private static final String EMAIL_TEXT = "wf_test";
 	private static final String EMAIL_RECIPIENT = InitTestData.TEST_USER_1;
-	
-	@Autowired
-	private WorkflowDeploymentService processDeploymentService;
-	
-	@Autowired
-	private IdmEmailLogRepository emailLogRepository;
+	//
+	@Autowired private WorkflowDeploymentService processDeploymentService;
+	@Autowired private IdmEmailLogService emailLogService;
 	
 	@Before
 	public void login() {
@@ -62,12 +59,12 @@ public class BasicEmailTest extends AbstractCoreWorkflowIntegrationTest {
 		assertNotNull(deploymentDto);
 		filter.setText(EMAIL_TEXT);
 		filter.setRecipient(EMAIL_RECIPIENT);
-		assertEquals(0, emailLogRepository.find(filter, null).getTotalElements());
+		assertEquals(0, emailLogService.find(filter, null).getTotalElements());
 		RuntimeService runtimeService = activitiRule.getRuntimeService();
 		ProcessInstance instance = runtimeService.startProcessInstanceByKey(PROCESS_KEY);
 		assertEquals(instance.getActivityId(), "endevent");
 		long count = runtimeService.createProcessInstanceQuery().processDefinitionKey(PROCESS_KEY).count();
 		assertEquals(0, count);
-		assertEquals(1, emailLogRepository.find(filter, null).getTotalElements());
+		assertEquals(1, emailLogService.find(filter, null).getTotalElements());
 	}
 }

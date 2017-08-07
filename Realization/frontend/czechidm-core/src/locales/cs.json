@@ -563,7 +563,8 @@
       "NOTIFICATIONTEMPLATE": "Notifikace - šablony",
       "PASSWORDPOLICY": "Politiky hesel",
       "ROLEREQUEST": "Agenda žádostí o role",
-      "SCHEDULER": "Nastavení plánovače"
+      "SCHEDULER": "Nastavení plánovače",
+      "WORKFLOWDEFINITION": "Workflow - definice"
     }
   },
   "content": {

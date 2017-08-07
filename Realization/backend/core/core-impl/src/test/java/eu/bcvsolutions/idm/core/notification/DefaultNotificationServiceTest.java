@@ -7,23 +7,30 @@ import static org.junit.Assert.fail;
 import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.InitTestData;
+import eu.bcvsolutions.idm.core.TestHelper;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
+import eu.bcvsolutions.idm.core.notification.api.domain.NotificationState;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationDto;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationLogDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationTemplateDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.NotificationConfigurationDto;
 import eu.bcvsolutions.idm.core.notification.dto.filter.NotificationFilter;
@@ -45,13 +52,15 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * Notification service tests
  * 
  * @author Radek Tomiška
+ * @author Marek Klement
  *
  */
 public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 
 	private static final String TOPIC = "idm:test";
 	private static final String TEST_TEMPLATE = "testTemplate";
-	//
+
+	@Autowired private TestHelper helper;
 	@Autowired private NotificationManager notificationManager;
 	@Autowired private EmailNotificationSender emailService;
 	@Autowired private IdmNotificationLogRepository idmNotificationRepository;
@@ -329,6 +338,98 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 			assertEquals(resultCode.getError().getError().getStatusEnum(),
 					CoreResultCode.NOTIFICATION_TEMPLATE_XML_FILE_NOT_FOUND.name());
 		}
+	}
+
+	@Test
+	public void textFilterTest(){
+		IdmIdentityDto identity = helper.createIdentity();
+		NotificationFilter filter = new NotificationFilter();
+		//
+		// create templates
+		IdmNotificationTemplateDto template = createTestTemplate("TestTemplate1", "testSubject");
+		IdmNotificationTemplateDto template2 = createTestTemplate("TestTemplate2","testSubject2");
+		//
+		emailService.send(new IdmMessageDto.Builder().setTemplate(template).build(), identity);
+		emailService.send(new IdmMessageDto.Builder().setTemplate(template2).build(), identity);
+		// filter text BODY
+		filter.setText(template.getBodyText());
+		Page<IdmNotificationLogDto> result = notificationLogService.find(filter, null);
+		assertEquals("Wrong text message body",1, result.getTotalElements());
+		// filter text HTML
+		filter.setText(template2.getBodyHtml());
+		result = notificationLogService.find(filter, null);
+		assertEquals("Wrong text message html",1, result.getTotalElements());
+		// filter text subject
+		filter.setText(template.getSubject());
+		result = notificationLogService.find(filter, null);
+		assertEquals("Wrong text message html",2, result.getTotalElements());
+	}
+
+	@Test
+	public void senderFilterTest(){
+		IdmIdentityDto sender = helper.createIdentity();
+		NotificationFilter filter = new NotificationFilter();
+		IdmNotificationDto notification = new IdmNotificationDto();
+		notification.setIdentitySender(sender.getId());
+		//
+		// create templates
+		IdmNotificationTemplateDto template = createTestTemplate("TestTemplate3", "testSubject3");
+		IdmMessageDto message = new IdmMessageDto.Builder().setTemplate(template).build();
+		notification.setMessage(message);
+		notificationManager.send(notification);
+		//
+		// filter text BODY
+		filter.setSender(sender.getUsername());
+		Page<IdmNotificationLogDto> result = notificationLogService.find(filter, null);
+		assertEquals("Wrong sender",sender.getId(), result.getContent().get(0).getIdentitySender());
+	}
+
+	@Test
+	public void parentFilterText(){
+		NotificationFilter filter = new NotificationFilter();
+		IdmNotificationDto notification = new IdmNotificationDto();
+		IdmNotificationDto parentNotification = new IdmNotificationDto();
+		// prepare template and message
+		IdmNotificationTemplateDto template2 = createTestTemplate("TestTemplate5", "testSubject5");
+		IdmMessageDto message2 = new IdmMessageDto.Builder().setTemplate(template2).build();
+		// set parent
+		parentNotification.setMessage(message2);
+		IdmNotificationLogDto logDto = notificationManager.send(parentNotification);
+		notification.setParent(logDto.getMessage().getId());
+		//
+		// send message
+		IdmNotificationTemplateDto template = createTestTemplate("TestTemplate4", "testSubject4");
+		IdmMessageDto message = new IdmMessageDto.Builder().setTemplate(template).build();
+		notification.setMessage(message);
+		notificationManager.send(notification);
+		// set filter
+		filter.setParent(logDto.getId());
+		Page<IdmNotificationLogDto> result = notificationLogService.find(filter, null);
+		assertEquals("Wrong sender", logDto.getId(), result.getContent().get(0).getParent());
+	}
+
+	@Test
+	@Ignore
+	public void stateFilterTest(){
+		IdmIdentityDto identity1 = helper.createIdentity();
+		IdmIdentityDto identity2 = helper.createIdentity();
+		IdmIdentityDto identity3 = helper.createIdentity();
+		IdmIdentityDto identity4 = helper.createIdentity();
+		List<IdmIdentityDto> identities = Arrays.asList(identity1, identity2, identity3, identity4);
+		IdmNotificationTemplateDto template = createTestTemplate("TestTemplate6", "testSubject6");
+		IdmMessageDto message = new IdmMessageDto.Builder().setTemplate(template).build();
+		notificationManager.send(message,identities);
+
+		NotificationFilter filter = new NotificationFilter();
+		filter.setState(NotificationState.ALL);
+		Page<IdmNotificationLogDto> result = notificationLogService.find(filter, null);
+		assertEquals("Wrong state ALL", 1, result.getTotalElements());
+		filter.setState(NotificationState.NOT);
+		Page<IdmNotificationLogDto> result2 = notificationLogService.find(filter, null);
+		assertEquals("Wrong state NOT", 1, result2.getTotalElements());
+		filter.setState(NotificationState.PARTLY);
+		result = notificationLogService.find(filter, null);
+		assertEquals("Wrong state PARTLY", 0, result.getTotalElements());
 	}
 
 	private IdmNotificationTemplateDto createTestTemplate(String body, String subject) {

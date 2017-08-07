@@ -802,6 +802,7 @@
         "createdDate": "Created on",
         "applicantFullName": "Applicant name",
         "applicant": "Requested for",
+        "implementerIdentifier": "Applicant",
         "successComplete": "Task {{name}} successfully solved.",
         "completeTaskConfirmTitle": "Confirmation of task completion",
         "completeTaskConfirmDetail": "Do you really want this task to terminate?",
@@ -812,6 +813,7 @@
       },
       "DefaultTaskDetail": {
         "applicant": "Requested for",
+        "implementerIdentifier": "Applicant",
         "createdDate": "Created date",
         "approvers": "Approvers of this task",
         "note": "$t(entity.ApprovalTask.note)",

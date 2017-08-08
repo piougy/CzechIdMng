@@ -893,11 +893,11 @@
     },
     "PROVISIONING_ATTRIBUTE_MORE_UID": {
       "title": "Již existuje jiný unikátní identifikátor",
-      "message": "Pro systém: {{system}} byl již nalezen unikátní identifikátor."
+      "message": "Pro systém [{{system}}] byl již nalezen unikátní identifikátor."
     },
     "PROVISIONING_ROLE_ATTRIBUTE_MORE_UID": {
       "title": "Již existuje jiný unikátní identifikátor",
-      "message": "Pro roli: {{role}} a systém {{system}} byl již nalezen unikátní identifikátor."
+      "message": "Pro roli [{{role}}] a systém [{{system}}] byl již nalezen unikátní identifikátor."
     },
     "PROVISIONING_SYSTEM_DISABLED": {
       "title": "Provisioning účtu [{{name}}] neproběhl",

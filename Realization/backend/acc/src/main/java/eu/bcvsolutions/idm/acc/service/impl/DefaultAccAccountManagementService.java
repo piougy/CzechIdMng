@@ -137,7 +137,7 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 		}).forEach(identityRole -> {
 			// Search IdentityAccounts to delete
 			identityAccountList.stream().filter(identityAccount -> {
-				return identityRole.equals(identityAccount.getIdentityRole());
+				return identityRole.getId().equals(identityAccount.getIdentityRole());
 			}).forEach(identityAccount -> {
 				identityAccountsToDelete.add(identityAccount);
 			});

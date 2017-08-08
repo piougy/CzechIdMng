@@ -33,6 +33,9 @@ public class ExampleModuleDescriptor extends PropertyModuleDescriptor {
 		return MODULE_ID;
 	}
 	
+	/**
+	 * Enables links to swagger documention
+	 */
 	@Override
 	public boolean isDocumentationAvailable() {
 		return true;

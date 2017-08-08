@@ -887,11 +887,11 @@
     },
     "PROVISIONING_ATTRIBUTE_MORE_UID": {
       "title": " Unique identifier already exists",
-      "message": "System {{system}} has already set unique identifier."
+      "message": "System [{{system}}] has already set unique identifier."
     },
     "PROVISIONING_ROLE_ATTRIBUTE_MORE_UID": {
       "title": "Unique identifier already exists",
-      "message": "Role {{role}} and system {{system}} have already set unique identifier."
+      "message": "Role [{{role}}] and system [{{system}}] have already set unique identifier."
     },
     "PROVISIONING_SYSTEM_DISABLED": {
       "title": "Provisioning of account [{{name}}] wasn't executed",

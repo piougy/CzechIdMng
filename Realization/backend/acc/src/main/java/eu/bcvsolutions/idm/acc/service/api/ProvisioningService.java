@@ -111,7 +111,7 @@ public interface ProvisioningService {
 	 * @param entityType
 	 * @return
 	 */
-	List<AttributeMapping> resolveMappedAttributes(String uid, AccAccount account, AbstractEntity entity, SysSystem system, SystemEntityType entityType);
+	List<AttributeMapping> resolveMappedAttributes(AccAccount account, AbstractEntity entity, SysSystem system, SystemEntityType entityType);
 
 	/**
 	 * Create final list of attributes for provisioning.

@@ -90,14 +90,13 @@ public interface ProvisioningEntityExecutor<ENTITY> extends Plugin<SystemEntityT
 	/**
 	 * Return all mapped attributes for this account (include overloaded attributes)
 	 * 
-	 * @param uid
 	 * @param account
 	 * @param identity
 	 * @param system
 	 * @param entityType
 	 * @return
 	 */
-	List<AttributeMapping> resolveMappedAttributes(String uid, AccAccount account, ENTITY entity, SysSystem system, SystemEntityType entityType);
+	List<AttributeMapping> resolveMappedAttributes(AccAccount account, ENTITY entity, SysSystem system, SystemEntityType entityType);
 
 	/**
 	 * Create final list of attributes for provisioning.

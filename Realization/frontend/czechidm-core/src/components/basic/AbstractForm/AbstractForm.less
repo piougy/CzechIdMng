@@ -31,13 +31,15 @@ input[readonly].confidential {
     margin-top: 2px;
   }
 
+  .form-group {
+    &.last {
+      margin-bottom: 0;
+    }
+  }
+
   &.form-horizontal {
     .form-group {
       margin-bottom: 7px;
-
-      &.last {
-        margin-bottom: 0;
-      }
 
       &.has-error {
         label.control-label {

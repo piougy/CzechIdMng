@@ -126,7 +126,7 @@ public class IdentityAccountDeleteProcessor extends CoreEventProcessor<AccIdenti
 						service.delete(identityAccount);
 					});
 			// Finally we can delete account
-			accountService.delete(accountService.get(account), deleteTargetAccount);
+			accountService.delete(accountService.get(account), deleteTargetAccount, entity.getEntity());
 		}
 
 		return new DefaultEventResult<>(event, this);

@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.acc.service.api;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.plugin.core.Plugin;
 
@@ -51,8 +52,9 @@ public interface ProvisioningEntityExecutor<ENTITY> extends Plugin<SystemEntityT
 	 * Do delete provisioning for given account on connected system
 	 * 
 	 * @param account
+	 * @param entityId - Id of entity connected to the account. Can be null, but provisioning archive will not have correct information.
 	 */
-	void doDeleteProvisioning(AccAccount account);
+	void doDeleteProvisioning(AccAccount account, UUID entityId);
 	
 	/**
 	 * 
@@ -88,14 +90,13 @@ public interface ProvisioningEntityExecutor<ENTITY> extends Plugin<SystemEntityT
 	/**
 	 * Return all mapped attributes for this account (include overloaded attributes)
 	 * 
-	 * @param uid
 	 * @param account
 	 * @param identity
 	 * @param system
 	 * @param entityType
 	 * @return
 	 */
-	List<AttributeMapping> resolveMappedAttributes(String uid, AccAccount account, ENTITY entity, SysSystem system, SystemEntityType entityType);
+	List<AttributeMapping> resolveMappedAttributes(AccAccount account, ENTITY entity, SysSystem system, SystemEntityType entityType);
 
 	/**
 	 * Create final list of attributes for provisioning.
@@ -124,6 +125,7 @@ public interface ProvisioningEntityExecutor<ENTITY> extends Plugin<SystemEntityT
 	 * @return
 	 */
 	void doInternalProvisioning(AccAccount account, ENTITY entity);
+
 
 
 }

@@ -10,10 +10,14 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 import eu.bcvsolutions.idm.example.ExampleModuleDescriptor;
+import eu.bcvsolutions.idm.example.domain.ExampleResultCode;
 import eu.bcvsolutions.idm.example.dto.Pong;
 import eu.bcvsolutions.idm.example.service.api.ExampleService;
 import io.swagger.annotations.Api;
@@ -86,5 +90,41 @@ public class ExampleController {
 			@ApiParam(value = "Notification message", example = "hello", defaultValue = "hello") 
 			@RequestParam(required = false, defaultValue = "hello") String message) {
 		service.sendNotification(message);
+	}
+	
+	@ResponseBody
+	@RequestMapping(method = RequestMethod.GET, path = "/client-error")
+	@ApiOperation(
+			value = "Example client error", 
+			notes= "Example client error with given parameter.",
+			nickname = "exampleClientError", 
+			tags={ ExampleController.TAG }, 
+			authorizations = {
+				@Authorization(SwaggerConfig.AUTHENTICATION_BASIC),
+				@Authorization(SwaggerConfig.AUTHENTICATION_CIDMST)
+			})
+	public void clientError(
+			@ApiParam(value = "Error parameter", example = "parameter", defaultValue = "value") 
+			@RequestParam(required = false, defaultValue = "parameter") String parameter) {
+		// lookout - ImmutableMap parameter values cannot be {@code null}
+		throw new ResultCodeException(ExampleResultCode.EXAMPLE_CLIENT_ERROR, ImmutableMap.of("parameter", String.valueOf(parameter)));
+	}
+	
+	@ResponseBody
+	@RequestMapping(method = RequestMethod.GET, path = "/server-error")
+	@ApiOperation(
+			value = "Example server error", 
+			notes= "Example server error with given parameter.",
+			nickname = "exampleServerError", 
+			tags={ ExampleController.TAG }, 
+			authorizations = {
+				@Authorization(SwaggerConfig.AUTHENTICATION_BASIC),
+				@Authorization(SwaggerConfig.AUTHENTICATION_CIDMST)
+			})
+	public void serverError(
+			@ApiParam(value = "Error parameter", example = "parameter", defaultValue = "value") 
+			@RequestParam(required = false, defaultValue = "parameter") String parameter) {
+		// lookout - ImmutableMap parameter values cannot be {@code null}
+		throw new ResultCodeException(ExampleResultCode.EXAMPLE_SERVER_ERROR, ImmutableMap.of("parameter", String.valueOf(parameter)));
 	}
 }

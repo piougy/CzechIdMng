@@ -960,8 +960,8 @@
       "message": "Atribut označený jako identifikátor nebyl nalezen na systému [{{system}}]. Atribut identifikující entitu, je pro provisioning (nebo synchronizaci) povinný!"
     },
     "PROVISIONING_DUPLICATE_ROLE_MAPPING": {
-      "title": "Provisioning - Více definic atributu pro stejný UID a stejnou roli",
-      "message": "Bylo nalezeno více definic atributů pro stejný UID a stejnou roli  [{{role}}], systém  [{{system}}] a typ entity  [{{entityType}}]!"
+      "title": "Provisioning - Více definic atributu pro stejnou roli",
+      "message": "Bylo nalezeno více definic atributů pro stejnou roli  [{{role}}], systém  [{{system}}] a typ entity  [{{entityType}}]!"
     },
     "PROVISIONING_DIFFERENT_UIDS_FROM_CONNECTOR": {
       "title": "Provisioning - UID atribut nebyl nalezen",
@@ -1070,6 +1070,10 @@
     "SYSTEM_MAPPING_TREE_TYPE_DELETE_FAILED": {
       "title": "Typ struktury nelze odebrat",
       "message": "Typ struktury [{{treeType}}] je již použit v mapování u systému [{{system}}]. Před odebráním tohoto typu odstraňte mapování ze systému."
+    },
+    "ROLE_SYSTEM_ALREADY_EXISTS": {
+      "title": "Duplicitní mapování",
+      "message": "Mapování pro stejnou roli [{{role}}] a stejný systém [{{system}}] již existuje!"
     }
   }
 }

@@ -89,6 +89,21 @@ class DynamicTaskDetail extends Basic.AbstractContent {
     this.context.router.goBack();
   }
 
+  _getApplicantAndRequester(task) {
+    if (task) {
+      return (
+        <div>
+          <Basic.LabelWrapper rendered={task.applicant} readOnly ref="applicant" label={this.i18n('applicant')}>
+            <Advanced.IdentityInfo username={task.applicant} showLoading={!task} className="no-margin"/>
+          </Basic.LabelWrapper>
+          <Basic.LabelWrapper rendered={task.variables.implementerIdentifier} readOnly ref="implementerIdentifier" label={this.i18n('implementerIdentifier')}>
+            <Advanced.IdentityInfo entityIdentifier ={task.variables.implementerIdentifier} showLoading={!task} className="no-margin" face="link"/>
+          </Basic.LabelWrapper>
+        </div>
+      );
+    }
+  }
+
   _getFormDataComponents(task) {
     if (!task) {
       return null;
@@ -185,9 +200,7 @@ class DynamicTaskDetail extends Basic.AbstractContent {
           </Basic.PanelHeader>
           <Basic.AbstractForm className="panel-body" ref="form" data={task}>
             <Basic.TextField ref="taskDescription" readOnly label={this.i18n('description')}/>
-            <Basic.LabelWrapper rendered={task.applicant} readOnly ref="applicant" label={this.i18n('applicant')}>
-              <Advanced.IdentityInfo username={task.applicant} showLoading={!task} className="no-margin"/>
-            </Basic.LabelWrapper>
+            {this._getApplicantAndRequester(task)}
             <Basic.DateTimePicker ref="taskCreated" readOnly label={this.i18n('createdDate')}/>
           </Basic.AbstractForm>
           <Basic.AbstractForm ref="formData" data={formDataValues} className="panel-body">

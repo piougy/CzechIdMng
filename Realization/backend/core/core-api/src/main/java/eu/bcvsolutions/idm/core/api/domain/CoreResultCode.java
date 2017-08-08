@@ -5,6 +5,16 @@ import org.springframework.http.HttpStatus;
 /**
  * Enum class for formatting response messages (mainly errors). 
  * Every enum contains a string message and corresponding https HttpStatus code.
+ * 
+ * Used http codes:
+ * - 2xx - success
+ * - 4xx - client errors (validations, conflicts ...)
+ * - 5xx - server errors
+ * 
+ * ImmutableMap can be used for code parameters - linked map is needed for parameter ordering.
+ * Lookout - ImmutableMap parameter values cannot be {@code null}!
+ * 
+ * @author Radek Tomiška
  */
 public enum CoreResultCode implements ResultCode {
 	//
@@ -12,8 +22,7 @@ public enum CoreResultCode implements ResultCode {
 	OK(HttpStatus.OK, "ok"),
 	ACCEPTED(HttpStatus.ACCEPTED, "	"),
 	//
-	// 4xx
-	// commons
+	// Commons 4xx
 	BAD_REQUEST(HttpStatus.BAD_REQUEST, "The value is wrong!"),
 	BAD_VALUE(HttpStatus.BAD_REQUEST, "The value %s is wrong!"),
 	BAD_UUID(HttpStatus.BAD_REQUEST, "The value %s is not uuid!"),
@@ -161,7 +170,7 @@ public enum CoreResultCode implements ResultCode {
 	//
 	AUTHORIZATION_POLICY_GROUP_AUTHORIZATION_TYPE(HttpStatus.BAD_REQUEST, "When authorization type is filled [%s] then groupPermission has to be filled too [%s]."),
 	//
-	// 5xx	
+	// Common 5xx
 	INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "%s"),
 	NOT_IMPLEMENTED(HttpStatus.INTERNAL_SERVER_ERROR, "Not implemented: %s"),
 	WF_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Error occured during workflow execution: %s"),

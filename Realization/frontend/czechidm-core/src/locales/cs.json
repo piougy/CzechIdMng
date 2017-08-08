@@ -854,6 +854,7 @@
           "createdDate": "Úkol vytvořen",
           "applicantFullName": "Jméno žadatele",
           "applicant": "Žádost pro",
+          "implementerIdentifier": "Žadatel",
           "successComplete": "Úkol {{name}} byl úspěšně vyřešen.",
           "completeTaskConfirmTitle": "Potvrzení ukončení úkolu",
           "completeTaskConfirmDetail": "Opravdu chcete tento úkol ukončit?",
@@ -864,6 +865,7 @@
         },
         "DefaultTaskDetail": {
           "applicant": "Žádost pro",
+          "implementerIdentifier": "Žadatel",
           "createdDate": "Datum vytvoření žádosti",
           "approvers": "Schvalovatelé tohoto úkolu",
           "note": "$t(entity.ApprovalTask.note)",

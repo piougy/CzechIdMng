@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.acc.service.impl;
 
 import java.text.MessageFormat;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.plugin.core.OrderAwarePluginRegistry;
@@ -67,9 +68,9 @@ public class DefaultProvisioningService implements ProvisioningService {
 	}
 
 	@Override
-	public void doDeleteProvisioning(AccAccount account, SystemEntityType entityType) {
+	public void doDeleteProvisioning(AccAccount account, SystemEntityType entityType, UUID entityId) {
 		Assert.notNull(account);
-		this.getExecutor(entityType).doDeleteProvisioning(account);
+		this.getExecutor(entityType).doDeleteProvisioning(account, entityId);
 	}
 
 	@Override
@@ -94,10 +95,10 @@ public class DefaultProvisioningService implements ProvisioningService {
 	}
 
 	@Override
-	public List<AttributeMapping> resolveMappedAttributes(String uid, AccAccount account, AbstractEntity entity,
+	public List<AttributeMapping> resolveMappedAttributes(AccAccount account, AbstractEntity entity,
 			SysSystem system, SystemEntityType entityType) {
 		Assert.notNull(entityType);
-		return this.getExecutor(entityType).resolveMappedAttributes(uid, account, entity, system, entityType);
+		return this.getExecutor(entityType).resolveMappedAttributes(account, entity, system, entityType);
 	}
 
 	@Override

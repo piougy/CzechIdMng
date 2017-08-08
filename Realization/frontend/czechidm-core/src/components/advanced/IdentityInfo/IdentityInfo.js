@@ -77,7 +77,7 @@ export class IdentityInfo extends AbstractEntityInfo {
     if (!showLink) {
       return false;
     }
-    // todo: authorization policies
+    // evaluate authorization policies
     if (!identityManager.canRead(this.getEntity(), _permissions)) {
       return false;
     }

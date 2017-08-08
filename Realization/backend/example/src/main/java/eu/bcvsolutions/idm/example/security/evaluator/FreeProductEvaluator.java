@@ -18,7 +18,6 @@ import eu.bcvsolutions.idm.example.entity.ExampleProduct;
 import eu.bcvsolutions.idm.example.entity.ExampleProduct_;
 
 /**
- *
  * Adds permissions to products for free.
  *
  * @author Radek Tomiška

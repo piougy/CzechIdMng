@@ -129,7 +129,7 @@ public class DefaultIdmRoleRequestService
 	@Override
 	@Transactional(propagation=Propagation.REQUIRES_NEW)
 	public IdmRoleRequestDto startRequestNewTransactional(UUID requestId, boolean checkRight) {
-		return this.getIdmRoleRequestService().startRequestInternal(requestId, true);
+		return this.getIdmRoleRequestService().startRequestInternal(requestId, checkRight);
 	}
 	
 	@Override

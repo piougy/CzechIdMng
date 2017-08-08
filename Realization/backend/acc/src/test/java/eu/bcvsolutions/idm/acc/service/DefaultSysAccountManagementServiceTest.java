@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.acc.service;
 
 import java.util.List;
 
+import org.joda.time.LocalDate;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -108,10 +109,70 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 	public void logout() {
 		super.logout();
 	}
+	
+	@Test
+	/**
+	 * Add invalid identity role. Account cannot be created.
+	 */
+	public void defaultAccountAddInvalid() {
+		initData();
+
+		IdmIdentityDto identity = identityService.getByUsername(IDENTITY_USERNAME);
+		IdmRole roleDefault = roleService.getByName(ROLE_DEFAULT);
+
+		Assert.assertNull("No account for this identity can be found, before account management start!",
+				helper.findResource("x" + IDENTITY_USERNAME));
+
+		IdmIdentityRoleDto irdto = new IdmIdentityRoleDto();
+		irdto.setIdentityContract(identityContractService.findAllByIdentity(identity.getId()).get(0).getId());
+		irdto.setRole(roleDefault.getId());
+		// Set valid from to future
+		irdto.setValidFrom(LocalDate.now().plusDays(1));
+		// This evokes IdentityRole SAVE event. On this event will be start
+		// account management and provisioning
+		irdto = identityRoleService.save(irdto);
+
+		IdentityAccountFilter iaccFilter = new IdentityAccountFilter();
+		iaccFilter.setIdentityId(identity.getId());
+		iaccFilter.setIdentityRoleId(irdto.getId());
+		List<AccIdentityAccountDto> identityAccounts = identityAccountService.find(iaccFilter, null).getContent();
+		// Identity-account have to not exists after account management was started (INVALID identityRole was added)!
+		Assert.assertEquals(0, identityAccounts.size());
+
+		// Set valid from to null - Account must be created
+		irdto.setValidFrom(null);
+		// This evokes IdentityRole SAVE event. On this event will be start
+		// account management and provisioning
+		irdto = identityRoleService.save(irdto);
+
+		identityAccounts = identityAccountService.find(iaccFilter, null).getContent();
+		Assert.assertEquals(1, identityAccounts.size());
+		AccIdentityAccountDto identityAccount = identityAccounts.get(0);
+		Assert.assertNotNull("Idenitity account have to exists after account management was started!", identityAccount);
+		Assert.assertNotNull("Account have to exists after account management was started!",
+				identityAccount.getAccount());
+		Assert.assertEquals(accountService.get(identityAccount.getAccount()).getUid(), "x" + IDENTITY_USERNAME);
+
+		TestResource createdAccount = helper.findResource("x" + IDENTITY_USERNAME);
+		Assert.assertNotNull("Idenitity have to exists on target system (after account management)", createdAccount);
+		Assert.assertEquals(identity.getFirstName(), createdAccount.getFirstname());
+		
+		// Set valid from to null - Account must be created
+		irdto.setValidTill(LocalDate.now().minusDays(1));
+		// This evokes IdentityRole SAVE event. On this event will be start
+		// account management and provisioning
+		irdto = identityRoleService.save(irdto);
+		identityAccounts = identityAccountService.find(iaccFilter, null).getContent();
+		// Identity-account have to not exists after account management was started (INVALID identityRole was added)!
+		Assert.assertEquals(0, identityAccounts.size());
+		
+		// Clean identity role
+		identityRoleService.delete(irdto);
+		
+	}
 
 	@Test
-	public void defaultAccountAdd() {
-		initData();
+	public void defaultAccountAddValid() {
 
 		IdmIdentityDto identity = identityService.getByUsername(IDENTITY_USERNAME);
 		IdmRole roleDefault = roleService.getByName(ROLE_DEFAULT);

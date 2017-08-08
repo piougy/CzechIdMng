@@ -2,7 +2,7 @@ package eu.bcvsolutions.idm.core.audit.service.api;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmLoggingEventDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.LoggingEventFilter;
-import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
+import eu.bcvsolutions.idm.core.api.service.ReadDtoService;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 
 /**
@@ -13,6 +13,12 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
  */
 
 public interface IdmLoggingEventService
-		extends ReadWriteDtoService<IdmLoggingEventDto, LoggingEventFilter>, AuthorizableService<IdmLoggingEventDto> {
+		extends ReadDtoService<IdmLoggingEventDto, LoggingEventFilter>, AuthorizableService<IdmLoggingEventDto> {
 
+	/**
+	 * Remove all logging event by id
+	 * 
+	 * @param eventId
+	 */
+	void deleteAllById(Long eventId);
 }

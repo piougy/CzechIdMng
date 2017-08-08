@@ -11,6 +11,7 @@ import javax.persistence.criteria.Root;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
@@ -19,7 +20,7 @@ import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmLoggingEventDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.LoggingEventFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
+import eu.bcvsolutions.idm.core.api.service.AbstractReadDtoService;
 import eu.bcvsolutions.idm.core.audit.entity.IdmLoggingEvent;
 import eu.bcvsolutions.idm.core.audit.entity.IdmLoggingEvent_;
 import eu.bcvsolutions.idm.core.audit.repository.IdmLoggingEventRepository;
@@ -36,7 +37,7 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
  */
 @Service
 public class DefaultIdmLoggingEventService
-		extends AbstractReadWriteDtoService<IdmLoggingEventDto, IdmLoggingEvent, LoggingEventFilter>
+		extends AbstractReadDtoService<IdmLoggingEventDto, IdmLoggingEvent, LoggingEventFilter>
 		implements IdmLoggingEventService {
 
 	private final IdmLoggingEventRepository repository;
@@ -129,5 +130,25 @@ public class DefaultIdmLoggingEventService
 	@Override
 	public AuthorizableType getAuthorizableType() {
 		return new AuthorizableType(CoreGroupPermission.AUDIT, getEntityClass());
+	}
+	
+	@Override
+	protected IdmLoggingEvent getEntity(Serializable id, BasePermission... permission) {
+		Assert.notNull(id);
+		LoggingEventFilter filter = new LoggingEventFilter();
+		filter.setId(Long.valueOf(id.toString()));
+		List<IdmLoggingEventDto> entities = this.find(filter, null, permission).getContent();
+		if (entities.isEmpty()) {
+			return null;
+		}
+		// for given id must found only one entity
+		IdmLoggingEvent entity = this.toEntity(entities.get(0));
+		return checkAccess(entity, permission);
+	}
+
+	@Override
+	@Transactional
+	public void deleteAllById(Long eventId) {
+		this.repository.deleteById(eventId);
 	}
 }

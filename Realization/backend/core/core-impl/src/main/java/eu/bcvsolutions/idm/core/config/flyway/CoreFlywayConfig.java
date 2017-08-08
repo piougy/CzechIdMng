@@ -5,7 +5,6 @@ import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.flyway.FlywayProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -26,7 +25,7 @@ import eu.bcvsolutions.idm.core.api.config.flyway.IdmFlywayPostProcessor;
  */
 @Configuration
 @ConditionalOnClass(Flyway.class)
-@ConditionalOnProperty(prefix = "flyway", name = "enabled", matchIfMissing = false)
+// @ConditionalOnProperty(prefix = "flyway", name = "enabled", matchIfMissing = false)
 @AutoConfigureAfter(IdmFlywayAutoConfiguration.IdmFlywayConfiguration.class)
 @EnableConfigurationProperties(FlywayProperties.class)
 @PropertySource("classpath:/flyway-core.properties")
@@ -44,5 +43,15 @@ public class CoreFlywayConfig extends AbstractFlywayConfiguration {
 		Flyway flyway = super.createFlyway();		
 		log.info("Starting flyway migration for module core [{}]: ", flyway.getTable());
 		return flyway;
+	}
+	
+	/**
+	 * Fallback, when flyway is disabled => some configuration depends on it (e.g. Rest Template)
+	 * @return
+	 */
+	@Bean(name = NAME)
+	@ConditionalOnMissingBean(name = NAME)
+	public String flywayCoreUnavailable() {
+		return "N/A";
 	}
 }

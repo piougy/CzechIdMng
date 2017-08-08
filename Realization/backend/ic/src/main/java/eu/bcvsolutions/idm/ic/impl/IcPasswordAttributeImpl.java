@@ -32,10 +32,10 @@ public class IcPasswordAttributeImpl extends IcAttributeImpl implements IcPasswo
 	@Override
 	public GuardedString getPasswordValue() {
 		if (this.multiValue || (this.values != null && this.values.size() > 1)) {
-			throw new IllegalArgumentException("Must be a single value.");
+			throw new IllegalArgumentException("Attribute [" + name + "] must be a single value.");
 		}
 		if (!this.password) {
-			throw new IllegalArgumentException("Must be a password value.");
+			throw new IllegalArgumentException("Attribute [" + name + "] must be a password value.");
 		}
 		if (this.values == null || this.values.isEmpty()) {
 			return null;
@@ -44,7 +44,7 @@ public class IcPasswordAttributeImpl extends IcAttributeImpl implements IcPasswo
 			return new GuardedString(GuardedString.SECRED_PROXY_STRING);
 		}
 		if (!(this.values.get(0) instanceof GuardedString)) {
-			throw new IllegalArgumentException("Must be a GuardedString value.");
+			throw new IllegalArgumentException("Attribute [" + name + "] must be a GuardedString value.");
 		}
 		return (GuardedString) this.values.get(0);
 

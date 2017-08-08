@@ -19,40 +19,36 @@ import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.event.TreeTypeEvent;
 import eu.bcvsolutions.idm.core.model.event.TreeTypeEvent.TreeTypeEventType;
-import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
-import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeTypeRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeTypeService;
 
+/**
+ * Operations with IdmTreeType
+ * 
+ * @author Ondrej Kopr <kopr@xyxy.cz>
+ * @author Radek Tomiška
+ */
 @Service("treeTypeService")
 public class DefaultIdmTreeTypeService extends AbstractReadWriteEntityService<IdmTreeType, QuickFilter> implements IdmTreeTypeService {
 
 	private static final Logger LOG = LoggerFactory.getLogger(DefaultIdmTreeTypeService.class);
 	
 	private final IdmTreeTypeRepository repository;
-	private final IdmTreeNodeRepository treeNodeRepository;
-	private final IdmIdentityContractRepository identityContractRepository;
 	private final IdmConfigurationService configurationService;
 	private final EntityEventManager entityEventManager;
 	
 	@Autowired
 	public DefaultIdmTreeTypeService(
 			IdmTreeTypeRepository treeTypeRepository,
-			IdmTreeNodeRepository treeNodeRepository,
-			IdmIdentityContractRepository identityContractRepository,
 			IdmConfigurationService configurationService,
 			EntityEventManager entityEventManager) {
 		super(treeTypeRepository);
 		//
-		Assert.notNull(treeNodeRepository);
-		Assert.notNull(identityContractRepository);
 		Assert.notNull(configurationService);
 		Assert.notNull(entityEventManager);
 		//
 		this.repository = treeTypeRepository;
-		this.treeNodeRepository = treeNodeRepository;
-		this.identityContractRepository = identityContractRepository;
 		this.configurationService = configurationService;
 		this.entityEventManager = entityEventManager;
 	}
@@ -78,9 +74,6 @@ public class DefaultIdmTreeTypeService extends AbstractReadWriteEntityService<Id
 		entityEventManager.process(new TreeTypeEvent(TreeTypeEventType.DELETE, treeType));
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	@Transactional(readOnly = true)
 	public IdmTreeType getByCode(String code) {

@@ -55,6 +55,11 @@ public class IdentitySaveProvisioningProcessor extends AbstractEntityEventProces
 
 	@Override
 	public EventResult<IdmIdentityDto> process(EntityEvent<IdmIdentityDto> event) {
+		Object skipProvisioning = event.getProperties().get(ProvisioningService.SKIP_PROVISIONING);
+		
+		if(skipProvisioning instanceof Boolean && (Boolean)skipProvisioning){
+			return new DefaultEventResult<>(event, this);
+		}
 		doProvisioning(identityRepository.findOne(event.getContent().getId()));
 		return new DefaultEventResult<>(event, this);
 	}

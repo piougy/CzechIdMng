@@ -5,6 +5,8 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
+import eu.bcvsolutions.idm.core.api.dto.BaseDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
@@ -14,6 +16,8 @@ import eu.bcvsolutions.idm.core.api.event.EntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.event.EventType;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
+import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent;
+import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.core.model.event.RoleEvent;
@@ -56,6 +60,19 @@ public class EntityEventProcessorUnitTest extends AbstractVerifiableUnitTest {
 		assertFalse(processor.supports(new CoreEvent<>(CustomType.CUSTOM, new IdmIdentityDto())));
 		assertTrue(processor.supports(new CoreEvent<IdmRole>(IdentityEventType.UPDATE, new IdmRole())));
 	}
+	
+	@Test
+	public void testSuppotsAll() {
+		
+		EntityEventProcessor<?> processor = new EventProcessorBase();
+		
+		assertTrue(processor.supports(new IdentityEvent(IdentityEventType.UPDATE, new IdmIdentityDto())));
+		assertTrue(processor.supports(new IdentityEvent(IdentityEventType.DELETE, new IdmIdentityDto())));
+		assertTrue(processor.supports(new IdentityContractEvent(IdentityContractEventType.DELETE, new IdmIdentityContractDto())));
+		assertTrue(processor.supports(new CoreEvent<IdmIdentityDto>(CustomType.SAVE, new IdmIdentityDto())));
+		assertTrue(processor.supports(new CoreEvent<>(CustomType.CUSTOM, new IdmIdentityDto())));
+		assertTrue(processor.supports(new CoreEvent<IdmIdentityContractDto>(IdentityContractEventType.UPDATE, new IdmIdentityContractDto())));
+	}
 
 	private class EventProcessorIdentity extends AbstractEntityEventProcessor<IdmIdentityDto> {
 
@@ -96,6 +113,24 @@ public class EntityEventProcessorUnitTest extends AbstractVerifiableUnitTest {
 		@Override
 		public String getName() {
 			return "two";
+		}
+	}
+	
+	private class EventProcessorBase extends AbstractEntityEventProcessor<BaseDto> {
+
+		@Override
+		public EventResult<BaseDto> process(EntityEvent<BaseDto> event) {
+			return new DefaultEventResult<>(event, this);
+		}
+
+		@Override
+		public int getOrder() {
+			return 1;
+		}
+
+		@Override
+		public String getName() {
+			return "base-one";
 		}
 
 	}

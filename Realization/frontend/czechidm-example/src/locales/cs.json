@@ -3,12 +3,33 @@
     "name": "Ukázkový modul",
     "author": "BCV solutions s.r.o."
   },
-  "navigation" : {
-    "menu" : {
+  "entity": {
+    "ExampleProduct": {
+      "_type": "Ukázkový produkt",
+      "code": {
+        "label": "Kód"
+      },
+      "name": {
+        "label": "Název"
+      },
+      "description": {
+        "label": "Popis"
+      },
+      "price": {
+        "label": "Cena",
+        "placeholder": "Cena produktu",
+        "help": "Cena nemusí býti zadána - produkt může být zdarma."
+      },
+      "disabled": {
+        "label": "Neaktivní",
+        "help": "Product není dostupný."
+      }
     }
   },
-  "entity": {
-
+  "permission": {
+    "group": {
+      "EXAMPLEPRODUCT": "Ukázkové produkty"
+    }
   },
   "content": {
     "identity":{
@@ -21,11 +42,64 @@
         "text": "Demonstruje způsob, jakým je možné rozšířit uživatelskou plochu z jakého koli modulu (bez zásahu do samotného aplikace)."
       }
     },
+    "examples": {
+      "header": "Příklady",
+      "label": "Příklady",
+      "title": "Příklady"
+    },
     "example": {
       "header": "Ukázková stránka",
       "label": "Ukázková stránka",
       "title": "Ukázková stránka dostupná z hlavního menu, přidaného prostřednictvím czechidm-example modulu.",
-      "text": "Demonstruje způsob, jakým je možné vytvořit novou stránku (content)."
+      "text": "Demonstruje způsob, jakým je možné vytvořit novou stránku (content).",
+      "error": {
+        "header": "Ukázka lokalizace chyb",
+        "parameter": {
+          "label": "Hodnota parametru pro chybu"
+        },
+        "button": {
+          "client": "Chyba na klientovi (validace)",
+          "server": "Chyba na serveru"
+        }
+      }
+    },
+    "example-products": {
+      "header": "Produkty",
+      "label": "Produkty",
+      "title": "Produkty",
+      "info": "Ukázková agenda se základními operacemi s produkty",
+      "filter": {
+        "text": {
+          "placeholder": "Kód, název nebo popis"
+        }
+      }
+    },
+    "example-product": {
+      "detail" : {
+        "basic": "Základní informace",
+        "header": "Produkt",
+        "title": "$t(example:content.example-product.detail.header)",
+        "edit": {
+          "title": "Detail produktu",
+          "header": "{{name}} <small>detail produktu</small>"
+        },
+        "create": {
+          "header": "Nový produktu"
+        },
+        "save": {
+          "success": "Produkt [{{name}}] byl úspěšně uložen"
+        }
+      }
+    }
+  },
+  "error": {
+    "EXAMPLE_SERVER_ERROR": {
+      "title": "Ukázka chyby serveru",
+      "message": "Ukázka chyby serveru s parametrem [{{parameter}}]."
+    },
+    "EXAMPLE_CLIENT_ERROR": {
+      "title": "Ukázka chyby klienta",
+      "message": "Zadaná hodnota je chybná [{{parameter}}]."
     }
   }
 }

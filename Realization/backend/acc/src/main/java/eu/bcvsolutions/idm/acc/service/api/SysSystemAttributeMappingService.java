@@ -127,4 +127,24 @@ public interface SysSystemAttributeMappingService extends ReadWriteEntityService
 	 * @return
 	 */
 	SysSystemAttributeMapping getUidAttribute(List<SysSystemAttributeMapping> mappedAttributes, SysSystem system);
+
+	/**
+	 * Return transformed value from resource (IC attributes) for given mapped attribute
+	 * @param attribute
+	 * @param icAttributes
+	 * @return
+	 */
+	Object getValueByMappedAttribute(AttributeMapping attribute, List<IcAttribute> icAttributes);
+
+	/**
+	 * Return value of UID attribute from resource (IC attributes).
+	 * First try find UID mapped attribute (if not exist -> throw exception).
+	 * Second do transform from system (if value is null or is not String -> throw exception). 
+	 * @param icAttributes
+	 * @param mappedAttributes
+	 * @param system
+	 * @return
+	 */
+	String getUidValueFromResource(List<IcAttribute> icAttributes, List<SysSystemAttributeMapping> mappedAttributes,
+			SysSystem system);
 }

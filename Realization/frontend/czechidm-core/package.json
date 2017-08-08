@@ -1,7 +1,7 @@
 {
   "name": "czechidm-core",
-  "version": "7.3.0-rc.5",
-  "description": "Core module for CzechIdM 2.0",
+  "version": "7.3.0",
+  "description": "Core module for CzechIdM",
   "main": "index.js",
   "scripts": {
     "test": "npm run tests-set",
@@ -13,7 +13,7 @@
   "keywords": [
     "CzechIdM",
     "core",
-    "IDM"
+    "IdM"
   ],
   "author": "BCV solutions s.r.o",
   "license": "MIT",

@@ -90,7 +90,7 @@ public class RebuildTreeNodeIndexTaskExecutor extends AbstractSchedulableTaskExe
 			while (canContinue) {
 				for(IdmTreeNode node : nodes) {
 					if (node.getForestIndex() == null) {
-						forestIndexService.index(node);
+						forestIndexService.index(node.getForestTreeType(), node.getId(), node.getParentId());
 					}
 					counter++;	
 					canContinue = updateState();

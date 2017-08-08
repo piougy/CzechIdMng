@@ -480,7 +480,7 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 			@PathVariable @NotNull String backendId,
 			PersistentEntityResourceAssembler assembler) {
 		systemService.checkSystem(super.getEntity(backendId));
-		return new ResponseEntity<>(true, HttpStatus.OK);
+		return new ResponseEntity<>(Boolean.TRUE, HttpStatus.OK);
 	}
 	
 	/**
@@ -561,13 +561,17 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 				infos.put(config.getFramework(), config.getAvailableRemoteConnectors(server));
 			}
 		} catch (IcInvalidCredentialException e) {
-			throw new ResultCodeException(AccResultCode.REMOTE_SERVER_INVALID_CREDENTIAL, ImmutableMap.of("server", e.getHost() + ":" + e.getPort()));
+			throw new ResultCodeException(AccResultCode.REMOTE_SERVER_INVALID_CREDENTIAL,
+					ImmutableMap.of("server", e.getHost() + ":" + e.getPort()), e);
 		} catch (IcServerNotFoundException e) {
-			throw new ResultCodeException(AccResultCode.REMOTE_SERVER_NOT_FOUND, ImmutableMap.of("server", e.getHost() + ":" + e.getPort()));
+			throw new ResultCodeException(AccResultCode.REMOTE_SERVER_NOT_FOUND,
+					ImmutableMap.of("server", e.getHost() + ":" + e.getPort()), e);
 		} catch (IcCantConnectException e) {
-			throw new ResultCodeException(AccResultCode.REMOTE_SERVER_CANT_CONNECT, ImmutableMap.of("server", e.getHost() + ":" + e.getPort()));
+			throw new ResultCodeException(AccResultCode.REMOTE_SERVER_CANT_CONNECT,
+					ImmutableMap.of("server", e.getHost() + ":" + e.getPort()), e);
 		} catch (IcRemoteServerException e) {
-			throw new ResultCodeException(AccResultCode.REMOTE_SERVER_UNEXPECTED_ERROR, ImmutableMap.of("server", e.getHost() + ":" + e.getPort()));
+			throw new ResultCodeException(AccResultCode.REMOTE_SERVER_UNEXPECTED_ERROR,
+					ImmutableMap.of("server", e.getHost() + ":" + e.getPort()), e);
 		}
 		//
 		return new ResponseEntity<Map<String, List<IcConnectorInfo>>>(infos, HttpStatus.OK);

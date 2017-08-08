@@ -18,8 +18,8 @@ import org.springframework.util.MultiValueMap;
 
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.audit.dto.filter.AuditEntityFilter;
-import eu.bcvsolutions.idm.core.model.entity.IdmAudit;
-import eu.bcvsolutions.idm.core.model.repository.IdmAuditRepository;
+import eu.bcvsolutions.idm.core.audit.entity.IdmAudit;
+import eu.bcvsolutions.idm.core.audit.repository.IdmAuditRepository;
 
 /**
  * Abstract service for entities that is audited. From implementation will be
@@ -69,8 +69,9 @@ public abstract class AbstractAuditEntityService implements Plugin<Class<? exten
 	protected List<UUID> getEntityIdFromList(List<Object[]> entities) {
 		List<UUID> ids = new ArrayList<>();
 		for (Object[] entity : entities) {
-			if (!ids.contains(getUUID(((AbstractEntity) entity[ENTITY]).getId()))) {
-				ids.add(getUUID(((AbstractEntity) entity[ENTITY]).getId()));
+			UUID entityId = getUUID(((AbstractEntity) entity[ENTITY]).getId());
+			if (!ids.contains(entityId)) {
+				ids.add(entityId);
 			}
 		}
 		return ids;

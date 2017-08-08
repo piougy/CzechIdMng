@@ -44,6 +44,7 @@ import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccTreeAccountService;
+import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.SynchronizationEntityExecutor;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncActionLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
@@ -56,6 +57,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.CorrelationFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.TreeNodeFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
+import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.repository.BaseEntityRepository;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
@@ -64,6 +66,7 @@ import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
+import eu.bcvsolutions.idm.core.model.event.RoleEvent.RoleEventType;
 import eu.bcvsolutions.idm.core.model.event.TreeNodeEvent;
 import eu.bcvsolutions.idm.core.model.event.TreeNodeEvent.TreeNodeEventType;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
@@ -173,7 +176,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 				TreeResultsHandler resultHandler = new TreeResultsHandler(accountsMap);
 
 				IcFilter filter = null; // We have to search all data for tree
-				log.addToLog(MessageFormat.format("Start search with filter {0}.", filter != null ? filter : "NONE"));
+				log.addToLog(MessageFormat.format("Start search with filter {0}.", "NONE"));
 				synchronizationLogService.save(log);
 
 				connectorFacade.search(system.getConnectorInstance(), connectorConfig, objectClass, filter,
@@ -226,7 +229,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 			return;
 		}
 		// Call provisioning for this entity
-		doUpdateAccountByEntity(treeNode, entityType, logItem);
+		callProvisioningForEntity(treeNode, entityType, logItem);
 	}
 
 	/**
@@ -237,7 +240,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 	 * @param logItem
 	 */
 	@Override
-	protected void doUpdateAccountByEntity(AbstractEntity entity, SystemEntityType entityType, SysSyncItemLog logItem) {
+	protected void callProvisioningForEntity(AbstractEntity entity, SystemEntityType entityType, SysSyncItemLog logItem) {
 		IdmTreeNode treeNode = (IdmTreeNode) entity;
 		addToItemLog(logItem,
 				MessageFormat.format(
@@ -245,6 +248,21 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 						treeNode.getId(), treeNode.getName()));
 		entityEventManager.process(new TreeNodeEvent(TreeNodeEventType.UPDATE, treeNode)).getContent();
 	}
+	
+	/**
+	 * Save entity
+	 * @param entity
+	 * @param skipProvisioning
+	 * @return
+	 */
+	@Override
+	protected AbstractEntity saveEntity(AbstractEntity entity, boolean skipProvisioning) {
+		IdmTreeNode node = (IdmTreeNode) entity;
+		EntityEvent<IdmTreeNode> event = new TreeNodeEvent(treeNodeService.isNew(node) ? TreeNodeEventType.CREATE : TreeNodeEventType.UPDATE, node, ImmutableMap.of(ProvisioningService.SKIP_PROVISIONING, skipProvisioning));
+		
+		return treeNodeService.publish(event).getContent();
+	}
+
 
 	/**
 	 * Create and persist new entity by data from IC attributes
@@ -261,13 +279,13 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 	protected void doCreateEntity(SystemEntityType entityType, List<SysSystemAttributeMapping> mappedAttributes,
 			SysSyncItemLog logItem, String uid, List<IcAttribute> icAttributes, AccAccount account) {
 		// We will create new TreeNode
-		addToItemLog(logItem, "Missing entity action is CREATE_ENTITY, we will do create new entity.");
+		addToItemLog(logItem, "Missing entity action is CREATE_ENTITY, we will create a new entity.");
 		IdmTreeNode treeNode = new IdmTreeNode();
 		// Fill entity by mapped attribute
 		treeNode = (IdmTreeNode) fillEntity(mappedAttributes, uid, icAttributes, treeNode, true);
 		treeNode.setTreeType(this.getSystemMapping(mappedAttributes).getTreeType());
 		// Create new Entity
-		treeNodeService.save(treeNode);
+		this.saveEntity(treeNode, true);
 		// Update extended attribute (entity must be persisted first)
 		updateExtendedAttributes(mappedAttributes, uid, icAttributes, treeNode, true);
 		// Update confidential attribute (entity must be persisted first)
@@ -279,6 +297,9 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 		entityAccount.setEntity(treeNode.getId());
 		entityAccount.setOwnership(true);
 		this.getEntityAccountService().save(entityAccount);
+
+		// Call provisioning for entity
+		this.callProvisioningForEntity(treeNode, entityType, logItem);
 
 		// Entity Created
 		addToItemLog(logItem, MessageFormat.format("Tree node with id {0} was created", treeNode.getId()));
@@ -300,18 +321,25 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 	 * @param actionLogs
 	 */
 	@Override
-	protected void doUpdateEntity(AccAccount account, SystemEntityType entityType, String uid,
-			List<IcAttribute> icAttributes, List<SysSystemAttributeMapping> mappedAttributes, SysSyncLog log,
-			SysSyncItemLog logItem, List<SysSyncActionLog> actionLogs) {
+	protected void doUpdateEntity(SynchronizationContext context) {
+		
+		String uid = context.getUid();
+		SysSyncLog log = context.getLog(); 
+		SysSyncItemLog logItem = context.getLogItem();
+		List<SysSyncActionLog> actionLogs = context.getActionLogs();
+		List<SysSystemAttributeMapping> mappedAttributes = context.getMappedAttributes();
+		AccAccount account = context.getAccount();
+		List<IcAttribute> icAttributes = context.getIcObject().getAttributes();
 		UUID entityId = getEntityByAccount(account.getId());
 		IdmTreeNode treeNode = null;
+		
 		if (entityId != null) {
 			treeNode = treeNodeService.get(entityId);
 		}
 		if (treeNode != null) {
 			// Update entity
 			treeNode = (IdmTreeNode) fillEntity(mappedAttributes, uid, icAttributes, treeNode, false);
-			treeNodeService.save(treeNode);
+			this.saveEntity(treeNode, true);
 			// Update extended attribute (entity must be persisted first)
 			updateExtendedAttributes(mappedAttributes, uid, icAttributes, treeNode, false);
 			// Update confidential attribute (entity must be persisted first)
@@ -322,6 +350,9 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 			if (logItem != null) {
 				logItem.setDisplayName(treeNode.getName());
 			}
+			
+			// Call provisioning for entity
+			this.callProvisioningForEntity(treeNode, context.getEntityType(), logItem);
 
 			return;
 		} else {
@@ -432,23 +463,39 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 		
 		Object transformedValue = super.getValueByMappedAttribute(attribute, icAttributes);
 		
-		if (PARENT_FIELD.equals(attribute.getIdmPropertyName()) && transformedValue != null) {
+		if (transformedValue != null && PARENT_FIELD.equals(attribute.getIdmPropertyName())) {
+			String parentUid = transformedValue.toString();
+			UUID systemId = ((SysSystemAttributeMapping)attribute).getSystemMapping().getSystem().getId();
 			// Find account by UID from parent field
 			AccountFilter accountFilter = new AccountFilter();
-			accountFilter.setUid(transformedValue.toString());
-			accountFilter.setSystemId(((SysSystemAttributeMapping)attribute).getSystemMapping().getSystem().getId());
+			accountFilter.setUid(parentUid);
+			accountFilter.setSystemId(systemId);
 			transformedValue = null;
 			List<AccAccount> parentAccounts = accountService.find(accountFilter, null).getContent();
 			if (!parentAccounts.isEmpty()) {
+				UUID parentAccount = parentAccounts.get(0).getId();
 				// Find relation between tree and account
 				TreeAccountFilter treeAccountFilter = new TreeAccountFilter();
-				treeAccountFilter.setAccountId(parentAccounts.get(0).getId());
+				treeAccountFilter.setAccountId(parentAccount);
 				List<AccTreeAccountDto> treeAccounts = treeAccoutnService.find(treeAccountFilter, null).getContent();
 				if(!treeAccounts.isEmpty()){
 					// Find parent tree node by ID
 					// TODO: resolve more treeAccounts situations
 					transformedValue = treeNodeService.get(treeAccounts.get(0).getTreeNode());
+				} else {
+					LOG.warn(
+							"For parent UID: [{}] on system ID [{}] and acc account: [{}], was not found tree accounts! Return null value in parent!!",
+							parentUid, systemId, parentAccount);
+					throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_TREE_PARENT_TREE_ACCOUNT_NOT_FOUND,
+							ImmutableMap.of("parentUid", parentUid, "systemId", systemId, "parentAccount",
+									parentAccount));
 				}
+			} else {
+				LOG.warn(
+						"For parent UID: [{}] on system ID [{}], was not found parents account! Return null value in parent!!",
+						parentUid, systemId);
+				throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_TREE_PARENT_ACCOUNT_NOT_FOUND,
+						ImmutableMap.of("parentUid", parentUid, "systemId", systemId));
 			}
 		}
 		return transformedValue;
@@ -486,7 +533,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 		return null; // We don't have DTO service for IdmTreeNode now
 	}
 
-	public class TreeResultsHandler implements IcResultsHandler {
+	public static class TreeResultsHandler implements IcResultsHandler {
 
 		// List of all accounts
 		private Map<String, IcConnectorObject> accountsMap = new HashMap<>();

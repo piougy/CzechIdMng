@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.hateoas.core.Relation;
 
 /**
@@ -20,7 +21,7 @@ public class IdmAuditDto implements BaseDto {
 
 	private static final long serialVersionUID = 6910043282740335765L;
 	
-	public static String CHANGED_COLUMNS_DELIMITER = ",";
+	public static final String CHANGED_COLUMNS_DELIMITER = ",";
 
 	private Long id;
 
@@ -202,19 +203,23 @@ public class IdmAuditDto implements BaseDto {
 		this.subOwnerType = subOwnerType;
 	}
 	
+	// TODO: DRY see IdmIAudit
 	public void addChanged(String changedColumn) {
-		if (this.changedAttributes == null || this.changedAttributes.isEmpty()) {
-			this.changedAttributes = changedColumn;
+		if (StringUtils.isEmpty(changedAttributes)) {
+			changedAttributes = changedColumn;
 		} else {
-			StringBuilder stringBuilder = new StringBuilder(this.changedAttributes);
-			stringBuilder.append(CHANGED_COLUMNS_DELIMITER);
-			stringBuilder.append(" ");
-			stringBuilder.append(changedColumn);
-			this.changedAttributes = stringBuilder.toString();
+			changedAttributes = String.format("%s%s%s", changedAttributes, CHANGED_COLUMNS_DELIMITER, changedColumn);
 		}
 	}
 	
+	// TODO: DRY see IdmIAudit
 	public void addChanged(List<String> changedColumns) {
-		this.addChanged(String.join(IdmAuditDto.CHANGED_COLUMNS_DELIMITER, changedColumns));
+		if (changedColumns == null) {
+			// nothing to add
+			return;
+		}
+		changedColumns.forEach(changedColumn -> {
+			addChanged(changedColumn);
+		});
 	}
 }

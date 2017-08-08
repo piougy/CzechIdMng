@@ -1,8 +1,9 @@
 package eu.bcvsolutions.idm.core.model.service.api;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleGuaranteeDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.EmptyFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.RoleGuaranteeFilter;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
+import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 
 /**
  * Operations with identity roles
@@ -11,5 +12,5 @@ import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
  *
  */
 public interface IdmRoleGuaranteeService extends
-	ReadWriteDtoService<IdmRoleGuaranteeDto, EmptyFilter> {
+	ReadWriteDtoService<IdmRoleGuaranteeDto, RoleGuaranteeFilter>, AuthorizableService<IdmRoleGuaranteeDto> {
 }

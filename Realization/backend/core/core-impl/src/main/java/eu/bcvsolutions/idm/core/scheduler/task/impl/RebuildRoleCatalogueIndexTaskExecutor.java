@@ -68,7 +68,7 @@ public class RebuildRoleCatalogueIndexTaskExecutor extends AbstractSchedulableTa
 			while (canContinue) {
 				for(IdmRoleCatalogue node : nodes) {
 					if (node.getForestIndex() == null) {
-						forestIndexService.index(node);
+						forestIndexService.index(node.getForestTreeType(), node.getId(), node.getParentId());
 					}
 					counter++;	
 					canContinue = updateState();

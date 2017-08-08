@@ -37,7 +37,7 @@ import eu.bcvsolutions.idm.core.api.entity.BaseTreeEntity;
 		@Index(name = "ux_role_catalogue_code", columnList = "code", unique = true),
 		@Index(name = "ux_role_catalogue_name", columnList = "name"),
 		@Index(name = "idx_idm_role_cat_parent", columnList = "parent_id")})
-public class IdmRoleCatalogue extends AbstractEntity implements BaseTreeEntity<IdmRoleCatalogue>, ForestContent<IdmRoleCatalogue, IdmForestIndexEntity, UUID> {
+public class IdmRoleCatalogue extends AbstractEntity implements BaseTreeEntity<IdmRoleCatalogue>, ForestContent<IdmForestIndexEntity, UUID> {
 
 	private static final long serialVersionUID = 1883443149941011579L;
 	public static final String FOREST_TREE_TYPE = "role-catalogue";
@@ -110,6 +110,11 @@ public class IdmRoleCatalogue extends AbstractEntity implements BaseTreeEntity<I
 	@Override
 	public void setParent(IdmRoleCatalogue parent) {
 		this.parent = parent;
+	}
+	
+	@Override
+	public UUID getParentId() {
+		return parent == null ? null : parent.getId();
 	}
 
 	public String getDescription() {

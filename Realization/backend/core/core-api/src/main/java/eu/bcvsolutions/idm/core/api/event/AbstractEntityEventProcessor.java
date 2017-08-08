@@ -9,6 +9,8 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.util.Assert;
 
+import com.google.common.collect.Lists;
+
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
@@ -27,6 +29,7 @@ import eu.bcvsolutions.idm.core.security.api.service.EnabledEvaluator;
 public abstract class AbstractEntityEventProcessor<E extends Serializable> 
 		implements EntityEventProcessor<E>, ApplicationListener<AbstractEntityEvent<E>> {
 
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(AbstractEntityEventProcessor.class);
 	private final Class<E> entityClass;
 	private final Set<String> types = new HashSet<>();
 	
@@ -67,7 +70,7 @@ public abstract class AbstractEntityEventProcessor<E extends Serializable>
 		Assert.notNull(entityEvent);
 		Assert.notNull(entityEvent.getContent(), "Entity event does not contain content, content is required!");
 		//
-		return entityEvent.getContent().getClass().isAssignableFrom(entityClass)
+		return entityClass.isAssignableFrom(entityEvent.getContent().getClass())
 				&& (types.isEmpty() || types.contains(entityEvent.getType().name()));
 	}
 	
@@ -77,41 +80,72 @@ public abstract class AbstractEntityEventProcessor<E extends Serializable>
 	 */
 	@Override
 	public void onApplicationEvent(AbstractEntityEvent<E> event) {
+		if (!supports(event)) {
+			// event is not supported with this processor
+			// its on the start to prevent debug logging
+			LOG.trace("Skipping processor [{}] for [{}]. Processor don't support given event. ", getName(), event);
+			return;
+		}
 		// check for module is enabled, if evaluator is given
 		if (enabledEvaluator != null && !enabledEvaluator.isEnabled(this.getClass())) {
+			LOG.debug("Skipping processor [{}] for [{}]. Module [{}] is disabled. ", getName(), event, getModule());
 			return;
 		}
 		// check for processor is enabled
 		if (isDisabled()) {
-			return;
-		}
-		//
-		if (!supports(event)) {
-			// event is not supported with this processor
+			LOG.debug("Skipping processor [{}] for [{}]. Module [{}] is disabled.", getName(), event, getModule());
 			return;
 		}
 		if (event.isClosed()) {	
 			// event is completely processed 
+			LOG.debug("Skipping processor [{}]. [{}] is completely processed.", getName(), event);
 			return;
 		}
 		if (event.isSuspended()) {	
 			// event is suspended
+			LOG.debug("Skipping processor [{}]. [{}] is suspended.", getName(), event);
 			return;
 		}
 		//
 		EventContext<E> context = event.getContext();
 		//
 		Integer processedOrder = context.getProcessedOrder();
-		if (processedOrder != null && processedOrder >= this.getOrder()) {	
+		if (processedOrder != null) {	
 			// event was processed with this processor
-			return;
+			if (processedOrder > this.getOrder()) {
+				LOG.debug("Skipping processor [{}]. [{}] was already processed by this processor with order [{}].", getName(), event, getOrder());
+				return;
+			}
+			// the same order - only different processor instance can process event
+			if (processedOrder == this.getOrder()) {
+				if (context.getResults().isEmpty()) {
+					// if event was started in the middle manually => results are empty, event could continue with processors with higher order only
+					LOG.debug("Skipping processor [{}]. Processed context for [{}] is empty. Processor's order [{}] is the same as event start.", getName(), event, getOrder());
+					return;
+				}
+				for(EventResult<E> result : Lists.reverse(context.getResults())) {
+					if (result.getProcessedOrder() != this.getOrder()) {
+						// only same order is interesting
+						break;
+					}
+					EntityEventProcessor<E> resultProcessor = result.getProcessor();
+					if (resultProcessor != null && resultProcessor.equals(this)) {
+						// event was already processed by this processor
+						LOG.debug("Skipping processor [{}]. [{}] was already processed by this processor with order [{}].", getName(), event, getOrder());
+						return;
+					}	
+				}
+			}
 		}
+		LOG.info("Processor [{}] start for [{}] with order [{}].", getName(), event, getOrder());
 		// prepare order ... in processing
 		context.setProcessedOrder(this.getOrder());
 		// process event
 		EventResult<E> result = process(event);
 		// add result to history
 		context.addResult(result);
+		//
+		LOG.info("Processor [{}] end for [{}] with order [{}].", getName(), event, getOrder());
 	}
 	
 	@Override

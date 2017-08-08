@@ -35,6 +35,7 @@ import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.service.ReadDtoService;
@@ -51,13 +52,14 @@ import io.swagger.annotations.Authorization;
  * Read operations (get, find, autocomplete)
  * 
  * @param <DTO> dto type
- * @param <F> filter type
+ * @param <F> filter type - {@link DataFilter} is preferred.
  * @author Svanda
  * @author Radek Tomiška
  */
 public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends BaseFilter>
 		implements BaseDtoController<DTO> {
 
+	// private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(AbstractReadDtoController.class);
 	private FilterConverter filterConverter;
 	@Autowired
 	private PagedResourcesAssembler<Object> pagedResourcesAssembler;
@@ -84,12 +86,21 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 	}
 
 	/**
-	 * Returns controlled DTO class
+	 * Returns controlled DTO class.
 	 * 
 	 * @return
 	 */
 	protected Class<DTO> getDtoClass() {
 		return getService().getDtoClass();
+	}
+	
+	/**
+	 * Returns controlled {@link BaseFilter} type class.
+	 * 
+	 * @return
+	 */
+	protected Class<F> getFilterClass() {
+		return getService().getFilterClass();
 	}
 
 	/**
@@ -289,12 +300,14 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 	}
 
 	/**
-	 * Transforms request parameters to {@link BaseFilter}.
+	 * Transforms request parameters to:
+	 * - {@link BaseFilter} using object mapper
+	 * - {@link DataFilter} using reflection with constructor(parameters).
 	 * 
 	 * @param parameters
 	 * @return
 	 */
-	protected F toFilter(MultiValueMap<String, Object> parameters) {
+	protected F toFilter(MultiValueMap<String, Object> parameters) {	
 		return getParameterConverter().toFilter(parameters, getService().getFilterClass());
 	}
 

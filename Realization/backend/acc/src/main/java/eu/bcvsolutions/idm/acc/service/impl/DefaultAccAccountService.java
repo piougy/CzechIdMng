@@ -67,12 +67,12 @@ public class DefaultAccAccountService extends AbstractReadWriteEntityService<Acc
 	@Override
 	@Transactional
 	public void delete(AccAccount account) {
-		delete(account, true);
+		delete(account, true, null);
 	}
 
 	@Override
 	@Transactional
-	public void delete(AccAccount account, boolean deleteTargetAccount) {
+	public void delete(AccAccount account, boolean deleteTargetAccount, UUID entityId) {
 		Assert.notNull(account);
 		// We do not allow delete account in protection
 		if(account.isAccountProtectedAndValid()){
@@ -90,7 +90,7 @@ public class DefaultAccAccountService extends AbstractReadWriteEntityService<Acc
 			if (provisioningService == null) {
 				provisioningService = applicationContext.getBean(ProvisioningService.class);
 			}
-			this.provisioningService.doDeleteProvisioning(account, SystemEntityType.IDENTITY);
+			this.provisioningService.doDeleteProvisioning(account, account.getSystemEntity().getEntityType(), entityId);
 		}
 	}
 

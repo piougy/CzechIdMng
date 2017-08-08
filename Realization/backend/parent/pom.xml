@@ -4,7 +4,7 @@
 
 	<groupId>eu.bcvsolutions.idm</groupId>
 	<artifactId>idm-parent</artifactId>
-	<version>7.3.0-rc.5</version>
+	<version>7.3.0</version>
 	<packaging>pom</packaging>
 
 	<name>CzechIdM Parent</name>
@@ -71,6 +71,7 @@
 		<swagger.version>2.7.0</swagger.version>
 		<swagger2markup.version>1.3.1</swagger2markup.version>
 		<guava.version>18.0</guava.version> <!-- swagger need at least 18 -->
+		<forest.index.version>0.2.0</forest.index.version>
 
 		<!--
 			properties are used ind test and release profile,
@@ -361,7 +362,7 @@
 		<dependency>
 			<groupId>eu.bcvsolutions.forest.index</groupId>
 			<artifactId>forest-index</artifactId>
-			<version>0.1.1</version>
+			<version>${forest.index.version}</version>
 		</dependency>
 
 		<dependency>
@@ -662,6 +663,24 @@
 					<url>https://nexus.bcvsolutions.eu/repository/maven-releases/</url>
 				</repository>
 			</distributionManagement>
+
+			<build>
+				<plugins>
+					<!-- generate javadoc for all jars -->
+					<plugin>
+		        <groupId>org.apache.maven.plugins</groupId>
+		        <artifactId>maven-javadoc-plugin</artifactId>
+						<executions>
+		          <execution>
+		            <id>attach-javadocs</id>
+		            <goals>
+		              <goal>jar</goal>
+		            </goals>
+		          </execution>
+		        </executions>
+			    </plugin>
+				</plugins>
+			</build>
 		</profile>
 	</profiles>
 

@@ -1,0 +1,57 @@
+<assembly
+  xmlns="http://maven.apache.org/ASSEMBLY/2.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.0.0 http://maven.apache.org/xsd/assembly-2.0.0.xsd">
+
+  <id>doc</id>
+  <formats>
+    <format>zip</format>
+  </formats>
+
+  <files>
+    <!-- core -->
+    <file>
+      <source>../core/core-impl/target/classes/META-INF/resources/webjars/core/${project.version}/doc/index.html</source>
+      <outputDirectory>core</outputDirectory>
+    </file>
+    <file>
+      <source>../core/core-impl/target/idm-core-impl-${project.version}-javadoc.jar</source>
+      <outputDirectory>core</outputDirectory>
+    </file>
+    <file>
+      <source>../core/core-api/target/idm-core-api-${project.version}-javadoc.jar</source>
+      <outputDirectory>core</outputDirectory>
+    </file>
+    <file>
+      <source>../core/core-test-api/target/idm-core-test-api-${project.version}-javadoc.jar</source>
+      <outputDirectory>core</outputDirectory>
+    </file>
+
+    <!-- acc -->
+    <file>
+      <source>../acc/target/classes/META-INF/resources/webjars/acc/${project.version}/doc/index.html</source>
+      <outputDirectory>acc</outputDirectory>
+    </file>
+    <file>
+      <source>../acc/target/idm-acc-${project.version}-javadoc.jar</source>
+      <outputDirectory>acc</outputDirectory>
+    </file>
+
+    <!-- example -->
+    <file>
+      <source>../example/target/classes/META-INF/resources/webjars/example/${project.version}/doc/index.html</source>
+      <outputDirectory>/example</outputDirectory>
+    </file>
+    <file>
+      <source>../example/target/idm-example-${project.version}-javadoc.jar</source>
+      <outputDirectory>example</outputDirectory>
+    </file>
+
+    <!-- ic -->
+    <file>
+      <source>../ic/target/idm-ic-${project.version}-javadoc.jar</source>
+      <outputDirectory>ic</outputDirectory>
+    </file>
+
+  </files>
+</assembly>

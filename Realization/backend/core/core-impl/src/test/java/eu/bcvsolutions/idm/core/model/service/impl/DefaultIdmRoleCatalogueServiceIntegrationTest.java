@@ -4,22 +4,24 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.InitTestData;
+import eu.bcvsolutions.idm.core.TestHelper;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueDto;
-import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.dto.filter.RoleCatalogueFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogueRole;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleCatalogueRepository;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleCatalogueRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleCatalogueService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
@@ -36,6 +38,7 @@ public class DefaultIdmRoleCatalogueServiceIntegrationTest extends AbstractInteg
 	@Autowired private IdmRoleService roleService;
 	@Autowired private IdmRoleCatalogueRepository roleCatalogueRepository;
 	@Autowired private IdmRoleCatalogueService roleCatalogueService;
+	@Autowired private TestHelper helper;
 	
 	@Before
 	public void init() {
@@ -159,5 +162,108 @@ public class DefaultIdmRoleCatalogueServiceIntegrationTest extends AbstractInteg
 		assertEquals(1, this.roleCatalogueService.findChildrenByParent(root.getId(), null).getTotalElements());
 		assertEquals(1, this.roleCatalogueService.findChildrenByParent(child1.getId(), null).getTotalElements());
 		assertEquals(0, this.roleCatalogueService.findChildrenByParent(child2.getId(), null).getTotalElements());
+	}
+
+	@Test
+	public void textFilterTest(){
+		IdmRoleCatalogueDto catalogue = helper.createRoleCatalogue();
+		catalogue.setCode("NameCat001");
+		roleCatalogueService.save(catalogue);
+
+		IdmRoleCatalogueDto catalogue2 = helper.createRoleCatalogue();
+		catalogue2.setCode("NameCat002");
+		roleCatalogueService.save(catalogue2);
+
+		IdmRoleCatalogueDto catalogue3 = helper.createRoleCatalogue();
+		catalogue3.setCode("NameCat103");
+		roleCatalogueService.save(catalogue3);
+
+		IdmRoleCatalogueDto catalogue4 = helper.createRoleCatalogue();
+		catalogue4.setName("NameCat004");
+		roleCatalogueService.save(catalogue4);
+
+		RoleCatalogueFilter filter = new RoleCatalogueFilter();
+		filter.setText("NameCat00");
+		Page<IdmRoleCatalogueDto> result = roleCatalogueService.find(filter,null);
+		assertEquals("Wrong text filter count", 3,result.getTotalElements());
+		assertEquals("Wrong text by Id",catalogue.getId(),result.getContent().get(0).getId());
+	}
+
+	@Test
+	public void codeFilterTest(){
+		IdmRoleCatalogueDto catalogue = helper.createRoleCatalogue();
+		IdmRoleCatalogueDto catalogue2 = helper.createRoleCatalogue();
+		IdmRoleCatalogueDto catalogue3 = helper.createRoleCatalogue();
+
+		RoleCatalogueFilter filter = new RoleCatalogueFilter();
+		filter.setCode(catalogue.getCode());
+		Page<IdmRoleCatalogueDto> result = roleCatalogueService.find(filter,null);
+		assertEquals("Wrong code count", 1,result.getTotalElements());
+		assertEquals("Wrong code",catalogue.getId(),result.getContent().get(0).getId());
+
+		filter.setCode(catalogue2.getCode());
+		result = roleCatalogueService.find(filter,null);
+		assertEquals("Wrong code 2 count", 1,result.getTotalElements());
+		assertEquals("Wrong code 2",catalogue2.getId(),result.getContent().get(0).getId());
+
+		filter.setCode(catalogue3.getCode());
+		result = roleCatalogueService.find(filter,null);
+		assertEquals("Wrong code 3 count", 1,result.getTotalElements());
+		assertEquals("Wrong code 3",catalogue3.getId(),result.getContent().get(0).getId());
+	}
+
+	@Test
+	public void nameFilterTest(){
+		IdmRoleCatalogueDto catalogue = helper.createRoleCatalogue();
+		IdmRoleCatalogueDto catalogue2 = helper.createRoleCatalogue();
+		IdmRoleCatalogueDto catalogue3 = helper.createRoleCatalogue();
+
+		RoleCatalogueFilter filter = new RoleCatalogueFilter();
+		filter.setName(catalogue.getName());
+		Page<IdmRoleCatalogueDto> result = roleCatalogueService.find(filter,null);
+		assertEquals("Wrong name count", 1,result.getTotalElements());
+		assertEquals("Wrong name",catalogue.getId(),result.getContent().get(0).getId());
+
+		filter.setName(catalogue2.getName());
+		result = roleCatalogueService.find(filter,null);
+		assertEquals("Wrong name 2 count", 1,result.getTotalElements());
+		assertEquals("Wrong name",catalogue2.getId(),result.getContent().get(0).getId());
+
+		filter.setName(catalogue3.getName());
+		result = roleCatalogueService.find(filter,null);
+		assertEquals("Wrong name 3 count", 1,result.getTotalElements());
+		assertEquals("Wrong name",catalogue3.getId(),result.getContent().get(0).getId());
+	}
+
+	@Test
+	public void parentFilterTest(){
+		IdmRoleCatalogueDto catalogue = helper.createRoleCatalogue();
+		IdmRoleCatalogueDto catalogue2 = helper.createRoleCatalogue();
+		IdmRoleCatalogueDto catalogue3 = helper.createRoleCatalogue();
+		IdmRoleCatalogueDto catalogue4 = helper.createRoleCatalogue();
+		IdmRoleCatalogueDto catalogue5 = helper.createRoleCatalogue();
+		UUID catalogueId = catalogue.getId();
+
+		catalogue2.setParent(catalogueId);
+		roleCatalogueService.save(catalogue2);
+		catalogue3.setParent(catalogueId);
+		roleCatalogueService.save(catalogue3);
+		catalogue5.setParent(catalogue4.getId());
+		roleCatalogueService.save(catalogue5);
+
+		RoleCatalogueFilter filter = new RoleCatalogueFilter();
+		filter.setParent(catalogueId);
+		Page<IdmRoleCatalogueDto> result = roleCatalogueService.find(filter,null);
+		assertEquals("Wrong parent count", 2,result.getTotalElements());
+		assertEquals("Wrong parent contain",true,result.getContent().contains(catalogue3));
+
+		filter.setParent(catalogue4.getId());
+		result = roleCatalogueService.find(filter,null);
+		assertEquals("Wrong parent count #2", 1,result.getTotalElements());
+		assertEquals("Wrong parent Id",catalogue5.getId(),result.getContent().get(0).getId());
+
+		filter.setParent(catalogue5.getId());
+		result = roleCatalogueService.find(filter,null);
+		assertEquals("Wrong parent count blank", 0,result.getTotalElements());
 	}
 }

@@ -144,7 +144,7 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 		//
 		EntityAccountFilter filter = createEntityAccountFilter();
 		filter.setEntityId(entity.getId());
-		filter.setOwnership(true);
+		filter.setOwnership(Boolean.TRUE);
 		@SuppressWarnings("unchecked")
 		List<EntityAccountDto> entityAccoutnList = this.getEntityAccountService().find((BaseFilter) filter, null)
 				.getContent();
@@ -179,56 +179,49 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 		ProvisioningOperationType operationType;
 		SysSystem system = account.getSystem();
 		SysSystemEntity systemEntity = getSystemEntity(account);
+		SystemEntityType entityType = SystemEntityType.getByClass(entity.getClass());
+		String uid = account.getUid();
+		
 		if (systemEntity == null) {
 			// prepare system entity - uid could be changed by provisioning, but
 			// we need to link her with account
 			// First we try find system entity with same uid.
 			systemEntity = systemEntityService.getBySystemAndEntityTypeAndUid(system,
-					SystemEntityType.getByClass(entity.getClass()), account.getUid());
+					entityType, uid);
 			if (systemEntity == null) {
 				systemEntity = new SysSystemEntity();
-				systemEntity.setEntityType(SystemEntityType.getByClass(entity.getClass()));
+				systemEntity.setEntityType(entityType);
 				systemEntity.setSystem(system);
-				systemEntity.setUid(account.getUid());
+				systemEntity.setUid(uid);
 				systemEntity.setWish(true);
 				systemEntity = systemEntityService.save(systemEntity);
 			}
 			account.setSystemEntity(systemEntity);
 			account = accountService.save(account);
-			operationType = ProvisioningOperationType.CREATE; // we wont create
-																// account, but
-																// after target
-																// system call
-																// can be
-																// switched to
-																// UPDATE
+			// we wont create account, but after target system call can be switched to UPDATE
+			operationType = ProvisioningOperationType.CREATE; 
 		} else {
-			operationType = ProvisioningOperationType.UPDATE; // we wont update
-																// account, but
-																// after target
-																// system call
-																// can be
-																// switched to
-																// CREATE
+			// we wont update account, but after target system call can be switched to CREATE
+			operationType = ProvisioningOperationType.UPDATE; 
 		}
 
-		List<AttributeMapping> finalAttributes = resolveMappedAttributes(account.getUid(), account, entity, system,
+		List<AttributeMapping> finalAttributes = resolveMappedAttributes(account, entity, system,
 				systemEntity.getEntityType());
 		if (CollectionUtils.isEmpty(finalAttributes)) {
 			// nothing to do - mapping is empty
 			return;
 		}
 
-		doProvisioning(systemEntity, entity, operationType, finalAttributes);
+		doProvisioning(systemEntity, entity, entity == null ? null : entity.getId(), operationType, finalAttributes);
 	}
 
 	@Override
-	public void doDeleteProvisioning(AccAccount account) {
+	public void doDeleteProvisioning(AccAccount account, UUID entityId) {
 		Assert.notNull(account);
 		SysSystemEntity systemEntity = getSystemEntity(account);
 		//
-		if (systemEntity != null) {
-			doProvisioning(systemEntity, null, ProvisioningOperationType.DELETE, null);
+		if (systemEntity != null) {	
+			doProvisioning(systemEntity, null, entityId, ProvisioningOperationType.DELETE, null);
 		}
 	}
 
@@ -245,18 +238,39 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 		if (entityAccountList == null) {
 			return;
 		}
-
+		
 		// Distinct by accounts
 		List<UUID> accounts = new ArrayList<>();
 		entityAccountList.stream().filter(entityAccount -> {
-			return entityAccount.isOwnership() && (passwordChange.isAll()
-					|| passwordChange.getAccounts().contains(entityAccount.getAccount().toString()));
+			if(!entityAccount.isOwnership()){
+				return false;
+			}
+			if(passwordChange.isAll()){
+				// Add all account supports change password
+				if(entityAccount.getAccount() == null){
+					return false;
+				}
+				// Check if system for this account support change password
+				AccountFilter accountFilter =  new AccountFilter();
+				accountFilter.setSupportChangePassword(Boolean.TRUE);
+				accountFilter.setId(entityAccount.getAccount());
+				List<AccAccount> accountsChecked = accountService.find(accountFilter, null).getContent();
+				if(accountsChecked.size() == 1){
+					return true;
+				}
+				return false;
+			}else {
+				return passwordChange.getAccounts().contains(entityAccount.getAccount().toString());
+			}
 		}).forEach(entityAccount -> {
 			if (!accounts.contains(entityAccount.getAccount())) {
 				accounts.add(entityAccount.getAccount());
 			}
 		});
 
+		// Clear accounts in DTO ... we will set only success changed
+		passwordChange.setAccounts(null);
+		
 		accounts.forEach(accountId -> {
 			AccAccount account = accountService.get(accountId);
 			// find uid from system entity or from account
@@ -265,7 +279,7 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 			SysSystemEntity systemEntity = account.getSystemEntity();
 			//
 			// Find mapped attributes (include overloaded attributes)
-			List<AttributeMapping> finalAttributes = resolveMappedAttributes(uid, account, entity, system,
+			List<AttributeMapping> finalAttributes = resolveMappedAttributes(account, entity, system,
 					systemEntity.getEntityType());
 			if (CollectionUtils.isEmpty(finalAttributes)) {
 				return;
@@ -279,13 +293,18 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 					}).findFirst();
 			if (!attriubuteHandlingOptional.isPresent()) {
 				throw new ProvisioningException(AccResultCode.PROVISIONING_PASSWORD_FIELD_NOT_FOUND,
-						ImmutableMap.of("uid", uid));
+						ImmutableMap.of("uid", uid, "system", system.getName()));
 			}
 			AttributeMapping mappedAttribute = attriubuteHandlingOptional.get();
-
+			
+			// Change password on target system
 			doProvisioningForAttribute(systemEntity, mappedAttribute, passwordChange.getNewPassword(),
 					ProvisioningOperationType.UPDATE, entity);
+			// Add success changed password account
+			passwordChange.getAccounts().add(account.getId().toString());
 		});
+		passwordChange.setNewPassword(null);
+		passwordChange.setOldPassword(null);
 	}
 
 	@Override
@@ -293,7 +312,8 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 		SystemEntityType entityType = SystemEntityType.getByClass(entity.getClass());
 		List<SysSystemMapping> systemMappings = findSystemMappingsForEntityType(entity, entityType);
 		systemMappings.forEach(mapping -> {
-			UUID accountId = this.getAccountByEntity(entity.getId(), mapping.getSystem().getId());
+			UUID systemId = mapping.getSystem().getId();
+			UUID accountId = this.getAccountByEntity(entity.getId(), systemId);
 			if (accountId != null) {
 				// We already have account for this system -> next
 				return;
@@ -304,7 +324,7 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 			String uid = attributeMappingService.generateUid(entity, uidAttribute);
 
 			// Create AccAccount and relation between account and entity
-			createEntityAccount(uid, entity.getId(), mapping.getSystem().getId());
+			createEntityAccount(uid, entity.getId(), systemId);
 		});
 	}
 
@@ -316,7 +336,7 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 	 */
 	private SysSystemEntity getSystemEntity(AccAccount account) {
 		//
-		// TODO: we can find sysstem entity on target system, if no one existst
+		// TODO: we can find system entity on target system, if no one exists
 		// etc.
 		//
 		return account.getSystemEntity();
@@ -353,12 +373,12 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 	/**
 	 * Do provisioning on given system for given entity
 	 * 
-	 * @param systemEntityU
+	 * @param systemEntity
 	 * @param entity
 	 * @param provisioningType
 	 * @param attributes
 	 */
-	private void doProvisioning(SysSystemEntity systemEntity, ENTITY entity, ProvisioningOperationType operationType,
+	private void doProvisioning(SysSystemEntity systemEntity, ENTITY entity, UUID entityId, ProvisioningOperationType operationType,
 			List<? extends AttributeMapping> attributes) {
 		Assert.notNull(systemEntity);
 		Assert.notNull(systemEntity.getUid());
@@ -396,14 +416,14 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 			return;
 		}
 		//
-		Map<ProvisioningAttributeDto, Object> accountAttributes = preapareMappedAttributesValues(entity, operationType,
+		Map<ProvisioningAttributeDto, Object> accountAttributes = prepareMappedAttributesValues(entity, operationType,
 				systemEntity, attributes);
 		// public provisioning event
 		IcConnectorObject connectorObject = new IcConnectorObjectImpl(systemEntity.getUid(),
 				new IcObjectClassImpl(mapping.getObjectClass().getObjectClassName()), null);
 		SysProvisioningOperation.Builder operationBuilder = new SysProvisioningOperation.Builder()
 				.setOperationType(operationType).setSystemEntity(systemEntity)
-				.setEntityIdentifier(entity == null ? null : entity.getId())
+				.setEntityIdentifier(entityId)
 				.setProvisioningContext(new ProvisioningContext(accountAttributes, connectorObject));
 		provisioningExecutor.execute(operationBuilder.build());
 	}
@@ -417,86 +437,81 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 	 * @param attributes
 	 * @return
 	 */
-	protected Map<ProvisioningAttributeDto, Object> preapareMappedAttributesValues(ENTITY entity,
+	protected Map<ProvisioningAttributeDto, Object> prepareMappedAttributesValues(ENTITY entity,
 			ProvisioningOperationType operationType, SysSystemEntity systemEntity,
 			List<? extends AttributeMapping> attributes) {
+		AccAccount account = getAccountSystemEntity(systemEntity.getId());
 		String uid = systemEntity.getUid();
 		Map<ProvisioningAttributeDto, Object> accountAttributes = new HashMap<>();
-		if (ProvisioningOperationType.DELETE != operationType) { // delete -
-																	// account
-																	// attributes
-																	// is not
-																	// needed
+		 
+		// delete - account attributes is not needed
+		if (ProvisioningOperationType.DELETE == operationType) {
+			return accountAttributes;
+		}
 
-			// First we will resolve attribute without MERGE strategy
+		// First we will resolve attribute without MERGE strategy
+		attributes.stream().filter(attribute -> {
+			return !attribute.isDisabledAttribute()
+					&& AttributeMappingStrategyType.AUTHORITATIVE_MERGE != attribute.getStrategyType()
+					&& AttributeMappingStrategyType.MERGE != attribute.getStrategyType();
+		}).forEach(attribute -> {
+			if (attribute.isUid()) {
+				// TODO: now we set UID from SystemEntity, may be UID from
+				// AccAccount will be more correct
+				Object uidValue = getAttributeValue(uid, entity, attribute);
+				if (!(uidValue instanceof String)) {
+					throw new ProvisioningException(AccResultCode.PROVISIONING_ATTRIBUTE_UID_IS_NOT_STRING,
+							ImmutableMap.of("uid", uidValue));
+				}
+				updateAccountUid(account, uid, (String)uidValue);
+				accountAttributes.put(ProvisioningAttributeDto.createProvisioningAttributeKey(attribute), uidValue);
+			} else {
+				accountAttributes.put(ProvisioningAttributeDto.createProvisioningAttributeKey(attribute),
+						getAttributeValue(uid, entity, attribute));
+			}
+		});
+
+		// Second we will resolve MERGE attributes
+		List<? extends AttributeMapping> attributesMerge = attributes.stream().filter(attribute -> {
+			return !attribute.isDisabledAttribute()
+					&& (AttributeMappingStrategyType.AUTHORITATIVE_MERGE == attribute.getStrategyType()
+							|| AttributeMappingStrategyType.MERGE == attribute.getStrategyType());
+
+		}).collect(Collectors.toList());
+
+		for (AttributeMapping attributeParent : attributesMerge) {
+			ProvisioningAttributeDto attributeParentKey = ProvisioningAttributeDto
+					.createProvisioningAttributeKey(attributeParent);
+
+			if (!attributeParent.getSchemaAttribute().isMultivalued()) {
+				throw new ProvisioningException(AccResultCode.PROVISIONING_MERGE_ATTRIBUTE_IS_NOT_MULTIVALUE,
+						ImmutableMap.of("object", uid, "attribute", attributeParent.getSchemaAttribute().getName()));
+			}
+
+			List<Object> mergedValues = new ArrayList<>();
 			attributes.stream().filter(attribute -> {
-				return !attribute.isDisabledAttribute()
-						&& AttributeMappingStrategyType.AUTHORITATIVE_MERGE != attribute.getStrategyType()
-						&& AttributeMappingStrategyType.MERGE != attribute.getStrategyType();
+				return !accountAttributes.containsKey(attributeParentKey)
+						&& attributeParent.getSchemaAttribute().equals(attribute.getSchemaAttribute())
+						&& attributeParent.getStrategyType() == attribute.getStrategyType();
 			}).forEach(attribute -> {
-				if (attribute.isUid()) {
-					// TODO: now we set UID from SystemEntity, may be UID from
-					// AccAccount will be more correct
-					Object uidValue = getAttributeValue(uid, entity, attribute);
-					// If is value form UID attribute null, then we will use UID
-					// from existed account (AccAccount/SystemEntity)
-					uidValue = uidValue == null ? uid : uidValue;
-					AccAccount account = getAccountSystemEntity(systemEntity.getId());
-					if (account != null && account.getUid() instanceof String && !account.getUid().equals(uidValue)) {
-						// UID value must be string
-						account.setUid((String) uidValue);
-						accountService.save(account);
+				Object value = getAttributeValue(uid, entity, attribute);
+				// We don`t want null item in list (problem with
+				// provisioning in IC)
+				if (value != null) {
+					// If is value collection, then we add all its items to
+					// main list!
+					if (value instanceof Collection) {
+						Collection<?> collectionNotNull = ((Collection<?>) value).stream().filter(item -> {
+							return item != null;
+						}).collect(Collectors.toList());
+						mergedValues.addAll(collectionNotNull);
+					} else {
+						mergedValues.add(value);
 					}
-					accountAttributes.put(ProvisioningAttributeDto.createProvisioningAttributeKey(attribute), uidValue);
-				} else {
-					accountAttributes.put(ProvisioningAttributeDto.createProvisioningAttributeKey(attribute),
-							getAttributeValue(uid, entity, attribute));
 				}
 			});
-
-			// Second we will resolve MERGE attributes
-			List<? extends AttributeMapping> attributesMerge = attributes.stream().filter(attribute -> {
-				return !attribute.isDisabledAttribute()
-						&& (AttributeMappingStrategyType.AUTHORITATIVE_MERGE == attribute.getStrategyType()
-								|| AttributeMappingStrategyType.MERGE == attribute.getStrategyType());
-
-			}).collect(Collectors.toList());
-
-			for (AttributeMapping attributeParent : attributesMerge) {
-				ProvisioningAttributeDto attributeParentKey = ProvisioningAttributeDto
-						.createProvisioningAttributeKey(attributeParent);
-
-				if (!attributeParent.getSchemaAttribute().isMultivalued()) {
-					throw new ProvisioningException(AccResultCode.PROVISIONING_MERGE_ATTRIBUTE_IS_NOT_MULTIVALUE,
-							ImmutableMap.of("object", uid, "attribute",
-									attributeParent.getSchemaAttribute().getName()));
-				}
-
-				List<Object> mergedValues = new ArrayList<>();
-				attributes.stream().filter(attribute -> {
-					return !accountAttributes.containsKey(attributeParentKey)
-							&& attributeParent.getSchemaAttribute().equals(attribute.getSchemaAttribute())
-							&& attributeParent.getStrategyType() == attribute.getStrategyType();
-				}).forEach(attribute -> {
-					Object value = getAttributeValue(uid, entity, attribute);
-					// We don`t want null item in list (problem with
-					// provisioning in IC)
-					if (value != null) {
-						// If is value collection, then we add all its items to
-						// main list!
-						if (value instanceof Collection) {
-							Collection<?> collectionNotNull = ((Collection<?>) value).stream().filter(item -> {
-								return item != null;
-							}).collect(Collectors.toList());
-							mergedValues.addAll(collectionNotNull);
-						} else {
-							mergedValues.add(value);
-						}
-					}
-				});
-				if (!accountAttributes.containsKey(attributeParentKey)) {
-					accountAttributes.put(attributeParentKey, mergedValues);
-				}
+			if (!accountAttributes.containsKey(attributeParentKey)) {
+				accountAttributes.put(attributeParentKey, mergedValues);
 			}
 		}
 		return accountAttributes;
@@ -576,7 +591,7 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 	 * @return
 	 */
 	@Override
-	public List<AttributeMapping> resolveMappedAttributes(String uid, AccAccount account, ENTITY entity,
+	public List<AttributeMapping> resolveMappedAttributes(AccAccount account, ENTITY entity,
 			SysSystem system, SystemEntityType entityType) {
 		EntityAccountFilter filter = this.createEntityAccountFilter();
 		filter.setEntityId(entity.getId());
@@ -593,7 +608,7 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 		// All identity account with flag ownership on true
 
 		// All role system attributes (overloading) for this uid and same system
-		List<SysRoleSystemAttribute> roleSystemAttributesAll = findOverloadingAttributes(uid, entity, system,
+		List<SysRoleSystemAttribute> roleSystemAttributesAll = findOverloadingAttributes(entity, system,
 				entityAccoutnList, entityType);
 
 		// All default mapped attributes from system
@@ -652,7 +667,7 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 		}).sorted((att1, att2) -> {
 			// Sort attributes by role priority
 			return Integer.valueOf(att2.getRoleSystem().getRole().getPriority())
-					.compareTo(new Integer(att1.getRoleSystem().getRole().getPriority()));
+					.compareTo(Integer.valueOf(att1.getRoleSystem().getRole().getPriority()));
 		}).collect(Collectors.toList());
 
 		// We have some overloaded attributes
@@ -779,7 +794,7 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 	 * @param entityType
 	 * @return
 	 */
-	protected abstract List<SysRoleSystemAttribute> findOverloadingAttributes(String uid, ENTITY entity,
+	protected abstract List<SysRoleSystemAttribute> findOverloadingAttributes(ENTITY entity,
 			SysSystem system, List<? extends EntityAccountDto> idenityAccoutnList, SystemEntityType entityType);
 
 	private SysSystemMapping getMapping(SysSystem system, SystemEntityType entityType) {
@@ -820,8 +835,7 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 		SystemMappingFilter mappingFilter = new SystemMappingFilter();
 		mappingFilter.setEntityType(entityType);
 		mappingFilter.setOperationType(SystemOperationType.PROVISIONING);
-		List<SysSystemMapping> systemMappings = systemMappingService.find(mappingFilter, null).getContent();
-		return systemMappings;
+		return systemMappingService.find(mappingFilter, null).getContent();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -862,6 +876,24 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 			// We assume that all entity accounts
 			// (mark as
 			// ownership) have same account!
+			return entityAccounts.get(0).getAccount();
+		}
+	}
+	
+	protected UUID getEntityByAccount(UUID accountId, UUID systemId) {
+		EntityAccountFilter entityAccountFilter = createEntityAccountFilter();
+		entityAccountFilter.setAccountId(accountId);
+		entityAccountFilter.setSystemId(systemId);
+		entityAccountFilter.setOwnership(Boolean.TRUE);
+		@SuppressWarnings("unchecked")
+		List<EntityAccountDto> entityAccounts = this.getEntityAccountService()
+				.find((BaseFilter) entityAccountFilter, null).getContent();
+		if (entityAccounts.isEmpty()) {
+			return null;
+		} else {
+			// We assume that all entity accounts
+			// (mark as
+			// ownership) have same entity!
 			return entityAccounts.get(0).getEntity();
 		}
 	}
@@ -892,4 +924,24 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 
 	@SuppressWarnings("rawtypes")
 	protected abstract ReadWriteDtoService getEntityService();
+	
+
+	/**
+	 * Update account UID in IDM
+	 * @param account
+	 * @param uid
+	 * @param uidValue
+	 * @return
+	 */
+	private AccAccount updateAccountUid(AccAccount account, String uid, String uidValue) {
+		// If is value form UID attribute null, then we will use UID
+		// from existed account (AccAccount/SystemEntity)
+		uidValue = uidValue == null ? uid : uidValue;
+		if (account != null && !account.getUid().equals(uidValue)) {
+			// UID value must be string
+			account.setUid(uidValue);
+			account = accountService.save(account);
+		}
+		return account;
+	}
 }

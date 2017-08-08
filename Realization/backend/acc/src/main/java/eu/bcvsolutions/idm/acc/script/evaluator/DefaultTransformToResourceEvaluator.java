@@ -25,19 +25,55 @@ public class DefaultTransformToResourceEvaluator extends AbstractScriptEvaluator
 	@Override
 	public String generateTemplate(IdmScriptDto script) {
 		StringBuilder example = new StringBuilder();
-		example.append("// Inserted script: " + script.getCode() + "\n");
+		//
+		example.append("// Inserted script: ");
+		example.append(script.getCode());
+		example.append('\n');
+		//
 		example.append("/* Description:\n");
 		example.append(script.getDescription());
-		example.append("\n");
+		example.append('\n');
+		//
 		example.append("*/\n");
-		example.append(SCRIPT_EVALUATOR + ".evaluate(\n");
+		example.append(SCRIPT_EVALUATOR);
+		example.append(".evaluate(\n");
+		//
 		example.append("    scriptEvaluator.newBuilder()\n");
-		example.append("        .setScriptCode('" + script.getCode() + "')\n");
-		example.append("        .addParameter('" + SCRIPT_EVALUATOR + "', " + SCRIPT_EVALUATOR + ")\n");
-		example.append("        .addParameter('" + SysSystemAttributeMappingService.ACCOUNT_UID + "', " + SysSystemAttributeMappingService.ACCOUNT_UID + ")\n");
-		example.append("        .addParameter('" + SysSystemAttributeMappingService.ATTRIBUTE_VALUE_KEY + "', " + SysSystemAttributeMappingService.ATTRIBUTE_VALUE_KEY + ")\n");
-		example.append("        .addParameter('" + SysSystemAttributeMappingService.ENTITY_KEY + "', " + SysSystemAttributeMappingService.ENTITY_KEY + ")\n");
-		example.append("        .addParameter('" + SysSystemAttributeMappingService.SYSTEM_KEY + "', " + SysSystemAttributeMappingService.SYSTEM_KEY + ")\n");
+		//
+		example.append("        .setScriptCode('");
+		example.append(script.getCode());
+		example.append("')\n");
+		//
+		example.append("        .addParameter('");
+		example.append(SCRIPT_EVALUATOR);
+		example.append("', ");
+		example.append(SCRIPT_EVALUATOR);
+		example.append(")\n");
+		//
+		example.append("        .addParameter('");
+		example.append(SysSystemAttributeMappingService.ACCOUNT_UID);
+		example.append("', ");
+		example.append(SysSystemAttributeMappingService.ACCOUNT_UID);
+		example.append(")\n");
+		//
+		example.append("        .addParameter('");
+		example.append(SysSystemAttributeMappingService.ATTRIBUTE_VALUE_KEY);
+		example.append("', ");
+		example.append(SysSystemAttributeMappingService.ATTRIBUTE_VALUE_KEY);
+		example.append(")\n");
+		//
+		example.append("        .addParameter('");
+		example.append(SysSystemAttributeMappingService.ENTITY_KEY);
+		example.append("', ");
+		example.append(SysSystemAttributeMappingService.ENTITY_KEY);
+		example.append(")\n");
+		//
+		example.append("        .addParameter('");
+		example.append(SysSystemAttributeMappingService.SYSTEM_KEY);
+		example.append("', ");
+		example.append(SysSystemAttributeMappingService.SYSTEM_KEY);
+		example.append(")\n");
+		//
 		example.append("	.build());\n");
 		return example.toString();
 	}

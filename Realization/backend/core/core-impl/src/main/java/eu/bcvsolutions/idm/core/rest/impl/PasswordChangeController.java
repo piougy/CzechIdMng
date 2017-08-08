@@ -81,8 +81,9 @@ public class PasswordChangeController {
 	@ApiOperation(
 			value = "Change identity's password", 
 			nickname = "passwordChange",
+			response = PasswordChangeDto.class,
 			tags = { PasswordChangeController.TAG })
-	public ResponseEntity<Void> passwordChange(
+	public ResponseEntity<PasswordChangeDto> passwordChange(
 			@ApiParam(value = "Identity's uuid identifier or username.", required = true)
 			@PathVariable String backendId,
 			@RequestBody @Valid PasswordChangeDto passwordChangeDto) {
@@ -102,12 +103,12 @@ public class PasswordChangeController {
 				loginService.login(loginDto);
 			}
 		} catch(IdmAuthenticationException ex) {
-			throw new ResultCodeException(CoreResultCode.PASSWORD_CHANGE_CURRENT_FAILED_IDM);
+			throw new ResultCodeException(CoreResultCode.PASSWORD_CHANGE_CURRENT_FAILED_IDM, ex);
 		}
 		//
 		identityService.checkAccess(identity, IdentityBasePermission.PASSWORDCHANGE);
 		//
 		identityService.passwordChange(identity, passwordChangeDto);
-		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		return new ResponseEntity<>(passwordChangeDto, HttpStatus.OK);
 	}
 }

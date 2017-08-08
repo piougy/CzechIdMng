@@ -409,6 +409,16 @@ module.exports = {
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUDIT_READ'] } ]
     },
     {
+      path: 'audit/logging-event/:entityId',
+      component: require('./src/content/audit/loggingEvent/LoggingEventDetail'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUDIT_READ'] } ]
+    },
+    {
+      path: 'audit/logging-events',
+      component: require('./src/content/audit/loggingEvent/LoggingEventContent'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUDIT_READ'] } ]
+    },
+    {
       path: 'audit/',
       component: require('./src/content/audit/AuditRoutes'),
       childRoutes: [

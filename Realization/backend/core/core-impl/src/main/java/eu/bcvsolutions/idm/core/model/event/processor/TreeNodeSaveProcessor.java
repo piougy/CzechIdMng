@@ -85,10 +85,12 @@ public class TreeNodeSaveProcessor extends CoreEventProcessor<IdmTreeNode> {
 		//
 		if (isNew) {
 			// create new
-			forestContentService.createIndex(repository.save(treeNode));
+			treeNode = repository.save(treeNode);
+			treeNode.setForestIndex(forestContentService.createIndex(treeNode.getForestTreeType(), treeNode.getId(), treeNode.getParentId()));
 		} else {
 			// update - we need to reindex first
-			repository.save(forestContentService.updateIndex(treeNode));
+			treeNode.setForestIndex(forestContentService.updateIndex(treeNode.getForestTreeType(), treeNode.getId(), treeNode.getParentId()));
+			repository.save(treeNode);
 		}
 		//
 		// TODO: clone content - mutable previous event content :/

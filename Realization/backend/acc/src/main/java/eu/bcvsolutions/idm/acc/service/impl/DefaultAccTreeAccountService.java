@@ -71,7 +71,7 @@ public class DefaultAccTreeAccountService
 				super.delete(identityAccount);
 			});
 			// Finally we can delete account
-			accountService.delete(accountService.get(account), deleteTargetAccount);
+			accountService.delete(accountService.get(account), deleteTargetAccount, entity.getEntity());
 		}
 	}
 }

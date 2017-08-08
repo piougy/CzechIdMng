@@ -24,6 +24,8 @@ import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 /**
  * Persistent information about last change in identity's application authorities.
  * 
+ * TODO: rename to IdmAuthenticationToken and persist created tokens - we lost little of "stateless", but we need this for logout feature etc.
+ * 
  * @author Jan Helbich
  *
  */

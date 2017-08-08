@@ -13,7 +13,7 @@ import RoleRequestTable from '../requestrole/RoleRequestTable';
 import CandicateUsersCell from '../workflow/CandicateUsersCell';
 
 const uiKey = 'identity-roles';
-const uiKeyContracts = 'identity-contracts';
+const uiKeyContracts = 'role-identity-contracts';
 const uiKeyAuthorities = 'identity-roles';
 const roleManager = new RoleManager();
 const roleTreeNodeManager = new RoleTreeNodeManager();
@@ -229,14 +229,14 @@ class Roles extends Basic.AbstractContent {
   }
 
   /**
-   * TODO: move to manager
+   * Can change identity permission
    *
    * @return {[type]} [description]
    */
   _canChangePermissions() {
-    const { userContext } = this.props;
+    const { userContext, identity, _permissions } = this.props;
     const { entityId } = this.props.params;
-    return (entityId === userContext.username) || SecurityManager.isAdmin(userContext);
+    return (entityId === userContext.username) || identityManager.canSave(identity, _permissions);
   }
 
   /**
@@ -341,7 +341,10 @@ class Roles extends Basic.AbstractContent {
                       style={{ display: 'block' }}
                       level="warning"
                       onClick={ this._changePermissions.bind(this) }
-                      rendered={ _contracts.length > 0 && this._canChangePermissions() }>
+                      rendered={ _contracts.length > 0 }
+                      disabled={ !this._canChangePermissions() }
+                      title={ this._canChangePermissions() ? null : this.i18n('security.access.denied') }
+                      titlePlacement="bottom">
                       <Basic.Icon type="fa" icon="key"/>
                       {' '}
                       { this.i18n('changePermissions') }
@@ -535,8 +538,9 @@ class Roles extends Basic.AbstractContent {
                     required/>
                   <Basic.LabelWrapper
                     label={this.i18n('entity.IdentityRole.roleTreeNode.label')}
-                    helpBlock={this.i18n('entity.IdentityRole.roleTreeNode.help')}>
-                    { roleTreeNodeManager.getNiceLabel(detail.entity.roleTreeNode) }
+                    helpBlock={this.i18n('entity.IdentityRole.roleTreeNode.help')}
+                    rendered={ detail.entity.roleTreeNode }>
+                    { detail.entity.roleTreeNode ? roleTreeNodeManager.getNiceLabel(detail.entity._embedded.roleTreeNode) : null }
                   </Basic.LabelWrapper>
                   <Basic.Row>
                     <div className="col-md-6">
@@ -590,12 +594,14 @@ class Roles extends Basic.AbstractContent {
 }
 
 Roles.propTypes = {
+  identity: PropTypes.object,
   _showLoading: PropTypes.bool,
   _showLoadingContracts: PropTypes.bool,
   _entities: PropTypes.arrayOf(React.PropTypes.object),
   _contracts: PropTypes.arrayOf(React.PropTypes.object),
   authorities: PropTypes.arrayOf(React.PropTypes.object),
   userContext: PropTypes.object,
+  _permissions: PropTypes.arrayOf(PropTypes.string)
 };
 Roles.defaultProps = {
   _showLoading: true,
@@ -603,7 +609,8 @@ Roles.defaultProps = {
   _entities: [],
   _contracts: [],
   authorities: [],
-  userContext: null
+  userContext: null,
+  _permissions: null,
 };
 
 function select(state, component) {
@@ -611,15 +618,18 @@ function select(state, component) {
   if (state.data.ui['table-processes'] && state.data.ui['table-processes'].items) {
     addRoleProcessIds = state.data.ui['table-processes'].items;
   }
+  const entityId = component.params.entityId;
 
   return {
-    _showLoading: identityRoleManager.isShowLoading(state, `${uiKey}-${component.params.entityId}`),
-    _entities: identityRoleManager.getEntities(state, `${uiKey}-${component.params.entityId}`),
-    _showLoadingContracts: identityContractManager.isShowLoading(state, `${uiKeyContracts}-${component.params.entityId}`),
-    _contracts: identityContractManager.getEntities(state, `${uiKeyContracts}-${component.params.entityId}`),
+    identity: identityManager.getEntity(state, entityId),
+    _showLoading: identityRoleManager.isShowLoading(state, `${uiKey}-${entityId}`),
+    _entities: identityRoleManager.getEntities(state, `${uiKey}-${entityId}`),
+    _showLoadingContracts: identityContractManager.isShowLoading(state, `${uiKeyContracts}-${entityId}`),
+    _contracts: identityContractManager.getEntities(state, `${uiKeyContracts}-${entityId}`),
     _addRoleProcessIds: addRoleProcessIds,
-    authorities: DataManager.getData(state, `${uiKeyAuthorities}-${component.params.entityId}`),
-    userContext: state.security.userContext
+    authorities: DataManager.getData(state, `${uiKeyAuthorities}-${entityId}`),
+    userContext: state.security.userContext,
+    _permissions: identityManager.getPermissions(state, null, entityId)
   };
 }
 

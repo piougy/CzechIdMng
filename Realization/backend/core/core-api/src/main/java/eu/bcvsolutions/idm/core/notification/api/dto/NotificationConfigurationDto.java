@@ -28,8 +28,12 @@ public class NotificationConfigurationDto extends AbstractDto {
 	public NotificationConfigurationDto() {
 	}
 
-	public NotificationConfigurationDto(String topic, NotificationLevel level, String notificationType,
-	                                    String description, UUID template) {
+	public NotificationConfigurationDto(
+			String topic, 
+			NotificationLevel level, 
+			String notificationType,
+			String description, 
+			UUID template) {
 		this.topic = topic;
 		this.level = level;
 		this.notificationType = notificationType;

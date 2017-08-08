@@ -16,8 +16,8 @@ import eu.bcvsolutions.idm.core.notification.api.domain.NotificationState;
  */
 public class NotificationFilter extends QuickFilter {
 
-	private String sender;
-	private String recipient;
+	private String sender; // senders username
+	private String recipient; // recipients username
 	private NotificationState state;
 	private DateTime from;
 	private DateTime till;

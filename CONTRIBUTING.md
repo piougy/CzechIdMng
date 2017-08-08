@@ -1,20 +1,28 @@
-# Contributing to czechidm
+# Contributing to CzechIdM
 We want to make contributing to this project as easy and transparent as possible.
 
 ## Issues
-We use Redmine issues to track bugs. Please ensure your description is clear and has sufficient instructions to be able to reproduce the issue.
+We use [Redmine](https://redmine.czechidm.com) to track bugs and enhancements.
+
+### Bugs
+
+If you believe you have found a bug, please take a moment to search the existing issues. If no one else has reported the problem, please open a new ticket that describes the problem in detail and has sufficient instructions to be able to reproduce the issue. Ideally, includes a test that reproduces it. Application, module (backend, frontend) and browser version has to be included in ticket description.
+
+### Enhancements
+
+If you’d like an enhancement to be made to CzechIdM, pull requests are most welcome. The source code is on GitHub. You may want to search the existing issues and pull requests to see if the enhancement is already being worked on. You may also want to open a new issue to discuss a possible enhancement before work on it begins.
 
 ## Backend
 
 ### Coding Style, convention
 
 * https://google.github.io/styleguide/javaguide.html
-* 2 tabs for indentation
-* use `{}` brackets
+* 1 tab for indentation
+* Use `{}` brackets
 * Don't use abbreviations for fields, variables etc.
 * Don't use camelCase in package names
 * Database
- * [Convention](https://proj.bcvsolutions.eu/ngidm/doku.php?id=navrh:identifikatory#konvence_navrhu_databaze)
+ * [Convention](https://wiki.czechidm.com/7.3/dev/conventions/database-conventions)
   * `Entity` / `Dto` has to contain jsr303 validations
 * Rest
   * Rest endpoints naming with snake-case in plural, e.g. `<server>/wf-identities`, `<server>/tasks`
@@ -23,14 +31,14 @@ We use Redmine issues to track bugs. Please ensure your description is clear and
   * use `@Transaction` annotation for service methods
   * use interfaces
     * `Configurable` for configurations
-    * `Codeable` for entities with code and name - see database naming [convention](https://proj.bcvsolutions.eu/ngidm/doku.php?id=navrh:identifikatory#konvence_navrhu_databaze)
+    * `Codeable` for entities with code and name - see database naming [convention](https://wiki.czechidm.com/7.3/dev/conventions/database-conventions)
     * ...
 * Java
   * Class - fields first, then constructors, then public methods, then private methods
 
 ### IDE
-* [Eclipse](https://proj.bcvsolutions.eu/ngidm/doku.php?id=en:development:ide:eclipse)
-* [Idea](https://proj.bcvsolutions.eu/ngidm/doku.php?id=en:development:ide:idea)
+* [Eclipse](https://wiki.czechidm.com/7.3/dev/quickstart/ide/eclipse)
+* [Idea](https://wiki.czechidm.com/7.3/dev/quickstart/ide/idea)
 
 ## Frontend
 
@@ -44,6 +52,7 @@ We use Redmine issues to track bugs. Please ensure your description is clear and
   * Immutable
   * ...
 * Use semicolons;
+* Use `{}` brackets
 * Commas last,
 * 2 spaces for indentation
 * Prefer `'` over `"`
@@ -62,39 +71,21 @@ We use Redmine issues to track bugs. Please ensure your description is clear and
 
 ### IDE
 
-We are using [Atom IDE](https://atom.io/) for development with plugins installed:
-* linter
-* linter-eslint
-* react
-* linter-bootlint
-* atom-bootstrap-3
-* git-diff-details
-* git-diff-popup
-* git-plus
-* git-status
-* line-diff-details
-* last-cursor-position
-* docblockr
-
-Tips for Atom:
-* **Ctrl+Shift+P** Search any function of Atom.
-* **Ctrl+R** Search method in current file.
-* **Auto indent** Formatting of selected code (jsx).
-
+* [Atom](https://wiki.czechidm.com/7.3/dev/quickstart/ide/atom)
 
 
 ## Our Development Process
 
 1. Clone or Fork the repo and create your branch from `CzechIdMng`.
 
-2. If you've added code that should be tested, add tests to test folder.
+2. If you've added code that should be tested, add tests.
 
 3. Ensure the test suite passes.
 
 4. Make sure your code lints.
 
-5. Do not commit anything to the `dist` folder.
+5. Do not commit anything to the `dist` or `target` folder.
 
 ## License
 
-MIT
+[MIT License](./LICENSE)

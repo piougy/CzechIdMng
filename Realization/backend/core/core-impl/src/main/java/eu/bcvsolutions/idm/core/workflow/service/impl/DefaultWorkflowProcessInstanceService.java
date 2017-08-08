@@ -82,7 +82,7 @@ public class DefaultWorkflowProcessInstanceService implements WorkflowProcessIns
 		ProcessInstanceBuilder builder = runtimeService.createProcessInstanceBuilder()
 				.processDefinitionKey(definitionKey)//
 				.addVariable(WorkflowProcessInstanceService.OBJECT_TYPE, objectType)
-				.addVariable(WorkflowProcessInstanceService.ACTIVITI_SKIP_EXPRESSION_ENABLED, true) // Allow skip expression on user task
+				.addVariable(WorkflowProcessInstanceService.ACTIVITI_SKIP_EXPRESSION_ENABLED, Boolean.TRUE) // Allow skip expression on user task
 				.addVariable(WorkflowProcessInstanceService.OBJECT_IDENTIFIER, objectIdentifier)
 				.addVariable(WorkflowProcessInstanceService.IMPLEMENTER_IDENTIFIER, implementerId == null ? null : implementerId.toString())
 				.addVariable(WorkflowProcessInstanceService.APPLICANT_USERNAME, applicant)

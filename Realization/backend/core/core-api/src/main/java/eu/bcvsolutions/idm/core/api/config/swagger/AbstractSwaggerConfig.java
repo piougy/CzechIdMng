@@ -70,10 +70,10 @@ public abstract class AbstractSwaggerConfig implements SwaggerConfig {
 				.build()
 				.apiInfo(metaData());
 	}
-	
+
 	/**
 	 * Expose endpoints from given base packages. Security endpoint will be in all docs.
-	 * 
+	 *
 	 * @param basePackages
 	 * @return
 	 */
@@ -91,10 +91,10 @@ public abstract class AbstractSwaggerConfig implements SwaggerConfig {
 		//
 		return Predicates.and(predicates);
 	}
-	
+
 	/**
 	 * Expose endpoints with given path only.
-	 * 
+	 *
 	 * @return
 	 */
 	protected Predicate<String> getPaths() {
@@ -117,7 +117,7 @@ public abstract class AbstractSwaggerConfig implements SwaggerConfig {
 	 */
 	protected ApiInfo metaData() {
         ApiInfo apiInfo = new ApiInfo(
-                getModuleDescriptor().getName() + " - RESTfull API",
+                getModuleDescriptor().getName() + " - RESTful API",
                 getModuleDescriptor().getDescription(),
                 getModuleDescriptor().getVersion(),
                 "Terms of service",

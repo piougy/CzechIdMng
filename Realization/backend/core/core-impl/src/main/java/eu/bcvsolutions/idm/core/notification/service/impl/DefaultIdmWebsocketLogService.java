@@ -16,7 +16,9 @@ import eu.bcvsolutions.idm.core.notification.service.api.IdmWebsocketLogService;
  *
  */
 @Service
-public class DefaultIdmWebsocketLogService extends AbstractNotificationLogService<IdmWebsocketLogDto, IdmWebsocketLog, NotificationFilter> implements IdmWebsocketLogService {
+public class DefaultIdmWebsocketLogService 
+		extends AbstractNotificationLogService<IdmWebsocketLogDto, IdmWebsocketLog, NotificationFilter> 
+		implements IdmWebsocketLogService {
 
 	
 	@Autowired

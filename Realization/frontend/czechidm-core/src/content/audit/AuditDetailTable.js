@@ -10,8 +10,9 @@ const MOD_ADD = 'ADD';
 
 /**
 * Table for detail audits
+*
+* @author Ondřej Kopr
 */
-
 export class AuditDetailTable extends Basic.AbstractContent {
 
   constructor(props, context) {

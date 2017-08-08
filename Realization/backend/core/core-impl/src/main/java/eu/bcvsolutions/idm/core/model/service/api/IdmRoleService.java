@@ -6,6 +6,7 @@ import java.util.UUID;
 import eu.bcvsolutions.idm.core.api.config.domain.RoleConfiguration;
 import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
 import eu.bcvsolutions.idm.core.api.service.CodeableService;
+import eu.bcvsolutions.idm.core.api.service.EventableService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
 import eu.bcvsolutions.idm.core.model.dto.filter.RoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
@@ -19,7 +20,7 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizableEntityService;
  */
 public interface IdmRoleService 
 		extends ReadWriteEntityService<IdmRole, RoleFilter>, 
-		CodeableService<IdmRole>, AuthorizableEntityService<IdmRole, RoleFilter>, ScriptEnabled {
+		CodeableService<IdmRole>, AuthorizableEntityService<IdmRole, RoleFilter>, ScriptEnabled, EventableService<IdmRole> {
 	
 	static final String WF_BY_ROLE_PRIORITY_PREFIX = "idm.sec.core.wf.role.approval."; // TODO: rename property ... 
 	static final String PROPERTY_DEFAULT_ROLE = RoleConfiguration.PROPERTY_DEFAULT_ROLE;

@@ -11,6 +11,8 @@ import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
 /**
  * Application modules administrative. Plugin can be register by {@link ModuleDescriptor}.
  * 
+ * TODO: return dto?
+ * 
  * @author Radek Tomiška
  * @see ModuleDescriptor
  * @see Plugin

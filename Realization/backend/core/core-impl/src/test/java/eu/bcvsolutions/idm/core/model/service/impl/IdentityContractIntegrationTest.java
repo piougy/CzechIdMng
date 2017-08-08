@@ -119,7 +119,7 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 		//
 		if (withLongRunningTask) {
 			AddNewAutomaticRoleTaskExecutor task = new AddNewAutomaticRoleTaskExecutor();
-			task.setRoleTreeNode(roleTreeNode);
+			task.setRoleTreeNodeId(roleTreeNode.getId());
 			taskManager.executeSync(task);
 		}
 		//
@@ -128,7 +128,7 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 	
 	private void deleteAutomaticRole(IdmRoleTreeNodeDto automaticRole) {
 		RemoveAutomaticRoleTaskExecutor task = new RemoveAutomaticRoleTaskExecutor();
-		task.setRoleTreeNode(automaticRole);
+		task.setRoleTreeNodeId(automaticRole.getId());
 		taskManager.executeSync(task);
 	}
 	

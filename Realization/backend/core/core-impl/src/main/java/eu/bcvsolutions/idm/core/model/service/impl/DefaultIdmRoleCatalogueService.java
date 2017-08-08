@@ -31,6 +31,7 @@ import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.exception.TreeNodeException;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
+import eu.bcvsolutions.idm.core.model.entity.IdmForestIndexEntity;
 import eu.bcvsolutions.idm.core.model.entity.IdmForestIndexEntity_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogueRole;
@@ -52,8 +53,7 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
 /**
  * Implementation of @IdmRoleCatalogueService
- * 
- * TODO: forest index - refactor to dto usage
+ *
  * TODO: baseTreeService - refactor to dto usage
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
@@ -65,7 +65,7 @@ public class DefaultIdmRoleCatalogueService
 		extends AbstractReadWriteDtoService<IdmRoleCatalogueDto, IdmRoleCatalogue, RoleCatalogueFilter> 
 		implements IdmRoleCatalogueService {
 	
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmIdentityContractService.class);
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmRoleCatalogueService.class);
 	private final IdmRoleCatalogueRepository repository;
 	private final IdmRoleCatalogueRoleRepository roleCatalogueRoleRepository;
 	private final DefaultBaseTreeService<IdmRoleCatalogue> baseTreeService;
@@ -137,13 +137,14 @@ public class DefaultIdmRoleCatalogueService
 			this.validate(toEntity(roleCatalogue));
 			// create new
 			roleCatalogue = super.saveInternal(roleCatalogue);
-			forestContentService.createIndex(toEntity(roleCatalogue));
-			return roleCatalogue;
+			IdmForestIndexEntity index = forestContentService.createIndex(IdmRoleCatalogue.FOREST_TREE_TYPE, roleCatalogue.getId(), roleCatalogue.getParent());
+			return setForestIndex(roleCatalogue, index);
 		}
 		this.validate(toEntity(roleCatalogue, repository.findOne(roleCatalogue.getId())));
 		// update - we need to reindex first
-		forestContentService.updateIndex(toEntity(roleCatalogue, repository.findOne(roleCatalogue.getId())));
-		return super.saveInternal(roleCatalogue);
+		IdmForestIndexEntity index = forestContentService.updateIndex(IdmRoleCatalogue.FOREST_TREE_TYPE, roleCatalogue.getId(), roleCatalogue.getParent());
+		roleCatalogue = super.saveInternal(roleCatalogue);
+		return setForestIndex(roleCatalogue, index);
 	}
 	
 	/**
@@ -175,7 +176,7 @@ public class DefaultIdmRoleCatalogueService
 		// remove row from intersection table
 		roleCatalogueRoleRepository.deleteAllByRoleCatalogue_Id(roleCatalogue.getId());
 		//
-		forestContentService.deleteIndex(toEntity(roleCatalogue));
+		forestContentService.deleteIndex(roleCatalogue.getId());
 		super.deleteInternal(roleCatalogue);
 	}
 	
@@ -279,6 +280,14 @@ public class DefaultIdmRoleCatalogueService
 		//		if (this.baseTreeService.validateUniqueName(roleCatalogues, roleCatalogue)) {
 		//			throw new ResultCodeException(CoreResultCode.ROLE_CATALOGUE_BAD_NICE_NAME, ImmutableMap.of("name", roleCatalogue.getName()));
 		//		}
+	}
+	
+	private IdmRoleCatalogueDto setForestIndex(IdmRoleCatalogueDto roleCatalogue, IdmForestIndexEntity index) {
+		if (index != null) {
+			roleCatalogue.setLft(index.getLft());
+			roleCatalogue.setRgt(index.getRgt());
+		}
+		return roleCatalogue;
 	}
 	
 }

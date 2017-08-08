@@ -1,7 +1,10 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -21,11 +24,14 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.config.domain.RoleConfiguration;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdentityFilter;
+import eu.bcvsolutions.idm.core.api.event.EntityEvent;
+import eu.bcvsolutions.idm.core.api.event.EventContext;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
@@ -120,6 +126,17 @@ public class DefaultIdmIdentityService
 		return toEntity(save(toDto(identity)), null);
 	}
 	
+
+	@Override
+	@Transactional
+	@Deprecated
+	public IdmIdentity publishIdentity(IdmIdentity identity, EntityEvent<IdmIdentityDto> event,  BasePermission... permission) {
+		Assert.notNull(event, "Event must be not null!");
+		Assert.notNull(identity);
+		event.setContent(toDto(identity));
+		return toEntity(this.publish(event, permission).getContent());
+	}
+	
 	/**
 	 * Publish {@link IdentityEvent} only.
 	 * 
@@ -129,14 +146,22 @@ public class DefaultIdmIdentityService
 	@Transactional
 	public IdmIdentityDto save(IdmIdentityDto identity, BasePermission... permission) {
 		Assert.notNull(identity);
-		checkAccess(toEntity(identity, null), permission);
 		//
 		LOG.debug("Saving identity [{}]", identity.getUsername());
 		//
 		if (isNew(identity)) { // create
-			return entityEventManager.process(new IdentityEvent(IdentityEventType.CREATE, identity)).getContent();
+			return this.publish(new IdentityEvent(IdentityEventType.CREATE, identity), permission).getContent();
 		}
-		return entityEventManager.process(new IdentityEvent(IdentityEventType.UPDATE, identity)).getContent();
+		return this.publish(new IdentityEvent(IdentityEventType.UPDATE, identity), permission).getContent();
+	}
+	
+	@Override
+	public EventContext<IdmIdentityDto> publish(EntityEvent<IdmIdentityDto> event,  BasePermission... permission){
+		Assert.notNull(event, "Event must be not null!");
+		Assert.notNull(event.getContent(), "Content (entity) in event must be not null!");
+		
+		checkAccess(toEntity(event.getContent(), null), permission);
+		return entityEventManager.process(event);
 	}
 	
 	/**
@@ -351,7 +376,7 @@ public class DefaultIdmIdentityService
 	/**
 	 * Method find all managers by identity contract and return manager's
 	 * 
-	 * @param identityId
+	 * @param forIdentity
 	 * @return String - usernames separate by commas
 	 */
 	@Override
@@ -447,20 +472,23 @@ public class DefaultIdmIdentityService
 		if (identities.isEmpty()) {
 			return;
 		}
+		List<UUID> identitiesCopy = Lists.newArrayList(identities);
 		// handle identities without IdmAuthorityChange entity relation (auth. change is null)
-		List<IdmIdentity> withoutAuthChangeRel = repository.findAllWithoutAuthorityChange(identities);
+		Map<UUID, IdmIdentity> withoutChangeMap = new HashMap<>();
+		List<IdmIdentity> withoutAuthChangeRel = repository.findAllWithoutAuthorityChange(identitiesCopy);
+		withoutAuthChangeRel.forEach(i -> withoutChangeMap.put(i.getId(), i));
 		if (!withoutAuthChangeRel.isEmpty()) {
-			identities.removeAll(withoutAuthChangeRel);
-			createAuthorityChange(withoutAuthChangeRel, changeTime);
+			identitiesCopy.removeAll(withoutChangeMap.keySet());
+			createAuthorityChange(withoutChangeMap.values(), changeTime);
 		}
 		// run update query on the rest of identities
-		if (!identities.isEmpty()) {
-			repository.setIdmAuthorityChangeForIdentity(identities, changeTime);
+		if (!identitiesCopy.isEmpty()) {
+			repository.setIdmAuthorityChangeForIdentity(identitiesCopy, changeTime);
 		}
 	}
 
-	private void createAuthorityChange(List<IdmIdentity> withoutAuthChangeRel, DateTime changeTime) {
-		for (IdmIdentity identity : withoutAuthChangeRel) {
+	private void createAuthorityChange(Collection<IdmIdentity> withoutAuthChange, DateTime changeTime) {
+		for (IdmIdentity identity : withoutAuthChange) {
 			IdmAuthorityChange ac = new IdmAuthorityChange();
 			ac.setAuthChangeTimestamp(changeTime);
 			ac.setIdentity(identity);

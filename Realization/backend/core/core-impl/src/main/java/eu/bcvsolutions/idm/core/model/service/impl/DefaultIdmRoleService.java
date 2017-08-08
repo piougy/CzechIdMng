@@ -21,6 +21,8 @@ import org.springframework.util.Assert;
 import com.google.common.base.Strings;
 
 import eu.bcvsolutions.idm.core.api.config.domain.RoleConfiguration;
+import eu.bcvsolutions.idm.core.api.event.EntityEvent;
+import eu.bcvsolutions.idm.core.api.event.EventContext;
 import eu.bcvsolutions.idm.core.api.repository.filter.FilterManager;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
@@ -117,7 +119,7 @@ public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, Role
 		//
 		LOG.debug("Saving role [{}]", role.getName());
 		//
-		return entityEventManager.process(new RoleEvent(isNew(role) ? RoleEventType.CREATE : RoleEventType.UPDATE, role)).getContent();
+		return this.publish(new RoleEvent(isNew(role) ? RoleEventType.CREATE : RoleEventType.UPDATE, role)).getContent();
 	}
 	
 	/**
@@ -131,7 +133,7 @@ public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, Role
 		Assert.notNull(role);
 		//
 		LOG.debug("Deleting role [{}]", role.getName());
-		entityEventManager.process(new RoleEvent(RoleEventType.DELETE, role));
+		this.publish(new RoleEvent(RoleEventType.DELETE, role));
 	}
 	
 	@Override
@@ -317,6 +319,14 @@ public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, Role
 			roles.add(roleCatalogueRole.getRole());
 		}
 		return roles;
+	}
+
+	@Override
+	public EventContext<IdmRole> publish(EntityEvent<IdmRole> event, BasePermission... permission) {
+		Assert.notNull(event, "Event must be not null!");
+		Assert.notNull(event.getContent(), "Content (entity) in event must be not null!");
+		
+		return entityEventManager.process(event);
 	}
 	
 }

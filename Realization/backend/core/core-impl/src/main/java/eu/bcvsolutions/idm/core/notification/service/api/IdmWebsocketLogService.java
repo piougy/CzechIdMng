@@ -10,6 +10,7 @@ import eu.bcvsolutions.idm.core.notification.dto.filter.NotificationFilter;
  * @author Radek Tomiška
  *
  */
-public interface IdmWebsocketLogService extends ReadWriteDtoService<IdmWebsocketLogDto, NotificationFilter> {
+public interface IdmWebsocketLogService extends 
+		ReadWriteDtoService<IdmWebsocketLogDto, NotificationFilter> {
 
 }

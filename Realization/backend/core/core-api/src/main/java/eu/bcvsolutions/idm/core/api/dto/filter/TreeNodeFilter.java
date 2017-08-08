@@ -15,10 +15,10 @@ import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 public class TreeNodeFilter extends DataFilter implements CorrelationFilter {
 
     private UUID treeTypeId;
-    private UUID treeNode;
-    private Boolean defaultTreeType; // default tree type wil be used
-    private String property;
-    private String value;
+    private UUID treeNode; // parent - TODO: rename!
+    private Boolean defaultTreeType; // Search for tree nodes within the default tree type
+    private String property; // Attribute name to search for, like 'code' or 'name'
+    private String value; // Value of the attribute defined in property to search for
     /**
      * Tree nodes by tree structure recursively down
      */

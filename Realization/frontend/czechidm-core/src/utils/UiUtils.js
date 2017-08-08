@@ -169,17 +169,54 @@ export default class UiUtils {
 
 /**
  * Do substring on given data by max length. Substring is not on char byt on word.
- * Last word will be whole.
- * @param  {[type]} data      [description]
- * @param  {[type]} maxLength [description]
- * @return {[type]}           [description]
+ * Last word will be whole. Get begining part.
+ * Example:
+ * UiUtils.substringBegin('This is too long text', 5, '');
+ * @param  {String} data
+ * @param  {Number} maxLength
+ * @param  {String} cutChar Character cutting words
+ * @return {String}
  */
-  static substringByWord(data, maxLength) {
-    if (data) {
-      data = data + ' ';
-      const result = data.replace(/<(?:.|\n)*?>/gm, '').substr(0, maxLength);
-      return result.substr(0, Math.min(result.length, result.lastIndexOf(' ')));
+  static substringBegin(data, maxLength, cutChar) {
+    if (data != null) {
+      if (data.charAt(maxLength) === cutChar) {
+        const result = data.substr(0, maxLength);
+        return result;
+      }
+      data = data + cutChar;
+      let result = data.replace(/<(?:.|\n)*?>/gm, '').substr(0, maxLength);
+      result = result.substr(0, Math.min(result.length, result.lastIndexOf(cutChar)));
+      return result;
     }
     return null;
+  }
+  /**
+   * Do substring on given data by max length. Substring is not on char byt on word.
+   * Last word will be whole. Get ending part.
+   * Example:
+   * UiUtils.substringEnd('this/is/path', 5, '/');
+   * @param  {String} data
+   * @param  {Number} maxLength
+   * @param  {String} cutChar Character cutting words
+   * @return {String}
+   */
+  static substringEnd(data, maxLength, cutChar) {
+    if (data != null) {
+      data = cutChar + data;
+      let result = data.replace(/<(?:.|\n)*?>/gm, '').substr(data.length - maxLength, data.length);
+      result = result.substr(result.indexOf(cutChar), result.length);
+      return result;
+    }
+    return null;
+  }
+  /**
+  * Do substring on given data by max length. Substring is not on char byt on word.
+- * Last word will be whole.
+- * @param  {String} data
+  * @param  {Number} maxLength
+  * @return {String}
+  */
+  static substringByWord(data, maxLength) {
+    return this.substringBegin(data, maxLength, ' ');
   }
 }

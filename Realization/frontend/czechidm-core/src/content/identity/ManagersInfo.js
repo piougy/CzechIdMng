@@ -1,11 +1,11 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import Immutable from 'immutable';
-import { Link } from 'react-router';
 //
 import * as Basic from '../../components/basic';
+import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
-import { IdentityManager, SecurityManager } from '../../redux';
+import { IdentityManager } from '../../redux';
 import SearchParameters from '../../domain/SearchParameters';
 
 const uiKey = 'managers-info';
@@ -28,7 +28,7 @@ class ManagersInfo extends Basic.AbstractContextComponent {
       // load managers by Tree
       const uiKeyId = `${uiKey}-${identityContractId}`;
       if (!Utils.Ui.isShowLoading(this.context.store.getState(), uiKeyId)) {
-        const searchParameters = new SearchParameters().setFilter('managersFor', managersFor).setFilter('managersByContract', identityContractId).setFilter('includeGuarantees', true);
+        const searchParameters = new SearchParameters().setName(SearchParameters.NAME_AUTOCOMPLETE).setFilter('managersFor', managersFor).setFilter('managersByContract', identityContractId).setFilter('includeGuarantees', true);
         this.context.store.dispatch(this.identityManager.fetchEntities(searchParameters, uiKeyId));
       }
     }
@@ -54,17 +54,13 @@ class ManagersInfo extends Basic.AbstractContextComponent {
       <span>
         {
           this.getAllManagers().map(identity => {
-            if (!SecurityManager.hasAccess({ 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_READ']})) {
-              return this.identityManager.getNiceLabel(identity);
-            }
             return (
-              <span>
-                <Link to={`/identity/${encodeURIComponent(identity.username)}/profile`} style={{ marginRight: 7 }}>
-                  {this.identityManager.getFullName(identity)}
-                  {' '}
-                  <small>({identity.username})</small>
-                </Link>
-              </span>
+              <Advanced.EntityInfo
+                entityType="identity"
+                entity={ identity }
+                entityIdentifier={ identity.username }
+                face="popover"
+                style={{ marginRight: 5 }}/>
             );
           })
         }

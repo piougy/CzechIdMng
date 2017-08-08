@@ -114,8 +114,19 @@ public abstract class AbstractModuleDescriptor implements ModuleDescriptor {
 	/**
 	 * Returns empty notifications list
 	 */
+	@Override
 	public List<NotificationConfigurationDto> getDefaultNotificationConfigurations() {
 		return Collections.emptyList();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * Returns {@code false} by default. Override, when documentation is exposed as webjar.
+	 */
+	@Override
+	public boolean isDocumentationAvailable() {
+		return false;
 	}
 	
 }

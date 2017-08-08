@@ -7,7 +7,7 @@ import uuid from 'uuid';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
-import { RoleManager, IdentityManager, IdentityContractManager } from '../../redux';
+import { RoleManager, IdentityManager, IdentityContractManager, RoleTreeNodeManager } from '../../redux';
 import SearchParameters from '../../domain/SearchParameters';
 
 /**
@@ -18,6 +18,7 @@ import SearchParameters from '../../domain/SearchParameters';
 const roleManager = new RoleManager();
 const identityManager = new IdentityManager();
 const identityContractManager = new IdentityContractManager();
+const roleTreeNodeManager = new RoleTreeNodeManager();
 
 export class RoleConceptTable extends Basic.AbstractContent {
 
@@ -546,11 +547,13 @@ export class RoleConceptTable extends Basic.AbstractContent {
                   required
                   useFirst/>
 
-                <Basic.Checkbox
-                  ref="automaticRole"
+                <Basic.LabelWrapper
                   label={this.i18n('entity.IdentityRole.roleTreeNode.label')}
-                  readOnly
-                  hidden={ detail.entity._added || showRoleCatalogue}/>
+                  helpBlock={this.i18n('entity.IdentityRole.roleTreeNode.help')}
+                  rendered={ detail.entity.roleTreeNode }
+                  hidden={ detail.entity._added || showRoleCatalogue}>
+                  { detail.entity.roleTreeNode ? roleTreeNodeManager.getNiceLabel(detail.entity._embedded.roleTreeNode) : null }
+                </Basic.LabelWrapper>
 
                 <Basic.Row>
                   <div className="col-md-6">

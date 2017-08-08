@@ -1,10 +1,12 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
+import Joi from 'joi';
 //
 import * as Basic from '../../components/basic';
 import * as Utils from '../../utils';
 import { PasswordPolicyManager, SecurityManager } from '../../redux';
+import PasswordPolicyTypeEnum from '../../enums/PasswordPolicyTypeEnum';
 import PasswordPolicyIdentityAttributeEnum from '../../enums/PasswordPolicyIdentityAttributeEnum';
 
 /**
@@ -133,17 +135,27 @@ class PasswordPolicyAdvanced extends Basic.AbstractContent {
   render() {
     const { uiKey, entity } = this.props;
     const { showLoading } = this.state;
+
+    const validateType = entity && PasswordPolicyTypeEnum.findSymbolByKey(entity.type) === PasswordPolicyTypeEnum.VALIDATE;
+
     return (
       <div>
         <form onSubmit={this.save.bind(this, 'CONTINUE')}>
           <Basic.Panel className="no-border last">
             <Basic.PanelHeader text={this.i18n('content.passwordPolicies.advanced.title')} />
-            <Basic.PanelBody style={{ padding: 0 }}>
+            <Basic.Loading showLoading={showLoading} />
+            <Basic.PanelBody style={{ padding: 0, paddingTop: '15px' }} rendered={!validateType} >
+              <Basic.Alert
+                className="no-margin"
+                icon="exclamation-sign"
+                key="passwordPolicyAdvancedControlValidateType"
+                text={this.i18n('validation.advancedControlValidateType')} />
+            </Basic.PanelBody>
+            <Basic.PanelBody style={{ padding: 0 }} rendered={validateType}>
               <Basic.AbstractForm
                 ref="form"
                 uiKey={uiKey}
-                readOnly={!SecurityManager.hasAuthority(Utils.Entity.isNew(entity) ? 'PASSWORDPOLICY_CREATE' : 'PASSWORDPOLICY_UPDATE')}
-                showLoading={entity === null}>
+                readOnly={!SecurityManager.hasAuthority(Utils.Entity.isNew(entity) ? 'PASSWORDPOLICY_CREATE' : 'PASSWORDPOLICY_UPDATE')}>
                 <Basic.Checkbox ref="enchancedControl"
                   helpBlock={this.i18n('entity.PasswordPolicy.help.enchancedControl')}
                   label={this.i18n('entity.PasswordPolicy.enchancedControl')}/>
@@ -151,7 +163,7 @@ class PasswordPolicyAdvanced extends Basic.AbstractContent {
                   <Basic.Alert
                     className="no-margin"
                     icon="exclamation-sign"
-                    key="situationActionsAndWfInfo"
+                    key="passwordPolicyHelpRules"
                     text={this.i18n('entity.PasswordPolicy.help.rules')} />
                 </Basic.LabelWrapper>
                 <Basic.Checkbox ref="passwordLengthRequired"
@@ -170,10 +182,14 @@ class PasswordPolicyAdvanced extends Basic.AbstractContent {
                   label={this.i18n('entity.PasswordPolicy.specialCharRequired')}/>
 
                 <Basic.TextField ref="minRulesToFulfill"
+                  type="number"
+                  validation={Joi.number().allow(null)}
                   helpBlock={this.i18n('entity.PasswordPolicy.help.minRulesToFulfill')}
                   label={this.i18n('entity.PasswordPolicy.minRulesToFulfill')} />
 
                 <Basic.TextField ref="maxHistorySimilar" hidden
+                  type="number"
+                  validation={Joi.number().allow(null)}
                   helpBlock={this.i18n('entity.PasswordPolicy.help.maxHistorySimilar')}
                   label={this.i18n('entity.PasswordPolicy.maxHistorySimilar')} />
 
@@ -183,7 +199,7 @@ class PasswordPolicyAdvanced extends Basic.AbstractContent {
                   multiSelect label={this.i18n('entity.PasswordPolicy.identityAttributeCheck')} />
               </Basic.AbstractForm>
             </Basic.PanelBody>
-            <Basic.PanelFooter showLoading={showLoading} >
+            <Basic.PanelFooter showLoading={showLoading} rendered={validateType} >
               <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>{this.i18n('button.back')}</Basic.Button>
               <Basic.SplitButton level="success" title={this.i18n('button.saveAndContinue')}
                 onClick={this.save.bind(this, 'CONTINUE')}

@@ -6,6 +6,11 @@ chai.use(dirtyChai);
 //
 import * as Basic from '../../../../src/components/basic';
 
+/**
+ * Basic.Confirm tests
+ *
+ * @author Radek Tomiška
+ */
 describe('Basic Confirm', function confirmTest() {
   /**
    * Clean DOM afrer each test

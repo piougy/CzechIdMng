@@ -40,9 +40,9 @@ import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 		@Index(name = "idx_idm_tree_node_parent", columnList = "parent_id"),
 		@Index(name = "idx_idm_tree_node_type", columnList = "tree_type_id")
 })
-public class IdmTreeNode extends AbstractEntity 
-		implements BaseTreeEntity<IdmTreeNode>, ForestContent<IdmTreeNode, 
-			IdmForestIndexEntity, UUID>, FormableEntity, Disableable, Codeable {
+public class IdmTreeNode 
+		extends AbstractEntity 
+		implements BaseTreeEntity<IdmTreeNode>, ForestContent<IdmForestIndexEntity, UUID>, FormableEntity, Disableable, Codeable {
 
 	private static final long serialVersionUID = -3099001738101202320L;
 	public static final String TREE_TYPE_PREFIX = "tree-type-";
@@ -112,6 +112,11 @@ public class IdmTreeNode extends AbstractEntity
 	@Override
 	public IdmTreeNode getParent() {
 		return this.parent;
+	}
+	
+	@Override
+	public UUID getParentId() {
+		return parent == null ? null : parent.getId();
 	}
 
 	public IdmTreeType getTreeType() {

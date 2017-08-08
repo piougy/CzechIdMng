@@ -5,8 +5,9 @@ import * as Advanced from '../../components/advanced';
 
 /**
  * Default content (routes diff) for audits
+ *
+ * @author Ondřej Kopr
  */
-
 export default class AuditRoutes extends Basic.AbstractContent {
 
   getContentKey() {

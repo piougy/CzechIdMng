@@ -6,6 +6,11 @@ chai.use(dirtyChai);
 //
 import * as Basic from '../../../../src/components/basic';
 
+/**
+ * Basic.Alert tests
+ *
+ * @author Radek Tomiška
+ */
 describe('Basic Alert', function alertComponent() {
   /**
    * Clean DOM afrer each test

@@ -52,7 +52,7 @@ public class RoleSaveProcessor extends AbstractEntityEventProcessor<IdmRole> {
 	public EventResult<IdmRole> process(EntityEvent<IdmRole> event) {
 		Object breakProvisioning = event.getProperties().get(ProvisioningService.SKIP_PROVISIONING);
 		
-		if(breakProvisioning != null && breakProvisioning instanceof Boolean && (Boolean)breakProvisioning){
+		if(breakProvisioning instanceof Boolean && (Boolean)breakProvisioning){
 			return new DefaultEventResult<>(event, this);
 		}
 		doProvisioning(event.getContent());

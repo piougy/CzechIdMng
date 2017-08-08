@@ -102,7 +102,7 @@ public class IdentityDeleteProcessor extends CoreEventProcessor<IdmIdentityDto> 
 		});
 		// remove role guarantee
 		roleGuaranteeRepository.deleteByGuarantee_Id(identity.getId());
-		// remove password from confidential storage
+		// remove password
 		passwordProcessor.deletePassword(identity);
 		// set to null all notification recipients - real recipient remains (email etc.)
 		notificationRecipientRepository.clearIdentity(identity.getId());

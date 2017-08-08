@@ -6,6 +6,11 @@ chai.use(dirtyChai);
 //
 import * as Basic from '../../../../src/components/basic';
 
+/**
+ * Basic.Pagination tests
+ *
+ * @author Radek Tomiška
+ */
 describe('Basic Pagination', function paginationTest() {
   /**
    * Clean DOM afrer each test

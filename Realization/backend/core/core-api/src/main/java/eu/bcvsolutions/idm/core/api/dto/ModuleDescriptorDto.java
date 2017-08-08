@@ -21,6 +21,7 @@ public class ModuleDescriptorDto implements Identifiable<String> {
 	private String buildTimestamp;
 	private boolean disableable;
 	private boolean disabled;
+	private boolean documentationAvailable;
 
 	@Override
 	public String getId() {
@@ -109,5 +110,13 @@ public class ModuleDescriptorDto implements Identifiable<String> {
 
 	public void setBuildTimestamp(String buildTimestamp) {
 		this.buildTimestamp = buildTimestamp;
+	}
+	
+	public boolean isDocumentationAvailable() {
+		return documentationAvailable;
+	}
+	
+	public void setDocumentationAvailable(boolean documentationAvailable) {
+		this.documentationAvailable = documentationAvailable;
 	}
 }

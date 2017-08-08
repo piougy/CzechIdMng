@@ -7,6 +7,11 @@ import IdentityDetail from './IdentityDetail';
 
 const identityManager = new IdentityManager();
 
+/**
+ * Identity detail route
+ *
+ * @author Radek Tomiška
+ */
 class Profile extends Basic.AbstractContent {
 
   constructor(props) {

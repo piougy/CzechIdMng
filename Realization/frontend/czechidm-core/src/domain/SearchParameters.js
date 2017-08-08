@@ -312,3 +312,13 @@ SearchParameters.MAX_SIZE = 500;
  * @type {String}
  */
 SearchParameters.BLANK_UUID = '00000000-0000-0000-0000-000000000000';
+/**
+ * Filter property - id
+ * @type {String}
+ */
+SearchParameters.FILTER_PROPERTY_ID = 'id';
+/**
+ * Filter property - codeable identifier (id or code alias)
+ * @type {String}
+ */
+SearchParameters.FILTER_PROPERTY_CODEABLE_IDENTIFIER = 'codeable';

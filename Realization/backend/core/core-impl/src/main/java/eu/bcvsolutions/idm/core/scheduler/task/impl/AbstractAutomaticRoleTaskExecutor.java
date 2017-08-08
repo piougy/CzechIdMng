@@ -2,9 +2,9 @@ package eu.bcvsolutions.idm.core.scheduler.task.impl;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
-import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
-import eu.bcvsolutions.idm.core.scheduler.service.impl.AbstractLongRunningTaskExecutor;
+import eu.bcvsolutions.idm.core.scheduler.service.impl.AbstractSchedulableTaskExecutor;
 
 /**
  * Long running task ford automatic roles
@@ -12,24 +12,24 @@ import eu.bcvsolutions.idm.core.scheduler.service.impl.AbstractLongRunningTaskEx
  * @author Radek Tomiška
  *
  */
-public abstract class AbstractAutomaticRoleTaskExecutor extends AbstractLongRunningTaskExecutor<Boolean> {
+public abstract class AbstractAutomaticRoleTaskExecutor extends AbstractSchedulableTaskExecutor<Boolean> {
 	
 	protected static final String PARAMETER_ROLE_TREE_NODE = "roleTreeNode";
 	//
-	private IdmRoleTreeNodeDto roleTreeNode = null;
+	private UUID roleTreeNodeId = null;
 	
-	public void setRoleTreeNode(IdmRoleTreeNodeDto roleTreeNode) {
-		this.roleTreeNode = roleTreeNode;
+	public void setRoleTreeNodeId(UUID roleTreeNodeId) {
+		this.roleTreeNodeId = roleTreeNodeId;
 	}
 	
-	protected IdmRoleTreeNodeDto getRoleTreeNode() {
-		return roleTreeNode;
+	protected UUID getRoleTreeNodeId() {
+		return roleTreeNodeId;
 	}
 	
 	@Override
 	public Map<String, Object> getProperties() {
 		Map<String, Object> properties =  super.getProperties();
-		properties.put(PARAMETER_ROLE_TREE_NODE, roleTreeNode == null ? null : roleTreeNode.getId());
+		properties.put(PARAMETER_ROLE_TREE_NODE, roleTreeNodeId == null ? null : roleTreeNodeId);
 		return properties;
 	}
 	

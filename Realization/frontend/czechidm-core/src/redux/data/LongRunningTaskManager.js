@@ -110,10 +110,10 @@ export default class LongRunningTaskManager extends EntityManager {
     };
   }
 
-  oneProcessCreated(uiKey, cb, task) {
+  processCreatedTask(taskId, uiKey, cb) {
     return (dispatch) => {
       dispatch(this.dataManager.requestData(uiKey));
-      this.getService().oneProcessCreated(task)
+      this.getService().processCreatedTask(taskId)
         .then(() => {
           dispatch(this.dataManager.stopRequest(uiKey));
           if (cb) {

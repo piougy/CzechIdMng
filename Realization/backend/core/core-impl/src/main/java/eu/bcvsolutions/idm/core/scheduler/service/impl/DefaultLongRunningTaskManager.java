@@ -98,43 +98,6 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 	}
 
 	/**
-	 * Makes new LongRunningTaskExecutor and handle exceptions
-	 */
-	private LongRunningTaskExecutor<?> makeTaskExecutor(IdmLongRunningTaskDto task){
-		LongRunningTaskExecutor<?> taskExecutor = null;
-		ResultModel resultModel = null;
-		Exception ex = null;
-		try {
-			taskExecutor = (LongRunningTaskExecutor<?>) AutowireHelper.createBean(Class.forName(task.getTaskType()));
-			taskExecutor.setLongRunningTaskId(task.getId());
-			taskExecutor.init((Map<String, Object>) task.getTaskProperties());
-		} catch (ClassNotFoundException e) {
-			ex = e;
-			resultModel = new DefaultResultModel(CoreResultCode.LONG_RUNNING_TASK_NOT_FOUND,
-					ImmutableMap.of(
-							"taskId", task.getId(),
-							"taskType", task.getTaskType(),
-							"instanceId", task.getInstanceId()));
-
-		} catch (Exception e) {
-			ex = e;
-			resultModel = new DefaultResultModel(CoreResultCode.LONG_RUNNING_TASK_INIT_FAILED,
-					ImmutableMap.of(
-							"taskId", task.getId(),
-							"taskType", task.getTaskType(),
-							"instanceId", task.getInstanceId()));
-		}
-		if (ex != null) {
-			LOG.error(resultModel.toString(), ex);
-			task.setResult(new OperationResult.Builder(OperationState.EXCEPTION).setModel(resultModel).setCause(ex).build());
-			service.save(task);
-			return null;
-		} else {
-			return taskExecutor;
-		}
-	}
-
-	/**
 	 * Executes long running task on this instance
 	 */
 	@Override
@@ -146,26 +109,27 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 		//
 		List<LongRunningFutureTask<?>> taskList = new ArrayList<LongRunningFutureTask<?>>();
 		service.findAllByInstance(configurationService.getInstanceId(), OperationState.CREATED).forEach(task -> {
-			LongRunningTaskExecutor<?> taskExecutor = makeTaskExecutor(task);
-			taskList.add(execute(taskExecutor));
+			LongRunningFutureTask<?> futureTask = processCreated(task.getId());
+			if (futureTask != null) {
+				taskList.add(futureTask);
+			}
 		});
 		return taskList;
 	}
 
 	@Override
 	@Transactional
-	public List<LongRunningFutureTask<?>> oneProcessCreated(UUID id) {
-		LOG.debug("Processing created tasks from long running task queue");
+	public LongRunningFutureTask<?> processCreated(UUID longRunningTaskId) {
+		LOG.debug("Processing created task [{}] from long running task queue", longRunningTaskId);
 		// run as system - called from scheduler internally
 		securityService.setSystemAuthentication();
-		IdmLongRunningTaskDto task = service.get(id);
+		IdmLongRunningTaskDto task = service.get(longRunningTaskId);
 		//
-		List<LongRunningFutureTask<?>> taskList = new ArrayList<LongRunningFutureTask<?>>();
-
-		LongRunningTaskExecutor<?> taskExecutor = makeTaskExecutor(task);
-		taskList.add(execute(taskExecutor));
-
-		return taskList;
+		LongRunningTaskExecutor<?> taskExecutor = createTaskExecutor(task);
+		if (taskExecutor == null) {
+			return null;
+		}
+		return execute(taskExecutor);
 	}
 	
 	@Override
@@ -324,5 +288,51 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 			}
 		}
 		return task;
+	}
+	
+	/**
+	 * Create new LongRunningTaskExecutor from given LRT.
+	 * Handles exceptions, when task already processed, task type is removed or task initialization failed
+	 * 
+	 * @param task
+	 * @return
+	 */
+	private LongRunningTaskExecutor<?> createTaskExecutor(IdmLongRunningTaskDto task) {
+		Assert.notNull(task, "Long running task instance is required!");
+		if (!OperationState.isRunnable(task.getResultState())) {
+			throw new ResultCodeException(CoreResultCode.LONG_RUNNING_TASK_IS_PROCESSED, ImmutableMap.of("taskId", task.getId()));
+		}
+		//
+		LongRunningTaskExecutor<?> taskExecutor = null;
+		ResultModel resultModel = null;
+		Exception ex = null;
+		try {
+			taskExecutor = (LongRunningTaskExecutor<?>) AutowireHelper.createBean(Class.forName(task.getTaskType()));
+			taskExecutor.setLongRunningTaskId(task.getId());
+			taskExecutor.init((Map<String, Object>) task.getTaskProperties());
+		} catch (ClassNotFoundException e) {
+			ex = e;
+			resultModel = new DefaultResultModel(CoreResultCode.LONG_RUNNING_TASK_NOT_FOUND,
+					ImmutableMap.of(
+							"taskId", task.getId(),
+							"taskType", task.getTaskType(),
+							"instanceId", task.getInstanceId()));
+
+		} catch (Exception e) {
+			ex = e;
+			resultModel = new DefaultResultModel(CoreResultCode.LONG_RUNNING_TASK_INIT_FAILED,
+					ImmutableMap.of(
+							"taskId", task.getId(),
+							"taskType", task.getTaskType(),
+							"instanceId", task.getInstanceId()));
+		}
+		if (ex != null) {
+			LOG.error(resultModel.toString(), ex);
+			task.setResult(new OperationResult.Builder(OperationState.EXCEPTION).setModel(resultModel).setCause(ex).build());
+			service.save(task);
+			return null;
+		} else {
+			return taskExecutor;
+		}
 	}
 }

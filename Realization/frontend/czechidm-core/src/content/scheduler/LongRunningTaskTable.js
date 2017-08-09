@@ -61,13 +61,20 @@ class LongRunningTaskTable extends Advanced.AbstractTableContent {
     });
   }
 
-  onRun(bulkActionValue, tasks) {
+  /**
+   * Bulk action - process selected created tasks
+   *
+   * @param  {string} bulkActionValue 'processCreated'
+   * @param  {arrayOf(string)} tasks tasks ids
+   */
+  onProcessCreated(bulkActionValue, tasks) {
     let i;
     const { manager } = this.props;
+    // TODO - bulk action should be used - see #onDelete()
     for ( i = 0; i < tasks.length; i++ ) {
-      this.context.store.dispatch(manager.oneProcessCreated('task-queue-process-created', () => {
+      this.context.store.dispatch(manager.processCreatedTask( tasks[i], 'task-queue-process-created', () => {
         this.addMessage({ level: 'success', message: this.i18n('action.processCreated.success')});
-      }, tasks[i]));
+      }));
     }
   }
 
@@ -83,6 +90,9 @@ class LongRunningTaskTable extends Advanced.AbstractTableContent {
     });
   }
 
+  /**
+   * Process all created tasks from task's queue
+   */
   processCreated() {
     const { manager } = this.props;
     //
@@ -140,7 +150,7 @@ class LongRunningTaskTable extends Advanced.AbstractTableContent {
           filterOpened={filterOpened}
           actions={
             [
-              { value: 'delete', niceLabel: this.i18n('action.processCreated.selectedButton'), action: this.onRun.bind(this), disabled: false }
+              { value: 'processCreated', niceLabel: this.i18n('action.processCreated.selectedButton'), action: this.onProcessCreated.bind(this) }
             ]
           }
           buttons={

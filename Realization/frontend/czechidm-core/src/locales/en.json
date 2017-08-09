@@ -2891,6 +2891,10 @@
       "title": "Task has invalid configuration",
       "message": "Task [{{taskType}}] has invalid configuration."
     },
+    "LONG_RUNNING_TASK_IS_PROCESSED": {
+      "title": "Task is already processed",
+      "message": "Task [{{taskId}}] is already processed - can not be started twice."
+    },
     "FOREST_INDEX_DISABLED": {
       "title": "Index is inactive",
       "message": "Tree structure indexing is inactive. Enable configuration property {{property}}."

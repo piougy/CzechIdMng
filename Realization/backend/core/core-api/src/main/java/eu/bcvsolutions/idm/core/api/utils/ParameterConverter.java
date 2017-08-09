@@ -155,15 +155,8 @@ public class ParameterConverter {
 	 * @return
 	 */
 	public UUID toUuid(Map<String, Object> parameters, String parameterName) {
-		String valueAsString = toString(parameters, parameterName);
-		if(StringUtils.isNotEmpty(valueAsString)) {
-			try {
-				return UUID.fromString(valueAsString);
-			} catch (IllegalArgumentException ex) {
-				throw new ResultCodeException(CoreResultCode.BAD_UUID, ImmutableMap.of("uuid", valueAsString, parameterName, valueAsString), ex);
-			}		
-		}
-		return null;
+		// supports UUID and String representation
+		return EntityUtils.toUuid(parameters.get(parameterName));
 	}
 	
 	/**

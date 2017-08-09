@@ -83,7 +83,7 @@ export default class LongRunningTaskService extends AbstractService {
   }
 
   /**
-   * Executes prepared task from long running task queue
+   * Executes all prepared tasks from long running task queue
    *
    * @return {promise}
    */
@@ -104,11 +104,15 @@ export default class LongRunningTaskService extends AbstractService {
     });
   }
 
-  oneProcessCreated(task) {
-    console.log('Hieeeeeeeeeeeeeeeeerlol');
-    console.log(task);
+  /**
+   * Executes given prepared task from long running task queue
+   *
+   * @param  {string} taskId
+   * @return {promise} ription]
+   */
+  processCreatedTask(taskId) {
     return RestApiService
-    .put(this.getApiPath() + `/${task}/process`)
+    .put(this.getApiPath() + `/${taskId}/process`)
     .then(response => {
       if (response.status === 204) {
         return {};

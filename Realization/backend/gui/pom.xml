@@ -6,14 +6,14 @@
 	<artifactId>idm-gui</artifactId>
 	<version>7.3.0-rc.6-SNAPSHOT</version>
 	<packaging>war</packaging>
-	
+
 	<name>CzechIdM GUI</name>
 	<description>CzechIdM GUI - builds frontend as deployable .war application</description>
 
 	<build>
 		<finalName>idm-frontend</finalName>
 		<plugins>
-			<!-- plugin sequentionaly runs commands which are needed for build of 
+			<!-- plugin sequentionaly runs commands which are needed for build of
 				frontend -->
 			<plugin>
 				<groupId>com.github.eirslett</groupId>
@@ -31,10 +31,10 @@
 						</goals>
 						<configuration>
 							<nodeVersion>v6.4.0</nodeVersion>
-							<npmVersion>3.6.0</npmVersion>
+							<npmVersion>3.9.3</npmVersion>
 						</configuration>
 					</execution>
-					<!-- script within package.json checks whether node_modules directory 
+					<!-- script within package.json checks whether node_modules directory
 						and its symlink exist and creates them if they do not exist -->
 					<execution>
 						<id>link node-modules or skip if exists</id>
@@ -67,7 +67,7 @@
 						</configuration>
 						<phase>generate-resources</phase>
 					</execution>
-					<!-- TODO installing dependencies are currently set only for czechidm-core 
+					<!-- TODO installing dependencies are currently set only for czechidm-core
 						module, this step is requested for every used module -->
 					<execution>
 						<id>install czechidm-core dependencies</id>

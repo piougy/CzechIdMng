@@ -204,9 +204,32 @@ public class IdmLongRunningTaskController
 				},
 			notes = "When LRT is created, then is added to queue with state created only."
 					+ " Another scheduled task for processing prepared task will execute them."
-					+ " This operation process prepared tasks immediatelly.")
+					+ " This operation process prepared tasks immediately.")
 	public ResponseEntity<?> processCreated() {
 		longRunningTaskManager.processCreated();
+		//
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
+	@ResponseBody 
+	@RequestMapping(method = RequestMethod.PUT, value = "/{backendId}/process")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCHEDULER_EXECUTE + "')")
+	@ApiOperation(
+			value = "One Process created LRTs",
+			nickname = "oneProcessCreatedLongRunningTasks",
+			tags={ IdmLongRunningTaskController.TAG },
+			authorizations = {
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = {
+							@AuthorizationScope(scope = CoreGroupPermission.SCHEDULER_EXECUTE, description = "") }),
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = {
+							@AuthorizationScope(scope = CoreGroupPermission.SCHEDULER_EXECUTE, description = "") })
+			},
+			notes = "When LRT is created, then is added to queue checked with state created only."
+					+ " Another scheduled task for processing prepared task will execute them."
+					+ " This operation process prepared tasks immediately.")
+	public ResponseEntity<?> processCheckedCreated(
+			@ApiParam(value = "LRT's uuid identifier.", required = true)
+			@PathVariable UUID backendId) {
+		longRunningTaskManager.oneProcessCreated(backendId);
 		//
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}

@@ -96,7 +96,44 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 	public void scheduleProcessCreated() {
 		processCreated();
 	}
-	
+
+	/**
+	 * Makes new LongRunningTaskExecutor and handle exceptions
+	 */
+	private LongRunningTaskExecutor<?> makeTaskExecutor(IdmLongRunningTaskDto task){
+		LongRunningTaskExecutor<?> taskExecutor = null;
+		ResultModel resultModel = null;
+		Exception ex = null;
+		try {
+			taskExecutor = (LongRunningTaskExecutor<?>) AutowireHelper.createBean(Class.forName(task.getTaskType()));
+			taskExecutor.setLongRunningTaskId(task.getId());
+			taskExecutor.init((Map<String, Object>) task.getTaskProperties());
+		} catch (ClassNotFoundException e) {
+			ex = e;
+			resultModel = new DefaultResultModel(CoreResultCode.LONG_RUNNING_TASK_NOT_FOUND,
+					ImmutableMap.of(
+							"taskId", task.getId(),
+							"taskType", task.getTaskType(),
+							"instanceId", task.getInstanceId()));
+
+		} catch (Exception e) {
+			ex = e;
+			resultModel = new DefaultResultModel(CoreResultCode.LONG_RUNNING_TASK_INIT_FAILED,
+					ImmutableMap.of(
+							"taskId", task.getId(),
+							"taskType", task.getTaskType(),
+							"instanceId", task.getInstanceId()));
+		}
+		if (ex != null) {
+			LOG.error(resultModel.toString(), ex);
+			task.setResult(new OperationResult.Builder(OperationState.EXCEPTION).setModel(resultModel).setCause(ex).build());
+			service.save(task);
+			return null;
+		} else {
+			return taskExecutor;
+		}
+	}
+
 	/**
 	 * Executes long running task on this instance
 	 */
@@ -109,38 +146,25 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 		//
 		List<LongRunningFutureTask<?>> taskList = new ArrayList<LongRunningFutureTask<?>>();
 		service.findAllByInstance(configurationService.getInstanceId(), OperationState.CREATED).forEach(task -> {
-			LongRunningTaskExecutor<?> taskExecutor = null;
-			ResultModel resultModel = null;
-			Exception ex = null;
-			//
-			try {
-				taskExecutor = (LongRunningTaskExecutor<?>) AutowireHelper.createBean(Class.forName(task.getTaskType()));
-				taskExecutor.setLongRunningTaskId(task.getId());
-				taskExecutor.init((Map<String, Object>) task.getTaskProperties());			
-			} catch (ClassNotFoundException e) {
-				ex = e;
-				resultModel = new DefaultResultModel(CoreResultCode.LONG_RUNNING_TASK_NOT_FOUND, 
-							ImmutableMap.of(
-									"taskId", task.getId(), 
-									"taskType", task.getTaskType(),
-									"instanceId", task.getInstanceId()));
-				
-			} catch (Exception e) {
-				ex = e;
-				resultModel = new DefaultResultModel(CoreResultCode.LONG_RUNNING_TASK_INIT_FAILED, 
-							ImmutableMap.of(
-									"taskId", task.getId(), 
-									"taskType", task.getTaskType(),
-									"instanceId", task.getInstanceId()));
-			}
-			if (ex != null) {
-				LOG.error(resultModel.toString(), ex);
-				task.setResult(new OperationResult.Builder(OperationState.EXCEPTION).setModel(resultModel).setCause(ex).build());
-				service.save(task);
-			} else {
-				taskList.add(execute(taskExecutor));
-			}			
+			LongRunningTaskExecutor<?> taskExecutor = makeTaskExecutor(task);
+			taskList.add(execute(taskExecutor));
 		});
+		return taskList;
+	}
+
+	@Override
+	@Transactional
+	public List<LongRunningFutureTask<?>> oneProcessCreated(UUID id) {
+		LOG.debug("Processing created tasks from long running task queue");
+		// run as system - called from scheduler internally
+		securityService.setSystemAuthentication();
+		IdmLongRunningTaskDto task = service.get(id);
+		//
+		List<LongRunningFutureTask<?>> taskList = new ArrayList<LongRunningFutureTask<?>>();
+
+		LongRunningTaskExecutor<?> taskExecutor = makeTaskExecutor(task);
+		taskList.add(execute(taskExecutor));
+
 		return taskList;
 	}
 	

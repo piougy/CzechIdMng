@@ -2746,6 +2746,10 @@
       "title": "Password policy wasn't saved",
       "message": "Policy has incorrect type. Use validating policies for validation and generating policies for generating."
     },
+    "PASSWORD_POLICY_NEGATIVE_VALUE": {
+      "title": "Password values can not have negative values",
+      "message": "Attribute [{{attribute}}] is negative."
+    },
     "PASSWORD_POLICY_VALIDATION": {
       "title": "Password policy wasn't saved",
       "message": "Problem with validation of password policy."

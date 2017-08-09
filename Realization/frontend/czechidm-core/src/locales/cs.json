@@ -2798,6 +2798,10 @@
       "title": "Politika hesel nebyla uložena",
       "message": "Politika má špatný typ, pro validaci využívejte pouze validační politiky, pro generování pouze politiky pro generování."
     },
+    "PASSWORD_POLICY_NEGATIVE_VALUE": {
+      "title": "V politice hesel se nemohou vyskytovat záporné hodnoty",
+      "message": "Attribut [{{attribute}}] je záporný."
+    },
     "PASSWORD_POLICY_VALIDATION": {
       "title": "Politika hesel nebyla uložena",
       "message": "Problém s validací politiky."

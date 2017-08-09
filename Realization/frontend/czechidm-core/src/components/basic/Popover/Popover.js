@@ -19,7 +19,7 @@ export default class BasicPopover extends AbstractComponent {
   }
 
   render() {
-    const { id, rendered, children, value, text, title, placement, showLoading, trigger, delayShow, level, className, icon, ...others } = this.props;
+    const { id, rendered, children, value, text, title, placement, showLoading, trigger, delayShow, level, className, icon, rootClose, ...others } = this.props;
     if (!rendered || (!children)) {
       return null;
     }
@@ -39,8 +39,9 @@ export default class BasicPopover extends AbstractComponent {
     return (
       <OverlayTrigger
         ref="popover"
-        trigger={trigger}
-        placement={placement}
+        trigger={ trigger }
+        rootClose={ rootClose }
+        placement={ placement }
         overlay={
           <Popover
             id={_id}
@@ -112,7 +113,11 @@ BasicPopover.propTypes = {
   /**
    * A millisecond delay amount before showing the Popover once triggered.
    */
-  delayShow: PropTypes.number
+  delayShow: PropTypes.number,
+  /**
+   * Specify whether the overlay should trigger onHide when the user clicks outside the overlay
+   */
+  rootClose: PropTypes.bool
 };
 
 BasicPopover.defaultProps = {
@@ -120,5 +125,6 @@ BasicPopover.defaultProps = {
   level: 'default',
   placement: 'bottom',
   trigger: ['hover', 'focus', 'click'],
-  delayShow: Tooltip.defaultProps.delayShow
+  delayShow: Tooltip.defaultProps.delayShow,
+  rootClose: true
 };

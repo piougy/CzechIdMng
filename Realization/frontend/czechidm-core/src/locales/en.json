@@ -36,8 +36,8 @@
     "action": "Actions",
     "otherAttributes": "Other attributes",
     "selectAll": "Select / unselect all",
-    "validFrom": "Valid from",
-    "validTill": "Valid to",
+    "validFrom": "$t(entity.validFrom)",
+    "validTill": "$t(entity.validTill)",
     "select": "Select ...",
     "searchSelect": "Select or type to search ...",
     "enabled": "Enabled",
@@ -1145,8 +1145,8 @@
       },
       "processRoleChange": {
         "roleName": "Role name",
-        "roleValidFrom": "Valid from",
-        "roleValidTill": "Valid to",
+        "roleValidFrom": "$t(entity.validFrom)",
+        "roleValidTill": "$t(entity.validTill)",
         "currentActivity": "application status",
         "candicateUsers": "Approvers",
         "wfProcessId": "WF"
@@ -1989,6 +1989,8 @@
       "help": "Internal identifier"
     },
     "created": "Created",
+    "validFrom": "Valid from",
+    "validTill": "Valid till",
 
     "Identity": {
       "_type": "User",
@@ -2196,8 +2198,8 @@
       "workPosition": "Position",
       "position": "Work position",
       "identity": "User",
-      "validFrom": "Valid from",
-      "validTill": "Valid to",
+      "validFrom": "$t(entity.validFrom)",
+      "validTill": "$t(entity.validTill)",
       "guarantee": "Authorizer",
       "externe": "External contractor",
       "managers": {
@@ -2634,32 +2636,32 @@
         "placeholder": ""
       },
       "validFrom": {
-        "name" : "Valid from",
+        "name" : "$t(entity.validFrom)",
         "tooltip": "",
         "placeholder": ""
       },
       "validTill": {
-        "name" : "Valid till",
+        "name" : "$t(entity.validTill)",
         "tooltip": "",
         "placeholder": ""
       },
       "validFromDateOld": {
-        "name" : "Valid from (old)",
+        "name" : "$t(entity.validFrom) (old)",
         "tooltip": "",
         "placeholder": ""
       },
       "validTillDateOld": {
-        "name" : "Valid till (old)",
+        "name" : "$t(entity.validTill) (old)",
         "tooltip": "",
         "placeholder": ""
       },
       "validFromDateNew": {
-        "name" : "Valid from (new)",
+        "name" : "$t(entity.validFrom) (new)",
         "tooltip": "",
         "placeholder": ""
       },
       "validTillDateNew": {
-        "name" : "Valid till (new)",
+        "name" : "$t(entity.validTill) (new)",
         "tooltip": "",
         "placeholder": ""
       }

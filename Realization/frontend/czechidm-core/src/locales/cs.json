@@ -36,8 +36,8 @@
     "action": "Akce",
     "otherAttributes": "Další atributy",
     "selectAll": "Vybrat vše / nic",
-    "validFrom": "Platnost od",
-    "validTill": "Platnost do",
+    "validFrom": "$t(entity.validFrom)",
+    "validTill": "$t(entity.validTill)",
     "select": "Vyberte ...",
     "searchSelect": "Vyberte nebo začněte psát pro vyhledání ...",
     "enabled": "Aktivní",
@@ -290,8 +290,8 @@
     },
     "advanced": {
       "IdentityContractInfo": {
-        "disabledInfo": "Smlouva je deaktivována",
-        "profileLink": "Přejít na profil"
+        "disabledInfo": "Vztah je deaktivován",
+        "profileLink": "Přejít na detail"
       },
       "IdentityInfo": {
         "disabledInfo": "Uživatel je deaktivován",
@@ -2051,6 +2051,8 @@
       "help": "Interní identifikátor"
     },
     "created": "Vytvořeno",
+    "validFrom": "Platnost od",
+    "validTill": "Platnost do",
 
     "Identity": {
       "_type": "Uživatel",
@@ -2242,14 +2244,14 @@
       "note": "Poznámka"
     },
     "IdentityContract": {
-      "_type": "Pracovní pozice",
+      "_type": "Pracovně právní vztah",
       "id": "Interní id pozice",
       "treeType": "Typ struktury",
       "workPosition": "Pozice",
       "position": "Pracovní pozice",
       "identity": "Uživatel",
-      "validFrom": "Platnost od",
-      "validTill": "Platnost do",
+      "validFrom": "$t(entity.validFrom)",
+      "validTill": "$t(entity.validTill)",
       "guarantee": "Garant",
       "externe": "Externista",
       "managers": {
@@ -2686,32 +2688,32 @@
         "placeholder": ""
       },
       "validFrom": {
-        "name" : "Platnost od",
+        "name" : "$t(entity.validFrom)",
         "tooltip": "",
         "placeholder": ""
       },
       "validTill": {
-        "name" : "Platnost do",
+        "name" : "$t(entity.validTill)",
         "tooltip": "",
         "placeholder": ""
       },
       "validFromDateOld": {
-        "name" : "Platnost od (původní)",
+        "name" : "$t(entity.validFrom) (původní)",
         "tooltip": "",
         "placeholder": ""
       },
       "validTillDateOld": {
-        "name" : "Platnost do (původní)",
+        "name" : "$t(entity.validTill) (původní)",
         "tooltip": "",
         "placeholder": ""
       },
       "validFromDateNew": {
-        "name" : "Platnost od (nová)",
+        "name" : "$t(entity.validFrom) (nová)",
         "tooltip": "",
         "placeholder": ""
       },
       "validTillDateNew": {
-        "name" : "Platnost do (nová)",
+        "name" : "$t(entity.validTill) (nová)",
         "tooltip": "",
         "placeholder": ""
       }

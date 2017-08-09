@@ -4,9 +4,11 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router';
 //
 import * as Basic from '../../basic';
+import * as Utils from '../../../utils';
 import { IdentityContractManager, SecurityManager, IdentityManager, TreeTypeManager} from '../../../redux/';
 import UuidInfo from '../UuidInfo/UuidInfo';
 import AbstractEntityInfo from '../EntityInfo/AbstractEntityInfo';
+import DateValue from '../DateValue/DateValue';
 
 const manager = new IdentityContractManager();
 const identityManager = new IdentityManager();
@@ -74,26 +76,55 @@ export class IdentityContractInfo extends AbstractEntityInfo {
     return (
       <Basic.Panel className={panelClassNames} style={style}>
         <Basic.PanelHeader>
-          <Basic.Row>
-            <div className="col-lg-12">
-            <div><strong>{manager.getNiceLabel(_entity)}</strong></div>
-            <div>{treeTypeManager.getNiceLabel(_entity._embedded.workPosition._embedded.treeType)}</div>
-            <div>{identityManager.getNiceLabel(_entity._embedded.identity)}</div>
-              <div><i>{_entity.disabled ? this.i18n('component.advanced.IdentityContractInfo.disabledInfo') : null}</i></div>
-              {
-                !this.showLink()
-                ||
-                <div>
-                  <Link to={`/identity/${_entity._embedded.identity.username}/identity-contract/${entityIdentifier}/detail`}>
-                    <Basic.Icon value="fa:angle-double-right"/>
-                    {' '}
-                    {this.i18n('component.advanced.IdentityContractInfo.profileLink')}
-                  </Link>
-                </div>
-              }
+          <div className="pull-left">
+            <Basic.Icon value="fa:building"/>
+            {' '}
+            { this.i18n('entity.IdentityContract._type') }
+          </div>
+          {
+            Utils.Entity.isValid(_entity)
+            ||
+            <div className="pull-right">
+              <Basic.Label text={ this.i18n('label.disabled') } style={{ marginLeft: 5 }} />
             </div>
-          </Basic.Row>
+          }
+          <div className="clearfix"/>
         </Basic.PanelHeader>
+
+        <Basic.Table
+          condensed
+          hover={ false }
+          noHeader
+          data={[
+            {
+              label: this.i18n('entity.Identity._type'),
+              value: identityManager.getNiceLabel(_entity._embedded.identity)
+            },
+            {
+              label: this.i18n('entity.IdentityContract.position'),
+              value: manager.getNiceLabel(_entity)
+            },
+            {
+              label: this.i18n('entity.TreeType._type'),
+              value: treeTypeManager.getNiceLabel(_entity._embedded.workPosition._embedded.treeType)
+            },
+            {
+              label: this.i18n('entity.validFrom'),
+              value: (<DateValue value={ _entity.validFrom }/>)
+            },
+            {
+              label: this.i18n('entity.validTill'),
+              value: (<DateValue value={ _entity.validTill }/>)
+            }
+          ]}/>
+
+        <Basic.PanelFooter rendered={ this.showLink() }>
+          <Link to={`/identity/${encodeURIComponent(_entity._embedded.identity.username)}/identity-contract/${entityIdentifier}/detail`}>
+            <Basic.Icon value="fa:angle-double-right"/>
+            {' '}
+            {this.i18n('component.advanced.IdentityContractInfo.profileLink')}
+          </Link>
+        </Basic.PanelFooter>
       </Basic.Panel>
     );
   }

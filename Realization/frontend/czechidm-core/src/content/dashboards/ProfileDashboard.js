@@ -18,7 +18,7 @@ export default class ProfileDashboard extends Basic.AbstractContent {
       <Basic.Panel>
         <Basic.PanelHeader text={this.i18n('header')}/>
         <Basic.PanelBody >
-          <Advanced.EntityInfo entityType="identity" entityIdentifier={this.props.entityId} showLink/>
+          <Advanced.EntityInfo entityType="identity" entityIdentifier={this.props.entityId} showLink style={{ marginBottom: 0 }}/>
         </Basic.PanelBody>
       </Basic.Panel>
     );

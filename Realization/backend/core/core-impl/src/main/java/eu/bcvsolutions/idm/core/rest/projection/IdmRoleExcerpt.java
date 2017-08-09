@@ -22,4 +22,7 @@ public interface IdmRoleExcerpt extends AbstractDtoProjection {
 	RoleType getRoleType();
 	
 	String getDescription();
+	
+	int getPriority();	
+	
 }

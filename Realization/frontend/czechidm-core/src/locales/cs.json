@@ -289,13 +289,12 @@
       }
     },
     "advanced": {
-      "IdentityContractInfo": {
-        "disabledInfo": "Vztah je deaktivován",
-        "profileLink": "Přejít na detail"
-      },
-      "IdentityInfo": {
-        "disabledInfo": "Uživatel je deaktivován",
-        "profileLink": "Přejít na profil"
+      "EntityInfo": {
+        "link": {
+          "detail": {
+            "label": "Přejít na detail"
+          }
+        }
       },
       "Filter": {
         "option": {
@@ -2050,6 +2049,7 @@
       "title": "Identifikátor",
       "help": "Interní identifikátor"
     },
+    "name": "Název",
     "created": "Vytvořeno",
     "validFrom": "Platnost od",
     "validTill": "Platnost do",

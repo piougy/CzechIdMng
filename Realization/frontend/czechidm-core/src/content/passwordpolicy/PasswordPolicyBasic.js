@@ -217,7 +217,7 @@ class PasswordPolicyBasic extends Basic.AbstractContent {
                 helpBlock={this.i18n('entity.PasswordPolicy.help.passphraseWords')}
                 hidden={validateType}
                 type="number"
-                validation={Joi.number().allow(null).positive()}
+                validation={Joi.number().allow(null).allow(0).positive()}
                 label={this.i18n('entity.PasswordPolicy.passphraseWords')} />
 
               <Basic.Checkbox ref="disabled" label={this.i18n('entity.PasswordPolicy.disabled')}/>

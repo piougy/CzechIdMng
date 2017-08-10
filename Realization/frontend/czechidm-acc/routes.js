@@ -157,7 +157,8 @@ module.exports = {
       childRoutes: [
         {
           path: 'accounts',
-          component: require('./src/content/role/RoleAccounts')
+          component: require('./src/content/role/RoleAccounts'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLEACCOUNT_READ'] } ]
         },
         {
           path: 'systems',

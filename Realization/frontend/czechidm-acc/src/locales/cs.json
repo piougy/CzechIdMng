@@ -901,6 +901,7 @@
   "permission": {
     "group": {
       "ACCOUNT": "Účty na koncových systémech",
+      "ROLEACCOUNT": "Účty pro role",
       "SYSTEM": "Napojené systémy",
       "SYNCHRONIZATION": "Synchronizace"
     }

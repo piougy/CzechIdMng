@@ -157,7 +157,8 @@ module.exports = {
         'order': 500,
         'priority': 0,
         'path': '/role/:entityId/accounts',
-        'icon': 'fa:external-link'
+        'icon': 'fa:external-link',
+        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLEACCOUNT_READ'] } ]
       }
     ]
   }

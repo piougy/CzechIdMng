@@ -895,6 +895,7 @@
   "permission": {
     "group": {
       "ACCOUNT": "Accounts in systems",
+      "ROLEACCOUNT": "Role accounts",
       "SYSTEM": "Connected systems",
       "SYNCHRONIZATION": "Synchronization"
     }

@@ -34,7 +34,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  *
  */
 
-public class RoleAccountsEvaluatorTest extends AbstractIntegrationTest {
+public class RoleAccountByRoleEvaluatorTest extends AbstractIntegrationTest {
 	
 	@Autowired private TestHelper helper;
 	@Autowired private IdmRoleService roleService;
@@ -103,7 +103,7 @@ public class RoleAccountsEvaluatorTest extends AbstractIntegrationTest {
 			readRoleAccountPolicy.setRole(role.getId());
 			readRoleAccountPolicy.setGroupPermission(AccGroupPermission.ROLEACCOUNT.getName());
 			readRoleAccountPolicy.setAuthorizableType(AccRoleAccount.class.getCanonicalName());
-			readRoleAccountPolicy.setEvaluator(RoleAccountsEvaluator.class);
+			readRoleAccountPolicy.setEvaluator(RoleAccountByRoleEvaluator.class);
 			authorizationPolicyService.save(readRoleAccountPolicy);
 		}
 		

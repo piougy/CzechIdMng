@@ -3,6 +3,11 @@ import { RoleAccountService } from '../services';
 
 const service = new RoleAccountService();
 
+/**
+ * Role accounts
+ *
+ * @author Roman Kučera
+ */
 export default class RoleAccountManager extends Managers.EntityManager {
 
   constructor() {
@@ -15,10 +20,6 @@ export default class RoleAccountManager extends Managers.EntityManager {
 
   getNiceLabelWithSystem(systemName, username) {
     return systemName + ' (' + username + ')';
-  }
-
-  supportsPatch() {
-    return false;
   }
 
   getEntityType() {

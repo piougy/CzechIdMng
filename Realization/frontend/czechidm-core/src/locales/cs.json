@@ -2249,7 +2249,7 @@
       "note": "Poznámka"
     },
     "IdentityContract": {
-      "_type": "Pracovně právní vztah",
+      "_type": "Pracovní pozice",
       "id": "Interní id pozice",
       "treeType": "Typ struktury",
       "workPosition": "Pozice",

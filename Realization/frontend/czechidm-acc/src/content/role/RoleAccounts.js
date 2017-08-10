@@ -7,15 +7,15 @@ import { Basic, Advanced, Domain, Managers, Utils } from 'czechidm-core';
 import { RoleAccountManager, AccountManager } from '../../redux';
 import AccountTypeEnum from '../../domain/AccountTypeEnum';
 
-const uiKey = 'identity-accounts-table';
+const uiKey = 'role-accounts-table';
 const manager = new RoleAccountManager();
 const accountManager = new AccountManager();
-const identityManager = new Managers.IdentityManager();
+const roleManager = new Managers.RoleManager();
 
 /**
  * Role accounts
  *
- * @Author Kučera
+ * @author Kučera
  */
 class RoleAccounts extends Advanced.AbstractTableContent {
 
@@ -40,6 +40,10 @@ class RoleAccounts extends Advanced.AbstractTableContent {
   }
 
   showDetail(entity) {
+    if (!Utils.Entity.isNew(entity)) {
+      this.context.store.dispatch(this.getManager().fetchPermissions(entity.id, `${this.getUiKey()}-detail`));
+    }
+    //
     const entityFormData = _.merge({}, entity, {
       identity: entity._embedded && entity._embedded.identity ? entity._embedded.identity.id : this.props.params.entityId,
       account: entity.account ? entity.account.id : null
@@ -54,8 +58,8 @@ class RoleAccounts extends Advanced.AbstractTableContent {
     const formEntity = this.refs.form.getData();
     const state = this.context.store.getState();
     if (Utils.Entity.isNew(formEntity)) {
-      const identity = Utils.Entity.getEntity(state, identityManager.getEntityType(), formEntity.identity);
-      formEntity.identity = identity.id;
+      const role = Utils.Entity.getEntity(state, roleManager.getEntityType(), formEntity.identity);
+      formEntity.role = role.id;
       formEntity.account = formEntity.account;
     }
     //
@@ -72,7 +76,7 @@ class RoleAccounts extends Advanced.AbstractTableContent {
 
   render() {
     const { entityId } = this.props.params;
-    const { _showLoading } = this.props;
+    const { _showLoading, _permissions } = this.props;
     const { detail } = this.state;
     const forceSearchParameters = new Domain.SearchParameters().setFilter('role', entityId);
 
@@ -91,10 +95,10 @@ class RoleAccounts extends Advanced.AbstractTableContent {
             uiKey={uiKey}
             manager={this.getManager()}
             forceSearchParameters={forceSearchParameters}
-            showRowSelection={Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE'])}
+            showRowSelection={Managers.SecurityManager.hasAnyAuthority(['ROLEACCOUNT_DELETE'])}
             rowClass={({rowIndex, data}) => { return (data[rowIndex]._embedded.account.inProtection) ? 'disabled' : ''; }}
             actions={
-              Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE'])
+              Managers.SecurityManager.hasAnyAuthority(['ROLEACCOUNT_DELETE'])
               ?
               [{ value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }]
               :
@@ -107,7 +111,7 @@ class RoleAccounts extends Advanced.AbstractTableContent {
                   key="add_button"
                   className="btn-xs"
                   onClick={this.showDetail.bind(this, { type: AccountTypeEnum.findKeyBySymbol(AccountTypeEnum.PERSONAL) })}
-                  rendered={Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE'])}>
+                  rendered={Managers.SecurityManager.hasAnyAuthority(['ROLEACCOUNT_CREATE'])}>
                   <Basic.Icon type="fa" icon="plus"/>
                   {' '}
                   {this.i18n('button.add')}
@@ -123,7 +127,7 @@ class RoleAccounts extends Advanced.AbstractTableContent {
                   return (
                     <Advanced.DetailButton
                       title={this.i18n('button.detail')}
-                      rendered={Managers.SecurityManager.hasAnyAuthority(['SYSTEM_READ'])}
+                      rendered={Managers.SecurityManager.hasAnyAuthority(['ROLEACCOUNT_READ'])}
                       onClick={this.showDetail.bind(this, data[rowIndex])}/>
                   );
                 }
@@ -138,10 +142,12 @@ class RoleAccounts extends Advanced.AbstractTableContent {
               header={this.i18n('acc:entity.System.name')} />
             <Advanced.Column property="_embedded.identityRole._embedded.role.name" header={this.i18n('acc:entity.IdentityAccount.role')} face="text" />
             <Advanced.Column property="ownership" width="75px" header={this.i18n('acc:entity.IdentityAccount.ownership')} sort face="bool" />
-            <Advanced.Column property="_embedded.account.inProtection"
+            <Advanced.Column
+              property="_embedded.account.inProtection"
               header={this.i18n('acc:entity.Account.inProtection')}
               face="boolean" />
-            <Advanced.Column property="_embedded.account.endOfProtection"
+            <Advanced.Column
+              property="_embedded.account.endOfProtection"
               header={this.i18n('acc:entity.Account.endOfProtection')}
               face="datetime" />
           </Advanced.Table>
@@ -158,7 +164,10 @@ class RoleAccounts extends Advanced.AbstractTableContent {
             <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('create.header')} rendered={Utils.Entity.isNew(detail.entity)}/>
             <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('edit.header', { name: detail.entity.name })} rendered={!Utils.Entity.isNew(detail.entity)}/>
             <Basic.Modal.Body>
-              <Basic.AbstractForm ref="form" showLoading={_showLoading}>
+              <Basic.AbstractForm
+                ref="form"
+                showLoading={_showLoading}
+                readOnly={ !manager.canSave(detail.entity, _permissions) }>
                 <Basic.SelectBox
                   ref="account"
                   manager={accountManager}
@@ -181,10 +190,11 @@ class RoleAccounts extends Advanced.AbstractTableContent {
               <Basic.Button
                 type="submit"
                 level="success"
-                showLoading={_showLoading}
+                showLoading={ _showLoading }
                 showLoadingIcon
-                showLoadingText={this.i18n('button.saving')}>
-                {this.i18n('button.save')}
+                showLoadingText={ this.i18n('button.saving') }
+                rendered={ manager.canSave(detail.entity, _permissions) }>
+                { this.i18n('button.save') }
               </Basic.Button>
             </Basic.Modal.Footer>
           </form>
@@ -204,6 +214,7 @@ RoleAccounts.defaultProps = {
 function select(state) {
   return {
     _showLoading: Utils.Ui.isShowLoading(state, `${uiKey}-detail`),
+    _permissions: Utils.Permission.getPermissions(state, `${uiKey}-detail`)
   };
 }
 

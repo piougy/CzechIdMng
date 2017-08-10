@@ -26,10 +26,9 @@ import eu.bcvsolutions.idm.core.security.evaluator.AbstractTransitiveEvaluator;
  * @author Kučera
  *
  */
-
 @Component
-@Description("Permissions to role accounts")
-public class RoleAccountsEvaluator extends AbstractTransitiveEvaluator<AccRoleAccount> {
+@Description("Permissions to role accounts by role")
+public class RoleAccountByRoleEvaluator extends AbstractTransitiveEvaluator<AccRoleAccount> {
 
 	@Autowired private AuthorizationManager authorizationManager;
 	@Autowired private SecurityService securityService;

@@ -37,14 +37,13 @@ import io.swagger.annotations.AuthorizationScope;
  * @author Kučera
  *
  */
-
 @RestController
 @Enabled(AccModuleDescriptor.MODULE_ID)
 @RequestMapping(value = BaseDtoController.BASE_PATH + "/role-accounts")
 @Api(
 		value = AccRoleAccountController.TAG,
 		tags = { AccRoleAccountController.TAG }, 
-		description = "Assigned accoutns on target ssytem",
+		description = "Assigned role accoutns on target system",
 		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
 		consumes = MediaType.APPLICATION_JSON_VALUE)
 public class AccRoleAccountController extends DefaultReadWriteDtoController<AccRoleAccountDto, RoleAccountFilter> {
@@ -81,8 +80,8 @@ public class AccRoleAccountController extends DefaultReadWriteDtoController<AccR
 	@PreAuthorize("hasAuthority('" + AccGroupPermission.ROLE_ACCOUNT_CREATE + "')"
 			+ " or hasAuthority('" + AccGroupPermission.ROLE_ACCOUNT_UPDATE + "')")
 	@ApiOperation(
-			value = "Create / update role accout",
-			nickname = "postRole",
+			value = "Create / update role account",
+			nickname = "postRoleAccount",
 			response = AccRoleAccountDto.class,
 			tags = { AccRoleAccountController.TAG },
 			authorizations = {
@@ -148,8 +147,5 @@ public class AccRoleAccountController extends DefaultReadWriteDtoController<AccR
 		filter.setSystemId(getParameterConverter().toUuid(parameters, "systemId"));
 		filter.setOwnership(getParameterConverter().toBoolean(parameters, "ownership"));
 		return filter;
-	}
-
-	
-	
+	}	
 }

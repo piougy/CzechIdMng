@@ -1345,6 +1345,11 @@
         "evaluator": {
           "default": "Bude použit výchozí typ vyhodnocení pro zvolenou agendu. Agenda nepodporuje jiné typy vyhodnocení."
         }
+      },
+      "accounts": {
+        "header": "Účty na systémech",
+        "title": "$t(content.identity.accounts.header)",
+        "empty": "Nenalezeny žádné účty na koncových systémech."
       }
     },
     "identity": {

@@ -22,17 +22,15 @@ public interface AccRoleAccountRepository extends AbstractEntityRepository<AccRo
 	 * (non-Javadoc)
 	 * @see eu.bcvsolutions.idm.core.api.repository.BaseEntityRepository#find(eu.bcvsolutions.idm.core.api.dto.BaseFilter, Pageable)
 	 */
+	/**
+	 * @deprecated Use DefaultAccRoleAccountService (uses criteria api)
+	 */
 	@Override
-	@Query(value = "select e from AccRoleAccount e" +
-	        " where" +
-	        " (?#{[0].accountId} is null or e.account.id = ?#{[0].accountId})" +
-	        " and" +
-	        " (?#{[0].roleId} is null or e.role.id = ?#{[0].roleId})" +
-	        " and" +
-	        " (?#{[0].systemId} is null or e.account.system.id = ?#{[0].systemId})" + 
-	        " and" +
-	        " (?#{[0].ownership} is null or e.ownership = ?#{[0].ownership})")
-	Page<AccRoleAccount> find(RoleAccountFilter filter, Pageable pageable);
+	@Deprecated
+	@Query(value = "select e from AccRoleAccount e")
+	default Page<AccRoleAccount> find(RoleAccountFilter filter, Pageable pageable) {
+		throw new UnsupportedOperationException("Use DefaultAccRoleAccountService (uses criteria api)");
+	}
 	
 	/**
 	 * Removes mapping by given account

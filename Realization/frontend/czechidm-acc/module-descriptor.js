@@ -148,6 +148,16 @@ module.exports = {
             'authorities': ['SYSTEM_ADMIN']
           }
         ]
+      },
+      {
+        'id': 'role-accounts',
+        'parentId': 'roles',
+        'type': 'TAB',
+        'labelKey': 'acc:content.identity.accounts.title',
+        'order': 500,
+        'priority': 0,
+        'path': '/role/:entityId/accounts',
+        'icon': 'fa:external-link'
       }
     ]
   }

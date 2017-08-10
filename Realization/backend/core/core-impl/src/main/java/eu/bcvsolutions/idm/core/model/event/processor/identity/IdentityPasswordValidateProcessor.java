@@ -6,22 +6,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.config.domain.IdentityConfiguration;
-import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
-import eu.bcvsolutions.idm.core.api.domain.PasswordChangeType;
-import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
-import eu.bcvsolutions.idm.core.api.dto.IdmPasswordDto;
-import eu.bcvsolutions.idm.core.api.dto.IdmPasswordValidationDto;
-import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
-import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
-import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
-import eu.bcvsolutions.idm.core.api.event.EntityEvent;
-import eu.bcvsolutions.idm.core.api.event.EventResult;
-import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordPolicyService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordService;
 import eu.bcvsolutions.idm.core.security.api.authentication.AuthenticationManager;
-import eu.bcvsolutions.idm.core.security.api.domain.IdentityBasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 
 /**
@@ -33,91 +21,38 @@ import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
  */
 @Component
 @Description("Validates identity's password, when password is changed.")
-public class IdentityPasswordValidateProcessor extends CoreEventProcessor<IdmIdentityDto> {
+public class IdentityPasswordValidateProcessor extends AbstractIdentityPasswordValidateProcessor {
 
 	public static final String PROCESSOR_NAME = "identity-password-validate-processor";
-	private final SecurityService securityService;
-	private final IdmPasswordService passwordService;
-	private final IdmPasswordPolicyService passwordPolicyService;
-	private final AuthenticationManager authenticationManager;
-	private final IdentityConfiguration identityConfiguration;
+
+	protected final SecurityService securityService;
 
 	@Autowired
 	public IdentityPasswordValidateProcessor(
-			SecurityService securityService,
-			IdmPasswordService passwordService, 
-			IdmPasswordPolicyService passwordPolicyService,
-			AuthenticationManager authenticationManager,
-			IdentityConfiguration identityConfiguration) {
-		super(IdentityEventType.PASSWORD);
+		SecurityService securityService,
+		IdmPasswordService passwordService,
+		IdmPasswordPolicyService passwordPolicyService,
+		AuthenticationManager authenticationManager,
+		IdentityConfiguration identityConfiguration) {
+		super(identityConfiguration, passwordService, authenticationManager, passwordPolicyService, securityService, IdentityEventType.PASSWORD);
 		//
 		Assert.notNull(securityService);
-		Assert.notNull(passwordPolicyService);
-		Assert.notNull(passwordService);
-		Assert.notNull(authenticationManager);
-		Assert.notNull(identityConfiguration);
 		//
 		this.securityService = securityService;
-		this.passwordService = passwordService;
-		this.passwordPolicyService = passwordPolicyService;
-		this.authenticationManager = authenticationManager;
-		this.identityConfiguration = identityConfiguration;
 	}
 
 	@Override
 	public String getName() {
 		return PROCESSOR_NAME;
 	}
-	
-	@Override
-	public EventResult<IdmIdentityDto> process(EntityEvent<IdmIdentityDto> event) {
-		IdmIdentityDto identity = event.getContent();
-		PasswordChangeDto passwordChangeDto = (PasswordChangeDto) event.getProperties()
-				.get(IdentityPasswordProcessor.PROPERTY_PASSWORD_CHANGE_DTO);
-		Assert.notNull(passwordChangeDto);
-		//
-		if (!securityService.isAdmin()) {
-			PasswordChangeType passwordChangeType = identityConfiguration.getPasswordChangeType();
-			if (passwordChangeType == PasswordChangeType.DISABLED) {
-				// check if isn't disable password change
-				throw new ResultCodeException(CoreResultCode.PASSWORD_CHANGE_DISABLED);
-			} else if (passwordChangeType == PasswordChangeType.ALL_ONLY && !passwordChangeDto.isAll()) {
-				// for all only must change also password for czechidm
-				throw new ResultCodeException(CoreResultCode.PASSWORD_CHANGE_ALL_ONLY);
-			}
-			// check old password - the same identity only
-			// checkAccess(identity, IdentityBasePermission.PASSWORDCHANGE) is called before event publishing
-			if (identity.getId().equals(securityService.getCurrentId())) {
-				if (passwordChangeDto.getOldPassword() == null) {				
-					throw new ResultCodeException(CoreResultCode.PASSWORD_CHANGE_CURRENT_FAILED_IDM);
-				}			
-				//
-				if (identityConfiguration.isRequireOldPassword()) {
-					// authentication trough chain 
-					boolean successChainAuthentication = authenticationManager.validate(identity.getUsername(), passwordChangeDto.getOldPassword());
-					if (!successChainAuthentication) {
-						throw new ResultCodeException(CoreResultCode.PASSWORD_CHANGE_CURRENT_FAILED_IDM);
-					}
-				}
-			}
-		}
-		
-
-		if (passwordChangeDto.isAll() || passwordChangeDto.isIdm()) { // change identity's password
-			// validate password
-			IdmPasswordValidationDto passwordValidationDto = new IdmPasswordValidationDto();
-			// set old password for validation - valid till, from and history check
-			IdmPasswordDto oldPassword = this.passwordService.findOneByIdentity(identity.getId());
-			passwordValidationDto.setOldPassword(oldPassword == null ? null : oldPassword.getId());
-			passwordValidationDto.setPassword(passwordChangeDto.getNewPassword());
-			passwordValidationDto.setIdentity(identity);
-			this.passwordPolicyService.validate(passwordValidationDto);
-		}
-		return new DefaultEventResult<>(event, this);
-	}
 
 	@Override
 	public int getOrder() {
 		return super.getOrder() - 1100;
+	}
+
+	@Override
+	protected boolean requiresOriginalPassword() {
+		return !securityService.isAdmin();
 	}
 }

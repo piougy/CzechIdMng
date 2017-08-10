@@ -22,5 +22,5 @@ public interface JwtAuthenticationService {
 	 * @param module The module which authenticated the user.
 	 * @return loginDto with added JWT token
 	 */
-	public LoginDto createJwtAuthenticationAndAuthenticate(LoginDto loginDto, IdmIdentityDto identity, String module);
+	LoginDto createJwtAuthenticationAndAuthenticate(LoginDto loginDto, IdmIdentityDto identity, String module);
 }

@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.security.service.impl;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,11 @@ public class DefaultJwtAuthenticationServiceTest extends AbstractIntegrationTest
 
 	private static final String MODULE = "djastModule";
 	private static final String USERNAME = "djastUserName";
+	
+	@After 
+	public void logout() {
+		super.logout();
+	}
 
 	@Test
 	public void createJwtAuthenticationAndAuthenticateTest() {

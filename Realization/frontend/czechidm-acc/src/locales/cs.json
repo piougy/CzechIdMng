@@ -336,6 +336,25 @@
         "save": {
           "success": "Atribut [{{name}}] pro roli byl úspěšně upraven"
         }
+      },
+      "accounts": {
+        "header": "Účty na koncovém systému",
+        "title": "Účty na systému",
+        "edit": {
+          "header": "Detail účtu na koncovém systému"
+        },
+        "create": {
+          "header": "Nový účet na koncovém systému"
+        },
+        "save": {
+          "success": "Účet na systému byl úspěšně uložen"
+        },
+        "filter": {
+          "uid": {
+            "label": "Identifikátor",
+            "placeholder": "$t(acc:entity.SystemEntity.uid)"
+          }
+        }
       }
     },
     "identity": {

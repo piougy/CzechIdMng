@@ -156,6 +156,10 @@ module.exports = {
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ'] } ],
       childRoutes: [
         {
+          path: 'accounts',
+          component: require('./src/content/role/RoleAccounts')
+        },
+        {
           path: 'systems',
           component: require('./src/content/role/RoleSystems'),
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ', 'SYSTEM_READ'] } ]

@@ -5,6 +5,7 @@ import eu.bcvsolutions.idm.acc.dto.filter.RoleAccountFilter;
 import eu.bcvsolutions.idm.acc.entity.AccRoleAccount;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
+import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 
 /**
  * Role accounts on target system
@@ -12,7 +13,9 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
  * @author Svanda
  *
  */
-public interface AccRoleAccountService extends ReadWriteDtoService<AccRoleAccountDto, RoleAccountFilter> {
+public interface AccRoleAccountService extends 
+	ReadWriteDtoService<AccRoleAccountDto, RoleAccountFilter>,
+	AuthorizableService<AccRoleAccountDto> {
 
 	/**
 	 * Delete role account

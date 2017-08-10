@@ -22,6 +22,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
+import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
@@ -76,6 +77,14 @@ public class AddNewAutomaticRoleTaskExecutor extends AbstractAutomaticRoleTaskEx
 		List<String> failedIdentities = new ArrayList<>();
 		boolean canContinue = true;
 		for (IdmIdentityContractDto identityContract : contracts) {
+			if (!EntityUtils.isValidNowOrInFuture(identityContract)) {
+				// valid contracts in the past is not needed
+				counter++;
+				if (!updateState()) {
+					break;
+				}
+				continue;
+			}
 			List<IdmIdentityRoleDto> allByContract = identityRoleService.findAllByContract(identityContract.getId());
 			// skip already assigned automatic roles
 			boolean alreadyAssigned = false;

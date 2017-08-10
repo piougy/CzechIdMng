@@ -100,6 +100,7 @@ public class DefaultLoginService implements LoginService {
 		
 		loginDto = jwtAuthenticationService.createJwtAuthenticationAndAuthenticate(
 				loginDto, 
+				// TODO: why is new dto created - previously dto could be used
 				new IdmIdentityDto(identity, identity.getUsername()),
 				EntityUtils.getModule(this.getClass()));
 		

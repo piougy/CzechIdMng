@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.config.web;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.MethodInvokingFactoryBean;
 import org.springframework.context.annotation.Bean;
@@ -24,6 +26,9 @@ import org.springframework.security.web.access.expression.DefaultWebSecurityExpr
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
+import eu.bcvsolutions.idm.core.security.api.filter.IdmAuthenticationFilter;
+import eu.bcvsolutions.idm.core.security.api.service.EnabledEvaluator;
+import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.security.auth.filter.AuthenticationFilter;
 import eu.bcvsolutions.idm.core.security.auth.filter.ExtendExpirationFilter;
 
@@ -37,8 +42,10 @@ import eu.bcvsolutions.idm.core.security.auth.filter.ExtendExpirationFilter;
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	
-	@Autowired
-	private RoleHierarchy roleHierarchy;
+	@Autowired private RoleHierarchy roleHierarchy;
+	@Autowired private SecurityService securityService;
+	@Autowired private EnabledEvaluator enabledEvaluator;
+	@Autowired private List<IdmAuthenticationFilter> authenticationFilters;
 
 	@Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -78,7 +85,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	
 	@Bean
 	public AuthenticationFilter authenticationFilter() {
-		return new AuthenticationFilter();
+		return new AuthenticationFilter(authenticationFilters, securityService, enabledEvaluator);
 	}
 	
 	@Bean

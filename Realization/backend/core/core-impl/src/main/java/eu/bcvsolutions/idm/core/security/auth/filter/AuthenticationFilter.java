@@ -1,8 +1,10 @@
 package eu.bcvsolutions.idm.core.security.auth.filter;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -11,11 +13,15 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.modelmapper.internal.util.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.filter.GenericFilterBean;
 
+import com.google.common.collect.Lists;
+
 import eu.bcvsolutions.idm.core.api.utils.HttpFilterUtils;
 import eu.bcvsolutions.idm.core.security.api.filter.IdmAuthenticationFilter;
+import eu.bcvsolutions.idm.core.security.api.service.EnabledEvaluator;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 
 /**
@@ -27,13 +33,22 @@ import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
  *
  */
 public class AuthenticationFilter extends GenericFilterBean {
-	
-	@Autowired
+
+	private SecurityService securityService;
 	private List<IdmAuthenticationFilter> filters;
-	
+	private EnabledEvaluator enabledEvaluator;
+
 	@Autowired
-	protected SecurityService securityService;
-	
+	public AuthenticationFilter(List<IdmAuthenticationFilter> filters, SecurityService securityService,
+								EnabledEvaluator enabledEvaluator) {
+		Assert.notNull(filters);
+		Assert.notNull(securityService);
+		Assert.notNull(enabledEvaluator);
+		//
+		this.filters = filters.stream().filter(f -> enabledEvaluator.isEnabled(f)).collect(Collectors.toList());
+		this.securityService = securityService;
+	}
+
 	/**
 	 * Authentication flow implementation.
 	 */
@@ -73,6 +88,14 @@ public class AuthenticationFilter extends GenericFilterBean {
 			.findFirst();
 		
 		return succToken.isPresent();
+	}
+
+	protected SecurityService getSecurityService() {
+		return securityService;
+	}
+
+	protected List<IdmAuthenticationFilter> getFilters() {
+		return Collections.unmodifiableList(Lists.newArrayList(filters));
 	}
 	
 	private boolean isAuthenticated() {

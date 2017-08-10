@@ -126,75 +126,7 @@ public class SysSyncItemLogController
 		return super.get(backendId, assembler);
 	}
 
-	@Override
-	@ResponseBody
-	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYNCHRONIZATION_CREATE + "')"
-			+ " or hasAuthority('" + AccGroupPermission.SYNCHRONIZATION_UPDATE + "')")
-	@RequestMapping(method = RequestMethod.POST)
-	@ApiOperation(
-			value = "Create / update synchronization item log", 
-			nickname = "postSyncItemLog", 
-			response = SysSyncItemLog.class, 
-			tags = { SysSyncItemLogController.TAG }, 
-			authorizations = { 
-				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
-						@AuthorizationScope(scope = AccGroupPermission.SYNCHRONIZATION_CREATE, description = ""),
-						@AuthorizationScope(scope = AccGroupPermission.SYNCHRONIZATION_UPDATE, description = "")}),
-				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
-						@AuthorizationScope(scope = AccGroupPermission.SYNCHRONIZATION_CREATE, description = ""),
-						@AuthorizationScope(scope = AccGroupPermission.SYNCHRONIZATION_UPDATE, description = "")})
-				})
-	public ResponseEntity<?> post(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler)
-			throws HttpMessageNotReadableException {
-		return super.post(nativeRequest, assembler);
-	}
-
-	@Override
-	@ResponseBody
-	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYNCHRONIZATION_UPDATE + "')")
-	@RequestMapping(value = "/{backendId}", method = RequestMethod.PUT)
-	@ApiOperation(
-			value = "Update synchronization item log", 
-			nickname = "putSyncItemLog", 
-			response = SysSyncItemLog.class, 
-			tags = { SysSyncItemLogController.TAG }, 
-			authorizations = { 
-				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
-						@AuthorizationScope(scope = AccGroupPermission.SYNCHRONIZATION_UPDATE, description = "")}),
-				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
-						@AuthorizationScope(scope = AccGroupPermission.SYNCHRONIZATION_UPDATE, description = "")})
-				})
-	public ResponseEntity<?> put(
-			@ApiParam(value = "Item log's uuid identifier.", required = true)
-			@PathVariable @NotNull String backendId,
-			HttpServletRequest nativeRequest,
-			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
-		return super.put(backendId, nativeRequest, assembler);
-	}
-
-	@Override
-	@ResponseBody
-	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYNCHRONIZATION_UPDATE + "')")
-	@RequestMapping(value = "/{backendId}", method = RequestMethod.PATCH)
-	@ApiOperation(
-			value = "Update synchronization item log", 
-			nickname = "patchSyncItemLog", 
-			response = SysSyncItemLog.class, 
-			tags = { SysSyncItemLogController.TAG }, 
-			authorizations = { 
-				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
-						@AuthorizationScope(scope = AccGroupPermission.SYNCHRONIZATION_UPDATE, description = "")}),
-				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
-						@AuthorizationScope(scope = AccGroupPermission.SYNCHRONIZATION_UPDATE, description = "")})
-				})
-	public ResponseEntity<?> patch(
-			@ApiParam(value = "Item log's uuid identifier.", required = true)
-			@PathVariable @NotNull String backendId,
-			HttpServletRequest nativeRequest,
-			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
-		return super.patch(backendId, nativeRequest, assembler);
-	}
-
+	
 	@Override
 	@ResponseBody
 	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYNCHRONIZATION_UPDATE + "')")

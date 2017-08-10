@@ -252,13 +252,12 @@
       }
     },
     "advanced": {
-      "IdentityContractInfo": {
-        "disabledInfo": "Contract is deactivated",
-        "profileLink": "Show full detail"
-      },
-      "IdentityInfo": {
-        "disabledInfo": "User is deactivated",
-        "profileLink": "Show full detail"
+      "EntityInfo": {
+        "link": {
+          "detail": {
+            "label": "Přejít na detail"
+          }
+        }
       },
       "Filter": {
         "option": {
@@ -1988,6 +1987,7 @@
       "title": "Identifier",
       "help": "Internal identifier"
     },
+    "name": "Name",
     "created": "Created",
     "validFrom": "Valid from",
     "validTill": "Valid till",

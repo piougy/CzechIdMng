@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.acc.rest.impl;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -502,10 +503,10 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_READ, description = "") })
 				},
 			notes = "Supported local conectors (on classpath).")
-	public ResponseEntity<Map<String, List<IcConnectorInfo>>> getAvailableLocalConnectors(
+	public ResponseEntity<Map<String, Set<IcConnectorInfo>>> getAvailableLocalConnectors(
 			@ApiParam(value = "Connector framework.", example = "connId", defaultValue = "connId")
 			@RequestParam(required = false) String framework) {
-		Map<String, List<IcConnectorInfo>> infos = new HashMap<>();
+		Map<String, Set<IcConnectorInfo>> infos = new HashMap<>();
 		if (framework != null) {
 			if (!icConfiguration.getIcConfigs().containsKey(framework)) {
 				throw new ResultCodeException(IcResultCode.IC_FRAMEWORK_NOT_FOUND,
@@ -517,7 +518,7 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 		} else {
 			infos = icConfiguration.getAvailableLocalConnectors();
 		}
-		return new ResponseEntity<Map<String, List<IcConnectorInfo>>>(infos, HttpStatus.OK);
+		return new ResponseEntity<Map<String, Set<IcConnectorInfo>>>(infos, HttpStatus.OK);
 	}
 	
 	/**
@@ -540,16 +541,16 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_READ, description = "") })
 				},
 			notes = "Supported remote conectors (by remote server configuration).")
-	public ResponseEntity<Map<String, List<IcConnectorInfo>>> getAvailableRemoteConnectors(
+	public ResponseEntity<Map<String, Set<IcConnectorInfo>>> getAvailableRemoteConnectors(
 			@ApiParam(value = "System's uuid identifier or code.", required = true)
 			@PathVariable @NotNull String backendId) {
 		SysSystem entity = this.getEntity(backendId);
 
-		Map<String, List<IcConnectorInfo>> infos = new HashMap<>();
+		Map<String, Set<IcConnectorInfo>> infos = new HashMap<>();
 		
 		// if entity hasn't set up for remote return empty map
 		if (entity == null || !entity.isRemote()) {
-			return new ResponseEntity<Map<String, List<IcConnectorInfo>>>(infos, HttpStatus.OK);
+			return new ResponseEntity<Map<String, Set<IcConnectorInfo>>>(infos, HttpStatus.OK);
 		}
 
  		Assert.notNull(entity.getConnectorServer());
@@ -574,7 +575,7 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 					ImmutableMap.of("server", e.getHost() + ":" + e.getPort()), e);
 		}
 		//
-		return new ResponseEntity<Map<String, List<IcConnectorInfo>>>(infos, HttpStatus.OK);
+		return new ResponseEntity<Map<String, Set<IcConnectorInfo>>>(infos, HttpStatus.OK);
 	}
 	
 	/**

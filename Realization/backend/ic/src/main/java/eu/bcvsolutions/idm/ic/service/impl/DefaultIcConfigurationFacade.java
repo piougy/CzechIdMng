@@ -1,9 +1,9 @@
 package eu.bcvsolutions.idm.ic.service.impl;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
@@ -31,7 +31,7 @@ public class DefaultIcConfigurationFacade implements IcConfigurationFacade {
 
 	private Map<String, IcConfigurationService> icConfigs = new HashMap<>();
 	// Connector infos are cached
-	private Map<String, List<IcConnectorInfo>> icLocalConnectorInfos;
+	private Map<String, Set<IcConnectorInfo>> icLocalConnectorInfos;
 	
 	/**
 	 * @return Configuration services for all ICs
@@ -46,7 +46,8 @@ public class DefaultIcConfigurationFacade implements IcConfigurationFacade {
 	 *
 	 */
 	@Override
-	public Map<String, List<IcConnectorInfo>> getAvailableLocalConnectors() {
+	public Map<String, Set<IcConnectorInfo>> getAvailableLocalConnectors() {
+		icLocalConnectorInfos = null;
 		if (icLocalConnectorInfos == null) {
 			icLocalConnectorInfos = new HashMap<>();
 			for (IcConfigurationService config : icConfigs.values()) {
@@ -57,8 +58,8 @@ public class DefaultIcConfigurationFacade implements IcConfigurationFacade {
 	}
 
 	@Override
-	public List<IcConnectorInfo> getAvailableRemoteConnectors(IcConnectorInstance connectorInstance) {
-		List<IcConnectorInfo> remoteConnectors = new ArrayList<>();
+	public Set<IcConnectorInfo> getAvailableRemoteConnectors(IcConnectorInstance connectorInstance) {
+		Set<IcConnectorInfo> remoteConnectors = new HashSet<>();
 		// get service from icConfig, get all available remote connector for service in configs
 		for (IcConfigurationService config : icConfigs.values()) {
 			remoteConnectors.addAll(config.getAvailableRemoteConnectors(connectorInstance.getConnectorServer()));

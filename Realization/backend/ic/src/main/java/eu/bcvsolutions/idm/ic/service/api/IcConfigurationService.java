@@ -1,6 +1,6 @@
 package eu.bcvsolutions.idm.ic.service.api;
 
-import java.util.List;
+import java.util.Set;
 
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInfo;
@@ -8,6 +8,11 @@ import eu.bcvsolutions.idm.ic.api.IcConnectorInstance;
 import eu.bcvsolutions.idm.ic.api.IcConnectorServer;
 import eu.bcvsolutions.idm.ic.api.IcSchema;
 
+/**
+ * Interface for connector configuration service
+ * @author svandav
+ *
+ */
 public interface IcConfigurationService {
 
 	/**
@@ -20,7 +25,7 @@ public interface IcConfigurationService {
 	 * Return available local connectors for this IC implementation
 	 * @return
 	 */
-	List<IcConnectorInfo> getAvailableLocalConnectors();
+	Set<IcConnectorInfo> getAvailableLocalConnectors();
 
 	/**
 	 * Return available remote connectors
@@ -29,7 +34,7 @@ public interface IcConfigurationService {
 	 * @param framework 
 	 * @return
 	 */
-	List<IcConnectorInfo> getAvailableRemoteConnectors(IcConnectorServer server);
+	Set<IcConnectorInfo> getAvailableRemoteConnectors(IcConnectorServer server);
 
 	/**
 	 * Return find connector default configuration by connector key

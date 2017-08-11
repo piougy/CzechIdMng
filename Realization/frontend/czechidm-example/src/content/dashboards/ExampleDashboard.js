@@ -21,7 +21,7 @@ export default class ExampleDashboard extends Basic.AbstractContent {
       <Basic.Panel>
         <Basic.PanelHeader text={ this.i18n('header') }/>
         <Basic.PanelBody>
-          <Basic.Panel className="panel-warning">
+          <Basic.Panel className="panel-warning no-margin">
             <Basic.PanelHeader>
               <Basic.Row>
                 <Basic.Col lg={ 3 }>

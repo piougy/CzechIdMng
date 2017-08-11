@@ -1,12 +1,10 @@
 import React, { PropTypes } from 'react';
-import classnames from 'classnames';
 import { connect } from 'react-redux';
-import { Link } from 'react-router';
 //
 import * as Basic from '../../basic';
-import { RoleManager, SecurityManager } from '../../../redux/';
-import UuidInfo from '../UuidInfo/UuidInfo';
+import { RoleManager } from '../../../redux/';
 import AbstractEntityInfo from '../EntityInfo/AbstractEntityInfo';
+import RolePriorityEnum from '../../../enums/RolePriorityEnum';
 
 const manager = new RoleManager();
 
@@ -29,50 +27,58 @@ export class RoleInfo extends AbstractEntityInfo {
     if (!super.showLink()) {
       return false;
     }
-    if (!SecurityManager.hasAccess({ 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ']})) { // TODO: asynchronous permissions by fetch autorities on selected entity
+    //
+    // evaluate authorization policies
+    const { _permissions } = this.props;
+    if (!manager.canRead(this.getEntity(), _permissions)) {
       return false;
     }
     return true;
   }
 
   /**
-   * TODO: implement different face
+   * Get link to detail (`url`).
+   *
+   * @return {string}
    */
-  render() {
-    const { rendered, showLoading, className, entity, entityIdentifier, _showLoading, style } = this.props;
-    //
-    if (!rendered) {
-      return null;
-    }
-    let _entity = this.props._entity;
-    if (entity) { // entity prop has higher priority
-      _entity = entity;
-    }
-    //
-    const classNames = classnames(
-      'role-info',
-      className
-    );
-    if (showLoading || (_showLoading && entityIdentifier && !_entity)) {
-      return (
-        <Basic.Icon className={ classNames } value="refresh" showLoading style={style}/>
-      );
-    }
-    if (!_entity) {
-      if (!entityIdentifier) {
-        return null;
+  getLink() {
+    return `/role/${encodeURIComponent(this.getEntityId())}/detail`;
+  }
+
+  /**
+   * Returns entity icon (null by default - icon will not be rendered)
+   *
+   * @param  {object} entity
+   */
+  getEntityIcon() {
+    return 'fa:universal-access';
+  }
+
+  /**
+   * Returns popovers title
+   *
+   * @param  {object} entity
+   */
+  getPopoverTitle() {
+    return this.i18n('entity.Role._type');
+  }
+
+  /**
+   * Returns popover info content
+   *
+   * @param  {array} table data
+   */
+  getPopoverContent(entity) {
+    return [
+      {
+        label: this.i18n('entity.name'),
+        value: manager.getNiceLabel(entity)
+      },
+      {
+        label: this.i18n('entity.Role.priorityEnum'),
+        value: (<Basic.EnumValue enum={ RolePriorityEnum } value={ RolePriorityEnum.findKeyBySymbol(RolePriorityEnum.getKeyByPriority(entity.priority)) } />)
       }
-      return (<UuidInfo className={ classNames } value={ entityIdentifier } style={style}/>);
-    }
-    //
-    if (!this.showLink()) {
-      return (
-        <span className={ classNames }>{ manager.getNiceLabel(_entity) }</span>
-      );
-    }
-    return (
-      <Link className={ classNames } to={`/role/${entityIdentifier}/detail`}>{manager.getNiceLabel(_entity)}</Link>
-    );
+    ];
   }
 }
 
@@ -86,11 +92,9 @@ RoleInfo.propTypes = {
    * Selected entity's id - entity will be loaded automatically
    */
   entityIdentifier: PropTypes.string,
-  /**
-   * Internal entity loaded by given identifier
-   */
-  _entity: PropTypes.object,
-  _showLoading: PropTypes.bool
+  //
+  _showLoading: PropTypes.bool,
+  _permissions: PropTypes.arrayOf(PropTypes.string)
 };
 RoleInfo.defaultProps = {
   ...AbstractEntityInfo.defaultProps,
@@ -102,7 +106,8 @@ RoleInfo.defaultProps = {
 function select(state, component) {
   return {
     _entity: manager.getEntity(state, component.entityIdentifier),
-    _showLoading: manager.isShowLoading(state, null, component.entityIdentifier)
+    _showLoading: manager.isShowLoading(state, null, component.entityIdentifier),
+    _permissions: manager.getPermissions(state, null, component.entityIdentifier)
   };
 }
 export default connect(select)(RoleInfo);

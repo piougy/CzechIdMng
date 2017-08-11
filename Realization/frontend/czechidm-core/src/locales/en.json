@@ -36,8 +36,8 @@
     "action": "Actions",
     "otherAttributes": "Other attributes",
     "selectAll": "Select / unselect all",
-    "validFrom": "Valid from",
-    "validTill": "Valid to",
+    "validFrom": "$t(entity.validFrom)",
+    "validTill": "$t(entity.validTill)",
     "select": "Select ...",
     "searchSelect": "Select or type to search ...",
     "enabled": "Enabled",
@@ -252,9 +252,12 @@
       }
     },
     "advanced": {
-      "IdentityInfo": {
-        "disabledInfo": "User is deactivated",
-        "profileLink": "Show full detail"
+      "EntityInfo": {
+        "link": {
+          "detail": {
+            "label": "Přejít na detail"
+          }
+        }
       },
       "Filter": {
         "option": {
@@ -1141,8 +1144,8 @@
       },
       "processRoleChange": {
         "roleName": "Role name",
-        "roleValidFrom": "Valid from",
-        "roleValidTill": "Valid to",
+        "roleValidFrom": "$t(entity.validFrom)",
+        "roleValidTill": "$t(entity.validTill)",
         "currentActivity": "application status",
         "candicateUsers": "Approvers",
         "wfProcessId": "WF"
@@ -1747,8 +1750,9 @@
         },
         "action": {
           "processCreated": {
-            "button": "Run created tasks",
-            "success": "Created task will be executed."
+            "button": "Run all created tasks",
+            "success": "Created task will be executed.",
+            "selectedButton": "Run selected tasks"
           }
         }
       }
@@ -1983,7 +1987,10 @@
       "title": "Identifier",
       "help": "Internal identifier"
     },
+    "name": "Name",
     "created": "Created",
+    "validFrom": "Valid from",
+    "validTill": "Valid till",
 
     "Identity": {
       "_type": "User",
@@ -2191,8 +2198,8 @@
       "workPosition": "Position",
       "position": "Work position",
       "identity": "User",
-      "validFrom": "Valid from",
-      "validTill": "Valid to",
+      "validFrom": "$t(entity.validFrom)",
+      "validTill": "$t(entity.validTill)",
       "guarantee": "Authorizer",
       "externe": "External contractor",
       "managers": {
@@ -2629,32 +2636,32 @@
         "placeholder": ""
       },
       "validFrom": {
-        "name" : "Valid from",
+        "name" : "$t(entity.validFrom)",
         "tooltip": "",
         "placeholder": ""
       },
       "validTill": {
-        "name" : "Valid till",
+        "name" : "$t(entity.validTill)",
         "tooltip": "",
         "placeholder": ""
       },
       "validFromDateOld": {
-        "name" : "Valid from (old)",
+        "name" : "$t(entity.validFrom) (old)",
         "tooltip": "",
         "placeholder": ""
       },
       "validTillDateOld": {
-        "name" : "Valid till (old)",
+        "name" : "$t(entity.validTill) (old)",
         "tooltip": "",
         "placeholder": ""
       },
       "validFromDateNew": {
-        "name" : "Valid from (new)",
+        "name" : "$t(entity.validFrom) (new)",
         "tooltip": "",
         "placeholder": ""
       },
       "validTillDateNew": {
-        "name" : "Valid till (new)",
+        "name" : "$t(entity.validTill) (new)",
         "tooltip": "",
         "placeholder": ""
       }
@@ -2744,6 +2751,10 @@
     "PASSWORD_POLICY_BAD_TYPE": {
       "title": "Password policy wasn't saved",
       "message": "Policy has incorrect type. Use validating policies for validation and generating policies for generating."
+    },
+    "PASSWORD_POLICY_NEGATIVE_VALUE": {
+      "title": "Password values can not have negative values",
+      "message": "Attribute [{{attribute}}] is negative."
     },
     "PASSWORD_POLICY_VALIDATION": {
       "title": "Password policy wasn't saved",
@@ -2889,6 +2900,10 @@
     "LONG_RUNNING_TASK_INIT_FAILED": {
       "title": "Task has invalid configuration",
       "message": "Task [{{taskType}}] has invalid configuration."
+    },
+    "LONG_RUNNING_TASK_IS_PROCESSED": {
+      "title": "Task is already processed",
+      "message": "Task [{{taskId}}] is already processed - can not be started twice."
     },
     "FOREST_INDEX_DISABLED": {
       "title": "Index is inactive",

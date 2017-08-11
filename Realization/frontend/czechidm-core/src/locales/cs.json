@@ -36,8 +36,8 @@
     "action": "Akce",
     "otherAttributes": "Další atributy",
     "selectAll": "Vybrat vše / nic",
-    "validFrom": "Platnost od",
-    "validTill": "Platnost do",
+    "validFrom": "$t(entity.validFrom)",
+    "validTill": "$t(entity.validTill)",
     "select": "Vyberte ...",
     "searchSelect": "Vyberte nebo začněte psát pro vyhledání ...",
     "enabled": "Aktivní",
@@ -289,9 +289,12 @@
       }
     },
     "advanced": {
-      "IdentityInfo": {
-        "disabledInfo": "Uživatel je deaktivován",
-        "profileLink": "Přejít na profil"
+      "EntityInfo": {
+        "link": {
+          "detail": {
+            "label": "Přejít na detail"
+          }
+        }
       },
       "Filter": {
         "option": {
@@ -1809,8 +1812,9 @@
         },
         "action": {
           "processCreated": {
-            "button": "Spustit vytvořené úlohy",
-            "success": "Vytvořené úlohy budou spuštěny."
+            "button": "Spustit všechny vytvořené úlohy",
+            "success": "Vytvořené úlohy budou spuštěny.",
+            "selectedButton": "Spustit vybrané úlohy"
           }
         }
       }
@@ -2045,7 +2049,10 @@
       "title": "Identifikátor",
       "help": "Interní identifikátor"
     },
+    "name": "Název",
     "created": "Vytvořeno",
+    "validFrom": "Platnost od",
+    "validTill": "Platnost do",
 
     "Identity": {
       "_type": "Uživatel",
@@ -2237,14 +2244,14 @@
       "note": "Poznámka"
     },
     "IdentityContract": {
-      "_type": "Pracovní pozice",
+      "_type": "Pracovně právní vztah",
       "id": "Interní id pozice",
       "treeType": "Typ struktury",
       "workPosition": "Pozice",
       "position": "Pracovní pozice",
       "identity": "Uživatel",
-      "validFrom": "Platnost od",
-      "validTill": "Platnost do",
+      "validFrom": "$t(entity.validFrom)",
+      "validTill": "$t(entity.validTill)",
       "guarantee": "Garant",
       "externe": "Externista",
       "managers": {
@@ -2681,32 +2688,32 @@
         "placeholder": ""
       },
       "validFrom": {
-        "name" : "Platnost od",
+        "name" : "$t(entity.validFrom)",
         "tooltip": "",
         "placeholder": ""
       },
       "validTill": {
-        "name" : "Platnost do",
+        "name" : "$t(entity.validTill)",
         "tooltip": "",
         "placeholder": ""
       },
       "validFromDateOld": {
-        "name" : "Platnost od (původní)",
+        "name" : "$t(entity.validFrom) (původní)",
         "tooltip": "",
         "placeholder": ""
       },
       "validTillDateOld": {
-        "name" : "Platnost do (původní)",
+        "name" : "$t(entity.validTill) (původní)",
         "tooltip": "",
         "placeholder": ""
       },
       "validFromDateNew": {
-        "name" : "Platnost od (nová)",
+        "name" : "$t(entity.validFrom) (nová)",
         "tooltip": "",
         "placeholder": ""
       },
       "validTillDateNew": {
-        "name" : "Platnost do (nová)",
+        "name" : "$t(entity.validTill) (nová)",
         "tooltip": "",
         "placeholder": ""
       }
@@ -2796,6 +2803,10 @@
     "PASSWORD_POLICY_BAD_TYPE": {
       "title": "Politika hesel nebyla uložena",
       "message": "Politika má špatný typ, pro validaci využívejte pouze validační politiky, pro generování pouze politiky pro generování."
+    },
+    "PASSWORD_POLICY_NEGATIVE_VALUE": {
+      "title": "V politice hesel se nemohou vyskytovat záporné hodnoty",
+      "message": "Attribut [{{attribute}}] je záporný."
     },
     "PASSWORD_POLICY_VALIDATION": {
       "title": "Politika hesel nebyla uložena",
@@ -2945,6 +2956,10 @@
     "LONG_RUNNING_TASK_INIT_FAILED": {
       "title": "Úloha je chybně nakonfigurovaná",
       "message": "Úloha [{{taskType}}] je chybně nakonfigurovaná."
+    },
+    "LONG_RUNNING_TASK_IS_PROCESSED": {
+      "title": "Úloha již byla provedena",
+      "message": "Úloha [{{taskId}}] již byla provedena - nelze ji spustit dvakrát."
     },
     "FOREST_INDEX_DISABLED": {
       "title": "Index je vypnutý",

@@ -33,6 +33,17 @@ export class WorkflowProcessInfo extends AbstractEntityInfo {
   }
 
   /**
+   * Get link to detail (`url`).
+   *
+   * @return {string}
+   */
+  getLink() {
+    const { entityIdentifier } = this.props;
+    //
+    return `/workflow/history/processes/${entityIdentifier}`;
+  }
+
+  /**
    * TODO: implement different face
    */
   render() {
@@ -68,7 +79,7 @@ export class WorkflowProcessInfo extends AbstractEntityInfo {
       );
     }
     return (
-      <Link className={ classNames } to={`/workflow/history/processes/${entityIdentifier}`}>{manager.getNiceLabel(_entity)}</Link>
+      <Link className={ classNames } to={ this.getLink() }>{manager.getNiceLabel(_entity)}</Link>
     );
   }
 }

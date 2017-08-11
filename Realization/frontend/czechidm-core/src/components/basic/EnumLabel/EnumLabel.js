@@ -6,6 +6,8 @@ import Label from '../Label/Label';
 
 /**
  * Renders localized enum label - usable in forms
+ *
+ * @author Radek Tomiška
  */
 class EnumLabel extends AbstractFormComponent {
 

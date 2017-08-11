@@ -37,6 +37,17 @@ export class TreeTypeInfo extends AbstractEntityInfo {
     return true;
   }
 
+  /**
+   * Get link to detail (`url`).
+   *
+   * @return {string}
+   */
+  getLink() {
+    const { entityIdentifier } = this.props;
+    //
+    return `/tree/types/${entityIdentifier}/detail`;
+  }
+
   render() {
     const { rendered, showLoading, className, entity, entityIdentifier, _showLoading, style } = this.props;
     //
@@ -70,7 +81,7 @@ export class TreeTypeInfo extends AbstractEntityInfo {
       );
     }
     return (
-      <Link className={ classNames } to={`/tree/types/${entityIdentifier}`}>{manager.getNiceLabel(_entity)}</Link>
+      <Link className={ classNames } to={ this.getLink() }>{manager.getNiceLabel(_entity)}</Link>
     );
   }
 }

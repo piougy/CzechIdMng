@@ -3,7 +3,9 @@ package eu.bcvsolutions.idm.ic.connid.service.impl;
 import java.net.URL;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.identityconnectors.framework.api.APIConfiguration;
 import org.identityconnectors.framework.api.ConnectorFacade;
@@ -19,6 +21,8 @@ import org.identityconnectors.framework.common.exceptions.InvalidCredentialExcep
 import org.identityconnectors.framework.common.objects.Schema;
 import org.identityconnectors.framework.spi.ConnectorClass;
 import org.reflections.Reflections;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -41,9 +45,15 @@ import eu.bcvsolutions.idm.ic.service.api.IcConfigurationFacade;
 import eu.bcvsolutions.idm.ic.service.api.IcConfigurationService;
 
 @Service
+
+/**
+ * Configuration connector service for ConnId framework
+ * @author svandav
+ *
+ */
 public class ConnIdIcConfigurationService implements IcConfigurationService {
 
-	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ConnIdIcConfigurationService.class);
+	private static final Logger LOG = LoggerFactory.getLogger(ConnIdIcConfigurationService.class);
 
 	// Cached local connid managers
 	private List<ConnectorInfoManager> managers;
@@ -80,9 +90,9 @@ public class ConnIdIcConfigurationService implements IcConfigurationService {
 	 * @return
 	 */
 	@Override
-	public List<IcConnectorInfo> getAvailableLocalConnectors() {
-		log.info("Get Available local connectors - ConnId");
-		List<IcConnectorInfo> localConnectorInfos = new ArrayList<>();
+	public Set<IcConnectorInfo> getAvailableLocalConnectors() {
+		LOG.info("Get Available local connectors - ConnId");
+		Set<IcConnectorInfo> localConnectorInfos = new HashSet<>();
 		List<ConnectorInfoManager> managers = findAllLocalConnectorManagers();
 
 		for (ConnectorInfoManager manager : managers) {
@@ -135,10 +145,10 @@ public class ConnIdIcConfigurationService implements IcConfigurationService {
 	}
 	
 	@Override
-	public List<IcConnectorInfo> getAvailableRemoteConnectors(IcConnectorServer server) {
+	public Set<IcConnectorInfo> getAvailableRemoteConnectors(IcConnectorServer server) {
 		Assert.notNull(server);
 		//
-		List<IcConnectorInfo> result = new ArrayList<>();
+		Set<IcConnectorInfo> result = new HashSet<>();
 		//
 		List<ConnectorInfo> infos = getAllRemoteConnectors(server);
 
@@ -213,10 +223,10 @@ public class ConnIdIcConfigurationService implements IcConfigurationService {
 		Assert.notNull(connectorInstance.getConnectorKey());
 		Assert.notNull(connectorConfiguration);
 		if (connectorInstance.isRemote()) {
-			log.debug("Validate remote connector - ConnId ({})",
+			LOG.debug("Validate remote connector - ConnId ({})",
 					connectorInstance.getConnectorServer().getFullServerName());
 		} else {
-			log.debug("Validate connector - ConnId ({})", connectorInstance.getConnectorKey().toString());
+			LOG.debug("Validate connector - ConnId ({})", connectorInstance.getConnectorKey().toString());
 		}
 		// Validation is in getConnectorFacade method
 		getConnectorFacade(connectorInstance, connectorConfiguration);
@@ -229,10 +239,10 @@ public class ConnIdIcConfigurationService implements IcConfigurationService {
 		Assert.notNull(connectorConfiguration);
 		if (connectorInstance.isRemote()) {
 			Assert.notNull(connectorInstance.getConnectorServer());
-			log.debug("Validate remote connector - ConnId ({})",
+			LOG.debug("Validate remote connector - ConnId ({})",
 					connectorInstance.getConnectorServer().getFullServerName());
 		} else {
-			log.debug("Validate connector - ConnId ({})", connectorInstance.getConnectorKey().toString());
+			LOG.debug("Validate connector - ConnId ({})", connectorInstance.getConnectorKey().toString());
 		}
 		// Validation is in getConnectorFacade method
 		getConnectorFacade(connectorInstance, connectorConfiguration).test();
@@ -244,10 +254,10 @@ public class ConnIdIcConfigurationService implements IcConfigurationService {
 		Assert.notNull(connectorInstance.getConnectorKey());
 		Assert.notNull(connectorConfiguration);
 		if (connectorInstance.isRemote()) {
-			log.info(MessageFormat.format("Get Schema of remote connector - ConnId ({0})", 
+			LOG.info(MessageFormat.format("Get Schema of remote connector - ConnId ({0})", 
 					connectorInstance.getConnectorServer().getFullServerName()));
 		} else {
-			log.info(MessageFormat.format("Get Schema - ConnId ({0})", connectorInstance.getConnectorKey().toString()));
+			LOG.info(MessageFormat.format("Get Schema - ConnId ({0})", connectorInstance.getConnectorKey().toString()));
 		}
 		ConnectorFacade conn = getConnectorFacade(connectorInstance, connectorConfiguration);
 
@@ -284,14 +294,14 @@ public class ConnIdIcConfigurationService implements IcConfigurationService {
 		if (managers == null) {
 			managers = new ArrayList<>();
 			List<Class<?>> annotated = new ArrayList<>();
-			// Find all class with annotation ConnectorClass under specific
+			// Find all class with annotation IcConnectorClass under specific
 			// packages
 			localConnectorsPackages.forEach(packageWithConnectors -> {
 				Reflections reflections = new Reflections(packageWithConnectors);
 				annotated.addAll(reflections.getTypesAnnotatedWith(ConnectorClass.class));
 			});
 
-			log.info(MessageFormat.format("Found annotated classes with ConnectorClass [{0}]", annotated));
+			LOG.info(MessageFormat.format("Found annotated classes with IcConnectorClass [{0}]", annotated));
 
 			for (Class<?> clazz : annotated) {
 				URL url = clazz.getProtectionDomain().getCodeSource().getLocation();
@@ -299,7 +309,7 @@ public class ConnIdIcConfigurationService implements IcConfigurationService {
 				ConnectorInfoManager manager = fact.getLocalManager(url);
 				managers.add(manager);
 			}
-			log.info(MessageFormat.format("Found all local connector managers [{0}]", managers.toString()));
+			LOG.info(MessageFormat.format("Found all local connector managers [{0}]", managers.toString()));
 		}
 		return managers;
 	}

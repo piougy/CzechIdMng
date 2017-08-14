@@ -48,6 +48,8 @@ public interface IcConfigurationProperty {
 	 * @return the required
 	 */
 	boolean isRequired();
+	
+	int getOrder();
 
 
 }

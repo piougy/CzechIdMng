@@ -110,7 +110,6 @@ class SystemConnectorContent extends Basic.AbstractContent {
       error: null
     }, () => {
       let connector = null;
-      console.log("ddddd", data, availableFrameworks);
       if (entity.remote) {
         connector = availableRemoteFrameworks.get(data.split(':')[0]).get(data);
       } else {

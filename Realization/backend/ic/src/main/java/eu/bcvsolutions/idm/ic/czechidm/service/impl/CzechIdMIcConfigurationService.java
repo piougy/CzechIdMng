@@ -1,8 +1,13 @@
 package eu.bcvsolutions.idm.ic.czechidm.service.impl;
 
-import java.net.URL;
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -17,15 +22,22 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
+import com.google.common.collect.Lists;
+
+import eu.bcvsolutions.idm.core.api.exception.CoreException;
+import eu.bcvsolutions.idm.ic.api.IcConfigurationProperty;
 import eu.bcvsolutions.idm.ic.api.IcConnector;
-import eu.bcvsolutions.idm.ic.api.IcConnectorClass;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
+import eu.bcvsolutions.idm.ic.api.IcConnectorConfigurationClass;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInfo;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInstance;
 import eu.bcvsolutions.idm.ic.api.IcConnectorKey;
 import eu.bcvsolutions.idm.ic.api.IcConnectorServer;
 import eu.bcvsolutions.idm.ic.api.IcSchema;
+import eu.bcvsolutions.idm.ic.api.annotation.IcConfigurationClassProperty;
+import eu.bcvsolutions.idm.ic.api.annotation.IcConnectorClass;
 import eu.bcvsolutions.idm.ic.connid.service.impl.ConnIdIcConfigurationService;
+import eu.bcvsolutions.idm.ic.czechidm.domain.CzechIdMIcConvertUtil;
 import eu.bcvsolutions.idm.ic.exception.IcException;
 import eu.bcvsolutions.idm.ic.impl.IcConfigurationPropertiesImpl;
 import eu.bcvsolutions.idm.ic.impl.IcConfigurationPropertyImpl;
@@ -84,7 +96,7 @@ public class CzechIdMIcConfigurationService implements IcConfigurationService {
 	 * @return
 	 */
 	@Override
-	public Set<IcConnectorInfo> getAvailableLocalConnectors() {	
+	public Set<IcConnectorInfo> getAvailableLocalConnectors() {
 		connectorInfos = null;
 		if (connectorInfos == null) {
 			connectorInfos = new HashSet<>();
@@ -100,32 +112,33 @@ public class CzechIdMIcConfigurationService implements IcConfigurationService {
 			LOG.info(MessageFormat.format("Found annotated classes with IcConnectorClass [{0}]", annotated));
 
 			for (Class<?> clazz : annotated) {
-				URL url = clazz.getProtectionDomain().getCodeSource().getLocation();
 				IcConnectorClass connectorAnnotation = clazz.getAnnotation(IcConnectorClass.class);
-				if(!this.getFramework().equals(connectorAnnotation.framework())){
+				if (!this.getFramework().equals(connectorAnnotation.framework())) {
 					continue;
 				}
-				
+
 				IcConnectorKey key = new IcConnectorKeyImpl(connectorAnnotation.framework(), clazz.getName(),
 						connectorAnnotation.version(), connectorAnnotation.name());
 				IcConnectorInfo info = new IcConnectorInfoImpl(connectorAnnotation.displayName(),
 						connectorAnnotation.framework(), key);
+				Class<? extends IcConnectorConfigurationClass> configurationClass = connectorAnnotation
+						.configurationClass();
 				connectorInfos.add(info);
-				if(!IcConnector.class.isAssignableFrom(clazz)){
-					throw new IcException(MessageFormat.format("Cannot create instance of CzechIdM connector [{0}]! Connector class must be child of [0]!", IcConnector.class.getSimpleName()));
+				if (!IcConnector.class.isAssignableFrom(clazz)) {
+					throw new IcException(MessageFormat.format(
+							"Cannot create instance of CzechIdM connector [{0}]! Connector class must be child of [0]!",
+							IcConnector.class.getSimpleName()));
 				}
-		
-				try {
-					IcConnector connector = (IcConnector) clazz.newInstance();
-					connectorsConfigurations.put(info.getConnectorKey().getFullName(), connector.getDefaultConfiguration());
-				} catch (InstantiationException | IllegalAccessException e) {
-					throw new IcException(MessageFormat.format("Cannot create instance of CzechIdM connector [{0}]!", connectorAnnotation.name()), e);
-				}
+				
+				IcConnectorConfiguration configuration = initDefaultConfiguration(configurationClass);
+				// Put default configuration to cache
+				connectorsConfigurations.put(info.getConnectorKey().getFullName(), configuration);
 			}
 			LOG.info(MessageFormat.format("Found all local connector connectorInfos [{0}]", connectorInfos.toString()));
 		}
 		return connectorInfos;
 	}
+
 
 	/**
 	 * Return find connector default configuration by connector key
@@ -137,6 +150,9 @@ public class CzechIdMIcConfigurationService implements IcConfigurationService {
 	public IcConnectorConfiguration getConnectorConfiguration(IcConnectorInstance connectorInstance) {
 		Assert.notNull(connectorInstance.getConnectorKey());
 		//
+		if(this.connectorsConfigurations == null){
+			return null;
+		}
 		return this.connectorsConfigurations.get(connectorInstance.getConnectorKey().getFullName());
 
 	}
@@ -164,5 +180,52 @@ public class CzechIdMIcConfigurationService implements IcConfigurationService {
 	@Override
 	public void test(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration) {
 		// TODO Auto-generated method stub
+	}
+	
+	/**
+	 * Create instance of default connector configuration
+	 * @param configurationClass
+	 * @return
+	 */
+	private IcConnectorConfiguration initDefaultConfiguration(Class<? extends IcConnectorConfigurationClass> configurationClass) {
+		try {
+			IcConnectorConfigurationClass configurationClassInstance = configurationClass.newInstance();
+			List<IcConfigurationProperty> properties = new ArrayList<>();
+
+			PropertyDescriptor[] descriptors = Introspector.getBeanInfo(configurationClass)
+					.getPropertyDescriptors();
+
+			Lists.newArrayList(descriptors).stream().forEach(descriptor -> {
+				Method readMethod = descriptor.getReadMethod();
+				IcConfigurationClassProperty property = readMethod
+						.getAnnotation(IcConfigurationClassProperty.class);
+				if (property != null) {
+					IcConfigurationPropertyImpl icProperty = (IcConfigurationPropertyImpl) CzechIdMIcConvertUtil
+							.convertConfigurationProperty(property);
+					icProperty.setType(readMethod.getReturnType().getName());
+					try {
+						icProperty.setValue(readMethod.invoke(configurationClassInstance));
+					} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+						throw new CoreException("Cannot read value of connector configuration property!", e);
+					}
+
+					properties.add(icProperty);
+				}
+			});
+
+			// Sort by order
+			properties.sort(Comparator.comparing(IcConfigurationProperty::getOrder));
+			IcConfigurationPropertiesImpl icProperties = new IcConfigurationPropertiesImpl();
+			icProperties.setProperties(properties);
+
+			IcConnectorConfigurationImpl configuration = new IcConnectorConfigurationImpl();
+			configuration.setConnectorPoolingSupported(false);
+			configuration.setConfigurationProperties(icProperties);
+			
+			return configuration;
+
+		} catch (IntrospectionException | InstantiationException | IllegalAccessException e) {
+			throw new CoreException("Cannot read connector configuration property!", e);
+		}
 	}
 }

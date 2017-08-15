@@ -13,5 +13,4 @@ public interface IcConnector {
 	 */
 	public void init(IcConnectorConfiguration configuration);
 
-
 }

@@ -53,6 +53,17 @@ public class IdmRoleCatalogueControllerTest extends AbstractRestTest {
 	@Before
 	public void init() {
 		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		// remove garbage from another tests
+		for (IdmRoleCatalogueDto root : roleCatalogueService.findRoots(null).getContent()) {
+			removeRecursivelyAllRoleCatalogue(root);
+		}
+	}
+	
+	private void removeRecursivelyAllRoleCatalogue(IdmRoleCatalogueDto dto) {
+		for (IdmRoleCatalogueDto child : roleCatalogueService.findChildrenByParent(dto.getId(), null).getContent()) {
+			removeRecursivelyAllRoleCatalogue(child);
+		}
+		roleCatalogueService.delete(dto);
 	}
 	
 	@After
@@ -87,7 +98,6 @@ public class IdmRoleCatalogueControllerTest extends AbstractRestTest {
 		assertEquals(10, catalogues.size());
 		assertEquals("a", catalogues.get(0).get(IdmRoleCatalogue_.name.getName()));
 		assertEquals("ccc", catalogues.get(9).get(IdmRoleCatalogue_.name.getName()));
-		assertEquals("bb", catalogues.get(5).get(IdmRoleCatalogue_.name.getName()));
 		
 		this.getJsonAsString("/role-catalogues/search/children", "parent=" + root.getId() ,20l, 0l, "name", "desc", getAuthentication());
 		catalogues = this.getEmbeddedList("roleCatalogues", jsonString);
@@ -95,7 +105,6 @@ public class IdmRoleCatalogueControllerTest extends AbstractRestTest {
 		assertEquals(10, catalogues.size());
 		assertEquals("ccc", catalogues.get(9).get(IdmRoleCatalogue_.name.getName()));
 		assertEquals("a", catalogues.get(0).get(IdmRoleCatalogue_.name.getName()));
-		assertEquals("bb", catalogues.get(5).get(IdmRoleCatalogue_.name.getName()));
 		
 		// clear data
 		for (IdmRoleCatalogueDto dto : roleCatalogueService.findChildrenByParent(root.getId(), null).getContent()) {
@@ -129,7 +138,6 @@ public class IdmRoleCatalogueControllerTest extends AbstractRestTest {
 		assertEquals(10, catalogues.size());
 		assertEquals("a", catalogues.get(0).get(IdmRoleCatalogue_.name.getName()));
 		assertEquals("ccc", catalogues.get(9).get(IdmRoleCatalogue_.name.getName()));
-		assertEquals("bb", catalogues.get(5).get(IdmRoleCatalogue_.name.getName()));
 
 		jsonString = this.getJsonAsString("/role-catalogues/search/roots", null, 20l, 0l, "name", "desc", getAuthentication());
 		catalogues = this.getEmbeddedList("roleCatalogues", jsonString);
@@ -137,7 +145,6 @@ public class IdmRoleCatalogueControllerTest extends AbstractRestTest {
 		assertEquals(10, catalogues.size());
 		assertEquals("a", catalogues.get(9).get(IdmRoleCatalogue_.name.getName()));
 		assertEquals("ccc", catalogues.get(0).get(IdmRoleCatalogue_.name.getName()));
-		assertEquals("bb", catalogues.get(5).get(IdmRoleCatalogue_.name.getName()));
 		
 		// clear data
 		for (IdmRoleCatalogueDto dto : roleCatalogueService.find(null).getContent()) {

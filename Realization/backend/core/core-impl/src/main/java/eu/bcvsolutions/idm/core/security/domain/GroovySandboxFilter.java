@@ -26,7 +26,6 @@ import org.springframework.aop.support.AopUtils;
 import com.google.common.collect.Sets;
 
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
-import eu.bcvsolutions.idm.core.security.exception.IdmSecurityException;
 import groovy.lang.Closure;
 import groovy.lang.GString;
 import groovy.lang.Script;
@@ -44,7 +43,7 @@ public class GroovySandboxFilter extends GroovyValueFilter {
 	private static final Set<Class<?>> ALLOWED_TYPES = Sets.newHashSet(
 			String.class, Integer.class, Double.class, Long.class, Date.class, Enum.class, Boolean.class, 
 			BigDecimal.class, UUID.class, Character.class, GuardedString.class, DateTimeFormatter.class,
-			DateTimeFormat.class, DateTime.class, String[].class, LocalDateTime.class,
+			DateTimeFormat.class, DateTime.class, String[].class, LocalDateTime.class, java.util.Date.class,
 			Map.class, HashMap.class, List.class, ArrayList.class, Set.class, HashSet.class,
 			LoggerFactory.class, Logger.class, ch.qos.logback.classic.Logger.class, GString.class, GStringImpl.class);
 

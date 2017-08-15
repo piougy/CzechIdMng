@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.ic.service.api;
 
 import java.util.Set;
 
+import eu.bcvsolutions.idm.ic.api.IcConnector;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInfo;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInstance;
@@ -73,6 +74,13 @@ public interface IcConfigurationService {
 	 * @param connectorConfiguration - Connector configuration
 	 */
 	void test(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration);
+
+	/**
+	 * Return cached connector class
+	 * @param connectorInstance
+	 * @return
+	 */
+	Class<? extends IcConnector> getConnectorClass(IcConnectorInstance connectorInstance);
 
 
 }

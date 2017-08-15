@@ -28,6 +28,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.ic.api.IcConnector;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInfo;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInstance;
@@ -332,5 +333,11 @@ public class ConnIdIcConfigurationService implements IcConfigurationService {
 		// Make sure we have set up the Configuration properly
 		conn.validate();
 		return conn;
+	}
+
+	@Override
+	public Class<? extends IcConnector> getConnectorClass(IcConnectorInstance connectorInstance) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

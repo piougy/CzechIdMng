@@ -1,8 +1,13 @@
 package eu.bcvsolutions.idm.ic.czechidm.domain;
 
 import eu.bcvsolutions.idm.ic.api.IcConfigurationProperty;
+import eu.bcvsolutions.idm.ic.api.IcConnectorInfo;
+import eu.bcvsolutions.idm.ic.api.IcConnectorKey;
 import eu.bcvsolutions.idm.ic.api.annotation.IcConfigurationClassProperty;
+import eu.bcvsolutions.idm.ic.api.annotation.IcConnectorClass;
 import eu.bcvsolutions.idm.ic.impl.IcConfigurationPropertyImpl;
+import eu.bcvsolutions.idm.ic.impl.IcConnectorInfoImpl;
+import eu.bcvsolutions.idm.ic.impl.IcConnectorKeyImpl;
 
 /**
  * Convert utility for CzechIdM implementation
@@ -25,6 +30,14 @@ public class CzechIdMIcConvertUtil {
 		icProperty.setOrder(property.order());
 		
 		return icProperty;
+	}
+	
+	public static IcConnectorInfo convertConnectorClass(IcConnectorClass connectorAnnotation, Class clazz){
+		IcConnectorKey key = new IcConnectorKeyImpl(connectorAnnotation.framework(), clazz.getName(),
+				connectorAnnotation.version(), connectorAnnotation.name());
+		IcConnectorInfo info = new IcConnectorInfoImpl(connectorAnnotation.displayName(),
+				connectorAnnotation.framework(), key);
+		return info;
 	}
 
 	

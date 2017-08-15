@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
@@ -29,9 +30,11 @@ import eu.bcvsolutions.idm.ic.api.IcConfigurationProperty;
 import eu.bcvsolutions.idm.ic.api.IcConnector;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfigurationClass;
+import eu.bcvsolutions.idm.ic.api.IcConnectorDelete;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInfo;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInstance;
 import eu.bcvsolutions.idm.ic.api.IcConnectorKey;
+import eu.bcvsolutions.idm.ic.api.IcConnectorSchema;
 import eu.bcvsolutions.idm.ic.api.IcConnectorServer;
 import eu.bcvsolutions.idm.ic.api.IcSchema;
 import eu.bcvsolutions.idm.ic.api.annotation.IcConfigurationClassProperty;
@@ -62,11 +65,19 @@ public class CzechIdMIcConfigurationService implements IcConfigurationService {
 	private Set<IcConnectorInfo> connectorInfos;
 	// Cached local default connector configurations
 	private Map<String, IcConnectorConfiguration> connectorsConfigurations;
+	// Cached local default connector class
+	private Map<String, Class<? extends IcConnector>> connectorsClass;
 	@Value("#{'${ic.localconnector.packages}'.split(',')}")
 	private List<String> localConnectorsPackages;
+	private ApplicationContext applicationContext;
 
 	@Autowired
-	public CzechIdMIcConfigurationService(IcConfigurationFacade icConfigurationAggregator) {
+	public CzechIdMIcConfigurationService(IcConfigurationFacade icConfigurationAggregator,
+			ApplicationContext applicationContext) {
+		
+		Assert.notNull(applicationContext);
+		this.applicationContext = applicationContext;
+		
 		if (icConfigurationAggregator.getIcConfigs() == null) {
 			throw new IcException("Map of IC implementations is not defined!");
 		}
@@ -74,7 +85,6 @@ public class CzechIdMIcConfigurationService implements IcConfigurationService {
 			throw new IcException(
 					MessageFormat.format("IC implementation duplicity for key: {0}", IMPLEMENTATION_TYPE));
 		}
-		// Disable for now
 		icConfigurationAggregator.getIcConfigs().put(IMPLEMENTATION_TYPE, this);
 	}
 
@@ -95,12 +105,14 @@ public class CzechIdMIcConfigurationService implements IcConfigurationService {
 	 * 
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public Set<IcConnectorInfo> getAvailableLocalConnectors() {
 		connectorInfos = null;
 		if (connectorInfos == null) {
 			connectorInfos = new HashSet<>();
 			connectorsConfigurations = new HashMap<>();
+			connectorsClass = new HashMap<>();
 			List<Class<?>> annotated = new ArrayList<>();
 			// Find all class with annotation IcConnectorClass under specific
 			// packages
@@ -117,22 +129,22 @@ public class CzechIdMIcConfigurationService implements IcConfigurationService {
 					continue;
 				}
 
-				IcConnectorKey key = new IcConnectorKeyImpl(connectorAnnotation.framework(), clazz.getName(),
-						connectorAnnotation.version(), connectorAnnotation.name());
-				IcConnectorInfo info = new IcConnectorInfoImpl(connectorAnnotation.displayName(),
-						connectorAnnotation.framework(), key);
+				IcConnectorInfo info = CzechIdMIcConvertUtil.convertConnectorClass(connectorAnnotation, clazz);
 				Class<? extends IcConnectorConfigurationClass> configurationClass = connectorAnnotation
 						.configurationClass();
 				connectorInfos.add(info);
 				if (!IcConnector.class.isAssignableFrom(clazz)) {
 					throw new IcException(MessageFormat.format(
-							"Cannot create instance of CzechIdM connector [{0}]! Connector class must be child of [0]!",
+							"Cannot create instance of CzechIdM connector [{0}]! Connector class must be child of [{0}]!",
 							IcConnector.class.getSimpleName()));
 				}
 				
 				IcConnectorConfiguration configuration = initDefaultConfiguration(configurationClass);
 				// Put default configuration to cache
 				connectorsConfigurations.put(info.getConnectorKey().getFullName(), configuration);
+				
+				// Put connector class to cache
+				connectorsClass.put(info.getConnectorKey().getFullName(), ((Class<? extends IcConnector>) clazz));
 			}
 			LOG.info(MessageFormat.format("Found all local connector connectorInfos [{0}]", connectorInfos.toString()));
 		}
@@ -156,10 +168,52 @@ public class CzechIdMIcConfigurationService implements IcConfigurationService {
 		return this.connectorsConfigurations.get(connectorInstance.getConnectorKey().getFullName());
 
 	}
+	
+	/**
+	 * Return find connector class by connector key
+	 * 
+	 * @param key
+	 * @return
+	 */
+	@Override
+	public Class<? extends IcConnector> getConnectorClass(IcConnectorInstance connectorInstance) {
+		Assert.notNull(connectorInstance.getConnectorKey());
+		//
+		if(this.connectorsClass == null){
+			return null;
+		}
+		return this.connectorsClass.get(connectorInstance.getConnectorKey().getFullName());
+
+	}
 
 	@Override
 	public IcSchema getSchema(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration) {
-		return null;
+		Assert.notNull(connectorInstance);
+		Assert.notNull(connectorInstance.getConnectorKey());
+		Assert.notNull(connectorConfiguration);
+		String key = connectorInstance.getConnectorKey().toString();
+		LOG.debug("Generate schema - CzechIdM {}", key);
+
+		Class<? extends IcConnector> connectorClass = this.getConnectorClass(connectorInstance);
+		try {
+			
+			IcConnector connector = connectorClass.newInstance();
+			if(!(connector instanceof IcConnectorSchema)){
+				throw new IcException(MessageFormat.format("Connector [{0}] not supports generate schema operation!", key));
+			}
+			// Manually autowire on this connector instance
+			this.applicationContext.getAutowireCapableBeanFactory().autowireBean(connector);
+
+			connector.init(connectorConfiguration);
+			IcSchema schema = ((IcConnectorSchema)connector).schema();
+
+			LOG.debug("Generated schema - CzechIdM ({}) schema = {}", key, schema);
+		
+			return schema;
+		} catch (InstantiationException | IllegalAccessException e) {
+			throw new CoreException(e);
+		}
+		
 	}
 
 	@Override

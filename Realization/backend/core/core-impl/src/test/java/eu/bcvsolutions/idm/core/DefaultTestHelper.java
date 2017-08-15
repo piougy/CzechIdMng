@@ -235,4 +235,14 @@ public class DefaultTestHelper implements TestHelper {
 	private String createName() {
 		return "test" + "-" + UUID.randomUUID();
 	}
+
+	@Override
+	public IdmRoleCatalogueDto createRoleCatalogue(String code, UUID parentId) {
+		IdmRoleCatalogueDto roleCatalogue = new IdmRoleCatalogueDto();
+		code = code == null ? createName() : code;
+		roleCatalogue.setName(code);
+		roleCatalogue.setParent(parentId);
+		roleCatalogue.setCode(code);
+		return idmRoleCatalogueService.save(roleCatalogue);
+	}
 }

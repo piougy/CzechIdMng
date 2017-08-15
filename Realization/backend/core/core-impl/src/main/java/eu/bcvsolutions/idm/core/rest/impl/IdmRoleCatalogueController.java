@@ -7,7 +7,9 @@ import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -141,9 +143,8 @@ public class IdmRoleCatalogueController extends DefaultReadWriteDtoController<Id
 //                        "Default sort order is ascending. " +
 //                        "Multiple sort criteria are supported.")
 //	})
-	public Resources<?> findRoots(/*@PageableDefault Pageable pageable*/) {
-		// TODO: pageable
-		Page<IdmRoleCatalogueDto> roots = service.findRoots(null);
+	public Resources<?> findRoots(@PageableDefault Pageable pageable) {
+		Page<IdmRoleCatalogueDto> roots = service.findRoots(pageable);
 		return toResources(roots, IdmRoleCatalogue.class);
 	}
 	
@@ -165,10 +166,9 @@ public class IdmRoleCatalogueController extends DefaultReadWriteDtoController<Id
 //	})
 	public Resources<?> findChildren(
 			@ApiParam(value = "Superior role catalogue's uuid identifier.", required = true)
-			@RequestParam(name = "parent", required = true) @NotNull String parentId/*,
-			@PageableDefault Pageable pageable*/) {
-		// TODO: pageable
-		Page<IdmRoleCatalogueDto> children = service.findChildrenByParent(UUID.fromString(parentId), null);
+			@RequestParam(name = "parent", required = true) @NotNull String parentId,
+			@PageableDefault Pageable pageable) {
+		Page<IdmRoleCatalogueDto> children = service.findChildrenByParent(UUID.fromString(parentId), pageable);
 		return toResources(children, IdmRoleCatalogue.class);
 	}	
 	

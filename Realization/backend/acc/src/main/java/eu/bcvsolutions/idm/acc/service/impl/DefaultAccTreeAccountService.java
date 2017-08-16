@@ -87,17 +87,6 @@ public class DefaultAccTreeAccountService
 		}
 	}
 
-	//	@Query(value = "select e from AccTreeAccount e" +
-//	        " where" +
-//	        " (?#{[0].accountId} is null or e.account.id = ?#{[0].accountId})" +
-//	        " and" +
-//	        " (?#{[0].treeNodeId} is null or e.treeNode.id = ?#{[0].treeNodeId})" +
-//	        " and" +
-//	        " (?#{[0].roleSystemId} is null or e.roleSystem.id = ?#{[0].roleSystemId})" +
-//	        " and" +
-//	        " (?#{[0].systemId} is null or e.account.system.id = ?#{[0].systemId})" +
-//	        " and" +
-//	        " (?#{[0].ownership} is null or e.ownership = ?#{[0].ownership})")
 	@Override
 	protected List<Predicate> toPredicates(Root<AccTreeAccount> root, CriteriaQuery<?> query, CriteriaBuilder builder, TreeAccountFilter filter) {
 		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);

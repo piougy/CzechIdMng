@@ -19,7 +19,7 @@ import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.security.evaluator.AbstractTransitiveEvaluator;
 
 /**
- * Permissions to role accounts
+ * Permissions to tree node accounts
  *
  * @author Kučera
  *

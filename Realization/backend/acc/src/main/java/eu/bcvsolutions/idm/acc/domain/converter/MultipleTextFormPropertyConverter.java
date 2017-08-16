@@ -19,7 +19,7 @@ public class MultipleTextFormPropertyConverter extends AbstractFormPropertyConve
 
 	@Override
 	public Set<String> getConnectorPropertyTypes() {
-		return Sets.newHashSet("[Ljava.lang.String;");
+		return Sets.newHashSet("[Ljava.lang.String;","java.lang.String[]");
 	}
 
 	@Override

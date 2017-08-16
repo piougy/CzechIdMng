@@ -1,7 +1,12 @@
 package eu.bcvsolutions.idm.vs.connector.basic;
 
+import java.lang.reflect.Array;
+import java.util.Arrays;
+import java.util.List;
+
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfigurationClass;
 import eu.bcvsolutions.idm.ic.api.annotation.IcConfigurationClassProperty;
+import eu.bcvsolutions.idm.ic.exception.IcException;
 
 /**
  * Configuration for virtual system
@@ -11,37 +16,38 @@ import eu.bcvsolutions.idm.ic.api.annotation.IcConfigurationClassProperty;
  */
 public class BasicVirtualConfiguration implements IcConnectorConfigurationClass {
 
-	String attributes = "firstName, lastName";
-	String implementers;
-	String implementerRoles;
-	boolean resetPasswordSupported = false;
-	boolean disableSupported = true;
-	boolean onlyNotification = false;
+	private String[] attributes = {"firstName", "lastName"};
+	private String[] implementers;
+	private String[] implementerRoles;
+	private boolean resetPasswordSupported = false;
+	private boolean disableSupported = true;
+	private boolean onlyNotification = false;
 
-	@IcConfigurationClassProperty(order = 10, required = true, displayName = "Attributes", helpMessage = "Properties for create EAV model. Values must be split by comma.")
-	public String getAttributes() {
+	@IcConfigurationClassProperty(order = 10, required = true, displayName = "Attributes", helpMessage = "Properties for create EAV model.")
+	public String[] getAttributes() {
 		return attributes;
 	}
 
-	public void setAttributes(String attributes) {
+	public void setAttributes(String[] attributes) {
 		this.attributes = attributes;
 	}
 
-	@IcConfigurationClassProperty(order = 20, displayName = "Implementers", helpMessage = "For this implementers will be created realization tasks. Every implementer must be dentity in CzechIdM. Value are UUIDs of identities split by comma.")
-	public String getImplementers() {
+	@IcConfigurationClassProperty(order = 20, displayName = "Implementers", helpMessage = "For this implementers will be created realization tasks. Every implementer must be dentity in CzechIdM. Value are UUIDs of identities (multivalue).")
+	public String[]  getImplementers() {
 		return implementers;
 	}
-
-	public void setImplementers(String realizators) {
-		this.implementers = realizators;
+	
+	public void setImplementers(String[]  implementers) {
+		this.implementers = implementers;
 	}
 
-	@IcConfigurationClassProperty(order = 30, displayName = "Roles of implementers", helpMessage = "All identity with this roles will be implementers. Every role must be role in CzechIdM. Value are UUIDs of roles split by comma.")
-	public String getImplementerRoles() {
+
+	@IcConfigurationClassProperty(order = 30, displayName = "Roles of implementers", helpMessage = "All identity with this roles will be implementers. Every role must be role in CzechIdM. Value are UUIDs of roles (multivalue).")
+	public String[] getImplementerRoles() {
 		return implementerRoles;
 	}
 
-	public void setImplementerRoles(String realizatorRoles) {
+	public void setImplementerRoles(String[] realizatorRoles) {
 		this.implementerRoles = realizatorRoles;
 	}
 
@@ -74,7 +80,9 @@ public class BasicVirtualConfiguration implements IcConnectorConfigurationClass 
 
 	@Override
 	public void validate() {
-		// TODO Validation
+		if(this.getAttributes() == null || this.getAttributes().length == 0){
+			throw new IcException("BasicVirtualConfiguration validation problem: attributes cannost be null or empty");
+		}
 	}
 
 }

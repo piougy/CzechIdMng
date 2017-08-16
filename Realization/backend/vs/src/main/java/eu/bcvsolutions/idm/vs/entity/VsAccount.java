@@ -23,7 +23,7 @@ import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
  */
 @Entity
 @Table(name = "vs_account", indexes = { @Index(name = "ux_vs_account_uid", columnList = "uid", unique = true) })
-public class VsAccount extends AbstractEntity implements FormableEntity, Disableable {
+public class VsAccount extends AbstractEntity implements FormableEntity {
 
 	private static final long serialVersionUID = 1L;
 
@@ -38,8 +38,8 @@ public class VsAccount extends AbstractEntity implements FormableEntity, Disable
 
 	@Audited
 	@NotNull
-	@Column(name = "disabled", nullable = false)
-	private boolean disabled = false;
+	@Column(name = "enable")
+	private boolean enable;
 
 	public String getUid() {
 		return uid;
@@ -49,11 +49,12 @@ public class VsAccount extends AbstractEntity implements FormableEntity, Disable
 		this.uid = uid;
 	}
 
-	public boolean isDisabled() {
-		return disabled;
+	public boolean isEnable() {
+		return enable;
 	}
 
-	public void setDisabled(boolean disabled) {
-		this.disabled = disabled;
+	public void setEnable(boolean enable) {
+		this.enable = enable;
 	}
+	
 }

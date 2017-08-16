@@ -9,14 +9,14 @@ import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.vs.VirtualSystemModuleDescriptor;
 
 /**
- * Aggregate base permission. Name can't contain character '_' - its used for joining to authority name.
+ * Aggregate base permission.
  * 
- * @author Radek Tomiška
+ * @author Svanda
  *
  */
 public enum VirtualSystemGroupPermission implements GroupPermission {
 	
-	EXAMPLEPRODUCT(
+	VSACCOUNT(
 			IdmBasePermission.ADMIN, 
 			IdmBasePermission.AUTOCOMPLETE,
 			IdmBasePermission.READ,
@@ -26,12 +26,12 @@ public enum VirtualSystemGroupPermission implements GroupPermission {
 	
 	// String constants could be used in pre / post authotize SpEl expressions
 	
-	public static final String EXAMPLE_PRODUCT_ADMIN = "EXAMPLEPRODUCT" + BasePermission.SEPARATOR + "ADMIN";
-	public static final String EXAMPLE_PRODUCT_AUTOCOMPLETE = "EXAMPLEPRODUCT" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
-	public static final String EXAMPLE_PRODUCT_READ = "EXAMPLEPRODUCT" + BasePermission.SEPARATOR + "READ";
-	public static final String EXAMPLE_PRODUCT_CREATE = "EXAMPLEPRODUCT" + BasePermission.SEPARATOR + "CREATE";
-	public static final String EXAMPLE_PRODUCT_UPDATE = "EXAMPLEPRODUCT" + BasePermission.SEPARATOR + "UPDATE";
-	public static final String EXAMPLE_PRODUCT_DELETE = "EXAMPLEPRODUCT" + BasePermission.SEPARATOR + "DELETE";
+	public static final String VS_ACCOUNT_ADMIN = "VSACCOUNT" + BasePermission.SEPARATOR + "ADMIN";
+	public static final String VS_ACCOUNT_AUTOCOMPLETE = "VSACCOUNT" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
+	public static final String VS_ACCOUNT_READ = "VSACCOUNT" + BasePermission.SEPARATOR + "READ";
+	public static final String VS_ACCOUNT_CREATE = "VSACCOUNT" + BasePermission.SEPARATOR + "CREATE";
+	public static final String VS_ACCOUNT_UPDATE = "VSACCOUNT" + BasePermission.SEPARATOR + "UPDATE";
+	public static final String VS_ACCOUNT_DELETE = "VSACCOUNT" + BasePermission.SEPARATOR + "DELETE";
 	
 	private final List<BasePermission> permissions;
 	

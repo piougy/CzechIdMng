@@ -20,7 +20,7 @@ import io.swagger.annotations.ApiModelProperty;
  */
 @Relation(collectionRelation = "accounts")
 @ApiModel(description = "Account in virtual system")
-public class VsAccountDto extends AbstractDto implements Disableable {
+public class VsAccountDto extends AbstractDto {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -28,8 +28,7 @@ public class VsAccountDto extends AbstractDto implements Disableable {
 	@Size(min = 1, max = DefaultFieldLengths.NAME)
 	@ApiModelProperty(required = true, notes = "Unique account identifier.")
 	private String uid;
-	@NotNull
-	private boolean disabled;
+	private boolean enable;
 
 	public String getUid() {
 		return uid;
@@ -39,11 +38,11 @@ public class VsAccountDto extends AbstractDto implements Disableable {
 		this.uid = uid;
 	}
 
-	public boolean isDisabled() {
-		return disabled;
+	public boolean isEnable() {
+		return enable;
 	}
 
-	public void setDisabled(boolean disabled) {
-		this.disabled = disabled;
+	public void setEnable(boolean enable) {
+		this.enable = enable;
 	}
 }

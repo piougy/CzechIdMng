@@ -188,6 +188,23 @@ module.exports = {
       ]
     },
     {
+      path: 'tree',
+      childRoutes: [
+        {
+          path: 'nodes/:entityId',
+          component: require('czechidm-core/src/content/tree/node/Node'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREENODE_READ'] } ],
+          childRoutes: [
+            {
+              path: 'accounts',
+              component: require('./src/content/tree/TreeAccounts'),
+              access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREEACCOUNT_READ'] } ]
+            }
+          ]
+        }
+      ]
+    },
+    {
       path: 'provisioning',
       component: require('./src/content/provisioning/AuditProvisioningOperations'),
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_ADMIN'] } ],

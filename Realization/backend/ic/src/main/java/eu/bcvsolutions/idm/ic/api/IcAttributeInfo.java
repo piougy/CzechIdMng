@@ -8,6 +8,10 @@ package eu.bcvsolutions.idm.ic.api;
  *
  */
 public interface IcAttributeInfo {
+	
+	public static final String NAME = "__NAME__";
+	public static final String PASSWORD = "__PASSWORD__";
+	public static final String DISABLED = "__DISABLED__";
 
 	/**
 	 * The name of the attribute. This the attribute name as it is known by the

@@ -128,16 +128,16 @@ public class CzechIdMIcConfigurationService implements IcConfigurationService {
 				if (!this.getFramework().equals(connectorAnnotation.framework())) {
 					continue;
 				}
-
-				IcConnectorInfo info = CzechIdMIcConvertUtil.convertConnectorClass(connectorAnnotation, clazz);
-				Class<? extends IcConnectorConfigurationClass> configurationClass = connectorAnnotation
-						.configurationClass();
-				connectorInfos.add(info);
 				if (!IcConnector.class.isAssignableFrom(clazz)) {
 					throw new IcException(MessageFormat.format(
 							"Cannot create instance of CzechIdM connector [{0}]! Connector class must be child of [{0}]!",
 							IcConnector.class.getSimpleName()));
 				}
+
+				IcConnectorInfo info = CzechIdMIcConvertUtil.convertConnectorClass(connectorAnnotation, (Class<? extends IcConnector>) clazz);
+				Class<? extends IcConnectorConfigurationClass> configurationClass = connectorAnnotation
+						.configurationClass();
+				connectorInfos.add(info);
 				
 				IcConnectorConfiguration configuration = initDefaultConfiguration(configurationClass);
 				// Put default configuration to cache
@@ -251,12 +251,14 @@ public class CzechIdMIcConfigurationService implements IcConfigurationService {
 
 			Lists.newArrayList(descriptors).stream().forEach(descriptor -> {
 				Method readMethod = descriptor.getReadMethod();
+				String propertyName = descriptor.getName();
 				IcConfigurationClassProperty property = readMethod
 						.getAnnotation(IcConfigurationClassProperty.class);
 				if (property != null) {
 					IcConfigurationPropertyImpl icProperty = (IcConfigurationPropertyImpl) CzechIdMIcConvertUtil
 							.convertConfigurationProperty(property);
-					icProperty.setType(readMethod.getReturnType().getName());
+					icProperty.setName(propertyName);
+					icProperty.setType(readMethod.getGenericReturnType().getTypeName());
 					try {
 						icProperty.setValue(readMethod.invoke(configurationClassInstance));
 					} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {

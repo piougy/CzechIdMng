@@ -1,12 +1,8 @@
 import React, { PropTypes } from 'react';
-import classnames from 'classnames';
 import { connect } from 'react-redux';
-import { Link } from 'react-router';
 //
-import * as Basic from '../../basic';
 import * as Utils from '../../../utils';
 import { IdentityContractManager, SecurityManager, IdentityManager, TreeTypeManager} from '../../../redux/';
-import UuidInfo from '../UuidInfo/UuidInfo';
 import AbstractEntityInfo from '../EntityInfo/AbstractEntityInfo';
 import DateValue from '../DateValue/DateValue';
 

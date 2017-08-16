@@ -13,8 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyGenerateType;
 import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyType;
+import eu.bcvsolutions.idm.core.api.dto.IdmPasswordPolicyDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordValidationDto;
-import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
 import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordPolicyService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
@@ -43,7 +43,7 @@ public class DefaultIdmPasswordPolicyIntegrationTest extends AbstractIntegration
 	
 	@Test
 	public void testGenerateRandomPasswordLength() {
-		IdmPasswordPolicy policy = new IdmPasswordPolicy();
+		IdmPasswordPolicyDto policy = new IdmPasswordPolicyDto();
 		policy.setName("test_01");
 		policy.setType(IdmPasswordPolicyType.GENERATE);
 		policy.setGenerateType(IdmPasswordPolicyGenerateType.RANDOM);
@@ -59,7 +59,7 @@ public class DefaultIdmPasswordPolicyIntegrationTest extends AbstractIntegration
 	
 	@Test
 	public void testGeneratePasshrase() {
-		IdmPasswordPolicy policy = new IdmPasswordPolicy();
+		IdmPasswordPolicyDto policy = new IdmPasswordPolicyDto();
 		policy.setName("test_02");
 		policy.setType(IdmPasswordPolicyType.GENERATE);
 		policy.setGenerateType(IdmPasswordPolicyGenerateType.PASSPHRASE);
@@ -73,7 +73,7 @@ public class DefaultIdmPasswordPolicyIntegrationTest extends AbstractIntegration
 	
 	@Test
 	public void testFailGenerateRandom() {
-		IdmPasswordPolicy policy = new IdmPasswordPolicy();
+		IdmPasswordPolicyDto policy = new IdmPasswordPolicyDto();
 		policy.setName("test_03");
 		policy.setType(IdmPasswordPolicyType.GENERATE);
 		policy.setGenerateType(IdmPasswordPolicyGenerateType.RANDOM);
@@ -100,7 +100,7 @@ public class DefaultIdmPasswordPolicyIntegrationTest extends AbstractIntegration
 	@Test
 	public void testOnlyMinimalLength() {
 		// maximal password length must be always set!!
-		IdmPasswordPolicy policy = new IdmPasswordPolicy();
+		IdmPasswordPolicyDto policy = new IdmPasswordPolicyDto();
 		policy.setName("test_04");
 		policy.setType(IdmPasswordPolicyType.GENERATE);
 		policy.setGenerateType(IdmPasswordPolicyGenerateType.RANDOM);
@@ -115,7 +115,7 @@ public class DefaultIdmPasswordPolicyIntegrationTest extends AbstractIntegration
 	
 	@Test
 	public void testOnlyMaximalLength() {
-		IdmPasswordPolicy policy = new IdmPasswordPolicy();
+		IdmPasswordPolicyDto policy = new IdmPasswordPolicyDto();
 		policy.setName("test_05");
 		policy.setType(IdmPasswordPolicyType.GENERATE);
 		policy.setGenerateType(IdmPasswordPolicyGenerateType.RANDOM);
@@ -129,7 +129,7 @@ public class DefaultIdmPasswordPolicyIntegrationTest extends AbstractIntegration
 	
 	@Test
 	public void testGenerateOnlyNumbers() {
-		IdmPasswordPolicy policy = new IdmPasswordPolicy();
+		IdmPasswordPolicyDto policy = new IdmPasswordPolicyDto();
 		policy.setName("test_06");
 		policy.setType(IdmPasswordPolicyType.GENERATE);
 		policy.setGenerateType(IdmPasswordPolicyGenerateType.RANDOM);
@@ -152,7 +152,7 @@ public class DefaultIdmPasswordPolicyIntegrationTest extends AbstractIntegration
 	
 	@Test
 	public void testGenerateOnlyAlpha() {
-		IdmPasswordPolicy policy = new IdmPasswordPolicy();
+		IdmPasswordPolicyDto policy = new IdmPasswordPolicyDto();
 		policy.setName("test_07");
 		policy.setType(IdmPasswordPolicyType.GENERATE);
 		policy.setGenerateType(IdmPasswordPolicyGenerateType.RANDOM);
@@ -172,7 +172,7 @@ public class DefaultIdmPasswordPolicyIntegrationTest extends AbstractIntegration
 	
 	@Test
 	public void testGenerateOnlyOneSpecial() {
-		IdmPasswordPolicy policy = new IdmPasswordPolicy();
+		IdmPasswordPolicyDto policy = new IdmPasswordPolicyDto();
 		policy.setName("test_08");
 		policy.setType(IdmPasswordPolicyType.GENERATE);
 		policy.setGenerateType(IdmPasswordPolicyGenerateType.RANDOM);
@@ -194,7 +194,7 @@ public class DefaultIdmPasswordPolicyIntegrationTest extends AbstractIntegration
 	
 	@Test
 	public void testGenerateComplexPassword() {
-		IdmPasswordPolicy policy = new IdmPasswordPolicy();
+		IdmPasswordPolicyDto policy = new IdmPasswordPolicyDto();
 		policy.setName("test_09");
 		policy.setType(IdmPasswordPolicyType.GENERATE);
 		policy.setGenerateType(IdmPasswordPolicyGenerateType.RANDOM);
@@ -227,7 +227,7 @@ public class DefaultIdmPasswordPolicyIntegrationTest extends AbstractIntegration
 	
 	@Test
 	public void testGenerateProhibited() {
-		IdmPasswordPolicy policy = new IdmPasswordPolicy();
+		IdmPasswordPolicyDto policy = new IdmPasswordPolicyDto();
 		policy.setName("test_10");
 		policy.setType(IdmPasswordPolicyType.GENERATE);
 		policy.setGenerateType(IdmPasswordPolicyGenerateType.RANDOM);
@@ -252,7 +252,7 @@ public class DefaultIdmPasswordPolicyIntegrationTest extends AbstractIntegration
 	
 	@Test
 	public void testValidateLength() {
-		IdmPasswordPolicy policy = new IdmPasswordPolicy();
+		IdmPasswordPolicyDto policy = new IdmPasswordPolicyDto();
 		policy.setName("test_11");
 		policy.setType(IdmPasswordPolicyType.VALIDATE);
 		policy.setMaxPasswordLength(10);
@@ -310,7 +310,7 @@ public class DefaultIdmPasswordPolicyIntegrationTest extends AbstractIntegration
 	
 	@Test
 	public void testValidateMinNumbers() {
-		IdmPasswordPolicy policy = new IdmPasswordPolicy();
+		IdmPasswordPolicyDto policy = new IdmPasswordPolicyDto();
 		policy.setName("test_12");
 		policy.setType(IdmPasswordPolicyType.GENERATE);
 		policy.setGenerateType(IdmPasswordPolicyGenerateType.RANDOM);
@@ -360,7 +360,7 @@ public class DefaultIdmPasswordPolicyIntegrationTest extends AbstractIntegration
 	
 	@Test
 	public void testValidateSpecialChar() {
-		IdmPasswordPolicy policy = new IdmPasswordPolicy();
+		IdmPasswordPolicyDto policy = new IdmPasswordPolicyDto();
 		policy.setName("test_13");
 		policy.setType(IdmPasswordPolicyType.GENERATE);
 		policy.setGenerateType(IdmPasswordPolicyGenerateType.RANDOM);
@@ -410,7 +410,7 @@ public class DefaultIdmPasswordPolicyIntegrationTest extends AbstractIntegration
 	
 	@Test
 	public void testValidationProhibitedChars() {
-		IdmPasswordPolicy policy = new IdmPasswordPolicy();
+		IdmPasswordPolicyDto policy = new IdmPasswordPolicyDto();
 		policy.setName("test_14");
 		policy.setType(IdmPasswordPolicyType.GENERATE);
 		policy.setGenerateType(IdmPasswordPolicyGenerateType.RANDOM);
@@ -465,7 +465,7 @@ public class DefaultIdmPasswordPolicyIntegrationTest extends AbstractIntegration
 	
 	@Test
 	public void testValidateBase() {
-		IdmPasswordPolicy policy = new IdmPasswordPolicy();
+		IdmPasswordPolicyDto policy = new IdmPasswordPolicyDto();
 		policy.setName("test_15");
 		policy.setType(IdmPasswordPolicyType.GENERATE);
 		policy.setGenerateType(IdmPasswordPolicyGenerateType.RANDOM);
@@ -508,7 +508,7 @@ public class DefaultIdmPasswordPolicyIntegrationTest extends AbstractIntegration
 	
 	@Test
 	public void testValidateComplex() {
-		IdmPasswordPolicy policy = new IdmPasswordPolicy();
+		IdmPasswordPolicyDto policy = new IdmPasswordPolicyDto();
 		policy.setName("test_16");
 		policy.setType(IdmPasswordPolicyType.GENERATE);
 		policy.setGenerateType(IdmPasswordPolicyGenerateType.RANDOM);
@@ -599,7 +599,7 @@ public class DefaultIdmPasswordPolicyIntegrationTest extends AbstractIntegration
 	
 	@Test
 	public void testCreateAndFoundPasswordPolicy() {
-		IdmPasswordPolicy policy = new IdmPasswordPolicy();
+		IdmPasswordPolicyDto policy = new IdmPasswordPolicyDto();
 		policy.setName("test_17_saved");
 		policy.setType(IdmPasswordPolicyType.GENERATE);
 		policy.setGenerateType(IdmPasswordPolicyGenerateType.RANDOM);
@@ -607,15 +607,15 @@ public class DefaultIdmPasswordPolicyIntegrationTest extends AbstractIntegration
 		policy.setMaxPasswordLength(20);
 		policy.setMinPasswordLength(6);
 		
-		this.passwordPolicyService.save(policy);
+		policy = this.passwordPolicyService.save(policy);
 		
-		IdmPasswordPolicy foundPolicyByName = this.passwordPolicyService.findOneByName("test_17_saved");
+		IdmPasswordPolicyDto foundPolicyByName = this.passwordPolicyService.findOneByName("test_17_saved");
 		assertEquals(policy.getName(), foundPolicyByName.getName());
 		assertEquals(policy.getType(), foundPolicyByName.getType());
 		assertEquals(policy.getMaxPasswordLength(), foundPolicyByName.getMaxPasswordLength());
 		assertEquals(policy.getMinPasswordLength(), foundPolicyByName.getMinPasswordLength());
 		
-		IdmPasswordPolicy foundPolicyById = this.passwordPolicyService.get(policy.getId());
+		IdmPasswordPolicyDto foundPolicyById = this.passwordPolicyService.get(policy.getId());
 		assertEquals(policy.getName(), foundPolicyById.getName());
 		assertEquals(policy.getType(), foundPolicyById.getType());
 		assertEquals(policy.getMaxPasswordLength(), foundPolicyById.getMaxPasswordLength());
@@ -624,24 +624,24 @@ public class DefaultIdmPasswordPolicyIntegrationTest extends AbstractIntegration
 	
 	@Test
 	public void testCreateTwoDefaultPolicy() {
-		IdmPasswordPolicy policy = new IdmPasswordPolicy();
+		IdmPasswordPolicyDto policy = new IdmPasswordPolicyDto();
 		policy.setName("test_18_default");
 		policy.setType(IdmPasswordPolicyType.VALIDATE);
 		policy.setDefaultPolicy(true);
 		
-		saveInTransaction(policy, passwordPolicyService);
+		policy = saveInTransaction(policy, passwordPolicyService);
 		
-		IdmPasswordPolicy defaultValidatePolicy = this.passwordPolicyService.getDefaultPasswordPolicy(IdmPasswordPolicyType.VALIDATE);
+		IdmPasswordPolicyDto defaultValidatePolicy = this.passwordPolicyService.getDefaultPasswordPolicy(IdmPasswordPolicyType.VALIDATE);
 		assertEquals(policy.getId(), defaultValidatePolicy.getId());
 		assertEquals(policy.getName(), defaultValidatePolicy.getName());
 		assertEquals(policy.getType(), defaultValidatePolicy.getType());
 		
-		IdmPasswordPolicy policyNew = new IdmPasswordPolicy();
+		IdmPasswordPolicyDto policyNew = new IdmPasswordPolicyDto();
 		policyNew.setName("test_19_default");
 		policyNew.setType(IdmPasswordPolicyType.VALIDATE);
 		policyNew.setDefaultPolicy(true);
 		
-		saveInTransaction(policyNew, passwordPolicyService);
+		policyNew = saveInTransaction(policyNew, passwordPolicyService);
 		
 		defaultValidatePolicy = this.passwordPolicyService.getDefaultPasswordPolicy(IdmPasswordPolicyType.VALIDATE);
 		assertEquals(policyNew.getId(), defaultValidatePolicy.getId());

@@ -1,16 +1,14 @@
 package eu.bcvsolutions.idm.core.rest.impl;
 
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
+import org.springframework.hateoas.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,16 +21,14 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyType;
+import eu.bcvsolutions.idm.core.api.dto.IdmPasswordPolicyDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordValidationDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.PasswordPolicyFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
-import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
-import eu.bcvsolutions.idm.core.api.rest.domain.ResourceWrapper;
-import eu.bcvsolutions.idm.core.api.service.LookupService;
+import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
-import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordPolicyService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -48,21 +44,21 @@ import io.swagger.annotations.AuthorizationScope;
  */
 
 @RepositoryRestController
-@RequestMapping(value = BaseEntityController.BASE_PATH + "/password-policies")
+@RequestMapping(value = BaseDtoController.BASE_PATH + "/password-policies")
 @Api(
 		value = IdmPasswordPolicyController.TAG, 
 		tags = IdmPasswordPolicyController.TAG, 
 		description = "Operations with password policies",
 		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
 		consumes = MediaType.APPLICATION_JSON_VALUE)
-public class IdmPasswordPolicyController extends DefaultReadWriteEntityController<IdmPasswordPolicy, PasswordPolicyFilter> {
+public class IdmPasswordPolicyController extends DefaultReadWriteDtoController<IdmPasswordPolicyDto, PasswordPolicyFilter> {
 	
 	protected static final String TAG = "Password policies";
 	private final IdmPasswordPolicyService passwordPolicyService;
 	
 	@Autowired
-	public IdmPasswordPolicyController(LookupService entityLookupService, IdmPasswordPolicyService passwordPolicyService) {
-		super(entityLookupService);
+	public IdmPasswordPolicyController(IdmPasswordPolicyService passwordPolicyService) {
+		super(passwordPolicyService);
 		this.passwordPolicyService = passwordPolicyService;
 	}
 	
@@ -83,13 +79,13 @@ public class IdmPasswordPolicyController extends DefaultReadWriteEntityControlle
 						@AuthorizationScope(scope = CoreGroupPermission.PASSWORDPOLICY_CREATE, description = ""),
 						@AuthorizationScope(scope = CoreGroupPermission.PASSWORDPOLICY_UPDATE, description = "")})
 				})
-	public ResponseEntity<?> post(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler)
-			throws HttpMessageNotReadableException {
-		return super.post(nativeRequest, assembler);
+	public ResponseEntity<?> post(@RequestBody @NotNull IdmPasswordPolicyDto dto) {
+		return super.post(dto);
 	}
 	
 	@Override
 	@ResponseBody
+	@RequestMapping(value = "/{backendId}", method = RequestMethod.PUT)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.PASSWORDPOLICY_UPDATE + "')")
 	@ApiOperation(
 			value = "Update password policy",
@@ -104,13 +100,15 @@ public class IdmPasswordPolicyController extends DefaultReadWriteEntityControlle
 				})
 	public ResponseEntity<?> put(
 			@ApiParam(value = "Policy's uuid identifier.", required = true)
-			@PathVariable @NotNull String backendId, 
-			HttpServletRequest nativeRequest,
-			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
-		return super.put(backendId, nativeRequest, assembler);
+			@PathVariable @NotNull String backendId,
+			@RequestBody @NotNull IdmPasswordPolicyDto dto) {
+		return super.put(backendId, dto);
 	}
 	
-	@Override
+	/*
+	 * Path method is not implemented for dtos yet
+	 */
+	/*@Override
 	@ResponseBody
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.PASSWORDPOLICY_UPDATE + "')")
 	@ApiOperation(
@@ -130,11 +128,12 @@ public class IdmPasswordPolicyController extends DefaultReadWriteEntityControlle
 			HttpServletRequest nativeRequest,
 			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
 		return super.patch(backendId, nativeRequest, assembler);
-	}
+	}*/
 	
 	@Override
 	@ResponseBody
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.PASSWORDPOLICY_DELETE + "')")
+	@RequestMapping(value = "/{backendId}", method = RequestMethod.DELETE)
 	@ApiOperation(
 			value = "Delete password policy", 
 			nickname = "deletePasswordPolicy", 
@@ -168,7 +167,7 @@ public class IdmPasswordPolicyController extends DefaultReadWriteEntityControlle
 	public String generate(
 			@ApiParam(value = "Policy's uuid identifier.", required = true)
 			@PathVariable String backendId) {
-		IdmPasswordPolicy entity = getPasswordPolicy(backendId);
+		IdmPasswordPolicyDto entity = getPasswordPolicy(backendId);
 		//
 		return this.passwordPolicyService.generatePassword(entity);
 	}
@@ -186,17 +185,17 @@ public class IdmPasswordPolicyController extends DefaultReadWriteEntityControlle
 			response = IdmPasswordValidationDto.class,
 			tags = { IdmPasswordPolicyController.TAG },
 			notes = "Validate password by password policy.")
-	public ResourceWrapper<IdmPasswordValidationDto> validate(
+	public Resource<IdmPasswordValidationDto> validate(
 			@ApiParam(value = "Policy's uuid identifier.", required = true)
 			@PathVariable String backendId,
 			@Valid @RequestBody(required = true) IdmPasswordValidationDto password) {
-		IdmPasswordPolicy passwordPolicy = getPasswordPolicy(backendId);
+		IdmPasswordPolicyDto passwordPolicy = getPasswordPolicy(backendId);
 		//
 		this.passwordPolicyService.validate(password, passwordPolicy);
 		//
 		password.setValid(true);
 		//
-		return new ResourceWrapper<IdmPasswordValidationDto>(password);
+		return new Resource<IdmPasswordValidationDto>(password);
 	}
 	
 	/**
@@ -211,12 +210,12 @@ public class IdmPasswordPolicyController extends DefaultReadWriteEntityControlle
 			response = IdmPasswordValidationDto.class,
 			tags = { IdmPasswordPolicyController.TAG },
 			notes = "Validate password by default password policy.")
-	public ResourceWrapper<IdmPasswordValidationDto> validateByDefault(@Valid @RequestBody(required = true) IdmPasswordValidationDto password) {
+	public Resource<IdmPasswordValidationDto> validateByDefault(@Valid @RequestBody(required = true) IdmPasswordValidationDto password) {
 		this.passwordPolicyService.validate(password);
 		//
 		password.setValid(true);
 		//
-		return new ResourceWrapper<IdmPasswordValidationDto>(password);
+		return new Resource<IdmPasswordValidationDto>(password);
 	}
 	
 	
@@ -238,9 +237,15 @@ public class IdmPasswordPolicyController extends DefaultReadWriteEntityControlle
 		return passwordPolicyService.generatePasswordByDefault();
 	}
 	
-	
-	private IdmPasswordPolicy getPasswordPolicy(String backendId) {
-		IdmPasswordPolicy entity = this.getEntity(backendId);
+	/**
+	 * Method return {@link IdmPasswordPolicyDto} for given backendId. Returned
+	 * {@link IdmPasswordPolicyDto} must be VALIDATE type
+	 * 
+	 * @param backendId
+	 * @return
+	 */
+	private IdmPasswordPolicyDto getPasswordPolicy(String backendId) {
+		IdmPasswordPolicyDto entity = this.passwordPolicyService.get(backendId);
 		if (entity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		} else if (entity.getType() == IdmPasswordPolicyType.VALIDATE) {

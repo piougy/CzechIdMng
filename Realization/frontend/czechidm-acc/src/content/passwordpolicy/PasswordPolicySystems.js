@@ -1,13 +1,15 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 //
-import { Basic, Domain } from 'czechidm-core';
+import { Basic, Domain, Enums, Managers } from 'czechidm-core';
 import { SystemManager } from '../../redux';
 import SystemTable from '../system/SystemTable';
 
 /**
 * Table with connected systems to this password policy
 */
+
+const passwordPolicyManager = new Managers.PasswordPolicyManager();
 
 class PasswordPolicySystems extends Basic.AbstractContent {
 
@@ -17,25 +19,32 @@ class PasswordPolicySystems extends Basic.AbstractContent {
   }
 
   componentDidMount() {
+    const { entityId } = this.props.params;
     this.selectNavigationItems(['system', 'password-policies', 'password-policies-systems']);
+    this.context.store.dispatch(passwordPolicyManager.fetchEntity(entityId));
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (!this.props.entity || nextProps.entity.id !== this.props.entity.id || nextProps.entity.id !== this.refs.form.getData().id) {
-      this._initForm(nextProps.entity);
-    }
-  }
   render() {
-    const { entityId } = this.props.params;
+    const { entityId, entity, showLoading } = this.props.params;
+
+    const forceSearchparameters = new Domain.SearchParameters();
+
+    const validateType = entity && Enums.PasswordPolicyTypeEnum.findSymbolByKey(entity.type) === Enums.PasswordPolicyTypeEnum.VALIDATE;
+    if (validateType) {
+      forceSearchparameters.setFilter('passwordPolicyValidationId', entityId);
+    } else {
+      forceSearchparameters.setFilter('passwordPolicyGenerationId', entityId);
+    }
+console.log(showLoading, entity, validateType);
     return (
       <div>
         <Basic.ContentHeader text={this.i18n('acc:content.passwordPolicy.system.title')} style={{ marginBottom: 0 }}/>
 
-        <Basic.Panel className="no-border last">
+        <Basic.Panel className="no-border last" showLoading={showLoading}>
           <SystemTable uiKey="password_policy_system_table"
             columns={['name', 'description', 'disabled', 'readonly']}
             manager={this.systemManager}
-            forceSearchParameters={new Domain.SearchParameters().setFilter('passwordPolicyId', entityId)}
+            forceSearchParameters={forceSearchparameters}
             showRowSelection={false}
             showAddButton={false}
             filterOpened={false}/>
@@ -46,15 +55,17 @@ class PasswordPolicySystems extends Basic.AbstractContent {
 }
 
 PasswordPolicySystems.propTypes = {
-  entity: PropTypes.object,
-  uiKey: PropTypes.string.isRequired,
-  isNew: PropTypes.bool
+  entity: PropTypes.object
 };
 PasswordPolicySystems.defaultProps = {
 };
 
-function select() {
+function select(state, component) {
+  const { entityId } = component.params;
+  //
   return {
+    entity: passwordPolicyManager.getEntity(state, entityId),
+    showLoading: passwordPolicyManager.isShowLoading(state, null, entityId)
   };
 }
 

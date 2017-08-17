@@ -276,7 +276,12 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 			});
 			// add default - doesn't supports authorization evaluators
 			moduleService.getAvailablePermissions().forEach(groupPermission -> {
-				authorizableTypes.add(new AuthorizableType(groupPermission, null));
+				boolean exists = authorizableTypes.stream().anyMatch(authorizableType -> {
+					return authorizableType.getGroup().equals(groupPermission);
+				});
+				if (!exists) {
+					authorizableTypes.add(new AuthorizableType(groupPermission, null));
+				}
 			});
 		}
 		return authorizableTypes;

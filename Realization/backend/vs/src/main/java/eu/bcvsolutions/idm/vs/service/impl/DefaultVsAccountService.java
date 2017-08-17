@@ -1,6 +1,8 @@
 package eu.bcvsolutions.idm.vs.service.impl;
 
+import java.text.MessageFormat;
 import java.util.List;
+import java.util.UUID;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -17,6 +19,9 @@ import org.springframework.util.Assert;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
+import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
+import eu.bcvsolutions.idm.ic.exception.IcException;
+import eu.bcvsolutions.idm.vs.domain.VirtualSystemGroupPermission;
 import eu.bcvsolutions.idm.vs.entity.VsAccount;
 import eu.bcvsolutions.idm.vs.entity.VsAccount_;
 import eu.bcvsolutions.idm.vs.repository.VsAccountRepository;
@@ -71,7 +76,40 @@ public class DefaultVsAccountService
 					builder.equal(builder.lower(root.get(VsAccount_.uid)), "%" + filter.getText().toLowerCase() + "%")			
 					));
 		}
+		
+		// UID
+		if (StringUtils.isNotEmpty(filter.getUid())) {
+			predicates.add(builder.equal(root.get(VsAccount_.uid), filter.getUid()));
+		}
+		
+		// System ID
+		if (filter.getSystemId() != null) {
+			predicates.add(builder.equal(root.get(VsAccount_.systemId), filter.getSystemId()));
+		}
 		return predicates;
+	}
+
+
+	@Override
+	public VsAccountDto findByUidSystem(String uidValue, UUID systemId) {
+		Assert.notNull(uidValue, "Uid value cannot be null!");
+		Assert.notNull(systemId, "Id of CzechIdM system cannot be null!");
+		
+		AccountFilter filter = new AccountFilter();
+		filter.setUid(uidValue);
+		filter.setSystemId(systemId);
+		List<VsAccountDto> accounts = this.find(filter, null).getContent();	
+		if(accounts.size() > 1){
+			throw new IcException(MessageFormat.format("To many vs accounts for uid [{0}] and system [{1}]!", uidValue, systemId));
+		}
+		
+		return accounts.isEmpty() ? null : accounts.get(0);
+	}
+
+
+	@Override
+	public AuthorizableType getAuthorizableType() {
+		return new AuthorizableType(VirtualSystemGroupPermission.VSACCOUNT, getEntityClass());
 	}
 
 }

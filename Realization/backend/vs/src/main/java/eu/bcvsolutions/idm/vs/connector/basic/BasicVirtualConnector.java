@@ -1,19 +1,22 @@
 package eu.bcvsolutions.idm.vs.connector.basic;
 
+import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
-import org.apache.http.util.Asserts;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
+import eu.bcvsolutions.idm.core.eav.entity.AbstractFormValue;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
@@ -36,9 +39,13 @@ import eu.bcvsolutions.idm.ic.api.annotation.IcConnectorClass;
 import eu.bcvsolutions.idm.ic.czechidm.domain.CzechIdMIcConvertUtil;
 import eu.bcvsolutions.idm.ic.czechidm.domain.IcConnectorConfigurationCzechIdMImpl;
 import eu.bcvsolutions.idm.ic.exception.IcException;
+import eu.bcvsolutions.idm.ic.impl.IcAttributeImpl;
 import eu.bcvsolutions.idm.ic.impl.IcAttributeInfoImpl;
+import eu.bcvsolutions.idm.ic.impl.IcConnectorObjectImpl;
+import eu.bcvsolutions.idm.ic.impl.IcObjectClassImpl;
 import eu.bcvsolutions.idm.ic.impl.IcObjectClassInfoImpl;
 import eu.bcvsolutions.idm.ic.impl.IcSchemaImpl;
+import eu.bcvsolutions.idm.ic.impl.IcUidAttributeImpl;
 import eu.bcvsolutions.idm.vs.entity.VsAccount;
 import eu.bcvsolutions.idm.vs.entity.VsAccount_;
 import eu.bcvsolutions.idm.vs.service.api.VsAccountService;
@@ -60,6 +67,8 @@ public class BasicVirtualConnector
 	private BasicVirtualConfiguration virtualConfiguration;
 	private IdmFormDefinition formDefinition;
 	private String virtualSystemKey;
+	private String connectorKey;
+	private UUID systemId;
 
 	@Override
 	public void init(IcConnectorConfiguration configuration) {
@@ -70,7 +79,7 @@ public class BasicVirtualConnector
 							IcConnectorConfigurationCzechIdMImpl.class.getName()));
 		}
 
-		UUID systemId = ((IcConnectorConfigurationCzechIdMImpl) configuration).getSystemId();
+		systemId = ((IcConnectorConfigurationCzechIdMImpl) configuration).getSystemId();
 		if (systemId == null) {
 			throw new IcException("System ID cannot be null (for virtual system)");
 		}
@@ -89,8 +98,8 @@ public class BasicVirtualConnector
 		// Validate configuration
 		virtualConfiguration.validate();
 
-		virtualSystemKey = MessageFormat.format("{0}:systemId={1}", info.getConnectorKey().getFullName(),
-				systemId.toString());
+		connectorKey = info.getConnectorKey().getFullName();
+		virtualSystemKey = MessageFormat.format("{0}:systemId={1}", connectorKey, systemId.toString());
 		String type = VsAccount.class.getName();
 
 		// Create/Update form definition and attributes
@@ -99,33 +108,128 @@ public class BasicVirtualConnector
 
 	@Override
 	public IcUidAttribute update(IcUidAttribute uid, IcObjectClass objectClass, List<IcAttribute> attributes) {
-		// TODO Auto-generated method stub
-		return null;
+		Assert.notNull(objectClass, "Object class cannot be null!");
+		Assert.notNull(attributes, "Attributes cannot be null!");
+		
+		if (!IcObjectClassInfo.ACCOUNT.equals(objectClass.getType())) {
+			throw new IcException("Only ACCOUNT object class is supported now!");
+		}
+		String uidValue = uid.getUidValue();
+
+		if (uidValue == null) {
+			throw new IcException("UID value cannot be null!");
+		}
+
+		// Find account by UID and System ID
+		VsAccountDto account = accountService.findByUidSystem(uidValue, systemId);
+		if (account == null) {
+			throw new IcException(MessageFormat.format("Vs account was not found for UID [{0}] and system ID [{1}]!", uidValue, systemId));
+		}
+		
+		IcAttribute uidAttribute = geAttribute(attributes, IcAttributeInfo.NAME);
+
+		// Update UID - if is different
+		if (uidAttribute != null) {
+			Object attributeUidValue = uidAttribute.getValue();
+			if (!(attributeUidValue instanceof String)) {
+				throw new IcException(MessageFormat.format("UID attribute value [{0}] must be String!", attributeUidValue));
+			}
+			if(!uidValue.equals(attributeUidValue)){
+				account.setUid((String) attributeUidValue);
+				account = accountService.save(account);
+			}
+		
+		}
+
+		UUID accountId = account.getId();
+		
+		// Update extended attributes
+		Arrays.asList(virtualConfiguration.getAttributes()).forEach(virtualAttirbute -> {
+			updateFormAttributeValue(uidValue, virtualAttirbute, accountId, attributes);
+		});
+		
+		return new IcUidAttributeImpl(IcAttributeInfo.NAME, account.getUid(), null);
 	}
 
 	@Override
 	public IcUidAttribute create(IcObjectClass objectClass, List<IcAttribute> attributes) {
 		Assert.notNull(objectClass, "Object class cannot be null!");
 		Assert.notNull(attributes, "Attributes cannot be null!");
-		if(!IcObjectClassInfo.ACCOUNT.equals(objectClass.getType())){
+		if (!IcObjectClassInfo.ACCOUNT.equals(objectClass.getType())) {
 			throw new IcException("Only ACCOUNT object class is supported now!");
 		}
 		IcAttribute uidAttribute = geAttribute(attributes, IcAttributeInfo.NAME);
-		
-		if(uidAttribute == null){
+
+		if (uidAttribute == null) {
 			throw new IcException("UID attribute was not found!");
 		}
-		
+		Object uidValue = uidAttribute.getValue();
+		if (!(uidValue instanceof String)) {
+			throw new IcException(MessageFormat.format("UID attribute value [{0}] must be String!", uidValue));
+		}
+
 		VsAccountDto account = new VsAccountDto();
+		account.setUid((String) uidValue);
+		account.setSystemId(this.systemId);
+		account.setConnectorKey(connectorKey);
+
+		account = accountService.save(account);
+		UUID accountId = account.getId();
+
+		// Attributes from definition and configuration
+		Arrays.asList(virtualConfiguration.getAttributes()).forEach(virtualAttirbute -> {
+			updateFormAttributeValue(uidValue, virtualAttirbute, accountId, attributes);
+		});
 		
-		
-		return null;
+		return new IcUidAttributeImpl(IcAttributeInfo.NAME, account.getUid(), null);
 	}
 
 	@Override
 	public IcConnectorObject read(IcUidAttribute uid, IcObjectClass objectClass) {
-		// TODO Auto-generated method stub
-		return null;
+		Assert.notNull(objectClass, "Object class cannot be null!");
+		if (!IcObjectClassInfo.ACCOUNT.equals(objectClass.getType())) {
+			throw new IcException("Only ACCOUNT object class is supported now!");
+		}
+		String uidValue = uid.getUidValue();
+
+		if (uidValue == null) {
+			throw new IcException("UID value cannot be null!");
+		}
+
+		// Find account by UID and System ID
+		VsAccountDto account = accountService.findByUidSystem(uidValue, systemId);
+		if (account == null) {
+			return null;
+		}
+
+		UUID accountId = account.getId();
+
+		IcConnectorObjectImpl connectorObject = new IcConnectorObjectImpl();
+		connectorObject.setUidValue(account.getUid());
+		connectorObject.setObjectClass(new IcObjectClassImpl(IcObjectClassInfo.ACCOUNT));
+		List<IcAttribute> attributes = connectorObject.getAttributes();
+
+		// Attributes from definition and configuration
+		Arrays.asList(virtualConfiguration.getAttributes()).forEach(virtualAttirbute -> {
+			IdmFormAttribute attributeDefinition = this.formAttributeService.findAttribute(formDefinition.getType(), formDefinition.getCode(), virtualAttirbute);
+			List<AbstractFormValue<VsAccount>> values = this.formService.getValues(accountId, VsAccount.class, this.formDefinition, virtualAttirbute);
+			if(CollectionUtils.isEmpty(values)){
+				return;
+			}
+		
+			List<Object> valuesObject = values.stream()
+			.map(AbstractFormValue::getValue)
+			.collect(Collectors.toList());	
+	
+			IcAttributeImpl attribute = new IcAttributeImpl();
+			attribute.setMultiValue(attributeDefinition.isMultiple());
+			attribute.setName(virtualAttirbute);
+			attribute.setValues(valuesObject);
+			attributes.add(attribute);
+		});
+		
+		return connectorObject;
+
 	}
 
 	@Override
@@ -185,7 +289,7 @@ public class BasicVirtualConnector
 			attribute.setRequired(formAttribute.isRequired());
 			attribute.setReturnedByDefault(true);
 			attribute.setUpdateable(!formAttribute.isReadonly());
-			
+
 			attributes.add(attribute);
 		});
 
@@ -193,16 +297,17 @@ public class BasicVirtualConnector
 
 		return schema;
 	}
-	
+
 	/**
 	 * Find UID attribute
+	 * 
 	 * @param attributes
 	 * @return
 	 */
 	private IcAttribute geAttribute(List<IcAttribute> attributes, String name) {
 		Assert.notNull(attributes);
 		Assert.notNull(name);
-		
+
 		return attributes.stream().filter(attribute -> name.equals(attribute.getName())).findFirst().orElse(null);
 	}
 
@@ -265,6 +370,28 @@ public class BasicVirtualConnector
 			});
 			return definition;
 		}
+	}
+	
+	private void updateFormAttributeValue(Object uidValue, String virtualAttirbute, UUID accountId,
+			List<IcAttribute> attributes) {
+		IcAttribute attribute = geAttribute(attributes, virtualAttirbute);
+		if(attribute == null){
+			return;
+		}
+		List<Object> values = attribute.getValues();
+		List<Serializable> serializableValues = new ArrayList<>();
+		if (values != null) {
+			values.forEach(value -> {
+				if (!(value instanceof Serializable)) {
+					throw new IcException(MessageFormat.format(
+							"Ic attribute value [{0}] is not Serializable! For account with UID [{1}].", value,
+							uidValue));
+				}
+				serializableValues.add((Serializable) value);
+			});
+		}
+		
+		formService.saveValues(accountId, VsAccount.class, this.formDefinition, virtualAttirbute, serializableValues);
 	}
 
 	private IdmFormAttribute createFromAttribute(String virtualAttirbute) {

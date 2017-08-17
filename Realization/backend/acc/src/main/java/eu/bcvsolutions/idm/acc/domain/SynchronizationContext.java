@@ -4,10 +4,10 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
 
+import eu.bcvsolutions.idm.acc.dto.SysSyncItemLogDto;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.SysSyncActionLog;
 import eu.bcvsolutions.idm.acc.entity.SysSyncConfig;
-import eu.bcvsolutions.idm.acc.entity.SysSyncItemLog;
 import eu.bcvsolutions.idm.acc.entity.SysSyncLog;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
@@ -59,7 +59,7 @@ public class SynchronizationContext implements Serializable {
 	private List<SysSystemAttributeMapping> mappedAttributes;
 	private AccAccount account;
 	private SysSyncLog log;
-	private SysSyncItemLog logItem;
+	private SysSyncItemLogDto logItem;
 	private List<SysSyncActionLog> actionLogs;
 	private UUID entityId;
 	private boolean exportAction = false;
@@ -149,11 +149,11 @@ public class SynchronizationContext implements Serializable {
 		return this;
 	}
 
-	public SysSyncItemLog getLogItem() {
+	public SysSyncItemLogDto getLogItem() {
 		return logItem;
 	}
 
-	public SynchronizationContext addLogItem(SysSyncItemLog logItem) {
+	public SynchronizationContext addLogItem(SysSyncItemLogDto logItem) {
 		this.logItem = logItem;
 		return this;
 	}

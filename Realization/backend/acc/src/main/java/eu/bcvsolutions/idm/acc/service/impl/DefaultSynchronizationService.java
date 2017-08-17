@@ -21,12 +21,12 @@ import eu.bcvsolutions.idm.acc.domain.SynchronizationLinkedActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationMissingEntityActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationUnlinkedActionType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
+import eu.bcvsolutions.idm.acc.dto.SysSyncItemLogDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SynchronizationLogFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemEntityFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.SysSyncConfig;
-import eu.bcvsolutions.idm.acc.entity.SysSyncItemLog;
 import eu.bcvsolutions.idm.acc.entity.SysSyncLog;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
@@ -200,7 +200,7 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 	}
 
 	@Override
-	public SysSyncItemLog resolveMissingEntitySituation(String uid, SystemEntityType entityType,
+	public SysSyncItemLogDto resolveMissingEntitySituation(String uid, SystemEntityType entityType,
 			List<IcAttribute> icAttributes, UUID configId, String actionType) {
 		Assert.notNull(uid);
 		Assert.notNull(entityType);
@@ -216,7 +216,7 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 		attributeHandlingFilter.setSystemMappingId(mapping.getId());
 		List<SysSystemAttributeMapping> mappedAttributes = attributeHandlingService.find(attributeHandlingFilter, null)
 				.getContent();
-		SysSyncItemLog itemLog = new SysSyncItemLog();
+		SysSyncItemLogDto itemLog = new SysSyncItemLogDto();
 		// Little workaround, we have only IcAttributes ... we create IcObject manually
 		IcConnectorObjectImpl icObject = new IcConnectorObjectImpl();
 		icObject.setAttributes(icAttributes);
@@ -237,7 +237,7 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 	}
 
 	@Override
-	public SysSyncItemLog resolveLinkedSituation(String uid, SystemEntityType entityType,
+	public SysSyncItemLogDto resolveLinkedSituation(String uid, SystemEntityType entityType,
 			List<IcAttribute> icAttributes, UUID accountId, UUID configId, String actionType) {
 		Assert.notNull(uid);
 		Assert.notNull(entityType);
@@ -246,7 +246,7 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 		Assert.notNull(actionType);
 		Assert.notNull(accountId);
 
-		SysSyncItemLog itemLog = new SysSyncItemLog();
+		SysSyncItemLogDto itemLog = new SysSyncItemLogDto();
 
 		SysSyncConfig config = synchronizationConfigService.get(configId);
 		SysSystemMapping mapping = config.getSystemMapping();
@@ -276,7 +276,7 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 	}
 
 	@Override
-	public SysSyncItemLog resolveUnlinkedSituation(String uid, SystemEntityType entityType, UUID entityId,
+	public SysSyncItemLogDto resolveUnlinkedSituation(String uid, SystemEntityType entityType, UUID entityId,
 			UUID configId, String actionType) {
 		Assert.notNull(uid);
 		Assert.notNull(entityType);
@@ -289,7 +289,7 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 	
 		SysSystem system = mapping.getSystem();
 		SysSystemEntity systemEntity = findSystemEntity(uid, system, entityType);
-		SysSyncItemLog itemLog = new SysSyncItemLog();
+		SysSyncItemLogDto itemLog = new SysSyncItemLogDto();
 
 		SynchronizationContext context = new SynchronizationContext();
 		context.addUid(uid)
@@ -304,7 +304,7 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 	}
 
 	@Override
-	public SysSyncItemLog resolveMissingAccountSituation(String uid, SystemEntityType entityType, UUID accountId,
+	public SysSyncItemLogDto resolveMissingAccountSituation(String uid, SystemEntityType entityType, UUID accountId,
 			UUID configId, String actionType) {
 		Assert.notNull(uid);
 		Assert.notNull(entityType);
@@ -316,7 +316,7 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 		SysSystemMapping mapping = config.getSystemMapping();
 		AccAccount account = accountService.get(accountId);
 		SysSystem system = mapping.getSystem();
-		SysSyncItemLog itemLog = new SysSyncItemLog();
+		SysSyncItemLogDto itemLog = new SysSyncItemLogDto();
 		SynchronizationContext context = new SynchronizationContext();
 		context.addUid(uid)
 		.addSystem(system)

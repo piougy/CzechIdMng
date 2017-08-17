@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.acc.domain.SynchronizationContext;
-import eu.bcvsolutions.idm.acc.entity.SysSyncItemLog;
+import eu.bcvsolutions.idm.acc.dto.SysSyncItemLogDto;
 import eu.bcvsolutions.idm.acc.event.SynchronizationEventType;
 import eu.bcvsolutions.idm.acc.service.api.SynchronizationService;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
@@ -22,7 +22,7 @@ import eu.bcvsolutions.idm.core.api.event.EventResult;
  */
 @Component
 @Description("Synchronization or reconciliation for one item. By default call method SynchronizationService.doItemSynchronization.")
-public class SynchronizationItemProcessor extends AbstractEntityEventProcessor<SysSyncItemLog> {
+public class SynchronizationItemProcessor extends AbstractEntityEventProcessor<SysSyncItemLogDto> {
 
 	public static final String PROCESSOR_NAME = "synchronization-item-processor";
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(SynchronizationItemProcessor.class);
@@ -44,7 +44,7 @@ public class SynchronizationItemProcessor extends AbstractEntityEventProcessor<S
 	}
 	
 	@Override
-	public EventResult<SysSyncItemLog> process(EntityEvent<SysSyncItemLog> event) {
+	public EventResult<SysSyncItemLogDto> process(EntityEvent<SysSyncItemLogDto> event) {
 		LOG.info("Synchronization item event");
 		SynchronizationContext itemWrapper = (SynchronizationContext) event.getProperties().get(SynchronizationService.WRAPPER_SYNC_ITEM);
 		// Do synchronization for one item (produces event)

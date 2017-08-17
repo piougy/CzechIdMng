@@ -35,6 +35,7 @@ import eu.bcvsolutions.idm.acc.domain.SynchronizationUnlinkedActionType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
+import eu.bcvsolutions.idm.acc.dto.SysSyncItemLogDto;
 import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SyncActionLogFilter;
@@ -48,7 +49,6 @@ import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
 import eu.bcvsolutions.idm.acc.entity.SysSyncActionLog;
 import eu.bcvsolutions.idm.acc.entity.SysSyncConfig;
-import eu.bcvsolutions.idm.acc.entity.SysSyncItemLog;
 import eu.bcvsolutions.idm.acc.entity.SysSyncLog;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
@@ -241,7 +241,7 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 
 		SyncItemLogFilter itemLogFilter = new SyncItemLogFilter();
 		itemLogFilter.setSyncActionLogId(createEntityActionLog.getId());
-		List<SysSyncItemLog> items = syncItemLogService.find(itemLogFilter, null).getContent();
+		List<SysSyncItemLogDto> items = syncItemLogService.find(itemLogFilter, null).getContent();
 		Assert.assertEquals(2, items.size());
 
 		// Delete log
@@ -295,7 +295,7 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 
 		SyncItemLogFilter itemLogFilter = new SyncItemLogFilter();
 		itemLogFilter.setSyncActionLogId(actionLog.getId());
-		List<SysSyncItemLog> items = syncItemLogService.find(itemLogFilter, null).getContent();
+		List<SysSyncItemLogDto> items = syncItemLogService.find(itemLogFilter, null).getContent();
 		Assert.assertEquals(2, items.size());
 
 		// Check state after sync
@@ -366,7 +366,7 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 
 		SyncItemLogFilter itemLogFilter = new SyncItemLogFilter();
 		itemLogFilter.setSyncActionLogId(actionLog.getId());
-		List<SysSyncItemLog> items = syncItemLogService.find(itemLogFilter, null).getContent();
+		List<SysSyncItemLogDto> items = syncItemLogService.find(itemLogFilter, null).getContent();
 		Assert.assertEquals(1, items.size());
 		Assert.assertEquals("x"+IDENTITY_USERNAME_TWO, items.get(0).getIdentification());
 
@@ -428,7 +428,7 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 
 		SyncItemLogFilter itemLogFilter = new SyncItemLogFilter();
 		itemLogFilter.setSyncActionLogId(actionLog.getId());
-		List<SysSyncItemLog> items = syncItemLogService.find(itemLogFilter, null).getContent();
+		List<SysSyncItemLogDto> items = syncItemLogService.find(itemLogFilter, null).getContent();
 		Assert.assertEquals(1, items.size());
 		Assert.assertEquals("x"+IDENTITY_USERNAME_ONE, items.get(0).getIdentification());
 
@@ -485,7 +485,7 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 
 		SyncItemLogFilter itemLogFilter = new SyncItemLogFilter();
 		itemLogFilter.setSyncActionLogId(actionLog.getId());
-		List<SysSyncItemLog> items = syncItemLogService.find(itemLogFilter, null).getContent();
+		List<SysSyncItemLogDto> items = syncItemLogService.find(itemLogFilter, null).getContent();
 		Assert.assertEquals(2, items.size());
 
 		// Delete log
@@ -542,7 +542,7 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 
 		SyncItemLogFilter itemLogFilter = new SyncItemLogFilter();
 		itemLogFilter.setSyncActionLogId(actionLog.getId());
-		List<SysSyncItemLog> items = syncItemLogService.find(itemLogFilter, null).getContent();
+		List<SysSyncItemLogDto> items = syncItemLogService.find(itemLogFilter, null).getContent();
 		Assert.assertEquals(2, items.size());
 
 		// Check state after sync
@@ -608,7 +608,7 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 
 		SyncItemLogFilter itemLogFilter = new SyncItemLogFilter();
 		itemLogFilter.setSyncActionLogId(actionLog.getId());
-		List<SysSyncItemLog> items = syncItemLogService.find(itemLogFilter, null).getContent();
+		List<SysSyncItemLogDto> items = syncItemLogService.find(itemLogFilter, null).getContent();
 		Assert.assertEquals(2, items.size());
 
 		// Check state after sync
@@ -691,7 +691,7 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 
 		SyncItemLogFilter itemLogFilter = new SyncItemLogFilter();
 		itemLogFilter.setSyncActionLogId(actionLog.getId());
-		List<SysSyncItemLog> items = syncItemLogService.find(itemLogFilter, null).getContent();
+		List<SysSyncItemLogDto> items = syncItemLogService.find(itemLogFilter, null).getContent();
 		Assert.assertEquals(2, items.size());
 
 		// Check state after sync
@@ -769,7 +769,7 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 
 		SyncItemLogFilter itemLogFilter = new SyncItemLogFilter();
 		itemLogFilter.setSyncActionLogId(actionLog.getId());
-		List<SysSyncItemLog> items = syncItemLogService.find(itemLogFilter, null).getContent();
+		List<SysSyncItemLogDto> items = syncItemLogService.find(itemLogFilter, null).getContent();
 		Assert.assertEquals(1, items.size());
 
 		// Check state after sync
@@ -828,7 +828,7 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 
 		SyncItemLogFilter itemLogFilter = new SyncItemLogFilter();
 		itemLogFilter.setSyncActionLogId(actionLog.getId());
-		List<SysSyncItemLog> items = syncItemLogService.find(itemLogFilter, null).getContent();
+		List<SysSyncItemLogDto> items = syncItemLogService.find(itemLogFilter, null).getContent();
 		Assert.assertEquals(3, items.size());
 
 		// Check state after sync
@@ -912,7 +912,7 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 
 		SyncItemLogFilter itemLogFilter = new SyncItemLogFilter();
 		itemLogFilter.setSyncActionLogId(actionLog.getId());
-		List<SysSyncItemLog> items = syncItemLogService.find(itemLogFilter, null).getContent();
+		List<SysSyncItemLogDto> items = syncItemLogService.find(itemLogFilter, null).getContent();
 		Assert.assertEquals(2, items.size());
 
 		// Check state after sync
@@ -1039,7 +1039,7 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 
 		SyncItemLogFilter itemLogFilter = new SyncItemLogFilter();
 		itemLogFilter.setSyncActionLogId(actionLog.getId());
-		List<SysSyncItemLog> items = syncItemLogService.find(itemLogFilter, null).getContent();
+		List<SysSyncItemLogDto> items = syncItemLogService.find(itemLogFilter, null).getContent();
 		Assert.assertEquals(2, items.size());
 
 		// Check state after sync
@@ -1123,7 +1123,7 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 
 		SyncItemLogFilter itemLogFilter = new SyncItemLogFilter();
 		itemLogFilter.setSyncActionLogId(actionLog.getId());
-		List<SysSyncItemLog> items = syncItemLogService.find(itemLogFilter, null).getContent();
+		List<SysSyncItemLogDto> items = syncItemLogService.find(itemLogFilter, null).getContent();
 		Assert.assertEquals(2, items.size());
 
 		// Check state after sync
@@ -1192,7 +1192,7 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 
 		SyncItemLogFilter itemLogFilter = new SyncItemLogFilter();
 		itemLogFilter.setSyncActionLogId(actionLog.getId());
-		List<SysSyncItemLog> items = syncItemLogService.find(itemLogFilter, null).getContent();
+		List<SysSyncItemLogDto> items = syncItemLogService.find(itemLogFilter, null).getContent();
 		Assert.assertEquals(2, items.size());
 
 		// Check state after sync
@@ -1252,7 +1252,7 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 
 		SyncItemLogFilter itemLogFilter = new SyncItemLogFilter();
 		itemLogFilter.setSyncActionLogId(actionLog.getId());
-		List<SysSyncItemLog> items = syncItemLogService.find(itemLogFilter, null).getContent();
+		List<SysSyncItemLogDto> items = syncItemLogService.find(itemLogFilter, null).getContent();
 		Assert.assertEquals(1, items.size());
 
 		// Check state after sync

@@ -28,6 +28,7 @@ import eu.bcvsolutions.idm.acc.domain.SynchronizationMissingEntityActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationUnlinkedActionType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
+import eu.bcvsolutions.idm.acc.dto.SysSyncItemLogDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SyncActionLogFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SyncItemLogFilter;
@@ -39,7 +40,6 @@ import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
 import eu.bcvsolutions.idm.acc.entity.SysSyncActionLog;
 import eu.bcvsolutions.idm.acc.entity.SysSyncConfig;
-import eu.bcvsolutions.idm.acc.entity.SysSyncItemLog;
 import eu.bcvsolutions.idm.acc.entity.SysSyncLog;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
@@ -205,7 +205,7 @@ public class DefaultTreeSynchronizationServiceTest extends AbstractIntegrationTe
 
 		SyncItemLogFilter itemLogFilter = new SyncItemLogFilter();
 		itemLogFilter.setSyncActionLogId(createEntityActionLog.getId());
-		List<SysSyncItemLog> items = syncItemLogService.find(itemLogFilter, null).getContent();
+		List<SysSyncItemLogDto> items = syncItemLogService.find(itemLogFilter, null).getContent();
 		Assert.assertEquals(6, items.size());
 		
 		IdmTreeType treeType = treeTypeService.find(null).getContent().stream().filter(tree -> {
@@ -267,7 +267,7 @@ public class DefaultTreeSynchronizationServiceTest extends AbstractIntegrationTe
 
 		SyncItemLogFilter itemLogFilter = new SyncItemLogFilter();
 		itemLogFilter.setSyncActionLogId(actionLog.getId());
-		List<SysSyncItemLog> items = syncItemLogService.find(itemLogFilter, null).getContent();
+		List<SysSyncItemLogDto> items = syncItemLogService.find(itemLogFilter, null).getContent();
 		Assert.assertEquals(6, items.size());
 
 		// Check state after sync
@@ -328,7 +328,7 @@ public class DefaultTreeSynchronizationServiceTest extends AbstractIntegrationTe
 
 		SyncItemLogFilter itemLogFilter = new SyncItemLogFilter();
 		itemLogFilter.setSyncActionLogId(actionLog.getId());
-		List<SysSyncItemLog> items = syncItemLogService.find(itemLogFilter, null).getContent();
+		List<SysSyncItemLogDto> items = syncItemLogService.find(itemLogFilter, null).getContent();
 		Assert.assertEquals(1, items.size());
 
 		// Check state after sync
@@ -383,7 +383,7 @@ public class DefaultTreeSynchronizationServiceTest extends AbstractIntegrationTe
 
 		SyncItemLogFilter itemLogFilter = new SyncItemLogFilter();
 		itemLogFilter.setSyncActionLogId(createEntityActionLog.getId());
-		List<SysSyncItemLog> items = syncItemLogService.find(itemLogFilter, null).getContent();
+		List<SysSyncItemLogDto> items = syncItemLogService.find(itemLogFilter, null).getContent();
 		Assert.assertEquals(6, items.size());
 		
 		IdmTreeType treeType = treeTypeService.find(null).getContent().stream().filter(tree -> {

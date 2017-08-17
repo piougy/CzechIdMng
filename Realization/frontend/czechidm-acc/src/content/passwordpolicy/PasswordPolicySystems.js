@@ -25,26 +25,31 @@ class PasswordPolicySystems extends Basic.AbstractContent {
   }
 
   render() {
-    const { entityId, entity, showLoading } = this.props.params;
+    const { entityId } = this.props.params;
+    const { entity, showLoading } = this.props;
 
-    const forceSearchparameters = new Domain.SearchParameters();
+    let forceSearchParameters = null;
 
     const validateType = entity && Enums.PasswordPolicyTypeEnum.findSymbolByKey(entity.type) === Enums.PasswordPolicyTypeEnum.VALIDATE;
-    if (validateType) {
-      forceSearchparameters.setFilter('passwordPolicyValidationId', entityId);
+    if (validateType === undefined || validateType === null) {
+      forceSearchParameters = null;
+    } else if (validateType) {
+      forceSearchParameters = (new Domain.SearchParameters()).setFilter('passwordPolicyValidationId', entityId);
     } else {
-      forceSearchparameters.setFilter('passwordPolicyGenerationId', entityId);
+      forceSearchParameters = (new Domain.SearchParameters()).setFilter('passwordPolicyGenerationId', entityId);
     }
-console.log(showLoading, entity, validateType);
+
     return (
       <div>
         <Basic.ContentHeader text={this.i18n('acc:content.passwordPolicy.system.title')} style={{ marginBottom: 0 }}/>
 
-        <Basic.Panel className="no-border last" showLoading={showLoading}>
+        <Basic.Loading showLoading={showLoading} />
+
+        <Basic.Panel className="no-border last" rendered={forceSearchParameters !== null}>
           <SystemTable uiKey="password_policy_system_table"
             columns={['name', 'description', 'disabled', 'readonly']}
             manager={this.systemManager}
-            forceSearchParameters={forceSearchparameters}
+            forceSearchParameters={forceSearchParameters}
             showRowSelection={false}
             showAddButton={false}
             filterOpened={false}/>

@@ -83,10 +83,22 @@ export class IdentityContractInfo extends AbstractEntityInfo {
    * @param  {array} table data
    */
   getPopoverContent(entity) {
+    // idenity nice label
+    let identityNiceLabel = '';
+    if (entity && entity._embedded) {
+      identityNiceLabel = identityManager.getNiceLabel(entity._embedded.identity);
+    }
+
+    // working position nice label
+    let workingPositionNiceLable = '';
+    if (entity && entity._embedded && entity._embedded.workPosition
+        && entity._embedded.workPosition._embedded) {
+      workingPositionNiceLable = treeTypeManager.getNiceLabel(entity._embedded.workPosition._embedded.treeType);
+    }
     return [
       {
         label: this.i18n('entity.Identity._type'),
-        value: identityManager.getNiceLabel(entity._embedded.identity)
+        value: identityNiceLabel
       },
       {
         label: this.i18n('entity.IdentityContract.position'),
@@ -94,7 +106,7 @@ export class IdentityContractInfo extends AbstractEntityInfo {
       },
       {
         label: this.i18n('entity.TreeType._type'),
-        value: treeTypeManager.getNiceLabel(entity._embedded.workPosition._embedded.treeType)
+        value: workingPositionNiceLable
       },
       {
         label: this.i18n('entity.validFrom'),

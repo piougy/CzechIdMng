@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.ic.czechidm.service.impl;
 
 import java.text.MessageFormat;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -11,7 +12,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
-import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.api.IcConnector;
@@ -45,7 +45,7 @@ public class CzechIdMIcConnectorService implements IcConnectorService {
 	private CzechIdMIcConfigurationService configurationService;
 	private ApplicationContext applicationContext;
 	// Cached connector instances
-	private Map<String, IcConnector> connectorInstances;
+	private Map<String, IcConnector> connectorInstances = new HashMap<>();
 
 	@Autowired
 	public CzechIdMIcConnectorService(
@@ -266,9 +266,12 @@ public class CzechIdMIcConnectorService implements IcConnectorService {
 	private IcConnector getConnectorInstance(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration) {
 		Assert.notNull(connectorInstance.getConnectorKey());
 		Assert.notNull(connectorConfiguration);
-	
 
 		String key = connectorInstance.getConnectorKey().getFullName();
+		if(this.connectorInstances.containsKey(key)){
+			return connectorInstances.get(key);
+		}
+		
 		
 		Class<? extends IcConnector> connectorClass = this.configurationService.getConnectorClass(connectorInstance);
 		try {

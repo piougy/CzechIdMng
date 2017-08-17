@@ -163,7 +163,8 @@ public class CzechIdMIcConfigurationService implements IcConfigurationService {
 		Assert.notNull(connectorInstance.getConnectorKey());
 		//
 		if(this.connectorsConfigurations == null){
-			return null;
+			// Init
+			this.getAvailableLocalConnectors();
 		}
 		return this.connectorsConfigurations.get(connectorInstance.getConnectorKey().getFullName());
 

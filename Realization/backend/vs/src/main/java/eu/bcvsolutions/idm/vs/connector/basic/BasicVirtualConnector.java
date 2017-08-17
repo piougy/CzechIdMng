@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
+import org.apache.http.util.Asserts;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
@@ -41,6 +42,7 @@ import eu.bcvsolutions.idm.ic.impl.IcSchemaImpl;
 import eu.bcvsolutions.idm.vs.entity.VsAccount;
 import eu.bcvsolutions.idm.vs.entity.VsAccount_;
 import eu.bcvsolutions.idm.vs.service.api.VsAccountService;
+import eu.bcvsolutions.idm.vs.service.api.dto.VsAccountDto;
 
 //@Component - we want control create connector instances
 @IcConnectorClass(displayName = "Virtual system for CzechIdM", framework = "czechidm", name = "virtual-system-basic", version = "0.2.0", configurationClass = BasicVirtualConfiguration.class)
@@ -57,6 +59,7 @@ public class BasicVirtualConnector
 	private VsAccountService accountService;
 	private BasicVirtualConfiguration virtualConfiguration;
 	private IdmFormDefinition formDefinition;
+	private String virtualSystemKey;
 
 	@Override
 	public void init(IcConnectorConfiguration configuration) {
@@ -86,12 +89,12 @@ public class BasicVirtualConnector
 		// Validate configuration
 		virtualConfiguration.validate();
 
-		String key = MessageFormat.format("{0}:systemId={1}", info.getConnectorKey().getFullName(),
+		virtualSystemKey = MessageFormat.format("{0}:systemId={1}", info.getConnectorKey().getFullName(),
 				systemId.toString());
 		String type = VsAccount.class.getName();
 
 		// Create/Update form definition and attributes
-		formDefinition = updateFormDefinition(key, type, system, virtualConfiguration);
+		formDefinition = updateFormDefinition(virtualSystemKey, type, system, virtualConfiguration);
 	}
 
 	@Override
@@ -102,7 +105,20 @@ public class BasicVirtualConnector
 
 	@Override
 	public IcUidAttribute create(IcObjectClass objectClass, List<IcAttribute> attributes) {
-		// TODO Auto-generated method stub
+		Assert.notNull(objectClass, "Object class cannot be null!");
+		Assert.notNull(attributes, "Attributes cannot be null!");
+		if(!IcObjectClassInfo.ACCOUNT.equals(objectClass.getType())){
+			throw new IcException("Only ACCOUNT object class is supported now!");
+		}
+		IcAttribute uidAttribute = geAttribute(attributes, IcAttributeInfo.NAME);
+		
+		if(uidAttribute == null){
+			throw new IcException("UID attribute was not found!");
+		}
+		
+		VsAccountDto account = new VsAccountDto();
+		
+		
 		return null;
 	}
 
@@ -139,7 +155,7 @@ public class BasicVirtualConnector
 
 		// Create UID schema attribute
 		IcAttributeInfoImpl attributeDisabled = new IcAttributeInfoImpl();
-		attributeDisabled.setClassType(String.class.getName());
+		attributeDisabled.setClassType(Boolean.class.getName());
 		attributeDisabled.setCreateable(true);
 		attributeDisabled.setMultivalued(false);
 		attributeDisabled.setName(IcAttributeInfo.ENABLE);
@@ -176,6 +192,18 @@ public class BasicVirtualConnector
 		objectClasses.add(objectClass);
 
 		return schema;
+	}
+	
+	/**
+	 * Find UID attribute
+	 * @param attributes
+	 * @return
+	 */
+	private IcAttribute geAttribute(List<IcAttribute> attributes, String name) {
+		Assert.notNull(attributes);
+		Assert.notNull(name);
+		
+		return attributes.stream().filter(attribute -> name.equals(attribute.getName())).findFirst().orElse(null);
 	}
 
 	private String convertToSchemaClassType(PersistentType persistentType) {

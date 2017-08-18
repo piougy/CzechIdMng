@@ -2,12 +2,13 @@ import { Services } from 'czechidm-core';
 import { Domain } from 'czechidm-core';
 import AccountTypeEnum from '../domain/AccountTypeEnum';
 
+
 /**
- * Identity accounts
+ * Role accounts
  *
- * @author Radek Tomiška
+ * @author Roman Kučera
  */
-export default class IdentityAccountService extends Services.AbstractService {
+export default class RoleAccountService extends Services.AbstractService {
 
   constructor() {
     super();
@@ -21,7 +22,19 @@ export default class IdentityAccountService extends Services.AbstractService {
   }
 
   getApiPath() {
-    return '/identity-accounts';
+    return '/role-accounts';
+  }
+
+  supportsPatch() {
+    return false;
+  }
+
+  supportsAuthorization() {
+    return true;
+  }
+
+  getGroupPermission() {
+    return 'ROLEACCOUNT';
   }
 
   getDefaultSearchParameters() {

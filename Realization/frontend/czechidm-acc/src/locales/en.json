@@ -336,6 +336,25 @@
         "save": {
           "success": "Attribute [{{name}}] for role successfully edited"
         }
+      },
+      "accounts": {
+        "header": "Accounts in system",
+        "title": "Accounts",
+        "edit": {
+          "header": "Account details in system"
+        },
+        "create": {
+          "header": "New account in system"
+        },
+        "save": {
+          "success": "Account in system successfully saved"
+        },
+        "filter": {
+          "uid": {
+            "label": "Identificator",
+            "placeholder": "$t(acc:entity.SystemEntity.uid)"
+          }
+        }
       }
     },
     "identity": {
@@ -876,6 +895,7 @@
   "permission": {
     "group": {
       "ACCOUNT": "Accounts in systems",
+      "ROLEACCOUNT": "Role accounts",
       "SYSTEM": "Connected systems",
       "SYNCHRONIZATION": "Synchronization"
     }

@@ -1,12 +1,8 @@
 import React, { PropTypes } from 'react';
-import classnames from 'classnames';
 import { connect } from 'react-redux';
-import { Link } from 'react-router';
 //
-import * as Basic from '../../basic';
 import * as Utils from '../../../utils';
 import { IdentityContractManager, SecurityManager, IdentityManager, TreeTypeManager} from '../../../redux/';
-import UuidInfo from '../UuidInfo/UuidInfo';
 import AbstractEntityInfo from '../EntityInfo/AbstractEntityInfo';
 import DateValue from '../DateValue/DateValue';
 
@@ -87,10 +83,22 @@ export class IdentityContractInfo extends AbstractEntityInfo {
    * @param  {array} table data
    */
   getPopoverContent(entity) {
+    // idenity nice label
+    let identityNiceLabel = '';
+    if (entity && entity._embedded) {
+      identityNiceLabel = identityManager.getNiceLabel(entity._embedded.identity);
+    }
+
+    // working position nice label
+    let workingPositionNiceLable = '';
+    if (entity && entity._embedded && entity._embedded.workPosition
+        && entity._embedded.workPosition._embedded) {
+      workingPositionNiceLable = treeTypeManager.getNiceLabel(entity._embedded.workPosition._embedded.treeType);
+    }
     return [
       {
         label: this.i18n('entity.Identity._type'),
-        value: identityManager.getNiceLabel(entity._embedded.identity)
+        value: identityNiceLabel
       },
       {
         label: this.i18n('entity.IdentityContract.position'),
@@ -98,7 +106,7 @@ export class IdentityContractInfo extends AbstractEntityInfo {
       },
       {
         label: this.i18n('entity.TreeType._type'),
-        value: treeTypeManager.getNiceLabel(entity._embedded.workPosition._embedded.treeType)
+        value: workingPositionNiceLable
       },
       {
         label: this.i18n('entity.validFrom'),

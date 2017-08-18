@@ -25,6 +25,7 @@ import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
 import eu.bcvsolutions.idm.ic.api.operation.IcCanCreate;
 import eu.bcvsolutions.idm.ic.api.operation.IcCanDelete;
 import eu.bcvsolutions.idm.ic.api.operation.IcCanRead;
+import eu.bcvsolutions.idm.ic.api.operation.IcCanSearch;
 import eu.bcvsolutions.idm.ic.api.operation.IcCanUpdate;
 import eu.bcvsolutions.idm.ic.exception.IcException;
 import eu.bcvsolutions.idm.ic.filter.api.IcFilter;
@@ -165,25 +166,10 @@ public class CzechIdMIcConnectorService implements IcConnectorService {
 		Assert.notNull(connectorInstance.getConnectorKey());
 		Assert.notNull(connectorConfiguration);
 		Assert.notNull(username);
-		LOG.debug("Authenticate object - CzechIdM (username= {} {})", username, connectorInstance.getConnectorKey().toString());
-
-//		ConnectorFacade conn = getConnectorFacade(connectorInstance, connectorConfiguration);
-//
-//		ObjectClass objectClassConnId = ConnIdIcConvertUtil.convertIcObjectClass(objectClass);
-//		if (objectClassConnId == null) {
-//			objectClassConnId = ObjectClass.ACCOUNT;
-//		}
-//		try {
-//			IcUidAttribute uid = ConnIdIcConvertUtil.convertConnIdUid(conn.authenticate(objectClassConnId, username,
-//					new org.identityconnectors.common.security.GuardedString(password.asString().toCharArray()), null));
-//			log.debug("Authenticated object - CzechIdM (Uid= {})", uid);
-//			return uid;
-//		} catch (InvalidCredentialException ex) {
-//			throw new ResultCodeException(IcResultCode.AUTH_FAILED, ex);
-//		}
 		
-		return null;
-
+		String key = connectorInstance.getConnectorKey().toString();
+		LOG.debug("Authenticate object - CzechIdM (username= {} {})", username, key);
+		throw new IcException(MessageFormat.format("Connector [{0}] not supports authentication operation!", key));
 	}
 
 	@Override
@@ -194,29 +180,11 @@ public class CzechIdMIcConnectorService implements IcConnectorService {
 		Assert.notNull(connectorConfiguration);
 		Assert.notNull(objectClass);
 		Assert.notNull(handler);
-		LOG.debug("Start synchronization for connector {} and objectClass {} - CzechIdM", connectorInstance.getConnectorKey().toString(), objectClass.getDisplayName());
-		
-//		ConnectorFacade conn = getConnectorFacade(connectorInstance, connectorConfiguration);
-//
-//		ObjectClass objectClassConnId = ConnIdIcConvertUtil.convertIcObjectClass(objectClass);
-//		if (objectClassConnId == null) {
-//			objectClassConnId = ObjectClass.ACCOUNT;
-//		}
-//		
-//		SyncToken syncToken = ConnIdIcConvertUtil.convertIcSyncToken(token);
-//		
-//		SyncResultsHandler handlerConnId = new SyncResultsHandler() {
-//			
-//			@Override
-//			public boolean handle(SyncDelta delta) {
-//				return handler.handle(ConnIdIcConvertUtil.convertConnIdSyncDelta(delta));
-//			}
-//		};
-//		
-//		SyncToken resultToken =  conn.sync(objectClassConnId, syncToken, handlerConnId, null);
-//		return ConnIdIcConvertUtil.convertConnIdSyncToken(resultToken);
-		return null;
 
+		String key = connectorInstance.getConnectorKey().toString();
+		LOG.debug("Start synchronization for connector {} and objectClass {} - CzechIdM", key, objectClass.getDisplayName());
+		
+		throw new IcException(MessageFormat.format("Connector [{0}] not supports sync operation!", key));
 	}
 	
 	@Override
@@ -228,37 +196,15 @@ public class CzechIdMIcConnectorService implements IcConnectorService {
 		Assert.notNull(objectClass);
 		Assert.notNull(handler);
 		
-		LOG.debug("Start search for connector {} and objectClass {} and filter {} - CzechIdM", connectorInstance.getConnectorKey().toString(), objectClass.getDisplayName(), filter);
-//		ConnectorFacade conn = getConnectorFacade(connectorInstance, connectorConfiguration);
-//
-//		ObjectClass objectClassConnId = ConnIdIcConvertUtil.convertIcObjectClass(objectClass);
-//		if (objectClassConnId == null) {
-//			objectClassConnId = ObjectClass.ACCOUNT;
-//		}
-//		
-//		final SearchResultsHandler handlerConnId = new SearchResultsHandler() {
-//			
-//			@Override
-//			public boolean handle(ConnectorObject connectorObject) {
-//				
-//				return handler.handle(ConnIdIcConvertUtil.convertConnIdConnectorObject(connectorObject));
-//			}
-//
-//			@Override
-//			public void handleResult(SearchResult result) {
-//				// VS TODO: For all my tests was search result Null and this method (handle result) was not called!
-//				log.debug("SearchResul was returned (pagination): cookie: " + result.getPagedResultsCookie() + "  --- remaining paged results: "+result.getRemainingPagedResults());
-//			}
-//		};
-//		Filter filterConnId = ConnIdIcConvertUtil.convertIcFilter(filter);
-//		
-//		// For pagination - TODO
-//		Map<String, Object> searchOpt = new HashMap<String, Object>();
-//	    searchOpt.put(OperationOptions.OP_PAGE_SIZE, 100);
-//	    searchOpt.put(OperationOptions.OP_PAGED_RESULTS_OFFSET, 1);
-//	    OperationOptions searchOptions = new OperationOptions(searchOpt);
-//	    	
-//		this.pageSearch(conn, objectClassConnId, filterConnId, handlerConnId, searchOptions);
+		String key = connectorInstance.getConnectorKey().toString();
+		LOG.debug("Start search for connector {} and objectClass {} and filter {} - CzechIdM", key, objectClass.getDisplayName(), filter);
+
+		IcConnector connector = this.getConnectorInstance(connectorInstance, connectorConfiguration);
+		if(!(connector instanceof IcCanSearch)){
+			throw new IcException(MessageFormat.format("Connector [{0}] not supports search operation!", key));
+		}
+		
+		((IcCanSearch)connector).search(objectClass, filter, handler);
 
 	}
 

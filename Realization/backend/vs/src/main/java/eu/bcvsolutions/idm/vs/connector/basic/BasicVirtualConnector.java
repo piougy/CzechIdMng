@@ -10,6 +10,9 @@ import java.util.stream.Collectors;
 
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
@@ -36,10 +39,13 @@ import eu.bcvsolutions.idm.ic.api.operation.IcCanCreate;
 import eu.bcvsolutions.idm.ic.api.operation.IcCanDelete;
 import eu.bcvsolutions.idm.ic.api.operation.IcCanGenSchema;
 import eu.bcvsolutions.idm.ic.api.operation.IcCanRead;
+import eu.bcvsolutions.idm.ic.api.operation.IcCanSearch;
 import eu.bcvsolutions.idm.ic.api.operation.IcCanUpdate;
 import eu.bcvsolutions.idm.ic.czechidm.domain.CzechIdMIcConvertUtil;
 import eu.bcvsolutions.idm.ic.czechidm.domain.IcConnectorConfigurationCzechIdMImpl;
 import eu.bcvsolutions.idm.ic.exception.IcException;
+import eu.bcvsolutions.idm.ic.filter.api.IcFilter;
+import eu.bcvsolutions.idm.ic.filter.api.IcResultsHandler;
 import eu.bcvsolutions.idm.ic.impl.IcAttributeImpl;
 import eu.bcvsolutions.idm.ic.impl.IcAttributeInfoImpl;
 import eu.bcvsolutions.idm.ic.impl.IcConnectorObjectImpl;
@@ -55,7 +61,7 @@ import eu.bcvsolutions.idm.vs.service.api.dto.VsAccountDto;
 //@Component - we want control create connector instances
 @IcConnectorClass(displayName = "Virtual system for CzechIdM", framework = "czechidm", name = "virtual-system-basic", version = "0.2.0", configurationClass = BasicVirtualConfiguration.class)
 public class BasicVirtualConnector
-		implements IcConnector, IcCanRead, IcCanCreate, IcCanUpdate, IcCanDelete, IcCanGenSchema {
+		implements IcConnector, IcCanRead, IcCanCreate, IcCanUpdate, IcCanDelete, IcCanGenSchema, IcCanSearch {
 
 	@Autowired
 	private FormService formService;
@@ -112,7 +118,7 @@ public class BasicVirtualConnector
 		Assert.notNull(objectClass, "Object class cannot be null!");
 		Assert.notNull(attributes, "Attributes cannot be null!");
 		Assert.notNull(uid, "UID cannot be null!");
-		
+
 		if (!IcObjectClassInfo.ACCOUNT.equals(objectClass.getType())) {
 			throw new IcException("Only ACCOUNT object class is supported now!");
 		}
@@ -125,31 +131,33 @@ public class BasicVirtualConnector
 		// Find account by UID and System ID
 		VsAccountDto account = accountService.findByUidSystem(uidValue, systemId);
 		if (account == null) {
-			throw new IcException(MessageFormat.format("Vs account was not found for UID [{0}] and system ID [{1}]!", uidValue, systemId));
+			throw new IcException(MessageFormat.format("Vs account was not found for UID [{0}] and system ID [{1}]!",
+					uidValue, systemId));
 		}
-		
+
 		IcAttribute uidAttribute = geAttribute(attributes, IcAttributeInfo.NAME);
 
 		// Update UID - if is different
 		if (uidAttribute != null) {
 			Object attributeUidValue = uidAttribute.getValue();
 			if (!(attributeUidValue instanceof String)) {
-				throw new IcException(MessageFormat.format("UID attribute value [{0}] must be String!", attributeUidValue));
+				throw new IcException(
+						MessageFormat.format("UID attribute value [{0}] must be String!", attributeUidValue));
 			}
-			if(!uidValue.equals(attributeUidValue)){
+			if (!uidValue.equals(attributeUidValue)) {
 				account.setUid((String) attributeUidValue);
 				account = accountService.save(account);
 			}
-		
+
 		}
 
 		UUID accountId = account.getId();
-		
+
 		// Update extended attributes
 		Arrays.asList(virtualConfiguration.getAttributes()).forEach(virtualAttirbute -> {
 			updateFormAttributeValue(uidValue, virtualAttirbute, accountId, attributes);
 		});
-		
+
 		return new IcUidAttributeImpl(IcAttributeInfo.NAME, account.getUid(), null);
 	}
 
@@ -157,7 +165,7 @@ public class BasicVirtualConnector
 	public IcUidAttribute create(IcObjectClass objectClass, List<IcAttribute> attributes) {
 		Assert.notNull(objectClass, "Object class cannot be null!");
 		Assert.notNull(attributes, "Attributes cannot be null!");
-		
+
 		if (!IcObjectClassInfo.ACCOUNT.equals(objectClass.getType())) {
 			throw new IcException("Only ACCOUNT object class is supported now!");
 		}
@@ -183,7 +191,7 @@ public class BasicVirtualConnector
 		Arrays.asList(virtualConfiguration.getAttributes()).forEach(virtualAttirbute -> {
 			updateFormAttributeValue(uidValue, virtualAttirbute, accountId, attributes);
 		});
-		
+
 		return new IcUidAttributeImpl(IcAttributeInfo.NAME, account.getUid(), null);
 	}
 
@@ -191,7 +199,7 @@ public class BasicVirtualConnector
 	public IcConnectorObject read(IcUidAttribute uid, IcObjectClass objectClass) {
 		Assert.notNull(objectClass, "Object class cannot be null!");
 		Assert.notNull(uid, "UID cannot be null!");
-		
+
 		if (!IcObjectClassInfo.ACCOUNT.equals(objectClass.getType())) {
 			throw new IcException("Only ACCOUNT object class is supported now!");
 		}
@@ -214,39 +222,32 @@ public class BasicVirtualConnector
 		connectorObject.setObjectClass(new IcObjectClassImpl(IcObjectClassInfo.ACCOUNT));
 		List<IcAttribute> attributes = connectorObject.getAttributes();
 
+		// Create uid attribute
+		IcAttributeImpl uidAttribute = new IcAttributeImpl(IcAttributeInfo.NAME, account.getUid());
+		attributes.add(uidAttribute);
+
 		// Attributes from definition and configuration
 		Arrays.asList(virtualConfiguration.getAttributes()).forEach(virtualAttirbute -> {
-			IdmFormAttribute attributeDefinition = this.formAttributeService.findAttribute(formDefinition.getType(), formDefinition.getCode(), virtualAttirbute);
-			List<AbstractFormValue<VsAccount>> values = this.formService.getValues(accountId, VsAccount.class, this.formDefinition, virtualAttirbute);
-			if(CollectionUtils.isEmpty(values)){
+			IcAttributeImpl attribute = loadIcAttribute(accountId, virtualAttirbute);
+			if (attribute == null) {
 				return;
 			}
-		
-			List<Object> valuesObject = values.stream()
-			.map(AbstractFormValue::getValue)
-			.collect(Collectors.toList());	
-	
-			IcAttributeImpl attribute = new IcAttributeImpl();
-			attribute.setMultiValue(attributeDefinition.isMultiple());
-			attribute.setName(virtualAttirbute);
-			attribute.setValues(valuesObject);
 			attributes.add(attribute);
 		});
-		
+
 		return connectorObject;
 
 	}
-	
 
 	@Override
 	public void delete(IcUidAttribute uid, IcObjectClass objectClass) {
 		Assert.notNull(objectClass, "Object class cannot be null!");
 		Assert.notNull(uid, "UID cannot be null!");
-		
+
 		if (!IcObjectClassInfo.ACCOUNT.equals(objectClass.getType())) {
 			throw new IcException("Only ACCOUNT object class is supported now!");
 		}
-		
+
 		String uidValue = uid.getUidValue();
 		if (uidValue == null) {
 			throw new IcException("UID value cannot be null!");
@@ -255,11 +256,33 @@ public class BasicVirtualConnector
 		// Find account by UID and System ID
 		VsAccountDto account = accountService.findByUidSystem(uidValue, systemId);
 		if (account == null) {
-			throw new IcException(MessageFormat.format("Vs account was not found for UID [{0}] and system ID [{1}]!", uidValue, systemId));
+			throw new IcException(MessageFormat.format("Vs account was not found for UID [{0}] and system ID [{1}]!",
+					uidValue, systemId));
 		}
-		
+
+		// Delete vs account and connected form values
 		accountService.delete(account);
-		
+
+	}
+
+	@Override
+	public void search(IcObjectClass objectClass, IcFilter filter, IcResultsHandler handler) {
+		Assert.notNull(objectClass, "Object class cannot be null!");
+		Assert.notNull(handler, "Result handler cannot be null for search operation!");
+
+		if (!IcObjectClassInfo.ACCOUNT.equals(objectClass.getType())) {
+			throw new IcException("Only ACCOUNT object class is supported now!");
+		}
+
+		if (filter == null) {
+			Pageable pageable = new PageRequest(0, 10);
+			searchByPage(handler, pageable);
+		} else {
+			// TODO: Search by filter
+			throw new IcException(
+					"Virtual system connector does not support search by filter! Filter must be null!. It means search return always all accounts.");
+		}
+
 	}
 
 	@Override
@@ -274,7 +297,56 @@ public class BasicVirtualConnector
 	}
 
 	/**
+	 * Do search for given page and invoke result handler
+	 * 
+	 * @param handler
+	 * @param pageable
+	 */
+	private void searchByPage(IcResultsHandler handler, Pageable pageable) {
+		Page<VsAccountDto> resultsPage = accountService.find(pageable);
+		List<VsAccountDto> results = resultsPage.getContent();
+		results.forEach(account -> {
+			boolean canContinue = handler
+					.handle(this.read(new IcUidAttributeImpl(IcAttributeInfo.NAME, account.getUid(), null),
+							new IcObjectClassImpl(IcObjectClassInfo.ACCOUNT)));
+			if (!canContinue) {
+				// Handler stop next searching
+				return;
+			}
+		});
+		if (resultsPage.hasNext()) {
+			this.searchByPage(handler, resultsPage.nextPageable());
+		}
+	}
+
+	/**
+	 * Load data from extended attribute and create IcAttribute
+	 * 
+	 * @param accountId
+	 * @param name
+	 * @return
+	 */
+	private IcAttributeImpl loadIcAttribute(UUID accountId, String name) {
+		IdmFormAttribute attributeDefinition = this.formAttributeService.findAttribute(formDefinition.getType(),
+				formDefinition.getCode(), name);
+		List<AbstractFormValue<VsAccount>> values = this.formService.getValues(accountId, VsAccount.class,
+				this.formDefinition, name);
+		if (CollectionUtils.isEmpty(values)) {
+			return null;
+		}
+
+		List<Object> valuesObject = values.stream().map(AbstractFormValue::getValue).collect(Collectors.toList());
+
+		IcAttributeImpl attribute = new IcAttributeImpl();
+		attribute.setMultiValue(attributeDefinition.isMultiple());
+		attribute.setName(name);
+		attribute.setValues(valuesObject);
+		return attribute;
+	}
+
+	/**
 	 * Generate schema from connector configuration and form definition
+	 * 
 	 * @return
 	 */
 	private IcSchemaImpl generateSchema() {
@@ -410,11 +482,11 @@ public class BasicVirtualConnector
 			return definition;
 		}
 	}
-	
+
 	private void updateFormAttributeValue(Object uidValue, String virtualAttirbute, UUID accountId,
 			List<IcAttribute> attributes) {
 		IcAttribute attribute = geAttribute(attributes, virtualAttirbute);
-		if(attribute == null){
+		if (attribute == null) {
 			return;
 		}
 		List<Object> values = attribute.getValues();
@@ -429,7 +501,7 @@ public class BasicVirtualConnector
 				serializableValues.add((Serializable) value);
 			});
 		}
-		
+
 		formService.saveValues(accountId, VsAccount.class, this.formDefinition, virtualAttirbute, serializableValues);
 	}
 

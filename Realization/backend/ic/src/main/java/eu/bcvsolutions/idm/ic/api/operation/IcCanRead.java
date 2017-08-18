@@ -1,11 +1,15 @@
-package eu.bcvsolutions.idm.ic.api;
+package eu.bcvsolutions.idm.ic.api.operation;
+
+import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
+import eu.bcvsolutions.idm.ic.api.IcObjectClass;
+import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
 
 /**
  * Connector witch implements this interface supports read operation.
  * @author svandav
  *
  */
-public interface IcConnectorRead {
+public interface IcCanRead {
 
 	/**
 	 * Read object by given UID from connector

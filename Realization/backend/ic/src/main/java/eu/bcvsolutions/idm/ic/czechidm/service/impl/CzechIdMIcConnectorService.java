@@ -16,16 +16,16 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.api.IcConnector;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
-import eu.bcvsolutions.idm.ic.api.IcConnectorCreate;
-import eu.bcvsolutions.idm.ic.api.IcConnectorDelete;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInstance;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
-import eu.bcvsolutions.idm.ic.api.IcConnectorRead;
-import eu.bcvsolutions.idm.ic.api.IcConnectorUpdate;
 import eu.bcvsolutions.idm.ic.api.IcObjectClass;
 import eu.bcvsolutions.idm.ic.api.IcSyncResultsHandler;
 import eu.bcvsolutions.idm.ic.api.IcSyncToken;
 import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
+import eu.bcvsolutions.idm.ic.api.operation.IcCanCreate;
+import eu.bcvsolutions.idm.ic.api.operation.IcCanDelete;
+import eu.bcvsolutions.idm.ic.api.operation.IcCanRead;
+import eu.bcvsolutions.idm.ic.api.operation.IcCanUpdate;
 import eu.bcvsolutions.idm.ic.exception.IcException;
 import eu.bcvsolutions.idm.ic.filter.api.IcFilter;
 import eu.bcvsolutions.idm.ic.filter.api.IcResultsHandler;
@@ -86,11 +86,11 @@ public class CzechIdMIcConnectorService implements IcConnectorService {
 		LOG.debug("Create object - CzechIdM ({} {})", key, attributes.toString());
 		
 		IcConnector connector = this.getConnectorInstance(connectorInstance, connectorConfiguration);
-		if(!(connector instanceof IcConnectorCreate)){
+		if(!(connector instanceof IcCanCreate)){
 			throw new IcException(MessageFormat.format("Connector [{0}] not supports create operation!", key));
 		}
 		
-		IcUidAttribute uid = ((IcConnectorCreate)connector).create(objectClass, attributes);
+		IcUidAttribute uid = ((IcCanCreate)connector).create(objectClass, attributes);
 
 		LOG.debug("Created object - CzechIdM ({} {}) Uid= {}", key, attributes.toString(), uid);
 		return null;
@@ -109,11 +109,11 @@ public class CzechIdMIcConnectorService implements IcConnectorService {
 		LOG.debug("Update object - CzechIdM (Uid= {} {} {})", uid, key, replaceAttributes.toString());
 		
 		IcConnector connector = this.getConnectorInstance(connectorInstance, connectorConfiguration);
-		if(!(connector instanceof IcConnectorUpdate)){
+		if(!(connector instanceof IcCanUpdate)){
 			throw new IcException(MessageFormat.format("Connector [{0}] not supports update operation!", key));
 		}
 		
-		IcUidAttribute updatedUid = ((IcConnectorUpdate)connector).update(uid, objectClass, replaceAttributes);
+		IcUidAttribute updatedUid = ((IcCanUpdate)connector).update(uid, objectClass, replaceAttributes);
 		LOG.debug("Updated object - CzechIdM ({} {}) Uid= {})", connectorInstance.getConnectorKey().toString(), replaceAttributes.toString(), updatedUid);
 		return updatedUid;
 	}
@@ -129,11 +129,11 @@ public class CzechIdMIcConnectorService implements IcConnectorService {
 		LOG.debug("Delete object - CzechIdM (Uid= {} {})", uid, key);
 
 		IcConnector connector = this.getConnectorInstance(connectorInstance, connectorConfiguration);
-		if(!(connector instanceof IcConnectorDelete)){
+		if(!(connector instanceof IcCanDelete)){
 			throw new IcException(MessageFormat.format("Connector [{0}] not supports delete operation!", key));
 		}
 		
-		((IcConnectorDelete)connector).delete(uid, objectClass);
+		((IcCanDelete)connector).delete(uid, objectClass);
 		LOG.debug("Deleted object - CzechIdM ({}) Uid= {}", key, uid);
 	}
 
@@ -149,11 +149,11 @@ public class CzechIdMIcConnectorService implements IcConnectorService {
 		LOG.debug("Read object - CzechIdM (Uid= {} {})", uid, key);
 		
 		IcConnector connector = this.getConnectorInstance(connectorInstance, connectorConfiguration);
-		if(!(connector instanceof IcConnectorRead)){
+		if(!(connector instanceof IcCanRead)){
 			throw new IcException(MessageFormat.format("Connector [{0}] not supports read operation!", key));
 		}
 		
-		IcConnectorObject object = ((IcConnectorRead)connector).read(uid, objectClass);
+		IcConnectorObject object = ((IcCanRead)connector).read(uid, objectClass);
 		LOG.debug("Readed object - CzechIdM ({}) Uid= {}", object, uid);
 		return object;
 	}

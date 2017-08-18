@@ -30,15 +30,15 @@ import eu.bcvsolutions.idm.ic.api.IcConfigurationProperty;
 import eu.bcvsolutions.idm.ic.api.IcConnector;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfigurationClass;
-import eu.bcvsolutions.idm.ic.api.IcConnectorDelete;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInfo;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInstance;
 import eu.bcvsolutions.idm.ic.api.IcConnectorKey;
-import eu.bcvsolutions.idm.ic.api.IcConnectorSchema;
 import eu.bcvsolutions.idm.ic.api.IcConnectorServer;
 import eu.bcvsolutions.idm.ic.api.IcSchema;
 import eu.bcvsolutions.idm.ic.api.annotation.IcConfigurationClassProperty;
 import eu.bcvsolutions.idm.ic.api.annotation.IcConnectorClass;
+import eu.bcvsolutions.idm.ic.api.operation.IcCanDelete;
+import eu.bcvsolutions.idm.ic.api.operation.IcCanGenSchema;
 import eu.bcvsolutions.idm.ic.connid.service.impl.ConnIdIcConfigurationService;
 import eu.bcvsolutions.idm.ic.czechidm.domain.CzechIdMIcConvertUtil;
 import eu.bcvsolutions.idm.ic.exception.IcException;
@@ -199,14 +199,14 @@ public class CzechIdMIcConfigurationService implements IcConfigurationService {
 		try {
 			
 			IcConnector connector = connectorClass.newInstance();
-			if(!(connector instanceof IcConnectorSchema)){
+			if(!(connector instanceof IcCanGenSchema)){
 				throw new IcException(MessageFormat.format("Connector [{0}] not supports generate schema operation!", key));
 			}
 			// Manually autowire on this connector instance
 			this.applicationContext.getAutowireCapableBeanFactory().autowireBean(connector);
 
 			connector.init(connectorConfiguration);
-			IcSchema schema = ((IcConnectorSchema)connector).schema();
+			IcSchema schema = ((IcCanGenSchema)connector).schema();
 
 			LOG.debug("Generated schema - CzechIdM ({}) schema = {}", key, schema);
 		

@@ -25,17 +25,18 @@ import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.api.IcAttributeInfo;
 import eu.bcvsolutions.idm.ic.api.IcConnector;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
-import eu.bcvsolutions.idm.ic.api.IcConnectorCreate;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInfo;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
-import eu.bcvsolutions.idm.ic.api.IcConnectorRead;
-import eu.bcvsolutions.idm.ic.api.IcConnectorSchema;
-import eu.bcvsolutions.idm.ic.api.IcConnectorUpdate;
 import eu.bcvsolutions.idm.ic.api.IcObjectClass;
 import eu.bcvsolutions.idm.ic.api.IcObjectClassInfo;
 import eu.bcvsolutions.idm.ic.api.IcSchema;
 import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
 import eu.bcvsolutions.idm.ic.api.annotation.IcConnectorClass;
+import eu.bcvsolutions.idm.ic.api.operation.IcCanCreate;
+import eu.bcvsolutions.idm.ic.api.operation.IcCanDelete;
+import eu.bcvsolutions.idm.ic.api.operation.IcCanGenSchema;
+import eu.bcvsolutions.idm.ic.api.operation.IcCanRead;
+import eu.bcvsolutions.idm.ic.api.operation.IcCanUpdate;
 import eu.bcvsolutions.idm.ic.czechidm.domain.CzechIdMIcConvertUtil;
 import eu.bcvsolutions.idm.ic.czechidm.domain.IcConnectorConfigurationCzechIdMImpl;
 import eu.bcvsolutions.idm.ic.exception.IcException;
@@ -54,7 +55,7 @@ import eu.bcvsolutions.idm.vs.service.api.dto.VsAccountDto;
 //@Component - we want control create connector instances
 @IcConnectorClass(displayName = "Virtual system for CzechIdM", framework = "czechidm", name = "virtual-system-basic", version = "0.2.0", configurationClass = BasicVirtualConfiguration.class)
 public class BasicVirtualConnector
-		implements IcConnector, IcConnectorRead, IcConnectorCreate, IcConnectorUpdate, IcConnectorSchema {
+		implements IcConnector, IcCanRead, IcCanCreate, IcCanUpdate, IcCanDelete, IcCanGenSchema {
 
 	@Autowired
 	private FormService formService;
@@ -110,6 +111,7 @@ public class BasicVirtualConnector
 	public IcUidAttribute update(IcUidAttribute uid, IcObjectClass objectClass, List<IcAttribute> attributes) {
 		Assert.notNull(objectClass, "Object class cannot be null!");
 		Assert.notNull(attributes, "Attributes cannot be null!");
+		Assert.notNull(uid, "UID cannot be null!");
 		
 		if (!IcObjectClassInfo.ACCOUNT.equals(objectClass.getType())) {
 			throw new IcException("Only ACCOUNT object class is supported now!");
@@ -155,6 +157,7 @@ public class BasicVirtualConnector
 	public IcUidAttribute create(IcObjectClass objectClass, List<IcAttribute> attributes) {
 		Assert.notNull(objectClass, "Object class cannot be null!");
 		Assert.notNull(attributes, "Attributes cannot be null!");
+		
 		if (!IcObjectClassInfo.ACCOUNT.equals(objectClass.getType())) {
 			throw new IcException("Only ACCOUNT object class is supported now!");
 		}
@@ -187,6 +190,8 @@ public class BasicVirtualConnector
 	@Override
 	public IcConnectorObject read(IcUidAttribute uid, IcObjectClass objectClass) {
 		Assert.notNull(objectClass, "Object class cannot be null!");
+		Assert.notNull(uid, "UID cannot be null!");
+		
 		if (!IcObjectClassInfo.ACCOUNT.equals(objectClass.getType())) {
 			throw new IcException("Only ACCOUNT object class is supported now!");
 		}
@@ -231,6 +236,31 @@ public class BasicVirtualConnector
 		return connectorObject;
 
 	}
+	
+
+	@Override
+	public void delete(IcUidAttribute uid, IcObjectClass objectClass) {
+		Assert.notNull(objectClass, "Object class cannot be null!");
+		Assert.notNull(uid, "UID cannot be null!");
+		
+		if (!IcObjectClassInfo.ACCOUNT.equals(objectClass.getType())) {
+			throw new IcException("Only ACCOUNT object class is supported now!");
+		}
+		
+		String uidValue = uid.getUidValue();
+		if (uidValue == null) {
+			throw new IcException("UID value cannot be null!");
+		}
+
+		// Find account by UID and System ID
+		VsAccountDto account = accountService.findByUidSystem(uidValue, systemId);
+		if (account == null) {
+			throw new IcException(MessageFormat.format("Vs account was not found for UID [{0}] and system ID [{1}]!", uidValue, systemId));
+		}
+		
+		accountService.delete(account);
+		
+	}
 
 	@Override
 	public IcSchema schema() {
@@ -238,6 +268,16 @@ public class BasicVirtualConnector
 			return null;
 		}
 
+		IcSchemaImpl schema = generateSchema();
+
+		return schema;
+	}
+
+	/**
+	 * Generate schema from connector configuration and form definition
+	 * @return
+	 */
+	private IcSchemaImpl generateSchema() {
 		IcSchemaImpl schema = new IcSchemaImpl();
 		List<IcObjectClassInfo> objectClasses = schema.getDeclaredObjectClasses();
 		IcObjectClassInfoImpl objectClass = new IcObjectClassInfoImpl();
@@ -294,7 +334,6 @@ public class BasicVirtualConnector
 		});
 
 		objectClasses.add(objectClass);
-
 		return schema;
 	}
 

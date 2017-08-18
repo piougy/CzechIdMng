@@ -1,11 +1,13 @@
-package eu.bcvsolutions.idm.ic.api;
+package eu.bcvsolutions.idm.ic.api.operation;
+
+import eu.bcvsolutions.idm.ic.api.IcSchema;
 
 /**
  * Connector witch implements this interface supports generate schema operation.
  * @author svandav
  *
  */
-public interface IcConnectorSchema {
+public interface IcCanGenSchema {
 
 	/**
 	 * Generate schema for this connector

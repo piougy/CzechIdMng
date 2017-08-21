@@ -76,13 +76,11 @@ public class DefaultIdmLoggingEventService
 					builder.like(root.get(IdmLoggingEvent_.callerClass), "%" + filter.getCallerClass() + "%"));
 		}
 		//
-		// caller class
 		if (StringUtils.isNotEmpty(filter.getCallerFilename())) {
 			predicates.add(
 					builder.like(root.get(IdmLoggingEvent_.callerFilename), "%" + filter.getCallerFilename() + "%"));
 		}
 		//
-		// caller class
 		if (StringUtils.isNotEmpty(filter.getCallerLine())) {
 			predicates.add(builder.equal(root.get(IdmLoggingEvent_.callerLine), filter.getCallerLine() + "%"));
 		}

@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.scheduler.task.impl;
+package eu.bcvsolutions.idm.core.audit.task.impl;
 
 import java.util.List;
 import java.util.Map;

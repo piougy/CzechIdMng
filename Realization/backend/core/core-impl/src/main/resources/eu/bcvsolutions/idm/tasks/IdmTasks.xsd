@@ -23,15 +23,15 @@
     <xs:sequence>
       <xs:element name="description" type="xs:string" minOccurs="0"/>
       <xs:element name="instanceId" type="xs:string"/>
-      <xs:element ref="parameters" minOccurs="0"/>
       <xs:element name="taskType" type="xs:string"/>
+      <xs:element ref="parameters" minOccurs="0"/>
       <xs:element ref="triggers" minOccurs="0"/>
     </xs:sequence>
   </xs:complexType>
 
   <xs:complexType name="idmScheduledTaskParametersType">
     <xs:sequence>
-      <xs:element name="parameters" type="idmScheduledTaskParameterType" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="parameter" type="idmScheduledTaskParameterType" minOccurs="0" maxOccurs="unbounded"/>
     </xs:sequence>
   </xs:complexType>
 
@@ -44,19 +44,19 @@
 
   <xs:complexType name="idmScheduledTaskTriggersType">
     <xs:sequence>
-      <xs:element name="triggers" type="idmScheduledTaskTriggerType" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="trigger" type="idmScheduledTaskTriggerType" minOccurs="0" maxOccurs="unbounded"/>
     </xs:sequence>
   </xs:complexType>
 
   <xs:complexType name="idmScheduledTaskTriggerType">
     <xs:sequence>
+      <xs:element name="type" type="xs:string"/>
       <xs:element name="cron" type="xs:string" minOccurs="0"/>
+      <xs:element name="state" type="xs:string" minOccurs="0"/>
       <xs:element name="description" type="xs:string" minOccurs="0"/>
       <xs:element name="fireTime" type="dateTime" minOccurs="0"/>
       <xs:element name="nextFireTime" type="dateTime" minOccurs="0"/>
       <xs:element name="previousFireTime" type="dateTime" minOccurs="0"/>
-      <xs:element name="state" type="xs:string" minOccurs="0"/>
-      <xs:element name="type" type="xs:string"/>
     </xs:sequence>
   </xs:complexType>
 

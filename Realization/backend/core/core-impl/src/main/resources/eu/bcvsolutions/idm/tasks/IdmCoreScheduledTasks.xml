@@ -11,9 +11,15 @@
 <tasks xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="IdmTasks.xsd">
 	<task>
-		<taskType>eu.bcvsolutions.idm.core.scheduler.task.impl.IdentityContractExpirationTaskExecutor</taskType>
 		<description>Remove roles by expired identity contracts (=> removes assigned roles).</description>
 		<instanceId>idm-primary</instanceId>
+		<taskType>eu.bcvsolutions.idm.core.scheduler.task.impl.IdentityContractExpirationTaskExecutor</taskType>
+		<parameters>
+			<parameter>
+				<key>core:instanceId</key>
+				<value>idm-primary</value>
+			</parameter>
+		</parameters>
 		
 		<triggers>
 			<trigger>
@@ -23,18 +29,18 @@
 			</trigger>
 		</triggers>
 		
+	</task>
+
+	<task>
+		<description>Create new account for roles that was newly valid.</description>
+		<instanceId>idm-primary</instanceId>
+		<taskType>eu.bcvsolutions.idm.core.scheduler.task.impl.IdentityRoleValidRequestTaskExecutor</taskType>
 		<parameters>
 			<parameter>
 				<key>core:instanceId</key>
 				<value>idm-primary</value>
 			</parameter>
 		</parameters>
-	</task>
-
-	<task>
-		<taskType>eu.bcvsolutions.idm.core.scheduler.task.impl.IdentityRoleValidRequestTaskExecutor</taskType>
-		<description>Create new account for roles that was newly valid.</description>
-		<instanceId>idm-primary</instanceId>
 		
 		<triggers>
 			<trigger>
@@ -44,12 +50,6 @@
 			</trigger>
 		</triggers>
 		
-		<parameters>
-			<parameter>
-				<key>core:instanceId</key>
-				<value>idm-primary</value>
-			</parameter>
-		</parameters>
 	</task>
 
 </tasks>

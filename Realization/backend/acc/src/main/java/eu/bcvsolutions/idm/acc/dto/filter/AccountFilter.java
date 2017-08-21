@@ -19,6 +19,7 @@ public class AccountFilter extends QuickFilter {
 	private String uid;
 	private AccountType accountType;
 	private Boolean ownership;
+	private Boolean supportChangePassword;
 	
 	public UUID getSystemEntityId() {
 		return systemEntityId;
@@ -67,5 +68,13 @@ public class AccountFilter extends QuickFilter {
 	public void setOwnership(Boolean ownership) {
 		this.ownership = ownership;
 	}
-	
+
+	public Boolean getSupportChangePassword() {
+		return supportChangePassword;
+	}
+
+	public void setSupportChangePassword(Boolean supportChangePassword) {
+		this.supportChangePassword = supportChangePassword;
+	}
+
 }

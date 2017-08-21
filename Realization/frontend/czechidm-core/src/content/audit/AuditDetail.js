@@ -25,6 +25,7 @@ const SECOND_ENTITY_UIKEY = 'secondEntityUiKey';
 /**
  * Audit detail content
  *
+ * @author Ondřej Kopr
  */
 class AuditDetail extends Basic.AbstractContent {
 

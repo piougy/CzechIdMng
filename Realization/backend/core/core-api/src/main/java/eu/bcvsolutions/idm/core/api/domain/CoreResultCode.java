@@ -5,6 +5,16 @@ import org.springframework.http.HttpStatus;
 /**
  * Enum class for formatting response messages (mainly errors). 
  * Every enum contains a string message and corresponding https HttpStatus code.
+ * 
+ * Used http codes:
+ * - 2xx - success
+ * - 4xx - client errors (validations, conflicts ...)
+ * - 5xx - server errors
+ * 
+ * ImmutableMap can be used for code parameters - linked map is needed for parameter ordering.
+ * Lookout - ImmutableMap parameter values cannot be {@code null}!
+ * 
+ * @author Radek Tomiška
  */
 public enum CoreResultCode implements ResultCode {
 	//
@@ -12,8 +22,7 @@ public enum CoreResultCode implements ResultCode {
 	OK(HttpStatus.OK, "ok"),
 	ACCEPTED(HttpStatus.ACCEPTED, "	"),
 	//
-	// 4xx
-	// commons
+	// Commons 4xx
 	BAD_REQUEST(HttpStatus.BAD_REQUEST, "The value is wrong!"),
 	BAD_VALUE(HttpStatus.BAD_REQUEST, "The value %s is wrong!"),
 	BAD_UUID(HttpStatus.BAD_REQUEST, "The value %s is not uuid!"),
@@ -99,6 +108,7 @@ public enum CoreResultCode implements ResultCode {
 	PASSWORD_POLICY_ALL_MIN_REQUEST_ARE_HIGHER(HttpStatus.BAD_REQUEST, "Password policy has sum of all minimum request higher than maximum length."),
 	PASSWORD_POLICY_MAX_AGE_LOWER(HttpStatus.BAD_REQUEST, "Password policy has max password age lower than min age."),
 	PASSWORD_POLICY_MAX_RULE(HttpStatus.BAD_REQUEST, "Password policy: minimum rules to fulfill must be [%s] or lower."),
+	PASSWORD_POLICY_NEGATIVE_VALUE(HttpStatus.BAD_REQUEST, "Password policy can not contain negative values. Attribute: [%s]"),
 	//
 	SCHEDULER_INVALID_CRON_EXPRESSION(HttpStatus.BAD_REQUEST, "Cron expression [%s] is invalid."),
 	SCHEDULER_UNSUPPORTED_TASK_TRIGGER(HttpStatus.BAD_REQUEST, "Task trigger [%s] is not supported."),
@@ -117,7 +127,7 @@ public enum CoreResultCode implements ResultCode {
 	LONG_RUNNING_TASK_IS_PROCESSED(HttpStatus.BAD_REQUEST, "Task [%s] is already processed - can not be started twice"),
 	LONG_RUNNING_TASK_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Task [%s] type [%s] ended on instance [%s] with exception."),
 	LONG_RUNNING_TASK_CANCELED_BY_RESTART(HttpStatus.GONE, "Task [%s] type [%s] on instance [%s] was canceled during restart."),
-	LONG_RUNNING_TASK_INTERRUPT(HttpStatus.INTERNAL_SERVER_ERROR, "Task [%s] type [%s] on instance [%s] was interrupt."),
+	LONG_RUNNING_TASK_INTERRUPT(HttpStatus.INTERNAL_SERVER_ERROR, "Task [%s] type [%s] on instance [%s] was interrupted."),
 	LONG_RUNNING_TASK_INIT_FAILED(HttpStatus.BAD_REQUEST, "Task [%s] type [%s] has invalid properties."),
 	//
 	PASSWORD_EXPIRATION_TASK_DAYS_BEFORE(HttpStatus.BAD_REQUEST, "'Days before' parameter is required and has to be number greater than zero, given [%s]."),
@@ -161,7 +171,7 @@ public enum CoreResultCode implements ResultCode {
 	//
 	AUTHORIZATION_POLICY_GROUP_AUTHORIZATION_TYPE(HttpStatus.BAD_REQUEST, "When authorization type is filled [%s] then groupPermission has to be filled too [%s]."),
 	//
-	// 5xx	
+	// Common 5xx
 	INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "%s"),
 	NOT_IMPLEMENTED(HttpStatus.INTERNAL_SERVER_ERROR, "Not implemented: %s"),
 	WF_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Error occured during workflow execution: %s"),
@@ -170,7 +180,10 @@ public enum CoreResultCode implements ResultCode {
 	BACKUP_FOLDER_NOT_FOUND(HttpStatus.BAD_REQUEST, "Folder for backup dont exists in application properties, please specify this property: [%s]"),
 	BACKUP_FAIL(HttpStatus.BAD_REQUEST, "Backup for script code: [%s] failed. Error message: [%s]."),
 	DEPLOY_ERROR(HttpStatus.BAD_REQUEST, "Failed load entity from path [%s]."),
-	XML_JAXB_INIT_ERROR(HttpStatus.BAD_REQUEST, "Failed init JAXB instance.");
+	XML_JAXB_INIT_ERROR(HttpStatus.BAD_REQUEST, "Failed init JAXB instance."),
+	//
+	// Rest template
+	WRONG_PROXY_CONFIG(HttpStatus.INTERNAL_SERVER_ERROR, "Wrong configuration of http proxy. The required format is '[IP]:[PORT]'. Example: '153.25.16.8:1234'");
 	
 	private final HttpStatus status;
 	private final String message;

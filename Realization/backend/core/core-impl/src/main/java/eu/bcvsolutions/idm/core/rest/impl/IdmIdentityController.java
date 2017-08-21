@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
@@ -21,6 +22,7 @@ import org.springframework.hateoas.Resources;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.util.Assert;
@@ -47,6 +49,7 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
+import eu.bcvsolutions.idm.core.api.rest.domain.RequestResourceResolver;
 import eu.bcvsolutions.idm.core.audit.service.api.IdmAuditService;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.core.eav.rest.impl.IdmFormDefinitionController;
@@ -99,6 +102,7 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 	private final IdmIdentityRepository identityRepository;
 	//
 	private final IdmFormDefinitionController formDefinitionController;
+	private final RequestResourceResolver requestResourceResolver;
 	
 	@Autowired
 	public IdmIdentityController(
@@ -110,7 +114,8 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 			IdmAuditService auditService,
 			ForestContentService<IdmTreeNode, IdmForestIndexEntity, UUID> treeNodeIndexService,
 			IdmTreeNodeService treeNodeService,
-			IdmIdentityRepository identityRepository) {
+			IdmIdentityRepository identityRepository,
+			RequestResourceResolver requestResourceResolver) {
 		super(identityService);
 		//
 		Assert.notNull(formDefinitionController);
@@ -121,6 +126,7 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 		Assert.notNull(treeNodeIndexService);
 		Assert.notNull(treeNodeService);
 		Assert.notNull(identityRepository);
+		Assert.notNull(requestResourceResolver);
 		//
 		this.formDefinitionController = formDefinitionController;
 		this.grantedAuthoritiesFactory = grantedAuthoritiesFactory;
@@ -130,6 +136,7 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 		this.treeNodeIndexService = treeNodeIndexService;
 		this.treeNodeService = treeNodeService;
 		this.identityRepository = identityRepository;
+		this.requestResourceResolver = requestResourceResolver;
 	}
 	
 	@Override
@@ -256,6 +263,37 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 			@Valid @RequestBody IdmIdentityDto dto) {
 		return super.put(backendId, dto);
 	}
+	
+	/**
+	 * Patch method - move to abstract service
+	 */
+	@Override
+	@ResponseBody
+	@RequestMapping(value = "/{backendId}", method = RequestMethod.PATCH)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_UPDATE + "')")
+	@ApiOperation(
+			value = "Update identity", 
+			nickname = "patchIdentity", 
+			response = IdmIdentityDto.class, 
+			tags = { IdmIdentityController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_UPDATE, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_UPDATE, description = "") })
+				})
+	public ResponseEntity<?> patch(
+			@ApiParam(value = "Identity's uuid identifier or username.", required = true)
+			@PathVariable @NotNull String backendId,
+			HttpServletRequest nativeRequest)
+			throws HttpMessageNotReadableException {
+		IdmIdentityDto updateDto = getDto(backendId);
+		if (updateDto == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+		}
+		updateDto = (IdmIdentityDto) requestResourceResolver.resolve(nativeRequest, IdmIdentityDto.class, updateDto);
+		return new ResponseEntity<>(toResource(getService().save(updateDto, IdmBasePermission.UPDATE)), HttpStatus.OK);
+	}
 
 	@Override
 	@ResponseBody
@@ -280,16 +318,19 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 	@Override
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}/permissions", method = RequestMethod.GET)
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_READ + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_READ + "')"
+			+ " or hasAuthority('" + CoreGroupPermission.IDENTITY_AUTOCOMPLETE + "')")
 	@ApiOperation(
 			value = "What logged identity can do with given record", 
 			nickname = "getPermissionsOnIdentity", 
 			tags = { IdmIdentityController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_READ, description = "") }),
+						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_READ, description = ""),
+						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_AUTOCOMPLETE, description = "")}),
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_READ, description = "") })
+						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_READ, description = ""),
+						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_AUTOCOMPLETE, description = "")})
 				})
 	public Set<String> getPermissions(
 			@ApiParam(value = "Identity's uuid identifier or username.", required = true)
@@ -399,7 +440,7 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 			List<IdmTreeNode> positions = new ArrayList<>();
 			// TODO: tree node service to dtos
 			IdmTreeNode contractPosition = treeNodeService.get(primeContract.getWorkPosition());
-			positions = treeNodeIndexService.findAllParents(contractPosition, new Sort(Direction.ASC, "forestIndex.lft"));
+			positions = treeNodeIndexService.findAllParents(contractPosition.getId(), new Sort(Direction.ASC, "forestIndex.lft"));
 			positions.add(contractPosition);
 			positions.forEach(treeNode -> {
 				// TODO: use DTOs!

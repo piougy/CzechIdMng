@@ -1,9 +1,7 @@
-import React, { PropTypes } from 'react';
-import classnames from 'classnames';
+import { PropTypes } from 'react';
 import { connect } from 'react-redux';
-import { Link } from 'react-router';
 //
-import { Basic, Advanced, Managers } from 'czechidm-core';
+import { Utils, Advanced, Managers } from 'czechidm-core';
 import { SystemManager } from '../../redux';
 
 const manager = new SystemManager();
@@ -34,43 +32,52 @@ export class SystemInfo extends Advanced.AbstractEntityInfo {
   }
 
   /**
-   * TODO: implement different face
+   * Get link to detail (`url`).
+   *
+   * @return {string}
    */
-  render() {
-    const { rendered, showLoading, className, entity, entityIdentifier, _showLoading, style } = this.props;
-    //
-    if (!rendered) {
-      return null;
-    }
-    let _entity = this.props._entity;
-    if (entity) { // entity prop has higher priority
-      _entity = entity;
-    }
-    //
-    const classNames = classnames(
-      'system-info',
-      className
-    );
-    if (showLoading || (_showLoading && entityIdentifier && !_entity)) {
-      return (
-        <Basic.Icon className={ classNames } value="refresh" showLoading style={style}/>
-      );
-    }
-    if (!_entity) {
-      if (!entityIdentifier) {
-        return null;
+  getLink() {
+    return `/system/${encodeURIComponent(this.getEntityId())}/detail`;
+  }
+
+  /**
+   * Returns entity icon (null by default - icon will not be rendered)
+   *
+   * @param  {object} entity
+   */
+  getEntityIcon() {
+    return 'link';
+  }
+
+  /**
+   * Returns popovers title
+   *
+   * @param  {object} entity
+   */
+  getPopoverTitle() {
+    return this.i18n('acc:entity.System._type');
+  }
+
+  /**
+   * Returns popover info content
+   *
+   * @param  {array} table data
+   */
+  getPopoverContent(entity) {
+    return [
+      {
+        label: this.i18n('entity.name'),
+        value: this.getManager().getNiceLabel(entity)
+      },
+      {
+        label: this.i18n('acc:entity.System.connectorKey._type'),
+        value: Utils.Ui.getSimpleJavaType(entity.connectorKey.connectorName)
+      },
+      {
+        label: this.i18n('acc:entity.System.readonly.label'),
+        value: (entity.readonly ? this.i18n('label.yes') : this.i18n('label.no'))
       }
-      return (<Advanced.UuidInfo className={ classNames } value={ entityIdentifier } style={style}/>);
-    }
-    //
-    if (!this.showLink()) {
-      return (
-        <span className={ classNames }>{ manager.getNiceLabel(_entity) }</span>
-      );
-    }
-    return (
-      <Link className={ classNames } to={`/system/${entityIdentifier}/detail`}>{manager.getNiceLabel(_entity)}</Link>
-    );
+    ];
   }
 }
 
@@ -84,10 +91,7 @@ SystemInfo.propTypes = {
    * Selected entity's id - entity will be loaded automatically
    */
   entityIdentifier: PropTypes.string,
-  /**
-   * Internal entity loaded by given identifier
-   */
-  _entity: PropTypes.object,
+  //
   _showLoading: PropTypes.bool
 };
 SystemInfo.defaultProps = {

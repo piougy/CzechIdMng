@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import eu.bcvsolutions.idm.core.security.api.service.EnabledEvaluator;
 
 /**
- * Abstract authenticator, check if is moduel enabled
+ * Abstract authenticator, check if is module enabled
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
  */

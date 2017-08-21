@@ -176,7 +176,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 				TreeResultsHandler resultHandler = new TreeResultsHandler(accountsMap);
 
 				IcFilter filter = null; // We have to search all data for tree
-				log.addToLog(MessageFormat.format("Start search with filter {0}.", filter != null ? filter : "NONE"));
+				log.addToLog(MessageFormat.format("Start search with filter {0}.", "NONE"));
 				synchronizationLogService.save(log);
 
 				connectorFacade.search(system.getConnectorInstance(), connectorConfig, objectClass, filter,
@@ -463,7 +463,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 		
 		Object transformedValue = super.getValueByMappedAttribute(attribute, icAttributes);
 		
-		if (PARENT_FIELD.equals(attribute.getIdmPropertyName()) && transformedValue != null) {
+		if (transformedValue != null && PARENT_FIELD.equals(attribute.getIdmPropertyName())) {
 			String parentUid = transformedValue.toString();
 			UUID systemId = ((SysSystemAttributeMapping)attribute).getSystemMapping().getSystem().getId();
 			// Find account by UID from parent field
@@ -486,11 +486,16 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 					LOG.warn(
 							"For parent UID: [{}] on system ID [{}] and acc account: [{}], was not found tree accounts! Return null value in parent!!",
 							parentUid, systemId, parentAccount);
+					throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_TREE_PARENT_TREE_ACCOUNT_NOT_FOUND,
+							ImmutableMap.of("parentUid", parentUid, "systemId", systemId, "parentAccount",
+									parentAccount));
 				}
 			} else {
 				LOG.warn(
 						"For parent UID: [{}] on system ID [{}], was not found parents account! Return null value in parent!!",
 						parentUid, systemId);
+				throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_TREE_PARENT_ACCOUNT_NOT_FOUND,
+						ImmutableMap.of("parentUid", parentUid, "systemId", systemId));
 			}
 		}
 		return transformedValue;
@@ -528,7 +533,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 		return null; // We don't have DTO service for IdmTreeNode now
 	}
 
-	public class TreeResultsHandler implements IcResultsHandler {
+	public static class TreeResultsHandler implements IcResultsHandler {
 
 		// List of all accounts
 		private Map<String, IcConnectorObject> accountsMap = new HashMap<>();

@@ -14,6 +14,7 @@ import ProvisioningOperationManager from './ProvisioningOperationManager';
 import ProvisioningArchiveManager from './ProvisioningArchiveManager';
 import SyncActionLogManager from './SyncActionLogManager';
 import SyncItemLogManager from './SyncItemLogManager';
+import RoleAccountManager from './RoleAccountManager';
 
 const ManagerRoot = {
   SystemManager,
@@ -31,7 +32,8 @@ const ManagerRoot = {
   ProvisioningOperationManager,
   ProvisioningArchiveManager,
   SyncActionLogManager,
-  SyncItemLogManager
+  SyncItemLogManager,
+  RoleAccountManager
 };
 
 ManagerRoot.version = '0.0.1';

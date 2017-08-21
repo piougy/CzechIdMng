@@ -198,10 +198,7 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 				evaluators.put(evaluatorType, (AuthorizationEvaluator<?>) context.getBean(Class.forName(evaluatorType)));
 			} catch (ClassNotFoundException | NoSuchBeanDefinitionException ex) {
 				// disable removed evaluator classes
-				LOG.warn("Evaluator type [{}] for policy [{}] not found. Policy will be disabled.", evaluatorType, policy.getId());
-				IdmAuthorizationPolicyDto policyDto = service.get(policy.getId());
-				policyDto.setDisabled(true);
-				service.save(policyDto);
+				LOG.warn("Evaluator type [{}] for policy [{}] not found. Policy is ignored but should be disabled.", evaluatorType, policy.getId());
 				return null;
 			}
 		}
@@ -279,7 +276,12 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 			});
 			// add default - doesn't supports authorization evaluators
 			moduleService.getAvailablePermissions().forEach(groupPermission -> {
-				authorizableTypes.add(new AuthorizableType(groupPermission, null));
+				boolean exists = authorizableTypes.stream().anyMatch(authorizableType -> {
+					return authorizableType.getGroup().equals(groupPermission);
+				});
+				if (!exists) {
+					authorizableTypes.add(new AuthorizableType(groupPermission, null));
+				}
 			});
 		}
 		return authorizableTypes;

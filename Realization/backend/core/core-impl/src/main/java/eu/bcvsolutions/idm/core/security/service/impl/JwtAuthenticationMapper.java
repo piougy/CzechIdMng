@@ -19,9 +19,8 @@ import org.springframework.security.jwt.crypto.sign.SignerVerifier;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.security.api.domain.DefaultGrantedAuthority;
@@ -155,18 +154,37 @@ public class JwtAuthenticationMapper {
 		//
 		IdmJwtAuthenticationDto authenticationDto = new IdmJwtAuthenticationDto();
 		authenticationDto.setCurrentUsername(authentication.getCurrentUsername());
-		authenticationDto.setCurrentIdentityId(getIdentityDtoId(authentication.getCurrentIdentity()));
+		authenticationDto.setCurrentIdentityId(getIdentityId(authentication.getCurrentIdentity()));
 		authenticationDto.setOriginalUsername(authentication.getOriginalUsername());
-		authenticationDto.setOriginalIdentityId(getIdentityDtoId(authentication.getOriginalIdentity()));
+		authenticationDto.setOriginalIdentityId(getIdentityId(authentication.getOriginalIdentity()));
 		authenticationDto.setExpiration(authentication.getExpiration());
 		authenticationDto.setFromModule(authentication.getFromModule());
 		authenticationDto.setIssuedAt(DateTime.now());
-		authenticationDto.setAuthorities(getDTOAuthorities(authentication));
+		authenticationDto.setAuthorities(getDtoAuthorities(authentication));
 		return authenticationDto;
 	}
-
-	@SuppressWarnings("unchecked")
+	
+	/**
+	 * 
+	 * @param authentication
+	 * @return
+	 * @deprecated use {@link #getDtoAuthorities(Authentication)}
+	 */
+	@Deprecated
 	public List<DefaultGrantedAuthorityDto> getDTOAuthorities(Authentication authentication) {
+		return getDtoAuthorities(authentication);
+	}
+
+	/**
+	 * 
+	 * 
+	 * @param authentication
+	 * @return
+	 * @deprecated will be private
+	 */
+	@Deprecated
+	@SuppressWarnings("unchecked")
+	public List<DefaultGrantedAuthorityDto> getDtoAuthorities(Authentication authentication) {
 		Collection<DefaultGrantedAuthority> authorities = (Collection<DefaultGrantedAuthority>) authentication
 				.getAuthorities();
 		List<DefaultGrantedAuthorityDto> grantedAuthorities = new ArrayList<>();
@@ -178,12 +196,11 @@ public class JwtAuthenticationMapper {
 		return grantedAuthorities;
 	}
 	
-	public IdmJwtAuthenticationDto getClaims(Jwt jwt) 
-			throws JsonParseException, JsonMappingException, IOException {
+	public IdmJwtAuthenticationDto getClaims(Jwt jwt) throws IOException {
 		return mapper.readValue(jwt.getClaims(), IdmJwtAuthenticationDto.class);
 	}
 	
-	private UUID getIdentityDtoId(IdmIdentityDto dto) {
+	private UUID getIdentityId(IdmIdentityDto dto) {
 		return dto == null ? null : dto.getId();
 	}
 	

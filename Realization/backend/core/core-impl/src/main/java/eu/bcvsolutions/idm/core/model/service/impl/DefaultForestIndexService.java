@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import eu.bcvsolutions.forest.index.domain.ForestContent;
 import eu.bcvsolutions.forest.index.domain.ForestIndex;
 import eu.bcvsolutions.forest.index.service.impl.AbstractForestIndexService;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
@@ -47,11 +46,11 @@ public class DefaultForestIndexService extends AbstractForestIndexService<IdmFor
 	
 	@Override
 	@Transactional
-	public <C extends ForestContent<C, IdmForestIndexEntity, UUID>> C index(C content) {
+	public IdmForestIndexEntity index(String forestTreeType, UUID contentId, UUID parentContentId) {
 		if (!configurationService.getBooleanValue(PROPERTY_INDEX_ENABLED, true)) {
 			LOG.debug("Forest index is disabled. Enable configuration property [{}] for creating index.", DefaultForestIndexService.PROPERTY_INDEX_ENABLED);
-			return content;
+			return null;
 		}
-		return super.index(content);
+		return super.index(forestTreeType, contentId, parentContentId);
 	}
 }

@@ -375,7 +375,11 @@ class RoleSelect extends Basic.AbstractFormComponent {
                 ref="table"
                 condensed
                 style={{ borderLeft: '1px solid #ddd' }}
-                forceSearchParameters={this.roleManager.getDefaultSearchParameters().setFilter('roleCatalogue', roleCatalogue)}
+                forceSearchParameters={
+                  this.roleManager.getDefaultSearchParameters()
+                    .setName(SearchParameters.NAME_AUTOCOMPLETE)
+                    .setFilter('roleCatalogue', roleCatalogue)
+                }
                 showToolbar={false}
                 uiKey={TABLE_UIKEY}
                 manager={this.roleManager}

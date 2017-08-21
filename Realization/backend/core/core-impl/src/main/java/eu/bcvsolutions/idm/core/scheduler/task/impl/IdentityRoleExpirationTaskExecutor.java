@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.scheduler.task.impl;
 
 import java.util.Iterator;
+import java.util.Map;
 
 import org.joda.time.LocalDate;
 import org.quartz.DisallowConcurrentExecution;
@@ -21,6 +22,8 @@ import eu.bcvsolutions.idm.core.scheduler.service.impl.AbstractSchedulableTaskEx
  * Expected usage is in cooperation with CronTaskTrigger, running
  * once a day after midnight.
  * 
+ * @author Jan Helbich
+ * @author Radek Tomiška
  */
 @Service
 @DisallowConcurrentExecution
@@ -28,24 +31,27 @@ import eu.bcvsolutions.idm.core.scheduler.service.impl.AbstractSchedulableTaskEx
 public class IdentityRoleExpirationTaskExecutor extends AbstractSchedulableTaskExecutor<Boolean> {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(IdentityRoleExpirationTaskExecutor.class);
-	
+	//
+	@Autowired private IdmIdentityRoleService service;
+	//
 	private LocalDate expiration;
 	
-	@Autowired
-	private IdmIdentityRoleService service;
+	@Override
+	public void init(Map<String, Object> properties) {
+		super.init(properties);
+		//
+		expiration = new LocalDate();
+		LOG.info("Expired roles removal task was inintialized for expiration less than [{}].", expiration);
+	}
 	
 	@Override
 	public Boolean process() {
-		this.expiration = new LocalDate();
 		this.counter = 0L;
-		
-		LOG.debug("Expired roles removal task started with limit date [{}].", expiration);
-
-		int page = 0;
+		//
 		int pageSize = 100;
 		boolean hasNextPage = false;
 		do {
-			Page<IdmIdentityRoleDto> roles = getPagedRoles(page, pageSize);
+			Page<IdmIdentityRoleDto> roles = service.findExpiredRoles(expiration, new PageRequest(0, pageSize)); // 0 => from start - roles from previous search are already removed
 			hasNextPage = roles.hasContent();
 			if (count == null) {
 				count = roles.getTotalElements();
@@ -53,18 +59,17 @@ public class IdentityRoleExpirationTaskExecutor extends AbstractSchedulableTaskE
 			
 			for (Iterator<IdmIdentityRoleDto> i = roles.iterator(); i.hasNext() && hasNextPage;) {
 				IdmIdentityRoleDto role = i.next();
+				
+				LOG.debug("Remove role: [{}] from contract id: [{}].", role.getRole(), role.getIdentityContract());
+				
 				service.delete(role);
 				++counter;
 				hasNextPage &= updateState();
 			}
-			
-			++page;
-		} while (hasNextPage);		
+		} while (hasNextPage);
+		
+		LOG.info("Expired roles removal task ended. Removed roles: [{}].", counter);
+		
 		return Boolean.TRUE;
 	}
-
-	private Page<IdmIdentityRoleDto> getPagedRoles(int page, int pageSize) {
-		return service.findExpiredRoles(expiration, new PageRequest(page, pageSize));
-	}
-
 }

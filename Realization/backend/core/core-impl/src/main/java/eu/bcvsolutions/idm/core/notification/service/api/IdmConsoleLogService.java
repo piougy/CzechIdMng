@@ -10,6 +10,7 @@ import eu.bcvsolutions.idm.core.notification.dto.filter.NotificationFilter;
  * @author Radek Tomiška
  *
  */
-public interface IdmConsoleLogService extends ReadWriteDtoService<IdmConsoleLogDto, NotificationFilter> {
+public interface IdmConsoleLogService extends 
+		ReadWriteDtoService<IdmConsoleLogDto, NotificationFilter> {
 
 }

@@ -15,4 +15,10 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 public interface IdmLoggingEventService
 		extends ReadDtoService<IdmLoggingEventDto, LoggingEventFilter>, AuthorizableService<IdmLoggingEventDto> {
 
+	/**
+	 * Remove all logging event by id
+	 * 
+	 * @param eventId
+	 */
+	void deleteAllById(Long eventId);
 }

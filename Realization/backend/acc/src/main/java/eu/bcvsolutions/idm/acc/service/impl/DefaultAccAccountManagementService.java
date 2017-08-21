@@ -59,19 +59,15 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 	private final AccAccountService accountService;
 	private final SysRoleSystemService roleSystemService;
 	private final AccIdentityAccountService identityAccountService;
-	private final AccIdentityAccountRepository identityAccountRepository;
 	private final IdmIdentityRoleRepository identityRoleRepository;
 	private final SysRoleSystemAttributeService roleSystemAttributeService;
 	private final SysSystemAttributeMappingService systemAttributeMappingService;
-	private final SysSystemMappingService systemMappingService;
 
 	@Autowired
 	public DefaultAccAccountManagementService(SysRoleSystemService roleSystemService, AccAccountService accountService,
 			AccIdentityAccountService identityAccountService, IdmIdentityRoleRepository identityRoleRepository,
 			SysRoleSystemAttributeService roleSystemAttributeService,
-			AccIdentityAccountRepository identityAccountRepository,
-			SysSystemAttributeMappingService systemAttributeMappingService,
-			SysSystemMappingService systemMappingService) {
+			SysSystemAttributeMappingService systemAttributeMappingService) {
 		super();
 		//
 		Assert.notNull(identityAccountService);
@@ -79,18 +75,14 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 		Assert.notNull(accountService);
 		Assert.notNull(identityRoleRepository);
 		Assert.notNull(roleSystemAttributeService);
-		Assert.notNull(identityAccountRepository);
 		Assert.notNull(systemAttributeMappingService);
-		Assert.notNull(systemMappingService);
 		//
 		this.roleSystemService = roleSystemService;
 		this.accountService = accountService;
 		this.identityAccountService = identityAccountService;
 		this.identityRoleRepository = identityRoleRepository;
 		this.roleSystemAttributeService = roleSystemAttributeService;
-		this.identityAccountRepository = identityAccountRepository;
 		this.systemAttributeMappingService = systemAttributeMappingService;
-		this.systemMappingService = systemMappingService;
 	}
 
 	@Override
@@ -145,7 +137,7 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 		}).forEach(identityRole -> {
 			// Search IdentityAccounts to delete
 			identityAccountList.stream().filter(identityAccount -> {
-				return identityRole.equals(identityAccount.getIdentityRole());
+				return identityRole.getId().equals(identityAccount.getIdentityRole());
 			}).forEach(identityAccount -> {
 				identityAccountsToDelete.add(identityAccount);
 			});
@@ -337,14 +329,11 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 	}
 	
 	private UUID createAccount(String uid, SysRoleSystem roleSystem) {
-		UUID accountId;
 		AccAccount account = new AccAccount();
 		account.setUid(uid);
 		account.setAccountType(AccountType.PERSONAL);
 		account.setSystem(roleSystem.getSystem());
 		account = accountService.save(account);
-		accountId = account.getId();
-		return accountId;
+		return account.getId();
 	}
-	
 }

@@ -159,7 +159,10 @@ class TextField extends AbstractFormComponent {
     }
     //
     // value and readonly properties depends on confidential wrapper
-    let _value = value || '';
+    let _value = '';
+    if (value !== undefined && value !== null) {
+      _value = value;
+    }
     let _readOnly = readOnly;
     if (this._showConfidentialWrapper()) {
       if (value) {

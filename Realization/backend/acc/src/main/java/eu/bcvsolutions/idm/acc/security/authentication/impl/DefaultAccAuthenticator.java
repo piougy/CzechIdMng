@@ -1,10 +1,8 @@
 package eu.bcvsolutions.idm.acc.security.authentication.impl;
 
-import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.List;
 
-import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
@@ -32,14 +30,9 @@ import eu.bcvsolutions.idm.core.security.api.authentication.AbstractAuthenticato
 import eu.bcvsolutions.idm.core.security.api.authentication.Authenticator;
 import eu.bcvsolutions.idm.core.security.api.domain.AuthenticationResponseEnum;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
-import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
-import eu.bcvsolutions.idm.core.security.api.dto.IdmJwtAuthenticationDto;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
 import eu.bcvsolutions.idm.core.security.exception.IdmAuthenticationException;
-import eu.bcvsolutions.idm.core.security.service.GrantedAuthoritiesFactory;
-import eu.bcvsolutions.idm.core.security.service.LoginService;
-import eu.bcvsolutions.idm.core.security.service.impl.JwtAuthenticationMapper;
-import eu.bcvsolutions.idm.core.security.service.impl.OAuthAuthenticationManager;
+import eu.bcvsolutions.idm.core.security.service.JwtAuthenticationService;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
@@ -73,12 +66,8 @@ public class DefaultAccAuthenticator extends AbstractAuthenticator implements Au
 	private final IdmIdentityService identityService;
 	
 	private final SysSystemAttributeMappingService systemAttributeMappingService;
-
-	private final JwtAuthenticationMapper jwtTokenMapper;
 	
-	private final GrantedAuthoritiesFactory grantedAuthoritiesFactory;
-	
-	private final OAuthAuthenticationManager authenticationManager;
+	private final JwtAuthenticationService jwtAuthenticationService;
 	
 	@Autowired
 	public DefaultAccAuthenticator(ConfigurationService configurationService,
@@ -87,9 +76,7 @@ public class DefaultAccAuthenticator extends AbstractAuthenticator implements Au
 			AccAccountService accountService,
 			IdmIdentityService identityService,
 			SysSystemAttributeMappingService systemAttributeMappingService,
-			JwtAuthenticationMapper jwtTokenMapper,
-			GrantedAuthoritiesFactory grantedAuthoritiesFactory,
-			OAuthAuthenticationManager authenticationManager) {
+			JwtAuthenticationService jwtAuthenticationService) {
 		//
 		Assert.notNull(accountService);
 		Assert.notNull(configurationService);
@@ -97,9 +84,7 @@ public class DefaultAccAuthenticator extends AbstractAuthenticator implements Au
 		Assert.notNull(provisioningService);
 		Assert.notNull(identityService);
 		Assert.notNull(systemAttributeMappingService);
-		Assert.notNull(jwtTokenMapper);
-		Assert.notNull(grantedAuthoritiesFactory);
-		Assert.notNull(authenticationManager);
+		Assert.notNull(jwtAuthenticationService);
 		//
 		this.systemService = systemService;
 		this.configurationService = configurationService;
@@ -107,9 +92,7 @@ public class DefaultAccAuthenticator extends AbstractAuthenticator implements Au
 		this.accountService = accountService;
 		this.identityService = identityService;
 		this.systemAttributeMappingService = systemAttributeMappingService;
-		this.jwtTokenMapper = jwtTokenMapper;
-		this.grantedAuthoritiesFactory = grantedAuthoritiesFactory;
-		this.authenticationManager = authenticationManager;
+		this.jwtAuthenticationService = jwtAuthenticationService;
 	}
 	
 	@Override
@@ -210,33 +193,14 @@ public class DefaultAccAuthenticator extends AbstractAuthenticator implements Au
 		if (authFailedException != null) {
 			throw authFailedException;
 		}
-		IdmJwtAuthentication authentication = new IdmJwtAuthentication(
-				identity,
-				getAuthExpiration(),
-				grantedAuthoritiesFactory.getGrantedAuthorities(loginDto.getUsername()),
-				this.getModule());
-		//
-		authenticationManager.authenticate(authentication);
-		//
+		String module = this.getModule();
+		
+		loginDto = jwtAuthenticationService.createJwtAuthenticationAndAuthenticate(
+				loginDto, identity, module);
+		
 		LOG.info("Identity with username [{}] is authenticated on system [{}]", loginDto.getUsername(), system.getName());
-		//
-		IdmJwtAuthenticationDto authenticationDto = jwtTokenMapper.toDto(authentication);
-		//
-		try {
-			// set authentication module
-			loginDto.setAuthenticationModule(this.getModule());
-			loginDto.setAuthentication(authenticationDto);
-			loginDto.setToken(jwtTokenMapper.writeToken(authenticationDto));
-			return loginDto;
-		} catch (IOException ex) {
-			throw new IdmAuthenticationException(ex.getMessage(), ex);
-		}
-	}
-
-	private DateTime getAuthExpiration() {
-		return DateTime.now()
-				.plus(configurationService.getIntegerValue(LoginService.PROPERTY_EXPIRATION_TIMEOUT,
-						LoginService.DEFAULT_EXPIRATION_TIMEOUT));
+		
+		return loginDto;
 	}
 
 	@Override

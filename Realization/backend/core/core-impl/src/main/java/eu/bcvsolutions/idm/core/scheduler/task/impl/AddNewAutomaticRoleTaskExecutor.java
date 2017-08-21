@@ -22,6 +22,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
+import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
@@ -32,7 +33,7 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
 
 /**
  * Long running task for add newly added automatic role to users. 
- * Can be executed repetitively to assign role to unprocessed identities, after process was stopped or interrupt (e.g. by server restart). 
+ * Can be executed repetitively to assign role to unprocessed identities, after process was stopped or interrupted (e.g. by server restart). 
  *
  * @author Ondrej Kopr <kopr@xyxy.cz>
  * @author Radek Tomiška
@@ -40,7 +41,7 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
  *
  */
 @Service
-@Description("Add new automatic role from IdmRoleTreeNode. Can be executed repetitively to assign role to unprocessed identities, after process was stopped or interrupt (e.g. by server restart).")
+@Description("Add new automatic role from IdmRoleTreeNode. Can be executed repetitively to assign role to unprocessed identities, after process was stopped or interrupted (e.g. by server restart).")
 public class AddNewAutomaticRoleTaskExecutor extends AbstractAutomaticRoleTaskExecutor {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(AddNewAutomaticRoleTaskExecutor.class);
@@ -76,6 +77,14 @@ public class AddNewAutomaticRoleTaskExecutor extends AbstractAutomaticRoleTaskEx
 		List<String> failedIdentities = new ArrayList<>();
 		boolean canContinue = true;
 		for (IdmIdentityContractDto identityContract : contracts) {
+			if (!EntityUtils.isValidNowOrInFuture(identityContract)) {
+				// valid contracts in the past is not needed
+				counter++;
+				if (!updateState()) {
+					break;
+				}
+				continue;
+			}
 			List<IdmIdentityRoleDto> allByContract = identityRoleService.findAllByContract(identityContract.getId());
 			// skip already assigned automatic roles
 			boolean alreadyAssigned = false;

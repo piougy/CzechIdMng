@@ -21,6 +21,7 @@ import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordPolicyService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordService;
 import eu.bcvsolutions.idm.core.security.api.authentication.AuthenticationManager;
+import eu.bcvsolutions.idm.core.security.api.domain.IdentityBasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 
 /**
@@ -80,24 +81,27 @@ public class IdentityPasswordValidateProcessor extends CoreEventProcessor<IdmIde
 			if (passwordChangeType == PasswordChangeType.DISABLED) {
 				// check if isn't disable password change
 				throw new ResultCodeException(CoreResultCode.PASSWORD_CHANGE_DISABLED);
-			} else if (passwordChangeType == PasswordChangeType.ALL_ONLY && !passwordChangeDto.isIdm()) {
+			} else if (passwordChangeType == PasswordChangeType.ALL_ONLY && !passwordChangeDto.isAll()) {
 				// for all only must change also password for czechidm
 				throw new ResultCodeException(CoreResultCode.PASSWORD_CHANGE_ALL_ONLY);
 			}
-			//
-			// check old password
-			if (passwordChangeDto.getOldPassword() == null) {
-				throw new ResultCodeException(CoreResultCode.PASSWORD_CHANGE_CURRENT_FAILED_IDM);
-			}			
-			//
-			if (identityConfiguration.isRequireOldPassword()) {
-				// authentication trough chain 
-				boolean successChainAuthentication = authenticationManager.validate(identity.getUsername(), passwordChangeDto.getOldPassword());
-				if (!successChainAuthentication) {
+			// check old password - the same identity only
+			// checkAccess(identity, IdentityBasePermission.PASSWORDCHANGE) is called before event publishing
+			if (identity.getId().equals(securityService.getCurrentId())) {
+				if (passwordChangeDto.getOldPassword() == null) {				
 					throw new ResultCodeException(CoreResultCode.PASSWORD_CHANGE_CURRENT_FAILED_IDM);
+				}			
+				//
+				if (identityConfiguration.isRequireOldPassword()) {
+					// authentication trough chain 
+					boolean successChainAuthentication = authenticationManager.validate(identity.getUsername(), passwordChangeDto.getOldPassword());
+					if (!successChainAuthentication) {
+						throw new ResultCodeException(CoreResultCode.PASSWORD_CHANGE_CURRENT_FAILED_IDM);
+					}
 				}
 			}
 		}
+		
 
 		if (passwordChangeDto.isAll() || passwordChangeDto.isIdm()) { // change identity's password
 			// validate password

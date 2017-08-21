@@ -26,7 +26,7 @@ Input:
 // IdmProcessedTaskItemDtoService 	= processedTaskItemService
 // IdmScheduledTaskDtoService 		= scheduledTaskService
 // IdmLongRunningTaskDtoService 	= longRunningTaskService
-// IdmIdentityRoleService 			= idmIdentityRoleService
+// identityRoleService 				= identityRoleService
 //
 //
 import org.slf4j.Logger;
@@ -63,15 +63,15 @@ try {
 		def identity = identityService.get(dto.getIdentity())
 		if (!identity.isDisabled()) {
 			identity.setDisabled(true)
-			identityService.saveInternal(identity)
+			identityService.save(identity)
 		}
 	}
 	//
 	// remove manually added roles
-	def contractRoles = idmIdentityRoleService.findAllByContract(dto.getId())
+	def contractRoles = identityRoleService.findAllByContract(dto.getId())
 	for (role in contractRoles) {
 		if (!role.isAutomaticRole()) {
-			idmIdentityRoleService.delete(role)
+			identityRoleService.delete(role)
 		}
 	}
 	//

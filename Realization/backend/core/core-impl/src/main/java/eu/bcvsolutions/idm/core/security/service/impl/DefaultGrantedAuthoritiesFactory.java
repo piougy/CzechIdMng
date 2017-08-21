@@ -161,8 +161,9 @@ public class DefaultGrantedAuthoritiesFactory implements GrantedAuthoritiesFacto
 
 	@Override
 	public boolean containsAllAuthorities(
-			Collection<GrantedAuthority> original, Collection<GrantedAuthority> subset) {
+			Collection<? extends GrantedAuthority> original,
+			Collection<? extends GrantedAuthority> subset) {
 		return original.containsAll(subset);
 	}
-	
+
 }

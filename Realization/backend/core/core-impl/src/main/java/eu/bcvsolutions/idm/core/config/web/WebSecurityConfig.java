@@ -37,8 +37,7 @@ import eu.bcvsolutions.idm.core.security.auth.filter.ExtendExpirationFilter;
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	
-	@Autowired
-	private RoleHierarchy roleHierarchy;
+	@Autowired private RoleHierarchy roleHierarchy;
 
 	@Override
     protected void configure(HttpSecurity http) throws Exception {

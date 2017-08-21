@@ -26,11 +26,11 @@ public class DefaultTransformFromResourceEvaluator extends AbstractScriptEvaluat
 		StringBuilder example = new StringBuilder();
 		example.append("// Inserted script: ");
 		example.append(script.getCode());
-		example.append("\n");
+		example.append('\n');
 		//
 		example.append("/* Description:\n");
 		example.append(script.getDescription());
-		example.append("\n");
+		example.append('\n');
 		//
 		example.append("*/\n");
 		example.append(SCRIPT_EVALUATOR);

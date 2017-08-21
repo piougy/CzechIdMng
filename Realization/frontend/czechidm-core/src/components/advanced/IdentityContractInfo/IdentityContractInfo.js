@@ -1,14 +1,14 @@
 import React, { PropTypes } from 'react';
-import classnames from 'classnames';
 import { connect } from 'react-redux';
-import { Link } from 'react-router';
 //
-import * as Basic from '../../basic';
-import { IdentityContractManager, SecurityManager } from '../../../redux/';
-import UuidInfo from '../UuidInfo/UuidInfo';
+import * as Utils from '../../../utils';
+import { IdentityContractManager, SecurityManager, IdentityManager, TreeTypeManager} from '../../../redux/';
 import AbstractEntityInfo from '../EntityInfo/AbstractEntityInfo';
+import DateValue from '../DateValue/DateValue';
 
 const manager = new IdentityContractManager();
+const identityManager = new IdentityManager();
+const treeTypeManager = new TreeTypeManager();
 
 
 /**
@@ -37,46 +37,86 @@ export class IdentityContractInfo extends AbstractEntityInfo {
     return true;
   }
 
-  render() {
-    const { rendered, showLoading, className, entity, entityIdentifier, _showLoading, style, showIdentity } = this.props;
+  /**
+   * Returns true, when disabled decorator has to be used
+   *
+   * @param  {object} entity
+   * @return {bool}
+   */
+  isDisabled(entity) {
+    return !Utils.Entity.isValid(entity);
+  }
+
+  /**
+   * Get link to detail (`url`).
+   *
+   * @return {string}
+   */
+  getLink() {
+    const { entityIdentifier } = this.props;
+    const _entity = this.getEntity();
     //
-    if (!rendered) {
-      return null;
+    return `/identity/${encodeURIComponent(_entity._embedded.identity.username)}/identity-contract/${entityIdentifier}/detail`;
+  }
+
+  /**
+   * Returns entity icon (null by default - icon will not be rendered)
+   *
+   * @param  {object} entity
+   */
+  getEntityIcon() {
+    return 'fa:building';
+  }
+
+  /**
+   * Returns popovers title
+   *
+   * @param  {object} entity
+   */
+  getPopoverTitle() {
+    return this.i18n('entity.IdentityContract._type');
+  }
+
+  /**
+   * Returns popover info content
+   *
+   * @param  {array} table data
+   */
+  getPopoverContent(entity) {
+    // idenity nice label
+    let identityNiceLabel = '';
+    if (entity && entity._embedded) {
+      identityNiceLabel = identityManager.getNiceLabel(entity._embedded.identity);
     }
-    let _entity = this.props._entity;
-    if (entity) { // entity prop has higher priority
-      _entity = entity;
+
+    // working position nice label
+    let workingPositionNiceLable = '';
+    if (entity && entity._embedded && entity._embedded.workPosition
+        && entity._embedded.workPosition._embedded) {
+      workingPositionNiceLable = treeTypeManager.getNiceLabel(entity._embedded.workPosition._embedded.treeType);
     }
-    //
-    let username = null;
-    if (_entity !== null) {
-      username = _entity._embedded.identity.username;
-    }
-    //
-    const classNames = classnames(
-      'identity-contract-info',
-      className
-    );
-    if (showLoading || (_showLoading && entityIdentifier && !_entity)) {
-      return (
-        <Basic.Icon className={ classNames } value="refresh" showLoading style={style}/>
-      );
-    }
-    if (!_entity) {
-      if (!entityIdentifier) {
-        return null;
+    return [
+      {
+        label: this.i18n('entity.Identity._type'),
+        value: identityNiceLabel
+      },
+      {
+        label: this.i18n('entity.IdentityContract.position'),
+        value: manager.getNiceLabel(entity, false)
+      },
+      {
+        label: this.i18n('entity.TreeType._type'),
+        value: workingPositionNiceLable
+      },
+      {
+        label: this.i18n('entity.validFrom'),
+        value: (<DateValue value={ entity.validFrom }/>)
+      },
+      {
+        label: this.i18n('entity.validTill'),
+        value: (<DateValue value={ entity.validTill }/>)
       }
-      return (<UuidInfo className={ classNames } value={ entityIdentifier } style={style}/>);
-    }
-    //
-    if (!this.showLink()) {
-      return (
-        <span className={ classNames }>{ manager.getNiceLabel(_entity, showIdentity) }</span>
-      );
-    }
-    return (
-      <Link className={ classNames } to={`/identity/${username}/identity-contract/${entityIdentifier}/detail`}>{manager.getNiceLabel(_entity, showIdentity)}</Link>
-    );
+    ];
   }
 }
 
@@ -94,18 +134,15 @@ IdentityContractInfo.propTypes = {
    * Show contract's identity
    */
   showIdentity: PropTypes.bool,
-  /**
-   * Internal entity loaded by given identifier
-   */
-  _entity: PropTypes.object,
-  _showLoading: PropTypes.bool
+  //
+  _showLoading: PropTypes.bool,
 };
 IdentityContractInfo.defaultProps = {
   ...AbstractEntityInfo.defaultProps,
   entity: null,
   face: 'link',
   _showLoading: true,
-  showIdentity: true
+  showIdentity: true,
 };
 
 function select(state, component) {

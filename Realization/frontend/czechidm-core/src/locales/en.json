@@ -35,9 +35,9 @@
     "id": "Id",
     "action": "Actions",
     "otherAttributes": "Other attributes",
-    "selectAll": "Select / deselect all",
-    "validFrom": "Valid from",
-    "validTill": "Valid to",
+    "selectAll": "Select / unselect all",
+    "validFrom": "$t(entity.validFrom)",
+    "validTill": "$t(entity.validTill)",
     "select": "Select ...",
     "searchSelect": "Select or type to search ...",
     "enabled": "Enabled",
@@ -120,12 +120,12 @@
       "header": "Recover record from disk",
       "header_plural": "Recover records from disk",
       "message": "Do you want to recover selected record [<strong>{{record}}</strong>] from disk? This action is not possible to undo.",
-      "message_plural": "Selected records: [<strong>{{records}}</strong>].<br /><br />Do you want to recofer <strong>{{count}}</strong> selected records from disk? This action is not possible to undo.",
+      "message_plural": "Selected records: [<strong>{{records}}</strong>].<br /><br />Do you want to recover <strong>{{count}}</strong> selected records from disk? This action is not possible to undo.",
       "error": "An error occurred while recover [{{record}}]",
       "success": "N/A",
       "success_plural": "Selected record [{{record}}] were successfully recovered",
-      "failed": "Selected record [{{records}}] failed recover, XML file dont exist on disk.",
-      "failed_plural": "Selected records [{{records}}] failed recover, XML file dont exist on disk."
+      "failed": "Selected record [{{records}}] failed recover, XML file don't exist on disk.",
+      "failed_plural": "Selected records [{{records}}] failed recover, XML file don't exist on disk."
     },
     "backup": {
       "action": "Backup",
@@ -252,9 +252,12 @@
       }
     },
     "advanced": {
-      "IdentityInfo": {
-        "disabledInfo": "User is deactivated",
-        "profileLink": "Show full detail"
+      "EntityInfo": {
+        "link": {
+          "detail": {
+            "label": "Přejít na detail"
+          }
+        }
       },
       "Filter": {
         "option": {
@@ -277,8 +280,8 @@
         },
         "noData": "$t(component.basic.Table.noData)",
         "filter": {
-          "notEmpty": "Filtr is set",
-          "emtpy": "Filtr is not set"
+          "notEmpty": "Filter is set",
+          "empty": "Filter is not set"
         }
       },
       "Tree": {
@@ -339,7 +342,7 @@
       "WAIT_REMOVE_APPROVE": "Assign (removing waiting for approval)"
     },
     "OperationResultEnum": {
-      "SUCCESS": "succes",
+      "SUCCESS": "success",
       "FAILED": "failed"
     },
     "OperationTypeEnum": {
@@ -517,7 +520,8 @@
       "NOTIFICATIONTEMPLATE": "Notifications - templates",
       "PASSWORDPOLICY": "Password policy",
       "ROLEREQUEST": "Role requests",
-      "SCHEDULER": "Scheduler"
+      "SCHEDULER": "Scheduler",
+      "WORKFLOWDEFINITION": "Workflow - definitions"
     }
   },
   "content": {
@@ -536,7 +540,7 @@
         "record": "Record ID <strong>{{id}}</strong> does not exist."
       },
       "500": {
-        "title": "Oups, this is embarasing"
+        "title": "Oups, this is embarrassing"
       },
       "503": {
         "title": "503",
@@ -689,7 +693,8 @@
         "passwordSimilarEmail": "Password cannot be similar to email: ",
         "passwordSimilarFirstName": "Password cannot be similar to first name: ",
         "passwordSimilarLastName": "Password cannot be similar to surname: ",
-        "date": "Password can not be change now, try again: "
+        "date": "Password can not be change now, try again: ",
+        "advancedControlValidateType": "Enhanced control is available only for validate politics."
       },
       "save": {
         "success": "Password policy [{{name}}] successfully saved."
@@ -711,7 +716,7 @@
       "environment": "Static environment configuration items <small>read only</small>",
       "fromFile": "Application configuration from configuration files <small>application.properties</small>",
       "fromEnvironment": "Environment configuration <small>backend</small>",
-      "guarded": "If item key contais values: [<strong>{{guarded}}</strong>] the item is automatically confidentital and non-public. Items with key beginning with [<strong>idm.sec.</strong>] can not be public.",
+      "guarded": "If item key contains values: [<strong>{{guarded}}</strong>] the item is automatically confidential and non-public. Items with key beginning with [<strong>idm.sec.</strong>] can not be public.",
       "confidential": {
         "help": "Item is stored in encrypted repository"
       },
@@ -800,9 +805,10 @@
         "createdDate": "Created on",
         "applicantFullName": "Applicant name",
         "applicant": "Requested for",
+        "implementerIdentifier": "Applicant",
         "successComplete": "Task {{name}} successfully solved.",
         "completeTaskConfirmTitle": "Confirmation of task completion",
-        "completeTaskConfirmDetail": "o you really want this task to terminate?",
+        "completeTaskConfirmDetail": "Do you really want this task to terminate?",
         "role": {
           "currentRoles": "Currently assigned permissions",
           "conceptIdentityRoles": "Applicant's roles"
@@ -810,6 +816,7 @@
       },
       "DefaultTaskDetail": {
         "applicant": "Requested for",
+        "implementerIdentifier": "Applicant",
         "createdDate": "Created date",
         "approvers": "Approvers of this task",
         "note": "$t(entity.ApprovalTask.note)",
@@ -994,7 +1001,7 @@
             "rebuild" : {
               "header": "Reindex",
               "message": "Do you really want to rebuild index for tree type structure [{{record}}]",
-              "success": "Rebuil index for tree type structure [{{record}}] was scheduled."
+              "success": "Rebuild index for tree type structure [{{record}}] was scheduled."
             }
           },
           "index": {
@@ -1137,8 +1144,8 @@
       },
       "processRoleChange": {
         "roleName": "Role name",
-        "roleValidFrom": "Valid from",
-        "roleValidTill": "Valid to",
+        "roleValidFrom": "$t(entity.validFrom)",
+        "roleValidTill": "$t(entity.validTill)",
         "currentActivity": "application status",
         "candicateUsers": "Approvers",
         "wfProcessId": "WF"
@@ -1371,7 +1378,7 @@
         "changeRoleProcesses": {
           "header": "Roles pending approval",
           "deleteConfirm": "Do you really want to delete selected request?",
-          "deleteSuccess": "Request succesfully deleted."
+          "deleteSuccess": "Request successfully deleted."
         },
         "changePermissionRequests": {
           "header": "Requests for authorization change"
@@ -1515,7 +1522,7 @@
         },
         "button": {
           "add": "Add delegation",
-          "delete": "Remove delegation o user {{delegate}}"
+          "delete": "Remove delegation from user {{delegate}}"
         },
         "create": {
           "header": "New delegation",
@@ -1668,7 +1675,7 @@
           },
           "task-interrupt": {
             "header": "Interrupt running task",
-            "message": "Do you really was to interupt task [<strong>{{record}}</strong>]?",
+            "message": "Do you really was to interrupt task [<strong>{{record}}</strong>]?",
             "success": "Task [{{record}}] was interrupted."
           }
         }
@@ -1703,7 +1710,7 @@
           },
           "task-delete": {
             "header": "Remove task",
-            "message": "Do you really want to remove taks [<strong>{{record}}</strong>]?",
+            "message": "Do you really want to remove tasks [<strong>{{record}}</strong>]?",
             "success": "Task [{{record}}] successfully removed."
           },
           "save": {
@@ -1743,8 +1750,9 @@
         },
         "action": {
           "processCreated": {
-            "button": "Run created tasks",
-            "success": "Created task will be executed."
+            "button": "Run all created tasks",
+            "success": "Created task will be executed.",
+            "selectedButton": "Run selected tasks"
           }
         }
       }
@@ -1824,8 +1832,8 @@
       "title": "Websocket history"
     },
     "sms": {
-      "header": "Sms history",
-      "title": "Sms history"
+      "header": "SMS history",
+      "title": "SMS history"
     },
     "websocket": {
       "header": "Websocket message details",
@@ -1870,9 +1878,9 @@
         "version": "$t(content.workflow.definition.version)",
         "description": "$t(content.workflow.definition.description)",
         "resourceName": "$t(content.workflow.definition.resourceName)",
-        "fileRejected": "Soubor s definicí workflow musí mít příponu bpmn20.xml ({{name}})!",
-        "filesRejected": "Soubor/y s definicí workflow musí mít příponu bpmn20.xml!",
-        "fileUploded": "Definice ({{name}}) byla úspěšně nahrána.",
+        "fileRejected": "Workflow definition file must be of type bpmn20.xml ({{name}})!",
+        "filesRejected": "Workflow definition types must be of type bpmn20.xml!",
+        "fileUploded": "Workflow definition ({{name}}) was successfully uploaded.",
         "id":"$t(content.workflow.definition.id)"
       },
       "history":{
@@ -1931,7 +1939,7 @@
       "id": "Id",
       "noPreviousRevision": "No previous revision",
       "profile": {
-        "userDetail": "{{revision}}. revize, {{name}}, {{date}}"
+        "userDetail": "{{revision}}. revision, {{name}}, {{date}}"
       },
       "logging-event": {
         "title": "Logging events",
@@ -1939,7 +1947,8 @@
         "header": "Logging events",
         "header-detail": "Logging event",
         "detail": "detail",
-        "exceptions": "Error message"
+        "exceptions": "Error message",
+        "rawSource": "Show copyable content"
       },
       "revision": {
         "id": "Revision Id",
@@ -1976,10 +1985,13 @@
   "entity": {
     "id": {
       "label": "Id",
-      "title": "Identificator",
-      "help": "Internal identificator"
+      "title": "Identifier",
+      "help": "Internal identifier"
     },
+    "name": "Name",
     "created": "Created",
+    "validFrom": "Valid from",
+    "validTill": "Valid till",
 
     "Identity": {
       "_type": "User",
@@ -2137,7 +2149,7 @@
         "label": "Permissions",
         "title": "Granted permission",
         "placeholder": "Select permissions",
-        "help": "Permissions will be granted by eveluator configuration"
+        "help": "Permissions will be granted by evaluator configuration"
       }
     },
     "IdentityRole": {
@@ -2146,7 +2158,7 @@
         "label": "Contracted position",
         "title": "Contracted position",
         "placeholder": "Contracted position",
-        "help": "Connection to organization or another tree strucure"
+        "help": "Connection to organization or another tree structure"
       },
       "roleTreeNode": {
         "label": "Automatic role",
@@ -2171,7 +2183,7 @@
       "versionLabel": "Version"
     },
     "ApprovalTask": {
-      "taskId": "Identificator",
+      "taskId": "Identifier",
       "taskName": "Task name",
       "createdDate": "Created",
       "closedDate": "Closed",
@@ -2187,8 +2199,8 @@
       "workPosition": "Position",
       "position": "Work position",
       "identity": "User",
-      "validFrom": "Valid from",
-      "validTill": "Valid to",
+      "validFrom": "$t(entity.validFrom)",
+      "validTill": "$t(entity.validTill)",
       "guarantee": "Authorizer",
       "externe": "External contractor",
       "managers": {
@@ -2197,7 +2209,7 @@
       },
       "disabled": {
         "label": "Inactive",
-        "help": "Inactive work position. Has higher priority than valid dates. Invalid work position is automatically set to inactive and all assigned roles to this position are removed."
+        "help": "Inactive work position. Roles cannot be assigned to inactive position."
       },
       "description": "Note",
       "main": {
@@ -2272,7 +2284,7 @@
       "candicateUsers": "Authorizers"
     },
     "Notification": {
-      "topic": "Subject",
+      "topic": "Topic",
       "created": "$t(entity.created)",
       "message": {
         "level": "Level",
@@ -2438,8 +2450,8 @@
       "weakPassRequired": "Required weak passwords",
       "weakPass": "Weak passwords",
       "passphraseWords": "Number of words in passphrase",
-      "maxPasswordAge": "Maximum number of days for password validity.",
-      "minPasswordAge": "Minimum number of days for password validity.",
+      "maxPasswordAge": "Maximum password age",
+      "minPasswordAge": "Minimum number of days for password validity",
       "enchancedControl": "Enabled",
       "minRulesToFulfill": "Minimum number of additional rules for policy",
       "maxHistorySimilar": "Number of old passwords checked for match",
@@ -2459,7 +2471,7 @@
         "prohibitedCharacters": "Listed characters are not allowed for generating and validating passwords. Enter characters without spaces, e.g. 1LliIo0!",
         "bases": "Character set allowed for password generation. Forbidden characters are excluded from sets.",
         "identityAttributeCheck": "Password may not contain any listed attributes or variations thereof.",
-        "emptyValues": "To omit any field, leave it empty or set value to 0.",
+        "emptyValues": "To omit any field, leave it empty.",
         "passphraseWords": "Select number of words passphrase contains."
       }
     },
@@ -2470,7 +2482,7 @@
       "version": "Version",
       "description": "Description",
       "disabled": "Inactive",
-      "documentation": "Dokumentation",
+      "documentation": "Documentation",
       "build": "Build",
       "buildNumber": "Revision",
       "buildTimestamp": "Build date"
@@ -2544,7 +2556,7 @@
       "candicateUsers": "Approvers",
       "currentActivity": "Approval state",
       "originalRequest": "Original request",
-      "wfProcessId": "WF identificator"
+      "wfProcessId": "WF identifier"
     },
     "ConceptRoleRequest": {
       "identityContract": "Employment relationship",
@@ -2625,32 +2637,32 @@
         "placeholder": ""
       },
       "validFrom": {
-        "name" : "Valid from",
+        "name" : "$t(entity.validFrom)",
         "tooltip": "",
         "placeholder": ""
       },
       "validTill": {
-        "name" : "Valid till",
+        "name" : "$t(entity.validTill)",
         "tooltip": "",
         "placeholder": ""
       },
       "validFromDateOld": {
-        "name" : "Valid from (old)",
+        "name" : "$t(entity.validFrom) (old)",
         "tooltip": "",
         "placeholder": ""
       },
       "validTillDateOld": {
-        "name" : "Valid till (old)",
+        "name" : "$t(entity.validTill) (old)",
         "tooltip": "",
         "placeholder": ""
       },
       "validFromDateNew": {
-        "name" : "Valid from (new)",
+        "name" : "$t(entity.validFrom) (new)",
         "tooltip": "",
         "placeholder": ""
       },
       "validTillDateNew": {
-        "name" : "Valid till (new)",
+        "name" : "$t(entity.validTill) (new)",
         "tooltip": "",
         "placeholder": ""
       }
@@ -2683,7 +2695,7 @@
     },
     "XSRF": {
       "title": "Session timeout",
-      "message": "Your login token timeouted. Please log-in again."
+      "message": "Your login token timed out. Please log-in again."
     },
     "MUST_CHANGE_IDM_PASSWORD": {
       "title": "Password change required",
@@ -2741,6 +2753,10 @@
       "title": "Password policy wasn't saved",
       "message": "Policy has incorrect type. Use validating policies for validation and generating policies for generating."
     },
+    "PASSWORD_POLICY_NEGATIVE_VALUE": {
+      "title": "Password values can not have negative values",
+      "message": "Attribute [{{attribute}}] is negative."
+    },
     "PASSWORD_POLICY_VALIDATION": {
       "title": "Password policy wasn't saved",
       "message": "Problem with validation of password policy."
@@ -2751,11 +2767,11 @@
     },
     "TASK_SAME_DELEGATE_AS_CURRENT_IDENTITY": {
       "title": "Saving of delegation failed",
-      "message": "You cannot set delegation on yourself [uživatel: {{identity}}]."
+      "message": "You cannot set delegation on yourself [user: {{identity}}]."
     },
     "ENDPOINT_NOT_FOUND": {
       "title": "Endpoint not found",
-      "message": "Aplikace odkazuje na neexistující cestu [{{path}}]."
+      "message": "Application points out to non-existent path [{{path}}]."
     },
     "BAD_REQUEST": {
       "title": "Bad request"
@@ -2764,8 +2780,8 @@
       "title": "Bad value"
     },
     "BAD_UUID": {
-      "title": "Unexpected identificator",
-      "message": "Identificator [{{uuid}}] is not valid. Expecting uuid."
+      "title": "Unexpected identifier",
+      "message": "Identifier [{{uuid}}] is not valid. Expecting uuid."
     },
     "ROLE_CATALOG_BAD_PARENT": {
       "title": "Superior folder cannot be set.",
@@ -2776,7 +2792,7 @@
       "message": "Role with this name already exists"
     },
     "CONFLICT": {
-      "title": "Record is on colision with anoteher unique record"
+      "title": "Record is on collision with another unique record"
     },
     "NAME_CONFLICT": {
       "title": "Conflict with name",
@@ -2886,6 +2902,10 @@
       "title": "Task has invalid configuration",
       "message": "Task [{{taskType}}] has invalid configuration."
     },
+    "LONG_RUNNING_TASK_IS_PROCESSED": {
+      "title": "Task is already processed",
+      "message": "Task [{{taskId}}] is already processed - can not be started twice."
+    },
     "FOREST_INDEX_DISABLED": {
       "title": "Index is inactive",
       "message": "Tree structure indexing is inactive. Enable configuration property {{property}}."
@@ -2927,8 +2947,8 @@
       "message": "Some concepts have not same applicant [{{applicant}}]!"
     },
     "ROLE_REQUEST_NO_EXECUTE_IMMEDIATELY_RIGHT": {
-      "title": "You don`t have permission for start request for change permissions without approval.",
-      "message": "You don`t have permission (EXECUTE IMMEDIATELY) for start request for change permissions without approval!"
+      "title": "You do not have permission to start request for permission changes without approval.",
+      "message": "You do not have permission (EXECUTE IMMEDIATELY) to start request for permission changes without approval!"
     },
     "CRYPT_DEMO_KEY_NOT_FOUND": {
       "title": "Demo key was not found",
@@ -2963,7 +2983,7 @@
       "message": "Recaptcha service is unavailable."
     },
     "BACKUP_FOLDER_NOT_FOUND": {
-      "title": "Folder for backup dont exists",
+      "title": "Folder for backup don't exists",
       "message": "Please specify this property: [{{property}}] in configuration properties."
     },
     "ROLE_DELETE_FAILED_HAS_TREE_NODE": {

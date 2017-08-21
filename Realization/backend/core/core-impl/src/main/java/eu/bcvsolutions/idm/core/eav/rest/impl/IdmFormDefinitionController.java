@@ -257,7 +257,9 @@ public class IdmFormDefinitionController extends DefaultReadWriteEntityControlle
 						"code", definitionCode));
 			}
 		}
-		formDefinition = formService.getDefinition(ownerClass);
+		if (formDefinition == null) {
+			formDefinition = formService.getDefinition(ownerClass);
+		}
 		if (formDefinition == null) {			
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("formDefinition", ownerClass));
 		}

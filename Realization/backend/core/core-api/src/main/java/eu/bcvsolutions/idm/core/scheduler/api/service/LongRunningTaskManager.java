@@ -65,11 +65,19 @@ public interface LongRunningTaskManager {
 	boolean interrupt(UUID longRunningTaskId);
 	
 	/**
-	 * Executes prepared task from long running task queue
+	 * Executes all prepared tasks from long running task queue
 	 * 
 	 * @return Returns currently executed tasks
 	 */
 	List<LongRunningFutureTask<?>> processCreated();
+
+	/**
+	 * Executes prepared task by given id from long running task queue
+	 * 
+	 * @param id
+	 * @return
+	 */
+	LongRunningFutureTask<?> processCreated(UUID longRunningTaskId);
 	
 	/**
 	 * Schedule {@link #processCreated()} only

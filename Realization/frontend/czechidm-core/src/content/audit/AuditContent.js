@@ -4,6 +4,10 @@ import * as Basic from '../../components/basic';
 import AuditTable from './AuditTable';
 import Helmet from 'react-helmet';
 
+/**
+ *
+ * @author Ondřej Kopr
+ */
 class AuditContent extends Basic.AbstractContent {
 
   constructor(props, context) {

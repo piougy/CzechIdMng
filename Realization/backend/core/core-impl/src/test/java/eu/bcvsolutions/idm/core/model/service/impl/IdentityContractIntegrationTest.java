@@ -443,6 +443,51 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 	}
 	
 	@Test
+	public void testAssingRoleForContractValidInTheFuture() {
+		IdmIdentityDto identity = helper.createIdentity();
+		//
+		IdmIdentityContractDto contractD = new IdmIdentityContractDto();
+		contractD.setIdentity(identity.getId());
+		contractD.setWorkPosition(nodeD.getId());
+		contractD.setValidFrom(new LocalDate().plusDays(1));
+		contractD = identityContractService.save(contractD);
+		//
+		// create new automatic role
+		automaticRoleD = new IdmRoleTreeNodeDto();
+		automaticRoleD.setRecursionType(RecursionType.NO);
+		automaticRoleD.setRole(roleA.getId());
+		automaticRoleD.setTreeNode(nodeD.getId());
+		automaticRoleD = saveAutomaticRole(automaticRoleD, true);
+		//
+		// check
+		List<IdmIdentityRoleDto> identityRoles = identityRoleService.findAllByContract(contractD.getId());
+		assertEquals(1, identityRoles.size());
+		assertEquals(automaticRoleD.getId(), identityRoles.get(0).getRoleTreeNode());
+	}
+	
+	@Test
+	public void testDontAssingRoleForContractValidInThePast() {
+		IdmIdentityDto identity = helper.createIdentity();
+		//
+		IdmIdentityContractDto contractD = new IdmIdentityContractDto();
+		contractD.setIdentity(identity.getId());
+		contractD.setWorkPosition(nodeD.getId());
+		contractD.setValidTill(new LocalDate().minusDays(1));
+		contractD = identityContractService.save(contractD);
+		//
+		// create new automatic role
+		automaticRoleD = new IdmRoleTreeNodeDto();
+		automaticRoleD.setRecursionType(RecursionType.NO);
+		automaticRoleD.setRole(roleA.getId());
+		automaticRoleD.setTreeNode(nodeD.getId());
+		automaticRoleD = saveAutomaticRole(automaticRoleD, true);
+		//
+		// check
+		List<IdmIdentityRoleDto> identityRoles = identityRoleService.findAllByContract(contractD.getId());
+		assertEquals(0, identityRoles.size());
+	}
+	
+	@Test
 	public void testReferentialIntegrityOnRole() {
 		// prepare data
 		IdmRole role = helper.createRole();

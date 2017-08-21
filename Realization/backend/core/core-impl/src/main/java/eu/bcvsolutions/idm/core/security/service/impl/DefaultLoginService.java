@@ -1,9 +1,7 @@
 package eu.bcvsolutions.idm.core.security.service.impl;
 
-import java.io.IOException;
 import java.text.MessageFormat;
 
-import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,16 +12,13 @@ import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordService;
-import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
-import eu.bcvsolutions.idm.core.security.api.dto.IdmJwtAuthenticationDto;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.security.exception.IdmAuthenticationException;
-import eu.bcvsolutions.idm.core.security.service.GrantedAuthoritiesFactory;
+import eu.bcvsolutions.idm.core.security.service.JwtAuthenticationService;
 import eu.bcvsolutions.idm.core.security.service.LoginService;
 
 /**
@@ -41,16 +36,7 @@ public class DefaultLoginService implements LoginService {
 	private IdmIdentityService identityService;
 	
 	@Autowired
-	private ConfigurationService configurationService;
-
-	@Autowired
-	private GrantedAuthoritiesFactory grantedAuthoritiesFactory;
-	
-	@Autowired
-	private OAuthAuthenticationManager authenticationManager;
-	
-	@Autowired
-	private JwtAuthenticationMapper jwtTokenMapper;
+	private JwtAuthenticationService jwtAuthenticationService;
 	
 	@Autowired
 	private IdmPasswordService passwordService;
@@ -80,26 +66,12 @@ public class DefaultLoginService implements LoginService {
 					username));
 		}
 
-		IdmJwtAuthentication authentication = new IdmJwtAuthentication(
-				new IdmIdentityDto(identity, identity.getUsername()),
-				getLoginExpiration(),
-				grantedAuthoritiesFactory.getGrantedAuthorities(username),
-				loginDto.getAuthenticationModule());
+		loginDto = jwtAuthenticationService.createJwtAuthenticationAndAuthenticate(
+				loginDto, new IdmIdentityDto(identity, identity.getUsername()), loginDto.getAuthenticationModule());
 		
-		authenticationManager.authenticate(authentication);
-
 		LOG.info("Identity with username [{}] is authenticated", username);
-
-		IdmJwtAuthenticationDto authenticationDto = jwtTokenMapper.toDto(authentication);
-	
-		try {
-			loginDto.setUsername(username);
-			loginDto.setAuthentication(authenticationDto);
-			loginDto.setToken(jwtTokenMapper.writeToken(authenticationDto));
-			return loginDto;
-		} catch (IOException ex) {
-			throw new IdmAuthenticationException(ex.getMessage(), ex);
-		}
+		
+		return loginDto;
 	}
 
 	
@@ -123,27 +95,18 @@ public class DefaultLoginService implements LoginService {
 					username));
 		}
 		
-		IdmJwtAuthentication authentication = new IdmJwtAuthentication(
+		LoginDto loginDto = new LoginDto();
+		loginDto.setUsername(username);
+		
+		loginDto = jwtAuthenticationService.createJwtAuthenticationAndAuthenticate(
+				loginDto, 
+				// TODO: why is new dto created - previously dto could be used
 				new IdmIdentityDto(identity, identity.getUsername()),
-				getLoginExpiration(),
-				grantedAuthoritiesFactory.getGrantedAuthorities(username),
 				EntityUtils.getModule(this.getClass()));
 		
-		authenticationManager.authenticate(authentication);
-
 		LOG.info("Identity with username [{}] is authenticated", username);
 
-		IdmJwtAuthenticationDto authenticationDto = jwtTokenMapper.toDto(authentication);
-	
-		try {
-			LoginDto loginDto = new LoginDto();
-			loginDto.setUsername(username);
-			loginDto.setAuthentication(authenticationDto);
-			loginDto.setToken(jwtTokenMapper.writeToken(authenticationDto));
-			return loginDto;
-		} catch (IOException ex) {
-			throw new IdmAuthenticationException(ex.getMessage(), ex);
-		}
+		return loginDto;
 	}
 
 
@@ -175,12 +138,4 @@ public class DefaultLoginService implements LoginService {
 		}
 		return passwordService.checkPassword(loginDto.getPassword(), idmPassword);
 	}
-	
-	private DateTime getLoginExpiration() {
-		// new expiration date
-		DateTime expiration = DateTime.now()
-				.plus(configurationService.getIntegerValue(PROPERTY_EXPIRATION_TIMEOUT, DEFAULT_EXPIRATION_TIMEOUT));
-		return expiration;
-	}
-	
 }

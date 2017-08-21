@@ -1,6 +1,6 @@
 {
   "name": "czechidm-acc",
-  "version": "7.3.0-rc.6-snapshot",
+  "version": "7.4.0-snapshot",
   "description": "Module of CzechIdM 2.0 devstack for accounts managment",
   "main": "index.js",
   "scripts": {
@@ -9,7 +9,7 @@
   "keywords": [
     "CzechIdM",
     "provisioning",
-    "IDM"
+    "IdM"
   ],
   "author": "BCV solutions s.r.o",
   "license": "MIT"

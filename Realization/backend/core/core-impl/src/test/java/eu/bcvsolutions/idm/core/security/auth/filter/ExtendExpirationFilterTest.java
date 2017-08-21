@@ -18,8 +18,6 @@ import org.springframework.security.jwt.Jwt;
 import org.springframework.security.jwt.JwtHelper;
 import org.springframework.test.web.servlet.MvcResult;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
@@ -108,8 +106,7 @@ public class ExtendExpirationFilterTest extends AbstractRestTest {
 		Assert.assertTrue(original.getExpiration().getMillis() < extended.getExpiration().getMillis());
 	}
 
-	private IdmJwtAuthenticationDto getIdmJwtDto(MvcResult result)
-			throws JsonParseException, JsonMappingException, IOException {
+	private IdmJwtAuthenticationDto getIdmJwtDto(MvcResult result) throws IOException {
 		String extended = result.getResponse().getHeader(JwtAuthenticationMapper.AUTHENTICATION_TOKEN_NAME);
 		Assert.assertNotNull(extended);
 		Jwt decoded = JwtHelper.decode(extended);

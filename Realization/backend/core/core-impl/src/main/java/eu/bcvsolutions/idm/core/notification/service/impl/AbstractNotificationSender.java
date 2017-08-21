@@ -18,6 +18,7 @@ import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationTemplateDto;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotification;
 import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationTemplateService;
 import eu.bcvsolutions.idm.core.notification.service.api.NotificationSender;
+import eu.bcvsolutions.idm.core.security.api.domain.AbstractAuthentication;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 
@@ -76,9 +77,14 @@ public abstract class AbstractNotificationSender<N extends IdmNotificationDto> i
 	@Transactional
 	public N send(String topic, IdmMessageDto message) {
 		Assert.notNull(securityService, "Security service is required for this operation");
+		Assert.notNull(topic, "Message topic can not be null.");
+		Assert.notNull(message, "Message can not be null.");
 		//
-		IdmIdentityDto currentIdentityDto = securityService.getAuthentication().getCurrentIdentity();	
+		AbstractAuthentication auth = securityService.getAuthentication();
+		IdmIdentityDto currentIdentityDto = auth == null ? null : auth.getCurrentIdentity();
 		if (currentIdentityDto == null || currentIdentityDto.getId() == null) {
+			 LOG.warn("No identity is currently signed, swallowing the message: [{}], parameters: [{}].",
+					 message.getTextMessage(), message.getParameters());
 			// system, guest, etc.
 			return null;
 		}
@@ -109,7 +115,7 @@ public abstract class AbstractNotificationSender<N extends IdmNotificationDto> i
 		//
 		// check if exist text for message, TODO: send only with subject?
 		if (notificationMessage.getHtmlMessage() == null && notificationMessage.getSubject() == null && notificationMessage.getTextMessage() == null && notificationMessage.getModel() == null) {
-			LOG.error("Notification has empty template and message. Message will not be send! [topic:{}]", topic);
+			LOG.error("Notification has empty template and message. Message will not be sent! [topic:{}]", topic);
 			return null;
 		}
 		//

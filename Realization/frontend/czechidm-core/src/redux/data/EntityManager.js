@@ -1,3 +1,5 @@
+import _ from 'lodash';
+//
 import { LocalizationService } from '../../services';
 import FlashMessagesManager from '../flash/FlashMessagesManager';
 import DataManager from './DataManager';
@@ -283,7 +285,7 @@ export default class EntityManager {
         }));
       })
       .catch(error => {
-        dispatch(this.receiveError(id, uiKey, error, cb));
+        dispatch(this.receiveError({ id }, uiKey, error, cb));
       });
     };
   }
@@ -851,10 +853,10 @@ export default class EntityManager {
                 }));
               } else {
                 // entity not found
-                dispatch(this.receiveEntity(id, null, uiKey, cb));
+                dispatch(this.receiveError({ id }, uiKey, { statusCode: 404, statusEnum: 'NOT_FOUND', parameters: { entity: id } }, cb));
               }
             } else {
-              dispatch(this.receiveError(id, uiKey, error, cb));
+              dispatch(this.receiveError({ id }, uiKey, error, cb));
             }
           }));
         } else {
@@ -964,11 +966,19 @@ export default class EntityManager {
    *
    * @param  {state} state - application state
    * @param  {string} uiKey - ui key for loading indicator etc.
-   * @param  {string} id - entity identifier
+   * @param  {string} id - entity identifier or entity
    * @return {arrayOf(authority)} what logged user can do with ui key and underlying entity
    */
   getPermissions(state, uiKey = null, id = null) {
-    return Utils.Permission.getPermissions(state, this.resolveUiKey(uiKey, id));
+    if (!_.isObject(id)) {
+      return Utils.Permission.getPermissions(state, this.resolveUiKey(uiKey, id));
+    }
+    const permissionsById = Utils.Permission.getPermissions(state, this.resolveUiKey(uiKey, id.id));
+    if (permissionsById || !this.getIdentifierAlias()) {
+      return permissionsById;
+    }
+    // permissions by alias
+    return Utils.Permission.getPermissions(state, this.resolveUiKey(uiKey, id[this.getIdentifierAlias()]));
   }
 
   /**

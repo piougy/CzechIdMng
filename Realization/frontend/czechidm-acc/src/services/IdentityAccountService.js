@@ -2,6 +2,11 @@ import { Services } from 'czechidm-core';
 import { Domain } from 'czechidm-core';
 import AccountTypeEnum from '../domain/AccountTypeEnum';
 
+/**
+ * Identity accounts
+ *
+ * @author Radek Tomiška
+ */
 export default class IdentityAccountService extends Services.AbstractService {
 
   constructor() {
@@ -12,7 +17,7 @@ export default class IdentityAccountService extends Services.AbstractService {
     if (!entity) {
       return '';
     }
-    return `${AccountTypeEnum.getNiceLabel(entity._embedded.account.accountType)}:${entity._embedded.account._embedded.system.name}:${entity._embedded.account._embedded.systemEntity ? entity._embedded.account._embedded.systemEntity.uid : ''}`;
+    return `${AccountTypeEnum.getNiceLabel(entity._embedded.account.accountType)}:${entity._embedded.account._embedded.system.name}:${entity._embedded.account.uid}`;
   }
 
   getApiPath() {

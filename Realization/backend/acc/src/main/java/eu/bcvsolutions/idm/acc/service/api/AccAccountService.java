@@ -20,13 +20,17 @@ import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
  */
 public interface AccAccountService extends ReadWriteEntityService<AccAccount, AccountFilter>, ScriptEnabled {
 
+
+	@Deprecated
 	/**
 	 * Delete AccAccount
 	 * @param account
 	 * @param deleteTargetAccount If is true, then will be call provisioning 
 	 *  and deleted account on target system
+	 * @param entityId - Id of entity connected to the account. Can be null, but provisioning archive will not have correct information.
+	 * @deprecated Will be moved to event. This method will be removed!
 	 */
-	void delete(AccAccount account, boolean deleteTargetAccount);
+	void delete(AccAccount account, boolean deleteTargetAccount, UUID entityId);
 	
 	/**
 	 * Get accounts for identity on system.

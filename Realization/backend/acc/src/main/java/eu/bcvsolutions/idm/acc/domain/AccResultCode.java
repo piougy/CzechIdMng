@@ -34,7 +34,7 @@ public enum AccResultCode implements ResultCode {
 	//
 	// Provisioning
 	PROVISIONING_IDM_FIELD_NOT_FOUND(HttpStatus.NOT_FOUND, "IDM field %s for entity %s not found!"),
-	PROVISIONING_PASSWORD_FIELD_NOT_FOUND(HttpStatus.NOT_FOUND, "Mapped attribute for password (___PASSWORD__) field for entity %s not found!"),
+	PROVISIONING_PASSWORD_FIELD_NOT_FOUND(HttpStatus.NOT_FOUND, "Mapped attribute for password (___PASSWORD__) field for entity [%s] on system [%s] not found!"),
 	PROVISIONING_SCHEMA_ATTRIBUTE_IS_NOT_UPDATEABLE(HttpStatus.BAD_REQUEST, "Schema attribute %s for entity %s is not updateable!"),
 	PROVISIONING_SCHEMA_ATTRIBUTE_IS_FOUND(HttpStatus.BAD_REQUEST, "Schema attribute %s not found!"),
 	PROVISIONING_RESOURCE_ATTRIBUTE_NOT_FOUND(HttpStatus.BAD_REQUEST, "Attribute %s for entity %s on resource not found!"),
@@ -47,7 +47,7 @@ public enum AccResultCode implements ResultCode {
 	PROVISIONING_ATTRIBUTE_UID_IS_NOT_STRING(HttpStatus.BAD_REQUEST, "Value of UID attribute must be String, but value is %s."),
 	PROVISIONING_ATTRIBUTE_UID_NOT_FOUND(HttpStatus.NOT_FOUND, "UID attribute (mapped attribute marked as 'Is identifier') was not found for system %s. UID attribute is mandatory for provisioning/sync!"),
 	PROVISIONING_GENERATED_UID_IS_NULL(HttpStatus.NOT_FOUND, "Generated UID is null (for system [%s])! Account UID must be not null and String value."),
-	PROVISIONING_DUPLICATE_ROLE_MAPPING(HttpStatus.CONFLICT, "Was found more attribute definitions for same UID for same role %s, system %s and entity type %s!"),
+	PROVISIONING_DUPLICATE_ROLE_MAPPING(HttpStatus.CONFLICT, "Was found more attribute definitions for same role %s, system %s and entity type %s!"),
 	PROVISIONING_DIFFERENT_UIDS_FROM_CONNECTOR(HttpStatus.BAD_REQUEST, "After provisioning for UID %s, connector returned more UID "
 			+ "(for more object classes). This returned UIDs but isn't same [%s]. This is inconsistent state."),
 	PROVISIONING_SYSTEM_DISABLED(HttpStatus.LOCKED, "Provisioning operation for object with uid [%s] on system [%s] is canceled. System is disabled."),
@@ -78,6 +78,8 @@ public enum AccResultCode implements ResultCode {
 	SYNCHRONIZATION_IDM_FIELD_NOT_SET(HttpStatus.NOT_FOUND, "IDM field %s for entity %s cannot be set!"),
 	SYNCHRONIZATION_IDM_FIELD_NOT_GET(HttpStatus.NOT_FOUND, "IDM field %s for entity %s cannot be get!"),
 	SYNCHRONIZATION_TREE_ROOT_FILTER_VALUE_WRONG_TYPE(HttpStatus.BAD_REQUEST, "Synchronization root filter result must be instance of Boolean, but value is type %s!"), 
+	SYNCHRONIZATION_TREE_PARENT_TREE_ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "For parent UID: [%s] on system ID [%s] and acc account: [{}] was not found tree accounts!"),
+	SYNCHRONIZATION_TREE_PARENT_ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "For parent UID: [%s] on system ID [%s] was not found accounts!"),
 	SYNCHRONIZATION_ATTRIBUTE_NOT_FOUND(HttpStatus.NOT_FOUND, "IDM attribute %s not found!"),
 	//
 	// authentication against system
@@ -85,7 +87,10 @@ public enum AccResultCode implements ResultCode {
 	AUTHENTICATION_USERNAME_DONT_EXISTS(HttpStatus.BAD_REQUEST, "Authentication failed! For username [%s] dont find username on system [%s]."),
 	AUTHENTICATION_AUTHENTICATION_ATTRIBUTE_DONT_SET(HttpStatus.BAD_REQUEST, "Authentication failed! System [%s] hasn't set authentication attribute"),
 	// Protection account system
-	ACCOUNT_CANNOT_BE_DELETED_IS_PROTECTED(HttpStatus.BAD_REQUEST, "Account [%s] cannot be deleted. Is protected before delete!");
+	ACCOUNT_CANNOT_BE_DELETED_IS_PROTECTED(HttpStatus.BAD_REQUEST, "Account [%s] cannot be deleted. Is protected before delete!"),
+	// Role system
+	ROLE_SYSTEM_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "Duplicated role mapping. Role [%s] with mapping on same system [%s] already exists!");
+	
 	
 	private final HttpStatus status;
 	private final String message;

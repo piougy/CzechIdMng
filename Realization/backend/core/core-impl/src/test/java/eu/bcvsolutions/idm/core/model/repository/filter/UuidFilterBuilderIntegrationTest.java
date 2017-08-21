@@ -9,12 +9,15 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
+import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.TestHelper;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
@@ -36,7 +39,17 @@ public class UuidFilterBuilderIntegrationTest extends AbstractIntegrationTest {
 	
 	@Autowired private TestHelper helper;
 	@Autowired private IdmIdentityRepository repository;
-	
+
+	@Before
+	public void init() {
+		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+	}
+
+	@After
+	public void logout() {
+		super.logout();
+	}
+
 	@Test
 	public void testFindIdentityByUuid() {
 		// prepare data

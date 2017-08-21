@@ -23,9 +23,15 @@ import eu.bcvsolutions.idm.core.notification.entity.IdmConsoleLog;
  */
 public interface IdmConsoleLogRepository extends AbstractEntityRepository<IdmConsoleLog, NotificationFilter> {
 	
+	/**
+	 * @deprecated use IdmConsoleLogService (uses criteria api)
+	 */
 	@Override
-	@Query(value = "select e from IdmConsoleLog e")
-	Page<IdmConsoleLog> find(NotificationFilter filter, Pageable pageable);
+	@Deprecated
+	@Query(value = "select e from #{#entityName} e")
+	default Page<IdmConsoleLog> find(NotificationFilter filter, Pageable pageable) {
+		throw new UnsupportedOperationException("Use IdmConsoleLogService (uses criteria api)");
+	}
 	
 	@Override
 	@PreAuthorize("hasAuthority('" + NotificationGroupPermission.NOTIFICATION_READ + "')")

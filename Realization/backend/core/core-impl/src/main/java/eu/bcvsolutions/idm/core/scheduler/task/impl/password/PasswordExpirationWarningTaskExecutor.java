@@ -72,7 +72,8 @@ public class PasswordExpirationWarningTaskExecutor extends AbstractSchedulableSt
 	public Page<IdmPasswordDto> getItemsToProcess(Pageable pageable) {
 		PasswordFilter filter = new PasswordFilter();
 		filter.setValidTill(expiration);
-		return passwordService.find(filter, pageable);
+		Page<IdmPasswordDto> result =  passwordService.find(filter, pageable);
+		return result;
 	}
 
 	@Override

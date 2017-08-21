@@ -11,9 +11,12 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
+import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.filter.AccountFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
+import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping_;
+import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 
 /**
@@ -32,8 +35,10 @@ import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 public interface AccAccountRepository extends AbstractEntityRepository<AccAccount, AccountFilter> {
 	
 	@Override
-	@Query(value = "select e from AccAccount e left join e.systemEntity se" +
+	@Query(value = "select e from AccAccount e left join e.systemEntity se " +
 	        " where" +
+	        " (?#{[0].id} is null or e.id = ?#{[0].id})" +
+	        " and" +
 	        " ("
 	        + " ?#{[0].text} is null "
 	        + " or lower(e.uid) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')}"
@@ -54,7 +59,15 @@ public interface AccAccountRepository extends AbstractEntityRepository<AccAccoun
 	        	+ " )" +
         	" )" +
 	        " and" +
-	        " (?#{[0].accountType} is null or e.accountType = ?#{[0].accountType})")
+	        " (?#{[0].accountType} is null or e.accountType = ?#{[0].accountType})" +
+	        " and" +   
+	        " ((?#{[0].supportChangePassword} is null or ?#{[0].supportChangePassword} = false) or exists"
+	        	+ " ("
+	        	  + " from SysSystemAttributeMapping sam join sam.systemMapping sm join sam.schemaAttribute sa where sm.objectClass.system = e.system "
+	        	  + " and sm.operationType = 'PROVISIONING'"
+	        	  + " and sa.name = '" + ProvisioningService.PASSWORD_SCHEMA_PROPERTY_NAME + "'"
+	        	+ " )" +
+        	" )")
 	Page<AccAccount> find(AccountFilter filter, Pageable pageable);
 	
 	Long countBySystem(@Param("system") SysSystem system);

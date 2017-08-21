@@ -216,7 +216,7 @@ public class DefaultIdmIdentityContractService
 	@Transactional(readOnly = true)
 	public List<IdmIdentityContractDto> findAllByWorkPosition(UUID workPositionId, RecursionType recursion) {
 		Assert.notNull(workPositionId);
-		// TODO: useuuid only - rewrite to subquery
+		// TODO: use uuid only - rewrite to subquery
 		IdmTreeNode workPosition = treeNodeRepository.findOne(workPositionId);
 		Assert.notNull(workPosition);
 		//
@@ -258,7 +258,7 @@ public class DefaultIdmIdentityContractService
 	/**
 	 * Returns given identity's prime contract, by contract's priority:
 	 * - 1. main
-	 * - 2. valid (validable and not disabled) - TODO - implemented
+	 * - 2. valid (validable and not disabled)
 	 * - 3. with working position with default tree type
 	 * - 4. with working position with any tree type
 	 * - 5. other

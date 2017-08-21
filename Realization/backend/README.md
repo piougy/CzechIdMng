@@ -71,4 +71,4 @@ This setup has to be done for modules **core-api**, **core-impl** and other opti
 
 Default profile is using h2 database. It is not nessesary a configuration for first start.
 
-All configuration properties can be found in [documentation](https://proj.bcvsolutions.eu/ngidm/doku.php?id=en:navrh:konfigurace_aplikace).
+All configuration properties can be found in [documentation](https://wiki.czechidm.com/7.3/dev/configuration/backend).

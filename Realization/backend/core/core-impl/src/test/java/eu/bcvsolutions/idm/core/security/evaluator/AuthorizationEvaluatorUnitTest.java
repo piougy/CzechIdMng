@@ -21,8 +21,7 @@ import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
  */
 public class AuthorizationEvaluatorUnitTest extends AbstractUnitTest {
 	
-	@Mock
-	private SecurityService securityService;
+	@Mock private SecurityService securityService;
 	
 	@Test
 	public void testSupportsEvaluatorType() {

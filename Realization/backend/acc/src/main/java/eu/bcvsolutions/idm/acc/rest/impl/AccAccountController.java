@@ -233,6 +233,8 @@ public class AccAccountController extends DefaultReadWriteEntityController<AccAc
 		filter.setUid(getParameterConverter().toString(parameters, "uid"));
 		filter.setAccountType(getParameterConverter().toEnum(parameters, "accountType", AccountType.class));
 		filter.setOwnership(getParameterConverter().toBoolean(parameters, "ownership"));
+		filter.setSupportChangePassword(getParameterConverter().toBoolean(parameters, "supportChangePassword"));
+		
 		return filter;
 	}
 }

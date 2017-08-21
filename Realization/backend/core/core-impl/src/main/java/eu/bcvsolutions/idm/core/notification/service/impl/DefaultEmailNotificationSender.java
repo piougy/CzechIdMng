@@ -68,6 +68,7 @@ public class DefaultEmailNotificationSender extends AbstractNotificationSender<I
 	}
 	
 	@Override
+	@Transactional
 	public IdmEmailLogDto send(IdmMessageDto message, String[] emails) {
 		Assert.notNull(message);
 		Assert.notNull(emails);

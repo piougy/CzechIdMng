@@ -52,11 +52,6 @@ public class DefaultNotificationManager extends AbstractNotificationSender<IdmNo
 	@Transactional
 	public IdmNotificationLogDto send(IdmNotificationDto notification) {
 		Assert.notNull(notification, "Notification is required!");
-		for (int index = 0; index < 11000; index++) {
-			IdmNotificationDto notificationNew = new IdmNotificationDto(notification);
-			IdmNotificationLogDto notificationLogNew = createLog(notification);
-			sendNotificationLog(notificationLogNew);
-		}
 		//
 		IdmNotificationLogDto notificationLog = createLog(notification);
 		return sendNotificationLog(notificationLog);

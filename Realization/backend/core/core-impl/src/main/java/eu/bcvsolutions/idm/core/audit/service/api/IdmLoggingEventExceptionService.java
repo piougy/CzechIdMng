@@ -1,8 +1,5 @@
 package eu.bcvsolutions.idm.core.audit.service.api;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-
 import eu.bcvsolutions.idm.core.api.dto.IdmLoggingEventExceptionDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.LoggingEventExceptionFilter;
 import eu.bcvsolutions.idm.core.api.service.ReadDtoService;
@@ -20,10 +17,9 @@ public interface IdmLoggingEventExceptionService
 		AuthorizableService<IdmLoggingEventExceptionDto> {
 
 	/**
-	 * Method find all {@link IdmLoggingEventExceptionDto} by event id.
+	 * Method delete all exceptions by given logging event id.
 	 * 
-	 * @param id
-	 * @return
+	 * @param eventId
 	 */
-	Page<IdmLoggingEventExceptionDto> findAllByEvent(Long id, Pageable pageable);
+	void deleteByEventId(Long eventId);
 }

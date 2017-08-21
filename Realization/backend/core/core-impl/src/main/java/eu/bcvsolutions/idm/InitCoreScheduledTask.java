@@ -22,7 +22,7 @@ import eu.bcvsolutions.idm.core.scheduler.config.AbstractScheduledTaskInitialize
 public class InitCoreScheduledTask extends AbstractScheduledTaskInitializer {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(InitCoreScheduledTask.class);
-	private static String CORE_SCHEDULED_TASK_XML = "IdmCoreScheduledTasks.xml";
+	private static final String CORE_SCHEDULED_TASK_XML = "IdmCoreScheduledTasks.xml";
 	
 	@Override
 	protected InputStream getTasksInputStream() {

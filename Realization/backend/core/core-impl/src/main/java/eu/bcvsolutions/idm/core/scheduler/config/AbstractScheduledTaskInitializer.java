@@ -38,7 +38,7 @@ import eu.bcvsolutions.idm.core.scheduler.jaxb.IdmScheduledTasksType;
 
 public abstract class AbstractScheduledTaskInitializer implements ApplicationListener<ContextRefreshedEvent> {
 
-	protected String DEFAULT_RESOURCE = "eu/bcvsolutions/idm/tasks/";
+	protected static final String DEFAULT_RESOURCE = "eu/bcvsolutions/idm/tasks/";
 
 	@Autowired
 	private SchedulerManager schedulerService;
@@ -147,6 +147,7 @@ public abstract class AbstractScheduledTaskInitializer implements ApplicationLis
 		task.setModule(getModule()); // TODO: module attribute not working in Task
 		task.setInstanceId(type.getInstanceId());
 
+		@SuppressWarnings("unchecked")
 		Class<? extends SchedulableTaskExecutor<?>> classType = (Class<? extends SchedulableTaskExecutor<?>>) Class
 				.forName(type.getTaskType());
 		task.setTaskType(classType);
@@ -205,6 +206,7 @@ public abstract class AbstractScheduledTaskInitializer implements ApplicationLis
 	 */
 	protected AbstractTaskTrigger getTrigger(IdmScheduledTaskTriggerType triggerType) throws ClassNotFoundException {
 
+		@SuppressWarnings("unchecked")
 		Class<AbstractTaskTrigger> triggerClass = (Class<AbstractTaskTrigger>) Class.forName(triggerType.getType());
 		if (triggerClass.isAssignableFrom(SimpleTaskTrigger.class)) {
 			SimpleTaskTrigger simpleTrigger = new SimpleTaskTrigger();

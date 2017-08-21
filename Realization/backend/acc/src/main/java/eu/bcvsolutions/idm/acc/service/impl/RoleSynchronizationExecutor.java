@@ -21,14 +21,15 @@ import eu.bcvsolutions.idm.acc.domain.SynchronizationContext;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.AccRoleAccountDto;
 import eu.bcvsolutions.idm.acc.dto.EntityAccountDto;
+import eu.bcvsolutions.idm.acc.dto.SysSyncActionLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncItemLogDto;
+import eu.bcvsolutions.idm.acc.dto.SysSyncLogDto;
 import eu.bcvsolutions.idm.acc.dto.filter.EntityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.RoleAccountFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
-import eu.bcvsolutions.idm.acc.entity.SysSyncActionLog;
-import eu.bcvsolutions.idm.acc.entity.SysSyncLog;
 import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
+import eu.bcvsolutions.idm.acc.repository.SysSyncConfigRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccRoleAccountService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
@@ -39,6 +40,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSyncItemLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.domain.RoleType;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
@@ -82,11 +84,12 @@ public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor
 			AccRoleAccountService roleAccoutnService, SysSyncItemLogService syncItemLogService,
 			IdmIdentityRoleService roleRoleService, EntityEventManager entityEventManager,
 			GroovyScriptService groovyScriptService, WorkflowProcessInstanceService workflowProcessInstanceService,
-			EntityManager entityManager, IdmRoleRepository roleRepository) {
+			EntityManager entityManager, IdmRoleRepository roleRepository, SysSystemMappingService systemMappingService,
+			SysSyncConfigRepository synchronizationConfigRepository) {
 		super(connectorFacade, systemService, attributeHandlingService, synchronizationConfigService,
 				synchronizationLogService, syncActionLogService, accountService, systemEntityService,
 				confidentialStorage, formService, syncItemLogService, entityEventManager, groovyScriptService,
-				workflowProcessInstanceService, entityManager);
+				workflowProcessInstanceService, entityManager, systemMappingService, synchronizationConfigRepository);
 
 		Assert.notNull(roleService, "Identity service is mandatory!");
 		Assert.notNull(roleAccoutnService, "Identity account service is mandatory!");
@@ -107,8 +110,8 @@ public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor
 	 * @param logItem
 	 * @param actionLogs
 	 */
-	protected void doDeleteEntity(AccAccount account, SystemEntityType entityType, SysSyncLog log,
-			SysSyncItemLogDto logItem, List<SysSyncActionLog> actionLogs) {
+	protected void doDeleteEntity(AccAccount account, SystemEntityType entityType, SysSyncLogDto log,
+			SysSyncItemLogDto logItem, List<SysSyncActionLogDto> actionLogs) {
 		UUID entityId = getEntityByAccount(account.getId());
 		IdmRole entity = null;
 		if (entityId != null) {
@@ -133,8 +136,8 @@ public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor
 	 * @param logItem
 	 * @param actionLogs
 	 */
-	protected void doUpdateAccount(AccAccount account, SystemEntityType entityType, SysSyncLog log,
-			SysSyncItemLogDto logItem, List<SysSyncActionLog> actionLogs) {
+	protected void doUpdateAccount(AccAccount account, SystemEntityType entityType, SysSyncLogDto log,
+			SysSyncItemLogDto logItem, List<SysSyncActionLogDto> actionLogs) {
 		UUID entityId = getEntityByAccount(account.getId());
 		IdmRole entity = null;
 		if (entityId != null) {
@@ -224,9 +227,9 @@ public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor
 	protected void doUpdateEntity(SynchronizationContext context) {
 		
 		String uid = context.getUid();
-		SysSyncLog log = context.getLog(); 
+		SysSyncLogDto log = context.getLog(); 
 		SysSyncItemLogDto logItem = context.getLogItem();
-		List<SysSyncActionLog> actionLogs = context.getActionLogs();
+		List<SysSyncActionLogDto> actionLogs = context.getActionLogs();
 		List<SysSystemAttributeMapping> mappedAttributes = context.getMappedAttributes();
 		AccAccount account = context.getAccount();
 		List<IcAttribute> icAttributes = context.getIcObject().getAttributes();
@@ -272,8 +275,8 @@ public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor
 	 * @param logItem
 	 * @param actionLogs
 	 */
-	protected void doUnlink(AccAccount account, boolean removeRoleRole, SysSyncLog log, SysSyncItemLogDto logItem,
-			List<SysSyncActionLog> actionLogs) {
+	protected void doUnlink(AccAccount account, boolean removeRoleRole, SysSyncLogDto log, SysSyncItemLogDto logItem,
+			List<SysSyncActionLogDto> actionLogs) {
 
 		EntityAccountFilter roleAccountFilter = new RoleAccountFilter();
 		roleAccountFilter.setAccountId(account.getId());

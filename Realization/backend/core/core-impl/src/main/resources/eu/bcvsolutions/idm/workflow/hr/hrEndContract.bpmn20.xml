@@ -63,7 +63,7 @@ try {
 		def identity = identityService.get(dto.getIdentity())
 		if (!identity.isDisabled()) {
 			identity.setDisabled(true)
-			identityService.saveInternal(identity)
+			identityService.save(identity)
 		}
 	}
 	//

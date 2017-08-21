@@ -1,10 +1,12 @@
 package eu.bcvsolutions.idm.acc.dto;
 
+import java.util.UUID;
+
 import org.springframework.hateoas.core.Relation;
 
-import eu.bcvsolutions.idm.acc.entity.SysSyncActionLog;
 import eu.bcvsolutions.idm.acc.entity.SysSyncItemLog;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
+import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.domain.Loggable;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 
@@ -19,18 +21,19 @@ public class SysSyncItemLogDto extends AbstractDto implements Loggable {
 
 	private static final long serialVersionUID = -3654357107748053073L;
 
-	private SysSyncActionLog syncActionLog;
+	@Embedded(dtoClass = SysSyncActionLogDto.class)
+	private UUID syncActionLog;
 	private String identification;
 	private String displayName;
 	private String message;
 	private String type;
 	private String log;
-
+	
 	public SysSyncItemLogDto() {
 		super();
 	}
 	
-	public SysSyncItemLogDto(SysSyncActionLog syncActionLog, String identification, String displayName, String message,
+	public SysSyncItemLogDto(UUID syncActionLog, String identification, String displayName, String message,
 			String log) {
 		super();
 		this.syncActionLog = syncActionLog;
@@ -40,11 +43,11 @@ public class SysSyncItemLogDto extends AbstractDto implements Loggable {
 		this.log = log;
 	}
 	
-	public SysSyncActionLog getSyncActionLog() {
+	public UUID getSyncActionLog() {
 		return syncActionLog;
 	}
 
-	public void setSyncActionLog(SysSyncActionLog syncActionLog) {
+	public void setSyncActionLog(UUID syncActionLog) {
 		this.syncActionLog = syncActionLog;
 	}
 

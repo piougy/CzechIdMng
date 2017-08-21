@@ -5,13 +5,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.acc.dto.SysSyncLogDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SyncActionLogFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SynchronizationLogFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSyncLog;
 import eu.bcvsolutions.idm.acc.repository.SysSyncLogRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncActionLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncLogService;
-import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
+import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 
 /**
  * Default synchronization log service
@@ -21,7 +23,7 @@ import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
  */
 @Service
 public class DefaultSysSyncLogService
-		extends AbstractReadWriteEntityService<SysSyncLog, SynchronizationLogFilter>
+		extends AbstractReadWriteDtoService<SysSyncLogDto, SysSyncLog, SynchronizationLogFilter>
 		implements SysSyncLogService {
 
 	private final SysSyncActionLogService syncActionLogService;
@@ -38,8 +40,9 @@ public class DefaultSysSyncLogService
 
 	@Override
 	@Transactional
-	public void delete(SysSyncLog syncLog) {
+	public void delete(SysSyncLogDto syncLog, BasePermission... permission) {
 		Assert.notNull(syncLog);
+		checkAccess(this.getEntity(syncLog.getId()), permission);
 		//
 		// remove all synchronization action logs
 		SyncActionLogFilter filter = new SyncActionLogFilter();

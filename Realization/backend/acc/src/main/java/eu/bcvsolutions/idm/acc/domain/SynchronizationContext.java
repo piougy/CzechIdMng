@@ -4,11 +4,11 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
 
+import eu.bcvsolutions.idm.acc.dto.SysSyncActionLogDto;
+import eu.bcvsolutions.idm.acc.dto.SysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncItemLogDto;
+import eu.bcvsolutions.idm.acc.dto.SysSyncLogDto;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
-import eu.bcvsolutions.idm.acc.entity.SysSyncActionLog;
-import eu.bcvsolutions.idm.acc.entity.SysSyncConfig;
-import eu.bcvsolutions.idm.acc.entity.SysSyncLog;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
 import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
@@ -53,14 +53,14 @@ public class SynchronizationContext implements Serializable {
 	private String uid;
 	private IcConnectorObject icObject;
 	private IcSyncDeltaTypeEnum type;
-	private SysSyncConfig config;
+	private SysSyncConfigDto config;
 	private SysSystem system;
 	private SystemEntityType entityType;
 	private List<SysSystemAttributeMapping> mappedAttributes;
 	private AccAccount account;
-	private SysSyncLog log;
+	private SysSyncLogDto log;
 	private SysSyncItemLogDto logItem;
-	private List<SysSyncActionLog> actionLogs;
+	private List<SysSyncActionLogDto> actionLogs;
 	private UUID entityId;
 	private boolean exportAction = false;
 	private AttributeMapping tokenAttribute;
@@ -95,11 +95,11 @@ public class SynchronizationContext implements Serializable {
 		return this;
 	}
 
-	public SysSyncConfig getConfig() {
+	public SysSyncConfigDto getConfig() {
 		return config;
 	}
 
-	public SynchronizationContext addConfig(SysSyncConfig config) {
+	public SynchronizationContext addConfig(SysSyncConfigDto config) {
 		this.config = config;
 		return this;
 	}
@@ -140,11 +140,11 @@ public class SynchronizationContext implements Serializable {
 		return this;
 	}
 
-	public SysSyncLog getLog() {
+	public SysSyncLogDto getLog() {
 		return log;
 	}
 
-	public SynchronizationContext addLog(SysSyncLog log) {
+	public SynchronizationContext addLog(SysSyncLogDto log) {
 		this.log = log;
 		return this;
 	}
@@ -158,11 +158,11 @@ public class SynchronizationContext implements Serializable {
 		return this;
 	}
 
-	public List<SysSyncActionLog> getActionLogs() {
+	public List<SysSyncActionLogDto> getActionLogs() {
 		return actionLogs;
 	}
 
-	public SynchronizationContext addActionLogs(List<SysSyncActionLog> actionLogs) {
+	public SynchronizationContext addActionLogs(List<SysSyncActionLogDto> actionLogs) {
 		this.actionLogs = actionLogs;
 		return this;
 	}

@@ -19,6 +19,7 @@ import org.apache.http.util.Asserts;
 import org.joda.time.LocalDate;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.ValidableEntity;
 
@@ -239,6 +240,11 @@ public class EntityUtils {
 		return propertyDescriptor.getWriteMethod().invoke(entity, value);
 	}
 
+	/**
+	 * Method clear audit fields in entity. Entity must not be null.
+	 * 
+	 * @param entity
+	 */
 	public static void clearAuditFields(AbstractEntity entity) {
 		Asserts.notNull(entity, "Entity must be not null!");
 		
@@ -252,5 +258,25 @@ public class EntityUtils {
 		entity.setOriginalCreatorId(null);
 		entity.setOriginalModifier(null);
 		entity.setOriginalModifierId(null);
+	}
+	
+	/**
+	 * Method clear audit fields in dto. Dto must not be null.
+	 * 
+	 * @param dto
+	 */
+	public static void clearAuditFields(AbstractDto dto) {
+		Asserts.notNull(dto, "DTO must be not null!");
+		
+		dto.setCreated(null);
+		dto.setCreator(null);
+		dto.setCreatorId(null);
+		dto.setModified(null);
+		dto.setModifier(null);
+		dto.setModifierId(null);
+		dto.setOriginalCreator(null);
+		dto.setOriginalCreatorId(null);
+		dto.setOriginalModifier(null);
+		dto.setOriginalModifierId(null);
 	}
 }

@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.acc.dto;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.hateoas.core.Relation;
@@ -78,6 +79,15 @@ public class SysSyncActionLogDto extends AbstractDto {
 		if (logItems == null) {
 			logItems = new ArrayList<>();
 		}
-		logItems.add(logItem);
+		// try found same log id, if id == null add immediately
+		if (logItem.getId() == null) {
+			logItems.add(logItem);			
+		} else {
+			Optional<SysSyncItemLogDto> foundLog = logItems.stream().filter(log -> log.getId().equals(logItem.getId())).findFirst();
+			if (foundLog.isPresent()) {
+				logItems.remove(foundLog.get());
+			}
+			logItems.add(logItem);
+		}
 	}
 }

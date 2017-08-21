@@ -1,8 +1,5 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -74,8 +71,15 @@ public class DefaultSysSyncActionLogService extends
 			checkAccess(toEntity(dto, persistEntity), permission); // TODO: remove one checkAccess?
 		}
 		//
+		// save
 		SysSyncActionLogDto newDto = saveInternal(dto);
-		newDto.setLogItems(dto.getLogItems());
+		//
+		// iterate over all log items
+		for (SysSyncItemLogDto item : dto.getLogItems()) {
+			item.setSyncActionLog(newDto.getId());
+			item = syncItemLogService.save(item);
+			newDto.addLogItems(item);
+		}
 		return newDto;
 	}
 }

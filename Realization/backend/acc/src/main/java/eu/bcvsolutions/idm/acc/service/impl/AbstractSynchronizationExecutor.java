@@ -243,7 +243,11 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 			}else if (config.isCustomFilter() || config.isReconciliation()) {
 				// Custom filter Sync
 				log.addToLog("Synchronization will use custom filter (not synchronization implemented in connector).");
-				AttributeMapping tokenAttribute = systemAttributeMappingService.get(config.getTokenAttribute());
+				AttributeMapping tokenAttribute = null;
+				if (config.getTokenAttribute() != null) {
+					tokenAttribute = systemAttributeMappingService.get(config.getTokenAttribute());
+				}
+				
 				if (tokenAttribute == null && !config.isReconciliation()) {
 					throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_TOKEN_ATTRIBUTE_NOT_FOUND);
 				}
@@ -251,7 +255,6 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 				// Resolve filter for custom search
 				IcFilter filter = resolveSynchronizationFilter(config);
 				log.addToLog(MessageFormat.format("Start search with filter {0}.", filter != null ? filter : "NONE"));
-				log = synchronizationLogService.save(log);
 
 				connectorFacade.search(system.getConnectorInstance(), connectorConfig, objectClass, filter,
 						new DefaultResultHandler(context, systemAccountsList));
@@ -269,7 +272,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 			}
 			//
 			log.addToLog(MessageFormat.format("Synchronization was correctly ended in {0}.", LocalDateTime.now()));
-			synchronizationConfigService.save(config);
+			config = synchronizationConfigService.save(config);
 		} catch (Exception e) {
 			String message = "Error during synchronization";
 			log.addToLog(message);
@@ -553,37 +556,27 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 
 			return result;
 		} catch (Exception ex) {
-			if (itemLog.getSyncActionLog() != null) {
+			actionsLog = (List<SysSyncActionLogDto>) syncActionLogService.saveAll(actionsLog);
+			SysSyncItemLogDto existingItemLog = existItemLogInActions(actionsLog, itemLog);
+			if (existingItemLog != null) {
+				// replace old itemLog with new that contains id
+				itemLog = existingItemLog;
 				// We have to decrement count and log as error
 				SysSyncActionLogDto actionLogDto = syncActionLogService.get(itemLog.getSyncActionLog());
 				actionLogDto.setOperationCount(actionLogDto.getOperationCount() - 1);
 				loggingException(actionLogDto.getSyncAction(), log, itemLog, actionsLog, uid, ex);
 			} else {
 				loggingException(SynchronizationActionType.UNKNOWN, log, itemLog, actionsLog, uid, ex);
+				// must save again
+				actionsLog = (List<SysSyncActionLogDto>) syncActionLogService.saveAll(actionsLog);
 			}
 			return true;
 		} finally {
 			config = synchronizationConfigService.save(config);
-			// synchronizationLogService.save(log);
 			actionsLog = (List<SysSyncActionLogDto>) syncActionLogService.saveAll(actionsLog);
-			// save all item logs from actions log
-			boolean existDefaultItemLog = false;
-			for (SysSyncActionLogDto actionLog : actionsLog) {
-				for (SysSyncItemLogDto il : actionLog.getLogItems()) {
-					if (il.equals(itemLog)) {
-						existDefaultItemLog = true;
-						il.setSyncActionLog(actionLog.getId());
-						il = syncItemLogService.save(il);
-						itemLog = il;
-					} else {
-						il.setSyncActionLog(actionLog.getId());
-						il = syncItemLogService.save(il);
-					}
-				}
-			}
+			SysSyncItemLogDto existingItemLog = existItemLogInActions(actionsLog, itemLog);
 			//
-			// check default item log
-			if (!existDefaultItemLog) {
+			if (existingItemLog == null) {
 				addToItemLog(itemLog, MessageFormat.format("Missing action log for UID {0}!", uid));
 				initSyncActionLog(SynchronizationActionType.UNKNOWN, OperationResultType.ERROR, itemLog, log,
 						actionsLog);				
@@ -669,26 +662,10 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 					LOG.error(message, ex);
 				} finally {
 					config = synchronizationConfigService.save(config);
-					//
 					actionsLog = (List<SysSyncActionLogDto>) syncActionLogService.saveAll(actionsLog);
-					// save all item logs from actions log
-					boolean existDefaultItemLog = false;
-					for (SysSyncActionLogDto actionLog : actionsLog) {
-						for (SysSyncItemLogDto item : actionLog.getLogItems()) {
-							if (item.equals(itemLog)) {
-								existDefaultItemLog = true;
-								item.setSyncActionLog(actionLog.getId());
-								item = syncItemLogService.save(item);
-								itemLog = item;
-							} else {
-								item.setSyncActionLog(actionLog.getId());
-								item = syncItemLogService.save(item);
-							}
-						}
-					}
+					SysSyncItemLogDto existingItemLog = existItemLogInActions(actionsLog, itemLog);
 					//
-					// check default item log
-					if (!existDefaultItemLog) {
+					if (existingItemLog == null) {
 						addToItemLog(itemLog, MessageFormat.format("Missing action log for UID {0}!", uid));
 						initSyncActionLog(SynchronizationActionType.UNKNOWN, OperationResultType.ERROR, itemLog, log,
 								actionsLog);				
@@ -808,26 +785,10 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 			LOG.error(message, ex);
 		} finally {
 			config = synchronizationConfigService.save(config);
-			// synchronizationLogService.save(log);
 			actionsLog = (List<SysSyncActionLogDto>) syncActionLogService.saveAll(actionsLog);
-			// save all item logs from actions log
-			boolean existDefaultItemLog = false;
-			for (SysSyncActionLogDto actionLog : actionsLog) {
-				for (SysSyncItemLogDto item : actionLog.getLogItems()) {
-					if (item.equals(itemLog)) {
-						existDefaultItemLog = true;
-						item.setSyncActionLog(actionLog.getId());
-						item = syncItemLogService.save(item);
-						itemLog = item;
-					} else {
-						item.setSyncActionLog(actionLog.getId());
-						item = syncItemLogService.save(item);
-					}
-				}
-			}
+			SysSyncItemLogDto existingItemLog = existItemLogInActions(actionsLog, itemLog);
 			//
-			// check default item log
-			if (!existDefaultItemLog) {
+			if (existingItemLog == null) {
 				addToItemLog(itemLog, MessageFormat.format("Missing action log for entity {0}!", entity.getId()));
 				initSyncActionLog(SynchronizationActionType.UNKNOWN, OperationResultType.ERROR, itemLog, log,
 						actionsLog);											
@@ -921,7 +882,10 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 			return null;
 		}
 		IcFilter filter = null;
-		AttributeMapping filterAttributeMapping = systemAttributeMappingService.get(config.getFilterAttribute());
+		AttributeMapping filterAttributeMapping = null;
+		if (config.getFilterAttribute() != null) {
+			filterAttributeMapping = systemAttributeMappingService.get(config.getFilterAttribute());
+		}
 		String configToken = config.getToken();
 		String filterScript = config.getCustomFilterScript();
 
@@ -1712,7 +1676,6 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 			actionLog.setSyncLog(log.getId());
 			actionLogs.add(actionLog);
 		}
-		// logItem.setSyncActionLog(actionLog.getId());
 		actionLog.addLogItems(logItem);
 		actionLog.setOperationCount(actionLog.getOperationCount() + 1);
 		addToItemLog(logItem, MessageFormat.format("Operation count for [{0}] is [{1}]", actionLog.getSyncAction(),
@@ -2017,4 +1980,23 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 		}
 	}
 
+	/**
+	 * Method iterate over actionsLg given in parameter. Tyto search itemLog in each action.
+	 * 
+	 * @param actionsLog
+	 * @param itemLog
+	 * @return
+	 */
+	private SysSyncItemLogDto existItemLogInActions(List<SysSyncActionLogDto> actionsLog, SysSyncItemLogDto itemLog) {
+		for (SysSyncActionLogDto actionLog : actionsLog) {
+			for (SysSyncItemLogDto item : actionLog.getLogItems()) {
+				if (item.getMessage().equals(itemLog.getMessage()) && item.getType().equals(itemLog.getType())
+						&& item.getDisplayName().equals(itemLog.getDisplayName()) && item.getLog().equals(itemLog.getLog())
+						&& item.getIdentification().equals(itemLog.getIdentification())) {
+					return item;
+				}
+			}
+		}
+		return null;
+	}
 }

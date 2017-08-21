@@ -105,31 +105,7 @@ public class IdmPasswordPolicyController extends DefaultReadWriteDtoController<I
 		return super.put(backendId, dto);
 	}
 	
-	/*
-	 * Path method is not implemented for dtos yet
-	 */
-	/*@Override
-	@ResponseBody
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.PASSWORDPOLICY_UPDATE + "')")
-	@ApiOperation(
-			value = "Update password policy",
-			nickname = "patchPasswordPolicy", 
-			response = IdmPasswordPolicy.class, 
-			tags = { IdmPasswordPolicyController.TAG }, 
-			authorizations = { 
-				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.PASSWORDPOLICY_UPDATE, description = "") }),
-				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.PASSWORDPOLICY_UPDATE, description = "") })
-				})
-	public ResponseEntity<?> patch(
-			@ApiParam(value = "Policy's uuid identifier.", required = true)
-			@PathVariable @NotNull String backendId, 
-			HttpServletRequest nativeRequest,
-			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
-		return super.patch(backendId, nativeRequest, assembler);
-	}*/
-	
+
 	@Override
 	@ResponseBody
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.PASSWORDPOLICY_DELETE + "')")

@@ -11,6 +11,7 @@ import javax.persistence.criteria.Root;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
@@ -75,13 +76,11 @@ public class DefaultIdmLoggingEventService
 					builder.like(root.get(IdmLoggingEvent_.callerClass), "%" + filter.getCallerClass() + "%"));
 		}
 		//
-		// caller class
 		if (StringUtils.isNotEmpty(filter.getCallerFilename())) {
 			predicates.add(
 					builder.like(root.get(IdmLoggingEvent_.callerFilename), "%" + filter.getCallerFilename() + "%"));
 		}
 		//
-		// caller class
 		if (StringUtils.isNotEmpty(filter.getCallerLine())) {
 			predicates.add(builder.equal(root.get(IdmLoggingEvent_.callerLine), filter.getCallerLine() + "%"));
 		}
@@ -129,5 +128,25 @@ public class DefaultIdmLoggingEventService
 	@Override
 	public AuthorizableType getAuthorizableType() {
 		return new AuthorizableType(CoreGroupPermission.AUDIT, getEntityClass());
+	}
+	
+	@Override
+	protected IdmLoggingEvent getEntity(Serializable id, BasePermission... permission) {
+		Assert.notNull(id);
+		LoggingEventFilter filter = new LoggingEventFilter();
+		filter.setId(Long.valueOf(id.toString()));
+		List<IdmLoggingEventDto> entities = this.find(filter, null, permission).getContent();
+		if (entities.isEmpty()) {
+			return null;
+		}
+		// for given id must found only one entity
+		IdmLoggingEvent entity = this.toEntity(entities.get(0));
+		return checkAccess(entity, permission);
+	}
+
+	@Override
+	@Transactional
+	public void deleteAllById(Long eventId) {
+		this.repository.deleteById(eventId);
 	}
 }

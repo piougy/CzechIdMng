@@ -2014,7 +2014,8 @@
         "header": "Logované události",
         "header-detail": "Logovaná událost",
         "detail": "detail",
-        "exceptions": "Chybové hlášení"
+        "exceptions": "Chybové hlášení",
+        "rawSource": "Zobrazit kopírovatelný obsah"
       },
       "revision": {
         "id": "ID revize",

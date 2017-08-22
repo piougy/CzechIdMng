@@ -22,16 +22,31 @@ public enum VirtualSystemGroupPermission implements GroupPermission {
 			IdmBasePermission.READ,
 			IdmBasePermission.CREATE,
 			IdmBasePermission.UPDATE,
+			IdmBasePermission.DELETE),
+	VSREQUEST(
+			IdmBasePermission.ADMIN, 
+			IdmBasePermission.AUTOCOMPLETE,
+			IdmBasePermission.READ,
+			IdmBasePermission.CREATE,
+			IdmBasePermission.UPDATE,
 			IdmBasePermission.DELETE);
 	
 	// String constants could be used in pre / post authotize SpEl expressions
 	
+	// VS Account
 	public static final String VS_ACCOUNT_ADMIN = "VSACCOUNT" + BasePermission.SEPARATOR + "ADMIN";
 	public static final String VS_ACCOUNT_AUTOCOMPLETE = "VSACCOUNT" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
 	public static final String VS_ACCOUNT_READ = "VSACCOUNT" + BasePermission.SEPARATOR + "READ";
 	public static final String VS_ACCOUNT_CREATE = "VSACCOUNT" + BasePermission.SEPARATOR + "CREATE";
 	public static final String VS_ACCOUNT_UPDATE = "VSACCOUNT" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String VS_ACCOUNT_DELETE = "VSACCOUNT" + BasePermission.SEPARATOR + "DELETE";
+	// VS Request
+	public static final String VS_REQUEST_ADMIN = "VSREQUEST" + BasePermission.SEPARATOR + "ADMIN";
+	public static final String VS_REQUEST_AUTOCOMPLETE = "VSREQUEST" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
+	public static final String VS_REQUEST_READ = "VSREQUEST" + BasePermission.SEPARATOR + "READ";
+	public static final String VS_REQUEST_CREATE = "VSREQUEST" + BasePermission.SEPARATOR + "CREATE";
+	public static final String VS_REQUEST_UPDATE = "VSREQUEST" + BasePermission.SEPARATOR + "UPDATE";
+	public static final String VS_REQUEST_DELETE = "VSREQUEST" + BasePermission.SEPARATOR + "DELETE";
 	
 	private final List<BasePermission> permissions;
 	

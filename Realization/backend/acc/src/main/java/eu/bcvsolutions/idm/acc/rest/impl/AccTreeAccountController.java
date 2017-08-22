@@ -144,7 +144,7 @@ public class AccTreeAccountController extends DefaultReadWriteDtoController<AccT
 	protected TreeAccountFilter toFilter(MultiValueMap<String, Object> parameters) {
 		TreeAccountFilter filter = new TreeAccountFilter();
 		filter.setAccountId(getParameterConverter().toUuid(parameters, "accountId"));
-		filter.setRoleSystemId(getParameterConverter().toUuid(parameters, ""));
+		filter.setRoleSystemId(getParameterConverter().toUuid(parameters, "roleSystemId"));
 		filter.setTreeNodeId(getParameterConverter().toEntityUuid(parameters, "tree-nodes", IdmTreeNode.class));
 		filter.setSystemId(getParameterConverter().toUuid(parameters, "systemId"));
 		filter.setOwnership(getParameterConverter().toBoolean(parameters, "ownership"));

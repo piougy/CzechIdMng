@@ -97,7 +97,7 @@ public class DefaultAccTreeAccountService
 			predicates.add(builder.equal(root.get(AccTreeAccount_.treeNode).get(IdmTreeNode_.id), filter.getTreeNodeId()));
 		}
 		if(filter.getRoleSystemId() != null) {
-			predicates.add(builder.equal(root.get(AccTreeAccount_.roleSystem).get(SysRoleSystem_.systemMapping), filter.getRoleSystemId()));
+			predicates.add(builder.equal(root.get(AccTreeAccount_.roleSystem).get(SysRoleSystem_.id), filter.getRoleSystemId()));
 		}
 		if(filter.getSystemId() != null) {
 			predicates.add(builder.equal(root.get(AccTreeAccount_.account).get(AccAccount_.system).get(SysSystem_.id), filter.getSystemId()));

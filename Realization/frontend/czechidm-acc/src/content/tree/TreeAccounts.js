@@ -58,8 +58,8 @@ class TreeAccounts extends Advanced.AbstractTableContent {
     const formEntity = this.refs.form.getData();
     const state = this.context.store.getState();
     if (Utils.Entity.isNew(formEntity)) {
-      const role = Utils.Entity.getEntity(state, treeManager.getEntityType(), formEntity.identity);
-      formEntity.role = role.id;
+      const treeNode = Utils.Entity.getEntity(state, treeManager.getEntityType(), formEntity.identity);
+      formEntity.treeNode = treeNode.id;
       formEntity.account = formEntity.account;
     }
     //

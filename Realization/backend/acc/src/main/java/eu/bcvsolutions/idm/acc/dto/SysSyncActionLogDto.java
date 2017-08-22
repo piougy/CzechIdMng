@@ -75,19 +75,22 @@ public class SysSyncActionLogDto extends AbstractDto {
 		this.logItems = logItems;
 	}
 
+	/**
+	 * Method add to list of {@link SysSyncItemLogDto} new logItem, before add
+	 * check if list is not null (create) and check if list not contains this
+	 * log.
+	 * 
+	 * @param logItem
+	 */
 	public void addLogItems(SysSyncItemLogDto logItem) {
 		if (logItems == null) {
 			logItems = new ArrayList<>();
 		}
-		// try found same log id, if id == null add immediately
-		if (logItem.getId() == null) {
-			logItems.add(logItem);			
-		} else {
-			Optional<SysSyncItemLogDto> foundLog = logItems.stream().filter(log -> log.getId().equals(logItem.getId())).findFirst();
-			if (foundLog.isPresent()) {
-				logItems.remove(foundLog.get());
-			}
-			logItems.add(logItem);
+		// try found same log in list, not duplicate
+		Optional<SysSyncItemLogDto> foundLog = logItems.stream().filter(log -> log.equals(logItem)).findFirst();
+		if (foundLog.isPresent()) {
+			logItems.remove(foundLog.get());
 		}
+		logItems.add(logItem);
 	}
 }

@@ -18,6 +18,8 @@ import javax.persistence.EntityManager;
 import org.activiti.engine.delegate.VariableScope;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.hibernate.Session;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDateTime;
@@ -556,27 +558,23 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 
 			return result;
 		} catch (Exception ex) {
-			actionsLog = (List<SysSyncActionLogDto>) syncActionLogService.saveAll(actionsLog);
-			SysSyncItemLogDto existingItemLog = existItemLogInActions(actionsLog, itemLog);
-			if (existingItemLog != null) {
-				// replace old itemLog with new that contains id
-				itemLog = existingItemLog;
+			Pair<SysSyncActionLogDto, SysSyncItemLogDto> actionWithItemLog = getActionLogThatContains(actionsLog, itemLog);
+			if (actionWithItemLog != null) {
 				// We have to decrement count and log as error
-				SysSyncActionLogDto actionLogDto = syncActionLogService.get(itemLog.getSyncActionLog());
+				itemLog = actionWithItemLog.getRight();
+				SysSyncActionLogDto actionLogDto = actionWithItemLog.getLeft();
 				actionLogDto.setOperationCount(actionLogDto.getOperationCount() - 1);
 				loggingException(actionLogDto.getSyncAction(), log, itemLog, actionsLog, uid, ex);
 			} else {
 				loggingException(SynchronizationActionType.UNKNOWN, log, itemLog, actionsLog, uid, ex);
-				// must save again
-				actionsLog = (List<SysSyncActionLogDto>) syncActionLogService.saveAll(actionsLog);
 			}
 			return true;
 		} finally {
 			config = synchronizationConfigService.save(config);
+			boolean existingItemLog = existItemLogInActions(actionsLog, itemLog);
 			actionsLog = (List<SysSyncActionLogDto>) syncActionLogService.saveAll(actionsLog);
-			SysSyncItemLogDto existingItemLog = existItemLogInActions(actionsLog, itemLog);
 			//
-			if (existingItemLog == null) {
+			if (!existingItemLog) {
 				addToItemLog(itemLog, MessageFormat.format("Missing action log for UID {0}!", uid));
 				initSyncActionLog(SynchronizationActionType.UNKNOWN, OperationResultType.ERROR, itemLog, log,
 						actionsLog);				
@@ -662,10 +660,10 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 					LOG.error(message, ex);
 				} finally {
 					config = synchronizationConfigService.save(config);
+					boolean existingItemLog = existItemLogInActions(actionsLog, itemLog);
 					actionsLog = (List<SysSyncActionLogDto>) syncActionLogService.saveAll(actionsLog);
-					SysSyncItemLogDto existingItemLog = existItemLogInActions(actionsLog, itemLog);
 					//
-					if (existingItemLog == null) {
+					if (!existingItemLog) {
 						addToItemLog(itemLog, MessageFormat.format("Missing action log for UID {0}!", uid));
 						initSyncActionLog(SynchronizationActionType.UNKNOWN, OperationResultType.ERROR, itemLog, log,
 								actionsLog);				
@@ -785,10 +783,10 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 			LOG.error(message, ex);
 		} finally {
 			config = synchronizationConfigService.save(config);
+			boolean existingItemLog = existItemLogInActions(actionsLog, itemLog);
 			actionsLog = (List<SysSyncActionLogDto>) syncActionLogService.saveAll(actionsLog);
-			SysSyncItemLogDto existingItemLog = existItemLogInActions(actionsLog, itemLog);
 			//
-			if (existingItemLog == null) {
+			if (!existingItemLog) {
 				addToItemLog(itemLog, MessageFormat.format("Missing action log for entity {0}!", entity.getId()));
 				initSyncActionLog(SynchronizationActionType.UNKNOWN, OperationResultType.ERROR, itemLog, log,
 						actionsLog);											
@@ -1981,22 +1979,41 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 	}
 
 	/**
-	 * Method iterate over actionsLg given in parameter. Tyto search itemLog in each action.
+	 * Method return Pair with left side contains action log that contains given
+	 * item log from parameter. And right side contains instance of item log
+	 * from action log.
 	 * 
 	 * @param actionsLog
 	 * @param itemLog
 	 * @return
 	 */
-	private SysSyncItemLogDto existItemLogInActions(List<SysSyncActionLogDto> actionsLog, SysSyncItemLogDto itemLog) {
+	private Pair<SysSyncActionLogDto, SysSyncItemLogDto> getActionLogThatContains(
+			List<SysSyncActionLogDto> actionsLog, SysSyncItemLogDto itemLog) {
 		for (SysSyncActionLogDto actionLog : actionsLog) {
 			for (SysSyncItemLogDto item : actionLog.getLogItems()) {
-				if (item.getMessage().equals(itemLog.getMessage()) && item.getType().equals(itemLog.getType())
-						&& item.getDisplayName().equals(itemLog.getDisplayName()) && item.getLog().equals(itemLog.getLog())
-						&& item.getIdentification().equals(itemLog.getIdentification())) {
-					return item;
+				if (item.equals(itemLog)) {
+					return new ImmutablePair<SysSyncActionLogDto, SysSyncItemLogDto>(actionLog, item);
 				}
 			}
 		}
 		return null;
+	}
+	
+	/**
+	 * Method iterate over actionsLg given in parameter. And search itemLog in each actionLog.
+	 * 
+	 * @param actionsLog
+	 * @param itemLog
+	 * @return
+	 */
+	private boolean existItemLogInActions(List<SysSyncActionLogDto> actionsLog, SysSyncItemLogDto itemLog) {
+		for (SysSyncActionLogDto actionLog : actionsLog) {
+			for (SysSyncItemLogDto item : actionLog.getLogItems()) {
+				if (item.equals(itemLog)) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 }

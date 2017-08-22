@@ -13,10 +13,12 @@ import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.ic.domain.IcFilterOperationType;
 
 /**
- * DTo for {@link SysSyncConfig}.
+ * DTO for {@link SysSyncConfig}.
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
+ * TODO: add @Embedded for correlationAttribute, tokenAttribute,
+ *         filterAttribute, systemMapping
  */
 
 @Relation(collectionRelation = "synchronizationConfigs")

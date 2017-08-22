@@ -7,8 +7,6 @@ import java.util.UUID;
 import org.joda.time.LocalDateTime;
 import org.springframework.hateoas.core.Relation;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import eu.bcvsolutions.idm.acc.entity.SysSyncItemLog;
 import eu.bcvsolutions.idm.acc.entity.SysSyncLog;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
@@ -22,7 +20,7 @@ import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
  *
  */
 
-@Relation(collectionRelation = "syncItemLogs")
+@Relation(collectionRelation = "synchronizationLogs")
 public class SysSyncLogDto extends AbstractDto implements Loggable {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(SysSyncLogDto.class);
@@ -109,7 +107,6 @@ public class SysSyncLogDto extends AbstractDto implements Loggable {
 		return this.getLog();
 	}
 
-	@JsonIgnore
 	public List<SysSyncActionLogDto> getSyncActionLogs() {
 		if (this.syncActionLogs == null) {
 			this.syncActionLogs = new ArrayList<>();

@@ -1,10 +1,20 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
+import java.io.Serializable;
+import java.util.List;
+import java.util.UUID;
+
+import org.modelmapper.ModelMapper;
+import org.modelmapper.PropertyMap;
+import org.modelmapper.TypeMap;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.acc.dto.SysSyncActionLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncLogDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SyncActionLogFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SynchronizationLogFilter;
@@ -27,17 +37,63 @@ public class DefaultSysSyncLogService
 		implements SysSyncLogService {
 
 	private final SysSyncActionLogService syncActionLogService;
+	private final ModelMapper modelMapper;
 	
 	@Autowired
 	public DefaultSysSyncLogService(SysSyncLogRepository repository,
-			SysSyncActionLogService syncActionLogService) {
+			SysSyncActionLogService syncActionLogService, ModelMapper modelMapper) {
 		super(repository);
+		//
 		Assert.notNull(syncActionLogService);
-		
+		Assert.notNull(modelMapper);
+		//
 		this.syncActionLogService = syncActionLogService;
+		this.modelMapper = modelMapper;
 	}
 	
+	@Override
+	public SysSyncLogDto get(Serializable id, BasePermission... permission) {
+		SysSyncLogDto dto = super.get(id, permission);
+		// fill action list
+		dto.setSyncActionLogs(getActionsForLog(dto.getId()));
+		return dto;
+	}
 
+	@Override
+	public Page<SysSyncLogDto> find(SynchronizationLogFilter filter, Pageable pageable, BasePermission... permission) {
+		Page<SysSyncLogDto> logs = super.find(filter, pageable, permission);
+		
+		for (SysSyncLogDto log : logs) {
+			log.setSyncActionLogs(getActionsForLog(log.getId()));
+		}
+		
+		return logs;
+	}
+	
+	@Override
+	protected SysSyncLogDto toDto(SysSyncLog entity, SysSyncLogDto dto) {
+		if (entity == null) {
+			return null;
+		}
+		TypeMap<SysSyncLog, SysSyncLogDto> typeMap = modelMapper.getTypeMap(getEntityClass(), getDtoClass());
+		if (typeMap == null) {
+			modelMapper.createTypeMap(getEntityClass(), getDtoClass());
+			typeMap = modelMapper.getTypeMap(getEntityClass(), getDtoClass());
+			typeMap.addMappings(new PropertyMap<SysSyncLog, SysSyncLogDto>() {
+				
+				@Override
+				protected void configure() {
+					map().setSyncActionLogs(null);
+				}
+			});
+		}
+		if (dto == null) {
+			return modelMapper.map(entity, getDtoClass());
+		}
+		modelMapper.map(entity, dto);
+		return dto;
+	}
+	
 	@Override
 	@Transactional
 	public void delete(SysSyncLogDto syncLog, BasePermission... permission) {
@@ -54,4 +110,17 @@ public class DefaultSysSyncLogService
 		super.delete(syncLog);
 	}
 
+	/**
+	 * Method return all {@link SysSyncActionLogDto} for given log id
+	 * 
+	 * @param logId
+	 * @return
+	 */
+	private List<SysSyncActionLogDto> getActionsForLog(UUID logId) {
+		Assert.notNull(logId);
+		//
+		SyncActionLogFilter filter = new SyncActionLogFilter();
+		filter.setSynchronizationLogId(logId);
+		return syncActionLogService.find(filter, null).getContent();
+	}
 }

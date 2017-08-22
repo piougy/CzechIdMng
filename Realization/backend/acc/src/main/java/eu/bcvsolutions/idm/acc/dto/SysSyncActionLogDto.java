@@ -7,6 +7,8 @@ import java.util.UUID;
 
 import org.springframework.hateoas.core.Relation;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import eu.bcvsolutions.idm.acc.domain.OperationResultType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationActionType;
 import eu.bcvsolutions.idm.acc.entity.SysSyncActionLog;
@@ -20,7 +22,7 @@ import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
  *
  */
 
-@Relation(collectionRelation = "syncItemActionLogs")
+@Relation(collectionRelation = "syncActionLogs")
 public class SysSyncActionLogDto extends AbstractDto {
 
 	private static final long serialVersionUID = 574265554132998339L;
@@ -30,6 +32,7 @@ public class SysSyncActionLogDto extends AbstractDto {
 	private SynchronizationActionType syncAction;
 	private Integer operationCount = 0;
 	private OperationResultType operationResult;
+	@JsonIgnore
 	private List<SysSyncItemLogDto> logItems;
 	
 	public UUID getSyncLog() {

@@ -7,6 +7,11 @@ export default class SynchronizationConfigService extends Services.AbstractServi
     super();
   }
 
+  // dto
+  supportsPatch() {
+    return false;
+  }
+
   getNiceLabel(entity) {
     if (!entity) {
       return '';

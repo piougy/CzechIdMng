@@ -35,6 +35,10 @@ import eu.bcvsolutions.idm.acc.domain.SynchronizationUnlinkedActionType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
+import eu.bcvsolutions.idm.acc.dto.SysSyncActionLogDto;
+import eu.bcvsolutions.idm.acc.dto.SysSyncConfigDto;
+import eu.bcvsolutions.idm.acc.dto.SysSyncItemLogDto;
+import eu.bcvsolutions.idm.acc.dto.SysSyncLogDto;
 import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SyncActionLogFilter;
@@ -46,10 +50,6 @@ import eu.bcvsolutions.idm.acc.dto.filter.SystemMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
-import eu.bcvsolutions.idm.acc.entity.SysSyncActionLog;
-import eu.bcvsolutions.idm.acc.entity.SysSyncConfig;
-import eu.bcvsolutions.idm.acc.entity.SysSyncItemLog;
-import eu.bcvsolutions.idm.acc.entity.SysSyncLog;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
@@ -189,12 +189,12 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		}).findFirst().get();
 
 		// Create default synchronization config
-		SysSyncConfig syncConfigCustom = new SysSyncConfig();
+		SysSyncConfigDto syncConfigCustom = new SysSyncConfigDto();
 		syncConfigCustom.setCustomFilter(true);
-		syncConfigCustom.setSystemMapping(mapping);
-		syncConfigCustom.setCorrelationAttribute(nameAttribute);
-		syncConfigCustom.setTokenAttribute(modifiedAttribute);
-		syncConfigCustom.setFilterAttribute(modifiedAttribute);
+		syncConfigCustom.setSystemMapping(mapping.getId());
+		syncConfigCustom.setCorrelationAttribute(nameAttribute.getId());
+		syncConfigCustom.setTokenAttribute(modifiedAttribute.getId());
+		syncConfigCustom.setFilterAttribute(modifiedAttribute.getId());
 		syncConfigCustom.setReconciliation(true);
 		syncConfigCustom.setName(SYNC_CONFIG_NAME);
 		syncConfigCustom.setLinkedAction(SynchronizationLinkedActionType.IGNORE);
@@ -213,10 +213,10 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 	public void doStartSyncA_MissingEntity() {
 		SynchronizationConfigFilter configFilter = new SynchronizationConfigFilter();
 		configFilter.setName(SYNC_CONFIG_NAME);
-		List<SysSyncConfig> syncConfigs = syncConfigService.find(configFilter, null).getContent();
+		List<SysSyncConfigDto> syncConfigs = syncConfigService.find(configFilter, null).getContent();
 
 		Assert.assertEquals(1, syncConfigs.size());
-		SysSyncConfig syncConfigCustom = syncConfigs.get(0);
+		SysSyncConfigDto syncConfigCustom = syncConfigs.get(0);
 		Assert.assertFalse(syncConfigService.isRunning(syncConfigCustom));
 		//
 		synchornizationService.setSynchronizationConfigId(syncConfigCustom.getId());
@@ -224,24 +224,24 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		//		
 		SynchronizationLogFilter logFilter = new SynchronizationLogFilter();
 		logFilter.setSynchronizationConfigId(syncConfigCustom.getId());
-		List<SysSyncLog> logs = syncLogService.find(logFilter, null).getContent();
+		List<SysSyncLogDto> logs = syncLogService.find(logFilter, null).getContent();
 		Assert.assertEquals(1, logs.size());
-		SysSyncLog log = logs.get(0);
+		SysSyncLogDto log = logs.get(0);
 		Assert.assertFalse(log.isRunning());
 		Assert.assertFalse(log.isContainsError());
 
 		SyncActionLogFilter actionLogFilter = new SyncActionLogFilter();
 		actionLogFilter.setSynchronizationLogId(log.getId());
-		List<SysSyncActionLog> actions = syncActionLogService.find(actionLogFilter, null).getContent();
+		List<SysSyncActionLogDto> actions = syncActionLogService.find(actionLogFilter, null).getContent();
 		Assert.assertEquals(1, actions.size());
 
-		SysSyncActionLog createEntityActionLog = actions.stream().filter(action -> {
+		SysSyncActionLogDto createEntityActionLog = actions.stream().filter(action -> {
 			return SynchronizationActionType.CREATE_ENTITY == action.getSyncAction();
 		}).findFirst().get();
 
 		SyncItemLogFilter itemLogFilter = new SyncItemLogFilter();
 		itemLogFilter.setSyncActionLogId(createEntityActionLog.getId());
-		List<SysSyncItemLog> items = syncItemLogService.find(itemLogFilter, null).getContent();
+		List<SysSyncItemLogDto> items = syncItemLogService.find(itemLogFilter, null).getContent();
 		Assert.assertEquals(2, items.size());
 
 		// Delete log
@@ -252,12 +252,12 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 	public void doStartSyncB_Linked_doEntityUpdate() {
 		SynchronizationConfigFilter configFilter = new SynchronizationConfigFilter();
 		configFilter.setName(SYNC_CONFIG_NAME);
-		List<SysSyncConfig> syncConfigs = syncConfigService.find(configFilter, null).getContent();
+		List<SysSyncConfigDto> syncConfigs = syncConfigService.find(configFilter, null).getContent();
 
 		this.getBean().changeResourceData();
 
 		Assert.assertEquals(1, syncConfigs.size());
-		SysSyncConfig syncConfigCustom = syncConfigs.get(0);
+		SysSyncConfigDto syncConfigCustom = syncConfigs.get(0);
 		Assert.assertFalse(syncConfigService.isRunning(syncConfigCustom));
 
 		// Set sync config
@@ -278,24 +278,24 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		//
 		SynchronizationLogFilter logFilter = new SynchronizationLogFilter();
 		logFilter.setSynchronizationConfigId(syncConfigCustom.getId());
-		List<SysSyncLog> logs = syncLogService.find(logFilter, null).getContent();
+		List<SysSyncLogDto> logs = syncLogService.find(logFilter, null).getContent();
 		Assert.assertEquals(1, logs.size());
-		SysSyncLog log = logs.get(0);
+		SysSyncLogDto log = logs.get(0);
 		Assert.assertFalse(log.isRunning());
 		Assert.assertFalse(log.isContainsError());
 
 		SyncActionLogFilter actionLogFilter = new SyncActionLogFilter();
 		actionLogFilter.setSynchronizationLogId(log.getId());
-		List<SysSyncActionLog> actions = syncActionLogService.find(actionLogFilter, null).getContent();
+		List<SysSyncActionLogDto> actions = syncActionLogService.find(actionLogFilter, null).getContent();
 		Assert.assertEquals(1, actions.size());
 
-		SysSyncActionLog actionLog = actions.stream().filter(action -> {
+		SysSyncActionLogDto actionLog = actions.stream().filter(action -> {
 			return SynchronizationActionType.UPDATE_ENTITY == action.getSyncAction();
 		}).findFirst().get();
 
 		SyncItemLogFilter itemLogFilter = new SyncItemLogFilter();
 		itemLogFilter.setSyncActionLogId(actionLog.getId());
-		List<SysSyncItemLog> items = syncItemLogService.find(itemLogFilter, null).getContent();
+		List<SysSyncItemLogDto> items = syncItemLogService.find(itemLogFilter, null).getContent();
 		Assert.assertEquals(2, items.size());
 
 		// Check state after sync
@@ -316,15 +316,16 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 	public void doStartSyncB_Linked_doEntityUpdate_Filtered() {
 		SynchronizationConfigFilter configFilter = new SynchronizationConfigFilter();
 		configFilter.setName(SYNC_CONFIG_NAME);
-		List<SysSyncConfig> syncConfigs = syncConfigService.find(configFilter, null).getContent();
+		List<SysSyncConfigDto> syncConfigs = syncConfigService.find(configFilter, null).getContent();
 
 		this.getBean().changeResourceData();
 
 		Assert.assertEquals(1, syncConfigs.size());
-		SysSyncConfig syncConfigCustom = syncConfigs.get(0);
+		SysSyncConfigDto syncConfigCustom = syncConfigs.get(0);
 		Assert.assertFalse(syncConfigService.isRunning(syncConfigCustom));
 		
-		SysSystem system = syncConfigCustom.getSystemMapping().getSystem();
+		SysSystemMapping systemMapping = systemMappingService.get(syncConfigCustom.getSystemMapping());
+		SysSystem system = systemMapping.getSystem();
 		
 		IdmFormDefinition savedFormDefinition = systemService.getConnectorFormDefinition(system.getConnectorInstance());
 
@@ -349,24 +350,24 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		//
 		SynchronizationLogFilter logFilter = new SynchronizationLogFilter();
 		logFilter.setSynchronizationConfigId(syncConfigCustom.getId());
-		List<SysSyncLog> logs = syncLogService.find(logFilter, null).getContent();
+		List<SysSyncLogDto> logs = syncLogService.find(logFilter, null).getContent();
 		Assert.assertEquals(1, logs.size());
-		SysSyncLog log = logs.get(0);
+		SysSyncLogDto log = logs.get(0);
 		Assert.assertFalse(log.isRunning());
 		Assert.assertFalse(log.isContainsError());
 
 		SyncActionLogFilter actionLogFilter = new SyncActionLogFilter();
 		actionLogFilter.setSynchronizationLogId(log.getId());
-		List<SysSyncActionLog> actions = syncActionLogService.find(actionLogFilter, null).getContent();
+		List<SysSyncActionLogDto> actions = syncActionLogService.find(actionLogFilter, null).getContent();
 		Assert.assertEquals(1, actions.size());
 
-		SysSyncActionLog actionLog = actions.stream().filter(action -> {
+		SysSyncActionLogDto actionLog = actions.stream().filter(action -> {
 			return SynchronizationActionType.UPDATE_ENTITY == action.getSyncAction();
 		}).findFirst().get();
 
 		SyncItemLogFilter itemLogFilter = new SyncItemLogFilter();
 		itemLogFilter.setSyncActionLogId(actionLog.getId());
-		List<SysSyncItemLog> items = syncItemLogService.find(itemLogFilter, null).getContent();
+		List<SysSyncItemLogDto> items = syncItemLogService.find(itemLogFilter, null).getContent();
 		Assert.assertEquals(1, items.size());
 		Assert.assertEquals("x"+IDENTITY_USERNAME_TWO, items.get(0).getIdentification());
 
@@ -386,12 +387,12 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 	public void doStartSyncB_Linked_doEntityUpdate_Filtered_Custom() {
 		SynchronizationConfigFilter configFilter = new SynchronizationConfigFilter();
 		configFilter.setName(SYNC_CONFIG_NAME);
-		List<SysSyncConfig> syncConfigs = syncConfigService.find(configFilter, null).getContent();
+		List<SysSyncConfigDto> syncConfigs = syncConfigService.find(configFilter, null).getContent();
 
 		this.getBean().changeResourceData();
 
 		Assert.assertEquals(1, syncConfigs.size());
-		SysSyncConfig syncConfigCustom = syncConfigs.get(0);
+		SysSyncConfigDto syncConfigCustom = syncConfigs.get(0);
 		Assert.assertFalse(syncConfigService.isRunning(syncConfigCustom));
 
 		// Set sync config
@@ -411,24 +412,24 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		//
 		SynchronizationLogFilter logFilter = new SynchronizationLogFilter();
 		logFilter.setSynchronizationConfigId(syncConfigCustom.getId());
-		List<SysSyncLog> logs = syncLogService.find(logFilter, null).getContent();
+		List<SysSyncLogDto> logs = syncLogService.find(logFilter, null).getContent();
 		Assert.assertEquals(1, logs.size());
-		SysSyncLog log = logs.get(0);
+		SysSyncLogDto log = logs.get(0);
 		Assert.assertFalse(log.isRunning());
 		Assert.assertFalse(log.isContainsError());
 
 		SyncActionLogFilter actionLogFilter = new SyncActionLogFilter();
 		actionLogFilter.setSynchronizationLogId(log.getId());
-		List<SysSyncActionLog> actions = syncActionLogService.find(actionLogFilter, null).getContent();
+		List<SysSyncActionLogDto> actions = syncActionLogService.find(actionLogFilter, null).getContent();
 		Assert.assertEquals(1, actions.size());
 
-		SysSyncActionLog actionLog = actions.stream().filter(action -> {
+		SysSyncActionLogDto actionLog = actions.stream().filter(action -> {
 			return SynchronizationActionType.UPDATE_ENTITY == action.getSyncAction();
 		}).findFirst().get();
 
 		SyncItemLogFilter itemLogFilter = new SyncItemLogFilter();
 		itemLogFilter.setSyncActionLogId(actionLog.getId());
-		List<SysSyncItemLog> items = syncItemLogService.find(itemLogFilter, null).getContent();
+		List<SysSyncItemLogDto> items = syncItemLogService.find(itemLogFilter, null).getContent();
 		Assert.assertEquals(1, items.size());
 		Assert.assertEquals("x"+IDENTITY_USERNAME_ONE, items.get(0).getIdentification());
 
@@ -444,13 +445,13 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 	public void doStartSyncB_Linked_doEntityUpdate_WrongEmail() {
 		SynchronizationConfigFilter configFilter = new SynchronizationConfigFilter();
 		configFilter.setName(SYNC_CONFIG_NAME);
-		List<SysSyncConfig> syncConfigs = syncConfigService.find(configFilter, null).getContent();
+		List<SysSyncConfigDto> syncConfigs = syncConfigService.find(configFilter, null).getContent();
 
 		// Set wrong email to resource
 		this.getBean().changeResourceDataWrongEmail();
 
 		Assert.assertEquals(1, syncConfigs.size());
-		SysSyncConfig syncConfigCustom = syncConfigs.get(0);
+		SysSyncConfigDto syncConfigCustom = syncConfigs.get(0);
 		Assert.assertFalse(syncConfigService.isRunning(syncConfigCustom));
 
 		// Set sync config
@@ -466,26 +467,26 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		//
 		SynchronizationLogFilter logFilter = new SynchronizationLogFilter();
 		logFilter.setSynchronizationConfigId(syncConfigCustom.getId());
-		List<SysSyncLog> logs = syncLogService.find(logFilter, null).getContent();
+		List<SysSyncLogDto> logs = syncLogService.find(logFilter, null).getContent();
 		Assert.assertEquals(1, logs.size());
-		SysSyncLog log = logs.get(0);
+		SysSyncLogDto log = logs.get(0);
 		Assert.assertFalse(log.isRunning());
 		// Log must contains error
 		Assert.assertTrue(log.isContainsError());
 
 		SyncActionLogFilter actionLogFilter = new SyncActionLogFilter();
 		actionLogFilter.setSynchronizationLogId(log.getId());
-		List<SysSyncActionLog> actions = syncActionLogService.find(actionLogFilter, null).getContent();
+		List<SysSyncActionLogDto> actions = syncActionLogService.find(actionLogFilter, null).getContent();
 		Assert.assertEquals(1, actions.size());
 
-		SysSyncActionLog actionLog = actions.stream().filter(action -> {
+		SysSyncActionLogDto actionLog = actions.stream().filter(action -> {
 			return SynchronizationActionType.UPDATE_ENTITY == action.getSyncAction()
 					&& OperationResultType.ERROR == action.getOperationResult();
 		}).findFirst().get();
 
 		SyncItemLogFilter itemLogFilter = new SyncItemLogFilter();
 		itemLogFilter.setSyncActionLogId(actionLog.getId());
-		List<SysSyncItemLog> items = syncItemLogService.find(itemLogFilter, null).getContent();
+		List<SysSyncItemLogDto> items = syncItemLogService.find(itemLogFilter, null).getContent();
 		Assert.assertEquals(2, items.size());
 
 		// Delete log
@@ -496,10 +497,10 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 	public void doStartSyncB_Linked_doUnLinked() {
 		SynchronizationConfigFilter configFilter = new SynchronizationConfigFilter();
 		configFilter.setName(SYNC_CONFIG_NAME);
-		List<SysSyncConfig> syncConfigs = syncConfigService.find(configFilter, null).getContent();
+		List<SysSyncConfigDto> syncConfigs = syncConfigService.find(configFilter, null).getContent();
 
 		Assert.assertEquals(1, syncConfigs.size());
-		SysSyncConfig syncConfigCustom = syncConfigs.get(0);
+		SysSyncConfigDto syncConfigCustom = syncConfigs.get(0);
 		Assert.assertFalse(syncConfigService.isRunning(syncConfigCustom));
 
 		// Set sync config
@@ -525,24 +526,24 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		//
 		SynchronizationLogFilter logFilter = new SynchronizationLogFilter();
 		logFilter.setSynchronizationConfigId(syncConfigCustom.getId());
-		List<SysSyncLog> logs = syncLogService.find(logFilter, null).getContent();
+		List<SysSyncLogDto> logs = syncLogService.find(logFilter, null).getContent();
 		Assert.assertEquals(1, logs.size());
-		SysSyncLog log = logs.get(0);
+		SysSyncLogDto log = logs.get(0);
 		Assert.assertFalse(log.isRunning());
 		Assert.assertFalse(log.isContainsError());
 
 		SyncActionLogFilter actionLogFilter = new SyncActionLogFilter();
 		actionLogFilter.setSynchronizationLogId(log.getId());
-		List<SysSyncActionLog> actions = syncActionLogService.find(actionLogFilter, null).getContent();
+		List<SysSyncActionLogDto> actions = syncActionLogService.find(actionLogFilter, null).getContent();
 		Assert.assertEquals(1, actions.size());
 
-		SysSyncActionLog actionLog = actions.stream().filter(action -> {
+		SysSyncActionLogDto actionLog = actions.stream().filter(action -> {
 			return SynchronizationActionType.UNLINK == action.getSyncAction();
 		}).findFirst().get();
 
 		SyncItemLogFilter itemLogFilter = new SyncItemLogFilter();
 		itemLogFilter.setSyncActionLogId(actionLog.getId());
-		List<SysSyncItemLog> items = syncItemLogService.find(itemLogFilter, null).getContent();
+		List<SysSyncItemLogDto> items = syncItemLogService.find(itemLogFilter, null).getContent();
 		Assert.assertEquals(2, items.size());
 
 		// Check state after sync
@@ -558,10 +559,10 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 	public void doStartSyncC_Unlinked_doLink() {
 		SynchronizationConfigFilter configFilter = new SynchronizationConfigFilter();
 		configFilter.setName(SYNC_CONFIG_NAME);
-		List<SysSyncConfig> syncConfigs = syncConfigService.find(configFilter, null).getContent();
+		List<SysSyncConfigDto> syncConfigs = syncConfigService.find(configFilter, null).getContent();
 
 		Assert.assertEquals(1, syncConfigs.size());
-		SysSyncConfig syncConfigCustom = syncConfigs.get(0);
+		SysSyncConfigDto syncConfigCustom = syncConfigs.get(0);
 		Assert.assertFalse(syncConfigService.isRunning(syncConfigCustom));
 
 		// Set sync config
@@ -590,25 +591,25 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		//
 		SynchronizationLogFilter logFilter = new SynchronizationLogFilter();
 		logFilter.setSynchronizationConfigId(syncConfigCustom.getId());
-		List<SysSyncLog> logs = syncLogService.find(logFilter, null).getContent();
+		List<SysSyncLogDto> logs = syncLogService.find(logFilter, null).getContent();
 		Assert.assertEquals(1, logs.size());
-		SysSyncLog log = logs.get(0);
-		log.getSyncActionLogs();
+		SysSyncLogDto log = logs.get(0);
+		// log.getSyncActionLogs();
 		Assert.assertFalse(log.isRunning());
 		Assert.assertFalse(log.isContainsError());
 
 		SyncActionLogFilter actionLogFilter = new SyncActionLogFilter();
 		actionLogFilter.setSynchronizationLogId(log.getId());
-		List<SysSyncActionLog> actions = syncActionLogService.find(actionLogFilter, null).getContent();
+		List<SysSyncActionLogDto> actions = syncActionLogService.find(actionLogFilter, null).getContent();
 		Assert.assertEquals(1, actions.size());
 
-		SysSyncActionLog actionLog = actions.stream().filter(action -> {
+		SysSyncActionLogDto actionLog = actions.stream().filter(action -> {
 			return SynchronizationActionType.LINK == action.getSyncAction();
 		}).findFirst().get();
 
 		SyncItemLogFilter itemLogFilter = new SyncItemLogFilter();
 		itemLogFilter.setSyncActionLogId(actionLog.getId());
-		List<SysSyncItemLog> items = syncItemLogService.find(itemLogFilter, null).getContent();
+		List<SysSyncItemLogDto> items = syncItemLogService.find(itemLogFilter, null).getContent();
 		Assert.assertEquals(2, items.size());
 
 		// Check state after sync
@@ -627,10 +628,10 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 
 		SynchronizationConfigFilter configFilter = new SynchronizationConfigFilter();
 		configFilter.setName(SYNC_CONFIG_NAME);
-		List<SysSyncConfig> syncConfigs = syncConfigService.find(configFilter, null).getContent();
+		List<SysSyncConfigDto> syncConfigs = syncConfigService.find(configFilter, null).getContent();
 
 		Assert.assertEquals(1, syncConfigs.size());
-		SysSyncConfig syncConfigCustom = syncConfigs.get(0);
+		SysSyncConfigDto syncConfigCustom = syncConfigs.get(0);
 		Assert.assertFalse(syncConfigService.isRunning(syncConfigCustom));
 
 		// Set sync config
@@ -674,24 +675,24 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		//
 		SynchronizationLogFilter logFilter = new SynchronizationLogFilter();
 		logFilter.setSynchronizationConfigId(syncConfigCustom.getId());
-		List<SysSyncLog> logs = syncLogService.find(logFilter, null).getContent();
+		List<SysSyncLogDto> logs = syncLogService.find(logFilter, null).getContent();
 		Assert.assertEquals(1, logs.size());
-		SysSyncLog log = logs.get(0);
+		SysSyncLogDto log = logs.get(0);
 		Assert.assertFalse(log.isRunning());
 		Assert.assertFalse(log.isContainsError());
 
 		SyncActionLogFilter actionLogFilter = new SyncActionLogFilter();
 		actionLogFilter.setSynchronizationLogId(log.getId());
-		List<SysSyncActionLog> actions = syncActionLogService.find(actionLogFilter, null).getContent();
+		List<SysSyncActionLogDto> actions = syncActionLogService.find(actionLogFilter, null).getContent();
 		Assert.assertEquals(1, actions.size());
 
-		SysSyncActionLog actionLog = actions.stream().filter(action -> {
+		SysSyncActionLogDto actionLog = actions.stream().filter(action -> {
 			return SynchronizationActionType.LINK_AND_UPDATE_ACCOUNT == action.getSyncAction();
 		}).findFirst().get();
 
 		SyncItemLogFilter itemLogFilter = new SyncItemLogFilter();
 		itemLogFilter.setSyncActionLogId(actionLog.getId());
-		List<SysSyncItemLog> items = syncItemLogService.find(itemLogFilter, null).getContent();
+		List<SysSyncItemLogDto> items = syncItemLogService.find(itemLogFilter, null).getContent();
 		Assert.assertEquals(2, items.size());
 
 		// Check state after sync
@@ -709,10 +710,10 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 	public void doStartSyncD_Missing_Account_doCreateAccount() {
 		SynchronizationConfigFilter configFilter = new SynchronizationConfigFilter();
 		configFilter.setName(SYNC_CONFIG_NAME);
-		List<SysSyncConfig> syncConfigs = syncConfigService.find(configFilter, null).getContent();
+		List<SysSyncConfigDto> syncConfigs = syncConfigService.find(configFilter, null).getContent();
 
 		Assert.assertEquals(1, syncConfigs.size());
-		SysSyncConfig syncConfigCustom = syncConfigs.get(0);
+		SysSyncConfigDto syncConfigCustom = syncConfigs.get(0);
 		Assert.assertFalse(syncConfigService.isRunning(syncConfigCustom));
 
 		// Create new identity THREE, with account
@@ -723,7 +724,8 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		identity = identityService.save(identity);
 
 		AccAccount accountOne = new AccAccount();
-		accountOne.setSystem(syncConfigCustom.getSystemMapping().getSystem());
+		SysSystemMapping systemMapping = systemMappingService.get(syncConfigCustom.getSystemMapping());
+		accountOne.setSystem(systemMapping.getSystem());
 		accountOne.setUid("x" + IDENTITY_USERNAME_THREE);
 		accountOne.setAccountType(AccountType.PERSONAL);
 		accountOne = accountService.save(accountOne);
@@ -752,24 +754,24 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		//
 		SynchronizationLogFilter logFilter = new SynchronizationLogFilter();
 		logFilter.setSynchronizationConfigId(syncConfigCustom.getId());
-		List<SysSyncLog> logs = syncLogService.find(logFilter, null).getContent();
+		List<SysSyncLogDto> logs = syncLogService.find(logFilter, null).getContent();
 		Assert.assertEquals(1, logs.size());
-		SysSyncLog log = logs.get(0);
+		SysSyncLogDto log = logs.get(0);
 		Assert.assertFalse(log.isRunning());
 		Assert.assertFalse(log.isContainsError());
 
 		SyncActionLogFilter actionLogFilter = new SyncActionLogFilter();
 		actionLogFilter.setSynchronizationLogId(log.getId());
-		List<SysSyncActionLog> actions = syncActionLogService.find(actionLogFilter, null).getContent();
+		List<SysSyncActionLogDto> actions = syncActionLogService.find(actionLogFilter, null).getContent();
 		Assert.assertEquals(2, actions.size());
 
-		SysSyncActionLog actionLog = actions.stream().filter(action -> {
+		SysSyncActionLogDto actionLog = actions.stream().filter(action -> {
 			return SynchronizationActionType.CREATE_ACCOUNT == action.getSyncAction();
 		}).findFirst().get();
 
 		SyncItemLogFilter itemLogFilter = new SyncItemLogFilter();
 		itemLogFilter.setSyncActionLogId(actionLog.getId());
-		List<SysSyncItemLog> items = syncItemLogService.find(itemLogFilter, null).getContent();
+		List<SysSyncItemLogDto> items = syncItemLogService.find(itemLogFilter, null).getContent();
 		Assert.assertEquals(1, items.size());
 
 		// Check state after sync
@@ -783,10 +785,10 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 	public void doStartSyncD_Missing_Account_doDeleteEntity() {
 		SynchronizationConfigFilter configFilter = new SynchronizationConfigFilter();
 		configFilter.setName(SYNC_CONFIG_NAME);
-		List<SysSyncConfig> syncConfigs = syncConfigService.find(configFilter, null).getContent();
+		List<SysSyncConfigDto> syncConfigs = syncConfigService.find(configFilter, null).getContent();
 
 		Assert.assertEquals(1, syncConfigs.size());
-		SysSyncConfig syncConfigCustom = syncConfigs.get(0);
+		SysSyncConfigDto syncConfigCustom = syncConfigs.get(0);
 		Assert.assertFalse(syncConfigService.isRunning(syncConfigCustom));
 
 		// Delete all accounts in resource
@@ -811,24 +813,24 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		//
 		SynchronizationLogFilter logFilter = new SynchronizationLogFilter();
 		logFilter.setSynchronizationConfigId(syncConfigCustom.getId());
-		List<SysSyncLog> logs = syncLogService.find(logFilter, null).getContent();
+		List<SysSyncLogDto> logs = syncLogService.find(logFilter, null).getContent();
 		Assert.assertEquals(1, logs.size());
-		SysSyncLog log = logs.get(0);
+		SysSyncLogDto log = logs.get(0);
 		Assert.assertFalse(log.isRunning());
 		Assert.assertFalse(log.isContainsError());
 
 		SyncActionLogFilter actionLogFilter = new SyncActionLogFilter();
 		actionLogFilter.setSynchronizationLogId(log.getId());
-		List<SysSyncActionLog> actions = syncActionLogService.find(actionLogFilter, null).getContent();
+		List<SysSyncActionLogDto> actions = syncActionLogService.find(actionLogFilter, null).getContent();
 		Assert.assertEquals(1, actions.size());
 
-		SysSyncActionLog actionLog = actions.stream().filter(action -> {
+		SysSyncActionLogDto actionLog = actions.stream().filter(action -> {
 			return SynchronizationActionType.DELETE_ENTITY == action.getSyncAction();
 		}).findFirst().get();
 
 		SyncItemLogFilter itemLogFilter = new SyncItemLogFilter();
 		itemLogFilter.setSyncActionLogId(actionLog.getId());
-		List<SysSyncItemLog> items = syncItemLogService.find(itemLogFilter, null).getContent();
+		List<SysSyncItemLogDto> items = syncItemLogService.find(itemLogFilter, null).getContent();
 		Assert.assertEquals(3, items.size());
 
 		// Check state after sync
@@ -844,10 +846,10 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 	public void doStartSyncE_StrategyCreate() {
 		SynchronizationConfigFilter configFilter = new SynchronizationConfigFilter();
 		configFilter.setName(SYNC_CONFIG_NAME);
-		List<SysSyncConfig> syncConfigs = syncConfigService.find(configFilter, null).getContent();
+		List<SysSyncConfigDto> syncConfigs = syncConfigService.find(configFilter, null).getContent();
 
 		Assert.assertEquals(1, syncConfigs.size());
-		SysSyncConfig syncConfigCustom = syncConfigs.get(0);
+		SysSyncConfigDto syncConfigCustom = syncConfigs.get(0);
 		Assert.assertFalse(syncConfigService.isRunning(syncConfigCustom));
 
 		// Delete all accounts in resource
@@ -859,7 +861,8 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		// Find email attribute and change startegy on CREATE
 		SystemMappingFilter mappingFilter = new SystemMappingFilter();
 		mappingFilter.setEntityType(SystemEntityType.IDENTITY);
-		mappingFilter.setSystemId(syncConfigCustom.getSystemMapping().getSystem().getId());
+		SysSystemMapping systemMapping = systemMappingService.get(syncConfigCustom.getSystemMapping());
+				mappingFilter.setSystemId(systemMapping.getSystem().getId());
 		mappingFilter.setOperationType(SystemOperationType.SYNCHRONIZATION);
 		List<SysSystemMapping> mappings = systemMappingService.find(mappingFilter, null).getContent();
 		Assert.assertEquals(1, mappings.size());
@@ -895,24 +898,24 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		//
 		SynchronizationLogFilter logFilter = new SynchronizationLogFilter();
 		logFilter.setSynchronizationConfigId(syncConfigCustom.getId());
-		List<SysSyncLog> logs = syncLogService.find(logFilter, null).getContent();
+		List<SysSyncLogDto> logs = syncLogService.find(logFilter, null).getContent();
 		Assert.assertEquals(1, logs.size());
-		SysSyncLog log = logs.get(0);
+		SysSyncLogDto log = logs.get(0);
 		Assert.assertFalse(log.isRunning());
 		Assert.assertFalse(log.isContainsError());
 
 		SyncActionLogFilter actionLogFilter = new SyncActionLogFilter();
 		actionLogFilter.setSynchronizationLogId(log.getId());
-		List<SysSyncActionLog> actions = syncActionLogService.find(actionLogFilter, null).getContent();
+		List<SysSyncActionLogDto> actions = syncActionLogService.find(actionLogFilter, null).getContent();
 		Assert.assertEquals(1, actions.size());
 
-		SysSyncActionLog actionLog = actions.stream().filter(action -> {
+		SysSyncActionLogDto actionLog = actions.stream().filter(action -> {
 			return SynchronizationActionType.CREATE_ENTITY == action.getSyncAction();
 		}).findFirst().get();
 
 		SyncItemLogFilter itemLogFilter = new SyncItemLogFilter();
 		itemLogFilter.setSyncActionLogId(actionLog.getId());
-		List<SysSyncItemLog> items = syncItemLogService.find(itemLogFilter, null).getContent();
+		List<SysSyncItemLogDto> items = syncItemLogService.find(itemLogFilter, null).getContent();
 		Assert.assertEquals(2, items.size());
 
 		// Check state after sync
@@ -966,16 +969,17 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 	public void doStartSyncE_StrategyWriteIfNull() {
 		SynchronizationConfigFilter configFilter = new SynchronizationConfigFilter();
 		configFilter.setName(SYNC_CONFIG_NAME);
-		List<SysSyncConfig> syncConfigs = syncConfigService.find(configFilter, null).getContent();
+		List<SysSyncConfigDto> syncConfigs = syncConfigService.find(configFilter, null).getContent();
 
 		Assert.assertEquals(1, syncConfigs.size());
-		SysSyncConfig syncConfigCustom = syncConfigs.get(0);
+		SysSyncConfigDto syncConfigCustom = syncConfigs.get(0);
 		Assert.assertFalse(syncConfigService.isRunning(syncConfigCustom));
 		
 		// Find email attribute and change strategy on WRITE_IF_NULL
 		SystemMappingFilter mappingFilter = new SystemMappingFilter();
 		mappingFilter.setEntityType(SystemEntityType.IDENTITY);
-		mappingFilter.setSystemId(syncConfigCustom.getSystemMapping().getSystem().getId());
+		SysSystemMapping systemMapping = systemMappingService.get(syncConfigCustom.getSystemMapping());
+		mappingFilter.setSystemId(systemMapping.getSystem().getId());
 		mappingFilter.setOperationType(SystemOperationType.SYNCHRONIZATION);
 		List<SysSystemMapping> mappings = systemMappingService.find(mappingFilter, null).getContent();
 		Assert.assertEquals(1, mappings.size());
@@ -1022,24 +1026,24 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		//
 		SynchronizationLogFilter logFilter = new SynchronizationLogFilter();
 		logFilter.setSynchronizationConfigId(syncConfigCustom.getId());
-		List<SysSyncLog> logs = syncLogService.find(logFilter, null).getContent();
+		List<SysSyncLogDto> logs = syncLogService.find(logFilter, null).getContent();
 		Assert.assertEquals(1, logs.size());
-		SysSyncLog log = logs.get(0);
+		SysSyncLogDto log = logs.get(0);
 		Assert.assertFalse(log.isRunning());
 		Assert.assertFalse(log.isContainsError());
 
 		SyncActionLogFilter actionLogFilter = new SyncActionLogFilter();
 		actionLogFilter.setSynchronizationLogId(log.getId());
-		List<SysSyncActionLog> actions = syncActionLogService.find(actionLogFilter, null).getContent();
+		List<SysSyncActionLogDto> actions = syncActionLogService.find(actionLogFilter, null).getContent();
 		Assert.assertEquals(1, actions.size());
 
-		SysSyncActionLog actionLog = actions.stream().filter(action -> {
+		SysSyncActionLogDto actionLog = actions.stream().filter(action -> {
 			return SynchronizationActionType.UPDATE_ENTITY == action.getSyncAction();
 		}).findFirst().get();
 
 		SyncItemLogFilter itemLogFilter = new SyncItemLogFilter();
 		itemLogFilter.setSyncActionLogId(actionLog.getId());
-		List<SysSyncItemLog> items = syncItemLogService.find(itemLogFilter, null).getContent();
+		List<SysSyncItemLogDto> items = syncItemLogService.find(itemLogFilter, null).getContent();
 		Assert.assertEquals(2, items.size());
 
 		// Check state after sync
@@ -1054,16 +1058,17 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 	public void doStartSyncE_StrategyWriteIfNull_EAV() {
 		SynchronizationConfigFilter configFilter = new SynchronizationConfigFilter();
 		configFilter.setName(SYNC_CONFIG_NAME);
-		List<SysSyncConfig> syncConfigs = syncConfigService.find(configFilter, null).getContent();
+		List<SysSyncConfigDto> syncConfigs = syncConfigService.find(configFilter, null).getContent();
 
 		Assert.assertEquals(1, syncConfigs.size());
-		SysSyncConfig syncConfigCustom = syncConfigs.get(0);
+		SysSyncConfigDto syncConfigCustom = syncConfigs.get(0);
 		Assert.assertFalse(syncConfigService.isRunning(syncConfigCustom));
 		
 		// Find email attribute and change strategy on WRITE_IF_NULL
 		SystemMappingFilter mappingFilter = new SystemMappingFilter();
 		mappingFilter.setEntityType(SystemEntityType.IDENTITY);
-		mappingFilter.setSystemId(syncConfigCustom.getSystemMapping().getSystem().getId());
+		SysSystemMapping systemMapping = systemMappingService.get(syncConfigCustom.getSystemMapping());
+		mappingFilter.setSystemId(systemMapping.getSystem().getId());
 		mappingFilter.setOperationType(SystemOperationType.SYNCHRONIZATION);
 		List<SysSystemMapping> mappings = systemMappingService.find(mappingFilter, null).getContent();
 		Assert.assertEquals(1, mappings.size());
@@ -1106,24 +1111,24 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		//
 		SynchronizationLogFilter logFilter = new SynchronizationLogFilter();
 		logFilter.setSynchronizationConfigId(syncConfigCustom.getId());
-		List<SysSyncLog> logs = syncLogService.find(logFilter, null).getContent();
+		List<SysSyncLogDto> logs = syncLogService.find(logFilter, null).getContent();
 		Assert.assertEquals(1, logs.size());
-		SysSyncLog log = logs.get(0);
+		SysSyncLogDto log = logs.get(0);
 		Assert.assertFalse(log.isRunning());
 		Assert.assertFalse(log.isContainsError());
 
 		SyncActionLogFilter actionLogFilter = new SyncActionLogFilter();
 		actionLogFilter.setSynchronizationLogId(log.getId());
-		List<SysSyncActionLog> actions = syncActionLogService.find(actionLogFilter, null).getContent();
+		List<SysSyncActionLogDto> actions = syncActionLogService.find(actionLogFilter, null).getContent();
 		Assert.assertEquals(1, actions.size());
 
-		SysSyncActionLog actionLog = actions.stream().filter(action -> {
+		SysSyncActionLogDto actionLog = actions.stream().filter(action -> {
 			return SynchronizationActionType.UPDATE_ENTITY == action.getSyncAction();
 		}).findFirst().get();
 
 		SyncItemLogFilter itemLogFilter = new SyncItemLogFilter();
 		itemLogFilter.setSyncActionLogId(actionLog.getId());
-		List<SysSyncItemLog> items = syncItemLogService.find(itemLogFilter, null).getContent();
+		List<SysSyncItemLogDto> items = syncItemLogService.find(itemLogFilter, null).getContent();
 		Assert.assertEquals(2, items.size());
 
 		// Check state after sync
@@ -1154,7 +1159,7 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		// call unlink
 		this.doStartSyncB_Linked_doUnLinked();
 		//
-		SysSyncConfig syncConfigCustom = setSyncConfigForEav(SYNC_CONFIG_NAME);
+		SysSyncConfigDto syncConfigCustom = setSyncConfigForEav(SYNC_CONFIG_NAME);
 
 		// Check state before sync
 		IdmIdentityDto identityOne = identityService.getByUsername("x" + IDENTITY_USERNAME_ONE);
@@ -1174,25 +1179,25 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		//
 		SynchronizationLogFilter logFilter = new SynchronizationLogFilter();
 		logFilter.setSynchronizationConfigId(syncConfigCustom.getId());
-		List<SysSyncLog> logs = syncLogService.find(logFilter, null).getContent();
+		List<SysSyncLogDto> logs = syncLogService.find(logFilter, null).getContent();
 		Assert.assertEquals(1, logs.size());
-		SysSyncLog log = logs.get(0);
-		log.getSyncActionLogs();
+		SysSyncLogDto log = logs.get(0);
+		// log.getSyncActionLogs();
 		Assert.assertFalse(log.isRunning());
 		Assert.assertFalse(log.isContainsError());
 
 		SyncActionLogFilter actionLogFilter = new SyncActionLogFilter();
 		actionLogFilter.setSynchronizationLogId(log.getId());
-		List<SysSyncActionLog> actions = syncActionLogService.find(actionLogFilter, null).getContent();
+		List<SysSyncActionLogDto> actions = syncActionLogService.find(actionLogFilter, null).getContent();
 		Assert.assertEquals(1, actions.size());
 
-		SysSyncActionLog actionLog = actions.stream().filter(action -> {
+		SysSyncActionLogDto actionLog = actions.stream().filter(action -> {
 			return SynchronizationActionType.LINK == action.getSyncAction();
 		}).findFirst().get();
 
 		SyncItemLogFilter itemLogFilter = new SyncItemLogFilter();
 		itemLogFilter.setSyncActionLogId(actionLog.getId());
-		List<SysSyncItemLog> items = syncItemLogService.find(itemLogFilter, null).getContent();
+		List<SysSyncItemLogDto> items = syncItemLogService.find(itemLogFilter, null).getContent();
 		Assert.assertEquals(2, items.size());
 
 		// Check state after sync
@@ -1208,7 +1213,7 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		// call unlink
 		this.doStartSyncB_Linked_doUnLinked();
 		//
-		SysSyncConfig syncConfigCustom = setSyncConfigForEav(SYNC_CONFIG_NAME);
+		SysSyncConfigDto syncConfigCustom = setSyncConfigForEav(SYNC_CONFIG_NAME);
 		Assert.assertFalse(syncConfigService.isRunning(syncConfigCustom));
 		//
 		// Check state before sync
@@ -1234,25 +1239,25 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		//
 		SynchronizationLogFilter logFilter = new SynchronizationLogFilter();
 		logFilter.setSynchronizationConfigId(syncConfigCustom.getId());
-		List<SysSyncLog> logs = syncLogService.find(logFilter, null).getContent();
+		List<SysSyncLogDto> logs = syncLogService.find(logFilter, null).getContent();
 		Assert.assertEquals(1, logs.size());
-		SysSyncLog log = logs.get(0);
-		log.getSyncActionLogs();
+		SysSyncLogDto log = logs.get(0);
+		// log.getSyncActionLogs();
 		Assert.assertFalse(log.isRunning());
 		Assert.assertFalse(log.isContainsError());
 
 		SyncActionLogFilter actionLogFilter = new SyncActionLogFilter();
 		actionLogFilter.setSynchronizationLogId(log.getId());
-		List<SysSyncActionLog> actions = syncActionLogService.find(actionLogFilter, null).getContent();
+		List<SysSyncActionLogDto> actions = syncActionLogService.find(actionLogFilter, null).getContent();
 		Assert.assertEquals(2, actions.size()); // LINK and MISSING_ENTITY
 
-		SysSyncActionLog actionLog = actions.stream().filter(action -> {
+		SysSyncActionLogDto actionLog = actions.stream().filter(action -> {
 			return SynchronizationActionType.MISSING_ENTITY == action.getSyncAction();
 		}).findFirst().get();
 
 		SyncItemLogFilter itemLogFilter = new SyncItemLogFilter();
 		itemLogFilter.setSyncActionLogId(actionLog.getId());
-		List<SysSyncItemLog> items = syncItemLogService.find(itemLogFilter, null).getContent();
+		List<SysSyncItemLogDto> items = syncItemLogService.find(itemLogFilter, null).getContent();
 		Assert.assertEquals(1, items.size());
 
 		// Check state after sync
@@ -1263,16 +1268,17 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		syncLogService.delete(log);
 	}
 	
-	private SysSyncConfig setSyncConfigForEav(String configName) {
+	private SysSyncConfigDto setSyncConfigForEav(String configName) {
 		SynchronizationConfigFilter configFilter = new SynchronizationConfigFilter();
 		configFilter.setName(configName);
-		List<SysSyncConfig> syncConfigs = syncConfigService.find(configFilter, null).getContent();
+		List<SysSyncConfigDto> syncConfigs = syncConfigService.find(configFilter, null).getContent();
 
 		Assert.assertEquals(1, syncConfigs.size());
-		SysSyncConfig syncConfigCustom = syncConfigs.get(0);
+		SysSyncConfigDto syncConfigCustom = syncConfigs.get(0);
 		Assert.assertFalse(syncConfigService.isRunning(syncConfigCustom));
 		
-		SysSystem system = syncConfigCustom.getSystemMapping().getSystem();
+		SysSystemMapping systemMapping = systemMappingService.get(syncConfigCustom.getSystemMapping());
+		SysSystem system = systemMapping.getSystem();
 		
 		SystemMappingFilter mappingFilter = new SystemMappingFilter();
 		mappingFilter.setEntityType(SystemEntityType.IDENTITY);
@@ -1295,7 +1301,7 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		
 		Assert.assertNotNull(eavAttribute);
 		
-		syncConfigCustom.setCorrelationAttribute(eavAttribute);
+		syncConfigCustom.setCorrelationAttribute(eavAttribute.getId());
 		syncConfigCustom.setLinkedAction(SynchronizationLinkedActionType.IGNORE);
 		syncConfigCustom.setUnlinkedAction(SynchronizationUnlinkedActionType.LINK);
 		syncConfigCustom.setMissingEntityAction(SynchronizationMissingEntityActionType.IGNORE);

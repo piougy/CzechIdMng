@@ -197,7 +197,7 @@ public class DefaultIdmPasswordPolicyService
 			int minRulesToFulfill = passwordPolicy.getMinRulesToFulfill() == null ? 0 : passwordPolicy.getMinRulesToFulfill().intValue();
 	
 			// check to max password length
-			if (!isNullOrZero(passwordPolicy.getMaxPasswordLength()) && password.length() > passwordPolicy.getMaxPasswordLength()) {
+			if (!isNull(passwordPolicy.getMaxPasswordLength()) && password.length() > passwordPolicy.getMaxPasswordLength()) {
 				if (!passwordPolicy.isPasswordLengthRequired() && passwordPolicy.isEnchancedControl()) {
 					notPassRules.put(MAX_LENGTH, Math.max(convertToInt(errors.get(MAX_LENGTH)), passwordPolicy.getMaxPasswordLength()));
 				} else if (!(errors.containsKey(MAX_LENGTH) && compareInt(errors.get(MAX_LENGTH), passwordPolicy.getMaxPasswordLength()))) {
@@ -206,7 +206,7 @@ public class DefaultIdmPasswordPolicyService
 				validateNotSuccess = true;
 			}
 			// check to minimal password length
-			if (!isNullOrZero(passwordPolicy.getMinPasswordLength()) && password.length() < passwordPolicy.getMinPasswordLength()) {
+			if (!isNull(passwordPolicy.getMinPasswordLength()) && password.length() < passwordPolicy.getMinPasswordLength()) {
 				if (!passwordPolicy.isPasswordLengthRequired() && passwordPolicy.isEnchancedControl()) {
 					notPassRules.put(MIN_LENGTH, Math.max(convertToInt(errors.get(MIN_LENGTH)), passwordPolicy.getMinPasswordLength()));
 				} else if (!(errors.containsKey(MIN_LENGTH) && compareInt(errors.get(MIN_LENGTH), passwordPolicy.getMinPasswordLength()))) {
@@ -224,7 +224,7 @@ public class DefaultIdmPasswordPolicyService
 				validateNotSuccess = true;
 			}
 			// check to minimal numbers
-			if (!isNullOrZero(passwordPolicy.getMinNumber()) && !password.matches("(.*[" + Pattern.quote(passwordPolicy.getNumberBase()) + "].*){" + passwordPolicy.getMinNumber() + ",}")) {
+			if (!isNull(passwordPolicy.getMinNumber()) && !password.matches("(.*[" + Pattern.quote(passwordPolicy.getNumberBase()) + "].*){" + passwordPolicy.getMinNumber() + ",}")) {
 				if (!passwordPolicy.isNumberRequired() && passwordPolicy.isEnchancedControl()) {
 					notPassRules.put(MIN_NUMBER, Math.max(convertToInt(errors.get(MIN_NUMBER)), passwordPolicy.getMinNumber()));
 				} else if (!(errors.containsKey(MIN_NUMBER) && compareInt(errors.get(MIN_NUMBER), passwordPolicy.getMinNumber()))) {
@@ -233,7 +233,7 @@ public class DefaultIdmPasswordPolicyService
 				validateNotSuccess = true;
 			}
 			// check to minimal lower characters
-			if (!isNullOrZero(passwordPolicy.getMinLowerChar()) && !password.matches("(.*[" + Pattern.quote(passwordPolicy.getLowerCharBase()) + "].*){" + passwordPolicy.getMinLowerChar() + ",}")) {
+			if (!isNull(passwordPolicy.getMinLowerChar()) && !password.matches("(.*[" + Pattern.quote(passwordPolicy.getLowerCharBase()) + "].*){" + passwordPolicy.getMinLowerChar() + ",}")) {
 				if (!passwordPolicy.isLowerCharRequired() && passwordPolicy.isEnchancedControl()) {
 					notPassRules.put(MIN_LOWER_CHAR, Math.max(convertToInt(errors.get(MIN_LOWER_CHAR)), passwordPolicy.getMinLowerChar()));
 				} else if (!(errors.containsKey(MIN_LOWER_CHAR) && compareInt(errors.get(MIN_LOWER_CHAR), passwordPolicy.getMinLowerChar()))) {
@@ -242,7 +242,7 @@ public class DefaultIdmPasswordPolicyService
 				validateNotSuccess = true;
 			}
 			// check to minimal upper character
-			if (!isNullOrZero(passwordPolicy.getMinUpperChar()) && !password.matches("(.*[" + Pattern.quote(passwordPolicy.getUpperCharBase()) + "].*){" + passwordPolicy.getMinUpperChar() + ",}")) {
+			if (!isNull(passwordPolicy.getMinUpperChar()) && !password.matches("(.*[" + Pattern.quote(passwordPolicy.getUpperCharBase()) + "].*){" + passwordPolicy.getMinUpperChar() + ",}")) {
 				if (!passwordPolicy.isUpperCharRequired() && passwordPolicy.isEnchancedControl()) {
 					notPassRules.put(MIN_UPPER_CHAR, Math.max(convertToInt(errors.get(MIN_UPPER_CHAR)), passwordPolicy.getMinUpperChar()));
 				} else if (!(errors.containsKey(MIN_UPPER_CHAR) && compareInt(errors.get(MIN_UPPER_CHAR), passwordPolicy.getMinUpperChar()))) {
@@ -250,7 +250,7 @@ public class DefaultIdmPasswordPolicyService
 				}
 			}
 			// check to minimal special character
-			if (!isNullOrZero(passwordPolicy.getMinSpecialChar()) && !password.matches("(.*[" + Pattern.quote(passwordPolicy.getSpecialCharBase()) + "].*){" + passwordPolicy.getMinSpecialChar() + ",}")) {
+			if (!isNull(passwordPolicy.getMinSpecialChar()) && !password.matches("(.*[" + Pattern.quote(passwordPolicy.getSpecialCharBase()) + "].*){" + passwordPolicy.getMinSpecialChar() + ",}")) {
 				if (!passwordPolicy.isSpecialCharRequired() && passwordPolicy.isEnchancedControl()) {
 					notPassRules.put(MIN_SPECIAL_CHAR, Math.max(convertToInt(errors.get(MIN_SPECIAL_CHAR)), passwordPolicy.getMinSpecialChar()));
 				} else if (!(errors.containsKey(MIN_SPECIAL_CHAR) && compareInt(errors.get(MIN_SPECIAL_CHAR), passwordPolicy.getMinSpecialChar()))) {
@@ -407,16 +407,13 @@ public class DefaultIdmPasswordPolicyService
 	}
 	
 	/**
-	 * Method check if given {@link Integer} number is zero or null.
+	 * Method check if given {@link Integer} is null.
 	 * 
 	 * @param number
-	 * @return true if Integer is zero or null.
+	 * @return true if Integer is null.
 	 */
-	private boolean isNullOrZero(Integer number) {
-		if (number == null || number == 0) {
-			return true;
-		}
-		return false;
+	private boolean isNull(Integer number) {
+		return number == null;
 	}
 
 

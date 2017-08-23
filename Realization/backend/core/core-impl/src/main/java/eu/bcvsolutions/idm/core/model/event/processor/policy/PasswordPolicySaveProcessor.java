@@ -83,25 +83,21 @@ public class PasswordPolicySaveProcessor extends CoreEventProcessor<IdmPasswordP
 	private boolean validatePasswordPolicyAttributes(IdmPasswordPolicyDto dto) {
 		// check negative values
 		checkNegativeValues(dto);
-		// password policy can contains null value
-		int maximumLength = returnZeroValue(dto.getMaxPasswordLength());
-		int minimumLength = returnZeroValue(dto.getMinPasswordLength());
 
-		if (maximumLength != 0 && maximumLength < minimumLength) {
+		if ((!isNull(dto.getMaxPasswordLength()) && !isNull(dto.getMinPasswordLength()))
+				&& dto.getMaxPasswordLength() < dto.getMinPasswordLength()) {
 			throw new ResultCodeException(CoreResultCode.PASSWORD_POLICY_MAX_LENGTH_LOWER);
 		}
 
-		int minimumLengthAll = returnZeroValue(dto.getMinLowerChar());
-		minimumLengthAll += returnZeroValue(dto.getMinUpperChar());
-		minimumLengthAll += returnZeroValue(dto.getMinSpecialChar());
-		minimumLengthAll += returnZeroValue(dto.getMinNumber());
-		if (maximumLength != 0 && (minimumLengthAll > maximumLength)) {
+		int minimumLengthAll = isNull(dto.getMinLowerChar()) ? 0 : dto.getMinLowerChar();
+		minimumLengthAll += isNull(dto.getMinUpperChar()) ? 0 : dto.getMinUpperChar();
+		minimumLengthAll += isNull(dto.getMinSpecialChar()) ? 0 : dto.getMinSpecialChar();
+		minimumLengthAll += isNull(dto.getMinNumber())? 0 : dto.getMinNumber();
+		if (!isNull(dto.getMaxPasswordLength()) && (minimumLengthAll > dto.getMaxPasswordLength())) {
 			throw new ResultCodeException(CoreResultCode.PASSWORD_POLICY_ALL_MIN_REQUEST_ARE_HIGHER);
 		}
 
-		int maxPasswordAge = returnZeroValue(dto.getMaxPasswordAge());
-		int minPasswordAge = returnZeroValue(dto.getMinPasswordAge());
-		if (maxPasswordAge != 0 && maxPasswordAge < minPasswordAge) {
+		if (!isNull(dto.getMaxPasswordAge()) && (!isNull(dto.getMinPasswordAge()) && dto.getMaxPasswordAge() < dto.getMinPasswordAge())) {
 			throw new ResultCodeException(CoreResultCode.PASSWORD_POLICY_MAX_AGE_LOWER);
 		}
 		// check minRulesToFulfill and rules
@@ -118,62 +114,59 @@ public class PasswordPolicySaveProcessor extends CoreEventProcessor<IdmPasswordP
 	}
 
 	private void checkNegativeValues(IdmPasswordPolicyDto dto) {
-		if (returnZeroValue(dto.getMaxHistorySimilar()) < NumberUtils.INTEGER_ZERO) {
+		if (!isNull(dto.getMaxHistorySimilar()) && dto.getMaxHistorySimilar() < NumberUtils.INTEGER_ZERO) {
 			throw new ResultCodeException(CoreResultCode.PASSWORD_POLICY_NEGATIVE_VALUE,
 					ImmutableMap.of("attribute", IdmPasswordPolicy_.maxHistorySimilar.getName()));
 		}
-		if (returnZeroValue(dto.getMaxPasswordAge()) < NumberUtils.INTEGER_ZERO) {
+		if (!isNull(dto.getMaxPasswordAge()) && dto.getMaxPasswordAge() < NumberUtils.INTEGER_ZERO) {
 			throw new ResultCodeException(CoreResultCode.PASSWORD_POLICY_NEGATIVE_VALUE,
 					ImmutableMap.of("attribute", IdmPasswordPolicy_.maxPasswordAge.getName()));
 		}
-		if (returnZeroValue(dto.getMaxPasswordLength()) < NumberUtils.INTEGER_ZERO) {
+		if (!isNull(dto.getMaxPasswordLength()) && dto.getMaxPasswordLength() < NumberUtils.INTEGER_ZERO) {
 			throw new ResultCodeException(CoreResultCode.PASSWORD_POLICY_NEGATIVE_VALUE,
 					ImmutableMap.of("attribute", IdmPasswordPolicy_.maxPasswordLength.getName()));
 		}
-		if (returnZeroValue(dto.getMinLowerChar()) < NumberUtils.INTEGER_ZERO) {
+		if (!isNull(dto.getMinLowerChar()) && dto.getMinLowerChar() < NumberUtils.INTEGER_ZERO) {
 			throw new ResultCodeException(CoreResultCode.PASSWORD_POLICY_NEGATIVE_VALUE,
 					ImmutableMap.of("attribute", IdmPasswordPolicy_.minLowerChar.getName()));
 		}
-		if (returnZeroValue(dto.getMinNumber()) < NumberUtils.INTEGER_ZERO) {
+		if (!isNull(dto.getMinNumber()) && dto.getMinNumber() < NumberUtils.INTEGER_ZERO) {
 			throw new ResultCodeException(CoreResultCode.PASSWORD_POLICY_NEGATIVE_VALUE,
 					ImmutableMap.of("attribute", IdmPasswordPolicy_.minNumber.getName()));
 		}
-		if (returnZeroValue(dto.getMinPasswordAge()) < NumberUtils.INTEGER_ZERO) {
+		if (!isNull(dto.getMinPasswordAge()) && dto.getMinPasswordAge() < NumberUtils.INTEGER_ZERO) {
 			throw new ResultCodeException(CoreResultCode.PASSWORD_POLICY_NEGATIVE_VALUE,
 					ImmutableMap.of("attribute", IdmPasswordPolicy_.minPasswordAge.getName()));
 		}
-		if (returnZeroValue(dto.getMinPasswordLength()) < NumberUtils.INTEGER_ZERO) {
+		if (!isNull(dto.getMinPasswordLength()) && dto.getMinPasswordLength() < NumberUtils.INTEGER_ZERO) {
 			throw new ResultCodeException(CoreResultCode.PASSWORD_POLICY_NEGATIVE_VALUE,
 					ImmutableMap.of("attribute", IdmPasswordPolicy_.minPasswordLength.getName()));
 		}
-		if (returnZeroValue(dto.getMinRulesToFulfill()) < NumberUtils.INTEGER_ZERO) {
+		if (!isNull(dto.getMinRulesToFulfill()) && dto.getMinRulesToFulfill() < NumberUtils.INTEGER_ZERO) {
 			throw new ResultCodeException(CoreResultCode.PASSWORD_POLICY_NEGATIVE_VALUE,
 					ImmutableMap.of("attribute", IdmPasswordPolicy_.minRulesToFulfill.getName()));
 		}
-		if (returnZeroValue(dto.getMinSpecialChar()) < NumberUtils.INTEGER_ZERO) {
+		if (!isNull(dto.getMinSpecialChar()) && dto.getMinSpecialChar() < NumberUtils.INTEGER_ZERO) {
 			throw new ResultCodeException(CoreResultCode.PASSWORD_POLICY_NEGATIVE_VALUE,
 					ImmutableMap.of("attribute", IdmPasswordPolicy_.minSpecialChar.getName()));
 		}
-		if (returnZeroValue(dto.getMinUpperChar()) < NumberUtils.INTEGER_ZERO) {
+		if (!isNull(dto.getMinUpperChar()) && dto.getMinUpperChar() < NumberUtils.INTEGER_ZERO) {
 			throw new ResultCodeException(CoreResultCode.PASSWORD_POLICY_NEGATIVE_VALUE,
 					ImmutableMap.of("attribute", IdmPasswordPolicy_.minSpecialChar.getName()));
 		}
-		if (returnZeroValue(dto.getPassphraseWords()) < NumberUtils.INTEGER_ZERO) {
+		if (!isNull(dto.getPassphraseWords()) && dto.getPassphraseWords() < NumberUtils.INTEGER_ZERO) {
 			throw new ResultCodeException(CoreResultCode.PASSWORD_POLICY_NEGATIVE_VALUE,
 					ImmutableMap.of("attribute", IdmPasswordPolicy_.passphraseWords.getName()));
 		}
 	}
-
+	
 	/**
-	 * Method return zero value if integer is null.
+	 * Method check if object is null
 	 * 
-	 * @param value
-	 * @return value given in parameter or zero when value is null.
+	 * @param object
+	 * @return
 	 */
-	private int returnZeroValue(Integer value) {
-		if (value == null) {
-			return 0;
-		}
-		return value.intValue();
+	private boolean isNull(Object object) {
+		return object == null;
 	}
 }

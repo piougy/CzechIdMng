@@ -140,7 +140,6 @@ class RoleAccounts extends Advanced.AbstractTableContent {
               access={{ 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ']}}
               property="_embedded.account._embedded.system.name"
               header={this.i18n('acc:entity.System.name')} />
-            <Advanced.Column property="_embedded.identityRole._embedded.role.name" header={this.i18n('acc:entity.IdentityAccount.role')} face="text" />
             <Advanced.Column property="ownership" width="75px" header={this.i18n('acc:entity.IdentityAccount.ownership')} sort face="bool" />
             <Advanced.Column
               property="_embedded.account.inProtection"

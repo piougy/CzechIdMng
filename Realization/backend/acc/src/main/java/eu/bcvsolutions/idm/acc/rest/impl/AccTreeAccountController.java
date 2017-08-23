@@ -23,7 +23,6 @@ import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
-import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.rest.impl.DefaultReadWriteDtoController;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 import io.swagger.annotations.Api;
@@ -38,7 +37,6 @@ import io.swagger.annotations.AuthorizationScope;
  * @author Kučera
  *
  */
-
 @RestController
 @Enabled(AccModuleDescriptor.MODULE_ID)
 @RequestMapping(value = BaseDtoController.BASE_PATH + "/tree-accounts")
@@ -145,7 +143,7 @@ public class AccTreeAccountController extends DefaultReadWriteDtoController<AccT
 		TreeAccountFilter filter = new TreeAccountFilter();
 		filter.setAccountId(getParameterConverter().toUuid(parameters, "accountId"));
 		filter.setRoleSystemId(getParameterConverter().toUuid(parameters, "roleSystemId"));
-		filter.setTreeNodeId(getParameterConverter().toEntityUuid(parameters, "tree-nodes", IdmTreeNode.class));
+		filter.setTreeNodeId(getParameterConverter().toUuid(parameters, "treeNodeId"));
 		filter.setSystemId(getParameterConverter().toUuid(parameters, "systemId"));
 		filter.setOwnership(getParameterConverter().toBoolean(parameters, "ownership"));
 		return filter;

@@ -11,6 +11,7 @@ import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.acc.entity.AccRoleAccount;
+import eu.bcvsolutions.idm.acc.security.evaluator.RoleAccountByRoleEvaluator;
 import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;

@@ -903,7 +903,8 @@
       "ACCOUNT": "Účty na koncových systémech",
       "ROLEACCOUNT": "Účty pro role",
       "SYSTEM": "Napojené systémy",
-      "SYNCHRONIZATION": "Synchronizace"
+      "SYNCHRONIZATION": "Synchronizace",
+      "TREEACCOUNT": "Účty pro prvky stromu"
     }
   },
   "error": {

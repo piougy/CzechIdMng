@@ -20,11 +20,6 @@ import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
  */
 public interface AccTreeAccountRepository extends AbstractEntityRepository<AccTreeAccount, TreeAccountFilter> {
 	
-	/*
-	 * (non-Javadoc)
-	 * @see eu.bcvsolutions.idm.core.api.repository.BaseEntityRepository#find(eu.bcvsolutions.idm.core.api.dto.BaseFilter, Pageable)
-	 */
-
 	/**
 	 * @deprecated "Use DefaultAccTreeAccountService (uses criteria api)"
 	 */

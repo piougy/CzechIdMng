@@ -51,6 +51,11 @@ public class DefaultAccTreeAccountService
 		//
 		this.accountService = accountService;
 	}
+	
+	@Override
+	public AuthorizableType getAuthorizableType() {
+		return new AuthorizableType(AccGroupPermission.TREEACCOUNT, getEntityClass());
+	}
 
 	@Override
 	@Transactional
@@ -90,6 +95,7 @@ public class DefaultAccTreeAccountService
 	@Override
 	protected List<Predicate> toPredicates(Root<AccTreeAccount> root, CriteriaQuery<?> query, CriteriaBuilder builder, TreeAccountFilter filter) {
 		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
+		//
 		if(filter.getAccountId() != null) {
 			predicates.add(builder.equal(root.get(AccTreeAccount_.account).get(AccAccount_.id), filter.getAccountId()));
 		}
@@ -105,11 +111,7 @@ public class DefaultAccTreeAccountService
 		if(filter.isOwnership() != null) {
 			predicates.add(builder.equal(root.get(AccTreeAccount_.ownership), filter.isOwnership()));
 		}
+		//
 		return predicates;
-	}
-
-	@Override
-	public AuthorizableType getAuthorizableType() {
-		return new AuthorizableType(AccGroupPermission.TREEACCOUNT, getEntityClass());
 	}
 }

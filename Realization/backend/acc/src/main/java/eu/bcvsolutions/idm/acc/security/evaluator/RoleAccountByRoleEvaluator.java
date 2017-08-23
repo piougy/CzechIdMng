@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.acc.role.evaluator;
+package eu.bcvsolutions.idm.acc.security.evaluator;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;

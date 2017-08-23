@@ -78,8 +78,8 @@ class TreeAccounts extends Advanced.AbstractTableContent {
     const { entityId } = this.props.params;
     const { _showLoading, _permissions } = this.props;
     const { detail } = this.state;
-    const forceSearchParameters = new Domain.SearchParameters().setFilter('tree-nodes', entityId);
-
+    const forceSearchParameters = new Domain.SearchParameters().setFilter('treeNodeId', entityId);
+    //
     return (
       <div>
         <Helmet title={this.i18n('title')} />
@@ -140,7 +140,6 @@ class TreeAccounts extends Advanced.AbstractTableContent {
               access={{ 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ']}}
               property="_embedded.account._embedded.system.name"
               header={this.i18n('acc:entity.System.name')} />
-            <Advanced.Column property="_embedded.identityRole._embedded.role.name" header={this.i18n('acc:entity.IdentityAccount.role')} face="text" />
             <Advanced.Column property="ownership" width="75px" header={this.i18n('acc:entity.IdentityAccount.ownership')} sort face="bool" />
             <Advanced.Column
               property="_embedded.account.inProtection"

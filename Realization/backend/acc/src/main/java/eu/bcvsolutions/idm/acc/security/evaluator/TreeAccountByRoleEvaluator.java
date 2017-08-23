@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.acc.tree.evaluator;
+package eu.bcvsolutions.idm.acc.security.evaluator;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -20,16 +20,16 @@ import eu.bcvsolutions.idm.core.security.evaluator.AbstractTransitiveEvaluator;
 
 /**
  * Permissions to tree node accounts
+ * 
+ * TODO: is not used - tree nodes doesn't supports authorization policies 
  *
  * @author Kučera
  *
  */
 public class TreeAccountByRoleEvaluator extends AbstractTransitiveEvaluator<AccTreeAccount> {
 
-	@Autowired
-	private AuthorizationManager authorizationManager;
-	@Autowired
-	private SecurityService securityService;
+	@Autowired private AuthorizationManager authorizationManager;
+	@Autowired private SecurityService securityService;
 
 	@Override
 	protected Identifiable getOwner(AccTreeAccount entity) {

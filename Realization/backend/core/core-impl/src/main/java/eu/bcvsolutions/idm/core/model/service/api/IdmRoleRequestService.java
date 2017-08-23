@@ -7,13 +7,17 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.RoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
+import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 
 /**
  * Service for role request
+ * 
  * @author svandav
- *
+ * 
  */
-public interface IdmRoleRequestService extends ReadWriteDtoService<IdmRoleRequestDto,  RoleRequestFilter> {
+public interface IdmRoleRequestService extends 
+		ReadWriteDtoService<IdmRoleRequestDto,  RoleRequestFilter>,
+		AuthorizableService<IdmRoleRequestDto> {
 
 	/**
 	 * Start approval process for given request

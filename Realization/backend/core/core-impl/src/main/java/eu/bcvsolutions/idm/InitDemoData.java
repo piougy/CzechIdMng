@@ -32,6 +32,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
+import eu.bcvsolutions.idm.core.model.entity.IdmRoleRequest;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.entity.eav.IdmIdentityFormValue;
@@ -53,6 +54,9 @@ import eu.bcvsolutions.idm.core.security.evaluator.identity.IdentityContractById
 import eu.bcvsolutions.idm.core.security.evaluator.identity.IdentityRoleByIdentityEvaluator;
 import eu.bcvsolutions.idm.core.security.evaluator.identity.SelfIdentityEvaluator;
 import eu.bcvsolutions.idm.core.security.evaluator.role.RoleCanBeRequestedEvaluator;
+import eu.bcvsolutions.idm.core.security.evaluator.role.RoleRequestByIdentityEvaluator;
+import eu.bcvsolutions.idm.core.security.evaluator.role.RoleRequestByWfInvolvedIdentityEvaluator;
+import eu.bcvsolutions.idm.core.security.evaluator.role.SelfRoleRequestEvaluator;
 
 /**
  * Initialize demo data for application
@@ -219,6 +223,29 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				applyForPolicy.setAuthorizableType(IdmRole.class.getCanonicalName());
 				applyForPolicy.setEvaluator(RoleCanBeRequestedEvaluator.class);
 				authorizationPolicyService.save(applyForPolicy);
+				// role requests by identity
+				IdmAuthorizationPolicyDto roleRequestByIdentityPolicy = new IdmAuthorizationPolicyDto();
+				roleRequestByIdentityPolicy.setRole(role1.getId());
+				roleRequestByIdentityPolicy.setGroupPermission(CoreGroupPermission.ROLEREQUEST.getName());
+				roleRequestByIdentityPolicy.setAuthorizableType(IdmRoleRequest.class.getCanonicalName());
+				roleRequestByIdentityPolicy.setEvaluator(RoleRequestByIdentityEvaluator.class);
+				authorizationPolicyService.save(roleRequestByIdentityPolicy);
+				// self role requests
+				IdmAuthorizationPolicyDto selfRoleRequestPolicy = new IdmAuthorizationPolicyDto();
+				selfRoleRequestPolicy.setPermissions(IdmBasePermission.READ, IdmBasePermission.UPDATE, IdmBasePermission.CREATE, IdmBasePermission.DELETE);
+				selfRoleRequestPolicy.setRole(role1.getId());
+				selfRoleRequestPolicy.setGroupPermission(CoreGroupPermission.ROLEREQUEST.getName());
+				selfRoleRequestPolicy.setAuthorizableType(IdmRoleRequest.class.getCanonicalName());
+				selfRoleRequestPolicy.setEvaluator(SelfRoleRequestEvaluator.class);
+				authorizationPolicyService.save(selfRoleRequestPolicy);
+				// role rerquests in approval
+				IdmAuthorizationPolicyDto roleRequestByWfPolicy = new IdmAuthorizationPolicyDto();
+				roleRequestByWfPolicy.setPermissions(IdmBasePermission.READ, IdmBasePermission.UPDATE);
+				roleRequestByWfPolicy.setRole(role1.getId());
+				roleRequestByWfPolicy.setGroupPermission(CoreGroupPermission.ROLEREQUEST.getName());
+				roleRequestByWfPolicy.setAuthorizableType(IdmRoleRequest.class.getCanonicalName());
+				roleRequestByWfPolicy.setEvaluator(RoleRequestByWfInvolvedIdentityEvaluator.class);
+				authorizationPolicyService.save(roleRequestByWfPolicy);
 				//
 				LOG.info(MessageFormat.format("Role created [id: {0}]", role1.getId()));
 				//

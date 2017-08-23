@@ -1117,7 +1117,7 @@
     },
     "roles": {
       "menu-title": "Roles",
-      "header": "Roles administration",
+      "header": "Roles",
       "title": "Roles administration",
       "button": {
         "allRoles": "All roles"

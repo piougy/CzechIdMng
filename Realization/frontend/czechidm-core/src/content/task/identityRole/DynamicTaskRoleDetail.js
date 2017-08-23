@@ -73,7 +73,6 @@ class DynamicTaskRoleDetail extends DynamicTaskDetail {
           ref="identityRoleConceptTable"
           uiKey="identity-role-concept-table"
           entityId={task.variables.entityEvent.content.id}
-          adminMode={false}
           showRequestDetail={false}
           editableInStates={['IN_PROGRESS']}
           showLoading={showLoadingInternal}/>

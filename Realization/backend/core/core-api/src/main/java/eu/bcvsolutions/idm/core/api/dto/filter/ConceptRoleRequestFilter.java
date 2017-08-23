@@ -1,16 +1,20 @@
 package eu.bcvsolutions.idm.core.api.dto.filter;
 
+import java.util.UUID;
+
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+
 import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
-
-import java.util.UUID;
+import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 
 /**
  * Filter for concept role request
  *
  * @author svandav
  */
-public class ConceptRoleRequestFilter extends QuickFilter {
+public class ConceptRoleRequestFilter extends DataFilter {
     private UUID roleRequestId;
     private RoleRequestState state;
     private UUID identityRoleId;
@@ -18,6 +22,14 @@ public class ConceptRoleRequestFilter extends QuickFilter {
     private UUID identityContractId;
     private UUID roleTreeNodeId;
     private ConceptRoleRequestOperation operation;
+    
+    public ConceptRoleRequestFilter() {
+		this(new LinkedMultiValueMap<>());
+	}
+	
+	public ConceptRoleRequestFilter(MultiValueMap<String, Object> data) {
+		super(IdmConceptRoleRequestDto.class, data);
+	}
 
     public UUID getRoleRequestId() {
         return roleRequestId;

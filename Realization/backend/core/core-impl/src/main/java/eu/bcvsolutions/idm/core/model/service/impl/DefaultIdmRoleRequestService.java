@@ -10,7 +10,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+
 import org.activiti.engine.runtime.ProcessInstance;
+import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -41,7 +47,9 @@ import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleRequest;
+import eu.bcvsolutions.idm.core.model.entity.IdmRoleRequest_;
 import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent;
 import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent.RoleRequestEventType;
 import eu.bcvsolutions.idm.core.model.event.processor.role.RoleRequestApprovalProcessor;
@@ -51,6 +59,7 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
+import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowProcessInstanceDto;
@@ -110,6 +119,37 @@ public class DefaultIdmRoleRequestService
 		this.applicationContext = applicationContext;
 		this.workflowProcessInstanceService = workflowProcessInstanceService;
 		this.entityEventManager = entityEventManager;
+	}
+	
+	@Override
+	public AuthorizableType getAuthorizableType() {
+		return new AuthorizableType(CoreGroupPermission.ROLEREQUEST, getEntityClass());
+	}
+	
+	@Override
+	protected List<Predicate> toPredicates(Root<IdmRoleRequest> root, CriteriaQuery<?> query, CriteriaBuilder builder, RoleRequestFilter filter) {
+		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
+		// applicant
+		if (filter.getApplicantId() != null) {
+			predicates.add(builder.equal(root.get(IdmRoleRequest_.applicant).get(IdmIdentity_.id), filter.getApplicantId()));
+		}
+		// duplicatedToRequestId
+		if (filter.getDuplicatedToRequestId() != null) {
+			predicates.add(builder.equal(root.get(IdmRoleRequest_.duplicatedToRequest).get(IdmRoleRequest_.id), filter.getDuplicatedToRequestId()));
+		}
+		// 
+		if (StringUtils.isNotEmpty(filter.getApplicant())) {
+			predicates.add(builder.equal(root.get(IdmRoleRequest_.applicant).get(IdmIdentity_.username), filter.getApplicant()));
+		}
+		//
+		if (filter.getState() != null) {
+			predicates.add(builder.equal(root.get(IdmRoleRequest_.state), filter.getState()));
+		}
+		List<RoleRequestState> states = filter.getStates();
+		if (!states.isEmpty()) {
+			predicates.add(root.get(IdmRoleRequest_.state).in(states));
+		}
+		return predicates;
 	}
 
 	@Override

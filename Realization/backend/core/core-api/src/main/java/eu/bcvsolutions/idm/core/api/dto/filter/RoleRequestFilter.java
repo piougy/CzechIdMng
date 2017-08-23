@@ -1,21 +1,36 @@
 package eu.bcvsolutions.idm.core.api.dto.filter;
 
-import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
-
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+
+import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
+
 /**
  * Filter for role request
+ * 
+ * TODO: remove state field - use states
  *
  * @author svandav
  */
-public class RoleRequestFilter extends QuickFilter {
+public class RoleRequestFilter extends DataFilter {
 	private UUID applicantId;
 	private String applicant;
 	private RoleRequestState state;
 	private UUID duplicatedToRequestId;
 	private List<RoleRequestState> states;
+	
+	public RoleRequestFilter() {
+		this(new LinkedMultiValueMap<>());
+	}
+	
+	public RoleRequestFilter(MultiValueMap<String, Object> data) {
+		super(IdmRoleRequestDto.class, data);
+	}
 
 	public UUID getApplicantId() {
 		return applicantId;
@@ -50,6 +65,9 @@ public class RoleRequestFilter extends QuickFilter {
 	}
 
 	public List<RoleRequestState> getStates() {
+		if (states == null) {
+			states = new ArrayList<>();
+		}
 		return states;
 	}
 

@@ -2543,7 +2543,8 @@
       }
     },
     "RoleRequest": {
-      "applicant": "Applicant",
+      "applicant": "Requested for",
+      "implementer": "Applicant",
       "state": "State",
       "executeImmediately": "Without approval",
       "log": "Log",

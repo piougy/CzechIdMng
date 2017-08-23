@@ -19,6 +19,14 @@ class RoleRequestService extends AbstractService {
     return request.id;
   }
 
+  supportsAuthorization() {
+    return true;
+  }
+
+  getGroupPermission() {
+    return 'ROLEREQUEST';
+  }
+
   /**
    * Returns default searchParameters for current entity type
    *

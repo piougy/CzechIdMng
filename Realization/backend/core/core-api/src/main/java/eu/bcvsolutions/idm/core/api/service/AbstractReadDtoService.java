@@ -38,6 +38,7 @@ import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.api.repository.filter.FilterManager;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
+import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizationManager;
 
@@ -211,8 +212,11 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 				}
 				//
 				// permisions are not evaluated, if no permission was given or authorizable type is null (=> authorization policies are not supported)
-				if (!ObjectUtils.isEmpty(permission) && ((AuthorizableService<?>) AbstractReadDtoService.this).getAuthorizableType().getType() != null) {
-					predicates.add(getAuthorizationManager().getPredicate(root, query, builder, permission));
+				if (!ObjectUtils.isEmpty(permission)) {					
+					AuthorizableType authorizableType = ((AuthorizableService<?>) AbstractReadDtoService.this).getAuthorizableType();
+					if (authorizableType != null && authorizableType.getType() != null) {					
+						predicates.add(getAuthorizationManager().getPredicate(root, query, builder, permission));
+					}
 				}
 				//
 				return query.where(predicates.toArray(new Predicate[predicates.size()])).getRestriction();
@@ -363,11 +367,11 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 			return null;
 		}
 		//
-		if (!ObjectUtils.isEmpty(permission) 
-				&& this instanceof AuthorizableService 
-				&& ((AuthorizableService<?>) AbstractReadDtoService.this).getAuthorizableType().getType() != null
-				&& !getAuthorizationManager().evaluate(entity, permission)) {
-			throw new ForbiddenEntityException(entity.getId());
+		if (!ObjectUtils.isEmpty(permission) && this instanceof AuthorizableService) {
+			AuthorizableType authorizableType = ((AuthorizableService<?>) AbstractReadDtoService.this).getAuthorizableType();
+			if (authorizableType != null && authorizableType.getType() != null && !getAuthorizationManager().evaluate(entity, permission)) {
+				throw new ForbiddenEntityException(entity.getId());
+			}
 		}
 		return entity;
 	}

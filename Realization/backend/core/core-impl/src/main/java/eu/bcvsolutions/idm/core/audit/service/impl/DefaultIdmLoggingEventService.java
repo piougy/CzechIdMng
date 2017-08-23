@@ -127,7 +127,7 @@ public class DefaultIdmLoggingEventService
 
 	@Override
 	public AuthorizableType getAuthorizableType() {
-		return new AuthorizableType(CoreGroupPermission.AUDIT, getEntityClass());
+		return new AuthorizableType(CoreGroupPermission.AUDIT, null);
 	}
 	
 	@Override

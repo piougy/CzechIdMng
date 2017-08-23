@@ -304,6 +304,7 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
             header={ this.i18n('entity.AuthorizationPolicy.authorizableType.label') }
             sort
             rendered={_.includes(columns, 'authorizableType')}
+            width={ 175 }
             cell={
               /* eslint-disable react/no-multi-comp */
               ({ rowIndex, data, property }) => {
@@ -364,7 +365,7 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
               }
             }/>
           <Advanced.Column
-            width="30%"
+            width="25%"
             property="description"
             face="text"
             sort

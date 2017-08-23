@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.security.evaluator.identity;
+package eu.bcvsolutions.idm.core.security.evaluator.role;
 
 import java.util.Set;
 
@@ -30,7 +30,7 @@ import eu.bcvsolutions.idm.core.security.evaluator.AbstractAuthorizationEvaluato
 @Description("Currently logged user can edit his role requests.")
 public class SelfRoleRequestEvaluator extends AbstractAuthorizationEvaluator<IdmRoleRequest> {
 
-	private SecurityService securityService;
+	private final SecurityService securityService;
 	
 	@Autowired
 	public SelfRoleRequestEvaluator(SecurityService securityService) {

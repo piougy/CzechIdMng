@@ -6,19 +6,23 @@ import moment from 'moment';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
-import { RoleRequestManager, ConceptRoleRequestManager, IdentityRoleManager} from '../../redux';
+import * as Utils from '../../utils';
+import { RoleRequestManager, ConceptRoleRequestManager, IdentityManager, IdentityRoleManager } from '../../redux';
 import RoleRequestStateEnum from '../../enums/RoleRequestStateEnum';
 import ConceptRoleRequestOperationEnum from '../../enums/ConceptRoleRequestOperationEnum';
 import SearchParameters from '../../domain/SearchParameters';
-import EntityUtils from '../../utils/EntityUtils';
 import RoleConceptTable from './RoleConceptTable';
 
 const uiKey = 'role-request';
 const uiKeyAttributes = 'concept-role-requests';
 const conceptRoleRequestManager = new ConceptRoleRequestManager();
 const roleRequestManager = new RoleRequestManager();
+const identityManager = new IdentityManager();
 const identityRoleManager = new IdentityRoleManager();
 
+/**
+ * @author VS
+ */
 class RoleRequestDetail extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
@@ -38,7 +42,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
   }
 
   componentWillReceiveProps(nextProps) {
-    const {_request} = nextProps;
+    const { _request } = nextProps;
     const entityId = nextProps.entityId ? nextProps.entityId : nextProps.params.entityId;
     const entityIdCurrent = this.props.entityId ? this.props.entityId : this.props.params.entityId;
     if (entityId && entityId !== entityIdCurrent) {
@@ -65,10 +69,8 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
   _initComponent(props) {
     const { entityId} = props;
     const _entityId = entityId ? entityId : props.params.entityId;
-    const adminMode = props.adminMode !== undefined ? props.adminMode : props.location.query.adminMode;
     if (this._getIsNew(props)) {
       this.setState({
-        adminMode,
         request: {
           applicant: props.location.query.applicantId,
           state: RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.CONCEPT),
@@ -78,20 +80,18 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
       });
     } else {
       this.context.store.dispatch(roleRequestManager.fetchEntity(_entityId));
-      this.setState({
-        adminMode
-      });
     }
   }
 
   _initComponentCurrentRoles(props) {
-    const {_request} = props;
+    const { _request } = props;
+    //
     if (this._getIsNew(props)) {
       const applicant = props.location.query.applicantId;
-      this.context.store.dispatch(identityRoleManager.fetchRoles(applicant, `${uiKey}-${applicant}`));
+      this.context.store.dispatch(identityRoleManager.fetchRoles(applicant, `${uiKey}-${applicant}`, () => {} ));
     } else {
       if (_request) {
-        this.context.store.dispatch(identityRoleManager.fetchRoles(_request.applicant, `${uiKey}-${_request.applicant}`));
+        this.context.store.dispatch(identityRoleManager.fetchRoles(_request.applicant, `${uiKey}-${_request.applicant}`, () => {}));
       }
     }
   }
@@ -126,10 +126,9 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
   afterSave(entity, error) {
     this.setState({showLoading: false});
     if (!error) {
-      const {adminMode} = this.state;
       // this.addMessage({ message: this.i18n('save.success') });
       if (this._getIsNew()) {
-        this.context.router.replace(`/role-requests/${entity.id}/detail?adminMode=${adminMode}`);
+        this.context.router.replace(`/role-requests/${entity.id}/detail`);
       }
     } else {
       this.addError(error);
@@ -347,9 +346,6 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
             uiKey={uiKeyAttributes}
             manager={conceptRoleRequestManager}
             forceSearchParameters={forceSearchParameters}
-            actions={
-              [{ value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }]
-            }
             >
             <Advanced.Column property="_embedded.role.name" header={this.i18n('entity.ConceptRoleRequest.role')} sort/>
             <Advanced.Column
@@ -384,6 +380,8 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
     if (!rendered) {
       return null;
     }
+    //
+    const { _permissions } = this.props;
     return (
       <div>
         <Basic.ContentHeader>
@@ -397,7 +395,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
             uiKey="identity-role-concept-table"
             showLoading={showLoading}
             className="vertical-scroll"
-            readOnly={!isEditable}
+            readOnly={!isEditable || !roleRequestManager.canSave(request, _permissions)}
             identityUsername={request && request.applicant}
             identityRoles={_currentIdentityRoles}
             addedIdentityRoles={addedIdentityRoles}
@@ -413,10 +411,16 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
   }
 
   render() {
-    const { _showLoading, _request, _currentIdentityRoles, adminMode, editableInStates, showRequestDetail} = this.props;
-
-    let _adminMode = this.state.adminMode !== null ? this.state.adminMode : adminMode;
-    _adminMode = _adminMode === 'true' ? true : false;
+    const {
+      _showLoading,
+      _request,
+      _currentIdentityRoles,
+      editableInStates,
+      showRequestDetail,
+      _permissions,
+      _identityPermissions } = this.props;
+    //
+    const _adminMode = Utils.Permission.hasPermission(_permissions, 'ADMIN');
     const forceSearchParameters = new SearchParameters().setFilter('roleRequestId', _request ? _request.id : SearchParameters.BLANK_UUID);
     const isNew = this._getIsNew();
     const request = isNew ? this.state.request : _request;
@@ -535,7 +539,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
                 disabled={!isEditable}
                 showLoading={showLoading}
                 onClick={this.save.bind(this, true)}
-                rendered={request}
+                rendered={ request && roleRequestManager.canSave(request, _permissions)}
                 titlePlacement="bottom"
                 title={this.i18n('button.createRequest.tooltip')}>
                 <Basic.Icon type="fa" icon="object-group"/>
@@ -545,10 +549,16 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
             </Basic.PanelFooter>
           </Basic.Panel>
         </form>
-        {this._renderRoleConceptChangesTable(request, forceSearchParameters, !showRequestDetail)}
-        {this._renderRoleConceptTable(request, !showRequestDetail,
-           isEditable, showLoading, _currentIdentityRoles, addedIdentityRoles,
-           changedIdentityRoles, removedIdentityRoles)}
+        {
+          this._renderRoleConceptChangesTable(request, forceSearchParameters, !showRequestDetail)
+        }
+        {
+          !identityManager.canRead({}, _identityPermissions)
+          ||
+          this._renderRoleConceptTable(request, !showRequestDetail,
+            isEditable, showLoading, _currentIdentityRoles, addedIdentityRoles,
+            changedIdentityRoles, removedIdentityRoles)
+        }
       </div>
     );
   }
@@ -556,7 +566,6 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
 
 RoleRequestDetail.propTypes = {
   _showLoading: PropTypes.bool,
-  adminMode: PropTypes.bool, // If true, then will be show advanced fields as log and etc.
   editableInStates: PropTypes.arrayOf(PropTypes.string),
   showRequestDetail: PropTypes.bool
 };
@@ -567,13 +576,12 @@ RoleRequestDetail.defaultProps = {
 
 function select(state, component) {
   const entityId = component.entityId ? component.entityId : component.params.entityId;
-  const entity = EntityUtils.getEntity(state, roleRequestManager.getEntityType(), entityId);
+  const entity = roleRequestManager.getEntity(state, entityId);
   let _currentIdentityRoles = null;
   const applicantFromUrl = component.location ? component.location.query.applicantId : null;
-  if (entity) {
-    _currentIdentityRoles = identityRoleManager.getEntities(state, `${uiKey}-${entity.applicant}`);
-  } else if (applicantFromUrl) {
-    _currentIdentityRoles = identityRoleManager.getEntities(state, `${uiKey}-${applicantFromUrl}`);
+  const identityId = entity ? entity.applicant : applicantFromUrl;
+  if (identityId) {
+    _currentIdentityRoles = identityRoleManager.getEntities(state, `${uiKey}-${identityId}`);
   }
   if (entity && entity._embedded && entity._embedded.wfProcessId) {
     entity.currentActivity = entity._embedded.wfProcessId.name;
@@ -582,7 +590,9 @@ function select(state, component) {
   return {
     _request: entity,
     _showLoading: entity ? false : true,
-    _currentIdentityRoles
+    _currentIdentityRoles,
+    _permissions: roleRequestManager.getPermissions(state, null, entity),
+    _identityPermissions: identityManager.getPermissions(state, null, identityId)
   };
 }
 

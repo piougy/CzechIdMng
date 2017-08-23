@@ -155,7 +155,7 @@ public class DefaultIdmIdentityService
 	}
 	
 	@Override
-	public EventContext<IdmIdentityDto> publish(EntityEvent<IdmIdentityDto> event,  BasePermission... permission){
+	public EventContext<IdmIdentityDto> publish(EntityEvent<IdmIdentityDto> event, BasePermission... permission){
 		Assert.notNull(event, "Event must be not null!");
 		Assert.notNull(event.getContent(), "Content (entity) in event must be not null!");
 		

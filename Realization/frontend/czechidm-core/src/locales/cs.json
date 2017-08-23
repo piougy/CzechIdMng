@@ -1174,7 +1174,7 @@
     },
     "roles": {
       "menu-title": "Role",
-      "header": "Správa rolí",
+      "header": "Role",
       "title": "Správa rolí",
       "button": {
         "allRoles": "Všechny role"

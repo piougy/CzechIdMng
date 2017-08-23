@@ -18,7 +18,6 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRoleRequest;
  * 
  * @author svandav
  * @author Radek Tomiška
- *
  */
 public interface IdmRoleRequestRepository extends AbstractEntityRepository<IdmRoleRequest, RoleRequestFilter> {
 	

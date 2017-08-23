@@ -8,13 +8,12 @@ import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
 import SearchParameters from '../../domain/SearchParameters';
-import { IdentityRoleManager, IdentityContractManager, IdentityManager, RoleManager, RoleTreeNodeManager, WorkflowProcessInstanceManager, DataManager, SecurityManager, RoleRequestManager } from '../../redux';
+import { IdentityRoleManager, IdentityContractManager, IdentityManager, RoleManager, RoleTreeNodeManager, WorkflowProcessInstanceManager, SecurityManager, RoleRequestManager } from '../../redux';
 import RoleRequestTable from '../requestrole/RoleRequestTable';
 import CandicateUsersCell from '../workflow/CandicateUsersCell';
 
 const uiKey = 'identity-roles';
 const uiKeyContracts = 'role-identity-contracts';
-const uiKeyAuthorities = 'identity-roles';
 const roleManager = new RoleManager();
 const roleTreeNodeManager = new RoleTreeNodeManager();
 const identityRoleManager = new IdentityRoleManager();
@@ -25,6 +24,14 @@ const roleRequestManager = new RoleRequestManager();
 
 const TEST_ADD_ROLE_DIRECTLY = false;
 
+/**
+ * Assigned identity roles
+ * Created role requests
+ * Roles in approval (wf)
+ *
+ * @author VS
+ * @author Radek Tomiška
+ */
 class Roles extends Basic.AbstractContent {
 
   constructor(props, context) {
@@ -45,7 +52,6 @@ class Roles extends Basic.AbstractContent {
     this.selectSidebarItem('profile-roles');
     const { entityId } = this.props.params;
     this.context.store.dispatch(identityRoleManager.fetchRoles(entityId, `${uiKey}-${entityId}`));
-    this.context.store.dispatch(identityManager.fetchAuthorities(entityId, `${uiKeyAuthorities}-${entityId}`));
     this.context.store.dispatch(identityContractManager.fetchEntities(new SearchParameters(SearchParameters.NAME_AUTOCOMPLETE).setFilter('identity', entityId).setFilter('validNowOrInFuture', true), `${uiKeyContracts}-${entityId}`));
   }
 
@@ -55,7 +61,7 @@ class Roles extends Basic.AbstractContent {
       for (const idProcess of _addRoleProcessIds) {
         const processEntity = workflowProcessInstanceManager.getEntity(this.context.store.getState(), idProcess);
         if (processEntity && processEntity.processVariables.conceptRole.role && !roleManager.isShowLoading(this.context.store.getState(), `role-${processEntity.processVariables.conceptRole.role}`)) {
-          this.context.store.dispatch(roleManager.fetchEntityIfNeeded(processEntity.processVariables.conceptRole.role, `role-${processEntity.processVariables.conceptRole.role}`));
+          // this.context.store.dispatch(roleManager.fetchEntityIfNeeded(processEntity.processVariables.conceptRole.role, `role-${processEntity.processVariables.conceptRole.role}`));
         }
       }
     }
@@ -150,8 +156,6 @@ class Roles extends Basic.AbstractContent {
       this.addError(error);
       return;
     }
-    const { entityId } = this.props.params;
-    this.context.store.dispatch(identityManager.fetchAuthorities(entityId, `${uiKeyAuthorities}-${entityId}`));
     this.closeDetail();
   }
 
@@ -167,7 +171,6 @@ class Roles extends Basic.AbstractContent {
       this.context.store.dispatch(identityRoleManager.deleteEntity(entity, `${uiKey}-${entityId}`, (deletedEntity, error) => {
         if (!error) {
           this.addMessage({ message: this.i18n('delete.success', { role: deletedEntity._embedded.role.name, username: entityId }) });
-          this.context.store.dispatch(identityManager.fetchAuthorities(entityId, `${uiKeyAuthorities}-${entityId}`));
         } else {
           this.addError(error);
         }
@@ -219,7 +222,7 @@ class Roles extends Basic.AbstractContent {
         showLoading: false
       });
       const uuidId = uuid.v1();
-      this.context.router.push(`/role-requests/${uuidId}/new?new=1&applicantId=${json.id}&adminMode=${false}`);
+      this.context.router.push(`/role-requests/${uuidId}/new?new=1&applicantId=${json.id}`);
     }).catch(ex => {
       this.setState({
         showLoading: false
@@ -236,6 +239,12 @@ class Roles extends Basic.AbstractContent {
   _canChangePermissions() {
     const { userContext, identity, _permissions } = this.props;
     const { entityId } = this.props.params;
+    // authority to create role requests is required
+    if (!SecurityManager.hasAuthority('ROLEREQUEST_CREATE')) {
+      return false;
+    }
+    // self or can edit by conventions
+    // TODO: how to check access for new role requests before creating new record?
     return (entityId === userContext.username) || identityManager.canSave(identity, _permissions);
   }
 
@@ -374,6 +383,17 @@ class Roles extends Basic.AbstractContent {
                   <Basic.Column
                     header={this.i18n('entity.IdentityRole.role')}
                     property="_embedded.role.name"
+                    cell={
+                      /* eslint-disable react/no-multi-comp */
+                      ({rowIndex, data, property}) => {
+                        return (
+                          <Advanced.RoleInfo
+                            entityIdentifier={ data[rowIndex][property] }
+                            entity={ data[rowIndex]._embedded.role }
+                            face="popover" />
+                        );
+                      }
+                    }
                     />
                   <Basic.Column
                     header={this.i18n('entity.IdentityRole.identityContract.title')}
@@ -386,7 +406,7 @@ class Roles extends Basic.AbstractContent {
                             entityIdentifier={ data[rowIndex][property] }
                             entity={ data[rowIndex]._embedded.identityContract }
                             showIdentity={ false }
-                            face="link" />
+                            face="popover" />
                         );
                       }
                     }/>
@@ -428,30 +448,30 @@ class Roles extends Basic.AbstractContent {
             }
           </Basic.Panel>
 
-          <Basic.Panel style={{display: hasRoleConcepts ? 'block' : 'none'}}>
+          <Basic.Panel
+            style={{ display: hasRoleConcepts ? 'block' : 'none' }}
+            rendered={ SecurityManager.hasAuthority('ROLEREQUEST_READ') }>
             <Basic.PanelHeader text={this.i18n('conceptPermissionRequests.header')}/>
-              <RoleRequestTable
-                ref="conceptTable"
-                uiKey={uiKeyConceptTable}
-                showFilter={false}
-                adminMode={false}
-                showLoading={_showLoading}
-                forceSearchParameters={conceptsForceSearch}
-                columns={['state', 'created', 'modified', 'detail']}
-                manager={roleRequestManager}/>
+            <RoleRequestTable
+              ref="conceptTable"
+              uiKey={uiKeyConceptTable}
+              showFilter={false}
+              showLoading={_showLoading}
+              forceSearchParameters={conceptsForceSearch}
+              columns={['state', 'created', 'modified', 'detail']}
+              manager={roleRequestManager}/>
           </Basic.Panel>
 
-          <Basic.Panel>
+          <Basic.Panel rendered={ SecurityManager.hasAuthority('ROLEREQUEST_READ') }>
             <Basic.PanelHeader text={this.i18n('changePermissionRequests.header')}/>
-              <RoleRequestTable
-                ref="requestTable"
-                uiKey={'table-applicant-requests'}
-                showFilter={false}
-                adminMode={false}
-                showLoading={_showLoading}
-                forceSearchParameters={roleRequestsForceSearch}
-                columns={['state', 'created', 'modified', 'wf', 'detail']}
-                manager={roleRequestManager}/>
+            <RoleRequestTable
+              ref="requestTable"
+              uiKey={'table-applicant-requests'}
+              showFilter={false}
+              showLoading={_showLoading}
+              forceSearchParameters={roleRequestsForceSearch}
+              columns={['state', 'created', 'modified', 'wf', 'detail']}
+              manager={roleRequestManager}/>
           </Basic.Panel>
 
           <Basic.Panel>
@@ -512,6 +532,7 @@ class Roles extends Basic.AbstractContent {
                 face="text"/>
             </Advanced.Table>
           </Basic.Panel>
+
           <Basic.Modal
             bsSize="default"
             show={detail.show}
@@ -599,7 +620,6 @@ Roles.propTypes = {
   _showLoadingContracts: PropTypes.bool,
   _entities: PropTypes.arrayOf(React.PropTypes.object),
   _contracts: PropTypes.arrayOf(React.PropTypes.object),
-  authorities: PropTypes.arrayOf(React.PropTypes.object),
   userContext: PropTypes.object,
   _permissions: PropTypes.arrayOf(PropTypes.string)
 };
@@ -608,7 +628,6 @@ Roles.defaultProps = {
   _showLoadingContracts: true,
   _entities: [],
   _contracts: [],
-  authorities: [],
   userContext: null,
   _permissions: null,
 };
@@ -627,7 +646,6 @@ function select(state, component) {
     _showLoadingContracts: identityContractManager.isShowLoading(state, `${uiKeyContracts}-${entityId}`),
     _contracts: identityContractManager.getEntities(state, `${uiKeyContracts}-${entityId}`),
     _addRoleProcessIds: addRoleProcessIds,
-    authorities: DataManager.getData(state, `${uiKeyAuthorities}-${entityId}`),
     userContext: state.security.userContext,
     _permissions: identityManager.getPermissions(state, null, entityId)
   };

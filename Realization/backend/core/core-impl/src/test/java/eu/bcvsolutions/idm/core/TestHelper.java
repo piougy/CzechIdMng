@@ -58,6 +58,15 @@ public interface TestHelper {
 	 * @return
 	 */
 	IdmRoleCatalogueDto createRoleCatalogue(String code);
+	
+	/**
+	 * Creates test RoleCatalogue with given code = name and parent.
+	 * @param code
+	 * @param parentId
+	 * @return
+	 */
+	IdmRoleCatalogueDto createRoleCatalogue(String code, UUID parentId);
+	
 	/**
 	 * Deletes identity
 	 * 

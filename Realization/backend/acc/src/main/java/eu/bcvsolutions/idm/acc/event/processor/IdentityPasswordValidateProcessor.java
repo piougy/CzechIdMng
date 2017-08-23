@@ -22,6 +22,7 @@ import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyType;
 import eu.bcvsolutions.idm.core.api.domain.PasswordChangeType;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmPasswordPolicyDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordValidationDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
@@ -99,7 +100,7 @@ public class IdentityPasswordValidateProcessor extends AbstractEntityEventProces
 		LOG.debug("Call validate password for systems and default password policy for identity username [{}]",
 				event.getContent().getUsername());
 		//
-		List<IdmPasswordPolicy> passwordPolicyList = new ArrayList<>();
+		List<IdmPasswordPolicyDto> passwordPolicyList = new ArrayList<>();
 		//
 		// Find user accounts
 		IdentityAccountFilter filter = new IdentityAccountFilter();
@@ -128,7 +129,7 @@ public class IdentityPasswordValidateProcessor extends AbstractEntityEventProces
 		}
 		//
 		// get default password policy
-		IdmPasswordPolicy defaultPasswordPolicy = this.passwordPolicyService
+		IdmPasswordPolicyDto defaultPasswordPolicy = this.passwordPolicyService
 				.getDefaultPasswordPolicy(IdmPasswordPolicyType.VALIDATE);
 		//
 		if (passwordChangeDto.isIdm() && defaultPasswordPolicy != null) {
@@ -141,8 +142,13 @@ public class IdentityPasswordValidateProcessor extends AbstractEntityEventProces
 					|| passwordChangeDto.getAccounts().contains(identityAccount.getAccount().toString()));
 		}).forEach(identityAccount -> {
 			// get validate password policy from system
-			IdmPasswordPolicy passwordPolicy = identityAccountRepository.findOne(identityAccount.getId()).getAccount()
+			// TODO: change to DTO after refactoring
+			IdmPasswordPolicy passwordPolicyEntity = identityAccountRepository.findOne(identityAccount.getId()).getAccount()
 					.getSystem().getPasswordPolicyValidate();
+			IdmPasswordPolicyDto passwordPolicy = null;
+			if (passwordPolicyEntity != null) {
+				passwordPolicy = passwordPolicyService.get(passwordPolicyEntity.getId());
+			}
 			// if passwordPolicy is null use default password policy for
 			// validate
 			if (passwordPolicy == null) {

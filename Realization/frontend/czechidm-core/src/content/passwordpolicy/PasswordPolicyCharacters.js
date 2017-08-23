@@ -103,7 +103,7 @@ class PasswordPolicyCharacters extends Basic.AbstractContent {
     identityAttributeCheck = _.join(identityAttributeCheck, ', ');
     entity.identityAttributeCheck = identityAttributeCheck;
 
-    this.context.store.dispatch(this.passwordPolicyManager.patchEntity(entity, `${uiKey}-detail`, (savedEntity, error) => {
+    this.context.store.dispatch(this.passwordPolicyManager.updateEntity(entity, `${uiKey}-detail`, (savedEntity, error) => {
       this._afterSave(entity, error, editContinue);
     }));
   }

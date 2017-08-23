@@ -1,8 +1,8 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 import java.util.UUID;
 
@@ -17,8 +17,8 @@ import eu.bcvsolutions.idm.core.TestHelper;
 import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyType;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmPasswordPolicyDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
-import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordPolicyService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordService;
@@ -60,7 +60,7 @@ public class DefaultIdmPasswordServiceIntegrationTest extends AbstractIntegratio
 
 	@Test
 	public void testCreatePasswordNonDefaultPolicy() {
-		IdmPasswordPolicy policy = getTestPolicy(false);
+		IdmPasswordPolicyDto policy = getTestPolicy(false);
 		assertNotNull(policy);
 		IdmIdentityDto identity = testHelper.createIdentity();
 		//
@@ -73,7 +73,7 @@ public class DefaultIdmPasswordServiceIntegrationTest extends AbstractIntegratio
 
 	@Test
 	public void testCreatePasswordDefaultPolicy() {
-		IdmPasswordPolicy policy = getTestPolicy(true);
+		IdmPasswordPolicyDto policy = getTestPolicy(true);
 		IdmIdentityDto identity = testHelper.createIdentity();
 		//
 		IdmPasswordDto password = passwordService.findOneByIdentity(identity.getId());
@@ -84,9 +84,9 @@ public class DefaultIdmPasswordServiceIntegrationTest extends AbstractIntegratio
 
 	@Test
 	public void testCreatePasswordMultiplePolicies() {
-		IdmPasswordPolicy policy1 = getTestPolicy(true, IdmPasswordPolicyType.VALIDATE, 365);
+		IdmPasswordPolicyDto policy1 = getTestPolicy(true, IdmPasswordPolicyType.VALIDATE, 365);
 		assertNotNull(policy1);
-		IdmPasswordPolicy policy2 = getTestPolicy(true, IdmPasswordPolicyType.VALIDATE, 5);
+		IdmPasswordPolicyDto policy2 = getTestPolicy(true, IdmPasswordPolicyType.VALIDATE, 5);
 		IdmIdentityDto identity = testHelper.createIdentity();
 		//
 		IdmPasswordDto password = passwordService.findOneByIdentity(identity.getId());
@@ -98,8 +98,8 @@ public class DefaultIdmPasswordServiceIntegrationTest extends AbstractIntegratio
 	
 	@Test
 	public void testTwoPoliciesSecondValidTillNull() {
-		IdmPasswordPolicy policy1 = getTestPolicy(false, IdmPasswordPolicyType.VALIDATE, null);
-		IdmPasswordPolicy policy2 = getTestPolicy(true, IdmPasswordPolicyType.VALIDATE, 5);
+		IdmPasswordPolicyDto policy1 = getTestPolicy(false, IdmPasswordPolicyType.VALIDATE, null);
+		IdmPasswordPolicyDto policy2 = getTestPolicy(true, IdmPasswordPolicyType.VALIDATE, 5);
 		IdmIdentityDto identity = testHelper.createIdentity();
 		//
 		IdmPasswordDto password = passwordService.findOneByIdentity(identity.getId());
@@ -119,7 +119,7 @@ public class DefaultIdmPasswordServiceIntegrationTest extends AbstractIntegratio
 
 	@Test
 	public void testCreatePasswordValidationPolicy() {
-		IdmPasswordPolicy policy = getTestPolicy(false, IdmPasswordPolicyType.VALIDATE, 365);
+		getTestPolicy(false, IdmPasswordPolicyType.VALIDATE, 365);
 		IdmIdentityDto identity = testHelper.createIdentity();
 		//
 		IdmPasswordDto password = passwordService.findOneByIdentity(identity.getId());
@@ -128,8 +128,8 @@ public class DefaultIdmPasswordServiceIntegrationTest extends AbstractIntegratio
 		assertNull(password.getValidTill());
 	}
 
-	private IdmPasswordPolicy getTestPolicy(boolean isDefault, IdmPasswordPolicyType type, Integer maxAge) {
-		IdmPasswordPolicy policy = new IdmPasswordPolicy();
+	private IdmPasswordPolicyDto getTestPolicy(boolean isDefault, IdmPasswordPolicyType type, Integer maxAge) {
+		IdmPasswordPolicyDto policy = new IdmPasswordPolicyDto();
 		policy.setName(UUID.randomUUID().toString());
 		policy.setType(type);
 		policy.setMaxPasswordAge(maxAge);
@@ -137,7 +137,7 @@ public class DefaultIdmPasswordServiceIntegrationTest extends AbstractIntegratio
 		return policyService.save(policy);
 	}
 
-	private IdmPasswordPolicy getTestPolicy(boolean isDefault) {
+	private IdmPasswordPolicyDto getTestPolicy(boolean isDefault) {
 		return getTestPolicy(isDefault, IdmPasswordPolicyType.VALIDATE, 365);
 	}
 

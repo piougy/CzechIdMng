@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.core.api.dto.IdmPasswordPolicyDto;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
@@ -12,6 +13,7 @@ import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
 import eu.bcvsolutions.idm.core.model.event.PasswordPolicyEvent.PasswordPolicyEvenType;
 import eu.bcvsolutions.idm.core.model.repository.IdmPasswordPolicyRepository;
+import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordPolicyService;
 
 /**
  * Default password policy processor for delete entity
@@ -22,26 +24,26 @@ import eu.bcvsolutions.idm.core.model.repository.IdmPasswordPolicyRepository;
 
 @Component
 @Description("Delete password policy processor.")
-public class PasswordPolicyDeleteProcessor extends CoreEventProcessor<IdmPasswordPolicy> {
+public class PasswordPolicyDeleteProcessor extends CoreEventProcessor<IdmPasswordPolicyDto> {
 	
 	public static final String PROCESSOR_NAME = "password-policy-delete-processor";
 	
-	private final IdmPasswordPolicyRepository passwordPolicyRepository;
+	private final IdmPasswordPolicyService passwordPolicyService;
 	
 	@Autowired
-	public PasswordPolicyDeleteProcessor(IdmPasswordPolicyRepository passwordPolicyRepository) {
+	public PasswordPolicyDeleteProcessor(IdmPasswordPolicyService passwordPolicyService) {
 		super(PasswordPolicyEvenType.DELETE);
 		//
-		Assert.notNull(passwordPolicyRepository);
+		Assert.notNull(passwordPolicyService);
 		//
-		this.passwordPolicyRepository = passwordPolicyRepository;
+		this.passwordPolicyService = passwordPolicyService;
 	}
 	
 	@Override
-	public EventResult<IdmPasswordPolicy> process(EntityEvent<IdmPasswordPolicy> event) {
-		IdmPasswordPolicy entity = event.getContent();
+	public EventResult<IdmPasswordPolicyDto> process(EntityEvent<IdmPasswordPolicyDto> event) {
+		IdmPasswordPolicyDto dto = event.getContent();
 		//
-		passwordPolicyRepository.delete(entity);
+		passwordPolicyService.deleteInternal(dto);
 		//
 		return new DefaultEventResult<>(event, this);
 	}

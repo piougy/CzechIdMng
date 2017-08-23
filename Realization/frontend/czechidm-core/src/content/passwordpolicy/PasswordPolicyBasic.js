@@ -137,7 +137,7 @@ class PasswordPolicyBasic extends Basic.AbstractContent {
         this._afterSave(createdEntity, error, editContinue);
       }));
     } else {
-      this.context.store.dispatch(this.passwordPolicyManager.patchEntity(entity, `${uiKey}-detail`, (savedEntity, error) => {
+      this.context.store.dispatch(this.passwordPolicyManager.updateEntity(entity, `${uiKey}-detail`, (savedEntity, error) => {
         this._afterSave(entity, error, editContinue);
       }));
     }

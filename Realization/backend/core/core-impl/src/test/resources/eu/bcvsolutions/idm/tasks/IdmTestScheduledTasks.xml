@@ -1,0 +1,46 @@
+<?xml version = "1.0" encoding = "UTF-8" standalone = "yes"?>
+<!-- 
+/** 
+  * XML with test scheduled tasks.
+  *
+  * @author Ondrej Kopr 
+  * 
+  * 
+  **/ 
+-->
+<tasks xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="IdmTasks.xsd">
+	<task>
+		<taskType>eu.bcvsolutions.idm.core.scheduler.task.impl.TestTaskExecutor</taskType>
+		<description>TEST DESCRIPTION</description>
+		<instanceId>idm-test</instanceId>
+		
+		<triggers>
+			<trigger>
+				<type>eu.bcvsolutions.idm.core.scheduler.api.dto.CronTaskTrigger</type>
+				<cron>0 0 1 ? * *</cron>
+				<state>ACTIVE</state>
+			</trigger>
+			<trigger>
+				<type>eu.bcvsolutions.idm.core.scheduler.api.dto.SimpleTaskTrigger</type>
+				<fireTime>4102441200000</fireTime>
+				<state>ACTIVE</state>
+			</trigger>
+		</triggers>
+		
+		<parameters>
+			<parameter>
+				<key>core:instanceId</key>
+				<value>idm-test</value>
+			</parameter>
+			<parameter>
+				<key>count</key>
+				<value>5</value>
+			</parameter>
+			<parameter>
+				<key>test</key>
+				<value>test</value>
+			</parameter>
+		</parameters>
+	</task>
+</tasks>

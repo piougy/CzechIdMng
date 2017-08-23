@@ -74,7 +74,7 @@ public abstract class AbstractScriptEvaluator implements Plugin<IdmScriptCategor
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("script", scriptCode));
 		}
 		//
-		if (!this.supports(script.getCategory())) {
+		if (!canExecuteScript(script)) {
 			throw new ResultCodeException(CoreResultCode.GROOVY_SCRIPT_INVALID_CATEGORY, ImmutableMap.of("scriptCategory", script.getCategory()));
 		}
 		//
@@ -107,6 +107,21 @@ public abstract class AbstractScriptEvaluator implements Plugin<IdmScriptCategor
 			LOG.error("Exception [{}]. Script code: [{}], name: [{}], category: [{}]", e.getLocalizedMessage(), script.getCode(), script.getName(), script.getCategory().name());
 			throw e;
 		}
+	}
+	
+	/**
+	 * Method check if is possible call script given in parameter. From this implementation.
+	 * 
+	 * @param script
+	 * @return
+	 */
+	private boolean canExecuteScript(IdmScript script) {
+		// default script category is possible call from all another category
+		if (script.getCategory() == IdmScriptCategory.DEFAULT) {
+			return true;
+		}
+		// support
+		return this.supports(script.getCategory());
 	}
 	
 	/**

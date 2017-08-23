@@ -21,14 +21,15 @@ import eu.bcvsolutions.idm.acc.domain.SynchronizationContext;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.EntityAccountDto;
+import eu.bcvsolutions.idm.acc.dto.SysSyncActionLogDto;
+import eu.bcvsolutions.idm.acc.dto.SysSyncItemLogDto;
+import eu.bcvsolutions.idm.acc.dto.SysSyncLogDto;
 import eu.bcvsolutions.idm.acc.dto.filter.EntityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
-import eu.bcvsolutions.idm.acc.entity.SysSyncActionLog;
-import eu.bcvsolutions.idm.acc.entity.SysSyncItemLog;
-import eu.bcvsolutions.idm.acc.entity.SysSyncLog;
 import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
+import eu.bcvsolutions.idm.acc.repository.SysSyncConfigRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
@@ -39,6 +40,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSyncItemLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.CorrelationFilter;
@@ -75,7 +77,7 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 	private final IdmIdentityRepository identityRepository;
 	private final AccIdentityAccountService identityAccoutnService;
 	private final IdmIdentityRoleService identityRoleService;
-
+	
 	@Autowired
 	public IdentitySynchronizationExecutor(IcConnectorFacade connectorFacade, SysSystemService systemService,
 			SysSystemAttributeMappingService attributeHandlingService,
@@ -86,11 +88,12 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 			AccIdentityAccountService identityAccoutnService, SysSyncItemLogService syncItemLogService,
 			IdmIdentityRoleService identityRoleService, EntityEventManager entityEventManager,
 			GroovyScriptService groovyScriptService, WorkflowProcessInstanceService workflowProcessInstanceService,
-			EntityManager entityManager) {
+			EntityManager entityManager, SysSystemMappingService systemMappingService,
+			SysSyncConfigRepository synchronizationConfigRepository) {
 		super(connectorFacade, systemService, attributeHandlingService, synchronizationConfigService,
 				synchronizationLogService, syncActionLogService, accountService, systemEntityService,
 				confidentialStorage, formService, syncItemLogService, entityEventManager, groovyScriptService,
-				workflowProcessInstanceService, entityManager);
+				workflowProcessInstanceService, entityManager, systemMappingService, synchronizationConfigRepository);
 
 		Assert.notNull(identityService, "Identity service is mandatory!");
 		Assert.notNull(identityAccoutnService, "Identity account service is mandatory!");
@@ -112,8 +115,8 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 	 * @param logItem
 	 * @param actionLogs
 	 */
-	protected void doDeleteEntity(AccAccount account, SystemEntityType entityType, SysSyncLog log,
-			SysSyncItemLog logItem, List<SysSyncActionLog> actionLogs) {
+	protected void doDeleteEntity(AccAccount account, SystemEntityType entityType, SysSyncLogDto log,
+			SysSyncItemLogDto logItem, List<SysSyncActionLogDto> actionLogs) {
 		UUID entityId = getEntityByAccount(account.getId());
 		IdmIdentityDto identity = null;
 		if (entityId != null) {
@@ -138,8 +141,8 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 	 * @param logItem
 	 * @param actionLogs
 	 */
-	protected void doUpdateAccount(AccAccount account, SystemEntityType entityType, SysSyncLog log,
-			SysSyncItemLog logItem, List<SysSyncActionLog> actionLogs) {
+	protected void doUpdateAccount(AccAccount account, SystemEntityType entityType, SysSyncLogDto log,
+			SysSyncItemLogDto logItem, List<SysSyncActionLogDto> actionLogs) {
 		UUID entityId = getEntityByAccount(account.getId());
 		IdmIdentity identity = null;
 		if (entityId != null) {
@@ -163,7 +166,7 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 	 * @param logItem
 	 */
 	@Override
-	protected void callProvisioningForEntity(AbstractEntity entity, SystemEntityType entityType, SysSyncItemLog logItem) {
+	protected void callProvisioningForEntity(AbstractEntity entity, SystemEntityType entityType, SysSyncItemLogDto logItem) {
 		IdmIdentity identity = (IdmIdentity) entity;
 		addToItemLog(logItem,
 				MessageFormat.format(
@@ -204,7 +207,7 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 	 */
 	@Override
 	protected void doCreateEntity(SystemEntityType entityType, List<SysSystemAttributeMapping> mappedAttributes,
-			SysSyncItemLog logItem, String uid, List<IcAttribute> icAttributes, AccAccount account) {
+			SysSyncItemLogDto logItem, String uid, List<IcAttribute> icAttributes, AccAccount account) {
 		// We will create new Identity
 		addToItemLog(logItem, "Missing entity action is CREATE_ENTITY, we will do create new identity.");
 		IdmIdentity identity = new IdmIdentity();
@@ -249,9 +252,9 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 	protected void doUpdateEntity(SynchronizationContext context) {
 		
 		String uid = context.getUid();
-		SysSyncLog log = context.getLog(); 
-		SysSyncItemLog logItem = context.getLogItem();
-		List<SysSyncActionLog> actionLogs = context.getActionLogs();
+		SysSyncLogDto log = context.getLog(); 
+		SysSyncItemLogDto logItem = context.getLogItem();
+		List<SysSyncActionLogDto> actionLogs = context.getActionLogs();
 		List<SysSystemAttributeMapping> mappedAttributes = context.getMappedAttributes();
 		AccAccount account = context.getAccount();
 		List<IcAttribute> icAttributes = context.getIcObject().getAttributes();
@@ -299,8 +302,8 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 	 * @param logItem
 	 * @param actionLogs
 	 */
-	protected void doUnlink(AccAccount account, boolean removeIdentityRole, SysSyncLog log, SysSyncItemLog logItem,
-			List<SysSyncActionLog> actionLogs) {
+	protected void doUnlink(AccAccount account, boolean removeIdentityRole, SysSyncLogDto log, SysSyncItemLogDto logItem,
+			List<SysSyncActionLogDto> actionLogs) {
 
 		EntityAccountFilter identityAccountFilter = new IdentityAccountFilter();
 		identityAccountFilter.setAccountId(account.getId());

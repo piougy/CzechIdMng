@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
-import eu.bcvsolutions.idm.acc.entity.SysSyncConfig;
+import eu.bcvsolutions.idm.acc.dto.SysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.event.SynchronizationEventType;
 import eu.bcvsolutions.idm.acc.service.api.SynchronizationService;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
@@ -21,7 +21,7 @@ import eu.bcvsolutions.idm.core.api.event.EventResult;
  */
 @Component
 @Description("Cancels synchronization process by given configuration")
-public class SynchronizationCancelProcessor extends AbstractEntityEventProcessor<SysSyncConfig> {
+public class SynchronizationCancelProcessor extends AbstractEntityEventProcessor<SysSyncConfigDto> {
 
 	public static final String PROCESSOR_NAME = "synchronization-cancel-processor";
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(SynchronizationCancelProcessor.class);
@@ -43,9 +43,9 @@ public class SynchronizationCancelProcessor extends AbstractEntityEventProcessor
 	}
 	
 	@Override
-	public EventResult<SysSyncConfig> process(EntityEvent<SysSyncConfig> event) {
+	public EventResult<SysSyncConfigDto> process(EntityEvent<SysSyncConfigDto> event) {
 		LOG.info("Synchronization event cancel");
-		SysSyncConfig config = event.getContent();
+		SysSyncConfigDto config = event.getContent();
 		synchronizationService.stopSynchronization(config);
 		return new DefaultEventResult<>(event, this);
 	}

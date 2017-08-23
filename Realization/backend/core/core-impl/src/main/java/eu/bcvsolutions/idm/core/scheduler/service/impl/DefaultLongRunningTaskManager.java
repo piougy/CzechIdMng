@@ -199,6 +199,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 		}
 		//
 		task.setResult(new OperationResult.Builder(OperationState.CANCELED).build());
+		LOG.info("Long running task with id: [{}] was canceled.", task.getId());
 		// running to false will be setted by task himself
 		service.save(task);
 	}
@@ -244,15 +245,17 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 				task.setRunning(false);
 				//
 				if (ex == null) {
+					LOG.info("Long running task with id: [{}], was interrupted.", task.getId());
 					task.setResult(new OperationResult.Builder(OperationState.CANCELED).setModel(resultModel).build());
 				} else {
+					LOG.info("Long running task with id: [{}], has some exception during interrupt.", task.getId());
 					task.setResult(new OperationResult.Builder(OperationState.EXCEPTION).setModel(resultModel).setCause(ex).build());
 				}				
 				service.save(task);
 				return true;
 			}
 		}
-		LOG.warn("Long ruuning task with id");
+		LOG.warn("For long running task with id: [{}], has not found running thread.", task.getId());
 		return false;
 	}
 	

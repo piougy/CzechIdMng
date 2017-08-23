@@ -6,18 +6,18 @@ import eu.bcvsolutions.idm.core.api.domain.IdmScriptCategory;
 import eu.bcvsolutions.idm.core.api.dto.IdmScriptDto;
 
 /**
- * Default script evaluator for {@link IdmScriptCategory} DEFAULT
+ * System script evaluator {@link IdmScriptCategory} SYSTEM
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
 
-@Service("defaultScriptEvaluator")
-public class DefaultScriptEvaluator extends AbstractScriptEvaluator {
+@Service("systemScriptEvaluator")
+public class DefaultSystemScriptEvaluator extends AbstractScriptEvaluator {
 
 	@Override
-	public boolean supports(IdmScriptCategory category) {
-		return category == IdmScriptCategory.DEFAULT;
+	public boolean supports(IdmScriptCategory delimiter) {
+		return delimiter == IdmScriptCategory.SYSTEM;
 	}
 
 	@Override
@@ -51,4 +51,5 @@ public class DefaultScriptEvaluator extends AbstractScriptEvaluator {
 		example.append("	.build());\n");
 		return example.toString();
 	}
+
 }

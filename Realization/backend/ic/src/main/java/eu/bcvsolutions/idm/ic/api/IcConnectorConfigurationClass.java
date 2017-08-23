@@ -1,11 +1,13 @@
 package eu.bcvsolutions.idm.ic.api;
 
+import java.io.Serializable;
+
 /**
  * Connector configuration class. Keeps configuration for connector. 
  * @author svandav
  *
  */
-public interface IcConnectorConfigurationClass {
+public interface IcConnectorConfigurationClass extends Serializable {
 
 	
 	/**

@@ -208,8 +208,8 @@ public class CzechIdMIcConnectorService implements IcConnectorService {
 
 	}
 
-
-	private IcConnector getConnectorInstance(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration) {
+	@Override
+	public IcConnector getConnectorInstance(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration) {
 		Assert.notNull(connectorInstance.getConnectorKey());
 		Assert.notNull(connectorConfiguration);
 
@@ -217,7 +217,6 @@ public class CzechIdMIcConnectorService implements IcConnectorService {
 		if(this.connectorInstances.containsKey(key)){
 			return connectorInstances.get(key);
 		}
-		
 		
 		Class<? extends IcConnector> connectorClass = this.configurationService.getConnectorClass(connectorInstance);
 		try {
@@ -232,7 +231,6 @@ public class CzechIdMIcConnectorService implements IcConnectorService {
 		} catch (InstantiationException | IllegalAccessException e) {
 			throw new IcException(e);
 		}
-		
 	}
 
 }

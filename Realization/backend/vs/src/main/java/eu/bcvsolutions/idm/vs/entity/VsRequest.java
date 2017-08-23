@@ -1,6 +1,5 @@
 package eu.bcvsolutions.idm.vs.entity;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -23,8 +22,8 @@ import org.hibernate.validator.constraints.NotEmpty;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
-import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
+import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 import eu.bcvsolutions.idm.vs.domain.VsRequestEventType;
 import eu.bcvsolutions.idm.vs.domain.VsRequestState;
 
@@ -70,11 +69,6 @@ public class VsRequest extends AbstractEntity {
 	@Column(name = "operation_type", nullable = false)
 	private VsRequestEventType operationType;
 
-	@Embedded
-	private OperationResult result;
-
-	@Audited
-	@NotNull
 	@ManyToOne
 	@JoinColumn(name = "request_batch_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in
@@ -87,12 +81,8 @@ public class VsRequest extends AbstractEntity {
 	private IcConnectorConfiguration configuration;
 
 	@Audited
-	@Column(name = "object_class")
-	private String objectClass;
-
-	@Audited
-	@Column(name = "object_attributes")
-	private List<IcAttribute> attributes;
+	@Column(name = "connector_object")
+	private IcConnectorObject connectorObject;
 
 	@Audited
 	@NotNull
@@ -137,20 +127,13 @@ public class VsRequest extends AbstractEntity {
 		this.uid = uid;
 	}
 
-	public String getObjectClass() {
-		return objectClass;
+
+	public IcConnectorObject getConnectorObject() {
+		return connectorObject;
 	}
 
-	public void setObjectClass(String objectClass) {
-		this.objectClass = objectClass;
-	}
-
-	public List<IcAttribute> getAttributes() {
-		return attributes;
-	}
-
-	public void setAttributes(List<IcAttribute> attributes) {
-		this.attributes = attributes;
+	public void setConnectorObject(IcConnectorObject connectorObject) {
+		this.connectorObject = connectorObject;
 	}
 
 	public VsRequestState getState() {
@@ -182,13 +165,6 @@ public class VsRequest extends AbstractEntity {
 		batch.addRequest(this);
 	}
 
-	public OperationResult getResult() {
-		return result;
-	}
-
-	public void setResult(OperationResult result) {
-		this.result = result;
-	}
 
 	public String getConnectorKey() {
 		return connectorKey;

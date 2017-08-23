@@ -15,7 +15,9 @@ import eu.bcvsolutions.idm.ic.exception.IcException;
  */
 public class BasicVirtualConfiguration implements IcConnectorConfigurationClass {
 
-	private String[] attributes = { "firstName", "lastName" };
+	private static final long serialVersionUID = 1L;
+	
+	private String[] attributes = { "firstName", "lastName", "email" };
 	private String[] implementers;
 	private String[] implementerRoles;
 	private boolean resetPasswordSupported = false;
@@ -32,7 +34,7 @@ public class BasicVirtualConfiguration implements IcConnectorConfigurationClass 
 		this.attributes = attributes;
 	}
 
-	@IcConfigurationClassProperty(order = 20, displayName = "Implementers", helpMessage = "For this implementers will be created realization tasks. Every implementer must be dentity in CzechIdM. Value are UUIDs of identities (multivalue).")
+	@IcConfigurationClassProperty(order = 20, displayName = "Implementers", helpMessage = "For this implementers will be created realization task. Every implementer must be dentity in CzechIdM. Value are UUIDs of identities (multivalue).")
 	public String[] getImplementers() {
 		return implementers;
 	}
@@ -86,7 +88,7 @@ public class BasicVirtualConfiguration implements IcConnectorConfigurationClass 
 		// Validation on reserved attribute names
 		for (String name : this.reservedNames) {
 			boolean reservedAttributeFound = Arrays.asList(this.getAttributes()).stream()
-					.filter(attribute -> attribute.toLowerCase().equals(name)).findFirst().isPresent();
+					.filter(attribute -> attribute.toLowerCase().equals(name.toLowerCase())).findFirst().isPresent();
 
 			if (reservedAttributeFound) {
 				throw new IcException(MessageFormat.format(

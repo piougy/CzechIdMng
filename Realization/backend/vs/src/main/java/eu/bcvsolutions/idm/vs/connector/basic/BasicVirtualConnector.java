@@ -53,15 +53,20 @@ import eu.bcvsolutions.idm.ic.impl.IcObjectClassImpl;
 import eu.bcvsolutions.idm.ic.impl.IcObjectClassInfoImpl;
 import eu.bcvsolutions.idm.ic.impl.IcSchemaImpl;
 import eu.bcvsolutions.idm.ic.impl.IcUidAttributeImpl;
+import eu.bcvsolutions.idm.vs.connector.api.VsVirtualConnector;
+import eu.bcvsolutions.idm.vs.domain.VsRequestEventType;
+import eu.bcvsolutions.idm.vs.domain.VsRequestState;
 import eu.bcvsolutions.idm.vs.entity.VsAccount;
 import eu.bcvsolutions.idm.vs.entity.VsAccount_;
 import eu.bcvsolutions.idm.vs.service.api.VsAccountService;
+import eu.bcvsolutions.idm.vs.service.api.VsRequestService;
 import eu.bcvsolutions.idm.vs.service.api.dto.VsAccountDto;
+import eu.bcvsolutions.idm.vs.service.api.dto.VsRequestDto;
 
 //@Component - we want control create connector instances
 @IcConnectorClass(displayName = "Virtual system for CzechIdM", framework = "czechidm", name = "virtual-system-basic", version = "0.2.0", configurationClass = BasicVirtualConfiguration.class)
 public class BasicVirtualConnector
-		implements IcConnector, IcCanRead, IcCanCreate, IcCanUpdate, IcCanDelete, IcCanGenSchema, IcCanSearch {
+		implements VsVirtualConnector {
 
 	@Autowired
 	private FormService formService;
@@ -71,7 +76,12 @@ public class BasicVirtualConnector
 	private SysSystemService systemService;
 	@Autowired
 	private VsAccountService accountService;
+	@Autowired
+	private VsRequestService requestService;
+	
 	private BasicVirtualConfiguration virtualConfiguration;
+	private IcConnectorConfiguration configuration;
+	
 	private IdmFormDefinition formDefinition;
 	private String virtualSystemKey;
 	private String connectorKey;
@@ -80,12 +90,14 @@ public class BasicVirtualConnector
 	@Override
 	public void init(IcConnectorConfiguration configuration) {
 		Assert.notNull(configuration);
+		this.configuration = configuration;
+		
 		if (!(configuration instanceof IcConnectorConfigurationCzechIdMImpl)) {
 			throw new IcException(
 					MessageFormat.format("Connector configuration for virtual system must be instance of [{0}]",
 							IcConnectorConfigurationCzechIdMImpl.class.getName()));
 		}
-
+		
 		systemId = ((IcConnectorConfigurationCzechIdMImpl) configuration).getSystemId();
 		if (systemId == null) {
 			throw new IcException("System ID cannot be null (for virtual system)");
@@ -128,6 +140,25 @@ public class BasicVirtualConnector
 			throw new IcException("UID value cannot be null!");
 		}
 
+		VsRequestDto request = createRequest(objectClass, attributes, (String) uidValue, VsRequestEventType.UPDATE);
+		return requestService.execute(request);
+	}
+	
+	@Override
+	public IcUidAttribute internalUpdate(IcUidAttribute uid, IcObjectClass objectClass, List<IcAttribute> attributes) {
+		Assert.notNull(objectClass, "Object class cannot be null!");
+		Assert.notNull(attributes, "Attributes cannot be null!");
+		Assert.notNull(uid, "UID cannot be null!");
+
+		if (!IcObjectClassInfo.ACCOUNT.equals(objectClass.getType())) {
+			throw new IcException("Only ACCOUNT object class is supported now!");
+		}
+		String uidValue = uid.getUidValue();
+
+		if (uidValue == null) {
+			throw new IcException("UID value cannot be null!");
+		}
+
 		// Find account by UID and System ID
 		VsAccountDto account = accountService.findByUidSystem(uidValue, systemId);
 		if (account == null) {
@@ -148,7 +179,6 @@ public class BasicVirtualConnector
 				account.setUid((String) attributeUidValue);
 				account = accountService.save(account);
 			}
-
 		}
 
 		UUID accountId = account.getId();
@@ -165,7 +195,30 @@ public class BasicVirtualConnector
 	public IcUidAttribute create(IcObjectClass objectClass, List<IcAttribute> attributes) {
 		Assert.notNull(objectClass, "Object class cannot be null!");
 		Assert.notNull(attributes, "Attributes cannot be null!");
+		
+		if (!IcObjectClassInfo.ACCOUNT.equals(objectClass.getType())) {
+			throw new IcException("Only ACCOUNT object class is supported now!");
+		}
+		IcAttribute uidAttribute = geAttribute(attributes, IcAttributeInfo.NAME);
 
+		if (uidAttribute == null) {
+			throw new IcException("UID attribute was not found!");
+		}
+		Object uidValue = uidAttribute.getValue();
+		if (!(uidValue instanceof String)) {
+			throw new IcException(MessageFormat.format("UID attribute value [{0}] must be String!", uidValue));
+		}
+		
+		// Create and execute request
+		VsRequestDto request = createRequest(objectClass, attributes, (String) uidValue, VsRequestEventType.CREATE);
+		return requestService.execute(request);
+	}
+
+	@Override
+	public IcUidAttribute internalCreate(IcObjectClass objectClass, List<IcAttribute> attributes) {
+		Assert.notNull(objectClass, "Object class cannot be null!");
+		Assert.notNull(attributes, "Attributes cannot be null!");
+		
 		if (!IcObjectClassInfo.ACCOUNT.equals(objectClass.getType())) {
 			throw new IcException("Only ACCOUNT object class is supported now!");
 		}
@@ -193,6 +246,41 @@ public class BasicVirtualConnector
 		});
 
 		return new IcUidAttributeImpl(IcAttributeInfo.NAME, account.getUid(), null);
+	}
+	
+	@Override
+	public void delete(IcUidAttribute uid, IcObjectClass objectClass) {
+		Assert.notNull(objectClass, "Object class cannot be null!");
+		String uidValue = validateAndGetUid(uid);
+
+		if (!IcObjectClassInfo.ACCOUNT.equals(objectClass.getType())) {
+			throw new IcException("Only ACCOUNT object class is supported now!");
+		}
+		
+		// Create and execute request
+		VsRequestDto request = createRequest(objectClass, null, (String) uidValue, VsRequestEventType.DELETE);
+		requestService.execute(request);
+	}
+	
+	@Override
+	public void internalDelete(IcUidAttribute uid, IcObjectClass objectClass) {
+		Assert.notNull(objectClass, "Object class cannot be null!");
+		String uidValue = this.validateAndGetUid(uid);
+
+		if (!IcObjectClassInfo.ACCOUNT.equals(objectClass.getType())) {
+			throw new IcException("Only ACCOUNT object class is supported now!");
+		}
+
+
+		// Find account by UID and System ID
+		VsAccountDto account = accountService.findByUidSystem(uidValue, systemId);
+		if (account == null) {
+			throw new IcException(MessageFormat.format("Vs account was not found for UID [{0}] and system ID [{1}]!",
+					uidValue, systemId));
+		}
+
+		// Delete vs account and connected form values
+		accountService.delete(account);
 	}
 
 	@Override
@@ -236,33 +324,6 @@ public class BasicVirtualConnector
 		});
 
 		return connectorObject;
-
-	}
-
-	@Override
-	public void delete(IcUidAttribute uid, IcObjectClass objectClass) {
-		Assert.notNull(objectClass, "Object class cannot be null!");
-		Assert.notNull(uid, "UID cannot be null!");
-
-		if (!IcObjectClassInfo.ACCOUNT.equals(objectClass.getType())) {
-			throw new IcException("Only ACCOUNT object class is supported now!");
-		}
-
-		String uidValue = uid.getUidValue();
-		if (uidValue == null) {
-			throw new IcException("UID value cannot be null!");
-		}
-
-		// Find account by UID and System ID
-		VsAccountDto account = accountService.findByUidSystem(uidValue, systemId);
-		if (account == null) {
-			throw new IcException(MessageFormat.format("Vs account was not found for UID [{0}] and system ID [{1}]!",
-					uidValue, systemId));
-		}
-
-		// Delete vs account and connected form values
-		accountService.delete(account);
-
 	}
 
 	@Override
@@ -295,6 +356,7 @@ public class BasicVirtualConnector
 
 		return schema;
 	}
+	
 
 	/**
 	 * Do search for given page and invoke result handler
@@ -514,5 +576,42 @@ public class BasicVirtualConnector
 		formAttribute.setName(virtualAttirbute);
 		formAttribute.setRequired(false);
 		return formAttribute;
+	}
+	
+	/**
+	 * Create new instance of request DTO. Method does not persist him.
+	 * @param objectClass
+	 * @param attributes
+	 * @param uidString
+	 * @param operationType
+	 * @return
+	 */
+	private VsRequestDto createRequest(IcObjectClass objectClass, List<IcAttribute> attributes, String uidString,
+			VsRequestEventType operationType) {
+		
+		VsRequestDto request = new VsRequestDto();
+		request.setUid(uidString);
+		request.setState(VsRequestState.CONCEPT);
+		request.setSystemId(this.systemId);
+		request.setConfiguration(this.configuration);
+		request.setConnectorKey(connectorKey);
+		request.setConnectorObject(new IcConnectorObjectImpl(uidString, objectClass, attributes));
+		request.setExecuteImmediately(this.virtualConfiguration.isOnlyNotification());
+		request.setOperationType(operationType);
+		return request;
+	}
+	
+	/**
+	 * Get UID string from UID attribute
+	 * @param uid
+	 * @return
+	 */
+	private String validateAndGetUid(IcUidAttribute uid) {
+		Assert.notNull(uid, "UID cannot be null!");
+		String uidValue = uid.getUidValue();
+		if (uidValue == null) {
+			throw new IcException("UID value cannot be null!");
+		}
+		return uidValue;
 	}
 }

@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.vs.service.api.dto;
 
+import java.util.List;
 import java.util.UUID;
 
 import javax.validation.constraints.NotNull;
@@ -11,6 +12,9 @@ import org.springframework.hateoas.core.Relation;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
+import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 import eu.bcvsolutions.idm.vs.domain.VsRequestEventType;
 import eu.bcvsolutions.idm.vs.domain.VsRequestState;
 import io.swagger.annotations.ApiModel;
@@ -37,16 +41,15 @@ public class VsRequestDto extends AbstractDto {
 	@ApiModelProperty(required = true, notes = "Connector identifier. UID on system and for connector.")
 	private String connectorKey;
 	private VsRequestEventType operationType;
-	private String objectClass;
 	@NotNull
 	private VsRequestState state;
 	@NotNull
 	private boolean executeImmediately;
 	@Embedded(dtoClass = VsRequestBatchDto.class)
 	private UUID batch;
-
-	// private IcConnectorConfiguration configuration;
-	// private List<IcAttribute> attributes;
+	private List<IdmIdentityDto> implementers;
+	private IcConnectorConfiguration configuration;
+	private IcConnectorObject connectorObject;
 
 	public String getUid() {
 		return uid;
@@ -80,14 +83,6 @@ public class VsRequestDto extends AbstractDto {
 		this.operationType = operationType;
 	}
 
-	public String getObjectClass() {
-		return objectClass;
-	}
-
-	public void setObjectClass(String objectClass) {
-		this.objectClass = objectClass;
-	}
-
 	public VsRequestState getState() {
 		return state;
 	}
@@ -110,5 +105,29 @@ public class VsRequestDto extends AbstractDto {
 
 	public void setBatch(UUID batch) {
 		this.batch = batch;
+	}
+
+	public List<IdmIdentityDto> getImplementers() {
+		return implementers;
+	}
+
+	public void setImplementers(List<IdmIdentityDto> implementers) {
+		this.implementers = implementers;
+	}
+
+	public IcConnectorConfiguration getConfiguration() {
+		return configuration;
+	}
+
+	public void setConfiguration(IcConnectorConfiguration configuration) {
+		this.configuration = configuration;
+	}
+
+	public IcConnectorObject getConnectorObject() {
+		return connectorObject;
+	}
+
+	public void setConnectorObject(IcConnectorObject connectorObject) {
+		this.connectorObject = connectorObject;
 	}
 }

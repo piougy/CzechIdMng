@@ -8,12 +8,12 @@ import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyType;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmPasswordPolicyDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
-import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordPolicyService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordService;
@@ -75,7 +75,7 @@ public class IdentityPasswordProcessor extends CoreEventProcessor<IdmIdentityDto
 		LOG.debug("Saving password for identity [{}].", identity.getUsername());
 		// 
 		if (passwordChangeDto.getMaxPasswordAge() == null) {
-			IdmPasswordPolicy defaultValidatePolicy = passwordPolicyService
+			IdmPasswordPolicyDto defaultValidatePolicy = passwordPolicyService
 					.getDefaultPasswordPolicy(IdmPasswordPolicyType.VALIDATE);
 			if (defaultValidatePolicy != null && defaultValidatePolicy.getMaxPasswordAge() != null) {
 				// put new valid till by default password policy

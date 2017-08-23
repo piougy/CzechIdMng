@@ -20,6 +20,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmContractGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmPasswordPolicyDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
@@ -30,7 +31,6 @@ import eu.bcvsolutions.idm.core.model.entity.IdmContractGuarantee;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
-import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
@@ -134,7 +134,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				LOG.info("Creating demo data ...");		
 				//
 				// create default password policy for validate
-				IdmPasswordPolicy passValidate = null;
+				IdmPasswordPolicyDto passValidate = null;
 				try {
 					passValidate = this.passwordPolicyService.getDefaultPasswordPolicy(IdmPasswordPolicyType.VALIDATE);
 				} catch (ResultCodeException e) {
@@ -146,7 +146,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				}
 				// if password policy still not exist create default password policy
 				if (passValidate == null) {
-					passValidate = new IdmPasswordPolicy();
+					passValidate = new IdmPasswordPolicyDto();
 					passValidate.setName("DEFAULT_VALIDATE_POLICY");
 					passValidate.setDefaultPolicy(true);
 					passValidate.setType(IdmPasswordPolicyType.VALIDATE);
@@ -154,7 +154,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				}
 				//
 				// create default password policy for generate
-				IdmPasswordPolicy passGenerate = null;
+				IdmPasswordPolicyDto passGenerate = null;
 				try {
 					passGenerate = this.passwordPolicyService.getDefaultPasswordPolicy(IdmPasswordPolicyType.GENERATE);
 				} catch (ResultCodeException e) {
@@ -166,7 +166,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				}
 				// if still not exist create default generate password policy
 				if (passGenerate == null) {
-					passGenerate = new IdmPasswordPolicy();
+					passGenerate = new IdmPasswordPolicyDto();
 					passGenerate.setName("DEFAULT_GENERATE_POLICY");
 					passGenerate.setDefaultPolicy(true);
 					passGenerate.setType(IdmPasswordPolicyType.GENERATE);

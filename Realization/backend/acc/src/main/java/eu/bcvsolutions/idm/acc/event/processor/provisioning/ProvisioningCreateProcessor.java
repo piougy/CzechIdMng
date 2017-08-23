@@ -75,7 +75,7 @@ public class ProvisioningCreateProcessor extends AbstractProvisioningProcessor {
 				if (passwordPolicy == null) {
 					password = passwordPolicyService.generatePasswordByDefault();
 				} else {
-					password = passwordPolicyService.generatePassword(passwordPolicy);
+					password = passwordPolicyService.generatePassword(passwordPolicyService.get(passwordPolicy.getId()));
 				}
 				//
 				connectorObject.getAttributes().remove(attribute);

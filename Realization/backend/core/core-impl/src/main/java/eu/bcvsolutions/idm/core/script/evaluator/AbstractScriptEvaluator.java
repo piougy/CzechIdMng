@@ -74,7 +74,7 @@ public abstract class AbstractScriptEvaluator implements Plugin<IdmScriptCategor
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("script", scriptCode));
 		}
 		//
-		if (!canExecutScript(script)) {
+		if (!canExecuteScript(script)) {
 			throw new ResultCodeException(CoreResultCode.GROOVY_SCRIPT_INVALID_CATEGORY, ImmutableMap.of("scriptCategory", script.getCategory()));
 		}
 		//
@@ -115,7 +115,7 @@ public abstract class AbstractScriptEvaluator implements Plugin<IdmScriptCategor
 	 * @param script
 	 * @return
 	 */
-	private boolean canExecutScript(IdmScript script) {
+	private boolean canExecuteScript(IdmScript script) {
 		// default script category is possible call from all another category
 		if (script.getCategory() == IdmScriptCategory.DEFAULT) {
 			return true;

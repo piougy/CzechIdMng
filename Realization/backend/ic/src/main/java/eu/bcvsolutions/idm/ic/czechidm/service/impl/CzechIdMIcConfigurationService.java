@@ -32,12 +32,10 @@ import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfigurationClass;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInfo;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInstance;
-import eu.bcvsolutions.idm.ic.api.IcConnectorKey;
 import eu.bcvsolutions.idm.ic.api.IcConnectorServer;
 import eu.bcvsolutions.idm.ic.api.IcSchema;
 import eu.bcvsolutions.idm.ic.api.annotation.IcConfigurationClassProperty;
 import eu.bcvsolutions.idm.ic.api.annotation.IcConnectorClass;
-import eu.bcvsolutions.idm.ic.api.operation.IcCanDelete;
 import eu.bcvsolutions.idm.ic.api.operation.IcCanGenSchema;
 import eu.bcvsolutions.idm.ic.connid.service.impl.ConnIdIcConfigurationService;
 import eu.bcvsolutions.idm.ic.czechidm.domain.CzechIdMIcConvertUtil;
@@ -45,8 +43,6 @@ import eu.bcvsolutions.idm.ic.exception.IcException;
 import eu.bcvsolutions.idm.ic.impl.IcConfigurationPropertiesImpl;
 import eu.bcvsolutions.idm.ic.impl.IcConfigurationPropertyImpl;
 import eu.bcvsolutions.idm.ic.impl.IcConnectorConfigurationImpl;
-import eu.bcvsolutions.idm.ic.impl.IcConnectorInfoImpl;
-import eu.bcvsolutions.idm.ic.impl.IcConnectorKeyImpl;
 import eu.bcvsolutions.idm.ic.service.api.IcConfigurationFacade;
 import eu.bcvsolutions.idm.ic.service.api.IcConfigurationService;
 
@@ -74,10 +70,10 @@ public class CzechIdMIcConfigurationService implements IcConfigurationService {
 	@Autowired
 	public CzechIdMIcConfigurationService(IcConfigurationFacade icConfigurationAggregator,
 			ApplicationContext applicationContext) {
-		
+
 		Assert.notNull(applicationContext);
 		this.applicationContext = applicationContext;
-		
+
 		if (icConfigurationAggregator.getIcConfigs() == null) {
 			throw new IcException("Map of IC implementations is not defined!");
 		}
@@ -134,15 +130,16 @@ public class CzechIdMIcConfigurationService implements IcConfigurationService {
 							IcConnector.class.getSimpleName()));
 				}
 
-				IcConnectorInfo info = CzechIdMIcConvertUtil.convertConnectorClass(connectorAnnotation, (Class<? extends IcConnector>) clazz);
+				IcConnectorInfo info = CzechIdMIcConvertUtil.convertConnectorClass(connectorAnnotation,
+						(Class<? extends IcConnector>) clazz);
 				Class<? extends IcConnectorConfigurationClass> configurationClass = connectorAnnotation
 						.configurationClass();
 				connectorInfos.add(info);
-				
+
 				IcConnectorConfiguration configuration = initDefaultConfiguration(configurationClass);
 				// Put default configuration to cache
 				connectorsConfigurations.put(info.getConnectorKey().getFullName(), configuration);
-				
+
 				// Put connector class to cache
 				connectorsClass.put(info.getConnectorKey().getFullName(), ((Class<? extends IcConnector>) clazz));
 			}
@@ -150,7 +147,6 @@ public class CzechIdMIcConfigurationService implements IcConfigurationService {
 		}
 		return connectorInfos;
 	}
-
 
 	/**
 	 * Return find connector default configuration by connector key
@@ -162,14 +158,14 @@ public class CzechIdMIcConfigurationService implements IcConfigurationService {
 	public IcConnectorConfiguration getConnectorConfiguration(IcConnectorInstance connectorInstance) {
 		Assert.notNull(connectorInstance.getConnectorKey());
 		//
-		if(this.connectorsConfigurations == null){
+		if (this.connectorsConfigurations == null) {
 			// Init
 			this.getAvailableLocalConnectors();
 		}
 		return this.connectorsConfigurations.get(connectorInstance.getConnectorKey().getFullName());
 
 	}
-	
+
 	/**
 	 * Return find connector class by connector key
 	 * 
@@ -180,7 +176,7 @@ public class CzechIdMIcConfigurationService implements IcConfigurationService {
 	public Class<? extends IcConnector> getConnectorClass(IcConnectorInstance connectorInstance) {
 		Assert.notNull(connectorInstance.getConnectorKey());
 		//
-		if(this.connectorsClass == null){
+		if (this.connectorsClass == null) {
 			return null;
 		}
 		return this.connectorsClass.get(connectorInstance.getConnectorKey().getFullName());
@@ -195,26 +191,18 @@ public class CzechIdMIcConfigurationService implements IcConfigurationService {
 		String key = connectorInstance.getConnectorKey().toString();
 		LOG.debug("Generate schema - CzechIdM {}", key);
 
-		Class<? extends IcConnector> connectorClass = this.getConnectorClass(connectorInstance);
-		try {
-			
-			IcConnector connector = connectorClass.newInstance();
-			if(!(connector instanceof IcCanGenSchema)){
-				throw new IcException(MessageFormat.format("Connector [{0}] not supports generate schema operation!", key));
-			}
-			// Manually autowire on this connector instance
-			this.applicationContext.getAutowireCapableBeanFactory().autowireBean(connector);
-
-			connector.init(connectorConfiguration);
-			IcSchema schema = ((IcCanGenSchema)connector).schema();
-
-			LOG.debug("Generated schema - CzechIdM ({}) schema = {}", key, schema);
-		
-			return schema;
-		} catch (InstantiationException | IllegalAccessException e) {
-			throw new CoreException(e);
+		IcConnector connector = createConnectorInstance(connectorInstance);
+		if (!(connector instanceof IcCanGenSchema)) {
+			throw new IcException(MessageFormat.format("Connector [{0}] not supports generate schema operation!", key));
 		}
-		
+
+		connector.init(connectorConfiguration);
+		IcSchema schema = ((IcCanGenSchema) connector).schema();
+
+		LOG.debug("Generated schema - CzechIdM ({}) schema = {}", key, schema);
+
+		return schema;
+
 	}
 
 	@Override
@@ -228,33 +216,61 @@ public class CzechIdMIcConfigurationService implements IcConfigurationService {
 	}
 
 	public void validate(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration) {
-		// TODO Auto-generated method stub
+		Assert.notNull(connectorInstance, "Connector instance cannot be null!");
+		LOG.debug("Validate connector - CzechIdM ({})", connectorInstance.getConnectorServer().getFullServerName());
+		
+		Assert.notNull(connectorConfiguration, "Connector configuration cannot be null!");
 
+		IcConnector connector = this.createConnectorInstance(connectorInstance);
+		Assert.notNull(connector, "Connector instance must be created!");
+		connector.init(connectorConfiguration);
 	}
 
 	@Override
 	public void test(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration) {
-		// TODO Auto-generated method stub
+		Assert.notNull(connectorInstance, "Connector instance cannot be null!");
+		LOG.debug("Test connector - CzechIdM ({})", connectorInstance.getConnectorServer().getFullServerName());
+		this.validate(connectorInstance, connectorConfiguration);
 	}
-	
+
+	/**
+	 * Create instance of connector
+	 * 
+	 * @param connectorInstance
+	 * @return
+	 */
+	private IcConnector createConnectorInstance(IcConnectorInstance connectorInstance) {
+		IcConnector connector = null;
+		Class<? extends IcConnector> connectorClass = this.getConnectorClass(connectorInstance);
+		
+		try {
+			connector = connectorClass.newInstance();
+			// Manually autowire on this connector instance
+			this.applicationContext.getAutowireCapableBeanFactory().autowireBean(connector);
+		} catch (InstantiationException | IllegalAccessException e) {
+			throw new CoreException(e);
+		}
+		return connector;
+	}
+
 	/**
 	 * Create instance of default connector configuration
+	 * 
 	 * @param configurationClass
 	 * @return
 	 */
-	private IcConnectorConfiguration initDefaultConfiguration(Class<? extends IcConnectorConfigurationClass> configurationClass) {
+	private IcConnectorConfiguration initDefaultConfiguration(
+			Class<? extends IcConnectorConfigurationClass> configurationClass) {
 		try {
 			IcConnectorConfigurationClass configurationClassInstance = configurationClass.newInstance();
 			List<IcConfigurationProperty> properties = new ArrayList<>();
 
-			PropertyDescriptor[] descriptors = Introspector.getBeanInfo(configurationClass)
-					.getPropertyDescriptors();
+			PropertyDescriptor[] descriptors = Introspector.getBeanInfo(configurationClass).getPropertyDescriptors();
 
 			Lists.newArrayList(descriptors).stream().forEach(descriptor -> {
 				Method readMethod = descriptor.getReadMethod();
 				String propertyName = descriptor.getName();
-				IcConfigurationClassProperty property = readMethod
-						.getAnnotation(IcConfigurationClassProperty.class);
+				IcConfigurationClassProperty property = readMethod.getAnnotation(IcConfigurationClassProperty.class);
 				if (property != null) {
 					IcConfigurationPropertyImpl icProperty = (IcConfigurationPropertyImpl) CzechIdMIcConvertUtil
 							.convertConfigurationProperty(property);
@@ -278,7 +294,7 @@ public class CzechIdMIcConfigurationService implements IcConfigurationService {
 			IcConnectorConfigurationImpl configuration = new IcConnectorConfigurationImpl();
 			configuration.setConnectorPoolingSupported(false);
 			configuration.setConfigurationProperties(icProperties);
-			
+
 			return configuration;
 
 		} catch (IntrospectionException | InstantiationException | IllegalAccessException e) {

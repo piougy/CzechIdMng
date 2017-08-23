@@ -3,7 +3,6 @@ package eu.bcvsolutions.idm.core.scheduler.service.impl;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
@@ -102,7 +101,10 @@ public class DefaultSchedulerManager implements SchedulerManager {
 			List<Task> tasks = new ArrayList<>();
 			
 			for (JobKey jobKey : scheduler.getJobKeys(GroupMatcher.jobGroupEquals(DEFAULT_GROUP_NAME))) {
-				tasks.add(getTask(jobKey));
+				Task task = getTask(jobKey);
+				if (task != null) {
+					tasks.add(task);
+				}
 			}
 
 			return tasks;
@@ -155,7 +157,12 @@ public class DefaultSchedulerManager implements SchedulerManager {
 			}
 			return task;
 		} catch (org.quartz.SchedulerException ex) {
-			throw new CoreException(ex);
+			if(ex.getCause() instanceof ClassNotFoundException) {
+				deleteTask(jobKey.getName());
+				LOG.warn("Job [{}] inicialization failed, job class was removed, scheduled task was removed too.", jobKey, ex);
+				return null;
+			}
+			throw new CoreException(ex);	
 		}
 	}
 	

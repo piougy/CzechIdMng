@@ -32,6 +32,7 @@ import eu.bcvsolutions.idm.ic.czechidm.service.impl.CzechIdMIcConfigurationServi
 import eu.bcvsolutions.idm.ic.czechidm.service.impl.CzechIdMIcConnectorService;
 import eu.bcvsolutions.idm.ic.exception.IcException;
 import eu.bcvsolutions.idm.ic.impl.IcConnectorInstanceImpl;
+import eu.bcvsolutions.idm.ic.impl.IcUidAttributeImpl;
 import eu.bcvsolutions.idm.vs.connector.api.VsVirtualConnector;
 import eu.bcvsolutions.idm.vs.domain.VirtualSystemGroupPermission;
 import eu.bcvsolutions.idm.vs.domain.VsRequestState;
@@ -98,12 +99,14 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 
 	@Override
 	public IcUidAttribute execute(VsRequestDto request) {
-		EventContext<VsRequestDto> event = entityEventManager.process(new VsRequestEvent(VsRequestEventType.EXCECUTE, request));
-		return (IcUidAttribute) event.getLastResult().getEvent().getProperties().get(VsRequestRealizationProcessor.RESULT_UID);
+		EventContext<VsRequestDto> event = entityEventManager
+				.process(new VsRequestEvent(VsRequestEventType.EXCECUTE, request));
+		return (IcUidAttribute) event.getLastResult().getEvent().getProperties()
+				.get(VsRequestRealizationProcessor.RESULT_UID);
 	}
-	
+
 	@Override
-	public VsRequestDto createRequest(VsRequestDto request){
+	public VsRequestDto createRequest(VsRequestDto request) {
 		Assert.notNull(request, "Request cannot be null!");
 
 		List<VsRequestDto> duplicities = findDuplicities(request);
@@ -113,53 +116,65 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 			return savedRequest;
 		}
 		return request;
-		
+
 	}
-	
 
 	@Override
 	public IcUidAttribute internalExecute(VsRequestDto request) {
 		Assert.notNull(request, "Request cannot be null!");
-			if (request.isExecuteImmediately()) {
-				// Request will be realized now
-				request.setState(VsRequestState.REALIZED);
-				Assert.notNull(request.getConfiguration(), "Request have to contains connector configuration!");
-				Assert.notNull(request.getConnectorKey(), "Request have to contains connector key!");
+		if (request.isExecuteImmediately()) {
+			// Request will be realized now
+			request.setState(VsRequestState.REALIZED);
+			Assert.notNull(request.getConfiguration(), "Request have to contains connector configuration!");
+			Assert.notNull(request.getConnectorKey(), "Request have to contains connector key!");
 
-				IcConnectorInfo connectorInfo = czechIdMConfigurationService.getAvailableLocalConnectors()//
-						.stream()//
-						.filter(info -> request.getConnectorKey().equals(info.getConnectorKey().getFullName()))//
-						.findFirst()//
-						.orElse(null);
-				if (connectorInfo == null) {
-					throw new IcException(MessageFormat.format(
-							"We cannot found connector info by connector key [{0}] from virtual system request!",
-							request.getConnectorKey()));
-				}
-				
-				IcConnectorInstance connectorKeyInstance = new IcConnectorInstanceImpl(null,
-						connectorInfo.getConnectorKey(), false);
-				IcConnector connectorInstance = czechIdMConnectorService.getConnectorInstance(connectorKeyInstance, request.getConfiguration());
-				if(!(connectorInstance instanceof VsVirtualConnector)){
-					throw new IcException("Found connector instance is not virtual system connector!");
-				}
-				VsVirtualConnector virtualConnector = (VsVirtualConnector) connectorInstance;
-				
-				IcUidAttribute result = null;
-				
-				// Save the request				
-				this.save(request);
-				switch(request.getOperationType()){
-				case CREATE: {
-					result = virtualConnector.internalCreate(request.getConnectorObject().getObjectClass(), request.getConnectorObject().getAttributes());
-					break;
-				}
-				
-				default:
-					throw new IcException(MessageFormat.format("Unsupported operation type [{0}]", request.getOperationType()));
-				}
-				return result;
+			IcConnectorInfo connectorInfo = czechIdMConfigurationService.getAvailableLocalConnectors()//
+					.stream()//
+					.filter(info -> request.getConnectorKey().equals(info.getConnectorKey().getFullName()))//
+					.findFirst()//
+					.orElse(null);
+			if (connectorInfo == null) {
+				throw new IcException(MessageFormat.format(
+						"We cannot found connector info by connector key [{0}] from virtual system request!",
+						request.getConnectorKey()));
 			}
+
+			IcConnectorInstance connectorKeyInstance = new IcConnectorInstanceImpl(null,
+					connectorInfo.getConnectorKey(), false);
+			IcConnector connectorInstance = czechIdMConnectorService.getConnectorInstance(connectorKeyInstance,
+					request.getConfiguration());
+			if (!(connectorInstance instanceof VsVirtualConnector)) {
+				throw new IcException("Found connector instance is not virtual system connector!");
+			}
+			VsVirtualConnector virtualConnector = (VsVirtualConnector) connectorInstance;
+
+			IcUidAttribute result = null;
+
+			// Save the request
+			this.save(request);
+			switch (request.getOperationType()) {
+			case CREATE: {
+				result = virtualConnector.internalCreate(request.getConnectorObject().getObjectClass(),
+						request.getConnectorObject().getAttributes());
+				break;
+			}
+			case UPDATE: {
+				result = virtualConnector.internalUpdate(new IcUidAttributeImpl(null, request.getUid(), null),
+						request.getConnectorObject().getObjectClass(), request.getConnectorObject().getAttributes());
+				break;
+			}
+			case DELETE: {
+				virtualConnector.internalDelete(new IcUidAttributeImpl(null, request.getUid(), null),
+						request.getConnectorObject().getObjectClass());
+				break;
+			}
+
+			default:
+				throw new IcException(
+						MessageFormat.format("Unsupported operation type [{0}]", request.getOperationType()));
+			}
+			return result;
+		}
 		return null;
 	}
 

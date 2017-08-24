@@ -215,7 +215,9 @@ public class CzechIdMIcConnectorService implements IcConnectorService {
 
 		String key = connectorInstance.getConnectorKey().getFullName();
 		if(this.connectorInstances.containsKey(key)){
-			return connectorInstances.get(key);
+			IcConnector connector = connectorInstances.get(key);
+			connector.init(connectorConfiguration);
+			return connector;
 		}
 		
 		Class<? extends IcConnector> connectorClass = this.configurationService.getConnectorClass(connectorInstance);

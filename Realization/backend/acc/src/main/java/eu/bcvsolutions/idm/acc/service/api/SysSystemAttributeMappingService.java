@@ -6,14 +6,14 @@ import java.util.List;
 import java.util.UUID;
 
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
+import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemAttributeMappingFilter;
-import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
-import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.service.CloneableService;
-import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
+import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 
 /**
@@ -22,7 +22,7 @@ import eu.bcvsolutions.idm.ic.api.IcAttribute;
  * @author svandav
  *
  */
-public interface SysSystemAttributeMappingService extends ReadWriteEntityService<SysSystemAttributeMapping, SystemAttributeMappingFilter>, CloneableService<SysSystemAttributeMapping> {
+public interface SysSystemAttributeMappingService extends ReadWriteDtoService<SysSystemAttributeMappingDto, SystemAttributeMappingFilter>, CloneableService<SysSystemAttributeMappingDto> {
 	
 	public static final String ATTRIBUTE_VALUE_KEY = "attributeValue";
 	public static final String SYSTEM_KEY = "system";
@@ -36,7 +36,7 @@ public interface SysSystemAttributeMappingService extends ReadWriteEntityService
 	 * @param systemMapping
 	 * @return
 	 */
-	List<SysSystemAttributeMapping> findBySystemMapping(SysSystemMapping systemMapping);
+	List<SysSystemAttributeMappingDto> findBySystemMapping(SysSystemMappingDto systemMapping);
 	
 	/**
 	 * Single mapped attribute in given mapping by given name
@@ -45,7 +45,7 @@ public interface SysSystemAttributeMappingService extends ReadWriteEntityService
 	 * @param name
 	 * @return
 	 */
-	SysSystemAttributeMapping findBySystemMappingAndName(UUID systemMappingId, String name);
+	SysSystemAttributeMappingDto findBySystemMappingAndName(UUID systemMappingId, String name);
 	
 	/**
 	 * Do transformation given value to value for target system (resource)
@@ -88,16 +88,16 @@ public interface SysSystemAttributeMappingService extends ReadWriteEntityService
 	 * @param idmValue
 	 * @return
 	 */
-	IcAttribute createIcAttribute(SysSchemaAttribute schemaAttribute, Object idmValue);
+	IcAttribute createIcAttribute(SysSchemaAttributeDto schemaAttribute, Object idmValue);
 	
 	/**
-	 * Method return {@link SysSystemAttributeMapping} for system id, that has flag for authentication attribute.
+	 * Method return {@link SysSystemAttributeMappingDto} for system id, that has flag for authentication attribute.
 	 * If this attribute don't exist, found attribute flagged as UID, this attribute must exists.
 	 * 
 	 * @param systemId
 	 * @return
 	 */
-	SysSystemAttributeMapping getAuthenticationAttribute(UUID systemId);
+	SysSystemAttributeMappingDto getAuthenticationAttribute(UUID systemId);
 
 	/**
 	 * Find value for this mapped attribute by property name. Returned value can be list of objects. Returns transformed value.
@@ -119,14 +119,14 @@ public interface SysSystemAttributeMappingService extends ReadWriteEntityService
 	 * @param uidAttribute
 	 * @return
 	 */
-	String generateUid(AbstractEntity entity, SysSystemAttributeMapping uidAttribute);
+	String generateUid(AbstractEntity entity, SysSystemAttributeMappingDto uidAttribute);
 
 	/**
 	 * Return UID attribute from list of mapped attributes
 	 * @param mappedAttributes
 	 * @return
 	 */
-	SysSystemAttributeMapping getUidAttribute(List<SysSystemAttributeMapping> mappedAttributes, SysSystem system);
+	SysSystemAttributeMappingDto getUidAttribute(List<SysSystemAttributeMappingDto> mappedAttributes, SysSystem system);
 
 	/**
 	 * Return transformed value from resource (IC attributes) for given mapped attribute
@@ -145,6 +145,6 @@ public interface SysSystemAttributeMappingService extends ReadWriteEntityService
 	 * @param system
 	 * @return
 	 */
-	String getUidValueFromResource(List<IcAttribute> icAttributes, List<SysSystemAttributeMapping> mappedAttributes,
+	String getUidValueFromResource(List<IcAttribute> icAttributes, List<SysSystemAttributeMappingDto> mappedAttributes,
 			SysSystem system);
 }

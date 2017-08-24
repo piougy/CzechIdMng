@@ -29,6 +29,10 @@ import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.EntityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.MappingAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.ProvisioningAttributeDto;
+import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
+import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.EntityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemMappingFilter;
@@ -38,7 +42,6 @@ import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
 import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
-import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.acc.event.ProvisioningEvent;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountManagementService;
@@ -48,6 +51,8 @@ import eu.bcvsolutions.idm.acc.service.api.ProvisioningExecutor;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
+import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
+import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
@@ -86,6 +91,8 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 	protected final AccAccountService accountService;
 	private final ProvisioningExecutor provisioningExecutor;
 	private final EntityEventManager entityEventManager;
+	private final SysSchemaAttributeService schemaAttributeService;
+	private final SysSchemaObjectClassService schemaObjectClassService;
 
 	@Autowired
 	public AbstractProvisioningExecutor(SysSystemMappingService systemMappingService,
@@ -94,7 +101,8 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 			AccAccountManagementService accountManagementService,
 			SysRoleSystemAttributeService roleSystemAttributeService, SysSystemEntityService systemEntityService,
 			AccAccountService accountService, ProvisioningExecutor provisioningExecutor,
-			EntityEventManager entityEventManager) {
+			EntityEventManager entityEventManager, SysSchemaAttributeService schemaAttributeService,
+			SysSchemaObjectClassService schemaObjectClassService) {
 
 		Assert.notNull(systemMappingService);
 		Assert.notNull(attributeMappingService);
@@ -107,6 +115,8 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 		Assert.notNull(accountService);
 		Assert.notNull(provisioningExecutor);
 		Assert.notNull(entityEventManager);
+		Assert.notNull(schemaAttributeService);
+		Assert.notNull(schemaObjectClassService);
 		//
 		this.systemMappingService = systemMappingService;
 		this.attributeMappingService = attributeMappingService;
@@ -117,6 +127,8 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 		this.accountService = accountService;
 		this.provisioningExecutor = provisioningExecutor;
 		this.entityEventManager = entityEventManager;
+		this.schemaAttributeService = schemaAttributeService;
+		this.schemaObjectClassService = schemaObjectClassService;
 	}
 
 	@Override
@@ -288,8 +300,9 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 			// We try find __PASSWORD__ attribute in mapped attributes
 			Optional<? extends AttributeMapping> attriubuteHandlingOptional = finalAttributes.stream()
 					.filter((attribute) -> {
+						SysSchemaAttributeDto schemaAttributeDto = schemaAttributeService.get(attribute.getSchemaAttribute());
 						return ProvisioningService.PASSWORD_SCHEMA_PROPERTY_NAME
-								.equals(attribute.getSchemaAttribute().getName());
+								.equals(schemaAttributeDto.getName());
 					}).findFirst();
 			if (!attriubuteHandlingOptional.isPresent()) {
 				throw new ProvisioningException(AccResultCode.PROVISIONING_PASSWORD_FIELD_NOT_FOUND,
@@ -310,17 +323,19 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 	@Override
 	public void createAccountsForAllSystems(ENTITY entity) {
 		SystemEntityType entityType = SystemEntityType.getByClass(entity.getClass());
-		List<SysSystemMapping> systemMappings = findSystemMappingsForEntityType(entity, entityType);
+		List<SysSystemMappingDto> systemMappings = findSystemMappingsForEntityType(entity, entityType);
 		systemMappings.forEach(mapping -> {
-			UUID systemId = mapping.getSystem().getId();
+			SysSchemaObjectClassDto schemaObjectClassDto = schemaObjectClassService.get(mapping.getObjectClass());
+			UUID systemId = schemaObjectClassDto.getSystem();
 			UUID accountId = this.getAccountByEntity(entity.getId(), systemId);
 			if (accountId != null) {
 				// We already have account for this system -> next
 				return;
 			}
-			List<SysSystemAttributeMapping> mappedAttributes = attributeMappingService.findBySystemMapping(mapping);
-			SysSystemAttributeMapping uidAttribute = attributeMappingService.getUidAttribute(mappedAttributes,
-					mapping.getSystem());
+			SysSystem sytemEntity = systemService.get(systemId);
+			List<SysSystemAttributeMappingDto> mappedAttributes = attributeMappingService.findBySystemMapping(mapping);
+			SysSystemAttributeMappingDto uidAttribute = attributeMappingService.getUidAttribute(mappedAttributes,
+					sytemEntity);
 			String uid = attributeMappingService.generateUid(entity, uidAttribute);
 
 			// Create AccAccount and relation between account and entity
@@ -409,7 +424,7 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 		}
 		// One IDM object can be mapped to one connector object (= one connector
 		// class).
-		SysSystemMapping mapping = getMapping(system, systemEntity.getEntityType());
+		SysSystemMappingDto mapping = getMapping(system, systemEntity.getEntityType());
 		if (mapping == null) {
 			// mapping not found - nothing to do
 			// TODO: delete operation
@@ -419,8 +434,9 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 		Map<ProvisioningAttributeDto, Object> accountAttributes = prepareMappedAttributesValues(entity, operationType,
 				systemEntity, attributes);
 		// public provisioning event
+		SysSchemaObjectClassDto schemaObjectClassDto = schemaObjectClassService.get(mapping.getObjectClass());
 		IcConnectorObject connectorObject = new IcConnectorObjectImpl(systemEntity.getUid(),
-				new IcObjectClassImpl(mapping.getObjectClass().getObjectClassName()), null);
+				new IcObjectClassImpl(schemaObjectClassDto.getObjectClassName()), null);
 		SysProvisioningOperation.Builder operationBuilder = new SysProvisioningOperation.Builder()
 				.setOperationType(operationType).setSystemEntity(systemEntity)
 				.setEntityIdentifier(entityId)
@@ -455,6 +471,7 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 					&& AttributeMappingStrategyType.AUTHORITATIVE_MERGE != attribute.getStrategyType()
 					&& AttributeMappingStrategyType.MERGE != attribute.getStrategyType();
 		}).forEach(attribute -> {
+			SysSchemaAttributeDto schemaAttributeDto = schemaAttributeService.get(attribute.getSchemaAttribute());
 			if (attribute.isUid()) {
 				// TODO: now we set UID from SystemEntity, may be UID from
 				// AccAccount will be more correct
@@ -464,9 +481,9 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 							ImmutableMap.of("uid", uidValue));
 				}
 				updateAccountUid(account, uid, (String)uidValue);
-				accountAttributes.put(ProvisioningAttributeDto.createProvisioningAttributeKey(attribute), uidValue);
+				accountAttributes.put(ProvisioningAttributeDto.createProvisioningAttributeKey(attribute, schemaAttributeDto.getName()), uidValue);
 			} else {
-				accountAttributes.put(ProvisioningAttributeDto.createProvisioningAttributeKey(attribute),
+				accountAttributes.put(ProvisioningAttributeDto.createProvisioningAttributeKey(attribute, schemaAttributeDto.getName()),
 						getAttributeValue(uid, entity, attribute));
 			}
 		});
@@ -480,12 +497,12 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 		}).collect(Collectors.toList());
 
 		for (AttributeMapping attributeParent : attributesMerge) {
+			SysSchemaAttributeDto schemaAttributeDto = schemaAttributeService.get(attributeParent.getSchemaAttribute());
 			ProvisioningAttributeDto attributeParentKey = ProvisioningAttributeDto
-					.createProvisioningAttributeKey(attributeParent);
-
-			if (!attributeParent.getSchemaAttribute().isMultivalued()) {
+					.createProvisioningAttributeKey(attributeParent, schemaAttributeDto.getName());
+			if (!schemaAttributeDto.isMultivalued()) {
 				throw new ProvisioningException(AccResultCode.PROVISIONING_MERGE_ATTRIBUTE_IS_NOT_MULTIVALUE,
-						ImmutableMap.of("object", uid, "attribute", attributeParent.getSchemaAttribute().getName()));
+						ImmutableMap.of("object", uid, "attribute", schemaAttributeDto.getName()));
 			}
 
 			List<Object> mergedValues = new ArrayList<>();
@@ -531,12 +548,14 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 		Assert.notNull(systemEntity.getUid());
 		Assert.notNull(attributeMapping);
 
-		if (!attributeMapping.getSchemaAttribute().isUpdateable()) {
+		SysSchemaAttributeDto schemaAttributeDto = schemaAttributeService.get(attributeMapping.getSchemaAttribute());
+		
+		if (!schemaAttributeDto.isUpdateable()) {
 			throw new ProvisioningException(AccResultCode.PROVISIONING_SCHEMA_ATTRIBUTE_IS_NOT_UPDATEABLE,
 					ImmutableMap.of("property", attributeMapping.getIdmPropertyName(), "uid", systemEntity.getUid()));
 		}
-
-		String objectClassName = attributeMapping.getSchemaAttribute().getObjectClass().getObjectClassName();
+		SysSchemaObjectClassDto schemaObjectClassDto = schemaObjectClassService.get(schemaAttributeDto.getObjectClass());
+		String objectClassName = schemaObjectClassDto.getObjectClassName();
 		// We do transformation to system if is attribute only constant
 		Object valueTransformed = value;
 		if (!attributeMapping.isEntityAttribute() && !attributeMapping.isExtendedAttribute()) {
@@ -547,7 +566,7 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 					attributeMapping, entity);
 		}
 		IcAttribute icAttributeForCreate = attributeMappingService
-				.createIcAttribute(attributeMapping.getSchemaAttribute(), valueTransformed);
+				.createIcAttribute(schemaAttributeDto, valueTransformed);
 		//
 		// Call ic modul for update single attribute
 		IcConnectorObject connectorObject = new IcConnectorObjectImpl(systemEntity.getUid(),
@@ -797,8 +816,8 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 	protected abstract List<SysRoleSystemAttribute> findOverloadingAttributes(ENTITY entity,
 			SysSystem system, List<? extends EntityAccountDto> idenityAccoutnList, SystemEntityType entityType);
 
-	private SysSystemMapping getMapping(SysSystem system, SystemEntityType entityType) {
-		List<SysSystemMapping> systemMappings = systemMappingService.findBySystem(system,
+	private SysSystemMappingDto getMapping(SysSystem system, SystemEntityType entityType) {
+		List<SysSystemMappingDto> systemMappings = systemMappingService.findBySystem(system,
 				SystemOperationType.PROVISIONING, entityType);
 		if (systemMappings == null || systemMappings.isEmpty()) {
 			LOG.info(MessageFormat.format(
@@ -824,14 +843,14 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 	 * @return
 	 */
 	protected List<? extends AttributeMapping> findAttributeMappings(SysSystem system, SystemEntityType entityType) {
-		SysSystemMapping mapping = getMapping(system, entityType);
+		SysSystemMappingDto mapping = getMapping(system, entityType);
 		if (mapping == null) {
 			return null;
 		}
 		return attributeMappingService.findBySystemMapping(mapping);
 	}
 
-	protected List<SysSystemMapping> findSystemMappingsForEntityType(ENTITY entity, SystemEntityType entityType) {
+	protected List<SysSystemMappingDto> findSystemMappingsForEntityType(ENTITY entity, SystemEntityType entityType) {
 		SystemMappingFilter mappingFilter = new SystemMappingFilter();
 		mappingFilter.setEntityType(entityType);
 		mappingFilter.setOperationType(SystemOperationType.PROVISIONING);
@@ -925,6 +944,38 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 	@SuppressWarnings("rawtypes")
 	protected abstract ReadWriteDtoService getEntityService();
 	
+	/**
+	 * Method get {@link SysSystem} from uuid schemaAttribute.
+	 * 
+	 * @param schemaAttributeId
+	 * @return
+	 */
+	protected SysSystem getSytemFromSchemaAttribute(UUID schemaAttributeId) {
+		Assert.notNull(schemaAttributeId);
+		return getSytemFromSchemaAttribute(schemaAttributeService.get(schemaAttributeId));
+	}
+	
+	/**
+	 * Method get {@link SysSystem} from {@link SysSchemaAttributeDto}.
+	 * 
+	 * @param attributeDto
+	 * @return
+	 */
+	protected SysSystem getSytemFromSchemaAttribute(SysSchemaAttributeDto attributeDto) {
+		Assert.notNull(attributeDto);
+		return getSystemFromSchemaObjectClass(schemaObjectClassService.get(attributeDto.getObjectClass()));
+	}
+	
+	/**
+	 * Method get {@link SysSystem} from {@link SysSchemaObjectClassDto}.
+	 * 
+	 * @param schemaObjectClassDto
+	 * @return
+	 */
+	protected SysSystem getSystemFromSchemaObjectClass(SysSchemaObjectClassDto schemaObjectClassDto) {
+		Assert.notNull(schemaObjectClassDto);
+		return systemService.get(schemaObjectClassDto.getSystem());
+	}
 
 	/**
 	 * Update account UID in IDM

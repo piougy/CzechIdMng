@@ -2,9 +2,12 @@ package eu.bcvsolutions.idm.acc.dto;
 
 import java.util.UUID;
 
+import org.springframework.hateoas.core.Relation;
+
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
+import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 
 /**
@@ -14,12 +17,14 @@ import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
  *
  */
 
+@Relation(collectionRelation = "systemMappings")
 public class SysSystemMappingDto extends AbstractDto {
 
 	private static final long serialVersionUID = -3263064824050858302L;
 	
 	private String name;
 	private SystemEntityType entityType;
+	@Embedded(dtoClass = SysSchemaObjectClassDto.class)
 	private UUID objectClass;
 	private SystemOperationType operationType;
 	private UUID treeType;

@@ -3,10 +3,10 @@ package eu.bcvsolutions.idm.acc.service.api;
 import java.util.List;
 import java.util.UUID;
 
+import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemFilter;
-import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.core.api.service.CloneableService;
 import eu.bcvsolutions.idm.core.api.service.CodeableService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
@@ -35,7 +35,7 @@ public interface SysSystemService extends ReadWriteEntityService<SysSystem, SysS
 	 * @param system
 	 * @return all schemas on system
 	 */
-	List<SysSchemaObjectClass> generateSchema(SysSystem system);
+	List<SysSchemaObjectClassDto> generateSchema(SysSystem system);
 	
 	/**
 	 * Returns connector configuration for given system
@@ -75,7 +75,7 @@ public interface SysSystemService extends ReadWriteEntityService<SysSystem, SysS
 	 * @param entityType
 	 * @return
 	 */
-	IcConnectorObject readObject(SysSystem system, SysSystemMapping systemMapping, IcUidAttribute uidAttribute);
+	IcConnectorObject readObject(SysSystem system, SysSystemMappingDto systemMapping, IcUidAttribute uidAttribute);
 
 	/**
 	 * Duplicate (create/persist new) system with all configurations

@@ -2,7 +2,6 @@ package eu.bcvsolutions.idm.acc.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -17,7 +16,6 @@ import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
 import eu.bcvsolutions.idm.acc.domain.EntityAccount;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
-import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.EntityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.filter.EntityAccountFilter;
@@ -29,7 +27,6 @@ import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.repository.AccIdentityAccountRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountManagementService;
@@ -38,6 +35,8 @@ import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningExecutor;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
+import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
+import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
@@ -62,7 +61,6 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
 	private final AccIdentityAccountService identityAccountService;
 	private final AccIdentityAccountRepository identityAccountRepository;
 	private final SysRoleSystemService roleSystemService;
-	private final AccAccountManagementService accountManagementService;
 	
 	@Autowired
 	public IdentityProvisioningExecutor(SysSystemMappingService systemMappingService,
@@ -73,20 +71,20 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
 			AccAccountService accountService, AccIdentityAccountService identityAccountService,
 			AccIdentityAccountRepository identityAccountRepository,
 			ProvisioningExecutor provisioningExecutor,
-			EntityEventManager entityEventManager) {
+			EntityEventManager entityEventManager,
+			SysSchemaObjectClassService schemaObjectClassService,
+			SysSchemaAttributeService schemaAttributeService) {
 		
 		super(systemMappingService, attributeMappingService, connectorFacade, systemService, roleSystemService,
 				accountManagementService, roleSystemAttributeService, systemEntityService, accountService,
-				provisioningExecutor, entityEventManager);
+				provisioningExecutor, entityEventManager, schemaAttributeService, schemaObjectClassService);
 		
 		Assert.notNull(identityAccountService);
 		Assert.notNull(roleSystemService);
-		Assert.notNull(accountManagementService);
 		Assert.notNull(identityAccountRepository);
 		
 		this.identityAccountService = identityAccountService;
 		this.roleSystemService = roleSystemService;
-		this.accountManagementService = accountManagementService;
 		this.identityAccountRepository = identityAccountRepository;
 	}
 	

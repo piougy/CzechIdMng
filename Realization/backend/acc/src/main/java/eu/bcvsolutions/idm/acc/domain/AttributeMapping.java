@@ -1,8 +1,7 @@
 package eu.bcvsolutions.idm.acc.domain;
 
 import java.io.Serializable;
-
-import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
+import java.util.UUID;
 
 /**
  * Interface for mapping attribute dto
@@ -18,9 +17,9 @@ public interface AttributeMapping extends Serializable {
 
 	void setIdmPropertyName(String idmPropertyName);
 
-	SysSchemaAttribute getSchemaAttribute();
+	UUID getSchemaAttribute();
 
-	void setSchemaAttribute(SysSchemaAttribute schemaAttribute);
+	void setSchemaAttribute(UUID schemaAttribute);
 
 	boolean isExtendedAttribute();
 

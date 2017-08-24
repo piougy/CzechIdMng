@@ -24,16 +24,18 @@ import eu.bcvsolutions.idm.acc.dto.EntityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncActionLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncItemLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncLogDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.EntityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
-import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.repository.SysSyncConfigRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.SynchronizationEntityExecutor;
+import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
+import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncActionLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncItemLogService;
@@ -89,11 +91,14 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 			IdmIdentityRoleService identityRoleService, EntityEventManager entityEventManager,
 			GroovyScriptService groovyScriptService, WorkflowProcessInstanceService workflowProcessInstanceService,
 			EntityManager entityManager, SysSystemMappingService systemMappingService,
-			SysSyncConfigRepository synchronizationConfigRepository) {
+			SysSyncConfigRepository synchronizationConfigRepository,
+			SysSchemaObjectClassService schemaObjectClassService,
+			SysSchemaAttributeService schemaAttributeService) {
 		super(connectorFacade, systemService, attributeHandlingService, synchronizationConfigService,
 				synchronizationLogService, syncActionLogService, accountService, systemEntityService,
 				confidentialStorage, formService, syncItemLogService, entityEventManager, groovyScriptService,
-				workflowProcessInstanceService, entityManager, systemMappingService, synchronizationConfigRepository);
+				workflowProcessInstanceService, entityManager, systemMappingService, synchronizationConfigRepository,
+				schemaObjectClassService, schemaAttributeService);
 
 		Assert.notNull(identityService, "Identity service is mandatory!");
 		Assert.notNull(identityAccoutnService, "Identity account service is mandatory!");
@@ -206,7 +211,7 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 	 * @param account
 	 */
 	@Override
-	protected void doCreateEntity(SystemEntityType entityType, List<SysSystemAttributeMapping> mappedAttributes,
+	protected void doCreateEntity(SystemEntityType entityType, List<SysSystemAttributeMappingDto> mappedAttributes,
 			SysSyncItemLogDto logItem, String uid, List<IcAttribute> icAttributes, AccAccount account) {
 		// We will create new Identity
 		addToItemLog(logItem, "Missing entity action is CREATE_ENTITY, we will do create new identity.");
@@ -255,7 +260,7 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 		SysSyncLogDto log = context.getLog(); 
 		SysSyncItemLogDto logItem = context.getLogItem();
 		List<SysSyncActionLogDto> actionLogs = context.getActionLogs();
-		List<SysSystemAttributeMapping> mappedAttributes = context.getMappedAttributes();
+		List<SysSystemAttributeMappingDto> mappedAttributes = context.getMappedAttributes();
 		AccAccount account = context.getAccount();
 		List<IcAttribute> icAttributes = context.getIcObject().getAttributes();
 		SystemEntityType entityType = context.getEntityType();

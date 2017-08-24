@@ -20,6 +20,7 @@ import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.MappingAttributeDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.RoleSystemAttributeFilter;
@@ -29,17 +30,14 @@ import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
-import eu.bcvsolutions.idm.acc.repository.AccIdentityAccountRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountManagementService;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
-import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
@@ -248,7 +246,7 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 			// (overloaded and default)
 			AttributeMapping overloadedAttribute = new MappingAttributeDto();
 			// Default values (values from schema attribute handling)
-			overloadedAttribute.setSchemaAttribute(uidRoleAttribute.getSystemAttributeMapping().getSchemaAttribute());
+			overloadedAttribute.setSchemaAttribute(uidRoleAttribute.getSystemAttributeMapping().getSchemaAttribute().getId());
 			overloadedAttribute
 					.setTransformFromResourceScript(uidRoleAttribute.getSystemAttributeMapping().getTransformFromResourceScript());
 			// Overloaded values
@@ -272,9 +270,9 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 		SysSystem system = mapping.getSystem();
 		SystemAttributeMappingFilter systeAttributeMappingFilter = new SystemAttributeMappingFilter();
 		systeAttributeMappingFilter.setSystemMappingId(mapping.getId());
-		List<SysSystemAttributeMapping> schemaHandlingAttributes = systemAttributeMappingService
+		List<SysSystemAttributeMappingDto> schemaHandlingAttributes = systemAttributeMappingService
 				.find(systeAttributeMappingFilter, null).getContent();
-		SysSystemAttributeMapping uidAttribute = systemAttributeMappingService.getUidAttribute(schemaHandlingAttributes, system);
+		SysSystemAttributeMappingDto uidAttribute = systemAttributeMappingService.getUidAttribute(schemaHandlingAttributes, system);
 		return systemAttributeMappingService.generateUid(entity, uidAttribute);
 	}
 

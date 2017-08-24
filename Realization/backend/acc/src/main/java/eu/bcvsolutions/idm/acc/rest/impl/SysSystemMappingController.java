@@ -1,20 +1,18 @@
 package eu.bcvsolutions.idm.acc.rest.impl;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -22,14 +20,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
+import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemMappingFilter;
-import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
-import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteEntityController;
+import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
-import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
-import eu.bcvsolutions.idm.core.api.service.LookupService;
+import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -45,20 +42,20 @@ import io.swagger.annotations.AuthorizationScope;;
  */
 @RepositoryRestController
 @Enabled(AccModuleDescriptor.MODULE_ID)
-@RequestMapping(value = BaseEntityController.BASE_PATH + "/system-mappings")
+@RequestMapping(value = BaseDtoController.BASE_PATH + "/system-mappings")
 @Api(
 		value = SysSystemMappingController.TAG, 
 		tags = SysSystemMappingController.TAG, 
 		description = "Mapping configuration",
 		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
 		consumes = MediaType.APPLICATION_JSON_VALUE)
-public class SysSystemMappingController extends AbstractReadWriteEntityController<SysSystemMapping, SystemMappingFilter> {
+public class SysSystemMappingController extends AbstractReadWriteDtoController<SysSystemMappingDto, SystemMappingFilter> {
 
 	protected static final String TAG = "System mapping - entities";
 	
 	@Autowired
-	public SysSystemMappingController(LookupService entityLookupService, SysSystemMappingService service) {
-		super(entityLookupService, service);
+	public SysSystemMappingController(SysSystemMappingService service) {
+		super(service);
 	}
 
 	@Override
@@ -77,9 +74,8 @@ public class SysSystemMappingController extends AbstractReadWriteEntityControlle
 				})
 	public Resources<?> find(
 			@RequestParam(required = false) MultiValueMap<String, Object> parameters,
-			@PageableDefault Pageable pageable,
-			PersistentEntityResourceAssembler assembler) {
-		return super.find(parameters, pageable, assembler);
+			@PageableDefault Pageable pageable) {
+		return super.find(parameters, pageable);
 	}
 
 	@ResponseBody
@@ -97,9 +93,8 @@ public class SysSystemMappingController extends AbstractReadWriteEntityControlle
 				})
 	public Resources<?> findQuick(
 			@RequestParam(required = false) MultiValueMap<String, Object> parameters,
-			@PageableDefault Pageable pageable,
-			PersistentEntityResourceAssembler assembler) {
-		return super.find(parameters, pageable, assembler);
+			@PageableDefault Pageable pageable) {
+		return super.find(parameters, pageable);
 	}
 
 	@Override
@@ -109,7 +104,7 @@ public class SysSystemMappingController extends AbstractReadWriteEntityControlle
 	@ApiOperation(
 			value = "System mapping detail", 
 			nickname = "getSystemMapping", 
-			response = SysSystemMapping.class, 
+			response = SysSystemMappingDto.class, 
 			tags = { SysSystemMappingController.TAG }, 
 			authorizations = {
 					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
@@ -119,9 +114,8 @@ public class SysSystemMappingController extends AbstractReadWriteEntityControlle
 					})
 	public ResponseEntity<?> get(
 			@ApiParam(value = "System mapping's uuid identifier.", required = true)
-			@PathVariable @NotNull String backendId, 
-			PersistentEntityResourceAssembler assembler) {
-		return super.get(backendId, assembler);
+			@PathVariable @NotNull String backendId) {
+		return super.get(backendId);
 	}
 
 	@Override
@@ -131,7 +125,7 @@ public class SysSystemMappingController extends AbstractReadWriteEntityControlle
 	@ApiOperation(
 			value = "Create / update system mapping", 
 			nickname = "postSystemMapping", 
-			response = SysSystemMapping.class, 
+			response = SysSystemMappingDto.class, 
 			tags = { SysSystemMappingController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = {
@@ -139,9 +133,8 @@ public class SysSystemMappingController extends AbstractReadWriteEntityControlle
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = {
 						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_UPDATE, description = "")})
 				})
-	public ResponseEntity<?> post(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler)
-			throws HttpMessageNotReadableException {
-		return super.post(nativeRequest, assembler);
+	public ResponseEntity<?> post(@RequestBody @NotNull SysSystemMappingDto dto) {
+		return super.post(dto);
 	}
 
 	@Override
@@ -151,7 +144,7 @@ public class SysSystemMappingController extends AbstractReadWriteEntityControlle
 	@ApiOperation(
 			value = "Update system mapping",
 			nickname = "putSystemMapping", 
-			response = SysSystemMapping.class, 
+			response = SysSystemMappingDto.class, 
 			tags = { SysSystemMappingController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
@@ -162,32 +155,8 @@ public class SysSystemMappingController extends AbstractReadWriteEntityControlle
 	public ResponseEntity<?> put(
 			@ApiParam(value = "System mapping's uuid identifier.", required = true)
 			@PathVariable @NotNull String backendId,
-			HttpServletRequest nativeRequest,
-			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
-		return super.put(backendId, nativeRequest, assembler);
-	}
-
-	@Override
-	@ResponseBody
-	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_UPDATE + "')")
-	@RequestMapping(value = "/{backendId}", method = RequestMethod.PATCH)
-	@ApiOperation(
-			value = "Update system mapping",
-			nickname = "patchSystemMapping", 
-			response = SysSystemMapping.class, 
-			tags = { SysSystemMappingController.TAG }, 
-			authorizations = { 
-				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
-						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_UPDATE, description = "") }),
-				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
-						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_UPDATE, description = "") })
-				})
-	public ResponseEntity<?> patch(
-			@ApiParam(value = "System mapping's uuid identifier.", required = true)
-			@PathVariable @NotNull String backendId, 
-			HttpServletRequest nativeRequest,
-			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
-		return super.patch(backendId, nativeRequest, assembler);
+			@RequestBody @NotNull SysSystemMappingDto dto) {
+		return super.put(backendId, dto);
 	}
 
 	@Override

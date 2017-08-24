@@ -46,10 +46,14 @@ import eu.bcvsolutions.idm.acc.domain.SynchronizationSituationType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationUnlinkedActionType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.EntityAccountDto;
+import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
+import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncActionLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncItemLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncLogDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.EntityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SyncActionLogFilter;
@@ -59,15 +63,15 @@ import eu.bcvsolutions.idm.acc.dto.filter.SystemEntityFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.SysSyncConfig;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
 import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
-import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.acc.event.SynchronizationEventType;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.repository.SysSyncConfigRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SynchronizationEntityExecutor;
 import eu.bcvsolutions.idm.acc.service.api.SynchronizationService;
+import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
+import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncActionLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncItemLogService;
@@ -146,8 +150,9 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 	protected AbstractLongRunningTaskExecutor<SysSyncConfigDto> longRunningTaskExecutor;
 	private final SysSystemMappingService systemMappingService;
 	private final SysSyncConfigRepository synchronizationConfigRepository;
+	private final SysSchemaObjectClassService schemaObjectClassService;
+	private final SysSchemaAttributeService schemaAttributeService;
 	//
-
 	@Autowired
 	public AbstractSynchronizationExecutor(IcConnectorFacade connectorFacade, SysSystemService systemService,
 			SysSystemAttributeMappingService attributeHandlingService,
@@ -157,7 +162,9 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 			FormService formService, SysSyncItemLogService syncItemLogService, EntityEventManager entityEventManager,
 			GroovyScriptService groovyScriptService, WorkflowProcessInstanceService workflowProcessInstanceService,
 			EntityManager entityManager, SysSystemMappingService systemMappingService,
-			SysSyncConfigRepository synchronizationConfigRepository) {
+			SysSyncConfigRepository synchronizationConfigRepository,
+			SysSchemaObjectClassService schemaObjectClassService,
+			SysSchemaAttributeService schemaAttributeService) {
 		Assert.notNull(connectorFacade);
 		Assert.notNull(systemService);
 		Assert.notNull(attributeHandlingService);
@@ -175,6 +182,8 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 		Assert.notNull(entityManager);
 		Assert.notNull(systemMappingService);
 		Assert.notNull(synchronizationConfigRepository);
+		Assert.notNull(schemaObjectClassService);
+		Assert.notNull(schemaAttributeService);
 		//
 		this.connectorFacade = connectorFacade;
 		this.systemService = systemService;
@@ -193,6 +202,8 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 		this.syncActionLogService = syncActionLogService;
 		this.systemMappingService = systemMappingService;
 		this.synchronizationConfigRepository = synchronizationConfigRepository;
+		this.schemaObjectClassService = schemaObjectClassService;
+		this.schemaAttributeService = schemaAttributeService;
 	}
 
 	@Override
@@ -205,8 +216,9 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 		SystemEntityType entityType = context.getEntityType();
 		SysSystem system = context.getSystem();
 		IcConnectorConfiguration connectorConfig = context.getConnectorConfig();
-		SysSystemMapping systemMapping = systemMappingService.get(config.getSystemMapping());
-		IcObjectClass objectClass = new IcObjectClassImpl(systemMapping.getObjectClass().getObjectClassName());
+		SysSystemMappingDto systemMapping = systemMappingService.get(config.getSystemMapping());
+		SysSchemaObjectClassDto schemaObjectClassDto = schemaObjectClassService.get(systemMapping.getObjectClass());
+		IcObjectClass objectClass = new IcObjectClassImpl(schemaObjectClassDto.getObjectClassName());
 		// Load last token
 		Object lastToken = config.isReconciliation() ? null : config.getToken();
 		IcSyncToken lastIcToken = lastToken != null ? new IcSyncTokenImpl(lastToken) : null;
@@ -684,11 +696,12 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 	 */
 	@Beta
 	protected void startExport(SystemEntityType entityType, SysSyncConfigDto config,
-			List<SysSystemAttributeMapping> mappedAttributes, SysSyncLogDto log, List<SysSyncActionLogDto> actionsLog) {
+			List<SysSystemAttributeMappingDto> mappedAttributes, SysSyncLogDto log, List<SysSyncActionLogDto> actionsLog) {
 		
-		SysSystemMapping systemMapping = systemMappingService.get(config.getSystemMapping());
-		SysSystem system = systemMapping.getSystem();
-		SysSystemAttributeMapping uidAttribute = systemAttributeMappingService.getUidAttribute(mappedAttributes,
+		SysSystemMappingDto systemMapping = systemMappingService.get(config.getSystemMapping());
+		SysSchemaObjectClassDto schemaObjectClassDto = schemaObjectClassService.get(systemMapping.getObjectClass());
+		SysSystem system = systemService.get(schemaObjectClassDto);
+		SysSystemAttributeMappingDto uidAttribute = systemAttributeMappingService.getUidAttribute(mappedAttributes,
 				system);
 
 		List<? extends AbstractEntity> entities = this.findAllEntity();
@@ -714,7 +727,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 	 * @param uidAttribute
 	 * @param entity
 	 */
-	protected void exportEntity(SynchronizationContext itemBuilder, SysSystemAttributeMapping uidAttribute,
+	protected void exportEntity(SynchronizationContext itemBuilder, SysSystemAttributeMappingDto uidAttribute,
 			AbstractEntity entity) {
 		SystemEntityType entityType = itemBuilder.getEntityType();
 		SysSyncConfigDto config = itemBuilder.getConfig();
@@ -826,9 +839,10 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 					ImmutableMap.of("name", config.getName()));
 		}
 
-		SysSystemMapping mapping = systemMappingService.get(config.getSystemMapping());
+		SysSystemMappingDto mapping = systemMappingService.get(config.getSystemMapping());
 		Assert.notNull(mapping);
-		SysSystem system = mapping.getSystem();
+		SysSchemaObjectClassDto schemaObjectClassDto = schemaObjectClassService.get(mapping.getObjectClass());
+		SysSystem system = systemService.get(schemaObjectClassDto.getSystem());
 		Assert.notNull(system);
 
 		// System must be enabled
@@ -840,7 +854,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 		SystemEntityType entityType = mapping.getEntityType();
 		SystemAttributeMappingFilter attributeHandlingFilter = new SystemAttributeMappingFilter();
 		attributeHandlingFilter.setSystemMappingId(mapping.getId());
-		List<SysSystemAttributeMapping> mappedAttributes = systemAttributeMappingService.find(attributeHandlingFilter, null)
+		List<SysSystemAttributeMappingDto> mappedAttributes = systemAttributeMappingService.find(attributeHandlingFilter, null)
 				.getContent();
 
 		// Find connector identification persisted in system
@@ -896,8 +910,9 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 					filterAttributeMapping, synchronizationConfigRepository.findOne(config.getId()));
 
 			if (transformedValue != null) {
+				SysSchemaAttributeDto schemaAttributeDto = schemaAttributeService.get(filterAttributeMapping.getSchemaAttribute());
 				IcAttributeImpl filterAttribute = new IcAttributeImpl(
-						filterAttributeMapping.getSchemaAttribute().getName(), transformedValue);
+						schemaAttributeDto.getName(), transformedValue);
 
 				switch (config.getFilterOperation()) {
 				case GREATER_THAN:
@@ -963,7 +978,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 		SysSyncItemLogDto logItem = context.getLogItem();
 		List<SysSyncActionLogDto> actionLogs = context.getActionLogs();
 		AccAccount account = context.getAccount();
-		List<SysSystemAttributeMapping> mappedAttributes = context.getMappedAttributes();
+		List<SysSystemAttributeMappingDto> mappedAttributes = context.getMappedAttributes();
 		List<IcAttribute> icAttributes = context.getIcObject().getAttributes();
 		SysSystem system = context.getSystem();
 
@@ -1023,7 +1038,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 		SysSyncLogDto log = context.getLog(); 
 		SysSyncItemLogDto logItem = context.getLogItem();
 		List<SysSyncActionLogDto> actionLogs = context.getActionLogs();
-		List<SysSystemAttributeMapping> mappedAttributes = context.getMappedAttributes();
+		List<SysSystemAttributeMappingDto> mappedAttributes = context.getMappedAttributes();
 		List<IcAttribute> icAttributes = context.getIcObject().getAttributes();
 		
 		addToItemLog(logItem, "Account and entity doesn't exist (missing entity).");
@@ -1185,7 +1200,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 	 * @param account
 	 */
 	protected abstract void doCreateEntity(SystemEntityType entityType,
-			List<SysSystemAttributeMapping> mappedAttributes, SysSyncItemLogDto logItem, String uid,
+			List<SysSystemAttributeMappingDto> mappedAttributes, SysSyncItemLogDto logItem, String uid,
 			List<IcAttribute> icAttributes, AccAccount account);
 
 	/**
@@ -1339,7 +1354,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 	 * @param create (is create or update entity situation)
 	 * @return
 	 */
-	protected AbstractEntity fillEntity(List<SysSystemAttributeMapping> mappedAttributes, String uid,
+	protected AbstractEntity fillEntity(List<SysSystemAttributeMappingDto> mappedAttributes, String uid,
 			List<IcAttribute> icAttributes, AbstractEntity entity, boolean create) {
 		mappedAttributes.stream().filter(attribute -> {
 			// Skip disabled attributes
@@ -1383,7 +1398,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	protected AbstractEntity updateExtendedAttributes(List<SysSystemAttributeMapping> mappedAttributes, String uid,
+	protected AbstractEntity updateExtendedAttributes(List<SysSystemAttributeMappingDto> mappedAttributes, String uid,
 			List<IcAttribute> icAttributes, AbstractEntity entity, boolean create) {
 		mappedAttributes.stream().filter(attribute -> {
 			// Skip disabled attributes
@@ -1445,7 +1460,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 	 * @param create (is create or update entity situation)
 	 * @return
 	 */
-	protected AbstractEntity updateConfidentialAttributes(List<SysSystemAttributeMapping> mappedAttributes, String uid,
+	protected AbstractEntity updateConfidentialAttributes(List<SysSystemAttributeMappingDto> mappedAttributes, String uid,
 			List<IcAttribute> icAttributes, AbstractEntity entity, boolean create) {
 		mappedAttributes.stream().filter(attribute -> {
 			// Skip disabled attributes
@@ -1483,7 +1498,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 	 * @param create (create or update entity situation)
 	 * @return
 	 */
-	protected boolean canSetValue(String uid, SysSystemAttributeMapping attribute, AbstractEntity entity,
+	protected boolean canSetValue(String uid, SysSystemAttributeMappingDto attribute, AbstractEntity entity,
 			boolean create) {
 		Assert.notNull(attribute);
 		AttributeMappingStrategyType strategyType = attribute.getStrategyType();
@@ -1749,7 +1764,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 		SysSyncItemLogDto logItem = context.getLogItem();
 		SysSystemEntity systemEntity = context.getSystemEntity();
 		List<IcAttribute> icAttributes = context.getIcObject().getAttributes();
-		List<SysSystemAttributeMapping> mappedAttributes = context.getMappedAttributes();
+		List<SysSystemAttributeMappingDto> mappedAttributes = context.getMappedAttributes();
 		
 		// Generate UID value from mapped attribute marked as UID (Unique ID).
 		// UID mapped attribute must exist and returned value must be not null and must be String
@@ -1830,15 +1845,15 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 		this.longRunningTaskExecutor = longRunningTaskExecutor;
 	}
 	
-	protected SysSystemMapping getSystemMapping(List<SysSystemAttributeMapping> attributes){
+	protected SysSystemMappingDto getSystemMapping(List<SysSystemAttributeMappingDto> attributes){
 		if(attributes == null || attributes.isEmpty()){
 			return null;
 		}
-		return attributes.get(0).getSystemMapping();
+		return systemMappingService.get(attributes.get(0).getSystemMapping());
 	}
 	
-	protected SysSystemAttributeMapping getAttributeByIdmProperty(String idmProperty, List<SysSystemAttributeMapping> mappedAttributes) {
-		Optional<SysSystemAttributeMapping> optional = mappedAttributes.stream().filter(attribute -> {
+	protected SysSystemAttributeMappingDto getAttributeByIdmProperty(String idmProperty, List<SysSystemAttributeMappingDto> mappedAttributes) {
+		Optional<SysSystemAttributeMappingDto> optional = mappedAttributes.stream().filter(attribute -> {
 			return !attribute.isDisabledAttribute() && attribute.isEntityAttribute() && idmProperty.equals(attribute.getIdmPropertyName());
 		}).findFirst();
 		
@@ -1967,7 +1982,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 	 * @param system
 	 */
 	private void updateAccountUid(SysSyncItemLogDto logItem, AccAccount account,
-			List<SysSystemAttributeMapping> mappedAttributes, List<IcAttribute> icAttributes, SysSystem system) {
+			List<SysSystemAttributeMappingDto> mappedAttributes, List<IcAttribute> icAttributes, SysSystem system) {
 		// Generate UID value from mapped attribute marked as UID (Unique ID).
 		// UID mapped attribute must exist and returned value must be not null and must be String
 		String attributeUid = systemAttributeMappingService.getUidValueFromResource(icAttributes, mappedAttributes, system);

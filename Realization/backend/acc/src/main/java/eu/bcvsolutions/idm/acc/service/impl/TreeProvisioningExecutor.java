@@ -16,13 +16,13 @@ import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.AccTreeAccountDto;
 import eu.bcvsolutions.idm.acc.dto.EntityAccountDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.EntityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemMappingFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.TreeAccountFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountManagementService;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
@@ -30,6 +30,8 @@ import eu.bcvsolutions.idm.acc.service.api.AccTreeAccountService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningExecutor;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
+import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
+import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
@@ -62,11 +64,13 @@ public class TreeProvisioningExecutor extends AbstractProvisioningExecutor<IdmTr
 			SysRoleSystemAttributeService roleSystemAttributeService, SysSystemEntityService systemEntityService,
 			AccAccountService accountService, AccTreeAccountService treeAccountService,
 			ProvisioningExecutor provisioningExecutor, IdmTreeNodeService treeNodeService,
-			EntityEventManager entityEventManager) {
+			EntityEventManager entityEventManager, SysSchemaAttributeService schemaAttributeService,
+			SysSchemaObjectClassService schemaObjectClassService) {
 		
 		super(systemMappingService, attributeMappingService, connectorFacade, systemService, roleSystemService,
 				accountManagementService, roleSystemAttributeService, systemEntityService, accountService,
-				provisioningExecutor, entityEventManager);
+				provisioningExecutor, entityEventManager, schemaAttributeService,
+				schemaObjectClassService);
 		
 		Assert.notNull(treeAccountService);
 		Assert.notNull(treeNodeService);
@@ -103,7 +107,7 @@ public class TreeProvisioningExecutor extends AbstractProvisioningExecutor<IdmTr
 				// Generally we expect IdmTreeNode as parent (we will do
 				// transform)
 				TreeAccountFilter treeAccountFilter = new TreeAccountFilter();
-				treeAccountFilter.setSystemId(attribute.getSchemaAttribute().getObjectClass().getSystem().getId());
+				treeAccountFilter.setSystemId(this.getSytemFromSchemaAttribute(attribute.getSchemaAttribute()).getId());
 				treeAccountFilter.setTreeNodeId(((IdmTreeNode) idmValue).getId());
 				List<AccTreeAccountDto> treeAccounts = treeAccountService.find(treeAccountFilter, null).getContent();
 				if (treeAccounts.isEmpty()) {
@@ -134,12 +138,12 @@ public class TreeProvisioningExecutor extends AbstractProvisioningExecutor<IdmTr
 	}
 	
 	@Override
-	protected List<SysSystemMapping> findSystemMappingsForEntityType(IdmTreeNode entity, SystemEntityType entityType) {
+	protected List<SysSystemMappingDto> findSystemMappingsForEntityType(IdmTreeNode entity, SystemEntityType entityType) {
 		SystemMappingFilter mappingFilter = new SystemMappingFilter();
 		mappingFilter.setEntityType(entityType);
 		mappingFilter.setTreeTypeId(entity.getTreeType().getId());
 		mappingFilter.setOperationType(SystemOperationType.PROVISIONING);
-		List<SysSystemMapping> systemMappings = systemMappingService.find(mappingFilter, null).getContent();
+		List<SysSystemMappingDto> systemMappings = systemMappingService.find(mappingFilter, null).getContent();
 		return systemMappings;
 	}
 

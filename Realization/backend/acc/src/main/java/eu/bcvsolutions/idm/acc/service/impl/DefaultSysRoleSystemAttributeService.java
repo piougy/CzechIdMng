@@ -80,7 +80,7 @@ public class DefaultSysRoleSystemAttributeService
 		Class<?> entityType = entity.getSystemAttributeMapping().getSystemMapping().getEntityType().getEntityType();
 		if (entity.isExtendedAttribute() && FormableEntity.class.isAssignableFrom(entityType)) {
 			AttributeMapping mappingAttributeDto = new MappingAttributeDto();
-			mappingAttributeDto.setSchemaAttribute(entity.getSystemAttributeMapping().getSchemaAttribute());
+			mappingAttributeDto.setSchemaAttribute(entity.getSystemAttributeMapping().getSchemaAttribute().getId());
 			fillOverloadedAttribute(entity, mappingAttributeDto);
 			systeAttributeMappingService.createExtendedAttributeDefinition(mappingAttributeDto, entityType);
 		}

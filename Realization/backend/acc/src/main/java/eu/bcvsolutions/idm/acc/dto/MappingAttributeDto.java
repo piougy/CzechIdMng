@@ -1,20 +1,21 @@
 package eu.bcvsolutions.idm.acc.dto;
 
+import java.util.UUID;
+
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
 import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType;
-import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
 
 /**
  * Dto for mapped attribute. Used for overloading schema attribute handling in provisioning
  * @author svandav
  *
  */
-public class MappingAttributeDto  implements AttributeMapping {
+public class MappingAttributeDto implements AttributeMapping {
 
 	private static final long serialVersionUID = 3813047739818544156L;
 	private String name;
 	private String idmPropertyName;
-	private SysSchemaAttribute schemaAttribute;
+	private UUID schemaAttribute;
 	private boolean extendedAttribute = false;
 	private boolean entityAttribute = true;
 	private boolean confidentialAttribute = true;
@@ -37,12 +38,12 @@ public class MappingAttributeDto  implements AttributeMapping {
 	}
 
 	@Override
-	public SysSchemaAttribute getSchemaAttribute() {
+	public UUID getSchemaAttribute() {
 		return schemaAttribute;
 	}
 
 	@Override
-	public void setSchemaAttribute(SysSchemaAttribute schemaAttribute) {
+	public void setSchemaAttribute(UUID schemaAttribute) {
 		this.schemaAttribute = schemaAttribute;
 	}
 

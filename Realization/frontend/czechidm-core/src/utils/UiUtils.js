@@ -172,6 +172,7 @@ export default class UiUtils {
  * Last word will be whole. Get begining part.
  * Example:
  * UiUtils.substringBegin('This is too long text', 5, '');
+ *
  * @param  {String} data
  * @param  {Number} maxLength
  * @param  {String} cutChar Character cutting words
@@ -195,6 +196,7 @@ export default class UiUtils {
    * Last word will be whole. Get ending part.
    * Example:
    * UiUtils.substringEnd('this/is/path', 5, '/');
+   *
    * @param  {String} data
    * @param  {Number} maxLength
    * @param  {String} cutChar Character cutting words
@@ -211,8 +213,9 @@ export default class UiUtils {
   }
   /**
   * Do substring on given data by max length. Substring is not on char byt on word.
-- * Last word will be whole.
-- * @param  {String} data
+  * Last word will be whole.
+  *
+  * @param  {String} data
   * @param  {Number} maxLength
   * @return {String}
   */

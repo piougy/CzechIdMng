@@ -2135,15 +2135,25 @@
     "AuthorizationPolicy": {
       "_type": "Permission",
       "role": "Role",
-      "disabled": "Inactive",
-      "description": "Description",
-      "seq": "Order",
+      "disabled": {
+        "label": "Inactive",
+        "help": "Inactive policy will not be applied"
+      },
+      "description": {
+        "label": "Description"
+      },
+      "seq": {
+        "label": "Order",
+        "help": "Only for optimalization reasons. Order is used in permission evaluation on single record / entity. Simplest policy should have lower order, then it will be evaluated at first."
+      },
+      "evaluatorType": {
+        "label": "Evaluator type"
+      },
       "authorizableType": {
         "label": "Entity type",
         "placeholder": "Select entity type or leave it empty for all types",
         "help": "If entity type is not selected, then all types will be evaluating"
       },
-      "evaluatorType": "Evaluator type",
       "evaluatorProperties": {
         "label": "Configuration",
         "title": "Evaluator configuration"

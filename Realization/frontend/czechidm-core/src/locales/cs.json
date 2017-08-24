@@ -2192,10 +2192,20 @@
     "AuthorizationPolicy": {
       "_type": "Oprávnění",
       "role": "Role",
-      "disabled": "Neaktivní",
-      "description": "Popis",
-      "seq": "Pořadí",
-      "evaluatorType": "Typ vyhodnocení",
+      "disabled": {
+        "label": "Neaktivní",
+        "help": "Neaktivní politika nebude aplikována"
+      },
+      "description": {
+        "label": "Popis"
+      },
+      "seq": {
+        "label": "Pořadí",
+        "help": "Pouze z optimalizačních důvodů. Pořadí je použito při vyhodnocování oprávnění nad jednotlivými záznamy / entitami. Při nalezení první politiky vyhovující danému oprávnění nad danou entitou může vyhodnocení skončit. Jednodušší politiky na vyhodnocení by měly míti nižší pořadí, budou zpracovány dříve."
+      },
+      "evaluatorType": {
+        "label": "Typ vyhodnocení"
+      },
       "authorizableType": {
         "label": "Agenda / Typ entity",
         "placeholder": "Vyberte agendu (typ entity) nebo nechte prázdné (všechny agendy / typy)",

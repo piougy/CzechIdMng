@@ -177,7 +177,12 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
         {
           <span
             style={ style }>
-            <a href="#" onClick={ (e) => e.preventDefault() }>{ this._renderNiceLabel() }</a>
+            <Basic.Button
+              level="link"
+              style={{ padding: 0 }}
+              title={ this.i18n('component.advanced.EntityInfo.link.popover.title') }>
+              { this._renderNiceLabel() }
+            </Basic.Button>
           </span>
         }
       </Basic.Popover>

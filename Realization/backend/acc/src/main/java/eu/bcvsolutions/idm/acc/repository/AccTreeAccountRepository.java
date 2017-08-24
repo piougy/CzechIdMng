@@ -25,7 +25,7 @@ public interface AccTreeAccountRepository extends AbstractEntityRepository<AccTr
 	 */
 	@Override
 	@Deprecated
-	@Query(value = "select e from AccTreeAccount e")
+	@Query(value = "select e from #{#entityName} e")
 	default Page<AccTreeAccount> find(TreeAccountFilter filter, Pageable pageable) {
 		throw new UnsupportedOperationException("Use DefaultAccTreeAccountService (uses criteria api)");
 	}

@@ -4,11 +4,12 @@ import java.util.UUID;
 
 /**
  * Interface for all entity - account filters
+ * 
  * @author svandav
- *
+ * @author Radek Tomiška
  */
 public interface EntityAccountFilter {
-
+	
 	Boolean isOwnership();
 
 	void setOwnership(Boolean ownership);

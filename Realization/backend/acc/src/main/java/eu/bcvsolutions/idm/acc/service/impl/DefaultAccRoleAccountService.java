@@ -50,6 +50,11 @@ public class DefaultAccRoleAccountService
 		//
 		this.accountService = accountService;
 	}
+	
+	@Override
+	public AuthorizableType getAuthorizableType() {
+		return new AuthorizableType(AccGroupPermission.ROLEACCOUNT, getEntityClass());
+	}
 
 	@Override
 	@Transactional
@@ -90,6 +95,7 @@ public class DefaultAccRoleAccountService
 	protected List<Predicate> toPredicates(Root<AccRoleAccount> root, CriteriaQuery<?> query, CriteriaBuilder builder,
 			RoleAccountFilter filter) {
 		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
+		//
 		if(filter.getAccountId() != null) {
 			predicates.add(builder.equal(root.get(AccRoleAccount_.account).get(AccAccount_.id), filter.getAccountId()));
 		}
@@ -99,15 +105,10 @@ public class DefaultAccRoleAccountService
 		if(filter.getSystemId() != null) {
 			predicates.add(builder.equal(root.get(AccRoleAccount_.account).get(AccAccount_.system).get(SysSystem_.id), filter.getSystemId()));
 		}
-		if(filter.getOwnership() != null) {
-			predicates.add(builder.equal(root.get(AccRoleAccount_.ownership), filter.getOwnership()));
+		if(filter.isOwnership() != null) {
+			predicates.add(builder.equal(root.get(AccRoleAccount_.ownership), filter.isOwnership()));
 		}
-		
+		//
 		return predicates;
-	}
-
-	@Override
-	public AuthorizableType getAuthorizableType() {
-		return new AuthorizableType(AccGroupPermission.ROLEACCOUNT, getEntityClass());
 	}
 }

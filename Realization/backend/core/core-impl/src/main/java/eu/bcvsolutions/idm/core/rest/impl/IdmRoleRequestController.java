@@ -236,7 +236,7 @@ public class IdmRoleRequestController extends AbstractReadWriteDtoController<Idm
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_REQUEST_READ + "')")
 	@ApiOperation(
 			value = "What logged identity can do with given record", 
-			nickname = "getPermissionsOnIdentity", 
+			nickname = "getPermissionsOnRoleRequest", 
 			tags = { IdmRoleRequestController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 

@@ -904,7 +904,8 @@
       "ROLEACCOUNT": "Účty pro role",
       "SYSTEM": "Napojené systémy",
       "SYNCHRONIZATION": "Synchronizace",
-      "TREEACCOUNT": "Účty pro prvky stromu"
+      "TREEACCOUNT": "Účty pro prvky stromu",
+      "IDENTITYACCOUNT": "Účty pro identity"
     }
   },
   "error": {

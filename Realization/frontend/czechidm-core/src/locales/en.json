@@ -255,7 +255,10 @@
       "EntityInfo": {
         "link": {
           "detail": {
-            "label": "Přejít na detail"
+            "label": "Show full detail"
+          },
+          "popover": {
+            "title": "Show info card"
           }
         }
       },
@@ -2680,6 +2683,10 @@
     "FORBIDDEN": {
       "title": "Insufficient permissions",
       "message": "You do not have insufficient permissions for selected action."
+    },
+    "FORBIDDEN_ENTITY": {
+      "title": "Insufficient permissions",
+      "message": "You do not have insufficient permission [{{permission}}] for selected record [{{entity}}]."
     },
     "PASSWORD_CHANGE_NO_SYSTEM": {
       "title": "Password change failed",

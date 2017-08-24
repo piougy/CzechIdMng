@@ -18,6 +18,7 @@ public enum AccGroupPermission implements GroupPermission {
 	
 	SYSTEM(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
 	ACCOUNT(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
+	IDENTITYACCOUNT(IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
 	ROLEACCOUNT(IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
 	TREEACCOUNT(IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
 	SYNCHRONIZATION(IdmBasePermission.CREATE, IdmBasePermission.UPDATE);
@@ -34,18 +35,22 @@ public enum AccGroupPermission implements GroupPermission {
 	public static final String ACCOUNT_CREATE = "ACCOUNT" + BasePermission.SEPARATOR + "CREATE";
 	public static final String ACCOUNT_UPDATE = "ACCOUNT" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String ACCOUNT_DELETE = "ACCOUNT" + BasePermission.SEPARATOR + "DELETE";
-	
+	//
+	public static final String IDENTITY_ACCOUNT_READ = "IDENTITYACCOUNT" + BasePermission.SEPARATOR + "READ";
+	public static final String IDENTITY_ACCOUNT_CREATE = "IDENTITYACCOUNT" + BasePermission.SEPARATOR + "CREATE";
+	public static final String IDENTITY_ACCOUNT_UPDATE = "IDENTITYACCOUNT" + BasePermission.SEPARATOR + "UPDATE";
+	public static final String IDENTITY_ACCOUNT_DELETE = "IDENTITYACCOUNT" + BasePermission.SEPARATOR + "DELETE";
+	//
 	public static final String ROLE_ACCOUNT_READ = "ROLEACCOUNT" + BasePermission.SEPARATOR + "READ";
 	public static final String ROLE_ACCOUNT_CREATE = "ROLEACCOUNT" + BasePermission.SEPARATOR + "CREATE";
 	public static final String ROLE_ACCOUNT_UPDATE = "ROLEACCOUNT" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String ROLE_ACCOUNT_DELETE = "ROLEACCOUNT" + BasePermission.SEPARATOR + "DELETE";
-
+	//
 	public static final String TREE_ACCOUNT_READ = "TREEACCOUNT" + BasePermission.SEPARATOR + "READ";
 	public static final String TREE_ACCOUNT_CREATE = "TREEACCOUNT" + BasePermission.SEPARATOR + "CREATE";
 	public static final String TREE_ACCOUNT_UPDATE = "TREEACCOUNT" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String TREE_ACCOUNT_DELETE = "TREEACCOUNT" + BasePermission.SEPARATOR + "DELETE";
-
-
+	//
 	public static final String SYNCHRONIZATION_CREATE = "SYNCHRONIZATION" + BasePermission.SEPARATOR + "CREATE";
 	public static final String SYNCHRONIZATION_UPDATE = "SYNCHRONIZATION" + BasePermission.SEPARATOR + "UPDATE";
 	

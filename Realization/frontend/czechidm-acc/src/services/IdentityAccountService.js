@@ -24,6 +24,14 @@ export default class IdentityAccountService extends Services.AbstractService {
     return '/identity-accounts';
   }
 
+  supportsAuthorization() {
+    return true;
+  }
+
+  getGroupPermission() {
+    return 'IDENTITYACCOUNT';
+  }
+
   getDefaultSearchParameters() {
     return super.getDefaultSearchParameters().setName(Domain.SearchParameters.NAME_QUICK).clearSort().setSort('account.uid');
   }

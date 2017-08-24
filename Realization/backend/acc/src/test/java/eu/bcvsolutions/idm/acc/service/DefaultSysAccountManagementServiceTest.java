@@ -33,6 +33,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
@@ -66,7 +67,8 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 	private static final String ROLE_OVERLOADING_Y_ACCOUNT = "role_overloading_y_account";
 	private static final String IDENTITY_PASSWORD_TWO = "password_two";
 	private static final String IDENTITY_PASSWORD_THREE = "password_three";
-
+	private static final String SYSTEM_NAME = "DefaultSysAccountManagementServiceTest";
+	
 	@Autowired
 	private TestHelper helper;
 
@@ -79,6 +81,9 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 	@Autowired
 	private IdmIdentityRoleService identityRoleService;
 
+	@Autowired
+	private SysSystemService systemService;
+	
 	@Autowired
 	private SysSystemEntityService systemEntityService;
 
@@ -299,6 +304,7 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 		IdmIdentityDto identity = identityService.getByUsername(IDENTITY_USERNAME);
 		IdentityAccountFilter filter = new IdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
+		filter.setSystemId(systemService.getByCode(SYSTEM_NAME).getId());
 		List<AccIdentityAccountDto> identityAccounts = identityAccountService.find(filter, null).getContent();
 	
 		TestResource resourceAccount = helper.findResource("x" + IDENTITY_USERNAME);
@@ -450,6 +456,7 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 				helper.findResource("x" + IDENTITY_USERNAME));
 
 		IdentityAccountFilter iaccFilter = new IdentityAccountFilter();
+		iaccFilter.setSystemId(systemService.getByCode(SYSTEM_NAME).getId());
 		iaccFilter.setIdentityId(identity.getId());
 		// Now we have to identity roles (role_overloading_first_name and
 		// role_overloading_last_name and role_overloading_y_account) and
@@ -470,7 +477,7 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 
 	private void initData() {
 		// create test system
-		SysSystem system = helper.createTestResourceSystem(true);
+		SysSystem system = helper.createTestResourceSystem(true, SYSTEM_NAME);
 		//
 		// Create test identity for provisioning test
 		IdmIdentityDto identity = new IdmIdentityDto();

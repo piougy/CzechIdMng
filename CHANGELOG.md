@@ -46,5 +46,14 @@ All notable changes to this project will be documented in this file.
 - Entity SysSyncActionLog was transformed to DTO. Update all places where call from your project SysSyncActionLogService. The service now uses only DTO only. Backward compatibility of all synchronization action logs is guaranteed.
 - Entity SysSyncConfig was transformed to DTO. Update all places where call from your project SysSyncConfigService. The service now uses only DTO only. Backward compatibility of synchronization config is guaranteed.
 
+##### Account management
+
+- Added authorization policies support for identity accounts. Added new permission group ``IDENTITYACCOUNT`` with new evaluator [IdentityAccountByIdentityEvaluator](https://wiki.czechidm.com/devel/dev/security/authorization#identityaccountbyidentityevaluator).
+- Don't use **AccIdentityAccountRepository#find()** method directly => use service layer (methods are using criteria api now).
+- Added authorization policies support for role accounts. Added new tab to role detail with assigned role accounts. Added new permission group ``ROLEACCOUNT``. with new evaluator [RoleAccountByRoleEvaluator](https://wiki.czechidm.com/devel/dev/security/authorization#roleaccountbyroleevaluator).
+- Don't use **AccRoleAccountRepository#find()** method directly => use service layer (methods are using criteria api now).
+- Added authorization policies support for tree accounts. Added new tab to tree node detail with assigned tree accounts. Added new permission group ``TREEACCOUNT``.
+- Don't use **AccTreeAccountRepository#find()** method directly => use service layer (methods are using criteria api now).
+
 
 ### Removed

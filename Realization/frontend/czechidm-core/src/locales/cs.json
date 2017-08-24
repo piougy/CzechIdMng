@@ -293,6 +293,9 @@
         "link": {
           "detail": {
             "label": "Přejít na detail"
+          },
+          "popover": {
+            "title": "Zobrazit vizitku"
           }
         }
       },
@@ -2737,6 +2740,10 @@
     "FORBIDDEN": {
       "title": "Nedostatečná oprávnění",
       "message": "Na požadovanou akci nemáte dostatečná oprávnění."
+    },
+    "FORBIDDEN_ENTITY": {
+      "title": "Nedostatečná oprávnění",
+      "message": "Na požadovaný záznam [{{entity}}] nemáte dostatečná oprávnění [{{permission}}]."
     },
     "PASSWORD_CHANGE_NO_SYSTEM": {
       "title": "Změna hesla neproběhla",

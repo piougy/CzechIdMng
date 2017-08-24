@@ -97,6 +97,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 	private static final String PASSWORD_POLICY = "passwordPolicy";
 	private static final String EMAIL_ONE = "one.email@one.cz";
 	private static final String EMAIL_TWO = "two.email@two.cz";
+	private static final String SYSTEM_NAME = "DefaultSysProvisioningServiceTest";
 
 	@Autowired
 	private TestHelper helper;
@@ -344,6 +345,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 
 		IdentityAccountFilter filter = new IdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
+		filter.setSystemId(sysSystemService.getByCode(SYSTEM_NAME).getId());
 		AccIdentityAccountDto accountIdentityOne = identityAccoutnService.find(filter, null).getContent().get(0);
 		AccAccount account = accountService.get(accountIdentityOne.getAccount());
 		SysSystem system = account.getSystem();
@@ -355,7 +357,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 
 		TestResource resourceAccount = entityManager.find(TestResource.class, "x" + IDENTITY_USERNAME);
 		Assert.assertNotNull("Idenitity have to exists on target system (after account management)", resourceAccount);
-		Assert.assertEquals("Account on target system, must have same firsta name as Identity",
+		Assert.assertEquals("Account on target system, must have same first name as Identity",
 				IDENTITY_CHANGED_FIRST_NAME, resourceAccount.getFirstname());
 
 		provisioningService.doProvisioningForAttribute(systemEntity,
@@ -1045,7 +1047,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		AccIdentityAccountDto accountIdentityOne;
 
 		// create test system
-		SysSystem system = helper.createSystem("test_resource");
+		SysSystem system = helper.createSystem(TestResource.TABLE_NAME, SYSTEM_NAME);
 
 		// set default generate password policy for system
 		IdmPasswordPolicyDto passwordPolicy = new IdmPasswordPolicyDto();

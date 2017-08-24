@@ -18,11 +18,6 @@ public class RoleAccountFilter implements BaseFilter, EntityAccountFilter {
 	private Boolean ownership;
 
 	@Override
-	public Boolean isOwnership() {
-		return ownership;
-	}
-
-	@Override
 	public void setOwnership(Boolean ownership) {
 		this.ownership = ownership;
 	}
@@ -54,7 +49,8 @@ public class RoleAccountFilter implements BaseFilter, EntityAccountFilter {
 		this.roleId = roleId;
 	}
 
-	public Boolean getOwnership() {
+	@Override
+	public Boolean isOwnership() {
 		return ownership;
 	}
 

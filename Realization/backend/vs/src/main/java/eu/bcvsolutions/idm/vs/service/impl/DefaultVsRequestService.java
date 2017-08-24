@@ -7,6 +7,8 @@ import java.util.UUID;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
@@ -15,6 +17,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -28,6 +34,7 @@ import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
+import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.api.IcConnector;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInfo;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInstance;
@@ -132,6 +139,29 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 	}
 
 	@Override
+	public VsRequestDto cancel(UUID requestId) {
+		LOG.info(MessageFormat.format("Start cancel virtual system request [{0}].", requestId));
+
+		Assert.notNull(requestId, "Id of VS request cannot be null!");
+		VsRequestDto request = this.get(requestId, IdmBasePermission.READ);
+		Assert.notNull(request, "VS request cannot be null!");
+		this.checkAccess(request, IdmBasePermission.UPDATE);
+
+		if (VsRequestState.IN_PROGRESS != request.getState()) {
+			throw new VsException(VsResultCode.VS_REQUEST_CANCEL_WRONG_STATE,
+					ImmutableMap.of("state", VsRequestState.IN_PROGRESS.name(), "currentState", request.getState()));
+		}
+
+		request.setState(VsRequestState.CANCELED);
+		// Save cancelled request
+		request = this.save(request);
+
+		LOG.info(MessageFormat.format("Virtual system request [{0}] for UID [{1}] was canceled.", requestId,
+				request.getUid()));
+		return request;
+	}
+
+	@Override
 	@Transactional
 	public IcUidAttribute execute(VsRequestDto request) {
 		EventContext<VsRequestDto> event = entityEventManager
@@ -142,32 +172,60 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 
 	@Override
 	@Transactional
-	public VsRequestDto createRequest(VsRequestDto request) {
-		Assert.notNull(request, "Request cannot be null!");
-
-		List<VsRequestDto> duplicities = findDuplicities(request);
+	public VsRequestDto createRequest(VsRequestDto req) {
+		Assert.notNull(req, "Request cannot be null!");
+		
+		// Unfinished requests for same UID and system
+		List<VsRequestDto> duplicities = findDuplicities(req);
+		
+		// Save new request
+		req.setState(VsRequestState.IN_PROGRESS);
+		VsRequestDto request = this.save(req, IdmBasePermission.CREATE);
+		if (request.getImplementers() != null) {
+			request.getImplementers().forEach(identity -> {
+				// We have some implementers to save
+				VsRequestImplementerDto implementer = new VsRequestImplementerDto();
+				implementer.setRequest(request.getId());
+				implementer.setIdentity(identity.getId());
+				requestImplementerService.save(implementer);
+			});
+		}
 		if (CollectionUtils.isEmpty(duplicities)) {
 			// We do not have any unfinished requests for this account.
-			VsRequestDto savedRequest = this.save(request, IdmBasePermission.CREATE);
-			if (request.getImplementers() != null) {
-				request.getImplementers().forEach(identity -> {
-					// We have some implementers to save
-					VsRequestImplementerDto implementer = new VsRequestImplementerDto();
-					implementer.setRequest(savedRequest.getId());
-					implementer.setIdentity(identity.getId()); 
-					requestImplementerService.save(implementer);
-				});
-			}
-
-			return savedRequest;
+			return request;
 		}
-		return request;
+		
+		// Get the newest request
+		VsRequestDto previousRequest = duplicities.get(0);
+		request.setPreviousRequest(previousRequest.getId());
+		
+		if(this.isRequestSame(request, previousRequest)){
+			request.setState(VsRequestState.DUPLICATED);
+		}
+		
+		return this.save(request);
 
+	}
+
+	private boolean isRequestSame(VsRequestDto request, VsRequestDto previousRequest) {
+		Assert.notNull(request, "Request cannot be null!");
+		Assert.notNull(previousRequest, "Previous request cannot be null!");
+		Assert.notNull(request.getConnectorObject(), "Request connector object cannot be null!");
+		Assert.notNull(previousRequest.getConnectorObject(), "Previous request connector object cannot be null!");
+		
+		List<IcAttribute> requestAttributes = request.getConnectorObject().getAttributes();
+		List<IcAttribute> previousRequestAttributes = previousRequest.getConnectorObject().getAttributes();
+		
+		return CollectionUtils.isEqualCollection(requestAttributes, previousRequestAttributes);
 	}
 
 	@Override
 	public IcUidAttribute internalStart(VsRequestDto request) {
 		Assert.notNull(request, "Request cannot be null!");
+		if(VsRequestState.DUPLICATED == request.getState()){
+			return null;
+		}
+		
 		if (request.isExecuteImmediately()) {
 			// Request will be realized now
 			IcUidAttribute result = internalExecute(request);
@@ -237,9 +295,9 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 		filter.setUid(request.getUid());
 		filter.setSystemId(request.getSystemId());
 		// filter.setOperationType(request.getOperationType());
-		filter.setUnfinished(Boolean.TRUE);
-
-		List<VsRequestDto> duplicities = this.find(filter, null).getContent();
+		filter.setState(VsRequestState.IN_PROGRESS);
+		Sort sort = new Sort(Direction.DESC,VsRequest_.created.getName());
+		List<VsRequestDto> duplicities = this.find(filter, new PageRequest(0, Integer.MAX_VALUE, sort)).getContent();
 		return duplicities;
 	}
 
@@ -251,6 +309,7 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 	@Override
 	protected List<Predicate> toPredicates(Root<VsRequest> root, CriteriaQuery<?> query, CriteriaBuilder builder,
 			RequestFilter filter) {
+		
 		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
 		//
 		// quick - "fulltext"
@@ -272,6 +331,11 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 		// State
 		if (filter.getState() != null) {
 			predicates.add(builder.equal(root.get(VsRequest_.state), filter.getState()));
+		}
+
+		// Operation type
+		if (filter.getOperationType() != null) {
+			predicates.add(builder.equal(root.get(VsRequest_.operationType), filter.getOperationType()));
 		}
 
 		return predicates;

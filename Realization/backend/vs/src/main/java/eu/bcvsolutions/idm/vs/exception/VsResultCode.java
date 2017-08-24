@@ -12,7 +12,8 @@ import eu.bcvsolutions.idm.core.api.domain.ResultCode;
 public enum VsResultCode implements ResultCode {
 	// connector
 	VS_IMPLEMENTER_WAS_NOT_FOUND(HttpStatus.BAD_REQUEST, "Implementer for UUID [%s] not found!"),
-	VS_REQUEST_REALIZE_WRONG_STATE(HttpStatus.BAD_REQUEST, "For realize muste be request in state: [%s], but he is in state: [#s]!");
+	VS_REQUEST_REALIZE_WRONG_STATE(HttpStatus.BAD_REQUEST, "For realize must be request in state: [%s], but he is in state: [#s]!"),
+	VS_REQUEST_CANCEL_WRONG_STATE(HttpStatus.BAD_REQUEST, "For cancel must be request in state: [%s], but he is in state: [#s]!");
 	
 	
 	private final HttpStatus status;

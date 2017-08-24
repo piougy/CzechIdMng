@@ -138,6 +138,21 @@ public class VsRequestController extends AbstractReadWriteDtoController<VsReques
 		VsRequestDto request =  ((VsRequestService)getService()).realize(UUID.fromString(backendId));
 		return new ResponseEntity<>(request, HttpStatus.OK);
 	}
+	
+	@ResponseBody
+	@RequestMapping(value = "/{backendId}/cancel", method = RequestMethod.PUT)
+	@PreAuthorize("hasAuthority('" + VirtualSystemGroupPermission.VS_REQUEST_UPDATE + "')")
+	@ApiOperation(value = "Cancel request", nickname = "cancelRequest", response = VsRequestDto.class, tags = {
+			VsRequestController.TAG }, authorizations = {
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = {
+							@AuthorizationScope(scope = VirtualSystemGroupPermission.VS_REQUEST_UPDATE, description = "") }),
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = {
+							@AuthorizationScope(scope = VirtualSystemGroupPermission.VS_REQUEST_UPDATE, description = "") }) })
+	public ResponseEntity<?> cancel(
+			@ApiParam(value = "Request's uuid identifier.", required = true) @PathVariable @NotNull String backendId) {
+		VsRequestDto request =  ((VsRequestService)getService()).cancel(UUID.fromString(backendId));
+		return new ResponseEntity<>(request, HttpStatus.OK);
+	}
 
 	@Override
 	@ResponseBody

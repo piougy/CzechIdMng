@@ -5,13 +5,14 @@ import java.util.UUID;
 
 import javax.persistence.Column;
 import javax.persistence.ConstraintMode;
-import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.ForeignKey;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -21,7 +22,6 @@ import org.hibernate.validator.constraints.NotEmpty;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
-import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 import eu.bcvsolutions.idm.vs.domain.VsRequestEventType;
@@ -76,6 +76,20 @@ public class VsRequest extends AbstractEntity {
 	@org.hibernate.annotations.ForeignKey(name = "none")
 	private VsRequestBatch batch;
 
+	@ManyToOne
+	@JoinColumn(name = "duplicate_to_request_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in
+										// hibernate 4
+	@org.hibernate.annotations.ForeignKey(name = "none")
+	private VsRequest duplicateToRequest;
+	
+	@ManyToOne(optional = true)
+	@JoinColumn(name = "previous_request_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in
+										// hibernate 4
+	@org.hibernate.annotations.ForeignKey(name = "none")
+	private VsRequest previousRequest;
+	
 	@Audited
 	@Column(name = "connector_conf")
 	private IcConnectorConfiguration configuration;
@@ -152,6 +166,22 @@ public class VsRequest extends AbstractEntity {
 		this.executeImmediately = executeImmediately;
 	}
 
+	public VsRequest getDuplicateToRequest() {
+		return duplicateToRequest;
+	}
+
+	public void setDuplicateToRequest(VsRequest duplicateToRequest) {
+		this.duplicateToRequest = duplicateToRequest;
+	}
+
+	public VsRequest getPreviousRequest() {
+		return previousRequest;
+	}
+
+	public void setPreviousRequest(VsRequest previousRequest) {
+		this.previousRequest = previousRequest;
+	}
+	
 	public VsRequestBatch getBatch() {
 		return batch;
 	}

@@ -54,6 +54,10 @@ public class VsRequestDto extends AbstractDto {
 	private IcConnectorConfiguration configuration;
 	@JsonIgnore
 	private IcConnectorObject connectorObject;
+	@Embedded(dtoClass = VsRequestDto.class)
+	private UUID duplicateToRequest;
+	@Embedded(dtoClass = VsRequestDto.class)
+	private UUID previousRequest;
 
 	public String getUid() {
 		return uid;
@@ -133,5 +137,21 @@ public class VsRequestDto extends AbstractDto {
 
 	public void setConnectorObject(IcConnectorObject connectorObject) {
 		this.connectorObject = connectorObject;
+	}
+
+	public UUID getDuplicateToRequest() {
+		return duplicateToRequest;
+	}
+
+	public void setDuplicateToRequest(UUID duplicateToRequest) {
+		this.duplicateToRequest = duplicateToRequest;
+	}
+
+	public UUID getPreviousRequest() {
+		return previousRequest;
+	}
+
+	public void setPreviousRequest(UUID previousRequest) {
+		this.previousRequest = previousRequest;
 	}
 }

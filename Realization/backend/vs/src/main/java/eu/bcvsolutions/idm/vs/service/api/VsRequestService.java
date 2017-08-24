@@ -27,4 +27,6 @@ public interface VsRequestService extends
 
 	VsRequestDto realize(UUID fromString);
 
+	VsRequestDto cancel(UUID fromString);
+
 }

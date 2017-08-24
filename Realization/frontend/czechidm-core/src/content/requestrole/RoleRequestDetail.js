@@ -389,6 +389,33 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
     );
   }
 
+  _getApplicantAndImplementer(request) {
+    return (
+      <div>
+        <Basic.LabelWrapper
+          rendered={request && request.applicant}
+          readOnly
+          ref="applicant"
+          label={this.i18n('entity.RoleRequest.applicant')}>
+          <Advanced.IdentityInfo
+            username={request && request.applicant}
+            showLoading={!request}/>
+        </Basic.LabelWrapper>
+
+        <Basic.LabelWrapper
+          rendered={request && request.creatorId}
+          readOnly
+          ref="implementer"
+          label={this.i18n('entity.RoleRequest.implementer')}>
+          <Advanced.IdentityInfo
+            face="popover"
+            entityIdentifier={request && request.creatorId}
+            showLoading={!request}/>
+        </Basic.LabelWrapper>
+      </div>
+    );
+  }
+
   _renderRoleConceptTable(request, rendered, isEditable, showLoading, _currentIdentityRoles, addedIdentityRoles, changedIdentityRoles, removedIdentityRoles) {
     if (!rendered) {
       return null;
@@ -475,15 +502,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
             <Basic.AbstractForm readOnly={!isEditable} ref="form" data={request} showLoading={showLoading} style={{ padding: '15px 15px 0 15px' }}>
               <Basic.Row>
                 <div className="col-lg-6">
-                  <Basic.LabelWrapper
-                    rendered={request && request.applicant}
-                    readOnly
-                    ref="applicant"
-                    label={this.i18n('entity.RoleRequest.applicant')}>
-                    <Advanced.IdentityInfo
-                      username={request && request.applicant}
-                      showLoading={!request}/>
-                  </Basic.LabelWrapper>
+                  {this._getApplicantAndImplementer(request)}
                 </div>
               </Basic.Row>
               <Basic.EnumLabel

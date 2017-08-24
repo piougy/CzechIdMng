@@ -2604,6 +2604,7 @@
     },
     "RoleRequest": {
       "applicant": "Žádost pro",
+      "implementer": "Žadatel",
       "state": "Stav",
       "executeImmediately": "Provést bez schválení",
       "log": "Log",

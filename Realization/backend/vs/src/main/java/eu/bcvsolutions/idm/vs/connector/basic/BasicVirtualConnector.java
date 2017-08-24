@@ -18,12 +18,14 @@ import org.springframework.util.CollectionUtils;
 
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.entity.AbstractFormValue;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.eav.service.api.IdmFormAttributeService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.api.IcAttributeInfo;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
@@ -51,13 +53,14 @@ import eu.bcvsolutions.idm.vs.domain.VsRequestEventType;
 import eu.bcvsolutions.idm.vs.domain.VsRequestState;
 import eu.bcvsolutions.idm.vs.entity.VsAccount;
 import eu.bcvsolutions.idm.vs.entity.VsAccount_;
+import eu.bcvsolutions.idm.vs.exception.VsException;
 import eu.bcvsolutions.idm.vs.service.api.VsAccountService;
 import eu.bcvsolutions.idm.vs.service.api.VsRequestService;
 import eu.bcvsolutions.idm.vs.service.api.dto.VsAccountDto;
 import eu.bcvsolutions.idm.vs.service.api.dto.VsRequestDto;
 
 //@Component - we want control create connector instances
-@IcConnectorClass(displayName = "Virtual system for CzechIdM", framework = "czechidm", name = "virtual-system-basic", version = "0.2.0", configurationClass = BasicVirtualConfiguration.class)
+@IcConnectorClass(displayName = "Virtual system for CzechIdM", framework = "czechidm", name = "virtual-system-basic", version = "0.1.2", configurationClass = BasicVirtualConfiguration.class)
 public class BasicVirtualConnector
 		implements VsVirtualConnector {
 
@@ -71,10 +74,11 @@ public class BasicVirtualConnector
 	private VsAccountService accountService;
 	@Autowired
 	private VsRequestService requestService;
+	@Autowired
+	private IdmIdentityService identityService;
 	
 	private BasicVirtualConfiguration virtualConfiguration;
 	private IcConnectorConfiguration configuration;
-	
 	private IdmFormDefinition formDefinition;
 	private String virtualSystemKey;
 	private String connectorKey;
@@ -589,11 +593,33 @@ public class BasicVirtualConnector
 		request.setConfiguration(this.configuration);
 		request.setConnectorKey(connectorKey);
 		request.setConnectorObject(new IcConnectorObjectImpl(uidString, objectClass, attributes));
-		request.setExecuteImmediately(this.virtualConfiguration.isOnlyNotification());
+		request.setExecuteImmediately(!this.virtualConfiguration.isRequiredConfirmation());
 		request.setOperationType(operationType);
+		request.setImplementers(this.loadImplementers(this.virtualConfiguration.getImplementers()));
 		return request;
 	}
 	
+	/**
+	 * Load implementers by UUIDs in connector configuration. Throw exception when identity not found.
+	 * @param implementersString
+	 * @return
+	 */
+	private List<IdmIdentityDto> loadImplementers(String[] implementersString) {
+		if(implementersString == null){
+			return null;
+		}
+		List<IdmIdentityDto> implementers = new ArrayList<>();
+		
+		for(String implementer : implementersString){
+			IdmIdentityDto identity = identityService.get(UUID.fromString(implementer));
+			if(identity == null){
+				throw new VsException(MessageFormat.format("Implementer for UUID [{0}] not found!", implementer));
+			}
+			implementers.add(identity);
+		}
+		return implementers;
+	}
+
 	/**
 	 * Get UID string from UID attribute
 	 * @param uid

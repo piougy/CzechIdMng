@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.vs.connector.basic;
 
 import java.text.MessageFormat;
 import java.util.Arrays;
+import java.util.UUID;
 
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfigurationClass;
 import eu.bcvsolutions.idm.ic.api.annotation.IcConfigurationClassProperty;
@@ -16,14 +17,23 @@ import eu.bcvsolutions.idm.ic.exception.IcException;
 public class BasicVirtualConfiguration implements IcConnectorConfigurationClass {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	private String[] attributes = { "firstName", "lastName", "email" };
 	private String[] implementers;
 	private String[] implementerRoles;
 	private boolean resetPasswordSupported = false;
 	private boolean disableSupported = true;
-	private boolean onlyNotification = false;
+	private boolean requiredConfirmation = true;
 	private String[] reservedNames = { "uid", "__NAME__", "enable", "__ENABLE__", "__PASSWORD__" };
+
+	@IcConfigurationClassProperty(order = 5, displayName = "Required confirmation by the implementer", helpMessage = "All requests will be solved immediately. None notification will be sent to implementers.")
+	public boolean isRequiredConfirmation() {
+		return requiredConfirmation;
+	}
+
+	public void setRequiredConfirmation(boolean requiredConfirmation) {
+		this.requiredConfirmation = requiredConfirmation;
+	}
 
 	@IcConfigurationClassProperty(order = 10, required = true, displayName = "Attributes", helpMessage = "Properties for create EAV model.")
 	public String[] getAttributes() {
@@ -52,7 +62,7 @@ public class BasicVirtualConfiguration implements IcConnectorConfigurationClass 
 		this.implementerRoles = realizatorRoles;
 	}
 
-	@IcConfigurationClassProperty(order = 40, displayName = "Password reset supported", helpMessage = "Not implemented yet!")
+	@IcConfigurationClassProperty(order = 40, displayName = "Supports password reset", helpMessage = "Not implemented yet!")
 	public boolean isResetPasswordSupported() {
 		return resetPasswordSupported;
 	}
@@ -61,22 +71,13 @@ public class BasicVirtualConfiguration implements IcConnectorConfigurationClass 
 		this.resetPasswordSupported = changePasswordSupported;
 	}
 
-	@IcConfigurationClassProperty(order = 50, displayName = "Account disable supported", helpMessage = "Not implemented yet!")
+	@IcConfigurationClassProperty(order = 50, displayName = "Supports account disable/enable", helpMessage = "Not implemented yet!")
 	public boolean isDisableSupported() {
 		return disableSupported;
 	}
 
 	public void setDisableSupported(boolean disableSupported) {
 		this.disableSupported = disableSupported;
-	}
-
-	@IcConfigurationClassProperty(order = 60, displayName = "Only notification", helpMessage = "None implementers task will be crated. Only message will be send. - Not implemented yet!")
-	public boolean isOnlyNotification() {
-		return onlyNotification;
-	}
-
-	public void setOnlyNotification(boolean onlyNotification) {
-		this.onlyNotification = onlyNotification;
 	}
 
 	@Override
@@ -94,6 +95,16 @@ public class BasicVirtualConfiguration implements IcConnectorConfigurationClass 
 				throw new IcException(MessageFormat.format(
 						"BasicVirtualConfiguration validation problem: Attributes contains [{0}] attribute. This attribute name is reserved!",
 						name));
+			}
+		}
+
+		for (String implementer : this.implementers) {
+			try {
+				UUID.fromString(implementer);
+			} catch (IllegalArgumentException ex) {
+				throw new IcException(MessageFormat.format(
+						"BasicVirtualConfiguration validation problem: Implementers must contains only String representation of UUID values. Implementer [{0}] cannot be cast to UUID!",
+						implementer));
 			}
 		}
 	}

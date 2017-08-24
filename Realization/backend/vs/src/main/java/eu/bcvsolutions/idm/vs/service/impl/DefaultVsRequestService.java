@@ -46,6 +46,7 @@ import eu.bcvsolutions.idm.vs.repository.filter.RequestFilter;
 import eu.bcvsolutions.idm.vs.service.api.VsRequestImplementerService;
 import eu.bcvsolutions.idm.vs.service.api.VsRequestService;
 import eu.bcvsolutions.idm.vs.service.api.dto.VsRequestDto;
+import eu.bcvsolutions.idm.vs.service.api.dto.VsRequestImplementerDto;
 
 /**
  * Service for request in virtual system
@@ -113,6 +114,16 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 		if (CollectionUtils.isEmpty(duplicities)) {
 			// We do not have any unfinished requests for this account.
 			VsRequestDto savedRequest = this.save(request, IdmBasePermission.CREATE);
+			if(request.getImplementers() != null){
+				request.getImplementers().forEach(identity -> {
+					// We have some implementers to save
+					VsRequestImplementerDto implementer = new VsRequestImplementerDto();
+					implementer.setRequest(savedRequest.getId());
+					implementer.setIdentity(identity.getId());
+					requestImplementerService.save(implementer);
+				});
+			}
+			
 			return savedRequest;
 		}
 		return request;

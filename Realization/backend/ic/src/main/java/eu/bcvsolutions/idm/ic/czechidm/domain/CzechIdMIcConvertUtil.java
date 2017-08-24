@@ -5,6 +5,7 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,10 +47,12 @@ public class CzechIdMIcConvertUtil {
 		return icProperty;
 	}
 
-	public static IcConnectorInfo convertConnectorClass(IcConnectorClass connectorAnnotation, Class<? extends IcConnector>  clazz) {
+	public static IcConnectorInfo convertConnectorClass(IcConnectorClass connectorAnnotation,
+			Class<? extends IcConnector> clazz) {
 		IcConnectorKey key = new IcConnectorKeyImpl(connectorAnnotation.framework(), clazz.getName(),
 				connectorAnnotation.version(), connectorAnnotation.name());
-		IcConnectorInfo info = new IcConnectorInfoImpl(connectorAnnotation.displayName(),
+		IcConnectorInfo info = new IcConnectorInfoImpl(
+				MessageFormat.format("{0} {1}", connectorAnnotation.displayName(), connectorAnnotation.version()),
 				connectorAnnotation.framework(), key);
 		return info;
 	}

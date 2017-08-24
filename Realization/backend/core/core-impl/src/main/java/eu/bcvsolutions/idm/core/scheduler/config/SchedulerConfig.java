@@ -33,9 +33,6 @@ import eu.bcvsolutions.idm.core.scheduler.service.impl.DefaultSchedulerManager;
 @ConditionalOnProperty(prefix = "scheduler", name = "enabled", matchIfMissing = true)
 public class SchedulerConfig {
 	
-//	@Autowired
-//	private DataSource dataSource; // TODO: after flyway will be enabled
-	
 	@Value("${scheduler.properties.location:/quartz.properties}")
     private String propertiesLocation;
 
@@ -59,11 +56,11 @@ public class SchedulerConfig {
 		try {
 			Properties quartzProperties = quartzProperties();
 			SchedulerFactoryBean factory = new SchedulerFactoryBean();
-	        factory.setOverwriteExistingJobs(true); // update triggers in DB whe config file is changed
+	        factory.setOverwriteExistingJobs(true); // update triggers in DB when config file is changed
 	        // if store is set to DB set data source, else store in RAM
 	        Object store = quartzProperties.get("org.quartz.jobStore.class");
 	        if (store != null && !StringUtils.equals(store.toString(), RAMJobStore.class.getCanonicalName())) {
-	        	DataSource dataSource = (DataSource)context.getBean("dataSource");
+	        	DataSource dataSource = (DataSource) context.getBean("dataSource");
 	        	factory.setDataSource(dataSource);
 	        }
 	        factory.setJobFactory(jobFactory(context));
@@ -84,6 +81,10 @@ public class SchedulerConfig {
 
 	@Bean(name = "schedulerManager")
 	public SchedulerManager schedulerManager(ApplicationContext context) {
-		return new DefaultSchedulerManager(context, schedulerFactoryBean(context).getScheduler());
+		SchedulerManager manager = new DefaultSchedulerManager(context, schedulerFactoryBean(context).getScheduler());
+		// read all task - checks obsolete task types and remove them before scheduler starts automatically
+		manager.getAllTasks();
+		//
+		return manager;
 	}
 }

@@ -157,7 +157,7 @@ public class DefaultSchedulerManager implements SchedulerManager {
 			}
 			return task;
 		} catch (org.quartz.SchedulerException ex) {
-			if(ex.getCause() instanceof ClassNotFoundException) {
+			if (ex.getCause() instanceof ClassNotFoundException) {
 				deleteTask(jobKey.getName());
 				LOG.warn("Job [{}] inicialization failed, job class was removed, scheduled task was removed too.", jobKey, ex);
 				return null;

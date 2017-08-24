@@ -35,7 +35,6 @@ import eu.bcvsolutions.idm.core.scheduler.jaxb.IdmScheduledTasksType;
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
-
 public abstract class AbstractScheduledTaskInitializer implements ApplicationListener<ContextRefreshedEvent> {
 
 	protected static final String DEFAULT_RESOURCE = "eu/bcvsolutions/idm/tasks/";

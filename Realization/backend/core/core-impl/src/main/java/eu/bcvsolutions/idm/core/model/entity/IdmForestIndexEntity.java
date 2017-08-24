@@ -29,7 +29,7 @@ public class IdmForestIndexEntity extends AbstractForestIndex<IdmForestIndexEnti
 	private static final long serialVersionUID = 1L;
 	
 	@JsonDeserialize(as = UUID.class)
-	@Column(name = "content_id", nullable = true)
+	@Column(name = "content_id", nullable = true, length = 16)
 	private UUID contentId;
 
 	public IdmForestIndexEntity() {

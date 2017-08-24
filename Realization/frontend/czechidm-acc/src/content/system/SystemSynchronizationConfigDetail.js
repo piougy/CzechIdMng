@@ -285,7 +285,7 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
     const forceSearchMappingAttributes = new Domain.SearchParameters().setFilter('systemId', systemId || Domain.SearchParameters.BLANK_UUID);
     const forceSearchSyncActionWfKey = new Domain.SearchParameters().setFilter('category', syncActionWfKey);
     const synchronizationConfig = isNew ? this.state.synchronizationConfig : _synchronizationConfig;
-    const attributeMappingIdFromEntity = synchronizationConfig && synchronizationConfig.systemMapping ? synchronizationConfig.systemMapping.id : null;
+    const attributeMappingIdFromEntity = synchronizationConfig && synchronizationConfig.systemMapping ? synchronizationConfig.systemMapping : null;
     const forceSearchCorrelationAttribute = new Domain.SearchParameters().setFilter('systemMappingId', systemMappingId || attributeMappingIdFromEntity || Domain.SearchParameters.BLANK_UUID);
 
     let isSelectedTree = false;
@@ -294,7 +294,8 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
         isSelectedTree = true;
       }
     } else {
-      if (synchronizationConfig && synchronizationConfig.systemMapping && synchronizationConfig.systemMapping.entityType === SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.TREE)) {
+      if (synchronizationConfig && synchronizationConfig._embedded && synchronizationConfig._embedded.systemMapping
+          && synchronizationConfig._embedded.systemMapping.entityType === SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.TREE)) {
         isSelectedTree = true;
       }
     }

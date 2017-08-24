@@ -16,6 +16,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
+import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
@@ -54,6 +56,7 @@ import eu.bcvsolutions.idm.vs.domain.VsRequestState;
 import eu.bcvsolutions.idm.vs.entity.VsAccount;
 import eu.bcvsolutions.idm.vs.entity.VsAccount_;
 import eu.bcvsolutions.idm.vs.exception.VsException;
+import eu.bcvsolutions.idm.vs.exception.VsResultCode;
 import eu.bcvsolutions.idm.vs.service.api.VsAccountService;
 import eu.bcvsolutions.idm.vs.service.api.VsRequestService;
 import eu.bcvsolutions.idm.vs.service.api.dto.VsAccountDto;
@@ -613,7 +616,7 @@ public class BasicVirtualConnector
 		for(String implementer : implementersString){
 			IdmIdentityDto identity = identityService.get(UUID.fromString(implementer));
 			if(identity == null){
-				throw new VsException(MessageFormat.format("Implementer for UUID [{0}] not found!", implementer));
+				throw new VsException(VsResultCode.VS_IMPLEMENTER_WAS_NOT_FOUND, ImmutableMap.of("implementer", implementer));
 			}
 			implementers.add(identity);
 		}

@@ -1,6 +1,5 @@
 package eu.bcvsolutions.idm.vs;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -9,8 +8,6 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.core.api.domain.PropertyModuleDescriptor;
-import eu.bcvsolutions.idm.core.notification.api.dto.NotificationConfigurationDto;
-import eu.bcvsolutions.idm.core.notification.entity.IdmWebsocketLog;
 import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
 import eu.bcvsolutions.idm.vs.domain.VirtualSystemGroupPermission;
 

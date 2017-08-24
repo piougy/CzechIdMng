@@ -1,21 +1,22 @@
 package eu.bcvsolutions.idm.vs.rest.impl;
 
 import java.util.Set;
+import java.util.UUID;
 
-import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.Resources;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Controller;
 import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -26,6 +27,7 @@ import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.vs.domain.VirtualSystemGroupPermission;
+import eu.bcvsolutions.idm.vs.domain.VsRequestState;
 import eu.bcvsolutions.idm.vs.repository.VsRequestRepository;
 import eu.bcvsolutions.idm.vs.repository.filter.RequestFilter;
 import eu.bcvsolutions.idm.vs.service.api.VsRequestService;
@@ -42,6 +44,7 @@ import io.swagger.annotations.AuthorizationScope;
  * @author Svanda
  *
  */
+@Controller
 @RequestMapping(value = BaseDtoController.BASE_PATH + "/vs/requests")
 @Api(value = VsRequestController.TAG, tags = {
 		VsRequestController.TAG }, description = "Operations with requests (in virtual system)", produces = BaseController.APPLICATION_HAL_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -120,37 +123,20 @@ public class VsRequestController extends AbstractReadWriteDtoController<VsReques
 		return super.get(backendId);
 	}
 
-	@Override
-	@ResponseBody
-	@RequestMapping(method = RequestMethod.POST)
-	@PreAuthorize("hasAuthority('" + VirtualSystemGroupPermission.VS_REQUEST_CREATE + "') or hasAuthority('"
-			+ VirtualSystemGroupPermission.VS_REQUEST_UPDATE + "')")
-	@ApiOperation(value = "Create / update request", nickname = "postRequest", response = VsRequestDto.class, tags = {
-			VsRequestController.TAG }, authorizations = {
-					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = {
-							@AuthorizationScope(scope = VirtualSystemGroupPermission.VS_REQUEST_CREATE, description = ""),
-							@AuthorizationScope(scope = VirtualSystemGroupPermission.VS_REQUEST_UPDATE, description = "") }),
-					@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = {
-							@AuthorizationScope(scope = VirtualSystemGroupPermission.VS_REQUEST_CREATE, description = ""),
-							@AuthorizationScope(scope = VirtualSystemGroupPermission.VS_REQUEST_UPDATE, description = "") }) })
-	public ResponseEntity<?> post(@Valid @RequestBody VsRequestDto dto) {
-		return super.post(dto);
-	}
 
-	@Override
 	@ResponseBody
-	@RequestMapping(value = "/{backendId}", method = RequestMethod.PUT)
+	@RequestMapping(value = "/{backendId}/realize", method = RequestMethod.PUT)
 	@PreAuthorize("hasAuthority('" + VirtualSystemGroupPermission.VS_REQUEST_UPDATE + "')")
-	@ApiOperation(value = "Update request", nickname = "putRequest", response = VsRequestDto.class, tags = {
+	@ApiOperation(value = "Realize request", nickname = "realizeRequest", response = VsRequestDto.class, tags = {
 			VsRequestController.TAG }, authorizations = {
 					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = {
 							@AuthorizationScope(scope = VirtualSystemGroupPermission.VS_REQUEST_UPDATE, description = "") }),
 					@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = {
 							@AuthorizationScope(scope = VirtualSystemGroupPermission.VS_REQUEST_UPDATE, description = "") }) })
-	public ResponseEntity<?> put(
-			@ApiParam(value = "Request's uuid identifier.", required = true) @PathVariable @NotNull String backendId,
-			@Valid @RequestBody VsRequestDto dto) {
-		return super.put(backendId, dto);
+	public ResponseEntity<?> realize(
+			@ApiParam(value = "Request's uuid identifier.", required = true) @PathVariable @NotNull String backendId) {
+		VsRequestDto request =  ((VsRequestService)getService()).realize(UUID.fromString(backendId));
+		return new ResponseEntity<>(request, HttpStatus.OK);
 	}
 
 	@Override
@@ -165,7 +151,7 @@ public class VsRequestController extends AbstractReadWriteDtoController<VsReques
 							@AuthorizationScope(scope = VirtualSystemGroupPermission.VS_REQUEST_DELETE, description = "") }) })
 	public ResponseEntity<?> delete(
 			@ApiParam(value = "Request's uuid identifier.", required = true) @PathVariable @NotNull String backendId) {
-		return super.delete(backendId);
+		return super.delete(backendId); 
 	}
 
 	@Override
@@ -190,7 +176,7 @@ public class VsRequestController extends AbstractReadWriteDtoController<VsReques
 	@Override
 	protected RequestFilter toFilter(MultiValueMap<String, Object> parameters) {
 		RequestFilter filter = new RequestFilter();
-
+		filter.setState(getParameterConverter().toEnum(parameters, "state", VsRequestState.class));
 		return filter;
 	}
 }

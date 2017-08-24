@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.vs.service.impl;
 import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.List;
+import java.util.UUID;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -15,7 +16,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
+
+import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.event.EventContext;
@@ -41,6 +45,8 @@ import eu.bcvsolutions.idm.vs.entity.VsRequest_;
 import eu.bcvsolutions.idm.vs.event.VsRequestEvent;
 import eu.bcvsolutions.idm.vs.event.VsRequestEvent.VsRequestEventType;
 import eu.bcvsolutions.idm.vs.event.processor.VsRequestRealizationProcessor;
+import eu.bcvsolutions.idm.vs.exception.VsException;
+import eu.bcvsolutions.idm.vs.exception.VsResultCode;
 import eu.bcvsolutions.idm.vs.repository.VsRequestRepository;
 import eu.bcvsolutions.idm.vs.repository.filter.RequestFilter;
 import eu.bcvsolutions.idm.vs.service.api.VsRequestImplementerService;
@@ -83,6 +89,7 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public VsRequestDto get(Serializable id, BasePermission... permission) {
 
 		VsRequestDto request = super.get(id, permission);
@@ -99,6 +106,33 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 	}
 
 	@Override
+	@Transactional
+	public VsRequestDto realize(UUID requestId) {
+		LOG.info(MessageFormat.format("Start realize virtual system request [{0}].", requestId));
+
+		Assert.notNull(requestId, "Id of VS request cannot be null!");
+		VsRequestDto request = this.get(requestId, IdmBasePermission.READ);
+		Assert.notNull(request, "VS request cannot be null!");
+		this.checkAccess(request, IdmBasePermission.UPDATE);
+
+		if (VsRequestState.IN_PROGRESS != request.getState()) {
+			throw new VsException(VsResultCode.VS_REQUEST_REALIZE_WRONG_STATE,
+					ImmutableMap.of("state", VsRequestState.IN_PROGRESS.name(), "currentState", request.getState()));
+		}
+
+		request.setState(VsRequestState.REALIZED);
+		// Realize request ... propagate change to VS account.
+		IcUidAttribute uidAttribute = this.internalExecute(request);
+		// Save realized request
+		request = this.save(request);
+
+		LOG.info(MessageFormat.format("Virtual system request [{0}] was realized. Output UID attribute: [{1}]",
+				requestId, uidAttribute));
+		return request;
+	}
+
+	@Override
+	@Transactional
 	public IcUidAttribute execute(VsRequestDto request) {
 		EventContext<VsRequestDto> event = entityEventManager
 				.process(new VsRequestEvent(VsRequestEventType.EXCECUTE, request));
@@ -107,6 +141,7 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 	}
 
 	@Override
+	@Transactional
 	public VsRequestDto createRequest(VsRequestDto request) {
 		Assert.notNull(request, "Request cannot be null!");
 
@@ -114,16 +149,16 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 		if (CollectionUtils.isEmpty(duplicities)) {
 			// We do not have any unfinished requests for this account.
 			VsRequestDto savedRequest = this.save(request, IdmBasePermission.CREATE);
-			if(request.getImplementers() != null){
+			if (request.getImplementers() != null) {
 				request.getImplementers().forEach(identity -> {
 					// We have some implementers to save
 					VsRequestImplementerDto implementer = new VsRequestImplementerDto();
 					implementer.setRequest(savedRequest.getId());
-					implementer.setIdentity(identity.getId());
+					implementer.setIdentity(identity.getId()); 
 					requestImplementerService.save(implementer);
 				});
 			}
-			
+
 			return savedRequest;
 		}
 		return request;
@@ -131,62 +166,70 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 	}
 
 	@Override
-	public IcUidAttribute internalExecute(VsRequestDto request) {
+	public IcUidAttribute internalStart(VsRequestDto request) {
 		Assert.notNull(request, "Request cannot be null!");
 		if (request.isExecuteImmediately()) {
 			// Request will be realized now
-			request.setState(VsRequestState.REALIZED);
-			Assert.notNull(request.getConfiguration(), "Request have to contains connector configuration!");
-			Assert.notNull(request.getConnectorKey(), "Request have to contains connector key!");
-
-			IcConnectorInfo connectorInfo = czechIdMConfigurationService.getAvailableLocalConnectors()//
-					.stream()//
-					.filter(info -> request.getConnectorKey().equals(info.getConnectorKey().getFullName()))//
-					.findFirst()//
-					.orElse(null);
-			if (connectorInfo == null) {
-				throw new IcException(MessageFormat.format(
-						"We cannot found connector info by connector key [{0}] from virtual system request!",
-						request.getConnectorKey()));
-			}
-
-			IcConnectorInstance connectorKeyInstance = new IcConnectorInstanceImpl(null,
-					connectorInfo.getConnectorKey(), false);
-			IcConnector connectorInstance = czechIdMConnectorService.getConnectorInstance(connectorKeyInstance,
-					request.getConfiguration());
-			if (!(connectorInstance instanceof VsVirtualConnector)) {
-				throw new IcException("Found connector instance is not virtual system connector!");
-			}
-			VsVirtualConnector virtualConnector = (VsVirtualConnector) connectorInstance;
-
-			IcUidAttribute result = null;
-
-			// Save the request
-			this.save(request);
-			switch (request.getOperationType()) {
-			case CREATE: {
-				result = virtualConnector.internalCreate(request.getConnectorObject().getObjectClass(),
-						request.getConnectorObject().getAttributes());
-				break;
-			}
-			case UPDATE: {
-				result = virtualConnector.internalUpdate(new IcUidAttributeImpl(null, request.getUid(), null),
-						request.getConnectorObject().getObjectClass(), request.getConnectorObject().getAttributes());
-				break;
-			}
-			case DELETE: {
-				virtualConnector.internalDelete(new IcUidAttributeImpl(null, request.getUid(), null),
-						request.getConnectorObject().getObjectClass());
-				break;
-			}
-
-			default:
-				throw new IcException(
-						MessageFormat.format("Unsupported operation type [{0}]", request.getOperationType()));
-			}
+			IcUidAttribute result = internalExecute(request);
 			return result;
 		}
+		this.sendNotification(request); // TODO
+		request.setState(VsRequestState.IN_PROGRESS);
+		this.save(request);
 		return null;
+	}
+
+	@Override
+	public IcUidAttribute internalExecute(VsRequestDto request) {
+		request.setState(VsRequestState.REALIZED);
+		Assert.notNull(request.getConfiguration(), "Request have to contains connector configuration!");
+		Assert.notNull(request.getConnectorKey(), "Request have to contains connector key!");
+
+		IcConnectorInfo connectorInfo = czechIdMConfigurationService.getAvailableLocalConnectors()//
+				.stream()//
+				.filter(info -> request.getConnectorKey().equals(info.getConnectorKey().getFullName()))//
+				.findFirst()//
+				.orElse(null);
+		if (connectorInfo == null) {
+			throw new IcException(MessageFormat.format(
+					"We cannot found connector info by connector key [{0}] from virtual system request!",
+					request.getConnectorKey()));
+		}
+
+		IcConnectorInstance connectorKeyInstance = new IcConnectorInstanceImpl(null, connectorInfo.getConnectorKey(),
+				false);
+		IcConnector connectorInstance = czechIdMConnectorService.getConnectorInstance(connectorKeyInstance,
+				request.getConfiguration());
+		if (!(connectorInstance instanceof VsVirtualConnector)) {
+			throw new IcException("Found connector instance is not virtual system connector!");
+		}
+		VsVirtualConnector virtualConnector = (VsVirtualConnector) connectorInstance;
+
+		IcUidAttribute result = null;
+
+		// Save the request
+		this.save(request);
+		switch (request.getOperationType()) {
+		case CREATE: {
+			result = virtualConnector.internalCreate(request.getConnectorObject().getObjectClass(),
+					request.getConnectorObject().getAttributes());
+			break;
+		}
+		case UPDATE: {
+			result = virtualConnector.internalUpdate(new IcUidAttributeImpl(null, request.getUid(), null),
+					request.getConnectorObject().getObjectClass(), request.getConnectorObject().getAttributes());
+			break;
+		}
+		case DELETE: {
+			virtualConnector.internalDelete(new IcUidAttributeImpl(null, request.getUid(), null),
+					request.getConnectorObject().getObjectClass());
+			break;
+		}
+
+		default:
+			throw new IcException(MessageFormat.format("Unsupported operation type [{0}]", request.getOperationType()));
+		}
+		return result;
 	}
 
 	private List<VsRequestDto> findDuplicities(VsRequestDto request) {
@@ -198,6 +241,11 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 
 		List<VsRequestDto> duplicities = this.find(filter, null).getContent();
 		return duplicities;
+	}
+
+	private void sendNotification(VsRequestDto request) {
+		// TODO
+
 	}
 
 	@Override
@@ -220,6 +268,12 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 		if (filter.getSystemId() != null) {
 			predicates.add(builder.equal(root.get(VsRequest_.systemId), filter.getSystemId()));
 		}
+
+		// State
+		if (filter.getState() != null) {
+			predicates.add(builder.equal(root.get(VsRequest_.state), filter.getState()));
+		}
+
 		return predicates;
 	}
 

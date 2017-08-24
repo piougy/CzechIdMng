@@ -16,11 +16,13 @@ import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 import eu.bcvsolutions.idm.vs.domain.VirtualSystemGroupPermission;
 import eu.bcvsolutions.idm.vs.entity.VsRequestImplementer;
 import eu.bcvsolutions.idm.vs.entity.VsRequestImplementer_;
+import eu.bcvsolutions.idm.vs.entity.VsRequest_;
 import eu.bcvsolutions.idm.vs.repository.VsRequestImplementerRepository;
 import eu.bcvsolutions.idm.vs.repository.filter.RequestImplementerFilter;
 import eu.bcvsolutions.idm.vs.service.api.VsRequestImplementerService;
@@ -59,12 +61,12 @@ public class DefaultVsRequestImplementerService
 
 		// Request ID
 		if (filter.getRequestId() != null) {
-			predicates.add(builder.equal(root.get(VsRequestImplementer_.request), filter.getRequestId()));
+			predicates.add(builder.equal(root.get(VsRequestImplementer_.request).get(VsRequest_.id), filter.getRequestId()));
 		}
 
 		// Identity ID
 		if (filter.getIdentityId() != null) {
-			predicates.add(builder.equal(root.get(VsRequestImplementer_.identity), filter.getIdentityId()));
+			predicates.add(builder.equal(root.get(VsRequestImplementer_.identity).get(IdmIdentity_.id), filter.getIdentityId()));
 		}
 		return predicates;
 	}

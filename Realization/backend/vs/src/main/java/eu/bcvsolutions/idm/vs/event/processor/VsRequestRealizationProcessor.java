@@ -48,7 +48,7 @@ public class VsRequestRealizationProcessor extends CoreEventProcessor<VsRequestD
 		VsRequestDto dto = event.getContent();
 		//
 		dto = service.createRequest(dto);
-		IcUidAttribute uid = service.internalExecute(dto);
+		IcUidAttribute uid = service.internalStart(dto);
 		event.getProperties().put(VsRequestRealizationProcessor.RESULT_UID, uid);
 		event.setContent(dto);
 		//		

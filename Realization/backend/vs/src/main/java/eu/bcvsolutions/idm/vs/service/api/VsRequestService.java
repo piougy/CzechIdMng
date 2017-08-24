@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.vs.service.api;
 
+import java.util.UUID;
+
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
@@ -17,8 +19,12 @@ public interface VsRequestService extends
 
 	IcUidAttribute execute(VsRequestDto request);
 
-	IcUidAttribute internalExecute(VsRequestDto request);
+	IcUidAttribute internalStart(VsRequestDto request);
 
 	VsRequestDto createRequest(VsRequestDto request);
+
+	IcUidAttribute internalExecute(VsRequestDto request);
+
+	VsRequestDto realize(UUID fromString);
 
 }

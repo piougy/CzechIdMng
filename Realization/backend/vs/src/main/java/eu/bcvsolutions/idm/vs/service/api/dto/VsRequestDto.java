@@ -9,6 +9,8 @@ import javax.validation.constraints.Size;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.hateoas.core.Relation;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
@@ -48,7 +50,9 @@ public class VsRequestDto extends AbstractDto {
 	@Embedded(dtoClass = VsRequestBatchDto.class)
 	private UUID batch;
 	private List<IdmIdentityDto> implementers;
+	@JsonIgnore
 	private IcConnectorConfiguration configuration;
+	@JsonIgnore
 	private IcConnectorObject connectorObject;
 
 	public String getUid() {

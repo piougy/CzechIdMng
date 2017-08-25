@@ -28,7 +28,7 @@ public class VirtualSystemSwaggerConfig extends AbstractSwaggerConfig {
 	}
 
 	@Bean
-	public Docket exampleApi() {
+	public Docket vsApi() {
 		return api("eu.bcvsolutions.idm.vs.rest");
 	}
 }

@@ -5,7 +5,7 @@ import java.util.UUID;
 import javax.validation.constraints.NotNull;
 
 import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
-import eu.bcvsolutions.idm.vs.domain.VsRequestEventType;
+import eu.bcvsolutions.idm.vs.domain.VsOperationType;
 import eu.bcvsolutions.idm.vs.domain.VsRequestState;
 
 /**
@@ -20,7 +20,7 @@ public class RequestFilter extends QuickFilter {
 	private String uid;
 	private UUID systemId;
 	private String connectorKey;
-	private VsRequestEventType operationType;
+	private VsOperationType operationType;
 	private VsRequestState state;
 	private Boolean unfinished;
 	
@@ -48,11 +48,11 @@ public class RequestFilter extends QuickFilter {
 		this.connectorKey = connectorKey;
 	}
 
-	public VsRequestEventType getOperationType() {
+	public VsOperationType getOperationType() {
 		return operationType;
 	}
 
-	public void setOperationType(VsRequestEventType operationType) {
+	public void setOperationType(VsOperationType operationType) {
 		this.operationType = operationType;
 	}
 

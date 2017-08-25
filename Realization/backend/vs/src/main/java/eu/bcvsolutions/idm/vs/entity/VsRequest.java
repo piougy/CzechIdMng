@@ -24,7 +24,7 @@ import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
-import eu.bcvsolutions.idm.vs.domain.VsRequestEventType;
+import eu.bcvsolutions.idm.vs.domain.VsOperationType;
 import eu.bcvsolutions.idm.vs.domain.VsRequestState;
 
 /**
@@ -67,7 +67,7 @@ public class VsRequest extends AbstractEntity {
 	@NotNull
 	@Enumerated(EnumType.STRING)
 	@Column(name = "operation_type", nullable = false)
-	private VsRequestEventType operationType;
+	private VsOperationType operationType;
 
 	@ManyToOne
 	@JoinColumn(name = "request_batch_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
@@ -109,11 +109,11 @@ public class VsRequest extends AbstractEntity {
 	@Column(name = "execute_immediately")
 	private boolean executeImmediately = false;
 
-	public VsRequestEventType getOperationType() {
+	public VsOperationType getOperationType() {
 		return operationType;
 	}
 
-	public void setOperationType(VsRequestEventType operationType) {
+	public void setOperationType(VsOperationType operationType) {
 		this.operationType = operationType;
 	}
 

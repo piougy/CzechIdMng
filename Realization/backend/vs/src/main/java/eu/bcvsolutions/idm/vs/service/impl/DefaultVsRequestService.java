@@ -46,6 +46,7 @@ import eu.bcvsolutions.idm.ic.impl.IcConnectorInstanceImpl;
 import eu.bcvsolutions.idm.ic.impl.IcUidAttributeImpl;
 import eu.bcvsolutions.idm.vs.connector.api.VsVirtualConnector;
 import eu.bcvsolutions.idm.vs.domain.VirtualSystemGroupPermission;
+import eu.bcvsolutions.idm.vs.domain.VsOperationType;
 import eu.bcvsolutions.idm.vs.domain.VsRequestState;
 import eu.bcvsolutions.idm.vs.entity.VsRequest;
 import eu.bcvsolutions.idm.vs.entity.VsRequest_;
@@ -174,12 +175,9 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 	@Transactional
 	public VsRequestDto createRequest(VsRequestDto req) {
 		Assert.notNull(req, "Request cannot be null!");
-		
-		// Unfinished requests for same UID and system
-		List<VsRequestDto> duplicities = findDuplicities(req);
-		
+
 		// Save new request
-		req.setState(VsRequestState.IN_PROGRESS);
+		req.setState(VsRequestState.CONCEPT);
 		VsRequestDto request = this.save(req, IdmBasePermission.CREATE);
 		if (request.getImplementers() != null) {
 			request.getImplementers().forEach(identity -> {
@@ -190,50 +188,52 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 				requestImplementerService.save(implementer);
 			});
 		}
-		if (CollectionUtils.isEmpty(duplicities)) {
-			// We do not have any unfinished requests for this account.
-			return request;
-		}
-		
-		// Get the newest request
-		VsRequestDto previousRequest = duplicities.get(0);
-		request.setPreviousRequest(previousRequest.getId());
-		
-		if(this.isRequestSame(request, previousRequest)){
-			request.setState(VsRequestState.DUPLICATED);
-		}
-		
-		return this.save(request);
-
-	}
-
-	private boolean isRequestSame(VsRequestDto request, VsRequestDto previousRequest) {
-		Assert.notNull(request, "Request cannot be null!");
-		Assert.notNull(previousRequest, "Previous request cannot be null!");
-		Assert.notNull(request.getConnectorObject(), "Request connector object cannot be null!");
-		Assert.notNull(previousRequest.getConnectorObject(), "Previous request connector object cannot be null!");
-		
-		List<IcAttribute> requestAttributes = request.getConnectorObject().getAttributes();
-		List<IcAttribute> previousRequestAttributes = previousRequest.getConnectorObject().getAttributes();
-		
-		return CollectionUtils.isEqualCollection(requestAttributes, previousRequestAttributes);
+		return request;
 	}
 
 	@Override
 	public IcUidAttribute internalStart(VsRequestDto request) {
 		Assert.notNull(request, "Request cannot be null!");
-		if(VsRequestState.DUPLICATED == request.getState()){
+		// Unfinished requests for same UID and system
+		List<VsRequestDto> duplicities = findDuplicities(request);
+		request.setState(VsRequestState.IN_PROGRESS);
+
+		if (!CollectionUtils.isEmpty(duplicities)) {
+			// Get the newest request (for same operation)
+			VsRequestDto previousRequest = this.getPreviousRequest(request.getOperationType(), duplicities);
+			// Shows on previous request with same operation type. We need this for create diff.
+			request.setPreviousRequest(previousRequest.getId());
+
+			if (this.isRequestSame(request, previousRequest)) {
+				request.setDuplicateToRequest(previousRequest.getId());
+				request.setState(VsRequestState.DUPLICATED);
+			}
+		}
+		request = this.save(request);
+
+		if (VsRequestState.DUPLICATED == request.getState()) {
 			return null;
 		}
-		
+
 		if (request.isExecuteImmediately()) {
 			// Request will be realized now
 			IcUidAttribute result = internalExecute(request);
 			return result;
 		}
-		this.sendNotification(request); // TODO
-		request.setState(VsRequestState.IN_PROGRESS);
-		this.save(request);
+
+		// Find previous request ... not matter on operation type. Simple get last request.
+		VsRequestDto lastRequest = this.getPreviousRequest(null, duplicities);
+		
+		if (lastRequest != null) {
+			// Send update message
+			// TODO: send message
+			this.sendNotification(request, this.get(request.getPreviousRequest()));
+		}
+		{
+			// Send new message
+			// TODO: send message
+			this.sendNotification(request, null); // TODO
+		}
 		return null;
 	}
 
@@ -290,26 +290,10 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 		return result;
 	}
 
-	private List<VsRequestDto> findDuplicities(VsRequestDto request) {
-		RequestFilter filter = new RequestFilter();
-		filter.setUid(request.getUid());
-		filter.setSystemId(request.getSystemId());
-		// filter.setOperationType(request.getOperationType());
-		filter.setState(VsRequestState.IN_PROGRESS);
-		Sort sort = new Sort(Direction.DESC,VsRequest_.created.getName());
-		List<VsRequestDto> duplicities = this.find(filter, new PageRequest(0, Integer.MAX_VALUE, sort)).getContent();
-		return duplicities;
-	}
-
-	private void sendNotification(VsRequestDto request) {
-		// TODO
-
-	}
-
 	@Override
 	protected List<Predicate> toPredicates(Root<VsRequest> root, CriteriaQuery<?> query, CriteriaBuilder builder,
 			RequestFilter filter) {
-		
+
 		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
 		//
 		// quick - "fulltext"
@@ -344,6 +328,84 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 	@Override
 	public AuthorizableType getAuthorizableType() {
 		return new AuthorizableType(VirtualSystemGroupPermission.VSREQUEST, getEntityClass());
+	}
+
+	private void sendNotification(VsRequestDto request, VsRequestDto vsRequestDto) {
+		// TODO
+
+	}
+
+	/**
+	 * Find duplicity requests. All request in state IN_PROGRESS for same UID
+	 * and system. For all operation types.
+	 * 
+	 * @param request
+	 * @return
+	 */
+	private List<VsRequestDto> findDuplicities(VsRequestDto request) {
+		RequestFilter filter = new RequestFilter();
+		filter.setUid(request.getUid());
+		filter.setSystemId(request.getSystemId());
+		// filter.setOperationType(request.getOperationType());
+		filter.setState(VsRequestState.IN_PROGRESS);
+		Sort sort = new Sort(Direction.DESC, VsRequest_.created.getName());
+		List<VsRequestDto> duplicities = this.find(filter, new PageRequest(0, Integer.MAX_VALUE, sort)).getContent();
+		return duplicities;
+	}
+
+	/**
+	 * Check if is request same. Request are equals only if have same UID,
+	 * system, operation type, all connector attributes (attributes may have not
+	 * the same order).
+	 * 
+	 * @param request
+	 * @param previousRequest
+	 * @return
+	 */
+	private boolean isRequestSame(VsRequestDto request, VsRequestDto previousRequest) {
+		Assert.notNull(request, "Request cannot be null!");
+		Assert.notNull(previousRequest, "Previous request cannot be null!");
+		Assert.notNull(request.getConnectorObject(), "Request connector object cannot be null!");
+		Assert.notNull(previousRequest.getConnectorObject(), "Previous request connector object cannot be null!");
+
+		if ((!request.getUid().equals(previousRequest.getUid()))
+				|| (!request.getSystemId().equals(previousRequest.getSystemId()))
+				|| request.getOperationType() != previousRequest.getOperationType()) {
+			return false;
+		}
+		List<IcAttribute> requestAttributes = request.getConnectorObject().getAttributes();
+		List<IcAttribute> previousRequestAttributes = previousRequest.getConnectorObject().getAttributes();
+
+		return CollectionUtils.isEqualCollection(requestAttributes, previousRequestAttributes);
+	}
+
+	/**
+	 * Find previous request for same operation type. Given duplicities must be
+	 * DESC sorted by when was requests created.
+	 * 
+	 * @param operation
+	 * @param duplicities
+	 * @return
+	 */
+	private VsRequestDto getPreviousRequest(VsOperationType operation, List<VsRequestDto> duplicities) {
+		Assert.notNull(duplicities);
+		if (operation == null) {
+			return duplicities.get(0);
+		}
+		VsRequestDto previousRequest = duplicities.stream()//
+				.filter(duplicant -> operation == duplicant.getOperationType())//
+				.findFirst()//
+				.orElse(null);
+
+		// If any previous request for update operation was not found, then we
+		// try find request for Create operation.
+		if (previousRequest == null && VsOperationType.UPDATE == operation) {
+			previousRequest = duplicities.stream()//
+					.filter(duplicant -> VsOperationType.CREATE == duplicant.getOperationType())//
+					.findFirst()//
+					.orElse(null);
+		}
+		return previousRequest;
 	}
 
 }

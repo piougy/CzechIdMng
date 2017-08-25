@@ -17,7 +17,7 @@ import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
-import eu.bcvsolutions.idm.vs.domain.VsRequestEventType;
+import eu.bcvsolutions.idm.vs.domain.VsOperationType;
 import eu.bcvsolutions.idm.vs.domain.VsRequestState;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -42,7 +42,7 @@ public class VsRequestDto extends AbstractDto {
 	private UUID systemId;
 	@ApiModelProperty(required = true, notes = "Connector identifier. UID on system and for connector.")
 	private String connectorKey;
-	private VsRequestEventType operationType;
+	private VsOperationType operationType;
 	@NotNull
 	private VsRequestState state;
 	@NotNull
@@ -83,11 +83,11 @@ public class VsRequestDto extends AbstractDto {
 		this.connectorKey = connectorKey;
 	}
 
-	public VsRequestEventType getOperationType() {
+	public VsOperationType getOperationType() {
 		return operationType;
 	}
 
-	public void setOperationType(VsRequestEventType operationType) {
+	public void setOperationType(VsOperationType operationType) {
 		this.operationType = operationType;
 	}
 

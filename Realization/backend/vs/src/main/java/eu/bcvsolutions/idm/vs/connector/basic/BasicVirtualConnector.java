@@ -51,7 +51,7 @@ import eu.bcvsolutions.idm.ic.impl.IcObjectClassInfoImpl;
 import eu.bcvsolutions.idm.ic.impl.IcSchemaImpl;
 import eu.bcvsolutions.idm.ic.impl.IcUidAttributeImpl;
 import eu.bcvsolutions.idm.vs.connector.api.VsVirtualConnector;
-import eu.bcvsolutions.idm.vs.domain.VsRequestEventType;
+import eu.bcvsolutions.idm.vs.domain.VsOperationType;
 import eu.bcvsolutions.idm.vs.domain.VsRequestState;
 import eu.bcvsolutions.idm.vs.entity.VsAccount;
 import eu.bcvsolutions.idm.vs.entity.VsAccount_;
@@ -140,7 +140,7 @@ public class BasicVirtualConnector
 			throw new IcException("UID value cannot be null!");
 		}
 
-		VsRequestDto request = createRequest(objectClass, attributes, (String) uidValue, VsRequestEventType.UPDATE);
+		VsRequestDto request = createRequest(objectClass, attributes, (String) uidValue, VsOperationType.UPDATE);
 		return requestService.execute(request);
 	}
 	
@@ -210,7 +210,7 @@ public class BasicVirtualConnector
 		}
 		
 		// Create and execute request
-		VsRequestDto request = createRequest(objectClass, attributes, (String) uidValue, VsRequestEventType.CREATE);
+		VsRequestDto request = createRequest(objectClass, attributes, (String) uidValue, VsOperationType.CREATE);
 		return requestService.execute(request);
 	}
 
@@ -258,7 +258,7 @@ public class BasicVirtualConnector
 		}
 		
 		// Create and execute request
-		VsRequestDto request = createRequest(objectClass, null, (String) uidValue, VsRequestEventType.DELETE);
+		VsRequestDto request = createRequest(objectClass, null, (String) uidValue, VsOperationType.DELETE);
 		requestService.execute(request);
 	}
 	
@@ -587,7 +587,7 @@ public class BasicVirtualConnector
 	 * @return
 	 */
 	private VsRequestDto createRequest(IcObjectClass objectClass, List<IcAttribute> attributes, String uidString,
-			VsRequestEventType operationType) {
+			VsOperationType operationType) {
 		
 		VsRequestDto request = new VsRequestDto();
 		request.setUid(uidString);

@@ -30,11 +30,11 @@ public class VirtualSystemModuleDescriptor extends PropertyModuleDescriptor {
 	}
 	
 	/**
-	 * Enables links to swagger documention
+	 * Enables links to swagger documentation
 	 */
 	@Override
 	public boolean isDocumentationAvailable() {
-		return false;
+		return true;
 	}
 	
 

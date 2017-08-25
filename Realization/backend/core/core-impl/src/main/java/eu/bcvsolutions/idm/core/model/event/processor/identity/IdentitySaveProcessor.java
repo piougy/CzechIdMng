@@ -73,7 +73,7 @@ public class IdentitySaveProcessor extends CoreEventProcessor<IdmIdentityDto> {
 		}
 		//
 		// create default identity contract
-		if (IdentityEventType.CREATE == event.getType() 
+		if (IdentityEventType.CREATE.name() == event.getType().name() 
 				&& identityConfiguration.isCreateDefaultContractEnabled()) {
 			identityContractService.save(identityContractService.prepareMainContract(identity.getId()));
 		}

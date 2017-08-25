@@ -51,9 +51,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode_;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType_;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
-import eu.bcvsolutions.idm.core.model.event.processor.identity.IdentityDeleteProcessor;
 import eu.bcvsolutions.idm.core.model.event.processor.identity.IdentityPasswordProcessor;
-import eu.bcvsolutions.idm.core.model.event.processor.identity.IdentitySaveProcessor;
 import eu.bcvsolutions.idm.core.model.repository.IdmAuthorityChangeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
@@ -133,39 +131,6 @@ public class DefaultIdmIdentityService
 		Assert.notNull(identity);
 		event.setContent(toDto(identity));
 		return toEntity(this.publish(event, permission).getContent());
-	}
-	
-	/**
-	 * Publish {@link IdentityEvent} only.
-	 * 
-	 * @see {@link IdentitySaveProcessor}
-	 */
-	@Override
-	@Transactional
-	public IdmIdentityDto save(IdmIdentityDto identity, BasePermission... permission) {
-		Assert.notNull(identity);
-		//
-		LOG.debug("Saving identity [{}]", identity.getUsername());
-		//
-		if (isNew(identity)) { // create
-			return this.publish(new IdentityEvent(IdentityEventType.CREATE, identity), permission).getContent();
-		}
-		return this.publish(new IdentityEvent(IdentityEventType.UPDATE, identity), permission).getContent();
-	}
-	
-	/**
-	 * Publish {@link IdentityEvent} only.
-	 * 
-	 * @see {@link IdentityDeleteProcessor}
-	 */
-	@Override
-	@Transactional
-	public void delete(IdmIdentityDto identity, BasePermission... permission) {
-		Assert.notNull(identity);
-		checkAccess(this.getEntity(identity.getId()), permission);
-		//
-		LOG.debug("Deleting identity [{}]", identity.getUsername());
-		entityEventManager.process(new IdentityEvent(IdentityEventType.DELETE, identity));
 	}
 	
 	@Override

@@ -46,8 +46,8 @@ public abstract class AbstractEventableDtoService<DTO extends BaseDto, E extends
 	@Override
 	public EventContext<DTO> publish(EntityEvent<DTO> event, BasePermission... permission){
 		Assert.notNull(event, "Event must be not null!");
-		Assert.notNull(event.getContent(), "Content (entity) in event must be not null!");
-		
+		Assert.notNull(event.getContent(), "Content (dto) in event must be not null!");
+		//
 		checkAccess(toEntity(event.getContent(), null), permission);
 		return entityEventManager.process(event);
 	}
@@ -59,15 +59,15 @@ public abstract class AbstractEventableDtoService<DTO extends BaseDto, E extends
 	 */
 	@Override
 	@Transactional
-	public DTO save(DTO entity, BasePermission... permission) {
-		Assert.notNull(entity);
+	public DTO save(DTO dto, BasePermission... permission) {
+		Assert.notNull(dto);
 		//
-		LOG.debug("Saving entity [{}]", entity);
-		//
-		if (isNew(entity)) { // create
-			return publish(new CoreEvent<DTO>(CoreEventType.CREATE, entity), permission).getContent();
+		if (isNew(dto)) { // create
+			LOG.debug("Saving new dto[{}]", dto);
+			return publish(new CoreEvent<DTO>(CoreEventType.CREATE, dto), permission).getContent();
 		}
-		return publish(new CoreEvent<DTO>(CoreEventType.UPDATE, entity), permission).getContent();
+		LOG.debug("Saving dto [{}] ", dto);
+		return publish(new CoreEvent<DTO>(CoreEventType.UPDATE, dto), permission).getContent();
 	}
 	
 	/**
@@ -77,11 +77,11 @@ public abstract class AbstractEventableDtoService<DTO extends BaseDto, E extends
 	 */
 	@Override
 	@Transactional
-	public void delete(DTO entity, BasePermission... permission) {
-		Assert.notNull(entity);
-		checkAccess(this.getEntity(entity.getId()), permission);
+	public void delete(DTO dto, BasePermission... permission) {
+		Assert.notNull(dto);
 		//
-		LOG.debug("Deleting entity [{}]", entity);
-		entityEventManager.process(new CoreEvent<DTO>(CoreEventType.DELETE, entity));
+		LOG.debug("Deleting dto [{}]", dto);
+		//
+		publish(new CoreEvent<DTO>(CoreEventType.DELETE, dto), permission);
 	}
 }

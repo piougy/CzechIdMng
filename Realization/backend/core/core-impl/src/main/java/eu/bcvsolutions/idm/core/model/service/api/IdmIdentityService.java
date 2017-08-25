@@ -13,8 +13,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.IdentityFilter;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
 import eu.bcvsolutions.idm.core.api.service.CodeableService;
-import eu.bcvsolutions.idm.core.api.service.EventableService;
-import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
+import eu.bcvsolutions.idm.core.api.service.EventableDtoService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
@@ -26,11 +25,10 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
  *
  */
 public interface IdmIdentityService extends 
-		ReadWriteDtoService<IdmIdentityDto, IdentityFilter>,
+		EventableDtoService<IdmIdentityDto, IdentityFilter>,
 		AuthorizableService<IdmIdentityDto>,
 		CodeableService<IdmIdentityDto>,
-		ScriptEnabled, 
-		EventableService<IdmIdentityDto> {
+		ScriptEnabled {
 	
 	/**
 	 * Will be removed after eav and synchronization refactoring
@@ -145,6 +143,4 @@ public interface IdmIdentityService extends
 	 */
 	@Beta
 	void updateAuthorityChange(List<UUID> identities, DateTime changeTime);
-
-
 }

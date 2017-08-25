@@ -10,6 +10,8 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +23,7 @@ import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemEntityFilter;
+import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount_;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
@@ -48,6 +51,8 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
  * Account management tests
+ * 
+ * TODO: remove test dependency and @FixMethodOrder(MethodSorters.NAME_ASCENDING)
  * 
  * @author Svanda
  *
@@ -305,7 +310,8 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 		IdentityAccountFilter filter = new IdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
 		filter.setSystemId(systemService.getByCode(SYSTEM_NAME).getId());
-		List<AccIdentityAccountDto> identityAccounts = identityAccountService.find(filter, null).getContent();
+		List<AccIdentityAccountDto> identityAccounts = identityAccountService.find(
+				filter, new PageRequest(0, 1, new Sort(Sort.Direction.ASC, AccIdentityAccount_.created.getName()))).getContent();
 	
 		TestResource resourceAccount = helper.findResource("x" + IDENTITY_USERNAME);
 

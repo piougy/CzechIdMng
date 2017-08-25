@@ -35,12 +35,12 @@ import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.repository.SysRoleSystemAttributeRepository;
 import eu.bcvsolutions.idm.acc.repository.SysSyncConfigRepository;
 import eu.bcvsolutions.idm.acc.repository.SysSystemAttributeMappingRepository;
+import eu.bcvsolutions.idm.acc.repository.SysSystemRepository;
 import eu.bcvsolutions.idm.acc.service.api.FormPropertyManager;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
-import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.domain.IdmScriptCategory;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
@@ -83,7 +83,7 @@ public class DefaultSysSystemAttributeMappingService
 	private final SysSyncConfigRepository syncConfigRepository;
 	private final PluginRegistry<AbstractScriptEvaluator, IdmScriptCategory> pluginExecutors; 
 	private final SysSchemaAttributeService schemaAttributeService;
-	private final SysSystemService systemService;
+	private final SysSystemRepository systemRepository; // unresolvable circular reference
 	private final SysSchemaObjectClassService schemaObjectClassService;
 	private final SysSystemMappingService systemMappingService;
 	
@@ -98,7 +98,7 @@ public class DefaultSysSystemAttributeMappingService
 			List<AbstractScriptEvaluator> evaluators,
 			ConfidentialStorage confidentialStorage,
 			SysSchemaAttributeService schemaAttributeService,
-			SysSystemService systemService,
+			SysSystemRepository systemRepository,
 			SysSchemaObjectClassService schemaObjectClassService,
 			SysSystemMappingService systemMappingService) {
 		super(repository);
@@ -111,7 +111,7 @@ public class DefaultSysSystemAttributeMappingService
 		Assert.notNull(evaluators);
 		Assert.notNull(confidentialStorage);
 		Assert.notNull(schemaAttributeService);
-		Assert.notNull(systemService);
+		Assert.notNull(systemRepository);
 		Assert.notNull(schemaObjectClassService);
 		Assert.notNull(systemMappingService);
 		//
@@ -123,7 +123,7 @@ public class DefaultSysSystemAttributeMappingService
 		this.syncConfigRepository = syncConfigRepository;
 		this.confidentialStorage = confidentialStorage;
 		this.schemaAttributeService = schemaAttributeService;
-		this.systemService = systemService;
+		this.systemRepository = systemRepository;
 		this.schemaObjectClassService = schemaObjectClassService;
 		this.systemMappingService = systemMappingService;
 		//
@@ -519,6 +519,7 @@ public class DefaultSysSystemAttributeMappingService
 	}
 	
 	private SysSystem getSystemFromSchemaObjectClass(SysSchemaObjectClassDto schemaObject) {
-		return systemService.get(schemaObject.getSystem());
+		// unresolvable circular reference
+		return systemRepository.findOne(schemaObject.getSystem());
 	}
 }

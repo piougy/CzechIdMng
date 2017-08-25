@@ -9,12 +9,13 @@ import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SchemaAttributeFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.SystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
+import eu.bcvsolutions.idm.acc.event.SchemaAttributeEvent;
+import eu.bcvsolutions.idm.acc.event.SchemaAttributeEvent.SchemaAttributeEventType;
 import eu.bcvsolutions.idm.acc.repository.SysSchemaAttributeRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
-import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
+import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 
@@ -28,32 +29,27 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 public class DefaultSysSchemaAttributeService extends AbstractReadWriteDtoService<SysSchemaAttributeDto, SysSchemaAttribute, SchemaAttributeFilter>
 		implements SysSchemaAttributeService {
 
-	private final SysSystemAttributeMappingService systeAttributeMappingService;
-
+	private final EntityEventManager entityEventManager;
+	
 	@Autowired
 	public DefaultSysSchemaAttributeService(
 			SysSchemaAttributeRepository repository,
-			SysSystemAttributeMappingService systeAttributeMappingService) {
+			EntityEventManager entityEventManager) {
 		super(repository);
 		//
-		Assert.notNull(systeAttributeMappingService);
+		Assert.notNull(entityEventManager);
 		//
-		this.systeAttributeMappingService = systeAttributeMappingService;
+		this.entityEventManager = entityEventManager;
 	}
 	
 	@Override
 	@Transactional
 	public void delete(SysSchemaAttributeDto schemaAttribute, BasePermission... permission) {
 		Assert.notNull(schemaAttribute);
-		// 
-		// remove all handled attributes
-		SystemAttributeMappingFilter filter = new SystemAttributeMappingFilter();
-		filter.setSchemaAttributeId(schemaAttribute.getId());
-		systeAttributeMappingService.find(filter, null).forEach(systemAttributeMapping -> {
-			systeAttributeMappingService.delete(systemAttributeMapping);
-		});
 		//
-		super.delete(schemaAttribute, permission);
+		checkAccess(this.getEntity(schemaAttribute.getId()), permission);
+		//
+		entityEventManager.process(new SchemaAttributeEvent(SchemaAttributeEventType.DELETE, schemaAttribute));
 	}
 	
 	@Override

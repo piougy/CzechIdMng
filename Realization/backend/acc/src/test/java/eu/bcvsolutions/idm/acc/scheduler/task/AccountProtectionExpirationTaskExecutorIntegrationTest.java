@@ -9,9 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.acc.TestHelper;
+import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
 import eu.bcvsolutions.idm.acc.scheduler.task.impl.AccountProtectionExpirationTaskExecutor;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
@@ -26,7 +26,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 /**
  * LRT integration test
  * 
- * TODO: provisioning helper (DRY - init methods, createSystem, maping, find test accounts ...)
+ * TODO: provisioning helper (DRY - initialized methods, createSystem, mapping, find test accounts ...)
  * 
  * @author Radek Tomiška
  *
@@ -54,7 +54,7 @@ public class AccountProtectionExpirationTaskExecutorIntegrationTest extends Abst
 		IdmIdentityDto identity = helper.createIdentity();
 		IdmRole role = helper.createRole();
 		SysSystem system = helper.createTestResourceSystem(true);
-		SysSystemMapping mapping = helper.getDefaultMapping(system);
+		SysSystemMappingDto mapping = helper.getDefaultMapping(system);
 		mapping.setProtectionInterval(1);
 		mapping.setProtectionEnabled(true);
 		systemMappingService.save(mapping);

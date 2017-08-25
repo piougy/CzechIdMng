@@ -22,14 +22,15 @@ import eu.bcvsolutions.idm.acc.domain.ProvisioningContext;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.ProvisioningAttributeDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
 import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
-import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
-import eu.bcvsolutions.idm.acc.entity.TestResource;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningExecutor;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
+import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
+import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
@@ -69,15 +70,19 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 	private IcConnectorFacade connectorFacade;
 	@Autowired
 	private ConfidentialStorage confidentialStorage;
-	//
+	@Autowired
+	private SysSchemaAttributeService schemaAttributeService;
+	@Autowired
+	private SysSchemaObjectClassService schemaObjectClassService;
+	//	
 	private SysProvisioningOperationService sysProvisioningOperationService;
 	private ProvisioningExecutor provisioningExecutor;
 	private SysSystem system = null;
-	private SysSystemMapping systemMapping = null;
-	private SysSystemAttributeMapping nameAttributeMapping = null;
-	private SysSystemAttributeMapping firstNameAttributeMapping = null;
-	private SysSystemAttributeMapping lastNameAttributeMapping = null;
-	private SysSystemAttributeMapping passwordAttributeMapping = null;
+	private SysSystemMappingDto systemMapping = null;
+	private SysSystemAttributeMappingDto nameAttributeMapping = null;
+	private SysSystemAttributeMappingDto firstNameAttributeMapping = null;
+	private SysSystemAttributeMappingDto lastNameAttributeMapping = null;
+	private SysSystemAttributeMappingDto passwordAttributeMapping = null;
 	
 	@Before
 	public void init() {	
@@ -104,10 +109,22 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 	
 	private Map<ProvisioningAttributeDto, Object> createAccountObject(SysSystemEntity systemEntity) {
 		Map<ProvisioningAttributeDto, Object> accoutObject = new HashMap<>();		
-		accoutObject.put(new ProvisioningAttributeDto(nameAttributeMapping.getSchemaAttribute().getName(), nameAttributeMapping.getStrategyType()), systemEntity.getUid());
-		accoutObject.put(new ProvisioningAttributeDto(firstNameAttributeMapping.getSchemaAttribute().getName(), firstNameAttributeMapping.getStrategyType()), "firstOne");
-		accoutObject.put(new ProvisioningAttributeDto(lastNameAttributeMapping.getSchemaAttribute().getName(), lastNameAttributeMapping.getStrategyType()), "lastOne");
-		accoutObject.put(new ProvisioningAttributeDto(passwordAttributeMapping.getSchemaAttribute().getName(), passwordAttributeMapping.getStrategyType()), new GuardedString("password"));		
+		accoutObject.put(new ProvisioningAttributeDto(
+				schemaAttributeService.get(nameAttributeMapping.getSchemaAttribute()).getName(),
+				nameAttributeMapping.getStrategyType()), systemEntity.getUid());
+		//
+		accoutObject.put(new ProvisioningAttributeDto(
+				schemaAttributeService.get(firstNameAttributeMapping.getSchemaAttribute()).getName(),
+				firstNameAttributeMapping.getStrategyType()), "firstOne");
+		//
+		accoutObject.put(new ProvisioningAttributeDto(
+				schemaAttributeService.get(lastNameAttributeMapping.getSchemaAttribute()).getName(),
+				lastNameAttributeMapping.getStrategyType()), "lastOne");
+		//
+		accoutObject.put(new ProvisioningAttributeDto(
+				schemaAttributeService.get(passwordAttributeMapping.getSchemaAttribute()).getName(),
+				passwordAttributeMapping.getStrategyType()), new GuardedString("password"));
+		//
 		return accoutObject;
 	}
 	
@@ -122,16 +139,25 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		systemEntity.setWish(true);
 		systemEntity = systemEntityService.save(systemEntity);
 		//
-		ProvisioningAttributeDto passwordAttributeMappingKey = new ProvisioningAttributeDto(passwordAttributeMapping.getSchemaAttribute().getName(), AttributeMappingStrategyType.SET);
-		ProvisioningAttributeDto firstNameAttributeMappingKey = new ProvisioningAttributeDto(firstNameAttributeMapping.getSchemaAttribute().getName(), AttributeMappingStrategyType.SET);
-		ProvisioningAttributeDto lastNameAttributeMappingKey = new ProvisioningAttributeDto(lastNameAttributeMapping.getSchemaAttribute().getName(), AttributeMappingStrategyType.SET);
-		
+		ProvisioningAttributeDto passwordAttributeMappingKey = new ProvisioningAttributeDto(
+				schemaAttributeService.get(passwordAttributeMapping.getSchemaAttribute()).getName(),
+				AttributeMappingStrategyType.SET);
+		//
+		ProvisioningAttributeDto firstNameAttributeMappingKey = new ProvisioningAttributeDto(
+				schemaAttributeService.get(firstNameAttributeMapping.getSchemaAttribute()).getName(),
+				AttributeMappingStrategyType.SET);
+		//
+		ProvisioningAttributeDto lastNameAttributeMappingKey = new ProvisioningAttributeDto(
+				schemaAttributeService.get(lastNameAttributeMapping.getSchemaAttribute()).getName(),
+				AttributeMappingStrategyType.SET);
+		//
 		Map<ProvisioningAttributeDto, Object> accoutObject = createAccountObject(systemEntity);
 		context.setAccountObject(accoutObject);
 		GuardedString password = (GuardedString) accoutObject.get(passwordAttributeMappingKey);
 		//
 		// publish event
-		IcObjectClass objectClass = new IcObjectClassImpl(systemMapping.getObjectClass().getObjectClassName());
+		
+		IcObjectClass objectClass = new IcObjectClassImpl(schemaObjectClassService.get(systemMapping.getObjectClass()).getObjectClassName());
 		IcConnectorObject connectorObject = new IcConnectorObjectImpl(null, objectClass, null);
 		SysProvisioningOperation.Builder operationBuilder = new SysProvisioningOperation.Builder()
 				.setOperationType(ProvisioningOperationType.CREATE)
@@ -183,14 +209,20 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		Map<ProvisioningAttributeDto, Object> accoutObject = createAccountObject(systemEntity);
 		context.setAccountObject(accoutObject);
 		
-		ProvisioningAttributeDto passwordAttributeMappingKey = new ProvisioningAttributeDto(passwordAttributeMapping.getSchemaAttribute().getName(), AttributeMappingStrategyType.SET);
-		ProvisioningAttributeDto firstNameAttributeMappingKey = new ProvisioningAttributeDto(firstNameAttributeMapping.getSchemaAttribute().getName(), AttributeMappingStrategyType.SET);
-		ProvisioningAttributeDto lastNameAttributeMappingKey = new ProvisioningAttributeDto(lastNameAttributeMapping.getSchemaAttribute().getName(), AttributeMappingStrategyType.SET);
+		ProvisioningAttributeDto passwordAttributeMappingKey = new ProvisioningAttributeDto(
+				schemaAttributeService.get(passwordAttributeMapping.getSchemaAttribute()).getName(),
+				AttributeMappingStrategyType.SET);
+		ProvisioningAttributeDto firstNameAttributeMappingKey = new ProvisioningAttributeDto(
+				schemaAttributeService.get(firstNameAttributeMapping.getSchemaAttribute()).getName(),
+				AttributeMappingStrategyType.SET);
+		ProvisioningAttributeDto lastNameAttributeMappingKey = new ProvisioningAttributeDto(
+				schemaAttributeService.get(lastNameAttributeMapping.getSchemaAttribute()).getName(),
+				AttributeMappingStrategyType.SET);
 
 		GuardedString password = (GuardedString) accoutObject.get(passwordAttributeMappingKey);
 		//
 		// publish event
-		IcObjectClass objectClass = new IcObjectClassImpl(systemMapping.getObjectClass().getObjectClassName());
+		IcObjectClass objectClass = new IcObjectClassImpl(schemaObjectClassService.get(systemMapping.getObjectClass()).getObjectClassName());
 		IcConnectorObject connectorObject = new IcConnectorObjectImpl(null, objectClass, null);
 		SysProvisioningOperation.Builder operationBuilder = new SysProvisioningOperation.Builder()
 				.setOperationType(ProvisioningOperationType.CREATE)
@@ -258,14 +290,20 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		Map<ProvisioningAttributeDto, Object> accoutObject = createAccountObject(systemEntity);
 		context.setAccountObject(accoutObject);
 		
-		ProvisioningAttributeDto passwordAttributeMappingKey = new ProvisioningAttributeDto(passwordAttributeMapping.getSchemaAttribute().getName(), AttributeMappingStrategyType.SET);
-		ProvisioningAttributeDto firstNameAttributeMappingKey = new ProvisioningAttributeDto(firstNameAttributeMapping.getSchemaAttribute().getName(), AttributeMappingStrategyType.SET);
-		ProvisioningAttributeDto lastNameAttributeMappingKey = new ProvisioningAttributeDto(lastNameAttributeMapping.getSchemaAttribute().getName(), AttributeMappingStrategyType.SET);
+		ProvisioningAttributeDto passwordAttributeMappingKey = new ProvisioningAttributeDto(
+				schemaAttributeService.get(passwordAttributeMapping.getSchemaAttribute()).getName(),
+				AttributeMappingStrategyType.SET);
+		ProvisioningAttributeDto firstNameAttributeMappingKey = new ProvisioningAttributeDto(
+				schemaAttributeService.get(firstNameAttributeMapping.getSchemaAttribute()).getName(),
+				AttributeMappingStrategyType.SET);
+		ProvisioningAttributeDto lastNameAttributeMappingKey = new ProvisioningAttributeDto(
+				schemaAttributeService.get(lastNameAttributeMapping.getSchemaAttribute()).getName(),
+				AttributeMappingStrategyType.SET);
 
 		GuardedString password = (GuardedString) accoutObject.get(passwordAttributeMappingKey);
 		//
 		// publish event
-		IcObjectClass objectClass = new IcObjectClassImpl(systemMapping.getObjectClass().getObjectClassName());
+		IcObjectClass objectClass = new IcObjectClassImpl(schemaObjectClassService.get(systemMapping.getObjectClass()).getObjectClassName());
 		IcConnectorObject connectorObject = new IcConnectorObjectImpl(null, objectClass, null);
 		SysProvisioningOperation.Builder operationBuilder = new SysProvisioningOperation.Builder()
 				.setOperationType(ProvisioningOperationType.CREATE)
@@ -315,8 +353,17 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		assertNotNull(attribute);
 		assertEquals(systemEntityUid, attribute.getUidValue());
 		// passwords are removed in confidential storage
-		assertNull(confidentialStorage.get(operation.getId(), operation.getClass(), sysProvisioningOperationService.createAccountObjectPropertyKey(passwordAttributeMapping.getSchemaAttribute().getName(), 0)));
-		assertNull(confidentialStorage.get(operation.getId(), operation.getClass(), sysProvisioningOperationService.createConnectorObjectPropertyKey(operation.getProvisioningContext().getConnectorObject().getAttributeByName(passwordAttributeMapping.getSchemaAttribute().getName()), 0)));
+		assertNull(confidentialStorage.get(operation.getId(), operation.getClass(),
+				sysProvisioningOperationService.createAccountObjectPropertyKey(
+						schemaAttributeService.get(passwordAttributeMapping.getSchemaAttribute()).getName(), 0)));
+		assertNull(
+				confidentialStorage
+						.get(operation.getId(), operation.getClass(),
+								sysProvisioningOperationService.createConnectorObjectPropertyKey(
+										operation.getProvisioningContext().getConnectorObject()
+												.getAttributeByName(schemaAttributeService
+														.get(passwordAttributeMapping.getSchemaAttribute()).getName()),
+										0)));
 	}
 	
 	// TODO: batch test - create, update, update, delete - all has to be processed, batch needs to be cleared

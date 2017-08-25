@@ -28,6 +28,10 @@ import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.MappingAttributeDto;
+import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
+import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SchemaAttributeFilter;
@@ -36,13 +40,11 @@ import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
-import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
 import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
-import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
+import eu.bcvsolutions.idm.acc.repository.SysSystemAttributeMappingRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
@@ -152,6 +154,9 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 	@Autowired
 	private SysSystemEntityService systemEntityService;
 
+	@Autowired
+	private SysSystemAttributeMappingRepository attributeMappingRepository;
+	
 	@Before
 	public void init() {
 		loginAsAdmin("admin");
@@ -422,13 +427,13 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		SystemAttributeMappingFilter attributeMappingFilter = new SystemAttributeMappingFilter();
 		attributeMappingFilter.setSystemId(clonedSystem.getId());
 		
-		SysSystemAttributeMapping passwordAttribute = systemAttributeMappingService.find(attributeMappingFilter, null).getContent().stream().filter(attribute -> {
-			return ProvisioningService.PASSWORD_SCHEMA_PROPERTY_NAME.equals(attribute.getSchemaAttribute().getName());
+		SysSystemAttributeMappingDto passwordAttribute = systemAttributeMappingService.find(attributeMappingFilter, null).getContent().stream().filter(attribute -> {
+			return ProvisioningService.PASSWORD_SCHEMA_PROPERTY_NAME.equals(schemaAttributeService.get(attribute.getSchemaAttribute()).getName());
 		}).findFirst().orElse(null);
 		
 		Assert.assertNotNull( passwordAttribute);
 		
-		SysSystemAttributeMapping uidAttribute = systemAttributeMappingService.find(attributeMappingFilter, null).getContent().stream().filter(attribute -> {
+		SysSystemAttributeMappingDto uidAttribute = systemAttributeMappingService.find(attributeMappingFilter, null).getContent().stream().filter(attribute -> {
 			return attribute.isUid();
 		}).findFirst().orElse(null);
 		
@@ -518,7 +523,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		SystemAttributeMappingFilter filterSchemaAttr = new SystemAttributeMappingFilter();
 		filterSchemaAttr.setIdmPropertyName("firstName");
 		filterSchemaAttr.setSystemId(accountService.get(accountIdentityOne.getAccount()).getSystem().getId());
-		SysSystemAttributeMapping attributeHandling = systemAttributeMappingService.find(filterSchemaAttr, null)
+		SysSystemAttributeMappingDto attributeHandling = systemAttributeMappingService.find(filterSchemaAttr, null)
 				.getContent().get(0);
 		// Set attribute to extended attribute and modify idmPropety to
 		// extPassword
@@ -561,7 +566,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		SystemAttributeMappingFilter filterSchemaAttr = new SystemAttributeMappingFilter();
 		filterSchemaAttr.setIdmPropertyName("email");
 		filterSchemaAttr.setSystemId(accountService.get(accountIdentityOne.getAccount()).getSystem().getId());
-		SysSystemAttributeMapping attributeHandling = systemAttributeMappingService.find(filterSchemaAttr, null)
+		SysSystemAttributeMappingDto attributeHandling = systemAttributeMappingService.find(filterSchemaAttr, null)
 				.getContent().get(0);
 
 		attributeHandling.setEntityAttribute(true);
@@ -591,7 +596,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		SystemAttributeMappingFilter filterSchemaAttr = new SystemAttributeMappingFilter();
 		filterSchemaAttr.setIdmPropertyName("email");
 		filterSchemaAttr.setSystemId(accountService.get(accountIdentityOne.getAccount()).getSystem().getId());
-		SysSystemAttributeMapping attributeHandling = systemAttributeMappingService.find(filterSchemaAttr, null)
+		SysSystemAttributeMappingDto attributeHandling = systemAttributeMappingService.find(filterSchemaAttr, null)
 				.getContent().get(0);
 
 		attributeHandling.setEntityAttribute(true);
@@ -633,7 +638,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		SystemAttributeMappingFilter filterSchemaAttr = new SystemAttributeMappingFilter();
 		filterSchemaAttr.setIdmPropertyName("email");
 		filterSchemaAttr.setSystemId(accountService.get(accountIdentityOne.getAccount()).getSystem().getId());
-		SysSystemAttributeMapping attributeHandling = systemAttributeMappingService.find(filterSchemaAttr, null)
+		SysSystemAttributeMappingDto attributeHandling = systemAttributeMappingService.find(filterSchemaAttr, null)
 				.getContent().get(0);
 
 		attributeHandling.setEntityAttribute(true);
@@ -681,13 +686,14 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		SystemAttributeMappingFilter filterSchemaAttr = new SystemAttributeMappingFilter();
 		filterSchemaAttr.setIdmPropertyName("email");
 		filterSchemaAttr.setSystemId(accountService.get(accountIdentityOne.getAccount()).getSystem().getId());
-		SysSystemAttributeMapping attributeHandling = systemAttributeMappingService.find(filterSchemaAttr, null)
+		SysSystemAttributeMappingDto attributeHandling = systemAttributeMappingService.find(filterSchemaAttr, null)
 				.getContent().get(0);
 
 		attributeHandling.setEntityAttribute(true);
 		attributeHandling.setStrategyType(AttributeMappingStrategyType.MERGE);
-		attributeHandling.getSchemaAttribute().setMultivalued(true);
-		schemaAttributeService.save(attributeHandling.getSchemaAttribute());
+		SysSchemaAttributeDto schemaAttributeDto = schemaAttributeService.get(attributeHandling.getSchemaAttribute());
+		schemaAttributeDto.setMultivalued(true);
+		schemaAttributeService.save(schemaAttributeDto);
 		systemAttributeMappingService.save(attributeHandling);
 
 		// Do provisioning
@@ -706,13 +712,14 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		SystemAttributeMappingFilter filterSchemaAttr = new SystemAttributeMappingFilter();
 		filterSchemaAttr.setIdmPropertyName("email");
 		filterSchemaAttr.setSystemId(accountService.get(accountIdentityOne.getAccount()).getSystem().getId());
-		SysSystemAttributeMapping attributeHandling = systemAttributeMappingService.find(filterSchemaAttr, null)
+		SysSystemAttributeMappingDto attributeHandling = systemAttributeMappingService.find(filterSchemaAttr, null)
 				.getContent().get(0);
 
 		attributeHandling.setEntityAttribute(true);
 		attributeHandling.setStrategyType(AttributeMappingStrategyType.MERGE);
-		attributeHandling.getSchemaAttribute().setMultivalued(false);
-		schemaAttributeService.save(attributeHandling.getSchemaAttribute());
+		SysSchemaAttributeDto schemaAttributeDto = schemaAttributeService.get(attributeHandling.getSchemaAttribute());
+		schemaAttributeDto.setMultivalued(false);
+		schemaAttributeService.save(schemaAttributeDto);
 		systemAttributeMappingService.save(attributeHandling);
 
 		// Do provisioning
@@ -771,19 +778,19 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		SysSchemaAttribute attTwo = new SysSchemaAttribute();
 		attTwo.setName("attTwo");
 
-		SysSystemAttributeMapping defOne = new SysSystemAttributeMapping();
+		SysSystemAttributeMappingDto defOne = new SysSystemAttributeMappingDto();
 		defOne.setEntityAttribute(true);
 		defOne.setIdmPropertyName("one");
 		defOne.setName("defOne");
 		defOne.setDisabledAttribute(true);
-		defOne.setSchemaAttribute(attOne);
+		defOne.setSchemaAttribute(attOne.getId());
 		defaultAttributes.add(defOne);
 
-		SysSystemAttributeMapping defTwo = new SysSystemAttributeMapping();
+		SysSystemAttributeMappingDto defTwo = new SysSystemAttributeMappingDto();
 		defTwo.setEntityAttribute(true);
 		defTwo.setIdmPropertyName("two");
 		defTwo.setName("defTwo");
-		defTwo.setSchemaAttribute(attTwo);
+		defTwo.setSchemaAttribute(attTwo.getId());
 		defaultAttributes.add(defTwo);
 
 		IdmRole roleOne = new IdmRole();
@@ -794,7 +801,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		roleSystem.setRole(roleOne);
 
 		SysRoleSystemAttribute overloadedOne = new SysRoleSystemAttribute();
-		overloadedOne.setSystemAttributeMapping(defOne);
+		overloadedOne.setSystemAttributeMapping(attributeMappingRepository.findOne(defOne.getId()));
 		overloadedOne.setEntityAttribute(true);
 		overloadedOne.setIdmPropertyName("one");
 		overloadedOne.setName("defOneOverloaded");
@@ -990,19 +997,21 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		SysSchemaAttribute attTwo = new SysSchemaAttribute();
 		attTwo.setName("attTwo");
 
-		SysSystemAttributeMapping defOne = new SysSystemAttributeMapping();
+		SysSystemAttributeMappingDto defOne = new SysSystemAttributeMappingDto();
 		defOne.setEntityAttribute(true);
 		defOne.setIdmPropertyName("one");
 		defOne.setName("defOne");
 		defOne.setDisabledAttribute(true);
-		defOne.setSchemaAttribute(attOne);
+		defOne.setSchemaAttribute(attOne.getId());
+		defOne = systemAttributeMappingService.save(defOne);
 		defaultAttributes.add(defOne);
 
-		SysSystemAttributeMapping defTwo = new SysSystemAttributeMapping();
+		SysSystemAttributeMappingDto defTwo = new SysSystemAttributeMappingDto();
 		defTwo.setEntityAttribute(true);
 		defTwo.setIdmPropertyName("two");
 		defTwo.setName("defTwo");
-		defTwo.setSchemaAttribute(attTwo);
+		defTwo.setSchemaAttribute(attTwo.getId());
+		defTwo = systemAttributeMappingService.save(defTwo);
 		defaultAttributes.add(defTwo);
 
 		IdmRole roleTwo = new IdmRole();
@@ -1020,7 +1029,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		roleSystemOne.setRole(roleOne);
 
 		SysRoleSystemAttribute overloadedRoleOne = new SysRoleSystemAttribute();
-		overloadedRoleOne.setSystemAttributeMapping(defOne);
+		overloadedRoleOne.setSystemAttributeMapping(attributeMappingRepository.findOne(defOne.getId()));
 		overloadedRoleOne.setEntityAttribute(true);
 		overloadedRoleOne.setIdmPropertyName("one");
 		overloadedRoleOne.setName("defOneOverloaded");
@@ -1029,7 +1038,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		overloadingAttributes.add(overloadedRoleOne);
 
 		SysRoleSystemAttribute overloadedRoleTwo = new SysRoleSystemAttribute();
-		overloadedRoleTwo.setSystemAttributeMapping(defOne);
+		overloadedRoleTwo.setSystemAttributeMapping(attributeMappingRepository.findOne(defOne.getId()));
 		overloadedRoleTwo.setEntityAttribute(true);
 		overloadedRoleTwo.setIdmPropertyName("one");
 		overloadedRoleTwo.setName("defOneOverloadedRoleTwo");
@@ -1061,7 +1070,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		system = sysSystemService.save(system);
 
 		// generate schema for system
-		List<SysSchemaObjectClass> objectClasses = sysSystemService.generateSchema(system);
+		List<SysSchemaObjectClassDto> objectClasses = sysSystemService.generateSchema(system);
 
 		// Create test identity for provisioning test
 		identity = new IdmIdentityDto();
@@ -1102,64 +1111,64 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 
 		accountIdentityTwo = identityAccoutnService.save(accountIdentityTwo);
 
-		SysSystemMapping systemMapping = new SysSystemMapping();
+		SysSystemMappingDto systemMapping = new SysSystemMappingDto();
 		systemMapping.setName("default_" + System.currentTimeMillis());
 		systemMapping.setEntityType(SystemEntityType.IDENTITY);
 		systemMapping.setOperationType(SystemOperationType.PROVISIONING);
-		systemMapping.setObjectClass(objectClasses.get(0));
-		final SysSystemMapping entityHandlingResult = systemEntityHandlingService.save(systemMapping);
+		systemMapping.setObjectClass(objectClasses.get(0).getId());
+		final SysSystemMappingDto entityHandlingResult = systemEntityHandlingService.save(systemMapping);
 
 		SchemaAttributeFilter schemaAttributeFilter = new SchemaAttributeFilter();
 		schemaAttributeFilter.setSystemId(system.getId());
 
-		Page<SysSchemaAttribute> schemaAttributesPage = schemaAttributeService.find(schemaAttributeFilter, null);
+		Page<SysSchemaAttributeDto> schemaAttributesPage = schemaAttributeService.find(schemaAttributeFilter, null);
 		schemaAttributesPage.forEach(schemaAttr -> {
 			if ("__NAME__".equals(schemaAttr.getName())) {
-				SysSystemAttributeMapping attributeMapping = new SysSystemAttributeMapping();
+				SysSystemAttributeMappingDto attributeMapping = new SysSystemAttributeMappingDto();
 				attributeMapping.setUid(true);
 				attributeMapping.setEntityAttribute(true);
 				attributeMapping.setIdmPropertyName(IdmIdentity_.username.getName());
 				attributeMapping.setTransformToResourceScript("if(attributeValue){return \"x\"+ attributeValue;}");
 				attributeMapping.setName(schemaAttr.getName());
-				attributeMapping.setSchemaAttribute(schemaAttr);
-				attributeMapping.setSystemMapping(entityHandlingResult);
-				systemAttributeMappingService.save(attributeMapping);
+				attributeMapping.setSchemaAttribute(schemaAttr.getId());
+				attributeMapping.setSystemMapping(entityHandlingResult.getId());
+				attributeMapping = systemAttributeMappingService.save(attributeMapping);
 
 			} else if ("firstname".equalsIgnoreCase(schemaAttr.getName())) {
-				SysSystemAttributeMapping attributeMapping = new SysSystemAttributeMapping();
+				SysSystemAttributeMappingDto attributeMapping = new SysSystemAttributeMappingDto();
 				attributeMapping.setIdmPropertyName(IdmIdentity_.firstName.getName());
-				attributeMapping.setSchemaAttribute(schemaAttr);
+				attributeMapping.setSchemaAttribute(schemaAttr.getId());
 				attributeMapping.setName(schemaAttr.getName());
 				attributeMapping
 						.setTransformFromResourceScript("if(attributeValue){return attributeValue.substring(1);}");
-				attributeMapping.setSystemMapping(entityHandlingResult);
-				systemAttributeMappingService.save(attributeMapping);
+				attributeMapping.setSystemMapping(entityHandlingResult.getId());
+				attributeMapping = systemAttributeMappingService.save(attributeMapping);
 
 			} else if ("lastname".equalsIgnoreCase(schemaAttr.getName())) {
-				SysSystemAttributeMapping attributeMapping = new SysSystemAttributeMapping();
+				SysSystemAttributeMappingDto attributeMapping = new SysSystemAttributeMappingDto();
 				attributeMapping.setIdmPropertyName(IdmIdentity_.lastName.getName());
 				attributeMapping.setName(schemaAttr.getName());
-				attributeMapping.setSchemaAttribute(schemaAttr);
-				attributeMapping.setSystemMapping(entityHandlingResult);
-				systemAttributeMappingService.save(attributeMapping);
+				attributeMapping.setSchemaAttribute(schemaAttr.getId());
+				attributeMapping.setSystemMapping(entityHandlingResult.getId());
+				attributeMapping = systemAttributeMappingService.save(attributeMapping);
 
 			} else if (IcConnectorFacade.PASSWORD_ATTRIBUTE_NAME.equalsIgnoreCase(schemaAttr.getName())) {
-				SysSystemAttributeMapping attributeMapping = new SysSystemAttributeMapping();
+				SysSystemAttributeMappingDto attributeMapping = new SysSystemAttributeMappingDto();
 				attributeMapping.setIdmPropertyName("password");
-				attributeMapping.setSchemaAttribute(schemaAttr);
+				attributeMapping.setSchemaAttribute(schemaAttr.getId());
 				attributeMapping.setName(schemaAttr.getName());
-				attributeMapping.setSystemMapping(entityHandlingResult);
-				systemAttributeMappingService.save(attributeMapping);
+				attributeMapping.setSystemMapping(entityHandlingResult.getId());
+				attributeMapping = systemAttributeMappingService.save(attributeMapping);
 
 			} else if ("email".equalsIgnoreCase(schemaAttr.getName())) {
-				SysSystemAttributeMapping attributeMapping = new SysSystemAttributeMapping();
+				SysSystemAttributeMappingDto attributeMapping = new SysSystemAttributeMappingDto();
 				attributeMapping.setIdmPropertyName(IdmIdentity_.email.getName());
 				attributeMapping.setName(schemaAttr.getName());
-				attributeMapping.setSchemaAttribute(schemaAttr);
+				attributeMapping.setSchemaAttribute(schemaAttr.getId());
 				attributeMapping.setStrategyType(AttributeMappingStrategyType.CREATE);
-				attributeMapping.setSystemMapping(entityHandlingResult);
+				attributeMapping.setSystemMapping(entityHandlingResult.getId());
 				attributeMapping.setTransformToResourceScript("return \"" + EMAIL_ONE + "\";");
-				systemAttributeMappingService.save(attributeMapping);
+				attributeMapping = systemAttributeMappingService.save(attributeMapping);
 
 			}
 		});

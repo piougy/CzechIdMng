@@ -18,16 +18,18 @@ import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
+import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
+import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute;
-import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
-import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
-import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
+import eu.bcvsolutions.idm.acc.repository.SysSystemAttributeMappingRepository;
+import eu.bcvsolutions.idm.acc.repository.SysSystemMappingRepository;
 import eu.bcvsolutions.idm.acc.security.authentication.impl.DefaultAccAuthenticator;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
@@ -115,6 +117,12 @@ public class DefaultAccAuthenticatorTest extends AbstractIntegrationTest {
 	
 	@Autowired
 	private AccIdentityAccountService identityAccountService;
+	
+	@Autowired
+	private SysSystemMappingRepository systemMappingRespository;
+	
+	@Autowired
+	private SysSystemAttributeMappingRepository attributeMappingRepository;
 	
 	@Before
 	public void login() {
@@ -281,7 +289,7 @@ public class DefaultAccAuthenticatorTest extends AbstractIntegrationTest {
 	
 	private void initData() {
 		SysSystem system = createTestSystem();
-		List<SysSchemaObjectClass> objectClasses = sysSystemService.generateSchema(system);
+		List<SysSchemaObjectClassDto> objectClasses = sysSystemService.generateSchema(system);
 		
 		IdmIdentityDto identity = new IdmIdentityDto();
 		identity.setUsername(USERNAME);
@@ -290,20 +298,20 @@ public class DefaultAccAuthenticatorTest extends AbstractIntegrationTest {
 		identity = identityService.save(identity);
 		
 		// Create mapped attributes to schema
-		SysSystemMapping systemMapping = new SysSystemMapping();
+		SysSystemMappingDto systemMapping = new SysSystemMappingDto();
 		systemMapping.setName("default_" + System.currentTimeMillis());
 		systemMapping.setEntityType(SystemEntityType.IDENTITY);
 		systemMapping.setOperationType(SystemOperationType.PROVISIONING);
-		systemMapping.setObjectClass(objectClasses.get(0));
-		final SysSystemMapping entityHandlingResult = systemEntityHandlingService.save(systemMapping);
+		systemMapping.setObjectClass(objectClasses.get(0).getId());
+		final SysSystemMappingDto entityHandlingResult = systemEntityHandlingService.save(systemMapping);
 		
 		SchemaAttributeFilter schemaAttributeFilter = new SchemaAttributeFilter();
 		schemaAttributeFilter.setSystemId(system.getId());
-		SysSystemAttributeMapping attributeHandlingLastName = new SysSystemAttributeMapping();
-		SysSystemAttributeMapping attributeHandlingPassword = new SysSystemAttributeMapping();
-		SysSystemAttributeMapping attributeHandlingUsername = new SysSystemAttributeMapping();
+		SysSystemAttributeMappingDto attributeHandlingLastName = new SysSystemAttributeMappingDto();
+		SysSystemAttributeMappingDto attributeHandlingPassword = new SysSystemAttributeMappingDto();
+		SysSystemAttributeMappingDto attributeHandlingUsername = new SysSystemAttributeMappingDto();
 		
-		Page<SysSchemaAttribute> schemaAttributesPage = schemaAttributeService.find(schemaAttributeFilter, null);
+		Page<SysSchemaAttributeDto> schemaAttributesPage = schemaAttributeService.find(schemaAttributeFilter, null);
 		schemaAttributesPage.forEach(schemaAttr -> {
 			if ("__NAME__".equals(schemaAttr.getName())) {
 				attributeHandlingUsername.setUid(true);
@@ -312,22 +320,22 @@ public class DefaultAccAuthenticatorTest extends AbstractIntegrationTest {
 				attributeHandlingUsername.setIdmPropertyName("username");
 				attributeHandlingUsername.setTransformToResourceScript("if(attributeValue){return \"x\"+ attributeValue;}");
 				attributeHandlingUsername.setName(schemaAttr.getName());
-				attributeHandlingUsername.setSchemaAttribute(schemaAttr);
-				attributeHandlingUsername.setSystemMapping(entityHandlingResult);
+				attributeHandlingUsername.setSchemaAttribute(schemaAttr.getId());
+				attributeHandlingUsername.setSystemMapping(entityHandlingResult.getId());
 				schemaAttributeHandlingService.save(attributeHandlingUsername);
 				
 			} else if ("lastname".equalsIgnoreCase(schemaAttr.getName())) {
 				attributeHandlingLastName.setIdmPropertyName("lastName");
 				attributeHandlingLastName.setName(schemaAttr.getName());
-				attributeHandlingLastName.setSchemaAttribute(schemaAttr);
-				attributeHandlingLastName.setSystemMapping(entityHandlingResult);
+				attributeHandlingLastName.setSchemaAttribute(schemaAttr.getId());
+				attributeHandlingLastName.setSystemMapping(entityHandlingResult.getId());
 				schemaAttributeHandlingService.save(attributeHandlingLastName);
 
 			} else if (IcConnectorFacade.PASSWORD_ATTRIBUTE_NAME.equalsIgnoreCase(schemaAttr.getName())) {
 				attributeHandlingPassword.setIdmPropertyName("password");
-				attributeHandlingPassword.setSchemaAttribute(schemaAttr);
+				attributeHandlingPassword.setSchemaAttribute(schemaAttr.getId());
 				attributeHandlingPassword.setName(schemaAttr.getName());
-				attributeHandlingPassword.setSystemMapping(entityHandlingResult);
+				attributeHandlingPassword.setSystemMapping(entityHandlingResult.getId());
 				schemaAttributeHandlingService.save(attributeHandlingPassword);
 
 			}
@@ -340,21 +348,21 @@ public class DefaultAccAuthenticatorTest extends AbstractIntegrationTest {
 		SysRoleSystem role1System = new SysRoleSystem();
 		role1System.setRole(role1);
 		role1System.setSystem(system);
-		role1System.setSystemMapping(systemMapping);
+		role1System.setSystemMapping(systemMappingRespository.findOne(systemMapping.getId()));
 		roleSystemService.save(role1System);
 
 		
 		IdmRole role2 = new IdmRole();
 		role2.setName(ROLE_NAME + "2");
-		roleService.save(role2);
+		role2 = roleService.save(role2);
 		SysRoleSystem roleSystem2 = new SysRoleSystem();
 		roleSystem2.setSystem(system);
-		roleSystem2.setSystemMapping(systemMapping);
+		roleSystem2.setSystemMapping(systemMappingRespository.findOne(systemMapping.getId()));
 		roleSystem2.setRole(role2);
 		roleSystemService.save(roleSystem2);
 		
 		SysRoleSystemAttribute overloadedRole2 = new SysRoleSystemAttribute();
-		overloadedRole2.setSystemAttributeMapping(attributeHandlingUsername);
+		overloadedRole2.setSystemAttributeMapping(attributeMappingRepository.findOne(attributeHandlingUsername.getId()));
 		overloadedRole2.setUid(true);
 		overloadedRole2.setEntityAttribute(true);
 		overloadedRole2.setTransformScript("return \"z" + USERNAME + "\";");

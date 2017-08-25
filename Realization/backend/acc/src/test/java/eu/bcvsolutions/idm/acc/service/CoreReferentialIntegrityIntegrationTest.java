@@ -13,13 +13,14 @@ import eu.bcvsolutions.idm.acc.domain.AccountType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
+import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.RoleSystemFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
-import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
-import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
+import eu.bcvsolutions.idm.acc.repository.SysSystemMappingRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
@@ -60,6 +61,8 @@ public class CoreReferentialIntegrityIntegrationTest extends AbstractIntegration
 	private SysSystemMappingService systemEntityHandlingService;
 	@Autowired
 	private SysSchemaObjectClassService schemaObjectClassService;
+	@Autowired
+	private SysSystemMappingRepository systemMappingRespository;
 	
 	@Before
 	public void init() {
@@ -122,20 +125,20 @@ public class CoreReferentialIntegrityIntegrationTest extends AbstractIntegration
 		system.setName("system_" + System.currentTimeMillis());
 		system = systemService.save(system);
 		// schema
-		SysSchemaObjectClass objectClass = new SysSchemaObjectClass();
-		objectClass.setSystem(system);
+		SysSchemaObjectClassDto objectClass = new SysSchemaObjectClassDto();
+		objectClass.setSystem(system.getId());
 		objectClass.setObjectClassName("__ACCOUNT__");	
 		objectClass = schemaObjectClassService.save(objectClass);
-		SysSystemMapping systemMapping = new SysSystemMapping();
+		SysSystemMappingDto systemMapping = new SysSystemMappingDto();
 		systemMapping.setName("default_" + System.currentTimeMillis());
-		systemMapping.setObjectClass(objectClass);
+		systemMapping.setObjectClass(objectClass.getId());
 		systemMapping.setOperationType(SystemOperationType.PROVISIONING);
 		systemMapping.setEntityType(SystemEntityType.IDENTITY);
 		systemMapping = systemEntityHandlingService.save(systemMapping);
 		SysRoleSystem roleSystem = new SysRoleSystem();
 		roleSystem.setSystem(system);
 		roleSystem.setRole(role);
-		roleSystem.setSystemMapping(systemMapping);
+		roleSystem.setSystemMapping(systemMappingRespository.findOne(systemMapping.getId()));
 		roleSystemService.save(roleSystem);
 		RoleSystemFilter filter = new RoleSystemFilter();
 		filter.setRoleId(role.getId());

@@ -16,12 +16,12 @@ import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.AccTreeAccountDto;
 import eu.bcvsolutions.idm.acc.dto.EntityAccountDto;
+import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.EntityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemMappingFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.TreeAccountFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
-import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountManagementService;
@@ -65,12 +65,13 @@ public class TreeProvisioningExecutor extends AbstractProvisioningExecutor<IdmTr
 			AccAccountService accountService, AccTreeAccountService treeAccountService,
 			ProvisioningExecutor provisioningExecutor, IdmTreeNodeService treeNodeService,
 			EntityEventManager entityEventManager, SysSchemaAttributeService schemaAttributeService,
-			SysSchemaObjectClassService schemaObjectClassService) {
+			SysSchemaObjectClassService schemaObjectClassService,
+			SysSystemAttributeMappingService systemAttributeMappingService) {
 		
 		super(systemMappingService, attributeMappingService, connectorFacade, systemService, roleSystemService,
 				accountManagementService, roleSystemAttributeService, systemEntityService, accountService,
 				provisioningExecutor, entityEventManager, schemaAttributeService,
-				schemaObjectClassService);
+				schemaObjectClassService, systemAttributeMappingService);
 		
 		Assert.notNull(treeAccountService);
 		Assert.notNull(treeNodeService);
@@ -131,7 +132,7 @@ public class TreeProvisioningExecutor extends AbstractProvisioningExecutor<IdmTr
 	}
 	
 	@Override
-	protected List<SysRoleSystemAttribute> findOverloadingAttributes(IdmTreeNode entity, SysSystem system,
+	protected List<SysRoleSystemAttributeDto> findOverloadingAttributes(IdmTreeNode entity, SysSystem system,
 			List<? extends EntityAccountDto> idenityAccoutnList, SystemEntityType entityType) {
 		// Overloading attributes is not implemented for TreeNode
 		return new ArrayList<>();

@@ -20,6 +20,7 @@ import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.MappingAttributeDto;
+import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
@@ -28,7 +29,6 @@ import eu.bcvsolutions.idm.acc.dto.filter.RoleSystemFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
-import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
@@ -226,9 +226,9 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 		// Find attributes for this roleSystem
 		RoleSystemAttributeFilter roleSystemAttrFilter = new RoleSystemAttributeFilter();
 		roleSystemAttrFilter.setRoleSystemId(roleSystem.getId());
-		List<SysRoleSystemAttribute> attributes = roleSystemAttributeService.find(roleSystemAttrFilter, null)
+		List<SysRoleSystemAttributeDto> attributes = roleSystemAttributeService.find(roleSystemAttrFilter, null)
 				.getContent();
-		List<SysRoleSystemAttribute> attributesUid = attributes.stream().filter(attribute -> {
+		List<SysRoleSystemAttributeDto> attributesUid = attributes.stream().filter(attribute -> {
 			return attribute.isUid();
 		}).collect(Collectors.toList());
 
@@ -237,7 +237,7 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 					roleSystem.getRole().getName(), "system", roleSystem.getSystem().getName()));
 		}
 
-		SysRoleSystemAttribute uidRoleAttribute = !attributesUid.isEmpty() ? attributesUid.get(0) : null;
+		SysRoleSystemAttributeDto uidRoleAttribute = !attributesUid.isEmpty() ? attributesUid.get(0) : null;
 
 		// If roleSystem UID attribute found, then we use his transformation
 		// script.
@@ -246,9 +246,10 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 			// (overloaded and default)
 			AttributeMapping overloadedAttribute = new MappingAttributeDto();
 			// Default values (values from schema attribute handling)
-			overloadedAttribute.setSchemaAttribute(uidRoleAttribute.getSystemAttributeMapping().getSchemaAttribute().getId());
+			SysSystemAttributeMappingDto systemAttributeMapping = systemAttributeMappingService.get(uidRoleAttribute.getSystemAttributeMapping());
+			overloadedAttribute.setSchemaAttribute(systemAttributeMapping.getSchemaAttribute());
 			overloadedAttribute
-					.setTransformFromResourceScript(uidRoleAttribute.getSystemAttributeMapping().getTransformFromResourceScript());
+					.setTransformFromResourceScript(systemAttributeMapping.getTransformFromResourceScript());
 			// Overloaded values
 			roleSystemAttributeService.fillOverloadedAttribute(uidRoleAttribute, overloadedAttribute);
 			Object uid = systemAttributeMappingService.getAttributeValue(null, entity, overloadedAttribute);

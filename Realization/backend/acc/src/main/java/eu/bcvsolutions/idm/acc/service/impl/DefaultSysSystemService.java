@@ -356,11 +356,12 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 			// new instance)
 			sysObjectClass = convertIcObjectClassInfo(objectClass, sysObjectClass);
 			sysObjectClass.setSystem(system.getId());
-			sysObjectClasses.add(sysObjectClass);
 			
 			// object class may not exist 
 			sysObjectClass = schemaObjectClassService.save(sysObjectClass);
 			
+			sysObjectClasses.add(sysObjectClass);
+
 			List<SysSchemaAttributeDto> attributesInSystem = null;
 			// Load existing attributes for existing object class in system
 			if (sysObjectClass.getId() != null) {

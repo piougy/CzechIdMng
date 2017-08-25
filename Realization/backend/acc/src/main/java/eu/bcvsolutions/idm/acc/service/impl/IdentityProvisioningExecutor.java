@@ -18,6 +18,7 @@ import eu.bcvsolutions.idm.acc.domain.EntityAccount;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.EntityAccountDto;
+import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.filter.EntityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.RoleSystemAttributeFilter;
@@ -25,7 +26,6 @@ import eu.bcvsolutions.idm.acc.dto.filter.RoleSystemFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
-import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.repository.AccIdentityAccountRepository;
@@ -73,11 +73,13 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
 			ProvisioningExecutor provisioningExecutor,
 			EntityEventManager entityEventManager,
 			SysSchemaObjectClassService schemaObjectClassService,
-			SysSchemaAttributeService schemaAttributeService) {
+			SysSchemaAttributeService schemaAttributeService,
+			SysSystemAttributeMappingService systemAttributeMappingService) {
 		
 		super(systemMappingService, attributeMappingService, connectorFacade, systemService, roleSystemService,
 				accountManagementService, roleSystemAttributeService, systemEntityService, accountService,
-				provisioningExecutor, entityEventManager, schemaAttributeService, schemaObjectClassService);
+				provisioningExecutor, entityEventManager, schemaAttributeService, schemaObjectClassService,
+				systemAttributeMappingService);
 		
 		Assert.notNull(identityAccountService);
 		Assert.notNull(roleSystemService);
@@ -130,7 +132,7 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
 		}
 
 		// All role system attributes (overloading) for this uid and same system
-		List<SysRoleSystemAttribute> roleSystemAttributesAll = findOverloadingAttributesIdentity(entity, system, idenityAccoutnList, entityType);
+		List<SysRoleSystemAttributeDto> roleSystemAttributesAll = findOverloadingAttributesIdentity(entity, system, idenityAccoutnList, entityType);
 
 		// All default mapped attributes from system
 		List<? extends AttributeMapping> defaultAttributes = findAttributeMappings(system, entityType);
@@ -150,10 +152,10 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
 	 * @return
 	 */
 	@Deprecated
-	private List<SysRoleSystemAttribute> findOverloadingAttributesIdentity(IdmIdentity entity, SysSystem system,
+	private List<SysRoleSystemAttributeDto> findOverloadingAttributesIdentity(IdmIdentity entity, SysSystem system,
 			List<? extends EntityAccount> idenityAccoutnList, SystemEntityType entityType) {
 
-		List<SysRoleSystemAttribute> roleSystemAttributesAll = new ArrayList<>();
+		List<SysRoleSystemAttributeDto> roleSystemAttributesAll = new ArrayList<>();
 
 		idenityAccoutnList.stream().filter(ia -> {
 			return ((AccIdentityAccount)ia).getIdentityRole() != null && ia.getAccount().getSystem() != null
@@ -179,7 +181,7 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
 				SysRoleSystem roleSystem = roleSystems.get(0);
 				RoleSystemAttributeFilter roleSystemAttributeFilter = new RoleSystemAttributeFilter();
 				roleSystemAttributeFilter.setRoleSystemId(roleSystem.getId());
-				List<SysRoleSystemAttribute> roleAttributes = roleSystemAttributeService
+				List<SysRoleSystemAttributeDto> roleAttributes = roleSystemAttributeService
 						.find(roleSystemAttributeFilter, null).getContent();
 
 				if (!CollectionUtils.isEmpty(roleAttributes)) {
@@ -196,7 +198,7 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
 	 * Can use after transform identityAccount to DTO
 	 */
 	@Override
-	protected List<SysRoleSystemAttribute> findOverloadingAttributes(IdmIdentity entity, SysSystem system,
+	protected List<SysRoleSystemAttributeDto> findOverloadingAttributes(IdmIdentity entity, SysSystem system,
 			List<? extends EntityAccountDto> idenityAccoutnList, SystemEntityType entityType) {
 		return null;
 	}

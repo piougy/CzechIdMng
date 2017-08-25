@@ -140,8 +140,6 @@ public class IdmScriptAuthorityController extends DefaultReadWriteDtoController<
 				},
 			notes = "Returns IdM services (key, class), whitch can be used in scripts, if they will be assigned to the script by script authority.")
 	@ApiImplicitParams({
-		@ApiImplicitParam(name = "parameters", allowMultiple = true, dataType = "string", paramType = "query",
-				value = "Search criteria parameters. Parameters could be registered by module. Example id=25c5b9e8-b15d-4f95-b715-c7edf6f4aee6"),
         @ApiImplicitParam(name = "page", dataType = "string", paramType = "query",
                 value = "Results page you want to retrieve (0..N)"),
         @ApiImplicitParam(name = "size", dataType = "string", paramType = "query",

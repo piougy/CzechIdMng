@@ -79,14 +79,13 @@ class SchemaObjectClassDetail extends Advanced.AbstractTableContent {
     }
 
     const formEntity = this.refs.form.getData();
-    formEntity.system = systemManager.getSelfLink(formEntity.system);
 
     if (formEntity.id === undefined) {
       this.context.store.dispatch(schemaObjectClassManager.createEntity(formEntity, `${uiKey}-detail`, (createdEntity, error) => {
         this.afterSave(createdEntity, error);
       }));
     } else {
-      this.context.store.dispatch(schemaObjectClassManager.patchEntity(formEntity, `${uiKey}-detail`, this.afterSave.bind(this)));
+      this.context.store.dispatch(schemaObjectClassManager.updateEntity(formEntity, `${uiKey}-detail`, this.afterSave.bind(this)));
     }
   }
 

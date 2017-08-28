@@ -14,9 +14,9 @@ import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
+import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
@@ -102,7 +102,7 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 		IdmRole roleOne = roleService.getByCode(ROLE_ONE);
 
 		// Set system to protected mode
-		SysSystemMapping mapping = systemMappingService
+		SysSystemMappingDto mapping = systemMappingService
 				.findBySystem(system, SystemOperationType.PROVISIONING, SystemEntityType.IDENTITY).get(0);
 		mapping.setProtectionEnabled(Boolean.TRUE);
 		mapping.setProtectionInterval(null);
@@ -138,10 +138,10 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 		IdmRole roleOne = roleService.getByCode(ROLE_ONE);
 
 		// Set system to protected mode
-		SysSystemMapping mapping = helper.getDefaultMapping(system);
+		SysSystemMappingDto mapping = helper.getDefaultMapping(system);
 		mapping.setProtectionInterval(null);
 		mapping.setProtectionEnabled(true);
-		systemMappingService.save(mapping);
+		mapping = systemMappingService.save(mapping);
 
 		IdmIdentityRoleDto identityRole = helper.createIdentityRole(identity, roleOne);
 
@@ -180,11 +180,11 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 		int intervalInDays = 10;
 
 		// Set system to protected mode
-		SysSystemMapping mapping = systemMappingService
+		SysSystemMappingDto mapping = systemMappingService
 				.findBySystem(system, SystemOperationType.PROVISIONING, SystemEntityType.IDENTITY).get(0);
 		mapping.setProtectionEnabled(Boolean.TRUE);
 		mapping.setProtectionInterval(intervalInDays);
-		systemMappingService.save(mapping);
+		mapping = systemMappingService.save(mapping);
 
 		IdmIdentityRoleDto identityRole = helper.createIdentityRole(identity, roleOne);
 
@@ -222,7 +222,7 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 		int intervalInDays = 10;
 
 		// Set system to protected mode
-		SysSystemMapping mapping = systemMappingService
+		SysSystemMappingDto mapping = systemMappingService
 				.findBySystem(system, SystemOperationType.PROVISIONING, SystemEntityType.IDENTITY).get(0);
 		mapping.setProtectionEnabled(Boolean.TRUE);
 		mapping.setProtectionInterval(intervalInDays);
@@ -273,7 +273,7 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 		IdmRole roleOne = roleService.getByCode(ROLE_ONE);
 
 		// Set system to protected mode
-		SysSystemMapping mapping = systemMappingService
+		SysSystemMappingDto mapping = systemMappingService
 				.findBySystem(system, SystemOperationType.PROVISIONING, SystemEntityType.IDENTITY).get(0);
 		mapping.setProtectionEnabled(Boolean.TRUE);
 		mapping.setProtectionInterval(null);
@@ -315,7 +315,7 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 		IdmRole roleOne = roleService.getByCode(ROLE_ONE);
 
 		// Set system to protected mode
-		SysSystemMapping mapping = systemMappingService
+		SysSystemMappingDto mapping = systemMappingService
 				.findBySystem(system, SystemOperationType.PROVISIONING, SystemEntityType.IDENTITY).get(0);
 		mapping.setProtectionEnabled(Boolean.TRUE);
 		mapping.setProtectionInterval(null);

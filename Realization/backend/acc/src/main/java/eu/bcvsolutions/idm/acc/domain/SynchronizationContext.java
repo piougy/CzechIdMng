@@ -8,9 +8,9 @@ import eu.bcvsolutions.idm.acc.dto.SysSyncActionLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncItemLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncLogDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
 import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
@@ -56,7 +56,7 @@ public class SynchronizationContext implements Serializable {
 	private SysSyncConfigDto config;
 	private SysSystem system;
 	private SystemEntityType entityType;
-	private List<SysSystemAttributeMapping> mappedAttributes;
+	private List<SysSystemAttributeMappingDto> mappedAttributes;
 	private AccAccount account;
 	private SysSyncLogDto log;
 	private SysSyncItemLogDto logItem;
@@ -122,11 +122,11 @@ public class SynchronizationContext implements Serializable {
 		return this;
 	}
 
-	public List<SysSystemAttributeMapping> getMappedAttributes() {
+	public List<SysSystemAttributeMappingDto> getMappedAttributes() {
 		return mappedAttributes;
 	}
 
-	public SynchronizationContext addMappedAttributes(List<SysSystemAttributeMapping> mappedAttributes) {
+	public SynchronizationContext addMappedAttributes(List<SysSystemAttributeMappingDto> mappedAttributes) {
 		this.mappedAttributes = mappedAttributes;
 		return this;
 	}

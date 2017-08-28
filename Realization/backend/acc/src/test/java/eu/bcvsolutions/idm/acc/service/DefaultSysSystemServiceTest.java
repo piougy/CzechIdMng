@@ -20,6 +20,11 @@ import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.domain.AccountType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
+import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
+import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
+import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.RoleSystemFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SchemaObjectClassFilter;
@@ -27,15 +32,12 @@ import eu.bcvsolutions.idm.acc.dto.filter.SystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
-import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute;
-import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
-import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
 import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
 import eu.bcvsolutions.idm.acc.entity.SysSystemFormValue;
-import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
+import eu.bcvsolutions.idm.acc.repository.SysSystemAttributeMappingRepository;
+import eu.bcvsolutions.idm.acc.repository.SysSystemMappingRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
@@ -104,6 +106,10 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 	private AccAccountService accountService;
 	@Autowired
 	private SysSystemEntityService systemEntityService;
+	@Autowired
+	private SysSystemMappingRepository systemMappingRepository;
+	@Autowired
+	private SysSystemAttributeMappingRepository systemAttributeMappingRepository;
 	
 	@Before
 	public void login() {
@@ -122,36 +128,36 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		system.setName(systemName);
 		system = systemService.save(system);
 		// object class
-		SysSchemaObjectClass objectClass = new SysSchemaObjectClass();
-		objectClass.setSystem(system);
+		SysSchemaObjectClassDto objectClass = new SysSchemaObjectClassDto();
+		objectClass.setSystem(system.getId());
 		objectClass.setObjectClassName("obj_class");
 		objectClass = schemaObjectClassService.save(objectClass);	
 		SchemaObjectClassFilter objectClassFilter = new SchemaObjectClassFilter();
 		objectClassFilter.setSystemId(system.getId());
 		// schema attribute
-		SysSchemaAttribute schemaAttribute = new SysSchemaAttribute();
-		schemaAttribute.setObjectClass(objectClass);
+		SysSchemaAttributeDto schemaAttribute = new SysSchemaAttributeDto();
+		schemaAttribute.setObjectClass(objectClass.getId());
 		schemaAttribute.setName("name");
 		schemaAttribute.setClassType("class");
-		schemaAttributeService.save(schemaAttribute);
+		schemaAttribute = schemaAttributeService.save(schemaAttribute);
 		SchemaAttributeFilter schemaAttributeFilter = new SchemaAttributeFilter();
 		schemaAttributeFilter.setSystemId(system.getId());	
 		// system entity handling
-		SysSystemMapping systemMapping = new SysSystemMapping();
+		SysSystemMappingDto systemMapping = new SysSystemMappingDto();
 		systemMapping.setName("default_" + System.currentTimeMillis());
-		systemMapping.setObjectClass(objectClass);
+		systemMapping.setObjectClass(objectClass.getId());
 		systemMapping.setOperationType(SystemOperationType.PROVISIONING);
 		systemMapping.setEntityType(SystemEntityType.IDENTITY);
 		systemMapping = systemMappingService.save(systemMapping);
 		SystemMappingFilter entityHandlingFilter = new SystemMappingFilter();
 		entityHandlingFilter.setSystemId(system.getId());
 		// schema attribute handling
-		SysSystemAttributeMapping schemaAttributeHandling = new SysSystemAttributeMapping();
-		schemaAttributeHandling.setSchemaAttribute(schemaAttribute);
-		schemaAttributeHandling.setSystemMapping(systemMapping);
+		SysSystemAttributeMappingDto schemaAttributeHandling = new SysSystemAttributeMappingDto();
+		schemaAttributeHandling.setSchemaAttribute(schemaAttribute.getId());
+		schemaAttributeHandling.setSystemMapping(systemMapping.getId());
 		schemaAttributeHandling.setName("name");
 		schemaAttributeHandling.setIdmPropertyName("name");
-		systemAttributeMappingService.save(schemaAttributeHandling);
+		schemaAttributeHandling = systemAttributeMappingService.save(schemaAttributeHandling);
 		SystemAttributeMappingFilter schemaAttributeHandlingFilter = new SystemAttributeMappingFilter(); 
 		schemaAttributeHandlingFilter.setSystemId(system.getId());		
 		// role system
@@ -162,14 +168,14 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		SysRoleSystem roleSystem = new SysRoleSystem();
 		roleSystem.setSystem(system);
 		roleSystem.setRole(role);
-		roleSystem.setSystemMapping(systemMapping);
-		roleSystemService.save(roleSystem);
+		roleSystem.setSystemMapping(systemMappingRepository.findOne(systemMapping.getId()));
+		roleSystem = roleSystemService.save(roleSystem);
 		RoleSystemFilter roleSystemFilter = new RoleSystemFilter();
 		roleSystemFilter.setRoleId(role.getId());
 		// role system attributes
-		SysRoleSystemAttribute roleSystemAttribute = new SysRoleSystemAttribute();
-		roleSystemAttribute.setRoleSystem(roleSystem);
-		roleSystemAttribute.setSystemAttributeMapping(schemaAttributeHandling);
+		SysRoleSystemAttributeDto roleSystemAttribute = new SysRoleSystemAttributeDto();
+		roleSystemAttribute.setRoleSystem(roleSystem.getId());
+		roleSystemAttribute.setSystemAttributeMapping(schemaAttributeHandling.getId());
 		roleSystemAttribute.setName("name");
 		roleSystemAttribute.setIdmPropertyName("name");
 		roleSystemAttribute = roleSystemAttributeService.save(roleSystemAttribute);
@@ -398,7 +404,7 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		schemaAttributeFilter.setSystemId(system.getId());
 		// Number of schema attributes on original system
 		int numberOfSchemaAttributesOrig = schemaAttributeService.find(schemaAttributeFilter, null).getContent().size();
-		SysSystemMapping mappingOrig = helper.getDefaultMapping(system);
+		SysSystemMappingDto mappingOrig = helper.getDefaultMapping(system);
 		// Number of mapping attributes on original system
 		int numberOfMappingAttributesOrig = systemAttributeMappingService.findBySystemMapping(mappingOrig).size();
 		
@@ -413,7 +419,7 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		int numberOfSchemaAttributes = schemaAttributeService.find(schemaAttributeFilter, null).getContent().size();
 		Assert.assertEquals(numberOfSchemaAttributesOrig, numberOfSchemaAttributes);
 		
-		SysSystemMapping mapping = helper.getDefaultMapping(duplicatedSystem);
+		SysSystemMappingDto mapping = helper.getDefaultMapping(duplicatedSystem);
 		// Number of mapping attributes on duplicated system
 		int numberOfMappingAttributes = systemAttributeMappingService.findBySystemMapping(mapping).size();
 		Assert.assertEquals(numberOfMappingAttributesOrig, numberOfMappingAttributes);

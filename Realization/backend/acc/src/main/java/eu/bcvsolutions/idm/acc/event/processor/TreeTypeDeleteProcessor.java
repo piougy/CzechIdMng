@@ -11,9 +11,12 @@ import org.springframework.util.Assert;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
+import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemMappingFilter;
-import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
+import eu.bcvsolutions.idm.acc.entity.SysSystem;
+import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
@@ -35,14 +38,21 @@ public class TreeTypeDeleteProcessor extends AbstractEntityEventProcessor<IdmTre
 	
 	public static final String PROCESSOR_NAME = "tree-type-delete-processor";
 	private final SysSystemMappingService systemMappingService;
+	private final SysSystemService systemService;
+	private final SysSchemaObjectClassService schemaObjectClassService;
 	
 	@Autowired
-	public TreeTypeDeleteProcessor(SysSystemMappingService systemMappingService) {
+	public TreeTypeDeleteProcessor(SysSystemMappingService systemMappingService,
+			SysSystemService systemService, SysSchemaObjectClassService schemaObjectClassService) {
 		super(TreeTypeEventType.DELETE);
 		//
 		Assert.notNull(systemMappingService);
+		Assert.notNull(systemService);
+		Assert.notNull(schemaObjectClassService);
 		//
 		this.systemMappingService = systemMappingService;
+		this.systemService = systemService;
+		this.schemaObjectClassService = schemaObjectClassService;
 	}
 	
 	@Override
@@ -57,10 +67,11 @@ public class TreeTypeDeleteProcessor extends AbstractEntityEventProcessor<IdmTre
 		SystemMappingFilter filter = new SystemMappingFilter();
 		filter.setTreeTypeId(treeType.getId());
 		
-		List<SysSystemMapping> mappings = systemMappingService.find(filter, null).getContent();
+		List<SysSystemMappingDto> mappings = systemMappingService.find(filter, null).getContent();
 		long count = mappings.size();
 		if (count > 0) {
-			throw new TreeTypeException(AccResultCode.SYSTEM_MAPPING_TREE_TYPE_DELETE_FAILED, ImmutableMap.of("treeType", treeType.getName(), "system", mappings.get(0).getSystem().getCode()));
+			SysSystem systemEntity = systemService.get(schemaObjectClassService.get(mappings.get(0).getObjectClass()).getSystem());
+			throw new TreeTypeException(AccResultCode.SYSTEM_MAPPING_TREE_TYPE_DELETE_FAILED, ImmutableMap.of("treeType", treeType.getName(), "system",  systemEntity.getCode()));
 		}
 		
 		return new DefaultEventResult<>(event, this);

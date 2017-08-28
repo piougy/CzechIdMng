@@ -15,16 +15,17 @@ import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
+import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
+import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.entity.SysConnectorKey;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
-import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
-import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
 import eu.bcvsolutions.idm.acc.entity.SysSystemFormValue;
-import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
+import eu.bcvsolutions.idm.acc.repository.SysSystemMappingRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
@@ -64,6 +65,7 @@ public class DefaultTestHelper implements TestHelper {
 	@Autowired private SysRoleSystemService roleSystemService;
 	@Autowired private FormService formService;
 	@Autowired private DataSource dataSource;
+	@Autowired private SysSystemMappingRepository systemMappingRepository;
 
 	@Override
 	public IdmIdentityDto createIdentity() {
@@ -197,67 +199,67 @@ public class DefaultTestHelper implements TestHelper {
 		}		
 		//
 		// generate schema for system
-		List<SysSchemaObjectClass> objectClasses = systemService.generateSchema(system);
+		List<SysSchemaObjectClassDto> objectClasses = systemService.generateSchema(system);
 		//
-		SysSystemMapping systemMapping = new SysSystemMapping();
+		SysSystemMappingDto systemMapping = new SysSystemMappingDto();
 		systemMapping.setName("default_" + System.currentTimeMillis());
 		systemMapping.setEntityType(SystemEntityType.IDENTITY);
 		systemMapping.setOperationType(SystemOperationType.PROVISIONING);
-		systemMapping.setObjectClass(objectClasses.get(0));
+		systemMapping.setObjectClass(objectClasses.get(0).getId());
 		systemMapping = systemMappingService.save(systemMapping);
 
 		SchemaAttributeFilter schemaAttributeFilter = new SchemaAttributeFilter();
 		schemaAttributeFilter.setSystemId(system.getId());
 		
-		Page<SysSchemaAttribute> schemaAttributesPage = schemaAttributeService.find(schemaAttributeFilter, null);
-		for(SysSchemaAttribute schemaAttr : schemaAttributesPage) {
+		Page<SysSchemaAttributeDto> schemaAttributesPage = schemaAttributeService.find(schemaAttributeFilter, null);
+		for(SysSchemaAttributeDto schemaAttr : schemaAttributesPage) {
 			if (ATTRIBUTE_MAPPING_NAME.equals(schemaAttr.getName())) {
-				SysSystemAttributeMapping attributeMapping = new SysSystemAttributeMapping();
+				SysSystemAttributeMappingDto attributeMapping = new SysSystemAttributeMappingDto();
 				attributeMapping.setUid(true);
 				attributeMapping.setEntityAttribute(true);
 				attributeMapping.setIdmPropertyName(IdmIdentity_.username.getName());
 				attributeMapping.setName(schemaAttr.getName());
-				attributeMapping.setSchemaAttribute(schemaAttr);
-				attributeMapping.setSystemMapping(systemMapping);
+				attributeMapping.setSchemaAttribute(schemaAttr.getId());
+				attributeMapping.setSystemMapping(systemMapping.getId());
 				systemAttributeMappingService.save(attributeMapping);
 			} else if (ATTRIBUTE_MAPPING_ENABLE.equals(schemaAttr.getName())) {
-				SysSystemAttributeMapping attributeMapping = new SysSystemAttributeMapping();
+				SysSystemAttributeMappingDto attributeMapping = new SysSystemAttributeMappingDto();
 				attributeMapping.setUid(false);
 				attributeMapping.setEntityAttribute(true);
 				attributeMapping.setIdmPropertyName("disabled");
 				attributeMapping.setTransformToResourceScript("return String.valueOf(!attributeValue);");
 				attributeMapping.setTransformFromResourceScript("return !attributeValue;");
 				attributeMapping.setName(schemaAttr.getName());
-				attributeMapping.setSchemaAttribute(schemaAttr);
-				attributeMapping.setSystemMapping(systemMapping);
+				attributeMapping.setSchemaAttribute(schemaAttr.getId());
+				attributeMapping.setSystemMapping(systemMapping.getId());
 				systemAttributeMappingService.save(attributeMapping);
 			} else if (ATTRIBUTE_MAPPING_PASSWORD.equalsIgnoreCase(schemaAttr.getName())) {
-				SysSystemAttributeMapping attributeMapping = new SysSystemAttributeMapping();
+				SysSystemAttributeMappingDto attributeMapping = new SysSystemAttributeMappingDto();
 				attributeMapping.setIdmPropertyName("password");
-				attributeMapping.setSchemaAttribute(schemaAttr);
+				attributeMapping.setSchemaAttribute(schemaAttr.getId());
 				attributeMapping.setName(schemaAttr.getName());
-				attributeMapping.setSystemMapping(systemMapping);
+				attributeMapping.setSystemMapping(systemMapping.getId());
 				systemAttributeMappingService.save(attributeMapping);
 			} else if (ATTRIBUTE_MAPPING_FIRSTNAME.equalsIgnoreCase(schemaAttr.getName())) {
-				SysSystemAttributeMapping attributeMapping = new SysSystemAttributeMapping();
+				SysSystemAttributeMappingDto attributeMapping = new SysSystemAttributeMappingDto();
 				attributeMapping.setIdmPropertyName(IdmIdentity_.firstName.getName());
-				attributeMapping.setSchemaAttribute(schemaAttr);
+				attributeMapping.setSchemaAttribute(schemaAttr.getId());
 				attributeMapping.setName(schemaAttr.getName());
-				attributeMapping.setSystemMapping(systemMapping);
+				attributeMapping.setSystemMapping(systemMapping.getId());
 				systemAttributeMappingService.save(attributeMapping);
 			} else if (ATTRIBUTE_MAPPING_LASTNAME.equalsIgnoreCase(schemaAttr.getName())) {
-				SysSystemAttributeMapping attributeMapping = new SysSystemAttributeMapping();
+				SysSystemAttributeMappingDto attributeMapping = new SysSystemAttributeMappingDto();
 				attributeMapping.setIdmPropertyName(IdmIdentity_.lastName.getName());
 				attributeMapping.setName(schemaAttr.getName());
-				attributeMapping.setSchemaAttribute(schemaAttr);
-				attributeMapping.setSystemMapping(systemMapping);
+				attributeMapping.setSchemaAttribute(schemaAttr.getId());
+				attributeMapping.setSystemMapping(systemMapping.getId());
 				systemAttributeMappingService.save(attributeMapping);
 			} else if (ATTRIBUTE_MAPPING_EMAIL.equalsIgnoreCase(schemaAttr.getName())) {
-				SysSystemAttributeMapping attributeMapping = new SysSystemAttributeMapping();
+				SysSystemAttributeMappingDto attributeMapping = new SysSystemAttributeMappingDto();
 				attributeMapping.setIdmPropertyName(IdmIdentity_.email.getName());
 				attributeMapping.setName(schemaAttr.getName());
-				attributeMapping.setSchemaAttribute(schemaAttr);
-				attributeMapping.setSystemMapping(systemMapping);
+				attributeMapping.setSchemaAttribute(schemaAttr.getId());
+				attributeMapping.setSystemMapping(systemMapping.getId());
 				systemAttributeMappingService.save(attributeMapping);
 			}
 		}		
@@ -265,8 +267,8 @@ public class DefaultTestHelper implements TestHelper {
 	}
 	
 	@Override
-	public SysSystemMapping getDefaultMapping(SysSystem system) {
-		List<SysSystemMapping> mappings = systemMappingService.findBySystem(system, SystemOperationType.PROVISIONING, SystemEntityType.IDENTITY);
+	public SysSystemMappingDto getDefaultMapping(SysSystem system) {
+		List<SysSystemMappingDto> mappings = systemMappingService.findBySystem(system, SystemOperationType.PROVISIONING, SystemEntityType.IDENTITY);
 		if(mappings.isEmpty()) {
 			throw new CoreException(String.format("Default mapping for system[%s] not found", system.getId()));
 		}
@@ -280,9 +282,9 @@ public class DefaultTestHelper implements TestHelper {
 		roleSystem.setRole(role);
 		roleSystem.setSystem(system);
 		// default mapping
-		List<SysSystemMapping> mappings = systemMappingService.findBySystem(system, SystemOperationType.PROVISIONING, SystemEntityType.IDENTITY);
+		List<SysSystemMappingDto> mappings = systemMappingService.findBySystem(system, SystemOperationType.PROVISIONING, SystemEntityType.IDENTITY);
 		//
-		roleSystem.setSystemMapping(mappings.get(0));
+		roleSystem.setSystemMapping(systemMappingRepository.findOne(mappings.get(0).getId()));
 		return roleSystemService.save(roleSystem);
 	}
 	

@@ -1,11 +1,9 @@
 package eu.bcvsolutions.idm.acc.rest.impl;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.Resources;
@@ -15,6 +13,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -22,14 +21,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
+import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SchemaAttributeFilter;
-import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
-import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteEntityController;
+import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
-import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
-import eu.bcvsolutions.idm.core.api.service.LookupService;
+import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -44,20 +42,20 @@ import io.swagger.annotations.AuthorizationScope;;
  */
 @RepositoryRestController
 @Enabled(AccModuleDescriptor.MODULE_ID)
-@RequestMapping(value = BaseEntityController.BASE_PATH + "/schema-attributes")
+@RequestMapping(value = BaseDtoController.BASE_PATH + "/schema-attributes")
 @Api(
 		value = SysSchemaAttributeController.TAG, 
 		tags = SysSchemaAttributeController.TAG, 
 		description = "Schema attribute configuration",
 		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
 		consumes = MediaType.APPLICATION_JSON_VALUE)
-public class SysSchemaAttributeController extends AbstractReadWriteEntityController<SysSchemaAttribute, SchemaAttributeFilter> {
+public class SysSchemaAttributeController extends AbstractReadWriteDtoController<SysSchemaAttributeDto, SchemaAttributeFilter> {
 
 	protected static final String TAG = "System schema - attributes";
 	
 	@Autowired
-	public SysSchemaAttributeController(LookupService entityLookupService, SysSchemaAttributeService service) {
-		super(entityLookupService, service);
+	public SysSchemaAttributeController(SysSchemaAttributeService service) {
+		super(service);
 	}
 
 	@Override
@@ -76,9 +74,8 @@ public class SysSchemaAttributeController extends AbstractReadWriteEntityControl
 				})
 	public Resources<?> find(
 			@RequestParam(required = false) MultiValueMap<String, Object> parameters,
-			@PageableDefault Pageable pageable,
-			PersistentEntityResourceAssembler assembler) {
-		return super.find(parameters, pageable, assembler);
+			@PageableDefault Pageable pageable) {
+		return super.find(parameters, pageable);
 	}
 
 	@ResponseBody
@@ -96,9 +93,8 @@ public class SysSchemaAttributeController extends AbstractReadWriteEntityControl
 				})
 	public Resources<?> findQuick(
 			@RequestParam(required = false) MultiValueMap<String, Object> parameters,
-			@PageableDefault Pageable pageable,
-			PersistentEntityResourceAssembler assembler) {
-		return super.find(parameters, pageable, assembler);
+			@PageableDefault Pageable pageable) {
+		return super.find(parameters, pageable);
 	}
 
 	@Override
@@ -108,7 +104,7 @@ public class SysSchemaAttributeController extends AbstractReadWriteEntityControl
 	@ApiOperation(
 			value = "Schema attribute detail", 
 			nickname = "getSchemaAttribute", 
-			response = SysSchemaAttribute.class, 
+			response = SysSchemaAttributeDto.class, 
 			tags = { SysSchemaAttributeController.TAG }, 
 			authorizations = {
 					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
@@ -118,9 +114,8 @@ public class SysSchemaAttributeController extends AbstractReadWriteEntityControl
 					})
 	public ResponseEntity<?> get(
 			@ApiParam(value = "Schema attribute's uuid identifier.", required = true)
-			@PathVariable @NotNull String backendId,
-			PersistentEntityResourceAssembler assembler) {
-		return super.get(backendId, assembler);
+			@PathVariable @NotNull String backendId) {
+		return super.get(backendId);
 	}
 
 	@Override
@@ -130,7 +125,7 @@ public class SysSchemaAttributeController extends AbstractReadWriteEntityControl
 	@ApiOperation(
 			value = "Create / update schema attribute", 
 			nickname = "postSchemaAttribute", 
-			response = SysSchemaAttribute.class, 
+			response = SysSchemaAttributeDto.class, 
 			tags = { SysSchemaAttributeController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = {
@@ -138,9 +133,9 @@ public class SysSchemaAttributeController extends AbstractReadWriteEntityControl
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = {
 						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_UPDATE, description = "")})
 				})
-	public ResponseEntity<?> post(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler)
+	public ResponseEntity<?> post(@RequestBody @NotNull SysSchemaAttributeDto dto)
 			throws HttpMessageNotReadableException {
-		return super.post(nativeRequest, assembler);
+		return super.post(dto);
 	}
 
 	@Override
@@ -150,7 +145,7 @@ public class SysSchemaAttributeController extends AbstractReadWriteEntityControl
 	@ApiOperation(
 			value = "Update schema attribute",
 			nickname = "putSchemaAttribute", 
-			response = SysSchemaAttribute.class, 
+			response = SysSchemaAttributeDto.class, 
 			tags = { SysSchemaAttributeController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
@@ -161,32 +156,8 @@ public class SysSchemaAttributeController extends AbstractReadWriteEntityControl
 	public ResponseEntity<?> put(
 			@ApiParam(value = "Schema attribute's uuid identifier.", required = true)
 			@PathVariable @NotNull String backendId,
-			HttpServletRequest nativeRequest,
-			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
-		return super.put(backendId, nativeRequest, assembler);
-	}
-
-	@Override
-	@ResponseBody
-	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_UPDATE + "')")
-	@RequestMapping(value = "/{backendId}", method = RequestMethod.PATCH)
-	@ApiOperation(
-			value = "Update schema attribute",
-			nickname = "patchSchemaAttribute", 
-			response = SysSchemaAttribute.class, 
-			tags = { SysSchemaAttributeController.TAG }, 
-			authorizations = { 
-				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
-						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_UPDATE, description = "") }),
-				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
-						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_UPDATE, description = "") })
-				})
-	public ResponseEntity<?> patch(
-			@ApiParam(value = "Schema attribute's uuid identifier.", required = true)
-			@PathVariable @NotNull String backendId,
-			HttpServletRequest nativeRequest,
-			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
-		return super.patch(backendId, nativeRequest, assembler);
+			@RequestBody @NotNull SysSchemaAttributeDto dto) throws HttpMessageNotReadableException {
+		return super.put(backendId, dto);
 	}
 
 	@Override

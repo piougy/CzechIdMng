@@ -21,7 +21,11 @@ import org.springframework.util.Assert;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
+import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
+import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncConfigDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SchemaObjectClassFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SynchronizationConfigFilter;
@@ -30,12 +34,8 @@ import eu.bcvsolutions.idm.acc.dto.filter.SystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.SysConnectorKey;
 import eu.bcvsolutions.idm.acc.entity.SysConnectorServer;
-import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
-import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
 import eu.bcvsolutions.idm.acc.entity.SysSystemFormValue;
-import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.acc.repository.AccAccountRepository;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningArchiveRepository;
 import eu.bcvsolutions.idm.acc.repository.SysSystemEntityRepository;
@@ -101,6 +101,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 	private final SysSystemFormValueService systemFormValueService;
 	private final SysSystemMappingService systemMappingService;
 	private final SysSystemAttributeMappingService systemAttributeMappingService;
+	private final SysSchemaObjectClassService schemaObjectClassService;
 
 	@Autowired
 	public DefaultSysSystemService(SysSystemRepository systemRepository, FormService formService,
@@ -110,7 +111,8 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 			FormPropertyManager formPropertyManager, SysProvisioningArchiveRepository provisioningArchiveRepository,
 			ConfidentialStorage confidentialStorage, IcConnectorFacade connectorFacade, EntityManager entityManager,
 			SysSystemFormValueService systemFormValueService, SysSystemMappingService systemMappingService,
-			SysSystemAttributeMappingService systemAttributeMappingService) {
+			SysSystemAttributeMappingService systemAttributeMappingService,
+			SysSchemaObjectClassService schemaObjectClassService) {
 		super(systemRepository, formService);
 		//
 		Assert.notNull(icConfigurationFacade);
@@ -127,6 +129,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		Assert.notNull(systemFormValueService);
 		Assert.notNull(systemMappingService);
 		Assert.notNull(systemAttributeMappingService);
+		Assert.notNull(schemaObjectClassService);
 		//
 		this.systemRepository = systemRepository;
 		this.icConfigurationFacade = icConfigurationFacade;
@@ -143,6 +146,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		this.systemFormValueService = systemFormValueService;
 		this.systemMappingService = systemMappingService;
 		this.systemAttributeMappingService = systemAttributeMappingService;
+		this.schemaObjectClassService = schemaObjectClassService;
 	}
 
 	@Override
@@ -299,9 +303,10 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 
 	@Override
 	@Transactional
-	public List<SysSchemaObjectClass> generateSchema(SysSystem system) {
+	public List<SysSchemaObjectClassDto> generateSchema(SysSystem system) {
 		Assert.notNull(system);
-
+		Assert.notNull(system.getId());
+		
 		// Find connector identification persisted in system
 		IcConnectorKey connectorKey = system.getConnectorKey();
 		if (connectorKey == null) {
@@ -327,13 +332,13 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		// Load existing object class from system
 		SchemaObjectClassFilter objectClassFilter = new SchemaObjectClassFilter();
 		objectClassFilter.setSystemId(system.getId());
-		List<SysSchemaObjectClass> sysObjectClassesInSystem = null;
-		Page<SysSchemaObjectClass> page = objectClassService.find(objectClassFilter, null);
+		List<SysSchemaObjectClassDto> sysObjectClassesInSystem = null;
+		Page<SysSchemaObjectClassDto> page = objectClassService.find(objectClassFilter, null);
 		sysObjectClassesInSystem = page.getContent();
 
 		// Convert IC schema to ACC entities
-		List<SysSchemaObjectClass> sysObjectClasses = new ArrayList<SysSchemaObjectClass>();
-		List<SysSchemaAttribute> sysAttributes = new ArrayList<SysSchemaAttribute>();
+		List<SysSchemaObjectClassDto> sysObjectClasses = new ArrayList<SysSchemaObjectClassDto>();
+		List<SysSchemaAttributeDto> sysAttributes = new ArrayList<SysSchemaAttributeDto>();
 		for (IcObjectClassInfo objectClass : icSchema.getDeclaredObjectClasses()) {
 
 			// We can create only IC schemas, it means only schemas created for
@@ -341,13 +346,13 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 			if (!(objectClass.getType().startsWith("__") && objectClass.getType().endsWith("__"))) {
 				continue;
 			}
-			SysSchemaObjectClass sysObjectClass = null;
+			SysSchemaObjectClassDto sysObjectClass = null;
 			// If existed some object class in system, then we will compared
 			// every object with object class in resource
 			// If will be same (same name), then we do only refresh object
 			// values from resource
 			if (sysObjectClassesInSystem != null) {
-				Optional<SysSchemaObjectClass> objectClassSame = sysObjectClassesInSystem.stream()
+				Optional<SysSchemaObjectClassDto> objectClassSame = sysObjectClassesInSystem.stream()
 						.filter(objectClassInSystem -> { //
 							return objectClassInSystem.getObjectClassName().equals(objectClass.getType());
 						}) //
@@ -359,25 +364,29 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 			// Convert IC object class to ACC (if is null, then will be created
 			// new instance)
 			sysObjectClass = convertIcObjectClassInfo(objectClass, sysObjectClass);
-			sysObjectClass.setSystem(system);
+			sysObjectClass.setSystem(system.getId());
+			
+			// object class may not exist 
+			sysObjectClass = schemaObjectClassService.save(sysObjectClass);
+			
 			sysObjectClasses.add(sysObjectClass);
 
-			List<SysSchemaAttribute> attributesInSystem = null;
+			List<SysSchemaAttributeDto> attributesInSystem = null;
 			// Load existing attributes for existing object class in system
 			if (sysObjectClass.getId() != null) {
 				SchemaAttributeFilter attFilter = new SchemaAttributeFilter();
 				attFilter.setSystemId(system.getId());
 				attFilter.setObjectClassId(sysObjectClass.getId());
 
-				Page<SysSchemaAttribute> attributesInSystemPage = attributeService.find(attFilter, null);
+				Page<SysSchemaAttributeDto> attributesInSystemPage = attributeService.find(attFilter, null);
 				attributesInSystem = attributesInSystemPage.getContent();
 			}
 			for (IcAttributeInfo attribute : objectClass.getAttributeInfos()) {
 				// If will be IC and ACC attribute same (same name), then we
 				// will do only refresh object values from resource
-				SysSchemaAttribute sysAttribute = null;
+				SysSchemaAttributeDto sysAttribute = null;
 				if (attributesInSystem != null) {
-					Optional<SysSchemaAttribute> sysAttributeOptional = attributesInSystem.stream().filter(a -> {
+					Optional<SysSchemaAttributeDto> sysAttributeOptional = attributesInSystem.stream().filter(a -> {
 						return a.getName().equals(attribute.getName());
 					}).findFirst();
 					if (sysAttributeOptional.isPresent()) {
@@ -385,7 +394,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 					}
 				}
 				sysAttribute = convertIcAttributeInfo(attribute, sysAttribute);
-				sysAttribute.setObjectClass(sysObjectClass);
+				sysAttribute.setObjectClass(sysObjectClass.getId());
 				sysAttributes.add(sysAttribute);
 			}
 		}
@@ -396,13 +405,13 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		return sysObjectClasses;
 	}
 
-	private SysSchemaObjectClass convertIcObjectClassInfo(IcObjectClassInfo objectClass,
-			SysSchemaObjectClass sysObjectClass) {
+	private SysSchemaObjectClassDto convertIcObjectClassInfo(IcObjectClassInfo objectClass,
+			SysSchemaObjectClassDto sysObjectClass) {
 		if (objectClass == null) {
 			return null;
 		}
 		if (sysObjectClass == null) {
-			sysObjectClass = new SysSchemaObjectClass();
+			sysObjectClass = new SysSchemaObjectClassDto();
 		}
 		sysObjectClass.setObjectClassName(objectClass.getType());
 		sysObjectClass.setAuxiliary(objectClass.isAuxiliary());
@@ -410,12 +419,12 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		return sysObjectClass;
 	}
 
-	private SysSchemaAttribute convertIcAttributeInfo(IcAttributeInfo attributeInfo, SysSchemaAttribute sysAttribute) {
+	private SysSchemaAttributeDto convertIcAttributeInfo(IcAttributeInfo attributeInfo, SysSchemaAttributeDto sysAttribute) {
 		if (attributeInfo == null) {
 			return null;
 		}
 		if (sysAttribute == null) {
-			sysAttribute = new SysSchemaAttribute();
+			sysAttribute = new SysSchemaAttributeDto();
 		}
 		sysAttribute.setClassType(attributeInfo.getClassType());
 		sysAttribute.setName(attributeInfo.getName());
@@ -472,8 +481,9 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 
 	@Override
 	@Transactional
-	public IcConnectorObject readObject(SysSystem system, SysSystemMapping systemMapping, IcUidAttribute uidAttribute) {
-		IcObjectClass objectClass = new IcObjectClassImpl(systemMapping.getObjectClass().getObjectClassName());
+	public IcConnectorObject readObject(SysSystem system, SysSystemMappingDto systemMapping, IcUidAttribute uidAttribute) {
+		SysSchemaObjectClassDto schemaObjectClassDto = schemaObjectClassService.get(systemMapping.getObjectClass());
+		IcObjectClass objectClass = new IcObjectClassImpl(schemaObjectClassDto.getObjectClassName());
 		return connectorFacade.readObject(system.getConnectorInstance(), this.getConnectorConfiguration(system),
 				objectClass, uidAttribute);
 	}
@@ -515,7 +525,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		objectClassFilter.setSystemId(id);
 		objectClassService.find(objectClassFilter, null).getContent().stream().forEach(schema -> {
 			UUID originalSchemaId = schema.getId();
-			SysSchemaObjectClass duplicatedSchema = this.duplicateSchema(originalSchemaId, system,
+			SysSchemaObjectClassDto duplicatedSchema = this.duplicateSchema(originalSchemaId, system,
 					schemaAttributesCache);
 
 			// Duplicate mapped attributes
@@ -524,10 +534,10 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 			systemMappingService.find(systemMappingFilter, null).getContent().stream().filter(mapping -> {
 				
 				// Find mapping for this schema
-				return mapping.getObjectClass().getId().equals(originalSchemaId);
+				return mapping.getObjectClass().equals(originalSchemaId);
 			}).forEach(mapping -> {
 				final UUID originalMappingId = mapping.getId();
-				SysSystemMapping duplicatedMapping = this.duplicateMapping(originalMappingId, duplicatedSchema,
+				SysSystemMappingDto duplicatedMapping = this.duplicateMapping(originalMappingId, duplicatedSchema,
 						schemaAttributesCache, mappedAttributesCache);
 
 				// Duplicate sync configs
@@ -565,19 +575,19 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 	 * @param schemaAttributesIds
 	 * @return
 	 */
-	private SysSchemaObjectClass duplicateSchema(UUID id, SysSystem system, Map<UUID, UUID> schemaAttributesIds) {
+	private SysSchemaObjectClassDto duplicateSchema(UUID id, SysSystem system, Map<UUID, UUID> schemaAttributesIds) {
 		Assert.notNull(id, "Id of duplication schema, must be filled!");
 		Assert.notNull(system, "Parent system must be filled!");
-		SysSchemaObjectClass clonedSchema = objectClassService.clone(id);
-		clonedSchema.setSystem(system);
-		SysSchemaObjectClass schema = objectClassService.save(clonedSchema);
+		SysSchemaObjectClassDto clonedSchema = objectClassService.clone(id);
+		clonedSchema.setSystem(system.getId());
+		SysSchemaObjectClassDto schema = objectClassService.save(clonedSchema);
 
 		SchemaAttributeFilter schemaAttributesFilter = new SchemaAttributeFilter();
 		schemaAttributesFilter.setObjectClassId(id);
 		attributeService.find(schemaAttributesFilter, null).forEach(schemaAttribute -> {
 			UUID originalSchemaAttributId = schemaAttribute.getId();
-			SysSchemaAttribute clonedAttribut = attributeService.clone(originalSchemaAttributId);
-			clonedAttribut.setObjectClass(schema);
+			SysSchemaAttributeDto clonedAttribut = attributeService.clone(originalSchemaAttributId);
+			clonedAttribut.setObjectClass(schema.getId());
 			clonedAttribut = attributeService.save(clonedAttribut);
 			// Put original and new id to cache
 			schemaAttributesIds.put(originalSchemaAttributId, clonedAttribut.getId());
@@ -594,26 +604,26 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 	 * @param mappedAttributesIds
 	 * @return
 	 */
-	private SysSystemMapping duplicateMapping(UUID id, SysSchemaObjectClass schema, Map<UUID, UUID> schemaAttributesIds,
+	private SysSystemMappingDto duplicateMapping(UUID id, SysSchemaObjectClassDto schema, Map<UUID, UUID> schemaAttributesIds,
 			Map<UUID, UUID> mappedAttributesIds) {
 		Assert.notNull(id, "Id of duplication mapping, must be filled!");
 		Assert.notNull(schema, "Parent schema must be filled!");
-		SysSystemMapping clonedMapping = systemMappingService.clone(id);
-		clonedMapping.setObjectClass(schema);
-		SysSystemMapping mapping = this.systemMappingService.save(clonedMapping);
+		SysSystemMappingDto clonedMapping = systemMappingService.clone(id);
+		clonedMapping.setObjectClass(schema.getId());
+		SysSystemMappingDto mapping = this.systemMappingService.save(clonedMapping);
 
 		// Clone mapped attributes
 		SystemAttributeMappingFilter attributesFilter = new SystemAttributeMappingFilter();
 		attributesFilter.setSystemMappingId(id);
 		systemAttributeMappingService.find(attributesFilter, null).forEach(attribute -> {
 			UUID originalAttributeId = attribute.getId();
-			SysSystemAttributeMapping clonedAttribute = systemAttributeMappingService.clone(originalAttributeId);
+			SysSystemAttributeMappingDto clonedAttribute = systemAttributeMappingService.clone(originalAttributeId);
 			// Find cloned schema attribute in cache (by original Id)
-			SysSchemaAttribute clonedSchemaAttribute = attributeService
-					.get(schemaAttributesIds.get(clonedAttribute.getSchemaAttribute().getId()));
+			SysSchemaAttributeDto clonedSchemaAttribute = attributeService
+					.get(schemaAttributesIds.get(clonedAttribute.getSchemaAttribute()));
 
-			clonedAttribute.setSystemMapping(mapping);
-			clonedAttribute.setSchemaAttribute(clonedSchemaAttribute);
+			clonedAttribute.setSystemMapping(mapping.getId());
+			clonedAttribute.setSchemaAttribute(clonedSchemaAttribute.getId());
 			clonedAttribute = systemAttributeMappingService.save(clonedAttribute);
 			// Put original and new id to cache
 			mappedAttributesIds.put(originalAttributeId, clonedAttribute.getId());
@@ -628,7 +638,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 	 * @param duplicatedMapping
 	 * @param mappedAttributesCache
 	 */
-	private void duplicateSyncConf(UUID syncConfigId, SysSystemMapping duplicatedMapping,
+	private void duplicateSyncConf(UUID syncConfigId, SysSystemMappingDto duplicatedMapping,
 			Map<UUID, UUID> mappedAttributesCache) {
 		SysSyncConfigDto clonedSyncConfig = synchronizationConfigService.clone(syncConfigId);
 		clonedSyncConfig.setSystemMapping(duplicatedMapping.getId());
@@ -655,7 +665,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 	 * @param mappedAttributesCache
 	 * @return
 	 */
-	private SysSystemAttributeMapping getNewAttributeByOld(SysSystemAttributeMapping oldAttribute, Map<UUID, UUID> mappedAttributesCache) {
+	private SysSystemAttributeMappingDto getNewAttributeByOld(SysSystemAttributeMappingDto oldAttribute, Map<UUID, UUID> mappedAttributesCache) {
 		if(oldAttribute == null){
 			return null;
 		}

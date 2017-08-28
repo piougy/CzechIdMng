@@ -111,8 +111,8 @@ public class ProvisioningAttributeDto implements Serializable {
 		return MessageFormat.format("{0} ({1}){2}{3}", schemaAttributeName, strategyType, sendAlways ? " sendAlways": "",  sendOnlyIfNotNull ? " sendOnlyIfNotNull" : "");
 	}
 	
-	public static ProvisioningAttributeDto createProvisioningAttributeKey(AttributeMapping attribute){
-		ProvisioningAttributeDto key =  new ProvisioningAttributeDto(attribute.getSchemaAttribute().getName(), attribute.getStrategyType()); 
+	public static ProvisioningAttributeDto createProvisioningAttributeKey(AttributeMapping attribute, String schemaAttributeName){
+		ProvisioningAttributeDto key =  new ProvisioningAttributeDto(schemaAttributeName, attribute.getStrategyType()); 
 		key.setTransformValueFromResourceScript(attribute.getTransformFromResourceScript());
 		key.setSendOnlyIfNotNull(attribute.isSendOnlyIfNotNull());
 		key.setSendAlways(attribute.isSendAlways());

@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.acc;
 
+import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
@@ -96,7 +97,7 @@ public interface TestHelper {
 	 * @param system
 	 * @return
 	 */
-	SysSystemMapping getDefaultMapping(SysSystem system);
+	SysSystemMappingDto getDefaultMapping(SysSystem system);
 	
 	/**
 	 * Assing system to given role with default mapping (provisioning, identity)

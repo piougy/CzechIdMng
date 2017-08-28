@@ -20,16 +20,18 @@ import com.google.common.collect.ImmutableList;
 import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
+import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemEntityFilter;
 import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount_;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
-import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
-import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
+import eu.bcvsolutions.idm.acc.repository.SysSystemAttributeMappingRepository;
+import eu.bcvsolutions.idm.acc.repository.SysSystemMappingRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
@@ -110,6 +112,12 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 	@Autowired
 	private SysRoleSystemAttributeService roleSystemAttributeService;
 
+	@Autowired
+	private SysSystemAttributeMappingRepository systemAttributeMappingRepository;
+	
+	@Autowired
+	private SysSystemMappingRepository systemMappingRepository;
+	
 	@Before
 	public void init() {
 		loginAsAdmin("admin");
@@ -494,14 +502,14 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 		identity = identityService.save(identity);
 
 		// Create mapped attributes to schema
-		SysSystemMapping systemMapping = helper.getDefaultMapping(system);
-		SysSystemAttributeMapping attributeHandlingLastName = schemaAttributeHandlingService
+		SysSystemMappingDto systemMapping = helper.getDefaultMapping(system);
+		SysSystemAttributeMappingDto attributeHandlingLastName = schemaAttributeHandlingService
 				.findBySystemMappingAndName(systemMapping.getId(), TestHelper.ATTRIBUTE_MAPPING_LASTNAME);
-		SysSystemAttributeMapping attributeHandlingPassword = schemaAttributeHandlingService
+		SysSystemAttributeMappingDto attributeHandlingPassword = schemaAttributeHandlingService
 				.findBySystemMappingAndName(systemMapping.getId(), TestHelper.ATTRIBUTE_MAPPING_PASSWORD);
-		SysSystemAttributeMapping attributeHandlingFirstName = schemaAttributeHandlingService
+		SysSystemAttributeMappingDto attributeHandlingFirstName = schemaAttributeHandlingService
 				.findBySystemMappingAndName(systemMapping.getId(), TestHelper.ATTRIBUTE_MAPPING_FIRSTNAME);
-		SysSystemAttributeMapping attributeHandlingUserName = schemaAttributeHandlingService
+		SysSystemAttributeMappingDto attributeHandlingUserName = schemaAttributeHandlingService
 				.findBySystemMappingAndName(systemMapping.getId(), TestHelper.ATTRIBUTE_MAPPING_NAME);
 		// username is transformed
 		attributeHandlingUserName.setTransformToResourceScript("return \"" + "x" + IDENTITY_USERNAME + "\";");
@@ -516,7 +524,7 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 		SysRoleSystem roleSystemDefault = new SysRoleSystem();
 		roleSystemDefault.setRole(roleDefault);
 		roleSystemDefault.setSystem(system);
-		roleSystemDefault.setSystemMapping(systemMapping);
+		roleSystemDefault.setSystemMapping(systemMappingRepository.findOne(systemMapping.getId()));
 		roleSystemService.save(roleSystemDefault);
 
 		/*
@@ -528,17 +536,17 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 		SysRoleSystem roleSystemLastName = new SysRoleSystem();
 		roleSystemLastName.setRole(roleOverloadingLastName);
 		roleSystemLastName.setSystem(system);
-		roleSystemLastName.setSystemMapping(systemMapping);
+		roleSystemLastName.setSystemMapping(systemMappingRepository.findOne(systemMapping.getId()));
 		roleSystemService.save(roleSystemLastName);
 
 		// Attribute for overloading last name attribute
-		SysRoleSystemAttribute attributeLastName = new SysRoleSystemAttribute();
+		SysRoleSystemAttributeDto attributeLastName = new SysRoleSystemAttributeDto();
 		attributeLastName.setEntityAttribute(true);
 		attributeLastName.setIdmPropertyName("email");
 		attributeLastName.setName("Overloaded lastName with email");
-		attributeLastName.setRoleSystem(roleSystemLastName);
-		attributeLastName.setSystemAttributeMapping(attributeHandlingLastName);
-		roleSystemAttributeService.save(attributeLastName);
+		attributeLastName.setRoleSystem(roleSystemLastName.getId());
+		attributeLastName.setSystemAttributeMapping(attributeHandlingLastName.getId());
+		attributeLastName = roleSystemAttributeService.save(attributeLastName);
 		
 		/*
 		 * Create role with link on system (overloading password attribute)
@@ -549,19 +557,19 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 		SysRoleSystem roleSystemPassword = new SysRoleSystem();
 		roleSystemPassword.setRole(roleOverloadingPassword);
 		roleSystemPassword.setSystem(system);
-		roleSystemPassword.setSystemMapping(systemMapping);
+		roleSystemPassword.setSystemMapping(systemMappingRepository.findOne(systemMapping.getId()));
 		roleSystemService.save(roleSystemPassword);
 
 		// Attribute for overloading last name attribute
-		SysRoleSystemAttribute attributePassword = new SysRoleSystemAttribute();
+		SysRoleSystemAttributeDto attributePassword = new SysRoleSystemAttributeDto();
 		attributePassword.setEntityAttribute(true);
 		attributePassword.setIdmPropertyName("password");
 		attributePassword.setConfidentialAttribute(true);
 		attributePassword.setName("Overloaded password - add x");
-		attributePassword.setRoleSystem(roleSystemPassword);
-		attributePassword.setSystemAttributeMapping(attributeHandlingPassword);
+		attributePassword.setRoleSystem(roleSystemPassword.getId());
+		attributePassword.setSystemAttributeMapping(attributeHandlingPassword.getId());
 		attributePassword.setTransformScript("return new "+GuardedString.class.getName()+"(\"x\"+attributeValue.asString());");
-		roleSystemAttributeService.save(attributePassword);
+		attributePassword = roleSystemAttributeService.save(attributePassword);
 
 		/*
 		 * Create role with link on system (overloading (disable) first name
@@ -573,16 +581,16 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 		SysRoleSystem roleSystemFirstName = new SysRoleSystem();
 		roleSystemFirstName.setRole(roleOverloadingFirstName);
 		roleSystemFirstName.setSystem(system);
-		roleSystemFirstName.setSystemMapping(systemMapping);
+		roleSystemFirstName.setSystemMapping(systemMappingRepository.findOne(systemMapping.getId()));
 		roleSystemService.save(roleSystemFirstName);
 
 		// Attribute for overloading first name attribute (disable him)
-		SysRoleSystemAttribute attributeFirstName = new SysRoleSystemAttribute();
+		SysRoleSystemAttributeDto attributeFirstName = new SysRoleSystemAttributeDto();
 		attributeFirstName.setDisabledDefaultAttribute(true);
 		attributeFirstName.setName("Disable first name");
-		attributeFirstName.setRoleSystem(roleSystemFirstName);
-		attributeFirstName.setSystemAttributeMapping(attributeHandlingFirstName);
-		roleSystemAttributeService.save(attributeFirstName);
+		attributeFirstName.setRoleSystem(roleSystemFirstName.getId());
+		attributeFirstName.setSystemAttributeMapping(attributeHandlingFirstName.getId());
+		attributeFirstName = roleSystemAttributeService.save(attributeFirstName);
 
 		/*
 		 * Create role with link on system (overloading name attribute ...
@@ -594,19 +602,19 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 		SysRoleSystem roleSystemName = new SysRoleSystem();
 		roleSystemName.setRole(roleOverloadingName);
 		roleSystemName.setSystem(system);
-		roleSystemName.setSystemMapping(systemMapping);
+		roleSystemName.setSystemMapping(systemMappingRepository.findOne(systemMapping.getId()));
 		roleSystemService.save(roleSystemName);
 
 		// Attribute for overloading first name attribute (disable him)
-		SysRoleSystemAttribute attributeName = new SysRoleSystemAttribute();
+		SysRoleSystemAttributeDto attributeName = new SysRoleSystemAttributeDto();
 		attributeName.setUid(true);
 		attributeName.setEntityAttribute(true);
 		attributeName.setIdmPropertyName("username");
 		attributeName.setName("Account with Y-prefix name");
 		attributeName.setTransformScript("return \"y\" + attributeValue ;");
-		attributeName.setRoleSystem(roleSystemName);
-		attributeName.setSystemAttributeMapping(attributeHandlingUserName);
-		roleSystemAttributeService.save(attributeName);
+		attributeName.setRoleSystem(roleSystemName.getId());
+		attributeName.setSystemAttributeMapping(attributeHandlingUserName.getId());
+		attributeName = roleSystemAttributeService.save(attributeName);
 	}
 
 }

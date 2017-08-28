@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SchemaObjectClassFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
@@ -16,8 +17,9 @@ import eu.bcvsolutions.idm.acc.repository.SysSchemaObjectClassRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
-import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
+import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 
 /**
  * Default schema object class service
@@ -26,7 +28,7 @@ import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
  *
  */
 @Service
-public class DefaultSysSchemaObjectClassService extends AbstractReadWriteEntityService<SysSchemaObjectClass, SchemaObjectClassFilter>
+public class DefaultSysSchemaObjectClassService extends AbstractReadWriteDtoService<SysSchemaObjectClassDto, SysSchemaObjectClass, SchemaObjectClassFilter>
 		implements SysSchemaObjectClassService {
 
 	private final SysSchemaAttributeService sysSchemaAttributeService;
@@ -52,7 +54,7 @@ public class DefaultSysSchemaObjectClassService extends AbstractReadWriteEntityS
 	
 	@Override
 	@Transactional
-	public void delete(SysSchemaObjectClass schemaObjectClass) {
+	public void delete(SysSchemaObjectClassDto schemaObjectClass, BasePermission... permission) {
 		Assert.notNull(schemaObjectClass);
 		//
 		// remove all schema attributes for 
@@ -66,16 +68,14 @@ public class DefaultSysSchemaObjectClassService extends AbstractReadWriteEntityS
 			systemMappingService.delete(systemMapping);
 		});
 		//
-		super.delete(schemaObjectClass);
+		super.delete(schemaObjectClass, permission);
 	}
 
 	@Override
-	public SysSchemaObjectClass clone(UUID id) {
-		SysSchemaObjectClass original = this.get(id);
+	public SysSchemaObjectClassDto clone(UUID id) {
+		SysSchemaObjectClassDto original = this.get(id);
 		Assert.notNull(original, "Schema must be found!");
 		
-		// We do detach this entity (and set id to null)
-		entityManager.detach(original);
 		original.setId(null);
 		EntityUtils.clearAuditFields(original);
 		return original;

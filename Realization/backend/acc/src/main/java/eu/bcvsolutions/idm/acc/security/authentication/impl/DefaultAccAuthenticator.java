@@ -13,12 +13,14 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
+import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
+import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
@@ -67,7 +69,11 @@ public class DefaultAccAuthenticator extends AbstractAuthenticator implements Au
 	
 	private final SysSystemAttributeMappingService systemAttributeMappingService;
 	
+	private final SysSystemMappingService systemMappingService;
+	
 	private final JwtAuthenticationService jwtAuthenticationService;
+	
+	private final SysSchemaAttributeService schemaAttributeService;
 	
 	@Autowired
 	public DefaultAccAuthenticator(ConfigurationService configurationService,
@@ -76,7 +82,9 @@ public class DefaultAccAuthenticator extends AbstractAuthenticator implements Au
 			AccAccountService accountService,
 			IdmIdentityService identityService,
 			SysSystemAttributeMappingService systemAttributeMappingService,
-			JwtAuthenticationService jwtAuthenticationService) {
+			JwtAuthenticationService jwtAuthenticationService,
+			SysSystemMappingService systemMappingService,
+			SysSchemaAttributeService schemaAttributeService) {
 		//
 		Assert.notNull(accountService);
 		Assert.notNull(configurationService);
@@ -85,6 +93,8 @@ public class DefaultAccAuthenticator extends AbstractAuthenticator implements Au
 		Assert.notNull(identityService);
 		Assert.notNull(systemAttributeMappingService);
 		Assert.notNull(jwtAuthenticationService);
+		Assert.notNull(systemMappingService);
+		Assert.notNull(schemaAttributeService);
 		//
 		this.systemService = systemService;
 		this.configurationService = configurationService;
@@ -93,6 +103,8 @@ public class DefaultAccAuthenticator extends AbstractAuthenticator implements Au
 		this.identityService = identityService;
 		this.systemAttributeMappingService = systemAttributeMappingService;
 		this.jwtAuthenticationService = jwtAuthenticationService;
+		this.systemMappingService = systemMappingService;
+		this.schemaAttributeService = schemaAttributeService;
 	}
 	
 	@Override
@@ -129,7 +141,7 @@ public class DefaultAccAuthenticator extends AbstractAuthenticator implements Au
 		}
 		//
 		// search authentication attribute for system with provisioning mapping
-		SysSystemAttributeMapping attribute = systemAttributeMappingService.getAuthenticationAttribute(system.getId());
+		SysSystemAttributeMappingDto attribute = systemAttributeMappingService.getAuthenticationAttribute(system.getId());
 		//
 		if (attribute == null) {
 			// attribute MUST exist
@@ -148,7 +160,8 @@ public class DefaultAccAuthenticator extends AbstractAuthenticator implements Au
 		//
 		// authenticate over all accounts find first, or throw error
 		for (AccAccount account : accounts) {
-			IcConnectorObject connectorObject = systemService.readObject(system, attribute.getSystemMapping(),
+
+			IcConnectorObject connectorObject = systemService.readObject(system, systemMappingService.get(attribute.getSystemMapping()),
 					new IcUidAttributeImpl(null, account.getSystemEntity().getUid(), null));
 			//
 			if (connectorObject == null) {
@@ -158,7 +171,8 @@ public class DefaultAccAuthenticator extends AbstractAuthenticator implements Au
 			String transformUsername = null;
 			// iterate over all attributes to find authentication attribute
 			for (IcAttribute icAttribute : connectorObject.getAttributes()) {
-				if (icAttribute.getName().equals(attribute.getSchemaAttribute().getName())) {
+
+				if (icAttribute.getName().equals(schemaAttributeService.get(attribute.getSchemaAttribute()).getName())) {
 					transformUsername = String.valueOf(icAttribute.getValue());
 					break;
 				}

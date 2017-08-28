@@ -13,8 +13,8 @@ import org.springframework.util.Assert;
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
+import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
-import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningEntityExecutor;
@@ -103,7 +103,7 @@ public class DefaultProvisioningService implements ProvisioningService {
 
 	@Override
 	public List<AttributeMapping> compileAttributes(List<? extends AttributeMapping> defaultAttributes,
-			List<SysRoleSystemAttribute> overloadingAttributes, SystemEntityType entityType) {
+			List<SysRoleSystemAttributeDto> overloadingAttributes, SystemEntityType entityType) {
 		Assert.notNull(entityType);
 		return this.getExecutor(entityType).compileAttributes(defaultAttributes, overloadingAttributes, entityType);
 	}

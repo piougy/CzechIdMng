@@ -35,10 +35,14 @@ import eu.bcvsolutions.idm.acc.domain.SynchronizationUnlinkedActionType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
+import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
+import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncActionLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncItemLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncLogDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SyncActionLogFilter;
@@ -48,16 +52,13 @@ import eu.bcvsolutions.idm.acc.dto.filter.SynchronizationLogFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
-import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
-import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
-import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SynchronizationService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
+import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncActionLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncItemLogService;
@@ -126,6 +127,9 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 	private SysSystemAttributeMappingService schemaAttributeMappingService;
 
 	@Autowired
+	private SysSchemaObjectClassService schemaObjectClassService;
+	
+	@Autowired
 	private SysSchemaAttributeService schemaAttributeService;
 
 	@Autowired
@@ -172,19 +176,19 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		mappingFilter.setEntityType(SystemEntityType.IDENTITY);
 		mappingFilter.setSystemId(system.getId());
 		mappingFilter.setOperationType(SystemOperationType.SYNCHRONIZATION);
-		List<SysSystemMapping> mappings = systemMappingService.find(mappingFilter, null).getContent();
+		List<SysSystemMappingDto> mappings = systemMappingService.find(mappingFilter, null).getContent();
 		Assert.assertEquals(1, mappings.size());
-		SysSystemMapping mapping = mappings.get(0);
+		SysSystemMappingDto mapping = mappings.get(0);
 		SystemAttributeMappingFilter attributeMappingFilter = new SystemAttributeMappingFilter();
 		attributeMappingFilter.setSystemMappingId(mapping.getId());
 
-		List<SysSystemAttributeMapping> attributes = schemaAttributeMappingService.find(attributeMappingFilter, null)
+		List<SysSystemAttributeMappingDto> attributes = schemaAttributeMappingService.find(attributeMappingFilter, null)
 				.getContent();
-		SysSystemAttributeMapping nameAttribute = attributes.stream().filter(attribute -> {
+		SysSystemAttributeMappingDto nameAttribute = attributes.stream().filter(attribute -> {
 			return attribute.getName().equals(ATTRIBUTE_NAME);
 		}).findFirst().get();
 
-		SysSystemAttributeMapping modifiedAttribute = attributes.stream().filter(attribute -> {
+		SysSystemAttributeMappingDto modifiedAttribute = attributes.stream().filter(attribute -> {
 			return attribute.getName().equals(ATTRIBUTE_MODIFIED);
 		}).findFirst().get();
 
@@ -324,8 +328,8 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		SysSyncConfigDto syncConfigCustom = syncConfigs.get(0);
 		Assert.assertFalse(syncConfigService.isRunning(syncConfigCustom));
 		
-		SysSystemMapping systemMapping = systemMappingService.get(syncConfigCustom.getSystemMapping());
-		SysSystem system = systemMapping.getSystem();
+		SysSystemMappingDto systemMapping = systemMappingService.get(syncConfigCustom.getSystemMapping());
+		SysSystem system = systemService.get(schemaObjectClassService.get(systemMapping.getObjectClass()).getSystem());
 		
 		IdmFormDefinition savedFormDefinition = systemService.getConnectorFormDefinition(system.getConnectorInstance());
 
@@ -724,8 +728,9 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		identity = identityService.save(identity);
 
 		AccAccount accountOne = new AccAccount();
-		SysSystemMapping systemMapping = systemMappingService.get(syncConfigCustom.getSystemMapping());
-		accountOne.setSystem(systemMapping.getSystem());
+		SysSystemMappingDto systemMapping = systemMappingService.get(syncConfigCustom.getSystemMapping());
+		SysSystem system = systemService.get(schemaObjectClassService.get(systemMapping.getObjectClass()).getSystem());
+		accountOne.setSystem(system);
 		accountOne.setUid("x" + IDENTITY_USERNAME_THREE);
 		accountOne.setAccountType(AccountType.PERSONAL);
 		accountOne = accountService.save(accountOne);
@@ -861,18 +866,19 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		// Find email attribute and change startegy on CREATE
 		SystemMappingFilter mappingFilter = new SystemMappingFilter();
 		mappingFilter.setEntityType(SystemEntityType.IDENTITY);
-		SysSystemMapping systemMapping = systemMappingService.get(syncConfigCustom.getSystemMapping());
-				mappingFilter.setSystemId(systemMapping.getSystem().getId());
+		SysSystemMappingDto systemMapping = systemMappingService.get(syncConfigCustom.getSystemMapping());
+		SysSystem system = systemService.get(schemaObjectClassService.get(systemMapping.getObjectClass()).getSystem());
+		mappingFilter.setSystemId(system.getId());
 		mappingFilter.setOperationType(SystemOperationType.SYNCHRONIZATION);
-		List<SysSystemMapping> mappings = systemMappingService.find(mappingFilter, null).getContent();
+		List<SysSystemMappingDto> mappings = systemMappingService.find(mappingFilter, null).getContent();
 		Assert.assertEquals(1, mappings.size());
-		SysSystemMapping mapping = mappings.get(0);
+		SysSystemMappingDto mapping = mappings.get(0);
 		SystemAttributeMappingFilter attributeMappingFilter = new SystemAttributeMappingFilter();
 		attributeMappingFilter.setSystemMappingId(mapping.getId());
 
-		List<SysSystemAttributeMapping> attributes = schemaAttributeMappingService.find(attributeMappingFilter, null)
+		List<SysSystemAttributeMappingDto> attributes = schemaAttributeMappingService.find(attributeMappingFilter, null)
 				.getContent();
-		SysSystemAttributeMapping emailAttribute = attributes.stream().filter(attribute -> {
+		SysSystemAttributeMappingDto emailAttribute = attributes.stream().filter(attribute -> {
 			return attribute.getName().equalsIgnoreCase(ATTRIBUTE_EMAIL);
 		}).findFirst().get();
 		
@@ -978,18 +984,19 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		// Find email attribute and change strategy on WRITE_IF_NULL
 		SystemMappingFilter mappingFilter = new SystemMappingFilter();
 		mappingFilter.setEntityType(SystemEntityType.IDENTITY);
-		SysSystemMapping systemMapping = systemMappingService.get(syncConfigCustom.getSystemMapping());
-		mappingFilter.setSystemId(systemMapping.getSystem().getId());
+		SysSystemMappingDto systemMapping = systemMappingService.get(syncConfigCustom.getSystemMapping());
+		SysSystem system = systemService.get(schemaObjectClassService.get(systemMapping.getObjectClass()).getSystem());
+		mappingFilter.setSystemId(system.getId());
 		mappingFilter.setOperationType(SystemOperationType.SYNCHRONIZATION);
-		List<SysSystemMapping> mappings = systemMappingService.find(mappingFilter, null).getContent();
+		List<SysSystemMappingDto> mappings = systemMappingService.find(mappingFilter, null).getContent();
 		Assert.assertEquals(1, mappings.size());
-		SysSystemMapping mapping = mappings.get(0);
+		SysSystemMappingDto mapping = mappings.get(0);
 		SystemAttributeMappingFilter attributeMappingFilter = new SystemAttributeMappingFilter();
 		attributeMappingFilter.setSystemMappingId(mapping.getId());
 
-		List<SysSystemAttributeMapping> attributes = schemaAttributeMappingService.find(attributeMappingFilter, null)
+		List<SysSystemAttributeMappingDto> attributes = schemaAttributeMappingService.find(attributeMappingFilter, null)
 				.getContent();
-		SysSystemAttributeMapping emailAttribute = attributes.stream().filter(attribute -> {
+		SysSystemAttributeMappingDto emailAttribute = attributes.stream().filter(attribute -> {
 			return attribute.getName().equalsIgnoreCase(ATTRIBUTE_EMAIL);
 		}).findFirst().get();
 		
@@ -1067,18 +1074,19 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		// Find email attribute and change strategy on WRITE_IF_NULL
 		SystemMappingFilter mappingFilter = new SystemMappingFilter();
 		mappingFilter.setEntityType(SystemEntityType.IDENTITY);
-		SysSystemMapping systemMapping = systemMappingService.get(syncConfigCustom.getSystemMapping());
-		mappingFilter.setSystemId(systemMapping.getSystem().getId());
+		SysSystemMappingDto systemMapping = systemMappingService.get(syncConfigCustom.getSystemMapping());
+		SysSystem system = systemService.get(schemaObjectClassService.get(systemMapping.getObjectClass()).getSystem());
+		mappingFilter.setSystemId(system.getId());
 		mappingFilter.setOperationType(SystemOperationType.SYNCHRONIZATION);
-		List<SysSystemMapping> mappings = systemMappingService.find(mappingFilter, null).getContent();
+		List<SysSystemMappingDto> mappings = systemMappingService.find(mappingFilter, null).getContent();
 		Assert.assertEquals(1, mappings.size());
-		SysSystemMapping mapping = mappings.get(0);
+		SysSystemMappingDto mapping = mappings.get(0);
 		SystemAttributeMappingFilter attributeMappingFilter = new SystemAttributeMappingFilter();
 		attributeMappingFilter.setSystemMappingId(mapping.getId());
 
-		List<SysSystemAttributeMapping> attributes = schemaAttributeMappingService.find(attributeMappingFilter, null)
+		List<SysSystemAttributeMappingDto> attributes = schemaAttributeMappingService.find(attributeMappingFilter, null)
 				.getContent();
-		SysSystemAttributeMapping eavAttribute = attributes.stream().filter(attribute -> {
+		SysSystemAttributeMappingDto eavAttribute = attributes.stream().filter(attribute -> {
 			return attribute.getName().equalsIgnoreCase(EAV_ATTRIBUTE);
 		}).findFirst().get();
 		
@@ -1277,25 +1285,25 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		SysSyncConfigDto syncConfigCustom = syncConfigs.get(0);
 		Assert.assertFalse(syncConfigService.isRunning(syncConfigCustom));
 		
-		SysSystemMapping systemMapping = systemMappingService.get(syncConfigCustom.getSystemMapping());
-		SysSystem system = systemMapping.getSystem();
+		SysSystemMappingDto systemMapping = systemMappingService.get(syncConfigCustom.getSystemMapping());
+		SysSystem system = systemService.get(schemaObjectClassService.get(systemMapping.getObjectClass()).getSystem());
 		
 		SystemMappingFilter mappingFilter = new SystemMappingFilter();
 		mappingFilter.setEntityType(SystemEntityType.IDENTITY);
 		mappingFilter.setSystemId(system.getId());
 		mappingFilter.setOperationType(SystemOperationType.SYNCHRONIZATION);
-		List<SysSystemMapping> mappings = systemMappingService.find(mappingFilter, null).getContent();
+		List<SysSystemMappingDto> mappings = systemMappingService.find(mappingFilter, null).getContent();
 		Assert.assertEquals(1, mappings.size());
-		SysSystemMapping mapping = mappings.get(0);
+		SysSystemMappingDto mapping = mappings.get(0);
 		
 		SystemAttributeMappingFilter attributeMappingFilter = new SystemAttributeMappingFilter();
 		attributeMappingFilter.setSystemMappingId(mapping.getId());
 
-		List<SysSystemAttributeMapping> attributes = schemaAttributeMappingService.find(attributeMappingFilter, null)
+		List<SysSystemAttributeMappingDto> attributes = schemaAttributeMappingService.find(attributeMappingFilter, null)
 				.getContent();
 		
 		// Set sync config
-		SysSystemAttributeMapping eavAttribute = attributes.stream().filter(attribute -> {
+		SysSystemAttributeMappingDto eavAttribute = attributes.stream().filter(attribute -> {
 			return attribute.getName().equals(EAV_ATTRIBUTE);
 		}).findFirst().get();
 		
@@ -1402,25 +1410,25 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		system = helper.createSystem("test_resource");
 
 		// generate schema for system
-		List<SysSchemaObjectClass> objectClasses = systemService.generateSchema(system);
+		List<SysSchemaObjectClassDto> objectClasses = systemService.generateSchema(system);
 
 		// Create provisioning mapping
-		SysSystemMapping systemMapping = new SysSystemMapping();
+		SysSystemMappingDto systemMapping = new SysSystemMappingDto();
 		systemMapping.setName("default_" + System.currentTimeMillis());
 		systemMapping.setEntityType(SystemEntityType.IDENTITY);
 		systemMapping.setOperationType(SystemOperationType.PROVISIONING);
-		systemMapping.setObjectClass(objectClasses.get(0));
-		final SysSystemMapping provisioningMapping = systemMappingService.save(systemMapping);
+		systemMapping.setObjectClass(objectClasses.get(0).getId());
+		final SysSystemMappingDto provisioningMapping = systemMappingService.save(systemMapping);
 
 		createMapping(system, provisioningMapping);
 
 		// Create synchronization mapping
-		SysSystemMapping syncSystemMapping = new SysSystemMapping();
+		SysSystemMappingDto syncSystemMapping = new SysSystemMappingDto();
 		syncSystemMapping.setName("default_" + System.currentTimeMillis());
 		syncSystemMapping.setEntityType(SystemEntityType.IDENTITY);
 		syncSystemMapping.setOperationType(SystemOperationType.SYNCHRONIZATION);
-		syncSystemMapping.setObjectClass(objectClasses.get(0));
-		final SysSystemMapping syncMapping = systemMappingService.save(syncSystemMapping);
+		syncSystemMapping.setObjectClass(objectClasses.get(0).getId());
+		final SysSystemMappingDto syncMapping = systemMappingService.save(syncSystemMapping);
 
 		createMapping(system, syncMapping);
 
@@ -1430,73 +1438,73 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		});
 	}
 
-	private void createMapping(SysSystem system, final SysSystemMapping entityHandlingResult) {
+	private void createMapping(SysSystem system, final SysSystemMappingDto entityHandlingResult) {
 		SchemaAttributeFilter schemaAttributeFilter = new SchemaAttributeFilter();
 		schemaAttributeFilter.setSystemId(system.getId());
 
-		Page<SysSchemaAttribute> schemaAttributesPage = schemaAttributeService.find(schemaAttributeFilter, null);
+		Page<SysSchemaAttributeDto> schemaAttributesPage = schemaAttributeService.find(schemaAttributeFilter, null);
 		schemaAttributesPage.forEach(schemaAttr -> {
 			if (ATTRIBUTE_NAME.equals(schemaAttr.getName())) {
-				SysSystemAttributeMapping attributeMapping = new SysSystemAttributeMapping();
+				SysSystemAttributeMappingDto attributeMapping = new SysSystemAttributeMappingDto();
 				attributeMapping.setUid(true);
 				attributeMapping.setEntityAttribute(true);
 				attributeMapping.setIdmPropertyName("username");
 				attributeMapping.setName(schemaAttr.getName());
-				attributeMapping.setSchemaAttribute(schemaAttr);
-				attributeMapping.setSystemMapping(entityHandlingResult);
+				attributeMapping.setSchemaAttribute(schemaAttr.getId());
+				attributeMapping.setSystemMapping(entityHandlingResult.getId());
 				schemaAttributeMappingService.save(attributeMapping);
 
 			} else if ("firstname".equalsIgnoreCase(schemaAttr.getName())) {
-				SysSystemAttributeMapping attributeMapping = new SysSystemAttributeMapping();
+				SysSystemAttributeMappingDto attributeMapping = new SysSystemAttributeMappingDto();
 				attributeMapping.setIdmPropertyName("firstName");
-				attributeMapping.setSchemaAttribute(schemaAttr);
+				attributeMapping.setSchemaAttribute(schemaAttr.getId());
 				attributeMapping.setName(schemaAttr.getName());
-				attributeMapping.setSystemMapping(entityHandlingResult);
+				attributeMapping.setSystemMapping(entityHandlingResult.getId());
 				schemaAttributeMappingService.save(attributeMapping);
 
 			} else if ("lastname".equalsIgnoreCase(schemaAttr.getName())) {
-				SysSystemAttributeMapping attributeMapping = new SysSystemAttributeMapping();
+				SysSystemAttributeMappingDto attributeMapping = new SysSystemAttributeMappingDto();
 				attributeMapping.setIdmPropertyName("lastName");
 				attributeMapping.setName(schemaAttr.getName());
-				attributeMapping.setSchemaAttribute(schemaAttr);
-				attributeMapping.setSystemMapping(entityHandlingResult);
+				attributeMapping.setSchemaAttribute(schemaAttr.getId());
+				attributeMapping.setSystemMapping(entityHandlingResult.getId());
 				schemaAttributeMappingService.save(attributeMapping);
 
 			} else if (ATTRIBUTE_EMAIL.equalsIgnoreCase(schemaAttr.getName())) {
-				SysSystemAttributeMapping attributeMapping = new SysSystemAttributeMapping();
+				SysSystemAttributeMappingDto attributeMapping = new SysSystemAttributeMappingDto();
 				attributeMapping.setIdmPropertyName("email");
 				attributeMapping.setName(schemaAttr.getName());
-				attributeMapping.setSchemaAttribute(schemaAttr);
-				attributeMapping.setSystemMapping(entityHandlingResult);
+				attributeMapping.setSchemaAttribute(schemaAttr.getId());
+				attributeMapping.setSystemMapping(entityHandlingResult.getId());
 				schemaAttributeMappingService.save(attributeMapping);
 
 			} else if (IcConnectorFacade.PASSWORD_ATTRIBUTE_NAME.equalsIgnoreCase(schemaAttr.getName())) {
-				SysSystemAttributeMapping attributeMapping = new SysSystemAttributeMapping();
+				SysSystemAttributeMappingDto attributeMapping = new SysSystemAttributeMappingDto();
 				attributeMapping.setIdmPropertyName("password");
-				attributeMapping.setSchemaAttribute(schemaAttr);
+				attributeMapping.setSchemaAttribute(schemaAttr.getId());
 				attributeMapping.setName(schemaAttr.getName());
-				attributeMapping.setSystemMapping(entityHandlingResult);
+				attributeMapping.setSystemMapping(entityHandlingResult.getId());
 				schemaAttributeMappingService.save(attributeMapping);
 
 			} else if (SystemOperationType.SYNCHRONIZATION == entityHandlingResult.getOperationType()
 					&& ATTRIBUTE_MODIFIED.equalsIgnoreCase(schemaAttr.getName())) {
-				SysSystemAttributeMapping attributeMapping = new SysSystemAttributeMapping();
+				SysSystemAttributeMappingDto attributeMapping = new SysSystemAttributeMappingDto();
 				attributeMapping.setEntityAttribute(false);
 				attributeMapping.setExtendedAttribute(true);
-				attributeMapping.setSchemaAttribute(schemaAttr);
+				attributeMapping.setSchemaAttribute(schemaAttr.getId());
 				attributeMapping.setIdmPropertyName(ATTRIBUTE_MODIFIED);
 				attributeMapping.setName(ATTRIBUTE_MODIFIED);
-				attributeMapping.setSystemMapping(entityHandlingResult);
+				attributeMapping.setSystemMapping(entityHandlingResult.getId());
 				schemaAttributeMappingService.save(attributeMapping);
 
 			}  else if (schemaAttr.getName().equals(EAV_ATTRIBUTE)) {
-				SysSystemAttributeMapping attributeMapping = new SysSystemAttributeMapping();
+				SysSystemAttributeMappingDto attributeMapping = new SysSystemAttributeMappingDto();
 				attributeMapping.setExtendedAttribute(true);
 				attributeMapping.setEntityAttribute(false);
-				attributeMapping.setSchemaAttribute(schemaAttr);
+				attributeMapping.setSchemaAttribute(schemaAttr.getId());
 				attributeMapping.setIdmPropertyName(EAV_ATTRIBUTE);
 				attributeMapping.setName(EAV_ATTRIBUTE);
-				attributeMapping.setSystemMapping(entityHandlingResult);
+				attributeMapping.setSystemMapping(entityHandlingResult.getId());
 				schemaAttributeMappingService.save(attributeMapping);
 			}
 		});

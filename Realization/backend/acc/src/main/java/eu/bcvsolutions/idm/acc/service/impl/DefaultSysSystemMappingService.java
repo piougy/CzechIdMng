@@ -3,8 +3,6 @@ package eu.bcvsolutions.idm.acc.service.impl;
 import java.util.List;
 import java.util.UUID;
 
-import javax.persistence.EntityManager;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -16,23 +14,22 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
-import eu.bcvsolutions.idm.acc.dto.filter.RoleSystemFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.SchemaObjectClassFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.SystemAttributeMappingFilter;
+import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
-import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
+import eu.bcvsolutions.idm.acc.event.SystemMappingEvent;
+import eu.bcvsolutions.idm.acc.event.SystemMappingEvent.SystemMappingEventType;
 import eu.bcvsolutions.idm.acc.repository.SysSyncConfigRepository;
 import eu.bcvsolutions.idm.acc.repository.SysSystemMappingRepository;
-import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
-import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
+import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
+import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 
 /**
  * Default system entity handling
@@ -42,82 +39,63 @@ import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
  */
 @Service
 public class DefaultSysSystemMappingService extends
-		AbstractReadWriteEntityService<SysSystemMapping, SystemMappingFilter> implements SysSystemMappingService {
+		AbstractReadWriteDtoService<SysSystemMappingDto, SysSystemMapping, SystemMappingFilter> implements SysSystemMappingService {
 
 	private final SysSystemMappingRepository repository;
-	private final SysSystemAttributeMappingService systemAttributeMappingService;
 	private final SysSyncConfigRepository syncConfigRepository;
-	private final SysRoleSystemService roleSystemService;
-	private final EntityManager entityManager;
+	private final EntityEventManager entityEventManager;
 
 	@Autowired
 	public DefaultSysSystemMappingService(
 			SysSystemMappingRepository repository,
-			SysSystemAttributeMappingService systemAttributeMappingService,
 			SysSyncConfigRepository syncConfigRepository,
-			SysRoleSystemService roleSystemService,
-			EntityManager entityManager) {
+			EntityEventManager entityEventManager) {
 		super(repository);
 		//
-		Assert.notNull(systemAttributeMappingService);
 		Assert.notNull(syncConfigRepository);
-		Assert.notNull(roleSystemService);
-		Assert.notNull(entityManager);
+		Assert.notNull(entityEventManager);
 		//
 		this.repository = repository;
-		this.systemAttributeMappingService = systemAttributeMappingService;
 		this.syncConfigRepository = syncConfigRepository;
-		this.roleSystemService = roleSystemService;
-		this.entityManager = entityManager;
+		this.entityEventManager = entityEventManager;
 	}
 	
 	@Override
-	public List<SysSystemMapping> findBySystem(SysSystem system, SystemOperationType operation, SystemEntityType entityType){
+	public List<SysSystemMappingDto> findBySystem(SysSystem system, SystemOperationType operation, SystemEntityType entityType){
 		Assert.notNull(system);
 		
 		SystemMappingFilter filter = new SystemMappingFilter();
 		filter.setSystemId(system.getId());
 		filter.setOperationType(operation);
 		filter.setEntityType(entityType);
-		Page<SysSystemMapping> page = repository.find(filter, null);
+		Page<SysSystemMappingDto> page = toDtoPage(repository.find(filter, null));
 		return page.getContent();
 	}
 	
 	@Override
-	public List<SysSystemMapping> findByObjectClass(SysSchemaObjectClass objectClass, SystemOperationType operation, SystemEntityType entityType){
+	public List<SysSystemMappingDto> findByObjectClass(SysSchemaObjectClassDto objectClass, SystemOperationType operation, SystemEntityType entityType){
 		Assert.notNull(objectClass);
 		
 		SystemMappingFilter filter = new SystemMappingFilter();
 		filter.setObjectClassId(objectClass.getId());
 		filter.setOperationType(operation);
 		filter.setEntityType(entityType);
-		Page<SysSystemMapping> page = repository.find(filter, null);
+		Page<SysSystemMappingDto> page = toDtoPage(repository.find(filter, null));
 		return page.getContent();
 	}
 	
 	@Override
 	@Transactional
-	public void delete(SysSystemMapping systemMapping) {
+	public void delete(SysSystemMappingDto systemMapping, BasePermission... permission) {
 		Assert.notNull(systemMapping);
+		//
+		checkAccess(this.getEntity(systemMapping.getId()), permission);
 		// 
-		if (syncConfigRepository.countBySystemMapping(systemMapping) > 0) {
+		if (syncConfigRepository.countBySystemMapping(getEntity(systemMapping.getId())) > 0) {
 			throw new ResultCodeException(AccResultCode.SYSTEM_MAPPING_DELETE_FAILED_USED_IN_SYNC, ImmutableMap.of("mapping", systemMapping.getName()));
 		}
-		// remove all handled attributes
-		SystemAttributeMappingFilter filter = new SystemAttributeMappingFilter();
-		filter.setSystemMappingId(systemMapping.getId());
-		systemAttributeMappingService.find(filter, null).forEach(systemAttributeMapping -> {
-			systemAttributeMappingService.delete(systemAttributeMapping);
-		});
 		//
-		// delete mapped roles
-		RoleSystemFilter roleSystemFilter = new RoleSystemFilter();
-		roleSystemFilter.setSystemMappingId(systemMapping.getId());
-		roleSystemService.find(roleSystemFilter, null).forEach(roleSystem -> {
-			roleSystemService.delete(roleSystem);
-		});
-		//
-		super.delete(systemMapping);
+		entityEventManager.process(new SystemMappingEvent(SystemMappingEventType.DELETE, systemMapping));
 	}
 	
 	@Override
@@ -125,7 +103,7 @@ public class DefaultSysSystemMappingService extends
 		Assert.notNull(account, "Account cannot be null!");
 		Assert.notNull(account.getSystemEntity(), "SystemEntity cannot be null!");
 		
-		List<SysSystemMapping> mappings = this.findBySystem(account.getSystem(), SystemOperationType.PROVISIONING, account.getSystemEntity().getEntityType());
+		List<SysSystemMappingDto> mappings = this.findBySystem(account.getSystem(), SystemOperationType.PROVISIONING, account.getSystemEntity().getEntityType());
 		if(mappings.isEmpty()){
 			return false;
 		}
@@ -138,7 +116,7 @@ public class DefaultSysSystemMappingService extends
 		Assert.notNull(account, "Account cannot be null!");
 		Assert.notNull(account.getSystemEntity(), "SystemEntity cannot be null!");
 		
-		List<SysSystemMapping> mappings = this.findBySystem(account.getSystem(), SystemOperationType.PROVISIONING, account.getSystemEntity().getEntityType());
+		List<SysSystemMappingDto> mappings = this.findBySystem(account.getSystem(), SystemOperationType.PROVISIONING, account.getSystemEntity().getEntityType());
 		if(mappings.isEmpty()){
 			return -1;
 		}
@@ -147,23 +125,21 @@ public class DefaultSysSystemMappingService extends
 	}
 	
 	@Override
-	public SysSystemMapping clone(UUID id) {
-		SysSystemMapping original = this.get(id);
+	public SysSystemMappingDto clone(UUID id) {
+		SysSystemMappingDto original = this.get(id);
 		Assert.notNull(original, "Schema attribute must be found!");
 		
-		// We do detach this entity (and set id to null)
-		entityManager.detach(original);
 		original.setId(null);
 		EntityUtils.clearAuditFields(original);
 		return original;
 	}
 
-	private Integer getProtectionInterval(SysSystemMapping systemMapping){
+	private Integer getProtectionInterval(SysSystemMappingDto systemMapping){
 		Assert.notNull(systemMapping, "Mapping cannot be null!");
 		return systemMapping.getProtectionInterval();
 	}
 
-	private boolean isEnabledProtection(SysSystemMapping systemMapping){
+	private boolean isEnabledProtection(SysSystemMappingDto systemMapping){
 		Assert.notNull(systemMapping, "Mapping cannot be null!");
 		return systemMapping.isProtectionEnabled();
 	}

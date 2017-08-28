@@ -18,15 +18,16 @@ import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
+import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
+import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
-import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
-import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
-import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
+import eu.bcvsolutions.idm.acc.repository.SysSystemMappingRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
@@ -111,9 +112,12 @@ public class IdentityRoleValidRequestSchedulerTest extends AbstractIntegrationTe
 	@Autowired
 	private IdmIdentityRoleValidRequestService identityRoleValidRequestService;
 	
+	@Autowired
+	private SysSystemMappingRepository systemMappingRepository;
+	
 	// local variables
 	private SysSystem system = null;
-	private SysSystemMapping systemMapping = null;
+	private SysSystemMappingDto systemMapping = null;
 	private int MAX_CREATE = 10;
 	
 	@Before
@@ -308,7 +312,7 @@ public class IdentityRoleValidRequestSchedulerTest extends AbstractIntegrationTe
 		SysRoleSystem entity = new SysRoleSystem();
 		entity.setRole(role);
 		entity.setSystem(system);
-		entity.setSystemMapping(systemMapping);
+		entity.setSystemMapping(systemMappingRepository.findOne(systemMapping.getId()));
 		return saveInTransaction(entity, sysRoleSystemService);
 	}
 	
@@ -346,58 +350,58 @@ public class IdentityRoleValidRequestSchedulerTest extends AbstractIntegrationTe
 	private SysSystem createAndSaveSystemWithMapping() {
 		system = null;
 		systemMapping = null;
-		SysSystemAttributeMapping nameAttributeMapping = null;
-		SysSystemAttributeMapping firstNameAttributeMapping = null;
-		SysSystemAttributeMapping lastNameAttributeMapping = null;
-		SysSystemAttributeMapping passwordAttributeMapping = null;
+		SysSystemAttributeMappingDto nameAttributeMapping = null;
+		SysSystemAttributeMappingDto firstNameAttributeMapping = null;
+		SysSystemAttributeMappingDto lastNameAttributeMapping = null;
+		SysSystemAttributeMappingDto passwordAttributeMapping = null;
 		// prepare test system
 		system = helper.createSystem(TestResource.TABLE_NAME);
 		// generate schema
-		List<SysSchemaObjectClass> objectClasses = systemService.generateSchema(system);
+		List<SysSchemaObjectClassDto> objectClasses = systemService.generateSchema(system);
 		// create test mapping
-		systemMapping = new SysSystemMapping();
+		systemMapping = new SysSystemMappingDto();
 		systemMapping.setName("default_" + System.currentTimeMillis());
 		systemMapping.setEntityType(SystemEntityType.IDENTITY);
 		systemMapping.setOperationType(SystemOperationType.PROVISIONING);
-		systemMapping.setObjectClass(objectClasses.get(0));
-		mappingService.save(systemMapping);
+		systemMapping.setObjectClass(objectClasses.get(0).getId());
+		systemMapping = mappingService.save(systemMapping);
 		
 		SchemaAttributeFilter schemaAttributeFilter = new SchemaAttributeFilter();
 		schemaAttributeFilter.setSystemId(system.getId());
-		Page<SysSchemaAttribute> schemaAttributesPage = schemaAttributeService.find(schemaAttributeFilter, null);
-		for(SysSchemaAttribute schemaAttr : schemaAttributesPage) {
+		Page<SysSchemaAttributeDto> schemaAttributesPage = schemaAttributeService.find(schemaAttributeFilter, null);
+		for(SysSchemaAttributeDto schemaAttr : schemaAttributesPage) {
 			if ("__NAME__".equals(schemaAttr.getName())) {
-				nameAttributeMapping = new SysSystemAttributeMapping();
+				nameAttributeMapping = new SysSystemAttributeMappingDto();
 				nameAttributeMapping.setUid(true);
 				nameAttributeMapping.setEntityAttribute(true);
 				nameAttributeMapping.setIdmPropertyName("username");
 				nameAttributeMapping.setName(schemaAttr.getName());
-				nameAttributeMapping.setSchemaAttribute(schemaAttr);
-				nameAttributeMapping.setSystemMapping(systemMapping);
+				nameAttributeMapping.setSchemaAttribute(schemaAttr.getId());
+				nameAttributeMapping.setSystemMapping(systemMapping.getId());
 				nameAttributeMapping = attributeMappingService.save(nameAttributeMapping);
 
 			} else if ("firstname".equalsIgnoreCase(schemaAttr.getName())) {
-				firstNameAttributeMapping = new SysSystemAttributeMapping();
+				firstNameAttributeMapping = new SysSystemAttributeMappingDto();
 				firstNameAttributeMapping.setIdmPropertyName("firstName");
-				firstNameAttributeMapping.setSchemaAttribute(schemaAttr);
+				firstNameAttributeMapping.setSchemaAttribute(schemaAttr.getId());
 				firstNameAttributeMapping.setName(schemaAttr.getName());
-				firstNameAttributeMapping.setSystemMapping(systemMapping);
+				firstNameAttributeMapping.setSystemMapping(systemMapping.getId());
 				firstNameAttributeMapping = attributeMappingService.save(firstNameAttributeMapping);
 
 			} else if ("lastname".equalsIgnoreCase(schemaAttr.getName())) {
-				lastNameAttributeMapping = new SysSystemAttributeMapping();
+				lastNameAttributeMapping = new SysSystemAttributeMappingDto();
 				lastNameAttributeMapping.setIdmPropertyName("lastName");
 				lastNameAttributeMapping.setName(schemaAttr.getName());
-				lastNameAttributeMapping.setSchemaAttribute(schemaAttr);
-				lastNameAttributeMapping.setSystemMapping(systemMapping);
+				lastNameAttributeMapping.setSchemaAttribute(schemaAttr.getId());
+				lastNameAttributeMapping.setSystemMapping(systemMapping.getId());
 				lastNameAttributeMapping = attributeMappingService.save(lastNameAttributeMapping);
 
 			} else if (IcConnectorFacade.PASSWORD_ATTRIBUTE_NAME.equalsIgnoreCase(schemaAttr.getName())) {
-				passwordAttributeMapping = new SysSystemAttributeMapping();
+				passwordAttributeMapping = new SysSystemAttributeMappingDto();
 				passwordAttributeMapping.setIdmPropertyName("password");
-				passwordAttributeMapping.setSchemaAttribute(schemaAttr);
+				passwordAttributeMapping.setSchemaAttribute(schemaAttr.getId());
 				passwordAttributeMapping.setName(schemaAttr.getName());
-				passwordAttributeMapping.setSystemMapping(systemMapping);
+				passwordAttributeMapping.setSystemMapping(systemMapping.getId());
 				passwordAttributeMapping = attributeMappingService.save(passwordAttributeMapping);
 			}
 		}

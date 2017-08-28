@@ -9,6 +9,7 @@ import eu.bcvsolutions.idm.acc.domain.SynchronizationLinkedActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationMissingEntityActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationUnlinkedActionType;
 import eu.bcvsolutions.idm.acc.entity.SysSyncConfig;
+import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.ic.domain.IcFilterOperationType;
 
@@ -34,10 +35,14 @@ public class SysSyncConfigDto extends AbstractDto {
 	private String token;
 	private String customFilterScript;
 	private String rootsFilterScript;
+	@Embedded(dtoClass = SysSystemAttributeMappingDto.class)
 	private UUID correlationAttribute;
+	@Embedded(dtoClass = SysSystemAttributeMappingDto.class)
 	private UUID tokenAttribute;
+	@Embedded(dtoClass = SysSystemAttributeMappingDto.class)
 	private UUID filterAttribute;
 	private IcFilterOperationType filterOperation = IcFilterOperationType.GREATER_THAN;
+	@Embedded(dtoClass = SysSystemMappingDto.class)
 	private UUID systemMapping;
 	private SynchronizationLinkedActionType linkedAction = SynchronizationLinkedActionType.UPDATE_ENTITY;
 	private SynchronizationUnlinkedActionType unlinkedAction = SynchronizationUnlinkedActionType.LINK_AND_UPDATE_ACCOUNT;

@@ -12,10 +12,10 @@ import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.AccRoleAccountDto;
 import eu.bcvsolutions.idm.acc.dto.EntityAccountDto;
+import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.filter.EntityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.RoleAccountFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
-import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountManagementService;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
@@ -23,6 +23,8 @@ import eu.bcvsolutions.idm.acc.service.api.AccRoleAccountService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningExecutor;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
+import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
+import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
@@ -56,11 +58,14 @@ public class RoleProvisioningExecutor extends AbstractProvisioningExecutor<IdmRo
 			SysRoleSystemAttributeService roleSystemAttributeService, SysSystemEntityService systemEntityService,
 			AccAccountService accountService, AccRoleAccountService roleAccountService,
 			ProvisioningExecutor provisioningExecutor, IdmRoleService roleService,
-			EntityEventManager entityEventManager) {
+			EntityEventManager entityEventManager, SysSchemaAttributeService schemaAttributeService,
+			SysSchemaObjectClassService schemaObjectClassService,
+			SysSystemAttributeMappingService systemAttributeMappingService) {
 		
 		super(systemMappingService, attributeMappingService, connectorFacade, systemService, roleSystemService,
 				accountManagementService, roleSystemAttributeService, systemEntityService, accountService,
-				provisioningExecutor, entityEventManager);
+				provisioningExecutor, entityEventManager, schemaAttributeService, schemaObjectClassService,
+				systemAttributeMappingService);
 		
 		Assert.notNull(roleAccountService);
 		Assert.notNull(roleService);
@@ -86,7 +91,7 @@ public class RoleProvisioningExecutor extends AbstractProvisioningExecutor<IdmRo
 	}
 	
 	@Override
-	protected List<SysRoleSystemAttribute> findOverloadingAttributes(IdmRole entity, SysSystem system,
+	protected List<SysRoleSystemAttributeDto> findOverloadingAttributes(IdmRole entity, SysSystem system,
 			List<? extends EntityAccountDto> idenityAccoutnList, SystemEntityType entityType) {
 		// Overloading attributes is not implemented for RoleNode
 		return new ArrayList<>();

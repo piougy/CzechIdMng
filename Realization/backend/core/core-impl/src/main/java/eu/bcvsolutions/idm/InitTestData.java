@@ -17,9 +17,9 @@ import org.springframework.stereotype.Component;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleCompositionDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
-import eu.bcvsolutions.idm.core.model.entity.IdmRole;
-import eu.bcvsolutions.idm.core.model.entity.IdmRoleComposition;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.service.api.IdmContractGuaranteeService;
@@ -86,21 +86,21 @@ public class InitTestData implements ApplicationListener<ContextRefreshedEvent> 
 		securityService.setSystemAuthentication();
 		//
 		try {
-			IdmRole superAdminRole = this.roleService.getByName(InitApplicationData.ADMIN_ROLE);
+			IdmRoleDto superAdminRole = this.roleService.getByName(InitApplicationData.ADMIN_ROLE);
 			IdmTreeNode rootOrganization = treeNodeService.findRoots((UUID) null, new PageRequest(0, 1)).getContent().get(0);
 			//
 			if (!configurationService.getBooleanValue(PARAMETER_TEST_DATA_CREATED, false)) {
 				log.info("Creating test data ...");		
 				//
-				IdmRole role1 = new IdmRole();
+				IdmRoleDto role1 = new IdmRoleDto();
 				role1.setName(TEST_USER_ROLE);
 				role1 = this.roleService.save(role1);
 				log.info(MessageFormat.format("Test role created [id: {0}]", role1.getId()));
 				//
-				IdmRole role2 = new IdmRole();
+				IdmRoleDto role2 = new IdmRoleDto();
 				role2.setName(TEST_CUSTOM_ROLE);
-				List<IdmRoleComposition> subRoles = new ArrayList<>();
-				subRoles.add(new IdmRoleComposition(role2, superAdminRole));
+				List<IdmRoleCompositionDto> subRoles = new ArrayList<>();
+				subRoles.add(new IdmRoleCompositionDto(role2.getId(), superAdminRole.getId()));
 				role2.setSubRoles(subRoles);
 				role2 = this.roleService.save(role2);
 				log.info(MessageFormat.format("Test role created [id: {0}]", role2.getId()));

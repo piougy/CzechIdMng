@@ -9,6 +9,7 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import eu.bcvsolutions.idm.InitTestData;
+import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.domain.AccountType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
@@ -28,7 +29,8 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
-import eu.bcvsolutions.idm.core.model.entity.IdmRole;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
@@ -42,24 +44,17 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  */
 public class CoreReferentialIntegrityIntegrationTest extends AbstractIntegrationTest {
 	
-	@Autowired
-	private IdmIdentityService identityService;
-	@Autowired
-	private AccIdentityAccountService identityAccountService;
-	@Autowired
-	private SysSystemService systemService;	
-	@Autowired
-	private SysSystemEntityService systemEntityService;	
-	@Autowired
-	private AccAccountService accountService;	
-	@Autowired
-	private IdmRoleService roleService;
-	@Autowired
-	private SysRoleSystemService roleSystemService;
-	@Autowired
-	private SysSystemMappingService systemEntityHandlingService;
-	@Autowired
-	private SysSchemaObjectClassService schemaObjectClassService;
+	@Autowired private TestHelper helper;
+	@Autowired private IdmIdentityService identityService;
+	@Autowired private AccIdentityAccountService identityAccountService;
+	@Autowired private SysSystemService systemService;	
+	@Autowired private SysSystemEntityService systemEntityService;	
+	@Autowired private AccAccountService accountService;	
+	@Autowired private IdmRoleService roleService;
+	@Autowired private IdmRoleRepository roleRepository;
+	@Autowired private SysRoleSystemService roleSystemService;
+	@Autowired private SysSystemMappingService systemEntityHandlingService;
+	@Autowired private SysSchemaObjectClassService schemaObjectClassService;
 	
 	@Before
 	public void init() {
@@ -113,10 +108,7 @@ public class CoreReferentialIntegrityIntegrationTest extends AbstractIntegration
 	
 	@Test
 	public void testRoleReferentialIntegrity() {
-		IdmRole role = new IdmRole();
-		String roleName = "test_r_" + System.currentTimeMillis();
-		role.setName(roleName);
-		role = roleService.save(role);
+		IdmRoleDto role = helper.createRole();
 		// role systems
 		SysSystem system = new SysSystem();
 		system.setName("system_" + System.currentTimeMillis());
@@ -134,18 +126,18 @@ public class CoreReferentialIntegrityIntegrationTest extends AbstractIntegration
 		systemMapping = systemEntityHandlingService.save(systemMapping);
 		SysRoleSystem roleSystem = new SysRoleSystem();
 		roleSystem.setSystem(system);
-		roleSystem.setRole(role);
+		roleSystem.setRole(roleRepository.findOne(role.getId()));
 		roleSystem.setSystemMapping(systemMapping);
 		roleSystemService.save(roleSystem);
 		RoleSystemFilter filter = new RoleSystemFilter();
 		filter.setRoleId(role.getId());
 		
-		assertNotNull(roleService.getByName(roleName));
+		assertNotNull(roleService.getByName(role.getName()));
 		assertEquals(1, roleSystemService.find(filter, null).getTotalElements());
 		
 		roleService.delete(role);
 		
-		assertNull(roleService.getByName(roleName));
+		assertNull(roleService.getByName(role.getName()));
 		assertEquals(0, roleSystemService.find(filter, null).getTotalElements());
 	}
 

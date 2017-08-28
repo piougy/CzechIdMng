@@ -364,27 +364,33 @@ public class DefaultIdmRoleRequestService
 		});
 
 		// Delete identity role
-		concepts.stream().filter(concept -> {
-			return ConceptRoleRequestOperation.REMOVE == concept.getOperation();
-		}).filter(concept -> {
-			// Only approved concepts can be executed
-			// Concepts in concept state will be executed too (for situation, when will be approval event disabled)
-			return RoleRequestState.APPROVED == concept.getState() || RoleRequestState.CONCEPT == concept.getState();
-		}).forEach(concept -> {
-			IdmIdentityRoleDto identityRole = identityRoleService.get(concept.getIdentityRole());
-			if (identityRole != null) {
-				concept.setState(RoleRequestState.EXECUTED);
-				concept.setIdentityRole(null); // we have to remove relation on
-												// deleted identityRole
-				String message = MessageFormat.format(
-						"IdentityRole [{0}] (reqested in concept [{1}]) was deleted (from this role request).",
-						identityRole.getId(), concept.getId());
-				conceptRoleRequestService.addToLog(concept, message);
-				conceptRoleRequestService.addToLog(request, message);
-				conceptRoleRequestService.save(concept);
-				identityRoleService.delete(identityRole);
-			}
-		});
+		concepts.stream()
+			.filter(concept -> {
+				return ConceptRoleRequestOperation.REMOVE == concept.getOperation();
+			})
+			.filter(concept -> {
+				// Only approved concepts can be executed
+				// Concepts in concept state will be executed too (for situation, when will be approval event disabled)
+				return RoleRequestState.APPROVED == concept.getState() || RoleRequestState.CONCEPT == concept.getState();
+			})
+			.filter(concept -> {
+				return concept.getIdentityRole() != null;
+			}) 
+			.forEach(concept -> {
+				IdmIdentityRoleDto identityRole = identityRoleService.get(concept.getIdentityRole());
+				if (identityRole != null) {
+					concept.setState(RoleRequestState.EXECUTED);
+					concept.setIdentityRole(null); // we have to remove relation on
+													// deleted identityRole
+					String message = MessageFormat.format(
+							"IdentityRole [{0}] (reqested in concept [{1}]) was deleted (from this role request).",
+							identityRole.getId(), concept.getId());
+					conceptRoleRequestService.addToLog(concept, message);
+					conceptRoleRequestService.addToLog(request, message);
+					conceptRoleRequestService.save(concept);
+					identityRoleService.delete(identityRole);
+				}
+			});
 
 		identityRoleService.saveAll(identityRolesToSave);
 		conceptRoleRequestService.saveAll(conceptsToSave);

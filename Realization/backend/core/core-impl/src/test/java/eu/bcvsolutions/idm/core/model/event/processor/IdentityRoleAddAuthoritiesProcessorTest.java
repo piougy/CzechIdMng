@@ -8,9 +8,8 @@ import org.junit.Test;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
-import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmAuthorityChange;
-import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
 
@@ -23,7 +22,7 @@ public class IdentityRoleAddAuthoritiesProcessorTest extends AbstractIdentityAut
 
 	@Test
 	public void testAddRoleModifyAuthorities() {
-		IdmRole role = getTestRole();
+		IdmRoleDto role = getTestRole();
 		IdmIdentityDto i = getTestUser();
 		IdmIdentityContractDto c = getTestContract(i);
 		IdmAuthorityChange ac = getAuthorityChange(i);
@@ -41,8 +40,8 @@ public class IdentityRoleAddAuthoritiesProcessorTest extends AbstractIdentityAut
 
 	@Test
 	public void testAddRoleDoNotModifyAuthorities() throws Exception {
-		IdmRole role = getTestRole();
-		IdmRole role2 = getTestRole();
+		IdmRoleDto role = getTestRole();
+		IdmRoleDto role2 = getTestRole();
 		IdmIdentityDto i = getTestUser();
 		IdmIdentityContractDto c = getTestContract(i);
 		IdmAuthorityChange ac = getAuthorityChange(i);
@@ -68,7 +67,7 @@ public class IdentityRoleAddAuthoritiesProcessorTest extends AbstractIdentityAut
 
 	@Test
 	public void testAddRoleWithoutAuthorities() throws Exception {
-		IdmRole role = getTestRole();
+		IdmRoleDto role = getTestRole();
 		IdmIdentityDto i = getTestUser();
 		IdmIdentityContractDto c = getTestContract(i);
 		IdmAuthorityChange ac = getAuthorityChange(i);
@@ -82,7 +81,7 @@ public class IdentityRoleAddAuthoritiesProcessorTest extends AbstractIdentityAut
 		DateTime firstChangeTs = ac.getAuthChangeTimestamp();
 		Assert.assertNotNull(firstChangeTs);
 		// prepare role without authorities
-		IdmRole r = new IdmRole();
+		IdmRoleDto r = new IdmRoleDto();
 		r.setName(UUID.randomUUID().toString());
 		r = saveInTransaction(r, roleService);
 
@@ -97,7 +96,7 @@ public class IdentityRoleAddAuthoritiesProcessorTest extends AbstractIdentityAut
 	@Test
 	public void testAddRoleWithSuperAuthorities() throws Exception {
 		// prepare role with full authorities (APP_ADMIN)
-		IdmRole r = new IdmRole();
+		IdmRoleDto r = new IdmRoleDto();
 		r.setName(UUID.randomUUID().toString());
 		r = saveInTransaction(r, roleService);
 		getTestPolicy(r, IdmBasePermission.ADMIN, IdmGroupPermission.APP);
@@ -115,7 +114,7 @@ public class IdentityRoleAddAuthoritiesProcessorTest extends AbstractIdentityAut
 		Assert.assertNotNull(firstChangeTs);
 
 		// role adds IDENTITY_DELETE - must pass without auth change
-		IdmRole role = getTestRole();
+		IdmRoleDto role = getTestRole();
 
 		Thread.sleep(10);
 

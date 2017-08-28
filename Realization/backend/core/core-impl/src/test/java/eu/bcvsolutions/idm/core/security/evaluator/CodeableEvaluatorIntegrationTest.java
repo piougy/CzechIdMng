@@ -11,6 +11,7 @@ import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.TestHelper;
 import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
@@ -40,7 +41,7 @@ public class CodeableEvaluatorIntegrationTest extends AbstractIntegrationTest {
 	public void testPermissionByWrongUuid() {
 		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
 		// prepare role
-		IdmRole role = helper.createRole();
+		IdmRoleDto role = helper.createRole();
 		//
 		IdmAuthorizationPolicyDto dto = new IdmAuthorizationPolicyDto();
 		dto.setRole(role.getId());
@@ -62,7 +63,7 @@ public class CodeableEvaluatorIntegrationTest extends AbstractIntegrationTest {
 			loginService.login(new LoginDto(identity.getUsername(), identity.getPassword()));
 			//
 			// evaluate	access
-			assertEquals(0, roleService.findSecured(null, null, IdmBasePermission.READ).getTotalElements());;			
+			assertEquals(0, roleService.find(null, IdmBasePermission.READ).getTotalElements());;			
 		} finally {
 			logout();
 		}
@@ -72,7 +73,7 @@ public class CodeableEvaluatorIntegrationTest extends AbstractIntegrationTest {
 	public void testPermissionByUuid() {
 		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
 		// prepare role
-		IdmRole role = helper.createRole();
+		IdmRoleDto role = helper.createRole();
 		//
 		IdmAuthorizationPolicyDto dto = new IdmAuthorizationPolicyDto();
 		dto.setRole(role.getId());
@@ -94,7 +95,7 @@ public class CodeableEvaluatorIntegrationTest extends AbstractIntegrationTest {
 			loginService.login(new LoginDto(identity.getUsername(), identity.getPassword()));
 			//
 			// evaluate	access
-			List<IdmRole> roles = roleService.findSecured(null, null, IdmBasePermission.READ).getContent();
+			List<IdmRoleDto> roles = roleService.find(null, IdmBasePermission.READ).getContent();
 			assertEquals(1, roles.size());
 			assertEquals(role.getId(), roles.get(0).getId());
 		} finally {
@@ -106,7 +107,7 @@ public class CodeableEvaluatorIntegrationTest extends AbstractIntegrationTest {
 	public void testPermissionByCode() {
 		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
 		// prepare role
-		IdmRole role = helper.createRole();
+		IdmRoleDto role = helper.createRole();
 		//
 		IdmAuthorizationPolicyDto dto = new IdmAuthorizationPolicyDto();
 		dto.setRole(role.getId());
@@ -128,7 +129,7 @@ public class CodeableEvaluatorIntegrationTest extends AbstractIntegrationTest {
 			loginService.login(new LoginDto(identity.getUsername(), identity.getPassword()));
 			//
 			// evaluate	access
-			List<IdmRole> roles = roleService.findSecured(null, null, IdmBasePermission.READ).getContent();
+			List<IdmRoleDto> roles = roleService.find(null, IdmBasePermission.READ).getContent();
 			assertEquals(1, roles.size());
 			assertEquals(role.getId(), roles.get(0).getId());
 		} finally {

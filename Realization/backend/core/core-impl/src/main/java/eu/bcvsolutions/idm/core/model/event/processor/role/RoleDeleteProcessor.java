@@ -11,6 +11,7 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.AuthorizationPolicyFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.ConceptRoleRequestFilter;
@@ -21,13 +22,12 @@ import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.exception.AcceptedException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.event.RoleEvent.RoleEventType;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
-import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleRequestService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
 
 /**
@@ -38,10 +38,10 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
  */
 @Component
 @Description("Deletes role from repository.")
-public class RoleDeleteProcessor extends CoreEventProcessor<IdmRole> {
+public class RoleDeleteProcessor extends CoreEventProcessor<IdmRoleDto> {
 	
 	public static final String PROCESSOR_NAME = "role-delete-processor";
-	private final IdmRoleRepository repository;
+	private final IdmRoleService service;
 	private final IdmIdentityRoleRepository identityRoleRepository;
 	private final IdmConceptRoleRequestService conceptRoleRequestService;
 	private final IdmRoleRequestService roleRequestService;
@@ -50,7 +50,7 @@ public class RoleDeleteProcessor extends CoreEventProcessor<IdmRole> {
 	
 	@Autowired
 	public RoleDeleteProcessor(
-			IdmRoleRepository repository,
+			IdmRoleService service,
 			IdmIdentityRoleRepository identityRoleRepository,
 			IdmConceptRoleRequestService conceptRoleRequestService,
 			IdmRoleRequestService roleRequestService,
@@ -58,14 +58,14 @@ public class RoleDeleteProcessor extends CoreEventProcessor<IdmRole> {
 			IdmAuthorizationPolicyService authorizationPolicyService) {
 		super(RoleEventType.DELETE);
 		//
-		Assert.notNull(repository);
+		Assert.notNull(service);
 		Assert.notNull(identityRoleRepository);
 		Assert.notNull(conceptRoleRequestService);
 		Assert.notNull(roleRequestService);
 		Assert.notNull(roleTreeNodeService);
 		Assert.notNull(authorizationPolicyService);
 		//
-		this.repository = repository;
+		this.service = service;
 		this.identityRoleRepository = identityRoleRepository;
 		this.conceptRoleRequestService = conceptRoleRequestService;
 		this.roleRequestService = roleRequestService;
@@ -79,11 +79,11 @@ public class RoleDeleteProcessor extends CoreEventProcessor<IdmRole> {
 	}
 
 	@Override
-	public EventResult<IdmRole> process(EntityEvent<IdmRole> event) {
-		IdmRole role = event.getContent();
+	public EventResult<IdmRoleDto> process(EntityEvent<IdmRoleDto> event) {
+		IdmRoleDto role = event.getContent();
 		//
 		// role assigned to identity could not be deleted
-		if(identityRoleRepository.countByRole(role) > 0) {
+		if(identityRoleRepository.countByRole_Id(role.getId()) > 0) {
 			throw new ResultCodeException(CoreResultCode.ROLE_DELETE_FAILED_IDENTITY_ASSIGNED, ImmutableMap.of("role", role.getName()));
 		}
 		// remove related automatic roles
@@ -130,8 +130,8 @@ public class RoleDeleteProcessor extends CoreEventProcessor<IdmRole> {
 			authorizationPolicyService.delete(dto);
 		});
 		//		
-		// guarantees and compositions are deleted by hibernate mapping
-		repository.delete(role);
+		// remove role guarantees, sub roles and catalog works automatically by hibenate mapping
+		service.deleteInternal(role);
 		//
 		return new DefaultEventResult<>(event, this);
 	}

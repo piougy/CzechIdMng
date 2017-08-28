@@ -25,12 +25,9 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  */
 public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIntegrationTest {
 
-	@Autowired
-	TestHelper helper;
-	@Autowired
-	IdmTreeNodeService treeNodeService;
-	@Autowired
-	IdmIdentityContractService service;
+	@Autowired private TestHelper helper;
+	@Autowired private IdmTreeNodeService treeNodeService;
+	@Autowired private IdmIdentityContractService service;
 
 	@Before
 	public void logIn(){

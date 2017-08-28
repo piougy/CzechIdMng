@@ -12,5 +12,6 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
  *
  */
 public interface IdmRoleGuaranteeService extends
-	ReadWriteDtoService<IdmRoleGuaranteeDto, RoleGuaranteeFilter>, AuthorizableService<IdmRoleGuaranteeDto> {
+	ReadWriteDtoService<IdmRoleGuaranteeDto, RoleGuaranteeFilter>,
+	AuthorizableService<IdmRoleGuaranteeDto> {
 }

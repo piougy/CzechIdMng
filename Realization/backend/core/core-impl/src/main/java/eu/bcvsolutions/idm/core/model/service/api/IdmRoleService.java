@@ -4,13 +4,15 @@ import java.util.List;
 import java.util.UUID;
 
 import eu.bcvsolutions.idm.core.api.config.domain.RoleConfiguration;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
 import eu.bcvsolutions.idm.core.api.service.CodeableService;
-import eu.bcvsolutions.idm.core.api.service.EventableService;
-import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
+import eu.bcvsolutions.idm.core.api.service.EventableDtoService;
 import eu.bcvsolutions.idm.core.model.dto.filter.RoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
-import eu.bcvsolutions.idm.core.security.api.service.AuthorizableEntityService;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
+import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 
 /**
  * Role service
@@ -18,9 +20,10 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizableEntityService;
  * @author Radek Tomiška
  *
  */
-public interface IdmRoleService 
-		extends ReadWriteEntityService<IdmRole, RoleFilter>, 
-		CodeableService<IdmRole>, AuthorizableEntityService<IdmRole, RoleFilter>, ScriptEnabled, EventableService<IdmRole> {
+public interface IdmRoleService extends 
+		EventableDtoService<IdmRoleDto, RoleFilter>, 
+		CodeableService<IdmRoleDto>, 
+		AuthorizableService<IdmRoleDto>, ScriptEnabled {
 	
 	static final String WF_BY_ROLE_PRIORITY_PREFIX = "idm.sec.core.wf.role.approval."; // TODO: rename property ... 
 	static final String PROPERTY_DEFAULT_ROLE = RoleConfiguration.PROPERTY_DEFAULT_ROLE;
@@ -30,8 +33,17 @@ public interface IdmRoleService
 	 * 
 	 * @param name
 	 * @return
+	 * @deprecated - use {@link #getByCode(String)}
 	 */
-	IdmRole getByName(String name);
+	@Deprecated
+	IdmRoleDto getByName(String name);
+	
+	/**
+	 * Will be removed after eav and synchronization refactoring
+	 * 
+	 */
+	@Deprecated
+	IdmRole publishRole(IdmRole identity, EntityEvent<IdmRoleDto> event, BasePermission... permission);
 	
 	/**
 	 * Return roles by uuids in string
@@ -39,10 +51,11 @@ public interface IdmRoleService
 	 * @param roles
 	 * @return
 	 */
-	List<IdmRole> getRolesByIds(String roleIds);
+	List<IdmRoleDto> getRolesByIds(String roleIds);
 
 	/**
 	 * Find workflow definition key for assign Role to Identity
+	 * 
 	 * @param roleId
 	 * @return
 	 */
@@ -51,6 +64,7 @@ public interface IdmRoleService
 
 	/**
 	 * Find workflow definition key for change assigned Role on Identity
+	 * 
 	 * @param roleId
 	 * @return
 	 */
@@ -59,6 +73,7 @@ public interface IdmRoleService
 
 	/**
 	 * Find workflow definition key for remove assigned Role on Identity
+	 * 
 	 * @param roleId
 	 * @return
 	 */
@@ -70,7 +85,7 @@ public interface IdmRoleService
 	 * @return
 	 * @see RoleConfiguration#getDefaultRoleId()
 	 */
-	IdmRole getDefaultRole();
+	IdmRoleDto getDefaultRole();
 	
 	/**
 	 * Returns admin user role by configuration {@value #PROPERTY_ADMIN_ROLE}.
@@ -78,15 +93,16 @@ public interface IdmRoleService
 	 * @return
 	 * @see RoleConfiguration#getAdminRoleId()
 	 */
-	IdmRole getAdminRole();
+	IdmRoleDto getAdminRole();
 	
 	/**
 	 * Return list of subroles (only one level in depth)
 	 * of role given by its role ID. 
+	 * 
 	 * @param roleId
 	 * @return
 	 */
-	List<IdmRole> getSubroles(UUID roleId);
+	List<IdmRoleDto> getSubroles(UUID roleId);
 	
 	/**
 	 * Get list of {@link IdmRole} for role catalogue given in parameter.
@@ -94,5 +110,5 @@ public interface IdmRoleService
 	 * @param roleCatalogue
 	 * @return
 	 */
-	List<IdmRole> findAllByRoleCatalogue(UUID roleCatalogueId);
+	List<IdmRoleDto> findAllByRoleCatalogue(UUID roleCatalogueId);
 }

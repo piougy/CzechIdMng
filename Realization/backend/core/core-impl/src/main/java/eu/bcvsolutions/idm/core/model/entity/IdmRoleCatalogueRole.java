@@ -11,8 +11,6 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.envers.Audited;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 
 /**
@@ -42,7 +40,6 @@ public class IdmRoleCatalogueRole extends AbstractEntity {
 	
 	@NotNull
 	@Audited
-	@JsonBackReference
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "role_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4

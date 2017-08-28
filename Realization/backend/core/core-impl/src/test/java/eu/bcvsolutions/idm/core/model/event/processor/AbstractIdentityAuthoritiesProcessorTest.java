@@ -13,9 +13,9 @@ import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmAuthorityChange;
-import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.repository.IdmAuthorityChangeRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
@@ -72,7 +72,7 @@ public abstract class AbstractIdentityAuthoritiesProcessorTest extends AbstractI
 		logout();
 	}
 	
-	protected IdmIdentityRoleDto getTestIdentityRole(IdmRole role, IdmIdentityContractDto c) {
+	protected IdmIdentityRoleDto getTestIdentityRole(IdmRoleDto role, IdmIdentityContractDto c) {
 		IdmIdentityRoleDto ir = new IdmIdentityRoleDto();
 		ir.setIdentityContract(c.getId());
 		ir.setRole(role.getId());
@@ -86,19 +86,19 @@ public abstract class AbstractIdentityAuthoritiesProcessorTest extends AbstractI
 		return saveInTransaction(c, contractService);
 	}
 
-	protected IdmRole getTestRole() {
-		IdmRole role = new IdmRole();
+	protected IdmRoleDto getTestRole() {
+		IdmRoleDto role = new IdmRoleDto();
 		role.setName(UUID.randomUUID().toString());
 		role = saveInTransaction(role, roleService);
 		getTestPolicy(role);
 		return role;
 	}
 	
-	protected IdmAuthorizationPolicyDto getTestPolicy(IdmRole role) {
+	protected IdmAuthorizationPolicyDto getTestPolicy(IdmRoleDto role) {
 		return getTestPolicy(role, IdmBasePermission.DELETE, CoreGroupPermission.IDENTITY);
 	}
 	
-	protected IdmAuthorizationPolicyDto getTestPolicy(IdmRole role, BasePermission base, GroupPermission group) {
+	protected IdmAuthorizationPolicyDto getTestPolicy(IdmRoleDto role, BasePermission base, GroupPermission group) {
 		IdmAuthorizationPolicyDto policy = new IdmAuthorizationPolicyDto();
 		policy.setGroupPermission(group.getName());
 		policy.setPermissions(base);

@@ -31,7 +31,7 @@ import eu.bcvsolutions.idm.core.api.domain.RoleType;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
+import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 
 /**
@@ -41,32 +41,38 @@ import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
  *
  */
 @Service
-@Qualifier(value=RoleProvisioningExecutor.NAME)
+@Qualifier(value = RoleProvisioningExecutor.NAME)
 public class RoleProvisioningExecutor extends AbstractProvisioningExecutor<IdmRole> {
  
 	public static final String NAME = "roleProvisioningService";
 	private final AccRoleAccountService roleAccountService;
-	private final IdmRoleService roleService;
+	private final IdmRoleRepository roleRepository;
 	
 	@Autowired
-	public RoleProvisioningExecutor(SysSystemMappingService systemMappingService,
-			SysSystemAttributeMappingService attributeMappingService, IcConnectorFacade connectorFacade,
-			SysSystemService systemService, SysRoleSystemService roleSystemService,
+	public RoleProvisioningExecutor(
+			SysSystemMappingService systemMappingService,
+			SysSystemAttributeMappingService attributeMappingService, 
+			IcConnectorFacade connectorFacade,
+			SysSystemService systemService, 
+			SysRoleSystemService roleSystemService,
 			AccAccountManagementService accountManagementService,
-			SysRoleSystemAttributeService roleSystemAttributeService, SysSystemEntityService systemEntityService,
-			AccAccountService accountService, AccRoleAccountService roleAccountService,
-			ProvisioningExecutor provisioningExecutor, IdmRoleService roleService,
-			EntityEventManager entityEventManager) {
+			SysRoleSystemAttributeService roleSystemAttributeService, 
+			SysSystemEntityService systemEntityService,
+			AccAccountService accountService, 
+			AccRoleAccountService roleAccountService,
+			ProvisioningExecutor provisioningExecutor,
+			EntityEventManager entityEventManager,
+			IdmRoleRepository roleRepository) {
 		
 		super(systemMappingService, attributeMappingService, connectorFacade, systemService, roleSystemService,
 				accountManagementService, roleSystemAttributeService, systemEntityService, accountService,
 				provisioningExecutor, entityEventManager);
-		
+		//
 		Assert.notNull(roleAccountService);
-		Assert.notNull(roleService);
-		
+		Assert.notNull(roleRepository);
+		//
 		this.roleAccountService = roleAccountService;
-		this.roleService = roleService;
+		this.roleRepository = roleRepository;
 	}
 	
 	public void doProvisioning(AccAccount account) {
@@ -80,8 +86,8 @@ public class RoleProvisioningExecutor extends AbstractProvisioningExecutor<IdmRo
 		}
 		entityAccoutnList.stream().filter(entityAccount -> {
 			return entityAccount.isOwnership();
-		}).forEach((treeAccount) -> {
-			doProvisioning(account, (IdmRole) roleService.get(treeAccount.getEntity()));
+		}).forEach((roleAccount) -> {
+			doProvisioning(account, roleRepository.findOne(roleAccount.getEntity()));
 		});
 	}
 	

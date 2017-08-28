@@ -12,36 +12,33 @@ import javax.persistence.criteria.Subquery;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import com.google.common.base.Strings;
 
 import eu.bcvsolutions.idm.core.api.config.domain.RoleConfiguration;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
-import eu.bcvsolutions.idm.core.api.event.EventContext;
-import eu.bcvsolutions.idm.core.api.repository.filter.FilterManager;
+import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
-import eu.bcvsolutions.idm.core.eav.service.impl.AbstractFormableService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.dto.filter.RoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmForestIndexEntity_;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
+import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogueRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogueRole_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue_;
+import eu.bcvsolutions.idm.core.model.entity.IdmRoleComposition;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleGuarantee;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleGuarantee_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole_;
 import eu.bcvsolutions.idm.core.model.event.RoleEvent;
-import eu.bcvsolutions.idm.core.model.event.RoleEvent.RoleEventType;
-import eu.bcvsolutions.idm.core.model.event.processor.role.RoleDeleteProcessor;
-import eu.bcvsolutions.idm.core.model.event.processor.role.RoleSaveProcessor;
+import eu.bcvsolutions.idm.core.model.repository.IdmRoleCatalogueRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleCatalogueRoleRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
@@ -55,15 +52,18 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
  * @author Radek Tomiška
  *
  */
-public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, RoleFilter> implements IdmRoleService {
+public class DefaultIdmRoleService 
+		extends AbstractEventableDtoService<IdmRoleDto, IdmRole, RoleFilter> 
+		implements IdmRoleService {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmRoleService.class);
 	private final IdmRoleRepository repository;
+	private final FormService formService;
 	private final IdmRoleCatalogueRoleRepository roleCatalogueRoleRepository;
-	private final EntityEventManager entityEventManager;
 	private final ConfigurationService configurationService;
-	private final FilterManager filterManager;
 	private final RoleConfiguration roleConfiguration;
+	//
+	@Autowired private IdmRoleCatalogueRepository roleCatalogueRepository;
 	
 	@Autowired
 	public DefaultIdmRoleService(
@@ -72,20 +72,17 @@ public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, Role
 			EntityEventManager entityEventManager,
 			FormService formService,
 			ConfigurationService configurationService,
-			FilterManager filterManager,
 			RoleConfiguration roleConfiguration) {
-		super(repository, formService);
+		super(repository, entityEventManager);
 		//
-		Assert.notNull(entityEventManager);
+		Assert.notNull(formService);
 		Assert.notNull(configurationService);
-		Assert.notNull(filterManager);
 		Assert.notNull(roleConfiguration);
 		Assert.notNull(roleCatalogueRoleRepository);
 		//
 		this.repository = repository;
-		this.entityEventManager = entityEventManager;
+		this.formService = formService;
 		this.configurationService = configurationService;
-		this.filterManager = filterManager;
 		this.roleConfiguration = roleConfiguration;
 		this.roleCatalogueRoleRepository = roleCatalogueRoleRepository;
 	}
@@ -94,92 +91,66 @@ public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, Role
 	public AuthorizableType getAuthorizableType() {
 		return new AuthorizableType(CoreGroupPermission.ROLE, getEntityClass());
 	}
-
+	
 	@Override
-	@Transactional(readOnly = true)
-	public IdmRole getByName(String name) {
-		return repository.findOneByName(name);
+	protected IdmRoleDto toDto(IdmRole entity, IdmRoleDto dto) {
+		return super.toDto(entity, dto);
 	}
 	
 	@Override
-	@Transactional(readOnly = true)
-	public IdmRole getByCode(String name) {
-		return getByName(name);
-	}
-	
-	/**
-	 * Publish {@link RoleEvent} only.
-	 * 
-	 * @see {@link RoleSaveProcessor}
-	 */
-	@Override
-	@Transactional
-	public IdmRole save(IdmRole role) {
-		Assert.notNull(role);
-		//
-		LOG.debug("Saving role [{}]", role.getName());
-		//
-		return this.publish(new RoleEvent(isNew(role) ? RoleEventType.CREATE : RoleEventType.UPDATE, role)).getContent();
-	}
-	
-	/**
-	 * Publish {@link RoleEvent} only.
-	 * 
-	 * @see {@link RoleDeleteProcessor}
-	 */
-	@Override
-	@Transactional
-	public void delete(IdmRole role) {
-		Assert.notNull(role);
-		//
-		LOG.debug("Deleting role [{}]", role.getName());
-		this.publish(new RoleEvent(RoleEventType.DELETE, role));
-	}
-	
-	@Override
-	@Transactional(readOnly = true)
-	public Page<IdmRole> find(final RoleFilter filter, Pageable pageable) {
-		// transform filter to criteria
-		Specification<IdmRole> criteria = new Specification<IdmRole>() {
-			public Predicate toPredicate(Root<IdmRole> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
-				Predicate predicate = DefaultIdmRoleService.this.toPredicate(filter, root, query, builder);
-				return query.where(predicate).getRestriction();
-			}
-		};
-		return getRepository().findAll(criteria, pageable);
-	}
-	
-	@Override
-	@Transactional(readOnly = true)
-	public Page<IdmRole> findSecured(final RoleFilter filter, Pageable pageable, BasePermission permission) {
-		// transform filter to criteria
-		Specification<IdmRole> criteria = new Specification<IdmRole>() {
-			public Predicate toPredicate(Root<IdmRole> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
-				Predicate predicate = builder.and(
-					DefaultIdmRoleService.this.toPredicate(filter, root, query, builder),
-					getAuthorizationManager().getPredicate(root, query, builder, permission)
-				);
-				//
-				return query.where(predicate).getRestriction();
-			}
-		};
-		return getRepository().findAll(criteria, pageable);
-	}
-	
-	/**
-	 * Converts given filter to jpa predicate
-	 * 
-	 * @param filter
-	 * @param root
-	 * @param query
-	 * @param builder
-	 * @return
-	 */
-	private Predicate toPredicate(RoleFilter filter, Root<IdmRole> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
-		List<Predicate> predicates = new ArrayList<>();
-		if (filter == null) {
-			return builder.conjunction();
+	protected IdmRole toEntity(IdmRoleDto dto, IdmRole entity) {
+		entity = super.toEntity(dto, entity);
+		// fill lists references
+		for (IdmRoleGuarantee guarantee : entity.getGuarantees()) {
+			guarantee.setRole(entity);
 		}
+		for (IdmRoleCatalogueRole roleCatalogueRole : entity.getRoleCatalogues()) {
+			roleCatalogueRole.setRole(entity);
+		}
+		for (IdmRoleComposition roleComposition : entity.getSubRoles()) {
+			roleComposition.setSuperior(entity);
+		}
+		return entity;
+	}
+	
+	@Override
+	@Transactional
+	@Deprecated
+	public IdmRole publishRole(IdmRole role, EntityEvent<IdmRoleDto> event,  BasePermission... permission) {
+		Assert.notNull(event, "Event must be not null!");
+		Assert.notNull(role);
+		event.setContent(toDto(role));
+		return toEntity(this.publish(event, permission).getContent());
+	}
+
+	/**
+	 * @deprecated use {@link #getByCode(String)}
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	@Deprecated
+	public IdmRoleDto getByName(String name) {
+		return getByCode(name);
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public IdmRoleDto getByCode(String name) {
+		return toDto(repository.findOneByCode(name));
+	}
+	
+	@Override
+	@Transactional
+	public void deleteInternal(IdmRoleDto dto) {
+		// TODO: eav dto
+		formService.deleteValues(getRepository().findOne(dto.getId()));
+		//
+		super.deleteInternal(dto);
+	}
+	
+	@Override
+	protected List<Predicate> toPredicates(Root<IdmRole> root, CriteriaQuery<?> query, CriteriaBuilder builder, RoleFilter filter) {
+		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
 		// quick
 		if (StringUtils.isNotEmpty(filter.getText())) {
 			predicates.add(
@@ -197,7 +168,7 @@ public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, Role
 			predicates.add(builder.equal(root.get(IdmRole_.name), filter.getValue()));
 		}
 		// guarantee	
-		if (filter.getGuarantee() != null) {
+		if (filter.getGuaranteeId() != null) {
 			Subquery<IdmRoleGuarantee> subquery = query.subquery(IdmRoleGuarantee.class);
 			Root<IdmRoleGuarantee> subRoot = subquery.from(IdmRoleGuarantee.class);
 			subquery.select(subRoot);
@@ -205,13 +176,15 @@ public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, Role
 			subquery.where(
                     builder.and(
                     		builder.equal(subRoot.get(IdmRoleGuarantee_.role), root), // correlation attr
-                    		builder.equal(subRoot.get(IdmRoleGuarantee_.guarantee), filter.getGuarantee())
+                    		builder.equal(subRoot.get(IdmRoleGuarantee_.guarantee).get(IdmIdentity_.id), filter.getGuaranteeId())
                     		)
             );
 			predicates.add(builder.exists(subquery));
 		}
 		// role catalogue by forest index
-		if (filter.getRoleCatalogue() != null) {
+		if (filter.getRoleCatalogueId() != null) {
+			// TODO: use subquery - see DefaultIdmIdentityService#toPredicates
+			IdmRoleCatalogue roleCatalogue = roleCatalogueRepository.findOne(filter.getRoleCatalogueId());
 			Subquery<IdmRoleCatalogueRole> subquery = query.subquery(IdmRoleCatalogueRole.class);
 			Root<IdmRoleCatalogueRole> subRoot = subquery.from(IdmRoleCatalogueRole.class);
 			subquery.select(subRoot);
@@ -221,29 +194,25 @@ public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, Role
                     		builder.equal(subRoot.get(IdmRoleCatalogueRole_.role), root), // correlation attr
                     		builder.between(subRoot.get(
                     				IdmRoleCatalogueRole_.roleCatalogue).get(IdmRoleCatalogue_.forestIndex).get(IdmForestIndexEntity_.lft), 
-                    				filter.getRoleCatalogue().getLft(), filter.getRoleCatalogue().getRgt())
+                    				roleCatalogue.getLft(), roleCatalogue.getRgt())
                     		)
             );
 			predicates.add(builder.exists(subquery));
 		}
 		//
-		// Dynamic filters (added, overriden by module)
-		predicates.addAll(filterManager.toPredicates(root, query, builder, filter));
-		//
-		return builder.and(predicates.toArray(new Predicate[predicates.size()]));
+		return predicates;
 	}
 	
 	@Override
 	@Transactional(readOnly = true)
-	public List<IdmRole> getRolesByIds(String roles) {
+	public List<IdmRoleDto> getRolesByIds(String roles) {
 		if (roles == null) {
 			return null;
 		}
-		List<IdmRole> idmRoles = new ArrayList<>();
+		List<IdmRoleDto> idmRoles = new ArrayList<>();
 		String[] rolesArray = roles.split(",");
 		for (String id : rolesArray) {
-			// TODO: try - catch ...
-			idmRoles.add(get(UUID.fromString(id)));
+			idmRoles.add(get(id));
 		}
 		return idmRoles;
 	}
@@ -276,13 +245,13 @@ public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, Role
 
 	@Override
 	@Transactional(readOnly = true)
-	public IdmRole getDefaultRole() {
+	public IdmRoleDto getDefaultRole() {
 		UUID roleId = roleConfiguration.getDefaultRoleId();
 		if (roleId == null) {
 			LOG.debug("Default role is not configured. Change configuration [{}].", RoleConfiguration.PROPERTY_DEFAULT_ROLE);
 			return null;
 		}
-		IdmRole defaultRole = get(roleId);
+		IdmRoleDto defaultRole = get(roleId);
 		if (defaultRole == null) {
 			LOG.warn("Default role [{}] not found. Change configuration [{}].", roleId, RoleConfiguration.PROPERTY_DEFAULT_ROLE);
 		}
@@ -291,13 +260,13 @@ public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, Role
 
 	@Override
 	@Transactional(readOnly = true)
-	public IdmRole getAdminRole() {
+	public IdmRoleDto getAdminRole() {
 		UUID roleId = roleConfiguration.getAdminRoleId();
 		if (roleId == null) {
 			LOG.debug("Admin role is not configured. Change configuration [{}].", RoleConfiguration.PROPERTY_ADMIN_ROLE);
 			return null;
 		}
-		IdmRole adminRole = get(roleId);
+		IdmRoleDto adminRole = get(roleId);
 		if (adminRole == null) {
 			LOG.warn("Admin role [{}] not found. Change configuration [{}].", roleId, RoleConfiguration.PROPERTY_ADMIN_ROLE);
 		}
@@ -305,28 +274,19 @@ public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, Role
 	}
 	
 	@Override
-	public List<IdmRole> getSubroles(UUID roleId) {
+	public List<IdmRoleDto> getSubroles(UUID roleId) {
 		Assert.notNull(roleId);
 		//
-		return repository.getSubroles(roleId);
+		return toDtos(repository.getSubroles(roleId), false);
 	}
 	
 	@Override
 	@Transactional(readOnly = true)
-	public List<IdmRole> findAllByRoleCatalogue(UUID roleCatalogueId) {
+	public List<IdmRoleDto> findAllByRoleCatalogue(UUID roleCatalogueId) {
 		List<IdmRole> roles = new ArrayList<>();
 		for (IdmRoleCatalogueRole roleCatalogueRole : roleCatalogueRoleRepository.findAllByRoleCatalogue_Id(roleCatalogueId)) {
 			roles.add(roleCatalogueRole.getRole());
 		}
-		return roles;
-	}
-
-	@Override
-	public EventContext<IdmRole> publish(EntityEvent<IdmRole> event, BasePermission... permission) {
-		Assert.notNull(event, "Event must be not null!");
-		Assert.notNull(event.getContent(), "Content (entity) in event must be not null!");
-		
-		return entityEventManager.process(event);
-	}
-	
+		return toDtos(roles, false);
+	}	
 }

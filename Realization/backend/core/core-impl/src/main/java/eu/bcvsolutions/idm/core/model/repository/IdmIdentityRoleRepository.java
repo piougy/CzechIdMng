@@ -41,7 +41,13 @@ public interface IdmIdentityRoleRepository extends AbstractEntityRepository<IdmI
 
 	Page<IdmIdentityRole> findByIdentityContract_Identity_Username(@Param("username") String username, Pageable pageable);
 	
+	/**
+	 * @deprecated use {@link #countByRole_Id(UUID)}
+	 */
+	@Deprecated
 	Long countByRole(@Param("role") IdmRole role);
+	
+	Long countByRole_Id(UUID roleId);
 	
 	Page<IdmIdentityRole> findByRole(@Param("role") IdmRole role, Pageable pageable);
 	

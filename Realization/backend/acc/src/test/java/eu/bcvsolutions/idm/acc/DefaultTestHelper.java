@@ -33,11 +33,12 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
-import eu.bcvsolutions.idm.core.model.entity.IdmRole;
+import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
@@ -53,6 +54,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 public class DefaultTestHelper implements TestHelper {
 	
 	@Autowired private IdmRoleService roleService;
+	@Autowired private IdmRoleRepository roleRepository;
 	@Autowired private IdmIdentityService identityService;
 	@Autowired private IdmIdentityContractService identityContractService;
 	@Autowired private IdmIdentityRoleService identityRoleService;
@@ -76,18 +78,18 @@ public class DefaultTestHelper implements TestHelper {
 	}
 	
 	@Override
-	public IdmRole createRole() {
-		IdmRole role = new IdmRole();
+	public IdmRoleDto createRole() {
+		IdmRoleDto role = new IdmRoleDto();
 		role.setName("test" + "-" + UUID.randomUUID());
 		return roleService.save(role);
 	}
 	
 	@Override
-	public IdmIdentityRoleDto createIdentityRole(IdmIdentityDto identity, IdmRole role) {
+	public IdmIdentityRoleDto createIdentityRole(IdmIdentityDto identity, IdmRoleDto role) {
 		return createIdentityRole(identityContractService.getPrimeContract(identity.getId()), role);
 	}
 	
-	private IdmIdentityRoleDto createIdentityRole(IdmIdentityContractDto identityContract, IdmRole role) {
+	private IdmIdentityRoleDto createIdentityRole(IdmIdentityContractDto identityContract, IdmRoleDto role) {
 		IdmIdentityRoleDto identityRole = new IdmIdentityRoleDto();
 		identityRole.setIdentityContract(identityContract.getId());
 		identityRole.setRole(role.getId());
@@ -275,9 +277,9 @@ public class DefaultTestHelper implements TestHelper {
 	}
 	
 	@Override
-	public SysRoleSystem createRoleSystem(IdmRole role, SysSystem system) {
+	public SysRoleSystem createRoleSystem(IdmRoleDto role, SysSystem system) {
 		SysRoleSystem roleSystem = new SysRoleSystem();
-		roleSystem.setRole(role);
+		roleSystem.setRole(roleRepository.findOne(role.getId()));
 		roleSystem.setSystem(system);
 		// default mapping
 		List<SysSystemMapping> mappings = systemMappingService.findBySystem(system, SystemOperationType.PROVISIONING, SystemEntityType.IDENTITY);

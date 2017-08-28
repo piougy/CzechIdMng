@@ -2,7 +2,6 @@ package eu.bcvsolutions.idm.core.rest.impl;
 
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -37,11 +36,11 @@ import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.RoleType;
 import eu.bcvsolutions.idm.core.api.dto.IdmAuditDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteEntityController;
+import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
-import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
-import eu.bcvsolutions.idm.core.api.service.LookupService;
+import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.audit.service.api.IdmAuditService;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.core.eav.rest.impl.IdmFormDefinitionController;
@@ -50,9 +49,10 @@ import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.dto.filter.RoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
-import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
 import eu.bcvsolutions.idm.core.model.entity.eav.IdmRoleFormValue;
+import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import io.swagger.annotations.Api;
@@ -69,14 +69,14 @@ import io.swagger.annotations.AuthorizationScope;
  *
  */
 @RepositoryRestController
-@RequestMapping(value = BaseEntityController.BASE_PATH + "/roles")
+@RequestMapping(value = BaseDtoController.BASE_PATH + "/roles")
 @Api(
 		value = IdmRoleController.TAG, 
 		tags = IdmRoleController.TAG, 
 		description = "Operations with roles",
 		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
 		consumes = MediaType.APPLICATION_JSON_VALUE)
-public class IdmRoleController extends AbstractReadWriteEntityController<IdmRole, RoleFilter> {
+public class IdmRoleController extends AbstractReadWriteDtoController<IdmRoleDto, RoleFilter> {
 	
 	protected static final String TAG = "Roles";
 	//
@@ -84,26 +84,30 @@ public class IdmRoleController extends AbstractReadWriteEntityController<IdmRole
 	private final IdmFormDefinitionController formDefinitionController;
 	private final IdmAuthorizationPolicyService authorizationPolicyService;
 	private final SecurityService securityService;
+	private final IdmRoleRepository roleRepository;
 	
 	@Autowired
 	public IdmRoleController(
-			LookupService entityLookupService, 
+			IdmRoleService roleService,
 			IdmAuditService auditService,
 			IdmAuthorizationPolicyService authorizationPolicyService,
 			IdmFormDefinitionController formDefinitionController,
 			SecurityService securityService,
-			FormService formService) {
-		super(entityLookupService);
+			FormService formService,
+			IdmRoleRepository roleRepository) {
+		super(roleService);
 		//
 		Assert.notNull(auditService);
 		Assert.notNull(formDefinitionController);
 		Assert.notNull(authorizationPolicyService);
 		Assert.notNull(securityService);
+		Assert.notNull(roleRepository);
 		//
 		this.auditService = auditService;
 		this.formDefinitionController = formDefinitionController;
 		this.authorizationPolicyService = authorizationPolicyService;
 		this.securityService = securityService;
+		this.roleRepository = roleRepository;
 	}
 	
 	@Override
@@ -121,10 +125,9 @@ public class IdmRoleController extends AbstractReadWriteEntityController<IdmRole
 						@AuthorizationScope(scope = CoreGroupPermission.ROLE_READ, description = "") })
 				})
 	public Resources<?> find(
-			@RequestParam(required = false) MultiValueMap<String, Object> parameters, 
-			@PageableDefault Pageable pageable, 			
-			PersistentEntityResourceAssembler assembler) {
-		return super.find(parameters, pageable, assembler);
+			@RequestParam(required = false) MultiValueMap<String, Object> parameters,
+			@PageableDefault Pageable pageable) {
+		return super.find(parameters, pageable);
 	}
 	
 	@ResponseBody
@@ -141,10 +144,9 @@ public class IdmRoleController extends AbstractReadWriteEntityController<IdmRole
 						@AuthorizationScope(scope = CoreGroupPermission.ROLE_READ, description = "") })
 				})
 	public Resources<?> findQuick(
-			@RequestParam(required = false) MultiValueMap<String, Object> parameters, 
-			@PageableDefault Pageable pageable, 			
-			PersistentEntityResourceAssembler assembler) {
-		return super.findQuick(parameters, pageable, assembler);
+			@RequestParam(required = false) MultiValueMap<String, Object> parameters,
+			@PageableDefault Pageable pageable) {
+		return super.findQuick(parameters, pageable);
 	}
 	
 	@ResponseBody
@@ -162,9 +164,8 @@ public class IdmRoleController extends AbstractReadWriteEntityController<IdmRole
 				})
 	public Resources<?> autocomplete(
 			@RequestParam(required = false) MultiValueMap<String, Object> parameters, 
-			@PageableDefault Pageable pageable, 			
-			PersistentEntityResourceAssembler assembler) {
-		return super.autocomplete(parameters, pageable, assembler);
+			@PageableDefault Pageable pageable) {
+		return super.autocomplete(parameters, pageable);
 	}
 	
 	@Override
@@ -184,9 +185,8 @@ public class IdmRoleController extends AbstractReadWriteEntityController<IdmRole
 				})
 	public ResponseEntity<?> get(
 			@ApiParam(value = "Role's uuid identifier or code.", required = true)
-			@PathVariable @NotNull String backendId, 
-			PersistentEntityResourceAssembler assembler) {
-		return super.get(backendId, assembler);
+			@PathVariable @NotNull String backendId) {
+		return super.get(backendId);
 	}
 	
 	@Override
@@ -196,7 +196,7 @@ public class IdmRoleController extends AbstractReadWriteEntityController<IdmRole
 	@ApiOperation(
 			value = "Create / update role", 
 			nickname = "postRole", 
-			response = IdmRole.class, 
+			response = IdmRoleDto.class, 
 			tags = { IdmRoleController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
@@ -206,8 +206,8 @@ public class IdmRoleController extends AbstractReadWriteEntityController<IdmRole
 						@AuthorizationScope(scope = CoreGroupPermission.ROLE_CREATE, description = ""),
 						@AuthorizationScope(scope = CoreGroupPermission.ROLE_UPDATE, description = "")})
 				})
-	public ResponseEntity<?> post(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
-		return super.post(nativeRequest, assembler);
+	public ResponseEntity<?> post(@Valid @RequestBody IdmRoleDto dto) {
+		return super.post(dto);
 	}
 	
 	@Override
@@ -227,10 +227,9 @@ public class IdmRoleController extends AbstractReadWriteEntityController<IdmRole
 				})
 	public ResponseEntity<?> put(
 			@ApiParam(value = "Role's uuid identifier or code.", required = true)
-			@PathVariable @NotNull String backendId,
-			HttpServletRequest nativeRequest,
-			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
-		return super.put(backendId, nativeRequest, assembler);
+			@PathVariable @NotNull String backendId, 
+			@Valid @RequestBody IdmRoleDto dto) {
+		return super.put(backendId, dto);
 	}
 	
 	@Override
@@ -240,7 +239,7 @@ public class IdmRoleController extends AbstractReadWriteEntityController<IdmRole
 	@ApiOperation(
 			value = "Patch role", 
 			nickname = "patchRole", 
-			response = IdmRole.class, 
+			response = IdmRoleDto.class, 
 			tags = { IdmRoleController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
@@ -248,9 +247,12 @@ public class IdmRoleController extends AbstractReadWriteEntityController<IdmRole
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
 						@AuthorizationScope(scope = CoreGroupPermission.ROLE_UPDATE, description = "") })
 				})
-	public ResponseEntity<?> patch(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler) 
+	public ResponseEntity<?> patch(
+			@ApiParam(value = "Role's uuid identifier or code.", required = true)
+			@PathVariable @NotNull String backendId,
+			HttpServletRequest nativeRequest)
 			throws HttpMessageNotReadableException {
-		return super.patch(backendId, nativeRequest, assembler);
+		return super.patch(backendId, nativeRequest);
 	}
 	
 	@Override
@@ -312,21 +314,20 @@ public class IdmRoleController extends AbstractReadWriteEntityController<IdmRole
 			@ApiParam(value = "Revision identifier.", required = true)
 			@PathVariable("revId") Long revId, 
 			PersistentEntityResourceAssembler assembler) {
-		IdmRole originalEntity = getEntity(backendId);
-		if (originalEntity == null) {
+		IdmRoleDto originalDto = getDto(backendId);
+		if (originalDto == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("role", backendId));
 		}
-		checkAccess(originalEntity, IdmBasePermission.READ);
 		//
 		IdmRole revisionRole;
 		try {
-			revisionRole = this.auditService.findRevision(IdmRole.class, originalEntity.getId(), revId);
-			checkAccess(revisionRole, IdmBasePermission.READ);
+			revisionRole = this.auditService.findRevision(IdmRole.class, originalDto.getId(), revId);
+			// checkAccess(revisionRole, IdmBasePermission.READ);
 		} catch (RevisionDoesNotExistException ex) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND,  ImmutableMap.of("revision", backendId), ex);
 		}
-		
-		return new ResponseEntity<>(toResource(revisionRole, assembler), HttpStatus.OK);
+		// TODO: dto
+		return new ResponseEntity<>(revisionRole, HttpStatus.OK);
 	}
 
 	@ResponseBody
@@ -347,14 +348,13 @@ public class IdmRoleController extends AbstractReadWriteEntityController<IdmRole
 			@PathVariable("backendId") String backendId, 
 			Pageable pageable, 
 			PersistentEntityResourceAssembler assembler) {
-		IdmRole originalEntity = getEntity(backendId);
-		if (originalEntity == null) {
+		IdmRoleDto originalDto = getDto(backendId);
+		if (originalDto == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("role", backendId));
 		}
-		checkAccess(originalEntity, IdmBasePermission.READ);
 		//
-		Page<IdmAuditDto> results = this.auditService.findRevisionsForEntity(IdmRole.class.getSimpleName(), UUID.fromString(backendId), pageable);
-		return toResources(results, assembler, IdmRole.class, null);
+		Page<IdmAuditDto> results = this.auditService.findRevisionsForEntity(IdmRole.class.getSimpleName(), originalDto.getId(), pageable);
+		return toResources(results, IdmAuditDto.class);
 	}
 	
 	/**
@@ -410,15 +410,14 @@ public class IdmRoleController extends AbstractReadWriteEntityController<IdmRole
 			@ApiParam(value = "Code of form definition (default will be used if no code is given).", required = false, defaultValue = FormService.DEFAULT_DEFINITION_CODE)
 			@RequestParam(name = "definitionCode", required = false) String definitionCode,
 			PersistentEntityResourceAssembler assembler) {
-		IdmRole entity = getEntity(backendId);
-		if (entity == null) {
+		IdmRoleDto dto = getDto(backendId);
+		if (dto == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
-		checkAccess(entity, IdmBasePermission.READ);
 		//
 		IdmFormDefinition formDefinition = formDefinitionController.getDefinition(IdmRole.class, definitionCode);
 		//
-		return formDefinitionController.getFormValues(entity, formDefinition, assembler);
+		return formDefinitionController.getFormValues(roleRepository.findOne(dto.getId()), formDefinition, assembler);
 	}
 	
 	/**
@@ -449,15 +448,15 @@ public class IdmRoleController extends AbstractReadWriteEntityController<IdmRole
 			@RequestParam(name = "definitionCode", required = false) String definitionCode,
 			@RequestBody @Valid List<IdmRoleFormValue> formValues,
 			PersistentEntityResourceAssembler assembler) {		
-		IdmRole entity = getEntity(backendId);
-		if (entity == null) {
+		IdmRoleDto dto = getDto(backendId);
+		if (dto == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
-		checkAccess(entity, IdmBasePermission.UPDATE);
+		checkAccess(dto, IdmBasePermission.UPDATE);
 		//
 		IdmFormDefinition formDefinition = formDefinitionController.getDefinition(IdmRole.class, definitionCode);
 		//
-		return formDefinitionController.saveFormValues(entity, formDefinition, formValues, assembler);
+		return formDefinitionController.saveFormValues(roleRepository.findOne(dto.getId()), formDefinition, formValues, assembler);
 	}
 	
 	@ResponseBody
@@ -476,31 +475,12 @@ public class IdmRoleController extends AbstractReadWriteEntityController<IdmRole
 	public Set<GrantedAuthority> getAuthorities(
 			@ApiParam(value = "Role's uuid identifier or code.", required = true)
 			@PathVariable @NotNull String backendId) {
-		IdmRole entity = getEntity(backendId);
-		if (entity == null) {
+		IdmRoleDto dto = getDto(backendId);
+		if (dto == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
-		checkAccess(entity, IdmBasePermission.READ);
 		//
-		return authorizationPolicyService.getEnabledRoleAuthorities(securityService.getAuthentication().getCurrentIdentity().getId(), entity.getId());
-	}
-	
-	@Override
-	protected IdmRole validateEntity(IdmRole entity) {
-		// TODO: remove after dto refactoring or remove guarantees from role at all (create standalone endpoint).
-		entity.getGuarantees().forEach(guarantee -> {
-			if (guarantee.getGuarantee() != null && guarantee.getGuarantee().getId() != null) {
-				guarantee.setGuarantee((IdmIdentity) entityLookupService.lookupEntity(IdmIdentity.class, guarantee.getGuarantee().getId()));
-			}
-		});
-		// TODO: remove after dto refactoring or remove catalogue from role at all (create standalone endpoint).
-		entity.getRoleCatalogues().forEach(catalogue -> {
-			if (catalogue.getRoleCatalogue() != null && catalogue.getRoleCatalogue().getId() != null) {
-				catalogue.setRoleCatalogue((IdmRoleCatalogue) entityLookupService.lookupEntity(IdmRoleCatalogue.class, catalogue.getRoleCatalogue().getId()));
-			}
-		});
-		//
-		return super.validateEntity(entity);
+		return authorizationPolicyService.getEnabledRoleAuthorities(securityService.getAuthentication().getCurrentIdentity().getId(), dto.getId());
 	}
 	
 	@Override
@@ -508,8 +488,8 @@ public class IdmRoleController extends AbstractReadWriteEntityController<IdmRole
 		RoleFilter filter = new RoleFilter(parameters);
 		filter.setText(getParameterConverter().toString(parameters, "text"));
 		filter.setRoleType(getParameterConverter().toEnum(parameters, "roleType", RoleType.class));
-		filter.setRoleCatalogue(getParameterConverter().toEntity(parameters, "roleCatalogue", IdmRoleCatalogue.class));
-		filter.setGuarantee(getParameterConverter().toEntity(parameters, "guarantee", IdmIdentity.class));
+		filter.setRoleCatalogueId(getParameterConverter().toUuid(parameters, "roleCatalogue"));
+		filter.setGuaranteeId(getParameterConverter().toEntityUuid(parameters, "guarantee", IdmIdentity.class));
 		return filter;
 	}
 }

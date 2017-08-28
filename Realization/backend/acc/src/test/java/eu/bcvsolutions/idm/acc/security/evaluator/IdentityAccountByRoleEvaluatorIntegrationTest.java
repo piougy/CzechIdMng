@@ -17,13 +17,12 @@ import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
-import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
-import eu.bcvsolutions.idm.core.security.evaluator.role.SelfRoleRequestEvaluator;
 import eu.bcvsolutions.idm.core.security.service.LoginService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
@@ -64,8 +63,8 @@ public class IdentityAccountByRoleEvaluatorIntegrationTest extends AbstractInteg
 			accountIdentityOne.setAccount(accountOne.getId());
 			accountIdentityOne = identityAccountService.save(accountIdentityOne);
 			
-			IdmRole role = helper.createRole();
-			IdmRole defaultRole = roleService.getByCode(InitDemoData.DEFAULT_ROLE_NAME);
+			IdmRoleDto role = helper.createRole();
+			IdmRoleDto defaultRole = roleService.getByCode(InitDemoData.DEFAULT_ROLE_NAME);
 			
 			IdmAuthorizationPolicyDto policy = new IdmAuthorizationPolicyDto();
 			policy.setRole(role.getId());

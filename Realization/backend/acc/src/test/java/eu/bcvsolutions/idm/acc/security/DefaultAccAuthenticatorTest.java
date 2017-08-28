@@ -39,10 +39,11 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
-import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
+import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
@@ -93,6 +94,9 @@ public class DefaultAccAuthenticatorTest extends AbstractIntegrationTest {
 	private IdmRoleService roleService;
 	
 	@Autowired
+	private IdmRoleRepository roleRepository;
+	
+	@Autowired
 	private IdmIdentityRoleService identityRoleService;
 
 	@Autowired
@@ -131,7 +135,7 @@ public class DefaultAccAuthenticatorTest extends AbstractIntegrationTest {
 	public void A_loginAgainstSystem() {
 		initData();
 		IdmIdentityDto identity = identityService.getByUsername(USERNAME);
-		IdmRole role = roleService.getByName(ROLE_NAME);
+		IdmRoleDto role = roleService.getByCode(ROLE_NAME);
 		
 		IdmIdentityRoleDto irdto = new IdmIdentityRoleDto();
 		irdto.setIdentityContract(identityContractService.findAllByIdentity(identity.getId()).get(0).getId());
@@ -185,7 +189,7 @@ public class DefaultAccAuthenticatorTest extends AbstractIntegrationTest {
 		assertEquals(1, accountIds.size());
 		assertEquals(1, identityAccounts.size());
 		
-		IdmRole role2 = roleService.getByName(ROLE_NAME + "2");
+		IdmRoleDto role2 = roleService.getByCode(ROLE_NAME + "2");
 		
 		IdmIdentityRoleDto irdto = new IdmIdentityRoleDto();
 		irdto.setIdentityContract(identityContractService.findAllByIdentity(identity.getId()).get(0).getId());
@@ -334,23 +338,23 @@ public class DefaultAccAuthenticatorTest extends AbstractIntegrationTest {
 		});
 		
 		// create two roles with same system and different override username
-		IdmRole role1 = new IdmRole();
+		IdmRoleDto role1 = new IdmRoleDto();
 		role1.setName(ROLE_NAME);
-		roleService.save(role1);
+		role1 = roleService.save(role1);
 		SysRoleSystem role1System = new SysRoleSystem();
-		role1System.setRole(role1);
+		role1System.setRole(roleRepository.findOne(role1.getId()));
 		role1System.setSystem(system);
 		role1System.setSystemMapping(systemMapping);
 		roleSystemService.save(role1System);
 
 		
-		IdmRole role2 = new IdmRole();
+		IdmRoleDto role2 = new IdmRoleDto();
 		role2.setName(ROLE_NAME + "2");
-		roleService.save(role2);
+		role2 = roleService.save(role2);
 		SysRoleSystem roleSystem2 = new SysRoleSystem();
 		roleSystem2.setSystem(system);
 		roleSystem2.setSystemMapping(systemMapping);
-		roleSystem2.setRole(role2);
+		roleSystem2.setRole(roleRepository.findOne(role2.getId()));
 		roleSystemService.save(roleSystem2);
 		
 		SysRoleSystemAttribute overloadedRole2 = new SysRoleSystemAttribute();

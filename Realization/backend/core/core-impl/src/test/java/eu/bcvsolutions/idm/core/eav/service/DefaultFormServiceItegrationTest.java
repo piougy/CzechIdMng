@@ -31,6 +31,7 @@ import eu.bcvsolutions.idm.InitDemoData;
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.TestHelper;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
@@ -511,14 +512,14 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 	
 	@Test
 	public void findOwnerByCriteria() {
-		IdmRole owner = helper.createRole();
-		IdmRole ownerTwo = helper.createRole();
+		IdmRoleDto owner = helper.createRole();
+		IdmRoleDto ownerTwo = helper.createRole();
 		
-		IdmFormDefinition formDefinition = formService.getDefinition(owner.getClass());
+		IdmFormDefinition formDefinition = formService.getDefinition(IdmRole.class);
 		IdmFormAttribute attribute = formDefinition.getFormAttributes().get(0);
 		//
-		formService.saveValues(owner, attribute, Lists.newArrayList("test"));
-		formService.saveValues(ownerTwo, attribute, Lists.newArrayList("test2"));
+		formService.saveValues(owner.getId(), IdmRole.class, attribute, Lists.newArrayList("test"));
+		formService.saveValues(ownerTwo.getId(), IdmRole.class, attribute, Lists.newArrayList("test2"));
 		
 		Specification<IdmRole> criteria = new Specification<IdmRole>() {
 			public Predicate toPredicate(Root<IdmRole> root, CriteriaQuery<?> query, CriteriaBuilder builder) {

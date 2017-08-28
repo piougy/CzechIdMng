@@ -47,8 +47,6 @@ public class VsRequestDto extends AbstractDto {
 	private VsRequestState state;
 	@NotNull
 	private boolean executeImmediately;
-	@Embedded(dtoClass = VsRequestBatchDto.class)
-	private UUID batch;
 	private List<IdmIdentityDto> implementers;
 	@JsonIgnore
 	private IcConnectorConfiguration configuration;
@@ -105,14 +103,6 @@ public class VsRequestDto extends AbstractDto {
 
 	public void setExecuteImmediately(boolean executeImmediately) {
 		this.executeImmediately = executeImmediately;
-	}
-
-	public UUID getBatch() {
-		return batch;
-	}
-
-	public void setBatch(UUID batch) {
-		this.batch = batch;
 	}
 
 	public List<IdmIdentityDto> getImplementers() {

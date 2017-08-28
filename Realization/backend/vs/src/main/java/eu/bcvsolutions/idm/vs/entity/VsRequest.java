@@ -70,13 +70,6 @@ public class VsRequest extends AbstractEntity {
 	private VsOperationType operationType;
 
 	@ManyToOne
-	@JoinColumn(name = "request_batch_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in
-										// hibernate 4
-	@org.hibernate.annotations.ForeignKey(name = "none")
-	private VsRequestBatch batch;
-
-	@ManyToOne
 	@JoinColumn(name = "duplicate_to_request_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in
 										// hibernate 4
@@ -181,20 +174,6 @@ public class VsRequest extends AbstractEntity {
 	public void setPreviousRequest(VsRequest previousRequest) {
 		this.previousRequest = previousRequest;
 	}
-	
-	public VsRequestBatch getBatch() {
-		return batch;
-	}
-
-	public void setBatch(VsRequestBatch batch) {
-		if (Objects.equals(this.batch, batch)) {
-			return;
-		}
-
-		this.batch = batch;
-		batch.addRequest(this);
-	}
-
 
 	public String getConnectorKey() {
 		return connectorKey;

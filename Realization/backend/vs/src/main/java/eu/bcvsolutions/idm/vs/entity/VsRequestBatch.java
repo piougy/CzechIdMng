@@ -49,7 +49,6 @@ public class VsRequestBatch extends AbstractEntity {
 		}
 
 		requests.add(request);
-		request.setBatch(this);
 	}
 
 	public void removeRequest(VsRequest request) {

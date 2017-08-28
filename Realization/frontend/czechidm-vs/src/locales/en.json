@@ -1,0 +1,77 @@
+{
+  "module": {
+    "name": "Modul pro virtuální systémy",
+    "author": "BCV solutions s.r.o."
+  },
+  "entity": {
+    "VsRequest": {
+      "_type": "Požadavek na virtuálním systému",
+      "uid": {
+        "label": "UID"
+      },
+      "state": {
+        "label": "Stav"
+      },
+      "systemId": {
+        "label": "Systém"
+      }
+    }
+  },
+  "permission": {
+    "group": {
+      "VSREQUEST": "Požadavky na virtuální systémy"
+    }
+  },
+  "content": {
+    "dashboard": {
+      "vsDashboard": {
+        "header": "Virtuální systémy",
+        "title": "Uživatelská plocha pro virtuální systémy",
+        "text": "Uživatelská plocha pro virtuální systémy"
+      }
+    },
+    "virtuals": {
+      "header": "Virtuální systémy",
+      "label": "Virtuální systémy",
+      "title": "Virtuální systémy"
+    },
+    "vs-requests": {
+      "header": "Požadavky",
+      "label": "Požadavky",
+      "title": "Požadavky",
+      "info": "Správa požadavků na virtuálních systémech",
+      "filter": {
+        "text": {
+          "placeholder": "UID (identifikátor účtu)"
+        }
+      }
+    },
+    "vs-request": {
+      "detail" : {
+        "basic": "Základní informace",
+        "header": "Požadavek",
+        "title": "$t(vs:content.vs-request.detail.header)",
+        "edit": {
+          "title": "Detail požadavku",
+          "header": "{{name}} <small>detail požadavku</small>"
+        },
+        "realize": {
+          "success": "Požadavek [{{name}}] byl úspěšně zrealizován"
+        },
+        "cancel": {
+          "success": "Požadavek [{{name}}] byl úspěšně zrušen"
+        }
+      }
+    }
+  },
+  "error": {
+    "EXAMPLE_SERVER_ERROR": {
+      "title": "Ukázka chyby serveru",
+      "message": "Ukázka chyby serveru s parametrem [{{parameter}}]."
+    },
+    "EXAMPLE_CLIENT_ERROR": {
+      "title": "Ukázka chyby klienta",
+      "message": "Zadaná hodnota je chybná [{{parameter}}]."
+    }
+  }
+}

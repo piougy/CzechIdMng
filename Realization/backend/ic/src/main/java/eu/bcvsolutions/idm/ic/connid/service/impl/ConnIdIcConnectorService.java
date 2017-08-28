@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.transaction.NotSupportedException;
+
 import org.identityconnectors.framework.api.APIConfiguration;
 import org.identityconnectors.framework.api.ConnectorFacade;
 import org.identityconnectors.framework.api.ConnectorFacadeFactory;
@@ -31,6 +33,7 @@ import org.springframework.util.Assert;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
+import eu.bcvsolutions.idm.ic.api.IcConnector;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInstance;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
@@ -296,6 +299,12 @@ public class ConnIdIcConnectorService implements IcConnectorService {
 		// Make sure we have set up the Configuration properly
 		conn.validate();
 		return conn;
+	}
+
+	@Override
+	public IcConnector getConnectorInstance(IcConnectorInstance connectorInstance,
+			IcConnectorConfiguration connectorConfiguration) {
+		throw new IcException("Not supported yet!");
 	}
 
 }

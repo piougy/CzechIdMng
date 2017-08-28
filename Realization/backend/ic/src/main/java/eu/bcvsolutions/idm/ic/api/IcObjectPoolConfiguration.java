@@ -1,11 +1,13 @@
 package eu.bcvsolutions.idm.ic.api;
 
+import java.io.Serializable;
+
 /**
  * Keep pool configuration
  * @author svandav
  *
  */
-public interface IcObjectPoolConfiguration {
+public interface IcObjectPoolConfiguration extends Serializable {
 
 	/**
 	 * @return the maxObjects

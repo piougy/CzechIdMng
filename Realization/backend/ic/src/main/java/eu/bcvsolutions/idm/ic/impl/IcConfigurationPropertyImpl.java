@@ -24,6 +24,7 @@ public class IcConfigurationPropertyImpl implements IcConfigurationProperty {
 		}
 	}
 
+	private int order;
 	/**
      * The unique name of the configuration property.
      */
@@ -181,18 +182,11 @@ public class IcConfigurationPropertyImpl implements IcConfigurationProperty {
 		this.required = required;
 	}
 
-	
+	public int getOrder() {
+		return order;
+	}
 
-//    /**
-//     * Set of operations for which this property must be specified.
-//     *
-//     * This is used for the case where a connector may or may not implement
-//     * certain operations depending in the configuration. The default value of
-//     * "empty array" is special in that it means that this property is
-//     * applicable to all operations.
-//     */
-//    private Set<Class<? extends APIOperation>> getOperations();
-    
-    
-
+	public void setOrder(int order) {
+		this.order = order;
+	}
 }

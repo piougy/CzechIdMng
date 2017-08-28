@@ -4,6 +4,7 @@ import java.util.List;
 
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
+import eu.bcvsolutions.idm.ic.api.IcConnector;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInstance;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
@@ -102,6 +103,16 @@ public interface IcConnectorService {
 	 */
 	void search(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration, IcObjectClass objectClass,
 			IcFilter filter, IcResultsHandler handler);
+
+	
+	/**
+	 * Get connector instance (cached)
+	 * @param connectorInstance
+	 * @param connectorConfiguration
+	 * @return
+	 */
+	IcConnector getConnectorInstance(IcConnectorInstance connectorInstance,
+			IcConnectorConfiguration connectorConfiguration);
 
 
 }

@@ -195,8 +195,6 @@ function select(state, component) {
   if (!component.entity) {
     return {};
   }
-console.log("dddddddsss", component.entity.id);
-  console.log("ddddddd",  manager.getPermissions(state, null, component.entity.id));
   return {
     _permissions: manager.getPermissions(state, null, component.entity.id)
   };

@@ -19,7 +19,7 @@ import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
  *
  */
 
-@Relation(collectionRelation = "schemaObjectClasses")
+@Relation(collectionRelation = "roleSystemAttributes")
 public class SysRoleSystemAttributeDto extends AbstractDto implements AttributeMapping {
 
 	private static final long serialVersionUID = -3340543770861555491L;

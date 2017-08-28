@@ -66,6 +66,10 @@ class SystemMappingDetail extends Advanced.AbstractTableContent {
    */
   _initComponent(props) {
     const { entityId, mappingId } = props.params;
+
+    // fetch system
+    this.context.store.dispatch(systemManager.fetchEntity(entityId));
+
     if (this._getIsNew(props)) {
       this.setState({
         mapping: {
@@ -92,9 +96,6 @@ class SystemMappingDetail extends Advanced.AbstractTableContent {
     }
 
     const formEntity = this.refs.form.getData();
-    formEntity.system = systemManager.getSelfLink(formEntity.system);
-    formEntity.objectClass = schemaObjectClassManager.getSelfLink(formEntity.objectClass);
-    formEntity.treeType = treeTypeManager.getSelfLink(formEntity.treeType);
     if (formEntity.id === undefined) {
       this.context.store.dispatch(systemMappingManager.createEntity(formEntity, `${uiKey}-detail`, (createdEntity, error) => {
         this.afterSave(createdEntity, error);
@@ -103,7 +104,7 @@ class SystemMappingDetail extends Advanced.AbstractTableContent {
         }
       }));
     } else {
-      this.context.store.dispatch(systemMappingManager.patchEntity(formEntity, `${uiKey}-detail`, this.afterSave.bind(this)));
+      this.context.store.dispatch(systemMappingManager.updateEntity(formEntity, `${uiKey}-detail`, this.afterSave.bind(this)));
     }
   }
 
@@ -336,9 +337,12 @@ SystemMappingDetail.defaultProps = {
 };
 
 function select(state, component) {
-  const entity = Utils.Entity.getEntity(state, systemMappingManager.getEntityType(), component.params.mappingId);
+  const { mappingId, entityId } = component.params;
+  const entity = Utils.Entity.getEntity(state, systemMappingManager.getEntityType(), mappingId);
+  const system = systemManager.getEntity(state, entityId);
+
   if (entity && entity._embedded && entity._embedded.objectClass) {
-    entity.system = entity._embedded.objectClass.system;
+    entity.system = system;
     entity.objectClass = entity._embedded.objectClass;
     entity.treeType = entity._embedded.treeType;
   }

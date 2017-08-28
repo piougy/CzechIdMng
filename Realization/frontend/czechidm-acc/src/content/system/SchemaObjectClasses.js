@@ -44,7 +44,6 @@ class SchemaObjectClasses extends Advanced.AbstractTableContent {
 
   save(entity, event) {
     const formEntity = this.refs.form.getData();
-    formEntity.system = systemManager.getSelfLink(formEntity.system);
     //
     super.save(formEntity, event);
   }

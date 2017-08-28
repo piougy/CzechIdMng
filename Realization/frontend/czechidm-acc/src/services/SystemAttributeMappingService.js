@@ -6,6 +6,11 @@ export default class SystemAttributeMappingService extends Services.AbstractServ
     super();
   }
 
+  // dto
+  supportsPatch() {
+    return false;
+  }
+
   getNiceLabel(entity) {
     if (!entity) {
       return '';

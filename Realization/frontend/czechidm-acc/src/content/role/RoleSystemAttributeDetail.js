@@ -68,8 +68,6 @@ class RoleSystemAttributeDetail extends Advanced.AbstractTableContent {
 
   save(event) {
     const formEntity = this.refs.form.getData();
-    formEntity.roleSystem = roleSystemManager.getSelfLink(formEntity.roleSystem);
-    formEntity.systemAttributeMapping = systemAttributeMappingManager.getSelfLink(formEntity.systemAttributeMapping);
     //
     super.save(formEntity, event);
   }
@@ -314,7 +312,7 @@ function select(state, component) {
     entity.roleSystem = entity._embedded && entity._embedded.roleSystem ? entity._embedded.roleSystem : null;
     entity.systemAttributeMapping = entity._embedded && entity._embedded.systemAttributeMapping ? entity._embedded.systemAttributeMapping : null;
     entity.idmPropertyEnum = SystemEntityTypeEnum.getEntityEnum('IDENTITY').getEnum(entity.idmPropertyName);
-    systemMappingId = entity._embedded && entity._embedded.roleSystem ? entity._embedded.roleSystem.systemMapping.id : null;
+    systemMappingId = entity._embedded && entity._embedded.roleSystem ? entity._embedded.roleSystem.systemMapping : null;
   }
   return {
     _attribute: entity,

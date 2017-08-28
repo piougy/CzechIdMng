@@ -2,7 +2,9 @@ package eu.bcvsolutions.idm.acc.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
@@ -12,12 +14,14 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
+import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.RoleSystemAttributeFilter;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute;
+import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute_;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.repository.SysRoleSystemAttributeRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountManagementService;
@@ -27,6 +31,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
+import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
@@ -64,12 +69,31 @@ public class DefaultSysRoleSystemAttributeService
 	private SysSystemAttributeMappingService systemAttributeMappingService; 
 	@Autowired
 	private SysSystemMappingService systemMappingService;
-
+	@Autowired
+	private ModelMapper modelMapper;
+	
 	@Autowired
 	public DefaultSysRoleSystemAttributeService(SysRoleSystemAttributeRepository repository) {
 		super(repository);
 	}
-
+	
+	@Override
+	protected SysRoleSystemAttributeDto toDto(SysRoleSystemAttribute entity, SysRoleSystemAttributeDto dto) {
+		// TODO after transform roleSystem to DTO remove this overridden method
+		// dont forget add @Embedded annotation to SysRoleSystemAttributeDto
+		SysRoleSystemAttributeDto newDto = super.toDto(entity, dto);
+		if (newDto == null) {
+			return null;
+		}
+		Map<String, BaseDto> embedded = newDto.getEmbedded();
+		//
+		// get and transform roleSystem to DTO.
+		SysRoleSystemDto roleSystemDto = modelMapper.map(roleSystemService.get(newDto.getRoleSystem()), SysRoleSystemDto.class);
+		embedded.put(SysRoleSystemAttribute_.roleSystem.getName(), roleSystemDto);
+		newDto.setEmbedded(embedded);
+		return newDto;
+	}
+	
 	@Override
 	public SysRoleSystemAttributeDto save(SysRoleSystemAttributeDto dto, BasePermission... permission) {
 		// Check if exist some else attribute which is defined like unique identifier

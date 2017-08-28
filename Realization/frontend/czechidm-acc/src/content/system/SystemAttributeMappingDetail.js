@@ -86,8 +86,6 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
 
   save(event) {
     const formEntity = this.refs.form.getData();
-    formEntity.systemMapping = systemMappingManager.getSelfLink(formEntity.systemMapping);
-    formEntity.schemaAttribute = schemaAttributeManager.getSelfLink(formEntity.schemaAttribute);
     //
     super.save(formEntity, event);
   }
@@ -334,7 +332,7 @@ function select(state, component) {
     const schemaAttribute = entity._embedded && entity._embedded.schemaAttribute ? entity._embedded.schemaAttribute : null;
     entity.systemMapping = systemMapping;
     entity.schemaAttribute = schemaAttribute;
-    entity.objectClassId = systemMapping ? systemMapping.objectClass.id : Domain.SearchParameters.BLANK_UUID;
+    entity.objectClassId = schemaAttribute ? schemaAttribute.objectClass : Domain.SearchParameters.BLANK_UUID;
     entity.idmPropertyEnum = SystemEntityTypeEnum.getEntityEnum(systemMapping ? systemMapping.entityType : 'IDENTITY').getEnum(entity.idmPropertyName);
   }
   return {

@@ -16,6 +16,7 @@ import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.ImmutableList;
 
@@ -27,7 +28,7 @@ import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
-import eu.bcvsolutions.idm.acc.dto.MappingAttributeDto;
+import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
@@ -38,17 +39,18 @@ import eu.bcvsolutions.idm.acc.dto.filter.SchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
-import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute;
-import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
-import eu.bcvsolutions.idm.acc.repository.SysSystemAttributeMappingRepository;
+import eu.bcvsolutions.idm.acc.repository.SysSystemMappingRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
+import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
+import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
+import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
@@ -73,6 +75,7 @@ import eu.bcvsolutions.idm.core.model.repository.IdmPasswordPolicyRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordPolicyService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeTypeService;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
@@ -155,7 +158,29 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 	private SysSystemEntityService systemEntityService;
 
 	@Autowired
-	private SysSystemAttributeMappingRepository attributeMappingRepository;
+	private SysRoleSystemService roleSystemService;
+	
+	@Autowired
+	private SysRoleSystemAttributeService roleSystemAttributeService;
+	
+	@Autowired
+	private SysSystemService systemService;
+	
+	@Autowired
+	private SysSystemMappingService systemMappingService;
+	
+	@Autowired
+	private SysSystemMappingRepository systemMappingRepository;
+	
+	@Autowired
+	private SysSchemaObjectClassService schemaObjectClassService;
+	
+	@Autowired
+	private IdmRoleService roleService;
+	
+	private List<SysSchemaObjectClassDto> objectClasses = null;
+	private SysSystem system = null;
+	private SysSystemMappingDto systemMapping = null;
 	
 	@Before
 	public void init() {
@@ -743,11 +768,12 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 	}
 
 	@Test
+	@Transactional
 	public void compileAttributesDefaultTest() {
 		List<AttributeMapping> defaultAttributes = new ArrayList<>();
-		List<SysRoleSystemAttribute> overloadingAttributes = new ArrayList<>();
+		List<SysRoleSystemAttributeDto> overloadingAttributes = new ArrayList<>();
 
-		AttributeMapping defOne = new MappingAttributeDto();
+		AttributeMapping defOne = new SysRoleSystemAttributeDto();
 		defOne.setEntityAttribute(true);
 		defOne.setStrategyType(AttributeMappingStrategyType.SET);
 		defOne.setIdmPropertyName("one");
@@ -755,7 +781,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		defOne.setDisabledAttribute(true);
 		defaultAttributes.add(defOne);
 
-		AttributeMapping defTwo = new MappingAttributeDto();
+		AttributeMapping defTwo = new SysRoleSystemAttributeDto();
 		defTwo.setEntityAttribute(true);
 		defTwo.setStrategyType(AttributeMappingStrategyType.SET);
 		defTwo.setIdmPropertyName("two");
@@ -769,21 +795,34 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 	}
 
 	@Test
+	@Transactional
 	public void compileAttributesOverrloadedDisabledTest() {
 		List<AttributeMapping> defaultAttributes = new ArrayList<>();
-		List<SysRoleSystemAttribute> overloadingAttributes = new ArrayList<>();
+		List<SysRoleSystemAttributeDto> overloadingAttributes = new ArrayList<>();
 
-		SysSchemaAttribute attOne = new SysSchemaAttribute();
+		initDataSystem();
+		
+		SysSchemaAttributeDto attOne = new SysSchemaAttributeDto();
 		attOne.setName("attOne");
-		SysSchemaAttribute attTwo = new SysSchemaAttribute();
+		attOne.setObjectClass(objectClasses.get(0).getId());
+		attOne.setClassType(String.class.getName());
+		attOne = schemaAttributeService.save(attOne);
+		
+		SysSchemaAttributeDto attTwo = new SysSchemaAttributeDto();
 		attTwo.setName("attTwo");
+		attTwo.setObjectClass(objectClasses.get(0).getId());
+		attTwo.setClassType(String.class.getName());
+		attTwo = schemaAttributeService.save(attTwo);
 
+		
 		SysSystemAttributeMappingDto defOne = new SysSystemAttributeMappingDto();
 		defOne.setEntityAttribute(true);
 		defOne.setIdmPropertyName("one");
 		defOne.setName("defOne");
 		defOne.setDisabledAttribute(true);
 		defOne.setSchemaAttribute(attOne.getId());
+		defOne.setSystemMapping(systemMapping.getId());
+		defOne = systemAttributeMappingService.save(defOne);
 		defaultAttributes.add(defOne);
 
 		SysSystemAttributeMappingDto defTwo = new SysSystemAttributeMappingDto();
@@ -791,22 +830,28 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		defTwo.setIdmPropertyName("two");
 		defTwo.setName("defTwo");
 		defTwo.setSchemaAttribute(attTwo.getId());
+		defTwo.setSystemMapping(systemMapping.getId());
+		defTwo = systemAttributeMappingService.save(defTwo);
 		defaultAttributes.add(defTwo);
 
 		IdmRole roleOne = new IdmRole();
 		roleOne.setName("roleOne");
 		roleOne.setPriority(100);
+		roleOne = roleService.save(roleOne);
 
 		SysRoleSystem roleSystem = new SysRoleSystem();
 		roleSystem.setRole(roleOne);
+		roleSystem.setSystem(system);
+		roleSystem = roleSystemService.save(roleSystem);
 
-		SysRoleSystemAttribute overloadedOne = new SysRoleSystemAttribute();
-		overloadedOne.setSystemAttributeMapping(attributeMappingRepository.findOne(defOne.getId()));
+		SysRoleSystemAttributeDto overloadedOne = new SysRoleSystemAttributeDto();
+		overloadedOne.setSystemAttributeMapping(defOne.getId());
 		overloadedOne.setEntityAttribute(true);
 		overloadedOne.setIdmPropertyName("one");
 		overloadedOne.setName("defOneOverloaded");
 		overloadedOne.setDisabledDefaultAttribute(false);
-		overloadedOne.setRoleSystem(roleSystem);
+		overloadedOne.setRoleSystem(roleSystem.getId()); 
+		overloadedOne = roleSystemAttributeService.save(overloadedOne);
 		overloadingAttributes.add(overloadedOne);
 
 		List<AttributeMapping> compilledAttributes = provisioningService.compileAttributes(defaultAttributes,
@@ -818,10 +863,13 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 	}
 
 	@Test
+	@Transactional
 	public void compileAttributesOverrloadedSamePriorityTest() {
-		List<SysRoleSystemAttribute> overloadingAttributes = new ArrayList<>();
+		List<SysRoleSystemAttributeDto> overloadingAttributes = new ArrayList<>();
 		List<AttributeMapping> defaultAttributes = new ArrayList<>();
 
+		initDataSystem();
+		
 		initOverloadedAttributes(overloadingAttributes, defaultAttributes);
 
 		List<AttributeMapping> compilledAttributes = provisioningService.compileAttributes(defaultAttributes,
@@ -832,7 +880,9 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		}).findFirst().isPresent());
 
 		// set name role One to zroleOne
-		overloadingAttributes.get(0).getRoleSystem().getRole().setName("zroleOne");
+		SysRoleSystem roleSystem = roleSystemService.get(overloadingAttributes.get(0).getRoleSystem());
+		roleSystem.getRole().setName("zroleOne");
+		roleSystem = roleSystemService.save(roleSystem);
 
 		compilledAttributes = provisioningService.compileAttributes(defaultAttributes, overloadingAttributes, SystemEntityType.IDENTITY);
 		Assert.assertEquals(2, compilledAttributes.size());
@@ -843,24 +893,34 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		// We set role mapping attribute to disabled, then must have higher
 		// "priority", then role mapping one
 		// and must missing in result
-		overloadingAttributes.get(1).setDisabledDefaultAttribute(true);
+		SysRoleSystemAttributeDto attribute = overloadingAttributes.get(1);
+		attribute.setDisabledDefaultAttribute(true);
+		attribute = roleSystemAttributeService.save(attribute);
+		overloadingAttributes.set(1, attribute);
 
 		compilledAttributes = provisioningService.compileAttributes(defaultAttributes, overloadingAttributes, SystemEntityType.IDENTITY);
 		Assert.assertEquals(1, compilledAttributes.size());
 	}
 
 	@Test
+	@Transactional
 	public void compileAttributesOverrloadedDiffPriorityTest() {
-		List<SysRoleSystemAttribute> overloadingAttributes = new ArrayList<>();
+		List<SysRoleSystemAttributeDto> overloadingAttributes = new ArrayList<>();
 		List<AttributeMapping> defaultAttributes = new ArrayList<>();
 
+		initDataSystem();
 		initOverloadedAttributes(overloadingAttributes, defaultAttributes);
 
 		// roleOne
-		overloadingAttributes.get(0).getRoleSystem().getRole().setPriority(200);
+		SysRoleSystem roleSystem1 = roleSystemService.get(overloadingAttributes.get(0).getRoleSystem());
+		roleSystem1.getRole().setPriority(200);
+		roleSystem1 = roleSystemService.save(roleSystem1);
+		
 		// roleTwo
-		overloadingAttributes.get(1).getRoleSystem().getRole().setPriority(100);
-
+		SysRoleSystem roleSystem2 = roleSystemService.get(overloadingAttributes.get(1).getRoleSystem());
+		roleSystem2.getRole().setPriority(100);
+		roleSystem2 = roleSystemService.save(roleSystem2);
+		
 		List<AttributeMapping> compilledAttributes = provisioningService.compileAttributes(defaultAttributes,
 				overloadingAttributes, SystemEntityType.IDENTITY);
 		Assert.assertEquals(2, compilledAttributes.size());
@@ -870,21 +930,35 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 	}
 
 	@Test
+	@Transactional
 	public void compileAttributesOverrloadedStrategyMergeTest() {
-		List<SysRoleSystemAttribute> overloadingAttributes = new ArrayList<>();
+		List<SysRoleSystemAttributeDto> overloadingAttributes = new ArrayList<>();
 		List<AttributeMapping> defaultAttributes = new ArrayList<>();
 
+		initDataSystem();
+		
 		initOverloadedAttributes(overloadingAttributes, defaultAttributes);
 
 		// roleOne
-		overloadingAttributes.get(0).getRoleSystem().getRole().setPriority(200);
+		SysRoleSystem roleSystem1 = roleSystemService.get(overloadingAttributes.get(0).getRoleSystem());
+		roleSystem1.getRole().setPriority(200);
+		roleSystem1 = roleSystemService.save(roleSystem1);
 		// roleTwo
-		overloadingAttributes.get(1).getRoleSystem().getRole().setPriority(100);
+		SysRoleSystem roleSystem2 = roleSystemService.get(overloadingAttributes.get(1).getRoleSystem());
+		roleSystem2.getRole().setPriority(100);
+		roleSystem2 = roleSystemService.save(roleSystem2);
 
 		// overloadedRoleOne
-		overloadingAttributes.get(0).setStrategyType(AttributeMappingStrategyType.MERGE);
+		SysRoleSystemAttributeDto attribute1 = overloadingAttributes.get(0);
+		attribute1.setStrategyType(AttributeMappingStrategyType.MERGE);
+		attribute1 = roleSystemAttributeService.save(attribute1);
+		overloadingAttributes.set(0, attribute1);
+		
 		// overloadedRoleTwo
-		overloadingAttributes.get(1).setStrategyType(AttributeMappingStrategyType.MERGE);
+		SysRoleSystemAttributeDto attribute2 = overloadingAttributes.get(1);
+		attribute2.setStrategyType(AttributeMappingStrategyType.MERGE);
+		attribute2 = roleSystemAttributeService.save(attribute2);
+		overloadingAttributes.set(1, attribute2);
 
 		List<AttributeMapping> compilledAttributes = provisioningService.compileAttributes(defaultAttributes,
 				overloadingAttributes, SystemEntityType.IDENTITY);
@@ -895,21 +969,34 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 	}
 
 	@Test
+	@Transactional
 	public void compileAttributesOverrloadedStrategyMergeAuthoTest() {
-		List<SysRoleSystemAttribute> overloadingAttributes = new ArrayList<>();
+		List<SysRoleSystemAttributeDto> overloadingAttributes = new ArrayList<>();
 		List<AttributeMapping> defaultAttributes = new ArrayList<>();
 
+		initDataSystem();
+		
 		initOverloadedAttributes(overloadingAttributes, defaultAttributes);
 
 		// roleOne
-		overloadingAttributes.get(0).getRoleSystem().getRole().setPriority(200);
+		SysRoleSystem roleSystem1 = roleSystemService.get(overloadingAttributes.get(0).getRoleSystem());
+		roleSystem1.getRole().setPriority(200);
+		roleSystem1 = roleSystemService.save(roleSystem1);
 		// roleTwo
-		overloadingAttributes.get(1).getRoleSystem().getRole().setPriority(100);
+		SysRoleSystem roleSystem2 = roleSystemService.get(overloadingAttributes.get(1).getRoleSystem());
+		roleSystem2.getRole().setPriority(100);
+		roleSystem2 = roleSystemService.save(roleSystem2);
 
 		// overloadedRoleOne
-		overloadingAttributes.get(0).setStrategyType(AttributeMappingStrategyType.AUTHORITATIVE_MERGE);
+		SysRoleSystemAttributeDto attribute1 = overloadingAttributes.get(0);
+		attribute1.setStrategyType(AttributeMappingStrategyType.AUTHORITATIVE_MERGE);
+		attribute1 = roleSystemAttributeService.save(attribute1);
+		overloadingAttributes.set(0, attribute1);
 		// overloadedRoleTwo
-		overloadingAttributes.get(1).setStrategyType(AttributeMappingStrategyType.AUTHORITATIVE_MERGE);
+		SysRoleSystemAttributeDto attribute2 = overloadingAttributes.get(1);
+		attribute2.setStrategyType(AttributeMappingStrategyType.AUTHORITATIVE_MERGE);
+		attribute2 = roleSystemAttributeService.save(attribute2);
+		overloadingAttributes.set(1, attribute2);
 
 		List<AttributeMapping> compilledAttributes = provisioningService.compileAttributes(defaultAttributes,
 				overloadingAttributes, SystemEntityType.IDENTITY);
@@ -920,22 +1007,35 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 	}
 
 	@Test
+	@Transactional
 	public void compileAttributesOverrloadedStrategyMergeAuthoDisableTest() {
-		List<SysRoleSystemAttribute> overloadingAttributes = new ArrayList<>();
+		List<SysRoleSystemAttributeDto> overloadingAttributes = new ArrayList<>();
 		List<AttributeMapping> defaultAttributes = new ArrayList<>();
 
+		initDataSystem();
+		
 		initOverloadedAttributes(overloadingAttributes, defaultAttributes);
 
 		// roleOne
-		overloadingAttributes.get(0).getRoleSystem().getRole().setPriority(200);
+		SysRoleSystem roleSystem1 = roleSystemService.get(overloadingAttributes.get(0).getRoleSystem());
+		roleSystem1.getRole().setPriority(200);
+		roleSystem1 = roleSystemService.save(roleSystem1);
 		// roleTwo
-		overloadingAttributes.get(1).getRoleSystem().getRole().setPriority(500);
+		SysRoleSystem roleSystem2 = roleSystemService.get(overloadingAttributes.get(1).getRoleSystem());
+		roleSystem2.getRole().setPriority(500);
+		roleSystem2 = roleSystemService.save(roleSystem2);
 
 		// overloadedRoleOne
-		overloadingAttributes.get(0).setStrategyType(AttributeMappingStrategyType.AUTHORITATIVE_MERGE);
+		SysRoleSystemAttributeDto attribute1 = overloadingAttributes.get(0);
+		attribute1.setStrategyType(AttributeMappingStrategyType.AUTHORITATIVE_MERGE);
+		attribute1 = roleSystemAttributeService.save(attribute1);
+		overloadingAttributes.set(0, attribute1);
 		// overloadedRoleTwo
-		overloadingAttributes.get(1).setStrategyType(AttributeMappingStrategyType.AUTHORITATIVE_MERGE);
-		overloadingAttributes.get(1).setDisabledDefaultAttribute(true);
+		SysRoleSystemAttributeDto attribute2 = overloadingAttributes.get(1);
+		attribute2.setStrategyType(AttributeMappingStrategyType.AUTHORITATIVE_MERGE);
+		attribute2.setDisabledDefaultAttribute(true);
+		attribute2 = roleSystemAttributeService.save(attribute2);
+		overloadingAttributes.set(1, attribute2);
 
 		List<AttributeMapping> compilledAttributes = provisioningService.compileAttributes(defaultAttributes,
 				overloadingAttributes, SystemEntityType.IDENTITY);
@@ -946,42 +1046,69 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 	}
 
 	@Test(expected = ProvisioningException.class)
+	@Transactional
 	public void compileAttributesOverrloadedConflictStrategies() {
-		List<SysRoleSystemAttribute> overloadingAttributes = new ArrayList<>();
+		List<SysRoleSystemAttributeDto> overloadingAttributes = new ArrayList<>();
 		List<AttributeMapping> defaultAttributes = new ArrayList<>();
 
+		initDataSystem();
 		initOverloadedAttributes(overloadingAttributes, defaultAttributes);
 
 		// roleOne
-		overloadingAttributes.get(0).getRoleSystem().getRole().setPriority(200);
+		SysRoleSystem roleSystem1 = roleSystemService.get(overloadingAttributes.get(0).getRoleSystem());
+		roleSystem1.getRole().setPriority(200);
+		roleSystemService.save(roleSystem1);
+		
 		// roleTwo
-		overloadingAttributes.get(1).getRoleSystem().getRole().setPriority(500);
-
+		SysRoleSystem roleSystem2 = roleSystemService.get(overloadingAttributes.get(1).getRoleSystem());
+		roleSystem2.getRole().setPriority(500);
+		roleSystemService.save(roleSystem2);
+		
 		// overloadedRoleOne
-		overloadingAttributes.get(0).setStrategyType(AttributeMappingStrategyType.SET);
+		SysRoleSystemAttributeDto roleSystemAttribute1 = overloadingAttributes.get(0);
+		roleSystemAttribute1.setStrategyType(AttributeMappingStrategyType.SET);
+		roleSystemAttribute1 = roleSystemAttributeService.save(roleSystemAttribute1);
+		overloadingAttributes.set(0, roleSystemAttribute1);
+		
 		// overloadedRoleTwo
-		overloadingAttributes.get(1).setStrategyType(AttributeMappingStrategyType.AUTHORITATIVE_MERGE);
+		SysRoleSystemAttributeDto roleSystemAttribute2 = overloadingAttributes.get(1);
+		roleSystemAttribute2.setStrategyType(AttributeMappingStrategyType.AUTHORITATIVE_MERGE);
+		roleSystemAttribute2 = roleSystemAttributeService.save(roleSystemAttribute2);
+		overloadingAttributes.set(1, roleSystemAttribute2);
 
 		provisioningService.compileAttributes(defaultAttributes, overloadingAttributes, SystemEntityType.IDENTITY);
 	}
 
 	@Test
+	@Transactional
 	public void compileAttributesOverrloadedStrategyCreateTest() {
-		List<SysRoleSystemAttribute> overloadingAttributes = new ArrayList<>();
+		List<SysRoleSystemAttributeDto> overloadingAttributes = new ArrayList<>();
 		List<AttributeMapping> defaultAttributes = new ArrayList<>();
 
+		initDataSystem();
+		
 		initOverloadedAttributes(overloadingAttributes, defaultAttributes);
 
 		// roleOne
-		overloadingAttributes.get(0).getRoleSystem().getRole().setPriority(200);
+		SysRoleSystem roleSystem1 = roleSystemService.get(overloadingAttributes.get(0).getRoleSystem());
+		roleSystem1.getRole().setPriority(200);
+		roleSystem1 = roleSystemService.save(roleSystem1);
 		// roleTwo
-		overloadingAttributes.get(1).getRoleSystem().getRole().setPriority(500);
-
+		SysRoleSystem roleSystem2 = roleSystemService.get(overloadingAttributes.get(1).getRoleSystem());
+		roleSystem2.getRole().setPriority(500);
+		roleSystem2 = roleSystemService.save(roleSystem2);
+		
 		// overloadedRoleOne
-		overloadingAttributes.get(0).setStrategyType(AttributeMappingStrategyType.CREATE);
+		SysRoleSystemAttributeDto attribute1 = overloadingAttributes.get(0);
+		attribute1.setStrategyType(AttributeMappingStrategyType.CREATE);
+		attribute1 = roleSystemAttributeService.save(attribute1);
+		overloadingAttributes.set(0, attribute1);
 		// overloadedRoleTwo
-		overloadingAttributes.get(1).setStrategyType(AttributeMappingStrategyType.CREATE);
-
+		SysRoleSystemAttributeDto attribute2 = overloadingAttributes.get(1);
+		attribute2.setStrategyType(AttributeMappingStrategyType.CREATE);
+		attribute2 = roleSystemAttributeService.save(attribute2);
+		overloadingAttributes.set(1, attribute2);
+		
 		List<AttributeMapping> compilledAttributes = provisioningService.compileAttributes(defaultAttributes,
 				overloadingAttributes, SystemEntityType.IDENTITY);
 		Assert.assertEquals(2, compilledAttributes.size());
@@ -989,20 +1116,46 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 			return "defOneOverloadedRoleTwo".equals(attribute.getName());
 		}).findFirst().isPresent());
 	}
+	
+	private void initDataSystem() {
 
-	private void initOverloadedAttributes(List<SysRoleSystemAttribute> overloadingAttributes,
+		// create test system
+		system = helper.createSystem("test_resource");
+
+		// generate schema for system
+		objectClasses = systemService.generateSchema(system);
+		
+		// Create mapped attributes to schema
+		systemMapping = new SysSystemMappingDto();
+		systemMapping.setName("default_" + System.currentTimeMillis());
+		systemMapping.setEntityType(SystemEntityType.IDENTITY);
+		systemMapping.setOperationType(SystemOperationType.PROVISIONING);
+		systemMapping.setObjectClass(objectClasses.get(0).getId());
+		systemMapping = systemMappingService.save(systemMapping);
+	}
+
+	private void initOverloadedAttributes(List<SysRoleSystemAttributeDto> overloadingAttributes,
 			List<AttributeMapping> defaultAttributes) {
-		SysSchemaAttribute attOne = new SysSchemaAttribute();
+		
+		SysSchemaAttributeDto attOne = new SysSchemaAttributeDto();
 		attOne.setName("attOne");
-		SysSchemaAttribute attTwo = new SysSchemaAttribute();
+		attOne.setObjectClass(objectClasses.get(0).getId());
+		attOne.setClassType(String.class.getName());
+		attOne = schemaAttributeService.save(attOne);
+		
+		SysSchemaAttributeDto attTwo = new SysSchemaAttributeDto();
 		attTwo.setName("attTwo");
-
+		attTwo.setObjectClass(objectClasses.get(0).getId());
+		attTwo.setClassType(String.class.getName());
+		attTwo = schemaAttributeService.save(attTwo);
+		
 		SysSystemAttributeMappingDto defOne = new SysSystemAttributeMappingDto();
 		defOne.setEntityAttribute(true);
 		defOne.setIdmPropertyName("one");
 		defOne.setName("defOne");
 		defOne.setDisabledAttribute(true);
 		defOne.setSchemaAttribute(attOne.getId());
+		defOne.setSystemMapping(systemMapping.getId());
 		defOne = systemAttributeMappingService.save(defOne);
 		defaultAttributes.add(defOne);
 
@@ -1011,39 +1164,50 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		defTwo.setIdmPropertyName("two");
 		defTwo.setName("defTwo");
 		defTwo.setSchemaAttribute(attTwo.getId());
+		defTwo.setSystemMapping(systemMapping.getId());
 		defTwo = systemAttributeMappingService.save(defTwo);
 		defaultAttributes.add(defTwo);
 
 		IdmRole roleTwo = new IdmRole();
 		roleTwo.setName("roleTwo");
 		roleTwo.setPriority(100);
+		roleService.save(roleTwo);
 
 		IdmRole roleOne = new IdmRole();
 		roleOne.setName("roleOne");
 		roleOne.setPriority(100);
-
+		roleService.save(roleOne);
+		
 		SysRoleSystem roleSystemTwo = new SysRoleSystem();
 		roleSystemTwo.setRole(roleTwo);
+		roleSystemTwo.setSystem(system);
+		roleSystemTwo.setSystemMapping(systemMappingRepository.findOne(systemMapping.getId()));
+		roleSystemService.save(roleSystemTwo);
 
 		SysRoleSystem roleSystemOne = new SysRoleSystem();
 		roleSystemOne.setRole(roleOne);
+		roleSystemOne.setSystem(system);
+		roleSystemOne.setSystemMapping(systemMappingRepository.findOne(systemMapping.getId()));
+		roleSystemService.save(roleSystemOne);
 
-		SysRoleSystemAttribute overloadedRoleOne = new SysRoleSystemAttribute();
-		overloadedRoleOne.setSystemAttributeMapping(attributeMappingRepository.findOne(defOne.getId()));
+		SysRoleSystemAttributeDto overloadedRoleOne = new SysRoleSystemAttributeDto();
+		overloadedRoleOne.setSystemAttributeMapping(defOne.getId());
 		overloadedRoleOne.setEntityAttribute(true);
 		overloadedRoleOne.setIdmPropertyName("one");
 		overloadedRoleOne.setName("defOneOverloaded");
 		overloadedRoleOne.setDisabledDefaultAttribute(false);
-		overloadedRoleOne.setRoleSystem(roleSystemOne);
+		overloadedRoleOne.setRoleSystem(roleSystemOne.getId());
+		overloadedRoleOne = roleSystemAttributeService.save(overloadedRoleOne);
 		overloadingAttributes.add(overloadedRoleOne);
 
-		SysRoleSystemAttribute overloadedRoleTwo = new SysRoleSystemAttribute();
-		overloadedRoleTwo.setSystemAttributeMapping(attributeMappingRepository.findOne(defOne.getId()));
+		SysRoleSystemAttributeDto overloadedRoleTwo = new SysRoleSystemAttributeDto();
+		overloadedRoleTwo.setSystemAttributeMapping(defOne.getId());
 		overloadedRoleTwo.setEntityAttribute(true);
 		overloadedRoleTwo.setIdmPropertyName("one");
 		overloadedRoleTwo.setName("defOneOverloadedRoleTwo");
 		overloadedRoleTwo.setDisabledDefaultAttribute(false);
-		overloadedRoleTwo.setRoleSystem(roleSystemTwo);
+		overloadedRoleTwo.setRoleSystem(roleSystemTwo.getId());
+		overloadedRoleTwo = roleSystemAttributeService.save(overloadedRoleTwo);
 		overloadingAttributes.add(overloadedRoleTwo);
 
 	}

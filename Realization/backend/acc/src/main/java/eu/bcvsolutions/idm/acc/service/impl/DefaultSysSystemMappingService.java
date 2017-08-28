@@ -91,7 +91,7 @@ public class DefaultSysSystemMappingService extends
 		//
 		checkAccess(this.getEntity(systemMapping.getId()), permission);
 		// 
-		if (syncConfigRepository.countBySystemMapping(getEntity(systemMapping)) > 0) {
+		if (syncConfigRepository.countBySystemMapping(getEntity(systemMapping.getId())) > 0) {
 			throw new ResultCodeException(AccResultCode.SYSTEM_MAPPING_DELETE_FAILED_USED_IN_SYNC, ImmutableMap.of("mapping", systemMapping.getName()));
 		}
 		//

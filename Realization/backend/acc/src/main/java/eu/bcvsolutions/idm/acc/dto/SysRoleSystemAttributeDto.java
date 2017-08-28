@@ -4,6 +4,9 @@ import java.util.UUID;
 
 import org.springframework.hateoas.core.Relation;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
 import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
@@ -17,7 +20,7 @@ import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
  */
 
 @Relation(collectionRelation = "schemaObjectClasses")
-public class SysRoleSystemAttributeDto extends AbstractDto {
+public class SysRoleSystemAttributeDto extends AbstractDto implements AttributeMapping {
 
 	private static final long serialVersionUID = -3340543770861555491L;
 	
@@ -35,6 +38,8 @@ public class SysRoleSystemAttributeDto extends AbstractDto {
 	private AttributeMappingStrategyType strategyType = AttributeMappingStrategyType.SET;
 	private boolean sendAlways = false;
 	private boolean sendOnlyIfNotNull = false;
+	@JsonIgnore
+	private UUID schemaAttribute = null;
 
 	public String getName() {
 		return name;
@@ -138,6 +143,46 @@ public class SysRoleSystemAttributeDto extends AbstractDto {
 
 	public void setSendOnlyIfNotNull(boolean sendOnlyIfNotNull) {
 		this.sendOnlyIfNotNull = sendOnlyIfNotNull;
+	}
+
+	@Override
+	public UUID getSchemaAttribute() {
+		return schemaAttribute;
+	}
+
+	@Override
+	public void setSchemaAttribute(UUID schemaAttribute) {
+		this.schemaAttribute = schemaAttribute;
+	}
+
+	@Override
+	public String getTransformFromResourceScript() {
+		return null;
+	}
+
+	@Override
+	public void setTransformFromResourceScript(String transformFromResourceScript) {
+	}
+
+	@Override
+	public String getTransformToResourceScript() {
+		return this.getTransformScript();
+	}
+
+	@Override
+	public void setTransformToResourceScript(String transformToResourceScript) {
+		this.setTransformScript(transformToResourceScript);
+	}
+
+	@Override
+	public boolean isDisabledAttribute() {
+		return this.isDisabledDefaultAttribute();
+	}
+
+	@Override
+	public void setDisabledAttribute(boolean disabled) {
+		this.setDisabledDefaultAttribute(disabled);
+		
 	}
 
 }

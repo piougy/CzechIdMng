@@ -43,7 +43,6 @@ import eu.bcvsolutions.idm.acc.dto.filter.EntityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.TreeAccountFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.repository.SysSyncConfigRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
@@ -493,7 +492,9 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 		
 		if (transformedValue != null && PARENT_FIELD.equals(attribute.getIdmPropertyName())) {
 			String parentUid = transformedValue.toString();
-			UUID systemId = ((SysSystemAttributeMapping)attribute).getSystemMapping().getSystem().getId();
+			SysSystemMappingDto systemMapping = systemMappingService.get(((SysSystemAttributeMappingDto)attribute).getSystemMapping());
+			SysSchemaObjectClassDto schemaObjectClass = schemaObjectClassService.get(systemMapping.getObjectClass());
+			UUID systemId = schemaObjectClass.getSystem();
 			// Find account by UID from parent field
 			AccountFilter accountFilter = new AccountFilter();
 			accountFilter.setUid(parentUid);
@@ -781,7 +782,8 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 	 * @return
 	 */
 	private UUID findTreeTypeId(AttributeMapping attribute){
-		return ((SysSystemAttributeMapping)attribute).getSystemMapping().getTreeType().getId();
+		SysSystemMappingDto systemMapping = systemMappingService.get(((SysSystemAttributeMappingDto)attribute).getSystemMapping());
+		return systemMapping.getTreeType();
 	}
 
 	@Override

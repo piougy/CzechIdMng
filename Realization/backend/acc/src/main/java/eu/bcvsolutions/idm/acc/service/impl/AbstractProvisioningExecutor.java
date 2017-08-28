@@ -27,7 +27,6 @@ import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.EntityAccountDto;
-import eu.bcvsolutions.idm.acc.dto.MappingAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.ProvisioningAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
@@ -307,7 +306,7 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 			// We try find __PASSWORD__ attribute in mapped attributes
 			Optional<? extends AttributeMapping> attriubuteHandlingOptional = finalAttributes.stream()
 					.filter((attribute) -> {
-						SysSchemaAttributeDto schemaAttributeDto = schemaAttributeService.get(attribute.getSchemaAttribute());
+						SysSchemaAttributeDto schemaAttributeDto = getSchemaAttribute(attribute);
 						return ProvisioningService.PASSWORD_SCHEMA_PROPERTY_NAME
 								.equals(schemaAttributeDto.getName());
 					}).findFirst();
@@ -377,7 +376,9 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 			if (AttributeMappingStrategyType.MERGE == parentAttribute.getStrategyType()
 					|| AttributeMappingStrategyType.AUTHORITATIVE_MERGE == parentAttribute.getStrategyType()) {
 				Optional<AttributeMapping> conflictAttributeOptional = finalAttributes.stream().filter(att -> {
-					return att.getSchemaAttribute().equals(parentAttribute.getSchemaAttribute())
+					SysSchemaAttributeDto attributeSchema = getSchemaAttribute(att);
+					SysSchemaAttributeDto parentSchema = getSchemaAttribute(parentAttribute);
+					return attributeSchema.equals(parentSchema)
 							&& !(att.getStrategyType() == parentAttribute.getStrategyType()
 									|| att.getStrategyType() == AttributeMappingStrategyType.CREATE
 									|| att.getStrategyType() == AttributeMappingStrategyType.WRITE_IF_NULL);
@@ -478,7 +479,7 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 					&& AttributeMappingStrategyType.AUTHORITATIVE_MERGE != attribute.getStrategyType()
 					&& AttributeMappingStrategyType.MERGE != attribute.getStrategyType();
 		}).forEach(attribute -> {
-			SysSchemaAttributeDto schemaAttributeDto = schemaAttributeService.get(attribute.getSchemaAttribute());
+			SysSchemaAttributeDto schemaAttributeDto = getSchemaAttribute(attribute);
 			if (attribute.isUid()) {
 				// TODO: now we set UID from SystemEntity, may be UID from
 				// AccAccount will be more correct
@@ -504,18 +505,19 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 		}).collect(Collectors.toList());
 
 		for (AttributeMapping attributeParent : attributesMerge) {
-			SysSchemaAttributeDto schemaAttributeDto = schemaAttributeService.get(attributeParent.getSchemaAttribute());
+			SysSchemaAttributeDto schemaAttributeParent = getSchemaAttribute(attributeParent);
 			ProvisioningAttributeDto attributeParentKey = ProvisioningAttributeDto
-					.createProvisioningAttributeKey(attributeParent, schemaAttributeDto.getName());
-			if (!schemaAttributeDto.isMultivalued()) {
+					.createProvisioningAttributeKey(attributeParent, schemaAttributeParent.getName());
+			if (!schemaAttributeParent.isMultivalued()) {
 				throw new ProvisioningException(AccResultCode.PROVISIONING_MERGE_ATTRIBUTE_IS_NOT_MULTIVALUE,
-						ImmutableMap.of("object", uid, "attribute", schemaAttributeDto.getName()));
+						ImmutableMap.of("object", uid, "attribute", schemaAttributeParent.getName()));
 			}
 
 			List<Object> mergedValues = new ArrayList<>();
 			attributes.stream().filter(attribute -> {
+				SysSchemaAttributeDto schemaAttribute = getSchemaAttribute(attribute);
 				return !accountAttributes.containsKey(attributeParentKey)
-						&& attributeParent.getSchemaAttribute().equals(attribute.getSchemaAttribute())
+						&& schemaAttributeParent.equals(schemaAttribute)
 						&& attributeParent.getStrategyType() == attribute.getStrategyType();
 			}).forEach(attribute -> {
 				Object value = getAttributeValue(uid, entity, attribute);
@@ -555,7 +557,7 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 		Assert.notNull(systemEntity.getUid());
 		Assert.notNull(attributeMapping);
 
-		SysSchemaAttributeDto schemaAttributeDto = schemaAttributeService.get(attributeMapping.getSchemaAttribute());
+		SysSchemaAttributeDto schemaAttributeDto = getSchemaAttribute(attributeMapping);
 		
 		if (!schemaAttributeDto.isUpdateable()) {
 			throw new ProvisioningException(AccResultCode.PROVISIONING_SCHEMA_ATTRIBUTE_IS_NOT_UPDATEABLE,
@@ -743,27 +745,19 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 					attributesOrderedGivenStrategy.forEach(attribute -> {
 						// Disabled attribute will be skipped
 						if (!attribute.isDisabledDefaultAttribute()) {
-							// We can't use instance of SysSysteAttributeMapping
-							// and set
-							// up overloaded value (it is entity).
-							// We have to create own dto and set up all values
-							// (overloaded and default)
-							AttributeMapping overloadedAttribute = new MappingAttributeDto();
 							// Default values (values from schema attribute
 							// handling)
-							overloadedAttribute.setSchemaAttribute(defaultAttribute.getSchemaAttribute());
-							overloadedAttribute
+							attribute.setSchemaAttribute(defaultAttribute.getSchemaAttribute());
+							attribute
 									.setTransformFromResourceScript(defaultAttribute.getTransformFromResourceScript());
-							// Overloaded values
-							roleSystemAttributeService.fillOverloadedAttribute(attribute, overloadedAttribute);
 
 							// Common properties (for MERGE strategy) will be
 							// set from MERGE attribute with highest priority
-							overloadedAttribute.setSendAlways(highestPriorityAttribute.isSendAlways());
-							overloadedAttribute.setSendOnlyIfNotNull(highestPriorityAttribute.isSendOnlyIfNotNull());
+							attribute.setSendAlways(highestPriorityAttribute.isSendAlways());
+							attribute.setSendOnlyIfNotNull(highestPriorityAttribute.isSendOnlyIfNotNull());
 
 							// Add modified attribute to final list
-							finalAttributes.add(overloadedAttribute);
+							finalAttributes.add(attribute);
 						}
 					});
 					return finalAttributes;
@@ -790,19 +784,12 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 				// attribute with highest priority (and role name)
 				// Disabled attribute will be skipped
 				if (!highestPriorityAttribute.isDisabledDefaultAttribute()) {
-					// We can't use instance of SysSysteAttributeMapping and set
-					// up overloaded value (it is entity).
-					// We have to create own dto and set up all values
-					// (overloaded and default)
-					AttributeMapping overloadedAttribute = new MappingAttributeDto();
 					// Default values (values from schema attribute handling)
-					overloadedAttribute.setSchemaAttribute(defaultAttribute.getSchemaAttribute());
-					overloadedAttribute
+					highestPriorityAttribute.setSchemaAttribute(defaultAttribute.getSchemaAttribute());
+					highestPriorityAttribute
 							.setTransformFromResourceScript(defaultAttribute.getTransformFromResourceScript());
-					// Overloaded values
-					roleSystemAttributeService.fillOverloadedAttribute(highestPriorityAttribute, overloadedAttribute);
 					// Add modified attribute to final list
-					finalAttributes.add(overloadedAttribute);
+					finalAttributes.add(highestPriorityAttribute);
 					return finalAttributes;
 				}
 			}
@@ -1010,5 +997,21 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 			account = accountService.save(account);
 		}
 		return account;
+	}
+	
+	/**
+	 * Method return schema attribute from interface attribute mapping. Schema
+	 * may be null from RoleSystemAttribute
+	 * 
+	 * @return
+	 */
+	protected SysSchemaAttributeDto getSchemaAttribute(AttributeMapping attributeMapping) {
+		if (attributeMapping.getSchemaAttribute() != null) {
+			return schemaAttributeService.get(attributeMapping.getSchemaAttribute());
+		} else {
+			// schema attribute is null = roleSystemAttribute
+			SysSystemAttributeMappingDto dto = systemAttributeMappingService.get(((SysRoleSystemAttributeDto)attributeMapping).getSystemAttributeMapping());
+			return schemaAttributeService.get(dto.getSchemaAttribute());
+		}
 	}
 }

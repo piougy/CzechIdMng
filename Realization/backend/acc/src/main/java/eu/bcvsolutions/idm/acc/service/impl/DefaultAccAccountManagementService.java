@@ -16,10 +16,8 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AccountType;
-import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
-import eu.bcvsolutions.idm.acc.dto.MappingAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccountFilter;
@@ -242,17 +240,12 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 		// If roleSystem UID attribute found, then we use his transformation
 		// script.
 		if (uidRoleAttribute != null) {
-			// We have to create own dto and set up all values
-			// (overloaded and default)
-			AttributeMapping overloadedAttribute = new MappingAttributeDto();
 			// Default values (values from schema attribute handling)
 			SysSystemAttributeMappingDto systemAttributeMapping = systemAttributeMappingService.get(uidRoleAttribute.getSystemAttributeMapping());
-			overloadedAttribute.setSchemaAttribute(systemAttributeMapping.getSchemaAttribute());
-			overloadedAttribute
+			uidRoleAttribute.setSchemaAttribute(systemAttributeMapping.getSchemaAttribute());
+			uidRoleAttribute
 					.setTransformFromResourceScript(systemAttributeMapping.getTransformFromResourceScript());
-			// Overloaded values
-			roleSystemAttributeService.fillOverloadedAttribute(uidRoleAttribute, overloadedAttribute);
-			Object uid = systemAttributeMappingService.getAttributeValue(null, entity, overloadedAttribute);
+			Object uid = systemAttributeMappingService.getAttributeValue(null, entity, uidRoleAttribute);
 			if(uid == null) {
 				throw new ProvisioningException(AccResultCode.PROVISIONING_GENERATED_UID_IS_NULL,
 						ImmutableMap.of("system", roleSystem.getSystem().getName()));

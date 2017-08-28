@@ -10,9 +10,7 @@ import org.springframework.stereotype.Service;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
-import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
-import eu.bcvsolutions.idm.acc.dto.MappingAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
@@ -94,10 +92,7 @@ public class DefaultSysRoleSystemAttributeService
 		SysSystemMappingDto systemMapping = systemMappingService.get(systemAttributeMapping.getSystemMapping());
 		Class<?> entityType = systemMapping.getEntityType().getEntityType();
 		if (dto.isExtendedAttribute() && FormableEntity.class.isAssignableFrom(entityType)) {
-			AttributeMapping mappingAttributeDto = new MappingAttributeDto();
-			mappingAttributeDto.setSchemaAttribute(systemAttributeMapping.getSchemaAttribute());
-			fillOverloadedAttribute(dto, mappingAttributeDto);
-			systeAttributeMappingService.createExtendedAttributeDefinition(mappingAttributeDto, entityType);
+			systeAttributeMappingService.createExtendedAttributeDefinition(dto, entityType);
 		}
 		
 		// We will do script validation (on compilation errors), before save
@@ -130,23 +125,7 @@ public class DefaultSysRoleSystemAttributeService
 
 		return roleSystemAttribute;
 	}
-	
-	@Override
-	public void fillOverloadedAttribute(SysRoleSystemAttributeDto overloadingAttribute,
-			AttributeMapping overloadedAttribute) {
-		overloadedAttribute.setName(overloadingAttribute.getName());
-		overloadedAttribute.setEntityAttribute(overloadingAttribute.isEntityAttribute());
-		overloadedAttribute.setConfidentialAttribute(overloadingAttribute.isConfidentialAttribute());
-		overloadedAttribute.setExtendedAttribute(overloadingAttribute.isExtendedAttribute());
-		overloadedAttribute.setIdmPropertyName(overloadingAttribute.getIdmPropertyName());
-		overloadedAttribute.setTransformToResourceScript(overloadingAttribute.getTransformScript());
-		overloadedAttribute.setUid(overloadingAttribute.isUid());
-		overloadedAttribute.setDisabledAttribute(overloadingAttribute.isDisabledDefaultAttribute());
-		overloadedAttribute.setStrategyType(overloadingAttribute.getStrategyType());
-		overloadedAttribute.setSendAlways(overloadingAttribute.isSendAlways());
-		overloadedAttribute.setSendOnlyIfNotNull(overloadingAttribute.isSendOnlyIfNotNull());
-	}
-	
+
 	private AccAccountManagementService getAccountManagementService() {
 		if (accountManagementService == null) {
 			accountManagementService = applicationContext.getBean(AccAccountManagementService.class);

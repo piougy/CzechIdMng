@@ -20,6 +20,7 @@ import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.domain.AccountType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
+import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
@@ -31,7 +32,6 @@ import eu.bcvsolutions.idm.acc.dto.filter.SystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
-import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
 import eu.bcvsolutions.idm.acc.entity.SysSystemFormValue;
@@ -173,9 +173,9 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		RoleSystemFilter roleSystemFilter = new RoleSystemFilter();
 		roleSystemFilter.setRoleId(role.getId());
 		// role system attributes
-		SysRoleSystemAttribute roleSystemAttribute = new SysRoleSystemAttribute();
-		roleSystemAttribute.setRoleSystem(roleSystem);
-		roleSystemAttribute.setSystemAttributeMapping(systemAttributeMappingRepository.findOne(schemaAttributeHandling.getId()));
+		SysRoleSystemAttributeDto roleSystemAttribute = new SysRoleSystemAttributeDto();
+		roleSystemAttribute.setRoleSystem(roleSystem.getId());
+		roleSystemAttribute.setSystemAttributeMapping(schemaAttributeHandling.getId());
 		roleSystemAttribute.setName("name");
 		roleSystemAttribute.setIdmPropertyName("name");
 		roleSystemAttribute = roleSystemAttributeService.save(roleSystemAttribute);

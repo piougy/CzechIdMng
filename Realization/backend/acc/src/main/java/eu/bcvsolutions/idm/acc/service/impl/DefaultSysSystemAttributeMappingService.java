@@ -24,6 +24,7 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
+import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
@@ -337,7 +338,7 @@ public class DefaultSysSystemAttributeMappingService
 	 * @return
 	 */
 	private IdmFormAttribute convertMappingAttribute(AttributeMapping entity) {
-		SysSchemaAttributeDto schemaAttribute = schemaAttributeService.get(entity.getSchemaAttribute());
+		SysSchemaAttributeDto schemaAttribute = getSchemaAttribute(entity);
 		IdmFormAttribute attributeDefinition = new IdmFormAttribute();
 		attributeDefinition.setSeq((short) 0);
 		attributeDefinition.setCode(entity.getIdmPropertyName());
@@ -384,7 +385,8 @@ public class DefaultSysSystemAttributeMappingService
 	public Object getAttributeValue(String uid, AbstractEntity entity, AttributeMapping attributeHandling) {
 		Object idmValue = null;
 		//
-		SysSchemaAttributeDto schemaAttributeDto = schemaAttributeService.get(attributeHandling.getSchemaAttribute());
+		SysSchemaAttributeDto schemaAttributeDto = getSchemaAttribute(attributeHandling);
+		//
 		if (attributeHandling.isExtendedAttribute() && entity != null && FormableEntity.class.isAssignableFrom(entity.getClass())) {
 			@SuppressWarnings("unchecked")
 			List<? extends AbstractFormValue<? extends FormableEntity>> formValues = formService.getValues(entity.getId(), (Class<? extends FormableEntity>)entity.getClass(), attributeHandling.getIdmPropertyName());
@@ -467,7 +469,7 @@ public class DefaultSysSystemAttributeMappingService
 	public Object getValueByMappedAttribute(AttributeMapping attribute, List<IcAttribute> icAttributes) {
 		Object icValue = null;
 		Optional<IcAttribute> optionalIcAttribute = icAttributes.stream().filter(icAttribute -> {
-			SysSchemaAttributeDto schemaAttributeDto = schemaAttributeService.get(attribute.getSchemaAttribute());
+			SysSchemaAttributeDto schemaAttributeDto = getSchemaAttribute(attribute);
 			return schemaAttributeDto.getName().equals(icAttribute.getName());
 		}).findFirst();
 		if (optionalIcAttribute.isPresent()) {
@@ -501,6 +503,22 @@ public class DefaultSysSystemAttributeMappingService
 	}
 	
 	/**
+	 * Method return schema attribute from interface attribute mapping. Schema
+	 * may be null from RoleSystemAttribute
+	 * 
+	 * @return
+	 */
+	private SysSchemaAttributeDto getSchemaAttribute(AttributeMapping attributeMapping) {
+		if (attributeMapping.getSchemaAttribute() != null) {
+			return schemaAttributeService.get(attributeMapping.getSchemaAttribute());
+		} else {
+			// schema attribute is null = roleSystemAttribute
+			SysSystemAttributeMappingDto dto = this.get(((SysRoleSystemAttributeDto)attributeMapping).getSystemAttributeMapping());
+			return schemaAttributeService.get(dto.getSchemaAttribute());
+		}
+	}
+	
+	/**
 	 * Method return {@link SysSystem} from {@link AttributeMapping} 
 	 * 
 	 * TODO: refactor system to DTO
@@ -509,7 +527,7 @@ public class DefaultSysSystemAttributeMappingService
 	 * @return
 	 */
 	private SysSystem getSystemFromAttributeMapping(AttributeMapping attributeMapping) {
-		SysSchemaAttributeDto schemaAttrDto = schemaAttributeService.get(attributeMapping.getSchemaAttribute());
+		SysSchemaAttributeDto schemaAttrDto = getSchemaAttribute(attributeMapping);
 		return getSystemFromSchemaAttribute(schemaAttrDto);
 	}
 	

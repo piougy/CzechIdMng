@@ -18,6 +18,7 @@ import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
+import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
@@ -25,7 +26,6 @@ import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
-import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
 import eu.bcvsolutions.idm.acc.repository.SysSystemAttributeMappingRepository;
@@ -312,7 +312,7 @@ public class DefaultAccAuthenticatorTest extends AbstractIntegrationTest {
 		SysSystemAttributeMappingDto attributeHandlingUsername = new SysSystemAttributeMappingDto();
 		
 		Page<SysSchemaAttributeDto> schemaAttributesPage = schemaAttributeService.find(schemaAttributeFilter, null);
-		schemaAttributesPage.forEach(schemaAttr -> {
+		for (SysSchemaAttributeDto schemaAttr : schemaAttributesPage) {
 			if ("__NAME__".equals(schemaAttr.getName())) {
 				attributeHandlingUsername.setUid(true);
 				attributeHandlingUsername.setEntityAttribute(true);
@@ -322,24 +322,24 @@ public class DefaultAccAuthenticatorTest extends AbstractIntegrationTest {
 				attributeHandlingUsername.setName(schemaAttr.getName());
 				attributeHandlingUsername.setSchemaAttribute(schemaAttr.getId());
 				attributeHandlingUsername.setSystemMapping(entityHandlingResult.getId());
-				schemaAttributeHandlingService.save(attributeHandlingUsername);
+				attributeHandlingUsername = schemaAttributeHandlingService.save(attributeHandlingUsername);
 				
 			} else if ("lastname".equalsIgnoreCase(schemaAttr.getName())) {
 				attributeHandlingLastName.setIdmPropertyName("lastName");
 				attributeHandlingLastName.setName(schemaAttr.getName());
 				attributeHandlingLastName.setSchemaAttribute(schemaAttr.getId());
 				attributeHandlingLastName.setSystemMapping(entityHandlingResult.getId());
-				schemaAttributeHandlingService.save(attributeHandlingLastName);
+				attributeHandlingLastName = schemaAttributeHandlingService.save(attributeHandlingLastName);
 
 			} else if (IcConnectorFacade.PASSWORD_ATTRIBUTE_NAME.equalsIgnoreCase(schemaAttr.getName())) {
 				attributeHandlingPassword.setIdmPropertyName("password");
 				attributeHandlingPassword.setSchemaAttribute(schemaAttr.getId());
 				attributeHandlingPassword.setName(schemaAttr.getName());
 				attributeHandlingPassword.setSystemMapping(entityHandlingResult.getId());
-				schemaAttributeHandlingService.save(attributeHandlingPassword);
+				attributeHandlingPassword = schemaAttributeHandlingService.save(attributeHandlingPassword);
 
 			}
-		});
+		}
 		
 		// create two roles with same system and different override username
 		IdmRole role1 = new IdmRole();
@@ -348,7 +348,7 @@ public class DefaultAccAuthenticatorTest extends AbstractIntegrationTest {
 		SysRoleSystem role1System = new SysRoleSystem();
 		role1System.setRole(role1);
 		role1System.setSystem(system);
-		role1System.setSystemMapping(systemMappingRespository.findOne(systemMapping.getId()));
+		role1System.setSystemMapping(systemMappingRespository.findOne(entityHandlingResult.getId()));
 		roleSystemService.save(role1System);
 
 		
@@ -357,20 +357,20 @@ public class DefaultAccAuthenticatorTest extends AbstractIntegrationTest {
 		role2 = roleService.save(role2);
 		SysRoleSystem roleSystem2 = new SysRoleSystem();
 		roleSystem2.setSystem(system);
-		roleSystem2.setSystemMapping(systemMappingRespository.findOne(systemMapping.getId()));
+		roleSystem2.setSystemMapping(systemMappingRespository.findOne(entityHandlingResult.getId()));
 		roleSystem2.setRole(role2);
-		roleSystemService.save(roleSystem2);
+		roleSystem2 = roleSystemService.save(roleSystem2);
 		
-		SysRoleSystemAttribute overloadedRole2 = new SysRoleSystemAttribute();
-		overloadedRole2.setSystemAttributeMapping(attributeMappingRepository.findOne(attributeHandlingUsername.getId()));
+		SysRoleSystemAttributeDto overloadedRole2 = new SysRoleSystemAttributeDto();
+		overloadedRole2.setSystemAttributeMapping(attributeHandlingUsername.getId());
 		overloadedRole2.setUid(true);
 		overloadedRole2.setEntityAttribute(true);
 		overloadedRole2.setTransformScript("return \"z" + USERNAME + "\";");
 		overloadedRole2.setIdmPropertyName("username");
 		overloadedRole2.setName("username");
-		overloadedRole2.setRoleSystem(roleSystem2);
+		overloadedRole2.setRoleSystem(roleSystem2.getId());
 		
-		roleSystemAttributeService.save(overloadedRole2);
+		overloadedRole2 = roleSystemAttributeService.save(overloadedRole2);
 	}
 	
 	private SysSystem createTestSystem() {

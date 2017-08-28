@@ -26,7 +26,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.RoleCatalogueFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
+import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.exception.TreeNodeException;
@@ -36,10 +36,6 @@ import eu.bcvsolutions.idm.core.model.entity.IdmForestIndexEntity_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogueRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue_;
-import eu.bcvsolutions.idm.core.model.event.RoleCatalogueEvent;
-import eu.bcvsolutions.idm.core.model.event.RoleCatalogueEvent.RoleCatalogueEventType;
-import eu.bcvsolutions.idm.core.model.event.processor.role.RoleCatalogueDeleteProcessor;
-import eu.bcvsolutions.idm.core.model.event.processor.role.RoleCatalogueSaveProcessor;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleCatalogueRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleCatalogueRoleRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
@@ -48,7 +44,6 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmRoleCatalogueService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeTypeService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.RebuildRoleCatalogueIndexTaskExecutor;
-import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
 /**
@@ -62,17 +57,15 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
  */
 @Service("roleCatalogueService")
 public class DefaultIdmRoleCatalogueService 
-		extends AbstractReadWriteDtoService<IdmRoleCatalogueDto, IdmRoleCatalogue, RoleCatalogueFilter> 
+		extends AbstractEventableDtoService<IdmRoleCatalogueDto, IdmRoleCatalogue, RoleCatalogueFilter> 
 		implements IdmRoleCatalogueService {
 	
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmRoleCatalogueService.class);
 	private final IdmRoleCatalogueRepository repository;
 	private final IdmRoleCatalogueRoleRepository roleCatalogueRoleRepository;
 	private final DefaultBaseTreeService<IdmRoleCatalogue> baseTreeService;
 	private final IdmRoleCatalogueForestContentService forestContentService;
 	private final IdmConfigurationService configurationService;
 	private final LongRunningTaskManager longRunningTaskManager;
-	private final EntityEventManager entityEventManager;
 	
 	@Autowired
 	public DefaultIdmRoleCatalogueService(
@@ -83,14 +76,13 @@ public class DefaultIdmRoleCatalogueService
 			IdmConfigurationService configurationService,
 			LongRunningTaskManager longRunningTaskManager,
 			EntityEventManager entityEventManager) {
-		super(repository);
+		super(repository, entityEventManager);
 		//
 		Assert.notNull(baseTreeService);
 		Assert.notNull(roleCatalogueRoleRepository);
 		Assert.notNull(forestContentService);
 		Assert.notNull(configurationService);
 		Assert.notNull(longRunningTaskManager);
-		Assert.notNull(entityEventManager);
 		//
 		this.repository = repository;
 		this.baseTreeService = baseTreeService;
@@ -98,7 +90,6 @@ public class DefaultIdmRoleCatalogueService
 		this.forestContentService = forestContentService;
 		this.configurationService = configurationService;
 		this.longRunningTaskManager = longRunningTaskManager;
-		this.entityEventManager = entityEventManager;
 	}
 	
 	@Override
@@ -110,24 +101,6 @@ public class DefaultIdmRoleCatalogueService
 	@Transactional(readOnly = true)
 	public IdmRoleCatalogueDto getByCode(String code) {
 		return toDto(repository.findOneByCode(code));
-	}
-	
-	/**
-	 * Publish {@link RoleCatalogueEvent} only.
-	 * 
-	 * @see {@link RoleCatalogueSaveProcessor}
-	 */
-	@Override
-	@Transactional
-	public IdmRoleCatalogueDto save(IdmRoleCatalogueDto roleCatalogue, BasePermission... permission) {
-		Assert.notNull(roleCatalogue);
-		checkAccess(toEntity(roleCatalogue, null), permission);
-		if (isNew(roleCatalogue)) { // create
-			LOG.debug("Saving new role catalogue [{}]", roleCatalogue.getCode());
-			return entityEventManager.process(new RoleCatalogueEvent(RoleCatalogueEventType.CREATE, roleCatalogue)).getContent();
-		}
-		LOG.debug("Saving role catalogue [{}]", roleCatalogue.getCode());
-		return entityEventManager.process(new RoleCatalogueEvent(RoleCatalogueEventType.UPDATE, roleCatalogue)).getContent();
 	}
 	
 	@Override
@@ -145,25 +118,6 @@ public class DefaultIdmRoleCatalogueService
 		IdmForestIndexEntity index = forestContentService.updateIndex(IdmRoleCatalogue.FOREST_TREE_TYPE, roleCatalogue.getId(), roleCatalogue.getParent());
 		roleCatalogue = super.saveInternal(roleCatalogue);
 		return setForestIndex(roleCatalogue, index);
-	}
-	
-	/**
-	 * Publish {@link RoleCatalogueEvent} only.
-	 * 
-	 * @see {@link RoleCatalogueDeleteProcessor}
-	 */
-	@Override
-	@Transactional
-	public void delete(IdmRoleCatalogueDto roleCatalogue, BasePermission... permission) {
-		Assert.notNull(roleCatalogue);
-		checkAccess(this.getEntity(roleCatalogue.getId()), permission);
-		Page<IdmRoleCatalogue> nodes = repository.findChildren(roleCatalogue.getId(), new PageRequest(0, 1));
-		if (nodes.getTotalElements() != 0) {
-			throw new ResultCodeException(CoreResultCode.ROLE_CATALOGUE_DELETE_FAILED_HAS_CHILDREN, ImmutableMap.of("roleCatalogue", roleCatalogue.getCode()));
-		}
-		//
-		LOG.debug("Deleting role catalogue [{}]", roleCatalogue.getCode());
-		entityEventManager.process(new RoleCatalogueEvent(RoleCatalogueEventType.DELETE, roleCatalogue));
 	}
 	
 	@Override

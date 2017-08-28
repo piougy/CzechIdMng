@@ -20,10 +20,9 @@ public class IdentityAccountFilter implements BaseFilter, EntityAccountFilter {
 	private UUID roleSystemId;
 	private Boolean ownership;
 
-	@Override
 	public Boolean isOwnership() {
 		return ownership;
-	}
+	}	
 
 	@Override
 	public void setOwnership(Boolean ownership) {

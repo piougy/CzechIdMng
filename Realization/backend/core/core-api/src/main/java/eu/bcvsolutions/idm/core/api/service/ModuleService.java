@@ -88,6 +88,13 @@ public interface ModuleService {
 	List<GroupPermission> getAvailablePermissions();
 	
 	/**
+	 * Returns all permissions from all (instaled) modules.  
+	 * 
+	 * @return
+	 */
+	List<GroupPermission> getAllPermissions();
+	
+	/**
 	 * Returns module property by {@link ConfigurationService} conventions.
 	 * 
 	 * @param moduleId

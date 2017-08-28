@@ -33,6 +33,7 @@ public abstract class AbstractReadWriteDtoService<DTO extends BaseDto, E extends
 	public AbstractReadWriteDtoService(AbstractEntityRepository<E, F> repository) {
 		super(repository);
 	}
+	
 	/**
 	 * {@inheritDoc}
 	 * 

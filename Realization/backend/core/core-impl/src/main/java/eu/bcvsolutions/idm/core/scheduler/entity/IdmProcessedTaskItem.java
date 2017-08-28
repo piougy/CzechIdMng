@@ -43,7 +43,7 @@ import eu.bcvsolutions.idm.core.api.exception.CoreException;
 public class IdmProcessedTaskItem extends AbstractEntity {
 
 	@NotNull
-	@Column(name = "referenced_entity_id", updatable = false)
+	@Column(name = "referenced_entity_id", updatable = false, length = 16)
 	private UUID referencedEntityId;
 	
 	@NotEmpty

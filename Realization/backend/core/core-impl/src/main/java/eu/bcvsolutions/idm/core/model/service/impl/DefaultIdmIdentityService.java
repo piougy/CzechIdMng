@@ -31,8 +31,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdentityFilter;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
-import eu.bcvsolutions.idm.core.api.event.EventContext;
-import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
+import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
@@ -52,9 +51,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode_;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType_;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
-import eu.bcvsolutions.idm.core.model.event.processor.identity.IdentityDeleteProcessor;
 import eu.bcvsolutions.idm.core.model.event.processor.identity.IdentityPasswordProcessor;
-import eu.bcvsolutions.idm.core.model.event.processor.identity.IdentitySaveProcessor;
 import eu.bcvsolutions.idm.core.model.repository.IdmAuthorityChangeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
@@ -72,7 +69,7 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
  *
  */
 public class DefaultIdmIdentityService
-		extends AbstractReadWriteDtoService<IdmIdentityDto, IdmIdentity, IdentityFilter> 
+		extends AbstractEventableDtoService<IdmIdentityDto, IdmIdentity, IdentityFilter> 
 		implements IdmIdentityService {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmIdentityService.class);
@@ -92,7 +89,7 @@ public class DefaultIdmIdentityService
 			EntityEventManager entityEventManager,
 			IdmAuthorityChangeRepository authChangeRepository,
 			RoleConfiguration roleConfiguration	) {
-		super(repository);
+		super(repository, entityEventManager);
 		//
 		Assert.notNull(formService);
 		Assert.notNull(roleService);
@@ -134,48 +131,6 @@ public class DefaultIdmIdentityService
 		Assert.notNull(identity);
 		event.setContent(toDto(identity));
 		return toEntity(this.publish(event, permission).getContent());
-	}
-	
-	/**
-	 * Publish {@link IdentityEvent} only.
-	 * 
-	 * @see {@link IdentitySaveProcessor}
-	 */
-	@Override
-	@Transactional
-	public IdmIdentityDto save(IdmIdentityDto identity, BasePermission... permission) {
-		Assert.notNull(identity);
-		//
-		LOG.debug("Saving identity [{}]", identity.getUsername());
-		//
-		if (isNew(identity)) { // create
-			return this.publish(new IdentityEvent(IdentityEventType.CREATE, identity), permission).getContent();
-		}
-		return this.publish(new IdentityEvent(IdentityEventType.UPDATE, identity), permission).getContent();
-	}
-	
-	@Override
-	public EventContext<IdmIdentityDto> publish(EntityEvent<IdmIdentityDto> event, BasePermission... permission){
-		Assert.notNull(event, "Event must be not null!");
-		Assert.notNull(event.getContent(), "Content (entity) in event must be not null!");
-		
-		checkAccess(toEntity(event.getContent(), null), permission);
-		return entityEventManager.process(event);
-	}
-	
-	/**
-	 * Publish {@link IdentityEvent} only.
-	 * 
-	 * @see {@link IdentityDeleteProcessor}
-	 */
-	@Override
-	@Transactional
-	public void delete(IdmIdentityDto identity, BasePermission... permission) {
-		Assert.notNull(identity);
-		checkAccess(this.getEntity(identity.getId()), permission);
-		//
-		LOG.debug("Deleting identity [{}]", identity.getUsername());
-		entityEventManager.process(new IdentityEvent(IdentityEventType.DELETE, identity));
 	}
 	
 	@Override

@@ -46,6 +46,7 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
     super.componentDidMount();
     this.context.store.dispatch(this.getManager().fetchSupportedEvaluators());
     this.context.store.dispatch(this.getManager().fetchAuthorizableTypes());
+    this.context.store.dispatch(roleManager.fetchAllAuthorities());
     this.context.store.dispatch(roleManager.fetchAvailableAuthorities());
   }
 
@@ -72,8 +73,8 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
     }
     //
     let authorizableType = null;
-    if (entity.groupPermission && authorizableTypes.has(entity.groupPermission)) {
-      const _authorizableType = authorizableTypes.get(entity.groupPermission);
+    const _authorizableType = !entity.groupPermission ? null : authorizableTypes.find(type => { return type.group === entity.groupPermission; });
+    if (_authorizableType) {
       authorizableType = {
         niceLabel: this._getAuthorizableTypeNiceLabel(_authorizableType._authorizableType, _authorizableType.type),
         value: _authorizableType.group,
@@ -188,12 +189,12 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
   }
 
   _getAuthorizableTypeNiceLabel(groupName, authorizableType) {
-    const { availableAuthorities } = this.props;
+    const { allAuthorities } = this.props;
     //
-    if (!availableAuthorities) {
+    if (!allAuthorities) {
       return '';
     }
-    const groupPermission = availableAuthorities.find(p => {
+    const groupPermission = allAuthorities.find(p => {
       return p.name === groupName;
     });
     if (!groupPermission) {
@@ -205,7 +206,16 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
   }
 
   render() {
-    const { uiKey, columns, forceSearchParameters, _showLoading, supportedEvaluators, authorizableTypes, availableAuthorities, _permissions } = this.props;
+    const {
+      uiKey,
+      columns,
+      forceSearchParameters,
+      _showLoading,
+      supportedEvaluators,
+      authorizableTypes,
+      allAuthorities,
+      availableAuthorities,
+      _permissions } = this.props;
     const { detail, evaluatorType, authorizableType } = this.state;
     //
     const _supportedEvaluators = [];
@@ -239,8 +249,8 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
       });
     }
     let _uniqueBasePermissions = new Immutable.Map();
-    if (availableAuthorities) {
-      availableAuthorities.forEach(groupPermission => {
+    if (allAuthorities) {
+      allAuthorities.forEach(groupPermission => {
         if (!authorizableType || authorizableType.group === groupPermission.name) {
           groupPermission.permissions.forEach(permission => {
             _uniqueBasePermissions = _uniqueBasePermissions.set(permission.name, permission);
@@ -266,6 +276,15 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
           manager={ manager }
           forceSearchParameters={ forceSearchParameters }
           showRowSelection={ manager.canDelete() }
+          rowClass={
+            ({rowIndex, data}) => {
+              // installed vs. available authorities - authority from disabled module
+              if (availableAuthorities && !availableAuthorities.find(p => { return p.name === data[rowIndex].groupPermission; })) {
+                return 'disabled';
+              }
+              return Utils.Ui.getDisabledRowClass(data[rowIndex]);
+            }
+          }
           actions={
             [
               { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }
@@ -425,21 +444,23 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
                     <Basic.TextField
                       ref="seq"
                       validation={Joi.number().integer().min(0).max(9999).allow(null)}
-                      label={ this.i18n('entity.AuthorizationPolicy.seq') }/>
+                      label={ this.i18n('entity.AuthorizationPolicy.seq.label') }
+                      help={ this.i18n('entity.AuthorizationPolicy.seq.help') }/>
                     <Basic.TextArea
                       ref="description"
-                      label={this.i18n('entity.AuthorizationPolicy.description')}
+                      label={this.i18n('entity.AuthorizationPolicy.description.label')}
                       max={2000}/>
                     <Basic.Checkbox
                       ref="disabled"
-                      label={this.i18n('entity.AuthorizationPolicy.disabled')}/>
+                      label={ this.i18n('entity.AuthorizationPolicy.disabled.label') }
+                      helpBlock={ this.i18n('entity.AuthorizationPolicy.disabled.help') }/>
                   </div>
                   <div className="col-lg-6">
                     <Basic.EnumSelectBox
                       ref="evaluatorType"
                       options={ _supportedEvaluators }
                       onChange={ this.onChangeEvaluatorType.bind(this) }
-                      label={ this.i18n('entity.AuthorizationPolicy.evaluatorType') }
+                      label={ this.i18n('entity.AuthorizationPolicy.evaluatorType.label') }
                       helpBlock={ evaluatorType ? evaluatorType.description : null }
                       readOnly={ authorizableType ? authorizableType.type === null : false }
                       required/>
@@ -517,10 +538,11 @@ function select(state, component) {
     supportedEvaluators: DataManager.getData(state, AuthorizationPolicyManager.UI_KEY_SUPPORTED_EVALUATORS),
     authorizableTypes: DataManager.getData(state, AuthorizationPolicyManager.UI_KEY_AUTHORIZABLE_TYPES),
     availableAuthorities: DataManager.getData(state, RoleManager.UI_KEY_AVAILABLE_AUTHORITIES),
+    allAuthorities: DataManager.getData(state, RoleManager.UI_KEY_ALL_AUTHORITIES),
     _showLoading: Utils.Ui.isShowLoading(state, `${component.uiKey}-detail`)
       || Utils.Ui.isShowLoading(state, AuthorizationPolicyManager.UI_KEY_SUPPORTED_EVALUATORS)
       || Utils.Ui.isShowLoading(state, AuthorizationPolicyManager.UI_KEY_AUTHORIZABLE_TYPES)
-      || Utils.Ui.isShowLoading(state, RoleManager.UI_KEY_AVAILABLE_AUTHORITIES_UIKEY),
+      || Utils.Ui.isShowLoading(state, RoleManager.UI_KEY_ALL_AUTHORITIES_UIKEY),
     _permissions: Utils.Permission.getPermissions(state, `${component.uiKey}-detail`)
   };
 }

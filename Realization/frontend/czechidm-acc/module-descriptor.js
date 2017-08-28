@@ -102,7 +102,8 @@ module.exports = {
         'order': 100,
         'priority': 0,
         'path': '/identity/:entityId/accounts',
-        'icon': 'fa:external-link'
+        'icon': 'fa:external-link',
+        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITYACCOUNT_READ'] } ]
       },
       {
         'id': 'identity-provisioning-operations',

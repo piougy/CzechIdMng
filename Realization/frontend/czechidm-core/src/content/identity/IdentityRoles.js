@@ -382,13 +382,12 @@ class Roles extends Basic.AbstractContent {
                     sort={false}/>
                   <Basic.Column
                     header={this.i18n('entity.IdentityRole.role')}
-                    property="_embedded.role.name"
                     cell={
                       /* eslint-disable react/no-multi-comp */
-                      ({rowIndex, data, property}) => {
+                      ({ rowIndex, data }) => {
                         return (
                           <Advanced.RoleInfo
-                            entityIdentifier={ data[rowIndex][property] }
+                            entityIdentifier={ data[rowIndex]._embedded.role.id }
                             entity={ data[rowIndex]._embedded.role }
                             face="popover" />
                         );
@@ -397,13 +396,12 @@ class Roles extends Basic.AbstractContent {
                     />
                   <Basic.Column
                     header={this.i18n('entity.IdentityRole.identityContract.title')}
-                    property="identityContract"
                     cell={
                       /* eslint-disable react/no-multi-comp */
-                      ({rowIndex, data, property}) => {
+                      ({ rowIndex, data }) => {
                         return (
                           <Advanced.IdentityContractInfo
-                            entityIdentifier={ data[rowIndex][property] }
+                            entityIdentifier={ data[rowIndex]._embedded.identityContract.id }
                             entity={ data[rowIndex]._embedded.identityContract }
                             showIdentity={ false }
                             face="popover" />

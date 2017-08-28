@@ -25,7 +25,7 @@ import eu.bcvsolutions.idm.core.api.domain.RecursionType;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdentityContractFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
-import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
+import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
@@ -35,14 +35,10 @@ import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode_;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent;
-import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
-import eu.bcvsolutions.idm.core.model.event.processor.identity.IdentityContractDeleteProcessor;
-import eu.bcvsolutions.idm.core.model.event.processor.identity.IdentityContractSaveProcessor;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeTypeRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
-import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
 /**
@@ -54,13 +50,11 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
  *
  */
 public class DefaultIdmIdentityContractService 
-		extends AbstractReadWriteDtoService<IdmIdentityContractDto, IdmIdentityContract, IdentityContractFilter>
+		extends AbstractEventableDtoService<IdmIdentityContractDto, IdmIdentityContract, IdentityContractFilter>
 		implements IdmIdentityContractService {
 
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmIdentityContractService.class);
 	private final IdmIdentityContractRepository repository;
 	private final FormService formService;
-	private final EntityEventManager entityEventManager;
 	private final IdmTreeTypeRepository treeTypeRepository;
 	private final IdmTreeNodeRepository treeNodeRepository;
 	
@@ -71,16 +65,14 @@ public class DefaultIdmIdentityContractService
 			EntityEventManager entityEventManager,
 			IdmTreeTypeRepository treeTypeRepository,
 			IdmTreeNodeRepository treeNodeRepository) {
-		super(repository);
+		super(repository, entityEventManager);
 		//
 		Assert.notNull(formService);
-		Assert.notNull(entityEventManager);
 		Assert.notNull(treeTypeRepository);
 		Assert.notNull(treeNodeRepository);
 		//
 		this.repository = repository;
 		this.formService = formService;
-		this.entityEventManager = entityEventManager;
 		this.treeTypeRepository = treeTypeRepository;
 		this.treeNodeRepository = treeNodeRepository;
 	}
@@ -88,42 +80,6 @@ public class DefaultIdmIdentityContractService
 	@Override
 	public AuthorizableType getAuthorizableType() {
 		return new AuthorizableType(CoreGroupPermission.IDENTITYCONTRACT, getEntityClass());
-	}
-	
-	/**
-	 * Publish {@link IdentityContractEvent} only.
-	 * 
-	 * @see {@link IdentityContractSaveProcessor}
-	 */
-	@Override
-	@Transactional
-	public IdmIdentityContractDto save(IdmIdentityContractDto entity, BasePermission... permission) {
-		Assert.notNull(entity);
-		Assert.notNull(entity.getIdentity());
-		checkAccess(toEntity(entity, null), permission);
-		//
-		if (isNew(entity)) { // create
-			LOG.debug("Saving new contract for identity [{}]", entity.getIdentity());
-			return entityEventManager.process(new IdentityContractEvent(IdentityContractEventType.CREATE, entity)).getContent();
-		}
-		LOG.debug("Saving contract [{}] for identity [{}]", entity.getId(), entity.getIdentity());
-		return entityEventManager.process(new IdentityContractEvent(IdentityContractEventType.UPDATE, entity)).getContent();
-	}
-	
-	/**
-	 * Publish {@link IdentityContractEvent} only.
-	 * 
-	 * @see {@link IdentityContractDeleteProcessor}
-	 */
-	@Override
-	@Transactional
-	public void delete(IdmIdentityContractDto entity, BasePermission... permission) {
-		Assert.notNull(entity);
-		Assert.notNull(entity.getIdentity());
-		checkAccess(this.getEntity(entity.getId()), permission);
-		//
-		LOG.debug("Deleting contract [{}] for identity [{}]", entity.getId(), entity.getIdentity());
-		entityEventManager.process(new IdentityContractEvent(IdentityContractEventType.DELETE, entity));
 	}
 	
 	@Override

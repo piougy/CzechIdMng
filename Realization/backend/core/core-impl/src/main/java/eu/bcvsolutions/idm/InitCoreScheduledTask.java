@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm;
 import java.io.InputStream;
 
 import org.slf4j.Logger;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 
@@ -16,9 +17,9 @@ import eu.bcvsolutions.idm.core.scheduler.config.AbstractScheduledTaskInitialize
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
-
 @Component
 @DependsOn("initApplicationData")
+@ConditionalOnProperty(prefix = "scheduler", name = "enabled", matchIfMissing = true)
 public class InitCoreScheduledTask extends AbstractScheduledTaskInitializer {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(InitCoreScheduledTask.class);

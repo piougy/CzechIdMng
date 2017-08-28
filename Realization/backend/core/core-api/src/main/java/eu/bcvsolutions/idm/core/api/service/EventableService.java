@@ -3,6 +3,8 @@ package eu.bcvsolutions.idm.core.api.service;
 
 import java.io.Serializable;
 
+import eu.bcvsolutions.idm.core.api.dto.BaseDto;
+import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventContext;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
@@ -12,18 +14,18 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
  * 
  * @author svandav
  *
- * @param <DTO>
+ * @param <E> {@link BaseEntity}, {@link BaseDto} or any other {@link Serializable} content type
  */
-
-public interface EventableService<DTO extends Serializable> {
+public interface EventableService<E extends Serializable> {
 
 	/**
-	 * Publish event. Event must have not null content (instance of DTO).
+	 * Publish event. Event must have not null content (instance of E).
 	 * Before publish do permission check (by given event content).
+	 * 
 	 * @param event
 	 * @param permission
 	 * @return
 	 */
-	EventContext<DTO> publish(EntityEvent<DTO> event, BasePermission... permission);
+	EventContext<E> publish(EntityEvent<E> event, BasePermission... permission);
 
 }

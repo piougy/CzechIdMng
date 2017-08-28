@@ -17,6 +17,10 @@ All notable changes to this project will be documented in this file.
 
 #### Core module
 
+##### Event processiong
+
+- Added ``AbstractEventableDtoService`` for simplify services working with events. ``CoreEvent`` with ``CoreEventType`` is published by default now for save and delete event for all domain types (e.g. ``IdmIdentityDto``, ``IdmIdentityContractDto``, ``IdmRoleCatalogueDto``, ``IdmIdentityRoleDto`` ...). **Check [appropriate event type comparison](https://wiki.czechidm.com/devel/dev/architecture/events#event_types)** in your project.
+
 ##### Password policy
 
 - Entity IdmPasswordPolicy was transformed to DTO. Update all places where call from your project service IdmPasswordPolicyService. The service now uses DTO only. Also check your current scripts and their authorities. If you're overloaded any of frontend component which is related IdmPasswordPolicy, check her functionality.
@@ -45,6 +49,15 @@ All notable changes to this project will be documented in this file.
 - Entity SysSyncItemLog was transformed to DTO. Update all places where call from your project SysSyncItemLogService. The service now uses only DTO only. Backward compatibility of all synchronization item logs is guaranteed.
 - Entity SysSyncActionLog was transformed to DTO. Update all places where call from your project SysSyncActionLogService. The service now uses only DTO only. Backward compatibility of all synchronization action logs is guaranteed.
 - Entity SysSyncConfig was transformed to DTO. Update all places where call from your project SysSyncConfigService. The service now uses only DTO only. Backward compatibility of synchronization config is guaranteed.
+
+##### Account management
+
+- Added authorization policies support for identity accounts. Added new permission group ``IDENTITYACCOUNT`` with new evaluator [IdentityAccountByIdentityEvaluator](https://wiki.czechidm.com/devel/dev/security/authorization#identityaccountbyidentityevaluator).
+- Don't use **AccIdentityAccountRepository#find()** method directly => use service layer (methods are using criteria api now).
+- Added authorization policies support for role accounts. Added new tab to role detail with assigned role accounts. Added new permission group ``ROLEACCOUNT``. with new evaluator [RoleAccountByRoleEvaluator](https://wiki.czechidm.com/devel/dev/security/authorization#roleaccountbyroleevaluator).
+- Don't use **AccRoleAccountRepository#find()** method directly => use service layer (methods are using criteria api now).
+- Added authorization policies support for tree accounts. Added new tab to tree node detail with assigned tree accounts. Added new permission group ``TREEACCOUNT``.
+- Don't use **AccTreeAccountRepository#find()** method directly => use service layer (methods are using criteria api now).
 
 
 ### Removed

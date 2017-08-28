@@ -11,7 +11,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.RoleCatalogueFilter;
 import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
 import eu.bcvsolutions.idm.core.api.service.CodeableService;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
-import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
+import eu.bcvsolutions.idm.core.api.service.EventableDtoService;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 
@@ -23,7 +23,7 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
  *
  */
 public interface IdmRoleCatalogueService extends 
-		ReadWriteDtoService<IdmRoleCatalogueDto, RoleCatalogueFilter>, 
+		EventableDtoService<IdmRoleCatalogueDto, RoleCatalogueFilter>, 
 		CodeableService<IdmRoleCatalogueDto>,
 		AuthorizableService<IdmRoleCatalogueDto>,
 		ScriptEnabled {

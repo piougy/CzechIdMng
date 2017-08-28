@@ -347,11 +347,24 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
             manager={conceptRoleRequestManager}
             forceSearchParameters={forceSearchParameters}
             >
-            <Advanced.Column property="_embedded.role.name" header={this.i18n('entity.ConceptRoleRequest.role')} sort/>
+            <Advanced.Column
+              header={this.i18n('entity.ConceptRoleRequest.role')}
+              cell={
+                /* eslint-disable react/no-multi-comp */
+                ({ rowIndex, data }) => {
+                  const role = data[rowIndex]._embedded.role;
+                  return (
+                    <Advanced.EntityInfo
+                      entityType="role"
+                      entityIdentifier={ role.id }
+                      entity={ role }
+                      face="popover" />
+                  );
+                }
+              }/>
             <Advanced.Column
               property="identityContract"
               header={this.i18n('entity.ConceptRoleRequest.identityContract')}
-              sort
               cell={
                 ({rowIndex, data}) => {
                   return (

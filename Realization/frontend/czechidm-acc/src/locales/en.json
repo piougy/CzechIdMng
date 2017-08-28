@@ -898,7 +898,8 @@
       "ROLEACCOUNT": "Role accounts",
       "SYSTEM": "Connected systems",
       "SYNCHRONIZATION": "Synchronization",
-      "TREEACCOUNT": "Tree accounts"
+      "TREEACCOUNT": "Tree accounts",
+      "IDENTITYACCOUNT": "Identity accounts"
     }
   },
   "error": {

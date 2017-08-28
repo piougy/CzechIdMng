@@ -38,9 +38,33 @@ export default class RoleService extends FormableEntityService {
     return super.getDefaultSearchParameters().setName(SearchParameters.NAME_QUICK).clearSort().setSort('name');
   }
 
+  /**
+   * Returns authorities from all enabled modules.
+   *
+   * @return {promise}
+   */
   getAvailableAuthorities() {
     return RestApiService
     .get(RestApiService.getUrl('/authorities/search/available'))
+    .then(response => {
+      return response.json();
+    })
+    .then(json => {
+      if (Utils.Response.hasError(json)) {
+        throw Utils.Response.getFirstError(json);
+      }
+      return json;
+    });
+  }
+
+  /**
+   * Returns authorities from all instaled modules. All authorities are needed in security cofiguration. Module can be disabled, but configured security has to remain.
+   *
+   * @return {promise}
+   */
+  getAllAuthorities() {
+    return RestApiService
+    .get(RestApiService.getUrl('/authorities/search/all'))
     .then(response => {
       return response.json();
     })

@@ -86,7 +86,7 @@ public class DefaultSchedulerManager implements SchedulerManager {
 					task.setModule(taskExecutor.getModule());
 					task.setTaskType((Class<? extends SchedulableTaskExecutor<?>>) taskExecutor.getClass());
 					task.setDescription(AutowireHelper.getBeanDescription(entry.getKey()));
-					for (String parameterName : taskExecutor.getParameterNames()) {
+					for (String parameterName : taskExecutor.getPropertyNames()) {
 						task.getParameters().put(parameterName, null);
 					}
 					return task;
@@ -157,7 +157,7 @@ public class DefaultSchedulerManager implements SchedulerManager {
 			}
 			return task;
 		} catch (org.quartz.SchedulerException ex) {
-			if(ex.getCause() instanceof ClassNotFoundException) {
+			if (ex.getCause() instanceof ClassNotFoundException) {
 				deleteTask(jobKey.getName());
 				LOG.warn("Job [{}] inicialization failed, job class was removed, scheduled task was removed too.", jobKey, ex);
 				return null;

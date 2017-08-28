@@ -134,12 +134,19 @@ class TreeAccounts extends Advanced.AbstractTableContent {
               }/>
             <Advanced.Column rendered={false} property="_embedded.account.accountType" width="75px" header={this.i18n('acc:entity.Account.accountType')} sort face="enum" enumClass={AccountTypeEnum} />
             <Advanced.Column property="_embedded.account.uid" header={this.i18n('acc:entity.Account.uid')} sort face="text" />
-            <Advanced.ColumnLink
-              to="/system/:_target/detail"
-              target="_embedded.account._embedded.system.id"
-              access={{ 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ']}}
-              property="_embedded.account._embedded.system.name"
-              header={this.i18n('acc:entity.System.name')} />
+            <Advanced.Column
+              header={this.i18n('acc:entity.System.name')}
+              cell={
+                /* eslint-disable react/no-multi-comp */
+                ({rowIndex, data}) => {
+                  return (
+                    <Advanced.EntityInfo
+                      entityType="system"
+                      entityIdentifier={ data[rowIndex]._embedded.account._embedded.system.id }
+                      face="popover" />
+                  );
+                }
+              }/>
             <Advanced.Column property="ownership" width="75px" header={this.i18n('acc:entity.IdentityAccount.ownership')} sort face="bool" />
             <Advanced.Column
               property="_embedded.account.inProtection"

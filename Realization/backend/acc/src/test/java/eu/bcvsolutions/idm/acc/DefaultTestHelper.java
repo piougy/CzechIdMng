@@ -97,17 +97,29 @@ public class DefaultTestHelper implements TestHelper {
 	}
 	
 	/**
-	 * Create test system connected to same database (using configuration from
-	 * dataSource)
+	 * Create test system connected to same database (using configuration from dataSource)
+	 * Generated system name will be used.
 	 * 
 	 * @return
 	 */
 	@Override
 	public SysSystem createSystem(String tableName) {
+		return createSystem(tableName, null);
+	}
+	
+	/**
+	 * 
+	 * 
+	 * @param tableName
+	 * @param systemName
+	 * @return
+	 */
+	@Override
+	public SysSystem createSystem(String tableName, String systemName) {
 		// create owner
 		org.apache.tomcat.jdbc.pool.DataSource tomcatDataSource = ((org.apache.tomcat.jdbc.pool.DataSource) dataSource);
 		SysSystem system = new SysSystem();
-		system.setName("testResource_" + System.currentTimeMillis());
+		system.setName(systemName == null ? tableName + "_" + System.currentTimeMillis() : systemName);
 
 		system.setConnectorKey(new SysConnectorKey(systemService.getTestConnectorKey()));
 		systemService.save(system);
@@ -174,8 +186,13 @@ public class DefaultTestHelper implements TestHelper {
 	
 	@Override
 	public SysSystem createTestResourceSystem(boolean withMapping) {
+		return createTestResourceSystem(withMapping, null);
+	}
+	
+	@Override
+	public SysSystem createTestResourceSystem(boolean withMapping, String systemName) {
 		// create test system
-		SysSystem system = createSystem(TestResource.TABLE_NAME);
+		SysSystem system = createSystem(TestResource.TABLE_NAME, systemName);
 		//
 		if (!withMapping) {
 			return system;

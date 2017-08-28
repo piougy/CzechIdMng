@@ -116,10 +116,9 @@ export default class LocalizationService {
    */
   static _getModuleIdsWithLocales(configLoader) {
     const moduleIdsWithLocales = [];
-    for (const moduleId of configLoader.getEnabledModuleIds()) {
-      const descriptor = configLoader.getModuleDescriptor(moduleId);
+    for (const descriptor of configLoader.getModuleDescriptors()) {
       if (descriptor.mainLocalePath) {
-        moduleIdsWithLocales.push(moduleId);
+        moduleIdsWithLocales.push(descriptor.id);
       }
     }
     return moduleIdsWithLocales;

@@ -129,7 +129,8 @@ module.exports = {
       childRoutes: [
         {
           path: 'accounts',
-          component: require('./src/content/identity/IdentityAccounts')
+          component: require('./src/content/identity/IdentityAccounts'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITYACCOUNT_READ'] } ]
         },
         {
           path: 'provisioning',

@@ -2,7 +2,6 @@ package eu.bcvsolutions.idm.acc.service.api;
 
 import eu.bcvsolutions.idm.acc.dto.AccRoleAccountDto;
 import eu.bcvsolutions.idm.acc.dto.filter.RoleAccountFilter;
-import eu.bcvsolutions.idm.acc.entity.AccRoleAccount;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;

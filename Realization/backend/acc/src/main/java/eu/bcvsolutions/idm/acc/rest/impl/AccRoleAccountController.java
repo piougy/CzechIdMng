@@ -1,8 +1,13 @@
 package eu.bcvsolutions.idm.acc.rest.impl;
 
+import java.util.Set;
+
 import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.hateoas.Resources;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -11,6 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -20,10 +26,10 @@ import eu.bcvsolutions.idm.acc.dto.AccRoleAccountDto;
 import eu.bcvsolutions.idm.acc.dto.filter.RoleAccountFilter;
 import eu.bcvsolutions.idm.acc.service.api.AccRoleAccountService;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
+import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
-import eu.bcvsolutions.idm.core.rest.impl.DefaultReadWriteDtoController;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -46,7 +52,7 @@ import io.swagger.annotations.AuthorizationScope;
 		description = "Assigned role accoutns on target system",
 		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
 		consumes = MediaType.APPLICATION_JSON_VALUE)
-public class AccRoleAccountController extends DefaultReadWriteDtoController<AccRoleAccountDto, RoleAccountFilter> {
+public class AccRoleAccountController extends AbstractReadWriteDtoController<AccRoleAccountDto, RoleAccountFilter> {
 	
 	protected static final String TAG = "Role accounts";
 
@@ -55,6 +61,46 @@ public class AccRoleAccountController extends DefaultReadWriteDtoController<AccR
 		super(service);
 	}
 
+	@Override
+	@ResponseBody
+	@RequestMapping(method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.ROLE_ACCOUNT_READ + "')")
+	@ApiOperation(
+			value = "Search role accounts (/search/quick alias)", 
+			nickname = "searchRoleAccounts", 
+			tags = { AccRoleAccountController.TAG }, 
+			authorizations = {
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = AccGroupPermission.ROLE_ACCOUNT_READ, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = AccGroupPermission.ROLE_ACCOUNT_READ, description = "") })
+				})
+	public Resources<?> find(
+			@RequestParam(required = false) MultiValueMap<String, Object> parameters,
+			@PageableDefault Pageable pageable) {
+		return super.find(parameters, pageable);
+	}
+
+	@Override
+	@ResponseBody
+	@RequestMapping(value = "/search/quick", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.ROLE_ACCOUNT_READ + "')")
+	@ApiOperation(
+			value = "Search role accounts", 
+			nickname = "searchQuickRoleAccounts", 
+			tags = { AccRoleAccountController.TAG }, 
+			authorizations = {
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = AccGroupPermission.ROLE_ACCOUNT_READ, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = AccGroupPermission.ROLE_ACCOUNT_READ, description = "") })
+				})
+	public Resources<?> findQuick(
+			@RequestParam(required = false) MultiValueMap<String, Object> parameters,
+			@PageableDefault Pageable pageable) {
+		return super.findQuick(parameters, pageable);
+	}
+	
 	@Override
 	@ResponseBody
 	@PreAuthorize("hasAuthority('" + AccGroupPermission.ROLE_ACCOUNT_READ + "')")
@@ -137,6 +183,26 @@ public class AccRoleAccountController extends DefaultReadWriteDtoController<AccR
 			@ApiParam(value = "Role account's uuid identifier.", required = true)
 			@PathVariable @NotNull String backendId) {
 		return super.delete(backendId);
+	}
+	
+	@Override
+	@ResponseBody
+	@RequestMapping(value = "/{backendId}/permissions", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.ROLE_ACCOUNT_READ + "')")
+	@ApiOperation(
+			value = "What logged identity can do with given record", 
+			nickname = "getPermissionsOnRoleAccount", 
+			tags = { AccRoleAccountController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = AccGroupPermission.ROLE_ACCOUNT_READ, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = AccGroupPermission.ROLE_ACCOUNT_READ, description = "") })
+				})
+	public Set<String> getPermissions(
+			@ApiParam(value = "Role account's uuid identifier.", required = true)
+			@PathVariable @NotNull String backendId) {
+		return super.getPermissions(backendId);
 	}
 
 	@Override

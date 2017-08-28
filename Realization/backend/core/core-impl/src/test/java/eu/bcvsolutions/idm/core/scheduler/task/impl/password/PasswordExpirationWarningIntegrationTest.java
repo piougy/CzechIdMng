@@ -30,7 +30,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 import eu.bcvsolutions.idm.test.api.utils.SchedulerTestUtils;
 
 /**
- * Send password warning mesage test
+ * Send password warning message test
  * 
  * @author Radek Tomiška
  *

@@ -20,6 +20,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmContractGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmPasswordPolicyDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
@@ -30,8 +31,8 @@ import eu.bcvsolutions.idm.core.model.entity.IdmContractGuarantee;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
-import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
+import eu.bcvsolutions.idm.core.model.entity.IdmRoleRequest;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.entity.eav.IdmIdentityFormValue;
@@ -53,6 +54,9 @@ import eu.bcvsolutions.idm.core.security.evaluator.identity.IdentityContractById
 import eu.bcvsolutions.idm.core.security.evaluator.identity.IdentityRoleByIdentityEvaluator;
 import eu.bcvsolutions.idm.core.security.evaluator.identity.SelfIdentityEvaluator;
 import eu.bcvsolutions.idm.core.security.evaluator.role.RoleCanBeRequestedEvaluator;
+import eu.bcvsolutions.idm.core.security.evaluator.role.RoleRequestByIdentityEvaluator;
+import eu.bcvsolutions.idm.core.security.evaluator.role.RoleRequestByWfInvolvedIdentityEvaluator;
+import eu.bcvsolutions.idm.core.security.evaluator.role.SelfRoleRequestEvaluator;
 
 /**
  * Initialize demo data for application
@@ -134,7 +138,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				LOG.info("Creating demo data ...");		
 				//
 				// create default password policy for validate
-				IdmPasswordPolicy passValidate = null;
+				IdmPasswordPolicyDto passValidate = null;
 				try {
 					passValidate = this.passwordPolicyService.getDefaultPasswordPolicy(IdmPasswordPolicyType.VALIDATE);
 				} catch (ResultCodeException e) {
@@ -146,7 +150,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				}
 				// if password policy still not exist create default password policy
 				if (passValidate == null) {
-					passValidate = new IdmPasswordPolicy();
+					passValidate = new IdmPasswordPolicyDto();
 					passValidate.setName("DEFAULT_VALIDATE_POLICY");
 					passValidate.setDefaultPolicy(true);
 					passValidate.setType(IdmPasswordPolicyType.VALIDATE);
@@ -154,7 +158,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				}
 				//
 				// create default password policy for generate
-				IdmPasswordPolicy passGenerate = null;
+				IdmPasswordPolicyDto passGenerate = null;
 				try {
 					passGenerate = this.passwordPolicyService.getDefaultPasswordPolicy(IdmPasswordPolicyType.GENERATE);
 				} catch (ResultCodeException e) {
@@ -166,7 +170,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				}
 				// if still not exist create default generate password policy
 				if (passGenerate == null) {
-					passGenerate = new IdmPasswordPolicy();
+					passGenerate = new IdmPasswordPolicyDto();
 					passGenerate.setName("DEFAULT_GENERATE_POLICY");
 					passGenerate.setDefaultPolicy(true);
 					passGenerate.setType(IdmPasswordPolicyType.GENERATE);
@@ -219,6 +223,29 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				applyForPolicy.setAuthorizableType(IdmRole.class.getCanonicalName());
 				applyForPolicy.setEvaluator(RoleCanBeRequestedEvaluator.class);
 				authorizationPolicyService.save(applyForPolicy);
+				// role requests by identity
+				IdmAuthorizationPolicyDto roleRequestByIdentityPolicy = new IdmAuthorizationPolicyDto();
+				roleRequestByIdentityPolicy.setRole(role1.getId());
+				roleRequestByIdentityPolicy.setGroupPermission(CoreGroupPermission.ROLEREQUEST.getName());
+				roleRequestByIdentityPolicy.setAuthorizableType(IdmRoleRequest.class.getCanonicalName());
+				roleRequestByIdentityPolicy.setEvaluator(RoleRequestByIdentityEvaluator.class);
+				authorizationPolicyService.save(roleRequestByIdentityPolicy);
+				// self role requests
+				IdmAuthorizationPolicyDto selfRoleRequestPolicy = new IdmAuthorizationPolicyDto();
+				selfRoleRequestPolicy.setPermissions(IdmBasePermission.READ, IdmBasePermission.UPDATE, IdmBasePermission.CREATE, IdmBasePermission.DELETE);
+				selfRoleRequestPolicy.setRole(role1.getId());
+				selfRoleRequestPolicy.setGroupPermission(CoreGroupPermission.ROLEREQUEST.getName());
+				selfRoleRequestPolicy.setAuthorizableType(IdmRoleRequest.class.getCanonicalName());
+				selfRoleRequestPolicy.setEvaluator(SelfRoleRequestEvaluator.class);
+				authorizationPolicyService.save(selfRoleRequestPolicy);
+				// role rerquests in approval
+				IdmAuthorizationPolicyDto roleRequestByWfPolicy = new IdmAuthorizationPolicyDto();
+				roleRequestByWfPolicy.setPermissions(IdmBasePermission.READ, IdmBasePermission.UPDATE);
+				roleRequestByWfPolicy.setRole(role1.getId());
+				roleRequestByWfPolicy.setGroupPermission(CoreGroupPermission.ROLEREQUEST.getName());
+				roleRequestByWfPolicy.setAuthorizableType(IdmRoleRequest.class.getCanonicalName());
+				roleRequestByWfPolicy.setEvaluator(RoleRequestByWfInvolvedIdentityEvaluator.class);
+				authorizationPolicyService.save(roleRequestByWfPolicy);
 				//
 				LOG.info(MessageFormat.format("Role created [id: {0}]", role1.getId()));
 				//

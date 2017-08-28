@@ -6,7 +6,7 @@ We use [Redmine](https://redmine.czechidm.com) to track bugs and enhancements.
 
 ### Bugs
 
-If you believe you have found a bug, please take a moment to search the existing issues. If no one else has reported the problem, please open a new ticket that describes the problem in detail and has sufficient instructions to be able to reproduce the issue. Ideally, includes a test that reproduces it. Application, module (backend, frontend) and browser version has to be included in ticket description.
+If you believe you have found a bug, please take a moment to search the existing issues. If no one else has reported the problem, please open a new ticket that describes the problem in detail and has sufficient category and instructions to be able to reproduce the issue. Ideally, includes a test that reproduces it. Application, module (backend, frontend) and browser version has to be included in ticket description.
 
 ### Enhancements
 

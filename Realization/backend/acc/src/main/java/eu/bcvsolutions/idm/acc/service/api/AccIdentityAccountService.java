@@ -10,6 +10,7 @@ import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
+import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 
 /**
  * Identity accounts on target system
@@ -17,7 +18,10 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
  * @author Svanda
  *
  */
-public interface AccIdentityAccountService extends ReadWriteDtoService<AccIdentityAccountDto, IdentityAccountFilter>, ScriptEnabled {
+public interface AccIdentityAccountService extends 
+		ReadWriteDtoService<AccIdentityAccountDto, IdentityAccountFilter>, 
+		ScriptEnabled,
+		AuthorizableService<AccIdentityAccountDto> {
 
 	static final String FORCE_DELETE_OF_IDENTITY_ACCOUNT_KEY = "forceDeleteOfIdentityAccount";
 	static final String DELETE_TARGET_ACCOUNT_KEY = "deleteTargetAccount";

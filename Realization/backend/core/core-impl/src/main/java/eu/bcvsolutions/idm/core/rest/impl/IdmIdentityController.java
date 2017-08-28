@@ -223,7 +223,8 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 	@Override
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.POST)
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_CREATE + "') or hasAuthority('" + CoreGroupPermission.IDENTITY_UPDATE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_CREATE + "')"
+			+ " or hasAuthority('" + CoreGroupPermission.IDENTITY_UPDATE + "')")
 	@ApiOperation(
 			value = "Create / update identity", 
 			nickname = "postIdentity", 
@@ -383,14 +384,11 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 				})
 	public Resources<?> roles(
 			@ApiParam(value = "Identity's uuid identifier or username.", required = true)
-			@PathVariable String backendId, 
-			PersistentEntityResourceAssembler assembler) {	
+			@PathVariable String backendId) {	
 		IdmIdentityDto identity = getDto(backendId);
 		if (identity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
-		//
-		checkAccess(identity, IdmBasePermission.READ);
 		//
 		IdentityRoleFilter filter = new IdentityRoleFilter();
 		filter.setIdentityId(identity.getId());		

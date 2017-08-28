@@ -7,27 +7,34 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
+import eu.bcvsolutions.idm.core.api.domain.RoleRequestedByType;
 import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmContractGuaranteeService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleCatalogueService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleTreeNodeService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeTypeService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
+import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.evaluator.BasePermissionEvaluator;
 import eu.bcvsolutions.idm.core.security.evaluator.UuidEvaluator;
@@ -51,6 +58,8 @@ public class DefaultTestHelper implements TestHelper {
 	@Autowired private IdmAuthorizationPolicyService authorizationPolicyService;
 	@Autowired private IdmIdentityRoleService identityRoleService;
 	@Autowired private IdmRoleCatalogueService idmRoleCatalogueService;
+	@Autowired private IdmRoleRequestService roleRequestService;
+	@Autowired private IdmConceptRoleRequestService conceptRoleRequestService;
 	
 	@Override
 	public IdmIdentityDto createIdentity() {
@@ -171,9 +180,16 @@ public class DefaultTestHelper implements TestHelper {
 	
 	@Override
 	public IdmAuthorizationPolicyDto createBasePolicy(UUID role, BasePermission... permission) {
+		return createBasePolicy(role, null, null, permission);
+	}
+	
+	@Override
+	public IdmAuthorizationPolicyDto createBasePolicy(UUID role, GroupPermission groupPermission, Class<?> authorizableType, BasePermission... permission) {
 		IdmAuthorizationPolicyDto dto = new IdmAuthorizationPolicyDto();
 		dto.setRole(role);
 		dto.setEvaluator(BasePermissionEvaluator.class);
+		dto.setGroupPermission(groupPermission == null ? null : groupPermission.getName());
+		dto.setAuthorizableType(authorizableType == null ? null : authorizableType.getCanonicalName());
 		dto.setPermissions(permission);
 		return authorizationPolicyService.save(dto);
 	}
@@ -190,7 +206,7 @@ public class DefaultTestHelper implements TestHelper {
 	
 	@Override
 	public IdmIdentityRoleDto createIdentityRole(IdmIdentityDto identity, IdmRole role) {
-		return createIdentityRole(identityContractService.getPrimeContract(identity.getId()), role);
+		return createIdentityRole(getPrimeContract(identity.getId()), role);
 	}
 	
 	@Override
@@ -199,6 +215,11 @@ public class DefaultTestHelper implements TestHelper {
 		identityRole.setIdentityContract(identityContract.getId());
 		identityRole.setRole(role.getId());
 		return identityRoleService.save(identityRole);
+	}
+	
+	@Override
+	public IdmIdentityContractDto getPrimeContract(UUID identityId) {
+		return identityContractService.getPrimeContract(identityId);
 	}
 
 	@Override
@@ -232,7 +253,41 @@ public class DefaultTestHelper implements TestHelper {
 		return contractGuaranteeService.save(new IdmContractGuaranteeDto(identityContractId, identityId));
 	}
 	
+	@Override
+	public IdmRoleRequestDto assignRoles(IdmIdentityContractDto contract, IdmRole... roles) {
+		IdmRoleRequestDto roleRequest = new IdmRoleRequestDto();
+		roleRequest.setApplicant(contract.getIdentity());
+		roleRequest.setRequestedByType(RoleRequestedByType.MANUALLY);
+		roleRequest.setExecuteImmediately(true);
+		roleRequest = roleRequestService.save(roleRequest);
+		//
+		for (IdmRole role : roles) {
+			IdmConceptRoleRequestDto conceptRoleRequest = new IdmConceptRoleRequestDto();
+			conceptRoleRequest.setRoleRequest(roleRequest.getId());
+			conceptRoleRequest.setIdentityContract(contract.getId());
+			conceptRoleRequest.setValidFrom(contract.getValidFrom());
+			conceptRoleRequest.setValidTill(contract.getValidTill());
+			conceptRoleRequest.setRole(role.getId());
+			//
+			conceptRoleRequest.setOperation(ConceptRoleRequestOperation.ADD);
+			//
+			conceptRoleRequestService.save(conceptRoleRequest);
+		}
+		//
+		return roleRequestService.startRequest(roleRequest.getId(), false);		
+	}
+	
 	private String createName() {
 		return "test" + "-" + UUID.randomUUID();
+	}
+
+	@Override
+	public IdmRoleCatalogueDto createRoleCatalogue(String code, UUID parentId) {
+		IdmRoleCatalogueDto roleCatalogue = new IdmRoleCatalogueDto();
+		code = code == null ? createName() : code;
+		roleCatalogue.setName(code);
+		roleCatalogue.setParent(parentId);
+		roleCatalogue.setCode(code);
+		return idmRoleCatalogueService.save(roleCatalogue);
 	}
 }

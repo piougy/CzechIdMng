@@ -272,7 +272,9 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 			authorizableTypes = new HashSet<>();
 			// types with authorization evaluators support
 			context.getBeansOfType(AuthorizableService.class).values().forEach(service -> {
-				authorizableTypes.add(service.getAuthorizableType());
+				if (service.getAuthorizableType() != null) {
+					authorizableTypes.add(service.getAuthorizableType());
+				}
 			});
 			// add default - doesn't supports authorization evaluators
 			moduleService.getAvailablePermissions().forEach(groupPermission -> {

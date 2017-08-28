@@ -3,9 +3,9 @@ package eu.bcvsolutions.idm.core.model.event;
 import java.io.Serializable;
 import java.util.Map;
 
+import eu.bcvsolutions.idm.core.api.dto.IdmPasswordPolicyDto;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.EventType;
-import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
 
 /**
  * Password policy event
@@ -13,7 +13,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
-public class PasswordPolicyEvent extends CoreEvent<IdmPasswordPolicy> {
+public class PasswordPolicyEvent extends CoreEvent<IdmPasswordPolicyDto> {
 	
 	private static final long serialVersionUID = 1L;
 
@@ -25,11 +25,11 @@ public class PasswordPolicyEvent extends CoreEvent<IdmPasswordPolicy> {
 		CREATE, UPDATE, DELETE
 	}
 	
-	public PasswordPolicyEvent(PasswordPolicyEvenType operation, IdmPasswordPolicy content) {
+	public PasswordPolicyEvent(PasswordPolicyEvenType operation, IdmPasswordPolicyDto content) {
 		super(operation, content);
 	}
 	
-	public PasswordPolicyEvent(PasswordPolicyEvenType operation, IdmPasswordPolicy content, Map<String, Serializable> properties) {
+	public PasswordPolicyEvent(PasswordPolicyEvenType operation, IdmPasswordPolicyDto content, Map<String, Serializable> properties) {
 		super(operation, content, properties);
 	}
 }

@@ -8,6 +8,9 @@ import {SecurityManager} from '../../redux';
 import RoleRequestStateEnum from '../../enums/RoleRequestStateEnum';
 import CandicateUsersCell from '../workflow/CandicateUsersCell';
 
+/**
+ * @author VS
+ */
 class RoleRequestTable extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
@@ -28,11 +31,11 @@ class RoleRequestTable extends Advanced.AbstractTableContent {
 
 
   showDetail(entity, add) {
-    const {createNewRequestFunc, adminMode} = this.props;
+    const {createNewRequestFunc } = this.props;
     if (add) {
       createNewRequestFunc(entity);
     } else {
-      this.context.router.push(`/role-requests/${entity.id}/detail?adminMode=${adminMode}`);
+      this.context.router.push(`/role-requests/${entity.id}/detail`);
     }
   }
 
@@ -106,19 +109,21 @@ class RoleRequestTable extends Advanced.AbstractTableContent {
             : undefined
           }
           buttons={
-            [<span>
+            [
               <Basic.Button
                 level="success"
                 key="add_button"
                 className="btn-xs"
                 onClick={this.showDetail.bind(this, { }, true)}
-                rendered={_.includes(columns, 'createNew') && createNewRequestFunc
-                  && SecurityManager.hasAnyAuthority(['ROLEREQUEST_CREATE'])}>
+                rendered={
+                  _.includes(columns, 'createNew')
+                    && createNewRequestFunc
+                    && SecurityManager.hasAnyAuthority(['ROLEREQUEST_ADMIN'])
+                  }>
                 <Basic.Icon type="fa" icon="plus"/>
                 {' '}
                 {this.i18n('button.add')}
               </Basic.Button>
-            </span>
             ]
           }
           >
@@ -226,7 +231,6 @@ class RoleRequestTable extends Advanced.AbstractTableContent {
 RoleRequestTable.propTypes = {
   _showLoading: PropTypes.bool,
   showFilter: PropTypes.bool,
-  adminMode: PropTypes.bool,
   forceSearchParameters: PropTypes.object,
   startRequestFunc: PropTypes.func,
   createNewRequestFunc: PropTypes.func,
@@ -236,7 +240,6 @@ RoleRequestTable.propTypes = {
 RoleRequestTable.defaultProps = {
   _showLoading: false,
   showFilter: true,
-  adminMode: true,
   columns: ['state', 'created', 'modified', 'wf', 'applicant', 'executeImmediately', 'startRequest', 'createNew', 'detail'],
 };
 

@@ -15,7 +15,6 @@ public class TreeAccountFilter implements BaseFilter, EntityAccountFilter {
 	private UUID accountId;
 	private UUID treeNodeId;
 	private UUID systemId;
-	private UUID identityRoleId;
 	private UUID roleSystemId;
 	private Boolean ownership;
 
@@ -46,14 +45,6 @@ public class TreeAccountFilter implements BaseFilter, EntityAccountFilter {
 	
 	public UUID getSystemId() {
 		return systemId;
-	}
-
-	public UUID getIdentityRoleId() {
-		return identityRoleId;
-	}
-
-	public void setIdentityRoleId(UUID identityRoleId) {
-		this.identityRoleId = identityRoleId;
 	}
 
 	public UUID getRoleSystemId() {

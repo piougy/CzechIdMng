@@ -22,7 +22,7 @@ import org.springframework.util.Assert;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
-import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
+import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
@@ -33,7 +33,6 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogueRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogueRole_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole_;
 import eu.bcvsolutions.idm.core.model.event.IdentityRoleEvent;
-import eu.bcvsolutions.idm.core.model.event.IdentityRoleEvent.IdentityRoleEventType;
 import eu.bcvsolutions.idm.core.model.event.processor.identity.IdentityRoleDeleteProcessor;
 import eu.bcvsolutions.idm.core.model.event.processor.identity.IdentityRoleSaveProcessor;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
@@ -49,24 +48,20 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
  *
  */
 public class DefaultIdmIdentityRoleService 
-		extends AbstractReadWriteDtoService<IdmIdentityRoleDto, IdmIdentityRole, IdentityRoleFilter>
+		extends AbstractEventableDtoService<IdmIdentityRoleDto, IdmIdentityRole, IdentityRoleFilter>
 		implements IdmIdentityRoleService {
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmIdentityRoleService.class);
 
 	private final IdmIdentityRoleRepository repository;
-	private final EntityEventManager entityEventManager;
 
 	@Autowired
 	public DefaultIdmIdentityRoleService(
 			IdmIdentityRoleRepository repository,
 			EntityEventManager entityEventManager) {
-		super(repository);
-		//
-		Assert.notNull(entityEventManager);
+		super(repository, entityEventManager);
 		//
 		this.repository = repository;
-		this.entityEventManager = entityEventManager;
 	}
 	
 	@Override
@@ -87,8 +82,7 @@ public class DefaultIdmIdentityRoleService
 		Assert.notNull(dto.getIdentityContract());
 		//
 		LOG.debug("Saving role [{}] for identity contract [{}]", dto.getRole(), dto.getIdentityContract());
-		return entityEventManager.process(
-				new IdentityRoleEvent(isNew(dto) ? IdentityRoleEventType.CREATE : IdentityRoleEventType.UPDATE, dto)).getContent();
+		return super.save(dto, permission);
 	}
 
 	/**
@@ -98,13 +92,13 @@ public class DefaultIdmIdentityRoleService
 	 */
 	@Override
 	@Transactional
-	public void delete(IdmIdentityRoleDto entity, BasePermission... permission) {
-		Assert.notNull(entity);
-		Assert.notNull(entity.getRole());
-		Assert.notNull(entity.getIdentityContract());
+	public void delete(IdmIdentityRoleDto dto, BasePermission... permission) {
+		Assert.notNull(dto);
+		Assert.notNull(dto.getRole());
+		Assert.notNull(dto.getIdentityContract());
 		//
-		LOG.debug("Deleting role [{}] for identity contract [{}]", entity.getRole(), entity.getIdentityContract());
-		entityEventManager.process(new IdentityRoleEvent(IdentityRoleEventType.DELETE, entity));
+		LOG.debug("Deleting role [{}] for identity contract [{}]", dto.getRole(), dto.getIdentityContract());
+		super.delete(dto, permission);
 	}
 	
 	@Override

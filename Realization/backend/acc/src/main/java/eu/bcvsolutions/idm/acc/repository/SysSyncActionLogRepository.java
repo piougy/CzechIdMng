@@ -7,7 +7,6 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import eu.bcvsolutions.idm.acc.dto.filter.SyncActionLogFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSyncActionLog;
-import eu.bcvsolutions.idm.acc.rest.projection.SysSyncActionLogExcerpt;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 
 /**
@@ -20,7 +19,6 @@ import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 		collectionResourceRel = "syncActionLogs", //
 		path = "sync-action-logs", //
 		itemResourceRel = "syncActionLog", //
-		excerptProjection = SysSyncActionLogExcerpt.class,
 		exported = false // we are using repository metadata, but we want expose
 							// rest endpoint manually
 )

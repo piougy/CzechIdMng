@@ -5,11 +5,17 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
+import org.springframework.util.ObjectUtils;
 
 import com.google.common.base.Strings;
 
@@ -17,11 +23,19 @@ import eu.bcvsolutions.idm.core.api.domain.Loggable;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.ConceptRoleRequestFilter;
+import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.model.entity.IdmConceptRoleRequest;
+import eu.bcvsolutions.idm.core.model.entity.IdmConceptRoleRequest_;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole_;
+import eu.bcvsolutions.idm.core.model.entity.IdmRoleRequest_;
+import eu.bcvsolutions.idm.core.model.entity.IdmRoleTreeNode_;
+import eu.bcvsolutions.idm.core.model.entity.IdmRole_;
 import eu.bcvsolutions.idm.core.model.repository.IdmConceptRoleRequestRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
+import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowProcessInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
@@ -30,7 +44,7 @@ import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
  * Default implementation of concept role request service
  * 
  * @author svandav
- *
+ * @author Radek Tomiška
  */
 @Service("conceptRoleRequestService")
 public class DefaultIdmConceptRoleRequestService
@@ -51,6 +65,24 @@ public class DefaultIdmConceptRoleRequestService
 		//
 		this.repository = repository;
 		this.workflowProcessInstanceService = workflowProcessInstanceService;
+	}
+	
+	@Override
+	public AuthorizableType getAuthorizableType() {
+		// secured internally by role requests
+		return null;
+	}
+	
+	@Override
+	public IdmConceptRoleRequest checkAccess(IdmConceptRoleRequest entity, BasePermission... permission) {
+		if (entity == null) {
+			// nothing to check
+			return null;
+		}
+		if (!ObjectUtils.isEmpty(permission) && !getAuthorizationManager().evaluate(entity.getRoleRequest(), permission)) {
+			throw new ForbiddenEntityException(entity.getId());
+		}
+		return entity;
 	}
 	
 	@Override
@@ -114,6 +146,35 @@ public class DefaultIdmConceptRoleRequestService
 	}
 	
 	@Override
+	protected List<Predicate> toPredicates(Root<IdmConceptRoleRequest> root, CriteriaQuery<?> query, CriteriaBuilder builder, ConceptRoleRequestFilter filter) {
+		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
+		//
+		if (filter.getRoleRequestId() != null) {
+			predicates.add(builder.equal(root.get(IdmConceptRoleRequest_.roleRequest).get(IdmRoleRequest_.id), filter.getRoleRequestId()));
+		}
+		if (filter.getIdentityRoleId() != null) {
+			predicates.add(builder.equal(root.get(IdmConceptRoleRequest_.identityRole).get(IdmIdentityRole_.id), filter.getIdentityRoleId()));
+		}
+		if (filter.getRoleId() != null) {
+			predicates.add(builder.equal(root.get(IdmConceptRoleRequest_.role).get(IdmRole_.id), filter.getRoleId()));
+		}
+		if (filter.getIdentityContractId() != null) {
+			predicates.add(builder.equal(root.get(IdmConceptRoleRequest_.identityContract).get(IdmIdentityContract_.id), filter.getIdentityContractId()));
+		}
+		if (filter.getRoleTreeNodeId() != null) {
+			predicates.add(builder.equal(root.get(IdmConceptRoleRequest_.roleTreeNode).get(IdmRoleTreeNode_.id), filter.getRoleTreeNodeId()));
+		}
+		if (filter.getOperation() != null) {
+			predicates.add(builder.equal(root.get(IdmConceptRoleRequest_.operation), filter.getOperation()));
+		}
+		if (filter.getState() != null) {
+			predicates.add(builder.equal(root.get(IdmConceptRoleRequest_.state), filter.getState()));
+		}
+		//
+		return predicates;
+	}
+	
+	@Override
 	@Transactional(readOnly = true)
 	public List<IdmConceptRoleRequestDto> findAllByRoleRequest(UUID roleRequestId) {
 		return toDtos(repository.findAllByRoleRequest_Id(roleRequestId), false);
@@ -128,7 +189,5 @@ public class DefaultIdmConceptRoleRequestService
 		text = sb.toString();
 		logItem.addToLog(text);
 		LOG.info(text);
-
 	}
-
 }

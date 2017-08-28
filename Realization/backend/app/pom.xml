@@ -244,19 +244,6 @@
 
 		<profile>
 			<id>dev-mysql</id>
-			<!-- Optional modules - could be added without dependency -->
-			<dependencies>
-				<dependency>
-					<groupId>${project.groupId}</groupId>
-					<artifactId>idm-acc</artifactId>
-					<version>${project.version}</version>
-				</dependency>
-				<dependency>
-					<groupId>${project.groupId}</groupId>
-					<artifactId>idm-example</artifactId>
-					<version>${project.version}</version>
-				</dependency>
-			</dependencies>
 		</profile>
 
 		<!-- Due portability of maven build among different OSs we need to distinguish

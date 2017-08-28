@@ -18,16 +18,12 @@ import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
  */
 public interface AccRoleAccountRepository extends AbstractEntityRepository<AccRoleAccount, RoleAccountFilter> {
 	
-	/*
-	 * (non-Javadoc)
-	 * @see eu.bcvsolutions.idm.core.api.repository.BaseEntityRepository#find(eu.bcvsolutions.idm.core.api.dto.BaseFilter, Pageable)
-	 */
 	/**
 	 * @deprecated Use DefaultAccRoleAccountService (uses criteria api)
 	 */
 	@Override
 	@Deprecated
-	@Query(value = "select e from AccRoleAccount e")
+	@Query(value = "select e from #{#entityName} e")
 	default Page<AccRoleAccount> find(RoleAccountFilter filter, Pageable pageable) {
 		throw new UnsupportedOperationException("Use DefaultAccRoleAccountService (uses criteria api)");
 	}

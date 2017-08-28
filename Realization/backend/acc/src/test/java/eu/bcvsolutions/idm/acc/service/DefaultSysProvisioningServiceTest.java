@@ -55,6 +55,7 @@ import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyGenerateType;
 import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyType;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmPasswordPolicyDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdentityFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
@@ -62,11 +63,11 @@ import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
-import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.eav.IdmIdentityFormValue;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
+import eu.bcvsolutions.idm.core.model.repository.IdmPasswordPolicyRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordPolicyService;
@@ -96,6 +97,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 	private static final String PASSWORD_POLICY = "passwordPolicy";
 	private static final String EMAIL_ONE = "one.email@one.cz";
 	private static final String EMAIL_TWO = "two.email@two.cz";
+	private static final String SYSTEM_NAME = "DefaultSysProvisioningServiceTest";
 
 	@Autowired
 	private TestHelper helper;
@@ -138,6 +140,9 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 
 	@Autowired
 	private IdmPasswordPolicyService passwordPolicyService;
+	
+	@Autowired
+	private IdmPasswordPolicyRepository passwordPolicyRepository;
 	
 	@Autowired
 	private IdmTreeNodeService treeNodeService;
@@ -340,6 +345,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 
 		IdentityAccountFilter filter = new IdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
+		filter.setSystemId(sysSystemService.getByCode(SYSTEM_NAME).getId());
 		AccIdentityAccountDto accountIdentityOne = identityAccoutnService.find(filter, null).getContent().get(0);
 		AccAccount account = accountService.get(accountIdentityOne.getAccount());
 		SysSystem system = account.getSystem();
@@ -351,7 +357,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 
 		TestResource resourceAccount = entityManager.find(TestResource.class, "x" + IDENTITY_USERNAME);
 		Assert.assertNotNull("Idenitity have to exists on target system (after account management)", resourceAccount);
-		Assert.assertEquals("Account on target system, must have same firsta name as Identity",
+		Assert.assertEquals("Account on target system, must have same first name as Identity",
 				IDENTITY_CHANGED_FIRST_NAME, resourceAccount.getFirstname());
 
 		provisioningService.doProvisioningForAttribute(systemEntity,
@@ -1041,10 +1047,10 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		AccIdentityAccountDto accountIdentityOne;
 
 		// create test system
-		SysSystem system = helper.createSystem("test_resource");
+		SysSystem system = helper.createSystem(TestResource.TABLE_NAME, SYSTEM_NAME);
 
 		// set default generate password policy for system
-		IdmPasswordPolicy passwordPolicy = new IdmPasswordPolicy();
+		IdmPasswordPolicyDto passwordPolicy = new IdmPasswordPolicyDto();
 		passwordPolicy.setName(PASSWORD_POLICY);
 		passwordPolicy.setType(IdmPasswordPolicyType.GENERATE);
 		passwordPolicy.setGenerateType(IdmPasswordPolicyGenerateType.RANDOM);
@@ -1052,8 +1058,8 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		passwordPolicy.setMinPasswordLength(2);
 		passwordPolicy.setMaxPasswordLength(2);
 		passwordPolicy.setMinLowerChar(2);
-		passwordPolicyService.save(passwordPolicy);
-		system.setPasswordPolicyGenerate(passwordPolicy);
+		passwordPolicy = passwordPolicyService.save(passwordPolicy);
+		system.setPasswordPolicyGenerate(passwordPolicyRepository.findOne(passwordPolicy.getId()));
 		system = sysSystemService.save(system);
 
 		// generate schema for system

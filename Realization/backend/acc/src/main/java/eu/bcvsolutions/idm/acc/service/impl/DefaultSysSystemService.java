@@ -21,6 +21,7 @@ import org.springframework.util.Assert;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
+import eu.bcvsolutions.idm.acc.dto.SysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SchemaObjectClassFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SynchronizationConfigFilter;
@@ -31,7 +32,6 @@ import eu.bcvsolutions.idm.acc.entity.SysConnectorKey;
 import eu.bcvsolutions.idm.acc.entity.SysConnectorServer;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
-import eu.bcvsolutions.idm.acc.entity.SysSyncConfig;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
 import eu.bcvsolutions.idm.acc.entity.SysSystemFormValue;
@@ -531,11 +531,11 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 						schemaAttributesCache, mappedAttributesCache);
 
 				// Duplicate sync configs
-				List<SysSyncConfig> syncConfigs = findSyncConfigs(id);
+				List<SysSyncConfigDto> syncConfigs = findSyncConfigs(id);
 				syncConfigs.stream().filter(syncConfig -> {
 					
 					// Find configuration of sync for this mapping
-					return syncConfig.getSystemMapping().getId().equals(originalMappingId);
+					return syncConfig.getSystemMapping().equals(originalMappingId);
 				}).forEach(syncConfig -> {
 					UUID syncConfigId = syncConfig.getId();
 					duplicateSyncConf(syncConfigId, duplicatedMapping, mappedAttributesCache);
@@ -630,11 +630,20 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 	 */
 	private void duplicateSyncConf(UUID syncConfigId, SysSystemMapping duplicatedMapping,
 			Map<UUID, UUID> mappedAttributesCache) {
-		SysSyncConfig clonedSyncConfig = synchronizationConfigService.clone(syncConfigId);
-		clonedSyncConfig.setSystemMapping(duplicatedMapping);
-		clonedSyncConfig.setFilterAttribute(this.getNewAttributeByOld(clonedSyncConfig.getFilterAttribute(), mappedAttributesCache));
-		clonedSyncConfig.setCorrelationAttribute(this.getNewAttributeByOld(clonedSyncConfig.getCorrelationAttribute(), mappedAttributesCache));
-		clonedSyncConfig.setTokenAttribute(this.getNewAttributeByOld(clonedSyncConfig.getTokenAttribute(), mappedAttributesCache));
+		SysSyncConfigDto clonedSyncConfig = synchronizationConfigService.clone(syncConfigId);
+		clonedSyncConfig.setSystemMapping(duplicatedMapping.getId());
+		//
+		clonedSyncConfig.setFilterAttribute(this.getNewAttributeByOld(
+				systemAttributeMappingService.get(clonedSyncConfig.getFilterAttribute()), mappedAttributesCache).getId());
+		//
+		clonedSyncConfig.setCorrelationAttribute(
+				this.getNewAttributeByOld(systemAttributeMappingService.get(clonedSyncConfig.getCorrelationAttribute()),
+						mappedAttributesCache).getId());
+		//
+		clonedSyncConfig.setTokenAttribute(
+				this.getNewAttributeByOld(systemAttributeMappingService.get(clonedSyncConfig.getTokenAttribute()),
+						mappedAttributesCache).getId());
+		//
 		// Disabled cloned sync
 		clonedSyncConfig.setEnabled(false);
 		synchronizationConfigService.save(clonedSyncConfig);
@@ -659,10 +668,10 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 	 * @param id
 	 * @return
 	 */
-	private List<SysSyncConfig> findSyncConfigs(UUID id) {
+	private List<SysSyncConfigDto> findSyncConfigs(UUID id) {
 		SynchronizationConfigFilter syncConfigFilter = new SynchronizationConfigFilter();
 		syncConfigFilter.setSystemId(id);
-		List<SysSyncConfig> syncConfigs = synchronizationConfigService.find(syncConfigFilter, null).getContent();
+		List<SysSyncConfigDto> syncConfigs = synchronizationConfigService.find(syncConfigFilter, null).getContent();
 		syncConfigs.forEach(syncConfig -> {
 			// I have to do detach for all sync configurations
 			entityManager.detach(syncConfig);

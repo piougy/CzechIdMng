@@ -40,7 +40,7 @@ public class IdmAuthorityChange implements BaseEntity {
 	@Id
 	@GeneratedValue(generator = "uuid2")
 	@GenericGenerator(name = "uuid2", strategy = "uuid2")
-	@Column(name = "id")
+	@Column(name = "id", length = 16)
 	private UUID id;
 
 	@Column(name = "auth_change_timestamp")

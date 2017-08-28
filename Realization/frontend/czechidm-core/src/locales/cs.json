@@ -293,6 +293,9 @@
         "link": {
           "detail": {
             "label": "Přejít na detail"
+          },
+          "popover": {
+            "title": "Zobrazit vizitku"
           }
         }
       },
@@ -1174,7 +1177,7 @@
     },
     "roles": {
       "menu-title": "Role",
-      "header": "Správa rolí",
+      "header": "Role",
       "title": "Správa rolí",
       "button": {
         "allRoles": "Všechny role"
@@ -2014,7 +2017,8 @@
         "header": "Logované události",
         "header-detail": "Logovaná událost",
         "detail": "detail",
-        "exceptions": "Chybové hlášení"
+        "exceptions": "Chybové hlášení",
+        "rawSource": "Zobrazit kopírovatelný obsah"
       },
       "revision": {
         "id": "ID revize",
@@ -2188,10 +2192,20 @@
     "AuthorizationPolicy": {
       "_type": "Oprávnění",
       "role": "Role",
-      "disabled": "Neaktivní",
-      "description": "Popis",
-      "seq": "Pořadí",
-      "evaluatorType": "Typ vyhodnocení",
+      "disabled": {
+        "label": "Neaktivní",
+        "help": "Neaktivní politika nebude aplikována"
+      },
+      "description": {
+        "label": "Popis"
+      },
+      "seq": {
+        "label": "Pořadí",
+        "help": "Pouze z optimalizačních důvodů. Pořadí je použito při vyhodnocování oprávnění nad jednotlivými záznamy / entitami. Při nalezení první politiky vyhovující danému oprávnění nad danou entitou může vyhodnocení skončit. Jednodušší politiky na vyhodnocení by měly míti nižší pořadí, budou zpracovány dříve."
+      },
+      "evaluatorType": {
+        "label": "Typ vyhodnocení"
+      },
       "authorizableType": {
         "label": "Agenda / Typ entity",
         "placeholder": "Vyberte agendu (typ entity) nebo nechte prázdné (všechny agendy / typy)",
@@ -2600,6 +2614,7 @@
     },
     "RoleRequest": {
       "applicant": "Žádost pro",
+      "implementer": "Žadatel",
       "state": "Stav",
       "executeImmediately": "Provést bez schválení",
       "log": "Log",
@@ -2736,6 +2751,10 @@
     "FORBIDDEN": {
       "title": "Nedostatečná oprávnění",
       "message": "Na požadovanou akci nemáte dostatečná oprávnění."
+    },
+    "FORBIDDEN_ENTITY": {
+      "title": "Nedostatečná oprávnění",
+      "message": "Na požadovaný záznam [{{entity}}] nemáte dostatečná oprávnění [{{permission}}]."
     },
     "PASSWORD_CHANGE_NO_SYSTEM": {
       "title": "Změna hesla neproběhla",

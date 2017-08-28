@@ -466,12 +466,23 @@ export class RoleConceptTable extends Basic.AbstractContent {
             }
             sort={false}/>
           <Basic.Column
-            header={this.i18n('entity.IdentityRole.role')}
-            property="_embedded.role.name"
+            header={ this.i18n('entity.IdentityRole.role') }
+            cell={
+              /* eslint-disable react/no-multi-comp */
+              ({ rowIndex, data }) => {
+                const role = data[rowIndex]._embedded.role;
+                return (
+                  <Advanced.EntityInfo
+                    entityType="role"
+                    entityIdentifier={ role.id }
+                    entity={ role }
+                    face="popover" />
+                );
+              }
+            }
             />
           <Basic.Column
             header={this.i18n('entity.IdentityRole.identityContract.title')}
-            property="_embedded.identityContract"
             cell={
               ({rowIndex, data}) => {
                 const contract = data[rowIndex]._embedded.identityContract;

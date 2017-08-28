@@ -14,7 +14,6 @@ import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyType;
 import eu.bcvsolutions.idm.core.api.dto.filter.PasswordPolicyFilter;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
-import eu.bcvsolutions.idm.core.rest.projection.IdmPasswordPolicyExcerpt;
 
 /**
  * Password policy cointain set of rule, for create, update user password.
@@ -30,7 +29,6 @@ import eu.bcvsolutions.idm.core.rest.projection.IdmPasswordPolicyExcerpt;
 		itemResourceRel = "passwordPolicy",
 		collectionResourceDescription = @Description("Password policies"),
 		itemResourceDescription = @Description("Password policy"),
-		excerptProjection = IdmPasswordPolicyExcerpt.class,
 		exported = false
 	)
 public interface IdmPasswordPolicyRepository extends AbstractEntityRepository<IdmPasswordPolicy, PasswordPolicyFilter> {

@@ -116,6 +116,16 @@ public class DefaultModuleService implements ModuleService {
 		LOG.debug("Loaded available groupPermissions [size:{}]", permissions.size());
 		return Collections.unmodifiableList(permissions);
 	}
+	
+	@Override
+	public List<GroupPermission> getAllPermissions() {
+		List<GroupPermission> permissions = new ArrayList<>();
+		getInstalledModules().forEach(moduleDescriptor -> {
+			permissions.addAll(moduleDescriptor.getPermissions());
+		});
+		LOG.debug("Loaded available groupPermissions [size:{}]", permissions.size());
+		return Collections.unmodifiableList(permissions);
+	}
 
 	/**
 	 * Returns module property by {@link eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService} conventions.

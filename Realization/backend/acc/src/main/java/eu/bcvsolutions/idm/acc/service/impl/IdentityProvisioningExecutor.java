@@ -6,7 +6,6 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
@@ -17,7 +16,6 @@ import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
 import eu.bcvsolutions.idm.acc.domain.EntityAccount;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
-import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.EntityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.filter.EntityAccountFilter;
@@ -29,7 +27,6 @@ import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.repository.AccIdentityAccountRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountManagementService;
@@ -62,7 +59,6 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
 	private final AccIdentityAccountService identityAccountService;
 	private final AccIdentityAccountRepository identityAccountRepository;
 	private final SysRoleSystemService roleSystemService;
-	private final AccAccountManagementService accountManagementService;
 	
 	@Autowired
 	public IdentityProvisioningExecutor(SysSystemMappingService systemMappingService,
@@ -86,25 +82,20 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
 		
 		this.identityAccountService = identityAccountService;
 		this.roleSystemService = roleSystemService;
-		this.accountManagementService = accountManagementService;
 		this.identityAccountRepository = identityAccountRepository;
 	}
 	
 	public void doProvisioning(AccAccount account) {
 		Assert.notNull(account);
-
-		IdentityAccountFilter filter = new IdentityAccountFilter();
-		filter.setAccountId(account.getId());
-		Page<AccIdentityAccount> identityAccounts = identityAccountRepository.find(filter, null);
-		List<AccIdentityAccount> idenittyAccoutnList = identityAccounts.getContent();
-		if (idenittyAccoutnList == null) {
-			return;
-		}
-		idenittyAccoutnList.stream().filter(identityAccount -> {
-			return identityAccount.isOwnership();
-		}).forEach((identityAccount) -> {
-			doProvisioning(account, identityAccount.getIdentity());
-		});
+		//
+		identityAccountRepository.findAllByAccount_Id(account.getId())
+			.stream()
+			.filter(identityAccount -> {
+				return identityAccount.isOwnership();
+			})
+			.forEach((identityAccount) -> {
+				doProvisioning(account, identityAccount.getIdentity());
+			});
 	}
 
 	/**
@@ -126,13 +117,15 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
 		filter.setAccountId(account.getId());
 
 		// All identity account with flag ownership on true
-		List<AccIdentityAccount> idenityAccoutnList = identityAccountRepository.find(filter, null).getContent();
-		if (idenityAccoutnList == null) {
-			return null;
-		}
+		List<AccIdentityAccount> identityAccounts = identityAccountService.find(filter, null).getContent()
+				.stream()
+				.map(dto -> {
+					return identityAccountRepository.findOne(dto.getId());
+				})
+				.collect(Collectors.toList());
 
 		// All role system attributes (overloading) for this uid and same system
-		List<SysRoleSystemAttribute> roleSystemAttributesAll = findOverloadingAttributesIdentity(entity, system, idenityAccoutnList, entityType);
+		List<SysRoleSystemAttribute> roleSystemAttributesAll = findOverloadingAttributesIdentity(entity, system, identityAccounts, entityType);
 
 		// All default mapped attributes from system
 		List<? extends AttributeMapping> defaultAttributes = findAttributeMappings(system, entityType);

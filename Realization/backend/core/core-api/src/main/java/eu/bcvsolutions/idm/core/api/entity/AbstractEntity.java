@@ -42,7 +42,7 @@ public abstract class AbstractEntity implements BaseEntity, Auditable {
 	@JsonDeserialize(as = UUID.class)
 	@GeneratedValue(generator = "uuid2")
     @GenericGenerator(name = "uuid2", strategy = "eu.bcvsolutions.idm.core.api.repository.generator.PreserveUuidGenerator")
-	@Column(name = "id")
+	@Column(name = "id", length = 16)
 	private UUID id;
 
 	@Audited
@@ -65,7 +65,7 @@ public abstract class AbstractEntity implements BaseEntity, Auditable {
 	private String creator;
 	
 	@Audited
-	@Column(name = "creator_id")
+	@Column(name = "creator_id", length = 16)
 	@JsonProperty(access = Access.READ_ONLY)
 	private UUID creatorId;
 	
@@ -76,7 +76,7 @@ public abstract class AbstractEntity implements BaseEntity, Auditable {
 	private String originalCreator;
 	
 	@Audited
-	@Column(name = "original_creator_id")
+	@Column(name = "original_creator_id", length = 16)
 	@JsonProperty(access = Access.READ_ONLY)
 	private UUID originalCreatorId;
 
@@ -88,7 +88,7 @@ public abstract class AbstractEntity implements BaseEntity, Auditable {
 	private String modifier;
 	
 	@Audited
-	@Column(name = "modifier_id")
+	@Column(name = "modifier_id", length = 16)
 	@JsonProperty(access = Access.READ_ONLY)
 	private UUID modifierId;
 	
@@ -99,17 +99,17 @@ public abstract class AbstractEntity implements BaseEntity, Auditable {
 	private String originalModifier;
 	
 	@Audited
-	@Column(name = "original_modifier_id")
+	@Column(name = "original_modifier_id", length = 16)
 	@JsonProperty(access = Access.READ_ONLY)
 	private UUID originalModifierId;
 	
 	@Audited
-	@Column(name = "transaction_id")
+	@Column(name = "transaction_id", length = 16)
 	@JsonIgnore
 	private UUID transactionId;
 	
 	@Audited
-	@Column(name = "realm_id")
+	@Column(name = "realm_id", length = 16)
 	@JsonIgnore // TODO: remove after implementation
 	private UUID realmId;
 

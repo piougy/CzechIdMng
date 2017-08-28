@@ -7,13 +7,16 @@ import eu.bcvsolutions.idm.core.api.domain.Loggable;
 import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.ConceptRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
+import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 
 /**
  * Service for concept role request
  * @author svandav
  *
  */
-public interface IdmConceptRoleRequestService extends ReadWriteDtoService<IdmConceptRoleRequestDto, ConceptRoleRequestFilter> {
+public interface IdmConceptRoleRequestService extends 
+		ReadWriteDtoService<IdmConceptRoleRequestDto, ConceptRoleRequestFilter>,
+		AuthorizableService<IdmConceptRoleRequestDto>{
 	
 	public static final String IDENTITY_CONTRACT_FIELD = "identityContract";
 	public static final String ROLE_REQUEST_FIELD = "roleRequest";

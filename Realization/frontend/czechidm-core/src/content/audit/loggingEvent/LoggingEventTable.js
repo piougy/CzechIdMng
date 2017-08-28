@@ -99,7 +99,7 @@ class LoggingEventTable extends Advanced.AbstractTableContent {
             </Basic.Col>
             <Basic.Col lg={ 4 }>
               <Advanced.Filter.TextField
-                ref="loggerName" hidden
+                ref="loggerName"
                 placeholder={this.i18n('entity.LoggingEvent.loggerName')}/>
             </Basic.Col>
           </Basic.Row>

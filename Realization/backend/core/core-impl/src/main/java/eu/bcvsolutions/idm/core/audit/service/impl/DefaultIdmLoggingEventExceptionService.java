@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.audit.service.impl;
 
+import java.io.Serializable;
 import java.util.List;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -8,9 +9,8 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmLoggingEventExceptionDto;
@@ -22,6 +22,7 @@ import eu.bcvsolutions.idm.core.audit.repository.IdmLoggingEventExceptionReposit
 import eu.bcvsolutions.idm.core.audit.service.api.IdmLoggingEventExceptionService;
 import eu.bcvsolutions.idm.core.audit.service.api.IdmLoggingEventService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
 /**
@@ -62,12 +63,7 @@ public class DefaultIdmLoggingEventExceptionService extends
 
 	@Override
 	public AuthorizableType getAuthorizableType() {
-		return new AuthorizableType(CoreGroupPermission.AUDIT, getEntityClass());
-	}
-
-	@Override
-	public Page<IdmLoggingEventExceptionDto> findAllByEvent(Long event, Pageable pageable) {
-		return toDtoPage(repository.findAllByEvent(event, pageable));
+		return new AuthorizableType(CoreGroupPermission.AUDIT, null);
 	}
 	
 	@Override
@@ -82,5 +78,25 @@ public class DefaultIdmLoggingEventExceptionService extends
 		dto.setTraceLine(entity.getTraceLine());
 		dto.setId(entity.getId());
 		return dto;
+	}
+	
+	@Override
+	protected IdmLoggingEventException getEntity(Serializable id, BasePermission... permission) {
+		Assert.notNull(id);
+		LoggingEventExceptionFilter filter = new LoggingEventExceptionFilter();
+		filter.setId(Long.valueOf(id.toString()));
+		List<IdmLoggingEventExceptionDto> entities = this.find(filter, null, permission).getContent();
+		if (entities.isEmpty()) {
+			return null;
+		}
+		// for given id must found only one entity
+		IdmLoggingEventException entity = this.toEntity(entities.get(0));
+		return checkAccess(entity, permission);
+	}
+
+	@Override
+	@Transactional
+	public void deleteByEventId(Long eventId) {
+		this.repository.deleteByEventId(eventId);
 	}
 }

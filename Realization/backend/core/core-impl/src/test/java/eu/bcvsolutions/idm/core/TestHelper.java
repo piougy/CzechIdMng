@@ -10,12 +10,14 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeTypeService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
+import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
 
 /**
  * Creates common test entities
@@ -56,6 +58,15 @@ public interface TestHelper {
 	 * @return
 	 */
 	IdmRoleCatalogueDto createRoleCatalogue(String code);
+	
+	/**
+	 * Creates test RoleCatalogue with given code = name and parent.
+	 * @param code
+	 * @param parentId
+	 * @return
+	 */
+	IdmRoleCatalogueDto createRoleCatalogue(String code, UUID parentId);
+	
 	/**
 	 * Deletes identity
 	 * 
@@ -158,6 +169,17 @@ public interface TestHelper {
 	IdmAuthorizationPolicyDto createBasePolicy(UUID role, BasePermission... permission);
 	
 	/**
+	 * Creates base permission evaluator authorization policy 
+	 * 
+	 * @param role
+	 * @param groupPermission
+	 * @param authorizableType
+	 * @param permission
+	 * @return
+	 */
+	IdmAuthorizationPolicyDto createBasePolicy(UUID role, GroupPermission groupPermission, Class<?> authorizableType, BasePermission... permission);
+	
+	/**
 	 * Creates assigned identity's role directly (without approving etc.)
 	 * 
 	 * @param identity
@@ -174,6 +196,14 @@ public interface TestHelper {
 	 * @return
 	 */
 	IdmIdentityRoleDto createIdentityRole(IdmIdentityContractDto identityContract, IdmRole role);
+	
+	/**
+	 * Returns prime identity contract
+	 * 
+	 * @param identityId
+	 * @return
+	 */
+	IdmIdentityContractDto getPrimeContract(UUID identityId);
 	
 	/**
 	 * Creates simple identity contract
@@ -219,4 +249,12 @@ public interface TestHelper {
 	 */
 	IdmContractGuaranteeDto createContractGuarantee(UUID identityContractId, UUID identityId);
 
+	/**
+	 * Assign roles through role request (manual, execute immediately)
+	 * 
+	 * @param contract
+	 * @param roles roles to add
+	 * @return
+	 */
+	IdmRoleRequestDto assignRoles(IdmIdentityContractDto contract, IdmRole... roles);
 }

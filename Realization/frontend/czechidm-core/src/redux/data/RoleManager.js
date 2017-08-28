@@ -28,7 +28,7 @@ export default class RoleManager extends FormableEntityManager {
   }
 
   /**
-   * Load available authorities from BE if needed (available authorites can be changed just with BE restart)
+   * Load available authorities from BE if needed. Available authorities can be changed, when some module is enabled / disabled.
    *
    * @param  {string} uiKey
    * @return {array[object]}
@@ -36,13 +36,35 @@ export default class RoleManager extends FormableEntityManager {
   fetchAvailableAuthorities() {
     const uiKey = RoleManager.UI_KEY_AVAILABLE_AUTHORITIES;
     //
+    return (dispatch) => {
+      dispatch(this.dataManager.requestData(uiKey));
+      this.getService().getAvailableAuthorities()
+        .then(json => {
+          dispatch(this.dataManager.receiveData(uiKey, json));
+        })
+        .catch(error => {
+          // TODO: data uiKey
+          dispatch(this.receiveError(null, uiKey, error));
+        });
+    };
+  }
+
+  /**
+   * Load all (installed) authorities from BE if needed (all authorites can be changed just with BE restart).
+   *
+   * @param  {string} uiKey
+   * @return {array[object]}
+   */
+  fetchAllAuthorities() {
+    const uiKey = RoleManager.UI_KEY_ALL_AUTHORITIES;
+    //
     return (dispatch, getState) => {
-      const availableAuthorities = DataManager.getData(getState(), uiKey);
-      if (availableAuthorities) {
-        // we dont need to load them again - identity needs to be logged in / out
+      const allAuthorities = DataManager.getData(getState(), uiKey);
+      if (allAuthorities) {
+        // we dont need to load them again
       } else {
         dispatch(this.dataManager.requestData(uiKey));
-        this.getService().getAvailableAuthorities()
+        this.getService().getAllAuthorities()
           .then(json => {
             dispatch(this.dataManager.receiveData(uiKey, json));
           })
@@ -56,3 +78,4 @@ export default class RoleManager extends FormableEntityManager {
 }
 
 RoleManager.UI_KEY_AVAILABLE_AUTHORITIES = 'available-authorities';
+RoleManager.UI_KEY_ALL_AUTHORITIES = 'all-authorities';

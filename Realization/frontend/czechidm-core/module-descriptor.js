@@ -186,76 +186,57 @@ module.exports = {
         'order': 999
       },
       {
-        'id': 'roles-menu',
-        'labelKey': 'content.roles.menu-title',
-        'titleKey': 'content.roles.menu-title',
+        'id': 'roles',
+        'type': 'DYNAMIC',
+        'labelKey': 'content.roles.header',
+        'titleKey': 'content.roles.title',
         'icon': 'fa:universal-access',
         'iconColor': '#eb9316',
         'order': 1030,
-        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ'] } ],
         'path': '/roles',
+        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ'] } ],
         'items': [
           {
-            'id': 'roles',
-            'type': 'DYNAMIC',
-            'labelKey': 'content.roles.header',
-            'titleKey': 'content.roles.title',
-            'icon': 'fa:universal-access',
-            'iconColor': '#eb9316',
-            'order': 10,
-            'path': '/roles',
-            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ'] } ],
-            'items': [
-              {
-                'id': 'role-detail',
-                'type': 'TAB',
-                'labelKey': 'content.roles.tabs.basic',
-                'order': 100,
-                'path': '/role/:entityId/detail',
-                'icon': 'fa:newspaper-o'
-              },
-              {
-                'id': 'role-eav',
-                'type': 'TAB',
-                'labelKey': 'content.role.eav.title',
-                'order': 110,
-                'priority': 0,
-                'path': '/role/:entityId/eav',
-              },
-              {
-                'id': 'role-authorization-policies',
-                'type': 'TAB',
-                'labelKey': 'content.role.authorization-policies.label',
-                'titleKey': 'content.role.authorization-policies.title',
-                'order': 200,
-                'path': '/role/:entityId/authorization-policies',
-                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUTHORIZATIONPOLICY_READ'] } ]
-              },
-              {
-                'id': 'role-tree-nodes',
-                'type': 'TAB',
-                'labelKey': 'content.role.tree-nodes.label',
-                'titleKey': 'content.role.tree-nodes.title',
-                'order': 300,
-                'path': '/role/:entityId/tree-nodes',
-                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLETREENODE_READ'] } ]
-              },
-              {
-                'id': 'role-identities',
-                'type': 'TAB',
-                'labelKey': 'content.role.identities.title',
-                'order': 400,
-                'path': '/role/:entityId/identities',
-                'icon': 'fa:group'
-              }
-            ]
+            'id': 'role-detail',
+            'type': 'TAB',
+            'labelKey': 'content.roles.tabs.basic',
+            'order': 100,
+            'path': '/role/:entityId/detail',
+            'icon': 'fa:newspaper-o'
           },
           {
-            'id': 'role-requests',
-            'labelKey': 'content.roleRequests.title',
-            'order': 20,
-            'path': '/role-requests',
-            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLEREQUEST_READ'] } ]
+            'id': 'role-eav',
+            'type': 'TAB',
+            'labelKey': 'content.role.eav.title',
+            'order': 110,
+            'priority': 0,
+            'path': '/role/:entityId/eav',
+          },
+          {
+            'id': 'role-authorization-policies',
+            'type': 'TAB',
+            'labelKey': 'content.role.authorization-policies.label',
+            'titleKey': 'content.role.authorization-policies.title',
+            'order': 200,
+            'path': '/role/:entityId/authorization-policies',
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUTHORIZATIONPOLICY_READ'] } ]
+          },
+          {
+            'id': 'role-tree-nodes',
+            'type': 'TAB',
+            'labelKey': 'content.role.tree-nodes.label',
+            'titleKey': 'content.role.tree-nodes.title',
+            'order': 300,
+            'path': '/role/:entityId/tree-nodes',
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLETREENODE_READ'] } ]
+          },
+          {
+            'id': 'role-identities',
+            'type': 'TAB',
+            'labelKey': 'content.role.identities.title',
+            'order': 400,
+            'path': '/role/:entityId/identities',
+            'icon': 'fa:group'
           }
         ]
       },
@@ -273,6 +254,13 @@ module.exports = {
             'icon': 'fa:sitemap',
             'iconColor': '#428BCA',
             'path': '/workflow/history/processes',
+          },
+          {
+            'id': 'role-requests',
+            'labelKey': 'content.roleRequests.title',
+            'order': 20,
+            'path': '/role-requests',
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLEREQUEST_READ'] } ]
           },
           {
             'id': 'audits',

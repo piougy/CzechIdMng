@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.acc.role.evaluator;
+package eu.bcvsolutions.idm.acc.security.evaluator;
 
 import static org.junit.Assert.assertEquals;
 
@@ -11,6 +11,7 @@ import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.acc.entity.AccRoleAccount;
+import eu.bcvsolutions.idm.acc.security.evaluator.RoleAccountByRoleEvaluator;
 import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
@@ -33,15 +34,13 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * @author Kučera
  *
  */
-
-public class RoleAccountByRoleEvaluatorTest extends AbstractIntegrationTest {
+public class RoleAccountByRoleEvaluatorIntegrationTest extends AbstractIntegrationTest {
 	
 	@Autowired private TestHelper helper;
 	@Autowired private IdmRoleService roleService;
 	@Autowired private LoginService loginService;
 	@Autowired private IdmAuthorizationPolicyService authorizationPolicyService;
 	@Autowired private IdmIdentityService identityService;
-	
 	
 	private static UUID TEST_ROLE_ID;
 	
@@ -75,8 +74,6 @@ public class RoleAccountByRoleEvaluatorTest extends AbstractIntegrationTest {
 		}
 	}
 
-	
-	
 	private IdmIdentityDto createIdentityWithRole(boolean transitive) {
 		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
 		IdmRole role = helper.createRole();

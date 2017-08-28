@@ -102,7 +102,8 @@ module.exports = {
         'order': 100,
         'priority': 0,
         'path': '/identity/:entityId/accounts',
-        'icon': 'fa:external-link'
+        'icon': 'fa:external-link',
+        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITYACCOUNT_READ'] } ]
       },
       {
         'id': 'identity-provisioning-operations',
@@ -159,6 +160,17 @@ module.exports = {
         'path': '/role/:entityId/accounts',
         'icon': 'fa:external-link',
         'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLEACCOUNT_READ'] } ]
+      },
+      {
+        'id': 'tree-accounts',
+        'parentId': 'tree-nodes',
+        'type': 'TAB',
+        'labelKey': 'acc:content.identity.accounts.title',
+        'order': 500,
+        'priority': 0,
+        'path': '/tree/nodes/:entityId/accounts',
+        'icon': 'fa:external-link',
+        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREEACCOUNT_READ'] } ]
       }
     ]
   }

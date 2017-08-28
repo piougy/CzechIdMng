@@ -3,7 +3,7 @@ package eu.bcvsolutions.idm.core.security.api.domain;
 import java.util.List;
 
 /**
- * Group permision could contain {@link BasePermission}. 
+ * Group permission could contain {@link BasePermission}. 
  * 
  * @author Radek Tomiška
  */

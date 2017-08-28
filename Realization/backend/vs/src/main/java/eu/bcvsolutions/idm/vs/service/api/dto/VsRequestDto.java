@@ -52,7 +52,7 @@ public class VsRequestDto extends AbstractDto {
 	private IcConnectorConfiguration configuration;
 	@JsonIgnore
 	private IcConnectorObject connectorObject;
-	@Embedded(dtoClass = VsRequestDto.class)
+	// @Embedded(dtoClass = VsRequestDto.class)
 	private UUID duplicateToRequest;
 	@Embedded(dtoClass = VsRequestDto.class)
 	private UUID previousRequest;

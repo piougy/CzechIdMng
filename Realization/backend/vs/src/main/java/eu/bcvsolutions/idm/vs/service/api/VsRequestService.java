@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.vs.service.api;
 
+import java.util.List;
 import java.util.UUID;
 
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
@@ -28,5 +29,14 @@ public interface VsRequestService extends
 	VsRequestDto realize(UUID fromString);
 
 	VsRequestDto cancel(UUID fromString);
+
+	/**
+	 * Find duplicity requests. All request in state IN_PROGRESS for same UID
+	 * and system. For all operation types.
+	 * 
+	 * @param request
+	 * @return
+	 */
+	List<VsRequestDto> findDuplicities(VsRequestDto request);
 
 }

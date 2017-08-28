@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.vs.entity;
 import java.util.Objects;
 import java.util.UUID;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.ConstraintMode;
 import javax.persistence.Entity;
@@ -69,14 +70,19 @@ public class VsRequest extends AbstractEntity {
 	@Column(name = "operation_type", nullable = false)
 	private VsOperationType operationType;
 
-	@ManyToOne
-	@JoinColumn(name = "duplicate_to_request_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in
-										// hibernate 4
-	@org.hibernate.annotations.ForeignKey(name = "none")
-	private VsRequest duplicateToRequest;
+//	@ManyToOne
+//	@JoinColumn(name = "duplicate_to_request_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+//	@SuppressWarnings("deprecation") // jpa FK constraint does not work in
+//										// hibernate 4
+//	@org.hibernate.annotations.ForeignKey(name = "none")
 	
-	@ManyToOne(optional = true)
+	// Limitation: We can use only one mapping on same entity type. When we
+	// using two relations on same entity (duplicant and previous for example),
+	// then we have exception with unsaved entity in second relation!
+	@Column(name = "duplicate_to_request_id")
+	private UUID duplicateToRequest;
+	
+	@ManyToOne
 	@JoinColumn(name = "previous_request_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in
 										// hibernate 4
@@ -159,11 +165,11 @@ public class VsRequest extends AbstractEntity {
 		this.executeImmediately = executeImmediately;
 	}
 
-	public VsRequest getDuplicateToRequest() {
+	public UUID getDuplicateToRequest() {
 		return duplicateToRequest;
 	}
 
-	public void setDuplicateToRequest(VsRequest duplicateToRequest) {
+	public void setDuplicateToRequest(UUID duplicateToRequest) {
 		this.duplicateToRequest = duplicateToRequest;
 	}
 

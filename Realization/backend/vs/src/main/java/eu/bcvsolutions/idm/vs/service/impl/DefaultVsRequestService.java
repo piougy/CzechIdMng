@@ -7,8 +7,6 @@ import java.util.UUID;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
@@ -16,9 +14,10 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
@@ -78,22 +77,26 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 	private final VsRequestImplementerService requestImplementerService;
 	private final CzechIdMIcConnectorService czechIdMConnectorService;
 	private final CzechIdMIcConfigurationService czechIdMConfigurationService;
+	private final ApplicationContext applicationContext;
+	private VsRequestService self;
 
 	@Autowired
 	public DefaultVsRequestService(VsRequestRepository repository, EntityEventManager entityEventManager,
 			VsRequestImplementerService requestImplementerService, CzechIdMIcConnectorService czechIdMConnectorService,
-			CzechIdMIcConfigurationService czechIdMConfigurationService) {
+			CzechIdMIcConfigurationService czechIdMConfigurationService, ApplicationContext applicationContext) {
 		super(repository);
 		//
 		Assert.notNull(entityEventManager);
 		Assert.notNull(requestImplementerService);
 		Assert.notNull(czechIdMConnectorService);
 		Assert.notNull(czechIdMConfigurationService);
+		Assert.notNull(applicationContext);
 
 		this.entityEventManager = entityEventManager;
 		this.requestImplementerService = requestImplementerService;
 		this.czechIdMConnectorService = czechIdMConnectorService;
 		this.czechIdMConfigurationService = czechIdMConfigurationService;
+		this.applicationContext = applicationContext;
 	}
 
 	@Override
@@ -179,8 +182,8 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 		// Save new request
 		req.setState(VsRequestState.CONCEPT);
 		VsRequestDto request = this.save(req, IdmBasePermission.CREATE);
-		if (request.getImplementers() != null) {
-			request.getImplementers().forEach(identity -> {
+		if (req.getImplementers() != null) {
+			req.getImplementers().forEach(identity -> {
 				// We have some implementers to save
 				VsRequestImplementerDto implementer = new VsRequestImplementerDto();
 				implementer.setRequest(request.getId());
@@ -188,22 +191,24 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 				requestImplementerService.save(implementer);
 			});
 		}
-		return request;
+		return this.get(request.getId());
 	}
 
 	@Override
 	public IcUidAttribute internalStart(VsRequestDto request) {
 		Assert.notNull(request, "Request cannot be null!");
 		// Unfinished requests for same UID and system
-		List<VsRequestDto> duplicities = findDuplicities(request);
+
+		List<VsRequestDto> duplicities = this.findDuplicities(request);
 		request.setState(VsRequestState.IN_PROGRESS);
 
 		if (!CollectionUtils.isEmpty(duplicities)) {
 			// Get the newest request (for same operation)
 			VsRequestDto previousRequest = this.getPreviousRequest(request.getOperationType(), duplicities);
-			// Shows on previous request with same operation type. We need this for create diff.
+			// Shows on previous request with same operation type. We need this
+			// for create diff.
 			request.setPreviousRequest(previousRequest.getId());
-
+ 
 			if (this.isRequestSame(request, previousRequest)) {
 				request.setDuplicateToRequest(previousRequest.getId());
 				request.setState(VsRequestState.DUPLICATED);
@@ -221,9 +226,10 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 			return result;
 		}
 
-		// Find previous request ... not matter on operation type. Simple get last request.
+		// Find previous request ... not matter on operation type. Simple get
+		// last request.
 		VsRequestDto lastRequest = this.getPreviousRequest(null, duplicities);
-		
+
 		if (lastRequest != null) {
 			// Send update message
 			// TODO: send message
@@ -342,7 +348,8 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 	 * @param request
 	 * @return
 	 */
-	private List<VsRequestDto> findDuplicities(VsRequestDto request) {
+	@Override
+	public List<VsRequestDto> findDuplicities(VsRequestDto request) {
 		RequestFilter filter = new RequestFilter();
 		filter.setUid(request.getUid());
 		filter.setSystemId(request.getSystemId());
@@ -388,7 +395,10 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 	 * @return
 	 */
 	private VsRequestDto getPreviousRequest(VsOperationType operation, List<VsRequestDto> duplicities) {
-		Assert.notNull(duplicities);
+		if (CollectionUtils.isEmpty(duplicities)) {
+			return null;
+		}
+
 		if (operation == null) {
 			return duplicities.get(0);
 		}
@@ -406,6 +416,13 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 					.orElse(null);
 		}
 		return previousRequest;
+	}
+
+	private VsRequestService getSelfProxy() {
+		if (this.self == null) {
+			this.self = this.applicationContext.getBean(VsRequestService.class);
+		}
+		return this.self;
 	}
 
 }

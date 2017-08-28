@@ -26,11 +26,11 @@ import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.exception.RoleRequestException;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
-import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
@@ -48,7 +48,6 @@ import eu.bcvsolutions.idm.core.security.api.utils.IdmAuthorityUtils;
  * @author svandav
  *
  */
-
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWorkflowIntegrationTest {
 
@@ -70,9 +69,8 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWor
 	private IdmRoleService roleService;
 	@Autowired
 	private IdmConfigurationService configurationService;
-
 	//
-	private IdmRole roleA;
+	private IdmRoleDto roleA;
 
 	private static final String USER_TEST_A = "testA";
 	private static final String USER_TEST_B = "testB";

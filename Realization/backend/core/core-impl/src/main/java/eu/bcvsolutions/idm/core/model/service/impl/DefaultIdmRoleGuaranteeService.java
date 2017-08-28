@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.RoleGuaranteeFilter;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
-import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleGuarantee;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleGuarantee_;
@@ -31,7 +30,6 @@ public class DefaultIdmRoleGuaranteeService
 		extends AbstractReadWriteDtoService<IdmRoleGuaranteeDto, IdmRoleGuarantee, RoleGuaranteeFilter> 
 		implements IdmRoleGuaranteeService {
 	
-	
 	@Autowired
 	public DefaultIdmRoleGuaranteeService(IdmRoleGuaranteeRepository repository) {
 		super(repository);
@@ -39,7 +37,8 @@ public class DefaultIdmRoleGuaranteeService
 
 	@Override
 	public AuthorizableType getAuthorizableType() {
-		return new AuthorizableType(CoreGroupPermission.ROLE, getEntityClass());
+		// not secured
+		return null;
 	}
 	
 	@Override
@@ -61,10 +60,6 @@ public class DefaultIdmRoleGuaranteeService
 					root.get(IdmRoleGuarantee_.guarantee).get(IdmIdentity_.id), 
 					filter.getGuarantee())
 					);
-		}
-		// id
-		if (filter.getId() != null) {
-			predicates.add(builder.equal(root.get(IdmRoleGuarantee_.id), filter.getId()));
 		}
 		//
 		return predicates;

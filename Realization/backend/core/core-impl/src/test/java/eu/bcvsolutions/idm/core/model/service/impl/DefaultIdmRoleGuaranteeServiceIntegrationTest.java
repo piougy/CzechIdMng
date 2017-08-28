@@ -15,9 +15,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.TestHelper;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.RoleGuaranteeFilter;
-import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleGuaranteeService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
@@ -49,7 +49,7 @@ public class DefaultIdmRoleGuaranteeServiceIntegrationTest extends AbstractInteg
 		IdmIdentityDto guarantee2 = testHelper.createIdentity();
 		IdmIdentityDto guarantee3 = testHelper.createIdentity();
 		//
-		IdmRole role = testHelper.createRole();
+		IdmRoleDto role = testHelper.createRole();
 		//
 		IdmRoleGuaranteeDto roleGuarantee = new IdmRoleGuaranteeDto();
 		roleGuarantee.setRole(role.getId());
@@ -83,9 +83,9 @@ public class DefaultIdmRoleGuaranteeServiceIntegrationTest extends AbstractInteg
 	public void testFindRoleGuaranteeByGuarantee() {
 		IdmIdentityDto guarantee = testHelper.createIdentity();
 		//
-		IdmRole role1 = testHelper.createRole();
-		IdmRole role2 = testHelper.createRole();
-		IdmRole role3 = testHelper.createRole();
+		IdmRoleDto role1 = testHelper.createRole();
+		IdmRoleDto role2 = testHelper.createRole();
+		IdmRoleDto role3 = testHelper.createRole();
 		//
 		IdmRoleGuaranteeDto roleGuarantee = new IdmRoleGuaranteeDto();
 		roleGuarantee.setRole(role1.getId());

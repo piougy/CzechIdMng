@@ -10,10 +10,10 @@ import eu.bcvsolutions.idm.InitDemoData;
 import eu.bcvsolutions.idm.core.TestHelper;
 import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.ConceptRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
-import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.core.rest.impl.IdmConceptRoleRequestController;
@@ -38,7 +38,7 @@ public class SelfRoleRequestEvaluatorIntegrationTest extends AbstractIntegration
 	
 	@Test
 	public void testCanReadSelfRoleRequest() {
-		IdmRole role = roleService.getByCode(InitDemoData.DEFAULT_ROLE_NAME);
+		IdmRoleDto role = roleService.getByCode(InitDemoData.DEFAULT_ROLE_NAME);
 		// prepare identity
 		IdmIdentityDto identity = helper.createIdentity();
 		// assign role request
@@ -61,7 +61,7 @@ public class SelfRoleRequestEvaluatorIntegrationTest extends AbstractIntegration
 	
 	@Test(expected = ForbiddenEntityException.class)
 	public void testCannotReadForeignRoleRequest() {
-		IdmRole role = roleService.getByCode(InitDemoData.DEFAULT_ROLE_NAME);
+		IdmRoleDto role = roleService.getByCode(InitDemoData.DEFAULT_ROLE_NAME);
 		// prepare identities
 		IdmIdentityDto identity = helper.createIdentity();
 		IdmIdentityDto identityTwo = helper.createIdentity();

@@ -47,6 +47,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.entity.AbstractFormValue;
@@ -55,8 +56,7 @@ import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.core.eav.repository.IdmFormAttributeRepository;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.eav.service.api.IdmFormDefinitionService;
-import eu.bcvsolutions.idm.core.model.entity.IdmRole;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
+import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.ic.api.IcConfigurationProperty;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInstance;
@@ -76,40 +76,23 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 	private static final String SYSTEM_NAME_ONE = "test_system_one_" + System.currentTimeMillis();
 	private static final String SYSTEM_NAME_TWO = "test_system_two_" + System.currentTimeMillis();
 	
-	@Autowired
-	private TestHelper helper;
-	@Autowired
-	private SysSystemService systemService;	
-	@Autowired
-	private IdmFormDefinitionService formDefinitionService;	
-	@Autowired
-	private IdmFormAttributeRepository formAttributeDefinitionRepository;	
-	@Autowired
-	private FormService formService;	
-	@Autowired
-	private IcConfigurationFacade icConfigurationAggregatorService;
-	@Autowired
-	private SysSchemaObjectClassService schemaObjectClassService;
-	@Autowired
-	private SysSchemaAttributeService schemaAttributeService;
-	@Autowired
-	private IdmRoleService roleService;
-	@Autowired
-	private SysRoleSystemService roleSystemService;
-	@Autowired
-	private SysSystemMappingService systemMappingService;
-	@Autowired
-	private SysSystemAttributeMappingService systemAttributeMappingService;
-	@Autowired
-	private SysRoleSystemAttributeService roleSystemAttributeService;
-	@Autowired
-	private AccAccountService accountService;
-	@Autowired
-	private SysSystemEntityService systemEntityService;
-	@Autowired
-	private SysSystemMappingRepository systemMappingRepository;
-	@Autowired
-	private SysSystemAttributeMappingRepository systemAttributeMappingRepository;
+	@Autowired private TestHelper helper;
+	@Autowired private SysSystemService systemService;	
+	@Autowired private IdmFormDefinitionService formDefinitionService;	
+	@Autowired private IdmFormAttributeRepository formAttributeDefinitionRepository;	
+	@Autowired private FormService formService;	
+	@Autowired private IcConfigurationFacade icConfigurationAggregatorService;
+	@Autowired private SysSchemaObjectClassService schemaObjectClassService;
+	@Autowired private SysSchemaAttributeService schemaAttributeService;
+	@Autowired private IdmRoleRepository roleRepository;
+	@Autowired private SysRoleSystemService roleSystemService;
+	@Autowired private SysSystemMappingService systemMappingService;
+	@Autowired private SysSystemAttributeMappingService systemAttributeMappingService;
+	@Autowired private SysRoleSystemAttributeService roleSystemAttributeService;
+	@Autowired private AccAccountService accountService;
+	@Autowired private SysSystemEntityService systemEntityService;
+	@Autowired private SysSystemMappingRepository systemMappingRepository;
+	@Autowired private SysSystemAttributeMappingRepository systemAttributeMappingRepository;
 	
 	@Before
 	public void login() {
@@ -161,15 +144,12 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		SystemAttributeMappingFilter schemaAttributeHandlingFilter = new SystemAttributeMappingFilter(); 
 		schemaAttributeHandlingFilter.setSystemId(system.getId());		
 		// role system
-		IdmRole role = new IdmRole();
-		String roleName = "test_r_" + System.currentTimeMillis();
-		role.setName(roleName);
-		role = roleService.save(role);
+		IdmRoleDto role = helper.createRole();
 		SysRoleSystem roleSystem = new SysRoleSystem();
 		roleSystem.setSystem(system);
-		roleSystem.setRole(role);
+		roleSystem.setRole(roleRepository.findOne(role.getId()));
 		roleSystem.setSystemMapping(systemMappingRepository.findOne(systemMapping.getId()));
-		roleSystem = roleSystemService.save(roleSystem);
+		roleSystemService.save(roleSystem);
 		RoleSystemFilter roleSystemFilter = new RoleSystemFilter();
 		roleSystemFilter.setRoleId(role.getId());
 		// role system attributes

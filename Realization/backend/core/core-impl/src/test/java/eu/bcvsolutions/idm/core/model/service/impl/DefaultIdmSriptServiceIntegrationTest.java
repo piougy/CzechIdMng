@@ -68,8 +68,8 @@ public class DefaultIdmSriptServiceIntegrationTest extends AbstractIntegrationTe
 
 	@Test
 	public void initTest() {
-		IdmScriptDto script1 = scriptService.getScriptByCode(TEST_SCRIPT_CODE_1);
-		IdmScriptDto script2 = scriptService.getScriptByCode(TEST_SCRIPT_CODE_2);
+		IdmScriptDto script1 = scriptService.getByCode(TEST_SCRIPT_CODE_1);
+		IdmScriptDto script2 = scriptService.getByCode(TEST_SCRIPT_CODE_2);
 
 		assertNotNull(script1);
 		assertNotNull(script2);
@@ -92,7 +92,7 @@ public class DefaultIdmSriptServiceIntegrationTest extends AbstractIntegrationTe
 	@Test
 	public void removeAuthRedeploy() {
 		configurationService.setValue(Recoverable.BACKUP_FOLDER_CONFIG, TEST_BACKUP_FOLDER);
-		IdmScriptDto script1 = scriptService.getScriptByCode(TEST_SCRIPT_CODE_1);
+		IdmScriptDto script1 = scriptService.getByCode(TEST_SCRIPT_CODE_1);
 		assertNotNull(script1);
 
 		ScriptAuthorityFilter filter = new ScriptAuthorityFilter();
@@ -116,8 +116,8 @@ public class DefaultIdmSriptServiceIntegrationTest extends AbstractIntegrationTe
 
 	@Test
 	public void deleteScriptRedeploy() {
-		IdmScriptDto script1 = scriptService.getScriptByCode(TEST_SCRIPT_CODE_1);
-		IdmScriptDto script2 = scriptService.getScriptByCode(TEST_SCRIPT_CODE_2);
+		IdmScriptDto script1 = scriptService.getByCode(TEST_SCRIPT_CODE_1);
+		IdmScriptDto script2 = scriptService.getByCode(TEST_SCRIPT_CODE_2);
 
 		assertNotNull(script1);
 		assertNotNull(script2);
@@ -125,16 +125,16 @@ public class DefaultIdmSriptServiceIntegrationTest extends AbstractIntegrationTe
 		scriptService.delete(script1);
 		scriptService.delete(script2);
 
-		script1 = scriptService.getScriptByCode(TEST_SCRIPT_CODE_1);
-		script2 = scriptService.getScriptByCode(TEST_SCRIPT_CODE_2);
+		script1 = scriptService.getByCode(TEST_SCRIPT_CODE_1);
+		script2 = scriptService.getByCode(TEST_SCRIPT_CODE_2);
 
 		assertNull(script1);
 		assertNull(script2);
 
 		scriptService.init();
 
-		script1 = scriptService.getScriptByCode(TEST_SCRIPT_CODE_1);
-		script2 = scriptService.getScriptByCode(TEST_SCRIPT_CODE_2);
+		script1 = scriptService.getByCode(TEST_SCRIPT_CODE_1);
+		script2 = scriptService.getByCode(TEST_SCRIPT_CODE_2);
 
 		assertNotNull(script1);
 		assertNotNull(script2);
@@ -164,7 +164,7 @@ public class DefaultIdmSriptServiceIntegrationTest extends AbstractIntegrationTe
 	@Test
 	public void tryRedepoloyScript() {
 		configurationService.setValue(Recoverable.BACKUP_FOLDER_CONFIG, TEST_BACKUP_FOLDER);
-		IdmScriptDto script1 = scriptService.getScriptByCode(TEST_SCRIPT_CODE_1);
+		IdmScriptDto script1 = scriptService.getByCode(TEST_SCRIPT_CODE_1);
 
 		assertNotNull(script1);
 		
@@ -188,7 +188,7 @@ public class DefaultIdmSriptServiceIntegrationTest extends AbstractIntegrationTe
 	public void backupMissingFolderExistEntity() {
 		configurationService.setValue(Recoverable.BACKUP_FOLDER_CONFIG, null);
 		
-		IdmScriptDto script1 = scriptService.getScriptByCode(TEST_SCRIPT_CODE_1);
+		IdmScriptDto script1 = scriptService.getByCode(TEST_SCRIPT_CODE_1);
 
 		assertNotNull(script1);
 		
@@ -236,7 +236,7 @@ public class DefaultIdmSriptServiceIntegrationTest extends AbstractIntegrationTe
 			}
 		}
 		//
-		IdmScriptDto script1 = scriptService.getScriptByCode(TEST_SCRIPT_CODE_1);
+		IdmScriptDto script1 = scriptService.getByCode(TEST_SCRIPT_CODE_1);
 
 		assertNotNull(script1);
 		

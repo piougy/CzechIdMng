@@ -50,7 +50,6 @@ import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
-import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
@@ -60,6 +59,7 @@ import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyType;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordPolicyDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdentityFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
@@ -72,6 +72,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.eav.IdmIdentityFormValue;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmPasswordPolicyRepository;
+import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordPolicyService;
@@ -174,10 +175,10 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 	private SysSystemMappingRepository systemMappingRepository;
 	
 	@Autowired
-	private SysSchemaObjectClassService schemaObjectClassService;
+	private IdmRoleService roleService;
 	
 	@Autowired
-	private IdmRoleService roleService;
+	private IdmRoleRepository roleRepository;
 	
 	private List<SysSchemaObjectClassDto> objectClasses = null;
 	private SysSystem system = null;
@@ -836,13 +837,13 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		defTwo = systemAttributeMappingService.save(defTwo);
 		defaultAttributes.add(defTwo);
 
-		IdmRole roleOne = new IdmRole();
+		IdmRoleDto roleOne = new IdmRoleDto();
 		roleOne.setName("roleOne");
 		roleOne.setPriority(100);
 		roleOne = roleService.save(roleOne);
 
 		SysRoleSystem roleSystem = new SysRoleSystem();
-		roleSystem.setRole(roleOne);
+		roleSystem.setRole(roleRepository.findOne(roleOne.getId()));
 		roleSystem.setSystem(system);
 		roleSystem = roleSystemService.save(roleSystem);
 
@@ -1170,24 +1171,24 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		defTwo = systemAttributeMappingService.save(defTwo);
 		defaultAttributes.add(defTwo);
 
-		IdmRole roleTwo = new IdmRole();
+		IdmRoleDto roleTwo = new IdmRoleDto();
 		roleTwo.setName("roleTwo");
 		roleTwo.setPriority(100);
-		roleService.save(roleTwo);
+		roleTwo = roleService.save(roleTwo);
 
-		IdmRole roleOne = new IdmRole();
+		IdmRoleDto roleOne = new IdmRoleDto();
 		roleOne.setName("roleOne");
 		roleOne.setPriority(100);
-		roleService.save(roleOne);
+		roleOne = roleService.save(roleOne);
 		
 		SysRoleSystem roleSystemTwo = new SysRoleSystem();
-		roleSystemTwo.setRole(roleTwo);
+		roleSystemTwo.setRole(roleRepository.findOne(roleTwo.getId()));
 		roleSystemTwo.setSystem(system);
 		roleSystemTwo.setSystemMapping(systemMappingRepository.findOne(systemMapping.getId()));
 		roleSystemService.save(roleSystemTwo);
 
 		SysRoleSystem roleSystemOne = new SysRoleSystem();
-		roleSystemOne.setRole(roleOne);
+		roleSystemOne.setRole(roleRepository.findOne(roleOne.getId()));
 		roleSystemOne.setSystem(system);
 		roleSystemOne.setSystemMapping(systemMappingRepository.findOne(systemMapping.getId()));
 		roleSystemService.save(roleSystemOne);

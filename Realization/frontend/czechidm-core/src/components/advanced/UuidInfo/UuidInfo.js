@@ -57,7 +57,7 @@ export default class UuidInfo extends Basic.AbstractContextComponent {
           <span
             className={ classNames }
             style={ style }>
-            <a href="#" onClick={ (e) => e.preventDefault() }>{ this.shorten(value) }</a>
+            <Basic.Button level="link" style={{ padding: 0 }} onClick={ (e) => e.preventDefault() }>{ this.shorten(value) }</Basic.Button>
           </span>
         }
       </Basic.Popover>

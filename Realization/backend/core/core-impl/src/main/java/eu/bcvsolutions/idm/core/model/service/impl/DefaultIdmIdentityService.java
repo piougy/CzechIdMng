@@ -28,6 +28,7 @@ import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.config.domain.RoleConfiguration;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdentityFilter;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
@@ -43,8 +44,6 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole_;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
-import eu.bcvsolutions.idm.core.model.entity.IdmRole;
-import eu.bcvsolutions.idm.core.model.entity.IdmRoleGuarantee;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole_;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode_;
@@ -117,6 +116,12 @@ public class DefaultIdmIdentityService
 	}
 	
 	@Override
+	@Transactional(readOnly = true)
+	public IdmIdentityDto getByUsername(String username) {
+		return toDto(repository.findOneByUsername(username));
+	}
+	
+	@Override
 	@Transactional
 	@Deprecated
 	public IdmIdentity saveIdentity(IdmIdentity identity) {
@@ -134,6 +139,7 @@ public class DefaultIdmIdentityService
 	}
 	
 	@Override
+	@Transactional
 	public void deleteInternal(IdmIdentityDto dto) {
 		// TODO: eav dto
 		formService.deleteValues(getRepository().findOne(dto.getId()));
@@ -249,12 +255,6 @@ public class DefaultIdmIdentityService
 		//
 		return predicates;
 	}
-
-	@Override
-	@Transactional(readOnly = true)
-	public IdmIdentityDto getByUsername(String username) {
-		return toDto(repository.findOneByUsername(username));
-	}
 	
 	/**
 	 * Changes given identity's password
@@ -305,7 +305,7 @@ public class DefaultIdmIdentityService
 	@Override
 	@Transactional(readOnly = true)
 	public List<IdmIdentityDto> findAllByRoleName(String roleName) {
-		IdmRole role = roleService.getByCode(roleName);
+		IdmRoleDto role = roleService.getByCode(roleName);
 		if(role == null){
 			return new ArrayList<>();
 		}
@@ -373,12 +373,13 @@ public class DefaultIdmIdentityService
 	@Override
 	@Transactional(readOnly = true)
 	public List<IdmIdentityDto> findAllGuaranteesByRoleId(UUID roleId) {
-		IdmRole role = roleService.get(roleId);
+		IdmRoleDto role = roleService.get(roleId);
 		Assert.notNull(role, "Role is required. Role by name [" + roleId + "] not found.");
 		return role.getGuarantees()
 				.stream()
-				.map(IdmRoleGuarantee::getGuarantee)
-				.map(this::toDto)
+				.map(guarantee -> {
+					return get(guarantee.getGuarantee());
+				})
 				.collect(Collectors.toList());			
 	}
 	

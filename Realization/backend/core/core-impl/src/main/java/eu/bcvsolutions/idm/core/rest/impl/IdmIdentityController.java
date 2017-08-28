@@ -49,7 +49,6 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
-import eu.bcvsolutions.idm.core.api.rest.domain.RequestResourceResolver;
 import eu.bcvsolutions.idm.core.audit.service.api.IdmAuditService;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.core.eav.rest.impl.IdmFormDefinitionController;
@@ -102,7 +101,6 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 	private final IdmIdentityRepository identityRepository;
 	//
 	private final IdmFormDefinitionController formDefinitionController;
-	private final RequestResourceResolver requestResourceResolver;
 	
 	@Autowired
 	public IdmIdentityController(
@@ -114,8 +112,7 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 			IdmAuditService auditService,
 			ForestContentService<IdmTreeNode, IdmForestIndexEntity, UUID> treeNodeIndexService,
 			IdmTreeNodeService treeNodeService,
-			IdmIdentityRepository identityRepository,
-			RequestResourceResolver requestResourceResolver) {
+			IdmIdentityRepository identityRepository) {
 		super(identityService);
 		//
 		Assert.notNull(formDefinitionController);
@@ -126,7 +123,6 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 		Assert.notNull(treeNodeIndexService);
 		Assert.notNull(treeNodeService);
 		Assert.notNull(identityRepository);
-		Assert.notNull(requestResourceResolver);
 		//
 		this.formDefinitionController = formDefinitionController;
 		this.grantedAuthoritiesFactory = grantedAuthoritiesFactory;
@@ -136,7 +132,6 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 		this.treeNodeIndexService = treeNodeIndexService;
 		this.treeNodeService = treeNodeService;
 		this.identityRepository = identityRepository;
-		this.requestResourceResolver = requestResourceResolver;
 	}
 	
 	@Override
@@ -264,9 +259,6 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 		return super.put(backendId, dto);
 	}
 	
-	/**
-	 * Patch method - move to abstract service
-	 */
 	@Override
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.PATCH)
@@ -287,12 +279,7 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 			@PathVariable @NotNull String backendId,
 			HttpServletRequest nativeRequest)
 			throws HttpMessageNotReadableException {
-		IdmIdentityDto updateDto = getDto(backendId);
-		if (updateDto == null) {
-			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
-		}
-		updateDto = (IdmIdentityDto) requestResourceResolver.resolve(nativeRequest, IdmIdentityDto.class, updateDto);
-		return new ResponseEntity<>(toResource(getService().save(updateDto, IdmBasePermission.UPDATE)), HttpStatus.OK);
+		return super.patch(backendId, nativeRequest);
 	}
 
 	@Override
@@ -506,8 +493,6 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 		if (originalEntity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("identity", backendId));
 		}
-		//
-		checkAccess(originalEntity, IdmBasePermission.READ);
 		// get original entity id
 		Page<IdmAuditDto> results = this.auditService.findRevisionsForEntity(IdmIdentity.class.getSimpleName(), originalEntity.getId(), pageable);
 		return toResources(results, IdmAuditDto.class);
@@ -570,8 +555,6 @@ public class IdmIdentityController extends AbstractReadWriteDtoController<IdmIde
 		if (entity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
-		//
-		checkAccess(entity, IdmBasePermission.READ);
 		//
 		IdmFormDefinition formDefinition = formDefinitionController.getDefinition(IdmIdentity.class, definitionCode);
 		//

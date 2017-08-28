@@ -7,7 +7,7 @@ import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
-import eu.bcvsolutions.idm.core.model.entity.IdmRole;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 
 /**
@@ -37,7 +37,7 @@ public interface TestHelper {
 	 * 
 	 * @return
 	 */
-	IdmRole createRole();
+	IdmRoleDto createRole();
 	
 	/**
 	 * Creates assigned identity's role directly (without approving etc.)
@@ -46,7 +46,7 @@ public interface TestHelper {
 	 * @param role
 	 * @return
 	 */
-	IdmIdentityRoleDto createIdentityRole(IdmIdentityDto identity, IdmRole role);
+	IdmIdentityRoleDto createIdentityRole(IdmIdentityDto identity, IdmRoleDto role);
 	
 	/**
 	 * Prepares conntector and system for fiven table name.
@@ -107,7 +107,7 @@ public interface TestHelper {
 	 * @param system
 	 * @return
 	 */
-	SysRoleSystem createRoleSystem(IdmRole role, SysSystem system);
+	SysRoleSystem createRoleSystem(IdmRoleDto role, SysSystem system);
 	
 	/**
 	 * Find account on target system

@@ -21,6 +21,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordPolicyDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
@@ -119,7 +120,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 		securityService.setSystemAuthentication();
 		//
 		try {
-			IdmRole superAdminRole = this.roleService.getByName(InitApplicationData.ADMIN_ROLE);
+			IdmRoleDto superAdminRole = this.roleService.getByName(InitApplicationData.ADMIN_ROLE);
 			IdmIdentityDto identityAdmin = this.identityService.getByUsername(InitApplicationData.ADMIN_USERNAME);
 			//
 			Page<IdmTreeNode> rootsList = treeNodeService.findRoots((UUID) null, new PageRequest(0, 1));
@@ -183,7 +184,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 					passwordPolicyService.save(passGenerate);
 				}
 				//
-				IdmRole role1 = new IdmRole();
+				IdmRoleDto role1 = new IdmRoleDto();
 				role1.setName(DEFAULT_ROLE_NAME);
 				role1 = this.roleService.save(role1);
 				// self policy
@@ -249,7 +250,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				//
 				LOG.info(MessageFormat.format("Role created [id: {0}]", role1.getId()));
 				//
-				IdmRole role2 = new IdmRole();
+				IdmRoleDto role2 = new IdmRoleDto();
 				role2.setName("customRole");
 				// TODO: subroles are disabled for now
 				//List<IdmRoleComposition> subRoles = new ArrayList<>();
@@ -258,7 +259,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				role2 = this.roleService.save(role2);
 				LOG.info(MessageFormat.format("Role created [id: {0}]", role2.getId()));
 				//
-				IdmRole roleManager = new IdmRole();
+				IdmRoleDto roleManager = new IdmRoleDto();
 				roleManager.setName("manager");
 				roleManager = this.roleService.save(roleManager);
 				LOG.info(MessageFormat.format("Role created [id: {0}]", roleManager.getId()));

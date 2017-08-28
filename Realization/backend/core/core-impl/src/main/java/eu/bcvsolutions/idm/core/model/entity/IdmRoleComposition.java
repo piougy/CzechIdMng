@@ -13,8 +13,6 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.envers.Audited;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.EntityComposition;
 
@@ -35,7 +33,6 @@ public class IdmRoleComposition extends AbstractEntity implements EntityComposit
 	
 	@Audited
 	@NotNull
-	@JsonBackReference
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "superior_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4

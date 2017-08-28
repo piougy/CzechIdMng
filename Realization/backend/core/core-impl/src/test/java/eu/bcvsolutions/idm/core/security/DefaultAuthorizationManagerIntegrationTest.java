@@ -21,6 +21,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.model.dto.filter.RoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
@@ -48,26 +49,16 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  */
 public class DefaultAuthorizationManagerIntegrationTest extends AbstractIntegrationTest {
 
-	@Autowired 
-	protected TestHelper helper;
-	@Autowired
-	private ApplicationContext context;
-	@Autowired
-	private IdmIdentityService identityService;
-	@Autowired
-	private IdmAuthorizationPolicyService service;
-	@Autowired
-	private SecurityService securityService;
-	@Autowired
-	private ModuleService moduleService;
-	@Autowired
-	private LoginService loginService;
-	@Autowired
-	private IdmRoleService roleService;
-	@Autowired
-	private IdmIdentityRoleService identityRoleService;
-	@Autowired
-	private IdmIdentityContractService identityContractService;
+	@Autowired private TestHelper helper;
+	@Autowired private ApplicationContext context;
+	@Autowired private IdmIdentityService identityService;
+	@Autowired private IdmAuthorizationPolicyService service;
+	@Autowired private SecurityService securityService;
+	@Autowired private ModuleService moduleService;
+	@Autowired private LoginService loginService;
+	@Autowired private IdmRoleService roleService;
+	@Autowired private IdmIdentityRoleService identityRoleService;
+	@Autowired private IdmIdentityContractService identityContractService;
 	//
 	private AuthorizationManager manager;
 	
@@ -100,7 +91,7 @@ public class DefaultAuthorizationManagerIntegrationTest extends AbstractIntegrat
 	public void testEvaluate() {
 		loginAsAdmin(InitTestData.TEST_USER_1);
 		// prepare role
-		IdmRole role = helper.createRole();
+		IdmRoleDto role = helper.createRole();
 		helper.createBasePolicy(role.getId(), IdmBasePermission.READ);		
 		// prepare identity
 		IdmIdentityDto identity = helper.createIdentity();
@@ -134,7 +125,7 @@ public class DefaultAuthorizationManagerIntegrationTest extends AbstractIntegrat
 	public void testPredicate() {
 		loginAsAdmin(InitTestData.TEST_USER_1);
 		// prepare role
-		IdmRole role = helper.createRole();
+		IdmRoleDto role = helper.createRole();
 		helper.createUuidPolicy(role.getId(), role.getId(), IdmBasePermission.READ);		
 		helper.createBasePolicy(role.getId(), IdmBasePermission.AUTOCOMPLETE);	
 		// prepare identity
@@ -147,16 +138,16 @@ public class DefaultAuthorizationManagerIntegrationTest extends AbstractIntegrat
 		//
 		// empty without login
 		RoleFilter filter = new RoleFilter();
-		assertEquals(0, roleService.findSecured(filter, null, IdmBasePermission.READ).getTotalElements());
-		assertEquals(0, roleService.findSecured(filter, null, IdmBasePermission.AUTOCOMPLETE).getTotalElements());
+		assertEquals(0, roleService.find(filter, null, IdmBasePermission.READ).getTotalElements());
+		assertEquals(0, roleService.find(filter, null, IdmBasePermission.AUTOCOMPLETE).getTotalElements());
 		//
 		try {			
 			loginService.login(new LoginDto(identity.getUsername(), identity.getPassword()));
 			//
 			// evaluate	access
-			assertEquals(1, roleService.findSecured(filter, null, IdmBasePermission.READ).getTotalElements());
+			assertEquals(1, roleService.find(filter, null, IdmBasePermission.READ).getTotalElements());
 			assertEquals(roleService.find(null).getTotalElements(), 
-					roleService.findSecured(filter, null, IdmBasePermission.AUTOCOMPLETE).getTotalElements());			
+					roleService.find(filter, null, IdmBasePermission.AUTOCOMPLETE).getTotalElements());			
 		} finally {
 			logout();
 		}
@@ -167,8 +158,8 @@ public class DefaultAuthorizationManagerIntegrationTest extends AbstractIntegrat
 		try {
 			loginAsAdmin(InitTestData.TEST_USER_1);
 			// prepare role
-			IdmRole role = helper.createRole();
-			IdmRole role2 = helper.createRole();
+			IdmRoleDto role = helper.createRole();
+			IdmRoleDto role2 = helper.createRole();
 			helper.createUuidPolicy(role.getId(), role.getId(), IdmBasePermission.READ);		
 			helper.createBasePolicy(role2.getId(), IdmBasePermission.AUTOCOMPLETE);
 			// prepare identity
@@ -189,8 +180,8 @@ public class DefaultAuthorizationManagerIntegrationTest extends AbstractIntegrat
 		try {
 			loginAsAdmin(InitTestData.TEST_USER_1);
 			// prepare role
-			IdmRole role = helper.createRole();
-			IdmRole role2 = helper.createRole();
+			IdmRoleDto role = helper.createRole();
+			IdmRoleDto role2 = helper.createRole();
 			role2.setDisabled(true);
 			roleService.save(role2);
 			helper.createUuidPolicy(role.getId(), role.getId(), IdmBasePermission.READ);		
@@ -215,8 +206,8 @@ public class DefaultAuthorizationManagerIntegrationTest extends AbstractIntegrat
 		try {
 			loginAsAdmin(InitTestData.TEST_USER_1);
 			// prepare role
-			IdmRole role = helper.createRole();
-			IdmRole role2 = helper.createRole();
+			IdmRoleDto role = helper.createRole();
+			IdmRoleDto role2 = helper.createRole();
 			helper.createUuidPolicy(role.getId(), role.getId(), IdmBasePermission.READ);		
 			helper.createBasePolicy(role2.getId(), IdmBasePermission.AUTOCOMPLETE);	
 			// prepare identity
@@ -240,8 +231,8 @@ public class DefaultAuthorizationManagerIntegrationTest extends AbstractIntegrat
 		try {
 			loginAsAdmin(InitTestData.TEST_USER_1);
 			// prepare role
-			IdmRole role = helper.createRole();
-			IdmRole role2 = helper.createRole();
+			IdmRoleDto role = helper.createRole();
+			IdmRoleDto role2 = helper.createRole();
 			helper.createUuidPolicy(role.getId(), role.getId(), IdmBasePermission.READ);		
 			helper.createBasePolicy(role2.getId(), IdmBasePermission.AUTOCOMPLETE);	
 			// prepare identity
@@ -267,8 +258,8 @@ public class DefaultAuthorizationManagerIntegrationTest extends AbstractIntegrat
 		try {
 			loginAsAdmin(InitTestData.TEST_USER_1);
 			// prepare role
-			IdmRole role = helper.createRole();
-			IdmRole role2 = helper.createRole();
+			IdmRoleDto role = helper.createRole();
+			IdmRoleDto role2 = helper.createRole();
 			helper.createUuidPolicy(role.getId(), role.getId(), IdmBasePermission.READ);		
 			helper.createBasePolicy(role2.getId(), IdmBasePermission.AUTOCOMPLETE);	
 			// prepare identity

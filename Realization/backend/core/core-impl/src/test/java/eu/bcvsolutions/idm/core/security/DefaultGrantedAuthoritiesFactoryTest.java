@@ -23,10 +23,11 @@ import com.google.common.collect.Sets;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleCompositionDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
-import eu.bcvsolutions.idm.core.model.entity.IdmRoleComposition;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
@@ -48,7 +49,7 @@ import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
 public class DefaultGrantedAuthoritiesFactoryTest extends AbstractUnitTest {
 	
 	private static final IdmIdentityDto TEST_IDENTITY;
-	private static final IdmRole TEST_ROLE;
+	private static final IdmRoleDto TEST_ROLE;
 	private static final List<IdmIdentityRoleDto> IDENTITY_ROLES;
 	private static final List<GroupPermission> groupPermissions = new ArrayList<>();
 	private static final Set<GrantedAuthority> DEFAULT_AUTHORITIES = Sets.newHashSet(
@@ -58,20 +59,13 @@ public class DefaultGrantedAuthoritiesFactoryTest extends AbstractUnitTest {
 			new DefaultGrantedAuthority(CoreGroupPermission.ROLE_DELETE),
 			new DefaultGrantedAuthority(CoreGroupPermission.ROLE_DELETE));
 	
-	@Mock
-	private IdmIdentityService identityService;	
-	@Mock
-	private IdmIdentityRoleService identityRoleService;
-	@Mock
-	private SecurityService securityService;
-	@Mock
-	private ModuleService moduleService;
-	@Mock
-	private IdmAuthorizationPolicyService authorizationPolicyService;
-	@Mock
-	private IdmRoleService roleService;
-	@Mock
-	private ModelMapper modelMapper;
+	@Mock private IdmIdentityService identityService;	
+	@Mock private IdmIdentityRoleService identityRoleService;
+	@Mock private SecurityService securityService;
+	@Mock private ModuleService moduleService;
+	@Mock private IdmAuthorizationPolicyService authorizationPolicyService;
+	@Mock private IdmRoleService roleService;
+	@Mock private ModelMapper modelMapper;
 	//
 	private DefaultGrantedAuthoritiesFactory defaultGrantedAuthoritiesFactory;
 	
@@ -80,10 +74,10 @@ public class DefaultGrantedAuthoritiesFactoryTest extends AbstractUnitTest {
 		// prepare roles and authorities
 		IdmRole subRole = new IdmRole();
 		subRole.setName("sub_role");
-		TEST_ROLE = new IdmRole();
+		TEST_ROLE = new IdmRoleDto();
 		TEST_ROLE.setId(UUID.randomUUID());
 		TEST_ROLE.setName("superior_role");
-		TEST_ROLE.getSubRoles().add(new IdmRoleComposition(TEST_ROLE, subRole));
+		TEST_ROLE.getSubRoles().add(new IdmRoleCompositionDto(TEST_ROLE.getId(), subRole.getId()));
 		
 		// prepare identity		
 		IdmIdentityDto identity = new IdmIdentityDto();
@@ -128,7 +122,7 @@ public class DefaultGrantedAuthoritiesFactoryTest extends AbstractUnitTest {
 	
 	@Test
 	public void testUniqueAuthorities() {
-		IdmRole role = new IdmRole();
+		IdmRoleDto role = new IdmRoleDto();
 		role.setName("role");
 		role.setId(UUID.randomUUID());
 		//
@@ -183,7 +177,7 @@ public class DefaultGrantedAuthoritiesFactoryTest extends AbstractUnitTest {
 	 */
 	@Test
 	public void testGroupAdmin() {
-		IdmRole role = new IdmRole();
+		IdmRoleDto role = new IdmRoleDto();
 		role.setName("role");
 		role.setId(UUID.randomUUID());
 		IdmIdentityDto identity = new IdmIdentityDto();

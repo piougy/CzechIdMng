@@ -13,7 +13,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 
 /**
- * TODO: Codeable repository? Or add public methods to droService?
+ * TODO: Codeable repository? Or add public methods to dtoService?
  * 
  * @author Radek Tomiška
  *

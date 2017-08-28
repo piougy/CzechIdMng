@@ -58,6 +58,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.acc.service.impl.DefaultSynchronizationService;
 import eu.bcvsolutions.idm.core.api.domain.RoleType;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.model.dto.filter.RoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
@@ -319,7 +320,7 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 		RoleFilter roleFilter = new RoleFilter();
 		roleFilter.setProperty(IdmRole_.name.getName());
 		roleFilter.setValue("1");
-		IdmRole roleOne = roleService.find(roleFilter, null).getContent().get(0);
+		IdmRoleDto roleOne = roleService.find(roleFilter, null).getContent().get(0);
 		Assert.assertNotNull(roleOne);
 		
 		synchornizationService.setSynchronizationConfigId(syncConfigCustom.getId());
@@ -369,9 +370,9 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 		RoleFilter roleFilter = new RoleFilter();
 		roleFilter.setProperty(IdmRole_.name.getName());
 		roleFilter.setValue("3");
-		IdmRole roleThree = roleService.find(roleFilter, null).getContent().get(0);
+		IdmRoleDto roleThree = roleService.find(roleFilter, null).getContent().get(0);
 		Assert.assertNotNull(roleThree);
-		IdmRoleFormValue changedRole = (IdmRoleFormValue) formService.getValues(roleThree, "changed").get(0);
+		IdmRoleFormValue changedRole = (IdmRoleFormValue) formService.getValues(roleThree.getId(), IdmRole.class, "changed").get(0);
 		Assert.assertNotNull(changedRole);
 
 		// Set sync config
@@ -434,10 +435,10 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 		
 		
 		// Create role in IDM tree
-		IdmRole roleTen = new IdmRole();
+		IdmRoleDto roleTen = new IdmRoleDto();
 		roleTen.setName(ROLE_NAME_TEN);
 		roleTen.setPriority(2);
-		roleService.save(roleTen);
+		roleTen = roleService.save(roleTen);
 		
 		// Check state before provisioning
 		TestRoleResource one = entityManager.find(TestRoleResource.class, ROLE_NAME_TEN);
@@ -451,7 +452,7 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 		filter.setProperty(IdmRole_.name.getName());
 		filter.setValue(ROLE_NAME_TEN);
 
-		IdmRole roleTen = roleService.find(filter, null).getContent().get(0);
+		IdmRoleDto roleTen = roleService.find(filter, null).getContent().get(0);
 		Assert.assertNotNull(roleTen);
 
 		// Check state before provisioning
@@ -476,7 +477,7 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 		filter.setProperty(IdmRole_.name.getName());
 		filter.setValue(ROLE_NAME_TEN);
 
-		IdmRole roleTen = roleService.find(filter, null).getContent().get(0);
+		IdmRoleDto roleTen = roleService.find(filter, null).getContent().get(0);
 		Assert.assertNotNull(roleTen);
 		
 		// Check state before provisioning
@@ -502,9 +503,9 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 		filter.setProperty(IdmRole_.name.getName());
 		filter.setValue(ROLE_NAME_TEN);
 
-		IdmRole roleTen = roleService.find(filter, null).getContent().get(0);
+		IdmRoleDto roleTen = roleService.find(filter, null).getContent().get(0);
 		Assert.assertNotNull(roleTen);
-		Assert.assertTrue(formService.getValues(roleTen, "changed").isEmpty());
+		Assert.assertTrue(formService.getValues(roleTen.getId(), IdmRole.class, "changed").isEmpty());
 		
 		// Check state before provisioning
 		TestRoleResource ten = entityManager.find(TestRoleResource.class, ROLE_NAME_TEN);
@@ -513,7 +514,7 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 	
 		// Create extended attribute
 		LocalDateTime now = LocalDateTime.now();
-		formService.saveValues(roleTen, "changed", ImmutableList.of(now.toString(DATE_TABLE_CONNECTOR_FORMAT)));
+		formService.saveValues(roleTen.getId(), IdmRole.class, "changed", ImmutableList.of(now.toString(DATE_TABLE_CONNECTOR_FORMAT)));
 		
 		// Save IDM changed node (must invoke provisioning)
 		roleService.save(roleTen);
@@ -531,7 +532,7 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 		filter.setProperty(IdmRole_.name.getName());
 		filter.setValue(ROLE_NAME_TEN);
 
-		IdmRole roleTen = roleService.find(filter, null).getContent().get(0);
+		IdmRoleDto roleTen = roleService.find(filter, null).getContent().get(0);
 		Assert.assertNotNull(roleTen);
 		
 		TestRoleResource ten = entityManager.find(TestRoleResource.class, ROLE_NAME_TEN);

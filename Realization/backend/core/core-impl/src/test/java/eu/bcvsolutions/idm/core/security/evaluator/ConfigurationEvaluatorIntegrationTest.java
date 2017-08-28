@@ -15,10 +15,10 @@ import eu.bcvsolutions.idm.core.TestHelper;
 import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmConfigurationDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmConfiguration;
-import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
@@ -76,7 +76,7 @@ public class ConfigurationEvaluatorIntegrationTest extends AbstractIntegrationTe
 	public void testReadWithPermissions() {
 		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
 		// prepare role
-		IdmRole role = helper.createRole();
+		IdmRoleDto role = helper.createRole();
 		//
 		IdmAuthorizationPolicyDto dto = new IdmAuthorizationPolicyDto();
 		dto.setRole(role.getId());
@@ -109,7 +109,7 @@ public class ConfigurationEvaluatorIntegrationTest extends AbstractIntegrationTe
 	public void testReadSecuredWithPermissions() {
 		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
 		// prepare role
-		IdmRole role = helper.createRole();
+		IdmRoleDto role = helper.createRole();
 		//
 		IdmAuthorizationPolicyDto dto = new IdmAuthorizationPolicyDto();
 		dto.setRole(role.getId());
@@ -143,7 +143,7 @@ public class ConfigurationEvaluatorIntegrationTest extends AbstractIntegrationTe
 	public void testUpdateWithoutPermissions() {
 		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
 		// prepare role
-		IdmRole role = helper.createRole();
+		IdmRoleDto role = helper.createRole();
 		//
 		IdmAuthorizationPolicyDto dto = new IdmAuthorizationPolicyDto();
 		dto.setRole(role.getId());
@@ -174,7 +174,7 @@ public class ConfigurationEvaluatorIntegrationTest extends AbstractIntegrationTe
 	public void testUpdateSecuredWithoutPermissions() {
 		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
 		// prepare role
-		IdmRole role = helper.createRole();
+		IdmRoleDto role = helper.createRole();
 		//
 		IdmAuthorizationPolicyDto dto = new IdmAuthorizationPolicyDto();
 		dto.setRole(role.getId());

@@ -13,9 +13,9 @@ import eu.bcvsolutions.idm.core.TestHelper;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
-import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
@@ -47,7 +47,7 @@ public class IdentityTransitiveEvaluatorsIntegrationTest extends AbstractIntegra
 	private IdmIdentityDto prepareIdentityProfile() {
 		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
 		// get default role
-		IdmRole role = roleService.getByCode(InitDemoData.DEFAULT_ROLE_NAME);
+		IdmRoleDto role = roleService.getByCode(InitDemoData.DEFAULT_ROLE_NAME);
 		// prepare identity
 		IdmIdentityDto identity = helper.createIdentity();
 		identity.setPassword(new GuardedString("heslo"));

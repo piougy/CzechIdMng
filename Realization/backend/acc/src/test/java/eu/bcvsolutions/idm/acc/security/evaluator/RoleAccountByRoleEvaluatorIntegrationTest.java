@@ -11,9 +11,9 @@ import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.acc.entity.AccRoleAccount;
-import eu.bcvsolutions.idm.acc.security.evaluator.RoleAccountByRoleEvaluator;
 import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmAuthorizationPolicy;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
@@ -49,10 +49,10 @@ public class RoleAccountByRoleEvaluatorIntegrationTest extends AbstractIntegrati
 		IdmIdentityDto identity = createIdentityWithRole(false);
 		try {
 			loginService.login(new LoginDto(identity.getUsername(), identity.getPassword()));
-			IdmRole role = roleService.get(TEST_ROLE_ID, IdmBasePermission.READ);
+			IdmRoleDto role = roleService.get(TEST_ROLE_ID, IdmBasePermission.READ);
 			
 			assertEquals(TEST_ROLE_ID, role.getId());
-			assertEquals(1, roleService.findSecured(null, null, IdmBasePermission.READ).getTotalElements());
+			assertEquals(1, roleService.find(null, IdmBasePermission.READ).getTotalElements());
 			assertEquals(0, authorizationPolicyService.find(null, IdmBasePermission.READ).getTotalElements());
 		} finally {
 			logout();
@@ -64,10 +64,10 @@ public class RoleAccountByRoleEvaluatorIntegrationTest extends AbstractIntegrati
 		IdmIdentityDto identity = createIdentityWithRole(true);
 		try {			
 			loginService.login(new LoginDto(identity.getUsername(), identity.getPassword()));
-			IdmRole role = roleService.get(TEST_ROLE_ID, IdmBasePermission.READ);
+			IdmRoleDto role = roleService.get(TEST_ROLE_ID, IdmBasePermission.READ);
 			
 			assertEquals(TEST_ROLE_ID, role.getId());
-			assertEquals(1, roleService.findSecured(null, null, IdmBasePermission.READ).getTotalElements());
+			assertEquals(1, roleService.find(null, IdmBasePermission.READ).getTotalElements());
 			assertEquals(3, authorizationPolicyService.find(null, IdmBasePermission.READ).getTotalElements());
 		} finally {
 			logout();
@@ -76,7 +76,7 @@ public class RoleAccountByRoleEvaluatorIntegrationTest extends AbstractIntegrati
 
 	private IdmIdentityDto createIdentityWithRole(boolean transitive) {
 		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
-		IdmRole role = helper.createRole();
+		IdmRoleDto role = helper.createRole();
 		TEST_ROLE_ID = role.getId();
 		// self policy
 		IdmAuthorizationPolicyDto readRolePolicy = new IdmAuthorizationPolicyDto();

@@ -16,9 +16,9 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
-import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
@@ -143,18 +143,18 @@ public class DefaultTestHelper implements TestHelper {
 	}
 
 	@Override
-	public IdmRole createRole() {
+	public IdmRoleDto createRole() {
 		return createRole(null);
 	}
 
 	@Override
-	public IdmRole createRole(String name) {
+	public IdmRoleDto createRole(String name) {
 		return createRole(null, name);
 	}
 	
 	@Override
-	public IdmRole createRole(UUID id, String name) {
-		IdmRole role = new IdmRole();
+	public IdmRoleDto createRole(UUID id, String name) {
+		IdmRoleDto role = new IdmRoleDto();
 		if (id != null) {
 			role.setId(id);
 		}
@@ -168,7 +168,7 @@ public class DefaultTestHelper implements TestHelper {
 	}
 	
 	@Override
-	public IdmRoleTreeNodeDto createRoleTreeNode(IdmRole role, IdmTreeNode treeNode, boolean skipLongRunningTask) {
+	public IdmRoleTreeNodeDto createRoleTreeNode(IdmRoleDto role, IdmTreeNode treeNode, boolean skipLongRunningTask) {
 		IdmRoleTreeNodeDto roleTreeNode = new IdmRoleTreeNodeDto();
 		roleTreeNode.setRole(role.getId());
 		roleTreeNode.setTreeNode(treeNode.getId());
@@ -205,12 +205,12 @@ public class DefaultTestHelper implements TestHelper {
 	}
 	
 	@Override
-	public IdmIdentityRoleDto createIdentityRole(IdmIdentityDto identity, IdmRole role) {
+	public IdmIdentityRoleDto createIdentityRole(IdmIdentityDto identity, IdmRoleDto role) {
 		return createIdentityRole(getPrimeContract(identity.getId()), role);
 	}
 	
 	@Override
-	public IdmIdentityRoleDto createIdentityRole(IdmIdentityContractDto identityContract, IdmRole role) {
+	public IdmIdentityRoleDto createIdentityRole(IdmIdentityContractDto identityContract, IdmRoleDto role) {
 		IdmIdentityRoleDto identityRole = new IdmIdentityRoleDto();
 		identityRole.setIdentityContract(identityContract.getId());
 		identityRole.setRole(role.getId());
@@ -254,14 +254,14 @@ public class DefaultTestHelper implements TestHelper {
 	}
 	
 	@Override
-	public IdmRoleRequestDto assignRoles(IdmIdentityContractDto contract, IdmRole... roles) {
+	public IdmRoleRequestDto assignRoles(IdmIdentityContractDto contract, IdmRoleDto... roles) {
 		IdmRoleRequestDto roleRequest = new IdmRoleRequestDto();
 		roleRequest.setApplicant(contract.getIdentity());
 		roleRequest.setRequestedByType(RoleRequestedByType.MANUALLY);
 		roleRequest.setExecuteImmediately(true);
 		roleRequest = roleRequestService.save(roleRequest);
 		//
-		for (IdmRole role : roles) {
+		for (IdmRoleDto role : roles) {
 			IdmConceptRoleRequestDto conceptRoleRequest = new IdmConceptRoleRequestDto();
 			conceptRoleRequest.setRoleRequest(roleRequest.getId());
 			conceptRoleRequest.setIdentityContract(contract.getId());

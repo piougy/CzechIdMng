@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.ic.impl;
 
 import eu.bcvsolutions.idm.ic.api.IcConnectorInfo;
+import eu.bcvsolutions.idm.ic.api.IcConnectorKey;
 
 /**
  * Information about connector. Keep connector key, display name and category
@@ -13,7 +14,7 @@ public class IcConnectorInfoImpl implements IcConnectorInfo {
 		super();
 	}
 	
-	public IcConnectorInfoImpl(String connectorDisplayName, String connectorCategory, IcConnectorKeyImpl connectorKey) {
+	public IcConnectorInfoImpl(String connectorDisplayName, String connectorCategory, IcConnectorKey connectorKey) {
 		super();
 		this.connectorDisplayName = connectorDisplayName;
 		this.connectorCategory = connectorCategory;
@@ -29,7 +30,7 @@ public class IcConnectorInfoImpl implements IcConnectorInfo {
 	 * Get the category this connector belongs to.
 	 */
 	private String connectorCategory;
-	private IcConnectorKeyImpl connectorKey;
+	private IcConnectorKey connectorKey;
 
 	@Override
 	public String getConnectorDisplayName() {
@@ -50,7 +51,7 @@ public class IcConnectorInfoImpl implements IcConnectorInfo {
 	}
 
 	@Override
-	public IcConnectorKeyImpl getConnectorKey() {
+	public IcConnectorKey getConnectorKey() {
 		return connectorKey;
 	}
 

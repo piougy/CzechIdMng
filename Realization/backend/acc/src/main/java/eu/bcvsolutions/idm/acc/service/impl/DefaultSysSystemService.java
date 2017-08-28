@@ -68,6 +68,7 @@ import eu.bcvsolutions.idm.ic.api.IcObjectClass;
 import eu.bcvsolutions.idm.ic.api.IcObjectClassInfo;
 import eu.bcvsolutions.idm.ic.api.IcSchema;
 import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
+import eu.bcvsolutions.idm.ic.czechidm.domain.IcConnectorConfigurationCzechIdMImpl;
 import eu.bcvsolutions.idm.ic.impl.IcConfigurationPropertiesImpl;
 import eu.bcvsolutions.idm.ic.impl.IcConnectorConfigurationImpl;
 import eu.bcvsolutions.idm.ic.impl.IcConnectorKeyImpl;
@@ -249,7 +250,14 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		List<AbstractFormValue<SysSystem>> formValues = getFormService().getValues(system, formDefinition);
 		Map<String, List<AbstractFormValue<SysSystem>>> attributeValues = getFormService().toValueMap(formValues);
 		// fill connector configuration from form values
-		IcConnectorConfigurationImpl icConf = new IcConnectorConfigurationImpl();
+		IcConnectorConfigurationImpl icConf = null;
+		if(SysSystemService.CONNECTOR_FRAMEWORK_CZECHIDM.equals(connectorInstance.getConnectorKey().getFramework())){
+			// For CzechIdM connector framework is needs system ID (exactly for virtual systems).
+			 icConf = new IcConnectorConfigurationCzechIdMImpl();
+			 ((IcConnectorConfigurationCzechIdMImpl)icConf).setSystemId(system.getId());
+		}else {
+			 icConf = new IcConnectorConfigurationImpl();
+		}
 		IcConfigurationProperties properties = new IcConfigurationPropertiesImpl();
 		icConf.setConfigurationProperties(properties);
 		//
@@ -266,6 +274,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 				properties.getProperties().add(property);
 			}
 		}
+		
 		return icConf;
 	}
 

@@ -9,6 +9,7 @@ import eu.bcvsolutions.idm.ic.api.IcAttribute;
 
 /**
  * Basic implementation of IC attribute
+ * 
  * @author svandav
  *
  */
@@ -22,7 +23,7 @@ public class IcAttributeImpl implements IcAttribute {
 	public IcAttributeImpl() {
 		super();
 	}
-	
+
 	public IcAttributeImpl(String name, List<Object> values, boolean multiValue) {
 		super();
 		this.name = name;
@@ -34,7 +35,7 @@ public class IcAttributeImpl implements IcAttribute {
 		super();
 		this.name = name;
 		this.values = values;
-		if(values instanceof List){
+		if (values instanceof List) {
 			this.multiValue = true;
 		}
 	}
@@ -48,7 +49,6 @@ public class IcAttributeImpl implements IcAttribute {
 		}
 		this.multiValue = false;
 	}
-	
 
 	/**
 	 * Property name
@@ -79,7 +79,7 @@ public class IcAttributeImpl implements IcAttribute {
 		return this.values.get(0);
 
 	}
-	
+
 	/**
 	 * Attribute values
 	 * 
@@ -105,6 +105,48 @@ public class IcAttributeImpl implements IcAttribute {
 	@Override
 	public String toString() {
 		return "IcAttributeImpl [name=" + name + ", values=" + values + "]";
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + (multiValue ? 1231 : 1237);
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result + ((values == null) ? 0 : values.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		IcAttributeImpl other = (IcAttributeImpl) obj;
+		if (multiValue != other.multiValue) {
+			return false;
+		}
+		if (name == null) {
+			if (other.name != null) {
+				return false;
+			}
+		} else if (!name.equals(other.name)) {
+			return false;
+		}
+		if (values == null) {
+			if (other.values != null) {
+				return false;
+			}
+		} else if (!values.equals(other.values)) {
+			return false;
+		}
+		return true;
 	}
 
 }

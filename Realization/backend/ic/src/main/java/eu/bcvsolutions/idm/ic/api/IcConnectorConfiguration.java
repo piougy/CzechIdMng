@@ -1,11 +1,13 @@
 package eu.bcvsolutions.idm.ic.api;
 
+import java.io.Serializable;
+
 /**
  * Configuration for IC connector
  * @author svandav
  *
  */
-public interface IcConnectorConfiguration {
+public interface IcConnectorConfiguration extends Serializable {
 
 	/**
 	 * @return the configurationProperties

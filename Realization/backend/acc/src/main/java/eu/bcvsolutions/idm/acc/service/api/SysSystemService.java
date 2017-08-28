@@ -26,6 +26,7 @@ import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
 public interface SysSystemService extends ReadWriteEntityService<SysSystem, SysSystemFilter>, CodeableService<SysSystem>, CloneableService<SysSystem> {
 	
 	public static final String REMOTE_SERVER_PASSWORD = "remoteServerPassword";
+	public static final String CONNECTOR_FRAMEWORK_CZECHIDM = "czechidm";
 	
 	/**
 	 * Generate and persist schema to system. 

@@ -545,11 +545,13 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
                 rows="3"
                 placeholder={this.i18n('entity.RoleRequest.description.placeholder')}
                 label={this.i18n('entity.RoleRequest.description.label')}/>
-              {this._renderRoleConceptTable(request, true,
-                   isEditable, showLoading, _currentIdentityRoles, addedIdentityRoles,
-                   changedIdentityRoles, removedIdentityRoles)}
-              {this._renderRoleConceptChangesTable(request, forceSearchParameters, true)}
             </Basic.AbstractForm>
+            <Basic.Panel style={{ padding: '15px 15px 0 15px' }} className="no-border">
+              {this._renderRoleConceptTable(request, true,
+                isEditable, showLoading, _currentIdentityRoles, addedIdentityRoles,
+                changedIdentityRoles, removedIdentityRoles)}
+                {this._renderRoleConceptChangesTable(request, forceSearchParameters, true)}
+            </Basic.Panel>
             <Basic.PanelFooter>
               <Basic.Button type="button" level="link"
                 onClick={this.context.router.goBack}

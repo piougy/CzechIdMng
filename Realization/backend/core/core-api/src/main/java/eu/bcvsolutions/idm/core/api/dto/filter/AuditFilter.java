@@ -5,6 +5,13 @@ import java.util.UUID;
 
 import org.joda.time.DateTime;
 
+/**
+ * Filter for audit
+ * 
+ * @author Ondrej Kopr <kopr@xyxy.cz>
+ *
+ */
+
 public class AuditFilter implements BaseFilter {
 
     private Long id;

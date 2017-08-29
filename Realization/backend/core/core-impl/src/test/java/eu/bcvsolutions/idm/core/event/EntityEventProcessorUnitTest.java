@@ -8,6 +8,7 @@ import org.junit.Test;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
@@ -15,7 +16,6 @@ import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.event.EventType;
-import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent;
@@ -43,7 +43,7 @@ public class EntityEventProcessorUnitTest extends AbstractVerifiableUnitTest {
 		assertTrue(processor.supports(new IdentityEvent(IdentityEventType.CREATE, new IdmIdentityDto())));
 		assertTrue(processor.supports(new IdentityEvent(IdentityEventType.UPDATE, new IdmIdentityDto())));
 		assertTrue(processor.supports(new IdentityEvent(IdentityEventType.DELETE, new IdmIdentityDto())));
-		assertFalse(processor.supports(new RoleEvent(RoleEventType.DELETE, new IdmRole())));
+		assertFalse(processor.supports(new RoleEvent(RoleEventType.DELETE, new IdmRoleDto())));
 		assertTrue(processor.supports(new CoreEvent<IdmIdentityDto>(CustomType.SAVE, new IdmIdentityDto())));
 		assertTrue(processor.supports(new CoreEvent<>(CustomType.CUSTOM, new IdmIdentityDto())));
 	}
@@ -55,10 +55,10 @@ public class EntityEventProcessorUnitTest extends AbstractVerifiableUnitTest {
 		
 		assertFalse(processor.supports(new IdentityEvent(IdentityEventType.UPDATE, new IdmIdentityDto())));
 		assertFalse(processor.supports(new IdentityEvent(IdentityEventType.DELETE, new IdmIdentityDto())));
-		assertTrue(processor.supports(new RoleEvent(RoleEventType.DELETE, new IdmRole())));
+		assertTrue(processor.supports(new RoleEvent(RoleEventType.DELETE, new IdmRoleDto())));
 		assertFalse(processor.supports(new CoreEvent<IdmIdentityDto>(CustomType.SAVE, new IdmIdentityDto())));
 		assertFalse(processor.supports(new CoreEvent<>(CustomType.CUSTOM, new IdmIdentityDto())));
-		assertTrue(processor.supports(new CoreEvent<IdmRole>(IdentityEventType.UPDATE, new IdmRole())));
+		assertTrue(processor.supports(new CoreEvent<IdmRoleDto>(IdentityEventType.UPDATE, new IdmRoleDto())));
 	}
 	
 	@Test
@@ -94,14 +94,14 @@ public class EntityEventProcessorUnitTest extends AbstractVerifiableUnitTest {
 
 	}
 	
-	private class EventProcessorRole extends AbstractEntityEventProcessor<IdmRole> {
+	private class EventProcessorRole extends AbstractEntityEventProcessor<IdmRoleDto> {
 
 		public EventProcessorRole() {
 			super(RoleEventType.DELETE, IdentityEventType.UPDATE);
 		}
 		
 		@Override
-		public EventResult<IdmRole> process(EntityEvent<IdmRole> event) {
+		public EventResult<IdmRoleDto> process(EntityEvent<IdmRoleDto> event) {
 			return new DefaultEventResult<>(event, this);
 		}
 

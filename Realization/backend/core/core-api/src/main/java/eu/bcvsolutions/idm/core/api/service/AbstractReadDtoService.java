@@ -155,10 +155,10 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	 * Supposed to be overriden - use super.toPredicates to transform default DataFilter props. 
 	 * Transforms given filter to jpa predicate, never returns null.
 	 * 
-	 * @param filter
 	 * @param root
 	 * @param query
 	 * @param builder
+	 * @param filter
 	 * @return
 	 */
 	protected List<Predicate> toPredicates(Root<E> root, CriteriaQuery<?> query, CriteriaBuilder builder, F filter) {

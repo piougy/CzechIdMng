@@ -9,8 +9,8 @@ import com.google.common.annotations.Beta;
 
 import eu.bcvsolutions.idm.core.api.rest.lookup.AbstractEntityLookup;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
-import eu.bcvsolutions.idm.core.model.entity.IdmConfiguration;
-import eu.bcvsolutions.idm.core.model.repository.IdmConfigurationRepository;
+import eu.bcvsolutions.idm.core.model.entity.IdmRole;
+import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 
 /**
  * TODO: Codeable repository? Or add public methods to dtoService?
@@ -20,28 +20,26 @@ import eu.bcvsolutions.idm.core.model.repository.IdmConfigurationRepository;
  */
 @Beta
 @Component
-public class IdmConfigurationEntityLookup extends AbstractEntityLookup<IdmConfiguration> {
+public class IdmRoleEntityLookup extends AbstractEntityLookup<IdmRole> {
 
-	@Autowired private IdmConfigurationRepository repository;
+	@Autowired private IdmRoleRepository roleRepository;
 	
 	@Override
-	public Serializable getIdentifier(IdmConfiguration entity) {
+	public Serializable getIdentifier(IdmRole entity) {
 		return entity.getCode();
 	}
 
 	@Override
-	public IdmConfiguration lookup(Serializable id) {
-		IdmConfiguration entity = null;
+	public IdmRole lookup(Serializable id) {
+		IdmRole entity = null;
 		try {
-			entity = repository.findOne(EntityUtils.toUuid(id));
+			entity = roleRepository.findOne(EntityUtils.toUuid(id));
 		} catch (ClassCastException ex) {
 			// simply not found
 		}
 		if (entity == null) {
-			entity = repository.findOneByName(id.toString());
+			entity = roleRepository.findOneByCode(id.toString());
 		}
 		return entity;
-	}
-	
-	
+	}	
 }

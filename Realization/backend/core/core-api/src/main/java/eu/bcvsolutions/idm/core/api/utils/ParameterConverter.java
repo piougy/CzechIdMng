@@ -261,6 +261,12 @@ public class ParameterConverter {
 	 * @return
 	 */
 	public UUID toEntityUuid(String parameterValue, Class<? extends AbstractEntity> entityClass) {
+		try {
+			// optimalization - if string representation of uuid was given
+			return EntityUtils.toUuid(parameterValue);
+		} catch(ClassCastException ex) {
+			// nothing - we will try to find entity by string value
+		}		
 		AbstractEntity entity = toEntity(parameterValue, entityClass);
 		return entity == null ? null : entity.getId();
 	}

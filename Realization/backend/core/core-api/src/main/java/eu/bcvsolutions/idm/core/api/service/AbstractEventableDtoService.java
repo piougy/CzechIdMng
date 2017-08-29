@@ -44,6 +44,7 @@ public abstract class AbstractEventableDtoService<DTO extends BaseDto, E extends
 	}
 	
 	@Override
+	@Transactional
 	public EventContext<DTO> publish(EntityEvent<DTO> event, BasePermission... permission){
 		Assert.notNull(event, "Event must be not null!");
 		Assert.notNull(event.getContent(), "Content (dto) in event must be not null!");

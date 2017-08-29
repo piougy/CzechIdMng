@@ -31,6 +31,7 @@ import com.google.common.collect.ImmutableList;
 import eu.bcvsolutions.idm.core.TestHelper;
 import eu.bcvsolutions.idm.core.api.dto.IdmAuditDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.AuditFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.audit.service.api.IdmAuditService;
@@ -40,22 +41,18 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
+/**
+ * Audit
+ * 
+ * @author Ondrej Kopr
+ */
 public class DefaultAuditServiceTest extends AbstractIntegrationTest {
 
-	@Autowired
-	private TestHelper helper;
-	
-	@Autowired
-	private IdmAuditService auditService;
-
-	@Autowired
-	private IdmRoleService roleService;
-
-	@Autowired
-	private IdmIdentityService identityService;
-
-	@PersistenceContext
-	private EntityManager entityManager;
+	@Autowired private TestHelper helper;
+	@Autowired private IdmAuditService auditService;
+	@Autowired private IdmRoleService roleService;
+	@Autowired private IdmIdentityService identityService;
+	@PersistenceContext private EntityManager entityManager;
 
 	@Before
 	public void before() {
@@ -69,7 +66,7 @@ public class DefaultAuditServiceTest extends AbstractIntegrationTest {
 
 	@Test
 	public void roleAuditTestCreateModify() {
-		IdmRole role = saveInTransaction(constructRole("audit_test_role"), roleService);
+		IdmRoleDto role = saveInTransaction(constructRole("audit_test_role"), roleService);
 
 		List<IdmAuditDto> result = auditService.findRevisions(IdmRole.class, role.getId());
 
@@ -231,7 +228,7 @@ public class DefaultAuditServiceTest extends AbstractIntegrationTest {
 		IdmIdentityDto identity = this.constructIdentity("aud_test", "test", "test");
 		identity = identityService.save(identity);
 		identity = identityService.get(identity.getId());
-		IdmRole role = roleService.save(constructRole("aud_test_role"));		
+		IdmRoleDto role = roleService.save(constructRole("aud_test_role"));		
 		helper.createIdentityRole(identity, role);
 		//
 		List<IdmAuditDto> result = auditService.findRevisions(IdmIdentity.class, identity.getId());
@@ -347,8 +344,8 @@ public class DefaultAuditServiceTest extends AbstractIntegrationTest {
 		assertEquals(4, audits.size());
 	}
 
-	private IdmRole constructRole(String name) {
-		IdmRole role = new IdmRole();
+	private IdmRoleDto constructRole(String name) {
+		IdmRoleDto role = new IdmRoleDto();
 		role.setName(name);
 		return role;
 	}

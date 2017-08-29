@@ -18,7 +18,7 @@ import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
-import eu.bcvsolutions.idm.core.model.entity.IdmRole;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
@@ -52,7 +52,7 @@ public class AccountProtectionExpirationTaskExecutorIntegrationTest extends Abst
 	@Test
 	public void testRemoveExpiredAccount() {
 		IdmIdentityDto identity = helper.createIdentity();
-		IdmRole role = helper.createRole();
+		IdmRoleDto role = helper.createRole();
 		SysSystem system = helper.createTestResourceSystem(true);
 		SysSystemMappingDto mapping = helper.getDefaultMapping(system);
 		mapping.setProtectionInterval(1);

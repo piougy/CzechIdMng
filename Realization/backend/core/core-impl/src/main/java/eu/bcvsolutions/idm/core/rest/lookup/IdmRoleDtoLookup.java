@@ -4,12 +4,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
-import eu.bcvsolutions.idm.core.api.rest.lookup.CodeableServiceEntityLookup;
-import eu.bcvsolutions.idm.core.model.entity.IdmRole;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.rest.lookup.CodeableDtoLookup;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 
+/**
+ * Role lookup
+ * 
+ * @author Radek Tomiška
+ *
+ */
 @Component
-public class IdmRoleLookup extends CodeableServiceEntityLookup<IdmRole>{
+public class IdmRoleDtoLookup extends CodeableDtoLookup<IdmRoleDto>{
 
 	@Autowired 
 	private ApplicationContext applicationContext;
@@ -28,6 +34,4 @@ public class IdmRoleLookup extends CodeableServiceEntityLookup<IdmRole>{
 		}
 		return roleService;
 	}
-	
-
 }

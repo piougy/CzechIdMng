@@ -17,11 +17,9 @@ import com.google.common.collect.Lists;
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.TestHelper;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.RoleCatalogueFilter;
-import eu.bcvsolutions.idm.core.model.entity.IdmRole;
-import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
-import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogueRole;
-import eu.bcvsolutions.idm.core.model.repository.IdmRoleCatalogueRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleCatalogueService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
@@ -36,7 +34,6 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 public class DefaultIdmRoleCatalogueServiceIntegrationTest extends AbstractIntegrationTest {
 
 	@Autowired private IdmRoleService roleService;
-	@Autowired private IdmRoleCatalogueRepository roleCatalogueRepository;
 	@Autowired private IdmRoleCatalogueService roleCatalogueService;
 	@Autowired private TestHelper helper;
 	
@@ -59,26 +56,26 @@ public class DefaultIdmRoleCatalogueServiceIntegrationTest extends AbstractInteg
 		roleCatalogue.setName(catalogueName);
 		roleCatalogue = roleCatalogueService.save(roleCatalogue);
 		// role
-		IdmRole role = new IdmRole();
+		IdmRoleDto role = new IdmRoleDto();
 		String roleName = "test_r_" + System.currentTimeMillis();
 		role.setName(roleName);		
 		//
-		IdmRoleCatalogueRole roleCatalogueRole = new IdmRoleCatalogueRole();
-		roleCatalogueRole.setRole(role);
-		roleCatalogueRole.setRoleCatalogue(roleCatalogueRepository.findOne(roleCatalogue.getId()));
+		IdmRoleCatalogueRoleDto roleCatalogueRole = new IdmRoleCatalogueRoleDto();
+		roleCatalogueRole.setRole(role.getId());
+		roleCatalogueRole.setRoleCatalogue(roleCatalogue.getId());
 		//
 		role.setRoleCatalogues(Lists.newArrayList(roleCatalogueRole));
 		role = roleService.save(role);
 		//
-		List<IdmRoleCatalogueRole> list = role.getRoleCatalogues();
+		List<IdmRoleCatalogueRoleDto> list = role.getRoleCatalogues();
 		assertEquals(1, list.size());
-		IdmRoleCatalogue catalog = list.get(0).getRoleCatalogue();
-		IdmRole roleFromCatalogue = list.get(0).getRole();
+		UUID catalogId = list.get(0).getRoleCatalogue();
+		UUID roleId = list.get(0).getRole();
 		//
-		assertNotNull(catalog);
-		assertNotNull(roleFromCatalogue);
-		assertEquals(catalogueName, catalog.getName());
-		assertEquals(roleName, roleFromCatalogue.getName());
+		assertNotNull(catalogId);
+		assertNotNull(roleId);
+		assertEquals(roleCatalogue.getId(), catalogId);
+		assertEquals(role.getId(), roleId);
 		//
 		roleCatalogueService.delete(roleCatalogue);
 		//

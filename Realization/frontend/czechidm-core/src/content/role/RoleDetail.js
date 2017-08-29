@@ -92,16 +92,14 @@ class RoleDetail extends Basic.AbstractContent {
       if (entity.subRoles) {
         entity.subRoles = entity.subRoles.map(subRoleId => {
           return {
-            sub: roleManager.getSelfLink(subRoleId)
+            sub: subRoleId
           };
         });
       }
       if (entity.guarantees) {
         entity.guarantees = entity.guarantees.map(guaranteeId => {
           return {
-            guarantee: {
-              id: guaranteeId
-            }
+            guarantee: guaranteeId
           };
         });
       }
@@ -109,9 +107,7 @@ class RoleDetail extends Basic.AbstractContent {
       if (entity.roleCatalogues) {
         entity.roleCatalogues = entity.roleCatalogues.map(roleCatalogue => {
           return {
-            roleCatalogue: {
-              id: roleCatalogue.id
-            }
+            roleCatalogue: roleCatalogue.id
           };
         });
       }

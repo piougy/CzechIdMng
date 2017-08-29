@@ -34,6 +34,16 @@ All notable changes to this project will be documented in this file.
 
 - The encryption of the confidetial agenda can now be done using the key from application properties, also file with key may be defined in application properties. Backward compatibility with key defined in resource is maintained.
 
+##### Role
+
+- Role agenda was refactored to dto usage. Search **IdmRoleService** usage in your project - **all methods works with dto** now, entity service methods were removed (e.q. ``findSecured``). **In workflow ``roleSevice.get(roleId, null)`` method has to be used**.
+- **``RoleFilter``** - fields are UUID now - **roleCatalogue => roleCatalogueId**, **guarantee => guaranteeId**
+- **``GrantedAuthoritiesFactory#getActiveRoleAuthorities(UUID identityId, IdmRoleDto role)``** - method using role dto as parameter now
+- **``TestHelper``** - role entity usage was removed - dto or role id (uuid) is used now.
+- **``IdmRoleDto`` is used as event content now - change all entity event processors from template ``IdmRole`` to ``IdmRoleDto`` in your project.** ``RoleEvent`` uses ``IdmRoleDto`` content now too
+- Rest endpoint - changed role lists structure (``IdmRoleGuaranteeDto, IdmRoleCatalogueDto`` are used now) - uuid only is needed, when relation is created and updated
+- ``IdmRoleGuaranteeRepository`` - removed methods ``deleteByGuarantee_Id``, ``deleteByRole`` - service layer has to be used for create audit records.
+
 ##### Role request
 
 - Added authorization policies support. New [authorization policy evaluators](https://wiki.czechidm.com/devel/dev/security/change-user-permissions#security) has to be [configured](https://wiki.czechidm.com/devel/dev/security/authorization#default_settings_of_permissions_for_an_identity_profile) to add permission for role requests. Added new permission group ``ROLEREQUEST``.

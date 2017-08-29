@@ -71,7 +71,7 @@ try {
 	def contractRoles = identityRoleService.findAllByContract(dto.getId())
 	for (role in contractRoles) {
 		if (!role.isAutomaticRole()) {
-			identityRoleService.delete(role)
+			identityRoleService.delete(role, null)
 		}
 	}
 	//

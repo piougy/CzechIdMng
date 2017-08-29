@@ -326,8 +326,7 @@ public class IdmServiceConfiguration {
 				roleCatalogueRoleRepository,
 				entityEventManager(), 
 				formService(), 
-				configurationService(), 
-				filterManager(), 
+				configurationService(),
 				roleConfiguration());
 	}
 	

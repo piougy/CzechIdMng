@@ -10,9 +10,9 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
-import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeTypeService;
@@ -114,7 +114,7 @@ public interface TestHelper {
 	 * 
 	 * @return
 	 */
-	IdmRole createRole();
+	IdmRoleDto createRole();
 
 	/**
 	 * Creates role with given name
@@ -122,7 +122,7 @@ public interface TestHelper {
 	 * @param name
 	 * @return
 	 */
-	IdmRole createRole(String name);
+	IdmRoleDto createRole(String name);
 	
 	/**
 	 * Creates role with given id and name
@@ -131,7 +131,7 @@ public interface TestHelper {
 	 * @param name
 	 * @return
 	 */
-	IdmRole createRole(UUID id, String name);
+	IdmRoleDto createRole(UUID id, String name);
 
 	/**
 	 * Deletes role
@@ -148,7 +148,7 @@ public interface TestHelper {
 	 * @param skipLongRunningTask
 	 * @return
 	 */
-	IdmRoleTreeNodeDto createRoleTreeNode(IdmRole role, IdmTreeNode treeNode, boolean skipLongRunningTask);
+	IdmRoleTreeNodeDto createRoleTreeNode(IdmRoleDto role, IdmTreeNode treeNode, boolean skipLongRunningTask);
 	
 	/**
 	 * Creates uuid permission evaluator authorization policy 
@@ -157,7 +157,7 @@ public interface TestHelper {
 	 * @param permission
 	 * @return
 	 */
-	IdmAuthorizationPolicyDto createUuidPolicy(UUID role, UUID authorizableEntity, BasePermission... permission);
+	IdmAuthorizationPolicyDto createUuidPolicy(UUID roleId, UUID authorizableEntity, BasePermission... permission);
 	
 	/**
 	 * Creates base permission evaluator authorization policy 
@@ -186,7 +186,7 @@ public interface TestHelper {
 	 * @param role
 	 * @return
 	 */
-	IdmIdentityRoleDto createIdentityRole(IdmIdentityDto identity, IdmRole role);
+	IdmIdentityRoleDto createIdentityRole(IdmIdentityDto identity, IdmRoleDto role);
 	
 	/**
 	 * Creates assigned identity's role directly (without approving etc.)
@@ -195,7 +195,7 @@ public interface TestHelper {
 	 * @param role
 	 * @return
 	 */
-	IdmIdentityRoleDto createIdentityRole(IdmIdentityContractDto identityContract, IdmRole role);
+	IdmIdentityRoleDto createIdentityRole(IdmIdentityContractDto identityContract, IdmRoleDto role);
 	
 	/**
 	 * Returns prime identity contract
@@ -256,5 +256,5 @@ public interface TestHelper {
 	 * @param roles roles to add
 	 * @return
 	 */
-	IdmRoleRequestDto assignRoles(IdmIdentityContractDto contract, IdmRole... roles);
+	IdmRoleRequestDto assignRoles(IdmIdentityContractDto contract, IdmRoleDto... roles);
 }

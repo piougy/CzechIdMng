@@ -10,10 +10,10 @@ import eu.bcvsolutions.idm.InitDemoData;
 import eu.bcvsolutions.idm.core.TestHelper;
 import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.ConceptRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
-import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.core.rest.impl.IdmConceptRoleRequestController;
@@ -41,7 +41,7 @@ public class RoleRequestByIdentityEvaluatorIntegrationTest extends AbstractInteg
 		IdmIdentityDto identityOne = helper.createIdentity();
 		IdmIdentityDto identityTwo = helper.createIdentity();
 		// create policy
-		IdmRole role = helper.createRole();
+		IdmRoleDto role = helper.createRole();
 		helper.createUuidPolicy(role.getId(), identityOne.getId(), IdmBasePermission.READ);
 		helper.createIdentityRole(identityTwo, role);
 		helper.createIdentityRole(identityTwo, roleService.getByCode(InitDemoData.DEFAULT_ROLE_NAME));
@@ -70,7 +70,7 @@ public class RoleRequestByIdentityEvaluatorIntegrationTest extends AbstractInteg
 		IdmIdentityDto identityOne = helper.createIdentity();
 		IdmIdentityDto identityTwo = helper.createIdentity();
 		//
-		IdmRole role = helper.createRole();
+		IdmRoleDto role = helper.createRole();
 		helper.createIdentityRole(identityTwo, role);
 		IdmRoleRequestDto roleRequest = helper.assignRoles(helper.getPrimeContract(identityOne.getId()), role);
 		//

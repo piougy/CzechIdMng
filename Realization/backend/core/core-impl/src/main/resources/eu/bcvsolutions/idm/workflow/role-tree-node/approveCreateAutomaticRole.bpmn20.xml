@@ -8,14 +8,14 @@ Input variables:
     <startEvent id="startevent1" name="Start"></startEvent>
     <sequenceFlow id="flow37" sourceRef="startevent1" targetRef="servicetask1"></sequenceFlow>
     <userTask id="usertask1" name="Approve new automatic role" activiti:candidateUsers="${guarantees}" activiti:formKey="role-tree-node-task-detail">
-      <documentation>Approve new automatic role [${roleService.get(entityEvent.content.role).getName()}] on tree node [${treeNodeService.get(entityEvent.content.treeNode).getName()}]</documentation>
+      <documentation>Approve new automatic role [${roleService.get(entityEvent.content.role, null).getName()}] on tree node [${treeNodeService.get(entityEvent.content.treeNode).getName()}]</documentation>
       <extensionElements>
         <activiti:formProperty id="disapprove" type="decision"></activiti:formProperty>
         <activiti:formProperty id="approve" type="decision"></activiti:formProperty>
       </extensionElements>
     </userTask>
     <endEvent id="endevent1" name="End" activiti:async="false"></endEvent>
-    <serviceTask id="servicetask1" name="Generate process name" activiti:expression="Create new automatic role ${roleService.get(entityEvent.content.role).getName()} on tree node ${treeNodeService.get(entityEvent.content.treeNode).getName()} " activiti:resultVariableName="processInstanceName"></serviceTask>
+    <serviceTask id="servicetask1" name="Generate process name" activiti:expression="Create new automatic role ${roleService.get(entityEvent.content.role, null).getName()} on tree node ${treeNodeService.get(entityEvent.content.treeNode).getName()} " activiti:resultVariableName="processInstanceName"></serviceTask>
     <serviceTask id="servicetask2" name="Continue entity event processing" activiti:expression="#{entityEventManager.process(entityEvent)}"></serviceTask>
     <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway"></exclusiveGateway>
     <endEvent id="endevent2" name="End"></endEvent>
@@ -36,14 +36,14 @@ Input variables:
     </sequenceFlow>
     <scriptTask id="scripttask1" name="Resolve approvers" scriptFormat="groovy" activiti:autoStoreVariables="false">
       <script>// load role by id
-def role = roleService.get(entityEvent.content.role);
+def role = roleService.get(entityEvent.content.role, null);
 def guarantees = [];
 def skipApproving = false;
 //
 for (guarantee in role.guarantees) {
-  guarantees.add(guarantee.guarantee.username)
+  guarantees.add(guarantee.guarantee)
 }
-if(guarantees.empty || guarantees.contains(applicantUsername)) {
+if(guarantees.empty || guarantees.contains(applicantIdentifier)) {
   skipApproving = true;
 }
 

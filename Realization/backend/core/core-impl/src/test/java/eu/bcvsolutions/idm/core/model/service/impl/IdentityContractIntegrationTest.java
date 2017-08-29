@@ -24,10 +24,10 @@ import eu.bcvsolutions.idm.core.api.dto.IdmContractGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.ContractGuaranteeFilter;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
-import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.service.api.IdmContractGuaranteeService;
@@ -65,10 +65,10 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 	private IdmTreeNode nodeD = null;
 	private IdmTreeNode nodeE = null;
 	private IdmTreeNode nodeF = null;
-	private IdmRole roleA = null;
-	private IdmRole roleB = null;
-	private IdmRole roleC = null;
-	private IdmRole roleD = null;
+	private IdmRoleDto roleA = null;
+	private IdmRoleDto roleB = null;
+	private IdmRoleDto roleC = null;
+	private IdmRoleDto roleD = null;
 	private IdmRoleTreeNodeDto automaticRoleA = null;
 	private IdmRoleTreeNodeDto automaticRoleD = null;
 	private IdmRoleTreeNodeDto automaticRoleE = null;
@@ -490,7 +490,7 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 	@Test
 	public void testReferentialIntegrityOnRole() {
 		// prepare data
-		IdmRole role = helper.createRole();
+		IdmRoleDto role = helper.createRole();
 		IdmTreeNode treeNode = helper.createTreeNode();
 		// automatic role
 		IdmRoleTreeNodeDto roleTreeNode = helper.createRoleTreeNode(role, treeNode, false);
@@ -506,7 +506,7 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 	@Test
 	public void testReferentialIntegrityOnTreeType() {
 		// prepare data
-		IdmRole role = helper.createRole();
+		IdmRoleDto role = helper.createRole();
 		IdmTreeNode treeNode = helper.createTreeNode();
 		// automatic role
 		IdmRoleTreeNodeDto roleTreeNode = helper.createRoleTreeNode(role, treeNode, false);

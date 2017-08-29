@@ -12,9 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.TestHelper;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
@@ -43,7 +43,7 @@ public class CodeableFilterBuilderIntegrationTest extends AbstractIntegrationTes
 		// prepare data
 		IdmIdentityDto identityOne = helper.createIdentity();
 		IdmIdentityDto identityTwo = helper.createIdentity();
-		IdmRole roleOne = helper.createRole();
+		IdmRoleDto roleOne = helper.createRole();
 		//
 		DataFilter dataFilter = new DataFilter(IdmIdentityDto.class);
 		dataFilter.setCodeableIdentifier(identityOne.getId().toString());
@@ -66,7 +66,7 @@ public class CodeableFilterBuilderIntegrationTest extends AbstractIntegrationTes
 		// prepare data
 		IdmIdentityDto identityOne = helper.createIdentity();
 		IdmIdentityDto identityTwo = helper.createIdentity();
-		IdmRole roleOne = helper.createRole();
+		IdmRoleDto roleOne = helper.createRole();
 		//
 		DataFilter dataFilter = new DataFilter(IdmIdentityDto.class);
 		dataFilter.setCodeableIdentifier(identityOne.getUsername());

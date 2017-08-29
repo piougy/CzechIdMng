@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.model.dto.filter;
 
+import java.util.UUID;
+
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
@@ -7,8 +9,6 @@ import eu.bcvsolutions.idm.core.api.domain.RoleType;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.CorrelationFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
 
 /**
  * Filter for roles
@@ -20,8 +20,8 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
 public class RoleFilter extends DataFilter implements CorrelationFilter {
 
 	private RoleType roleType;
-	private IdmRoleCatalogue roleCatalogue;
-	private IdmIdentity guarantee;
+	private UUID roleCatalogueId;
+	private UUID guaranteeId;
 	/**
 	 * Little dynamic search by role property and value
 	 */
@@ -35,14 +35,6 @@ public class RoleFilter extends DataFilter implements CorrelationFilter {
 	public RoleFilter(MultiValueMap<String, Object> data) {
 		super(IdmRoleDto.class, data);
 	}
-	
-	public IdmRoleCatalogue getRoleCatalogue() {
-		return roleCatalogue;
-	}
-
-	public void setRoleCatalogue(IdmRoleCatalogue roleCatalogue) {
-		this.roleCatalogue = roleCatalogue;
-	}
 
 	public RoleType getRoleType() {
 		return roleType;
@@ -50,14 +42,6 @@ public class RoleFilter extends DataFilter implements CorrelationFilter {
 
 	public void setRoleType(RoleType roleType) {
 		this.roleType = roleType;
-	}
-	
-	public IdmIdentity getGuarantee() {
-		return guarantee;
-	}
-	
-	public void setGuarantee(IdmIdentity guarantee) {
-		this.guarantee = guarantee;
 	}
 	
 	@Override
@@ -78,5 +62,21 @@ public class RoleFilter extends DataFilter implements CorrelationFilter {
 	@Override
 	public void setValue(String value) {
 		this.value = value;
+	}
+
+	public UUID getRoleCatalogueId() {
+		return roleCatalogueId;
+	}
+
+	public void setRoleCatalogueId(UUID roleCatalogueId) {
+		this.roleCatalogueId = roleCatalogueId;
+	}
+
+	public UUID getGuaranteeId() {
+		return guaranteeId;
+	}
+
+	public void setGuaranteeId(UUID guaranteeId) {
+		this.guaranteeId = guaranteeId;
 	}
 }

@@ -8,6 +8,12 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.rest.lookup.CodeableDtoLookup;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 
+/**
+ * Identity lookup
+ * 
+ * @author Radek Tomiška
+ *
+ */
 @Component
 public class IdmIdentityDtoLookup extends CodeableDtoLookup<IdmIdentityDto>{
 

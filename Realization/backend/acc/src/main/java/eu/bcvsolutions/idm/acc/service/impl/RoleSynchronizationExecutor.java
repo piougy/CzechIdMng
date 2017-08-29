@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
@@ -46,6 +47,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.domain.RoleType;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.CorrelationFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
@@ -118,18 +120,18 @@ public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor
 	protected void doDeleteEntity(AccAccount account, SystemEntityType entityType, SysSyncLogDto log,
 			SysSyncItemLogDto logItem, List<SysSyncActionLogDto> actionLogs) {
 		UUID entityId = getEntityByAccount(account.getId());
-		IdmRole entity = null;
+		IdmRoleDto dto = null;
 		if (entityId != null) {
-			entity = roleService.get(entityId);
+			dto = roleService.get(entityId);
 		}
-		if (entity == null) {
+		if (dto == null) {
 			addToItemLog(logItem, "Entity account relation (with ownership = true) was not found!");
 			initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.WARNING, logItem, log,
 					actionLogs);
 			return;
 		}
 		// Delete role
-		roleService.delete(entity);
+		roleService.delete(dto);
 	}
 
 	/**
@@ -146,7 +148,7 @@ public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor
 		UUID entityId = getEntityByAccount(account.getId());
 		IdmRole entity = null;
 		if (entityId != null) {
-			entity = roleService.get(entityId);
+			entity = roleRepository.findOne(entityId);
 		}
 		if (entity == null) {
 			addToItemLog(logItem, "Entity account relation (with ownership = true) was not found!");
@@ -171,7 +173,7 @@ public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor
 				MessageFormat.format(
 						"Call provisioning (process RoleEventType.SAVE) for role ({0}) with username ({1}).",
 						role.getId(), role.getName()));
-		entityEventManager.process(new RoleEvent(RoleEventType.UPDATE, role)).getContent();
+		entityEventManager.process(new RoleEvent(RoleEventType.UPDATE, roleService.get(role.getId()))).getContent();
 	}
 
 	/**
@@ -193,7 +195,7 @@ public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor
 		role = (IdmRole) fillEntity(mappedAttributes, uid, icAttributes, role, true);
 		
 		// Create new Role
-		this.saveEntity(role, true);
+		role = (IdmRole) this.saveEntity(role, true);
 		
 		// Update extended attribute (entity must be persisted first)
 		updateExtendedAttributes(mappedAttributes, uid, icAttributes, role, true);
@@ -241,7 +243,7 @@ public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor
 		UUID entityId = getEntityByAccount(account.getId());
 		IdmRole role = null;
 		if (entityId != null) {
-			role = roleService.get(entityId);
+			role = roleRepository.findOne(entityId);
 		}
 		if (role != null) {
 			// Update role
@@ -327,9 +329,15 @@ public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor
 	@Override
 	protected AbstractEntity saveEntity(AbstractEntity entity, boolean skipProvisioning) {
 		IdmRole role = (IdmRole) entity;
-		EntityEvent<IdmRole> event = new RoleEvent(roleService.isNew(role) ? RoleEventType.CREATE : RoleEventType.UPDATE, role, ImmutableMap.of(ProvisioningService.SKIP_PROVISIONING, skipProvisioning));
+		// Create DTO mock ...
+		IdmRoleDto dummyDTO = new IdmRoleDto(role.getId());
+		boolean isNew = roleService.isNew(dummyDTO);
 		
-		return roleService.publish(event).getContent();
+		// Content will be set in service (we need do transform entity to DTO). 
+		// Here we set only dummy dto (null content is not allowed)
+		EntityEvent<IdmRoleDto> event = new RoleEvent(isNew ? RoleEventType.CREATE : RoleEventType.UPDATE, dummyDTO, ImmutableMap.of(ProvisioningService.SKIP_PROVISIONING, skipProvisioning));
+		
+		return roleService.publishRole(role, event);
 	}
 
 	@Override
@@ -339,7 +347,7 @@ public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor
 
 	@Override
 	protected AbstractEntity findEntityById(UUID entityId, SystemEntityType entityType) {
-		return roleService.get(entityId);
+		return roleRepository.findOne(entityId);
 	}
 
 	@Override
@@ -366,7 +374,7 @@ public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor
 
 	@Override
 	protected List<? extends AbstractEntity> findAllEntity() {
-		return roleService.find(null).getContent();
+		return Lists.newArrayList(roleRepository.findAll());
 	}
 
 	@Override
@@ -390,7 +398,7 @@ public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor
 		filter.setProperty(idmAttributeName);
 		filter.setValue(value);
 		
-		List<IdmRole> entities = roleService.find((RoleFilter) filter, null).getContent();
+		List<IdmRoleDto> entities = roleService.find((RoleFilter) filter, null).getContent();
 		
 		if (CollectionUtils.isEmpty(entities)) {
 			return null;
@@ -400,7 +408,7 @@ public class RoleSynchronizationExecutor extends AbstractSynchronizationExecutor
 					ImmutableMap.of("correlationAttribute", idmAttributeName, "value", value));
 		}
 		if (entities.size() == 1) {
-			return entities.get(0);
+			return roleRepository.findOne(entities.get(0).getId());
 		}
 		return null;
 	}

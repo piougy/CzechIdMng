@@ -175,6 +175,7 @@ public enum CoreResultCode implements ResultCode {
 	// Common 5xx
 	INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "%s"),
 	NOT_IMPLEMENTED(HttpStatus.INTERNAL_SERVER_ERROR, "Not implemented: %s"),
+	NOT_SUPPORTED(HttpStatus.INTERNAL_SERVER_ERROR, "Not supported: %s"),
 	WF_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Error occured during workflow execution: %s"),
 	//
 	// backup

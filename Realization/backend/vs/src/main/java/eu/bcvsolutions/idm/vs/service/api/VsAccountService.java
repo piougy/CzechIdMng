@@ -4,7 +4,7 @@ import java.util.UUID;
 
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
-import eu.bcvsolutions.idm.vs.repository.filter.AccountFilter;
+import eu.bcvsolutions.idm.vs.repository.filter.VsAccountFilter;
 import eu.bcvsolutions.idm.vs.service.api.dto.VsAccountDto;
 
 /**
@@ -14,7 +14,7 @@ import eu.bcvsolutions.idm.vs.service.api.dto.VsAccountDto;
  *
  */
 public interface VsAccountService extends 
-		ReadWriteDtoService<VsAccountDto, AccountFilter>, AuthorizableService<VsAccountDto> {
+		ReadWriteDtoService<VsAccountDto, VsAccountFilter>, AuthorizableService<VsAccountDto> {
 
 	/**
 	 * Find VS account by UID and System ID

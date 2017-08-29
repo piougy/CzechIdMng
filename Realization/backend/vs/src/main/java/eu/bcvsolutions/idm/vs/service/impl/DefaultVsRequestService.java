@@ -55,7 +55,7 @@ import eu.bcvsolutions.idm.vs.event.processor.VsRequestRealizationProcessor;
 import eu.bcvsolutions.idm.vs.exception.VsException;
 import eu.bcvsolutions.idm.vs.exception.VsResultCode;
 import eu.bcvsolutions.idm.vs.repository.VsRequestRepository;
-import eu.bcvsolutions.idm.vs.repository.filter.RequestFilter;
+import eu.bcvsolutions.idm.vs.repository.filter.VsRequestFilter;
 import eu.bcvsolutions.idm.vs.service.api.VsRequestImplementerService;
 import eu.bcvsolutions.idm.vs.service.api.VsRequestService;
 import eu.bcvsolutions.idm.vs.service.api.dto.VsRequestDto;
@@ -68,7 +68,7 @@ import eu.bcvsolutions.idm.vs.service.api.dto.VsRequestImplementerDto;
  *
  */
 @Service
-public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsRequestDto, VsRequest, RequestFilter>
+public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsRequestDto, VsRequest, VsRequestFilter>
 		implements VsRequestService {
 
 	private static final Logger LOG = LoggerFactory.getLogger(DefaultVsRequestService.class);
@@ -298,7 +298,7 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 
 	@Override
 	protected List<Predicate> toPredicates(Root<VsRequest> root, CriteriaQuery<?> query, CriteriaBuilder builder,
-			RequestFilter filter) {
+			VsRequestFilter filter) {
 
 		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
 		//
@@ -350,7 +350,7 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 	 */
 	@Override
 	public List<VsRequestDto> findDuplicities(VsRequestDto request) {
-		RequestFilter filter = new RequestFilter();
+		VsRequestFilter filter = new VsRequestFilter();
 		filter.setUid(request.getUid());
 		filter.setSystemId(request.getSystemId());
 		// filter.setOperationType(request.getOperationType());

@@ -15,7 +15,7 @@ import eu.bcvsolutions.idm.vs.domain.VsRequestState;
  *
  */
 
-public class RequestFilter extends QuickFilter {
+public class VsRequestFilter extends QuickFilter {
 
 	private String uid;
 	private UUID systemId;

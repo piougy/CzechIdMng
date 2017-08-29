@@ -2,7 +2,7 @@ package eu.bcvsolutions.idm.vs.repository;
 
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.vs.entity.VsRequestBatch;
-import eu.bcvsolutions.idm.vs.repository.filter.RequestBatchFilter;
+import eu.bcvsolutions.idm.vs.repository.filter.VsRequestBatchFilter;
 
 /**
  * Repository for virtual system request batch
@@ -10,7 +10,7 @@ import eu.bcvsolutions.idm.vs.repository.filter.RequestBatchFilter;
  * @author Svanda
  *
  */
-public interface VsRequestBatchRepository extends AbstractEntityRepository<VsRequestBatch, RequestBatchFilter> {
+public interface VsRequestBatchRepository extends AbstractEntityRepository<VsRequestBatch, VsRequestBatchFilter> {
 
 
 }

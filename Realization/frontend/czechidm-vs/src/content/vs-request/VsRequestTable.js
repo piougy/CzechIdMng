@@ -69,6 +69,15 @@ export class VsRequestTable extends Advanced.AbstractTableContent {
     }
   }
 
+  _getSystemCell({ rowIndex, data }) {
+    return (
+      <Advanced.EntityInfo
+        entityType="system"
+        entityIdentifier={ data[rowIndex]._embedded.systemId.id }
+        face="popover" />
+    );
+  }
+
   render() {
     const { uiKey, columns, forceSearchParameters, showRowSelection } = this.props;
     const { filterOpened } = this.state;
@@ -131,8 +140,11 @@ export class VsRequestTable extends Advanced.AbstractTableContent {
             face="text"
             rendered={_.includes(columns, 'uid')}/>
           <Advanced.Column property="state" width="15%" sort face="text" rendered={_.includes(columns, 'state')}/>
-          <Advanced.Column property="systemId" sort face="text" rendered={_.includes(columns, 'systemId')}/>
-        </Advanced.Table>
+          <Advanced.Column
+              header={this.i18n('acc:entity.System.name')}
+              rendered={_.includes(columns, 'systemId')}
+              cell={this._getSystemCell.bind(this)}/>
+          </Advanced.Table>
       </div>
     );
   }

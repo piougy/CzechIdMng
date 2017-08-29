@@ -26,6 +26,9 @@ import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
 
+import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
+import eu.bcvsolutions.idm.acc.entity.SysSystem;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.event.EventContext;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
@@ -77,43 +80,59 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 	private final VsRequestImplementerService requestImplementerService;
 	private final CzechIdMIcConnectorService czechIdMConnectorService;
 	private final CzechIdMIcConfigurationService czechIdMConfigurationService;
-	private final ApplicationContext applicationContext;
-	private VsRequestService self;
+	private final SysSystemService systemService;
 
 	@Autowired
 	public DefaultVsRequestService(VsRequestRepository repository, EntityEventManager entityEventManager,
 			VsRequestImplementerService requestImplementerService, CzechIdMIcConnectorService czechIdMConnectorService,
-			CzechIdMIcConfigurationService czechIdMConfigurationService, ApplicationContext applicationContext) {
+			CzechIdMIcConfigurationService czechIdMConfigurationService, SysSystemService systemService) {
 		super(repository);
 		//
 		Assert.notNull(entityEventManager);
 		Assert.notNull(requestImplementerService);
 		Assert.notNull(czechIdMConnectorService);
 		Assert.notNull(czechIdMConfigurationService);
-		Assert.notNull(applicationContext);
+		Assert.notNull(systemService);
 
 		this.entityEventManager = entityEventManager;
 		this.requestImplementerService = requestImplementerService;
 		this.czechIdMConnectorService = czechIdMConnectorService;
 		this.czechIdMConfigurationService = czechIdMConfigurationService;
-		this.applicationContext = applicationContext;
+		this.systemService = systemService;
 	}
 
+	
 	@Override
-	@Transactional(readOnly = true)
-	public VsRequestDto get(Serializable id, BasePermission... permission) {
-
-		VsRequestDto request = super.get(id, permission);
+	protected VsRequestDto toDto(VsRequest entity, VsRequestDto dto) {
+		VsRequestDto request = super.toDto(entity, dto);
+		
 		if (request == null) {
 			return null;
 		}
+		
+		// Remove after DTO service for system will be created (enable embedded annotation in VsRequestDto.systemId)
+		UUID systemId = request.getSystemId();
+		if(systemId != null){
+			SysSystem systemEntity = this.systemService.get(systemId);
+			if(systemEntity != null){
+				SysSystemDto system = new SysSystemDto();
+				system.setTrimmed(true);
+				system.setId(systemEntity.getId());
+				system.setName(systemEntity.getName());
+				system.setReadonly(systemEntity.isReadonly());
+				system.setDisabled(systemEntity.isDisabled());
+				request.getEmbedded().put(VsRequest_.systemId.getName(), system);
+			}
+		}
 
+		if(request.isTrimmed()){
+			return request;
+		}
 		// Add list of implementers
-		List<IdmIdentityDto> implementers = requestImplementerService.findRequestImplementers(request);
+		List<IdmIdentityDto> implementers = this.requestImplementerService.findRequestImplementers(request);
 		request.setImplementers(implementers);
 
 		return request;
-
 	}
 
 	@Override
@@ -416,13 +435,6 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 					.orElse(null);
 		}
 		return previousRequest;
-	}
-
-	private VsRequestService getSelfProxy() {
-		if (this.self == null) {
-			this.self = this.applicationContext.getBean(VsRequestService.class);
-		}
-		return this.self;
 	}
 
 }

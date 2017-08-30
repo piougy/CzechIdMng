@@ -6,7 +6,6 @@ import static org.junit.Assert.assertNull;
 
 import java.util.List;
 
-import org.apache.commons.configuration2.SystemConfiguration;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -26,6 +25,7 @@ import eu.bcvsolutions.idm.acc.domain.SynchronizationUnlinkedActionType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
+import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncConfigDto;
@@ -38,13 +38,10 @@ import eu.bcvsolutions.idm.acc.dto.filter.SynchronizationConfigFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
-import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
 import eu.bcvsolutions.idm.acc.entity.SysSystemFormValue;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
-import eu.bcvsolutions.idm.acc.repository.SysSystemAttributeMappingRepository;
-import eu.bcvsolutions.idm.acc.repository.SysSystemMappingRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
@@ -64,7 +61,6 @@ import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.core.eav.repository.IdmFormAttributeRepository;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.eav.service.api.IdmFormDefinitionService;
-import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.ic.api.IcConfigurationProperty;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInstance;
@@ -92,14 +88,12 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 	@Autowired private IcConfigurationFacade icConfigurationAggregatorService;
 	@Autowired private SysSchemaObjectClassService schemaObjectClassService;
 	@Autowired private SysSchemaAttributeService schemaAttributeService;
-	@Autowired private IdmRoleRepository roleRepository;
 	@Autowired private SysRoleSystemService roleSystemService;
 	@Autowired private SysSystemMappingService systemMappingService;
 	@Autowired private SysSystemAttributeMappingService systemAttributeMappingService;
 	@Autowired private SysRoleSystemAttributeService roleSystemAttributeService;
 	@Autowired private AccAccountService accountService;
 	@Autowired private SysSystemEntityService systemEntityService;
-	@Autowired private SysSystemMappingRepository systemMappingRepository;
 	@Autowired private SysSyncConfigService syncConfigService;
 	@Autowired private SysSystemAttributeMappingService schemaAttributeMappingService;
 	
@@ -154,11 +148,11 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		schemaAttributeHandlingFilter.setSystemId(system.getId());		
 		// role system
 		IdmRoleDto role = helper.createRole();
-		SysRoleSystem roleSystem = new SysRoleSystem();
-		roleSystem.setSystem(system);
-		roleSystem.setRole(roleRepository.findOne(role.getId()));
-		roleSystem.setSystemMapping(systemMappingRepository.findOne(systemMapping.getId()));
-		roleSystemService.save(roleSystem);
+		SysRoleSystemDto roleSystem = new SysRoleSystemDto();
+		roleSystem.setSystem(system.getId());
+		roleSystem.setRole(role.getId());
+		roleSystem.setSystemMapping(systemMapping.getId());
+		roleSystem = roleSystemService.save(roleSystem);
 		RoleSystemFilter roleSystemFilter = new RoleSystemFilter();
 		roleSystemFilter.setRoleId(role.getId());
 		// role system attributes

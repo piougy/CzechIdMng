@@ -7,17 +7,16 @@ export default class RoleSystemService extends Services.AbstractService {
     super();
   }
 
+  // dto
+  supportsPatch() {
+    return false;
+  }
+
   getNiceLabel(entity) {
-    // TODO uncomment comment with systemMapping.entityType and remove current row after refactor roleSystem to DTO!
     if (!entity) {
       return '';
     }
-    if (!entity._embedded) {
-      // return `${entity.role.name} - ${entity.system.name} (${entity.systemMapping.entityType})`;
-      return `${entity.role.name} - ${entity.system.name}`;
-    }
-    // return `${entity._embedded.role.name} - ${entity._embedded.system.name} (${entity._embedded.systemMapping.entityType})`;
-    return `${entity._embedded.role.name} - ${entity._embedded.system.name}`;
+    return `${entity._embedded.role.name} - ${entity._embedded.system.name} (${entity._embedded.systemMapping.entityType})`;
   }
 
   getApiPath() {

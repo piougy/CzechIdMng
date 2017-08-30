@@ -26,7 +26,8 @@ public class SysRoleSystemAttributeDto extends AbstractDto implements AttributeM
 	
 	private String name;
 	private String idmPropertyName;
-	private UUID roleSystem; // TODO: transform roleSystem to DTO
+	@Embedded(dtoClass = SysRoleSystemDto.class)
+	private UUID roleSystem;
 	@Embedded(dtoClass = SysSystemAttributeMappingDto.class)
 	private UUID systemAttributeMapping;
 	private boolean extendedAttribute = false;

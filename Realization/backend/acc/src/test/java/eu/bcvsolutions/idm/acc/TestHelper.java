@@ -1,9 +1,8 @@
 package eu.bcvsolutions.idm.acc;
 
+import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
-import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
@@ -107,7 +106,7 @@ public interface TestHelper {
 	 * @param system
 	 * @return
 	 */
-	SysRoleSystem createRoleSystem(IdmRoleDto role, SysSystem system);
+	SysRoleSystemDto createRoleSystem(IdmRoleDto role, SysSystem system);
 	
 	/**
 	 * Find account on target system

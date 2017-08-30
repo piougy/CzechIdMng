@@ -21,17 +21,15 @@ import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
+import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemEntityFilter;
 import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount_;
-import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
-import eu.bcvsolutions.idm.acc.repository.SysSystemAttributeMappingRepository;
-import eu.bcvsolutions.idm.acc.repository.SysSystemMappingRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
@@ -44,7 +42,6 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdentityRoleFilter;
-import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
@@ -99,9 +96,6 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 	private IdmRoleService roleService;
 	
 	@Autowired
-	private IdmRoleRepository roleRepository;
-
-	@Autowired
 	private AccIdentityAccountService identityAccountService;
 
 	@Autowired
@@ -115,12 +109,6 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 
 	@Autowired
 	private SysRoleSystemAttributeService roleSystemAttributeService;
-
-	@Autowired
-	private SysSystemAttributeMappingRepository systemAttributeMappingRepository;
-	
-	@Autowired
-	private SysSystemMappingRepository systemMappingRepository;
 	
 	@Before
 	public void init() {
@@ -525,11 +513,11 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 		IdmRoleDto roleDefault = new IdmRoleDto();
 		roleDefault.setName(ROLE_DEFAULT);
 		roleDefault = roleService.save(roleDefault);
-		SysRoleSystem roleSystemDefault = new SysRoleSystem();
-		roleSystemDefault.setRole(roleRepository.findOne(roleDefault.getId()));
-		roleSystemDefault.setSystem(system);
-		roleSystemDefault.setSystemMapping(systemMappingRepository.findOne(systemMapping.getId()));
-		roleSystemService.save(roleSystemDefault);
+		SysRoleSystemDto roleSystemDefault = new SysRoleSystemDto();
+		roleSystemDefault.setRole(roleDefault.getId());
+		roleSystemDefault.setSystem(system.getId());
+		roleSystemDefault.setSystemMapping(systemMapping.getId());
+		roleSystemDefault = roleSystemService.save(roleSystemDefault);
 
 		/*
 		 * Create role with link on system (overloading last name attribute)
@@ -537,11 +525,11 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 		IdmRoleDto roleOverloadingLastName = new IdmRoleDto();
 		roleOverloadingLastName.setName(ROLE_OVERLOADING_LAST_NAME);
 		roleOverloadingLastName = roleService.save(roleOverloadingLastName);
-		SysRoleSystem roleSystemLastName = new SysRoleSystem();
-		roleSystemLastName.setRole(roleRepository.findOne(roleOverloadingLastName.getId()));
-		roleSystemLastName.setSystem(system);
-		roleSystemLastName.setSystemMapping(systemMappingRepository.findOne(systemMapping.getId()));
-		roleSystemService.save(roleSystemLastName);
+		SysRoleSystemDto roleSystemLastName = new SysRoleSystemDto();
+		roleSystemLastName.setRole(roleOverloadingLastName.getId());
+		roleSystemLastName.setSystem(system.getId());
+		roleSystemLastName.setSystemMapping(systemMapping.getId());
+		roleSystemLastName = roleSystemService.save(roleSystemLastName);
 
 		// Attribute for overloading last name attribute
 		SysRoleSystemAttributeDto attributeLastName = new SysRoleSystemAttributeDto();
@@ -558,11 +546,11 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 		IdmRoleDto roleOverloadingPassword = new IdmRoleDto();
 		roleOverloadingPassword.setName(ROLE_OVERLOADING_PASSWORD);
 		roleOverloadingPassword = roleService.save(roleOverloadingPassword);
-		SysRoleSystem roleSystemPassword = new SysRoleSystem();
-		roleSystemPassword.setRole(roleRepository.findOne(roleOverloadingPassword.getId()));
-		roleSystemPassword.setSystem(system);
-		roleSystemPassword.setSystemMapping(systemMappingRepository.findOne(systemMapping.getId()));
-		roleSystemService.save(roleSystemPassword);
+		SysRoleSystemDto roleSystemPassword = new SysRoleSystemDto();
+		roleSystemPassword.setRole(roleOverloadingPassword.getId());
+		roleSystemPassword.setSystem(system.getId());
+		roleSystemPassword.setSystemMapping(systemMapping.getId());
+		roleSystemPassword = roleSystemService.save(roleSystemPassword);
 
 		// Attribute for overloading last name attribute
 		SysRoleSystemAttributeDto attributePassword = new SysRoleSystemAttributeDto();
@@ -582,11 +570,11 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 		IdmRoleDto roleOverloadingFirstName = new IdmRoleDto();
 		roleOverloadingFirstName.setName(ROLE_OVERLOADING_FIRST_NAME);
 		roleOverloadingFirstName = roleService.save(roleOverloadingFirstName);
-		SysRoleSystem roleSystemFirstName = new SysRoleSystem();
-		roleSystemFirstName.setRole(roleRepository.findOne(roleOverloadingFirstName.getId()));
-		roleSystemFirstName.setSystem(system);
-		roleSystemFirstName.setSystemMapping(systemMappingRepository.findOne(systemMapping.getId()));
-		roleSystemService.save(roleSystemFirstName);
+		SysRoleSystemDto roleSystemFirstName = new SysRoleSystemDto();
+		roleSystemFirstName.setRole(roleOverloadingFirstName.getId());
+		roleSystemFirstName.setSystem(system.getId());
+		roleSystemFirstName.setSystemMapping(systemMapping.getId());
+		roleSystemFirstName = roleSystemService.save(roleSystemFirstName);
 
 		// Attribute for overloading first name attribute (disable him)
 		SysRoleSystemAttributeDto attributeFirstName = new SysRoleSystemAttributeDto();
@@ -603,11 +591,11 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 		IdmRoleDto roleOverloadingName = new IdmRoleDto();
 		roleOverloadingName.setName(ROLE_OVERLOADING_Y_ACCOUNT);
 		roleOverloadingName = roleService.save(roleOverloadingName);
-		SysRoleSystem roleSystemName = new SysRoleSystem();
-		roleSystemName.setRole(roleRepository.findOne(roleOverloadingName.getId()));
-		roleSystemName.setSystem(system);
-		roleSystemName.setSystemMapping(systemMappingRepository.findOne(systemMapping.getId()));
-		roleSystemService.save(roleSystemName);
+		SysRoleSystemDto roleSystemName = new SysRoleSystemDto();
+		roleSystemName.setRole(roleOverloadingName.getId());
+		roleSystemName.setSystem(system.getId());
+		roleSystemName.setSystemMapping(systemMapping.getId());
+		roleSystemName = roleSystemService.save(roleSystemName);
 
 		// Attribute for overloading first name attribute (disable him)
 		SysRoleSystemAttributeDto attributeName = new SysRoleSystemAttributeDto();

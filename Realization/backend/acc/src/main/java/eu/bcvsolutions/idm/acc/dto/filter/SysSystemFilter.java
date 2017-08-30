@@ -13,6 +13,8 @@ import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
 
 public class SysSystemFilter extends QuickFilter {
 	
+	private Boolean virtual;
+	
 	private UUID passwordPolicyValidationId;
 
 	private UUID passwordPolicyGenerationId;
@@ -31,5 +33,13 @@ public class SysSystemFilter extends QuickFilter {
 
 	public void setPasswordPolicyGenerationId(UUID passwordPolicyGenerationId) {
 		this.passwordPolicyGenerationId = passwordPolicyGenerationId;
+	}
+
+	public Boolean getVirtual() {
+		return virtual;
+	}
+
+	public void setVirtual(Boolean virtual) {
+		this.virtual = virtual;
 	}
 }

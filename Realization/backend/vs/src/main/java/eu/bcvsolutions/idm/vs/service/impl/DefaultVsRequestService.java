@@ -159,10 +159,11 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 	}
 
 	@Override
-	public VsRequestDto cancel(UUID requestId) {
+	public VsRequestDto cancel(UUID requestId, String reason) {
 		LOG.info(MessageFormat.format("Start cancel virtual system request [{0}].", requestId));
 
 		Assert.notNull(requestId, "Id of VS request cannot be null!");
+		Assert.notNull(reason, "Cancel reason cannot be null!");
 		VsRequestDto request = this.get(requestId, IdmBasePermission.READ);
 		Assert.notNull(request, "VS request cannot be null!");
 		this.checkAccess(request, IdmBasePermission.UPDATE);
@@ -173,6 +174,7 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 		}
 
 		request.setState(VsRequestState.CANCELED);
+		request.setReason(reason);
 		// Save cancelled request
 		request = this.save(request);
 
@@ -320,7 +322,7 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 		//
 		// quick - "fulltext"
 		if (StringUtils.isNotEmpty(filter.getText())) {
-			predicates.add(builder.or(builder.equal(builder.lower(root.get(VsRequest_.uid)),
+			predicates.add(builder.or(builder.like(builder.lower(root.get(VsRequest_.uid)),
 					"%" + filter.getText().toLowerCase() + "%")));
 		}
 

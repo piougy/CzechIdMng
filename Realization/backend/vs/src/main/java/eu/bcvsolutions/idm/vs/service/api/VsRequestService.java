@@ -28,7 +28,7 @@ public interface VsRequestService extends
 
 	VsRequestDto realize(UUID fromString);
 
-	VsRequestDto cancel(UUID fromString);
+	VsRequestDto cancel(UUID fromString, String reason);
 
 	/**
 	 * Find duplicity requests. All request in state IN_PROGRESS for same UID

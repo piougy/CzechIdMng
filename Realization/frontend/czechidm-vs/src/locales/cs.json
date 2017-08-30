@@ -60,6 +60,12 @@
         },
         "cancel": {
           "success": "Požadavek [{{name}}] byl úspěšně zrušen"
+        },
+        "button": {
+          "request": {
+            "realize": "Realizováno",
+            "cancel": "Zrušit požadavek"
+          }
         }
       }
     }

@@ -9,6 +9,6 @@ import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
  *
  */
 
-public class RequestBatchFilter extends QuickFilter {
+public class VsRequestBatchFilter extends QuickFilter {
 
 }

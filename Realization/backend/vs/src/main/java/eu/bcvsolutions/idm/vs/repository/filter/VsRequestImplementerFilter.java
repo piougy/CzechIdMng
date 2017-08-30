@@ -11,7 +11,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
  *
  */
 
-public class RequestImplementerFilter extends QuickFilter {
+public class VsRequestImplementerFilter extends QuickFilter {
 
 	UUID requestId;
 	UUID identityId;

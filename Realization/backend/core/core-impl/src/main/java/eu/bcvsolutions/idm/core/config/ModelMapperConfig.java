@@ -60,7 +60,9 @@ public class ModelMapperConfig {
 		// modifierId), but with same value as first field, then mapper will be
 		// set converted value from first field (applicant) to second field (IdmIdentity to UUID) ->
 		// Class cast exception will be throw.
-		Converter<UUID, UUID> uuidToUiid = new UuidToUuidConverter();
+		
+		//  + Additionally this converter allows load DTO (by UUID) and put him to embedded map.
+		Converter<UUID, UUID> uuidToUiid = new UuidToUuidConverter(applicationContext);
 		modeler.createTypeMap(UUID.class, UUID.class).setConverter(uuidToUiid);
 
 		// Condition for property ... if is property list and dto is trimmed,

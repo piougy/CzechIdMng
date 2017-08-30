@@ -53,15 +53,11 @@ class VsRequestContent extends Basic.AbstractContent {
   }
 
   render() {
-    const { entity, showLoading } = this.props;
+    const { entity} = this.props;
     return (
       <Basic.Row>
         <div className={this._isNew() ? 'col-lg-offset-1 col-lg-10' : 'col-lg-12'}>
           {
-            showLoading
-            ?
-            <Basic.Loading isStatic showLoading />
-            :
             <VsRequestDetail uiKey="vs-request-detail" entity={entity} />
           }
         </div>

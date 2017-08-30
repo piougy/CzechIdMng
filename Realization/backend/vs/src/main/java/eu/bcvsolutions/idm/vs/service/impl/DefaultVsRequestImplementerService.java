@@ -24,7 +24,7 @@ import eu.bcvsolutions.idm.vs.entity.VsRequestImplementer;
 import eu.bcvsolutions.idm.vs.entity.VsRequestImplementer_;
 import eu.bcvsolutions.idm.vs.entity.VsRequest_;
 import eu.bcvsolutions.idm.vs.repository.VsRequestImplementerRepository;
-import eu.bcvsolutions.idm.vs.repository.filter.RequestImplementerFilter;
+import eu.bcvsolutions.idm.vs.repository.filter.VsRequestImplementerFilter;
 import eu.bcvsolutions.idm.vs.service.api.VsRequestImplementerService;
 import eu.bcvsolutions.idm.vs.service.api.dto.VsRequestDto;
 import eu.bcvsolutions.idm.vs.service.api.dto.VsRequestImplementerDto;
@@ -37,7 +37,7 @@ import eu.bcvsolutions.idm.vs.service.api.dto.VsRequestImplementerDto;
  */
 @Service
 public class DefaultVsRequestImplementerService
-		extends AbstractReadWriteDtoService<VsRequestImplementerDto, VsRequestImplementer, RequestImplementerFilter>
+		extends AbstractReadWriteDtoService<VsRequestImplementerDto, VsRequestImplementer, VsRequestImplementerFilter>
 		implements VsRequestImplementerService {
 
 	private static final Logger LOG = LoggerFactory.getLogger(DefaultVsRequestImplementerService.class);
@@ -56,7 +56,7 @@ public class DefaultVsRequestImplementerService
 
 	@Override
 	protected List<Predicate> toPredicates(Root<VsRequestImplementer> root, CriteriaQuery<?> query,
-			CriteriaBuilder builder, RequestImplementerFilter filter) {
+			CriteriaBuilder builder, VsRequestImplementerFilter filter) {
 		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
 
 		// Request ID
@@ -81,7 +81,7 @@ public class DefaultVsRequestImplementerService
 		if (request == null) {
 			return null;
 		}
-		RequestImplementerFilter filter = new RequestImplementerFilter();
+		VsRequestImplementerFilter filter = new VsRequestImplementerFilter();
 		filter.setRequestId(request.getId());
 		List<VsRequestImplementerDto> requestImplementers = this.find(filter, null).getContent();
 		return requestImplementers.stream()//

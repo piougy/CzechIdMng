@@ -64,7 +64,7 @@ class VsRequestDetail extends Basic.AbstractContent {
     this.setState({
       showLoading: true
     }, () => {
-      this.context.store.dispatch(manager.realize(entity, null, (realizedEntity, newError) => {
+      this.context.store.dispatch(manager.realize(entity.id, null, (realizedEntity, newError) => {
         this._afterSave(realizedEntity, newError, afterAction);
       }));
     });
@@ -87,7 +87,7 @@ class VsRequestDetail extends Basic.AbstractContent {
     this.setState({
       showLoading: true
     }, () => {
-      this.context.store.dispatch(manager.cancel(entity, null, (realizedEntity, newError) => {
+      this.context.store.dispatch(manager.cancel(entity.id, null, (realizedEntity, newError) => {
         this._afterSave(realizedEntity, newError, afterAction);
       }));
     });

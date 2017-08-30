@@ -56,6 +56,39 @@
         "text": {
           "placeholder": "UID (identifikátor účtu)"
         }
+      },
+      "cancel-reason": {
+        "placeholder": "Vyplňte důvod zamítnutí ..."
+      },
+      "action": {
+        "realize": {
+          "action": "Realizováno",
+          "header_1": "Označit požadavek jako realizovaný",
+          "header_2": "Označit požadavky jako realizované",
+          "header_5": "$t(action.duplicate.header_2)",
+          "message_1": "Opravdu chcete požadavek [<strong>{{record}}</strong>] označit jako realizovaný?",
+          "message_2": "Vybráné požadavky: [<strong>{{records}}</strong>].<br /><br />Opravdu chcete označit vybrané požadavky <strong>{{count}}</strong> jako realizované?",
+          "message_5": "Vybrány záznamy: [<strong>{{records}}</strong>].<br /><br />Opravdu chcete označit vybraných požadavků <strong>{{count}}</strong> jako realizované ?",
+          "error": "Při relizaci požadaku [{{record}}] nastala chyba",
+          "success": "Vybraný požadavek [{{record}}] byl úspěšně označen jako realizovaný",
+          "success_1": "Vybraný požadavek [{{record}}] byl úspěšně označen jako realizovaný",
+          "success_2": "Vybrané požadavky [{{records}}] byly úspěšně označeny jako realizované",
+          "success_5": "Vybrané požadavky [{{records}}] byly úspěšně označeny jako realizované"
+        },
+        "cancel": {
+          "action": "Zamítnout",
+          "header_1": "Zamítnout požadavek",
+          "header_2": "Zaímtnout požadavky",
+          "header_5": "$t(action.duplicate.header_2)",
+          "message_1": "Opravdu chcete požadavek [<strong>{{record}}</strong>] zamítnout?",
+          "message_2": "Vybráné požadavky: [<strong>{{records}}</strong>].<br /><br />Opravdu chcete <strong>{{count}}</strong> vybrané požadavky zamítnout?",
+          "message_5": "Vybrány požadavky: [<strong>{{records}}</strong>].<br /><br />Opravdu chcete <strong>{{count}}</strong> vybraných požadavků zamítnout?",
+          "error": "Při relizaci požadaku [{{record}}] nastala chyba",
+          "success": "Vybraný požadavek [{{record}}] byl úspěšně zamítnutý",
+          "success_1": "Vybraný požadavek [{{record}}] byl úspěšně zamítnutý",
+          "success_2": "Vybrané požadavky [{{records}}] byly úspěšně zamítnuté",
+          "success_5": "Vybrané požadavky [{{records}}] byly úspěšně zamítnuté"
+        }
       }
     },
     "vs-request": {
@@ -80,6 +113,26 @@
           }
         }
       }
+    }
+  },
+  "enums": {
+    "VsOperationType":{
+      "CREATE": "Vytvoření",
+      "UPDATE": "Úprava",
+      "DELETE": "Odstranění",
+      "DISABLE": "Deaktivace",
+      "ENABLE": "Aktivování",
+      "RESET_PASSWORD": "Reset hesla"
+    },
+    "VsRequestState":{
+      "CONCEPT": "Koncept",
+      "EXECUTED": "Provedeno",
+      "CANCELED": "Zamítnuto",
+      "REALIZED": "Realizováno",
+      "REJECTED": "Odmítnuto",
+      "IN_PROGRESS": "Nevyřešeno",
+      "EXCEPTION": "Nastala chyba",
+      "DUPLICATED": "Duplicitní"
     }
   },
   "error": {

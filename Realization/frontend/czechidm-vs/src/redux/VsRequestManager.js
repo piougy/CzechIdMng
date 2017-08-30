@@ -38,16 +38,16 @@ export default class VsRequestManager extends Managers.EntityManager {
   /**
   * Mark virtual system request as realized (changes will be propagated to VsAccount)
   */
-  realize(entity, uiKey = null, cb = null) {
-    uiKey = this.resolveUiKey(uiKey, entity.id);
+  realize(entityId, uiKey = null, cb = null) {
+    uiKey = this.resolveUiKey(uiKey, entityId);
     return (dispatch) => {
-      dispatch(this.requestEntity(entity.id, uiKey));
-      this.getService().realize(entity.id)
+      dispatch(this.requestEntity(entityId, uiKey));
+      this.getService().realize(entityId)
       .then(json => {
-        dispatch(this.receiveEntity(entity.id, json, uiKey, cb));
+        dispatch(this.receiveEntity(entityId, json, uiKey, cb));
       })
       .catch(error => {
-        dispatch(this.receiveError(entity, uiKey, error, cb));
+        dispatch(this.receiveError(entityId, uiKey, error, cb));
       });
     };
   }
@@ -55,16 +55,16 @@ export default class VsRequestManager extends Managers.EntityManager {
   /**
   * Cancel virtual system request
   */
-  cancel(entity, uiKey = null, cb = null) {
-    uiKey = this.resolveUiKey(uiKey, entity.id);
+  cancel(entityId, reason, uiKey = null, cb = null) {
+    uiKey = this.resolveUiKey(uiKey, entityId);
     return (dispatch) => {
-      dispatch(this.requestEntity(entity.id, uiKey));
-      this.getService().cancel(entity.id)
+      dispatch(this.requestEntity(entityId, uiKey));
+      this.getService().cancel(entityId, reason)
       .then(json => {
-        dispatch(this.receiveEntity(entity.id, json, uiKey, cb));
+        dispatch(this.receiveEntity(entityId, json, uiKey, cb));
       })
       .catch(error => {
-        dispatch(this.receiveError(entity, uiKey, error, cb));
+        dispatch(this.receiveError(entityId, uiKey, error, cb));
       });
     };
   }

@@ -14,6 +14,18 @@
       },
       "systemId": {
         "label": "Systém"
+      },
+      "operationType": {
+        "label": "Typ"
+      },
+      "executeImmediately": {
+        "label": "Bez potvrzení"
+      },
+      "implementers": {
+        "label": "Realizátoři"
+      },
+      "created": {
+        "label": "Vytvořeno"
       }
     }
   },

@@ -11,7 +11,6 @@ import org.springframework.hateoas.core.Relation;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
@@ -52,12 +51,12 @@ public class VsRequestDto extends AbstractDto {
 	private List<IdmIdentityDto> implementers;
 	@JsonIgnore
 	private IcConnectorConfiguration configuration;
-	@JsonIgnore
 	private IcConnectorObject connectorObject;
 	@Embedded(dtoClass = VsRequestDto.class)
 	private UUID duplicateToRequest;
 	@Embedded(dtoClass = VsRequestDto.class)
 	private UUID previousRequest;
+	private String reason;
 
 	public String getUid() {
 		return uid;
@@ -145,5 +144,13 @@ public class VsRequestDto extends AbstractDto {
 
 	public void setPreviousRequest(UUID previousRequest) {
 		this.previousRequest = previousRequest;
+	}
+
+	public String getReason() {
+		return reason;
+	}
+
+	public void setReason(String reason) {
+		this.reason = reason;
 	}
 }

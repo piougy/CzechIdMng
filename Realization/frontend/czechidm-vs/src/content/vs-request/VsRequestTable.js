@@ -78,6 +78,21 @@ export class VsRequestTable extends Advanced.AbstractTableContent {
     );
   }
 
+  _getImplementersCell({ rowIndex, data}) {
+    const entity = data[rowIndex];
+    if (!entity || !entity.implementers) {
+      return '';
+    }
+    const identities = [];
+    for (const implementer of entity.implementers) {
+      identities.push(implementer.id);
+    }
+
+    return (
+      <Advanced.IdentitiesInfo identities={identities}/>
+    );
+  }
+
   render() {
     const { uiKey, columns, forceSearchParameters, showRowSelection } = this.props;
     const { filterOpened } = this.state;
@@ -132,18 +147,19 @@ export class VsRequestTable extends Advanced.AbstractTableContent {
               }
             }
             sort={false}/>
-          <Advanced.ColumnLink
-            to="vs/request/:id/detail"
-            property="uid"
-            width={ 50 }
-            sort
-            face="text"
-            rendered={_.includes(columns, 'uid')}/>
-          <Advanced.Column property="state" width="15%" sort face="text" rendered={_.includes(columns, 'state')}/>
+          <Advanced.Column property="uid" width="15%" sort face="text" rendered={_.includes(columns, 'uid')}/>
           <Advanced.Column
               header={this.i18n('acc:entity.System.name')}
               rendered={_.includes(columns, 'systemId')}
               cell={this._getSystemCell.bind(this)}/>
+          <Advanced.Column property="state" width="15%" sort face="text" rendered={_.includes(columns, 'state')}/>
+          <Advanced.Column property="operationType" width="15%" sort face="text" rendered={_.includes(columns, 'operationType')}/>
+          <Advanced.Column property="executeImmediately" width="15%" sort face="boolean" rendered={_.includes(columns, 'executeImmediately')}/>
+          <Advanced.Column
+              header={this.i18n('vs:entity.VsRequest.implementers.label')}
+              rendered={_.includes(columns, 'implementers')}
+              cell={this._getImplementersCell.bind(this)}/>
+          <Advanced.Column property="created" width="15%" sort face="datetime" rendered={_.includes(columns, 'created')}/>
           </Advanced.Table>
       </div>
     );
@@ -174,7 +190,7 @@ VsRequestTable.propTypes = {
 };
 
 VsRequestTable.defaultProps = {
-  columns: ['uid', 'state', 'systemId'],
+  columns: ['uid', 'state', 'systemId', 'operationType', 'executeImmediately', 'implementers', 'created'],
   filterOpened: false,
   forceSearchParameters: new Domain.SearchParameters(),
   showAddButton: true,

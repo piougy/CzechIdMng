@@ -107,6 +107,10 @@ public class VsRequest extends AbstractEntity {
 	@NotNull
 	@Column(name = "execute_immediately")
 	private boolean executeImmediately = false;
+	
+	@Audited
+	@Column(name = "reason")
+	private String reason;
 
 	public VsOperationType getOperationType() {
 		return operationType;
@@ -189,4 +193,11 @@ public class VsRequest extends AbstractEntity {
 		this.connectorKey = connectorKey;
 	}
 
+	public String getReason() {
+		return reason;
+	}
+
+	public void setReason(String reason) {
+		this.reason = reason;
+	}
 }

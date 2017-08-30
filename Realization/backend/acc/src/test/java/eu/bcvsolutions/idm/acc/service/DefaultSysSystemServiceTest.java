@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNull;
 
 import java.util.List;
 
+import org.apache.commons.configuration2.SystemConfiguration;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -18,16 +19,22 @@ import com.google.common.collect.Lists;
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.domain.AccountType;
+import eu.bcvsolutions.idm.acc.domain.ReconciliationMissingAccountActionType;
+import eu.bcvsolutions.idm.acc.domain.SynchronizationLinkedActionType;
+import eu.bcvsolutions.idm.acc.domain.SynchronizationMissingEntityActionType;
+import eu.bcvsolutions.idm.acc.domain.SynchronizationUnlinkedActionType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
+import eu.bcvsolutions.idm.acc.dto.SysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.RoleSystemFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SchemaObjectClassFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SynchronizationConfigFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
@@ -43,6 +50,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
+import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
@@ -92,7 +100,8 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 	@Autowired private AccAccountService accountService;
 	@Autowired private SysSystemEntityService systemEntityService;
 	@Autowired private SysSystemMappingRepository systemMappingRepository;
-	@Autowired private SysSystemAttributeMappingRepository systemAttributeMappingRepository;
+	@Autowired private SysSyncConfigService syncConfigService;
+	@Autowired private SysSystemAttributeMappingService schemaAttributeMappingService;
 	
 	@Before
 	public void login() {
@@ -405,4 +414,100 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		Assert.assertEquals(numberOfMappingAttributesOrig, numberOfMappingAttributes);
 	}
 
+	@Test
+	public void duplicateSystemWithSynchronization(){
+		String syncName = "test-sync-config";
+		// create test system
+		SysSystem system = helper.createTestResourceSystem(true);
+		SchemaAttributeFilter schemaAttributeFilter = new SchemaAttributeFilter();
+		schemaAttributeFilter.setSystemId(system.getId());
+		// Number of schema attributes on original system
+		int numberOfSchemaAttributesOrig = schemaAttributeService.find(schemaAttributeFilter, null).getContent().size();
+		SysSystemMappingDto mappingOrig = helper.getDefaultMapping(system);
+		// Number of mapping attributes on original system
+		int numberOfMappingAttributesOrig = systemAttributeMappingService.findBySystemMapping(mappingOrig).size();
+		
+		SystemAttributeMappingFilter attributeMappingFilter = new SystemAttributeMappingFilter();
+		attributeMappingFilter.setSystemMappingId(mappingOrig.getId());
+		
+		List<SysSystemAttributeMappingDto> attributes = schemaAttributeMappingService.find(attributeMappingFilter, null)
+				.getContent();
+		SysSystemAttributeMappingDto nameAttribute = attributes.stream().filter(attribute -> {
+			return attribute.getName().equals(TestHelper.ATTRIBUTE_MAPPING_NAME);
+		}).findFirst().get();
+
+		SysSystemAttributeMappingDto firstNameAttribute = attributes.stream().filter(attribute -> {
+			return attribute.getName().equals(TestHelper.ATTRIBUTE_MAPPING_FIRSTNAME);
+		}).findFirst().get();
+		
+		SysSystemAttributeMappingDto emailAttribute = attributes.stream().filter(attribute -> {
+			return attribute.getName().equals(TestHelper.ATTRIBUTE_MAPPING_EMAIL);
+		}).findFirst().get();
+		
+		// create synchronization config
+		SysSyncConfigDto syncConfigDuplicate = new SysSyncConfigDto();
+		syncConfigDuplicate.setCustomFilter(true);
+		syncConfigDuplicate.setSystemMapping(mappingOrig.getId());
+		syncConfigDuplicate.setCorrelationAttribute(nameAttribute.getId());
+		syncConfigDuplicate.setTokenAttribute(firstNameAttribute.getId());
+		syncConfigDuplicate.setFilterAttribute(emailAttribute.getId());
+		syncConfigDuplicate.setReconciliation(true);
+		syncConfigDuplicate.setName(syncName);
+		syncConfigDuplicate.setLinkedAction(SynchronizationLinkedActionType.IGNORE);
+		syncConfigDuplicate.setUnlinkedAction(SynchronizationUnlinkedActionType.IGNORE);
+		syncConfigDuplicate.setMissingEntityAction(SynchronizationMissingEntityActionType.CREATE_ENTITY);
+		syncConfigDuplicate.setMissingAccountAction(ReconciliationMissingAccountActionType.IGNORE);
+
+		syncConfigDuplicate = syncConfigService.save(syncConfigDuplicate);
+		
+		SysSystem duplicatedSystem = systemService.duplicate(system.getId());
+		// check duplicate
+		systemService.checkSystem(duplicatedSystem);
+		
+		Assert.assertNotEquals(system.getId(), duplicatedSystem.getId());
+		
+		schemaAttributeFilter.setSystemId(duplicatedSystem.getId());
+		// Number of schema attributes on duplicated system
+		int numberOfSchemaAttributes = schemaAttributeService.find(schemaAttributeFilter, null).getContent().size();
+		Assert.assertEquals(numberOfSchemaAttributesOrig, numberOfSchemaAttributes);
+		
+		SysSystemMappingDto mapping = helper.getDefaultMapping(duplicatedSystem);
+		// Number of mapping attributes on duplicated system
+		int numberOfMappingAttributes = systemAttributeMappingService.findBySystemMapping(mapping).size();
+		Assert.assertEquals(numberOfMappingAttributesOrig, numberOfMappingAttributes);
+		
+		// check synchronization config
+		SynchronizationConfigFilter syncFilter = new SynchronizationConfigFilter();
+		syncFilter.setSystemId(duplicatedSystem.getId());
+		List<SysSyncConfigDto> configs = syncConfigService.find(syncFilter, null).getContent();
+		Assert.assertEquals(1, configs.size());
+		
+		
+		Assert.assertEquals(1, configs.size());
+		SysSyncConfigDto configNew = configs.get(0);
+		Assert.assertFalse(configNew.isEnabled());
+		
+		Assert.assertTrue(configNew.isReconciliation());
+		Assert.assertEquals(syncName, configNew.getName());
+		Assert.assertTrue(configNew.isCustomFilter());
+
+		Assert.assertEquals(syncConfigDuplicate.getLinkedAction(), configNew.getLinkedAction());
+		Assert.assertEquals(syncConfigDuplicate.getUnlinkedAction(), configNew.getUnlinkedAction());
+		Assert.assertEquals(syncConfigDuplicate.getMissingEntityAction(), configNew.getMissingEntityAction());
+		Assert.assertEquals(syncConfigDuplicate.getMissingAccountAction(), configNew.getMissingAccountAction());
+
+		SysSystemAttributeMappingDto correlationAtt = schemaAttributeMappingService.get(configNew.getCorrelationAttribute());
+		SysSystemAttributeMappingDto tokenAtt = schemaAttributeMappingService.get(configNew.getTokenAttribute());
+		SysSystemAttributeMappingDto filterAtt = schemaAttributeMappingService.get(configNew.getFilterAttribute());
+		
+		Assert.assertEquals(nameAttribute.getName(), correlationAtt.getName());
+		Assert.assertEquals(nameAttribute.getIdmPropertyName(), correlationAtt.getIdmPropertyName());
+		
+		Assert.assertEquals(firstNameAttribute.getName(), tokenAtt.getName());
+		Assert.assertEquals(firstNameAttribute.getIdmPropertyName(), tokenAtt.getIdmPropertyName());
+		
+		Assert.assertEquals(emailAttribute.getName(), filterAtt.getName());
+		Assert.assertEquals(emailAttribute.getIdmPropertyName(), filterAtt.getIdmPropertyName());
+	}
+	
 }

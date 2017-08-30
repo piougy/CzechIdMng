@@ -45,6 +45,7 @@ import eu.bcvsolutions.idm.acc.domain.SynchronizationMissingEntityActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationSituationType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationUnlinkedActionType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
+import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.EntityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
@@ -53,6 +54,7 @@ import eu.bcvsolutions.idm.acc.dto.SysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncItemLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.EntityAccountFilter;
@@ -60,10 +62,8 @@ import eu.bcvsolutions.idm.acc.dto.filter.SyncActionLogFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SynchronizationLogFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemEntityFilter;
-import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.SysSyncConfig;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
 import eu.bcvsolutions.idm.acc.event.SynchronizationEventType;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.repository.SysSyncConfigRepository;
@@ -315,7 +315,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 		SysSyncConfigDto config = context.getConfig();
 		SysSystem system = context.getSystem();
 		SystemEntityType entityType = context.getEntityType();
-		AccAccount account = context.getAccount();
+		AccAccountDto account = context.getAccount();
 		SysSyncLogDto log = context.getLog();
 		SysSyncItemLogDto logItem = context.getLogItem();
 		List<SysSyncActionLogDto> actionLogs = context.getActionLogs();
@@ -324,7 +324,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 		try {
 
 			// Find system entity for uid
-			SysSystemEntity systemEntity = findSystemEntity(uid, system, entityType);
+			SysSystemEntityDto systemEntity = findSystemEntity(uid, system, entityType);
 
 			// Find acc account for uid or system entity
 			if (account == null) {
@@ -408,7 +408,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 	 * @param icAttributes
 	 * @return
 	 */
-	protected void resolveAccountNotExistSituation(SynchronizationContext context, SysSystemEntity systemEntity, List<IcAttribute> icAttributes) {
+	protected void resolveAccountNotExistSituation(SynchronizationContext context, SysSystemEntityDto systemEntity, List<IcAttribute> icAttributes) {
 		Assert.notNull(context);
 		
 		SysSyncConfigDto config = context.getConfig();
@@ -611,9 +611,9 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 		AccountFilter accountFilter = new AccountFilter();
 		accountFilter.setSystemId(system.getId());
 		
-		List<AccAccount> accounts = accountService.find(accountFilter, null).getContent();
+		List<AccAccountDto> accounts = accountService.find(accountFilter, null).getContent();
 
-		for (AccAccount account : accounts) {
+		for (AccAccountDto account : accounts) {
 			if (!log.isRunning()) {
 				return;
 			}
@@ -977,7 +977,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 		SysSyncLogDto log = context.getLog(); 
 		SysSyncItemLogDto logItem = context.getLogItem();
 		List<SysSyncActionLogDto> actionLogs = context.getActionLogs();
-		AccAccount account = context.getAccount();
+		AccAccountDto account = context.getAccount();
 		List<SysSystemAttributeMappingDto> mappedAttributes = context.getMappedAttributes();
 		List<IcAttribute> icAttributes = context.getIcObject().getAttributes();
 		SysSystem system = context.getSystem();
@@ -1057,9 +1057,9 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 			String attributeUid = systemAttributeMappingService.getUidValueFromResource(icAttributes, mappedAttributes, system);
 			
 			// Create idm account
-			AccAccount account = doCreateIdmAccount(attributeUid, system);
+			AccAccountDto account = doCreateIdmAccount(attributeUid, system);
 			// Find and set SystemEntity (must exist)
-			account.setSystemEntity(this.findSystemEntity(uid, system, entityType));
+			account.setSystemEntity(this.findSystemEntity(uid, system, entityType).getId());
 			accountService.save(account);
 
 			// Create new entity
@@ -1118,7 +1118,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 		SysSyncLogDto log = context.getLog(); 
 		SysSyncItemLogDto logItem = context.getLogItem();
 		List<SysSyncActionLogDto> actionLogs = context.getActionLogs();
-		AccAccount account = context.getAccount();
+		AccAccountDto account = context.getAccount();
 		
 		addToItemLog(logItem,
 				"Account doesn't exist on target system, but account in IdM was found (missing account).");
@@ -1161,7 +1161,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 	 * @param logItem
 	 * @param actionLogs
 	 */
-	protected abstract void doUpdateAccount(AccAccount account, SystemEntityType entityType, SysSyncLogDto log,
+	protected abstract void doUpdateAccount(AccAccountDto account, SystemEntityType entityType, SysSyncLogDto log,
 			SysSyncItemLogDto logItem, List<SysSyncActionLogDto> actionLogs);
 
 	/**
@@ -1181,9 +1181,9 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 	 * @param system
 	 * @return
 	 */
-	protected AccAccount doCreateIdmAccount(String uid, SysSystem system) {
-		AccAccount account = new AccAccount();
-		account.setSystem(system);
+	protected AccAccountDto doCreateIdmAccount(String uid, SysSystem system) {
+		AccAccountDto account = new AccAccountDto();
+		account.setSystem(system.getId());
 		account.setAccountType(AccountType.PERSONAL);
 		account.setUid(uid);
 		return account;
@@ -1201,7 +1201,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 	 */
 	protected abstract void doCreateEntity(SystemEntityType entityType,
 			List<SysSystemAttributeMappingDto> mappedAttributes, SysSyncItemLogDto logItem, String uid,
-			List<IcAttribute> icAttributes, AccAccount account);
+			List<IcAttribute> icAttributes, AccAccountDto account);
 
 	/**
 	 * Fill data from IC attributes to entity (EAV and confidential storage too)
@@ -1249,7 +1249,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 	 * @param logItem
 	 * @param actionLogs
 	 */
-	protected abstract void doUnlink(AccAccount account, boolean removeIdentityRole, SysSyncLogDto log,
+	protected abstract void doUnlink(AccAccountDto account, boolean removeIdentityRole, SysSyncLogDto log,
 			SysSyncItemLogDto logItem, List<SysSyncActionLogDto> actionLogs);
 
 	/**
@@ -1524,12 +1524,12 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 		return systemAttributeMappingService.getValueByMappedAttribute(attribute, icAttributes);
 	}
 
-	private AccAccount findAccount(String uid, SystemEntityType entityType, SysSystemEntity systemEntity,
+	private AccAccountDto findAccount(String uid, SystemEntityType entityType, SysSystemEntityDto systemEntity,
 			SysSystem system, SysSyncItemLogDto logItem) {
 
 		AccountFilter accountFilter = new AccountFilter();
 		accountFilter.setSystemId(system.getId());
-		List<AccAccount> accounts = null;
+		List<AccAccountDto> accounts = null;
 		if (systemEntity != null) {
 			// System entity for this uid was found. We will find account
 			// for this system entity.
@@ -1558,21 +1558,21 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 		return null;
 	}
 
-	private SysSystemEntity createSystemEntity(String uid, SystemEntityType entityType, SysSystem system) {
-		SysSystemEntity systemEntityNew = new SysSystemEntity();
+	private SysSystemEntityDto createSystemEntity(String uid, SystemEntityType entityType, SysSystem system) {
+		SysSystemEntityDto systemEntityNew = new SysSystemEntityDto();
 		systemEntityNew.setUid(uid);
 		systemEntityNew.setEntityType(entityType);
-		systemEntityNew.setSystem(system);
+		systemEntityNew.setSystem(system.getId());
 		return systemEntityService.save(systemEntityNew);
 	}
 
-	private SysSystemEntity findSystemEntity(String uid, SysSystem system, SystemEntityType entityType) {
+	private SysSystemEntityDto findSystemEntity(String uid, SysSystem system, SystemEntityType entityType) {
 		SystemEntityFilter systemEntityFilter = new SystemEntityFilter();
 		systemEntityFilter.setEntityType(entityType);
 		systemEntityFilter.setSystemId(system.getId());
 		systemEntityFilter.setUid(uid);
-		List<SysSystemEntity> systemEntities = systemEntityService.find(systemEntityFilter, null).getContent();
-		SysSystemEntity systemEntity = null;
+		List<SysSystemEntityDto> systemEntities = systemEntityService.find(systemEntityFilter, null).getContent();
+		SysSystemEntityDto systemEntity = null;
 		if (systemEntities.size() == 1) {
 			systemEntity = systemEntities.get(0);
 		} else if (systemEntities.size() > 1) {
@@ -1606,7 +1606,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 		SysSyncLogDto log = context.getLog(); 
 		SysSyncItemLogDto logItem = context.getLogItem();
 		List<SysSyncActionLogDto> actionLogs = context.getActionLogs();
-		AccAccount account = context.getAccount();
+		AccAccountDto account = context.getAccount();
 		String uid = context.getUid();
 		SysSyncConfigDto config = context.getConfig();
 		
@@ -1762,7 +1762,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 		SystemEntityType entityType = context.getEntityType();
 		SysSystem system = context.getSystem();
 		SysSyncItemLogDto logItem = context.getLogItem();
-		SysSystemEntity systemEntity = context.getSystemEntity();
+		SysSystemEntityDto systemEntity = context.getSystemEntity();
 		List<IcAttribute> icAttributes = context.getIcObject().getAttributes();
 		List<SysSystemAttributeMappingDto> mappedAttributes = context.getMappedAttributes();
 		
@@ -1770,11 +1770,11 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 		// UID mapped attribute must exist and returned value must be not null and must be String
 		String attributeUid = systemAttributeMappingService.getUidValueFromResource(icAttributes, mappedAttributes, system);
 		
-		AccAccount account = doCreateIdmAccount(attributeUid, system);
+		AccAccountDto account = doCreateIdmAccount(attributeUid, system);
 		if (systemEntity != null) {
 			// If SystemEntity for this account already exist, then we linked
 			// him to new account
-			account.setSystemEntity(systemEntity);
+			account.setSystemEntity(systemEntity.getId());
 		}
 
 		accountService.save(account);
@@ -1819,7 +1819,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 	} 
 
 	@SuppressWarnings("unchecked")
-	protected void doDeleteEntity(AccAccount account, SystemEntityType entityType, SysSyncLogDto log,
+	protected void doDeleteEntity(AccAccountDto account, SystemEntityType entityType, SysSyncLogDto log,
 			SysSyncItemLogDto logItem, List<SysSyncActionLogDto> actionLogs) {
 		UUID entity = this.getEntityByAccount(account.getId());
 		if (entity == null) {
@@ -1981,7 +1981,7 @@ public abstract class AbstractSynchronizationExecutor<ENTITY extends AbstractDto
 	 * @param icAttributes
 	 * @param system
 	 */
-	private void updateAccountUid(SysSyncItemLogDto logItem, AccAccount account,
+	private void updateAccountUid(SysSyncItemLogDto logItem, AccAccountDto account,
 			List<SysSystemAttributeMappingDto> mappedAttributes, List<IcAttribute> icAttributes, SysSystem system) {
 		// Generate UID value from mapped attribute marked as UID (Unique ID).
 		// UID mapped attribute must exist and returned value must be not null and must be String

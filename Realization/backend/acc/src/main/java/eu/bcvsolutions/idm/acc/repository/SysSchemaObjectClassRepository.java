@@ -7,7 +7,6 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import eu.bcvsolutions.idm.acc.dto.filter.SchemaObjectClassFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
-import eu.bcvsolutions.idm.acc.rest.projection.SysSchemaObjectClassExcerpt;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 
 /**
@@ -20,7 +19,6 @@ import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 		collectionResourceRel = "schemaObjectClasses", //
 		path = "schema-object-classes", //
 		itemResourceRel = "schemaObjectClass", //
-		excerptProjection = SysSchemaObjectClassExcerpt.class,//
 		exported = false // we are using repository metadata, but we want expose rest endpoint manually
 	)
 public interface SysSchemaObjectClassRepository extends AbstractEntityRepository<SysSchemaObjectClass, SchemaObjectClassFilter> {

@@ -29,6 +29,7 @@ import eu.bcvsolutions.idm.acc.domain.OperationResultType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationContext;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
+import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.AccTreeAccountDto;
 import eu.bcvsolutions.idm.acc.dto.EntityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
@@ -41,7 +42,6 @@ import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.EntityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.TreeAccountFilter;
-import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.repository.SysSyncConfigRepository;
@@ -240,7 +240,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 	 * @param actionLogs
 	 */
 	@Override
-	protected void doUpdateAccount(AccAccount account, SystemEntityType entityType, SysSyncLogDto log,
+	protected void doUpdateAccount(AccAccountDto account, SystemEntityType entityType, SysSyncLogDto log,
 			SysSyncItemLogDto logItem, List<SysSyncActionLogDto> actionLogs) {
 		UUID entityId = getEntityByAccount(account.getId());
 		IdmTreeNode treeNode = null;
@@ -302,7 +302,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 	@SuppressWarnings("unchecked")
 	@Override
 	protected void doCreateEntity(SystemEntityType entityType, List<SysSystemAttributeMappingDto> mappedAttributes,
-			SysSyncItemLogDto logItem, String uid, List<IcAttribute> icAttributes, AccAccount account) {
+			SysSyncItemLogDto logItem, String uid, List<IcAttribute> icAttributes, AccAccountDto account) {
 		// We will create new TreeNode
 		addToItemLog(logItem, "Missing entity action is CREATE_ENTITY, we will create a new entity.");
 		IdmTreeNode treeNode = new IdmTreeNode();
@@ -354,7 +354,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 		SysSyncItemLogDto logItem = context.getLogItem();
 		List<SysSyncActionLogDto> actionLogs = context.getActionLogs();
 		List<SysSystemAttributeMappingDto> mappedAttributes = context.getMappedAttributes();
-		AccAccount account = context.getAccount();
+		AccAccountDto account = context.getAccount();
 		List<IcAttribute> icAttributes = context.getIcObject().getAttributes();
 		UUID entityId = getEntityByAccount(account.getId());
 		IdmTreeNode treeNode = null;
@@ -399,7 +399,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 	 * @param actionLogs
 	 */
 	@Override
-	protected void doUnlink(AccAccount account, boolean removeIdentityRole, SysSyncLogDto log, SysSyncItemLogDto logItem,
+	protected void doUnlink(AccAccountDto account, boolean removeIdentityRole, SysSyncLogDto log, SysSyncItemLogDto logItem,
 			List<SysSyncActionLogDto> actionLogs) {
 
 		TreeAccountFilter treeAccountFilter = new TreeAccountFilter();
@@ -436,7 +436,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 	 * @param actionLogs
 	 */
 	@Override
-	protected void doDeleteEntity(AccAccount account, SystemEntityType entityType, SysSyncLogDto log,
+	protected void doDeleteEntity(AccAccountDto account, SystemEntityType entityType, SysSyncLogDto log,
 			SysSyncItemLogDto logItem, List<SysSyncActionLogDto> actionLogs) {
 		UUID entityId = getEntityByAccount(account.getId());
 		IdmTreeNode treeNode = null;
@@ -500,7 +500,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 			accountFilter.setUid(parentUid);
 			accountFilter.setSystemId(systemId);
 			transformedValue = null;
-			List<AccAccount> parentAccounts = accountService.find(accountFilter, null).getContent();
+			List<AccAccountDto> parentAccounts = accountService.find(accountFilter, null).getContent();
 			if (!parentAccounts.isEmpty()) {
 				UUID parentAccount = parentAccounts.get(0).getId();
 				// Find relation between tree and account

@@ -2,21 +2,19 @@ package eu.bcvsolutions.idm.acc.rest.impl;
 
 import java.util.UUID;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -25,14 +23,14 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.acc.domain.AccountType;
+import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccountFilter;
-import eu.bcvsolutions.idm.acc.entity.AccAccount;
+import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
-import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
-import eu.bcvsolutions.idm.core.api.service.LookupService;
+import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.rest.impl.DefaultReadWriteEntityController;
+import eu.bcvsolutions.idm.core.rest.impl.DefaultReadWriteDtoController;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -48,20 +46,20 @@ import io.swagger.annotations.AuthorizationScope;;
  */
 @RepositoryRestController
 @Enabled(AccModuleDescriptor.MODULE_ID)
-@RequestMapping(value = BaseEntityController.BASE_PATH + "/accounts")
+@RequestMapping(value = BaseDtoController.BASE_PATH + "/accounts")
 @Api(
 		value = AccAccountController.TAG, 
 		tags = AccAccountController.TAG, 
 		description = "Account on target system",
 		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
 		consumes = MediaType.APPLICATION_JSON_VALUE)
-public class AccAccountController extends DefaultReadWriteEntityController<AccAccount, AccountFilter> {
+public class AccAccountController extends DefaultReadWriteDtoController<AccAccountDto, AccountFilter> {
 	
 	protected static final String TAG = "Accounts";
 	
 	@Autowired
-	public AccAccountController(LookupService entityLookupService) {
-		super(entityLookupService);
+	public AccAccountController(AccAccountService accountService) {
+		super(accountService);
 	}
 	
 	@Override
@@ -80,9 +78,8 @@ public class AccAccountController extends DefaultReadWriteEntityController<AccAc
 				})
 	public Resources<?> find(
 			@RequestParam(required = false) MultiValueMap<String, Object> parameters, 
-			@PageableDefault Pageable pageable, 			
-			PersistentEntityResourceAssembler assembler) {
-		return super.find(parameters, pageable, assembler);
+			@PageableDefault Pageable pageable) {
+		return super.find(parameters, pageable);
 	}
 	
 	@ResponseBody
@@ -100,9 +97,8 @@ public class AccAccountController extends DefaultReadWriteEntityController<AccAc
 				})
 	public Resources<?> findQuick(
 			@RequestParam(required = false) MultiValueMap<String, Object> parameters, 
-			@PageableDefault Pageable pageable, 			
-			PersistentEntityResourceAssembler assembler) {
-		return super.find(parameters, pageable, assembler);
+			@PageableDefault Pageable pageable) {
+		return super.find(parameters, pageable);
 	}
 	
 	@Override
@@ -112,7 +108,7 @@ public class AccAccountController extends DefaultReadWriteEntityController<AccAc
 	@ApiOperation(
 			value = "Account detail", 
 			nickname = "getAccount", 
-			response = AccAccount.class, 
+			response = AccAccountDto.class, 
 			tags = { AccAccountController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
@@ -122,9 +118,8 @@ public class AccAccountController extends DefaultReadWriteEntityController<AccAc
 				})
 	public ResponseEntity<?> get(
 			@ApiParam(value = "Account's uuid identifier.", required = true)
-			@PathVariable @NotNull String backendId, 
-			PersistentEntityResourceAssembler assembler) {
-		return super.get(backendId, assembler);
+			@PathVariable @NotNull String backendId) {
+		return super.get(backendId);
 	}
 	
 	@Override
@@ -135,7 +130,7 @@ public class AccAccountController extends DefaultReadWriteEntityController<AccAc
 	@ApiOperation(
 			value = "Create / update account", 
 			nickname = "postAccount", 
-			response = AccAccount.class, 
+			response = AccAccountDto.class, 
 			tags = { AccAccountController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
@@ -145,8 +140,8 @@ public class AccAccountController extends DefaultReadWriteEntityController<AccAc
 						@AuthorizationScope(scope = AccGroupPermission.ACCOUNT_CREATE, description = ""),
 						@AuthorizationScope(scope = AccGroupPermission.ACCOUNT_UPDATE, description = "")})
 				})
-	public ResponseEntity<?> post(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
-		return super.post(nativeRequest, assembler);
+	public ResponseEntity<?> post(@RequestBody @NotNull AccAccountDto dto) {
+		return super.post(dto);
 	}
 	
 	@Override
@@ -156,7 +151,7 @@ public class AccAccountController extends DefaultReadWriteEntityController<AccAc
 	@ApiOperation(
 			value = "Update account",
 			nickname = "putAccount", 
-			response = AccAccount.class, 
+			response = AccAccountDto.class, 
 			tags = { AccAccountController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
@@ -167,33 +162,8 @@ public class AccAccountController extends DefaultReadWriteEntityController<AccAc
 	public ResponseEntity<?> put(
 			@ApiParam(value = "Account's uuid identifier.", required = true)
 			@PathVariable @NotNull String backendId,
-			HttpServletRequest nativeRequest,
-			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
-		return super.put(backendId, nativeRequest, assembler);
-	}
-	
-	@Override
-	@ResponseBody
-	@PreAuthorize("hasAuthority('" + AccGroupPermission.ACCOUNT_UPDATE + "')")
-	@RequestMapping(value = "/{backendId}", method = RequestMethod.PATCH)
-	@ApiOperation(
-			value = "Update account",
-			nickname = "patchAccount", 
-			response = AccAccount.class, 
-			tags = { AccAccountController.TAG }, 
-			authorizations = { 
-				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
-						@AuthorizationScope(scope = AccGroupPermission.ACCOUNT_UPDATE, description = "") }),
-				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
-						@AuthorizationScope(scope = AccGroupPermission.ACCOUNT_UPDATE, description = "") })
-				})
-	public ResponseEntity<?> patch(
-			@ApiParam(value = "Account's uuid identifier.", required = true)
-			@PathVariable @NotNull String backendId, 
-			HttpServletRequest nativeRequest, 
-			PersistentEntityResourceAssembler assembler) 
-			throws HttpMessageNotReadableException {
-		return super.patch(backendId, nativeRequest, assembler);
+			@RequestBody @NotNull AccAccountDto dto) {
+		return super.put(backendId, dto);
 	}
 	
 	@Override

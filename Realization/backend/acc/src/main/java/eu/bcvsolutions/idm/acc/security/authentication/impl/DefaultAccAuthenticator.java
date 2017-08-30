@@ -13,13 +13,15 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
+import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
-import eu.bcvsolutions.idm.acc.entity.AccAccount;
+import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
@@ -75,6 +77,8 @@ public class DefaultAccAuthenticator extends AbstractAuthenticator implements Au
 	
 	private final SysSchemaAttributeService schemaAttributeService;
 	
+	private final SysSystemEntityService systemEntityService;
+	
 	@Autowired
 	public DefaultAccAuthenticator(ConfigurationService configurationService,
 			SysSystemService systemService,
@@ -84,7 +88,8 @@ public class DefaultAccAuthenticator extends AbstractAuthenticator implements Au
 			SysSystemAttributeMappingService systemAttributeMappingService,
 			JwtAuthenticationService jwtAuthenticationService,
 			SysSystemMappingService systemMappingService,
-			SysSchemaAttributeService schemaAttributeService) {
+			SysSchemaAttributeService schemaAttributeService,
+			SysSystemEntityService systemEntityService) {
 		//
 		Assert.notNull(accountService);
 		Assert.notNull(configurationService);
@@ -95,6 +100,7 @@ public class DefaultAccAuthenticator extends AbstractAuthenticator implements Au
 		Assert.notNull(jwtAuthenticationService);
 		Assert.notNull(systemMappingService);
 		Assert.notNull(schemaAttributeService);
+		Assert.notNull(systemEntityService);
 		//
 		this.systemService = systemService;
 		this.configurationService = configurationService;
@@ -105,6 +111,7 @@ public class DefaultAccAuthenticator extends AbstractAuthenticator implements Au
 		this.jwtAuthenticationService = jwtAuthenticationService;
 		this.systemMappingService = systemMappingService;
 		this.schemaAttributeService = schemaAttributeService;
+		this.systemEntityService = systemEntityService;
 	}
 	
 	@Override
@@ -149,7 +156,7 @@ public class DefaultAccAuthenticator extends AbstractAuthenticator implements Au
 		}
 		//
 		// find if identity has account on system
-		List<AccAccount> accounts = accountService.getAccounts(system.getId(), identity.getId());
+		List<AccAccountDto> accounts = accountService.getAccounts(system.getId(), identity.getId());
 		if (accounts.isEmpty()) {
 			// user hasn't account on system, continue
 			return null;
@@ -159,10 +166,10 @@ public class DefaultAccAuthenticator extends AbstractAuthenticator implements Au
 		IcUidAttribute auth = null;
 		//
 		// authenticate over all accounts find first, or throw error
-		for (AccAccount account : accounts) {
-
+		for (AccAccountDto account : accounts) {
+			SysSystemEntityDto systemEntityDto = systemEntityService.get(account.getSystemEntity());
 			IcConnectorObject connectorObject = systemService.readObject(system, systemMappingService.get(attribute.getSystemMapping()),
-					new IcUidAttributeImpl(null, account.getSystemEntity().getUid(), null));
+					new IcUidAttributeImpl(null, systemEntityDto.getUid(), null));
 			//
 			if (connectorObject == null) {
 				continue;

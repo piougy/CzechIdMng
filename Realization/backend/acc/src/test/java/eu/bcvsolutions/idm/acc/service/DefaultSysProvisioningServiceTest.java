@@ -27,20 +27,21 @@ import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
+import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemAttributeMappingFilter;
-import eu.bcvsolutions.idm.acc.entity.AccAccount;
+import eu.bcvsolutions.idm.acc.entity.AccAccount_;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
@@ -62,6 +63,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdentityFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
@@ -106,7 +108,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 	private TestHelper helper;
 	
 	@Autowired
-	private SysSystemService sysSystemService;
+	private SysSystemService systemService;
 
 	@Autowired
 	private FormService formService;
@@ -161,9 +163,6 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 	
 	@Autowired
 	private SysRoleSystemAttributeService roleSystemAttributeService;
-	
-	@Autowired
-	private SysSystemService systemService;
 	
 	@Autowired
 	private SysSystemMappingService systemMappingService;
@@ -312,7 +311,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		filter.setIdentityId(identity.getId());
 
 		AccIdentityAccountDto accountIdentityOne = identityAccoutnService.find(filter, null).getContent().get(0);
-		AccAccount account = accountService.get(accountIdentityOne.getAccount());
+		AccAccountDto account = accountService.get(accountIdentityOne.getAccount());
 
 		identity.setUsername(IDENTITY_USERNAME_CHANGED);
 		identity = idmIdentityService.save(identity);
@@ -367,11 +366,11 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 
 		IdentityAccountFilter filter = new IdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
-		filter.setSystemId(sysSystemService.getByCode(SYSTEM_NAME).getId());
+		filter.setSystemId(systemService.getByCode(SYSTEM_NAME).getId());
 		AccIdentityAccountDto accountIdentityOne = identityAccoutnService.find(filter, null).getContent().get(0);
-		AccAccount account = accountService.get(accountIdentityOne.getAccount());
-		SysSystem system = account.getSystem();
-		SysSystemEntity systemEntity = account.getSystemEntity();
+		AccAccountDto account = accountService.get(accountIdentityOne.getAccount());
+		SysSystem system = systemService.get(account.getSystem());
+		SysSystemEntityDto systemEntity = DtoUtils.getEmbedded(account, AccAccount_.systemEntity, SysSystemEntityDto.class);
 
 		SystemAttributeMappingFilter attributeFilter = new SystemAttributeMappingFilter();
 		attributeFilter.setSystemId(system.getId());
@@ -398,7 +397,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		IdentityAccountFilter filter = new IdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
 		AccIdentityAccountDto accountIdentityOne = identityAccoutnService.find(filter, null).getContent().get(0);
-		SysSystem system = accountService.get(accountIdentityOne.getAccount()).getSystem();
+		SysSystem system = systemService.get(accountService.get(accountIdentityOne.getAccount()).getSystem());
 		
 		// Create new password one
 		PasswordChangeDto passwordChange = new PasswordChangeDto();
@@ -437,11 +436,11 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		IdentityAccountFilter filter = new IdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
 		AccIdentityAccountDto accountIdentityOne = identityAccoutnService.find(filter, null).getContent().get(0);
-		SysSystem system = accountService.get(accountIdentityOne.getAccount()).getSystem();
-		SysSystem clonedSystem = sysSystemService.duplicate(system.getId());
+		SysSystem system = systemService.get(accountService.get(accountIdentityOne.getAccount()).getSystem());
+		SysSystem clonedSystem = systemService.duplicate(system.getId());
 		clonedSystem.setReadonly(false);
 		clonedSystem.setDisabled(false);
-		clonedSystem = sysSystemService.save(clonedSystem);
+		clonedSystem = systemService.save(clonedSystem);
 		
 		SystemAttributeMappingFilter attributeMappingFilter = new SystemAttributeMappingFilter();
 		attributeMappingFilter.setSystemId(clonedSystem.getId());
@@ -462,15 +461,15 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		uidAttribute.setTransformToResourceScript("if(attributeValue){return \"y\"+ attributeValue;}");
 		uidAttribute = systemAttributeMappingService.save(uidAttribute);
 		
-		SysSystemEntity sysEntity = new SysSystemEntity("y" + IDENTITY_USERNAME, SystemEntityType.IDENTITY);
-		sysEntity.setSystem(clonedSystem);
+		SysSystemEntityDto sysEntity = new SysSystemEntityDto("y" + IDENTITY_USERNAME, SystemEntityType.IDENTITY);
+		sysEntity.setSystem(clonedSystem.getId());
 		sysEntity = systemEntityService.save(sysEntity);
 		
-		AccAccount account = new AccAccount();
-		account.setSystem(clonedSystem);
+		AccAccountDto account = new AccAccountDto();
+		account.setSystem(clonedSystem.getId());
 		account.setUid("y" + IDENTITY_USERNAME);
 		account.setAccountType(AccountType.PERSONAL);
-		account.setSystemEntity(sysEntity);
+		account.setSystemEntity(sysEntity.getId());
 		account = accountService.save(account);
 		
 		AccIdentityAccountDto accountIdentity = new AccIdentityAccountDto();
@@ -541,7 +540,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		// by default)
 		SystemAttributeMappingFilter filterSchemaAttr = new SystemAttributeMappingFilter();
 		filterSchemaAttr.setIdmPropertyName("firstName");
-		filterSchemaAttr.setSystemId(accountService.get(accountIdentityOne.getAccount()).getSystem().getId());
+		filterSchemaAttr.setSystemId(accountService.get(accountIdentityOne.getAccount()).getSystem());
 		SysSystemAttributeMappingDto attributeHandling = systemAttributeMappingService.find(filterSchemaAttr, null)
 				.getContent().get(0);
 		// Set attribute to extended attribute and modify idmPropety to
@@ -584,7 +583,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 
 		SystemAttributeMappingFilter filterSchemaAttr = new SystemAttributeMappingFilter();
 		filterSchemaAttr.setIdmPropertyName("email");
-		filterSchemaAttr.setSystemId(accountService.get(accountIdentityOne.getAccount()).getSystem().getId());
+		filterSchemaAttr.setSystemId(accountService.get(accountIdentityOne.getAccount()).getSystem());
 		SysSystemAttributeMappingDto attributeHandling = systemAttributeMappingService.find(filterSchemaAttr, null)
 				.getContent().get(0);
 
@@ -614,7 +613,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 
 		SystemAttributeMappingFilter filterSchemaAttr = new SystemAttributeMappingFilter();
 		filterSchemaAttr.setIdmPropertyName("email");
-		filterSchemaAttr.setSystemId(accountService.get(accountIdentityOne.getAccount()).getSystem().getId());
+		filterSchemaAttr.setSystemId(accountService.get(accountIdentityOne.getAccount()).getSystem());
 		SysSystemAttributeMappingDto attributeHandling = systemAttributeMappingService.find(filterSchemaAttr, null)
 				.getContent().get(0);
 
@@ -656,7 +655,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 
 		SystemAttributeMappingFilter filterSchemaAttr = new SystemAttributeMappingFilter();
 		filterSchemaAttr.setIdmPropertyName("email");
-		filterSchemaAttr.setSystemId(accountService.get(accountIdentityOne.getAccount()).getSystem().getId());
+		filterSchemaAttr.setSystemId(accountService.get(accountIdentityOne.getAccount()).getSystem());
 		SysSystemAttributeMappingDto attributeHandling = systemAttributeMappingService.find(filterSchemaAttr, null)
 				.getContent().get(0);
 
@@ -704,7 +703,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 
 		SystemAttributeMappingFilter filterSchemaAttr = new SystemAttributeMappingFilter();
 		filterSchemaAttr.setIdmPropertyName("email");
-		filterSchemaAttr.setSystemId(accountService.get(accountIdentityOne.getAccount()).getSystem().getId());
+		filterSchemaAttr.setSystemId(accountService.get(accountIdentityOne.getAccount()).getSystem());
 		SysSystemAttributeMappingDto attributeHandling = systemAttributeMappingService.find(filterSchemaAttr, null)
 				.getContent().get(0);
 
@@ -730,7 +729,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 
 		SystemAttributeMappingFilter filterSchemaAttr = new SystemAttributeMappingFilter();
 		filterSchemaAttr.setIdmPropertyName("email");
-		filterSchemaAttr.setSystemId(accountService.get(accountIdentityOne.getAccount()).getSystem().getId());
+		filterSchemaAttr.setSystemId(accountService.get(accountIdentityOne.getAccount()).getSystem());
 		SysSystemAttributeMappingDto attributeHandling = systemAttributeMappingService.find(filterSchemaAttr, null)
 				.getContent().get(0);
 
@@ -1230,7 +1229,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 
 	private void initData() {
 		IdmIdentityDto identity;
-		AccAccount accountOne;
+		AccAccountDto accountOne;
 		AccIdentityAccountDto accountIdentityOne;
 
 		// create test system
@@ -1247,10 +1246,10 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		passwordPolicy.setMinLowerChar(2);
 		passwordPolicy = passwordPolicyService.save(passwordPolicy);
 		system.setPasswordPolicyGenerate(passwordPolicyRepository.findOne(passwordPolicy.getId()));
-		system = sysSystemService.save(system);
+		system = systemService.save(system);
 
 		// generate schema for system
-		List<SysSchemaObjectClassDto> objectClasses = sysSystemService.generateSchema(system);
+		List<SysSchemaObjectClassDto> objectClasses = systemService.generateSchema(system);
 
 		// Create test identity for provisioning test
 		identity = new IdmIdentityDto();
@@ -1259,8 +1258,8 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		identity.setLastName(IDENTITY_USERNAME);
 		identity = idmIdentityService.save(identity);
 
-		accountOne = new AccAccount();
-		accountOne.setSystem(system);
+		accountOne = new AccAccountDto();
+		accountOne.setSystem(system.getId());
 		accountOne.setUid("x" + IDENTITY_USERNAME);
 		accountOne.setAccountType(AccountType.PERSONAL);
 		accountOne = accountService.save(accountOne);
@@ -1278,8 +1277,8 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		identityTwo.setLastName(IDENTITY_USERNAME_TWO);
 		identityTwo = idmIdentityService.save(identityTwo);
 
-		AccAccount accountTwo = new AccAccount();
-		accountTwo.setSystem(system);
+		AccAccountDto accountTwo = new AccAccountDto();
+		accountTwo.setSystem(system.getId());
 		accountTwo.setUid("x" + IDENTITY_USERNAME_TWO);
 		accountTwo.setAccountType(AccountType.PERSONAL);
 		accountTwo = accountService.save(accountTwo);
@@ -1355,8 +1354,8 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 	}
 	
 	private AccIdentityAccountDto prepareAccount(IdmIdentityDto identity) {
-		AccAccount accountOne = new AccAccount();
-		accountOne.setSystem(getSystem());
+		AccAccountDto accountOne = new AccAccountDto();
+		accountOne.setSystem(getSystem().getId());
 		accountOne.setUid("x" + identity.getUsername());
 		accountOne.setAccountType(AccountType.PERSONAL);
 		accountOne = accountService.save(accountOne);
@@ -1374,7 +1373,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		IdentityAccountFilter filter = new IdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
 		AccIdentityAccountDto accountIdentityOne = identityAccoutnService.find(filter, null).getContent().get(0);
-		return accountService.get(accountIdentityOne.getAccount()).getSystem();
+		return systemService.get(accountService.get(accountIdentityOne.getAccount()).getSystem());
 	}
 	
 	/**

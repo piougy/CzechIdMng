@@ -28,10 +28,8 @@ import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.RoleSystemAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.RoleSystemFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemAttributeMappingFilter;
-import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
-import eu.bcvsolutions.idm.acc.repository.SysSystemRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountManagementService;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
@@ -67,7 +65,6 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 	private final SysSystemAttributeMappingService systemAttributeMappingService;
 	private final IdmRoleService roleService;
 	private final SysSystemService systemService;
-	private final SysSystemRepository systemRepository;
 	private final SysSystemMappingService systemMappingService;
 	private final SysSchemaObjectClassService schemaObjectClassService;
 	
@@ -77,7 +74,6 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 			SysRoleSystemAttributeService roleSystemAttributeService,
 			SysSystemAttributeMappingService systemAttributeMappingService,
 			IdmRoleService roleService, SysSystemService systemService,
-			SysSystemRepository systemRepository,
 			SysSystemMappingService systemMappingService,
 			SysSchemaObjectClassService schemaObjectClassService) {
 		super();
@@ -90,7 +86,6 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 		Assert.notNull(systemAttributeMappingService);
 		Assert.notNull(roleService);
 		Assert.notNull(systemService);
-		Assert.notNull(systemRepository);
 		Assert.notNull(systemMappingService);
 		Assert.notNull(schemaObjectClassService);
 		//
@@ -102,7 +97,6 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 		this.systemAttributeMappingService = systemAttributeMappingService;
 		this.systemService = systemService;
 		this.roleService = roleService;
-		this.systemRepository = systemRepository;
 		this.systemMappingService = systemMappingService;
 		this.schemaObjectClassService = schemaObjectClassService;
 	}
@@ -325,7 +319,7 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 		// We try find account for same uid on same system
 		// First we try search same account in list for create new accounts
 		Optional<AccIdentityAccountDto> sameAccountOptional = identityAccountsToCreate.stream().filter(ia -> {
-			AccAccount account = accountService.get(ia.getAccount());
+			AccAccountDto account = accountService.get(ia.getAccount());
 			return account.getUid().equals(uid) && roleSystem.getId().equals(ia.getRoleSystem());
 		}).findFirst();
 		
@@ -337,7 +331,7 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 			AccountFilter accountFilter = new AccountFilter();
 			accountFilter.setUid(uid);
 			accountFilter.setSystemId(roleSystem.getSystem());
-			List<AccAccount> sameAccounts = accountService.find(accountFilter, null).getContent();
+			List<AccAccountDto> sameAccounts = accountService.find(accountFilter, null).getContent();
 			if (CollectionUtils.isEmpty(sameAccounts)) {
 				// Create and persist new account
 				accountId = createAccount(uid, roleSystem);
@@ -350,11 +344,10 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 	}
 	
 	private UUID createAccount(String uid, SysRoleSystemDto roleSystem) {
-		AccAccount account = new AccAccount();
+		AccAccountDto account = new AccAccountDto();
 		account.setUid(uid);
 		account.setAccountType(AccountType.PERSONAL);
-		// TODO: refactor accAccount to DTO, remove system repository
-		account.setSystem(systemRepository.findOne(roleSystem.getSystem()));
+		account.setSystem(roleSystem.getSystem());
 		account = accountService.save(account);
 		return account.getId();
 	}

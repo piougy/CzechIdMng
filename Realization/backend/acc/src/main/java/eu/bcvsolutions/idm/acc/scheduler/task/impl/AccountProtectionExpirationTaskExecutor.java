@@ -12,7 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import eu.bcvsolutions.idm.acc.entity.AccAccount;
+import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.core.scheduler.service.impl.AbstractSchedulableTaskExecutor;
 
@@ -47,13 +47,13 @@ public class AccountProtectionExpirationTaskExecutor extends AbstractSchedulable
 		this.counter = 0L;
 		boolean canContinue = true;
 		while(canContinue) {
-			Page<AccAccount> expiredAccounts = service.findExpired(expiration, new PageRequest(0, 100));
+			Page<AccAccountDto> expiredAccounts = service.findExpired(expiration, new PageRequest(0, 100));
 			// init count
 			if (count == null) {
 				count = expiredAccounts.getTotalElements();
 			}
 			//
-			for(AccAccount account : expiredAccounts) {		
+			for(AccAccountDto account : expiredAccounts) {		
 				service.delete(account);
 				counter++;
 				canContinue = updateState();

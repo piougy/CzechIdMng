@@ -18,7 +18,7 @@ import org.mockito.Spy;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 
-import eu.bcvsolutions.idm.acc.entity.AccAccount;
+import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.scheduler.task.impl.AccountProtectionExpirationTaskExecutor;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
@@ -44,14 +44,14 @@ public class AccountProtectionExpirationTaskExecutorUnitTest extends AbstractUni
 	
 	@Test
 	public void testTwoPageIterations() {
-		List<AccAccount> accounts = new ArrayList<>();
-		accounts.add(new AccAccount());
-		accounts.add(new AccAccount());
+		List<AccAccountDto> accounts = new ArrayList<>();
+		accounts.add(new AccAccountDto());
+		accounts.add(new AccAccountDto());
 		//
 		when(service.findExpired(any(DateTime.class), any(PageRequest.class)))
-			.thenReturn(new PageImpl<AccAccount>(accounts));
+			.thenReturn(new PageImpl<AccAccountDto>(accounts));
 		//
-		doNothing().when(service).delete(any(AccAccount.class));
+		doNothing().when(service).delete(any(AccAccountDto.class));
 		//
 		when(executor.updateState()).thenReturn(true);
 		//

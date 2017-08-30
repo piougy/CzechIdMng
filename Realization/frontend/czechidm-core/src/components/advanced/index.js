@@ -26,6 +26,7 @@ import NotificationTemplateInfo from './NotificationTemplateInfo/NotificationTem
 import ScriptArea from './ScriptArea/ScriptArea';
 import RoleSelect from './RoleSelect/RoleSelect';
 import Recaptcha from './Recaptcha/Recaptcha';
+import IdentitiesInfo from './IdentitiesInfo/IdentitiesInfo.js';
 
 const Components = {
   Table,
@@ -57,7 +58,8 @@ const Components = {
   NotificationTemplateInfo,
   ScriptArea,
   RoleSelect,
-  Recaptcha
+  Recaptcha,
+  IdentitiesInfo
 };
 
 Components.version = '0.0.1';

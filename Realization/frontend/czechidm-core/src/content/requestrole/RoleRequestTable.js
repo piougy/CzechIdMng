@@ -6,7 +6,6 @@ import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import {SecurityManager} from '../../redux';
 import RoleRequestStateEnum from '../../enums/RoleRequestStateEnum';
-import CandicateUsersCell from '../workflow/CandicateUsersCell';
 
 /**
  * @author VS
@@ -49,7 +48,7 @@ class RoleRequestTable extends Advanced.AbstractTableContent {
       return '';
     }
     return (
-      <CandicateUsersCell candidates={entity._embedded.wfProcessId[property]} maxEntry={5} />
+      <Advanced.IdentitiesInfo identities={entity._embedded.wfProcessId[property]} maxEntry={5} />
     );
   }
 

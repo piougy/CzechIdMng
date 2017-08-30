@@ -7,7 +7,6 @@ import * as Advanced from '../../components/advanced';
 import { WorkflowHistoricProcessInstanceManager, WorkflowHistoricTaskInstanceManager, SecurityManager } from '../../redux';
 import SearchParameters from '../../domain/SearchParameters';
 import HistoricProcessInstanceTable from './HistoricProcessInstanceTable';
-import CandicateUsersCell from './CandicateUsersCell';
 
 /**
 * Workflow process historic detail
@@ -79,7 +78,7 @@ class HistoricProcessInstanceDetail extends Basic.AbstractContent {
       return '';
     }
     return (
-      <CandicateUsersCell candidates={entity[property]} maxEntry={MAX_CANDICATES} />
+      <Advanced.IdentitiesInfo identities={entity[property]} maxEntry={MAX_CANDICATES} />
     );
   }
 

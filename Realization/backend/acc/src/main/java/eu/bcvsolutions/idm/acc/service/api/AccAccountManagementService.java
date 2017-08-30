@@ -1,6 +1,6 @@
 package eu.bcvsolutions.idm.acc.service.api;
 
-import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
+import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
@@ -29,5 +29,5 @@ public interface AccAccountManagementService {
 	 * @param roleSystem
 	 * @return
 	 */
-	String generateUID(AbstractEntity entity, SysRoleSystem roleSystem);
+	String generateUID(AbstractEntity entity, SysRoleSystemDto roleSystem);
 }

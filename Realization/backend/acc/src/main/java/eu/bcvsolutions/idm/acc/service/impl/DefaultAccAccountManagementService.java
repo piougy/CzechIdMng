@@ -19,29 +19,36 @@ import eu.bcvsolutions.idm.acc.domain.AccountType;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
+import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
+import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.RoleSystemAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.RoleSystemFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
-import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
+import eu.bcvsolutions.idm.acc.repository.SysSystemRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountManagementService;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
+import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
+import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 
 /**
  * Service for control account management
@@ -58,12 +65,21 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 	private final IdmIdentityRoleRepository identityRoleRepository;
 	private final SysRoleSystemAttributeService roleSystemAttributeService;
 	private final SysSystemAttributeMappingService systemAttributeMappingService;
-
+	private final IdmRoleService roleService;
+	private final SysSystemService systemService;
+	private final SysSystemRepository systemRepository;
+	private final SysSystemMappingService systemMappingService;
+	private final SysSchemaObjectClassService schemaObjectClassService;
+	
 	@Autowired
 	public DefaultAccAccountManagementService(SysRoleSystemService roleSystemService, AccAccountService accountService,
 			AccIdentityAccountService identityAccountService, IdmIdentityRoleRepository identityRoleRepository,
 			SysRoleSystemAttributeService roleSystemAttributeService,
-			SysSystemAttributeMappingService systemAttributeMappingService) {
+			SysSystemAttributeMappingService systemAttributeMappingService,
+			IdmRoleService roleService, SysSystemService systemService,
+			SysSystemRepository systemRepository,
+			SysSystemMappingService systemMappingService,
+			SysSchemaObjectClassService schemaObjectClassService) {
 		super();
 		//
 		Assert.notNull(identityAccountService);
@@ -72,6 +88,11 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 		Assert.notNull(identityRoleRepository);
 		Assert.notNull(roleSystemAttributeService);
 		Assert.notNull(systemAttributeMappingService);
+		Assert.notNull(roleService);
+		Assert.notNull(systemService);
+		Assert.notNull(systemRepository);
+		Assert.notNull(systemMappingService);
+		Assert.notNull(schemaObjectClassService);
 		//
 		this.roleSystemService = roleSystemService;
 		this.accountService = accountService;
@@ -79,6 +100,11 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 		this.identityRoleRepository = identityRoleRepository;
 		this.roleSystemAttributeService = roleSystemAttributeService;
 		this.systemAttributeMappingService = systemAttributeMappingService;
+		this.systemService = systemService;
+		this.roleService = roleService;
+		this.systemRepository = systemRepository;
+		this.systemMappingService = systemMappingService;
+		this.schemaObjectClassService = schemaObjectClassService;
 	}
 
 	@Override
@@ -161,7 +187,7 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 			IdmRole role = identityRole.getRole();
 			RoleSystemFilter roleSystemFilter = new RoleSystemFilter();
 			roleSystemFilter.setRoleId(role.getId());
-			List<SysRoleSystem> roleSystems = roleSystemService.find(roleSystemFilter, null).getContent();
+			List<SysRoleSystemDto> roleSystems = roleSystemService.find(roleSystemFilter, null).getContent();
 
 			roleSystems.stream().filter(roleSystem -> {
 				// Filter out identity-accounts for same role-system, account (by UID)
@@ -220,7 +246,7 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 	 * @return
 	 */
 	@Override
-	public String generateUID(AbstractEntity entity, SysRoleSystem roleSystem) {
+	public String generateUID(AbstractEntity entity, SysRoleSystemDto roleSystem) {
 		// Find attributes for this roleSystem
 		RoleSystemAttributeFilter roleSystemAttrFilter = new RoleSystemAttributeFilter();
 		roleSystemAttrFilter.setRoleSystemId(roleSystem.getId());
@@ -231,8 +257,10 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 		}).collect(Collectors.toList());
 
 		if (attributesUid.size() > 1) {
+			IdmRoleDto roleDto = roleService.get(roleSystem.getRole());
+			SysSystem systemEntity = systemService.get(roleSystem.getSystem());
 			throw new ProvisioningException(AccResultCode.PROVISIONING_ROLE_ATTRIBUTE_MORE_UID, ImmutableMap.of("role",
-					roleSystem.getRole().getName(), "system", roleSystem.getSystem().getName()));
+					roleDto.getName(), "system", systemEntity.getName()));
 		}
 
 		SysRoleSystemAttributeDto uidRoleAttribute = !attributesUid.isEmpty() ? attributesUid.get(0) : null;
@@ -247,8 +275,9 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 					.setTransformFromResourceScript(systemAttributeMapping.getTransformFromResourceScript());
 			Object uid = systemAttributeMappingService.getAttributeValue(null, entity, uidRoleAttribute);
 			if(uid == null) {
+				SysSystem systemEntity = systemService.get(roleSystem.getSystem());
 				throw new ProvisioningException(AccResultCode.PROVISIONING_GENERATED_UID_IS_NULL,
-						ImmutableMap.of("system", roleSystem.getSystem().getName()));
+						ImmutableMap.of("system", systemEntity.getName()));
 			}
 			if (!(uid instanceof String)) {
 				throw new ProvisioningException(AccResultCode.PROVISIONING_ATTRIBUTE_UID_IS_NOT_STRING,
@@ -257,11 +286,11 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 			return (String) uid;
 		}
 
-		SysSystemMapping mapping = roleSystem.getSystemMapping();
+		SysSystemMappingDto mapping = systemMappingService.get(roleSystem.getSystemMapping());
 		// If roleSystem UID was not found, then we use default UID schema
 		// attribute handling
-	
-		SysSystem system = mapping.getSystem();
+		SysSchemaObjectClassDto objectClassDto = schemaObjectClassService.get(mapping.getObjectClass());
+		SysSystem system = systemService.get(objectClassDto.getSystem());
 		SystemAttributeMappingFilter systeAttributeMappingFilter = new SystemAttributeMappingFilter();
 		systeAttributeMappingFilter.setSystemMappingId(mapping.getId());
 		List<SysSystemAttributeMappingDto> schemaHandlingAttributes = systemAttributeMappingService
@@ -289,7 +318,7 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 	 * @param identityAccountsToCreate
 	 * @return
 	 */
-	private UUID createAccountByRoleSystem(IdmIdentity identity, SysRoleSystem roleSystem,
+	private UUID createAccountByRoleSystem(IdmIdentity identity, SysRoleSystemDto roleSystem,
 			List<AccIdentityAccountDto> identityAccountsToCreate) {
 		String uid = generateUID(identity, roleSystem);
 		
@@ -307,7 +336,7 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 			// If account is not in list accounts to create, then we will search in database
 			AccountFilter accountFilter = new AccountFilter();
 			accountFilter.setUid(uid);
-			accountFilter.setSystemId(roleSystem.getSystem().getId());
+			accountFilter.setSystemId(roleSystem.getSystem());
 			List<AccAccount> sameAccounts = accountService.find(accountFilter, null).getContent();
 			if (CollectionUtils.isEmpty(sameAccounts)) {
 				// Create and persist new account
@@ -320,11 +349,12 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 		return accountId;
 	}
 	
-	private UUID createAccount(String uid, SysRoleSystem roleSystem) {
+	private UUID createAccount(String uid, SysRoleSystemDto roleSystem) {
 		AccAccount account = new AccAccount();
 		account.setUid(uid);
 		account.setAccountType(AccountType.PERSONAL);
-		account.setSystem(roleSystem.getSystem());
+		// TODO: refactor accAccount to DTO, remove system repository
+		account.setSystem(systemRepository.findOne(roleSystem.getSystem()));
 		account = accountService.save(account);
 		return account.getId();
 	}

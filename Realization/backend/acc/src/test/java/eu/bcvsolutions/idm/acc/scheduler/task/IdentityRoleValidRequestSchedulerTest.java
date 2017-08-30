@@ -18,16 +18,15 @@ import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
+import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SchemaAttributeFilter;
-import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
-import eu.bcvsolutions.idm.acc.repository.SysSystemMappingRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
@@ -44,7 +43,6 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
-import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleValidRequestService;
@@ -69,7 +67,6 @@ public class IdentityRoleValidRequestSchedulerTest extends AbstractIntegrationTe
 	@Autowired private TestHelper helper;
 	@Autowired private IdmIdentityService identityService;
 	@Autowired private IdmRoleService roleService;
-	@Autowired private IdmRoleRepository roleRepository;
 	@Autowired private IdmTreeNodeService treeNodeService;
 	@Autowired private IdmTreeTypeService treeTypeService;
 	@Autowired private IdmIdentityContractService identityContractService;
@@ -84,7 +81,6 @@ public class IdentityRoleValidRequestSchedulerTest extends AbstractIntegrationTe
 	@Autowired private IdmIdentityRoleRepository identityRoleRepository;
 	@Autowired private IdmLongRunningTaskService longRunningTaskService;
 	@Autowired private IdmIdentityRoleValidRequestService identityRoleValidRequestService;
-	@Autowired private SysSystemMappingRepository systemMappingRepository;
 	//
 	// local variables
 	private SysSystem system = null;
@@ -279,11 +275,11 @@ public class IdentityRoleValidRequestSchedulerTest extends AbstractIntegrationTe
 		return saveInTransaction(entity, roleService);
 	}
 	
-	private SysRoleSystem createAndSaveRoleSystem(IdmRoleDto role, SysSystem system) {
-		SysRoleSystem entity = new SysRoleSystem();
-		entity.setRole(roleRepository.findOne(role.getId()));
-		entity.setSystem(system);
-		entity.setSystemMapping(systemMappingRepository.findOne(systemMapping.getId()));
+	private SysRoleSystemDto createAndSaveRoleSystem(IdmRoleDto role, SysSystem system) {
+		SysRoleSystemDto entity = new SysRoleSystemDto();
+		entity.setRole(role.getId());
+		entity.setSystem(system.getId());
+		entity.setSystemMapping(systemMapping.getId());
 		return saveInTransaction(entity, sysRoleSystemService);
 	}
 	

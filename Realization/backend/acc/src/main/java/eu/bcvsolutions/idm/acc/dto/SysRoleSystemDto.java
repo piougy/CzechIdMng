@@ -20,17 +20,29 @@ public class SysRoleSystemDto extends AbstractDto {
 	private UUID role;
 	@Embedded(dtoClass = SysSystemDto.class)
 	private UUID system;
-	//private SysSystemMappingDto systemMapping;
-	
+	@Embedded(dtoClass = SysSystemMappingDto.class)
+	private UUID systemMapping;
+
+	public UUID getSystemMapping() {
+		return systemMapping;
+	}
+
+	public void setSystemMapping(UUID systemMapping) {
+		this.systemMapping = systemMapping;
+	}
+
 	public UUID getRole() {
 		return role;
 	}
+
 	public void setRole(UUID role) {
 		this.role = role;
 	}
+
 	public UUID getSystem() {
 		return system;
 	}
+
 	public void setSystem(UUID system) {
 		this.system = system;
 	}

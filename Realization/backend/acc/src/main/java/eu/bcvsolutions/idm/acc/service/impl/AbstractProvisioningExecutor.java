@@ -29,6 +29,7 @@ import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.EntityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.ProvisioningAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
+import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
@@ -38,9 +39,7 @@ import eu.bcvsolutions.idm.acc.dto.filter.EntityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
-import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
 import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
 import eu.bcvsolutions.idm.acc.event.ProvisioningEvent;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
@@ -57,11 +56,13 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
@@ -95,6 +96,7 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 	private final SysSchemaObjectClassService schemaObjectClassService;
 	private final SysSystemAttributeMappingService systemAttributeMappingService;
 	private final SysRoleSystemService roleSystemService;
+	private final IdmRoleService roleService;
 
 	@Autowired
 	public AbstractProvisioningExecutor(SysSystemMappingService systemMappingService,
@@ -105,7 +107,8 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 			AccAccountService accountService, ProvisioningExecutor provisioningExecutor,
 			EntityEventManager entityEventManager, SysSchemaAttributeService schemaAttributeService,
 			SysSchemaObjectClassService schemaObjectClassService,
-			SysSystemAttributeMappingService systemAttributeMappingService) {
+			SysSystemAttributeMappingService systemAttributeMappingService,
+			IdmRoleService roleService) {
 
 		Assert.notNull(systemMappingService);
 		Assert.notNull(attributeMappingService);
@@ -121,6 +124,7 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 		Assert.notNull(schemaAttributeService);
 		Assert.notNull(schemaObjectClassService);
 		Assert.notNull(systemAttributeMappingService);
+		Assert.notNull(roleService);
 		//
 		this.systemMappingService = systemMappingService;
 		this.attributeMappingService = attributeMappingService;
@@ -135,6 +139,7 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 		this.schemaObjectClassService = schemaObjectClassService;
 		this.systemAttributeMappingService = systemAttributeMappingService;
 		this.roleSystemService = roleSystemService;
+		this.roleService = roleService;
 	}
 
 	@Override
@@ -695,10 +700,12 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 			return attributeMapping.equals(defaultAttribute);
 		}).sorted((att1, att2) -> {
 			// Sort attributes by role priority
-			SysRoleSystem roleSystem2 = roleSystemService.get(att2.getRoleSystem());
-			SysRoleSystem roleSystem1 = roleSystemService.get(att1.getRoleSystem());
-			return Integer.valueOf(roleSystem2.getRole().getPriority())
-					.compareTo(Integer.valueOf(roleSystem1.getRole().getPriority()));
+			SysRoleSystemDto roleSystem2 = roleSystemService.get(att2.getRoleSystem());
+			SysRoleSystemDto roleSystem1 = roleSystemService.get(att1.getRoleSystem());
+			IdmRoleDto role1 = roleService.get(roleSystem1.getRole());
+			IdmRoleDto role2 = roleService.get(roleSystem2.getRole());
+			return Integer.valueOf(role2.getPriority())
+					.compareTo(Integer.valueOf(role1.getPriority()));
 		}).collect(Collectors.toList());
 
 		// We have some overloaded attributes
@@ -714,25 +721,30 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 			}
 
 			// First element have role with max priority
-			SysRoleSystem roleSystemForSetMaxPriority = roleSystemService.get(attributesOrderedGivenStrategy.get(0).getRoleSystem());
-			int maxPriority = roleSystemForSetMaxPriority.getRole().getPriority();
+			SysRoleSystemDto roleSystemForSetMaxPriority = roleSystemService.get(attributesOrderedGivenStrategy.get(0).getRoleSystem());
+			IdmRoleDto roleForSetMaxPriority = roleService.get(roleSystemForSetMaxPriority.getRole());
+			int maxPriority = roleForSetMaxPriority.getPriority();
 
 			// We will search for attribute with highest priority (and role
 			// name)
 			Optional<SysRoleSystemAttributeDto> highestPriorityAttributeOptional = attributesOrderedGivenStrategy.stream()
 					.filter(attribute -> {
-						SysRoleSystem roleSystem = roleSystemService.get(attribute.getRoleSystem());
+						SysRoleSystemDto roleSystem = roleSystemService.get(attribute.getRoleSystem());
+						IdmRoleDto roleDto = roleService.get(roleSystem.getRole());
 						// Filter attributes by max priority
-						return maxPriority == roleSystem.getRole().getPriority();
+						return maxPriority == roleDto.getPriority();
 					}).sorted((att1, att2) -> {
 						// Second filtering, if we have same priority, then
 						// we
 						// will sort by role name
-						SysRoleSystem roleSystem2 = roleSystemService.get(att2.getRoleSystem());
-						SysRoleSystem roleSystem1 = roleSystemService.get(att1.getRoleSystem());
-
-						return roleSystem2.getRole().getName()
-								.compareTo(roleSystem1.getRole().getName());
+						SysRoleSystemDto roleSystem1 = roleSystemService.get(att1.getRoleSystem());
+						SysRoleSystemDto roleSystem2 = roleSystemService.get(att2.getRoleSystem());
+						//
+						IdmRoleDto roleDto1 = roleService.get(roleSystem1.getRole());
+						IdmRoleDto roleDto2 = roleService.get(roleSystem2.getRole());
+						//
+						return roleDto2.getName()
+								.compareTo(roleDto1.getName());
 					}).findFirst();
 
 			if (highestPriorityAttributeOptional.isPresent()) {
@@ -767,8 +779,9 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 				Optional<SysRoleSystemAttributeDto> disabledOverloadedAttOptional = attributesOrderedGivenStrategy.stream()
 						.filter(attribute -> {
 							// Filter attributes by max priority
-							SysRoleSystem roleSystem = roleSystemService.get(attribute.getRoleSystem());
-							return maxPriority == roleSystem.getRole().getPriority();
+							SysRoleSystemDto roleSystem = roleSystemService.get(attribute.getRoleSystem());
+							IdmRoleDto roleDto = roleService.get(roleSystem.getRole());
+							return maxPriority == roleDto.getPriority();
 						}).filter(attribute -> {
 							// Second filtering, we will search for disabled
 							// overloaded attribute

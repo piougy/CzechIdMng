@@ -124,10 +124,7 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 				request.getEmbedded().put(VsRequest_.systemId.getName(), system);
 			}
 		}
-
-		if(request.isTrimmed()){
-			return request;
-		}
+		
 		// Add list of implementers
 		List<IdmIdentityDto> implementers = this.requestImplementerService.findRequestImplementers(request);
 		request.setImplementers(implementers);

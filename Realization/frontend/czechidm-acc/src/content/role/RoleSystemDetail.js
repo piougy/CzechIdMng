@@ -100,9 +100,6 @@ class RoleSystemDetail extends Advanced.AbstractTableContent {
     }
 
     const formEntity = this.refs.form.getData();
-    formEntity.role = roleManager.getSelfLink(formEntity.role);
-    formEntity.system = systemManager.getSelfLink(formEntity.system);
-    formEntity.systemMapping = systemManager.getSelfLink(formEntity.systemMapping);
     if (formEntity.id === undefined) {
       this.context.store.dispatch(roleSystemManager.createEntity(formEntity, `${uiKey}-detail`, (createdEntity, error) => {
         this.afterSave(createdEntity, error);
@@ -111,7 +108,7 @@ class RoleSystemDetail extends Advanced.AbstractTableContent {
         }
       }));
     } else {
-      this.context.store.dispatch(roleSystemManager.patchEntity(formEntity, `${uiKey}-detail`, this.afterSave.bind(this)));
+      this.context.store.dispatch(roleSystemManager.updateEntity(formEntity, `${uiKey}-detail`, this.afterSave.bind(this)));
     }
   }
 

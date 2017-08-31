@@ -15,7 +15,7 @@ class IdentitiesInfo extends Basic.AbstractComponent {
   }
 
   render() {
-    const { identities, maxEntry} = this.props;
+    const { identities, maxEntry, showOnlyUsername} = this.props;
     let candidatesResult;
     let isMoreResults = false;
     let infoCandidates = [];
@@ -27,7 +27,7 @@ class IdentitiesInfo extends Basic.AbstractComponent {
         candidatesResult = _.slice(candidatesResult, 0, maxEntry);
       }
       for (const candidate of candidatesResult) {
-        infoCandidates.push(<IdentityInfo key={candidate} entityIdentifier={candidate} face="popover" />);
+        infoCandidates.push(<IdentityInfo key={candidate} entityIdentifier={candidate} face="popover" showOnlyUsername={showOnlyUsername} />);
         infoCandidates.push(', ');
       }
 
@@ -49,11 +49,12 @@ class IdentitiesInfo extends Basic.AbstractComponent {
 
 IdentitiesInfo.propTypes = {
   identities: PropTypes.array,
-  maxEntry: PropTypes.number
+  maxEntry: PropTypes.number,
+  showOnlyUsername: PropTypes.bool
 };
 
 IdentitiesInfo.defaultProps = {
-  identities: PropTypes.array,
+  showOnlyUsername: true,
   maxEntry: 2
 };
 

@@ -13,6 +13,7 @@ All parameters from AbstractComponent are supported. Added parameters:
 | entityIdentifier | string  |  Selected identity's id - identity will be loaded automatically. `username` alias, has higher priority.  |  |
 | face | oneOf(['full', 'link', 'text'])  |  Decorator: <ul><li>`text`: entity's nice label only</li><li>`link`: entity's nice label with link to detail</li><li>`full`: full info card</li></ul>  |  full |
 | showLink | bool | Shows link to entity's detail | true |
+| showOnlyUsername | bool | If true, then show only username instead niceLabel | false |
 
 
 ## Usage

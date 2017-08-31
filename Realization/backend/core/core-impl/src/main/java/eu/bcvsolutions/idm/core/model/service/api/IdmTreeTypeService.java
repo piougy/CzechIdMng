@@ -28,9 +28,9 @@ public interface IdmTreeTypeService extends
 	/**
 	 * Prefix to configuration
 	 */
-	public static final String CONFIGURATION_PREFIX = ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX + "core.treeType.";
-	public static final String CONFIGURATION_PROPERTY_VALID = "valid";
-	public static final String CONFIGURATION_PROPERTY_REBUILD = "rebuild";
+	static final String CONFIGURATION_PREFIX = ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX + "core.treeType.";
+	static final String CONFIGURATION_PROPERTY_VALID = "valid";
+	static final String CONFIGURATION_PROPERTY_REBUILD = "rebuild";
 	
 	/**
 	 * Returns tree type by code 
@@ -64,14 +64,4 @@ public interface IdmTreeTypeService extends
 	 * @return
 	 */
 	String getConfigurationPropertyName(String treeTypeCode, String propertyName);
-	
-	/**
-	 * Clear default tree node, when node is deleted etc.
-	 * 
-	 * @param defaultTreeNode
-	 * @return
-	 * @deprecated configuration service will be used for persist default tree type
-	 */
-	@Deprecated
-	int clearDefaultTreeNode(UUID defaultTreeNodeId);
 }

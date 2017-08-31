@@ -5,10 +5,10 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.core.api.config.domain.TreeConfiguration;
 import eu.bcvsolutions.idm.core.api.dto.IdmConfigurationDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmTreeTypeFilter;
@@ -28,25 +28,28 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
  * @author Ondrej Kopr <kopr@xyxy.cz>
  * @author Radek Tomiška
  */
-@Service("treeTypeService")
 public class DefaultIdmTreeTypeService 
 		extends AbstractEventableDtoService<IdmTreeTypeDto, IdmTreeType, IdmTreeTypeFilter> 
 		implements IdmTreeTypeService {
 	
 	private final IdmTreeTypeRepository repository;
 	private final IdmConfigurationService configurationService;
+	private final TreeConfiguration treeConfiguration;
 	
 	@Autowired
 	public DefaultIdmTreeTypeService(
 			IdmTreeTypeRepository treeTypeRepository,
 			IdmConfigurationService configurationService,
+			TreeConfiguration treeConfiguration,
 			EntityEventManager entityEventManager) {
 		super(treeTypeRepository, entityEventManager);
 		//
 		Assert.notNull(configurationService);
+		Assert.notNull(treeConfiguration);
 		//
 		this.repository = treeTypeRepository;
 		this.configurationService = configurationService;
+		this.treeConfiguration = treeConfiguration;
 	}
 	
 	@Override
@@ -63,17 +66,7 @@ public class DefaultIdmTreeTypeService
 	@Override
 	@Transactional(readOnly = true)
 	public IdmTreeTypeDto getDefaultTreeType() {
-		return toDto(repository.findOneByDefaultTreeTypeIsTrue());
-	}
-	
-	@Override
-	@Transactional
-	public IdmTreeTypeDto saveInternal(IdmTreeTypeDto dto) {
-		if (dto.isDefaultTreeType()) {
-			// TODO: configuration service
-			this.repository.clearDefaultTreeType(dto.getId());
-		}
-		return super.saveInternal(dto);
+		return treeConfiguration.getDefaultType();
 	}
 
 	@Override
@@ -97,12 +90,6 @@ public class DefaultIdmTreeTypeService
 		Assert.notNull(propertyName);
 		//
 		return String.format("%s%s", getConfigurationPrefix(treeTypeCode), propertyName);
-	}
-
-	@Override
-	@Transactional
-	public int clearDefaultTreeNode(UUID defaultTreeNode) {		
-		return repository.clearDefaultTreeNode(defaultTreeNode);
 	}
 }
 

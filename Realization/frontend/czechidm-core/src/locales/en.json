@@ -2248,15 +2248,7 @@
     "TreeType": {
       "_type": "Structure",
       "code": "Code",
-      "name": "Name",
-      "defaultTreeType": {
-        "label": "Default tree",
-        "help": "This tree type will be used as default organization structure."
-      },
-      "defaultTreeNode": {
-        "label": "Default tree element",
-        "help": "This tree element will be used as default, e.g. for default work position."
-      }
+      "name": "Name"
     },
     "Delegate": {
       "_type": "Delegation",

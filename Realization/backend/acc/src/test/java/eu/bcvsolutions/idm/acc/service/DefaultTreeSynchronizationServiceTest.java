@@ -600,7 +600,6 @@ public class DefaultTreeSynchronizationServiceTest extends AbstractIntegrationTe
 
 		IdmTreeTypeDto treeType = new IdmTreeTypeDto();
 		treeType.setCode(TREE_TYPE_TEST);
-		treeType.setDefaultTreeType(false);
 		treeType.setName(TREE_TYPE_TEST);
 		treeType = treeTypeService.save(treeType);
 		

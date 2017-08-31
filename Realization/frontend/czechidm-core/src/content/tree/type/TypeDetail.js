@@ -110,17 +110,6 @@ export default class TypeDetail extends Basic.AbstractContent {
                   max={255}/>
               </div>
             </Basic.Row>
-            <Basic.Checkbox
-              ref="defaultTreeType"
-              label={this.i18n('entity.TreeType.defaultTreeType.label')}
-              helpBlock={this.i18n('entity.TreeType.defaultTreeType.help')}/>
-            <Basic.SelectBox
-              ref="defaultTreeNode"
-              label={this.i18n('entity.TreeType.defaultTreeNode.label')}
-              helpBlock={this.i18n('entity.TreeType.defaultTreeNode.help')}
-              forceSearchParameters={this.treeNodeManager.getDefaultSearchParameters().setFilter('treeTypeId', entity.id)}
-              manager={this.treeNodeManager}
-              rendered={!Utils.Entity.isNew(entity)}/>
           </Basic.AbstractForm>
 
           <Basic.PanelFooter showLoading={showLoading} >

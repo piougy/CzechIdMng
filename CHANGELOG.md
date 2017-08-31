@@ -59,8 +59,11 @@ All notable changes to this project will be documented in this file.
 - Tree type and node agendas were refactored to dto usage. Search **``IdmTreeTypeService``** usage in your project - **all methods works with dto**. Search **``IdmTreeNodeService``** usage in your project - **all methods works with dto**.
 - **``IdmTreeTypeService``** supports events (``CREATE``, ``UPDATE``, ``DELETE``).
 - **``IdmTreeTypeService#getConfigurations(UUID)`` uses uuid as parameter**.
-- **``IdmTreeTypeService#clearDefaultTreeType(UUID)`` uses uuid as parameter**, but will be removed at all soon - configuration service will be used for persist default tree type and node.
-- **``IdmTreeTypeService#clearDefaultTreeNode(UUID)`` uses uuid as parameter**, but will be removed at all soon - configuration service will be used for persist default tree type and node.
+- **``IdmTreeTypeRepository#clearDefaultTreeType()``** was removed - configuration service is used for persist default tree type and node.
+- **``IdmTreeTypeRepository#clearDefaultTreeNode()``** was removed - configuration service is used for persist default tree type and node.
+- **``IdmTreeTypeRepository#findOneByDefaultTreeTypeIsTrue()``** was removed - configuration service is used for persist default tree type and node.
+- **``IdmTreeTypeService#clearDefaultTreeNode()``** was removed - configuration service is used for persist default tree type and node.
+- ``TreeConfiguration`` was added - provide default tree node and type. This configuration is used in ``DefaultIdmIdentityContractService``, ``DeafultIdmTreeNodeService`` constructors.
 - **``IdmTreeTypeFilter``** is used as filter in ``IdmTreeTypeService`` - its possible to find types by code from rest api.
 - **``TreeNodeFilter``** was renamed to **``IdmTreeNodeFilter``**. Its possible to find node by type and code from rest api.
 - Don't use **``IdmTreeTypeRepository#find()``** method directly => use service layer (methods are using criteria api now).

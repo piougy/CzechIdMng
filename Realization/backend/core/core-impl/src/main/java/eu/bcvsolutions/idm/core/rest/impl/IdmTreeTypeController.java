@@ -53,8 +53,6 @@ import io.swagger.annotations.AuthorizationScope;
 /**
  * Tree type structures
  * 
- * TODO: secure read operations? 
- * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
  * @author Radek Tomiška
  *
@@ -171,6 +169,7 @@ public class IdmTreeTypeController extends AbstractReadWriteDtoController<IdmTre
 	
 	@Override
 	@ResponseBody
+	@RequestMapping(method = RequestMethod.POST)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.TREETYPE_CREATE + "')"
 			+ " or hasAuthority('" + CoreGroupPermission.TREETYPE_UPDATE + "')")
 	@ApiOperation(
@@ -192,6 +191,7 @@ public class IdmTreeTypeController extends AbstractReadWriteDtoController<IdmTre
 	
 	@Override
 	@ResponseBody
+	@RequestMapping(value = "/{backendId}", method = RequestMethod.PUT)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.TREETYPE_UPDATE + "')")
 	@ApiOperation(
 			value = "Update tree type",
@@ -213,6 +213,7 @@ public class IdmTreeTypeController extends AbstractReadWriteDtoController<IdmTre
 	
 	@Override
 	@ResponseBody
+	@RequestMapping(value = "/{backendId}", method = RequestMethod.PATCH)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.TREETYPE_UPDATE + "')")
 	@ApiOperation(
 			value = "Update tree type",
@@ -235,6 +236,7 @@ public class IdmTreeTypeController extends AbstractReadWriteDtoController<IdmTre
 	
 	@Override
 	@ResponseBody
+	@RequestMapping(value = "/{backendId}", method = RequestMethod.DELETE)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.TREETYPE_DELETE + "')")
 	@ApiOperation(
 			value = "Delete tree type", 

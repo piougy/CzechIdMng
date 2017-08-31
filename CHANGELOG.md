@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [7.4.0-Snapshot] (Unreleased)
 
+### Requirements
+
+#### All workflow instances (task) have to be closed (resolved / canceled) before update. Some services were refactored and new workflow definitions (core) will be installed automatically.
+
 ### Added
 
 #### Core module

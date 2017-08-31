@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.service.Configurable;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 
@@ -47,16 +48,30 @@ public interface RoleConfiguration  extends Configurable {
 	}
 	
 	/**
-	 * Returns default role code
+	 * Returns default role identifier
 	 * 
 	 * @return
 	 */
 	UUID getDefaultRoleId();
 	
 	/**
-	 * Returns admin role code
+	 * Returns default role
+	 * 
+	 * @return
+	 */
+	IdmRoleDto getDefaultRole();
+	
+	/**
+	 * Returns admin role identifier
 	 * 
 	 * @return
 	 */
 	UUID getAdminRoleId();
+	
+	/**
+	 * Returns admin role
+	 * 
+	 * @return
+	 */
+	IdmRoleDto getAdminRole();
 }

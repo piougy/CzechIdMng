@@ -96,7 +96,7 @@ public class RemoveOldLogsTaskExecutor extends AbstractSchedulableTaskExecutor<B
 	}
 
 	@Override
-	public List<String> getParameterNames() {
+	public List<String> getPropertyNames() {
 		List<String> parameters = super.getPropertyNames();
 		parameters.add(PARAMETER_DAYS);
 		return parameters;

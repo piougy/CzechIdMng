@@ -109,3 +109,6 @@ All notable changes to this project will be documented in this file.
 
 
 ### Removed
+##### Long running tasks
+- From [AbstractLongRunningTaskExecutor](https://github.com/bcvsolutions/CzechIdMng/blob/develop/Realization/backend/core/core-impl/src/main/java/eu/bcvsolutions/idm/core/scheduler/service/impl/AbstractLongRunningTaskExecutor.java) was removed deprecated method getParameterNames, replace this method from your project with method getPropertyNames.
+

@@ -1,17 +1,21 @@
 import React, { PropTypes } from 'react';
+import { connect } from 'react-redux';
 //
 import * as Basic from '../../../components/basic';
-import * as Utils from '../../../utils';
-import { TreeTypeManager, SecurityManager, TreeNodeManager } from '../../../redux';
+import { TreeTypeManager, TreeNodeManager } from '../../../redux';
+
+const manager = new TreeTypeManager();
 
 /**
  * Type detail content
+ *
+ * @author Ondřej Kopr
+ * @author Radek Tomiška
  */
-export default class TypeDetail extends Basic.AbstractContent {
+class TypeDetail extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
-    this.treeTypeManager = new TreeTypeManager();
     this.treeNodeManager = new TreeNodeManager();
     this.state = {
       showLoading: false
@@ -58,11 +62,11 @@ export default class TypeDetail extends Basic.AbstractContent {
     }
     //
     if (entity.id === undefined) {
-      this.context.store.dispatch(this.treeTypeManager.createEntity(entity, `${uiKey}-detail`, (createdEntity, error) => {
+      this.context.store.dispatch(manager.createEntity(entity, `${uiKey}-detail`, (createdEntity, error) => {
         this._afterSave(createdEntity, error);
       }));
     } else {
-      this.context.store.dispatch(this.treeTypeManager.patchEntity(entity, `${uiKey}-detail`, this._afterSave.bind(this)));
+      this.context.store.dispatch(manager.patchEntity(entity, `${uiKey}-detail`, this._afterSave.bind(this)));
     }
   }
 
@@ -82,7 +86,7 @@ export default class TypeDetail extends Basic.AbstractContent {
   }
 
   render() {
-    const { uiKey, entity } = this.props;
+    const { uiKey, entity, _permissions } = this.props;
     const { showLoading } = this.state;
     //
     return (
@@ -91,7 +95,7 @@ export default class TypeDetail extends Basic.AbstractContent {
           <Basic.AbstractForm
             ref="form"
             uiKey={uiKey}
-            readOnly={ !SecurityManager.hasAuthority(Utils.Entity.isNew(entity) ? 'TREETYPE_CREATE' : 'TREETYPE_UPDATE') }
+            readOnly={ !manager.canSave(entity, _permissions) }
             style={{ padding: '15px 15px 0px 15px' }} >
             <Basic.Row>
               <div className="col-lg-2">
@@ -119,7 +123,7 @@ export default class TypeDetail extends Basic.AbstractContent {
               level="success"
               showLoadingIcon
               showLoadingText={this.i18n('button.saving')}
-              rendered={SecurityManager.hasAuthority(Utils.Entity.isNew(entity) ? 'TREETYPE_CREATE' : 'TREETYPE_UPDATE')}>
+              rendered={ manager.canSave(entity, _permissions) }>
               {this.i18n('button.save')}
             </Basic.Button>
           </Basic.PanelFooter>
@@ -132,6 +136,19 @@ export default class TypeDetail extends Basic.AbstractContent {
 TypeDetail.propTypes = {
   entity: PropTypes.object,
   uiKey: PropTypes.string.isRequired,
+  _permissions: PropTypes.arrayOf(PropTypes.string)
 };
 TypeDetail.defaultProps = {
+  _permissions: null
 };
+
+function select(state, component) {
+  if (!component.entity) {
+    return {};
+  }
+  return {
+    _permissions: manager.getPermissions(state, null, component.entity.id)
+  };
+}
+
+export default connect(select)(TypeDetail);

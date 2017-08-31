@@ -35,15 +35,18 @@ import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmConfigurationDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmTreeTypeFilter;
+import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
+import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeTypeService;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.rest.impl.IdmLongRunningTaskController;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -282,11 +285,21 @@ public class IdmTreeTypeController extends AbstractReadWriteDtoController<IdmTre
 	 */
 	@ResponseBody
 	@RequestMapping(value= "/search/default", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.TREETYPE_AUTOCOMPLETE + "')"
+			+ " or hasAuthority('" + CoreGroupPermission.TREETYPE_READ + "')")
 	@ApiOperation(
 			value = "Get default tree type detail", 
 			nickname = "getDefaultTreeType", 
 			response = IdmTreeTypeDto.class, 
-			tags = { IdmTreeTypeController.TAG })
+			tags = { IdmTreeTypeController.TAG }, 
+			authorizations = { 
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+							@AuthorizationScope(scope = CoreGroupPermission.TREETYPE_AUTOCOMPLETE, description = ""),
+							@AuthorizationScope(scope = CoreGroupPermission.TREETYPE_READ, description = "") }),
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+							@AuthorizationScope(scope = CoreGroupPermission.TREETYPE_AUTOCOMPLETE, description = ""),
+							@AuthorizationScope(scope = CoreGroupPermission.TREETYPE_READ, description = "") })
+					})
 	public ResponseEntity<?> getDefaultTreeType() {
 		IdmTreeTypeDto defaultTreeType = service.getDefaultTreeType();
 		if (defaultTreeType == null) {
@@ -303,16 +316,30 @@ public class IdmTreeTypeController extends AbstractReadWriteDtoController<IdmTre
 	 */
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}/configurations", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.TREETYPE_AUTOCOMPLETE + "')"
+			+ " or hasAuthority('" + CoreGroupPermission.TREETYPE_READ + "')")
 	@ApiOperation(
 			value = "Get tree type configuration items", 
 			nickname = "getTreeTypeConfigurations", 
-			tags = { IdmTreeTypeController.TAG })
+			tags = { IdmTreeTypeController.TAG }, 
+			authorizations = { 
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+							@AuthorizationScope(scope = CoreGroupPermission.TREETYPE_AUTOCOMPLETE, description = ""),
+							@AuthorizationScope(scope = CoreGroupPermission.TREETYPE_READ, description = "") }),
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+							@AuthorizationScope(scope = CoreGroupPermission.TREETYPE_AUTOCOMPLETE, description = ""),
+							@AuthorizationScope(scope = CoreGroupPermission.TREETYPE_READ, description = "") })
+					})
 	public List<IdmConfigurationDto> getConfigurations(
 			@ApiParam(value = "Type's uuid identifier or code.", required = true)
 			@PathVariable String backendId) {
-		IdmTreeTypeDto treeType = getDto(backendId);
+		IdmTreeType treeType = (IdmTreeType) getLookupService().lookupEntity(IdmTreeType.class, backendId);
 		if (treeType == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+		}
+		Set<String> permissions = service.getPermissions(treeType.getId());
+		if (!permissions.contains(IdmBasePermission.AUTOCOMPLETE.name()) && !permissions.contains(IdmBasePermission.READ.name())) {
+			throw new ForbiddenEntityException(treeType.getId(), IdmBasePermission.AUTOCOMPLETE, IdmBasePermission.READ);
 		}
 		//
 		return service.getConfigurations(treeType.getId());

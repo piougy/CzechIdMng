@@ -41,6 +41,16 @@ class DecisionButtons extends Basic.AbstractContent {
     return buttons;
   }
 
+  _goBack() {
+    const { task } = this.props;
+    if (this.context.router.goBack()) {
+      // nothig, router just can go back
+    } else {
+      // transmition to /task, history doesnt exist
+      this.context.router.push(`tasks/${task.variables.implementerIdentifier}`);
+    }
+  }
+
   render() {
     const {task, showLoading} = this.props;
     let decisions;
@@ -52,7 +62,7 @@ class DecisionButtons extends Basic.AbstractContent {
         <div>
           {decisions ?
             <div>
-              <Basic.Button type="button" level="link" onClick={this.context.router.goBack}
+              <Basic.Button type="button" level="link" onClick={this._goBack.bind(this)}
                 showLoading={showLoading}>{this.i18n('button.back')}</Basic.Button>
               {this._getDecisionsButton(decisions, showLoading)}
             </div>

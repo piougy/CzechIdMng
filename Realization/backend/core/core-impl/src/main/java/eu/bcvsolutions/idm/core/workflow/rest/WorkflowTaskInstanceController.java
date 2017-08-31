@@ -110,8 +110,7 @@ public class WorkflowTaskInstanceController {
 		WorkflowTaskInstanceDto taskInstanceDto = workflowTaskInstanceService.get(backendId);
 		//
 		if (taskInstanceDto == null) {
-			// TODO: NOT_FOUND instead?
-			throw new ResultCodeException(CoreResultCode.FORBIDDEN, ImmutableMap.of("taskId", backendId));
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("taskId", backendId));
 		}
 		//
 		ResourceWrapper<WorkflowTaskInstanceDto> resource = new ResourceWrapper<WorkflowTaskInstanceDto>(

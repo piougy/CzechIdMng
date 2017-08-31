@@ -24,7 +24,11 @@ class Task extends Basic.AbstractContent {
   componentDidMount() {
     this.selectNavigationItem('tasks');
     const { taskID } = this.props.params;
-    this.context.store.dispatch(workflowTaskInstanceManager.fetchEntityIfNeeded(taskID));
+    this.context.store.dispatch(workflowTaskInstanceManager.fetchEntityIfNeeded(taskID, null, (json, error) => {
+      if (error) {
+        this.handleError(error);
+      }
+    }));
   }
 
   componentDidUpdate() {

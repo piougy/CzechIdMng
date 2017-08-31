@@ -53,7 +53,7 @@ public class AbstractNotificationLogService<DTO extends IdmNotificationDto, E ex
     protected E toEntity(DTO dto, E entity) {
     	Class<E> e = getEntityClass();
     	if (e.getSimpleName().equals(IdmNotification.class.getSimpleName())) {
-			return null;
+			return super.toEntity(dto, entity);
 		}
     	
         final E result = super.toEntity(dto, entity);

@@ -4,6 +4,8 @@ import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.UUID;
 
+import org.springframework.util.CollectionUtils;
+
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfigurationClass;
 import eu.bcvsolutions.idm.ic.api.annotation.IcConfigurationClassProperty;
 import eu.bcvsolutions.idm.ic.exception.IcException;
@@ -98,13 +100,15 @@ public class BasicVirtualConfiguration implements IcConnectorConfigurationClass 
 			}
 		}
 
-		for (String implementer : this.implementers) {
-			try {
-				UUID.fromString(implementer);
-			} catch (IllegalArgumentException ex) {
-				throw new IcException(MessageFormat.format(
-						"BasicVirtualConfiguration validation problem: Implementers must contains only String representation of UUID values. Implementer [{0}] cannot be cast to UUID!",
-						implementer));
+		if(this.implementers != null){
+			for (String implementer : this.implementers) {
+				try {
+					UUID.fromString(implementer);
+				} catch (IllegalArgumentException ex) {
+					throw new IcException(MessageFormat.format(
+							"BasicVirtualConfiguration validation problem: Implementers must contains only String representation of UUID values. Implementer [{0}] cannot be cast to UUID!",
+							implementer));
+				}
 			}
 		}
 	}

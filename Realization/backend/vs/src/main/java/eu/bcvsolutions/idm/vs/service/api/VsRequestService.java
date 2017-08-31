@@ -6,7 +6,7 @@ import java.util.UUID;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
-import eu.bcvsolutions.idm.vs.repository.filter.RequestFilter;
+import eu.bcvsolutions.idm.vs.repository.filter.VsRequestFilter;
 import eu.bcvsolutions.idm.vs.service.api.dto.VsRequestDto;
 
 /**
@@ -16,7 +16,7 @@ import eu.bcvsolutions.idm.vs.service.api.dto.VsRequestDto;
  *
  */
 public interface VsRequestService extends 
-		ReadWriteDtoService<VsRequestDto, RequestFilter>, AuthorizableService<VsRequestDto> {
+		ReadWriteDtoService<VsRequestDto, VsRequestFilter>, AuthorizableService<VsRequestDto> {
 
 	IcUidAttribute execute(VsRequestDto request);
 
@@ -28,7 +28,7 @@ public interface VsRequestService extends
 
 	VsRequestDto realize(UUID fromString);
 
-	VsRequestDto cancel(UUID fromString);
+	VsRequestDto cancel(UUID fromString, String reason);
 
 	/**
 	 * Find duplicity requests. All request in state IN_PROGRESS for same UID

@@ -10,7 +10,6 @@ import * as Utils from '../../utils';
 import SearchParameters from '../../domain/SearchParameters';
 import { IdentityRoleManager, IdentityContractManager, IdentityManager, RoleManager, RoleTreeNodeManager, WorkflowProcessInstanceManager, SecurityManager, RoleRequestManager } from '../../redux';
 import RoleRequestTable from '../requestrole/RoleRequestTable';
-import CandicateUsersCell from '../workflow/CandicateUsersCell';
 
 const uiKey = 'identity-roles';
 const uiKeyContracts = 'role-identity-contracts';
@@ -273,7 +272,7 @@ class Roles extends Basic.AbstractContent {
       return '';
     }
     return (
-      <CandicateUsersCell candidates={entity.candicateUsers} maxEntry={2} />
+      <Advanced.IdentitiesInfo identities={entity.candicateUsers} maxEntry={2} />
     );
   }
 

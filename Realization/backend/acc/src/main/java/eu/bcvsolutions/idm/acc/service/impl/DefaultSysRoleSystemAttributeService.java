@@ -19,9 +19,9 @@ import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.RoleSystemAttributeFilter;
-import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute_;
+import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.repository.SysRoleSystemAttributeRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountManagementService;
@@ -31,12 +31,15 @@ import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
+import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 
 /**
@@ -70,28 +73,13 @@ public class DefaultSysRoleSystemAttributeService
 	@Autowired
 	private SysSystemMappingService systemMappingService;
 	@Autowired
-	private ModelMapper modelMapper;
+	private IdmRoleService roleService;
+	@Autowired
+	private SysSystemService systemService;
 	
 	@Autowired
 	public DefaultSysRoleSystemAttributeService(SysRoleSystemAttributeRepository repository) {
 		super(repository);
-	}
-	
-	@Override
-	protected SysRoleSystemAttributeDto toDto(SysRoleSystemAttribute entity, SysRoleSystemAttributeDto dto) {
-		// TODO after transform roleSystem to DTO remove this overridden method
-		// dont forget add @Embedded annotation to SysRoleSystemAttributeDto
-		SysRoleSystemAttributeDto newDto = super.toDto(entity, dto);
-		if (newDto == null) {
-			return null;
-		}
-		Map<String, BaseDto> embedded = newDto.getEmbedded();
-		//
-		// get and transform roleSystem to DTO.
-		SysRoleSystemDto roleSystemDto = modelMapper.map(roleSystemService.get(newDto.getRoleSystem()), SysRoleSystemDto.class);
-		embedded.put(SysRoleSystemAttribute_.roleSystem.getName(), roleSystemDto);
-		newDto.setEmbedded(embedded);
-		return newDto;
 	}
 	
 	@Override
@@ -105,9 +93,11 @@ public class DefaultSysRoleSystemAttributeService
 			List<SysRoleSystemAttributeDto> list = this.find(filter, null).getContent();
 			
 			if (list.size() > 0 && !list.get(0).getId().equals(dto.getId())) {
-				SysRoleSystem roleSystem = roleSystemService.get(dto.getRoleSystem());
+				SysRoleSystemDto roleSystem = roleSystemService.get(dto.getRoleSystem());
+				IdmRoleDto roleDto = roleService.get(roleSystem.getRole());
+				SysSystem systemEntity = systemService.get(roleSystem.getSystem());
 				throw new ProvisioningException(AccResultCode.PROVISIONING_ROLE_ATTRIBUTE_MORE_UID, ImmutableMap.of("role",
-						roleSystem.getRole().getName(), "system", roleSystem.getSystem().getName()));
+						roleDto.getName(), "system", systemEntity.getName()));
 			}
 		}
 		

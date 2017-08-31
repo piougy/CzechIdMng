@@ -41,7 +41,7 @@ import eu.bcvsolutions.idm.vs.domain.VirtualSystemGroupPermission;
 import eu.bcvsolutions.idm.vs.entity.VsAccount;
 import eu.bcvsolutions.idm.vs.entity.VsAccountFormValue;
 import eu.bcvsolutions.idm.vs.repository.VsAccountRepository;
-import eu.bcvsolutions.idm.vs.repository.filter.AccountFilter;
+import eu.bcvsolutions.idm.vs.repository.filter.VsAccountFilter;
 import eu.bcvsolutions.idm.vs.service.api.VsAccountService;
 import eu.bcvsolutions.idm.vs.service.api.dto.VsAccountDto;
 import io.swagger.annotations.Api;
@@ -64,7 +64,7 @@ import io.swagger.annotations.AuthorizationScope;
 		description = "Operations with accounts (in virtual system)",
 		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
 		consumes = MediaType.APPLICATION_JSON_VALUE)
-public class VsAccountController extends AbstractReadWriteDtoController<VsAccountDto, AccountFilter> {
+public class VsAccountController extends AbstractReadWriteDtoController<VsAccountDto, VsAccountFilter> {
 
 	protected static final String TAG = "Accounts";
 	//
@@ -362,8 +362,8 @@ public class VsAccountController extends AbstractReadWriteDtoController<VsAccoun
 	}
 	
 	@Override
-	protected AccountFilter toFilter(MultiValueMap<String, Object> parameters) {
-		AccountFilter filter = new AccountFilter();
+	protected VsAccountFilter toFilter(MultiValueMap<String, Object> parameters) {
+		VsAccountFilter filter = new VsAccountFilter();
 		
 		return filter;
 	}

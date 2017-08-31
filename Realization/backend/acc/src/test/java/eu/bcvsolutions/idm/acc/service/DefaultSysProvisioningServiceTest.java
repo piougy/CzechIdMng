@@ -29,6 +29,7 @@ import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
+import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
@@ -38,12 +39,10 @@ import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
-import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
-import eu.bcvsolutions.idm.acc.repository.SysSystemMappingRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
@@ -71,7 +70,6 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.model.entity.eav.IdmIdentityFormValue;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmPasswordPolicyRepository;
-import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordPolicyService;
@@ -171,13 +169,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 	private SysSystemMappingService systemMappingService;
 	
 	@Autowired
-	private SysSystemMappingRepository systemMappingRepository;
-	
-	@Autowired
 	private IdmRoleService roleService;
-	
-	@Autowired
-	private IdmRoleRepository roleRepository;
 	
 	private List<SysSchemaObjectClassDto> objectClasses = null;
 	private SysSystem system = null;
@@ -841,9 +833,9 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		roleOne.setPriority(100);
 		roleOne = roleService.save(roleOne);
 
-		SysRoleSystem roleSystem = new SysRoleSystem();
-		roleSystem.setRole(roleRepository.findOne(roleOne.getId()));
-		roleSystem.setSystem(system);
+		SysRoleSystemDto roleSystem = new SysRoleSystemDto();
+		roleSystem.setRole(roleOne.getId());
+		roleSystem.setSystem(system.getId());
 		roleSystem = roleSystemService.save(roleSystem);
 
 		SysRoleSystemAttributeDto overloadedOne = new SysRoleSystemAttributeDto();
@@ -882,8 +874,12 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		}).findFirst().isPresent());
 
 		// set name role One to zroleOne
-		SysRoleSystem roleSystem = roleSystemService.get(overloadingAttributes.get(0).getRoleSystem());
-		roleSystem.getRole().setName("zroleOne");
+		SysRoleSystemDto roleSystem = roleSystemService.get(overloadingAttributes.get(0).getRoleSystem());
+		
+		IdmRoleDto roleDto = roleService.get(roleSystem.getRole());
+		roleDto.setName("zroleOne");
+		roleDto = roleService.save(roleDto);
+		
 		roleSystem = roleSystemService.save(roleSystem);
 
 		compilledAttributes = provisioningService.compileAttributes(defaultAttributes, overloadingAttributes, SystemEntityType.IDENTITY);
@@ -914,14 +910,18 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		initOverloadedAttributes(overloadingAttributes, defaultAttributes);
 
 		// roleOne
-		SysRoleSystem roleSystem1 = roleSystemService.get(overloadingAttributes.get(0).getRoleSystem());
-		roleSystem1.getRole().setPriority(200);
-		roleSystem1 = roleSystemService.save(roleSystem1);
+		SysRoleSystemDto roleSystem1 = roleSystemService.get(overloadingAttributes.get(0).getRoleSystem());
+		
+		IdmRoleDto roleDto = roleService.get(roleSystem1.getRole());
+		roleDto.setPriority(200);
+		roleDto = roleService.save(roleDto);
 		
 		// roleTwo
-		SysRoleSystem roleSystem2 = roleSystemService.get(overloadingAttributes.get(1).getRoleSystem());
-		roleSystem2.getRole().setPriority(100);
-		roleSystem2 = roleSystemService.save(roleSystem2);
+		SysRoleSystemDto roleSystem2 = roleSystemService.get(overloadingAttributes.get(1).getRoleSystem());
+		
+		roleDto = roleService.get(roleSystem2.getRole());
+		roleDto.setPriority(100);
+		roleDto = roleService.save(roleDto);
 		
 		List<AttributeMapping> compilledAttributes = provisioningService.compileAttributes(defaultAttributes,
 				overloadingAttributes, SystemEntityType.IDENTITY);
@@ -942,13 +942,16 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		initOverloadedAttributes(overloadingAttributes, defaultAttributes);
 
 		// roleOne
-		SysRoleSystem roleSystem1 = roleSystemService.get(overloadingAttributes.get(0).getRoleSystem());
-		roleSystem1.getRole().setPriority(200);
-		roleSystem1 = roleSystemService.save(roleSystem1);
+		SysRoleSystemDto roleSystem1 = roleSystemService.get(overloadingAttributes.get(0).getRoleSystem());
+		IdmRoleDto roleDto = roleService.get(roleSystem1.getRole());
+		roleDto.setPriority(200);
+		roleDto = roleService.save(roleDto);
+		
 		// roleTwo
-		SysRoleSystem roleSystem2 = roleSystemService.get(overloadingAttributes.get(1).getRoleSystem());
-		roleSystem2.getRole().setPriority(100);
-		roleSystem2 = roleSystemService.save(roleSystem2);
+		SysRoleSystemDto roleSystem2 = roleSystemService.get(overloadingAttributes.get(1).getRoleSystem());
+		roleDto = roleService.get(roleSystem2.getRole());
+		roleDto.setPriority(200);
+		roleDto = roleService.save(roleDto);
 
 		// overloadedRoleOne
 		SysRoleSystemAttributeDto attribute1 = overloadingAttributes.get(0);
@@ -981,13 +984,16 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		initOverloadedAttributes(overloadingAttributes, defaultAttributes);
 
 		// roleOne
-		SysRoleSystem roleSystem1 = roleSystemService.get(overloadingAttributes.get(0).getRoleSystem());
-		roleSystem1.getRole().setPriority(200);
-		roleSystem1 = roleSystemService.save(roleSystem1);
+		SysRoleSystemDto roleSystem1 = roleSystemService.get(overloadingAttributes.get(0).getRoleSystem());
+		IdmRoleDto roleDto = roleService.get(roleSystem1.getRole());
+		roleDto.setPriority(200);
+		roleDto = roleService.save(roleDto);
+		
 		// roleTwo
-		SysRoleSystem roleSystem2 = roleSystemService.get(overloadingAttributes.get(1).getRoleSystem());
-		roleSystem2.getRole().setPriority(100);
-		roleSystem2 = roleSystemService.save(roleSystem2);
+		SysRoleSystemDto roleSystem2 = roleSystemService.get(overloadingAttributes.get(1).getRoleSystem());
+		roleDto = roleService.get(roleSystem2.getRole());
+		roleDto.setPriority(100);
+		roleDto = roleService.save(roleDto);
 
 		// overloadedRoleOne
 		SysRoleSystemAttributeDto attribute1 = overloadingAttributes.get(0);
@@ -1019,13 +1025,16 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		initOverloadedAttributes(overloadingAttributes, defaultAttributes);
 
 		// roleOne
-		SysRoleSystem roleSystem1 = roleSystemService.get(overloadingAttributes.get(0).getRoleSystem());
-		roleSystem1.getRole().setPriority(200);
-		roleSystem1 = roleSystemService.save(roleSystem1);
+		SysRoleSystemDto roleSystem1 = roleSystemService.get(overloadingAttributes.get(0).getRoleSystem());
+		IdmRoleDto roleDto = roleService.get(roleSystem1.getRole());
+		roleDto.setPriority(200);
+		roleDto = roleService.save(roleDto);
+		
 		// roleTwo
-		SysRoleSystem roleSystem2 = roleSystemService.get(overloadingAttributes.get(1).getRoleSystem());
-		roleSystem2.getRole().setPriority(500);
-		roleSystem2 = roleSystemService.save(roleSystem2);
+		SysRoleSystemDto roleSystem2 = roleSystemService.get(overloadingAttributes.get(1).getRoleSystem());
+		roleDto = roleService.get(roleSystem2.getRole());
+		roleDto.setPriority(500);
+		roleDto = roleService.save(roleDto);
 
 		// overloadedRoleOne
 		SysRoleSystemAttributeDto attribute1 = overloadingAttributes.get(0);
@@ -1057,14 +1066,16 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		initOverloadedAttributes(overloadingAttributes, defaultAttributes);
 
 		// roleOne
-		SysRoleSystem roleSystem1 = roleSystemService.get(overloadingAttributes.get(0).getRoleSystem());
-		roleSystem1.getRole().setPriority(200);
-		roleSystemService.save(roleSystem1);
+		SysRoleSystemDto roleSystem1 = roleSystemService.get(overloadingAttributes.get(0).getRoleSystem());
+		IdmRoleDto roleDto = roleService.get(roleSystem1.getRole());
+		roleDto.setPriority(200);
+		roleDto = roleService.save(roleDto);
 		
 		// roleTwo
-		SysRoleSystem roleSystem2 = roleSystemService.get(overloadingAttributes.get(1).getRoleSystem());
-		roleSystem2.getRole().setPriority(500);
-		roleSystemService.save(roleSystem2);
+		SysRoleSystemDto roleSystem2 = roleSystemService.get(overloadingAttributes.get(1).getRoleSystem());
+		roleDto = roleService.get(roleSystem2.getRole());
+		roleDto.setPriority(500);
+		roleDto = roleService.save(roleDto);
 		
 		// overloadedRoleOne
 		SysRoleSystemAttributeDto roleSystemAttribute1 = overloadingAttributes.get(0);
@@ -1092,13 +1103,16 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		initOverloadedAttributes(overloadingAttributes, defaultAttributes);
 
 		// roleOne
-		SysRoleSystem roleSystem1 = roleSystemService.get(overloadingAttributes.get(0).getRoleSystem());
-		roleSystem1.getRole().setPriority(200);
-		roleSystem1 = roleSystemService.save(roleSystem1);
+		SysRoleSystemDto roleSystem1 = roleSystemService.get(overloadingAttributes.get(0).getRoleSystem());
+		IdmRoleDto roleDto = roleService.get(roleSystem1.getRole());
+		roleDto.setPriority(200);
+		roleDto = roleService.save(roleDto);
+		
 		// roleTwo
-		SysRoleSystem roleSystem2 = roleSystemService.get(overloadingAttributes.get(1).getRoleSystem());
-		roleSystem2.getRole().setPriority(500);
-		roleSystem2 = roleSystemService.save(roleSystem2);
+		SysRoleSystemDto roleSystem2 = roleSystemService.get(overloadingAttributes.get(1).getRoleSystem());
+		roleDto = roleService.get(roleSystem2.getRole());
+		roleDto.setPriority(500);
+		roleDto = roleService.save(roleDto);
 		
 		// overloadedRoleOne
 		SysRoleSystemAttributeDto attribute1 = overloadingAttributes.get(0);
@@ -1180,17 +1194,17 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		roleOne.setPriority(100);
 		roleOne = roleService.save(roleOne);
 		
-		SysRoleSystem roleSystemTwo = new SysRoleSystem();
-		roleSystemTwo.setRole(roleRepository.findOne(roleTwo.getId()));
-		roleSystemTwo.setSystem(system);
-		roleSystemTwo.setSystemMapping(systemMappingRepository.findOne(systemMapping.getId()));
-		roleSystemService.save(roleSystemTwo);
+		SysRoleSystemDto roleSystemTwo = new SysRoleSystemDto();
+		roleSystemTwo.setRole(roleTwo.getId());
+		roleSystemTwo.setSystem(system.getId());
+		roleSystemTwo.setSystemMapping(systemMapping.getId());
+		roleSystemTwo = roleSystemService.save(roleSystemTwo);
 
-		SysRoleSystem roleSystemOne = new SysRoleSystem();
-		roleSystemOne.setRole(roleRepository.findOne(roleOne.getId()));
-		roleSystemOne.setSystem(system);
-		roleSystemOne.setSystemMapping(systemMappingRepository.findOne(systemMapping.getId()));
-		roleSystemService.save(roleSystemOne);
+		SysRoleSystemDto roleSystemOne = new SysRoleSystemDto();
+		roleSystemOne.setRole(roleOne.getId());
+		roleSystemOne.setSystem(system.getId());
+		roleSystemOne.setSystemMapping(systemMapping.getId());
+		roleSystemOne = roleSystemService.save(roleSystemOne);
 
 		SysRoleSystemAttributeDto overloadedRoleOne = new SysRoleSystemAttributeDto();
 		overloadedRoleOne.setSystemAttributeMapping(defOne.getId());

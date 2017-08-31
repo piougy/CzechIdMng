@@ -643,16 +643,22 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		SysSyncConfigDto clonedSyncConfig = synchronizationConfigService.clone(syncConfigId);
 		clonedSyncConfig.setSystemMapping(duplicatedMapping.getId());
 		//
-		clonedSyncConfig.setFilterAttribute(this.getNewAttributeByOld(
-				systemAttributeMappingService.get(clonedSyncConfig.getFilterAttribute()), mappedAttributesCache).getId());
+		if (clonedSyncConfig.getFilterAttribute() != null) {
+			clonedSyncConfig.setFilterAttribute(this.getNewAttributeByOld(
+					systemAttributeMappingService.get(clonedSyncConfig.getFilterAttribute()), mappedAttributesCache).getId());
+		}
 		//
-		clonedSyncConfig.setCorrelationAttribute(
-				this.getNewAttributeByOld(systemAttributeMappingService.get(clonedSyncConfig.getCorrelationAttribute()),
-						mappedAttributesCache).getId());
+		if (clonedSyncConfig.getCorrelationAttribute() != null) {
+			clonedSyncConfig.setCorrelationAttribute(
+					this.getNewAttributeByOld(systemAttributeMappingService.get(clonedSyncConfig.getCorrelationAttribute()),
+							mappedAttributesCache).getId());
+		}
 		//
-		clonedSyncConfig.setTokenAttribute(
-				this.getNewAttributeByOld(systemAttributeMappingService.get(clonedSyncConfig.getTokenAttribute()),
-						mappedAttributesCache).getId());
+		if (clonedSyncConfig.getTokenAttribute() != null) {
+			clonedSyncConfig.setTokenAttribute(
+					this.getNewAttributeByOld(systemAttributeMappingService.get(clonedSyncConfig.getTokenAttribute()),
+							mappedAttributesCache).getId());
+		}
 		//
 		// Disabled cloned sync
 		clonedSyncConfig.setEnabled(false);
@@ -681,12 +687,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 	private List<SysSyncConfigDto> findSyncConfigs(UUID id) {
 		SynchronizationConfigFilter syncConfigFilter = new SynchronizationConfigFilter();
 		syncConfigFilter.setSystemId(id);
-		List<SysSyncConfigDto> syncConfigs = synchronizationConfigService.find(syncConfigFilter, null).getContent();
-		syncConfigs.forEach(syncConfig -> {
-			// I have to do detach for all sync configurations
-			entityManager.detach(syncConfig);
-		});
-		return syncConfigs;
+		return synchronizationConfigService.find(syncConfigFilter, null).getContent();
 	}
 
 	/**

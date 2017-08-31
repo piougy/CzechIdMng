@@ -128,6 +128,10 @@ class SystemMappingDetail extends Advanced.AbstractTableContent {
     return (query) ? query.new : null;
   }
 
+  _getBoolColumn(value) {
+    return (<Basic.BooleanCell propertyValue={ value !== null } className="column-face-bool"/>);
+  }
+
   _onChangeEntityType(entity) {
     this.setState({_entityType: entity.value});
   }
@@ -320,8 +324,18 @@ class SystemMappingDetail extends Advanced.AbstractTableContent {
               <Advanced.Column property="uid" face="boolean" header={this.i18n('acc:entity.SystemAttributeMapping.uid.label')} sort/>
               <Advanced.Column property="entityAttribute" face="boolean" header={this.i18n('acc:entity.SystemAttributeMapping.entityAttribute')} sort/>
               <Advanced.Column property="extendedAttribute" face="boolean" header={this.i18n('acc:entity.SystemAttributeMapping.extendedAttribute.label')} sort/>
-              <Advanced.Column property="transformationFromResource" face="boolean" header={this.i18n('acc:entity.SystemAttributeMapping.transformationFromResource')}/>
-              <Advanced.Column property="transformationToResource" face="boolean" header={this.i18n('acc:entity.SystemAttributeMapping.transformationToResource')}/>
+              <Advanced.Column property="transformationFromResource" face="boolean" header={this.i18n('acc:entity.SystemAttributeMapping.transformationFromResource')}
+                cell={
+                  ({ rowIndex, data }) => {
+                    return this._getBoolColumn(data[rowIndex].transformFromResourceScript);
+                  }
+                }/>
+              <Advanced.Column property="transformationToResource" face="boolean" header={this.i18n('acc:entity.SystemAttributeMapping.transformationToResource')}
+                cell={
+                  ({ rowIndex, data }) => {
+                    return this._getBoolColumn(data[rowIndex].transformToResourceScript);
+                  }
+                }/>
             </Advanced.Table>
           </Basic.Panel>
         </div>

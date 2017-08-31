@@ -12,7 +12,7 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 import eu.bcvsolutions.idm.vs.domain.VirtualSystemGroupPermission;
 import eu.bcvsolutions.idm.vs.entity.VsRequestBatch;
 import eu.bcvsolutions.idm.vs.repository.VsRequestBatchRepository;
-import eu.bcvsolutions.idm.vs.repository.filter.RequestBatchFilter;
+import eu.bcvsolutions.idm.vs.repository.filter.VsRequestBatchFilter;
 import eu.bcvsolutions.idm.vs.service.api.VsRequestBatchService;
 import eu.bcvsolutions.idm.vs.service.api.dto.VsRequestBatchDto;
 
@@ -24,7 +24,7 @@ import eu.bcvsolutions.idm.vs.service.api.dto.VsRequestBatchDto;
  */
 @Service
 public class DefaultVsRequestBatchService
-		extends AbstractReadWriteDtoService<VsRequestBatchDto, VsRequestBatch, RequestBatchFilter> 
+		extends AbstractReadWriteDtoService<VsRequestBatchDto, VsRequestBatch, VsRequestBatchFilter> 
 		implements VsRequestBatchService {
 
 	private static final Logger LOG = LoggerFactory.getLogger(DefaultVsRequestBatchService.class);

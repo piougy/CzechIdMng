@@ -26,6 +26,9 @@ import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
 
+import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
+import eu.bcvsolutions.idm.acc.entity.SysSystem;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.event.EventContext;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
@@ -55,7 +58,7 @@ import eu.bcvsolutions.idm.vs.event.processor.VsRequestRealizationProcessor;
 import eu.bcvsolutions.idm.vs.exception.VsException;
 import eu.bcvsolutions.idm.vs.exception.VsResultCode;
 import eu.bcvsolutions.idm.vs.repository.VsRequestRepository;
-import eu.bcvsolutions.idm.vs.repository.filter.RequestFilter;
+import eu.bcvsolutions.idm.vs.repository.filter.VsRequestFilter;
 import eu.bcvsolutions.idm.vs.service.api.VsRequestImplementerService;
 import eu.bcvsolutions.idm.vs.service.api.VsRequestService;
 import eu.bcvsolutions.idm.vs.service.api.dto.VsRequestDto;
@@ -68,7 +71,7 @@ import eu.bcvsolutions.idm.vs.service.api.dto.VsRequestImplementerDto;
  *
  */
 @Service
-public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsRequestDto, VsRequest, RequestFilter>
+public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsRequestDto, VsRequest, VsRequestFilter>
 		implements VsRequestService {
 
 	private static final Logger LOG = LoggerFactory.getLogger(DefaultVsRequestService.class);
@@ -77,43 +80,56 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 	private final VsRequestImplementerService requestImplementerService;
 	private final CzechIdMIcConnectorService czechIdMConnectorService;
 	private final CzechIdMIcConfigurationService czechIdMConfigurationService;
-	private final ApplicationContext applicationContext;
-	private VsRequestService self;
+	private final SysSystemService systemService;
 
 	@Autowired
 	public DefaultVsRequestService(VsRequestRepository repository, EntityEventManager entityEventManager,
 			VsRequestImplementerService requestImplementerService, CzechIdMIcConnectorService czechIdMConnectorService,
-			CzechIdMIcConfigurationService czechIdMConfigurationService, ApplicationContext applicationContext) {
+			CzechIdMIcConfigurationService czechIdMConfigurationService, SysSystemService systemService) {
 		super(repository);
 		//
 		Assert.notNull(entityEventManager);
 		Assert.notNull(requestImplementerService);
 		Assert.notNull(czechIdMConnectorService);
 		Assert.notNull(czechIdMConfigurationService);
-		Assert.notNull(applicationContext);
+		Assert.notNull(systemService);
 
 		this.entityEventManager = entityEventManager;
 		this.requestImplementerService = requestImplementerService;
 		this.czechIdMConnectorService = czechIdMConnectorService;
 		this.czechIdMConfigurationService = czechIdMConfigurationService;
-		this.applicationContext = applicationContext;
+		this.systemService = systemService;
 	}
 
+	
 	@Override
-	@Transactional(readOnly = true)
-	public VsRequestDto get(Serializable id, BasePermission... permission) {
-
-		VsRequestDto request = super.get(id, permission);
+	protected VsRequestDto toDto(VsRequest entity, VsRequestDto dto) {
+		VsRequestDto request = super.toDto(entity, dto);
+		
 		if (request == null) {
 			return null;
 		}
-
+		
+		// Remove after DTO service for system will be created (enable embedded annotation in VsRequestDto.systemId)
+		UUID systemId = request.getSystemId();
+		if(systemId != null){
+			SysSystem systemEntity = this.systemService.get(systemId);
+			if(systemEntity != null){
+				SysSystemDto system = new SysSystemDto();
+				system.setTrimmed(true);
+				system.setId(systemEntity.getId());
+				system.setName(systemEntity.getName());
+				system.setReadonly(systemEntity.isReadonly());
+				system.setDisabled(systemEntity.isDisabled());
+				request.getEmbedded().put(VsRequest_.systemId.getName(), system);
+			}
+		}
+		
 		// Add list of implementers
-		List<IdmIdentityDto> implementers = requestImplementerService.findRequestImplementers(request);
+		List<IdmIdentityDto> implementers = this.requestImplementerService.findRequestImplementers(request);
 		request.setImplementers(implementers);
 
 		return request;
-
 	}
 
 	@Override
@@ -143,10 +159,11 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 	}
 
 	@Override
-	public VsRequestDto cancel(UUID requestId) {
+	public VsRequestDto cancel(UUID requestId, String reason) {
 		LOG.info(MessageFormat.format("Start cancel virtual system request [{0}].", requestId));
 
 		Assert.notNull(requestId, "Id of VS request cannot be null!");
+		Assert.notNull(reason, "Cancel reason cannot be null!");
 		VsRequestDto request = this.get(requestId, IdmBasePermission.READ);
 		Assert.notNull(request, "VS request cannot be null!");
 		this.checkAccess(request, IdmBasePermission.UPDATE);
@@ -157,6 +174,7 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 		}
 
 		request.setState(VsRequestState.CANCELED);
+		request.setReason(reason);
 		// Save cancelled request
 		request = this.save(request);
 
@@ -298,13 +316,13 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 
 	@Override
 	protected List<Predicate> toPredicates(Root<VsRequest> root, CriteriaQuery<?> query, CriteriaBuilder builder,
-			RequestFilter filter) {
+			VsRequestFilter filter) {
 
 		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
 		//
 		// quick - "fulltext"
 		if (StringUtils.isNotEmpty(filter.getText())) {
-			predicates.add(builder.or(builder.equal(builder.lower(root.get(VsRequest_.uid)),
+			predicates.add(builder.or(builder.like(builder.lower(root.get(VsRequest_.uid)),
 					"%" + filter.getText().toLowerCase() + "%")));
 		}
 
@@ -350,7 +368,7 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 	 */
 	@Override
 	public List<VsRequestDto> findDuplicities(VsRequestDto request) {
-		RequestFilter filter = new RequestFilter();
+		VsRequestFilter filter = new VsRequestFilter();
 		filter.setUid(request.getUid());
 		filter.setSystemId(request.getSystemId());
 		// filter.setOperationType(request.getOperationType());
@@ -416,13 +434,6 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 					.orElse(null);
 		}
 		return previousRequest;
-	}
-
-	private VsRequestService getSelfProxy() {
-		if (this.self == null) {
-			this.self = this.applicationContext.getBean(VsRequestService.class);
-		}
-		return this.self;
 	}
 
 }

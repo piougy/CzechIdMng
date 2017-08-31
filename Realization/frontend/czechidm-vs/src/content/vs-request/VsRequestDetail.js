@@ -48,8 +48,8 @@ class VsRequestDetail extends Basic.AbstractContent {
   }
 
   /**
-   * Relize request
-   */
+  * Mark virtual system request as realized (changes will be propagated to VsAccount)
+  */
   realize(afterAction, event) {
     if (event) {
       event.preventDefault();
@@ -60,29 +60,37 @@ class VsRequestDetail extends Basic.AbstractContent {
     if (!this.refs.form.isFormValid()) {
       return;
     }
-    // ui redux store identifier
-    const { uiKey } = this.props;
-    //
+
     this.setState({
       showLoading: true
     }, () => {
-      const saveEntity = {
-        ...entity,
-      };
-
-      this.context.store.dispatch(manager.updateEntity(saveEntity, `${uiKey}-detail`, (patchedEntity, newError) => {
-        this._afterSave(patchedEntity, newError, afterAction);
+      this.context.store.dispatch(manager.realize(entity.id, null, (realizedEntity, newError) => {
+        this._afterSave(realizedEntity, newError, afterAction);
       }));
     });
   }
 
   /**
-  * Cancel request
+  * Cancel virtual system request
   */
   cancel(afterAction, event) {
     if (event) {
       event.preventDefault();
     }
+    // get entity from form
+    const entity = this.refs.form.getData();
+    // check form validity
+    if (!this.refs.form.isFormValid()) {
+      return;
+    }
+
+    this.setState({
+      showLoading: true
+    }, () => {
+      this.context.store.dispatch(manager.cancel(entity.id, null, (realizedEntity, newError) => {
+        this._afterSave(realizedEntity, newError, afterAction);
+      }));
+    });
   }
 
   /**
@@ -91,21 +99,21 @@ class VsRequestDetail extends Basic.AbstractContent {
   _afterSave(entity, error, afterAction = 'CLOSE') {
     this.setState({
       showLoading: false
-    }, () => {
-      if (error) {
-        this.addError(error);
-        return;
-      }
-
-      this.addMessage({ message: this.i18n('save.success', { name: entity.name }) });
-      //
-      if (afterAction === 'CLOSE') {
-        // reload options with remote connectors
-        this.context.router.replace(`example/products`);
-      } else {
-        this.context.router.replace(`example/product/${entity.id}/detail`);
-      }
     });
+
+    if (error) {
+      this.addError(error);
+      return;
+    }
+
+    this.addMessage({ message: this.i18n('save.realize', { name: entity.uid }) });
+    //
+    if (afterAction === 'CLOSE') {
+      // reload options with remote connectors
+      this.context.router.replace(`vs/requests`);
+    } else {
+      this.context.router.replace(`vs/request/${entity.id}/detail`);
+    }
   }
 
   render() {
@@ -116,11 +124,10 @@ class VsRequestDetail extends Basic.AbstractContent {
       <div>
         <Helmet title={ Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('edit.title') } />
 
-          <Basic.Panel className={Utils.Entity.isNew(entity) ? '' : 'no-border last'}>
+          <Basic.Panel>
             <Basic.PanelHeader text={ Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('basic') } />
 
             <Basic.PanelBody
-              style={ Utils.Entity.isNew(entity) ? { paddingTop: 0, paddingBottom: 0 } : { padding: 0 } }
               showLoading={ showLoading } >
               <Basic.AbstractForm
                 ref="form"
@@ -156,7 +163,7 @@ class VsRequestDetail extends Basic.AbstractContent {
 
               <Basic.SplitButton
                 level="success"
-                title={ this.i18n('button.realize') }
+                title={ this.i18n('button.request.realize') }
                 onClick={ this.realize.bind(this, 'CONTINUE') }
                 showLoading={ showLoading }
                 showLoadingIcon
@@ -164,7 +171,7 @@ class VsRequestDetail extends Basic.AbstractContent {
                 rendered={ manager.canSave(entity, _permissions) }
                 pullRight
                 dropup>
-                <Basic.MenuItem eventKey="1" onClick={ this.cancel.bind(this, 'CONTINUE')}>{this.i18n('button.cancel') }</Basic.MenuItem>
+                <Basic.MenuItem eventKey="1" onClick={ this.cancel.bind(this, 'CONTINUE')}>{this.i18n('button.request.cancel') }</Basic.MenuItem>
               </Basic.SplitButton>
             </Basic.PanelFooter>
           </Basic.Panel>

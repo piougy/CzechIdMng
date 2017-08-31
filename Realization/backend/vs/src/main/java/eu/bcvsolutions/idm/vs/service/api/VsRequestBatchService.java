@@ -2,7 +2,7 @@ package eu.bcvsolutions.idm.vs.service.api;
 
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
-import eu.bcvsolutions.idm.vs.repository.filter.RequestBatchFilter;
+import eu.bcvsolutions.idm.vs.repository.filter.VsRequestBatchFilter;
 import eu.bcvsolutions.idm.vs.service.api.dto.VsRequestBatchDto;
 
 /**
@@ -12,6 +12,6 @@ import eu.bcvsolutions.idm.vs.service.api.dto.VsRequestBatchDto;
  *
  */
 public interface VsRequestBatchService extends 
-		ReadWriteDtoService<VsRequestBatchDto, RequestBatchFilter>, AuthorizableService<VsRequestBatchDto> {
+		ReadWriteDtoService<VsRequestBatchDto, VsRequestBatchFilter>, AuthorizableService<VsRequestBatchDto> {
 
 }

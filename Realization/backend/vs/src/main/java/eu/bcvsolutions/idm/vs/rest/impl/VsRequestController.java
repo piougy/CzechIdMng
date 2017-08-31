@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.vs.rest.impl;
 import java.util.Set;
 import java.util.UUID;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -29,8 +31,9 @@ import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.vs.domain.VirtualSystemGroupPermission;
 import eu.bcvsolutions.idm.vs.domain.VsRequestState;
 import eu.bcvsolutions.idm.vs.repository.VsRequestRepository;
-import eu.bcvsolutions.idm.vs.repository.filter.RequestFilter;
+import eu.bcvsolutions.idm.vs.repository.filter.VsRequestFilter;
 import eu.bcvsolutions.idm.vs.service.api.VsRequestService;
+import eu.bcvsolutions.idm.vs.service.api.dto.VsAccountDto;
 import eu.bcvsolutions.idm.vs.service.api.dto.VsRequestDto;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -48,7 +51,7 @@ import io.swagger.annotations.AuthorizationScope;
 @RequestMapping(value = BaseDtoController.BASE_PATH + "/vs/requests")
 @Api(value = VsRequestController.TAG, tags = {
 		VsRequestController.TAG }, description = "Operations with requests (in virtual system)", produces = BaseController.APPLICATION_HAL_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-public class VsRequestController extends AbstractReadWriteDtoController<VsRequestDto, RequestFilter> {
+public class VsRequestController extends AbstractReadWriteDtoController<VsRequestDto, VsRequestFilter> {
 
 	protected static final String TAG = "Requests";
 	//
@@ -149,8 +152,8 @@ public class VsRequestController extends AbstractReadWriteDtoController<VsReques
 					@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = {
 							@AuthorizationScope(scope = VirtualSystemGroupPermission.VS_REQUEST_UPDATE, description = "") }) })
 	public ResponseEntity<?> cancel(
-			@ApiParam(value = "Request's uuid identifier.", required = true) @PathVariable @NotNull String backendId) {
-		VsRequestDto request =  ((VsRequestService)getService()).cancel(UUID.fromString(backendId));
+			@ApiParam(value = "Request's uuid identifier.", required = true) @PathVariable @NotNull String backendId, @RequestBody(required = true) String reason) {
+		VsRequestDto request =  ((VsRequestService)getService()).cancel(UUID.fromString(backendId), reason);
 		return new ResponseEntity<>(request, HttpStatus.OK);
 	}
 
@@ -189,9 +192,11 @@ public class VsRequestController extends AbstractReadWriteDtoController<VsReques
 	}
 
 	@Override
-	protected RequestFilter toFilter(MultiValueMap<String, Object> parameters) {
-		RequestFilter filter = new RequestFilter();
+	protected VsRequestFilter toFilter(MultiValueMap<String, Object> parameters) {
+		VsRequestFilter filter = new VsRequestFilter();
+		filter.setText(getParameterConverter().toString(parameters, "text"));
 		filter.setState(getParameterConverter().toEnum(parameters, "state", VsRequestState.class));
+		filter.setSystemId(getParameterConverter().toUuid(parameters, "systemId"));
 		return filter;
 	}
 }

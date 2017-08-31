@@ -15,14 +15,13 @@ import eu.bcvsolutions.idm.vs.domain.VsRequestState;
  *
  */
 
-public class RequestFilter extends QuickFilter {
+public class VsRequestFilter extends QuickFilter {
 
 	private String uid;
 	private UUID systemId;
 	private String connectorKey;
 	private VsOperationType operationType;
 	private VsRequestState state;
-	private Boolean unfinished;
 	
 	public void setUid(String uidValue) {
 		this.uid = uidValue;
@@ -62,13 +61,5 @@ public class RequestFilter extends QuickFilter {
 
 	public void setState(VsRequestState state) {
 		this.state = state;
-	}
-
-	public Boolean getUnfinished() {
-		return unfinished;
-	}
-
-	public void setUnfinished(Boolean unfinished) {
-		this.unfinished = unfinished;
 	}
 }

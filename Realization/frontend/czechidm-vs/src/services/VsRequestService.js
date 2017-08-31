@@ -1,5 +1,6 @@
 import { Services } from 'czechidm-core';
 import { Domain } from 'czechidm-core';
+import { Utils } from 'czechidm-core';
 
 /**
  * Service controlls request for virtual systems
@@ -46,6 +47,46 @@ export default class VsRequestService extends Services.AbstractService {
    * @return {object} searchParameters
    */
   getDefaultSearchParameters() {
-    return super.getDefaultSearchParameters().setName(Domain.SearchParameters.NAME_QUICK).clearSort().setSort('uid');
+    return super.getDefaultSearchParameters().setName(Domain.SearchParameters.NAME_QUICK).clearSort().setSort('created', 'desc');
+  }
+
+  /**
+  * Mark virtual system request as realized (changes will be propagated to VsAccount)
+  */
+  realize(id) {
+    return Services.RestApiService
+      .put(this.getApiPath() + `/${encodeURIComponent(id)}/realize`)
+      .then(response => {
+        return response.json();
+      })
+      .then(jsonResponse => {
+        if (Utils.Response.hasError(jsonResponse)) {
+          throw Utils.Response.getFirstError(jsonResponse);
+        }
+        if (Utils.Response.hasInfo(jsonResponse)) {
+          throw Utils.Response.getFirstInfo(jsonResponse);
+        }
+        return jsonResponse;
+      });
+  }
+
+  /**
+  * Cancel virtual system request
+  */
+  cancel(id, reason) {
+    return Services.RestApiService
+      .put(this.getApiPath() + `/${encodeURIComponent(id)}/cancel`, reason)
+      .then(response => {
+        return response.json();
+      })
+      .then(jsonResponse => {
+        if (Utils.Response.hasError(jsonResponse)) {
+          throw Utils.Response.getFirstError(jsonResponse);
+        }
+        if (Utils.Response.hasInfo(jsonResponse)) {
+          throw Utils.Response.getFirstInfo(jsonResponse);
+        }
+        return jsonResponse;
+      });
   }
 }

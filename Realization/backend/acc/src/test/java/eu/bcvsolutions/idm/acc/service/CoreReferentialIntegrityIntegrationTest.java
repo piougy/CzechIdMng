@@ -14,14 +14,13 @@ import eu.bcvsolutions.idm.acc.domain.AccountType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
+import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.RoleSystemFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
-import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
-import eu.bcvsolutions.idm.acc.repository.SysSystemMappingRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
@@ -31,7 +30,6 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
-import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
@@ -52,11 +50,9 @@ public class CoreReferentialIntegrityIntegrationTest extends AbstractIntegration
 	@Autowired private SysSystemEntityService systemEntityService;	
 	@Autowired private AccAccountService accountService;	
 	@Autowired private IdmRoleService roleService;
-	@Autowired private IdmRoleRepository roleRepository;
 	@Autowired private SysRoleSystemService roleSystemService;
 	@Autowired private SysSystemMappingService systemEntityHandlingService;
 	@Autowired private SysSchemaObjectClassService schemaObjectClassService;
-	@Autowired private SysSystemMappingRepository systemMappingRespository;
 	
 	@Before
 	public void init() {
@@ -126,10 +122,10 @@ public class CoreReferentialIntegrityIntegrationTest extends AbstractIntegration
 		systemMapping.setOperationType(SystemOperationType.PROVISIONING);
 		systemMapping.setEntityType(SystemEntityType.IDENTITY);
 		systemMapping = systemEntityHandlingService.save(systemMapping);
-		SysRoleSystem roleSystem = new SysRoleSystem();
-		roleSystem.setSystem(system);
-		roleSystem.setRole(roleRepository.findOne(role.getId()));
-		roleSystem.setSystemMapping(systemMappingRespository.findOne(systemMapping.getId()));
+		SysRoleSystemDto roleSystem = new SysRoleSystemDto();
+		roleSystem.setSystem(system.getId());
+		roleSystem.setRole(role.getId());
+		roleSystem.setSystemMapping(systemMapping.getId());
 		roleSystemService.save(roleSystem);
 		RoleSystemFilter filter = new RoleSystemFilter();
 		filter.setRoleId(role.getId());

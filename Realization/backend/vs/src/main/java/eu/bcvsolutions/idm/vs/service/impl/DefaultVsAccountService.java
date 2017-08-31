@@ -27,7 +27,7 @@ import eu.bcvsolutions.idm.vs.domain.VirtualSystemGroupPermission;
 import eu.bcvsolutions.idm.vs.entity.VsAccount;
 import eu.bcvsolutions.idm.vs.entity.VsAccount_;
 import eu.bcvsolutions.idm.vs.repository.VsAccountRepository;
-import eu.bcvsolutions.idm.vs.repository.filter.AccountFilter;
+import eu.bcvsolutions.idm.vs.repository.filter.VsAccountFilter;
 import eu.bcvsolutions.idm.vs.service.api.VsAccountService;
 import eu.bcvsolutions.idm.vs.service.api.dto.VsAccountDto;
 
@@ -39,7 +39,7 @@ import eu.bcvsolutions.idm.vs.service.api.dto.VsAccountDto;
  */
 @Service()
 public class DefaultVsAccountService
-		extends AbstractReadWriteDtoService<VsAccountDto, VsAccount, AccountFilter> 
+		extends AbstractReadWriteDtoService<VsAccountDto, VsAccount, VsAccountFilter> 
 		implements VsAccountService {
 
 	private static final Logger LOG = LoggerFactory.getLogger(DefaultVsAccountService.class);
@@ -70,7 +70,7 @@ public class DefaultVsAccountService
 	
 
 	@Override
-	protected List<Predicate> toPredicates(Root<VsAccount> root, CriteriaQuery<?> query, CriteriaBuilder builder, AccountFilter filter) {
+	protected List<Predicate> toPredicates(Root<VsAccount> root, CriteriaQuery<?> query, CriteriaBuilder builder, VsAccountFilter filter) {
 		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
 		//
 		// quick - "fulltext"
@@ -98,7 +98,7 @@ public class DefaultVsAccountService
 		Assert.notNull(uidValue, "Uid value cannot be null!");
 		Assert.notNull(systemId, "Id of CzechIdM system cannot be null!");
 		
-		AccountFilter filter = new AccountFilter();
+		VsAccountFilter filter = new VsAccountFilter();
 		filter.setUid(uidValue);
 		filter.setSystemId(systemId);
 		List<VsAccountDto> accounts = this.find(filter, null).getContent();	

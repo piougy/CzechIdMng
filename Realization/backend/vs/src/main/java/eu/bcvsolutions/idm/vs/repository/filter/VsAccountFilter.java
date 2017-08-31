@@ -11,7 +11,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
  *
  */
 
-public class AccountFilter extends QuickFilter {
+public class VsAccountFilter extends QuickFilter {
 
 	String uid;
 	UUID systemId;

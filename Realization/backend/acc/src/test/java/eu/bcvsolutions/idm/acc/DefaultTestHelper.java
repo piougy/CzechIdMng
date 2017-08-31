@@ -15,17 +15,16 @@ import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
+import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.entity.SysConnectorKey;
-import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemFormValue;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
-import eu.bcvsolutions.idm.acc.repository.SysSystemMappingRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
@@ -39,7 +38,6 @@ import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
-import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
@@ -55,7 +53,6 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 public class DefaultTestHelper implements TestHelper {
 	
 	@Autowired private IdmRoleService roleService;
-	@Autowired private IdmRoleRepository roleRepository;
 	@Autowired private IdmIdentityService identityService;
 	@Autowired private IdmIdentityContractService identityContractService;
 	@Autowired private IdmIdentityRoleService identityRoleService;
@@ -67,7 +64,6 @@ public class DefaultTestHelper implements TestHelper {
 	@Autowired private SysRoleSystemService roleSystemService;
 	@Autowired private FormService formService;
 	@Autowired private DataSource dataSource;
-	@Autowired private SysSystemMappingRepository systemMappingRepository;
 
 	@Override
 	public IdmIdentityDto createIdentity() {
@@ -279,14 +275,14 @@ public class DefaultTestHelper implements TestHelper {
 	}
 	
 	@Override
-	public SysRoleSystem createRoleSystem(IdmRoleDto role, SysSystem system) {
-		SysRoleSystem roleSystem = new SysRoleSystem();
-		roleSystem.setRole(roleRepository.findOne(role.getId()));
-		roleSystem.setSystem(system);
+	public SysRoleSystemDto createRoleSystem(IdmRoleDto role, SysSystem system) {
+		SysRoleSystemDto roleSystem = new SysRoleSystemDto();
+		roleSystem.setRole(role.getId());
+		roleSystem.setSystem(system.getId());
 		// default mapping
 		List<SysSystemMappingDto> mappings = systemMappingService.findBySystem(system, SystemOperationType.PROVISIONING, SystemEntityType.IDENTITY);
 		//
-		roleSystem.setSystemMapping(systemMappingRepository.findOne(mappings.get(0).getId()));
+		roleSystem.setSystemMapping(mappings.get(0).getId());
 		return roleSystemService.save(roleSystem);
 	}
 	

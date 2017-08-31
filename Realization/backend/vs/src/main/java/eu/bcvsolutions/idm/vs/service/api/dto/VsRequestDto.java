@@ -39,6 +39,7 @@ public class VsRequestDto extends AbstractDto {
 	@ApiModelProperty(required = true, notes = "Unique account identifier. UID on system and for connector.")
 	private String uid;
 	@ApiModelProperty(required = true, notes = "CzechIdM system identifier. UID on system and for connector.")
+	// @Embedded(dtoClass = SysSystemDto.class) will works after System DTO service will be created (UUID to UUID converter) 
 	private UUID systemId;
 	@ApiModelProperty(required = true, notes = "Connector identifier. UID on system and for connector.")
 	private String connectorKey;
@@ -50,12 +51,12 @@ public class VsRequestDto extends AbstractDto {
 	private List<IdmIdentityDto> implementers;
 	@JsonIgnore
 	private IcConnectorConfiguration configuration;
-	@JsonIgnore
 	private IcConnectorObject connectorObject;
-	// @Embedded(dtoClass = VsRequestDto.class)
+	@Embedded(dtoClass = VsRequestDto.class)
 	private UUID duplicateToRequest;
 	@Embedded(dtoClass = VsRequestDto.class)
 	private UUID previousRequest;
+	private String reason;
 
 	public String getUid() {
 		return uid;
@@ -143,5 +144,13 @@ public class VsRequestDto extends AbstractDto {
 
 	public void setPreviousRequest(UUID previousRequest) {
 		this.previousRequest = previousRequest;
+	}
+
+	public String getReason() {
+		return reason;
+	}
+
+	public void setReason(String reason) {
+		this.reason = reason;
 	}
 }

@@ -19,16 +19,15 @@ import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
+import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SchemaAttributeFilter;
-import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
-import eu.bcvsolutions.idm.acc.repository.SysSystemMappingRepository;
 import eu.bcvsolutions.idm.acc.security.authentication.impl.DefaultAccAuthenticator;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
@@ -44,7 +43,6 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
-import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
@@ -95,9 +93,6 @@ public class DefaultAccAuthenticatorTest extends AbstractIntegrationTest {
 	private IdmRoleService roleService;
 	
 	@Autowired
-	private IdmRoleRepository roleRepository;
-	
-	@Autowired
 	private IdmIdentityRoleService identityRoleService;
 
 	@Autowired
@@ -120,9 +115,6 @@ public class DefaultAccAuthenticatorTest extends AbstractIntegrationTest {
 	
 	@Autowired
 	private AccIdentityAccountService identityAccountService;
-	
-	@Autowired
-	private SysSystemMappingRepository systemMappingRespository;
 	
 	@Before
 	public void login() {
@@ -345,21 +337,21 @@ public class DefaultAccAuthenticatorTest extends AbstractIntegrationTest {
 		IdmRoleDto role1 = new IdmRoleDto();
 		role1.setName(ROLE_NAME);
 		role1 = roleService.save(role1);
-		SysRoleSystem role1System = new SysRoleSystem();
-		role1System.setRole(roleRepository.findOne(role1.getId()));
-		role1System.setSystem(system);
-		role1System.setSystemMapping(systemMappingRespository.findOne(entityHandlingResult.getId()));
-		roleSystemService.save(role1System);
+		SysRoleSystemDto role1System = new SysRoleSystemDto();
+		role1System.setRole(role1.getId());
+		role1System.setSystem(system.getId());
+		role1System.setSystemMapping(entityHandlingResult.getId());
+		role1System = roleSystemService.save(role1System);
 
 		
 		IdmRoleDto role2 = new IdmRoleDto();
 		role2.setName(ROLE_NAME + "2");
 		role2 = roleService.save(role2);
-		SysRoleSystem roleSystem2 = new SysRoleSystem();
-		roleSystem2.setSystem(system);
-		roleSystem2.setSystemMapping(systemMappingRespository.findOne(entityHandlingResult.getId()));
-		roleSystem2.setRole(roleRepository.findOne(role2.getId()));
-		roleSystemService.save(roleSystem2);
+		SysRoleSystemDto roleSystem2 = new SysRoleSystemDto();
+		roleSystem2.setSystem(system.getId());
+		roleSystem2.setSystemMapping(entityHandlingResult.getId());
+		roleSystem2.setRole(role2.getId());
+		roleSystem2 = roleSystemService.save(roleSystem2);
 		
 		SysRoleSystemAttributeDto overloadedRole2 = new SysRoleSystemAttributeDto();
 		overloadedRole2.setSystemAttributeMapping(attributeHandlingUsername.getId());

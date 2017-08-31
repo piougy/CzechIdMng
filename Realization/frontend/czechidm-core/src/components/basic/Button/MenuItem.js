@@ -14,11 +14,11 @@ class ButtonMenuItem extends AbstractComponent {
   }
 
   render() {
-    const {rendered} = this.props;
+    const {rendered, eventKey, onClick, children} = this.props;
     if (!rendered) {
       return null;
     }
-    return (<MenuItem {...this.props}/>);
+    return (<MenuItem onClick={onClick} eventKey={eventKey} children={children}/>);
   }
 }
 

@@ -96,6 +96,15 @@ export class VsRequestTable extends Advanced.AbstractTableContent {
     );
   }
 
+  _getUidCell({ rowIndex, data }) {
+    return (
+      <Advanced.EntityInfo
+        entityType="vs-request"
+        entityIdentifier={ data[rowIndex].id }
+        face="popover" />
+    );
+  }
+
   _getImplementersCell({ rowIndex, data}) {
     const entity = data[rowIndex];
     if (!entity || !entity.implementers) {
@@ -145,7 +154,7 @@ export class VsRequestTable extends Advanced.AbstractTableContent {
   }
 
   render() {
-    const { uiKey, columns, forceSearchParameters, showRowSelection } = this.props;
+    const { uiKey, columns, forceSearchParameters, showRowSelection, showFilter, showToolbar, showPageSize, showId } = this.props;
     const { filterOpened, showLoading} = this.state;
 
     return (
@@ -166,6 +175,11 @@ export class VsRequestTable extends Advanced.AbstractTableContent {
           ref="table"
           uiKey={ uiKey }
           manager={ manager }
+          showFilter={showFilter}
+          showToolbar={showToolbar}
+          showPageSize={showPageSize}
+          showId={showId}
+          condensed
           filterOpened={filterOpened}
           showLoading={showLoading}
           forceSearchParameters={ forceSearchParameters }
@@ -217,7 +231,10 @@ export class VsRequestTable extends Advanced.AbstractTableContent {
               }
             }
             sort={false}/>
-          <Advanced.Column property="uid" width="15%" sort face="text" rendered={_.includes(columns, 'uid')}/>
+          <Advanced.Column
+              header={this.i18n('vs:entity.VsRequest.uid.label')}
+              rendered={_.includes(columns, 'uid')}
+              cell={this._getUidCell.bind(this)}/>
           <Advanced.Column
               header={this.i18n('acc:entity.System.name')}
               rendered={_.includes(columns, 'systemId')}
@@ -229,10 +246,12 @@ export class VsRequestTable extends Advanced.AbstractTableContent {
               header={this.i18n('vs:entity.VsRequest.implementers.label')}
               rendered={_.includes(columns, 'implementers')}
               cell={this._getImplementersCell.bind(this)}/>
-          <Advanced.Column property="created" width="10%" sort face="datetime" rendered={_.includes(columns, 'created')}/>
+          <Advanced.Column property="created" width="30%" sort face="datetime" rendered={_.includes(columns, 'created')}/>
+          <Advanced.Column property="creator" width="15%" sort face="text" rendered={_.includes(columns, 'creator')}/>
           <Advanced.Column
             property=""
             header=""
+            rendered={_.includes(columns, 'operations')}
             width="55px"
             className="detail-button"
             cell={this._getButtonsCell.bind(this)}/>
@@ -266,7 +285,7 @@ VsRequestTable.propTypes = {
 };
 
 VsRequestTable.defaultProps = {
-  columns: ['uid', 'state', 'systemId', 'operationType', 'executeImmediately', 'implementers', 'created'],
+  columns: ['uid', 'state', 'systemId', 'operationType', 'executeImmediately', 'implementers', 'created', 'creator', 'operations'],
   filterOpened: false,
   forceSearchParameters: new Domain.SearchParameters(),
   showAddButton: true,

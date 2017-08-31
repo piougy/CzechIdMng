@@ -153,6 +153,10 @@ public class VsRequestController extends AbstractReadWriteDtoController<VsReques
 							@AuthorizationScope(scope = VirtualSystemGroupPermission.VS_REQUEST_UPDATE, description = "") }) })
 	public ResponseEntity<?> cancel(
 			@ApiParam(value = "Request's uuid identifier.", required = true) @PathVariable @NotNull String backendId, @RequestBody(required = true) String reason) {
+		// TODO correct convert to String
+		if(reason.startsWith("\"") && reason.endsWith("\"")){
+			reason = reason.substring(1, reason.length()-2);
+		}
 		VsRequestDto request =  ((VsRequestService)getService()).cancel(UUID.fromString(backendId), reason);
 		return new ResponseEntity<>(request, HttpStatus.OK);
 	}
@@ -197,6 +201,10 @@ public class VsRequestController extends AbstractReadWriteDtoController<VsReques
 		filter.setText(getParameterConverter().toString(parameters, "text"));
 		filter.setState(getParameterConverter().toEnum(parameters, "state", VsRequestState.class));
 		filter.setSystemId(getParameterConverter().toUuid(parameters, "systemId"));
+		filter.setUid(getParameterConverter().toString(parameters, "uid"));
+		filter.setCreatedAfter(getParameterConverter().toDateTime(parameters, "createdAfter"));
+		filter.setCreatedBefore(getParameterConverter().toDateTime(parameters, "createdBefore"));
+		
 		return filter;
 	}
 }

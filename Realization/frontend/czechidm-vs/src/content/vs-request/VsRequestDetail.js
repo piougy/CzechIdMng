@@ -3,9 +3,10 @@ import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 //
-import { Basic, Utils, Advanced } from 'czechidm-core';
+import { Basic, Utils, Advanced, Domain } from 'czechidm-core';
 import { VsRequestManager } from '../../redux';
 import VsRequestInfo from '../../components/advanced/VsRequestInfo/VsRequestInfo';
+import VsRequestTable from './VsRequestTable';
 
 const manager = new VsRequestManager();
 
@@ -37,8 +38,8 @@ class VsRequestDetail extends Basic.AbstractContent {
    */
   componentWillReceiveProps(nextProps) {
     const { entity } = this.props;
-    if (entity && entity.id !== nextProps.entity.id) {
-      this.refs.form.setData(nextProps.entity);
+    if (entity && nextProps.entity && entity.id !== nextProps.entity.id) {
+      //
     }
   }
 
@@ -85,6 +86,18 @@ class VsRequestDetail extends Basic.AbstractContent {
   render() {
     const { entity, _permissions } = this.props;
     const { showLoading } = this.state;
+
+    const searchBefore = new Domain.SearchParameters()
+    .setFilter('uid', entity ? entity.uid : null)
+    .setFilter('systemId', entity ? entity.systemId : Domain.SearchParameters.BLANK_UUID)
+    .setFilter('createdBefore', entity ? entity.created : null)
+    .setFilter('state', 'IN_PROGRESS');
+
+    const searchAfter = new Domain.SearchParameters()
+    .setFilter('uid', entity ? entity.uid : null)
+    .setFilter('systemId', entity ? entity.systemId : Domain.SearchParameters.BLANK_UUID)
+    .setFilter('createdAfter', entity ? entity.created : null)
+    .setFilter('state', 'IN_PROGRESS');
     //
     return (
       <div>
@@ -106,33 +119,70 @@ class VsRequestDetail extends Basic.AbstractContent {
 
             <Basic.PanelBody
               showLoading={ showLoading } >
-              <VsRequestInfo entityIdentifier={entity ? entity.id : null} entity={entity} face="full" showLink={false}/>
-              <Basic.AbstractForm ref="vs-request-detail" uiKey="vs-request-detail" >
-                <Basic.LabelWrapper readOnly ref="implementers" label={this.i18n('vs:entity.VsRequest.implementers.label') + ':'}>
-                  {this._getImplementers(entity)}
-                </Basic.LabelWrapper>
+              <Basic.AbstractForm data={entity} ref="vs-request-detail" uiKey="vs-request-detail" >
+                <Basic.Row>
+                  <Basic.Col lg={ 6 }>
+                    <VsRequestInfo entityIdentifier={entity ? entity.id : null} entity={entity} face="full" showLink={false}/>
+                    <Basic.LabelWrapper readOnly ref="implementers" label={this.i18n('vs:entity.VsRequest.implementers.label') + ':'}>
+                      {this._getImplementers(entity)}
+                    </Basic.LabelWrapper>
+                  </Basic.Col>
+                  <Basic.Col lg={ 6 }>
+                    <Basic.TextArea
+                      ref="reason"
+                      label={this.i18n('vs:entity.VsRequest.reason.label')}
+                      readOnly
+                      rows={6}
+                      rendered={entity && entity.state === 'CANCELED' }
+                      value={entity ? entity.reason : null}/>
+                  </Basic.Col>
+                </Basic.Row>
+                <Basic.Row>
+                  <Basic.Col lg={ 6 }>
+                    <Basic.LabelWrapper readOnly ref="implementers" label={this.i18n('requestAttributes') + ':'}>
+                      <Basic.Table
+                        data={this._getAccountData(entity)}
+                        noData={this.i18n('component.basic.Table.noData')}
+                        className="table-bordered">
+                        <Basic.Column property="property" header={this.i18n('label.property')}/>
+                        <Basic.Column property="value" header={this.i18n('label.value')}/>
+                      </Basic.Table>
+                    </Basic.LabelWrapper>
+                  </Basic.Col>
+                  <Basic.Col lg={ 6 }>
+                  </Basic.Col>
+                </Basic.Row>
+                <Basic.Row>
+                  <Basic.Col lg={ 6 }>
+                    <Basic.LabelWrapper readOnly ref="vs-request-table-before" label={this.i18n('beforeRequests.label') + ':'}>
+                      <VsRequestTable
+                        uiKey="vs-request-table-before"
+                        columns= {['state', 'operationType', 'created', 'creator', 'operations']}
+                        showFilter={false}
+                        forceSearchParameters={searchBefore}
+                        showToolbar={false}
+                        showPageSize={false}
+                        showRowSelection={false}
+                        showId={false}
+                        filterOpened={false} />
+                    </Basic.LabelWrapper>
+                  </Basic.Col>
+                  <Basic.Col lg={ 6 }>
+                      <Basic.LabelWrapper readOnly ref="vs-request-table-after" label={this.i18n('afterRequests.label') + ':'}>
+                        <VsRequestTable
+                          uiKey="vs-request-table-after"
+                          columns= {['state', 'operationType', 'created', 'creator', 'operations']}
+                          showFilter={false}
+                          forceSearchParameters={searchAfter}
+                          showToolbar={false}
+                          showPageSize={false}
+                          showRowSelection={false}
+                          showId={false}
+                          filterOpened={false} />
+                    </Basic.LabelWrapper>
+                  </Basic.Col>
+                </Basic.Row>
               </Basic.AbstractForm>
-
-              <Basic.Row>
-                <Basic.Col lg={ 6 }>
-                  <Basic.Table
-                    data={this._getAccountData(entity)}
-                    noData={this.i18n('component.basic.Table.noData')}
-                    className="table-bordered">
-                    <Basic.Column property="property" header={this.i18n('label.property')}/>
-                    <Basic.Column property="value" header={this.i18n('label.value')}/>
-                  </Basic.Table>
-                </Basic.Col>
-                <Basic.Col lg={ 6 }>
-                  <Basic.Table
-                    data={this._getAccountData(entity)}
-                    noData={this.i18n('component.basic.Table.noData')}
-                    className="table-bordered">
-                    <Basic.Column property="property" header={this.i18n('label.property')}/>
-                    <Basic.Column property="value" header={this.i18n('label.value')}/>
-                  </Basic.Table>
-                </Basic.Col>
-              </Basic.Row>
             </Basic.PanelBody>
 
             <Basic.PanelFooter>

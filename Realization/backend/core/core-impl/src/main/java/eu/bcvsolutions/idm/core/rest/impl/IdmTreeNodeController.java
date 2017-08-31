@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.rest.impl;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
@@ -97,6 +98,85 @@ public class IdmTreeNodeController extends DefaultReadWriteDtoController<IdmTree
 	
 	@Override
 	@ResponseBody
+	@RequestMapping(method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.TREENODE_READ + "')")
+	@ApiOperation(
+			value = "Search tree nodes (/search/quick alias)", 
+			nickname = "searchTreeNodes",
+			tags = { IdmTreeNodeController.TAG }, 
+			authorizations = {
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.TREENODE_READ, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.TREENODE_READ, description = "") })
+				})
+	public Resources<?> find(
+			@RequestParam(required = false) MultiValueMap<String, Object> parameters,
+			@PageableDefault Pageable pageable) {
+		return super.find(parameters, pageable);
+	}
+	
+	@ResponseBody
+	@RequestMapping(value= "/search/quick", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.TREENODE_READ + "')")
+	@ApiOperation(
+			value = "Search tree nodes", 
+			nickname = "searchQuickTreeNodes", 
+			tags = { IdmTreeNodeController.TAG }, 
+			authorizations = {
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.TREENODE_READ, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.TREENODE_READ, description = "") })
+				})
+	public Resources<?> findQuick(
+			@RequestParam(required = false) MultiValueMap<String, Object> parameters,
+			@PageableDefault Pageable pageable) {
+		return super.findQuick(parameters, pageable);
+	}
+	
+	@ResponseBody
+	@RequestMapping(value= "/search/autocomplete", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.TREENODE_AUTOCOMPLETE + "')")
+	@ApiOperation(
+			value = "Autocomplete tree nodes (selectbox usage)", 
+			nickname = "autocompleteTreeNodes", 
+			tags = { IdmTreeTypeController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.TREENODE_AUTOCOMPLETE, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.TREENODE_AUTOCOMPLETE, description = "") })
+				})
+	public Resources<?> autocomplete(
+			@RequestParam(required = false) MultiValueMap<String, Object> parameters, 
+			@PageableDefault Pageable pageable) {
+		return super.autocomplete(parameters, pageable);
+	}
+	
+	@Override
+	@ResponseBody
+	@RequestMapping(value = "/{backendId}", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.TREENODE_READ + "')")
+	@ApiOperation(
+			value = "Tree node detail", 
+			nickname = "getTreeNode", 
+			response = IdmTreeNodeDto.class, 
+			tags = { IdmTreeNodeController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.TREENODE_READ, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.TREENODE_READ, description = "") })
+				})
+	public ResponseEntity<?> get(
+			@ApiParam(value = "Node's uuid identifier.", required = true)
+			@PathVariable @NotNull String backendId) {
+		return super.get(backendId);
+	}
+	
+	@Override
+	@ResponseBody
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.TREENODE_CREATE + "')"
 			+ " or hasAuthority('" + CoreGroupPermission.TREENODE_UPDATE + "')")
 	@ApiOperation(
@@ -177,6 +257,26 @@ public class IdmTreeNodeController extends DefaultReadWriteDtoController<IdmTree
 			@ApiParam(value = "Node's uuid identifier.", required = true)
 			@PathVariable @NotNull String backendId) {
 		return super.delete(backendId);
+	}
+	
+	@Override
+	@ResponseBody
+	@RequestMapping(value = "/{backendId}/permissions", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.TREENODE_READ + "')")
+	@ApiOperation(
+			value = "What logged identity can do with given record", 
+			nickname = "getPermissionsOnTreeNode", 
+			tags = { IdmTreeNodeController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.TREENODE_READ, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.TREENODE_READ, description = "") })
+				})
+	public Set<String> getPermissions(
+			@ApiParam(value = "Node's uuid identifier.", required = true)
+			@PathVariable @NotNull String backendId) {
+		return super.getPermissions(backendId);
 	}
 	
 	@ResponseBody

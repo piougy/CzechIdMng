@@ -170,7 +170,7 @@ public class IdmRoleController extends AbstractReadWriteDtoController<IdmRoleDto
 	@ApiOperation(
 			value = "Role detail", 
 			nickname = "getRole", 
-			response = IdmRole.class, 
+			response = IdmRoleDto.class, 
 			tags = { IdmRoleController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 

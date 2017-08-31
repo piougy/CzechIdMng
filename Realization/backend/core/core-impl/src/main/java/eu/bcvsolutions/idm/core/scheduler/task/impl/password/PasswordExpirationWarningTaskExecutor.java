@@ -105,8 +105,8 @@ public class PasswordExpirationWarningTaskExecutor extends AbstractSchedulableSt
 	}
 	
 	@Override
-	public List<String> getParameterNames() {
-		List<String> parameters = super.getParameterNames();
+	public List<String> getPropertyNames() {
+		List<String> parameters = super.getPropertyNames();
 		parameters.add(PARAMETER_DAYS_BEFORE);
 		return parameters;
 	}

@@ -28,15 +28,6 @@ public interface LongRunningTaskExecutor<V> extends Callable<V> {
 	String getModule();
 	
 	/**
-	 * Returns form parameter names for this task
-	 * 
-	 * @return
-	 * @deprecated use List<String> getPropertyNames();
-	 */
-	@Deprecated
-	List<String> getParameterNames();
-	
-	/**
 	 * Returns configurable properties names for this task
 	 * 
 	 * @return

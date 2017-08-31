@@ -19,13 +19,13 @@ import com.google.common.base.Strings;
 
 import eu.bcvsolutions.idm.core.api.config.domain.RoleConfiguration;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleFilter;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
-import eu.bcvsolutions.idm.core.model.dto.filter.RoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmForestIndexEntity_;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
@@ -53,7 +53,7 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
  *
  */
 public class DefaultIdmRoleService 
-		extends AbstractEventableDtoService<IdmRoleDto, IdmRole, RoleFilter> 
+		extends AbstractEventableDtoService<IdmRoleDto, IdmRole, IdmRoleFilter> 
 		implements IdmRoleService {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmRoleService.class);
@@ -149,7 +149,7 @@ public class DefaultIdmRoleService
 	}
 	
 	@Override
-	protected List<Predicate> toPredicates(Root<IdmRole> root, CriteriaQuery<?> query, CriteriaBuilder builder, RoleFilter filter) {
+	protected List<Predicate> toPredicates(Root<IdmRole> root, CriteriaQuery<?> query, CriteriaBuilder builder, IdmRoleFilter filter) {
 		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
 		// quick
 		if (StringUtils.isNotEmpty(filter.getText())) {

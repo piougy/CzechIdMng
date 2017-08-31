@@ -39,7 +39,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
-import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
+import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 
 /**
@@ -54,17 +54,24 @@ public class TreeProvisioningExecutor extends AbstractProvisioningExecutor<IdmTr
  
 	public static final String NAME = "treeProvisioningService";
 	private final AccTreeAccountService treeAccountService;
-	private final IdmTreeNodeService treeNodeService;
+	private final IdmTreeNodeRepository treeNodeRepository;
 	
 	@Autowired
-	public TreeProvisioningExecutor(SysSystemMappingService systemMappingService,
-			SysSystemAttributeMappingService attributeMappingService, IcConnectorFacade connectorFacade,
-			SysSystemService systemService, SysRoleSystemService roleSystemService,
+	public TreeProvisioningExecutor(
+			SysSystemMappingService systemMappingService,
+			SysSystemAttributeMappingService attributeMappingService, 
+			IcConnectorFacade connectorFacade,
+			SysSystemService systemService, 
+			SysRoleSystemService roleSystemService,
 			AccAccountManagementService accountManagementService,
-			SysRoleSystemAttributeService roleSystemAttributeService, SysSystemEntityService systemEntityService,
-			AccAccountService accountService, AccTreeAccountService treeAccountService,
-			ProvisioningExecutor provisioningExecutor, IdmTreeNodeService treeNodeService,
-			EntityEventManager entityEventManager, SysSchemaAttributeService schemaAttributeService,
+			SysRoleSystemAttributeService roleSystemAttributeService, 
+			SysSystemEntityService systemEntityService,
+			AccAccountService accountService, 
+			AccTreeAccountService treeAccountService,
+			ProvisioningExecutor provisioningExecutor, 
+			IdmTreeNodeRepository treeNodeRepository,
+			EntityEventManager entityEventManager, 
+			SysSchemaAttributeService schemaAttributeService,
 			SysSchemaObjectClassService schemaObjectClassService,
 			SysSystemAttributeMappingService systemAttributeMappingService) {
 		
@@ -72,12 +79,12 @@ public class TreeProvisioningExecutor extends AbstractProvisioningExecutor<IdmTr
 				accountManagementService, roleSystemAttributeService, systemEntityService, accountService,
 				provisioningExecutor, entityEventManager, schemaAttributeService,
 				schemaObjectClassService, systemAttributeMappingService);
-		
+		//
 		Assert.notNull(treeAccountService);
-		Assert.notNull(treeNodeService);
-		
+		Assert.notNull(treeNodeRepository);
+		//
 		this.treeAccountService = treeAccountService;
-		this.treeNodeService = treeNodeService;
+		this.treeNodeRepository = treeNodeRepository;
 	}
 	
 	public void doProvisioning(AccAccount account) {
@@ -92,7 +99,7 @@ public class TreeProvisioningExecutor extends AbstractProvisioningExecutor<IdmTr
 		treeAccoutnList.stream().filter(treeAccount -> {
 			return treeAccount.isOwnership();
 		}).forEach((treeAccount) -> {
-			doProvisioning(account, (IdmTreeNode) treeNodeService.get(treeAccount.getEntity()));
+			doProvisioning(account, treeNodeRepository.findOne(treeAccount.getEntity()));
 		});
 	}
 	

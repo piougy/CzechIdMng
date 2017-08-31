@@ -1,27 +1,29 @@
 package eu.bcvsolutions.idm.core.model.service.api;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmConfigurationDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmTreeTypeFilter;
 import eu.bcvsolutions.idm.core.api.service.CodeableService;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
-import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
-import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
-import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
+import eu.bcvsolutions.idm.core.api.service.EventableDtoService;
+import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 
 /**
- * Operations with IdmTreeType
+ * Operations with tree types
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
- *
+ * @author Radek Tomiška
  */
 @Service
 public interface IdmTreeTypeService extends 
-		ReadWriteEntityService<IdmTreeType, QuickFilter>,
-		CodeableService<IdmTreeType> {
+		EventableDtoService<IdmTreeTypeDto, IdmTreeTypeFilter>,
+		CodeableService<IdmTreeTypeDto>,
+		AuthorizableService<IdmTreeTypeDto> {
 
 	/**
 	 * Prefix to configuration
@@ -37,22 +39,22 @@ public interface IdmTreeTypeService extends
 	 * @return
 	 */
 	@Override
-	IdmTreeType getByCode(String code);
+	IdmTreeTypeDto getByCode(String code);
 	
 	/**
 	 * Returns default tree type or {@code null}, if no default tree type is defined
 	 * 
 	 * @return
 	 */
-	IdmTreeType getDefaultTreeType();
+	IdmTreeTypeDto getDefaultTreeType();
 	
 	/**
-	 * Returns all configuration properties for given tree type.
+	 * Returns all configuration properties for given tree type. {@link #getConfigurations(UUID)}
 	 * 
 	 * @param treeType
 	 * @return
 	 */
-	List<IdmConfigurationDto> getConfigurations(IdmTreeType treeType);
+	List<IdmConfigurationDto> getConfigurations(UUID treeTypeId);
 	
 	/**
 	 * Returns configuration property name for given tree type.
@@ -68,6 +70,8 @@ public interface IdmTreeTypeService extends
 	 * 
 	 * @param defaultTreeNode
 	 * @return
+	 * @deprecated configuration service will be used for persist default tree type
 	 */
-	int clearDefaultTreeNode(IdmTreeNode defaultTreeNode);
+	@Deprecated
+	int clearDefaultTreeNode(UUID defaultTreeNodeId);
 }

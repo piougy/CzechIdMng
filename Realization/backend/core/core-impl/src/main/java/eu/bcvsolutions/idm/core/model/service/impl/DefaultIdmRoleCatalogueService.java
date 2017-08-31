@@ -242,6 +242,5 @@ public class DefaultIdmRoleCatalogueService
 			roleCatalogue.setRgt(index.getRgt());
 		}
 		return roleCatalogue;
-	}
-	
+	}	
 }

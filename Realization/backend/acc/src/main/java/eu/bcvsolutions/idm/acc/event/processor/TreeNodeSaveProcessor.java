@@ -9,6 +9,7 @@ import org.springframework.util.Assert;
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.event.ProvisioningEvent;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
@@ -16,6 +17,7 @@ import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.event.TreeNodeEvent.TreeNodeEventType;
+import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 
 /**
@@ -27,20 +29,25 @@ import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 @Component("accTreeNodeSaveProcessor")
 @Enabled(AccModuleDescriptor.MODULE_ID)
 @Description("Executes provisioning after tree node is saved.")
-public class TreeNodeSaveProcessor extends AbstractEntityEventProcessor<IdmTreeNode> {
+public class TreeNodeSaveProcessor extends AbstractEntityEventProcessor<IdmTreeNodeDto> {
 
 	public static final String PROCESSOR_NAME = "tree-node-save-processor";
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(TreeNodeSaveProcessor.class);
 	private ProvisioningService provisioningService;
 	private final ApplicationContext applicationContext;
+	private final IdmTreeNodeRepository repository;
 	
 	@Autowired
-	public TreeNodeSaveProcessor(ApplicationContext applicationContext) {
+	public TreeNodeSaveProcessor(
+			ApplicationContext applicationContext,
+			IdmTreeNodeRepository repository) {
 		super(TreeNodeEventType.CREATE, TreeNodeEventType.UPDATE, CoreEventType.EAV_SAVE);
 		//
 		Assert.notNull(applicationContext);
+		Assert.notNull(repository);
 		//
 		this.applicationContext = applicationContext;
+		this.repository = repository;
 	}
 	
 	@Override
@@ -49,7 +56,7 @@ public class TreeNodeSaveProcessor extends AbstractEntityEventProcessor<IdmTreeN
 	}
 
 	@Override
-	public EventResult<IdmTreeNode> process(EntityEvent<IdmTreeNode> event) {
+	public EventResult<IdmTreeNodeDto> process(EntityEvent<IdmTreeNodeDto> event) {
 		Object breakProvisioning = event.getProperties().get(ProvisioningService.SKIP_PROVISIONING);
 		
 		if(breakProvisioning instanceof Boolean && (Boolean)breakProvisioning){
@@ -59,7 +66,8 @@ public class TreeNodeSaveProcessor extends AbstractEntityEventProcessor<IdmTreeN
 		return new DefaultEventResult<>(event, this);
 	}
 	
-	private void doProvisioning(IdmTreeNode node) {
+	private void doProvisioning(IdmTreeNodeDto nodeDto) {
+		IdmTreeNode node = repository.findOne(nodeDto.getId());
 		LOG.debug("Call account managment (create accounts for all systems) for tree node [{}]", node.getCode());
 		getProvisioningService().createAccountsForAllSystems(node);
 		LOG.debug("Call provisioning for tree node [{}]", node.getCode());

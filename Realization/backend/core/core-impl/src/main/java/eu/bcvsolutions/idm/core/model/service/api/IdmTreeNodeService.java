@@ -1,17 +1,21 @@
 package eu.bcvsolutions.idm.core.model.service.api;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import eu.bcvsolutions.idm.core.api.dto.filter.TreeNodeFilter;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmTreeNodeFilter;
+import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
-import eu.bcvsolutions.idm.core.api.service.EventableService;
-import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
+import eu.bcvsolutions.idm.core.api.service.EventableDtoService;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
-import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
+import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 
 /**
  * Operations with IdmTreeNode
@@ -21,15 +25,26 @@ import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
  *
  */
 @Service
-public interface IdmTreeNodeService extends ReadWriteEntityService<IdmTreeNode, TreeNodeFilter>, ScriptEnabled, EventableService<IdmTreeNode> {
+public interface IdmTreeNodeService extends 
+		EventableDtoService<IdmTreeNodeDto, IdmTreeNodeFilter>, 
+		ScriptEnabled, 
+		AuthorizableService<IdmTreeNodeDto> {
+	
+	/**
+	 * Will be removed after eav and synchronization refactoring
+	 * 
+	 */
+	@Deprecated
+	IdmTreeNode publishTreeNode(IdmTreeNode node, EntityEvent<IdmTreeNodeDto> event,  BasePermission... permission);
 	
 	/**
 	 * Method return all roots - @param treeType = null, or one root for treeType.
+	 * 
 	 * @param treeType Long
 	 * @param pageable
 	 * @return Page of roots
 	 */
-	Page<IdmTreeNode> findRoots(UUID treeTypeId, Pageable pageable);
+	Page<IdmTreeNodeDto> findRoots(UUID treeTypeId, Pageable pageable);
 	
 	/**
 	 * Method return children by parent id
@@ -37,8 +52,16 @@ public interface IdmTreeNodeService extends ReadWriteEntityService<IdmTreeNode, 
 	 * @param parent
 	 * @return Page of children
 	 */
-	Page<IdmTreeNode> findChildrenByParent(UUID parentId, Pageable pageable);
+	Page<IdmTreeNodeDto> findChildrenByParent(UUID parentId, Pageable pageable);
 	
+	/**
+	 * Returns all node's parents
+	 * 
+	 * @param treeNodeId
+	 * @param sort
+	 * @return
+	 */
+	List<IdmTreeNodeDto> findAllParents(UUID treeNodeId, Sort sort);
 	
 	/**
 	 * Rebuild (drop and create) all indexes for given treeType.
@@ -46,5 +69,5 @@ public interface IdmTreeNodeService extends ReadWriteEntityService<IdmTreeNode, 
 	 * @param treeType
 	 * @return long running task id
 	 */
-	UUID rebuildIndexes(IdmTreeType treeType);
+	UUID rebuildIndexes(UUID treeType);
 }

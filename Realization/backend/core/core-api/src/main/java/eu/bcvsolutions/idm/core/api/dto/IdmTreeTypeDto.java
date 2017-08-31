@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.api.dto;
 
+import eu.bcvsolutions.idm.core.api.domain.Codeable;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -14,7 +15,7 @@ import java.util.UUID;
  * @author Radek Tomiška
  */
 @Relation(collectionRelation = "treeTypes")
-public class IdmTreeTypeDto extends AbstractDto {
+public class IdmTreeTypeDto extends AbstractDto implements Codeable  {
 
     private static final long serialVersionUID = 3883227192651419232L;
     @NotEmpty
@@ -27,6 +28,7 @@ public class IdmTreeTypeDto extends AbstractDto {
     @Embedded(dtoClass = IdmTreeNodeDto.class, enabled = false)
     private UUID defaultTreeNode;
 
+    @Override
     public String getCode() {
         return code;
     }

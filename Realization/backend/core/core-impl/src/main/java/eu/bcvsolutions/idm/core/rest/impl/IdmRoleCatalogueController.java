@@ -31,6 +31,8 @@ import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleCatalogueService;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
@@ -133,16 +135,16 @@ public class IdmRoleCatalogueController extends DefaultReadWriteDtoController<Id
 			value = "Search root catalogues", 
 			nickname = "searchRootRoleCatalogues", 
 			tags = { IdmRoleCatalogueController.TAG })
-//	@ApiImplicitParams({
-//        @ApiImplicitParam(name = "page", dataType = "string", paramType = "query",
-//                value = "Results page you want to retrieve (0..N)"),
-//        @ApiImplicitParam(name = "size", dataType = "string", paramType = "query",
-//                value = "Number of records per page."),
-//        @ApiImplicitParam(name = "sort", allowMultiple = true, dataType = "string", paramType = "query",
-//                value = "Sorting criteria in the format: property(,asc|desc). " +
-//                        "Default sort order is ascending. " +
-//                        "Multiple sort criteria are supported.")
-//	})
+	@ApiImplicitParams({
+        @ApiImplicitParam(name = "page", dataType = "string", paramType = "query",
+                value = "Results page you want to retrieve (0..N)"),
+        @ApiImplicitParam(name = "size", dataType = "string", paramType = "query",
+                value = "Number of records per page."),
+        @ApiImplicitParam(name = "sort", allowMultiple = true, dataType = "string", paramType = "query",
+                value = "Sorting criteria in the format: property(,asc|desc). " +
+                        "Default sort order is ascending. " +
+                        "Multiple sort criteria are supported.")
+	})
 	public Resources<?> findRoots(@PageableDefault Pageable pageable) {
 		Page<IdmRoleCatalogueDto> roots = service.findRoots(pageable);
 		return toResources(roots, IdmRoleCatalogue.class);
@@ -154,16 +156,16 @@ public class IdmRoleCatalogueController extends DefaultReadWriteDtoController<Id
 			value = "Search sub catalogues", 
 			nickname = "searchChildrenRoleCatalogues", 
 			tags = { IdmRoleCatalogueController.TAG })
-//	@ApiImplicitParams({
-//        @ApiImplicitParam(name = "page", dataType = "string", paramType = "query",
-//                value = "Results page you want to retrieve (0..N)"),
-//        @ApiImplicitParam(name = "size", dataType = "string", paramType = "query",
-//                value = "Number of records per page."),
-//        @ApiImplicitParam(name = "sort", allowMultiple = true, dataType = "string", paramType = "query",
-//                value = "Sorting criteria in the format: property(,asc|desc). " +
-//                        "Default sort order is ascending. " +
-//                        "Multiple sort criteria are supported.")
-//	})
+	@ApiImplicitParams({
+        @ApiImplicitParam(name = "page", dataType = "string", paramType = "query",
+                value = "Results page you want to retrieve (0..N)"),
+        @ApiImplicitParam(name = "size", dataType = "string", paramType = "query",
+                value = "Number of records per page."),
+        @ApiImplicitParam(name = "sort", allowMultiple = true, dataType = "string", paramType = "query",
+                value = "Sorting criteria in the format: property(,asc|desc). " +
+                        "Default sort order is ascending. " +
+                        "Multiple sort criteria are supported.")
+	})
 	public Resources<?> findChildren(
 			@ApiParam(value = "Superior role catalogue's uuid identifier.", required = true)
 			@RequestParam(name = "parent", required = true) @NotNull String parentId,
@@ -174,7 +176,7 @@ public class IdmRoleCatalogueController extends DefaultReadWriteDtoController<Id
 	
 	@Override
 	protected RoleCatalogueFilter toFilter(MultiValueMap<String, Object> parameters) {
-		RoleCatalogueFilter filter = new RoleCatalogueFilter();
+		RoleCatalogueFilter filter = new RoleCatalogueFilter(parameters);
 		filter.setText(getParameterConverter().toString(parameters, "text"));
 		filter.setName(getParameterConverter().toString(parameters, "name"));
 		filter.setCode(getParameterConverter().toString(parameters, "code"));

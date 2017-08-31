@@ -21,10 +21,12 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 
 /**
  * Type for tree nodes
+ * 
+ * TODO: move default tree type and node to configuration
+ * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
- *
+ * @author Radek Tomiška
  */
-
 @Entity
 @Table(name = "idm_tree_type", indexes = { 
 		@Index(name = "ux_tree_type_name", columnList = "name"), 

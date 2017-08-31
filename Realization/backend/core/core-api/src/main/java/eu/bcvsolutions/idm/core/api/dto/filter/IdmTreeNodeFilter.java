@@ -11,10 +11,13 @@ import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
  * Filter for tree node
  *
  * @author Ondrej Kopr <kopr@xyxy.cz>
+ * @author Radek Tomiška
  */
-public class TreeNodeFilter extends DataFilter implements CorrelationFilter {
+public class IdmTreeNodeFilter extends DataFilter implements CorrelationFilter {
 
-    private UUID treeTypeId;
+	public static final String PARAMETER_CODE = "code"; // PARAMETER_CODEABLE_IDENTIFIER can be used too
+	//
+	private UUID treeTypeId;
     private UUID treeNode; // parent - TODO: rename!
     private Boolean defaultTreeType; // Search for tree nodes within the default tree type
     private String property; // Attribute name to search for, like 'code' or 'name'
@@ -24,11 +27,11 @@ public class TreeNodeFilter extends DataFilter implements CorrelationFilter {
      */
     private boolean recursively = true;
 
-    public TreeNodeFilter() {
+    public IdmTreeNodeFilter() {
         this(new LinkedMultiValueMap<>());
     }
 
-    public TreeNodeFilter(MultiValueMap<String, Object> data) {
+    public IdmTreeNodeFilter(MultiValueMap<String, Object> data) {
         super(IdmTreeNodeDto.class, data);
     }
 
@@ -83,5 +86,12 @@ public class TreeNodeFilter extends DataFilter implements CorrelationFilter {
     public void setValue(String value) {
         this.value = value;
     }
+    
+    public String getCode() {
+		return (String) data.getFirst(PARAMETER_CODE);
+	}
 
+	public void setCode(String username) {
+		data.set(PARAMETER_CODE, username);
+	}
 }

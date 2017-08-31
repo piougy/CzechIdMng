@@ -7,31 +7,19 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.data.rest.core.annotation.Description;
-import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
-import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmTreeTypeFilter;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
-import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
-import eu.bcvsolutions.idm.core.rest.projection.IdmTreeTypeExcerpt;
 
 /**
  * Repository for tree types
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
+ * @author Radek Tomiška
  *
  */
-@RepositoryRestResource(
-		collectionResourceRel = "treeTypes",
-		path = "tree-types",
-		itemResourceRel = "treeType",
-		collectionResourceDescription = @Description("Tree types"),
-		itemResourceDescription = @Description("Tree type"),
-		excerptProjection = IdmTreeTypeExcerpt.class,
-		exported = false
-	)
-public interface IdmTreeTypeRepository extends AbstractEntityRepository<IdmTreeType, QuickFilter> {
+public interface IdmTreeTypeRepository extends AbstractEntityRepository<IdmTreeType, IdmTreeTypeFilter> {
 	
 	IdmTreeType findOneByCode(@Param("code") String code);
 	
@@ -43,7 +31,7 @@ public interface IdmTreeTypeRepository extends AbstractEntityRepository<IdmTreeT
 		        + " or lower(e.code) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')}"
 		        + " or lower(e.name) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')}"
 	        + " )")
-	Page<IdmTreeType> find(QuickFilter filter, Pageable pageable);
+	Page<IdmTreeType> find(IdmTreeTypeFilter filter, Pageable pageable);
 	
 	/**
 	 * Returns default tree type
@@ -59,6 +47,7 @@ public interface IdmTreeTypeRepository extends AbstractEntityRepository<IdmTreeT
 	 */
 	@Modifying
 	@Query("update #{#entityName} e set e.defaultTreeType = false where (:updatedEntityId is null or e.id != :updatedEntityId)")
+	@Deprecated
 	void clearDefaultTreeType(@Param("updatedEntityId") UUID updatedEntityId);
 	
 	/**
@@ -68,6 +57,7 @@ public interface IdmTreeTypeRepository extends AbstractEntityRepository<IdmTreeT
 	 * @return
 	 */
 	@Modifying
-	@Query("update #{#entityName} e set e.defaultTreeNode = null where e.defaultTreeNode = :defaultTreeNode")
-	int clearDefaultTreeNode(@Param("defaultTreeNode") IdmTreeNode defaultTreeNode);
+	@Query("update #{#entityName} e set e.defaultTreeNode = null where e.defaultTreeNode.id = :defaultTreeNodeId")
+	@Deprecated
+	int clearDefaultTreeNode(@Param("defaultTreeNodeId") UUID defaultTreeNodeId);
 }

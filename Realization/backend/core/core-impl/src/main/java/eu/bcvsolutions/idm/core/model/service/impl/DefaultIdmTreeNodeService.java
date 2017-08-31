@@ -1,6 +1,5 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -14,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -23,45 +22,47 @@ import org.springframework.util.StringUtils;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
-import eu.bcvsolutions.idm.core.api.dto.filter.TreeNodeFilter;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmTreeNodeFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
-import eu.bcvsolutions.idm.core.api.event.EventContext;
-import eu.bcvsolutions.idm.core.api.repository.filter.FilterManager;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
-import eu.bcvsolutions.idm.core.eav.service.impl.AbstractFormableService;
 import eu.bcvsolutions.idm.core.exception.TreeNodeException;
+import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
+import eu.bcvsolutions.idm.core.model.entity.IdmForestIndexEntity;
 import eu.bcvsolutions.idm.core.model.entity.IdmForestIndexEntity_;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode_;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType_;
 import eu.bcvsolutions.idm.core.model.event.TreeNodeEvent;
-import eu.bcvsolutions.idm.core.model.event.TreeNodeEvent.TreeNodeEventType;
-import eu.bcvsolutions.idm.core.model.event.processor.TreeNodeDeleteProcessor;
-import eu.bcvsolutions.idm.core.model.event.processor.TreeNodeSaveProcessor;
+import eu.bcvsolutions.idm.core.model.event.processor.tree.TreeNodeDeleteProcessor;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
+import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeForestContentService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeTypeService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.RebuildTreeNodeIndexTaskExecutor;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
+import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
 /**
  * Tree node service
  * - supports {@link TreeNodeEvent}
  * 
- * TODO: dto, move logic from TreeNodeProcessor to saveInternal
- * 
  * @author Radek Tomiška
  *
  */
 @Service("treeNodeService")
-public class DefaultIdmTreeNodeService extends AbstractFormableService<IdmTreeNode, TreeNodeFilter>
+public class DefaultIdmTreeNodeService 
+		extends AbstractEventableDtoService<IdmTreeNodeDto, IdmTreeNode, IdmTreeNodeFilter>
 		implements IdmTreeNodeService {
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmTreeNodeService.class);
@@ -69,9 +70,10 @@ public class DefaultIdmTreeNodeService extends AbstractFormableService<IdmTreeNo
 	private final IdmTreeTypeService treeTypeService;
 	private final ConfigurationService configurationService;
 	private final LongRunningTaskManager longRunningTaskManager;
-	private final EntityEventManager entityEventManager;
-	private final FilterManager filterManager;
 	private final IdmIdentityContractRepository identityContractRepository;
+	private final FormService formService;
+	private final DefaultBaseTreeService<IdmTreeNode> baseTreeService;
+	private final IdmTreeNodeForestContentService forestContentService;
 
 	@Autowired
 	public DefaultIdmTreeNodeService(
@@ -81,42 +83,53 @@ public class DefaultIdmTreeNodeService extends AbstractFormableService<IdmTreeNo
 		LongRunningTaskManager longRunningTaskManager,
 		FormService formService,
 		EntityEventManager entityEventManager,
-		FilterManager filterManager,
-		IdmIdentityContractRepository identityContractRepository) {
-		super(treeNodeRepository, formService);
+		IdmIdentityContractRepository identityContractRepository,
+		DefaultBaseTreeService<IdmTreeNode> baseTreeService,
+		IdmTreeNodeForestContentService forestContentService) {
+		super(treeNodeRepository, entityEventManager);
 		//
 		Assert.notNull(treeTypeService);
 		Assert.notNull(configurationService);
 		Assert.notNull(longRunningTaskManager);
-		Assert.notNull(entityEventManager);
-		Assert.notNull(filterManager);
 		Assert.notNull(identityContractRepository);
+		Assert.notNull(formService);
+		Assert.notNull(baseTreeService);
+		Assert.notNull(forestContentService);
 		//
 		this.repository = treeNodeRepository;
 		this.treeTypeService = treeTypeService;
 		this.configurationService = configurationService;
 		this.longRunningTaskManager = longRunningTaskManager;
-		this.entityEventManager = entityEventManager;
-		this.filterManager = filterManager;
 		this.identityContractRepository = identityContractRepository;
+		this.formService = formService;
+		this.baseTreeService = baseTreeService;
+		this.forestContentService = forestContentService;
 	}
 	
-	/**
-	 * Publish {@link TreeNodeEvent} only.
-	 * 
-	 * @see {@link TreeNodeSaveProcessor}
-	 */
+	@Override
+	public AuthorizableType getAuthorizableType() {
+		return new AuthorizableType(CoreGroupPermission.TREENODE, getEntityClass());
+	}
+	
 	@Override
 	@Transactional
-	public IdmTreeNode save(IdmTreeNode treeNode) {
-		Assert.notNull(treeNode);
-		Assert.notNull(treeNode.getTreeType());
+	public IdmTreeNodeDto saveInternal(IdmTreeNodeDto treeNode) {
+		// if index rebuild is in progress, then throw exception
+		checkTreeType(treeNode.getTreeType());
 		//
-		LOG.debug("Saving tree node [{}] - [{}]", treeNode.getTreeType().getCode(), treeNode.getCode());
-		//
-		return this.publish(new TreeNodeEvent(isNew(treeNode) ? TreeNodeEventType.CREATE : TreeNodeEventType.UPDATE, treeNode)).getContent();
+		if (isNew(treeNode)) {
+			this.validate(treeNode, true);
+			// create new
+			treeNode = super.saveInternal(treeNode);
+			IdmForestIndexEntity index = forestContentService.createIndex(IdmTreeNode.toForestTreeType(treeNode.getTreeType()), treeNode.getId(), treeNode.getParent());
+			return setForestIndex(treeNode, index);
+		}
+		this.validate(treeNode, false);	
+		// update - we need to reindex first
+		IdmForestIndexEntity index = forestContentService.updateIndex(IdmTreeNode.toForestTreeType(treeNode.getTreeType()), treeNode.getId(), treeNode.getParent());
+		treeNode = super.saveInternal(treeNode);
+		return setForestIndex(treeNode, index);
 	}
-	
 	
 	/**
 	 * Publish {@link TreeNodeEvent} only.
@@ -125,43 +138,62 @@ public class DefaultIdmTreeNodeService extends AbstractFormableService<IdmTreeNo
 	 */
 	@Override
 	@Transactional
-	public void delete(IdmTreeNode treeNode) {
+	public void deleteInternal(IdmTreeNodeDto treeNode) {
 		Assert.notNull(treeNode);
 		Assert.notNull(treeNode.getTreeType());
+		LOG.debug("Deleting tree node [{}] - [{}]", treeNode.getTreeType(), treeNode.getCode());
+		//
+		// if index rebuild is in progress, then throw exception
+		checkTreeType(treeNode.getTreeType());
 		//
 		Page<IdmTreeNode> nodes = repository.findChildren(null, treeNode.getId(), new PageRequest(0, 1));
 		if (nodes.getTotalElements() > 0) {
 			throw new TreeNodeException(CoreResultCode.TREE_NODE_DELETE_FAILED_HAS_CHILDREN,  ImmutableMap.of("treeNode", treeNode.getName()));
 		}		
-		if (this.identityContractRepository.countByWorkPosition(treeNode) > 0) {
+		if (this.identityContractRepository.countByWorkPosition_Id(treeNode.getId()) > 0) {
 			throw new TreeNodeException(CoreResultCode.TREE_NODE_DELETE_FAILED_HAS_CONTRACTS,  ImmutableMap.of("treeNode", treeNode.getName()));
-		}
-		LOG.debug("Deleting tree node [{}] - [{}]", treeNode.getTreeType().getCode(), treeNode.getCode());
-		this.publish(new TreeNodeEvent(TreeNodeEventType.DELETE, treeNode));
+		}		
+		// clear default tree nodes from type
+		treeTypeService.clearDefaultTreeNode(treeNode.getId());
+		// TODO: eav dto
+		formService.deleteValues(getRepository().findOne(treeNode.getId()));
+		//
+		forestContentService.deleteIndex(treeNode.getId());
+		super.deleteInternal(treeNode);
 	}
-
+	
 	@Override
-	public EventContext<IdmTreeNode> publish(EntityEvent<IdmTreeNode> event, BasePermission... permission) {
+	@Transactional
+	@Deprecated
+	public IdmTreeNode publishTreeNode(IdmTreeNode node, EntityEvent<IdmTreeNodeDto> event,  BasePermission... permission) {
 		Assert.notNull(event, "Event must be not null!");
-		Assert.notNull(event.getContent(), "Content (entity) in event must be not null!");
-		
-		return entityEventManager.process(event);
+		Assert.notNull(node);
+		event.setContent(toDto(node));
+		return toEntity(this.publish(event, permission).getContent());
 	}
 	
 	@Override
 	@Transactional(readOnly = true)
-	public Page<IdmTreeNode> findRoots(UUID treeTypeId, Pageable pageable) {
-		return this.repository.findChildren(treeTypeId, null, pageable);
+	public Page<IdmTreeNodeDto> findRoots(UUID treeTypeId, Pageable pageable) {
+		return toDtoPage(this.repository.findChildren(treeTypeId, null, pageable));
 	}
 
 	@Override
 	@Transactional(readOnly = true)
-	public Page<IdmTreeNode> findChildrenByParent(UUID parentId, Pageable pageable) {
-		return this.repository.findChildren(null, parentId, pageable);
+	public Page<IdmTreeNodeDto> findChildrenByParent(UUID parentId, Pageable pageable) {
+		return toDtoPage(this.repository.findChildren(null, parentId, pageable));
 	}
 	
 	@Override
-	public UUID rebuildIndexes(IdmTreeType treeType) {
+	@Transactional(readOnly = true)
+	public List<IdmTreeNodeDto> findAllParents(UUID treeNodeId, Sort sort) {
+		return toDtos(forestContentService.findAllParents(treeNodeId, sort), true);
+	}
+	
+	@Override
+	public UUID rebuildIndexes(UUID treeTypeId) {
+		Assert.notNull(treeTypeId);
+		IdmTreeTypeDto treeType = treeTypeService.get(treeTypeId);
 		Assert.notNull(treeType, "Tree type is required");
 		//
 		String treeTypeCode = treeType.getCode();
@@ -173,27 +205,10 @@ public class DefaultIdmTreeNodeService extends AbstractFormableService<IdmTreeNo
 		return longRunningTaskId;
 	}
 
+
 	@Override
-	@Transactional(readOnly = true)
-	public Page<IdmTreeNode> find(final TreeNodeFilter filter, Pageable pageable) {
-		// transform filter to criteria
-		Specification<IdmTreeNode> criteria = new Specification<IdmTreeNode>() {
-			public Predicate toPredicate(Root<IdmTreeNode> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
-				Predicate predicate = DefaultIdmTreeNodeService.this.toPredicate(filter, root, query, builder);
-				return query.where(predicate).getRestriction();
-			}
-		};
-		return getRepository().findAll(criteria, pageable);
-	}
-
-	private Predicate toPredicate(TreeNodeFilter filter, Root<IdmTreeNode> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
-
-		List<Predicate> predicates = new ArrayList<>();
-
-		if (filter == null) {
-			return builder.conjunction();
-		}
-
+	protected List<Predicate> toPredicates(Root<IdmTreeNode> root, CriteriaQuery<?> query, CriteriaBuilder builder, IdmTreeNodeFilter filter) {
+		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
 		// fulltext
 		if (!StringUtils.isEmpty(filter.getText())) {
 			predicates.add(builder.or(
@@ -201,14 +216,13 @@ public class DefaultIdmTreeNodeService extends AbstractFormableService<IdmTreeNo
 				builder.like(builder.lower(root.get(IdmTreeNode_.name)), "%" + filter.getText().toLowerCase() + "%")
 			));
 		}
-
 		// tree type
 		if (filter.getTreeTypeId() != null) {
 			predicates.add(builder.equal(root.get(IdmTreeNode_.treeType).get(AbstractEntity_.id), filter.getTreeTypeId()));
 		}
-
 		// parent node
 		if (filter.getTreeNode() != null) {
+			// TODO: bug - forest index needs tree type
 			if (filter.isRecursively()) {
 				Subquery<IdmTreeNode> subquery = query.subquery(IdmTreeNode.class);
 				Root<IdmTreeNode> subRoot = subquery.from(IdmTreeNode.class);
@@ -226,7 +240,6 @@ public class DefaultIdmTreeNodeService extends AbstractFormableService<IdmTreeNo
 				predicates.add(builder.equal(root.get(IdmTreeNode_.parent).get(AbstractEntity_.id), filter.getTreeNode()));
 			}
 		}
-
 		// default tree type
 		if (filter.getDefaultTreeType() != null) {
 			Subquery<IdmTreeType> subQuery = query.subquery(IdmTreeType.class);
@@ -254,11 +267,53 @@ public class DefaultIdmTreeNodeService extends AbstractFormableService<IdmTreeNo
 					break;
 			}
 		}
-
-		// Dynamic filters (added, overriden by module)
-		predicates.addAll(filterManager.toPredicates(root, query, builder, filter));
 		//
-		return builder.and(predicates.toArray(new Predicate[predicates.size()]));
+		return predicates;
+	}
+	
+	private IdmTreeNodeDto setForestIndex(IdmTreeNodeDto treeNode, IdmForestIndexEntity index) {
+		if (index != null) {
+			treeNode.setLft(index.getLft());
+			treeNode.setRgt(index.getRgt());
+		}
+		return treeNode;
+	}
+	
+	private void validate(IdmTreeNodeDto node, boolean isNew) {	
+		if (checkCorrectType(node, isNew)) {
+			throw new TreeNodeException(CoreResultCode.TREE_NODE_BAD_TYPE,  "TreeNode ["+node.getName() +"] have bad type.");
+		}
+		if (this.baseTreeService.validateTreeNodeParents(isNew ? toEntity(node) : toEntity(node, repository.findOne(node.getId())))) {
+			throw new TreeNodeException(CoreResultCode.TREE_NODE_BAD_PARENT,  "TreeNode ["+node.getName() +"] have bad parent.");
+		}
+	}
+	
+	/**
+	 * Method check type of current node and saved node.
+	 * TODO: bug - this will work only in update. If node is created, then parent from diferent type could be given
+	 * 
+	 * @param treeNode
+	 * @return bool. True - if current and saved node is not same, false - if everything ist OK. When is node new return false;
+	 */
+	private boolean checkCorrectType(IdmTreeNodeDto treeNode, boolean isNew) {
+		if (isNew) {
+			return false;
+		}
+		
+		IdmTreeNode currentNode = repository.findOne(treeNode.getId());
+		
+		if (currentNode != null) {
+			return !currentNode.getTreeType().getId().equals(treeNode.getTreeType());
+		} else {
+			return false;
+		}
+	}
+	
+	private void checkTreeType(UUID treeTypeId) {
+		IdmTreeTypeDto treeType = treeTypeService.get(treeTypeId);
+		if (StringUtils.hasLength(configurationService.getValue(treeTypeService.getConfigurationPropertyName(treeType.getCode(), IdmTreeTypeService.CONFIGURATION_PROPERTY_REBUILD)))) {
+			throw new ResultCodeException(CoreResultCode.FOREST_INDEX_RUNNING, ImmutableMap.of("treeType", treeType.getCode()));
+		}
 	}
 
 }

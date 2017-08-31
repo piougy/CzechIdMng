@@ -99,18 +99,6 @@ public abstract class DefaultReadWriteDtoController<DTO extends BaseDto, F exten
 		return super.put(backendId, dto);
 	}
 
-	// TODO: Patch method is not supported for now, we don't expose it on api
-//	@Override
-//	@ResponseBody
-//	@RequestMapping(value = "/{backendId}", method = RequestMethod.PATCH)
-//	public ResponseEntity<?> patch(
-//			@ApiParam(value = "Record's uuid identifier or unique code, if record supports Codeable interface.", required = true)
-//			@PathVariable @NotNull String backendId,
-//			HttpServletRequest nativeRequest)
-//			throws HttpMessageNotReadableException {
-//		return super.patch(backendId, nativeRequest);
-//	}
-
 	@Override
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.DELETE)

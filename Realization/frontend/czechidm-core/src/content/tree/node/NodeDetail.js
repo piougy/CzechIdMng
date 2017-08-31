@@ -63,14 +63,6 @@ export default class NodeDetail extends Basic.AbstractContent {
     }, () => {
       const entity = this.refs.form.getData();
       this.refs.form.processStarted();
-
-      if (entity.parent) {
-        entity.parent = this.treeNodeManager.getSelfLink(entity.parent);
-      }
-      if (entity.treeType) {
-        entity.treeType = this.treeTypeManager.getSelfLink(entity.treeType);
-      }
-
       if (entity.id === undefined) {
         this.context.store.dispatch(this.treeNodeManager.createEntity(entity, `${uiKey}-detail`, (createdEntity, error) => {
           this._afterSave(createdEntity, error, afterAction);

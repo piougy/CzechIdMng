@@ -22,6 +22,8 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordPolicyDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
@@ -35,7 +37,6 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleRequest;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
-import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.entity.eav.IdmIdentityFormValue;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmContractGuaranteeService;
@@ -120,19 +121,18 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 		securityService.setSystemAuthentication();
 		//
 		try {
-			IdmRoleDto superAdminRole = this.roleService.getByName(InitApplicationData.ADMIN_ROLE);
 			IdmIdentityDto identityAdmin = this.identityService.getByUsername(InitApplicationData.ADMIN_USERNAME);
 			//
-			Page<IdmTreeNode> rootsList = treeNodeService.findRoots((UUID) null, new PageRequest(0, 1));
-			IdmTreeNode rootOrganization = null;
+			Page<IdmTreeNodeDto> rootsList = treeNodeService.findRoots((UUID) null, new PageRequest(0, 1));
+			IdmTreeNodeDto rootOrganization = null;
 			if (!rootsList.getContent().isEmpty()) {
 				rootOrganization = rootsList.getContent().get(0);
 			} else {
-				IdmTreeNode organizationRoot = new IdmTreeNode();
+				IdmTreeNodeDto organizationRoot = new IdmTreeNodeDto();
 				organizationRoot.setCode("root");
 				organizationRoot.setName("Organization ROOT");
-				organizationRoot.setTreeType(treeTypeService.getByCode(InitApplicationData.DEFAULT_TREE_TYPE));
-				this.treeNodeService.save(organizationRoot);
+				organizationRoot.setTreeType(treeTypeService.getByCode(InitApplicationData.DEFAULT_TREE_TYPE).getId());
+				organizationRoot = this.treeNodeService.save(organizationRoot);
 			}
 			//
 			if (!configurationService.getBooleanValue(PARAMETER_DEMO_DATA_CREATED, false)) {
@@ -310,22 +310,22 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				LOG.info(MessageFormat.format("Identity created [id: {0}]", identity3.getId()));
 				//
 				// get tree type for organization
-				IdmTreeType treeType = treeTypeService.getByCode(InitApplicationData.DEFAULT_TREE_TYPE);
+				IdmTreeTypeDto treeType = treeTypeService.getByCode(InitApplicationData.DEFAULT_TREE_TYPE);
 				//
-				IdmTreeNode organization1 = new IdmTreeNode();
+				IdmTreeNodeDto organization1 = new IdmTreeNodeDto();
 				organization1.setCode("one");
 				organization1.setName("Organization One");
-				organization1.setParent(rootOrganization);
-				organization1.setTreeType(treeType);
-				this.treeNodeService.save(organization1);
+				organization1.setParent(rootOrganization.getId());
+				organization1.setTreeType(treeType.getId());
+				organization1 = this.treeNodeService.save(organization1);
 				//
-				IdmTreeNode organization2 = new IdmTreeNode();
+				IdmTreeNodeDto organization2 = new IdmTreeNodeDto();
 				organization2.setCode("two");
 				organization2.setName("Organization Two");
 				organization2.setCreator("ja");
-				organization2.setParent(rootOrganization);
-				organization2.setTreeType(treeType);
-				this.treeNodeService.save(organization2);
+				organization2.setParent(rootOrganization.getId());
+				organization2.setTreeType(treeType.getId());
+				organization2 = this.treeNodeService.save(organization2);
 				//
 				IdmIdentityContractDto identityWorkPosition = new IdmIdentityContractDto();
 				identityWorkPosition.setIdentity(identityAdmin.getId());

@@ -57,13 +57,13 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.acc.service.impl.DefaultSynchronizationService;
-import eu.bcvsolutions.idm.core.api.dto.filter.TreeNodeFilter;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmTreeNodeFilter;
 import eu.bcvsolutions.idm.core.eav.entity.AbstractFormValue;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.exception.TreeNodeException;
-import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
-import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeTypeService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
@@ -211,7 +211,7 @@ public class DefaultTreeSynchronizationServiceTest extends AbstractIntegrationTe
 		List<SysSyncItemLogDto> items = syncItemLogService.find(itemLogFilter, null).getContent();
 		Assert.assertEquals(6, items.size());
 		
-		IdmTreeType treeType = treeTypeService.find(null).getContent().stream().filter(tree -> {
+		IdmTreeTypeDto treeType = treeTypeService.find(null).getContent().stream().filter(tree -> {
 			return tree.getName().equals(TREE_TYPE_TEST);
 		}).findFirst().get();
 		
@@ -242,10 +242,10 @@ public class DefaultTreeSynchronizationServiceTest extends AbstractIntegrationTe
 		syncConfigService.save(syncConfigCustom);
 
 		// Check state before sync
-		TreeNodeFilter nodeFilter = new TreeNodeFilter();
+		IdmTreeNodeFilter nodeFilter = new IdmTreeNodeFilter();
 		nodeFilter.setProperty(NODE_NAME);
 		nodeFilter.setValue("111");
-		IdmTreeNode treeNode = treeNodeService.find(nodeFilter, null).getContent().get(0);
+		IdmTreeNodeDto treeNode = treeNodeService.find(nodeFilter, null).getContent().get(0);
 		Assert.assertEquals("111", treeNode.getCode());
 
 		synchornizationService.setSynchronizationConfigId(syncConfigCustom.getId());
@@ -303,10 +303,10 @@ public class DefaultTreeSynchronizationServiceTest extends AbstractIntegrationTe
 		syncConfigService.save(syncConfigCustom);
 
 		// Check state before sync
-		TreeNodeFilter nodeFilter = new TreeNodeFilter();
+		IdmTreeNodeFilter nodeFilter = new IdmTreeNodeFilter();
 		nodeFilter.setProperty(NODE_NAME);
 		nodeFilter.setValue("111");
-		IdmTreeNode treeNode = treeNodeService.find(nodeFilter, null).getContent().get(0);
+		IdmTreeNodeDto treeNode = treeNodeService.find(nodeFilter, null).getContent().get(0);
 		Assert.assertNotNull(treeNode.getCode());
 		
 		synchornizationService.setSynchronizationConfigId(syncConfigCustom.getId());
@@ -389,7 +389,7 @@ public class DefaultTreeSynchronizationServiceTest extends AbstractIntegrationTe
 		List<SysSyncItemLogDto> items = syncItemLogService.find(itemLogFilter, null).getContent();
 		Assert.assertEquals(6, items.size());
 		
-		IdmTreeType treeType = treeTypeService.find(null).getContent().stream().filter(tree -> {
+		IdmTreeTypeDto treeType = treeTypeService.find(null).getContent().stream().filter(tree -> {
 			return tree.getName().equals(TREE_TYPE_TEST);
 		}).findFirst().get();
 		
@@ -406,24 +406,24 @@ public class DefaultTreeSynchronizationServiceTest extends AbstractIntegrationTe
 		// Delete all resource data
 		this.deleteAllResourceData();
 		
-		IdmTreeType treeType = treeTypeService.find(null).getContent().stream().filter(tree -> {
+		IdmTreeTypeDto treeType = treeTypeService.find(null).getContent().stream().filter(tree -> {
 			return tree.getName().equals(TREE_TYPE_TEST);
 		}).findFirst().get();
 		
 		// Create root node in IDM tree
-		IdmTreeNode nodeRoot = new IdmTreeNode();
+		IdmTreeNodeDto nodeRoot = new IdmTreeNodeDto();
 		nodeRoot.setCode("P1");
 		nodeRoot.setName(nodeRoot.getCode());
 		nodeRoot.setParent(null);
-		nodeRoot.setTreeType(treeType);
+		nodeRoot.setTreeType(treeType.getId());
 		nodeRoot = treeNodeService.save(nodeRoot);
 
 		// Create node in IDM tree
-		IdmTreeNode nodeOne = new IdmTreeNode();
+		IdmTreeNodeDto nodeOne = new IdmTreeNodeDto();
 		nodeOne.setCode("P12");
 		nodeOne.setName(nodeOne.getCode());
-		nodeOne.setParent(nodeRoot);
-		nodeOne.setTreeType(treeType);
+		nodeOne.setParent(nodeRoot.getId());
+		nodeOne.setTreeType(treeType.getId());
 		nodeOne = treeNodeService.save(nodeOne);
 		
 		// Check state before provisioning
@@ -434,15 +434,15 @@ public class DefaultTreeSynchronizationServiceTest extends AbstractIntegrationTe
 	@Test(expected = ProvisioningException.class) // Provisioning tree in incorrect order
 	public void provisioningB_CreateAccounts_withException() {
 
-		TreeNodeFilter filter = new TreeNodeFilter();
+		IdmTreeNodeFilter filter = new IdmTreeNodeFilter();
 		filter.setProperty(NODE_NAME);
 		filter.setValue("P1");
 
-		IdmTreeNode nodeRoot = treeNodeService.find(filter, null).getContent().get(0);
+		IdmTreeNodeDto nodeRoot = treeNodeService.find(filter, null).getContent().get(0);
 		Assert.assertNotNull(nodeRoot);
 
 		filter.setValue("P12");
-		IdmTreeNode nodeOne = treeNodeService.find(filter, null).getContent().get(0);
+		IdmTreeNodeDto nodeOne = treeNodeService.find(filter, null).getContent().get(0);
 		Assert.assertNotNull(nodeOne);
 
 		// Check state before provisioning
@@ -460,15 +460,15 @@ public class DefaultTreeSynchronizationServiceTest extends AbstractIntegrationTe
 	@Test
 	public void provisioningC_CreateAccounts_correct() {
 		
-		TreeNodeFilter filter = new TreeNodeFilter();
+		IdmTreeNodeFilter filter = new IdmTreeNodeFilter();
 		filter.setProperty(NODE_NAME);
 		filter.setValue("P1");
 		
-		IdmTreeNode nodeRoot = treeNodeService.find(filter, null).getContent().get(0);
+		IdmTreeNodeDto nodeRoot = treeNodeService.find(filter, null).getContent().get(0);
 		Assert.assertNotNull(nodeRoot);
 
 		filter.setValue("P12");
-		IdmTreeNode nodeOne = treeNodeService.find(filter, null).getContent().get(0);
+		IdmTreeNodeDto nodeOne = treeNodeService.find(filter, null).getContent().get(0);
 		Assert.assertNotNull(nodeOne);
 		
 		// Check state before provisioning
@@ -494,15 +494,15 @@ public class DefaultTreeSynchronizationServiceTest extends AbstractIntegrationTe
 	@Test
 	public void provisioningD_UpdateAccount() {
 		
-		TreeNodeFilter filter = new TreeNodeFilter();
+		IdmTreeNodeFilter filter = new IdmTreeNodeFilter();
 		filter.setProperty(NODE_NAME);
 		filter.setValue("P1");
 		
-		IdmTreeNode nodeRoot = treeNodeService.find(filter, null).getContent().get(0);
+		IdmTreeNodeDto nodeRoot = treeNodeService.find(filter, null).getContent().get(0);
 		Assert.assertNotNull(nodeRoot);
 
 		filter.setValue("P12");
-		IdmTreeNode nodeOne = treeNodeService.find(filter, null).getContent().get(0);
+		IdmTreeNodeDto nodeOne = treeNodeService.find(filter, null).getContent().get(0);
 		Assert.assertNotNull(nodeOne);
 		
 		// Check state before provisioning
@@ -524,11 +524,11 @@ public class DefaultTreeSynchronizationServiceTest extends AbstractIntegrationTe
 	@Test(expected=TreeNodeException.class)
 	public void provisioningE_DeleteAccount_IntegrityException() {
 		
-		TreeNodeFilter filter = new TreeNodeFilter();
+		IdmTreeNodeFilter filter = new IdmTreeNodeFilter();
 		filter.setProperty(NODE_NAME);
 		filter.setValue("P1");
 		
-		IdmTreeNode nodeRoot = treeNodeService.find(filter, null).getContent().get(0);
+		IdmTreeNodeDto nodeRoot = treeNodeService.find(filter, null).getContent().get(0);
 		Assert.assertNotNull(nodeRoot);
 		
 		// Delete IDM node (must invoke provisioning) .. We delete node with some children ... must throw integrity exception
@@ -539,10 +539,10 @@ public class DefaultTreeSynchronizationServiceTest extends AbstractIntegrationTe
 	@Test
 	public void provisioningF_DeleteAccount() {
 		
-		TreeNodeFilter filter = new TreeNodeFilter();
+		IdmTreeNodeFilter filter = new IdmTreeNodeFilter();
 		filter.setProperty(NODE_NAME);
 		filter.setValue("P12");
-		IdmTreeNode nodeOne = treeNodeService.find(filter, null).getContent().get(0);
+		IdmTreeNodeDto nodeOne = treeNodeService.find(filter, null).getContent().get(0);
 		Assert.assertNotNull(nodeOne);
 		
 		// Delete IDM node (must invoke provisioning) .. We delete child
@@ -598,7 +598,7 @@ public class DefaultTreeSynchronizationServiceTest extends AbstractIntegrationTe
 		// generate schema for system
 		List<SysSchemaObjectClassDto> objectClasses = systemService.generateSchema(system);
 
-		IdmTreeType treeType = new IdmTreeType();
+		IdmTreeTypeDto treeType = new IdmTreeTypeDto();
 		treeType.setCode(TREE_TYPE_TEST);
 		treeType.setDefaultTreeType(false);
 		treeType.setName(TREE_TYPE_TEST);

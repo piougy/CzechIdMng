@@ -2,26 +2,25 @@ package eu.bcvsolutions.idm.core.model.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmConfigurationDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
-import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmTreeTypeFilter;
+import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.utils.SpinalCase;
-import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
+import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
-import eu.bcvsolutions.idm.core.model.event.TreeTypeEvent;
-import eu.bcvsolutions.idm.core.model.event.TreeTypeEvent.TreeTypeEventType;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeTypeRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeTypeService;
+import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
 /**
  * Operations with IdmTreeType
@@ -30,65 +29,58 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmTreeTypeService;
  * @author Radek Tomiška
  */
 @Service("treeTypeService")
-public class DefaultIdmTreeTypeService extends AbstractReadWriteEntityService<IdmTreeType, QuickFilter> implements IdmTreeTypeService {
-
-	private static final Logger LOG = LoggerFactory.getLogger(DefaultIdmTreeTypeService.class);
+public class DefaultIdmTreeTypeService 
+		extends AbstractEventableDtoService<IdmTreeTypeDto, IdmTreeType, IdmTreeTypeFilter> 
+		implements IdmTreeTypeService {
 	
 	private final IdmTreeTypeRepository repository;
 	private final IdmConfigurationService configurationService;
-	private final EntityEventManager entityEventManager;
 	
 	@Autowired
 	public DefaultIdmTreeTypeService(
 			IdmTreeTypeRepository treeTypeRepository,
 			IdmConfigurationService configurationService,
 			EntityEventManager entityEventManager) {
-		super(treeTypeRepository);
+		super(treeTypeRepository, entityEventManager);
 		//
 		Assert.notNull(configurationService);
-		Assert.notNull(entityEventManager);
 		//
 		this.repository = treeTypeRepository;
 		this.configurationService = configurationService;
-		this.entityEventManager = entityEventManager;
+	}
+	
+	@Override
+	public AuthorizableType getAuthorizableType() {
+		return new AuthorizableType(CoreGroupPermission.TREETYPE, getEntityClass());
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public IdmTreeTypeDto getByCode(String code) {
+		return toDto(repository.findOneByCode(code));
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public IdmTreeTypeDto getDefaultTreeType() {
+		return toDto(repository.findOneByDefaultTreeTypeIsTrue());
 	}
 	
 	@Override
 	@Transactional
-	public IdmTreeType save(IdmTreeType entity) {
-		if (entity.isDefaultTreeType()) {
-			this.repository.clearDefaultTreeType(entity.getId());
+	public IdmTreeTypeDto saveInternal(IdmTreeTypeDto dto) {
+		if (dto.isDefaultTreeType()) {
+			// TODO: configuration service
+			this.repository.clearDefaultTreeType(dto.getId());
 		}
-		return super.save(entity);
-	}
-	
-	/**
-	 * Deletes tree type, if no children a contracts assigned to this type exists. 
-	 */
-	@Override
-	@Transactional
-	public void delete(IdmTreeType treeType) {
-		Assert.notNull(treeType);
-		//
-		LOG.debug("Deleting tree type [{}]", treeType.getCode());
-		entityEventManager.process(new TreeTypeEvent(TreeTypeEventType.DELETE, treeType));
+		return super.saveInternal(dto);
 	}
 
 	@Override
 	@Transactional(readOnly = true)
-	public IdmTreeType getByCode(String code) {
-		return repository.findOneByCode(code);
-	}
-
-	@Override
-	@Transactional(readOnly = true)
-	public IdmTreeType getDefaultTreeType() {
-		return repository.findOneByDefaultTreeTypeIsTrue();
-	}
-
-	@Override
-	@Transactional(readOnly = true)
-	public List<IdmConfigurationDto> getConfigurations(IdmTreeType treeType) {
+	public List<IdmConfigurationDto> getConfigurations(UUID treeTypeId) {
+		Assert.notNull(treeTypeId);
+		IdmTreeTypeDto treeType = get(treeTypeId);
 		Assert.notNull(treeType);
 		//
 		return new ArrayList<>(configurationService.getConfigurations(getConfigurationPrefix(treeType.getCode())).values());
@@ -109,7 +101,7 @@ public class DefaultIdmTreeTypeService extends AbstractReadWriteEntityService<Id
 
 	@Override
 	@Transactional
-	public int clearDefaultTreeNode(IdmTreeNode defaultTreeNode) {
+	public int clearDefaultTreeNode(UUID defaultTreeNode) {		
 		return repository.clearDefaultTreeNode(defaultTreeNode);
 	}
 }

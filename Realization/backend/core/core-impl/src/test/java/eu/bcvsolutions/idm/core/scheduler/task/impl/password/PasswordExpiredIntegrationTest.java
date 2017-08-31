@@ -16,7 +16,6 @@ import org.springframework.data.domain.Page;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.InitTestData;
-import eu.bcvsolutions.idm.core.TestHelper;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordDto;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
@@ -28,6 +27,7 @@ import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskService;
 import eu.bcvsolutions.idm.core.scheduler.service.api.IdmProcessedTaskItemService;
 import eu.bcvsolutions.idm.core.scheduler.service.api.IdmScheduledTaskService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
+import eu.bcvsolutions.idm.test.api.TestHelper;
 import eu.bcvsolutions.idm.test.api.utils.SchedulerTestUtils;
 
 /**

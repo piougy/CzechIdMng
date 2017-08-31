@@ -69,9 +69,21 @@ public interface IdmIdentityContractRepository extends AbstractEntityRepository<
 			+ " ( e.validFrom is null or (?#{[0] == null ? 'null' : ''} = 'null' or e.validFrom <= :date ))")
 	List<IdmIdentityContract> findAllValidContracts(@Param("identityId") UUID identityId, @Param("date") LocalDate date, @Param("onlyExterne") Boolean onlyExterne);
 	
+	/**
+	 * @deprecated use {@link #countByWorkPosition_Id(UUID)}
+	 */
+	@Deprecated
 	Long countByWorkPosition(@Param("treeNode") IdmTreeNode treeNode);
 	
+	Long countByWorkPosition_Id(@Param("treeNodeId") UUID treeNodeId);
+	
+	/**
+	 * @deprecated use {@link #countByWorkPosition_TreeType_Id(UUID)}
+	 */
+	@Deprecated
 	Long countByWorkPosition_TreeType(@Param("treeType") IdmTreeType treeType);
+	
+	Long countByWorkPosition_TreeType_Id(UUID treeTypeId);
 
 	/**
 	 * Removes all contracts of given identity

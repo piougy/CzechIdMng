@@ -60,6 +60,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordPolicyDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdentityFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
@@ -67,8 +68,6 @@ import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
-import eu.bcvsolutions.idm.core.model.entity.IdmRole;
-import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.eav.IdmIdentityFormValue;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmPasswordPolicyRepository;
@@ -264,9 +263,9 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 	public void doIdentityProvisioningChangeManagersContract() {
 		IdmIdentityDto managerOne = createIdentity();
 		IdmIdentityDto subordinateOne = createIdentity();		
-		IdmTreeNode managerOnePosition = createTreeNode(null); 
+		IdmTreeNodeDto managerOnePosition = createTreeNode(null); 
 		IdmIdentityContractDto managersContract = createIdentityContact(managerOne, managerOnePosition);		
-		IdmTreeNode subordinateOnePositionOne = createTreeNode(managerOnePosition);
+		IdmTreeNodeDto subordinateOnePositionOne = createTreeNode(managerOnePosition);
 		createIdentityContact(subordinateOne, subordinateOnePositionOne);
 		AccIdentityAccountDto subordinateAccount = prepareAccount(subordinateOne);
 		//
@@ -1385,13 +1384,13 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 	 * @deprecated use testHepler after role + dto refactoring
 	 */
 	@Deprecated
-	private IdmTreeNode createTreeNode(IdmTreeNode parent) {
+	private IdmTreeNodeDto createTreeNode(IdmTreeNodeDto parent) {
 		String name = "test" + "-" + UUID.randomUUID();
-		IdmTreeNode node = new IdmTreeNode();
-		node.setParent(parent);
+		IdmTreeNodeDto node = new IdmTreeNodeDto();
+		node.setParent(parent == null ? null : parent.getId());
 		node.setCode(name);
 		node.setName(name);
-		node.setTreeType(treeTypeService.getDefaultTreeType());
+		node.setTreeType(treeTypeService.getDefaultTreeType().getId());
 		return treeNodeService.save(node);
 	}
 
@@ -1401,7 +1400,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 	 * @deprecated use testHepler after role + dto refactoring
 	 */
 	@Deprecated
-	public IdmIdentityContractDto createIdentityContact(IdmIdentityDto identity, IdmTreeNode position) {
+	public IdmIdentityContractDto createIdentityContact(IdmIdentityDto identity, IdmTreeNodeDto position) {
 		IdmIdentityContractDto contract = new IdmIdentityContractDto();
 		contract.setIdentity(identity.getId());
 		contract.setPosition("test" + "-" + UUID.randomUUID());

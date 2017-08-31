@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -25,14 +27,12 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmConfigurationDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmTreeTypeFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
-import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
-import eu.bcvsolutions.idm.core.api.service.LookupService;
+import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
-import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
-import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeTypeService;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
@@ -46,30 +46,40 @@ import io.swagger.annotations.AuthorizationScope;
 /**
  * Tree type structures
  * 
+ * TODO: secure read operations? 
+ * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
  * @author Radek Tomiška
  *
  */
 @RepositoryRestController
-@RequestMapping(value = BaseEntityController.BASE_PATH + BaseEntityController.TREE_BASE_PATH + "-types")
+@RequestMapping(value = BaseDtoController.BASE_PATH + BaseDtoController.TREE_BASE_PATH + "-types")
 @Api(
 		value = IdmTreeTypeController.TAG,  
 		tags = { IdmTreeTypeController.TAG }, 
 		description = "Operation with tree types",
 		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
 		consumes = MediaType.APPLICATION_JSON_VALUE)
-public class IdmTreeTypeController extends DefaultReadWriteEntityController<IdmTreeType, QuickFilter> {
+public class IdmTreeTypeController extends DefaultReadWriteDtoController<IdmTreeTypeDto, IdmTreeTypeFilter> {
 	
 	protected static final String TAG = "Tree structure - types";
 	private final IdmLongRunningTaskController longRunningTaskController;
+	private final IdmTreeTypeService service;
+	private final IdmTreeNodeService treeNodeservice;
 	
 	@Autowired
-	public IdmTreeTypeController(LookupService entityLookupService, IdmLongRunningTaskController longRunningTaskController) {
-		super(entityLookupService);
+	public IdmTreeTypeController(
+			IdmTreeTypeService service, 
+			IdmTreeNodeService treeNodeservice,
+			IdmLongRunningTaskController longRunningTaskController) {
+		super(service);
 		//
 		Assert.notNull(longRunningTaskController);
+		Assert.notNull(treeNodeservice);
 		//
+		this.service = service;
 		this.longRunningTaskController = longRunningTaskController;
+		this.treeNodeservice = treeNodeservice;
 	}
 	
 	@Override
@@ -79,7 +89,7 @@ public class IdmTreeTypeController extends DefaultReadWriteEntityController<IdmT
 	@ApiOperation(
 			value = "Create / update tree type", 
 			nickname = "postTreeType", 
-			response = IdmTreeType.class, 
+			response = IdmTreeTypeDto.class, 
 			tags = { IdmTreeTypeController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
@@ -89,9 +99,8 @@ public class IdmTreeTypeController extends DefaultReadWriteEntityController<IdmT
 						@AuthorizationScope(scope = CoreGroupPermission.TREETYPE_CREATE, description = ""),
 						@AuthorizationScope(scope = CoreGroupPermission.TREETYPE_UPDATE, description = "")})
 				})
-	public ResponseEntity<?> post(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler)
-			throws HttpMessageNotReadableException {
-		return super.post(nativeRequest, assembler);
+	public ResponseEntity<?> post(@Valid @RequestBody IdmTreeTypeDto dto) {
+		return super.post(dto);
 	}
 	
 	@Override
@@ -100,7 +109,7 @@ public class IdmTreeTypeController extends DefaultReadWriteEntityController<IdmT
 	@ApiOperation(
 			value = "Update tree type",
 			nickname = "putTreeType", 
-			response = IdmTreeType.class, 
+			response = IdmTreeTypeDto.class, 
 			tags = { IdmTreeTypeController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
@@ -111,9 +120,8 @@ public class IdmTreeTypeController extends DefaultReadWriteEntityController<IdmT
 	public ResponseEntity<?> put(
 			@ApiParam(value = "Type's uuid identifier or code.", required = true)
 			@PathVariable @NotNull String backendId, 
-			HttpServletRequest nativeRequest,
-			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
-		return super.put(backendId, nativeRequest, assembler);
+			@Valid @RequestBody IdmTreeTypeDto dto) {
+		return super.put(backendId, dto);
 	}
 	
 	@Override
@@ -122,7 +130,7 @@ public class IdmTreeTypeController extends DefaultReadWriteEntityController<IdmT
 	@ApiOperation(
 			value = "Update tree type",
 			nickname = "patchTreeType", 
-			response = IdmTreeType.class, 
+			response = IdmTreeTypeDto.class, 
 			tags = { IdmTreeTypeController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
@@ -132,10 +140,10 @@ public class IdmTreeTypeController extends DefaultReadWriteEntityController<IdmT
 				})
 	public ResponseEntity<?> patch(
 			@ApiParam(value = "Type's uuid identifier or code.", required = true)
-			@PathVariable @NotNull String backendId, 
-			HttpServletRequest nativeRequest,
-			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
-		return super.patch(backendId, nativeRequest, assembler);
+			@PathVariable @NotNull String backendId,
+			HttpServletRequest nativeRequest)
+			throws HttpMessageNotReadableException {
+		return super.patch(backendId, nativeRequest);
 	}
 	
 	@Override
@@ -168,14 +176,14 @@ public class IdmTreeTypeController extends DefaultReadWriteEntityController<IdmT
 	@ApiOperation(
 			value = "Get default tree type detail", 
 			nickname = "getDefaultTreeType", 
-			response = IdmTreeType.class, 
+			response = IdmTreeTypeDto.class, 
 			tags = { IdmTreeTypeController.TAG })
-	public ResponseEntity<?> getDefaultTreeType(PersistentEntityResourceAssembler assembler) {
-		IdmTreeType defaultTreeType = entityLookupService.getEntityService(IdmTreeType.class, IdmTreeTypeService.class).getDefaultTreeType();
+	public ResponseEntity<?> getDefaultTreeType() {
+		IdmTreeTypeDto defaultTreeType = service.getDefaultTreeType();
 		if (defaultTreeType == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", "default tree type"));
-		}		
-		return new ResponseEntity<>(toResource(defaultTreeType, assembler), HttpStatus.OK);
+		}
+		return new ResponseEntity<>(toResource(defaultTreeType), HttpStatus.OK);
 	}
 	
 	/**
@@ -193,12 +201,12 @@ public class IdmTreeTypeController extends DefaultReadWriteEntityController<IdmT
 	public List<IdmConfigurationDto> getConfigurations(
 			@ApiParam(value = "Type's uuid identifier or code.", required = true)
 			@PathVariable String backendId) {
-		IdmTreeType treeType = getEntity(backendId);
+		IdmTreeTypeDto treeType = getDto(backendId);
 		if (treeType == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
 		//
-		return entityLookupService.getEntityService(IdmTreeType.class, IdmTreeTypeService.class).getConfigurations(treeType);
+		return service.getConfigurations(treeType.getId());
 	}
 	
 	/**
@@ -227,12 +235,12 @@ public class IdmTreeTypeController extends DefaultReadWriteEntityController<IdmT
 			@ApiParam(value = "Type's uuid identifier or code.", required = true)
 			@PathVariable String backendId,
 			PersistentEntityResourceAssembler assembler) {
-		IdmTreeType treeType = getEntity(backendId);
+		IdmTreeTypeDto treeType = getDto(backendId);
 		if (treeType == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
 		//
-		UUID longRunningTaskId = entityLookupService.getEntityService(IdmTreeNode.class, IdmTreeNodeService.class).rebuildIndexes(treeType);
+		UUID longRunningTaskId = treeNodeservice.rebuildIndexes(treeType.getId());
 		//
 		return longRunningTaskController.get(longRunningTaskId.toString());
 	}

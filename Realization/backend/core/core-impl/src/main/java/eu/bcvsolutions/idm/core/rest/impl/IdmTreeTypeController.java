@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.rest.impl;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
@@ -8,18 +9,23 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.hateoas.Resources;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.Assert;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.common.collect.ImmutableMap;
@@ -30,6 +36,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmConfigurationDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmTreeTypeFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
@@ -60,7 +67,7 @@ import io.swagger.annotations.AuthorizationScope;
 		description = "Operation with tree types",
 		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
 		consumes = MediaType.APPLICATION_JSON_VALUE)
-public class IdmTreeTypeController extends DefaultReadWriteDtoController<IdmTreeTypeDto, IdmTreeTypeFilter> {
+public class IdmTreeTypeController extends AbstractReadWriteDtoController<IdmTreeTypeDto, IdmTreeTypeFilter> {
 	
 	protected static final String TAG = "Tree structure - types";
 	private final IdmLongRunningTaskController longRunningTaskController;
@@ -80,6 +87,86 @@ public class IdmTreeTypeController extends DefaultReadWriteDtoController<IdmTree
 		this.service = service;
 		this.longRunningTaskController = longRunningTaskController;
 		this.treeNodeservice = treeNodeservice;
+	}
+	
+	
+	@Override
+	@ResponseBody
+	@RequestMapping(method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.TREETYPE_READ + "')")
+	@ApiOperation(
+			value = "Search tree types (/search/quick alias)", 
+			nickname = "searchTreeTypes",
+			tags = { IdmTreeTypeController.TAG }, 
+			authorizations = {
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.TREETYPE_READ, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.TREETYPE_READ, description = "") })
+				})
+	public Resources<?> find(
+			@RequestParam(required = false) MultiValueMap<String, Object> parameters,
+			@PageableDefault Pageable pageable) {
+		return super.find(parameters, pageable);
+	}
+	
+	@ResponseBody
+	@RequestMapping(value= "/search/quick", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.TREETYPE_READ + "')")
+	@ApiOperation(
+			value = "Search tree types", 
+			nickname = "searchQuickTreeTypes", 
+			tags = { IdmTreeTypeController.TAG }, 
+			authorizations = {
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.TREETYPE_READ, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.TREETYPE_READ, description = "") })
+				})
+	public Resources<?> findQuick(
+			@RequestParam(required = false) MultiValueMap<String, Object> parameters,
+			@PageableDefault Pageable pageable) {
+		return super.findQuick(parameters, pageable);
+	}
+	
+	@ResponseBody
+	@RequestMapping(value= "/search/autocomplete", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.TREETYPE_AUTOCOMPLETE + "')")
+	@ApiOperation(
+			value = "Autocomplete tree types (selectbox usage)", 
+			nickname = "autocompleteTreeTypes", 
+			tags = { IdmTreeTypeController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.TREETYPE_AUTOCOMPLETE, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.TREETYPE_AUTOCOMPLETE, description = "") })
+				})
+	public Resources<?> autocomplete(
+			@RequestParam(required = false) MultiValueMap<String, Object> parameters, 
+			@PageableDefault Pageable pageable) {
+		return super.autocomplete(parameters, pageable);
+	}
+	
+	@Override
+	@ResponseBody
+	@RequestMapping(value = "/{backendId}", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.TREETYPE_READ + "')")
+	@ApiOperation(
+			value = "Tree type detail", 
+			nickname = "getTreeType", 
+			response = IdmTreeTypeDto.class, 
+			tags = { IdmTreeTypeController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.TREETYPE_READ, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.TREETYPE_READ, description = "") })
+				})
+	public ResponseEntity<?> get(
+			@ApiParam(value = "Role's uuid identifier or code.", required = true)
+			@PathVariable @NotNull String backendId) {
+		return super.get(backendId);
 	}
 	
 	@Override
@@ -163,6 +250,26 @@ public class IdmTreeTypeController extends DefaultReadWriteDtoController<IdmTree
 			@ApiParam(value = "Type's uuid identifier or code.", required = true)
 			@PathVariable @NotNull String backendId) {
 		return super.delete(backendId);
+	}
+	
+	@Override
+	@ResponseBody
+	@RequestMapping(value = "/{backendId}/permissions", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.TREETYPE_READ + "')")
+	@ApiOperation(
+			value = "What logged identity can do with given record", 
+			nickname = "getPermissionsOnTreeType", 
+			tags = { IdmTreeTypeController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.TREETYPE_READ, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.TREETYPE_READ, description = "") })
+				})
+	public Set<String> getPermissions(
+			@ApiParam(value = "Type's uuid identifier or code.", required = true)
+			@PathVariable @NotNull String backendId) {
+		return super.getPermissions(backendId);
 	}
 	
 	/**

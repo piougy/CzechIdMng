@@ -34,48 +34,50 @@ public enum CoreGroupPermission implements GroupPermission {
 			IdentityBasePermission.PASSWORDCHANGE),
 			// IdentityBasePermission.PASSWORDRESET),
 	IDENTITYCONTRACT(
-			IdmBasePermission.ADMIN, 
-			IdmBasePermission.AUTOCOMPLETE, 
-			IdmBasePermission.READ, 
-			IdmBasePermission.CREATE, 
-			IdmBasePermission.UPDATE, 
+			IdmBasePermission.ADMIN,
+			IdmBasePermission.AUTOCOMPLETE,
+			IdmBasePermission.READ,
+			IdmBasePermission.CREATE,
+			IdmBasePermission.UPDATE,
 			IdmBasePermission.DELETE),
 	IDENTITYROLE(
 			IdmBasePermission.ADMIN, 
-			IdmBasePermission.AUTOCOMPLETE, 
+			IdmBasePermission.AUTOCOMPLETE,
 			IdmBasePermission.READ, 
 			IdmBasePermission.CREATE, 
 			IdmBasePermission.UPDATE, 
 			IdmBasePermission.DELETE),
 	ROLE(
 			IdmBasePermission.ADMIN, 
-			IdmBasePermission.AUTOCOMPLETE, 
+			IdmBasePermission.AUTOCOMPLETE,
 			IdmBasePermission.READ, 
 			IdmBasePermission.CREATE, 
 			IdmBasePermission.UPDATE, 
 			IdmBasePermission.DELETE),
 	ROLECATALOGUE(
 			IdmBasePermission.ADMIN, 
-			IdmBasePermission.AUTOCOMPLETE, 
+			IdmBasePermission.AUTOCOMPLETE,
 			IdmBasePermission.READ, 
 			IdmBasePermission.CREATE, 
 			IdmBasePermission.UPDATE, 
 			IdmBasePermission.DELETE),
 	ROLETREENODE(
 			IdmBasePermission.ADMIN, 
-			IdmBasePermission.AUTOCOMPLETE, 
+			IdmBasePermission.AUTOCOMPLETE,
 			IdmBasePermission.READ, 
 			IdmBasePermission.CREATE, 
 			IdmBasePermission.UPDATE, 
 			IdmBasePermission.DELETE),
 	TREENODE(
-			IdmBasePermission.ADMIN, 
+			IdmBasePermission.ADMIN,
+			IdmBasePermission.AUTOCOMPLETE,
 			IdmBasePermission.READ, 
 			IdmBasePermission.CREATE, 
 			IdmBasePermission.UPDATE, 
 			IdmBasePermission.DELETE),
 	TREETYPE(
 			IdmBasePermission.ADMIN, 
+			IdmBasePermission.AUTOCOMPLETE,
 			IdmBasePermission.READ,
 			IdmBasePermission.CREATE, 
 			IdmBasePermission.UPDATE, 
@@ -172,10 +174,14 @@ public enum CoreGroupPermission implements GroupPermission {
 	public static final String CONFIGURATION_UPDATE = "CONFIGURATION" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String CONFIGURATION_DELETE = "CONFIGURATION" + BasePermission.SEPARATOR + "DELETE";
 	//
+	public static final String TREENODE_AUTOCOMPLETE = "TREENODE" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
+	public static final String TREENODE_READ = "TREENODE" + BasePermission.SEPARATOR + "READ";
 	public static final String TREENODE_CREATE = "TREENODE" + BasePermission.SEPARATOR + "CREATE";
 	public static final String TREENODE_UPDATE = "TREENODE" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String TREENODE_DELETE = "TREENODE" + BasePermission.SEPARATOR + "DELETE";
 	//
+	public static final String TREETYPE_AUTOCOMPLETE = "TREETYPE" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
+	public static final String TREETYPE_READ = "TREETYPE" + BasePermission.SEPARATOR + "READ";
 	public static final String TREETYPE_CREATE = "TREETYPE" + BasePermission.SEPARATOR + "CREATE";
 	public static final String TREETYPE_UPDATE = "TREETYPE" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String TREETYPE_DELETE = "TREETYPE" + BasePermission.SEPARATOR + "DELETE";

@@ -37,6 +37,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleRequest;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
+import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.entity.eav.IdmIdentityFormValue;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmContractGuaranteeService;
@@ -51,6 +52,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.IdentityBasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
+import eu.bcvsolutions.idm.core.security.evaluator.BasePermissionEvaluator;
 import eu.bcvsolutions.idm.core.security.evaluator.identity.ContractGuaranteeByIdentityContractEvaluator;
 import eu.bcvsolutions.idm.core.security.evaluator.identity.IdentityContractByIdentityEvaluator;
 import eu.bcvsolutions.idm.core.security.evaluator.identity.IdentityRoleByIdentityEvaluator;
@@ -247,6 +249,22 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				roleRequestByWfPolicy.setAuthorizableType(IdmRoleRequest.class.getCanonicalName());
 				roleRequestByWfPolicy.setEvaluator(RoleRequestByWfInvolvedIdentityEvaluator.class);
 				authorizationPolicyService.save(roleRequestByWfPolicy);
+				// tree node - autocomplete
+				IdmAuthorizationPolicyDto treeNodePolicy = new IdmAuthorizationPolicyDto();
+				treeNodePolicy.setPermissions(IdmBasePermission.AUTOCOMPLETE);
+				treeNodePolicy.setRole(role1.getId());
+				treeNodePolicy.setGroupPermission(CoreGroupPermission.TREENODE.getName());
+				treeNodePolicy.setAuthorizableType(IdmTreeNode.class.getCanonicalName());
+				treeNodePolicy.setEvaluator(BasePermissionEvaluator.class);
+				authorizationPolicyService.save(treeNodePolicy);
+				// tree type - autocomplete all
+				IdmAuthorizationPolicyDto treeTypePolicy = new IdmAuthorizationPolicyDto();
+				treeTypePolicy.setPermissions(IdmBasePermission.AUTOCOMPLETE);
+				treeTypePolicy.setRole(role1.getId());
+				treeTypePolicy.setGroupPermission(CoreGroupPermission.TREETYPE.getName());
+				treeTypePolicy.setAuthorizableType(IdmTreeType.class.getCanonicalName());
+				treeTypePolicy.setEvaluator(BasePermissionEvaluator.class);
+				authorizationPolicyService.save(treeTypePolicy);
 				//
 				LOG.info(MessageFormat.format("Role created [id: {0}]", role1.getId()));
 				//

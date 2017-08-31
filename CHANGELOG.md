@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [7.4.0-Snapshot] (Unreleased)
 
+### Requirements
+
+#### All workflow instances (task) have to be closed (resolved / canceled) before update. Some services were refactored and new workflow definitions (core) will be installed automatically.
+
 ### Added
 
 #### Core module
@@ -36,20 +40,44 @@ All notable changes to this project will be documented in this file.
 
 ##### Role
 
-- Role agenda was refactored to dto usage. Search **IdmRoleService** usage in your project - **all methods works with dto** now, entity service methods were removed (e.q. ``findSecured``). **In workflow ``roleSevice.get(roleId, null)`` method has to be used**.
-- **``RoleFilter``** - fields are UUID now - **roleCatalogue => roleCatalogueId**, **guarantee => guaranteeId**
-- **``GrantedAuthoritiesFactory#getActiveRoleAuthorities(UUID identityId, IdmRoleDto role)``** - method using role dto as parameter now
-- **``TestHelper``** - role entity usage was removed - dto or role id (uuid) is used now.
-- **``IdmRoleDto`` is used as event content now - change all entity event processors from template ``IdmRole`` to ``IdmRoleDto`` in your project.** ``RoleEvent`` uses ``IdmRoleDto`` content now too
-- Rest endpoint - changed role lists structure (``IdmRoleGuaranteeDto, IdmRoleCatalogueDto`` are used now) - uuid only is needed, when relation is created and updated
+- Role agenda was refactored to dto usage. Search **``IdmRoleService``** usage in your project - **all methods works with dto**, entity service methods were removed (e.q. ``findSecured``). **In workflow ``roleSevice.get(roleId, null)`` method has to be used**.
+- **``GrantedAuthoritiesFactory#getActiveRoleAuthorities(UUID identityId, IdmRoleDto role)``** - method using role dto as parameter.
+- **``IdmRoleDto`` is used as event content - change all entity event processors from template ``IdmRole`` to ``IdmRoleDto`` in your project.** ``RoleEvent`` uses ``IdmRoleDto`` content too.
+- Rest endpoint - changed role lists structure (``IdmRoleGuaranteeDto, IdmRoleCatalogueDto`` are used) - uuid only is needed, when relation is created and updated.
 - ``IdmRoleGuaranteeRepository`` - removed methods ``deleteByGuarantee_Id``, ``deleteByRole`` - service layer has to be used for create audit records.
+- **``RoleFilter``** was **moved to core api** module and renamed to ``IdmRoleFilter`` - we will add ``Idm`` prefix to all core filters.
+- **``IdmRoleFilter``** - fields are ``UUID`` now - **roleCatalogue => roleCatalogueId**, **guarantee => guaranteeId**
 
 ##### Role request
 
 - Added authorization policies support. New [authorization policy evaluators](https://wiki.czechidm.com/devel/dev/security/change-user-permissions#security) has to be [configured](https://wiki.czechidm.com/devel/dev/security/authorization#default_settings_of_permissions_for_an_identity_profile) to add permission for role requests. Added new permission group ``ROLEREQUEST``.
-- Don't use **IdmRoleRequestRepository#find()** and **IdmConceptRoleRequestRepository#find()** methods directly => use service layer (methods are using criteria api now).
+- Don't use **``IdmRoleRequestRepository#find()``** and **``IdmConceptRoleRequestRepository#find()``** methods directly => use service layer (methods are using criteria api now).
 - Role request navigation item was moved to audit and enabled for all logged users - can read their own role requests history.
 
+##### Tree structure
+
+- Tree type and node agendas were refactored to dto usage. Search **``IdmTreeTypeService``** usage in your project - **all methods works with dto**. Search **``IdmTreeNodeService``** usage in your project - **all methods works with dto**.
+- **``IdmTreeTypeService``** supports events (``CREATE``, ``UPDATE``, ``DELETE``).
+- **``IdmTreeTypeService#getConfigurations(UUID)`` uses uuid as parameter**.
+- **``IdmTreeTypeRepository#clearDefaultTreeType()``** was removed - configuration service is used for persist default tree type and node.
+- **``IdmTreeTypeRepository#clearDefaultTreeNode()``** was removed - configuration service is used for persist default tree type and node.
+- **``IdmTreeTypeRepository#findOneByDefaultTreeTypeIsTrue()``** was removed - configuration service is used for persist default tree type and node.
+- **``IdmTreeTypeService#clearDefaultTreeNode()``** was removed - configuration service is used for persist default tree type and node.
+- ``TreeConfiguration`` was added - provide default tree node and type. This configuration is used in ``DefaultIdmIdentityContractService``, ``DeafultIdmTreeNodeService`` constructors.
+- **``IdmTreeTypeFilter``** is used as filter in ``IdmTreeTypeService`` - its possible to find types by code from rest api.
+- **``TreeNodeFilter``** was renamed to **``IdmTreeNodeFilter``**. Its possible to find node by type and code from rest api.
+- Don't use **``IdmTreeTypeRepository#find()``** method directly => use service layer (methods are using criteria api now).
+- **``IdmTreeNodeService#rebuildIndexes(UUID)``** uses uuid as parameter**.
+- **Tree processors were moved to package ``eu.bcvsolutions.idm.core.model.event.processor.tree``**.
+- **``IdmTreeNodeDto`` is used as event content - change all entity event processors from template ``IdmTreeNode`` to ``IdmTreeNodeDto`` in your project.** ``TreeNodeEvent`` uses ``IdmTreeNodeDto`` content too.
+- **``IdmTreeTypeDto`` is used as event content - change all entity event processors from template ``IdmTreeType`` to ``IdmTreeTypeDto`` in your project.** ``TreeTypeEvent`` uses ``IdmTreeTypeDto`` content too.
+- **Added authorization policies support.** Authorization policies has to be [configured](https://wiki.czechidm.com/devel/dev/security/authorization#default_settings_of_permissions_for_an_identity_profile) to add permission for tree types and nodes. ``BasePermissionEvaluator`` can be used.
+
+##### TestHelper
+
+- **``TestHelper``** interface was moved to core test api module.
+- Role entity usage was removed - dto or role id (uuid) is used now.
+- Tree type and node entities usage was removed - dto or id (uuid) is used now.
 
 #### Acc module
 
@@ -81,3 +109,6 @@ All notable changes to this project will be documented in this file.
 
 
 ### Removed
+##### Long running tasks
+- From [AbstractLongRunningTaskExecutor](https://github.com/bcvsolutions/CzechIdMng/blob/develop/Realization/backend/core/core-impl/src/main/java/eu/bcvsolutions/idm/core/scheduler/service/impl/AbstractLongRunningTaskExecutor.java) was removed deprecated method getParameterNames, replace this method from your project with method getPropertyNames.
+

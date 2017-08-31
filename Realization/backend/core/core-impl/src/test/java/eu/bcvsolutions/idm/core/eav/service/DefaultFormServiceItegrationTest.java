@@ -29,9 +29,9 @@ import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.InitDemoData;
 import eu.bcvsolutions.idm.InitTestData;
-import eu.bcvsolutions.idm.core.TestHelper;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
@@ -43,6 +43,7 @@ import eu.bcvsolutions.idm.core.eav.service.api.IdmFormDefinitionService;
 import eu.bcvsolutions.idm.core.eav.service.impl.DefaultFormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
+import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.eav.IdmIdentityFormValue;
 import eu.bcvsolutions.idm.core.model.entity.eav.IdmRoleFormValue;
 import eu.bcvsolutions.idm.core.model.entity.eav.IdmRoleFormValue_;
@@ -51,6 +52,7 @@ import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
+import eu.bcvsolutions.idm.test.api.TestHelper;
 
 /**
  * Target system tests
@@ -430,18 +432,18 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 	
 	@Test
 	public void testFindTreeNodesByNullAttributeValue() {
-		FormableEntity owner = helper.createTreeNode();
-		IdmFormDefinition formDefinition = formService.getDefinition(owner.getClass());
+		IdmTreeNodeDto owner = helper.createTreeNode();
+		IdmFormDefinition formDefinition = formService.getDefinition(IdmTreeNode.class);
 		IdmFormAttribute attribute = formDefinition.getFormAttributes().get(0);
 		// save values
-		formService.saveValues(owner, attribute, Lists.newArrayList(FORM_VALUE_ONE));
+		formService.saveValues(owner.getId(), IdmTreeNode.class, attribute, Lists.newArrayList(FORM_VALUE_ONE));
 		//
-		Page<? extends FormableEntity> owners = formService.findOwners(owner.getClass(), attribute, FORM_VALUE_ONE, null);
+		Page<? extends FormableEntity> owners = formService.findOwners(IdmTreeNode.class, attribute, FORM_VALUE_ONE, null);
 		//
 		assertEquals(1, owners.getTotalElements());
 		assertEquals(owner.getId(), owners.getContent().get(0).getId());
 		//
-		owners = formService.findOwners(owner.getClass(), attribute.getCode(), null, null);
+		owners = formService.findOwners(IdmTreeNode.class, attribute.getCode(), null, null);
 		assertEquals(0, owners.getTotalElements());
 	}
 	

@@ -17,9 +17,9 @@ import org.springframework.transaction.annotation.Transactional;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
-import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmContractGuaranteeService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
@@ -34,7 +34,6 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
-
 public class IdentityFindPositionsTest extends AbstractIntegrationTest{
 
 	@Autowired
@@ -97,45 +96,45 @@ public class IdentityFindPositionsTest extends AbstractIntegrationTest{
 		IdmIdentityDto user3 = createAndSaveIdentity("test_position_03");
 		IdmIdentityDto user4 = createAndSaveIdentity("test_position_04");
 		
-		IdmTreeType treeTypeFirst = new IdmTreeType();
+		IdmTreeTypeDto treeTypeFirst = new IdmTreeTypeDto();
 		treeTypeFirst.setCode("TEST_TYPE_CODE_FIRST");
 		treeTypeFirst.setName("TEST_TYPE_NAME_FIRST");
-		treeTypeService.save(treeTypeFirst);
+		treeTypeFirst = treeTypeService.save(treeTypeFirst);
 		
-		IdmTreeType treeTypeSecond = new IdmTreeType();
+		IdmTreeTypeDto treeTypeSecond = new IdmTreeTypeDto();
 		treeTypeSecond.setCode("TEST_TYPE_CODE_SECOND");
 		treeTypeSecond.setName("TEST_TYPE_NAME_SECOND");
-		treeTypeService.save(treeTypeSecond);
+		treeTypeSecond = treeTypeService.save(treeTypeSecond);
 		
 		// create root for second type
-		IdmTreeNode nodeRootSec = new IdmTreeNode();
+		IdmTreeNodeDto nodeRootSec = new IdmTreeNodeDto();
 		nodeRootSec.setName("TEST_NODE_NAME_ROOT_SEC");
 		nodeRootSec.setCode("TEST_NODE_CODE_ROOT_SEC");
-		nodeRootSec.setTreeType(treeTypeSecond);
-		treeNodeService.save(nodeRootSec);
+		nodeRootSec.setTreeType(treeTypeSecond.getId());
+		nodeRootSec = treeNodeService.save(nodeRootSec);
 		
 		// create root for first type
-		IdmTreeNode nodeRoot = new IdmTreeNode();
+		IdmTreeNodeDto nodeRoot = new IdmTreeNodeDto();
 		nodeRoot.setName("TEST_NODE_NAME_ROOT");
 		nodeRoot.setCode("TEST_NODE_CODE_ROOT");
-		nodeRoot.setTreeType(treeTypeFirst);
-		treeNodeService.save(nodeRoot);
+		nodeRoot.setTreeType(treeTypeFirst.getId());
+		nodeRoot = treeNodeService.save(nodeRoot);
 		
 		// create one for first type
-		IdmTreeNode nodeOne = new IdmTreeNode();
+		IdmTreeNodeDto nodeOne = new IdmTreeNodeDto();
 		nodeOne.setName("TEST_NODE_NAME_ONE");
 		nodeOne.setCode("TEST_NODE_CODE_ONE");
-		nodeOne.setParent(nodeRoot);
-		nodeOne.setTreeType(treeTypeFirst);
-		treeNodeService.save(nodeOne);
+		nodeOne.setParent(nodeRoot.getId());
+		nodeOne.setTreeType(treeTypeFirst.getId());
+		nodeOne = treeNodeService.save(nodeOne);
 		
 		// create two for first type
-		IdmTreeNode nodeTwo = new IdmTreeNode();
+		IdmTreeNodeDto nodeTwo = new IdmTreeNodeDto();
 		nodeTwo.setName("TEST_NODE_NAME_TWO");
 		nodeTwo.setCode("TEST_NODE_CODE_TWO");
-		nodeTwo.setParent(nodeOne);
-		nodeTwo.setTreeType(treeTypeFirst);
-		treeNodeService.save(nodeTwo);
+		nodeTwo.setParent(nodeOne.getId());
+		nodeTwo.setTreeType(treeTypeFirst.getId());
+		nodeTwo = treeNodeService.save(nodeTwo);
 		
 		createIdentityContract(user, null, nodeRoot);
 		createIdentityContract(user2, null, nodeOne);
@@ -185,7 +184,7 @@ public class IdentityFindPositionsTest extends AbstractIntegrationTest{
 		}
 	}
 	
-	private IdmIdentityContractDto createIdentityContract(IdmIdentityDto user, IdmIdentityDto guarantee, IdmTreeNode node) {
+	private IdmIdentityContractDto createIdentityContract(IdmIdentityDto user, IdmIdentityDto guarantee, IdmTreeNodeDto node) {
 		IdmIdentityContractDto position = new IdmIdentityContractDto();
 		position.setIdentity(user.getId());
 		position.setWorkPosition(node == null ? null : node.getId());

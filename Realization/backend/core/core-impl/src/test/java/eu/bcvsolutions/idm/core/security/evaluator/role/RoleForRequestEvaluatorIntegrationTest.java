@@ -20,9 +20,9 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
-import eu.bcvsolutions.idm.core.model.dto.filter.RoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
@@ -218,7 +218,7 @@ public class RoleForRequestEvaluatorIntegrationTest extends AbstractIntegrationT
 		try {
 			loginService.login(new LoginDto(user.getUsername(), new GuardedString(TEST_PWD)));
 			//
-			RoleFilter rf = getRoleFilter("name", role.getName());
+			IdmRoleFilter rf = getRoleFilter("name", role.getName());
 			Page<IdmRoleDto> readRole = roleService.find(rf, null, IdmBasePermission.READ);
 			return readRole;
 		} finally {
@@ -226,8 +226,8 @@ public class RoleForRequestEvaluatorIntegrationTest extends AbstractIntegrationT
 		}
 	}
 
-	private RoleFilter getRoleFilter(String prop, String val) {
-		RoleFilter rf = new RoleFilter();
+	private IdmRoleFilter getRoleFilter(String prop, String val) {
+		IdmRoleFilter rf = new IdmRoleFilter();
 		rf.setProperty(prop);
 		rf.setValue(val);
 		return rf;

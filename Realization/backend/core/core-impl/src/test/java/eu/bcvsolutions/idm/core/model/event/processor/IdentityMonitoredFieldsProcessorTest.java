@@ -14,7 +14,6 @@ import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
-import eu.bcvsolutions.idm.core.TestHelper;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
@@ -27,6 +26,7 @@ import eu.bcvsolutions.idm.core.notification.repository.IdmEmailLogRepository;
 import eu.bcvsolutions.idm.core.notification.repository.IdmNotificationLogRepository;
 import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationLogService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
+import eu.bcvsolutions.idm.test.api.TestHelper;
 
 /**
  * Check if defined fields on identity was changed. If yes, then send

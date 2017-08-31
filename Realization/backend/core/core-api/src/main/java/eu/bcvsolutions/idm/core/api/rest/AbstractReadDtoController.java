@@ -132,7 +132,7 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 	 */
 	@SuppressWarnings("unchecked")
 	public DTO getDto(Serializable backendId) {
-		if(lookupService == null) {
+		if (lookupService == null) {
 			return getService().get(backendId, IdmBasePermission.READ);
 		}
 		DTO dto = (DTO) lookupService.lookupDto(getDtoClass(), backendId);
@@ -315,6 +315,10 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 			filterConverter = new FilterConverter(lookupService, mapper);
 		}
 		return filterConverter;
+	}
+	
+	protected LookupService getLookupService() {
+		return lookupService;
 	}
 	
 	/**

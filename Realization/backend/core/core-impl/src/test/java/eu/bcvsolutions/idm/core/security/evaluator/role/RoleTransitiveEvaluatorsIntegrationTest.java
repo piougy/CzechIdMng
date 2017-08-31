@@ -8,11 +8,11 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import eu.bcvsolutions.idm.InitTestData;
-import eu.bcvsolutions.idm.core.TestHelper;
 import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.AuthorizationPolicyFilter;
 import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
@@ -20,7 +20,6 @@ import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmAuthorizationPolicy;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleTreeNode;
-import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
@@ -31,6 +30,7 @@ import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
 import eu.bcvsolutions.idm.core.security.evaluator.CodeableEvaluator;
 import eu.bcvsolutions.idm.core.security.service.LoginService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
+import eu.bcvsolutions.idm.test.api.TestHelper;
 
 /**
  * Test whole self identity profile read and password change
@@ -217,7 +217,7 @@ public class RoleTransitiveEvaluatorsIntegrationTest extends AbstractIntegration
 		TEST_ROLE_ID = UUID.randomUUID();
 		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
 		IdmRoleDto role = helper.createRole(TEST_ROLE_ID, null);
-		IdmTreeNode treeNode = helper.createTreeNode();
+		IdmTreeNodeDto treeNode = helper.createTreeNode();
 		helper.createRoleTreeNode(role, treeNode, true);
 		// self policy
 		IdmAuthorizationPolicyDto readRolePolicy = new IdmAuthorizationPolicyDto();

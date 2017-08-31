@@ -37,6 +37,7 @@ import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.RoleType;
 import eu.bcvsolutions.idm.core.api.dto.IdmAuditDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
@@ -46,11 +47,9 @@ import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.core.eav.rest.impl.IdmFormDefinitionController;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
-import eu.bcvsolutions.idm.core.model.dto.filter.RoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.eav.IdmRoleFormValue;
-import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
@@ -76,7 +75,7 @@ import io.swagger.annotations.AuthorizationScope;
 		description = "Operations with roles",
 		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
 		consumes = MediaType.APPLICATION_JSON_VALUE)
-public class IdmRoleController extends AbstractReadWriteDtoController<IdmRoleDto, RoleFilter> {
+public class IdmRoleController extends AbstractReadWriteDtoController<IdmRoleDto, IdmRoleFilter> {
 	
 	protected static final String TAG = "Roles";
 	//
@@ -84,7 +83,6 @@ public class IdmRoleController extends AbstractReadWriteDtoController<IdmRoleDto
 	private final IdmFormDefinitionController formDefinitionController;
 	private final IdmAuthorizationPolicyService authorizationPolicyService;
 	private final SecurityService securityService;
-	private final IdmRoleRepository roleRepository;
 	
 	@Autowired
 	public IdmRoleController(
@@ -93,21 +91,18 @@ public class IdmRoleController extends AbstractReadWriteDtoController<IdmRoleDto
 			IdmAuthorizationPolicyService authorizationPolicyService,
 			IdmFormDefinitionController formDefinitionController,
 			SecurityService securityService,
-			FormService formService,
-			IdmRoleRepository roleRepository) {
+			FormService formService) {
 		super(roleService);
 		//
 		Assert.notNull(auditService);
 		Assert.notNull(formDefinitionController);
 		Assert.notNull(authorizationPolicyService);
 		Assert.notNull(securityService);
-		Assert.notNull(roleRepository);
 		//
 		this.auditService = auditService;
 		this.formDefinitionController = formDefinitionController;
 		this.authorizationPolicyService = authorizationPolicyService;
 		this.securityService = securityService;
-		this.roleRepository = roleRepository;
 	}
 	
 	@Override
@@ -175,7 +170,7 @@ public class IdmRoleController extends AbstractReadWriteDtoController<IdmRoleDto
 	@ApiOperation(
 			value = "Role detail", 
 			nickname = "getRole", 
-			response = IdmRole.class, 
+			response = IdmRoleDto.class, 
 			tags = { IdmRoleController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
@@ -192,7 +187,8 @@ public class IdmRoleController extends AbstractReadWriteDtoController<IdmRoleDto
 	@Override
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.POST)
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_CREATE + "') or hasAuthority('" + CoreGroupPermission.ROLE_UPDATE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_CREATE + "')"
+			+ " or hasAuthority('" + CoreGroupPermission.ROLE_UPDATE + "')")
 	@ApiOperation(
 			value = "Create / update role", 
 			nickname = "postRole", 
@@ -417,7 +413,7 @@ public class IdmRoleController extends AbstractReadWriteDtoController<IdmRoleDto
 		//
 		IdmFormDefinition formDefinition = formDefinitionController.getDefinition(IdmRole.class, definitionCode);
 		//
-		return formDefinitionController.getFormValues(roleRepository.findOne(dto.getId()), formDefinition, assembler);
+		return formDefinitionController.getFormValues(dto.getId(), IdmRole.class, formDefinition, assembler);
 	}
 	
 	/**
@@ -456,7 +452,7 @@ public class IdmRoleController extends AbstractReadWriteDtoController<IdmRoleDto
 		//
 		IdmFormDefinition formDefinition = formDefinitionController.getDefinition(IdmRole.class, definitionCode);
 		//
-		return formDefinitionController.saveFormValues(roleRepository.findOne(dto.getId()), formDefinition, formValues, assembler);
+		return formDefinitionController.saveFormValues(dto.getId(), IdmRole.class, formDefinition, formValues, assembler);
 	}
 	
 	@ResponseBody
@@ -484,8 +480,8 @@ public class IdmRoleController extends AbstractReadWriteDtoController<IdmRoleDto
 	}
 	
 	@Override
-	protected RoleFilter toFilter(MultiValueMap<String, Object> parameters) {
-		RoleFilter filter = new RoleFilter(parameters);
+	protected IdmRoleFilter toFilter(MultiValueMap<String, Object> parameters) {
+		IdmRoleFilter filter = new IdmRoleFilter(parameters);
 		filter.setText(getParameterConverter().toString(parameters, "text"));
 		filter.setRoleType(getParameterConverter().toEnum(parameters, "roleType", RoleType.class));
 		filter.setRoleCatalogueId(getParameterConverter().toUuid(parameters, "roleCatalogue"));

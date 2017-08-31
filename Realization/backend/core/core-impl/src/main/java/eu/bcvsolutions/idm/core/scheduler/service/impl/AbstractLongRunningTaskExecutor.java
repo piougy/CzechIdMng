@@ -64,13 +64,6 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements LongRunningT
 		return AutowireHelper.getBeanDescription(this.getClass());
 	}
 	
-	
-	@Override
-	@Deprecated
-	public List<String> getParameterNames() {
-		return getPropertyNames();
-	}
-	
 	/**
 	 * Returns configurable task parameters. Don't forget to override this method additively.
 	 */

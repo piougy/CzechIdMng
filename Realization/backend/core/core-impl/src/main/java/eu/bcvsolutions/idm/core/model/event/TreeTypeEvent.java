@@ -3,9 +3,9 @@ package eu.bcvsolutions.idm.core.model.event;
 import java.io.Serializable;
 import java.util.Map;
 
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.EventType;
-import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 
 /**
  * Events for tree type
@@ -13,7 +13,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
  * @author Svanda
  *
  */
-public class TreeTypeEvent extends CoreEvent<IdmTreeType> {
+public class TreeTypeEvent extends CoreEvent<IdmTreeTypeDto> {
 	
 	private static final long serialVersionUID = 1L;
 
@@ -24,11 +24,11 @@ public class TreeTypeEvent extends CoreEvent<IdmTreeType> {
 		CREATE, UPDATE, DELETE
 	}
 
-	public TreeTypeEvent(TreeTypeEventType operation, IdmTreeType content) {
+	public TreeTypeEvent(TreeTypeEventType operation, IdmTreeTypeDto content) {
 		super(operation, content);
 	}
 	
-	public TreeTypeEvent(TreeTypeEventType operation, IdmTreeType content, Map<String, Serializable> properties) {
+	public TreeTypeEvent(TreeTypeEventType operation, IdmTreeTypeDto content, Map<String, Serializable> properties) {
 		super(operation, content, properties);
 	}
 

@@ -13,9 +13,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.InitTestData;
-import eu.bcvsolutions.idm.core.TestHelper;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdentityFilter;
 import eu.bcvsolutions.idm.core.api.repository.filter.FilterBuilder;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
@@ -24,8 +25,8 @@ import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
-import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
+import eu.bcvsolutions.idm.test.api.TestHelper;
 
 /**
  * Prepare data for all tests with subordinates / managers.
@@ -46,8 +47,8 @@ public abstract class AbstractWorkingPositionFilterIntegrationTest extends Abstr
 	protected IdmIdentityDto subordinateOne;
 	protected IdmIdentityDto subordinateTwo;
 	protected IdmIdentityDto subordinateThree;
-	protected IdmTreeType structureOne;
-	protected IdmTreeType structureTwo;
+	protected IdmTreeTypeDto structureOne;
+	protected IdmTreeTypeDto structureTwo;
 	protected IdmIdentityContractDto contractOne;
 	protected IdmIdentityContractDto contractTwo;
 	
@@ -80,22 +81,22 @@ public abstract class AbstractWorkingPositionFilterIntegrationTest extends Abstr
 		subordinateThree = helper.createIdentity();
 		//
 		structureOne = helper.createTreeType();
-		IdmTreeNode managerOnePosition = helper.createTreeNode(structureOne, null); 
+		IdmTreeNodeDto managerOnePosition = helper.createTreeNode(structureOne, null); 
 		helper.createIdentityContact(managerOne, managerOnePosition);
 		helper.createIdentityContact(invalidManager, managerOnePosition, new LocalDate().plusDays(1), null);
 		//
 		structureTwo = helper.createTreeType();
-		IdmTreeNode managerTwoPosition = helper.createTreeNode(structureTwo, null); 
+		IdmTreeNodeDto managerTwoPosition = helper.createTreeNode(structureTwo, null); 
 		helper.createIdentityContact(managerTwo, managerTwoPosition);
 		// subordinate one
-		IdmTreeNode subordinateOnePositionOne = createPosition(structureOne, managerOnePosition);
+		IdmTreeNodeDto subordinateOnePositionOne = createPosition(structureOne, managerOnePosition);
 		contractOne = helper.createIdentityContact(subordinateOne, subordinateOnePositionOne);
 		helper.createContractGuarantee(contractOne.getId(), guaranteeThree.getId());
-		IdmTreeNode subordinateOnePositionTwo = createPosition(structureTwo, managerTwoPosition); 
+		IdmTreeNodeDto subordinateOnePositionTwo = createPosition(structureTwo, managerTwoPosition); 
 		contractTwo = helper.createIdentityContact(subordinateOne, subordinateOnePositionTwo);
 		helper.createContractGuarantee(contractTwo.getId(), guaranteeFour.getId());
 		// subordinate two
-		IdmTreeNode subordinateTwoPosition = createPosition(structureOne, subordinateOnePositionOne);
+		IdmTreeNodeDto subordinateTwoPosition = createPosition(structureOne, subordinateOnePositionOne);
 		IdmIdentityContractDto contractSubordinateTwo = helper.createIdentityContact(subordinateTwo, subordinateTwoPosition);
 		helper.createContractGuarantee(contractSubordinateTwo.getId(), guaranteeFour.getId());
 		// subordinate three
@@ -183,8 +184,8 @@ public abstract class AbstractWorkingPositionFilterIntegrationTest extends Abstr
 		assertTrue(subordinates.isEmpty());
 	}
 	
-	private IdmTreeNode createPosition(IdmTreeType type, IdmTreeNode parent) {
-		IdmTreeNode node = helper.createTreeNode(type, parent);
+	private IdmTreeNodeDto createPosition(IdmTreeTypeDto type, IdmTreeNodeDto parent) {
+		IdmTreeNodeDto node = helper.createTreeNode(type, parent);
 		
 		IdmFormDefinition formDefinition = formService.getDefinition(IdmTreeNode.class, FormService.DEFAULT_DEFINITION_CODE);
 		IdmFormAttribute attr = formDefinition.getMappedAttributeByCode(EavCodeSubordinatesFilter.DEFAULT_FORM_ATTRIBUTE_CODE);
@@ -200,7 +201,7 @@ public abstract class AbstractWorkingPositionFilterIntegrationTest extends Abstr
 			formDefinition.addFormAttribute(attr);
 		}
 		//
-		formService.saveValues(node, attr, Lists.newArrayList(parent.getCode()));
+		formService.saveValues(node.getId(), IdmTreeNode.class, attr, Lists.newArrayList(parent.getCode()));
 		//
 		return node;
 	}

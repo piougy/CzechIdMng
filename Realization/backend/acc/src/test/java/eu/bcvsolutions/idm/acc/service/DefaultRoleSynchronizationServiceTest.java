@@ -59,8 +59,8 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.acc.service.impl.DefaultSynchronizationService;
 import eu.bcvsolutions.idm.core.api.domain.RoleType;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleFilter;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
-import eu.bcvsolutions.idm.core.model.dto.filter.RoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole_;
 import eu.bcvsolutions.idm.core.model.entity.eav.IdmRoleFormValue;
@@ -214,7 +214,7 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 		List<SysSyncItemLogDto> items = syncItemLogService.find(itemLogFilter, null).getContent();
 		Assert.assertEquals(5, items.size());
 		
-		RoleFilter roleFilter = new RoleFilter();
+		IdmRoleFilter roleFilter = new IdmRoleFilter();
 		roleFilter.setProperty(IdmRole_.name.getName());
 		roleFilter.setValue("1");
 		
@@ -257,7 +257,7 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 		syncConfigService.save(syncConfigCustom);
 
 		// Check state before sync
-		RoleFilter roleFilter = new RoleFilter();
+		IdmRoleFilter roleFilter = new IdmRoleFilter();
 		roleFilter.setProperty(IdmRole_.name.getName());
 		roleFilter.setValue("1");
 		Assert.assertEquals("1", roleService.find(roleFilter, null).getContent().get(0).getDescription());
@@ -317,7 +317,7 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 		syncConfigService.save(syncConfigCustom);
 
 		// Check state before sync
-		RoleFilter roleFilter = new RoleFilter();
+		IdmRoleFilter roleFilter = new IdmRoleFilter();
 		roleFilter.setProperty(IdmRole_.name.getName());
 		roleFilter.setValue("1");
 		IdmRoleDto roleOne = roleService.find(roleFilter, null).getContent().get(0);
@@ -367,7 +367,7 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 		SysSyncConfigDto syncConfigCustom = syncConfigs.get(0);
 		Assert.assertFalse(syncConfigService.isRunning(syncConfigCustom));
 		
-		RoleFilter roleFilter = new RoleFilter();
+		IdmRoleFilter roleFilter = new IdmRoleFilter();
 		roleFilter.setProperty(IdmRole_.name.getName());
 		roleFilter.setValue("3");
 		IdmRoleDto roleThree = roleService.find(roleFilter, null).getContent().get(0);
@@ -448,7 +448,7 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 	@Test
 	public void provisioningB_CreateAccounts() {
 
-		RoleFilter filter = new RoleFilter();
+		IdmRoleFilter filter = new IdmRoleFilter();
 		filter.setProperty(IdmRole_.name.getName());
 		filter.setValue(ROLE_NAME_TEN);
 
@@ -473,7 +473,7 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 	@Test
 	public void provisioningD_UpdateAccount() {
 		
-		RoleFilter filter = new RoleFilter();
+		IdmRoleFilter filter = new IdmRoleFilter();
 		filter.setProperty(IdmRole_.name.getName());
 		filter.setValue(ROLE_NAME_TEN);
 
@@ -499,7 +499,7 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 	@Test
 	public void provisioningD_UpdateAccount_Extended_Attribute() {
 		
-		RoleFilter filter = new RoleFilter();
+		IdmRoleFilter filter = new IdmRoleFilter();
 		filter.setProperty(IdmRole_.name.getName());
 		filter.setValue(ROLE_NAME_TEN);
 
@@ -528,7 +528,7 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 	@Test
 	public void provisioningF_DeleteAccount() {
 		
-		RoleFilter filter = new RoleFilter();
+		IdmRoleFilter filter = new IdmRoleFilter();
 		filter.setProperty(IdmRole_.name.getName());
 		filter.setValue(ROLE_NAME_TEN);
 

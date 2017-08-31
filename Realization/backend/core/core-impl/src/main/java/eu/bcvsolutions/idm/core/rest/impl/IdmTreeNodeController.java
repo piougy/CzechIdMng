@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.rest.impl;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
@@ -34,11 +35,12 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmAuditDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.TreeNodeFilter;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmTreeNodeFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
-import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
-import eu.bcvsolutions.idm.core.api.service.LookupService;
+import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.audit.service.api.IdmAuditService;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.core.eav.rest.impl.IdmFormDefinitionController;
@@ -56,20 +58,20 @@ import io.swagger.annotations.Authorization;
 import io.swagger.annotations.AuthorizationScope;
 
 /**
- * Tree nodes endpoint
+ * Tree nodes endpoint 
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
  * @author Radek Tomiška
  */
 @RepositoryRestController
-@RequestMapping(value = BaseEntityController.BASE_PATH + BaseEntityController.TREE_BASE_PATH + "-nodes")
+@RequestMapping(value = BaseDtoController.BASE_PATH + BaseDtoController.TREE_BASE_PATH + "-nodes")
 @Api(
 		value = IdmTreeNodeController.TAG,  
 		tags = { IdmTreeNodeController.TAG }, 
 		description = "Operation with tree nodes",
 		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
 		consumes = MediaType.APPLICATION_JSON_VALUE)
-public class IdmTreeNodeController extends DefaultReadWriteEntityController<IdmTreeNode, TreeNodeFilter> {
+public class IdmTreeNodeController extends AbstractReadWriteDtoController<IdmTreeNodeDto, IdmTreeNodeFilter> {
 	
 	protected static final String TAG = "Tree structure - nodes";
 	private final IdmTreeNodeService treeNodeService;
@@ -79,11 +81,10 @@ public class IdmTreeNodeController extends DefaultReadWriteEntityController<IdmT
 	
 	@Autowired
 	public IdmTreeNodeController(
-			LookupService entityLookupService, 
 			IdmTreeNodeService treeNodeService,
 			IdmAuditService auditService,
 			IdmFormDefinitionController formDefinitionController) {
-		super(entityLookupService, treeNodeService);
+		super(treeNodeService);
 		//
 		Assert.notNull(treeNodeService);
 		Assert.notNull(auditService);
@@ -96,12 +97,92 @@ public class IdmTreeNodeController extends DefaultReadWriteEntityController<IdmT
 	
 	@Override
 	@ResponseBody
+	@RequestMapping(method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.TREENODE_READ + "')")
+	@ApiOperation(
+			value = "Search tree nodes (/search/quick alias)", 
+			nickname = "searchTreeNodes",
+			tags = { IdmTreeNodeController.TAG }, 
+			authorizations = {
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.TREENODE_READ, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.TREENODE_READ, description = "") })
+				})
+	public Resources<?> find(
+			@RequestParam(required = false) MultiValueMap<String, Object> parameters,
+			@PageableDefault Pageable pageable) {
+		return super.find(parameters, pageable);
+	}
+	
+	@ResponseBody
+	@RequestMapping(value= "/search/quick", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.TREENODE_READ + "')")
+	@ApiOperation(
+			value = "Search tree nodes", 
+			nickname = "searchQuickTreeNodes", 
+			tags = { IdmTreeNodeController.TAG }, 
+			authorizations = {
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.TREENODE_READ, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.TREENODE_READ, description = "") })
+				})
+	public Resources<?> findQuick(
+			@RequestParam(required = false) MultiValueMap<String, Object> parameters,
+			@PageableDefault Pageable pageable) {
+		return super.findQuick(parameters, pageable);
+	}
+	
+	@ResponseBody
+	@RequestMapping(value= "/search/autocomplete", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.TREENODE_AUTOCOMPLETE + "')")
+	@ApiOperation(
+			value = "Autocomplete tree nodes (selectbox usage)", 
+			nickname = "autocompleteTreeNodes", 
+			tags = { IdmTreeTypeController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.TREENODE_AUTOCOMPLETE, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.TREENODE_AUTOCOMPLETE, description = "") })
+				})
+	public Resources<?> autocomplete(
+			@RequestParam(required = false) MultiValueMap<String, Object> parameters, 
+			@PageableDefault Pageable pageable) {
+		return super.autocomplete(parameters, pageable);
+	}
+	
+	@Override
+	@ResponseBody
+	@RequestMapping(value = "/{backendId}", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.TREENODE_READ + "')")
+	@ApiOperation(
+			value = "Tree node detail", 
+			nickname = "getTreeNode", 
+			response = IdmTreeNodeDto.class, 
+			tags = { IdmTreeNodeController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.TREENODE_READ, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.TREENODE_READ, description = "") })
+				})
+	public ResponseEntity<?> get(
+			@ApiParam(value = "Node's uuid identifier.", required = true)
+			@PathVariable @NotNull String backendId) {
+		return super.get(backendId);
+	}
+	
+	@Override
+	@ResponseBody
+	@RequestMapping(method = RequestMethod.POST)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.TREENODE_CREATE + "')"
 			+ " or hasAuthority('" + CoreGroupPermission.TREENODE_UPDATE + "')")
 	@ApiOperation(
 			value = "Create / update tree node", 
 			nickname = "postTreeNode", 
-			response = IdmTreeNode.class, 
+			response = IdmTreeNodeDto.class, 
 			tags = { IdmTreeNodeController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
@@ -111,18 +192,18 @@ public class IdmTreeNodeController extends DefaultReadWriteEntityController<IdmT
 						@AuthorizationScope(scope = CoreGroupPermission.TREENODE_CREATE, description = ""),
 						@AuthorizationScope(scope = CoreGroupPermission.TREENODE_UPDATE, description = "")})
 				})
-	public ResponseEntity<?> post(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler)
-			throws HttpMessageNotReadableException {
-		return super.post(nativeRequest, assembler);
+	public ResponseEntity<?> post(@Valid @RequestBody IdmTreeNodeDto dto) {
+		return super.post(dto);
 	}
 	
 	@Override
 	@ResponseBody
+	@RequestMapping(value = "/{backendId}", method = RequestMethod.PUT)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.TREENODE_UPDATE + "')")
 	@ApiOperation(
 			value = "Update tree node",
 			nickname = "putTreeNode", 
-			response = IdmTreeNode.class, 
+			response = IdmTreeNodeDto.class, 
 			tags = { IdmTreeNodeController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
@@ -133,18 +214,18 @@ public class IdmTreeNodeController extends DefaultReadWriteEntityController<IdmT
 	public ResponseEntity<?> put(
 			@ApiParam(value = "Node's uuid identifier.", required = true)
 			@PathVariable @NotNull String backendId, 
-			HttpServletRequest nativeRequest,
-			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
-		return super.put(backendId, nativeRequest, assembler);
+			@Valid @RequestBody IdmTreeNodeDto dto) {
+		return super.put(backendId, dto);
 	}
 	
 	@Override
 	@ResponseBody
+	@RequestMapping(value = "/{backendId}", method = RequestMethod.PATCH)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.TREENODE_UPDATE + "')")
 	@ApiOperation(
 			value = "Update tree node",
 			nickname = "patchTreeNode", 
-			response = IdmTreeNode.class, 
+			response = IdmTreeNodeDto.class, 
 			tags = { IdmTreeNodeController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
@@ -154,14 +235,15 @@ public class IdmTreeNodeController extends DefaultReadWriteEntityController<IdmT
 				})
 	public ResponseEntity<?> patch(
 			@ApiParam(value = "Node's uuid identifier.", required = true)
-			@PathVariable @NotNull String backendId, 
-			HttpServletRequest nativeRequest,
-			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
-		return super.patch(backendId, nativeRequest, assembler);
+			@PathVariable @NotNull String backendId,
+			HttpServletRequest nativeRequest)
+			throws HttpMessageNotReadableException {
+		return super.patch(backendId, nativeRequest);
 	}
 	
 	@Override
 	@ResponseBody
+	@RequestMapping(value = "/{backendId}", method = RequestMethod.DELETE)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.TREENODE_DELETE + "')")
 	@ApiOperation(
 			value = "Delete tree node", 
@@ -177,6 +259,26 @@ public class IdmTreeNodeController extends DefaultReadWriteEntityController<IdmT
 			@ApiParam(value = "Node's uuid identifier.", required = true)
 			@PathVariable @NotNull String backendId) {
 		return super.delete(backendId);
+	}
+	
+	@Override
+	@ResponseBody
+	@RequestMapping(value = "/{backendId}/permissions", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.TREENODE_READ + "')")
+	@ApiOperation(
+			value = "What logged identity can do with given record", 
+			nickname = "getPermissionsOnTreeNode", 
+			tags = { IdmTreeNodeController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.TREENODE_READ, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.TREENODE_READ, description = "") })
+				})
+	public Set<String> getPermissions(
+			@ApiParam(value = "Node's uuid identifier.", required = true)
+			@PathVariable @NotNull String backendId) {
+		return super.getPermissions(backendId);
 	}
 	
 	@ResponseBody
@@ -198,7 +300,7 @@ public class IdmTreeNodeController extends DefaultReadWriteEntityController<IdmT
 			@ApiParam(value = "Revision identifier.", required = true)
 			@PathVariable("revId") Long revId, 
 			PersistentEntityResourceAssembler assembler) {
-		IdmTreeNode treeNode = getEntity(backendId);
+		IdmTreeNodeDto treeNode = getDto(backendId);
 		if (treeNode == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("treeNode", backendId));
 		}
@@ -209,8 +311,8 @@ public class IdmTreeNodeController extends DefaultReadWriteEntityController<IdmT
 		} catch (RevisionDoesNotExistException ex) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND,  ImmutableMap.of("revision", revId), ex);
 		}
-
-		return new ResponseEntity<>(toResource(revision, assembler), HttpStatus.OK);
+		// TODO: dto
+		return new ResponseEntity<>(revision, HttpStatus.OK);
 	}
 
 	@ResponseBody
@@ -229,14 +331,13 @@ public class IdmTreeNodeController extends DefaultReadWriteEntityController<IdmT
 	public Resources<?> findRevisions(
 			@ApiParam(value = "Node's uuid identifier.", required = true)
 			@PathVariable("backendId") String backendId, 
-			Pageable pageable, 
-			PersistentEntityResourceAssembler assembler) {
-		IdmTreeNode treeNode = getEntity(backendId);
+			Pageable pageable) {
+		IdmTreeNodeDto treeNode = getDto(backendId);
 		if (treeNode == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("treeNode", backendId));
 		}
 		Page<IdmAuditDto> results = this.auditService.findRevisionsForEntity(IdmTreeNode.class.getSimpleName(), UUID.fromString(backendId), pageable);
-		return toResources(results, assembler, IdmTreeNode.class, null);
+		return toResources(results, IdmTreeNode.class);
 	}
 	
 	@ResponseBody
@@ -258,10 +359,9 @@ public class IdmTreeNodeController extends DefaultReadWriteEntityController<IdmT
 	public Resources<?> findRoots(
 			@ApiParam(value = "Tree type uuid identifier.", required = false)
 			@RequestParam(value = "treeTypeId", required = false) String treeTypeId,
-			PersistentEntityResourceAssembler assembler,
 			@PageableDefault Pageable pageable) {
-		Page<IdmTreeNode> roots = this.treeNodeService.findRoots(UUID.fromString(treeTypeId), pageable);
-		return toResources(roots, assembler, IdmTreeNode.class, null);
+		Page<IdmTreeNodeDto> roots = this.treeNodeService.findRoots(UUID.fromString(treeTypeId), pageable);
+		return toResources(roots, IdmTreeNode.class);
 	}
 	
 	@ResponseBody
@@ -282,11 +382,10 @@ public class IdmTreeNodeController extends DefaultReadWriteEntityController<IdmT
 	})
 	public Resources<?> findChildren(
 			@ApiParam(value = "Superior tree node's uuid identifier.", required = true)
-			@RequestParam(value = "parent") @NotNull String parent, 
-			PersistentEntityResourceAssembler assembler,
+			@RequestParam(value = "parent") @NotNull String parent,
 			@PageableDefault Pageable pageable) {	
-		Page<IdmTreeNode> children = this.treeNodeService.findChildrenByParent(UUID.fromString(parent), pageable);
-		return toResources(children, assembler, IdmTreeNode.class, null);
+		Page<IdmTreeNodeDto> children = this.treeNodeService.findChildrenByParent(UUID.fromString(parent), pageable);
+		return toResources(children, IdmTreeNode.class);
 	}
 	
 	/**
@@ -328,15 +427,14 @@ public class IdmTreeNodeController extends DefaultReadWriteEntityController<IdmT
 			@ApiParam(value = "Code of form definition (default will be used if no code is given).", required = false, defaultValue = FormService.DEFAULT_DEFINITION_CODE)
 			@RequestParam(name = "definitionCode", required = false) String definitionCode,
 			PersistentEntityResourceAssembler assembler) {
-		IdmTreeNode entity = getEntity(backendId);
+		IdmTreeNodeDto entity = getDto(backendId);
 		if (entity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
 		//
 		IdmFormDefinition formDefinition = formDefinitionController.getDefinition(IdmTreeNode.class, definitionCode);
 		//
-		//
-		return formDefinitionController.getFormValues(entity, formDefinition, assembler);
+		return formDefinitionController.getFormValues(entity.getId(), IdmTreeNode.class, formDefinition, assembler);
 	}
 	
 	/**
@@ -361,19 +459,19 @@ public class IdmTreeNodeController extends DefaultReadWriteEntityController<IdmT
 			@RequestParam(name = "definitionCode", required = false) String definitionCode,
 			@RequestBody @Valid List<IdmTreeNodeFormValue> formValues,
 			PersistentEntityResourceAssembler assembler) {		
-		IdmTreeNode entity = getEntity(backendId);
+		IdmTreeNodeDto entity = getDto(backendId);
 		if (entity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
 		//
 		IdmFormDefinition formDefinition = formDefinitionController.getDefinition(IdmTreeNode.class, definitionCode);
 		//
-		return formDefinitionController.saveFormValues(entity, formDefinition, formValues, assembler);
+		return formDefinitionController.saveFormValues(entity.getId(), IdmTreeNode.class, formDefinition, formValues, assembler);
 	}
 	
 	@Override
-	protected TreeNodeFilter toFilter(MultiValueMap<String, Object> parameters) {
-		TreeNodeFilter filter = new TreeNodeFilter();
+	protected IdmTreeNodeFilter toFilter(MultiValueMap<String, Object> parameters) {
+		IdmTreeNodeFilter filter = new IdmTreeNodeFilter(parameters);
 		filter.setText(getParameterConverter().toString(parameters, "text"));
 		filter.setTreeTypeId(getParameterConverter().toUuid(parameters, "treeTypeId"));
 		filter.setTreeNode(getParameterConverter().toUuid(parameters, "treeNodeId"));

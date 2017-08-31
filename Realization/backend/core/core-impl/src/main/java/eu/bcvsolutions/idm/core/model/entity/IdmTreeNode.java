@@ -94,7 +94,7 @@ public class IdmTreeNode
 	@Audited
 	@Size(max = DefaultFieldLengths.NAME)
 	@Column(name = "external_id", length = DefaultFieldLengths.NAME)
-	private String externalId;
+	private String externalId; // TODO: obsolete, to remove
 
 	public String getName() {
 		return name;
@@ -216,7 +216,7 @@ public class IdmTreeNode
 	}
 	
 	/**
-	 * Returns forest tree type from tree type code
+	 * Returns forest tree type from tree type id
 	 * 
 	 * @param treeType
 	 * @return
@@ -224,6 +224,18 @@ public class IdmTreeNode
 	public static String toForestTreeType(IdmTreeType treeType) {
 		Assert.notNull(treeType);
 		//
-		return String.format("%s%s", TREE_TYPE_PREFIX, treeType.getId());
+		return toForestTreeType(treeType.getId());
+	}
+	
+	/**
+	 * Returns forest tree type from tree type id
+	 * 
+	 * @param treeType
+	 * @return
+	 */
+	public static String toForestTreeType(UUID treeTypeId) {
+		Assert.notNull(treeTypeId);
+		//
+		return String.format("%s%s", TREE_TYPE_PREFIX, treeTypeId);
 	}
 }

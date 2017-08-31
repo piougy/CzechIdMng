@@ -21,8 +21,11 @@ import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.core.api.config.domain.TreeConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.RecursionType;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdentityContractFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
 import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
@@ -33,11 +36,9 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode_;
-import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
-import eu.bcvsolutions.idm.core.model.repository.IdmTreeTypeRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
@@ -55,7 +56,7 @@ public class DefaultIdmIdentityContractService
 
 	private final IdmIdentityContractRepository repository;
 	private final FormService formService;
-	private final IdmTreeTypeRepository treeTypeRepository;
+	private final TreeConfiguration treeConfiguration;
 	private final IdmTreeNodeRepository treeNodeRepository;
 	
 	@Autowired
@@ -63,17 +64,17 @@ public class DefaultIdmIdentityContractService
 			IdmIdentityContractRepository repository,
 			FormService formService,
 			EntityEventManager entityEventManager,
-			IdmTreeTypeRepository treeTypeRepository,
+			TreeConfiguration treeConfiguration,
 			IdmTreeNodeRepository treeNodeRepository) {
 		super(repository, entityEventManager);
 		//
 		Assert.notNull(formService);
-		Assert.notNull(treeTypeRepository);
+		Assert.notNull(treeConfiguration);
 		Assert.notNull(treeNodeRepository);
 		//
 		this.repository = repository;
 		this.formService = formService;
-		this.treeTypeRepository = treeTypeRepository;
+		this.treeConfiguration = treeConfiguration;
 		this.treeNodeRepository = treeNodeRepository;
 	}
 	
@@ -202,9 +203,9 @@ public class DefaultIdmIdentityContractService
 		contract.setMain(true);
 		//
 		// set working position
-		IdmTreeType defaultTreeType = treeTypeRepository.findOneByDefaultTreeTypeIsTrue();
-		if (defaultTreeType != null && defaultTreeType.getDefaultTreeNode() != null) {
-			contract.setWorkPosition(defaultTreeType.getDefaultTreeNode().getId());
+		IdmTreeNodeDto defaultTreeNode = treeConfiguration.getDefaultNode();
+		if (defaultTreeNode != null) {
+			contract.setWorkPosition(defaultTreeNode.getId());
 		} else {
 			contract.setPosition(DEFAULT_POSITION_NAME);
 		}
@@ -232,7 +233,7 @@ public class DefaultIdmIdentityContractService
 		if (contracts.isEmpty()) {
 			return null;
 		}
-		Collections.sort(contracts, new PrimeIdentityContractComparator(treeTypeRepository.findOneByDefaultTreeTypeIsTrue()));
+		Collections.sort(contracts, new PrimeIdentityContractComparator(treeConfiguration.getDefaultType()));
 		// return contract with the highest priority
 		return toDto(contracts.get(contracts.size() - 1));
 	}
@@ -255,9 +256,9 @@ public class DefaultIdmIdentityContractService
 	 */
 	private static class PrimeIdentityContractComparator implements Comparator<IdmIdentityContract> {
 
-		private final IdmTreeType defaultTreeType;
+		private final IdmTreeTypeDto defaultTreeType;
 		
-		public PrimeIdentityContractComparator(IdmTreeType defaultTreeType) {
+		public PrimeIdentityContractComparator(IdmTreeTypeDto defaultTreeType) {
 			this.defaultTreeType = defaultTreeType;
 		}
 		
@@ -272,8 +273,8 @@ public class DefaultIdmIdentityContractService
 			builder.append(o1.isValid(), o2.isValid());
 			// with default tree position
 			if (defaultTreeType != null) {
-				builder.append(o1.getWorkPosition() != null && o1.getWorkPosition().getTreeType().equals(defaultTreeType), 
-						o2.getWorkPosition() != null && o2.getWorkPosition().getTreeType().equals(defaultTreeType));
+				builder.append(o1.getWorkPosition() != null && o1.getWorkPosition().getTreeType().getId().equals(defaultTreeType.getId()), 
+						o2.getWorkPosition() != null && o2.getWorkPosition().getTreeType().getId().equals(defaultTreeType.getId()));
 			}			
 			// with any tree position
 			builder.append(o1.getWorkPosition() != null, o2.getWorkPosition() != null);

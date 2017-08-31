@@ -15,7 +15,6 @@ import org.springframework.data.domain.Page;
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.InitTestData;
-import eu.bcvsolutions.idm.core.TestHelper;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
@@ -23,6 +22,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.RoleCatalogueFilter;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleCatalogueService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
+import eu.bcvsolutions.idm.test.api.TestHelper;
 
 /**
  * Basic role catalogue service operations

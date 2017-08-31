@@ -17,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 
 import eu.bcvsolutions.idm.InitTestData;
-import eu.bcvsolutions.idm.core.TestHelper;
 import eu.bcvsolutions.idm.core.api.config.domain.IdentityConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.RecursionType;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractGuaranteeDto;
@@ -26,10 +25,10 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.ContractGuaranteeFilter;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
-import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
-import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.service.api.IdmContractGuaranteeService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
@@ -38,6 +37,7 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.AddNewAutomaticRoleTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.RemoveAutomaticRoleTaskExecutor;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
+import eu.bcvsolutions.idm.test.api.TestHelper;
 
 /**
  * Integration tests with identity contracts:
@@ -58,13 +58,13 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 	@Autowired private IdmContractGuaranteeService contractGuaranteeService;
 	@Autowired private ConfigurationService configurationService;
 	//
-	private IdmTreeType treeType = null;
-	private IdmTreeNode nodeA = null;
-	private IdmTreeNode nodeB = null;
-	private IdmTreeNode nodeC = null;
-	private IdmTreeNode nodeD = null;
-	private IdmTreeNode nodeE = null;
-	private IdmTreeNode nodeF = null;
+	private IdmTreeTypeDto treeType = null;
+	private IdmTreeNodeDto nodeA = null;
+	private IdmTreeNodeDto nodeB = null;
+	private IdmTreeNodeDto nodeC = null;
+	private IdmTreeNodeDto nodeD = null;
+	private IdmTreeNodeDto nodeE = null;
+	private IdmTreeNodeDto nodeF = null;
 	private IdmRoleDto roleA = null;
 	private IdmRoleDto roleB = null;
 	private IdmRoleDto roleC = null;
@@ -491,7 +491,7 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 	public void testReferentialIntegrityOnRole() {
 		// prepare data
 		IdmRoleDto role = helper.createRole();
-		IdmTreeNode treeNode = helper.createTreeNode();
+		IdmTreeNodeDto treeNode = helper.createTreeNode();
 		// automatic role
 		IdmRoleTreeNodeDto roleTreeNode = helper.createRoleTreeNode(role, treeNode, false);
 		//
@@ -507,7 +507,7 @@ public class IdentityContractIntegrationTest extends AbstractIntegrationTest {
 	public void testReferentialIntegrityOnTreeType() {
 		// prepare data
 		IdmRoleDto role = helper.createRole();
-		IdmTreeNode treeNode = helper.createTreeNode();
+		IdmTreeNodeDto treeNode = helper.createTreeNode();
 		// automatic role
 		IdmRoleTreeNodeDto roleTreeNode = helper.createRoleTreeNode(role, treeNode, false);
 		//

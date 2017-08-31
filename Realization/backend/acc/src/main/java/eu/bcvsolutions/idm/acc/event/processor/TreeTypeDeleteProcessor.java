@@ -17,13 +17,13 @@ import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.exception.TreeTypeException;
-import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.event.TreeTypeEvent.TreeTypeEventType;
 
 /**
@@ -34,7 +34,7 @@ import eu.bcvsolutions.idm.core.model.event.TreeTypeEvent.TreeTypeEventType;
  */
 @Component("accTreeTypeDeleteProcessor")
 @Description("Ensures referential integrity. Cannot be disabled.")
-public class TreeTypeDeleteProcessor extends AbstractEntityEventProcessor<IdmTreeType> {
+public class TreeTypeDeleteProcessor extends AbstractEntityEventProcessor<IdmTreeTypeDto> {
 	
 	public static final String PROCESSOR_NAME = "tree-type-delete-processor";
 	private final SysSystemMappingService systemMappingService;
@@ -61,8 +61,8 @@ public class TreeTypeDeleteProcessor extends AbstractEntityEventProcessor<IdmTre
 	}
 
 	@Override
-	public EventResult<IdmTreeType> process(EntityEvent<IdmTreeType> event) {
-		IdmTreeType treeType = event.getContent();
+	public EventResult<IdmTreeTypeDto> process(EntityEvent<IdmTreeTypeDto> event) {
+		IdmTreeTypeDto treeType = event.getContent();
 		Asserts.notNull(treeType, "TreeType must be set!");
 		SystemMappingFilter filter = new SystemMappingFilter();
 		filter.setTreeTypeId(treeType.getId());

@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core;
+package eu.bcvsolutions.idm;
 
 import java.util.UUID;
 
@@ -19,8 +19,8 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
-import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
-import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmContractGuaranteeService;
@@ -38,6 +38,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.evaluator.BasePermissionEvaluator;
 import eu.bcvsolutions.idm.core.security.evaluator.UuidEvaluator;
+import eu.bcvsolutions.idm.test.api.TestHelper;
 
 /**
  * Creates common test entities
@@ -96,13 +97,13 @@ public class DefaultTestHelper implements TestHelper {
 	}
 	
 	@Override
-	public IdmTreeType createTreeType() {
+	public IdmTreeTypeDto createTreeType() {
 		return createTreeType(null);
 	}
 	
 	@Override
-	public IdmTreeType createTreeType(String name) {
-		IdmTreeType treeType = new IdmTreeType();
+	public IdmTreeTypeDto createTreeType(String name) {
+		IdmTreeTypeDto treeType = new IdmTreeTypeDto();
 		name = name == null ? createName() : name;
 		treeType.setCode(name);
 		treeType.setName(name);
@@ -110,30 +111,31 @@ public class DefaultTestHelper implements TestHelper {
 	}
 	
 	@Override
-	public IdmTreeNode createTreeNode() {
+	public IdmTreeNodeDto createTreeNode() {
 		return createTreeNode((String) null, null);
 	}
 	
 	@Override
-	public IdmTreeNode createTreeNode(String name, IdmTreeNode parent) {
+	public IdmTreeNodeDto createTreeNode(String name, IdmTreeNodeDto parent) {
 		return createTreeNode(treeTypeService.getDefaultTreeType(), name, parent);
 	}
 	
 	@Override
-	public IdmTreeNode createTreeNode(IdmTreeType treeType, IdmTreeNode parent) {
+	public IdmTreeNodeDto createTreeNode(IdmTreeTypeDto treeType, IdmTreeNodeDto parent) {
 		return createTreeNode(treeType, null, parent);
 	}
 	
 	@Override
-	public IdmTreeNode createTreeNode(IdmTreeType treeType, String name, IdmTreeNode parent) {
+	public IdmTreeNodeDto createTreeNode(IdmTreeTypeDto treeType, String name, IdmTreeNodeDto parent) {
 		Assert.notNull(treeType, "Tree type is required - test environment is wrong configured, test data is not prepared!");
 		//
 		name = name == null ? createName() : name;
-		IdmTreeNode node = new IdmTreeNode();
-		node.setParent(parent);
+		IdmTreeNodeDto node = new IdmTreeNodeDto();
+		node.setParent(parent == null ? null : parent.getId());
 		node.setCode(name);
 		node.setName(name);
-		node.setTreeType(treeType);
+		node.setTreeType(treeType.getId());
+		//
 		return treeNodeService.save(node);
 	}
 	
@@ -168,7 +170,7 @@ public class DefaultTestHelper implements TestHelper {
 	}
 	
 	@Override
-	public IdmRoleTreeNodeDto createRoleTreeNode(IdmRoleDto role, IdmTreeNode treeNode, boolean skipLongRunningTask) {
+	public IdmRoleTreeNodeDto createRoleTreeNode(IdmRoleDto role, IdmTreeNodeDto treeNode, boolean skipLongRunningTask) {
 		IdmRoleTreeNodeDto roleTreeNode = new IdmRoleTreeNodeDto();
 		roleTreeNode.setRole(role.getId());
 		roleTreeNode.setTreeNode(treeNode.getId());
@@ -228,12 +230,12 @@ public class DefaultTestHelper implements TestHelper {
 	}
 	
 	@Override
-	public IdmIdentityContractDto createIdentityContact(IdmIdentityDto identity, IdmTreeNode position) {
+	public IdmIdentityContractDto createIdentityContact(IdmIdentityDto identity, IdmTreeNodeDto position) {
 		return createIdentityContact(identity, position, null, null);
 	}
 	
 	@Override
-	public IdmIdentityContractDto createIdentityContact(IdmIdentityDto identity, IdmTreeNode position, LocalDate validFrom, LocalDate validTill) {
+	public IdmIdentityContractDto createIdentityContact(IdmIdentityDto identity, IdmTreeNodeDto position, LocalDate validFrom, LocalDate validTill) {
 		IdmIdentityContractDto contract = new IdmIdentityContractDto();
 		contract.setIdentity(identity.getId());
 		contract.setPosition(createName());

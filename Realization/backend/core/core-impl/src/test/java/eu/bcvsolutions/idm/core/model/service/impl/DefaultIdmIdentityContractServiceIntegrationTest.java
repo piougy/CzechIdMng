@@ -11,14 +11,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 
 import eu.bcvsolutions.idm.InitTestData;
-import eu.bcvsolutions.idm.core.TestHelper;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdentityContractFilter;
-import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
+import eu.bcvsolutions.idm.test.api.TestHelper;
 
 /**
  * Created by marek on 1.8.17.
@@ -46,19 +46,19 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 		IdmIdentityDto identity3 = helper.createIdentity();
 		IdmIdentityDto identity4 = helper.createIdentity();
 
-		IdmTreeNode node = helper.createTreeNode();
+		IdmTreeNodeDto node = helper.createTreeNode();
 		node.setName("Position105");
 		treeNodeService.save(node);
 
-		IdmTreeNode node2 = helper.createTreeNode();
+		IdmTreeNodeDto node2 = helper.createTreeNode();
 		node2.setName("Position006");
 		treeNodeService.save(node2);
 
-		IdmTreeNode node3 = helper.createTreeNode();
+		IdmTreeNodeDto node3 = helper.createTreeNode();
 		node3.setCode("Position007");
 		treeNodeService.save(node3);
 
-		IdmTreeNode node4 = helper.createTreeNode();
+		IdmTreeNodeDto node4 = helper.createTreeNode();
 		node4.setCode("Position108");
 		treeNodeService.save(node4);
 
@@ -92,8 +92,8 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 	public void identityFilterTest(){
 		IdmIdentityDto identity = helper.createIdentity();
 
-		IdmTreeNode node = helper.createTreeNode();
-		IdmTreeNode node2 = helper.createTreeNode();
+		IdmTreeNodeDto node = helper.createTreeNode();
+		IdmTreeNodeDto node2 = helper.createTreeNode();
 
 		IdmIdentityContractDto contract = helper.createIdentityContact(identity,node);
 		IdmIdentityContractDto contract2 = helper.createIdentityContact(identity,node2);
@@ -114,10 +114,10 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 		IdmIdentityDto identity3 = helper.createIdentity();
 		IdmIdentityDto identity4 = helper.createIdentity();
 
-		IdmTreeNode node = helper.createTreeNode();
-		IdmTreeNode node2 = helper.createTreeNode();
-		IdmTreeNode node3 = helper.createTreeNode();
-		IdmTreeNode node4 = helper.createTreeNode();
+		IdmTreeNodeDto node = helper.createTreeNode();
+		IdmTreeNodeDto node2 = helper.createTreeNode();
+		IdmTreeNodeDto node3 = helper.createTreeNode();
+		IdmTreeNodeDto node4 = helper.createTreeNode();
 
 		IdmIdentityContractDto contract = helper.createIdentityContact(identity,node, org.joda.time.LocalDate.now(),org.joda.time.LocalDate.parse("2021-06-05"));
 		IdmIdentityContractDto contract2 = helper.createIdentityContact(identity2,node2,org.joda.time.LocalDate.now(),org.joda.time.LocalDate.parse("2020-05-05"));
@@ -156,8 +156,8 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 		IdmIdentityDto identity = helper.createIdentity();
 		IdmIdentityDto identity2 = helper.createIdentity();
 
-		IdmTreeNode node = helper.createTreeNode();
-		IdmTreeNode node2 = helper.createTreeNode();
+		IdmTreeNodeDto node = helper.createTreeNode();
+		IdmTreeNodeDto node2 = helper.createTreeNode();
 
 		IdmIdentityContractDto contract = helper.createIdentityContact(identity,node);
 		IdmIdentityContractDto contract2 = helper.createIdentityContact(identity2,node2);
@@ -185,8 +185,8 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 		IdmIdentityDto identity = helper.createIdentity();
 		IdmIdentityDto identity2 = helper.createIdentity();
 
-		IdmTreeNode node = helper.createTreeNode();
-		IdmTreeNode node2 = helper.createTreeNode();
+		IdmTreeNodeDto node = helper.createTreeNode();
+		IdmTreeNodeDto node2 = helper.createTreeNode();
 
 		IdmIdentityContractDto contract = helper.createIdentityContact(identity,node);
 		IdmIdentityContractDto contract2 = helper.createIdentityContact(identity2,node2);

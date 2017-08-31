@@ -124,7 +124,7 @@ module.exports = {
     {
       path: 'organizations',
       component: require('./src/content/organization/Organizations'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREENODE_READ'] } ]
+      access: [ { 'type': 'HAS_ALL_AUTHORITIES', 'authorities': ['TREENODE_TYPE', 'TREENODE_READ'] } ]
     },
     {
       path: 'tree',
@@ -159,7 +159,7 @@ module.exports = {
         {
           path: 'nodes/:entityId/new',
           component: require('./src/content/tree/node/NodeContent'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREENODE_READ'] } ]
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREENODE_CREATE'] } ]
         },
         {
           path: 'types',

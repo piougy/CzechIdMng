@@ -14,8 +14,11 @@ class ButtonMenuItem extends AbstractComponent {
   }
 
   render() {
-    const {rendered, eventKey, onClick, children} = this.props;
+    const {rendered, eventKey, onClick, children, showLoading} = this.props;
     if (!rendered) {
+      return null;
+    }
+    if (showLoading) {
       return null;
     }
     return (<MenuItem onClick={onClick} eventKey={eventKey} children={children}/>);

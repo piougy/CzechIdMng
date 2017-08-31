@@ -10,6 +10,11 @@ import { SystemManager } from '../../redux';
 
 const systemManager = new SystemManager();
 
+/**
+ * Provisioning operation and archive table
+ *
+ * @author Radk Tomiška
+ */
 export class ProvisioningOperationTable extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
@@ -207,6 +212,7 @@ export class ProvisioningOperationTable extends Advanced.AbstractTableContent {
           property="systemEntityUid"
           header={this.i18n('acc:entity.SystemEntity.uid')}
           sort
+          sortProperty={ manager.getEntityType() === 'ProvisioningArchive' ? 'systemEntityUid' : 'systemEntity.uid' }
           face="text"
           rendered={_.includes(columns, 'systemEntityUid')}/>
       </Advanced.Table>

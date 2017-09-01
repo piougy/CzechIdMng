@@ -210,6 +210,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 						resultHandler);
 				// Execute sync for this tree and searched accounts
 				processTreeSync(context, accountsMap);
+				log = context.getLog();
 			}
 			//
 			log.addToLog(MessageFormat.format("Synchronization was correctly ended in {0}.", LocalDateTime.now()));

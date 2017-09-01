@@ -81,6 +81,12 @@ All notable changes to this project will be documented in this file.
 
 #### Acc module
 
+##### System service
+- Method **readObject** was replaced with **readConnectorObject**
+  - **Old**: IcConnectorObject readObject(SysSystem system, SysSystemMappingDto systemMapping, IcUidAttribute uidAttribute);
+  - **New**: IcConnectorObject readConnectorObject(UUID systemId, String uid, IcObjectClass objectClass);
+
+
 ##### Synchronization
 
 - Entity **SysSyncLog was transformed to SysSyncLogDto**. Update all places where call from your project SysSyncLogService. The service now uses only DTO. Backward compatibility of all synchronization logs is guaranteed.

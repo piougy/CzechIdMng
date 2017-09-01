@@ -16,6 +16,7 @@ import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
 import eu.bcvsolutions.idm.acc.domain.EntityAccount;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
+import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.EntityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
@@ -24,11 +25,11 @@ import eu.bcvsolutions.idm.acc.dto.filter.EntityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.RoleSystemAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.RoleSystemFilter;
-import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.repository.AccIdentityAccountRepository;
+import eu.bcvsolutions.idm.acc.repository.SysSystemEntityRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountManagementService;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
@@ -79,12 +80,13 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
 			SysSchemaObjectClassService schemaObjectClassService,
 			SysSchemaAttributeService schemaAttributeService,
 			SysSystemAttributeMappingService systemAttributeMappingService,
-			IdmRoleService roleService) {
+			IdmRoleService roleService,
+			SysSystemEntityRepository systemEntityRepository) {
 		
 		super(systemMappingService, attributeMappingService, connectorFacade, systemService, roleSystemService,
 				accountManagementService, roleSystemAttributeService, systemEntityService, accountService,
 				provisioningExecutor, entityEventManager, schemaAttributeService, schemaObjectClassService,
-				systemAttributeMappingService, roleService);
+				systemAttributeMappingService, roleService, systemEntityRepository);
 		
 		Assert.notNull(identityAccountService);
 		Assert.notNull(roleSystemService);
@@ -99,7 +101,7 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
 		this.systemService = systemService;
 	}
 	
-	public void doProvisioning(AccAccount account) {
+	public void doProvisioning(AccAccountDto account) {
 		Assert.notNull(account);
 		//
 		identityAccountRepository.findAllByAccount_Id(account.getId())
@@ -123,7 +125,7 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
 	 * @return
 	 */
 	@Override
-	public List<AttributeMapping> resolveMappedAttributes(AccAccount account, IdmIdentity entity, SysSystem system, SystemEntityType entityType) {
+	public List<AttributeMapping> resolveMappedAttributes(AccAccountDto account, IdmIdentity entity, SysSystem system, SystemEntityType entityType) {
 		IdentityAccountFilter filter = new IdentityAccountFilter();
 		filter.setIdentityId(entity.getId());
 		filter.setSystemId(system.getId());

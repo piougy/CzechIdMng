@@ -7,10 +7,10 @@ import org.joda.time.DateTime;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccountFilter;
-import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
-import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
+import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 
 /**
  * Accounts on target system
@@ -18,7 +18,7 @@ import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
  * @author Radek Tomiška
  *
  */
-public interface AccAccountService extends ReadWriteEntityService<AccAccount, AccountFilter>, ScriptEnabled {
+public interface AccAccountService extends ReadWriteDtoService<AccAccountDto, AccountFilter>, ScriptEnabled {
 
 
 	@Deprecated
@@ -30,7 +30,7 @@ public interface AccAccountService extends ReadWriteEntityService<AccAccount, Ac
 	 * @param entityId - Id of entity connected to the account. Can be null, but provisioning archive will not have correct information.
 	 * @deprecated Will be moved to event. This method will be removed!
 	 */
-	void delete(AccAccount account, boolean deleteTargetAccount, UUID entityId);
+	void delete(AccAccountDto account, boolean deleteTargetAccount, UUID entityId);
 	
 	/**
 	 * Get accounts for identity on system.
@@ -38,7 +38,7 @@ public interface AccAccountService extends ReadWriteEntityService<AccAccount, Ac
 	 * @param identityId
 	 * @return
 	 */
-	List<AccAccount> getAccounts(UUID systemId, UUID identityId);
+	List<AccAccountDto> getAccounts(UUID systemId, UUID identityId);
 
 	/**
 	 * Find account by UID on given system.
@@ -46,7 +46,7 @@ public interface AccAccountService extends ReadWriteEntityService<AccAccount, Ac
 	 * @param systemId
 	 * @return
 	 */
-	AccAccount getAccount(String uid, UUID systemId);
+	AccAccountDto getAccount(String uid, UUID systemId);
 	
 	/**
 	 * Returns accounts with expired protection. Account has to be in protection mode.
@@ -55,5 +55,5 @@ public interface AccAccountService extends ReadWriteEntityService<AccAccount, Ac
 	 * @param pageable
 	 * @return
 	 */
-	Page<AccAccount> findExpired(DateTime expirationDate, Pageable pageable);
+	Page<AccAccountDto> findExpired(DateTime expirationDate, Pageable pageable);
 }

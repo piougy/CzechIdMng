@@ -8,10 +8,10 @@ import org.springframework.plugin.core.Plugin;
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
+import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
-import eu.bcvsolutions.idm.acc.entity.AccAccount;
+import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
@@ -35,7 +35,7 @@ public interface ProvisioningEntityExecutor<ENTITY> extends Plugin<SystemEntityT
 	 * 
 	 * @param account
 	 */
-	void doProvisioning(AccAccount account);
+	void doProvisioning(AccAccountDto account);
 	
 	/**
 	 * Do provisioning for given account and identity
@@ -46,7 +46,7 @@ public interface ProvisioningEntityExecutor<ENTITY> extends Plugin<SystemEntityT
 	 * @param system
 	 * @return
 	 */
-	void doProvisioning(AccAccount account, ENTITY identity);
+	void doProvisioning(AccAccountDto account, ENTITY identity);
 
 	/**
 	 * Do delete provisioning for given account on connected system
@@ -54,7 +54,7 @@ public interface ProvisioningEntityExecutor<ENTITY> extends Plugin<SystemEntityT
 	 * @param account
 	 * @param entityId - Id of entity connected to the account. Can be null, but provisioning archive will not have correct information.
 	 */
-	void doDeleteProvisioning(AccAccount account, UUID entityId);
+	void doDeleteProvisioning(AccAccountDto account, UUID entityId);
 	
 	/**
 	 * 
@@ -74,7 +74,7 @@ public interface ProvisioningEntityExecutor<ENTITY> extends Plugin<SystemEntityT
 	 * @param operationType
 	 * @param entity
 	 */
-	void doProvisioningForAttribute(SysSystemEntity systemEntity, AttributeMapping mappedAttribute, Object value,
+	void doProvisioningForAttribute(SysSystemEntityDto systemEntity, AttributeMapping mappedAttribute, Object value,
 			ProvisioningOperationType operationType, ENTITY entity);
 	
 	/**
@@ -96,7 +96,7 @@ public interface ProvisioningEntityExecutor<ENTITY> extends Plugin<SystemEntityT
 	 * @param entityType
 	 * @return
 	 */
-	List<AttributeMapping> resolveMappedAttributes(AccAccount account, ENTITY entity, SysSystem system, SystemEntityType entityType);
+	List<AttributeMapping> resolveMappedAttributes(AccAccountDto account, ENTITY entity, SysSystem system, SystemEntityType entityType);
 
 	/**
 	 * Create final list of attributes for provisioning.
@@ -124,7 +124,7 @@ public interface ProvisioningEntityExecutor<ENTITY> extends Plugin<SystemEntityT
 	 * @param system
 	 * @return
 	 */
-	void doInternalProvisioning(AccAccount account, ENTITY entity);
+	void doInternalProvisioning(AccAccountDto account, ENTITY entity);
 
 
 

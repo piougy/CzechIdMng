@@ -26,6 +26,7 @@ import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
+import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.EntityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.ProvisioningAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
@@ -33,16 +34,16 @@ import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.EntityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemMappingFilter;
-import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
 import eu.bcvsolutions.idm.acc.event.ProvisioningEvent;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
+import eu.bcvsolutions.idm.acc.repository.SysSystemEntityRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountManagementService;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningEntityExecutor;
@@ -89,6 +90,7 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 	private final SysSystemService systemService;
 	protected final SysRoleSystemAttributeService roleSystemAttributeService;
 	private final SysSystemEntityService systemEntityService;
+	private final SysSystemEntityRepository systemEntityRepository;
 	protected final AccAccountService accountService;
 	private final ProvisioningExecutor provisioningExecutor;
 	private final EntityEventManager entityEventManager;
@@ -108,7 +110,8 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 			EntityEventManager entityEventManager, SysSchemaAttributeService schemaAttributeService,
 			SysSchemaObjectClassService schemaObjectClassService,
 			SysSystemAttributeMappingService systemAttributeMappingService,
-			IdmRoleService roleService) {
+			IdmRoleService roleService,
+			SysSystemEntityRepository systemEntityRepository) {
 
 		Assert.notNull(systemMappingService);
 		Assert.notNull(attributeMappingService);
@@ -125,6 +128,7 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 		Assert.notNull(schemaObjectClassService);
 		Assert.notNull(systemAttributeMappingService);
 		Assert.notNull(roleService);
+		Assert.notNull(systemEntityRepository);
 		//
 		this.systemMappingService = systemMappingService;
 		this.attributeMappingService = attributeMappingService;
@@ -140,10 +144,11 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 		this.systemAttributeMappingService = systemAttributeMappingService;
 		this.roleSystemService = roleSystemService;
 		this.roleService = roleService;
+		this.systemEntityRepository = systemEntityRepository;
 	}
 
 	@Override
-	public void doProvisioning(AccAccount account) {
+	public void doProvisioning(AccAccountDto account) {
 		Assert.notNull(account);
 
 		EntityAccountFilter filter = createEntityAccountFilter();
@@ -185,7 +190,7 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 	}
 
 	@Override
-	public void doProvisioning(AccAccount account, ENTITY entity) {
+	public void doProvisioning(AccAccountDto account, ENTITY entity) {
 		Assert.notNull(account, "Account cannot be null!");
 		Assert.notNull(entity, "Entity cannot be null");
 		//
@@ -195,13 +200,13 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 	}
 
 	@Override
-	public void doInternalProvisioning(AccAccount account, ENTITY entity) {
+	public void doInternalProvisioning(AccAccountDto account, ENTITY entity) {
 		Assert.notNull(account);
 		Assert.notNull(entity);
 		//
 		ProvisioningOperationType operationType;
-		SysSystem system = account.getSystem();
-		SysSystemEntity systemEntity = getSystemEntity(account);
+		SysSystem system = systemService.get(account.getSystem());
+		SysSystemEntityDto systemEntity = getSystemEntity(account);
 		SystemEntityType entityType = SystemEntityType.getByClass(entity.getClass());
 		String uid = account.getUid();
 		
@@ -212,14 +217,14 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 			systemEntity = systemEntityService.getBySystemAndEntityTypeAndUid(system,
 					entityType, uid);
 			if (systemEntity == null) {
-				systemEntity = new SysSystemEntity();
+				systemEntity = new SysSystemEntityDto();
 				systemEntity.setEntityType(entityType);
-				systemEntity.setSystem(system);
+				systemEntity.setSystem(system.getId());
 				systemEntity.setUid(uid);
 				systemEntity.setWish(true);
 				systemEntity = systemEntityService.save(systemEntity);
 			}
-			account.setSystemEntity(systemEntity);
+			account.setSystemEntity(systemEntity.getId());
 			account = accountService.save(account);
 			// we wont create account, but after target system call can be switched to UPDATE
 			operationType = ProvisioningOperationType.CREATE; 
@@ -239,9 +244,9 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 	}
 
 	@Override
-	public void doDeleteProvisioning(AccAccount account, UUID entityId) {
+	public void doDeleteProvisioning(AccAccountDto account, UUID entityId) {
 		Assert.notNull(account);
-		SysSystemEntity systemEntity = getSystemEntity(account);
+		SysSystemEntityDto systemEntity = getSystemEntity(account);
 		//
 		if (systemEntity != null) {	
 			doProvisioning(systemEntity, null, entityId, ProvisioningOperationType.DELETE, null);
@@ -277,7 +282,7 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 				AccountFilter accountFilter =  new AccountFilter();
 				accountFilter.setSupportChangePassword(Boolean.TRUE);
 				accountFilter.setId(entityAccount.getAccount());
-				List<AccAccount> accountsChecked = accountService.find(accountFilter, null).getContent();
+				List<AccAccountDto> accountsChecked = accountService.find(accountFilter, null).getContent();
 				if(accountsChecked.size() == 1){
 					return true;
 				}
@@ -295,11 +300,11 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 		passwordChange.setAccounts(null);
 		
 		accounts.forEach(accountId -> {
-			AccAccount account = accountService.get(accountId);
+			AccAccountDto account = accountService.get(accountId);
 			// find uid from system entity or from account
 			String uid = account.getUid();
-			SysSystem system = account.getSystem();
-			SysSystemEntity systemEntity = account.getSystemEntity();
+			SysSystem system = systemService.get(account.getSystem());
+			SysSystemEntityDto systemEntity = systemEntityService.get(account.getSystemEntity());
 			//
 			// Find mapped attributes (include overloaded attributes)
 			List<AttributeMapping> finalAttributes = resolveMappedAttributes(account, entity, system,
@@ -360,12 +365,15 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 	 * @param account
 	 * @return
 	 */
-	private SysSystemEntity getSystemEntity(AccAccount account) {
+	private SysSystemEntityDto getSystemEntity(AccAccountDto account) {
+		if (account.getSystemEntity() == null) {
+			return null;
+		}
 		//
 		// TODO: we can find system entity on target system, if no one exists
 		// etc.
 		//
-		return account.getSystemEntity();
+		return systemEntityService.get(account.getSystemEntity());
 	}
 
 	/**
@@ -406,12 +414,12 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 	 * @param provisioningType
 	 * @param attributes
 	 */
-	private void doProvisioning(SysSystemEntity systemEntity, ENTITY entity, UUID entityId, ProvisioningOperationType operationType,
+	private void doProvisioning(SysSystemEntityDto systemEntity, ENTITY entity, UUID entityId, ProvisioningOperationType operationType,
 			List<? extends AttributeMapping> attributes) {
 		Assert.notNull(systemEntity);
 		Assert.notNull(systemEntity.getUid());
 		Assert.notNull(systemEntity.getEntityType());
-		SysSystem system = systemEntity.getSystem();
+		SysSystem system = systemService.get(systemEntity.getSystem());
 		Assert.notNull(system);
 		//
 		// If are input attributes null, then we load default mapped attributes
@@ -451,7 +459,7 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 		IcConnectorObject connectorObject = new IcConnectorObjectImpl(systemEntity.getUid(),
 				new IcObjectClassImpl(schemaObjectClassDto.getObjectClassName()), null);
 		SysProvisioningOperation.Builder operationBuilder = new SysProvisioningOperation.Builder()
-				.setOperationType(operationType).setSystemEntity(systemEntity)
+				.setOperationType(operationType).setSystemEntity(systemEntityRepository.findOne(systemEntity.getId()))
 				.setEntityIdentifier(entityId)
 				.setProvisioningContext(new ProvisioningContext(accountAttributes, connectorObject));
 		provisioningExecutor.execute(operationBuilder.build());
@@ -467,9 +475,9 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 	 * @return
 	 */
 	protected Map<ProvisioningAttributeDto, Object> prepareMappedAttributesValues(ENTITY entity,
-			ProvisioningOperationType operationType, SysSystemEntity systemEntity,
+			ProvisioningOperationType operationType, SysSystemEntityDto systemEntity,
 			List<? extends AttributeMapping> attributes) {
-		AccAccount account = getAccountSystemEntity(systemEntity.getId());
+		AccAccountDto account = getAccountSystemEntity(systemEntity.getId());
 		String uid = systemEntity.getUid();
 		Map<ProvisioningAttributeDto, Object> accountAttributes = new HashMap<>();
 		 
@@ -553,7 +561,7 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 	}
 
 	@Override
-	public void doProvisioningForAttribute(SysSystemEntity systemEntity, AttributeMapping attributeMapping,
+	public void doProvisioningForAttribute(SysSystemEntityDto systemEntity, AttributeMapping attributeMapping,
 			Object value, ProvisioningOperationType operationType, ENTITY entity) {
 
 		Assert.notNull(systemEntity);
@@ -586,7 +594,7 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 		IcConnectorObject connectorObject = new IcConnectorObjectImpl(systemEntity.getUid(),
 				new IcObjectClassImpl(objectClassName), ImmutableList.of(icAttributeForCreate));
 		SysProvisioningOperation.Builder operationBuilder = new SysProvisioningOperation.Builder()
-				.setOperationType(ProvisioningEventType.UPDATE).setSystemEntity(systemEntity)
+				.setOperationType(ProvisioningEventType.UPDATE).setSystemEntity(systemEntityRepository.findOne(systemEntity.getId()))
 				.setEntityIdentifier(entity == null ? null : entity.getId())
 				.setProvisioningContext(new ProvisioningContext(connectorObject));
 		provisioningExecutor.execute(operationBuilder.build());
@@ -624,7 +632,7 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 	 * @return
 	 */
 	@Override
-	public List<AttributeMapping> resolveMappedAttributes(AccAccount account, ENTITY entity,
+	public List<AttributeMapping> resolveMappedAttributes(AccAccountDto account, ENTITY entity,
 			SysSystem system, SystemEntityType entityType) {
 		EntityAccountFilter filter = this.createEntityAccountFilter();
 		filter.setEntityId(entity.getId());
@@ -883,11 +891,11 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 	 * @return Id of new EntityAccount
 	 */
 	protected UUID createEntityAccount(String uid, UUID entityId, UUID systemId) {
-		AccAccount account = new AccAccount();
-		account.setSystem(systemService.get(systemId));
+		AccAccountDto account = new AccAccountDto();
+		account.setSystem(systemId);
 		account.setAccountType(AccountType.PERSONAL);
 		account.setUid(uid);
-		accountService.save(account);
+		account = accountService.save(account);
 		// Create new entity account relation
 		EntityAccountDto entityAccount = this.createEntityAccountDto();
 		entityAccount.setAccount(account.getId());
@@ -933,10 +941,10 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 		}
 	}
 
-	protected AccAccount getAccountSystemEntity(UUID systemEntity) {
+	protected AccAccountDto getAccountSystemEntity(UUID systemEntity) {
 		AccountFilter filter = new AccountFilter();
 		filter.setSystemEntityId(systemEntity);
-		List<AccAccount> accounts = this.accountService.find(filter, null).getContent();
+		List<AccAccountDto> accounts = this.accountService.find(filter, null).getContent();
 		if (accounts.isEmpty()) {
 			return null;
 		} else {
@@ -1000,7 +1008,7 @@ public abstract class AbstractProvisioningExecutor<ENTITY extends AbstractEntity
 	 * @param uidValue
 	 * @return
 	 */
-	private AccAccount updateAccountUid(AccAccount account, String uid, String uidValue) {
+	private AccAccountDto updateAccountUid(AccAccountDto account, String uid, String uidValue) {
 		// If is value form UID attribute null, then we will use UID
 		// from existed account (AccAccount/SystemEntity)
 		uidValue = uidValue == null ? uid : uidValue;

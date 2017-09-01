@@ -2,13 +2,13 @@ package eu.bcvsolutions.idm.acc.dto;
 
 import java.util.UUID;
 
-import javax.persistence.Column;
-
-import org.hibernate.envers.Audited;
 import org.joda.time.DateTime;
+import org.springframework.hateoas.core.Relation;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
 import eu.bcvsolutions.idm.acc.domain.AccountType;
-import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 
@@ -18,6 +18,8 @@ import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
  * @author Svanda
  *
  */
+
+@Relation(collectionRelation = "accounts")
 public class AccAccountDto extends AbstractDto {
 
 	private static final long serialVersionUID = 1L;
@@ -26,9 +28,11 @@ public class AccAccountDto extends AbstractDto {
 	private AccountType accountType;
 	@Embedded(dtoClass = SysSystemDto.class)
 	private UUID system;
-	private SysSystemEntity systemEntity;
+	@Embedded(dtoClass = SysSystemEntityDto.class)
+	private UUID systemEntity;
 	private boolean inProtection;
 	private DateTime endOfProtection;
+	private String realUid;
 
 	public String getUid() {
 		return uid;
@@ -54,11 +58,11 @@ public class AccAccountDto extends AbstractDto {
 		this.system = system;
 	}
 
-	public SysSystemEntity getSystemEntity() {
+	public UUID getSystemEntity() {
 		return systemEntity;
 	}
 
-	public void setSystemEntity(SysSystemEntity systemEntity) {
+	public void setSystemEntity(UUID systemEntity) {
 		this.systemEntity = systemEntity;
 	}
 
@@ -78,4 +82,30 @@ public class AccAccountDto extends AbstractDto {
 		this.endOfProtection = endOfProtection;
 	}
 
+	/**
+	 * Check if account is in protection. Validate end of protection too.
+	 * 
+	 * @param account
+	 * @return
+	 */
+	public boolean isAccountProtectedAndValid() {
+		if (this.isInProtection()) {
+			if (this.getEndOfProtection() == null) {
+				return true;
+			}
+			if (this.getEndOfProtection() != null && this.getEndOfProtection().isAfterNow()) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	@JsonProperty(access = Access.READ_ONLY)
+	public String getRealUid() {
+		return realUid;
+	}
+
+	public void setRealUid(String realUid) {
+		this.realUid = realUid;
+	}
 }

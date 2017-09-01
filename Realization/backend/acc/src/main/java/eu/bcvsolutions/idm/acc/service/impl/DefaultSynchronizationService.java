@@ -21,18 +21,18 @@ import eu.bcvsolutions.idm.acc.domain.SynchronizationLinkedActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationMissingEntityActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationUnlinkedActionType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
+import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncItemLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SynchronizationLogFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemEntityFilter;
-import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
 import eu.bcvsolutions.idm.acc.event.SynchronizationEventType;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
@@ -270,7 +270,7 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 
 		SysSyncConfigDto config = synchronizationConfigService.get(configId);
 		SysSystemMappingDto mapping = systemMappingService.get(config.getSystemMapping());
-		AccAccount account = accountService.get(accountId);
+		AccAccountDto account = accountService.get(accountId);
 
 		SystemAttributeMappingFilter attributeHandlingFilter = new SystemAttributeMappingFilter();
 		attributeHandlingFilter.setSystemMappingId(mapping.getId());
@@ -309,7 +309,7 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 	
 		SysSchemaObjectClassDto sysSchemaObjectClassDto = schemaObjectClassService.get(mapping.getObjectClass());
 		SysSystem system = systemService.get(sysSchemaObjectClassDto.getSystem());
-		SysSystemEntity systemEntity = findSystemEntity(uid, system, entityType);
+		SysSystemEntityDto systemEntity = findSystemEntity(uid, system, entityType);
 		SysSyncItemLogDto itemLog = new SysSyncItemLogDto();
 
 		SynchronizationContext context = new SynchronizationContext();
@@ -335,7 +335,7 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 
 		SysSyncConfigDto config = synchronizationConfigService.get(configId);
 		SysSystemMappingDto mapping = systemMappingService.get(config.getSystemMapping());
-		AccAccount account = accountService.get(accountId);
+		AccAccountDto account = accountService.get(accountId);
 		SysSchemaObjectClassDto sysSchemaObjectClassDto = schemaObjectClassService.get(mapping.getObjectClass());
 		SysSystem system = systemService.get(sysSchemaObjectClassDto.getSystem());
 		SysSyncItemLogDto itemLog = new SysSyncItemLogDto();
@@ -351,13 +351,13 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 		return itemLog;
 	}
 	
-	private SysSystemEntity findSystemEntity(String uid, SysSystem system, SystemEntityType entityType) {
+	private SysSystemEntityDto findSystemEntity(String uid, SysSystem system, SystemEntityType entityType) {
 		SystemEntityFilter systemEntityFilter = new SystemEntityFilter();
 		systemEntityFilter.setEntityType(entityType);
 		systemEntityFilter.setSystemId(system.getId());
 		systemEntityFilter.setUid(uid);
-		List<SysSystemEntity> systemEntities = systemEntityService.find(systemEntityFilter, null).getContent();
-		SysSystemEntity systemEntity = null;
+		List<SysSystemEntityDto> systemEntities = systemEntityService.find(systemEntityFilter, null).getContent();
+		SysSystemEntityDto systemEntity = null;
 		if (systemEntities.size() == 1) {
 			systemEntity = systemEntities.get(0);
 		} else if (systemEntities.size() > 1) {

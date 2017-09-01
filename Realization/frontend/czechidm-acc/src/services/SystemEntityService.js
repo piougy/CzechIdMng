@@ -8,11 +8,16 @@ export default class SystemEntityService extends Services.AbstractService {
     super();
   }
 
+  // dto
+  supportsPatch() {
+    return false;
+  }
+
   getNiceLabel(entity) {
     if (!entity) {
       return '';
     }
-    return `${entity.system ? entity.system.name : entity._embedded.system.name}:${SystemEntityTypeEnum.getNiceLabel(entity.entityType)}:${entity.uid}`;
+    return `${entity._embedded.system.name}:${SystemEntityTypeEnum.getNiceLabel(entity.entityType)}:${entity.uid}`;
   }
 
   getApiPath() {

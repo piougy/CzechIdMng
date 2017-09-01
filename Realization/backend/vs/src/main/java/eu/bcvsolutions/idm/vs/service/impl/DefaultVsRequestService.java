@@ -40,6 +40,7 @@ import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.api.IcConnector;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInfo;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInstance;
+import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
 import eu.bcvsolutions.idm.ic.czechidm.service.impl.CzechIdMIcConfigurationService;
 import eu.bcvsolutions.idm.ic.czechidm.service.impl.CzechIdMIcConnectorService;
@@ -227,7 +228,7 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 		if (!CollectionUtils.isEmpty(duplicities)) {
 			// Get the newest request (for same operation)
 			VsRequestDto previousRequest = this.getPreviousRequest(request.getOperationType(), duplicities);
-			// Load untrimed request 
+			// Load untrimed request
 			previousRequest = this.get(previousRequest.getId());
 			// Shows on previous request with same operation type. We need this
 			// for create diff.
@@ -318,6 +319,18 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 			throw new IcException(MessageFormat.format("Unsupported operation type [{0}]", request.getOperationType()));
 		}
 		return result;
+	}
+
+	@Override
+	public IcConnectorObject getConnectorObject(UUID requestId) {
+		LOG.info(MessageFormat.format("Start read connector object [{0}].", requestId));
+		Assert.notNull(requestId, "Id of VS request cannot be null!");
+		VsRequestDto request = this.get(requestId, IdmBasePermission.READ);
+		Assert.notNull(request, "VS request cannot be null!");
+		Assert.notNull(request.getConnectorObject(), "Connector object in request cannot be null!");
+
+		return this.systemService.readConnectorObject(request.getSystemId(), request.getUid(),
+				request.getConnectorObject().getObjectClass());
 	}
 
 	@Override

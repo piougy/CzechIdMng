@@ -9,7 +9,7 @@ import eu.bcvsolutions.idm.core.api.rest.lookup.CodeableDtoLookup;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 
 /**
- * Role lookup
+ * Role dto lookup (codeable)
  * 
  * @author Radek Tomiška
  *

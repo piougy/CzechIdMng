@@ -71,7 +71,6 @@ public class DefaultLookupService implements LookupService {
 	}
 	
 	@Override
-	@SuppressWarnings("unchecked")
 	public BaseDto lookupDto(Class<? extends Identifiable> identifiableType, Serializable entityId) { // vracim entitu  - class muze by entita i dto
 		DtoLookup<BaseDto> lookup = getDtoLookup(identifiableType);
 		if (lookup == null) {
@@ -109,20 +108,22 @@ public class DefaultLookupService implements LookupService {
 	
 	@Override
 	@SuppressWarnings({ "unchecked", "rawtypes", "deprecation" })
-	public <I extends BaseEntity> EntityLookup<I> getEntityLookup(Class<? extends Identifiable> identifiableType) {			
-		Class<I> entityClass = (Class<I>) getEntityClass(identifiableType);
+	public <E extends BaseEntity> EntityLookup<E> getEntityLookup(Class<? extends Identifiable> identifiableType) {			
+		Class<E> entityClass = (Class<E>) getEntityClass(identifiableType);
 		if (entityClass == null) {
 			LOG.debug("Service for identifiable type [{}] is not found, lookup not found", identifiableType);
 			return null;
 		}
 		//
-		EntityLookup<I> lookup = (EntityLookup<I>) entityLookups.getPluginFor(entityClass);
+		EntityLookup<E> lookup = (EntityLookup<E>) entityLookups.getPluginFor(entityClass);
 		if (lookup == null) {
+			// construct default lookup
 			Object service = getService(identifiableType);
+			// TODO: remove after all dto will be refactored
 			if ((service instanceof ReadEntityService) && (service instanceof CodeableService)) {
-				return new CodeableServiceEntityLookup<I>((CodeableService)service);
+				return new CodeableServiceEntityLookup<E>((CodeableService)service);
 			}
-			return new DefaultEntityLookup<I>(entityManager, entityClass);
+			return new DefaultEntityLookup<E>(entityManager, entityClass, getDtoLookup(identifiableType));
 		}
 		return lookup;	
 	}

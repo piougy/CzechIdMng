@@ -8,6 +8,12 @@ import eu.bcvsolutions.idm.core.api.dto.IdmConfigurationDto;
 import eu.bcvsolutions.idm.core.api.rest.lookup.CodeableDtoLookup;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
 
+/**
+ * Configuration item dto lookup
+ * 
+ * @author Radek Tomiška
+ *
+ */
 @Component
 public class IdmConfigurationDtoLookup extends CodeableDtoLookup<IdmConfigurationDto>{
 
